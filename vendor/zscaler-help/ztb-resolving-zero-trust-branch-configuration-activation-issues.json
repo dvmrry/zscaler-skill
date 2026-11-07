@@ -1,0 +1,494 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Resolving Zero Trust Branch Configuration and Activation Issues",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/resolving-zero-trust-branch-configuration-activation-issues",
+    "node": "1540224",
+    "revision": "3248143",
+    "updated": "2026-10-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article includes steps to resolve some of the following issues that you might encounter while configuring and activating Zero Trust Branch appliances:"
+    },
+    {
+      "item": "Location Is Not Recognized",
+      "depth": 0
+    },
+    {
+      "item": "While adding a site, the location might not be recognized, and the following error message displays: \"ZIAM SendLocationRequest: Error creating location response.\" To resolve this error:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Location Management > Locations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Check whether the site or location name already exists in Internet & SaaS (ZIA).",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Activation Issues",
+      "depth": 0
+    },
+    {
+      "item": "Verify the following to resolve any activation issues:",
+      "depth": 0
+    },
+    {
+      "item": "The WAN interface is connected correctly and can communicate with the internet.",
+      "depth": 1
+    },
+    {
+      "item": "The activation code is visible on the Zscaler console.",
+      "depth": 1
+    },
+    {
+      "item": "DNS can resolve:",
+      "depth": 1
+    },
+    {
+      "item": "gwactivation.goairgap.com",
+      "depth": 2
+    },
+    {
+      "item": "<customer name>-api.goairgap.com",
+      "depth": 2
+    },
+    {
+      "item": "hub3.goairgap.com",
+      "depth": 2
+    },
+    {
+      "item": "Web proxy is configured.",
+      "depth": 1
+    },
+    {
+      "item": "If the gateway is not working after an update and DNS cannot resolve *-api.goairgap.com:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          63
+        ],
+        [
+          66,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "On the Sites page, delete the required site.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Next, reconfigure the site, gateway, network, and web proxy, and then check the connectivity again.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Connectivity Issues",
+      "depth": 0
+    },
+    {
+      "item": "If there is an activation issue, the Zero Trust Branch appliance status appears red in the Zscaler Admin Console. This indicates that the communication between the appliance and the Zscaler Admin Console is severed, and the appliance cannot communicate with the internet.",
+      "depth": 0
+    },
+    {
+      "item": "To resolve the activation issue:",
+      "depth": 0
+    },
+    {
+      "item": "Check whether the WAN IP address is configured properly (ping from an upstream device).",
+      "depth": 1
+    },
+    {
+      "item": "Verify that the appliance is allowed to send outbound connections to the following ports:",
+      "depth": 1
+    },
+    {
+      "item": "hub.goairgap.com (TCP: 1883)",
+      "depth": 2
+    },
+    {
+      "item": "wg.goairgap.com (UDP: 51820)",
+      "depth": 2
+    },
+    {
+      "item": "Disable the App ID, Intrusion Detection System (IDS), Intrusion Prevention System (IPS), and SSL Forward Proxy (FP) for the control traffic (initiated from the appliance) on the upstream L3 device.",
+      "depth": 1
+    },
+    {
+      "item": "Verify the alarms and audit logs to see whether the appliance's storage utilization has crossed the threshold level.",
+      "depth": 1
+    },
+    {
+      "item": "High Availability (HA) Is Not Working",
+      "depth": 0
+    },
+    {
+      "item": "For appliances in standby-standby mode, check the following:",
+      "depth": 1
+    },
+    {
+      "item": "The LAN-side interfaces on both appliances are up and connected to the switch on trunk ports.",
+      "depth": 2
+    },
+    {
+      "item": "The optics or DAC interoperability with Cisco (link up, interface statistics, and packet capture) are appropriate.",
+      "depth": 2
+    },
+    {
+      "item": "For appliances in active-active mode, check the following:",
+      "depth": 1
+    },
+    {
+      "item": "Appliances can reach each other over the HA interface.",
+      "depth": 2
+    },
+    {
+      "item": "The switch connecting to the HA interface is not blocking the VRRP messages.",
+      "depth": 2
+    },
+    {
+      "item": "There are no MAC move or snooping violations on the switch connecting to the HA interface.",
+      "depth": 2
+    },
+    {
+      "item": "The Gratuitous Address Resolution Protocol (GARP) messages from the appliances are not blocked.",
+      "depth": 2
+    },
+    {
+      "item": "The SVI interface for the VLAN on the switch is disabled.",
+      "depth": 2
+    },
+    {
+      "item": "Devices Are Not Receiving the IP Address",
+      "depth": 0
+    },
+    {
+      "item": "If the appliance is a DHCP server:",
+      "depth": 0
+    },
+    {
+      "item": "Check whether the packets are reaching the appliance that is appropriately tagged. In the Zscaler console, select Troubleshooting (5) > Packet Capture (7) to verify the packets.",
+      "depth": 1
+    },
+    {
+      "item": "Check whether the VLAN is configured correctly on the appliance. Run the ifconfig command to list the LAN interface.",
+      "depth": 1
+    },
+    {
+      "item": "Try a manual switchover.",
+      "depth": 1
+    },
+    {
+      "item": "If the appliance is a DHCP relay:",
+      "depth": 0
+    },
+    {
+      "item": "Check whether the packets are reaching the appliance that is appropriately tagged. In the Zscaler console, select Troubleshooting (5) > Packet Capture (7) to verify the packets.",
+      "depth": 1
+    },
+    {
+      "item": "Check whether the VLAN is configured correctly on the appliance. Run the ifconfig command to list the LAN interface.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure the DHCP server has a route and can reach the subnet.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure there are no other DHCP servers or relays running in the VLAN.",
+      "depth": 1
+    },
+    {
+      "item": "Devices Are Not Connecting to the Internet",
+      "depth": 0
+    },
+    {
+      "item": "Devices can receive the IP address and ping the Zero Trust Branch appliance's default gateway but cannot reach the internet. This occurs when the upstream firewall or router does not have a return route to the VLAN with the appliance WAN virtual IP (VIP) address as a nexthop.",
+      "depth": 0
+    },
+    {
+      "item": "Verify that policies on the appliance are blocking the internet-bound traffic.",
+      "depth": 1
+    },
+    {
+      "item": "If border gateway protocol (BGP) is running between the appliance and the upstream firewall, ensure the peer is in an established state, and routes are accepted on the upstream firewall.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler console, run the show bgp summary command to check the BGP status.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure the devices do not have an alternate path (secondary NIC), or an asymmetric routing in the network.",
+      "depth": 1
+    },
+    {
+      "item": "If the link aggregation control protocol (LACP) is configured, ensure that it is configured on the appliance and core switch.",
+      "depth": 1
+    },
+    {
+      "item": "If Network Address Translation (NAT) is enabled, check whether the packets egressing the WAN interface have the source IP address of the WAN interface. In the Zscaler console, select Troubleshooting (5) > Packet Capture (7). The packet capture must show the outgoing packets with the source IP address of the WAN interface.",
+      "depth": 0
+    },
+    {
+      "item": "East-West Traffic Is Not Working",
+      "depth": 0
+    },
+    {
+      "item": "Verify that the east-west traffic is allowed in the segmentation policies.",
+      "depth": 1
+    },
+    {
+      "item": "For a Windows test device, verify that the host firewall is not blocking the inbound traffic (Windows has three firewall profiles).",
+      "depth": 1
+    },
+    {
+      "item": "Start the packet capture on the appliance and ensure that it is receiving the traffic and routing it back appropriately.",
+      "depth": 1
+    },
+    {
+      "item": "Verify that the device and appliance are reachable.",
+      "depth": 1
+    },
+    {
+      "item": "Segmentation Policy Is Not Working",
+      "depth": 0
+    },
+    {
+      "item": "Verify that the policy hit count is increasing (requires 7.7.x version).",
+      "depth": 0
+    },
+    {
+      "item": "To verify the policies:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Data Explorer > Zero Trust Branch > Flow Logs.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "On the Flow Logs page, filter for the source IP address or destination IP address and verify the policy executed for the traffic.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "If you don’t see the flow logs, disable log throttling for the specific policies and verify the flow logs again.",
+      "depth": 1
+    },
+    {
+      "item": "Verify that the source groups and destination groups are populated correctly, and members are associated with these groups.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Go to Administration > Alerts > Zero Trust Branch and check for any policy sync errors. Check whether any other policy is overriding the policy being executed.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          29
+        ],
+        [
+          32,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "If you are testing with Windows Internet Control Message Protocol (ICMP), wait for the session to close (5 minutes) and try again. Windows ICMP uses the same ICMP ID.",
+      "depth": 1
+    },
+    {
+      "item": "Gateway Shows as Disconnected",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler console, enter 4 (Show Gateway Status) and press Enter to check the gateway status.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "The output shows Python errors. See sample output.",
+      "depth": 1
+    },
+    {
+      "item": "Gateway State : Standby WAN Connectivity: Checking Default Gateway(100.120.1.254) ...FAILED Routing Debug Information: Route to 8.8.8.8 8.8.8.8 via 100.120.1.254 dev ge5 src 169.254.255.254 uid 0 cache Default Route default via 100.120.1.254 dev ge5 proto static metric 200 onlink WAN link status ge5: flags=4163<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500 inet6 fe80::290:bff:feb2:5da7 prefixlen 64 scopeid 0x20<link> ether 00:90:0b:b2:5d:a7 txqueuelen 1000 (Ethernet) RX packets 32383644 bytes 15557031433 (15.5 GB) RX errors 0 dropped 0 overruns 0 frame 0 TX packets 28881099 bytes 3819410647 (3.8 GB) TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0 MgmtControllerClient - mgmt_controller.py:540 - ERROR - Failed to get authorization token HTTPSConnectionPool(host='ztblab-api.goairgap.com', port=443): Max retries exceeded with url: /api/v2/auth/login (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7fe54aa33f40>: Failed to resolve 'ztblab-api.goairgap.com' ([Errno -2] Name or service not known)\")) Traceback (most recent call last): File \"/usr/local/lib/python3.8/dist-packages/urllib3/connection.py\", line 199, in _new_conn sock = connection.create_connection( File \"/usr/local/lib/python3.8/dist-packages/urllib3/util/connection.py\", line 60, in create_connection for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM): File \"/usr/lib/python3.8/socket.py\", line 918, in getaddrinfo for res in _socket.getaddrinfo(host, port, family, type, proto, flags): socket.gaierror: [Errno -2] Name or service not known The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.8/dist-packages/urllib3/connectionpool.py\", line 789, in urlopen response = self._make_request( File \"/usr/local/lib/python3.8/dist-packages/urllib3/connectionpool.py\", line 490, in _make_request raise new_e File \"/usr/local/lib/python3.8/dist-packages/urllib3/connectionpool.py\", line 466, in _make_request self._validate_conn(conn) File \"/usr/local/lib/python3.8/dist-packages/urllib3/connectionpool.py\", line 1095, in _validate_conn conn.connect() File \"/usr/local/lib/python3.8/dist-packages/urllib3/connection.py\", line 693, in connect self.sock = sock = self._new_conn() File \"/usr/local/lib/python3.8/dist-packages/urllib3/connection.py\", line 206, in _new_conn raise NameResolutionError(self.host, self, e) from e urllib3.exceptions.NameResolutionError: <urllib3.connection.HTTPSConnection object at 0x7fe54aa33f40>: Failed to resolve 'ztblab-api.goairgap.com' ([Errno -2] Name or service not known) The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.8/dist-packages/requests/adapters.py\", line 667, in send resp = conn.urlopen( File \"/usr/local/lib/python3.8/dist-packages/urllib3/connectionpool.py\", line 843, in urlopen retries = retries.increment( File \"/usr/local/lib/python3.8/dist-packages/urllib3/util/retry.py\", line 519, in increment raise MaxRetryError(_pool, url, reason) from reason # type: ignore[arg-type] urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='ztblab-api.goairgap.com', port=443): Max retries exceeded with url: /api/v2/auth/login (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7fe54aa33f40>: Failed to resolve 'ztblab-api.goairgap.com' ([Errno -2] Name or service not known)\")) During handling of the above exception, another exception occurred: Traceback (most recent call last): File \"/usr/local/lib/python3.8/dist-packages/mgmt_controller/mgmt_controller.py\", line 518, in get_authorization_token auth_response = reqs.post( File \"/usr/local/lib/python3.8/dist-packages/requests/api.py\", line 115, in post return request(\"post\", url, data=data, json=json, kwargs) File \"/usr/local/lib/python3.8/dist-packages/requests/api.py\", line 59, in request return session.request(method=method, url=url, kwargs) File \"/usr/local/lib/python3.8/dist-packages/requests/sessions.py\", line 589, in request resp = self.send(prep, send_kwargs) File \"/usr/local/lib/python3.8/dist-packages/requests/sessions.py\", line 703, in send r = adapter.send(request, kwargs) File \"/usr/local/lib/python3.8/dist-packages/requests/adapters.py\", line 700, in send raise ConnectionError(e, request=request) requests.exceptions.ConnectionError: HTTPSConnectionPool(host='ztblab-api.goairgap.com', port=443): Max retries exceeded with url: /api/v2/auth/login (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7fe54aa33f40>: Failed to resolve 'ztblab-api.goairgap.com' ([Errno -2] Name or service not known)\")) Checking Management Portal reachability...FAILED ? HTTP https://ztblab-api.goairgap.com sh: 1: Syntax error: \"(\" unexpected Checking Analytics connection...ERROR FAILED status False Checking Debug Port reachability...OK Services Status: Service State Network Poller active (running) since Thu 2026-01-15 02:13:01 UTC; 3 weeks 4 days ago DHCP Server active (running) since Tue 2026-02-03 02:25:36 UTC; 6 days ago Network Status: NAMES IMAGE STATUS dnsproxy_container docker.repos.goairgap.com/7-8/dnsproxy:8.0.8P1 Up 32 minutes vyos_container docker.repos.goairgap.com/7-8/vyos:1.4.4-sagitta Up 38 minutes policy_container docker.repos.goairgap.com/7-8/poller:8.0.8P1 Up 38 minutes Press [Enter] to continue",
+      "depth": 1,
+      "strong": [
+        [
+          3821,
+          3958
+        ],
+        [
+          4079,
+          4203
+        ]
+      ]
+    },
+    {
+      "item": "In the Zscaler Admin Console, check the WAN interface configuration:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          63
+        ],
+        [
+          66,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "On the Sites page, click the required site.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "On the site details page, click the VLANs tab, then click the Gear icon for the required VLAN.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          36,
+          41
+        ],
+        [
+          62,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit VLAN drawer, change the WAN interface configuration (DHCP or Static) as required, then click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          105,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "In the Zscaler console, enter 1 (Configure Gateway), press Enter, and then configure the WAN interface as in the previous step.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Sample command and output:",
+      "depth": 1
+    },
+    {
+      "item": "WAN interface (? to list available options) [ge5]: WAN VLAN ID (1..4092) [1]: Use DHCP for WAN interface ge5 (Y/y or N/n) [n]: y Use DHCP to set WAN nameservers (Y/y or N/n) [n]: n WAN Nameservers [8.8.8.8, 4.4.2.2]: Management Interface: ge1 Management IP Address: not configured WAN Interface: ge5 WAN IP Address: DHCP WAN Nameservers: 8.8.8.8, 4.4.2.2 Web Proxy: None Apply Configuration? (y/n)y",
+      "depth": 1
+    },
+    {
+      "item": "Enter 4 (Show Gateway Status) and press Enter to check the gateway status again, and it should start working.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Sample output:",
+      "depth": 1
+    },
+    {
+      "item": "Gateway State : Standby WAN Connectivity: Checking Default Gateway(100.120.1.254) ...OK Checking reachability to internet...OK Web Proxy is not configured. Checking Management Portal reachability...OK Checking Analytics connection...OK Checking Debug Port reachability...OK Services Status: Service State Network Poller active (running) since Thu 2026-01-15 02:13:01 UTC; 3 weeks 4 days ago DHCP Server active (running) since Tue 2026-02-03 02:25:36 UTC; 6 days ago Network Status: NAMES IMAGE STATUS strongswan docker.repos.goairgap.com/7-8/strongswan:latest Up 3 minutes dnsproxy_container docker.repos.goairgap.com/7-8/dnsproxy:8.0.8P1 Up 47 minutes vyos_container docker.repos.goairgap.com/7-8/vyos:1.4.4-sagitta Up 52 minutes policy_container docker.repos.goairgap.com/7-8/poller:8.0.8P1 Up 53 minutes",
+      "depth": 1
+    },
+    {
+      "item": "If the appliance is not reaching the cloud, run the following command in the Zscaler console:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "tail -f /var/log/syslog",
+      "depth": 1
+    },
+    {
+      "item": "If there is a name resolution error, then resolve this error before the appliance reaches the cloud. Also, check whether the upstream L3 device is blocking the DNS (UDP 53) port.",
+      "depth": 1
+    }
+  ]
+}

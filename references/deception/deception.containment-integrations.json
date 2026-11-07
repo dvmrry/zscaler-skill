@@ -1,0 +1,901 @@
+{
+  "schema_version": 1,
+  "id": "deception.containment-integrations",
+  "title": "Deception and ITDR containment integrations: supported solutions, per-solution setup, identity-based containment (ZIA, ZPA, Okta SSF) and blocked identities",
+  "aliases": [
+    "itdr containment",
+    "itdr containment integrations",
+    "deception containment",
+    "containment integration",
+    "blocked identities",
+    "okta ssf containment",
+    "identity threat protection with okta ai",
+    "crowdstrike containment"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.orchestration-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers the Deception and Identity Protection (ITDR) containment pages ([[deception.overview]], [[identity-protection.overview]]); rules that use them are in [[deception.orchestration-rules]]. {{containment-overview}}"
+    },
+    {
+      "label": "Supported solutions.",
+      "text": "{{containment-supported-list}} {{itdr-containment-sources}} {{containment-page-columns}}"
+    },
+    {
+      "label": "Rule options.",
+      "text": "{{rule-respond-options-network}} {{list-expiration}}"
+    },
+    {
+      "label": "Check Point Firewall.",
+      "text": "{{checkpoint-setup}}"
+    },
+    {
+      "label": "CrowdStrike.",
+      "text": "{{crowdstrike-connection}} {{crowdstrike-api-scopes}} {{crowdstrike-duplicate-ip}} {{crowdstrike-ioc-hash-actions}} {{crowdstrike-ioc-ip}} {{crowdstrike-ioa-actions}} {{crowdstrike-ioa-safe-processes}} {{crowdstrike-manual-actions}} {{itdr-crowdstrike-ioc-hash}}"
+    },
+    {
+      "label": "Amazon GuardDuty.",
+      "text": "{{guardduty-threat-list}} {{guardduty-setup}}"
+    },
+    {
+      "label": "Fortinet and Palo Alto Networks.",
+      "text": "{{fortinet-threat-feed}} {{pan-external-dynamic-list}}"
+    },
+    {
+      "label": "Microsoft Defender.",
+      "text": "{{defender-app-registration}} {{defender-portal-fields}}"
+    },
+    {
+      "label": "VMware Carbon Black.",
+      "text": "{{carbon-black-edr}} {{carbon-black-endpoint-standard}}"
+    },
+    {
+      "label": "Internet & SaaS (ZIA).",
+      "text": "{{zia-prereqs}} {{zia-effect}} {{itdr-zia-identity-metadata}}"
+    },
+    {
+      "label": "Private Access (ZPA).",
+      "text": "{{zpa-prereqs-fields}} {{zpa-effect-auth-service}} {{itdr-zpa-identity-metadata}}"
+    },
+    {
+      "label": "Console paths in ITDR.",
+      "text": "{{itdr-zia-zpa-console-paths}}"
+    },
+    {
+      "label": "Okta (SSF).",
+      "text": "{{okta-ssf-client-connector}} {{okta-ssf-security-events-provider}} {{okta-ssf-rule-only}} {{okta-ssf-user-risk-response}}"
+    },
+    {
+      "label": "Blocked identities.",
+      "text": "{{blocked-identities-view}} {{crowdstrike-blocked-view}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For which solutions a Containment page offers, read the page of the product in use: the Deception and ITDR lists differ, and the GuardDuty and Okta (SSF) guides exist alongside lists that do not all name them.",
+      "uses": [
+        "containment-supported-list",
+        "itdr-containment-sources"
+      ]
+    },
+    {
+      "do": "For Okta (SSF) containment, that manual containment from the dashboard is not supported and an orchestration rule pushes the risk score.",
+      "uses": [
+        "okta-ssf-rule-only"
+      ]
+    },
+    {
+      "do": "For a Client Connector based containment, the Client Connector version and operating system the guide names.",
+      "uses": [
+        "zia-prereqs",
+        "okta-ssf-client-connector"
+      ]
+    }
+  ],
+  "claims": {
+    "containment-overview": {
+      "statement": "Containment integrations forward the attacker's identity to an integrated security solution, which isolates the attacker's system from the network; containment is done from the Rules page by a response or containment rule, or manually from the Investigate dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-containment-integration.json",
+          "quotes": [
+            "Forward the attacker's identity to the integrated security solution, which then isolates the attacker's system from the network.",
+            "You can contain an attack from the Rules page (Orchestrate > Rules) by creating a response or containment rule, or manually contain the attack from the Investigate Dashboard."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-containment-integration.json",
+          "quotes": [
+            "Forward the attacker's identity to the integrated security solution, which then isolates the attacker's system from the network.",
+            "You can contain an attack from the Rules page (Orchestrate > Rules) by creating a response or containment rule, or manually contain the attack from the Investigate dashboard."
+          ]
+        }
+      ]
+    },
+    "containment-supported-list": {
+      "statement": "The Deception Containment page lists Check Point Firewall, CrowdStrike Falcon Insight, Fortinet, Microsoft Defender, Palo Alto Networks, VMware Carbon Black EDR, VMware Carbon Black Endpoint Standard, Internet & SaaS (ZIA) and Private Access (ZPA) as supported solutions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-containment-integration.json",
+          "quotes": [
+            "Configure containment integrations on the following supported solutions:",
+            "- Check Point Firewall",
+            "- CrowdStrike Falcon Insight",
+            "- Fortinet",
+            "- Microsoft Defender",
+            "- Palo Alto Networks",
+            "- VMware Carbon Black EDR",
+            "- VMware Carbon Black Endpoint Standard",
+            "- Internet & SaaS (ZIA)",
+            "- Private Access (ZPA)"
+          ]
+        }
+      ]
+    },
+    "itdr-containment-sources": {
+      "statement": "The ITDR Containment page lists CrowdStrike Falcon Insight, Okta (SSF), Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA) as supported solutions, and its columns are Enabled, Settings and Blocked Identities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-containment-integration.json",
+          "quotes": [
+            "- CrowdStrike Falcon Insight",
+            "- Okta (SSF)",
+            "- Zscaler Internet Access (ZIA)",
+            "- Zscaler Private Access (ZPA)",
+            "Enabled: Indicates if the containment integration is enabled or not.",
+            "Settings: The name of the third-party security solution.",
+            "Blocked Identities: The total number of blocked attackers."
+          ]
+        }
+      ]
+    },
+    "containment-page-columns": {
+      "statement": "The Deception Containment page lists each integration with Status (enabled or not), Containment Type (the third-party solution) and Blocked Identities (the total number of blocked attackers, clickable to view the contained attacker).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-containment-integration.json",
+          "quotes": [
+            "Status: Indicates if the containment integration is enabled or not.",
+            "Containment Type: The name of the third-party security solution.",
+            "Blocked Identities: Total number of blocked attackers.",
+            "You can click the number (IP count) to view the details of the contained attacker."
+          ]
+        }
+      ]
+    },
+    "rule-respond-options-network": {
+      "statement": "In a rule's Respond section, Palo Alto Networks - NGFW can contain attackers by hostname or IP address per the External Dynamic List, and Fortinet by domain or IP address per the Threat Feeds (Deception page).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-orchestration-rule.json",
+          "quotes": [
+            "Palo Alto Networks - NGFW: You can choose to contain attackers based on their hostnames or IP addresses per the External Dynamic List.",
+            "Fortinet: You can choose to contain attackers based on their domains or IP addresses per the Threat Feeds."
+          ]
+        }
+      ]
+    },
+    "checkpoint-setup": {
+      "statement": "In the Deception guide, Check Point Firewall integrates over its API: the Decoy Connector's management IP must reach the Check Point API server on port 443, credentials need web API permission, and policies must already exist on Check Point; a Rule Name that does not exist on the firewall is created automatically, and the Set Policy policy and layer lists are retrieved from Check Point through its APIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-check-point-firewall.json",
+          "quotes": [
+            "Deception integrates with Check Point Firewall using its API.",
+            "Network connectivity from a Decoy Connector's management IP to the API server port on Check Point Firewall on port 443.",
+            "Obtained credentials with web API permission to access Check Point Firewall.",
+            "Configured policies on Check Point Firewall.",
+            "If the rule name you enter does not exist on Check Point Firewall, a new rule with that name is automatically created.",
+            "The policy and layer details are retrieved from Check Point Firewall using the APIs."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-api-scopes": {
+      "statement": "The CrowdStrike API client needs Detections: Read, Hosts: Read and Write, and IOCs (Indicators of Compromise): Read and Write; the Deception guide also lists Custom IOA Rules: Read and Write.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "For Detections, select Read.",
+            "For Hosts, select Read and Write.",
+            "For IOCs (Indicators of Compromise), select Read and Write.",
+            "For Custom IOA Rules, select Read and Write."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "For Detections, select Read.",
+            "For Hosts, select Read and Write.",
+            "For IOCs (Indicators of Compromise), select Read and Write."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-connection": {
+      "statement": "The CrowdStrike integration needs network connectivity from the admin portal to CrowdStrike Falcon Insight on HTTPS port 443; the URL field takes the CrowdStrike API endpoint URL, with https://api.crowdstrike.com as the example.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "Ensure there is network connectivity from the Zscaler Deception Admin Portal to CrowdStrike Falcon Insight on HTTPS port 443.",
+            "URL: Enter the CrowdStrike API endpoint URL. For example, enter https://api.crowdstrike.com."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "Ensure there is network connectivity from the Zscaler ITDR Admin Portal to CrowdStrike Falcon Insight on HTTPS port 443.",
+            "URL: Enter the CrowdStrike API endpoint URL. For example, enter https://api.crowdstrike.com."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-duplicate-ip": {
+      "statement": "Under the rule options, when the same IP address belongs to more than one CrowdStrike-managed device none of these devices is isolated and a containment failure is recorded as a system message; the Deception guide's Investigate page steps say that in this case the containment action with Falcon Insight fails and an error is displayed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "When the same IP address is encountered for more than one CrowdStrike-managed device, none of these devices are isolated and the event is recorded as a containment failure in the logs as a system message.",
+            "When the same IP address is encountered for more than one CrowdStrike-managed device, the containment action with Falcon Insight fails and an error is displayed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "When the same IP address is encountered for more than one CrowdStrike-managed device, none of these devices are isolated and the event is recorded as a containment failure in the logs as a system message.",
+            "When the same IP address is encountered for more than one CrowdStrike-managed device, the containment action with Falcon Insight fails and an error is displayed."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-ioc-hash-actions": {
+      "statement": "A rule's IOC Hash action options for CrowdStrike include Block (add to the denylist and show as a detection), Block, Hide Detection (add to the denylist and do not detect) and Allow (add to the allowlist and do not detect), with an IOC Hash Severity of Informational, Low, Medium, High or Critical.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "Block: Add the indicator to the denylist and show it as a detection.",
+            "Block, Hide Detection: Add the indicator to the denylist and do not detect it.",
+            "Allow: Add the indicator to the allowlist and do not detect it.",
+            "IOC Hash Severity: Designate an appropriate severity level for indicators that should be shared with CrowdStrike for IOC hashes. The available levels are Informational, Low, Medium, High, and Critical."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-orchestration-rule.json",
+          "quotes": [
+            "Block: Add the indicator to the denylist and show it as a detection.",
+            "Block, Hide Detection: Add the indicator to the denylist and do not detect it.",
+            "Allow: Add the indicator to the allowlist and do not detect it."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-orchestration-rule.json",
+          "quotes": [
+            "Block: Add the indicator to the denylist and show it as a detection.",
+            "Block, Hide Detection: Add the indicator to the denylist and do not detect it.",
+            "Allow: Add the indicator to the allowlist and do not detect it.",
+            "IOC Hash Severity: Designate an appropriate severity level for indicators that should be shared with CrowdStrike. The available levels are Informational, Low, Medium, High, and Critical."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-ioc-ip": {
+      "statement": "The CrowdStrike IOC IP option shares IP addresses that are indicators of compromise with CrowdStrike, with an IOC IP Severity of Informational, Low, Medium, High or Critical (Deception page).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "IOC IP: Enable to share IPs that are considered indicators of compromise with CrowdStrike and select an appropriate IOC IP Action and IOC IP Severity.",
+            "IOC IP Severity: Designate an appropriate severity level for indicators that should be shared with CrowdStrike for IOC IPs. The available levels are Informational, Low, Medium, High, and Critical."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-ioa-actions": {
+      "statement": "The CrowdStrike IOA Process Tree option shares process trees as indicators of attack with an IOA Action of Detect (show as a detection only), Monitor (informational, not shown as a detection) or Block Execution (kill the process and show the indicator as a detection); Block Execution kills all processes matching the process tree on all endpoints in the network (Deception page).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "IOA Process Tree: Enable to share process trees that are considered indicators of attack with CrowdStrike and select an appropriate IOA Action and IOA Severity.",
+            "Detect: Show the indicator as a detection and take no other action.",
+            "Monitor: Use the indicator for informational use only and take no action nor show it as a detection.",
+            "Block Execution: Kill the process and show the indicator as detection.",
+            "CrowdStrike kills all processes that match with the process tree across all endpoints in your network."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-ioa-safe-processes": {
+      "statement": "IOA safe processes (a Name and a Process Path of the executable) are optional entries that avoid sharing legitimate process trees with CrowdStrike; a process is marked safe only if every element of its process tree has an entry in the safe processes list (Deception page).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "Marking IOA Safe Processes: (Optional) To avoid sharing legitimate process trees with CrowdStrike for IOA actions",
+            "Name: Enter a name for the safe process.",
+            "Process Path: Enter the path of the executable file from which the process originates.",
+            "Processes are marked as safe only if all elements of the process tree have an entry in the safe processes list."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-manual-actions": {
+      "statement": "From the Investigate page the CrowdStrike Falcon drop-down menu offers Contain with CrowdStrike Falcon Insight or Create IoC IP Indicator in CrowdStrike (Deception guide); the ITDR guide offers Contain with CrowdStrike Falcon Insight.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "Click the CrowdStrike Falcon drop-down menu, and select Contain with CrowdStrike Falcon Insight or Create IoC IP Indicator in CrowdStrike."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "Click the CrowdStrike Falcon drop-down menu, and select Contain with CrowdStrike Falcon Insight."
+          ]
+        }
+      ]
+    },
+    "itdr-crowdstrike-ioc-hash": {
+      "statement": "The ITDR CrowdStrike integration shares intelligence with suggested actions for indicators of compromise (IOC), and the blocked-identities view for CrowdStrike offers the IOC Hash list of file hashes shared by ITDR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-crowdstrike.json",
+          "quotes": [
+            "In addition, you can configure ITDR to share intelligence along with suggested actions that CrowdStrike should perform for events with indicators of compromise (IOC)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-blocked-identities.json",
+          "quotes": [
+            "With CrowdStrike integration, you can also view IOC hashes that are shared by Zscaler ITDR.",
+            "click IOC Hash to view the list of file hashes that are shared with CrowdStrike as indicators of compromise."
+          ]
+        }
+      ]
+    },
+    "guardduty-threat-list": {
+      "statement": "The Amazon GuardDuty integration sends the source IP address of detected malicious activity to the GuardDuty threat list, which GuardDuty uses to block or flag traffic from those addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-aws-guardduty.json",
+          "quotes": [
+            "When Deception detects malicious activity, it sends the source IP address to the Amazon GuardDuty threat list. Amazon GuardDuty then uses this information to block or flag any traffic originating from these IP addresses"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-amazon-guardduty.json",
+          "quotes": [
+            "When ITDR detects malicious activity, it sends the source IP address to the Amazon GuardDuty threat list. Amazon GuardDuty then uses this information to block or flag any traffic originating from these IP addresses"
+          ]
+        }
+      ]
+    },
+    "guardduty-setup": {
+      "statement": "GuardDuty needs AWS accounts with GuardDuty enabled and the Detector ID for each region of each account to be protected; each account entry takes a name, AWS Account ID, region and Detector ID, and Show Commands provides commands that create a role, its access permission, an S3 bucket for the threat IP list and a policy for bucket access, run in AWS CloudShell for each region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-aws-guardduty.json",
+          "quotes": [
+            "AWS accounts with Amazon GuardDuty enabled.",
+            "Obtained the Detector ID for each region within an AWS account that must be protected.",
+            "Name: Enter a name for the account.",
+            "AWS Account ID: Enter the account ID copied from the AWS Management Console.",
+            "Region: Select the region for the AWS account that you want to protect from malicious IP addresses.",
+            "Detector ID: Enter the detector ID for the specific region copied from the AWS Management Console.",
+            "Click Show Commands.",
+            "Copy each command to create a role, an access permission for the role, an S3 bucket to store the threat IP address list, and a policy to allow the role to access the S3 bucket.",
+            "launch AWS CloudShell for each region and run the commands."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-amazon-guardduty.json",
+          "quotes": [
+            "AWS accounts with Amazon GuardDuty enabled.",
+            "Obtained the Detector ID for each region within an AWS account that must be protected.",
+            "Name: Enter a name for the account.",
+            "AWS Account ID: Enter the account ID copied from the AWS Management Console.",
+            "Region: Select the region for the AWS account that you want to protect from malicious IP addresses.",
+            "Detector ID: Enter the detector ID for the specific region copied from the AWS Management Console.",
+            "Click Show Commands.",
+            "Copy each command to create a role, an access permission for the role, an S3 bucket to store the threat IP address list, and a policy to allow the role to access the S3 bucket.",
+            "launch AWS CloudShell for each region and run the commands."
+          ]
+        }
+      ]
+    },
+    "fortinet-threat-feed": {
+      "statement": "In the Deception guide, Fortinet integration needs connectivity from Fortinet to the admin portal on HTTP port 80; there are Threat Feeds - Attacker IPs and Threat Feeds - Attacker Domains entries, and after saving Deception generates a URL that is configured as an external threat feed on Fortinet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-fortinet.json",
+          "quotes": [
+            "Ensure there is network connectivity from Fortinet to the Zscaler Deception Admin Portal on HTTP port 80.",
+            "locate Fortinet (Threat Feeds - Attacker IPs) or Fortinet (Threat Feeds - Attacker Domains) and click the Edit icon.",
+            "After the configuration is saved, Deception generates a URL.",
+            "Configure an external threat feed on Fortinet and point the feed to the URL copied in the previous step to complete the containment integration."
+          ]
+        }
+      ]
+    },
+    "pan-external-dynamic-list": {
+      "statement": "In the Deception guide, Palo Alto Networks integration needs connectivity from the Palo Alto Networks platform to the admin portal on HTTPS port 443; there are External Dynamic List - Attacker IPs and - Attacker Hostnames entries, and the generated URL is configured as an external threat feed, selecting IP List for attacker IPs or Domain List for the attacker hostname version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-palo-alto-networks.json",
+          "quotes": [
+            "After the configuration is saved, Deception generates a URL.",
+            "Configure an external threat feed in Palo Alto Networks and point the feed to the URL copied in the previous step to complete the containment integration.",
+            "Ensure there is network connectivity from the Palo Alto Networks platform to the Zscaler Deception Admin Portal on HTTPS on port 443.",
+            "Palo Alto Networks (External Dynamic List - Attacker IPs) or Palo Alto Networks (External Dynamic List - Attacker Hostnames)",
+            "select IP List if you are using the attacker IPs or Domain List if you are using the attacker hostname version of the integration."
+          ]
+        }
+      ]
+    },
+    "list-expiration": {
+      "statement": "In the Deception guides, the Palo Alto Networks and Fortinet integrations take a Default expiration (in hours) for how long IP addresses or hostnames stay in the containment list, and an Infinite Expiration checkbox keeps them until manually deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-palo-alto-networks.json",
+          "quotes": [
+            "Default expiration (in hours): Enter the expiration time in hours. The IP addresses or hostnames are retained in the containment list for the specified number of hours.",
+            "You can select the Infinite Expiration checkbox if you want the IP addresses or hostnames to be retained in the containment list forever unless you manually delete them from the list."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-fortinet.json",
+          "quotes": [
+            "Default expiration (in hours): Enter the expiration time in hours. The IP addresses or hostnames are retained in the containment list for the specified number of hours.",
+            "You can select the Infinite Expiration checkbox if you want the IP addresses or hostnames to be retained in the containment list forever unless you manually delete them from the list."
+          ]
+        }
+      ]
+    },
+    "defender-app-registration": {
+      "statement": "In the Deception guide, Microsoft Defender containment needs the Windows Defender ATP agent on endpoints and connectivity from the admin portal to the Defender API servers; the Azure application registration requests the WindowsDefenderATP application permissions Machine.Isolate, Machine.Read.All and Machine.ReadWrite.All with admin consent granted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-microsoft-defender.json",
+          "quotes": [
+            "Installed the Microsoft Windows Defender ATP agent on your endpoints.",
+            "Network connectivity from the Zscaler Deception Admin Portal to the Microsoft Defender API servers.",
+            "Create an Application Registration on Azure and Copy the Application and Tenant IDs",
+            "click WindowsDefenderATP application from the list.",
+            "Click Application permissions.",
+            "Machine.Isolate",
+            "Machine.Read.All",
+            "Machine.ReadWrite.All",
+            "Click Grant admin consent for your application."
+          ]
+        }
+      ]
+    },
+    "defender-portal-fields": {
+      "statement": "In the Deception guide, the Microsoft Defender integration takes the Directory (tenant) ID as Tenant ID, the Application (client) ID as API ID and the client secret value as App Secret, and Zscaler recommends the maximum expiration period for the client secret.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-microsoft-defender.json",
+          "quotes": [
+            "Tenant ID: Enter the Directory (tenant) ID that you copied in Step 1.",
+            "API ID: Enter the Application (client) ID that you copied in Step 1.",
+            "App Secret: Enter the client secret value that you copied in Step 3.",
+            "Zscaler recommends selecting the maximum expiration period."
+          ]
+        }
+      ]
+    },
+    "carbon-black-edr": {
+      "statement": "In the Deception guide, VMware Carbon Black EDR integrates over its API; a Decoy Connector's management IP must reach it on port 443, an API token and host-isolation policies are required, and the configuration takes the console URL, the API token as API Key and a Decoy Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-vmware-carbon-black-edr.json",
+          "quotes": [
+            "Deception integrates with VMware Carbon Black EDR using its API.",
+            "Network connectivity from a Decoy Connector's management IP to VMware Carbon Black EDR on port 443.",
+            "Obtained the API token.",
+            "API Key: Enter the API token.",
+            "Created policies to isolate hosts from the network.",
+            "URL: Enter the URL to access the VMware Carbon Black EDR console.",
+            "Decoy Connector: Select a Decoy Connector from the drop-down menu from which a connection is established to VMware Carbon Black EDR."
+          ]
+        }
+      ]
+    },
+    "carbon-black-endpoint-standard": {
+      "statement": "In the Deception guide, VMware Carbon Black Endpoint Standard needs an Org key and a Device API key; its Action Type is Apply Policy (using a Policy API key with read permissions plus Isolate Policy and Unisolate Policy names) or Quarantine, and Quarantine is not supported on Linux.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-vmware-carbon-black-endpoint-standard.json",
+          "quotes": [
+            "Obtained the Org key.",
+            "Created a Device API key with device-related permissions.",
+            "Apply Policy: Contain and block detected attackers based on the policies configured in VMware Carbon Black Endpoint Standard.",
+            "Created a policy API key with read permissions.",
+            "Isolate Policy: Enter the name of the policy you created to isolate a device from the network.",
+            "Unisolate Policy: Enter the name of the policy you created to restore the device network connectivity.",
+            "Quarantine: Quarantine the device to block network connectivity with other devices in the organization.",
+            "The Quarantine option is not supported on Linux, so you cannot isolate attackers on this platform."
+          ]
+        }
+      ]
+    },
+    "blocked-identities-view": {
+      "statement": "Contained entries show details such as IP address, hostname or username (Deception page), the time added to the containment list and the containment expiration date; for integrations other than CrowdStrike, clicking the Blocked Identities number lists them and the Delete icon removes an entry.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-blocked-identities.json",
+          "quotes": [
+            "The details of blocked attackers or endpoints, such as IP address, hostname, or username.",
+            "The timestamp when the attacker's identity was added to the containment list.",
+            "The expiration date of the containment.",
+            "To view containment details, click the number under the Blocked Identities column.",
+            "To remove an entry from the list, click the Delete icon in the Actions column, and confirm your action."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-blocked-identities.json",
+          "quotes": [
+            "The details of blocked attackers or endpoints.",
+            "The timestamp when the attacker's identity was added to the containment list.",
+            "The expiration date of the containment.",
+            "To view containment details, click the number under the Blocked Identities column.",
+            "To remove an entry from the list, click the Delete icon in the Actions column, and confirm your action."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-blocked-view": {
+      "statement": "For CrowdStrike the view offers Contained IP, IOC Hash, IOC IP and IOA Process Tree lists (Deception page; the ITDR page offers IOC Hash); when containment is lifted directly from the CrowdStrike Falcon console the portal entry is removed by a scheduled job that typically runs every hour.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-blocked-identities.json",
+          "quotes": [
+            "Contained IP: Shows the list of contained IP addresses.",
+            "IOC Hash: Shows the list of file hashes that are shared with CrowdStrike as indicators of compromise.",
+            "IOC IP: Shows the list of IP addresses that are shared with CrowdStrike as indicators of compromise.",
+            "IOA Process Tree: Shows the list of process trees that are shared with CrowdStrike as indicators of attack.",
+            "When the containment is lifted directly from the CrowdStrike Falcon console, the corresponding entry in the Zscaler Deception Admin Portal is also removed automatically via a scheduled job that typically runs every hour."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-blocked-identities.json",
+          "quotes": [
+            "click IOC Hash to view the list of file hashes that are shared with CrowdStrike as indicators of compromise.",
+            "When the containment is lifted directly from the CrowdStrike Falcon console, the corresponding entry in the Zscaler ITDR Admin Portal is also removed automatically via a scheduled job that typically runs every hour."
+          ]
+        }
+      ]
+    },
+    "zia-prereqs": {
+      "statement": "The Internet & SaaS (ZIA) containment guide requires an IdP configured with SCIM provisioning enabled, the IdP's Base URL and Bearer Token from the Zscaler Admin Console, a user group with a firewall filtering policy of Block/Drop, and Zscaler Client Connector 4.1 or later on all endpoints (Deception page).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-internet-saas.json",
+          "quotes": [
+            "This configuration guide provides information on prerequisites and how to integrate Zscaler Deception with Internet & SaaS (ZIA).",
+            "Signed in to the Zscaler Admin Console, configured an IdP, and enabled SCIM provisioning.",
+            "Obtained the Base URL and Bearer Token of the configured IdP from the Zscaler Admin Console",
+            "Created a user group and configured a firewall filtering policy for the group with Block/Drop as action.",
+            "Installed Zscaler Client Connector version 4.1 or later across all endpoints."
+          ]
+        }
+      ]
+    },
+    "zia-effect": {
+      "statement": "In the Deception guide, when Client Connector users interact with landmine decoys the activity is logged as an attack and the user information is shared with Internet & SaaS (ZIA), which blocks those users' internet access across devices by moving them to a restricted group; the Deception and ITDR guides both give the portal fields SCIM Base URL, SCIM Bearer Token and SCIM User Group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-internet-saas.json",
+          "quotes": [
+            "SCIM Base URL: Enter the Base URL copied from the Zscaler Admin Console.",
+            "SCIM Bearer Token: Enter the Bearer Token copied from the Zscaler Admin Console.",
+            "SCIM User Group: Enter the name of the user group that was created in Internet & SaaS with the policy to block network traffic.",
+            "When Zscaler Client Connector users interact with the landmine decoys, the activity is logged as an attack and the user information is shared with Internet & SaaS.",
+            "Based on the user information, Internet & SaaS blocks internet access to those users across devices by moving them to a restricted group."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-zscaler-internet-access-zia.json",
+          "quotes": [
+            "SCIM Base URL: Enter the Base URL copied from the ZIA Admin Portal.",
+            "SCIM Bearer Token: Enter the Bearer Token copied from the ZIA Admin Portal.",
+            "SCIM User Group: Enter the name of the user group that was created in ZIA with the policy to block network traffic."
+          ]
+        }
+      ]
+    },
+    "itdr-zia-identity-metadata": {
+      "statement": "The ITDR ZIA containment form has an ITDR Identity Metadata section whose Enabled option syncs with ZIA to fetch traffic-violation or bad-activity data, with the ZIA Admin Portal Base URL, Username and Password, and a Keep existing value option for the bearer token and for the password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-zscaler-internet-access-zia.json",
+          "quotes": [
+            "Enabled: Select to enable sync with ZIA to fetch the data for traffic violations or bad activities from ZIA.",
+            "Base URL: Enter the Base URL used for ZIA Admin Portal.",
+            "Username: Enter your username used for signing in to the ZIA Admin Portal.",
+            "Password: Enter your password used for signing in to the ZIA Admin Portal.",
+            "Keep existing value: Select to keep the existing bearer token from the ZIA Admin Portal.",
+            "Keep existing value: Select to keep the existing password or deselect to use a new password.",
+            "By default, the Keep existing value checkbox is selected if you don't enter any new password."
+          ]
+        }
+      ]
+    },
+    "zpa-prereqs-fields": {
+      "statement": "ZPA containment needs an IdP configured for SSO in Private Access and the Private Access tenant ID; in the configuration window Customer ID is verified against that tenant ID, the IdPs to integrate are selected, and a SAML attribute name is entered if SCIM Sync or SCIM Attributes for Policy are disabled in the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-private-access.json",
+          "quotes": [
+            "configured an IdP for single sign-on (SSO) in Private Access.",
+            "Customer ID: Verify if the customer ID matches the Private Access tenant ID that you obtained from the Zscaler Admin Console.",
+            "IdP: Select all IdPs that you want to integrate.",
+            "If SCIM Sync or SCIM Attributes for Policy are disabled in the IdP, enter the SAML attribute name."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-zscaler-private-access-zpa.json",
+          "quotes": [
+            "configured an IdP for single sign-on (SSO) in ZPA.",
+            "Customer ID: Verify if the customer ID matches the ZPA tenant ID that you obtained from the ZPA Admin Portal.",
+            "IdP: Select all IdPs that you want to integrate.",
+            "If SCIM Sync or SCIM Attributes for Policy are disabled in the IdP, enter the SAML attribute name."
+          ]
+        }
+      ]
+    },
+    "zpa-effect-auth-service": {
+      "statement": "A user contained with Private Access can no longer reach real apps and only app decoys remain accessible; if Authentication Service is enabled, its IdP appears automatically in the Zscaler Private Access configuration window and cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-private-access.json",
+          "quotes": [
+            "If a user is contained with Private Access, real apps become inaccessible and only app decoys remain accessible.",
+            "If Authentication Service is enabled for your organization, the Authentication Service IdP is displayed automatically in the Zscaler Private Access configuration window. This cannot be edited or deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-zscaler-private-access-zpa.json",
+          "quotes": [
+            "If a user is contained with ZPA, real apps become inaccessible and only app decoys remain accessible.",
+            "If Authentication Service is enabled for your organization, the Authentication Service IdP is displayed automatically in the Zscaler Private Access configuration window. This cannot be edited or deleted."
+          ]
+        }
+      ]
+    },
+    "itdr-zpa-identity-metadata": {
+      "statement": "The ITDR ZPA containment form has an ITDR Identity Metadata option whose Enabled setting syncs and fetches data from ZPA for traffic violations or bad activities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-zscaler-private-access-zpa.json",
+          "quotes": [
+            "Under ITDR Identity Metadata, select Enabled to enable sync and fetch data from ZPA for traffic violations or bad activities."
+          ]
+        }
+      ]
+    },
+    "itdr-zia-zpa-console-paths": {
+      "statement": "The ITDR ZIA guide gets the IdP Base URL and Bearer Token from Administration > Authentication Settings > Identity Providers in the ZIA Admin Portal, and the ITDR ZPA guide gets the ZPA tenant ID from Administration > Company in the ZPA Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-zscaler-internet-access-zia.json",
+          "quotes": [
+            "Obtained the Base URL and Bearer Token of the configured IdP (Administration > Authentication Settings > Identity Providers) from the ZIA Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-zscaler-private-access-zpa.json",
+          "quotes": [
+            "Obtained the ZPA tenant ID (Administration > Company) from the ZPA Admin Portal."
+          ]
+        }
+      ]
+    },
+    "okta-ssf-client-connector": {
+      "statement": "Identity Threat Protection with Okta AI containment pushes user risk scores to Okta for Zscaler Client Connector users (the risk score is pushed via SSF), needs 64-bit Windows 10 endpoints with 64-bit Client Connector 4.2.1.212 or later, 4.3.0.202 or later, or 4.4.0.285 or later, and an Okta account with admin privileges and the Okta tenant URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-identity-threat-protection-okta-ai.json",
+          "quotes": [
+            "With this integration, Deception pushes user risk scores to Okta for Zscaler Client Connector users based on the events generated when users interact with the decoys.",
+            "64-bit Windows 10 endpoints with a 64-bit version of Zscaler Client Connector installed.",
+            "4.2.1.212 or later",
+            "4.3.0.202 or later",
+            "4.4.0.285 or later",
+            "An Okta account with admin privileges.",
+            "An Okta tenant URL obtained from the Okta Admin Console.",
+            "The risk score is pushed to Okta via SSF using the orchestration rules configured in the Zscaler Deception Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-identity-threat-protection-okta-ai.json",
+          "quotes": [
+            "With this integration, ITDR pushes user risk scores to Okta for Zscaler Client Connector users based on threat detection events.",
+            "64-bit Windows 10 endpoints with a 64-bit version of Zscaler Client Connector installed.",
+            "4.2.1.212 or later",
+            "4.3.0.202 or later",
+            "4.4.0.285 or later",
+            "An Okta account with admin privileges.",
+            "An Okta tenant URL obtained from the Okta Admin Console.",
+            "The risk score is pushed to Okta via SSF using the orchestration rules configured in the Zscaler ITDR Admin Portal."
+          ]
+        }
+      ]
+    },
+    "okta-ssf-security-events-provider": {
+      "statement": "In Okta a Security Events Provider is created under Security > Device Integrations > Receive shared signals with a Well-known URL (https://zscaler.ssf.transmitter.smokescreen.io/.well-known/sse-configuration); in the portal the Okta (SSF) entry takes the Okta tenant URL as Base URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-identity-threat-protection-okta-ai.json",
+          "quotes": [
+            "Go to Security > Device Integrations > Receive shared signals.",
+            "https://zscaler.ssf.transmitter.smokescreen.io/.well-known/sse-configuration",
+            "Base URL: Enter the Okta tenant URL."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-identity-threat-protection-okta-ai.json",
+          "quotes": [
+            "Go to Security > Device Integrations > Receive shared signals.",
+            "https://zscaler.ssf.transmitter.smokescreen.io/.well-known/sse-configuration",
+            "Base URL: Enter the Okta tenant URL."
+          ]
+        }
+      ]
+    },
+    "okta-ssf-rule-only": {
+      "statement": "Manual containment from the dashboard is not supported for Okta (SSF); an orchestration rule must be created to push the user risk score, with a User Risk Level of Low, Medium or High and a Risk Change Reason, both shared with Okta.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-identity-threat-protection-okta-ai.json",
+          "quotes": [
+            "Manual containment from the Deception Dashboard is not supported for Okta (SSF) containment.",
+            "To push the user risk score to Okta based on events generated in Deception, an orchestration rule must be created.",
+            "User Risk Level: Select a risk score level (Low, Medium, or High) that you want to be pushed to Okta for a user when an event matching the configured rule condition occurs. This information is shared with Okta.",
+            "Risk Change Reason: Enter the reason describing why the risk score is changed. This information is shared with Okta."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-identity-threat-protection-okta-ai.json",
+          "quotes": [
+            "Manual containment from the ITDR Dashboard is not supported for Okta (SSF) containment.",
+            "To push the user risk score to Okta based on events generated in ITDR, an orchestration rule must be created.",
+            "User Risk Level: Select a risk score level (Low, Medium, or High) that you want to be updated in Okta for a user when an event matching the configured rule condition occurs. This information is shared with Okta.",
+            "Risk Change Reason: Enter the reason describing why the risk score is changed. This information is shared with Okta."
+          ]
+        }
+      ]
+    },
+    "okta-ssf-user-risk-response": {
+      "statement": "Based on the risk score and Okta policies, Okta can end the user's sessions, prompt a Multi-Factor Authentication challenge, or invoke a workflow.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-containment-configuration-guide-identity-threat-protection-okta-ai.json",
+          "quotes": [
+            "Based on the risk score and Okta policies, Okta can end the user’s sessions, prompt a Multi-Factor Authentication (MFA) challenge, or invoke a workflow to restore your organization's security posture."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-containment-configuration-guide-identity-threat-protection-okta-ai.json",
+          "quotes": [
+            "Based on the risk score and Okta policies, Okta can end the user’s sessions, prompt a Multi-Factor Authentication (MFA) challenge, or invoke a workflow to restore your organization's security posture."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

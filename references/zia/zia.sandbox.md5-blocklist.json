@@ -1,0 +1,421 @@
+{
+  "schema_version": 1,
+  "id": "zia.sandbox.md5-blocklist",
+  "title": "Sandbox custom MD5 hash list",
+  "aliases": [
+    "custom md5 block list",
+    "behavioralAnalysisAdvancedSettings",
+    "file hash count",
+    "CUSTOM_FILEHASH_DENY",
+    "block a known bad hash",
+    "fileHashesToBeBlocked"
+  ],
+  "binds": [
+    "zia/sandbox-settings",
+    "zia/sandbox-settings#fileHashesToBeBlocked"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/sandbox-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "When an operator already knows a hash is bad, the custom MD5 list is the manual lever. {{endpoint}} {{two-shapes}} {{sdk-functions}} {{allow-entries}}"
+    },
+    {
+      "label": "Clearing it.",
+      "text": "{{clear-with-empty-array}}"
+    },
+    {
+      "label": "Headroom.",
+      "text": "{{hash-count}} The ceiling itself is open {{gap:quota-cap}}."
+    },
+    {
+      "text": "{{mcp-check}} Detonation reports are in [[zia.sandbox.report]]; the rules that handle everything else are in [[zia.sandbox.rules]]."
+    },
+    {
+      "label": "In the help.",
+      "text": "{{help-allow-and-deny-lists}}"
+    },
+    {
+      "label": "Terraform.",
+      "text": "{{tf-both-resources-registered}} {{tf-v2-encouraged}} Whether v2 is already required for new configurations is open {{gap:tf-v2-supersedes-v1}}. {{tf-v1-v2-same-endpoint}} Whether the two can be declared together is open {{gap:tf-v1-v2-coexistence}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the remaining quota covers the hashes to be loaded, read from the tenant before a bulk load.",
+      "uses": [
+        "hash-count",
+        "quota-cap"
+      ]
+    }
+  ],
+  "claims": {
+    "endpoint": {
+      "statement": "Sandbox keeps a custom list of MD5 file hashes it blocks, under /zia/api/v1/behavioralAnalysisAdvancedSettings: GET reads the list and PUT updates it, and the Python SDK says passing an empty list clears the blocklist.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-settings#fileHashesToBeBlocked"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "quotes": [
+            "advancedSettingsEndpoint = \"/zia/api/v1/behavioralAnalysisAdvancedSettings\"",
+            "err := service.Client.Read(ctx, advancedSettingsEndpoint, &hashes)",
+            "UpdateWithPut(ctx, advancedSettingsEndpoint, payload)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "Returns the custom list of MD5 file hashes that are blocked by Sandbox.",
+            "Updates the custom list of MD5 file hashes that are blocked by Sandbox.",
+            "Pass an empty list to clear the blocklist."
+          ]
+        }
+      ]
+    },
+    "two-shapes": {
+      "statement": "The list has two wire shapes. A flat `fileHashesToBeBlocked` array of strings, and a richer `md5HashValueList` of objects with `url` (the MD5), `urlComment` and `type`. The Python SDK documents `type` as CUSTOM_FILEHASH_DENY or CUSTOM_FILEHASH_ALLOW; the Go source illustrates it only as \"MALWARE\".",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-settings#fileHashesToBeBlocked"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "quotes": [
+            "FileHashesToBeBlocked []string `json:\"fileHashesToBeBlocked,omitempty\"`",
+            "// e.g. \"MALWARE\"",
+            "Md5HashValueList []Md5HashValue `json:\"md5HashValueList\"`",
+            "URL string `json:\"url,omitempty\"`",
+            "URLComment string `json:\"urlComment,omitempty\"`",
+            "Type string `json:\"type,omitempty\"` // e.g. \"MALWARE\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "``type`` (str): The type of hash, e.g., ``CUSTOM_FILEHASH_DENY`` or ``CUSTOM_FILEHASH_ALLOW``.",
+            "``url`` (str): The MD5 hash value."
+          ]
+        }
+      ],
+      "gaps": [
+        "enum-and-help-framing"
+      ],
+      "conditions": "Absence claim: `grep -rn \"CUSTOM_FILEHASH\\|MALWARE\" zscaler/zia/services/sandbox/sandbox_settings/` at v3.8.58 returns only the Type field's comment, `// e.g. \"MALWARE\"`."
+    },
+    "allow-entries": {
+      "statement": "Because the Python type includes CUSTOM_FILEHASH_ALLOW, the same list may hold allow entries as well as deny entries, so \"blocklist\" can understate what is in it.",
+      "tier": "B",
+      "conditions": "Derived from the Python docstring and example, which pass an ALLOW entry in the same list; no source describes how Sandbox treats it.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "\"type\": \"CUSTOM_FILEHASH_ALLOW\""
+          ]
+        }
+      ]
+    },
+    "help-allow-and-deny-lists": {
+      "statement": "The help places the custom MD5 lists on the Sandbox policy's Advanced Policy Settings page: a denylist of hashes to block specific files applicable to Sandbox analysis, and an allowlist of hashes to allow specific files access. When adding to the allowlist an entry can carry a comment after two forward slashes, which the page words as a comment on a URL entry, and Remove All deletes all the custom file MD5 hashes from the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-advanced-policy-settings.json",
+          "quotes": [
+            "On the Advanced Policy Settings page for the Sandbox policy, you can add custom MD5 hash values to the denylist for your organization to block specific files that are applicable to Zscaler Sandbox analysis.",
+            "You can also add custom MD5 hash values to the allowlist to allow specific files access.",
+            "Click Remove All to delete all the custom file MD5 hashes from the list."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-advanced-policy-settings.json",
+          "after": "To add a custom MD5 hash to the allowlist:",
+          "quotes": [
+            "(Optional) To add a comment to a URL, enter two forward slashes (//) after each URL entry."
+          ]
+        }
+      ]
+    },
+    "clear-with-empty-array": {
+      "statement": "To clear the list, send `md5HashValueList` as an empty array. The Go payload field deliberately has no `omitempty` because the API requires the key even as `[]`; dropping the key does not clear the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "quotes": [
+            "Do not use omitempty - API requires md5HashValueList to be present (even as []) when clearing the list"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "Pass an empty list to clear the blocklist."
+          ]
+        }
+      ]
+    },
+    "hash-count": {
+      "statement": "A sub-endpoint, /behavioralAnalysisAdvancedSettings/fileHashCount, returns `blockedFileHashesCount` and `remainingFileHashes`, the used and unused quota for blocking MD5 hashes. `remainingFileHashes` is how many more can be added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "quotes": [
+            "RemainingFileHashes    int `json:\"remainingFileHashes,omitempty\"`",
+            "fileHashCountEndpoint    = \"/fileHashCount\"",
+            "BlockedFileHashesCount int `json:\"blockedFileHashesCount,omitempty\"`",
+            "advancedSettingsEndpoint = \"/zia/api/v1/behavioralAnalysisAdvancedSettings\"",
+            "err := service.Client.Read(ctx, advancedSettingsEndpoint+fileHashCountEndpoint, &hashes)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "Retrieves the Cloud Sandbox used and unused quota for blocking MD5 file hashes.",
+            "/behavioralAnalysisAdvancedSettings/fileHashCount",
+            "This method fetches the count of MD5 hashes currently blocked by the Sandbox and the remaining quota available for blocking additional hashes."
+          ]
+        }
+      ],
+      "gaps": [
+        "quota-cap"
+      ]
+    },
+    "mcp-check": {
+      "statement": "The MCP workflow checks a suspect file by reading the blocked-hash list and looking for its MD5, and reads the hash count to see overall usage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "Returns the list of MD5 hashes currently blocked by Sandbox. Check if the file's hash appears in this list.",
+            "Returns blocked-hash usage statistics to understand overall sandbox activity volume."
+          ]
+        }
+      ]
+    },
+    "sdk-functions": {
+      "statement": "In the Go SDK the list is `Get` (flat), `Getv2` (rich), `Update` (flat), `Updatev2` (rich) and `GetFileHashCount`. In the Python SDK `get_behavioral_analysis` reads it, `add_hash_to_custom_list` writes the rich shape, and `get_file_hash_count` reads the count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "quotes": [
+            "func Getv2(ctx context.Context",
+            "func Updatev2(ctx context.Context",
+            "func GetFileHashCount(ctx context.Context",
+            "func Get(ctx context.Context, service *zscaler.Service) (*BaAdvancedSettings, error)",
+            "func Getv2(ctx context.Context, service *zscaler.Service) (*Md5HashValueListPayload, error)",
+            "func Update(ctx context.Context, service *zscaler.Service, hashes BaAdvancedSettings) (*BaAdvancedSettings, error)",
+            "func Updatev2(ctx context.Context, service *zscaler.Service, payload Md5HashValueListPayload) (*Md5HashValueListPayload, error)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "def get_behavioral_analysis(self)",
+            "def add_hash_to_custom_list(",
+            "Returns the custom list of MD5 file hashes that are blocked by Sandbox.",
+            "payload = {\"md5HashValueList\": md5_hash_value_list}",
+            "def get_file_hash_count(self)",
+            "Retrieves the Cloud Sandbox used and unused quota for blocking MD5 file hashes."
+          ]
+        }
+      ]
+    },
+    "tf-both-resources-registered": {
+      "statement": "The provider registers both `zia_sandbox_behavioral_analysis` and `zia_sandbox_behavioral_analysis_v2` as resources and data sources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "\"zia_sandbox_behavioral_analysis\":                   resourceSandboxSettings(),",
+            "\"zia_sandbox_behavioral_analysis_v2\":                resourceSandboxSettingsV2(),",
+            "\"zia_sandbox_behavioral_analysis\":                   dataSourceSandboxSettings(),",
+            "\"zia_sandbox_behavioral_analysis_v2\":                dataSourceSandboxSettingsV2(),"
+          ]
+        }
+      ]
+    },
+    "tf-v1-v2-same-endpoint": {
+      "statement": "The Terraform resources `zia_sandbox_behavioral_analysis` (flat) and `zia_sandbox_behavioral_analysis_v2` (rich) both read and write the same object: the SDK's `Get` and `Getv2` read, and `Update` and `Updatev2` PUT, the single behavioralAnalysisAdvancedSettings endpoint, differing only in payload shape.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "advancedSettingsEndpoint = \"/zia/api/v1/behavioralAnalysisAdvancedSettings\"",
+            "func Get(ctx context.Context, service *zscaler.Service) (*BaAdvancedSettings, error) { var hashes BaAdvancedSettings err := service.Client.Read(ctx, advancedSettingsEndpoint, &hashes)",
+            "func Getv2(ctx context.Context, service *zscaler.Service) (*Md5HashValueListPayload, error) { var payload Md5HashValueListPayload err := service.Client.Read(ctx, advancedSettingsEndpoint, &payload)",
+            "func Updatev2(ctx context.Context, service *zscaler.Service, payload Md5HashValueListPayload) (*Md5HashValueListPayload, error) { _, err := service.Client.UpdateWithPut(ctx, advancedSettingsEndpoint, payload)",
+            "func Update(ctx context.Context, service *zscaler.Service, hashes BaAdvancedSettings) (*BaAdvancedSettings, error) { _, err := service.Client.UpdateWithPut(ctx, advancedSettingsEndpoint, hashes)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_behavioral_analysis_advanced_settings.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err = sandbox_settings.Update(ctx, service, fileHashes)",
+            "\"file_hashes_to_be_blocked\": {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_behavioral_analysis_advanced_settings_v2.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err := sandbox_settings.Updatev2(ctx, service, payload)",
+            "\"md5_hash_value_list\": {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_behavioral_analysis_advanced_settings.go",
+          "at": [
+            "HEAD"
+          ],
+          "after": "func resourceSandboxSettingsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "resp, err := sandbox_settings.Get(ctx, service)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_behavioral_analysis_advanced_settings_v2.go",
+          "at": [
+            "HEAD"
+          ],
+          "after": "func resourceSandboxSettingsV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "resp, err := sandbox_settings.Getv2(ctx, service)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "\"zia_sandbox_behavioral_analysis\": resourceSandboxSettings(),",
+            "\"zia_sandbox_behavioral_analysis_v2\": resourceSandboxSettingsV2(),"
+          ]
+        }
+      ]
+    },
+    "tf-v2-encouraged": {
+      "statement": "The v2 resource documentation says the original `zia_sandbox_behavioral_analysis` resource is still available, but the provider encourages users to move to the new format, and that the original will eventually be deprecated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sandbox_behavioral_analysis_v2.md",
+          "quotes": [
+            "is still available in the provider; however, we encourage users to move to this new format",
+            "will be eventually deprecated"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "quota-cap": {
+      "kind": "data",
+      "title": "The tenant's MD5 blocklist cap and whether it varies by subscription",
+      "status": "open",
+      "former_ids": [
+        "zia-63"
+      ],
+      "detail": "The SDKs return how many hashes remain but encode no absolute ceiling or tier dependence. The number is observable per tenant at runtime.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "resolvable_by": [
+        "live",
+        "operator"
+      ],
+      "live_command": "zscalerctl zia sandbox-settings show"
+    },
+    "enum-and-help-framing": {
+      "kind": "semantic",
+      "title": "How Zscaler's help names this list and whether the type values are the documented set",
+      "status": "partial",
+      "detail": "A help capture for this surface now exists and names the lists as a denylist and an allowlist. It does not name CUSTOM_FILEHASH_DENY or CUSTOM_FILEHASH_ALLOW, so whether those are the complete documented values, or only what the Python SDK happens to use, is unknown.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-advanced-policy-settings.json",
+          "quotes": [
+            "You can also add custom MD5 hash values to the allowlist to allow specific files access."
+          ]
+        }
+      ]
+    },
+    "tf-v2-supersedes-v1": {
+      "kind": "semantic",
+      "title": "Whether `zia_sandbox_behavioral_analysis_v2` is already required for new configurations",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "saying that new configurations must use the v2 resource rather than only should",
+      "detail": "Unverified legacy statement: the legacy catalog said v2 supersedes the original resource. The provider docs only encourage the move and say the original will eventually be deprecated; both resources are registered and neither carries a deprecation notice in the provider registration. Whether v2 is already required for new configurations is not stated."
+    },
+    "tf-v1-v2-coexistence": {
+      "kind": "semantic",
+      "title": "Whether declaring both Terraform sandbox resources in one configuration conflicts",
+      "status": "open",
+      "detail": "Unverified legacy statement: whether the v1 and v2 resources are separate backend objects is not confirmed in the provider docs, and because both use one endpoint and one fixed resource ID, declaring both in the same configuration may cause state conflicts. The sources show the shared endpoint and ID but not how two declarations of the same list would interact at apply or on refresh.",
+      "blocks": "saying whether the flat and rich Terraform resources can be declared together",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.component-dashboards",
+  "title": "App Connector, Private Service Edge and Private Cloud Controller dashboards",
+  "aliases": [
+    "app connectors dashboard",
+    "private service edges dashboard",
+    "private cloud controllers dashboard",
+    "activity monitor widgets"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.dashboards"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.dashboards"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are the console dashboards for the three infrastructure components, App Connectors, Private Service Edges and Private Cloud Controllers. The application, user and health dashboards are in [[zpa.troubleshooting.dashboards]]. The components themselves: [[zpa.app-connectors.health]], [[zpa.private-service-edges]] and [[zpa.private-service-edges.private-cloud-controller]]. The VPN Service Edges, Network Connectors and BGP Peers dashboards are in [[zpa.vpn.dashboards]]."
+    },
+    {
+      "label": "Range and widgets.",
+      "text": "{{range-and-refresh}} {{widget-limits}} {{selection-25}}"
+    },
+    {
+      "label": "Reading the values.",
+      "text": "{{peaks-not-averages}} {{ports-ipv4}} {{rates}} {{dashed-lines}} The App Connector page prints the bit-rate formula without the factor of 8 {{gap:copy-defects}}."
+    },
+    {
+      "label": "Details and latency.",
+      "text": "{{connector-details}} {{latency-tab}} {{inspection-tunnels}}"
+    },
+    {
+      "label": "Private Service Edge and Private Cloud Controller.",
+      "text": "{{pse-details}} {{pcc-widgets}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Peak widget is being read as an average, since the page says its ranking of up to the top 10 App Connectors is not the average over the time frame.",
+      "uses": [
+        "peaks-not-averages"
+      ]
+    },
+    {
+      "do": "Whether a port-exhaustion question about an App Connector rests on IPv4 ports only.",
+      "uses": [
+        "ports-ipv4"
+      ]
+    },
+    {
+      "do": "Whether a dashed line is being read as data on the App Connector or Private Service Edge dashboards.",
+      "uses": [
+        "dashed-lines"
+      ]
+    }
+  ],
+  "claims": {
+    "range-and-refresh": {
+      "statement": "The App Connector dashboard shows data over 30 Mins to 14 Days or a Custom Range whose start date can be within the last 14 days, by default the last 30 minutes, and displays the most recent information from the last five minutes. Because data is aggregated differently for different time period filters, the same point in time in an Activity Monitor widget may show slightly different values depending on the time chosen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-app-connectors-dashboard.json",
+          "quotes": [
+            "Time Range Filter: View user data over a period between 30 Mins to 14 Days, or select Custom Range to specify a custom start and end date. If you use Custom Range, the start date can be within the last 14 days.",
+            "By default, the dashboard displays information for events that occurred in the last 30 minutes.",
+            "The dashboard displays the most recent information from the last five minutes.",
+            "Due to the way data is aggregated for different time period filters, the same point in time in an Activity Monitor widget may show slightly different values depending on the time chosen."
+          ]
+        }
+      ]
+    },
+    "widget-limits": {
+      "statement": "The App Connector dashboard gives two widget limits: at least four widgets must be selected and no more than 8 are available at one time, and at least three must be selected and no more than 6 are available at one time. The Private Cloud Controller dashboard allows a minimum of 3 and a maximum of 6 charts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-app-connectors-dashboard.json",
+          "quotes": [
+            "At least four widgets must be selected for the widgets to display, and no more than 8 widgets are available to view at one time.",
+            "At least three widgets must be selected for the widgets to display, and no more than 6 widgets are available to view at one time."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-private-cloud-controllers-dashboard.json",
+          "quotes": [
+            "A minimum of 3 charts and a maximum of 6 charts can be selected."
+          ]
+        }
+      ]
+    },
+    "peaks-not-averages": {
+      "statement": "On the App Connector dashboard Top Errors shows up to the top 100 App Connectors with the most errors in the selected range, and Peak CPU Utilization shows up to the top 10 using the most CPU, which is not the average CPU used over the time frame.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-app-connectors-dashboard.json",
+          "quotes": [
+            "Top Errors: Displays up to the top 100 App Connectors that had the most errors in the selected time range.",
+            "Peak CPU Utilization: Displays up to the top 10 App Connectors using the most CPU in the selected time frame. This is not the average CPU used over the time frame."
+          ]
+        }
+      ]
+    },
+    "ports-ipv4": {
+      "statement": "The App Connector dashboard's Peak TCP Port Utilization counts TCP ports for IPv4 and does not show App Connectors using TCP ports for IPv6. The Private Service Edge dashboard has a Peak TCP IPv6 Port Utilization widget and a Peak System File Descriptor Utilization widget.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-app-connectors-dashboard.json",
+          "quotes": [
+            "Peak TCP Port Utilization: Displays up to the top 10 App Connectors using the most TCP ports for IPv4 in the selected time frame. This is not the average TCP ports used over the time frame, and it does not show App Connectors using TCP ports for IPv6."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-private-service-edges-dashboard.json",
+          "quotes": [
+            "Peak TCP IPv6 Port Utilization: Displays up to the top 10 Private Service Edges using the most TCP ports for IPv6 in the selected time range.",
+            "Peak System File Descriptor Utilization: Displays up to the top 10 Private Service Edges in the entire system using the most file descriptors in the selected time range."
+          ]
+        }
+      ]
+    },
+    "selection-25": {
+      "statement": "At most 25 App Connectors can be selected at a time; selecting a group of more than 25 with none selected uses the group's first 25. Connector and group filters combine with OR rather than AND, and with none selected the top App Connectors from the Peak Memory Utilization chart are selected by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-app-connectors-dashboard.json",
+          "quotes": [
+            "There is a limit of 25 App Connectors you can select at one time. If you haven't selected any App Connectors and select an App Connector group that contains more than 25 App Connectors, then the first 25 App Connectors for the selected App Connector group are used in the filter.",
+            "The filters between App Connectors and App Connector groups use the OR operator, instead of AND, to help compare App Connectors in App Connector groups.",
+            "If no App Connectors are selected, the top App Connectors from the Peak Memory Utilization chart are selected by default."
+          ]
+        }
+      ]
+    },
+    "rates": {
+      "statement": "The App Connector dashboard's worked example computes a bit rate from total bytes at two times: 100 bytes at 7:00 and 1000 at 7:05 is 24 bits per second. The Application Tunnel Creation Rate is measured from the total application tunnels at two points in time as (a2-a1) / (t2-t1).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-app-connectors-dashboard.json",
+          "quotes": [
+            "For example, there are 100 total bytes at 7:00, and 1000 total bytes at 7:05. The rate is 24 bits per second ((1000-100)*8 / 300 = 24 bits/second)."
+          ],
+          "after": "Rate of Bits Received from Public Service Edge: The number of bits received per second by the App Connector from Public Service Edges in the selected time range."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-app-connectors-dashboard.json",
+          "quotes": [
+            "Application Tunnel Creation Rate: Compare the rate of application tunnels interacting with App Connectors for application connections in the selected time range.",
+            "The rate is measured by taking the total application tunnels (a) for two points in time counted in seconds (t): rate= (a2-a1) / (t2-t1)."
+          ]
+        }
+      ]
+    },
+    "dashed-lines": {
+      "statement": "On the App Connector and Private Service Edge dashboards dashed lines indicate the expected trajectory of the data and are not actual data, while the Private Cloud Controller dashboard says its widgets show solid lines that represent actual data for the time period.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-app-connectors-dashboard.json",
+          "quotes": [
+            "Dashed lines indicate the expected trajectory of the data, but it isn't actual data."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-private-service-edges-dashboard.json",
+          "quotes": [
+            "Dashed lines indicate the expected trajectory of the data, but it isn't actual data."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-private-cloud-controllers-dashboard.json",
+          "quotes": [
+            "Widgets show solid lines that represent actual data for the time period."
+          ]
+        }
+      ]
+    },
+    "connector-details": {
+      "statement": "An App Connector's details show, among other fields, the date and time of its next periodic software update, the next software version it upgrades to, and a Connected or Disconnected status for whether it was up or down during the time range; CPU and memory utilization there are the highest used in the past 5 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-app-connectors-dashboard.json",
+          "quotes": [
+            "Periodic Software Update On: The date and time of the next periodic software update for the App Connector.",
+            "Scheduled Software Version: The next App Connector software version that the App Connector upgrades to.",
+            "Connected: The App Connector is up during the time range.",
+            "Disconnected: The App Connector is down during the time range.",
+            "CPU Utilization: The highest CPU used by the App Connector for the past 5 minutes.",
+            "Memory Utilization: The highest memory used by the App Connector for the past 5 minutes."
+          ]
+        }
+      ]
+    },
+    "latency-tab": {
+      "statement": "The App Connector dashboard's Latency tab is limited to data from 30 Mins to 24 Hours with a default of 30 minutes, and has widgets named App Connector To Service Edge TCP Latency and App Connector To Service Edge Latency. The Private Service Edge dashboard has Private Service Edge to Default Gateway TCP Latency and Private Service Edge to Public Service Edge Latency widgets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-app-connectors-dashboard.json",
+          "quotes": [
+            "It is limited to data over a period between 30 Mins to 24 Hours, or you can select Custom Range to specify a custom start and end date. If you use Custom Range, the start date can be within the last 24 hours.",
+            "This filter applies to all widgets in the Latency tab, and the default time is 30 minutes.",
+            "App Connector To Service Edge TCP Latency",
+            "App Connector To Service Edge Latency"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-private-service-edges-dashboard.json",
+          "quotes": [
+            "Private Service Edge to Default Gateway TCP Latency",
+            "Private Service Edge to Public Service Edge Latency"
+          ]
+        }
+      ]
+    },
+    "inspection-tunnels": {
+      "statement": "The App Connector dashboard's Peak Inspection Tunnel Count in Past 14 Days shows up to the top 10 App Connectors with the highest connections to AppProtection in the past 14 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-app-connectors-dashboard.json",
+          "quotes": [
+            "Peak Inspection Tunnel Count in Past 14 Days: Displays up to the top 10 App Connectors that have the highest connections to AppProtection in the past 14 days."
+          ]
+        }
+      ]
+    },
+    "pse-details": {
+      "statement": "A Private Service Edge's details include its active and disconnected connections to App Connectors, the number of applications configured for access through it, its file descriptor maximum limit, its number of usable ports and its total completed transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-private-service-edges-dashboard.json",
+          "quotes": [
+            "Active Connections to App Connectors: The number of active connections the Private Service Edge had to App Connectors for the point in time listed.",
+            "File Descriptor Maximum Limit: The maximum limit of file descriptors used by a Private Service Edge at different points during the selected time range.",
+            "Configured Application Count: The number of applications configured for access via the Private Service Edge at different points during the selected time range.",
+            "Disconnected Connections to App Connectors: The number of disconnected connections to App Connectors in the selected time range for a Private Service Edge.",
+            "Number of Usable Ports: The number of usable ports for a Private Service Edge at different points during the selected time range.",
+            "Total Transactions Completed: The total number of completed connections to applications on a Private Service Edge."
+          ]
+        }
+      ]
+    },
+    "pcc-widgets": {
+      "statement": "The Private Cloud Controller dashboard shows the App Connectors and Private Service Edges for Private Access connected to the top 10 controllers, the top 10 Client Connector redirections to Private Service Edges, and the logs successfully transmitted to the SIEM and failed to be transmitted, the latter a cumulative count of all diagnostic log types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-private-cloud-controllers-dashboard.json",
+          "quotes": [
+            "Total App Connectors Connected to the Private Cloud Controller: Displays up to the top 10 Private Cloud Controllers and the total number of App Connectors connected to each.",
+            "Total Private Service Edges Connected to the Private Cloud Controller: Displays up to the top 10 Private Cloud Controllers and the total number of Private Service Edges for Private Access connected to each.",
+            "Logs Successfully Transmitted to SIEM: The total number of successful logs transmitted to the SIEM.",
+            "Peak Zscaler Client Connector Redirections to Private Service Edges: Displays up to the top 10 Zscaler Client Connector redirects to the Private Service Edges.",
+            "Logs Failed to be Transmitted to SIEM: The total number of logs that failed to be transmitted to the SIEM. This is a cumulative count of all diagnostic log types (i.e., User Status, User Activity, App Connector Status, Private Service Edge Status, etc.)."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "copy-defects": {
+      "kind": "semantic",
+      "title": "Printed formulas and wording that disagree with the widget they describe",
+      "status": "open",
+      "detail": "The App Connector page prints the bit-rate formula as 'rate= (b2-b1) */(t2-t1)' with no factor of 8, while its worked example multiplies by 8, so only the example is used (claim rates). The Private Service Edge page describes the file descriptor and CPU values as 'used by the Public Service Edge' in places. The pages do not say which wording is the intended one.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

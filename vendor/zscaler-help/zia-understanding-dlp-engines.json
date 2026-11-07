@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding DLP Engines",
+  "source": {
+    "url": "https://help.zscaler.com/zia/understanding-dlp-engines",
+    "node": "1401611",
+    "revision": "3247396",
+    "updated": "2026-09-24",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "A Data Loss Prevention (DLP) engine is a collection of one or more DLP dictionaries. The Zscaler service provides predefined DLP engines and supports custom DLP engines:"
+    },
+    {
+      "item": "Predefined DLP Engines: The Zscaler service provides 5 predefined engines (HIPAA, GLBA, PCI, Offensive Language, and Self-Harm & Cyberbullying). These engines contain default DLP dictionaries. For example, the PCI engine contains the Credit Cards and Social Security Number dictionaries. You can also edit predefined engines. To learn more, see Editing Predefined DLP Engines.",
+      "depth": 0
+    },
+    {
+      "text": "The Self-Harm & Cyberbullying engine is intended for use by K-12 educators. If you’re an educator, contact your Zscaler Account team to enable this feature."
+    },
+    {
+      "item": "Custom DLP Engines: You can create custom DLP engines to detect content that is relevant to your organization on the DLP Engines page or through the Cloud Service API. You can create a maximum of 512 custom DLP engines. To learn more, see Adding Custom DLP Engines and Understanding Cloud Service and Sandbox Submission APIs.",
+      "depth": 0
+    },
+    {
+      "item": "If you use a parent dictionary to configure the engine, you have the option to select a sub-dictionary, as well. If the parent dictionary doesn't have patterns or phrases defined (i.e., it is being used simply as a container for sub-dictionaries), then you must select a sub-dictionary from the drop-down menu.",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "When you use parent and sub-dictionaries as part of an engine, the Zscaler service evaluates them separately (i.e., parent and sub-dictionaries can match independently of one another). To learn more about configuring parent and sub-dictionaries, see Adding Custom DLP Dictionaries."
+    },
+    {
+      "heading": "Building Expressions for DLP Engines",
+      "level": 1
+    },
+    {
+      "text": "When configuring a predefined or custom DLP engine, you can combine DLP dictionaries with operators to create a logical expression. The operators include All (AND), Any (OR), Exclude (AND NOT), and Sum. The Sum operator allows you to specify the sum total of matches that trigger a group of dictionaries specified in the DLP engine."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "To build a DLP engine expression, create subexpressions with operators and dictionaries. Subexpressions determine the logic for how the engine’s dictionaries must trigger in order for the engine to trigger. You can use the Sum operator as part of a subexpression; however, you cannot add a subexpression to an expression or subexpression that uses the Sum operator."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "For example, the following expressions use the same dictionaries. However, because the subexpressions are applied differently, the logic for each expression is different."
+    },
+    {
+      "item": "((ABA Bank Routing Numbers > 0) AND (Credit Cards > 0)) OR (Financial Statements > 0)",
+      "depth": 0
+    },
+    {
+      "item": "(ABA Bank Routing Numbers > 0) AND ((Credit Cards > 0) OR (Financial Statements > 0))",
+      "depth": 0
+    },
+    {
+      "text": "The following expression uses sub-dictionaries, which appear in brackets within the expression:"
+    },
+    {
+      "text": "((Parent Container (Canada) [Canadian Driver License] > 0) AND ((Parent Container (Canada) [Canadian Passport Pattern] > 0)))"
+    },
+    {
+      "heading": "Configuring the Match Count",
+      "level": 1
+    },
+    {
+      "text": "Depending on the operator and the dictionary you select, you must also configure the match count value for a dictionary or group of dictionaries when adding them to a DLP engine. The match count is the threshold that triggers a dictionary or group of dictionaries."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The dictionary or dictionaries trigger only if they find more matches than the number specified. For example:"
+    },
+    {
+      "item": "If you use the Sum operator in your expression with 3 dictionaries, and you enter a match count of 6, then the policy triggers only if there are 7 or more matches across the 3 dictionaries.",
+      "depth": 0
+    },
+    {
+      "item": "Similarly, if you use any of the other operators (All, Any, or Exclude) with a dictionary that requires a match count, and you enter a match count of 6, the dictionary triggers only upon finding 7 or more matches in that dictionary. If you select multiple dictionaries with individual match counts, the dictionary is triggered only when the threshold is reached for an individual dictionary.",
+      "depth": 0
+    },
+    {
+      "text": "You can add a dictionary to multiple engines and specify a different match count value each time you add a dictionary to an engine. For example, consider that you want to create a DLP policy rule to block all file uploads containing 5 or more instances of personally identifiable information (PII), and another policy rule to send an email notification whenever a file upload contains at least one instance of PII. In this scenario, you can:"
+    },
+    {
+      "item": "For your block policy rule, create one DLP engine with PII dictionaries that each have a match count value of 4. You must also ensure that this rule’s order number is before the notification policy rule.",
+      "depth": 0
+    },
+    {
+      "item": "For your notification policy rule, create a second DLP engine with PII dictionaries that each have a match count value of 0.",
+      "depth": 0
+    },
+    {
+      "text": "To modify the Confidence Score Threshold of a predefined dictionary, you must configure this setting in the dictionary itself. To learn more, see Configuring the Confidence Score Threshold."
+    }
+  ]
+}

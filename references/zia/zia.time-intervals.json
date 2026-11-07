@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "id": "zia.time-intervals",
+  "title": "ZIA Time Intervals",
+  "aliases": [
+    "time intervals",
+    "time interval",
+    "time windows",
+    "schedule a policy rule",
+    "business hours rule",
+    "rule only during working hours",
+    "time based policy"
+  ],
+  "binds": [
+    "zia/time-intervals",
+    "zia/time-windows"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.time-intervals.evaluation",
+      "because": "zia.time-intervals.evaluation:outside-window-generalized"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.time-intervals.timezone",
+      "because": "zia.time-intervals.timezone:known-location"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.locations.model",
+      "because": "zia.time-intervals.timezone:known-location"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering.rule-order",
+      "because": "zia.time-intervals.evaluation:falls-through"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/time-intervals"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/time-windows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.schema"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.rule-usage"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.time-windows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.api-surface"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A time interval is a named schedule (days of the week and one time-of-day period) that a ZIA rule can reference so it applies only at certain times ([[zia.time-intervals.schema]]). \"Why did this rule fire, or not fire, at that hour?\" takes five questions in order."
+    },
+    {
+      "steps": [
+        {
+          "label": "Does this rule type take a time at all?",
+          "text": "Most do; SSL Inspection is disputed: [[zia.time-intervals.rule-usage]]."
+        },
+        {
+          "label": "Which clock is used?",
+          "text": "The user's configured location, or the edge's clock for remote users and Client Connector: [[zia.time-intervals.timezone]], with the location's own time zone in [[zia.locations.model]]."
+        },
+        {
+          "label": "What does the interval actually contain?",
+          "text": "Minutes from midnight, a day list, and a single period: [[zia.time-intervals.schema]]."
+        },
+        {
+          "label": "What happens outside the window?",
+          "text": "The rule is skipped and evaluation moves on: [[zia.time-intervals.evaluation]], and the first-match rule in [[zia.url-filtering.rule-order]]."
+        },
+        {
+          "label": "Is it a time interval or a time window?",
+          "text": "Two similarly named objects exist: [[zia.time-intervals.time-windows]]."
+        }
+      ]
+    },
+    {
+      "text": "Limits on counts, per-rule caps and name characters are in [[zia.time-intervals.limits]]; the API operations, update behavior and activation are in [[zia.time-intervals.api-surface]]."
+    }
+  ]
+}

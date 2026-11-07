@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "id": "deception.ti-decoys",
+  "title": "Threat Intelligence (internet-facing) decoys: what they detect, how they are created, exported and tested",
+  "aliases": [
+    "TI decoy",
+    "Threat Intelligence decoy"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "deception.overview" },
+    { "rel": "see-also", "to": "deception.decoy-deployment" },
+    { "rel": "see-also", "to": "deception.network-decoys" },
+    { "rel": "see-also", "to": "deception.gen-ai-decoys" }
+  ],
+  "prose": [
+    {
+      "text": "{{what-they-detect}} {{mitre}} {{signal-noise}}"
+    },
+    {
+      "label": "The page.",
+      "text": "{{page-columns}} {{types}}"
+    },
+    {
+      "label": "Creating one.",
+      "text": "{{dns-prereq}} {{internal-nat-ip}} {{trusted-proxies}} {{ssl}} {{headers}} {{custom-headers-scope}} {{cloudflare-ipv6}} {{decoy-group-default}}"
+    },
+    {
+      "label": "AI-Powered Recommendations.",
+      "text": "{{ai-recommendations}} {{ai-verify-page}}"
+    },
+    {
+      "label": "Export and test.",
+      "text": "{{export-config}} {{export-dns}} {{test-procedure}} {{ipinfo-icon}}"
+    },
+    {
+      "label": "Related.",
+      "text": "Starting and stopping decoys and blocklists for TI decoys are in [[deception.decoy-deployment]]; Gen AI decoys served by TI decoys are in [[deception.gen-ai-decoys]]; the hub is [[deception.overview]]."
+    }
+  ],
+  "claims": {
+    "what-they-detect": {
+      "statement": "Threat Intelligence decoys are unlisted, require reconnaissance (for example DNS bruteforcing or certificate transparency log enumeration) to discover, and give analytics of attacker activity early in the reconnaissance phase of the kill chain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-threat-intelligence-decoys.json",
+          "quotes": [
+            "Threat Intelligence (TI) decoys provide analytics of an attacker's activity early in the reconnaissance phase of the kill chain.",
+            "These decoys are unlisted and require reconnaissance to discover (e.g., DNS bruteforcing, enumeration of certificate transparency logs, etc.)."
+          ]
+        }
+      ]
+    },
+    "mitre": {
+      "statement": "TI decoys detect MITRE ATT&CK techniques T1589.001, T1592, T1594, T1595 and T1595.002 (Reconnaissance) and T1133, T1078 and T1190 (Initial Access).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-threat-intelligence-decoys.json",
+          "quotes": [
+            "T1589.001: Gather Victim Identity Information: Credentials",
+            "T1595.002: Active Scanning: Vulnerability Scanning",
+            "T1133: External Remote Services",
+            "T1078: Valid Accounts",
+            "T1190: Exploit Public-Facing Application",
+            "T1592: Gather Victim Host Information",
+            "T1594: Search Victim-Owned Websites",
+            "T1595: Active Scanning"
+          ]
+        }
+      ]
+    },
+    "signal-noise": {
+      "statement": "TI decoy alerts ignore random internet noise, giving a strong signal-to-noise ratio, and can be cross-referenced with logs from non-decoy infrastructure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-threat-intelligence-decoys.json",
+          "quotes": [
+            "Generate alerts with a strong signal-to-noise ratio by ignoring random internet noise. These alerts can be cross-referenced with logs from a non-decoy infrastructure to identify any suspicious activities against other legitimate public-facing assets."
+          ]
+        }
+      ]
+    },
+    "page-columns": {
+      "statement": "The Threat Intelligence Decoys page shows for each decoy the sub-domain FQDN with a status icon, the network name, the type (Static, Dynamic, or High Interaction) and the assigned public IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-threat-intelligence-decoys.json",
+          "quotes": [
+            "Type: The type of decoy application (Static, Dynamic, or High Interaction).",
+            "Public IP: The public IP address assigned to the TI decoy.",
+            "Network Name: The name of the network in which the decoy is deployed."
+          ]
+        }
+      ]
+    },
+    "types": {
+      "statement": "A TI decoy is added as a Static Application (static pages), Dynamic Application (dynamic components that respond to the latest threats) or High Interaction Application (a containerized version).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "Static Application: A decoy web application with static pages.",
+            "Dynamic Application: A decoy web application with dynamic components that respond to the latest threats.",
+            "High Interaction Applications: A containerized version of the decoy application."
+          ]
+        }
+      ]
+    },
+    "dns-prereq": {
+      "statement": "Creating a TI decoy requires permission to create DNS A records for the decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "Before creating TI decoys, make sure that you have permissions to create DNS A records for the decoys you intend to create."
+          ]
+        }
+      ]
+    },
+    "internal-nat-ip": {
+      "statement": "For a Deception-hosted TI decoy the Internal NAT IP is always 10.10.10.10; the field does not appear when a TI Decoy Connector is selected as Network Interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "For a Deception-hosted TI decoy, the IP address is always 10.10.10.10.",
+            "This field doesn't appear if you selected a TI Decoy Connector for Network Interface.",
+            "Internal NAT IP: Enter a private IP address to host the decoy."
+          ]
+        }
+      ]
+    },
+    "trusted-proxies": {
+      "statement": "Number of trusted proxies defaults to zero and is raised by one per proxy for a decoy behind a WAF, load balancer or CDN; those systems must keep the original attacker IP in the X-Forwarder-For request header.",
+      "tier": "A",
+      "conditions": "The header name is quoted as the page writes it, X-Forwarder-For; the standard header is X-Forwarded-For.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "By default, this field is set to zero. You can increase this number by one for every proxy.",
+            "These systems must maintain the original attacker's IP address in the X-Forwarder-For request header.",
+            "Number of trusted proxies: Enter the number of trusted proxies. Use this setting to configure a decoy when it is placed behind a web application firewall (WAF), load balancer, or content delivery network (CDN)."
+          ]
+        }
+      ]
+    },
+    "ssl": {
+      "statement": "TI decoy SSL certificates are self-signed by default; a custom certificate takes an unencrypted PEM private key and encrypted keys are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "By default, the SSL certificates are self-signed.",
+            "Deception doesn't support encrypted private keys for custom SSL certificates.",
+            "SSL Certificate and SSL Private Key: (Optional) Upload an SSL certificate and its corresponding unencrypted SSL private key in the PEM format."
+          ]
+        }
+      ]
+    },
+    "headers": {
+      "statement": "TI decoy Response Headers can add HTTP security headers (X-Content-Type-Options, Referrer-Policy, Permissions-Policy, Content-Security-Policy) and the HSTS header, and custom response headers make the decoy look realistic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "Enable Security Headers: Select to add HTTP security headers, such as X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and Content-Security-Policy to the web service.",
+            "Enable HTTP Strict-Transport-Policy Response Header: Select to add the HTTP Strict-Transport-Security (HSTS) response header to the web service.",
+            "Custom headers make the decoy look realistic, so that an adversary engages with the decoy for a longer time."
+          ]
+        }
+      ]
+    },
+    "cloudflare-ipv6": {
+      "statement": "A TI decoy should not be configured behind a proxy that translates IPv6 to IPv4 (such as Cloudflare), since the portal does not alert about the IPv6 connection established; for Cloudflare use a DNS pointer, not a proxied connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "Avoid configuring a TI decoy behind a proxy that translates IPv6 to IPv4 (e.g., Cloudflare).",
+            "the Zscaler Deception Admin Portal does not alert you about the IPv6 connection that is established. For Cloudflare, use a DNS pointer and not a proxied connection."
+          ]
+        }
+      ]
+    },
+    "ai-recommendations": {
+      "statement": "AI-Powered Recommendations generate TI decoys from a domain name; if wildcard DNS is enabled across the root domain Deception cannot recommend decoys, and a hostname that conflicts with an existing application is regenerated up to 5 retries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "If enabled, Deception cannot recommend decoys.",
+            "In such cases, you must manually create TI decoys.",
+            "If a conflict is found, Deception regenerates and revalidates new recommendations, with up to 5 retries.",
+            "Deception leverages AI to generate decoy recommendations based on the provided domain name.",
+            "Deception checks the domain to verify if wildcard DNS is enabled across the entire root domain (e.g., bank.com).",
+            "Each hostname is automatically validated through real-time DNS checks to ensure it does not correspond to an active or existing application."
+          ]
+        }
+      ]
+    },
+    "ai-verify-page": {
+      "statement": "In the steps to create TI decoys based on AI-powered recommendations, the steps include \"Go to Deceive > Network Decoys > Zero Trust Network.\" and state that the decoys are deployed and active; the steps to create a TI decoy manually read \"Go to Deceive > Threat Intelligence Decoys.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "To create TI decoys based on AI-powered recommendations:",
+            "Go to Deceive > Network Decoys > Zero Trust Network.",
+            "The decoys are deployed and active. The status icon turns green ()."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "Go to Deceive > Threat Intelligence Decoys."
+          ],
+          "after": "To create a TI decoy:"
+        }
+      ]
+    },
+    "custom-headers-scope": {
+      "statement": "The TI decoy page's custom response headers step says they are visible in a browser when an adversary accesses an Internal decoy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "The custom response headers are visible in a browser when an adversary accesses an Internal decoy."
+          ]
+        }
+      ]
+    },
+    "test-procedure": {
+      "statement": "To test a deployed TI decoy, enter the decoy's URL in a browser and verify the page matches the application selected; if it has a login field, enter test credentials in both fields; then in Investigate open the threat icon's attacker details with View Extended Details and verify the activity on the ThreatParse and Event Logs tabs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-testing-threat-intelligence-decoy.json",
+          "quotes": [
+            "In the browser address bar, enter the URL of the decoy.",
+            "After the decoy web page appears, verify that it matches the application you selected while creating the decoy.",
+            "(Optional) If the decoy web page provides a login field, enter the test credentials in both the username and password fields, and sign in.",
+            "In the left navigation menu, click Investigate.",
+            "Click the threat icon to open the attacker details pane, and then click View Extended Details.",
+            "Verify if all the activities performed on the decoys were captured on the ThreatParse and Event Logs tabs."
+          ]
+        }
+      ]
+    },
+    "decoy-group-default": {
+      "statement": "A TI decoy is placed automatically in a decoy group named Threat Intelligence.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-threat-intelligence-decoy.json",
+          "quotes": [
+            "A decoy group by name Threat Intelligence is automatically populated."
+          ]
+        }
+      ]
+    },
+    "export-config": {
+      "statement": "TI decoy configuration details are exported as a CSV file with Export Deployment Configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-exporting-threat-intelligence-decoys-configuration.json",
+          "quotes": [
+            "You can export the Threat Intelligence (TI) configuration details as a CSV file.",
+            "Click Export Deployment Configuration."
+          ]
+        }
+      ]
+    },
+    "export-dns": {
+      "statement": "TI decoy DNS configuration details can be exported as a CSV file with Export DNS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-exporting-threat-intelligence-decoys-dns-configuration.json",
+          "quotes": [
+            "You can export DNS configuration details for Threat Intelligence (TI) decoys as a CSV file.",
+            "Click Export DNS."
+          ]
+        }
+      ]
+    },
+    "ipinfo-icon": {
+      "statement": "With the IPinfo integration enabled, the Deception Admin Portal attempts to geolocate the adversary and uses the country's flag as the threat actor's icon; without it, a unique threat icon is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-testing-threat-intelligence-decoy.json",
+          "quotes": [
+            "If the IPinfo integration is enabled, the Deception Admin Portal attempts to geolocate the adversary and uses the country's flag () as the threat actor's icon.",
+            "If the IPinfo integration is not enabled, then the Deception Admin Portal uses a unique threat icon"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

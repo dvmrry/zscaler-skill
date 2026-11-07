@@ -1,0 +1,567 @@
+{
+  "schema_version": 1,
+  "id": "zcc.sdk-python.wire-keys",
+  "title": "How the Python SDK names ZCC keys on the wire: the model serializer and the parameter mapper",
+  "aliases": [
+    "zcc_to_wire",
+    "_ZccWireBody",
+    "zcc python snake_case camelCase",
+    "zcc_param_mapper",
+    "os_type invalid ValueError",
+    "device_type '3' ValueError",
+    "web_policy_edit result device_type None",
+    "MacOSPolicy disable_password"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.api.conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-policy-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.forwarding-profile-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.return-shapes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZCC keys mix camelCase, snake_case and odd acronyms, and they differ by platform block, so the Python SDK carries its own key handling for ZCC bodies and query parameters. The general rule is [[zcc.api.conventions:python-body-casing]]; this subject holds how the serializer decides and where it falls short."
+    },
+    {
+      "label": "The model serializer.",
+      "text": "{{serializer-scope}} {{resolution-order}} {{snake-list-not-decisive}} {{field-map-traced}} {{nested-fallback}} {{serializer-callers}} {{serializer-callers-only-two}} {{legacy-client-full-camel-case}} Its effect on web policy writes is [[zcc.api.web-policy-wire:python-per-class-serializer]], and the casing disagreement it produces is [[zcc.api.web-policy-wire:os-password-key-casing]]. Its effect on forwarding profile writes is [[zcc.api.forwarding-profile-wire:python-keys-only]]."
+    },
+    {
+      "label": "Platform blocks.",
+      "text": "{{windows-reads-snake}} {{mac-read-write-asymmetry}}"
+    },
+    {
+      "label": "Results read back.",
+      "text": "{{web-policy-snake-reads}} {{response-keys-camel-cased}} {{edit-result-loses-snake-keys}}"
+    },
+    {
+      "label": "The parameter mapper.",
+      "text": "{{param-mapper}} {{numeric-strings-rejected}} {{mapper-keyword-only}} The download calls lose their filters to it: [[zcc.devices.exports:python-keyword-filters-dropped]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a missing value on a Python web policy came from the `web_policy_edit` or `activate_web_policy` result rather than from `list_by_company`, which keeps snake_case keys.",
+      "uses": [
+        "edit-result-loses-snake-keys"
+      ]
+    },
+    {
+      "do": "Whether an `os_type` or `device_type` was given as a numeric string, which the mapper rejects, and whether `query_params` was passed by keyword so the mapper saw it.",
+      "uses": [
+        "numeric-strings-rejected",
+        "mapper-keyword-only"
+      ]
+    },
+    {
+      "do": "Which ZCC write the call made, since only the web policy and forwarding profile writes go through the model serializer.",
+      "uses": [
+        "serializer-callers"
+      ]
+    }
+  ],
+  "claims": {
+    "serializer-scope": {
+      "statement": "The ZCC serializer takes the model class as the single source of truth for wire keys, applies to ZCC only, and passes unknown keys through rather than dropping them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/_serialize.py",
+          "quotes": [
+            "The model class is the single source of truth for wire keys.",
+            "This module applies to ZCC only and must not be used by other services.",
+            "camelCase wire keys passed by the user are accepted as-is; unknown keys",
+            "pass through unchanged so we never silently drop or mangle data."
+          ]
+        }
+      ]
+    },
+    "resolution-order": {
+      "statement": "Each key is resolved in order: a snake_case attribute the model declares takes the model's wire key; a key that is already one of the model's wire keys is kept; a key in `WebPolicy.SNAKE_CASE_KEYS` stays snake_case; anything else is camel-cased by the generic helper, which leaves a key without an underscore unchanged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/_serialize.py",
+          "after": "def _resolve_wire_key(",
+          "quotes": [
+            "1. Snake_case attribute name declared by the model -> use the wire key declared in ``request_format``.",
+            "2. Wire-form key already declared by the model -> keep as-is.",
+            "if provided_key in fmap:",
+            "return fmap[provided_key]",
+            "if provided_key in wkeys:",
+            "if provided_key in _legacy_snake_preserve_keys():",
+            "return to_lower_camel_case(provided_key)",
+            "3. Snake_case key listed in the legacy ``WebPolicy.SNAKE_CASE_KEYS`` set -> preserve as snake_case.",
+            "Already-camelCase keys pass through unchanged because the converter is a no-op for strings without an underscore."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/_serialize.py",
+          "quotes": [
+            "return WebPolicy.SNAKE_CASE_KEYS"
+          ]
+        }
+      ]
+    },
+    "field-map-traced": {
+      "statement": "The attribute-to-wire-key map is found by running the model's `request_format` against a tracing object, so only entries whose value is a direct `self.<attr>` reference are mapped; literal or computed values are skipped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/_field_introspect.py",
+          "quotes": [
+            "Only entries whose value is a direct ``self.<attr>`` reference are",
+            "raw = cls.request_format(tracer)  # type: ignore[arg-type]"
+          ]
+        }
+      ]
+    },
+    "nested-fallback": {
+      "statement": "A nested dict or list whose key the model ties to a nested model class is serialized against that class; one with no declared class goes through the older selective camel-case converter instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/_serialize.py",
+          "quotes": [
+            "nested_cls = _resolve_nested_cls(raw_key, nested, fmap)",
+            "# Schema-aware recursion: the model declares a class for this",
+            "value = zcc_to_wire(value, nested_cls)",
+            "value = [zcc_to_wire(item, nested_cls) if isinstance(item, dict) else item for item in value]",
+            "elif isinstance(value, (dict, list)) and not isinstance(value, _ZccWireBody):",
+            "value = convert_keys_to_camel_case_selective(value, snake_preserve)",
+            "# No sub-schema declared. Fall back to the legacy ZCC converter"
+          ]
+        }
+      ]
+    },
+    "serializer-callers": {
+      "statement": "Two ZCC writes use the serializer: `web_policy_edit` with the `WebPolicy` model and `update_forwarding_profile` with the `ForwardingProfile` model. `zcc_to_wire` returns a `_ZccWireBody`. When the endpoint contains `/zcc/` (both modules' base endpoint is `/zcc/papi/public/v1`), the executor returns such a body as a plain dict with no key conversion, and any other non-empty dict body gets the selective camel-case conversion.",
+      "tier": "A",
+      "conditions": "Searching zscaler/zcc for `zcc_to_wire(` finds only these two calls. Narrowed to the OneAPI client: the legacy client strips `/zcc` from the path first, so this branch does not match there (legacy-client-full-camel-case).",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "after": "def web_policy_edit(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "body = zcc_to_wire(body, WebPolicy)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/forwarding_profile.py",
+          "after": "def update_forwarding_profile(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "body = zcc_to_wire(body, ForwardingProfile)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if isinstance(body, _ZccWireBody):",
+            "body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS)",
+            "return dict(body)",
+            "if \"/zcc/\" in endpoint and body:",
+            "if isinstance(body, _ZccWireBody): return dict(body) # Legacy path for ZCC endpoints that have not yet been migrated # to the model-driven serializer. body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS) return body"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def _prepare_body(self, endpoint, body):",
+          "quotes": [
+            "if not isinstance(body, dict): return body"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/_serialize.py",
+          "after": "def zcc_to_wire(body: Any, schema_cls: Type[ZscalerObject]) -> Any:",
+          "quotes": [
+            "out = _ZccWireBody()"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "quotes": [
+            "self._zcc_base_endpoint = \"/zcc/papi/public/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/forwarding_profile.py",
+          "quotes": [
+            "self._zcc_base_endpoint = \"/zcc/papi/public/v1\""
+          ]
+        }
+      ]
+    },
+    "legacy-client-full-camel-case": {
+      "statement": "On the legacy ZCC client, every ZCC body, a serialized `_ZccWireBody` included, is camel-cased in full by the generic helper, where only FIELD_EXCEPTIONS entries such as `exit_password` stay as mapped, so snake_case wire keys such as top-level `device_type` and `pac_url` and the Windows `disable_password` and `install_ssl_certs` go out camelCase.",
+      "tier": "B",
+      "conditions": "Traced: the legacy executor has `use_legacy_client` true via `zcc_legacy_client`, so `create_request` strips the `/zcc` prefix before `_prepare_body`, and the `\"/zcc/\" in endpoint` branch never matches; not sent.",
+      "derived_from": [
+        "serializer-callers"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def create_request(",
+          "quotes": [
+            "endpoint = self.remove_oneapi_endpoint_prefix(endpoint)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def remove_oneapi_endpoint_prefix(self, endpoint: str) -> str:",
+          "quotes": [
+            "\"/zcc\", \"/ztw\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if \"/zcc/\" in endpoint and body:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "# Preserve existing logic for other services",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "\"exit_password\": \"exit_password\","
+          ]
+        }
+      ]
+    },
+    "windows-reads-snake": {
+      "statement": "The Python `WindowsPolicy` model reads and writes `install_ssl_certs` and `disable_password` in snake_case, where the Linux model uses `installCerts` and `disablePassword`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webpolicy.py",
+          "after": "class WindowsPolicy(ZscalerObject):",
+          "quotes": [
+            "self.disable_password = config[\"disable_password\"] if \"disable_password\" in config else None",
+            "self.install_ssl_certs = config[\"install_ssl_certs\"] if \"install_ssl_certs\" in config else None",
+            "\"disable_password\": self.disable_password,",
+            "\"install_ssl_certs\": self.install_ssl_certs,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webpolicy.py",
+          "after": "class LinuxPolicy(ZscalerObject):",
+          "quotes": [
+            "self.disable_password = config[\"disablePassword\"] if \"disablePassword\" in config else None",
+            "self.install_ssl_certs = config[\"installCerts\"] if \"installCerts\" in config else None",
+            "\"disablePassword\": self.disable_password,",
+            "\"installCerts\": self.install_ssl_certs,"
+          ]
+        }
+      ]
+    },
+    "mac-read-write-asymmetry": {
+      "statement": "The Python `MacOSPolicy` model reads the password from `disablePassword` but writes it as `disable_password`, and reads and writes the certificate setting as `installCerts`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webpolicy.py",
+          "after": "class MacOSPolicy(ZscalerObject):",
+          "quotes": [
+            "self.disable_password = config[\"disablePassword\"] if \"disablePassword\" in config else None",
+            "\"disable_password\": self.disable_password,",
+            "\"installCerts\": self.install_certs,",
+            "self.install_certs = config[\"installCerts\"] if \"installCerts\" in config else None"
+          ]
+        }
+      ]
+    },
+    "response-keys-camel-cased": {
+      "statement": "`form_response_body` passes every key of a response through `to_lower_camel_case`, so a model attribute looked up under a snake_case key is not found on that path unless FIELD_EXCEPTIONS yields that key: `exit_password` maps to itself, and the camelCase `tunnelTwoForiOSDevices` maps to `tunnel_two_fori_os_devices`; `list_by_company` for web policies instead reads the response with `get_results()`.",
+      "tier": "A",
+      "conditions": "`_to_camel` uses `to_lower_camel_case`, which maps `exit_password` to itself. `to_lower_camel_case` returns a FIELD_EXCEPTIONS entry before its underscore test, so a camelCase key the map holds is converted too. `sed -n '/^def to_lower_camel_case/,/^def convert_keys_to_snake_case/p' zscaler/helpers.py | grep -E ': \"[^\"]*_[^\"]*\",'` at v1.11.3-1-g4f8f54df returns two entries whose value has an underscore, `\"tunnelTwoForiOSDevices\": \"tunnel_two_fori_os_devices\"` and `\"exit_password\": \"exit_password\"`.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "after": "def form_response_body(",
+          "quotes": [
+            "for key, val in body.items():",
+            "result[_to_camel(key)] = val"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "quotes": [
+            "from zscaler.helpers import to_lower_camel_case"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def to_lower_camel_case(string):",
+          "quotes": [
+            "\"tunnelTwoForiOSDevices\": \"tunnel_two_fori_os_devices\",",
+            "\"exit_password\": \"exit_password\",",
+            "if string in FIELD_EXCEPTIONS:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "return [self._type(item) for item in self._list if isinstance(item, dict)]",
+            "if self._service_type == \"zcc\" and self._type:",
+            "self._body = json.loads(response_body) if isinstance(self._body, list): self._list = self._body"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "after": "def list_by_company(self, query_params: Optional[dict] = None) -> APIResult[List[WebPolicy]]:",
+          "quotes": [
+            "response, error = self._request_executor.execute(request, WebPolicy)",
+            "result = response.get_results()",
+            "return result, response, None"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Python SDK: to_lower_camel_case FIELD_EXCEPTIONS has the reversed entry tunnelTwoForiOSDevices -> tunnel_two_fori_os_devices."
+        }
+      ]
+    },
+    "web-policy-snake-reads": {
+      "statement": "The `WebPolicy` model reads `device_type`, `pac_url` and `reauth_period` under snake_case keys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webpolicy.py",
+          "quotes": [
+            "self.device_type = config[\"device_type\"] if \"device_type\" in config else None",
+            "self.pac_url = config[\"pac_url\"] if \"pac_url\" in config else None",
+            "self.reauth_period = config[\"reauth_period\"] if \"reauth_period\" in config else None"
+          ]
+        }
+      ]
+    },
+    "edit-result-loses-snake-keys": {
+      "statement": "So the `WebPolicy` returned by `web_policy_edit` or `activate_web_policy`, built through `form_response_body`, has `device_type`, `pac_url`, `reauth_period` and the Windows `install_ssl_certs` and `disable_password` as None even when the response carries them, while the same policy read with `list_by_company` has them.",
+      "tier": "B",
+      "derived_from": [
+        "response-keys-camel-cased",
+        "web-policy-snake-reads",
+        "windows-reads-snake"
+      ],
+      "conditions": "Read from the code: `to_lower_camel_case` has no exception entry for these keys. Reproduced locally: `WebPolicy(form_response_body({...}))` gives None for these five while the raw dict keeps them. Not run against a live response.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "quotes": [
+            "result = WebPolicy(self.form_response_body(response.get_body()))"
+          ],
+          "after": "def web_policy_edit("
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    },
+    "param-mapper": {
+      "statement": "`zcc_param_mapper` turns `os_type`/`os_types` and `registration_type`/`registration_types` names, and `device_type` names or integers, into numeric codes, converts each to a string with `str` and joins them with commas (so `deviceType` holds the string \"3\", not the integer 3), formats `start_date` and `end_date`, and moves `time_zone` to `Time-Zone`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "def zcc_param_mapper(func):",
+          "quotes": [
+            "mapped_params[\"deviceType\"] = \",\".join(mapped)",
+            "mapped_params[\"startDate\"] = validate_and_format_date(start_date)",
+            "mapped_params[\"Time-Zone\"] = validate_time_zone(time_zone)",
+            "mapped = [str(zcc_param_map[\"os\"].get(os.lower())) for os in raw_os if zcc_param_map[\"os\"].get(os.lower())]",
+            "mapped_params[\"osType\"] = \",\".join(mapped)",
+            "mapped_params[\"osTypes\"] = \",\".join(mapped)",
+            "str(zcc_param_map[\"os\"].get(dt.lower()) if isinstance(dt, str) else dt)",
+            "# Handle device_type (uses same mapping as os_type)",
+            "mapped = [ str(zcc_param_map[\"os\"].get(dt.lower()) if isinstance(dt, str) else dt) for dt in raw_device_type if (isinstance(dt, str) and zcc_param_map[\"os\"].get(dt.lower())) or isinstance(dt, int) ]",
+            "str(zcc_param_map[\"reg_type\"].get(rt.lower())) for rt in raw_reg if zcc_param_map[\"reg_type\"].get(rt.lower())",
+            "mapped_params[\"registrationType\"] = \",\".join(mapped)",
+            "mapped_params[\"registrationTypes\"] = \",\".join(mapped)",
+            "mapped_params[\"endDate\"] = validate_and_format_date(end_date)",
+            "raw_os = query_params.get(\"os_type\") or query_params.get(\"os_types\") or body.get(\"os_type\") or body.get(\"os_types\")",
+            "raw_device_type = query_params.get(\"device_type\") or body.get(\"device_type\")",
+            "query_params.get(\"registration_type\") or query_params.get(\"registration_types\") or body.get(\"registration_type\") or body.get(\"registration_types\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "zcc_param_map = {",
+          "quotes": [
+            "\"windows\": 3,"
+          ]
+        }
+      ]
+    },
+    "numeric-strings-rejected": {
+      "statement": "For `os_type`, the mapper keeps a string only when its lower-cased form is a platform name in its map, and raises ValueError when nothing is kept; for `device_type`, it keeps such names and integers (`isinstance(dt, int)`), and raises ValueError likewise. A numeric string such as \"3\" is neither, so it raises ValueError, although the `list_devices` and `activate_web_policy` docstring examples pass \"3\" and '3'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "raw_os = [raw_os] if isinstance(raw_os, str) else raw_os mapped = [str(zcc_param_map[\"os\"].get(os.lower())) for os in raw_os if zcc_param_map[\"os\"].get(os.lower())] if not mapped: raise ValueError(\"Invalid `os_type` or `os_types` provided.\")",
+            "raw_device_type = query_params.get(\"device_type\") or body.get(\"device_type\")",
+            "mapped = [ str(zcc_param_map[\"os\"].get(dt.lower()) if isinstance(dt, str) else dt) for dt in raw_device_type if (isinstance(dt, str) and zcc_param_map[\"os\"].get(dt.lower())) or isinstance(dt, int) ] if not mapped: raise ValueError(\"Invalid `device_type` provided. Valid options: ios, android, windows, macos, linux.\")"
+          ],
+          "after": "def zcc_param_mapper(func):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def list_devices(self, query_params: Optional[dict] = None) -> APIResult[List[Device]]:",
+          "quotes": [
+            "query_params = {'username': 'jdoe@acme.com', \"os_type\": \"3\", 'page': 1, 'page_size': 1})"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "after": "def activate_web_policy(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "...     device_type='3',"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "zcc_param_map = {",
+          "quotes": [
+            "\"ios\": 1,",
+            "\"android\": 2,",
+            "\"windows\": 3,",
+            "\"macos\": 4,",
+            "\"linux\": 5,"
+          ]
+        }
+      ]
+    },
+    "mapper-keyword-only": {
+      "statement": "The mapper reads `query_params` only from keyword arguments, so a dict passed positionally is not mapped: a decorated method such as `list_devices` passes it on as the request's params, the request executor camel-cases its keys, and `{\"os_type\": \"windows\"}` goes out as `osType=windows`, the name not converted to its numeric code.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "def zcc_param_mapper(func):",
+          "quotes": [
+            "def wrapper(self, *args, **kwargs):",
+            "query_params = kwargs.get(\"query_params\", {}) or {}",
+            "if \"query_params\" in kwargs:",
+            "raw_os = query_params.get(\"os_type\") or query_params.get(\"os_types\") or body.get(\"os_type\") or body.get(\"os_types\")",
+            "return func(self, *args, **kwargs)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "zcc_param_map = {",
+          "quotes": [
+            "\"windows\": 3,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "quotes": [
+            "@zcc_param_mapper def list_devices(self, query_params: Optional[dict] = None) -> APIResult[List[Device]]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def list_devices(self, query_params: Optional[dict] = None) -> APIResult[List[Device]]:",
+          "quotes": [
+            "request, error = self._request_executor.create_request(http_method, api_url, body, headers, params=query_params)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "# Normal param conversion if not ZPA",
+          "quotes": [
+            "params = convert_keys_to_camel_case(params)"
+          ]
+        }
+      ]
+    },
+    "snake-list-not-decisive": {
+      "statement": "So keys the set lists but a model declares in camelCase, such as `enable_zia_dr`, `truncate_large_udpdns_response` and `purge_kerberos_preferred_dc_cache`, go out as `enableZiaDR`, `truncateLargeUDPDNSResponse` and `purgeKerberosPreferredDCCache`; the set's membership does not decide the wire key.",
+      "tier": "B",
+      "conditions": "Traced through zcc_to_wire for nested disasterRecovery and policyExtension dicts; not run.",
+      "derived_from": [
+        "resolution-order"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webpolicy.py",
+          "quotes": [
+            "\"enableZiaDR\": self.enable_zia_dr,",
+            "\"truncateLargeUDPDNSResponse\": self.truncate_large_udpdns_response,",
+            "\"purgeKerberosPreferredDCCache\": self.purge_kerberos_preferred_dc_cache,"
+          ]
+        }
+      ]
+    },
+    "serializer-callers-only-two": {
+      "statement": "No other ZCC method in the Python SDK calls the serializer.",
+      "tier": "B",
+      "conditions": "A search of zscaler/zcc at the pin for `zcc_to_wire(` finds only the calls in web_policy.py and forwarding_profile.py; a search result, not a statement any source makes.",
+      "derived_from": [
+        "serializer-callers"
+      ]
+    }
+  }
+}

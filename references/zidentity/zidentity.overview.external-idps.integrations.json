@@ -1,0 +1,694 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.overview.external-idps.integrations",
+  "title": "Per-IdP integration specifics for Authentication Service: Okta, Microsoft Entra ID, AD FS, PingOne, PingFederate, Auth0 and OneLogin",
+  "aliases": [
+    "Okta with Authentication Service",
+    "Entra ID with Authentication Service",
+    "AD FS with Authentication Service",
+    "PingOne with Authentication Service",
+    "PingFederate with Authentication Service",
+    "Auth0 with Authentication Service",
+    "OneLogin with Authentication Service",
+    "Okta OIN app",
+    "Entra Gallery app",
+    "cloud_displayname",
+    "acceptMappedClaims"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview.external-idps"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview.external-idps.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.step-up.levels"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The per-IdP fields every guide shares are in [[zidentity.overview.external-idps.configuration]]; this subject holds what each vendor's guide says differently. The provisioning attribute tables are in [[zidentity.users.provisioning]]."
+    },
+    {
+      "label": "Okta, which app.",
+      "text": "{{okta-app-choice}} {{okta-oin-recommended}} {{okta-custom-oidc-no-scim}}"
+    },
+    {
+      "label": "Okta, settings.",
+      "text": "{{okta-oin-login}} {{okta-scim-settings}} {{okta-custom-app-values}} {{okta-manager-attribute}} {{okta-session-attributes}}"
+    },
+    {
+      "label": "Entra ID, apps and SCIM.",
+      "text": "{{entra-app-count}} {{entra-scim-oidc}} {{entra-scim-mappings}} {{entra-scim-settings}} Whether the Gallery app now carries SCIM is open {{gap:entra-gallery-scim}}."
+    },
+    {
+      "label": "Entra ID, OIDC and SAML.",
+      "text": "{{entra-oidc-claims}} {{entra-app-registration}} {{entra-saml}}"
+    },
+    {
+      "label": "Entra ID, step-up.",
+      "text": "{{entra-step-up-contexts}}"
+    },
+    {
+      "label": "AD FS.",
+      "text": "{{adfs-oidc}} {{adfs-saml}}"
+    },
+    {
+      "label": "PingOne.",
+      "text": "{{pingone-oidc}} {{pingone-scim}} {{pingone-provisioning-rule}} {{pingone-name-expression}} {{pingone-step-up}}"
+    },
+    {
+      "label": "PingFederate.",
+      "text": "{{pingfed-oidc-prereqs}} {{pingfed-oidc-client}} {{pingfed-scim-channel}} {{pingfed-saml}}"
+    },
+    {
+      "label": "Auth0 and OneLogin.",
+      "text": "{{auth0-oidc}} {{onelogin-oidc}}"
+    },
+    {
+      "label": "Coverage.",
+      "text": "Which protocol and provisioning mode each guide documents, against the table of supported IdPs, is open {{gap:guide-coverage}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For Okta, whether the tenant needs custom session attributes in Private Access policies and whether it has SCIM, since those choose between the OIN app, a custom app and a second app.",
+      "uses": [
+        "okta-app-choice",
+        "okta-oin-recommended",
+        "okta-custom-oidc-no-scim"
+      ]
+    },
+    {
+      "do": "For Entra ID, whether the tenant wants JIT (one app) or SCIM (two apps), and, before switching a custom-app SCIM configuration to OAuth2 Client Credentials, that doing so discards the current bearer token.",
+      "uses": [
+        "entra-app-count",
+        "entra-scim-oidc"
+      ]
+    },
+    {
+      "do": "For a missing group name or manager in the JIT mapping, the vendor's group and manager attribute form.",
+      "uses": [
+        "okta-manager-attribute",
+        "entra-oidc-claims",
+        "pingfed-oidc-client"
+      ]
+    }
+  ],
+  "claims": {
+    "okta-app-choice": {
+      "statement": "The Okta guide's decision table chooses by protocol and by whether Private Access policies use custom session attributes: OIDC without them takes a single OIDC OIN app with built-in SCIM provisioning; the next row, whose protocol cell is blank and whose first cell reads only \"Yes\", takes with SCIM a custom OIDC app for authentication plus an OIN app for SCIM and without SCIM a single custom OIDC app with JIT (the row's text names OIDC apps); SAML with them takes with SCIM a custom SAML app plus an OIN app for SCIM and without SCIM a single custom SAML app with JIT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "quotes": [
+            "| Protocol | Custom Session Attributes for Private Access Policies | Recommended Approach |",
+            "| OIDC | No | Single app: OIDC OIN app with built-in SCIM provisioning |",
+            "| Yes | If the customer environment supports SCIM: Two apps: Custom OIDC app for authentication and OIN app for SCIM provisioning If the customer environment does not support SCIM: Single app: Custom OIDC app with JIT provisioning |  |",
+            "| SAML | Yes | If the customer environment supports SCIM: Two apps: Custom SAML app for authentication and OIN app for SCIM provisioning If the customer environment does not support SCIM: Single app: Custom SAML app with JIT provisioning |"
+          ]
+        }
+      ]
+    },
+    "okta-oin-recommended": {
+      "statement": "Zscaler recommends the Okta OIN-based integration, which uses SCIM-based provisioning and needs a SCIM provisioning subscription for Okta; if the Okta subscription does not include SCIM provisioning, Zscaler recommends the custom OIDC application because Okta does not support sending custom claims such as Groups or Departments with the OIN application. The guide's Supported Features sections list JIT Provisioning and SP-Initiated SSO under OIDC and Create Users, Update User Attributes, Deactivate Users and Group Push under SCIM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "quotes": [
+            "An OIN-based integration uses SCIM-based provisioning and Zscaler recommends the OIN-based integration.",
+            "If your Okta subscription does not include SCIM provisioning, Zscaler recommends using the custom OIDC application as Okta does not support sending custom claims such as Groups or Departments with the OIN application.",
+            "A SCIM provisioning subscription for Okta"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "after": "Supported Features for OIDC",
+          "quotes": [
+            "- JIT Provisioning",
+            "- SP-Initiated SSO"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "after": "Supported Features for SCIM",
+          "quotes": [
+            "- Create Users",
+            "- Update User Attributes",
+            "- Deactivate Users",
+            "- Group Push"
+          ]
+        }
+      ]
+    },
+    "okta-oin-login": {
+      "statement": "After the OIN-based integration is set up, Authentication Service administrators can log in to the Zscaler Admin Console using Okta at `https://customername.zslogin.net/` and, if the username is valid, are redirected to the Okta page for authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "quotes": [
+            "After setting up the OIN-based integration, Authentication Service administrators can log in to the Zscaler Admin Console using Okta.",
+            "https://customername.zslogin.net/",
+            "If the username is valid, you are redirected to the Okta page for authentication."
+          ]
+        }
+      ]
+    },
+    "okta-custom-oidc-no-scim": {
+      "statement": "Okta does not support SCIM provisioning for custom OIDC applications, and for SCIM with Okta Zscaler recommends a SAML app integration; a tenant that uses Private Access policies with custom session attributes and prefers SCIM can create an OIN app for SCIM provisioning in addition to the custom Okta app for authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "quotes": [
+            "Okta does not support SCIM provisioning for custom OIDC applications. For configuring SCIM-based provisioning using Okta, Zscaler recommends using a SAML app integration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "after": "Okta does not support SCIM provisioning for custom OIDC applications. For configuring SCIM-based provisioning using Okta, Zscaler recommends using a SAML app integration.",
+          "quotes": [
+            "Okta does not support SCIM provisioning for custom OIDC applications. However, if you use Private Access (ZPA) policies with custom session attributes and prefer using SCIM provisioning, then you can create an OIN app for SCIM provisioning in addition to the custom Okta app for authentication."
+          ]
+        }
+      ]
+    },
+    "okta-scim-settings": {
+      "statement": "For the Okta OIN app's SCIM provisioning the guide has the admin select Enable API integration, paste the bearer token into the API Token field and enable Create Users, Update Users to Attributes and Deactivate Users; for the SCIM connection it has Unique identifier field for users set to userName, the Push New Users and Push Groups provisioning actions, and HTTP Header as the authentication mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "quotes": [
+            "An OIN-based integration uses SCIM-based provisioning and Zscaler recommends the OIN-based integration.",
+            "Select Enable API integration.",
+            "Paste the Bearer Token value copied from the Zscaler Admin Console to the API Token field.",
+            "In the Provisioning to App section, enable the Create Users, Update Users to Attributes, and Deactivate Users options."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "after": "Okta does not support SCIM provisioning for custom OIDC applications. For configuring SCIM-based provisioning using Okta, Zscaler recommends using a SAML app integration.",
+          "quotes": [
+            "Unique identifier field for users: Enter userName as the value.",
+            "Supported provisioning actions: Select the Push New Users and Push Groups options.",
+            "Authentication mode: Select HTTP Header from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "okta-custom-app-values": {
+      "statement": "For the Okta custom OIDC app the guide has the grant type set to Authorization Code and the Enable immediate access with Federation Broker Mode option disabled, a custom authorization server's Audience set to api://zscaler, and the claim name created for group retrieval (i.e., Groups) entered as the Just-in-time User Group Attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "quotes": [
+            "Ensure that Grant type is set to Authorization Code.",
+            "Disable the Enable immediate access with Federation Broker Mode option.",
+            "Audience: Enter api://zscaler.",
+            "Just-in-time User Group Attribute: Enter the claim name created for group information retrieval (i.e., Groups). This retrieves the group membership information of the users from Okta."
+          ]
+        }
+      ]
+    },
+    "okta-manager-attribute": {
+      "statement": "Authentication Service requires the Manager attribute in email address format; in Okta the Manager attribute is the manager's display name and ManagerId is the manager's username, so the guide has the manager's email address mapped to the ManagerId profile attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "quotes": [
+            "Authentication Service requires the Manager attribute to be in the email address format. In Okta, the Manager attribute represents the display name and the ManagerId attribute represents the username of the manager.",
+            "ensure that the email address of the manager is mapped to the ManagerId profile attribute"
+          ]
+        }
+      ]
+    },
+    "okta-session-attributes": {
+      "statement": "Mapping the Okta custom profile user attributes with the custom profile app attributes is necessary to use custom session attributes in Private Access policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "quotes": [
+            "Mapping the custom profile user attributes with the custom profile app attributes is necessary if you want to use custom session attributes in Private Access (ZPA) policies."
+          ]
+        }
+      ]
+    },
+    "entra-app-count": {
+      "statement": "The Entra ID guide says the provisioning mode (JIT or SCIM) determines the number of apps in Entra ID, one for JIT and two for SCIM; for OIDC apps via the Microsoft Entra App Gallery only JIT provisioning is supported, and SCIM with OIDC needs a custom Entra ID app for SCIM in addition to the Gallery app for authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "quotes": [
+            "A preferred choice of provisioning mode (JIT or SCIM) as this determines the number of apps you need to configure in Entra ID — one app for JIT and two apps for SCIM.",
+            "Entra ID only supports JIT provisioning for OIDC apps via the Microsoft Entra App Gallery. If you prefer SCIM provisioning with OIDC, you need to create a custom Entra ID app for SCIM, in addition to using the Gallery App for authentication.",
+            "| JIT Provisioning | Yes | Supported by default | None |",
+            "| SCIM Provisioning | Yes | Not supported in the Gallery Application | Create a custom Entra ID app for SCIM provisioning in addition to using the Gallery App for authentication. |"
+          ]
+        }
+      ]
+    },
+    "entra-oidc-claims": {
+      "statement": "For Entra ID over OIDC the guide selects the email and preferred_username claims for the ID token, the Groups assigned to the application option, and Group ID for groups because Entra ID does not support sending group names with OIDC when groups are created in the Entra cloud (sAMAccountName instead when group names arrive via Entra ID sync); it modifies the manifest to include cloud_displayname so group names are sent instead of IDs, sets acceptMappedClaims to true (to accept custom claims such as department and title) and requestedAccessTokenVersion to 2, and enters groups as the Just-in-time User Group Attribute with Primary Email mapped to the email JIT attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "quotes": [
+            "Select ID as the token type, and from the list of claims, select email and preferred_username.",
+            "In the Select group types to include in Access, ID, and SAML tokens section, select the Groups assigned to the application option.",
+            "The Group ID must be selected as Entra ID does not support sending group names with OIDC protocol when groups are created in the Entra cloud.",
+            "If the group names are received via the Entra ID sync, select the sAMAccountName option instead of the Group ID option to pass on the group names.",
+            "modify the additionalProperties array to include cloud_displayname",
+            "This configuration is required to send group names instead of group IDs. Authentication Service uses this to display group memberships, map users to roles, and evalute policies in JIT mode.",
+            "Change the value of the acceptMappedClaims attribute to true. This is required to enable Entra ID to accept custom claims (e.g., department, title) for issuing tokens.",
+            "Change the value of the requestedAccessTokenVersion attribute to 2.",
+            "Enter groups as the Just-in-time User Group Attribute and map the Primary Email User Attribute with the email JIT User Attribute."
+          ]
+        }
+      ]
+    },
+    "entra-app-registration": {
+      "statement": "The Entra ID guide has the admin click Grant admin consent for the Entra ID tenant, which it says is required so end users do not get the prompt to accept the grant at login; the saved configuration takes a few hours to take effect, and the Client ID is the Application (Client) ID and the Client Secret the Value from the Client secrets tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "quotes": [
+            "Click Grant admin consent for <entra_ID_tenant_name>.",
+            "To ensure only administrators can accept grants, this configuration is required as it prevents the end users from getting the prompt to accept the grant while logging in to the application.",
+            "The configuration is saved, and it takes a few hours for the changes to take effect.",
+            "In the Entra Admin Center, the value copied from the Application (Client) ID field must be used for the Client ID field, and the value copied from the Value column on the Client secrets tab must be used for the Client Secret field."
+          ]
+        }
+      ]
+    },
+    "entra-scim-oidc": {
+      "statement": "On the Entra ID OIDC path, when migrating from an existing custom app-based SCIM configuration, selecting OAuth2 Client Credentials as the Authentication Method warns that the configuration would be overwritten, and on Confirm the existing SCIM configurations, including the current bearer token, are discarded and synchronization with Entra ID is interrupted temporarily. The Token Endpoint field is visible only after saving once the client secret is generated; Zscaler recommends scheduling provisioning in a maintenance window because the initial synchronization might take several hours and could cause service disruption, and says users must not be changed in Entra ID or they are duplicated in Authentication Service. If migrating from an existing custom app-based SCIM configuration, users and groups must be assigned app-based roles and customizations such as SCIM transformations must be replicated in the new application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "after": "Migrating from an existing custom app-based SCIM configuration",
+          "quotes": [
+            "Authentication Method: Select OAuth2 Client Credentials. This triggers a warning indicating that the configuring would be overwritten.",
+            "Click Confirm. The existing SCIM configurations are discarded, including the current bearer token. This interrupts synchronization with Entra ID temporarily."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "quotes": [
+            "The Token Endpoint field is visible only after saving the configuration after generating the client secret.",
+            "Zscaler recommends scheduling provisioning during a maintenance window. Depending on the tenant size and user count, the initial synchronization might take several hours and could cause service disruption.",
+            "Do not make any changes to users in Entra ID as these would result in duplication of users in Authentication Service.",
+            "If you are migrating from an existing custom app-based SCIM configuration:",
+            "Ensure the users and groups are assigned app-based roles.",
+            "Any customizations (e.g. SCIM transformations) performed in the existing custom application must be replicated in the new application."
+          ]
+        }
+      ]
+    },
+    "entra-scim-mappings": {
+      "statement": "The Entra ID SCIM attribute mappings map user userName from userPrincipalName (matching), active from a Switch expression on IsSoftDeleted, displayName, emails[type eq \"work\"].value from mail, name.givenName from givenName, name.familyName from surname, externalid from objectId and the enterprise extension's department; group displayName (matching), externalId from objectId and members.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "after": "In the left-side navigation, Manage > Attribute Mapping.",
+          "quotes": [
+            "| userName | userPrincipalName | Yes |",
+            "| active | Switch([IsSoftDeleted], , \"False\", \"True\", \"True\", \"False\") |  |",
+            "| displayName | displayName |  |",
+            "| emails[type eq \"work\"].value | mail |  |",
+            "| name.givenName | givenName |  |",
+            "| name.familyName | surname |  |",
+            "| externalid | objectId |  |",
+            "| urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:department | department |  |",
+            "| displayName | displayName | Yes |",
+            "| externalId | objectId |  |",
+            "| members | members |  |"
+          ]
+        }
+      ]
+    },
+    "entra-scim-settings": {
+      "statement": "In the guide's SAML-based section, the SCIM setup selects Automatic as the Provisioning Mode and enters the bearer token as the Secret Token; it also offers failure email notification, an optional accidental-deletion threshold above which deleting groups and users needs admin approval, and an optional scope of Sync only assigned users and groups, which Zscaler recommends.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "quotes": [
+            "Provisioning Mode: Select Automatic from the Provisioning Mode drop-down menu.",
+            "Secret Token: Enter the bearer token that you generated and copied from the Bearer Token field while configuring the primary or secondary IdP in the Zscaler Admin Console.",
+            "Send an email notification when a failure occurs:",
+            "Prevent accidental deletion: (Optional) Selecting this option allows you to set an Accidental deletion threshold. When the option is enabled, deleting a number of groups and users over the threshold requires approval from an admin.",
+            "Scope: (Optional) Choose Sync only assigned users and groups. Zscaler recommends using this setting."
+          ],
+          "after": "This section provides information on how to configure Microsoft Entra ID as the SAML Identity Provider (IdP) for Authentication Servic"
+        }
+      ]
+    },
+    "entra-step-up-contexts": {
+      "statement": "For step-up with Entra ID the guide selects an authentication context ID from C1 to C99 with Publish to apps enabled, each authentication context corresponding to an ACR value in the Zscaler Admin Console; the Conditional Access grant is Grant access with Require multifactor authentication, the Authentication Context ID is entered for each level under Levels to Authentication context mapping, and the highest level is mapped to the context ID for the strongest context.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "quotes": [
+            "ID: Select an ID for the authentication context from the drop-down menu. You can select a value from C1 to C99.",
+            "Each authentication context corresponds to an ACR value in the Zscaler Admin Console.",
+            "Publish to apps: Ensure that this option is enabled.",
+            "Grant: Click the link to configure grant controls, select Grant access, and select Require multifactor authentication.",
+            "On the Advanced Configurations tab, in the Levels to Authentication context mapping section, enter the Authentication Context ID for each authentication level.",
+            "Ensure that you map the proper Authentication context ID for each level depending on the hierarchy. The highest level of authentication must be mapped to the Authentication Context ID for the strongest context."
+          ]
+        }
+      ]
+    },
+    "entra-saml": {
+      "statement": "For Entra ID over SAML the guide leaves the Namespace empty for additional attributes (Department from user.department, emailaddress from user.mail, givenname, name from user.userprincipalname and surname), uses Cloud-only group display names as the group source attribute, renames the certificate file to .pem, selects Sign SAML response and assertion with SHA-256, and, for IdP-initiated SSO, disables Require verification certificates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "quotes": [
+            "Ensure that the Namespace field is left empty for all additional attributes.",
+            "| Department | user.department |",
+            "| emailaddress | user.mail |",
+            "| givenname | user.givenname |",
+            "| name | user.userprincipalname |",
+            "| surname | user.surname |",
+            "Source attribute: Select Cloud-only group display names.",
+            "Rename the file with the .pem extension.",
+            "Signing Option: Select Sign SAML response and assertion from the drop-down menu.",
+            "Signing Algorithm: Select SHA-256 from the drop-down menu.",
+            "To configure IdP-initiated SSO, the Require verification certificates option must be disabled while configuring the Verification Certifications for the Authentication Service application in Entra ID."
+          ]
+        }
+      ]
+    },
+    "adfs-oidc": {
+      "statement": "For AD FS over OIDC the well-known URL format is `https://<host>/adfs/.well-known/openid-configuration`; the client ID starts as a random value and is overridden with the actual client ID created in the AD FS Management Console; the application uses the Server application template with permitted scopes allatclaims, email, openid and profile and the LDAP Attributes as Claims claim rule template; and the relying party trust identifier is `https://<adfs_endpoint>/adfs/services/trust`, where the AD FS endpoint is publicly resolvable with a valid certificate signed by a trusted CA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-ad-fs-external-idp.json",
+          "quotes": [
+            "The format for the OIDC well-known URL is https://<host>/adfs/.well-known/openid-configuration.",
+            "Client ID: Enter a random value. The actual client ID is generated while configuring an application for Authentication Service in the AD FS Management Console in a subsequent step.",
+            "Client ID: Override the previously configured random value with the actual client ID of the application created in the AD FS Management Console.",
+            "Template: Select Server application.",
+            "Permitted scopes: Select allatclaims, email, openid, and profile.",
+            "Claim rule template: Select LDAP Attributes as Claims.",
+            "Relying party trust identifier: Enter https://<adfs_endpoint>/adfs/services/trust",
+            "Replace <adfs_endpoint> with your AD FS endpoint which is publicly resolvable and has a valid certificate signed by a trusted CA."
+          ]
+        }
+      ]
+    },
+    "adfs-saml": {
+      "statement": "For AD FS over SAML the typical federation metadata path is /FederationMetadata/2007-06/FederationMetadata.xml, uploaded through Upload Metadata; the console's SP Metadata is downloaded and imported as a relying party from a file with SAML Request Signing enabled; custom user attributes such as Department must already be configured in the Zscaler Admin Console before mapping; and the claim rule template is Send LDAP Attributes as Claims.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-ad-fs-external-idp.json",
+          "quotes": [
+            "The typical URL path is /FederationMetadata/2007-06/FederationMetadata.xml.",
+            "Input Method: Select Upload Metadata and click the IdP Metadata drop zone to upload the AD FS federation metadata file downloaded in the previous step.",
+            "On the Basic Configurations tab, click Download SP Metadata.",
+            "Go to the Advanced Configurations tab and enable SAML Request Signing.",
+            "select the Import data about the relying party from a file option, and enter the location of the SP Metadata XML file downloaded from the Zscaler Admin Console in the previous step.",
+            "If you want to map custom user attributes (e.g., Department), make sure they are already configured in the Zscaler Admin Console.",
+            "select the Send LDAP Attributes as Claims option from the Claim rule template drop-down menu."
+          ]
+        }
+      ]
+    },
+    "pingone-oidc": {
+      "statement": "The PingOne guide covers PingOne as the OpenID Provider (OP) for Authentication Service; the PingOne application type is OIDC Web App, with email and Profile selected as allowed scopes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingone-external-idp.json",
+          "quotes": [
+            "This guide provides information on how to configure PingOne as the OpenID Provider (OP) for Authentication Service",
+            "Application Type: Select OIDC Web App.",
+            "On the Scopes tab, select email and Profile to include them as allowed scopes."
+          ]
+        }
+      ]
+    },
+    "pingone-scim": {
+      "statement": "For PingOne SCIM the guide selects Identity Store as the connection type and the SCIM Outbound app; with a bearer token it is pasted into the Oauth Access token field, with client credentials the console's Token Endpoint, Client ID and Client Secret go to Oauth Token Request, Oauth Client ID and Oauth Client Secret, and switching from the bearer token method to client credentials requires removing the bearer token configurations in PingOne first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingone-external-idp.json",
+          "quotes": [
+            "Select Identity Store as the connection type.",
+            "Select the SCIM Outbound app and click Next.",
+            "OAuth 2 Bearer Token: Paste the Bearer Token copied from the Zscaler Admin Console to the Oauth Access token field.",
+            "| Token Endpoint | Oauth Token Request |",
+            "| Client ID | Oauth Client ID |",
+            "| Client Secret | Oauth Client Secret |",
+            "If you are switching from the bearer token method to the client credentials method, you need to remove the bear token configurations before configuring the client credential method in the PingOne admin console."
+          ]
+        }
+      ]
+    },
+    "pingone-provisioning-rule": {
+      "statement": "In a PingOne provisioning rule the user filter can be configured with conditions, for example filtering users by specific Group Names, the groups to be provisioned for Authentication Service are selected, and group overwriting is confirmed for the matching groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingone-external-idp.json",
+          "quotes": [
+            "On the Edit User Filter page, configure the necessary conditions for user filter. For example, you can filter users based on specific Group Names.",
+            "Select the groups that you want to be provisioned for Authentication Service.",
+            "Confirm group overwriting for the matching groups."
+          ]
+        }
+      ]
+    },
+    "pingone-name-expression": {
+      "statement": "The PingOne guide's example maps the name attribute in Authentication Service by combining the Given Name and Family Name attributes in PingOne.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingone-external-idp.json",
+          "quotes": [
+            "For example, the name attribute in Authentication Service is mapped combining Given Name and Family Name attributes in PingOne."
+          ]
+        }
+      ]
+    },
+    "pingone-step-up": {
+      "statement": "For PingOne step-up the authentication policy's Policy Name is the ACR value mapped to the authentication level in the Zscaler Admin Console, with step type Multi-Factor Authentication, an MFA Policy and a Required When condition (the guide's examples: always, last sign-on older than 1 hour); the user is prompted with all options configured in the MFA step, and the highest level is mapped to the ACR value for the strongest context.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingone-external-idp.json",
+          "quotes": [
+            "Policy Name: Enter the ACR value that must be mapped to the authentication level in the Zscaler Admin Console.",
+            "Step type: Select Multi-Factor Authentication.",
+            "MFA Policy: Select the required MFA policy configured for step-up authentication.",
+            "Required When: Select the options when the MFA must be triggered (e.g., always, last sign-on is older than 1 hour).",
+            "Ensure that you select only the required authentication methods as the user is prompted with all options configured in this step.",
+            "Ensure that you map proper ACR claims for each level depending on the hierarchy. The highest level of authentication must be mapped to the ACR value for the strongest context."
+          ]
+        }
+      ]
+    },
+    "pingfed-oidc-prereqs": {
+      "statement": "The PingFederate guide's page-level Prerequisites, \"Ensure that you have configured:\", list a datastore, an LDAP connection for the datastore to the directory server, a password credential validator, an IdP adapter, a policy contract, an authentication policy, an access token management instance, an OpenID connect policy and access token mappings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingfederate-external-idp.json",
+          "quotes": [
+            "Ensure that you have configured:",
+            "A datastore.",
+            "An LDAP connection for the datastore to your directory server.",
+            "A password credential validator.",
+            "An IdP adpater.",
+            "A policy contract.",
+            "An authentication policy.",
+            "An access token management instance.",
+            "An OpenID connect policy.",
+            "Access token mappings."
+          ]
+        }
+      ]
+    },
+    "pingfed-oidc-client": {
+      "statement": "For PingFederate over OIDC the well-known URL format is `https://<host>/.well-known/openid-configuration`; the client ID starts as a random value generated later in the PingFederate Admin Console; the client uses Client Secret authentication, Bypass for authorization approval, the Authorization Code grant and a chosen default access token manager; email, profile and openid are added as common scopes; and groups is the JIT User Group Attribute from IdP with Primary Email mapped to the email JIT attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingfederate-external-idp.json",
+          "quotes": [
+            "The format for the OIDC well-known URL is https://<host>/.well-known/openid-configuration.",
+            "Client ID: Enter a random value. The actual client ID is generated while configuring a client for Authentication Service in the PingFederate Admin Console in a subsequent step.",
+            "Client Authentication: Select the Client Secret option.",
+            "Bypass Authorization Approval: Select Bypass.",
+            "Allowed Grant Types: Select Authorization Code.",
+            "Default Access Token Manager: Select the access token manager that must be configured for the client from the drop-down menu.",
+            "On the Add Common Scope page, enter email in the Name field, add a description, and click Save. Repeat the steps for adding a common scope to add profile and openid as common scopes.",
+            "Enter groups as the JIT User Group Attribute from IdP and map the Primary Email User Attribute with the email Just-in-time User Attribute."
+          ]
+        }
+      ]
+    },
+    "pingfed-scim-channel": {
+      "statement": "PingFederate provisioning uses an Outbound Provisioning connection of type SCIM Connector, and the SCIM Provisioner must be installed if that option is not available; the target is SCIM Version 2.0 with OAuth 2 Bearer Token authentication, Max Threads is set to 1 and Timeout (Secs) to 60, userName is mapped to userPrincipalName, the Email attribute mapping is mandatory, objectGUID is added as a binary attribute on the LDAP Binary Attributes tab, and the Synchronization Frequency can be customized on the Outbound Provisioning tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingfederate-external-idp.json",
+          "quotes": [
+            "On the Connection Type tab, select Outbound Provisioning and select SCIM Connector from the Type drop-down menu.",
+            "If the SCIM Connector option is not available, you must install the SCIM Provisioner.",
+            "Max Threads: Set value to 1.",
+            "Timeout (Secs): Set value to 60.",
+            "Map userName field with userPrincipalName.",
+            "On the LDAP Binary Attributes tab, add objectGUID as the binary attribute.",
+            "On the Outbound Provisioning tab, customize the Synchronization Frequency.",
+            "The mapping of the Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingfederate-external-idp.json",
+          "after": "Partner's Entity ID (Connection ID): Enter the SCIM Endpoint URL copied from the Zscaler Admin Console.",
+          "quotes": [
+            "SCIM Version: Select 2.0 from the drop-down menu.",
+            "Authentication Method: Select OAuth 2 Bearer Token from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "pingfed-saml": {
+      "statement": "For PingFederate over SAML a random IdP Metadata URL is entered for generating SP Metadata in the Zscaler Admin Console and is later replaced; the connection uses the Browser SSO Profiles template with SAML 2.0, IdP-Initiated and SP-Initiated SSO, the POST method only, an attribute contract whose values must match the values on the Zscaler Admin Console, and optionally an encryption policy for the entire assertion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingfederate-external-idp.json",
+          "quotes": [
+            "IdP Metadata URL: Enter a random URL, and click Fetch.",
+            "The random URL is added for generating SP Metadata in the Zscaler Admin Console. This value is manually overridden in a subsequent step.",
+            "This replaces the random URL entered for the IdP Metadata URL field in a previous step.",
+            "Select Browser SSO Profiles as Connection Template and SAML 2.0 as Protocol.",
+            "Select IdP-Initiated SSO and SP-Intiated SSO.",
+            "Select POST method, and ensure that other methods are not selected.",
+            "These values are included in the SAML assertion, and they must match the values on the Zscaler Admin Console.",
+            "(Optional) Select The Entire Assertion to enable an encryption policy."
+          ]
+        }
+      ]
+    },
+    "auth0-oidc": {
+      "statement": "The Auth0 guide covers Auth0 as the OpenID Provider (OP); the application type is Regular Web Application, the Input Method is Metadata URL with the OpenID Configuration value from the Auth0 Dashboard, the token authentication method is Client Secret Basic, and the console's Redirect URI is pasted into the Application Login URI and Allowed Callback URLs fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-auth0-external-idp.json",
+          "quotes": [
+            "This guide provides information on how to configure Auth0 as the OpenID Provider (OP) for Authentication Service to facilitate single sign-on (SSO) to various Zscaler services for admin access management.",
+            "Application Type: Select the Regular Web Application option.",
+            "Input Method: Select Metadata URL and Paste the OpenID Configuration value copied from the Auth0 Dashboard in a previous step to the Metadata URL field and click Fetch.",
+            "Token Endpoint Authentication Method: Select Client Secret Basic and paste the Client ID and Client Secret values copied from the Auth0 Dashboard in a previous step to the respective fields.",
+            "Paste the Redirect URI value copied from the Zscaler Admin Console to the Application Login URI and Allowed Callback URLs fields."
+          ]
+        }
+      ]
+    },
+    "onelogin-oidc": {
+      "statement": "The OneLogin guide covers OneLogin as the OpenID Provider (OP), using the OpenID Connect (OIDC) app found by searching the Find Applications window for oidc; the Metadata URL is the Issuer URL copied from the Well-known configuration link, and the console's Redirect URI is pasted into the app's Redirect URI's field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-onelogin-external-idp.json",
+          "quotes": [
+            "This guide provides information on how to configure OneLogin as the OpenID Provider (OP) for Authentication Service",
+            "In the Find Applications window, search for oidc, and click the OpenID Connect (OIDC) option from the search results.",
+            "To copy the Issuer URL value, right-click the Well-known configuration link, and select Copy Link Address (or an equivalent option in your browser).",
+            "Input Method: Select Metadata URL and paste the Issuer URL value copied from the OneLogin Portal in a previous step to the Metadata URL field and click Fetch.",
+            "Paste the Redirect URI value copied from the Zscaler Admin Console to the Redirect URI's field."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "entra-gallery-scim": {
+      "kind": "semantic",
+      "title": "Whether the Entra ID Gallery app carries SCIM through OAuth2 client credentials",
+      "status": "open",
+      "detail": "The Entra ID guide lists SCIM provisioning as not supported in the Gallery Application, yet its OIDC SCIM steps configure provisioning on the application created for Authentication Service, including migration from an existing custom app-based SCIM configuration with customizations replicated in the new application. Which app those steps apply to is unclear from the page.",
+      "blocks": "telling a tenant whether SCIM needs the second custom Entra ID app",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "guide-coverage": {
+      "kind": "semantic",
+      "title": "Which protocol and provisioning each vendor guide documents",
+      "status": "open",
+      "detail": "Absences from the captured guides, not claims: AD FS, Auth0 and OneLogin describe only JIT; PingOne covers only OIDC; Auth0 and OneLogin cover only OIDC. The table of example IdPs marks SAML as supported for all seven vendors, but these guides do not show SCIM or SAML for those vendors. PingFederate's introduction names only SAML and SCIM while the page also documents an OIDC path with JIT.",
+      "blocks": "telling a tenant that SCIM or SAML is documented for a given vendor",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

@@ -4,10 +4,17 @@ This page collects repo upkeep that does not need to sit in the root README.
 
 ## Automation
 
-`.github/workflows/check-hygiene.yml` runs `scripts/check-hygiene.py` on every
-PR and on the weekly hygiene cadence. Errors fail CI; warnings are advisory.
-This catches frontmatter drift, broken anchors, eval-doc desync, and
-resolved-clarification propagation gaps.
+`.github/workflows/check-hygiene.yml` (the required `hygiene` check) runs
+`node scripts/check-full.mjs` on every PR, on pushes to main and on Monday's
+cron: the same gate a maintainer runs locally, so the list of checks lives in
+`check-full.mjs` and `check-fast.mjs` and nowhere else. Errors fail CI;
+advisory checks report without failing. `lint-js.yml` and `lint-py.yml` are
+the other two required checks (Biome and Ruff).
+
+`.github/workflows/kb-refresh.yml` runs the knowledge-graph refresh loop below
+every Monday at 12:00 UTC through `node scripts/kb-refresh.mjs`, and opens a
+`kb-refresh` pull request when a capture moved. See "Weekly knowledge-graph
+refresh" below.
 
 `.github/workflows/issue-watch.yml` runs `scripts/issue-watch.py` in
 sticky-issue mode every Monday at 13:00 UTC. The first run creates a sticky
@@ -18,14 +25,15 @@ marker carries state so no Actions cache or local `state.json` is needed.
 
 `.github/workflows/maintenance-digest.yml` runs
 `scripts/maintenance-digest.py` weekly after the main hygiene cadence. It
-updates a sticky issue with label `maintenance-digest` with stale references,
-stale help captures, vendor drift counts, eval coverage warnings, script
-scaffolds, and TODO/stub inventory. This is advisory backlog generation, not a
-merge gate.
+updates a sticky issue with label `maintenance-digest` with stale help
+captures, eval coverage warnings, script scaffolds, and TODO inventory. Vendor
+drift against the graph is the weekly refresh pull request's job, not the
+digest's. This is advisory backlog generation, not a merge gate.
 
 `.github/workflows/vendor-impact.yml` runs on PRs touching `vendor/**` or
-`.gitmodules`. It posts or updates a PR comment with submodule commit logs and
-`check-vendor-drift.py` counts, runs `scripts/find-asymmetries.py`, and uploads
+`.gitmodules`. It posts or updates a PR comment with submodule commit logs and the
+knowledge-graph pin review (`kb-drift.mjs --pins`: evidence citing a changed
+file, sorted into broken, in changed text and untouched), runs `scripts/find-asymmetries.py`, and uploads
 the vendor impact summary plus asymmetry candidates as artifacts. Use this for
 Renovate and submodule PR triage before merging.
 
@@ -38,35 +46,143 @@ the workflow does not silently treat an unavailable baseline as an unchanged
 source. The job summary contains the bounded Markdown report, and the scan
 does not open issues, mutate sources, or send notifications.
 
+## Knowledge-graph refresh loop
+
+Every claim quotes a pinned source, so a source change shows up as quotes that no longer anchor. The loop
+below takes a source change to a reviewable pull request; each step is deterministic and needs no model.
+Keep scratch output outside the checkout (`$TMP` below).
+
+1. **Help captures.** `python3 scripts/help_capture.py check --replace --json > $TMP/drift.json` refetches
+   every capture (help.zscaler.com and automate.zscaler.com pages, and www.zscaler.com product pages, which the
+   site rate-limits, so those are fetched three seconds apart) and reports the ones whose page revision moved
+   (exit 1 means drift); it rewrites them only once
+   every page was checked, so a run that fails part way changes nothing. A page the site still fails to serve
+   after retries is reported unavailable, like one under maintenance. After a
+   change to the renderer itself, use `help_capture.py rerender` instead: it re-renders captures still at
+   their captured revision and reports any whose revision moved.
+1a. **Issues.** `GITHUB_TOKEN=$(gh auth token) python3 scripts/issue_capture.py check --replace --json > $TMP/issues.json`
+   (without a token, GitHub's anonymous rate limit stops a full check part way) refetches the
+   captured GitHub issues; a changed state (an issue closed, a pull request merged) marks every line of it
+   changed, and `node scripts/kb-drift.mjs $TMP/issues.json` lists the claims citing it.
+2. **Spacing-only breaks.** `node scripts/kb.mjs requote --write` re-quotes every capture quote or `after`
+   anchor that a re-render broke only by whitespace (one span equal to it up to spacing); without `--write`
+   it lists them. A reworded or ambiguous quote is left for step 3.
+3. **Review.** `node scripts/kb-drift.mjs $TMP/drift.json` sorts every evidence entry that cites a changed
+   page into `broken` (re-anchor it, or turn the claim into a gap if the page no longer says it),
+   `in-change` (it still anchors, on or next to a changed line: read the change against the claim) and
+   `untouched`. Gone and maintenance pages are listed with the claims that cite them. A page that moved to a
+   new address with the same content is reported `moved` (its old address becomes an alias), and only the
+   evidence pointing at its address can break. `node scripts/kb-drift.mjs --by-subject $TMP/drift.json
+   $TMP/issues.json --pins <base-ref>` lists the same entries per subject across every review, so each subject
+   gets one writer. `node scripts/kb-drift.mjs --renames $TMP/drift.json` lists the names the changed pages
+   replaced ("Internet & SaaS" -> "Internet Access") and the subjects whose own wording (titles, aliases, prose,
+   statements) still uses the old one, which the evidence review does not reach.
+4. **Submodule bumps.** On main Renovate opens them; on a branch it does not watch, `node scripts/bump-pins.mjs`
+   lists what would move (`--apply` checks out and stages the new pins). It moves a submodule renovate.json holds
+   for approval only to a release tag, force-fetches tags so they match a fresh clone, and names any tag upstream
+   re-pointed, since evidence `at` resolves through tag names. A pin bump re-anchors every quote into that submodule at the new pin; a quote that
+   breaks there is a real source change, never a spacing one, so it goes through review, not `requote`. A
+   quote can also keep anchoring while the code beside it changes what the claim says (a field added to a
+   request body the claim says holds only three). `node scripts/kb-drift.mjs --pins <base-ref>` diffs every
+   moved pin and sorts the evidence citing changed files (evidence whose `at` names only fixed refs excepted; `at`
+   with `HEAD` moves with the pin) into the same `broken`, `in-change` and `untouched`;
+   read every `in-change` entry against its claim.
+5. **Generated layers.** `node scripts/gen-surfaces.mjs all` (or one product) after a spec capture or an SDK or
+   provider pin changes, `node scripts/gen-log-types.mjs` after an NSS or LSS field article changes, and
+   `node scripts/gen-releases.mjs` after a release-note page changes; each takes `--check`. A zscalerctl pin change also needs `node scripts/kb.mjs export-zscalerctl` (needs Go) and
+   `import-types`, and changes the resolve goldens in `scripts/fixtures/kb-golden/`.
+6. **Records.** `node scripts/kb.mjs manifest` records the changed captures' hashes and
+   `node scripts/kb.mjs verified` regenerates `references/_meta/verified.json`.
+6a. **Retrieval.** `node scripts/kb-retrieval.mjs` reports how a plain-question resolve ranks each eval's gold
+   subjects; the gate fails when any ranks worse than `scripts/fixtures/kb-retrieval-baseline.json`. After an
+   intended ranking or subject change, rewrite the baseline with `--write` and review its diff.
+7. **Gate.** `node scripts/check-full.mjs` (validate, lint, generated-layer checks and every test, with
+   temporary files under one root it removes).
+8. **Pull request.** Open it with the drift review in the description. It never merges itself.
+
+`node scripts/kb-refresh.mjs --out $TMP` runs steps 1, 1a, 2, 3 (the review), 5 and 6 in that order and writes
+the check reports, the full review (`review.md`), the same entries by subject (`by-subject.md`), the rename sweep
+(`renames.md`), the capture queue (`capture-queue.md`) and a pull-request description bounded to GitHub's size
+limit (`body.md`). It does not commit, push or run the gate. While editing a subject, `node scripts/kb.mjs check
+<subject-id> ...` validates and lints just those subjects in about a second.
+
+**Capture queue.** `node scripts/capture-queue.mjs` lists the help pages the pinned vendor material links to
+that are not captured, ranked by how many cited vendor files link each. Clear old addresses first with
+`python3 scripts/help_capture.py alias <url> ...` (a URL that redirects to a captured page becomes that capture's
+alias), run `node scripts/kb.mjs manifest`, then capture what the graph needs with `help_capture.py capture`.
+
+**Claim audit.** `validate` proves each quote is in its source; `python3 scripts/claim_audit.py` asks whether
+the quotes state everything the statement says. Haiku judges every claim and Opus re-judges the covered and
+unsure verdicts; each claim comes out `overreach`, `borderline` (a person decides) or `covered`. Run it on the
+claims a change adds or rewrites, and on what the review marks `broken` or `in-change`:
+
+```bash
+python3 scripts/claim_audit.py build --base origin/main --out $TMP/audit   # claims new or changed since main
+python3 scripts/claim_audit.py run --out $TMP/audit
+python3 scripts/claim_audit.py record --out $TMP/audit                     # into references/_meta/claim-audit.json
+python3 scripts/claim_audit.py status
+python3 scripts/claim_audit.py review --base origin/main > $TMP/audit/review.md   # the borderline claims, for the PR
+```
+
+`review` prints the claims a person decides as Markdown for the pull request: each one's statement with the parts
+the judges found unstated in bold, its quotes and its file. Paste it into the description or a comment and settle
+each one in review: fine as written, narrowed, or given the quote that states it. Without `--base` it covers the
+whole graph, and `--all` adds the overreach claims, which are fixed before merge rather than reviewed. A backlog
+too large for one pull request goes to GitHub issues: `review --checklists --out <dir>` writes one checklist per
+product (split to fit an issue body), each claim a checkbox with its statement and a link to its line at the
+current commit; open each file as an issue labelled `claim-review`. A ticked box is fine as written; a comment
+naming a claim asks for a fix, which lands in a pull request like any other. One run's verdicts vary (two full runs
+agreed on 90% of unchanged claims and on only 69% of borderline ones), but a flag is usually real: when an Opus
+reviewer read each of the 1,259 claims either run flagged, against its quotes and sources, 97% of those flagged in
+both runs and 88% of those flagged in one needed a change, most often a quote that stops short of the part it
+backs. So review every flag; to review a subset first, such as the claims flagged in two runs, pass `review --checklists` that list with `--ids`.
+
+Verdicts are kept per claim with a hash of its statement and evidence, so `build --unaudited` finds what changed
+since its audit. It runs through the `claude` CLI on a Claude plan's quota, never in CI. Before trusting a
+rubric or model change, rerun the calibration set (`build --calibration`, `run`, `grade`). A rubric change
+empties the record when the next run is recorded, so record any run in flight first, then re-audit every claim.
+
+## Weekly knowledge-graph refresh (automated)
+
+- Monday at 12:00 UTC, `kb-refresh.yml` runs `kb-refresh.mjs`. When nothing
+  moved it says so in the job summary and stops. Otherwise it commits the
+  rewritten captures and records to the `kb-refresh` branch, opens a pull
+  request whose description is the drift review, uploads the full review
+  (diffs included) as the `kb-refresh` artifact, and dispatches the three
+  required checks on the branch (a pull request opened with `GITHUB_TOKEN`
+  starts no `pull_request` workflows).
+- Broken evidence fails the gate on that pull request: re-anchor it on the
+  branch, or turn the claim into a gap when the source no longer says it, read
+  every in-change entry against its claim, and run the claim audit on the
+  claims you touched before merging.
+- While a refresh pull request is open, the next run only reports it, so fixes
+  pushed to the branch are never overwritten. Merge or close it to resume.
+
 ## Weekly upstream refresh (automated)
 
 Most weeks, a maintainer does not need to start the upstream bump by hand.
 
 - Renovate watches git submodules, normally groups them as `Zscaler upstream
   submodules`, labels the PR `upstream-bump`, and runs before 9am UTC Monday.
-  Four compatibility-sensitive roots — the AWS, Azure, and GCP Cloud Connector
-  modules plus `terraform-provider-zia` — are excluded from that group and
-  require Dependency Dashboard approval before Renovate opens separate PRs.
-  Approve a Cloud Connector module only after checking its Terraform syntax
-  against the documented floor; approve the ZIA provider only at an exact
-  released tag.
-- A bump PR that changes `vendor/**` or `.gitmodules` triggers the hygiene
-  workflow. The non-advisory hygiene checks fail the job on real errors; vendor
-  family coverage and vendor drift are advisory so expected upstream movement is
-  visible without deadlocking every bump.
+  `terraform-provider-zia` is excluded from that group and needs Dependency
+  Dashboard approval before Renovate opens its own PR: approve it only at an
+  exact released tag, so claims cite a version that shipped. Nothing here runs
+  the vendored modules or providers; a bump of any of them is reviewed with
+  `node scripts/kb-drift.mjs --pins <base-ref>` like any other source.
+- A bump PR runs the full gate. A quote that no longer anchors at the new pin
+  fails it: that is a real source change to re-anchor on the bump branch.
 - `vendor-impact.yml` also runs on vendor PRs. Read its PR comment first: it
-  contains the submodule commit logs and `check-vendor-drift.py` counts. The
+  contains the submodule commit logs and the pin review, whose in-change list
+  is the evidence to read against its claims even when nothing is broken. The
   workflow also runs the asymmetry scan and uploads that output as an artifact.
 - Monday at 13:00 UTC, `check-hygiene.yml` and `issue-watch.yml` run by cron.
   Issue watch updates the sticky `issue-watch-digest` issue with upstream
-  Zscaler GitHub issue activity.
+  Zscaler GitHub issue activity; an issue worth keeping is captured with
+  `issue_capture.py` (see Contributing), after which the refresh tracks it.
 - Monday at 13:20 UTC, `maintenance-digest.yml` updates the sticky
-  `maintenance-digest` issue. Its stale checks use 60 days for reference docs'
-  `last-verified` dates and 90 days for help captures.
+  `maintenance-digest` issue.
 - Bump PRs do not merge themselves; `renovate.json` has no automerge setting.
   Review the checks and the vendor-impact comment, then merge manually.
-- Upstream doc changes are threaded into the references by weekly doc-threading
-  PRs; PR #198 / commit `9673804` is one example.
 
 ## Discovery cadence and boundaries
 
@@ -138,33 +254,31 @@ git commit -m "bump sdk-python"
 
 After a manual bump, use the same review path as Renovate: wait for hygiene,
 read the vendor-impact summary, and propagate real SDK / Terraform / contract
-changes into the affected reference docs.
-
-For checked-in Help/API captures, commit the captured source before recording
-that commit in a reference's `verified-against` metadata. Preserve those source
-commits when merging the documentation PR (use a merge commit, not squash or
-rebase), unless the provenance pins are explicitly rewritten and revalidated
-against replacement source commits. Otherwise a clean CI checkout cannot
-resolve a capture commit that existed only on the discarded branch.
+changes into the claims that cite them.
 
 ## Contributing
 
-- Reference files start as `author-status: stub` with TODO headings. Pick one,
-  fill it in, bump to `draft`, and add sources.
-- Keep hand-authored reasoning (`content-type: reasoning`) separate from
-  reproduced or paraphrased API docs (`content-type: reference`). The
-  distinction matters for later training use.
-- When all cited sources for a behavior document are reverified, update
-  `last-verified` to that verification date. A bounded edit that does not
-  reverify every cited source retains the existing date and records its narrower
-  source scope instead of implying a full-document recheck.
-- Resolving a clarification: update the entry in
-  `references/_meta/clarifications.md` in place. Set `Status: resolved`, add an
-  `Answer:` paragraph, and cite sources. Do not delete resolved entries; other
-  docs link to them by anchor.
-- Adding a new clarification: pick the next `<area>-<num>` ID and link both
-  ways, from the origin reference doc to the clarification and from the
-  clarification back to the origin.
+- Knowledge is JSON subjects under `references/<product>/`, one subject per file, validated against
+  `references/_meta/schema/` (the layout is `docs/kb-layout.md`). A Tier A claim quotes its source; a Tier B
+  claim states its `conditions`. `node scripts/kb.mjs validate` anchors every quote and pointer.
+- Every part of a Tier A statement must be readable in its quotes. The claim audit rejects most often:
+  an absence ("the module creates no X") with no line saying so; a count or list the quotes do not contain;
+  "create and update" where only create is quoted; a comparison with another claim; a version shown only by
+  `HEAD` (pin evidence `at` the release tag when the version matters); and a template or module named in the
+  statement ("the Starter template's role") when no quoted line names it, since the file path alone does not.
+- What no source settles is a gap, not a hedge in prose. Resolving one: set `status: resolved` and write a
+  `resolution` that names the claim that settles it; keep its `former_ids`, so old IDs still resolve.
+- What a team has observed but no public source states (an incident finding, a support answer) is company
+  knowledge: it goes in the overlay as a record ([`data-contract/knowledge.md`](data-contract/knowledge.md)),
+  never into the public graph.
+- A vendor GitHub issue that bears on documented behavior (a known defect, a request answered with a
+  release) is captured with `python3 scripts/issue_capture.py capture <url>` and cited like a help page:
+  quote what it reports, and pin the state the claim rests on with a pointer to `/source` and `expect`
+  (`{"state": "open"}`). A statement about who replied needs the comment heading quoted (`## Comment
+  (MEMBER, <date>)`, which `issue_capture.py text` prints) and any signature it names. The weekly
+  issue-watch digest lists the candidates; capture only what you cite.
+- Moving a claim between subjects renames it: use `node scripts/kb.mjs move-claim <from> <to> [--merge]`,
+  which rewrites every reference.
 
 ## Testing the Skill
 
@@ -173,28 +287,25 @@ assertions. The format is intended for a skill-creator-style eval harness: run
 each prompt with and without the skill loaded, then diff the outputs.
 
 For tenant-specific prompts, `tenant_data_required: true` signals that the
-harness should expect a decline-with-helpful-pointers when `_data/snapshot/` is
-empty.
+harness should expect a decline-with-helpful-pointers when no overlay IaC or live
+`zscalerctl` data is available.
 
 ## Known Gaps
 
 - **Malware Protection and ATP settings are programmable, but transaction
   verdicts are not returned by those settings endpoints.**
-  `references/zia/malware-and-atp.md` covers the GET/PUT settings surfaces and
-  the separate Web Insights / log workflow needed to diagnose a specific block.
+  `kb:zia.atp.api-surface` and `kb:zia.malware-protection.api-surface` cover the
+  settings surfaces, and `kb:zia.atp.block-diagnosis` the log workflow needed to
+  diagnose a specific block.
 - **Credentialed live-tenant diagnostics are out of scope.** Tenant reads are
   handled by the read-only `zscalerctl` CLI; the never-validated SDK diagnostic
   scaffolds were removed (2026-06), as were the SDK snapshot / lookup / simulator
-  scripts. Tenant config is mounted into `_data/snapshot/` out of band (private
-  overlay or `zscalerctl` dump); the references reason over it.
-- **Several clarifications remain open** because they require tenant-specific
-  lab tests. See `PLAN.md`.
-- **Snapshot schema docs are anticipatory, not tenant-validated.** The ZIA,
-  ZPA, ZCC, and ZIdentity schema guides are derived from SDK, Postman, and
-  provider sources at medium confidence; validate them against real tenant
-  output before promoting their wire-shape claims.
+  scripts. Tenant config comes from the overlay's IaC or a live read-only
+  `zscalerctl` read (no saved snapshot tier); the references reason over it.
+- **Open gaps** are in the graph, with what would resolve each (often a lab test or a tenant read):
+  every resolved bundle lists its subject's gaps.
 - **Z-Tunnel wire-format internals are not customer-documented.**
-  `references/zcc/z-tunnel.md` covers the operational layer. Protocol-level
+  `kb:zcc.z-tunnel` covers the operational layer. Protocol-level
   questions remain Zscaler Support territory.
 - **Tier 2 has programmable but shallow coverage.** ZBI, ZWA, AI Guard, ZMS,
   EASM, Zscaler Cellular / ZCell, and Business Insights have documented product

@@ -1,0 +1,379 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.actions",
+  "title": "Firewall rule actions",
+  "aliases": [
+    "block_drop",
+    "block_reset",
+    "block_icmp",
+    "eval_nwapp",
+    "bypass_ips",
+    "firewall action values",
+    "full logging firewall"
+  ],
+  "binds": [
+    "zia/firewall-filtering-rules#action",
+    "zia/ips-policies#action",
+    "zia/firewall-filtering-rules#enableFullLogging"
+  ],
+  "related": [
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.firewall-records",
+      "because": "zia.logs.firewall-records:action-two-values"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/firewall-filtering-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/ips-policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.traffic-path"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A firewall rule's action decides what happens to the flow once the rule matches."
+    },
+    {
+      "text": "{{filtering-action-values}} {{ips-action-values}} {{bypass-ips-is-bypass}}"
+    },
+    {
+      "text": "{{block-wire-behavior}} The help pages give different ICMP codes for Block/ICMP {{divergence:block-icmp-code}}. {{allow-and-reset-descriptions}} What EVAL_NWAPP does, and whether a rule with it ends evaluation, is open {{gap:action-semantics}}. {{capture-action}} {{logging-modes}} {{logging-by-tier}} {{full-logging-block-only}} The Terraform docs and the help differ on full logging for Allow rules {{divergence:full-logging-allow-rules}}. {{eun-support}} The log fields that record the action are in [[zia.firewall.traffic-path]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which action value the rule holds, read from the rule itself rather than inferred from its name.",
+      "uses": [
+        "filtering-action-values",
+        "ips-action-values"
+      ]
+    },
+    {
+      "do": "Whether a request to bypass the firewall for some traffic means BYPASS_IPS, which exists only on IPS Control rules.",
+      "uses": [
+        "bypass-ips-is-bypass"
+      ]
+    },
+    {
+      "do": "Whether an answer about what the client sees on a block action rests on the Insights console descriptions, and whether an answer about EVAL_NWAPP rests on a source, since none documents it.",
+      "uses": [
+        "block-wire-behavior",
+        "action-semantics"
+      ]
+    }
+  ],
+  "claims": {
+    "block-wire-behavior": {
+      "statement": "The Firewall Insights Logs Action filter describes Block/Drop as silently blocking matching packets; Block/ICMP as dropping them and sending the client an ICMP error message of Type 3 (Destination Unreachable) and code 9 or 10; and Block/Reset as, for TCP traffic, dropping all matching packets and sending the client a TCP reset, and for non-TCP traffic the same as Block/Drop. IPS Drop and IPS Reset are the IPS rule counterparts.",
+      "tier": "A",
+      "conditions": "The console action names Block/Drop, Block/ICMP and Block/Reset are the page's own; they are matched to the API values BLOCK_DROP, BLOCK_ICMP and BLOCK_RESET by name only, and no source states the mapping.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "Block/Drop: Firewall policy rule is set to silently block packets that match the rule.",
+            "Block/ICMP: Policy rule was set to drop all packets that match the rule",
+            "and to send the client an ICMP error message of Type 3 (Destination Unreachable) and code 9 or 10 (network/host administratively prohibited).",
+            "IPS Drop: IPS policy rule is set to silently block packets that match the rule.",
+            "IPS Reset: IPS policy rule is set to Block/Reset."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "For TCP traffic, the Zscaler service drops all packets that match the rule and sends the client a TCP reset.",
+            "For non-TCP traffic, same as Block/Drop."
+          ],
+          "after": "Block/Reset: Firewall policy rule is set to Block/Reset."
+        }
+      ]
+    },
+    "allow-and-reset-descriptions": {
+      "statement": "The default Firewall Filtering rule's edit page describes Allow as allowing packets that match the rule to pass through the firewall, and Block/Reset as, for TCP traffic, dropping all matching packets and sending the client a TCP reset, and for non-TCP traffic the same as Block/Drop.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-default-firewall-filtering-rule.json",
+          "quotes": [
+            "Allow: Allows packets that match the rule to pass through the firewall.",
+            "Block/Reset: For TCP traffic, the Zscaler service drops all packets that match the rule and sends the client a TCP reset",
+            "For non-TCP traffic, this is the same as Block/Drop."
+          ]
+        }
+      ]
+    },
+    "capture-action": {
+      "statement": "The Firewall Filtering Capture option requires Traffic Capture to be enabled in Advanced Settings and appears only when Block is selected for Network Traffic; it stores the traffic captured during a block action in PCAP files for later analysis.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-default-firewall-filtering-rule.json",
+          "quotes": [
+            "The Capture action requires Traffic Capture to be enabled in Advanced Settings. It appears only when you select Block for Network Traffic.",
+            "Capture: Enable this option to store the traffic captured during a block action in PCAP files for later analysis."
+          ]
+        }
+      ]
+    },
+    "logging-modes": {
+      "statement": "Aggregate logging groups together individual sessions based on user, rule, network service and network application and records them periodically, approximately every 15 minutes. Full logging logs all sessions matching the rule individually in detail, with some exceptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-default-firewall-filtering-rule.json",
+          "quotes": [
+            "Aggregate: Groups together individual sessions based on user, rule, network service, network application, and records them periodically. Log aggregation happens approximately every 15 minutes.",
+            "Full: Logs all sessions matching the rule individually in detail, with some exceptions."
+          ]
+        }
+      ]
+    },
+    "logging-by-tier": {
+      "statement": "On Standard Firewall the Aggregate or Full logging option is not selectable: aggregate logging is used for all traffic on Allow rules, full logging for Allow rules requires Advanced Firewall or the Full Logging license, and Block rules log in full. On Advanced Firewall both options are selectable: full logging on an Allow rule applies to all traffic except web (HTTP/HTTPS) and FTP/FTPS sessions managed by the secure web gateway, which are always aggregated in Firewall logs because web transactions are logged in detail in Web logs, and full logging on a Block rule applies to all traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-default-firewall-filtering-rule.json",
+          "quotes": [
+            "Standard Firewall (Aggregate or Full logging option not selectable)",
+            "Advanced Firewall (Aggregate and Full logging options selectable)",
+            "Aggregate logging is used for all traffic. Full or detailed logging for Allow rules requires Advanced Firewall or Full Logging license.",
+            "Full Logging: When selected, detailed logging applies to all traffic except web (HTTP/HTTPS) and FTP/FTPS sessions, which are managed by the secure web gateway.",
+            "Sessions managed by the secure web gateway are always aggregated in Firewall logs because web transactions are logged in detail in Web logs.",
+            "Full or detailed logging is used for all traffic.",
+            "Full Logging: When selected, detailed logging applies to all traffic."
+          ]
+        }
+      ]
+    },
+    "eun-support": {
+      "statement": "End user notification on a Firewall Filtering rule is supported only with Block actions and requires Advanced Firewall; it is supported on Windows devices running Zscaler Client Connector version 4.8 or later over Z-Tunnel 2.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-default-firewall-filtering-rule.json",
+          "quotes": [
+            "End user notification (EUN) is supported only with Block actions and requires Advanced Firewall. The EUN is supported on Windows devices running Zscaler Client Connector version 4.8 or later over Z-Tunnel 2.0."
+          ]
+        }
+      ]
+    },
+    "filtering-action-values": {
+      "statement": "A Firewall Filtering rule's action is one of ALLOW, BLOCK_DROP, BLOCK_RESET, BLOCK_ICMP or EVAL_NWAPP.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/get/responses/200/content/application~1json/schema/items/properties/action",
+          "expect": {
+            "enum": [
+              "ALLOW",
+              "BLOCK_DROP",
+              "BLOCK_RESET",
+              "BLOCK_ICMP",
+              "EVAL_NWAPP"
+            ]
+          }
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "\"BLOCK_ICMP\",",
+            "\"EVAL_NWAPP\","
+          ]
+        }
+      ]
+    },
+    "ips-action-values": {
+      "statement": "An IPS Control rule's action is one of ALLOW, BLOCK_DROP, BLOCK_RESET or BYPASS_IPS.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-policies#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallIpsRules/get/responses/200/content/application~1json/schema/items/properties/action",
+          "expect": {
+            "enum": [
+              "ALLOW",
+              "BLOCK_DROP",
+              "BLOCK_RESET",
+              "BYPASS_IPS"
+            ]
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall_ips.py",
+          "quotes": [
+            "Supported Values: ALLOW, BLOCK_DROP, BLOCK_RESET, BYPASS_IPS"
+          ],
+          "after": "def add_rule("
+        }
+      ]
+    },
+    "bypass-ips-is-bypass": {
+      "statement": "BYPASS_IPS is the API value for the IPS Control option that lets specific traffic bypass Zscaler's IPS. Firewall Filtering has no such value.",
+      "tier": "B",
+      "binds": [
+        "zia/ips-policies#action"
+      ],
+      "conditions": "Derived by pairing the help capture's bypass option with the only IPS action value that names a bypass; the Filtering enum was searched and has no bypass value.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.json",
+          "quotes": [
+            "You can also configure rules to allow specific types of traffic to bypass Zscaler's IPS."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallIpsRules/get/responses/200/content/application~1json/schema/items/properties/action",
+          "expect": {
+            "enum": [
+              "ALLOW",
+              "BLOCK_DROP",
+              "BLOCK_RESET",
+              "BYPASS_IPS"
+            ]
+          }
+        }
+      ]
+    },
+    "full-logging-block-only": {
+      "statement": "The Terraform docs say only Block rules support full logging on a Firewall Filtering rule and that full logging on all other rules requires the Full Logging license. The docs describe Aggregate as grouping sessions by user, rule, network service and network application and recording them periodically.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#enableFullLogging"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_filtering_rule.md",
+          "quotes": [
+            "Only Block rules support full logging. Full logging on all other rules requires the Full Logging license.",
+            "`enable_full_logging` (Boolean) `Aggregate`: The service groups together individual sessions based on { user, rule, network service, network application } and records them periodically. `Full`: The service logs all sessions of the rule individually, except HTTP(S)."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "full-logging-allow-rules": {
+      "summary": "Whether Allow rules can use full logging: the Terraform docs say only Block rules support it and other rules need the Full Logging license, while the help's default-rule table has Advanced Firewall Allow rules logging in full (except web and FTP sessions) and the Standard column needs Advanced Firewall or the Full Logging license.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_firewall_filtering_rule.md",
+            "quotes": [
+              "Only Block rules support full logging. Full logging on all other rules requires the Full Logging license."
+            ]
+          },
+          "says": "Only Block rules support full logging; full logging on all other rules requires the Full Logging license."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-editing-default-firewall-filtering-rule.json",
+            "quotes": [
+              "Full Logging: When selected, detailed logging applies to all traffic except web (HTTP/HTTPS) and FTP/FTPS sessions, which are managed by the secure web gateway.",
+              "Aggregate logging is used for all traffic. Full or detailed logging for Allow rules requires Advanced Firewall or Full Logging license."
+            ]
+          },
+          "says": "On Advanced Firewall, full logging on an Allow rule applies to all traffic except web (HTTP/HTTPS) and FTP/FTPS sessions; on Standard Firewall, full logging for Allow rules requires Advanced Firewall or the Full Logging license."
+        }
+      ],
+      "impact": "Do not say Allow rules cannot use full logging, or that only a license enables it; give both sources and check the tenant's firewall tier and licenses."
+    },
+    "block-icmp-code": {
+      "summary": "The ICMP code Block/ICMP sends: the default-rule edit page gives Type 3 Code 13, while the Firewall Insights Logs filter page gives code 9 or 10.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-editing-default-firewall-filtering-rule.json",
+            "quotes": [
+              "Block/ICMP: Drops all packets that match the rule and sends the client an ICMP error message of Type 3 (Destination Unreachable) and Code 13 (Communication Administratively Prohibited)."
+            ]
+          },
+          "says": "Block/ICMP sends an ICMP error of Type 3 (Destination Unreachable) and Code 13 (Communication Administratively Prohibited)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-firewall-insights-logs-filters.json",
+            "quotes": [
+              "and to send the client an ICMP error message of Type 3 (Destination Unreachable) and code 9 or 10 (network/host administratively prohibited)."
+            ]
+          },
+          "says": "Block/ICMP sends an ICMP error of Type 3 (Destination Unreachable) and code 9 or 10 (network/host administratively prohibited)."
+        }
+      ],
+      "impact": "Do not state one ICMP code as settled for Block/ICMP; give both help positions. No lab observation is recorded, and a packet capture of a Block/ICMP rule would settle it."
+    }
+  },
+  "gaps": {
+    "action-semantics": {
+      "kind": "semantic",
+      "title": "What EVAL_NWAPP does, and the API-to-console mapping of the block actions",
+      "status": "partial",
+      "detail": "The Firewall Insights Logs Action filter now describes what Block/Drop, Block/ICMP and Block/Reset do on the wire (block-wire-behavior). Still open: what EVAL_NWAPP does and whether a rule with it terminates evaluation, which the SDKs and Terraform only enumerate, and the mapping of the console names to BLOCK_DROP, BLOCK_ICMP and BLOCK_RESET, which no source states.",
+      "blocks": "telling an operator what EVAL_NWAPP rules do and how they compose, and tying the console wording to the API values",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/get/responses/200/content/application~1json/schema/items/properties/action",
+          "expect": {
+            "enum": [
+              "ALLOW",
+              "BLOCK_DROP",
+              "BLOCK_RESET",
+              "BLOCK_ICMP",
+              "EVAL_NWAPP"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

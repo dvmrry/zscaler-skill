@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.operations.monitoring",
+  "title": "How Zero Trust Branch is monitored: the Insights dashboard, traffic flow chart, alarms, SNMP and interface health monitoring",
+  "aliases": [
+    "ztb insights dashboard",
+    "ztb traffic flow chart",
+    "ztb alarms",
+    "ztb snmp",
+    "ztb snmpv3 profile",
+    "ztb interface monitoring",
+    "ztb link scoring"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.debug-console"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{insights-widgets}} The default graphs are not fully listed {{gap:insights-default-graphs}}. The wider operations area is in [[zero-trust-branch.operations]]."
+    },
+    {
+      "label": "Traffic flow chart.",
+      "text": "{{traffic-flow-chart-graph}} {{traffic-flow-edge-colors}} {{traffic-flow-chart-retention}} The log side of the chart is in [[zero-trust-branch.operations.logging]]."
+    },
+    {
+      "label": "Alarms.",
+      "text": "{{alarm-processing}} {{alarm-view-mqtt}} The alarm types and history are not in the captured pages {{gap:alarm-coverage}}."
+    },
+    {
+      "label": "SNMP.",
+      "text": "{{snmp-mibs}} {{snmp-versions}} {{snmpv3-site-profile}} {{snmpv3-security-level-view}} {{snmp-trap-ports}} {{snmp-private-access}} The release notes limit which appliances can be monitored that way {{divergence:snmp-private-access-active-only}}. The supported algorithm values are not enumerated {{gap:snmp-values}}. Interface limits seen from the appliance are in [[zero-trust-branch.operations.debug-console]]."
+    },
+    {
+      "label": "Interface health.",
+      "text": "{{interface-health-monitor}} {{link-scoring}} The probe limits and score thresholds are not in the captured pages {{gap:interface-monitoring-limits}}."
+    }
+  ],
+  "claims": {
+    "insights-widgets": {
+      "statement": "The Insights dashboard (Dashboard > Insights) has predefined Assets and Sites widgets showing totals, and widgets can be edited to a pie or bar chart with a TopN limit and a Group by field such as Assignment type, Brand, Capability, Category, Group, Location, Model or Network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-viewing-managing-security-insights.json",
+          "quotes": [
+            "The Assets widget shows the total number of assets in your organization.",
+            "The Sites widget shows the total number of sites in your organization.",
+            "Chart Type: Choose from pie or bar.",
+            "TopN: The maximum number of categories to display, starting with the most populated categories.",
+            "Group by: Choose from Assignment type, Brand, Capability, Category, Group, Location, Model, Network, etc.",
+            "go to Zero Trust Branch > Dashboard > Insights to do the following:"
+          ]
+        }
+      ]
+    },
+    "traffic-flow-chart-retention": {
+      "statement": "Communications between endpoints are logged and mapped onto the traffic flow chart, saved for 90 days by default, and it can take up to 10 minutes after an event before traffic appears in the chart, so flow logs are suggested for a more real-time response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-viewing-traffic-flow-charts.json",
+          "quotes": [
+            "This information is saved for 90 days by default.",
+            "it can take up to 10 minutes after an event before the traffic is reflected in the traffic flow chart",
+            "For more real-time response, consider using flow logs.",
+            "Every communication between the endpoints is logged and mapped onto the traffic flow chart."
+          ]
+        }
+      ]
+    },
+    "traffic-flow-chart-graph": {
+      "statement": "The traffic flow chart is built on a graph database, with each endpoint a node and communication between endpoints an edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-viewing-traffic-flow-charts.json",
+          "quotes": [
+            "The traffic flow chart is built on the graph database.",
+            "Each endpoint is a node in the graph, and communication between endpoints is shown as an edge between the nodes."
+          ]
+        }
+      ]
+    },
+    "traffic-flow-edge-colors": {
+      "statement": "Edges are color-coded: red is blocked communication, green is allowed, grey uses a default policy, and black means multiple traffic flows with different protocols.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-viewing-traffic-flow-charts.json",
+          "quotes": [
+            "Red: Communication is blocked.",
+            "Green: Communication is allowed.",
+            "Grey: Communication uses a default policy.",
+            "Black: There are multiple traffic flows with different protocols."
+          ]
+        }
+      ]
+    },
+    "alarm-processing": {
+      "statement": "Appliances detect critical events such as heartbeat or upgrade failures and send set or clear alarm requests to the API server, and alarms are stored in a dedicated per-customer alarms table with no alarm information shared between tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-alarms-and-notifications.json",
+          "quotes": [
+            "Zero Trust Branch appliances detect critical events, such as heartbeat failures or upgrade failures, and send set or clear alarm requests to the API server.",
+            "All alarms and notifications are stored in a dedicated alarms table for the customer environment.",
+            "No alarm information is shared between tenants."
+          ]
+        }
+      ]
+    },
+    "alarm-view-mqtt": {
+      "statement": "Alarms are viewed on the Alarms page (Administration > Alerts > Zero Trust Branch); management notifies appliances of state changes over MQTT, appliances converge by eventual consistency, and an appliance that cannot converge sends asynchronous alarm notifications back.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-alarms-and-notifications.json",
+          "quotes": [
+            "You can view alarms and notifications from the Alarms page (Administration > Alerts > Zero Trust Branch).",
+            "it issues state change notifications to Zero Trust Branch appliances using the MQTT protocol.",
+            "Appliances work to achieve the declared state based on an eventual consistency model.",
+            "If an appliance cannot converge to the required state, it sends asynchronous alarm notifications back to the management system."
+          ]
+        }
+      ]
+    },
+    "snmp-mibs": {
+      "statement": "SNMP supports the standard IF-MIB, SYS-MIB and standard Linux MIBs, and custom MIBs are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-snmp-configurations.json",
+          "quotes": [
+            "You can use the following standard management information bases (MIBs):",
+            "- IF-MIB",
+            "- SYS-MIB",
+            "Standard Linux MIBs",
+            "Custom MIBs are not supported."
+          ]
+        }
+      ]
+    },
+    "snmp-versions": {
+      "statement": "Both SNMPv2 and SNMPv3 are supported and v3 is recommended; both can be enabled at once but only one version can be active on a site at a time, and versions 7.x and earlier use SNMPv2 while later versions use SNMPv3.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-snmp-configurations.json",
+          "quotes": [
+            "Both SNMPv2 and SNMPv3 are supported. Zscaler recommends SNMPv3 for better security, and it supports more MIBs.",
+            "You can enable both SNMP versions on Zero Trust Branch simultaneously, but only one version can be active on a site at a time.",
+            "Legacy versions (7.x and earlier) use SNMPv2, while later versions use SNMPv3."
+          ]
+        }
+      ]
+    },
+    "snmp-private-access": {
+      "statement": "When monitoring branch appliances remotely from Private Access, Zscaler recommends the appliances' Management IP addresses for SNMP queries, which avoids manually adding multiple LAN IP addresses or subnets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-snmp-configurations.json",
+          "quotes": [
+            "If you are monitoring branch appliances remotely from Private Access (ZPA), Zscaler recommends using the appliances' Management IP addresses for SNMP queries.",
+            "This allows remote monitoring without manually adding multiple LAN IP addresses or subnets."
+          ]
+        }
+      ]
+    },
+    "snmp-trap-ports": {
+      "statement": "SNMP traps go to the receiving server's UDP port, typically 162, while port 161 is used for queries from SNMP managers, and both ports must be enabled on the firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-snmp-configurations.json",
+          "quotes": [
+            "Receiving server port: Enter the UDP port where the SNMP manager is listening for SNMP traps.",
+            "Typically, port 162 is used. Port 161 is used for queries from SNMP managers. Both ports must be enabled on the firewall."
+          ]
+        }
+      ]
+    },
+    "interface-health-monitor": {
+      "statement": "Interface health monitoring sends continuous probes to a predefined target to monitor interface link liveliness, configured per interface with a probe target (IP address or FQDN), a probe interval in seconds and a retry count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-interface-monitoring.json",
+          "quotes": [
+            "Interface health monitoring sends continuous probes to a predefined target to monitor the liveliness of the interface link.",
+            "Probe target (IP address or FQDN): Enter the IP address or FQDN of the interface that you want to monitor.",
+            "Probe interval (seconds): Enter the probe interval in seconds.",
+            "Retry count (number of attempts): Enter the number of times to retry the probe before timing out.",
+            "click Disabled in the interface for which you want to enable monitoring."
+          ]
+        }
+      ]
+    },
+    "link-scoring": {
+      "statement": "Link scoring is on a scale of 0 to 30 based on jitter, latency and packet loss, normalized over a window of 30 iterations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-interface-monitoring.json",
+          "quotes": [
+            "Zero Trust Branch also supports link scoring on a scale of 0 to 30 based on jitter, latency, and packet loss.",
+            "we normalize the result for a window of 30 iterations"
+          ]
+        }
+      ]
+    },
+    "snmpv3-security-level-view": {
+      "statement": "An SNMPv3 profile's security group level is authPriv (authentication and encryption) or authNoPriv (authentication but no encryption), and its security view lists OIDs to include and to exclude.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-snmp-configurations.json",
+          "quotes": [
+            "authPriv (provides authentication and encryption) or authNoPriv (provides authentication but no encryption)",
+            "OIDs to include: Enter one or more OIDs that you want to include in this security view",
+            "OIDs to exclude: Enter one or more OIDs that you want to exclude from this security view"
+          ]
+        }
+      ]
+    },
+    "snmpv3-site-profile": {
+      "statement": "A site uses an SNMPv3 profile selected on the site details page under Settings > SNMPv3.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-snmp-configurations.json",
+          "quotes": [
+            "On the site details page, click the Settings tab, then click SNMPv3 in the left-side navigation. Then select the SNMPv3 profile you want to use from the drop-down menu and click Save."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "snmp-private-access-active-only": {
+      "summary": "The SNMP page recommends the appliances' Management IP addresses for remote monitoring from Private Access without limiting it to active appliances, while the 8.1.2 release note says only active appliances can be monitored that way.",
+      "positions": [
+        {
+          "says": "When monitoring branch appliances remotely from Private Access, use the appliances' Management IP addresses for SNMP queries.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-managing-snmp-configurations.json",
+            "quotes": [
+              "If you are monitoring branch appliances remotely from Private Access (ZPA), Zscaler recommends using the appliances' Management IP addresses for SNMP queries."
+            ]
+          }
+        },
+        {
+          "says": "If the management interface is used to monitor appliances using SNMP over Private Access, only active appliances can be monitored.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-release-upgrade-summary-2026.json",
+            "quotes": [
+              "If the management interface is used to monitor appliances using SNMP over Private Access, only active appliances can be monitored."
+            ]
+          }
+        }
+      ],
+      "impact": "Standby appliances in an HA pair may not answer SNMP queries sent to their Management IP address over Private Access; the SNMP page states no such limit."
+    }
+  },
+  "gaps": {
+    "insights-default-graphs": {
+      "kind": "semantic",
+      "title": "Which graphs the Insights dashboard shows by default",
+      "status": "open",
+      "detail": "The captured Insights page says the dashboard shows five default graphs but lists six, with the title Devices by Brand used for two widgets (one organized by category, one for manufacturing equipment) alongside IoT by Brand; it does not say which is the sixth.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "alarm-coverage": {
+      "kind": "semantic",
+      "title": "Which alarm types exist, how long alarm history is kept and how alarms are exported",
+      "status": "open",
+      "detail": "The captured alarms page names heartbeat failures and upgrade failures as examples only; it gives no full list of alarm types, no retention for alarm history and no export format.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "snmp-values": {
+      "kind": "semantic",
+      "title": "Which SNMPv2 community and SNMPv3 authentication and privacy algorithm values are supported",
+      "status": "open",
+      "detail": "The captured SNMP page gives algorithm values only as examples (\"such as sha\", \"e.g., aes\") and does not enumerate the supported values.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "interface-monitoring-limits": {
+      "kind": "semantic",
+      "title": "What defaults and ranges interface health monitoring accepts, and what the 0-30 link score means for forwarding",
+      "status": "open",
+      "detail": "The captured interface monitoring page gives no default or allowed range for the probe interval or retry count, and does not define what the link score thresholds mean for forwarding.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,637 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.disaster-recovery",
+  "title": "Disaster recovery mode and Private Service Edge groups",
+  "aliases": [
+    "use_in_dr_mode",
+    "exclusive_for_business_continuity",
+    "pse disaster recovery",
+    "dr mode private service edge",
+    "disaster recovery dns txt record",
+    "private access outage pse",
+    "business continuity pse"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zpa.app-segments",
+      "because": "zpa.private-service-edges.disaster-recovery:dr-designation"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.microtenants.limits",
+      "because": "zpa.microtenants.limits:dr-unsupported"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.groups",
+      "because": "zpa.private-service-edges.disaster-recovery:group-dr-field"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.client-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery.dns-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.business-continuity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.when-to-deploy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Disaster recovery is for a global Private Access outage and is switched on by DNS records, not by group health."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{dr-purpose}} {{dr-designation}} {{group-dr-field}} {{pse-group-dr-default}} {{dr-application-segments-page}} A second field exists in the Go type {{gap:exclusive-for-business-continuity}}."
+    },
+    {
+      "label": "Activation.",
+      "text": "{{dr-activation}} {{dr-forwarding}} {{dr-test-mode}} Whether designated groups are held out of normal selection is unverified {{gap:dr-reserve-semantics}}."
+    },
+    {
+      "label": "During the outage.",
+      "text": "{{dr-supported}} {{dr-not-supported}} {{dr-microtenants}}"
+    },
+    {
+      "label": "Configuring it.",
+      "text": "{{enable-chain}} {{domain-name}} {{a-records}} {{public-key}} {{txt-record-states}} {{ttl}} {{max-age-for-authentication}} What two page phrases mean is open {{gap:dr-config-wording}}. The record format and the generator are in [[zpa.private-service-edges.disaster-recovery.dns-records]]."
+    },
+    {
+      "label": "Mode behavior.",
+      "text": "{{service-restart-drops}} {{dr-mode-disconnected}} {{test-mode-routing}} {{sizing-partition}} {{microtenant-activation-scope}}"
+    },
+    {
+      "label": "Snapshots.",
+      "text": "{{snapshots-purpose}} {{snapshot-files}} {{snapshot-paths}} {{snapshot-retention}} {{snapshot-script}} {{snapshot-format}} The group pages word the retention limits differently {{divergence:snapshot-wording}}."
+    },
+    {
+      "text": "The Business Continuity construct for Private Service Edges, Private Clouds, is in [[zpa.private-service-edges.private-cloud-controller]] and [[zpa.private-service-edges.business-continuity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the question is about a global Private Access outage: disaster recovery is for that case and is triggered by DNS records, not by Private Service Edge health.",
+      "uses": [
+        "dr-purpose",
+        "dr-activation"
+      ]
+    },
+    {
+      "do": "Whether the group, the App Connector group and the application segments are all designated for disaster recovery.",
+      "uses": [
+        "dr-designation",
+        "group-dr-field"
+      ]
+    },
+    {
+      "do": "Whether a new Private Service Edge needs to be enrolled, which disaster recovery mode does not support.",
+      "uses": [
+        "dr-not-supported"
+      ]
+    },
+    {
+      "do": "Whether the tenant uses Microtenants, whose Private Service Edges then serve only the applications designated for disaster recovery.",
+      "uses": [
+        "dr-microtenants"
+      ]
+    }
+  ],
+  "claims": {
+    "microtenant-activation-scope": {
+      "statement": "If a Microtenant is used, activating disaster recovery provides access to all applications designated for disaster recovery.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-disaster-recovery.json",
+          "quotes": [
+            "If you are using a Microtenant, activating disaster recovery provides access to all applications designated for disaster recovery."
+          ]
+        }
+      ]
+    },
+    "service-restart-drops": {
+      "statement": "In Disaster Recovery Mode, all App Connectors in a group designated for disaster recovery restart their zpa-connector services and all Private Service Edges in a designated group restart their zpa-service-edge services; when the services restart, existing user connections to the test App Connectors and Private Service Edges designated for disaster recovery are dropped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-disaster-recovery.json",
+          "quotes": [
+            "In Disaster Recovery Mode, all App Connectors in an App Connector group that are designated for disaster recovery restart their zpa-connector services, and all Private Service Edges in a Private Service Edge group that are designated for disaster recovery restart their zpa-service-edge services."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-disaster-recovery.json",
+          "quotes": [
+            "When the services restart, existing user connections to the test App Connectors and Private Service Edges that are designated for disaster recovery are dropped."
+          ],
+          "after": "Ensure a separate DNS domain name is created for disaster recovery."
+        }
+      ]
+    },
+    "enable-chain": {
+      "statement": "Disaster Recovery must be enabled in the application segment, App Connector group and Private Service Edge group for disaster recovery to work; an application segment with disaster recovery enabled must be associated with a server group that is associated with at least one App Connector group designated for disaster recovery.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-disaster-recovery.json",
+          "quotes": [
+            "Disaster Recovery must be enabled in the application segment, App Connector group, and Private Service Edge group for disaster recovery to work.",
+            "An application segment with disaster recovery enabled must be associated with a server group. This server group must be associated with at least one App Connector group designated for disaster recovery."
+          ]
+        }
+      ]
+    },
+    "a-records": {
+      "statement": "All the public IP addresses of the Private Service Edges designated for disaster recovery are captured into the A record for the disaster recovery domain name, and a Private Service Edge's public IP is found on the Private Service Edges page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-disaster-recovery.json",
+          "quotes": [
+            "Capture all the public IP addresses of the Private Service Edges designated for disaster recovery into the A record for the disaster recovery domain name you have created.",
+            "The public IP of the Private Service Edge is found on the Private Service Edges page."
+          ]
+        }
+      ]
+    },
+    "dr-mode-disconnected": {
+      "statement": "During active Disaster Recovery Mode, App Connectors and Private Service Edges are disconnected from the Zscaler cloud, and the Zscaler Admin Console is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-disaster-recovery.json",
+          "quotes": [
+            "During active Disaster Recovery Mode, App Connectors and Private Service Edges are disconnected from the Zscaler cloud. In contrast, the Zscaler Admin Console is not supported during Disaster Recovery Mode."
+          ]
+        }
+      ]
+    },
+    "test-mode-routing": {
+      "statement": "In Disaster Recovery Test Mode, designated App Connectors restart their zpa-connector services. New connections for regular users who are not in the disaster recovery test group are routed through Public Service Edges or regular Private Service Edges and App Connectors not designated for disaster recovery, while test-group users also form new connections to the ones in test mode; Zscaler says to create a separate App Profile for Test Mode and designate specific users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-disaster-recovery.json",
+          "quotes": [
+            "In Disaster Recovery Test Mode, all App Connectors in an App Connector group that are designated for disaster recovery restart their zpa-connector services",
+            "New connections for regular users that are not part of the disaster recovery test group are routed through either Public Service Edges for Private Access or regular Private Service Edges and App Connectors that are not designated for disaster recovery.",
+            "Users participating in disaster recovery testing that are part of the disaster recovery test group also form new connections to the Private Service Edges and App Connectors that are part of the test mode.",
+            "Create a separate App Profile for Disaster Recovery Test Mode and designate specific users for testing."
+          ]
+        }
+      ]
+    },
+    "sizing-partition": {
+      "statement": "During non-disaster recovery conditions, Private Service Edges and App Connectors designated for disaster recovery are used for application access; after activation only the designated ones are used during active Disaster Recovery Mode; during active Test Mode normal cloud access and disaster recovery access happen concurrently. Normal App Connector and Private Service Edge resource specifications apply to the designated ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-disaster-recovery.json",
+          "quotes": [
+            "During non-disaster recovery conditions, both Private Service Edges and App Connectors designated for disaster recovery are used for application access.",
+            "After disaster recovery is activated, only the App Connectors and Private Service Edges designated for disaster recovery are used for application access during active Disaster Recovery Mode.",
+            "During active Disaster Recovery Test Mode, normal cloud application access and application access via disaster recovery happens concurrently.",
+            "Normal App Connector and Private Service Edge resource specifications apply to App Connectors and Private Service Edges that are designated for disaster recovery."
+          ]
+        }
+      ]
+    },
+    "txt-record-states": {
+      "statement": "Both signed and unsigned DNS TXT records are supported for disaster recovery activation. The Configuring Disaster Recovery page has the reader create a TXT record with On, or with Test, as the disaster recovery status when using the Zscaler DNS Record Generator, and with Off as the status in its procedure to disable Disaster Recovery Mode and Test Mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-disaster-recovery.json",
+          "quotes": [
+            "Both signed and unsigned DNS TXT records are supported for disaster recovery activation.",
+            "Create a DNS TXT record with On as the disaster recovery status when using the Zscaler DNS Record Generator.",
+            "Create a DNS TXT record with Test as the disaster recovery status when using the Zscaler DNS Record Generator.",
+            "To disable Disaster Recovery Mode and Disaster Recovery Test Mode for Private Access:",
+            "Create a DNS TXT record with Off as the disaster recovery status when using the Zscaler DNS Record Generator."
+          ]
+        }
+      ]
+    },
+    "ttl": {
+      "statement": "Disaster Recovery Mode is turned off when the DNS time to live (TTL) expires, and Zscaler does not recommend very high or very low TTL values (for example, greater than 15 minutes or less than 30 seconds).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-disaster-recovery.json",
+          "quotes": [
+            "Disaster Recovery Mode is turned off when the DNS time to live (TTL) expires.",
+            "Zscaler does not recommend choosing very high or very low DNS TTL values (e.g., values greater than 15 minutes or less than 30 seconds)."
+          ]
+        }
+      ]
+    },
+    "max-age-for-authentication": {
+      "statement": "The maximum age for authentication is entered in days, weeks or months and is how long current end user authentication is valid during Disaster Recovery Mode; the default is 14 days. It is extended starting from the time the user authenticated, not added to the end of the authentication period or after the SAML token has expired, and Zscaler recommends it be greater than or equal to the Authentication Timeout value of the timeout policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-disaster-recovery-settings.json",
+          "quotes": [
+            "Then enter the amount in days, weeks, or months.",
+            "This is the set amount of time that the current end user authentication is valid for during Disaster Recovery Mode. The default maximum age for authentication is 14 days.",
+            "The maximum age for authentication value is extended starting from the time the user authenticated. This value is not added to the end of the authentication period or after the SAML token has expired.",
+            "Zscaler recommends configuring the Max Age for Authentication value to be greater than or equal to the Authentication Timeout value of your timeout policy."
+          ]
+        }
+      ]
+    },
+    "public-key": {
+      "statement": "The DNS Record Generator creates both signed and unsigned public and private keys but only the public key needs to be uploaded; it verifies that the DNS name is signed with the selected private key and is only applicable if the DNS TXT records are signed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-disaster-recovery-settings.json",
+          "quotes": [
+            "The DNS Record Generator creates both signed and unsigned public and private keys, but you only need to upload the public key.",
+            "This public key verifies that the DNS name is signed with the selected private key.",
+            "The public key is only applicable if you are signing the DNS TXT records."
+          ]
+        }
+      ]
+    },
+    "domain-name": {
+      "statement": "The disaster recovery domain name is an administrator-controlled domain or subdomain used to trigger or exit Disaster Recovery Mode; it hosts a TXT record name and an A record name, and disaster recovery is triggered or exited through the TXT record. The IP addresses of all disaster-recovery-enabled Private Service Edges go into the A records under it, and Client Connector uses the domain to connect to the Private Service Edge based on the A records in the DNS response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-disaster-recovery-settings.json",
+          "quotes": [
+            "Enter an administrator-controlled valid domain name or a subdomain (e.g., zpadr.zscaler.com) that is used to trigger or exit Disaster Recovery Mode.",
+            "The disaster recovery domain name hosts these two types of DNS record names: the TXT record name and the A record name. Disaster recovery is triggered or exited through the TXT record.",
+            "Ensure you enter all of the IP addresses of the disaster recovery-enabled Private Service Edges into the A records under the disaster recovery domain or subdomain you created",
+            "This domain name is also used by Zscaler Client Connector to connect to the Private Service Edge for Disaster Recovery Mode, based on the A records included in the DNS response."
+          ]
+        }
+      ]
+    },
+    "snapshots-purpose": {
+      "statement": "After an App Connector group or Private Service Edge group is designated for disaster recovery, a configuration and binary snapshot is saved in the local configuration files on the App Connector or Private Service Edge. They are used when an admin wants to fix a misconfiguration during a disaster scenario, and an older binary snapshot can be installed if the binary is not compatible with an older configuration snapshot (the binary fails to start up or logs unexpected errors).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-managing-disaster-recovery-configuration-and-binary-snapshots.json",
+          "quotes": [
+            "After an App Connector group or Private Service Edge group for Private Access is designated for disaster recovery, a configuration and binary snapshot is saved in the local configuration files on your App Connector or Private Service Edge.",
+            "They are used when an admin wants to fix a misconfiguration during a disaster scenario.",
+            "If the binary is not compatible with an older configuration snapshot (i.e., the binary fails to start up or logs unexpected errors with an older configuration snapshot), then an older binary snapshot can be installed."
+          ]
+        }
+      ]
+    },
+    "snapshot-files": {
+      "statement": "Configuration snapshots contain application_conf.json (application-specific configuration data), customer_conf.json (customer-specific configuration data), override_conf.json (override data) and other_conf.json (uncategorized configuration data, such as App Connector-specific configuration data within a Private Service Edge).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-managing-disaster-recovery-configuration-and-binary-snapshots.json",
+          "quotes": [
+            "application_conf.json: Contains application-specific configuration data.",
+            "customer_conf.json: Contains customer-specific configuration data.",
+            "override_conf.json: Contains override data.",
+            "other_conf.json: Contains uncategorized configuration data (e.g., App Connector-specific configuration data within a Private Service Edge)."
+          ]
+        }
+      ]
+    },
+    "snapshot-paths": {
+      "statement": "App Connector snapshots are in /opt/zscaler/var/config_snapshots and /opt/zscaler/var/binary_snapshots; Private Service Edge snapshots are in /opt/zscaler/var/service-edge/config_snapshots and /opt/zscaler/var/service-edge/binary_snapshots.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-managing-disaster-recovery-configuration-and-binary-snapshots.json",
+          "quotes": [
+            "Configuration snapshots: /opt/zscaler/var/config_snapshots",
+            "Binary snapshots: /opt/zscaler/var/binary_snapshots",
+            "Configuration snapshots: /opt/zscaler/var/service-edge/config_snapshots",
+            "Binary snapshots: /opt/zscaler/var/service-edge/binary_snapshots"
+          ]
+        }
+      ]
+    },
+    "snapshot-retention": {
+      "statement": "The Zscaler cloud maintains up to 15 prior configuration snapshots and up to 5 prior binary snapshots and updates both periodically; Zscaler Support can be contacted to change the limits. If the disk space utilization of the App Connector or Private Service Edge exceeds 90%, the snapshots used for disaster recovery are not captured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-managing-disaster-recovery-configuration-and-binary-snapshots.json",
+          "quotes": [
+            "The Zscaler cloud maintains up to 15 prior configuration snapshots and up to 5 prior binary snapshots, and updates both snapshots periodically. If necessary, contact Zscaler Support to change the limits for the configuration and binary snapshots.",
+            "If the disk space utilization of the App Connector or Private Service Edge exceeds 90%, the configuration and binary snapshots used for disaster recovery are not captured."
+          ]
+        }
+      ]
+    },
+    "snapshot-script": {
+      "statement": "The snapshots page's procedure first ensures Disaster Recovery Mode is enabled on the App Connector group or Private Service Edge group, then has a command entered in /opt/zscaler/var for App Connectors or /opt/zscaler/var/service-edge/ for Private Service Edges, where pressing 1 or 2 lists the configuration or binary snapshots and pressing 1 or 2 installs one; the service restarts after the snapshot is installed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-managing-disaster-recovery-configuration-and-binary-snapshots.json",
+          "quotes": [
+            "Ensure that Disaster Recovery Mode is enabled on your App Connector group or Private Service Edge group.",
+            "For App Connectors, enter the following command in /opt/zscaler/var:",
+            "For Private Service Edges, enter the following command in /opt/zscaler/var/service-edge/:",
+            "Press 1 to list the configuration snapshots, or press 2 to list the binary snapshots, and then press Enter.",
+            "Press 1 to install a configuration snapshot, or press 2 to install a binary snapshot, and then press Enter.",
+            "After the configuration or binary snapshot is installed, the App Connector or Private Service Edge service restarts."
+          ]
+        }
+      ]
+    },
+    "snapshot-format": {
+      "statement": "Configuration snapshots are organized in directories by date and time as config-<YYYY>-<MM><DD>, and binary snapshots are versioned as binary-<YYYY>-<MM><DD>_ver<binary_version>; an older binary snapshot may be needed if the current binary version does not match the one captured in the configuration snapshot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-managing-disaster-recovery-configuration-and-binary-snapshots.json",
+          "quotes": [
+            "The snapshots are organized in the directories by date and time in the following format: config-<YYYY>-<MM><DD> (e.g., config-2022-09-19).",
+            "The binary snapshots are versioned and are in the following format: binary-<YYYY>-<MM><DD>_ver<binary_version> (e.g., binary-2022-09-19-19_ver_22.284.2-1016).",
+            "It might be necessary to use an older version of the binary snapshot if the current binary version does not match the binary version that was captured in the configuration snapshot."
+          ]
+        }
+      ]
+    },
+    "pse-group-dr-default": {
+      "statement": "On the Add Private Service Edge page, Disaster Recovery designates the Private Service Edge group for disaster recovery and is disabled by default; groups designated for disaster recovery bypass the Private Access cloud to ensure business continuity in a disaster scenario, and Disaster Recovery Mode is triggered when the DNS TXT records are uploaded to the DNS server for the disaster recovery domain name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "Disaster Recovery: Enable to designate the Private Service Edge group for disaster recovery.",
+            "Private Service Edge groups that are designated for disaster recovery bypass the Private Access cloud to ensure business continuity in the event of a disaster scenario.",
+            "Disaster recovery is disabled by default.",
+            "Disaster Recovery Mode is triggered when you upload the DNS TXT records to the DNS server for the disaster recovery domain name."
+          ]
+        }
+      ]
+    },
+    "dr-application-segments-page": {
+      "statement": "Disaster recovery application segments are application segments designated as available for disaster recovery; the Disaster Recovery Application Segments page lists them and links to the Disaster Recovery Settings page, where the authentication, disaster recovery public key and disaster recovery domain name are configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-disaster-recovery-application-segments.json",
+          "quotes": [
+            "Disaster recovery application segments are application segments designated as available for disaster recovery.",
+            "View a list of all application segments that are designated for disaster recovery.",
+            "Go to the Disaster Recovery Settings page to configure the authentication, disaster recovery public key, and disaster recovery domain name."
+          ]
+        }
+      ]
+    },
+    "dr-purpose": {
+      "statement": "Disaster recovery provides Business Continuity when a disaster impacts the global Zscaler cloud infrastructure; Private Access supports it separately from Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Enabling disaster recovery ensures Business Continuity in the event of a disaster scenario that impacts the global Zscaler cloud infrastructure.",
+            "The contents in this article are about disaster recovery in Private Access",
+            "Zscaler provides support for disaster recovery in both Private Access (ZPA) and Internet & SaaS (ZIA).",
+            "To learn more about disaster recovery in Internet & SaaS, see About Disaster Recovery."
+          ]
+        }
+      ]
+    },
+    "dr-designation": {
+      "statement": "To provide application access during a global outage, designated application segments, Private Service Edges and App Connectors must be enabled for disaster recovery, and a disaster recovery domain name must be configured in the Disaster Recovery Settings and the Client Connector profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Designated application segments, Private Service Edges for Private Access, and App Connectors must be enabled for disaster recovery.",
+            "A domain name must be configured in the Disaster Recovery Settings and the Zscaler Client Connector Profiles.",
+            "To provide application access during a global Private Access outage:",
+            "Create a separate domain name in your DNS for disaster recovery."
+          ]
+        }
+      ]
+    },
+    "dr-activation": {
+      "statement": "Disaster recovery is activated by uploading DNS TXT records to the Disaster Recovery domain name, which disrupts existing Client Connector connections; DNS A records are how Client Connector discovers the Private Service Edges, and enabled App Connectors and Private Service Edges restart on activation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "DNS TXT records trigger the activation of disaster recovery.",
+            "DNS A records are used by Zscaler Client Connector to discover the Private Service Edges.",
+            "disrupts existing Zscaler Client Connector connections and must be used with caution.",
+            "Both App Connectors and Private Service Edges that are enabled for disaster recovery restart after disaster recovery is activated via DNS.",
+            "Activating disaster recovery by uploading the DNS TXT records to the Disaster Recovery Domain Name in the settings"
+          ]
+        }
+      ]
+    },
+    "dr-forwarding": {
+      "statement": "In disaster recovery mode Client Connector forwards the M-Tunnels of the applications designated for disaster recovery to the Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Zscaler Client Connector then forwards the M-Tunnels (Microtunnels) of the applications that are designated for disaster recovery to the Private Service Edge."
+          ]
+        }
+      ]
+    },
+    "dr-supported": {
+      "statement": "Designated application segments are accessible in disaster recovery mode, and existing and disaster-recovery-generated App Connectors, Private Service Edges and Client Connectors with valid, unexpired certificates are supported, as are users enrolled before it was enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Application segments designated for disaster recovery are accessible when Disaster Recovery Mode is activated.",
+            "Existing and disaster-recovery-generated App Connectors, Private Service Edges, and Zscaler Client Connectors with valid and unexpired certificates are supported.",
+            "Users that are enrolled in the Private Access cloud prior to enabling disaster recovery are supported."
+          ]
+        }
+      ]
+    },
+    "dr-not-supported": {
+      "statement": "Disaster recovery mode does not support enrollment of new App Connectors, Private Service Edges or Client Connectors, authentication and reauthentication changes (SAML assertion validity is extended by 14 days by default), policies, Log Streaming Service, Browser Access, dashboards and diagnostics, among others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Enrollment of new App Connectors, Private Service Edges, or Zscaler Client Connectors",
+            "The SAML assertion validity is extended by 14 days, by default, from the date the SAML assertion was issued.",
+            "Dashboards and Diagnostics",
+            "Log Streaming Service",
+            "Browser Access",
+            "Functions and Features Not Supported as Part of Disaster Recovery",
+            "Authentication and reauthentication",
+            "Policies"
+          ]
+        }
+      ]
+    },
+    "dr-microtenants": {
+      "statement": "In disaster recovery mode, Private Service Edges and App Connectors mapped within a default or custom Microtenant provide traffic only to applications designated for disaster recovery.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Private Service Edges and App Connectors mapped within a default or custom Microtenant provide traffic to only applications designated for disaster recovery."
+          ]
+        }
+      ]
+    },
+    "group-dr-field": {
+      "statement": "A Private Service Edge group shows whether it is enabled for disaster recovery, and the Terraform use_in_dr_mode field \"Whether or not the App Connector Group is designated for disaster recovery\" is the group setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "Indicates the Private Service Edge group is enabled for disaster recovery."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "`use_in_dr_mode` - (Boolean) Whether or not the App Connector Group is designated for disaster recovery."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#useInDrMode"
+      ]
+    },
+    "dr-test-mode": {
+      "statement": "Disaster Recovery Test Mode lets an organization test its business continuity processes; the Admin Console stays accessible, and changes made there do not take effect until test mode is disabled via the DNS records or the activation record expires.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Disaster recovery allows an organization to test their Private Access Business Continuity Plan (BCP) processes",
+            "The option to test disaster recovery is supported via Disaster Recovery Test Mode.",
+            "Any changes made to the Private Access cloud via the Zscaler Admin Console do not take effect until Disaster Recovery Test Mode is disabled via the DNS records, or the activation record expires.",
+            "When Disaster Recovery Test Mode is enabled, the Zscaler Admin Console is still accessible."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "snapshot-wording": {
+      "summary": "The App Connector group page and the snapshots page say the cloud keeps up to 15 prior configuration and 5 prior binary snapshots; the Private Service Edge group page says 15 active and 5 active.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-disaster-recovery-app-connector-groups.json",
+            "quotes": [
+              "The Zscaler cloud maintains up to 15 prior configuration snapshots and up to 5 prior binary snapshots"
+            ]
+          },
+          "says": "Up to 15 prior configuration snapshots and up to 5 prior binary snapshots (App Connector groups)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-disaster-recovery-private-service-edge-groups.json",
+            "quotes": [
+              "The Zscaler cloud maintains up to 15 active configuration snapshots and up to 5 active binary snapshots"
+            ]
+          },
+          "says": "Up to 15 active configuration snapshots and up to 5 active binary snapshots (Private Service Edge groups)."
+        }
+      ],
+      "impact": "The numbers agree; the pages word what the limit counts differently, prior snapshots or active ones."
+    }
+  },
+  "gaps": {
+    "dr-config-wording": {
+      "kind": "semantic",
+      "title": "What the Configuring Disaster Recovery and snapshots pages mean by two designations",
+      "status": "open",
+      "detail": "The Configuring Disaster Recovery page says to ensure the Zscaler Admin Console is designated for disaster recovery and can reach App Connectors; what designating the Admin Console means is not explained. The snapshots page's first step, to ensure Disaster Recovery Mode is enabled on the group, may mean designated for disaster recovery rather than Disaster Recovery Mode active; the page does not say.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "dr-reserve-semantics": {
+      "kind": "semantic",
+      "title": "Whether a disaster recovery group is excluded from normal selection until primary groups fail",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"PSE Groups with use_in_dr_mode = true are excluded from normal selection. They only become active if the primary groups (and Public SEs) are unavailable.\" The captured page makes activation an administrator action using DNS records during a global outage, not an automatic fallback from primary groups. Whether designated groups are excluded from normal routing before activation is not stated. Resolve with the Configuring Disaster Recovery article.",
+      "blocks": "stating how a DR-designated group behaves day to day",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "exclusive-for-business-continuity": {
+      "kind": "semantic",
+      "title": "Relation of exclusive_for_business_continuity to use_in_dr_mode",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"use_in_dr_mode / exclusive_for_business_continuity\" as one setting. The Go SDK group type carries both fields, and the sources give no semantics for the second. See [[zpa.private-service-edges.private-cloud-controller]] for the separate Business Continuity construct. Resolve with the API reference.",
+      "blocks": "setting either field correctly",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

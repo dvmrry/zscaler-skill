@@ -1,0 +1,690 @@
+{
+  "schema_version": 1,
+  "id": "deception.investigate",
+  "title": "Deception Investigate: the dashboard, containment actions, event logs and evidence",
+  "related": [
+    { "rel": "see-also", "to": "deception.overview" },
+    { "rel": "see-also", "to": "deception.miragemaker" },
+    { "rel": "see-also", "to": "deception.datasets" }
+  ],
+  "prose": [
+    {
+      "text": "See also [[deception.overview]], [[deception.miragemaker]] and [[deception.datasets]]."
+    },
+    {
+      "label": "Dashboard.",
+      "text": "{{dashboard-time-filter}} {{level-of-detail}} {{threat-level-filter}} {{layout-and-demographics}} {{interactive-only}} {{attacker-icon-options}} {{dashboard-decoy-connector}} {{chronology-slider}}"
+    },
+    {
+      "label": "Queries.",
+      "text": "{{saved-queries}} {{saved-query-example}} {{query-example-syntax}} {{query-regex-case}} Filter value lists {{gap:filter-value-lists}}."
+    },
+    {
+      "label": "Details panes.",
+      "text": "{{details-panes}} {{extended-details-tabs}} {{threatparse-details-fields}} {{chronology-page}} {{network-page}}"
+    },
+    {
+      "label": "Containment.",
+      "text": "{{containment-targets}} {{mark-safe-behavior}} {{delete-attacker}} {{blocklist-action}} {{automated-containment}} Setup of these integrations {{gap:enrichment-and-containment-setup}}."
+    },
+    {
+      "label": "Event logs.",
+      "text": "{{event-log-columns}} {{event-log-export-formats}} {{event-delete-limits}} {{event-test-rule}}"
+    },
+    {
+      "label": "Evidence.",
+      "text": "{{evidence-types}} {{evidence-http-request}} {{pcap-evidence-size}} {{evidence-export-delete}}"
+    },
+    {
+      "label": "Sandbox analysis.",
+      "text": "{{evidence-sandbox-submission}} {{evidence-third-party-sandboxes}} {{sandbox-report-formats}} {{sandbox-report-classification}} Classification values {{divergence:sandbox-classification-values}}. {{sandbox-report-sections}} Guest operating systems {{gap:sandbox-guest-os}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which classification values a Zscaler Sandbox report can carry, since the page gives two lists.",
+      "uses": ["sandbox-classification-values"]
+    },
+    {
+      "do": "Whether an attacker's past events stay hidden after the IP address is marked as safe.",
+      "uses": ["mark-safe-behavior"]
+    },
+    {
+      "do": "Whether a file can be sent to a sandbox from the Evidence page.",
+      "uses": ["evidence-sandbox-submission"]
+    },
+    {
+      "do": "Whether more than 100K events for one entity are removed in a single Delete All.",
+      "uses": ["event-delete-limits"]
+    }
+  ],
+  "claims": {
+    "dashboard-time-filter": {
+      "statement": "The Investigate dashboard time filter spans the last 10 minutes to all time and by default shows events from the last 7 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "You can filter events between the last 10 minutes and all time. By default, the dashboard displays information for events that occurred in the last 7 days."
+          ]
+        }
+      ]
+    },
+    "query-regex-case": {
+      "statement": "Investigate query filters do not support case-agnostic regular expressions or the case-insensitivity flag (\\I).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "the filter does not support case-agnostic expressions nor the case-insensitivity flag (\\I)"
+          ],
+          "after": "Advanced queries are complex queries with Boolean logic statements."
+        }
+      ]
+    },
+    "saved-queries": {
+      "statement": "Saved queries appear in the Select Query drop-down; a saved query can optionally record the selected time period and restore it when selected later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "The query is saved and listed in the Select Query drop-down menu.",
+            "Include time period: (Optional) Enable if you want the query to record the selected time period and restore the time period settings when the query is selected in the future."
+          ]
+        }
+      ]
+    },
+    "saved-query-example": {
+      "statement": "Deception provides built-in saved queries, for example Cloud Threat Detection, which filters for threat detections related to AWS or Azure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "Deception provides a list of saved queries to quickly filter certain types of events.",
+            "select Cloud Threat Detection to filter for threat detections related to AWS or Azure."
+          ]
+        }
+      ]
+    },
+    "query-example-syntax": {
+      "statement": "The Investigate query builder accepts field names such as attacker.ip, and Boolean expressions such as (type is \"windows\") or (type is \"network\" and sub_type is \"file\").",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "Click the query builder and enter attacker.ip.",
+            "(type is \"windows\") or (type is \"network\" and sub_type is \"file\")"
+          ]
+        }
+      ]
+    },
+    "chronology-slider": {
+      "statement": "The chronology slider graphs attack volume by time, can trim a filtered time range to a subset, and can replay recorded events in the sequence they occurred.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "The chronology slider shows a graph of attack volume by time.",
+            "drag the controls at both ends of the chronology slider to select a subset of time from your main filter",
+            "to replay the recorded events in the sequence they occurred"
+          ]
+        }
+      ]
+    },
+    "level-of-detail": {
+      "statement": "The dashboard Level of Detail filter orders its levels from the Deception Admin Portal, then Decoy Connectors, Decoy Groups and Decoys, and its plus and minus icons increase or reduce the elements shown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "The first level is the Deception Admin Portal, followed by Decoy Connectors, Decoy Groups, and Decoys.",
+            "Click the minus (-) icon to reduce the number of elements and view basic details of the attack.",
+            "Click the plus (+) icon to increase the number of elements and view in-depth details of the attack."
+          ]
+        }
+      ]
+    },
+    "threat-level-filter": {
+      "statement": "The dashboard Threat Level filter selects events by threat severity and offers All, Medium and Higher and Only High options.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "based on threat severity:\n- All\n- Medium and Higher"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "Threat Level: Select a threat level from the drop-down menu to filter events based on threat severity:",
+            "Only High"
+          ]
+        }
+      ]
+    },
+    "layout-and-demographics": {
+      "statement": "The dashboard Layout filter offers Default, Hierarchy (tree layout) and Radial (circular layout); the Demographics filter offers One to Many, Many to One and One to One views of attacker-to-element interaction.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "Hierarchy (tree layout)"
+          ],
+          "after": "- Default"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "Layout: Select a layout from the drop-down menu:",
+            "Radial (circular layout)",
+            "Demographics: Select a demographic level to view events based on the interaction between the attacker and the Deception elements:",
+            "One to Many",
+            "Many to One",
+            "One to One"
+          ]
+        }
+      ]
+    },
+    "interactive-only": {
+      "statement": "The Interactive Only filter shows attacks only when attackers and decoys interact, so network reconnaissance attacks are not shown while it is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "Interactive Only: Enable to show attacks only when there is an interaction between the attackers and decoys. For example, if Interactive Only is enabled, network reconnaissance attacks are not shown."
+          ]
+        }
+      ]
+    },
+    "attacker-icon-options": {
+      "statement": "Attacker icons can be shown as identicons, country flags (if available) or tagged names, an attacker icon can be tagged with alternate text, and the country's flag (if available) is displayed in the case of a TI activity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "Attackers as Identicons: Enable to show attacker icons as identicons.",
+            "Attackers as Tags: Enable to show attacker icons as tagged names.",
+            "Attackers as Flags: Enable to show attack icons as country flags, if available.",
+            "You can tag an attacker icon with an alternate text for your reference.",
+            "the country's flag (if available) is displayed in the case of a TI activity"
+          ]
+        }
+      ]
+    },
+    "dashboard-decoy-connector": {
+      "statement": "A Decoy Connector is a lightweight VM that hosts network decoys and also acts as a network broker connecting the Deception service to on-premises systems and AD decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-investigate-dashboard.json",
+          "quotes": [
+            "Decoy Connector: Lightweight virtual machines (VMs) that host network decoys. They also act as a network broker to connect the Deception service to on-premises systems and Active Directory (AD) decoys in your environment."
+          ]
+        }
+      ]
+    },
+    "details-panes": {
+      "statement": "Selecting an element on the alert graph opens a details pane unique to each Deception object and attacker; the object pane shows triggered ThreatParse rules and attacker risk scores, and the attacker pane shows the risk score, first and last event timestamps, triggered ThreatParse rules and any endpoint triage incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-investigate.json",
+          "quotes": [
+            "you can click any element on the alert graph to view the details pane that shows all attacker activities on the system",
+            "The details pane is unique for each Zscaler Deception object (Zscaler Deception Admin Portal, Decoy Connector, Decoy Group, and Decoy) and attacker.",
+            "The object details pane shows you ThreatParse rules that are triggered by attackers connecting to that object, and includes the risk scores assigned to attackers.",
+            "The attacker details pane shows you the risk score associated with the attacker, along with the first and last event timestamp. It shows you a list of ThreatParse rules triggered by the attacker and any triage incidents from the endpoint, if available."
+          ]
+        }
+      ]
+    },
+    "containment-targets": {
+      "statement": "The Actions menu on an attacker can forward the attacker's details to Check Point Firewall, CrowdStrike Falcon Insight, AWS GuardDuty, Fortinet, Microsoft Defender, Palo Alto Networks, VMware Carbon Black EDR, VMware Carbon Black Endpoint Standard, Internet & SaaS (ZIA) or Private Access (ZPA); the settings for these tools must be enabled on the Containment page first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-controlling-threat-events.json",
+          "quotes": [
+            "Check Point Firewall",
+            "CrowdStrike Falcon Insight",
+            "AWS GuardDuty",
+            "Fortinet",
+            "Microsoft Defender",
+            "Palo Alto Networks",
+            "VMware Carbon Black EDR",
+            "VMware Carbon Black Endpoint Standard",
+            "Internet & SaaS (ZIA)",
+            "Private Access (ZPA)",
+            "Before forwarding the attacker's details, make sure to enable the settings for these tools on the Containment page."
+          ]
+        }
+      ]
+    },
+    "mark-safe-behavior": {
+      "statement": "Marking an event as safe removes the attacker from the default Admin Portal view and can take up to an hour to be reflected; marking an attacker's IP address as safe marks all past events from it as safe, while new events from that IP address are still generated and displayed; Show marked as safe in the Select Query menu lists them so Mark as unsafe can reverse it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-controlling-threat-events.json",
+          "quotes": [
+            "This removes the attacker from the default view in the Zscaler Deception Admin Portal.",
+            "it can take up to an hour for the action to be reflected in the Deception Admin Portal depending on the number of events associated with the attacker",
+            "If you mark an attacker's IP address as safe, all the past events from that attacker are marked as safe. However, any new events from that IP address are generated and displayed on the Zscaler Deception dashboard.",
+            "Click the Select Query drop-down menu and enable Show marked as safe.",
+            "Click the Actions drop-down menu and select Mark as unsafe."
+          ]
+        }
+      ]
+    },
+    "delete-attacker": {
+      "statement": "Deleting an attacker removes all previously triggered events for it from the Admin Portal and permanently deletes the ThreatParse data linked to it, while tags associated with the attacker are retained.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-controlling-threat-events.json",
+          "quotes": [
+            "When you delete an attacker, all previously triggered events related to the attacker's activities are removed from the Deception Admin Portal, and any associated ThreatParse data linked to the attacker is also permanently deleted.",
+            "Tags associated with the attacker are retained."
+          ]
+        }
+      ]
+    },
+    "blocklist-action": {
+      "statement": "Selecting the blocklist action redirects to the Blocklist page to create a rule that blocks the attacker's IP from accessing the decoy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-controlling-threat-events.json",
+          "quotes": [
+            "Create a rule to blocklist the attacker's IP from accessing your decoy.",
+            "When you select the blocklist option, you are redirected to the Blocklist page to create the rule."
+          ]
+        }
+      ]
+    },
+    "automated-containment": {
+      "statement": "Orchestration rules can also automate marking an event as safe and deleting an attacker.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-controlling-threat-events.json",
+          "quotes": [
+            "You can mark an event as safe by selecting the Mark as safe option.",
+            "You can also automate this action using orchestration rules.",
+            "You can also automate deletion using orchestration rules."
+          ]
+        }
+      ]
+    },
+    "extended-details-tabs": {
+      "statement": "View Extended Details shows ThreatParse, Chronology, Network, Event Logs and Evidence tabs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-extended-details.json",
+          "quotes": [
+            "ThreatParse: Attack details based on the MITRE ATT&CK framework along with a risk score in plain English.",
+            "Chronology: A temporal overview and heatmap of the attacker's activities.",
+            "Network: Details of the attacker's activity in your network based on the telemetry generated by network decoys.",
+            "Event Logs: Event logs associated with an attacker activity.",
+            "Evidence: Evidence of an attack on the PCAP, RDP, or IoC files."
+          ]
+        }
+      ]
+    },
+    "threatparse-details-fields": {
+      "statement": "For each threat the ThreatParse details page shows a description, attack examples, mitigations, the MITRE ATT&CK ID and tactic, an event occurrence summary and important attacker information such as the submitted username and password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-threatparse-details.json",
+          "quotes": [
+            "A detailed description of each threat",
+            "Attack examples",
+            "Attack mitigations",
+            "The MITRE ATT&CK ID",
+            "The MITRE ATT&CK tactic",
+            "The event occurrence summary",
+            "Important information about the attacker (e.g., the username and the password the attacker has submitted)"
+          ]
+        }
+      ]
+    },
+    "chronology-page": {
+      "statement": "The Chronology page has an events-over-time graph and an activity-over-a-week heatmap in which a brighter spot represents a high volume of activity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-attack-chronology-details.json",
+          "quotes": [
+            "Events over time graph:",
+            "Activity over a week graph: This graph shows a heatmap that helps you to analyze the attacker's activity pattern for a weekly duration. A brighter spot on the graph represents a high volume of activity."
+          ]
+        }
+      ]
+    },
+    "network-page": {
+      "statement": "The Network page lists event logs with the attacker IP address, decoy IP address and port, network protocol, network service and connection duration, and offers a PCAP drop-down whose Build PCAP option builds a consolidated packet capture for the specified period that is then downloaded with Download Available PCAP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-network-details.json",
+          "quotes": [
+            "It lists event logs that include the attacker's IP address, decoy IP address and port, network protocol, network service, and network connection duration.",
+            "Provides options to build and download a consolidated packet capture file (PCAP) that has evidence of attack for the specified time period.",
+            "select Build PCAP from the PCAP drop-down menu. After the file is built, click Download Available PCAP."
+          ]
+        }
+      ]
+    },
+    "event-log-columns": {
+      "statement": "The Event Logs tab shows basic event information including Timestamp, Attack Type, Attacker ID, Decoy Name, Decoy Group, Decoy Port, Decoy Connector and Kill Chain Phase, where Attacker ID is the attacker's IP address, and up to 50 columns can be added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-event-logs.json",
+          "quotes": [
+            "Timestamp: The time and date when the attack happened.",
+            "Attack Type: The attack type (e.g., network, web, etc.).",
+            "Decoy Name: The name of the decoy with which the attacker interacted.",
+            "Decoy Group: The category of decoy on which the attacker attacks.",
+            "Decoy Connector: The name of the Decoy Connector.",
+            "Attacker ID: The attacker's IP address.",
+            "Kill Chain Phase: The kill chain attack phase (e.g., lateral movement, exploitation, etc.).",
+            "Decoy Port: The port number of the decoy.",
+            "You can add a maximum of 50 columns."
+          ]
+        }
+      ]
+    },
+    "event-log-export-formats": {
+      "statement": "Event logs can be exported as Attacker Summary in JSON or CSV, Events as JSON, Event Fields as JSON, Events as CSV, STIX v1.2, STIX v2.1 and Snort Rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-event-logs.json",
+          "quotes": [
+            "Attacker Summary in JSON: Export a JSON file",
+            "Attacker Summary in CSV: Export a CSV file",
+            "Events as JSON: Export a JSON file that includes all fields for event logs.",
+            "Event Fields as JSON: Export a JSON file that includes all fields for event fields.",
+            "Events as CSV: Export a CSV file that includes the event ID, timestamp, decoy details, etc.",
+            "STIX v1.2: Export a file in STIX format",
+            "STIX v2.1: Export a file in STIX format",
+            "Snort Rules: Export a file that includes the snort rules for the event logs."
+          ]
+        }
+      ]
+    },
+    "event-delete-limits": {
+      "statement": "Deleting selected events works well when there are fewer than 100 events, deleted events are removed permanently, and Delete All removes at most 100K events at a time so more than 100K events for an entity need repeated runs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-event-logs.json",
+          "quotes": [
+            "The option to delete specific events works well when the number of events is less than 100.",
+            "The selected events are deleted permanently.",
+            "The Delete All option removes a maximum of 100K events at a time. If you have more than 100K events associated with an entity, repeat these steps."
+          ]
+        }
+      ]
+    },
+    "event-test-rule": {
+      "statement": "Test Rule runs a custom query-language rule against up to 10 selected events and shows the number that passed and, separately, the list that failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-event-logs.json",
+          "quotes": [
+            "You can select a maximum of 10 events.",
+            "The test results are displayed immediately, showing the number of events that passed the rule. The list of events that failed is shown separately.",
+            "You can use the listed events and test them if they match custom rules created using query language."
+          ]
+        }
+      ]
+    },
+    "evidence-types": {
+      "statement": "Depending on the decoy interaction, evidence files are Packet Capture (PCAP), RDP recording files (MP4 and SRT), Indicators of Compromise (IOC), Quality of Service (QOS) and HTTP Request (http_request).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-evidence.json",
+          "quotes": [
+            "Type: Depending on the decoy interaction, the evidence files are available in the following formats:",
+            "Packet Capture (PCAP)",
+            "Remote Desktop Protocol (RDP) recording files",
+            "Indicators of Compromise (IOC)",
+            "video recordings of attacker interaction generated during an RDP session",
+            "combined and converted into downloadable MP4 and SRT (subtitle) files",
+            "Identifies new files that an attacker copies to a Windows RDP decoy and makes them available for download for analysis.",
+            "Quality of Service (QOS)",
+            "Captures instances where an attacker sends excessive requests. When the request volume exceeds the threshold, it gets removed from the event log and stored as evidence.",
+            "HTTP Request (http_request)"
+          ]
+        }
+      ]
+    },
+    "evidence-http-request": {
+      "statement": "http_request evidence is created for web events across static, dynamic and high-interaction containers when attackers send POST requests with unusually large payloads, applies to TI decoys and internal decoys with the Web Services type, and can be downloaded as a text file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-evidence.json",
+          "quotes": [
+            "For web events across static, dynamic, and high‑interaction containers",
+            "attackers send POST requests with unusually large payloads. Large payloads are uploaded as evidence as http_request.",
+            "This applies to both TI decoys and internal decoys with the Web Services type.",
+            "You can download the evidence that contains the attacker's request payload as a text file."
+          ]
+        }
+      ]
+    },
+    "evidence-sandbox-submission": {
+      "statement": "Only IOC evidence files can be sent to a sandbox; Zscaler Sandbox is integrated, and third-party sandboxes must first be configured for enrichment integration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-evidence.json",
+          "quotes": [
+            "Only IOC files can be sent to the sandbox.",
+            "Deception is integrated with the Zscaler Sandbox.",
+            "Before sending an evidence file to a third-party sandbox, you must configure the sandboxes for enrichment integration."
+          ]
+        }
+      ]
+    },
+    "evidence-third-party-sandboxes": {
+      "statement": "Deception supports Palo Alto Networks WildFire, Hybrid Analysis, Joe Sandbox, CrowdStrike Falcon X and VirusTotal as third-party sandboxes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-evidence.json",
+          "quotes": [
+            "Palo Alto Networks WildFire",
+            "Hybrid Analysis",
+            "Joe Sandbox",
+            "CrowdStrike Falcon X",
+            "VirusTotal",
+            "Deception also supports the following third-party sandboxes:"
+          ]
+        }
+      ]
+    },
+    "sandbox-report-formats": {
+      "statement": "A Zscaler Sandbox report downloads as JSON, a third-party sandbox report as PDF or JSON, and submission can take a few minutes depending on file type and size.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-evidence.json",
+          "quotes": [
+            "Click Download Report to download the report to your local system in the JSON format.",
+            "In the Download Report window, select Zscaler Sandbox.",
+            "The report is downloaded to your system in either a PDF or JSON format.",
+            "Submitting an evidence file can take a few minutes, depending on the file type and size."
+          ]
+        }
+      ]
+    },
+    "sandbox-report-classification": {
+      "statement": "The Zscaler Sandbox report shows a Classification, the threat type of the analyzed file, with an associated threat score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-evidence.json",
+          "quotes": [
+            "Classification: The threat type of the analyzed file, such as Benign, Malicious, and Suspicious with the associated threat score."
+          ]
+        }
+      ]
+    },
+    "sandbox-report-sections": {
+      "statement": "The Zscaler Sandbox report shows classification, file properties (size, signing certificates, MD5, SHA1 and SSDEEP hashes), exploits, network, persistence, security bypass, spyware, stealth and system summary information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-evidence.json",
+          "quotes": [
+            "Classification: The threat type of the analyzed file",
+            "Network: Information on which network connections were initiated and the network objects of the evidence file, if any.",
+            "Spyware: The techniques spyware processes use to learn about the system and spy on the user.",
+            "File Properties: File properties such as the file size, digital certificates used to sign in to the file, MD5, SHA1, and SSDEEP hash details.",
+            "Exploits: List of exploits detected, if any.",
+            "Persistence: Information on the persistence mechanism created by the evidence file.",
+            "Security Bypass: The techniques used to bypass traditional security scanners and sandboxes.",
+            "Stealth: The techniques used to hide the process from the user and systems trying to identify the malware.",
+            "System Summary: Information related to the system and process."
+          ]
+        }
+      ]
+    },
+    "pcap-evidence-size": {
+      "statement": "PCAP evidence files contain one minute or 5 MB of PCAP data, whichever is less, and a unified PCAP for a selected duration can be downloaded from the Network page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-evidence.json",
+          "quotes": [
+            "PCAP files contain one minute or 5 MB of PCAP data, whichever is less. You can download a unified PCAP file for the selected time duration from the Network page."
+          ]
+        }
+      ]
+    },
+    "evidence-export-delete": {
+      "statement": "Evidence details export as JSON or CSV, and Delete All permanently deletes all evidence files for the specified time period on the Investigate Dashboard from the Decoy Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-managing-evidence.json",
+          "quotes": [
+            "You can export the list of evidence details to a JSON or CSV file.",
+            "All evidence files for the specified time period on the Deception Investigate Dashboard are permanently deleted from the Decoy Connectors."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "sandbox-classification-values": {
+      "summary": "The Zscaler Sandbox report's Classification line names Benign, Malicious and Suspicious, while the list under it that categorizes the file names Benign, Adware, Anonymizer and Malware.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-viewing-managing-evidence.json",
+            "quotes": [
+              "Classification: The threat type of the analyzed file, such as Benign, Malicious, and Suspicious with the associated threat score."
+            ]
+          },
+          "says": "The Classification line gives Benign, Malicious, and Suspicious as example threat types."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-viewing-managing-evidence.json",
+            "quotes": [
+              "The file is further categorized as follows:",
+              "Benign: A known non-malicious file.",
+              "Adware: A known malicious file that automatically renders advertisements and installs adware.",
+              "Anonymizer: A known malicious file that contains anonymizers and P2P clients.",
+              "Malware: A known malicious file that behaves like APTs, exploits, botnets, trojans, keyloggers, spyware, and other malware."
+            ]
+          },
+          "says": "The sub-list that further categorizes the file gives Benign, Adware, Anonymizer and Malware."
+        }
+      ],
+      "impact": "The page does not say whether Malicious and Suspicious are values a report shows or whether Adware, Anonymizer and Malware are the categories it uses, so which classification value an evidence file shows is not settled by the page."
+    }
+  },
+  "gaps": {
+    "filter-value-lists": {
+      "kind": "semantic",
+      "title": "Which attack types and decoy types the dashboard filters offer",
+      "status": "open",
+      "detail": "The dashboard page lists Attack Types and Decoy Type filter values in items too short to quote on their own; they are not recorded here.",
+      "resolves_with": ["source-read"]
+    },
+    "sandbox-guest-os": {
+      "kind": "semantic",
+      "title": "Which guest operating systems each third-party sandbox offers",
+      "status": "open",
+      "detail": "The Evidence page lists guest operating systems under Hybrid Analysis, Joe Sandbox and CrowdStrike Falcon X, repeating some lines across sandboxes; only the sandbox names are recorded.",
+      "resolves_with": ["source-read"]
+    },
+    "enrichment-and-containment-setup": {
+      "kind": "semantic",
+      "title": "How enrichment integrations, the Containment page, the Blocklist page and orchestration rules are set up",
+      "status": "open",
+      "detail": "The pages read for this subject point to the Containment page, the Blocklist page, orchestration rules and enrichment integrations without describing their setup, and the query-language syntax (fields, operators) is not covered by them.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

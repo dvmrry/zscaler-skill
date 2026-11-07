@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Unable to Access Specific Websites or Applications",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/unable-access-specific-websites-or-applications",
+    "node": "1539012",
+    "revision": "3224152",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This runbook article describes how to determine if a URL was blocked because the Zscaler service was unable to access specific websites or applications."
+    },
+    {
+      "heading": "Can You Access the Website From an Isolated Test System When Bypassing the Zscaler Service?",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe how to access the website from an isolated test system when bypassing the Zscaler service."
+    },
+    {
+      "item": "Find out the data center to which the user forwards traffic:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Approach 1: Go to ip.zscaler.com.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Approach 2: Look at the Data Center column in Web Insights.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          24,
+          35
+        ],
+        [
+          46,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "If the website isn't accessible from your own system while bypassing the Zscaler service, it implies that the website uses some sort of access control based on the source IP. Here is a list of potential solutions for this problem:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If traffic isn't inspected, enable SSL inspection for this website on the Zscaler service. You might also need to request the website owner to consider the XFF IP for allowlist evaluation. When configured to allow connections for specific source IPs, standard web servers use the following process:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "They check whether there's an XFF header in the web request. If it is present, they match this IP against the configured allowlist.",
+      "depth": 2
+    },
+    {
+      "item": "If there's no XFF header in the web request, then they match the source IP from the IP header against the configured allowlist.",
+      "depth": 2
+    },
+    {
+      "item": "If SSL inspection is enabled for a website, the Public Service Edge for Internet & SaaS (ZIA) always inserts the XFF header containing the client's external source IP so that the website can see the actual source IP, which generated the web request. There are two key limitations of this solution:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "If you cannot enable SSL inspection for this website, it won't help.",
+      "depth": 2
+    },
+    {
+      "item": "If the web server in question doesn't already use the XFF IP for allowlist evaluation, the team managing the web server must fix this. If that team isn't responsive, it's best to use one of the following solutions.",
+      "depth": 2
+    },
+    {
+      "item": "Contact your Zscaler Account team to enable the Dedicated IP feature for your Internet & SaaS tenant.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Send this traffic via a Private Service Edge or Virtual Service Edge, if applicable.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Request the website owner to allowlist subnets of the relevant Zscaler Service Edges as mentioned for your cloud on the Config Portal.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Is the website inaccessible specifically from one data center? If yes, see the Internet & SaaS Traffic Forwarding Troubleshooting Runbook.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "If the website is accessible only when SSL inspection is disabled, check whether the website works well with the XFF header. To learn more, see How to Test if a Website Does Not Work with the XFF Header.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "heading": "Does the User’s System Send DNS Traffic to the Zscaler Service?",
+      "level": 1
+    },
+    {
+      "text": "To determine whether the user's system sends DNS traffic to the Zscaler service."
+    },
+    {
+      "item": "Review the Firewall and DNS insights. Use the public IP from ip.zscaler.com and client source IP as filters.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Review the client packet capture, preferably using Zscaler Client Connector, if available. Otherwise, you must install Wireshark and packets captured on all the interfaces.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Make sure that the DNS resolution for the client web traffic is working to the destination’s IP via the Zscaler service. To learn more about how the Zscaler service handles DNS resolution for various traffic-forwarding methods, see Handling DNS Resolution for Various Traffic Forwarding Methods.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "If you use Zscaler Client Connector, make sure that the DNS inclusion and exclusion criteria are correctly defined in the app profile.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Review the DNS Insights for this transaction using the appropriate filters for the client user or client IP. Typically, the DNS Error Code column has values indicating failure such as Server Failure or DNS transaction timed out as server didn't respond, and the Server IP column shows you the corresponding DNS server.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          184,
+          198
+        ],
+        [
+          202,
+          252
+        ],
+        [
+          262,
+          271
+        ]
+      ]
+    },
+    {
+      "heading": "Which IP Protocol Does the User’s System Use?",
+      "level": 1
+    },
+    {
+      "text": "To determine which protocol the user's system uses:"
+    },
+    {
+      "item": "View the Web or Firewall log insights (use the public IP address from ip.zscaler.com and the client source IP as filters).",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Review the IP addresses in the client packet capture from the previous step.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If the IP addresses use IPv6, make sure that IPv6 is enabled in your tenant, and that you are correctly forwarding this traffic to the Zscaler service. To learn more, see Configuring IPv6 Settings.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "When a website works for some users and not for others with the same access level, IPv6 is a common cause.",
+      "depth": 1
+    },
+    {
+      "item": "If the IP addresses use IPv4, move on to the next question.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "heading": "Which HTTP Protocol Does the Browser Use for Loading the Website?",
+      "level": 1
+    },
+    {
+      "text": "To learn more about how to determine which HTTP protocol the browser uses for loading the website, see How to Determine Whether a Website Is Using QUIC."
+    },
+    {
+      "text": "Now you should be able to view the names of all the servers with which QUIC was used for web traffic."
+    },
+    {
+      "item": "If the protocol is H3/QUIC, Zscaler Advanced Firewall processes this as general UDP traffic but won't enforce any policy on this traffic. To learn more, see Managing the QUIC Protocol.",
+      "depth": 0
+    },
+    {
+      "item": "If the protocol is H2, make sure that the Enable HTTP/2 option is selected in the relevant SSL Inspection Policy. To learn more, see Configuring SSL/TLS Inspection Policy.",
+      "depth": 0
+    },
+    {
+      "item": "If the protocol is H/1.1, move on to the next question.",
+      "depth": 0
+    },
+    {
+      "heading": "Is the Website or Application Inaccessible for All Users and Locations?",
+      "level": 1
+    },
+    {
+      "text": "If no, or you're not sure:"
+    },
+    {
+      "item": "If you don't know the answer to this question, you can compare the user, group, location, and policy action values in Web Insights logs for the domain. For example, set the policy action filter to Allowed and check whether there are any entries that show that this website is allowed for other users or locations.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Figure out all the policy rules that should have been applicable to this transaction.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If only the rules based on users, groups, or department as criteria are not working as expected, validate that user authentication and related settings are correctly configured in the location shown in the web logs.",
+      "depth": 1
+    },
+    {
+      "item": "Check whether adding the domain to authentication exemptions resolves the access issue. If yes, analyze the working and non-working header traces and explain to the user how this domain does not work well with authentication redirection.",
+      "depth": 1
+    },
+    {
+      "item": "If only a few users cannot access a resource while others in the same location can, review the users and groups in user management and then location configuration in location management.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "If all the users in one location cannot access a URL while users from other locations can, review the user-, group- or location-based policies for the URL and compare web insights logs for troubleshooting.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "heading": "Does the Website Work with a Different Browser? If It's a Web Application, Can You Access It Using a Browser?",
+      "level": 1
+    },
+    {
+      "text": "For yes or not sure:"
+    },
+    {
+      "item": "Make sure the relevant browser version is configured to be allowed in the Browser Control policy under Secure Browsing.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Capture HTTP headers when using the application or when accessing the website:.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "To learn more, see How to Capture HTTP Headers (HAR file) on the Client System."
+    },
+    {
+      "heading": "Have You Validated All the Criteria in the Policy Rule that Should Have Allowed This Access?",
+      "level": 1
+    },
+    {
+      "text": "To learn more about how to check whether you have validated all of the criteria in the policy rule that should have allowed access, see Specific Criteria in the Access Control Policy Do Not Match."
+    },
+    {
+      "text": "If none of the previous steps help, submit a case to Zscaler Support with the following information:"
+    },
+    {
+      "item": "A screenshot of the complete page at https://ip.zscaler.com.",
+      "depth": 0
+    },
+    {
+      "item": "If Remote Assistance is enabled, the complete URL and the timestamp when a user tried accessing it via the Zscaler service.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Else Web Insights logs showing all the columns for the relevant transactions and a screenshot of the relevant rule(s) showing all the criteria.",
+      "depth": 0
+    }
+  ]
+}

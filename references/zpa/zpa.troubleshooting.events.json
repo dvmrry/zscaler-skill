@@ -1,0 +1,720 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.events",
+  "title": "ZPA event notifications: the catalog, thresholds, throttling and recipients",
+  "aliases": [
+    "zpa events diagnostics",
+    "zpa event notification",
+    "zpa alerts email"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.event-monitoring.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.network-connectors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{range-and-priority}}"
+    },
+    {
+      "label": "The catalog.",
+      "text": "{{categories-components}} The component filter list leaves out components the event table uses {{divergence:component-list-vs-table}}, and the Authentication category has no event in the table {{gap:authentication-category-empty}}."
+    },
+    {
+      "label": "Usage Metrics events.",
+      "text": "{{usage-thresholds}} The window over which a threshold is evaluated is open {{gap:threshold-window}}. The Network Connector is described in [[zpa.vpn.network-connectors]]."
+    },
+    {
+      "label": "Events that cannot be configured.",
+      "text": "{{not-configurable}}"
+    },
+    {
+      "label": "Enrollment, connectivity and other events.",
+      "text": "{{enrollment-events}} {{connectivity-events}} {{other-events}}"
+    },
+    {
+      "label": "Notifications.",
+      "text": "{{notification-defaults}} {{throttling}} {{recipients}} Whether an event fires once or repeatedly while its condition persists is open {{gap:repeat-firing}}, as is how this catalog relates to the Event Monitoring API {{gap:event-api-relation}}."
+    },
+    {
+      "label": "The Notifications page.",
+      "text": "{{notifications-page}} {{zscaler-managed-read-only}} The recipient limit is stated only on the Events Diagnostics page {{gap:recipient-limit-pages}}."
+    },
+    {
+      "label": "Configuring a notification.",
+      "text": "{{notification-components}} {{component-selection-menu}} {{federation-and-vpn-categories}} {{threshold-input}} {{throttling-example}} {{distribution-list-and-sender}}"
+    },
+    {
+      "label": "Components per event on the Configuring Notifications page.",
+      "text": "{{about-notifications-components}} {{configuring-usage-components}} {{configuring-connectivity-components}} {{configuring-enrollment-components}} The two pages give different component sets for one event {{divergence:enrollment-cert-expired-components}}. {{configuring-cpu-starvation}} The pages differ on whether CPU Starvation can be configured {{divergence:cpu-starvation-configurable}}. {{configuring-listen-ip-event}} The pages give different components for that event {{divergence:listen-ip-components}}. In the captured pages, the Configuring Notifications event table omits events that Events Diagnostics lists {{gap:events-absent-from-configuring}}, and the label of the Usage Metrics component is not mapped to the drop-down's {{gap:vpn-service-edges-label}}."
+    },
+    {
+      "label": "VPN (for Legacy Apps) and Federation events.",
+      "text": "{{bgp-events}} The period for an extended downtime is open {{gap:bgp-extended-downtime}}. {{federation-events}}"
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Admins subscribe to events to receive email notifications, and the Events Diagnostics page displays these notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-events-diagnostics.json",
+          "quotes": [
+            "Admins subscribe to events to receive email notifications from the Zscaler Admin Console.",
+            "The Events Diagnostics page displays these notifications."
+          ]
+        }
+      ]
+    },
+    "range-and-priority": {
+      "statement": "Events Diagnostics shows the last 24 hours by default with no filters applied, and counts events in total and by High, Medium and Low priority.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-events-diagnostics.json",
+          "quotes": [
+            "By default, the information for all events is displayed for notifications that occurred in the last 24 hours.",
+            "By default, no filters are applied.",
+            "High Priority: The number of high priority events.",
+            "Medium Priority: The number of medium priority events.",
+            "Low Priority: The number of low priority events."
+          ]
+        }
+      ]
+    },
+    "categories-components": {
+      "statement": "The Event Category filter lists Authentication, Backup Configuration, Connectivity and Upgrade, Enrollment, System Resource and Usage Metrics, and the Event Component filter lists App Connectors, Backup and Restore, Cloud Connectors, Private Service Edges and Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-events-diagnostics.json",
+          "quotes": [
+            "Event Category: See event logs by category (i.e., Authentication, Backup Configuration, Connectivity and Upgrade, Enrollment, System Resource, Usage Metrics).",
+            "Event Component: See event logs by component (i.e., App Connectors, Backup and Restore, Cloud Connectors, Private Service Edges, and Zscaler Client Connector)."
+          ]
+        }
+      ]
+    },
+    "usage-thresholds": {
+      "statement": "Usage Metrics events take an integer threshold: Application Exceeded Count Limit 4,500 to 6,000 (default 4,500, App Connectors); Bandwidth Utilization Exceeded Limit at least 250 Mbps (default 250); CPU Exceeded Limit, System Memory Exceeded Limit, File Descriptors Exhausted and Source Port Consumption 75% to 99% (default 75); Disk Space Exceeded Limit 0 to 2,048 MB (default 2,048), for the component's available disk space below the threshold. The Events Diagnostics table lists all but the application count for App Connectors, Network Connectors, Private Cloud Controllers and Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-events-diagnostics.json",
+          "quotes": [
+            "The Application Exceeded Count Limit value must be an integer between 4,500 and 6,000. The default value is set to 4,500.",
+            "The Bandwidth Utilization Exceeded Limit value must be an integer greater than or equal to 250 Mbps. The default value is set to 250.",
+            "The CPU Exceeded Limit value must be an integer between 75% and 99%. The default value is set to 75.",
+            "An event indicating when the component's available disk space is less than the indicated threshold. The Disk Space Exceeded Limit value must be an integer between 0 and 2,048 MB. The default value is set to 2,048.",
+            "The File Descriptors Exhausted value must be an integer between 75% and 99%. The default value is set to 75.",
+            "An event indicating when the component's source TCP or UDP ports are exhausted. The exhausted values must be an integer between 75% and 99%. The default value is set to 75.",
+            "The System Memory Exceeded Limit value must be an integer between 75% and 99%. The default value is set to 75.",
+            "| Application Exceeded Count Limit | Usage Metrics | App Connectors |",
+            "| Bandwidth Utilization Exceeded Limit | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges |",
+            "| CPU Exceeded Limit | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges |",
+            "| Disk Space Exceeded Limit | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges |",
+            "| File Descriptors Exhausted | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges |",
+            "| Source Port Consumption Exhausted | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges |",
+            "| System Memory Exceeded Limit | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges |"
+          ]
+        }
+      ]
+    },
+    "not-configurable": {
+      "statement": "The event for the control connection of App Connectors or Private Service Edges disconnecting cannot be configured and is disabled by default; so is the event for an App Connector's CPU missing resources needed for operations. A further event, whose raw logs include the component name, when it was updated and who updated it, cannot be configured either.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-events-diagnostics.json",
+          "quotes": [
+            "An event indicating when the control connection for App Connectors or Private Service Edges disconnects. This event cannot be configured and is disabled by default.",
+            "An event indicating when the App Connector's CPU is missing resources needed for operations. This event cannot be configured and is disabled by default.",
+            "Raw logs for this event include component name, when the component was updated, and who updated the component. This event cannot be configured."
+          ]
+        }
+      ]
+    },
+    "enrollment-events": {
+      "statement": "The event table lists these events in the Enrollment category: Certificate Signing Request Invalid, Enrollment Certificate Expired and Provisioning Key Utilization Exceeded Limit (each for App Connectors, Private Service Edges and Cloud Connectors), and Certificate Signing Request Not Found, Certificate Signing Request Not Found for Issued Certificate, Duplicate Certificate Signing Request, Enrollment Certificate Invalid, Enrollment Completed, Enrollment Failed, Entity Limit Exceeded, Invalid Fingerprint, Invalid Signature, Issued Certificate Missing, Issued Certificate Revoked, Missing Signature, Provisioning Key Disabled, Provisioning Key Expired, Provisioning Key Mismatched, Provisioning Key Not Found, Public Key in Certificate Signing Request and Issued Certificate Mismatched and Timestamp Expired. The Timestamp Expired description gives as an example an App Connector sending an old timestamp due to a Network Time Protocol error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-events-diagnostics.json",
+          "quotes": [
+            "| Certificate Signing Request Invalid | Enrollment | App Connectors, Private Service Edges, Cloud Connectors |",
+            "| Enrollment Certificate Expired | Enrollment | App Connectors, Private Service Edges, Cloud Connectors |",
+            "| Provisioning Key Utilization Exceeded Limit | Enrollment | App Connectors, Private Service Edges, Cloud Connectors |",
+            "| Public Key in Certificate Signing Request and Issued Certificate Mismatched | Enrollment |",
+            "(e.g., an App Connector sends an old timestamp due to a Network Time Protocol error)",
+            "| Certificate Signing Request Not Found | Enrollment |",
+            "| Certificate Signing Request Not Found for Issued Certificate | Enrollment |",
+            "| Duplicate Certificate Signing Request | Enrollment |",
+            "| Enrollment Certificate Invalid | Enrollment |",
+            "| Enrollment Completed | Enrollment |",
+            "| Enrollment Failed | Enrollment |",
+            "| Entity Limit Exceeded | Enrollment |",
+            "| Invalid Fingerprint | Enrollment |",
+            "| Invalid Signature | Enrollment |",
+            "| Issued Certificate Missing | Enrollment |",
+            "| Issued Certificate Revoked | Enrollment |",
+            "| Missing Signature | Enrollment |",
+            "| Provisioning Key Disabled | Enrollment |",
+            "| Provisioning Key Expired | Enrollment |",
+            "| Provisioning Key Mismatched | Enrollment |",
+            "| Provisioning Key Not Found | Enrollment |",
+            "| Timestamp Expired | Enrollment |"
+          ]
+        }
+      ]
+    },
+    "connectivity-events": {
+      "statement": "The Connectivity and Upgrade events listed for App Connectors and Private Service Edges include Control Connection Disconnected, Last Component Disconnected, Upgrade Complete, Outdated Component Manager Version and Upgrade Failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-events-diagnostics.json",
+          "quotes": [
+            "| Control Connection Disconnected | Connectivity and Upgrade | App Connectors, Private Service Edges |",
+            "| Last Component Disconnected | Connectivity and Upgrade | App Connectors, Private Service Edges |",
+            "| Upgrade Complete | Connectivity and Upgrade | App Connectors, Private Service Edges |",
+            "| Outdated Component Manager Version | Connectivity and Upgrade | App Connectors, Private Service Edges |",
+            "| Upgrade Failed | Connectivity and Upgrade | App Connectors, Private Service Edges |"
+          ]
+        }
+      ]
+    },
+    "other-events": {
+      "statement": "The table also lists Backup Completed, Backup Failed, Restore Completed and Restore Failed (Backup Configuration, Backup and Restore), SCIM Users Successfully Deleted (Enrollment, Zscaler Client Connector) and Invalid System Listen IP Configuration (System Resource, Private Service Edges), and describes an event for a duplicate serial number during Zscaler Client Connector enrollment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-events-diagnostics.json",
+          "quotes": [
+            "An event indicating that there is a duplicate serial number during Zscaler Client Connector enrollment.",
+            "| SCIM Users Successfully Deleted | Enrollment | Zscaler Client Connector |",
+            "| Invalid System Listen IP Configuration | System Resource | Private Service Edges |",
+            "| Backup Completed | Backup Configuration | Backup and Restore |",
+            "| Backup Failed | Backup Configuration | Backup and Restore |",
+            "| Restore Completed | Backup Configuration | Backup and Restore |",
+            "| Restore Failed | Backup Configuration | Backup and Restore |"
+          ]
+        }
+      ]
+    },
+    "notification-defaults": {
+      "statement": "A notification's status is Enabled by default, and all categories and all priorities are selected by default; for the App Connectors component all App Connectors are selected by default (the page's quotes give no default for other component types). The Zscaler Client Connector component has no drop-down menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-events-diagnostics.json",
+          "quotes": [
+            "Status: Indicates the status of the notification (i.e., Enabled or Disabled). By default, the status is set to Enabled.",
+            "A drop-down menu is not available for the Zscaler Client Connector component.",
+            "All App Connectors are selected by default.",
+            "All categories are selected by default.",
+            "All priorities are selected by default."
+          ]
+        }
+      ]
+    },
+    "throttling": {
+      "statement": "Throttling is Disabled by default; when Enabled, the Throttling Limit and Throttling Timeout fields appear, and the timeout is an integer in hours. The page's example is a Throttling Limit of 3 with a Throttling Timeout of 1 hour.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-events-diagnostics.json",
+          "quotes": [
+            "Throttling is set to Disabled by default. When Throttling is Enabled, the Throttling Limit and Throttling Timeout fields appear.",
+            "Throttling Timeout: Enter an integer value in hours to indicate the throttling timeout.",
+            "For example, the Throttling Limit value is 3, and the Throttling Timeout value is 1 hour."
+          ]
+        }
+      ]
+    },
+    "recipients": {
+      "statement": "A notification allows at most 5 recipients, counting Recipients and Distribution Lists together.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-events-diagnostics.json",
+          "quotes": [
+            "A maximum of 5 recipients combined (this includes both Recipients and Distribution Lists) is allowed."
+          ]
+        }
+      ]
+    },
+    "notifications-page": {
+      "statement": "Notifications carry information about events related to components, event information (the page's example is high CPU) and the relevant values; on the Notifications page (Administration > Alerts > Private Access) each notification shows its recipients, distribution lists, component, categories, priorities (Low, Medium or High), whether limits and timeouts are enforced (Throttling), software components and events, and the Categories field shows All when every available category is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-notifications.json",
+          "quotes": [
+            "Notifications provide information about events related to components, event information (e.g., high CPU), and relevant values associated with the events.",
+            "On the Notifications page (Administration > Alerts > Private Access), you can do the following:",
+            "Recipients: The list of email addresses that receive this notification.",
+            "Distribution List: The email distribution lists that receive this notification.",
+            "Component: The software component category selected.",
+            "Priorities: The priority of the notification (i.e., Low, Medium, or High).",
+            "Throttling: Indicates whether limits and timeout durations are enforced for the notification.",
+            "Software Components: The list of software components to which this notification applies.",
+            "Events: The specific events for the selected categories associated with this notification.",
+            "The text All appears in this field if all available categories are selected for the notification."
+          ]
+        }
+      ]
+    },
+    "zscaler-managed-read-only": {
+      "statement": "Notifications managed by Zscaler are read only; the Configuring Notifications page says they cannot be configured, edited or deleted, and About Notifications says they cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "Notifications that are managed by Zscaler are read only and cannot be configured, edited, or deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-notifications.json",
+          "quotes": [
+            "Notifications that are managed by Zscaler are read only and cannot be edited or deleted."
+          ]
+        }
+      ]
+    },
+    "notification-components": {
+      "statement": "The Component drop-down of the Configuring Notifications page offers App Connectors, Backup and Restore, Cloud Connectors, Federation, Network Connectors, Private Cloud Controller, Private Service Edges, VPN (for Legacy Apps) and Zscaler Client Connector. Within a Microtenant, notifications can be created only for App Connectors, Private Service Edges for Private Access (ZPA) or Private Cloud Controllers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "Component: Select a software component from the drop-down menu. The following software components are available:",
+            "App Connectors: To learn more, see About App Connectors.",
+            "Backup and Restore: To learn more, see About Backup and Restore.",
+            "Cloud Connectors: To learn more, see About Cloud Connectors.",
+            "Federation: To learn more, see Understanding Business-to-Business (B2B) Federation.",
+            "Network Connectors: To learn more, see About Network Connectors.",
+            "Private Cloud Controller: To learn more, see About Private Cloud Controllers.",
+            "Private Service Edges: To learn more, see About Private Service Edges.",
+            "VPN (for Legacy Apps): To learn more, see About VPN Service Edges.",
+            "Zscaler Client Connector: To learn more, see What Is Zscaler Client Connector?",
+            "If you are within a Microtenant, you can only create notifications for App Connectors, Private Service Edges for Private Access (ZPA), or Private Cloud Controllers."
+          ]
+        }
+      ]
+    },
+    "about-notifications-components": {
+      "statement": "The About Notifications page describes a notification's Component as the component associated with the notification, giving as examples App Connectors, Backup and Restore, and Cloud Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-notifications.json",
+          "quotes": [
+            "Component: The component associated with the notification (i.e., App Connectors, Backup and Restore, or Cloud Connectors)."
+          ]
+        }
+      ]
+    },
+    "component-selection-menu": {
+      "statement": "After a component is selected on the Configuring Notifications page, drop-down menus for Categories, Priorities and selection of the components appear; a drop-down menu for component selection is not available for Backup and Restore, Federation and Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "After a component is selected, additional drop-down menus appear for Categories, Priorities, and selection of the components.",
+            "A drop-down menu for component selection is not available for Backup and Restore, Federation, and Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "federation-and-vpn-categories": {
+      "statement": "Besides the categories already listed, the Configuring Notifications page offers Federated Application Configuration (federated application configurations), Federated Policy Configuration (access policies for federated application configurations), Partner Federation Configuration (partner federation configurations) and VPN (for Legacy Apps), for Border Gateway Protocol (BGP) network routes and peers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "Federated Application Configuration: Indicates events related to federated application configurations.",
+            "Federated Policy Configuration: Indicates events related to access policies for federated application configurations.",
+            "Partner Federation Configuration: Indicates events related to partner federation configurations.",
+            "VPN (for Legacy Apps): Indicates notifications regarding the Border Gateway Protocol (BGP) network routes and peers."
+          ]
+        }
+      ]
+    },
+    "bgp-events": {
+      "statement": "The Configuring Notifications event table lists these Connectivity and Upgrade events for the VPN (for Legacy Apps) component: BGP Established Peers Count Dropped (BGP peers that dropped from the Established state), BGP Network Routes Peers Count Dropped (network sessions with BGP peers that dropped or had routes withdrawn), BGP Peer Disconnected (the session between BGP peers ended), BGP Peer Extended Downtime (a BGP session down for an extended period of time) and BGP Peer Flapping (a BGP peer session that repeatedly goes down and comes back up).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "BGP Established Peers Count Dropped | Connectivity and Upgrade | VPN (for Legacy Apps) | An event indicating the number of BGP peers that have dropped from the Established state.",
+            "BGP Network Routes Peers Count Dropped | Connectivity and Upgrade | VPN (for Legacy Apps) | An event indicating the number of network sessions with BGP peers that have dropped or had routes withdrawn.",
+            "BGP Peer Disconnected | Connectivity and Upgrade | VPN (for Legacy Apps) | An event indicating that the session between BGP peers ended.",
+            "BGP Peer Extended Downtime | Connectivity and Upgrade | VPN (for Legacy Apps) | An event indicating that a BGP session has been down for an extended period of time.",
+            "BGP Peer Flapping | Connectivity and Upgrade | VPN (for Legacy Apps) | An event indicating that a BGP peer session is unstable and repeatedly goes down and comes back up."
+          ]
+        }
+      ]
+    },
+    "federation-events": {
+      "statement": "The Configuring Notifications event table lists these events for the Federation component: Federated Access Policy Updated and Federated Application Updated (the configuration of the access policy for federated applications, or of the federated application, is created, updated or deleted) and Partner Federation Updated (the status of the partner federation is updated from Active, Pause or Terminate).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "Federated Access Policy Updated | Federated Policy Configuration | Federation | An event indicating when the configuration of the access policy for federated applications is created, updated, or deleted.",
+            "Federated Application Updated | Federated Application Configuration | Federation | An event indicating when the configuration of the federated application is created, updated, or deleted.",
+            "Partner Federation Updated | Partner Federation Configuration | Federation | An event indicating when the status of the partner federation is updated from Active, Pause, or Terminate."
+          ]
+        }
+      ]
+    },
+    "threshold-input": {
+      "statement": "For events that require text input, the Configuring Notifications page says to enter an integer value within the supported range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "For events that require text input, enter an integer value within the supported range."
+          ]
+        }
+      ]
+    },
+    "throttling-example": {
+      "statement": "The Throttling Limit is an integer. In the Configuring Notifications page's example (Throttling Limit 3, Throttling Timeout 1 hour, a notification set to trigger when the App Connector CPU is greater than 80%), the recipients receive only three email notifications within the last hour if the App Connector CPU exceeds the 80% threshold.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "Throttling Limit: Enter an integer value to indicate the throttling limit.",
+            "For example, the Throttling Limit value is 3, and the Throttling Timeout value is 1 hour.",
+            "If the notification is set to trigger when the App Connector CPU is greater than 80%, the recipients receive only three email notifications within the last hour if the CPU of the App Connector exceeds the 80% threshold."
+          ]
+        }
+      ]
+    },
+    "distribution-list-and-sender": {
+      "statement": "A distribution list is entered in the format example@test.com. The sender email domain might be no-reply@private.zscaler.com or no-reply@zpatwo.net, depending on the organization's assigned cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "Distribution List: Enter the desired distribution list in the following format: example@test.com.",
+            "The sender email domain for the notifications might come from no-reply@private.zscaler.com or no-reply@zpatwo.net depending on your organization's assigned cloud."
+          ]
+        }
+      ]
+    },
+    "configuring-usage-components": {
+      "statement": "On the Configuring Notifications page the CPU Exceeded Limit, Disk Space Exceeded Limit, File Descriptors Exhausted, Source Port Consumption Exhausted and System Memory Exceeded Limit rows list VPN Service Edges after Private Service Edges; the Bandwidth Utilization Exceeded Limit row lists App Connectors, Network Connectors, Private Cloud Controllers and Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "CPU Exceeded Limit | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges, VPN Service Edges",
+            "Disk Space Exceeded Limit | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges, VPN Service Edges",
+            "File Descriptors Exhausted | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges, VPN Service Edges",
+            "Source Port Consumption Exhausted | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges, VPN Service Edges",
+            "System Memory Exceeded Limit | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges, VPN Service Edges",
+            "Bandwidth Utilization Exceeded Limit | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges |"
+          ]
+        }
+      ]
+    },
+    "configuring-connectivity-components": {
+      "statement": "On the Configuring Notifications page the Control Connection Disconnected, Last Component Disconnected, Outdated Component Manager Version, Upgrade Complete and Upgrade Failed rows list App Connectors, Network Connectors, Private Cloud Controllers and Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "Control Connection Disconnected | Connectivity and Upgrade | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges",
+            "Last Component Disconnected | Connectivity and Upgrade | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges",
+            "Outdated Component Manager Version | Connectivity and Upgrade | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges",
+            "Upgrade Complete | Connectivity and Upgrade | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges",
+            "Upgrade Failed | Connectivity and Upgrade | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges"
+          ]
+        }
+      ]
+    },
+    "configuring-enrollment-components": {
+      "statement": "On the Configuring Notifications page the Enrollment Certificate Expired and Enrollment Failed rows list App Connectors, Network Connectors and Private Service Edges, and the Enrollment Completed and Provisioning Key Utilization Exceeded Limit rows list App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges and Cloud Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "Enrollment Certificate Expired | Enrollment | App Connectors, Network Connectors, Private Service Edges",
+            "Enrollment Failed | Enrollment | App Connectors, Network Connectors, Private Service Edges",
+            "Enrollment Completed | Enrollment | App Connectors, Network Connectors,Private Cloud Controllers, Private Service Edges, Cloud Connectors",
+            "Provisioning Key Utilization Exceeded Limit | Enrollment | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges, Cloud Connectors"
+          ]
+        }
+      ]
+    },
+    "configuring-cpu-starvation": {
+      "statement": "The Configuring Notifications page lists CPU Starvation (System Resource) as an event for App Connectors, Private Cloud Controllers and Private Service Edges, describing it as an event indicating when the component's CPU is missing resources needed for operations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "CPU Starvation | System Resource | App Connectors, Private Cloud Controllers, Private Service Edges | An event indicating when the component's CPU is missing resources needed for operations."
+          ]
+        }
+      ]
+    },
+    "configuring-listen-ip-event": {
+      "statement": "The Configuring Notifications page lists Invalid System Listen IP Configuration (System Resource) for Private Cloud Controllers and Private Service Edges, describing an invalid listen IP address configuration for a Private Service Edge or Private Cloud Controller.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-notifications.json",
+          "quotes": [
+            "Invalid System Listen IP Configuration | System Resource | Private Cloud Controllers, Private Service Edges | An event indicating when the listen IP address configuration for a Private Service Edge or Private Cloud Controller is invalid."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "authentication-category-empty": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether any event belongs to the Authentication category",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "detail": "The Event Category filter lists Authentication, but the event table in the captured article carries no row in that category, from a read of the article text. Which events, if any, the category holds is not stated."
+    },
+    "threshold-window": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Over what window CPU, memory, file descriptor and source-port thresholds are evaluated",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "The article gives each threshold's range and default but does not say how long a value must be exceeded, or over what sampling window, before the event is raised."
+    },
+    "repeat-firing": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether an event fires once or repeatedly while its condition persists",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "The article describes throttling of repeated emails but does not say whether the event itself fires once or again while the condition persists."
+    },
+    "event-api-relation": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "How this event catalog relates to the Event Monitoring and Notification API",
+      "resolves_with": [
+        "source-read"
+      ],
+      "detail": "[[shared.event-monitoring.api]] covers the API for event notifications. This article does not mention the API and the API's event catalog was not compared with this one."
+    },
+    "events-absent-from-configuring": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the events missing from the Configuring Notifications table can be added to a notification",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "detail": "The event table of the Configuring Notifications page, read against the Events Diagnostics table, lists none of Certificate Signing Request Invalid, Certificate Signing Request Not Found, Certificate Signing Request Not Found for Issued Certificate, Duplicate Certificate Signing Request, Duplicate Serial Number, Enrollment Certificate Invalid, Entity Limit Exceeded, Invalid Fingerprint, Invalid Signature, Issued Certificate Missing, Issued Certificate Revoked, Missing Signature, Provisioning Key Disabled, Provisioning Key Expired, Provisioning Key Mismatched, Provisioning Key Not Found, Public Key in Certificate Signing Request and Issued Certificate Mismatched and Timestamp Expired. It also carries no note that Control Connection Disconnected or CPU Starvation cannot be configured. This is an absence found by diffing the two pages, not a statement of either page."
+    },
+    "vpn-service-edges-label": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether VPN Service Edges in the Usage Metrics rows is the drop-down's VPN (for Legacy Apps) component",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "detail": "The Usage Metrics rows of the Configuring Notifications page name VPN Service Edges, while the Component drop-down names VPN (for Legacy Apps) and links it to About VPN Service Edges. The page does not say they are the same component."
+    },
+    "bgp-extended-downtime": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "How long a BGP session must be down for BGP Peer Extended Downtime",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "detail": "The event description says only that a BGP session has been down for an extended period of time and gives no value."
+    },
+    "recipient-limit-pages": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the 5-recipient limit applies as stated on the notification pages",
+      "resolves_with": [
+        "source-read"
+      ],
+      "detail": "Neither the About Notifications page nor the Configuring Notifications page gives a recipient limit; the limit of 5 comes only from Events Diagnostics."
+    }
+  },
+  "divergences": {
+    "component-list-vs-table": {
+      "summary": "The Event Component filter list versus the components the event table names",
+      "positions": [
+        {
+          "says": "The Event Component filter lists App Connectors, Backup and Restore, Cloud Connectors, Private Service Edges and Zscaler Client Connector.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-viewing-and-managing-events-diagnostics.json",
+            "quotes": [
+              "Event Component: See event logs by component (i.e., App Connectors, Backup and Restore, Cloud Connectors, Private Service Edges, and Zscaler Client Connector)."
+            ]
+          }
+        },
+        {
+          "says": "The event table gives Network Connectors and Private Cloud Controllers as components of the Bandwidth Utilization Exceeded Limit event.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-viewing-and-managing-events-diagnostics.json",
+            "quotes": [
+              "| Bandwidth Utilization Exceeded Limit | Usage Metrics | App Connectors, Network Connectors, Private Cloud Controllers, Private Service Edges |"
+            ]
+          }
+        }
+      ],
+      "impact": "The filter list does not name Network Connectors or Private Cloud Controllers, which the table gives as components of Usage Metrics events; check the console's actual filter values before relying on either list."
+    },
+    "enrollment-cert-expired-components": {
+      "summary": "The components listed for the Enrollment Certificate Expired event differ between Events Diagnostics and Configuring Notifications",
+      "positions": [
+        {
+          "says": "Events Diagnostics lists App Connectors, Private Service Edges and Cloud Connectors for Enrollment Certificate Expired.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-viewing-and-managing-events-diagnostics.json",
+            "quotes": [
+              "| Enrollment Certificate Expired | Enrollment | App Connectors, Private Service Edges, Cloud Connectors |"
+            ]
+          }
+        },
+        {
+          "says": "Configuring Notifications lists App Connectors, Network Connectors and Private Service Edges for Enrollment Certificate Expired, without Cloud Connectors.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-notifications.json",
+            "quotes": [
+              "Enrollment Certificate Expired | Enrollment | App Connectors, Network Connectors, Private Service Edges"
+            ]
+          }
+        }
+      ],
+      "impact": "Whether Cloud Connectors or Network Connectors can be selected for this event depends on which page is right; check the Add Notification page before relying on either list."
+    },
+    "cpu-starvation-configurable": {
+      "summary": "Whether the CPU Starvation event can be configured, and for which components",
+      "positions": [
+        {
+          "says": "Events Diagnostics lists CPU Starvation for App Connectors only and says it cannot be configured and is disabled by default.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-viewing-and-managing-events-diagnostics.json",
+            "quotes": [
+              "An event indicating when the App Connector's CPU is missing resources needed for operations. This event cannot be configured and is disabled by default."
+            ]
+          }
+        },
+        {
+          "says": "Configuring Notifications lists CPU Starvation as an event for App Connectors, Private Cloud Controllers and Private Service Edges, with no note that it cannot be configured.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-notifications.json",
+            "quotes": [
+              "CPU Starvation | System Resource | App Connectors, Private Cloud Controllers, Private Service Edges | An event indicating when the component's CPU is missing resources needed for operations."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a CPU Starvation notification can be set up, and for which components, depends on which page is right."
+    },
+    "listen-ip-components": {
+      "summary": "The components of the Invalid System Listen IP Configuration event",
+      "positions": [
+        {
+          "says": "Events Diagnostics lists Invalid System Listen IP Configuration for Private Service Edges only.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-viewing-and-managing-events-diagnostics.json",
+            "quotes": [
+              "| Invalid System Listen IP Configuration | System Resource | Private Service Edges |"
+            ]
+          }
+        },
+        {
+          "says": "Configuring Notifications lists it for Private Cloud Controllers and Private Service Edges.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-notifications.json",
+            "quotes": [
+              "Invalid System Listen IP Configuration | System Resource | Private Cloud Controllers, Private Service Edges | An event indicating when the listen IP address configuration for a Private Service Edge or Private Cloud Controller is invalid."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether the event applies to Private Cloud Controllers depends on which page is right."
+    }
+  }
+}

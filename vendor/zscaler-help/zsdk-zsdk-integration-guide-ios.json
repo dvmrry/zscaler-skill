@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "ZSDK Integration Guide for iOS",
+  "source": {
+    "url": "https://help.zscaler.com/zsdk/zsdk-integration-guide-ios",
+    "node": "1514276",
+    "revision": "3149988",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide provides steps on how to integrate ZSDK into your mobile iOS applications."
+    },
+    {
+      "heading": "Prerequisite",
+      "level": 1
+    },
+    {
+      "text": "Ensure your application is running on iOS 15 or later."
+    },
+    {
+      "heading": "Import ZSDK",
+      "level": 1
+    },
+    {
+      "text": "You can import ZSDK in one of the following ways:"
+    },
+    {
+      "item": "SwiftPM",
+      "depth": 0
+    },
+    {
+      "item": "Go to File > Swift Packages > Add Package Dependency.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          13,
+          27
+        ],
+        [
+          30,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Enter the repository URL for ZSDK.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "http://github.com/zscaler/zscaler-sdk-ios",
+      "depth": 1
+    },
+    {
+      "item": "Save your package-dependency configuration.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "CocoaPods",
+      "depth": 0
+    },
+    {
+      "item": "Edit or create a Podfile.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the following on the Podfile:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "pod 'ZscalerSDK', :git => 'https://github.com/zscaler/zscaler-sdk-ios'",
+      "depth": 1
+    },
+    {
+      "item": "Enter pod install to begin importing ZSDK.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Manual Import",
+      "depth": 0
+    },
+    {
+      "item": "Download a ZIP file of the ZscalerSDK.xcframework release from GitHub.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Unzip the downloaded file.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Open your Xcode project.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Go to Frameworks > Libraries > Embedded Content.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          16
+        ],
+        [
+          19,
+          28
+        ],
+        [
+          31,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Add the downloaded ZscalerSDK.xcframework.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Select Embed & Sign for the Embed option.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          28,
+          33
+        ]
+      ]
+    },
+    {
+      "heading": "ZSDK Integration",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you have imported ZSDK on Xcode."
+    },
+    {
+      "text": "import Zscaler"
+    },
+    {
+      "text": "Initialize a shared instance of the ZSDK interface."
+    },
+    {
+      "text": "let zscalerSDK = ZscalerSDK.sharedInstance()"
+    },
+    {
+      "text": "Start the Prelogin tunnel."
+    },
+    {
+      "text": "func startPreLoginTunnel() async throws { let appKey = \"yourAppKey\" let deviceUdid = UIDevice.current.identifierForVendor?.uuidString ?? \"Unknown\" await ZscalerSDK.sharedInstance().startPreLoginTunnel(appKey: appKey, deviceUdid: deviceUdid) }"
+    },
+    {
+      "text": "Start the Zero Trust tunnel."
+    },
+    {
+      "text": "func startZeroTrustTunnel() async throws { let appKey = \"yourAppKey\" let deviceUdid = UIDevice.current.identifierForVendor?.uuidString ?? \"Unknown\" let accessToken = \"JWT access token\" await ZscalerSDK.sharedInstance().startZeroTrustTunnel(appKey: appKey, deviceUdid: deviceUdid, accessToken: accessToken) }"
+    },
+    {
+      "text": "Stop tunnel operations."
+    },
+    {
+      "text": "func stopTunnel() async { ZscalerSDK.sharedInstance().stopTunnel() }"
+    },
+    {
+      "text": "Manually configure a URLSession or WebView."
+    },
+    {
+      "text": "func setupSession() -> URLSession { let config = URLSessionConfiguration.ephemeral ZscalerSDK.sharedInstance().configure(sessionConfiguration: config) return URLSession(configuration: config) } func setupWebview() async -> WKWebView { let webView = await WKWebView() await ZscalerSDK.sharedInstance().setup(websiteDataStore: webView.configuration.websiteDataStore) return webView }"
+    },
+    {
+      "text": "Check the tunnel status."
+    },
+    {
+      "text": "func fetchStatus() -> String { // The status API returns an NSString which is automatically bridged to String in Swift let status = ZscalerSDK.sharedInstance().status().tunnelConnectionState return status }"
+    },
+    {
+      "text": "Access proxy information."
+    },
+    {
+      "text": "func getProxyInfo() { let proxyInfo = ZscalerSDK.sharedInstance().proxyInfo let host = proxyInfo.proxyHost let port = proxyInfo.proxyPort let username = proxyInfo.username let password = proxyInfo.password }"
+    },
+    {
+      "text": "Export debug logs."
+    },
+    {
+      "text": "func exportLogs() { let destinationDir = URL.documentsDirectory.absoluteString let logFile = ZscalerSDK.sharedInstance().exportLogs(destination: destinationDir) // Export a shareable file }"
+    },
+    {
+      "text": "Delete debug logs."
+    },
+    {
+      "text": "func clearLogs() { ZscalerSDK.sharedInstance().clearLogs() }"
+    }
+  ]
+}

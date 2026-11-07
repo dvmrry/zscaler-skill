@@ -1,0 +1,466 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Teams Outegration",
+  "source": {
+    "url": "https://help.zscaler.com/uvm/configuring-teams-outegration",
+    "node": "1528061",
+    "revision": "3243174",
+    "updated": "2026-10-20",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Microsoft Teams outegration is used to send exposure and remediation notifications into Teams, enabling collaboration and efficiency between security and IT teams."
+    },
+    {
+      "text": "This article explains how to set up the Teams outegration. The process involves setting up authentication and outegration visibility in the platform."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you configure the outegration, make sure you have the following parameters:"
+    },
+    {
+      "item": "Client ID, Client Secret, and Tenant ID",
+      "depth": 0
+    },
+    {
+      "item": "To retrieve the client ID and tenant ID:",
+      "depth": 0
+    },
+    {
+      "item": "Sign in to the Azure portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the Azure portal, under Azure Resources, select App registrations.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          27,
+          42
+        ],
+        [
+          51,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Click New registration, or select an existing registration.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "If you are creating a new registration, configure the following:",
+      "depth": 2
+    },
+    {
+      "item": "Name: Enter a name for your app.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Supported account types: Select Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          118
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URI (optional): Enter https://app.avalor.io/oauth.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "If you are using an existing registration, in the Redirect URIs section, in Platform configurations, select Web and enter https://app.avalor.io/oauth in the field.",
+      "depth": 2,
+      "strong": [
+        [
+          50,
+          63
+        ],
+        [
+          76,
+          99
+        ],
+        [
+          108,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the application properties, locate the Application (client) ID and Directory (tenant) ID. Copy and save these values.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          42,
+          65
+        ],
+        [
+          70,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the left-side navigation, go to API Permissions.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          35,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Add the following permissions:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Microsoft Graph → Delegated permissions → ChannelMessage → ChannelMessage.Send",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft Graph → Delegated permissions → OpenId permissions → offline_access",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft Graph → Delegated permissions → Channel → Channel.ReadBasic.All",
+      "depth": 2
+    },
+    {
+      "item": "In the left-side navigation, go to Certificates & Secrets.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          35,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Create a new client secret, select the expiration time, and save the value.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "In the left-side navigation, go to Authentication and authenticate Teams.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          35,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Click Save Authentication.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "When the window appears, click Accept.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          31,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Group ID and Channel ID",
+      "depth": 0
+    },
+    {
+      "item": "To retrieve the group ID and channel ID:",
+      "depth": 0
+    },
+    {
+      "item": "In the Teams application, open the channel that you want to integrate.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Click the More channel options menu.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select Get link to channel.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "The channel link containing the group ID and channel ID is generated. For example, in https://teams.microsoft.com/l/channel/19%3A7mtmyDCaMAD1h1tFFlWACNkFhW_m3ga7_4GnTobaOVU1%40thread.tacv2/General?groupId=02ce587c-6d8b-4e69-87bd-8dfe827cadeb&tenantId=7a59ef4d-8896-44eb-aeb2-305ce132a3b6, the channel ID is 19%3A7mtmyDCaMAD1h1tFFlWACNkFhW_m3ga7_4GnTobaOVU1%40thread.tacv2 and the group ID is 02ce587c-6d8b-4e69-87bd-8dfe827cadeb.",
+      "depth": 1
+    },
+    {
+      "heading": "Creating a Microsoft Teams Outegration",
+      "level": 1
+    },
+    {
+      "text": "To configure the Microsoft Teams outegration:"
+    },
+    {
+      "item": "Step 1: Authenticate the Teams Connection",
+      "depth": 0
+    },
+    {
+      "item": "In the Agentic SecOps Platform Admin Portal, go to Configure > Outegrations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          51,
+          60
+        ],
+        [
+          63,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The Connect a New Outegration page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "On the Connect a New Outegration page, select Teams.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          46,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "The Create Teams Outegration page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Details section:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Display Name: Enter a name for the outegration.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Active: Enable or disable to use the outegration in automation workflows.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Group ID: Enter the group ID you retrieved from the Prerequisites section.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Channel ID: Enter the channel ID you retrieved from the Prerequisites section.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Authentication: Select an authentication source. If no authentication sources are available, click Create New. In the Teams Authentication window, enter the parameters you retrieved from the Prerequisites section. After the authentication is successful, the Authentication section shows a unique Authentication ID.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          99,
+          109
+        ],
+        [
+          118,
+          138
+        ],
+        [
+          296,
+          313
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Test to verify the connection.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "After the connection is verified, click Next to proceed to the Settings step.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          40,
+          44
+        ],
+        [
+          63,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Step 2: Configure Settings and Mapping",
+      "depth": 0
+    },
+    {
+      "item": "In the Settings step, configure your Teams outegration's visibility and behavior within Unified Vulnerability Management (UVM).",
+      "depth": 0
+    },
+    {
+      "item": "In the Mapping step, configure the field mapping between your SecOps tickets and Teams account. This defines how data is exchanged and synchronized between the two systems upon initial dispatch and subsequent updates. The SecOps Platform's unique mapping capabilities allow for flexible mapping of any custom field or logic to any field in your Teams account, facilitating highly customized workflows that align with your organization's requirements.",
+      "depth": 0
+    }
+  ]
+}

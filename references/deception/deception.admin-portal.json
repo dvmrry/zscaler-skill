@@ -1,0 +1,580 @@
+{
+  "schema_version": 1,
+  "id": "deception.admin-portal",
+  "title": "Deception Admin Portal: sign-in, navigation, users and roles, account settings, allowed IPs and QoS events",
+  "aliases": [
+    "deception admin portal",
+    "deception users and roles",
+    "allowed ips",
+    "ip allowlist",
+    "authentication service",
+    "qos events"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "deception.overview" },
+    { "rel": "see-also", "to": "deception.sso" },
+    { "rel": "see-also", "to": "deception.api-tokens" },
+    { "rel": "see-also", "to": "deception.decoy-connectors" },
+    { "rel": "see-also", "to": "deception.landmine-agents" }
+  ],
+  "prose": [
+    {
+      "label": "Signing in.",
+      "text": "{{provisioning-email}} {{first-sign-in-2fa}} {{eusa}}"
+    },
+    {
+      "label": "Authentication Service and SSO.",
+      "text": "{{auth-service-exclusive}} {{auth-service-expiries}} {{sso-sign-in}} {{auth-service-recommended}} {{auth-service-user-management}}"
+    },
+    {
+      "label": "Navigation.",
+      "text": "{{navigation-landing}} {{navigation-icons}} {{orchestrate-page-actions}}"
+    },
+    {
+      "label": "Roles.",
+      "text": "{{predefined-roles}} {{predefined-roles-immutable}} {{custom-roles-gating}} {{custom-role-mandatory-permissions}} {{multiple-roles}}"
+    },
+    {
+      "label": "Users.",
+      "text": "{{user-fields}} {{disable-password-login}} {{user-list-and-export}} {{remote-assistance}}"
+    },
+    {
+      "label": "Account settings.",
+      "text": "{{account-settings-availability-a}} {{disable-password-login|ref}} {{gap:password-actions-condition}} {{reset-2fa}} {{profile-fields}} {{password-change}}"
+    },
+    {
+      "label": "Notifications.",
+      "text": "{{notification-preference-categories}} {{email-notification-permission}} {{email-notification-categories}} {{zero-trust-notification-scope}}"
+    },
+    {
+      "label": "Allowed IPs.",
+      "text": "{{allowed-ips-modules}} {{allowed-ips-defaults}} {{allowed-ips-lockout}}"
+    },
+    {
+      "label": "QoS events.",
+      "text": "{{qos-ti-threshold}} {{qos-cooldown}} {{gap:qos-other-decoys}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Reset 2FA and Change Password are available to a user, which the Account Settings and Users & Roles articles tie to the Disable Password Login option.",
+      "uses": ["account-settings-availability-a", "disable-password-login", "password-actions-condition"]
+    },
+    {
+      "do": "When Authentication Service is enabled, the users and role assignments are managed in Authentication Service, not the Deception Admin Portal.",
+      "uses": ["auth-service-exclusive", "auth-service-user-management"]
+    },
+    {
+      "do": "The module checkbox an allowlist entry needs for a component, and that a missing entry can lock out Decoy Connectors, aggregators and Landmine agents.",
+      "uses": ["allowed-ips-modules", "allowed-ips-lockout"]
+    }
+  ],
+  "claims": {
+    "provisioning-email": {
+      "statement": "After an organization is provisioned for Deception, an email provides a link to the Deception instance, a link to set the password, and a security code.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-accessing-and-navigating-zscaler-deception-admin-portal.json",
+          "quotes": [
+            "After your organization is provisioned for Zscaler Deception, you will receive an email with the following details:",
+            "Link to your Deception instance",
+            "Link to set your password",
+            "Security code"
+          ]
+        }
+      ]
+    },
+    "first-sign-in-2fa": {
+      "statement": "Following the emailed password link, the user sets a new password, enters the emailed Security Code, and configures two-factor authentication by scanning a QR code with a 2FA app and entering the 6-digit one-time password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-accessing-and-navigating-zscaler-deception-admin-portal.json",
+          "quotes": [
+            "Enter the Security Code from your email.",
+            "Scan the QR code that appears using a two-factor authentication (2FA) app to complete the 2FA configuration.",
+            "Enter the One-Time Password (OTP), which is a 6-digit code shown on the authenticator app.",
+            "On the Reset Password page, enter a new password and confirm it.",
+            "Click the password link in your email."
+          ]
+        }
+      ]
+    },
+    "auth-service-exclusive": {
+      "statement": "When Authentication Service is enabled, no other sign-in methods are allowed, and the Deception tile gives access to the Deception Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-accessing-and-navigating-zscaler-deception-admin-portal.json",
+          "quotes": [
+            "If Authentication Service is enabled, no other sign-in methods are allowed.",
+            "Click the Deception tile to access the Deception Admin Portal."
+          ]
+        }
+      ]
+    },
+    "auth-service-expiries": {
+      "statement": "In the Authentication Service sign-in flow, the reset link for a forgotten password or second factor expires after 15 minutes, and an email sign-in OTP expires after 15 minutes with Resend available after 60 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-accessing-and-navigating-zscaler-deception-admin-portal.json",
+          "quotes": [
+            "Reset Password or Reset Second Factor, and a reset link is sent to your email ID. The reset link expires after 15 minutes.",
+            "The OTP expires after 15 minutes. If the OTP expires or you don't receive an OTP, click Resend to receive another OTP after 60 seconds.",
+            "If your account is configured with MFA, you can sign in using an email OTP:"
+          ]
+        }
+      ]
+    },
+    "sso-sign-in": {
+      "statement": "With SSO configured, clicking Zscaler Login on the Sign In page redirects to the IdP login page and back to the Deception Admin Portal on success; Zscaler recommends configuring primary and secondary external IdPs in the Authentication Service Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-accessing-and-navigating-zscaler-deception-admin-portal.json",
+          "quotes": [
+            "On the Sign In page, click Zscaler Login.",
+            "If the login is successful, you are redirected back to the Deception Admin Portal.",
+            "Zscaler recommends that you use the Authentication Service Admin Portal to configure primary and secondary external identity providers (IdPs).",
+            "You are redirected to your IdP's login page. Enter your credentials."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-step-step-configuration-guide-zscaler-deception.json",
+          "quotes": [
+            "Authentication Service supports both SAML and OpenID configurations."
+          ]
+        }
+      ]
+    },
+    "eusa": {
+      "statement": "The first login displays an EUSA in the Admin Portal, and the license cannot be activated without accepting the EUSA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-accessing-and-navigating-zscaler-deception-admin-portal.json",
+          "quotes": [
+            "When you log in for the first time, the Deception Admin Portal displays an EUSA.",
+            "You cannot activate your license without accepting the EUSA."
+          ]
+        }
+      ]
+    },
+    "navigation-landing": {
+      "statement": "The Deception dashboard (the Investigate tab) is the landing page showing logged forensics and attacker information graphically; Settings holds prerequisites such as Decoy Connectors, VLANs or subnets, plus users and roles, license consumption and audit trails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-accessing-and-navigating-zscaler-deception-admin-portal.json",
+          "quotes": [
+            "The Deception dashboard (the Investigate tab) is the landing page that displays all the logged forensics and attacker information in a graphical format.",
+            "On the Settings page, you can configure the prerequisites required for Deception, such as configuring a Decoy Connector, virtual local area networks (VLANs), or subnets. In addition, you can configure users and roles and view information regarding license consumption and audit trails."
+          ]
+        }
+      ]
+    },
+    "navigation-icons": {
+      "statement": "System Messages shows audit logs, system messages and debug logs; Account Settings resets 2FA, edits profile, time zone and password; Help submits a ticket to Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-accessing-and-navigating-zscaler-deception-admin-portal.json",
+          "quotes": [
+            "Click the System Messages icon to view audit logs, system messages, and debug logs.",
+            "Click the Account Settings icon to reset your two-factor authentication (2FA), edit your profile, change your time zone, and change your password.",
+            "Click the Help icon to submit a ticket to Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "orchestrate-page-actions": {
+      "statement": "The Orchestrate page is where rules are automated, events are forwarded to SIEM or other log aggregation repositories, threats are contained, alerts enriched, and API tokens created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-accessing-and-navigating-zscaler-deception-admin-portal.json",
+          "quotes": [
+            "Integrate with the security information and event management (SIEM) solutions and other log aggregation repositories to forward events.",
+            "Contain threats.",
+            "Enrich alerts.",
+            "Create API tokens for additional platform integration.",
+            "Automate rules."
+          ]
+        }
+      ]
+    },
+    "qos-ti-threshold": {
+      "statement": "QoS events for Threat Intelligence decoys act as an automated DDoS-protection layer; a QoS event is generated when the threshold of 10,000 events is exceeded within 60 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-quality-service-qos-events.json",
+          "quotes": [
+            "The QoS mechanism functions as a lightweight, automated DDoS protection layer for TI decoys.",
+            "The QoS event is generated when the threshold of 10,000 events exceeds within 60 minutes."
+          ]
+        }
+      ]
+    },
+    "qos-cooldown": {
+      "statement": "After a QoS event Deception applies a two-hour cool-down during which no new QoS event is generated for the same attacker, and normal detection and logging resume once the attacker's event rate falls below the threshold.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-quality-service-qos-events.json",
+          "quotes": [
+            "Deception applies a cool-down period of two hours. During the cool-down period, no new QoS event is generated for the same attacker.",
+            "Normal detection and logging resume automatically after the attacker's event rate falls below the threshold."
+          ]
+        }
+      ]
+    },
+    "account-settings-availability-a": {
+      "statement": "The Account Settings article states that the Reset 2FA and Change Password actions are available only if Disable Password Login was selected when the user was added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-account-settings.json",
+          "quotes": [
+            "The Reset 2FA and Change Password actions are available only if the Disable Password Login option is selected while adding a user."
+          ]
+        }
+      ]
+    },
+    "reset-2fa": {
+      "statement": "Resetting 2FA requires the account password and the current 2FA code, then a new QR code is scanned and a 6-digit OTP submitted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-resetting-two-factor-authentication.json",
+          "quotes": [
+            "Enter your password and the current 2FA code that appears on the authenticator app.",
+            "When a QR code appears, scan it using an authenticator app.",
+            "Enter the one-time password (OTP). This is the 6-digit code shown on the authenticator app."
+          ]
+        }
+      ]
+    },
+    "profile-fields": {
+      "statement": "The user profile consists of name and time zone; the name is shown in some configurations and on Support tickets, and the time zone is used for automated email alerts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-user-profile.json",
+          "quotes": [
+            "The user profile consists of your name and time zone.",
+            "Your name is displayed during specific configurations. It is also used when submitting a ticket to Zscaler Support.",
+            "The time zone is used when sending automated email alerts."
+          ]
+        }
+      ]
+    },
+    "password-change": {
+      "statement": "Changing the password shows a strength meter and sends a confirmation email afterward.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-changing-password.json",
+          "quotes": [
+            "An estimator is used to determine the password strength.",
+            "After the password is changed, you will receive a confirmation email.",
+            "The color meter below New Password indicates the password strength."
+          ]
+        }
+      ]
+    },
+    "notification-preference-categories": {
+      "statement": "Account Settings notification preferences cover license, security alerts, system health and Zero Trust.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-account-settings.json",
+          "quotes": [
+            "Notification Preferences: Customize your email notification preferences for information relating to the license, security alerts, system health, and Zero Trust."
+          ]
+        }
+      ]
+    },
+    "allowed-ips-modules": {
+      "statement": "The Allowed IPs allowlist entry takes a name and an IP or CIDR (all allows every address) and enables access per module: UI/APIV2, Decoy Connector (also aggregators), Endpoint (Landmine agents) and APIV1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-ip-addresses-allowlist.json",
+          "quotes": [
+            "IP/CIDR: Enter the IP or CIDR address. You can enter all to allow all IP addresses.",
+            "UI/APIV2: Allow access via user interface (UI) or V2 API endpoints.",
+            "Decoy Connector: Allow Decoy Connectors and aggregators to connect.",
+            "Endpoint: Allow Landmine agents to connect.",
+            "APIV1: Allow access via V1 API endpoints.",
+            "Name: Enter a name for the allowlist."
+          ]
+        }
+      ]
+    },
+    "allowed-ips-defaults": {
+      "statement": "Certain IP addresses for aggregators, TI management, Decoy Connectors and ZPA App Connectors are on the allowlist by default, and re-adding them gives an overlapping IP/CIDR found error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-ip-addresses-allowlist.json",
+          "quotes": [
+            "Certain IP addresses for aggregators, Threat Intelligence (TI) management, Decoy Connectors, and Private Access (ZPA) App Connectors are added to the allowlist by default. If you try to add these IP addresses again, an overlapping IP/CIDR found error message is displayed."
+          ]
+        }
+      ]
+    },
+    "allowed-ips-lockout": {
+      "statement": "Users and components such as Decoy Connectors, aggregators and Landmine agents can be locked out if their IP addresses are not on the allowlist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-ip-addresses-allowlist.json",
+          "quotes": [
+            "You can lock out users and components such as Decoy Connectors, aggregators, and Landmine agents if their IP addresses are not on the allowlist."
+          ]
+        }
+      ]
+    },
+    "predefined-roles": {
+      "statement": "The predefined roles are Super admin (highest privilege: users, roles, APIs, modules, audit logs), Administrator, Analyst (which can also block or allowlist an attacker) and Responder.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "| Super admin | This role has the highest level of privilege and has complete control over users, roles, APIs, modules, audit logs, etc. |",
+            "| Administrator | Configure Decoy Connector and decoys, analyze events, and orchestrate actions. |",
+            "| Analyst | Investigate events, block or add an attacker to an allowlist, and export logs. |",
+            "| Responder | Analyze events and orchestrate actions. |"
+          ]
+        }
+      ]
+    },
+    "custom-roles-gating": {
+      "statement": "Custom roles require super admin privileges and a subscription that supports them; a standard subscription gets an error that custom roles are not available for the plan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "You must have super admin privileges to add custom roles.",
+            "If you cannot add custom roles, then your organization has a standard subscription.",
+            "If you get an error message after clicking Add Role that says custom roles are not available for your plan, then your organization has a standard subscription and you cannot add custom roles."
+          ]
+        }
+      ]
+    },
+    "custom-role-mandatory-permissions": {
+      "statement": "A custom role is built from read or write permissions, and Read:ListUsers and Read:Appliances are mandatory to access modules in the Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "Permissions: Select the read or write permissions that you want to assign to this role from the drop-down menu.",
+            "The Read:ListUsers and Read:Appliances permissions are mandatory to access modules in the Deception Admin Portal."
+          ]
+        }
+      ]
+    },
+    "predefined-roles-immutable": {
+      "statement": "Predefined roles cannot be edited or deleted, while a custom role can be edited or deleted in the Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "You cannot edit or delete the predefined roles.",
+            "You can edit or delete a custom role in the Deception Admin Portal."
+          ]
+        }
+      ]
+    },
+    "multiple-roles": {
+      "statement": "A user assigned more than one role has the permissions of all the configured roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "If you assign more than one role to a user, then the user has permissions for all the configured roles."
+          ]
+        }
+      ]
+    },
+    "user-fields": {
+      "statement": "A user's Login ID must be an email ID; Blocked prevents access, Notify Only gives email notifications without portal access, and Session Inactivity Timeout defaults to 30 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "Login ID: Enter the login ID of the user. It must be an email ID.",
+            "Blocked: Enable to block an existing user from accessing the Deception Admin Portal.",
+            "Notify Only: Enable if you want the user to receive only email notifications and not access the Deception Admin Portal.",
+            "Session Inactivity Timeout: Select a time duration after which an inactive user session is logged out. By default, this is set to 30 minutes."
+          ]
+        }
+      ]
+    },
+    "disable-password-login": {
+      "statement": "Disable Password Login turns off login with a locally set password while allowing SSO sign-in; the Users and Roles article says that if the option is not selected, Reset 2FA and Change Password will not be available on the Account Settings page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "Disable Password Login: Select to disable the login process using a locally set password, but allow users to sign in via one of the single sign-on (SSO) options.",
+            "If this option is not selected, the Reset 2FA and Change Password options will not be available on the Account Settings page."
+          ]
+        }
+      ]
+    },
+    "auth-service-user-management": {
+      "statement": "With Authentication Service enabled, users cannot be added in the Deception Admin Portal and are created in Authentication Service, only time zone and session inactivity timeout are editable there, and custom roles can be configured but not assigned to users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "If Authentication Service is enabled, you can't add users to the Deception Admin Portal. You have to create users in the Authentication Service.",
+            "If Authentication Service is enabled, you can't edit the user details in the Deception Admin Portal. You can edit only the time zone and session inactive timeout.",
+            "If Authentication Service is enabled, you can only configure a custom role, but can't assign it to any users. You must assign roles in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "auth-service-recommended": {
+      "statement": "Zscaler recommends using Authentication Service to add users and roles and to subscribe through Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-step-step-configuration-guide-zscaler-deception.json",
+          "quotes": [
+            "Zscaler recommends using Authentication Service to add users and roles. Contact Zscaler Support to subscribe to Authentication Service."
+          ]
+        }
+      ]
+    },
+    "email-notification-permission": {
+      "statement": "Only super admins can enable email alert notifications for a user, although every configured user can disable them for their own account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "Only super admins can enable email alert notifications. All users configured in the Deception Admin Portal can disable email alert notifications for their account, but they must have super admin privileges to enable notifications."
+          ]
+        }
+      ]
+    },
+    "email-notification-categories": {
+      "statement": "The per-user email notification categories are License (about to expire), Security Alerts (user settings changed, such as a password disabled globally), System Health (a component such as a Decoy Connector down, or network connectivity issues), and Zero Trust (IP address or FQDN conflicts with Private Access).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "License: Enable to generate email alert notifications when the license is about to expire.",
+            "Security Alerts: Enable to generate alerts when user settings are changed (e.g., when a password is disabled globally).",
+            "System Health: Enable to generate alert email notifications when a component in the Deception Admin Portal (e.g., Decoy Connector) is down or when there are network connectivity issues.",
+            "Zero Trust: Enable to generate email alert notifications whenever there is an IP address or FQDN conflict between the Zero Trust Network decoys and any of the existing systems in the Private Access (ZPA) service."
+          ]
+        }
+      ]
+    },
+    "zero-trust-notification-scope": {
+      "statement": "The Zero Trust email notification option generates alerts on IP address or FQDN conflicts between Zero Trust Network decoys and Private Access systems; on the Users & Roles page, this notification is applicable if Zscaler Deception is configured in a SaaS environment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "This notification is applicable if Zscaler Deception is configured in a SaaS environment.",
+            "Zero Trust: Enable to generate email alert notifications whenever there is an IP address or FQDN conflict between the Zero Trust Network decoys and any of the existing systems in the Private Access (ZPA) service."
+          ]
+        }
+      ]
+    },
+    "user-list-and-export": {
+      "statement": "User account activity information covers failed login attempts, user creation time, last login time and last password reset time, and user configuration details can be exported as a CSV file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "You can view activity information such as the number of failed login attempts, user creation time, user last login time, and user last password reset time.",
+            "A CSV file with the user configuration details is downloaded to your system."
+          ]
+        }
+      ]
+    },
+    "remote-assistance": {
+      "statement": "Zscaler Support users who can access the Deception Admin Portal can be viewed, each with a Read-only or Admin role, and support user access can be disabled in the user authentication settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-users-roles.json",
+          "quotes": [
+            "you can view the details of Zscaler Support users who can access the Deception Admin Portal.",
+            "Role: The role (Read-only or Admin) assigned to the user.",
+            "you can configure user authentication settings and disable support users from accessing the Deception Admin Portal."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "qos-other-decoys": {
+      "kind": "semantic",
+      "title": "Whether QoS events apply to decoy types other than Threat Intelligence decoys",
+      "status": "open",
+      "detail": "The QoS article describes the mechanism for TI decoys only and states a 10,000 events in 60 minutes threshold. It does not say whether network, AD or other decoys have a QoS mechanism.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "password-actions-condition": {
+      "kind": "semantic",
+      "title": "Why Reset 2FA and Change Password need Disable Password Login selected",
+      "status": "open",
+      "detail": "The Account Settings and Users & Roles articles both tie Reset 2FA and Change Password to the Disable Password Login option, while that option is described as disabling login with a locally set password. The captures do not say how a user with password login disabled uses these actions, or whether the condition is stated the intended way round.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    }
+  }
+}

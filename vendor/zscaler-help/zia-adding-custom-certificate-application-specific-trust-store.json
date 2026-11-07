@@ -1,0 +1,1717 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Adding Custom Certificate to an Application-Specific Trust Store",
+  "source": {
+    "url": "https://help.zscaler.com/zia/adding-custom-certificate-application-specific-trust-store",
+    "node": "1401766",
+    "revision": "3247390",
+    "updated": "2026-09-17",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Whenever Zscaler SSL/TLS Inspection is enabled to maintain secure connections on the corporate network, admins can use the organization-generated certificate to connect to any secure website. By default, the root and intermediate certificates, which are required to trust the organization's generated certificate, are already added to the end user's system certificate store."
+    },
+    {
+      "text": "Some applications maintain a custom trust store instead of using the default system trust store. As a result, the application is not able to validate Zscaler-generated server certificates and the TLS connection fails. In such cases, the users need to manually add the custom root Certificate Authority (CA) to the custom trust store, or disable server certificate validation."
+    },
+    {
+      "text": "You can add custom certificates for the following applications:"
+    },
+    {
+      "item": "If you are an end user, you can get the root CA certificate for your organization from your administrator. If you are an administrator, provide your users with the root CA certificate (i.e., Zscaler root CA certificate or custom root CA certificate) that is applicable to your organization. To learn how to download the Zscaler root CA certificate from the Zscaler Admin Console, see Choosing the CA Certificate for SSL/TLS Inspection.",
+      "depth": 0
+    },
+    {
+      "item": "If you need to deploy CA certificates for a large group of users, use MDM solutions.",
+      "depth": 0
+    },
+    {
+      "item": "If you need help with troubleshooting any installation errors, see the Software Developer Solution Guide for best practices and troubleshooting.",
+      "depth": 0
+    },
+    {
+      "item": "Snowflake ODBC Driver",
+      "depth": 0
+    },
+    {
+      "item": "Data science tools, such as RStudio and PowerBI, can connect to Snowflake's cloud data warehouse using HTTPS. For Snowflake traffic to work seamlessly in any environment over HTTPS in a proxy environment, you must replace the PEM file under C:\\Program Files\\Snowflake ODBC Driver\\etc with your custom CA PEM file.",
+      "depth": 0
+    },
+    {
+      "item": "Snowflake uses certificate pinning, which prevents you from inserting a custom CA certificate in the middle. For Snowflake traffic to work through Zscaler, you must put it on an SSL/TLS Inspection bypass list. To learn more, see Certificate Pinning and SSL/TLS Inspection.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you specify the full path to the Android Studio Keystore.",
+      "depth": 1
+    },
+    {
+      "item": "In later versions of Android Studio (Android Studio version 2024.1.1 Patch 1 or later), the JRE directory might not be present. Use the JBR directory instead.",
+      "depth": 1
+    },
+    {
+      "item": "Python",
+      "depth": 0
+    },
+    {
+      "item": "Different Python modules or installers implement their own certificate stores separately. This section covers the following two modules:",
+      "depth": 0
+    },
+    {
+      "item": "PIP",
+      "depth": 1
+    },
+    {
+      "item": "Use one of the following methods to configure the custom CA certificate for Python:",
+      "depth": 1
+    },
+    {
+      "item": "Add custom certificate using Bash commands",
+      "depth": 2
+    },
+    {
+      "item": "To add the custom certificates for PIP to the trust store:",
+      "depth": 2
+    },
+    {
+      "item": "On macOS and Linux platforms:",
+      "depth": 3
+    },
+    {
+      "item": "Create or download the certificate bundle in PEM format.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Create a new directory and move the bundle to the new location using the following Bash commands:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "mkdir ~/ca_certs mv ~/Downloads/custom-ca-bundle.pem ~/ca_certs",
+      "depth": 2
+    },
+    {
+      "item": "Add the custom certificate using the following Bash command:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "pip config set global.cert ~/ca_certs",
+      "depth": 2
+    },
+    {
+      "item": "On Windows platform:",
+      "depth": 3
+    },
+    {
+      "item": "Create or download the certificate bundle in PEM format.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Create a new directory and move the bundle to C:\\ drive.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Add the certificate to the trust store using the following commands on PowerShell:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "mv $env:HOMEPATH\\Downloads\\custom-ca-bundle.pem $env:APPDATA pip config set global.cert $env:APPDATA\\custom-ca-bundle.pem",
+      "depth": 2
+    },
+    {
+      "item": "Set the SSL/TLS_CERT_FILE environment variables",
+      "depth": 2
+    },
+    {
+      "item": "Run the following commands to set the SSL_CERT_FILE config option:",
+      "depth": 2
+    },
+    {
+      "item": "export CERT_PATH=/etc/ssl/certs/ZscalerRootCA.pem export CERT_DIR=/etc/ssl/certs/ export SSL_CERT_FILE=${CERT_PATH} export SSL_CERT_DIR=${CERT_DIR} export REQUESTS_CA_BUNDLE=${CERT_PATH}",
+      "depth": 2
+    },
+    {
+      "item": "Patching PIP to use system certificates",
+      "depth": 2
+    },
+    {
+      "item": "You can install the pip-system-certs package, which patches the PIP and the requests at runtime to use certificates from the default system store rather than the bundled CA certificates.",
+      "depth": 2
+    },
+    {
+      "item": "Install the system certificates using the following command:",
+      "depth": 2
+    },
+    {
+      "item": "pip install -trusted-host files.pythonhosted.org pip_system_certs",
+      "depth": 2
+    },
+    {
+      "item": "After entering the command, PIP trusts HTTPS sites that are trusted by your host OS. It also trusts all the direct uses of the requests library and the other packages that use requests.",
+      "depth": 2
+    },
+    {
+      "item": "Installing PIP with certifi package",
+      "depth": 2
+    },
+    {
+      "item": "Use one of the following methods to configure the CA certificate:",
+      "depth": 2
+    },
+    {
+      "item": "Set the cacert.pem config option",
+      "depth": 3
+    },
+    {
+      "item": "Install the certifi package using the following command:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "pip install certifi | pip install --upgrade certifi",
+      "depth": 3
+    },
+    {
+      "item": "Check for the certificate’s location, python -m certifi.",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "Update the cacert.pem with the Zscaler certificate using the following command:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "cat ZscalerRootCA.pem >> $(python -m certifi)",
+      "depth": 3
+    },
+    {
+      "item": "You can also set the PIP config global certificate using the following command:",
+      "depth": 3
+    },
+    {
+      "item": "pip config set global.cert $(python -m certifi)",
+      "depth": 3
+    },
+    {
+      "item": "Set the system variables",
+      "depth": 3
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 3
+    },
+    {
+      "item": "export CERT_PATH=$(python -m certifi) export SSL_CERT_FILE=${CERT_PATH} export REQUESTS_CA_BUNDLE=${CERT_PATH}",
+      "depth": 3
+    },
+    {
+      "item": "You cannot add a custom CA certificate using the certifi package option. You can only overwrite it when you update the certifi package.",
+      "depth": 2
+    },
+    {
+      "item": "Requests",
+      "depth": 1
+    },
+    {
+      "item": "Requests automatically search for any valid certificate in the REQUESTS_CA_BUNDLE environment variable.",
+      "depth": 1
+    },
+    {
+      "item": "To configure the REQUESTS_CA_BUNDLE environment variable:",
+      "depth": 1
+    },
+    {
+      "item": "On macOS, run the following Bash command:",
+      "depth": 2
+    },
+    {
+      "item": "echo \"export REQUESTS_CA_BUNDLE=<Path to Certificate>/ca-bundle.pem\" >> $HOME/.bash_profile",
+      "depth": 1
+    },
+    {
+      "item": "On Linux, run the following Bash command:",
+      "depth": 2
+    },
+    {
+      "item": "echo \"export REQUESTS_CA_BUNDLE=<Path to Certificate>/ca-bundle.pem\" >> $HOME/.bashrc",
+      "depth": 1
+    },
+    {
+      "item": "On Windows, run the following PowerShell command:",
+      "depth": 2
+    },
+    {
+      "item": "[System.Environment]::SetEnvironmentVariable(\"REQUESTS_CA_BUNDLE\", \"<Path to Certificate>\\ca-bundle.pem\", \"Machine\")",
+      "depth": 1
+    },
+    {
+      "item": "Alternately, add the Zscaler root CA certificate to the trusted bundle using the following commands:",
+      "depth": 1
+    },
+    {
+      "item": "cat ZscalerRootCertificate-2048-SHA256.pem >> ca_roots.pem",
+      "depth": 2
+    },
+    {
+      "item": "echo \"export REQUESTS_CA_BUNDLE=~/PATH_TO/CA_CHAIN/ca_roots.pem\" >> ~/.bash_profile ; source ~/.bash_profile",
+      "depth": 2
+    },
+    {
+      "item": "npm",
+      "depth": 0
+    },
+    {
+      "item": "Use one of the following methods to configure the custom CA certificate for npm:",
+      "depth": 0
+    },
+    {
+      "item": "The commands are tested and verified on npm version 10.2.5.",
+      "depth": 0
+    },
+    {
+      "item": "Set the cafile config option.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to set the cafile config option:",
+      "depth": 1
+    },
+    {
+      "item": "npm config set cafile <Path to Certificate>/ca-bundle.pem",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that the PEM certificate bundle includes both root and intermediate certificates.",
+      "depth": 1
+    },
+    {
+      "item": "Set the NODE_EXTRA_CA_CERTS environment variable.",
+      "depth": 1
+    },
+    {
+      "item": "On macOS, run the following Bash command:",
+      "depth": 2
+    },
+    {
+      "item": "echo \"export NODE_EXTRA_CA_CERTS=<Path to Certificate>\\bundle.pem\" >> $HOME/.bashrc",
+      "depth": 1
+    },
+    {
+      "item": "On Windows, run the following PowerShell command:",
+      "depth": 2
+    },
+    {
+      "item": "[System.Environment]::SetEnvironmentVariable(\"NODE_EXTRA_CA_CERTS\", \"C:\\<Path to Certificate>\\ca-bundle.pem\", \"Machine\")",
+      "depth": 1
+    },
+    {
+      "item": "Linux",
+      "depth": 0
+    },
+    {
+      "item": "On CentOS and a few other Linux-based systems, there is a built-in system command to add self-signed certificates to the trust store.",
+      "depth": 0
+    },
+    {
+      "item": "CentOS 6, Fedora, and Red Hat",
+      "depth": 1
+    },
+    {
+      "item": "Copy both root and intermediate certificates as individual files in PEM format into the location, /etc/pki/ca-trust/source/anchors/.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Update the CA store using the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "update-ca-trust",
+      "depth": 1
+    },
+    {
+      "item": "Ubuntu/Debian",
+      "depth": 1
+    },
+    {
+      "item": "Copy both root and intermediate certificates as individual files in PEM format into the location, /usr/local/share/ca-certificates/.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Update the CA store using the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo chmod 644 <root certificate file path>",
+      "depth": 1
+    },
+    {
+      "item": "OpenSUSE",
+      "depth": 1
+    },
+    {
+      "item": "Copy both root and intermediate certificates as individual files in PEM format into the location, /etc/pki/trust/anchors/.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Update the CA store using the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo update-ca-certificates",
+      "depth": 1
+    },
+    {
+      "item": "Java",
+      "depth": 0
+    },
+    {
+      "item": "To import a custom certificate for Java:",
+      "depth": 0
+    },
+    {
+      "item": "Download the certificate bundle in DER format to the JAVA_HOME/bin directory using the keytool utility.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "To convert a .crt certificate to DER format, use the command, openssl x509 -in <filename.pem> -inform pem -out <filename.der> -outform der.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following keytool command for your certificate:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "keytool -import -trustcacerts -alias <certAlias> -file <certFile> -keystore <trustStoreFile>",
+      "depth": 0
+    },
+    {
+      "item": "For example:",
+      "depth": 0
+    },
+    {
+      "item": "keytool -import -trustcacerts -alias zscalerrootca -file zscalerrootca.der -keystore $JAVA_HOME/jre/lib/security/cacerts",
+      "depth": 0
+    },
+    {
+      "item": "You might be prompted to enter a password if you are running the tool for the first time.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Enter yes to confirm.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Verify if the certificate is imported successfully using the following keytool command:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "keytool -list -v -keystore cacerts",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about keytool commands, refer to the Oracle documentation.",
+      "depth": 0
+    },
+    {
+      "item": "IntelliJ Platform (Jetbrains)",
+      "depth": 0
+    },
+    {
+      "item": "IntelliJ IDEA provides its own storage for trusted certificates for Windows, Linux, and Mac platforms.",
+      "depth": 0
+    },
+    {
+      "item": "Download the custom certificates (intermediate and root) in PEM format.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Add the certificate to the trust store based on the instructions provided in the IntelliJ IDEA documentation.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Git",
+      "depth": 0
+    },
+    {
+      "item": "To add the custom certificate for Git to the trust store on the following platforms:",
+      "depth": 0
+    },
+    {
+      "item": "The process is tested and validated on Git version 2.34.1.",
+      "depth": 0
+    },
+    {
+      "item": "macOS and Linux",
+      "depth": 1
+    },
+    {
+      "item": "Create or download the certificate bundle in PEM format.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Create a new directory and move the bundle to the new location using the following commands:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "mkdir ~/ca_certs mv ~/Downloads/custom-ca-bundle.pem ~/ca_certs",
+      "depth": 1
+    },
+    {
+      "item": "Add the certificate to the trust store using the following Git command:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "git config --global http.sslcainfo ~/ca_certs/custom-ca-bundle.pem",
+      "depth": 1
+    },
+    {
+      "item": "Windows",
+      "depth": 1
+    },
+    {
+      "item": "Create or download the certificate bundle in PEM format.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Create a new directory and move the bundle to the C drive using the following commands:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "mv $env:HOMEPATH\\Downloads\\custom-ca-bundle.pem $env:APPDATA git config --global http.sslcainfo $env:APPDATA\\custom-ca-bundle.pem",
+      "depth": 1
+    },
+    {
+      "item": "Ruby",
+      "depth": 0
+    },
+    {
+      "item": "To add the custom certificate for Ruby to the trust store on the following platforms:",
+      "depth": 0
+    },
+    {
+      "item": "The process is verified and tested on Ruby version - 3.0.2p107.",
+      "depth": 0
+    },
+    {
+      "item": "macOS and Linux",
+      "depth": 1
+    },
+    {
+      "item": "Run the following Bash command to set the SSL/TLS cert file environment variable:",
+      "depth": 1
+    },
+    {
+      "item": "echo \"export SSL_CERT_FILE=<Path to Certificate>/ZscalerRootCA.pem\" >> $HOME/.bashrcrun",
+      "depth": 1
+    },
+    {
+      "item": "Windows",
+      "depth": 1
+    },
+    {
+      "item": "Create or download the certificate bundle in PEM format.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Run the following PowerShell command to move the bundle to the C drive:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "[System.Environment]::SetEnvironmentVariable(\"SSL_CERT_FILE\", \"C:\\<Path to Certificate>\\ZscalerRootCA.pem\", \"Machine\")",
+      "depth": 1
+    },
+    {
+      "item": "cURL",
+      "depth": 0
+    },
+    {
+      "item": "Use one of the following methods to configure the custom CA certificate for cURL:",
+      "depth": 0
+    },
+    {
+      "item": "The process is tested and verified on the following versions of the tools:",
+      "depth": 0
+    },
+    {
+      "item": "URL 8.4.0 (x86_64-apple-darwin23.0)",
+      "depth": 1
+    },
+    {
+      "item": "libcurl 8.4.0 (Secure Transport)",
+      "depth": 1
+    },
+    {
+      "item": "LibreSSL/3.3.6",
+      "depth": 1
+    },
+    {
+      "item": "Zlib/1.2.12 nghttp2/1.58.0",
+      "depth": 1
+    },
+    {
+      "item": "Release-Date: 2023-10-11",
+      "depth": 1
+    },
+    {
+      "item": "Set the cacert config option.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to set the cacert file config option:",
+      "depth": 1
+    },
+    {
+      "item": "echo \"cacert=<Path to Certificate>/ZscalerRootCA.pem\" >> $HOME/.curlrc",
+      "depth": 1
+    },
+    {
+      "item": "Alternately, you can also run the following command to set the cacert file config option:",
+      "depth": 1
+    },
+    {
+      "item": "curl -vI4 https://www.apple.com --cacert ZscalerRootCertificate-2048-SHA256.crt",
+      "depth": 1
+    },
+    {
+      "item": "Set the cURL_CA_BUNDLE environment variable.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following Bash command:",
+      "depth": 1
+    },
+    {
+      "item": "echo \"export CURL_CA_BUNDLE=<Path to Certificate>/ZscalerRootCA.pem\" >> $HOME/.bashrc",
+      "depth": 1
+    },
+    {
+      "item": "Set the SSL_CERT_FILE environment variable.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following Bash command:",
+      "depth": 1
+    },
+    {
+      "item": "echo \"export SSL_CERT_FILE=<Path to Certificate>/ZscalerRootCA.pem\" >> $HOME/.bashrc",
+      "depth": 1
+    },
+    {
+      "item": "GNU Wget",
+      "depth": 0
+    },
+    {
+      "item": "This is tested and verified on GNU Wget 1.20.3 built on linux-gnu version.",
+      "depth": 0
+    },
+    {
+      "item": "To add the custom CA certificate for GNU Wget, use the --ca-certificate=FILE command to trust the Zscaler certificate bundle. For example, wget --ca-certificate ZscalerRootCertificate-2048-SHA256.crt https://www.SSL.com.",
+      "depth": 0
+    },
+    {
+      "item": "You can also set the environment variable using the echo \"ca_certificate=ZscalerRootCertificate-2048-SHA256.crt\" >> $HOME/.wgetrc command.",
+      "depth": 0
+    },
+    {
+      "item": "Docker",
+      "depth": 0
+    },
+    {
+      "item": "On Windows, macOS, and Linux, Docker uses the OpenSSL CA Trust for its connections to allow it to download packages as you instantiate them in your Dockerfile.",
+      "depth": 0
+    },
+    {
+      "item": "After the Dockerfile is loaded and processed, Docker containers make their connections, which need to trust the Zscaler certificate. Therefore, ensure that your Docker container has the Zscaler certificates installed.",
+      "depth": 0
+    },
+    {
+      "item": "You can add the custom CA certificate for Docker by using the following three files. In this example, we assume Zscaler is \"in path\" for the development environment (developers workstation) but \"out of path\" for the production environment (e.g., AKS/GKS).",
+      "depth": 0
+    },
+    {
+      "item": "Environment Variable File​​​​​​",
+      "depth": 1
+    },
+    {
+      "item": "The environment file (.env) is used to identify if the build is run in a production or development environment.",
+      "depth": 1
+    },
+    {
+      "item": "Create a docker.env file with the following command:",
+      "depth": 1
+    },
+    {
+      "item": "BUILD_ENV=production OR BUILD_ENV=development",
+      "depth": 1
+    },
+    {
+      "item": "This example sets the variables to be read in the Docker Compose file.",
+      "depth": 1
+    },
+    {
+      "item": "Docker Compose File",
+      "depth": 1
+    },
+    {
+      "item": "The docker compose file (.yaml) reads the BUILD_ENV variables and passes them to the Dockerfile.",
+      "depth": 1
+    },
+    {
+      "item": "Create a dockercompose.yaml file with the following command:",
+      "depth": 1
+    },
+    {
+      "item": "version: '3.1' services: dotnetconf19: image: dockersamples/dotnetconf:19 build: context: . args: - BUILD_ENV=${BUILD_ENV:-production} - CERT_FILE=${CERT_FILE:-/etc/ssl/certs/ca-certificates.crt} environment: - BUILD_ENV=${BUILD_ENV:-production} - CERT_FILE=${CERT_FILE:-/etc/ssl/certs/ca-certificates.crt}",
+      "depth": 1
+    },
+    {
+      "item": "This example reads the docker.env file created previously. If no variable is set for BUILD_ENV, it is assumed to be production. If no variable is set for CERT_FILE, the default is set to be the local certificate store.",
+      "depth": 1
+    },
+    {
+      "item": "Dockerfile",
+      "depth": 1
+    },
+    {
+      "item": "The Dockerfile installs the certificate for the development environments as it requires all traffic to be inspected. The certificate for the production environment can be installed in Kubernetes and be directed to the internet where inspection is not required or moved to a non-Zscaler customer where the certificate is not installed.",
+      "depth": 1
+    },
+    {
+      "item": "Create a Dockerfile with the following commands:",
+      "depth": 1
+    },
+    {
+      "item": "FROM mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview9 AS builder #No need to install certificates here - no Internet requests made WORKDIR /src COPY src/WebRequests.csproj . RUN dotnet restore COPY src/ . RUN dotnet publish -c Release -o /out WebRequests.csproj FROM mcr.microsoft.com/dotnet/core/runtime:3.0.0-preview9 #Image runs internet requests over HTTPS - Install Certs if dev environment #Set ARG BUILD_ENV default = production ARG BUILD_ENV=production #Assign the $BUILD_ENV the BUILD_ENV ENV so that it can be accessed ENV BUILD_ENV $BUILD_ENV #Add the CA Certificate to the container ADD src/ZscalerRootCertificate-2048-SHA256.crt /tmp/ZscalerRootCertificate-2048-SHA256.crt #Use BUILD_ENV variable within the container to copy the CA certificate into the certificate directory and update RUN if [ \"$BUILD_ENV\" = \"production\" ]; then \\",
+      "depth": 1
+    },
+    {
+      "item": "echo \"production env\"; \\",
+      "depth": 1
+    },
+    {
+      "item": "else \\",
+      "depth": 1
+    },
+    {
+      "item": "echo \"non-production env: BUILD_ENV\"; \\",
+      "depth": 1
+    },
+    {
+      "item": "CERT_DIR=$(openssl version -d | cut -f2 -d '\"')/certs; \\",
+      "depth": 1
+    },
+    {
+      "item": "cp /tmp/ZscalerRootCertificate-2048-SHA256.crt $CERT_DIR; \\",
+      "depth": 1
+    },
+    {
+      "item": "update-ca-certificates; \\",
+      "depth": 1
+    },
+    {
+      "item": "export SSL_CERT_DIR=${CERT_DIR}; \\",
+      "depth": 1
+    },
+    {
+      "item": "fi #Continue the build where the HTTPS Connections are made WORKDIR /app ENTRYPOINT [\"dotnet\", \"WebRequests.dll\"] ENV DotNetBot:Message=\"docker4theEdge!\" COPY --from=builder /out/ .",
+      "depth": 1
+    },
+    {
+      "item": "The Dockerfile reads the environment variables and copies the Zscaler root certificate from the source folder. If the build is in a production environment, then it proceeds as usual. If the build is in a development environment, then the location of OpenSSL is determined, and the Zscaler root certificate is added to the trusted root certificate store and updated.",
+      "depth": 1
+    },
+    {
+      "item": "Android Studio",
+      "depth": 0
+    },
+    {
+      "item": "When Android Studio starts, it might detect and report an untrusted certificate error. You can accept to trust the incoming certificate, and add it to the local keystore.",
+      "depth": 0
+    },
+    {
+      "item": "If you are using a Gradle plugin, which is a Java app that runs from the JRE embedded in Studio, you need to add the certificates into the JRE local keystore.",
+      "depth": 0
+    },
+    {
+      "item": "To add the certificate to the JRE local keystore:",
+      "depth": 0
+    },
+    {
+      "item": "Download the certificate bundle in CER format to the JAVA_HOME/bin directory using the keytool utility.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Run the following keytool command for your certificate:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "On macOS:",
+      "depth": 1
+    },
+    {
+      "item": "keytool -import -trustcacerts -file <Path to Certificate>/ca-abc_111.cer -alias custom-Root-CA -keystore /Applications/Android\\ Studio.app/Contents/jbr/Contents/Home/lib/security/cacerts keytool -import -trustcacerts -file <Path to Certificate>/ca-abc_222.cer -alias custom-Intermediate-CA -keystore /Applications/Android\\ Studio.app/Contents/jbr/Contents/Home/lib/security/cacerts",
+      "depth": 0
+    },
+    {
+      "item": "On Windows:",
+      "depth": 1
+    },
+    {
+      "item": "cd \"\\Program Files\\Android\\Android Studio\\jre\\bin\" keytool -import -trustcacerts -file <Path to Certificate>/ca-abc_111.cer -alias custom-Root-CA -keystore ..\\jre\\lib\\security\\cacerts keytool -import -trustcacerts -file <Path to Certificate>/ca-abc_222.cer -alias custom-Intermediate-CA -keystore ..\\jre\\lib\\security\\cacerts",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you specify the full path to the Android Studio Keystore.",
+      "depth": 1
+    },
+    {
+      "item": "In later versions of Android Studio (Android Studio version 2024.1.1 Patch 1 or later), the JRE directory might not be present. Use the JBR directory instead.",
+      "depth": 1
+    },
+    {
+      "item": "You might be prompted to enter a password if you are running the tool for the first time.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Enter yes to confirm.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Verify if the certificate is imported successfully using the following keytool command:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "keytool -list -v -cacerts",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about keytool commands, refer to the Oracle documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Mozilla Firefox",
+      "depth": 0
+    },
+    {
+      "item": "This process is tested and verified on Firefox version 127.0.2.",
+      "depth": 0
+    },
+    {
+      "item": "Deploy custom certificate to the Mozilla Firefox browser",
+      "depth": 1
+    },
+    {
+      "item": "To deploy the Zscaler root certificate to the Mozilla Firefox browsers of your users:",
+      "depth": 1
+    },
+    {
+      "item": "1. Import the certificate into the Firefox browser of a user.",
+      "depth": 2
+    },
+    {
+      "item": "The Firefox profile includes a cert#.db file, where # indicates the version number of the .db file that is available with your Firefox profile. This file contains all the security certificates installed on the browser. Installing the Zscaler root certificate in the browser automatically updates the cert#.db file with the newly installed certificate.",
+      "depth": 2
+    },
+    {
+      "item": "To import the certificate:",
+      "depth": 2
+    },
+    {
+      "item": "Open the Mozilla Firefox browser and go to Options by clicking the Gear icon.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          43,
+          50
+        ],
+        [
+          67,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Go to Privacy & Security, then scroll down to the Certificates section and click View Certificates....",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          24
+        ],
+        [
+          50,
+          62
+        ],
+        [
+          81,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "From the Authorities tab, click Import to browse and select the Zscaler root certificate from your local directory.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          20
+        ],
+        [
+          32,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "After selecting the certificate, click OK. The imported certificate is automatically stored in the Application Data folder, which is hidden by default.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          39,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "2. Copy the certificate into the users' Firefox profiles to automatically install the Zscaler root certificate.",
+      "depth": 2
+    },
+    {
+      "item": "In Microsoft Windows, open the Run prompt, enter %appdata%, and click OK.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          34
+        ],
+        [
+          58,
+          59
+        ],
+        [
+          70,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to Mozilla/Firefox/Profiles/xxxxx.default-xxxx/cert#.db. In this example, the Firefox profile uses the cert9.db file.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Copy this file into the Firefox profiles of your other users.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Configure Mozilla Firefox settings to automatically add the custom certificate",
+      "depth": 1
+    },
+    {
+      "item": "You can configure Mozilla Firefox running version 49 or later to use the Windows root certificate store to automatically import and install SSL/TLS root certificates for your user. To learn more, refer to the Mozilla Firefox documentation.",
+      "depth": 1
+    },
+    {
+      "item": "To configure Mozilla Firefox browser settings:",
+      "depth": 1
+    },
+    {
+      "item": "Open the Mozilla Firefox browser and enter about:config in the address bar.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "A caution prompt appears.",
+      "depth": 1
+    },
+    {
+      "item": "Click Accept the Risk and Continue.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the search bar, enter security.enterprise_roots.enabled.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "By default, the value is set to false.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click the toggle icon to set the value to true.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          16
+        ],
+        [
+          42,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Microsoft Edge",
+      "depth": 0
+    },
+    {
+      "item": "To import the Zscaler root certificate into the certificate store of Microsoft Edge browser:",
+      "depth": 0
+    },
+    {
+      "item": "Open the Microsoft Edge browser, click the Menu icon on the upper-right corner, and go to Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          43,
+          47
+        ],
+        [
+          90,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Privacy, search, and services, then scroll down to the Security section and click Manage certificates. Alternatively, use the search field to go to the Manage certificates option.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          35
+        ],
+        [
+          61,
+          69
+        ],
+        [
+          88,
+          107
+        ],
+        [
+          158,
+          177
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "From the Trusted Root Certification Authorities tab, click Import.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          47
+        ],
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "When the Certificate Import Wizard appears, click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          34
+        ],
+        [
+          50,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Browse and select the Zscaler root certificate from your local directory and then click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          88,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "Place the Zscaler root certificate in the Trusted Root Certification Authorities store and click Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          42,
+          80
+        ],
+        [
+          97,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Click Finish to complete the import process. The Zscaler root certificate is successfully imported to the Microsoft Edge browser.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Composer (Dependency Manager for PHP)",
+      "depth": 0
+    },
+    {
+      "item": "To add the Zscaler custom CA certificate for Composer, add the following command to the openssl.cafile in the INI file under the PHP folder:",
+      "depth": 0
+    },
+    {
+      "item": "openssl.cafile=\"C:\\ZscalerRootCertificate-2048-SHA256.crt\"",
+      "depth": 0
+    },
+    {
+      "item": "This command is tested and verified on PHP version 8.3.7 and Composer version 6.3.0.",
+      "depth": 0
+    },
+    {
+      "item": "Salesforce",
+      "depth": 0
+    },
+    {
+      "item": "This command is tested and verified in Zulu JDK version 21.34.19 (21.0.3) and Data Loader version 61.0.0.",
+      "depth": 0
+    },
+    {
+      "item": "Install Salesforce Apex Data Loader and Java Development Kit (JDK) and add the Zscaler root CA certificate in keystore. To add the CA certificate in keystore, run the following command in Microsoft PowerShell as an Administrator:",
+      "depth": 0
+    },
+    {
+      "item": "keytool –import –noprompt –trustcacerts –alias ALIASNAME -file FILENAME_OF_THE_INSTALLED_CERTIFICATE -keystore PATH_TO_CACERTS_FILE",
+      "depth": 0
+    },
+    {
+      "item": "For example: keytool -import -noprompt -trustcacerts -alias ZSCALERROOTCERT -file C:\\ZscalerRootCertificate-2048-SHA256.pem -keystore \"C:\\Program Files\\Zulu\\zulu-21\\lib\\security\\cacerts\"",
+      "depth": 0
+    },
+    {
+      "item": "Microsoft PowerShell",
+      "depth": 0
+    },
+    {
+      "item": "To import the Zscaler root certificate into the certificate store of Microsoft PowerShell:",
+      "depth": 0
+    },
+    {
+      "item": "This process is tested and verified on Windows PowerShell version 5.1.19041.2673.",
+      "depth": 0
+    },
+    {
+      "item": "Open the Run command window and enter certmgr.msc in the Open: field and click OK.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          12
+        ],
+        [
+          57,
+          62
+        ],
+        [
+          79,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Certificate Manager window, open the Trusted Root Certification Authorities > Certificates folder.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          44,
+          82
+        ],
+        [
+          85,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Right-click and select All Task > Import.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          23,
+          31
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "When the Certificate Import Wizard appears, click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          34
+        ],
+        [
+          50,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Browse and select the Zscaler root certificate from your local directory and then click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          88,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Place the Zscaler root certificate in the Trusted Root Certification Authorities store and click Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          97,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Finish to complete the import process. The Zscaler root certificate is successfully imported to the Microsoft PowerShell directory.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Rust",
+      "depth": 0
+    },
+    {
+      "item": "On Linux-based systems, there is a built-in system command to add self-signed certificates to the trust store.",
+      "depth": 0
+    },
+    {
+      "item": "This command is tested and verified on Rust version 1.75.0.",
+      "depth": 0
+    },
+    {
+      "item": "Copy the Zscaler root certificates as individual files into the location /usr/local/share/ca-certificates/.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Update the CA store using the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo update-ca-certificates",
+      "depth": 1
+    },
+    {
+      "item": "Amazon Web Services (AWS CLI)",
+      "depth": 0
+    },
+    {
+      "item": "To add the custom certificate for AWS CLI to the trust store on the following platforms:",
+      "depth": 0
+    },
+    {
+      "item": "This command is tested and verified on AWS CLI version 2.9.19.",
+      "depth": 0
+    },
+    {
+      "item": "Ubuntu",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command in Ubuntu Terminal to add the Zscaler root CA certificate in the trusted list:",
+      "depth": 1
+    },
+    {
+      "item": "aws configure set default.ca_bundle <certification in .pem format >",
+      "depth": 1
+    },
+    {
+      "item": "Windows",
+      "depth": 1
+    },
+    {
+      "item": "Create or download the certificate bundle in PEM format.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Run the following PowerShell command to move the bundle to the C drive:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "aws configure set default.ca_bundle <certification in .pem format>",
+      "depth": 2
+    },
+    {
+      "item": "Boto",
+      "depth": 0
+    },
+    {
+      "item": "Boto uses the AWS CLI config and the same environmental variables. To add a Zscaler custom certificate to the Boto trust store on the following platforms:",
+      "depth": 0
+    },
+    {
+      "item": "This command is tested and verified on AWS CLI version 2.9.19.",
+      "depth": 0
+    },
+    {
+      "item": "Ubuntu",
+      "depth": 1
+    },
+    {
+      "item": "Windows",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command in Ubuntu Terminal to add the Zscaler root CA certificate in the trusted list:",
+      "depth": 0
+    },
+    {
+      "item": "aws configure set default.ca_bundle <certification in .pem format >",
+      "depth": 0
+    },
+    {
+      "item": "Create or download the certificate bundle in PEM format.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Run the following PowerShell command to move the bundle to the C drive:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "aws configure set default.ca_bundle <certification in .pem format>",
+      "depth": 1
+    },
+    {
+      "item": "Microsoft Azure CLI",
+      "depth": 0
+    },
+    {
+      "item": "To add a Zscaler custom certificate to the Azure CLI trust store, add the Zscaler CA certificate to the following file:",
+      "depth": 0
+    },
+    {
+      "item": "The path provided is for the 32-bit (x86) installation of the Azure CLI.",
+      "depth": 0
+    },
+    {
+      "item": "C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\CLI2\\Lib\\site-packages\\certifi\\cacert.pem",
+      "depth": 0
+    },
+    {
+      "item": "On Windows, use the following method to configure the certificate path:",
+      "depth": 1
+    },
+    {
+      "item": "Export the Zscaler Root CA certificate to a PEM or CRT file (e.g., C:\\Certificates\\ZscalerRootCA.pem).",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Click the Start icon.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Search for Edit the system environment variables.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Click Environment Variables.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Under User variables, click New.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          28,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following details:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "Variable name: REQUESTS_CA_BUNDLE",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Variable value: C:\\Certificates\\ZscalerRootCA.pem",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Restart the terminal or PowerShell to apply the changes.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "Fastlane",
+      "depth": 0
+    },
+    {
+      "item": "This process is tested and verified on Ubuntu version 22.04.",
+      "depth": 0
+    },
+    {
+      "item": "To install the Zscaler root CA certificates for Fastlane, add the certificates to the /usr/local/share/ca-certificates/ directory. For example, sudo cp Zscaler_Root_CA.crt /usr/local/share/ca-certificates/.",
+      "depth": 0
+    },
+    {
+      "item": "MacOS, Mac Tools, or Framework",
+      "depth": 0
+    },
+    {
+      "item": "To import a custom certificate for MacOS, Mac Tools, or Framework:",
+      "depth": 0
+    },
+    {
+      "item": "The process is verified and tested on macOS ProductVersion: 14.4.1, BuildVersion: 23E224.",
+      "depth": 0
+    },
+    {
+      "item": "Download Zscaler root CA certificate file.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Double-click to open the file. Depending on the macOS version you are using, the Keychain Access window appears.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          81,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "Click Install to install the downloaded Zscaler root CA certificate.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Alternately, when you open the downloaded root CA file, the Add Certificates window appears. Click the Edit icon in the System > Keychain Access window and Add.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          60,
+          76
+        ],
+        [
+          103,
+          107
+        ],
+        [
+          120,
+          126
+        ],
+        [
+          129,
+          144
+        ],
+        [
+          156,
+          159
+        ]
+      ]
+    },
+    {
+      "item": "OpenSSL",
+      "depth": 0
+    },
+    {
+      "item": "This process is tested and verified on LibreSSL 3.3.6.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to set the cacert file config option:",
+      "depth": 0
+    },
+    {
+      "item": "openssl s_client -connect www.zscaler.com:443 -servername www.zscaler.com -CAfile ZscalerRootCertificate-2048-SHA256.crt",
+      "depth": 0
+    },
+    {
+      "item": "Alternately, to set the cacert file config option for OpenSSL:",
+      "depth": 0
+    },
+    {
+      "item": "Use the version option openssl version -d to identify the directory used for istallation.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "From the subdirectory called certs, copy the Zscaler root CA cert in .pem format.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          29,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Calculate the hash using openssl x509 -noout -hash -in ZscalerRootCertificate-2048-SHA256.pem and save the file with hash-value.0.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "When an application encounters a remote certificate, it checks for the cert.pem file or file named after the certificate’s hash value. If it is found, the certificate is considered as verified.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Google Cloud SDK",
+      "depth": 0
+    },
+    {
+      "item": "To install the Zscaler root CA certificates for Google Cloud SDK, run the following command:",
+      "depth": 0
+    },
+    {
+      "item": "gcloud config set core/custom_ca_certs_file “path-to-zscalerrootcert”",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, refer to the Google Cloud Documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Databricks Connect",
+      "depth": 0
+    },
+    {
+      "item": "This process is tested and verified on Databricks Connect version 0.18.0.",
+      "depth": 0
+    },
+    {
+      "item": "To install the Zscaler root CA certificates for Databricks Connect, export the environmental variables and run the following command:",
+      "depth": 0
+    },
+    {
+      "item": "REQUESTS_CA_BUNDLE=/home/cert/Zscaler_Root_CA.crt",
+      "depth": 0
+    }
+  ]
+}

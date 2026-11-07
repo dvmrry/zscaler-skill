@@ -1,0 +1,286 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.audit-logs",
+  "title": "Cloud & Branch Connector audit logs in the console: what is recorded, retention, lockout, filters and CSV",
+  "aliases": [
+    "cloud connector audit log",
+    "branch connector audit logs",
+    "cbc audit logs",
+    "data explorer audit logs branch and cloud",
+    "cloud connector admin lockout"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.cloud-connector"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.admin-sso"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Cloud & Branch Connector audit log is the console's record of admin sign-ins and the configuration changes they make; the API's report is in [[shared.audit-logs]]. {{what-is-recorded}} {{retention}} {{lockout}}"
+    },
+    {
+      "label": "Reading it.",
+      "text": "{{page-filters}} {{columns}} {{actions}} {{categories}} {{subcategories}} {{result}} {{config-diff}} {{csv-pdt}}"
+    },
+    {
+      "label": "Open.",
+      "text": "The two types of configuration change view are not named in the capture {{gap:change-view-types}}, nor is whether the lockout covers SAML sign-in {{gap:lockout-methods}} or whether remote assistance sessions are audited {{gap:remote-assistance-audited}}. Which role permission grants access to the log is open {{gap:audit-log-permission}}; the role categories are in [[shared.admin-rbac.cloud-connector]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the change falls inside the 6-month retention before concluding it was not made.",
+      "uses": [
+        "retention"
+      ]
+    },
+    {
+      "do": "For an admin who cannot sign in, whether 5 failed attempts within one minute locked the account and the 5-minute lockout has passed; for SAML sign-in the page does not say whether the lockout applies.",
+      "uses": [
+        "lockout",
+        "lockout-methods"
+      ]
+    },
+    {
+      "do": "When comparing times with the CSV download, that its times are in PDT.",
+      "uses": [
+        "csv-pdt"
+      ]
+    }
+  ],
+  "claims": {
+    "what-is-recorded": {
+      "statement": "Zscaler records the login name and IP address of every admin who logs in to the Admin Console and changes policies or configuration settings; the audit log displays login and logout records and any configuration changes the admin completed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-audit-logs.json",
+          "quotes": [
+            "Zscaler records the login name and IP address of every admin who logs in to the Zscaler Admin Console and changes policies or configuration settings.",
+            "Audit logs display an admin's login and logout record (time stamps, actions, IP, etc.) and any configuration changes they completed."
+          ]
+        }
+      ]
+    },
+    "lockout": {
+      "statement": "If an admin account makes 5 unsuccessful attempts to log in within one minute, the account is locked out for 5 minutes and the failed attempts are recorded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-audit-logs.json",
+          "quotes": [
+            "If an admin account makes 5 unsuccessful attempts to log in within one minute, the account is locked out for 5 minutes and the failed attempts are recorded."
+          ]
+        }
+      ]
+    },
+    "retention": {
+      "statement": "The Cloud & Branch Connector console stores audit logs for up to 6 months.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-audit-logs.json",
+          "quotes": [
+            "Store audit logs for up to 6 months."
+          ]
+        }
+      ]
+    },
+    "page-filters": {
+      "statement": "The Audit Logs page (Data Explorer > Audit Logs > Branch and Cloud) filters by Time Range, Action, Category, Sub-Category, Interface and Result, and searches by Resource, Admin ID or Client IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-audit-logs.json",
+          "quotes": [
+            "On the Audit Logs page (Data Explorer > Audit Logs > Branch and Cloud), you can do the following:",
+            "Filter by Time Range, Action, Category, Sub-Category, Interface, and/or Result.",
+            "Search for an audit log by Resource, Admin ID, or Client IP."
+          ]
+        }
+      ]
+    },
+    "csv-pdt": {
+      "statement": "The Audit Logs page downloads a CSV file whose times are in PDT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-audit-logs.json",
+          "quotes": [
+            "Download a CSV file. The times in the CSV file are in PDT."
+          ]
+        }
+      ]
+    },
+    "columns": {
+      "statement": "An entry gives the Timestamp (the local time of the admin's last login or logout), Actions (performed in the Admin Console or API), Category (a location in the portal), Resource (the location within a subcategory), Admin ID (the admin's login ID), Client IP (the admin's source IP address) and Interface (the Admin UI or an API).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-audit-logs.json",
+          "quotes": [
+            "Timestamp: The local time of the admin's last login or last logout.",
+            "Actions: The action performed by the admin in the Zscaler Admin Console or API.",
+            "Category: A location in the portal where the action was performed.",
+            "Resource: The specific location within a subcategory.",
+            "Client IP: The source IP address for the admin.",
+            "Interface: The means by which the user performed their actions. The interface is either the Admin UI or an API.",
+            "Admin ID: The admin's login ID."
+          ]
+        }
+      ]
+    },
+    "actions": {
+      "statement": "The actions the log can record include Sign Out, Audit Operation, Activate, Force Activate, Import and Report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-audit-logs.json",
+          "quotes": [
+            "- Sign Out",
+            "- Audit Operation",
+            "- Force Activate",
+            "      - Activate",
+            "- Import",
+            "- Report"
+          ]
+        }
+      ]
+    },
+    "categories": {
+      "statement": "The categories the log can record include Traffic Forwarding Resource, Provisioning Management, Firewall Access Control, Forwarding Type and Firewall Resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-audit-logs.json",
+          "quotes": [
+            "Traffic Forwarding Resource",
+            "Provisioning Management",
+            "Firewall Access Control",
+            "- Forwarding Type",
+            "- Firewall Resource"
+          ]
+        }
+      ]
+    },
+    "subcategories": {
+      "statement": "The sub-categories the log can record include Location Template, Provisioning Template, Location Group, Cloud & Branch Connector Group, Network Service Group, NSS Server, Password Expiry, Source IP Group, Destination Group, Firewall Forwarding, NSS FEED and Cloud & Branch Connector Location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-audit-logs.json",
+          "quotes": [
+            "- Location Template",
+            "- Provisioning Template",
+            "- Location Group",
+            "- Cloud & Branch Connector Group",
+            "- Network Service Group",
+            "- NSS Server",
+            "- Password Expiry",
+            "- Source IP Group",
+            "- Destination Group",
+            "- Firewall Forwarding",
+            "- NSS FEED",
+            "- Cloud & Branch Connector Location"
+          ]
+        }
+      ]
+    },
+    "result": {
+      "statement": "A successful action shows as a green circle with a checkmark and a failed one as a red circle with an X.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-audit-logs.json",
+          "quotes": [
+            "If the action was a success, it is displayed as a green circle with a checkmark inside.",
+            "If the action was a failure, it is displayed as a red circle with an X inside."
+          ]
+        }
+      ]
+    },
+    "config-diff": {
+      "statement": "Selecting a configuration change lets the admin view visual differences between the pre-configuration and post-configuration changes; the page says there are two types of changes to view.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-audit-logs.json",
+          "quotes": [
+            "Click the configuration changes you want to view. You'll be able to view visual differences between the pre-configuration and post-configuration changes.",
+            "There are two types of changes you can view:"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "change-view-types": {
+      "kind": "semantic",
+      "title": "The two types of configuration change view",
+      "status": "open",
+      "detail": "The capture says there are two types of changes you can view and breaks off without naming them.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "lockout-methods": {
+      "kind": "semantic",
+      "title": "Which sign-in methods the 5-attempt lockout covers",
+      "status": "open",
+      "detail": "The page states the lockout for an admin account making unsuccessful login attempts and does not say whether it covers SAML sign-in; it also does not say what each Interface value means beyond Admin UI and an API.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "remote-assistance-audited": {
+      "kind": "semantic",
+      "title": "Whether Zscaler Support remote assistance sessions are audited",
+      "status": "open",
+      "detail": "The listed sub-categories name no remote-assistance item and the page does not say whether remote assistance sessions are recorded; see cloud-connector.support-access for what remote assistance is.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "audit-log-permission": {
+      "kind": "semantic",
+      "title": "Which role permission governs the Audit Logs page",
+      "status": "open",
+      "detail": "None of the eleven Cloud & Branch Connector role categories in shared.admin-rbac.cloud-connector names audit logs, and the audit log pages do not name the permission that grants access to them.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

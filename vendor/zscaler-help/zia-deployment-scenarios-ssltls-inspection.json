@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deployment Scenarios for SSL/TLS Inspection",
+  "source": {
+    "url": "https://help.zscaler.com/zia/deployment-scenarios-ssltls-inspection",
+    "node": "1401941",
+    "revision": "3247409",
+    "updated": "2026-09-25",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler's SSL/TLS Inspection can be deployed in different scenarios. The following scenarios show how the service applies SSL/TLS Inspection based on traffic source and whether authentication or other features are enabled."
+    },
+    {
+      "item": "HTTPS Traffic from Known Locations",
+      "depth": 0
+    },
+    {
+      "item": "When an organization’s traffic is forwarded from a known location (an internet gateway configured in the Zscaler Admin Console), the Zscaler service applies URL Filtering and Cloud App Control policies as described in the following list, depending on whether user authentication is enabled.",
+      "depth": 0
+    },
+    {
+      "item": "Authentication Enabled: Zscaler recommends this configuration because it enables the service to enforce granular URL and Cloud App Control policies at the user level.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Disabled: The service applies location-based URL and Cloud App Control policies. It cannot apply any user or group policies because authentication is disabled. Ensure that the appropriate location is specified in the Location setting of the URL and Cloud App Control policies.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "HTTPS Traffic from Remote Users",
+      "depth": 0
+    },
+    {
+      "item": "There are some extra steps needed when dealing with remote users, or users from an unknown location. The following are some options:",
+      "depth": 0
+    },
+    {
+      "heading": "Zscaler Client Connector",
+      "level": 1
+    },
+    {
+      "item": "The recommended option is to install and use Zscaler Client Connector on the client machines of your remote users.",
+      "depth": 0
+    },
+    {
+      "heading": "Dedicated Proxy Port",
+      "level": 1
+    },
+    {
+      "item": "If your organization has subscribed to a dedicated port and has gateway locations created using the dedicated port, your organization’s users might forward traffic to Zscaler on said port.",
+      "depth": 0
+    },
+    {
+      "item": "Whether SSL/TLS traffic should be inspected or not is something that can be defined by the location configuration. As the port is unique to the organization, it would be used as an identifier to apply your organization's SSL/TLS and authentication bypasses.",
+      "depth": 0
+    },
+    {
+      "item": "However, if the first transaction from a user is from an unregistered IP and is an HTTPS request, the identity of the user is unknown and to accept the traffic the transaction needs to be authenticated. This is to ensure Zscaler is not used as an open proxy by unauthorized users.",
+      "depth": 0
+    },
+    {
+      "item": "If the organization has Show Notifications enabled under Internet Access > Policy > SSL/TLS Inspection in the Zscaler Admin Console, then the transaction is intercepted and checked for a valid authentication cookie. If the cookie is not present, the user is redirected for authentication. After authentication, the traffic is accepted by Zscaler and appropriate policies applied.",
+      "depth": 0
+    },
+    {
+      "item": "The user would need to have appropriate root certificates installed on the user’s browsers to avoid certificate warnings.",
+      "depth": 0
+    },
+    {
+      "item": "If the organization has Show Notifications disabled, then the transaction is dropped. The user would need to access an HTTP page and provide a valid authentication cookie or go through the authentication process before accessing the HTTPS page.",
+      "depth": 0
+    },
+    {
+      "heading": "TCP Port 9443",
+      "level": 1
+    },
+    {
+      "item": "Users can connect to Public Service Edges for Internet & SaaS (ZIA) on port 9443 and all HTTPS connections are subject to SSL/TLS Inspection. The drawback of this method is that the capability to bypass certain traffic based on URLs and URL categories from SSL/TLS scanning and authentication is lost.",
+      "depth": 0
+    },
+    {
+      "item": "Users should also have the appropriate SSL/TLS certificate installed. If it is not installed and a user forwards traffic to port 9443, the browser displays certificate warnings.",
+      "depth": 0
+    },
+    {
+      "heading": "TCP Port 80/443/9400/9480",
+      "level": 1
+    },
+    {
+      "item": "Remote users might forward traffic to Zscaler on ports 80/443/9400 and 9480. However, there are a few issues to be aware of:",
+      "depth": 0
+    },
+    {
+      "item": "SSL/TLS traffic is not intercepted and policies are not implemented on SSL/TLS traffic.",
+      "depth": 1
+    },
+    {
+      "item": "If the first transaction from an unregistered IP address and is on HTTPS, the transaction is blocked. The user would need to access an HTTP page and provide a valid authentication cookie or go through the authentication process before accessing the HTTPS page.",
+      "depth": 1
+    },
+    {
+      "item": "SSL/TLS and authentication bypass are not applied.",
+      "depth": 1
+    },
+    {
+      "heading": "TCP Port 8800",
+      "level": 1
+    },
+    {
+      "item": "Remote users might use port 8800 to forward traffic to Zscaler, and Public Service Edges attempt to authenticate the user using the Kerberos method of authentication. The organization might choose to inspect HTTPS traffic by enabling Enable SSL/TLS Inspection for Remote Users with Kerberos under Internet Access > Policy > SSL/TLS Inspection.",
+      "depth": 0
+    },
+    {
+      "text": "Be aware of whether you protect HTTPS traffic by deploying SSL/TLS Inspection or by blocking specific HTTPS traffic. The Zscaler Admin Console must first identify the host in an HTTPS request through an explicit or transparent proxy mode."
+    },
+    {
+      "text": "The Zscaler service supports TLS 1.0, 1.1, and 1.2. When SSL/TLS Inspection is enabled, the service inspects all SSL/TLS sessions, regardless of version."
+    }
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.definition",
+  "title": "What an application segment can contain: entries, wildcards and ports",
+  "aliases": [
+    "domain_names",
+    "wildcard only application",
+    "hyphenated ip range application segment",
+    "browser access port range",
+    "idp application segment",
+    "application segment local domain"
+  ],
+  "binds": [
+    "zpa/application-segments#domainNames",
+    "zpa/application-segments#tcpPortRanges",
+    "zpa/application-segments#udpPortRanges"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.api-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.segment-groups.membership"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.discovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.double-encryption"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers what an application segment may contain and the port rules for Browser Access."
+    },
+    {
+      "label": "What an application is.",
+      "text": "{{def-what-is-application}} Double Encryption is set per segment but applies at the FQDN level: [[zpa.app-segments.double-encryption]]."
+    },
+    {
+      "label": "Entries.",
+      "text": "{{entry-forms}} {{wildcard-only}} {{def-exclude-port-53}} Wildcards and subnets used for discovery: [[zpa.app-segments.discovery]]."
+    },
+    {
+      "label": "Application Scaling.",
+      "text": "{{app-scaling}} {{app-scaling-prerequisites}}"
+    },
+    {
+      "label": "Browser Access.",
+      "text": "{{ba-fqdn-only}} {{ba-ports}} Segment-level settings that interact with Browser Access are in [[zpa.app-segments.settings]]."
+    },
+    {
+      "label": "IPv6.",
+      "text": "{{ipv6-support}} {{ipv6-fqdn-access}} Whether ICMP reaches IPv6 applications is open {{gap:ipv6-icmp}}."
+    },
+    {
+      "label": "Identity providers.",
+      "text": "{{idp-overlap}}"
+    },
+    {
+      "label": "Group membership.",
+      "text": "Every segment must be placed in a segment group: [[zpa.segment-groups.membership]]. How entries and ports decide which segment matches is in [[zpa.app-segments.matching]], and the field names are in [[zpa.app-segments.api-fields]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a wildcard-only entry shares a segment with other entries, and whether Zscaler approved it.",
+      "uses": [
+        "wildcard-only"
+      ]
+    },
+    {
+      "do": "Whether a Browser Access application has its port inside a TCP range, and that no UDP range was used.",
+      "uses": [
+        "ba-ports",
+        "ba-fqdn-only"
+      ]
+    },
+    {
+      "do": "Whether the IdP is defined in a segment, and if so its Authentication Timeout and any overlap with application discovery.",
+      "uses": [
+        "idp-overlap"
+      ]
+    }
+  ],
+  "claims": {
+    "def-what-is-application": {
+      "statement": "An application is an FQDN, local domain name or IP address defined on a standard set of ports, and applications must be defined within an application segment, a grouping of defined applications based on access type or user privileges; features such as double encryption and health reporting are configured per application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-applications.json",
+          "quotes": [
+            "An application is a fully qualified domain name (FQDN), local domain name, or IP address that you define on a standard set of ports.",
+            "Applications must be defined within an application segment.",
+            "An application segment is a grouping of defined applications, based upon access type or user privileges.",
+            "Features such as double encryption, health reporting, etc. are configured per application segment."
+          ]
+        }
+      ]
+    },
+    "def-exclude-port-53": {
+      "statement": "Zscaler recommends excluding DNS traffic (port 53) from TCP and UDP port ranges.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#tcpPortRanges",
+        "zpa/application-segments#udpPortRanges"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Zscaler recommends excluding DNS traffic (port 53) from TCP and UDP port ranges."
+          ]
+        }
+      ]
+    },
+    "app-scaling": {
+      "statement": "Application Scaling is a limited-availability feature that lets tenants scale to approximately 100,000 applications by delivering aggregated domain information to endpoints instead of the complete application inventory; deployments using Source IP Anchoring or Zero Trust Branch should continue to use the standard Private Access application access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-application-scaling.json",
+          "quotes": [
+            "This feature is in limited availability. To learn more, contact Zscaler Support.",
+            "With Application Scaling enabled, tenants can scale to approximately 100,000 applications.",
+            "Instead of distributing the complete application inventory to every endpoint, Private Access delivers aggregated domain information, reducing the client-side configuration footprint and improving scalability.",
+            "If you are using Source IP Anchoring or Zero Trust Branch, continue to use the standard Private Access application access as it is designed for those deployment scenarios."
+          ]
+        }
+      ]
+    },
+    "app-scaling-prerequisites": {
+      "statement": "Application Scaling needs App Connectors or Private Service Edges at version 24.298.1 or later and Client Connector at Windows 4.7.0.88 or 4.6.0.282 or later, macOS 4.5.2.98, iOS 4.4.1 (with the Use Tunnel SDK Version 4.3 or above setting enabled), Android 3.10 or Linux 4.2 or later, and it is enabled at the tenant level by contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-application-scaling.json",
+          "quotes": [
+            "App Connectors or Private Service Edges for Private Access are upgraded to version 24.298.1 or later.",
+            "4.7.0.88 or later",
+            "4.6.0.282 or later",
+            "macOS versions: 4.5.2.98 or later",
+            "iOS version 4.4.1 or later",
+            "To use the App Scaling feature for iOS applications, you must enable the Use Tunnel SDK Version 4.3 or above setting in the Zscaler Admin Console.",
+            "Android version: 3.10 or later",
+            "Linux version: 4.2 or later",
+            "Application Scaling is enabled at the tenant level. Contact Zscaler Support to request access."
+          ]
+        }
+      ]
+    },
+    "entry-forms": {
+      "statement": "An application entry is an FQDN, an IP address, a local domain or a wildcard domain such as `*.safemarch.com`; hyphenated IP address ranges cannot be defined.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#domainNames"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Enter a fully qualified domain name (FQDN), IP address, local domain, or a wildcard domain (e.g., *.safemarch.com) associated with the application.",
+            "You can't define an application with hyphenated IP address ranges"
+          ]
+        }
+      ]
+    },
+    "ipv6-support": {
+      "statement": "Private Access supports IPv4 for TCP-, UDP- and ICMP-based connections and IPv6 only for TCP-based applications. App Connectors and Private Service Edges are dual stack aware, so IPv4 and IPv6 run alongside each other. An IPv4 or an IPv6 endpoint through Client Connector reaching an IPv4 application is supported for TCP-, UDP- and ICMP-based connections; for direct IPv6 communication from an App Connector to a server only TCP is supported and UDP is not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-ipv6.json",
+          "quotes": [
+            "Private Access (ZPA) supports IPv4 for TCP-, UDP-, and ICMP-based connections, and supports IPv6 for only TCP-based applications.",
+            "App Connectors and Private Service Edges are dual stack aware, meaning IPv4 and IPv6 run simultaneously alongside each other.",
+            "An IPv4 endpoint through Zscaler Client Connector to access an IPv4 application on a server is supported for TCP-, UDP-, and ICMP-based connections.",
+            "An IPv6 endpoint through Zscaler Client Connector to access an IPv4 application on the server is supported for TCP-, UDP-, and ICMP-based connections.",
+            "Only TCP-based connections are supported for direct IPv6 communications from an App Connector to a server. UDP-based connections are not supported."
+          ]
+        }
+      ]
+    },
+    "ipv6-fqdn-access": {
+      "statement": "Users can access IPv6 applications defined using an FQDN or hostname if they use browser-based connections or Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-ipv6.json",
+          "quotes": [
+            "Users can access IPv6 applications defined using a FQDN or hostname if they are using browser-based connections or Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "wildcard-only": {
+      "statement": "A wildcard-only entry (`*`) should be the only application in its segment, needs Zscaler approval, and is not available for application discovery.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#domainNames"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "You can also define the application with a wildcard only (i.e., *), but this should be the only application in the application segment. You can't define an application this way unless approved by Zscaler."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-application-access.json",
+          "quotes": [
+            "Defining an application with a wildcard only requires approval from Zscaler, and it is not available for application discovery."
+          ]
+        }
+      ]
+    },
+    "ba-fqdn-only": {
+      "statement": "Applications defined for Browser Access can only be FQDNs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "When defining applications for Browser Access, you can only configure FQDNs."
+          ]
+        }
+      ]
+    },
+    "ba-ports": {
+      "statement": "For a Browser Access application the TCP port range must include the specified port, and UDP port ranges cannot be used.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#tcpPortRanges"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If you selected Browser Access for any application, the port range must include the port specified.",
+            "If you selected Browser Access for any application, you must use TCP port ranges."
+          ]
+        }
+      ]
+    },
+    "idp-overlap": {
+      "statement": "If the IdP is defined as an application within a segment, its Authentication Timeout must be Never, and an IdP domain that overlaps a domain configured for application discovery must be bypassed in Private Access to avoid user reauthentication failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If your IdP is defined as an application within an application segment, the Authentication Timeout for the IdP application must be set to Never.",
+            "If an IdP domain overlaps with a domain configured for application discovery, you must bypass the IdP domain in Private Access (ZPA) to avoid user reauthentication failure."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ipv6-icmp": {
+      "kind": "semantic",
+      "title": "Whether ICMP reaches IPv6 applications",
+      "status": "open",
+      "detail": "The Configuring IPv6 page says IPv6 is supported for only TCP-based applications and that UDP is not supported for direct IPv6 communication from an App Connector to a server. It does not say whether ICMP is supported for IPv6 applications.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

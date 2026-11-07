@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "id": "shared.deployments.zia.disaster-recovery",
+  "title": "What the ZIA disaster recovery deployment and operations guide requires and how clients behave",
+  "aliases": [
+    "zia disaster recovery",
+    "zia dr safe mode"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.deployments"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.deployments.zpa.disaster-recovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery.dns-records"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{prereqs}} The macOS minimum version is written two ways: {{divergence:macos-version}}. {{restrictions}} The ZPA side is in [[shared.deployments.zpa.disaster-recovery]] and [[zpa.private-service-edges.disaster-recovery]]."
+    },
+    {
+      "label": "Forwarding actions.",
+      "text": "{{forwarding-actions}} {{destinations-precedence}}"
+    },
+    {
+      "label": "DNS record.",
+      "text": "{{txt-record-tags}} {{poll-interval}} The maximum TTL is open {{gap:ttl-maximum}}."
+    },
+    {
+      "label": "Client behavior.",
+      "text": "{{client-behaviour}} Whether ZIA has a reauthentication setting is open {{gap:reauth-setting}}."
+    }
+  ],
+  "claims": {
+    "prereqs": {
+      "statement": "ZIA disaster recovery needs Client Connector 4.0 or later for Windows or 3.71.38 or later for macOS, enablement for the organization via the Zscaler Account team, and a modifiable, customer-owned public DNS record; it might require an additional license.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "Zscaler Client Connector version 4.0 or later for Windows",
+            "Zscaler Client Connector version 3.71.38 or later for macOS",
+            "Disaster recovery requires a modifiable, customer-owned public DNS record.",
+            "ZIA disaster recovery might require an additional license for your organization.",
+            "Disaster recovery must be enabled for your organization. Check with your Zscaler Account team to enable disaster recovery."
+          ]
+        }
+      ]
+    },
+    "forwarding-actions": {
+      "statement": "The App Profile disaster recovery traffic forwarding action is Send Traffic Direct (all traffic bypasses Client Connector), Disable Internet Access (all traffic dropped at the endpoint) or Pre-selected Destinations (block or allow specific URLs via a custom PAC file).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "Send Traffic Direct: All traffic bypasses Zscaler Client Connector, giving the user access to all applications through direct internet access.",
+            "Disable Internet Access: All traffic is dropped at the endpoint and users do not have access.",
+            "Pre-selected Destinations: The admin selects to block or allow access to specific URLs using a custom PAC file:"
+          ]
+        }
+      ]
+    },
+    "destinations-precedence": {
+      "statement": "Zscaler pre-selected destinations and custom destinations can be combined; custom destination URLs take precedence, so a pre-selected destination can be blocked by placing it in the custom destinations PAC file with the Block destination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "You can define a combination of Zscaler pre-selected destinations and custom destinations for access in a PAC file. This is not a mutually exclusive choice.",
+            "Custom destination URLs take precedence over Zscaler pre-selected destinations.",
+            "You can block certain Zscaler pre-selected destinations by placing them in the custom destinations PAC file and forwarding the traffic to destination Block."
+          ]
+        }
+      ]
+    },
+    "restrictions": {
+      "statement": "ZIA Virtual Service Edges or Private Service Edges cannot be used with disaster recovery, and no traffic forwarding decisions other than allowing direct access or blocking access to destinations can be used with it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "You cannot use ZIA Virtual Service Edges or Private Service Edges in conjunction with disaster recovery.",
+            "You cannot use any other traffic forwarding decisions than allowing direct access or blocking access to destinations in conjunction with disaster recovery."
+          ]
+        }
+      ]
+    },
+    "client-behaviour": {
+      "statement": "With disaster recovery on, blocked pages return HTTP 403 and Client Connector shows Service Status Safe Mode; a triggered client keeps limited access until disaster recovery is disabled and does not reconnect automatically even after ZIA services are restored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "End users receive an HTTP 403 error if they try to open any blocked page when disaster recovery is on.",
+            "Zscaler Client Connector shows Service Status Safe Mode when disaster recovery mode is on.",
+            "Even when ZIA services are restored, client machines do not automatically reconnect to the Zscaler cloud until disaster recovery is disabled.",
+            "When disaster recovery is triggered for a client, that client can only access destinations that are specified as accessible during disaster recovery. Limited access is enforced until disaster recovery is disabled for the client."
+          ]
+        }
+      ]
+    },
+    "txt-record-tags": {
+      "statement": "To enable ZIA disaster recovery the DNS TXT record needs at minimum v=1, b=on and k=zia (k=all adds ZPA); for testing the record uses b=test and k=zia (or k=all for ZIA and ZPA). A TTL as low as possible is chosen, with 30 seconds recommended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "Indicate the DNS record version with v=1.",
+            "Enable disaster recovery with b=on.",
+            "Enable disaster recovery for ZIA with k=zia (and potentially ZPA with k=all).",
+            "- b=test",
+            "Choose the lowest time to live (TTL) possible in the DNS TXT record for swift DNS update propagation downstream (Zscaler recommends 30 seconds).",
+            "- k=zia (for ZIA) or k=all (for ZIA and ZPA)"
+          ]
+        }
+      ]
+    },
+    "poll-interval": {
+      "statement": "Client Connector checks the DNS TXT record every 200 seconds, and the guide says to account for DNS propagation before Safe Mode triggers; during a catastrophic failure the ZIA Admin Portal should be assumed inaccessible.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "Zscaler Client Connector checks the DNS TXT record every 200 seconds.",
+            "Take DNS propagation times into account when waiting for Safe Mode to trigger in the Zscaler Client Connector after updating the DNS TXT record.",
+            "During a catastrophic failure, assume that the ZIA Admin Portal is inaccessible and configuration changes or client enrollments are not possible."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "macos-version": {
+      "summary": "The minimum Client Connector version for macOS disaster recovery is 3.71.38 in the ZIA guide and 3.7.1.38 in the ZPA guide; the first is probably a vendor typo, but neither page says so.",
+      "positions": [
+        {
+          "says": "Zscaler Client Connector version 3.71.38 or later for macOS.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-zia-disaster-recovery-deployment-and-operations-guide.json",
+            "quotes": [
+              "Zscaler Client Connector version 3.71.38 or later for macOS"
+            ]
+          }
+        },
+        {
+          "says": "Zscaler Client Connector version 3.7.1.38 or later for macOS.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-zpa-disaster-recovery-deployment-and-operations-guide.json",
+            "quotes": [
+              "Ensure the end user’s machines run Zscaler Client Connector version 3.7.1.38 or later for macOS."
+            ]
+          }
+        }
+      ],
+      "impact": "An admin checking macOS clients against the ZIA figure and the ZPA figure gets different cutoffs; confirm the build in the Client Connector release notes."
+    }
+  },
+  "gaps": {
+    "ttl-maximum": {
+      "kind": "semantic",
+      "title": "What maximum TTL the ZIA disaster recovery TXT record tolerates",
+      "status": "open",
+      "detail": "The ZIA guide states the 200-second poll interval and advises the lowest TTL, 30 seconds recommended, but gives no maximum; the ZPA article on configuring disaster recovery (zpa.private-service-edges.disaster-recovery) records that very high or very low TTLs are discouraged for ZPA.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "reauth-setting": {
+      "kind": "semantic",
+      "title": "Whether ZIA disaster recovery has a reauthentication setting",
+      "status": "open",
+      "detail": "The ZPA disaster recovery guide describes an extended SAML assertion validity during disaster recovery; the ZIA guide does not mention a reauthentication setting.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

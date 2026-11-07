@@ -1,0 +1,473 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.system-requirements",
+  "title": "Client Connector system requirements, resource usage, update intervals and deployment prerequisites",
+  "aliases": [
+    "zcc system requirements",
+    "zcc resource usage",
+    "zcc update intervals",
+    "client connector disk ram cpu",
+    "zcc battery usage",
+    "zcc prerequisites",
+    "zcc ssl bypass list domains"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.interoperability.security-software"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.windows-deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.rollout"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.pac-files"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.trusted-networks"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.end-user"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.compatibility.supported-versions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{licensing-and-deployment-steps}}"
+    },
+    {
+      "label": "Requirements per platform.",
+      "text": "{{requirements-windows}} {{requirements-macos}} {{requirements-linux}} {{requirements-ios}} {{requirements-android}} {{requirements-android-chromeos}}"
+    },
+    {
+      "label": "Expected resource usage.",
+      "text": "{{resource-desktop}} {{resource-linux}} {{resource-mobile}} {{battery-measurement}} Resource figures for the ZDX Module and VDI systems are open {{gap:resource-zdx-vdi}}."
+    },
+    {
+      "label": "Update intervals.",
+      "text": "{{update-intervals}} How the update settings choose the version the check installs is in [[zcc.install.macos-deployment]]; whether the 2-hour check itself depends on an auto-update policy is open {{gap:update-check-policy}}."
+    },
+    {
+      "label": "Prerequisites per service.",
+      "text": "{{internet-saas-prerequisites}} {{private-access-prerequisites}} {{zdx-prerequisite-domains}} {{ssl-bypass-domains}}"
+    },
+    {
+      "label": "Endpoint protection and identity provider traffic.",
+      "text": "{{endpoint-protection-allowlist}} The processes themselves are in [[zcc.interoperability.security-software]]. {{idp-traffic-considerations}}"
+    },
+    {
+      "label": "Operating the deployment.",
+      "text": "{{operations-prerequisites}}"
+    },
+    {
+      "label": "What the end user sees.",
+      "text": "{{end-user-services-and-status}} {{end-user-troubleshooting}} How the app disables itself on a trusted network or Wi-Fi hotspot is in [[zcc.end-user]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which source a disk or memory figure comes from: the configuration guide's per-platform requirements or the resource-usage article's expected use; for Android the guide says 21 MB and the usage article approximately 20 MB, and for Linux the guide says 200 MB and the usage article approximately 181 MB.",
+      "uses": [
+        "requirements-windows",
+        "requirements-macos",
+        "requirements-linux",
+        "requirements-android",
+        "resource-desktop",
+        "resource-linux",
+        "resource-mobile"
+      ]
+    },
+    {
+      "do": "The interval a policy or PAC change waits on: PAC files every 15 minutes, policy every 80 minutes, a manual update from the device immediately.",
+      "uses": [
+        "update-intervals"
+      ]
+    }
+  ],
+  "claims": {
+    "update-intervals": {
+      "statement": "Client Connector downloads the PAC files of the app and forwarding profiles every 15 minutes, connects for policy updates every 80 minutes and checks for software updates every 2 hours (the app update article limits configurable app updates to Windows, macOS and Linux; iOS and Android are updated through their app stores or MDM); the intervals are not configurable, and a manual policy update from the device applies immediately. A change to the PAC file URLs is picked up by the 80-minute cycle.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-app-update-intervals.json",
+          "quotes": [
+            "Every 15 minutes, Zscaler Client Connector downloads the PAC files of the app profiles and forwarding profiles.",
+            "Every 80 minutes, Zscaler Client Connector connects for policy updates from the app profiles, forwarding profiles, and administration settings.",
+            "If the PAC file URLs are changed, it automatically updates every 80 minutes because this counts as a profile change.",
+            "Every 2 hours, Zscaler Client Connector checks for software updates.",
+            "You cannot configure these intervals. If the user manually updates the policy from their device, Zscaler Client Connector updates immediately."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-app-update-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "You can configure an app update only for Windows, macOS, and Linux. Updates for iOS and Android are controlled by the App Store and Google Play or your MDM solution."
+          ]
+        }
+      ]
+    },
+    "resource-mobile": {
+      "statement": "On Android, Android on ChromeOS and iOS the app is expected to use approximately 20 MB of storage for installation and between 10 and 20% of battery life; it uses cellular data on mobile devices when not on Wi-Fi.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-resource-usage.json",
+          "quotes": [
+            "For mobile devices, the app uses cellular data when you are not connected to Wi-Fi.",
+            "For the Android, Android on ChromeOS, and iOS versions of Zscaler Client Connector, you can expect the app to:",
+            "Use approximately 20 MB of storage space for installation.",
+            "Use between 10 and 20% of your device's battery life."
+          ]
+        }
+      ]
+    },
+    "battery-measurement": {
+      "statement": "The battery usage applications on Android, Android on ChromeOS and iOS are described as not entirely accurate; the article adds that Client Connector always forwards traffic and its perceived battery usage percentage can be much higher, and recommends timing battery drain with and without the app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-resource-usage.json",
+          "quotes": [
+            "The battery usage applications on these platforms are not entirely accurate.",
+            "However, because Zscaler Client Connector always forwards traffic, its perceived battery usage percentage can be much higher.",
+            "The best way to measure battery drain is to leave the device running with and without Zscaler Client Connector, and time how long it takes the battery to drain to a certain percentage."
+          ]
+        }
+      ]
+    },
+    "resource-desktop": {
+      "statement": "On Windows and macOS the app is expected to use approximately 200 MB of disk for installation plus space for logging (sized by log retention), 70 to 150 MB of RAM (possibly higher on VDI systems), 0 to 5% CPU (temporarily higher when processing traffic), with no noticeable battery impact.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-resource-usage.json",
+          "quotes": [
+            "For the Windows and macOS versions of Zscaler Client Connector, you can expect the app to:",
+            "Use approximately 200 MB of disk for installation and additional space for logging. The amount of MB used for logging depends on what you defined for log retention.",
+            "Have no noticeable impact on your device's battery life.",
+            "Use between 70 to 150 MB of RAM. The RAM usage may be higher on VDI systems.",
+            "Use between 0 to 5% CPU, which can increase temporarily when Zscaler Client Connector processes traffic."
+          ]
+        }
+      ]
+    },
+    "resource-linux": {
+      "statement": "On Linux the app is expected to use approximately 181 MB of storage for installation, approximately 0.5% of RAM, and 0 to 5% CPU when idle and 7 to 15% during traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-resource-usage.json",
+          "quotes": [
+            "Approximately 181 MB of storage space for installation.",
+            "Approximately 0.5% of RAM.",
+            "0 to 5% CPU when idle and 7 to 15% CPU during traffic."
+          ]
+        }
+      ]
+    },
+    "requirements-windows": {
+      "statement": "The configuration guide's Windows requirements list disk usage of 200 MB, memory usage of 150 MB, Microsoft .NET Framework 4 and later, and allowlisting Client Connector processes with firewall bypasses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-step-step-configuration-guide-zscaler-client-connector.json",
+          "quotes": [
+            "Disk usage: 200 MB",
+            "Memory usage: 150 MB",
+            "Microsoft .NET Framework 4 and later.",
+            "Allowlist Zscaler Client Connector processes and configure firewall bypasses."
+          ],
+          "after": "Windows Requirements"
+        }
+      ]
+    },
+    "requirements-macos": {
+      "statement": "The configuration guide's macOS requirements list disk usage of 200 MB and memory usage of 150 MB, say that with Tunnel mode in the forwarding profile the system firewall must be disabled, and list allowlisting Client Connector processes with firewall bypasses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-step-step-configuration-guide-zscaler-client-connector.json",
+          "quotes": [
+            "Disk usage: 200 MB",
+            "Memory usage: 150 MB",
+            "If you are using Tunnel mode in your forwarding profile, ensure that you disabled the system firewall.",
+            "Allowlist Zscaler Client Connector processes and configure firewall bypasses."
+          ],
+          "after": "macOS Requirements"
+        }
+      ]
+    },
+    "requirements-linux": {
+      "statement": "The configuration guide's Linux requirements list disk usage of 200 MB, memory usage of 150 MB and an x86-64 architecture processor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-step-step-configuration-guide-zscaler-client-connector.json",
+          "quotes": [
+            "Disk usage: 200 MB",
+            "Memory usage: 150 MB",
+            "x86-64 architecture processor capable of running operating systems supported by Zscaler Client Connector."
+          ],
+          "after": "Linux Requirements"
+        }
+      ]
+    },
+    "requirements-ios": {
+      "statement": "The configuration guide's iOS requirements are compatibility with iPhone, iPad and iPod touch, and 20 MB for installation plus space for logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-step-step-configuration-guide-zscaler-client-connector.json",
+          "quotes": [
+            "Compatible with iPhone, iPad, and iPod touch.",
+            "20 MB required for installation and additional space for logs."
+          ],
+          "after": "iOS Requirements"
+        }
+      ]
+    },
+    "requirements-android": {
+      "statement": "The configuration guide's Android requirement is 21 MB for installation plus space for logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-step-step-configuration-guide-zscaler-client-connector.json",
+          "quotes": [
+            "21 MB required for installation and additional space for logs."
+          ],
+          "after": "Android Requirements"
+        }
+      ]
+    },
+    "requirements-android-chromeos": {
+      "statement": "The configuration guide's Android on ChromeOS requirement is 21 MB for installation plus space for logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-step-step-configuration-guide-zscaler-client-connector.json",
+          "quotes": [
+            "21 MB required for installation and additional space for logs."
+          ],
+          "after": "Android on ChromeOS Requirements"
+        }
+      ]
+    },
+    "endpoint-protection-allowlist": {
+      "statement": "Zscaler states it has allowlist agreements for Client Connector with specific endpoint protection vendors such as Trend Micro and Kaspersky Labs, and that for some endpoint protection products like anti-virus and personal firewall additional allowlisting might be needed for full functionality.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-step-step-configuration-guide-zscaler-client-connector.json",
+          "quotes": [
+            "While Zscaler has allowlist agreements for Zscaler Client Connector in place with specific endpoint protection vendors such as Trend Micro and Kaspersky Labs,",
+            "for some endpoint protection products like anti-virus and personal firewall,",
+            "you might need to perform additional allowlist to ensure full Zscaler Client Connector functionality."
+          ],
+          "after": "Windows Requirements"
+        }
+      ]
+    },
+    "internet-saas-prerequisites": {
+      "statement": "For Internet & SaaS, authentication needs either an authentication mechanism with users provisioned on ZIA or, when none is installed, the Client Connector Portal as the Identity Provider; the organization firewall must allow the necessary connections, with detail at config.zscaler.com/<Zscaler Cloud Name>/zscaler-app, and SSL inspection for Client Connector users is optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-step-step-configuration-guide-zscaler-client-connector.json",
+          "quotes": [
+            "An authentication mechanism configured and users provisioned on the ZIA service.",
+            "If you do not have an authentication mechanism installed, you must use the Zscaler Client Connector Portal as your Identity Provider (IdP) to provision and authenticate users.",
+            "Configure your organization's firewall to allow the necessary connections.",
+            "go to config.zscaler.com/<Zscaler Cloud Name>/zscaler-app.",
+            "(Optional) Enable SSL inspection for users running Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "private-access-prerequisites": {
+      "statement": "For Private Access, SAML-based authentication must be configured with users provisioned, and the Client Connector Portal cannot be the IdP for ZPA; if a PAC file is used for Client Connector, the URLs must be added to the SSL exemptions list on the proxy as well.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-step-step-configuration-guide-zscaler-client-connector.json",
+          "quotes": [
+            "Private Access Prerequisite Tasks",
+            "SAML-based authentication must be configured and users provisioned.",
+            "You cannot use the Zscaler Client Connector Portal as an IdP for the ZPA service.",
+            "If you use a PAC file for Zscaler Client Connector, you must add the URLs to the SSL exemptions list on the proxy as well."
+          ]
+        }
+      ]
+    },
+    "zdx-prerequisite-domains": {
+      "statement": "For ZDX on Windows and macOS, all destination domains must be placed on the allowlist in the SSL bypass list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-step-step-configuration-guide-zscaler-client-connector.json",
+          "quotes": [
+            "Digital Experience (ZDX) Prerequisite Tasks (Windows and macOS)",
+            "ensure all destination domains are placed on the allowlist in your SSL bypass list."
+          ]
+        }
+      ]
+    },
+    "ssl-bypass-domains": {
+      "statement": "For Private Access traffic, the Client Connector enrollment and authentication domains listed on config.zscaler.com/private.zscaler.com/zpa and the organization's IdP domains must be in the SSL bypass list; with Okta as the IdP, Okta-specific domains must also be included.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-domains-add-ssl-bypass-list.json",
+          "quotes": [
+            "To ensure Zscaler Client Connector properly processes traffic for Private Access, all domains for Zscaler Client Connector enrollment and authentication that are listed on config.zscaler.com/private.zscaler.com/zpa must be in your SSL bypass list.",
+            "Also, be sure to include any domains used by your organization's identity provider (IdP).",
+            "If you are using Okta as your organization's IdP, you must also include Okta-specific domains in your SSL bypass list."
+          ]
+        }
+      ]
+    },
+    "licensing-and-deployment-steps": {
+      "statement": "Client Connector does not need an additional license or subscription, as ZIA and ZPA licensing includes it; the deployment guide's steps run: system requirements, process allowlisting on client firewall and AV, firewall allowance to the Zscaler cloud, app-store download, optional installer options, then deployment through device management.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zscaler-client-connector-deployment-and-operations-guide.json",
+          "quotes": [
+            "Zscaler Client Connector does not require an additional license or subscription. Licensing for ZIA and ZPA includes Zscaler Client Connector.",
+            "Complete system requirements and prerequisite tasks.",
+            "Allowlist Zscaler Client Connector processes on client firewall and antivirus (AV).",
+            "Allow Zscaler Client Connector communication to the Zscaler cloud through your organization's firewall.",
+            "Download Zscaler Client Connector from an app store.",
+            "(Optional) Customize Zscaler Client Connector with installer options.",
+            "Use your organization’s device management system to deploy Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "idp-traffic-considerations": {
+      "statement": "The deployment guide says authentication traffic must go directly to the IdP destination URL, including PAC-file, GRE-tunnel and IPSec-tunnel authentication traffic, and IdP traffic through Zscaler must not be intercepted for inspection (adjust SSL Inspection and Authentication exemptions).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zscaler-client-connector-deployment-and-operations-guide.json",
+          "quotes": [
+            "Ensure all authentication traffic goes directly to the identity provider (IdP) destination URL.",
+            "check that other authentication traffic (e.g., PAC files, GRE tunnels, and IPSec tunnels) goes directly to the IdP.",
+            "Make sure traffic destined for the IdP that goes through Zscaler is not intercepted for inspection by Zscaler:",
+            "Adjust SSL Inspection exemptions.",
+            "Adjust Authentication exemptions."
+          ]
+        }
+      ]
+    },
+    "operations-prerequisites": {
+      "statement": "The deployment guide's operations prerequisites are: an SOP for adding domain bypasses in the PAC file, a process to test configuration changes (such as diverting traffic to a different data center or bypassing a PAC file), testing with separate app profiles or PAC files applied to test users, and a process to clean up test profiles and PAC files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zscaler-client-connector-deployment-and-operations-guide.json",
+          "quotes": [
+            "Create a standard operating procedure (SOP) for adding domain bypasses in the PAC file used by Zscaler Client Connector.",
+            "Define a process to test configuration changes, such as diverting traffic to a different data center or bypassing a PAC file.",
+            "Test any changes with separate app profiles or PAC files and apply the policy to test users to avoid organization-wide impact.",
+            "Implement a process to clean up test profiles and PAC files."
+          ]
+        }
+      ]
+    },
+    "end-user-services-and-status": {
+      "statement": "Client Connector forwards traffic to the Internet & SaaS service and also allows use of Private Access, ZDX and Endpoint DLP; each service's connection status is shown on its own page (Internet Security Status, Private Access Service Status, Digital Experience Service Status, Data Protection Service Status).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-why-is-zscaler-client-connector-my-device.json",
+          "quotes": [
+            "Zscaler Client Connector forwards your traffic to the Internet & SaaS service.",
+            "It also allows you to use the Private Access, Digital Experience (ZDX), and Zscaler Endpoint Data Loss Prevention (DLP) services.",
+            "On the Internet Security page, if the Status is ON, your internet traffic is protected.",
+            "On the Private Access page, if the Service Status is ON, you can securely access your internal resources.",
+            "On the Digital Experience page, if the Service Status is ON, your network, application, and device performance are being measured.",
+            "On the Data Protection page, if the Service Status is ON, endpoint user activity is monitored."
+          ]
+        }
+      ]
+    },
+    "end-user-troubleshooting": {
+      "statement": "For errors shown in the Status, the end-user article offers Retry (next to the Status) or Repair App (More page, Troubleshoot menu); an error with an error code that is not in the Status goes to the organization's support team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-why-is-zscaler-client-connector-my-device.json",
+          "quotes": [
+            "Click Retry to resolve the error.",
+            "The Retry option appears next to the Status.",
+            "Click Repair App to resolve the error.",
+            "The Repair App option appears on the More page in the Troubleshoot menu.",
+            "If you encounter an error that is not in the Status and has an error code, contact your organization's support team."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "update-check-policy": {
+      "kind": "semantic",
+      "title": "Whether the 2-hour software update check depends on an auto-update policy",
+      "status": "partial",
+      "detail": "The update-intervals article says the app checks for software updates every 2 hours but not what the check depends on. The captured article on configuring app updates (cited in zcc.install.macos-deployment) says that after enrollment the app checks every two hours and updates automatically if a new version is available, and that the Version to Install menus choose the version; it does not say what happens on platforms or devices without such a policy configured.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "resource-zdx-vdi": {
+      "kind": "semantic",
+      "title": "Resource usage of the ZDX Module and on VDI systems",
+      "status": "open",
+      "detail": "The resource-usage article gives no figures for the ZDX Module and no VDI figure beyond saying RAM usage may be higher on VDI systems.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

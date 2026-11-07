@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations",
+  "title": "ZIA locations, sublocations and location groups",
+  "aliases": [
+    "locations",
+    "sublocations",
+    "location groups",
+    "which location policy applies",
+    "location management"
+  ],
+  "binds": [
+    "zia/locations",
+    "zia/sublocations",
+    "zia/location-groups"
+  ],
+  "related": [
+    {
+      "rel": "reached-via",
+      "to": "zia.traffic-forwarding.gre",
+      "because": "zia.locations.model:what-a-location-holds"
+    },
+    {
+      "rel": "reached-via",
+      "to": "zia.traffic-forwarding.ipsec",
+      "because": "zia.locations.model:what-a-location-holds"
+    },
+    {
+      "rel": "reached-via",
+      "to": "zia.virtual-service-edge.clusters",
+      "because": "zia.virtual-service-edge.clusters:bind-to-location"
+    },
+    {
+      "rel": "reached-via",
+      "to": "zia.private-service-edge.location-binding",
+      "because": "zia.private-service-edge.location-binding:location-benefits"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia/web-log",
+      "because": "zia.locations.model:road-warrior"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/locations"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/sublocations"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/location-groups"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.locations.automation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.model"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.csv-import"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.ip-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.inheritance"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.bandwidth"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.group-assignment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.rule-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.workload-scopes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.country-timezone"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Which policy applies to this traffic's location?\" needs more than the location's name. A location identifies a network the service recognizes by its settings, it can be split into sublocations that match by IP, and rules reach both directly and through groups. Work down this list; the parent [[zia.firewall]] and rule subjects are linked at the end."
+    },
+    {
+      "steps": [
+        {
+          "label": "What is the location, and what does the service do with it?",
+          "text": "Known locations are processed by their settings; anything else is remote-user traffic: [[zia.locations.model]]."
+        },
+        {
+          "label": "Is the traffic in a sublocation?",
+          "text": "Matching is by the IP inside the tunnel or the XFF address, sublocations cannot overlap, and unmatched traffic falls to `other`: [[zia.locations.sublocations]], [[zia.locations.ip-scoping]]."
+        },
+        {
+          "label": "Which settings does the sublocation have of its own?",
+          "text": "Some are parent-only in the API, and the console and API disagree on firewall: [[zia.locations.inheritance]]. Bandwidth has its own modes: [[zia.locations.bandwidth]]."
+        },
+        {
+          "label": "Which groups is it in?",
+          "text": "Location type, defaults and exclusion flags decide this at creation, and dynamic groups change it later: [[zia.locations.groups]], [[zia.locations.group-assignment]]."
+        },
+        {
+          "label": "Which rules reach it?",
+          "text": "Rules take locations and groups: [[zia.locations.rule-scoping]]. Per-module effects are in [[zia.url-filtering]], [[zia.ssl-inspection]], [[zia.cloud-app-control]], [[zia.firewall]] and [[zia.dlp]]."
+        }
+      ]
+    },
+    {
+      "text": "Workload sublocations on AWS have scopes and different overlap rules: [[zia.locations.workload-scopes]]. Country and time zone values, including the `THE_` prefix: [[zia.locations.country-timezone]]. Writing locations through the API, Terraform or Ansible, including lookups that miss sublocations: [[zia.locations.automation]], [[zia.sdk-go.service-defects]], [[zia.terraform.data-source-fidelity]]. Bulk changes through the console's CSV import: [[zia.locations.csv-import]]."
+    }
+  ]
+}

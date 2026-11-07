@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "id": "zwa.azure-dlp-integration.cloud-to-cloud",
+  "title": "The Azure DLP integration through Cloud-to-Cloud Incident Forwarding: separate versus shared credentials, templates, roles and the automatically created integration",
+  "aliases": [
+    "azure cloud-to-cloud",
+    "create-app-registration-c2c.sh",
+    "aes_certificate.sh",
+    "ZscalerAzureIntegrationRM_C2C.json"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.azure-dlp-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.azure-dlp-integration.resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.cloud-to-cloud-forwarding"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{overview-no-appliances}} {{auth-modes}}"
+    },
+    {
+      "label": "Credentials.",
+      "text": "{{client-certificate-optional}} {{shared-no-client-secret}}"
+    },
+    {
+      "label": "Script, templates and roles.",
+      "text": "{{script-and-templates}} {{owner-permission}} {{storage-account-name-no-dots}} {{containers}} {{role-by-mode}} {{resource-group-vm-reference}}"
+    },
+    {
+      "label": "The integration object.",
+      "text": "{{shared-credentials-auto-integration}} {{synced-fields}}"
+    },
+    {
+      "text": "The shared integration object is in [[zwa.azure-dlp-integration]]; the Azure resources common to this path and the Zscaler Incident Receiver path (Event Grid, data-container read, manual storage networking, Front Door) are in [[zwa.azure-dlp-integration.resources]], and the ZIA-side onboarding in [[zia.dlp.cloud-to-cloud-forwarding]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the deployment uses separate service principals or shared credentials, which decides the template, the role JSON and whether an integration already exists.",
+      "uses": [
+        "auth-modes",
+        "script-and-templates",
+        "role-by-mode",
+        "shared-credentials-auto-integration"
+      ]
+    },
+    {
+      "do": "Whether the storage account name contains dots.",
+      "uses": [
+        "storage-account-name-no-dots"
+      ]
+    }
+  ],
+  "claims": {
+    "overview-no-appliances": {
+      "statement": "Cloud-to-Cloud Incident Forwarding sends DLP incident metadata and evidence files to the organization's Azure storage containers without deploying appliances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "Workflow Automation DLP application integration with an Azure instance using Zscaler Cloud-to-Cloud Incident Forwarding enables your organization to send Data Loss Prevention (DLP) incident metadata and evidence files to your organization's Azure storage containers in your Azure account without deploying appliances."
+          ]
+        }
+      ]
+    },
+    "auth-modes": {
+      "statement": "The integration can use separate service principals for Internet & SaaS (ZIA) and Workflow Automation, or shared credentials between them (certificate-based authentication).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "You can configure the Workflow Automation DLP application integration to use separate service principals for Internet & SaaS (ZIA) and Workflow Automation, or to use shared credentials between Internet & SaaS and Workflow Automation (i.e., certificate-based authentication)."
+          ]
+        }
+      ]
+    },
+    "client-certificate-optional": {
+      "statement": "The Azure client certificate is generated with the aes_certificate.sh shell script when shared credentials are wanted, by creating a private key and self-signed certificate in Azure; otherwise the step is not required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "1. (Optional) Generate the Azure client certificate using the aes_certificate.sh shell script in Azure.",
+            "If you want to use shared credentials between Internet & SaaS and Workflow Automation (i.e., certificate-based authentication), you must generate a private key and self-signed certificate in Azure. Otherwise, this step is not required."
+          ]
+        }
+      ]
+    },
+    "script-and-templates": {
+      "statement": "The Cloud-to-Cloud path uses the create-app-registration-c2c.sh script, with the ZscalerAzureIntegrationRM_C2C.json template for separate service principals and ZscalerAzureIntegrationRM_C2C_shared.json for shared credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "Click the create-app-registration-c2c.sh link to download the Zscaler Bash script.",
+            "If you want to use separate service principals for Internet & SaaS and Workflow Automation, click the ZscalerAzureIntegrationRM_C2C.json link to download the Azure DLP Integration resource manager template.",
+            "if you want to use shared credentials between Internet & SaaS and Workflow Automation (i.e., certificate-based authentication), click the ZscalerAzureIntegrationRM_C2C_shared.json link."
+          ]
+        }
+      ]
+    },
+    "storage-account-name-no-dots": {
+      "statement": "The storage account name for the Cloud-to-Cloud template deployment and for the manual storage account creation must not contain dots (.).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "Storage Account Name: Enter the name of the storage account. Ensure that you do not use dots (.) in the storage account name.",
+            "Storage account name: Enter a name for your storage account. Ensure that you do not use dots (.) in the storage account name."
+          ]
+        }
+      ]
+    },
+    "owner-permission": {
+      "statement": "On the Cloud-to-Cloud page the deploying user needs Owner permission in Azure, because role definitions and assignments are added during the procedure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "Log in to the Azure portal as a user with Owner permission in Azure. Owner permission is required because you add role definitions and assignments during this procedure."
+          ]
+        }
+      ]
+    },
+    "resource-group-vm-reference": {
+      "statement": "The Cloud-to-Cloud page's manual resource-group step says the resource group must be the same one used for creating the VM, although the page says it works without deploying appliances.",
+      "tier": "A",
+      "conditions": "A vendor documentation defect, not a tool behavior; not filed. No quote states that the page creates no VM; that rests on a case-insensitive search of this capture for 'the VM', which returns only this line.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "Resource group: From the drop-down menu, select an existing resource group. The resource group must be the same one you used for creating the VM.",
+            "without deploying appliances"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "help.zscaler.com Configuring the Azure DLP Application Integration Using Cloud-to-Cloud Incident Forwarding: the manual resource-group step refers to 'the VM' on a path with no VM."
+        }
+      ]
+    },
+    "containers": {
+      "statement": "On the Cloud-to-Cloud path the data and metadata containers are named <storageAccountNamePrefix>-data and <storageAccountNamePrefix>-metadata, and the Zscaler DLP Incident Management service reads and stores the incident metadata file (with trigger data stripped) but never reads or stores the incident data files; the manual procedure says two containers must be created for the storage account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "After the storage account successfully deploys, you must create two containers for the storage account.",
+            "The names of the data and metadata containers are set to <storageAccountNamePrefix>-data and <storageAccountNamePrefix>-metadata, respectively. The Zscaler DLP Incident Management service reads and stores the incident metadata file (with trigger data stripped), but it never reads or stores the incident data files."
+          ]
+        }
+      ]
+    },
+    "role-by-mode": {
+      "statement": "The custom role JSON depends on the mode: for separate service principals it lists container read, generateUserDelegationKey and Event Grid eventSubscriptions write/read/delete actions with the blobs read data action; for shared credentials the JSON lists containers write among its actions and blobs read and blobs write among its dataActions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "If you are using separate service principals for Internet & SaaS and Workflow Automation, click Edit and replace the action parameters that appear by default with the following JSON.",
+            "\"actions\": [ \"Microsoft.Storage/storageAccounts/blobServices/containers/read\", \"Microsoft.Storage/storageAccounts/blobServices/generateUserDelegationKey/action\", \"Microsoft.EventGrid/systemTopics/eventSubscriptions/write\",",
+            "\"Microsoft.EventGrid/systemTopics/eventSubscriptions/read\", \"Microsoft.EventGrid/systemTopics/eventSubscriptions/delete\" ], \"dataActions\": [ \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\" ]",
+            "If you are using shared credentials between Internet & SaaS andWorkflow Automation, click Edit and replace the action parameters that appear by default with the following JSON.",
+            "\"Microsoft.Storage/storageAccounts/blobServices/containers/read\", \"Microsoft.Storage/storageAccounts/blobServices/containers/write\", \"Microsoft.Storage/storageAccounts/blobServices/generateUserDelegationKey/action\",",
+            "\"dataActions\": [ \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\", \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write\" ]"
+          ]
+        }
+      ]
+    },
+    "shared-credentials-auto-integration": {
+      "statement": "With shared credentials, onboarding an Azure tenant in Internet & SaaS automatically adds a DLP Azure integration in disabled state, which is edited instead of adding a new one; with separate service principals a new integration is added. The ZIA-side page adds the condition that the Azure application tenant was onboarded for Workflow Automation (the optional Workflow Automation checkbox) and that a private key was used.",
+      "tier": "A",
+      "conditions": "Automatic creation needs the tenant to be onboarded for Workflow Automation and a private key to be used, per the ZIA-side Azure page (zia.dlp.cloud-to-cloud-forwarding:azure-zwa).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "If you are using separate service principals for Internet & SaaS and Workflow Automation, you need to add a new DLP Azure integration.",
+            "If you are using shared credentials between Internet & SaaS and Workflow Automation, after you onboard an Azure tenant in Internet & SaaS, a new DLP Azure integration in disabled state is automatically added for you.",
+            "In this case, edit that DLP Azure integration instead of adding a new integration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+          "quotes": [
+            "(Optional) To onboard with Workflow Automation, select the Workflow Automation checkbox.",
+            "If you have onboarded the Azure application tenant for Workflow Automation, and used a private key, a new DLP Azure integration in disabled state is automatically added for you in Workflow Automation."
+          ]
+        }
+      ]
+    },
+    "synced-fields": {
+      "statement": "For the integration that Internet & SaaS creates automatically, the integration name is the tenant name (editable), and the Enterprise Tenant ID and Tenant Name in the ZIA Tenant Information section are synced from Internet & SaaS; Enable Integration changes the status to Enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "The integrations that Internet & SaaS automatically creates use the tenant name as the DLP application integration name.",
+            "the Integration Name that appears is synced from Internet & SaaS. You can edit the name.",
+            "Enterprise Tenant ID: The tenant ID that is created when configuring DLP cloud-to-cloud incident forwarding in Internet & SaaS appears. This value is synced from Internet & SaaS.",
+            "Tenant Name: The tenant name that was used when configuring DLP cloud-to-cloud incident forwarding in Internet & SaaS appears. This value that appears is synced from Internet & SaaS.",
+            "Click Enable Integration. The status of the integration changes to Enabled."
+          ]
+        }
+      ]
+    },
+    "shared-no-client-secret": {
+      "statement": "When using shared credentials, the manual app registration does not need the client secret steps after the registration details are saved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "If you want to use shared credentials between Internet & SaaS and Workflow Automation (i.e., certificate-based authentication), then the remaining steps are not required.",
+            "Next to the Client credentials, click Add a certificate or secret.",
+            "On the Certificates & secrets page, click New client secret."
+          ]
+        }
+      ]
+    }
+  }
+}

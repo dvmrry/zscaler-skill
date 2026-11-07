@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "id": "zia.sspm.posture",
+  "title": "Advanced SSPM Posture, Control Panel and Compliance pages: control and asset statuses, severity, complexity",
+  "aliases": [
+    "posture page",
+    "control panel",
+    "failed controls remediation",
+    "control severity",
+    "posture drift",
+    "drift over time",
+    "compliance page"
+  ],
+  "binds": [
+    "zia/posture-management-log"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.sspm" },
+    { "rel": "see-also", "to": "zia.sspm.policies" },
+    { "rel": "see-also", "to": "zia.sspm.platforms" }
+  ],
+  "prose": [
+    {
+      "text": "{{posture-page}} {{processing-message}} {{failed-controls-graph}} {{drift-widget-width}}"
+    },
+    {
+      "label": "Control statuses.",
+      "text": "{{control-statuses}} Whether a Pending control is shown on the Posture page is stated both ways {{divergence:pending-visibility}}. Which limits count as rate limits is open {{gap:pending-causes}}."
+    },
+    {
+      "label": "Severity and complexity.",
+      "text": "{{severity}} The severity levels are not listed on these pages {{gap:severity-values}}. {{complexity-and-failed-assets}}"
+    },
+    {
+      "label": "The control panel and assets.",
+      "text": "{{control-panel-tabs}} {{asset-statuses}}"
+    },
+    {
+      "label": "Compliance.",
+      "text": "{{compliance-page}} The subscription it needs is in [[zia.sspm]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Pending control should be on the Posture page, since the vendor's two pages disagree.",
+      "uses": [
+        "pending-visibility",
+        "control-statuses"
+      ]
+    }
+  ],
+  "claims": {
+    "posture-page": {
+      "statement": "The Posture page shows the current state of the organization's security posture for SaaS applications and how it drifts from Zscaler best practices and industry standards such as GDPR and PCI. Controls can be filtered by tenant and by label, and the controls report exported to CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-posture.json",
+          "quotes": [
+            "The Posture page shows you the current state of your organization’s security posture for SaaS applications, and how it drifts with respect to Zscaler best practices and industry standards such as General Data Protection Regulation (GDPR), Payment Card Industry (PCI), etc., to ensure you stay secure and compliant.",
+            "Filter the controls by tenant.",
+            "Filter the controls by label.",
+            "Export the controls report to a CSV file."
+          ]
+        }
+      ]
+    },
+    "processing-message": {
+      "statement": "When one or more tenants are onboarded for Advanced SSPM, a message displays that the tenants are still being processed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-posture.json",
+          "quotes": [
+            "When a single tenant or multiple tenants are onboarded for Advanced SSPM, a message displays indicating that the tenants are still being processed."
+          ]
+        }
+      ]
+    },
+    "failed-controls-graph": {
+      "statement": "The Failed Controls Remediation graph displays the severity and implementation complexity of failed controls. Implementation complexity is the amount of work required to fix or improve a control to address identified issues or vulnerabilities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-posture.json",
+          "quotes": [
+            "View the Failed Controls Remediation graph, which displays the severity and implementation complexity of failed controls.",
+            "Implementation complexity is the amount of work required to fix or improve a control to address any identified issues or vulnerabilities."
+          ]
+        }
+      ]
+    },
+    "drift-widget-width": {
+      "statement": "The Drift over time widget does not appear when the screen width is under 1,750 pixels with the Posture Drift drawer displayed, or under 1,550 pixels with the drawer hidden.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-posture.json",
+          "quotes": [
+            "The Drift over time widget does not appear when the screen width is less than 1,750 pixels and the Posture Drift drawer displays, and when the screen width is less than 1,550 pixels and the Posture Drift drawer is hidden."
+          ]
+        }
+      ]
+    },
+    "control-statuses": {
+      "statement": "The Posture page's control statuses are Pass (correctly configured), Fail (incorrectly configured), Partial (not all scanned assets configured correctly), Disabled (excluded from scans) and Pending (not yet evaluated due to missing permissions, connector issues, rate limits and the like). All controls are enabled by default.",
+      "tier": "A",
+      "binds": [
+        "zia/posture-management-log#status"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-posture.json",
+          "quotes": [
+            "Pass: Your organization's scanned posture control is correctly configured.",
+            "Fail: Your organization's scanned posture control is incorrectly configured.",
+            "Partial: Not all the scanned assets have posture control configured correctly.",
+            "Disabled: The control is disabled and excluded from scans.",
+            "Pending: The control is not yet evaluated due to missing permissions, connector issues, rate limits, etc.",
+            "Enable or disable the control. By default, all the controls are enabled."
+          ]
+        }
+      ]
+    },
+    "severity": {
+      "statement": "Control severity is determined from the MITRE technique severity score, whose calculation considers the actual prevalence and risk level of associated CVEs. A defined control severity overrides future system recalculations, the default can be reverted, and the update is recorded on the Audit Log tab.",
+      "tier": "A",
+      "binds": [
+        "zia/posture-management-log#severity"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-updating-control-severity.json",
+          "quotes": [
+            "The control severity is determined using the MITRE technique severity score, whose calculation considers actual prevalence and risk level of associated Common Vulnerabilities and Exposures (CVEs) to evaluate the technique’s true risk.",
+            "The defined control severity will override any future system recalculations. You can revert to the default severity."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-updating-control-severity.json",
+          "quotes": [
+            "The severity level is updated successfully, and the update is recorded on the Audit Log tab."
+          ],
+          "after": "On the Posture page, hover over the control severity you want to update and click it."
+        }
+      ]
+    },
+    "complexity-and-failed-assets": {
+      "statement": "A control's Complexity is the ease of implementation and the effort to deploy and configure it, and hovering over it shows a breakdown by categories such as Monitoring and Maintenance, Technical Effort, User Impact, and Documentation and Training. Failed Assets is the number of assets that failed to comply with the policy against the total number of scanned assets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-posture.json",
+          "quotes": [
+            "Complexity: The complexity level of the control. It refers to the ease of implementation and the effort required to deploy and configure the control.",
+            "Failed Assets: The number of assets that failed to comply with the policy vs. the total number of scanned assets."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-control-panel.json",
+          "quotes": [
+            "Hover over the complexity to view a breakdown of the complexity level by categories such as Monitoring and Maintenance, Technical Effort, User Impact, and Documentation and Training."
+          ]
+        }
+      ]
+    },
+    "control-panel-tabs": {
+      "statement": "A control's panel describes the impact on the user's experience after remediation, the MITRE ATT&CK tactic and techniques, a link to remediation steps in the application's help documentation and the compliance control number within the framework. Its Audit Log tab shows all changes made to the control, and adding notes needs user or admin permissions under the 3rd-Party App Governance roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-control-panel.json",
+          "quotes": [
+            "View information about the impact on the user's experience after you remediate the misconfiguration.",
+            "View information about the MITRE ATT&CK tactic and techniques to understand the threat behavior and attack movement.",
+            "A link redirects you to remediation steps in the application's help documentation.",
+            "No.: The compliance control number assigned to the control within the framework.",
+            "On the Audit Log tab, you can view details of all the changes made to the control.",
+            "You must have user or admin permissions to add notes to the control. To learn more, see About Roles in 3rd-Party App Governance."
+          ]
+        }
+      ]
+    },
+    "asset-statuses": {
+      "statement": "An asset's status is Fail, Partial, Pass or Disabled; the page's example of Partial is a GitHub repository with some misconfigured branches. Controls are evaluated per individual asset or on global configuration depending on what the SaaS platform supports, and no assets are displayed for a global configuration. Asset evidence can be copied or downloaded as a JSON file, and the assets report exported to CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-control-panel.json",
+          "quotes": [
+            "Fail: The assets failed to comply with the policy.",
+            "Partial: The assets partially comply with the policy. For example, if a repository in GitHub has multiple branches, and some of the branches are misconfigured, then the status for that repository is Partial.",
+            "Pass: The assets comply with the policy.",
+            "Disabled: The assets are disabled.",
+            "The controls are evaluated based on individual assets or global configuration, depending on the capabilities supported on the SaaS platform.",
+            "No assets are displayed for a global configuration.",
+            "Click Evidence, and then click Copy to copy the evidence, or click Download to download it as a JSON file.",
+            "Export the assets report to a CSV file."
+          ]
+        }
+      ]
+    },
+    "compliance-page": {
+      "statement": "The Compliance page maps controls to compliance frameworks and helps verify whether they are enforced according to the security checks. Each framework expands to its platforms and the number of failed controls for each, and a framework's status is Failed, Partial or Success.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-compliance.json",
+          "quotes": [
+            "The Compliance page provides a complete mapping of controls within various compliance frameworks and helps to verify whether they are enforced according to the security checks.",
+            "Frameworks: Expand each framework to view a list of associated platforms and the number of failed controls for each platform.",
+            "Failed: The controls failed the security checks.",
+            "Partial: The controls partially passed the security checks.",
+            "Success: The controls passed all the security checks."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "pending-visibility": {
+      "summary": "The About Posture page lists Pending as a control status, while the About the Control Panel page says a policy with pending status is not displayed on the Posture page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-posture.json",
+            "quotes": [
+              "Pending: The control is not yet evaluated due to missing permissions, connector issues, rate limits, etc."
+            ]
+          },
+          "says": "Pending is one of the statuses a control has on the Posture page."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-control-panel.json",
+            "quotes": [
+              "If the status of a policy is pending, the policy is not displayed on the Posture page."
+            ]
+          },
+          "says": "A policy whose status is pending is not displayed on the Posture page."
+        }
+      ],
+      "impact": "Whether a control that has not been evaluated appears on the Posture page, as Pending or not at all, differs by page; an answer about why a control is missing cannot rest on either."
+    }
+  },
+  "gaps": {
+    "pending-causes": {
+      "kind": "semantic",
+      "title": "The rate limits behind a Pending control",
+      "status": "open",
+      "detail": "The Pending status names missing permissions, connector issues and rate limits as causes. No captured page gives a rate limit or says which platform's limit applies.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    },
+    "severity-values": {
+      "kind": "semantic",
+      "title": "The control severity levels on the Advanced SSPM Posture pages",
+      "status": "open",
+      "detail": "The Posture and severity pages do not list the severity levels. The generated posture management log type documents a severity field, but these pages do not tie it to the levels shown in the console.",
+      "about": [
+        "zia/posture-management-log#severity"
+      ],
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

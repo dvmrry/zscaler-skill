@@ -1,0 +1,1457 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Virtual Service Edge for Internet & SaaS: Nutanix",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-virtual-service-edge-internet-saas-nutanix",
+    "node": "1541987",
+    "revision": "3249469",
+    "updated": "2026-10-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "You can deploy Virtual Service Edges for Internet & SaaS (ZIA) in a cluster or in standalone mode with Nutanix. Zscaler recommends deploying Virtual Service Edges in clusters to achieve redundancy and update software seamlessly during scheduled update cycles. To learn more about deploying Virtual Service Edges in standalone mode, see Adding Virtual Service Edge Instances for Internet & SaaS."
+    },
+    {
+      "text": "Zscaler does not recommend using external load balancers (LBs). However, if your organization must use an external LB, see Using an External Load Balancer with Virtual Service Edges."
+    },
+    {
+      "heading": "Requirements",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you meet all the following requirements:"
+    },
+    {
+      "item": "A Virtual Service Edge cluster must contain at least two Virtual Service Edge instances to provide n+1 redundancy for production. It can contain a maximum of 16 Virtual Service Edge instances. You need a subscription license count for each Virtual Service Edge in a cluster.",
+      "depth": 0
+    },
+    {
+      "item": "Virtual Service Edges require only outbound connections to the Zscaler cloud. Configure your firewall to allow the necessary outbound connections. To view the firewall requirements, go to config.zscaler.com/<Zscaler Cloud Name>/fcr.",
+      "depth": 0
+    },
+    {
+      "item": "You can find the name of your cloud in the Account Settings. For example, if your organization's Internet & SaaS cloud name is zscalertwo.net, you enter config.zscaler.com/zscalertwo.net/fcr. To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "item": "Verify that your licensing is appropriate to your needs. Go to Administration > Subscriptions > Internet & SaaS and look for the Virtual Service Edges noting the server count.",
+      "depth": 0,
+      "strong": [
+        [
+          63,
+          77
+        ],
+        [
+          80,
+          93
+        ],
+        [
+          96,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "Virtual machine (VM) specs for a Virtual Service Edge cluster:",
+      "depth": 0
+    },
+    {
+      "item": "Hypervisor: Nutanix AHV (AOS 6.x and later; verified on AOS 7.3).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Promiscuous Mode: No equivalent toggle is needed on AHV. Open vSwitch (OVS) floods broadcast, unknown-unicast, and multicast traffic to all VM ports in the same L2 domain by default, so CARP advertisements (multicast 224.0.0.18) reach every Public Service Edge instance automatically.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "MAC Address Changes: No equivalent toggle is needed. A standard AHV virtual network interface card (vNIC) does not enforce source-MAC anti-spoofing by default, so a Virtual Service Edge can accept frames destined to the shared CARP MAC out of the box.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Forged Transmits: No equivalent toggle. A standard AHV vNIC might send frames sourced from the CARP virtual MAC by default. If anti-spoofing is enforced (for example, a Nutanix Flow microsegmentation policy or a hardened network profile), you must explicitly allow MAC spoofing on the Virtual Service Edge vNICs and permit CARP/VRRP multicast in that policy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Dedicated network: Create and use a dedicated AHV network (using its own VLAN) for Virtual Service Edge interfaces instead of sharing the VLAN with general corporate VMs. Because OVS floods broadcast/multicast within an L2 domain, isolation limits which VMs can see that traffic. This is the AHV counterpart to using a dedicated VMware port group.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "NIC type: Use a standard NIC in Access mode (type kNormalNic). Do not use a Direct-mode NIC (kDirectNic) or SR-IOV because these bypass the OVS bridge chain and are only for cases explicitly directed by Nutanix Support.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "IGMP snooping: Leave disabled (the AHV default) on the virtual switch carrying Virtual Service Edge traffic. If enabled, CARP multicast can be pruned and HA might fail. This is the AHV counterpart to the VMware Net.ReversePathFwdCheckPromisc caveat.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Uplink bond mode: Use active-backup (the AHV default) or LACP with balance-tcp. Do not use the balance-slb bond mode, which drops multicast and broadcast on non-active secondaries and causes CARP not to function properly.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "CPUs: 4 CPU cores. Each CPU core independently handles a portion of the traffic for the Virtual Service Edge.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Minimum Required RAM: 48 GB for standalone and nodes of a cluster. Scanning large files without adversely impacting performance requires more memory on the Virtual Service Edges. To scan large files and maintain the performance of Virtual Service Edges, you can deploy them with 64 GB RAM (in standalone or cluster mode).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "If you expand memory to 64 GB, the system automatically inserts a section into the configuration files to enable a third antivirus (AV) process. After the expansion, starting the Virtual Service Edges spawns the third AV process on each instance.",
+      "depth": 1
+    },
+    {
+      "item": "Disk: 500 GB (thin provisioned). Zscaler recommends using SSDs.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Network Interfaces: 3 interfaces (one for management, one for the Virtual Service Edge, and one for the LB). These interfaces should be on the same VLAN. This VLAN should be accessible by user traffic and have outbound access to the internet.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "The required IP addresses are listed in the following table.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "IP Address",
+          "Purpose",
+          "Requirements"
+        ],
+        [
+          "Management IP Address",
+          "This is used to make an SSH connection to the Virtual Service Edge VM for management. It is also used to download Virtual Service Edge builds from the Zscaler cloud.",
+          "The management IP address must be accessible via SSH by the Virtual Service Edge administrator during installation, and requires outbound access to the internet. This is configured in the Virtual Service Edge CLI."
+        ],
+        [
+          "Proxy IP Address",
+          "This is used for the following: Outbound data connection (proxied traffic) Outbound control connection to the Zscaler cloud Health monitoring by the LB In a standalone Virtual Service Edge, it is used to listen for user traffic",
+          "It must be in the same subnet as the LB and cluster IP addresses. This address is used when creating a Virtual Service Edge instance in the Zscaler Admin Console."
+        ],
+        [
+          "LB IP Address",
+          "This is used to make an outbound control connection to the Zscaler cloud, as well as to receive initial requests from users.",
+          "It must be in the same subnet as the proxy and cluster IP addresses. It is not required for a Virtual Service Edge standalone."
+        ],
+        [
+          "Cluster IP Address",
+          "In a Virtual Service Edge cluster, it provides fault tolerance and is used to listen for user traffic. This interface does not explicitly get an IP address.",
+          "It must be in the same VLAN as the proxy and LB IP addresses. It is not required for a standalone Virtual Service Edge."
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Service Edges support IPv6 traffic if it's only forwarded via IPSec or GRE tunnels. Contact Zscaler Support to enable and configure IPv6 for your organization.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring a Virtual Service Edge with Nutanix",
+      "level": 1
+    },
+    {
+      "text": "You can configure Virtual Service Edges with Nutanix in both cluster and standalone mode. Zscaler recommends deploying Virtual Service Edges in clusters."
+    },
+    {
+      "text": "If you are configuring a Virtual Service Edge cluster, you must create at least two Virtual Service Edge instances and download their respective SSL certificates. Each Virtual Service Edge VM requires a unique SSL certificate which can be downloaded from the Zscaler Admin Console."
+    },
+    {
+      "text": "To configure a Virtual Service Edge cluster for Nutanix:"
+    },
+    {
+      "item": "1. Add the Virtual Service Edge Instances.",
+      "depth": 0
+    },
+    {
+      "item": "2. Download the Virtual Service Edge certificates.",
+      "depth": 0
+    },
+    {
+      "item": "3. Download the Virtual Service Edge VMs.",
+      "depth": 0
+    },
+    {
+      "item": "4. Add the Virtual Service Edge Cluster.",
+      "depth": 0
+    },
+    {
+      "item": "5. Bind the Virtual Service Edge cluster to a location.",
+      "depth": 0
+    },
+    {
+      "item": "Add a location and bind the Virtual Service Edge cluster to it, so your organization can enable features such as authentication, firewall, SSL inspection, and location-level policies. The service associates the traffic that it receives on the Virtual Service Edge with its location and applies the features and policies configured for the location.",
+      "depth": 0
+    },
+    {
+      "item": "To bind a Virtual Service Edge cluster to a location:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Location Management > Legacy Locations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Location or click the Edit icon for an existing location.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "The Add Location or Edit Location window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          16
+        ],
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the Addressing section of the Add Location or Edit Location window, select the Virtual Service Edge cluster you want to bind to the location.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          33,
+          45
+        ],
+        [
+          49,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more about the other fields, see Configuring Locations.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "6. Create a Firewall Filtering rule to bypass Virtual Service Edge IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service performs ICMP and HTTP monitoring from the LB to the Virtual Service Edge to monitor the health of the Virtual Service Edge and ensure that traffic is distributed appropriately. For health probes to work, you must create a Firewall Filtering rule to allow all Virtual Service Edge proxy, LB, and cluster IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "To create a Firewall Filtering rule:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Policy > Firewall Control > Firewall Filtering Policy.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          56
+        ],
+        [
+          59,
+          75
+        ],
+        [
+          78,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Rule.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The Add Rule page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "On the Add Rule page, select IP Addresses from the Add Criteria menu.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          29,
+          41
+        ],
+        [
+          51,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "In the IP Addresses field, add the following IP addresses for your Virtual Service Edges:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Proxy IP address",
+      "depth": 2
+    },
+    {
+      "item": "LB IP address",
+      "depth": 2
+    },
+    {
+      "item": "Cluster IP address",
+      "depth": 2
+    },
+    {
+      "item": "These are the IP addresses you created in the step Add the Virtual Service Edge Cluster. To learn more about the other fields, see Configuring Firewall Filtering Policy.",
+      "depth": 2
+    },
+    {
+      "item": "For Network Traffic, select Allow.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          4,
+          19
+        ],
+        [
+          28,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "7. Create the VM on the Nutanix admin console.",
+      "depth": 0
+    },
+    {
+      "item": "After downloading the Virtual Service Edge VMs and configuring the Virtual Service Edges and cluster in the Zscaler Admin Console, you must create the VM on the Nutanix admin console.",
+      "depth": 0
+    },
+    {
+      "item": "To create a Virtual Service Edge VM on the Nutanix admin console:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Nutanix admin console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the upper-right corner, click the Settings icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          37,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Settings navigation pane, click Image Configuration.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          39,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In Image Configuration, click Upload Image.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          3,
+          22
+        ],
+        [
+          30,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Create Image window:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the VM.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Image Type: Select DISK.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Image Source: Select Upload a file and click Choose file to upload the Nutanix VM image that you downloaded from the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          34
+        ],
+        [
+          45,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "After the new image finishes uploading, it is visible on the Image Configuration page.",
+      "depth": 1,
+      "strong": [
+        [
+          61,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "In the upper-left corner, click the Settings drop-down menu and select VM.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          36,
+          44
+        ],
+        [
+          71,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the upper-right corner, click Create VM.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          33,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Create VM window:",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the VM.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "vCPU(s): Enter 4.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Number Of Cores Per vCPU: Enter 1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Memory: Enter 48.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Boot Configuration: Select Legacy BIOS.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Disks: Delete any existing disks in this VM configuration and click Add New Disk. In the Add Disk window:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          68,
+          80
+        ],
+        [
+          89,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Type: Select DISK.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Operation: Select Clone from Image Service.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Bus Type: Select SCSI.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Image: Select the image that you downloaded from the Zscaler Admin Console and uploaded to the Nutanix service previously.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Index: Select Next Available.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          14,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Network Adapters (NIC): Click Add New NIC. In the Create NIC window:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          30,
+          41
+        ],
+        [
+          50,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Subnet Name: Select VM Network.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Network Connection State: Select Connected.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          33,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Assignment Type: If your organization has configured Dynamic Host Configuration Protocol (DHCP), select Assign with DHCP. If not, select Assign with Static IP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          104,
+          120
+        ],
+        [
+          137,
+          158
+        ]
+      ]
+    },
+    {
+      "item": "If you select Assign with Static IP, enter each IP address associated with your Virtual Service Edge cluster and click Add.",
+      "depth": 3,
+      "strong": [
+        [
+          14,
+          35
+        ],
+        [
+          119,
+          122
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "8. Configure the Virtual Service Edge VM.",
+      "depth": 0
+    },
+    {
+      "item": "After the VM has been created on the Nutanix service, it must be configured in the console.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Virtual Service Edge VM:",
+      "depth": 0
+    },
+    {
+      "item": "On the VM page of the Nutanix admin console, select the VM you created previously and click Power on.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          9
+        ],
+        [
+          92,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Launch Console.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The console opens in a new browser tab.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, log in to the FreeBSD command prompt with the following credentials:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "After you log in with the default credentials, you are prompted to change the default password.",
+      "depth": 1
+    },
+    {
+      "item": "Change the default password:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "New Password: Enter a new password that meets your organization's password standards.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Retype New Password: Re-enter the new password.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Direct root login is not permitted. Administrators must use the sudo utility to run a command with higher privileges.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) If you want the Zscaler service to enforce password complexity for the password you set, run the following command:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "sudo vzen enforce-password-complexity",
+      "depth": 1
+    },
+    {
+      "item": "The current password expires after running this command.",
+      "depth": 1
+    },
+    {
+      "item": "A valid password contains a mix of upper- and lowercase letters, numbers, and other characters. You can use a 24-character password with characters from at least three of these categories, or a 16-character password containing characters from all the categories. Characters that form a common pattern are discarded by the check. If you use a passphrase, use at least 4 words to form a phrase that is 32 to 40 characters long and contains enough different characters.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to configure the network:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "sudo vzen configure-network",
+      "depth": 1
+    },
+    {
+      "item": "Specify the following information:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Address of the DNS server (e.g., 10.84.0.100) used for name resolution of Zscaler cloud domains and also for domain names in the proxy traffic.",
+      "depth": 2
+    },
+    {
+      "item": "Management interface IP with CIDR netmask. You use the management IP address (e.g., 10.84.0.110/24) for SSH or FTP.",
+      "depth": 2
+    },
+    {
+      "item": "Default gateway IP address (e.g., 10.84.0.200).",
+      "depth": 2
+    },
+    {
+      "item": "Hostname of the Virtual Service Edge",
+      "depth": 2
+    },
+    {
+      "item": "You can verify that the information has been configured properly by running the following command:",
+      "depth": 1
+    },
+    {
+      "item": "sudo vzen dump-config",
+      "depth": 1
+    },
+    {
+      "item": "Install the SSL certificates of the Virtual Service Edge instances in the cluster. These are the certificates that you downloaded from the Zscaler Admin Console. A Virtual Service Edge uses the certificate to authenticate itself to the Zscaler service. When you configure a Virtual Service Edge cluster, ensure that you upload the correct certificate for each Virtual Service Edge instance.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "To install the SSL certificate:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the SSL certificate that you downloaded from the Zscaler Admin Console and use SCP, FTP, or SFTP to upload it to the management IP address of the Virtual Service Edge.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to the console or use SSH to connect to the management IP address of the Virtual Service Edge instance.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Run the following command to install the SSL certificate:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "sudo vzen install-cert <cert-bundle.zip>",
+      "depth": 2
+    },
+    {
+      "item": "Replace the parameter in red with your certificate file name (e.g., VZenCertificate-<Virtual Service Edge Name>.zip) if you are in the path of the file. If not, use the absolute file path (e.g., sudo vzen install-cert /tmp/VZenCertificate-<Virtual Service Edge Name>.zip).",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) if you want to use an SNMP management system to monitor the Virtual Service Edge cluster, enable SNMP for Virtual Service Edge and configure SNMP parameters. Virtual Service Edges support SNMPv3 only.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "sudo vzen snmp-admin-configure",
+      "depth": 3
+    },
+    {
+      "item": "Enter a username for the SNMPv3 management system that sends queries to the Virtual Service Edge. The Virtual Service Edge accepts queries from this username only.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Enter a password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Specify which authentication protocol the Virtual Service Edge can use to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "Specify the encryption method the Virtual Service Edge can use to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "sudo vzen snmp-trap-configure",
+      "depth": 3
+    },
+    {
+      "item": "When asked which traps you want to configure, enter v3 traps.",
+      "depth": 3,
+      "number": 7
+    },
+    {
+      "item": "Enter the IP address of the SNMP trap management system to which the Virtual Service Edge sends traps.",
+      "depth": 3,
+      "number": 8
+    },
+    {
+      "item": "Enter a user name for the SNMP management system.",
+      "depth": 3,
+      "number": 9
+    },
+    {
+      "item": "Enter a password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 3,
+      "number": 10
+    },
+    {
+      "item": "Specify which authentication protocol the Virtual Service Edge can use to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 3,
+      "number": 11
+    },
+    {
+      "item": "Specify the encryption method the Virtual Service Edge can use to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 3,
+      "number": 12
+    },
+    {
+      "item": "Download the Virtual Service Edge build and start the Virtual Service Edge. Run the following command to download the Virtual Service Edge build:",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "sudo vzen download-build",
+      "depth": 1
+    },
+    {
+      "item": "The initial build is around 1 GB, so it might take a while depending on your internet connection. The downloaded build is automatically installed. The Virtual Service Edge automatically starts after the installation is complete.",
+      "depth": 1
+    },
+    {
+      "item": "9. (Optional) Schedule Virtual Service Edge cluster updates.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service updates Virtual Service Edges regularly to ensure the latest software updates are available. You can schedule the updates to begin at a time no later than 24 hours after the start of the maintenance window for the cloud that the Virtual Service Edge is a part of.",
+      "depth": 0
+    },
+    {
+      "item": "By design, Virtual Service Edges in a cluster are updated consecutively, so there is no downtime.",
+      "depth": 0
+    },
+    {
+      "item": "However, to provide flexibility in the update times by up to 24 hours, run the following command on each node of the Virtual Service Edge cluster:",
+      "depth": 0
+    },
+    {
+      "item": "sudo vzen delay-upgrade HH:MM",
+      "depth": 0
+    },
+    {
+      "item": "HH:MM is in the UTC 24-hour format.",
+      "depth": 0
+    },
+    {
+      "item": "For example, the following command runs the update at 13:00 UTC:",
+      "depth": 0
+    },
+    {
+      "item": "sudo vzen delay-upgrade 13:00",
+      "depth": 0
+    },
+    {
+      "item": "In a Virtual Service Edge cluster, it is recommended that there is a minimum difference of one hour between the delay-upgrade times configured in the nodes of the cluster. In the preceding example, if node 1 of the cluster has been configured with a delay-upgrade at 13:00, then configure node 2 of the cluster with a delay-upgrade time of either 12:00 or 14:00. This ensures that there is minimal downtime during the cluster upgrade process.",
+      "depth": 0
+    },
+    {
+      "item": "If you are using Virtual Service Edges in standalone mode with an external LB instead of clustering, you can minimize downtime by splitting your Virtual Service Edges into two logic groups. Configure the first group of Virtual Service Edges to update at X hours and the second group at X+1 hour. For example, if you configure the first group of Virtual Service Edges at 00:00 hours, the second group should be at least an hour after (i.e., 1:00 hours).",
+      "depth": 0
+    },
+    {
+      "item": "10. (Optional) Enable Virtual Service Edge communication with the Zscaler cloud on port 443.",
+      "depth": 0
+    },
+    {
+      "item": "If you want to establish Virtual Service Edge communication with the Zscaler cloud on port 443 instead of ports 9422, 9431, and 9442, enable the standard port.",
+      "depth": 0
+    },
+    {
+      "item": "You can check cloud configuration requirements by going to https://config.zscaler.com/<Zscaler Cloud Name>/zia-v-sedge. To learn your Zscaler cloud name, see Understanding Zscaler Cloud Names. For example, if your cloud is zscaler.net, go to https://config.zscaler.com/zscaler.net/zia-v-sedge.",
+      "depth": 0
+    },
+    {
+      "item": "To enable a standard port:",
+      "depth": 0
+    },
+    {
+      "item": "In the Nutanix admin console, click Launch Console for your Virtual Service Edge VM or use SSH to connect to the management IP address.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen enable-stdport",
+      "depth": 1
+    },
+    {
+      "item": "Enter one of the following subcmd:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "ca: Enables a Virtual Service Edge to authenticate and retrieve policy on port 443.",
+      "depth": 2
+    },
+    {
+      "item": "cds: Enables a Virtual Service Edge to download the Virtual Service Edge network configuration on port 443.",
+      "depth": 2
+    },
+    {
+      "item": "smsm: Enables a Virtual Service Edge to transmit logs to Zscaler nanolog for analytics on port 443.",
+      "depth": 2
+    },
+    {
+      "item": "all: Enables a Virtual Service Edge to authenticate and retrieve policy, download the Virtual Service Edge network configuration, and transmit logs to Zscaler nanolog for analytics on port 443.",
+      "depth": 2
+    },
+    {
+      "item": "Restart the Virtual Service Edge using the following command:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "sudo vzen restart",
+      "depth": 1
+    },
+    {
+      "item": "Your firewall configuration must be updated to allow outbound connections from the Virtual Service Edge only on port 443 (replacing 9422, 9431 and 9442). The other outbound connection requirements remain the same.",
+      "depth": 0
+    },
+    {
+      "item": "To disable a standard port:",
+      "depth": 0
+    },
+    {
+      "item": "In the Nutanix admin console, click Launch Console for your Virtual Service Edge VM or use SSH to connect to the management IP address.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command on Virtual Service Edge:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "vzen disable-stdport",
+      "depth": 1
+    },
+    {
+      "item": "Enter one of the following subcmd:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "ca: Prevents the Virtual Service Edge from authenticating and retrieve policy on port 443.",
+      "depth": 2
+    },
+    {
+      "item": "cds: Prevents the Virtual Service Edge from downloading the Virtual Service Edge network configuration on port 443.",
+      "depth": 2
+    },
+    {
+      "item": "smsm: Prevents the Virtual Service Edge from transmitting logs to Zscaler nanolog for analytics on port 443.",
+      "depth": 2
+    },
+    {
+      "item": "all: Prevents the Virtual Service Edge from authenticating and retrieving policy, downloading the Virtual Service Edge network configuration, and transmitting logs to Zscaler nanolog for analytics on port 443.",
+      "depth": 2
+    },
+    {
+      "item": "Restart the Virtual Service Edge using the following command:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "sudo vzen restart",
+      "depth": 1
+    },
+    {
+      "item": "To verify the connections:",
+      "depth": 0
+    },
+    {
+      "item": "In the Nutanix admin console, click Launch Console for your Virtual Service Edge VM or use SSH to connect to the management IP address.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command to check Virtual Service Edge or LB connection on port 443:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "vzen troubleshoot connection",
+      "depth": 1
+    },
+    {
+      "item": "If a standard port is enabled, a stable Virtual Service Edge or LB connection exists.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to check Virtual Service Edge connectivity to the Zscaler cloud service on port 443:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "cmd :: sockstat | grep smcdsc",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Testing the Configuration",
+      "level": 1
+    },
+    {
+      "text": "To test the configuration for a Virtual Service Edge:"
+    },
+    {
+      "item": "In the Nutanix admin console, click Launch Console or use SSH to connect to the management IP address.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen status",
+      "depth": 0
+    },
+    {
+      "item": "The output should show that the Virtual Service Edge service and LB are running.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "sudo vzen troubleshoot connection | grep 9422",
+      "depth": 0
+    },
+    {
+      "item": "The output should show an established connection.",
+      "depth": 0
+    },
+    {
+      "text": "After you configure a Virtual Service Edge cluster, you can then forward your internet traffic to it using one of the mechanisms described in Forwarding Traffic to Virtual Service Edges. To learn more about monitoring the Virtual Service Edge cluster, including how to monitor Virtual Service Edge health, see Monitoring Virtual Service Edge Clusters."
+    }
+  ]
+}

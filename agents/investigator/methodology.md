@@ -136,7 +136,7 @@ Possible resolution: Health status is aggregated/generic; port 22 may have a spe
 LSS field `Action = 0` — that means the rule allowed the traffic.
 (no schema consulted; `0` is being interpreted by analogy from another log type)
 Better:
-Before reasoning: read references/zia/logs/web-log-schema.md for `action` enum.
+Before reasoning: resolve `zia/web-log#action` (`node scripts/kb.mjs resolve zia/web-log#action`) and `kb:zia.logs.web-rule-attribution` for the `action` values.
 Schema says: `action` for ZIA web logs is a string ("Allowed" / "Blocked"), not an integer. Numeric `0` would not appear in this field — investigate why the value looks numeric (parsing issue? wrong log type? TA version mismatch?).
 Field names look self-evident but rarely are. `action`, `reason`, `status`, `result` mean different things across ZIA / ZPA / ZDX / ZCC log types. Read the schema before any claim built on a field value becomes load-bearing.
 
@@ -146,7 +146,7 @@ Issue: ZPA segment isn't matching for user X.
 Hypothesis: Default-allow policy is shadowing the segment match.
 (no reference to ZPA's deny-by-default model; analyzing as if ZIA semantics apply)
 Better:
-Before hypothesizing: read references/zpa/policy-precedence.md (or equivalent feature reference).
+Before hypothesizing: read `kb:zpa.policy` (or equivalent feature reference).
 ZPA is deny-by-default — there is no "default-allow shadow." The hypothesis space is: (a) segment doesn't include this user's IdP attributes, (b) connector group isn't reachable from user's location, (c) rule ordering with a higher-priority deny, (d) posture / timeout / SAML attribute drift.
 Product defaults and architectural assumptions (deny-by-default vs. allow-by-default, per-app vs. per-segment, IdP-claim vs. SCIM-claim) shape which hypotheses are even plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
 
@@ -155,7 +155,7 @@ Product defaults and architectural assumptions (deny-by-default vs. allow-by-def
 User: "/z-investigator connector flap in _data/cases/test-flap/"
 Agent: "Let me hypothesize causes and propose investigation steps..."
 (no read of _data/cases/test-flap/evidence/, no check of
-_data/snapshot/<cloud>/ for the relevant tenant config dump,
+the overlay's IaC (or a read-only zscalerctl read) for the relevant tenant config,
 no read of an existing journal.md the user may already have
 seeded in that directory)
 Better:
@@ -163,15 +163,15 @@ Agent first reads:
   _data/cases/test-flap/evidence/  — finds connector-status.json
   _data/cases/test-flap/journal.md — finds existing claims
                                          (or none, if fresh)
-  _data/snapshot/<cloud>/                — finds connector-groups.json
+  overlay IaC for zpa/connector-groups  — finds the connector group
 
 Hypothesis 1: Connector group reachability
-  Source: _data/snapshot/<cloud>/connector-groups.json line 47 —
+  Source: overlay IaC for zpa/connector-groups, line 47 —
           group's last-seen timestamp is 14h old.
   Status: Confirmed (medium)
 
 Hypothesis 2: ...
-The operative directory is wherever the user pointed `/z-investigator`. Read its `evidence/` and `journal.md` first; the user may have already provided the answer or seeded prior claims that are the starting state of the investigation. Then read tenant config from `_data/snapshot/<cloud>/`. Do not browse sibling case directories — that's a separate discipline that isn't refined enough yet.
+The operative directory is wherever the user pointed `/z-investigator`. Read its `evidence/` and `journal.md` first; the user may have already provided the answer or seeded prior claims that are the starting state of the investigation. Then read tenant config from the overlay's IaC (or, when IaC cannot answer, a read-only `zscalerctl` command). Do not browse sibling case directories — that's a separate discipline that isn't refined enough yet.
 
 ### ❌ Carrying user framing claims unverified into hypotheses
 
@@ -196,7 +196,7 @@ Users describe symptoms accurately but mis-attribute causes. "The connector is d
 - When pivoting from one root cause to another
 
 ### What counts as a source
-- **File reference**: `references/zpa/troubleshooting.md` line 87
+- **File reference**: `kb:zpa.troubleshooting` line 87
 - **API query result**: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/policySet/rules?policyType=ACCESS_POLICY` → returned 3 rules matching criteria
 - **LSS field**: `LSS /lssConfig/userActivity` with `InternalReason = CONNECTOR_UNHEALTHY` (count: 12 sessions)
 - **Direct query/test**: "Ran `curl -v https://ssh.dev.azure.com:22 --connect-timeout 5` from connector IP, got TCP timeout"
@@ -255,8 +255,8 @@ Different claims require different evidence sources. Use this decision tree to a
 | Policy matches this location? | ZPA API `/policySet/rules` + inspect adminScopes | ZPA portal policy UI | Assuming from success of other locations |
 | Session failed at assignment? | LSS User Activity with SessionID, InternalReason, ConnectorAssignmentReason | ZPA API with session ID filter if available | Generic "connection failed" logs |
 | Destination firewall blocking? | Manual SSH/curl from connector IP to destination | NSS logs (shows dropped packets) | Absence of evidence (may be silently dropped) |
-| Policy syntax/scope error? | references/zpa/policy-precedence.md + ZPA API policy dump | ZPA portal, audit logs | Trial and error |
-| Traffic forwarding path | ZPA API `/application` (segment config) + LSS (what actually happened) | references/zpa/policy-precedence.md | Assumption based on one successful session |
+| Policy syntax/scope error? | `kb:zpa.policy` + ZPA API policy dump | ZPA portal, audit logs | Trial and error |
+| Traffic forwarding path | ZPA API `/application` (segment config) + LSS (what actually happened) | `kb:zpa.policy` | Assumption based on one successful session |
 
 ## Hypothesis prioritization
 
@@ -266,7 +266,7 @@ When multiple root causes are possible, investigate in this order (most likely f
    - Policy scope doesn't include location/user/device
    - Segment doesn't exist or is disabled
    - Connector group is disabled
-   - Check via: ZPA API + references/zpa/policy-precedence.md
+   - Check via: ZPA API + `kb:zpa.policy`
 
 2. **Connector health — single point of failure**
    - Connector offline, unhealthy, or overloaded
@@ -282,7 +282,7 @@ When multiple root causes are possible, investigate in this order (most likely f
    - Policy matched but contradicted by another rule
    - Multimatch behavior or rule order issues
    - Posture or SAML attribute mismatch
-   - Check via: deep policy comparison in ZPA API, cross-reference with references/zpa/policy-precedence.md
+   - Check via: deep policy comparison in ZPA API, cross-reference with `kb:zpa.policy`
 
 **Why this order:** Configuration issues are easiest to spot and fix. Connector issues affect many sessions at once (easier to pattern-match). Destination issues are infrastructure, not Zscaler. Policy edge cases require deep knowledge and lots of data.
 
@@ -407,6 +407,6 @@ Real example: During SIPA troubleshooting, forced citation uncovered a legitimat
 
 ## Cross-links
 
-- SIPA troubleshooting (example case): [`../zpa/troubleshooting.md`](../../references/zpa/troubleshooting.md)
-- Policy evaluation (common troubleshooting target): [`../zpa/policy-precedence.md`](../../references/zpa/policy-precedence.md)
-- LSS and logging (evidence sources): [`../zpa/log-receivers.md`](../../references/zpa/log-receivers.md)
+- SIPA troubleshooting (example case): [`zpa.troubleshooting`](kb:zpa.troubleshooting)
+- Policy evaluation (common troubleshooting target): [`zpa.policy`](kb:zpa.policy)
+- LSS and logging (evidence sources): [`zpa.log-receivers`](kb:zpa.log-receivers)

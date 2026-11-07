@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "id": "zdx.api.hosts-and-auth",
+  "title": "ZDX API hosts and sign-in: the OneAPI gateway, the direct ZDX host, and which paths go where",
+  "aliases": [
+    "zdx api host",
+    "api.zdxcloud.net",
+    "api.zsapi.net zdx",
+    "zdx oauth token",
+    "zdx api key auth",
+    "zdx v1 or v2 base url",
+    "zdx api roles",
+    "zdx legacy vs oneapi",
+    "zdx service desk",
+    "zdx admin roles",
+    "zdx service desk tier 1"
+  ],
+  "related": [
+    {
+      "rel": "reached-via",
+      "to": "shared.oneapi.base-urls",
+      "because": "zdx.api.hosts-and-auth:contract-server"
+    },
+    {
+      "rel": "depends-on",
+      "to": "shared.oneapi.authentication",
+      "because": "zdx.api.hosts-and-auth:oneapi-roles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.auth-models"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-python.legacy-client"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go.legacy-client"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zdx"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZDX is reached either through the OneAPI gateway with a ZIdentity client or directly on the ZDX host with a ZDX API key. The two use different hosts and path prefixes."
+    },
+    {
+      "label": "OneAPI gateway.",
+      "text": "The gateway base path for ZDX is in [[shared.oneapi.base-urls:base-path-table]] and its OAuth sign-in in [[shared.oneapi.authentication]]. {{contract-server}} {{oneapi-roles}} The ZDX help describes Service Desk Tier 1 differently {{divergence:service-desk-user-info}}; the roles themselves are in [[shared.admin-rbac.zdx]]."
+    },
+    {
+      "label": "API keys.",
+      "text": "{{api-key-management}} {{api-key-fields}} {{api-key-create}} {{api-tiers}}"
+    },
+    {
+      "label": "Direct ZDX host.",
+      "text": "The legacy reference's server, token and prerequisites are [[shared.legacy-api.auth-models:zdx-legacy-token]] and [[shared.legacy-api.auth-models:zdx-prereqs]]; the signed key secret and its 15-minute window are [[shared.legacy-api.auth-models:zdx-signed-secret]], and the JWKS and validate endpoints [[shared.legacy-api.auth-models:zdx-jwks-validate]]. {{legacy-guide-versions}} Both SDKs sign in under `/v1` only {{divergence:direct-api-version}}."
+    },
+    {
+      "label": "Paths on each host.",
+      "text": "{{direct-host-paths}} The OneAPI Postman collection uses the gateway shape: {{postman-base-url}} The clients' own settings are in [[zdx.sdk-python.legacy-client]] and [[zdx.sdk-go.legacy-client]], and the Go ZDX services reach the API only through OneAPI: [[zdx.sdk-go.legacy-client:services-not-routed]]."
+    },
+    {
+      "label": "Which host a tenant uses.",
+      "text": "Whether a tenant's credentials work on one host, the other or both is open {{gap:token-host-per-tenant}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which credential the caller holds: a ZIdentity API client (gateway, `/zdx/v1`) or a ZDX API key ID and secret (direct host, `/v1`).",
+      "uses": [
+        "contract-server",
+        "direct-host-paths",
+        "token-host-per-tenant"
+      ]
+    },
+    {
+      "do": "Whether the tenant was provisioned for the legacy API's v1 or v2 base URL before relying on an SDK that signs in under `/v1`.",
+      "uses": [
+        "legacy-guide-versions",
+        "direct-api-version"
+      ]
+    }
+  ],
+  "claims": {
+    "contract-server": {
+      "statement": "The Automate contract lists `https://api.zsapi.net/zdx` as its server, and it includes a sign-in at `/v1/oauth/token` that authenticates with the API key ID and the secret key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/servers/[description=Zdx Public Service]",
+          "expect": {
+            "url": "https://api.zsapi.net/zdx"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1oauth~1token/post",
+          "expect": {
+            "operationId": "Oauth Resource Acquire Token",
+            "description": "Authenticate using the API key ID and the secret key. The response returns a token that must be used in subsequent requests."
+          }
+        }
+      ]
+    },
+    "oneapi-roles": {
+      "statement": "For OneAPI, each ZDX admin role maps to a resource in Authentication Service: ZDX Super Admin (full access), ZDX Read-only Admin (view only) and ZDX Service Desk Tier 1 (restricted view with obfuscated user information and a limited time window).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Organizations must meet the following prerequisites before using OneAPI:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Each role within a Zscaler Admin Portal (or Zscaler Console) maps to a resource in Authentication Service. For example, ZDX has the following roles:",
+            "- ZDX Super Admin: full access (i.e., create, update, delete).",
+            "- ZDX Read-only Admin: view-only access.",
+            "- ZDX Service Desk Tier 1: restricted view access with obfuscated user information with a limited time window."
+          ],
+          "after": "## Understanding API Resources and Roles"
+        }
+      ]
+    },
+    "api-key-management": {
+      "statement": "ZDX API Key Management is a repository for an organization to store created API keys for admin roles; an API key consists of an API Key ID and Secret, both required for access to the ZDX APIs. The page is at Administration > API > Legacy API > Digital Experience API Keys, and for access to Zscaler OneAPI endpoints the article points to About API Clients.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-api-key-management.json",
+          "quotes": [
+            "API Key Management is a repository for an organization to store created API keys for admin roles. An API key consists of an API Key ID and Secret. These two items are required for access to Digital Experience (ZDX) APIs.",
+            "If you must obtain API keys or secrets to access Zscaler OneAPI endpoints, see About API Clients.",
+            "Administration > API > Legacy API > Digital Experience API Keys"
+          ]
+        }
+      ]
+    },
+    "api-key-fields": {
+      "statement": "Each API key on the page shows the Role it is assigned to, the username that created it (Created By) and the timestamp of when it was last updated (Last Updated On).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-api-key-management.json",
+          "quotes": [
+            "Role: The role the API key is assigned to.",
+            "Created By: The username that created the API key.",
+            "Last Updated On: The timestamp of when the API key was last updated."
+          ]
+        }
+      ]
+    },
+    "api-key-create": {
+      "statement": "After the API subscription is enabled the Digital Experience API Keys page is accessible to a ZDX admin; creating a key selects an admin role to be assigned the key, the API Key ID and Key Secret can be copied or downloaded as a JSON file and both are needed for authentication, viewing a key opens the API Key window, where the API Key ID can be copied, and editing changes the Name or the role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zdx-api-keys.json",
+          "quotes": [
+            "After your API subscription is enabled, the Digital Experience API Keys page is accessible to a ZDX admin.",
+            "Select Role: Select an admin role to be assigned the API key.",
+            "Click Copy to copy the API Key ID or Key Secret, or click Download to download the JSON file. You need both the API Key ID and Key Secret for authentication.",
+            "Click the View icon for a specific API key to open the API Key window.",
+            "Click Copy to copy the API Key ID.",
+            "Edit the Name or choose a new role from the Select Role drop-down menu."
+          ]
+        }
+      ]
+    },
+    "api-tiers": {
+      "statement": "In the subscription table ZDX APIs are Not supported on Standard, Supported for Microsoft 365 events on Microsoft 365 and Supported on Advanced and Advanced Plus; the page's Organization table, which has one Limit column and no tier columns, gives API Keys as 50.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "after": "## Integrations and Data Retention",
+          "quotes": [
+            "| ZDX APIs | Not supported | Supported for Microsoft 365 events | Supported | Supported |",
+            "| API Keys | 50 |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ]
+        }
+      ]
+    },
+    "legacy-guide-versions": {
+      "statement": "The legacy ZDX getting-started guide says the base URL is the cloud's `/v1` or `/v2`, depending on what was provisioned for the organization, and its sign-in example posts to `https://api.zdxcloud.net/v2/oauth/token`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zdx-api.json",
+          "quotes": [
+            "The base URL for ZDX API is /api/<Zscaler Cloud Name>.net/v1 or /api/<Zscaler Cloud Name>.net/v2. Check which Zscaler cloud name was provisioned for your organization",
+            "If your organization is provisioned for v1 and the zdxcloud, then your base URL is: /api/zdxcloud.net/v1.",
+            "If your organization is provisioned for v2 and the zdxcloud, then your base URL is: /api/zdxcloud.net/v2.",
+            "POST https://api.zdxcloud.net/v2/oauth/token"
+          ]
+        }
+      ]
+    },
+    "direct-host-paths": {
+      "statement": "So on the direct ZDX host both the sign-in and the data calls sit under `/v1` with no `/zdx` segment, while on the gateway both sit under `/zdx/v1`.",
+      "tier": "B",
+      "derived_from": [
+        "zdx.sdk-python.legacy-client:prefix-stripped",
+        "zdx.sdk-python.legacy-client:token-request",
+        "shared.legacy-api.auth-models:zdx-legacy-token",
+        "contract-server"
+      ],
+      "conditions": "Drawn from the Python legacy client's path handling, the legacy reference's server and the contract's server; the Go SDK's direct client is not used by its ZDX services, so it does not bear on this."
+    },
+    "postman-base-url": {
+      "statement": "The OneAPI Postman collection sets `{{ZDXBaseUrl}}` to `{{oneAPIBaseUrl}}/zdx/v1`, with `oneAPIBaseUrl` set to `https://api.zsapi.net`, so a request such as `{{ZDXBaseUrl}}/devices` carries no second `/v1`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"key\": \"ZDXBaseUrl\",",
+            "\"value\": \"{{oneAPIBaseUrl}}/zdx/v1\"",
+            "\"key\": \"oneAPIBaseUrl\",",
+            "\"value\": \"https://api.zsapi.net\"",
+            "\"raw\": \"{{ZDXBaseUrl}}/devices\""
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "service-desk-user-info": {
+      "summary": "What ZDX Service Desk Tier 1 sees of user information: the OneAPI getting-started page gives it obfuscated user information, while the ZDX help gives it the Users Dashboard and User Search, and says User Search needs the User Name permission to be Visible.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/getting-started.json",
+            "after": "## Understanding API Resources and Roles",
+            "quotes": [
+              "- ZDX Service Desk Tier 1: restricted view access with obfuscated user information with a limited time window."
+            ]
+          },
+          "says": "Tier 1 has restricted view access with obfuscated user information and a limited time window."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-about-zdx-role-based-administration.json",
+            "quotes": [
+              "ZDX Service Desk Tier 1: An admin with this role has read permissions to the Users Dashboard and access to the User Search."
+            ]
+          },
+          "says": "Tier 1 has read permissions to the Users Dashboard and access to the User Search."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-understanding-zdx-service-desk-role.json",
+            "quotes": [
+              "When an admin has access to User Name, then the admin can access User Search."
+            ]
+          },
+          "says": "An admin with access to User Name can access User Search."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-adding-zdx-roles.json",
+            "quotes": [
+              "If the User Name permission is set to Obfuscated, then the admin does not have access to User Search and cannot download a table in CSV format for Software Inventory."
+            ]
+          },
+          "says": "With User Name Obfuscated an admin does not have access to User Search."
+        }
+      ],
+      "impact": "The OneAPI page does not say which user information is obfuscated, and the role article ties User Search to a Visible User Name; whether Tier 1 sees user names is unsettled."
+    },
+    "direct-api-version": {
+      "summary": "The direct host's API version: the legacy guide says a tenant's base URL is v1 or v2 by provisioning and signs in at `/v2/oauth/token`; both SDKs always sign in at `/v1/oauth/token`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-getting-started-zdx-api.json",
+            "quotes": [
+              "If your organization is provisioned for v2 and the zdxcloud, then your base URL is: /api/zdxcloud.net/v2."
+            ]
+          },
+          "says": "Tenants are provisioned for v1 or v2, and a v2 tenant's base URL ends in `/v2`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zdx/legacy.py",
+            "quotes": [
+              "token_url = f\"{self.url}/v1/oauth/token\""
+            ]
+          },
+          "says": "The Python legacy client signs in at `/v1/oauth/token` on every tenant."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zdx/v2_client.go",
+            "quotes": [
+              "url := cfg.BaseURL.String() + \"/v1/oauth/token\""
+            ]
+          },
+          "says": "The Go direct client signs in at `/v1/oauth/token` on every tenant."
+        }
+      ],
+      "impact": "If a v2-provisioned tenant does not answer under `/v1`, both SDKs' direct clients fail to sign in there; no source says whether `/v1` works for such a tenant."
+    }
+  },
+  "gaps": {
+    "token-host-per-tenant": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-03"
+      ],
+      "title": "Which host a tenant's credentials authenticate against",
+      "status": "open",
+      "detail": "The SDKs' direct clients use the cloud's own host (`https://api.zdxcloud.net` by default) with a ZDX API key; OneAPI uses `api.zsapi.net` with a ZIdentity client, and the contract also lists a key-based `/v1/oauth/token` on the gateway. Whether a given tenant's ZDX API key works on the gateway, the direct host or both depends on how the tenant was provisioned, which no source settles. An earlier note that the key-based flow is kept for tenants not on ZIdentity and for government tenants has no captured source.",
+      "blocks": "telling a caller which host and credential to use",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

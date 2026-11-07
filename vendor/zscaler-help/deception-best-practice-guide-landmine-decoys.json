@@ -1,0 +1,492 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Best Practice Guide for Landmine Decoys",
+  "source": {
+    "url": "https://help.zscaler.com/deception/best-practice-guide-landmine-decoys",
+    "node": "1542558",
+    "revision": "3221555",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This guide provides use cases and deployment recommendations for landmine decoys."
+    },
+    {
+      "text": "Landmine decoys are deployed in endpoint machines to lure attackers, typically within an organization. Landmine decoys are typically deployed to detect different types of techniques, defined in the MITRE ATT&CK framework, such as defense evasion (T1562.001), impact (T1489 and T1485), credential access (T1552.001 and T1557.001), and collection (T1005)."
+    },
+    {
+      "text": "Landmine decoys are deployed via landmine policies. To deploy landmine decoys, Zscaler recommends having two different types of policies: a policy for simple detections that requires no customization, and a policy for advanced detections that requires minimal customization to detect adversarial techniques."
+    },
+    {
+      "item": "Policy for Simple Detections",
+      "depth": 0
+    },
+    {
+      "item": "The following table provides information on the recommended configurations of a landmine policy for simple detections.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Landmine Policy Module",
+          "Recommended Configurations"
+        ],
+        [
+          "Privilege Escalation",
+          "Enable Man-in-the-Middle Attack Detection with the following configurations: Enable LLMNR poisoning. Set Interval to 5 minutes. Enable In-Memory Credentials with the following configurations (for all Windows-based endpoints): Enable Use AD Decoy Users. Select an AD Decoy User. (Optional) Select Use additional Custom Credentials and add Domain and User values as required. To learn more, see Configuring the Privilege Escalation Module."
+        ],
+        [
+          "File Decoys",
+          "Create a credential file decoy with the following configurations: Name: password1.txt Path: %userprofile%\\Imp Hidden: Enabled To learn more, see Configuring the File Decoys Module."
+        ],
+        [
+          "Password Policy",
+          "Configure a password policy similar to your Active Directory (AD) password policy. If you do not have an AD password policy, then you can create a policy with the following configurations: Enable Must have special characters. Set Min Length to 8. Set Max Length to 12. To learn more, see Configuring the Password Settings Module."
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          1,
+          7,
+          41
+        ],
+        [
+          1,
+          1,
+          84,
+          89
+        ],
+        [
+          1,
+          1,
+          105,
+          113
+        ],
+        [
+          1,
+          1,
+          135,
+          156
+        ],
+        [
+          1,
+          1,
+          233,
+          251
+        ],
+        [
+          1,
+          1,
+          296,
+          329
+        ],
+        [
+          1,
+          1,
+          338,
+          344
+        ],
+        [
+          1,
+          1,
+          349,
+          353
+        ],
+        [
+          2,
+          1,
+          66,
+          70
+        ],
+        [
+          2,
+          1,
+          86,
+          90
+        ],
+        [
+          2,
+          1,
+          110,
+          116
+        ],
+        [
+          3,
+          1,
+          196,
+          224
+        ],
+        [
+          3,
+          1,
+          230,
+          240
+        ],
+        [
+          3,
+          1,
+          251,
+          261
+        ]
+      ]
+    },
+    {
+      "item": "Policy for Advanced Detections",
+      "depth": 0
+    },
+    {
+      "item": "The following table provides information on the recommended configurations of a landmine policy for advanced detections.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Landmine Policy Module",
+          "Recommended Configurations"
+        ],
+        [
+          "Defense Evasion",
+          "Enable Fake Security Processes and configure fake security processes resembling popular applications that are usually targeted by adversaries. Some examples of fake security processes for popular applications are listed as follows: Symantec Endpoint Protection: Name: ccSvcHst.exe Path: C:\\Program Files\\Symantec\\Symantec Endpoint Protection\\ Microsoft Word: Name: winword.exe Path: C:\\Program Files\\Microsoft Office\\Word Acronis: Name: AcronisAgent.exe Path: C:\\Program Files\\tmp_shared\\ While configuring fake process paths, ensure that you do not use the actual paths of the legitimate applications as they might cause some issues. However, Zscaler recommends using paths that look similar to the default paths of the legitimate application. For example, if Symantec uses C:\\Program Files\\Symantec\\ccsvchost.exe as the default path, then the fake process path can be C:\\Program Files\\Common Files\\Symantec\\ccsvchost.exe. To learn more, see Configuring the Defense Evasion Module."
+        ],
+        [
+          "Advanced Deception Capabilities",
+          "Enable the following options: PsExec Detection Ransomware Detection Triage To learn more, see Configuring the Advanced Deception Capabilities Module."
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          1,
+          7,
+          30
+        ],
+        [
+          1,
+          1,
+          262,
+          266
+        ],
+        [
+          1,
+          1,
+          281,
+          285
+        ],
+        [
+          1,
+          1,
+          359,
+          363
+        ],
+        [
+          1,
+          1,
+          377,
+          381
+        ],
+        [
+          1,
+          1,
+          431,
+          435
+        ],
+        [
+          1,
+          1,
+          454,
+          458
+        ],
+        [
+          2,
+          1,
+          30,
+          46
+        ],
+        [
+          2,
+          1,
+          47,
+          67
+        ],
+        [
+          2,
+          1,
+          68,
+          74
+        ]
+      ]
+    },
+    {
+      "text": "In addition, a custom policy must be created for each department in the organization based on the function for which the department is responsible. Typically, a department can have up to 4 policies tailored for them, and at least two policies must be configured for business-critical departments."
+    },
+    {
+      "text": "To learn how to create a landmine policy, see Creating a Landmine Policy."
+    },
+    {
+      "item": "Before configuring a landmine policy, ensure that you have customized the landmine installer name. To learn more, see Customizing Landmine Installer.",
+      "depth": 0
+    },
+    {
+      "item": "The deployment can be done in phases for each department, starting from the highest priority based on the department's security risk.",
+      "depth": 0
+    },
+    {
+      "item": "See example",
+      "depth": 0
+    },
+    {
+      "item": "The following list of departments is an example of prioritization (from highest to lowest) of departments for a phased deployment of landmine policies:",
+      "depth": 0
+    },
+    {
+      "item": "Security and Active Directory (AD) Administrators",
+      "depth": 1
+    },
+    {
+      "item": "Network Infrastructure",
+      "depth": 1
+    },
+    {
+      "item": "IT or Critical Application Administrators",
+      "depth": 1
+    },
+    {
+      "item": "Senior Management",
+      "depth": 1
+    },
+    {
+      "item": "Marketing",
+      "depth": 1
+    },
+    {
+      "item": "Others",
+      "depth": 1
+    },
+    {
+      "text": "A typical deployment must have one policy for simple detections, and one policy for advanced detections covering all endpoints and a custom policy tailored for the department."
+    },
+    {
+      "text": "Some use cases for creating custom policies are as follows:"
+    },
+    {
+      "item": "Use Case: Custom Policy for Known Departments (IT, Security, HR, Finance, Legal, etc.)",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Landmine Policy Module",
+          "Recommended Configurations"
+        ],
+        [
+          "Cloud Lures",
+          "Enable one or more AWS or Azure lures and select appropriate Target Decoys for each lure. To learn more, see Configuring the Cloud Lures Module."
+        ],
+        [
+          "Browser Lures",
+          "Enable browser lures for Chrome, Firefox, Edge, and Internet Explorer, and enable Cookies, Favorites, and Credentials options as applicable. Select the appropriate Target Decoys for each department. To learn more, see Configuring the Browser Lures Module."
+        ],
+        [
+          "Session Lures",
+          "Enable session lures based on the applications used in a department, and select the appropriate Target Decoys for each department. For example, you can enable FileZilla, PuTTY, RDP, WinSCP, Windows Credentials, etc. To learn more, see Configuring the Session Lures Module."
+        ],
+        [
+          "File Decoys",
+          "Create file decoys using Pre-Configured File Datasets for each department: Dataset: Based on the department, select a dataset (IT Security, Information Technology - General, Finance - Banking, Finance - Strategy, Human Resources, etc.). Path: %userprofile%\\Imp Hidden: Enabled To learn more, see Configuring the File Decoys Module."
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          1,
+          61,
+          74
+        ],
+        [
+          2,
+          1,
+          82,
+          89
+        ],
+        [
+          2,
+          1,
+          91,
+          100
+        ],
+        [
+          2,
+          1,
+          106,
+          117
+        ],
+        [
+          2,
+          1,
+          164,
+          177
+        ],
+        [
+          3,
+          1,
+          96,
+          109
+        ],
+        [
+          4,
+          1,
+          25,
+          53
+        ],
+        [
+          4,
+          1,
+          75,
+          82
+        ],
+        [
+          4,
+          1,
+          127,
+          138
+        ],
+        [
+          4,
+          1,
+          140,
+          172
+        ],
+        [
+          4,
+          1,
+          174,
+          181
+        ],
+        [
+          4,
+          1,
+          182,
+          191
+        ],
+        [
+          4,
+          1,
+          193,
+          211
+        ],
+        [
+          4,
+          1,
+          213,
+          228
+        ],
+        [
+          4,
+          1,
+          237,
+          241
+        ],
+        [
+          4,
+          1,
+          261,
+          267
+        ]
+      ]
+    },
+    {
+      "item": "Use Case: Custom Policy for Critical Job Functions",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Landmine Policy Module",
+          "Recommended Configurations"
+        ],
+        [
+          "Cloud Lures",
+          "Enable one or more AWS or Azure lures and select appropriate Target Decoys for each lure. To learn more, see Configuring the Cloud Lures Module."
+        ],
+        [
+          "Browser Lures",
+          "Enable browser lures for Chrome, Firefox, Edge, and Internet Explorer, and enable Cookies, Favorites, and Credentials options as applicable. Select the appropriate Target Decoys for the business-critical function. To learn more, see Configuring the Browser Lures Module."
+        ],
+        [
+          "Session Lures",
+          "Enable session lures based on the applications used in a department, and select the appropriate Target Decoys for the business-critical function. For example, you can enable FileZilla, PuTTY, RDP, WinSCP, Windows Credentials, etc. To learn more, see Configuring the Session Lures Module."
+        ],
+        [
+          "File Decoys",
+          "Create file decoys using Custom Files with the following configurations: Dataset: Select a custom file dataset Path: %userprofile%\\Imp Hidden: Enabled To learn more, see Configuring the File Decoys Module."
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          1,
+          61,
+          74
+        ],
+        [
+          2,
+          1,
+          82,
+          89
+        ],
+        [
+          2,
+          1,
+          91,
+          100
+        ],
+        [
+          2,
+          1,
+          106,
+          117
+        ],
+        [
+          2,
+          1,
+          164,
+          177
+        ],
+        [
+          3,
+          1,
+          96,
+          109
+        ],
+        [
+          4,
+          1,
+          25,
+          37
+        ],
+        [
+          4,
+          1,
+          73,
+          80
+        ],
+        [
+          4,
+          1,
+          111,
+          115
+        ],
+        [
+          4,
+          1,
+          135,
+          141
+        ]
+      ]
+    }
+  ]
+}

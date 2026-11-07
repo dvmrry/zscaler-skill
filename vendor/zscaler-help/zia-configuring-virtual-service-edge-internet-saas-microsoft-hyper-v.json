@@ -1,0 +1,1060 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Virtual Service Edge for Internet & SaaS: Microsoft Hyper-V",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-virtual-service-edge-internet-saas-microsoft-hyper-v",
+    "node": "1403321",
+    "revision": "3249839",
+    "updated": "2026-10-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler supports standalone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on Microsoft Hyper-V."
+    },
+    {
+      "heading": "Requirements",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you meet all the following requirements:"
+    },
+    {
+      "item": "A Virtual Service Edge cluster must contain at least two Virtual Service Edge instances in order to provide n+1 redundancy for production. It can contain a maximum of 16 Virtual Service Edge instances. You need a subscription license count for each Virtual Service Edge in a cluster.",
+      "depth": 0
+    },
+    {
+      "item": "Virtual Service Edges only require outbound connections to the Zscaler cloud. Configure your firewall to allow the necessary outbound connections. To view the firewall requirements, go to config.zscaler.com/<Zscaler Cloud Name>/fcr.",
+      "depth": 0
+    },
+    {
+      "item": "You can find the <Zscaler Cloud Name> in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/fcr. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "item": "Verify that your license is appropriate to your needs. Go to Administration > Subscriptions > Internet & SaaS, and look for the Virtual Service Edges, noting the server count.",
+      "depth": 0,
+      "strong": [
+        [
+          61,
+          75
+        ],
+        [
+          78,
+          91
+        ],
+        [
+          94,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "Virtual machine (VM) specs for a Virtual Service Edge cluster:",
+      "depth": 0
+    },
+    {
+      "item": "Hypervisor: Windows Server 2019 with Hyper-V feature enabled",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The Promiscuous Mode option must be enabled using the Microsoft NDIS capture on the Virtual Switch. Zscaler load balancers and Virtual Service Edges use the Common Address Redundancy Protocol (CARP) to process traffic across multiple Virtual Service Edge instances. In order to support this, enabling promiscuous mode on your Windows Server is required.",
+      "depth": 2
+    },
+    {
+      "item": "Run the following PowerShell commands to enable the Promiscuous Mode:",
+      "depth": 2
+    },
+    {
+      "item": "PS C:\\Users\\Administrator> $extension=VMSystemswitchextensionportfeature -FeatureID 776e0ba7-94a1-41c8-8f28-951f524251b5 PS C:\\Users\\Administrator> $extension.SettingData.MonitorMode=2 PS C:\\Users\\Administrator> Add-VMSwitchExtensionPortFeature -ExternalPort -SwitchName <vSwitch-name> -VMSwitchExtensionFeature $extension",
+      "depth": 2
+    },
+    {
+      "item": "You must run these commands as an administrator.",
+      "depth": 2
+    },
+    {
+      "item": "Verify that the Microsoft NDIS Capture has been enabled for the Virtual Switch on the Virtual Switch Manager of the Hyper-V Windows Manager.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "CPUs: 4 CPU cores",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Minimum Required RAM: 48 GB",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Scanning large files without adversely impacting performance requires more memory on the Virtual Service Edges. To scan large files and maintain the performance of Virtual Service Edges, you can deploy them with 64 GB RAM (in standalone or cluster mode).",
+      "depth": 1
+    },
+    {
+      "item": "If you expand memory to 64 GB, the system automatically inserts a section into the configuration files to enable a third antivirus (AV) process. After the expansion, starting the Virtual Service Edges spawns the third AV process on each instance.",
+      "depth": 1
+    },
+    {
+      "item": "Disk: 500 GB (thin provisioned). Zscaler recommends using SSDs.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Network Interfaces: 3 interfaces (1 for Management, 1 for the Virtual Service Edge, and 1 for the Load Balancer). These interfaces should be on the same VLAN. This VLAN should be accessible by user traffic and have outbound access to the internet.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Required IP addresses",
+      "depth": 1
+    },
+    {
+      "heading": "Configuring a Virtual Service Edge Cluster",
+      "level": 1
+    },
+    {
+      "text": "If you are configuring a Virtual Service Edge cluster, you must create at least two Virtual Service Edge instances and download their respective SSL certificates. Each Virtual Service Edge VM requires a unique SSL certificate, which can be downloaded from the Zscaler Admin Console."
+    },
+    {
+      "text": "To configure a Virtual Service Edge cluster:"
+    },
+    {
+      "item": "1. Add the Virtual Service Edge Instances",
+      "depth": 0
+    },
+    {
+      "item": "2. Download the Hyper-V VM File",
+      "depth": 0
+    },
+    {
+      "item": "To download the Hyper-V VM file for each Virtual Service Edge in a cluster:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Internet & SaaS > Virtual Service Edges.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          64
+        ],
+        [
+          67,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Click Download VM and select Hyper-V VHDX file.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          29,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "If the Hyper-V VM file fails to download, contact Zscaler Support for the image.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "3. Download the Virtual Service Edge Certificates",
+      "depth": 0
+    },
+    {
+      "item": "4. Add the Virtual Service Edge Cluster",
+      "depth": 0
+    },
+    {
+      "item": "5. Bind the Virtual Service Edge Cluster to a Location",
+      "depth": 0
+    },
+    {
+      "item": "Add a location and bind the Virtual Service Edge cluster (or standalone Virtual Service Edge) to it, so your organization can enable features such as authentication, firewall, SSL/TLS inspection, and location-level policies. The service associates the traffic that it receives on the Virtual Service Edge with its location and applies the features and policies configured for the location.",
+      "depth": 0
+    },
+    {
+      "item": "To bind a Virtual Service Edge or a Virtual Service Edge cluster to a location:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Location Management > Legacy Locations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Location or click the Edit icon for an existing location.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "The Add Location or Edit Location window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          16
+        ],
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Location or Edit Location window, do one of the following:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          23,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Service Edges: Select the standalone Virtual Service Edge you want to bind to the location.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Service Edge Clusters: Select the Virtual Service Edge cluster you want to bind to the location.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To learn more about the other fields, see Configuring Locations.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "6. Create a Firewall Filtering Rule to Bypass Virtual Service Edge IP Addresses",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler performs ICMP and HTTP monitoring from the Load Balancer (LB) to the Virtual Service Edge in order to monitor the health of the Virtual Service Edge and ensure that traffic is distributed appropriately. For health probes to work, you must create a Firewall Filtering rule to allow all Virtual Service Edge proxy, load balancer, and cluster IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "To create a Firewall Filtering rule:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Policy > Firewall Control > Firewall Filtering Policy.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          56
+        ],
+        [
+          59,
+          75
+        ],
+        [
+          78,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Firewall Filtering Rule.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "The Add Firewall Filtering Rule window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Firewall Filtering Rule window, click the Source IP tab.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          34
+        ],
+        [
+          53,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "In IP Addresses, add the following IP addresses for your Virtual Service Edges:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          3,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Proxy IP address",
+      "depth": 2
+    },
+    {
+      "item": "Load balancer IP address",
+      "depth": 2
+    },
+    {
+      "item": "Cluster IP address",
+      "depth": 2
+    },
+    {
+      "item": "These are the IP addresses you created while adding the Virtual Service Edge Cluster. To learn more about the other fields, see Configuring Firewall Filtering Policy.",
+      "depth": 2
+    },
+    {
+      "item": "Under Network Traffic, select Allow.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          30,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "7. Configure the Virtual Service Edge VM",
+      "depth": 0
+    },
+    {
+      "item": "If you are deploying a Virtual Service Edge cluster, you must configure each Virtual Service Edge instance as a VM on the Hyper-V manager.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends using different servers for each instance to achieve fault tolerance.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Virtual Service Edge on the Hyper-V manager:",
+      "depth": 0
+    },
+    {
+      "item": "Launch the Hyper-V Manager Windows application.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the Action menu or pane, click New and select Virtual Machine.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          34,
+          37
+        ],
+        [
+          49,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "The New Virtual Machine Wizard appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "On the Before You Begin screen, review the content and click Next.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify Name and Location screen:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "In the Name field, enter a name for the VM.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Select Store the virtual machine in a different location and, in the Location field, specify the path to a location where you want to store the VM.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          18,
+          67
+        ],
+        [
+          80,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "By default, the location for the VM is set to C:\\ProgramData\\Microsoft\\Windows\\Hyper-V\\ and this field is grayed out.",
+      "depth": 2,
+      "strong": [
+        [
+          46,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify Generation screen, select Generation 1 and click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          41,
+          53
+        ],
+        [
+          64,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "On the Assign Memory screen, set the Startup memory to 32768 MB and click Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          37,
+          51
+        ],
+        [
+          74,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure Networking screen, select the Virtual Switch that you want to connect to the physical NIC and click Next.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          117,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "On the Connect Virtual Hard Disk screen:",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Select Use an existing virtual hard disk.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "In the Location field, specify the path to the location where the downloaded Hyper-V VM file is placed on the disk.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click Settings of the newly created VM.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Add two more NICs and select the virtual switch that they must connect to.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "On the third NIC, in the Advanced Features, select Enable MAC address spoofing.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          25,
+          42
+        ],
+        [
+          51,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "The third NIC in the Virtual Service Edge has CARP enabled by the Load Balancer. So, enabling the MAC address spoofing facilitates sending of frames by the Virtual/Cluster IP.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Select the Virtual Service Edge VM and click either the Power On button or Power On the virtual machine.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          56,
+          64
+        ],
+        [
+          75,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "On the Console tab, log in to the FreeBSD command prompt with the following credentials:",
+      "depth": 1,
+      "number": 14,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "After you log in with the default credentials, you are prompted to change the default password.",
+      "depth": 1
+    },
+    {
+      "item": "Change the default password:",
+      "depth": 1,
+      "number": 15
+    },
+    {
+      "item": "New Password: Enter a new password that meets your organization's password standards.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Retype New Password: Re-enter the new password.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Direct root login is not permitted. Administrators must use the sudo utility to run a command with higher privileges.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) If you want Zscaler to enforce password complexity for the password you set, run the following command:",
+      "depth": 1,
+      "number": 16
+    },
+    {
+      "item": "vzen enforce-password-complexity",
+      "depth": 1
+    },
+    {
+      "item": "The current password expires after running this command.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "A valid password contains a mix of upper- and lowercase letters, numbers, and other characters. You can use a 24-character password with characters from at least three of these categories, or a 16-character password containing characters from all the categories. Characters that form a common pattern are discarded by the check. If you use a passphrase, use at least 4 words to form a phrase that is 32 to 40 characters long and contains enough different characters.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to configure the network:",
+      "depth": 1,
+      "number": 17
+    },
+    {
+      "item": "sudo vzen configure-network",
+      "depth": 1
+    },
+    {
+      "item": "Specify the following information:",
+      "depth": 1,
+      "number": 18
+    },
+    {
+      "item": "Address of the DNS server that is used for name resolution of Zscaler cloud domains and also for domain names in the proxy traffic (e.g., 10.84.0.100).",
+      "depth": 2
+    },
+    {
+      "item": "Management interface IP with CIDR netmask. You use the management IP address for SSH or FTP (e.g., 10.84.0.110/24).",
+      "depth": 2
+    },
+    {
+      "item": "Default gateway IP address (e.g., 10.84.0.200).",
+      "depth": 2
+    },
+    {
+      "item": "Hostname of the Virtual Service Edge",
+      "depth": 2
+    },
+    {
+      "item": "Install the SSL certificates of the Virtual Service Edge instances in the cluster. These are the certificates that you downloaded from the Zscaler Admin Console. A Virtual Service Edge uses this certificate to authenticate itself to the Zscaler service. When you configure a Virtual Service Edge cluster, ensure that you upload the correct certificate for each Virtual Service Edge instance.",
+      "depth": 1,
+      "number": 19
+    },
+    {
+      "item": "Navigate to the SSL certificate that you saved.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Use SCP or SFTP to upload it to the management IP address of the Virtual Service Edge.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "On the Hyper-V client, click the Console tab, and log in with the following credentials:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          33,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Console tab or use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "sudo vzen install-cert <cert-bundle.zip>",
+      "depth": 2
+    },
+    {
+      "item": "Ensure to specify the absolute path to the SSL certificates (e.g., sudo vzen install-cert /tmp/cert-bundle.zip).",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) if you want to use an SNMP management system to monitor the Virtual Service Edge cluster, enable SNMP for Virtual Service Edge and configure SNMP parameters. Virtual Service Edges support SNMPv3 only.",
+      "depth": 1,
+      "number": 20
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo vzen snmp-admin-configure",
+      "depth": 2
+    },
+    {
+      "item": "Enter a username for the SNMPv3 management system that sends queries to the Virtual Service Edge. The Virtual Service Edge accepts queries from this username only.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Enter a password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Specify which authentication protocol the Virtual Service Edge can use to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Specify the encryption method the Virtual Service Edge can use to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "sudo vzen snmp-trap-configure",
+      "depth": 2
+    },
+    {
+      "item": "When asked which traps you want to configure, enter v3 traps.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "Enter the IP address of the SNMP trap management system to which the Virtual Service Edge sends traps.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "Enter a username for the SNMP management system.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "Enter a password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 2,
+      "number": 10
+    },
+    {
+      "item": "Specify which authentication protocol the Virtual Service Edge can use to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "Specify the encryption method the Virtual Service Edge can use to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 2,
+      "number": 12
+    },
+    {
+      "item": "Download the Virtual Service Edge build and start the Virtual Service Edge:",
+      "depth": 2,
+      "number": 13
+    },
+    {
+      "item": "On the Hyper-V client, click the Console tab or use SSH to connect to the management IP address.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command to download the Virtual Service Edge build:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen download-build",
+      "depth": 3
+    },
+    {
+      "item": "The initial build is around 1 GB, so depending on your internet connection, it may take a while. The system automatically installs the downloaded build. After the installation is complete, the Virtual Service Edge starts automatically.",
+      "depth": 3
+    },
+    {
+      "heading": "Testing the Configuration",
+      "level": 1
+    },
+    {
+      "text": "To test the configuration:"
+    },
+    {
+      "item": "On the Hyper-V client, click the Console tab or use SSH to connect to the management IP address.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen status",
+      "depth": 0
+    },
+    {
+      "item": "The output should show that the Virtual Service Edge service and load balancer are running.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "sudo vzen troubleshoot connection | grep 9422",
+      "depth": 0
+    },
+    {
+      "item": "The output should show an established connection.",
+      "depth": 0
+    },
+    {
+      "text": "After you configure a Virtual Service Edge cluster, you can then forward your internet traffic to it using one of the mechanisms described in Forwarding Traffic to Virtual Service Edges. To learn more about monitoring the Virtual Service Edge cluster, including how to monitor Virtual Service Edge health, see Monitoring Virtual Service Edge Clusters."
+    }
+  ]
+}

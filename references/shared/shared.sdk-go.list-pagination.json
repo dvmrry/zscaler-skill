@@ -1,0 +1,940 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-go.list-pagination",
+  "title": "How the Go SDK pages through ZPA, ZCC and ZTC lists, and when it stops early",
+  "aliases": [
+    "sdk pagination",
+    "list returns only first page",
+    "missing objects in list",
+    "totalPages",
+    "startIndex itemsPerPage",
+    "ReadAllPagesV2",
+    "ztw pagination",
+    "zcc pagination skip",
+    "import by name not found"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.terraform.rule-order",
+      "because": "zia.terraform.rule-order:parking-spot-from-truncated-list"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.cache"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the Go SDK's list helpers and the Terraform providers built on them, not about how ZPA, ZCC or ZTC behave. The helpers decide when a list is \"finished\" from the response they get. {{truncated-list-reads-as-absent-object}}"
+    },
+    {
+      "label": "ZPA paging.",
+      "text": "{{zpa-total-pages-parse-error-ignored}} {{zpa-loop-trusts-latest-total-pages}} {{zpa-post-search-same-parse}}"
+    },
+    {
+      "label": "ZPA SCIM paging.",
+      "text": "{{zpa-scim-advances-by-requested-count}} {{zpa-scim-stops-on-total-results}}"
+    },
+    {
+      "label": "Silent truncation and callers.",
+      "text": "{{zpa-silent-truncation}} {{zpa-helper-callers}} Whether ZPA endpoints send such paging metadata is open {{gap:zpa-paging-metadata-shape}}."
+    },
+    {
+      "label": "ZCC v1 paging.",
+      "text": "{{zcc-v1-stops-on-page-shorter-than-requested}} {{zcc-v1-extra-request}} {{zcc-v1-capped-page-truncates}} When the helper applies a JMESPath filter, and which Go services call it, is in [[zcc.sdk-go.paging-and-requests:v1-readallpages]] and [[zcc.sdk-go.paging-and-requests:v1-callers]]."
+    },
+    {
+      "label": "ZCC v2 paging.",
+      "text": "{{zcc-v2-page-size}} {{zcc-skip-advances-by-requested-size}} {{zcc-guards-need-envelope-metadata}} {{zcc-skip-records-or-loop}} {{zcc-v2-callers}} Whether ZCC v2 endpoints cap the page or fill the envelope is open {{gap:zcc-v2-envelope-behavior}}."
+    },
+    {
+      "label": "ZTC paging.",
+      "text": "{{ztw-stops-on-page-shorter-than-1000}} {{ztw-capped-page-truncates}} {{ztw-helper-callers}} Whether a ZTC endpoint caps its page is open {{gap:page-size-caps}}."
+    },
+    {
+      "label": "ZIA paging.",
+      "text": "The ZIA helper stops the same way, covered for URL Filtering in [[zia.url-filtering.list-pagination]]. {{zia-readallpages-extra-request}} {{zia-readallpages-extra-request-empty}}"
+    },
+    {
+      "label": "ZCC forwarding profiles.",
+      "text": "{{zcc-forwarding-profile-single-request}} {{zcc-forwarding-profile-read-drops-state}} {{zcc-forwarding-profile-outside-first-page}} Whether the endpoint pages its response by default is open {{gap:zcc-forwarding-profile-default-page}}."
+    },
+    {
+      "label": "ZIA posture profiles.",
+      "text": "{{zia-posture-import-by-name-uses-list-helper}} {{provider-documents-posture-list-truncated}} {{zia-posture-import-by-name-can-miss}} Whether the truncation is server paging or the SDK helper is open {{gap:zia-posture-truncation-cause}}. The same pattern of a truncated list feeding a decision appears in [[zia.terraform.rule-order]], where the \"last rule\" comes from a list that may be partial."
+    }
+  ],
+  "checks": [
+    {
+      "do": "After an import by name, data-source lookup or refresh reports an object missing, count the objects through the console or a separate API call before concluding it is absent.",
+      "uses": [
+        "zpa-silent-truncation",
+        "zpa-paging-metadata-shape",
+        "zia-posture-import-by-name-can-miss",
+        "zcc-forwarding-profile-outside-first-page"
+      ]
+    },
+    {
+      "do": "Whether a count that is an exact multiple of a helper's page size is a page cap or a full last page.",
+      "uses": [
+        "ztw-capped-page-truncates",
+        "zia-readallpages-extra-request"
+      ]
+    }
+  ],
+  "claims": {
+    "zcc-v1-stops-on-page-shorter-than-requested": {
+      "statement": "The ZCC v1 list helper (`ReadAllPages`) clamps the page size (0 or less becomes 50, more than 5000 becomes 5000), starts at page 1 and stops at the first page with fewer items than it asked for; the device list calls it with a page size of 1000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, params QueryParams, pageSize int) ([]T, error) {",
+          "quotes": [
+            "pageSize = clampPageSize(pageSize)",
+            "params.Page = 1",
+            "if len(pageResults) < pageSize {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func clampPageSize(pageSize int) int {",
+          "quotes": [
+            "if pageSize <= 0 {",
+            "return DefaultPageSize",
+            "if pageSize > MaxPageSize {",
+            "return MaxPageSize"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "DefaultPageSize = 50",
+            "MaxPageSize     = 5000",
+            "// DO NOT use this for v1 endpoints — those return a bare JSON array and the // existing ReadAllPages helper is the correct call."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/devices/devices.go",
+          "quotes": [
+            "return common.ReadAllPages[GetDevices](ctx, service.Client, getDevicesEndpoint, params, 1000)"
+          ]
+        }
+      ]
+    },
+    "zpa-total-pages-parse-error-ignored": {
+      "statement": "ZPA list pages are decoded with `totalPages` as an untyped value; it is turned into an int by formatting it as text and parsing, and the parse error is discarded. A missing, null or non-numeric `totalPages` becomes 0, and the helper returns that page's list with no error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "TotalPages interface{} `json:\"totalPages\"` List []T `json:\"list\"` } // Build pagination struct with search filter"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "pages := fmt.Sprintf(\"%v\", paged.TotalPages)",
+            "totalPages, _ := strconv.Atoi(pages)",
+            "// Even if totalPages == 0, return list to prevent fallback to raw array",
+            "return totalPages, paged.List, resp, nil"
+          ],
+          "after": "// Build pagination struct with search filter (already converted to filter format)"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 10 (pagination) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zpa-loop-trusts-latest-total-pages": {
+      "statement": "The ZPA page loop starts at page 2 and runs while `page <= totalPages`, where `totalPages` is overwritten by every page it reads. If page 1 reports 0 pages, no further page is requested; if a later page omits the field, the loop ends there. Either way the result is returned as a success.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "totalPages, result, resp, err := getAllPagesGeneric[T](ctx, client, relativeURL, 1, DefaultPageSize, Filter{Search: searchQuery})",
+            "for page := 2; page <= totalPages; page++ {",
+            "totalPages, l, resp, err = getAllPagesGeneric[T](ctx, client, relativeURL, page, DefaultPageSize, Filter{Search: searchQuery})",
+            "return result, resp, nil"
+          ],
+          "after": "func GetAllPagesGeneric[T any](ctx context.Context, client *zscaler.Client, relativeURL, searchQuery string) ([]T, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func getAllPagesGeneric[T any](ctx context.Context, client *zscaler.Client, relativeURL string, page, pageSize int, filters Filter) (int, []T, *http.Response, error) {",
+          "quotes": [
+            "return getAllPagesGenericWithCustomFilters[T]("
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "var paged struct { TotalPages interface{} `json:\"totalPages\"` List       []T         `json:\"list\"` } // Build pagination struct with search filter (already converted to filter format)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "// Build pagination struct with search filter (already converted to filter format)",
+          "quotes": [
+            "pages := fmt.Sprintf(\"%v\", paged.TotalPages)",
+            "totalPages, _ := strconv.Atoi(pages)",
+            "return totalPages, paged.List, resp, nil"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 10 (pagination) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zpa-post-search-same-parse": {
+      "statement": "The POST-search variant of the ZPA helper ignores the same parse error and stops when `page >= totalPages`, so a response without a usable `totalPages` ends the walk after its first page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "result = append(result, paged.List...)",
+            "pages := fmt.Sprintf(\"%v\", paged.TotalPages)",
+            "totalPages, _ := strconv.Atoi(pages)",
+            "if page >= totalPages {\n\t\t\tbreak\n\t\t}\n\t\tpage++"
+          ],
+          "after": "func GetAllPagesGenericWithPostSearch[T any](ctx context.Context, client *zscaler.Client, relativeURL string, searchRequest SearchRequest, filter Filter) ([]T, *http.Response, error) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 10 (pagination) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zpa-scim-advances-by-requested-count": {
+      "statement": "The ZPA SCIM helper moves to the next page by adding the requested `itemsPerPage` to `startIndex`, not the number of resources the page returned. A page that returns fewer resources than requested leaves a gap of unread resources before the next start index.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "paginatedURL := fmt.Sprintf(\"%s?startIndex=%d&count=%d\", baseURL, startIndex, itemsPerPage)",
+            "startIndex += itemsPerPage"
+          ],
+          "after": "func GetAllPagesScimGenericWithSearch[T any]("
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 10 (pagination) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zpa-scim-stops-on-total-results": {
+      "statement": "The same helper stops when `startIndex+itemsPerPage > TotalResults` or the page is empty. `TotalResults` is a plain int, so a response without it reads as 0 and the loop stops after the first page even when that page holds resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "TotalResults int `json:\"totalResults\"`",
+            "if startIndex+itemsPerPage > paginatedResponse.TotalResults || len(paginatedResponse.Resources) == 0 {"
+          ],
+          "after": "func GetAllPagesScimGenericWithSearch[T any]("
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 10 (pagination) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zpa-silent-truncation": {
+      "statement": "A ZPA list, name lookup, import, data source or SCIM read can return only the first page (or a page range with gaps) and report success, if the API response carries missing, null, non-numeric or inconsistent paging metadata. Nothing in the SDK result or error distinguishes this from a complete list.",
+      "tier": "C",
+      "derived_from": [
+        "zpa-total-pages-parse-error-ignored",
+        "zpa-loop-trusts-latest-total-pages",
+        "zpa-scim-advances-by-requested-count",
+        "zpa-scim-stops-on-total-results"
+      ],
+      "conditions": "Depends on the ZPA API actually returning such metadata for some list endpoint or filter (gap zpa-paging-metadata-shape). The code proves the helper's reaction; it does not prove the API ever sends the inputs that trigger it.",
+      "gaps": [
+        "zpa-paging-metadata-shape"
+      ]
+    },
+    "zpa-helper-callers": {
+      "statement": "The ZPA paging helpers are the list path for most ZPA SDK services, so the behavior above applies wherever they are called, including the microtenant lookups and the SCIM group and user readers.",
+      "tier": "B",
+      "conditions": "Search run: `git -C vendor/zscaler-sdk-go grep -l \"GetAllPagesGeneric\\|GetAllPagesScimGenericWithSearch\" v3.8.42 -- zscaler/zpa` returned 63 files (62 callers plus common.go itself), including zscaler/zpa/services/microtenants/microtenants.go and the SCIM readers zscaler/zpa/services/scim_api/scim_group_api.go and scim_user_api.go (the only callers of the SCIM helper besides its own file). Not checked: which of those files wrap the result in extra paging of their own.",
+      "derived_from": [
+        "zpa-silent-truncation"
+      ]
+    },
+    "zcc-v1-extra-request": {
+      "statement": "Because the ZCC v1 helper stops only on a short page, a list whose size is an exact multiple of the page size costs one more request that returns an empty page.",
+      "tier": "B",
+      "derived_from": [
+        "zcc-v1-stops-on-page-shorter-than-requested"
+      ],
+      "conditions": "Moved from zcc.sdk-go.paging-and-requests:v1-extra-request, where it derived from the ZCC-side restatement of the same loop. Read from the loop; not observed against a tenant."
+    },
+    "zcc-v1-capped-page-truncates": {
+      "statement": "If a ZCC v1 list endpoint returns fewer items than the helper asked for on a full page (a server cap below the 1000 the device list requests, for example), the helper reads that page as the last one and returns a partial list with no error.",
+      "tier": "C",
+      "derived_from": [
+        "zcc-v1-stops-on-page-shorter-than-requested"
+      ],
+      "conditions": "Depends on a ZCC v1 endpoint capping its page below the requested size (gap zcc.sdk-python.pagination:page-param-honored); no such cap is recorded. Mirrors ztw-capped-page-truncates.",
+      "gaps": [
+        "zcc.sdk-python.pagination:page-param-honored"
+      ]
+    },
+    "zcc-v2-page-size": {
+      "statement": "The ZCC v2 drain helper clamps its page size like the v1 helper (0 or less becomes 50, more than 5000 becomes 5000), and all three v2 callers pass the default of 50. The single-page `ReadPageV2` turns 0 or less into 50 but does not cap a larger value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "pageSize = clampPageSize(pageSize)",
+            "perPage = clampPageSize(perPage)",
+            "if params.PerPage <= 0 {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func clampPageSize(pageSize int) int {",
+          "quotes": [
+            "if pageSize <= 0 {",
+            "return DefaultPageSize",
+            "if pageSize > MaxPageSize {",
+            "return MaxPageSize"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func ReadPageV2[T any](",
+          "quotes": [
+            "params.PerPage = DefaultPageSize"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "DefaultPageSize = 50",
+            "MaxPageSize     = 5000"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "quotes": [
+            "return common.ReadAllPagesV2[TrustedNetworkV2](ctx, service.Client, trustedNetworkEndpointV2, params, common.DefaultPageSize)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/notification_template/notification_template.go",
+          "quotes": [
+            "return common.ReadAllPagesV2[NotificationTemplate](ctx, service.Client, notificationTemplateEndpointV2, params, common.DefaultPageSize)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "quotes": [
+            "return common.ReadAllPagesV2[ZIAPosture](ctx, service.Client, ziaPostureEndpointV2, params, common.DefaultPageSize)"
+          ]
+        }
+      ],
+      "conditions": "Absence claim: `grep -rn 'ReadAllPagesV2\\[' zscaler/` over vendor/zscaler-sdk-go at v3.8.58, excluding _test.go files, returns the definition in zcc/services/common/common.go and three callers, trusted_network_v2, notification_template and zia_posture, each passing `common.DefaultPageSize`; `awk '/^func ReadPageV2\\[/,/^}/' zscaler/zcc/services/common/common.go | grep -c 'MaxPageSize\\|clampPageSize'` at v3.8.58 returns 0."
+    },
+    "zcc-skip-advances-by-requested-size": {
+      "statement": "The ZCC v2 helper advances `Skip` by the page size it asked for, after a page that is neither empty, short against `Limit`, nor past `Total`. It never advances by the returned `Count` or `Limit`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "perPage = clampPageSize(perPage)",
+            "params.PerPage = perPage",
+            "if params.Skip < 0 { params.Skip = 0 }",
+            "if page.Count == 0 || len(page.Items) == 0 { break } if page.Limit > 0 && page.Count < page.Limit { break } if page.Total > 0 && len(allResults) >= page.Total { break } params.Skip += perPage }"
+          ],
+          "after": "func ReadAllPagesV2[T any](ctx context.Context, client *zscaler.Client, endpoint string, params QueryParamsV2, perPage int) ([]T, error) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 10 (pagination) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zcc-guards-need-envelope-metadata": {
+      "statement": "Two of the ZCC v2 helper's three exits depend on envelope metadata: `Limit > 0` for the short-page check and `Total > 0` for the total check. A non-empty page whose `limit` and `total` are 0 triggers neither, so the helper keeps requesting pages until one comes back empty. The first exit, `Count == 0`, needs no metadata beyond `count`: a server that omits `count` stops the walk after one page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "for {\n\t\tvar page PaginatedResponseV2[T]",
+            "if page.Count == 0 || len(page.Items) == 0 {",
+            "if page.Limit > 0 && page.Count < page.Limit {",
+            "if page.Total > 0 && len(allResults) >= page.Total {",
+            "params.Skip += perPage"
+          ],
+          "after": "func ReadAllPagesV2[T any](ctx context.Context, client *zscaler.Client, endpoint string, params QueryParamsV2, perPage int) ([]T, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "type PaginatedResponseV2[T any] struct {",
+          "quotes": [
+            "Items  []T `json:\"items\"`",
+            "Total  int `json:\"total\"`",
+            "Limit  int `json:\"limit\"`",
+            "Count  int `json:\"count\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 10 (pagination) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zcc-skip-records-or-loop": {
+      "statement": "With a server that caps the page below the requested size, a ZCC v2 read can skip the records between the capped page and the next `Skip`. With a server that omits `limit` and `total` but still sends a non-zero `count`, and ignores `skip`, the same read does not terminate.",
+      "tier": "C",
+      "derived_from": [
+        "zcc-skip-advances-by-requested-size",
+        "zcc-guards-need-envelope-metadata"
+      ],
+      "conditions": "Depends on ZCC v2 endpoints capping `pageSize` below the 50 the SDK requests by default, or returning an envelope without `limit` and `total` (gap zcc-v2-envelope-behavior). The SDK's own comment calls these exits a safety net against a malformed envelope.",
+      "gaps": [
+        "zcc-v2-envelope-behavior"
+      ]
+    },
+    "zcc-v2-callers": {
+      "statement": "Three ZCC SDK services read through the v2 helper: notification templates, trusted networks (v2) and ZIA posture profiles.",
+      "tier": "B",
+      "conditions": "Search run: `git -C vendor/zscaler-sdk-go grep -n ReadAllPagesV2 v3.8.37 -- zscaler/zcc` found the helper's definition and calls only in notification_template.go, trusted_network_v2.go and zia_posture.go. Other ZCC list services read a bare array through other helpers and are not covered.",
+      "derived_from": [
+        "zcc-skip-records-or-loop"
+      ]
+    },
+    "ztw-stops-on-page-shorter-than-1000": {
+      "statement": "The ZTC (ztw) `ReadAllPages` helper requests `pageSize=1000` on every page and stops at the first page with fewer than 1000 items.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/common/common.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "const pageSize = 1000"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/common/common.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, list *[]T) error {",
+          "quotes": [
+            "err := client.ReadResource(ctx, fmt.Sprintf(\"%s&pageSize=%d&page=%d\", endpoint, pageSize, page), &pageItems)",
+            "if len(pageItems) < pageSize {\n\t\t\tbreak\n\t\t}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/ecgroup/ecgroup.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, ecGroupEndpoint, &ecgroups)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 10 (pagination) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "ztw-capped-page-truncates": {
+      "statement": "If a ZTC list endpoint returns fewer than 1000 items for a full page (a server cap), the helper reads that page as the last one and returns a partial list with no error.",
+      "tier": "C",
+      "derived_from": [
+        "ztw-stops-on-page-shorter-than-1000"
+      ],
+      "conditions": "Depends on a ZTC endpoint capping page size below 1000 (gap page-size-caps). The same inference for ZIA URL Filtering is in zia.url-filtering.list-pagination:silent-truncation.",
+      "gaps": [
+        "page-size-caps"
+      ]
+    },
+    "ztw-helper-callers": {
+      "statement": "The ztw fixed-page helper backs the ZTC SDK's list calls for edge-connector groups, locations, forwarding gateways, IP and network groups, policy rules, provisioning and partner-integration lists, among others.",
+      "tier": "B",
+      "conditions": "Search run: `git -C vendor/zscaler-sdk-go grep -l \"common.ReadAllPages\\b\" v3.8.40 -- zscaler/ztw` returned 24 files, which are the callers named here by directory. Counted by file, not by call site, and not checked for endpoints that cap below 1000.",
+      "derived_from": [
+        "ztw-capped-page-truncates"
+      ]
+    },
+    "zia-readallpages-extra-request": {
+      "statement": "Apart from a request error, the ZIA helper ends only on a page shorter than its page size. When the last page is exactly full (the total is a multiple of the page size), it requests one more page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/common/common.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "pageSize := defaultPageSize",
+            "for {\n\t\tpageItems := []T{}",
+            "err := client.Read(ctx, fmt.Sprintf(\"%s&pageSize=%d&page=%d\", endpoint, pageSize, page), &pageItems)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}",
+            "if len(pageItems) < pageSize {\n\t\t\tbreak\n\t\t}\n\t\tpage++"
+          ],
+          "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, list *[]T, customPageSize ...int) error {"
+        }
+      ]
+    },
+    "zia-readallpages-extra-request-empty": {
+      "statement": "That request is an extra API call that returns nothing new, presumably an empty page, which then ends the loop.",
+      "tier": "B",
+      "derived_from": [
+        "zia-readallpages-extra-request"
+      ],
+      "conditions": "Follows from zia-readallpages-extra-request: the loop appends every page it reads and stops only on a page shorter than its page size, so a full last page is followed by one more request. That this request comes back empty rests on how the ZIA API answers a page past the end, which no source in the SDK states."
+    },
+    "zcc-forwarding-profile-single-request": {
+      "statement": "The ZCC forwarding-profile list call makes one GET to `listByCompany` with optional `page` and `pageSize` and returns that single response; it does not walk pages. The provider's Read, and its post-create and post-update lookups, call it with no page or page size.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "endpoint := fmt.Sprintf(\"%s/listByCompany\", webForwardingProfileEndpoint)",
+            "Page     int    `url:\"page,omitempty\"` PageSize int    `url:\"pageSize,omitempty\"`",
+            "_, err := service.Client.NewZccRequestDo(ctx, \"GET\", endpoint, queryParams, nil, &profiles)",
+            "return profiles, nil"
+          ],
+          "after": "func GetForwardingProfileByCompanyID(ctx context.Context, service *zscaler.Service, search string, page, pageSize *int) ([]ForwardingProfile, error) {"
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "profiles, err := forwarding_profile.GetForwardingProfileByCompanyID(ctx, service, \"\", nil, nil)"
+          ],
+          "after": "func findProfileByName(ctx context.Context, service *zscaler.Service, name string) (*forwarding_profile.ForwardingProfile, error) {"
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ForwardingProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {",
+          "quotes": [
+            "profiles, err := forwarding_profile.GetForwardingProfileByCompanyID(ctx, service, \"\", nil, nil)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func findProfileByID(ctx context.Context, service *zscaler.Service, id int) (*forwarding_profile.ForwardingProfile, error) {",
+          "quotes": [
+            "profiles, err := forwarding_profile.GetForwardingProfileByCompanyID(ctx, service, \"\", nil, nil)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "profile, err := findProfileByID(ctx, service, createResp.ID)",
+            "profile, err = findProfileByName(ctx, service, payload.Name)",
+            "profile, err := findProfileByID(ctx, service, readID)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 10 (pagination) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zcc-forwarding-profile-read-drops-state": {
+      "statement": "The forwarding-profile resource's Read removes the resource from state when its ID is not in the list it fetched, and the create and update lookups fail after five tries when the profile is not in it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "tflog.Info(ctx, \"Removing forwarding profile from state - no longer exists\", map[string]any{\"id\": idStr})",
+            "resp.State.RemoveResource(ctx)",
+            "profile, err := findProfileByID(ctx, service, createResp.ID)",
+            "profile, err = findProfileByName(ctx, service, payload.Name)",
+            "profile, err := findProfileByID(ctx, service, readID)",
+            "return nil, fmt.Errorf(\"forwarding profile with name '%s' not found after retries\", name)",
+            "return nil, fmt.Errorf(\"forwarding profile with ID '%d' not found after retries\", id)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func findProfileByName(ctx context.Context, service *zscaler.Service, name string) (*forwarding_profile.ForwardingProfile, error) {",
+          "quotes": [
+            "for attempt := 0; attempt < 5; attempt++ {"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func findProfileByID(ctx context.Context, service *zscaler.Service, id int) (*forwarding_profile.ForwardingProfile, error) {",
+          "quotes": [
+            "for attempt := 0; attempt < 5; attempt++ {"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ForwardingProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {",
+          "quotes": [
+            "profiles, err := forwarding_profile.GetForwardingProfileByCompanyID(ctx, service, \"\", nil, nil)",
+            "for i := range profiles { if int(profiles[i].ID) == idInt { profile = &profiles[i] break } } if profile == nil {"
+          ]
+        }
+      ]
+    },
+    "zcc-forwarding-profile-outside-first-page": {
+      "statement": "If the forwarding-profile endpoint returns only a first page by default, a profile outside it would be dropped from state on refresh, or make an otherwise successful create or update fail on re-read.",
+      "tier": "C",
+      "derived_from": [
+        "zcc-forwarding-profile-single-request",
+        "zcc-forwarding-profile-read-drops-state"
+      ],
+      "conditions": "Depends on the endpoint paging its response by default and on the default page size (gap zcc-forwarding-profile-default-page). If it returns every profile, nothing here applies.",
+      "gaps": [
+        "zcc-forwarding-profile-default-page"
+      ]
+    },
+    "zia-posture-import-by-name-uses-list-helper": {
+      "statement": "Importing a ZCC ZIA posture profile by a non-numeric ID calls `GetByName`, which fetches the list through the v2 paging helper and compares names client-side. A numeric ID imports without any list call.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/zia_posture.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, parseErr := strconv.ParseInt(id, 10, 64); parseErr == nil {",
+            "resource.ImportStatePassthroughID(ctx, path.Root(\"id\"), req, resp) return }",
+            "posture, err := zia_posture.GetByName(ctx, service, id)"
+          ],
+          "after": "func (r *ZIAPostureResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {"
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/zia_posture.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ZIAPostureResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {",
+          "quotes": [
+            "posture, err := zia_posture.Get(ctx, service, id)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "postures, err := GetAll(ctx, service, &GetAllFilterOptions{Keyword: postureName})",
+            "if strings.EqualFold(posture.Name, postureName) {",
+            "return common.ReadAllPagesV2[ZIAPosture](ctx, service.Client, ziaPostureEndpointV2, params, common.DefaultPageSize)",
+            "err := service.Client.Read(ctx, fmt.Sprintf(\"%s/%d\", ziaPostureEndpointV2, postureID), &ziaPosture)"
+          ]
+        }
+      ]
+    },
+    "provider-documents-posture-list-truncated": {
+      "statement": "The ZCC provider's own notes say the `/zia-posture-profiles` list endpoint mishandles pagination and silently returns a truncated set, which is why its data source accepts only a numeric ID. The same documentation tells users to find the ID through the resource's import handler, which it describes as calling a different list endpoint. The code does not support that last point: the import handler's name lookup uses the same list helper and endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/data-sources/zcc_zia_posture.md",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "lookup is currently restricted to the numeric `id`",
+            "The upstream `/zia-posture-profiles` **list** endpoint mishandles pagination and silently returns a truncated set",
+            "so name-based and platform-based lookup is temporarily disabled",
+            "Use the `zcc_zia_posture` resource's import handler (which calls a different list endpoint) to discover the id",
+            "Currently the only supported lookup key."
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/zia_posture.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ZIAPostureResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {",
+          "quotes": [
+            "posture, err := zia_posture.GetByName(ctx, service, id)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "ziaPostureEndpointV2 = \"/zcc/papi/public/v2/zia-posture-profiles\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, postureName string) (*ZIAPosture, error) {",
+          "quotes": [
+            "postures, err := GetAll(ctx, service, &GetAllFilterOptions{Keyword: postureName})"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service, opts *GetAllFilterOptions) ([]ZIAPosture, error) {",
+          "quotes": [
+            "return common.ReadAllPagesV2[ZIAPosture](ctx, service.Client, ziaPostureEndpointV2, params, common.DefaultPageSize)"
+          ]
+        }
+      ]
+    },
+    "zia-posture-import-by-name-can-miss": {
+      "statement": "Importing a ZIA posture profile by name can fail to find a profile that exists, because the lookup reads the list the provider documents as truncated. The documented workaround (discover the ID by importing) goes through that same helper and the same `/zia-posture-profiles` endpoint when a name is used, contrary to the documentation's \"different list endpoint\"; importing by numeric ID makes no list call.",
+      "tier": "C",
+      "derived_from": [
+        "zia-posture-import-by-name-uses-list-helper",
+        "provider-documents-posture-list-truncated"
+      ],
+      "conditions": "Depends on the truncation the provider's notes describe being real for the keyword-filtered query that GetByName sends (gap zia-posture-truncation-cause). The code shows the lookup path; the truncation itself is the maintainers' statement, not something this code demonstrates.",
+      "gaps": [
+        "zia-posture-truncation-cause"
+      ]
+    },
+    "truncated-list-reads-as-absent-object": {
+      "statement": "When one of these helpers returns a truncated list without an error, an object that exists but sits beyond the returned part is absent from the result, and a caller that searches the result for it gets the same outcome as for an object that does not exist.",
+      "tier": "B",
+      "derived_from": [
+        "zpa-silent-truncation",
+        "ztw-capped-page-truncates",
+        "zia-posture-import-by-name-can-miss"
+      ],
+      "conditions": "Assumes the caller decides existence by searching the returned list, as the name lookups, imports and refreshes cited in the derived-from claims do; a caller that reads an object by ID from a separate endpoint is not affected."
+    }
+  },
+  "gaps": {
+    "zpa-paging-metadata-shape": {
+      "kind": "semantic",
+      "title": "Whether ZPA list responses ever omit or malform paging metadata",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the silent truncation in the ZPA helpers occurs in practice, and on which endpoints",
+      "detail": "The helpers tolerate a missing, null or non-numeric `totalPages` and a missing SCIM `totalResults` by returning what they have. No captured source says which ZPA endpoints send such responses. Test by listing a collection larger than 500 on a scratch tenant through each endpoint family (management, SCIM, POST search), and compare the object count with the console."
+    },
+    "zcc-v2-envelope-behavior": {
+      "kind": "semantic",
+      "title": "How ZCC v2 endpoints cap page size and fill the paging envelope",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the skip and non-termination cases of the ZCC v2 helper occur",
+      "detail": "The helper assumes `limit` equals the requested size and that `total`, `limit` and `count` are populated. Test by requesting pageSize values above and below the server's cap and recording the returned `limit`, `count` and `total`."
+    },
+    "page-size-caps": {
+      "kind": "semantic",
+      "title": "Which ZTC list endpoints cap page size below 1000",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying which ZTC lists the fixed-page helper truncates",
+      "detail": "The helper requests pageSize=1000 and treats any shorter page as the last. Whether a given ZTC endpoint caps its page is server behavior. Test by listing a collection with more than 1000 entries and comparing the first page's length to 1000."
+    },
+    "zcc-forwarding-profile-default-page": {
+      "kind": "semantic",
+      "title": "Whether the ZCC forwarding-profile list is paged by default",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether profiles can fall outside the single response the provider reads",
+      "detail": "The provider sends no page or pageSize. Test on a scratch tenant with more profiles than a plausible default page, and compare the count returned with the count in the console."
+    },
+    "zia-posture-truncation-cause": {
+      "kind": "semantic",
+      "title": "Why the ZCC ZIA posture list truncates, and whether a keyword query avoids it",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether import by name is affected",
+      "detail": "The maintainers state that the list truncates; no source says whether it is the server's page handling or the SDK helper, or whether the keyword narrows enough to avoid it. Test by creating profiles past one page and importing the last one by name."
+    }
+  }
+}

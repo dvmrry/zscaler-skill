@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-management.system-logs",
+  "title": "What the AI Infrastructure scanning system logs show and what the ZS-LP, ZS-DC and ZS-ONBOARDING error codes mean",
+  "aliases": [
+    "ai infrastructure scanning logs",
+    "system logs ai infrastructure scanning",
+    "zs-lp error codes",
+    "zs-onboarding error codes",
+    "zs-dc error codes"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "ai-security.asset-management" },
+    { "rel": "see-also", "to": "ai-security.asset-management.issues" },
+    { "rel": "see-also", "to": "ai-security.asset-management.discovery" },
+    { "rel": "see-also", "to": "ai-security.asset-management.posture-policies" }
+  ],
+  "prose": [
+    { "text": "{{logs-scope-filters}} {{logs-source-status}} {{logs-csv-export}} {{logs-fields}} {{logs-hidden-columns}} {{reports-download}}" },
+    { "label": "Error code sources.", "text": "{{codes-sources}} {{codes-information}} {{codes-skipped}}" },
+    { "label": "Scanner codes.", "text": "{{codes-unsupported-os-disk}} {{codes-unsupported-data}} {{codes-privileges}} {{codes-kms}} {{codes-external-restriction}} {{codes-retry-quota}} {{codes-snapshot-throttle}} {{codes-azure-preempt}}" },
+    { "label": "Collector and onboarding codes.", "text": "{{codes-dc-cloudtrail}} {{codes-dc-auth}} {{codes-onboarding-gcp-api}} {{codes-onboarding-cloudtrail}} {{codes-onboarding-network}} {{codes-onboarding-integrations}}" },
+    { "text": "How long scan events are kept is open {{gap:event-retention}}. The hub is [[ai-security.asset-management]], and the issues the scans produce are in [[ai-security.asset-management.issues]]." },
+    { "label": "Open.", "text": "{{gap:code-page-anomalies}} {{gap:code-remediation}} {{gap:export-format}} {{gap:logs-permissions}} {{gap:onboarding-codes-owner}}" }
+  ],
+  "claims": {
+    "logs-scope-filters": {
+      "statement": "The System Logs - AI Infrastructure Scanning article places the page at Administration > System Logs - AI Infrastructure Scanning; the page covers scan events across AWS, Azure and GCP; its Time Range filter offers Last 1 Hour, Last 1 Day, Last 7 Days, Last 30 Days or All Time, and its Environment filter AWS, Azure, GCP, Copilot Studio, GitHub or GitLab.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-system-logs-ai-infra-scanning.json", "quotes": [
+          "On the System Logs - AI Infrastructure Scanning page (Administration > System Logs - AI Infrastructure Scanning), you can do the following:",
+          "every AI infrastructure scan event generated across their AWS, Azure, and GCP environments",
+          "Select Last 1 Hour, Last 1 Day, Last 7 Days, Last 30 Days, or All Time.",
+          "Select AWS, Azure, GCP, Copilot Studio, GitHub, or GitLab to narrow results to a specific cloud environment."
+        ] }
+      ]
+    },
+    "logs-source-status": {
+      "statement": "The Source Status filter on the scan events page selects Active (events for existing resources) or Deleted (events for resources that have been removed), and Severity filters Critical, High, Medium, Low or Unknown.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-system-logs-ai-infra-scanning.json", "quotes": [
+          "Active: To view events for existing resources.",
+          "Deleted: To view events for resources that have been removed.",
+          "Select Critical, High, Medium, Low, or Unknown."
+        ] }
+      ]
+    },
+    "logs-csv-export": {
+      "statement": "Scan event results can be exported as a CSV file to the default downloads folder, also viewable on the Report Management page, and the exported scan event logs cover up to 30 days of scan history.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-system-logs-ai-infra-scanning.json", "quotes": [
+          "Export the event results as a CSV file to your default downloads folder. You can also view the downloaded results in the Report Management page.",
+          "Export filtered scan event logs to CSV files to support compliance requirements, covering up to 30 days of scan history."
+        ] }
+      ]
+    },
+    "logs-fields": {
+      "statement": "In the scan events table, Timestamp is when the last full scan was initiated for the resource in the user's local time, Event Details is a comma-separated list of scan error messages from the resource's latest scan attempt, and Severity is derived from the scan error or resource tag.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-system-logs-ai-infra-scanning.json", "quotes": [
+          "Timestamp: The date and time the last full scan was initiated for the resource, formatted as local date and time in the user's time zone.",
+          "Event Details: A comma-separated list of scan error messages and descriptions associated with the resource's latest scan attempt.",
+          "Severity: The severity level of the scan event, derived from the scan error or resource tag."
+        ] }
+      ]
+    },
+    "logs-hidden-columns": {
+      "statement": "Hidden columns of the scan events table, enabled through the gear icon, include Parent Resource Type, Full Scan Completed At, Scan Updated At, Is Primary and Is Deleted.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-system-logs-ai-infra-scanning.json", "quotes": [
+          "The following columns are hidden. You can enable the hidden columns by clicking the gear icon and selecting the column names.",
+          "Full Scan Completed At",
+          "Scan Updated At",
+          "Parent Resource Type",
+          "Is Primary",
+          "Is Deleted"
+        ] }
+      ]
+    },
+    "reports-download": {
+      "statement": "The Report Management page (Administration > Report Management) lists reports with Report Type, which is Excel files only, and a Status of In Progress while generating or Download when ready.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-downloading-reports.json", "quotes": [
+          "Go to Administration > Report Management.",
+          "Report Type: The file format. Reports are available as Excel files only.",
+          "In Progress: When the report is being generated.",
+          "Download: When the report is ready for download."
+        ] }
+      ]
+    },
+    "codes-sources": {
+      "statement": "The error-code page documents codes from Data Collectors (DC), which collect cloud resource metadata and activity logs from AWS, Azure, GCP, Microsoft Copilot and other providers, and from the Cloud Service Provider onboarding platform, where most non-success events are CONFIGURATION_ERROR and the default successful-validation event is INFORMATION.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "Data Collectors (DC): Error codes are grouped by their error category.",
+          "The DC subsystem collects cloud resource metadata and activity logs from AWS, Azure, GCP, Microsoft Copilot, and other cloud providers.",
+          "Cloud Service Provider: Error codes generated by the onboarding platform",
+          "Most non-success onboarding events are categorized as CONFIGURATION_ERROR. The default successful-validation event is INFORMATION."
+        ] }
+      ]
+    },
+    "codes-information": {
+      "statement": "ZS-LP-0001 (scan initiated), ZS-LP-0003 (scan completed), ZS-LP-0108 (scan was stopped) and ZS-ONBOARDING-0000 (onboarding validation successful) are listed as informational log entries that are not errors; ZS-LP-0108 sets the resource status to stopped rather than failed.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "These are not errors. They are informational log entries generated by the scanner to record normal or expected events during a scan.",
+          "They don't require any action.",
+          "| ZS-LP-0001 | Scan initiated |",
+          "| ZS-LP-0003 | Scan completed |",
+          "| ZS-LP-0108 | Scan was stopped |",
+          "Transitions the resource status to stopped rather than failed.",
+          "| ZS-ONBOARDING-0000 | Onboarding validation successful |"
+        ] }
+      ]
+    },
+    "codes-skipped": {
+      "statement": "ZS-LP-0005 (resource scan skipped) is intentional with no errors, for example a DB server with no databases attached or a workload with no sub-resources eligible for scanning.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "| ZS-LP-0005 | Resource scan skipped |",
+          "Scan is intentionally skipped for this resource. No errors occurred.",
+          "A resource was skipped during scanning. For example, a DB server that has no databases attached, or a workload that has no sub-resources eligible for scanning."
+        ] }
+      ]
+    },
+    "codes-unsupported-os-disk": {
+      "statement": "Unsupported-configuration codes include ZS-LP-0106 (unsupported OS such as Windows 10/11 or Windows Server 2012, in Azure discovery), ZS-LP-0602 (AWS Marketplace AMI), ZS-LP-0604 (Azure unmanaged disks; only managed disks supported), ZS-LP-0605 (Azure Disk Encryption) and ZS-LP-0611 (GCP CSEK-encrypted disks).",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "| ZS-LP-0106 | Instance is running an unsupported OS or virtual appliance |",
+          "The VM runs an OS not supported by the scanner, e.g., Windows 10/11, Windows Server 2012, or certain virtual appliances.",
+          "| ZS-LP-0602 | Marketplace AMI image is not supported for scanning |",
+          "Scanning of Marketplace AMI-based instances is not supported.",
+          "| ZS-LP-0604 | Scanning of workloads using unmanaged disks is not supported |",
+          "The Azure VM uses unmanaged disks (VHDs in a Storage Account). Only managed disks are supported.",
+          "| ZS-LP-0605 | Scanning of workloads encrypted using Azure Disk Encryption is not supported |",
+          "The product does not support scanning ADE-encrypted workloads.",
+          "| ZS-LP-0611 | Scanning of workloads encrypted using CSEK is not supported |",
+          "The product does not support scanning CSEK-encrypted disks."
+        ] }
+      ]
+    },
+    "codes-unsupported-data": {
+      "statement": "ZS-LP-0613 means an AWS DynamoDB table lacks Point-in-Time Recovery, which is required to export a consistent snapshot for scanning; ZS-LP-0615 means an Azure PostgreSQL Flexible Server allows only private endpoint connections, so the scanner cannot reach it.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "| ZS-LP-0613 | DynamoDB Point-in-Time Recovery (PITR) is not enabled |",
+          "The AWS DynamoDB table does not have PITR enabled. PITR is required to export a consistent snapshot for scanning.",
+          "| ZS-LP-0615 | Azure PostgreSQL Flexible Server allows only private endpoint connections |",
+          "The Azure PostgreSQL Flexible Server is configured to allow only private endpoint connections",
+          "The scanner cannot reach this server."
+        ] }
+      ]
+    },
+    "codes-privileges": {
+      "statement": "ZS-LP-0401 is typically an HTTP 401 from the cloud provider API, and ZS-LP-0403 means the scanner authenticated but lacks IAM or RBAC permissions, corresponding to HTTP 403 / AuthorizationFailed.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "| ZS-LP-0401 | Unauthorized to scan the resource |",
+          "Typically an HTTP 401 response from the cloud provider API.",
+          "| ZS-LP-0403 | Scanning failed due to insufficient privileges |",
+          "The scanner has authenticated but lacks the required IAM or RBAC permissions to perform the operation",
+          "Corresponds to HTTP 403 / AuthorizationFailed."
+        ] }
+      ]
+    },
+    "codes-kms": {
+      "statement": "ZS-LP-0609 means the volume is encrypted with an AWS-managed key but no Customer Managed Key exists in the region, and a CMK is required to re-encrypt the snapshot for cross-account scanning; ZS-LP-0612 means the KMS/CMK key used to encrypt the volume or snapshot was disabled by the customer.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "| ZS-LP-0609 | No customer managed key found in the region |",
+          "The target volume is encrypted with an AWS-managed key, but no Customer Managed Key (CMK) exists in the region. A CMK is required to re-encrypt the snapshot for cross-account scanning.",
+          "| ZS-LP-0612 | Encryption key is disabled |",
+          "The KMS/CMK encryption key used to encrypt the volume or snapshot has been disabled by the customer."
+        ] }
+      ]
+    },
+    "codes-external-restriction": {
+      "statement": "ZS-LP-0105 means a cloud organization policy such as AWS SCP, GCP Org Policy or Azure Policy blocks the scan, and ZS-LP-0610 means an Azure management lock on the resource, resource group or subscription prevents it.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "| ZS-LP-0105 | Organization policy is preventing the scan |",
+          "A cloud organization policy (e.g., AWS SCP, GCP Org Policy, or Azure Policy) is blocking the scan",
+          "| ZS-LP-0610 | Resource is locked and cannot be scanned |",
+          "The Azure resource, resource group, or subscription has a management lock applied, preventing the scan from proceeding."
+        ] }
+      ]
+    },
+    "codes-retry-quota": {
+      "statement": "ZS-LP-0702 (instance quota exceeded) is non-retryable and requires a quota increase request, while ZS-LP-0704 (resource limit exceeded) and ZS-LP-0706 (vCPU limit exceeded for running instances) are retryable and for ZS-LP-0429 (rate limited) the system backs off and the scan is retried.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "| ZS-LP-0702 | Instance quota exceeded |",
+          "Non-retryable; requires a quota increase request.",
+          "| ZS-LP-0704 | Resource limit exceeded |",
+          "A cloud resource limit (other than instance or vCPU quota) was exceeded during the scan. Retryable.",
+          "| ZS-LP-0706 | vCPU limit exceeded for running instances |",
+          "Retryable once capacity is available.",
+          "| ZS-LP-0429 | Scan was rate limited |",
+          "The system backs off, and the scan is retried."
+        ] }
+      ]
+    },
+    "codes-snapshot-throttle": {
+      "statement": "For ZS-LP-0705, AWS rate-limited concurrent snapshot creation for an EBS volume and the system must wait at least 15 seconds before retrying.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": ["| ZS-LP-0705 | Snapshot creation rate per volume exceeded |", "AWS rate-limited concurrent snapshot creation for an EBS volume. The system must wait at least 15 seconds before retrying."] }
+      ]
+    },
+    "codes-azure-preempt": {
+      "statement": "ZS-LP-0700 means Azure preempted the scan, typically because a Spot/low-priority scanner VM was reclaimed, and ZS-LP-0701 means the Azure scanner VM was marked for deletion during the scan.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "| ZS-LP-0700 | Scan operation was preempted |",
+          "Azure preempted the scan operation, typically a Spot/low-priority scanner VM was reclaimed by Azure.",
+          "| ZS-LP-0701 | Scanner VM was marked for deletion |",
+          "The Azure scanner VM was marked for deletion while the scan was in progress."
+        ] }
+      ]
+    },
+    "codes-dc-cloudtrail": {
+      "statement": "Data collector code ZS-DC-2004 (CloudTrail bucket or prefix not found) says to verify the bucket name and prefix in the collector configuration, and ZS-DC-4001 (no CloudTrail files in the interval) says to verify CloudTrail is enabled and logging to the correct S3 bucket.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "| ZS-DC-2004 | CloudTrail bucket or prefix not found |",
+          "The S3 bucket or prefix configured for CloudTrail logs does not exist. Verify the bucket name and prefix in the collector configuration.",
+          "| ZS-DC-4001 | CloudTrail files not found in interval |",
+          "Verify that CloudTrail is enabled and logging to the correct S3 bucket."
+        ] }
+      ]
+    },
+    "codes-dc-auth": {
+      "statement": "ZS-DC-1001 maps collector authorization failures to AWS errors including UnauthorizedException and AccessDeniedException, Azure unauthorized (HTTP 401) and GCP PERMISSION_DENIED or UNAUTHENTICATED, ZS-DC-1003 to Azure AuthorizationFailed (HTTP 403) and ZS-DC-1006 to Azure ExpiredAuthenticationToken (HTTP 401).",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "| ZS-DC-1001 | Unauthorized - Access denied while collecting resources |",
+          "AWS errors: UnauthorizedException, AccessDeniedException, AccessDenied, EC2AccessDeniedException",
+          "Azure errors: unauthorized (HTTP 401). GCP errors: PERMISSION_DENIED, UNAUTHENTICATED",
+          "| ZS-DC-1003 | Authorization failed while collecting resources |",
+          "Azure errors: AuthorizationFailed (HTTP 403).",
+          "| ZS-DC-1006 | Expired authentication token |",
+          "Azure errors: ExpiredAuthenticationToken (HTTP 401)."
+        ] }
+      ]
+    },
+    "codes-onboarding-gcp-api": {
+      "statement": "Onboarding codes such as ZS-ONBOARDING-0082 (Cloud Asset), 0088 (Storage) and 0089 (Compute) are generated when a required GCP API is disabled in the target project.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "Errors generated when a required GCP API is disabled in the target project.",
+          "| ZS-ONBOARDING-0082 | API Cloud Asset disabled |",
+          "| ZS-ONBOARDING-0088 | API Storage disabled |",
+          "| ZS-ONBOARDING-0089 | API Compute disabled |"
+        ] }
+      ]
+    },
+    "codes-onboarding-cloudtrail": {
+      "statement": "ZS-ONBOARDING-0020 (CloudTrail not configured) and 0021 (CloudTrail misconfigured) are AWS CloudTrail configuration errors; 0022, 0023 and 0024 report denied KMS decrypt, S3 get-bucket-location and IAM list-role-policies.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "AWS CloudTrail specific configuration errors.",
+          "| ZS-ONBOARDING-0020 | CloudTrail not configured |",
+          "CloudTrail is not configured in the AWS account.",
+          "| ZS-ONBOARDING-0021 | CloudTrail misconfigured |",
+          "CloudTrail is configured but not correctly integrated.",
+          "| ZS-ONBOARDING-0022 | KMS decrypt denied |",
+          "KMS decrypt is denied for CloudTrail S3 logs.",
+          "| ZS-ONBOARDING-0023 | S3 bucket location denied |",
+          "S3 get-bucket-location is denied for the CloudTrail bucket.",
+          "| ZS-ONBOARDING-0024 | IAM list role policies denied |",
+          "IAM list-role-policies is denied when validating CloudTrail."
+        ] }
+      ]
+    },
+    "codes-onboarding-network": {
+      "statement": "ZS-ONBOARDING-0040 means validation is pending, 0041 that the control plane network configuration is missing or incorrect, and 0042 the same for the worker plane.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "| ZS-ONBOARDING-0040 | Pending validation |",
+          "The validation result is pending.",
+          "| ZS-ONBOARDING-0041 | Control plane network misconfigured |",
+          "Control plane network configuration is missing or incorrect.",
+          "| ZS-ONBOARDING-0042 | Worker plane network misconfigured |",
+          "Worker plane network configuration is missing or incorrect."
+        ] }
+      ]
+    },
+    "codes-onboarding-integrations": {
+      "statement": "Onboarding error groups exist for Copilot Studio (including ZS-ONBOARDING-0133, missing MIP label permission), GitHub, GitLab and Azure DevOps repository integrations.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-system-logs-error-codes.json", "quotes": [
+          "Microsoft Copilot Studio integration errors.",
+          "| ZS-ONBOARDING-0133 | Missing MIP label permission |",
+          "GitHub repository integration errors.",
+          "GitLab repository integration errors.",
+          "Azure DevOps repository integration errors."
+        ] }
+      ]
+    }
+  },
+  "gaps": {
+    "event-retention": { "kind": "semantic", "title": "How long scan events are retained", "status": "open", "detail": "The page says the export covers up to 30 days of scan history while the Time Range filter also offers All Time; it does not say how long events are kept.", "resolves_with": ["lab-test"] },
+    "code-page-anomalies": { "kind": "semantic", "title": "Which error-code rows on the page are misprinted", "status": "open", "detail": "The page prints ZS-LP 0101 with a space, ZS-ONBOARDING-010 where the neighbour is 0100, ZS-ONBOARDING-0151 as both GitLab token validation failed and GitLab app installation failed, ZS-ONBOARDING-0153 as a GitHub repository under GitLab, and ZS-DC-1002 as PermissionDenied with HTTP 401 while its sibling authorization codes use 403. No claim is written from these rows.", "resolves_with": ["source-read"] },
+    "code-remediation": { "kind": "semantic", "title": "Remediation, severity and Severity-filter mapping per error code", "status": "open", "detail": "The page gives no remediation steps for most codes, no severity per code, and no mapping from codes to the Severity filter values. ZS-LP-0002 and ZS-LP-0004 do not appear and the numbering gaps are not explained.", "resolves_with": ["support-ticket"] },
+    "export-format": { "kind": "semantic", "title": "Whether scan event exports are CSV or Excel", "status": "open", "detail": "The scan events page says results export as a CSV file that can also be viewed on Report Management, while the Report Management page says reports are available as Excel files only. The pages do not say whether the logs export appears there as CSV or as Excel.", "resolves_with": ["lab-test"] },
+    "logs-permissions": { "kind": "semantic", "title": "Which roles can view system logs", "status": "open", "detail": "The pages do not state which roles or permissions allow viewing the logs.", "resolves_with": ["source-read"] },
+    "onboarding-codes-owner": { "kind": "semantic", "title": "Whether the onboarding codes belong to an onboarding subject", "status": "open", "detail": "The ZS-ONBOARDING rows may belong with an AI Asset Management onboarding subject; the rows are on the same error-code page.", "resolves_with": ["source-read"] }
+  }
+}

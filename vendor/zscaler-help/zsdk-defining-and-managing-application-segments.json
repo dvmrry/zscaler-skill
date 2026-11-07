@@ -1,0 +1,1445 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Defining and Managing Application Segments",
+  "source": {
+    "url": "https://help.zscaler.com/zsdk/defining-and-managing-application-segments",
+    "node": "1508986",
+    "revision": "3207570",
+    "updated": "2026-05-14",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "When defining an application within an application segment, you can:"
+    },
+    {
+      "item": "Define applications individually or enable application discovery.",
+      "depth": 0
+    },
+    {
+      "item": "Specify the server groups hosting the applications.",
+      "depth": 0
+    },
+    {
+      "item": "Specify the App Connector groups that have access to those server groups.",
+      "depth": 0
+    },
+    {
+      "heading": "Defining Application Segments",
+      "level": 1
+    },
+    {
+      "text": "You can define an application segment by adding an application segment or copying an application segment."
+    },
+    {
+      "text": "On the Application Segments page (Resource Management > Application Management > Application Segments), each application segment is defined using the following configuration steps:"
+    },
+    {
+      "item": "Step 1: Define Applications",
+      "depth": 0
+    },
+    {
+      "item": "On the Define Applications tab, provide the necessary details for the following sections:",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "General Information",
+      "depth": 2
+    },
+    {
+      "item": "Name: Enter a name for the application segment. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Enable the application segment. If Disabled, the defined applications within the application segment are inaccessible to users.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          43,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Disaster Recovery: Enable to designate the defined application segment for disaster recovery. Application segments that are designated for disaster recovery bypass the ZSDK cloud to ensure business continuity in the event of a disaster scenario. Disaster recovery is disabled by default.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Source IP Anchor: (Optional) Leave as Disabled.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          38,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Applications",
+      "depth": 2
+    },
+    {
+      "item": "Enter an FQDN, IP address, local domain, or a wildcard domain (e.g., *.safemarch.com) associated with the application. You can't define an application with hyphenated IP address ranges (e.g., 192.168.0.1-10).",
+      "depth": 3
+    },
+    {
+      "item": "You can define the application with a wildcard only (i.e., *), but this should be the only application in the application segment. You can't define an application this way unless approved by Zscaler. Contact Zscaler Support for more information.",
+      "depth": 3
+    },
+    {
+      "item": "The following guidelines apply to configuring FQDNs:",
+      "depth": 3
+    },
+    {
+      "item": "For some applications, the domain name might be the same as the server name (e.g., RDP and file servers).",
+      "depth": 4
+    },
+    {
+      "item": "For applications that users access using hostnames (e.g., DFS), ensure that you configure DNS search suffixes so that ZSDK can automatically add the search domain to the hostname.",
+      "depth": 4
+    },
+    {
+      "item": "To learn more, see Defining an Application and Configuring Application Discovery.",
+      "depth": 3
+    },
+    {
+      "item": "Browser Access: Select to designate the defined application segment for Browser Access. Application segments that are designated for Browser Access leverage a web browser for user authentication and application access over ZSDK.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "When selected, you must configure the following information:",
+      "depth": 3
+    },
+    {
+      "item": "Internal URL: Enter the following URL details:",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Select the protocol (HTTP or HTTPS) you want Zscaler to use when a request is made to access the application.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          31,
+          35
+        ],
+        [
+          39,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Domain or IP Address: Enter the domain or IP address for monitoring.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Port: Enter the port number. By default, port 80 is entered for HTTP and 443 is entered for HTTPS.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Certificate: Select the certificate for authentication.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Use Untrusted Certificates: Select to allow access to the defined application segment that uses untrusted web server certificates. If HTTPS is selected as the protocol, this checkbox is selected by default.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Allow Unauthenticated OPTIONS Request: Select to allow Zscaler to forward an unauthenticated HTTP pre-flight OPTIONS request from the browser to the application.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "This is required to enable Browser Access on the application segment for ZSDK.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Client Connector Access",
+      "depth": 2
+    },
+    {
+      "item": "Default Port Ranges: Enter the port ranges to set as the default for the application segment.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "TCP Keepalive: Leave as blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "TCP Port Ranges: Enter the TCP port ranges that can be used to access the application.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "For example, if you want to specify the port range 80 to 90, for From..., enter 80, and for To..., enter 90. If you only want to specify one port, you can enter the same number (e.g., 80) for From... and To....",
+      "depth": 3,
+      "strong": [
+        [
+          65,
+          72
+        ],
+        [
+          92,
+          97
+        ],
+        [
+          192,
+          199
+        ],
+        [
+          204,
+          209
+        ]
+      ]
+    },
+    {
+      "item": "Click Add More to add more TCP port ranges.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "UDP Port Ranges: Enter the UDP port ranges that can be used to access the application.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "For example, if you want to specify the port range 90 to 94, for From..., enter 90, and for To..., enter 94. If you only want to specify one port, you can enter the same number (e.g., 90) for From... and To....",
+      "depth": 3,
+      "strong": [
+        [
+          65,
+          72
+        ],
+        [
+          92,
+          97
+        ],
+        [
+          192,
+          199
+        ],
+        [
+          204,
+          209
+        ]
+      ]
+    },
+    {
+      "item": "Click Add More to add more UDP port ranges.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler recommends excluding DNS traffic (port 53) from TCP and UDP port ranges.",
+      "depth": 3
+    },
+    {
+      "item": "Double Encryption: Leave as Disabled.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          28,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Bypass: From the drop-down menu, ensure that Use Client Forwarding Policy is selected by default.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          45,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "ICMP Access: Leave as Disabled.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          22,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Bypass during Reauthentication: Leave as Disabled.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Common Configuration",
+      "depth": 2
+    },
+    {
+      "item": "Health Reporting: Choose whether the App Connector reports the health status of all applications within an application segment continuously (Continuous), while a user is accessing it (On Access), or not at all (None). The default setting is On Access. You can see the status of the application on the Health dashboard. To learn more, see Understanding Health Reporting.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          141,
+          151
+        ],
+        [
+          184,
+          193
+        ],
+        [
+          211,
+          215
+        ],
+        [
+          241,
+          250
+        ]
+      ]
+    },
+    {
+      "item": "You can't choose Continuous health reporting for applications configured with more than 10 ports or if any of the applications in the application segment are defined with only a wildcard (e.g., *). Additionally, if an application has client hostname validation enabled to facilitate client-to-client remote assistance, then the application is not shown on the Health dashboard. To learn more, see Validating a Client Hostname.",
+      "depth": 3,
+      "strong": [
+        [
+          17,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Client Connector can receive CNAME: Choose whether App Connectors can resolve CNAME records. By default, this is enabled, and Zscaler Client Connector receives CNAME DNS records from the App Connector. Disabling it means App Connectors do not send CNAME DNS records.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "App Connector Selection Method: Choose Closer to Application if you prefer the App Connector that is closest to the application to be selected. By default, ZSDK chooses the App Connector as closest to the user (Closer to User). After you make a selection, ZSDK selects an App Connector that has the shortest round-trip time towards the requested application.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          39,
+          60
+        ],
+        [
+          211,
+          225
+        ]
+      ]
+    },
+    {
+      "item": "This setting supports only TCP applications. The limit for the number of targets that check the health of the defined applications at the App Connector is 6,000. If this limit is exceeded, then the Health Reporting of the application is set to None, and a random selection of App Connectors is chosen.",
+      "depth": 3,
+      "strong": [
+        [
+          198,
+          214
+        ],
+        [
+          244,
+          248
+        ]
+      ]
+    },
+    {
+      "item": "If Health Reporting is set to None, the App Connector Selection Method feature cannot be enabled and an error message appears.",
+      "depth": 3,
+      "strong": [
+        [
+          3,
+          19
+        ],
+        [
+          30,
+          34
+        ],
+        [
+          40,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Step 2: Segment Group",
+      "depth": 0
+    },
+    {
+      "item": "You must identify the segment group to which this application segment belongs. Placing the application segment in a segment group allows you to configure user access policies based on that group.",
+      "depth": 0
+    },
+    {
+      "item": "On the Segment Group tab, choose one of the following options, and configure the group accordingly:",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Select Segment Group",
+      "depth": 1
+    },
+    {
+      "item": "Choose an existing segment group from the drop-down menu.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "You can search for a specific group or click Clear Selection to remove any selections.",
+      "depth": 2,
+      "strong": [
+        [
+          45,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Add Segment Group",
+      "depth": 1
+    },
+    {
+      "item": "Enter the following information:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Name: Enter a name for the segment group. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description of the segment group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Status: Set to Enabled.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see About Segment Groups.",
+      "depth": 0
+    },
+    {
+      "item": "Step 3: Server Groups",
+      "depth": 0
+    },
+    {
+      "item": "You must identify the server groups in your enterprise data center that host the applications you've defined.",
+      "depth": 0
+    },
+    {
+      "item": "On the Server Groups tab, choose one of the following options to configure the server group accordingly:",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Select Server Group",
+      "depth": 1
+    },
+    {
+      "item": "Ensure the Server Group Type is set to App Connector.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          28
+        ],
+        [
+          39,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Choose an existing server group from the drop-down menu.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "You can search for a specific group. Click Clear Selection to remove any selections.",
+      "depth": 2,
+      "strong": [
+        [
+          43,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "You can opt to Skip if you want to enable client-to-client remote assistance. To learn more, see Validating a Client Hostname.",
+      "depth": 1,
+      "strong": [
+        [
+          15,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Add Server Group",
+      "depth": 1
+    },
+    {
+      "item": "On the Add Server Group tab:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the server group. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description for the server group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Status: Set to Enabled.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Dynamic Server Discovery: If enabled, ZSDK automatically discovers the appropriate servers for applications as users request the applications. If disabled, you must manually add defined servers to the server group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Connector Type: Leave as App Connector.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          25,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "App Connector Groups: Select the App Connector groups with access to the enterprise data center containing the application servers, and click Done. You can search for a specific group, or click Clear Selection to remove any selections. App Connector groups must be associated with applications that the App Connectors can access (i.e., only assign App Connectors to applications that the App Connector is capable of reaching). ZSDK selects the closest App Connector given the location of the user and the App Connector-to-application latency.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          142,
+          146
+        ],
+        [
+          194,
+          209
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "If you select or add a server group with Dynamic Server Discovery enabled, the Servers step is no longer required because the server group automatically discovers the server.",
+      "depth": 0,
+      "strong": [
+        [
+          79,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see About Server Groups.",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Servers",
+      "depth": 0
+    },
+    {
+      "item": "If you select or add a server group with Dynamic Server Discovery enabled, the Servers tab no longer appears and is no longer required because the server group automatically discovers the server.",
+      "depth": 0,
+      "strong": [
+        [
+          79,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "You must add servers to the server group you created. On the Servers tab, choose one of the following options, and configure the server accordingly:",
+      "depth": 0,
+      "strong": [
+        [
+          61,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Select Server",
+      "depth": 1
+    },
+    {
+      "item": "Choose one or more existing servers from the drop-down menu, and click Done. You can search for a specific group or click Clear Selection to remove any selections. If you selected an existing server group in the previous step, then any servers within that group automatically populate this field.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          71,
+          75
+        ],
+        [
+          122,
+          137
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Add Server",
+      "depth": 1
+    },
+    {
+      "item": "Click Add Server:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the server. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description of the server.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Status: Set to Enabled.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Domain or IP Address: Enter an FQDN or an IP address for the server.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Server Groups without DSD: Select server groups. Only server groups that have Dynamic Server Discovery (DSD) are displayed.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see About Servers.",
+      "depth": 0
+    },
+    {
+      "item": "Step 5: Review",
+      "depth": 0
+    },
+    {
+      "item": "On the Review tab, review your application segment configuration. Click Previous if you need to edit the configuration fields.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          72,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Step 6: Policies",
+      "depth": 0
+    },
+    {
+      "item": "On the Policies tab, view a list of access policies that are currently applied to the applications defined within the application segment.",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If you need to add new or modify existing policies, click Edit Policy. To learn more, see About Access Policy and Managing Access Policies.",
+      "depth": 1,
+      "strong": [
+        [
+          58,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "If you do not need to make any policy changes, click Cancel. This saves your newly configured application segment.",
+      "depth": 1,
+      "strong": [
+        [
+          53,
+          59
+        ]
+      ]
+    },
+    {
+      "heading": "Defined Application Segments with Browser Access",
+      "level": 2
+    },
+    {
+      "text": "If you defined an application segment and enabled Browser Access, you must complete the following additional steps:"
+    },
+    {
+      "item": "Add a browser token validator to enforce Zero Trust Network Access and assign the browser token validator to the defined application segment that has Browser Access enabled.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "If you selected a custom certificate, go to the Browser Access page and copy the CNAME for your public DNS.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If you selected a Zscaler-managed certificate, Zscaler manages the public DNS entries and verifies the FQDN.",
+      "depth": 0
+    },
+    {
+      "item": "Add the CNAME information you copied for your public DNS, and verify that the FQDN for the Browser Access-enabled application resolves to the record.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "For example:",
+      "depth": 0
+    },
+    {
+      "item": "marketing.mockcompany.com. CNAME 3077.217246660302995456.exporter.gslb.zsdkstaging.net.",
+      "depth": 0
+    },
+    {
+      "item": "The FQDN (i.e., marketing.mockcompany.com) resolves to *.exporter.gslb.zsdkstaging.net in your terminal.",
+      "depth": 0
+    },
+    {
+      "item": "To properly resolve Browser Access-enabled applications, the App Connector must use an internal DNS. If an internal DNS is not used, it results in a DNS loop.",
+      "depth": 0
+    },
+    {
+      "item": "Your users can access applications in the defined application segment with Browser Access enabled.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "heading": "Managing Application Segments",
+      "level": 1
+    },
+    {
+      "text": "To manage application segments on the Defined Application Segments page (Resource Management > Application Management > Application Segments > Defined Application Segments), you can:",
+      "strong": [
+        [
+          38,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Add an Application Segment",
+      "depth": 0
+    },
+    {
+      "item": "Click Add Application Segment.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "The Add Application Segment window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Application Segment window, configure the following as indicated in the configuration steps:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Define Applications",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Segment Group",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Server Groups",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Servers",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Review",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Policies",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Copy an Application Segment",
+      "depth": 0
+    },
+    {
+      "item": "Locate the application segment you want to modify and click the Copy icon.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          64,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "The Add Application Segment window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Application Segment window, configure the following as indicated in the configuration steps:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Define Applications",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Segment Group",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Server Groups",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Servers",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Review",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Policies",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Edit an Application Segment",
+      "depth": 0
+    },
+    {
+      "item": "Locate the application segment you want to modify and click the Edit icon.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          64,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "The Edit Application Segment window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "On the Application and Ports Configuration tab, modify the fields as necessary.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "If you click Save, the application segment configuration is saved and then the Edit Application Segment window exits.",
+      "depth": 1,
+      "strong": [
+        [
+          13,
+          17
+        ],
+        [
+          79,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "On the General Information tab, modify any fields as necessary as described in the General Information step.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "If you select multiple server groups when editing, only one server group is saved. This is because multiple server groups mapped to the same application segment can cause the console to disconnect.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Delete an Application Segment",
+      "depth": 0
+    },
+    {
+      "item": "Locate the application segment you want to modify and click the Delete icon.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          64,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "The Confirm: Delete Action window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click Delete to confirm the deletion.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Limitations & Considerations",
+      "level": 1
+    },
+    {
+      "text": "When defining application segments:"
+    },
+    {
+      "item": "You can define up to 6,000 application segments. To learn more, see Ranges & Limitations.",
+      "depth": 0
+    },
+    {
+      "item": "If you select a server group that has Dynamic Server Discovery enabled, your application segment configuration skips the Servers step and goes to the Review step because the server group automatically discovers the server. After your application segment is defined, your application segment automatically finds the respective server based on the server group. To learn more, see Managing Server Groups.",
+      "depth": 0
+    },
+    {
+      "item": "If you select multiple server groups when editing, only one server group is saved. This is because multiple server groups mapped to the same application segment can cause the console to disconnect.",
+      "depth": 0
+    },
+    {
+      "item": "If an application segment is referenced in a segment group and has a policy configured, the delete action is unavailable. An admin must manually review and remove the link to the policy to successfully delete the application segment.",
+      "depth": 0
+    },
+    {
+      "item": "If there are required fields missing, the Incomplete Configuration icon () appears next to the missing item in the application segment.",
+      "depth": 0
+    },
+    {
+      "item": "There are some fields that are recommended to be left to their default setting (e.g., deselected, disabled). These fields do not impact application segments at this time, regardless of whether you choose to select or enable them.",
+      "depth": 0
+    }
+  ]
+}

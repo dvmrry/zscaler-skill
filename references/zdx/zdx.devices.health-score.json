@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "id": "zdx.devices.health-score",
+  "title": "The Device Health Score and the hardware and usage profiles of the Devices Overview",
+  "aliases": [
+    "device health score",
+    "devices overview",
+    "device health dashboard",
+    "hardware profile",
+    "usage profile",
+    "utilization profile",
+    "hardware analysis",
+    "over provisioned",
+    "under provisioned"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.dashboards"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.health-and-events"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.inventory"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Devices Overview is the console's device health scoreboard; the API's device health reads are in [[zdx.devices.health-and-events]].{{overview}} {{subscription}}"
+    },
+    {
+      "label": "The score.",
+      "text": "{{score-bands}} {{contributing-metrics}} {{metric-thresholds}} The help article gives no thresholds, and no weights for combining the contributing scores {{gap:thresholds-and-weights}}."
+    },
+    {
+      "label": "Tabs.",
+      "text": "{{tabs-summary}} {{device-list}}"
+    },
+    {
+      "label": "Profiles.",
+      "text": "{{hardware-profile}} {{usage-profile}}"
+    },
+    {
+      "label": "Hardware Analysis.",
+      "text": "{{hardware-analysis}}"
+    },
+    {
+      "label": "Shared devices.",
+      "text": "Where users share a device the user count exceeds the device count, [[zdx.devices:shared-device-counts]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a poor device score rests on little data because the device was unavailable most of the time before acting on it.",
+      "uses": [
+        "device-list"
+      ]
+    }
+  ],
+  "claims": {
+    "overview": {
+      "statement": "The Devices Overview uses existing user and device data to create a device health scoreboard that monitors the performance of Windows and macOS devices. The Device Health Score gives a view of struggling devices across an entire organization, department, user group or location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "The Devices Overview uses existing user and device data to create a comprehensive device health scoreboard that monitors the performance of Windows and macOS devices.",
+            "The Device Health Score provides a comprehensive view of struggling devices across an entire organization, department, user group, or location."
+          ]
+        }
+      ]
+    },
+    "subscription": {
+      "statement": "Monitoring the Devices Overview needs a ZDX subscription level that supports it and the proper ZDX role; the subscription table lists the Device Health Dashboard as not supported on Standard, Microsoft 365 and Advanced and supported on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "Your Digital Experience (ZDX) subscription level supports monitoring the Devices Overview.",
+            "Your ZDX role has the proper permission level."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Device Health Dashboard | Not supported | Not supported | Not supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "score-bands": {
+      "statement": "The Device Health Score is determined by individual contributing metrics such as CPU, memory and disk usage, and falls in Good (66-100), Okay (34-65) or Poor (0-33); all scores are rounded to the nearest whole number.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "The score is determined by individual contributing metrics (e.g., CPU usage, memory usage, disk usage).",
+            "Good: The usage profile has an acceptable Device Health Score and ranges from 66-100.",
+            "Okay: The usage profile has an acceptable Device Health Score and ranges from 34-65.",
+            "Poor: The usage profile has a below acceptable Device Health Score and ranges from 0-33.",
+            "All scores are rounded to the nearest whole number."
+          ]
+        }
+      ]
+    },
+    "tabs-summary": {
+      "statement": "The Devices Overview has Summary, Device List and Hardware Analysis tabs. The Summary tab takes a range from the previous 2 hours to 48 hours or a custom range within the last 14 days, and shows the organization Device Health Score, impacted devices over time, device health by region, and impacted device counts by usage profile (Light, Normal, Power) and by hardware profile (Low, Standard, High).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "Access the Summary, Device List, or Hardware Analysis tab to monitor device performance at varying levels in your organization.",
+            "Organization Device Health Score: Displays the overall health of devices across the organization by using key performance indicators (e.g., CPU Usage, Memory Usage, Disk Usage).",
+            "Impacted Devices Over Time: View how devices are impacted over time.",
+            "Device Health by Region: A map to highlight the most impacted geolocations with a high number of impacted devices with poor experience.",
+            "Device Count By Usage Profile: The number of impacted devices are categorized into Light, Normal, and Power based on their device usage profile.",
+            "Device Count by Hardware Profile: The number of impacted devices are categorized into Low, Standard, and High based on the hardware profiles."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "Time range options are available in increments from the previous 2 Hours to 48 Hours, or a Custom Range within the last 14 days."
+          ],
+          "after": "## Summary"
+        }
+      ]
+    },
+    "device-list": {
+      "statement": "The Device List provides an exportable list of impacted devices for viewing, with each device's Device Health Score and its classification (Poor, Okay or Good), and can be exported as a CSV file. There might be inaccurate metrics or scores due to insufficient data if the device is unavailable for the majority of the time, and those data points can be hidden.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "The Device List provides an exportable list of impacted devices for viewing purposes.",
+            "Device Health: The Device Health Score and its classification (Poor, Okay, or Good).",
+            "There might be inaccurate metrics or scores due to insufficient data if the device is unavailable for the majority of the time. You can opt to hide these data points.",
+            "You can export the Device List as a CSV file."
+          ]
+        }
+      ]
+    },
+    "contributing-metrics": {
+      "statement": "The contributing metrics behind a device's score include CPU Usage, Memory Usage and Disk Usage scores, an Average Disk Queue Length score, a Battery score and a Wi-Fi Signal Quality score; system crash details (unexpected shutdowns, unexpected reboots, total system crashes and a System Crashes Score); and a Software Issues Score based on the number of software crashes or hangs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "CPU Usage: View the CPU Usage Score that reflects the device's CPU usage.",
+            "Memory Usage: View the Memory Usage Score that reflects the device's RAM usage.",
+            "Disk Usage: View the Disk Usage Score to reflect the device's disk usage.",
+            "Average Disk Queue Length: View the Average Disk Queue Length Score that reflects disk queue length as a metric for disk I/O performance.",
+            "Battery: View the Battery Score that reflects the device's battery usage performance.",
+            "Wi-Fi Signal Quality: View the Wi-Fi Signal Quality Score that reflects the Wi-Fi performance that the device is connected to.",
+            "Unexpected Shutdowns: The number of unexpected shutdowns the device experienced in the selected time range.",
+            "Unexpected Reboots: The number of unexpected reboots the device experienced in the selected time range.",
+            "Total System Crashes: The total number of system crashes the device experienced in the selected time range.",
+            "System Crashes Score: The calculated score for the device system's health.",
+            "Software Issues Score: The calculated score for software stability and performance based on the number of software issues (i.e., software crashes or software hangs)."
+          ]
+        }
+      ]
+    },
+    "metric-thresholds": {
+      "statement": "The key performance metrics are determined by predetermined optimal values for what is considered Good, Warning or Critical health, for CPU usage, memory usage, disk usage, battery, system crashes, average disk queue length, Wi-Fi signal quality and software crashes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "The key performance metrics are determined by the optimal values for what is considered Good, Warning, or Critical health.",
+            "The thresholds are predetermined for the following metrics:",
+            "CPU Usage: The percentage of processing power used by the device's CPU.",
+            "Memory Usage: The percentage of RAM used by a device for a specific application.",
+            "Disk Usage: The percentage of disk space used by a device.",
+            "Battery: The percentage of battery power used for the device.",
+            "System Crashes: The number of system crashes a device experiences.",
+            "Average Disk Queue Length: The average amount of disk read and write requests the device experiences.",
+            "Wi-Fi Signal Quality: The percentage of Wi-Fi signal quality the device is connected to.",
+            "Software Crashes: The number of software crashes a device experiences."
+          ]
+        }
+      ]
+    },
+    "hardware-profile": {
+      "statement": "A device's hardware profile is calculated from the CPU speed, RAM, disk type, number of cores and logical processors, compared with other devices within the organization: Low is below 10% of the organization's distribution, Standard greater than 10% and below 90%, and High greater than 90%.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "The hardware profile is calculated based on the CPU speed, RAM, disk type, number of cores, and logical processors to distribute each profile into:",
+            "Low: The hardware profile is categorized for less than 10% of the organization's distribution.",
+            "Standard: The hardware profile is categorized for greater than 10% and below 90% of the organization's distribution.",
+            "High: The hardware profile is categorized for greater than 90% of the organization's distribution.",
+            "Each hardware profile is compared to other devices within the organization."
+          ]
+        }
+      ]
+    },
+    "usage-profile": {
+      "statement": "A device's usage profile is categorized from its CPU and memory usage for the previous 14 days: Light when below 80%, Normal when 80 to 90%, and Power when above 90%.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "The Utilization Profile Calculation calculates and categorizes based on the device's CPU and memory usage for the previous 14 days.",
+            "Light Usage: The usage profile is considered acceptable when the device's CPU and memory usage is below 80%",
+            "Normal Usage: The usage profile is considered moderate and acceptable when the device's CPU and memory usage range from 80 to 90%.",
+            "Power Usage: The usage profile is considered high and strained when the device's CPU and memory usage is above 90%."
+          ]
+        }
+      ]
+    },
+    "hardware-analysis": {
+      "statement": "Hardware Analysis classes a device as Over Provisioned (a higher number of acceptable hardware resources than needed; amber), Right Sized (resources match its usage level; green) or Under Provisioned (not enough resources for its current usage level; red, with a recommendation to upgrade hardware). Its Usage Analysis analyzes every 7 days and can look up to the previous 14 days of data, and the device data are gathered from the previous 14 days and can be exported as a CSV file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "Over Provisioned: A device has a higher number of acceptable hardware resources.",
+            "Right Sized: A device is right sized when the acceptable amount of resources matches its usage level.",
+            "Under Provisioned: A device does not have enough resources for its current usage level.",
+            "opportunity to optimize resource allocation to reduce costs or redistribute resources. The color for this range is amber.",
+            "This indicates an efficient allocation of resources. The color for this range is green.",
+            "Zscaler recommends upgrading hardware to adjust for the device's necessary resources. The color for this range is red.",
+            "The Usage Analysis analyzes every 7 days, and you can look up to the previous 14 days of data.",
+            "The device data are gathered from the previous 14 days.",
+            "You can export to download a CSV file of the device list."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "thresholds-and-weights": {
+      "kind": "semantic",
+      "title": "The Good, Warning and Critical thresholds and how contributing scores combine into the Device Health Score",
+      "status": "open",
+      "detail": "The Devices Overview says the thresholds for each contributing metric are predetermined but gives none of them, nor how the contributing scores combine into the Device Health Score. The subscription table has no row for the Device Health Dashboard's ranges.",
+      "blocks": "explaining why a device scores Poor",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

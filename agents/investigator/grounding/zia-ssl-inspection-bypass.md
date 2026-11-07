@@ -7,7 +7,11 @@ last-verified: "2026-05-07"
 confidence: medium
 source-tier: practice
 sources:
-  - "references/zia/ssl-inspection.md"
+  - "kb:zia.ssl-inspection"
+  - "kb:zia.ssl-inspection.actions"
+  - "kb:zia.ssl-inspection.bypass-impact"
+  - "kb:zia.ssl-inspection.exemptions"
+  - "kb:zia.ssl-inspection.rules"
 author-status: draft
 ---
 
@@ -25,18 +29,23 @@ author-status: draft
 
 Read these *before* interpreting any web log or transaction record. SSL inspection bypass has two structural traps: the two "Do Not Inspect" variants are semantically different, and bypass is a cross-policy gate (it affects what subsequent policies can see).
 
-- [`references/zia/ssl-inspection.md § The two "Do Not Inspect" variants — read this carefully`](../../../references/zia/ssl-inspection.md) — the variant trap.
-- [`references/zia/ssl-inspection.md § SSL bypass is a cross-policy gate`](../../../references/zia/ssl-inspection.md) — what depends on inspection (URL filtering, DLP, sandboxing) and what's invisible without it.
-- [`references/zia/ssl-inspection.md § Bypass rule hygiene — anti-patterns`](../../../references/zia/ssl-inspection.md) — over-broad bypass patterns and what they cost.
-- [`references/zia/ssl-inspection.md § Audit rubric for SSL bypass rules`](../../../references/zia/ssl-inspection.md) — checklist for evaluating an existing bypass rule.
+- [`zia.ssl-inspection.actions`](kb:zia.ssl-inspection.actions) — the variant trap.
+- [`zia.ssl-inspection.bypass-impact`](kb:zia.ssl-inspection.bypass-impact) — what depends on inspection (URL filtering, DLP, sandboxing) and what's invisible without it.
+- [`zia.ssl-inspection.exemptions`](kb:zia.ssl-inspection.exemptions) — over-broad bypass patterns and what they cost.
+- [`zia.ssl-inspection.rules`](kb:zia.ssl-inspection.rules) — checklist for evaluating an existing bypass rule.
 
 ## Load docs
 
-- `references/zia/ssl-inspection.md`
+- `kb:zia.ssl-inspection`
+- `kb:zia.ssl-inspection.actions`
+- `kb:zia.ssl-inspection.bypass-impact`
+- `kb:zia.ssl-inspection.exemptions`
+- `kb:zia.ssl-inspection.rules`
 
-## Inspect snapshot
+## Inspect tenant config
 
-- `_data/snapshot/<cloud>/zia/ssl-inspection-rules.json`
+- The overlay's IaC for `zia/ssl-inspection-rules` (when `overlay.json` declares `iac`)
+- `zscalerctl zia ssl-inspection-rules list` (live, read-only; only when IaC cannot answer or for drift)
 
 ## Use runtime logs only when
 

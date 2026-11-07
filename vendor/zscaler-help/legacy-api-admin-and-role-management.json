@@ -1,0 +1,1058 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Admin and Role Management",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/admin-and-role-management",
+    "node": "1450251",
+    "revision": "2562201",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Admin%20and%20Role%20Management_5.json?VersionId=ng5m7JZV_L9T6a4t7OzacnuFS4xmi9vI",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Cloud & Branch Connector API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "v1.0"
+    },
+    "servers": [
+      {
+        "url": "https://{host}:{port}/wapi/v1",
+        "variables": {
+          "host": {
+            "description": "Private APIs Server IP/Domain name hosting Edge Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      },
+      {
+        "url": "https://{host}:{port}/api/v1",
+        "variables": {
+          "host": {
+            "description": "Public APIs Server IP/Domain name hosting Edge Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      }
+    ],
+    "tags": [
+      {
+        "name": "Admin and Role Management"
+      }
+    ],
+    "paths": {
+      "/adminRoles": {
+        "get": {
+          "tags": [
+            "Admin and Role Management"
+          ],
+          "description": "Lists existing admin roles.",
+          "operationId": "AdminRoleZResource_getRoles",
+          "parameters": [
+            {
+              "name": "includeAuditorRole",
+              "in": "query",
+              "schema": {
+                "type": "boolean"
+              },
+              "description": "Include or exclude auditor role information in the list."
+            },
+            {
+              "name": "includePartnerRole",
+              "in": "query",
+              "schema": {
+                "type": "boolean",
+                "default": true
+              },
+              "description": "Include or exclude partner admin role information in the list."
+            },
+            {
+              "name": "includeApiRole",
+              "in": "query",
+              "schema": {
+                "type": "boolean",
+                "default": true
+              },
+              "description": "Include or exclude API role information in the list."
+            },
+            {
+              "name": "id",
+              "in": "query",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "description": "Include or exclude role ID information in the list."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AdminRole"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Admin and Role Management"
+          ],
+          "description": "Creates an admin role.",
+          "operationId": "AdminRoleZResource_addRole",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRole"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AdminRole"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/adminRoles/{roleId}": {
+        "put": {
+          "tags": [
+            "Admin and Role Management"
+          ],
+          "description": "Updates the admin role specified by the role ID.",
+          "operationId": "AdminRoleZResource_updateRole",
+          "parameters": [
+            {
+              "name": "roleId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "description": "The unique identifier for the admin role."
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRole"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AdminRole"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Admin and Role Management"
+          ],
+          "description": "Deletes the admin role specified by the role ID.",
+          "operationId": "AdminRoleZResource_deleteRole",
+          "parameters": [
+            {
+              "name": "roleId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "description": "The unique identifier for the admin role."
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No Content",
+              "content": {
+                "application/json": {}
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        }
+      },
+      "/passwordChange": {
+        "post": {
+          "tags": [
+            "Admin and Role Management"
+          ],
+          "description": "Changes current password.",
+          "operationId": "PasswordChangeZResource_updatePassword",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordChange"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {}
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        }
+      },
+      "/adminUsers": {
+        "get": {
+          "tags": [
+            "Admin and Role Management"
+          ],
+          "description": "Lists admin users.",
+          "operationId": "AdminUserZResource_getAdminUsers",
+          "parameters": [
+            {
+              "name": "includeAuditorUsers",
+              "in": "query",
+              "schema": {
+                "type": "boolean"
+              },
+              "description": "Include or exclude auditor user information in the list."
+            },
+            {
+              "name": "includeAdminUsers",
+              "in": "query",
+              "schema": {
+                "type": "boolean",
+                "default": true
+              },
+              "description": "Include or exclude admin user information in the list."
+            },
+            {
+              "name": "partnerType",
+              "in": "query",
+              "description": "Include or exclude partner type information in the list.",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "ANY",
+                  "ORG_ADMIN",
+                  "SDWAN",
+                  "MSFT_VIRTUAL_WAN",
+                  "PUBLIC_API",
+                  "EXEC_INSIGHT",
+                  "EXEC_INSIGHT_AND_ORG_ADMIN",
+                  "ZDX_ADMIN",
+                  "EDGE_CONNECTOR_ADMIN",
+                  "CSPM_ADMIN",
+                  "ZSCALER_DECEPTION_ADMIN",
+                  "ZSCALER_DECEPTION_SUPER_ADMIN"
+                ]
+              }
+            },
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to partially match against an admin user's Login ID or Name.",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 100; the maximum size is 1000.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 100
+              }
+            },
+            {
+              "name": "version",
+              "in": "query",
+              "description": "Specifies backed up admins from backup version.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 0
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AdminUser"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Admin and Role Management"
+          ],
+          "description": "Creates an admin user.",
+          "operationId": "AdminUserZResource_addAdminUser",
+          "parameters": [
+            {
+              "name": "associateWithExistingAdmin",
+              "in": "query",
+              "schema": {
+                "type": "boolean",
+                "default": false
+              },
+              "description": "Indicates whether to associate this admin with an existing admin."
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUser"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AdminUser"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        }
+      },
+      "/adminUsers/{userId}": {
+        "get": {
+          "tags": [
+            "Admin and Role Management"
+          ],
+          "description": "Gets the admin user specified by the user ID.",
+          "operationId": "AdminUserZResource_getAdminUserById",
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "description": "The unique identifier for the admin user."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AdminUser"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Admin and Role Management"
+          ],
+          "description": "Updates admin user for the specified user ID.",
+          "operationId": "AdminUserZResource_updateAdminUser",
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "description": "The unique identifier for the admin user."
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUser"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AdminUser"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Admin and Role Management"
+          ],
+          "description": "Deletes an admin user for the specified user ID.",
+          "operationId": "AdminUserZResource_deleteAdminUser",
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "description": "The unique identifier for the admin user."
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No Content",
+              "content": {
+                "application/json": {}
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "AdminRole": {
+          "type": "object",
+          "description": "Admin role information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Admin role ID."
+            },
+            "rank": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Admin rank of this admin role. This is applicable only when admin rank is enabled in the advanced settings. Default value is 7 (the lowest rank). The assigned admin rank determines the roles or admin users this user can manage, and which rule orders this admin can access.       "
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of the role."
+            },
+            "policyAccess": {
+              "type": "string",
+              "description": "Policy access permission.",
+              "enum": [
+                "NONE",
+                "READ_ONLY",
+                "READ_WRITE"
+              ]
+            },
+            "alertingAccess": {
+              "type": "string",
+              "description": "Alerting access permission.",
+              "enum": [
+                "NONE",
+                "READ_ONLY",
+                "READ_WRITE"
+              ]
+            },
+            "dashboardAccess": {
+              "type": "string",
+              "description": "Dashboard access permission.",
+              "enum": [
+                "NONE",
+                "READ_ONLY",
+                "READ_WRITE"
+              ]
+            },
+            "reportAccess": {
+              "type": "string",
+              "description": "Report access permission.",
+              "enum": [
+                "NONE",
+                "READ_ONLY",
+                "READ_WRITE"
+              ]
+            },
+            "analysisAccess": {
+              "type": "string",
+              "description": "Insights logs access permission.",
+              "enum": [
+                "NONE",
+                "READ_ONLY",
+                "READ_WRITE"
+              ]
+            },
+            "usernameAccess": {
+              "type": "string",
+              "description": "Username access permission. When set to NONE, the username will be obfuscated.",
+              "enum": [
+                "NONE",
+                "READ_ONLY",
+                "READ_WRITE"
+              ]
+            },
+            "deviceInfoAccess": {
+              "type": "string",
+              "description": "Device information access permission.",
+              "enum": [
+                "NONE",
+                "READ_ONLY",
+                "READ_WRITE"
+              ]
+            },
+            "adminAcctAccess": {
+              "type": "string",
+              "description": "Admin and role management access permission.",
+              "enum": [
+                "NONE",
+                "READ_ONLY",
+                "READ_WRITE"
+              ]
+            },
+            "isAuditor": {
+              "type": "boolean",
+              "description": "Indicates whether this is an auditor role."
+            },
+            "permissions": {
+              "type": "array",
+              "description": "List of functional areas to which this role has access. This attribute is subject to change.",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "USER_ACCESS",
+                  "SECURE",
+                  "MANAGE",
+                  "COMPLY",
+                  "SSL_POLICY",
+                  "ADVANCED_SETTINGS",
+                  "TRAFFIC_FORWARDING",
+                  "AUTHENTICATION_CONFIGURATION",
+                  "FIREWALL_DNS",
+                  "NSS_CONFIGURATION",
+                  "VZEN_CONFIGURATION",
+                  "LOCATIONS",
+                  "HOSTED_PAC_FILES",
+                  "EZ_AGENT_CONFIGURATIONS",
+                  "SECURE_AGENT_NOTIFICATIONS",
+                  "VPN_CREDENTIALS",
+                  "PROXY_GATEWAY",
+                  "STATIC_IPS",
+                  "GRE_TUNNELS",
+                  "SUBCLOUDS",
+                  "AUTHENTICATION_SETTINGS",
+                  "IDENTITY_PROXY_SETTINGS",
+                  "USER_MANAGEMENT",
+                  "APIKEY_MANAGEMENT",
+                  "PARTNER_INTEGRATION",
+                  "POLICY_RESOURCE_MANAGEMENT",
+                  "CUSTOM_URL_CAT",
+                  "OVERRIDE_EXISTING_CAT",
+                  "TENANT_PROFILE_MANAGEMENT",
+                  "CLIENT_CONNECTOR_PORTAL",
+                  "CUSTOMER_ACCT_INFO",
+                  "CUSTOMER_SUBSCRIPTION",
+                  "CUSTOMER_ORG_SETTINGS",
+                  "REMOTE_ASSISTANCE_MANAGEMENT",
+                  "ZDX_CONFIGURATION",
+                  "ZDX_EXECUTIVE_INSIGHTS",
+                  "ZDX_ADMIN_MANAGEMENT",
+                  "ZDX_USER_DEVICE_NAME_ACCESS",
+                  "ZDX_DASHBOARD",
+                  "ZDX_ALERTS",
+                  "ZDX_LTSESSION",
+                  "ZDX_WEBHOOKS",
+                  "ZDX_ONBOARDING",
+                  "ZDX_INTERNAL",
+                  "ZDX_UCAAS",
+                  "ZDX_UCAAS_NAME_ACCESS",
+                  "ZDX_MA_ACCESS",
+                  "ZDX_CLIENT_APPS",
+                  "ZDX_ADMIN_SETTINGS",
+                  "ZDX_DEVICE_INVENTORY",
+                  "ZDX_YENGINE_SVC",
+                  "ZDX_DASHBOARD_PERF",
+                  "ZDX_DASHBOARD_APP_OVERVIEW",
+                  "ZDX_DASHBOARD_APP_DASHBOARD",
+                  "ZDX_DASHBOARD_USER_OVERVIEW",
+                  "ZDX_DASHBOARD_USER_DASHBOARD",
+                  "ZDX_USER_SEARCH_ACCESS",
+                  "ZDX_USER_NAME_ACCESS",
+                  "ZDX_LOCATION_ACCESS",
+                  "ZDX_DEVICE_NAME_ACCESS",
+                  "ZDX_IP_ADDRESS_ACCESS",
+                  "ZDX_UCAAS_CONFIGURATION",
+                  "ZDX_UCAAS_MEETING",
+                  "ZDX_UCAAS_APPLICATION",
+                  "ZDX_TIME_DURATION",
+                  "ZDX_EPT",
+                  "ZDX_YENGINE_ANALYSIS",
+                  "ZDX_PCAP_CAPTURE",
+                  "EDGE_CONNECTOR_DASHBOARD",
+                  "EDGE_CONNECTOR_CLOUD_PROVISIONING",
+                  "EDGE_CONNECTOR_ADMIN_MANAGEMENT",
+                  "EDGE_CONNECTOR_LOCATION_MANAGEMENT",
+                  "EDGE_CONNECTOR_FORWARDING",
+                  "EDGE_CONNECTOR_NSS_CONFIGURATION",
+                  "EDGE_CONNECTOR_TEMPLATE",
+                  "CSPM_CONFIGURATION",
+                  "DEVICE_NAME_ACCESS",
+                  "ZSCALER_DECEPTION_PORTAL"
+                ]
+              }
+            },
+            "featurePermissions": {
+              "type": "object",
+              "description": "<p>Feature access type and permission, e.g., {\"APIKEY_MANAGEMENT\": \"READ_WRITE\", etc.}.</p>  <p>All feature access types and permissions are required for POST and PUT:</p> <ul><li>APIKEY_MANAGEMENT</li><li>EDGE_CONNECTOR_CLOUD_PROVISIONING</li><li>EDGE_CONNECTOR_LOCATION_MANAGEMENT</li> <li>EDGE_CONNECTOR_DASHBOARD</li><li>EDGE_CONNECTOR_FORWARDING</li><li>EDGE_CONNECTOR_TEMPLATE</li> <li>REMOTE_ASSISTANCE_MANAGEMENT</li><li>EDGE_CONNECTOR_ADMIN_MANAGEMENT</li><li>EDGE_CONNECTOR_NSS_CONFIGURATION</li></ul>\n",
+              "additionalProperties": {
+                "type": "string",
+                "description": "Feature access permission.",
+                "enum": [
+                  "NONE",
+                  "READ_ONLY",
+                  "READ_WRITE"
+                ]
+              }
+            },
+            "isNonEditable": {
+              "type": "boolean",
+              "description": "Indicates whether this admin user is editable."
+            },
+            "logsLimit": {
+              "type": "string",
+              "description": "Log range limit.",
+              "enum": [
+                "UNRESTRICTED",
+                "MONTH_1",
+                "MONTH_2",
+                "MONTH_3",
+                "MONTH_4",
+                "MONTH_5",
+                "MONTH_6"
+              ]
+            },
+            "roleType": {
+              "type": "string",
+              "description": "The admin role type. (This attribute is subject to change.)",
+              "enum": [
+                "ANY",
+                "ORG_ADMIN",
+                "SDWAN",
+                "MSFT_VIRTUAL_WAN",
+                "PUBLIC_API",
+                "EXEC_INSIGHT",
+                "EXEC_INSIGHT_AND_ORG_ADMIN",
+                "ZDX_ADMIN",
+                "EDGE_CONNECTOR_ADMIN",
+                "CSPM_ADMIN",
+                "ZSCALER_DECEPTION_ADMIN",
+                "ZSCALER_DECEPTION_SUPER_ADMIN"
+              ]
+            },
+            "featurePermissionsFromJson": {
+              "type": "string",
+              "writeOnly": true,
+              "description": "Feature access permission from JSON."
+            }
+          }
+        },
+        "PasswordChange": {
+          "type": "object",
+          "properties": {
+            "userName": {
+              "type": "string",
+              "description": "Admin's username."
+            },
+            "oldPassword": {
+              "type": "string",
+              "description": "Old password."
+            },
+            "newPassword": {
+              "type": "string",
+              "description": "New password."
+            }
+          }
+        },
+        "AdminUser": {
+          "type": "object",
+          "description": "Admin user information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Admin's user ID."
+            },
+            "loginName": {
+              "type": "string",
+              "description": "Admin's login name. The login name is in email format and uses the domain name associated with the Zscaler account or the SSO domain defined in SAML.\n"
+            },
+            "userName": {
+              "type": "string",
+              "description": "Admin user's \"friendly\" name, e.g., \"FirstName LastName\""
+            },
+            "email": {
+              "type": "string",
+              "description": "Admin user's email address."
+            },
+            "role": {
+              "description": "Admin user's assigned role.",
+              "$ref": "#/components/schemas/EntityReference"
+            },
+            "comments": {
+              "type": "string",
+              "description": "Comments for this admin user."
+            },
+            "adminScopescopeGroupMemberEntities": {
+              "type": "array",
+              "description": "Only applicable for the LOCATION_GROUP admin scope type, in which case this attribute gives the list of ID/name pairs of locations within the location group. The attribute name is subject to change.",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "adminScopeType": {
+              "type": "string",
+              "description": "The admin scope type. An admin's scope can be limited to certain resources, policies, or reports. An admin's scope can be limited by LOCATION, LOCATION GROUP, or DEPARTMENT. If this is not specified, then the admin has an ORGANIZATION scope by default. The attribute name is subject to change.",
+              "enum": [
+                "ORGANIZATION",
+                "DEPARTMENT",
+                "LOCATION",
+                "LOCATION_GROUP"
+              ]
+            },
+            "adminScopeScopeEntities": {
+              "type": "array",
+              "description": "Based on the admin scope type, the entities can be the ID/name pair of departments, locations, or location groups. The attribute name is subject to change.",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "isDefaultAdmin": {
+              "type": "boolean",
+              "description": "Indicates whether this is a default admin."
+            },
+            "disabled": {
+              "type": "boolean",
+              "description": "Indicates whether this admin is disabled."
+            },
+            "isDeprecatedDefaultAdmin": {
+              "type": "boolean",
+              "description": "Indicates whether this admin is deletable. If true, this admin is read-only and not deletable."
+            },
+            "isAuditor": {
+              "type": "boolean",
+              "description": "Indicates whether the user is an auditor. This attribute is subject to change."
+            },
+            "password": {
+              "type": "string",
+              "description": "The admin's password. If admin single sign-on (SSO) is disabled, then this field is mandatory for POST requests. This information is not provided in a GET response."
+            },
+            "isPasswordLoginAllowed": {
+              "type": "boolean",
+              "description": "The default is true when SAML Authentication is disabled. When SAML Authentication is enabled, this can be set to false in order to force the admin to login via SSO only."
+            },
+            "isSecurityReportCommEnabled": {
+              "type": "boolean",
+              "description": "Indicates whether communication for Security Report is enabled."
+            },
+            "isServiceUpdateCommEnabled": {
+              "type": "boolean",
+              "description": "Indicates whether communication setting for Service Update is enabled."
+            },
+            "isProductUpdateCommEnabled": {
+              "type": "boolean",
+              "description": "Indicates whether communication setting for Product Update is enabled."
+            },
+            "pwdLastModifiedTime": {
+              "type": "integer",
+              "format": "int64",
+              "description": "Last time admin password was modified."
+            },
+            "isPasswordExpired": {
+              "type": "boolean",
+              "description": "Indicates whether an admin's password has expired."
+            },
+            "isExecMobileAppEnabled": {
+              "type": "boolean",
+              "description": "Indicates whether Executive Insights App access is enabled for the admin."
+            },
+            "sendMobileAppInvite": {
+              "type": "boolean",
+              "description": "Indicates whether to send an invitation email to download Executive Insights App to admin."
+            },
+            "execMobileAppTokens": {
+              "type": "array",
+              "description": "Read-only information about an Executive Insights App token, if it exists.",
+              "items": {
+                "$ref": "#/components/schemas/MobileAppTokenInfo"
+              }
+            },
+            "newLocationCreateAllowed": {
+              "type": "boolean",
+              "description": "Indicates whether user is allowed to create a new location."
+            },
+            "sendZdxOnboardInvite": {
+              "type": "boolean",
+              "description": "Indicates whether to send an invitation email for ZDX onboarding to admin."
+            },
+            "name": {
+              "type": "string",
+              "description": "Admin user's \"friendly\" name, e.g., \"FirstName LastName\" (this field typically matches <code>userName</code>.)\n"
+            }
+          }
+        },
+        "EntityReference": {
+          "type": "object",
+          "description": "General-purpose object. This is an immutable reference to an entity, which mainly consists of ID and name.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int64",
+              "description": "Identifier that uniquely identifies an entity."
+            },
+            "name": {
+              "type": "string",
+              "description": "The configured name of the entity."
+            },
+            "isNameL10nTag": {
+              "type": "boolean",
+              "description": "General purpose."
+            },
+            "extensions": {
+              "type": "object",
+              "description": "General purpose.",
+              "additionalProperties": {
+                "type": "string",
+                "description": "General purpose."
+              }
+            },
+            "deleted": {
+              "type": "boolean",
+              "description": "General purpose."
+            },
+            "externalId": {
+              "type": "string",
+              "description": "General purpose."
+            },
+            "associationTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "General purpose."
+            }
+          }
+        },
+        "MobileAppTokenInfo": {
+          "type": "object",
+          "description": "Not applicable to Cloud & Branch Connector. Executive Insights App device token information.",
+          "properties": {
+            "cloud": {
+              "type": "string",
+              "description": "Not applicable to Cloud & Branch Connector."
+            },
+            "orgId": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Not applicable to Cloud & Branch Connector."
+            },
+            "name": {
+              "type": "string",
+              "description": "Not applicable to Cloud & Branch Connector."
+            },
+            "tokenId": {
+              "type": "string",
+              "description": "Not applicable to Cloud & Branch Connector."
+            },
+            "token": {
+              "type": "string",
+              "description": "Not applicable to Cloud & Branch Connector."
+            },
+            "tokenExpiry": {
+              "type": "integer",
+              "format": "int64",
+              "description": "Not applicable to Cloud & Branch Connector."
+            },
+            "createTime": {
+              "type": "integer",
+              "format": "int64",
+              "description": "Not applicable to Cloud & Branch Connector."
+            },
+            "deviceId": {
+              "type": "string",
+              "description": "Not applicable to Cloud & Branch Connector."
+            },
+            "deviceName": {
+              "type": "string",
+              "description": "Not applicable to Cloud & Branch Connector."
+            }
+          }
+        }
+      }
+    }
+  }
+}

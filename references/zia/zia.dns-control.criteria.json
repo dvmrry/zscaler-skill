@@ -1,0 +1,331 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.criteria",
+  "title": "What a DNS Control rule can match on",
+  "aliases": [
+    "dns control criteria",
+    "dns rule conditions",
+    "dns record types",
+    "dns request types rule",
+    "resolved ip location"
+  ],
+  "binds": [
+    "zia/firewall-dns-rules#dnsRuleRequestTypes",
+    "zia/firewall-dns-rules#resCategories",
+    "zia/firewall-dns-rules#destCountries",
+    "zia/firewall-dns-rules#destIpCategories",
+    "zia/firewall-dns-rules#users",
+    "zia/firewall-dns-rules#groups",
+    "zia/firewall-dns-rules#departments",
+    "zia/firewall-dns-rules#locations",
+    "zia/firewall-dns-rules#locationGroups"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.dns-control.nrod",
+      "because": "zia.dns-control.nrod:dns-criterion"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dns-control.tunnel-detection",
+      "because": "zia.dns-control.tunnel-detection:tunnels-as-applications"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.dns-record-fields",
+      "because": "zia.logs.dns-record-fields:two-categories"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/firewall-dns-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.actions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{condition-list}} {{scope-reference-fields}} {{console-dns-conditions}} {{condition-logic}} {{unset-ignored}} {{limits-32}}"
+    },
+    {
+      "text": "{{request-types-field}} {{https-rr-ech}} {{res-categories-field}} The mapping between the console's resolved-IP conditions and those fields is open {{gap:resolved-ip-field-mapping}}. Whether identity criteria need Advanced Firewall is open {{gap:advanced-firewall-criteria}}."
+    },
+    {
+      "text": "{{test-domains}} What a matching rule does is in [[zia.dns-control.actions]]; domain classification for newly registered domains is in [[zia.dns-control.nrod]]; tunnels as a matchable item are in [[zia.dns-control.tunnel-detection]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a console condition is inferred from a field name, since the mapping between them is open.",
+      "uses": [
+        "resolved-ip-field-mapping"
+      ]
+    },
+    {
+      "do": "Whether a condition left at Any is set on purpose, since it is ignored during evaluation.",
+      "uses": [
+        "unset-ignored"
+      ]
+    },
+    {
+      "do": "Whether identity criteria need Advanced Firewall for this rule, which is untested.",
+      "uses": [
+        "advanced-firewall-criteria"
+      ]
+    }
+  ],
+  "claims": {
+    "https-rr-ech": {
+      "statement": "The DNS Insights Logs article says the HTTPS DNS resource record type must be blocked to stop Encrypted Client Hello (ECH) and prevent unmanaged encrypted traffic flows through the secure web gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-insights-logs-columns.json",
+          "quotes": [
+            "You need to block the HTTPS DNS resource record type to stop ECH and prevent unmanaged encrypted traffic flows happening through the secure web gateway."
+          ]
+        }
+      ]
+    },
+    "test-domains": {
+      "statement": "DNS requests and responses are categorized into predefined super categories divided into specific categories. Zscaler provides a set of immutable test FQDNs for DNS request categories and for DNS tunnels and network apps that can be used to validate DNS Control policies; these test domains resolve to Google, and errors might occur when accessing them through a browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-test-domains.json",
+          "quotes": [
+            "Zscaler organizes DNS requests and responses into a hierarchy of categories for granular filtering and policy creation.",
+            "There are predefined super categories that are divided into specific categories.",
+            "Zscaler provides a set of immutable test FQDNs for DNS request categories and DNS tunnels and network apps that you can use to validate your DNS Control policies.",
+            "These test domains resolve to Google. You might encounter errors when accessing these FQDNs through a browser."
+          ]
+        }
+      ]
+    },
+    "condition-list": {
+      "statement": "DNS Control rules can use conditions such as users, groups, or departments, client locations, categorization of domains and IP addresses, DNS record types, and the location of resolved IPs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.json",
+          "quotes": [
+            "Define granular DNS filtering rules using a number of DNS conditions, such as users, groups, or departments, client locations, categorization of domains and IP addresses, DNS record types, the location of resolved IPs, etc."
+          ]
+        }
+      ]
+    },
+    "request-types-field": {
+      "statement": "The rule resource carries the DNS request types the rule applies to in `dnsRuleRequestTypes`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "DNS request types to which the rule applies",
+            "DNSRuleRequestTypes []string `json:\"dnsRuleRequestTypes,omitempty\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#dnsRuleRequestTypes"
+      ]
+    },
+    "res-categories-field": {
+      "statement": "The rule resource carries a list of IP categories in `resCategories`; the SDK comment calls it destination IP categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "List of destination IP categories to which the rule applies.",
+            "ResCategories []string `json:\"resCategories,omitempty\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#resCategories"
+      ],
+      "gaps": [
+        "resolved-ip-field-mapping"
+      ]
+    },
+    "condition-logic": {
+      "statement": "Rule conditions are grouped into categories (Who/Where/When, Source IP, Destination/Resolved IPs, DNS Application); categories combine with AND, and each category has its own AND/OR operators inside.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.json",
+          "quotes": [
+            "The DNS Control policy supports different rule conditions, grouped into categories.",
+            "The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:",
+            "Who, Where, & When: [ (Users OR Groups OR Departments) AND (Locations OR Location Groups) AND Time ] AND",
+            "Source IP: (Source Groups OR IP Addresses) AND",
+            "Destination/Resolved IPs: (Destination IPv4 Groups OR DNS Server IP Addresses) AND",
+            "DNS Application: [ (DNS Tunnels & Network Apps OR DNS Application Group) AND (Resolved IP-Based Countries OR Requested Categories OR Response Categories) AND DNS Request Types AND Protocol AND (Endpoint Applications OR Endpoint Application Tags) AND Endpoint Application Risk Level ]"
+          ]
+        }
+      ]
+    },
+    "console-dns-conditions": {
+      "statement": "The DNS Application conditions include DNS Tunnels & Network Apps, DNS Application Group, Resolved IP-Based Countries (destination identified by server location), Request/Response Categories (URL and TLD categories), DNS Request Type, Protocols, and endpoint application conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.json",
+          "quotes": [
+            "DNS Tunnels & Network Apps: Select the DNS tunnels to which the rule applies.",
+            "DNS Application Group: Select the DNS Application Groups to which the rule applies.",
+            "Resolved IP-Based Countries: Select the countries you want to control. Their destination is identified based on the server location.",
+            "Request/Response Categories: Select the request and response URL and TLD categories to which the rule applies.",
+            "DNS Request Type: Select the DNS request types to which the rule applies.",
+            "Protocols: Select the protocols you want to control from DNS Over HTTPS, TCP, and UDP.",
+            "Endpoint Applications: Choose whether the rule should specifically include the selected endpoint applications, or exclude them to cover all other non-specified applications."
+          ]
+        }
+      ]
+    },
+    "unset-ignored": {
+      "statement": "A condition left at its default (Any) is ignored during policy evaluation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.json",
+          "quotes": [
+            "By default, the fields are set to Any. If you don't make specific selections, the field remains set to Any, and the criterion is ignored during policy evaluation."
+          ],
+          "after": "Select up to two time intervals during which the rule applies."
+        }
+      ]
+    },
+    "limits-32": {
+      "statement": "A rule can select up to 32 users, 32 groups, 32 departments, 32 locations and 32 location groups; Zscaler Support can raise the limits for users, groups, departments and locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.json",
+          "quotes": [
+            "Contact Zscaler Support to increase the limit of Users, Groups, Departments, or Locations.",
+            "Select up to 32 organization users to which the rule applies.",
+            "Select up to 32 user groups to which the rule applies.",
+            "Select up to 32 departments to which the rule applies.",
+            "Select up to 32 locations to which the rule applies.",
+            "Select up to 32 location groups to which this rule applies."
+          ]
+        }
+      ]
+    },
+    "scope-reference-fields": {
+      "statement": "A DNS rule scopes by identity, location and time through the array fields `users`, `groups`, `departments`, `locations`, `locationGroups` and `timeWindows`, and carries its rule labels in `labels`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallDnsRules/get/responses/200/content/application~1json/schema/items/properties/users",
+          "expect": {
+            "type": "array",
+            "description": "The users to which the rule applies"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallDnsRules/get/responses/200/content/application~1json/schema/items/properties/groups",
+          "expect": {
+            "type": "array",
+            "description": "The user groups to which the rule applies"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallDnsRules/get/responses/200/content/application~1json/schema/items/properties/departments",
+          "expect": {
+            "type": "array",
+            "description": "The departments to which the rule applies"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallDnsRules/get/responses/200/content/application~1json/schema/items/properties/locations",
+          "expect": {
+            "type": "array",
+            "description": "The locations to which the rule applies"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallDnsRules/get/responses/200/content/application~1json/schema/items/properties/locationGroups",
+          "expect": {
+            "type": "array",
+            "description": "The location groups to which the rule applies"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallDnsRules/get/responses/200/content/application~1json/schema/items/properties/labels",
+          "expect": {
+            "type": "array",
+            "description": "The label associated with the rule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallDnsRules/get/responses/200/content/application~1json/schema/items/properties/timeWindows",
+          "expect": {
+            "type": "array",
+            "description": "The time intervals during which the rule applies"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "resolved-ip-field-mapping": {
+      "kind": "semantic",
+      "title": "Which rule fields implement 'categorization of IP addresses' and 'location of resolved IPs'",
+      "status": "open",
+      "about": [
+        "zia/firewall-dns-rules#resCategories",
+        "zia/firewall-dns-rules#destCountries",
+        "zia/firewall-dns-rules#destIpCategories"
+      ],
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "saying which API field a console 'resolved IP' condition corresponds to",
+      "detail": "The help page names the conditions and the SDK names resCategories, destCountries, destIpCategories and destAddresses with generic comments. No captured source maps console conditions to wire fields. Read a rule created in the console that uses each condition."
+    },
+    "advanced-firewall-criteria": {
+      "kind": "semantic",
+      "title": "Which identity criteria require Advanced Firewall",
+      "status": "open",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "saying whether users, groups and departments work on an Essential-tier tenant",
+      "detail": "Unverified legacy statement: \"Users, groups, departments (Advanced Firewall)\". The configuring page lists these conditions without a tier note; it ties only Client Connector EUN to Advanced DNS from the Advanced Firewall. Check against an Essential-tier tenant or Zscaler entitlements."
+    }
+  }
+}

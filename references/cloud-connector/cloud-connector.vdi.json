@@ -1,0 +1,588 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.vdi",
+  "title": "Client Connector for VDI: the multi-session Windows agent that tunnels users' traffic to Cloud and Branch Connector",
+  "aliases": [
+    "client connector for vdi",
+    "zscaler client connector for vdi",
+    "zcc vdi",
+    "zccvdi",
+    "zscaler vdi agent",
+    "vdi tunnels",
+    "p2p tunneling mode",
+    "a2a tunneling mode",
+    "185.46.212.80"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi.groups-and-templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi.forwarding-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.network"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.azure-virtual-desktop"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.windows-unattended"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{multisession-scope}} {{enable-via-support}}"
+    },
+    {
+      "heading": "What it needs"
+    },
+    {
+      "text": "{{os-requirements}} {{connector-prerequisite}} {{connector-platforms}} {{aws-gcp-unsupported}} The vendor's own articles disagree on AWS {{divergence:aws-support}}."
+    },
+    {
+      "heading": "Identity, inspection and Private Access"
+    },
+    {
+      "text": "{{auth-mechanisms}} {{ssl-inspection-root-ca}} {{private-access-unsupported}} {{private-access-identity}} {{dns-through-connectors}}"
+    },
+    {
+      "text": "{{system-account-traffic}} How that traffic relates to the template's system user is open {{gap:system-user-vs-system-account}}; the template side is in [[cloud-connector.vdi.groups-and-templates]]."
+    },
+    {
+      "heading": "The tunnels"
+    },
+    {
+      "text": "{{udp-encapsulation}} {{connector-aggregates}} {{ports}} {{outbound-only}} Session capacity, keepalive and failover timing, and what the policy updates on TCP 9090 carry are open {{gap:tunnel-limits}}."
+    },
+    {
+      "text": "{{p2p-default}} {{a2a-deprecated}} How MODE is written in the MSI is in [[cloud-connector.vdi.install]]."
+    },
+    {
+      "text": "{{load-balancer-affinity}} Which Azure load balancer distribution setting is the client IP address setting is open {{gap:azure-lb-setting}}; the Azure load balancer is described in [[cloud-connector.azure.load-balancing]] and the general mechanics in [[cloud-connector.overview.load-balancing]]."
+    },
+    {
+      "text": "{{mtu-default}} Where the MTU is set differs between the articles {{divergence:mtu-location}}; the group form is in [[cloud-connector.vdi.groups-and-templates]]."
+    },
+    {
+      "text": "{{azure-nsg}} Cloud Connector's own Azure network security groups and routing are in [[cloud-connector.azure.network]]; the standard Client Connector on Azure desktops is in [[zcc.install.azure-virtual-desktop]]."
+    },
+    {
+      "heading": "The rest of the product"
+    },
+    {
+      "items": [
+        {
+          "label": "Install.",
+          "text": "Download, MSI options, golden images, OnboardOnStart, Intune and processes to allowlist: [[cloud-connector.vdi.install]]; the standard Client Connector's own silent-install parameters are a different set: [[zcc.install.windows-unattended]]."
+        },
+        {
+          "label": "Groups and templates.",
+          "text": "VDI devices, dynamic groups and templates: [[cloud-connector.vdi.groups-and-templates]]."
+        },
+        {
+          "label": "Forwarding profiles.",
+          "text": "Include and exclude lists, DNS, Azure, FSLogix and Citrix bypasses: [[cloud-connector.vdi.forwarding-profiles]]."
+        },
+        {
+          "label": "Troubleshooting.",
+          "text": "Registration, authentication and data-path causes: [[cloud-connector.vdi.troubleshooting]]."
+        },
+        {
+          "label": "Where it sits.",
+          "text": "The parent hub is [[cloud-connector.overview]]. What enables the feature, the ZPA client-type name and the sources searched for an API are open {{gap:feature-enablement}} {{gap:client-type-wire-value}} {{gap:api-source-classes}}."
+        }
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Zscaler Client Connector for VDI is a lightweight Windows application that runs in the user space of the VDI session host to authenticate multiple concurrent users, forward traffic to Cloud Connector or Branch Connector, and exchange user context within the Cloud Connector or Branch Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "is a lightweight Windows application that runs in the user space of the VDI session host to authenticate multiple concurrent users, forward traffic to Zscaler Cloud Connector or Zscaler Branch Connector, and exchange user context within the Cloud Connector or Branch Connector."
+          ]
+        }
+      ]
+    },
+    "enable-via-support": {
+      "statement": "The overview, the step-by-step configuration guide and the MSI install-options article each say that enabling the feature means contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "To enable this feature, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "To enable this feature, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "To enable this feature, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "multisession-scope": {
+      "statement": "Client Connector for VDI inspects all ports and protocols for multisession, nonpersistent VDI deployments in the public cloud and on-premises data centers, and organizations can apply granular threat- and data-protection policies per individual user session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Zscaler Client Connector for VDI allows you to inspect all ports and protocols for multisession, nonpersistent VDI deployments in the public cloud and on-premises data centers.",
+            "Organizations can apply granular threat- and data-protection policies per individual user session"
+          ]
+        }
+      ]
+    },
+    "auth-mechanisms": {
+      "statement": "The overview says the application supports all authentication mechanisms that the Zscaler service supports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Authentication: The application supports all authentication mechanisms that the Zscaler service supports."
+          ]
+        }
+      ]
+    },
+    "system-account-traffic": {
+      "statement": "The overview says common services handle operations such as the Active Directory service, DHCP, DNS resolution, Network Location Awareness (NLASVC), SMB file download, the Windows DNS client API, Windows Ping, the Winlogon service and traffic from a Windows service; when the Zscaler driver intercepts the connections these services initiate, Windows gives it NT AUTHORITY\\SYSTEM as the user ID. For example, SMB traffic is handled by the LanmanWorkstation service, where services run under NT AUTHORITY\\SYSTEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Common services handle operations such as the Active Directory service, DHCP, DNS resolution, Network Location Awareness (NLASVC), Server Message Block (SMB) file download, Windows DNS client API, Windows Ping, Winlogon service, and traffic from a Windows service.",
+            "SMB traffic is handled by the LanmanWorkstation service, where services run under the NT AUTHORITY\\SYSTEM user account.",
+            "When the Zscaler driver intercepts the connections that these services initiate, Windows gives the Zscaler driver NT AUTHORITY\\SYSTEM as the user ID for these services."
+          ]
+        }
+      ]
+    },
+    "ssl-inspection-root-ca": {
+      "statement": "For SSL Inspection, Client Connector for VDI must have automatically installed the Zscaler Root CA certificate or the organization's own Root CA certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "If you want to provide SSL Inspection, ensure that Zscaler Client Connector for VDI has automatically installed the Zscaler Root CA certificate or your organization’s Root CA certificate."
+          ]
+        }
+      ]
+    },
+    "os-requirements": {
+      "statement": "Client Connector for VDI currently supports only modern Windows operating systems: Windows 10 or Windows Server 2016 or later. The guide says only Azure Virtual Desktop and Citrix, on-premises and cloud-hosted, have been tested; other vendors might work but have not been tested.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Zscaler Client Connector for VDI currently supports only modern Windows operating systems. You must be running Windows 10 or Windows Server 2016 or later.",
+            "only Azure Virtual Desktop and Citrix, on-premises and cloud-hosted, have been tested. Other vendors might work, but have not been tested."
+          ]
+        }
+      ]
+    },
+    "connector-prerequisite": {
+      "statement": "Before configuring Client Connector for VDI, Cloud Connector must be deployed to a cloud provider or Branch Connector to a hypervisor host.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Before you begin configuring Zscaler Client Connector for VDI, you must deploy Zscaler Cloud Connector to a cloud provider or Zscaler Branch Connector to a hypervisor host."
+          ]
+        }
+      ]
+    },
+    "aws-gcp-unsupported": {
+      "statement": "The step-by-step configuration guide says Amazon Web Services (AWS) and Google Cloud Platform (GCP) are not supported by Client Connector for VDI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Amazon Web Services (AWS) and Google Cloud Platform (GCP) are not supported by Zscaler Client Connector for VDI."
+          ]
+        }
+      ]
+    },
+    "connector-platforms": {
+      "statement": "The overview says Cloud Connectors operate within cloud environments such as AWS, Microsoft Azure and GCP, and Branch Connectors within on-premises environments such as VMware ESXi or Linux KVM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Cloud Connectors operate within cloud environments such as Amazon Web Services (AWS), Microsoft Azure, and the Google Cloud Platform (GCP). Branch Connectors operate within on-premises environments such as VMware ESXi or Linux KVM."
+          ]
+        }
+      ]
+    },
+    "private-access-unsupported": {
+      "statement": "Client Connector for VDI does not support Private Access features such as server-to-client connectivity for remote access, client forwarding policy for client types as Client Connector for VDI, and double encryption. Where client forwarding policy is required, the Cloud Connector or Branch Connector client type is supported and can be used in the same way.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Zscaler Client Connector for VDI does not support Private Access features such as server-to-client connectivity for remote access, client forwarding policy for client types as Zscaler Client Connector for VDI, and double encryption.",
+            "However, if the client forwarding policy is required, the client type of the Cloud Connector or Branch Connector is supported, and you can use it in the same way."
+          ]
+        }
+      ]
+    },
+    "private-access-identity": {
+      "statement": "Client Connector for VDI uses the IdP configured in the Internet & SaaS tenant for both Internet & SaaS and Private Access; for Private Access that IdP provides the authentication and passes a token to Private Access. SCIM and SCIM Attributes for Policy must be enabled for Private Access user attribution to function.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "ensure that SCIM and SCIM Attributes for Policy are enabled for Private Access user attribution to function.",
+            "Zscaler Client Connector for VDI uses the IdP configured in the Internet & SaaS tenant for both Internet & SaaS and Private Access.",
+            "For Private Access, the Internet & SaaS IdP provides the authentication and passes a token to Private Access, authenticating the user to the Private Access platform."
+          ]
+        }
+      ]
+    },
+    "dns-through-connectors": {
+      "statement": "The guide says that for Private Access and wildcard FQDN forwarding to work, all DNS requests are sent through Cloud Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "For Private Access and wildcard Fully Qualified Domain Name (FQDN) forwarding to work, send all DNS requests through Cloud Connectors."
+          ]
+        }
+      ]
+    },
+    "udp-encapsulation": {
+      "statement": "Client Connector for VDI tunnels traffic through UDP encapsulation to the local Cloud Connector or Branch Connector; the tunnels carry user session data in the payload and user context in the UDP header, and are stateless so that they can fail over to other active appliances if a Connector fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The Zscaler Client Connector for VDI tunnels traffic through UDP encapsulation to the local Cloud Connector or Branch Connector.",
+            "These tunnels carry both user session data in the payload and user context information in the UDP header.",
+            "These tunnels are stateless, which ensures that they can fail over to other active appliances if a Cloud Connector or Branch Connector fails."
+          ]
+        }
+      ]
+    },
+    "connector-aggregates": {
+      "statement": "The Cloud and Branch Connectors aggregate the tunnels from Client Connector for VDI in addition to encrypting and forwarding traffic to the Zero Trust Exchange.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The Cloud & Branch Connectors aggregate tunnels from Zscaler Client Connector for VDI in addition to encrypting and forwarding traffic to the ZTE."
+          ]
+        }
+      ]
+    },
+    "ports": {
+      "statement": "Client Connector for VDI connects on TCP 443 for the control channel, UDP 7443 for the data channel to Cloud Connector, and TCP 9090 on the Cloud Connector service endpoint for policy updates. The guide adds that user authentication with the Zscaler cloud uses TCP/443 and that UDP/7443 to the Connector and TCP/443 to the Zscaler cloud are required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Zscaler Client Connector for VDI connects on TCP 443 for the control channel, UDP 7443 for the data channel to Cloud Connector, and TCP 9090 on the Cloud Connector service endpoint for policy updates."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "For user authentication, Zscaler Client Connector for VDI communicates with the Zscaler cloud using TCP/443.",
+            "UDP/7443 to the Cloud Connector or Branch Connector and TCP/443 to the Zscaler cloud are required.",
+            "Additionally, Zscaler Client Connector for VDI connects on TCP 9090 to the Cloud Connector service endpoint for policy updates."
+          ]
+        }
+      ]
+    },
+    "outbound-only": {
+      "statement": "Cloud Connector and Branch Connector instances require only outbound connections to the Zscaler cloud, with no inbound connections from it; the outbound access requirements for an account are at https://config.zscaler.com/<Zscaler Cloud Name>/cloud-branch-connector, where the cloud name is in the URL used to log in to the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The Cloud Connector and Branch Connector instances require only outbound connections to the Zscaler cloud. They do not require any inbound connections to your network from the Zscaler cloud.",
+            "To view the outbound access requirements for your specific account, go to the following URL: https://config.zscaler.com/<Zscaler Cloud Name>/cloud-branch-connector.",
+            "You can find the <Zscaler Cloud Name> in the URL you use to log in to the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "p2p-default": {
+      "statement": "Point-to-Point (P2P) is the default mode of operation for Client Connector for VDI and Cloud & Branch Connector tunnels: the tunnel has a fixed destination IP address and destination port and copies the source port from the inner header, for use, the overview says, if fixed IP addresses are wanted for outer-header tunnels and destination IP addresses must be known. The Zscaler anycast Global VIP 185.46.212.80 is the outer header's destination IP address, and routing must make the Cloud Connector or Branch Connector load balancer the next hop for that VIP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The P2P Tunneling Mode is the default mode of operation for Zscaler Client Connector for VDI and Cloud & Branch Connector tunnels.",
+            "With P2P, the tunnel is created with a fixed destination IP address and destination port. The source port is copied from the inner header.",
+            "Use this mode if you want to have fixed IP addresses for outer header tunnels and destination IP addresses must be known.",
+            "a Zscaler anycast Global VIP address (185.46.212.80) is used as the destination IP address for the outer header. You must configure routing so that the next hop for the Global VIP points to the Cloud Connector or Branch Connector load balancer."
+          ]
+        }
+      ]
+    },
+    "a2a-deprecated": {
+      "statement": "Any-to-Any (A2A) copies the packet's inner header to the outer encapsulated header, preserving the source IP address, destination IP address and source port for better load balancing, and needs a default route pointing to the Cloud Connector or Branch Connector because the destination IP addresses are dynamic. A2A is not recommended and is being deprecated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The A2A Tunneling Mode copies the inner header of the packet to the outer encapsulated header.",
+            "This mode provides better load balancing because the source IP address, destination IP address, and source port are preserved.",
+            "A2A Tunneling Mode requires a default route pointing to the Cloud Connector or Branch Connector because the destination IP addresses are dynamic.",
+            "A2A Tunneling Mode is not recommended and is being deprecated."
+          ]
+        }
+      ]
+    },
+    "load-balancer-affinity": {
+      "statement": "If load balancers distribute traffic to Cloud Connector or Branch Connector, Zscaler recommends source IP address affinity (2-tuple) hashing. The overview says that when Client Connector for VDI is enabled, the client IP address is entered as the session persistence setting for the Cloud Connector load balancer in Azure; with Private Access, Zscaler recommends P2P and 2-tuple tunneling.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "If you leverage load balancers to distribute traffic to Cloud Connector or Branch Connector, Zscaler recommends using source IP address affinity (2-tuple) hashing."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "when Zscaler Client Connector for VDI is enabled, enter the client IP address as the session persistence setting for the Cloud Connector load balancer in Azure.",
+            "If you deploy Zscaler Client Connector for VDI with Private Access, Zscaler recommends using P2P and 2-tuple tunneling."
+          ]
+        }
+      ]
+    },
+    "mtu-default": {
+      "statement": "By default, Client Connector for VDI uses an MTU of 1,400 bytes. The overview says that if any additional tunneling or encapsulation is present in the network, the MTU might need adjusting from within the VDI Template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "By default, Zscaler Client Connector for VDI uses an MTU of 1,400 bytes.",
+            "If any additional tunneling or encapsulation is present within your network, you might need to adjust the MTU from within the VDI Template."
+          ]
+        }
+      ]
+    },
+    "azure-nsg": {
+      "statement": "Among the best practices for Azure Virtual Desktop, the guide says that when configuring network security groups Zscaler recommends allowing traffic from Client Connector for VDI, and that NSGs should not have any other proxies, third-party tools, VPNs or software that can hinder the system network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The following best practices apply to AVD:",
+            "If you are configuring network security groups (NSGs), Zscaler recommends allowing traffic from Zscaler Client Connector for VDI.",
+            "NSGs should not have any other proxies, third-party tools, virtual private networks (VPNs), or software that can hinder the system network."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "aws-support": {
+      "summary": "The configuration guide says AWS is not supported by Client Connector for VDI; the MSI install-options article lists AWS as a deployment route and has an AWS golden-image section.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+            "quotes": [
+              "Amazon Web Services (AWS) and Google Cloud Platform (GCP) are not supported by Zscaler Client Connector for VDI."
+            ]
+          },
+          "says": "AWS and GCP are not supported by Client Connector for VDI."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+            "quotes": [
+              "using Microsoft Azure, Amazon Web Services (AWS), Citrix XenCenter, or other device management methods that support Microsoft Software Installer (MSI) files, you can download and use the MSI file.",
+              "After the golden image is created, you can use it to host pools in AWS VDI and AWS WorkSpaces."
+            ]
+          },
+          "says": "AWS is a deployment route for the MSI, and an AWS golden image can host pools in AWS VDI and AWS WorkSpaces."
+        }
+      ],
+      "impact": "Whether Client Connector for VDI is supported for desktops hosted in AWS is unresolved; the guide also says only Azure Virtual Desktop and Citrix have been tested."
+    },
+    "mtu-location": {
+      "summary": "The overview says the MTU is adjusted from within the VDI Template; the VDI group form carries the MTU field, and the guide says VDI groups apply MTU values.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-what-zscaler-client-connector-vdi.json",
+            "quotes": [
+              "If any additional tunneling or encapsulation is present within your network, you might need to adjust the MTU from within the VDI Template."
+            ]
+          },
+          "says": "If any additional tunneling or encapsulation is present in the network, the MTU might need to be adjusted from within the VDI Template."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-configuring-vdi-groups.json",
+            "quotes": [
+              "MTU: Enter the Maximum Transmission Unit (MTU) value for the devices in the VDI group. The default value is 1,400 bytes."
+            ]
+          },
+          "says": "The MTU is a field of the dynamic VDI group form, default 1,400 bytes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+            "quotes": [
+              "VDI groups allow administrators to dynamically apply Maximum Transmission Unit (MTU) and forwarding profile values to VDI applications as they register VDI devices and groups."
+            ]
+          },
+          "says": "VDI groups apply MTU and forwarding profile values to VDI applications as devices register."
+        }
+      ],
+      "impact": "The articles name the VDI template in one place and the VDI group in others as where the MTU is set, and do not say which governs; the template field list in Configuring VDI Templates names no MTU field."
+    }
+  },
+  "gaps": {
+    "tunnel-limits": {
+      "kind": "semantic",
+      "title": "Tunnel and port limits",
+      "status": "open",
+      "detail": "The articles do not state how many concurrent user sessions one session host or one Connector supports, the keepalive or failover timing of the UDP 7443 tunnel, or what the policy updates on TCP 9090 carry.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "azure-lb-setting": {
+      "kind": "semantic",
+      "title": "Which Azure load balancer distribution mode is the client IP address setting",
+      "status": "open",
+      "detail": "The overview says to enter the client IP address as the session persistence setting for the Cloud Connector load balancer in Azure. Neither it nor the Cloud Connector Azure subjects say which distribution value (for example the Terraform module's SourceIP) that is; a deployment left at the module's default would not be shown to follow it.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "system-user-vs-system-account": {
+      "kind": "semantic",
+      "title": "Whether NT AUTHORITY\\SYSTEM traffic is what receives the template's system user",
+      "status": "open",
+      "detail": "The overview says Windows gives the driver NT AUTHORITY\\SYSTEM for service traffic; the templates article says the system user is assigned to traffic that cannot be attributed to the current user; the troubleshooting article lists SMB, Kerberos, Windows network, DNS, ICMP and NFS as system user traffic. No article says in one place that the first is what gets the second.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "feature-enablement": {
+      "kind": "semantic",
+      "title": "What license or subscription enables Client Connector for VDI",
+      "status": "open",
+      "detail": "Three articles say to contact Zscaler Support, with no SKU or license name. The ZIA OpenAPI GET /subscriptions response lists WORKLOAD_VDI and BC_DEVICE_VDI among its id values, but no source links either to this feature and neither has a description.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    },
+    "client-type-wire-value": {
+      "kind": "semantic",
+      "title": "Whether zpn_client_type_vdi is the Client Connector for VDI client type",
+      "status": "open",
+      "detail": "The ZPA wire value zpn_client_type_vdi appears in the SDK and Terraform evidence of the ZPA client-type policy subject. No VDI help article names it, so pairing it with the Client Connector for VDI client type would be an inference.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "api-source-classes": {
+      "kind": "semantic",
+      "title": "Whether any API or SDK object models VDI templates, forwarding profiles or groups",
+      "status": "open",
+      "detail": "A case-insensitive search for vdi found no VDI template, forwarding-profile, group or device object in the Cloud Connector API reference and components files, the ZTC Terraform provider, or the Go and Python ZTW SDK trees; the only SDK hit is the ZPA client type. A search that finds nothing is not a statement that no API exists. Client Connector for VDI release notes were not checked, so the 1.1.0.8 and 1.7.0.4 version gates in the install subject have no release-note source.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

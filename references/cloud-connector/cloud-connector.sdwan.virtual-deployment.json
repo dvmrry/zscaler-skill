@@ -1,0 +1,694 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.sdwan.virtual-deployment",
+  "title": "Deploying Branch Connector VMs on VMware, Linux KVM and Hyper-V: prerequisites, sizing, HA host settings, user data and IaC",
+  "aliases": [
+    "branch connector vmware",
+    "branch connector kvm",
+    "branch connector hyper-v",
+    "branch connector ova",
+    "branch connector vhdx",
+    "branch connector user data",
+    "userdata.cfg",
+    "branch connector and app connector vm"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.configuration-templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades.os-images"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{images}} {{image-formats}} The image download page is also covered in [[cloud-connector.upgrades.os-images:branch-images]]."
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{admin-prereqs}} {{admin-permissions}} Whether the provisioning and configuration permissions are one permission is not stated {{gap:permission-names}}. {{api-key}} {{esxi-version}} The KVM and Hyper-V host versions are not stated {{gap:host-versions}}."
+    },
+    {
+      "label": "Sizing.",
+      "text": "{{sizing-branch-connector}} {{sizing-combined-vmware}} The combined sizing differs between the pages {{divergence:combined-vm-sizing}}."
+    },
+    {
+      "label": "High availability host settings.",
+      "text": "{{esxi-ha-vswitch}} {{hyperv-specifics}} The template side of the pair is in [[cloud-connector.sdwan.configuration-templates:vm-ha-vip]]."
+    },
+    {
+      "label": "VMware and KVM procedure.",
+      "text": "{{ova-properties}} {{esxi-cloud-init-steps}} {{kvm-specifics}}"
+    },
+    {
+      "label": "User data.",
+      "text": "{{user-data-required}} {{user-data-template}} {{user-data-iso}} {{network-drivers}} {{combined-user-data}} How the App Connector is provisioned on KVM and Hyper-V, whose combined pages show the plain Branch Connector templates, is not stated {{gap:combined-kvm-hyperv}}. The allowed range of the probe port is not stated {{gap:probe-port-range}}."
+    },
+    {
+      "label": "Page defect.",
+      "text": "{{doc-erratum-geniosimage}}"
+    },
+    {
+      "label": "After deployment and IaC.",
+      "text": "{{post-deploy}} {{iac-templates}} {{iac-resources}} The IaC repositories are not mirrored in this knowledge base {{gap:iac-repos}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which image variant (Branch Connector or the combined Branch Connector & App Connector) and which hypervisor the deployment uses, since sizing differs between the pages.",
+      "uses": [
+        "images",
+        "sizing-branch-connector",
+        "combined-vm-sizing"
+      ]
+    },
+    {
+      "do": "For a VMware deployment in high availability, the vSwitch or port group security settings and, with multiple physical ports on the vSwitch, the host advanced option.",
+      "uses": [
+        "esxi-ha-vswitch"
+      ]
+    },
+    {
+      "do": "That the deployment password avoids the characters the pages exclude, since a password that does not meet the VMware requirements fails the deployment.",
+      "uses": [
+        "admin-prereqs"
+      ]
+    }
+  ],
+  "claims": {
+    "images": {
+      "statement": "The Branch Connector Images page in the Zscaler Admin Console provides the ability to download Branch Connector or Branch Connector & App Connector virtual machine images; Branch Connector images include App Connectors that have not yet been provisioned, and deploying Branch Connector & App Connector requires selecting the combined instance and configuring the deployment properties accordingly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-downloading-branch-connector-images.json",
+          "quotes": [
+            "The Branch Connector Images page in the Zscaler Admin Console provides the ability to download your Branch Connector or Branch Connector & App Connector virtual machine (VM) images.",
+            "Branch Connector images include App Connectors that have not yet been provisioned.",
+            "To deploy Branch Connector & App Connector, you must select the combined instance and configure the deployment properties accordingly."
+          ]
+        }
+      ]
+    },
+    "image-formats": {
+      "statement": "The VMware page has the administrator download the Branch Connector Open Virtual Appliance (OVA) image file for VMware ESXi, the Hyper-V page the Branch Connector Virtual Hard Disk v2 (VHDX) image, and the Linux KVM page the Branch Connector image, all from the Branch Connector Images page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "Download the Branch Connector Open Virtual Appliance (OVA) image file for VMware ESXi from the Branch Connector Images page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-hyper-v.json",
+          "quotes": [
+            "Download the Branch Connector Virtual Hard Disk v2 (VHDX) image from the Branch Connector Images page for Hyper-V."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-linux-kvm.json",
+          "quotes": [
+            "Download the Branch Connector image from the Branch Connector Images page for Linux KVM."
+          ]
+        }
+      ]
+    },
+    "iac-templates": {
+      "statement": "Infrastructure as Code (IaC) deployment templates are available in GitHub to assist in deploying Branch Connector or Branch Connector & App Connector in VMware ESXi or Linux KVM, and are not available for Branch Connector deployment on Hyper-V platforms; the VMware ESXi section lists four starter templates: bc, bc_ha (high availability), bc_ac (with App Connector) and bc_ha_ac (with App Connector and high availability).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deployment-templates-branch-connector-app-connector.json",
+          "quotes": [
+            "Infrastructure as Code (IaC) deployment templates are available in GitHub to assist in the deployment of Zscaler Branch Connector or Branch Connector & App Connector in VMware ESXi or Linux KVM.",
+            "IaC deployment templates are not available for Branch Connector deployment on Hyper-V platforms."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deployment-templates-branch-connector-app-connector.json",
+          "quotes": [
+            "Use the Starter Deployment Template (bc) to deploy your Branch Connector.",
+            "Use the Starter Deployment Template with High-Availability (bc_ha) to deploy your Branch Connector with high availability.",
+            "Use the Starter Deployment Template with App Connector (bc_ac) to deploy your Branch Connector & App Connector.",
+            "Use the Starter Deployment Template with App Connector and High-Availability (bc_ha_ac) to deploy your Branch Connector & App Connector with high availability."
+          ],
+          "after": "# VMware ESXi Deployment Templates"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-hyper-v.json",
+          "quotes": [
+            "Infrastructure as Code (IaC) deployment templates are not available for Branch Connector deployment on Hyper-V platforms."
+          ]
+        }
+      ]
+    },
+    "iac-resources": {
+      "statement": "The VMware ESXi deployment template pages list resources including a key pair for SSH access, two Zscaler Branch Connector VMs, a control interface and an App Connector provisioning key; the Linux templates list a cloud-init provisioning ISO and a KVM storage volume.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deployment-templates-branch-connector-app-connector.json",
+          "quotes": [
+            "Key pair for SSH access",
+            "Two Zscaler Branch Connector VMs",
+            "Control interface",
+            "App Connector provisioning key"
+          ],
+          "after": "# VMware ESXi Deployment Templates"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deployment-templates-branch-connector-app-connector.json",
+          "quotes": [
+            "Cloud-init provisioning ISO",
+            "KVM storage volume"
+          ],
+          "after": "# Linux Deployment Templates"
+        }
+      ]
+    },
+    "admin-prereqs": {
+      "statement": "The VMware page requires a dedicated username and password for the Branch Connector deployment, created in the Zscaler Admin Console, with a password of at least 8 characters including at least one uppercase letter, one number and one special character, and says the deployment fails if the password does not meet these requirements; the Linux KVM and Hyper-V pages require a dedicated password. All three pages say the password must not contain a $, &, >, <, ;, ' or \".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "In the Zscaler Admin Console, create a dedicated username and password for the Branch Connector deployment.",
+            "The password must be at least 8 characters in length and include at least one uppercase letter, one number, and one special character.",
+            "The password must not contain a $ , &, >, <, ;, ', or \".",
+            "If the password does not meet these requirements, the deployment fails."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-linux-kvm.json",
+          "quotes": [
+            "Create a dedicated password for the Branch Connector deployment in the Zscaler Admin Console.",
+            "The password must not contain a $, &, >, <, ;, ', or \"."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-hyper-v.json",
+          "quotes": [
+            "In the Zscaler Admin Console, create a dedicated password for the Branch Connector deployment.",
+            "The password must not contain a $, &, >, <, ;, ', or \"."
+          ]
+        }
+      ]
+    },
+    "admin-permissions": {
+      "statement": "The VMware page says to grant admins full access to Branch Connector provisioning permissions, the Linux KVM page that admins must have full access to Branch Connector Provisioning permissions, and the Hyper-V page that admins must have full access to Branch Connector configuration permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "Grant admins full access to Branch Connector provisioning permissions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-linux-kvm.json",
+          "quotes": [
+            "Admins must have full access to Branch Connector Provisioning permissions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-hyper-v.json",
+          "quotes": [
+            "Admins must have full access to Branch Connector configuration permissions to perform the procedures in this article."
+          ]
+        }
+      ]
+    },
+    "api-key": {
+      "statement": "The VMware, Linux KVM and Hyper-V pages each say Branch Connector uses an API key to authenticate and register the VM with the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "Branch Connector uses an API key to authenticate and register the VM with the Zscaler service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-linux-kvm.json",
+          "quotes": [
+            "Branch Connector uses an API key to authenticate and register the VM with the Zscaler service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-hyper-v.json",
+          "quotes": [
+            "Branch Connector uses an API key to authenticate and register the VM with the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "esxi-version": {
+      "statement": "On VMware the VM requires VMware vSphere Hypervisor (ESXi) version 7.0 or later, or the minimum version stated by Broadcom.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "The VM requires VMware vSphere Hypervisor (ESXi) version 7.0 or later, or the minimum version stated by Broadcom."
+          ]
+        }
+      ]
+    },
+    "sizing-branch-connector": {
+      "statement": "On the VMware, Linux KVM and Hyper-V pages a Branch Connector VM requires, for Small, 4 GB of memory, 2 CPU cores, a 128 GB data disk and 2 NICs, and for Medium 8 GB of memory, 4 CPU cores, a 128 GB data disk and 4 NICs; the Hyper-V procedure enters 4096 for a Small VM or 8192 for a Medium VM, 2 or 4 virtual processors, and a total of two network adapters for Small or 4 for Medium.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "Small VM: requires 4 GB of memory, 2 CPU cores, 128 GB data disk size, and 2 network interface cards (NICs)",
+            "Medium VM: requires 8 GB of memory, 4 CPU cores, 128 GB data disk size, and 4 NICs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-linux-kvm.json",
+          "quotes": [
+            "Small VM: requires 4 GB of memory, two CPU cores, 128 GB data disk size, and 2 network interface cards (NIC)",
+            "Medium VM: requires 8 GB of memory, 4 CPU cores, 128 GB data disk size, and 4 NICs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-hyper-v.json",
+          "quotes": [
+            "Small VM: Requires 4 GB of memory, 2 CPU cores, 128 GB data disk size, and 2 network interface cards (NICs).",
+            "Medium VM: Requires 8 GB of memory, 4 CPU cores, 128 GB data disk size, and 4 NICs.",
+            "enter 4096 for a Small VM or 8192 for a Medium VM",
+            "In the Number of virtual processors field, select 2 for a Small VM or 4 for a Medium VM.",
+            "for a total of two network adapters for a Small VM or 4 network adapters for a Medium VM"
+          ]
+        }
+      ]
+    },
+    "sizing-combined-vmware": {
+      "statement": "On the VMware Branch Connector & App Connector page a combined VM requires, for Small, 16 GB of memory, 4 CPU cores, a 128 GB data disk and 3 NICs, and for Medium 32 GB of memory, 6 CPU cores, a 128 GB data disk and 5 NICs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-app-connector-vmware-platforms.json",
+          "quotes": [
+            "Small VM: requires 16 GB of memory, 4 CPU cores, 128 GB data disk size, and 3 network interface cards (NICs)",
+            "Medium VM: requires 32 GB of memory, 6 CPU cores, 128 GB data disk size, and 5 NICs"
+          ]
+        }
+      ]
+    },
+    "esxi-ha-vswitch": {
+      "statement": "For Branch Connector deployed in high availability on VMware, the Promiscuous mode option must be enabled (set to Accept) on the vSwitch or at the port group level, and the MAC address changes and Forged transmits options must be enabled on the vSwitch or port group. Branch Connector uses the Common Address Redundancy Protocol (CARP) to process traffic across multiple Branch Connector instances; when promiscuous mode is enabled other VMs might be able to detect traffic going through the service interface, and Zscaler recommends a port group for the Branch Connector service interfaces. If multiple physical ports exist on the same vSwitch, the Net.ReversePathFwdCheckPromisc advanced option must be enabled (set to 1) on the ESXi host, or multicast traffic loops back to the host and CARP does not function properly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "Review the virtual machine specifications for Branch Connector deployed in high availability.",
+            "The Promiscuous mode option must be enabled (i.e., set to Accept) on the vSphere switch (vSwitch) or at the port group level.",
+            "Branch Connector uses the Common Address Redundancy Protocol (CARP) to process traffic across multiple Branch Connector instances.",
+            "The MAC address changes option must be enabled on the vSwitch or port group.",
+            "The Forged transmits option must be enabled on the vSwitch or port group.",
+            "When promiscuous mode is enabled, other VMs might be able to detect traffic going through the service interface.",
+            "To avoid this risk, Zscaler recommends that you create and use a port group for your Branch Connector service interfaces.",
+            "If multiple physical ports exist on the same vSwitch, then the Net.ReversePathFwdCheckPromisc advanced option must be enabled (i.e., set to 1) on the ESXi host.",
+            "If it is not enabled, then multicast traffic loops back to the host, causing CARP not to function properly, and link states coalesced messages are sent."
+          ]
+        }
+      ]
+    },
+    "hyperv-specifics": {
+      "statement": "On Hyper-V, MAC Address Spoofing must be enabled on each network adapter for Branch Connector deployed in high availability, and Zscaler recommends enabling it for non-HA deployments as well; the procedure selects Generation 1 as the VM generation to support the VHDX file, deselects Use Dynamic Memory for this virtual machine, and moves IDE above CD in the boot device Startup order list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-hyper-v.json",
+          "quotes": [
+            "VM specification for Branch Connector deployed in high availability (HA): MAC Address Spoofing must be enabled on each network adapter.",
+            "MAC address spoofing must be enabled for high availability (HA) deployments. Zscaler recommends that you enable MAC address spoofing for non-HA deployments, as well.",
+            "select Generation 1 as the VM generation to support your VHDX file",
+            "Deselect the Use Dynamic Memory for this virtual machine checkbox.",
+            "In the boot device Startup order list, move IDE above CD."
+          ]
+        }
+      ]
+    },
+    "kvm-specifics": {
+      "statement": "On Linux KVM the procedure selects Import existing disk image in the New VM window, selects Free BSD 11.4 as the operating system, and selects CDROM device as the Device type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-linux-kvm.json",
+          "quotes": [
+            "In the New VM window, select Import existing disk image.",
+            "For Choose the operating system you are installing, select Free BSD 11.4.",
+            "For Device type, select CDROM device from the drop-down menu, then click Finish."
+          ]
+        }
+      ]
+    },
+    "user-data-required": {
+      "statement": "On VMware, deployments using cloud-init Config Drive require a text file of user data for the Branch Connector VM, applied to the VM as an ISO file mounted via a virtual CD-ROM drive during deployment, and deployments using an OVA file and OVA template instead have the OVA import process provide the user data; the file is named userdata.cfg and formatted in YAML. The Linux KVM and Hyper-V pages also require a text file containing user data information for the Branch Connector VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "For deployments using cloud-init Config Drive, you must create a text file containing user data information for your Branch Connector VM.",
+            "This information is applied to the VM as an International Organization for Standardization (ISO) file that you mount via a virtual CD-ROM drive during deployment.",
+            "This section does not pertain to deployments using an OVA file and OVA template. In these deployments, the OVA file import process provides the user data information.",
+            "Create your user data in a text file named userdata.cfg using one of the following templates, formatted in YAML:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-linux-kvm.json",
+          "quotes": [
+            "You must create a text file containing user data information for your Branch Connector VM."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-hyper-v.json",
+          "quotes": [
+            "You must create a text file containing user data information for your Branch Connector VM."
+          ]
+        }
+      ]
+    },
+    "user-data-template": {
+      "statement": "The VMware page's Branch Connector with Management DHCP Template has a ZSCALER block with cc_url and http_probe_port, where a comment says the optional http_probe_port changes the port for load balancer status checks from the default value 50001 to 50035; the template also carries api_key, password, username and a network config with physical interface subnets of type dhcp, and a static variant gives an address, gateway and nameserver addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "ZSCALER: cc_url: <CC_URL> http_probe_port: 50035",
+            "#Optional to change the port for load balancer status checks from the default value 50001 to 50035."
+          ],
+          "after": "Branch Connector with Management DHCP Template"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "api_key: <API Key> password: <Admin Password> username: <Admin Username> network: config: - name: <Driver> type: physical subnets: - type: dhcp version: '1' #ssh keys are optional",
+            "subnets: - address: <IP Address/Netmask> gateway: <Gateway> type: static - type: nameserver address: - <IP Address> - <IP Address> search: - zscaler.net"
+          ]
+        }
+      ]
+    },
+    "user-data-iso": {
+      "statement": "The VMware page applies the user data to the VM as an ISO image with one of three procedures, Windows, macOS or Linux, and in each the user data file must be named user-data. The Windows procedure uses oscdimg.exe with the volume label cidata (-lcidata), the macOS procedure uses mkisofs with -volid cidata, and the Linux procedure runs the geniosimage command with -volid cidata.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "Apply your user data to the VM as an ISO image using one of the following procedures:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "The user data file must be named user-data.",
+            "oscdimg.exe -j1 -u1 -lcidata .\\isodir\\user-data"
+          ],
+          "after": "Install the Development Tools component from the Windows ADK."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "The user data file must be named user-data.",
+            "mkisofs -output user-data.iso -volid cidata -joliet -rock isodir/user-data"
+          ],
+          "after": "Install cdrtools using a method such as Homebrew. (This procedure uses Homebrew.)"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "The user data file must be named user-data.",
+            "geniosimage -o user-data.iso -volid cidata -joliet -rational-rock isodir/user-data"
+          ],
+          "after": "Install genisoimage."
+        }
+      ]
+    },
+    "network-drivers": {
+      "statement": "The VMware page's user data names the interface driver for the chosen virtual NIC: vtnet for Windows VirtIO, em for Intel e1000, igb for Intel Gigabit, ix for Intel 10 Gigabit, vmx for VMware Vxnet3 and hn for Hyper-V.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "Windows VirtIO: vtnet",
+            "Intel e1000: em",
+            "Intel Gigabit: igb",
+            "Intel 10 Gigabit: ix",
+            "VMware Vxnet3: vmx",
+            "Hyper-V: hn"
+          ]
+        }
+      ]
+    },
+    "ova-properties": {
+      "statement": "A VMware OVA deployment takes the Branch Connector Provisioning URL as the Provisioning Template URL, the API Key from the API Key Management page, a Management Interface Type of static or DHCP (the IP address and subnet prefix are entered if static and left blank if DHCP) and an SSH public key for logging in without a password; for Branch Connector & App Connector, an App Connector Provisioning Key is configured in the Admin Console, the Management Interface Type is static, a Provision Key is entered, and the Control Interface Type is static with the IP address and subnet prefix of the control interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "Provisioning Template URL: Enter the Branch Connector Provisioning URL.",
+            "API Key: Enter the API Key from the API Key Management page.",
+            "Management Interface Type: Select static or DHCP.",
+            "Management Interface IP Address: If you selected static, enter the IP address and subnet prefix for the management interface. If you selected DHCP, leave blank.",
+            "ssh login public key: Enter the SSH public key for logging in without a password."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-app-connector-vmware-platforms.json",
+          "quotes": [
+            "Configure an App Connector Provisioning Key in the Zscaler Admin Console.",
+            "Management Interface Type: Select static.",
+            "Provision Key: Enter the App Connector Provisioning Key.",
+            "Control Interface Type: Select static.",
+            "Control Interface IP Address: Enter the IP address and subnet prefix for the control interface."
+          ]
+        }
+      ]
+    },
+    "combined-user-data": {
+      "statement": "The VMware Branch Connector & App Connector page gives a Branch Connector & App Connector with Static Management IP Template, which has an IP configuration for the App Connector interface and a zscaler_app_connector block with enable 'yes' and the provisioning key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-app-connector-vmware-platforms.json",
+          "quotes": [
+            "Branch Connector & App Connector with Static Management IP Template",
+            "#IP configuration for the App Connector interface",
+            "zscaler_app_connector: enable: 'yes' provisioning_key: <Key>"
+          ]
+        }
+      ]
+    },
+    "esxi-cloud-init-steps": {
+      "statement": "Deploying on VMware from the OVA with a cloud-init ISO requires the Power on automatically option to be disabled; the procedure skips the additional properties for the VM because values entered on that page are not configured, selects Datastore ISO file from the CD/DVD Drive 1 drop-down menu with the Connect and Connect at power on checkboxes, and Zscaler recommends enabling the Synchronize guest time with host option after deploying Branch Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "Ensure that the Power on automatically option is disabled.",
+            "skip the additional properties for the VM because values you enter on this page are not configured",
+            "From the CD/DVD Drive 1 drop-down menu, select Datastore ISO file.",
+            "Select the Connect and Connect at power on checkboxes.",
+            "Zscaler recommends enabling the Synchronize guest time with host option after deploying Branch Connector. To learn more, see the VMware"
+          ]
+        }
+      ]
+    },
+    "post-deploy": {
+      "statement": "On the VMware page the Branch Connector Monitoring page provides information on the name, group, location, geolocation and status of the VMs deployed in the branch account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "The Branch Connector Monitoring page provides information on the name, group, location, geolocation, and status of your VMs deployed in your branch account."
+          ]
+        }
+      ]
+    },
+    "doc-erratum-geniosimage": {
+      "statement": "The VMware page's Linux ISO procedure installs the genisoimage package with the command sudo apt install genisoimage but its ISO command runs geniosimage; the page's commands disagree on the tool name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-deploying-branch-connector-vmware-platforms.json",
+          "quotes": [
+            "sudo apt install genisoimage",
+            "geniosimage -o user-data.iso -volid cidata -joliet -rational-rock isodir/user-data"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "combined-vm-sizing": {
+      "summary": "Four positions on the CPU and NIC counts of a combined Branch Connector & App Connector VM: the VMware page, the Hyper-V prerequisites, the Hyper-V procedure on the same page, and the Linux KVM page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-deploying-branch-connector-app-connector-vmware-platforms.json",
+            "quotes": [
+              "Small VM: requires 16 GB of memory, 4 CPU cores, 128 GB data disk size, and 3 network interface cards (NICs)",
+              "Medium VM: requires 32 GB of memory, 6 CPU cores, 128 GB data disk size, and 5 NICs"
+            ]
+          },
+          "says": "VMware: Small 16 GB, 4 cores, 3 NICs; Medium 32 GB, 6 cores, 5 NICs."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-deploying-branch-connector-app-connector-hyper-v.json",
+            "quotes": [
+              "Small VM: Requires 16 GB of memory, 2 CPU cores, 128 GB data disk size, and 3 network interface cards (NICs).",
+              "Medium VM: Requires 32 GB of memory, 4 CPU cores, 128 GB data disk size, and 5 NICs."
+            ]
+          },
+          "says": "Hyper-V prerequisites: Small 16 GB, 2 cores, 3 NICs; Medium 32 GB, 4 cores, 5 NICs."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-deploying-branch-connector-app-connector-hyper-v.json",
+            "quotes": [
+              "select 4 for a Small VM or 6 for a Medium VM",
+              "for a total of 3 network adapters for a Small VM or 4 network adapters for a Medium VM"
+            ]
+          },
+          "says": "Hyper-V procedure on the same page: 4 virtual processors for Small and 6 for Medium, 3 network adapters for Small and 4 for Medium."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-deploying-branch-connector-app-connector-linux-kvm.json",
+            "quotes": [
+              "Small VM: requires 4 GB of memory, 2 CPU cores, 128 GB data disk size, and 2 network interface cards (NIC)",
+              "Medium VM: requires 8 GB of memory, 4 CPU cores, 128 GB data disk size, and 4 NICs"
+            ]
+          },
+          "says": "Linux KVM combined page: the plain Branch Connector figures, 4 and 8 GB of memory, 2 and 4 cores, 2 and 4 NICs."
+        }
+      ],
+      "impact": "The same combined image has four sets of CPU and NIC counts, and the KVM page also differs on memory; the pages do not say which governs, so a VM sized from one page may not match another."
+    }
+  },
+  "gaps": {
+    "permission-names": {
+      "kind": "semantic",
+      "title": "Whether provisioning and configuration permissions are one permission",
+      "status": "open",
+      "detail": "The VMware and KVM pages name Branch Connector Provisioning permissions and the Hyper-V page names Branch Connector configuration permissions; no page says whether these are the same permission.",
+      "blocks": "Granting a deploying admin the right role.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "host-versions": {
+      "kind": "semantic",
+      "title": "Minimum Linux KVM and Hyper-V host versions",
+      "status": "open",
+      "detail": "Only the VMware page states a hypervisor version (ESXi 7.0 or later); the KVM and Hyper-V pages state none, and the KVM page does not name an image format.",
+      "blocks": "Checking host compatibility before deployment.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "combined-kvm-hyperv": {
+      "kind": "semantic",
+      "title": "App Connector provisioning on KVM and Hyper-V combined deployments",
+      "status": "open",
+      "detail": "The KVM and Hyper-V combined-image pages show the plain Branch Connector user-data templates, with no zscaler_app_connector block and no App Connector provisioning key prerequisite, unlike the VMware combined page; this is an absence found by comparing pages. How the App Connector is provisioned on those hypervisors is not stated.",
+      "blocks": "Deploying a combined Branch Connector & App Connector on KVM or Hyper-V.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "probe-port-range": {
+      "kind": "semantic",
+      "title": "Allowed range of http_probe_port",
+      "status": "open",
+      "detail": "The user data template shows http_probe_port: 50035 and a comment naming the default 50001, but the allowed range is not stated.",
+      "blocks": "Choosing a load balancer status-check port.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "iac-repos": {
+      "kind": "data",
+      "title": "IaC template repositories",
+      "status": "open",
+      "detail": "The GitHub repositories for the bc, bc_ha, bc_ac and bc_ha_ac templates are not mirrored under vendor, so their variables and defaults were not checked.",
+      "blocks": "Stating what the starter templates create and default to.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    }
+  }
+}

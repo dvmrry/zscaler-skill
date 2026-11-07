@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-categories.mcas-sync",
+  "title": "Microsoft Defender for Cloud Apps (MCAS) integration: the MS Defender Unsanctioned Apps URL category sync",
+  "aliases": [
+    "mcas",
+    "microsoft cloud app security",
+    "MS Defender Unsanctioned Apps",
+    "unsanctioned apps sync",
+    "configure-mcas2"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.membership"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feed-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-sizing"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The MCAS integration turns the applications MCAS marks unsanctioned into a custom URL category. {{what}} The partner integrations overview and the MCAS page differ on whether a block rule is applied for the admin {{divergence:mcas-block-rule}}."
+    },
+    {
+      "label": "Authorizing it.",
+      "text": "{{oauth-app}} {{console-fields}}"
+    },
+    {
+      "label": "NSS side.",
+      "text": "{{nss-prereqs}} {{log-upload}} The shared NSS subjects are [[shared.nss.feed-settings]] and [[shared.nss.vm-operations]]."
+    },
+    {
+      "label": "Sync and enforcement.",
+      "text": "{{sync-timing}} The category limit that fails the sync is not on the page {{gap:category-limit}}. {{enforcement-and-troubleshooting}}"
+    },
+    {
+      "label": "Token-based integrations.",
+      "text": "{{token-legacy}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the MS Defender Unsanctioned Apps category is used by a URL Filtering rule, since the MCAS page says it must be assigned to one to block; the overview page's block rule is a divergence, not a settled default.",
+      "uses": [
+        "enforcement-and-troubleshooting",
+        "mcas-block-rule"
+      ]
+    },
+    {
+      "do": "Whether the sync is failing because of the organization's custom category limit.",
+      "uses": [
+        "sync-timing",
+        "category-limit"
+      ]
+    }
+  ],
+  "claims": {
+    "what": {
+      "statement": "When MCAS and Zscaler are integrated, Zscaler syncs unsanctioned application URLs to a custom URL category called MS Defender Unsanctioned Apps. The integration enables discovery of unsanctioned applications and automatic update of the category based on the organization's web transaction logs streaming from Internet & SaaS (ZIA) through NSS to MCAS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-cloud-app-security.json",
+          "quotes": [
+            "When you integrate MCAS and Zscaler, Zscaler syncs unsanctioned application URLs to a custom URL category called MS Defender Unsanctioned Apps.",
+            "The integration enables you to discover unsanctioned applications and automatically update the custom URL category based on your organization’s web transaction logs streaming from Internet & SaaS (ZIA) through the Nanolog Streaming Service (NSS) to MCAS."
+          ]
+        }
+      ]
+    },
+    "oauth-app": {
+      "statement": "The integration uses the OAuth 2.0 method, which grants access based on the application's context, with permissions set at the application level and not inherited by the user. The Entra ID application's supported account types are Accounts in this organizational directory only (single tenant), its client secret value is displayed only once, and it uses the discovery.manage permission, required to upload data and generate block scripts, with admin consent granted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-cloud-app-security.json",
+          "quotes": [
+            "In contrast to token-based authentication, where a key is generated based on the user’s security context, the OAuth 2.0 method grants access based on the application’s context.",
+            "Permissions are set at the application level and not inherited by the user, whose roles and permissions in Azure can change over time.",
+            "Supported account types: Ensure that this option is set to Accounts in this organizational directory only (<tenant> only - Single tenant).",
+            "The client secret value is displayed only once and cannot be retrieved after you navigate away from the page.",
+            "Select the discovery.manage permission, which is required to upload data and generate block scripts.",
+            "Click Grant admin consent for <Tenant> under the Configured permissions section and then click Yes when prompted."
+          ]
+        }
+      ]
+    },
+    "console-fields": {
+      "statement": "The Admin Console takes the Client ID (the Application (client) ID), the client secret value and not the client secret ID, the scope (Microsoft currently defines 05a65629-4c1b-48c1-a78b-804c4abdd4af for MCAS, entered with /.default), the Authentication URL https://login.microsoftonline.com/<Tenant ID>/oauth2/v2.0/token and the API URL for the tenant. If the configuration is not valid, the reason for the failure appears on the page and is logged in the audit logs (Administration > Admin Management > Audit Logs > Internet & SaaS). Clearing the configuration stops the syncing but does not remove the MS Defender Unsanctioned Apps category, as it might be in use by configured policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-cloud-app-security.json",
+          "quotes": [
+            "Client ID: Enter the Application (client) ID for the application that you created in Azure (e.g., 97b9XXXX-beXX-48XX-b5XX-8792cdXXXXXX).",
+            "Ensure that you provide the client secret value, not the client secret ID.",
+            "Microsoft currently defines the scope for MCAS as 05a65629-4c1b-48c1-a78b-804c4abdd4af, so enter 05a65629-4c1b-48c1-a78b-804c4abdd4af/.default in this field.",
+            "Authentication URL: Enter the authentication URL with your Directory (tenant) ID in Azure: https://login.microsoftonline.com/<Tenant ID>/oauth2/v2.0/token.",
+            "API URL: Enter the API URL for your tenant (e.g., https://safemarch.us3.portal.cloudappsecurity.com).",
+            "If the configuration is not valid, the reason for the failure appears on the page.",
+            "The invalid configuration and the reason for the failure is also logged in the audit logs (Administration > Admin Management > Audit Logs > Internet & SaaS).",
+            "Clearing the configuration stops the syncing of unsanctioned Cloud App URLs from MCAS to your MS Defender Unsanctioned Apps URL category. This existing category is not removed by this action, as it might be in use as part of your configured policies."
+          ]
+        }
+      ]
+    },
+    "nss-prereqs": {
+      "statement": "In configuring the partner integration in the Admin Console, the NSS Subscription step also requires an active NSS web log subscription or trial, a healthy NSS web server enabled and an MCAS NSS feed configured for that server. After the configuration is validated on the Partner Integrations page, the OAuth 2.0 authentication parameters are pushed to the MCAS NSS feed configuration (in the backend only), then to the Zscaler Central Authority, which pushes it to NSS. For the MCAS NSS feed to perform optimally, the VM deployed for the NSS web server requires a minimum of 8 GB of RAM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-cloud-app-security.json",
+          "quotes": [
+            "An active NSS web log subscription or trial",
+            "A healthy NSS web server enabled",
+            "An MCAS NSS feed configured for the enabled NSS web server"
+          ],
+          "after": "This step of the integration also requires:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-cloud-app-security.json",
+          "quotes": [
+            "After you complete and validate the configuration on the Partner Integrations page, the OAuth 2.0-based authentication parameters are pushed to the MCAS NSS feed configuration (in the backend only).",
+            "The feed configuration is pushed to the Zscaler Central Authority (CA). The Zscaler CA then pushes the feed configuration to NSS.",
+            "In order for your MCAS NSS feed to perform optimally, the VM deployed for the NSS web server requires a minimum of 8 GB of RAM."
+          ]
+        }
+      ]
+    },
+    "sync-timing": {
+      "statement": "The first unsanctioned Cloud App URL sync occurs within two hours, and syncs to the custom URL category occur every two hours after that. If the organization exceeds the maximum custom category limit, the sync fails; a sync not occurring every two hours goes to Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-cloud-app-security.json",
+          "quotes": [
+            "the first unsanctioned Cloud App URL sync occurs within two hours.",
+            "Syncs to this custom URL category occur every two hours after the initial sync.",
+            "If you exceed the maximum custom category limit that is set for your organization, then the sync fails.",
+            "If the unsanctioned Cloud App URL sync to your custom URL category is not occurring every two hours, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "log-upload": {
+      "statement": "For automatic log upload the MCAS data source selects Zscaler QRadar LEEF as the Source and Syslog - UDP as the Receiver type, and the NSS service is configured by running sudo nss configure-mcas2 on the NSS VM and then restarted with sudo nss restart; the command sudo nss configure-mcas used for token-based integrations does not work for OAuth 2.0-based integrations. NSS gets the logs from the Zscaler Nanolog, converts them to the MCAS NSS feed output format (LEEF) and sends them for uploading to MCAS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-cloud-app-security.json",
+          "quotes": [
+            "Source: Select Zscaler QRadar LEEF.",
+            "Receiver type: Select Syslog - UDP.",
+            "sudo nss configure-mcas2",
+            "Restart the NSS service by running the following command:",
+            "sudo nss restart",
+            "The command sudo nss configure-mcas used for token-based integrations does not work for OAuth 2.0-based integrations.",
+            "The NSS gets the logs from the Zscaler Nanolog, converts the logs per the MCAS NSS feed output format (i.e., LEEF), and sends the logs for uploading to MCAS."
+          ]
+        }
+      ]
+    },
+    "enforcement-and-troubleshooting": {
+      "statement": "The MS Defender Unsanctioned Apps URL category must be assigned to a URL filtering rule to block the traffic to those destinations, and Zscaler recommends SSL inspection for that category in case some sanctioned applications are uniquely identified by a full URL rather than just a domain name. On an MCAS authentication validation error with a valid and verified configuration, at least one application must be categorized as unsanctioned within the MCAS portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-cloud-app-security.json",
+          "quotes": [
+            "You must assign the MS Defender Unsanctioned Apps URL category to a URL filtering rule to block the traffic to those destinations.",
+            "Zscaler recommends that SSL inspection is enabled for that category in case some sanctioned applications are uniquely identified by a full URL rather than just a domain name.",
+            "If you encounter an MCAS authentication validation error on a valid and verified configuration, make sure that you have at least one application categorized as unsanctioned within the MCAS portal."
+          ]
+        }
+      ]
+    },
+    "token-legacy": {
+      "statement": "An existing MCAS partner integration using token-based authentication remains supported for backward compatibility, but no configuration changes can be made to it and a new token-based integration cannot be created. After conversion the token method is no longer available as an option, and without an existing token-based integration it is not available in the Admin Console at all.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-cloud-app-security.json",
+          "quotes": [
+            "If you have an existing MCAS partner integration using token-based authentication, your integration remains supported for backward compatibility.",
+            "You cannot make any configuration changes to your existing integration or create a new token-based integration.",
+            "After you convert your integration, the token method is no longer available as an option.",
+            "If you do not have an existing integration using token-based authentication, the token method is not available as an option in the Zscaler Admin Console at all."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "mcas-block-rule": {
+      "summary": "The partner integrations overview says URLs of applications unknown to Zscaler are denylisted through a custom category with a block policy rule applied to it, while the MCAS page says the category must be assigned to a URL Filtering rule to block.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-partner-integrations.json",
+            "quotes": [
+              "The service initially treats these URLs as unsanctioned cloud apps to denylist them using a custom category with a block policy rule applied to it."
+            ]
+          },
+          "says": "The service denylists the URLs using a custom category with a block policy rule applied to it."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-integrating-microsoft-cloud-app-security.json",
+            "quotes": [
+              "You must assign the MS Defender Unsanctioned Apps URL category to a URL filtering rule to block the traffic to those destinations."
+            ]
+          },
+          "says": "The admin must assign the category to a URL filtering rule to block the traffic."
+        }
+      ],
+      "impact": "Whether a block rule exists for the synced category without the admin creating one is stated differently; the pages do not say whether the overview's rule is automatic."
+    }
+  },
+  "gaps": {
+    "category-limit": {
+      "kind": "semantic",
+      "title": "The custom category limit that fails the MCAS sync and any failure signal",
+      "status": "open",
+      "detail": "The MCAS page says the sync fails if the maximum custom category limit set for the organization is exceeded but does not give the limit, and gives no sync-failure log or alert.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

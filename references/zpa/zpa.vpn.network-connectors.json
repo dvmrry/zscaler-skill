@@ -1,0 +1,364 @@
+{
+  "schema_version": 1,
+  "id": "zpa.vpn.network-connectors",
+  "title": "Network Connectors and Network Connector groups (VPN for Legacy Apps)",
+  "related": [
+    { "rel": "see-also", "to": "zpa.vpn" },
+    { "rel": "see-also", "to": "zpa.vpn.network-connectors.enrollment" },
+    { "rel": "see-also", "to": "zpa.vpn.network-connectors.deployment" },
+    { "rel": "see-also", "to": "zpa.vpn.redundancy" },
+    { "rel": "see-also", "to": "zpa.vpn.bgp" },
+    { "rel": "see-also", "to": "zpa.app-connectors" }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{group-membership}} How many Network Connectors a group can hold differs between the help pages {{divergence:connectors-per-group}}. {{availability-critical}} {{linux-only}} The platforms the other pages list do not all fit that statement {{divergence:linux-only-platforms}}."
+    },
+    {
+      "label": "The Network Connectors table.",
+      "text": "{{table}} {{details}} {{versions}} {{os-updates}}"
+    },
+    {
+      "label": "Editing a connector.",
+      "text": "{{edit}}"
+    },
+    {
+      "label": "Network Connector groups.",
+      "text": "{{group-fields}} {{group-redundant-mode}} What Redundant Mode means differs between the help pages {{divergence:redundant-mode-meaning}}. {{network-settings-release}} Which fields the Network Settings view holds is not listed on one page {{gap:group-network-settings}}."
+    },
+    {
+      "label": "Limits.",
+      "text": "The per-tenant limits on connectors and groups are tracked in [[zpa.vpn]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before saying how many Network Connectors a group can have, give both positions rather than one: a single connector per group, or redundant connectors within a group.",
+      "uses": ["connectors-per-group"]
+    },
+    {
+      "do": "Before describing what a group's Redundant Mode does, give both the standby description and the ECMP load balancing description.",
+      "uses": ["redundant-mode-meaning", "group-redundant-mode"]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Network Connectors build a secure VPN tunnel that connects applications to VPN Service Edges, as part of a Network Connector group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-step-step-configuration-guide-vpn-legacy-apps.json",
+          "quotes": [
+            "Network Connectors build a secure VPN tunnel that connects applications to VPN Service Edges."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connectors.json",
+          "quotes": [
+            "Connect applications as part of a Network Connector group to the VPN Service Edge."
+          ]
+        }
+      ]
+    },
+    "group-membership": {
+      "statement": "The About Network Connector Groups page says each Network Connector is mapped to one Network Connector group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connector-groups.json",
+          "quotes": [
+            "Each Network Connector is mapped to one Network Connector group."
+          ]
+        }
+      ]
+    },
+    "availability-critical": {
+      "statement": "The prerequisites article says it is critical that the Network Connector is always available and running or there will not be any traffic, and that a Network Connector fronts the subnets configured in Network segments. Subnets can be mapped to the same Network Connector, but they must be reachable to each other. The About Network Connector Groups page says the Network Connector must be up and running for its group to be active.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-prerequisites.json",
+          "quotes": [
+            "It is critical that the Network Connector is always available and running or there won't be any traffic. A Network Connector fronts the subnets configured in Network segments.",
+            "Subnets can be mapped to the same Network Connector, but you must make sure that they are reachable to each other."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connector-groups.json",
+          "quotes": [
+            "Ensure that your Network Connector is up and running for the Network Connector group to be active."
+          ]
+        }
+      ]
+    },
+    "linux-only": {
+      "statement": "The About Network Connectors page says Network Connectors can only be deployed with RHEL 9 in the RPM format for Linux.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connectors.json",
+          "quotes": [
+            "Network Connectors can only be deployed with RHEL9 in the RPM format for Linux."
+          ]
+        }
+      ]
+    },
+    "table": {
+      "statement": "The Network Connectors table does not list Network Connectors that were added but not deployed. OAuth-enabled Network Connectors are added with a name format of GroupName-UserCode-TimeStamp.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connectors.json",
+          "quotes": [
+            "Network Connectors that you've added, but have not deployed, are not listed.",
+            "OAuth-enabled Network Connectors are added with a name format of GroupName-UserCode-TimeStamp."
+          ]
+        }
+      ]
+    },
+    "details": {
+      "statement": "A Network Connector's details include Host OS (the run-time OS), Package OS (the compile-time OS on which the RPM binary is packaged), the Public Service Edge it connects to, Connection Health (Connected or Disconnected), and whether the default OS Secure Shell setting is overridden and enabled or disabled. Disconnected Network Connectors show the last known public and private IP addresses, and uptime is shown as Not Available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connectors.json",
+          "quotes": [
+            "Host OS: The run time OS on which the Network Connector is running (e.g., Red Hat Enterprise Linux 9).",
+            "Package OS: The compile time OS on which the RPM binary is packaged (e.g., Linux).",
+            "Public Service Edge: The Public Service Edge for Private Access that the Network Connector connects to.",
+            "Disconnected Network Connectors show the last known public IP address.",
+            "Disconnected Network Connectors show the last known private IP address.",
+            "Uptime: The period of time the Network Connector is available for use. Disconnected Network Connectors are shown as Not Available.",
+            "Connection Health: The health of the Network Connector connection (Connected or Disconnected).",
+            "Secure Shell (SSH): Indicates whether the default OS SSH setting is overridden and enabled or disabled."
+          ]
+        }
+      ]
+    },
+    "versions": {
+      "statement": "The Network Connectors table shows each connector's Manager Version, Software Version and Version Profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connectors.json",
+          "quotes": [
+            "Manager Version: The current Network Connector Manager software version.",
+            "Software Version: The current Network Connector software version.",
+            "Version Profile: The version profile applied to the Network Connector."
+          ]
+        }
+      ]
+    },
+    "os-updates": {
+      "statement": "Automated OS security updates are only available for prebuilt Network Connector images on RHEL 9.x; Network Connectors installed manually with an RPM file on a custom RHEL 9.x build are not supported. An OS update's status is Scheduled, Not Scheduled, In Progress, Success or Failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connectors.json",
+          "quotes": [
+            "Automated OS security updates are only available for prebuilt Network Connector images on RHEL 9.x. Network Connectors installed manually using an RPM file on a custom RHEL 9.x build are not supported.",
+            "status of the update (Scheduled, Not Scheduled, In Progress, Success, or Failure)."
+          ]
+        }
+      ]
+    },
+    "edit": {
+      "statement": "On a deployed Network Connector the name can be edited, and it cannot contain special characters except periods, hyphens and underscores. The status can also be edited, to enable or disable the Network Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-deployed-network-connector.json",
+          "quotes": [
+            "The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores (_).",
+            "Status: Enable or disable the Network Connector."
+          ]
+        }
+      ]
+    },
+    "group-fields": {
+      "statement": "A Network Connector group takes a Signing Certificate, which Private Access uses to sign certificates it issues to the Network Connector and which authenticates the connector to the Private Access cloud. It also takes a Network Connector Location (where the group's connectors are physically deployed), Persist Local Version Profile (disabled by default), a Version Profile (inherited from customer-level configuration) and a Network Connector Software Update Schedule set by selecting the day of the week and start time, which Zscaler recommends scheduling during off-peak hours. The Edit page allows any field to be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-network-connector-groups.json",
+          "quotes": [
+            "Signing Certificate: Select the certificate that Private Access (ZPA) uses to sign certificates it issues to the Network Connector. This certificate authenticates the connector to the Private Access cloud.",
+            "Network Connector Location: Enter the physical location where the Network Connectors in this group are deployed.",
+            "Persist Local Version Profile: Enable if the Network Connector group should maintain its current software version, even if the global version profile is updated. By default, this is disabled.",
+            "Version Profile: Inherited from customer-level configuration.",
+            "Network Connector Software Update Schedule: Schedule the software update for the group by selecting the day of the week and start time. Zscaler recommends scheduling updates during off-peak hours."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-network-connector-groups.json",
+          "quotes": [
+            "On the Edit Network Connector Group page, you can edit any field."
+          ]
+        }
+      ]
+    },
+    "network-settings-release": {
+      "statement": "The ZPA release summary for October 13, 2026 has an entry, Network Settings Configuration for Private Service Edges, Private Cloud Controllers, and Network Connectors, which says admins can configure settings to perform remote commands that enable SSH on the OS and update software settings across Private Access virtual machines such as AWS, Azure and GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-release-upgrade-summary-2026-july.json",
+          "quotes": [
+            "October 13, 2026",
+            "Network Settings Configuration for Private Service Edges, Private Cloud Controllers, and Network Connectors",
+            "You can configure settings to perform remote commands that enable SSH on the OS, and also update software settings across Private Access (ZPA) virtual machines, such as AWS, Azure, and GCP."
+          ]
+        }
+      ]
+    },
+    "group-redundant-mode": {
+      "statement": "A Network Connector group's details show Redundant Mode, which the About Network Connector Groups page describes as indicating if additional Network Connectors operate on standby to handle traffic. The same page lists Network Settings, to view the network settings for the group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connector-groups.json",
+          "quotes": [
+            "Redundant Mode: Indicates if additional Network Connectors operate on standby to handle traffic.",
+            "Network Settings: Click to view the network settings for this group."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "linux-only-platforms": {
+      "summary": "The About Network Connectors page says Network Connectors can only be deployed with RHEL 9 in RPM format, while the platform and deployment pages list a VMware OVA and cloud marketplace images.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-network-connectors.json",
+            "quotes": [
+              "Network Connectors can only be deployed with RHEL9 in the RPM format for Linux."
+            ]
+          },
+          "says": "About Network Connectors: only RHEL 9 in the RPM format for Linux."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-network-connector-software-platform.json",
+            "quotes": [
+              "| VMware | OVA OVA checksum |",
+              "| Amazon Web Services (AWS) | Private Access - AWS Marketplace |",
+              "| Microsoft Azure | Private Access - Azure Marketplace |"
+            ]
+          },
+          "says": "Network Connector Software by Platform: a VMware OVA and AWS and Azure marketplace entries (GCP is listed too)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-network-connector-deployment-guide-vmware-platforms.json",
+            "quotes": [
+              "This deployment guide provides information on prerequisites and how to deploy a Network Connector on a VMware platform."
+            ]
+          },
+          "says": "VMware deployment guide: how to deploy a Network Connector on a VMware platform."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-network-connector-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "For AWS, you must deploy Network Connectors in your Virtual Private Clouds (VPCs)."
+            ]
+          },
+          "says": "AWS deployment guide: Network Connectors are deployed in the customer's VPCs."
+        }
+      ],
+      "impact": "The pages do not say whether the RPM-only sentence means the RPM is the only package format on top of the images, or is outdated; an answer about supported packaging should give both."
+    },
+    "connectors-per-group": {
+      "summary": "The help pages disagree on whether a Network Connector group holds a single Network Connector or several.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-network-connectors.json",
+            "quotes": [
+              "You can configure a single Network Connector per Network Connector group."
+            ]
+          },
+          "says": "About Network Connectors: a single Network Connector per Network Connector group."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-replacing-or-migrating-network-connectors-support-redundancy.json",
+            "quotes": [
+              "VPN (for Legacy Apps) supports redundant Network Connectors within a Network Connector group."
+            ]
+          },
+          "says": "Replacing or Migrating Network Connectors: redundant Network Connectors are supported within a Network Connector group."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-border-gateway-protocol-vpn-service-edges.json",
+            "quotes": [
+              "If a failure occurs in a Network Connector, VPN Service Edges use BGP to automatically reroute traffic to another Network Connector within the same Network Connector group for the specific IP address subnet or FQDN"
+            ]
+          },
+          "says": "Configuring BGP for VPN Service Edges: on a Network Connector failure, traffic is rerouted to another Network Connector within the same Network Connector group."
+        }
+      ],
+      "impact": "A design with more than one Network Connector in a group is allowed by two pages and ruled out by the first. None of the pages says whether they describe the design before and after redundancy support, so the pages do not say which governs."
+    },
+    "redundant-mode-meaning": {
+      "summary": "The help pages describe Redundant Mode, and the redundancy that Network Connectors provide, in two different ways: standby connectors, or ECMP load balancing.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-network-connector-groups.json",
+            "quotes": [
+              "Redundant Mode: Indicates if additional Network Connectors operate on standby to handle traffic."
+            ]
+          },
+          "says": "About Network Connector Groups: Redundant Mode indicates if additional Network Connectors operate on standby to handle traffic."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-vpn-redundancy-deployment-guide.json",
+            "quotes": [
+              "you can scale your network with Equal-Cost Multi-Path (ECMP) to load balance traffic to the Network Connectors from the VPN Service Edges"
+            ]
+          },
+          "says": "VPN Redundancy Deployment Guide: with BGP, the network scales with ECMP to load balance traffic to the Network Connectors from the VPN Service Edges."
+        }
+      ],
+      "impact": "Standby connectors and load-balanced connectors behave differently under normal traffic. The pages do not say whether the group's Redundant Mode field refers to the standby description, the ECMP load balancing, or both."
+    }
+  },
+  "gaps": {
+    "group-network-settings": {
+      "kind": "semantic",
+      "title": "Network Settings fields of a Network Connector group",
+      "status": "open",
+      "detail": "Configuring Network Connector Groups documents only the Details and Update Settings tabs. The fields Advertise LAN Segments Locally, External Routers, Keepalive, Enable Multi-Hop, Interface and the per-group BGP override appear in the redundancy and replace articles, and the About External Routers article names the Advertise LAN Segments Locally option for a group. No captured page lists the fields the Network Settings view holds, and the release summary describes SSH and software settings, not these fields; see zpa.vpn.redundancy.",
+      "resolves_with": ["source-read", "lab-test"]
+    }
+  }
+}

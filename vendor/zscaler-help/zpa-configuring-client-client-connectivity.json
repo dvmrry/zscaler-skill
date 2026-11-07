@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Client-to-Client Connectivity",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/configuring-client-client-connectivity",
+    "node": "1485196",
+    "revision": "3206780",
+    "updated": "2026-06-09",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Client-to-client connectivity allows an admin to connect to an end user's Windows, Mac, or Linux device to troubleshoot or provide remote assistance. To use this feature in Private Access (ZPA), complete the following steps."
+    },
+    {
+      "text": "To enable client-to-client connectivity:"
+    },
+    {
+      "item": "Zscaler recommends that the destination Windows devices you are using for this feature are Active Directory (AD) domain-joined. However, client-to-client connectivity can work if you have Windows or Linux-based hybrid-joined or Azure cloud-joined devices. In this case, it is your organization's responsibility to ensure completeness and uniqueness of the destination device's FQDNs (e.g., on a Windows machine, make sure that the DNS primary suffix field is entered and valid).",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "Mac devices must be domain-joined. End users' Mac machines must be running Zscaler Client Connector versions 3.7 or later."
+    },
+    {
+      "item": "Ensure the destination Windows device is running Zscaler Client Connector 3.9.0.169 or later. Zscaler Client Connector on the destination machine must have a machine tunnel deployed, or the destination machine must be logged in to Private Access in the Zscaler Client Connector. This ensures the connection to Private Access for the destination machine without the original local user of the destination that is logging into Windows. To learn more, see Configuring an App Update in the Zscaler Client Connector App Store.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "On the endpoints, set Zscaler Client Connector to collect machine hostname information. To learn more, see Configuring Zscaler Client Connector to Collect Hostnames.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Include a regular expression in Client Hostname Validation that matches the hostname of the Windows device you are remotely accessing. For example, enter the regular expression desktop-[a-zA-Z0-9]{5}-AC\\.example\\.com to enable a client-to-client connection to devices joined with fully qualified domain names (FQDNs) matching this regular expression (e.g., desktop-10B38-AC.example.com). To learn more, see Validating a Client Hostname.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "If you have the same namespace for both your applications and workstations, Zscaler recommends creating different application segments for client-based remote assistance and for application access, with separate FQDNs or wildcard subdomains if possible. To successfully enable remote assistance, the client-based remote assistance application segment must match the regular expression defined in step 5."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "When creating or editing application segments for client-to-client connectivity, the configured Windows hostnames (either FQDNs or wildcard domains) in the application segment must match the regular expression used to validate a client hostname. For example, the FQDN desktop-10B38-AC.example.com in the application segment matches the regular expression desktop-[a-zA-Z0-9]{5}-AC\\.example\\.com. If you use a wildcard domain such as *.example.com in the application segment and a more specific regular expression in the hostname validation, only devices with hostnames matching both the wildcard domain and the hostname validation regular expression are enabled for remote assistance. To learn more, see Configuring Application Segments or Editing Application Segments.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "It is not necessary to select a server group because it is not required to have an App Connector assigned for client-to-client connectivity."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Create or update an existing access policy to control who can connect to existing remote users. Use additional criteria in your access policy if you want stricter access control. To learn more, see Configuring Access Policies or Editing Access Policies.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "text": "If access policies haven't been created or updated for client-to-client connectivity, then any user in their organization can use this feature to connect to any endpoints enrolled in this feature within their organization."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "The local endpoint (host-based firewall) must allow access from the localhost using the interface IP address (e.g., 192.168.1.100) from the ports or protocols that you expect to be available via client-to-client access.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "Verify that the hostname is correct for the Zscaler Client Connector user you will be remotely accessing.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "For Microsoft Remote Assistance (MSRA), the following changes must be made in the invitation file by either the destination user or the source user:"
+    },
+    {
+      "item": "Remove the LHTICKET attribute.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Replace the IP address for the RCTICKET value with the registered hostname in Private Access. The following example is an RCTICKET value with the registered hostname:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "<UPLOADINFO TYPE=“Escalated”><UPLOADDATA USERNAME=“Zscaler” RCTICKET=“65538”, 1, desktop@safemarch.com:54606;100.64.0.2:54607,*,wmLNc8PLK1/q4ypjbU9+4PLWONEe6TKayN0ISF79EXdW+41xqXATVZDwGAQJcbrf…"
+    },
+    {
+      "text": "To enable RDP Shadowing on the end user's machine locally or via Group Policy Editor (GPO):"
+    },
+    {
+      "item": "Go to the Remote Desktop Settings (Settings > System Settings > Remote Desktop).",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Select Enable Remote Desktop. The account must have local administrator permissions.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Enter GPO in the search bar and click Edit group policy.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          38,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "In the Local Group Policy Editor, go to the Connections folder (Computer Configuration > Administrative Templates > Windows Components > Remote Desktop Services > Remote Desktop Session Host > Connections).",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          44,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Double-click Set rules for remote control of Remote Desktop Services user sessions.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          13,
+          82
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The Set rules for remote control of Remote Desktop Services user sessions window appears.",
+      "strong": [
+        [
+          4,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Click Enabled.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Under Options, select the desired remote control of the Remote Desktop Services user sessions.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "text": "If Full Control with user's permission is selected, the target user receives the following notification to allow the source user to view their session.",
+      "strong": [
+        [
+          3,
+          38
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Apply, and then click OK.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          28,
+          30
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "In the search bar, enter Windows Defender Firewall and select Windows Defender Firewall with Advanced Security.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          62,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "On the Windows Defender Firewall with Advanced Security page, go to Inbound Rules and enable the following Windows Defender Firewall rules to allow the incoming Remote Shadow Connection:",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          55
+        ],
+        [
+          68,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Right-click File and Printer Sharing (SMB-In) and select Enable Rule.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          12,
+          45
+        ],
+        [
+          57,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Right-click Remote Desktop - Shadow (TCP-In) and select Enable Rule.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          12,
+          44
+        ],
+        [
+          56,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Determine the target user's session ID by executing the query session command via Command Prompt or Powershell.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "Using the session ID from step 6 and the hostname or IP address of the target user, execute the following command via Command Prompt or Powershell to remotely connect to the target user’s session:",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "text": "mstsc /shadow:<Session ID> /v:<Hostname or IP>"
+    },
+    {
+      "text": "You should now be able to connect to the remote endpoint via RDP, MSRA, or psexec. After making the connection, if the client-to-client connection is enabled successfully, the log data in the User Activity Log shows the Access Type as Client to Client. To learn more, see Accessing User Activity Diagnostics.",
+      "strong": [
+        [
+          235,
+          251
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    }
+  ]
+}

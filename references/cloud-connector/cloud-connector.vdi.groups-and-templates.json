@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.vdi.groups-and-templates",
+  "title": "VDI devices, dynamic VDI groups and VDI templates (authentication type, system user, provisioning URL and token)",
+  "aliases": [
+    "vdi device management",
+    "vdi groups",
+    "dynamic vdi group",
+    "vdi templates",
+    "vdi provisioning url",
+    "vdi access token",
+    "system user"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi.forwarding-profiles"
+    }
+  ],
+  "prose": [
+    {
+      "heading": "Devices and groups"
+    },
+    {
+      "text": "{{devices-tab}} {{groups-purpose}} {{groups-columns}} Group Type and Servers, the Platform values, and the default group's contents are open {{gap:group-column-values}}."
+    },
+    {
+      "text": "{{group-form}} Where the MTU is set is recorded in [[cloud-connector.vdi]]; the forwarding profile a group applies is in [[cloud-connector.vdi.forwarding-profiles]]."
+    },
+    {
+      "heading": "Templates"
+    },
+    {
+      "text": "{{templates-purpose}} {{templates-columns}} {{generate-token}} The installer takes the URL and token as PROVURL and TOKEN: [[cloud-connector.vdi.install]]."
+    },
+    {
+      "text": "{{auth-type-match}} {{idp-auth}} {{hosted-db-auth}}"
+    },
+    {
+      "text": "{{system-user}} Whether that traffic is the same as NT AUTHORITY\\SYSTEM traffic is open in [[cloud-connector.vdi]]. The Configuring VDI Templates field list names no MTU field {{gap:template-mtu-field}}."
+    }
+  ],
+  "claims": {
+    "devices-tab": {
+      "statement": "The VDI Devices tab on the VDI Device Management page (Infrastructure > Client Connector > VDI Device Management > VDI Devices) displays all the devices in the organization that have Client Connector for VDI deployed, with Hostname, OS Type, OS Version and Platform; the app uses the OS type it detects to add the device to a group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-vdi-devices.json",
+          "quotes": [
+            "On the VDI Devices tab (Infrastructure > Client Connector > VDI Device Management > VDI Devices)",
+            "the VDI Devices tab on the VDI Device Management page displays all the devices in your organization that have Zscaler Client Connector for VDI deployed.",
+            "Hostname: The name of the VDI device.",
+            "OS Type: The operating system (OS) of the VDI devices associated with the VDI group.",
+            "OS Version: The version of the OS associated with the VDI device.",
+            "Platform: The platform associated with the VDI device.",
+            "Zscaler Client Connector for VDI uses the OS type that it detects to add the device to a group."
+          ]
+        }
+      ]
+    },
+    "groups-purpose": {
+      "statement": "VDI devices that have Client Connector for VDI deployed are categorized under groups based on the match criteria, policies can be applied to a group of devices grouped by user-defined criteria, and a default VDI group can be viewed. The guide says VDI groups let administrators dynamically apply MTU and forwarding profile values to VDI applications as they register VDI devices and groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-vdi-groups.json",
+          "quotes": [
+            "The VDI devices that have Zscaler Client Connector for VDI deployed are categorized under groups based on the match criteria.",
+            "Apply policies to a group of VDI devices that are grouped using user-defined criteria.",
+            "View the default VDI group."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "VDI groups allow administrators to dynamically apply Maximum Transmission Unit (MTU) and forwarding profile values to VDI applications as they register VDI devices and groups."
+          ]
+        }
+      ]
+    },
+    "groups-columns": {
+      "statement": "The VDI Groups list shows Name, Description, Platform, Servers, Hostname Prefix, Locations (the Zscaler location associated with the group), VDI Forwarding Profile, OS Type, OS Version, Type, Last Modified By and Last Modified On.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-vdi-groups.json",
+          "quotes": [
+            "Name: The name of the group.",
+            "Description: The description of the group.",
+            "Platform: The platform of the group.",
+            "Servers: The servers of the group.",
+            "Hostname Prefix: The hostname prefix used to group the VDI devices.",
+            "Locations: The Zscaler location associated with the VDI group.",
+            "VDI Forwarding Profile: The forwarding profile that is applied to the VDI group.",
+            "OS Type: The type of operating system (OS) of the VDI devices associated with the group.",
+            "OS Version: The version of the OS that the group is running on.",
+            "Type: The type of group.",
+            "Last Modified By: The last admin to modify the group.",
+            "Last Modified On: The date and time the group was last modified."
+          ]
+        }
+      ]
+    },
+    "group-form": {
+      "statement": "Add Dynamic VDI Group takes a Name, an MTU (default 1,400 bytes) and an optional Description; device criteria are Locations (one or more), OS Type (only WINDOWS_OS is currently supported) and Hostname Prefix (the prefix Client Connector for VDI detects); the VDI Forwarding Profile tab selects the VDI forwarding profile applied to the group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-vdi-groups.json",
+          "quotes": [
+            "Click Add Dynamic VDI Group.",
+            "Name: Enter a name for the VDI group.",
+            "MTU: Enter the Maximum Transmission Unit (MTU) value for the devices in the VDI group. The default value is 1,400 bytes.",
+            "Description: (Optional) Enter a description for the VDI group.",
+            "Locations: Select one or more locations to be associated with the VDI group.",
+            "OS Type: Select an operating system (OS) type for the VDI group. Only WINDOWS_OS is currently supported.",
+            "Hostname Prefix: Enter the hostname prefix that Zscaler Client Connector for VDI detects.",
+            "On the VDI Forwarding Profile tab, from the drop-down menu, select a VDI forwarding profile that is applied to the group."
+          ]
+        }
+      ]
+    },
+    "templates-purpose": {
+      "statement": "VDI templates provide the VDI provisioning URL and the VDI access token required for installing Client Connector for VDI; a template is a set of configurations applied to the VDI that dictate its behavior, and templates can be reused in multi-region deployments. The guide says a template holds the provisioning URL, authentication token and end user authentication method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-vdi-templates.json",
+          "quotes": [
+            "Virtual Desktop Infrastructure (VDI) templates provide the VDI provisioning URL and the VDI access token, which are required for installing Zscaler Client Connector for VDI.",
+            "Create a set of configurations that are applied to the VDI and dictate the VDI's behavior.",
+            "Create different templates for differing requirements and reuse the templates in multi-region deployments."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The VDI templates allow you to create a set of required configurations, including the provisioning URL, authentication token, and end user authentication method."
+          ]
+        }
+      ]
+    },
+    "templates-columns": {
+      "statement": "The VDI Templates page (Infrastructure > Client Connector > VDI Templates) lists Template Name, Description, Auth Type (IdP or Hosted DB), IdP Name (if IdP was selected), System User, Provisioning URL and Last Modified On, and can be filtered by System User and by Last Modified By.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-vdi-templates.json",
+          "quotes": [
+            "On the VDI Templates page (Infrastructure > Client Connector > VDI Templates)",
+            "Template Name: The name of the template.",
+            "Description: The description of the template.",
+            "Auth Type: Either IdP (identity provider) or Hosted DB.",
+            "IdP Name: The name of the identity provider (IdP), if IdP was selected as the authentication type.",
+            "System User: The system user selected for the template.",
+            "Provisioning URL: The provisioning URL of the template.",
+            "Last Modified On: The date and time the template was last modified.",
+            "Filter the list of VDI templates by the following criteria:",
+            "System User: Select one or more system users to view in a filtered list.",
+            "Last Modified By: Select one or more admins to view in a filtered list."
+          ]
+        }
+      ]
+    },
+    "auth-type-match": {
+      "statement": "The authentication type selected for a template must match the one Internet & SaaS is currently using: IdP only if Internet & SaaS is configured for SAML authentication, and Hosted DB only if it is configured for Form-Based authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-vdi-templates.json",
+          "quotes": [
+            "The authentication type you select here must match the authentication type that Internet & SaaS is currently using.",
+            "Select IdP only if Internet & SaaS is configured for Security Assertion Markup Language (SAML) authentication, and select Hosted DB only if Internet & SaaS is configured for Form-Based authentication."
+          ]
+        }
+      ]
+    },
+    "idp-auth": {
+      "statement": "The Configuring VDI Templates article says that if IdP is selected, enable SCIM in Private Access and use the same IdP in Internet & SaaS and Private Access, and leave the Domains field empty; the lists of IdPs and system users in the drop-down menus are retrieved from the Internet & SaaS configuration. The guide says to assign an IdP and a System User to the template for Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-vdi-templates.json",
+          "quotes": [
+            "If you select IdP, enable SCIM in Private Access. Use the same IdP in Internet & SaaS and Private Access.",
+            "Domains: Leave this field empty.",
+            "The list of IdPs in the drop-down menu is retrieved from the Internet & SaaS configuration.",
+            "The list of system users in the drop-down menu is retrieved from the Internet & SaaS configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "To configure VDI templates with Internet & SaaS, assign an identity provider (IdP) and System User to the template."
+          ]
+        }
+      ]
+    },
+    "hosted-db-auth": {
+      "statement": "If Hosted DB is selected for a template, a System User is selected for the template, and the hosted database information is defined in the Internet & SaaS configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-vdi-templates.json",
+          "quotes": [
+            "If you select Hosted DB, select a System User for the template. The hosted database information is defined in the Internet & SaaS configuration."
+          ]
+        }
+      ]
+    },
+    "system-user": {
+      "statement": "System users are assigned to traffic leaving the VDI session that cannot be attributed to the current user, and admins can create security policies around the system user to permit, deny or restrict where system traffic can reach. Enabling the feature creates a default system user, which appears in the Internet & SaaS logs as system-level traffic that the current user did not generate; a user configured on the IdP can be selected as the system user, which is useful for assigning different system users by the location of the VDI infrastructure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-vdi-templates.json",
+          "quotes": [
+            "System users are assigned to traffic leaving the VDI session that cannot be attributed to the current user.",
+            "Admins can then create security policies around the system user to permit, deny, or restrict where system traffic can reach.",
+            "If you enable this feature, a default system user is created.",
+            "In the Internet & SaaS logs, this user appears in the logging output as system-level traffic that the current user did not generate.",
+            "You can configure a user on the IdP and select them as the system user. This arrangement is useful if you want different system users assigned based on the location of the VDI infrastructure."
+          ]
+        }
+      ]
+    },
+    "generate-token": {
+      "statement": "The VDI provisioning URL and access token are copied by clicking the VDI template that was created; if no token value is present, Generate Token creates one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-vdi-templates.json",
+          "quotes": [
+            "To copy the VDI provisioning URL and access token, click the VDI template that you created. If no token value is present, click Generate Token."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "group-column-values": {
+      "kind": "semantic",
+      "title": "VDI group Type and Servers, device Platform, and the default group",
+      "status": "open",
+      "detail": "The VDI group Type (the type of group) and Servers (the servers of the group) have no listed values beyond the dynamic group and the default group, the VDI device Platform values are not listed, OS Type supports only WINDOWS_OS at present, and both the default VDI group and the default VDI forwarding profile can be viewed but their contents are not given.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "template-mtu-field": {
+      "kind": "semantic",
+      "title": "Whether a VDI template has an MTU setting",
+      "status": "open",
+      "detail": "The overview says to adjust the MTU from within the VDI Template; the Configuring VDI Templates field list names no MTU field, and the MTU field appears on the dynamic VDI group form. The absence rests on reading that article's field list, not a search of the console.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.users.security-settings",
+  "title": "A user's security settings in Authentication Service: initial password option, skipping second-factor authentication and MFA authenticators",
+  "aliases": [
+    "Security Settings tab",
+    "Skip Second Factor Authentication",
+    "Skip Until",
+    "Multi-Factor Bypass",
+    "skip 2FA",
+    "MFA Authenticator",
+    "Set By User password",
+    "Auto-generated password"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac.permissions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Security Settings tab of a user is where an admin sets the initial password option, lets the user skip second-factor authentication for a while and removes configured MFA authenticators; the user's record and status are in [[zidentity.users]]."
+    },
+    {
+      "label": "Password.",
+      "text": "{{password-options}} {{prompt-change-default}}"
+    },
+    {
+      "label": "Skipping second-factor authentication.",
+      "text": "{{skip-second-factor}} {{skip-duration}} {{skip-hosted-admins-only}} Whether the API's skip action follows the same limits is open {{gap:skip-api-scope}}."
+    },
+    {
+      "label": "Authenticators.",
+      "text": "{{authenticators}}"
+    },
+    {
+      "label": "Open.",
+      "text": "The password policy rules and the MFA factors are not given {{gap:password-policy-and-factors}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before letting a user skip second-factor authentication, whether the user is a hosted admin and not an admin authenticating through an external IdP.",
+      "uses": [
+        "skip-hosted-admins-only"
+      ]
+    },
+    {
+      "do": "When a user is asked to reconfigure MFA at next login, whether an admin deleted their authenticator.",
+      "uses": [
+        "authenticators"
+      ]
+    }
+  ],
+  "claims": {
+    "password-options": {
+      "statement": "A user must be added before security settings are configured; Change Password Settings must be enabled to modify the password configuration. Set By User makes the user set their own password and sends a password reset email, and the user can choose and configure the required authentication method; Set by Administrator has the admin set the password; Auto-generated generates one for the user, and the Copy and View icons copy or view the password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-security-settings-users.json",
+          "quotes": [
+            "A user must be added before configuring the security settings.",
+            "Change Password Settings: Enable to modify the password configurations.",
+            "Set By User: Select this option if the user must set their own password to access the Zscaler Admin Console. The user receives a password reset email. The user can choose and configure the required authentication method.",
+            "Set by Administrator: Select this option to set a password for the user:",
+            "Auto-generated: Select this option to auto-generate a password for the user:",
+            "Password: Use the Copy and View icons to copy or view the password."
+          ]
+        }
+      ]
+    },
+    "prompt-change-default": {
+      "statement": "With Set by Administrator and with Auto-generated, Prompt for Password Change After the Initial Login is selected by default; for Set by Administrator the user then changes the password following the guidelines in the password policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-security-settings-users.json",
+          "after": "Confirm Password: Reenter the user's password.",
+          "quotes": [
+            "Prompt for Password Change After the Initial Login: This option is selected by default. The user needs to change the password by following the guidelines defined in the password policy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-security-settings-users.json",
+          "after": "Password: Use the Copy and View icons to copy or view the password.",
+          "quotes": [
+            "Prompt for Password Change After the Initial Login: This option is selected by default."
+          ]
+        }
+      ]
+    },
+    "skip-second-factor": {
+      "statement": "An admin can enable Skip Second-Factor Authentication for a user and, with Skip Until, select the date and time up to when the user can skip second-factor authentication, after which the user must configure it; the Add User page offers Skip Until, and on the Edit User page's Security Settings section the option is enabled under Multi-Factor Bypass as Skip Second Factor Authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-security-settings-users.json",
+          "quotes": [
+            "Skip Second-Factor Authentication: Enable if you want the user to skip second-factor authentication. For the Skip Until option, select the date and time up to when the user can skip second-factor authentication. Post this duration, the user must configure second-factor authentication."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-users.json",
+          "quotes": [
+            "Skip Until: Select the date and time up to when the user can skip second-factor authentication. Post this duration, the user must configure second-factor authentication."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-skipping-two-factor-authentication.json",
+          "quotes": [
+            "On the Edit User page, click the Security Settings section.",
+            "Under Multi-Factor Bypass, enable Skip Second Factor Authentication."
+          ]
+        }
+      ]
+    },
+    "skip-duration": {
+      "statement": "The Skip Until field displays the current date and time; by default MFA can be skipped for 8 hours, and the maximum limit is 5 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-skipping-two-factor-authentication.json",
+          "quotes": [
+            "The Skip Until field appears, displaying the current date and time.",
+            "By default, the MFA can be skipped for 8 hours.",
+            "The maximum limit is 5 days."
+          ]
+        }
+      ]
+    },
+    "skip-hosted-admins-only": {
+      "statement": "Skipping two-factor authentication lets Authentication Service administrators log in to the subscribed Zscaler service with only a password for a short duration (the help's example: a user without the device that receives their one-time passcode); the Skip Second Factor Authentication option is only available for hosted admins and not for admins authenticating via the external IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-skipping-two-factor-authentication.json",
+          "quotes": [
+            "Authentication Service administrators can skip two-factor authentication (2FA) for a short duration and use only their password to log in to the subscribed Zscaler service.",
+            "For example, if a user does not have the device on which they receive the one-time passcode (OTP) for authentication, they can be allowed to skip 2FA temporarily.",
+            "The Skip Second Factor Authentication option is only available for hosted admins and not for admins authenticating via the external Identity provider (IdP)."
+          ]
+        }
+      ]
+    },
+    "authenticators": {
+      "statement": "Security settings show each MFA method configured for a user with the date and time it was last used to log in to the Zscaler Admin Console; an admin can delete authenticators except the email authenticator, and the user is then prompted to reconfigure MFA the next time they log in to the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-security-settings-users.json",
+          "quotes": [
+            "MFA Authenticator: Displays the MFA method configured for a user and the date and time it was last used to log in to Zscaler Admin Console.",
+            "Click the Delete icon to remove the configured MFA option. The user is then prompted to reconfigure MFA the next time they log in to the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-viewing-entitlements-assigned-users.json",
+          "quotes": [
+            "You can also view the multi-factor authenticators that are configured for the user.",
+            "You can choose to delete the authenticators, except the email authenticator."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "skip-api-scope": {
+      "kind": "semantic",
+      "title": "Whether the API's skip-MFA action follows the console's duration, maximum and hosted-admin limits",
+      "status": "open",
+      "detail": "The console page limits skipping to hosted admins with an 8-hour default and a 5-day maximum. The published zid API's POST /users/{id}:setskipmfa takes only a timestamp, described as when the MFA skip action was set; whether it applies the same duration, maximum or hosted-admin restriction is not stated. The Add User and Edit User pages offer the option without naming the hosted-admin restriction, and what it does for an IdP-authenticated user is not stated.",
+      "blocks": "scripting MFA skips through the API",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "password-policy-and-factors": {
+      "kind": "semantic",
+      "title": "The password policy rules and the MFA factors",
+      "status": "open",
+      "detail": "The pages point to the password policy without giving its rules, and name an email authenticator, one-time passcodes and one-time token or link methods without listing the available MFA factors.",
+      "blocks": "telling a user which password rules and factors apply",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

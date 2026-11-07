@@ -1,0 +1,779 @@
+{
+  "bundle_version": 1,
+  "query": "zia/url-filtering-rules",
+  "tiers": {
+    "knowledge": {
+      "public": true,
+      "company": true
+    },
+    "iac": {
+      "available": true,
+      "repos": [
+        {
+          "id": "iac",
+          "kind": "json",
+          "path": "scripts/fixtures/kb-overlay/iac",
+          "available": true
+        },
+        {
+          "id": "zia-tf",
+          "kind": "terraform",
+          "path": "scripts/fixtures/kb-overlay/zia-tf",
+          "available": true
+        }
+      ]
+    },
+    "live": {
+      "available": true
+    }
+  },
+  "resolved": {
+    "id": "zia/url-filtering-rules",
+    "kind": "type"
+  },
+  "type": {
+    "id": "zia/url-filtering-rules",
+    "kind": "config",
+    "names": {
+      "zscalerctl": "zia url-filtering-rules",
+      "terraform": "zia_url_filtering_rules",
+      "terraform_data_source": "zia_url_filtering_rules"
+    },
+    "live": {
+      "command": "zscalerctl zia url-filtering-rules list",
+      "available": true
+    },
+    "fields": {
+      "action": {
+        "type": "string",
+        "description": "Action taken when traffic matches the rule criteria."
+      },
+      "blockOverride": {
+        "type": "boolean",
+        "description": "When true, a BLOCK action triggered by the rule could be overridden."
+      },
+      "browserEunTemplateId": {},
+      "cbiProfile": {
+        "references": [
+          "zia/browser-isolation-profiles"
+        ]
+      },
+      "cbiProfileId": {},
+      "ciparule": {},
+      "departments": {
+        "references": [
+          "zia/departments"
+        ]
+      },
+      "description": {
+        "type": "string",
+        "description": "Additional information about the URL filtering rule."
+      },
+      "deviceGroups": {
+        "references": [
+          "zia/device-groups"
+        ]
+      },
+      "deviceTrustLevels": {},
+      "devices": {
+        "references": [
+          "zia/devices"
+        ]
+      },
+      "endUserNotificationUrl": {},
+      "enforceTimeValidity": {},
+      "groups": {
+        "references": [
+          "zia/groups"
+        ]
+      },
+      "httpHeaderActionProfiles": {
+        "references": [
+          "zia/http-header-action-profiles"
+        ]
+      },
+      "httpHeaderProfiles": {
+        "references": [
+          "zia/http-header-profiles"
+        ]
+      },
+      "id": {
+        "type": "integer",
+        "description": "URL filtering rule ID."
+      },
+      "labels": {
+        "type": "array<reference>",
+        "description": "The URL filtering rule's labels; labels logically group policy rules.",
+        "references": [
+          "zia/rule-labels"
+        ]
+      },
+      "lastModifiedBy": {
+        "references": [
+          "zia/admin-users"
+        ]
+      },
+      "lastModifiedTime": {},
+      "locationGroups": {
+        "references": [
+          "zia/location-groups"
+        ]
+      },
+      "locations": {
+        "type": "array<reference>",
+        "description": "Name-ID pairs of locations for which the rule must be applied.",
+        "references": [
+          "zia/locations",
+          "zia/locations-lite",
+          "zia/sublocations"
+        ]
+      },
+      "name": {
+        "type": "string",
+        "description": "Rule name."
+      },
+      "order": {
+        "type": "integer",
+        "description": "Order of execution of the rule with respect to other URL filtering rules."
+      },
+      "overrideGroups": {
+        "references": [
+          "zia/groups"
+        ]
+      },
+      "overrideUsers": {
+        "references": [
+          "zia/users"
+        ]
+      },
+      "protocols": {
+        "type": "array<string>",
+        "description": "Protocol criteria."
+      },
+      "rank": {},
+      "requestMethods": {
+        "type": "array<string>",
+        "description": "Request methods for which the rule must be applied. If not set, the rule is applied to all methods."
+      },
+      "sizeQuota": {},
+      "sourceCountries": {},
+      "sourceIpGroups": {
+        "references": [
+          "zia/ip-source-groups"
+        ]
+      },
+      "state": {
+        "type": "string",
+        "description": "Rule state."
+      },
+      "timeQuota": {},
+      "timeWindows": {},
+      "urlCategories": {
+        "type": "array<string>",
+        "description": "List of URL categories for which the rule must be applied.",
+        "references": [
+          "zia/url-categories"
+        ]
+      },
+      "urlCategories2": {
+        "references": [
+          "zia/url-categories"
+        ]
+      },
+      "userAgentTypes": {},
+      "userRiskScoreLevels": {},
+      "users": {
+        "references": [
+          "zia/users"
+        ]
+      },
+      "validityEndTime": {},
+      "validityStartTime": {},
+      "validityTimeZoneId": {},
+      "workloadGroups": {
+        "references": [
+          "zia/workload-groups"
+        ]
+      }
+    }
+  },
+  "subjects": [
+    {
+      "id": "zia.iot.policy-use",
+      "title": "How IoT traffic is targeted by policy",
+      "claims": [
+        {
+          "id": "zia.iot.policy-use:iot-device-group",
+          "statement": "The Device Groups criterion has an IoT choice that applies a rule to IoT traffic, alongside Cloud Browser Isolation and No Client Connector. It appears in URL Filtering, Cloud App Control, SSL/TLS Inspection and Forwarding Control rules.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#deviceGroups",
+            "zia/cloud-app-control#deviceGroups",
+            "zia/ssl-inspection-rules#deviceGroups",
+            "zia/forwarding-rules#deviceGroups"
+          ]
+        },
+        {
+          "id": "zia.iot.policy-use:iot-group-availability",
+          "statement": "The IoT device group is available only if IoT discovery is enabled for the organization.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#deviceGroups"
+          ]
+        },
+        {
+          "id": "zia.iot.policy-use:url-filtering-iot-needs-enforce",
+          "statement": "URL Filtering rules can also be applied to IoT devices from a location or a sublocation that has the Enforce IoT Policy Control option enabled, to IoT devices identified and classified (for example printers, sensors) by the Zscaler AI/ML under the IoT group in the Device Groups criterion.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#deviceGroups",
+            "zia/locations#iotEnforcePolicySet"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.locations.rule-scoping",
+      "title": "Which policies scope by location and location group",
+      "claims": [
+        {
+          "id": "zia.locations.rule-scoping:rules-take-both",
+          "statement": "URL Filtering, SSL Inspection, Cloud App Control, Firewall Filtering, Web DLP and Bandwidth Control rules each carry both a `locations` array and a `locationGroups` array, so a rule can name individual locations as well as groups.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/ssl-inspection-rules",
+            "zia/firewall-filtering-rules",
+            "zia/dlp-web-rules",
+            "zia/bandwidth-control-rules"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.rule-labels.rule-types",
+      "title": "Which ZIA rule types accept rule labels",
+      "claims": [
+        {
+          "id": "zia.rule-labels.rule-types:terraform-rule-types-with-labels",
+          "statement": "The ZIA Terraform provider documents a `labels` attribute on fifteen rule resources: firewall filtering, firewall DNS, firewall IPS, NAT control, traffic capture, URL filtering, SSL inspection, DLP web, file type control, Cloud App Control, forwarding control, sandbox, bandwidth control, and SaaS Security (CASB) DLP and malware.",
+          "tier": "B",
+          "confidence": "medium",
+          "binds": [
+            "zia/url-filtering-rules#labels",
+            "zia/firewall-filtering-rules#labels"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.sdk-go.write-encoding",
+      "title": "How the Go SDK encodes ZIA writes (omitted zero values, empty responses)",
+      "claims": [
+        {
+          "id": "zia.sdk-go.write-encoding:rule-bools-omitted-when-false",
+          "statement": "The URL Filtering rule struct tags its boolean fields `omitempty` (`blockOverride`, `enforceTimeValidity`, `ciparule`), so a false value is never sent on create or update.",
+          "tier": "B",
+          "confidence": "medium",
+          "binds": [
+            "zia/url-filtering-rules#blockOverride",
+            "zia/url-filtering-rules#enforceTimeValidity",
+            "zia/url-filtering-rules#ciparule"
+          ]
+        },
+        {
+          "id": "zia.sdk-go.write-encoding:rule-update-empty-body-panics",
+          "statement": "If the server answers a URL Filtering rule update with an empty body, `Update` panics with a nil pointer dereference instead of returning an error.",
+          "tier": "B",
+          "confidence": "medium",
+          "binds": [
+            "zia/url-filtering-rules"
+          ]
+        },
+        {
+          "id": "zia.sdk-go.write-encoding:rule-update-panics-on-empty-body",
+          "statement": "URL Filtering `Update` ignores the result of its type assertion and then reads the rule's ID from the asserted value.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.ssl-inspection.pipeline",
+      "title": "Where SSL inspection sits in ZIA web policy evaluation (the two passes)",
+      "claims": [
+        {
+          "id": "zia.ssl-inspection.pipeline:first-pass-on-domain",
+          "statement": "Before any decryption, URL Filtering and Cloud App Control evaluate on the destination domain alone: the CONNECT request in explicit proxy mode, the TLS Client Hello SNI in transparent mode.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules"
+          ]
+        },
+        {
+          "id": "zia.ssl-inspection.pipeline:not-inspected-domain-only",
+          "statement": "When SSL inspection does not decrypt but other policies are still evaluated (Do Not Inspect with Evaluate Other Policies), only the domain-level pass happens: a URL Filtering block on the domain still fires, while path-, method-, and payload-based rules and decrypt-dependent features (DLP, sandbox, malware) do not.",
+          "tier": "B",
+          "confidence": "medium",
+          "binds": [
+            "zia/ssl-inspection-rules#action",
+            "zia/url-filtering-rules"
+          ]
+        },
+        {
+          "id": "zia.ssl-inspection.pipeline:url-filtering-twice",
+          "statement": "On inspected HTTPS, URL Filtering therefore evaluates twice: first on the domain, then on the full decrypted request. \"SSL inspection happens before URL Filtering\" is wrong: the SSL decision sits between the two URL Filtering passes and gates only the second.",
+          "tier": "B",
+          "confidence": "medium",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/ssl-inspection-rules#action"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.terraform.rule-order",
+      "title": "How the ZIA Terraform provider applies rule order",
+      "claims": [
+        {
+          "id": "zia.terraform.rule-order:update-parks-every-update",
+          "statement": "Up to v4.8.13 every URL Filtering rule update, whatever field changed, was first sent with rank 7 at the order of the last rule (sorted by rank, then order), and only afterwards moved back to its declared order by the reorder worker; the rule was written at that order, not after it. From v4.8.14 an update that changes only `order` writes nothing, an update that changes other attributes but not `rank` is written at the rule's current position, and only an update that changes `rank` is written at the end of the list with rank 7; the declared position is then handed to the reorder engine.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#order",
+            "zia/url-filtering-rules#rank"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.url-categories.membership",
+      "title": "Which URL category a URL belongs to",
+      "claims": [
+        {
+          "id": "zia.url-categories.membership:resolved-before-rules",
+          "statement": "Category membership is resolved before rules are walked: a rule matches a URL through the category the URL resolved to, not through every category with a matching entry.",
+          "tier": "B",
+          "confidence": "medium",
+          "binds": [
+            "zia/url-filtering-rules#urlCategories"
+          ]
+        },
+        {
+          "id": "zia.url-categories.membership:retain-parent-both-match",
+          "statement": "A URL that retains its parent category is covered both by rules referencing the custom category and by rules referencing its original predefined category, so rule order decides which fires. The API holds these URLs in `dbCategorizedUrls`, separate from `urls`.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-categories#dbCategorizedUrls",
+            "zia/url-filtering-rules#urlCategories"
+          ]
+        },
+        {
+          "id": "zia.url-categories.membership:specific-entry-wins",
+          "statement": "When a URL matches entries in more than one custom category, the category with the more specific matching entry wins, and rules referencing the less specific (wildcard) category do not apply to that URL, regardless of rule order.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-categories#urls",
+            "zia/url-filtering-rules#urlCategories"
+          ]
+        },
+        {
+          "id": "zia.url-categories.membership:without-retain-parent",
+          "statement": "A URL added to a custom category without retaining its parent is covered by the custom category instead of its original predefined category, so rules on the predefined category stop matching it.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-categories#urls",
+            "zia/url-filtering-rules#urlCategories"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.url-filtering",
+      "title": "ZIA URL Filtering",
+      "claims": []
+    },
+    {
+      "id": "zia.url-filtering.actions",
+      "title": "URL Filtering actions and their prerequisites",
+      "claims": [
+        {
+          "id": "zia.url-filtering.actions:api-action-values",
+          "statement": "Through the API, `action` also accepts `ICAP_RESPONSE` and the sentinels `ANY` and `NONE`.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#action"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.actions:caution",
+          "statement": "Caution shows an end-user notification (default or a redirect page) before letting the user through.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#action"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.actions:conditional-prereqs",
+          "statement": "Conditional enforces step-up authentication before access. It needs Authentication Service for end users and Client Connector forwarding; through Private or Virtual Service Edges the category is blocked instead, and it does not apply to isolation traffic.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#action"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.actions:header-insertion-custom-only",
+          "statement": "HTTP header insertion on an Allow rule works only for custom URL categories.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#httpHeaderActionProfiles"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.actions:isolate-needs-zbi",
+          "statement": "Isolate sends matching traffic through a remote browser using a chosen isolation profile, and exists only when Zero Trust Browser is enabled for the organization.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#action",
+            "zia/url-filtering-rules#cbiProfile"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.actions:override-conditions",
+          "statement": "Override users and groups take effect only when `blockOverride` is true and the action is BLOCK; override users additionally require that no override groups are set.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#blockOverride",
+            "zia/url-filtering-rules#overrideUsers",
+            "zia/url-filtering-rules#overrideGroups"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.actions:override-unrestricted-without-inspection",
+          "statement": "Traffic matching an Allow Override is permitted without restriction when SSL inspection is off and Show End User Notifications is off in the corresponding SSL inspection rule.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#blockOverride"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.actions:quotas",
+          "statement": "Allow and Isolate rules can carry a daily bandwidth quota (10 to 100,000 MB) and a daily time quota (15 to 600 minutes), after which the sites are blocked.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#sizeQuota",
+            "zia/url-filtering-rules#timeQuota"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.url-filtering.criteria",
+      "title": "How URL Filtering rule criteria combine",
+      "claims": [
+        {
+          "id": "zia.url-filtering.criteria:api-only-scoping",
+          "statement": "The API also scopes rules by workload groups (`workloadGroups`) and by HTTP header profiles (`httpHeaderProfiles`).",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#workloadGroups",
+            "zia/url-filtering-rules#httpHeaderProfiles"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.criteria:payload-criteria-need-inspection",
+          "statement": "Criteria that need the request itself (Request Methods, Protocols, URL path) can only be evaluated on decrypted traffic; on uninspected HTTPS only domain-level evaluation exists, so such rules silently do not fire.",
+          "tier": "B",
+          "confidence": "medium",
+          "binds": [
+            "zia/url-filtering-rules#requestMethods",
+            "zia/url-filtering-rules#protocols"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.criteria:url-categories2-and",
+          "statement": "A second URL Categories field (`urlCategories2` in the API) is ANDed with the first: the URL must be in a category from each field, which makes the rule narrower, not broader.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#urlCategories",
+            "zia/url-filtering-rules#urlCategories2"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.criteria:user-risk-score-levels",
+          "statement": "The console's User Risk Profile criterion selects user risk score levels (by default Low 0–29, Medium 30–59, High 60–79, Critical 80–100). The API carries it as `userRiskScoreLevels`.",
+          "tier": "B",
+          "confidence": "medium",
+          "binds": [
+            "zia/url-filtering-rules#userRiskScoreLevels"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.url-filtering.list-pagination",
+      "title": "Listing URL Filtering rules and URL categories without truncation",
+      "claims": [
+        {
+          "id": "zia.url-filtering.list-pagination:go-readallpages-1000",
+          "statement": "The Go SDK's `GetAll` for URL Filtering rules walks pages through `common.ReadAllPages`, which requests `pageSize=1000` by default and stops at the first page shorter than the page size.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.list-pagination:page-parameters-added",
+          "statement": "The December 19, 2025 ZIA release note says `page` and `pageSize` query parameters are available for `GET /urlFilteringRules`, and that default values are used when they are not specified.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.list-pagination:python-single-request",
+          "statement": "The Python SDK's `list_rules` sends one request with caller-chosen `page` and `page_size` and returns that page only; callers must page themselves.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.list-pagination:silent-truncation",
+          "statement": "Treat a URL Filtering rule list whose length is a round page size, such as 100, as possibly truncated and confirm the total with `GET /urlFilteringRules/count`: if the endpoint returns fewer rules per page than the 1000 the Go SDK requests, `ReadAllPages` takes the first page for the last and stops without an error.",
+          "tier": "C",
+          "confidence": "low",
+          "binds": [
+            "zia/url-filtering-rules"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.list-pagination:vendor-count-then-loop",
+          "statement": "Zscaler documents reading every URL Filtering rule by first getting the total from `GET /urlFilteringRules/count`, then requesting each page from 1 to the total divided by the page size, rounded up; its example uses a page size of 100, \"or any desired size up to a max limit\".",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.url-filtering.rule-order",
+      "title": "URL Filtering rule order and first match",
+      "claims": [
+        {
+          "id": "zia.url-filtering.rule-order:admin-rank-precedes",
+          "statement": "With Admin Rank enabled, a rule's admin rank (0 is highest, 7 lowest) constrains the order values it can take: a higher-ranked rule always precedes a lower-ranked one, and an admin cannot pick a rank above their own.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#rank",
+            "zia/url-filtering-rules#order"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.rule-order:ascending-order",
+          "statement": "URL Filtering rules evaluate in ascending `order` (Rule 1 before Rule 2).",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#order"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.rule-order:disabled-holds-slot",
+          "statement": "A disabled rule is skipped but keeps its position in the order.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#state",
+            "zia/url-filtering-rules#order"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.rule-order:first-match",
+          "statement": "Evaluation of the policy rules stops at the first match.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#order"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.workload-groups.rule-scoping",
+      "title": "Which ZIA rules accept workload groups, and how many",
+      "claims": [
+        {
+          "id": "zia.workload-groups.rule-scoping:contract-carriers",
+          "statement": "The ZIA API contract carries `workloadGroups` on the create and update bodies of four rule types: Firewall Filtering, SSL Inspection, URL Filtering and Web DLP.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/firewall-filtering-rules",
+            "zia/ssl-inspection-rules",
+            "zia/dlp-web-rules"
+          ]
+        },
+        {
+          "id": "zia.workload-groups.rule-scoping:empty-ignores-criterion",
+          "statement": "Selecting no workload group ignores the criterion in policy evaluation (documented for URL Filtering and SSL/TLS Inspection rules).",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#workloadGroups",
+            "zia/ssl-inspection-rules#workloadGroups"
+          ]
+        },
+        {
+          "id": "zia.workload-groups.rule-scoping:help-8-per-rule",
+          "statement": "The help documents up to 8 workload groups per rule (URL Filtering and SSL/TLS Inspection criteria text, and the ZIA ranges and limitations table).",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/firewall-filtering-rules",
+            "zia/ssl-inspection-rules",
+            "zia/dlp-web-rules"
+          ]
+        },
+        {
+          "id": "zia.workload-groups.rule-scoping:help-four-policies",
+          "statement": "The help names SSL/TLS Inspection, Firewall Filtering, URL Filtering and DLP as the Internet & SaaS policies that can use a workload group as a criterion.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/firewall-filtering-rules",
+            "zia/ssl-inspection-rules",
+            "zia/dlp-web-rules"
+          ]
+        },
+        {
+          "id": "zia.workload-groups.rule-scoping:terraform-five-carriers",
+          "statement": "The Terraform provider declares `workload_groups` on five rule resources: URL Filtering, Firewall Filtering, SSL Inspection, Web DLP and Traffic Capture, each with the same ID-and-name set schema.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/firewall-filtering-rules",
+            "zia/ssl-inspection-rules",
+            "zia/dlp-web-rules"
+          ]
+        },
+        {
+          "id": "zia.workload-groups.rule-scoping:tf-maxitems-255",
+          "statement": "The Terraform provider's `workload_groups` schema allows up to 255 items (`MaxItems`) on each rule resource that declares it: URL filtering, firewall filtering, SSL inspection, DLP web and traffic capture rules.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/firewall-filtering-rules",
+            "zia/ssl-inspection-rules",
+            "zia/dlp-web-rules"
+          ]
+        }
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "id": "zia.sdk-go.write-encoding:rule-omission-semantics",
+      "kind": "semantic",
+      "title": "Whether ZIA rule updates treat an omitted field as unchanged or as reset",
+      "status": "open",
+      "about": [
+        "zia/url-filtering-rules#blockOverride",
+        "zia/url-filtering-rules"
+      ],
+      "blocks": "saying whether a boolean or numeric rule field can be cleared (set false or 0) through the Go SDK or Terraform",
+      "detail": "If omission keeps the stored value, the omitted false means a rule field set true can never be cleared through the SDK. The 2026-08 provider audit inferred exactly that for every omitempty field in every provider; that inference is not verified for rule endpoints. The maintainers state the keep-value behavior only for the settings endpoint (claim settings-bools-fixed-3-8-45). Resolve with a scratch-tenant test: set a rule's blockOverride true, update with it false through the SDK, re-read.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    {
+      "id": "zia.url-categories.membership:predefined-membership",
+      "kind": "data",
+      "title": "Which predefined categories a URL belongs to",
+      "status": "open",
+      "about": [
+        "zia/url-categories",
+        "zia/url-filtering-rules#urlCategories"
+      ],
+      "detail": "Vendor docs never publish predefined-category membership, and IaC exports usually fetch only custom categories (`customOnly=true`). A rule that references a predefined category cannot be decided offline: an earlier such rule must be treated as ambiguous, not skipped, because it shields every rule below it.",
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia url-lookup <host>"
+    }
+  ],
+  "company": [
+    {
+      "layer": "company",
+      "id": "company.zia.url-filtering-iac",
+      "kind": "iac-coverage",
+      "relation": "extends",
+      "about": [
+        "zia/url-filtering-rules"
+      ],
+      "title": "Synthetic fixture: URL Filtering rules in our IaC",
+      "refresh": "15m",
+      "iac": [
+        {
+          "label": "disabled in our pipeline",
+          "source": "iac:coverage.json#/resources/zia_url_filtering_rules/disabled",
+          "value": [
+            {
+              "when": {
+                "action": "ISOLATE"
+              },
+              "reason": "Provider cannot rebuild cbi_profile on import; ISOLATE rules are managed in the console."
+            }
+          ]
+        },
+        {
+          "label": "checks we added",
+          "source": "iac:coverage.json#/resources/zia_url_filtering_rules/checks",
+          "value": [
+            "assert-clean after import for the imported addresses only"
+          ]
+        },
+        {
+          "label": "the rule as our Terraform declares it",
+          "location": "zia-tf:url_filtering.tf zia_url_filtering_rules.block_gambling"
+        }
+      ]
+    }
+  ],
+  "hint": "Resolve a subject ID for its full reasoning and citations."
+}

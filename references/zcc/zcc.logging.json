@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "zcc.logging",
+  "title": "Client Connector logs: verbosity, user access and collection",
+  "aliases": [
+    "zcc logging",
+    "client connector logs",
+    "zcc log controls",
+    "zcc diagnostic logs"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.log-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.user-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.collection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logs.client-log"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logs.flow-logging"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Client Connector writes its own logs on the device, and three separate settings decide how much it writes, what the user may do with them, and how they reach support."
+    },
+    {
+      "steps": [
+        {
+          "label": "How much is written.",
+          "text": "Log modes and file size per app profile: [[zcc.logging.log-modes]]."
+        },
+        {
+          "label": "What the user can do with the logs.",
+          "text": "The logging controls and the export format: [[zcc.logging.user-access]]."
+        },
+        {
+          "label": "How logs reach support.",
+          "text": "Report an Issue, Fetch Logs, packet captures and file locations: [[zcc.logging.collection]]."
+        },
+        {
+          "label": "What is in them.",
+          "text": "[[zcc.logs.client-log]] and, for traffic flows on Windows, [[zcc.logs.flow-logging]]."
+        }
+      ]
+    },
+    {
+      "label": "Cloud logs are separate.",
+      "text": "{{cloud-logs-independent}} Transaction records live in [[zia.logs.web-records]] and [[zpa.logs.user-activity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a question about what a user did on the web or which rule acted, go to the ZIA or ZPA logs, not the client log.",
+      "uses": [
+        "cloud-logs-independent",
+        "zcc.logs.client-log:transaction-records"
+      ]
+    }
+  ],
+  "claims": {
+    "cloud-logs-independent": {
+      "statement": "The client's logging settings govern how the app generates logs and what users may do with them; no source ties ZIA or ZPA cloud logging to them, so hiding or reducing client logs does not imply less cloud logging.",
+      "tier": "B",
+      "conditions": "Rests on absence: the logging-control and app-profile articles describe only the app's own logs, and no captured source links them to ZIA or ZPA log generation.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-logging-controls-zscaler-client-connector.json",
+          "quotes": [
+            "Using App Profiles, you can determine how the app generates logs."
+          ]
+        }
+      ]
+    }
+  }
+}

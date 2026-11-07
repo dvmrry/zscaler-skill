@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.detectors.topic",
+  "title": "The AI Guard Topic and Off Topic detectors: OR and AND triggering, topic definitions, limits, threshold and languages",
+  "aliases": [
+    "off topic detector",
+    "off-topic detector",
+    "topic detector",
+    "ai guard topic definition"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors.competition"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.policies"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{two-detectors}} This subject is the Topic and Off Topic runbook; the detector list is in [[ai-security.ai-guard.detectors]]."
+    },
+    {
+      "label": "How matching works.",
+      "text": "{{semantics}} The runbook's example row contradicts its own table {{divergence:example-row}}."
+    },
+    {
+      "label": "Topic definitions.",
+      "text": "{{topic-definition}}"
+    },
+    {
+      "label": "Limits and actions.",
+      "text": "{{limits-actions}}"
+    },
+    {
+      "label": "Threshold.",
+      "text": "{{threshold}} Whether Off Topic has a threshold at all is disputed in [[ai-security.ai-guard.detectors]]."
+    },
+    {
+      "label": "Languages and logs.",
+      "text": "{{languages}} The 28-language count is disputed: [[ai-security.ai-guard.detectors:supported-languages]]. {{log-scores}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Do not rely on the runbook's Topic and Off Topic example row to show when Off Topic triggers; use the Triggers when and Aggregation rows, and treat the example as unresolved.",
+      "uses": [
+        "two-detectors",
+        "example-row"
+      ]
+    }
+  ],
+  "claims": {
+    "two-detectors": {
+      "statement": "The Topic detector flags a prompt when it is semantically related to any configured topic (aggregation OR: triggers if any topic matches), and the Off Topic detector does the inverse, triggering when the prompt does not match any configured topic (aggregation AND: triggers only if no topic matches); the runbook says both use the same underlying model and topic definitions, that the only difference is when they trigger, that Topic is for blocking or logging sensitive subjects (salary, medical, weapons, legal) and Off Topic for keeping users on task, and that they evaluate independently.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "flags the prompt when it's semantically related to any configured topics.",
+            "The Off-Topic detector does the inverse: it triggers when the prompt does not match any configured topic.",
+            "Both detectors use the same underlying model and the same topic definitions. The only difference is when they are triggered:",
+            "| Aggregation | OR: Triggers if any topic matches | AND: Triggers only if no topic matches |",
+            "| Use case | Block or log sensitive subjects (salary, medical, weapons, legal). | Keep users on task (only allow topics you’ve defined). |",
+            "They evaluate independently."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "flags the prompt when it's semantically related to any configured topics.",
+            "The Off-Topic detector does the inverse: it triggers when the prompt does not match any configured topic.",
+            "Both detectors use the same underlying model and the same topic definitions. The only difference is when they are triggered:",
+            "| Aggregation | OR: Triggers if any topic matches | AND: Triggers only if no topic matches |",
+            "| Use case | Block or log sensitive subjects (salary, medical, weapons, legal). | Keep users on task (only allow topics you’ve defined). |",
+            "They evaluate independently."
+          ]
+        }
+      ]
+    },
+    "semantics": {
+      "statement": "The runbook says the detector does not perform keyword matching by exact substring but uses semantic understanding (block in writer's block will not trigger a topic about blockchain), does not chunk long prompts so mentions buried deep in very long prompts may be missed, and does not replace content filtering (toxicity, PII, jailbreak) because topic detection is about subject matter, not safety.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "It does not perform keyword matching by exact substring. It uses semantic understanding, so “block” in “writer’s block” won’t trigger a topic about blockchain.",
+            "It does not chunk long prompts. Mentions buried deep in very long prompts may be missed.",
+            "It does not replace content filtering (toxicity, PII, jailbreak). Topic detection is about subject matter, not safety."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "It does not perform keyword matching by exact substring. It uses semantic understanding, so “block” in “writer’s block” won’t trigger a topic about blockchain.",
+            "It does not chunk long prompts. Mentions buried deep in very long prompts may be missed.",
+            "It does not replace content filtering (toxicity, PII, jailbreak). Topic detection is about subject matter, not safety."
+          ]
+        }
+      ]
+    },
+    "topic-definition": {
+      "statement": "Each topic is a Topic Name plus a Topic Definition, both of which contribute to what the detector matches (the name gives the model additional semantic context, so it should relate to the definition); a definition can be a natural language description, which the runbook says works best for broad semantic matching, or a Keyword List of comma-separated keywords (example: diabetes, thyroid, cancer) that are each evaluated independently and work best for precise, specific terms; the runbook says to avoid parentheses, regex syntax and special characters, and calls a single-word definition such as Manager too vague.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "Each topic is a combination of a Topic Name and a Topic Definition. Both contribute to what the detector matches; the name provides additional semantic context to the model, so the name should be related to the definition.",
+            "Natural language descriptions work best for broad semantic matching.",
+            "Keyword List: Enter comma-separated keywords related to the topic name. Example: “diabetes, thyroid, cancer.” Each keyword is evaluated independently. Keyword lists work best for precise, specific term matching.",
+            "No. Avoid parentheses, regex syntax, or special characters. Use plain natural language or comma-separated keywords.",
+            "Single-word definitions: “Manager” as a topic definition is too vague."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "Each topic is a combination of a Topic Name and a Topic Definition. Both contribute to what the detector matches; the name provides additional semantic context to the model, so the name should be related to the definition.",
+            "Natural language descriptions work best for broad semantic matching.",
+            "Keyword List: Enter comma-separated keywords related to the topic name. Example: “diabetes, thyroid, cancer.” Each keyword is evaluated independently. Keyword lists work best for precise, specific term matching.",
+            "No. Avoid parentheses, regex syntax, or special characters. Use plain natural language or comma-separated keywords.",
+            "Single-word definitions: “Manager” as a topic definition is too vague."
+          ]
+        }
+      ]
+    },
+    "limits-actions": {
+      "statement": "The runbook gives the Custom Topic (Topic) or Topic Definition (Off Topic) field up to 10 topics, each with a Name and a Definition; each topic can have its own action override so Block and Detect can be mixed in one policy; more than 10 topics per policy increases noise and latency; and each policy has its own Topic and Off-Topic configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "Custom Topic (Topic) or Topic Definition (Off Topic): Up to 10 topics. Each has a Name and a Definition.",
+            "Each topic can have its own action override, so you can mix Block and Detect within the same policy.",
+            "Too many topics: More than 10 topics per policy increases noise and latency.",
+            "Yes. Each policy has its own Topic / Off-Topic configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "Custom Topic (Topic) or Topic Definition (Off Topic): Up to 10 topics. Each has a Name and a Definition.",
+            "Each topic can have its own action override, so you can mix Block and Detect within the same policy.",
+            "Too many topics: More than 10 topics per policy increases noise and latency.",
+            "Yes. Each policy has its own Topic / Off-Topic configuration."
+          ]
+        }
+      ]
+    },
+    "threshold": {
+      "statement": "The Topic and Off Topic runbook gives the threshold a default of 0.7, which Zscaler strongly recommends keeping; its ranges are 0.80 to 1.00 (only strong, direct matches trigger), 0.5 to 0.7 (semantically related content triggers even with different phrasing or indirect discussion, recommended for most production deployments, starting at 0.7) and below 0.50 (loose or tangential connections trigger); for a vague single-word definition such as Manager it says to improve the definition first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "The default is 0.7.",
+            "Zscaler strongly recommends that you leave the threshold at 0.7.",
+            "| 0.80 to 1.00 | Only strong, direct matches trigger.",
+            "| 0.5 to 0.7 | Semantically related content triggers, even with different phrasing or indirect discussion. Adjacent concepts within the same domain match. | Recommended range for most production deployments. Start at 0.7. |",
+            "| Below 0.50 | Loose or tangential connections trigger.",
+            "If the topic definition is a single vague word (e.g., “Manager”), improve the definition first."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "The default is 0.7.",
+            "Zscaler strongly recommends that you leave the threshold at 0.7.",
+            "| 0.80 to 1.00 | Only strong, direct matches trigger.",
+            "| 0.5 to 0.7 | Semantically related content triggers, even with different phrasing or indirect discussion. Adjacent concepts within the same domain match. | Recommended range for most production deployments. Start at 0.7. |",
+            "| Below 0.50 | Loose or tangential connections trigger.",
+            "If the topic definition is a single vague word (e.g., “Manager”), improve the definition first."
+          ]
+        }
+      ]
+    },
+    "languages": {
+      "statement": "The runbook says to define the topic in English and that the detector handles 28 languages natively, listing Arabic, Chinese, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, Thai, Turkish and Vietnamese, and more, out of the box; prompts under about 10 characters do not give the model enough context.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "Define the topic in English; the detector handles 28 languages natively.",
+            "28 languages are supported out of the box, including Arabic, Chinese, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, Thai, Turkish, Vietnamese, and more.",
+            "Prompts under ~10 characters don’t give the model enough context."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "Define the topic in English; the detector handles 28 languages natively.",
+            "28 languages are supported out of the box, including Arabic, Chinese, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, Thai, Turkish, Vietnamese, and more.",
+            "Prompts under ~10 characters don’t give the model enough context."
+          ]
+        }
+      ]
+    },
+    "log-scores": {
+      "statement": "The runbook says the detection log contains the full response JSON, including confidence scores per topic, which is the same data the policy engine uses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "The detection log contains the full response JSON, including confidence scores per topic. That’s the same data the policy engine uses."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "The detection log contains the full response JSON, including confidence scores per topic. That’s the same data the policy engine uses."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "example-row": {
+      "summary": "Whether Off Topic triggers on a prompt that matches a configured topic: the runbook's Triggers when row and its Example row disagree.",
+      "positions": [
+        {
+          "says": "The Triggers when row says Off Topic triggers when the prompt is not about any configured topic.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+            "quotes": [
+              "| Triggers when... | Prompt is about a configured topic. | Prompt is not about any configured topic. |"
+            ]
+          }
+        },
+        {
+          "says": "The Example row gives the same cell, a Salary topic and the prompt How much do nurses earn? with result Triggered, for both Topic and Off Topic.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+            "quotes": [
+              "| Example | Topic: Salary Prompt: “How much do nurses earn?” Result: Triggered | Topic: Salary Prompt: “How much do nurses earn?” Result: Triggered |"
+            ]
+          }
+        }
+      ],
+      "impact": "By the Triggers when row Off Topic should not trigger on a prompt that matches its configured Salary topic, so the Example row cannot be used as evidence of when Off Topic triggers."
+    }
+  },
+  "gaps": {}
+}

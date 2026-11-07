@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "id": "zpa.vpn.network-segments",
+  "title": "VPN network segments: LAN subnets or FQDNs assigned to Network Connector groups",
+  "aliases": [
+    "network segment",
+    "network segments",
+    "vpn network segment",
+    "lan ip subnet segment"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.network-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.bgp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.redundancy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.access-policy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{definition}} {{purpose}} The application segments are in [[zpa.app-segments.matching]]."
+    },
+    {
+      "label": "Placement.",
+      "text": "{{same-data-center}} {{group-mapping}}"
+    },
+    {
+      "label": "Addressing.",
+      "text": "{{ip-or-fqdn}} {{secondary-dns-routing}}"
+    },
+    {
+      "label": "BGP.",
+      "text": "{{bgp-routes-match}} BGP is in [[zpa.vpn.bgp]] and [[zpa.vpn.redundancy]]."
+    },
+    {
+      "label": "Open.",
+      "text": "The number of Network segments allowed is open {{gap:segment-limits}}."
+    },
+    {
+      "text": "The Network Connector groups are in [[zpa.vpn.network-connectors]], the rules that allow the traffic in [[zpa.vpn.access-policy]] and the hub is [[zpa.vpn]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Network Connector and the server for a LAN IP address are in the same data center.",
+      "uses": [
+        "same-data-center"
+      ]
+    },
+    {
+      "do": "Whether the routes the BGP routers advertise match the IP subnets defined in the Network segments.",
+      "uses": [
+        "bgp-routes-match"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "A Network segment is a local area network (LAN) IP subnet assigned to a Network Connector group to define access to servers that are accessed via the VPN tunnel. Each Network segment has a LAN IP address range for a data center with running servers, and an FQDN and domain name server can also be assigned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-segments.json",
+          "quotes": [
+            "A Network segment is a local area network (LAN) IP subnet that is assigned to a Network Connector group to define access to servers that are accessed via the VPN tunnel.",
+            "Each Network segment has a LAN IP address range for a data center with running servers. You can also assign an FQDN and domain name server to the Network segment."
+          ]
+        }
+      ]
+    },
+    "same-data-center": {
+      "statement": "When a Network segment is assigned to a Network Connector group, the Network Connector and the server associated with the LAN IP address must be from the same data center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-segments.json",
+          "quotes": [
+            "When you assign a Network segment to a Network Connector group, ensure that the Network Connector and the server associated with the LAN IP address are from the same data center."
+          ]
+        }
+      ]
+    },
+    "purpose": {
+      "statement": "Network segments define the traffic flow between Zscaler Client Connector and the server IP address, and handle exception traffic for transformation towards Zero Trust access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-segments.json",
+          "quotes": [
+            "Define the traffic flow between Zscaler Client Connector and the server IP address.",
+            "Handle exception traffic for transformation towards Zero Trust access."
+          ]
+        }
+      ]
+    },
+    "ip-or-fqdn": {
+      "statement": "A Network segment is associated either with an IP address or IP subnet, or with an FQDN. An FQDN segment takes a Primary DNS Server used to resolve the configured FQDN and an optional Secondary DNS Server, and multiple IP addresses or IP subnets can be entered in a Network segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-network-segments.json",
+          "quotes": [
+            "IP Address: Select to associate an IP address or IP subnet with this Network segment.",
+            "FQDN: Select to associate an FQDN with this Network segment.",
+            "Primary DNS Server: Enter the primary DNS server that is used to resolve the configured FQDN.",
+            "Secondary DNS Server: (Optional) Enter the secondary DNS server that is used to resolve the configured FQDN.",
+            "You can enter multiple IP addresses or IP subnets in a Network segment."
+          ]
+        }
+      ]
+    },
+    "secondary-dns-routing": {
+      "statement": "Matching DNS requests destined for the default adapter's secondary DNS server are routed by Zscaler Client Connector to the Network segment's configured secondary DNS server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-network-segments.json",
+          "quotes": [
+            "Matching DNS requests destined for the default adapter's secondary DNS server are routed by Zscaler Client Connector to the Network segment's configured secondary DNS server."
+          ]
+        }
+      ]
+    },
+    "group-mapping": {
+      "statement": "The About Network Connector Groups page says a Network segment is mapped to one or multiple Network Connector groups for traffic forwarding. The add form selects the Network Connector Group to assign the segment to, and in the Edit Network Segment drawer any field can be modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connector-groups.json",
+          "quotes": [
+            "A Network segment is then mapped to one or multiple Network Connector groups for traffic forwarding."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-network-segments.json",
+          "quotes": [
+            "Network Connector Group: Select the Network Connector group you want to assign the Network segment to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-network-segments.json",
+          "quotes": [
+            "In the Edit Network Segment drawer, you can modify any field."
+          ]
+        }
+      ]
+    },
+    "bgp-routes-match": {
+      "statement": "The routes advertised by the BGP routers must match the IP subnets defined in the Network segments for BGP to work.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-vpn-redundancy-deployment-guide.json",
+          "quotes": [
+            "The routes advertised by the BGP routers must match the IP subnets defined in the network segments for the BGP to work."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "segment-limits": {
+      "kind": "semantic",
+      "title": "How many Network segments a tenant or group may have",
+      "status": "open",
+      "detail": "The Network segment pages point to a Ranges & Limitations page that is not captured; no captured page states a limit on Network segments per tenant or per Network Connector group.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

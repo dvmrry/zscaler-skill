@@ -1,0 +1,844 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-management.onboarding-aws",
+  "title": "How AI Asset Management onboards AWS accounts and organizations: prerequisites, templates, CloudTrail, network and IAM roles",
+  "aliases": [
+    "AI Security AWS onboarding",
+    "AI Security CloudTrail details",
+    "AIS-CLOUDTRAIL-KMS-POLICY"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management.onboarding-gcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management.onboarding-azure"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management.onboarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management.cloud-accounts"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{standalone-workflow}} The standalone page names the required role in two different ways {{divergence:standalone-onboarding-role}}. {{cloudtrail-prereq}} The Azure and GCP counterparts are in [[ai-security.asset-management.onboarding-azure]] and [[ai-security.asset-management.onboarding-gcp]], and the product overview is in [[ai-security.asset-management]]."
+    },
+    {
+      "label": "Organization onboarding.",
+      "text": "{{org-prereqs}} {{org-workflow}} {{org-details}} {{org-cloudtrail-prereq}}"
+    },
+    {
+      "label": "CloudFormation and Terraform prerequisites.",
+      "text": "{{cfn-roles}} {{cfn-subnets}} {{terraform-prereqs}}"
+    },
+    {
+      "label": "Templates.",
+      "text": "{{cloudtrail-type-and-paths}} {{cloudtrail-bucket-account-templates}} {{tree-discovery-template-contents}} {{orchestrator-regions}} {{orchestrator-terraform-network-analysis}} {{evidence-template}}"
+    },
+    {
+      "label": "Monitoring scope template.",
+      "text": "{{monitoring-scope-stackset-settings}} {{orchestrator-account-resources}} {{template-validation-hourly}} {{stackset-conflicting-bucket}}"
+    },
+    {
+      "label": "CloudTrail.",
+      "text": "{{cloudtrail-use}} {{cloudtrail-org}} {{cloudtrail-change-org-effect}} {{cloudtrail-change-validation-status}} {{cloudtrail-change-permission-crossaccount}} {{cloudtrail-kms-policy}}"
+    },
+    {
+      "label": "Changing scope and orchestrator.",
+      "text": "{{monitoring-scope-add-only}} {{monitoring-scope-template-zip}} {{orchestrator-change-purge}}"
+    },
+    {
+      "label": "Custom network.",
+      "text": "{{network-vpc-topology}} {{network-worker-sizing}} {{network-db-subnet-group}} {{network-security-groups}} {{network-vpc-peering}} {{network-templates}}"
+    },
+    {
+      "label": "IAM roles and conditions.",
+      "text": "{{iam-role-list}} {{iam-resource-discovery-deny}} {{iam-bedrock-kms}} {{iam-custom-network-conditional}} {{iam-tag-scoped-delete}} {{iam-evidence-roles-scope}}"
+    },
+    {
+      "label": "Condition keys and operators.",
+      "text": "{{iam-operators}} {{iam-keys-principal-a}} {{iam-keys-principal-b}} {{iam-keys-resource}} {{iam-unsupported-keys}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the CloudTrail S3 bucket is in the management account, which decides whether one or two templates are generated.",
+      "uses": [
+        "cloudtrail-bucket-account-templates"
+      ]
+    },
+    {
+      "do": "Whether a CloudTrail change is for the organization or a single account: resetting the organization's details moves all onboarded accounts to Needs Attention.",
+      "uses": [
+        "cloudtrail-change-org-effect"
+      ]
+    },
+    {
+      "do": "That existing target accounts cannot be removed from the AWS monitoring scope, only added.",
+      "uses": [
+        "monitoring-scope-add-only"
+      ]
+    }
+  ],
+  "claims": {
+    "standalone-workflow": {
+      "statement": "Standalone AWS onboarding generates a template in both CloudFormation and Terraform format; the template, deployed on the orchestrator account, creates roles that give AI Security read-only permissions, and target accounts that must be monitored are added with their templates deployed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-standalone-aws-account.json",
+          "quotes": [
+            "AI Security uses these details to generate a template in both CloudFormation and Terraform format.",
+            "The template creates roles that provide AI Security with read-only permissions to access the account.",
+            "Add the target accounts that must be monitored and deploy the templates.",
+            "Deploy the template on the orchestrator account."
+          ]
+        }
+      ]
+    },
+    "cloudtrail-prereq": {
+      "statement": "For standalone AWS accounts CloudTrail must be configured for management and data events so AI Security can run incremental scans on S3 buckets; for data events, select the Write checkbox for All current and future S3 buckets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-standalone-aws-account.json",
+          "quotes": [
+            "Configure CloudTrail for management and data events. This allows AI Security to perform incremental data scans on S3 buckets.",
+            "For All current and future S3 buckets, select the Write checkbox."
+          ]
+        }
+      ]
+    },
+    "org-details": {
+      "statement": "Onboarding an AWS organization asks for a role name (added as a prefix to all roles created during onboarding), the 12-digit management account ID, an optional notification list of up to 30 email addresses, and an autopopulated optional External ID used in the IAM role trust policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-adding-organization-details.json",
+          "quotes": [
+            "Role Name: Enter a unique role name. This role name is added as a prefix to all the roles that are created during the onboarding process.",
+            "Management Account ID: Enter the 12-digit AWS account ID of the management account.",
+            "Notification Emails (Optional): Enter the email addresses of the recipients who must be notified of any configuration or permissions issues encountered with the onboarded organization.",
+            "You can add up to 30 email addresses of recipients.",
+            "External ID: View the optional identifier that is autopopulated. This ID is used in an IAM role trust policy to designate a specific user to assume the IAM role to provide access to the AWS resources."
+          ]
+        }
+      ]
+    },
+    "cloudtrail-type-and-paths": {
+      "statement": "During initial onboarding AI Security looks for log files at prefix/<organization ID>/<management account ID> for an Organization CloudTrail and prefix/<management account ID> for an Account CloudTrail; after onboarding it checks each target account. If the CloudTrail is part of AWS Control Tower, the organization ID is entered as prefix.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-adding-organization-details.json",
+          "quotes": [
+            "During initial onboarding, AI Security checks for log files to perform data scan in the following paths:",
+            "| Organization CloudTrail | prefix/<organization ID>/<management account ID> |",
+            "| Account CloudTrail | prefix/<management account ID> |",
+            "After the onboarding is completed successfully, AI Security checks for log files in each target account.",
+            "If your CloudTrail is part of the AWS Control Tower, enter the organization ID as prefix."
+          ]
+        }
+      ]
+    },
+    "cloudtrail-bucket-account-templates": {
+      "statement": "If the CloudTrail S3 bucket is in the management account AI Security generates only the tree discovery template (deployed in the AWS root account); if it is in another account it generates both a CloudTrail template, deployed in the account holding the bucket, and the tree discovery template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-aws-tree-discovery-template.json",
+          "quotes": [
+            "Management account: AI Security generates only the tree discovery template. Download and deploy this template in the AWS root account.",
+            "An account other than the management account: AI Security generates both the CloudTrail and tree discovery templates. Deploy the CloudTrail template in the AWS account where the CloudTrail S3 bucket is present, and then deploy the tree discovery template."
+          ]
+        }
+      ]
+    },
+    "tree-discovery-template-contents": {
+      "statement": "The tree discovery template includes the policies and permissions to create IAM roles in the AWS root account plus the CloudTrail details for incremental data scans; the IAM roles give AI Security read-only access to discover resources in the AWS organization. Validation runs every hour and can be triggered with Validate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-aws-tree-discovery-template.json",
+          "quotes": [
+            "This template includes the policies and permissions required to create IAM roles in the AWS root account, along with the Cloudtrail details required to perform incremental data scans.",
+            "The IAM roles provide AI Security with read-only access to discover the resources in the AWS organization.",
+            "AI Security validates the template deployment every hour by checking the IAM roles and permissions.",
+            "You can also validate the template immediately by clicking Validate."
+          ]
+        }
+      ]
+    },
+    "cloudtrail-change-org-effect": {
+      "statement": "Resetting an organization's AWS CloudTrail details disables the existing CloudTrail and moves all onboarded accounts to Needs Attention until the new CloudTrail validates; updating a single account's CloudTrail disables it only for that account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-aws-cloudtrail-details.json",
+          "quotes": [
+            "When you reset the organization's AWS CloudTrail details, the existing CloudTrail is disabled and all the onboarded accounts move to the Needs Attention state until the new CloudTrail is validated successfully.",
+            "When you update the account's CloudTrail, the existing CloudTrail is disabled only for that account, without affecting the other accounts in the organization."
+          ]
+        }
+      ]
+    },
+    "cloudtrail-change-validation-status": {
+      "statement": "After changing the organization CloudTrail, Validate on the Overview tab sets the CloudTrail status to Enabled on success and to Failed if validation finds an issue, in which case the template is downloaded and run again before validating again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-aws-cloudtrail-details.json",
+          "quotes": [
+            "In the Overview tab, under the CloudTrail section, click Validate.",
+            "After CloudTrail is validated successfully, the CloudTrail status shows as Enabled.",
+            "If there is any issue found while validating the template, the status of the CloudTrail shows Failed. Download the template and run it again, and then validate the CloudTrail."
+          ]
+        }
+      ]
+    },
+    "cloudtrail-change-permission-crossaccount": {
+      "statement": "Changing CloudTrail needs the Administrator role or any role with Edit Cloud Accounts permission; a cross-account CloudTrail whose S3 bucket is in a different account than the onboarded member account needs three settings: CloudTrail Permissions for Member Accounts, Cross-Account Log Decryption and KMS Key ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-aws-cloudtrail-details.json",
+          "quotes": [
+            "You must be assigned either an Administrator role or any role with Edit Cloud Accounts permission.",
+            "To configure a cross-account CloudTrail that stores logs in an S3 bucket located in a different account than the onboarded account (member account), enable the following settings:",
+            "CloudTrail Permissions for Member Accounts",
+            "Cross-Account Log Decryption",
+            "KMS Key ID"
+          ]
+        }
+      ]
+    },
+    "cloudtrail-kms-policy": {
+      "statement": "For KMS-encrypted cross-account CloudTrail, the resource discovery role created by AI Security carries an AIS-CLOUDTRAIL-KMS-POLICY, edited in the account holding the S3 bucket to add the S3 bucket account ID where the KMS key is present.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-aws-cloudtrail-details.json",
+          "quotes": [
+            "Sign in to the AWS account where the S3 bucket that stores CloudTrail logs is available, and go to Roles.",
+            "Select the resource discovery role that is created by AI Security.",
+            "Under Permissions, expand AIS-CLOUDTRAIL-KMS-POLICY and click Edit.",
+            "In the Policy editor, add the S3 bucket account ID where the KMS key is present."
+          ]
+        }
+      ]
+    },
+    "monitoring-scope-add-only": {
+      "statement": "New AWS accounts can be added to the monitoring scope but existing target accounts cannot be removed; autodetection can be enabled at organization or OU level, and automatic deployment must be activated in AWS for stack instances to deploy to newly added accounts. Needs the Administrator role or any role with Configure Monitoring Scope permission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-managing-monitoring-scope-aws.json",
+          "quotes": [
+            "You can add new accounts to the monitoring scope, but you cannot remove the existing target accounts.",
+            "you can enable autodetection at the organization or organizational unit (OU) level.",
+            "You must activate automatic deployment in AWS to automatically deploy stack instances for newly added account in the future.",
+            "You must be assigned either an Administrator role or any role with the Configure Monitoring Scope permission in the AI Security Admin Portal."
+          ]
+        }
+      ]
+    },
+    "monitoring-scope-template-zip": {
+      "statement": "The AWS monitoring scope CloudFormation download is a ZIP holding a CSV of target accounts to scan and a YAML with the policies and permissions to connect to the AWS organization; the Terraform download holds a CSV, multiple Terraform files and a README.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-managing-monitoring-scope-aws.json",
+          "quotes": [
+            "A CSV file that contains a list of target accounts that needs to be scanned.",
+            "A YAML file that contains the policies and permissions required for AI Security to connect to the AWS organization.",
+            "Multiple Terraform files that contains policies and permissions required for the AI Security to connect to the AWS organization.",
+            "A CSV file containing the list of target accounts that you want to be monitored.",
+            "A README file that contains the instructions to run the template."
+          ]
+        }
+      ]
+    },
+    "orchestrator-change-purge": {
+      "statement": "Before running the template on a new AWS orchestrator account, the template previously deployed on the existing orchestrator account must be purged, by deleting the corresponding stackset or running terraform destroy depending on template type; the orchestrator account can be changed if the old one is being decommissioned, deleted, or was selected incorrectly, and the existing orchestrator account checkbox is disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-aws-orchestrator-account.json",
+          "quotes": [
+            "you can change the orchestrator account if the existing orchestrator account is being decommissioned, deleted, or if an incorrect account was selected while onboarding.",
+            "Before running the template on the new orchestrator account, purge the template that was previously deployed on the existing orchestrator account.",
+            "You can do this by deleting the corresponding stackset or running the terraform destroy command based on the template type.",
+            "The existing orchestrator account checkbox is disabled."
+          ]
+        }
+      ]
+    },
+    "org-cloudtrail-prereq": {
+      "statement": "For AWS organizations, CloudTrail must be configured for management and data events so AI Security can run incremental scans on S3 buckets, with the Write checkbox selected for All current and future S3 buckets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-aws-organization.json",
+          "quotes": [
+            "Configure CloudTrail for management and data events. This allows AI Security to perform incremental data scans on S3 buckets.",
+            "For All current and future S3 buckets, select the Write checkbox."
+          ]
+        }
+      ]
+    },
+    "org-prereqs": {
+      "statement": "For an AWS organization, identify an orchestrator account and the target accounts (the monitoring scope), and hold an Administrator role or any role with Add Accounts permissions in the AI Security Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-aws-organization.json",
+          "quotes": [
+            "Identify an AWS account as the orchestrator account. The AI Security template is deployed in this account to scan the data in the target accounts.",
+            "Identify the target AWS accounts that need to be monitored and protected. AI Security defines these target accounts as monitoring scope.",
+            "You must be assigned either an Administrator role or any role with Add Accounts permissions in the AI Security Admin Portal."
+          ]
+        }
+      ]
+    },
+    "org-workflow": {
+      "statement": "Onboarding an AWS organization consists of: provide organization details, deploy the tree discovery template, select the network configuration, orchestrator account, monitoring scope and business unit, then deploy the orchestrator and monitoring scope templates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-aws-organization.json",
+          "quotes": [
+            "Provide AWS organization details.",
+            "Deploy the tree discovery template.",
+            "Select the network configuration, orchestrator account, monitoring scope, and business unit.",
+            "Deploy the orchestrator and monitoring scope templates."
+          ]
+        }
+      ]
+    },
+    "cfn-roles": {
+      "statement": "The CloudFormation path for an AWS organization needs the AWSCloudFormationStackSetAdministrationRole and AWSCloudFormationStackSetExecutionRole IAM roles in the orchestrator account, and the execution role on every target account, to deploy stacks and StackSets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-aws-organization.json",
+          "quotes": [
+            "Create the following IAM roles in the orchestrator account to establish a trust relationship between the orchestrator account and target accounts.",
+            "The IAM roles are required to create stacks and StackSets that are used to deploy the AI Security template in the AWS organization.",
+            "This IAM role with admin permissions creates a trust relationship with the CloudFormation service.",
+            "This IAM role creates a trust relationship with the administrator account and the AWSCloudFormationStackSetAdministrationRole IAM role.",
+            "Create the AWSCloudFormationStackSetExecutionRole IAM role on all the target accounts with a trust relationship with the root account and the AWSCloudFormationStackSetAdministrationRole role."
+          ]
+        }
+      ]
+    },
+    "cfn-subnets": {
+      "statement": "For an AWS organization with the CloudFormation template, each AWS region needs at least two default subnets in the default VPCs; AI Security creates subnets to launch AWS cloud resources in specific subnets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-aws-organization.json",
+          "quotes": [
+            "Ensure that each AWS region has at least two default subnets in the default virtual private clouds (VPC).",
+            "AI Security creates subnets to launch AWS cloud resources (e.g., EC2 instances, S3 buckets) in specific subnets."
+          ]
+        }
+      ]
+    },
+    "terraform-prereqs": {
+      "statement": "With the Terraform template for an AWS organization, install Terraform CLI and AWS CLI 2.22 or later, and identify storage in the orchestrator account's primary region for Terraform state, for example an S3 bucket and a DynamoDB table whose partition key is LockID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-aws-organization.json",
+          "quotes": [
+            "Terraform CLI to run the Terraform templates.",
+            "AWS CLI 2.22 version or later to connect to the AWS organization.",
+            "Identify the storage services in the primary region of the orchestrator account to store the Terraform state files.",
+            "Partition key: Enter LockID."
+          ]
+        }
+      ]
+    },
+    "orchestrator-regions": {
+      "statement": "When deploying the AWS orchestrator template the primary region of the orchestrator is selected first, followed by other regions, and the pages state that AI Security supports \"all the 29 global regions that are supported by AWS\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-orchestrator-and-monitoring-scope-templates.json",
+          "quotes": [
+            "Select the primary region of the orchestrator as the first region, followed by other regions. AI Security supports all the 29 global regions that are supported by AWS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-orchestrator-template.json",
+          "quotes": [
+            "Select the primary region of the orchestrator as the first region, followed by other regions. AI Security supports all the 29 global regions that are supported by AWS."
+          ]
+        }
+      ]
+    },
+    "orchestrator-terraform-network-analysis": {
+      "statement": "In the organization orchestrator Terraform deployment, terraform apply is run with -var=‘enable_test_connectivity=true’ to deploy with network analysis enabled and with enable_test_connectivity=false to deploy with it disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-orchestrator-and-monitoring-scope-templates.json",
+          "quotes": [
+            "To run the Terraform script and deploy resources with network analysis enabled:",
+            "terraform apply -var=‘enable_test_connectivity=true’",
+            "To deploy resources with network analysis disabled:",
+            "terraform apply -var=‘enable_test_connectivity=false’"
+          ]
+        }
+      ]
+    },
+    "evidence-template": {
+      "statement": "The evidence template is available only if an S3 bucket to store evidence data is configured; it is deployed in the orchestrator account for a Zscaler Managed S3 Bucket and in the account holding the bucket for a Custom S3 Bucket (organization page).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-orchestrator-and-monitoring-scope-templates.json",
+          "quotes": [
+            "This template is available only if you have configured an S3 bucket to store evidence data.",
+            "If you selected Zscaler Managed S3 Bucket, sign in to the orchestrator account and if you selected Custom S3 Bucket, sign in to the account where the custom S3 bucket is available."
+          ]
+        }
+      ]
+    },
+    "monitoring-scope-stackset-settings": {
+      "statement": "The organization monitoring scope StackSet is created with Service managed permissions, Deploy to organization, and Automatic deployment Activated so stack instances deploy for new accounts added to the OU; Account removal behavior Delete stacks removes instances when an account leaves the OU. The StackSet name must be unique and friendly because it is needed to add target accounts after onboarding.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-orchestrator-and-monitoring-scope-templates.json",
+          "quotes": [
+            "Permissions: Select Service managed permissions.",
+            "Deployment targets: Select Deploy to organization.",
+            "Automatic deployment: Select Activated to automatically deploy additional stack instances for any new account added to the OU in the future.",
+            "Account removal behavior: Select Delete stacks to remove stack instances if an account is removed from the OU.",
+            "StackSet name: Enter a unique and friendly name for the StackSet. This is required when you want to add new target accounts after onboarding."
+          ]
+        }
+      ]
+    },
+    "orchestrator-account-resources": {
+      "statement": "After the orchestrator and monitoring scope templates are deployed, resources created in the AWS orchestrator account include an auto scaling group for the orchestrator instance, a NAT gateway that prevents inbound connectivity from the public internet to orchestrator or scanner instances, an SQS queue for scan requests from AI Security, and an Event bridge rule forwarding CloudTrail data events to the orchestrator account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-orchestrator-and-monitoring-scope-templates.json",
+          "quotes": [
+            "Auto scaling groups: Scaling group used for orchestrator instance.",
+            "NAT gateway: Network address translation gateway used to prevent inbound connectivity from the public internet to orchestrator or scanner instances.",
+            "SQS Queue: Simple queue service (SQS) used for sending scan requests from AI Security.",
+            "Event bridge rule: Used for forwarding the CloudTrail data events to orchestrator account."
+          ]
+        }
+      ]
+    },
+    "template-validation-hourly": {
+      "statement": "AI Security validates the AWS orchestrator and monitoring scope template deployment every hour by checking roles and permissions; a deployment issue shows an error, and Validate verifies whether the template is deployed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-orchestrator-and-monitoring-scope-templates.json",
+          "quotes": [
+            "AI Security validates the template deployment every hour by checking the roles and permissions.",
+            "Click Validate to verify if the template is deployed.",
+            "An error message appears if there is any issue deploying the template. Rerun the template in the root account."
+          ]
+        }
+      ]
+    },
+    "stackset-conflicting-bucket": {
+      "statement": "A conflicting S3 bucket error during orchestrator StackSet creation (organization page) is addressed by deleting the existing bucket and retrying; before creating a StackSet for a new orchestrator account the old orchestrator account's infrastructure must be deleted to avoid conflicts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-orchestrator-and-monitoring-scope-templates.json",
+          "quotes": [
+            "If you encounter a conflicting S3 bucket error during StackSet creation, try deleting the existing bucket and retry the StackSet creation.",
+            "Before creating a new StackSet for the new orchestrator account, delete the existing infrastructure of the old orchestrator account to avoid conflicts."
+          ]
+        }
+      ]
+    },
+    "iam-resource-discovery-deny": {
+      "statement": "The AWS resource discovery role is required to discover resources in the onboarded accounts and collect CloudTrail logs; its permissions table lists Deny for s3:GetObject, dynamodb:BatchGetItem, dynamodb:GetItem, dynamodb:Query and dynamodb:Scan on Monitored Accounts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-aws.json",
+          "quotes": [
+            "The resource discovery role is required for AI Security to discover resources within the onboarded accounts and collect CloudTrail logs.",
+            "| s3:GetObject | Deny | Monitored Accounts |  |",
+            "| dynamodb:BatchGetItem | Deny | Monitored Accounts |  |",
+            "| dynamodb:GetItem | Deny | Monitored Accounts |  |",
+            "| dynamodb:Query | Deny | Monitored Accounts |  |",
+            "| dynamodb:Scan | Deny | Monitored Accounts |  |"
+          ]
+        }
+      ]
+    },
+    "iam-bedrock-kms": {
+      "statement": "If AWS Bedrock resources are encrypted with KMS keys, AI Security fails to collect their metadata unless kms:Decrypt and kms:GenerateDataKey are explicitly added to the resource discovery role (via the AIS-BASIC-CUSTOM-POLICY).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-aws.json",
+          "quotes": [
+            "If the AWS Bedrock resources are encrypted with KMS keys, AI Security fails to collect the metadata. To enable metadata collection, explicitly add the kms:Decrypt and kms:GenerateDataKey permissions to the resource discovery role.",
+            "On the Permissions tab, click AIS-BASIC-CUSTOM-POLICY."
+          ]
+        }
+      ]
+    },
+    "iam-role-list": {
+      "statement": "The AWS templates create a Resource Discovery Role, an Orchestrator Instance Profile Role (used by the orchestrator instance in the primary region to organize data scanning), a Scanner Instance Profile Role, a Target Role created in target accounts, a Put Evidence role (stores evidence snippets in the specified S3 bucket) and a Get Evidence role (retrieves them).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-aws.json",
+          "quotes": [
+            "The resource discovery role is required for AI Security to discover resources within the onboarded accounts and collect CloudTrail logs.",
+            "The orchestrator instance profile role is used by the orchestrator instance present in the primary region to organize data scanning.",
+            "The scanner instance profile role is used by the scanner instances to perform data scanning and has the following permissions:",
+            "The target role is an IAM role created in the target accounts containing permissions to CreateSnapshot, GetObject from S3, etc.",
+            "The Put Evidence role is required for AI Security to store evidence data snippets in the specified S3 bucket.",
+            "The Get Evidence role is required for AI Security to retrieve evidence data snippets from the specified S3 bucket."
+          ]
+        }
+      ]
+    },
+    "iam-custom-network-conditional": {
+      "statement": "The orchestrator instance profile role's ec2:CreateNetworkInsightsPath permission and its tiros:CreateQuery permission are conditional and only required if Custom Network is used; the target role's secretsmanager:GetSecretValue is conditional and only required if Custom Network is used with Unmanaged DB Scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-aws.json",
+          "quotes": [
+            "| ec2:CreateNetworkInsightsPath | Allow | Orchestrator Account | To create a Network Insights path. This permission is conditional and only required if Custom Network is used. |",
+            "| tiros:CreateQuery | Allow | Orchestrator Account | To create a VPC reachability query This permission is conditional and only required if Custom Network is used. |",
+            "This permission is conditional and only required if Custom Network is used with Unmanaged DB Scanning."
+          ]
+        }
+      ]
+    },
+    "iam-tag-scoped-delete": {
+      "statement": "The orchestrator instance profile role's rds:DeleteDBInstance permission is Allow scoped to only resources created by AI Security (based on tags), to delete the RDS database instance created for scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-aws.json",
+          "quotes": [
+            "| rds:DeleteDBInstance | Allow | Only resources created by AI Security (based on tags) | To delete the Zscaler AI Security’s RDS database instance created for scanning |"
+          ]
+        }
+      ]
+    },
+    "iam-evidence-roles-scope": {
+      "statement": "The Put Evidence role's s3:PutObject and the Get Evidence role's s3:GetObject are Allow on the Evidence Bucket only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-aws.json",
+          "quotes": [
+            "| s3:PutObject | Allow | Evidence Bucket only | To put objects into the S3 bucket |",
+            "| s3:GetObject | Allow | Evidence Bucket only | To retrieve the S3 object from AI Security export bucket |"
+          ]
+        }
+      ]
+    },
+    "network-vpc-topology": {
+      "statement": "A custom AWS network needs a Control Plane VPC created only in the primary region where the orchestrator runs and a Worker Plane VPC in every region where the resources exist, both in the orchestrator account, with non-overlapping CIDR ranges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-aws-network.json",
+          "quotes": [
+            "You must configure a custom network in your organization by creating the following control plane and worker plane virtual private clouds (VPCs) in the orchestrator account:",
+            "Control Plane VPC: Create this VPC only in the primary region where the orchestrator is going to run.",
+            "Worker Plane VPC: Create this VPC in all the regions where the resources exist.",
+            "Ensure that both control and worker planes do not have overlapping Classless Inter-Domain Routing (CIDR)."
+          ]
+        }
+      ]
+    },
+    "network-worker-sizing": {
+      "statement": "In the manual AWS worker plane VPC procedure, at least 2 Availability Zones and 2 public and 2 private subnets are selected and at least 50 IPs must be available in the private subnet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-aws-network.json",
+          "quotes": [
+            "Number of Availability Zones (AZs): Select at least 2 AZs.",
+            "Number of public subnets: Select 2.",
+            "Number of private subnets: Select 2.",
+            "Private subnet: Ensure that at least 50 IPs are available."
+          ]
+        }
+      ]
+    },
+    "network-db-subnet-group": {
+      "statement": "A DB subnet group is required for AI Security to scan RDS databases; it uses the worker plane VPC with at least two AZs and their private subnets and is created in each target region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-aws-network.json",
+          "quotes": [
+            "The DB subnet group is required for AI Security to be able to scan the RDS databases.",
+            "Select the worker plane VPC from the drop-down menu.",
+            "Select at least two AZs and their corresponding private subnet in those zones.",
+            "The DB subnet group is created. Repeat the steps to create DB subnet groups in other target regions."
+          ]
+        }
+      ]
+    },
+    "network-security-groups": {
+      "statement": "The control plane security group has no inbound rules; the worker plane security group allows inbound HTTPS from the control plane VPC and PostgreSQL and MYSQL/Aurora from the worker plane VPC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-aws-network.json",
+          "quotes": [
+            "3. Create the control plane security group.",
+            "Do not add any inbound rules.",
+            "4. Create the worker plane security group.",
+            "HTTPS, Control plane VPC",
+            "PostgreSQL, Worker plane VPC",
+            "MYSQL/Aurora, Worker plane VPC"
+          ]
+        }
+      ]
+    },
+    "network-vpc-peering": {
+      "statement": "The control plane and worker plane VPCs must be peered (manual and template-based configurations alike); a new peering connection is in the Pending acceptance state until accepted, and route tables on both VPCs must be updated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-aws-network.json",
+          "quotes": [
+            "After creating the control and worker plane VPC, you need to peer these VPCs, so they can communicate with each other. This step is common for both manual and template-based configurations.",
+            "it is in the Pending acceptance state.",
+            "Update the route tables for both control plane and worker plane VPCs to enable traffic flow between the VPCs."
+          ]
+        }
+      ]
+    },
+    "network-templates": {
+      "statement": "The AWS network CloudFormation download is a ZIP with two YAML files (aws_control_plane_network_components_cft.yml and aws_worker_plane_network_components_cft.yml); the Terraform download is a ZIP with a worker-plane and a control-plane folder.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-aws-network.json",
+          "quotes": [
+            "The .zip file includes two YAML files that contains policies and permissions required for AI Security to create required network configurations in the AWS organization.",
+            "select the aws_control_plane_network_components_cft.yml file, and then click Open.",
+            "select the aws_worker_plane_network_components_cft.yml file, and then click Open.",
+            "The .zip file includes two folders, one for the worker plane and another for the control plane"
+          ]
+        }
+      ]
+    },
+    "iam-operators": {
+      "statement": "Among the condition operators AI Security supports are StringNotEqualsIgnoreCaseIfExists, StringLikeIfExists, ArnNotLikeIfExists and Boolean, and it supports the NotPrincipal element; it does not support Numeric, Date, IP Address or Binary operators.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-supported-aws-iam-condition-keys-and-operators.json",
+          "quotes": [
+            "- StringNotEqualsIgnoreCaseIfExists",
+            "- StringLikeIfExists",
+            "- ArnNotLikeIfExists",
+            "- Boolean",
+            "AI Security supports NotPrincipal element in IAM policies.",
+            "Numeric operators (NumericEquals, NumericNotEquals, NumericLessThan, etc.)",
+            "Date operators (DateEquals, DateNotEquals, DateLessThan, etc.)",
+            "IP Address operators (IpAddress, NotIpAddress)",
+            "Binary operators (BinaryEquals)"
+          ]
+        }
+      ]
+    },
+    "iam-keys-principal-a": {
+      "statement": "Supported principal-based condition keys include aws:PrincipalTag/tag-key, aws:PrincipalOrgID, aws:PrincipalArn, aws:PrincipalAccount and aws:PrincipalIsAWSService.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-supported-aws-iam-condition-keys-and-operators.json",
+          "quotes": [
+            "aws:PrincipalTag/tag-key",
+            "aws:PrincipalOrgID",
+            "aws:PrincipalArn",
+            "aws:PrincipalAccount",
+            "aws:PrincipalIsAWSService"
+          ]
+        }
+      ]
+    },
+    "iam-keys-principal-b": {
+      "statement": "Supported principal-based condition keys also include aws:PrincipalServiceName, aws:PrincipalServiceNamesList, aws:PrincipalType, aws:userid and aws:username.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-supported-aws-iam-condition-keys-and-operators.json",
+          "quotes": [
+            "aws:PrincipalServiceName",
+            "aws:PrincipalServiceNamesList",
+            "aws:PrincipalType",
+            "aws:userid",
+            "aws:username"
+          ],
+          "after": "aws:PrincipalIsAWSService"
+        }
+      ]
+    },
+    "iam-keys-resource": {
+      "statement": "Supported resource-based condition keys are aws:ResourceTag/tag-key, aws:ResourceAccount and aws:ResourceOrgID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-supported-aws-iam-condition-keys-and-operators.json",
+          "quotes": [
+            "Resource-Based Keys",
+            "aws:ResourceTag/tag-key",
+            "aws:ResourceAccount",
+            "aws:ResourceOrgID"
+          ]
+        }
+      ]
+    },
+    "iam-unsupported-keys": {
+      "statement": "Unsupported condition keys include aws:PrincipalOrgPaths, aws:ResourceOrgPaths, network and request context keys such as aws:SourceIp and aws:CurrentTime, and advanced keys such as aws:CalledVia and aws:MultiFactorAuthPresent; when a key is not supported, evaluation of the condition is skipped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-supported-aws-iam-condition-keys-and-operators.json",
+          "quotes": [
+            "Principal-based condition keys: aws:PrincipalOrgPaths: AWS organizations path evaluation",
+            "Resource-based condition keys: aws:ResourceOrgPaths: AWS organizations path evaluation",
+            "aws:SourceIp: Source IP address",
+            "aws:CurrentTime: Current date or time",
+            "aws:CalledVia: Service call chain",
+            "aws:MultiFactorAuthPresent: MFA authentication",
+            "When condition keys are not supported, then evaluation of the condition is skipped (e.g., aws:PrincipalOrgPaths)."
+          ]
+        }
+      ]
+    },
+    "cloudtrail-use": {
+      "statement": "CloudTrail events can be recorded by Event History (last 90 days, single account), CloudTrail Lake or Trails; AI Security uses trails to analyze logs and perform incremental scans on S3 buckets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-aws-cloudtrail.json",
+          "quotes": [
+            "Event History: Records all activities within a single AWS account for the last 90 days.",
+            "CloudTrail Lake: Records user and API activities within an AWS account or AWS organization.",
+            "Trails: Records specific AWS activities that you want to monitor within an AWS account or organization and sends these logs to the Amazon S3 bucket.",
+            "AI Security uses trails to analyze the logs and perform incremental scans on the S3 buckets."
+          ]
+        }
+      ]
+    },
+    "cloudtrail-org": {
+      "statement": "A trail created through an organization is created in each member account, with events delivered to the S3 bucket, which allows logs from multiple accounts and regions to be aggregated into a single bucket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-aws-cloudtrail.json",
+          "quotes": [
+            "When you create a trail using organization, a trail is created in each member account of the organization.",
+            "The events are logged in each trail of the member account and are delivered to the S3 bucket.",
+            "It allows you to aggregate CloudTrail logs from multiple accounts and regions into a single S3 bucket"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "standalone-onboarding-role": {
+      "summary": "The standalone AWS account onboarding page states the required role twice: Administrator only in the prerequisites, and Administrator or any role with Add Accounts permissions further down.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-asset-mgmt-onboarding-standalone-aws-account.json",
+            "quotes": [
+              "You must be assigned an Administrator role to onboard the AWS account."
+            ]
+          },
+          "says": "An Administrator role is required to onboard the AWS account."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-asset-mgmt-onboarding-standalone-aws-account.json",
+            "quotes": [
+              "You must be assigned either an Administrator role or any role with Add Accounts permissions in the Zscaler Admin Console."
+            ]
+          },
+          "says": "Either an Administrator role or any role with Add Accounts permissions is sufficient."
+        }
+      ],
+      "impact": "Whether a non-Administrator role with Add Accounts permissions can onboard a standalone account cannot be read from the page; the organization page states only the second form."
+    }
+  },
+  "gaps": {}
+}

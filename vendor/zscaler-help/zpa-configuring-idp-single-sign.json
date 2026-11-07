@@ -1,0 +1,857 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring an IdP for Single Sign-On",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/configuring-idp-single-sign",
+    "node": "1483481",
+    "revision": "3243307",
+    "updated": "2026-09-18",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Within the Zscaler Admin Console, you can add up to 10 IdP configurations for single sign-on (SSO). For a complete list of ranges and limitations per feature, see Ranges & Limitations."
+    },
+    {
+      "text": "The references to private.zscaler.com within the examples of this article might differ depending on your organization’s assigned cloud. To learn more about your cloud, see Customizing Your Account Settings."
+    },
+    {
+      "text": "To specify Private Access (ZPA) as a service provider (SP) for your identity provider (IdP):"
+    },
+    {
+      "item": "1. Set up your IdP and specify Private Access as the SP.",
+      "depth": 0
+    },
+    {
+      "item": "Before you can add an IdP configuration using the Zscaler Admin Console, you must have the IdP in place for your organization.",
+      "depth": 0
+    },
+    {
+      "item": "The following configuration guides provide instructions on how to configure specific IdPs for SSO, but ZPA can support any IdP. If you don't see your IdP listed below, refer to these guides as examples:",
+      "depth": 0
+    },
+    {
+      "item": "Configuration Guide for Gemalto SafeNet Authentication Manager",
+      "depth": 1
+    },
+    {
+      "item": "Configuration Guide for Microsoft Active Directory Federation Services (ADFS) 2.0 and 3.0",
+      "depth": 1
+    },
+    {
+      "item": "Configuration Guide for Microsoft Azure Active Directory (AD)",
+      "depth": 1
+    },
+    {
+      "item": "Configuration Guide for Okta",
+      "depth": 1
+    },
+    {
+      "item": "Configuration Guide for Onelogin",
+      "depth": 1
+    },
+    {
+      "item": "Configuration Guide for Ping Identity PingOne",
+      "depth": 1
+    },
+    {
+      "item": "Prior to configuring your IdP, Zscaler recommends reading IdP Configuration Best Practices.",
+      "depth": 0
+    },
+    {
+      "item": "2. Add an IdP configuration in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "If you want to use the same IdP for both admin and user SSO, you must add a configuration for each. You can also use different IdPs for admin and user SSO, if desired. If you plan to use the IdP for SCIM too, SCIM is only available for user SSO.",
+      "depth": 0
+    },
+    {
+      "item": "The SP metadata and certificate information is specific to your IdP and the Single Sign-On selection made in step 2c. When you upload the files, or manually add the metadata to your IdP, it parses the information.",
+      "depth": 0,
+      "strong": [
+        [
+          76,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "If you update an IdP certificate, this change triggers an Authentication Error message in the Zscaler Client Connector for users and prevents access to your apps. Your users need to reauthenticate in Zscaler Client Connector to regain access to the apps.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends disabling this setting only after SAML attributes are removed as policy criteria in a rule. If this setting is disabled and a policy rule has SAML attribute criteria, Zscaler might not evaluate the policy rule. To learn more, see Configuring Access Policies, Configuring Timeout Policies, and Configuring Timeout Policies.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Private Access Authentication > IdP Configuration.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          78
+        ],
+        [
+          81,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "The IdP Configuration page is hidden if you are subscribed to Authentication Service and have this feature enabled for your tenant. To learn more, see What Is Authentication Service?",
+      "depth": 0
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "IdP configurations that are managed by Zscaler are read only and cannot be configured, edited, or deleted.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add IdP Configuration window, on the IdP Information tab:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          44,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for your organization's IdP. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ ).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Single Sign-On: Select User or Admin.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          27
+        ],
+        [
+          31,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Use with Arbitrary Domains: Enabling arbitrary domains allows third-party users to access single sign-on to use any authentication domain without needing to add it to the list of selected domains. This is helpful for third-party users with clientless access. Clientless access allows users secure access via browser-based access, Privileged Remote Access, and Cloud Browser Isolation. Single Sign-On must be set to User for this option to appear. If an arbitrary domain-enabled IdP configuration already exists, then this option is not available unless you delete or disable the existing arbitrary domain-enabled IdP configuration. This option does not work with Zscaler Client Connector.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          385,
+          399
+        ],
+        [
+          415,
+          419
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler recommends you be aware of the following conditions when configuring an IdP with arbitrary domains:",
+      "depth": 0
+    },
+    {
+      "item": "You cannot enable Use with Arbitrary Domains with Zscaler Client Connector. If a single IdP is created without a domain selected and Use with Arbitrary Domains is enabled, the Zscaler Client Connector login fails. A domain must be configured to at least one IdP in the account to use this feature.",
+      "depth": 1,
+      "strong": [
+        [
+          18,
+          44
+        ],
+        [
+          133,
+          159
+        ]
+      ]
+    },
+    {
+      "item": "If a single IdP is created in the Zscaler Admin Console, the Use with Arbitrary Domains option is not available for some tenants. To enable Use with Arbitrary Domains, you need to configure more than one IdP.",
+      "depth": 1,
+      "strong": [
+        [
+          61,
+          87
+        ],
+        [
+          140,
+          166
+        ]
+      ]
+    },
+    {
+      "item": "The Use with Arbitrary Domains option cannot be disabled on an IdP if the IdP is configured for emergency access.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Domains: Choose the authentication domains that you want to associate to this IdP, and click Done. The domains shown here are the primary and secondary authentication domains configured for your organization. A domain can only be associated to one IdP. Click Select All to include all domains, or Clear All to remove any selections.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          93,
+          97
+        ],
+        [
+          259,
+          269
+        ],
+        [
+          297,
+          306
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the SP Metadata tab, to complete provisioning for SSO on your IdP:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "If your IdP provides an option to upload an SP metadata file, under Service Provider Metadata, click Download Metadata. If your IdP does not provide the option to upload a metadata file, or if you prefer to configure this manually, click the Copy icon next to Service Provider URL and Service Provider Entity ID.",
+      "depth": 2,
+      "strong": [
+        [
+          68,
+          93
+        ],
+        [
+          101,
+          118
+        ],
+        [
+          242,
+          246
+        ],
+        [
+          260,
+          280
+        ],
+        [
+          285,
+          311
+        ]
+      ]
+    },
+    {
+      "item": "Under Service Provider Certificate, click Download Certificate.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          34
+        ],
+        [
+          42,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next. You can click Pause if you need to upload or manually add the SP information to your IdP before continuing. If you click Pause, you can click the Resume icon () on the IdP Configuration page to continue.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          26,
+          31
+        ],
+        [
+          133,
+          138
+        ],
+        [
+          158,
+          164
+        ],
+        [
+          180,
+          197
+        ]
+      ]
+    },
+    {
+      "item": "On the Create IdP tab:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "General Information:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Name: This is the name you entered in step 2c.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Use with Arbitrary Domains: This is the option mentioned in step 2c.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Domains: These are the authentication domains you chose in step 2c.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "SAML Configuration:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "If your IdP provides a metadata file, click Select File next to IdP Metadata File to upload it. After uploading the metadata file, the window auto-populates with the proper information. If your IdP does not provide a metadata file, or if you prefer to add this information manually, make sure that the following fields are completed:",
+      "depth": 3,
+      "strong": [
+        [
+          44,
+          55
+        ],
+        [
+          64,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Single Sign-On URL: Enter the URL of the IdP portal to which users are directed for authentication. If you want users to authenticate from the internet, ensure that it is publicly resolvable. Additionally, ensure that it is protected using HTTPS.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "IdP Entity ID: Enter the entity ID for your IdP.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "IdP Certificate: You must download this certificate from your IdP, and it must be uploaded in base-64 encoded PEM format. Click Select File next to IdP Certificate to upload it. After uploading the certificate, Zscaler automatically reads the file and the field auto-populates within the window. IdP certificate information such as Common Name, Serial Number, Created On, and Expired On are displayed. This information is also displayed on the IdP Configuration page.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          128,
+          139
+        ],
+        [
+          148,
+          163
+        ],
+        [
+          332,
+          343
+        ],
+        [
+          345,
+          358
+        ],
+        [
+          360,
+          370
+        ],
+        [
+          376,
+          386
+        ],
+        [
+          444,
+          461
+        ]
+      ]
+    },
+    {
+      "item": "Status: Make sure that the IdP configuration is Enabled. After saving, you can change the status to Disabled at any time by editing the configuration.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          48,
+          55
+        ],
+        [
+          100,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "ZPA (SP) SAML Request: Select whether you want Private Access as the SP to send a Signed or Unsigned SAML request towards the IdP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          82,
+          88
+        ],
+        [
+          92,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "HTTP-Redirect: If Private Access needs to send the SAML response as an HTTP redirect, make sure that this is set to Enabled.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          116,
+          123
+        ]
+      ]
+    },
+    {
+      "item": "Force Authentication: Enable this option, if you want users for that specific IdP to re-enter their login credentials at the time of reauthentication, regardless of any session state/cookie for SAML IdP. The default is set to Disabled.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          226,
+          234
+        ]
+      ]
+    },
+    {
+      "item": "Login Hint: When enabled, the username of the admin or user is sent in the authentication request to the IdP and can be prepopulated on the sign-in page of the external IdP. By default, Enabled is selected.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "User IdP Certificate Rotation: (Optional) Select a different service provider certificate to use with the IdP. You might also need to update the configuration of the IdP. To learn more, see Managing a Service Provider Certificate Rotation.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "This field might also show as Admin IdP Certificate Rotation if you selected Admin for Single Sign-On in step 2c.",
+      "depth": 3,
+      "strong": [
+        [
+          30,
+          60
+        ],
+        [
+          77,
+          82
+        ],
+        [
+          87,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "When editing an IdP, this field might show as IdP Certificate Rotation if the original IdP was configured to use Both (i.e., admin and user SSO) when that option was available.",
+      "depth": 3,
+      "strong": [
+        [
+          46,
+          70
+        ],
+        [
+          113,
+          117
+        ]
+      ]
+    },
+    {
+      "item": "SAML Attributes for Policy: Select whether you want to allow SAML attributes from this IdP to be used when configuring Access Policies, Client Forwarding Policies, and Timeout Policies. You must enable this setting for Zscaler to process SAML attributes in policy rules.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "After you first enable SAML Attributes for Policy, Zscaler requires a user to reauthenticate in Zscaler Client Connector. Zscaler only evaluates policies with SCIM criteria for this user after the user successfully reauthenticates.",
+      "depth": 2,
+      "strong": [
+        [
+          23,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "SCIM Configuration:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "SCIM Sync: Enabling SCIM allows Zscaler to more quickly remove users from Private Access when a user is disabled or deleted in your user directory and to enforce policies based on SCIM attributes and SCIM groups. Zscaler recommends not enabling SCIM at this point when setting up an IdP. To complete the SCIM enablement process, see Enabling SCIM for Identity Management.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "SCIM Attributes for Policy: Select whether you want to allow SCIM attributes and SCIM groups from this IdP to be used when configuring Access Policies, Client Forwarding Policies, and Timeout Policies. You must enable this setting for Zscaler to process SCIM attributes and SCIM groups in policy rules. This setting only applies if SCIM Sync is set to enabled as well.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          332,
+          341
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler recommends disabling this setting only after SCIM attributes and SCIM groups are removed as policy criteria in a rule. If this setting is disabled and a policy rule has SCIM attribute or SCIM group criteria, Zscaler might not evaluate the policy rule. To learn more, see Configuring Access Policies, Configuring Timeout Policies, and Configuring Timeout Policies.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "To verify the IdP configuration for user SSO, try importing your SAML attributes:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Administration > Private Access Authentication > IdP Configuration.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          52
+        ],
+        [
+          55,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "On the IdP Configuration page, expand the configuration for the IdP you want to import SAML attributes from.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Click Import.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "If Private Access was correctly configured as your SP, the link redirects you to the SSO login page provided by your IdP.",
+      "depth": 0
+    },
+    {
+      "item": "If the IdP configuration was configured to use Both (i.e., admin and user SSO), you see an option to import SAML attributes and verify single sign-on.",
+      "depth": 0,
+      "strong": [
+        [
+          47,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "To test IdP access outside of the Zscaler Admin Console, enter the following URL into a browser, where <domain name> is the authentication domain:",
+      "depth": 0
+    },
+    {
+      "item": "https://samlsp.private.zscaler.com/auth/v2/login?domain=<domain name>&ssotype=test",
+      "depth": 0
+    },
+    {
+      "item": "For example:",
+      "depth": 0
+    },
+    {
+      "item": "https://samlsp.private.zscaler.com/auth/v2/login?domain=mockcompany.com&ssotype=test",
+      "depth": 0
+    },
+    {
+      "item": "To verify the IdP configuration for admin SSO:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Administration > Private Access Authentication > IdP Configuration.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          52
+        ],
+        [
+          55,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "On the IdP Configuration page, expand the IdP configuration you want to test. For the IdP, make sure that the NameID in the SAML assertion is set to the username of a Private Access admin.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Under Verify Single Sign-On, choose the authentication domains you want to verify the account on. These are the Domains you specified in step 2c.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          27
+        ],
+        [
+          112,
+          119
+        ]
+      ]
+    },
+    {
+      "item": "Click Verify.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "If Zscaler was correctly configured as your SP, the link redirects you to the SSO login page provided by your IdP.",
+      "depth": 0
+    },
+    {
+      "item": "If the IdP configuration was configured to use Both (i.e., admin and user SSO), you see an option to import SAML attributes and verify single sign-on.",
+      "depth": 0,
+      "strong": [
+        [
+          47,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "To test IdP access outside of the Zscaler Admin Console, enter the following URL into a browser, where <domain name> is the authentication domain:",
+      "depth": 0
+    },
+    {
+      "item": "https://adminsamlsp.private.zscaler.com/auth/v2/login?domain=<domain name>&ssotype=test",
+      "depth": 0
+    },
+    {
+      "item": "For example:",
+      "depth": 0
+    },
+    {
+      "item": "https://adminsamlsp.private.zscaler.com/auth/v2/login?domain=mockcompany.com&ssotype=test",
+      "depth": 0
+    },
+    {
+      "item": "3. Verify that your IdP configuration is working properly.",
+      "depth": 0
+    },
+    {
+      "item": "Import SAML Attributes from the IdP to Private Access",
+      "depth": 1
+    },
+    {
+      "item": "Verify Admin SSO into Private Access",
+      "depth": 1
+    }
+  ]
+}

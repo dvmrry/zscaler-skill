@@ -1,0 +1,1165 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Emergency Access Users Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-emergency-access-users-using-api",
+    "node": "1485936",
+    "revision": "3160734",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on configuring Zscaler Private Access (ZPA) emergency access users using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Creating a New Emergency Access User",
+      "level": 1
+    },
+    {
+      "text": "To create a new emergency access user:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint in the Emergency Access Controller: /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/145256180497776640/emergencyAccess/user."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "emailId: The email address of the user that you are giving emergency access to.",
+      "depth": 0
+    },
+    {
+      "item": "firstName: The first name of the user that you are giving emergency access to.",
+      "depth": 0
+    },
+    {
+      "item": "lastName: The last name of the user that you are giving emergency access to.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"activatedOn\": 0, \"allowedActivate\": true, \"allowedDeactivate\": true, \"emailId\": \"emergencyUserExample@safemarch.com\", \"firstName\": \"string\", \"lastLoginTime\": 0, \"lastName\": \"string\", \"updateEnabled\": true, \"userId\": \"string\", \"userStatus\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"activatedOn\": 0, \"allowedActivate\": true, \"allowedDeactivate\": true, \"emailId\": \"emergencyUserExample@safemarch.com\", \"firstName\": \"John\", \"lastLoginTime\": 0, \"lastName\": \"Doe\", \"updateEnabled\": true, \"userId\": \"string\", \"userStatus\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"userId\": \"00u2gg2qairRJf71G756\", \"firstName\": \"John\", \"lastName\": \"Doe\", \"emailId\": \"emergencyUserExample@safemarch.com\", \"userStatus\": \"Provisioned\", \"activatedOn\": \"1687892531\", \"allowedActivate\": false, \"allowedDeactivate\": true, \"updateEnabled\": true }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Microtenant Support",
+      "level": 2
+    },
+    {
+      "text": "To create a new emergency access user within a Microtenant:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint in the Emergency Access Controller: /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057595111669760/emergencyAccess/user?microtenantId=145260601092866314."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "emailId: The email address of the user that you are giving emergency access to.",
+      "depth": 0
+    },
+    {
+      "item": "firstName: The first name of the user that you are giving emergency access to.",
+      "depth": 0
+    },
+    {
+      "item": "lastName: The last name of the user that you are giving emergency access to.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"activatedOn\": 0, \"allowedActivate\": true, \"allowedDeactivate\": true, \"emailId\": \"emergencyUserExample@safemarch.com\", \"firstName\": \"string\", \"lastLoginTime\": 0, \"lastName\": \"string\", \"updateEnabled\": true, \"userId\": \"string\", \"userStatus\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"activatedOn\": 0, \"allowedActivate\": true, \"allowedDeactivate\": true, \"emailId\": \"emergencyUserExample@safemarch.com\", \"firstName\": \"John\", \"lastLoginTime\": 0, \"lastName\": \"Doe\", \"updateEnabled\": true, \"userId\": \"string\", \"userStatus\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"userId\": \"00u2gg2qairRJf71G756\", \"firstName\": \"John\", \"lastName\": \"Doe\", \"emailId\": \"emergencyUserExample@safemarch.com\", \"userStatus\": \"Provisioned\", \"activatedOn\": \"1687892531\", \"allowedActivate\": false, \"allowedDeactivate\": true, \"updateEnabled\": true }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All Emergency Access Users",
+      "level": 1
+    },
+    {
+      "text": "To get details of all emergency access users:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the Emergency Access Controller: /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/users.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/145256180497776640/emergencyAccess/users."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"items\": [ { \"userId\": \"00u1klapaFMGhDDAV756\", \"firstName\": \"John\", \"lastName\": \"Doe\", \"emailId\": \"jdoe@example.com\", \"userStatus\": \"Deprovisioned\", \"activatedOn\": \"1681164192\", \"lastLoginTime\": \"1675100208\", \"allowedActivate\": true, \"allowedDeactivate\": false, \"updateEnabled\": false } ], \"nextPage\": \"00u1klapaFMGhDDAV756\" }",
+      "depth": 0
+    },
+    {
+      "text": "The totalCount and totalPages fields are not supported for this endpoint."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination and Microtenants. To get a paginated response of all emergency access users within a Microtenant:"
+    },
+    {
+      "item": "Send a GET request to the endpoint /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/users?pagesize={pagesize}µtenantId={microtenantId} in the Emergency Access Controller.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid page size values.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/approval?pagesize=5µtenantId=145260601092866314."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"items\": [",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"userId\": \"00uaiym546MQ0WKNr5d7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"firstName\": \"three\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastName\": \"user\",",
+      "depth": 0
+    },
+    {
+      "item": "\"emailId\": \"three.user@safemarch.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"userStatus\": \"Active\",",
+      "depth": 0
+    },
+    {
+      "item": "\"activatedOn\": \"1690344891\",",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedActivate\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedDeactivate\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"updateEnabled\": true",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"userId\": \"00uaiym6j9wcM0Ck55d7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"firstName\": \"four\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastName\": \"user\",",
+      "depth": 0
+    },
+    {
+      "item": "\"emailId\": \"four.user@safemarch.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"userStatus\": \"Active\",",
+      "depth": 0
+    },
+    {
+      "item": "\"activatedOn\": \"1690344894\",",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedActivate\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedDeactivate\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"updateEnabled\": true",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"userId\": \"00uaiymxhpCJcKORa5d7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"firstName\": \"two\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastName\": \"user\",",
+      "depth": 0
+    },
+    {
+      "item": "\"emailId\": \"two.user@safemarch.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"userStatus\": \"Active\",",
+      "depth": 0
+    },
+    {
+      "item": "\"activatedOn\": \"1690344888\",",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedActivate\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedDeactivate\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"updateEnabled\": true",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"userId\": \"00uaiynqi7VQH68vV5d7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"firstName\": \"one\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastName\": \"user\",",
+      "depth": 0
+    },
+    {
+      "item": "\"emailId\": \"one.user@safemarch.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"userStatus\": \"Active\",",
+      "depth": 0
+    },
+    {
+      "item": "\"activatedOn\": \"1690344884\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastLoginTime\": \"1690345564\",",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedActivate\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedDeactivate\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"updateEnabled\": true",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"userId\": \"00uaiyo66uznlz5Uu5d7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"firstName\": \"five\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastName\": \"user\",",
+      "depth": 0
+    },
+    {
+      "item": "\"emailId\": \"five.user@safemarch.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"userStatus\": \"Active\",",
+      "depth": 0
+    },
+    {
+      "item": "\"activatedOn\": \"1690344897\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastLoginTime\": \"1690349716\",",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedActivate\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedDeactivate\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"updateEnabled\": true",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"userId\": \"00uaiyp39p69u8VQR5d7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"firstName\": \"dandaver\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastName\": \"groupadmin\",",
+      "depth": 0
+    },
+    {
+      "item": "\"emailId\": \"dandaver.groupadmin@safemarch.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"userStatus\": \"Active\",",
+      "depth": 0
+    },
+    {
+      "item": "\"activatedOn\": \"1690345139\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastLoginTime\": \"1690791972\",",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedActivate\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedDeactivate\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"updateEnabled\": true",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"userId\": \"00uaiyu3r8K3ZaLeM5d7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"firstName\": \"RRaja\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastName\": \"UUser\",",
+      "depth": 0
+    },
+    {
+      "item": "\"emailId\": \"raja@safemarch.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"userStatus\": \"Provisioned\",",
+      "depth": 0
+    },
+    {
+      "item": "\"activatedOn\": \"1690348568\",",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedActivate\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedDeactivate\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"updateEnabled\": true",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"userId\": \"00uaiz5ooe9zVwZJf5d7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"firstName\": \"SIX\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastName\": \"USER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"emailId\": \"six.user@safemarch.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"userStatus\": \"Provisioned\",",
+      "depth": 0
+    },
+    {
+      "item": "\"activatedOn\": \"1690348722\",",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedActivate\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedDeactivate\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"updateEnabled\": true",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"userId\": \"00uaiz816nAQfrwAw5d7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"firstName\": \"John\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastName\": \"User\",",
+      "depth": 0
+    },
+    {
+      "item": "\"emailId\": \"john@safemarch.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"userStatus\": \"Active\",",
+      "depth": 0
+    },
+    {
+      "item": "\"activatedOn\": \"1690349879\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastLoginTime\": \"1690349966\",",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedActivate\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedDeactivate\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"updateEnabled\": true",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"userId\": \"00ualiqq5ibu9fKxT5d7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"firstName\": \"Krishna\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lastName\": \"Nagaraj\",",
+      "depth": 0
+    },
+    {
+      "item": "\"emailId\": \"krishna@safemarch.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"userStatus\": \"Provisioned\",",
+      "depth": 0
+    },
+    {
+      "item": "\"activatedOn\": \"1690805711\",",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedActivate\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowedDeactivate\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"updateEnabled\": true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of a Particular Emergency Access User",
+      "level": 1
+    },
+    {
+      "text": "To get details of a particular emergency access user:"
+    },
+    {
+      "item": "Send a GET request to the endpoint /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId} in the Emergency Access Controller.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "userId: The ID of the emergency access user.",
+      "depth": 0
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/145256180497776640/emergencyAccess/user/00u1tjph3y3WjpEaU756."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"userId\": \"00u1tjph3y3WjpEaU756\", \"firstName\": \"John\", \"lastName\": \"Doe\", \"emailId\": \"jdoe@safemarch.com\", \"userStatus\": \"Active\", \"activatedOn\": \"1675200519\", \"lastLoginTime\": \"1675201359\", \"allowedActivate\": false, \"allowedDeactivate\": true, \"updateEnabled\": true }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports Microtenants. To get a particular emergency access user within a Microtenant:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the Emergency Access Controller: /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "userId: The ID of the emergency access user.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057595111669760/emergencyAccess/user/00ualiqq5ibu9fKxT5d7?microtenantId=145260601092866314."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"userId\": \"00ualiqq5ibu9fKxT5d7\", \"firstName\": \"John\", \"lastName\": \"Doe\", \"emailId\": \"JohnDoe@safemarch.com\", \"userStatus\": \"Provisioned\", \"activatedOn\": \"1690805711\", \"allowedActivate\": false, \"allowedDeactivate\": true, \"updateEnabled\": true }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating an Emergency Access User",
+      "level": 1
+    },
+    {
+      "text": "To update an emergency access user:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the Emergency Access Controller: /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "userId: The ID of the emergency access user.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/145256180497776640/emergencyAccess/user/00u1tjph3y3WjpEaU756."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "firstName: The emergency access user's first name.",
+      "depth": 0
+    },
+    {
+      "item": "lastName: The emergency access user's last name.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"firstName\": \"string\", \"lastName\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"userId\": \"00u1tjph3y3WjpEaU756\", \"firstName\": \"Example firstName\", \"lastName\": \"Example lastName\", \"emailId\": \"exampleEmailId@safemarch.com\", \"userStatus\": \"Active\", \"activatedOn\": \"1675200519\", \"lastLoginTime\": \"1675201359\", \"allowedActivate\": false, \"allowedDeactivate\": true, \"updateEnabled\": true }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports Microtenants. To update an emergency access user within a Microtenant:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the Emergency Access Controller: /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "userId: The ID of the emergency access user.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/145256180497776640/emergencyAccess/user/00u1tjph3y3WjpEaU756."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "firstName: The emergency access user's first name.",
+      "depth": 0
+    },
+    {
+      "item": "lastName: The emergency access user's last name.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"firstName\": \"string\", \"lastName\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"userId\": \"00u1tjph3y3WjpEaU756\", \"firstName\": \"Example firstName\", \"lastName\": \"Example lastName\", \"emailId\": \"exampleEmailId@safemarch.com\", \"userStatus\": \"Active\", \"activatedOn\": \"1675200519\", \"lastLoginTime\": \"1675201359\", \"allowedActivate\": false, \"allowedDeactivate\": true, \"updateEnabled\": true }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Activating the Emergency Access User",
+      "level": 1
+    },
+    {
+      "text": "To activate the emergency access user:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the Emergency Access Controller: /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId}/activate.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "userId: The ID of the emergeny access user.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/emergencyAccess/user/00u1tjph3y3WjpEaU756/activate."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200, meaning the emergency access user was activated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports Microtenants. To activate an emergency access user within a Microtenant:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the Emergency Access Controller: /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId}/activate?microtenant={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "userId: The ID of the emergeny access user.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057595111669760/emergencyAccess/user/00ualiqq5ibu9fKxT5d7/activate?microtenantId=145260601092866314."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200, meaning the emergency access user was activated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deactivating the Emergency Access User",
+      "level": 1
+    },
+    {
+      "text": "To deactivate the emergency access user:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the Emergency Access Controller: /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId}/deactivate.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "userId: The ID of the emergency access user.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/145256180497776640/emergencyAccess/user/00u1tjph3y3WjpEaU756/deactivate."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200, meaning the emergency access user is deactivated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports Microtenants. To deactivate the emergency access user within a Microtenant:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the Emergency Access Controller: /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId}/deactivate?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "userId: The ID of the emergency access user.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057595111669760/emergencyAccess/user/00ualiqq5ibu9fKxT5d7/deactivate?microtenantId=145260601092866314."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200, meaning the emergency access user is deactivated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the emergency access use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "customerId",
+          "The ZPA tenant ID of the customer",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "pageId",
+          "Indicates the cursor ID, which is the cursor that points to the end of the page of data that has been returned",
+          "No",
+          "Integer"
+        ],
+        [
+          "pageSize",
+          "Specifies the page size",
+          "No",
+          "Integer"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    }
+  ]
+}

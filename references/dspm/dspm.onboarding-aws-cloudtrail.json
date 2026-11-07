@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "id": "dspm.onboarding-aws-cloudtrail",
+  "title": "How DSPM uses AWS CloudTrail and data events for incremental scans, and what changes when CloudTrail details are reset",
+  "aliases": [
+    "dspm cloudtrail",
+    "dspm data events",
+    "dspm incremental scan aws",
+    "cloudtrail integration dspm"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "dspm.overview" },
+    { "rel": "see-also", "to": "dspm.scanning" },
+    { "rel": "see-also", "to": "dspm.onboarding-aws" }
+  ],
+  "prose": [
+    { "text": "{{cloudtrail-trails-used}} Incremental scans are named as a scan type in [[dspm.scanning:classification]]; the onboarding they belong to is in [[dspm.onboarding-aws]], under the hub [[dspm.overview]] and [[dspm.scanning]]." },
+    { "label": "Integration.", "text": "{{integration-incremental-vs-full}} {{standalone-integration-incremental-vs-full}} {{prereq-s3-data-events-write}} {{org-prereq-optional}}" },
+    { "label": "Log paths.", "text": "{{log-paths-checked}} {{org-cloudtrail-type}} Whether the Control Tower prefix has an example value is open {{gap:control-tower-prefix-example}}." },
+    { "label": "Changing CloudTrail details.", "text": "{{change-permission}} {{change-org-effects}} {{change-account-effects}} {{cross-account-kms-policy}}" },
+    { "label": "Data events.", "text": "{{data-events-definition}} {{data-events-enable-disable}}" }
+  ],
+  "checks": [
+    { "do": "Whether CloudTrail integration is enabled, since the pages say DSPM supports only full scans when it is disabled.", "uses": ["integration-incremental-vs-full", "standalone-integration-incremental-vs-full"] },
+    { "do": "Which log path DSPM looks at for an Organization CloudTrail and an Account CloudTrail during initial organization onboarding.", "uses": ["log-paths-checked"] },
+    { "do": "What the pages say happens to accounts while an organization or account CloudTrail is reset and not yet validated: Needs Attention until validated; the CloudTrail status Enabled or Failed is given for the organization reset only.", "uses": ["change-org-effects", "change-account-effects"] }
+  ],
+  "claims": {
+    "cloudtrail-trails-used": {
+      "statement": "DSPM uses CloudTrail trails to analyze logs and perform incremental scans on S3 buckets; Event History records activity in a single AWS account for the last 90 days.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-understanding-aws-cloudtrail.json", "quotes": ["DSPM uses trails to analyze the logs and perform incremental scans on the S3 buckets.", "Event History: Records all activities within a single AWS account for the last 90 days."] }]
+    },
+    "integration-incremental-vs-full": {
+      "statement": "With CloudTrail integration enabled DSPM gets read-only access to the CloudTrail logs needed for incremental scans on the S3 bucket; when disabled, DSPM supports only full scans (organization onboarding page).",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-organization-details.json", "quotes": ["Configure CloudTrail Integration (Optional): Select the checkbox to provide CloudTrail details. When enabled, DSPM gains read-only access to the CloudTrail logs required for incremental scans on the S3 bucket. When disabled, DSPM supports only full scans."] }]
+    },
+    "standalone-integration-incremental-vs-full": {
+      "statement": "On the standalone target-account page, enabling CloudTrail integration gives DSPM read-only access to CloudTrail logs for incremental scans on the S3 bucket, and when disabled DSPM supports only full scans.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-account-details-and-deploying-templates.json", "quotes": ["Configure CloudTrail Integration (Optional): Select the checkbox to provide CloudTrail details. When enabled, DSPM gains read-only access to the CloudTrail logs required for incremental scans on the S3 bucket. When disabled, DSPM supports only full scans."] }]
+    },
+    "prereq-s3-data-events-write": {
+      "statement": "For standalone onboarding, CloudTrail is configured for management and data events so DSPM can do incremental scans on S3 buckets, with the Write checkbox selected for All current and future S3 buckets.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-standalone-aws-account.json", "quotes": ["Configure CloudTrail for management and data events. This allows DSPM to perform incremental data scans on S3 buckets.", "For All current and future S3 buckets, select the Write checkbox."] }]
+    },
+    "org-prereq-optional": {
+      "statement": "In organization onboarding, configuring CloudTrail for management and data events is described as an optional step if you want to configure CloudTrail while onboarding.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-aws-organization.json", "quotes": ["Configure CloudTrail for management and data events for DSPM to perform incremental data scans on S3 buckets. This is an optional step if you want to configure CloudTrail while onboarding."] }]
+    },
+    "log-paths-checked": {
+      "statement": "In organization onboarding, during initial onboarding DSPM looks for log files at prefix/<organization ID>/<management account ID> for an Organization CloudTrail and prefix/<management account ID> for an Account CloudTrail, and after onboarding checks each target account; for Control Tower the organization ID is entered as prefix.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-organization-details.json", "quotes": ["During initial onboarding, DSPM checks for log files to perform data scan in the following paths:", "| Organization CloudTrail | prefix/<organization ID>/<management account ID> |", "| Account CloudTrail | prefix/<management account ID> |", "After the onboarding is completed successfully, DSPM checks for log files in each target account.", "If your CloudTrail is part of the AWS Control Tower, enter the organization ID as prefix."] }]
+    },
+    "org-cloudtrail-type": {
+      "statement": "An organization CloudTrail shares the CloudTrail events of the management and member accounts of the organization to the same CloudTrail S3 bucket.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-organization-details.json", "quotes": ["CloudTrail Type: Select the OrgCloudTrail checkbox, if it is an organization CloudTrail. Organization CloudTrail shares the CloudTrail events of the management and member accounts of the organization to the same CloudTrail S3 bucket."] }]
+    },
+    "change-org-effects": {
+      "statement": "Resetting the organization CloudTrail details disables the existing CloudTrail and moves all onboarded accounts to Needs Attention until the new CloudTrail is validated; successful validation shows status Enabled and a validation problem shows Failed.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-changing-aws-cloudtrail-details.json", "quotes": ["When you reset the organization AWS CloudTrail details, the existing CloudTrail is disabled and all the onboarded accounts move to the Needs Attention state until the new CloudTrail is validated successfully.", "After the CloudTrail is validated successfully, the CloudTrail status shows as Enabled.", "If there is any issue found while validating the template, the status of the CloudTrail shows Failed."] }]
+    },
+    "change-account-effects": {
+      "statement": "Updating an account CloudTrail disables the existing CloudTrail only for that account, without affecting other accounts in the organization, and the account is Needs Attention until the new one validates.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-changing-aws-cloudtrail-details.json", "quotes": ["When you update the account CloudTrail, the existing CloudTrail is disabled only for that account, without affecting the other accounts in the organization.", "The account moves to the Needs Attention state until the new CloudTrail is validated successfully."] }]
+    },
+    "change-permission": {
+      "statement": "Changing CloudTrail details requires an Administrator role or any role with Edit Cloud Accounts permission.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-changing-aws-cloudtrail-details.json", "quotes": ["You must be assigned either an Administrator role or any role with Edit Cloud Accounts permission."] }]
+    },
+    "cross-account-kms-policy": {
+      "statement": "As a cross-account CloudTrail prerequisite, the resource discovery role created by DSPM is edited under DSPM-CLOUDTRAIL-KMS-POLICY to add the S3 bucket account ID where the KMS key is present.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-changing-aws-cloudtrail-details.json", "quotes": ["Select the resource discovery role that is created by DSPM.", "Under Permissions, expand DSPM-CLOUDTRAIL-KMS-POLICY and click Edit.", "In the Policy editor, add the S3 bucket account ID where the KMS key is present."] }]
+    },
+    "data-events-definition": {
+      "statement": "DSPM supports ingestion of data events (activities on or within AWS data stores such as reading or writing an S3 bucket or GetObject API operations) to analyze activity logs.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-managing-data-events.json", "quotes": ["Data events provide information on the activities performed on or within AWS data stores, such as reading or writing to an S3 bucket, GetObject API operations, etc.", "DSPM supports ingestion of data events to analyze the activity logs."] }]
+    },
+    "data-events-enable-disable": {
+      "statement": "Data events can be enabled or disabled; when enabling, the Data Events template is run on the account holding the CloudTrail S3 bucket, and disabling stops DSPM collecting data events from the bucket.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-managing-data-events.json", "quotes": ["click the toggle to enable or disable data events:", "Download the Data Events template and run it on the account where the specified CloudTrail S3 bucket is present.", "When disabled, DSPM stops collecting data events from the S3 bucket."], "after": "Managing Data Events Configuration for an Organization" }]
+    }
+  },
+  "gaps": {
+    "control-tower-prefix-example": {
+      "kind": "semantic",
+      "title": "What prefix value to enter for an AWS Control Tower CloudTrail",
+      "status": "open",
+      "detail": "The organization page says to enter the organization ID as prefix for a CloudTrail that is part of AWS Control Tower but gives no example value.",
+      "resolves_with": ["lab-test", "source-read"]
+    }
+  }
+}

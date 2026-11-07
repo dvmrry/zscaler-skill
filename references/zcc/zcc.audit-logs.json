@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "id": "zcc.audit-logs",
+  "title": "Client Connector audit logs in the Admin Console: what is recorded, retention, columns, actions, categories and filters",
+  "aliases": [
+    "zcc audit logs",
+    "client connector audit log",
+    "mobile administration audit log",
+    "mobile admin audit log",
+    "who changed client connector settings"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zcc"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.support-options"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Client Connector audit log is the console record of admin logins, logouts and configuration changes. {{what-is-recorded}}"
+    },
+    {
+      "label": "Where and how long.",
+      "text": "{{page}} {{retention}}"
+    },
+    {
+      "label": "What each record shows.",
+      "text": "{{columns}} {{result}} {{config-diff}}"
+    },
+    {
+      "label": "Actions, categories and sub-categories.",
+      "text": "{{actions}} {{categories}} {{subcategories}} No sub-category is listed for Linux app profiles, Device Groups, Partner Devices or Deception settings {{gap:missing-subcategories}}."
+    },
+    {
+      "label": "Filtering and export.",
+      "text": "{{filters-search-export}} The export format and the time zone of the timestamps are not stated {{gap:export-format}}."
+    },
+    {
+      "label": "Open.",
+      "text": "Whether API calls are audited, since the page lists no Interface column, and whether the log can be read through an API are open {{gap:interface-and-api}}; the role page's Audit Logs setting is in [[shared.admin-rbac.zcc:administration-settings]]. The page describes admin actions only, so whether end-user actions such as Report an Issue, log exports or OTP use are recorded is open {{gap:end-user-actions}}; the cross-product view is in [[shared.audit-logs]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Where to look for a Client Connector configuration change: the Audit Logs page's Mobile Administration entries, filtered by action, category, sub-category and result, within the stored period.",
+      "uses": [
+        "page",
+        "retention",
+        "filters-search-export"
+      ]
+    },
+    {
+      "do": "Before concluding that nothing changed a setting, whether the area is among the listed sub-categories.",
+      "uses": [
+        "subcategories",
+        "missing-subcategories"
+      ]
+    }
+  ],
+  "claims": {
+    "what-is-recorded": {
+      "statement": "Zscaler records the login name and IP address of every admin who logs in to the Admin Console and changes policies or configuration settings; the audit log shows each admin's login and logout record and any configuration changes they completed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-audit-logs.json",
+          "quotes": [
+            "Zscaler records the login name and IP address of every admin who logs in to the Zscaler Admin Console and changes policies or configuration settings.",
+            "Audit logs display an admin's login and logout record (i.e., timestamps, actions, IP, etc.) and any configuration changes they completed."
+          ]
+        }
+      ]
+    },
+    "retention": {
+      "statement": "The Client Connector audit logs are stored for up to 6 months.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-audit-logs.json",
+          "quotes": [
+            "Audit logs are stored for up to 6 months."
+          ]
+        }
+      ]
+    },
+    "page": {
+      "statement": "The Client Connector admin audit records are viewed and filtered under Data Explorer > Audit Logs > Mobile Administration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-audit-logs.json",
+          "quotes": [
+            "To view and filter admin audit log records, from the navigation menu, go to Data Explorer > Audit Logs > Mobile Administration."
+          ]
+        }
+      ]
+    },
+    "columns": {
+      "statement": "Each audit record shows Timestamp (the local time of the admin's last login or logout), Action (what the admin did), Category (where in the Admin Console the action was performed), Sub-Category (the location within the category), Resource (the location within the subcategory), Admin ID (the admin's login ID), Client IP (the admin's source IP address) and Result (the outcome).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-audit-logs.json",
+          "quotes": [
+            "Timestamp: The local time of the admin’s last login or last logout.",
+            "Action: The action performed by the admin.",
+            "Category: A location in the Zscaler Admin Console where the action was performed.",
+            "Sub-Category: The specific location within a category.",
+            "Resource: The specific location within a subcategory.",
+            "Admin ID: The admin’s login ID.",
+            "Client IP: The source IP address for the admin.",
+            "Result: The outcome of an action."
+          ]
+        }
+      ]
+    },
+    "actions": {
+      "statement": "The page lists the potential actions as Create, Delete, Sign In, Sign Out and Update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-audit-logs.json",
+          "after": "List of all potential actions",
+          "quotes": [
+            "- Create",
+            "- Delete",
+            "- Sign In",
+            "- Sign Out",
+            "- Update"
+          ]
+        }
+      ]
+    },
+    "config-diff": {
+      "statement": "Configuration changes can be seen for each action, with visual differences between the pre- and post-configuration state: additions and deletions, and updates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-audit-logs.json",
+          "quotes": [
+            "You can also see configuration changes for each action",
+            "You can view visual differences between pre- and post-configuration changes:",
+            "View additions and deletions by clicking the icon.",
+            "View updates by clicking the icon."
+          ]
+        }
+      ]
+    },
+    "categories": {
+      "statement": "The page lists the potential categories as Activate Policy, App Profiles, Device Overview, Device Posture, Forwarding Profile, IdP User Agent, Login, Trusted Networks, Zscaler Client Connector IdP, Zscaler Client Connector Notifications, Zscaler Client Connector Store, Zscaler Client Connector Support and Zscaler Service Entitlement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-audit-logs.json",
+          "after": "List of all potential categories",
+          "quotes": [
+            "- Activate Policy",
+            "- App Profiles",
+            "- Device Overview",
+            "- Device Posture",
+            "- Forwarding Profile",
+            "- IdP User Agent",
+            "    - Login",
+            "- Trusted Networks",
+            "- Zscaler Client Connector IdP",
+            "- Zscaler Client Connector Notifications",
+            "- Zscaler Client Connector Store",
+            "- Zscaler Client Connector Support",
+            "- Zscaler Service Entitlement"
+          ]
+        }
+      ]
+    },
+    "subcategories": {
+      "statement": "The page lists the potential sub-categories as Activate Policy, Advanced Configuration, Android App Profiles, App Fail Open, App Supportability, AUP Settings, Device Cleanup, Device Posture, End Point Integration, Export Enrolled Devices, Force Remove Device, Forwarding Profile, IdP User Agent, iOS App Profiles, Login, macOS App Profiles, Reminder Notification Settings, Soft Remove Device, System Tray Notification Settings, Traceroute Policy, Trusted Networks, Update Applications, User Privacy, Windows App Profiles, ZPA Service Entitlement and Zscaler Client Connector IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-audit-logs.json",
+          "after": "List of all potential subcategories",
+          "quotes": [
+            "- Activate Policy",
+            "- Advanced Configuration",
+            "- Android App Profiles",
+            "- App Fail Open",
+            "- App Supportability",
+            "- AUP Settings",
+            "- Device Cleanup",
+            "- Device Posture",
+            "- End Point Integration",
+            "- Export Enrolled Devices",
+            "- Force Remove Device",
+            "- Forwarding Profile",
+            "- IdP User Agent",
+            "- iOS App Profiles",
+            "    - Login",
+            "- macOS App Profiles",
+            "- Reminder Notification Settings",
+            "- Soft Remove Device",
+            "- System Tray Notification Settings",
+            "- Traceroute Policy",
+            "- Trusted Networks",
+            "- Update Applications",
+            "- User Privacy",
+            "- Windows App Profiles",
+            "- ZPA Service Entitlement",
+            "- Zscaler Client Connector IdP"
+          ]
+        }
+      ]
+    },
+    "result": {
+      "statement": "A successful action shows as a green circle with a check mark and a failed one as a red circle with an X.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-audit-logs.json",
+          "quotes": [
+            "If the action was a success, it will show as a green circle with a check mark inside.",
+            "If the action was a failure, it will show as a red circle with an X inside."
+          ]
+        }
+      ]
+    },
+    "filters-search-export": {
+      "statement": "The Audit Logs page filters by time range, action, category, subcategory and result, searches entries by Client IP, Resource or Admin ID, and exports the entries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-audit-logs.json",
+          "quotes": [
+            "You can filter the table by time range, action, category, subcategory, and result by selecting the appropriate option from the drop-down menus.",
+            "You can use the Search option to search for audit entries based on Client IP, Resource, or Admin ID.",
+            "You can also use the Export option to export the audit entries."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "missing-subcategories": {
+      "kind": "semantic",
+      "title": "Sub-categories for Linux app profiles, Device Groups, Partner Devices and Deception settings",
+      "status": "open",
+      "detail": "The page's sub-category list names Windows, macOS, iOS and Android app profiles but no Linux app profiles, and no Device Groups, Partner Devices or Deception sub-category. Whether changes to those areas are recorded, and under which sub-category, is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "export-format": {
+      "kind": "semantic",
+      "title": "Export format and timestamp time zone of the Client Connector audit log",
+      "status": "open",
+      "detail": "The page offers an Export option and describes the timestamp as the local time of the admin's last login or logout; it does not give the export format or which time zone local time means.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "interface-and-api": {
+      "kind": "semantic",
+      "title": "Whether Client Connector API calls are audited and whether the log has an API",
+      "status": "open",
+      "detail": "The Cloud & Branch Connector audit log has an Interface column and a lockout rule; this page lists neither, so whether actions made through the API appear is not stated. No captured source gives an API for this log (shared.audit-logs:zcc-audit-permission-no-api).",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "end-user-actions": {
+      "kind": "semantic",
+      "title": "Whether end-user actions are recorded in the Client Connector audit log",
+      "status": "open",
+      "detail": "The page describes admin logins, logouts and configuration changes only. Whether Report an Issue submissions, user log exports or OTP use appear is not stated; the related gap on the support side is zcc.support-options gap submission-audit.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

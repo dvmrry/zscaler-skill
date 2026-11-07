@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting-runbook.server-certificates",
+  "title": "Runbook: bad server certificates and untrusted certificates that are allowed",
+  "aliases": [
+    "Access denied due to bad server certificate",
+    "Untrusted Server Certificate gets allowed"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.diagnostics" },
+    { "rel": "see-also", "to": "zia.ssl-inspection.certificates" },
+    { "rel": "see-also", "to": "zia.ssl-inspection.actions" }
+  ],
+  "prose": [
+    {
+      "label": "Bad server certificate.",
+      "text": "{{bad-cert-scenarios}} {{intermediates-not-in-trust-store}} {{chain-validation-names}} {{chain-mismatch-example}} {{ocsp-stapling}}"
+    },
+    {
+      "label": "Web log columns and intermittent results.",
+      "text": "{{weblog-cert-columns}} {{chain-intermittent-causes}} {{ssllabs-single-server}}"
+    },
+    {
+      "label": "Fixes.",
+      "text": "{{bad-cert-solutions}}"
+    },
+    {
+      "label": "Untrusted certificate allowed.",
+      "text": "{{untrusted-allowed-expected}} {{untrusted-allowed-do-not-inspect}} Whether a Do Not Inspect rule has any certificate handling is in dispute {{divergence:do-not-inspect-cert-handling}}. {{untrusted-allowed-mtls-tls13}} {{untrusted-allowed-solutions}}"
+    }
+  ],
+  "claims": {
+    "bad-cert-scenarios": {
+      "statement": "The bad server certificate block implies one of four scenarios for the website's certificate: an incomplete chain during the handshake, a revoked certificate in the OCSP check, an expired certificate, or a self-signed certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-access-denied-due-bad-server-certificate.json",
+          "quotes": [
+            "The server does not present the complete certificate chain during the SSL handshake.",
+            "The certificate shows as revoked in the OCSP revocation check.",
+            "The certificate is expired.",
+            "The certificate is self-signed."
+          ]
+        }
+      ]
+    },
+    "intermediates-not-in-trust-store": {
+      "statement": "The website must provide all the intermediate certificates, because Zscaler does not manually add intermediates to its trust store and only root CA trust anchors are stored in its nodes' trust stores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-access-denied-due-bad-server-certificate.json",
+          "quotes": [
+            "The website has to provide all the intermediate certificates in the chain, because Zscaler does not manually add intermediate certifications to its trust store.",
+            "Only trust anchors (i.e., root CA certificates are stored in the trust stores of our nodes)."
+          ]
+        }
+      ]
+    },
+    "chain-validation-names": {
+      "statement": "In the page's three-certificate chain, validation requires the leaf CN or a SAN to match the domain part of the URL, the leaf issuer to match the intermediate's CN, and the intermediate's issuer to match the root's CN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-access-denied-due-bad-server-certificate.json",
+          "quotes": [
+            "The Common Name (CN), or one of the Subject Alternative Names (SAN) in the website's certificate, must match the domain part of the URL.",
+            "The issuer's value in the website's certificate must match the CN in the intermediate issuer's certificate.",
+            "Then, the issuer value in the intermediate issuer's certificate must match the CN in the root certificate."
+          ]
+        }
+      ]
+    },
+    "chain-mismatch-example": {
+      "statement": "In the page's example, a complete chain still fails validation because the server certificate was issued by Network Solutions RSA DV SSL CA 3 while the chain includes the intermediate Network Solutions DV Server CA 2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-access-denied-due-bad-server-certificate.json",
+          "quotes": [
+            "The chain is broken because the server certification is issued by Network Solutions RSA DV SSL CA 3, but the chain includes the intermediate cert of Network Solutions DV Server CA 2."
+          ]
+        }
+      ]
+    },
+    "ocsp-stapling": {
+      "statement": "This page says Zscaler uses OCSP stapling to obtain revocation status; when enabled in the SSL Inspection policy the Service Edge checks it regardless of other certificate attributes, treats a revoked certificate as untrusted, and applies the Untrusted Server Certificates configuration. The policy article words the option as OCSP Revocation Check for the Inspect action (using OCSP) and as OCSP stapling for Do Not Inspect with Evaluate Other Policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-access-denied-due-bad-server-certificate.json",
+          "quotes": [
+            "Zscaler uses OCSP stapling to obtain the revocation status of a certificate.",
+            "When enabled in the SSL Inspection policy, the Internet & SaaS Service Edge checks the revocation status of the certificate regardless of other certificate attributes.",
+            "If the issuing CA revokes the certificate, the Public Service Edge for Internet & SaaS treats the certificate as untrusted. The action for such transactions is determined by the Untrusted Server Certificates configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "OCSP Revocation Check: Enable this option to include certificate revocation check in the untrusted server certificate validation. The service uses the Online Certificate Status Protocol (OCSP) to obtain the revocation status of a certificate.",
+            "OCSP Revocation Check: Enable this option to include a certificate revocation check in the untrusted server certificate validation. The service uses OCSP stapling to obtain the revocation status of a certificate.",
+            "If you choose the Do Not Inspect action, you can further choose to either Evaluate Other Policies or Bypass Other Policies."
+          ]
+        }
+      ]
+    },
+    "weblog-cert-columns": {
+      "statement": "The web log columns the page uses are Certificate Chain Validity (Fail suggests an incomplete chain), Server Certificate Self Signed (must not be Yes), Certificate Expiry (Yes explains a bad mark) and Server Connection OCSP Result (Revoked explains it).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-access-denied-due-bad-server-certificate.json",
+          "quotes": [
+            "Certificate Chain Validity: If the value is Fail, then it's very likely that this web server is not serving the complete chain during the SSL handshake.",
+            "Server Certificate Self Signed: This field's value must not be Yes.",
+            "Certificate Expiry: If the value is Yes, then that's the reason the certificate was marked bad.",
+            "Server Connection OCSP Result: If the value shows Revoked, that's why the certificate was considered bad."
+          ]
+        }
+      ]
+    },
+    "chain-intermittent-causes": {
+      "statement": "The page lists reasons why transactions for the same domain through the same data center can show Pass or Fail in the chain column: the intermediate CA cert cache, multiple physical servers behind one VIP where some serve the complete chain and some do not, or sites offering more than one trust chain; browsers doing AIA fetching can hide an incomplete chain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-access-denied-due-bad-server-certificate.json",
+          "quotes": [
+            "When the full chain is not presented by the server, if you have the intermediate certificate present in our intermediate CA cert cache, you verify the chain and allow the connection.",
+            "Sometimes the web service is served by multiple physical servers hidden behind a single VIP.",
+            "Some websites are configured to provide more than one trust chains. One of these chains may have a configuration problem.",
+            "These issues are sometimes not seen without Zscaler because some web browsers are configured to perform AIA fetching to fix the incomplete certificate chain, which hides the certificate chain issues from the end user.",
+            "If you see that some transactions for the same domain show Pass or Fail in this column when passing through the same DC, it could be due to one of the following reasons :",
+            "If some of those physical servers are configured to serve the complete chain while some are not, you might also see this behavior."
+          ]
+        }
+      ]
+    },
+    "ssllabs-single-server": {
+      "statement": "An SSL Labs URL with the d= and s= parameters validates the certificate on one specific server IP for a website.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-access-denied-due-bad-server-certificate.json",
+          "quotes": [
+            "https://www.ssllabs.com/ssltest/analyze.html?d=xyz.com&s=11.11.11.11&latest.",
+            "In this case, the tool validates the certificates configured in the server at 11.11.11.11 for the website xyz.com."
+          ]
+        }
+      ]
+    },
+    "bad-cert-solutions": {
+      "statement": "Zscaler recommends a Pass Through SSL policy or an allow policy for untrusted certificates only for URLs the business trusts; the OCSP check can be disabled per domain in the SSL policy rule, which Zscaler does not recommend.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-access-denied-due-bad-server-certificate.json",
+          "quotes": [
+            "Zscaler recommends adding an SSL policy with a Pass Through action for untrusted certificates or configure allow policy for a given URL only if it's trusted by your business.",
+            "the customer can choose to disable OCSP check in the SSL policy rule for a specific domain (but Zscaler does not recommend this action)."
+          ]
+        }
+      ]
+    },
+    "untrusted-allowed-expected": {
+      "statement": "When a Block action is configured for Untrusted Server Certificates but some connections with such certificates are allowed, the expected behavior is blocking with the Policy Action Access denied due to bad server certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-untrusted-server-certificate-gets-allowed.json",
+          "quotes": [
+            "A Block action is configured for Untrusted Server Certificates in the SSL Inspection policy rule, but some connections with such certificates get allowed.",
+            "The expected behavior in such cases is to block the connection with the Policy Action Access denied due to bad server certificate."
+          ]
+        }
+      ]
+    },
+    "untrusted-allowed-do-not-inspect": {
+      "statement": "When SSL inspection for a domain is manually set to Do Not Inspect, the service does not decrypt it and cannot read the certificate, so the browser must show any certificate warnings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-untrusted-server-certificate-gets-allowed.json",
+          "quotes": [
+            "When the SSL inspection for a domain is manually configured to Do Not Inspect, then the Zscaler service doesn't decrypt it and can't read the certificate.",
+            "The browser must show any certificate warnings for such traffic"
+          ]
+        }
+      ]
+    },
+    "untrusted-allowed-mtls-tls13": {
+      "statement": "If a web server requests a client certificate and the undecryptable traffic option is disabled, the Service Edge aborts decryption and bridges the connection; with TLS 1.3 it cannot read the certificate while bridging, so the connection is allowed regardless of the certificate's validity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-untrusted-server-certificate-gets-allowed.json",
+          "quotes": [
+            "If a web server requests the client certificate (look for the SSL Policy reason Not Inspected because of mutual TLS authentication) and the undecryptable traffic option is disabled, the Zscaler Service Edge simply aborts decryption of the SSL handshake and bridges the connection.",
+            "If the protocol TLS 1.3 is used (Server Connection TLS Version column in Web Insights logs), the Service Edge cannot read the certificate while bridging, so the connection will be allowed regardless of the server certificate's validity."
+          ]
+        }
+      ]
+    },
+    "untrusted-allowed-solutions": {
+      "statement": "The page's fixes are to set the rule action for the domain to Inspect if business policy permits, or to block such domains with an SSL Inspection rule that has Block Undecryptable Traffic enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-untrusted-server-certificate-gets-allowed.json",
+          "quotes": [
+            "Change the action in the SSL Inspection rule for this domain to Inspect if your business policy permits that.",
+            "If you wish to block such domains, you can configure an SSL Inspection rule with the Block Undecryptable Traffic option enabled."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {},
+  "divergences": {
+    "do-not-inspect-cert-handling": {
+      "summary": "The untrusted-certificate runbook says the service cannot read the certificate of a domain set to Do Not Inspect, while the SSL/TLS Inspection policy article offers Untrusted Server Certificates and an OCSP check under Do Not Inspect with Evaluate Other Policies.",
+      "positions": [
+        {
+          "says": "With the domain manually set to Do Not Inspect, the service does not decrypt it and cannot read the certificate.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-untrusted-server-certificate-gets-allowed.json",
+            "quotes": [
+              "When the SSL inspection for a domain is manually configured to Do Not Inspect, then the Zscaler service doesn't decrypt it and can't read the certificate."
+            ]
+          }
+        },
+        {
+          "says": "For Do Not Inspect with Evaluate Other Policies, the rule offers an Untrusted Server Certificates setting for untrusted certificates.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-ssl-tls-inspection-policy.json",
+            "after": "If you choose the Do Not Inspect action, you can further choose to either Evaluate Other Policies",
+            "quotes": [
+              "Untrusted Server Certificates: Select how the service handles untrusted certificates (e.g., path validation failure, unknown issuer, certificate expired, common name does not match)."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a Do Not Inspect rule can allow or block on an untrusted certificate depends on which page is read; the pages do not say whether the policy settings apply only with Evaluate Other Policies."
+    }
+  }
+}

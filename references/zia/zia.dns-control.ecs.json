@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.ecs",
+  "title": "EDNS Client Subnet (ECS) injection and ECS prefix objects",
+  "aliases": [
+    "EDNS Client Subnet",
+    "ECS injection",
+    "ECS prefix",
+    "synthetic ECS prefix"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.dns-record-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-is}} {{why-it-matters}} {{subscription}}"
+    },
+    {
+      "label": "What is sent.",
+      "text": "{{prefix-length-default}} {{retain-insert}} {{ipv4-only}}"
+    },
+    {
+      "label": "Scope and caution.",
+      "text": "{{scope}} {{resolver-caution}}"
+    },
+    {
+      "label": "Prefix objects.",
+      "text": "{{object-fields}} {{prefix-count}} {{enabling}} {{advanced-settings-option}} {{default-delete-visibility}} How the designated prefix relates to a DNS rule's ECS object is open {{gap:designation-vs-rule}}."
+    }
+  ],
+  "claims": {
+    "what-is": {
+      "statement": "Internet & SaaS (ZIA) supports EDNS Client Subnet (ECS) in DNS queries to obtain geolocated responses from DNS resolvers. Client Subnet is an option in Extension Mechanisms for DNS (EDNS(0)) that lets the requesting client's IP address or subnet information be passed in DNS requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-edns-client-subnet-injection.json",
+          "quotes": [
+            "Internet & SaaS (ZIA) supports EDNS Client Subnet (ECS) in DNS queries to obtain geolocated responses from DNS resolvers.",
+            "Client Subnet is an option in Extension Mechanisms for DNS (EDNS(0)) that allows the IP address or subnet information of the requesting client device to be passed in DNS requests."
+          ]
+        }
+      ]
+    },
+    "why-it-matters": {
+      "statement": "When DNS queries are forwarded through the Zscaler service, resolution is geo-optimized for the Service Edge because the external DNS service receives the query from the Service Edge's public IP address; the ECS option passes the client's masked IP address instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-edns-client-subnet-injection.json",
+          "quotes": [
+            "When DNS queries are forwarded through the Zscaler service to an external DNS service, the DNS resolution is geo-optimized based on the Service Edge for Internet & SaaS (Public, Private, or Virtual) since the external DNS service receives the DNS query from the Service Edge's public IP address.",
+            "you can use the ECS option to pass the client's masked IP address in the DNS queries as they transit the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "subscription": {
+      "statement": "ECS support requires a subscription that includes advanced functionalities of DNS Control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-edns-client-subnet-injection.json",
+          "quotes": [
+            "ECS support requires a subscription that includes advanced functionalities of DNS Control."
+          ]
+        }
+      ]
+    },
+    "prefix-length-default": {
+      "statement": "The ECS value is typically a prefix taken from the client's public IP address by masking bits (for example 2.2.2.0/24 is sent as the ECS value). The prefix length can range from /20 to /24, the default prefix is /24, and a synthetic ECS prefix can be configured instead of deriving one from the client's address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-edns-client-subnet-injection.json",
+          "quotes": [
+            "The ECS value is typically a prefix obtained from the requesting client's public IP address by masking a specific sequence of bits.",
+            "then 2.2.2.0/24 is the prefix sent as the ECS value to the DNS resolver on behalf of the client",
+            "The Zscaler service allows you to configure the prefix length ranging from /20 to /24 (the full IP address), depending on your requirements.",
+            "Zscaler also provides a default prefix of length /24",
+            "Alternatively, you can configure a synthetic ECS prefix to be added to DNS requests instead of deriving the prefix from the requesting client's IP address."
+          ]
+        }
+      ]
+    },
+    "retain-insert": {
+      "statement": "An admin can retain an ECS prefix already present in client DNS queries, with the option Retain ECS prefix if present so the configured prefix does not override it. If Zscaler inserts the prefix, the corresponding ECS option in the DNS response might be removed before the response reaches the client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-edns-client-subnet-injection.json",
+          "quotes": [
+            "Optionally, you can also choose to retain the already-present ECS prefix in client DNS queries.",
+            "If the ECS prefix is inserted by Zscaler, then the corresponding ECS option in the DNS response might be removed before the response is sent back to the client."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-edns-client-subnet-prefixes.json",
+          "quotes": [
+            "Retain ECS prefix if present: Enable this option if the current ECS prefix in the DNS query must be retained and not be overridden by the configured prefix."
+          ]
+        }
+      ]
+    },
+    "ipv4-only": {
+      "statement": "Zscaler supports ECS prefixes of the IPv4 family only and does not process IPv6-family ECS prefixes in client DNS queries. The Zscaler Trusted Resolver does not currently support the ECS option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-edns-client-subnet-injection.json",
+          "quotes": [
+            "Zscaler supports ECS prefixes corresponding to the IPv4 family only. ECS prefixes corresponding to the IPv6 family in client DNS queries are not processed by Zscaler.",
+            "The Zscaler Trusted Resolver does not currently support the ECS option."
+          ]
+        }
+      ]
+    },
+    "scope": {
+      "statement": "Zscaler supports ECS irrespective of the traffic forwarding method the client uses. A resolver that does not support ECS ignores the extension and returns a regular response, and ECS is supported for A, AAAA, CNAME, MX, NS and PTR records.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-edns-client-subnet-injection.json",
+          "quotes": [
+            "Zscaler supports the ECS option irrespective of the traffic forwarding method used by the client to send the DNS queries to the Service Edge.",
+            "If the DNS resolver does not support ECS, it ignores the extension when performing domain resolution and provides a regular DNS response.",
+            "The ECS option is supported for the following DNS record types: A, AAAA, CNAME, MX, NS, and PTR records."
+          ]
+        }
+      ]
+    },
+    "resolver-caution": {
+      "statement": "Some DNS resolvers ignore the ECS value and others return a REFUSED error code, so Zscaler recommends validating the provider's ECS handling before configuring injection and exercising caution to avoid exposing clients' IP network information. Too long prefixes may be rejected by certain resolvers, whereas very short ones may not geolocate the clients.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-edns-client-subnet-injection.json",
+          "quotes": [
+            "some DNS resolvers might not honor the ECS value in DNS requests (essentially, ignore the value), and others might return a REFUSED error code.",
+            "Zscaler recommends validating with the third-party DNS service provider to confirm their handling of ECS before configuring ECS injection.",
+            "Exercise caution when configuring the ECS option to safeguard the privacy and security of clients by preventing the unnecessary exposure of the client’s IP network information."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-edns-client-subnet-prefixes.json",
+          "quotes": [
+            "Too long prefixes may be rejected by certain DNS resolvers, whereas very short prefixes may not be sufficient to geolocate the clients initiating the DNS query."
+          ]
+        }
+      ]
+    },
+    "object-fields": {
+      "statement": "An ECS prefix object has a unique name (alphanumeric only, at most 255 characters), a prefix length of /20 to /24 or a static IPv4 prefix with subnet mask that may be private or public, and an optional description of at most 255 characters. With /24 and client address 2.2.2.2 the Client Subnet value is 2.2.2.0, and a static 2.2.2.2/24 also gives 2.2.2.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-edns-client-subnet-prefixes.json",
+          "quotes": [
+            "Name: Enter a unique name for the ECS prefix. Only alphanumeric characters are allowed, and the name cannot exceed 255 characters.",
+            "The Zscaler service supports a prefix length range of /20 to /24 (the full IP address).",
+            "if /24 is selected and the client’s IP address is 2.2.2.2, the Client Subnet value would be 2.2.2.0",
+            "Static Prefix: Specify a static prefix (IPv4 only) with the subnet mask that must be used for the ECS option in DNS queries.",
+            "For example, if you specify 2.2.2.2/24, the Client Subnet value would be 2.2.2.0.",
+            "This prefix can be a private or a public IP address that can be recognized by the DNS resolver used by your organization.",
+            "Description: (Optional) Enter additional information about the ECS prefix. The description cannot exceed 255 characters."
+          ]
+        }
+      ]
+    },
+    "prefix-count": {
+      "statement": "An organization can have at most 128 ECS prefixes, including the default prefix.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-edns-client-subnet-prefixes.json",
+          "quotes": [
+            "A maximum of 128 ECS prefixes, including the default prefix, is supported for an organization."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| EDNS Client Subnet (ECS) Prefix Objects per Organization | 128 prefixes |"
+          ]
+        }
+      ]
+    },
+    "enabling": {
+      "statement": "An admin can configure a list of ECS prefixes and designate one to be embedded in DNS queries arriving at the Service Edges; after configuring prefixes, the ECS option must be enabled and a prefix designated in the Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-edns-client-subnet-prefixes.json",
+          "quotes": [
+            "you can configure a list of EDNS Client Subnet (ECS) prefixes and designate one of them to be embedded in DNS queries when they arrive at the Service Edges for Internet & SaaS (ZIA).",
+            "After configuring the ECS prefixes, you must enable the ECS option and designate an ECS prefix to be embedded into DNS queries using the Advanced Settings."
+          ]
+        }
+      ]
+    },
+    "advanced-settings-option": {
+      "statement": "In Advanced Settings, Enable ECS Option for Locations and Remote Users includes the ECS option in all DNS queries originating from all locations and remote users. The ECS Prefix field appears when that option is enabled and selects the ECS prefix to use in DNS queries; the page says to configure the ECS prefix objects first so they can be prepopulated for selection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Enable ECS Option for Locations and Remote Users: Enable this option to include the ECS option in all DNS queries, originating from all locations and remote users.",
+            "ECS Prefix: This field appears when the ECS option is enabled using the preceding setting.",
+            "Select the ECS prefix that must be used in DNS queries.",
+            "Before enabling the ECS option, ensure that you have configured the ECS prefix objects, so they can be prepopulated for selection in the ECS Prefix field."
+          ]
+        }
+      ]
+    },
+    "default-delete-visibility": {
+      "statement": "The Zscaler service creates a default ECS prefix that an admin can view, a prefix can be deleted from the Edit ECS Prefix window, and DNS Insights Logs show the logs recorded for DNS traffic that contains the ECS prefix.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-edns-client-subnet-injection.json",
+          "quotes": [
+            "View the default ECS prefix created by the Zscaler service.",
+            "You can also delete an ECS prefix from the Edit ECS Prefix window.",
+            "DNS Insights Logs provides visibility into the logs recorded for DNS traffic that contains the ECS prefix."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "designation-vs-rule": {
+      "kind": "semantic",
+      "title": "How the designated ECS prefix relates to a DNS rule's ECS object",
+      "status": "open",
+      "detail": "The help designates one prefix in Advanced Settings; the DNS rule action carries an ECS object (see zia.dns-control.actions) and the ecs_slot log field names the ECS rule applied. No captured source connects them; the Advanced Settings option's name is now sourced (advanced-settings-option). Also open: whether the default prefix can be edited or deleted, and what is sent when Retain is on and the query carries no ECS prefix.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

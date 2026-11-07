@@ -1,0 +1,380 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.terraform",
+  "title": "The zpa_service_edge_group resource for Private Service Edge groups",
+  "aliases": [
+    "zpa_service_edge_group",
+    "service_edges block",
+    "terraform private service edge group",
+    "terraform service edge import",
+    "zpa_service_edge_controller data source",
+    "zpa_private_cloud_group enrollment"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.resource-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The provider models a Private Service Edge group as one resource and Private Service Edge instances only as a data source."
+    },
+    {
+      "label": "Arguments.",
+      "text": "{{tf-required-args}} {{zpa-terraform-grace}} Only the first trusted_networks block is sent {{divergence:trusted-networks-max-items}}. Wrapper modules: [[zpa.private-service-edges.reference-modules]]."
+    },
+    {
+      "label": "Membership.",
+      "text": "{{service-edges-block}} {{service-edges-deprecation}}"
+    },
+    {
+      "label": "Import and managed groups.",
+      "text": "{{import-by-id-or-name}} {{managed-flags}} Importing a managed group is unverified {{gap:import-managed-group}}."
+    },
+    {
+      "label": "Related resources.",
+      "text": "{{private-cloud-group-enrollment}} {{controller-data-source}}"
+    },
+    {
+      "text": "Provider defects: [[zpa.terraform.resource-fidelity]], [[zpa.terraform.data-source-fidelity]], and first-block-only association reads in [[zpa.terraform.app-segment-lifecycle:association-block-first-only-places]]. Enrollment fields: [[zpa.private-service-edges.enrollment]]."
+    },
+    {
+      "text": "{{service-edges-diff-suppressed-when-unset}}"
+    },
+    {
+      "text": "{{grace-distance-value-one-decimal}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a configuration manages membership: when service_edges is omitted Terraform ignores membership entirely, so drift in members is not reported.",
+      "uses": [
+        "service-edges-block",
+        "service-edges-deprecation"
+      ]
+    },
+    {
+      "do": "Whether the plan sets grace_distance_enabled without the value and unit, which the schema rejects.",
+      "uses": [
+        "zpa-terraform-grace",
+        "tf-required-args"
+      ]
+    },
+    {
+      "do": "Whether a group Terraform wants to change is Zscaler-managed, which is read only.",
+      "uses": [
+        "managed-flags"
+      ]
+    },
+    {
+      "do": "Whether the data source returning an empty Private Service Edge list is the provider defect rather than an empty group.",
+      "uses": [
+        "zpa.terraform.data-source-fidelity:service-edge-group-nested-sets-ignored",
+        "zpa.terraform.data-source-fidelity:service-edge-group-brokers-always-blocks"
+      ]
+    }
+  ],
+  "claims": {
+    "tf-required-args": {
+      "statement": "In the resource schema, name, latitude, longitude and location are required, city_country is optional and country_code is optional and computed, although the provider docs list city_country and country_code under Required. enabled defaults to true and is_public to false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"name\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"latitude\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"longitude\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"location\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Optional: true,"
+          ],
+          "after": "\"city_country\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Optional: true,",
+            "Computed: true,"
+          ],
+          "after": "\"country_code\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Default:     true,"
+          ],
+          "after": "\"enabled\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Default:     false,"
+          ],
+          "after": "\"is_public\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "`city_country` - (String) The city and country of the App Connector",
+            "`country_code` - (String) Provide a 2 letter",
+            "### Optional"
+          ],
+          "after": "### Required"
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#name",
+        "zpa/service-edge-groups#countryCode"
+      ],
+      "conditions": "Statement changed from the legacy \"requires name, latitude, longitude, location, city_country and country_code\": the schema marks city_country Optional and country_code Optional+Computed, contradicting the docs' Required list. Dropped \"trusted_networks takes at most one block\": the schema's MaxItems is commented out, so that is now the trusted-networks-max-items divergence; the defaults are now cited from the schema."
+    },
+    "zpa-terraform-grace": {
+      "statement": "grace_distance_value and grace_distance_value_unit are RequiredWith grace_distance_enabled in the schema, and each is RequiredWith the other, so setting either value or unit requires the other two fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "RequiredWith: []string{\"grace_distance_enabled\", \"grace_distance_value_unit\"},",
+            "RequiredWith: []string{\"grace_distance_enabled\", \"grace_distance_value\"},"
+          ]
+        }
+      ]
+    },
+    "service-edges-block": {
+      "statement": "When the service_edges block is omitted Terraform ignores service edge membership completely; when specified it enforces exact membership and reports any discrepancy as drift. Membership is typically managed outside Terraform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "### New `service_edges` Behavior",
+            "**When omitted**: Terraform will ignore service edge membership completely (no drift detection)",
+            "**When specified**: Terraform will enforce exact membership matching",
+            "Any discrepancy between configuration and actual state will be reported as drift",
+            "Service edge membership is typically managed outside Terraform"
+          ]
+        }
+      ]
+    },
+    "service-edges-deprecation": {
+      "statement": "The service_edges block carries a deprecation notice: it will be deprecated in a future release.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "The `service_edges` block will be deprecated in a future release"
+          ]
+        }
+      ]
+    },
+    "import-by-id-or-name": {
+      "statement": "A Service Edge group can be imported using its ID or its name as the import ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "Service Edge Group can be imported; use `<SERVER EDGE GROUP ID>` or `<SERVER EDGE GROUP NAME>` as the import ID."
+          ]
+        }
+      ]
+    },
+    "managed-flags": {
+      "statement": "The group type carries readOnly and zscalerManaged flags, and Zscaler-managed groups are read only in the console.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go",
+          "quotes": [
+            "ReadOnly                       bool",
+            "ZscalerManaged                 bool"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "Private Service Edge groups that are managed by Zscaler are read only and cannot be edited or deleted."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#readOnly",
+        "zpa/service-edge-groups#zscalerManaged"
+      ],
+      "conditions": "Inferred link: the flag names match the console's read-only, Zscaler-managed groups; no source states that the flags drive that behavior."
+    },
+    "private-cloud-group-enrollment": {
+      "statement": "In zpa_private_cloud_group, enrollment_cert_id is optional, with auto-resolution of the \"Connector\" enrollment certificate by name when omitted, and the user_codes attribute enables OAuth2 user code enrollment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added OAuth2 user code enrollment support to the `zpa_private_cloud_group` resource via the new `user_codes` attribute, and made `enrollment_cert_id` optional with auto-resolution of the `Connector` enrollment certificate by name when omitted."
+          ]
+        }
+      ]
+    },
+    "controller-data-source": {
+      "statement": "The provider has a zpa_service_edge_controller data source that looks up a service edge controller by name, and a service_edge_group resource; the documentation lists no resource for individual Private Service Edge instances.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_service_edge_controller.md",
+          "quotes": [
+            "Use the **zpa_service_edge_controller** data source to get information about a service edge controller in the Zscaler Private Access cloud."
+          ]
+        }
+      ],
+      "conditions": "Absence: listing docs/resources at the pin shows zpa_service_edge_group and zpa_service_edge_assistant_schedule but no resource for a single Service Edge instance."
+    },
+    "service-edges-diff-suppressed-when-unset": {
+      "statement": "The Terraform Service Edge group resource declares service_edges optional and computed with a warning that membership is managed externally, and suppresses any diff on it unless the field is set in configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Optional: true,",
+            "Computed: true, // This is key",
+            "Description: \"WARNING: Service edge membership is managed externally. \" +",
+            "// If the field isn't set in config (regardless of static or dynamic block)",
+            "if _, ok := d.GetOk(\"service_edges\"); !ok {\n\t\t\t\t\t\treturn true\n\t\t\t\t\t}\n\t\t\t\t\treturn false"
+          ],
+          "after": "\"service_edges\": {"
+        }
+      ]
+    },
+    "grace-distance-value-one-decimal": {
+      "statement": "The Terraform Service Edge group resource treats grace_distance_value as unchanged when old and new values are equal after formatting to one decimal place.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "return fmt.Sprintf(\"%.1f\", oldVal) == fmt.Sprintf(\"%.1f\", newVal)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "import-managed-group": {
+      "kind": "semantic",
+      "title": "Importing a Zscaler-managed Private Service Edge group",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Any Terraform import of such a group will result in a plan that cannot apply ... Do not import Zscaler-managed PSE Groups into Terraform state.\" The read-only rule is documented in the console; the import and apply outcome is not. Resolve with a lab test.",
+      "blocks": "advising whether a managed group may be imported",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  },
+  "divergences": {
+    "trusted-networks-max-items": {
+      "summary": "The docs allow one trusted_networks block, but the schema sets no limit and the provider reads only the first block.",
+      "positions": [
+        {
+          "says": "The resource docs say trusted_networks allows at most one block.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_service_edge_group.md",
+            "quotes": [
+              "`trusted_networks` - (Block Set) Trusted networks for this Service Edge Group. List of trusted network objects Maximum 1 block allowed."
+            ]
+          }
+        },
+        {
+          "says": "The schema declares trusted_networks as an optional list with its MaxItems line commented out, so several blocks pass validation.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_service_edge_group.go",
+            "quotes": [
+              "Optional: true,",
+              "// MaxItems:    1,"
+            ],
+            "after": "\"trusted_networks\": {"
+          }
+        },
+        {
+          "says": "The expander sends only the IDs in the first trusted_networks block.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_service_edge_group.go",
+            "quotes": [
+              "block, ok := blocks[0].(map[string]interface{})"
+            ],
+            "after": "func expandTrustedNetworks(d *schema.ResourceData) []trustednetwork.TrustedNetwork {"
+          }
+        }
+      ],
+      "impact": "A configuration with several trusted_networks blocks plans without error, but only the first block's IDs reach the API; put every trusted network ID in one block."
+    }
+  }
+}

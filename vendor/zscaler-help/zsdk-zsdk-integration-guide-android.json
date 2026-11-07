@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "ZSDK Integration Guide for Android",
+  "source": {
+    "url": "https://help.zscaler.com/zsdk/zsdk-integration-guide-android",
+    "node": "1514266",
+    "revision": "3121918",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide provides steps on how to integrate ZSDK into your mobile Android applications. ZSDK supports Java or Kotlin when you are importing ZSDK into an Android application."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "To begin installing ZSDK in a mobile Android application, ensure:"
+    },
+    {
+      "item": "You're running Android 9 or later (i.e., minimum API Level 28).",
+      "depth": 0
+    },
+    {
+      "item": "Your Android application works on both 32-bit and 64-bit devices that are ARM-based (i.e., armeabi-v7a or arm64-v8a).",
+      "depth": 0
+    },
+    {
+      "heading": "Import ZSDK",
+      "level": 1
+    },
+    {
+      "text": "To begin importing ZSDK by using Android Studio or your Integrated Development Environment (IDE) of choice:"
+    },
+    {
+      "item": "Ensure gpr.user and gpr.key are set to your GitHub username and access token in the local.properties.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Add the following dependencyResolutionManagement repository to the GitHub repository in the settings.gradle:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "dependencyResolutionManagement { repositories { maven { name = \"ZscalerSDKAndroid\" url = uri(\"https://maven.pkg.github.com/zscaler/zscaler-sdk-android\") credentials { username = settings.extra.get(\"gpr.user\") as String ?: System.getenv(\"GITHUB_USERNAME\") password = settings.extra.get(\"gpr.key\") as String ?: System.getenv(\"GITHUB_TOKEN\") } } }",
+      "depth": 0
+    },
+    {
+      "item": "Add the following dependencies section to your build.gradle:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "dependencies { implementation(\"com.zscaler.sdk:zscalersdk-android:latest.release\") }",
+      "depth": 0
+    },
+    {
+      "heading": "Manual Import of ZSDK",
+      "level": 2
+    },
+    {
+      "text": "Alternatively, you can import ZSDK through manual integration:"
+    },
+    {
+      "item": "On ZSDK's GitHub, click the latest Package URL under Packages.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          35,
+          46
+        ],
+        [
+          53,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Download the latest ZSDK .aar file at the bottom of Assets.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          52,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Launch Android Studio or your selected IDE.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Open an existing project or create a new project in Project View where you intend to integrate ZSDK.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          52,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Create a libs directory adjacent to your app's SRC directory or use an existing one.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Add the ZSDK .aar file into the libs directory. Rename the file to zscalersdk.aar for easier reference.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Open the build.gradle(:app) file to configure the implementation pathway.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "Add the following line to include the ZSDK library for your project:",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "// Add Path to the ZscalerSDK .aar file implementation(files(\"libs/zscalersdk.aar\"))",
+      "depth": 0
+    },
+    {
+      "item": "Execute Gradle Sync to ensure all configurations are properly loaded and the ZSDK library is integrated into your project build.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          8,
+          19
+        ]
+      ]
+    },
+    {
+      "heading": "ZSDK Integration",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you have imported ZSDK and its methods."
+    },
+    {
+      "text": "import com.zscaler.sdk.android.ZscalerSDK"
+    },
+    {
+      "text": "Initialize ZSDK in your custom application's or MainActivity's onCreate() to pass your application instance."
+    },
+    {
+      "text": "override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState) binding = ActivityMainBinding.inflate(layoutInflater) try { ZscalerSDK.init(application, ZscalerSDKConfiguration.DEFAULT_CONFIGURATION) // you may provide custom configuration } catch (e: ZscalerSDKException) { Log.e(TAG, \"Got exception while initializing ZscalerSDK = $e\") // Tunnel won't work after this return } }"
+    },
+    {
+      "text": "Start the Prelogin tunnel."
+    },
+    {
+      "text": "// Define function to start the PreLogin tunnel fun startPreLoginTunnel(zdkId: String, udid : String, onErrorOccurred: (errorCode: Int) -> Unit) { viewModelScope.launch(Dispatchers.IO) { try { ZscalerSDK.startPreLoginTunnel(appKey = appKey, deviceUdid = udid) Log.d(TAG, \"startPreLoginTunnel completed\") } catch (e: Exception) { Log.e(TAG, \"startPreLoginTunnel() failed with exception :: ${e.message}\") } } }"
+    },
+    {
+      "text": "Start the Zero Trust tunnel."
+    },
+    {
+      "text": "// Define function to establish Zero Trust tunnel fun startZeroTrustTunnel( zdkId: String, accessToken: String, udid: String, onErrorOccurred: (errorCode: Int) -> Unit ) { viewModelScope.launch(Dispatchers.IO) { try { ZscalerSDK.startZeroTrustTunnel(appKey = appKey, deviceUdid = udid, accessToken = accessToken) Log.d(TAG, \"startZeroTrustTunnel completed\") } catch (e: Exception) { Log.e(TAG, \"startZeroTrustTunnel() failed with exception :: ${e.message}\") } } }"
+    },
+    {
+      "text": "Stop tunnel operations."
+    },
+    {
+      "text": "fun stopTunnel(resetStatusText:()-> String): Unit { Log.d(TAG, \"stopTunnel() called\") try { val retVal = ZscalerSDK.stopTunnel() if (retVal == 0) zdkStatus.value = resetStatusText() } catch (e: Exception) { Log.e(TAG, \"stopTunnel() failed with exception :: ${e.message}\") } }"
+    },
+    {
+      "text": "Check the tunnel status."
+    },
+    {
+      "text": "fun getStatus() { val zscalerSDKTunnelStatus = ZscalerSDK.status() Log.d(TAG, \"getStatus() called tunnelType:${zscalerSDKTunnelStatus.tunnelType} status:${zscalerSDKTunnelStatus.tunnelConnectionState}\") }"
+    },
+    {
+      "text": "Export debug logs."
+    },
+    {
+      "text": "//destination is URI of an empty zip file path where you want the logs fun exportLog(destination: String): String { val exportLogDestination = ZscalerSDK.exportLogs(destinationFolder = destination).toString() Log.d(TAG, \"exportLog() called with: destination = $exportLogDestination\") return exportLogDestination }"
+    },
+    {
+      "text": "Delete debug logs."
+    },
+    {
+      "text": "fun clearLogs(onSuccess: () -> Unit) { viewModelScope.launch(Dispatchers.IO) { ZscalerSDK.clearLogs() withContext(Dispatchers.Main) { onSuccess() } } }"
+    },
+    {
+      "heading": "Managing Network Configurations",
+      "level": 1
+    },
+    {
+      "text": "You can manage network configurations with Semi-Automatic or Manual mode by setting automaticallyConfigureRequests or automaticallyConfigureWebViews to false.",
+      "strong": [
+        [
+          152,
+          157
+        ]
+      ]
+    },
+    {
+      "heading": "Semi-Automatic Mode",
+      "level": 2
+    },
+    {
+      "text": "For Semi-Automatic mode, you can set up ZSDK to custom retrofit the client or WebView with the following code sample:"
+    },
+    {
+      "text": "fun loadWithSemiAutomaticConfig(url: String) { val apiService = ZscalerSDK.setUpClient(null, url)?.create(ApiService::class.java) viewModelScope.launch(Dispatchers.IO) { try { val response = apiService?.getData(url)?.execute() // parse the response data based on your app's logic } catch (e: IOException) { //Print exception e.printStackTrace() } } } fun loadInWebViewWithSemiAutomaticConfig(url: String) { val zscalerSDKWebView = ZscalerSDK.setUpWebView() zscalerSDKWebView?.loadUrl(url) }"
+    },
+    {
+      "heading": "Manual Mode",
+      "level": 2
+    },
+    {
+      "text": "For Manual mode, if you are using WebView and after you start a tunnel, you must configure the WebView proxy settings to route traffic over the tunnel. The following code sample shows how you can do this for retrofit by creating your app's own custom OkHttpClient:"
+    },
+    {
+      "text": "object ManualRetrofitApiClient { private var TAG = \"ManualRetrofitApiClient\" private var retrofit: Retrofit? = null private var baseUrl: String = \"\" fun getRetrofit(baseUrl: String): Retrofit? { if (retrofit == null || ManualRetrofitApiClient.baseUrl != baseUrl) { val zscalerClient = getZscalerOkHttpClient() // this is required to send traffic via ZscalerSDK ManualRetrofitApiClient.baseUrl = baseUrl retrofit = Retrofit.Builder() .baseUrl(baseUrl) .client(zscalerClient) .addConverterFactory(GsonConverterFactory.create()) .build() } return retrofit } private fun getZscalerOkHttpClient(): OkHttpClient { // call ZscalerSDK.proxyInfo() to fetch proxy details val proxyInfo = ZscalerSDK.proxyInfo() // set proxy using proxyHost and proxyPort ProxySelector.setDefault(object : ProxySelector() { override fun select(uri: URI?): MutableList<Proxy> { val proxyList = mutableListOf<Proxy>() proxyList.add(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxyInfo.proxyHost, proxyInfo.proxyPort))) return proxyList } override fun connectFailed(uri: URI?, sa: SocketAddress?, ioe: IOException?) { Log.d(TAG, \"connectFailed : with: uri = $uri, SocketAddress = $sa, IOException = ${ioe?.message}\") } }) val builder = OkHttpClient.Builder() // set authenticator using username and password present in proxyInfo val username = proxyInfo.username val password = proxyInfo.password if (username?.isNotEmpty() == true && password?.isNotEmpty() == true) { val authenticator = Authenticator { _: Route?, response: Response -> val credential = Credentials.basic(username, password) response.request.newBuilder() .header(\"Proxy-Authorization\", credential) .build() } builder.proxyAuthenticator(authenticator) } return builder.build() } }"
+    },
+    {
+      "heading": "WebView Proxy Settings",
+      "level": 3
+    },
+    {
+      "text": "After starting any tunnel, you must configure the WebView proxy settings to route network traffic over the tunnel."
+    },
+    {
+      "text": "WebView network connections are not guaranteed to use new proxy settings immediately when applied. Wait for a successful listener callback before loading a page. To learn more about Android's ProxyController, refer to Android Documentation."
+    },
+    {
+      "text": "fun setWebViewProxy(proxyInfo: ZscalerSDKProxyInfo) { if (isWebKitClassAvailable()) { if (WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) { val proxyConfig = ProxyConfig.Builder() .addProxyRule(\"${proxyInfo.proxyHost}:${proxyInfo.proxyPort}\") .build() ProxyController.getInstance().setProxyOverride(proxyConfig, { //on success Log.d(TAG, \"setProxyInWebView: setProxyOverride success\") }, { Log.e(TAG, \"setProxyInWebView: Failed to set proxy in WebView\") }) } else { Log.e(TAG, \"setProxyInWebView: WebView proxy override not supported\") } } else { Log.e(TAG, \"setProxyInWebView: Androidx Webkit dependencies not found\") } } private fun isWebKitClassAvailable(): Boolean { try { Class.forName(\"androidx.webkit.WebViewFeature\") Class.forName(\"androidx.webkit.ProxyController\") return true } catch (e: Exception) { Log.e(TAG, \"isWebKitClassAvailable: Androidx Webkit dependencies not found\") } return false }"
+    },
+    {
+      "heading": "ProxyAuth Override",
+      "level": 3
+    },
+    {
+      "text": "If ProxyAuth is enabled, then you need to override the ReceivedHttpAuthRequest() method in your WebViewClient."
+    },
+    {
+      "text": "class WebViewClientWithProxyAuthSupport(private val proxyInfo: ZscalerSDKProxyInfo) : WebViewClient() { override fun onReceivedHttpAuthRequest(view: WebView?, handler: HttpAuthHandler?, host: String?, realm: String?) { if (proxyInfo.username?.isNotEmpty() == true && proxyInfo.password?.isNotEmpty() == true) { handler?.proceed(proxyInfo.username, proxyInfo.password) } super.onReceivedHttpAuthRequest(view, handler, host, realm) } }"
+    }
+  ]
+}

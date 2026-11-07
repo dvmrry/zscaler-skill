@@ -1,0 +1,344 @@
+{
+  "schema_version": 1,
+  "id": "zpa.browser-access.certificates",
+  "title": "Certificates for Browser Access applications: wildcards, managed and custom",
+  "aliases": [
+    "browser access wildcard certificate",
+    "wildcard certificate one level",
+    "app1.local.example.com certificate",
+    "browser access zscaler managed certificate",
+    "browser access cname",
+    "browser access web server certificate",
+    "wildcard cert does not cover subdomain"
+  ],
+  "binds": [
+    "zpa/browser-access"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.hostnames"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.segment-constraints"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.certificates"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Which certificate a Browser Access application presents decides whether a wildcard application can be served. Wildcard certificates have a one-level rule that wildcard applications do not."
+    },
+    {
+      "label": "Wildcard certificates.",
+      "text": "{{wildcard-multiple-fqdns}} {{wildcard-one-level}} {{subdomain-needs-own-wildcard}}"
+    },
+    {
+      "label": "Certificate type.",
+      "text": "{{certificate-type}} {{no-enrollment-certificates}}"
+    },
+    {
+      "label": "Uploading web server certificates.",
+      "text": "{{https-or-http}} {{upload-format-and-limit}} {{csr-subject-san}} {{replace-expired}} Whether a web server certificate is required is stated two ways {{divergence:web-server-cert-required}}. Enrollment certificates are in [[zpa.certificates.enrollment]]; the certificate overview is [[zpa.certificates]]."
+    },
+    {
+      "label": "CNAME and DNS.",
+      "text": "{{cname-in-dns}} Whether the CNAME reveals the Zscaler relationship is open {{gap:cname-visibility}}."
+    },
+    {
+      "label": "Zscaler-managed certificates.",
+      "text": "{{managed-prerequisites}} {{managed-cors-and-csp}} {{managed-header-rewrites}}"
+    },
+    {
+      "text": "The external versus internal hostname choice is in [[zpa.browser-access.hostnames]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the failing FQDN is more than one label below the wildcard certificate's name, in which case it needs its own *.sub wildcard application and certificate.",
+      "uses": [
+        "wildcard-one-level",
+        "subdomain-needs-own-wildcard"
+      ]
+    },
+    {
+      "do": "Whether the application uses a Zscaler-managed certificate, and if so whether it is a wildcard, an IP address or uses absolute URLs, none of which the managed path supports.",
+      "uses": [
+        "certificate-type",
+        "managed-prerequisites"
+      ]
+    },
+    {
+      "do": "Whether the CNAME copied from the Browser Access page was added to public DNS for a custom certificate.",
+      "uses": [
+        "cname-in-dns"
+      ]
+    }
+  ],
+  "claims": {
+    "wildcard-multiple-fqdns": {
+      "statement": "A wildcard certificate can be used for multiple FQDNs within one application segment or across several application segments, for example the same *.example.com certificate on a segment for app1.example.com and another for app2.example.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-wildcard-certificates-browser-access-applications.json",
+          "quotes": [
+            "You can use a wildcard certificate for multiple fully qualified domain names (FQDNs) within a single application segment or within multiple application segments.",
+            "App1 that contains app1.example.com",
+            "App2 that contains app2.example.com",
+            "For both application segments, you use the same wildcard certificate: *.example.com."
+          ]
+        }
+      ]
+    },
+    "wildcard-one-level": {
+      "statement": "A wildcard application such as *.example.com matches app1.example.com, app2.example.com and app1.local.example.com, but a *.example.com wildcard certificate matches only one level. It does not match app1.local.example.com, and Private Access does not consider it valid for that name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-wildcard-certificates-browser-access-applications.json",
+          "quotes": [
+            "while the wildcard application includes subdomains, the wildcard certificate only matches against one level.",
+            "A *.example.com wildcard application matches against app1.example.com, app2.example.com, and app1.local.example.com.",
+            "In this example, Private Access does not consider the wildcard certificate to be valid for app1.local.example.com."
+          ]
+        }
+      ]
+    },
+    "subdomain-needs-own-wildcard": {
+      "statement": "To enable Browser Access for a particular subdomain such as local.example.com, define a separate wildcard application (*.local.example.com) in an application segment that includes the equivalent wildcard certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-wildcard-certificates-browser-access-applications.json",
+          "quotes": [
+            "you must define a separate wildcard application (i.e., *.local.example.com) within an application segment that includes the equivalent wildcard certificate."
+          ]
+        }
+      ]
+    },
+    "certificate-type": {
+      "statement": "For each Browser Access application the admin chooses either a Custom certificate, where a web server certificate is selected, or a Zscaler-managed certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Select the certificate type. If you select Custom, continue with the following substeps. If you want to use a Zscaler-managed certificate, select Managed and go to the next step.",
+            "5. Select a web server certificate from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "no-enrollment-certificates": {
+      "statement": "Enrollment (CA) certificates cannot be used for Browser Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-web-server-certificates.json",
+          "quotes": [
+            "You cannot use enrollment (CA) certificates for Browser Access."
+          ]
+        }
+      ]
+    },
+    "https-or-http": {
+      "statement": "If the web server certificate is signed by a public certificate authority, Private Access encrypts traffic using HTTPS; if it is self-signed, or Private Access cannot verify the chain of trust to the public CA, HTTP is used. The upload page gives the same rule as the protocol to select for a Browser Access application, and adds that Private Access inserts a Via header in HTTP requests (example: Via: 1.1 Zscaler-p.zpa-auth.net).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-certificates.json",
+          "quotes": [
+            "If the web server certificate is signed by a public certificate authority, then Private Access encrypts traffic using HTTPS. If the web server certificate is self-signed, or Private Access is unable to verify the chain of trust to the public certificate authority, then HTTP is used."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-web-server-certificates.json",
+          "quotes": [
+            "For defined applications with Browser Access enabled, if the certificate is signed by a public certificate authority (CA), then HTTPS should be selected as the protocol. If the certificate is self-signed, or Zscaler is unable to verify the chain of trust to the public CA, select HTTP.",
+            "Private Access (ZPA) supports HTTP and HTTPS protocols, and inserts a Via header in HTTP requests (e.g., Via: 1.1 Zscaler-p.zpa-auth.net)."
+          ]
+        }
+      ]
+    },
+    "upload-format-and-limit": {
+      "statement": "An uploaded web server certificate must be a single Base64-encoded ASCII .pem file that includes the certificate and unencrypted private key. Up to 1,000 certificates can be uploaded, and the ranges page lists the same figure. Once uploaded, a certificate can be selected when defining an application within an application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-web-server-certificates.json",
+          "quotes": [
+            "The uploaded signed certificate must include the unencrypted private key.",
+            "You must upload a single Base64-encoded ASCII .pem file, which includes the certificate and unencrypted private key.",
+            "You can upload up to 1,000 certificates.",
+            "After a certificate used for web servers is uploaded, it can then be selected when defining an application within an application segment."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| (web server) Certificates | 1,000 certificates |"
+          ]
+        }
+      ]
+    },
+    "csr-subject-san": {
+      "statement": "A web server CSR's subject has the form CN=<Common Name>,O=<Organization>,ST=<State>,C=<Country>,L=<Location>,OU=<Organizational Unit>, with CN listed first and the other attributes optional. The common name does not need to be a wildcard domain. A SAN, which takes domains only, lets the certificate cover multiple hostnames. The certificate can be signed by a public CA or be self-signed with trust established by the organization's PKI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-creating-certificate-signing-requests-web-server-certificates.json",
+          "quotes": [
+            "CN=<Common Name>,O=<Organization>,ST=<State>,C=<Country>,L=<Location>,OU=<Organizational Unit>",
+            "The CN=<Common Name> attribute must be listed first in the sequence, and all other attributes are optional.",
+            "However, the common name does not need to be a wildcard domain.",
+            "Specifying a SAN allows the certificate to cover multiple hostnames (domains only).",
+            "The certificate can be signed by a public certificate authority (CA) or be a self-signed certificate whose trust is established by your organization's PKI."
+          ]
+        }
+      ]
+    },
+    "replace-expired": {
+      "statement": "An expired web server certificate can be replaced only by uploading a new one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-web-server-certificates.json",
+          "quotes": [
+            "To replace an expired certificate, you must upload a new one."
+          ]
+        }
+      ]
+    },
+    "cname-in-dns": {
+      "statement": "After saving a segment with a Browser Access application, the admin copies its CNAME from the Browser Access page. With a custom certificate the CNAME goes into public DNS and the application FQDN must resolve to it, while with a Zscaler-managed certificate Zscaler manages the public DNS entries and verifies the FQDN. The page's example record is marketing.mockcompany.com. CNAME 3077.217246660302995456.h.d.zpa-app.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If you defined a Browser Access-enabled application within this application segment, complete the following steps after saving the configuration:\n1. Go to the Browser Access page.",
+            "Click the Copy icon next to the Canonical Name (CNAME). You need this CNAME record for your public DNS.",
+            "If you select a custom certificate, add the CNAME information you just copied to your public DNS, and verify that the FQDN for the Browser Access-enabled application resolves to the record.",
+            "If you selected a Zscaler-managed certificate, Zscaler manages the public DNS entries and verifies the FQDN."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-within-existing-application-segment.json",
+          "quotes": [
+            "Add the CNAME information you just copied to your public DNS, and verify that the FQDN for the Browser Access-enabled application resolves to the record.",
+            "marketing.mockcompany.com. CNAME 3077.217246660302995456.h.d.zpa-app.net."
+          ]
+        }
+      ]
+    },
+    "managed-prerequisites": {
+      "statement": "A Zscaler-managed certificate has prerequisites: the internal FQDN must be owned by the tenant and resolvable by the App Connectors, the web server must use relative URLs and be single-tenant with a single hostname, and wildcard cookies, wildcard Browser Access applications, IP-address applications and domains not registered to the account are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "prerequisites-browser-access-applications-managed-zscaler.json",
+          "quotes": [
+            "Your internal fully qualified domain name (FQDN) for the application must be properly named (e.g., internalweb.example1.com), and your App Connectors must resolve to that hostname via your internal DNS. The domain must be owned by the tenant.",
+            "Internal web servers must serve pages with objects linked as relative URLs",
+            "Internal web servers must be a single tenant with a single hostname only.",
+            "Wildcard cookies are not supported.",
+            "Wildcard Browser Access applications aren't supported (e.g., *.example1.com).",
+            "Applications with IP addresses aren't supported.",
+            "Domains that aren't registered by your account aren't supported (e.g., testing.com)."
+          ]
+        }
+      ]
+    },
+    "managed-cors-and-csp": {
+      "statement": "With a Zscaler-managed certificate, an internal application cannot send CORS requests to another internal Browser Access application, and an application that uses a Content-Security-Policy header must accept the external FQDN in the host and origin headers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "prerequisites-browser-access-applications-managed-zscaler.json",
+          "quotes": [
+            "Internal applications sending CORS requests to other internal applications managed by Browser Access aren't supported",
+            "If an application uses the HTTP header Content-Security-Policy, then the application has to accept an external FQDN in the host/origin header."
+          ]
+        }
+      ]
+    },
+    "managed-header-rewrites": {
+      "statement": "For Zscaler-managed Browser Access applications Zscaler rewrites headers: the Host header is set to host:port, the domain attribute is removed from Set-Cookie so only strict cookies are allowed, and the Origin header is set to scheme://host:port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "prerequisites-browser-access-applications-managed-zscaler.json",
+          "quotes": [
+            "Host header: Modified with port configured <host>:<port>.",
+            "Set-Cookie header: The domain attribute is removed to only allow strict cookies.",
+            "Origin header: Modified to add <scheme>://<host>:<port>."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "web-server-cert-required": {
+      "summary": "The web server CSR page says a web server certificate must be uploaded to enable Browser Access for an application, while the application segment page offers a Zscaler-managed certificate as an alternative to a custom one.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-creating-certificate-signing-requests-web-server-certificates.json",
+            "quotes": [
+              "To enable Browser Access for an application, you must upload its web server certificate."
+            ]
+          },
+          "says": "To enable Browser Access for an application, you must upload its web server certificate."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-defined-application-segments.json",
+            "quotes": [
+              "Select the certificate type. If you select Custom, continue with the following substeps. If you want to use a Zscaler-managed certificate, select Managed and go to the next step."
+            ]
+          },
+          "says": "The certificate type is Custom (with a web server certificate selected) or Managed, a Zscaler-managed certificate."
+        }
+      ],
+      "impact": "The two pages differ on whether an upload is needed when a Zscaler-managed certificate is chosen; neither page says the CSR page's rule is limited to custom certificates."
+    }
+  },
+  "gaps": {
+    "cname-visibility": {
+      "kind": "semantic",
+      "title": "Hiding the Zscaler relationship behind a customer-managed CNAME",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The Browser Access CNAME is a real DNS record resolvable by anyone. Security comes from IdP auth at the ingress, not from CNAME obscurity. Tenants with perimeter-secrecy requirements use customer-managed CNAMEs (wiki.example.com -> CNAME -> Zscaler ingress) to hide the Zscaler relationship.\" The help says the CNAME belongs in public DNS but says nothing about what it reveals or about customer-managed CNAME as a concealment option.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
+    }
+  }
+}

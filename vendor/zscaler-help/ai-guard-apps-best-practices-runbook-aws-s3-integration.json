@@ -1,0 +1,865 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Best Practices Runbook: AWS S3 Integration",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-apps-infra/best-practices-runbook-aws-s3-integration",
+    "node": "1546073",
+    "revision": "3242623",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "AI Guard allows you to manage and configure third-party integrations to export incident data using cross-account IAM roles."
+    },
+    {
+      "text": "The following article provides instructions to configure and integrate AWS S3, IAM, and AI Guard so that it can export data into your AWS account."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you can begin configuring AWS and AI Guard, ensure that you have:"
+    },
+    {
+      "item": "An AI Guard subscription.",
+      "depth": 0
+    },
+    {
+      "item": "AWS S3 Metadata and Content buckets in the same region.",
+      "depth": 0
+    },
+    {
+      "item": "A cross-account IAM role.",
+      "depth": 0
+    },
+    {
+      "item": "The required permissions and trust relationship.",
+      "depth": 0
+    },
+    {
+      "text": "You will also need all the following information:"
+    },
+    {
+      "table": [
+        [
+          "Item",
+          "Examples"
+        ],
+        [
+          "AWS account ID",
+          "012345678901"
+        ],
+        [
+          "AWS region",
+          "us-east-1"
+        ],
+        [
+          "Metadata bucket name",
+          "AI Guard Metadata Bucket"
+        ],
+        [
+          "Content bucket name",
+          "AI Guard Content Bucket"
+        ],
+        [
+          "IAM role name",
+          "AI_Guard"
+        ],
+        [
+          "IAM role ARN",
+          "arn:aws:iam::<aws-account-id>:role/<role-name> In the AWS Console, click your username in the top right corner. Copy the Account ID."
+        ],
+        [
+          "Zscaler AI Guard AWS account ID",
+          "012345678901 In the AI Security Admin Portal, go to AI Guard > Log Exports > S3 Event Export > Add Instance. Copy the Zscaler AWS ID."
+        ]
+      ],
+      "strong": [
+        [
+          6,
+          1,
+          121,
+          131
+        ],
+        [
+          7,
+          1,
+          52,
+          60
+        ],
+        [
+          7,
+          1,
+          63,
+          74
+        ],
+        [
+          7,
+          1,
+          77,
+          92
+        ],
+        [
+          7,
+          1,
+          95,
+          107
+        ]
+      ]
+    },
+    {
+      "heading": "Configuration for S3 and AI Guard Integration",
+      "level": 1
+    },
+    {
+      "text": "To configure AWS and AI Guard, complete the following steps:"
+    },
+    {
+      "item": "Create IAM Role and Attach Permissions Policy",
+      "depth": 0
+    },
+    {
+      "item": "Begin with the creation of an IAM role for AI Guard and attaching the necessary permissions policy:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the AWS Console > IAM Dashboard > IAM users > Create user.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          21
+        ],
+        [
+          24,
+          37
+        ],
+        [
+          40,
+          49
+        ],
+        [
+          52,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Under User name, enter AI Guard Admin, and click Next.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          49,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Permissions options, select Attach polices directly.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          25
+        ],
+        [
+          34,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "In the Permissions policies section, select Create policy. The AWS Specify permissions page opens.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          44,
+          57
+        ],
+        [
+          67,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Next to Policy editor, select JSON.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          8,
+          21
+        ],
+        [
+          30,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Paste in the following under Policy editor:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          29,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"ListContentBucket\", \"Effect\": \"Allow\", \"Action\": [\"s3:ListBucket\", \"s3:GetBucketLocation\"], \"Resource\": \"arn:aws:s3:::<content-bucket>\" }, { \"Sid\": \"ReadWriteDeleteContentObjects\", \"Effect\": \"Allow\", \"Action\": [\"s3:GetObject\", \"s3:PutObject\", \"s3:DeleteObject\"], \"Resource\": \"arn:aws:s3:::<content-bucket>/*\" }, { \"Sid\": \"ListMetadataBucket\", \"Effect\": \"Allow\", \"Action\": [\"s3:ListBucket\", \"s3:GetBucketLocation\"], \"Resource\": \"arn:aws:s3:::<metadata-bucket>\" }, { \"Sid\": \"ReadWriteDeleteMetadataObjects\", \"Effect\": \"Allow\", \"Action\": [\"s3:GetObject\", \"s3:PutObject\", \"s3:DeleteObject\"], \"Resource\": \"arn:aws:s3:::<metadata-bucket>/*\" } ] }",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next. The Review and create page appears.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Under Policy name enter: AI_Guard_IAM_Policy. Click Create policy.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          52,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Return to the AWS Set permissions page.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          18,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the Permissions policies section, click the Refresh button, and then search for and select AI_Guard_IAM_Policy.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          47,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Review the information you entered is correct and click Create user.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          56,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Configure the IAM Trust Relationship",
+      "depth": 0
+    },
+    {
+      "item": "To configure the IAM trust relationship between AI Guard and AWS, do the following:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the AWS Console > IAM Dashboard > Roles.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          21
+        ],
+        [
+          24,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Select Create role.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Select Custom trust policy and enter the following:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Effect\": \"Allow\", \"Principal\": { \"AWS\": \"arn:aws:iam::<zscaler-ai-guard-account-id>:root\" }, \"Action\": \"sts:AssumeRole\" } ] }",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next. The Add permissions page appears.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Under Permission policies, select AI_Guard_IAM_Policy.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next. The Name, review and create page opens.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Name the role AI_Guard_Trust_Role, review the trust policy and permissions, and click Create role.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          86,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Add S3 Bucket Policies",
+      "depth": 0
+    },
+    {
+      "item": "In many cases, the IAM role policy is sufficient, especially when the role and buckets are in the same AWS account. However, it can be useful to add explicit bucket policies following the role policy.",
+      "depth": 0
+    },
+    {
+      "item": "Go to the AWS Console > Buckets page.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          21
+        ],
+        [
+          24,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Select your AI Guard Metadata Bucket. Go to the Permissions tab and next to Bucket policy click Edit.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          48,
+          59
+        ],
+        [
+          76,
+          89
+        ],
+        [
+          96,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Policy, enter the following:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"AllowRoleListBucket\", \"Effect\": \"Allow\", \"Principal\": {\"AWS\": \"<role-arn>\"}, \"Action\": [\"s3:ListBucket\", \"s3:GetBucketLocation\"], \"Resource\": \"arn:aws:s3:::<metadata-bucket>\" }, { \"Sid\": \"AllowRoleObjectReadWrite\", \"Effect\": \"Allow\", \"Principal\": {\"AWS\": \"<role-arn>\"}, \"Action\": [\"s3:GetObject\", \"s3:PutObject\", \"s3:DeleteObject\"], \"Resource\": \"arn:aws:s3:::<metadata-bucket>/*\" } ] }",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save changes.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Back on the Buckets page, select your AI Guard Content Bucket. Go to the Permissions tab and next to Bucket policy click Edit.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          12,
+          19
+        ],
+        [
+          73,
+          84
+        ],
+        [
+          101,
+          114
+        ],
+        [
+          121,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "Under Policy, enter the following:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"AllowRoleListBucket\", \"Effect\": \"Allow\", \"Principal\": {\"AWS\": \"<role-arn>\"}, \"Action\": [\"s3:ListBucket\", \"s3:GetBucketLocation\"], \"Resource\": \"arn:aws:s3:::<content-bucket>\" }, { \"Sid\": \"AllowRoleObjectReadWrite\", \"Effect\": \"Allow\", \"Principal\": {\"AWS\": \"<role-arn>\"}, \"Action\": [\"s3:GetObject\", \"s3:PutObject\", \"s3:DeleteObject\"], \"Resource\": \"arn:aws:s3:::<content-bucket>/*\" } ] }",
+      "depth": 1
+    },
+    {
+      "item": "Click Save changes.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Integrate with AI Guard",
+      "depth": 0
+    },
+    {
+      "item": "Finish integrating AI Guard with S3 by completing the following:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the AI Security Admin Portal > AI Guard > Log Exports.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          34
+        ],
+        [
+          37,
+          45
+        ],
+        [
+          48,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "In the S3 Event Export section, click Add Instance.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          38,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add Integration window, enter the following:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Name: S3 AI Guard Integration",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Enabled: Leave enabled.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "AWS S3 Metadata Bucket: AI Guard Metadata Bucket",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "AWS S3 Content Bucket: AI Guard Content Bucket",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Key Prefix: Optional.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Tags: Optional.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Region of Buckets: Your AWS region (for example: us-east-1).",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "IAM Cross-Account Role ARN: arn:aws:iam::<aws-account-id>:role/<role-name>",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "IAM Cross-Account Role External ID: Leave the default value unchanged.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          0,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Export Allowed/Detected Prompts: Configure per policy.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Export Blocked Prompts: Configure per policy.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Export Tool Field: Configure per policy.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Validate Connection to test that the information you entered is correct.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Save Integration after a successful validation.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Troubleshooting",
+      "depth": 0
+    },
+    {
+      "item": "When validating the AI Guard and AWS S3 connection, a failure will cause a pop-up error message to appear within AI Guard to provide you with additional information. The following are issues that can happen, and their most common solutions:",
+      "depth": 0
+    },
+    {
+      "heading": "AssumeRole Fails",
+      "level": 2
+    },
+    {
+      "item": "This occurs when an AWS Security Token Service (STS) AssumeRole request is rejected.",
+      "depth": 0
+    },
+    {
+      "item": "Check that the trust policy includes the correct Zscaler AI Guard AWS account from the Add Integration window.",
+      "depth": 1,
+      "strong": [
+        [
+          87,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Check that the role ARN entered in the UI is correct.",
+      "depth": 1
+    },
+    {
+      "item": "Confirm that no AWS Organizations Service Control Policy (SCP) or permission boundary blocks sts:AssumeRole. For more information, refer to AWS documentation.",
+      "depth": 1
+    },
+    {
+      "item": "Confirm that you didn't add an incorrect sts:ExternalId condition.",
+      "depth": 1
+    },
+    {
+      "heading": "Connection Test Fails with S3 Access Errors",
+      "level": 2
+    },
+    {
+      "item": "This happens when AI Guard is not able to connect to AWS S3.",
+      "depth": 0
+    },
+    {
+      "item": "Check that the IAM role policy includes both the bucket-level and object-level permissions.",
+      "depth": 1
+    },
+    {
+      "item": "Make sure the bucket names are entered correctly.",
+      "depth": 1
+    },
+    {
+      "item": "Confirm that the bucket policies, if used, reference the correct Role ARN.",
+      "depth": 1
+    },
+    {
+      "item": "Check that there isn't an explicit Deny in the bucket policy or organization policy.",
+      "depth": 1
+    },
+    {
+      "heading": "Listing Works, but Write Fails",
+      "level": 2
+    },
+    {
+      "item": "This usually means s3:ListBucket is present but s3:PutObject is missing or incorrectly configured. Verify the object resource paths use arn:aws:s3:::bucket-name/* or the correct prefix-specific equivalent.",
+      "depth": 0
+    },
+    {
+      "heading": "Access to Encrypted Objects Fails",
+      "level": 2
+    },
+    {
+      "item": "This can happen when an IAM User or Role has correct permissions to access a bucket, but it is blocked.",
+      "depth": 0
+    },
+    {
+      "item": "Check that server-side encryption with AWS KMS keys (SSE-KMS) is enabled in the buckets. For more information, refer to AWS documentation.",
+      "depth": 1
+    },
+    {
+      "item": "Check whether the role has KMS permissions.",
+      "depth": 1
+    },
+    {
+      "item": "Check whether the KMS key policy allows the role.",
+      "depth": 1
+    }
+  ]
+}

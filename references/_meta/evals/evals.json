@@ -4,31 +4,32 @@
     "assertions": "Substring/substring-family checks the response MUST contain. Match is case-insensitive unless flagged.",
     "must_cite_files": "Reference files the response MUST link to or quote from. Claim the citation if any normalized path or the file's title appears.",
     "must_not_say": "Common wrong-answer traps the response MUST NOT contain. A hit on any of these is an eval failure regardless of other checks.",
-    "expected_confidence": "How confident the answer should be: 'high' (deterministic), 'medium' (needs tenant snapshot to finalize), 'low' (declines without data), 'declines-to-answer' (refuses to guess). Skill's frontmatter/confidence cue should match.",
-    "tenant_data_required": "If true, the response should cite snapshot/ and warn when empty. If false, the answer is fully derivable from references/."
+    "expected_confidence": "How confident the answer should be: 'high' (deterministic), 'medium' (needs tenant IaC or a live read to finalize), 'low' (declines without data), 'declines-to-answer' (refuses to guess). Skill's frontmatter/confidence cue should match.",
+    "tenant_data_required": "If true, the response should cite overlay IaC or a live zscalerctl read and warn when neither is available. If false, the answer is fully derivable from references/.",
+    "must_cite": "Knowledge-graph subject IDs the response MUST cite (the ID or one of its item IDs). Replaces must_cite_files for converted areas; validated by `node scripts/kb.mjs validate`."
   },
   "evals": [
     {
       "id": 1,
       "prompt": "Is www.reddit.com covered by any URL category in our tenant? If so, which one, and is it blocked, allowed, or just logged?",
-      "expected_output": "A tenant-specific answer citing the matching category and the rule that governs it. If snapshot/ is empty, the skill should say so and still answer the general question of how URL category coverage is evaluated.",
+      "expected_output": "A tenant-specific answer citing the matching category and the rule that governs it. Without tenant data (the IaC repo or a live zscalerctl lookup), the skill should say it cannot see the tenant's categories or rules, note that predefined-category membership needs a live URL lookup, and still answer the general question of how URL category coverage is evaluated.",
       "tenant_data_required": true,
       "expected_confidence": "low",
       "assertions": [
-        "snapshot",
-        "category"
-      ],
-      "must_cite_files": [
-        "references/zia/url-filtering.md"
+        "category",
+        "tenant"
       ],
       "must_not_say": [
         "reddit.com is in the Social Networking category and your tenant blocks it"
+      ],
+      "must_cite": [
+        "zia.url-categories.membership"
       ]
     },
     {
       "id": 2,
-      "prompt": "I have two URL filtering rules that both match the same request \u2014 one is a Block rule lower in the order, one is an Allow rule higher up. Which one wins and why?",
-      "expected_output": "ZIA URL filtering rules evaluate top-down in ascending order; the first match wins. So the Allow rule at higher order (lower order number) fires first and blocks the Block rule from ever running. The answer should also mention that 'matching' has two layers \u2014 category resolution (specificity-wins across custom categories) happens before rule evaluation, so a rule with a wildcard category can silently lose to a lower-priority rule whose custom category has a more-specific exact entry for the URL.",
+      "prompt": "I have two URL filtering rules that both match the same request — one is a Block rule lower in the order, one is an Allow rule higher up. Which one wins and why?",
+      "expected_output": "ZIA URL filtering rules evaluate top-down in ascending order; the first match wins. So the Allow rule at higher order (lower order number) fires first and blocks the Block rule from ever running. The answer should also mention that 'matching' has two layers — category resolution (specificity-wins across custom categories) happens before rule evaluation, so a rule with a wildcard category can silently lose to a lower-priority rule whose custom category has a more-specific exact entry for the URL.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -38,19 +39,20 @@
         "disabled rule",
         "wildcard"
       ],
-      "must_cite_files": [
-        "references/zia/url-filtering.md"
-      ],
       "must_not_say": [
         "Allow always wins over Block",
         "Block always takes precedence",
         "rules are evaluated in parallel"
+      ],
+      "must_cite": [
+        "zia.url-categories.membership",
+        "zia.url-filtering.rule-order"
       ]
     },
     {
       "id": 3,
       "prompt": "If I configure a URL filtering rule matching *.example.com, does it match example.com itself? What about foo.bar.example.com? And does the wildcard care about the scheme (https:// vs http://)?",
-      "expected_output": "Asterisks are not a valid Zscaler wildcard \u2014 the leading-period form `.example.com` is. `.example.com` matches the bare domain, any subdomain up to 5 levels deep, plus implicit right-side path/port/query matching. Scheme is stripped at configuration and ignored at match time \u2014 http:// and https:// both match. `foo.bar.example.com` matches (2 levels, well within 5). The 5-level cap is a non-obvious gotcha worth flagging. An operator report contradicts the doc on asterisk behavior \u2014 see clarification zia-15.",
+      "expected_output": "Asterisks are not a valid Zscaler wildcard — the leading-period form `.example.com` is. `.example.com` matches the bare domain, any subdomain up to 5 levels deep, plus implicit right-side path/port/query matching. Scheme is stripped at configuration and ignored at match time — http:// and https:// both match. `foo.bar.example.com` matches (2 levels, well within 5). The 5-level cap is a non-obvious gotcha worth flagging. An operator report contradicts the doc on asterisk behavior — see clarification zia-15.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -60,20 +62,19 @@
         "implicit",
         "not a valid"
       ],
-      "must_cite_files": [
-        "references/zia/wildcard-semantics.md",
-        "references/zia/url-filtering.md"
-      ],
       "must_not_say": [
         "asterisk wildcards work the way you'd expect",
         "unlimited subdomain depth",
         "you must include the scheme"
+      ],
+      "must_cite": [
+        "zia.url-categories.entry-matching"
       ]
     },
     {
       "id": 4,
       "prompt": "For an HTTPS request to a site we want to block by URL category, does SSL inspection happen before or after the URL filtering decision? Does the answer change if the URL is in a do-not-inspect category?",
-      "expected_output": "Firewall module runs first. Then web module evaluates in two passes for HTTPS: a CONNECT/SNI pass on the destination domain (URL Filtering + CAC + ATP known-bad URLs + Bandwidth run here, on domain only), then the SSL Inspection policy decides whether to decrypt, then \u2014 only if decrypted \u2014 a full-URL pass where the same policy modules re-evaluate with full URL path, method, and body. So URL filtering can block pre-decrypt on the domain even when SSL isn't decrypting. For Do Not Inspect: two sub-variants exist \u2014 'Evaluate Other Policies' still runs the SNI-level URL Filtering check; 'Bypass Other Policies' short-circuits the entire policy chain. An operator who uses Bypass Other Policies expecting URL filtering to still fire will get a silent miss.",
+      "expected_output": "Firewall module runs first. Then web module evaluates in two passes for HTTPS: a CONNECT/SNI pass on the destination domain (URL Filtering + CAC + ATP known-bad URLs + Bandwidth run here, on domain only), then the SSL Inspection policy decides whether to decrypt, then — only if decrypted — a full-URL pass where the same policy modules re-evaluate with full URL path, method, and body. So URL filtering can block pre-decrypt on the domain even when SSL isn't decrypting. For Do Not Inspect: two sub-variants exist — 'Evaluate Other Policies' still runs the SNI-level URL Filtering check; 'Bypass Other Policies' short-circuits the entire policy chain. An operator who uses Bypass Other Policies expecting URL filtering to still fire will get a silent miss.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -84,19 +85,19 @@
         "Evaluate Other Policies",
         "Bypass Other Policies"
       ],
-      "must_cite_files": [
-        "references/zia/ssl-inspection.md"
-      ],
       "must_not_say": [
         "URL filtering only runs after SSL decryption",
         "SSL inspection has no effect on URL filtering",
         "Do Not Inspect always disables URL filtering"
+      ],
+      "must_cite": [
+        "zia.ssl-inspection.pipeline"
       ]
     },
     {
       "id": 5,
       "prompt": "URL filtering says Block on a site, but cloud app control explicitly Allows the specific SaaS app hosted at that URL. What actually happens to the request?",
-      "expected_output": "Cloud App Control evaluates before URL Filtering by default. A CAC Allow for the app short-circuits URL Filtering entirely \u2014 the Block rule never fires \u2014 so the user accesses the app. This default can be overridden with the Advanced-Settings 'Allow Cascading to URL Filtering' toggle, which makes URL Filtering re-evaluate after a CAC Allow. If cascading is on, the Block rule fires and the user is blocked. Cascading is Allow-path-only: a CAC Block always wins regardless of cascading. Per-rule `cascading_enabled` toggle also exists for individual CAC rules when the global toggle is off.",
+      "expected_output": "Cloud App Control evaluates before URL Filtering by default. A CAC Allow for the app short-circuits URL Filtering entirely — the Block rule never fires — so the user accesses the app. This default can be overridden with the Advanced-Settings 'Allow Cascading to URL Filtering' toggle, which makes URL Filtering re-evaluate after a CAC Allow. If cascading is on, the Block rule fires and the user is blocked. Cascading is Allow-path-only: a CAC Block always wins regardless of cascading. Per-rule `cascading_enabled` toggle also exists for individual CAC rules when the global toggle is off.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -105,20 +106,19 @@
         "Allow Cascading",
         "default"
       ],
-      "must_cite_files": [
-        "references/zia/cloud-app-control.md",
-        "references/zia/url-filtering.md"
-      ],
       "must_not_say": [
         "URL Filtering always wins over CAC",
         "rule order across the two policies is flat",
         "CAC has no interaction with URL filtering"
+      ],
+      "must_cite": [
+        "zia.cloud-app-control.precedence"
       ]
     },
     {
       "id": 6,
       "prompt": "In ZPA, I have two application segments and both of them claim *.internal.corp. How does the policy engine pick which segment handles an incoming request to foo.internal.corp?",
-      "expected_output": "Zscaler Client Connector picks the most-specific matching segment on the client side before ZPA sees the request. For two overlapping wildcard segments (both `*.internal.corp`), specificity ranks strictly on the FQDN \u2014 neither is more specific, so the tie-break falls through to configuration semantics. Under the default `EXCLUSIVE` match style, ZPA rejects creating two same-domain segments with conflicting Multimatch settings at save time (clarification zpa-03). If both segments legitimately cover the same FQDN with the same Multimatch style, the engine picks one deterministically \u2014 lab-test territory (clarification zpa-04). Critical operational fact: if the selected segment doesn't cover the destination port, ZCC drops the connection \u2014 it does NOT fall back to a less-specific segment. Bypass setting can override: if one segment has Bypass = Always, it takes priority regardless of specificity.",
+      "expected_output": "Zscaler Client Connector picks the most-specific matching segment on the client side before ZPA sees the request. For two overlapping wildcard segments (both `*.internal.corp`), specificity ranks strictly on the FQDN — neither is more specific, so the tie-break falls through to configuration semantics. Under the default `EXCLUSIVE` match style, ZPA rejects creating two same-domain segments with conflicting Multimatch settings at save time (clarification zpa-03). If both segments legitimately cover the same FQDN with the same Multimatch style, the engine picks one deterministically — lab-test territory (clarification zpa-04). Critical operational fact: if the selected segment doesn't cover the destination port, ZCC drops the connection — it does NOT fall back to a less-specific segment. Bypass setting can override: if one segment has Bypass = Always, it takes priority regardless of specificity.",
       "tenant_data_required": false,
       "expected_confidence": "medium",
       "assertions": [
@@ -128,9 +128,9 @@
         "port",
         "bypass"
       ],
-      "must_cite_files": [
-        "references/zpa/app-segments.md",
-        "references/zpa/policy-precedence.md"
+      "must_cite": [
+        "zpa.app-segments",
+        "zpa.policy"
       ],
       "must_not_say": [
         "segments are evaluated top-down like firewall rules",
@@ -141,7 +141,7 @@
     {
       "id": 7,
       "prompt": "A user on our corporate network can reach a URL that our ZIA URL Filter rule is supposed to block. Remote users on home WiFi get blocked correctly for the same URL. Why is the corporate-network user bypassing the block?",
-      "expected_output": "The user's active ZCC forwarding profile likely has `actionType: NONE` on the TRUSTED branch. When set, ZCC bypasses ZIA entirely for traffic on trusted networks \u2014 ZIA's URL Filter rules never see that traffic, so they can't block it. The remote user's UNTRUSTED branch probably has `actionType: TUNNEL` or equivalent, which forwards through ZIA where the URL Filter rule fires as expected. Diagnose by inspecting the Forwarding Profile's per-branch action and checking whether the TrustedNetwork criteria are broad enough that home networks might also match (footgun).",
+      "expected_output": "The user's active ZCC forwarding profile likely has `actionType: NONE` on the TRUSTED branch. When set, ZCC bypasses ZIA entirely for traffic on trusted networks — ZIA's URL Filter rules never see that traffic, so they can't block it. The remote user's UNTRUSTED branch probably has `actionType: TUNNEL` or equivalent, which forwards through ZIA where the URL Filter rule fires as expected. Diagnose by inspecting the Forwarding Profile's per-branch action and checking whether the TrustedNetwork criteria are broad enough that home networks might also match (footgun).",
       "tenant_data_required": false,
       "expected_confidence": "medium",
       "assertions": [
@@ -150,18 +150,18 @@
         "NONE",
         "ZIA bypassed"
       ],
-      "must_cite_files": [
-        "references/zcc/forwarding-profile.md"
-      ],
       "must_not_say": [
         "ZIA URL Filter rules apply to all traffic regardless of the network",
         "the user has admin override"
+      ],
+      "must_cite": [
+        "zcc.forwarding-profiles"
       ]
     },
     {
       "id": 8,
       "prompt": "We migrated to Z-Tunnel 2.0 but dashboards show most users still connecting via Z-Tunnel 1.0. What's the most likely cause?",
-      "expected_output": "Z-Tunnel 2.0 requires the device's network to provide a **single-IP NAT** \u2014 all connections from one device must egress through the same NAT IP. When different connections land on different public IPs (multi-NAT, carrier-grade NAT without session-stickiness, some corporate networks), Z-Tunnel 2.0's control and data connections reach different Public Service Edges, the 2.0 handshake fails, and ZCC silently falls back to Z-Tunnel 1.0. The user sees a working tunnel \u2014 just not the one they configured. Verify the NAT path is single-IP for the affected users. GRE-tunneled traffic is also incompatible with Z-Tunnel 2.0 and should not be routed through it.",
+      "expected_output": "Z-Tunnel 2.0 requires the device's network to provide a **single-IP NAT** — all connections from one device must egress through the same NAT IP. When different connections land on different public IPs (multi-NAT, carrier-grade NAT without session-stickiness, some corporate networks), Z-Tunnel 2.0's control and data connections reach different Public Service Edges, the 2.0 handshake fails, and ZCC silently falls back to Z-Tunnel 1.0. The user sees a working tunnel — just not the one they configured. Verify the NAT path is single-IP for the affected users. GRE-tunneled traffic is also incompatible with Z-Tunnel 2.0 and should not be routed through it.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -170,18 +170,18 @@
         "1.0",
         "silent"
       ],
-      "must_cite_files": [
-        "references/zcc/z-tunnel.md"
-      ],
       "must_not_say": [
         "Z-Tunnel 2.0 requires a specific ZCC version only",
         "Z-Tunnel 2.0 failback only happens when TLS handshake fails"
+      ],
+      "must_cite": [
+        "zcc.z-tunnel"
       ]
     },
     {
       "id": 9,
       "prompt": "ZDX is reporting our user's score as 38 but they say everything is fine. Is ZDX broken?",
-      "expected_output": "ZDX Score is not an average \u2014 it's computed **lowest-value-wins within each time window**. Probes fire every 5 minutes; the lowest value in each hour becomes the hourly score; those roll up (via lowest-value-again or averaged-lowest-per-user depending on scope) into the displayed number. A user who has mostly-fine sessions with one bad 5-minute sample per hour gets a low score even if their subjective experience is mostly good. 38 is in the Okay bucket (34-65), not Poor (0-33). Check the underlying metrics \u2014 Page Fetch Time trend, Cloud Path hop-by-hop latency, and device health \u2014 rather than reacting to the score alone. Starting a Diagnostics Session on the affected device gets 1-minute-resolution data for deeper investigation.",
+      "expected_output": "ZDX Score is not an average — it's computed **lowest-value-wins within each time window**. Probes fire every 5 minutes; the lowest value in each hour becomes the hourly score; those roll up (via lowest-value-again or averaged-lowest-per-user depending on scope) into the displayed number. A user who has mostly-fine sessions with one bad 5-minute sample per hour gets a low score even if their subjective experience is mostly good. 38 is in the Okay bucket (34-65), not Poor (0-33). Check the underlying metrics — Page Fetch Time trend, Cloud Path hop-by-hop latency, and device health — rather than reacting to the score alone. Starting a Diagnostics Session on the affected device gets 1-minute-resolution data for deeper investigation.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -190,78 +190,76 @@
         "not an average",
         "Diagnostics Session"
       ],
-      "must_cite_files": [
-        "references/zdx/overview.md"
-      ],
       "must_not_say": [
         "ZDX averages across the time range",
         "ZDX Score is just the mean"
+      ],
+      "must_cite": [
+        "zdx.score",
+        "zdx.score.calculation"
       ]
     },
     {
       "id": 10,
       "prompt": "I have a URL Filter rule with action Isolate targeting the Miscellaneous or Unknown category. SSL Inspection has a Do-Not-Inspect rule for that category. Users are reaching sites in the category directly without an isolated browser. Why isn't the Isolate action firing?",
-      "expected_output": "The Isolate action requires SSL Inspection to decrypt the HTTPS request in order to inject a 302 redirect pointing at the isolation profile URL. When SSL is bypassed for the category, ZIA can only match at the SNI layer pre-decrypt \u2014 URL Filter evaluation still happens (SNI is the URL for matching purposes), but the action that would fire a 302 redirect can't execute because there's no HTTP-layer request to intercept. The user's connection proceeds to the destination without isolation. Fix: remove the SSL bypass for the category, or narrow the bypass so it doesn't cover URLs the Isolate rule targets. This is part of the general SSL-bypass-as-cross-policy-gate pattern \u2014 DLP, Sandbox, Malware Protection, and Isolate all silently degrade when SSL is bypassed for the affected traffic.",
+      "expected_output": "The Isolate action requires SSL Inspection to decrypt the HTTPS request in order to redirect it to the isolation profile. When SSL is bypassed for the category, ZIA can only match at the SNI layer pre-decrypt — URL Filter evaluation still happens (SNI is the URL for matching purposes), but the redirect to isolation can't execute because there's no HTTP-layer request to intercept. The user's connection proceeds to the destination without isolation. Fix: remove the SSL bypass for the category, or narrow the bypass so it doesn't cover URLs the Isolate rule targets. This is part of the general SSL-bypass-as-cross-policy-gate pattern — DLP, Sandbox, Malware Protection, and Isolate all silently degrade when SSL is bypassed for the affected traffic.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
         "SSL",
         "decrypt",
-        "302",
         "silently"
-      ],
-      "must_cite_files": [
-        "references/zbi/overview.md",
-        "references/zia/ssl-inspection.md"
       ],
       "must_not_say": [
         "Isolate action works regardless of SSL Inspection",
         "SSL bypass doesn't affect URL Filter actions"
+      ],
+      "must_cite": [
+        "zia.ssl-inspection.pipeline",
+        "zia.url-filtering.actions",
+        "zbi.policy"
       ]
     },
     {
       "id": 11,
-      "prompt": "Our Conditional Access rule in ZIA URL Filtering matches traffic but no MFA prompt ever appears \u2014 users just get access denied. What should we check first?",
-      "expected_output": "Two silent-miss causes, both common. (1) **Step-up authentication is OIDC-only.** If the tenant's ZIdentity IdP integration is SAML-based, Conditional Access rules match but no step-up MFA prompt can be delivered \u2014 the rule's step-up action silently fails and the user sees deny. Migrate to OIDC IdP integration to enable step-up. (2) **Step-up prompts are delivered via Zscaler Client Connector.** Users on GRE/IPSec/PAC (non-ZCC) forwarding paths can't receive the prompt \u2014 ZCC is the only channel that carries the step-up challenge. Users on those forwarding paths hitting a Conditional rule will see deny without a prompt. Diagnosis order: IdP integration type first (SAML vs OIDC), then forwarding path (ZCC vs GRE/IPSec). Both constraints apply to ZPA's Require Approval action too.",
+      "prompt": "Our Conditional Access rule in ZIA URL Filtering matches traffic but no MFA prompt ever appears — users just get access denied. What should we check first?",
+      "expected_output": "Start with the IdP integration. Zscaler's help says step-up authentication is supported only with OIDC-based external IdP integrations, while another help page frames OIDC as a recommendation because most IdPs support step-up only over OIDC; either way, a SAML-only integration is the first suspect when a Conditional Access rule matches but no MFA prompt appears. What a SAML-only tenant sees in that case is not documented, and the older claim that the prompt is delivered only through Client Connector (so GRE/IPSec/PAC users get a deny) is unverified: check it against the tenant before relying on it.",
       "tenant_data_required": false,
-      "expected_confidence": "high",
+      "expected_confidence": "medium",
       "assertions": [
         "OIDC",
-        "SAML",
-        "Client Connector",
-        "GRE"
-      ],
-      "must_cite_files": [
-        "references/zidentity/step-up-authentication.md"
+        "SAML"
       ],
       "must_not_say": [
-        "SAML IdPs support step-up authentication",
-        "Conditional Access works over GRE tunnels"
+        "SAML IdPs support step-up authentication"
+      ],
+      "must_cite": [
+        "zidentity.step-up"
       ]
     },
     {
       "id": 12,
       "prompt": "I'm configuring an Authentication Level tree in ZIdentity. Parent AL1 is password-only with 8-hour validity. Child AL2 is password+TOTP with 1-hour validity. The system rejects the save with a validation error on the validity period. Why?",
-      "expected_output": "ZIdentity's Authentication Level rule is counter-intuitive: **parent validity must be LESS THAN child validity**. AL1 at 8 hours means AL2 must have validity >= 8 hours \u2014 likely 24 hours for a stronger-assurance child. The tree semantic is that a higher-assurance authentication demonstrates more about the user's identity and therefore persists longer; the parent's validity is the weakest guarantee in the branch and has to be the shortest. Most admins get this wrong on first attempt because the intuitive model is 'stronger auth \u2192 shorter session' (more sensitive = more frequent re-auth). ZIdentity enforces the opposite at save time. Flip the validities \u2014 AL1=8h (or less), AL2=24h (or more) \u2014 and the save will succeed.",
+      "expected_output": "The save rule is that a parent level's validity period must be less than the validity of every sub-level, and the tree runs from strong to weak: authenticating at a higher (parent) level satisfies policies that require its sub-levels. A tree with password-only AL1 as the parent (8 hours) and password+TOTP AL2 as its child (1 hour) is upside down on both counts, so the save fails on the validity check. Make the stronger level the parent: AL2 (password+TOTP) as the parent with the shorter validity, and the password-only level beneath it with a longer one.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
         "less than",
         "parent",
-        "counter-intuitive"
-      ],
-      "must_cite_files": [
-        "references/zidentity/step-up-authentication.md"
+        "sub-level"
       ],
       "must_not_say": [
         "parent validity must be longer than child",
-        "more sensitive levels require shorter sessions"
+        "the parent is the weakest level"
+      ],
+      "must_cite": [
+        "zidentity.step-up.levels"
       ]
     },
     {
       "id": 13,
       "prompt": "We deployed Cloud Connector in AWS yesterday. Today some workloads can't reach the internet at all. Admin dashboard shows one of our configured gateways is unhealthy. What's the most likely explanation?",
-      "expected_output": "Cloud Connector's default is **fail-close**: when all gateways are unreachable, internet-bound workload traffic is dropped, not bypassed. This is the opposite of the typical enterprise 'fail-open = broken access' intuition. The failover path is primary \u2192 secondary \u2192 tertiary (tertiary is automatic even if only two gateways were configured), with ~30-second failover between them. If workloads are failing completely, check whether secondary and tertiary gateways are also unhealthy (not just primary). Alternatively, the tenant might be configured fail-open but a specific rule is still blocking the traffic. If operational posture prefers availability over inspection during outages, flip to fail-open explicitly. Note that fail-open means traffic egresses direct, skipping Zscaler entirely \u2014 a security trade-off the tenant has to accept.",
+      "expected_output": "Cloud Connector's default gateway configuration is **fail-close**: internet-bound workload traffic is dropped when no Cloud Connector in the group can reach any Internet & SaaS Service Edge. The failover path is primary → secondary (about 30 seconds), and by default it also tries a tertiary Service Edge if both fail. If workloads are failing completely, check whether the secondary and tertiary paths are also unhealthy, not just the primary. Customers can change the configuration to fail-open; where fail-open traffic egresses, and whether the toggle is the forwarding gateway's `failClosed` setting, is not settled by the sources, so treat it as open rather than assuming traffic goes direct.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -270,18 +268,18 @@
         "secondary",
         "30"
       ],
-      "must_cite_files": [
-        "references/cloud-connector/overview.md"
-      ],
       "must_not_say": [
         "fail-open is the default",
         "Cloud Connector always bypasses when gateways are down"
+      ],
+      "must_cite": [
+        "cloud-connector.overview.gateway-failover"
       ]
     },
     {
       "id": 14,
       "prompt": "Our ZIA DLP policy shows a violation in Web Insights logs, but no incident appears in Workflow Automation for that event. Where should I diagnose first?",
-      "expected_output": "The DLP-incident pipeline is a dependency chain: (1) SSL Inspection decrypts the traffic \u2014 DLP engines can't see content without decrypt; (2) ZIA DLP rule is configured and enabled \u2014 without a matching rule there's no detection; (3) ZIA\u2192ZWA integration is enabled on the tenant \u2014 without it, ZIA detects but doesn't forward to ZWA; (4) ZWA ingestion is working \u2014 rare infrastructure issue; (5) Workflow mapping matches the incident's attributes \u2014 if not, incident appears in ZWA but no workflow fires. Since the Web Insights log shows the violation, steps 1 and 2 are confirmed fine. Diagnose step 3 next: verify ZIA\u2192ZWA integration is enabled. Don't skip ahead to workflow mappings \u2014 the incident needs to reach ZWA first before workflow mapping can fire.",
+      "expected_output": "The DLP-incident pipeline is a dependency chain: (1) SSL Inspection decrypts the traffic — DLP engines can't see content without decrypt; (2) ZIA DLP rule is configured and enabled — without a matching rule there's no detection; (3) ZIA→ZWA integration is enabled on the tenant — without it, ZIA detects but doesn't forward to ZWA; (4) ZWA ingestion is working — rare infrastructure issue; (5) Workflow mapping matches the incident's attributes — if not, incident appears in ZWA but no workflow fires. Since the Web Insights log shows the violation, steps 1 and 2 are confirmed fine. Diagnose step 3 next: verify ZIA→ZWA integration is enabled. Don't skip ahead to workflow mappings — the incident needs to reach ZWA first before workflow mapping can fire.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -290,18 +288,18 @@
         "integration",
         "SSL"
       ],
-      "must_cite_files": [
-        "references/zwa/overview.md"
-      ],
       "must_not_say": [
         "Check ZWA workflow mappings first",
         "ZWA ingests all ZIA security events automatically"
+      ],
+      "must_cite": [
+        "zwa.incidents"
       ]
     },
     {
       "id": 15,
       "prompt": "An app developer on our team asked about deploying ZSDK on their iOS app. Is that the same thing as ZCC, and does it use the same Service Edges?",
-      "expected_output": "ZSDK and ZCC are different products. ZCC (Zscaler Client Connector) is the endpoint agent installed on user devices for enterprise zero-trust connectivity. ZSDK is a mobile SDK that app developers embed into their own consumer-facing iOS/Android apps \u2014 end users never install a separate Zscaler agent. Important architectural detail: ZSDK shares App Connector + Private Service Edge infrastructure with ZPA (same underlying broker model), but runs on a dedicated multi-tenant cloud at admin.zsdkone.net, not the same control plane as ZPA. So 'same Service Edges' in the architectural sense (same software stack), but a separate cloud instance.",
+      "expected_output": "ZSDK and ZCC are different products. ZCC (Zscaler Client Connector) is the endpoint agent installed on user devices for enterprise zero-trust connectivity. ZSDK is a mobile SDK that app developers embed into their own consumer-facing iOS/Android apps — end users never install a separate Zscaler agent. Important architectural detail: ZSDK shares App Connector + Private Service Edge infrastructure with ZPA (same underlying broker model), but runs on a dedicated multi-tenant cloud at admin.zsdkone.net, not the same control plane as ZPA. So 'same Service Edges' in the architectural sense (same software stack), but a separate cloud instance.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -311,8 +309,8 @@
         "admin.zsdkone.net",
         "shared infrastructure"
       ],
-      "must_cite_files": [
-        "references/_meta/portfolio-map.md"
+      "must_cite": [
+        "shared.zsdk"
       ],
       "must_not_say": [
         "ZSDK is just ZCC for mobile",
@@ -322,8 +320,8 @@
     },
     {
       "id": 16,
-      "prompt": "We're setting up a ZPA Microtenant for a new business unit. The admin asked us to send the admin password \u2014 they need it for a Terraform pipeline. We created the Microtenant a week ago. How do we recover the password?",
-      "expected_output": "You can't. The admin password for a ZPA Microtenant is shown ONCE at creation time and cannot be retrieved later \u2014 Zscaler doesn't store it in a recoverable form on the admin side after creation. If you didn't capture it then, the only path forward is to delete the Microtenant and recreate it (which will require re-creating any Microtenant-scoped App Segments, Server Groups, etc. that were tied to it via microtenantId). Going forward: when creating a Microtenant, the password must be captured from the creation response immediately and stored securely (vault / secrets manager) \u2014 there's no API to retrieve it after the fact.",
+      "prompt": "We're setting up a ZPA Microtenant for a new business unit. The admin asked us to send the admin password — they need it for a Terraform pipeline. We created the Microtenant a week ago. How do we recover the password?",
+      "expected_output": "You can't. The admin password for a ZPA Microtenant is shown ONCE at creation time and cannot be retrieved later — Zscaler doesn't store it in a recoverable form on the admin side after creation. If you didn't capture it then, the only path forward is to delete the Microtenant and recreate it (which will require re-creating any Microtenant-scoped App Segments, Server Groups, etc. that were tied to it via microtenantId). Going forward: when creating a Microtenant, the password must be captured from the creation response immediately and stored securely (vault / secrets manager) — there's no API to retrieve it after the fact.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -332,8 +330,8 @@
         "recreate",
         "secrets manager"
       ],
-      "must_cite_files": [
-        "references/zpa/microtenants.md"
+      "must_cite": [
+        "zpa.microtenants"
       ],
       "must_not_say": [
         "password reset via the admin console",
@@ -343,8 +341,8 @@
     },
     {
       "id": 17,
-      "prompt": "Our Cloud Connector deployment in Azure uses a single-NIC VM (not Zscaler's published Terraform module \u2014 we built our own with one NIC for management AND service traffic). It mostly works but we're seeing intermittent failures. The skill says dual-NIC is required. Is our deployment wrong?",
-      "expected_output": "The skill says Zscaler's reference Terraform module deploys with two NICs (management primary + service with IP forwarding enabled). That's a reference implementation \u2014 one valid pattern, not specification. The runtime requirement of the Cloud Connector VM image vs. enforced convention of the reference module isn't separately documented by Zscaler. Your single-NIC deployment may or may not be supported at the runtime level; the failures you're seeing could be related but aren't proof either way. Diagnostic path: (1) check whether the symptoms correlate with management traffic (heartbeat / control plane) vs service traffic (workload egress) \u2014 that's the symptom dual-NIC separation prevents; (2) compare your deployment against `iac/` for any deviations beyond NIC count; (3) consider opening a Zscaler Support case to confirm runtime support for single-NIC. Don't assume your deployment is wrong because it diverges from Zscaler's reference; do verify it's runtime-supported before committing further to the pattern.",
+      "prompt": "Our Cloud Connector deployment in Azure uses a single-NIC VM (not Zscaler's published Terraform module — we built our own with one NIC for management AND service traffic). It mostly works but we're seeing intermittent failures. The skill says dual-NIC is required. Is our deployment wrong?",
+      "expected_output": "The skill says Zscaler's reference Terraform module deploys with two NICs (management primary + service with IP forwarding enabled). That's a reference implementation — one valid pattern, not specification. The runtime requirement of the Cloud Connector VM image vs. enforced convention of the reference module isn't separately documented by Zscaler. Your single-NIC deployment may or may not be supported at the runtime level; the failures you're seeing could be related but aren't proof either way. Diagnostic path: (1) check whether the symptoms correlate with management traffic (heartbeat / control plane) vs service traffic (workload egress) — that's the symptom dual-NIC separation prevents; (2) compare your deployment against `iac/` for any deviations beyond NIC count; (3) consider opening a Zscaler Support case to confirm runtime support for single-NIC. Don't assume your deployment is wrong because it diverges from Zscaler's reference; do verify it's runtime-supported before committing further to the pattern.",
       "tenant_data_required": false,
       "expected_confidence": "medium",
       "assertions": [
@@ -353,42 +351,42 @@
         "verify",
         "Zscaler Support"
       ],
-      "must_cite_files": [
-        "references/cloud-connector/azure-deployment.md"
-      ],
       "must_not_say": [
         "Your deployment is definitively wrong",
         "Single-NIC is impossible",
         "Zscaler doesn't support custom deployments"
+      ],
+      "must_cite": [
+        "cloud-connector.azure.network"
       ]
     },
     {
       "id": 18,
-      "prompt": "We enabled Tenant Profiles to block personal Microsoft 365 accounts. We tested with a personal email and it still works fine \u2014 the user can sign in to consumer Microsoft 365 from a corporate device. Tenant Profile is configured correctly per the help docs. What's wrong?",
-      "expected_output": "Most likely: the SSL Inspection rule that's supposed to inspect login.microsoftonline.com traffic for tenant restriction is firing AFTER (lower priority than) the M365 One-Click bypass rule, OR the predefined Microsoft 365 Click-to-Run rule (which uses 'Do Not Inspect + Bypass Other Policies'). Tenant restriction works by injecting the Restrict-Access-To-Tenants HTTP header into the login flow \u2014 that requires SSL inspection to actually decrypt the traffic. If a bypass rule fires first for that domain, ZIA never gets to inspect the login flow, the header never gets injected, and tenant restriction silently does nothing \u2014 no error, no log, just personal accounts working as if unrestricted. Diagnostic: check SSL Inspection rule order. The Microsoft Login Services rule must beat any M365 One-Click bypass / Click-to-Run bypass in evaluation order. Also verify ms_login_services_tr_v2 protocol flag is correct for your tenant's Entra version.",
+      "prompt": "We enabled Tenant Profiles to block personal Microsoft 365 accounts. We tested with a personal email and it still works fine — the user can sign in to consumer Microsoft 365 from a corporate device. Tenant Profile is configured correctly per the help docs. What's wrong?",
+      "expected_output": "Most likely: the SSL Inspection rule that's supposed to inspect login.microsoftonline.com traffic for tenant restriction is firing AFTER (lower priority than) the M365 One-Click bypass rule, OR the predefined Microsoft 365 Click-to-Run rule (which uses 'Do Not Inspect + Bypass Other Policies'). Tenant restriction works by injecting the Restrict-Access-To-Tenants HTTP header into the login flow — that requires SSL inspection to actually decrypt the traffic. If a bypass rule fires first for that domain, ZIA never gets to inspect the login flow, the header never gets injected, and the tenant profile has no effect and personal accounts work as if unrestricted (whether any error or log entry appears is an open gap). Diagnostic: check SSL Inspection rule order. The Microsoft Login Services rule must beat any M365 One-Click bypass / Click-to-Run bypass in evaluation order. Also verify ms_login_services_tr_v2 protocol flag is correct for your tenant's Entra version.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
         "rule order",
         "SSL inspection",
         "header injection",
-        "silently",
         "bypass"
-      ],
-      "must_cite_files": [
-        "references/zia/tenant-profiles.md",
-        "references/zia/saas-app-quirks.md"
       ],
       "must_not_say": [
         "Tenant Profiles don't work for M365",
         "This is a known Microsoft bug",
         "Reconfigure the Tenant Profile object"
+      ],
+      "must_cite": [
+        "zia.saas-apps.tenant-restriction-order",
+        "zia.tenant-profiles.ssl-prerequisite",
+        "zia.tenant-profiles.wire-mechanic"
       ]
     },
     {
       "id": 19,
-      "prompt": "Our ZPA Access Policy has a posture criterion. The policy isn't matching even though we know the user's device meets the posture requirements. We checked the Posture Profile object in ZPA \u2014 looks correct. What are we missing?",
-      "expected_output": "Two-layer issue worth checking: ZPA Posture Profiles are the policy-side consumer of posture signals; ZCC is the evaluation layer that produces the signals. (1) Verify ZCC actually evaluated posture on the device \u2014 ZCC posture eval runs every 15 minutes by default (configurable in 4.4+ Windows). If the user's posture state recently changed, the next eval cycle hasn't run. (2) Verify the policy criterion uses `posture_udid` as the lhs, NOT the Posture Profile's `id`. Common configuration mistake: using id makes the criterion silently never match. The TF provider validates this at plan time; manual API edits or older state can carry the wrong value. (3) Check whether the posture check itself failed (e.g., unreadable cert path on Linux fails closed by default) \u2014 a 'fails closed' state means ZCC reports the device as failing posture even when other signals look fine. Diagnostic: check ZCC's local posture state for the device, then verify the policy's lhs/rhs values against `posture_udid`/`true` semantics.",
+      "prompt": "Our ZPA Access Policy has a posture criterion. The policy isn't matching even though we know the user's device meets the posture requirements. We checked the Posture Profile object in ZPA — looks correct. What are we missing?",
+      "expected_output": "Two-layer issue worth checking: ZPA Posture Profiles are the policy-side consumer of posture signals; ZCC is the evaluation layer that produces the signals. (1) Verify ZCC actually evaluated posture on the device — ZCC posture eval runs every 15 minutes by default (configurable in 4.4+ Windows). If the user's posture state recently changed, the next eval cycle hasn't run. (2) Verify the policy criterion uses `posture_udid` as the lhs, NOT the Posture Profile's `id`. Common configuration mistake: using id makes the criterion silently never match. The TF provider validates this at plan time; manual API edits or older state can carry the wrong value. (3) Check whether the posture check itself failed (e.g., unreadable cert path on Linux fails closed by default) — a 'fails closed' state means ZCC reports the device as failing posture even when other signals look fine. Diagnostic: check ZCC's local posture state for the device, then verify the policy's lhs/rhs values against `posture_udid`/`true` semantics.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -398,9 +396,9 @@
         "15 minutes",
         "ZCC evaluates"
       ],
-      "must_cite_files": [
-        "references/zpa/posture-profiles.md",
-        "references/zcc/device-posture.md"
+      "must_cite": [
+        "zpa.posture-profiles",
+        "zcc.device-posture"
       ],
       "must_not_say": [
         "Posture is a single layer in ZPA",
@@ -422,16 +420,15 @@
         "MCP",
         "open gap"
       ],
-      "must_cite_files": [
-        "references/ai-security/ai-guard-coverage.md",
-        "references/_meta/portfolio-map.md"
-      ],
       "must_not_say": [
         "AI Guard does not support Terraform",
         "zscaler_aiguard",
         "zia_aiguard",
         "captured Terraform resource exists",
         "AI Guard Terraform resource exists"
+      ],
+      "must_cite": [
+        "ai-security.ai-guard.admin-api"
       ]
     },
     {
@@ -448,14 +445,13 @@
         "AI Red Teaming",
         "distinct"
       ],
-      "must_cite_files": [
-        "references/ai-security/index.md",
-        "references/ai-security/overview.md"
-      ],
       "must_not_say": [
         "AI Guardrails is a separate runtime enforcement product",
         "merge all AI guardrail controls into AI Guard",
         "guardrails-only source proves AI Guard admin API coverage"
+      ],
+      "must_cite": [
+        "ai-security.family"
       ]
     },
     {
@@ -475,7 +471,6 @@
         "host-specific"
       ],
       "must_cite_files": [
-        "references/ai-security/ai-guard.md",
         "vendor/zguard-ai-integrations/github-actions/README.md",
         "vendor/zguard-ai-integrations/github-actions/scripts/scan_policy.py",
         "vendor/zguard-ai-integrations/github-actions/.github/workflows/model-security-scan.yml"
@@ -485,34 +480,39 @@
         "evidence that the AI Guard admin plane is programmable",
         "GitHub Actions configures AI Guard policy control",
         "Vertex deployment is required for AI Guard scanning"
+      ],
+      "must_cite": [
+        "ai-security.ai-guard.integrations"
       ]
     },
     {
       "id": 23,
       "prompt": "Use /z-researcher discipline. Can this repo document Zscaler AI Red Teaming APIs, Terraform/IaC resources, SDK coverage, MCP/tooling, or operational integration with AI Guard? Check Help/product docs, SDK/API, Terraform/IaC, MCP/tooling, public integration repos, and existing AI Security references before answering.",
-      "expected_output": "A sparse-source restraint answer: AI Red Teaming can be described only at captured marketing/overview level as a distinct AI Security component for offline/scheduled vulnerability assessment of customer-deployed LLM applications. The response should name the source classes checked, state that no captured API, SDK, Terraform/IaC resource, MCP tool, public integration example, or confirmed AI Guard workflow interlock was found, and keep AI Red Teaming separate from AI Guard. It must not treat absence in captured sources as global product nonexistence.",
+      "expected_output": "A source-boundary answer: the captured AI Security API specification serves 97 AI Red Teaming operations from the aisecurity/airt server (AI apps and integration tests, probes, test runs, scheduled tests, reports, remediation), so the API surface can be documented from the contract, while the description of the product itself rests on the product page. The response should name the source classes checked and state that no SDK client, Terraform/IaC resource, MCP tool, public integration example, or confirmed AI Guard workflow interlock was found, and keep AI Red Teaming separate from AI Guard. It must not treat absence in captured sources as global product nonexistence.",
       "tenant_data_required": false,
       "expected_confidence": "medium",
       "assertions": [
         "AI Red Teaming",
         "source classes checked",
-        "marketing",
         "API",
+        "97",
         "SDK",
         "Terraform",
         "MCP",
         "distinct"
       ],
       "must_cite_files": [
-        "references/ai-security/overview.md",
-        "vendor/zscaler-help/ai-security-marketing.md"
+        "vendor/zscaler-help/ai-security-marketing.json"
       ],
       "must_not_say": [
-        "AI Red Teaming API endpoint",
+        "no captured AI Red Teaming API",
         "zscaler_ai_red_teaming",
         "AI Red Teaming Terraform resource",
         "AI Red Teaming output automatically configures AI Guard policy",
         "AI Red Teaming is part of AI Guard"
+      ],
+      "must_cite": [
+        "ai-security.family"
       ]
     },
     {
@@ -532,8 +532,7 @@
         "instead"
       ],
       "must_cite_files": [
-        "references/ai-security/overview.md",
-        "vendor/zscaler-help/ai-security-marketing.md"
+        "vendor/zscaler-help/ai-security-marketing.json"
       ],
       "must_not_say": [
         "docs should say AI Red Teaming findings automatically generate AI Guard policy recommendations",
@@ -541,12 +540,15 @@
         "AI Red Teaming output automatically configures AI Guard policy",
         "product-family adjacency proves integration",
         "AI Red Teaming is part of AI Guard"
+      ],
+      "must_cite": [
+        "ai-security.family"
       ]
     },
     {
       "id": 25,
-      "prompt": "Use /z-soc discipline. A stakeholder wants you to classify a tenant posture concern as OWASP A01 / CWE-284 because 'broad access is always broken access control.' The only tenant evidence provided is: an emergency admin role grants FULL Emergency Access permissions to a broad admin group, with no recent approval artifact or time-bound exception in the supplied snapshot. Produce the finding shape. Do not use OWASP, NIST, MITRE, CISA, or CWE as proof of the finding; use them only as taxonomy labels after the tenant evidence. Include what would disprove or downgrade the finding.",
-      "expected_output": "An evidence-first SOC finding using the response-template header: title plus Severity, Record type, Category, Taxonomy, Source, Confidence, and Status. It should cite the tenant snapshot fact first, then map the broad emergency-admin permission to access governance / authorization taxonomy such as OWASP A01 and CWE-284 or CWE-266 only as classification. The answer must include what to fix, why the mapping applies, confidence, and what would disprove or downgrade it, such as a narrower group, explicit approval artifact, time-bound exception, compensating step-up approval, or proof the role is inactive. It should not claim exploitation, include scanner-only metadata such as run ID or owner, or treat standards as evidence.",
+      "prompt": "Use /z-soc discipline. A stakeholder wants you to classify a tenant posture concern as OWASP A01 / CWE-284 because 'broad access is always broken access control.' The only tenant evidence provided is: an emergency admin role grants FULL Emergency Access permissions to a broad admin group, with no recent approval artifact or time-bound exception in the supplied IaC. Produce the finding shape. Do not use OWASP, NIST, MITRE, CISA, or CWE as proof of the finding; use them only as taxonomy labels after the tenant evidence. Include what would disprove or downgrade the finding.",
+      "expected_output": "An evidence-first SOC finding using the response-template header: title plus Severity, Record type, Category, Taxonomy, Source, Confidence, and Status. It should cite the tenant IaC fact first, then map the broad emergency-admin permission to access governance / authorization taxonomy such as OWASP A01 and CWE-284 or CWE-266 only as classification. The answer must include what to fix, why the mapping applies, confidence, and what would disprove or downgrade it, such as a narrower group, explicit approval artifact, time-bound exception, compensating step-up approval, or proof the role is inactive. It should not claim exploitation, include scanner-only metadata such as run ID or owner, or treat standards as evidence.",
       "tenant_data_required": true,
       "expected_confidence": "medium",
       "assertions": [
@@ -594,9 +596,11 @@
         "vendor confirmation"
       ],
       "must_cite_files": [
-        "references/zpa/app-connector.md",
-        "references/zpa/api-divergences.md",
         "vendor/zscaler-help/zpa-create-operation-drift-capture.md"
+      ],
+      "must_cite": [
+        "zpa.app-connectors",
+        "zpa.api.operation-inventory"
       ],
       "must_not_say": [
         "Zscaler removed App Connector Group creation",
@@ -607,12 +611,11 @@
     },
     {
       "id": 27,
-      "prompt": "Use grounded ad-hoc Zscaler routing. A teammate says AI Guard, ZMS, EASM, Zscaler Cellular, and Business Insights are all Tier 3 portal-only products. Correct the tier classification and route each product to its captured programmable surface, including any read-only or naming caveat.",
-      "expected_output": "All five are Tier 2 programmable-but-shallow, not Tier 3. AI Guard has Python `client.aiguard` OneAPI configuration plus a separately authenticated legacy policy-detection path. ZMS uses read-only `client.zms` GraphQL. EASM uses read-only `client.zeasm` for organizations/findings/lookalikes, with additional raw Postman asset reads. ZCell uses `client.zcell` and has an Automate contract, while its MCP tools are read-only. Business Insights uses Python `client.zbi` for custom-app/report-config CRUD and report retrieval; this accessor is Business Insights, not Zero Trust Browser. State exact parity gaps rather than implying every Tier 2 surface is writable.",
+      "prompt": "Use grounded ad-hoc Zscaler routing. A teammate says AI Guard, ZMS, EASM, Zscaler Cellular, and Business Insights are all portal-only products. Correct that and route each product to its captured programmable surface, including any read-only or naming caveat.",
+      "expected_output": "None of the five is portal-only; each has a captured programmable surface. AI Guard has Python `client.aiguard` OneAPI configuration plus a separately authenticated legacy policy-detection path. ZMS uses read-only `client.zms` GraphQL. EASM uses read-only `client.zeasm` for organizations/findings/lookalikes, with additional raw Postman asset reads. ZCell uses `client.zcell` and has an Automate contract, while its MCP tools are read-only. Business Insights uses Python `client.zbi` for custom-app/report-config CRUD and report retrieval; this accessor is Business Insights, not Zero Trust Browser. State exact parity gaps rather than implying every surface is writable.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
-        "Tier 2",
         "client.aiguard",
         "client.zms",
         "client.zeasm",
@@ -621,67 +624,65 @@
         "read-only",
         "Business Insights"
       ],
-      "must_cite_files": [
-        "references/_meta/portfolio-map.md",
-        "references/business-insights/overview.md"
-      ],
       "must_not_say": [
         "AI Guard has no SDK module",
         "ZMS has no SDK module",
-        "EASM is Tier 4",
+        "EASM is portal-only",
         "Business Insights is portal-only",
-        "Zscaler Cellular is Tier 3"
+        "Zscaler Cellular is portal-only"
+      ],
+      "must_cite": [
+        "business-insights.api"
       ]
     },
     {
       "id": 28,
       "prompt": "Can I automate Cloud Connector from the Zscaler Python SDK? Our team is considering moving the integration to the Python 2.0.0 beta; identify the correct accessor and supported release line.",
-      "expected_output": "Yes. Cloud Connector/ZTW is available from the Python v1.x GA line through `client.ztw.*`; the current captured version is v1.9.41. The 2.0.0bN beta does not include ZTW, so do not migrate Cloud Connector automation to that beta expecting parity. Go also exposes `zscaler/ztw`, and Terraform uses `ztc_*` resources.",
+      "expected_output": "Yes. Cloud Connector (ZTW) is available from the Python SDK's v1.x GA line through `client.ztw.*`. The v2.x beta (`2.0.0bN`) covers ZIA, ZDX and ZIdentity only; ZTW stays on v1.x, which remains the recommended GA release, so do not migrate Cloud Connector automation to the beta expecting parity. Go also exposes `zscaler/ztw`, and Terraform uses `ztc_*` resources.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
         "client.ztw",
         "v1.x",
-        "v1.9.41",
         "2.0.0",
-        "does not include",
-        "ztc_"
-      ],
-      "must_cite_files": [
-        "references/cloud-connector/api.md",
-        "references/cloud-connector/sdk.md"
+        "ztc_",
+        "ZDX",
+        "ZIdentity"
       ],
       "must_not_say": [
         "Python SDK has no Cloud Connector coverage",
         "ZTW was added in Python SDK v2.0.0",
         "migrate to v2.0.0 for ZTW"
+      ],
+      "must_cite": [
+        "cloud-connector.api.client-coverage"
       ]
     },
     {
       "id": 29,
       "prompt": "We have no ZIdentity API clients yet. Explain how to bootstrap the first client, how later clients and secrets are managed in Python, and whether either Python or Go can mutate resource servers. Include the exact Python accessor.",
-      "expected_output": "The first API client must be bootstrapped in the admin portal because no credential exists yet. With a sufficiently scoped client, later API clients and their secret lifecycle are full CRUD through singular `client.zid.api_client` (or raw REST). Go has no API-client service. Resource servers are a read-only registry in both Python and Go; neither SDK creates, updates, or deletes them.",
+      "expected_output": "The first API client must be bootstrapped in the admin portal because no credential exists yet. With a sufficiently scoped client, later API clients and their secrets are managed through the API: in Python through singular `client.zid.api_client`, and in Go through the `api_clients` package (create, read, update, delete, and adding, listing and deleting secrets), or raw REST. Resource servers are read-only: the contract has only GET operations for them, so neither SDK can create, update or delete one.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
         "first",
         "portal",
         "client.zid.api_client",
-        "full CRUD",
+        "api_clients",
         "secret",
-        "read-only",
-        "both"
-      ],
-      "must_cite_files": [
-        "references/zidentity/api-clients.md",
-        "references/zidentity/api.md",
-        "references/zidentity/api-divergences.md"
+        "read-only"
       ],
       "must_not_say": [
         "client.zid.api_clients",
         "all API clients must be created in the portal",
         "API client creation is not exposed via API",
+        "Go has no API-client service",
         "Go has full CRUD on resource servers"
+      ],
+      "must_cite": [
+        "zidentity.api-clients",
+        "zidentity.api-clients.secrets",
+        "zidentity.resource-servers"
       ]
     },
     {
@@ -699,39 +700,40 @@
         "Blocked Policy Type",
         "Web Insights"
       ],
-      "must_cite_files": [
-        "references/zia/malware-and-atp.md",
-        "references/zia/sandbox.md"
-      ],
       "must_not_say": [
         "Malware Protection and ATP have no API coverage",
         "Malware Protection settings are console-only",
         "ATP settings are console-only",
         "the settings endpoint returns transaction verdicts"
+      ],
+      "must_cite": [
+        "zia.sandbox.verdicts",
+        "zia.atp.api-surface",
+        "zia.malware-protection.api-surface"
       ]
     },
     {
       "id": 31,
       "prompt": "Which actions can I send in a Cloud Connector `traffic_dns_rules` API or Terraform resource? Is `OVERWRITE` / 'Overwrite DNS response' a valid fifth action?",
-      "expected_output": "The captured Terraform constraint and SDK model support exactly four rule actions: `ALLOW`, `BLOCK`, `REDIR_REQ` (bind a DNS Gateway), and `REDIR_ZPA` (bind a ZPA IP group). There is no `OVERWRITE` token in the captured ZTW SDK or ZTC provider. Help capability wording about overwriting responses may describe another feature or redirect behavior, but it is not a fifth `traffic_dns_rules` action.",
+      "expected_output": "It depends on the client. The Terraform DNS rule resource validates `action` against four values: `ALLOW`, `BLOCK`, `REDIR_REQ` (bind a DNS gateway) and `REDIR_ZPA`. The API contract lists eleven, adding `REDIR_RES`, the DoH, TCP and UDP request redirects, `REDIR_REQ_KEEP_SENDER`, `BLOCK_WITH_RESPONSE` and `BLOCK_WITH_EUN`; those seven cannot be written through Terraform. Neither has an `OVERWRITE` token. The help's 'overwriting DNS responses' wording may correspond to `REDIR_RES`, but no source says so; it is an open question.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
-        "exactly four",
         "ALLOW",
         "BLOCK",
         "REDIR_REQ",
         "REDIR_ZPA",
-        "not a fifth"
-      ],
-      "must_cite_files": [
-        "references/cloud-connector/dns-subsystem.md",
-        "references/cloud-connector/api-divergences.md"
+        "REDIR_RES",
+        "eleven",
+        "Terraform"
       ],
       "must_not_say": [
         "OVERWRITE is a supported action",
         "Overwrite DNS response is a traffic_dns_rules action",
-        "five traffic_dns_rules actions"
+        "exactly four actions in the API"
+      ],
+      "must_cite": [
+        "cloud-connector.dns.policies"
       ]
     }
   ]

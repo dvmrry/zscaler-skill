@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-python.client-configuration",
+  "title": "How the Python SDK's unified client is configured: OneAPI or legacy, settings, environment variables",
+  "aliases": [
+    "ZscalerClient",
+    "use_legacy_client",
+    "python sdk environment variables",
+    "ZSCALER_CLIENT_ID",
+    "python sdk legacy client",
+    "python sdk timeout"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-python.request-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the Python SDK's unified client (`ZscalerClient`), shared by every product it reaches. How a token is obtained is in [[shared.oneapi.authentication]]."
+    },
+    {
+      "label": "OneAPI or legacy.",
+      "text": "{{legacy-switch}} {{legacy-clients}} {{no-zidentity-legacy}} {{bearer-header}} Each product's legacy client and its settings are in that product's client-configuration subject, for example [[zcc.sdk-python.client-configuration]] and [[cloud-connector.sdk-python.client-configuration]]."
+    },
+    {
+      "label": "Settings.",
+      "text": "{{env-key-format}} {{request-timeout}} Retry settings are in [[shared.sdk-python.retries]]."
+    },
+    {
+      "label": "TLS settings.",
+      "text": "{{tls-settings-constructor-only}}"
+    },
+    {
+      "label": "Proxy with httpx 0.28 (zssdk).",
+      "text": "{{zssdk-proxy-httpx-028}}"
+    }
+  ],
+  "claims": {
+    "legacy-switch": {
+      "statement": "The Python SDK's unified client switches to a legacy client when its `use_legacy_client` constructor argument (default False) is true and a product's legacy client helper is passed, using that helper as its request executor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "use_legacy_client: bool = False,",
+            "self.use_legacy_client = use_legacy_client",
+            "if use_legacy_client and zcc_legacy_client:\n            self._config = {}\n            self._request_executor = zcc_legacy_client",
+            "if use_legacy_client and ztb_legacy_client:\n            self._config = {}\n            self._request_executor = ztb_legacy_client",
+            "if use_legacy_client and aiguard_legacy_client:\n            self._config = {}\n            self._request_executor = aiguard_legacy_client",
+            "if use_legacy_client and zdx_legacy_client:\n            self._config = {}\n            self._request_executor = zdx_legacy_client",
+            "if use_legacy_client and zwa_legacy_client:\n            self._config = {}\n            self._request_executor = zwa_legacy_client",
+            "if use_legacy_client and zpa_legacy_client:\n            self._config = {}\n            self._request_executor = zpa_legacy_client",
+            "if use_legacy_client and zia_legacy_client:\n            self._config = {}\n            self._request_executor = zia_legacy_client",
+            "if use_legacy_client and ztw_legacy_client:\n            self._config = {}\n            self._request_executor = ztw_legacy_client"
+          ]
+        }
+      ]
+    },
+    "env-key-format": {
+      "statement": "The Python OneAPI configuration setter reads each client setting from an environment variable named ZSCALER_ followed by the upper-cased snake_case form of the setting key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/config/config_setter.py",
+          "quotes": [
+            "_ZSCALER = \"ZSCALER\"",
+            "self._apply_env_config(\"client\")",
+            "flattened_config = flatten_dict(self._config.get(conf_key, {}), delimiter=\"_\")",
+            "for key in flattened_keys:",
+            "env_key = ConfigSetter._ZSCALER + \"_\" + to_snake_case(key).upper()",
+            "env_value = os.environ.get(env_key, None)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/config/config_setter.py",
+          "quotes": [
+            "\"customerId\": \"\",",
+            "\"microtenantId\": \"\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "from zscaler.config.config_setter import ConfigSetter",
+            "client_config_setter = ConfigSetter()"
+          ]
+        }
+      ]
+    },
+    "legacy-clients": {
+      "statement": "The Python SDK's legacy (non-OneAPI) clients cover ZPA, ZIA, ZTW, ZCC, AI Guard, ZDX, ZWA and ZTB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "class LegacyZPAClient(Client):",
+            "class LegacyZIAClient(Client):",
+            "class LegacyZTWClient(Client):",
+            "class LegacyZCCClient(Client):",
+            "class LegacyAIGuardClient(Client):",
+            "class LegacyZDXClient(Client):",
+            "class LegacyZWAClient(Client):",
+            "class LegacyZTBClient(Client):"
+          ]
+        }
+      ],
+      "conditions": "The eight classes quoted are every legacy client class in oneapi_client.py at the pin."
+    },
+    "no-zidentity-legacy": {
+      "statement": "There is no legacy client for ZIdentity: `oneapi_client.py` imports a legacy helper for each of the eight products but only the service module for ZIdentity.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "from zscaler.zia.legacy import LegacyZIAClientHelper from zscaler.zia.zia_service import ZIAService from zscaler.zid.zid_service import ZIdService from zscaler.zpa.legacy import LegacyZPAClientHelper"
+          ]
+        }
+      ],
+      "derived_from": [
+        "legacy-clients"
+      ],
+      "conditions": "An absence: a read of oneapi_client.py at the pin finds the eight Legacy*Client classes in legacy-clients and no ZIdentity one, and its sorted import block (quoted around zid) brings in no zid legacy helper."
+    },
+    "bearer-header": {
+      "statement": "The Python SDK sets the `Authorization` header to `Bearer` plus the OAuth access token when the client is not a legacy client and the endpoint does not contain `/zscsb`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if \"/zscsb\" not in endpoint and not self.use_legacy_client:",
+            "headers[\"Authorization\"] = f\"Bearer {self._oauth._get_access_token()}\""
+          ]
+        }
+      ]
+    },
+    "request-timeout": {
+      "statement": "The executor reads `client.requestTimeout` with a default of 240 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "self._request_timeout = config[\"client\"].get(\"requestTimeout\", 240)  # Default to 240 seconds"
+          ]
+        }
+      ]
+    },
+    "tls-settings-constructor-only": {
+      "statement": "From v1.11.3 the Python SDK honors TLS verification settings (`sslContext`) only when they are passed to the client constructor: an `sslContext` in a `zscaler.yaml` is dropped with a warning, a client built with `sslContext=False` logs a warning that certificate verification is disabled, and applying a `zscaler.yaml` from the current working directory also logs a warning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/config/config_setter.py",
+          "at": [
+            "v1.11.3"
+          ],
+          "quotes": [
+            "# TLS verification settings are only honored when passed to the client constructor.",
+            "logger.warning(f\"Ignoring 'sslContext' in {path}; TLS settings must be passed to the client constructor.\")",
+            "logger.warning( f\"Applying zscaler.yaml from the current working directory ({_LOCAL_YAML_PATH}). \" \"Only run the SDK from directories whose configuration files you trust.\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_http_client.py",
+          "at": [
+            "v1.11.3"
+          ],
+          "quotes": [
+            "logger.warning(\"TLS certificate verification is disabled (sslContext=False). Do not use this outside of testing.\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "after": "## 1.11.3 (October 13 2026)",
+          "quotes": [
+            "TLS verification (`sslContext`) is now only honored when passed to the client constructor; it is ignored in `zscaler.yaml` files."
+          ]
+        }
+      ]
+    },
+    "zssdk-proxy-httpx-028": {
+      "statement": "Python SDK issue #498, open, reports that a proxy configured on the `zssdk` package (`zssdk.Session` with a `Proxy` in its `Config`) fails with httpx 0.28 or later: `httpx.Client` rejects the `proxies` keyword that `zssdk/zscore/httpsession.py` passes, raising a TypeError. The reporter's suggested fix passes `proxy` instead; a reply on 2026-04-29 from an account with no association to the repository says a fix is in the pipeline.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-498.json",
+          "quotes": [
+            "**Description** Configure proxy with SDK fails when httpx version is >=0.28",
+            "session = zssdk.Session(config=config)",
+            "site-packages/zssdk/zscore/httpsession.py\", line 90, in __init__",
+            "TypeError: Client.__init__() got an unexpected keyword argument 'proxies'",
+            "client_kwargs[\"proxy\"] = proxy_url",
+            "proxy=Proxy(host=\"abc.domain.com\", port=80),",
+            "**Additional context** The Fix to the issue is as follows on httpsession.py line 88"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-498.json",
+          "quotes": [
+            "## Comment (NONE, 2026-04-29) Hi @(user) - we have an update/fix in our pipeline."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-498.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
+    }
+  }
+}

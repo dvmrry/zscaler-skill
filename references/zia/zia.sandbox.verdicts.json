@@ -1,0 +1,383 @@
+{
+  "schema_version": 1,
+  "id": "zia.sandbox.verdicts",
+  "title": "Which engine blocked the file, and what a Sandbox verdict means",
+  "aliases": [
+    "blocked by sandbox vs malware protection vs atp",
+    "blocked policy type",
+    "sandbox says benign but file is blocked",
+    "benign verdict"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.malware-protection",
+      "because": "zia.sandbox.verdicts:benign-not-clean"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.atp",
+      "because": "zia.sandbox.verdicts:benign-not-clean"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering",
+      "because": "zia.sandbox.verdicts:benign-not-clean"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.web-records",
+      "because": "zia.sandbox.verdicts:blocked-policy-type"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia/web-log",
+      "because": "zia.sandbox.verdicts:blocked-policy-type"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.coverage"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"ZIA blocked my file\" has three candidate engines, and the first question is which one logged the block. {{blocked-policy-type}} Only the Sandbox case has an API investigation path. {{sandbox-row}} The report side is in [[zia.sandbox.report]]. {{mp-atp-no-transaction-api}} {{mp-atp-python-surfaces}} Their policy configuration is covered in [[zia.malware-protection]] and [[zia.atp]]; the console diagnosis workflow is [[zia.atp.block-diagnosis]]."
+    },
+    {
+      "label": "Classification.",
+      "text": "{{classification-types}} {{sandbox-filter-results}} The Sandbox Verdict Insights Logs are in [[zia.insights.logs]]."
+    },
+    {
+      "label": "Web Insights columns.",
+      "text": "{{web-insights-policy-action}} {{web-insights-threat-category}} The column lists fewer malicious categories than the rule criterion offers {{gap:threat-category-values}}. {{web-insights-threat-name-md5-suspicious}} The two columns spell the unknown-file label differently {{gap:sent-label-spelling}}."
+    },
+    {
+      "text": "{{benign-not-clean}} Eligibility, meaning whether Sandbox saw the file at all, is in [[zia.sandbox.coverage]]; URL Filtering order is in [[zia.url-filtering]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which engine logged the block, from the Blocked Policy Type in the logged transaction.",
+      "uses": [
+        "blocked-policy-type"
+      ]
+    },
+    {
+      "do": "Whether the MD5 in the same log line is used to fetch the Sandbox report, for a Sandbox block.",
+      "uses": [
+        "sandbox-row"
+      ]
+    },
+    {
+      "do": "Whether the report's classification is MALICIOUS, SUSPICIOUS or BENIGN before deciding what blocked the file.",
+      "uses": [
+        "classification-types"
+      ]
+    }
+  ],
+  "claims": {
+    "sandbox-filter-results": {
+      "statement": "In the web Insights Logs Sandbox filter, one category is a catchall for any non-malicious file sample with a Sandbox Threat Score equal to or less than 70, the service calls samples scoring between 40 and 70 suspicious because they might need additional review, Sandbox Suspicious is for files that exhibit some malicious behaviors but are not fully classified as malware, and Sent for Analysis is for unknown results sent to the Sandbox for behavioral analysis.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "This is a catchall category for any non-malicious file sample with a Sandbox Threat Score equal to or less than 70.",
+            "The Zscaler service refers to file samples that have a score between 40 and 70 as “suspicious” because they might need additional review.",
+            "Sandbox Suspicious: This category refers to files that exhibit some malicious behaviors but are not fully classified as malware.",
+            "Sent for Analysis: View unknown results that have been sent to the Sandbox for behavioral analysis."
+          ]
+        }
+      ]
+    },
+    "blocked-policy-type": {
+      "statement": "The Blocked Policy Type field in Web Insights logs identifies which security control is responsible for a block: Sandbox, Malware Protection, or Advanced Threat Protection. The log also carries Policy Action and Threat Super Category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "The Blocked Policy Type in Web Insights logs identifies which security control is responsible:",
+            "Threat Super Category from Web Insights logs",
+            "| **Sandbox** | ZIA Sandbox |",
+            "| **Malware Protection** | ZIA Malware Protection |",
+            "| **Advanced Threat Protection** | ZIA ATP |",
+            "Policy Action from Web Insights logs"
+          ]
+        }
+      ]
+    },
+    "mp-atp-no-transaction-api": {
+      "statement": "The MCP server has no tool to investigate a Malware Protection or ATP block: its guidance for those two policy types is advisory, and a transaction is attributed through Web Insights logs. The SDKs expose Malware Protection and ATP only as policy settings and lists, not per-transaction verdicts.",
+      "tier": "B",
+      "conditions": "The first sentence is the skill's own statement. The second rests on reading the Go service files: every function there reads or writes a settings or list endpoint under /cyberThreatProtection/. Absence in two SDKs is not proof the API has no such endpoint.",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "ZIA Malware Protection | No API -- advisory guidance only",
+            "ZIA ATP | No API -- advisory guidance only"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go",
+          "quotes": [
+            "/zia/api/v1/cyberThreatProtection/advancedThreatSettings"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/malware_protection/malware_protection.go",
+          "quotes": [
+            "/zia/api/v1/cyberThreatProtection/malwarePolicy"
+          ]
+        }
+      ],
+      "gaps": [
+        "mp-atp-diagnosis-api"
+      ]
+    },
+    "classification-types": {
+      "statement": "A Sandbox report's Classification type is MALICIOUS, SUSPICIOUS or BENIGN. MALICIOUS means the block is expected; BENIGN means Sandbox should not be the blocker and the investigation moves to other policies; SUSPICIOUS calls for reading the behavioral indicators in the full report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "**Class Type**: `MALICIOUS`, `SUSPICIOUS`, `BENIGN`",
+            "If `MALICIOUS` -- the block is expected behavior; the sandbox correctly identified the threat",
+            "If `SUSPICIOUS` -- review the behavioral indicators in the full report",
+            "If `BENIGN` -- the file should not be blocked by Sandbox; look for other policies"
+          ]
+        }
+      ]
+    },
+    "benign-not-clean": {
+      "statement": "A BENIGN Sandbox verdict covers only Sandbox. A file Sandbox cleared can still be blocked by Malware Protection, ATP or File Type Control, and URL Filtering can block before Sandbox is reached. The source's first suspects for a block under a BENIGN verdict are Malware Protection and ATP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "look for other policies (Malware Protection, ATP, File Type Control)",
+            "check URL filtering (may block before sandbox)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "commands/investigate-sandbox.md",
+          "quotes": [
+            "should not be blocked by sandbox; check Malware Protection or ATP"
+          ]
+        }
+      ]
+    },
+    "sandbox-row": {
+      "statement": "For a Sandbox block the investigation is API-driven: take the file's MD5 hash, if available from the Web Insights logs, and fetch its Sandbox report, check the quota, the blocked-hash list and the hash count. The tools are the report, quota, behavioral-analysis and file-hash-count calls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "File MD5 hash (if available from Web Insights logs)",
+            "`zia_get_sandbox_quota()` -- check quota usage and subscription limits",
+            "`zia_get_sandbox_behavioral_analysis()` -- list of MD5 hashes blocked by sandbox",
+            "| **Sandbox** | ZIA Sandbox | Yes -- full API investigation |",
+            "`zia_get_sandbox_report(md5_hash, report_details)` -- get sandbox analysis report (summary or full)",
+            "`zia_get_sandbox_file_hash_count()` -- blocked hash usage statistics"
+          ]
+        }
+      ]
+    },
+    "web-insights-policy-action": {
+      "statement": "In the Web Insights Sandbox logs, Policy Action records what the Sandbox engine did: Sent to Analysis (sent for behavioral analysis and the user can download), Quarantined (sent for analysis and the user cannot download until it completes) or Blocked (blocked immediately because of a previous Sandbox analysis of a known MD5).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-sandbox-reports-data.json",
+          "quotes": [
+            "Policy Action: Displays what the Sandbox engine has done with suspicious files.",
+            "Sent to Analysis: The file was sent to the Sandbox for behavioral analysis, and the user can download the file.",
+            "Quarantined: The file was sent to the Sandbox for behavioral analysis, and the user cannot download the file until the analysis is completed.",
+            "Blocked: The file was blocked immediately based on previous Sandbox analysis with a known MD5 hash."
+          ]
+        }
+      ]
+    },
+    "web-insights-threat-category": {
+      "statement": "The Threat Category column shows Benign, Sandbox Adware, Sandbox Anonymizer, Sandbox Malware or Sent for Analysis; when a file sent for analysis is classified malicious, the new category is appended (for example Sent for Analysis - Sandbox Malware/Anonymizer/Adware).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-sandbox-reports-data.json",
+          "quotes": [
+            "Threat Category: Displays the threat type of the file. The following categories appear under this column:",
+            "Benign: A known non-malicious file.",
+            "Sandbox Adware: A known malicious file that automatically renders advertisements and installs adware.",
+            "Sandbox Anonymizer: A known malicious file that contains anonymizers and P2P clients.",
+            "Sandbox Malware: A known malicious file that behaves like APTs, exploits, botnets, trojans, keyloggers, spyware, and other malware.",
+            "Sent for Analysis: An unknown file that is sent to the Sandbox for behavioral analysis.",
+            "After analysis, if the Sandbox classifies the file as malicious, the new malicious threat category is appended to Sent for Analysis (e.g., Sent for Analysis - Sandbox Malware/Anonymizer/Adware)."
+          ]
+        }
+      ]
+    },
+    "web-insights-threat-name-md5-suspicious": {
+      "statement": "Threat Name gives the exact malware name (for example Trojan.Zbot) or the malware category from observed behavior. With Advanced Sandbox the MD5 value opens the Sandbox Detail Report. Suspicious Content shows the file's raw Page Risk Index score, set to 100 if the file is blocked for other security reasons.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-sandbox-reports-data.json",
+          "quotes": [
+            "Threat Name: Indicates the exact malware name (e.g., Trojan.Zbot, Backdoor.Caphaw) or the malware category, based on the behavior recognized by the Zscaler service.",
+            "MD5: Displays the hash of suspicious files. If you have Advanced Sandbox, you can click the value to view the Sandbox Detail Report.",
+            "Suspicious Content: Displays the raw Page Risk Index score of the file. If the file is blocked for other security reasons, the score is set to 100."
+          ]
+        }
+      ]
+    },
+    "mp-atp-python-surfaces": {
+      "statement": "The Python SDK exposes Malware Protection (`malware_protection_policy`) as get/update pairs for the malware policy, malware inspection, malware protocols and malware settings, and ATP (`atp_policy`) as get/update settings plus security-exception and malicious-URL list calls. None returns a per-transaction verdict.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/malware_protection_policy.py",
+          "quotes": [
+            "def get_atp_malware_policy(self)",
+            "def get_atp_malware_inspection(self)",
+            "def get_atp_malware_protocols(self)",
+            "def get_malware_settings(self)",
+            "def update_atp_malware_policy(",
+            "def update_atp_malware_inspection(self, inspect_inbound: bool, inspect_outbound: bool)",
+            "def update_atp_malware_protocols(",
+            "def update_malware_settings(self, settings: MalwareSettings)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/atp_policy.py",
+          "quotes": [
+            "def get_atp_settings(self)",
+            "def get_atp_security_exceptions(self)",
+            "def get_atp_malicious_urls(self)",
+            "def update_atp_settings(self, **kwargs)",
+            "def update_atp_security_exceptions(self, bypass_urls: list[str])",
+            "def add_atp_malicious_urls(self, malicious_urls: list)",
+            "def delete_atp_malicious_urls(self, malicious_urls: list)"
+          ]
+        }
+      ],
+      "conditions": "The last sentence is an absence claim from reading zscaler-sdk-python at v1.11.3-1-g4f8f54df (one commit after v1.11.3): `grep -n \"    def \" zscaler/zia/malware_protection_policy.py zscaler/zia/atp_policy.py` lists only `__init__` and the get/update/add/delete methods quoted here, and `grep -n \"verdict\\|transaction\" zscaler/zia/malware_protection_policy.py zscaler/zia/atp_policy.py` returns nothing."
+    }
+  },
+  "gaps": {
+    "mp-atp-diagnosis-api": {
+      "kind": "semantic",
+      "title": "Whether any ZIA API attributes a single transaction to Malware Protection or ATP",
+      "status": "open",
+      "detail": "The MCP skill says there is no API for Malware Protection or ATP diagnosis and the two SDKs expose settings only; whether the ZIA API has any per-transaction endpoint is not established by a source.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "No API -- advisory guidance only"
+          ],
+          "after": "ZIA Malware Protection"
+        }
+      ]
+    },
+    "threat-category-values": {
+      "kind": "semantic",
+      "title": "Whether the Sandbox report's Threat Category column shows Ransomware, Offsec Tools or Suspicious",
+      "status": "open",
+      "detail": "The Sandbox report page's Threat Category column lists Benign, Sandbox Adware, Sandbox Anonymizer, Sandbox Malware and Sent for Analysis, while the rule criterion offers six malicious categories (see zia.sandbox.rules:sandbox-categories). The Web Insights Threat Category filter does list Sandbox Offensive Security Tools, Sandbox Ransomware and Suspicious, so the question is narrowed to whether the column shows them.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-sandbox-reports-data.json",
+          "quotes": [
+            "Threat Category: Displays the threat type of the file. The following categories appear under this column:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "Sandbox Offensive Security Tools: This category refers to the threat actors that can use offensive security tools for malicious reasons.",
+            "Sandbox Ransomware: This category refers to the type of malware that prevents or limits users from accessing their system"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "after": "Sent for Analysis: This category refers to any unknown file detections",
+          "quotes": [
+            "Suspicious: This category refers to files that exhibit some malicious behaviors but are not fully classified as malware."
+          ]
+        }
+      ]
+    },
+    "sent-label-spelling": {
+      "kind": "semantic",
+      "title": "Whether Sent to Analysis and Sent for Analysis name the same state",
+      "status": "open",
+      "detail": "The Policy Action column says Sent to Analysis while the Threat Category column says Sent for Analysis, and the MCP-sourced zia.sandbox.quarantine:one-time-links uses Sent for Analysis without naming the column. No page says whether the two labels are one state.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-sandbox-reports-data.json",
+          "quotes": [
+            "Sent to Analysis: The file was sent to the Sandbox for behavioral analysis, and the user can download the file.",
+            "Sent for Analysis: An unknown file that is sent to the Sandbox for behavioral analysis."
+          ]
+        }
+      ]
+    },
+    "sandbox-first-engine": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: a file blocked by Sandbox is blocked before any other engine sees it",
+      "status": "open",
+      "detail": "Unverified legacy statement: The earlier reference asserted this engine ordering. The help page points to About Policy Enforcement for the order of enforcement, which is not captured.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "confidence-score": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: a Sandbox Detail Report confidence score",
+      "status": "open",
+      "detail": "Unverified legacy statement: The earlier decision tree said to check the report for a confidence score. The report model has Classification Score; no source calls it a confidence score or says how to use it.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

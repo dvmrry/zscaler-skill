@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "SAML Configuration Guide for CA Single Sign-On",
+  "source": {
+    "url": "https://help.zscaler.com/zia/saml-configuration-guide-ca-single-sign-on",
+    "node": "1399661",
+    "revision": "3251475",
+    "updated": "2026-10-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide illustrates how to configure CA SiteMinder running version of R12 SP3 CR5 as the identity provider (IdP) for the Zscaler service."
+    },
+    {
+      "text": "If you are using CA SiteMinder r12.0 SP2 or the initial release of r12.0 SP3 (prior to CR1), download and deploy an assertion generator plug-in (AGP)."
+    },
+    {
+      "text": "Consider the following before configuring CA Single Sign-On (SSO) (formerly CA SiteMinder) as the IdP for the Zscaler service:"
+    },
+    {
+      "item": "You might not be able to use the default CA SSO SAML portal URL. A critical piece of information (RelayState) is dropped from the URL and the functionality fails. This is resolved by using the “Redirect script.”",
+      "depth": 0
+    },
+    {
+      "item": "There is a bug in CA SSO where it provides the multiple values Group data in an invalid format/syntax that Zscaler can't use. This is resolved by using the latest release/patches from CA SSO and a special formatting function that was introduced in the latest release/patches.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler expects a POST Binding which isn't the default for CA SSO.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you have the following before you start configuring CA SSO as the IdP:"
+    },
+    {
+      "item": "The Zscaler CA SSO redirect JSP. There are several versions of this script but they all have the basic function of redirecting the request and appending the “RelayState.” Some scripts also include more error handling and therefore might require more customization/changes to match the specific environment. Following is the simplest version of the JSP:",
+      "depth": 0
+    },
+    {
+      "text": "<% String msg = (String)request.getParameter(\"RelayState\"); String redirectURL = \"http://original.example.com/affwebservices/public/saml2sso?SPID=staging.<Zscaler cloud Name>.saml2&ProtocolBinding=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST&RelayState=\"+msg;response.sendRedirect(redirectURL); %>"
+    },
+    {
+      "text": "Ensure this file is included in the WAR file so that it is included in any reboot/reload/restart."
+    },
+    {
+      "item": "The original CA SSO URL of the SAML portal, which users are sent for authentication.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring CA SSO as the IdP for the Zscaler service",
+      "level": 1
+    },
+    {
+      "text": "To configure CA SSO as the IdP for the Zscaler service:"
+    },
+    {
+      "item": "1. Configure CA SSO as the IdP",
+      "depth": 0
+    },
+    {
+      "item": "Edit the Zscaler-provided redirect script. Replace the URL in the redirectURL attribute with the original URL from CA SSO. Also, replace <Zscaler cloud Name> with the name of the cloud, which your organization is provisioned on. To learn how you can find your cloud name, see Understanding Zscaler Cloud Names. Leave all the additional variables in the string.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "“&RelayState=”+msg;”. String redirectURL = “http://securenet.example.com/affwebservices/public/saml2sso?SPID=staging.<Zscaler cloud Name>.saml2&ProtocolBinding=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST&RelayState=\"+msg;",
+      "depth": 0
+    },
+    {
+      "item": "Save the JSP file.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Deploy this file to the company website where the current SAML SSO URL is hosted.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "2. Configure the CA SSO SAML Service Provider Properties",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service requires the username (JohnSmith@safemarch.com), given name (John Smith), and member-of-Groups (Browsing-group1, Browsing-Group2). The Active Directory attributes are samaccountname or email, givenname, and memberOf. The key to handling Groups is to use the FMATTR function as shown below.",
+      "depth": 0
+    },
+    {
+      "item": "3. Add CA SSO as the IdP for the Zscaler Service",
+      "depth": 0
+    },
+    {
+      "item": "4. Configure SAML SSO in the Zscaler Admin Console",
+      "depth": 0
+    },
+    {
+      "item": "To configure SAML SSO in the Zscaler Admin Console:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings > Default Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          82,
+          114
+        ],
+        [
+          117,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "Under Authentication Frequency, choose how often users are required to authenticate to the Zscaler service. To learn more, see About Authentication Default Settings. If you select Custom, the following field appears:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          30
+        ],
+        [
+          180,
+          186
+        ]
+      ]
+    },
+    {
+      "item": "Custom Authentication Frequency (days): Specify 1 to 180 days.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Under Authentication Type, choose SAML.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          25
+        ],
+        [
+          34,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "5. Configure the Zscaler Authentication Exemptions List",
+      "depth": 0
+    },
+    {
+      "item": "Enter the redirected URL to the PAC file exemption list. Otherwise, authentication fails. This is due to the browser trying to reach the authentication URL via the Zscaler service and the current user isn't yet authorized to use the Zscaler service, so the request never passes through the service.",
+      "depth": 0
+    },
+    {
+      "item": "If (dnsDomainIs(host, \"securenet.com\") ) return \"DIRECT\";",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "If any errors occur, see Troubleshooting SAML to troubleshoot browser settings and SAML error codes."
+    }
+  ]
+}

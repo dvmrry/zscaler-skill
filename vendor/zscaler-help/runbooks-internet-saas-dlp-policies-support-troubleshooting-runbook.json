@@ -1,0 +1,1016 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Internet & SaaS DLP Policies Support Troubleshooting Runbook",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/internet-saas-dlp-policies-support-troubleshooting-runbook",
+    "node": "1532308",
+    "revision": "3226391",
+    "updated": "2026-08-08",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Data Loss Prevention (DLP) Policies Support Troubleshooting Runbook serves as a comprehensive guide for configuring, fine-tuning, and troubleshooting Zscaler's DLP solutions across various scopes. It provides step-by-step methodologies to address common challenges encountered during DLP deployment and operation. The troubleshooting framework outlined in the runbook emphasizes a systematic approach by leveraging internal tools such as Web Insights logs and detailed configuration checks. By adhering to these systematic troubleshooting steps, the DLP Policy Runbook enables organizations to enhance the accuracy, effectiveness, and resilience of their data protection strategies."
+    },
+    {
+      "heading": "Require DLP Feature Configuration Assistance or DLP Policy Fine-Tuning",
+      "level": 1
+    },
+    {
+      "text": "Zscaler DLP offers various enhancement features that are enabled on-demand or require an additional subscription. The following examples are a few enhancements DLP policies provide."
+    },
+    {
+      "item": "Support for Correlated View of App Users and DLP File Access: To view the information on the Files tab, you must have a license for SaaS Security Data at Rest Scanning DLP, and you must configure the DLP scan. To upgrade your license, contact your Zscaler Account team.",
+      "depth": 0
+    },
+    {
+      "item": "Support for SaaS Security API Data at Rest Scanning DLP Policy Rules without Content Inspection: To enable this feature for your organization, contact Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "item": "New Predefined DLP Engines: These engines are available by default for users with tenants enabled on April 4, 2025, or later. For enablement on existing tenants, contact Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "text": "Look for the following information in the Zscaler’s Help Portal or Release Notes:"
+    },
+    {
+      "item": "Contact your Zscaler Account team: The feature might require an additional subscription or an additional SKU, depending on your current Zscaler’s subscription. Contact your Zscaler Account team for more information.",
+      "depth": 0
+    },
+    {
+      "item": "Contact Zscaler Support: The feature is not enabled automatically for all users. Raise a Provisioning support case with Zscaler Support with the feature details and reference link from Zscaler’s Help Portal or Release Notes.",
+      "depth": 0
+    },
+    {
+      "text": "If users have configured the DLP policy but want to fine-tune the policy, consider the following policy option, if applicable:"
+    },
+    {
+      "item": "Configure the Minimum Data Size (KB). Zscaler DLP engines support files up to 400 MB and can scan the first 100 MB of the extracted text. The maximum size also applies to files extracted from archive files. If files exceed defined thresholds for size or format compatibility, DLP inspection could fail or skip triggering policies for those files.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          14,
+          36
+        ]
+      ]
+    },
+    {
+      "text": "Review the DLP false positive events to determine a feasible value for Minimum Data Size (KB). For example, if there is a lot of telemetry data smaller than 10 KB that contributes to a large volume of false positives, you can configure the Minimum Data Size (KB) as 10 KB and monitor again.",
+      "strong": [
+        [
+          71,
+          93
+        ],
+        [
+          240,
+          262
+        ]
+      ]
+    },
+    {
+      "item": "Create a DLP Allowlist rule for HTTP Form Data based on the Custom Allowlist URL category. This category includes file type fallback decisions by Zscaler.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          22
+        ],
+        [
+          60,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "For single-part non-URL-encoded requests, the default is HTTP non-file text data.",
+      "depth": 1,
+      "strong": [
+        [
+          57,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "For multipart requests and single-part URL-encoded requests, the default is HTTP Form data.",
+      "depth": 1,
+      "strong": [
+        [
+          76,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Avoid configuring a catch-all DLP policy rule with ANY file type. Due to the file type fallback decisions by Zscaler, you can drop HTTP Form data from the file type list of the last catch-all rule.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Use a combination of a Predefined Dictionary with a Low or Medium Confidence Score Threshold and a Custom Dictionary for Pattern/Phrase.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          23,
+          44
+        ],
+        [
+          52,
+          55
+        ],
+        [
+          59,
+          92
+        ],
+        [
+          99,
+          116
+        ],
+        [
+          121,
+          135
+        ]
+      ]
+    },
+    {
+      "text": "For example, you can create a Custom Dictionary to include keywords using patterns and phrases:"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Leverage the Predefined dictionary NRIC Numbers (Singapore).",
+      "depth": 0,
+      "strong": [
+        [
+          35,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Create a new DLP Engine by using the Predefined dictionary NRIC Numbers (Singapore) and Custom Dictionary.",
+      "depth": 0,
+      "strong": [
+        [
+          59,
+          105
+        ]
+      ]
+    },
+    {
+      "text": "Use the Expression Preview: ((NRIC Numbers (Singapore) > 5) AND ((Identity Card Number (Phrases 1) > 0) OR (Identity Card Number (Phrases 2) > 0)))"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Web DLP Policy (Inline DLP, OCR, EDM, and IDM) Not Working as Expected",
+      "level": 1
+    },
+    {
+      "text": "When handling DLP policy issues, look at two areas: the DLP policy configuration on Zscaler and the input data."
+    },
+    {
+      "text": "The DLP policy is configured to match the DLP Engine or other criteria (with or without content matching), but the access is not triggered. You must look at the Web Insights logs for the Blocked Policy Type value and the Allowed DLP Rule Name for the reported transaction.",
+      "strong": [
+        [
+          187,
+          206
+        ],
+        [
+          221,
+          242
+        ]
+      ]
+    },
+    {
+      "text": "By default, the Zscaler service evaluates inline DLP policy rules according to rule order, with the evaluation stopping at the first match. However, if Evaluate All Rules mode is enabled for your organization, you can instead have the Zscaler service evaluate all rules, and enforce the rule with the most restrictive action. Evaluate All Rules mode uses rule order only when multiple rules with the same action are matched. In that case, the rule order determines which policy rule is triggered."
+    },
+    {
+      "text": "Sample Web Insights Logs"
+    },
+    {
+      "text": "The following are important Web insights fields for DLP issues."
+    },
+    {
+      "text": "Keep in mind that policy action depends on the Evaluate All Rules mode setting:"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "By Rule Order: Zscaler service evaluates inline DLP policy rules according to rule order, with evaluation stopping at the first match.",
+      "depth": 0
+    },
+    {
+      "item": "Evaluate All Rules: Zscaler service evaluates all rules, enforcing the rules with the most restrictive action. Evaluate All Rules mode uses rule order only when multiple rules with the same action are matched. In that case, the rule order determines which policy rule is triggered.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "URL",
+          "DLP Engine",
+          "DLP Dictionaries",
+          "Blocked Policy Name",
+          "Blocked Policy Type",
+          "Allowed DLP Rule Name"
+        ],
+        [
+          "dlptest.com/wp-admin/admin-ajax.php",
+          "SSN",
+          "SSN Regex 2 (4)",
+          "DLP_Block_SSN",
+          "Data Loss Prevention",
+          "DLP_Pre724_otherDoc"
+        ],
+        [
+          "dlptest.com/http-post/",
+          "Hash Engine",
+          "test (2)",
+          "DLP_Rule_Phrase",
+          "Data Loss Prevention",
+          "DLP_Pre724_otherDoc"
+        ],
+        [
+          "lastpass.com/login_check.php",
+          "External",
+          "None",
+          "None",
+          "None",
+          "DLP_Pre724_otherDoc"
+        ],
+        [
+          "lastpass.com/login_check.php",
+          "External",
+          "None",
+          "None",
+          "None",
+          "DLP_Pre724_otherDoc"
+        ],
+        [
+          "storage.prod.us-east-1.w1.dataprotection.zscalergov.net/browser-extensions/",
+          "External",
+          "None",
+          "DLP_Password",
+          "Data Loss Prevention",
+          "None"
+        ],
+        [
+          "endpoints.prod.us-east-1.w1.dataprotection.zscalergov.net/api/",
+          "26-Thailand National Identity Card Number",
+          "26-Thailand National Identity Card Number (Patterns) (1);26-Thailand National Identity Card Number (Phrases) (1)",
+          "DLP_NRIC_SEA",
+          "Data Loss Prevention",
+          "None"
+        ]
+      ]
+    },
+    {
+      "text": "Troubleshooting"
+    },
+    {
+      "text": "If the Blocked Policy Type and Allowed DLP Rule Name isn't None, this means the request matched the DLP policy. Check the following in the full web insights logs and Internet & SaaS configuration:",
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          31,
+          52
+        ],
+        [
+          59,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Ensure the reported traffic is seen on the Web Insights logs. If the web transaction is not visible in the Internet & SaaS Web Insights logs, it is possible that the transaction is not reaching Zscaler.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Ensure SSL inspection is enabled if the traffic is HTTPS.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Go to Policies > Data Protection > Common Resources > Advanced Settings and verify the following configuration:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          32
+        ],
+        [
+          35,
+          51
+        ],
+        [
+          54,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Check that the request traffic is included in any of the Cloud App & URL Exceptions for DLP configuration. These configurations are a global setting. Do not change them without fully understanding the change and impact.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          57,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Exempted Cloud Applications: Add the respective cloud app if you want to bypass DLP policy.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Exempted URLs: Add the respective domains if you want to bypass DLP policy.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Exempted User-Defined URL Categories: Add the respective Custom URL category if you want to bypass DLP policy.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          36
+        ],
+        [
+          57,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Exempt URL Encoded Data: Enable this setting to bypass scanning the content type as application/x-www-form-urlencoded from DLP evaluation.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Go to Exact Data Match > Check for Popular Formats: Enabling this reduces false positives on non-standard formats. Exact Data Match (EDM) and Indexed Document Match (IDM) require the Advanced DLP suite.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          22
+        ],
+        [
+          25,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Go to Optical Character Recognition (OCR): Enable these settings if you want to apply DLP policy on image files.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Review and take notes on the specific triggered DLP rule (in the Web Insights Blocked Policy Type or Allowed DLP Rule Name).",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          78,
+          97
+        ],
+        [
+          101,
+          122
+        ]
+      ]
+    },
+    {
+      "item": "Check if the transaction matches all the criteria configured within a DLP rule:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Source-related criteria: These include Users, Groups, Departments, User Risk Profile, Locations, Location Groups, Source IP Groups.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Destination-related criteria: These include URL Categories, Cloud Applications, Cloud Application Instances, Private Access Application Segment.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "The DLP policy applies AND logic to the URL Categories and Cloud Applications fields when inspecting your organization's traffic. In order for a DLP rule to trigger, the Zscaler service must detect the rule’s selected URL categories and cloud applications in a transaction.",
+      "depth": 2
+    },
+    {
+      "item": "Other criteria: This includes Time, Protocols, File Type, and Data Size (KB).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Notes: WebSocket Protocol is now supported in DLP rule.",
+      "depth": 2
+    },
+    {
+      "item": "If Content Matching is enabled, record which DLP Engines are selected. Based on the DLP Engines in use, go to Administration > Resources > Data Loss Prevention > DLP Dictionaries & Engines to learn more details:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          3,
+          19
+        ],
+        [
+          110,
+          124
+        ],
+        [
+          127,
+          136
+        ],
+        [
+          139,
+          159
+        ],
+        [
+          162,
+          188
+        ]
+      ]
+    },
+    {
+      "item": "First, check the respective DLP Engines to learn which DLP Dictionaries are involved and their Expression.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          95,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "View the respective DLP Engine and take a screenshot or record the Expression Preview.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          67,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "When you know the DLP Dictionaries used, view the respective DLP Dictionary and take a screenshot.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          61,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Check the settings and values configured in each related DLP Dictionary:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Predefined Type: Note the Confidence Score Threshold and Proximity Length.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          26,
+          52
+        ],
+        [
+          57,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Special configurations like Custom High Confidence Phrases and Social Security Numbers in Social Security Numbers (US).",
+      "depth": 3,
+      "strong": [
+        [
+          28,
+          58
+        ],
+        [
+          63,
+          86
+        ],
+        [
+          90,
+          118
+        ]
+      ]
+    },
+    {
+      "item": "Patterns & Phrases",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "EDM",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "IDM",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "If you have the DLP violation alert, cross-check the DLP violation criteria with the earlier steps. If your current DLP Notification Template does not include \"${DLPTRIGGERS}\", you can create a new DLP Notification Template using the following example:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "If your current DLP Notification Template does not include \"${DLPTRIGGERS}\". You can create a new DLP Notification Template using the following example in the Message as HTML section.",
+      "strong": [
+        [
+          159,
+          174
+        ]
+      ]
+    },
+    {
+      "text": "<!DOCTYPE html> <html> <head> <style> .user {color: rgb(1, 81, 152);} .url {color: rgb(1, 81, 152);} .postingtype {color: rgb(1, 81, 152);} .engines {color: rgb(1, 81, 152);} .dictionaries {color: rgb(1, 81, 152);} </style> </head> <body> The attached content triggered a Web DLP rule for your organization. <br/><br/> Transaction Timestamp: <span class=\"timestamp\">${TIMESTAMP}</span> <br/> Transaction ID: <span class=\"transaction_id\">${TRANSACTION_ID}</span> <br/> Client IP Accessing the URL: <span class=\"client_ip\">${CLIENT_IP}</span> <br/> User Accessing the URL: <span class=\"user\">${USER}</span> <br/> Action for the access: <span class=\"action\">${ACTION}</span> <br/> Rulename of DLP policy: <span class=\"rulename\">${RULENAME}</span> <br/> Severity of Violation: <span class=\"severity\">${SEVERITY}</span> <br/> URL Accessed: <span class=\"url\">${URL}</span> <br/> Posting Type: <span class=\"postingtype\">${TYPE}</span> <br/> DLP MD5: <span class=\"dlpmd5\">${DLPMD5}</span> <br/> File Name: <span class=\"filename\">${FILENAME}</span> <br/> File Type: <span class=\"filetype\">${FILETYPE}</span> <br/> Triggered DLP Violation Engines (assigned to the hit rule): <span class=\"engines\">${ENGINES_IN_RULE}</span> <br/> Triggered DLP Violation Dictionaries (assigned to the hit rule): <span class=\"dictionaries\">${DICTIONARIES}</span> <br/><br/> DLP Triggers match: <span class=\"triggers\">${DLPTRIGGERS}</span> <br/> No action is required on your part. <br/><br/> </body> </html>"
+    },
+    {
+      "item": "If no issue is found in the DLP Engines or DLP Dictionaries, check if the content is POST using single or multipart form submission. There is a possibility that part of a multipart/form-data payload submission hits the DLP rule.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          85,
+          89
+        ]
+      ]
+    },
+    {
+      "heading": "How to Check Multipart Form Submission",
+      "level": 3
+    },
+    {
+      "text": "A user can submit a POST request to Zscaler using a single or multipart payload submission. This affects the way the Zscaler’s DLP engine processes the data."
+    },
+    {
+      "text": "For example, when a user selects a single file or multiple files in one single upload, one or more files are uploaded to a website like http://dlptest.com/http-post/ using the multipart/form-data option. In a multipart payload upload, the data is divided into multiple parts with its own headers and boundaries. Each of the parts is evaluated against the Zscaler's DLP rules."
+    },
+    {
+      "text": "The following Chrome Browser Header indicates a multipart payload upload."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Further Consideration"
+    },
+    {
+      "text": "At this point, you should have verified most of the DLP-related configuration on the Zscaler Admin Console and nothing is out of the norm. You might have to create an issue summary with the compiled data and open a support case with Zscaler Support."
+    },
+    {
+      "text": "Here is a quick checklist of the data collection:"
+    },
+    {
+      "item": "HTTP Header HAR file",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Capturing HTTP Headers on Microsoft Edge.",
+      "depth": 1
+    },
+    {
+      "item": "Capturing HTTP Headers on Google Chrome.",
+      "depth": 1
+    },
+    {
+      "item": "Capturing HTTP Headers on Mozilla Firefox.",
+      "depth": 1
+    },
+    {
+      "item": "Capturing HTTP Headers on Safari.",
+      "depth": 1
+    },
+    {
+      "item": "Wireshark capture",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "For Zscaler Client Connector, use the Packet Capture option.",
+      "depth": 1
+    },
+    {
+      "item": "Without Zscaler Client Connector, use the Wireshark capture method.",
+      "depth": 1
+    },
+    {
+      "item": "Web Insights logs with all fields selected.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Violation content notification email or JSON file.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "You can remove or obfuscate the highly sensitive data while it is still able to trigger the DLP issue."
+    },
+    {
+      "item": "Sample test data. (You can skip this if the same data was provided earlier.)",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Temporarily enable Remote Assistance.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "heading": "Web DLP Email or ICAP Notification Issue",
+      "level": 1
+    },
+    {
+      "text": "Zscaler supports sending DLP violation notification delivery using email, Internet Content Adaptation Protocol (ICAP). You can integrate the ICAP option (subscription required) with a third-party ICAP server or Zscaler Incident. To learn more, see ICAP server or Zscaler Incident Receiver."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 2
+    },
+    {
+      "text": "The following sections describe troubleshooting for web DLP."
+    },
+    {
+      "text": "Email Notification Issue"
+    },
+    {
+      "text": "For Email Notification:"
+    },
+    {
+      "item": "Zscaler supports a 25 MB limit for DLP email notification attachments by default. The admin still receives the DLP email notification but without the violation content attachment. The DLP email shows a message like this:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "Posting Type: General Browsing Post (NRIC-Large.xlsx not attached - its size 51530124 bytes exceeds archive size limit of 25MB)"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Further Steps",
+      "level": 4
+    },
+    {
+      "item": "What is the use case and investigate why you want to send large violation content using email.",
+      "depth": 0
+    },
+    {
+      "item": "Use other options such as leveraging the ICAP method (integration with a third-party ICAP server, Zscaler Incident Receiver, or Zscaler Workflow Automation).",
+      "depth": 0
+    },
+    {
+      "item": "If you have a strong, valid use case to send large violation content using email, then raise a Provisioning support case with Zscaler Support with the details.",
+      "depth": 0
+    },
+    {
+      "text": "SMTP Delivery Issue"
+    },
+    {
+      "text": "If the DLP policy is triggered as per Zscaler logs, and you are not getting email notifications to the configured auditor email address, then use the following sections."
+    },
+    {
+      "heading": "SMTP Codes Reference",
+      "level": 4
+    },
+    {
+      "text": "Zscaler Support can check the Simple Mail Transfer Protocol (SMTP) code for a particular email delivery using the DLP Identifier field from Web Insights logs. SMTP codes are three-digit numbers, such as 250, 421, or 550. The first digit indicates the general category of the response:"
+    },
+    {
+      "item": "2.x.x: Positive completion reply (success).",
+      "depth": 0
+    },
+    {
+      "item": "3.x.x: Positive intermediate reply (command accepted, more information needed).",
+      "depth": 0
+    },
+    {
+      "item": "4.x.x: Transient negative completion reply (temporary error).",
+      "depth": 0
+    },
+    {
+      "item": "5.x.x: Permanent negative completion reply (permanent error).",
+      "depth": 0
+    },
+    {
+      "text": "Common examples:"
+    },
+    {
+      "item": "220: Service ready (SMTP server is ready to accept connections).",
+      "depth": 0
+    },
+    {
+      "item": "250: Requested mail action okay (message delivered successfully).",
+      "depth": 0
+    },
+    {
+      "item": "421: Service not available, closing transmission channel (temporary issue with the server).",
+      "depth": 0
+    },
+    {
+      "item": "450: Requested mail action not taken: mailbox unavailable (temporary issue with the recipient's mailbox).",
+      "depth": 0
+    },
+    {
+      "item": "451: Requested action aborted: local error in processing (temporary error on the server).",
+      "depth": 0
+    },
+    {
+      "item": "500: Syntax error, command unrecognized (invalid command).",
+      "depth": 0
+    },
+    {
+      "item": "550: Requested action not taken: mailbox unavailable or not found (permanent error).",
+      "depth": 0
+    },
+    {
+      "item": "554: Transaction failed (general error during message transmission).",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 4
+    },
+    {
+      "item": "Check the auditor's email address. From the Zscaler Admin Console, find the external auditor's email address by editing the relevant DLP rule. Ensure the auditor email address is correct. You can test it using a different email address (with a different email domain (e.g., gmail.com or yahoo.com).",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "This step is not a workaround or solution but a problem isolation step. Since DLP violation might involve sensitive data, you must get the necessary internal approval before performing this test."
+    },
+    {
+      "item": "Check the Web Insights logs. You can filter the Web Insights logs to display the DLP transactions. Look for the Policy Action column, ensure the notification for DLP was triggered as either Violates Compliance Category, archived to mailbox, or Allowed and archived to mailbox.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          112,
+          125
+        ],
+        [
+          190,
+          239
+        ],
+        [
+          244,
+          275
+        ]
+      ]
+    },
+    {
+      "heading": "Further Steps",
+      "level": 4
+    },
+    {
+      "text": "At this point, you can compile the issue summary with the data and open a support case with Zscaler Support. Here is a quick checklist of the data collection:"
+    },
+    {
+      "item": "Relevant configuration screenshots:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "DLP rule name",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Auditor email address",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Web Insights logs with all fields selected.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Temporarily enable Remote Assistance. To learn more, see Enabling Remote Assistance.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          19,
+          36
+        ]
+      ]
+    },
+    {
+      "text": "ICAP Notification Issue"
+    },
+    {
+      "text": "Zscaler supports secure or unencrypted ICAP receivers on the DLP notification. Zscaler recommends sending transaction information via secure ICAP."
+    },
+    {
+      "text": "Secure ICAP is required to set up stunnel application."
+    },
+    {
+      "text": "To learn more, see About ICAP Communication Between Zscaler and DLP Servers."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 4
+    },
+    {
+      "item": "Ensure the necessary Firewall configuration according to Zscaler's Config page.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "DLP ICAP Requirements. Use the following URL format: https://config.zscaler.com/<zscaler cloud>/icap, where you should replace <zscaler cloud> with your Zscaler cloud URL (e.g., https://config.zscaler.com/zscaler.net/icap).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "DLP Incident Receiver. Use the following URL format: https://config.zscaler.com/<zscaler cloud>/dlp-incident-receiver, where you should replace <zscaler cloud> with your Zscaler cloud URL (e.g., https://config.zscaler.com/zscaler.net/dlp-incident-receiver).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Internet & SaaS Advanced DLP (Private Service Edge). Use the following URL format: https://config.zscaler.com/<zscaler cloud>/zia-private-dlp, where you should replace <zscaler cloud> with your Zscaler cloud URL (e.g., https://config.zscaler.com/zscaler.net/zia-private-dlp).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Private Service Edge for Internet & SaaS Access Requirements. Use the following URL format: https://config.zscaler.com/<zscaler cloud>/zia-sedge, where you should replace <zscaler cloud> with your Zscaler cloud URL (e.g., https://config.zscaler.com/zscaler.net/zia-sedge).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Perform a telnet to the external ICAP server IP address and port (e.g., 1344) behind an allowed network.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If it is ICAP, check the stunnel configuration according to the tunnel application guide. Change the configuration to an unencrypted ICAP URL and test again.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Further Steps",
+      "level": 4
+    },
+    {
+      "text": "At this point, you can compile the issue summary with the data and open a support case with Zscaler Support. Here is a quick checklist of the data collection:"
+    },
+    {
+      "item": "Relevant configuration screenshots:",
+      "depth": 0
+    },
+    {
+      "item": "DLP rule name",
+      "depth": 1
+    },
+    {
+      "item": "DLP rule’s DLP Incident Receiver setting",
+      "depth": 1
+    },
+    {
+      "item": "DLP Incident Receiver’s configuration",
+      "depth": 1
+    },
+    {
+      "item": "Web Insights logs with all fields selected.",
+      "depth": 0
+    },
+    {
+      "item": "Temporarily enable Remote Assistance. To learn more, see Enabling Remote Assistance.",
+      "depth": 0,
+      "strong": [
+        [
+          19,
+          36
+        ]
+      ]
+    }
+  ]
+}

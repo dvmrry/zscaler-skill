@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Enabling Domain Join for Remote Users on Windows Devices",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/enabling-domain-join-remote-users-windows-devices",
+    "node": "1484216",
+    "revision": "3213755",
+    "updated": "2026-06-01",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "For remote users on Microsoft Windows devices logging in to an Active Directory (AD) domain for the first time, make sure that the device is provisioned by your organization's IT team with a local account on the device. The user can then complete their first-time login using that local account to enroll in to Private Access (ZPA)."
+    },
+    {
+      "text": "If the remote user's password is expired and they cannot log in to Windows, the password reset can be done in Private Access, even when the device's Zscaler Client Connector is not connected to Private Access. To learn more, see About Machine Groups and Configuring Machine Provisioning Keys."
+    },
+    {
+      "text": "Using the Private Access connection, the device can be joined to the domain, the remote user can log in, and their credentials can be cached on the device. The workflow for the user is as follows:"
+    },
+    {
+      "item": "User logs in to the device using their local account.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "User enrolls in to Private Access using Zscaler Client Connector on the local account.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "User updates cached credentials using one of the methods below.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "User logs out of Zscaler Client Connector and out of the local account.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "User logs in to the device with their Windows domain account.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "text": "You can use a PowerShell script or the RunAs command to cache credentials on Windows 7 and 10 operating systems. Neither require local administrator rights, and the local account can be configured to be limited to ensure that users do not continue to use it after they've been enrolled in to Private Access."
+    },
+    {
+      "text": "It is also possible to use a different shell than the standard Windows shell (i.e., explorer.exe) to run the cache credentials procedure in a kiosk mode setup."
+    },
+    {
+      "text": "The user can update their cached credentials using one of the following methods:"
+    },
+    {
+      "item": "A PowerShell Script",
+      "depth": 0
+    },
+    {
+      "item": "Using a PowerShell script allows you to automate the process and display user interface prompts for username and password. The script can also be configured to automatically start when the user logs in with their local account, so they don't need to start the procedure on their own.",
+      "depth": 0
+    },
+    {
+      "item": "The following is an example PowerShell script:",
+      "depth": 0
+    },
+    {
+      "item": "$User = \"purple\\test1\" $Password = ConvertTo-SecureString \"zscaler\" -AsPlaintext -Force $UserCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList @($User,$Password) Start-Process -FilePath 'CMD.EXE' -ArgumentList '/C ECHO' -Credential $UserCredentials -LoadUserProfile",
+      "depth": 0
+    },
+    {
+      "item": "The RunAs Command in the Windows User Interface",
+      "depth": 0
+    },
+    {
+      "item": "While the user is logged in to their the local account:",
+      "depth": 0
+    },
+    {
+      "item": "Hold down the SHIFT key and right-click on any application on the desktop (e.g., Microsoft Outlook, Google Chrome, etc.).",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the right-click menu, select Run as different user to open an authentication prompt.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          32,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Enter the new credentials at the prompt to update the cached credentials.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "The RunAs Command in a Batch File",
+      "depth": 0
+    },
+    {
+      "item": "Using RunAs from the command prompt allows you to configure cached credentials via a batch (.bat) file so that they are automatically displayed when the user logs in with their local account.",
+      "depth": 0
+    },
+    {
+      "item": "The following is an example RunAs .bat file script:",
+      "depth": 0
+    },
+    {
+      "item": "@ECHO OFF SET /P user=Please enter your username: IF \"%user%\"==\"\" GOTO Error runas /profile /user:yourdomain\\%user% \"cmd.exe /C ECHO\" GOTO End :Error ECHO Please enter your username :End",
+      "depth": 0
+    }
+  ]
+}

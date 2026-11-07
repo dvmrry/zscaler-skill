@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "id": "zia.atp.block-diagnosis",
+  "title": "Diagnosing a Malware Protection or ATP block from the logs",
+  "aliases": [
+    "blocked policy type malware protection",
+    "ruletype advanced threat protection",
+    "malwarecat",
+    "threatname",
+    "riskscore",
+    "which atp category blocked",
+    "security dashboard atp",
+    "cybersecurity dashboard atp",
+    "mp or atp block"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.sandbox.verdicts",
+      "because": "zia.sandbox.verdicts:benign-not-clean"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.web-rule-attribution",
+      "because": "zia.logs.web-rule-attribution:rulelabel-block-only"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.web-records",
+      "because": "zia.atp.block-diagnosis:threat-fields"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia/web-log",
+      "because": "zia.atp.block-diagnosis:reason-field"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.malware-protection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.page-risk"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.security-exceptions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "For \"was this block Malware Protection or ATP,\" the API does not give a verdict; the logged transaction does. Start from [[zia.sandbox.verdicts]], which holds the Blocked Policy Type boundary between Sandbox, Malware Protection and ATP and the absence of a per-transaction API. This subject covers the fields that then narrow it."
+    },
+    {
+      "text": "{{ruletype-column}} The exact strings for these two engines are open {{gap:ruletype-values}}. {{reason-field}}"
+    },
+    {
+      "label": "Which detection?",
+      "text": "{{threat-fields}} For Page Risk blocks: {{riskscore-field}}"
+    },
+    {
+      "label": "Where else is it shown?",
+      "text": "{{security-dashboard}}"
+    },
+    {
+      "text": "Rule names and the Allow-side fields are in [[zia.logs.web-rule-attribution]]. Category routing is in [[zia.malware-protection.settings]] for malware, [[zia.atp.categories]] for ATP groups, and [[zia.atp.page-risk]] for Page Risk. Exceptions for a confirmed false positive are in [[zia.atp.security-exceptions]]. A block that no listed policy explains may be a new categorization: [[zia.atp.ai-ml-recategorization]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether ruletype names the blocking policy, which is shown only on Block rules.",
+      "uses": [
+        "ruletype-column"
+      ]
+    },
+    {
+      "do": "Which category field applies: malwarecat or threatname for a malware detection, urlcat for an Advanced Threat Category.",
+      "uses": [
+        "threat-fields"
+      ]
+    },
+    {
+      "do": "Whether the riskscore of the destination URL is above the configured Page Risk tolerance, for a Page Risk block.",
+      "uses": [
+        "riskscore-field"
+      ]
+    }
+  ],
+  "claims": {
+    "ruletype-column": {
+      "statement": "The web log field ruletype, shown in Web Insights as Blocked Policy Type, gives the type of policy and applies only to Block rules, not Allow. The documented example values are File Type Control, Data Loss Prevention and Sandbox.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{ruletype} | The type of policy. Applies only to Block rules, not Allow. | File Type Control, Data Loss Prevention, Sandbox | Blocked Policy Type",
+            "If applicable, the web log fields are mapped to their corresponding columns in Web Insights Logs (Data Explorer > Internet & SaaS > Web Insights > Logs)."
+          ]
+        }
+      ],
+      "gaps": [
+        "ruletype-values"
+      ]
+    },
+    "reason-field": {
+      "statement": "The reason field holds the action taken and the policy applied when a transaction was blocked. Its documented examples include 'Virus/Spyware/Malware Blocked' and 'This page is unsafe (high PageRisk index)'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{reason} | The action that the service took and the policy that was applied, if the transaction was blocked.",
+            "| Virus/Spyware/Malware Blocked",
+            "This page is unsafe (high PageRisk index)"
+          ]
+        }
+      ]
+    },
+    "threat-fields": {
+      "statement": "The threat category of a detection is carried by malwarecat (shown as Threat Category), with threatname for the named threat. urlcat also includes the Advanced Threat Category, listed in the Advanced Threat Category filter of Web Insights.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{malwarecat} | The category of malware that was detected in the transaction, if any.",
+            "| %s{threatname} | The name of the threat that was detected in the transaction, if any",
+            "Also includes the Advanced Threat Category.",
+            "The full list is under the Advanced Threat Category filter on the Web Insights page.",
+            "for backward compatibility. | Threat Category |",
+            "| %s{urlcat} | The category of the destination URL"
+          ]
+        }
+      ]
+    },
+    "riskscore-field": {
+      "statement": "The riskscore field is the Page Risk Index score of the destination URL, in the range 0 to 100 from lowest to highest risk, so it can be compared with the configured Page Risk tolerance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %d{riskscore} | The Page Risk Index score of the destination URL.",
+            "from the lowest to the highest risk.",
+            "The range is 0–100, from the lowest to the highest risk."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "The Zscaler service calculates the Page Risk Index score of a web page in real time. This score is then evaluated against the value that you set."
+          ]
+        }
+      ]
+    },
+    "security-dashboard": {
+      "statement": "ATP transactions are logged in real time and shown on the Cybersecurity dashboard (Analytics > Cybersecurity) in the Zscaler Admin Console; access to this feature is through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "The Zscaler service logs transactions in real time and shows the information on the Cybersecurity dashboard (Analytics > Cybersecurity) in the Zscaler Admin Console. To access this feature, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ruletype-values": {
+      "kind": "data",
+      "former_ids": [
+        "log-04"
+      ],
+      "title": "Exact ruletype strings for Malware Protection and ATP blocks",
+      "status": "partial",
+      "about": [
+        "zia.sandbox.verdicts:blocked-policy-type"
+      ],
+      "detail": "Unverified legacy statement: 'MP blocks populate this with Malware Protection; ATP blocks populate it with Advanced Threat Protection (pattern match to the documented examples; confirm on first tenant export).' The sandbox verdicts subject holds the MCP skill's statement that Blocked Policy Type identifies Malware Protection and Advanced Threat Protection. The NSS schema lists only File Type Control, Data Loss Prevention and Sandbox as examples. What would resolve it: a web log export of a known MP and a known ATP block.",
+      "blocks": "Writing a log filter on ruletype for these two engines.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

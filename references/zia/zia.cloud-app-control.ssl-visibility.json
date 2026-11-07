@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.ssl-visibility",
+  "title": "Cloud App Control and SSL inspection: what CAC can see",
+  "aliases": [
+    "cac ssl inspection",
+    "one click office 365",
+    "ucaas one click",
+    "zoom one click",
+    "ms o365 optimize",
+    "cac granular action not working",
+    "cac and ssl bypass"
+  ],
+  "binds": [
+    "zia/cloud-app-control"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.exemptions",
+      "because": "zia.ssl-inspection.exemptions:m365-inspect-except-click-to-run"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.pipeline",
+      "because": "zia.cloud-app-control.ssl-visibility:domain-level-only-when-not-decrypted"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.rule-criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.ai-ml-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "CAC and SSL inspection interact in two ways: what CAC sees, and which settings turn off interception for a whole vendor's destinations. The general pipeline is in [[zia.ssl-inspection.pipeline]]; this page covers what matters to CAC rules."
+    },
+    {
+      "label": "Settings that turn off interception for whole vendors.",
+      "text": "{{one-click-m365}} {{m365-inspection-choice}} The per-application Office 365 One Click Configuration option is not described {{gap:office365-per-app-option}}. {{one-click-ucaas}} {{o365-optimize-bypass}}"
+    },
+    {
+      "label": "What that does to CAC.",
+      "text": "{{domain-level-only-when-not-decrypted}} How CAC maps requests to applications on shared hostnames is open [[zia.cloud-app-control.rule-criteria:app-identity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a one-click or Optimize bypass setting stops interception for an app before reading that app's CAC rule, since these settings turn off interception for whole vendors.",
+      "uses": [
+        "one-click-m365",
+        "m365-inspection-choice",
+        "one-click-ucaas",
+        "o365-optimize-bypass"
+      ]
+    },
+    {
+      "do": "Whether the traffic is decrypted before promising granular actions, since granular actions need SSL/TLS Inspection.",
+      "uses": [
+        "zia.cloud-app-control.ai-ml-rules:common-actions-and-ssl",
+        "domain-level-only-when-not-decrypted"
+      ]
+    }
+  ],
+  "claims": {
+    "one-click-m365": {
+      "statement": "Enabling the Microsoft-recommended One Click Office 365 Configuration turns off SSL/TLS interception for all Microsoft 365 destinations. Disabling it and using the pre-existing configuration keeps granular controls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-policy-settings.json",
+          "quotes": [
+            "Enable Microsoft-Recommended One Click Office 365 Configuration: Enable this option",
+            "Enabling this option turns off SSL/TLS Inspection for all Microsoft 365 destinations as per Microsoft's recommendation.",
+            "If you want to continue using existing granular controls for Microsoft 365, disable this option and enable the pre-existing configuration."
+          ]
+        }
+      ]
+    },
+    "one-click-ucaas": {
+      "statement": "Enabling the one-click option for Zoom, GoTo, RingCentral, Webex or Talkdesk turns off SSL/TLS interception for all of that vendor's destinations; to keep granular controls the option must be disabled and cloud application and firewall network application policies configured instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-policy-settings.json",
+          "quotes": [
+            "The Zscaler service provides a One-Click Configuration option for UCaaS apps",
+            "Enabling the Zoom, GoTo, RingCentral, Webex, or Talkdesk option allows Zscaler to permit secure local breakout for their traffic automatically",
+            "When either option is enabled, it turns off SSL/TLS Inspection for all Zoom, GoTo, RingCentral, Webex, or Talkdesk destinations.",
+            "To continue using existing granular controls for Zoom, GoTo, RingCentral, Webex, or Talkdesk, disable the respective option, and enable cloud application and firewall network application policies accordingly."
+          ]
+        }
+      ]
+    },
+    "m365-inspection-choice": {
+      "statement": "The Understanding Microsoft 365 article says Microsoft 365 applications rely on tunnel protocols such as MAPI/RPC over HTTPS (Outlook) and non-web protocols such as RTMP, SIP (Lync) and Autodiscover, and that, to comply with Microsoft's connectivity principles and recommendations, the Microsoft-Recommended One Click Office 365 Configuration can be enabled for all Microsoft 365 application URLs. To inspect Microsoft 365 web apps that run in a browser, such as SharePoint, Yammer and Office online, content inspection and SSL Inspection can be enabled through the Office 365 One Click Configuration option, which chooses individual cloud applications; Zscaler strongly recommends the Microsoft-Recommended configuration for better performance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-microsoft-365.json",
+          "quotes": [
+            "Microsoft 365 applications rely on tunnel protocols like MAPI/RPC over HTTPS (Outlook) and on non-web protocols like RTMP, SIP (Lync), and Autodiscover (for all Office apps) for data transfers.",
+            "To be in compliance with Microsoft's connectivity principles and recommendations, you can enable the Microsoft-Recommended One Click Office 365 Configuration for all Microsoft 365 application URLs.",
+            "If your organization has a requirement to inspect Microsoft 365 web apps, such as SharePoint, Yammer, and Office online, which run within a web browser,",
+            "then content inspection and SSL Inspection can be enabled using the Office 365 One Click Configuration option, where you can choose individual cloud applications.",
+            "However, Zscaler strongly recommends using the Microsoft-Recommended One Click Office 365 Configuration for better performance."
+          ]
+        }
+      ]
+    },
+    "o365-optimize-bypass": {
+      "statement": "The MS O365 Optimize URL category carries the note to bypass its sites from SSL/TLS Inspection and authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-url-categories.json",
+          "quotes": [
+            "MS O365 Optimize: Sites that are required for connectivity to every Office 365 service.",
+            "Ensure to bypass these sites from SSL/TLS Inspection and authentication. | outlook.office.com"
+          ]
+        }
+      ]
+    },
+    "domain-level-only-when-not-decrypted": {
+      "statement": "For traffic that is not decrypted, including destinations covered by the one-click options, Cloud App Control can use only the domain-level information from the first pass (CONNECT host or SNI), so it has less to identify the application with than for decrypted traffic.",
+      "tier": "B",
+      "derived_from": [
+        "zia.ssl-inspection.pipeline:first-pass-on-domain",
+        "zia.ssl-inspection.pipeline:not-inspected-domain-only",
+        "zia.cloud-app-control.ssl-visibility:one-click-m365",
+        "zia.cloud-app-control.ssl-visibility:one-click-ucaas"
+      ],
+      "conditions": "Derived from the pipeline claims plus the one-click claims. No source states how CAC identifies applications, so how much less visibility matters per application is unverified (see zia.cloud-app-control.rule-criteria:app-identity)."
+    }
+  },
+  "gaps": {
+    "office365-per-app-option": {
+      "kind": "semantic",
+      "title": "What the per-application Office 365 One Click Configuration option does",
+      "status": "open",
+      "detail": "The Understanding Microsoft 365 article names an Office 365 One Click Configuration option where individual cloud applications can be chosen, but does not describe the option or say which applications it offers.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,760 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Outbound Email DLP Policy",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/outbound-email-dlp-policy",
+    "node": "1541555",
+    "revision": "3217850",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Outbound%20Email%20DLP%20Policy.json?VersionId=vw6SQW4VGjmeXeiukGrKxSg2yHLDqEFX",
+    "updated": "2026-07-07",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Outbound Email DLP Policy"
+      }
+    ],
+    "paths": {
+      "/emailDlpRules": {
+        "get": {
+          "tags": [
+            "Outbound Email DLP Policy"
+          ],
+          "description": "Retrieves the list of all Outbound Email DLP rules. You can filter the results based on rule attributes.",
+          "operationId": "EmailDlpRuleResource_getRules",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "orgId",
+              "in": "query",
+              "description": "The unique identifier for the organization.",
+              "required": false,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EmailDlpRule"
+                }
+              }
+            }
+          },
+          "x-rate-limit": {
+            "x-rate-limit-weight": "lite"
+          }
+        },
+        "post": {
+          "tags": [
+            "Outbound Email DLP Policy"
+          ],
+          "description": "Creates a new Outbound Email DLP rule. To learn more, see <a href=\"/zia/configuring-outbound-email-policy-rules\" target=\"_blank\">Configuring Outbound Email DLP Policy Rules</a>.",
+          "operationId": "EmailDlpRuleResource_addRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Rule configuration details",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/EmailDlpRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EmailDlpRule"
+              }
+            }
+          },
+          "x-rate-limit": {
+            "x-rate-limit-weight": "major"
+          }
+        }
+      },
+      "/emailDlpRules/lite": {
+        "get": {
+          "tags": [
+            "Outbound Email DLP Policy"
+          ],
+          "description": "Gets the list of all Outbound Email DLP rules with limited information about each rule. To get complete rule details, use the <code>GET /emailDlpRules</code> request.",
+          "operationId": "EmailDlpRuleResource_getSummary",
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EmailDlpRule"
+                }
+              }
+            }
+          },
+          "x-rate-limit": {
+            "x-rate-limit-weight": "lite"
+          }
+        }
+      },
+      "/emailDlpRules/actions": {
+        "get": {
+          "tags": [
+            "Outbound Email DLP Policy"
+          ],
+          "description": "Retrieves a mapping of supported Outbound Email DLP rule actions for the specified email tenant applications in a CSV file",
+          "operationId": "EmailDlpRuleResource_getEmailDlpPolicyActions",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "tenantIds",
+              "in": "query",
+              "description": "A set of unique identifiers for the email tenant applications",
+              "required": true,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "collectionFormat": "csv"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "x-rate-limit": {
+            "x-rate-limit-weight": "featherlite"
+          }
+        }
+      },
+      "/emailDlpRules/{ruleId}": {
+        "get": {
+          "tags": [
+            "Outbound Email DLP Policy"
+          ],
+          "description": "Retrieves information about an Outbound Email DLP rule based on the specified rule ID",
+          "operationId": "EmailDlpRuleResource_getRuleById",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "The unique identifier for the rule",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EmailDlpRule"
+              }
+            }
+          },
+          "x-rate-limit": {
+            "x-rate-limit-weight": "featherlite"
+          }
+        },
+        "put": {
+          "tags": [
+            "Outbound Email DLP Policy"
+          ],
+          "description": "Updates information for an existing Outbound Email DLP rule. To learn more, see <a href=\"/zia/configuring-outbound-email-policy-rules\" target=\"_blank\">Configuring Outbound Email DLP Policy Rules</a>",
+          "operationId": "EmailDlpRuleResource_updateRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "The unique identifier for the rule",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Updated rule configuration details",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/EmailDlpRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EmailDlpRule"
+              }
+            }
+          },
+          "x-rate-limit": {
+            "x-rate-limit-weight": "major"
+          }
+        },
+        "delete": {
+          "tags": [
+            "Outbound Email DLP Policy"
+          ],
+          "description": "Deletes an Outbound Email DLP rule based on the specified rule ID",
+          "operationId": "EmailDlpRuleResource_deleteRule",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "The unique identifier for the rule",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Operation"
+            }
+          },
+          "x-rate-limit": {
+            "x-rate-limit-weight": "major"
+          }
+        }
+      }
+    },
+    "definitions": {
+      "EmailDlpRule": {
+        "type": "object",
+        "description": "Outbound Email DLP policy rule configuration details. To learn more, see <a href=\"/zia/configuring-outbound-email-policy-rules\" target=\"_blank\">Configuring Outbound Email DLP Policy Rules</a>.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "A unique, system-generated identifier for the rule",
+            "readOnly": true
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The order of execution of the rule with respect to other rules"
+          },
+          "name": {
+            "type": "string",
+            "description": "Rule name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information about the rule"
+          },
+          "state": {
+            "type": "string",
+            "description": "Status of the rule",
+            "enum": [
+              "ENABLED",
+              "DISABLED",
+              "ENABLED_AUTHENTICATION_REQUIRED"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "description": "Action to be applied when traffic matches the rule conditions",
+            "enum": [
+              "ALLOW",
+              "BLOCK",
+              "QUARANTINE"
+            ]
+          },
+          "groups": {
+            "type": "array",
+            "description": "Name-ID pairs of user groups to which the rule applies. If no value is set, this criterion is not considered for rule match.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "departments": {
+            "type": "array",
+            "description": "Name-ID pairs of departments to which the rule applies. If no value is set, this criterion is not considered for rule match.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "Name-ID pairs of users to which the rule applies. If no value is set, this criterion is not considered for rule match.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "excludedGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of user groups that are excluded from your Outbound Email DLP policy. This field is used in configuring exception rules, which are child rules that allow excluding specific users or groups in your organization that must perform tasks as part of a necessary workflow that might otherwise violate outbound email policy.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "excludedDepartments": {
+            "type": "array",
+            "description": "Name-ID pairs of departments that are excluded from your Outbound Email DLP policy. This field is used in configuring exception rules, which are child rules that allow excluding specific users or groups in your organization that must perform tasks as part of a necessary workflow that might otherwise violate outbound email policy.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "excludedUsers": {
+            "type": "array",
+            "description": "Name-ID pairs of users that are excluded from your Outbound Email DLP policy. This field is used in configuring exception rules, which are child rules that allow excluding specific users or groups in your organization that must perform tasks as part of a necessary workflow that might otherwise violate outbound email policy.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "timeWindows": {
+            "type": "array",
+            "description": "List of time intervals during which the rule is enforced",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "dlpEngines": {
+            "type": "array",
+            "description": "DLP engines that scan the content. If no value is set, all DLP engines are selected implicitly.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "fileTypes": {
+            "type": "array",
+            "description": "File type categories to which the rule applies. If no value is set, this criterion is not considered for rule match.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "minSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Minimum size requirement (in KB) that data must meet before the rule applies. The default minimum data size is O KB (i.e., there is no minimum data size requirement)."
+          },
+          "withoutContentInspection": {
+            "type": "boolean",
+            "description": "A Boolean value when set to true indicates that external DLP engine is used. The Zscaler service doesn't use DLP engines to scan the content; instead, the service functions as a filter, only flagging content based on the specified criteria. "
+          },
+          "auditor": {
+            "description": "Specifies auditor information if an email notification must be configured for the rule. Use this field if the auditor is from a hosted database. If you do not specify the auditor and select a notification template, a notification is not sent for this rule.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "externalAuditorEmail": {
+            "description": "Specifies auditor information if an email notification must be configured for the rule. Use this field if the auditor is external and specify the auditor's email address. If you do not specify the auditor and select a notification template, a notification is not sent for this rule.",
+            "type": "string"
+          },
+          "notificationTemplate": {
+            "description": "Specifies the notification template to use for the rule",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Timestamp when the rule was last modified",
+            "readOnly": true
+          },
+          "lastModifiedBy": {
+            "description": "Admin user that last modified the rule",
+            "readOnly": true,
+            "$ref": "#/definitions/EntityReference"
+          },
+          "receiver": {
+            "description": "Details of the Zscaler Incident Receiver that is applicable",
+            "$ref": "#/definitions/IncidentReceiverReference"
+          },
+          "labels": {
+            "type": "array",
+            "description": "Name-ID pairs of the labels associated with the rule",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "includedDomainProfiles": {
+            "type": "array",
+            "description": "List of domain profiles that are included in the rule criteria",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "severity": {
+            "type": "string",
+            "description": "Severity level of the policy rule violation",
+            "enum": [
+              "RULE_SEVERITY_HIGH",
+              "RULE_SEVERITY_MEDIUM",
+              "RULE_SEVERITY_LOW",
+              "RULE_SEVERITY_INFO"
+            ]
+          },
+          "userRiskScoreLevels": {
+            "type": "array",
+            "description": "User risk score levels to which the policy rule applies",
+            "items": {
+              "type": "string",
+              "enum": [
+                "LOW",
+                "MEDIUM",
+                "HIGH",
+                "CRITICAL"
+              ]
+            }
+          },
+          "emailTenants": {
+            "type": "array",
+            "description": "Email tenants to which the rule applies",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "contentLocations": {
+            "type": "array",
+            "description": "Specifies where the Zscaler service should look for sensitive data (e.g., email attachments, email body, or email subject)",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "BODY",
+                "HEADER",
+                "SUBJECT",
+                "ATTACHMENT"
+              ]
+            }
+          },
+          "parentRule": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Parent rule ID applicable when configuring exception rules"
+          },
+          "subRules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/EmailDlpSubRule"
+            }
+          },
+          "customHeader": {
+            "type": "string",
+            "description": "Policy action to include a custom header on emails that trigger this rule. Custom headers are designed to take an action that is mapped to the header on the email server. Custom Header format: <code>X-name:value</code>, where 0=Allow and 1=Block (e.g., X-Zscaler-Encrypt:1)."
+          },
+          "emailRecipientProfiles": {
+            "type": "array",
+            "description": "Recipient profiles to which the rule applies",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of id and name"
+      },
+      "IncidentReceiverReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Zscaler Incident Receiver ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Zscaler Incident Receiver name"
+          }
+        },
+        "description": "Information about a <a href=\"/zia/about-zscaler-incident-receiver\" target=\"_blank\">About Zscaler Incident Receiver</a>"
+      },
+      "EmailDlpSubRule": {
+        "type": "object",
+        "description": "Outbound Email DLP policy exception rule configuration details. Exception rules allow you to exclude specific users or groups in your organization that need to perform tasks as part of a necessary workflow that might otherwise violate outbound email policy rules. The exception rules automatically inherit the rule name from the parent rule, but you can customize other exception rule settings. To learn more, see <a href=\"/zia/configuring-outbound-email-policy-rules#ExceptionRules\" target=\"_blank\">Configuring Outbound Email DLP Policy Rules</a>.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "A unique, system-generated identifier for the exeception rule",
+            "readOnly": true
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "All parent rules are evaluated. If multiple rules match, the rule with the most restrictive action and highest rule order is applied. Exception rule evaluation stops at the first match, and an exception replaces a parent rule upon match."
+          },
+          "name": {
+            "type": "string",
+            "description": "The rule name is inherited from the parent rule and cannot be modified"
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information about the exception rule"
+          },
+          "state": {
+            "type": "string",
+            "description": "Rule enablement status. An enabled exception rule is actively enforced. A disabled exception rule is not actively enforced but does not lose its place in the rule order; the service skips it and moves to the next exception rule.",
+            "enum": [
+              "ENABLED",
+              "DISABLED",
+              "ENABLED_AUTHENTICATION_REQUIRED"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "description": "Action to be applied when traffic matches the exception rule conditions",
+            "enum": [
+              "ALLOW",
+              "BLOCK",
+              "QUARANTINE"
+            ]
+          },
+          "groups": {
+            "type": "array",
+            "description": "Name-ID pairs of user groups to which the exception rule applies. If no value is set, this criterion is not considered for rule match.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "departments": {
+            "type": "array",
+            "description": "Name-ID pairs of departments to which the exception rule applies. If no value is set, this criterion is not considered for rule match.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "Name-ID pairs of users to which the exception rule applies. If no value is set, this criterion is not considered for rule match.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "excludedGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of user groups that are excluded from your Outbound Email DLP policy. This field is used in configuring exception rules, which are child rules that allow excluding specific users or groups in your organization that must perform tasks as part of a necessary workflow that might otherwise violate outbound email policy.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "excludedDepartments": {
+            "type": "array",
+            "description": "Name-ID pairs of departments that are excluded from your Outbound Email DLP policy. This field is used in configuring exception rules, which are child rules that allow excluding specific users or groups in your organization that must perform tasks as part of a necessary workflow that might otherwise violate outbound email policy.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "excludedUsers": {
+            "type": "array",
+            "description": "Name-ID pairs of users that are excluded from your Outbound Email DLP policy. This field is used in configuring exception rules, which are child rules that allow excluding specific users or groups in your organization that must perform tasks as part of a necessary workflow that might otherwise violate outbound email policy.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "timeWindows": {
+            "type": "array",
+            "description": "List of time intervals during which the exception rule is enforced",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "dlpEngines": {
+            "type": "array",
+            "description": "DLP engines that must be used for content inspection. A maximum of 4 DLP engines can be specified explicitly. If no value is set, all DLP engines are selected implicitly. Content Matching must be enabled for the rule to select DLP engines.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "fileTypes": {
+            "type": "array",
+            "description": "File type categories to which the exception rule applies. If no value is set, this criterion is not considered for rule match.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "minSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Minimum size requirement (in KB) that data must meet before the rule applies. The default minimum data size is O KB (i.e., there is no minimum data size requirement)."
+          },
+          "withoutContentInspection": {
+            "type": "boolean",
+            "description": "A Boolean value when set to true indicates that external DLP engine is used. The Zscaler service doesn't use DLP engines to scan the content; instead, the service functions as a filter, only flagging content based on the specified criteria. "
+          },
+          "auditor": {
+            "description": "Specifies auditor information if an email notification must be configured for the rule. Use this field if the auditor is from a hosted database. You can retrieve auditor information using the <code>GET /users/auditors</code> request. If you do not specify the auditor and select a notification template, a notification is not sent for this rule.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "externalAuditorEmail": {
+            "description": "Specifies auditor information if an email notification must be configured for the rule. Use this field if the auditor is external and specify the auditor's email address. If you do not specify the auditor and select a notification template, a notification is not sent for this rule.",
+            "type": "string"
+          },
+          "notificationTemplate": {
+            "description": "Specifies the notification template to use for the exception rule",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Timestamp when the exception rule was last modified",
+            "readOnly": true
+          },
+          "lastModifiedBy": {
+            "description": "Admin user that last modified the exception rule",
+            "readOnly": true,
+            "$ref": "#/definitions/EntityReference"
+          },
+          "receiver": {
+            "description": "Details of the Zscaler Incident Receiver that is applicable",
+            "$ref": "#/definitions/IncidentReceiverReference"
+          },
+          "labels": {
+            "type": "array",
+            "description": "Name-ID pairs of the labels associated with the exception rule",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "includedDomainProfiles": {
+            "type": "array",
+            "description": "List of domain profiles that are included in the rule criteria",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "severity": {
+            "type": "string",
+            "description": "Severity level of the exception rule violation",
+            "enum": [
+              "RULE_SEVERITY_HIGH",
+              "RULE_SEVERITY_MEDIUM",
+              "RULE_SEVERITY_LOW",
+              "RULE_SEVERITY_INFO"
+            ]
+          },
+          "userRiskScoreLevels": {
+            "type": "array",
+            "description": "User risk score levels to which the exception rule applies",
+            "items": {
+              "type": "string",
+              "enum": [
+                "LOW",
+                "MEDIUM",
+                "HIGH",
+                "CRITICAL"
+              ]
+            }
+          },
+          "emailTenants": {
+            "type": "array",
+            "description": "Email tenants to which the exception rule applies",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "contentLocations": {
+            "type": "array",
+            "description": "Specifies where the Zscaler service should look for sensitive data (e.g., email attachments, email body, or email subject)",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "BODY",
+                "HEADER",
+                "SUBJECT",
+                "ATTACHMENT"
+              ]
+            }
+          },
+          "parentRule": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Parent rule ID for the exception rule. This field is required when configuring an exception rule."
+          },
+          "customHeader": {
+            "type": "string",
+            "description": "Policy action to include a custom header on emails that trigger this rule. Custom headers are designed to take an action that is mapped to the header on the email server. Custom Header format: <code>X-name:value</code>, where 0=Allow and 1=Block (e.g., X-Zscaler-Encrypt:1)."
+          },
+          "emailRecipientProfiles": {
+            "type": "array",
+            "description": "Recipient profiles to which the rule applies",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          }
+        }
+      }
+    }
+  }
+}

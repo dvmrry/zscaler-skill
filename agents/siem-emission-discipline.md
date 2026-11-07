@@ -7,7 +7,7 @@ confidence: high
 source-tier: practice
 sources:
   - "agents/investigator/methodology.md"
-  - "references/shared/splunk-queries.md"
+  - "kb:shared.splunk"
 dependencies:
   - "investigator/methodology.md"
 author-status: draft
@@ -15,7 +15,7 @@ author-status: draft
 
 # SIEM emission discipline
 
-How the agent emits queries against any SIEM (Splunk, Sentinel, Chronicle, Elastic, Sumo, etc.) when investigating Zscaler issues. Generic — applies regardless of the SIEM's query language or table model. SIEM-specific catalogs (e.g., [`splunk-queries.md`](../references/shared/splunk-queries.md)) reference this doc rather than duplicating it.
+How the agent emits queries against any SIEM (Splunk, Sentinel, Chronicle, Elastic, Sumo, etc.) when investigating Zscaler issues. Generic — applies regardless of the SIEM's query language or table model. SIEM-specific catalogs (e.g., [`shared.splunk`](kb:shared.splunk)) reference this doc rather than duplicating it.
 
 ## Execution modes
 
@@ -33,11 +33,11 @@ The discovery journal (per [`investigator/methodology.md`](./investigator/method
 
 1. **Plumbing is placeholder in public catalogs.** All log-destination identifiers (`index=` / `sourcetype=` for Splunk; table names for Sentinel/Chronicle; index patterns for Elastic; source categories for Sumo; etc.) are env-var placeholders or `<your_*>` markers in the public skill. Actual per-tenant values must never appear in this repo. At execution time, the agent (or user) substitutes from local config.
 
-2. **Field names are Zscaler-published only.** Every field used in queries traces back to an NSS or LSS schema reference under `references/{zia,zpa,zcc}/logs/`. Customer-renamed fields, custom enrichments, internal log-generator fields, and TA-specific aliases beyond the documented CIM mappings do not appear in public queries. If a tenant has renamed fields locally, they remap at run time, not in the catalog.
+2. **Field names are Zscaler-published only.** Every field used in queries traces back to an NSS or LSS log type (`references/<product>/types/`, read as `kb:zia/web-log#urlcat`). Customer-renamed fields, custom enrichments, internal log-generator fields, and TA-specific aliases beyond the documented CIM mappings do not appear in public queries. If a tenant has renamed fields locally, they remap at run time, not in the catalog.
 
-3. **Cite patterns by name, not by inlining.** When the agent emits a query as an evidence source, reference a named pattern from the relevant SIEM-specific catalog (e.g., "use `§ rule-hit-history` from `splunk-queries.md`"). The catalog stays the single source of truth.
+3. **Cite patterns by name, not by inlining.** When the agent emits a query as an evidence source, reference a named pattern from the relevant SIEM-specific catalog (for Splunk, a `shared.splunk*` subject ID or the pattern name it keeps as an alias, e.g. "`rule-hit-history` in `kb:shared.splunk.zia-policy-validation`"). The catalog holds the fields and what each search checks, not SPL text, and stays the single source of truth.
 
-4. **Cite the schema for any field used.** E.g., `references/zpa/logs/access-log-schema.md` for `InternalReason`, `references/zia/logs/web-log-schema.md` for `urlcategory`. Keeps results reproducible and prevents field-name drift.
+4. **Cite the schema for any field used.** E.g., `kb:zpa/user-activity-log` (field `InternalReason`), `kb:zia/web-log` (field `urlcat`) for `urlcategory`. Keeps results reproducible and prevents field-name drift.
 
 5. **Treat the query as a plan until results exist.**
    - Agent-direct: after running, capture results as `Confirmed (medium)` or `(high)` with the query as source.
@@ -54,7 +54,7 @@ When the agent has access to per-tenant SIEM plumbing, it substitutes the placeh
 - **Auto-memory** — same content, persists across sessions.
 - **A private fork's local config** that overrides placeholder env vars at run time.
 
-The catalog placeholder names (e.g., `$INDEX_ZIA_WEB`, `<zia-web-log-destination>`) are documented per SIEM in the relevant catalog and in [`siem-log-mapping.md`](../references/shared/siem-log-mapping.md).
+The catalog placeholder names (e.g., `$INDEX_ZIA_WEB`, `<zia-web-log-destination>`) are documented per SIEM in the relevant catalog and in [`shared.siem-mapping`](kb:shared.siem-mapping).
 
 ## What stays private
 
@@ -70,7 +70,7 @@ The public skill assumes Zscaler-published schemas only. The private side (the u
 
 ## Cross-links
 
-- [`siem-log-mapping.md`](../references/shared/siem-log-mapping.md) — catalog of Zscaler log types and how they typically land per SIEM
-- [`splunk-queries.md`](../references/shared/splunk-queries.md) — Splunk-specific SPL pattern catalog
+- [`shared.siem-mapping`](kb:shared.siem-mapping) — catalog of Zscaler log types and how they typically land per SIEM
+- [`shared.splunk`](kb:shared.splunk) — Splunk-specific SPL pattern catalog
 - [`investigator/methodology.md`](./investigator/methodology.md) — discovery journal, claim status, anti-patterns
 - [`investigator/prompt.md`](./investigator/prompt.md) — `/z-investigator` slash command playbook

@@ -1,0 +1,1486 @@
+{
+  "schema_version": 1,
+  "id": "shared.technology-partners.zia",
+  "title": "Which technology partner guides cover ZIA, and what each guide says the integration does",
+  "related": [
+    { "rel": "see-also", "to": "shared.technology-partners" },
+    { "rel": "see-also", "to": "shared.nss.delivery-modes" },
+    { "rel": "see-also", "to": "shared.technology-partners.zpa" },
+    { "rel": "see-also", "to": "shared.technology-partners.uvm" },
+    { "rel": "see-also", "to": "shared.technology-partners.other" }
+  ],
+  "prose": [
+    {
+      "label": "Log streaming to SIEM and analytics partners.",
+      "text": "{{cribl-nss-vs-cloud-nss}} {{exabeam-nss-transports}} {{qradar-cloud-nss}} {{divergence:cloud-nss-transport}} {{arctic-wolf-cloud-nss}} {{divergence:zpa-log-path}} {{expel-siem-required}} {{hunters-nss-collector}} {{elevate-cloud-nss}} {{gurucul-nss-cloud-nss}} {{google-secops-webhook}} {{and-living-security}} {{and-logrhythm}} {{and-microsoft-defender-cloud-apps}} {{and-microsoft-sentinel}} {{and-netwitness}} {{and-secureworks}} {{knowbe4-log-stream}} {{darktrace-weblogs}} {{exaforce-api-onboarding}} {{datadog-telemetry}} {{command-zero-queries}}"
+    },
+    {
+      "label": "Threat intelligence and enforcement partners.",
+      "text": "{{anomali-25000-observables}} {{gap:anomali-limit-overflow}} {{eclecticiq-indicators}} {{cyware-enrichment}} {{and-mimecast}} {{and-threatconnect}} {{and-threatquotient}} {{and-recorded-future}} {{and-seclytics}} {{and-lumu-technologies}} {{arista-ndr-enrichment}} {{crowdstrike-scenarios}} {{fidelis-ingest}} {{extrahop-firewall-containment}} {{and-reliaquest}} {{and-torq}} {{and-siemplify}} {{and-swimlane}} {{and-saasyan}} {{and-xm-cyber}}"
+    },
+    {
+      "label": "SD-WAN, cloud and tunnel partners.",
+      "text": "{{aruba-silver-peak-scenarios}} {{aruba-sd-branch-redirect}} {{aryaka-gre}} {{cisco-gre-ipsec}} {{cloudgenix-cloudblade-tunnels}} {{extreme-ikev2}} {{juniper-ipsec-gre-auto}} {{and-versa}} {{and-nuage-networks}} {{and-nile-secure}} {{azure-wvd-forwarding-methods}} {{aws-traffic-through-zscaler}}"
+    },
+    {
+      "label": "SaaS security and data protection partners.",
+      "text": "{{atlassian-features}} {{gitlab-features}} {{box-saas-api-zdx}} {{google-workspace-features}} {{bitglass-traffic-split}} {{cohesity-dlp-fingerprint}} {{egnyte-endpoint-controls}} {{and-rubrik}} {{and-proofpoint}} {{and-votiro}} {{and-microsoft-copilot}} {{and-openai-chatgpt-enterprise}}"
+    },
+    {
+      "label": "Identity and authentication partners.",
+      "text": "{{saml-idp-ibm-verify}} {{saml-idp-forgerock}} {{saml-idp-cyberark}} {{beyond-identity-modes}} {{cloudifi-auth-extension}} {{1password-auth-exemption}} {{1password-kolide-device-trust}}"
+    },
+    {
+      "label": "Firewall and policy tooling partners.",
+      "text": "{{algosec-limited-admin}} {{and-skybox}} {{and-tufin}} {{and-redseal}}"
+    },
+    {
+      "label": "Evaluation and testing guides.",
+      "text": "{{attackiq-health-check}} {{fortinet-poc-only}}"
+    },
+    {
+      "label": "Partner guides not grouped above.",
+      "text": "{{adaptiva-zia}} {{azure-identity-zia-zpa}} {{cradlepoint-zia}} {{d3-security-soar}} {{devo-cloud-nss}} {{gap:devo-vm-vs-cloud-nss}} {{elastic-zia-zpa}} {{fatpipe-sdwan}} {{firemon-sip}} {{gen-ai-data-protection}} {{ivanti-neurons-mdm}} {{gap:ivanti-product-names}}"
+    },
+    {
+      "label": "Partner guide lists.",
+      "text": "{{sdwan-guide-list}} {{firewall-guide-list}} {{saas-tenant-guide-list}}"
+    },
+    {
+      "label": "What the pages leave out.",
+      "text": "{{gap:guides-are-summaries}} {{gap:integration-licences}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Cloud NSS transport the partner guides name: the Cribl and Plixer guides say HTTP and HTTPS, the Exabeam guide says HTTPS, the IBM QRadar guide says an HTTPS API feed and the Devo guide says syslog over TCP with an NSS Virtual Machine.",
+      "uses": ["cloud-nss-transport", "cribl-nss-vs-cloud-nss", "exabeam-nss-transports", "qradar-cloud-nss", "devo-cloud-nss"]
+    },
+    {
+      "do": "Whether ZPA logs reach a SIEM through NSS or Cloud NSS: the IBM QRadar and Arctic Wolf guides say they do, while the Zscaler LSS overview says ZPA uses LSS and NSS resides in ZIA.",
+      "uses": ["zpa-log-path", "qradar-cloud-nss", "arctic-wolf-cloud-nss"]
+    },
+    {
+      "do": "Whether the Anomali ThreatStream integration forwards more than 25,000 observables per day to ZIA.",
+      "uses": ["anomali-25000-observables", "anomali-limit-overflow"]
+    },
+    {
+      "do": "Whether the Fortinet guide is being used for production configuration; the guide says it should not be.",
+      "uses": ["fortinet-poc-only"]
+    },
+    {
+      "do": "Whether Microsoft Copilot users log in with personal accounts, where the page says Microsoft uses encrypted tokens (JWE) that Zscaler cannot decrypt.",
+      "uses": ["and-microsoft-copilot"]
+    }
+  ],
+  "claims": {
+    "cribl-nss-vs-cloud-nss": {
+      "statement": "The Cribl guide describes two ZIA log mechanisms: NSS, which uses Syslog over TCP and needs a Zscaler NSS VM, and Cloud NSS, an optional Zscaler-managed service that uses HTTP and HTTPS with no VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-cribl-deployment-guide.json",
+          "quotes": [
+            "ZIA sends logs via two different mechanisms: NSS and Cloud NSS.",
+            "NSS uses Syslog over TCP, which requires the deployment of a Zscaler NSS Virtual Machine.",
+            "Cloud NSS is an optional service managed by Zscaler and uses HTTP and HTTPS to send logs.",
+            "With Cloud NSS, there is no need to deploy a VM."
+          ]
+        }
+      ]
+    },
+    "exabeam-nss-transports": {
+      "statement": "In the Exabeam guide, logs come from NSS VMs that pull from the Nanolog and stream over syslog or TCP, or from Cloud NSS, which pushes logs directly over HTTPS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-exabeam-deployment-guide.json",
+          "quotes": [
+            "The NSS VMs pull logs from the Zscaler Nanolog and streams them to Exabeam over syslog or TCP.",
+            "Cloud NSS pushes logs directly from Zscaler over HTTPS."
+          ]
+        }
+      ]
+    },
+    "qradar-cloud-nss": {
+      "statement": "In the IBM QRadar guide, NSS uses a VM to stream ZIA and ZPA traffic logs, and a Cloud NSS subscription allows cloud-to-cloud streaming through an HTTPS API feed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-ibm-qradar-deployment-guide.json",
+          "quotes": [
+            "Zscaler’s Nanolog Streaming Service (NSS) uses a virtual machine (VM) to stream traffic logs from ZIA and ZPA to QRadar",
+            "If you subscribe to Cloud NSS, you can enable direct cloud-to-cloud log streaming.",
+            "you can configure an HTTPS API feed to stream traffic logs from ZIA and ZPA into an HTTPS API-based log collector on your cloud-based QRadar system"
+          ]
+        }
+      ]
+    },
+    "arctic-wolf-cloud-nss": {
+      "statement": "The Arctic Wolf guide configures ZIA and ZPA to send NSS and Cloud NSS messages to Arctic Wolf sensors; Cloud NSS streams ZIA logs to a compatible cloud SIEM without an NSS VM for Web or Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-arctic-wolf-deployment-guide.json",
+          "quotes": [
+            "configuring Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA) to send Nanolog Streaming Service (NSS) and Cloud NSS messages to Arctic Wolf sensors",
+            "Cloud NSS allows you to instantly stream logs from ZIA directly into a compatible cloud-based SIEM system without the need to deploy an NSS VM for Web or Firewall."
+          ]
+        }
+      ]
+    },
+    "expel-siem-required": {
+      "statement": "For Expel MDR, Zscaler must send logs via NSS and Cloud NSS to an Expel-approved SIEM such as Splunk, Microsoft Sentinel or Sumo Logic, and Expel reads the logs from that SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-expel-deployment-guide.json",
+          "quotes": [
+            "You must configure Zscaler to send logs via the Nanolog Streaming Service (NSS) and Cloud NSS to an Expel-approved SIEM such as Splunk, Microsoft Sentinel, or Sumo Logic.",
+            "Expel reads these logs from the connected SIEM."
+          ]
+        }
+      ]
+    },
+    "hunters-nss-collector": {
+      "statement": "The Hunters integration requires Zscaler to send logs via NSS to a Hunter Data Collector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-hunters-deployment-guide.json",
+          "quotes": [
+            "You must configure Zscaler to send logs via the Nanolog Streaming Service (NSS) to a Hunter Data Collector."
+          ]
+        }
+      ]
+    },
+    "elevate-cloud-nss": {
+      "statement": "The Elevate Security integration uses the Zscaler cloud Nanolog Streaming Service (NSS) to push activity into the Elevate Security Platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-elevate-security-deployment-guide.json",
+          "quotes": [
+            "leverages the Zscaler cloud Nanolog Streaming Service (NSS) to get activity pushed into the Elevate Security Platform"
+          ]
+        }
+      ]
+    },
+    "gurucul-nss-cloud-nss": {
+      "statement": "Gurucul integrates with ZIA via NSS (secure Syslog to its collection endpoint, needing a Zscaler NSS VM) or via Cloud NSS using either AWS S3 Integration or HTTP Endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-gurucul-deployment-guide.json",
+          "quotes": [
+            "NSS forwards ZIA logs over secure Syslog connection to Gurucul’s log collection endpoint, which requires the deployment of a Zscaler NSS Virtual Machine.",
+            "Gurucul integrates with ZIA through Cloud NSS using either AWS S3 Integration or HTTP Endpoint."
+          ]
+        }
+      ]
+    },
+    "google-secops-webhook": {
+      "statement": "ZIA logs can be brought into Google SecOps using a webhook.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-google-secops-deployment-guide.json",
+          "quotes": [
+            "You can bring ZIA logs into Google SecOps using a webhook."
+          ]
+        }
+      ]
+    },
+    "and-living-security": {
+      "statement": "The Living Security guide integrates ZIA with the Living Security Human Risk Management Platform; Cloud NSS allows streaming ZIA logs directly into a compatible cloud-based SIEM without deploying an NSS VM for Web or Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-living-security-deployment-guide.json",
+          "quotes": [
+            "provides instructions on integrating Zscaler Internet Access (ZIA) with the Living Security Human Risk Management Platform.",
+            "Zscaler Cloud Nanolog Streaming Service (NSS) allows you to stream logs from ZIA directly into a compatible cloud-based security information and event management (SIEM) system without deploying an NSS VM for Web or Firewall."
+          ]
+        }
+      ]
+    },
+    "and-logrhythm": {
+      "statement": "ZIA logs reach LogRhythm SIEM by traditional syslog or a cloud-to-cloud transport; the traditional syslog transport requires an NSS VM that pulls logs from the Nanolog stores and sends them to an on-premises SIEM via TCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-logrhythm-deployment-guide.json",
+          "quotes": [
+            "Zscaler sends logs from ZIA to LogRhythm via traditional syslog or a cloud-to-cloud log transport mechanism.",
+            "The traditional syslog transport requires deploying an NSS virtual machine (VM) that pulls logs securely from Zscaler Nanolog stores and sends them to an on-premises SIEM via TCP."
+          ]
+        }
+      ]
+    },
+    "and-microsoft-defender-cloud-apps": {
+      "statement": "In the Microsoft Defender for Cloud Apps guide, NSS converts filtered ZIA logs to the configured output format so Microsoft Defender for Cloud Apps can parse them and streams them using an Authentication Token generated in the Defender for Cloud Apps portal; the original logs are retained on the Nanolog.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-microsoft-defender-cloud-apps-deployment-guide.json",
+          "quotes": [
+            "converts the filtered logs to the configured output format so they can be parsed by Microsoft Defender for Cloud Apps",
+            "streams the logs to Microsoft Defender for Cloud Apps using an Authentication Token generated in the Microsoft Defender for Cloud Apps portal.",
+            "The original logs are retained on the Nanolog."
+          ]
+        }
+      ]
+    },
+    "and-microsoft-sentinel": {
+      "statement": "The Microsoft Sentinel guide sends ZIA NSS messages to Microsoft Azure Sentinel; NSS applies configured filters and converts logs to an output format the SIEM can parse.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-microsoft-sentinel-deployment-guide.json",
+          "quotes": [
+            "how to integrate Zscaler Internet Access (ZIA) to send Nanolog Streaming Service (NSS) messages to Microsoft Azure Sentinel.",
+            "applies the configured filters to exclude unwanted logs, converts the filtered logs to the configured output format so they can be parsed by a SIEM"
+          ]
+        }
+      ]
+    },
+    "and-netwitness": {
+      "statement": "The NetWitness guide configures Zscaler to send logs via NSS to a NetWitness Platform XDR Data Collector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-netwitness-deployment-guide.json",
+          "quotes": [
+            "You can configure Zscaler to send logs via the Nanolog Streaming Service (NSS) to a NetWitness Platform XDR Data Collector."
+          ]
+        }
+      ]
+    },
+    "and-secureworks": {
+      "statement": "In the Secureworks guide, Zscaler is configured to send logs to a Taegis XDR Data Collector via NSS and Cloud NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-secureworks-deployment-guide.json",
+          "quotes": [
+            "Zscaler is configured to send logs via Nanolog Streaming Service (NSS) and Cloud NSS to a Taegis XDR Data Collector."
+          ]
+        }
+      ]
+    },
+    "knowbe4-log-stream": {
+      "statement": "The KnowBe4 SecurityCoach integration needs a SecurityCoach organization and API key and a log stream from ZIA to SecurityCoach; the data then appears under the SecurityCoach tab of the KMSAT console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-knowbe4-deployment-guide.json",
+          "quotes": [
+            "Generate a SecurityCoach organization and API key.",
+            "Set up a log stream from ZIA to SecurityCoach.",
+            "data provided by Zscaler is available under the SecurityCoach tab of your KMSAT console"
+          ]
+        }
+      ]
+    },
+    "darktrace-weblogs": {
+      "statement": "The Darktrace integration ingests weblogs from a ZIA device to simulate connection data, and connection events created from those logs are available for core Darktrace analysis.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-darktrace-deployment-guide.json",
+          "quotes": [
+            "ingests weblogs from a ZIA device to simulate connection data",
+            "Connection events created from Zscaler logs are available for core Darktrace analysis."
+          ]
+        }
+      ]
+    },
+    "exaforce-api-onboarding": {
+      "statement": "Onboarding Exaforce involves configuring API roles, registering API clients, connecting the Zscaler instance through the Exaforce Console and setting up log source feeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-exaforce-deployment-guide.json",
+          "quotes": [
+            "The guide helps you with configuring API roles, registering API clients, connecting your Zscaler instance through the Exaforce Console, and setting up log source feeds."
+          ]
+        }
+      ]
+    },
+    "datadog-telemetry": {
+      "statement": "Datadog ingests ZIA and ZPA telemetry and has an app that visualizes the data in dashboards.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-datadog-deployment-guide.json",
+          "quotes": [
+            "Datadog readily ingests ZIA and ZPA telemetry and has an app that visualizes this data in various dashboards."
+          ]
+        }
+      ]
+    },
+    "command-zero-queries": {
+      "statement": "The Command Zero solution queries ZIA and ZPA data so analysts can ask hunting questions about users blocked by policy violations, users attempting to access anonymizing services, and users attempting to access URLs categorized as malicious content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-command-zero-deployment-guide.json",
+          "quotes": [
+            "The solution queries ZIA and ZPA data in the Command Zero platform to provide actionable insights to security teams.",
+            "Analysts can ask hunting questions about users blocked by policy violations, users attempting to access anonymizing services, users attempting to access URLs categorized as malicious content, and more."
+          ]
+        }
+      ]
+    },
+    "anomali-25000-observables": {
+      "statement": "In the Anomali ThreatStream integration, ThreatStream forwards IP addresses, domains and URLs to be blocked to ZIA, and ZIA can block a maximum of 25,000 observables per day, forwarded based on a defined search query.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-anomali-deployment-guide.json",
+          "quotes": [
+            "allows ThreatStream to forward IP addresses, domains, and URLs that should be blocked to ZIA",
+            "ZIA can block a maximum of 25,000 observables per day that are forwarded based on a defined search query"
+          ]
+        }
+      ]
+    },
+    "eclecticiq-indicators": {
+      "statement": "Zscaler integrates with the EclecticIQ platform by consuming high-confidence indicators to enforce real-time policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-eclecticiq-deployment-guide.json",
+          "quotes": [
+            "Zscaler integrates with EclecticIQ by consuming high-confidence indicators to enforce real-time policies"
+          ]
+        }
+      ]
+    },
+    "cyware-enrichment": {
+      "statement": "In the Cyware guide, ZIA works with the CTIX application as an enrichment tool for threat data such as hashes, domains or URLs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-cyware-deployment-guide.json",
+          "quotes": [
+            "ZIA works with the CTIX application as an enrichment tool to enrich threat data such as hashes, domains, or URLs in the CTIX application."
+          ]
+        }
+      ]
+    },
+    "and-mimecast": {
+      "statement": "The Mimecast guide covers using ZIA with Mimecast Threat Sharing; after configuration, each integration instance creates an associated URL category in Zscaler, used as the destination of malicious domains sourced from Mimecast by that instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-mimecast-deployment-guide.json",
+          "quotes": [
+            "using Zscaler Internet Access (ZIA) with the Mimecast Threat Sharing feature.",
+            "After it is configured, each integration instance creates an associated URL category in Zscaler. This is used as the destination of any malicious domains sourced from Mimecast by this specific integration configuration instance."
+          ]
+        }
+      ]
+    },
+    "and-threatconnect": {
+      "statement": "ThreatConnect notifications are sent to ZIA and added to a URL category in the ZIA blocklist, with a new category created in the user-defined section if none exists; the integration has two apps, a Zscaler Job App that adds selected URL and host indicators to a blocklist and a Zscaler Playbook App.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-threatconnect-deployment-guide.json",
+          "quotes": [
+            "These notifications are sent to ZIA and added to a URL category in ZIA's blocklist.",
+            "If the category does not already exist, a new category is created under the user-defined category section.",
+            "Two apps comprise the ThreatConnect Platform and Zscaler integration.",
+            "The first is the Zscaler Job App which selects specific URL and host indicators and adds them to a Zscaler blocklist.",
+            "The second is the Zscaler Playbook App which performs several actions with the Zscaler platform, such as managing blocklists"
+          ]
+        }
+      ]
+    },
+    "and-threatquotient": {
+      "statement": "The ThreatQuotient guide describes how a ThreatQ admin can export FQDNs and URLs from a Threat Collection to Zscaler’s URL blacklist via the Zscaler Blacklist Export integration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-threatquotient-deployment-guide.json",
+          "quotes": [
+            "This document describes how a ThreatQ admin can export FQDNs and URLs from a Threat Collection to Zscaler’s URL blacklist via the Zscaler Blacklist Export integration."
+          ]
+        }
+      ]
+    },
+    "and-recorded-future": {
+      "statement": "The Recorded Future integration updates blocklists on a Zscaler customer account through web APIs and is a Python script that can run on any server with connectivity between the Recorded Future and Zscaler clouds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-recorded-future-deployment-guide.json",
+          "quotes": [
+            "The Recorded Future and Zscaler integration works by updating the blocklists on a Zscaler customer account.",
+            "This happens through web APIs that connect the two platforms together.",
+            "The integration is a Python script that can run on a server anywhere that has connectivity between the Recorded Future and Zscaler clouds."
+          ]
+        }
+      ]
+    },
+    "and-seclytics": {
+      "statement": "SecLytics pushes customised prediction information, as URLs or IP addresses, to Zscaler via APIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-seclytics-deployment-guide.json",
+          "quotes": [
+            "The customized prediction information, in the form of URLs or IP addresses, is pushed to Zscaler via APIs"
+          ]
+        }
+      ]
+    },
+    "and-lumu-technologies": {
+      "statement": "In the Lumu Technologies integration, metadata is collected through Zscaler and fed to Lumu; if Lumu discovers an attack it feeds the incident details to Zscaler for automatic blocking of connections with the IoC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-lumu-technologies-deployment-guide.json",
+          "quotes": [
+            "Metadata is collected through Zscaler and fed into Lumu’s Illumination Process.",
+            "If an attack is discovered, Lumu measures the compromise level, does a complete analysis of the Indicators of Compromise (IoC), and feeds the incident details to Zscaler for automatic blocking of any connections with this IoC."
+          ]
+        }
+      ]
+    },
+    "arista-ndr-enrichment": {
+      "statement": "The Arista NDR integration enriches and associates IOC information, such as domains, identified in the network by Arista NDR with Zscaler global classification data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-arista-deployment-guide.json",
+          "quotes": [
+            "This integration enriches and associates IOC information, such as domains, identified in the network by Arista NDR with the global classification data from Zscaler."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-scenarios": {
+      "statement": "The CrowdStrike guide lists scenarios including ZIA and ZPA posture checks with CrowdStrike ZTA, ZIA Sandbox integration, threat intelligence sharing between CrowdStrike Falcon and ZIA, Humio and NG-SIEM cloud-to-cloud configuration, Deception lateral-movement prevention, and UVM risk contextualization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-crowdstrike-deployment-guide.json",
+          "quotes": [
+            "ZIA and ZPA Posture Check Integration with CrowdStrike ZTA",
+            "ZIA Sandbox Integration with CrowdStrike",
+            "Threat Intelligence Sharing: CrowdStrike Falcon and ZIA",
+            "CrowdStrike Humio Essential Configuration (Cloud-to-Cloud)",
+            "CrowdStrike NG-SIEM Essential Configuration (Cloud-to-Cloud)",
+            "Prevent Lateral Movement—Zscaler Deception and CrowdStrike",
+            "Contextualizing Risk—Zscaler UVM and CrowdStrike"
+          ]
+        }
+      ]
+    },
+    "fidelis-ingest": {
+      "statement": "The integration allows Fidelis Network to ingest and analyze all generated ZIA data for threat hunting and alert workflows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-fidelis-deployment-guide.json",
+          "quotes": [
+            "The integration allows Fidelis Network to ingest and analyze all generated ZIA data for improved threat hunting and alert workflows."
+          ]
+        }
+      ]
+    },
+    "extrahop-firewall-containment": {
+      "statement": "The ExtraHop integration can automatically contain assets that meet conditions and thresholds in ExtraHop detections using Zscaler Firewall Policies; each Firewall containment is stored in ExtraHop, and high-risk devices not found in Zscaler are tracked as not contained.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-extrahop-deployment-guide.json",
+          "quotes": [
+            "you can automatically contain assets that meet certain conditions and thresholds found in ExtraHop detections using Zscaler Firewall Policies",
+            "The details of every Firewall containment are stored in the ExtraHop system for further analysis and auditing.",
+            "the integration tracks the list of high-risk offender devices where the asset was not found in Zscaler and could not be contained"
+          ]
+        }
+      ]
+    },
+    "and-reliaquest": {
+      "statement": "The ReliaQuest GreyMatter integration uses Zscaler APIs to remediate threats found by GreyMatter automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-reliaquest-deployment-guide.json",
+          "quotes": [
+            "The GreyMatter integration for Zscaler uses Zscaler APIs to remediate any threats found by GreyMatter automatically."
+          ]
+        }
+      ]
+    },
+    "and-torq": {
+      "statement": "The Torq guide lists the steps Create session, List Denylisted URLs, Add URLs to Denylist, Create URL Filtering Policy Rule and 30 more, and says users can create their own steps, for example with the Send an HTTP Request step or Torq’s Step Builder.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-torq-deployment-guide.json",
+          "quotes": [
+            "- Create session",
+            "- List Denylisted URLs",
+            "- Add URLs to Denylist",
+            "- Create URL Filtering Policy Rule",
+            "- +30 more",
+            "you can create your own in various ways, such as using the Send an HTTP Request step or Torq’s Step Builder"
+          ]
+        }
+      ]
+    },
+    "and-siemplify": {
+      "statement": "The Siemplify guide provides instructions on integrating ZIA features with the Siemplify Security Operations Platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-siemplify-deployment-guide.json",
+          "quotes": [
+            "how to integrate Zscaler Internet Access (ZIA) features with the Siemplify Security Operations Platform."
+          ]
+        }
+      ]
+    },
+    "and-swimlane": {
+      "statement": "The Swimlane guide provides instructions on integrating ZIA with the Swimlane platform and states that Zscaler works with Swimlane to help secure assets monitored by Swimlane.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-swimlane-deployment-guide.json",
+          "quotes": [
+            "provides instructions on integrating Zscaler Internet Access (ZIA) with the Swimlane platform.",
+            "Zscaler works with the Swimlane platform to help secure assets monitored by the Swimlane platform."
+          ]
+        }
+      ]
+    },
+    "and-saasyan": {
+      "statement": "The Saasyan guide provides instructions on integrating ZIA with the Saasyan platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-saasyan-deployment-guide.json",
+          "quotes": [
+            "provides instructions on integrating Zscaler Internet Access (ZIA) with the Saasyan platform."
+          ]
+        }
+      ]
+    },
+    "and-xm-cyber": {
+      "statement": "The XM Cyber guide covers using ZIA with XM Cyber Security Controls Monitoring.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-xm-cyber-deployment-guide.json",
+          "quotes": [
+            "provides instructions on using Zscaler Internet Access (ZIA) with the XM Cyber Security Controls Monitoring (SCM)."
+          ]
+        }
+      ]
+    },
+    "aruba-silver-peak-scenarios": {
+      "statement": "ZIA and Aruba EdgeConnect (Silver Peak) integrate and work together under the following scenarios: automated and manual IPSec tunnels, sub-locations and gateway options, and Layer-7 health checks for automated tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-aruba-edgeconnect-silver-peak-deployment-guide.json",
+          "quotes": [
+            "ZIA and EdgeConnect integrate and work together under the following scenarios:",
+            "Creating Automated and Manual IPSec Tunnels",
+            "Creating Sub-Locations and Gateway Options",
+            "Enabling Layer-7 Health Checks for Automated Tunnels"
+          ]
+        }
+      ]
+    },
+    "aruba-sd-branch-redirect": {
+      "statement": "The Aruba guide integrates ZIA with the Aruba EdgeConnect SD-Branch platform, and the Aruba Branch Gateway (BGW) redirects selected traffic through ZIA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-aruba-sd-branch-deployment-guide.json",
+          "quotes": [
+            "integrating Zscaler Internet Access (ZIA) with the Aruba EdgeConnect SD-Branch platform",
+            "the Aruba Branch Gateway (BGW) redirects selected traffic through the Zscaler Internet Access (ZIA)"
+          ]
+        }
+      ]
+    },
+    "aryaka-gre": {
+      "statement": "The Aryaka guide explains how to configure Aryaka SmartCONNECT to connect to the Zscaler cloud using a GRE VPN tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-aryaka-deployment-guide.json",
+          "quotes": [
+            "This deployment guide explains how to configure Aryaka SmartCONNECT to connect it to the Zscaler cloud using a GRE VPN tunnel."
+          ]
+        }
+      ]
+    },
+    "cisco-gre-ipsec": {
+      "statement": "Zscaler supports both GRE and IPSec tunnels from edge devices to carry internet traffic that first traverses the ZIA node, per the Cisco SD-WAN guide.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-cisco-sd-wan-deployment-guide.json",
+          "quotes": [
+            "Zscaler supports both Generic Routing Encapsulation (GRE) and Internet Protocol Security (IPSec) tunnels from edge devices to transport internet traffic that first traverses the ZIA node."
+          ]
+        }
+      ]
+    },
+    "cloudgenix-cloudblade-tunnels": {
+      "statement": "In the CloudGenix SD-WAN guide, the ZIA integration with CloudBlade automatically creates, manages and maintains third-party IPsec VPN tunnels when tags are entered on the appropriate CloudGenix objects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-cloudgenix-deployment-guide.json",
+          "quotes": [
+            "The ZIA integration with CloudBlade provides the automatic creation, management, and maintenance of third-party IPsec VPN tunnels by entering tags on the appropriate CloudGenix objects."
+          ]
+        }
+      ]
+    },
+    "extreme-ikev2": {
+      "statement": "In the Extreme Networks guide, branch traffic to the internet is secured by redirecting it to ZIA Public Service Edges via IPsec IKEv2 VPN tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-extreme-networks-deployment-guide.json",
+          "quotes": [
+            "so that traffic from a branch site equipped with an SD-WAN appliance to the internet is secure",
+            "This is done by redirecting traffic to ZIA Public Service Edges via IPsec IKEv2 VPN tunnels."
+          ]
+        }
+      ]
+    },
+    "juniper-ipsec-gre-auto": {
+      "statement": "In the HPE Juniper Networking guide, the WAN Edge device connects to the SSE using either IPSec or GRE, and Juniper Mist offers automated Zscaler tunnel provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-juniper-deployment-guide.json",
+          "quotes": [
+            "your WAN Edge device establishes connections to the SSE using either IPSec or GRE protocols",
+            "Juniper Mist offers automated Zscaler tunnel provisioning"
+          ]
+        }
+      ]
+    },
+    "and-versa": {
+      "statement": "Versa Director automates IPSec tunnel provisioning from Versa SD-WAN CPEs to ZIA through the Zscaler API; for each internet link it creates a primary tunnel to the primary Public Service Edge and a backup tunnel to the secondary one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-versa-deployment-guide.json",
+          "quotes": [
+            "Versa Director provides workflow-based automation to configure IPSec tunnels from Versa SD-WAN CPEs to ZIA using the Zscaler API.",
+            "For each internet link, a primary tunnel is created to the primary Public Service Edge and a backup tunnel is created to the secondary Public Service Edge."
+          ]
+        }
+      ]
+    },
+    "and-nuage-networks": {
+      "statement": "The Nuage Networks guide configures ZIA for use with the Nuage SD-WAN Portal to manage security.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-nuage-networks-deployment-guide.json",
+          "quotes": [
+            "how to configure Zscaler Internet Access (ZIA) for use with the Nuage Networks Software Defined Wide Area Network (SD-WAN) Portal.",
+            "This guide describes how to use ZIA to manage security in the Nuage Networks SD-WAN Portal."
+          ]
+        }
+      ]
+    },
+    "and-nile-secure": {
+      "statement": "The Nile guide covers integrating ZIA with Nile Copilot for forwarding and managing device traffic through SASE policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-nile-secure-deployment-guide.json",
+          "quotes": [
+            "integrating Zscaler Internet Access (ZIA) to work with Nile Copilot.",
+            "forwarding and managing device traffic through SASE policies."
+          ]
+        }
+      ]
+    },
+    "azure-wvd-forwarding-methods": {
+      "statement": "In the Microsoft Azure guide, Azure internet traffic can be forwarded to ZIA via Client Connector on a dedicated private WVD instance, a browser PAC file, or an IPSec tunnel; IPSec tunnels are created using the Azure Virtual Network Gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "azure-traffic-forwarding-deployment-guide.json",
+          "quotes": [
+            "forwarding Internet traffic from Azure to ZIA using the Zscaler Client Connector on a dedicated private WVD Instance, a browser PAC file, or over an IPSec tunnel",
+            "IPSec tunnels are created using the Azure Virtual Network Gateway"
+          ]
+        }
+      ]
+    },
+    "aws-traffic-through-zscaler": {
+      "statement": "In the AWS guide, after AWS is configured to work with the Zscaler service, AWS traffic passes through the Zscaler cloud and the Zscaler service enforces security policies on it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-aws-deployment-guide.json",
+          "quotes": [
+            "After configuring AWS to work with the Zscaler service, AWS traffic passes through the Zscaler cloud, and the Zscaler service enforces security policies on AWS traffic."
+          ]
+        }
+      ]
+    },
+    "atlassian-features": {
+      "statement": "The Atlassian guide covers three ZIA features: Isolation, SaaS Security DLP and Malware Detection, and Cloud Application Access Control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-atlassian-deployment-guide.json",
+          "quotes": [
+            "This guide covers the following ZIA features for Atlassian security:",
+            "- Isolation",
+            "SaaS Security Data Loss Prevention (DLP) and Malware Detection",
+            "Cloud Application Access Control"
+          ]
+        }
+      ]
+    },
+    "gitlab-features": {
+      "statement": "The GitLab guide lists these under the heading \"ZIA features\" (the last is a Zscaler Posture Control item): Isolation, SaaS Security Data Loss Protection and Malware Detection, Cloud Application Access Control, Advanced Posture Management, and Zscaler Posture Control GitLab Infrastructure as Code Scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-gitlab-deployment-guide.json",
+          "quotes": [
+            "This guide covers the following ZIA features for GitLab security:",
+            "- Isolation",
+            "Cloud Application Access Control",
+            "SaaS Security Data Loss Protection and Malware Detection",
+            "Advanced Posture Management",
+            "Zscaler Posture Control GitLab Infrastructure as Code Scanning"
+          ]
+        }
+      ]
+    },
+    "box-saas-api-zdx": {
+      "statement": "For Box, ZIA uses the SaaS Security API to scan Box datastores for malicious content and data protection, and ZDX provides user-specific experience monitoring and visibility for the Box service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-box-deployment-guide.json",
+          "quotes": [
+            "ZIA provides SaaS security using Zscaler's SaaS Security API to scan the Box datastores for malicious content and data protection.",
+            "The ZDX service provides user-specific experience monitoring and visibility for the Box service"
+          ]
+        }
+      ]
+    },
+    "google-workspace-features": {
+      "statement": "For Google Workspace, ZIA provides out-of-band Cloud Access Security Broker, SaaS Tenant Control, SaaS Security Management, Google Drive Labels, and Google Workspace to third-party Application Governance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-google-workspace-deployment-guide.json",
+          "quotes": [
+            "ZIA provides visibility and security for Google SaaS applications with out-of-band Cloud Access Security Broker, SaaS Tenant Control, SaaS Security Management, Google Drive Labels, and Google Workspace to third-party Application Governance."
+          ]
+        }
+      ]
+    },
+    "bitglass-traffic-split": {
+      "statement": "In the Bitglass joint solution, Web Browsing logs go from Zscaler to Bitglass for a Cloud Visibility Report, managed device and network traffic go through Zscaler, and unmanaged device traffic is redirected through Bitglass.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-bitglass-deployment-guide.json",
+          "quotes": [
+            "Web Browsing logs are sent from Zscaler to Bitglass to produce a Bitglass Cloud Visibility Report.",
+            "Managed device and network traffic are sent through Zscaler.",
+            "Unmanaged device traffic is redirected through Bitglass."
+          ]
+        }
+      ]
+    },
+    "cohesity-dlp-fingerprint": {
+      "statement": "In the Cohesity integration, sensitive data discovered by Cohesity Data Cloud is sent to Zscaler DLP to be fingerprinted and indexed, and Client Connector blocks or allows transmission per the user-configured policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-cohesity-deployment-guide.json",
+          "quotes": [
+            "Cohesity Data Cloud does backup, recovery, and sensitive data discovery.",
+            "The sensitive data is then sent to the Zscaler DLP solution and fingerprinted and indexed.",
+            "The Zscaler Client Connector blocks or allows the transmission of the data as per the user-configured policy."
+          ]
+        }
+      ]
+    },
+    "egnyte-endpoint-controls": {
+      "statement": "Egnyte cannot prevent end users from copying files to external storage or uploading to non-authorized clouds; Egnyte and Zscaler partner to provide in-line, preventive endpoint controls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-egnyte-deployment-guide.json",
+          "quotes": [
+            "However, Egnyte cannot prevent end users from copying files to external storage or uploading files to non-authorized clouds.",
+            "Egnyte and Zscaler have partnered to provide customers with in-line, preventive endpoint controls."
+          ]
+        }
+      ]
+    },
+    "and-rubrik": {
+      "statement": "The Rubrik integration automatically sends sensitive files found by Sensitive Data Discovery and backed up by Rubrik to Zscaler for DLP, and has three core parts: Zscaler DLP configuration, Zscaler Rubrik Integration configuration and Rubrik Sensitive Data Discovery policy enablement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-rubrik-deployment-guide.json",
+          "quotes": [
+            "automatically sends sensitive files found by Sensitive Data Discovery and backed up by Rubrik to Zscaler’s service for DLP.",
+            "There are three core parts to the integration:",
+            "- Zscaler DLP configuration.",
+            "- Zscaler Rubrik Integration configuration.",
+            "- Rubrik Sensitive Data Discovery policy enablement."
+          ]
+        }
+      ]
+    },
+    "and-proofpoint": {
+      "statement": "The Proofpoint integration configures ZIA to forward traffic to the Proofpoint public ICAP server; after configuration Proofpoint initiates the onboarding process.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-proofpoint-deployment-guide.json",
+          "quotes": [
+            "configuring ZIA to forward traffic to the Proofpoint public ICAP server.",
+            "After configuration, Proofpoint initiates the onboarding process"
+          ]
+        }
+      ]
+    },
+    "and-votiro": {
+      "statement": "Zscaler Isolation and Votiro Cloud together enable users to access, view, and download the content they need, and to improve the security of traffic passing through the ZIA platform; customers use Isolation to secure access to private or SaaS applications from unmanaged devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-votiro-deployment-guide.json",
+          "quotes": [
+            "Together, Zscaler Isolation and Votiro Cloud enable users to access, view, and download the content they need",
+            "to improve the security of traffic passing through the ZIA platform.",
+            "customers use Zscaler Isolation to secure access to private or SaaS applications accessed from unmanaged devices."
+          ]
+        }
+      ]
+    },
+    "and-microsoft-copilot": {
+      "statement": "Zscaler applies API-based and inline data-protection controls for Microsoft Copilot; when users log in to Copilot with personal accounts instead of corporate accounts, Microsoft uses encrypted JWE tokens Zscaler cannot decrypt, and the Zscaler service cannot enforce policies on that traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-microsoft-copilot-deployment-guide.json",
+          "quotes": [
+            "data protection approach that includes both API-based and inline controls.",
+            "If you log in to Microsoft Copilot using personal accounts instead of corporate accounts, Microsoft uses encrypted tokens (JWE) that Zscaler cannot decrypt.",
+            "Consequently, the Zscaler service cannot enforce policies on this traffic."
+          ]
+        }
+      ]
+    },
+    "and-openai-chatgpt-enterprise": {
+      "statement": "For OpenAI ChatGPT Enterprise, Zscaler integrates with the ChatGPT Enterprise Compliance API to alert on sensitive data or malware, inspects encrypted traffic via SSL and TLS inspection, and a rule can block image uploads to ChatGPT while allowing other access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-openai-chatgpt-enterprise-deployment-guide.json",
+          "quotes": [
+            "Zscaler integrates with the ChatGPT Enterprise Compliance API to alert on sensitive data or malware.",
+            "by inspecting encrypted traffic via SSL and TLS inspection.",
+            "you can define a rule for blocking image uploads to ChatGPT, but allowing other access."
+          ]
+        }
+      ]
+    },
+    "saml-idp-ibm-verify": {
+      "statement": "The IBM Verify guide states SAML is the preferred authentication method for ZIA and ZPA and configures IBM Security Verify as the SAML IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-ibm-verify-sso-deployment-guide.json",
+          "quotes": [
+            "Security Assertion Markup Language (SAML) is the preferred authentication method for ZIA and ZPA.",
+            "This document shows how to configure IBM Security Verify as the SAML identity provider (IdP)."
+          ]
+        }
+      ]
+    },
+    "saml-idp-forgerock": {
+      "statement": "In the ForgeRock integration, ForgeRock is the IdP and Zscaler is the SP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-forgerock-deployment-guide.json",
+          "quotes": [
+            "In this integration, ForgeRock is the IdP and Zscaler is the SP."
+          ]
+        }
+      ]
+    },
+    "saml-idp-cyberark": {
+      "statement": "The CyberArk guide gives an overview of configuring ZIA or ZPA for single sign-on via SAML, with CyberArk as the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-cyberark-deployment-guide.json",
+          "quotes": [
+            "CyberArk uses SAML authentication to implement an Identity Provider (IdP) solution",
+            "This deployment guide is an overview of the steps required to configure ZIA or ZPA for single sign-on (SSO) via SAML."
+          ]
+        }
+      ]
+    },
+    "beyond-identity-modes": {
+      "statement": "Zscaler can be integrated with Beyond Identity either directly or via their existing SSO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-beyond-identity-deployment-guide.json",
+          "quotes": [
+            "You can integrate Zscaler with Beyond Identity either directly or via their existing SSO."
+          ]
+        }
+      ]
+    },
+    "cloudifi-auth-extension": {
+      "statement": "Cloudi-Fi extends the authentication capability of Zscaler to all users and devices, including guests, BYOD and IoT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-cloudi-fi-deployment-guide.json",
+          "quotes": [
+            "extends the authentication capability of Zscaler to all users and devices, including guests, BYOD, and IoT"
+          ]
+        }
+      ]
+    },
+    "1password-auth-exemption": {
+      "statement": "Some 1Password and Zscaler users can see connectivity issues when connecting to 1Password before Zscaler authenticates them; the documented fix is to add 1Password’s domains to the authentication exemptions list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-1password-deployment-guide.json",
+          "quotes": [
+            "Some 1Password and Zscaler users can experience connectivity issues.",
+            "The issue is caused by users trying to connect to the 1Password application prior to Zscaler authenticating the user.",
+            "Connections from unauthenticated users are redirected to log in to the Zscaler service, which triggers 1Password’s active defense system.",
+            "To resolve the issue, add 1Password’s domains to the authentication exemptions list."
+          ]
+        }
+      ]
+    },
+    "1password-kolide-device-trust": {
+      "statement": "With the 1Password Kolide and Zscaler integration, devices that have it installed can be prevented from accessing apps behind SSO unless Zscaler is installed, running and properly configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-1password-deployment-guide.json",
+          "quotes": [
+            "You can prevent devices that have the Kolide and Zscaler integration installed from accessing any apps behind SSO unless Zscaler is installed, running, and properly configured."
+          ]
+        }
+      ]
+    },
+    "algosec-limited-admin": {
+      "statement": "Setting up the AlgoSec integration includes creating a ZIA Admin with a limited role that ASMS communicates with, and adding the ZIA service to ASMS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-algosec-deployment-guide.json",
+          "quotes": [
+            "Creating a ZIA Admin with a limited role within Zscaler with which ASMS communicates.",
+            "Adding the ZIA service to ASMS."
+          ]
+        }
+      ]
+    },
+    "and-skybox": {
+      "statement": "The Skybox integration lets Skybox users collect information from the Zscaler web firewall for use in Skybox SPM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-skybox-deployment-guide.json",
+          "quotes": [
+            "allows Skybox users to collect information from the Zscaler web firewall to be used in the Skybox SPM."
+          ]
+        }
+      ]
+    },
+    "and-tufin": {
+      "statement": "In the Tufin SecureTrack+ integration, SecureTrack+ communicates with ZIA using a REST API and an API Admin with limited permissions must be created on the Zscaler side.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-tufin-deployment-guide.json",
+          "quotes": [
+            "SecureTrack+ communicates with ZIA using a REST API.",
+            "You must create an API Admin with limited permissions on the Zscaler side."
+          ]
+        }
+      ]
+    },
+    "and-redseal": {
+      "statement": "The RedSeal guide integrates ZIA with RedSeal Network, which the page describes as visualising hybrid on-premises and multi-cloud networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-redseal-deployment-guide.json",
+          "quotes": [
+            "explains how to integrate Zscaler Internet Access (ZIA) with RedSeal Network.",
+            "brings complex hybrid on-premises and multi-cloud networks into one, comprehensive, dynamic visualization."
+          ]
+        }
+      ]
+    },
+    "attackiq-health-check": {
+      "statement": "In the AttackIQ guide, the ZIA Recommended Policies Health Check template provides a basic function check of a ZIA deployment for Windows assets protected by Client Connector and the Zscaler recommended policies, exercising the ability to detect and block adversarial behaviors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-attackiq-deployment-guide.json",
+          "quotes": [
+            "The ZIA Recommended Policies Health Check template was created to provide a basic function check of a ZIA deployment for Windows assets protected by the Zscaler Client Connector",
+            "and the Zscaler recommended policies exercising the ability to both detect and block adversarial behaviors"
+          ]
+        }
+      ]
+    },
+    "fortinet-poc-only": {
+      "statement": "The Fortinet guide is intended for proof-of-concept topologies and demos, evaluating interoperability and joint integration, and should not be used to configure either vendor platform for production use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-fortinet-deployment-guide.json",
+          "quotes": [
+            "This guide is intended for proof-of-concept topologies and demos, evaluating interoperability, and joint integration.",
+            "This guide should not be used to configure either vendor platform for production use."
+          ]
+        }
+      ]
+    },
+    "adaptiva-zia": {
+      "statement": "The Adaptiva deployment guide covers integrating ZIA with the Adaptiva Cloud and on-premises solutions, which combine a software distribution engine with an architecture that extends the enterprise network to the internet; the page says enterprises can distribute content reliably and securely to all endpoints, including those not connected to the corporate network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-adaptiva-deployment-guide.json",
+          "quotes": [
+            "provides instructions on integrating Zscaler Internet Access (ZIA) with the Adaptiva Cloud and on-premises solutions",
+            "combine an advanced software distribution engine with an architecture that extends the boundaries of the enterprise network to the entire internet",
+            "Enterprises can distribute content reliably and securely to all endpoints, including those not connected to the corporate network."
+          ]
+        }
+      ]
+    },
+    "azure-identity-zia-zpa": {
+      "statement": "The Azure Identity guide covers configuring ZIA and ZPA to work with Azure Active Directory (Azure AD) Identity, which the page describes as providing authentication, conditional access, device management, domain services, identity governance, identity protection and privileged identity management.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-azure-identity-deployment-guide.json",
+          "quotes": [
+            "how to configure Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA) to work with Azure Active Directory (Azure AD) Identity",
+            "It provides authentication, conditional access, device management, domain services, identity governance, identity protection, and privileged identity management."
+          ]
+        }
+      ]
+    },
+    "cradlepoint-zia": {
+      "statement": "The Cradlepoint guide covers integrating ZIA with the Cradlepoint platform, pairing Zscaler's high availability and policy specifications with Cradlepoint's Elastic Edge and NetCloud Manager platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-cradlepoint-deployment-guide.json",
+          "quotes": [
+            "provides instructions on integrating Zscaler Internet Access (ZIA) with the Cradlepoint platform",
+            "Zscaler's high availability and robust policy specifications, along with Cradlepoint’s Elastic Edge and NetCloud Manager platform"
+          ]
+        }
+      ]
+    },
+    "d3-security-soar": {
+      "statement": "The D3 Security guide covers integrating \"Zscaler\" (the quoted sentence names no product such as ZIA or ZPA) with D3 Security's SOAR platform, which the page says lets security teams use the integration for threat hunting, automating incident response and orchestrating URL changes to allow and deny lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-d3-security-deployment-guide.json",
+          "quotes": [
+            "provides instructions on integrating Zscaler with the D3 Security's security orchestration, automation and response (SOAR) platform",
+            "security teams can leverage the Zscaler and D3 SOAR integration for",
+            "threat hunting, automating incident response, and orchestrating URL changes to allow and deny lists"
+          ]
+        }
+      ]
+    },
+    "devo-cloud-nss": {
+      "statement": "The Devo guide covers integrating Nanolog Streaming Service (NSS) with the Devo cloud-native SaaS SIEM; it states that ZIA sends logs via Cloud NSS and that NSS uses syslog over TCP, which requires a Zscaler NSS Virtual Machine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-devo-deployment-guide.json",
+          "quotes": [
+            "provides instructions on integrating Nanolog Streaming Service (NSS) with the Devo platform",
+            "The Devo platform is a cloud-native SaaS SIEM solution",
+            "ZIA sends logs via Cloud Nanolog Streaming Service (NSS). NSS uses syslog over TCP, which requires the deployment of a Zscaler NSS Virtual Machine.",
+            "This document describes how to integrate Devo with ZIA Cloud NSS."
+          ]
+        }
+      ]
+    },
+    "elastic-zia-zpa": {
+      "statement": "The Elastic guide covers integrating ZIA and ZPA with the Elastic platform; the page lists Elastic Security capabilities including a detection engine, an event triage and investigation workspace, interactive process-relationship visualizations, case management with automated actions, and prebuilt machine learning anomaly jobs and detection rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-elastic-deployment-guide.json",
+          "quotes": [
+            "how to integrate Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA) with the Elastic platform",
+            "A detection engine to identify attacks and system misconfigurations",
+            "A workspace for event triage and investigations",
+            "Interactive visualizations to investigate process relationships",
+            "Inbuilt case management with automated actions",
+            "Detection of signatureless attacks with prebuilt machine learning anomaly jobs and detection rules"
+          ]
+        }
+      ]
+    },
+    "fatpipe-sdwan": {
+      "statement": "The FatPipe guide covers integrating ZIA with the FatPipe platform; the page says Zscaler with FatPipe SD-WAN reduces MPLS costs and provides a fast and secure user experience.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-fatpipe-deployment-guide.json",
+          "quotes": [
+            "provides instructions on integrating Zscaler Internet Access (ZIA) with the FatPipe platform",
+            "Zscaler, in combination with your FatPipe SD-WAN, reduces MPLS costs and provides a fast and secure user experience."
+          ]
+        }
+      ]
+    },
+    "firemon-sip": {
+      "statement": "The FireMon guide covers integrating ZIA with the FireMon Security Intelligence Platform (SIP), which the page says helps organizations gain visibility into and control over their complex network security infrastructures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-firemon-sip-deployment-guide.json",
+          "quotes": [
+            "provides instructions on integrating Zscaler Internet Access (ZIA) and FireMon Security Intelligence Platform (SIP)",
+            "The FireMon SIP helps organizations gain visibility into and control over their complex network security infrastructures."
+          ]
+        }
+      ]
+    },
+    "gen-ai-data-protection": {
+      "statement": "The Gen AI Data Protection guide covers integrating ZIA and ZPA with data protection on AI platforms for public and private AI solutions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-gen-ai-data-protection-deployment-guide.json",
+          "quotes": [
+            "integrating Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA) with data protection on AI platforms for public and private AI solutions"
+          ]
+        }
+      ]
+    },
+    "ivanti-neurons-mdm": {
+      "statement": "The Ivanti guide covers configuring Zscaler to work with Ivanti Neurons for MDMs, with access from all managed endpoints, both BYOD and corporate owned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-ivanti-deployment-guide.json",
+          "quotes": [
+            "to work with Ivanti Neurons for MDMs",
+            "access from all managed endpoints—both Bring Your Own Device (BYOD) and corporate owned"
+          ]
+        }
+      ]
+    },
+    "sdwan-guide-list": {
+      "statement": "The SD-WAN technology partner page lists these guides: Arista, Aruba EdgeConnect (Silver Peak), Aruba EdgeConnect SD-Branch, Aryaka, Cisco SD-WAN, CloudGenix, FatPipe, Fortinet, Juniper Networks 128 Technology, Lancom, Nile Secure and Nuage Networks; the list does not include Versa.",
+      "tier": "A",
+      "conditions": "Absence from a list: the quoted list on this page names twelve guides and none is Versa.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-sd-wan-technology-partner-deployment-guides.json",
+          "quotes": [
+            "The following list shows Zscaler's available SD-WAN technology partner deployment guides:",
+            "- Zscaler and Arista Deployment Guide",
+            "- Zscaler and Aruba EdgeConnect (Silver Peak) Deployment Guide",
+            "- Zscaler and Aruba EdgeConnect SD-Branch Deployment Guide",
+            "- Zscaler and Aryaka Deployment Guide",
+            "- Zscaler and Cisco SD-WAN Deployment Guide",
+            "- Zscaler and CloudGenix Deployment Guide",
+            "- Zscaler and FatPipe Deployment Guide",
+            "- Zscaler and Fortinet Deployment Guide",
+            "- Zscaler and Juniper Networks 128 Technology Deployment Guide",
+            "- Zscaler and Lancom Deployment Guide",
+            "- Zscaler and Nile Secure Deployment Guide",
+            "- Zscaler and Nuage Networks Deployment Guide"
+          ]
+        }
+      ]
+    },
+    "firewall-guide-list": {
+      "statement": "The firewall technology partner page lists these guides: AlgoSec, FireMon, RedSeal, Skybox and Tufin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-firewall-technology-partner-deployment-guides.json",
+          "quotes": [
+            "The following list shows Zscaler's available Firewall technology partner deployment guides:",
+            "- Zscaler and AlgoSec Deployment Guide",
+            "- Zscaler and FireMon Deployment Guide",
+            "- Zscaler and RedSeal Deployment Guide",
+            "- Zscaler and Skybox Deployment Guide",
+            "- Zscaler and Tufin Deployment Guide"
+          ]
+        }
+      ]
+    },
+    "saas-tenant-guide-list": {
+      "statement": "The SaaS application tenant technology partner page lists these guides: Atlassian, Box, GitLab, Microsoft SharePoint Online, Salesforce, ServiceNow and Slack.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "tech-partners-zscaler-and-saas-application-tenant-technology-partner-deployment-guides.json",
+          "quotes": [
+            "The following list shows Zscaler's available SaaS application tenant technology partner deployment guides:",
+            "- Zscaler and Atlassian Deployment Guide",
+            "- Zscaler and Box Deployment Guide",
+            "- Zscaler and GitLab Deployment Guide",
+            "- Zscaler and Microsoft SharePoint Online Deployment Guide",
+            "- Zscaler and Salesforce Deployment Guide",
+            "- Zscaler and ServiceNow Deployment Guide",
+            "- Zscaler and Slack Deployment Guide"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "cloud-nss-transport": {
+      "summary": "The Cribl and Plixer guides say Cloud NSS uses HTTP and HTTPS to send logs, while the Exabeam guide, the IBM QRadar guide and the NSS overview name HTTPS only, and the Devo guide pairs Cloud NSS with syslog over TCP and an NSS Virtual Machine.",
+      "positions": [
+        {
+          "says": "Cribl: Cloud NSS is an optional service managed by Zscaler and uses HTTP and HTTPS to send logs.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "tech-partners-zscaler-and-cribl-deployment-guide.json",
+            "quotes": ["Cloud NSS is an optional service managed by Zscaler and uses HTTP and HTTPS to send logs."]
+          }
+        },
+        {
+          "says": "Plixer: Cloud NSS is an optional service that uses HTTP and HTTPS to send logs.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "tech-partners-zscaler-and-plixer-deployment-guide.json",
+            "quotes": ["Zscaler Cloud Nanolog Streaming Service (NSS) is an optional service that uses HTTP and HTTPS to send logs."]
+          }
+        },
+        {
+          "says": "Exabeam: Cloud NSS pushes logs directly from Zscaler over HTTPS.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "tech-partners-zscaler-and-exabeam-deployment-guide.json",
+            "quotes": ["Cloud NSS pushes logs directly from Zscaler over HTTPS."]
+          }
+        },
+        {
+          "says": "IBM QRadar: Cloud NSS streams through an HTTPS API feed into an HTTPS API-based log collector.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "tech-partners-zscaler-and-ibm-qradar-deployment-guide.json",
+            "quotes": ["you can configure an HTTPS API feed to stream traffic logs from ZIA and ZPA into an HTTPS API-based log collector on your cloud-based QRadar system"]
+          }
+        },
+        {
+          "says": "Devo: ZIA sends logs via Cloud NSS, and NSS uses syslog over TCP, which requires a Zscaler NSS Virtual Machine.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "tech-partners-zscaler-and-devo-deployment-guide.json",
+            "quotes": ["ZIA sends logs via Cloud Nanolog Streaming Service (NSS). NSS uses syslog over TCP, which requires the deployment of a Zscaler NSS Virtual Machine."]
+          }
+        },
+        {
+          "says": "NSS overview: Cloud NSS uses an HTTPS API feed to push logs to an HTTPS API-based log collector on the SIEM.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-nanolog-streaming-service.json",
+            "quotes": ["Cloud NSS: Uses an HTTPS API feed to push logs to an HTTPS API-based log collector on your SIEM."]
+          }
+        }
+      ],
+      "impact": "Only the Cribl and Plixer guides name plain HTTP for Cloud NSS, and only the Devo guide ties it to syslog over TCP and an NSS Virtual Machine; an answer about the Cloud NSS transport cannot rest on one guide alone."
+    },
+    "zpa-log-path": {
+      "summary": "The IBM QRadar and Arctic Wolf guides describe ZPA logs as streamed by NSS or Cloud NSS, while the Zscaler LSS overview says ZPA logs use LSS and NSS resides in ZIA.",
+      "positions": [
+        {
+          "says": "IBM QRadar: NSS streams traffic logs from ZIA and ZPA to QRadar.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "tech-partners-zscaler-and-ibm-qradar-deployment-guide.json",
+            "quotes": ["Zscaler’s Nanolog Streaming Service (NSS) uses a virtual machine (VM) to stream traffic logs from ZIA and ZPA to QRadar"]
+          }
+        },
+        {
+          "says": "Arctic Wolf: ZIA and ZPA send NSS and Cloud NSS messages to Arctic Wolf sensors.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "tech-partners-zscaler-and-arctic-wolf-deployment-guide.json",
+            "quotes": ["configuring Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA) to send Nanolog Streaming Service (NSS) and Cloud NSS messages to Arctic Wolf sensors"]
+          }
+        },
+        {
+          "says": "LSS overview: LSS captures Private Access logs; NSS resides in Internet & SaaS (ZIA).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-log-streaming-service.json",
+            "quotes": ["While the LSS is used to capture log data about App Connectors and users in Private Access using a log receiver, the Nanolog Streaming Service (NSS) resides in Internet & SaaS (ZIA) and allows streaming of traffic logs from the Zscaler Nanolog to your SIEM."]
+          }
+        }
+      ],
+      "impact": "A ZPA log-streaming answer cannot rest on the QRadar or Arctic Wolf wording alone; other partner guides (Vectra, Sekoia) name LSS for ZPA."
+    }
+  },
+  "gaps": {
+    "anomali-limit-overflow": {
+      "kind": "semantic",
+      "title": "What happens to Anomali ThreatStream observables beyond 25,000 per day, and is the limit per tenant or per feed?",
+      "status": "open",
+      "detail": "The Anomali guide says ZIA can block a maximum of 25,000 observables per day forwarded on a defined search query. It does not say what happens past that number or whether it is per tenant or per feed.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "devo-vm-vs-cloud-nss": {
+      "kind": "semantic",
+      "title": "Does the Devo guide mean Cloud NSS or the VM-based NSS when it requires an NSS Virtual Machine?",
+      "status": "open",
+      "detail": "The Devo page says ZIA sends logs via Cloud NSS, then that NSS uses syslog over TCP and requires a Zscaler NSS Virtual Machine, then that the document covers integrating Devo with ZIA Cloud NSS. That wording disagrees with the NSS overview and the Cribl guide on the Cloud NSS transport (see the cloud-nss-transport divergence); the page does not say which NSS the syslog and VM sentence means.",
+      "resolves_with": ["source-read", "lab-test"]
+    },
+    "ivanti-product-names": {
+      "kind": "semantic",
+      "title": "Which Zscaler products the Ivanti guide covers",
+      "status": "open",
+      "detail": "The Ivanti page names only Zscaler Private Access (ZPA), and does so twice in its configure sentence, so it does not state any other Zscaler product the guide covers.",
+      "resolves_with": ["source-read"]
+    },
+    "guides-are-summaries": {
+      "kind": "semantic",
+      "title": "What setup steps, prerequisites, versions and limits do the partner integrations have?",
+      "status": "open",
+      "detail": "Each captured partner page is a landing summary; configuration steps, prerequisites, supported versions and limits are in linked PDF guides that are not captured.",
+      "resolves_with": ["source-read"]
+    },
+    "integration-licences": {
+      "kind": "semantic",
+      "title": "Which Zscaler licences or tiers does each partner integration need?",
+      "status": "open",
+      "detail": "No captured partner page states the Zscaler cloud version, licence or tier an integration requires; the QRadar page says to subscribe to Cloud NSS and the Cribl page calls Cloud NSS an optional service, and nothing more.",
+      "resolves_with": ["support-ticket", "source-read"]
+    }
+  }
+}

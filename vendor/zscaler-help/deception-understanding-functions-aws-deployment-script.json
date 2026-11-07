@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding the Functions of the AWS Resources Used for Cloud Deception",
+  "source": {
+    "url": "https://help.zscaler.com/deception/understanding-functions-aws-deployment-script",
+    "node": "1542550",
+    "revision": "3221562",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "Zscaler Deception relies on Amazon Web Services (AWS) logs to generate events in the Deception dashboard for interactions with AWS decoys. Depending on the deployment method, the CloudShell deployment script of the Terraform script is responsible for creating logging resources, deploying decoys, deleting decoys, and enabling logging for the decoys via the logging resources in the AWS cloud. To collect and store logs, Deception creates various resources. The Zscaler Deception Admin Portal polls logs every 3 minutes from the logging resources to generate events."
+    },
+    {
+      "text": "The following table lists the resources created by Deception to enable log collection and storage for AWS decoys."
+    },
+    {
+      "table": [
+        [
+          "Resource",
+          "Description"
+        ],
+        [
+          "DB Option and Parameter groups",
+          "Enables log collection via raw DB log files for Relational Database Service (RDS) decoys."
+        ],
+        [
+          "Security Group",
+          "Opens inbound connections to ports 3306 (MySQL) and 5432 (PostgreSQL)."
+        ],
+        [
+          "Logging Bucket",
+          "A Simple Storage Service (S3) bucket to collect logs for S3 and DynamoDB decoys enabled via CloudTrail."
+        ],
+        [
+          "CloudTrail",
+          "Enables logging to Logging Bucket and listening logs for Elastic Container Registry (ECR) and Identity and Access Management (IAM) decoys."
+        ],
+        [
+          "Log Access IAM User",
+          "A CLI user with access to poll logs from Logging Bucket and CloudTrial."
+        ],
+        [
+          "Access Keys",
+          "Access keys for the Log Access IAM User."
+        ],
+        [
+          "IAM User Policy",
+          "An access policy created for the Log Access IAM User."
+        ],
+        [
+          "Health Check Lambda Function",
+          "A lambda function that is triggered every 15 minutes from the Deception Admin Portal to check if the deployed decoys are present in the AWS account."
+        ],
+        [
+          "Health Check Lambda Function Access Policy",
+          "A policy created for the health check lambda function."
+        ]
+      ]
+    },
+    {
+      "text": "The Deception Admin Portal polls logs from CloudTrail and Logging S3 Bucket every 3 minutes."
+    },
+    {
+      "text": "The following table lists the details of AWS logging resources utilized by Deception when creating various decoys."
+    },
+    {
+      "table": [
+        [
+          "Decoy",
+          "Description"
+        ],
+        [
+          "S3 Decoy",
+          "Creates an S3 Bucket and enables logging in CloudTrail."
+        ],
+        [
+          "IAM Decoy",
+          "Creates an IAM decoy user with access keys and attaches the IAM Decoy User Access Policy."
+        ],
+        [
+          "RDS Decoy",
+          "Creates an RDS instance and an option or Parameter group if not available already."
+        ],
+        [
+          "ECR Decoy",
+          "Creates public or private container registries."
+        ],
+        [
+          "DynamoDB Decoy",
+          "Creates a DynamoDB instance and enables logging in CloudTrail."
+        ],
+        [
+          "VM Image Decoy",
+          "Deploys an EC2 instance, creates a snapshot for the instance, and builds an image from the snapshot. The EC2 instance is created using the t3.small/t2.small series available in the region of deployment. It persists for a duration for 5 minutes and is terminated after the snapshot is built."
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying the AI Model Scanner",
+  "source": {
+    "url": "https://help.zscaler.com/ai-asset-mgmt/deploying-ai-model-scanner",
+    "node": "1540727",
+    "revision": "3206435",
+    "updated": "2026-06-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The AI Security AI model scanner is a command-line interface (CLI) tool that you can run in your local development environment or as part of a CICD pipeline. It scans machine learning models and their associated files for vulnerabilities, malicious code injections, backdoors, exposed credentials, etc., and sends the findings to the AI Security Admin Portal."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before configuring the AI model scanner, ensure the following prerequisites are met:"
+    },
+    {
+      "item": "Download the appropriate AI model scanner binary for your operating system from the Model Scan Management page.",
+      "depth": 0
+    },
+    {
+      "item": "Generate an API key using the model scan integration in the AI Security Admin Portal.",
+      "depth": 0
+    },
+    {
+      "heading": "Deploying the AI Model Scanner",
+      "level": 1
+    },
+    {
+      "text": "To run the AI model scanner:"
+    },
+    {
+      "item": "Extract the downloaded AI model scanner binary from the compressed file.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Set the API key as an environment variable named Z_AI_MODEL_SCANNER_API_KEY. This is required for the scanner to authenticate with the AI Security Admin Portal.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Open a terminal or command prompt and go to the directory in the extracted folder, where the z-ai-model-scanner file is stored.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Run the AI model scanner using the following command:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "./z-ai-model-scanner scan <PATH_TO_MODEL_DIRECTORY> --timeout <timeout in seconds> --output <directory>",
+      "depth": 0
+    },
+    {
+      "item": "Replace <PATH_TO_MODEL_DIRECTORY> with the local file path to the directory containing the AI model you want to scan.",
+      "depth": 1
+    },
+    {
+      "text": "The AI model scanner accepts the following arguments:"
+    },
+    {
+      "text": "./z-ai-model-scanner scan ~/Downloads/ScanMe_Models --timeout 900 --output reports"
+    },
+    {
+      "table": [
+        [
+          "Argument",
+          "Description",
+          "Required"
+        ],
+        [
+          "-o, --output <PATH>",
+          "The output directory where the scan report will be saved.",
+          "No"
+        ],
+        [
+          "-f, --format [json]",
+          "The format for the generated scan report.",
+          "No"
+        ],
+        [
+          "--no-recursive",
+          "If specified, the scanner will not scan subdirectories within the given path. By default, scanning is recursive.",
+          "No"
+        ],
+        [
+          "--max-file-bytes <INTEGER>",
+          "Optional size limit in bytes for files to be scanned. Set to 0 to disable the limit.",
+          ""
+        ],
+        [
+          "--fail-on [none|low|medium|high|critical]",
+          "Sets a severity threshold that makes the scanner exit with a non-zero status code. For example, if the --fail-on high fails if any high or critical vulnerabilities are found.",
+          "No"
+        ],
+        [
+          "--profile [primary|primary+secondary|all]",
+          "Controls the depth of the scan. primary is the fastest, all is the most comprehensive, primary+secondary is the best balanced.",
+          "No"
+        ],
+        [
+          "--timeout <INTEGER>",
+          "Specifies the timeout in seconds for each individual file scan. Setting the value to 0 disables the timeout.",
+          "No"
+        ],
+        [
+          "--help",
+          "Displays the help message with all available commands and arguments.",
+          "No"
+        ]
+      ]
+    },
+    {
+      "text": "After the command is executed, the AI model scanner authenticates with AI Security, downloads the latest rules, and scans the specified AI model files or directories. Upon completion, the scan results are available in the AI Security Admin Portal on the AI Infrastructure > Model Security page."
+    }
+  ]
+}

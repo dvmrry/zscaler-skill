@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "[FEATURE] `zia_list_cloud_app_control_rules` / `zia_get_cloud_app_control_rule`",
+  "source": {
+    "url": "https://github.com/zscaler/zscaler-mcp-server/issues/76",
+    "repo": "zscaler/zscaler-mcp-server",
+    "number": 76,
+    "state": "closed",
+    "created_at": "2026-06-02",
+    "updated_at": "2026-06-03",
+    "labels": [
+      "wontfix"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-06-03",
+    "updated": "2026-06-03",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "[FEATURE] `zia_list_cloud_app_control_rules` / `zia_get_cloud_app_control_rule`",
+      "level": 1
+    },
+    {
+      "heading": "Summary",
+      "level": 3
+    },
+    {
+      "text": "The MCP server currently exposes `zia_list_cloud_app_control_actions`, which returns the *available action types* for a given rule type and cloud application — but there is no tool to read the *configured* Cloud App Control rules (policies). This makes it impossible for an AI agent to audit or reason about which granular upload/download/chat restrictions are actually active in a tenant."
+    },
+    {
+      "heading": "Current behaviour",
+      "level": 3
+    },
+    {
+      "text": "`zia_list_cloud_app_control_actions` returns a list of possible actions such as `DENY_AI_ML_UPLOAD`, `ALLOW_AI_ML_CHAT`, etc. for a given `rule_type` (e.g. `AI_ML`) and `cloud_apps` list. This is essentially the \"menu\" of what *could* be configured, not what *is* configured."
+    },
+    {
+      "text": "All other major ZIA policy areas follow a consistent pattern:"
+    },
+    {
+      "text": "| Policy area | List tool | Get tool | |---|---|---| | URL Filtering | `zia_list_url_filtering_rules` | `zia_get_url_filtering_rule` | | SSL Inspection | `zia_list_ssl_inspection_rules` | `zia_get_ssl_inspection_rule` | | Web DLP | `zia_list_web_dlp_rules` | `zia_get_web_dlp_rule` | | Cloud Firewall | `zia_list_cloud_firewall_rules` | `zia_get_cloud_firewall_rule` | | **Cloud App Control** |  missing |  missing |"
+    },
+    {
+      "heading": "Expected behaviour",
+      "level": 3
+    },
+    {
+      "text": "Two new tools following the existing naming convention:"
+    },
+    {
+      "item": "`zia_list_cloud_app_control_rules(rule_type, search?)` — lists all configured Cloud App Control rules for a given policy type (e.g. `AI_ML`, `WEBMAIL`, `FILE_SHARE`)",
+      "depth": 0
+    },
+    {
+      "item": "`zia_get_cloud_app_control_rule(rule_type, rule_id)` — retrieves a single rule by ID",
+      "depth": 0
+    },
+    {
+      "text": "The underlying ZIA API endpoint already exists: `GET /zia/api/v1/cloudAppControlRules/{policy}` and `GET /zia/api/v1/cloudAppControlRules/{policy}/{id}`."
+    },
+    {
+      "heading": "Use case / motivation",
+      "level": 3
+    },
+    {
+      "text": "During a troubleshooting session using an AI agent (Claude via claude.ai with the Zscaler MCP), we investigated why a user could not upload files to ChatGPT. We were able to inspect URL filtering, SSL inspection, DLP rules, and cloud firewall — but had no way to verify whether a `DENY_AI_ML_UPLOAD` Cloud App Control rule was active. The agent had to fall back to a manual portal check, breaking the otherwise fully automated diagnostic workflow."
+    },
+    {
+      "text": "With `zia_list_cloud_app_control_rules`, the agent could have completed the full policy audit without leaving the MCP context."
+    },
+    {
+      "heading": "Additional context",
+      "level": 3
+    },
+    {
+      "item": "Tested against: MCP server as integrated in claude.ai (version unclear, assumed ≤ v0.6.2)",
+      "depth": 0
+    },
+    {
+      "item": "ZIA API reference: https://help.zscaler.com/zia/cloud-app-control-policy#/cloudAppControlRules-get",
+      "depth": 0
+    },
+    {
+      "item": "Related tool already present: `zia_list_cloud_app_control_actions` (added in v0.6.2, PR #29)",
+      "depth": 0
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-06-03)",
+      "level": 2
+    },
+    {
+      "text": "@(user) Both tools you're requesting — `zia_list_cloud_app_control_rules` and `zia_get_cloud_app_control_rule` — already exist; they shipped in v0.11.0 ([PR #59](https://github.com/zscaler/zscaler-mcp-server/pull/59)), along with the full CAC rule CRUD family."
+    },
+    {
+      "text": "Your report notes you tested against an assumed ≤ v0.6.2 build, which predates that release — that's why the read tools weren't visible. They're category-scoped (rule_type required, e.g. AI_ML), with optional search and JMESPath query, and are part of the zia_cloud_app_control toolset."
+    },
+    {
+      "text": "Upgrading to the latest release (currently v0.12.4) should give you the exact DENY_AI_ML_UPLOAD audit capability your ChatGPT-upload investigation needed. Closing as already-implemented — let us know if a current build still shows the tools missing."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-06-03)",
+      "level": 2
+    },
+    {
+      "text": "Thanks a lot for your quick response."
+    },
+    {
+      "text": "I´m using Claude Ai, so I suppose Anthropics MCP repository is not up to date. I´ll try and find out how to request an update."
+    },
+    {
+      "text": "Regards!"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Troubleshooting Users' Traffic not Going to the Nearest Public Service Edge for Internet & SaaS",
+  "source": {
+    "url": "https://help.zscaler.com/zia/troubleshooting-users-traffic-not-going-nearest-public-service-edge-internet-saas",
+    "node": "1398986",
+    "revision": "3207700",
+    "updated": "2026-05-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "At times, users might experience slower than expected performance because their traffic is not being routed to the nearest Public Service Edge for Internet & SaaS (ZIA). Zscaler determines the closest available Public Service Edge based on the geolocation information associated with the IP address that sent the request to resolve the Zscaler gateway name (for example, zscaler.net) or the IP address from which the PAC file was downloaded. You can edit your PAC file to resolve this issue."
+    },
+    {
+      "text": "The following are some potential causes and solutions:"
+    },
+    {
+      "item": "The PAC file uses gateway.<zscaler_cloud> to define the Public Service Edge (for example, gateway.zscaler.net:80), and the DNS server is not in the same geographic region as your Internet gateway location. This is not recommended because the resolution of this domain name is based on the DNS server used. When the DNS server receives a request to resolve the hostname, it returns the IP address of the Public Service Edge in the Zscaler data center that it is closest to, which might not be the closest Public Service Edge to the user. You can determine the IP address of the DNS server that resolved the Zscaler gateway name by resolving the following hostname: whoami.akamai.net.",
+      "depth": 0
+    },
+    {
+      "item": "To resolve this issue, edit the PAC file and use ${GATEWAY}:80 for the primary proxy and ${SECONDARY_GATEWAY}:80 for the secondary proxy.",
+      "depth": 0
+    },
+    {
+      "item": "The PAC file specifies the IP address of a Zscaler data center. This is not recommended, as this might cause problems when the user is remote and is far from the Public Service Edge. Edit the PAC file and use ${GATEWAY}:80 for the primary Public Service Edge and ${SECONDARY_GATEWAY}:80 for the secondary Public Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "The PAC file uses ${GATEWAY}:80 for the primary Public Service Edge and ${SECONDARY_GATEWAY}:80 for the secondary Public Service Edge. This is the preferred method because the service uses the GeoIP coordinates of the source IP address to determine the nearest Public Service Edge. Zscaler uses MaxMind databases to associate the longitude/latitude coordinates with the source IP address. If the GeoIP coordinates are incorrect in the database, the user's traffic might be forwarded to a farther node. If this occurs, please open a support ticket so that Zscaler Support can override the GeoIP coordinates accordingly.",
+      "depth": 0
+    }
+  ]
+}

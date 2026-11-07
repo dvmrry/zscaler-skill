@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring SEGs for Zscaler Outbound Email DLP",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-segs-zscaler-outbound-email-dlp",
+    "node": "1542202",
+    "revision": "3232944",
+    "updated": "2026-08-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides a basic overview for configuring your Secure Email Gateway (SEG) to use Zscaler Outbound Email Data Loss Prevention (DLP) for scanning outbound messages to detect and prevent sensitive data exfiltration over email. Although there are many SEG options available, the basic configuration process and workflow is the same across products."
+    },
+    {
+      "text": "At a high level, when you onboard an SEG to use Zscaler Outbound Email DLP, outbound email uses the following basic flow:"
+    },
+    {
+      "item": "An end user composes and sends an outbound email message.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Your email server (i.e., Exchange or Gmail) routes the outbound email to your SEG.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Your SEG routes the message to the Zscaler smart host for inspection.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "The Zscaler smart host evaluates the message based on outbound email DLP policies, adds a verdict header to the email (e.g., X-Zscaler-Block, X-Zscaler-Quarantine), and then sends the message back to your SEG.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Your SEG receives the inspected message from the Zscaler smart host as the configured next hop and applies SEG policy based on the Zscaler header (i.e., delivers to the recipient or takes enforcement action).",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "If the email was not blocked or quarantined based on Zscaler or SEG policy, the recipient receives the email message.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Configuring Your SEG To Use Zscaler Outbound Email DLP",
+      "level": 1
+    },
+    {
+      "text": "The Zscaler service supports multiple SEG options, so this section covers the basic steps you need to follow to integrate your SEG with Zscaler Outbound Email DLP. To learn more about specific steps, refer to the documentation for your SEG."
+    },
+    {
+      "text": "To configure your SEG to use Zscaler Outbound Email DLP:"
+    },
+    {
+      "item": "1. Onboard your SEG tenant.",
+      "depth": 0
+    },
+    {
+      "item": "Before you can configure your SEG to use Zscaler Outbound Email DLP, you must first onboard your SEG tenant in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "2. Retrieve the IP ranges for the Zscaler smart host.",
+      "depth": 0
+    },
+    {
+      "item": "Go to config.zscaler.com.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "The Zscaler Config page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Select your organization's Zscaler cloud from the Cloud drop-down menu at the top left of the page.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          50,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to Email DLP. The Email DLP page lists all of the outbound connections that need to be configured for the Zscaler smart host to communicate with your SEG.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          35,
+          44
+        ],
+        [
+          50,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Make note of all the IPs that are listed on this page because you need to add them when you configure your SEG to communicate with the Zscaler smart host.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "3. Configure your SEG to forward outbound emails to the Zscaler smart host.",
+      "depth": 0
+    },
+    {
+      "item": "Configure your SEG to add X-Zscaler-TenantID: <tenant-key> on messages routed to Zscaler. You can find the <tenant-key> value when you onboard your SEG tenant in the Zscaler Admin Console listed as the Key for Transport Rules. The key is unique to each email tenant that you onboard and is used by the Zscaler service to verify the source of email messages received by the Zscaler smart host.",
+      "depth": 0,
+      "strong": [
+        [
+          202,
+          225
+        ]
+      ]
+    },
+    {
+      "item": "4. Ensure that emails from the Zscaler smart host are allowlisted on your SEG.",
+      "depth": 0
+    },
+    {
+      "item": "Your SEG must be configured to accept processed email from the Zscaler smart host by allowlisting the Zscaler smart host egress IPs or validating the client certificate Common Name (CN) presented by Zscaler. This configuration ensures that only authorized Zscaler smart host connections can relay scanned emails back to your SEG.",
+      "depth": 0
+    },
+    {
+      "item": "5. Create enforcement rules on your SEG to enforce policy based on Zscaler verdict headers.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service appends one of the following three headers to each outbound email message:",
+      "depth": 0
+    },
+    {
+      "item": "X-Zscaler-Block: 0: Your SEG should deliver emails that use this header to the intended recipient.",
+      "depth": 1
+    },
+    {
+      "item": "X-Zscaler-Block: 1: Your SEG should block emails that contain this header.",
+      "depth": 1
+    },
+    {
+      "item": "X-Zscaler-Quarantine: 1: Your SEG should quarantine emails that use this header.",
+      "depth": 1
+    },
+    {
+      "item": "Your SEG should use these headers to detect messages that have already been processed by the Zscaler service to prevent mail routing loops (i.e., sending the same email messages back to the Zscaler service for processing). You can configure your SEG to look for the X-Zscaler-Block header to prevent mail routing loops, as the Zscaler service appends either an X-Zscaler-Block: 0 or X-Zscaler-Block: 1 header to all inspected messages.",
+      "depth": 0
+    },
+    {
+      "item": "You can use the Custom Header Insertion action on a Zscaler Outbound Email DLP policy rule to create a custom header that is then mapped to an action on your SEG. For example, you can configure an outbound email policy rule in the Zscaler Admin Console to attach a custom header (e.g., X-Zscaler-Encrypt:1) to emails that trigger the policy. You can then map the custom header to the appropriate action in your SEG. To learn more, see Configuring Outbound Email Policy Rules.",
+      "depth": 0,
+      "strong": [
+        [
+          16,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "6. Validate your setup.",
+      "depth": 0
+    },
+    {
+      "item": "To ensure that your SEG is properly configured to use Zscaler Outbound Email DLP, send two outbound test emails from a test user to an external recipient. One email should be benign, and the other should contain a test payload that violates an existing policy rule. In the Email DLP Insights Logs, confirm that the message appears for that sender and timeframe, and that it shows a DLP scan and verdict. If the email is visible in Email DLP Insights Logs, it indicates that your SEG is successfully routing mail to the Zscaler smart host and the email flow is working as expected.",
+      "depth": 0
+    }
+  ]
+}

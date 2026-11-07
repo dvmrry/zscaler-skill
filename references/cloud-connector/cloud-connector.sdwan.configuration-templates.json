@@ -1,0 +1,632 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.sdwan.configuration-templates",
+  "title": "Branch Connector configuration templates: VM and hardware settings, HA, WAN uplinks, LAN, DHCP and static routes",
+  "aliases": [
+    "branch configuration template",
+    "branch connector provisioning template",
+    "VM provisioning",
+    "device provisioning",
+    "branch connector group template"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.device-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.virtual-deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.dns.gateways"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.methods"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{required-for-both}} {{editable-anytime}}"
+    },
+    {
+      "label": "Template list.",
+      "text": "{{pages-and-columns}} The status vocabulary differs from the one on the zero touch provisioning page {{divergence:template-status-values}}. {{gateway-hardware-only}} Modes and zero touch provisioning are in [[cloud-connector.sdwan.device-modes]]."
+    },
+    {
+      "label": "Location and group.",
+      "text": "{{location-in-zia}} {{group-purpose}} {{ha-separate-templates}}"
+    },
+    {
+      "label": "Virtual machine templates.",
+      "text": "{{vm-size}} {{vm-ha-vip}} {{vm-forwarding-interface}} {{app-connector-tab}} The hypervisor-side requirements for the high availability pair are in [[cloud-connector.sdwan.virtual-deployment:esxi-ha-vswitch]]."
+    },
+    {
+      "label": "Hardware templates.",
+      "text": "{{hw-mgmt-interface}} The per-model management port is in [[cloud-connector.sdwan.device-modes:hardware-model-names]]."
+    },
+    {
+      "label": "WAN interfaces.",
+      "text": "{{wan-interfaces}} {{uplink-mode}} {{subinterfaces}} {{traffic-distribution}} How WAN selection is applied by forwarding rules is in [[cloud-connector.forwarding.methods:wan-selection]]."
+    },
+    {
+      "label": "LAN interfaces.",
+      "text": "{{lan-interfaces}} {{lan-ha}} {{lan-dhcp-defaults}} {{lan-dhcp-options}} {{dhcp-option-codes}} {{lan-dns}} See also [[cloud-connector.dns.gateways:server-choices]]."
+    },
+    {
+      "label": "Routes and one-arm mode.",
+      "text": "{{static-routes}} {{one-arm-template}} Whether the device runs dynamic routing is tracked in [[cloud-connector.sdwan.device-modes:routing-protocols]]."
+    },
+    {
+      "label": "The April 10, 2023 cutover.",
+      "text": "{{april-2023-cutover}} What became of the earlier Branch Connectors is not stated {{gap:pre-2023-branch-connectors}}."
+    },
+    {
+      "label": "Not stated.",
+      "text": "The memory, cores and NICs per size are in [[cloud-connector.sdwan.virtual-deployment:sizing-branch-connector]]; the throughput of each size, and failover timing for VM, LAN and WAN uplink failover, are not stated {{gap:capacity-and-timing}}. Whether the LAN subinterface DHCP server is also disabled by default, and the HA ID range, are not stated {{gap:lan-details}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the template for a VM or hardware device is the one the device was given, since the configuration URL comes from the template.",
+      "uses": [
+        "required-for-both"
+      ]
+    },
+    {
+      "do": "For a pair of Branch Connectors in high availability, that each has its own template with the same Location Name and Branch Connector Group Name.",
+      "uses": [
+        "ha-separate-templates"
+      ]
+    },
+    {
+      "do": "Which status vocabulary the console shows for a template before looking for a Ready to Deploy value.",
+      "uses": [
+        "pages-and-columns",
+        "template-status-values"
+      ]
+    }
+  ],
+  "claims": {
+    "april-2023-cutover": {
+      "statement": "The ZPA console's About Branch Connectors page says all existing Branch Connectors appear as Cloud Connectors in the Admin Console after April 10, 2023, and that a new Branch Connector must be configured to be visible on the Branch Connector and Branch Connector Groups pages. Provisioning templates created before April 10, 2023 are no longer valid and must not be used; new provisioning templates must be used to properly provision a Branch Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-branch-connectors.json",
+          "quotes": [
+            "All existing Branch Connectors appear as Cloud Connectors in the Zscaler Admin Console after April 10, 2023.",
+            "You must configure a new Branch Connector in the Zscaler Admin Console for it to be visible in the Branch Connector and Branch Connector Groups pages of the Zscaler Admin Console.",
+            "Provisioning templates created before April 10, 2023, are no longer valid and must not be used.",
+            "New provisioning templates must be used to properly provision a Branch Connector."
+          ]
+        }
+      ]
+    },
+    "required-for-both": {
+      "statement": "A Branch Connector configuration template is required for both virtual machines and hardware devices; for a virtual device the administrator provides the configuration URL to the virtual device, and for a physical device the Zero Touch Provisioning process retrieves the configuration URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-branch-configuration-templates.json",
+          "quotes": [
+            "The Branch Connector configuration template is required for both virtual machines (VMs) and hardware devices.",
+            "For virtual branch devices, the administrator provides the configuration URL to the virtual device.",
+            "For physical branch devices, the Zero Touch Provisioning process retrieves the configuration URL."
+          ]
+        }
+      ]
+    },
+    "pages-and-columns": {
+      "statement": "Templates for virtual devices are on Infrastructure > Branch Connector > VM Provisioning and for physical devices on Infrastructure > Branch Connector > Device Provisioning; the list shows Branch Type (the hypervisor host Red Hat Linux, VMware ESXi or Microsoft Hyper-V, or the hardware device ZT400, ZT600 or ZT800), the hardware device's serial number, Status (Staged, Not Deployed or Deployed) and VM Size, which applies only to VMs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-branch-configuration-templates.json",
+          "quotes": [
+            "On the Branch Configuration page for virtual devices (Infrastructure > Branch Connector > VM Provisioning) or physical devices (Infrastructure > Branch Connector > Device Provisioning), you can do the following:",
+            "Branch Type: The hypervisor host (i.e., Red Hat Linux, VMware ESXi, or Microsoft Hyper-V) or the hardware device (ZT400, ZT600, or ZT800) of the template.",
+            "Serial Number: The serial number of the hardware device.",
+            "Status: The status of the deployment template (i.e., Staged, Not Deployed, or Deployed).",
+            "VM Size: The size of the virtual machine. This field only applies to VMs."
+          ]
+        }
+      ]
+    },
+    "gateway-hardware-only": {
+      "statement": "The template list's Gateway column shows whether a hardware device was deployed as a gateway (Yes or No), and gateway mode is only supported on hardware devices; a hardware template selects Yes at Deploy as Gateway to deploy the device in gateway mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-branch-configuration-templates.json",
+          "quotes": [
+            "Gateway: The status of whether the hardware device was deployed as a gateway (i.e., Yes or No). Gateway mode is only supported on hardware devices."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "Deploy as Gateway: To deploy the Zero Trust Branch Device in gateway mode, select Yes."
+          ]
+        }
+      ]
+    },
+    "editable-anytime": {
+      "statement": "Branch configuration templates are editable before and after provisioning and deployment, and the branch configuration URL is copied with the arrow in the Template Name field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-branch-configuration-templates.json",
+          "quotes": [
+            "Branch configuration templates are editable before and after provisioning and deployment.",
+            "Click the arrow in the Template Name field to copy the branch configuration URL."
+          ]
+        }
+      ]
+    },
+    "ha-separate-templates": {
+      "statement": "For Branch Connectors to function in high availability, each Branch Connector is configured with a separate configuration template with the same Location Name and Branch Connector Group Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "For Branch Connectors to function in high availability, configure each Branch Connector with separate configuration templates with the same Location Name and Branch Connector Group Name."
+          ]
+        }
+      ]
+    },
+    "location-in-zia": {
+      "statement": "A template's Location tab selects an Existing or New location; the location is created in Internet & SaaS and can be used as a policy parameter in Internet & SaaS, Private Access and the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "On the Location tab, select an Existing or New location."
+          ],
+          "after": "Hypervisor: Select Red Hat Linux, VMware ESXi, or Microsoft Hyper-V as your hypervisor host."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "This location is created in Internet & SaaS. You can use the location as a policy parameter in Internet & SaaS, Private Access, and the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "group-purpose": {
+      "statement": "Branch Connector groups apply policies to a group of deployed Branch Connectors, upgrade the members to maintain redundancy while upgrades are being executed, and share Private Access synthetic IP address resolutions among the group members.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "Branch Connector groups enable you to apply policies to a group of deployed Branch Connectors, upgrade Branch Connectors belonging to a group to maintain redundancy while upgrades are being executed, and share Private Access synthetic IP address resolutions among the group members."
+          ]
+        }
+      ]
+    },
+    "vm-size": {
+      "statement": "When a New Branch Connector group is selected on a hypervisor template, its Branch Connector VM Size is Small or Medium; selecting Medium automatically enables High Availability Deployment, which cannot then be disabled, and a Medium VM requires Manual settings in the Forwarding Interface field to enable high availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "If you select a New group:",
+            "Branch Connector VM Size: Select Small or Medium. If you select Medium, High Availability Deployment is automatically enabled.",
+            "If you select the Medium Branch Connector VM size, High Availability Deployment is automatically enabled, and you cannot disable it.",
+            "Medium Branch Connector virtual machine (VM) sizes require Manual settings in the Forwarding Interface field to enable high availability."
+          ]
+        }
+      ]
+    },
+    "vm-ha-vip": {
+      "statement": "When High Availability Deployment is enabled, two Branch Connectors share a virtual IP address on their forwarding interfaces in active or standby mode; traffic sent to the shared virtual IP address reaches the active Branch Connector and, if the primary stops responding, fails over automatically to the second. For both to access the same default gateway, the virtual IP address must be on the same broadcast domain as the forwarding interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "If you select Enabled, two Branch Connectors share a virtual IP address on their forwarding interfaces in active or standby mode.",
+            "Traffic sent to the shared virtual IP address reaches the active Branch Connector. If the primary Branch Connector stops responding, the traffic automatically fails over to the second Branch Connector.",
+            "For the Branch Connectors to access the same default gateway, the virtual IP address must be on the same broadcast domain as the forwarding interface."
+          ]
+        }
+      ]
+    },
+    "vm-forwarding-interface": {
+      "statement": "When Manual is selected on a hypervisor template's Branch Connector Details tab, the forwarding interface takes, when High Availability Deployment is disabled, an outgoing gateway IP address and a primary service IP address; when it is enabled, a secondary service IP address and a load balancer IP address; and a virtual IP address that the two Branch Connectors in a high availability pair share.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "If you select Manual, enter information in the following sections:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "Outgoing Gateway IP Address: Enter the default gateway IP address.",
+            "Service IP Address 1: Enter the primary service IP address."
+          ],
+          "after": "If High Availability Deployment is Disabled:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "Service IP Address 2: Enter the secondary service IP address.",
+            "Load Balancer IP Address: Enter the load balancer IP address."
+          ],
+          "after": "If High Availability Deployment is Enabled:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "Virtual IP Address: Enter a valid virtual IP address that the two Branch Connectors in a high availability pair share."
+          ]
+        }
+      ]
+    },
+    "app-connector-tab": {
+      "statement": "On a hypervisor template's App Connector tab an App Connector group name and a provisioning key name are selected; the App Connector Interface is automatically set to Manual, and the tab takes the App Connector's IP address and default gateway IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "App Connector Group Name: Select your desired App Connector group name.",
+            "Provision Key Name: Select your desired provisioning key name.",
+            "Default Gateway IP Address: Enter the default gateway IP address of the App Connector.",
+            "App Connector Interface: This field is automatically set to Manual.",
+            "IP Address: Enter the IP address of the App Connector."
+          ],
+          "after": "Hypervisor: Select Red Hat Linux, VMware ESXi, or Microsoft Hyper-V as your hypervisor host."
+        }
+      ]
+    },
+    "hw-mgmt-interface": {
+      "statement": "On a hardware template the serial number drop-down shows only devices associated with the organization and for the specified platform type; the management interface provides out-of-band access and is enabled by default, receives its IP address by DHCP by default, and defaults to 192.168.1.1/24 if the DHCP client is enabled and receives no DHCP offer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "From the drop-down menu, select the device's serial number. The drop-down menu only shows devices associated with your organization and for the specified platform type.",
+            "The management interface provides out-of-band access to your Zero Trust Branch Device and is enabled by default.",
+            "DHCP: By default, the management interface is Enabled and set to receive its IP address by the Dynamic Host Configuration Protocol (DHCP) client.",
+            "If the DHCP client is enabled on the Management Interface and it does not receive a DHCP offer, the IP address automatically defaults to 192.168.1.1/24."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "If the DHCP client is enabled on the management interface via the System Settings in the Branch Configuration Template and it does not receive a DHCP offer, the IP address automatically defaults to 192.168.1.1/24."
+          ]
+        }
+      ]
+    },
+    "wan-interfaces": {
+      "statement": "At least one interface or subinterface must be assigned to the WAN interface and a second is optional; the parent interface MTU defaults to 1,500 bytes; WAN interfaces receive IP addresses via DHCP by default, where the DNS server fields are optional and override any DNS received via DHCP, and with DHCP disabled they are required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "You must assign at least one interface or subinterface to the WAN interface. Optionally, you can assign a second interface or subinterface.",
+            "MTU: Enter the permissible IP Maximum Transmission Units (MTU) of the parent interface. The default value is 1,500 bytes.",
+            "By default, the WAN interfaces are set to receive IP addresses via DHCP.",
+            "When you enable DHCP, the primary and secondary DNS server fields are optional. Setting these fields overrides any DNS received via DHCP.",
+            "When DHCP is disabled, the primary and secondary DNS server fields are required."
+          ]
+        }
+      ]
+    },
+    "uplink-mode": {
+      "statement": "At least one WAN interface must be Active and only two WAN interfaces can be configured. With one Active and one Standby interface, data traffic goes over the active links and failover is triggered when probes detect a 100 percent loss on the current active link; Zscaler also sends probes on the standby link and maintains tunnels to Internet & SaaS and Private Access on it for fast switchover. With both Active, Zscaler actively monitors the health of the links and determines the best link, and for specific applications the device-wide traffic distribution method can optionally be overridden using traffic forwarding rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "If you set one interface to Active and one interface to Standby, data traffic goes over the active links."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "If you set both interfaces to Active, Zscaler actively monitors the health of the links and determines the best link.",
+            "Optionally, for specific applications, you can override the device-wide traffic distribution method using traffic forwarding rules.",
+            "At least one WAN interface must be set to Active.",
+            "You can only configure two WAN interfaces.",
+            "When the probes detect a 100 percent loss on the current active link, failover is triggered.",
+            "Zscaler also sends WAN link monitoring probes on the standby link and establishes and maintains tunnels to Internet & SaaS and Private Access for a fast switchover during a failover from the active link."
+          ],
+          "after": "MTU: Enter the permissible IP Maximum Transmission Units (MTU) of the parent interface. The default value is 1,500 bytes."
+        }
+      ]
+    },
+    "subinterfaces": {
+      "statement": "In the WAN section up to 10 tagged VLAN interfaces can be added per parent interface, with a VLAN ID from 1 to 4094 (the 802.1q tag for the network); the subinterface MTU is 1496 by default and must be 4 bytes less than the MTU of the parent interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "You can add up to 10 tagged VLAN interfaces per parent interface.",
+            "MTU: The IP MTU of the subinterface. By default, this value is set to 1496. It must be set to 4 bytes less than the MTU of the parent interface."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "VLAN ID: Enter the VLAN ID as a value from 1 to 4094. This is the 802.1q tag for the network."
+          ],
+          "after": "You can add up to 10 tagged VLAN interfaces per parent interface."
+        }
+      ]
+    },
+    "traffic-distribution": {
+      "statement": "Traffic Distribution is Balanced or Best Link; Balanced is the default and distributes traffic across all WAN links using a flow-based distribution algorithm, and Best Link uses a link determined using probes that measure loss, latency and jitter. The setting is only applicable when there is more than one WAN interface and/or subinterface and both are set to active and operational, and any WAN link selected via traffic forwarding rules takes precedence for the matching traffic over this catch-all device-level setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "Traffic Distribution: Select Balanced or Best Link. By default, this field is set to Balanced, meaning traffic is distributed across all WAN links using a flow-based distribution algorithm.",
+            "This link is determined using probes to measure loss, latency, and jitter.",
+            "This setting is only applicable when there is more than one WAN interface and/or subinterface and both interfaces are set to active and operational.",
+            "Any WAN link that is selected via traffic forwarding rules takes precedence for the matching traffic over the catch-all device-level setting of this traffic distribution."
+          ]
+        }
+      ]
+    },
+    "lan-interfaces": {
+      "statement": "A Zero Trust Branch Device deployed in gateway mode must have at least one interface assigned to a LAN; shutting down a LAN interface brings down the physical port and all of its subinterfaces, while shutting down a subinterface does not affect the parent interface or any other subinterface; the LAN parent interface MTU defaults to 1500 bytes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "When you deploy a Zero Trust Branch Device in gateway mode, you must assign at least one interface to a local area network (LAN).",
+            "Shutdown: To shut down the LAN interface that brings down the physical port and all of its subinterfaces, select Yes.",
+            "This only brings down the specific subinterface selected and does not affect the parent interface or any other subinterface.",
+            "MTU: The permissible IP MTU of the parent interface. The default value is 1500 bytes."
+          ]
+        }
+      ]
+    },
+    "lan-ha": {
+      "statement": "HA on a LAN interface takes the ID configured on the HA pair device, a virtual IP address belonging to the same network as the interface, and the same passphrase as the pair device; Preferred is No by default, and setting it to Yes on more than one device in an HA pair can cause unreliable behavior.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "ID: Enter the ID configured on the HA pair device.",
+            "Virtual IP Address: Set the virtual IP address to belong to the same network as specified on the corresponding interface.",
+            "Passphrase: Set the same passphrase as on the HA pair device.",
+            "Preferred: By default, this field is set to No.",
+            "Setting Preferred to Yes on more than one device in an HA pair can cause unreliable behavior."
+          ],
+          "after": "High Availability: Select Disabled to disable HA or select Enabled to configure the following settings:"
+        }
+      ]
+    },
+    "lan-dhcp-defaults": {
+      "statement": "The LAN DHCP server is disabled by default; if HA is enabled, the ranges on the two devices in an HA pair must match. The default lease time is 86400 seconds, the default maximum lease time is 604800 seconds and the maximum permissible value is 3155673600 seconds; an option configurable when HA is enabled synchronizes the DHCP leases.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "DHCP: By default, the DHCP server is Disabled.",
+            "If HA is enabled, ensure that the ranges on the two devices in an HA pair match."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "The default lease time is automatically set to 86400 seconds, but you can change it.",
+            "Max Lease Time (sec): The default maximum lease time is 604800 seconds. The maximum permissible value is 3155673600 seconds.",
+            "This option is configurable when HA is enabled to synchronize the DHCP leases."
+          ],
+          "after": "High Availability: Select Disabled to disable HA or select Enabled to configure the following settings:"
+        }
+      ]
+    },
+    "lan-dhcp-options": {
+      "statement": "LAN DHCP options accept up to 4 DNS server IP addresses and up to 4 domain names, each separated by commas; a custom option has a Code from 1 to 255, a string value for which Zscaler only supports spaces and commas as delimiters with a maximum length of 256, or one to four IP addresses. A DHCP server takes a maximum of 32 static leases, and in HA each static lease must be entered twice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "You can enter up to 4 DNS server IP addresses separated by commas.",
+            "You can enter up to 4 domain names separated by commas.",
+            "Code: Enter a number between 1 and 255 to identify a specific DHCP option.",
+            "Additionally, Zscaler only supports spaces and commas as delimiters. The maximum length of the string is 256.",
+            "IP: Enter one or more IP addresses. Separate multiple IP addresses with commas. You can enter up to four IP addresses.",
+            "You can configure a maximum of 32 static leases per DHCP server. In HA, you must enter each static lease twice."
+          ],
+          "after": "High Availability: Select Disabled to disable HA or select Enabled to configure the following settings:"
+        }
+      ]
+    },
+    "dhcp-option-codes": {
+      "statement": "A custom DHCP option's Code field takes a number between 1 and 255, and the page links a list of supported DHCP options whose entries include, for example, 1 subnet-mask, 42 ntp-servers, 66 tftp-server-name, 150 tftp-server-address and 213 v4-access-domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "View a list of supported DHCP options",
+            "Code: Enter a number between 1 and 255 to identify a specific DHCP option.",
+            "| 1 | subnet-mask |",
+            "| 42 | ntp-servers |",
+            "| 66 | tftp-server-name |",
+            "| 150 | tftp-server-address |",
+            "| 213 | v4-access-domain |"
+          ],
+          "after": "High Availability: Select Disabled to disable HA or select Enabled to configure the following settings:"
+        }
+      ]
+    },
+    "lan-dns": {
+      "statement": "For LAN DNS, selecting Yes at Use WAN DNS Server uses the DNS server from the WAN interfaces as the DNS server for LAN; the App Connector uses the LAN DNS servers to resolve the original IP of an application at the branch, and the LAN DNS servers can also be referenced in the DNS gateway object, which is then used in DNS policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "Use WAN DNS Server: To use the DNS server from the WAN interfaces as the DNS server for LAN, select Yes.",
+            "The App Connector uses the LAN DNS servers to resolve the original IP of an application at the branch.",
+            "The LAN DNS servers can also be referenced in the DNS gateway object, which is then used in DNS policies."
+          ]
+        }
+      ]
+    },
+    "static-routes": {
+      "statement": "In the hardware template branch for a device deployed in gateway mode (Deploy as Gateway set to Yes), a maximum of 32 static routes are permitted and the default static route cannot be configured; the next hop of a static route is resolvable over one of the connected LAN interfaces and/or subinterfaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "Deploy as Gateway: To deploy the Zero Trust Branch Device in gateway mode, select Yes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "A maximum of 32 static routes are permitted. You cannot configure the default static route.",
+            "The next hop of the static route is resolvable over one of the connected LAN interface and/or subinterfaces."
+          ]
+        }
+      ]
+    },
+    "one-arm-template": {
+      "statement": "In non-gateway mode deployments another router forwards traffic to the Zero Trust Branch Device; the template's HA Deployment Status is set to Active-Standby by default, and a Virtual IP Address is entered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-branch-connector-configuration-template.json",
+          "quotes": [
+            "In non-gateway mode deployments, another router forwards traffic to the Zero Trust Branch Device.",
+            "HA Deployment Status: This field is set to Active-Standby by default.",
+            "Virtual IP Address: Enter an IP address."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "template-status-values": {
+      "summary": "The Understanding Zero Trust Branch Devices page moves a template from Staged to Ready to Deploy; the Branch Configuration Templates list gives the statuses Staged, Not Deployed and Deployed.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-zero-trust-branch-devices.json",
+            "quotes": [
+              "When your organization is ready for the ZTE to adopt the device, you’ll change the template status from Staged to Ready to Deploy."
+            ]
+          },
+          "says": "The template status changes from Staged to Ready to Deploy."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-about-branch-configuration-templates.json",
+            "quotes": [
+              "Status: The status of the deployment template (i.e., Staged, Not Deployed, or Deployed)."
+            ]
+          },
+          "says": "The statuses are Staged, Not Deployed or Deployed, with no Ready to Deploy."
+        }
+      ],
+      "impact": "An operator looking for Ready to Deploy in the template list may not find it; neither page maps the two vocabularies."
+    }
+  },
+  "gaps": {
+    "pre-2023-branch-connectors": {
+      "kind": "semantic",
+      "title": "What happens to Branch Connectors that existed before April 10, 2023 and now show as Cloud Connectors",
+      "status": "open",
+      "detail": "The About Branch Connectors page does not say what happens to the groups, policies and upgrades of the earlier Branch Connectors that now appear as Cloud Connectors, or whether they must be redeployed.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "capacity-and-timing": {
+      "kind": "semantic",
+      "title": "Throughput of Small and Medium VM sizes, and failover timing",
+      "status": "open",
+      "detail": "The deployment pages give memory, CPU cores, data disk and NICs per size (see cloud-connector.sdwan.virtual-deployment) but no throughput figure, and the template page states no failover timing for VM high availability, LAN high availability or WAN uplink failover beyond the 100 percent probe loss trigger; no Best Link switch thresholds or hysteresis are given.",
+      "blocks": "Sizing a branch VM and predicting failover time.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "lan-details": {
+      "kind": "semantic",
+      "title": "LAN subinterface DHCP default, HA ID range and interface limits",
+      "status": "open",
+      "detail": "Only the untagged LAN interface states that the DHCP server is disabled by default; the LAN subinterface block does not state its default. The HA ID range, the LAN subinterface count cap (the 10-per-parent cap is stated only under WAN) and the number of LAN interfaces allowed are not stated.",
+      "blocks": "Planning LAN layout on a gateway-mode device.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

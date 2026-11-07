@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.cipher-suites",
+  "title": "Which TLS versions and cipher suites SSL/TLS inspection supports, and what happens to the rest",
+  "aliases": [
+    "supported cipher suites",
+    "ssl inspection tls versions",
+    "tls 1.3 inspection",
+    "unsupported ciphers rc4",
+    "perfect forward secrecy ssl inspection"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.uninspectable"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.intermediate-ca"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{versions-and-preference}} What the supported TLS versions are differs between the help pages {{divergence:supported-tls-versions}}."
+    },
+    {
+      "label": "Supported suites.",
+      "text": "{{tls13-suites}} {{pfs-key-exchanges}} {{ecdhe-suites}} {{dhe-suites}} {{rsa-suites}} {{ecdsa-scope}}"
+    },
+    {
+      "label": "Unsupported suites.",
+      "text": "{{unsupported-suites}} {{unsupported-only-is-undecryptable}} The setting that decides allow or block is Block Undecryptable Traffic in [[zia.ssl-inspection.actions]]; the guide's recommendation to block it is in [[zia.ssl-inspection.uninspectable]]. The list items EXP and DSS are too short to quote, so the full list is not carried {{gap:unsupported-list-remainder}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which TLS versions inspection supports, stating that the help pages differ rather than choosing one list.",
+      "uses": [
+        "supported-tls-versions"
+      ]
+    }
+  ],
+  "claims": {
+    "versions-and-preference": {
+      "statement": "Zscaler supports hardware-based inspection with TLS versions 1.3, 1.2, 1.1 and 1.0 and with Perfect Forward Secrecy (PFS) cipher suites across all TLS versions; the Public Service Edge prefers and proposes the highest TLS version and strongest cipher suites on the client side (client to Public Service Edge) and server side (Public Service Edge to server) connections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supported-cipher-suites-ssltls-inspection.json",
+          "quotes": [
+            "Zscaler supports hardware-based inspection with TLS versions 1.3, 1.2, 1.1 and 1.0, as well as Perfect Forward Secrecy (PFS) cipher suites across all TLS versions.",
+            "prefers and proposes the highest TLS version and strongest cipher suites on the client side (client to Public Service Edge) and server side (Public Service Edge to server) connections, respectively."
+          ]
+        }
+      ]
+    },
+    "tls13-suites": {
+      "statement": "The supported TLS 1.3 cipher suites are TLS_AES_256_GCM_SHA384 (0x1302), TLS_CHACHA20_POLY1305_SHA256 (0x1303) and TLS_AES_128_GCM_SHA256 (0x1301).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supported-cipher-suites-ssltls-inspection.json",
+          "quotes": [
+            "Zscaler supports hardware-based inspection with TLS versions 1.3, 1.2, 1.1 and 1.0, as well as Perfect Forward Secrecy (PFS) cipher suites across all TLS versions.",
+            "TLS_AES_256_GCM_SHA384 (0x1302) TLS_CHACHA20_POLY1305_SHA256 (0x1303) TLS_AES_128_GCM_SHA256 (0x1301)"
+          ]
+        }
+      ]
+    },
+    "pfs-key-exchanges": {
+      "statement": "The Understanding SSL/TLS article says PFS uses either the standard Diffie-Hellman ephemeral key exchange (DHE) or the Elliptic Curve Diffie-Hellman ephemeral key exchange (ECDHE), with the server generating different session keys for each conversation with the client, and points to Zscaler SSL/TLS Support for the supported DHE and ECDHE cipher suites.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ssltls.json",
+          "quotes": [
+            "In contrast, PFS uses either the standard Diffie-Hellman ephemeral key exchange (DHE) or the Elliptic Curve Diffie-Hellman ephemeral key exchange (ECDHE).",
+            "Furthermore, the server generates different session keys for each conversation with the client.",
+            "For a list of the supported DHE and ECDHE cipher suites, see Zscaler SSL/TLS Support."
+          ]
+        }
+      ]
+    },
+    "ecdhe-suites": {
+      "statement": "For PFS the supported ECDHE cipher suites depend on the TLS protocol. For TLS 1.0 and 1.1 they are TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA and TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA. For TLS 1.2 the table adds the ECDSA and RSA AES-128 and AES-256 GCM suites and, for each of ECDSA and RSA, the AES-128 CBC SHA256 and AES-256 CBC SHA384 suites, as well as the four CBC SHA suites above.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supported-cipher-suites-ssltls-inspection.json",
+          "quotes": [
+            "Zscaler supports the following ECDHE cipher suites for PFS depending on the TLS protocol:",
+            "| TLS 1.0 TLS 1.1 | TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA (0xc009) TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA (0xc00a) TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (0xc013) TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (0xc014) |",
+            "| TLS 1.2 | TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 (0xc02b) TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c) TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 (0xc023) TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 (0xc024) TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA (0xc009)",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA (0xc00a) TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (0xc030) TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (0xc02f)",
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (0xc013) TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (0xc014) TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 (0xc027) TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 (0xc028) |"
+          ]
+        }
+      ]
+    },
+    "dhe-suites": {
+      "statement": "The supported DHE cipher suites for PFS are TLS_DHE_RSA_WITH_AES_256_CBC_SHA and TLS_DHE_RSA_WITH_AES_128_CBC_SHA on TLS 1.0 and 1.1; on TLS 1.2 the table lists those two plus TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_128_GCM_SHA256, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256 and TLS_DHE_RSA_WITH_AES_128_CBC_SHA256.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supported-cipher-suites-ssltls-inspection.json",
+          "quotes": [
+            "| TLS 1.0 TLS 1.1 | TLS_DHE_RSA_WITH_AES_256_CBC_SHA (0x0039) TLS_DHE_RSA_WITH_AES_128_CBC_SHA (0x0033) |",
+            "| TLS 1.2 | TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 (0x009f) TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 (0x009e) TLS_DHE_RSA_WITH_AES_256_CBC_SHA256 (0x006b) TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 (0x0067) TLS_DHE_RSA_WITH_AES_256_CBC_SHA (0x0039) TLS_DHE_RSA_WITH_AES_128_CBC_SHA (0x0033) |"
+          ]
+        }
+      ]
+    },
+    "rsa-suites": {
+      "statement": "The RSA key-exchange cipher suites listed are TLS_RSA_WITH_AES_256_CBC_SHA and TLS_RSA_WITH_AES_128_CBC_SHA on TLS 1.0 and 1.1; on TLS 1.2 the table lists those two plus TLS_RSA_WITH_AES_256_GCM_SHA384 and TLS_RSA_WITH_AES_128_GCM_SHA256.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supported-cipher-suites-ssltls-inspection.json",
+          "quotes": [
+            "| TLS 1.0 TLS 1.1 | TLS_RSA_WITH_AES_256_CBC_SHA (0x0035) TLS_RSA_WITH_AES_128_CBC_SHA (0x002f) |",
+            "| TLS 1.2 | TLS_RSA_WITH_AES_256_GCM_SHA384 (0x009d) TLS_RSA_WITH_AES_128_GCM_SHA256 (0x009c) TLS_RSA_WITH_AES_256_CBC_SHA (0x0035) TLS_RSA_WITH_AES_128_CBC_SHA (0x002f) |"
+          ]
+        }
+      ]
+    },
+    "ecdsa-scope": {
+      "statement": "By default ECDSA authentication is supported only on server-side (Service Edge to server) SSL connections; ECDSA can be supported on the client side (client to Service Edge) if Custom Certificate Compliance is enabled and an ECDSA custom intermediate certificate is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supported-cipher-suites-ssltls-inspection.json",
+          "quotes": [
+            "By default, the Elliptic Curve Digital Signature Algorithm (ECDSA) authentication algorithm is supported only on the server-side (Service Edge to Server) SSL connections.",
+            "However, ECDSA can be supported for client-side (Client to Service Edge) if Custom Certificate Compliance is enabled and an ECDSA custom intermediate certificate is configured."
+          ]
+        }
+      ]
+    },
+    "unsupported-suites": {
+      "statement": "Zscaler does not support certain cipher suites due to security or compatibility issues, among them RC4-MD5, RC4-SHA, DES-CBC-SHA, DES-CBC3-SHA and 3DES-CBC-SHA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supported-cipher-suites-ssltls-inspection.json",
+          "quotes": [
+            "Zscaler does not support the following cipher suites due to security or compatibility issues:",
+            "- RC4-MD5",
+            "- RC4-SHA",
+            "- DES-CBC-SHA",
+            "- DES-CBC3-SHA",
+            "- 3DES-CBC-SHA"
+          ]
+        }
+      ]
+    },
+    "unsupported-only-is-undecryptable": {
+      "statement": "Zscaler does not perform SSL/TLS Inspection for websites that only use unsupported protocols: it treats their traffic as undecryptable and allows or blocks it depending on the SSL/TLS Inspection policy set for undecryptable traffic. The page's sample is a website that only supports RC4-MD5-based ciphers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supported-cipher-suites-ssltls-inspection.json",
+          "quotes": [
+            "Zscaler doesn't perform SSL/TLS Inspection for websites that only use unsupported protocols.",
+            "The following sample is traffic destined to a website that only supports RC4-MD5-based ciphers.",
+            "Zscaler treats traffic destined to this website as undecryptable and does not perform SSL/TLS Inspection.",
+            "It allows or blocks the traffic depending on the SSL/TLS Inspection policy you set for undecryptable traffic."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "supported-tls-versions": {
+      "summary": "The cipher suites page lists TLS 1.3, 1.2, 1.1 and 1.0 as supported for inspection; the deployment scenarios page lists TLS 1.0, 1.1 and 1.2.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-supported-cipher-suites-ssltls-inspection.json",
+            "quotes": [
+              "Zscaler supports hardware-based inspection with TLS versions 1.3, 1.2, 1.1 and 1.0, as well as Perfect Forward Secrecy (PFS) cipher suites across all TLS versions."
+            ]
+          },
+          "says": "Inspection supports TLS 1.3, 1.2, 1.1 and 1.0."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deployment-scenarios-ssltls-inspection.json",
+            "quotes": [
+              "The Zscaler service supports TLS 1.0, 1.1, and 1.2.",
+              "When SSL/TLS Inspection is enabled, the service inspects all SSL/TLS sessions, regardless of version."
+            ]
+          },
+          "says": "The service supports TLS 1.0, 1.1 and 1.2, and inspects all SSL/TLS sessions regardless of version."
+        }
+      ],
+      "impact": "Whether TLS 1.3 sessions are inspected is stated by one page and left out of the other's list; the second page also says all sessions are inspected regardless of version. The pages do not say which governs."
+    }
+  },
+  "gaps": {
+    "unsupported-list-remainder": {
+      "kind": "semantic",
+      "title": "The full list of unsupported cipher suites",
+      "status": "open",
+      "detail": "The page's unsupported list also names EXP and DSS items, each too short to quote alone; the statement above names the five suites that can be quoted and says 'among them'.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

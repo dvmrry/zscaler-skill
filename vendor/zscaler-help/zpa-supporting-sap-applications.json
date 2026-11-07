@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Supporting SAP Applications",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/supporting-sap-applications",
+    "node": "1484371",
+    "revision": "3247212",
+    "updated": "2026-10-08",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "To control access to SAP applications, you must create application segments and configure DNS search domains. You can create an application segment with a wildcard and a wide port range to allow broad access to SAP apps. However, it is more secure to create application segments for individual apps."
+    },
+    {
+      "heading": "SAP Login Information",
+      "level": 1
+    },
+    {
+      "text": "SAP is a collection of applications and databases. When using the SAP client, the connection is made to an SAP message server that returns a list of applications to connect to. After the user selects the application, the SAP client attempts to connect to the hostname or IP address on a specified port."
+    },
+    {
+      "text": "The SAP messages during the login process provide important context when configuring the Private Access (ZPA) service for use with SAP applications. In the following image, a packet capture was performed during login. This was done using Wireshark with the SAP Dissector plugin."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "For each application, the client receives the following information:"
+    },
+    {
+      "item": "Client Name: The application name that is displayed in the SAP UI.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Host: The hostname of the application.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Service: The database or service name in SAP.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Message Types: Details about the record being sent.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Host Address v6: The IPv6 IP address of the service.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Host Address v4: The IPv4 IP address of the service.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Service Number: The TCP port to connect to.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Status: The status of the application (Active or Disabled).",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          39,
+          45
+        ],
+        [
+          49,
+          57
+        ]
+      ]
+    },
+    {
+      "text": "In packet 60, you can see the DNS query response for the initial connection resolving to 10.10.10.XXX for the SAP message server. The client connects to the SAP message server on TCP 3610 in packet 61 and gets the service list back in packet 69. This is displayed in the bottom pane. The client selects example0123_A01_01 as their application. This is listed in the bottom pane as Host: example0123 with Service Number: 3216. This action results in a connection in packet 74. In this example, there isn't a DNS lookup. This means either it was cached on the client, or (because of the lack of a DNS search suffix) it wasn't resolvable, so the client connected to the IP address."
+    },
+    {
+      "heading": "SAP Application Best Practices",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends the following best practices for SAP applications:"
+    },
+    {
+      "item": "Create a single application segment for all SAP applications. This allows Private Access to load balance user requests for these applications. However if segmentation is required, you must create multiple application segments for the SAP applications.",
+      "depth": 0
+    },
+    {
+      "item": "Create application segments for SAP applications using FQDNs. If the SAP client is unsuccessful in resolving the host's FQDN, it attempts to connect to the IP address. While the service supports IP addresses, it is more secure for zero-trust models to connect with FQDNs.",
+      "depth": 0
+    },
+    {
+      "item": "If the SAP hostname is not an FQDN, a DNS search domain is required. If the client has no search suffix, it cannot complete the FQDN to connect to SAP. The client falls back to the IP address provided by the SAP message server, which might not be desirable or routable over Private Access.",
+      "depth": 0
+    },
+    {
+      "item": "Use the Wireshark trace, or SAP configurations, to identify the IP addresses of all SAP servers, and create an application segment that includes only these IP addresses and the appropriate TCP ports. Do not advertise the entire subnet range (e.g., 192.168.1.0/24).",
+      "depth": 0
+    },
+    {
+      "item": "If there is an access control list (ACL) configured in the SAP message server or application server, add the App Connector IP addresses to it. Since Private Access performs a source NAT for the client, all traffic is seen from the IP address of the App Connector. For the App Connector group associated with the application segments, Private Access load balances user requests across App Connectors in this App Connector group. Because of this, Zscaler recommendeds that the IP addresses for all the App Connectors in the App Connector group be added to the ACL.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring SAP",
+      "level": 1
+    },
+    {
+      "text": "Supporting SAP applications in Private Access requires you to configure application segments and DNS search domains."
+    },
+    {
+      "item": "Step 1: Add an Application Segment",
+      "depth": 0
+    },
+    {
+      "item": "To configure an application segment for SAP applications:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Applications > Defined Application Segments.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Application Segment.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "The Add Application Segment window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Application window, on the Define Applications page:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          38,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "For Applications, enter an FQDN that corresponds to the SAP applications. In the example from the packet capture, you would enter example0123.company.com.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "While it's possible to enter an IP address, Zscaler recommends you use FQDNs wherever possible as they are more secure. If the client has no search suffix, it cannot complete the FQDN to connect to SAP. The client will fall back to the IP address provided by the SAP message server.",
+      "depth": 2
+    },
+    {
+      "item": "For Client Connector Access, in the TCP Port Ranges field, enter the TCP port to connect to. In the example from the packet capture, you would enter 3216, as it's the port for the example0123 application.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          4,
+          27
+        ],
+        [
+          36,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "To learn more about SAP ports, refer to the SAP documentation.",
+      "depth": 2
+    },
+    {
+      "item": "Complete the configuration for the new application.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Step 2: Add a DNS Search Domain",
+      "depth": 0
+    },
+    {
+      "item": "For SAP, you can configure DNS search domains for FQDNs in the Zscaler Admin Console. This allows the SAP client to append the search suffix and build the FQDN. However, you can also configure SAP to provide an FQDN instead of a short name, which removes the need to configure a DNS search domain. To learn more, see Adding DNS Search Domains.",
+      "depth": 0
+    }
+  ]
+}

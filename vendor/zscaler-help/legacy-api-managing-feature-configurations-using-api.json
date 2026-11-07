@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Feature Configurations Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/managing-feature-configurations-using-api",
+    "node": "1530915",
+    "revision": "3215534",
+    "updated": "2026-07-13",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on feature configuration use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Getting All Feature Configuration Details",
+      "level": 1
+    },
+    {
+      "text": "To get all feature configuration details:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/configOverrides.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217316918451765248/configOverrides.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"5\", \"totalCount\": \"0\", \"list\": [ { \"id\": \"64089\", \"customerId\": \"217316918451765248\", \"customerName\": \"amehta\", \"targetType\": \"feature_flag\", \"targetGid\": \"0\", \"configKey\": \"feature.application.inspect_traffic_with_zia\", \"configValue\": \"enabled\", \"configValueInt\": \"1\", \"description\": \"Indicates if inspection of traffic with ZIA is enabled or not\", \"sequence\": \"142824\", \"modifiedTime\": \"1698080953\", \"creationTime\": \"1698080893\", \"modifiedBy\": \"72057594038609323\" }, { \"id\": \"78122\", \"customerId\": \"217316918451765248\", \"customerName\": \"amehta\", \"targetType\": \"customer\", \"targetGid\": \"217316918451765248\", \"configKey\": \"config.feature.alt_cloud.enabled\", \"configValue\": \"enabled\", \"configValueInt\": \"1\", \"sequence\": \"182536\", \"modifiedTime\": \"1700187891\", \"creationTime\": \"1700187891\", \"modifiedBy\": \"72057594038623604\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting a Particular Feature Configuration by ID",
+      "level": 1
+    },
+    {
+      "text": "To get details of a particular feature configuration by ID:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/configOverrides/{id}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the feature configuration.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/217316918451765248/configOverrides/221321.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"221321\", \"customerId\": \"217316918451765248\", \"customerName\": \"amehta\", \"targetType\": \"feature_flag\", \"targetGid\": \"0\", \"configKey\": \"config.feature.samesite_none\", \"configValue\": \"disabled\", \"sequence\": \"567303\", \"modifiedTime\": \"1753247506\", \"creationTime\": \"1753247506\", \"modifiedBy\": \"72057594038609323\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Creating a Feature Configuration for a Customer",
+      "level": 1
+    },
+    {
+      "text": "To create a feature configuration for a customer:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/configOverrides/.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217316918451765248/configOverrides/.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Provide the following JSON payload and include the following details:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "configKey: The key for the feature configuration. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "config.feature.samesite_none: Refers to the SameSite Cookie Attribute option when configuring authentication settings in ZPA.",
+      "depth": 2
+    },
+    {
+      "item": "config.feature.cors_enabled: Refers to the CORS Request option when configuring authentication settings in ZPA.",
+      "depth": 2
+    },
+    {
+      "item": "configValue: Indicates if the feature configuration is enabled (true) or disabled (false).",
+      "depth": 1
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "targetType: Indicates the target type of the feature configuration. The supported value is \"feature_flag\".",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"customerId\": <customer ID>, \"targetType\": \"string\", \"configKey\": \"string\", \"configValue\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"customerId\": 217316918451765248, \"targetType\": \"feature_flag\", \"configKey\": \"config.feature.samesite_none\", \"configValue\": \"disabled\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"221321\", \"customerId\": \"217316918451765248\", \"targetType\": \"feature_flag\", \"targetGid\": \"0\", \"configKey\": \"config.feature.samesite_none\", \"configValue\": \"disabled\", \"modifiedTime\": \"1753247506\", \"creationTime\": \"1753247506\", \"modifiedBy\": \"72057594038609323\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Feature Configuration for a Customer",
+      "level": 1
+    },
+    {
+      "text": "To update a feature configuration override for a customer:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/configOverrides/{id}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identiifer of the feature configuration.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/217316918451765248/configOverrides/221321.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Provide the following JSON payload and include the following details:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "configKey: The key for the feature configuration. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "config.feature.samesite_none: Refers to the SameSite Cookie Attribute option when configuring authentication settings in ZPA.",
+      "depth": 2
+    },
+    {
+      "item": "config.feature.cors_enabled: Refers to the CORS Request option when configuring authentication settings in ZPA.",
+      "depth": 2
+    },
+    {
+      "item": "configValue: Indicates if the feature configuration is enabled (true) or disabled (false).",
+      "depth": 1
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "targetType: Indicates the target type of the feature configuration. The supported value is \"feature_flag\".",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"customerId\": <customer ID>, \"targetType\": \"string\", \"configKey\": \"string\", \"configValue\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"customerId\": 217316918451765248, \"targetType\": \"feature_flag\", \"targetGid\": 0, \"configKey\": \"config.feature.samesite_none\", \"configValue\": \"enabled\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"221321\", \"customerId\": \"217316918451765248\", \"targetType\": \"feature_flag\", \"targetGid\": \"0\", \"configKey\": \"config.feature.samesite_none\", \"configValue\": \"enabled\", \"sequence\": \"567303\", \"modifiedTime\": \"1753247506\", \"creationTime\": \"1753247506\", \"modifiedBy\": \"72057594038609323\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

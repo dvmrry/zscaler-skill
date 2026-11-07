@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.troubleshooting",
+  "title": "The vzen command line for configuring and troubleshooting a Virtual Service Edge",
+  "aliases": [
+    "vzen cli",
+    "vzen status",
+    "vzen troubleshoot connection",
+    "vzen collect-diagnostics",
+    "vzen test-firewall",
+    "vzen dump-config",
+    "vse troubleshooting commands",
+    "vse remote support"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.bring-up"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.network-requirements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The troubleshooting page lists the commands run within the VM console. {{service-control}}"
+    },
+    {
+      "label": "Reading state.",
+      "text": "{{config-and-version}} {{connection-status}}"
+    },
+    {
+      "label": "Network checks.",
+      "text": "{{firewall-and-tcp-tests}} {{network-inspection}}"
+    },
+    {
+      "label": "For Support.",
+      "text": "{{diagnostics-for-support}}"
+    },
+    {
+      "text": "Setup commands are in [[zia.virtual-service-edge.bring-up]], the port 443 switch is in [[zia.virtual-service-edge.network-requirements]], and the Support access options set per instance are in [[zia.virtual-service-edge.operations]]."
+    }
+  ],
+  "claims": {
+    "service-control": {
+      "statement": "By default root login is not permitted, so admins use sudo. The page documents `sudo vzen start sme` to start the Virtual Service Edge instance, `sudo vzen start smlb` to start the load balancer service, `sudo vzen halt` to shut down the operating system, `sudo vzen enable-autostart` to start the service automatically after a reboot, and `sudo vzen cleanup` to remove a previous installation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "By default, root login is not permitted, so admins must use the sudo utility to run a command with higher privileges.",
+            "To start the Virtual Service Edge instance, use the following command:",
+            "sudo vzen start sme",
+            "To start the load balancer (LB) service, use the following command:",
+            "sudo vzen start smlb",
+            "To shut down the operating system, use the following command:",
+            "sudo vzen halt",
+            "To start the Virtual Service Edge service automatically after a reboot, use the following command:",
+            "sudo vzen enable-autostart",
+            "To remove a previous installation of the Virtual Service Edge service, use the following command:",
+            "sudo vzen cleanup"
+          ]
+        }
+      ]
+    },
+    "config-and-version": {
+      "statement": "`sudo vzen dump-config` displays the cloud name, the primary DNS IP, and the management and service IPs with the default gateway for each. `sudo vzen checkversion` displays the update server's IP address, the installed software version and the latest available version. `sudo vzen status` displays running or stopped with a PID for the Central Directory Service Client (CDSC), and running or stopped with a PID for an LB cluster and not installed for a standalone LB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "sudo vzen dump-config",
+            "CloudName: Name of the cloud in which the Virtual Service Edge is configured",
+            "nameserver: The primary DNS IP configured for the Virtual Service Edge",
+            "Mgmt IP: The management IP configured for the Virtual Service Edge",
+            "Default gateway for Mgmt IP: The default gateway configured for the management IP",
+            "Service IP: The service IP configured for the Virtual Service Edge",
+            "Default gateway for Service IP: The default gateway configured for the service IP",
+            "sudo vzen checkversion",
+            "This command displays the update server's IP address, the currently installed software version, and the latest available software version of the Virtual Service Edge.",
+            "sudo vzen status",
+            "Either running or stopped with its PID for Central Directory Service Client (CDSC).",
+            "Either running or stopped with its PID for an LB cluster and not installed for a standalone LB."
+          ]
+        }
+      ]
+    },
+    "connection-status": {
+      "statement": "`sudo vzen troubleshoot connection` probes the connection for some time and displays one of three statuses for cloud-config, log-stream, SMBA (if configured) and LB status: Stable (the connections are stable); Suspicious (at least one disconnection to the Zscaler Central Authority in the last two hours, for which the page says to contact Zscaler Support); or Not present (no connectivity). `sudo vzen troubleshoot netstat listen` shows the ports on which the Zscaler services listen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "sudo vzen troubleshoot connection",
+            "This command probes the connection for some time and displays one of the following connection statuses for cloud-config, log-stream, SMBA (if configured), and LB Status:",
+            "Stable: Indicates that the connections are stable",
+            "Suspicious: Indicates that there was at least one disconnection to the Zscaler Central Authority (CA) in the last two hours. To troubleshoot the disconnection to the CA, contact Zscaler Support.",
+            "Not present: Indicates that there is no connectivity",
+            "To show the ports on which the Zscaler services listen, use the following command:",
+            "sudo vzen troubleshoot netstat listen"
+          ]
+        }
+      ]
+    },
+    "firewall-and-tcp-tests": {
+      "statement": "`sudo vzen test-firewall` probes the active firewall configuration by attempting to resolve DNS names and establishing outbound connections to the Zscaler cloud, and the page says to run it on the ESXi console to avoid SSH connection disruption. The TCP connectivity test, `sudo ZSINSTANCE=/sc/sme/ /sc/sme/bin/smmgr -ys host=<Domain Name> -ys port=80 -ys waittime=15 -ys connect=tcp`, reports \"Failed to resolve\" if the domain name is invalid and \"Connection timed out\" if the TCP connection is not established.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "sudo vzen test-firewall",
+            "This command probes active firewall configuration by attempting to resolve the DNS names and establishing outbound connections to the Zscaler cloud.",
+            "Ensure that you run this command on the ESXi console to avoid SSH connection disruption.",
+            "To check the TCP connectivity to the destination server or establish a connection to a website, use the following command:",
+            "sudo ZSINSTANCE=/sc/sme/ /sc/sme/bin/smmgr -ys host=<Domain Name> -ys port=80 -ys waittime=15 -ys connect=tcp",
+            "Failed to resolve <Domain Name> if the domain name is invalid.",
+            "Connection timed out to <Domain Name>(Resolution):<Port> if the TCP connection is not established."
+          ]
+        }
+      ]
+    },
+    "network-inspection": {
+      "statement": "The page gives commands to ping a public IP address, show the Virtual Service Edge interface status, view its route table and ARP table, show active connections on the service IP address, and show all interfaces in the VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "To ping a public IP address, use the following command:",
+            "To check the Virtual Service Edge interface status, use the following command:",
+            "To view the route table of the Virtual Service Edge, use the following command:",
+            "To view the ARP table of the Virtual Service Edge, use the following command:",
+            "To show the active connections on the service IP address, use the following command:",
+            "To show all the interfaces in the VM, use the following command:"
+          ]
+        }
+      ]
+    },
+    "diagnostics-for-support": {
+      "statement": "`sudo vzen collect-diagnostics` collects configuration, vital health statistics and error statistics into a local .tgz file in the /sc/sme/log/ folder, which the page says to email to Zscaler Support. The logs to share with Support are zscaler.log in /sc/sme/log/ and /sc/smlb/log/ and autoupgrade.log in /sc/update/log/. An admin can request remote assistance so Zscaler Support logs in to the instance without opening a firewall connection for inbound traffic; the feature is disabled by default and must be enabled explicitly for the duration required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "sudo vzen collect-diagnostics",
+            "This command collects the configuration, vital statistics regarding the health of the Virtual Service Edge instance, and error statistics. It then downloads the data to a local file (.tgz) in the /sc/sme/log/ folder.",
+            "Email the .tgz file to Zscaler Support for troubleshooting purposes.",
+            "zscaler.log in the /sc/sme/log/ and /sc/smlb/log/ folders.",
+            "autoupgrade.log in the /sc/update/log/ folder.",
+            "An admin can request remote assistance and allow Zscaler Support to log in to their Virtual Service Edge instance without opening a firewall connection for inbound traffic.",
+            "This feature is disabled by default and must be enabled explicitly for the duration that remote support assistance is required."
+          ]
+        }
+      ]
+    }
+  }
+}

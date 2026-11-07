@@ -1,0 +1,494 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-categories.entry-matching",
+  "title": "How URL category entries match requests (wildcards)",
+  "aliases": [
+    "wildcard matching",
+    "leading period wildcard",
+    "does *.example.com match example.com",
+    "asterisk wildcard",
+    "subdomain matching",
+    "url pattern matching",
+    "trailing slash"
+  ],
+  "binds": [
+    "zia/url-categories#urls",
+    "zia/url-categories#dbCategorizedUrls"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.url-categories.membership",
+      "because": "zia.url-categories.membership:specific-entry-wins"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/url-categories"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.entry-format"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZIA's URL entry syntax looks like other products' and behaves differently, which is why intuitive answers go wrong here."
+    },
+    {
+      "label": "Wildcards.",
+      "text": "{{leading-period-wildcard}} {{asterisk-invalid}} The MCP matcher treats a leading period differently from the Help contract {{divergence:mcp-matcher-leading-dot}}. What the console stores when an asterisk entry is saved is open {{gap:console-accepts-asterisk}}. Whether a leading-period wildcard covers a subdomain exactly five levels deep is open {{gap:exactly-five-levels}}."
+    },
+    {
+      "label": "Exact entries.",
+      "text": "{{exact-form}} {{right-side-implicit}} {{trailing-slash}} {{scheme-not-matched}}"
+    },
+    {
+      "label": "Ranking.",
+      "text": "{{exact-beats-wildcard}} The MCP matcher does not rank matches {{divergence:mcp-matcher-priority}}. That ranking feeds category membership: see [[zia.url-categories.membership]]."
+    },
+    {
+      "text": "Format rules that reject entries outright are in [[zia.url-categories.entry-format]]."
+    },
+    {
+      "label": "MCP `contains_url`.",
+      "text": "{{mcp-guide-semantics-claim}} {{mcp-contains-url-matcher}} The filter also diverges from the Help contract on paths {{divergence:mcp-matcher-path}} and on wildcard depth and asterisks {{divergence:mcp-matcher-depth-and-asterisk}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an asterisk entry is read as its leading-period equivalent, and the answer says it was translated, since the console's stored behavior is unverified.",
+      "uses": [
+        "asterisk-invalid",
+        "console-accepts-asterisk"
+      ]
+    },
+    {
+      "do": "Whether the bare domain is in scope, since a leading-period entry also matches it.",
+      "uses": [
+        "leading-period-wildcard"
+      ]
+    },
+    {
+      "do": "Whether a subdomain exactly five levels deep is covered by a wildcard.",
+      "uses": [
+        "exactly-five-levels"
+      ]
+    }
+  ],
+  "claims": {
+    "leading-period-wildcard": {
+      "statement": "A leading period makes an entry a wildcard: `.example.com` matches subdomains up to 5 levels deep (the same policies apply to them), the bare domain `example.com` itself, and `example.com` with any directory or file to its right.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.json",
+          "quotes": [
+            "A leading period (\".\") functions as a wildcard to the left of the named URL up to 5 subdomain levels deep (i.e., the same policies are applied to the subdomains, as well) or matches exactly to the named URL or matches to the named URL with any directory or file to its right"
+          ]
+        }
+      ]
+    },
+    "exact-form": {
+      "statement": "An entry without a leading period matches only that exact host (plus any path); `example.com` does not match `www.example.com`.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.json",
+          "quotes": [
+            "To exactly match only with the stated domain or subdomain entry, avoid the leading period. For example, the entry safemarch.com applies to safemarch.com or safemarch.com/company/webinars"
+          ]
+        }
+      ]
+    },
+    "asterisk-invalid": {
+      "statement": "Asterisks are not valid wildcards: `*.example.com` and `*example.com` are not permitted; an asterisk inside a URL is a literal character, and the documented domain wildcard is a leading period.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.json",
+          "quotes": [
+            "Do not use an asterisk (\"*\") as a wildcard character at the beginning of a domain. For example, .safemarch.com is permitted, while *safemarch.com and *.safemarch.com are not.",
+            "An asterisk that's included in the URL is treated as a literal character and not as a wildcard.",
+            "A leading period (\".\") functions as a wildcard to the left of the named URL"
+          ]
+        }
+      ]
+    },
+    "right-side-implicit": {
+      "statement": "Matching to the right of an entry is implicit: `example.com` also matches any port, path, or query string on that host.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.json",
+          "quotes": [
+            "Wildcard characters addressing the right side of a stated URL are not explicitly used; they are always assumed.",
+            "safemarch.com:10443",
+            "safemarch.com/index.htm",
+            "safemarch.com/work/mail?=next"
+          ]
+        }
+      ]
+    },
+    "trailing-slash": {
+      "statement": "For path entries, a trailing slash matches everything under the path (`example.com/resources/`); without it the entry matches only that exact path string.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.json",
+          "quotes": [
+            "(with no trailing forward slash) matches the exact string.",
+            "(with trailing forward slash) matches any file or directory underneath it."
+          ]
+        }
+      ]
+    },
+    "exact-beats-wildcard": {
+      "statement": "An exact entry is more specific than a wildcard entry: for `atlanta.example.com`, a category holding `atlanta.example.com` outranks one holding `.atlanta.example.com` or `.example.com`.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.json",
+          "quotes": [
+            "The exact match takes priority over the wildcard matches. For example, when a user requests for atlanta.safemarch.com, a category that contains the exact match, atlanta.safemarch.com takes priority over another category that contains the wildcard match, .atlanta.safemarch.com or .safemarch.com"
+          ]
+        }
+      ]
+    },
+    "scheme-not-matched": {
+      "statement": "Entries never carry a scheme, so `http://` and `https://` requests to the same host match the same entries.",
+      "tier": "B",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "conditions": "Inferred from the format rule that entries must not contain a protocol schema; no source states the match-time behavior directly.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.json",
+          "quotes": [
+            "The URL must not contain the protocol schema."
+          ]
+        }
+      ]
+    },
+    "mcp-guide-semantics-claim": {
+      "statement": "The MCP supported-tools guide, for the `contains_url` parameter of `zia_list_url_categories`, says the server's matching understands ZIA's domain semantics and that `.app.box.com` covers `app.box.com`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/supported-tools.md",
+          "quotes": [
+            "`zia_list_url_categories` | `zia_url_categories` | Read-only | List ZIA URL categories.",
+            "pass `custom_only=True, contains_url=\"app.box.com\"`",
+            "the server's matching understands ZIA's domain semantics (`.app.box.com` covers `app.box.com`)"
+          ]
+        }
+      ]
+    },
+    "mcp-contains-url-matcher": {
+      "statement": "The MCP `contains_url` filter runs in the MCP process on the rows the category listing call returns, not as a ZIA API filter. It reduces the query and every configured entry to a bare lower-case host by stripping scheme, path, query, port and leading or trailing periods, then matches an entry that equals the host or that the host extends at a dot-label boundary. It searches the `urls`, `db_categorized_urls` and `dbCategorizedUrls` fields and returns each matching row with an additive `_url_match`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+          "quotes": [
+            "host = host.split(\"/\", 1)[0].split(\"?\", 1)[0].split(\":\", 1)[0]",
+            "return host == entry_host or host.endswith(\".\" + entry_host)",
+            "for field in (\"urls\", \"db_categorized_urls\", \"dbCategorizedUrls\"):",
+            "matched_rows.append({**row, \"_url_match\": {\"url\": url, \"matched\": matches}})",
+            "results, _, err = client.zia.url_categories.list_categories(query_params=query_params)",
+            "Server-side, because the API has no such filter",
+            "rows = _match_categories_containing(rows, args.contains_url)",
+            "host = value.strip().lower()",
+            "host = host.split(\"://\", 1)[1]",
+            "return host.strip(\".\")",
+            "entry_host = _url_host(entry)",
+            "host = _url_host(url)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "exactly-five-levels": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-14"
+      ],
+      "title": "Whether a leading-period wildcard covers a subdomain exactly 5 levels deep",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "deterministic answers for 5-level-deep subdomains under a wildcard",
+      "detail": "\"Up to 5 subdomain levels deep\" does not say whether level 5 is included. The retired wildcard doc answered both ways in different sections."
+    },
+    "console-accepts-asterisk": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-15"
+      ],
+      "title": "What the console stores and matches when an asterisk entry is saved",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "explaining tenant entries that use `*` despite the documented rule",
+      "detail": "Operator report (2026-04-23): the admin console accepts `*.example.com` at save time. What is stored and how it matches is unverified. Translate any asterisk entry to the leading-period form when reasoning."
+    },
+    "wildcard-tokenization": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-03"
+      ],
+      "title": "Wildcard tokenization (`.example.com` vs `*.example.com` vs bare)",
+      "status": "resolved",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "Resolved by URL Format Guidelines: leading-period is the only domain wildcard, asterisks are invalid, right-side matching is implicit (claims leading-period-wildcard, asterisk-invalid, right-side-implicit)."
+    }
+  },
+  "cases": {
+    "wildcard-matches-bare-domain": {
+      "kind": "url-match",
+      "claims": [
+        "leading-period-wildcard"
+      ],
+      "config": {
+        "entry": ".example.com"
+      },
+      "request": {
+        "url": "example.com"
+      },
+      "expect": {
+        "matches": true
+      }
+    },
+    "wildcard-matches-two-levels": {
+      "kind": "url-match",
+      "claims": [
+        "leading-period-wildcard"
+      ],
+      "config": {
+        "entry": ".example.com"
+      },
+      "request": {
+        "url": "foo.bar.example.com"
+      },
+      "expect": {
+        "matches": true
+      }
+    },
+    "wildcard-matches-four-levels": {
+      "kind": "url-match",
+      "claims": [
+        "leading-period-wildcard"
+      ],
+      "config": {
+        "entry": ".example.com"
+      },
+      "request": {
+        "url": "a.b.c.d.example.com"
+      },
+      "expect": {
+        "matches": true
+      }
+    },
+    "wildcard-at-five-levels-ambiguous": {
+      "kind": "url-match",
+      "claims": [
+        "leading-period-wildcard"
+      ],
+      "config": {
+        "entry": ".example.com"
+      },
+      "request": {
+        "url": "a.b.c.d.e.example.com"
+      },
+      "expect": {
+        "verdict": "ambiguous",
+        "gap": "exactly-five-levels"
+      }
+    },
+    "wildcard-does-not-match-lookalike": {
+      "kind": "url-match",
+      "claims": [
+        "leading-period-wildcard"
+      ],
+      "config": {
+        "entry": ".example.com"
+      },
+      "request": {
+        "url": "myexample.com"
+      },
+      "expect": {
+        "matches": false
+      }
+    },
+    "exact-does-not-match-subdomain": {
+      "kind": "url-match",
+      "claims": [
+        "exact-form"
+      ],
+      "config": {
+        "entry": "example.com"
+      },
+      "request": {
+        "url": "www.example.com"
+      },
+      "expect": {
+        "matches": false
+      }
+    },
+    "exact-matches-path-and-port": {
+      "kind": "url-match",
+      "claims": [
+        "right-side-implicit"
+      ],
+      "config": {
+        "entry": "example.com"
+      },
+      "request": {
+        "url": "example.com:10443/index.htm"
+      },
+      "expect": {
+        "matches": true
+      }
+    }
+  },
+  "divergences": {
+    "mcp-matcher-leading-dot": {
+      "summary": "Leading period versus bare domain",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "url-format-guidelines.json",
+            "quotes": [
+              "To exactly match only with the stated domain or subdomain entry, avoid the leading period."
+            ]
+          },
+          "says": "Help: `.safemarch.com` covers the domain and its subdomains; the bare `safemarch.com` matches only that domain (and what is to its right)."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+            "quotes": [
+              "return host == entry_host or host.endswith(\".\" + entry_host)",
+              "return host.strip(\".\")"
+            ]
+          },
+          "says": "MCP v0.15.4: the leading period is stripped, so `.box.com` and `box.com` get the same exact-or-any-depth-suffix rule; a bare `safemarch.com` entry matches `atlanta.safemarch.com`."
+        }
+      ],
+      "impact": "A bare-domain entry that the product would match only exactly is reported by contains_url as covering subdomains; the helper output does not show what the live backend does."
+    },
+    "mcp-matcher-path": {
+      "summary": "Path and trailing slash",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "url-format-guidelines.json",
+            "quotes": [
+              "safemarch.com/resources/ (with trailing forward slash) matches any file or directory underneath it."
+            ]
+          },
+          "says": "Help: `safemarch.com/resources` matches the exact string and `safemarch.com/resources/` matches everything beneath it."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+            "quotes": [
+              "host = host.split(\"/\", 1)[0].split(\"?\", 1)[0].split(\":\", 1)[0]"
+            ]
+          },
+          "says": "MCP v0.15.4: the path is stripped from entries and query before matching, so a path-scoped entry collapses to host scope."
+        }
+      ],
+      "impact": "A category holding only `safemarch.com/resources` is reported as matching the whole host."
+    },
+    "mcp-matcher-depth-and-asterisk": {
+      "summary": "Wildcard depth and asterisk",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "url-format-guidelines.json",
+            "quotes": [
+              "A leading period (\".\") functions as a wildcard to the left of the named URL up to 5 subdomain levels deep"
+            ]
+          },
+          "says": "Help: the leading-period wildcard reaches up to 5 subdomain levels; a leading asterisk is not a wildcard."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+            "quotes": [
+              "return host == entry_host or host.endswith(\".\" + entry_host)"
+            ]
+          },
+          "says": "MCP v0.15.4: the suffix check has no depth limit and no asterisk handling, so `a.b.c.d.e.f.safemarch.com` matches a `safemarch.com` entry."
+        }
+      ],
+      "impact": "contains_url can report a match deeper than five levels that the product would not wildcard-match."
+    },
+    "mcp-matcher-priority": {
+      "summary": "Exact-match priority",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "url-format-guidelines.json",
+            "quotes": [
+              "The exact match takes priority over the wildcard matches."
+            ]
+          },
+          "says": "Help: an exact category entry takes priority over a wildcard entry for the same request."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+            "quotes": [
+              "matched_rows.append({**row, \"_url_match\": {\"url\": url, \"matched\": matches}})"
+            ]
+          },
+          "says": "MCP v0.15.4: every matching row is appended in input order; there is no priority or conflict resolution."
+        }
+      ],
+      "impact": "contains_url lists all matching categories; it does not say which one ZIA would apply."
+    }
+  }
+}

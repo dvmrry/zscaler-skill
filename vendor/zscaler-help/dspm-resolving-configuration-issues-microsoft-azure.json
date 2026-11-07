@@ -1,0 +1,364 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Resolving Configuration Issues for Microsoft Azure",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/resolving-configuration-issues-microsoft-azure",
+    "node": "1504231",
+    "revision": "3243244",
+    "updated": "2026-09-15",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You might encounter any of the following error messages while onboarding:"
+    },
+    {
+      "table": [
+        [
+          "Error Messages or Issues",
+          "Resolution Steps"
+        ],
+        [
+          "In the CLI app: Role not found Error: loading Role Definition List: could not find role <role name> Account in pending state from long time",
+          "Rerun the template."
+        ],
+        [
+          "In the Zscaler Admin Console: Admin consent has not been granted to the necessary APIs. Please provide consent to the necessary APIs.",
+          "Grant API permissions to the service principal."
+        ],
+        [
+          "In the CLI app: Planning failed. Terraform encountered an error while generating this plan. Invalid value for input variable",
+          "Enter at least one region where you want to deploy the template in the following format: [\"region 1\", \"region 2\"]"
+        ],
+        [
+          "In the CLI app: User Assigned Identity (Subscription: <\"ID\"> | Resource Group Name: <\"name\"> | Name: <\"managed-identity\">) was not found",
+          "Delete the resource group and rerun the template. To delete the resource group: Sign in to the Azure portal and go to Resource groups. Search for and click the resource group. Click Delete resource group. On the Delete a resource group page: Review the resource group and dependent resources. Copy the resource group name. Enter resource group name to confirm deletion: Paste the resource group name."
+        ],
+        [
+          "In the CLI app: Error acquiring the state lock Error message: state blob is already locked | Lock Info: <lock ID>",
+          "Run terraform force-unlock <ID>"
+        ],
+        [
+          "In the CLI app: Error: authorization.RoleAssignmentsClient#Create: Failure responding to request: StatusCode=400 -- Original Error: autorest/azure: Service returned an error. Status=400 Code=\"RoleAssignmentLimitExceeded\" No more role assignments can be created",
+          "The limit for role assignment is exceeded. Delete any custom role to accommodate new requests. To delete custom roles: Sign in to the Azure portal and go to Management groups. Click Tenant Root Group. In the left-side navigation, click Access control (IAM). Select the Roles tab. Click the ellipsis icon and select Delete."
+        ],
+        [
+          "In the CLI app: Error: Provider produced inconsistent result after apply When applying changes to <managed identity details>",
+          "Run the terraform destroy command to purge the template. Download and deploy the Azure onboarding template. In the backend.tf file, ensure to use a different container."
+        ],
+        [
+          "In the CLI app: Error: local-exec provisioner error Error running command 'az role assignment create --assignee <Subscription ID> --role (AuthorizationFailed) The client <username> with object ID <object ID> does not have authorization to perform action or the scope is invalid",
+          "Ensure that you have enabled access management for Azure resources for your ID."
+        ],
+        [
+          "In the CLI app: Error: deleting Subnet (Subscription: <\"ID\"> | Resource Group Name: <\"name\"> | Virtual Network Name | Subnet Name) network.SubnetsClient#Delete: Failure sending request: StatusCode=400 Subnet <Subnet name> is in use by </subscriptions/subscription ID/resourceGroups/Z-DSPM-RG/providers/Microsoft.Network/networkInterfaces/.../> cannot be deleted",
+          "Delete resources manually in Azure portal. To delete the resources: Sign in to the Azure portal and go to Resource groups. Search for and click the resource group. Click Delete resource group. On the Delete a resource group page: Review the resource group and dependent resources. Copy the resource group name. Enter resource group name to confirm deletion: Paste the resource group name."
+        ],
+        [
+          "In the CLI app: Error: deleting Network Security Group <\"ID\"> (Resource Group name): network.SecurityGroupsClient#Delete: Failure sending request: StatusCode=400 Error: Code=\"InUseNetworkSecurityGroupCannotBeDeleted Network security group cannot be deleted because it is in use by the following resources: <Resource details>",
+          "Delete resources manually in Azure portal. To delete the resources: Sign in to the Azure portal and go to Resource groups. Search for and click the resource group. Click Delete resource group. On the Delete a resource group page: Review the resource group and dependent resources. Copy the resource group name. Enter resource group name to confirm deletion: Paste the resource group name."
+        ],
+        [
+          "In the CLI app: Error: creating Linux Virtual Machine Scale Set (Subscription: <\"ID\"> | Resource Group Name: <\"name\"> | Virtual Machine Scale Set Name: <\"name\">): compute.VirtualMachineScaleSetsClient#CreateOrUpdate: Failure sending request: StatusCode=400 Error: Code=\"InvalidParameter\" The property securityProfile.encryptionAtHost' is not valid because the 'Microsoft.compute/EncryptionAtHost' feature is not enabled for this subscription.",
+          "Run the following commands: To set the subscription where the storage containers containing the Terraform state files are stored: az account set --subscription <subscription ID> To register the feature: az feature register --name EncryptionAtHost --namespace Micorsoft.Compute"
+        ],
+        [
+          "In the CLI app: Error: checking for presence of existing Secret \"api-key\" (Key Vault \"https://z-DSPM-dedec4ab-secrets.vault.azure.net/\"): keyvault.BaseClient#GetSecret: Failure responding to request: StatusCode-403 autorest/azure: Service returned an error. Status=403 Code=\"Forbidden\" Caller is not authorized to perform action on resource.\\r\\nlf role assignments, deny assignments or role definitions were changed recently, please observe propagation time.\\r\\nCaller: appid-<app ID>",
+          "Ensure that you have the Key Vault Administrator role assigned."
+        ],
+        [
+          "In the CLI app: Error: creating Linux Virtual Machine Scale Set (Subscription: <\"ID\"> | Resource Group Name: <\"name\"> | Virtual Machine Scale Set Name: <\"name\">) The requested VM size for resource \"Following SKUs have failed for Capacity Restrictions: Standard_D2s_v3' is currently not available in location '<region name>'. Please try another size or deploy to a different location or different zone. See https://aka.ms/azureskunotavailable for details.\"",
+          "Run the terraform destroy command to delete any resources created post the template deployment. From the Roles and Templates tab, download the Azure Onboarding template. Extract the template to a new folder and edit the terraform.tfvars file. For primary_region, enter a region where Standard_D2s_V3 size is available. Deploy the Terraform template."
+        ],
+        [
+          "In the CLI app: Error: A resource with the ID \"https://<vault name/keys/control-plane-cmk/resource ID\" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for \"azurerm_key_vault_key\" for more information. module.control_plane.module.encryption_key.azurerm_key_vault_key.cmk_key, on modules/sub-modules/encryption-key/key.tf line no, in resource \"resource key\"",
+          "Run terraform import \"module.control_plane.module.encryption_key.azurerm_key_vault_key.cmk_key\" \"https://<vault name/keys/control-plane-cmk/resource ID\""
+        ],
+        [
+          "In the CLI app: Error: A resource with the ID \"https://<vault name/keys/worker-plane-cmk/resource ID\" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for \"azurerm_key_vault_key\" for more information. module.worker_plane[\"region\"].module.encryption_key.azurerm_key_vault_key.cmk_key, on modules/sub-modules/encryption-key/key.tf line no, in resource \"resource key\"\"cmk_key\"",
+          "Run terraform import \"module.worker_plane[\"region\"].module.encryption_key.azurerm_key_vault_key.cmk_key\" \"https://<vault name/keys/worker-plane-cmk/resource ID\""
+        ],
+        [
+          "In the CLI app: Error: retrieving static website properties for Storage Account (Subscription: \"ID\" | Resource Group Name: \"name\" | Storage Account Name: \"\"): executing request: authorizing request: running Azure CLI: exit status 1: ERROR: Failed to connect to MSI. Please make sure MSI is configured correctly. | Get Token request returned: <Response [400]>",
+          "Run az login"
+        ],
+        [
+          "In the CLI app: Error: creating Storage Container (Subscription: \"ID\" | Resource Group Name: \"name\" | Storage Account Name: \"\"| Container Name: \"\"): unexpected status 409 (409 conflict) with error: ContainerOperationFailure: The specified container is being deleted. Try operation later.",
+          "Rerun the template."
+        ],
+        [
+          "In the CLI app: Error: waiting for Virtual Network Peering (Subscription: \"ID\" | Resource Group Name: \"name\" | Virtual Network Name: \"\"| Virtual Network Peering Name: \"\") to be created: unexpected status 400 (400 Bad Request) with error: ReferencedResourceNotProvisioned: Cannot proceed with operation because resource /subscriptions/subscription ID/resourceGroups/resource group name/.../control_to_worker_plane_peering_eastus is not in Succeeded state. Resource is in Updating state and the last operation that updated/is updating the resource is PutSubnetOperation.",
+          "Rerun the template."
+        ],
+        [
+          "In Cloud Shell: Error: Could not update application with object ID: \"\"|| with azuread_application.az_ad,| on azure_tf_basic.tf line no, in resource \"azuread_application\" \"az_ad\": | resource \"azuread_application\" \"az_ad\" { | | unexpected status 403 (403 Forbidden) with error: Authorization_RequestDenied: Insufficient privileges to complete the operation.",
+          "Run az login"
+        ],
+        [
+          "In Cloud Shell: Error: updating Linux Virtual Machine Scale Set (Subscription: \"ID\" | Resource Group Name: \"name\" | Virtual Machine Scale Set Name: \"\"): compute.VirtualMachineScaleSetsClient#Update: Failure sending request: StatusCode=400 -- Original Error: Code=\"InvalidParameter\" Message=\"The property 'securityProfile.encryptionAtHost' is not valid because the 'Microsoft.Compute/EncryptionAtHost' feature is not enabled for this subscription.\" Target=\"securityProfile.encryptionAtHost\"",
+          "Run the following commands: az feature register --name EncryptionAtHost --namespace Microsoft.Compute az feature show --name EncryptionAtHost --namespace Microsoft.Compute"
+        ],
+        [
+          "In the CLI app: Error: updating Linux Virtual Machine Scale Set (Subscription: \"ID\" | Resource Group Name: \"name\" | Virtual Machine Scale Set Name: \"\"): polling after Update: polling failed: the Azure API returned the following error: || Status: \"VMAgentStatusCommunicationError\" | Code: \"\" | Message: \"VM 'ID' has not reported status for VM agent or extensions. Verify that the OS is up and healthy, the VM has a running VM agent, and that it can establish outbound connections to Azure storage. Please refer to https://aka.ms/vmextensionlinuxtroubleshoot for additional VM agent troubleshooting information.\"",
+          "Rerun the template."
+        ],
+        [
+          "In the CLI app: Error: unexpected status 409 (409 Conflict) with error: RoleDefinitionWithSameNameExists: A custom role with the same name already exists in this directory. Use a different name.",
+          "Rerun the template."
+        ],
+        [
+          "In the CLI app: Error: reimaging Instance \"17\" (Linux Virtual Machine Scale Set (Subscription: \"ID\" | Resource Group Name: \"name\" | Virtual Machine Scale Set Name: \"\")): polling after Reimage: polling failed: the Azure API returned the following error: | | Status: \"OSProvisioningTimedOut\" | Code: \"\" | Message: \"OS Provisioning for VM 'IS' did not finish in the allowed time. The VM may still finish provisioning successfully. Please check provisioning state later. Also, make sure the image has been properly prepared (generalized).\\r\\n *\"",
+          "Rerun the template."
+        ],
+        [
+          "In the CLI app: Error: reimaging Instance \"6\" (Linux Virtual Machine Scale Set (Subscription: \"ID\" | Resource Group Name: \"name\" | Virtual Machine Scale Set Name: \"\")): polling after Reimage: polling failed: the Azure API returned the following error: | | Status: \"InternalDiskManagementError\" | Code: \"\" | Message: \"An unexpected error occured while processing disk. Please retry later.\"",
+          "Rerun the template."
+        ],
+        [
+          "In the CLI app, while deploying the Tree Discovery template: Error: authorization.RoleAssignmentClient#Create: Failure responding to request: StatusCode=404 -- Original Error: autorest/azure: Service returned an error. Status=404 Code=\"ManagementGroupNotFound\" Message=\"The management group 'resource_group_name' cannot be found.\"",
+          "Check and provide the correct management group ID. In the Tenant Details section, check the entered Management Group ID. Click Reset to edit the fields. Enter the correct management group ID. Click Apply. In the Connect to the Tenant section, download and deploy the Tree Discovery template."
+        ],
+        [
+          "In the CLI app: Error: creating Disk Encryption Set (Subscription: \"ID\" | Resource Group Name: \"name\" | Disk Encryption Set Name: \"disk name\"): performing CreateOrUpdate: Put \"\": HTTP response was nil; connection may have been reset",
+          "Rerun the template."
+        ],
+        [
+          "While deploying the template, the account moves to the Needs Attention state.",
+          "Wait for DSPM's next validation or run the on-demand validation."
+        ],
+        [
+          "In the CLI app: Error: retrieving Storage Account Management Policy: (Management Policy Name \"default\" | Resource Group Name: \"name\" | Storage Account Name: \"\"): unexpected status 400 (400 Bad Request) with error: ManagementPolicyNotFound: The key vault key is not found to unwrap the encryption key.",
+          "Delete the storage account and rerun the template."
+        ],
+        [
+          "Cloud Shell stuck while deploying the template.",
+          "Abort the template deployment and rerun the template."
+        ],
+        [
+          "In the CLI app: Error: checking for presence of existing key \"control-plane-cmk\" (Key Vault \"[keyvault/]\"):keyvault.BaseClient#GetKey: Failure responding to request: StatusCode=403 -- Client address is not autorized and caller is not a trusted service.",
+          "Rerun the template with the correct IP."
+        ],
+        [
+          "In the CLI app: Error: deleting Private Dns Zone (Subscription: \"ID\" | Resource Group Name: \"name\" | Private Dns Zone Name: \"name\"):performing Delete: unexpected status 409 with error: CannotDeleteResource: Cannot delete resource while nested resources exist. Please delete all nested resources before deleting this resource.",
+          "Delete the resources manually in the Azure portal."
+        ],
+        [
+          "In the CLI app: Error: retrieving Queue \"\"(Account\"Account\\\"reightf10\\\"(IsEdgeZone false / ZoneName \\\"\\\"/Subdomain Type \\\"queus\\\"/DomainSuffix\\\"core.window.net\\\")\"):executing request: unexpected status 403 (403 This request is not authorized to perform this operation.) with AuthorizationFailure: This request is not authorized to perform this operation.",
+          "Add your system's IP address to the Azure storage account and Azure key vault's IP networks."
+        ],
+        [
+          "In the CLI app: Error: deleting Resource Group \"\": the Resource Group still contains Resources. | | Terraform is configured to check for Resources within the Resource Group when deleting the Resource Group and | raise an error if nested Resources still exist to avoid unintentionally deleting these Resources. | | Terraform has detected that the following Resources still exist within the Resource Group: | | \"Resource group \" | | This feature is intended to avoid the unintentional destruction of nested Resources provisioned through some other means |",
+          "Delete the resources manually in the Azure portal."
+        ],
+        [
+          "In the CLI app: Error: reimaging Instance \"7\" (Linux Virtual Machine Scale Set (Subscription: \"ID\" | Resource Group Name: \"name\" | Virtual Machine Scale Set Name: \"\")): polling after Reimage: polling failed: the Azure API returned the following error: | | Status: \"StorageFailure/EncryptionScopeNotAvailable\" | Code: \"\" | Message: \"Error while creating storage object\"",
+          "Rerun the template."
+        ],
+        [
+          "In the CLI app: Error: authorization.RoleAssignmentsClient#Create: Failure responding to request: StatusCode=400 -- Original Error: autorest/azure: Service returned an error. Status=400 Code=\"RoleAssignmentUpdateNotPermitted\" Message=\"Tenant ID, application ID, principal ID, and scope are not allowed to be updated.\"",
+          "Rerun the template."
+        ],
+        [
+          "In the CLI app: Error: retrieving Storage Account Management Policy: (Management Policy Name \"default: / Storage Account Name \"\" / Resource Group Name: \"name\" ): unexpected status 400 (400 Bad Request) with error: ManagementPolicyNotFound: The key vault key is not found to unwrap the encryption key.",
+          "Rerun the template."
+        ],
+        [
+          "In the CLI app: Error: creating Storage Account (Subscription: \"ID\" | Resource Group Name: \"name\" | Storage Account Name: \"\"): performing Create: unexpected status 400 (400 Bad Request) with error: KeyVaultAuthenticationFailure: The operation failed because of authentication issue on the keyvault.",
+          "Rerun the template."
+        ],
+        [
+          "In the CLI app: Error: Resource type mismatch || This statement declares a move from null_resource.management_reader to terraform_data.management_reader, which is a resource of a different type.",
+          "Upgrade Terraform to the latest version."
+        ],
+        [
+          "In the CLI app: Error: Could not create service principal | with azuread_service_principal, | on azure_tf_basic.tf line 232, in resource \"azuread_service_principal\" \"service_principal\": | 232: resource \"azuread_service_principal\" \"service_principal\" { | Post \"https://graph.microsoft.com/v1.0/servicePrincipals\": HTTP response was nil; connection may have been reset.",
+          "Rerun the template."
+        ],
+        [
+          "In the CLI app: │ Error: creating Disk Encryption Set (Subscription: \"e4c726c0-395e-4c36-9a98-bbabc0f69c46\" │ Resource Group Name: \"z-dspm-6baa90f1-3dee-4e9a-ab5e-0217b34514ef-worker-plane-rg\" │ Disk Encryption Set Name: \"z-dspm-6baa90f1-worker-encset-eastus2\"): performing CreateOrUpdate: unexpected status 400 (400 Bad Request) with error: KeyVaultAccessForbidden: Unable to access key vault resource 'https://z-dspm-eaus26baa90f1zsc.vault.azure.net/keys/worker-plane-cmk/eb7171311c1444fbbbf2fcfc49de0c54' to enable encryption at rest. Please grant get, wrap and unwrap key permissions to user-assigned identity '/subscriptions/e4c726c0-395e-4c36-9a98-bbabc0f69c46/resourceGroups/z-dspm-6baa90f1-3dee-4e9a-ab5e-0217b34514ef-auth-plane-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/z-dspm-6baa90f1-3dee-4e9a-ab5e-0217b34514ef-encryption-managed-identity'. Please visit https://aka.ms/keyvaultaccessssecmk for more information. │ │ with module.worker_plane[\"eastus2\"].azurerm_disk_encryption_set.worker_plane, │ on modules/worker-plane/worker_plane.tf line 142, in resource \"azurerm_disk_encryption_set\" \"worker_plane\": │ 142: resource \"azurerm_disk_encryption_set\" \"worker_plane\" {",
+          "Rerun the template."
+        ],
+        [
+          "In the CLI app: Error: local-exec provisioner error │ │ with module.evidence.module.evidence_encryption_key[0].null_resource.kv_public[0], │ on modules/sub-modules/encryption-key/key.tf line 3, in resource \"null_resource\" \"kv_public\": │ 3: provisioner \"local-exec\" { │ │ Error running command 'az keyvault update --name z-ebb21-96e29-secrets --public-network-access Enabled --default-action Allow --subscription │ 96e29120-71f5-467f-bf17-6b2fe8ab5121': exit status 1. Output: ERROR: (ConflictError) A conflict occurred that prevented the operation from completing. The operation │ failed because the Key Vault '' changed from the point the operation began. This can happen if parallel operations are being performed on the Key Vault. To prevent │ this error, serialize the operations so that only one operation is performed on the Key Vault at a time. Follow this link for more information: │ https://go.microsoft.com/fwlink/?linkid=2147741 │ Code: ConflictError │ Message: A conflict occurred that prevented the operation from completing. The operation failed because the Key Vault '' changed from the point the operation began. │ This can happen if parallel operations are being performed on the Key Vault. To prevent this error, serialize the operations so that only one operation is performed │ on the Key Vault at a time. Follow this link for more information: https://go.microsoft.com/fwlink/?linkid=2147741",
+          "Run terraform apply -auto-approve -parallelism=1"
+        ],
+        [
+          "In the CLI app: ╷ │ Error: listing role definitions: could not find role `r-b-stagetwenty-10aug-put-evidence` │ │ with azurerm_role_assignment.put_evidence_role_assignment, │ on main.tf line 126, in resource \"azurerm_role_assignment\" \"put_evidence_role_assignment\": │ 126: resource \"azurerm_role_assignment\" \"put_evidence_role_assignment\" { │ ╵ ╷ │ Error: listing role definitions: could not find role `r-b-stagetwenty-10aug-get-evidence` │ │ with azurerm_role_assignment.get_evidence_role_assignment, │ on main.tf line 139, in resource \"azurerm_role_assignment\" \"get_evidence_role_assignment\": │ 139: resource \"azurerm_role_assignment\" \"get_evidence_role_assignment\" { │",
+          "Rerun the template."
+        ]
+      ],
+      "strong": [
+        [
+          4,
+          1,
+          118,
+          133
+        ],
+        [
+          4,
+          1,
+          182,
+          203
+        ],
+        [
+          4,
+          1,
+          212,
+          235
+        ],
+        [
+          4,
+          1,
+          323,
+          368
+        ],
+        [
+          6,
+          1,
+          157,
+          174
+        ],
+        [
+          6,
+          1,
+          182,
+          199
+        ],
+        [
+          6,
+          1,
+          236,
+          256
+        ],
+        [
+          6,
+          1,
+          269,
+          274
+        ],
+        [
+          6,
+          1,
+          290,
+          298
+        ],
+        [
+          6,
+          1,
+          315,
+          321
+        ],
+        [
+          9,
+          1,
+          106,
+          121
+        ],
+        [
+          9,
+          1,
+          170,
+          191
+        ],
+        [
+          9,
+          1,
+          200,
+          223
+        ],
+        [
+          9,
+          1,
+          311,
+          356
+        ],
+        [
+          10,
+          1,
+          106,
+          121
+        ],
+        [
+          10,
+          1,
+          170,
+          191
+        ],
+        [
+          10,
+          1,
+          200,
+          223
+        ],
+        [
+          10,
+          1,
+          311,
+          356
+        ],
+        [
+          13,
+          1,
+          105,
+          124
+        ],
+        [
+          13,
+          1,
+          143,
+          159
+        ],
+        [
+          13,
+          1,
+          220,
+          236
+        ],
+        [
+          13,
+          1,
+          247,
+          261
+        ],
+        [
+          25,
+          1,
+          58,
+          72
+        ],
+        [
+          25,
+          1,
+          100,
+          119
+        ],
+        [
+          25,
+          1,
+          127,
+          132
+        ],
+        [
+          25,
+          1,
+          198,
+          203
+        ],
+        [
+          25,
+          1,
+          212,
+          233
+        ],
+        [
+          25,
+          1,
+          267,
+          281
+        ]
+      ]
+    }
+  ]
+}

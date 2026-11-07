@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "id": "zpa.segment-groups.policy-use",
+  "title": "How access policy rules use segment groups",
+  "aliases": [
+    "APP_GROUP operand",
+    "segment group in access policy rule",
+    "segment group OR application segment",
+    "disabled segment group policy effect",
+    "rename segment group policy"
+  ],
+  "binds": [
+    "zpa/segment-groups#enabled",
+    "zpa/segment-groups#name"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zpa.policy.criteria",
+      "because": "zpa.policy.criteria:application-segments-criterion"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.segment-groups.membership",
+      "because": "zpa.segment-groups.policy-use:new-member-extends-rule"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.terraform.policy-rule-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.conditions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers how access policy rules refer to segment groups."
+    },
+    {
+      "label": "Operand shape.",
+      "text": "{{operand-holds-id}}"
+    },
+    {
+      "label": "Choosing a group or a segment.",
+      "text": "Rules use segments for individual applications and groups for shared access: [[zpa.policy.criteria:application-segments-criterion]]. {{new-member-extends-rule}}"
+    },
+    {
+      "label": "Boolean logic.",
+      "text": "Groups are joined by an implicit OR, and segments and groups by an explicit OR: [[zpa.policy.conditions:segments-or]], [[zpa.policy.conditions:segment-or-group-or]]. {{criterion-checks-segment-or-group}} Other criteria are joined by AND: [[zpa.policy.conditions:criteria-and]]."
+    },
+    {
+      "label": "Rename and disable.",
+      "text": "{{rename-effects}} The effect of disabling a group is open {{gap:enabled-false-effect}}."
+    },
+    {
+      "label": "Segment group policies.",
+      "text": "{{segment-group-policies-phased-out}} {{migration-converts-rules}} {{access-before-unmigrated}} Where migrated rules land and how many access rules result is not stated {{gap:migration-result-shape}}."
+    },
+    {
+      "text": "Rule order and first-match evaluation are in [[zpa.policy.evaluation-order]]. The policy types the provider scans on group delete are in [[zpa.terraform.policy-rule-writes:cleanup-rewrites-rule-from-converter]]. Membership is in [[zpa.segment-groups.membership]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule names the segment group, the application segment or both, and whether other criteria in the rule are joined by AND.",
+      "uses": [
+        "zpa.policy.conditions:segments-or",
+        "zpa.policy.conditions:segment-or-group-or",
+        "zpa.policy.conditions:criteria-and"
+      ]
+    },
+    {
+      "do": "Whether the group's enabled flag is false when a rule that names it appears not to match.",
+      "uses": [
+        "enabled-false-effect"
+      ]
+    },
+    {
+      "do": "Whether a lookup by group name still resolves after a rename, since rules hold the ID.",
+      "uses": [
+        "operand-holds-id",
+        "rename-effects"
+      ]
+    },
+    {
+      "do": "If a segment group still has a segment group policy, check whether it was migrated or deleted, since unmigrated segment group policy rules are evaluated after access policy rules.",
+      "uses": [
+        "migration-converts-rules",
+        "access-before-unmigrated",
+        "migration-result-shape"
+      ]
+    }
+  ],
+  "claims": {
+    "operand-holds-id": {
+      "statement": "A policy rule refers to a segment group by ID: a v1 operand is `APP_GROUP` with `lhs` `id` and the group ID as `rhs`, and a v2 operand is `APP_GROUP` with the group ID in `values`.",
+      "tier": "A",
+      "binds": [
+        "zpa/segment-groups#id"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "if op.ObjectType == \"APP_GROUP\" && op.LHS == \"id\" && op.RHS == id {",
+            "if strings.EqualFold(op.ObjectType, \"APP_GROUP\") {",
+            "// Check if Values array contains the segment group ID"
+          ]
+        }
+      ]
+    },
+    "criterion-checks-segment-or-group": {
+      "statement": "A rule's application criterion is satisfied when the requested application segment, or the segment group that holds it, is one the rule names.",
+      "tier": "B",
+      "conditions": "Chain of evidence: the help describes the check as 'an application segment OR its segment group are present'; this restates it as the match condition.",
+      "derived_from": [
+        "zpa.policy.conditions:segment-or-group-or"
+      ]
+    },
+    "new-member-extends-rule": {
+      "statement": "A segment added to a group named in a rule falls under that rule through its group, without the rule being edited.",
+      "tier": "B",
+      "conditions": "Chain of evidence: the criterion checks the segment's group, so a new member satisfies it. The service's handling of the new membership is not stated.",
+      "derived_from": [
+        "criterion-checks-segment-or-group"
+      ]
+    },
+    "rename-effects": {
+      "statement": "Renaming a segment group leaves policy rules unchanged because they hold its ID, while a lookup by name, such as the SDK `GetByName` or a Terraform data source by name, must use the new name.",
+      "tier": "B",
+      "conditions": "Chain of evidence: operands hold the ID (operand-holds-id) and the SDK name lookup compares the name. Rule behavior after a rename was not exercised.",
+      "derived_from": [
+        "operand-holds-id"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "if strings.EqualFold(app.Name, segmentName) {"
+          ]
+        }
+      ]
+    },
+    "segment-group-policies-phased-out": {
+      "statement": "Segment group policies are being phased out, and a segment group policy can no longer be added using the Group Policy tab; to control application access based on segment group, an access policy rule that includes the group within its Criteria must be used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-segment-group-policies.json",
+          "quotes": [
+            "Segment group policies are being phased out. You can no longer add a segment group policy using the Group Policy tab.",
+            "To control application access based on segment group, you must use an access policy rule that includes the group within its Criteria."
+          ]
+        }
+      ]
+    },
+    "migration-converts-rules": {
+      "statement": "To retain or modify an existing segment group policy it must be migrated; migration converts all segment group policy rules formerly under the Group Policy tab into an access policy rule on the Access Policy page, after which the migrated segment group policy rule is deleted automatically. An existing segment group policy can also be deleted without migrating its rules, and the Segment Groups page only displays the migration icon for groups that contain a segment group policy that has not been migrated or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-segment-group-policies.json",
+          "quotes": [
+            "If you want to retain or modify an existing segment group policy, you must migrate it.",
+            "The migration will convert all segment group policy rules formerly under the Group Policy tab into an access policy rule that appears on the Access Policy page.",
+            "After the segment group policy rule is successfully migrated, it is automatically deleted, and you are redirected to the Access Policy page.",
+            "You can also delete an existing segment group policy without migrating its rules.",
+            "The Segment Groups page only displays the icon for groups that contain an existing segment group policy that has not been migrated or deleted."
+          ]
+        }
+      ]
+    },
+    "access-before-unmigrated": {
+      "statement": "Private Access evaluates access policy rules prior to any segment group policy rules that have not been migrated, and Diagnostics can be used to verify that migrated rules are taking effect in the access policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-segment-group-policies.json",
+          "quotes": [
+            "Be aware that Private Access (ZPA) evaluates access policy rules prior to any segment group policy rules that have not been migrated.",
+            "You can use Diagnostics to verify that the rules you migrated to your access policy are taking effect."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "migration-result-shape": {
+      "kind": "semantic",
+      "title": "Whether migrating several segment group policy rules yields one access rule or one per rule, and where they land in the rule order",
+      "status": "open",
+      "about": [
+        "zpa.segment-groups.policy-use"
+      ],
+      "detail": "The page says migration converts all the rules into an access policy rule (claim migration-converts-rules), singular, and does not say whether several segment group policy rules yield one access rule or several, or where the migrated rules sit in the access rule order. Migrate a group with several rules in a scratch tenant and read the Access Policy page.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "enabled-false-effect": {
+      "kind": "semantic",
+      "former_ids": [
+        "sg-01"
+      ],
+      "title": "The policy-evaluation effect of enabled = false on a segment group",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "using the enabled flag on a group as an access-control switch",
+      "detail": "The model carries enabled as a meaningful boolean and the console shows a Status of enabled or disabled, but no source states whether a disabled group stops matching in rules or is ignored. Unverified legacy statement: disabling takes all member segments out of policy scope at once. Create a rule on a group, set enabled to false and test a member's access in a non-production tenant."
+    }
+  }
+}

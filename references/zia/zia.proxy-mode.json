@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "zia.proxy-mode",
+  "title": "ZIA proxy modes: explicit and transparent",
+  "aliases": [
+    "proxy mode",
+    "explicit vs transparent",
+    "explicit proxy mode",
+    "transparent proxy mode",
+    "how does zia identify the destination"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.proxy-mode.forwarding-map",
+      "because": "zia.proxy-mode.forwarding-map:not-a-setting"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.criteria",
+      "because": "zia.ssl-inspection.criteria:connect-user-agent-explicit-only"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline",
+      "because": "zia.ssl-inspection.pipeline:transparent-matches-destination-ip"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.methods",
+      "because": "zia.authentication.methods:kerberos-explicit-only"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.proxy-mode.explicit"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.proxy-mode.transparent"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.proxy-mode.caching"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"How does ZIA know where this connection is going?\" depends on how the traffic arrived."
+    },
+    {
+      "steps": [
+        {
+          "label": "Did the client send it to the service as a proxy?",
+          "text": "Then the CONNECT request names the host before TLS: [[zia.proxy-mode.explicit]]."
+        },
+        {
+          "label": "Was it redirected without the client knowing?",
+          "text": "Then the host comes from SNI, or the server certificate when SNI is absent: [[zia.proxy-mode.transparent]]."
+        },
+        {
+          "label": "Which one is this flow?",
+          "text": "The forwarding method does not settle it (a tunnel can carry PAC traffic): [[zia.proxy-mode.forwarding-map]]."
+        }
+      ]
+    },
+    {
+      "text": "What the mode changes in policy is held by the SSL Inspection subjects, not here: first-pass evaluation on the CONNECT host or SNI ([[zia.ssl-inspection.pipeline]]) and the criteria that exist in one mode only ([[zia.ssl-inspection.criteria]]). How traffic gets to the service in the first place is [[zia.traffic-forwarding]]. Why proxy caching helps less today, and the alternatives Zscaler lists, are in [[zia.proxy-mode.caching]]."
+    }
+  ]
+}

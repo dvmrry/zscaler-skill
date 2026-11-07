@@ -1,0 +1,708 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Setting Up Cloud Deception with AWS",
+  "source": {
+    "url": "https://help.zscaler.com/deception/setting-cloud-deception-aws",
+    "node": "1542483",
+    "revision": "3221631",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This integration guide provides information on prerequisites and how to integrate Amazon Web Services (AWS) with Zscaler Deception to set up Cloud Deception by deploying various AWS-specific decoy resources."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you set up Cloud Deception with AWS, ensure that you have:"
+    },
+    {
+      "item": "Access to an AWS Account with an Administrator role.",
+      "depth": 0
+    },
+    {
+      "item": "AWS region information.",
+      "depth": 0
+    },
+    {
+      "heading": "Setting Up Cloud Deception with AWS",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to set up Cloud Deception with AWS:"
+    },
+    {
+      "item": "Step 1: Configure the Integration between AWS and Deception",
+      "depth": 0
+    },
+    {
+      "item": "To integrate AWS with Deception:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Zscaler Deception Admin Portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > AWS > Settings.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ],
+        [
+          40,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "On the Settings page:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Account.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the AWS Account Setting window:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Select Enabled.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the region of your AWS account from the drop-down menu.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Account ID: Enter the account ID of the AWS account to which you want to deploy the decoys.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Deployment Method: Select the method you want to use to deploy resources to your AWS environment. Choose Terraform for automated IaC-based deployment, or choose CloudShell for deployment through AWS's interactive shell environment.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          105,
+          114
+        ],
+        [
+          161,
+          171
+        ]
+      ]
+    },
+    {
+      "item": "The deployment method cannot be modified for the same configuration. If you want to change the deployment method, delete the old configuration and create a new one.",
+      "depth": 3
+    },
+    {
+      "item": "DB Option and Parameter group suffix: Enter a value to use as a suffix with the option group and parameter group for Relational Database Service (RDS) decoys. This is required to prevent name conflicts.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Enable GenAI Prompt Logging: (Optional) Enable if you want to log the prompts and responses from the generative AI (Gen AI) decoys. The prompts and responses are recorded in the aws gen ai input and aws gen ai ouput on the ThreatParse page with the AWS GenAI Model was Invoked rule.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          27
+        ],
+        [
+          249,
+          276
+        ]
+      ]
+    },
+    {
+      "item": "When logging is enabled, an S3 bucket is created to store prompts and responses from the Gen AI models. This S3 bucket collects prompts and responses from all Gen AI applications in that AWS account, including the legitimate Gen AI applications. However, only those prompts and responses pertaining to the Gen AI decoys created by Deception are sent to the Deception Admin Portal. If you want to avoid storing (temporary) prompts and responses from the legitimate Gen AI applications in the S3 bucket, ensure that the Gen AI decoys are deployed in a different AWS account that does not contain any legitimate Gen AI applications.",
+      "depth": 3
+    },
+    {
+      "item": "(Optional) Click Tags and configure tags for AWS resources. To learn more, see Creating and Managing Tags for AWS Resources.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          17,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "After adding the account to the Deception Admin Portal, deploy the resources in AWS cloud using one of the selected methods:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Terraform-based deployment",
+      "depth": 3
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Locate the AWS account you added, and click the Download icon in the Actions column.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          48,
+          56
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 4
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the aws-decoys.tf.json file in a text editor.",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "Locate the backend block in the aws-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "The following example shows a backend block of an S3 bucket-based Terraform back end:",
+      "depth": 4
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"s3\": { \"bucket\": \"your-terraform-state-bucket\", \"key\": \"deception/terraform.tfstate\", \"region\": \"us-east-1\", \"encrypt\": true } } } }",
+      "depth": 4
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same AWS account.",
+      "depth": 4
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and run the following command to create a new workspace:",
+      "depth": 4,
+      "number": 6
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 4
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 4,
+      "number": 7
+    },
+    {
+      "item": "terraform apply",
+      "depth": 4
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 4,
+      "number": 8
+    },
+    {
+      "item": "The necessary resources are deployed, and a JSON file containing the details of the state is downloaded.",
+      "depth": 4,
+      "number": 9
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings, locate the AWS account you added, and click the Upload icon in the Actions column.",
+      "depth": 4,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          99,
+          105
+        ],
+        [
+          118,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 4,
+      "number": 11
+    },
+    {
+      "item": "CloudShell-based deployment",
+      "depth": 3
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings, and click Download CloudShell Deployment Script.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          61,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Download Deployment Script window, obtain the CloudShell command using one of the following methods:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Automated Download Method",
+      "depth": 5
+    },
+    {
+      "item": "Using this method, you can obtain a CloudShell command that automatically downloads and runs the deployment script when executed via AWS CloudShell. To obtain the command, copy the command from the Automated: Run the following command in AWS CloudShell section and save it for later use.",
+      "depth": 5,
+      "strong": [
+        [
+          198,
+          252
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Manual Download Method",
+      "depth": 5
+    },
+    {
+      "item": "Using this method, you can download the deployment script as a ZIP file, upload it to the AWS cloud, and run the script using a bash command obtained from the Deception Admin Portal. To obtain the command and script:",
+      "depth": 5
+    },
+    {
+      "item": "In the Download Script Deployment window:",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Download.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "The deployment script is downloaded to your system.",
+      "depth": 7
+    },
+    {
+      "item": "Copy the command from the Manual: Download the script and run the following command in AWS CloudShell section, and save it for later use.",
+      "depth": 7,
+      "number": 2,
+      "strong": [
+        [
+          26,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Sign in to the AWS Management Console.",
+      "depth": 6,
+      "number": 2
+    },
+    {
+      "item": "Click the CloudShell icon on the navigation bar.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "In the AWS CloudShell window:",
+      "depth": 6,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click the Actions drop-down menu, then select Upload file.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          46,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Choose the deployment script file (.zip) that you downloaded to your system to upload it to AWS.",
+      "depth": 7,
+      "number": 2
+    },
+    {
+      "item": "Sign in to the AWS Management Console as an administrator.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "Click the CloudShell icon on the navigation bar.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The AWS CloudShell window appears.",
+      "depth": 4,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the AWS CloudShell window:",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Run the deployment script using the command obtained via the automated download method or manual download method.",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "Enter the option to sync settings and press Enter.",
+      "depth": 5,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Typically, your AWS account includes a Virtual Private Cloud (VPC) in each AWS region. However if no default VPC is found in the selected region, the deployment script prompts you to create a new VPC. To create a new VPC using the deployment script, you need to run the script again and append the --cidr-block parameter with the IP address range in CIDR notation. The following examples show how to use the --cidr-block parameter with the automated download and manual download scripts:",
+      "depth": 3
+    },
+    {
+      "item": "Create VPC using the automated download script",
+      "depth": 4
+    },
+    {
+      "item": "curl -XGET --header \"x-client-auth: SLODXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXFSKOM4FS\" https://xxxxxxx.illusionblack.com/api/v2/decoys/cloud-deception/aws/generate-deployment-script > aws_decoy_deployment.zip &&rm -rf aws_decoy_deployment && unzip -o -qq aws_decoy_deployment.zip -d aws_decoy_deployment &&cd aws_decoy_deployment && node build/aws-decoy-deployment.js --cmc-host https://xxxxxxx.illusionblack.com --api-key SLODXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXFSKOM4FS --client-id <xxxxxxx> --cidr-block '10.10.5.0/26'",
+      "depth": 4
+    },
+    {
+      "item": "Create VPC using the manual download script",
+      "depth": 4
+    },
+    {
+      "item": "rm -rf aws_decoy_deployment && unzip -o -qq aws_decoy_deployment.zip -d aws_decoy_deployment &&cd aws_decoy_deployment && node build/aws-decoy-deployment.js --cmc-host https://xxxxxxx.illusionblack.com --api-key SLODXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXFSKOM4FS --client-id xxxxxxx --cidr-block '10.10.5.0/26'",
+      "depth": 4
+    },
+    {
+      "item": "Upon successful deployment, all necessary resources are created on AWS and the information is updated to the Deception Admin Portal. The deployment also includes a health function app that polls the AWS account every 15 minutes to check and update the health status of the deployed decoys. The following table lists all resources created in the AWS cloud:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Resource",
+          "Description"
+        ],
+        [
+          "Account ID",
+          "AWS Account ID"
+        ],
+        [
+          "Security Group ID",
+          "An identifier of the security group created by the deployment script."
+        ],
+        [
+          "Logging Bucket",
+          "Created by the deployment script for logging resources."
+        ],
+        [
+          "Cloud Trail",
+          "Created by the deployment script for gathering logs (CloudTrial)."
+        ],
+        [
+          "Log Access IAM User",
+          "An IAM user created to access logs."
+        ],
+        [
+          "Access Key ID",
+          "The Access Key ID of the IAM user created by the deployment script."
+        ],
+        [
+          "Secret Access Key",
+          "The Secret Access Key of the IAM user created by the deployment script."
+        ],
+        [
+          "Log Access IAM User Policy",
+          "A policy created by the deployment script for the Log Access IAM user."
+        ],
+        [
+          "Decoy's Health Check Lambda Function",
+          "A lambda function deployed to monitor and update the health status of the deployed decoys to the Deception Admin Portal."
+        ],
+        [
+          "Health Check Lambda Function Access Policy",
+          "A policy created by the deployment script that is attached to the lambda function for the health check."
+        ],
+        [
+          "IAM Decoy User Access Policy",
+          "A policy created by the deployment script that is attached to the decoy user to gain access to other decoys."
+        ]
+      ]
+    },
+    {
+      "item": "Step 2: Configure the AWS Decoys",
+      "depth": 0
+    },
+    {
+      "item": "After successful integration of AWS with Deception, you can deploy various AWS-specific decoy resources. To learn how to configure the AWS decoys, see:",
+      "depth": 0
+    },
+    {
+      "item": "IAM Decoys",
+      "depth": 1
+    },
+    {
+      "item": "S3 Decoys",
+      "depth": 1
+    },
+    {
+      "item": "RDS Decoys",
+      "depth": 1
+    },
+    {
+      "item": "ECR Decoys",
+      "depth": 1
+    },
+    {
+      "item": "DynamoDB Decoys",
+      "depth": 1
+    },
+    {
+      "item": "VM Image Decoys",
+      "depth": 1
+    },
+    {
+      "item": "Gen AI Decoys",
+      "depth": 1
+    },
+    {
+      "item": "Step 3: Configure Lures Using AWS Decoys",
+      "depth": 0
+    },
+    {
+      "item": "After deploying the necessary decoys based on your requirements, you can configure the lures for the decoys. To learn how to configure lures using AWS decoys, see Configuring Lures Using AWS Decoys.",
+      "depth": 0
+    }
+  ]
+}

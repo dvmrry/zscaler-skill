@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control.geoip",
+  "title": "Geolocalization IP (GeoIP) forwarding: when it applies, how it is enabled and the supported-country table's example rows",
+  "aliases": [
+    "geoip",
+    "geolocalization ip",
+    "geo ip forwarding",
+    "GEOIP forwarding method"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.dedicated-ip"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.source-ip-anchoring.egress-options"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{without-geoip}} {{compliance-check}}"
+    },
+    {
+      "label": "Enabling and rules.",
+      "text": "{{enablement}} {{no-gateway-needed}} {{country-determination}}"
+    },
+    {
+      "label": "Limits of the mapping.",
+      "text": "{{destinations-may-ignore}} {{supported-countries}} Licensing and the region labels are open {{gap:licensing}} {{gap:region-labels}}."
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "For users in a country not serviced by a Zscaler Point-of-Presence (PoP), the Geolocalization IP (GeoIP) feature can be used to access local content or destinations that restrict access based on the source IP address, and GeoIP forwarding policies forward traffic using IP addresses mapped to the location of the originating request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-geolocalization-ip.json",
+          "quotes": [
+            "For users in a country not serviced by Zscaler Point-of-Presence (PoP), the Geolocalization IP (GeoIP) feature can be used to access local content or destinations that restrict access based on the source IP address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-dedicated-ip.json",
+          "quotes": [
+            "organizations can use geolocalization IP forwarding policies to forward traffic using IP addresses mapped to the location of the originating request."
+          ]
+        }
+      ]
+    },
+    "compliance-check": {
+      "statement": "The page says to consult the compliance or legal team to ensure the GeoIP configuration complies with applicable local laws.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-geolocalization-ip.json",
+          "quotes": [
+            "However, you must consult with your compliance or legal team to ensure the configuration complies with applicable local laws."
+          ]
+        }
+      ]
+    },
+    "without-geoip": {
+      "statement": "When Zscaler does not host a data center in a country and a user from that country accesses a local destination with source IP address-based access restrictions, the traffic is routed to the geographically closest Zscaler data center outside the country.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-geolocalization-ip.json",
+          "quotes": [
+            "When Zscaler does not host a data center in a country and a user from that country accesses a local destination with source IP address-based access restrictions, the traffic is routed to the geographically closest Zscaler data center outside the country."
+          ]
+        }
+      ]
+    },
+    "enablement": {
+      "statement": "If GeoIP is not already available on an Internet & SaaS tenant, Zscaler Support is contacted to enable it, after which Zscaler enables GeoIP as a traffic forwarding method in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-geolocalization-ip.json",
+          "quotes": [
+            "If not already available on your Internet & SaaS (ZIA) tenant, contact Zscaler Support to enable GeoIP for your Internet & SaaS tenant.",
+            "After the feature is enabled, Zscaler enables GeoIP as a traffic forwarding method in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "no-gateway-needed": {
+      "statement": "A GeoIP forwarding rule does not need forwarding gateway configuration: Zscaler automatically forwards the traffic with a source IP address mapped to the country where the traffic originates, and if no criteria are chosen all the traffic egresses with GeoIP addresses based on the source country.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-geolocalization-ip.json",
+          "quotes": [
+            "If you choose no criteria, all the traffic egresses with GeoIP addresses based on the source country.",
+            "The forwarding gateway configuration is not required. Zscaler automatically forwards the traffic with a source IP address mapped to the country from where the traffic originates."
+          ]
+        }
+      ]
+    },
+    "country-determination": {
+      "statement": "The Zscaler service determines the country the user is in from the user's source IP. If the user is in a country that hosts a Zscaler data center, the traffic is serviced by the local data center and egresses with a country-local source IP address, and the GeoIP rule does not apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-geolocalization-ip.json",
+          "quotes": [
+            "The Zscaler service determines the country that the user is in based on the user's source IP.",
+            "If the user is in a country which hosts a Zscaler data center, the traffic is serviced by the local data center and egresses with a country-local source IP address, and the GeoIP rule does not apply."
+          ]
+        }
+      ]
+    },
+    "destinations-may-ignore": {
+      "statement": "In some cases destination websites might not honor the source IP for country mapping to determine the location of the user. The page's alternatives are deploying App Connectors in the region for Source IP Anchoring with local IP addresses, or deploying Virtual Service Edges or Private Service Edges for Internet & SaaS in the region for local IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-geolocalization-ip.json",
+          "quotes": [
+            "In some cases, destination websites might not honor the source IP for country mapping to determine the location of the user and provide access.",
+            "In such scenarios, you could deploy App Connectors in the region for Source IP Anchoring with local IP addresses or deploy the Virtual Service Edges for Internet & SaaS or Private Service Edges for Internet & SaaS in the region for local IP addresses."
+          ]
+        }
+      ]
+    },
+    "supported-countries": {
+      "statement": "The page has a table of the currently supported countries for the GeoIP feature; its example rows are Czechia and Serbia, labeled Europe, and its worked example forwards the traffic of a user located in Czechia towards the destination with a Czechian source IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-geolocalization-ip.json",
+          "quotes": [
+            "The following table lists the currently supported countries for the GeoIP feature:",
+            "| Czechia | Europe |",
+            "| Serbia | Europe |",
+            "For example, a GeoIP forwarding rule is applied to the traffic of a user located in Czechia, so the traffic is forwarded towards the destination with a Czechian source IP address."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "licensing": {
+      "kind": "semantic",
+      "title": "Whether GeoIP needs a subscription beyond contacting Zscaler Support",
+      "status": "open",
+      "detail": "The captured page says only to contact Zscaler Support to enable GeoIP; it states no licensing or subscription. The Terraform and SDK fields for the GEOIP method (version history in zia.forwarding-control.terraform:method-version-history) were not checked in this pass.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "region-labels": {
+      "kind": "semantic",
+      "title": "Whether the supported-country table's region labels are reliable",
+      "status": "open",
+      "detail": "The table has 119 country and region rows. Some of the region labels as captured look like vendor data errors (Aruba, Montenegro, Papua New Guinea and Suriname are labeled Africa), so the labels should not be used for region answers until checked against the live page.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

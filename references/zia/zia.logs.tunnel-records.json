@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.tunnel-records",
+  "title": "What a ZIA tunnel log record is: log types, tunnel status, event reasons and sample counters",
+  "aliases": [
+    "tunnel log record",
+    "tunnel insights logs columns",
+    "tunnel event reason",
+    "ipsec phase 1 log",
+    "psk mismatch",
+    "dpd timeout",
+    "tunnel sample log"
+  ],
+  "binds": [
+    "zia/tunnel-log#tunnelactionname",
+    "zia/tunnel-log#event",
+    "zia/tunnel-log#eventreason",
+    "zia/tunnel-log#rxbytes",
+    "zia/tunnel-log#rxpackets",
+    "zia/tunnel-log#txbytes",
+    "zia/tunnel-log#txpackets",
+    "zia/tunnel-log#tunneltype",
+    "zia/tunnel-log#vendorname",
+    "zia/tunnel-log#destvip"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.insights"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.insights.logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.firewall-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipsec"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.insights.analytics"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{log-types}} The record fields are the generated type [[zia/tunnel-log]]."
+    },
+    {
+      "label": "Status and events.",
+      "text": "{{status-values}} {{event-reasons}} The values are listed without definitions {{gap:tunnel-event-meanings}}."
+    },
+    {
+      "label": "Counters.",
+      "text": "{{sample-counters}}"
+    },
+    {
+      "label": "Negotiation.",
+      "text": "{{policy-direction}} {{tunnel-and-vendor}} Whether Zscaler supports only ESP or also AH is described two ways: [[zia.traffic-forwarding.ipsec:ipsec-protocol]]."
+    },
+    {
+      "label": "Keep-alive.",
+      "text": "{{keepalive-column}} The NSS description of the matching field differs {{divergence:keepalive-meaning}}."
+    },
+    {
+      "label": "Filters.",
+      "text": "{{tunnel-location-type-filter}} That list omits one group that the other families list {{gap:tunnel-location-type}}. Filters are in [[zia.insights.data-types:tunnel-data-types]]; the configuration of the tunnels is in [[zia.traffic-forwarding.ipsec]] and [[zia.traffic-forwarding.gre]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Log Type a tunnel record is before reading its status, since IPSec Phase 1 and Phase 2 records apply to IPSec only.",
+      "uses": [
+        "log-types"
+      ]
+    },
+    {
+      "do": "Whether the keep-alive column is read as an SSL VPN keep-alive or as DPD packets received, which the two pages disagree on.",
+      "uses": [
+        "keepalive-column",
+        "keepalive-meaning"
+      ]
+    },
+    {
+      "do": "Whether an event reason has a documented meaning, since the values are listed without definitions.",
+      "uses": [
+        "event-reasons",
+        "tunnel-event-meanings"
+      ]
+    }
+  ],
+  "claims": {
+    "log-types": {
+      "statement": "The tunnel Log Type is Sample (data activity through the tunnel, GRE and IPSec), IPSec Phase 1 or IPSec Phase 2 (negotiation details, IPSec only), or Tunnel Event (status changes or failure events, GRE and IPSec).",
+      "tier": "A",
+      "binds": [
+        "zia/tunnel-log#tunnelactionname"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-tunnel-insights-logs-columns.json",
+          "quotes": [
+            "Sample: Logs regarding data activity through the tunnel. Applies to both GRE and IPSec.",
+            "IPSec Phase 1: Logs containing details for IPSec Phase 1 negotiation. Applies to IPSec only.",
+            "IPSec Phase 2: Logs containing details for IPSec Phase 2 negotiation. Applies to IPSec only.",
+            "Tunnel Event: Logs indicating status changes or failure events. Applies to both GRE and IPSec."
+          ]
+        }
+      ]
+    },
+    "status-values": {
+      "statement": "Tunnel Status is IPSec tunnel is up, down or renegotiated, Phase 1 or Phase 2 is down, Error while establishing Phase 1 or Phase 2, or None, which means no change from the last known status.",
+      "tier": "A",
+      "binds": [
+        "zia/tunnel-log#event"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-tunnel-insights-logs-columns.json",
+          "quotes": [
+            "IPSec tunnel is up - IPSec tunnel is down - IPSec tunnel is renegotiated - Phase 1 is down - Phase 2 is down - Error while establishing Phase 1 - Error while establishing Phase 2 - None",
+            "The tunnel status None indicates that there is no change to the status of the tunnel from the last known status."
+          ]
+        }
+      ]
+    },
+    "event-reasons": {
+      "statement": "The Event Reason for a tunnel status change is Lifetime expired, PSK not found, PSK mismatch, Invalid proposal, DPD timeout, Timeout or Org excluded from DC.",
+      "tier": "A",
+      "binds": [
+        "zia/tunnel-log#eventreason"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-tunnel-insights-logs-columns.json",
+          "quotes": [
+            "Event Reason: The reason that the status change occurred for a tunnel.",
+            "Lifetime expired - PSK not found - PSK mismatch - Invalid proposal - DPD timeout - Timeout - Org excluded from DC"
+          ]
+        }
+      ]
+    },
+    "sample-counters": {
+      "statement": "Received Bytes and Packets are what Zscaler received through the tunnel from the organization, and Sent Bytes and Packets what Zscaler sent through the tunnel to the organization, each a total over the one-minute sample interval.",
+      "tier": "A",
+      "binds": [
+        "zia/tunnel-log#rxbytes",
+        "zia/tunnel-log#rxpackets",
+        "zia/tunnel-log#txbytes",
+        "zia/tunnel-log#txpackets"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-tunnel-insights-logs-columns.json",
+          "quotes": [
+            "Received Bytes: The total bytes of data Zscaler received through the tunnel from the organization in the one-minute sample interval.",
+            "Received Packets: The total number of packets Zscaler received through the tunnel from the organization in the one-minute sample interval.",
+            "Sent Bytes: The total bytes of data Zscaler sent through the tunnel to the organization in the one-minute sample interval.",
+            "Sent Packets: The total number of packets Zscaler sent through the tunnel to the organization in the one-minute sample interval."
+          ]
+        }
+      ]
+    },
+    "policy-direction": {
+      "statement": "Policy Direction gives the direction in which IPSec Phase 2 policies (allowed subnets, ports and protocols) are proposed: Inbound from the organization's IPSec gateway to Zscaler, Outbound from Zscaler to the organization's IPSec gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-tunnel-insights-logs-columns.json",
+          "quotes": [
+            "Policy Direction: The direction in which the IPSec Phase 2 policies (allowed subnets/ports/protocols) are proposed.",
+            "Inbound: From the organization's IPSec gateway to Zscaler.",
+            "Outbound: From Zscaler to the organization's IPSec gateway."
+          ]
+        }
+      ]
+    },
+    "tunnel-and-vendor": {
+      "statement": "Tunnel Type is GRE, IPSec IKEv1 or IPSec IKEv2; Vendor ID lists Cisco, Juniper, strongSwan, Shrew Soft, Aruba, Check Point, QuickSec and SonicWall; Session ID is a cryptographically generated random number unique per tunnel; Tunnel Destination IP is the VPN or GRE VIP the tunnel goes to.",
+      "tier": "A",
+      "binds": [
+        "zia/tunnel-log#tunneltype",
+        "zia/tunnel-log#vendorname",
+        "zia/tunnel-log#destvip"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-tunnel-insights-logs-columns.json",
+          "quotes": [
+            "GRE - IPSec IKEv1 - IPSec IKEv2",
+            "Cisco - Juniper - strongSwan - Shrew Soft - Aruba - Check Point - QuickSec - SonicWall",
+            "Session ID: A cryptographically generated random number that is unique per tunnel.",
+            "Tunnel Destination IP: The VPN or GRE VIP that the tunnel is destined to."
+          ]
+        }
+      ]
+    },
+    "tunnel-location-type-filter": {
+      "statement": "The Tunnel Insights Logs Location Type filter lists Corporate User Traffic Group, Guest Wifi Group, IoT Traffic Group, Server Traffic Group and Unassigned Locations, and the Tunnel Destination IP filter follows on the page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-tunnel-insights-logs-filters.json",
+          "quotes": [
+            "- Corporate User Traffic Group - Guest Wifi Group - IoT Traffic Group - Server Traffic Group - Unassigned Locations - Tunnel Destination IP:"
+          ]
+        }
+      ]
+    },
+    "keepalive-column": {
+      "statement": "The Tunnel Insights Logs article describes Keep-Alive Packets as keeping the SSL VPN connection open while the device is inactive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-tunnel-insights-logs-columns.json",
+          "quotes": [
+            "Keep-Alive Packets: The Keep-Alive packet ensures that the SSL VPN connection remains open even when the device is inactive."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "keepalive-meaning": {
+      "summary": "The Tunnel Insights Logs article describes Keep-Alive Packets as an SSL VPN keep-alive, while the NSS tunnel output format describes the matching field as DPD packets received in a 60-second window.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-tunnel-insights-logs-columns.json",
+            "quotes": [
+              "Keep-Alive Packets: The Keep-Alive packet ensures that the SSL VPN connection remains open even when the device is inactive."
+            ]
+          },
+          "says": "The Keep-Alive packet keeps the SSL VPN connection open when the device is inactive."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-nss-feed-output-format-tunnel-logs.json",
+            "quotes": [
+              "| %d{dpdrec} | The number of DPD packets received in a 60-second sample window. Only for IPSec tunnels, empty for GRE. |"
+            ]
+          },
+          "says": "dpdrec is the number of DPD packets received in a 60-second sample window, for IPSec tunnels only and empty for GRE."
+        }
+      ],
+      "impact": "The two descriptions give different meanings and scopes (SSL VPN against IPSec-only DPD); the pages do not say whether the console column and the NSS field are the same counter."
+    }
+  },
+  "gaps": {
+    "tunnel-event-meanings": {
+      "kind": "semantic",
+      "title": "What the tunnel Event Reason values mean and which Tunnel Status values a GRE tunnel can have",
+      "status": "open",
+      "detail": "The Event Reason values (for example Org excluded from DC, Invalid proposal and Timeout as against DPD timeout) are listed without definitions. Which Tunnel Status values a GRE tunnel can have is not stated, since all the listed states name IPSec or its phases.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "tunnel-location-type": {
+      "kind": "semantic",
+      "title": "Whether workload locations' tunnels are filterable by Location Type",
+      "status": "open",
+      "detail": "The Tunnel logs Location Type list ends at Unassigned Locations (Corporate User Traffic Group, Guest Wifi Group, IoT Traffic Group, Server Traffic Group, Unassigned Locations and Tunnel Destination IP), while every other family lists Workload Traffic Group as well. Whether workload locations' tunnels are filterable is open.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

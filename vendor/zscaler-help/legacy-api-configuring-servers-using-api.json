@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Servers Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-servers-using-api",
+    "node": "1484791",
+    "revision": "3160695",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) server use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "Before you create a new server, you must get the required details for server groups. To learn more, see Configuring Server Groups Using API."
+    },
+    {
+      "heading": "Creating a New Server",
+      "level": 1
+    },
+    {
+      "text": "To add a new server:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint in the server-controller: /mgmtconfig/v1/admin/customers/{customerId}/server.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/server.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload to create the server and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the server.",
+      "depth": 0
+    },
+    {
+      "item": "enabled: Indicates the status of the server (true, false).",
+      "depth": 0
+    },
+    {
+      "item": "address: Indicates the server IP or the domain.",
+      "depth": 0
+    },
+    {
+      "item": "Information about the associated server groups.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"server_name\", \"description\":\"description\", \"enabled\":true, \"address\":\"serverIP or domain\", \"appServerGroupIds\":[ \"serverGroupId1\", \"serverGroupId2\" ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"217246660303024816\", \"creationTime\": \"1614272495\", \"modifiedBy\": \"217246660303024815\", \"name\": \"server_example\", \"address\": \"192.168.1.1\", \"enabled\": true, \"description\": \"Test App Server\", \"appServerGroupIds\": [ \"217246660303020476\", \"217246660302996731\" ], \"configSpace\": \"DEFAULT\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "You choose the server criteria you want to include in the JSON payload. Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the server use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "This field defines the name of the server",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "This field defines the description of the server",
+          "No",
+          "String"
+        ],
+        [
+          "enabled",
+          "This field defines the status of the server",
+          "Yes",
+          "true, false"
+        ],
+        [
+          "address",
+          "This field defines the domain or IP address of the server",
+          "Yes",
+          "String"
+        ],
+        [
+          "appServerGroupIds",
+          "This field defines the list of server groups IDs",
+          "No",
+          "List of strings"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all Microtenants associated with the tenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    },
+    {
+      "heading": "Getting Details for a Particular Server",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular server:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the server-controller: /mgmtconfig/v1/admin/customers/{customerId}/server/{serverId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "serverId: The ID of the server.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/server/72057615512764544."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"72057615512764544\", \"creationTime\": \"1579729244\", \"modifiedBy\": \"72057615512764417\", \"name\": \"PB App\", \"address\": \"10.0.0.190\", \"enabled\": true, \"appServerGroupAssociations\": { \"72057615512764545\": \"PB App\" }, \"configSpace\": \"DEFAULT\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for All Servers",
+      "level": 1
+    },
+    {
+      "text": "To get details for all servers:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the server-controller: /mgmtconfig/v1/admin/customers/{customerId}/server.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/server.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"list\": [ { \"id\": \"72057615512764544\", \"creationTime\": \"1579729244\", \"modifiedBy\": \"72057615512764417\", \"name\": \"PB App\", \"address\": \"10.0.0.190\", \"enabled\": true, \"appServerGroupAssociations\": { \"72057615512764545\": \"PB App\" }, \"configSpace\": \"DEFAULT\" }, { \"id\": \"72057615512764472\", \"creationTime\": \"1560983093\", \"modifiedBy\": \"72057615512764447\", \"name\": \"srv1\", \"address\": \"10.0.3.7\", \"enabled\": true, \"appServerGroupAssociations\": { \"72057615512764473\": \"srvgrp1\" }, \"configSpace\": \"DEFAULT\" }, { \"id\": \"72057615512764604\", \"creationTime\": \"1612389365\", \"modifiedBy\": \"72057615512764603\", \"name\": \"TestApplicationServer\", \"address\": \"10.0.0.190\", \"enabled\": true, \"description\": \"string\", \"appServerGroupAssociations\": { \"72057615512764545\": \"PB App\", \"72057615512764418\": \"Server Group\", \"72057615512764473\": \"srvgrp1\" }, \"configSpace\": \"DEFAULT\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/server?page=1&pagesize=20 .",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/144118148382065089/server?page=1&pagesize=2."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"7\", \"list\": [ { \"id\": \"144118148382065089\", \"creationTime\": \"1549613557\", \"modifiedBy\": \"144118148382064667\", \"name\": \"akk\", \"address\": \"10.65.1.220\", \"enabled\": true, \"appServerGroupIds\": [ \"144118148382065088\" ], \"configSpace\": \"DEFAULT\" }, { \"id\": \"144118148382065094\", \"modifiedTime\": \"1591164519\", \"creationTime\": \"1549616584\", \"modifiedBy\": \"144118148382064642\", \"name\": \"app2.lanukcorp.com\", \"address\": \"10.0.1.145\", \"enabled\": true, \"appServerGroupIds\": [ \"144118148382065093\" ], \"configSpace\": \"DEFAULT\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to search by features and fields. To search by features and fields:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/73186051597795328/server&search={searchString}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format fieldName operator fieldValue. Only search string values that correspond to the values for valid fields and filters are supported. For example, the string address%20LIKE%20test is supported for the Domain or IP Address filter, using the Contains (LIKE) operator, for the filter value test.",
+      "depth": 0,
+      "strong": [
+        [
+          269,
+          289
+        ],
+        [
+          308,
+          316
+        ]
+      ]
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/73186051597795328/server&search=address%20LIKE%20test."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"1\", \"list\": [ { \"id\": \"72057594037996318\", \"creationTime\": \"1615454081\", \"modifiedBy\": \"72057594037957297\", \"name\": \"Test Error1\", \"address\": \"newtest.com\", \"enabled\": true, \"description\": \"&\", \"appServerGroupIds\": [ \"72057594037988996\" ], \"configSpace\": \"DEFAULT\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If you use the ZPA API PortaI or the Reference Guide to make your API calls, the search field string does not require any characters. For example, address%20LIKE%20test is address LIKE test."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating Server Details",
+      "level": 1
+    },
+    {
+      "text": "To update the server:"
+    },
+    {
+      "item": "Use the updated JSON payload from the Creating a New Server section and send a PUT request to the following endpoint in the server-controller: /mgmtconfig/v1/admin/customers/{customerId}/server/{serverId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "serverId: The server ID captured in the Creating a New Server section.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/server/72057615512764544."
+    },
+    {
+      "text": "Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"address\": \"string\", \"appServerGroupIds\": [ \"string\" ], \"configSpace\": \"DEFAULT\", \"creationTime\": 0, \"description\": \"string\", \"enabled\": true, \"id\": 0, \"modifiedBy\": 0, \"modifiedTime\": 0, \"name\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response yields code 204, meaning the server is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Server",
+      "level": 1
+    },
+    {
+      "text": "To delete a server:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint in the server-controller: /mgmtconfig/v1/admin/customers/{customerId}/server/{serverId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "serverId: The server ID captured in the Creating a New Server section.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/server/72057615512764544."
+    },
+    {
+      "text": "An object that is referenced in another object cannot be deleted. Error code 400 is returned in this situation. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "item": "View error code 400",
+      "depth": 0
+    },
+    {
+      "item": "{ \"params\": [ \"Application\", \"app 3 created on postman feb 5_edited\" ], \"id\": \"resource.referenced\", \"reason\": \"Resource is being referenced in Application : app 3 created on postman feb 5_edited.\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response yields code 204, meaning the server is deleted."
+    }
+  ]
+}

@@ -1,0 +1,616 @@
+{
+  "schema_version": 1,
+  "id": "uvm.outegrations.ticketing",
+  "title": "UVM ticketing outegrations (Jira, ServiceNow, Freshservice, Azure DevOps), the ServiceNow CMDB outegration, their webhooks and mapping",
+  "aliases": [
+    "ticketing outegration",
+    "Jira outegration",
+    "ServiceNow outegration",
+    "Freshservice outegration",
+    "Azure DevOps outegration"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "uvm.outegrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.data-sources"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{jira-steps}} {{sn-steps}} {{fs-three-mappings}} The shared setup procedure is in [[uvm.outegrations]]; the product is in [[uvm.overview]]; sources are in [[uvm.data-sources]]."
+    },
+    {
+      "label": "One configuration per type.",
+      "text": "{{type-separate}} {{type-separate-sn}} {{type-separate-ado}}"
+    },
+    {
+      "label": "Jira.",
+      "text": "{{jira-dc-gateway}} {{jira-webhook}} The Jira Cloud and Data Center authentication parameters are open {{gap:collapsed-step-bodies}}."
+    },
+    {
+      "label": "ServiceNow.",
+      "text": "{{sn-webhook-prereq}} {{sn-webhook-rule}} {{sn-webhook-script}} The webhook hosts are open {{gap:avalor-hosts}}."
+    },
+    {
+      "label": "ServiceNow CMDB.",
+      "text": "{{cmdb}}"
+    },
+    {
+      "label": "Azure DevOps.",
+      "text": "{{ado-auth}} {{ado-params}} {{ado-entity}} {{ado-work-item}} {{ado-defaults}} {{ado-summary-required}} {{ado-three-mappings}} {{ado-webhook-scope}} {{ado-webhook}} {{preview}}"
+    },
+    {
+      "label": "Freshservice.",
+      "text": "{{fs-params}} {{fs-entity}} {{button-locations}} {{fs-webhook-scope}} {{fs-webhook-setup}}"
+    },
+    {
+      "label": "Mapping.",
+      "text": "{{mapping-methods}} {{mapping-methods-kafka}} {{fs-dictionary}} {{mandatory}} {{attachments}} {{comments-sync}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a separate outegration configuration exists for each issue, table or ticket type being dispatched.",
+      "uses": [
+        "type-separate",
+        "type-separate-sn",
+        "type-separate-ado"
+      ]
+    },
+    {
+      "do": "Whether a vendor webhook is configured when updates from the vendor to the ticket are expected.",
+      "uses": [
+        "fs-webhook-scope",
+        "ado-webhook-scope",
+        "ado-three-mappings",
+        "fs-three-mappings",
+        "jira-webhook",
+        "sn-webhook-prereq",
+        "sn-webhook-rule",
+        "sn-webhook-script"
+      ]
+    }
+  ],
+  "claims": {
+    "type-separate": {
+      "statement": "The Jira outegration requires a separate configuration for each Jira issue type (e.g., Bug, Task, Feature).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-jira-outegration.json",
+          "quotes": [
+            "Each Jira issue type (e.g., Bug, Task, Feature) requires a separate outegration configuration."
+          ]
+        }
+      ]
+    },
+    "type-separate-sn": {
+      "statement": "The ServiceNow outegration requires a separate configuration for each ServiceNow Table Type (e.g., Remediation Task, Incident).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-outegration.json",
+          "quotes": [
+            "Each ServiceNow Table Type (e.g., Remediation Task, Incident) requires a separate outegration configuration."
+          ]
+        }
+      ]
+    },
+    "type-separate-ado": {
+      "statement": "The Azure DevOps outegration requires a separate configuration for each Azure DevOps ticket type (e.g., Bug, Task, Feature).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-devops-outegration.json",
+          "quotes": [
+            "Each Azure DevOps ticket type (e.g., Bug, Task, Feature) requires a separate outegration configuration."
+          ]
+        }
+      ]
+    },
+    "jira-dc-gateway": {
+      "statement": "Jira Data Center users must first set up a gateway before the standard Jira outegration setup; Jira Cloud and Data Center setups are otherwise mostly similar.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-jira-outegration.json",
+          "quotes": [
+            "While the setup process for both Jira outegrations is mostly similar, Jira Data Center users must first set up a gateway and then proceed to follow the standard Jira outegration setup process."
+          ]
+        }
+      ]
+    },
+    "jira-steps": {
+      "statement": "The Jira outegration setup has four steps: Connect, Settings, Mapping and the Jira Webhook, and the process includes configuring a Jira webhook to enable bidirectional synchronization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-jira-outegration.json",
+          "quotes": [
+            "- Step 1: Authenticate the Jira Connection (Connect)",
+            "- Step 2: Configure the Outegration Visibility and Behavior (Settings)",
+            "- Step 3: Map the Outegration Fields (Mapping)",
+            "- Step 4: Configure the Jira Webhook",
+            "configuring a Jira webhook to enable bidirectional synchronization."
+          ]
+        }
+      ]
+    },
+    "jira-webhook": {
+      "statement": "The Jira webhook applies to Jira Cloud and Jira Data Center, needs the Administer Jira global permission, and uses the URL https://webhook.avalor.io/integration/<Account ID>/jira, a project = <Your Project Key> filter, and the Issue updated and deleted events.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-jira-outegration-webhook.json",
+          "quotes": [
+            "applies to both Jira Cloud and Jira Data Center.",
+            "Log in to your Jira console as a user with the Administer Jira global permission.",
+            "https://webhook.avalor.io/integration/<Account ID>/jira",
+            "The filter format is project = <Your Project Key>.",
+            "Select the updated and deleted checkboxes."
+          ]
+        }
+      ]
+    },
+    "sn-steps": {
+      "statement": "The ServiceNow outegration has four steps, with Step 4 (Configure the ServiceNow Webhook) optional, and authenticates by OAuth 2.0, User Name Password Client ID Client Secret, Basic Authentication or Jwt OAuth2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-outegration.json",
+          "quotes": [
+            "- (Optional) Step 4: Configure the ServiceNow Webhook",
+            "- OAuth 2.0",
+            "- User Name Password Client ID Client Secret",
+            "- Jwt OAuth2",
+            "- Basic Authentication (Username and Password)",
+            "- Step 1: Authenticate the ServiceNow Connection (Connect)",
+            "- Step 3: Map the Outegration Fields (Mapping)",
+            "- Step 2: Configure the Outegration Visibility and Behavior (Settings)"
+          ]
+        }
+      ]
+    },
+    "sn-webhook-prereq": {
+      "statement": "The ServiceNow webhook needs Zscaler API token credentials (Client ID and Client Secret) and the account ID, obtained by submitting a support ticket in the SecOps platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-outegration-webhook.json",
+          "quotes": [
+            "you need Zscaler API token credentials (i.e., Client ID and Client Secret) and your account ID. To obtain these, submit a support ticket in the SecOps platform requesting the necessary credentials."
+          ]
+        }
+      ]
+    },
+    "sn-webhook-rule": {
+      "statement": "The ServiceNow webhook is an after business rule on Update and Delete, on Incident [incident] for the Incidents table, Requested Item [sc_req_item] for Requests, Policy Exception [sn_compliance_policy_exception] for Exceptions, or the relevant table name for any other table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-outegration-webhook.json",
+          "quotes": [
+            "For the Incidents table, select Incident [incident].",
+            "For the Requests table, select Requested Item [sc_req_item].",
+            "For the Exceptions table, select Policy Exception [sn_compliance_policy_exception].",
+            "For any other table, select the relevant table name based on your use case.",
+            "From the When drop-down menu, select after.",
+            "Select the Update and Delete checkboxes."
+          ]
+        }
+      ]
+    },
+    "sn-webhook-script": {
+      "statement": "The ServiceNow webhook script requests a token from https://auth.us01.app.avalor.io/oauth2/token and sends payload.changedFields to https://webhook.avalor.io/integration/inbound/<Account ID>/servicenow with a Bearer token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-outegration-webhook.json",
+          "quotes": [
+            "var url='https://auth.us01.app.avalor.io/oauth2/token';",
+            "var url = 'https://webhook.avalor.io/integration/inbound/<Account ID>/servicenow';",
+            "restMessage.setRequestHeader('Authorization', 'Bearer ' + jwt);",
+            "payload.changedFields = changedFields;"
+          ]
+        }
+      ]
+    },
+    "ado-auth": {
+      "statement": "Azure DevOps outegration authentication uses a multitenant Entra ID app registration with redirect URI https://app.avalor.io/oauth and the permissions Azure DevOps vso.project_manage and vso.work_write plus Microsoft Graph offline_access and User.Read.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-devops-outegration.json",
+          "quotes": [
+            "Select Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant).",
+            "enter https://app.avalor.io/oauth as the application's redirect URI.",
+            "Azure DevOps: vso.project_manage",
+            "Azure DevOps: vso.work_write",
+            "Microsoft Graph: offline_access",
+            "Microsoft Graph: User.Read"
+          ]
+        }
+      ]
+    },
+    "ado-params": {
+      "statement": "The Azure DevOps outegration needs Client ID, Client Secret, Tenant ID, organization name and project name; Refresh Token and Access Token are optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-devops-outegration.json",
+          "quotes": [
+            "ensure that you complete the authentication and retrieve the Client ID, Client Secret, Tenant ID, organization name, and project name.",
+            "(Optional) Refresh Token and Access Token: Enter the values if required."
+          ]
+        }
+      ]
+    },
+    "ado-work-item": {
+      "statement": "For Azure DevOps, Work Item Type selects the work item whose schema is retrieved from the Azure DevOps project and made available for mapping, and the mapping schema lists Required, Input Type and Available Options for fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-devops-outegration.json",
+          "quotes": [
+            "Work Item Type: Select the work item. The schema associated with the selected work item is retrieved from your Azure DevOps project and made available for mapping in the Mapping step.",
+            "- Required",
+            "- Input Type",
+            "- Available Options"
+          ]
+        }
+      ]
+    },
+    "ado-defaults": {
+      "statement": "The initial Azure DevOps outegration mapping includes preconfigured default mappings for each part, which can be modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-devops-outegration.json",
+          "quotes": [
+            "The initial Azure DevOps outegration mapping includes preconfigured default mappings for each part, based on common use cases and industry best practices. These defaults can be modified and customized as needed."
+          ]
+        }
+      ]
+    },
+    "ado-summary-required": {
+      "statement": "In the Azure DevOps mapping the Summary field is required and must be mapped before the outegration can be saved, and it expects a TEXT input type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-devops-outegration.json",
+          "quotes": [
+            "The schema specifies that the field is required and thus must be mapped before the outegration can be saved, and that the field expects a TEXT input type."
+          ]
+        }
+      ]
+    },
+    "ado-webhook": {
+      "statement": "The Azure DevOps webhook is a Service Hooks Web Hooks subscription with URL https://webhook.avalor.io/integration/{avalor-account-id}/azure_DevOps, tested before finishing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-devops-outegration-webhook.json",
+          "quotes": [
+            "For URL, enter https://webhook.avalor.io/integration/{avalor-account-id}/azure_DevOps.",
+            "Click Finish if the test is successful.",
+            "In the left-side navigation, go to General > Service Hooks.",
+            "On the Service page, select Web Hooks.",
+            "Click Test."
+          ]
+        }
+      ]
+    },
+    "ado-webhook-scope": {
+      "statement": "An Azure DevOps webhook is only needed to sync updates from Azure DevOps to the ticket; it is not required for the initial ticket dispatch or for syncing updates from the ticket to Azure DevOps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-devops-outegration.json",
+          "quotes": [
+            "An Azure DevOps webhook is only needed to sync updates from Azure DevOps to the ticket. It is not required for the initial ticket dispatch or for syncing updates from the ticket to Azure DevOps."
+          ]
+        }
+      ]
+    },
+    "fs-params": {
+      "statement": "The Freshservice outegration authenticates with an API key (shown under the Delegate Approvals section) and the tenant domain (e.g., acme.Freshservice.com).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "To authenticate the Freshservice outegration, you need to provide a Freshservice API key.",
+            "Copy the API key that appears under the Delegate Approvals section.",
+            "Domain: Enter the domain of your Freshservice tenant.",
+            "Make sure you have the domain of your Freshservice tenant (e.g., acme.Freshservice.com)."
+          ]
+        }
+      ]
+    },
+    "fs-entity": {
+      "statement": "In the Freshservice outegration the item is created from Ticket in UVM and Violation Ticket in AEM, and the Create Freshservice Ticket button shows Always, Never or For specific tickets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "UVM: Select Ticket.",
+            "AEM: Select Violation Ticket.",
+            "Always: Select to display the button in all tickets, allowing users to dispatch tickets to a Freshservice ticket without exception.",
+            "Never: Select to hide the button in all tickets. This is useful during the outegration setup process to hide the button from users while still keeping the outegration active.",
+            "For specific tickets: Define custom conditions to control when the button is displayed"
+          ]
+        }
+      ]
+    },
+    "ado-entity": {
+      "statement": "In the Azure DevOps outegration the item is created from Ticket in UVM, and Policy Violation or Violation Ticket in AEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-devops-outegration.json",
+          "quotes": [
+            "AEM: Select Policy Violation or Violation Ticket.",
+            "UVM: Select Ticket."
+          ]
+        }
+      ]
+    },
+    "button-locations": {
+      "statement": "The Create Freshservice Ticket button appears in the individual entity drawer and on the entity page of the application (e.g., the Tickets page in UVM, the Violation Tickets page in AEM).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "In the individual entity drawer (e.g., in the UVM ticket drawer, in the AEM violation ticket drawer).",
+            "On the entity page in the relevant application (e.g., on the Tickets page in UVM, on the Violation Tickets page in AEM)."
+          ]
+        }
+      ]
+    },
+    "fs-three-mappings": {
+      "statement": "Freshservice outegration mapping has three components: the initial dispatch of tickets, an optional sync from ticket to Freshservice, and an optional sync from Freshservice to ticket that also requires a Freshservice webhook.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "There are three mapping components:",
+            "(Optional) Sync from ticket to Freshservice: Map SecOps ticket fields (left) to Freshservice fields (right) for syncing ticket updates to Freshservice",
+            "(Optional) Sync from Freshservice to ticket: Map Freshservice fields (left) to SecOps ticket fields (right) for syncing Freshservice updates to SecOps tickets. This step also requires setting up a Freshservice webhook.",
+            "Tickets initially dispatched to Freshservice: Map SecOps ticket fields (left) to Freshservice fields (right) for the initial dispatch of a ticket to a Freshservice ticket."
+          ]
+        }
+      ]
+    },
+    "ado-three-mappings": {
+      "statement": "Azure DevOps outegration mapping has three mapping components, and the Azure DevOps to ticket sync requires an Azure DevOps webhook.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-devops-outegration.json",
+          "quotes": [
+            "There are three mapping components:",
+            "(Optional) Sync from Azure DevOps to ticket: Map Azure DevOps fields (left) to SecOps ticket fields (right) for syncing Azure DevOps updates to tickets. This step also requires setting up an Azure DevOps webhook."
+          ]
+        }
+      ]
+    },
+    "mapping-methods": {
+      "statement": "A mapping value in the Freshservice outegration is configured by Field (Dictionary), Smart Text (free text and fields in double curly brackets, e.g., {{Ticket Assignee}}) or Script (Python scripts).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "In the editor dialog, select one of the following methods to configure the value of the field:",
+            "Field (Dictionary)",
+            "To add a Smart Text field, enclose it in double curly brackets (e.g., {{Ticket Assignee}}).",
+            "you can use Python scripts to configure the source field value to be mapped to the target field.",
+            "Configure the field value using free text, or create a template using a combination of free text and selected fields."
+          ]
+        }
+      ]
+    },
+    "mapping-methods-kafka": {
+      "statement": "The Kafka outegration mapping value is configured by Field (Dictionary) or Expression, and the Expression Editor handles use cases requiring more advanced configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-apache-kafka-outegration.json",
+          "quotes": [
+            "- Field (Dictionary)",
+            "- Expression",
+            "For use cases that require more advanced configuration, you can use the Expression Editor to configure the field value to be mapped to the target field."
+          ]
+        }
+      ]
+    },
+    "fs-dictionary": {
+      "statement": "The field dictionary creates mappings between specific values of the field on the right and values of the field on the left (e.g., Freshservice priority Urgent, High, Medium, Low to Ticket Severity values).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "For example, if your Freshservice priority field includes the following fixed values—Urgent, High, Medium, Low—you can use the dictionary to map the corresponding Ticket Severity values to each of the Freshservice priority field values.",
+            "The field dictionary allows you to create mappings between specific values from the field on the right and values of the field on the left."
+          ]
+        }
+      ]
+    },
+    "mandatory": {
+      "statement": "On the Freshservice outegration page, a SecOps ticket field can be set as mandatory with the Set as Mandatory checkbox in the Column Menu, and dispatching a ticket without a value in a mandatory field triggers an error message.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "You can set a SecOps ticket field as mandatory, by selecting the Set as Mandatory checkbox in the Column Menu to the right of the mapping.",
+            "Attempts to dispatch a ticket without a value in a mandatory field will trigger an error message."
+          ]
+        }
+      ]
+    },
+    "attachments": {
+      "statement": "Freshservice ticket dispatch attachments can be configured in the initial dispatch and the ticket-to-Freshservice sync, in the formats CSV, PDF, JSONL or Excel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "You can configure file attachments in two of the mapping steps:",
+            "select from the available formats (CSV, PDF, JSONL, Excel).",
+            "Initial ticket dispatch",
+            "Sync from Ticket to Freshservice"
+          ]
+        }
+      ]
+    },
+    "comments-sync": {
+      "statement": "Freshservice comment synchronization in the ticket-to-Freshservice sync has Sync Comments (pushes the ticket's comments to the Freshservice ticket) and Sync Trigger Comments (a comment posted when a monitored field changes From a value To a value).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "Enable Sync Comments to automatically push comments from the ticket's Comments tab to the corresponding Freshservice ticket.",
+            "Enable Sync Trigger Comments and set conditions to trigger a comment when specific fields are modified.",
+            "Linked UVM ticket updated: Ticket severity changed from: MEDIUM to: CRITICAL <URL to ticket>"
+          ]
+        }
+      ]
+    },
+    "fs-webhook-scope": {
+      "statement": "A Freshservice webhook is only needed to sync updates from Freshservice to the ticket, not for the initial dispatch or ticket-to-Freshservice sync.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "A Freshservice webhook is only needed to sync updates from Freshservice to the ticket. It is not required for the initial ticket dispatch or for syncing updates from the ticket to Freshservice."
+          ]
+        }
+      ]
+    },
+    "fs-webhook-setup": {
+      "statement": "The Freshservice webhook is a Workflow Automator ticket automator with events Ticket is updated and deleted and a Trigger Webhook POST action to https://webhook.avalor.io/integration/<Account ID>/Freshservice, empty credentials, JSON and Simple encoding, and content fields including Ticket ID (numeric), Urgency, Subject, Description, Priority, Impact and Status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration-webhook.json",
+          "quotes": [
+            "Select Ticket is, and then select updated.",
+            "Select Ticket is, and then select deleted.",
+            "Request Type: Select POST.",
+            "https://webhook.avalor.io/integration/<Account ID>/Freshservice",
+            "Credentials: Leave the drop-down menu empty.",
+            "Encoding: Make sure JSON and Simple are selected.",
+            "- Urgency",
+            "- Ticket ID (numeric)",
+            "Enter or select Trigger Webhook in the field.",
+            "From the New Automator drop-down menu, select Ticket.",
+            "- Subject",
+            "- Description",
+            "- Priority",
+            "- Impact",
+            "- Status"
+          ]
+        }
+      ]
+    },
+    "cmdb": {
+      "statement": "The ServiceNow CMDB outegration updates CMDB records, such as adding missing assets, requires the ServiceNow Assets connector to be configured first, and has Connect, Settings and Mapping steps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-cmdb-outegration.json",
+          "quotes": [
+            "The ServiceNow CMDB outegration enables updates to CMDB records, such as adding missing assets",
+            "Before configuring the outegration, make sure you have met the following prerequisites:",
+            "Configure the ServiceNow Assets Connector.",
+            "- Step 3: Map the Outegration Fields (Mapping)",
+            "- Step 1: Authenticate the ServiceNow CMDB Connection (Connect)",
+            "- Step 2: Configure the Outegration Visibility and Behavior (Settings)"
+          ]
+        }
+      ]
+    },
+    "preview": {
+      "statement": "The Azure DevOps Mapping Preview window shows a sample of the tickets in the account, organized by ticket ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-devops-outegration.json",
+          "quotes": [
+            "On the left of the Mapping Preview window, there is a sample of the tickets in your account, organized by ticket ID."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "collapsed-step-bodies": {
+      "kind": "semantic",
+      "title": "Jira Cloud, Jira Data Center and ServiceNow outegration authentication parameters and step bodies",
+      "status": "open",
+      "detail": "In the captures, the Jira Cloud, Jira Data Center and ServiceNow OAuth 2.0 and other method headings have no body text, and the Jira, ServiceNow, ServiceNow CMDB pages' Connect, Settings and Mapping step bodies are headings only; the gateway configuration page is referenced but not captured.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "avalor-hosts": {
+      "kind": "semantic",
+      "title": "Whether the webhook, auth and OAuth redirect hosts differ per region or tenant",
+      "status": "open",
+      "detail": "The webhook scripts and URLs use webhook.avalor.io, auth.us01.app.avalor.io and app.avalor.io/oauth; the pages do not say whether these hosts differ per region or tenant, and the ServiceNow script hard-codes us01.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    }
+  }
+}

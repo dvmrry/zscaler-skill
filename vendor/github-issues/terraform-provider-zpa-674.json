@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "Support devicePostureFailureNotificationEnabled on access policy rules",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zpa/issues/674",
+    "repo": "zscaler/terraform-provider-zpa",
+    "number": 674,
+    "state": "closed",
+    "created_at": "2026-07-23",
+    "updated_at": "2026-07-24",
+    "labels": [
+      "type/enhancement",
+      "⚙️ In development"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-07-24",
+    "updated": "2026-07-24",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "Support devicePostureFailureNotificationEnabled on access policy rules",
+      "level": 1
+    },
+    {
+      "text": "Description The ZPA API supports a devicePostureFailureNotificationEnabled attribute on access policy rules, but the Terraform provider doesn't currently recognize/expose this field."
+    },
+    {
+      "text": "Because Terraform performs a full-object PUT when updating a rule, any rule with this attribute configured via the ZPA Admin Portal GUI gets silently reverted to its API default (disabled) the next time Terraform applies any update to that rule — since the provider's request payload omits the field entirely rather than preserving its current value. This happens with no error or warning, so it's easy to lose the setting without realizing it."
+    },
+    {
+      "text": "Impact: Any rule using this feature currently can't be safely managed by Terraform at all — a routine terraform apply for an unrelated change to the same rule will silently wipe this setting."
+    },
+    {
+      "text": "Ask: Add devicePostureFailureNotificationEnabled as a supported, settable attribute on the relevant access policy rule resource so its value is preserved across updates rather than dropped."
+    },
+    {
+      "text": "New or Affected Resource(s) zpa_policy_access_rule (possibly also zpa_policy_access_rule_v2, depending on provider version — please confirm which resource(s) this applies to) Potential Terraform Configuration"
+    },
+    {
+      "text": "resource \"zpa_policy_access_rule\" \"example\" { name   = \"example-rule\" action = \"ALLOW\""
+    },
+    {
+      "text": "# Not currently supported by the provider — silently dropped on update, # reverting the setting to disabled even though it's enabled via the GUI. device_posture_failure_notification_enabled = true"
+    },
+    {
+      "text": "# ...other existing rule config... } References None available (internal Zscaler support case in progress; Zscaler support has also opened an internal request with their own Terraform Development team for this)"
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-07-24)",
+      "level": 2
+    },
+    {
+      "text": "Upgrade to v4.4.9"
+    },
+    {
+      "text": "NOTE: Not every feature that is shown in the UI will be automatically put into the provider right away. This specific feature isn't available to all customers is only enable on tenants upon explicitly request."
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}

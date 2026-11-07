@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.nss-runbook.corner-cases",
+  "title": "NSS runbook corner cases: private and multi-cluster Nanolog, SIEM rate, explicit proxy, log replay, password reset and third-party software",
+  "aliases": [
+    "Corner Cases",
+    "private Nanolog (smsm) cluster",
+    "multi-cluster Nanolog",
+    "SIEM rate limit"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.logs.nss-runbook" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.log-loss" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.log-integrity" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.diagnostics" },
+    { "rel": "see-also", "to": "shared.nss.feed-settings" },
+    { "rel": "see-also", "to": "shared.nss.vm-advanced-settings" },
+    { "rel": "see-also", "to": "shared.nss.reliability" }
+  ],
+  "prose": [
+    {
+      "label": "Private Nanolog.",
+      "text": "{{private-nanolog-definition}} {{private-nanolog-requirements}} {{private-nanolog-ip-in-output}}"
+    },
+    {
+      "label": "Multi-cluster Nanolog.",
+      "text": "{{multi-cluster-spraying}} {{multi-cluster-troubleshooting}} {{cluster-sizing-per-billion}} {{multi-cluster-example}} {{divergence:cur-count-vs-ui-total}}"
+    },
+    {
+      "label": "SIEM rate and EPS.",
+      "text": "{{siem-rate-default}} {{siem-eps-no-rate-example}} How that example arrives at 25K EPS {{gap:eps-arithmetic}} is open. {{siem-rate-too-low}}"
+    },
+    {
+      "label": "Explicit proxy.",
+      "text": "{{explicit-proxy-mode}} {{explicit-proxy-operations}} {{explicit-proxy-remove-and-view}}"
+    },
+    {
+      "label": "Log replay and bulk downloads.",
+      "text": "{{log-replay-requirements}} Whether Duplicate Logs applies to Cloud NSS {{gap:duplicate-logs-cloud-scope}} is open. {{bulk-log-download-practices}} {{forensic-log-fetch}}"
+    },
+    {
+      "label": "Password reset.",
+      "text": "{{password-reset-options}} {{password-reset-single-user}} {{password-reset-accounts}}"
+    },
+    {
+      "label": "Third-party software.",
+      "text": "{{third-party-software}}"
+    }
+  ],
+  "claims": {
+    "private-nanolog-definition": {
+      "statement": "A private (smsm) Nanolog cluster stores logs on-premises instead of Zscaler public clusters; Zscaler recommends dedicated Nanolog clusters, hosted and managed by Zscaler, as an alternative.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "This is applicable if your organization is using a private cluster, also called a private Nanolog (smsm) cluster, to store your logs instead of Zscaler public Nanolog clusters.",
+            "Zscaler recommends using dedicated Nanolog clusters as an alternative to the private Nanolog clusters. Dedicated Nanolog clusters are hosted and managed by Zscaler for you, reducing operational overhead.",
+            "NSS streams the logs from your on-premises hosted Nanolog server to your security information and event management (SIEM) system."
+          ]
+        }
+      ]
+    },
+    "private-nanolog-requirements": {
+      "statement": "With a private Nanolog the cluster hostname must be resolvable and reachable from the NSS server with firewall rules allowing it; hardware replacement requests go to Zscaler Support with the cluster hostname.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The private cluster hostname must be resolvable and reachable from the NSS server. Make sure the necessary Firewall rules are in place to allow the connection.",
+            "For private cluster hardware replacement requests, contact Zscaler Support and provide the details of the hostname of the cluster."
+          ]
+        }
+      ]
+    },
+    "private-nanolog-ip-in-output": {
+      "statement": "Troubleshooting commands such as netstat or nss troubleshoot connection generally show an established connection to the Zscaler smsm IP on port 443; with a private Nanolog this IP is customer-managed, and smsm_cur_smsm_svr_ip holds the historical smsm server IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "In the case of a private Nanolog, this IP is not a Zscaler-known IP, but a customer-managed one.",
+            "NSS static counter smsm_cur_smsm_svr_ip shows the historical IP address of the smsm server IP.",
+            "If you are running a command to check the counter based on the device value using -j with smsm IP, make sure you are using the correct private smsm IP.",
+            "Troubleshooting commands to check the network connections like netstat or nss troubleshoot connection generally show an established connection to the Zscaler smsm IP on port 443."
+          ]
+        }
+      ]
+    },
+    "multi-cluster-spraying": {
+      "statement": "For multi-cluster private or dedicated Nanolog clusters Zscaler recommends log spraying, load balanced on the modulus of Zscaler user IDs so a given user's logs sit on one cluster.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For customers using multi-cluster private or dedicated Nanolog clusters, Zscaler recommends using log spraying (i.e., logs are stored across multiple clusters).",
+            "Logs are sprayed (load balanced) on the basis of modulus of Zscaler user IDs. So for one particular user, logs are stored on one cluster only."
+          ]
+        }
+      ]
+    },
+    "multi-cluster-troubleshooting": {
+      "statement": "In a multi-cluster setup the commands run on all primary NSS servers, the SIEM total is the sum across NSS servers, and ideally one Nanolog cluster maps to one NSS server, set by Zscaler Operations at deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "you must run these commands on all the primary NSS servers to narrow down the issue.",
+            "the actual total transactions received on the SIEM is the sum of the transactions received on individual NSS servers.",
+            "Ideally, one Nanolog cluster is mapped to one NSS server. This is configured by the Zscaler Operations team during deployment.",
+            "Log Sprayed Across Multi-Cluster Nanolog"
+          ]
+        }
+      ]
+    },
+    "cluster-sizing-per-billion": {
+      "statement": "Zscaler recommends one Nanolog cluster for every 1 billion transactions per day, for example three clusters for three billion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler recommends deploying one Nanolog cluster for every 1 billion transactions per day. For example, if you are generating three billion transactions per day, it is recommended to deploy three Nanolog clusters."
+          ]
+        }
+      ]
+    },
+    "multi-cluster-example": {
+      "statement": "In the vendor example of 4 dedicated clusters on 29 May 2025, the UI showed 3.2B transactions and the totalcount-val values from the four NSS servers, read with the smsmclt_cur_transactions_count counter, summed to 3,219,277,807; the example notes NSS server time was IST while output was GMT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "In this example, on 29th of May, total transactions seen was 3.2B.",
+            "NSS server time here is in IST, but the output is in GMT",
+            "Add the value seen in the totalcount-val column for the 4 NSS outputs (which is 3,219,277,807 in this example), which is approximately 3.2 billion",
+            "In this example, you have 4 dedicated Nanolog clusters",
+            "(e.g., 29th May 2025)",
+            "/sc/bin/smstat -s stime=29May2025:00:00 -s etime=29May2025:23:59 -s interval=86400 -k smsmclt_cur_transactions_count -d diff",
+            "Check the UI for the total number of transactions for the required time period."
+          ]
+        }
+      ]
+    },
+    "siem-rate-default": {
+      "statement": "A SIEM rate limit throttles logs from NSS to the SIEM; it is unlimited by default, should be chosen against SIEM licensing limits, and a suboptimal limit can cause consistent or intermittent log loss.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "While configuring NSS feeds, you can configure an unlimited SIEM rate limit by default.",
+            "This value must be carefully chosen depending on licensing constraints on the SIEM side.",
+            "A suboptimal rate limit can lead to consistent or intermittent log loss issues.",
+            "This is configured when you throttle or rate limit the logs streamed from NSS to SIEM."
+          ]
+        }
+      ]
+    },
+    "siem-eps-no-rate-example": {
+      "statement": "In the vendor example without a SIEM rate, a SIEM with a 10K EPS licensing limit and a required average of 25K EPS cannot consume the stream, causing intermittent log loss, with high Send-Q in netstat and a large lag in sudo nss troubleshoot feeds as symptoms.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "with a SIEM licensing limit of 10K EPS",
+            "The required average EPS is 25K (90K / 3,600 seconds).",
+            "Send-Q shows high utilization in the output of netstat command.",
+            "The output of sudo nss troubleshoot feeds shows a huge lag in the feed and the send-queue connection is consistently high.",
+            "the SIEM is unable to consume the log, leading to intermittent log loss."
+          ]
+        }
+      ]
+    },
+    "siem-rate-too-low": {
+      "statement": "A SIEM rate limit far below the actual log volume (example: 10K limit, 25K volume) makes the NSS buffer logs and overflow; the example's fix is raising the SIEM EPS to the 25K peak-hour average and setting the same rate limit on NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If you configure a very low SIEM rate limit value as compared to the actual log volume (e.g., the configured SIEM rate limit is 10K, but your actual log volume is 25K), NSS must buffer the logs due to the rate limit.",
+            "Because the volume is huge, it leads to an NSS buffer overflow.",
+            "An optimal solution is to increase the EPS to 25K, which is the average log volume during peak hours, and configure the same as a rate limit on NSS."
+          ]
+        }
+      ]
+    },
+    "explicit-proxy-mode": {
+      "statement": "NSS can tunnel Zscaler cloud connections through an explicit proxy with sudo nss configure proxy during deployment, useful in No Default Route environments; the tunneled connections include SMCA, SMSM, SMCDSS and Kafka (kproxy.hdeu1.zdataservices.net).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "You can configure NSS to tunnel Zscaler cloud connections through an explicit proxy by running an additional command (sudo nss configure proxy) during deployment.",
+            "This configuration is helpful when you have a No Default Route environment.",
+            "The tunneled connections include SMCA, SMSM, SMCDSS, Kafka (kproxy.hdeu1.zdataservices.net)."
+          ]
+        }
+      ]
+    },
+    "explicit-proxy-operations": {
+      "statement": "Reachability of a host through the explicit proxy is tested with smmgr using proxy_host, proxyport and host kproxy.hdeu1.zdataservices.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "/sc/bin/smmgr -s proxy_host=<proxy_IP/Hostname> -s proxyport=<proxy_port> -s host=kproxy.hdeu1.zdataservices.net -s port=443 -ys connect=tcp"
+          ],
+          "after": "Run the following command to check reachability to any host through the proxy:"
+        }
+      ]
+    },
+    "explicit-proxy-remove-and-view": {
+      "statement": "nss configure proxy remove removes the explicit proxy, and in Explicit mode the cloud connections (SMCA/SMSM) are seen toward the proxy IP instead of the Zscaler IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "To remove configured explicit proxy on NSS, run the command nss configure proxy remove.",
+            "all cloud connections (SMCA/SMSM) towards the proxy IP instead of the actual Zscaler IP."
+          ]
+        }
+      ]
+    },
+    "log-replay-requirements": {
+      "statement": "For a log replay request the runbook wants a genuine, strongly justified ask, Duplicate Logs configured in the NSS feed so logs are buffered and replayed on SIEM connectivity issues, and the remote support tunnel enabled for VM-based NSS but not Cloud NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Make sure the ask is genuine and has strong justification.",
+            "Make sure Duplicate Logs is configured in the NSS feed so the logs are buffered on NSS for the specified minutes and replayed automatically whenever there are SIEM connectivity issues.",
+            "Enabling remote support tunnel is a prerequisite to replay logs through VM-based NSS. However, it is unnecessary for log replay through Cloud NSS."
+          ]
+        }
+      ]
+    },
+    "bulk-log-download-practices": {
+      "statement": "For timeouts downloading bulk logs from the UI the runbook suggests a Host Contains filter instead of a URL match, keeping the client awake, extra filters on the URL search, pre-aggregated counter searches, and DNS insights where DNS goes to Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "While running a query for specific URL/destination, use a Host with Contains filter instead of a URL match (which is a resource-intensive query and takes too long to run).",
+            "Ensure the client does not go to sleep while downloading.",
+            "Add more filters to the URL search.",
+            "Use pre-aggregated counter searches.",
+            "Use DNS insights searches whenever possible (log volume is order of magnitude less) if you are sending DNS to Zscaler."
+          ]
+        }
+      ]
+    },
+    "forensic-log-fetch": {
+      "statement": "Zscaler recommends fetching transaction logs from the Admin Console for troubleshooting or forensics only, and using SIEM (NSS) tools for bulk logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler recommends fetching transaction logs from the Zscaler Admin Console for troubleshooting/forensic purposes only.",
+            "Avoid fetching bulk logs and leverage SIEM (NSS) tools for bulk logs."
+          ]
+        }
+      ]
+    },
+    "password-reset-options": {
+      "statement": "To change a known NSS root password use passwd; for a lost one Zscaler Operations can reset it remotely through Zscaler Support without necessarily enabling remote access, or the admin can boot single-user mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "use the general Linux command passwd to change the root password.",
+            "contact Zscaler Support to engage the Zscaler Operations team to remotely reset the password. This does not necessarily require enabling remote access.",
+            "you can reset the root password by booting the Linux servers into single-user mode:",
+            "If your current password is not lost, but you want to reset it for any other reasons"
+          ]
+        }
+      ]
+    },
+    "password-reset-single-user": {
+      "statement": "In the single-user-mode reset, the admin interrupts boot with the space bar and presses 2, remounts the root file system read-write with the mount command, and the runbook gives fsck -y, mount -u / and mount -a as the commands that fix any issues in that step; exit; exit then boots multi-user mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "As the system boots, press the space bar to interrupt the normal boot and then press 2 to boot the system in single-user mode.",
+            "You must remount the (root) file system in read and write mode with the mount command:",
+            "#fsck -y",
+            "# mount -u /",
+            "# mount -a",
+            "exit; exit",
+            "The following commands fix any issues in the previous step:"
+          ]
+        }
+      ]
+    },
+    "password-reset-accounts": {
+      "statement": "zsroot and root are different accounts and both passwords must be reset one at a time, with Zscaler recommending the same password for both; if the procedure fails the options are redeploying NSS or contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The zsroot and root are different account names. Hence, you must reset both account passwords one at a time. Zscaler recommends that you keep the same password for both accounts.",
+            "If this procedure fails for any reasons, you can either redeploy the NSS or contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "third-party-software": {
+      "statement": "Installing third-party applications such as endpoint security or EDR on NSS is not supported or recommended; if AV/EDR must be deployed the NSS service connections must be tested as allowed, and Zscaler does not troubleshoot or remove the software.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Installing third-party applications or software on a Zscaler NSS is not supported or recommended.",
+            "If you must proceed with deployment of AV/EDR, you must test and ensure that the necessary NSS service-related connections documented here are allowed on the third-party solution.",
+            "Zscaler is not responsible for troubleshooting or removing the third-party software."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "eps-arithmetic": {
+      "kind": "semantic",
+      "title": "Why the SIEM EPS example writes 90K / 3,600 seconds as 25K",
+      "status": "open",
+      "detail": "The example states the required average EPS as 25K (90K / 3,600 seconds), but 90,000 divided by 3,600 is 25, and the page gives no reason for the unit difference. The example is recorded only as written.",
+      "resolves_with": ["source-read"]
+    },
+    "duplicate-logs-cloud-scope": {
+      "kind": "semantic",
+      "title": "Whether the Duplicate Logs requirement for log replay applies to Cloud NSS feeds",
+      "status": "open",
+      "detail": "The runbook splits only the remote support tunnel requirement between VM-based NSS and Cloud NSS and asks for Duplicate Logs without a scope. The NSS reliability article describes Duplicate Logs for the VM buffer, so whether a Cloud NSS replay needs it is not settled.",
+      "resolves_with": ["source-read", "lab-test"]
+    }
+  },
+  "divergences": {
+    "cur-count-vs-ui-total": {
+      "summary": "The runbook's multi-cluster example uses smsmclt_cur_transactions_count and finds its sum matches the UI total, while the counter notes say that counter is generally higher than the UI total because it counts all log types before filters.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Add the value seen in the totalcount-val column for the 4 NSS outputs (which is 3,219,277,807 in this example), which is approximately 3.2 billion",
+              "/sc/bin/smstat -s stime=29May2025:00:00 -s etime=29May2025:23:59 -s interval=86400 -k smsmclt_cur_transactions_count -d diff"
+            ]
+          },
+          "says": "The smsmclt_cur_transactions_count values summed across the four NSS servers are approximately the 3.2B UI total."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "The output of this counter is generally higher than the total transactions seen on the UI report as it includes all types of logs before processing or applying the NSS filters."
+            ]
+          },
+          "says": "The smsmclt_cur_transactions_count counter is generally higher than the UI total."
+        }
+      ],
+      "impact": "The page does not say why the example's cur counter matches the UI total. Do not tell an admin the cur counter should match the UI total, or that it should exceed it, without saying the page shows both."
+    }
+  }
+}

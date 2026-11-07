@@ -1,0 +1,601 @@
+{
+  "schema_version": 1,
+  "id": "deception.landmine-policies",
+  "title": "Landmine policies: what they deploy, which endpoints they select, and how the Windows endpoint deployment is set up",
+  "aliases": [
+    "landmine policy",
+    "landmine agent",
+    "landmine agentless",
+    "endpoint deception",
+    "policy selection criteria",
+    "lure passwords"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-decoys"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.ad-decoys"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.endpoint-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-agents"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-and-mitre}} {{additive}} The modules and lures a policy deploys are in [[deception.landmine-decoys]], the Active Directory decoys in [[deception.ad-decoys]] and the product hub is [[deception.overview]]. Limits per feature are not stated in these articles {{gap:ranges-limitations}}."
+    },
+    {
+      "label": "Agent and agentless.",
+      "text": "{{agent-default}} {{agentless-filter}}"
+    },
+    {
+      "label": "Selection criteria.",
+      "text": "{{criteria-list}} {{dynamic-attributes}} {{group-limits}} {{group-delay}} {{user-ccusername}} {{fallback}}"
+    },
+    {
+      "label": "Lure passwords.",
+      "text": "{{password-defaults}} {{password-placement}}"
+    },
+    {
+      "label": "Changing, evaluating and viewing.",
+      "text": "{{edit-delay}} How quickly a policy change reaches endpoints differs between pages {{divergence:policy-change-latency}}. {{evaluate}} {{policy-details}} {{details-cloud-keys}}"
+    },
+    {
+      "label": "Endpoint deception through Client Connector for Windows.",
+      "text": "{{cc-prereq-versions}} {{cc-tunnel-internal}} {{cc-egress}} {{cc-migration}} {{cc-enable-scope}} {{cc-installer-fingerprint}} {{cc-passwords}} See also [[deception.endpoint-settings]] and [[deception.landmine-agents]]. Which features each installer supports is not stated in these articles {{gap:installer-feature-support}}."
+    },
+    {
+      "label": "Restricted file paths.",
+      "text": "{{restricted-paths-scope}} {{restricted-paths-windows}} {{restricted-paths-macos}} {{restricted-paths-linux}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which selection criterion a policy uses, including whether Catch All is specified, since Fallback is not applied then.",
+      "uses": [
+        "criteria-list",
+        "fallback"
+      ]
+    },
+    {
+      "do": "Whether a Group criterion relies on AD security groups, since IdP groups are not supported, and that policies under the Group, User OU and Computer OU criteria are applied within a maximum of one day.",
+      "uses": [
+        "group-limits",
+        "group-delay"
+      ]
+    },
+    {
+      "do": "How quickly a changed policy reaches an endpoint, where one page says it can take a few hours and another says updates are applied as soon as the agent connects.",
+      "uses": [
+        "edit-delay",
+        "policy-change-latency"
+      ]
+    },
+    {
+      "do": "Whether a path-based lure or decoy targets a location the Client Connector-integrated Agent 6.1 landmine rejects.",
+      "uses": [
+        "restricted-paths-scope",
+        "restricted-paths-windows",
+        "restricted-paths-macos",
+        "restricted-paths-linux"
+      ]
+    }
+  ],
+  "claims": {
+    "what-and-mitre": {
+      "statement": "Landmine decoys are decoy files, credentials and application lures on endpoints; a landmine agent fetches the policies, verifies whether they apply to an endpoint and then deploys the decoys. The article lists techniques T1562.001, T1489, T1485, T1552.001, T1557.001 and T1005.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-landmine-decoys.json",
+          "quotes": [
+            "Landmine decoys look like valuable assets ripe for exfiltration. They can be decoy files, credentials, and application lures on endpoints.",
+            "A landmine agent fetches these policies and verifies if they apply to an endpoint, and then deploys the decoys.",
+            "T1562.001: Impair defenses – Disable or modify tools",
+            "T1489: Service stop",
+            "T1485: Data destruction",
+            "T1552.001: Unsecured credential – Credentials in files",
+            "T1557.001: Man-in-the-Middle – Link-local multicast name resolution (LLMNR) poisoning and server message block (SMB) relay",
+            "T1005: Data from local system"
+          ]
+        }
+      ]
+    },
+    "additive": {
+      "statement": "Landmine policies are additive: a default policy for all endpoints can be layered with specific policies, and the portal evaluates policies for each endpoint and deploys the applicable decoys. In the vendor's example, user john on laptop-1 matches the Default, John and Laptop policies and gets a decoy process (mcafee.exe), a file decoy (password.xlsx) and a decoy Chrome credential (webmail02).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-policies.json",
+          "quotes": [
+            "Landmine policies are additive, which means you can configure a default policy that applies to all of the endpoints, and then layer specific policies on top of it based on your business use case requirements.",
+            "| john | laptop-1 | Default, John, and Laptop | A decoy process (mcafee.exe), file decoy (password.xlsx), and decoy Chrome credential (webmail02) |",
+            "The Zscaler Deception Admin Portal evaluates policies for each endpoint and deploys the applicable decoys."
+          ]
+        }
+      ]
+    },
+    "agentless-filter": {
+      "statement": "The Policies page Agentless filter takes All (default), True or False; an X icon marks a policy for the full agent variant of the landmine and a check mark icon a policy for the agentless variant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-policies.json",
+          "quotes": [
+            "Agentless: A filter to view agentless policies. The options are All (default), True, and False.",
+            "The X icon indicates that the policy applies to a full agent variant of the landmine, and the check mark icon () indicates that the policy applies to the agentless variant of the landmine."
+          ]
+        }
+      ]
+    },
+    "agent-default": {
+      "statement": "By default a landmine policy is deployed in agent mode; an agentless policy applies only to the agentless version of Landmine and an agent policy only to the agent version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-landmine-policy.json",
+          "quotes": [
+            "By default, a policy is deployed in the agent mode.",
+            "The agentless policy applies only to the agentless version of Landmine, and the agent policy applies only to the agent version of Landmine."
+          ]
+        }
+      ]
+    },
+    "criteria-list": {
+      "statement": "The selection criteria are Catch All, Dynamic Rule, User, Group, Hostname (Specific), Hostname (RegEx), DNS Hostname (Specific), DNS Hostname (RegEx), User OU (RegEx), Computer OU (RegEx) and Fallback.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-landmine-policy.json",
+          "quotes": [
+            "Catch All: Apply the policy to all landmine agents.",
+            "Dynamic Rule: Choose an option from the Attribute drop-down menu:",
+            "User: Apply the policy to all the endpoints where at least one of the users specified in the User field is logged in.",
+            "Group: Apply the policy to all the endpoints that are under the Active Directory (AD) groups specified in the Group field.",
+            "Hostname (Specific): Apply the policy to all the endpoints where the hostname of the system exactly matches one of the hostnames specified in the Hostname field.",
+            "Hostname (RegEx): Apply the policy to all landmine agents where the hostname of the system matches the hostname pattern specified as a regular expression in the RegEx field.",
+            "DNS Hostname (Specific): Apply the policy to all endpoints whose FQDN matches with one of the FQDN values specified in the Hostname field.",
+            "DNS Hostname (RegEx): Apply the policy to all landmine agents where the FQDN of the system matches the FQDN pattern specified as a regular expression in the RegEx field.",
+            "User OU (RegEx): Apply the policy to all the users present in the organization unit (OU) that matches the OU regular expression pattern in the RegEx field.",
+            "Computer OU (RegEx): Apply the policy to all the systems present in the OU that match the OU regular expression pattern in the RegEx field.",
+            "Fallback: Apply the policy to any system that has no other policy criteria specified."
+          ]
+        }
+      ]
+    },
+    "dynamic-attributes": {
+      "statement": "Dynamic Rule attributes are Process List, Browser History, Installed Programs, Interesting Files and Recent Commands (the Run dialog box), each matched against a Contains field; if any one of the rules matches, the policy is applied at the endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-landmine-policy.json",
+          "quotes": [
+            "Process List: Apply the policy to the endpoints that contain the processes specified in the Contains field.",
+            "Browser History: Apply the policy to the endpoints whose browser history has the URL specified in the Contains field.",
+            "Installed Programs: Apply the policy to the endpoints that contain the installed programs specified in the Contains field.",
+            "Interesting Files: Apply the policy to the endpoints that contain the files specified in the Contains field.",
+            "Recent Commands: Apply the policy to the endpoints whose recent command list in the Run dialog box matches the commands specified in the Contains field",
+            "If any one of the rules matches, the policy is applied at the endpoint."
+          ]
+        }
+      ]
+    },
+    "group-limits": {
+      "statement": "For the Group criterion only AD security groups are supported; IdP groups are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-landmine-policy.json",
+          "quotes": [
+            "Only AD security groups are supported.",
+            "IdP groups are not supported."
+          ],
+          "after": "Group: Apply the policy to all the endpoints"
+        }
+      ]
+    },
+    "group-delay": {
+      "statement": "For the Group, User OU (RegEx) and Computer OU (RegEx) criteria, policies are applied to agents within a maximum of one day.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-landmine-policy.json",
+          "quotes": [
+            "Policies are applied to agents within a maximum of one day."
+          ],
+          "after": "Group: Apply the policy to all the endpoints"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-landmine-policy.json",
+          "quotes": [
+            "Policies are applied to agents within a maximum of one day."
+          ],
+          "after": "User OU (RegEx): Apply the policy to all the users present in the organization unit (OU)"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-landmine-policy.json",
+          "quotes": [
+            "Policies are applied to agents within a maximum of one day."
+          ],
+          "after": "Computer OU (RegEx): Apply the policy to all the systems present in the OU"
+        }
+      ]
+    },
+    "user-ccusername": {
+      "statement": "To apply policies to Zscaler Client Connector users, their Zscaler Client Connector username is specified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-landmine-policy.json",
+          "quotes": [
+            "To apply policies to Zscaler Client Connector users, specify their Zscaler Client Connector username."
+          ]
+        }
+      ]
+    },
+    "fallback": {
+      "statement": "The Fallback criterion applies the policy to any system with no other policy criteria specified; if the Catch All criterion is specified, Fallback is not applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-landmine-policy.json",
+          "quotes": [
+            "Fallback: Apply the policy to any system that has no other policy criteria specified. If you have specified the Catch All criterion, then the Fallback criterion is not applied."
+          ]
+        }
+      ]
+    },
+    "password-defaults": {
+      "statement": "If password settings are not configured or enabled, the system generates realistic lure passwords using default complexity rules; the settings are Must have special characters, Must have at least one uppercase letter, Must have digits, Min Length, Max Length and Password Keywords.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-customizing-lure-passwords.json",
+          "quotes": [
+            "If you do not configure password settings or enable the feature, the system automatically generates realistic lure passwords using default complexity rules.",
+            "Must have special characters",
+            "Must have at least one uppercase letter",
+            "Must have digits",
+            "Password Keywords: Enter a list of keywords that must be used as a part of the base password.",
+            "Min Length: Enter the minimum number of characters for the passwords.",
+            "Max Length: Enter the maximum number of characters for the passwords."
+          ]
+        }
+      ]
+    },
+    "password-placement": {
+      "statement": "Customized lure passwords can be placed in browser lures, session lures and file decoys, and when attackers enumerate them the event is logged as an attack.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-customizing-lure-passwords.json",
+          "quotes": [
+            "You can create and customize lure passwords and place them in browser lures, session lures, and file decoys. When these lure passwords are enumerated by attackers, the event is logged as an attack."
+          ]
+        }
+      ]
+    },
+    "edit-delay": {
+      "statement": "Any changes made to a landmine policy can take a few hours to reflect on the endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-landmine-policies.json",
+          "quotes": [
+            "Any changes made to a landmine policy can take a few hours to reflect on the endpoints."
+          ]
+        }
+      ]
+    },
+    "evaluate": {
+      "statement": "Evaluate Policies produces a sample report of the modules deployed for a given User ID, Hostname and OS, with optional Group, Computer OU, User OU, Domain, Display Name and Dynamic Rules; if a user or system matches two or more policies, the report shows the modules of all the matching policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-evaluating-landmine-policies.json",
+          "quotes": [
+            "User ID: Enter the user ID that must be used to generate the sample policy.",
+            "Hostname: Enter the hostname that must be used to generate the sample policy.",
+            "OS: Select the operating system for which the sample policy must be generated.",
+            "If a user or system matches the selection criterion of two or more policies, the report shows the deception modules specified by all of the matching policies.",
+            "Group: (Optional) Enter the active directory group that must be used to generate the sample policy.",
+            "Computer OU: (Optional) Enter the organizational unit (OU) of the endpoints that must be used to generate the sample policy.",
+            "User OU: (Optional) Enter the organizational unit (OU) of the users that must be used to generate the sample policy.",
+            "Domain: (Optional) Enter the domain name of the endpoint that must be used to generate the sample policy.",
+            "Display Name: (Optional) Enter the display name of the user that must be used to generate the sample policy.",
+            "Dynamic Rules: (Optional) Click Add to configure a dynamic rule that must be used in the sample policy."
+          ]
+        }
+      ]
+    },
+    "policy-details": {
+      "statement": "The policy details page shows System Details (including the agent type, install time and last connection), Fake Security Processes Details, File Decoys, Advanced Deception Capabilities, Privilege Escalation Details and Session Lures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-policy-details.json",
+          "quotes": [
+            "System Details: The system name, username, policy name, operating system name and version, IP addresses of the system, the type of agent installed on the system (agent or agentless), date and time when the agent was installed, and date and time when the agent was last connected to the Zscaler Deception Admin Portal.",
+            "Fake Security Processes Details: The name of the fake process, policy name, and folder path to the fake process.",
+            "File Decoys: The name, path, and hidden attributes of decoy files such as custom files, credential files, and preconfigured file datasets.",
+            "Advanced Deception Capabilities: The status (enabled or disabled) of advanced deception capabilities such as PsExec, Ransomware, and Triage.",
+            "Privilege Escalation Details: The name of the detection (such as man-in-the-middle (MITM), brute force, kerberoast, and memory credential); status (enabled or disabled); and other configuration details.",
+            "Session Lures: The decoy credentials, hostname, and port number of supported software such as FileZilla, DbVisualizer, PuTTY, Remote Desktop Protocol (RDP), SQuirreL SQL, WinSCP, etc."
+          ]
+        }
+      ]
+    },
+    "details-cloud-keys": {
+      "statement": "Cloud Lures in the policy details show the policy name, usernames, Amazon Web Services (AWS) access key and AWS secret keys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-policy-details.json",
+          "quotes": [
+            "Cloud Lures: The policy name, usernames, Amazon Web Services (AWS) access key, and AWS secret keys."
+          ]
+        }
+      ]
+    },
+    "cc-prereq-versions": {
+      "statement": "For an organization provisioned for Zscaler Internet Access (ZIA), endpoint deception on Microsoft Windows machines through Zscaler Client Connector needs the capability enabled by contacting the Zscaler Account team, and endpoints with Windows 10 (64-bit only) or later with a 64-bit Client Connector upgraded to 4.6.0.123, 4.7.0.47, 4.8.0.88 or 4.9.0.330 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-endpoint-deception-zscaler-client-connector-windows.json",
+          "quotes": [
+            "If your organization is provisioned for Zscaler Internet Access (ZIA), you can deploy endpoint deception capabilities on Microsoft Windows machines using Zscaler Client Connector.",
+            "Enabled endpoint deception capabilities on your Zscaler Client Connector by contacting your Zscaler Account team.",
+            "Endpoints with Windows 10 (64-bit only) or later with a 64-bit version of Zscaler Client Connector are installed.",
+            "You must upgrade Zscaler Client Connector to one of the supported versions:",
+            "4.6.0.123 or later",
+            "4.7.0.47 or later",
+            "4.8.0.88 or later",
+            "4.9.0.330 or later"
+          ]
+        }
+      ]
+    },
+    "cc-tunnel-internal": {
+      "statement": "The Tunnel Internal Client Connector Traffic option is enabled in the Zscaler Client Connector Portal; by default, traffic sent to the Zscaler Deception Admin Portal is considered internal traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-endpoint-deception-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Enabled the Tunnel Internal Client Connector Traffic option in the Zscaler Client Connector Portal.",
+            "By default, the traffic sent to the Zscaler Deception Admin Portal is considered internal traffic."
+          ]
+        }
+      ]
+    },
+    "cc-egress": {
+      "statement": "Outbound access on port 443 is needed to the Deception Admin Portal (<your_subdomain>.illusionblack.com), dwv281inkfqg3.cloudfront.net and zcc.ecdn.zscaler.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-endpoint-deception-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Deception Admin Portal on port 443, i.e., <your_subdomain>.illusionblack.com on port 443",
+            "dwv281inkfqg3.cloudfront.net on port 443",
+            "zcc.ecdn.zscaler.com on port 443"
+          ]
+        }
+      ]
+    },
+    "cc-migration": {
+      "statement": "A standalone landmine agent can migrate automatically during the Zscaler Client Connector upgrade: lures applied and decoys deployed are copied to the new installation location and the standalone landmine agent is uninstalled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-endpoint-deception-zscaler-client-connector-windows.json",
+          "quotes": [
+            "you can automatically migrate during the Zscaler Client Connector upgrade process. During the upgrade, important information such as lures applied and decoys deployed are automatically copied to the new installation location, and the standalone landmine agent is uninstalled."
+          ]
+        }
+      ]
+    },
+    "cc-enable-scope": {
+      "statement": "Zscaler Deception Enabled by Default enables endpoint deception for all Zscaler Client Connector users upgraded to Deception version 4.6 or later for Windows; to enable it for a specific group of users or a device group, it is disabled and a group is selected from the User Groups or Device Groups drop-down menu.",
+      "tier": "A",
+      "conditions": "The page words the Deception version as 4.6 here and lists Client Connector versions starting at 4.6.0.123 in its prerequisites; each is stated as the page words it and the page does not relate the two.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-endpoint-deception-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Enable Zscaler Deception Enabled by Default to enable endpoint deception for all Zscaler Client Connector users upgraded to Deception version 4.6 or later for Windows.",
+            "To enable Deception for a specific group of users, disable Zscaler Deception Enabled by Default, and then select a group from the User Groups drop-down menu.",
+            "To enable Deception for a specific device group, disable Zscaler Deception Enabled by Default, and then select a group from the Device Groups drop-down menu."
+          ]
+        }
+      ]
+    },
+    "cc-installer-fingerprint": {
+      "statement": "In the Deception Admin Portal, under Settings > Endpoint Settings > Agent Configuration, the Name, Display Name and Description of the landmine installer or service are customized to prevent the agent from being fingerprinted; in the Zscaler Client Connector Portal, Administration then Zscaler Deception shows the installer settings, which should match them, and Sync gets the latest values if they don't.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-endpoint-deception-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Log in to the Deception Admin Portal.",
+            "Go to Settings > Endpoint Settings > Agent Configuration.",
+            "Customize the Name, Display Name, and Description of the landmine installer or service to prevent the agent from being fingerprinted.",
+            "If they don't match, click Sync to get the latest values.",
+            "Verify if the Zscaler Deception installer settings (Name, Display Name, and Description) you see on this page match the settings you entered in the previous step.",
+            "Click Administration on the top menu.",
+            "In the left-side navigation, click Zscaler Deception."
+          ]
+        }
+      ]
+    },
+    "cc-passwords": {
+      "statement": "In the Zscaler Client Connector Portal, App Profiles > Windows, the Edit Windows Policy (or Add Windows Policy) window takes a Logout Password, Exit Password and Password to access Deception Settings; the configuration is successful when the Service Status is Running.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-endpoint-deception-zscaler-client-connector-windows.json",
+          "quotes": [
+            "In the Zscaler Client Connector Portal, click App Profiles on the top menu.",
+            "On the App Profiles page, select Windows.",
+            "In the Edit Windows Policy (or Add Windows Policy) window, enter the Logout Password, Exit Password, and Password to access Deception Settings.",
+            "The configuration is successful and the Service Status is Running."
+          ]
+        }
+      ]
+    },
+    "restricted-paths-scope": {
+      "statement": "Beginning with Zscaler Client Connector-integrated Agent 6.1, landmine validates certain file paths in policies before creating or managing path-based lures and decoys, and rejects paths that target the OS, security, credential or other protected locations; path validation is case insensitive and the blocked paths vary with the endpoint OS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-restricted-file-paths-lures-and-decoys.json",
+          "quotes": [
+            "Beginning with Zscaler Client Connector-integrated Agent 6.1, landmine validates certain file paths specified in policies before creating or managing path-based lures and decoys. Paths that target the OS, security, credential, or other protected locations are rejected.",
+            "Path validation is case insensitive and uses the actual Windows and system directories configured on the endpoint.",
+            "The blocked paths vary depending on the endpoint OS."
+          ]
+        }
+      ]
+    },
+    "restricted-paths-windows": {
+      "statement": "Blocked Windows paths include the Windows installation directory (typically C:\\Windows, with System32, SysWOW64, WinSxS and other subdirectories), System Volume Information, Windows Defender under ProgramData, the all-users Startup folder, a user's Vault folder, NTUSER.DAT and UsrClass.dat.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-restricted-file-paths-lures-and-decoys.json",
+          "quotes": [
+            "The Windows installation directory, typically C:\\Windows, including System32, SysWOW64, WinSxS, and other subdirectories",
+            "<SystemDrive>\\System Volume Information",
+            "<ProgramData>\\Microsoft\\Windows Defender",
+            "The all-users Startup folder, typically C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp",
+            "<drive>:\\Users\\<user>\\AppData\\Local\\Microsoft\\Vault\\",
+            "<drive>:\\Users\\<user>\\NTUSER.DAT",
+            "<drive>:\\Users\\<user>\\AppData\\Local\\Microsoft\\Windows\\UsrClass.dat"
+          ]
+        }
+      ]
+    },
+    "restricted-paths-macos": {
+      "statement": "Blocked macOS paths include /System/, /opt/homebrew/, /Library/Keychains/ and /private/var/db/auth.db.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-restricted-file-paths-lures-and-decoys.json",
+          "quotes": [
+            "/System/",
+            "/opt/homebrew/",
+            "/Library/Keychains/",
+            "/private/var/db/auth.db"
+          ],
+          "after": "- macOS - The following paths are blocked:"
+        }
+      ]
+    },
+    "restricted-paths-linux": {
+      "statement": "Blocked Linux paths include /proc/, /var/spool/cron/, /var/lib/docker/ and /run/docker.sock.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-restricted-file-paths-lures-and-decoys.json",
+          "quotes": [
+            "- /proc/",
+            "/var/spool/cron/",
+            "/var/lib/docker/",
+            "/run/docker.sock"
+          ],
+          "after": "- Linux - The following paths are blocked:"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "policy-change-latency": {
+      "summary": "One page says changes to a landmine policy can take a few hours to reflect on the endpoints; the lure refresh interval page says changes to the landmine policies are applied as soon as the landmine agent connects to the Deception Admin Portal.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-managing-landmine-policies.json",
+            "quotes": [
+              "Any changes made to a landmine policy can take a few hours to reflect on the endpoints."
+            ]
+          },
+          "says": "Changes made to a landmine policy can take a few hours to reflect on the endpoints."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-configuring-lure-refresh-interval.json",
+            "quotes": [
+              "If you make any changes to the landmine policies, the updates are applied as soon as the landmine agent connects to the Zscaler Deception Admin Portal.",
+              "The updates do not wait for the lures to refresh."
+            ]
+          },
+          "says": "Changes to the landmine policies are applied as soon as the landmine agent connects to the Deception Admin Portal, without waiting for the lures to refresh."
+        }
+      ],
+      "impact": "The pages do not say whether the few hours is the interval between agent connections or a separate delay, so how long a changed policy takes to reach an endpoint is not settled."
+    }
+  },
+  "gaps": {
+    "ranges-limitations": {
+      "kind": "semantic",
+      "title": "What are the per-feature limits for landmine policies and decoys?",
+      "status": "open",
+      "detail": "Several landmine articles refer to a Ranges & Limitations page for limits; it was not part of the captures used here, so limits not stated in the cited articles are not recorded.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "installer-feature-support": {
+      "kind": "semantic",
+      "title": "Which deception features does each landmine installer (agent, agentless, Client Connector-integrated) support?",
+      "status": "open",
+      "detail": "The articles state operating-system support per module but refer to a Supported Deception Features page for the agent and agentless installers; platform support of file decoys per installer is not stated beyond the per-module notes.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

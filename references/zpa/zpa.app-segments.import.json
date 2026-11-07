@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.import",
+  "title": "Application Segment Import: the CSV template, limits, re-import and merge",
+  "aliases": [
+    "Application Segment Import",
+    "bulk import application segments",
+    "import application segments CSV",
+    "merge imported application segments"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.ai-recommendations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}}"
+    },
+    {
+      "label": "The file.",
+      "text": "{{template-fields}} {{limit}} The value formats and what the importance and environment columns do are open {{gap:csv-values}}."
+    },
+    {
+      "label": "After the import.",
+      "text": "{{results}} {{reimport-adds}}"
+    },
+    {
+      "label": "Merging.",
+      "text": "{{merge}} Whether a merge creates defined segments is open {{gap:merge-creates-defined}}."
+    },
+    {
+      "text": "Recommendations that Private Access generates from user logs are in [[zpa.app-segments.ai-recommendations]]; the segment hub is [[zpa.app-segments]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the import file has more than 50,000 entries, which fails the import.",
+      "uses": [
+        "limit"
+      ]
+    },
+    {
+      "do": "The failed-entries file linked from the result message for the reason each entry failed.",
+      "uses": [
+        "results"
+      ]
+    },
+    {
+      "do": "Whether the entries were in an earlier import, in which case they are added as additional information to the existing entries of the same name.",
+      "uses": [
+        "reimport-adds"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Application Segment Import lets an admin bulk import database files, or bulk import application information, for faster application segment configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-application-segment-import.json",
+          "quotes": [
+            "Application Segment Import allows you to bulk import database files for faster application segment configuration for new and existing users."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-application-segment-import.json",
+          "quotes": [
+            "Private Access (ZPA) allows you to bulk import application information to ease the process of application segment configuration."
+          ]
+        }
+      ]
+    },
+    "template-fields": {
+      "statement": "Download Sample CSV downloads a sample template to the admin's system, and the page says to open the template file and add information for the fields Application Name, Application FQDN/IP, Server IP, TCP Ports, UDP Ports, App Owner Contact, Application Importance, Hosting Location and Environment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-application-segment-import.json",
+          "quotes": [
+            "Click Download Sample CSV.",
+            "The sample template downloads to your system.",
+            "Open the template file and add information for the following fields:",
+            "Application Name",
+            "Application FQDN/IP",
+            "Server IP",
+            "TCP Ports",
+            "UDP Ports",
+            "App Owner Contact",
+            "Application Importance",
+            "Hosting Location",
+            "Environment"
+          ]
+        }
+      ]
+    },
+    "limit": {
+      "statement": "The limit of application segments that can be imported is 50,000; importing a file with more than 50,000 entries of application segment data fails. Depending on how many application segments are imported, the import time can increase.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-application-segment-import.json",
+          "quotes": [
+            "The limit of application segments that can be imported is 50,000. If you attempt to import a file with more than 50,000 entries of application segment data, the import fails.",
+            "Depending on how many application segments you import, the import time can increase."
+          ]
+        }
+      ]
+    },
+    "results": {
+      "statement": "After an import, a message confirms the number of successfully imported entries and the number of failed downloads. A link in the message downloads a new file containing the failed entries and the reasons for their import failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-application-segment-import.json",
+          "quotes": [
+            "A message appears confirming the number of successfully imported entries, as well as the number of failed downloads.",
+            "You can click the link in the message to download a new file containing the failed entries and the reasons for their import failure."
+          ]
+        }
+      ]
+    },
+    "reimport-adds": {
+      "statement": "If a file is imported with entries that were included in a previous import, the new entries are automatically added as additional information to the existing entries of the same name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-application-segment-import.json",
+          "quotes": [
+            "If you import a file with entries that were included in a previous import, the new entries are automatically added as additional information to the existing entries of the same name."
+          ]
+        }
+      ]
+    },
+    "merge": {
+      "statement": "Merging imported application segments takes at least two application segments selected from the table, then a Defined Application Segment and a Port Type chosen from the drop-down menus before clicking Apply. The table can show All, Defined Application Segments, Undefined Application Segments, or Partially Selected Application Segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-merging-imported-application-segments.json",
+          "quotes": [
+            "Select at least two or more application segments from the table.",
+            "Select an option from the Defined Application Segment and Port Type drop-down menus, and click Apply.",
+            "Select an option to show application segments (All, Defined Application Segments, Undefined Application Segments, or Partially Selected Application Segments)."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "csv-values": {
+      "kind": "semantic",
+      "title": "CSV value formats and what Application Importance and Environment do",
+      "status": "open",
+      "detail": "The page names the template columns but gives no value formats, and does not say what the Application Importance and Environment columns affect. A name search over the API spec, SDKs and Terraform provider found nothing for the import.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "merge-creates-defined": {
+      "kind": "semantic",
+      "title": "Whether merging imported application segments creates defined application segments",
+      "status": "open",
+      "detail": "The merge page names the Defined Application Segment and Port Type selections but does not say whether merging creates a defined application segment from the imported entries.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

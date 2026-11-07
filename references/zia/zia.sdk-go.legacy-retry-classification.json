@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-go.legacy-retry-classification",
+  "title": "How the Go legacy ZIA client decides which 5xx to retry and what it returns",
+  "aliases": [
+    "go sdk retry 500 unexpected error",
+    "retry budget 100 to 10",
+    "IsRetryableServerError",
+    "giving up after attempts",
+    "go sdk 5xx retried"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are details of the Go legacy ZIA client's retry and error handling at the pinned SDK. The general retry policy and the OneAPI client are in [[shared.sdk-go.retries]]."
+    },
+    {
+      "label": "Budget.",
+      "text": "{{legacy-retry-budget-ten}}"
+    },
+    {
+      "label": "Which 5xx are retried.",
+      "text": "{{five-xx-classification}} {{five-xx-unparsed-bodies-retried}}"
+    },
+    {
+      "label": "When retries run out.",
+      "text": "{{legacy-exhaustion-returns-response}} {{error-response-consumes-body}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which SDK version the provider build carries, since the 5xx classification and the retry budget changed in the v3.8.4x releases.",
+      "uses": [
+        "legacy-retry-budget-ten",
+        "five-xx-classification"
+      ]
+    },
+    {
+      "do": "That a permanent 500 was not simply retried to exhaustion before its API message was shown.",
+      "uses": [
+        "five-xx-unparsed-bodies-retried",
+        "legacy-exhaustion-returns-response"
+      ]
+    },
+    {
+      "do": "That code reading a failed call's response body expects it to be consumed.",
+      "uses": [
+        "error-response-consumes-body"
+      ]
+    }
+  ],
+  "claims": {
+    "legacy-retry-budget-ten": {
+      "statement": "The Go legacy ZIA client's default retry budget is 10, lowered from 100; it can be overridden by the client configuration, the `WithRateLimitMaxRetries` option, or the `ZIA_CLIENT_RATE_LIMIT_MAX_RETRIES` environment variable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_config.go",
+          "quotes": [
+            "MaxNumOfRetries caps the retryablehttp inner retry loop. Lowered from 100",
+            "// cfg.ZIA.Client.RateLimit.MaxRetries, WithRateLimitMaxRetries, or the",
+            "MaxNumOfRetries = 10",
+            "envconfig:\"ZIA_CLIENT_RATE_LIMIT_MAX_RETRIES\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "// Legacy struct holds and instance of each legacy API client to support backwards compatibility",
+            "type LegacyClient struct { ZiaClient *zia.Client"
+          ]
+        }
+      ]
+    },
+    "five-xx-classification": {
+      "statement": "The legacy client's retry check hands every 5xx response to `IsRetryableServerError`. It never retries a status below 500 or 501, always retries 502, 503 and 504, retries any other 5xx whose body contains a transient marker (EDIT_LOCK_NOT_AVAILABLE, Resource Access Blocked, an org-barrier failure or a failed-precondition message), and otherwise refuses the retry only when the body is a JSON object with a nonempty string `code`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "quotes": [
+            "retryableClient.CheckRetry = checkRetry",
+            "func checkRetry(ctx context.Context, resp *http.Response, err error) (bool, error) {",
+            "func getRetryOnStatusCodes() []int { return []int{http.StatusTooManyRequests} }",
+            "if resp != nil && (resp.StatusCode == http.StatusPreconditionFailed || resp.StatusCode == http.StatusConflict || resp.StatusCode == http.StatusUnauthorized) {",
+            "return errorx.IsRetryableServerError(resp), nil",
+            "if err == nil && resp != nil && resp.StatusCode >= 500 {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "quotes": [
+            "func IsRetryableServerError(res *http.Response) bool {",
+            "// 501 Not Implemented is a permanent condition, matching the upstream",
+            "if res.StatusCode < 500 || res.StatusCode == http.StatusNotImplemented {",
+            "502 / 503 / 504 are infrastructure signals, never API verdicts: retry them",
+            "for _, msg := range transientServerErrorMessages {",
+            "if code, ok := parsed.Code.(string); ok && code != \"\" {",
+            "http.StatusBadGateway: true, // 502",
+            "http.StatusServiceUnavailable: true, // 503",
+            "http.StatusGatewayTimeout: true, // 504",
+            "if alwaysRetryableServerStatuses[res.StatusCode] { return true }",
+            "var transientServerErrorMessages = []string{ \"EDIT_LOCK_NOT_AVAILABLE\", \"Resource Access Blocked\", \"Failed during enter Org barrier\", \"Request processing failed, possibly because an expected precondition was not met\", }",
+            "var parsed struct { Code interface{} `json:\"code\"` } if err := json.Unmarshal(bodyBytes, &parsed); err == nil {",
+            "return false } } return true }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "// Legacy struct holds and instance of each legacy API client to support backwards compatibility",
+            "type LegacyClient struct { ZiaClient *zia.Client"
+          ]
+        }
+      ]
+    },
+    "five-xx-unparsed-bodies-retried": {
+      "statement": "A 500 with an empty, malformed, HTML, code-less, numeric-code, empty-code, nested-code or array body is still retried by the legacy client's check, so it spends the whole retry budget.",
+      "tier": "B",
+      "derived_from": [
+        "five-xx-classification"
+      ],
+      "conditions": "Holds because only a JSON object whose top-level `code` is a nonempty string is refused; the check is a client heuristic and not a ZIA error classification."
+    },
+    "legacy-exhaustion-returns-response": {
+      "statement": "When the legacy client's retries run out without a transport error, its error handler returns the last response rather than a bare giving-up error, and logs the status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "quotes": [
+            "retryableClient.CheckRetry = checkRetry",
+            "if err == nil && resp != nil {",
+            "giving up after %d attempt(s); surfacing API response status %d",
+            "drain the body and return a bare \"giving up after N attempt(s)\" error with a",
+            "retryableClient.ErrorHandler = func(resp *http.Response, err error, numTries int) (*http.Response, error) {",
+            "surfacing API response status %d\", numTries, resp.StatusCode) return resp, nil",
+            "Any non-nil err is a genuine failure (transport error, cancelled or"
+          ],
+          "after": "func getHTTPClient(l logger.Logger, rateLimiter *rl.RateLimiter, cfg *Configuration) *http.Client {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "// Legacy struct holds and instance of each legacy API client to support backwards compatibility",
+            "type LegacyClient struct { ZiaClient *zia.Client"
+          ]
+        }
+      ]
+    },
+    "error-response-consumes-body": {
+      "statement": "On a non-success status the legacy request path builds an `ErrorResponse` with `CheckErrorInResponse`, which reads the whole response body and closes it, keeping the response with its HTTP status, any parsed code and message, and the body text as a string, but not a readable response body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "quotes": [
+            "bodyBytes, _ := io.ReadAll(res.Body)",
+            "defer res.Body.Close()",
+            "parsed := &ParsedAPIError{ Status: res.StatusCode,",
+            "if code, ok := jsonBody[\"code\"]; ok { parsed.Code = code }",
+            "if msg, ok := jsonBody[\"message\"].(string); ok { parsed.Message = msg }",
+            "return &ErrorResponse{ Response: res, Err: respErr, Parsed: parsed, Message: string(bodyBytes), }"
+          ],
+          "after": "func CheckErrorInResponse(res *http.Response, respErr error) error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "quotes": [
+            "errResp := errorx.CheckErrorInResponse(resp, fmt.Errorf(\"api responded with code: %d\", resp.StatusCode))",
+            "if resp.StatusCode > 299 && resp.StatusCode != http.StatusUnauthorized {"
+          ],
+          "after": "// Retry logic for the request"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "after": "// A 401 that survived every attempt above exits the loop without being",
+          "quotes": [
+            "// classified. Without this guard the error body would be handed back to the // caller as if the call had succeeded.",
+            "if resp.StatusCode > 299 { errResp := errorx.CheckErrorInResponse(resp, fmt.Errorf(\"api responded with code: %d\", resp.StatusCode))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "// Legacy struct holds and instance of each legacy API client to support backwards compatibility",
+            "type LegacyClient struct { ZiaClient *zia.Client"
+          ]
+        }
+      ]
+    }
+  }
+}

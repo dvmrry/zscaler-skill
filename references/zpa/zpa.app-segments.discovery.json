@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.discovery",
+  "title": "How application discovery works and how a discovered application is defined",
+  "aliases": [
+    "application discovery",
+    "applications discovered in past 14 days",
+    "discovered applications",
+    "application inventory",
+    "wildcard application discovery"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.definition"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.health-reporting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.dns-search-domains"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.discovery-mode"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{how-it-runs}}"
+    },
+    {
+      "label": "Configuring it.",
+      "text": "{{entry-forms}} {{efficiency}} {{exclude-with-bypass}} Matching the DNS search domains is in [[zpa.app-segments.dns-search-domains]]."
+    },
+    {
+      "label": "Health.",
+      "text": "{{health-on-access-only}} The health modes are in [[zpa.app-segments.health-reporting]]."
+    },
+    {
+      "label": "Defining a discovered application.",
+      "text": "{{define-discovered}} {{widget-and-diagnostics-window}} How long an application stays listed past the window is open {{gap:listing-past-window}}."
+    },
+    {
+      "label": "Application Inventory.",
+      "text": "{{application-inventory}} How types are classified is open {{gap:inventory-classification}}."
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "You can enable application discovery so that when users request applications, Private Access can discover them using specific domain names; Private Access only discovers an application when a user requests access to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-application-discovery.json",
+          "quotes": [
+            "You can enable application discovery so that when users request applications, Private Access (ZPA) can discover them using specific domain names.",
+            "Private Access only discovers an application when a user requests access to it."
+          ]
+        }
+      ]
+    },
+    "how-it-runs": {
+      "statement": "When users request access to an application that matches the domain, Client Connector redirects the request to the App Connectors configured for that application, which do a DNS lookup; if the request is successful, the user can access the application and see it listed in the Applications Discovered in Past 14 Days widget on the Applications dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-application-discovery.json",
+          "quotes": [
+            "When users request access to an application that matches the domain, Zscaler Client Connector on the user's device redirects the request to the App Connectors that are configured for that application.",
+            "When the application is requested using a domain, the App Connectors do a DNS lookup to process the request.",
+            "If the request is successful, the user can access the application and see it listed in the Applications Discovered in Past 14 Days widget on the Applications dashboard."
+          ]
+        }
+      ]
+    },
+    "entry-forms": {
+      "statement": "To configure application discovery within an application segment, you must enter FQDNs or domain names, which can be in wildcard format as *.<FQDN or domain name> or .<FQDN or domain name>, and wildcard application segments can be used for it; the About Applications page adds that an application can be defined as an IP subnet to enable discovery.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-application-discovery.json",
+          "quotes": [
+            "To configure application discovery within an application segment, you must enter FQDNs or Domain Names.",
+            "You can enter domain names and FQDNs in wildcard format:",
+            "*.<FQDN or domain name>",
+            "Wildcard app segments can be used for application discovery."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-application-discovery.json",
+          "quotes": [
+            ".<FQDN or domain name>"
+          ],
+          "after": "*.<FQDN or domain name>"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-applications.json",
+          "quotes": [
+            "To enable application discovery, you can define an application as an FQDN in wildcard format or as an IP subnet."
+          ]
+        }
+      ]
+    },
+    "efficiency": {
+      "statement": "Application discovery works efficiently when the TCP and UDP port range specified for the domain is wide, and when the application policy allows access to a broad set of users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-application-discovery.json",
+          "quotes": [
+            "Application discovery works efficiently when the TCP and UDP port range specified for the domain is wide, and when the application policy allows access to a broad set of users."
+          ]
+        }
+      ]
+    },
+    "exclude-with-bypass": {
+      "statement": "If you want to configure application discovery but have a few applications you do not want to make accessible through Private Access, you can use the Bypass field to disable access to those applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-application-discovery.json",
+          "quotes": [
+            "If you want to configure application discovery but have a few applications you don't want to make accessible through Private Access, you can use the Bypass field to disable access to those applications."
+          ]
+        }
+      ]
+    },
+    "health-on-access-only": {
+      "statement": "You can only choose On Access health reporting for discovered applications; the App Connector reports the health of the application as soon as a user accesses it and for up to 30 minutes after the user has completed using it, after which the health status changes to Unknown until a user accesses the application again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-application-discovery.json",
+          "quotes": [
+            "You can only choose On Access health reporting for discovered applications.",
+            "The App Connector reports the health of the application as soon as a user accesses the application, and for up to 30 minutes after the user has completed using it.",
+            "After 30 minutes, the application's health status changes to Unknown and is updated as soon as a user accesses the application again."
+          ]
+        }
+      ]
+    },
+    "define-discovered": {
+      "statement": "To create a policy for a discovered application or configure specific settings for it, such as choosing Continuous health reporting or bypass settings, you can define the discovered application explicitly within an application segment from the Applications Discovered in Past 14 Days widget on the Applications dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-application-discovery.json",
+          "quotes": [
+            "If you want to create a policy for a discovered application or configure specific settings for it (e.g., choosing Continuous health reporting), you can define the discovered application from the Applications Discovered in Past 14 Days widget on the Applications dashboard."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-dynamically-discovered-application.json",
+          "quotes": [
+            "If you want to define a user access policy for a specific application listed in the Applications Discovered in Past 14 Days widget, or you want to be able to change other settings for it (e.g., enable health reporting or configure bypass settings)",
+            "you can explicitly define the application within an application segment."
+          ]
+        }
+      ]
+    },
+    "widget-and-diagnostics-window": {
+      "statement": "Discovered applications are listed from most to least recent and you can click one to view its diagnostics; if an application was discovered over 14 days in the past, the User Activity diagnostics corresponding to its discovery are not available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-dynamically-discovered-application.json",
+          "quotes": [
+            "Discovered applications are listed from most to least recent.",
+            "You can click a discovered application to view its diagnostics.",
+            "If an application was discovered over 14 days in the past, then the User Activity diagnostics corresponding to application discovery will not be available."
+          ]
+        }
+      ]
+    },
+    "application-inventory": {
+      "statement": "Application Inventory provides a centralized inventory of predefined private application types, each with a category, and automatically discovers and classifies private application traffic to identify application types without relying on specific ports or protocols; it also works with SSL/TLS-encrypted traffic without requiring traffic decryption. During the current implementation phase it displays only predefined application types, and support for custom application types will be introduced in a future release.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-application-inventory.json",
+          "quotes": [
+            "Application Inventory provides a centralized inventory of predefined private application types available in your environment.",
+            "Application Inventory automatically discovers and classifies private application traffic to identify application types without relying on specific ports or protocols.",
+            "It also works with SSL/TLS-encrypted traffic without requiring traffic decryption, enabling consistent application identification across your environment.",
+            "Category: The category associated with each application type.",
+            "During the current implementation phase, the inventory displays only predefined application types.",
+            "Support for creating and managing custom application types will be introduced in a future release."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "listing-past-window": {
+      "kind": "semantic",
+      "title": "How long a discovered application stays listed past the 14-day window",
+      "status": "open",
+      "detail": "The pages name the Applications Discovered in Past 14 Days widget and say User Activity diagnostics are unavailable for applications discovered over 14 days ago. They do not say how long an application stays listed beyond that.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "inventory-classification": {
+      "kind": "semantic",
+      "title": "How Application Inventory classifies application types and whether an API exposes it",
+      "status": "open",
+      "detail": "The About Application Inventory page says traffic is classified without relying on ports or protocols but does not describe the method. A name search of the OpenAPI document, the Python and Go ZPA SDKs and the Terraform provider found no inventory API; that is a lead for a source read, not proof it is absent.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

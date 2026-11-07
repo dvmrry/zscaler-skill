@@ -1,0 +1,454 @@
+{
+  "schema_version": 1,
+  "id": "unified.adaptive-access.integrations",
+  "title": "Adaptive Access Engine integrations: Okta, CrowdStrike, Microsoft Defender and Silverfort signals and setup",
+  "aliases": [
+    "adaptive access okta integration",
+    "adaptive access crowdstrike integration",
+    "adaptive access microsoft defender integration",
+    "adaptive access silverfort integration",
+    "Test Integration",
+    "adaptive access integrations page"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "unified.adaptive-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.unified"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{integrations-page}} The profiles that use these signals are in [[unified.adaptive-access]]."
+    },
+    {
+      "label": "Okta.",
+      "text": "{{okta-signals}} {{okta-ssf}} {{okta-prerequisites}} {{okta-fields}} {{okta-scopes}} The page names the second signal both Session Revoked and Session Revoke {{gap:okta-signal-name}}."
+    },
+    {
+      "label": "CrowdStrike.",
+      "text": "{{crowdstrike-signals}} {{crowdstrike-incidents-defunct}} {{crowdstrike-api-client}} {{crowdstrike-webhook}} {{crowdstrike-fields}} {{crowdstrike-workflow}}"
+    },
+    {
+      "label": "Microsoft Defender.",
+      "text": "{{defender-signals}} {{defender-prerequisites}} {{defender-permissions}} {{defender-zcc-version}} {{defender-azure-resources}} {{defender-fields}}"
+    },
+    {
+      "label": "Silverfort.",
+      "text": "{{silverfort}}"
+    },
+    {
+      "label": "Open.",
+      "text": "Limited availability is stated for Okta and CrowdStrike only {{gap:limited-availability-scope}}, and which Falcon events to pick, the Client Connector floor on other platforms, refresh intervals and failure behavior are not stated {{gap:integration-details}}. The Signal History Value column's levels against the finer levels a source sends are in [[unified.adaptive-access]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That the integration was saved, its Status enabled and Test Integration run before building a profile on its signals.",
+      "uses": [
+        "integrations-page"
+      ]
+    },
+    {
+      "do": "For an Okta integration that does not connect, the app's API scopes, Proof of Possession (which must be disabled) and the Super Administrator role of the configuring admin.",
+      "uses": [
+        "okta-fields",
+        "okta-scopes"
+      ]
+    },
+    {
+      "do": "For a CrowdStrike integration that sends nothing, the Webhook and Shared Secret, the Score Changed workflow, and that no Incidents configuration remains.",
+      "uses": [
+        "crowdstrike-webhook",
+        "crowdstrike-workflow",
+        "crowdstrike-incidents-defunct"
+      ]
+    },
+    {
+      "do": "For a Defender integration that sends nothing, the Event Hub fields, the Azure resources and the application permissions with admin consent.",
+      "uses": [
+        "defender-fields",
+        "defender-azure-resources",
+        "defender-permissions"
+      ]
+    }
+  ],
+  "claims": {
+    "integrations-page": {
+      "statement": "Each of the Okta, CrowdStrike, Microsoft Defender and Silverfort pages configures its integration from Policies > Common Configuration > Adaptive Access > Integrations, has a Status setting that enables the integration, and verifies the connection with Test Integration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-okta-adaptive-access-engine.json",
+          "quotes": [
+            "Go to Policies > Common Configuration > Adaptive Access > Integrations.",
+            "Status: Click to enable the status.",
+            "Click Test Integration to verify the connection between Adaptive Access Engine and Okta."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-crowdstrike-adaptive-access-engine.json",
+          "quotes": [
+            "Go to Policies > Common Configuration > Adaptive Access > Integrations.",
+            "Status: By default, the connection status is disabled. Click the toggle to enable the status.",
+            "Click Test Integration to verify if the connection is successful."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-microsoft-defender-adaptive-access-engine.json",
+          "quotes": [
+            "Go to Policies > Common Configuration > Adaptive Access > Integrations.",
+            "Status: Enable to make the integration active.",
+            "Click Test Integration to verify the connection between Adaptive Access Engine and Microsoft Defender."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-silverfort-adaptive-access-engine.json",
+          "quotes": [
+            "Go to Policies > Common Configuration > Adaptive Access > Integrations.",
+            "Status: Enable to make the integration active.",
+            "Click Test Integration to verify the connection between Adaptive Access Engine and Silverfort."
+          ]
+        }
+      ]
+    },
+    "okta-signals": {
+      "statement": "Okta sends the engine user-related context signals, Credentials Change and Session Revoked (the page's field list names them Credentials Change and Session Revoke); the Okta page says the feature is in limited availability and to contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-okta-adaptive-access-engine.json",
+          "quotes": [
+            "The Adaptive Access Engine receives user-related context signals from Okta",
+            "Okta shares the context signals (Credentials Change and Session Revoked) with the Adaptive Access Engine.",
+            "Signal and Value Type: The context signal type (Credentials Change and Session Revoke)",
+            "This feature is in limited availability. Contact Zscaler Support for assistance."
+          ]
+        }
+      ]
+    },
+    "okta-ssf": {
+      "statement": "The Okta integration is configured as Okta SSF settings in Experience Center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-okta-adaptive-access-engine.json",
+          "quotes": [
+            "To configure the Okta SSF settings in Experience Center:"
+          ]
+        }
+      ]
+    },
+    "okta-prerequisites": {
+      "statement": "The Okta integration needs an Okta account with admin privileges, an Experience Center admin role that allows configuring the Okta settings, and an Okta app integration created with API Services as the sign-in method, whose Client ID is entered in Experience Center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-okta-adaptive-access-engine.json",
+          "quotes": [
+            "An Okta account with admin privileges.",
+            "An admin role in Experience Center that allows you to configure the Okta settings.",
+            "Select API Services as the sign-in method, then click Next.",
+            "Copy and save the Client ID, as you need to provide this value while configuring Okta in the Experience Center."
+          ]
+        }
+      ]
+    },
+    "okta-fields": {
+      "statement": "In Experience Center the Okta integration takes a Base URL entered as <https://customeraccountname>-okta.com, the Client ID and a Public Keys URL produced with Generate Keys, which is entered in the Okta portal under Public Keys; Proof of Possession is selected by default under General Settings and must be disabled because it is currently not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-okta-adaptive-access-engine.json",
+          "quotes": [
+            "Base URL: Enter the URL as <https://customeraccountname>-okta.com.",
+            "Client ID: Enter the Client ID that you copied from the Okta portal while creating the app integration.",
+            "Public Keys URL: Click Generate Keys to generate a URL. Copy and save this URL, as you need to provide this value in the Okta portal.",
+            "Under Public Keys, enter the URL that was generated in the Experience Center.",
+            "Under General Settings, the Proof of Possession option is selected by default. Make sure to disable this option, as it is currently not supported."
+          ]
+        }
+      ]
+    },
+    "okta-scopes": {
+      "statement": "The Okta app must have the ssf.read, ssf.manage, okta.users.read and okta.sessions.read API scopes enabled, and the configuring Okta admin must be assigned the Super Administrator role (the page spells it Super Adminsitrator); for Apple services, if the SSF scopes are not shown, the Managed Apple ID Federation and Provisioning feature is located and enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-okta-adaptive-access-engine.json",
+          "quotes": [
+            "ensure that the ssf.read, ssf.manage, okta.users.read, and okta.sessions.read API scopes are enabled",
+            "On the Admin Roles tab, ensure that you are assigned the Super Adminsitrator role.",
+            "For Apple services, if the SSF scopes are not shown, locate and enable the Managed Apple ID Federation and Provisioning feature."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-signals": {
+      "statement": "CrowdStrike sends the engine user and device context signals CrowdStrike Operating System (OS) Score, Zero Trust Assessment (ZTA) Score, ZTA Sensor Score and Overall Score; the CrowdStrike page says the integration is in limited availability and to contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-crowdstrike-adaptive-access-engine.json",
+          "quotes": [
+            "The Adaptive Access Engine receives user and device context signals from CrowdStrike",
+            "CrowdStrike shares the following context signals with the Adaptive Access Engine: CrowdStrike Operating System (OS) Score, Zero Trust Assessment (ZTA) Score, ZTA Sensor Score, and Overall Score.",
+            "This integration is in limited availability. Contact Zscaler Support for assistance."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-incidents-defunct": {
+      "statement": "CrowdStrike has deprecated the Incidents functionality, so the Adaptive Access integration to ingest CrowdStrike Incidents is defunct and its Incidents configuration is to be removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-crowdstrike-adaptive-access-engine.json",
+          "quotes": [
+            "CrowdStrike has deprecated the Incidents functionality, so the Adaptive Access integration to ingest CrowdStrike Incidents is defunct. Make sure to remove the Incidents configuration."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-api-client": {
+      "statement": "The CrowdStrike Falcon API client needs the API scopes Workflows, API integration scope, Hosts and Zero Trust Assessment (ZTA) with Read permissions; the Client ID, Client Secret and Base URL are not shown again, and if they are not copied another API client must be created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-crowdstrike-adaptive-access-engine.json",
+          "quotes": [
+            "Select the following API scopes with Read permissions: Workflows, API integration scope, Hosts, and Zero Trust Assessment (ZTA).",
+            "Copy and save the Client ID, Client Secret, and Base URL.",
+            "Make sure to copy the values because this information is not shown again. In case you don't copy the values, you need to create another API client."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-webhook": {
+      "statement": "A webhook is required to send context signals from the CrowdStrike Falcon platform to the engine: Experience Center generates the Webhook URL after the Base URL is entered, and the secret key added when configuring the webhook is entered as the Shared Secret, used to verify the authenticity and integrity of the data exchanged using the HMAC algorithm.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-crowdstrike-adaptive-access-engine.json",
+          "quotes": [
+            "A webhook is required to send context signals from the CrowdStrike Falcon platform to Adaptive Access Engine.",
+            "The Webhook URL is generated after you enter the Base URL.",
+            "The secret key is used to verify the authenticity and integrity of data exchanged between CrowdStrike and Adaptive Access Engine using the HMAC algorithm.",
+            "Shared Secret: Enter the secret key you added while configuring the webhook."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-fields": {
+      "statement": "The CrowdStrike integration in Experience Center takes the Base URL, Customer ID (from the Profile page on the CrowdStrike Falcon console), Client ID and Client Secret, and its connection status is disabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-crowdstrike-adaptive-access-engine.json",
+          "quotes": [
+            "Base URL: Enter the URL that was generated when the API client was created on the CrowdStrike Falcon console.",
+            "Customer ID: The customer ID is available on the Profile page on the CrowdStrike Falcon console:",
+            "Client ID: Enter the client ID you copied after the API client was created on the CrowdStrike Falcon console.",
+            "Client Secret: Enter the client secret you copied after the API client was created on the CrowdStrike Falcon console.",
+            "Status: By default, the connection status is disabled. Click the toggle to enable the status."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-workflow": {
+      "statement": "A workflow is an automated action initiated by a predefined trigger (security event); the page describes a Score Changed workflow whose trigger is a selected event (for example Zero Trust Assessment > Host assessment change) with Type Overall assessment, a Call webhook action and Data format Default, and whenever the trigger changes the workflow calls the webhook and signals are sent to the engine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-crowdstrike-adaptive-access-engine.json",
+          "quotes": [
+            "You can create a Score Changed workflow.",
+            "A workflow is an automated action that is initiated by a predefined trigger (security event).",
+            "Search for and select the required event (e.g., Zero Trust Assessment > Host assessment change) that must initiate the workflow.",
+            "Type: Select Overall assessment from the drop-down menu.",
+            "Search for and select Call webhook.",
+            "Data format: Select Default from the drop-down menu.",
+            "Whenever there is a change in the trigger, the workflow calls the webhook and signals are sent to the Adaptive Access Engine."
+          ]
+        }
+      ]
+    },
+    "defender-signals": {
+      "statement": "Microsoft Defender for Endpoint evaluates and sends these signals to the engine: Risk Score (None, Informational, Low, Medium and High), Exposure Level (None, Low, Medium and High), Health Status (Active, Inactive, ImpairedCommunication, NoSensorData, NoSensorDataImpairedCommunication and Unknown), Device Tag (Machine Tag, a set of machine tags), RBAC Group (the machine group name) and RBAC Group ID (the machine group ID).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-microsoft-defender-adaptive-access-engine.json",
+          "quotes": [
+            "The following signals are evaluated by Microsoft Defender for Endpoint and sent to Adaptive Access Engine:",
+            "Risk Score: Values are None, Informational, Low, Medium, and High.",
+            "Exposure Level: Values are None, Low, Medium, and High.",
+            "Health Status: The machine health status and values are Active, Inactive, ImpairedCommunication, NoSensorData, NoSensorDataImpairedCommunication, and Unknown.",
+            "Device Tag (Machine Tag): Set of machine tags.",
+            "RBAC Group: The machine group name.",
+            "RBAC Group ID: The machine group ID."
+          ]
+        }
+      ]
+    },
+    "defender-prerequisites": {
+      "statement": "The Defender integration needs a Microsoft Entra user account with admin privileges, a Microsoft Defender for Endpoint account, a Microsoft Azure account with subscription for Event Hub and Logic App, and a Microsoft Entra application registered with the required permissions, with a service principal created in the Azure tenant account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-microsoft-defender-adaptive-access-engine.json",
+          "quotes": [
+            "A Microsoft Entra user account with admin privileges.",
+            "A Microsoft Defender for Endpoint account.",
+            "A Microsoft Azure account with subscription for Event Hub and Logic App.",
+            "Register a Microsoft Entra application with the required permissions",
+            "in the Azure tenant account and create a service principal."
+          ]
+        }
+      ]
+    },
+    "defender-permissions": {
+      "statement": "The Service Permissions table lists the permissions Adaptive Access Engine needs to communicate with Microsoft Defender, starting with Microsoft Graph DeviceManagementManagedDevices.Read.All, Microsoft Threat Protection AdvancedHunting.Read.All and WindowsDefenderATP Ip.Read.All; it also lists SecurityEvents.Read.All, CustomDetections.ReadWrite.All, Incident.Read.All, Incident.ReadWrite.All, Machine.Read.All, Machine.ReadWrite.All, Machine.Scan, Alert.Read.All and Score.Read.All as Application permissions with admin consent required, and User.Read as a Delegated permission with no admin consent required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-microsoft-defender-adaptive-access-engine.json",
+          "quotes": [
+            "You need to manage permissions in the following services, to allow Adaptive Access Engine to communicate with Microsoft Defender:",
+            "| Microsoft Graph | DeviceManagementManagedDevices.Read.All | Application | Read Microsoft Intune devices | Yes |",
+            "| SecurityEvents.Read.All | Application | Read your organization’s security events | Yes |",
+            "| User.Read | Delegated | Sign in and read user profile | No |",
+            "| Microsoft Threat Protection | AdvancedHunting.Read.All | Application | Run advanced hunting queries | Yes |",
+            "| CustomDetections.ReadWrite.All | Application | Read and write all custom detection rules | Yes |",
+            "| Incident.Read.All | Application | Read all incidents | Yes |",
+            "| Incident.ReadWrite.All | Application | Read and write all incidents | Yes |",
+            "| WindowsDefenderATP | Ip.Read.All | Application | Read IP address profiles | Yes |",
+            "| Machine.Read.All | Application | Read all machine profiles | Yes |",
+            "| Machine.ReadWrite.All | Application | Read and write all machine information | Yes |",
+            "| Machine.Scan | Application | Scan machine | Yes |",
+            "| Alert.Read.All | Application | Read all alerts | Yes |",
+            "| Score.Read.All | Application | Read threat and vulnerability management score | Yes |"
+          ]
+        }
+      ]
+    },
+    "defender-zcc-version": {
+      "statement": "Zscaler Client Connector Windows 4.8 version or higher is required on devices using Microsoft Defender and Zscaler Client Connector that require Adaptive Access profiles for ZIA or ZPA policy enforcement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-microsoft-defender-adaptive-access-engine.json",
+          "quotes": [
+            "Zscaler Client Connector Windows 4.8 version or higher is required on devices using Microsoft Defender and Zscaler Client Connector and which require Adaptive Access profiles for Zscaler Internet Access (ZIA) or Zscaler Private Access (ZPA) policy enforcement."
+          ]
+        }
+      ]
+    },
+    "defender-azure-resources": {
+      "statement": "Azure resources are required to fetch the Microsoft Defender signals and transmit them to the engine: under Configure Azure Event Hub and Logic App, a resource group is created to store all resources related to the Zscaler Adaptive Access Engine application and a Bicep script hosted in Zscaler GitHub is run to create the resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-microsoft-defender-adaptive-access-engine.json",
+          "quotes": [
+            "The Azure resources are required to fetch the Microsoft Defender signals and transmit them to Adaptive Access Engine.",
+            "Configure Azure Event Hub and Logic App",
+            "Create a resource group to store all resources related to the Zscaler Adaptive Access Engine application.",
+            "Run the Bicep script (hosted in Zscaler GitHub) to create the resources and pass the appropriate parameter values."
+          ]
+        }
+      ]
+    },
+    "defender-fields": {
+      "statement": "The Defender integration in Experience Center takes the Event Hub Instance, the Event Hub Host, a Consumer Group (the name should be $Default, or a different consumer group created on the event hub instance) and a Connection String for the shared access service (SAS) policy created in the event hub, copied with the Copy icon next to the Connection string-primary key field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-microsoft-defender-adaptive-access-engine.json",
+          "quotes": [
+            "Event Hub Instance: Enter the event hub instance.",
+            "Event Hub Host: Enter the host name of the event hub.",
+            "Consumer Group: Enter the name of the consumer group that is used to read and process the Microsoft Defender events. The name should be $Default. You can also create a different consumer group on the event hub instance and use it.",
+            "Connection String: Enter the connection string corresponding to the shared access service (SAS) policy created in the event hub.",
+            "Select the Copy icon next to the Connection string-primary key field to copy the connection string."
+          ]
+        }
+      ]
+    },
+    "silverfort": {
+      "statement": "Silverfort sends the engine user risk signals (User Risk Level). The integration needs Silverfort version 5.3 and above, a Silverfort account with admin privileges and an Experience Center admin role that allows configuring the Adaptive Access Engine settings, and takes a Bearer Token generated on the Silverfort console and the SSF Config Endpoint, the SSF well-known endpoint from Silverfort for the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-integrating-silverfort-adaptive-access-engine.json",
+          "quotes": [
+            "The Adaptive Access Engine receives user risk signals from Silverfort",
+            "Silverfort shares the context signals (User Risk Level) with the Adaptive Access Engine.",
+            "A Silverfort version 5.3 and above.",
+            "A Silverfort account with admin privileges.",
+            "An admin role in Experience Center that allows you to configure the Adaptive Access Engine settings.",
+            "Get the shared signals framework (SSF) well-known endpoint for the Silverfort tenant.",
+            "Bearer Token: Enter the bearer token generated on the Silverfort console.",
+            "SSF Config Endpoint: Enter the URL SSF well-known endpoint from Silverfort."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "okta-signal-name": {
+      "kind": "semantic",
+      "title": "Whether the Okta signal is named Session Revoked or Session Revoke",
+      "status": "open",
+      "detail": "The Okta page says Okta shares Credentials Change and Session Revoked, and its field list names the second signal Session Revoke ('The context signal type (Credentials Change and Session Revoke)'). The pages do not say which is the name shown in the console.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "limited-availability-scope": {
+      "kind": "semantic",
+      "title": "Whether the Defender and Silverfort integrations are in limited availability",
+      "status": "open",
+      "detail": "Limited availability is stated on the Okta and CrowdStrike pages. The Defender and Silverfort pages say nothing about availability; that is an absence in those pages, not a statement that they are generally available.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "integration-details": {
+      "kind": "semantic",
+      "title": "Integration details the pages leave out",
+      "status": "open",
+      "detail": "Not stated: which Falcon event categories to pick (only a Zero Trust Assessment host-assessment trigger is given as an example), whether the Client Connector floor of Windows 4.8 has an equivalent on other platforms, the repository for the Bicep script (named only as Zscaler GitHub), signal refresh intervals, and what happens when an integration fails or Test Integration fails.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

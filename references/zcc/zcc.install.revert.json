@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.revert",
+  "title": "Reverting Client Connector to the previous version: availability, enabling it, the commands and what a revert keeps",
+  "aliases": [
+    "revert zcc",
+    "revertzcc",
+    "RevertZcc folder",
+    "revertPasswordCommandLine",
+    "revert app",
+    "zcc rollback"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.windows-unattended"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.passwords-and-otp.app-profile-passwords"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.end-user.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.rollout"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.platform-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{scope}} The install parameters for non-persistent VDI are in [[zcc.install.citrix-vdi]]."
+    },
+    {
+      "label": "Enabling it.",
+      "text": "{{enable}} The revert password is described in [[zcc.passwords-and-otp.app-profile-passwords:revert-password]] and the unattended-mode passwords in [[zcc.platform-settings]]."
+    },
+    {
+      "label": "Windows.",
+      "text": "{{how-windows}} The password option is spelled differently in the install parameters page {{divergence:revert-password-option}}. {{two-installers}}"
+    },
+    {
+      "label": "macOS.",
+      "text": "{{how-macos}}"
+    },
+    {
+      "label": "What a revert keeps.",
+      "text": "{{what-is-kept}} Whether this holds on macOS is open {{gap:kept-on-macos}}."
+    },
+    {
+      "label": "Force Revert.",
+      "text": "{{force-revert}} What it does on the device, and whether it needs the revert option or a password, is open {{gap:force-revert-device}}."
+    },
+    {
+      "label": "Other revert coverage.",
+      "text": "The EXE revert option in the install parameters is in [[zcc.install.windows-unattended]], and the user-facing Revert App button in [[zcc.end-user.troubleshooting]]. How long the previous installer is kept is open {{gap:installer-retention}}."
+    }
+  ],
+  "claims": {
+    "scope": {
+      "statement": "If a recent upgrade was not successful for some users, they can revert to the previous Client Connector version. The feature applies to Client Connector 3.9 and later for Windows and 4.1 and later for macOS, only admins can enable the option, and the revert option is not supported for non-persistent VDI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reverting-zscaler-client-connector.json",
+          "quotes": [
+            "If a recent upgrade wasn't successful for some users (e.g., they have issues connecting to Zscaler Client Connector), they can revert to the previous version.",
+            "This feature applies to Zscaler Client Connector version 3.9 and later for Windows and Zscaler Client Connector version 4.1 and later for macOS.",
+            "Only admins can enable this option.",
+            "The revert option is not supported for non-persistent virtual desktop infrastructure (VDI)."
+          ]
+        }
+      ]
+    },
+    "enable": {
+      "statement": "The page says to enable the option before installing Client Connector 3.9 or later for Windows or 4.1 or later for macOS: verify that auto-update to the latest version is not enabled, then under Advanced click Enable Zscaler Client Connector Revert; a password added in the Revert Password field makes users enter it to revert. To run the revert in unattended mode and require a password, a revert password must be configured in platform settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reverting-zscaler-client-connector.json",
+          "quotes": [
+            "Enable this option before installing Zscaler Client Connector version 3.9 or later for Windows.",
+            "Enable this option before installing Zscaler Client Connector version 4.1 or later for macOS.",
+            "To run the revert process in unattended mode and require a password, configure a revert password in platform settings."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reverting-zscaler-client-connector.json",
+          "after": "Enable this option before installing Zscaler Client Connector version 3.9 or later for Windows.",
+          "quotes": [
+            "Verify that auto-update to the latest version is not enabled. If it is enabled, disable it.",
+            "Under Advanced, click Enable Zscaler Client Connector Revert.",
+            "If you want to require users to enter a password to revert to the previous version, add a password in the Revert Password field."
+          ]
+        }
+      ]
+    },
+    "force-revert": {
+      "statement": "The App Store's Revert Version column restores a previous version when Force Revert is clicked; it applies to Client Connector 4.2 and later for Windows and is not supported for non-persistent virtual desktop infrastructure (VDI).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "In the Revert Version column, restore a previous version by clicking Force Revert. Applies to Zscaler Client Connector versions 4.2 and later for Windows.",
+            "Force Revert is not supported for non-persistent virtual desktop infrastructure (VDI)."
+          ]
+        }
+      ]
+    },
+    "how-windows": {
+      "statement": "On Windows, users can revert with Revert App in the Troubleshoot menu of Client Connector's More window, or by running the previous version's installer from the RevertZcc folder (%ProgramFiles(x86)%\\Zscaler\\RevertZcc on a 32-bit system, %ProgramFiles(x64)%\\Zscaler\\RevertZcc on a 64-bit system) with --revertzcc 1 --exportLogs 1 --mode unattended. If a revert password was configured for access in unattended mode, --revertPasswordCommandLine <revert password> is added with the revert password generated in platform settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reverting-zscaler-client-connector.json",
+          "after": "There are two ways users can revert to the previous Zscaler Client Connector version for Windows:",
+          "quotes": [
+            "In Zscaler Client Connector, click More. In the Troubleshoot menu, click Revert App."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reverting-zscaler-client-connector.json",
+          "quotes": [
+            "32-bit system: %ProgramFiles(x86)%\\Zscaler\\RevertZcc\\<previous version installer> --revertzcc 1 --exportLogs 1 --mode unattended",
+            "64-bit system: %ProgramFiles(x64)%\\Zscaler\\RevertZcc\\<previous version installer> --revertzcc 1 --exportLogs 1 --mode unattended",
+            "If you configured a revert password for access in unattended mode, add --revertPasswordCommandLine <revert password> to the command and replace <revert password> with the generated revert password in platform settings."
+          ]
+        }
+      ]
+    },
+    "how-macos": {
+      "statement": "On macOS, the revert command is sudo sh /Applications/Zscaler/RevertZcc/<previous version installer>/Contents/MacOS/installbuilder.sh --revertzcc 1 --exportLogs 1 --mode unattended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reverting-zscaler-client-connector.json",
+          "quotes": [
+            "sudo sh /Applications/Zscaler/RevertZcc/<previous version installer>/Contents/MacOS/installbuilder.sh --revertzcc 1 --exportLogs 1 --mode unattended"
+          ]
+        }
+      ]
+    },
+    "two-installers": {
+      "statement": "On devices that are upgraded, the \\Zscaler\\RevertZcc folder holds two installers, the upgraded version and the version before the upgrade, and the <previous version installer> in the command must use the path of the version before the upgrade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reverting-zscaler-client-connector.json",
+          "quotes": [
+            "For <previous version installer>, make sure to use the path of the version before the upgrade.",
+            "On devices that are upgraded, there are two installers in the \\Zscaler\\RevertZcc folder. One installer is the upgraded version. The other installer is the version before the upgrade."
+          ]
+        }
+      ]
+    },
+    "what-is-kept": {
+      "statement": "When users revert to a previous version, Client Connector retains configuration files for users and partner tenants added since the most recent upgrade, retains changes to service entitlements, retains the Private Access certificate if an updated one has been uploaded, and retains certificates and keys set up for authenticating machine tunnel access; it removes configuration files for deleted or logged-out users and deleted partner tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reverting-zscaler-client-connector.json",
+          "quotes": [
+            "When users revert to a previous version, Zscaler Client Connector does the following with updates made since the most recent upgrade:",
+            "Retains configuration files for any users and partner tenants that have been added.",
+            "Retains any changes to service entitlements.",
+            "Removes configuration files for any deleted or logged-out users and any deleted partner tenants.",
+            "Retains the Private Access certificate if an updated certificate has been uploaded.",
+            "Retains any certificates and keys that have been set up for authenticating machine tunnel access."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "revert-password-option": {
+      "summary": "The revert page spells the option that passes the unattended revert password --revertPasswordCommandLine; the Windows install parameters page spells the EXE option revertPasswordCmdLine (MSI REVERTPASSWORDCMDLINE).",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-reverting-zscaler-client-connector.json",
+            "quotes": [
+              "add --revertPasswordCommandLine <revert password> to the command"
+            ]
+          },
+          "says": "Add --revertPasswordCommandLine <revert password> to the revert command."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "supported-parameters-zscaler-client-connector-windows.json",
+            "quotes": [
+              "| MSI: REVERTPASSWORDCMDLINE EXE: revertPasswordCmdLine |"
+            ]
+          },
+          "says": "The EXE option is revertPasswordCmdLine (MSI REVERTPASSWORDCMDLINE)."
+        }
+      ],
+      "impact": "A revert command written from one page may use the wrong option name for the other; the pages do not say whether both spellings are accepted."
+    }
+  },
+  "gaps": {
+    "force-revert-device": {
+      "kind": "semantic",
+      "title": "What Force Revert does on the device",
+      "status": "open",
+      "detail": "The App Store page says Force Revert restores a previous version for 4.2 and later on Windows; it does not describe what happens on the device or whether it needs the revert option enabled or a revert password. The admin-side 4.2 floor is separate from the 3.9 floor of the revert option.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "kept-on-macos": {
+      "kind": "semantic",
+      "title": "Whether the revert retention list holds on macOS",
+      "status": "open",
+      "detail": "The page lists what a revert retains and removes in the Windows section of the article; it does not say whether the same applies to a macOS revert.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "installer-retention": {
+      "kind": "semantic",
+      "title": "How long the previous installer stays in the RevertZcc folder",
+      "status": "open",
+      "detail": "The page says upgraded devices hold two installers in the RevertZcc folder but does not say how long the previous one is kept.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

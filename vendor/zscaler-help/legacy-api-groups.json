@@ -1,0 +1,1240 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Groups",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/groups",
+    "node": "1530801",
+    "revision": "3211059",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/ZIdentity%20Service%20Groups_10.json?VersionId=JJx5M6uF61gsMUHIR.qgDj.ofJSmqi8y",
+    "updated": "2026-06-26",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Authentication Service APIs",
+      "version": "v1"
+    },
+    "servers": [
+      {
+        "url": "https://api.zsapi.net/ziam/admin/api/v1",
+        "description": "Authentication Service Endpoint",
+        "variables": {}
+      }
+    ],
+    "tags": [
+      {
+        "name": "Groups"
+      }
+    ],
+    "paths": {
+      "/groups": {
+        "get": {
+          "description": "Retrieves a paginated list of groups with optional query parameters for pagination and filtering by group name or dynamic group status.\n\n To learn more, see <a href=\"/zidentity/about-user-groups\">About User Groups</a>.",
+          "operationId": "GroupsOps_list",
+          "parameters": [
+            {
+              "name": "offset",
+              "description": "The starting point for pagination, with the number of records that can be skipped before fetching results.",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0
+              },
+              "explode": false
+            },
+            {
+              "name": "limit",
+              "description": "The maximum number of records to return per request. Minimum: <code>0</code>, Maximum: <code>1000</code>",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0,
+                "maximum": 1000
+              },
+              "explode": false
+            },
+            {
+              "$ref": "#/components/parameters/GroupsQueryParameter.namelike"
+            },
+            {
+              "$ref": "#/components/parameters/GroupsQueryParameter.excludedynamicgroups"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and a paginated list of groups are returned.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "results_total",
+                        "pageOffset",
+                        "pageSize",
+                        "next_link",
+                        "prev_link",
+                        "records"
+                      ],
+                      "properties": {
+                        "results_total": {
+                          "description": "The total number of groups available.",
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "pageOffset": {
+                          "description": "The starting point of the current page in pagination. Helps determine which set of records is being displayed.",
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "pageSize": {
+                          "description": "The number of records included in a single response page.",
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "next_link": {
+                          "description": "URL link to the next page of group records, if available. Helps to navigate through paginated results.",
+                          "type": "string"
+                        },
+                        "prev_link": {
+                          "description": "URL link to the previous page of group records, if available.",
+                          "type": "string"
+                        },
+                        "records": {
+                          "description": "List of groups and the details of each individual group.",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/GroupProfilePubRespDto"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials. \n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "post": {
+          "description": "Creates a new group with the specified name and description.",
+          "operationId": "GroupsOps_add",
+          "parameters": [],
+          "responses": {
+            "201": {
+              "description": "The request was successful, and a new group has been created.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/GroupProfilePubRespDto"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials. \n\n The request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupProfilePubReqDto"
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/groups:bulkdelete": {
+        "post": {
+          "description": "Deletes multiple groups in a single request.<p><strong>Note:</strong> A maximum of 1,000 groups can be deleted in a single API request. After deletion, the groups cannot be recovered.</p>",
+          "operationId": "GroupsOps_bulkDelete",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and the groups have been deleted.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "String confirmation returned after successful deletion.",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The request contains invalid syntax or missing required fields.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Standard validation error payload.",
+                    "$ref": "#/components/schemas/Zscaler.Core.ValidationError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials. The request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Standard authentication error payload.",
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "requestBody": {
+            "description": "JSON array of group reference objects to be deleted.",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RefPubReqDto"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/groups/{id}": {
+        "put": {
+          "description": "Update an existing group based on the provided group <code>ID</code>.",
+          "operationId": "GroupsOps_update",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the group to be updated.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request has succeeded, and the group details have been updated.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/GroupProfilePubRespDto"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Unexpected server issue occurred while processing the request.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.InternalServerError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupProfilePubReqDto"
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "delete": {
+          "description": "Deletes an existing group based on the provided group <code>ID</code>.",
+          "operationId": "GroupsOps_remove",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The unique identifier of the group to be deleted.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "The group was successfully deleted.\n\nNo content is returned in the response, but headers may be useful for validation purposes."
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "get": {
+          "description": "Retrieves detailed information about a specific group using its unique identifier <code>ID</code>.",
+          "operationId": "GroupsOps_get",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the group to retrieve.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and the group details are returned.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/GroupProfilePubRespDto"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/groups/{id}/users": {
+        "post": {
+          "description": "Adds users to an existing group using the unique identifier <code>ID</code> of the group.<p><strong>Note:</strong> A maximum of 1,000 users can be added in a single API request.</p>",
+          "operationId": "GroupsOps_addUsers",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the group to which users will be added.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and users have been added to the group.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The request contains invalid syntax or missing required fields.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.ValidationError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials. \n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RefPubReqDto"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "put": {
+          "description": "<p>Replaces the list of users in a specific group using the group <code>ID</code>.</p><p><strong>NOTE:</strong> A maximum of 1,000 users can be included in a single replacement request. This operation completely replaces all existing users in the group.</p>",
+          "operationId": "GroupsOps_putUsers",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the group which users needs to be updated.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request has succeeded. All existing users in the group have been replaced.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The request could not be processed due to invalid syntax or missing required fields.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.ValidationError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RefPubReqDto"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "get": {
+          "description": "Retrieves the list of users details for a specific group using the group <code>ID</code>.",
+          "operationId": "GroupsOps_getGroupMembers",
+          "parameters": [
+            {
+              "name": "offset",
+              "description": "The starting point for pagination, with the number of records that can be skipped before fetching results.",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0
+              },
+              "explode": false
+            },
+            {
+              "name": "limit",
+              "description": "The maximum number of records to return per request. Minimum: <code>0</code>, Maximum: <code>1000</code>",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0,
+                "maximum": 1000
+              },
+              "explode": false
+            },
+            {
+              "$ref": "#/components/parameters/GroupUsersQueryParam.id"
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.loginname"
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.loginnamelike"
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.displaynamelike"
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.primaryemaillike"
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.domainname"
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.idpname"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and a paginated list of users details are returned.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "results_total",
+                        "pageOffset",
+                        "pageSize",
+                        "next_link",
+                        "prev_link",
+                        "records"
+                      ],
+                      "properties": {
+                        "results_total": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The total number of user details available."
+                        },
+                        "pageOffset": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The starting point of the current page in pagination. Helps determine which set of records is being displayed."
+                        },
+                        "pageSize": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The number of records included in a single response page."
+                        },
+                        "next_link": {
+                          "type": "string",
+                          "description": "URL link to the next page of user detail records, if available. Helps to navigate through paginated results."
+                        },
+                        "prev_link": {
+                          "type": "string",
+                          "description": "URL link to the previous page of user detail records, if available."
+                        },
+                        "records": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/UserProfilePubRespDto"
+                          },
+                          "description": "List of each individual user records."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/groups/{id}/users:bulkremove": {
+        "post": {
+          "description": "Removes multiple users from an existing group using the group <code>ID</code>.<p><strong>Note:</strong> A maximum of 1,000 users can be removed in a single API request.</p>",
+          "operationId": "GroupsOps_bulkRemoveUsers",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the group from which users will be removed.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "description": "Schema for the unique group identifier.",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and users have been removed from the group.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "String confirmation returned after successful removal of users from the group.",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The request contains invalid syntax or missing required fields.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Standard validation error payload.",
+                    "$ref": "#/components/schemas/Zscaler.Core.ValidationError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Standard authentication error payload.",
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "requestBody": {
+            "description": "JSON array of user reference objects to remove from the specified group.",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "description": "Reference object identifying a user targeted for removal.",
+                    "$ref": "#/components/schemas/RefPubReqDto"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/groups/{id}/users/{userId}": {
+        "post": {
+          "description": "Adds a specific user to an existing group using the group <code>ID</code> and the user <code>ID</code>.",
+          "operationId": "GroupsOps_addUser",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the group to which the user needs to be added.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "userId",
+              "description": "Unique identifier of the user being added to the group.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and the user has been added to the group",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The request could not be processed due to invalid syntax or missing required fields.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.ValidationError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "delete": {
+          "description": "Removes a specific user from an existing group using the group <code>ID</code> and the user <code>ID</code>.",
+          "operationId": "GroupsOps_removeUser",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the group from which the user needs to be removed.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "userId",
+              "description": "Unique identifier of the user to be removed from the group.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "The user has been removed from the group.\n\nNo content is returned in the response, but headers may be useful for validation purposes."
+            },
+            "400": {
+              "description": "The request could not be processed due to invalid syntax or missing required fields.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.ValidationError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Groups"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      }
+    },
+    "components": {
+      "parameters": {
+        "GroupsQueryParameter.namelike": {
+          "name": "name[like]",
+          "in": "query",
+          "required": false,
+          "description": "Filters results by group name using a case-insensitive partial match.",
+          "schema": {
+            "type": "string"
+          },
+          "explode": false
+        },
+        "GroupsQueryParameter.excludedynamicgroups": {
+          "name": "excludedynamicgroups",
+          "in": "query",
+          "required": false,
+          "description": "Excludes dynamic groups from the results.",
+          "schema": {
+            "type": "boolean"
+          },
+          "explode": false
+        },
+        "GroupUsersQueryParam.id": {
+          "name": "id",
+          "description": "Unique identifier for the group (used in endpoints where group ID is required).",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "UsersQueryParameter.loginname": {
+          "name": "loginname",
+          "in": "query",
+          "required": false,
+          "description": "Filters results by one or multiple login names.",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "explode": false
+        },
+        "UsersQueryParameter.loginnamelike": {
+          "name": "loginname[like]",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by login name using a case-insensitive partial match.",
+          "schema": {
+            "type": "string"
+          },
+          "explode": false
+        },
+        "UsersQueryParameter.displaynamelike": {
+          "name": "displayname[like]",
+          "in": "query",
+          "required": false,
+          "description": "Filters results by display name using a case-insensitive partial match.",
+          "schema": {
+            "type": "string"
+          },
+          "explode": false
+        },
+        "UsersQueryParameter.primaryemaillike": {
+          "name": "primaryemail[like]",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by primary email using a case-insensitive partial match.",
+          "schema": {
+            "type": "string"
+          },
+          "explode": false
+        },
+        "UsersQueryParameter.domainname": {
+          "name": "domainname",
+          "in": "query",
+          "required": false,
+          "description": "Filters results by a domain name or by multiple domain.",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "explode": false
+        },
+        "UsersQueryParameter.idpname": {
+          "name": "idpname",
+          "in": "query",
+          "required": false,
+          "description": "Filters results by one or more identity provider names.",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "explode": false
+        }
+      },
+      "schemas": {
+        "GroupProfilePubRespDto": {
+          "description": "Group details, including the assigned service entitlements.",
+          "type": "object",
+          "required": [
+            "id",
+            "source",
+            "idp",
+            "isDynamicGroup",
+            "adminEntitlementEnabled",
+            "serviceEntitlementEnabled"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique identifier for the group."
+            },
+            "source": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/SourceType"
+                }
+              ],
+              "description": "The source type of the group."
+            },
+            "idp": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/RefPubRespDto"
+                }
+              ],
+              "description": "Identity provider information associated with the group."
+            },
+            "isDynamicGroup": {
+              "description": "Boolean flag indicating if the group is dynamic.",
+              "type": "boolean"
+            },
+            "adminEntitlementEnabled": {
+              "description": "Whether the group supports admin entitlements.",
+              "type": "boolean"
+            },
+            "serviceEntitlementEnabled": {
+              "description": "Whether the group supports service entitlements.",
+              "type": "boolean"
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/GroupProfilePubReqDto"
+            }
+          ]
+        },
+        "Zscaler.Core.UnauthorizedError": {
+          "description": "The structure of a <code>unauthorized</code> error response, indicating that the request lacks valid authorization credentials or the provided credentials do not grant sufficient permissions for the requested operation.",
+          "type": "object",
+          "required": [
+            "type",
+            "title",
+            "status",
+            "detail"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "format": "uri",
+              "description": "A URI reference that identifies the problem type. See the following for common problem types. Additional types might be defined by subsystems."
+            },
+            "title": {
+              "type": "string",
+              "description": "A short message that the request is unauthorized."
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The HTTP status code (e.g., 401)."
+            },
+            "detail": {
+              "type": "string",
+              "description": "A descriptive message explaining that the request is unauthorized."
+            }
+          }
+        },
+        "GroupProfilePubReqDto": {
+          "description": "Group profile details.",
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "description": "The name of the group.",
+              "type": "string",
+              "maxLength": 128
+            },
+            "description": {
+              "description": "A description of the group.",
+              "type": "string",
+              "maxLength": 256
+            }
+          }
+        },
+        "RefPubReqDto": {
+          "description": "Details of the referenced entity.",
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique identifier of the referenced entity."
+            }
+          }
+        },
+        "Zscaler.Core.ValidationError": {
+          "description": "The structure for a validation error response used when a request fails due to incorrect or missing input.",
+          "type": "object",
+          "required": [
+            "type",
+            "title",
+            "status",
+            "detail"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "format": "uri",
+              "description": "A URI identifier that categorizes the error type."
+            },
+            "title": {
+              "type": "string",
+              "description": "A short message that the validation is not successful."
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The HTTP status code (e.g., 400)."
+            },
+            "detail": {
+              "type": "string",
+              "description": "A descriptive message explaining the nature of the validation error."
+            }
+          }
+        },
+        "Zscaler.Core.InternalServerError": {
+          "description": "The structure of an internal server error response, including standardized fields used to convey detailed error information when an unexpected server-side error occurs.",
+          "type": "object",
+          "required": [
+            "type",
+            "title",
+            "status",
+            "detail"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "format": "uri",
+              "description": "A URI reference that identifies the problem type. See the following for common problem types. Additional types might be defined by subsystems."
+            },
+            "title": {
+              "type": "string",
+              "description": "A short message about the internal server error."
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The HTTP status code (e.g., 500)."
+            },
+            "detail": {
+              "type": "string",
+              "description": "A detailed explanation  providing details about the internal server error."
+            }
+          }
+        },
+        "UserProfilePubRespDto": {
+          "description": "The structure of a user profile returned by the API.",
+          "type": "object",
+          "required": [
+            "id",
+            "source",
+            "idp"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique identifier <code>ID</code> of the user."
+            },
+            "source": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/SourceType"
+                }
+              ],
+              "description": "The source type where the user was created."
+            },
+            "idp": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/RefPubRespDto"
+                }
+              ],
+              "description": "Identity provider information."
+            }
+          },
+          "allOf": [
+            {
+              "type": "object",
+              "required": [
+                "loginName",
+                "displayName",
+                "primaryEmail",
+                "status"
+              ],
+              "properties": {
+                "loginName": {
+                  "description": "Unique login name of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "displayName": {
+                  "description": "Display name of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "firstName": {
+                  "description": "First name of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "lastName": {
+                  "description": "Last name of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "primaryEmail": {
+                  "description": "Primary email address of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "secondaryEmail": {
+                  "description": "Secondary email address of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "department": {
+                  "description": "The department to which the user is associated.",
+                  "$ref": "#/components/schemas/RefPubRespDto"
+                },
+                "status": {
+                  "description": "Whether the user is active (<code>true</code>) or disabled (<code>false</code>).",
+                  "type": "boolean"
+                },
+                "customAttrsInfo": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "User-defined set of custom attributes represented as key-value pairs used to store additional information."
+                }
+              }
+            }
+          ]
+        },
+        "SourceType": {
+          "description": "The various sources from which an entity can originate.<li> <strong>UI</strong>: Resource was created or managed via a user interface. <li> <strong>API</strong>: Resource was created or managed through API calls.<li><strong>SCIM</strong>:  Resource was provisioned via System for Cross-domain Identity Management (SCIM). <li><strong>JIT</strong>: Resource was created or updated via Just-in-Time (JIT).",
+          "type": "string",
+          "enum": [
+            "UI",
+            "API",
+            "SCIM",
+            "JIT"
+          ]
+        },
+        "RefPubRespDto": {
+          "description": "The scope associated with the entitlement.",
+          "type": "object",
+          "required": [
+            "name",
+            "displayName"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of the referenced entity."
+            },
+            "displayName": {
+              "type": "string",
+              "description": "Display name of the referenced entity."
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RefPubReqDto"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

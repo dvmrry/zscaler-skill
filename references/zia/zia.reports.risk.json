@@ -1,0 +1,523 @@
+{
+  "schema_version": 1,
+  "id": "zia.reports.risk",
+  "title": "Risk and posture scoring reports: Company Risk Score, User Risk, Configuration Risk, Security Policy Audit and the Attack Surface Report",
+  "aliases": [
+    "company risk score",
+    "user risk report",
+    "configuration risk report",
+    "security policy audit report",
+    "attack surface report"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.reports"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.atp",
+      "because": "zia.reports.risk:company-risk-needs-atp"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.scoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Three score scales appear in these reports and stay separate: the Company Risk Score and User Risk Report scale, the Configuration Risk Report scale, and the User Risk Profile levels of URL Filtering in [[zia.url-filtering.criteria]]. Risk360 has its own score: [[risk360.scoring]]."
+    },
+    {
+      "label": "Company Risk Score.",
+      "text": "{{company-risk-what}} {{company-risk-needs-atp}} {{company-risk-threshold}} {{company-risk-zero-days}} {{company-risk-bands}} {{company-risk-events}} {{company-risk-unauth-locations}} Per-factor weights and the meaning of the 1 percentile rule are open {{gap:company-risk-weights}}."
+    },
+    {
+      "label": "User Risk Report.",
+      "text": "{{user-risk-inputs}} {{user-risk-realtime}} {{user-risk-sections}} Its bands differ from the URL Filtering levels {{divergence:user-risk-bands}}, and the existing claim is [[zia.url-filtering.criteria:user-risk-score-levels]]. How the score is computed is open {{gap:user-risk-computation}}."
+    },
+    {
+      "label": "Configuration Risk Report.",
+      "text": "{{config-risk-what}} {{config-risk-factors}} {{config-risk-bands}} {{config-risk-status}}"
+    },
+    {
+      "label": "Security Policy Audit Report.",
+      "text": "{{audit-grades}} {{audit-c-table}} The Advanced Threats rows of that table are the ATP settings in [[zia.atp:recommended-policy]]. {{audit-sections}} How often it recomputes is open {{gap:recompute-cadence}}."
+    },
+    {
+      "label": "Attack Surface Report.",
+      "text": "Whether the report is still reachable in the console is documented two ways {{divergence:attack-surface-access}}. {{attack-surface-sections}} {{attack-surface-notify}} How often it is generated is open {{gap:attack-surface-cadence}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the organization has Advanced Threat Protection, since risk scores are calculated only for those that do.",
+      "uses": [
+        "company-risk-needs-atp"
+      ]
+    },
+    {
+      "do": "Whether a missing company score is an insufficient-activity day, and whether a 0 day lowered the running score.",
+      "uses": [
+        "company-risk-threshold",
+        "company-risk-zero-days"
+      ]
+    },
+    {
+      "do": "Which scale a user risk band is quoted on before comparing it with a URL Filtering risk level, since the pages differ.",
+      "uses": [
+        "user-risk-bands"
+      ]
+    },
+    {
+      "do": "Whether the Attack Surface Report can be opened in the console at all, before sending an administrator to it.",
+      "uses": [
+        "attack-surface-access"
+      ]
+    }
+  ],
+  "claims": {
+    "company-risk-what": {
+      "statement": "Risk scores are calculated for each user, location and company. Each user's behavior is analyzed against pre-infection, post-infection and suspicious behavior; risky behavior affects the score for up to 7 days, different factors bear different weights, and unauthenticated users are excluded from calculations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-company-risk-score-report.json",
+          "quotes": [
+            "Risk scores are calculated for each user, location, and company.",
+            "Each user's behavior is analyzed against three groups of risk factors: pre-infection behavior (e.g., blocked access to malicious destinations or content), post-infection behavior (beaconing or command, and control communications), and suspicious behavior (e.g., data leak policy blocks).",
+            "Risky behavior has an effect on the score for up to 7 days from occurrence. Different risk factors also bear different weights on the score.",
+            "Unauthenticated users are excluded from calculations since transactions can't be associated with an identity."
+          ]
+        }
+      ]
+    },
+    "company-risk-needs-atp": {
+      "statement": "Risk scores are calculated only for organizations with Advanced Threat Protection, which is available in the Internet & SaaS Business bundle and higher or sold separately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-company-risk-score-report.json",
+          "quotes": [
+            "Risk scores are calculated only for organizations with Advanced Threat Protection (Available in the Internet & SaaS Business bundle and higher or sold separately)."
+          ]
+        }
+      ]
+    },
+    "company-risk-threshold": {
+      "statement": "Risk scores are calculated on a 7-day moving window of risk events. If there are not at least 100 authenticated users in the organization, each with at least one transaction within that window, the score is not computed for that day. The score is also not calculated for a duration when the total percentile of risky users is less than 1 percentile of the total risky users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-company-risk-score-report.json",
+          "quotes": [
+            "Risk scores are calculated on a 7-day moving window of risk events.",
+            "If there aren't at least 100 authenticated users in the organization, each of whom had at least one",
+            "transaction within that window, then the risk score isn't computed for that day.",
+            "The risk score is not calculated for a duration when the total percentile of risky users is less than 1 percentile of the total risky users."
+          ]
+        }
+      ]
+    },
+    "company-risk-zero-days": {
+      "statement": "When there is insufficient user activity in a given day, the company risk score is recorded as 0, and that daily 0 is included in the running company risk score calculation, reducing the score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-company-risk-score-report.json",
+          "quotes": [
+            "When there is insufficient user activity in a given day, the company risk score is recorded as \"0\".",
+            "A daily company risk score of \"0\" is included in the running company risk score calculation, resulting in a reduction of the company risk score value."
+          ]
+        }
+      ]
+    },
+    "company-risk-bands": {
+      "statement": "The Current Risk Score widget shows the organization's score, its industry vertical's average and the average of all organizations, in bands Low (0–25), Medium (26–50), High (51–75) and Critical (76–100).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-company-risk-score-report.json",
+          "quotes": [
+            "Current Risk Score: Your organization’s risk score, your industry vertical's average risk score, and the average risk score of all organizations.",
+            "- Low (0–25)",
+            "- Medium (26–50)",
+            "- High (51–75)",
+            "- Critical (76–100)"
+          ]
+        }
+      ]
+    },
+    "company-risk-events": {
+      "statement": "The contributing events are Active Infections (transactions suspected to be botnet callbacks), Suspicious Activity (potentially malicious transactions) and Threats Blocked (transactions blocked as more likely to result in an infection); the Risk Score Trend graph spans 7, 15 and 30 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-company-risk-score-report.json",
+          "quotes": [
+            "Active Infections: Shows transactions that are suspected botnet callbacks.",
+            "Suspicious Activity: Shows transactions that are potentially malicious.",
+            "Threats Blocked: Shows transactions blocked because they are more likely to result in an infection.",
+            "Your Risk Score Trend: This graph displays your risk score during a span of 7, 15, and 30 days."
+          ]
+        }
+      ]
+    },
+    "company-risk-unauth-locations": {
+      "statement": "The score is computed from authenticated user traffic, so locations with a high number of unauthenticated transactions cannot have a score computed and are listed separately; the trend and that section are not computed when there is a low number of authenticated users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-company-risk-score-report.json",
+          "quotes": [
+            "Top Locations with Unauthenticated Transactions: The risk score is computed based on authenticated user traffic.",
+            "These locations have a high number of unauthenticated transactions and cannot have a risk score computed.",
+            "The trend isn't computed if there is a low number of authenticated users.",
+            "This section isn't computed if there is a low number of authenticated users."
+          ]
+        }
+      ]
+    },
+    "user-risk-inputs": {
+      "statement": "The User Risk Report's risk score is generated based on DLP violations, risky user behavior, unsanctioned cloud application usage and other suspicious factors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-user-risk-report.json",
+          "quotes": [
+            "The risk score is generated based on DLP violations, risky user behavior, unsanctioned cloud application usage, and other suspicious factors."
+          ]
+        }
+      ]
+    },
+    "user-risk-realtime": {
+      "statement": "Recent increases in the risk score can be viewed only when Real-Time Risk Score Updates is enabled in the Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-user-risk-report.json",
+          "quotes": [
+            "You can view the recent increases in the recent risk score only when Real-Time Risk Score Updates is enabled in the Advanced Settings."
+          ]
+        }
+      ]
+    },
+    "user-risk-sections": {
+      "statement": "The User Risk Report's Risk Score Trend graph shows the trend for the user, company and cloud and can be filtered for the last 7, 15 or 30 days. It also shows DLP violations by DLP engine, the user's unsanctioned cloud applications, and top risky URL categories identified by the Zscaler research team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-user-risk-report.json",
+          "quotes": [
+            "Risk Score Trend: The graph shows the risk score trend for the user, company, and cloud.",
+            "You can filter the graph for the last 7, 15, or 30 days.",
+            "DLP Violations by DLP Engine: The donut chart indicates the percentage of DLP violations based on the DLP engines.",
+            "Top Unsanctioned Cloud Applications: The chart shows all the unsanctioned cloud applications accessed by the user.",
+            "These top risky URL categories are identified by the Zscaler research team."
+          ]
+        }
+      ]
+    },
+    "config-risk-what": {
+      "statement": "The Configuration Risk Report evaluates the organization's policy configuration, traffic patterns and feature capabilities against Zscaler's best practices to calculate the risk of a breach, in four categories: Web-Based Threats, File-Based Threats, Network-Based Threats and Uninspected Encrypted Traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-configuration-risk-report.json",
+          "quotes": [
+            "Zscaler calculates the risk of a breach by evaluating your organization's policy configuration, traffic patterns, and feature capabilities against Zscaler's best practices.",
+            "- Web-Based Threats",
+            "- File-Based Threats",
+            "- Network-Based Threats",
+            "- Uninspected Encrypted Traffic"
+          ]
+        }
+      ]
+    },
+    "config-risk-factors": {
+      "statement": "The page lists these contributing factors: Advanced Threat Protection, Browser Control Settings, Mobile Malware Protection, Sandbox, File Type Control, IPS Control Settings, Firewall Traffic Analysis, Firewall Filtering Rule, IPS Traffic Analysis, FTP Settings and SSL/TLS Inspected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-configuration-risk-report.json",
+          "quotes": [
+            "- Advanced Threat Protection",
+            "- Browser Control Settings",
+            "- Mobile Malware Protection",
+            "- Sandbox",
+            "- File Type Control",
+            "- IPS Control Settings",
+            "- Firewall Traffic Analysis",
+            "- Firewall Filtering Rule",
+            "- IPS Traffic Analysis",
+            "- FTP Settings",
+            "- SSL/TLS Inspected"
+          ]
+        }
+      ]
+    },
+    "config-risk-bands": {
+      "statement": "The Configuration Risk Report's bands are Low (0–29), Medium (30–59), High (60–79) and Critical (80–100); the trend shows the last 30 days by default, or weekly, monthly or quarterly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-configuration-risk-report.json",
+          "quotes": [
+            "- Low (0–29)",
+            "- Medium (30–59)",
+            "- High (60–79)",
+            "- Critical (80–100)",
+            "You can view data for the last 30 days, weekly, monthly, or quarterly. The default trend is displayed for the last 30 days."
+          ]
+        }
+      ]
+    },
+    "config-risk-status": {
+      "statement": "Each setting shows a status of Protected, Moderately Protected, Mildly Protected or Not Protected based on its risk contribution; the status and the risk contribution are computed independently, so the same risk contribution for two settings might generate similar or different statuses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-configuration-risk-report.json",
+          "quotes": [
+            "One of the following statuses appears based on the risk contribution:",
+            "- Protected",
+            "- Moderately Protected",
+            "- Mildly Protected",
+            "- Not Protected",
+            "The threat protection status and the risk contribution for each setting are computed independently, which means the same risk contribution value for two different settings might generate similar or different threat protection statuses."
+          ]
+        }
+      ]
+    },
+    "audit-grades": {
+      "statement": "The Security Policy Audit Report's possible grades are A, B, C or N/A, with C being the lowest. If the organization has no subscription for an area (for example Sandbox), non-compliance in that area does not affect the grade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-security-policy-audit-report.json",
+          "quotes": [
+            "The possible grades you can receive are A, B, C, or N/A, with C being the lowest.",
+            "If you don't have a subscription for a certain area (e.g. Sandbox), then any non-compliance in that area doesn't impact your grade."
+          ]
+        }
+      ]
+    },
+    "audit-c-table": {
+      "statement": "Not following the best practice for the settings in the page's C table gives a grade of C, including Inspect Inbound Traffic, Inspect Outbound Traffic and Inspect HTTP enabled, and Sandbox blocking known malicious files of any file type from any URL category with First Time Action Allow and Scan for all other combinations. Not following the best practice for all other areas gives a B.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-security-policy-audit-report.json",
+          "quotes": [
+            "If you don't follow the best practice settings for the following areas and policies, your grade for non-compliance will be a C:",
+            "| Malware Protection: Traffic Inspection | Inspect Inbound Traffic | Enabled |",
+            "| Malware Protection: Traffic Inspection | Inspect Outbound Traffic | Enabled |",
+            "| Malware Protection: Protocol Inspection | Inspect HTTP | Enabled |",
+            "| Sandbox | Known malicious files from any URL category of any file type | Action = Block ALL FILE TYPES ALL URL CATS |",
+            "| Sandbox | All other file type and URL category combinations | First Time Action = Allow and Scan |",
+            "If you don't follow the best practice settings for all other areas, your grade for non-compliance will be a B."
+          ]
+        }
+      ]
+    },
+    "audit-sections": {
+      "statement": "The report has three main sections, Traffic Inspection, Threat Protection and Security Exceptions. Its checks include the percentage of encrypted traffic inspected, the Revoked Server and Untrusted SSL Server certificate settings, inbound and outbound traffic, protocol inspection, malware, advanced threats, Browser Control, and Sandbox policies 1 through 4; the Browser Vulnerability Protection section is only applicable with browser-based authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-security-policy-audit-report.json",
+          "quotes": [
+            "The report has three main sections:",
+            "- Traffic Inspection",
+            "- Threat Protection",
+            "- Security Exceptions",
+            "SSL/TLS Inspection: This includes the percentage of encrypted traffic that is being inspected, the Revoked Server certificate, and the Untrusted SSL Server certificate.",
+            "Inbound/Outbound Traffic: Inspected inbound and outbound traffic.",
+            "Protocol Inspection: This includes the following protocols:",
+            "Malware: Types of malware include:",
+            "Advanced Threats: Types of advanced threats include:",
+            "Browser Control: This includes checks and Allow All Browsers.",
+            "Sandbox: This includes Sandbox policies 1 through 4.",
+            "the Browser Vulnerability Protection section is only applicable when you are using browser-based authentication."
+          ]
+        }
+      ]
+    },
+    "attack-surface-sections": {
+      "statement": "The About page, which says the report is no longer accessible from the Admin Console, lists the Attack Surface Report's sections as Known Vulnerabilities (a Vulnerabilities column of CVE IDs for servers), SSL/TLS Risks (servers supporting older SSL/TLS versions), Exposed Servers, Namespace Exposure and Public Cloud Instances; reports download as PDF, PPT or CSV for the last 12 months.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-attack-surface-report.json",
+          "quotes": [
+            "the Attack Surface Report is no longer accessible from the Zscaler Admin Console.",
+            "- Known Vulnerabilities",
+            "- SSL/TLS Risks",
+            "- Exposed Servers",
+            "- Namespace Exposure",
+            "- Public Cloud Instances",
+            "The Vulnerabilities column displays the known common vulnerabilities and exposures (CVE) IDs associated with the servers.",
+            "This section of the report displays a list of servers that support older versions of the SSL/TLS protocol that are currently at risk.",
+            "Download the report either in PDF, PPT, or CSV format.",
+            "You can download the reports for the last 12 months."
+          ]
+        }
+      ]
+    },
+    "attack-surface-notify": {
+      "statement": "The notification page, for a report the About page says is no longer accessible from the Admin Console, says the Attack Surface Report notification keeps administrators posted on the latest available report for download by sending an email notification to the configured email address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-attack-surface-report-notification.json",
+          "quotes": [
+            "The Attack Surface Report notification keeps you posted on the latest available report for download by sending an email notification to the configured email address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-attack-surface-report.json",
+          "quotes": [
+            "the Attack Surface Report is no longer accessible from the Zscaler Admin Console."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "user-risk-bands": {
+      "summary": "The User Risk Report bands and the URL Filtering user risk score levels give different ranges for the same user risk score.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-user-risk-report.json",
+            "quotes": [
+              "- Low (0-25)",
+              "- Critical (76-100)"
+            ]
+          },
+          "says": "The User Risk Report bands are Low (0-25) and Critical (76-100), with no condition stated."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-url-filtering-policy.json",
+            "quotes": [
+              "By default, the following user risk score levels are available:",
+              "Low: Level with user risk scores ranging from 0 to 29",
+              "Critical: Level with user risk scores ranging from 80 to 100"
+            ]
+          },
+          "says": "By default, the URL Filtering user risk score levels are Low (0 to 29) and Critical (80 to 100)."
+        }
+      ],
+      "impact": "A score of 28 is inside the URL Filtering Low level (0 to 29) but outside the User Risk Report's Low band (0-25); the URL Filtering page calls its levels the default ones. The Configuration Risk Report bands (0-29 to 80-100) are a different score and are not evidence for either."
+    },
+    "attack-surface-access": {
+      "summary": "The Attack Surface Report About page says the report is no longer accessible from the Admin Console, while the same page and the notification page still describe the console page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-attack-surface-report.json",
+            "quotes": [
+              "As part of our efforts to centralize risk management via the Risk360 service, the Attack Surface Report is no longer accessible from the Zscaler Admin Console. However, you can request this report only once by contacting your Zscaler Account team.",
+              "To analyze and access this report on a regular basis, subscribe to Zscaler's Risk360 service."
+            ]
+          },
+          "says": "The report is no longer accessible from the Admin Console; it can be requested once from the Zscaler Account team, and regular access needs Risk360."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-attack-surface-report.json",
+            "quotes": [
+              "On the Attack Surface Report page (Analytics > Reports > Attack Surface Report), you can do the following:"
+            ]
+          },
+          "says": "The same page still describes an Attack Surface Report page at Analytics > Reports > Attack Surface Report."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-attack-surface-report-notification.json",
+            "quotes": [
+              "From the navigation menu, go to Analytics > Reports > Attack Surface Report."
+            ]
+          },
+          "says": "The notification page still sends the administrator to Analytics > Reports > Attack Surface Report."
+        }
+      ],
+      "impact": "Whether the console page and its notification setting still work, or only the Risk360 route and a one-time request remain, is not settled by the pages; the sections and download formats described are for a report the first position says is retired from the console."
+    }
+  },
+  "gaps": {
+    "company-risk-weights": {
+      "kind": "semantic",
+      "title": "Per-factor weights and the 1 percentile rule of the Company Risk Score",
+      "status": "open",
+      "detail": "The page says different risk factors bear different weights and that the score is not calculated when the total percentile of risky users is less than 1 percentile of the total risky users. It gives no weights and does not explain the percentile rule.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "user-risk-computation": {
+      "kind": "semantic",
+      "title": "How the User Risk Report score is computed and where Real-Time Risk Score Updates is set",
+      "status": "open",
+      "detail": "The page names the inputs of the score and says recent increases need Real-Time Risk Score Updates in the Advanced Settings. The computation and the setting's location are not in the captured pages of this area.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "recompute-cadence": {
+      "kind": "semantic",
+      "title": "How often the Configuration Risk and Security Policy Audit reports recompute",
+      "status": "open",
+      "detail": "The captured pages for the Configuration Risk Report and the Security Policy Audit Report do not say how often either report recomputes.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "attack-surface-cadence": {
+      "kind": "semantic",
+      "title": "How often the Attack Surface Report is generated and what the notification list limit means",
+      "status": "open",
+      "detail": "The page says reports can be downloaded for the last 12 months without stating the generation frequency, and it is not stated whether a notify list's limit of up to 32 items is a recipient cap or only a display limit.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,741 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.outbound-email-policy",
+  "title": "Outbound Email DLP policy: smart host flow, per-recipient evaluation, criteria and header actions",
+  "aliases": [
+    "outbound email policy",
+    "outbound email dlp policy",
+    "email dlp rule",
+    "zscaler smart host",
+    "email dlp headers",
+    "X-Zscaler-Block"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email-tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.email-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Outbound Email DLP is policy on outbound email sent to external domains, enforced by the customer's email server. {{what-it-is}} {{smart-host-flow}} {{headers-enforce}} {{same-policy-tools}}"
+    },
+    {
+      "label": "Which rule applies.",
+      "text": "{{per-recipient-evaluation}} {{matched-rules-logged-example}} The rule list page words the order differently {{divergence:evaluation-order}}. {{stop-rule-evaluation}} What Stop Rule Evaluation does together with per-recipient evaluation is open {{gap:stop-rule-per-recipient}}, and so is which way a higher rule order points {{gap:highest-rule-order}}."
+    },
+    {
+      "label": "Exception rules.",
+      "text": "{{exception-rules}}"
+    },
+    {
+      "label": "Criteria.",
+      "text": "{{evaluation-scope}} {{who-limits}} {{user-risk-levels}} {{personal-email-detection}} {{content-matching}} {{content-locations}} {{file-type-and-size}} Other pages give a different engine file size [[zia.dlp.inspection-limits]]. {{minimum-data-size}} {{recipient-criteria}} {{time}} {{filter-without-engines}} The Outlook Add-in mode and the available file types are not described {{gap:criteria-undescribed}}."
+    },
+    {
+      "label": "Actions and headers.",
+      "text": "{{header-enforcement-model}} {{actions-and-headers}} The Quarantine action is described differently across the vendor's pages {{divergence:quarantine-representation}}. {{quarantine-action}} Whether Quarantine is Exchange only is not consistent either {{divergence:quarantine-scope}}. The custom header format also differs between the parent and exception rule text {{divergence:custom-header-format}}. {{quarantine-release-zwa}} The Workflow Automation side is in [[zwa.incidents:quarantine-release]]. Which action a Quarantine rule logs is open {{gap:quarantine-log-action}}, and so is whether a quarantined message also carries X-Zscaler-Block {{gap:quarantine-with-block-header}}."
+    },
+    {
+      "label": "After a match.",
+      "text": "{{incident-forwarding}} Whether ICAP receivers can be chosen on these rules is not stated {{gap:icap-on-email-rules}}. {{notification}} {{logs-and-zwa}}"
+    },
+    {
+      "label": "Before configuring.",
+      "text": "{{prerequisites}} {{rule-details}} The email tenants a rule uses are in [[zia.dlp.outbound-email-tenants]] and the domain and recipient profiles in [[zia.dlp.email-profiles]]. The SDK and Terraform surface is in [[zia.dlp.outbound-email]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which rule is applied to a recipient: compare the recipient's matching rules by action first, then rule order, with exceptions checked before the parent runs.",
+      "uses": [
+        "per-recipient-evaluation",
+        "evaluation-order",
+        "highest-rule-order"
+      ]
+    },
+    {
+      "do": "How a Quarantine rule is represented before relying on its header or its log action.",
+      "uses": [
+        "quarantine-representation",
+        "quarantine-log-action"
+      ]
+    },
+    {
+      "do": "Whether a Quarantine rule is aimed at a Microsoft Exchange tenant and whether the Exchange mail flow maps the quarantine header.",
+      "uses": [
+        "quarantine-action",
+        "quarantine-scope"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Zscaler Outbound Email DLP enforces policy rules on outbound email content sent to external domains, including content in subject lines, body text and attachments. The customer's email server sends email to, and receives it from, the Zscaler smart host using connectors and rules, and the smart host sends it to the Zscaler DLP service for inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-what-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "Zscaler Outbound Email Data Loss Prevention (DLP) stops the exfiltration of sensitive data by enforcing policy rules on outbound email content sent to external domains, including content in subject lines, body text, and attachments.",
+            "Using connectors and rules, your email server sends email to, and receives email from, the Zscaler smart host.",
+            "The Zscaler smart host receives the email and sends it to the Zscaler DLP service for inspection."
+          ]
+        }
+      ]
+    },
+    "smart-host-flow": {
+      "statement": "Rules on the email server instruct Gmail, Microsoft Exchange or a secure email gateway (SEG) to send the email to the Zscaler smart host over SMTP for DLP inspection. The DLP service inserts headers based on the verdict, the email server enforces the action from its mail flow or transport rules and the headers, and an allowed email is delivered to the next hop MTA or the intended recipient.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-what-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "The rules configured on your email server instruct Gmail, Microsoft Exchange, or your secure email gateway (SEG) to send the email to the Zscaler smart host via Simple Mail Transfer Protocol (SMTP) for DLP inspection.",
+            "The Zscaler DLP service performs DLP inspection and inserts email headers based on the verdict of the policy evaluation.",
+            "Your email server enforces the DLP action based on the mail flow/transport rules and inserted headers in the email.",
+            "If the email is allowed to be sent, it is delivered to the next hop MTA or to the intended recipient."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-outbound-email-policy-enforcement.json",
+          "quotes": [
+            "Secure email gateways (SEG), Gmail, and Microsoft Exchange use Simple Mail Transfer Protocol (SMTP) to send mail to and receive mail from the Zscaler smart host."
+          ]
+        }
+      ]
+    },
+    "headers-enforce": {
+      "statement": "The DLP service adds headers that define DLP actions to emails that trigger outbound email policy, and the email server uses those headers to determine enforcement actions when it receives the inspected email back.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-what-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "The Zscaler DLP service then inspects the email content for sensitive data, adding headers that define DLP actions to emails that trigger outbound email policy.",
+            "When your email server receives inspected email from the Zscaler smart host, it uses those headers to determine enforcement actions."
+          ]
+        }
+      ]
+    },
+    "same-policy-tools": {
+      "statement": "Outbound Email DLP lets admins use the same DLP policy tools they use across other channels, which the page lists as Inline Web DLP, Endpoint DLP and SaaS Security API DLP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-what-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "lets you use the same DLP policy tools that you already use across other channels (i.e., Inline Web DLP, Endpoint DLP, and SaaS Security API DLP)"
+          ]
+        }
+      ]
+    },
+    "per-recipient-evaluation": {
+      "statement": "The service evaluates all outbound email policy rules on a per-recipient basis. If several rules match a recipient it applies the rule with the most restrictive action, and among rules with the same restrictive action the one with the highest rule order. Before executing it, the service checks whether the matching rule has exception rules, evaluating them in rule order and stopping at the first match, and a matching exception replaces the parent rule. One email can therefore be allowed for one recipient and blocked for another.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-outbound-email-policy-enforcement.json",
+          "quotes": [
+            "The Zscaler service evaulates all outbound email policy rules on a per-recipient basis. If multiple rules match for a recipient, the Zscaler service applies the rule with most restrictive action.",
+            "If multiple rules with the same restrictive action match for a recipient, then the Zscaler service matches the rule with most restrictive action and the highest rule order.",
+            "Before executing the matching rule, however, the Zscaler service checks whether the matching rule contains any exception rules.",
+            "When evaluating exception rules, the Zscaler service uses rule order and stops evaluating rules at the first match. A matching exception rule takes the place of the parent rule.",
+            "the Zscaler service can allow one user to receive the same email that's blocked for another user."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Edit Rule Order: All parent rules are evaluated. If multiple rules match, the rule with the most restrictive action and highest rule order is applied. Exception rule evaluation stops at the first match, and an exception replaces a parent rule upon match."
+          ]
+        }
+      ]
+    },
+    "matched-rules-logged-example": {
+      "statement": "In the vendor's first scenario R1 and R3 both match, R1 having the higher rule order and R3 the most restrictive action. The service executes R3, with an action of Block and a severity of High, and R1 is logged as having matched. This is an example from the page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-outbound-email-policy-enforcement.json",
+          "quotes": [
+            "R1 and R3 match. R1 has a higher rule order, but R3 has the most restrictive action.",
+            "The Zscaler service executes R3, with an action of Block and a severity of High.",
+            "R1 is logged as having matched."
+          ]
+        }
+      ]
+    },
+    "stop-rule-evaluation": {
+      "statement": "When Stop Rule Evaluation is enabled and a DLP rule is triggered, policy evaluation stops and no further DLP rules are evaluated for the same transaction.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Stop Rule Evaluation: When enabled, if a DLP rule is triggered, policy evaluation stops and no further DLP rules are evaluated for the same transaction.",
+            "Enable or Disable Stop Rule Evaluation. When enabled, policy evaluation stops and DLP rules are no longer evaluated for the same transaction."
+          ]
+        }
+      ]
+    },
+    "exception-rules": {
+      "statement": "Exception rules are child rules that exclude specific users or groups that must perform tasks as part of a necessary workflow. A parent outbound email rule can have up to 32 exception rules, each inherits the parent's rule name, which cannot be changed, and takes its own Exception Rule Name. A disabled exception rule keeps its place in the rule order and the service skips it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "You can also create exception rules, which are child rules that allow you to exclude specific users or groups in your organization that must perform tasks as part of a necessary workflow that might otherwise violate outbound email policy.",
+            "You can add up to 32 exception rules to any outbound email policy parent rule.",
+            "Rule Name: This field is inherited from the parent rule and cannot be changed.",
+            "Exception Rule Name: Enter a name for the exception rule.",
+            "Rule Status: An enabled exception rule is actively enforced. A disabled exception rule is not actively enforced but does not lose its place in the rule order; the service skips it and moves to the next exception rule."
+          ]
+        }
+      ]
+    },
+    "evaluation-scope": {
+      "statement": "A rule selects where to send the email to the Zscaler smart host for DLP inspection, with options Outlook Add-in and SMTP Smarthost, and selects the email tenants it applies to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Select where to send the email to the Zscaler smart host via Simple Mail Transfer Protocol (SMTP) for DLP inspection:",
+            "SMTP Smarthost",
+            "Select the Email Tenants from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Outlook Add-in"
+          ],
+          "after": "Select where to send the email to the Zscaler smart host via Simple Mail Transfer Protocol (SMTP) for DLP inspection:"
+        }
+      ]
+    },
+    "who-limits": {
+      "statement": "A rule's Users, User Groups and Departments each take Any or up to 32 entries. The text says Zscaler Support can be contacted to increase the limit of Users or Departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Users: You can specify how the policy rule applies to your users. Select Any to apply the rules to all users or select up to 32 users.",
+            "User Groups: You can specify how the policy rule applies to your groups. Select Any to apply the rules to all groups or select up to 32 groups.",
+            "Departments: You can specify how the policy rule applies to your departments. Select Any to apply the rules to all departments or select up to 32 departments.",
+            "Contact Zscaler Support to increase the limit of Users or Departments."
+          ]
+        }
+      ]
+    },
+    "user-risk-levels": {
+      "statement": "The User Risk Profile levels are Low (scores 0 to 29), Medium (30 to 59), High (60 to 79) and Critical (80 to 100); selecting no value ignores the criterion in the policy evaluation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Low: Level with user risk scores ranging from 0 to 29",
+            "Medium: Level with user risk scores ranging from 30 to 59",
+            "High: Level with user risk scores ranging from 60 to 79",
+            "Critical: Level with user risk scores ranging from 80 to 100",
+            "Selecting no value ignores this criterion in the policy evaluation."
+          ],
+          "after": "- 6. Define your policy rules."
+        }
+      ]
+    },
+    "personal-email-detection": {
+      "statement": "Personal Email Detection can be enabled or disabled to detect when a user attempts to send sensitive data to a personal email address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Personal Email Detection: Enable or Disable to detect when a user attempts to send sensitive data to a personal email address."
+          ],
+          "after": "- 6. Define your policy rules."
+        }
+      ]
+    },
+    "content-matching": {
+      "statement": "Content Matching selects up to 4 DLP engines. If None is selected the service does not use DLP engines and instead flags content on the criteria specified. Match Only is available only when Select DLP Engines is chosen; when enabled the service acts only on content that exclusively matches the rule's engines, and when disabled it can also consider content that matches engines in other rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Content Matching: Select Select DLP Engines to select up to 4 engines.",
+            "If you select None, then the Zscaler service doesn't use DLP engines to scan the content; instead, the service functions as a filter, only flagging content based on the criteria you specify.",
+            "When you enable this option, the Zscaler service takes action on message content only when it contains sensitive data that exclusively matches the engines selected for the rule.",
+            "When you disable this option, the Zscaler service takes action on message content based on the engines associated with the rule, but it can also consider additional content that matches engines in other rules so that more or less restrictive policies can take effect.",
+            "This option is available only when you choose Select DLP Engines as the Content Matching option."
+          ],
+          "after": "- 6. Define your policy rules."
+        }
+      ]
+    },
+    "content-locations": {
+      "statement": "A rule specifies where the service looks for sensitive data: Email Attachments, Email Body or Email Subject.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Content Locations: Specify the where the Zscaler service should look for sensitive data (i.e., Email Attachments, Email Body, or Email Subject)."
+          ],
+          "after": "- 6. Define your policy rules."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-outbound-email-policy.json",
+          "quotes": [
+            "Content Locations: Where the Zscaler service looks for sensitive data (i.e., Email Attachments, Email Body, or Email Subject)."
+          ]
+        }
+      ]
+    },
+    "file-type-and-size": {
+      "statement": "In the Outbound Email DLP rule article, the available File Type list changes based on whether DLP engines are used for content inspection, and the article says Zscaler DLP engines can scan files of up to 100 MB, with individual files in an archive also a maximum of 100 MB when decompressed. This is the article's wording for Outbound Email DLP rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "File Type: From the drop-down menu, choose the file types for the rule.",
+            "The list of available file types changes based on whether you're using DLP engines for content inspection.",
+            "Zscaler DLP engines can scan files of up to 100 MB. For an archived file, the size of individual files when decompressed can also be a maximum of 100 MB."
+          ],
+          "after": "- 6. Define your policy rules."
+        }
+      ]
+    },
+    "minimum-data-size": {
+      "statement": "Minimum Data Size (KB) is the minimum size data must meet before the rule applies; its default of 0 KB means there is no minimum.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Minimum Data Size (KB): Enter the minimum size requirement that data must meet before the policy rule applies.",
+            "The default minimum data size, 0 KB, means there is no minimum data size requirement."
+          ],
+          "after": "- 6. Define your policy rules."
+        }
+      ]
+    },
+    "recipient-criteria": {
+      "statement": "A rule can select up to 8 email recipient domain profiles and up to 8 email recipient profiles. Recipient Scope and Threshold selects which recipient fields are subject to the external recipient limits and the minimum number of external recipients required to trigger the policy, and appears only when the Evaluation Mode is Outlook Add-in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Email Recipient Domain Profile: Select up to 8 domain profiles to which this rule applies.",
+            "Email Recipient Profile: Select up to 8 recipient profiles to which this rule applies.",
+            "Recipient Scope and Threshold: Select which recipient fields are subject to the limits set using the external recipient drop-down and specify the minimum number of external recipients required to trigger the policy.",
+            "This condition only appears when you set the Evaluation Mode to Outlook Add-in."
+          ],
+          "after": "- 6. Define your policy rules."
+        }
+      ]
+    },
+    "time": {
+      "statement": "A rule's Time is Always, which applies it to all time intervals, or up to two time intervals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Time: Select Always to apply this rule to all time intervals, or select up to two time intervals."
+          ],
+          "after": "- 6. Define your policy rules."
+        }
+      ]
+    },
+    "filter-without-engines": {
+      "statement": "Outbound email rules can use Zscaler custom and predefined DLP engines to detect sensitive data, allow or block user activities, or add custom headers to emails. Without DLP engines the service functions as a filter, only flagging content based on specific criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-outbound-email-policy.json",
+          "quotes": [
+            "You can use Zscaler custom and predefined DLP engines to detect sensitive data, allow or block user activities, or to add custom headers to emails that trigger an outbound email policy rule.",
+            "If you don't use Zscaler DLP engines, the service functions instead as a filter, only flagging content based on specific criteria."
+          ]
+        }
+      ]
+    },
+    "header-enforcement-model": {
+      "statement": "Depending on how the rules are configured, the headers instruct the email server to take a default action (allow or block content) or an action mapped to a custom header configured on the server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Depending on how outbound email policy rules are configured, the headers instruct your email server to take a default action (i.e., allow or block content), or an action mapped to a custom header configured on the server."
+          ]
+        }
+      ]
+    },
+    "actions-and-headers": {
+      "statement": "The Allow action adds the default header X-Zscaler-Block:0 (0=Allow) and Block adds X-Zscaler-Block:1 (1=Block) to emails that trigger the rule. Custom Header Insertion includes a custom header on those emails, which is designed to take an action mapped to the header on the email server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Allow: The Zscaler service includes the X-Zscaler-Block:0 default header (where 0=Allow) to allow the content on emails that trigger the outbound email policy rule.",
+            "Block: The Zscaler service includes the X-Zscaler-Block:1 default header (where 1=Block) to block the content on emails that trigger the outbound email policy rule.",
+            "Custom Header Insertion: The service includes a custom header on emails that trigger the outbound email policy rule.",
+            "Custom headers are designed to take an action that is mapped to the header on the email server."
+          ],
+          "after": "- 6. Define your policy rules."
+        }
+      ]
+    },
+    "quarantine-action": {
+      "statement": "On the rule configuration page the Quarantine action includes the X-Zscaler-Quarantine:1 default header to quarantine emails that trigger the rule. The page says the option is available for Microsoft Exchange only and that the Block action takes precedence over Quarantine regardless of prior Rule Order configurations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Quarantine: The Zscaler service includes the X-Zscaler-Quarantine:1 default header to quarantine emails that trigger the outbound email policy rule.",
+            "This option is available for Microsoft Exchange only.",
+            "The Block action takes precedence over Quarantine regardless of prior Rule Order configurations."
+          ],
+          "after": "- 6. Define your policy rules."
+        }
+      ]
+    },
+    "quarantine-release-zwa": {
+      "statement": "For Microsoft Exchange only, optional quarantine release with Zscaler Workflow Automation sends potentially sensitive emails to be quarantined on Microsoft Exchange. After quarantine, incidents are created in Workflow Automation where administrators review them and release or delete the quarantined emails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "(Optional/Microsoft Exchange only) Configure quarantine release with Zscaler Workflow Automation to send potentially sensitive emails to be quarantined on Microsoft Exchange.",
+            "Post-quarantine, incidents are created in Workflow Automation where administrators can review the incidents and release or delete the quarantined emails."
+          ]
+        }
+      ]
+    },
+    "incident-forwarding": {
+      "statement": "A rule can select a Zscaler Incident Receiver from a drop-down, or a tenant and a Cloud-to-Cloud Forwarding configuration from drop-downs; the page says each must be configured to complete the step. Zscaler does not take ICAP responses from the Incident Receiver: the service only monitors or blocks content according to the policy, then forwards information about activities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Zscaler Incident Receiver: Select the applicable Zscaler Incident Receiver from the drop-down menu. You must configure your Zscaler Incident Receivers to complete this step.",
+            "Cloud-to-Cloud Forwarding: Select the applicable tenant and Cloud-to-Cloud Forwarding configuration from the drop-down menus. You must configure Cloud-to-Cloud Forwarding to complete this step."
+          ],
+          "after": "- 6. Define your policy rules."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Zscaler does not take ICAP responses from your Incident Receiver; instead, the service only monitors or blocks content according to the policy you configure, then forwards information about activities so that your organization can take necessary remediation steps."
+          ]
+        }
+      ]
+    },
+    "notification": {
+      "statement": "If an auditor and notification template are not selected for a rule, a notification is not sent for this rule. The auditor type is a Hosted database auditor or one External to the organization, identified by an email address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "If you do not select an auditor and notification template, a notification is not sent for this rule.",
+            "Auditor Type: Select whether the auditor is from a Hosted database or External to your organization.",
+            "Auditor Email Address: If the auditor is external, enter the auditor’s email address."
+          ],
+          "after": "- 6. Define your policy rules."
+        }
+      ]
+    },
+    "logs-and-zwa": {
+      "statement": "NSS feeds can be configured to specify the data from the Outbound Email DLP Policy logs that NSS sends to a SIEM. An Incident Receiver configured in the policy rules can be integrated with Workflow Automation to capture and remediate incidents generated by policy violations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-step-step-configuration-guide-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "You can configure Nanolog Streaming Service (NSS) feeds to specify the data from the Zscaler Outbound Email DLP Policy logs that the NSS sends to your security information and event management (SIEM) system.",
+            "If you configured an Incident Receiver as part of your outbound email policy rules, you can integrate it with Workflow Automation to capture and remediate incidents generated by policy violations."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "To enable granular user management, users must be onboarded in the Admin Console. For organizations that onboard users by User Principal Name, SCIM-based user lookup is supported for both Exchange and Gmail, which requires email attributes to be synchronized between the Zscaler service and the email server. The domains used in the policy must be set up in the Company Profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-step-step-configuration-guide-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "To enable granular user management, ensure you have onboarded users for your organization in the Zscaler Admin Console.",
+            "If you use User Principal Name (UPN) to onboard users for your organization, the Zscaler service supports using System for Cross-domain Identity Management (SCIM)-based user lookup for both Exchange and Gmail.",
+            "For SCIM-based user lookup with Outbound Email DLP, you must first ensure that email attributes are synchronized between the Zscaler service and your email server.",
+            "Ensure that the domains you intend to use in your outbound email policy are set up in your Company Profile."
+          ]
+        }
+      ]
+    },
+    "rule-details": {
+      "statement": "A rule has a unique name or the default name, a description of at most 10,240 characters, a severity of High, Medium, Low or Information, and a status; a disabled rule is not actively enforced but keeps its place in the rule order, and the service skips it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Rule Name: Enter a unique name for the DLP rule or use the default name.",
+            "The description cannot exceed 10,240 characters.",
+            "Rule Status: An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order; the service skips it and moves to the next rule.",
+            "Severity: Select the severity of the violation from the drop-down menu (i.e., High, Medium, Low, or Information)."
+          ],
+          "after": "- 6. Define your policy rules."
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "quarantine-representation": {
+      "summary": "The vendor's pages disagree on how Quarantine is represented: a Quarantine action with an X-Zscaler-Quarantine:1 header, or the Custom Header Insertion action with an X-Zscaler-Scan:Quarantine header.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-outbound-email-policy-rules.json",
+            "quotes": [
+              "Quarantine: The Zscaler service includes the X-Zscaler-Quarantine:1 default header to quarantine emails that trigger the outbound email policy rule."
+            ],
+            "after": "- 6. Define your policy rules."
+          },
+          "says": "Quarantine is an action of its own that adds the default header X-Zscaler-Quarantine:1."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-tcp-nss-feeds-email-dlp-logs.json",
+            "quotes": [
+              "Select Custom Header Insertion to limit the logs to transactions that resulted in a different action (e.g., quarantine) taken by the email application (e.g., Microsoft Exchange) as defined by a custom header (e.g., X-Zscaler-Scan:Quarantine)."
+            ]
+          },
+          "says": "The NSS feed filter treats quarantine as an action taken by the email application and defined by a custom header, with the example X-Zscaler-Scan:Quarantine, selected as Custom Header Insertion."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-outbound-email-policy-enforcement.json",
+            "quotes": [
+              "to specify DLP actions (i.e., Allow, Block, and Custom Header Insertion) when an email triggers an outbound email policy rule."
+            ]
+          },
+          "says": "The enforcement article lists the DLP actions as Allow, Block and Custom Header Insertion, without Quarantine."
+        }
+      ],
+      "impact": "The header name and the action list differ between the pages, so which header a Quarantine rule inserts, and whether such a rule appears in logs as Quarantine or as Custom Header Insertion, is not settled by the vendor's pages."
+    },
+    "evaluation-order": {
+      "summary": "One article says outbound email rules are evaluated in ascending numerical order; the enforcement article says all rules are evaluated per recipient and the most restrictive action wins.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-outbound-email-policy.json",
+            "quotes": [
+              "Outbound email policy rules are evaluated in ascending numerical order."
+            ]
+          },
+          "says": "Outbound email policy rules are evaluated in ascending numerical order."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-outbound-email-policy-enforcement.json",
+            "quotes": [
+              "The Zscaler service evaulates all outbound email policy rules on a per-recipient basis. If multiple rules match for a recipient, the Zscaler service applies the rule with most restrictive action."
+            ]
+          },
+          "says": "All rules are evaluated per recipient and the rule with the most restrictive action applies."
+        }
+      ],
+      "impact": "Whether rule order alone decides, or only breaks ties between rules with the same action, depends on which page governs; the enforcement article and the rule configuration page's Rule Order text describe the per-recipient model."
+    },
+    "quarantine-scope": {
+      "summary": "The rule page says Quarantine is available for Microsoft Exchange only; the SEG article tells the SEG to quarantine emails that carry the quarantine header.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-outbound-email-policy-rules.json",
+            "quotes": [
+              "This option is available for Microsoft Exchange only."
+            ],
+            "after": "- 6. Define your policy rules."
+          },
+          "says": "The Quarantine option is available for Microsoft Exchange only."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-segs-zscaler-outbound-email-dlp.json",
+            "quotes": [
+              "X-Zscaler-Quarantine: 1: Your SEG should quarantine emails that use this header."
+            ]
+          },
+          "says": "The SEG should quarantine emails that carry X-Zscaler-Quarantine: 1."
+        }
+      ],
+      "impact": "Whether a Quarantine rule can be used with a SEG tenant is not settled: the SEG page describes the header as one a SEG acts on, while the rule page restricts the option to Exchange."
+    },
+    "custom-header-format": {
+      "summary": "The parent rule text and the exception rule text give different custom header formats.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-outbound-email-policy-rules.json",
+            "quotes": [
+              "The Custom Header format must be X-name:value, where 0=Allow and 1=Block (e.g., X-Zscaler-Encrypt:1)."
+            ]
+          },
+          "says": "The parent rule's custom header format is X-name:value."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-outbound-email-policy-rules.json",
+            "quotes": [
+              "The Custom Header format must be name:value, where 0=Allow and 1=Block (e.g., X-Zscaler-Quarantine:1)."
+            ]
+          },
+          "says": "The exception rule's custom header format is name:value, and its example is the Quarantine default header X-Zscaler-Quarantine:1."
+        }
+      ],
+      "impact": "Whether the custom header name must carry an X- prefix on an exception rule is not settled, and the exception example reuses the Quarantine default header as a custom one."
+    }
+  },
+  "gaps": {
+    "quarantine-log-action": {
+      "kind": "semantic",
+      "title": "Which action a Quarantine rule records in the Email DLP log",
+      "status": "open",
+      "detail": "Would be claimed: a Quarantine rule logs its action as Quarantine, or as Custom Header Insertion. The policy page lists Quarantine as an action while the NSS filter and log pages list only Allow, Block and Custom Header Insertion with quarantine as a custom-header example; no page says which value a Quarantine rule produces.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "quarantine-with-block-header": {
+      "kind": "semantic",
+      "title": "Whether a quarantined message also carries X-Zscaler-Block",
+      "status": "open",
+      "detail": "The SEG article says the service appends one of three headers to each message, and also says it appends X-Zscaler-Block: 0 or 1 to all inspected messages. Whether a quarantined message carries a Block header as well is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "highest-rule-order": {
+      "kind": "semantic",
+      "title": "Whether the highest rule order is the larger or the smaller number",
+      "status": "open",
+      "detail": "The enforcement article uses the highest rule order as the tiebreak among equally restrictive rules but does not say whether it is the larger or the smaller order number; its example calls a rule at order 1 higher, which is an example only.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "stop-rule-per-recipient": {
+      "kind": "semantic",
+      "title": "How Stop Rule Evaluation works with per-recipient evaluation",
+      "status": "open",
+      "detail": "Stop Rule Evaluation stops evaluation for the same transaction, while the enforcement article evaluates all rules per recipient. The captures do not say whether a transaction is the message or one recipient, or how the two interact.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "icap-on-email-rules": {
+      "kind": "semantic",
+      "title": "Whether ICAP receivers can be used on outbound email rules",
+      "status": "open",
+      "detail": "The rule page offers the Incident Receiver and Cloud-to-Cloud Forwarding. It does not mention ICAP receivers; whether they can be chosen is not stated.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "criteria-undescribed": {
+      "kind": "semantic",
+      "title": "Outlook Add-in mode, Recipient Scope and Threshold, and the file type lists",
+      "status": "open",
+      "detail": "The Outlook Add-in evaluation mode is named but not described, and Recipient Scope and Threshold has no stated values or limits. The file types available with and without DLP engines are not listed, nor is what counts as a personal email address for Personal Email Detection.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,383 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.frequency",
+  "title": "Authentication frequency and cookie lifetime",
+  "aliases": [
+    "authFrequency",
+    "auth_frequency",
+    "authCustomFrequency",
+    "auth_custom_frequency",
+    "DAILY_COOKIE",
+    "SESSION_COOKIE",
+    "PERMANENT_COOKIE",
+    "CUSTOM_COOKIE",
+    "cookie expiration",
+    "how often users re-authenticate",
+    "authentication profile"
+  ],
+  "binds": [
+    "zia/auth-settings"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zia.authentication.location-enforcement",
+      "because": "zia.authentication.frequency:location-profile"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.unauthenticated-traffic",
+      "because": "zia.authentication.frequency:browser-scope"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.methods",
+      "because": "zia.authentication.methods:kerberos-no-cookie"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/auth-settings"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.authentication.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication"
+    }
+  ],
+  "prose": [
+    {
+      "label": "What it controls.",
+      "text": "{{meaning}} {{set-once}}"
+    },
+    {
+      "label": "Values.",
+      "text": "{{frequency-values}} {{console-frequency-options}} Which API value each console option corresponds to is open {{gap:value-meanings}}."
+    },
+    {
+      "label": "Custom.",
+      "text": "{{custom-range}} Whether a custom frequency without a valid day count is an error is open {{gap:custom-without-days}}."
+    },
+    {
+      "label": "Per location.",
+      "text": "{{location-profile}} {{custom-timeout-profiles}} Whether the profiles are exposed through the API is open {{gap:timeout-profile-api}}."
+    },
+    {
+      "label": "Recommendation and load.",
+      "text": "{{only-once-recommended}} {{directory-load}}"
+    },
+    {
+      "label": "Forcing reauthentication.",
+      "text": "{{force-reauthentication}} {{saml-logout-reauth}}"
+    },
+    {
+      "label": "Where it does not apply.",
+      "text": "{{browser-scope}} For clients that cannot hold a cookie at all see [[zia.authentication.unauthenticated-traffic]] and [[zia.authentication.surrogate-ip]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The live value of authFrequency against the spec's value list.",
+      "uses": [
+        "frequency-values"
+      ]
+    },
+    {
+      "do": "Whether the failing client carries a Zscaler cookie, since frequency governs the cookie.",
+      "uses": [
+        "browser-scope"
+      ]
+    },
+    {
+      "do": "Whether the location's authentication profile sets a frequency different from the organization default, before reading the organization setting.",
+      "uses": [
+        "location-profile"
+      ]
+    }
+  ],
+  "claims": {
+    "meaning": {
+      "statement": "authFrequency is how often users must authenticate, expressed as the cookie expiration after a user is first authenticated. It is not applicable to the Lite API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/authFrequency",
+          "expect": {
+            "description": "How frequently the users are required to authenticate (i.e., cookie expiration duration after a user is first authenticated). This field is not applicable to the Lite API."
+          }
+        }
+      ]
+    },
+    "frequency-values": {
+      "statement": "The spec lists authFrequency as DAILY_COOKIE, PERMANENT_COOKIE, SESSION_COOKIE or CUSTOM_COOKIE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/authFrequency",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "DAILY_COOKIE",
+              "PERMANENT_COOKIE",
+              "SESSION_COOKIE",
+              "CUSTOM_COOKIE"
+            ]
+          }
+        }
+      ],
+      "gaps": [
+        "value-meanings"
+      ],
+      "conditions": "Until the 2026-10-18 recapture the legacy API reference page listed DAILY_COOKIE, WEEKLY_COOKIE, MONTHLY_COOKIE and SESSION_COOKIE; it now lists the same values as the OpenAPI document, so the divergence between them was removed."
+    },
+    "custom-range": {
+      "statement": "A custom frequency is set in whole days in authCustomFrequency, valid range 1 to 180; the admin console field takes the same 1 to 180.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "quotes": [
+            "Custom frequency in days for authentication. Valid range: 1-180."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-saml.json",
+          "quotes": [
+            "Custom Authentication Frequency (days): Specify 1 to 180 days."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/authCustomFrequency",
+          "expect": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      ],
+      "gaps": [
+        "custom-without-days"
+      ]
+    },
+    "set-once": {
+      "statement": "The service needs to authenticate a user only once to set the gateway cookie, but an organization can require authentication more often.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-cookies.json",
+          "quotes": [
+            "The service needs to authenticate users only once to set the gateway cookie. However, you can require users to authenticate more often based on your organization's needs."
+          ]
+        }
+      ]
+    },
+    "location-profile": {
+      "statement": "A location with Enforce Authentication on can use a custom authentication timeout profile that sets the authentication frequency for that location. Authentication profiles are a feature with limited availability, enabled through the Zscaler account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.json",
+          "quotes": [
+            "Authentication Profile: If you enabled Enforce Authentication, you can select a custom authentication timeout profile.",
+            "The profile allows you to specify the authentication frequency for the location.",
+            "Authentication profiles are a feature with limited availability. To access the feature, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "browser-scope": {
+      "statement": "Frequency governs the cookie, so it applies to flows that carry the Zscaler cookie; Kerberos does not use cookies, and traffic that cannot hold a cookie is attributed to the location instead.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-kerberos-authentication.json",
+          "quotes": [
+            "Unlike the other supported authentication mechanisms, Kerberos doesn't use cookies for authentication."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-cookies.json",
+          "quotes": [
+            "Requests from UNKNOWN user agents that do not support cookies."
+          ]
+        }
+      ],
+      "conditions": "The cookie-lifetime reading follows from the field description; no source states in one place that frequency has no effect on Kerberos or cookie-less traffic."
+    },
+    "console-frequency-options": {
+      "statement": "The console's Authentication Frequency offers Daily (authentication expires between 12 to 24 hours from the login time, depending on when the user authenticated the day before), Only Once (the default interval: users need not authenticate again as long as the cookie is saved in the browser, and the cookie typically expires in about two years; logging out needs an explicit logout or deleting the cookie), Once Per Session (authentication expires when the user closes the browser; no cookie is saved) and Custom (a number of days from 1 to 180 inclusive; authentication is requested when the user's cookie expires). These options do not apply to users with Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "Authentication Frequency: Choose how often users are required to authenticate to the Zscaler service. These options don't apply to users with Zscaler Client Connector.",
+            "Daily: Authentication expires between 12 to 24 hours from the login time, depending on the time the user authenticated the day before.",
+            "Only Once: This is the default authentication interval.",
+            "After users have logged in, they do not need to authenticate again as long as the cookie is saved in the browser or as an Adobe Flash object. (Typically, the cookie expires in about two years.)",
+            "However, to log out of Zscaler, users must log out of the service explicitly or delete the cookie from their browser.",
+            "Once Per Session: Authentication expires after the user closes the browser. In this case, no cookie is saved.",
+            "Custom Authentication Frequency (days): Enter the number of days, between 1 and 180 inclusive. Authentication is requested when the user's cookie expires."
+          ]
+        }
+      ],
+      "gaps": [
+        "value-meanings"
+      ]
+    },
+    "only-once-recommended": {
+      "statement": "Zscaler recommends Only Once, the default interval. The authentication cookie issued for the gateway cloud is encrypted with SSL and can only be set and read from the gateway SSL site; when the gateway cookie is valid the proxy generates a domain cookie for that website, and the article says that domain cookie is rotated every 12 hours. Separately, it says a user who steals a domain cookie can browse to that website through Zscaler for up to 12 hours maximum. Private Access and Zscaler Client Connector do not use cookies for authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-authentication-frequency.json",
+          "quotes": [
+            "Zscaler recommends that you choose Only Once as your authentication frequency. This is the default authentication interval.",
+            "Zscaler issues an authentication cookie encrypted with SSL for the gateway cloud; therefore, that cookie can only be set and read from the gateway SSL site.",
+            "If the gateway cookie is valid, the proxy generates a new domain cookie for that website and issues a redirect to it.",
+            "This domain cookie is rotated for every 12 hours.",
+            "If a user steals a domain cookie, that user can browse the internet through Zscaler to that website for up to 12 hours maximum.",
+            "Private Access (ZPA) and Zscaler Client Connector do not use cookies for authentication."
+          ]
+        }
+      ]
+    },
+    "directory-load": {
+      "statement": "With Only Once, authentication is completely transparent to end users during maintenance or a downtime window of the AD server; the article's example is that with Daily every user must authenticate against the AD server every day, so the server must scale to those requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-authentication-frequency.json",
+          "quotes": [
+            "If you choose Only Once as the authentication frequency, authentication is completely transparent to your end users during maintenance or a downtime window of your AD server.",
+            "For example, if you choose Daily as the authentication frequency, all of your users must authenticate themselves against the AD server everyday when they access the internet. You must ensure that your server can scale to service these requests."
+          ]
+        }
+      ]
+    },
+    "custom-timeout-profiles": {
+      "statement": "By default the authentication timeout is shared across all locations; custom authentication timeout profiles can be created and assigned to locations. A maximum of 8 profiles can be created, each assignable to any number of locations, with an interval in minutes, hours or days: the minimum frequency is 5 minutes and the maximum is 999 days, and Zscaler recommends 30 minutes or higher. The feature is not available by default (contact the Zscaler Account team), a location picks a profile in its Gateway Options section, and the Authentication Profiles page is unavailable if subscribed to the Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-authentication-timeout-profiles.json",
+          "quotes": [
+            "By default, the authentication timeout is shared across all locations; however, you can create and assign custom authentication timeout profiles to locations in your organization.",
+            "You can create a maximum of 8 profiles, and assign each profile to any number of locations.",
+            "This feature is not available by default. To access this feature, contact your Zscaler Account team.",
+            "Interval: Choose either minutes, hours, or days.",
+            "The minimum frequency is 5 minutes and the maximum is 999 days. Zscaler recommends a frequency of 30 minutes or higher for a better user experience.",
+            "In the Gateway Options section, select an Authentication Profile from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-authentication-profiles.json",
+          "quotes": [
+            "The Authentication Profiles page is unavailable if you're subscribed to the Authentication Service."
+          ]
+        }
+      ]
+    },
+    "force-reauthentication": {
+      "statement": "Force Reauthentication has the Central Authority (CA) invalidate all authentication cookies for the users in the organization, which might take several minutes depending on the number of users; it does not apply to users with Zscaler Client Connector. Its status is Completed, In Progress, Error or None (never executed in the Admin Console). Zscaler recommends SCIM provisioning for complete user lifecycle management instead of forcing reauthentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-forced-reauthentication.json",
+          "quotes": [
+            "Instead of forcing reauthentication, Zscaler recommends using SCIM provisioning for complete user lifecycle management.",
+            "This might take several minutes depending on the number of users in your organization.",
+            "During this process, the Zscaler Central Authority (CA) invalidates all authentication cookies for the users in your organization.",
+            "This feature doesn't apply to users with Zscaler Client Connector.",
+            "Completed: The CA logged out all users successfully.",
+            "In Progress: The CA is in the process of logging out all users.",
+            "Error: The CA failed to log out all users.",
+            "None: Displays if you have never executed Force Reauthentication in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "saml-logout-reauth": {
+      "statement": "For users on SAML with auto-provisioning or Hosted DB authentication, reauthentication can be triggered by logging out at ip.zscaler.com, deleting the Zscaler cookies from the browser, deleting the user from the Admin Console, or using CSV import to delete the user from the Zscaler database; the article says to also choose one of these when SCIM is not supported for the IdP server in use. These methods apply only when forwarding traffic with PAC files and using cookie-based authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-logging-out-zscaler-while-using-saml.json",
+          "quotes": [
+            "You can choose from a variety of methods to log out of Zscaler to trigger reauthentication for users who are using SAML with auto-provisioning or Hosted DB authentication.",
+            "You should also choose one of the following methods if SCIM is not supported for the identity provider (IdP) server being used.",
+            "These methods only apply if you are forwarding traffic using PAC files and using cookie-based authentication.",
+            "To trigger reauthentication for the user, see ip.zscaler.com and click Logout.",
+            "Delete the Zscaler Cookies from the Browser",
+            "Delete the User from the Zscaler Admin Console",
+            "Use CSV Import to Delete the User from the Zscaler Database"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "value-meanings": {
+      "kind": "semantic",
+      "title": "Which authFrequency API value each console frequency option sets",
+      "status": "partial",
+      "detail": "The console options Daily, Only Once, Once Per Session and Custom are now defined (console-frequency-options), but no captured article maps them to DAILY_COOKIE, PERMANENT_COOKIE, SESSION_COOKIE and CUSTOM_COOKIE, and neither the spec nor the SDK explains PERMANENT_COOKIE. A lab read after choosing each console option, or a vendor statement of the mapping, would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "converting a frequency value into how often a user sees a login"
+    },
+    "timeout-profile-api": {
+      "kind": "semantic",
+      "title": "Whether custom authentication timeout profiles are readable or writable through the API",
+      "status": "open",
+      "detail": "The profile articles describe a console feature with up to 8 profiles of 5 minutes to 999 days, but name no API, SDK or Terraform field for the profiles or for a location's chosen profile. A spec, SDK and provider search, or a vendor answer, would settle it.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "automating or auditing per-location authentication timeouts"
+    },
+    "custom-without-days": {
+      "kind": "semantic",
+      "title": "What happens when the custom value is chosen without a valid number of days",
+      "status": "open",
+      "detail": "Unverified legacy statement: Choosing the custom frequency without a valid authCustomFrequency is an API-level error. No registered source states this. A lab write of CUSTOM_COOKIE with 0 and with 181 would settle it. The legacy text also named the value CUSTOM_FREQUENCY, which the spec does not list.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "predicting whether an invalid custom frequency is rejected or stored"
+    },
+    "redirect-failure-non-browser": {
+      "kind": "semantic",
+      "title": "How cookie-less non-browser clients fail at an authentication-required location",
+      "status": "open",
+      "detail": "Unverified legacy statement: Non-browser user agents cannot follow a SAML redirect, see the redirect as a failure, and an HTTP request from such an agent to an auth-required location returns an HTML redirect page that the agent treats as an error. No registered source states this. A lab request from a command-line client through an auth-required location with SAML on, with and without surrogate IP, would settle it. The cookie help article says only that such requests are marked against the location.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "diagnosing a service account or CLI tool that fails only at authenticated locations"
+    }
+  }
+}

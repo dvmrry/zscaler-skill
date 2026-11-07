@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Adding TCP NSS Feeds for Admin Audit Logs",
+  "source": {
+    "url": "https://help.zscaler.com/zia/adding-tcp-nss-feeds-admin-audit-logs",
+    "node": "1402711",
+    "revision": "3250641",
+    "updated": "2026-10-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The initial audit log Nanolog Streaming Service (NSS) feed can take up to 2 hours to stream to the NSS and your security information and event management (SIEM) system. If you have Authentication Service, the initial feed can take up to 5 hours to stream to the NSS and your SIEM system. However, this delay does not occur if you have already configured and are streaming SCIM Logs."
+    },
+    {
+      "text": "You can configure up to 16 TCP NSS feeds to specify the data from the admin audit logs that the NSS sends to the SIEM."
+    },
+    {
+      "text": "A large number of filters or complex filters, such as string searches, can impact the NSS performance. Before you start configuring a feed for admin audit logs, consider the guidelines for configuring feeds."
+    },
+    {
+      "text": "If your organization has a policy to block unauthenticated traffic, ensure that Zscaler IP addresses are allowed in order to prevent streaming issues with admin audit logs. Zscaler IP addresses are included in the Professional Services URL category. You can configure a policy that allows traffic in this category and then order the newly configured policy to take precedence over your existing policy that blocks unauthenticated traffic. Alternatively, you can:"
+    },
+    {
+      "item": "Configure a user-defined URL category that includes the following custom URL: http://kproxy.hdeu1.zdataservices.net/",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Configure a URL filtering policy that allows traffic in the user-defined URL category.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Prioritize the new policy in the rule order. Rules are evaluated in ascending numerical order (i.e., Rule 1 before Rule 2, and so on).",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "To learn more, see Configuring Custom URL Categories and Configuring the URL Filtering Policy."
+    },
+    {
+      "text": "To configure a TCP NSS feed for admin audit logs:"
+    },
+    {
+      "item": "From the navigation menu, go to Data Explorer > Log Streaming > Internet Log Streaming - Nanolog Streaming Service.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          61
+        ],
+        [
+          64,
+          86
+        ],
+        [
+          89,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "On the NSS Feeds tab, click Add TCP NSS Feed.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          28,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "The Add TCP NSS Feed window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the Add TCP NSS Feed window:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Feed Name: Enter the name of the feed. Each feed is a connection between the NSS and your SIEM.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "NSS Type: NSS for Web is selected by default.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          10,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "NSS Server: Select an NSS server from the list. A configured NSS server is required to add an NSS feed.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Status: The NSS feed is Enabled by default. Choose Disabled if you want to activate it at a later time.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          24,
+          31
+        ],
+        [
+          51,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "SIEM Destination Type: Select the type of destination:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "SIEM IP Address: Appears when IP Address is selected as the destination type. Enter the IP address of the SIEM to which the logs are streamed.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          30,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "SIEM FQDN: Appears when FQDN is selected as the destination type. Enter the destination for the TCP connection to which the logs are streamed. This allows failover from one IP to the other without manual intervention, but rather relying on updating the DNS entry. NSS re-resolves the FQDN only when the existing connection goes down. This feature cannot be used for DNS-based load balancing.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          24,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "SIEM TCP Port: Enter the port number of the SIEM to which the logs are streamed. Ensure that the SIEM is configured to accept the feed from the NSS.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "SIEM Rate: Leave as Unlimited, unless you need to throttle the output stream due to SIEM licensing or other constraints.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "SIEM Rate Limit (Events per Second): Enter an appropriate rate limit for the events per second that you want to be streamed to your SIEM. A limit that is too low for the traffic volume can cause log loss. This field is available only if you have selected Limited in the SIEM Rate field.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          35
+        ],
+        [
+          255,
+          262
+        ],
+        [
+          270,
+          279
+        ]
+      ]
+    },
+    {
+      "item": "Log Type: Choose Admin Audit.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Feed Output Type: The output is a comma-separated (CSV) list by default. Choose Tab-separated to create a tab-separated list. Choose Custom to use a different delimiter, such as a dash, and enter the delimiter when you specify the feed output format.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          51,
+          54
+        ],
+        [
+          80,
+          93
+        ],
+        [
+          133,
+          139
+        ]
+      ]
+    },
+    {
+      "item": "Feed Escape Character: The Zscaler service hex encodes all non-printable ASCII characters that are in URLs when it sends logs to the NSS. Any URL character that is less than 0x21, or above 0x7E, is encoded as %HH. This ensures that your SIEM is able to parse the URLs in case they contain non-printable characters. For example, a \\n char in a URL is encoded as %0A, and a space is encoded as %20. In this field, you can specify additional characters that you want to encode. For example, enter a comma (,) to encode it as %2C. This is useful if you are using this character as your delimiter and want to ensure it does not cause erroneous delimitation. Note that the service encodes characters in URLs, hostnames, and referrer URLs only. If custom encoding was done for a record, the %s{eedone} field is YES for that record.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Feed Output Format: These are the fields that are displayed in the output. You can edit the default list and if you choose Custom as the Feed Output Type, change the delimiter as well. To learn more about the available fields and their syntax, see NSS Feed Output Format: Admin Audit Logs.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          123,
+          129
+        ],
+        [
+          137,
+          153
+        ]
+      ]
+    },
+    {
+      "item": "Time Zone: By default, this is set to the organization's time zone. The time zone you set applies to the time field in the output file. The time zone automatically adjusts to changes in daylight savings in the specific time zone. The configured time zone can be output to the logs as a separate field. The list of time zones is derived from the IANA Time Zone database. Direct GMT offsets can also be specified.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Duplicate Logs: To ensure that no logs are skipped during downtime, specify the number of minutes that the NSS sends duplicate logs. Zscaler recommends setting the number to 5 minutes, or more if required. This allows the NSS to send up to 60 minutes (one hour) of logs to the SIEM after the connection is restored. To learn more, see General Guidelines for NSS Feeds and Feed Formats.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Define the filter:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Application: Filter logs based on the specific application. You can specify multiple applications.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Branch Connector Portal Audit Log: Allows real-time streaming of the Zscaler Cloud & Branch Connector audit logs to SIEM.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Client Connector Portal Audit Log: Allows real-time streaming of the Zscaler Client Connector audit logs to SIEM.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "ZIA Portal Audit Log: Allows real-time streaming of the Internet Access (ZIA) audit logs to SIEM.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "ZIdentity Admin Audit Log: Allows real-time streaming of the Authentication Service audit logs to SIEM.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

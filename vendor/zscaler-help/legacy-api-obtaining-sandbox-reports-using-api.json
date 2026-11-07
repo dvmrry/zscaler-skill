@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Obtaining Sandbox Reports Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/obtaining-sandbox-reports-using-api",
+    "node": "1400811",
+    "revision": "3029316",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "Sandbox Report API resources are only accessible to Sandbox subscribers."
+    },
+    {
+      "text": "Sandbox Report API resources allow you to get a Sandbox Detail Report for any file that was sent for analysis from any organization on Zscaler cloud. Zscaler stores Sandbox Detail Reports for all files that were detonated within Sandbox. Therefore, information such as the threat name, threat score, category, etc. is available within a report. However, the sample file itself and any potentially sensitive information such as screenshots or filenames are removed"
+    },
+    {
+      "text": "To learn more, see About Sandbox."
+    },
+    {
+      "heading": "Determining your Quota for the Sandbox Report API",
+      "level": 1
+    },
+    {
+      "text": "The resource access quota for retrieving Sandbox Detail Reports is restricted to 3,000 requests per day, with a rate limit of 2/sec and 1,000/hour."
+    },
+    {
+      "text": "Getting the Sandbox Report API quota allows you to monitor your organization's used, unused, and allocated quota on a daily basis. To determine your quota, send a GET request to /sandbox/report/quota. For example, in Python:"
+    },
+    {
+      "text": "conn.request(\"GET\", \"/api/v1/sandbox/report/quota\", headers=headers)"
+    },
+    {
+      "text": "To learn more, see Sandbox Report in the API Reference."
+    },
+    {
+      "heading": "Getting a Full or Summary Sandbox Detail Report",
+      "level": 1
+    },
+    {
+      "text": "To get a full (i.e., complete) or summary Sandbox Detail Report, send a GET request to /sandbox/report/{md5Hash} and specify whether the details parameter should be full or summary. For example, in Python, you would use the following code to get a summary report:"
+    },
+    {
+      "text": "conn.request(\"GET\", \"/api/v1/sandbox/report/8350dED6D39DF158E51D6CFBE36FB012?details=summary\", headers=headers)"
+    },
+    {
+      "text": "GET /sandbox/report/{md5Hash} returns a report only if the MD5 file was analyzed previously. If a report for a requested MD5 does not exist, the request still counts against your quota."
+    },
+    {
+      "text": "To learn more about the API endpoint, see API Reference."
+    },
+    {
+      "text": "A Sandbox Detail Report always provides the following information:"
+    },
+    {
+      "item": "Status: The summary status of the file analysis, which includes one of the following values:",
+      "depth": 0
+    },
+    {
+      "item": "COMPLETED: The file analysis was completed",
+      "depth": 1
+    },
+    {
+      "item": "NODYNAMIC: The file analysis was completed, but dynamic analysis was not performed",
+      "depth": 1
+    },
+    {
+      "item": "INPROGRESS: The file analysis is in progress",
+      "depth": 1
+    },
+    {
+      "item": "NOTFOUND: The MD5 hash was not found",
+      "depth": 1
+    },
+    {
+      "text": "For example (value highlighted in green):"
+    },
+    {
+      "text": "\"Summary\": { \"Status\": \"COMPLETED\", \"Category\": \"SCRIPT\", \"FileType\": \"CMD\", \"Start Time\": 1509567511, \"Duration\": 454557, \"Analysis\": \"0\", \"Url\": \"\", \"TimeUnit\": \"ms\", \"StartTime\": \"Nov 1, 2017 1:18:31 PM\" },"
+    },
+    {
+      "item": "Category: The summary category of the analyzed file, which includes one of the following values:",
+      "depth": 0
+    },
+    {
+      "item": "SCRIPT",
+      "depth": 1
+    },
+    {
+      "item": "PDF",
+      "depth": 1
+    },
+    {
+      "item": "ANDROID",
+      "depth": 1
+    },
+    {
+      "item": "ARCHIVE",
+      "depth": 1
+    },
+    {
+      "item": "JAR",
+      "depth": 1
+    },
+    {
+      "item": "DOCS",
+      "depth": 1
+    },
+    {
+      "item": "FLASH",
+      "depth": 1
+    },
+    {
+      "item": "EXECS",
+      "depth": 1
+    },
+    {
+      "item": "OTHER",
+      "depth": 1
+    },
+    {
+      "item": "ANY",
+      "depth": 1
+    },
+    {
+      "text": "For example (value highlighted in green):"
+    },
+    {
+      "text": "\"Summary\": { \"Status\": \"COMPLETED\", \"Category\": \"SCRIPT\", \"FileType\": \"CMD\", \"Start Time\": 1509567511, \"Duration\": 454557, \"Analysis\": \"0\", \"Url\": \"\", \"TimeUnit\": \"ms\", \"StartTime\": \"Nov 1, 2017 1:18:31 PM\" },"
+    },
+    {
+      "item": "Type: The classification type of the analyzed file, which includes one of the following values:",
+      "depth": 0
+    },
+    {
+      "item": "MALICIOUS",
+      "depth": 1
+    },
+    {
+      "item": "SUSPICIOUS",
+      "depth": 1
+    },
+    {
+      "item": "BENIGN",
+      "depth": 1
+    },
+    {
+      "text": "For example (value highlighted in green):"
+    },
+    {
+      "text": "\"Classification\": { \"Type\": \"MALICIOUS\", \"Category\": \"MALWARE_BOTNET\", \"Score\": 86, \"Max Score\": 100, \"DetectedMalware\": \"\" },"
+    },
+    {
+      "item": "Category: The classification category of the analyzed file, which includes one of the following values:",
+      "depth": 0
+    },
+    {
+      "item": "BENIGN",
+      "depth": 1
+    },
+    {
+      "item": "SUSPICIOUS",
+      "depth": 1
+    },
+    {
+      "item": "ADWARE",
+      "depth": 1
+    },
+    {
+      "item": "MALWARE_BOTNET",
+      "depth": 1
+    },
+    {
+      "item": "ANONYMIZER_P2P",
+      "depth": 1
+    },
+    {
+      "text": "For example (value highlighted in green):"
+    },
+    {
+      "text": "\"Classification\": { \"Type\": \"MALICIOUS\", \"Category\": \"MALWARE_BOTNET\", \"Score\": 86, \"Max Score\": 100, \"DetectedMalware\": \"\" },"
+    },
+    {
+      "text": "A summary Sandbox Detail Report only includes Summary, Classification, and FileProperties information."
+    },
+    {
+      "item": "Summary Sandbox Detail Report Example for a MALICIOUS File",
+      "depth": 0
+    },
+    {
+      "item": "{ \"Summary\": { \"Summary\": { \"Status\": \"COMPLETED\", \"Category\": \"EXECS\", \"FileType\": \"DLL\", \"StartTime\": 1522111841, \"Duration\": 481690 }, \"Classification\": { \"Type\": \"MALICIOUS\", \"Category\": \"MALWARE_BOTNET\", \"Score\": 82, \"DetectedMalware\": \"Win32/TrojanDownloader.Banload.TNJ trojan\" }, \"FileProperties\": { \"FileType\": \"DLL\", \"FileSize\": 2358272, \"MD5\": \"b3b13c2fe5710507612106cb11ceced3\", \"SHA1\": \"6f30404f8b30812758acc06455bc95348c86f9f2\", \"Sha256\": \"c77ab4c60b73c8f8135d54162813ab7c63432058f17ff00754d5fd547c22db76\", \"Issuer\": \"\", \"DigitalCerificate\": \"\", \"SSDeep\": \"49152:mQU0HSp/RcGuBLe/PESBbFVZ86MfBWPvGZxnBGVV3NcKRLFcTOJP:mQUn6LsPQp6vkoiKt\", \"RootCA\": \"\" } } }",
+      "depth": 0
+    },
+    {
+      "text": "A full Sandbox Detail Report includes the same information as in a summary report, and also includes System Summary, Networking, and other information specific to the analyzed file."
+    },
+    {
+      "item": "Full Sandbox Detail Report Example for a MALICIOUS File",
+      "depth": 0
+    },
+    {
+      "item": "{ \"Full Details\": { \"Summary\": { \"Status\": \"COMPLETED\", \"Category\": \"SCRIPT\", \"FileType\": \"CMD\", \"Start Time\": 1509567511, \"Duration\": 454557, \"Analysis\": \"0\", \"Url\": \"\", \"TimeUnit\": \"ms\", \"StartTime\": \"Nov 1, 2017 1:18:31 PM\" }, \"Classification\": { \"Type\": \"MALICIOUS\", \"Category\": \"MALWARE_BOTNET\", \"Score\": 86, \"Max Score\": 100, \"DetectedMalware\": \"\" }, \"File Properties\": { \"File Type\": \"CMD\", \"File Size\": 9810, \"MD5\": \"8350ded6d39df158e51d6cfbe36fb012\", \"SHA1\": \"f4dd1d176975c70ba8963ebc654a78a6e345cfb6\", \"Sha256\": \"aff2d40828597fbf482753bec73cc9fc2714484262258875cc23c7d5a7372cee\", \"Issuer\": \"\", \"Digital Cerificate\": \"\", \"SSDeep\": \"192:+cgNT7Zj4tvl2Drc+gEakjqBT1W431lXXH1TR8J:InZjevl2Drc+gEakmBT44rXVR8J\", \"RootCA\": \"\" }, \"System Summary\": [ { \"Risk\": \"LOW\", \"Signature\": \"Allocates memory within range which is reserved for system DLLs\", \"Signature Sources\": [ \"\", \"76E70000 page execute and read and write\", \"76E70000 page execute and read and write\", \"76E70000 page execute and read and write\", \"76E70000 page execute and read and write\", \"76F90000 page execute and read and write\", \"76F90000 page execute and read and write\", \"76F90000 page execute and read and write\", \"76F90000 page execute and read and write\" ] }, { \"Risk\": \"LOW\", \"Signature\": \"Classification label\", \"Signature Sources\": [ \"\", \"mal68.winCMD@53/26@0/0\" ] }, { \"Risk\": \"LOW\", \"Signature\": \"Creates files inside the user directory\", \"Signature Sources\": [ \"\", \"C:\\\\Users\\\\win_7_64bit\\\\Desktop\\\\WlanTraces\" ] }, { \"Risk\": \"LOW\", \"Signature\": \"Found command line output\", \"Signature Sources\": [ \"\" ] }, { \"Risk\": \"LOW\", \"Signature\": \"Queries the cryptographic machine GUID\", \"Signature Sources\": [ \"\", \"HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Cryptography MachineGuid\" ] }, { \"Risk\": \"LOW\", \"Signature\": \"Reads software policies\", \"Signature Sources\": [ \"\", \"HKEY_USERS\\\\Software\\\\Policies\\\\Microsoft\\\\Windows\\\\Safer\\\\CodeIdentifiers\" ] }, { \"Risk\": \"LOW\", \"Signature\": \"Sample sleeps for a long time\", \"Signature Sources\": [ \"\" ] }, { \"Risk\": \"LOW\", \"Signature\": \"Spawns processes\", \"Signature Sources\": [ \"\", \"C:\\\\Windows\\\\SysWOW64\\\\cmd.exe \", \"C:\\\\Windows\\\\SysWOW64\\\\cmd.exe \", \"C:\\\\Windows\\\\SysWOW64\\\\cmd.exe \", \"C:\\\\Windows\\\\SysWOW64\\\\find.exe \", \"C:\\\\Windows\\\\SysWOW64\\\\find.exe \", \"C:\\\\Windows\\\\SysWOW64\\\\logman.exe \", \"C:\\\\Windows\\\\SysWOW64\\\\netsh.exe \", \"C:\\\\Windows\\\\SysWOW64\\\\whoami.exe \" ] }, { \"Risk\": \"LOW\", \"Signature\": \"Uses an in-process (OLE) Automation server\", \"Signature Sources\": [ \"\", \"HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Classes\\\\Wow6432Node\\\\CLSID\\\\{03837525-098B-11D8-9414-505054503030}\\\\InprocServer32\" ] } ], \"Networking\": [ { \"Risk\": \"MODERATE\", \"Signature\": \"Uses ipconfig to modify the Windows network settings\", \"Signature Sources\": [ \"\", \"C:\\\\Windows\\\\SysWOW64\\\\ipconfig.exe \" ] }, { \"Risk\": \"HIGH\", \"Signature\": \"Uses netsh to modify the Windows network and firewall settings\", \"Signature Sources\": [ \"\", \"C:\\\\Windows\\\\SysWOW64\\\\netsh.exe \" ] } ], \"Security Bypass\": [ { \"Risk\": \"LOW\", \"Signature\": \"Checks for kernel debuggers\", \"Signature Sources\": [ \"\", \"KernelDebuggerInformation\" ] }, { \"Risk\": \"LOW\", \"Signature\": \"Executes massive amount of sleeps in a loop\", \"Signature Sources\": [ \"\", \"-60000ms >= -60000ms\", \"-60000ms >= -60000ms\", \"-60000ms >= -60000ms\", \"-60000ms >= -60000ms\", \"-60000ms >= -60000ms\" ] }, { \"Risk\": \"MODERATE\", \"Signature\": \"Enables debug privileges\", \"Signature Sources\": [ \"\", \"Debug\" ] }, { \"Risk\": \"MODERATE\", \"Signature\": \"Sample sleeps for a long time (installer files shows these property).\", \"Signature Sources\": [ \"\" ] } ], \"Stealth\": [ { \"Risk\": \"LOW\", \"Signature\": \"Disables application error messages\", \"Signature Sources\": [ \"\", \"NOOPENFILEERRORBOX\", \"NOOPENFILEERRORBOX\", \"NOOPENFILEERRORBOX\", \"NOOPENFILEERRORBOX\" ] }, { \"Risk\": \"MODERATE\", \"Signature\": \"Very long cmdline option found\", \"Signature Sources\": [ \"\", \"C:\\\\Windows\\\\SysWOW64\\\\logman.exe logman create trace autosession\\\\IntelNetwfw02 -p 0xffffffff 255 -f bincirc -max 250 -o C:\\\\Users\\\\win_7_64bit\\\\Desktop\\\\WlanTraces\\\\WIN_7_64BIT-PC-11-01-2017_0825\\\\IntelNetwfw02_WIN_7_64BIT-PC_11-01-2017_0825.etl\", \"C:\\\\Windows\\\\SysWOW64\\\\logman.exe logman create trace autosession\\\\bcrmwlan -p {CEA4623F-AA31-4286-B3A5-797EF8A75C17} 0xffffffff 255 -f bincirc -max 250 -o C:\\\\Users\\\\win_7_64bit\\\\Desktop\\\\WlanTraces\\\\WIN_7_64BIT-PC-11-01-2017_0825\\\\BCRMwlan_WIN_7_64BIT-PC_11-01-2\", \"C:\\\\Windows\\\\SysWOW64\\\\logman.exe logman create trace autosession\\\\mwls97w8arm -p {BFA91C93-9E18-497C-971B-490D06089E97} 0x1 255 -f bincirc -max 250 -o C:\\\\Users\\\\win_7_64bit\\\\Desktop\\\\WlanTraces\\\\WIN_7_64BIT-PC-11-01-2017_0825\\\\Marvell_WIN_7_64BIT-PC_11-01-2017_0\", \"C:\\\\Windows\\\\SysWOW64\\\\logman.exe logman create trace autosession\\\\qcwlan -p {BB6F5B93-635C-47BE-816F-E895E77064A8} 0xffff 18 -f bincirc -max 250 -o C:\\\\Users\\\\win_7_64bit\\\\Desktop\\\\WlanTraces\\\\WIN_7_64BIT-PC-11-01-2017_0825\\\\QCwlan_WIN_7_64BIT-PC_11-01-2017_0825.\", \"C:\\\\Windows\\\\SysWOW64\\\\logman.exe logman start bcrmwlan -p {CEA4623F-AA31-4286-B3A5-797EF8A75C17} 0xffffffff 255 -f bincirc -max 150 -o C:\\\\Users\\\\win_7_64bit\\\\Desktop\\\\WlanTraces\\\\WIN_7_64BIT-PC-11-01-2017_0825\\\\BCRMwlan_WIN_7_64BIT-PC_11-01-2017_0825.etl -ets\", \"C:\\\\Windows\\\\SysWOW64\\\\logman.exe logman start mwls97w8arm -p {BFA91C93-9E18-497C-971B-490D06089E97} 0x1 255 -f bincirc -max 150 -o C:\\\\Users\\\\win_7_64bit\\\\Desktop\\\\WlanTraces\\\\WIN_7_64BIT-PC-11-01-2017_0825\\\\Marvell_WIN_7_64BIT-PC_11-01-2017_0825.etl -ets\", \"C:\\\\Windows\\\\SysWOW64\\\\logman.exe logman start qcwlan -p {BB6F5B93-635C-47BE-816F-E895E77064A8} 0xffff 18 -f bincirc -max 150 -o C:\\\\Users\\\\win_7_64bit\\\\Desktop\\\\WlanTraces\\\\WIN_7_64BIT-PC-11-01-2017_0825\\\\QCwlan_WIN_7_64BIT-PC_11-01-2017_0825.etl -ets\", \"C:\\\\Windows\\\\SysWOW64\\\\netsh.exe netsh trace sta wireless_dbg provider={21ba7b61-05f8-41f1-9048-c09493dcfe38} 0xff globallevel=0xff persistent=yes trace=C:\\\\Users\\\\win_7_64bit\\\\Desktop\\\\WlanTraces\\\\WIN_7_64BIT-PC-11-01-2017_0825\\\\wlan_WIN_7_64BIT-PC_11-01-2017_08\" ] } ], \"Persistence\": [ { \"Risk\": \"MODERATE\", \"Signature\": \"Creates or modifies Windows services\", \"Signature Sources\": [ \"\", \"HKEY_LOCAL_MACHINE\\\\SYSTEM\\\\ControlSet001\\\\services\\\\IKEEXT\\\\Parameters\" ] }, { \"Risk\": \"HIGH\", \"Signature\": \"Modifies security policies related information\", \"Signature Sources\": [ \"\", \"HKEY_LOCAL_MACHINE\\\\SYSTEM\\\\ControlSet001\\\\Control\\\\Lsa\\\\Kerberos\\\\Parameters KerbDebugLevel\" ] }, { \"Risk\": \"HIGH\", \"Signature\": \"Uses sc.exe to modify the status of services\", \"Signature Sources\": [ \"\", \"C:\\\\Windows\\\\SysWOW64\\\\sc.exe \" ] } ] } }",
+      "depth": 0
+    }
+  ]
+}

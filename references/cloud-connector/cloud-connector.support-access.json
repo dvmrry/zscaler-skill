@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.support-access",
+  "title": "Zscaler Support access to Cloud & Branch Connector: Admin Console remote assistance and the zssupport tunnel into connector VMs",
+  "aliases": [
+    "cloud connector remote assistance",
+    "branch connector remote access",
+    "zssupport tunnel start",
+    "zssupport",
+    "ecsupport.log",
+    "cloud connector support tunnel",
+    "allow remote assistance cloud connector",
+    "cloud connector port 12002"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.security-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades.zsroot-rotation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.cloud-connector"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler Support can reach a Cloud & Branch Connector deployment in two separate ways: through the Admin Console, and through the connector VM. {{console-remote-assistance}} {{vm-remote-access}}"
+    },
+    {
+      "label": "Admin Console remote assistance.",
+      "text": "{{durations}} {{obfuscate}} Who may change the setting is a role permission: [[shared.admin-rbac.cloud-connector:remote-assistance-perm]]."
+    },
+    {
+      "label": "VM remote access.",
+      "text": "{{zssupport-commands}} {{ssm-path}} {{support-log}} {{firewall-url}}"
+    },
+    {
+      "label": "Open.",
+      "text": "What Obfuscate Data hides, the longest allowed duration and the host the zssupport tunnel connects to are not given {{gap:remote-assistance-details}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a support tunnel that will not start, that outbound SSH on port 12002 is allowed, that every command was run with sudo, and the ecsupport log for the failure.",
+      "uses": [
+        "zssupport-commands",
+        "support-log"
+      ]
+    },
+    {
+      "do": "For Support that cannot log in to the VM, that the support tunnel was explicitly enabled, since the feature is disabled by default.",
+      "uses": [
+        "vm-remote-access"
+      ]
+    },
+    {
+      "do": "For Support that cannot reach the Admin Console, whether the Remote Assistance window is still open and the access level selected.",
+      "uses": [
+        "console-remote-assistance"
+      ]
+    }
+  ],
+  "claims": {
+    "console-remote-assistance": {
+      "statement": "Remote assistance lets Zscaler Support log in to the portal with either view-only or full admin privileges until the specified date; it is set at Help > Tools & Resources > Remote Assistance by selecting Allow Remote Assistance, then View Only, Full Access (Read/Write), or both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-enabling-remote-assistance.json",
+          "quotes": [
+            "Remote assistance allows Zscaler Support to securely and remotely log in to the portal. This can be done with either view-only or full admin privileges.",
+            "This procedure allows Zscaler Support to access the portal until the specified date.",
+            "Select Allow Remote Assistance, then select View Only, Full Access (Read/Write), or both.",
+            "Go to Help > Tools & Resources > Remote Assistance."
+          ]
+        }
+      ]
+    },
+    "durations": {
+      "statement": "Zscaler recommends a length of at least one year when choosing view-only access and at least two days when choosing full access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-enabling-remote-assistance.json",
+          "quotes": [
+            "Zscaler recommends that you select a length of at least one year when choosing view-only access and at least two days when choosing full access."
+          ]
+        }
+      ]
+    },
+    "obfuscate": {
+      "statement": "Obfuscate Data is off by default, and admins with Remote Assistance Management enabled for their role can make changes in the Remote Assistance window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-enabling-remote-assistance.json",
+          "quotes": [
+            "Select Obfuscate Data if desired. By default, this is set to off.",
+            "Admins with Remote Assistance Management enabled for their role can make changes in the Remote Assistance window."
+          ]
+        }
+      ]
+    },
+    "vm-remote-access": {
+      "statement": "An admin can request remote access and allow Zscaler Support to log in to their Cloud or Branch Connector VM instance without opening a firewall connection for inbound traffic; the feature is disabled by default and must be explicitly enabled for the duration of the support assistance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-remote-access.json",
+          "quotes": [
+            "An admin can request remote access and allow Zscaler Support to log in to their Zscaler Cloud or Branch Connector virtual machine (VM) instance without opening a firewall connection for inbound traffic.",
+            "This feature is disabled by default. You must explicitly enable it for the duration that you need remote support assistance."
+          ]
+        }
+      ]
+    },
+    "zssupport-commands": {
+      "statement": "The zssupport tunnel has a command that creates a long-lived SSH tunnel to the Zscaler cloud with remote port forwarding, which needs outbound SSH traffic allowed on port 12002 because the support servers monitor through this port; another brings the tunnel and all remote connections down, a third checks its status, and every command must include sudo.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-remote-access.json",
+          "quotes": [
+            "This command creates a long-lived SSH tunnel to the Zscaler cloud and sets up remote port forwarding, which allows Zscaler Support to log in to your Cloud or Branch Connector instance.",
+            "To run this command, allow outbound SSH traffic on port 12002 because the support servers monitor through this port.",
+            "This command brings down the long-lived SSH tunnel to the Zscaler cloud and all the remote connections.",
+            "This command checks the status of the long-lived SSH tunnel to the Zscaler cloud, which Zscaler Support uses to log in to your Cloud or Branch Connector instance.",
+            "Ensure that you include sudo in every command that you run."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-remote-access.json",
+          "after": "- To enable Zscaler Support to access your Cloud or Branch Connector instance:",
+          "quotes": [
+            "sudo zssupport tunnel start"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-remote-access.json",
+          "after": "- To disable Zscaler Support access to your Cloud or Branch Connector instance:",
+          "quotes": [
+            "sudo zssupport tunnel stop"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-remote-access.json",
+          "after": "- To check the status of the Zscaler Support access to your Cloud or Branch Connector instance:",
+          "quotes": [
+            "sudo zssupport tunnel status"
+          ]
+        }
+      ]
+    },
+    "ssm-path": {
+      "statement": "If the admin is using AWS Session Manager, the path environment variable is exported (including /home/zsroot/bin) before running sudo zssupport tunnel start.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-remote-access.json",
+          "quotes": [
+            "If you are using Amazon Web Service (AWS) Session Manager (SSM), export the path environment variable and then run the command:",
+            "export PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/home/zsroot/bin sudo zssupport tunnel start"
+          ]
+        }
+      ]
+    },
+    "support-log": {
+      "statement": "If the support tunnel enablement fails, the logs at /var/log/zscaler/ecsupport/ecsupport.log are to be attached for debugging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-remote-access.json",
+          "quotes": [
+            "If the support tunnel enablement fails, attach the logs at /var/log/zscaler/ecsupport/ecsupport.log for debugging."
+          ]
+        }
+      ]
+    },
+    "firewall-url": {
+      "statement": "The firewall requirements are at https://config.zscaler.com/<Zscaler Cloud Name>/cloud-branch-connector, where the cloud name is the one in the URL used to log in to the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-remote-access.json",
+          "quotes": [
+            "To view your firewall requirements, go to the following URL: https://config.zscaler.com/<Zscaler Cloud Name>/cloud-branch-connector.",
+            "You can find the <Zscaler Cloud Name> in the URL you use to log in to the Zscaler Admin Console."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "remote-assistance-details": {
+      "kind": "semantic",
+      "title": "What Obfuscate Data hides, the longest remote assistance duration and the zssupport tunnel host",
+      "status": "open",
+      "detail": "The remote assistance page does not say what Obfuscate Data hides or the longest duration allowed, and the remote access page does not name the host the tunnel connects to; cloud-connector.aws.security-groups has remotesupport.<cloud>.net from the Terraform module and the CloudFormation templates (cfn-support-ip).",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

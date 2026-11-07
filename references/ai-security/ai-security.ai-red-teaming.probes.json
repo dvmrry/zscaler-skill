@@ -1,0 +1,350 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-red-teaming.probes",
+  "title": "Red Teaming probes: categories, custom probes and datasets, risk priority, coverage and attack strategies",
+  "aliases": [
+    "probe",
+    "red teaming probe",
+    "custom probe",
+    "custom dataset probe",
+    "custom q&a probe",
+    "risk priority",
+    "coverage level",
+    "attack strategies",
+    "attack multiplier",
+    "overall risk score",
+    "probe settings"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming.test-runs"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming.assets"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-a-probe-is}} {{categories}} Probes test an app; the detectors in [[ai-security.ai-guard.detectors]] guard traffic."
+    },
+    {
+      "label": "Custom probes.",
+      "text": "{{custom-types}} {{custom-probe-form}} {{custom-dataset-form}} {{qa-probe-form}}"
+    },
+    {
+      "label": "Enabling.",
+      "text": "{{enable}} The probes available are not listed in the captures {{gap:probe-catalog}}; the dataset form is cut off in the capture {{gap:dataset-form-cut-off}}."
+    },
+    {
+      "label": "Attack strategies.",
+      "text": "{{attack-strategies}}"
+    },
+    {
+      "label": "Priority, coverage and scores.",
+      "text": "{{risk-priority}} {{coverage-depth}} The levels are named differently by two pages {{divergence:coverage-names}}. The metric probe priority feeds is named differently from the one the Overview page shows {{divergence:risk-score-name}}; how either is computed is open {{gap:score-computation}}."
+    },
+    {
+      "label": "Runs.",
+      "text": "Probes are run from [[ai-security.ai-red-teaming.test-runs]]; the Overview page is in [[ai-security.ai-red-teaming]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which coverage level name an answer uses: the overview and the custom-probe form disagree (Extended against Extensive), so quote the page being relied on.",
+      "uses": [
+        "coverage-names"
+      ]
+    },
+    {
+      "do": "Whether a probe's Risk Priority is being compared with the Health Score on the Overview page; the pages do not say whether the two scores are one metric.",
+      "uses": [
+        "risk-priority",
+        "risk-score-name"
+      ]
+    }
+  ],
+  "claims": {
+    "what-a-probe-is": {
+      "statement": "Probe is the adversarial testing module in Zscaler AI Security, and all probes are designed to provoke and detect specific vulnerabilities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-probes.json",
+          "quotes": [
+            "Probe is the adversarial testing module in Zscaler AI Security.",
+            "All probes are designed to provoke and detect specific vulnerabilities."
+          ]
+        }
+      ]
+    },
+    "categories": {
+      "statement": "Probes fall into categories: Security probes test how well a target resists adversarial inputs such as prompt injection, phishing or XSS, focus on model behavior and policy enforcement, and do not scan infrastructure; Safety probes test whether a target avoids harmful, abusive, or dangerous content; Hallucination & Trustworthiness probes test whether a target produces accurate, grounded, and verifiable outputs, using datasets and RAG context where applicable; Business Alignment probes test whether a target follows the organization's business rules and brand guardrails; Custom probes let the customer define testing rules and datasets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-probes.json",
+          "quotes": [
+            "Security probes test how well a target application resists adversarial inputs.",
+            "They simulate attack-like conversations (e.g., prompt injection, phishing, XSS).",
+            "They focus on model behavior and policy enforcement.",
+            "They do not scan infrastructure.",
+            "They mark results as pass/fail based on target behavior.",
+            "They simulate high-risk prompts and mark results as pass/fail based on target behavior.",
+            "They mark results as pass/fail based on factuality, grounding, and refusal behavior.",
+            "They mark results as pass/fail based on adherence to internal policies and intended use cases.",
+            "They mark results as pass/fail based on your expected behavior.",
+            "Safety probes test whether a target avoids harmful, abusive, or dangerous content.",
+            "Hallucination & Trustworthiness probes test whether a target produces accurate, grounded, and verifiable outputs. They use datasets and RAG context where applicable.",
+            "Business Alignment probes test whether a target follows your organization’s business rules and brand guardrails.",
+            "Custom probes let you define your own testing rules and datasets."
+          ]
+        }
+      ]
+    },
+    "custom-types": {
+      "statement": "Custom probes include the custom probe tests the AI app against rules the customer defines, the Platform generating and sending prompts (including variations) to verify that the chatbot follows the allowed behaviors and avoids the banned ones; the custom dataset probe uses an uploaded CSV dataset as the source of attacks or test cases, can generate additional variants (languages, paraphrases, strategies), and evaluates responses using either regex-based detection or an LLM-based evaluator; and the Q&A probe tests whether the application answers the questions defined correctly, evaluating whether the response matches the correct answers in the CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-probes.json",
+          "quotes": [
+            "The custom probe tests your AI app against rules you define.",
+            "The Platform generates and sends relevant prompts (including variations) to verify that the chatbot consistently follows the allowed behaviors and avoids the banned behaviors, flagging responses that violate your expectations.",
+            "This custom dataset probe uses your uploaded CSV dataset as the source of attacks or test cases.",
+            "For each entry, the Platform can generate additional variants (languages, paraphrases, strategies), run them against the target",
+            "evaluate responses using either regex-based detection or an LLM-based evaluator.",
+            "Custom Q&A probe helps validate accuracy and consistency for critical business information (e.g., FAQ, policies, product facts).",
+            "This probe tests whether your application answers the questions you define correctly.",
+            "evaluate whether the response content matches the correct answers you provided in the CSV."
+          ]
+        }
+      ]
+    },
+    "risk-priority": {
+      "statement": "Each probe has a Risk Priority (Low, Medium, High, Critical) reflecting the severity and likelihood of exploitation; a higher Risk Priority means vulnerabilities the probe identifies contribute more to the AI app's Overall Risk Score shown on the Overview page, and default values are set according to the AI app type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-probes.json",
+          "quotes": [
+            "Each probe also includes a Risk Priority (Low, Medium, High, Critical), which reflects the potential risk based on the severity and likelihood of exploitation.",
+            "A higher Risk Priority means that any vulnerabilities identified by the probe contribute more to the AI app’s Overall Risk Score shown on the Overview page",
+            "Default values are set according to the AI app type, and this metric is used to calculate the overall performance of your application."
+          ]
+        }
+      ]
+    },
+    "coverage-depth": {
+      "statement": "A probe's assigned Coverage Level defines the depth of weakness testing; higher coverage levels typically include a broader set of checks and more thorough probing, which can increase test duration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-probes.json",
+          "quotes": [
+            "defines the depth of weakness testing.",
+            "Higher coverage levels typically include a broader set of checks and more thorough probing, which can increase test duration."
+          ]
+        }
+      ]
+    },
+    "custom-probe-form": {
+      "statement": "A Custom Probe takes a Probe Name, a Risk Priority (Low, Medium, High, or Critical), a Coverage, a Probe Description of what the probe should test for, and lists of Allowed Behaviors and Banned Behaviors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-configuring-custom-probe.json",
+          "quotes": [
+            "Probe Name: Enter a name for the probe.",
+            "Probe Description: Describe in detail what your custom probe should test for in your application.",
+            "List of Allowed Behaviors: Provide a list describing what your chatbot is allowed to do.",
+            "List of Banned Behaviors: Provide a list describing disallowed chatbot behaviors.",
+            "Coverage: Select from Basic, Medium, or Extensive."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-configuring-custom-probe.json",
+          "after": "In the Custom Probe section, do the following:",
+          "quotes": [
+            "Risk Priority: Select from Low, Medium, High, or Critical."
+          ]
+        }
+      ]
+    },
+    "custom-dataset-form": {
+      "statement": "A custom dataset probe takes a CSV file of up to 5 MB, a Risk Priority (the weight assigned to each probe), a Probe Intent, Attack Variations, Attack Strategies, an On-Domain or Adversarial dataset type, Languages, a Depth (number of turns or steps in a conversation) and an Attack Multiplier (attack variants generated per dataset entry; higher values increase coverage at the cost of more requests).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-configuring-custom-probe.json",
+          "quotes": [
+            "Upload Custom Dataset: Upload a custom dataset in a CSV file of up to 5 MB.",
+            "Risk Priority: The weight assigned to each probe. It reflects the probe’s severity and likelihood of exploitation. Select from Low, Medium, High, or Critical.",
+            "Probe Intent: Describe the goal of the attacks for this probe and the purpose of the dataset",
+            "Attack Variations: Define which transformations to apply.",
+            "Attack Strategies: Choose the adversarial strategies to apply.",
+            "On-Domain: If the dataset is an on-domain (legitimate domain questions and edge cases).",
+            "Adversarial: If the dataset is adversarial, (jailbreaks, prompt injection, social engineering, policy evasion), and what behaviors you are targeting.",
+            "Languages: Select the languages in which the Platform should generate or execute variants to verify consistent behavior across locales.",
+            "Depth: Set how deep the probe goes in a conversation (i.e., number of turns or steps).",
+            "Attack Multiplier: Set how many attack variants to generate per dataset entry. Higher values increase coverage at the cost of more requests."
+          ]
+        }
+      ]
+    },
+    "attack-strategies": {
+      "statement": "The attack strategies are One Shot with Retry (a new conversation for each prompt with no context from previous interactions), Multi-Shot (each prompt creates a new conversation within the test case, with the attack history available to Probe components to improve future attacks), Delayed Attack (one attack within a single conversation, where regular prompts prepare the target context and adversarial prompts run later) and Tree of Attack (a thought arrangement for red teamers to discover weaknesses in their attacks and improve subsequent prompts).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-configuring-custom-probe.json",
+          "quotes": [
+            "One Shot with Retry: For each prompt, a new conversation is created with no context from previous interactions.",
+            "Multi-Shot: Each prompt creates a new conversation within the test case, but Probe components have access to the attack history to improve future attacks.",
+            "Delayed Attack: One attack occurs within a single conversation.",
+            "Regular prompts prepare the target context, and adversarial prompts are executed later in the conversation.",
+            "Tree of Attack: This strategy uses a thought arrangement for red teamers, allowing them to discover weaknesses in their attacks and improve subsequent prompts."
+          ]
+        }
+      ]
+    },
+    "qa-probe-form": {
+      "statement": "A Q&A probe takes a Risk Priority (the weight assigned to each probe), a Q&A dataset in a CSV file of up to 5 MB, and the Company Name of the company that owns the AI application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-configuring-custom-probe.json",
+          "quotes": [
+            "Risk Priority: Select from Low, Medium, High, or Critical. Risk priority is the weight assigned to each probe.",
+            "Upload Custom Dataset: Upload your Q&A dataset in a CSV file of up to 5 MB.",
+            "Company Name: Enter the name of the company that owns the AI application."
+          ]
+        }
+      ]
+    },
+    "enable": {
+      "statement": "A predefined or a custom probe is enabled with the toggle against the probe name, which opens a Predefined Probe Configuration window whose values can be retained or modified to make the simulated attacks more domain-specific.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-configuring-custom-probe.json",
+          "quotes": [
+            "You can enable a predefined or a custom probe and configure it to tailor the probe to your application’s needs.",
+            "Enable the toggle against the probe name.",
+            "A Predefined Probe Configuration window appears.",
+            "Retain or modify the values as needed in the available fields.",
+            "This helps make the simulated attacks more domain-specific, improving their relevance and realism."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "coverage-names": {
+      "summary": "The probe coverage levels are named Basic, Medium, Extended on the Understanding Probes page and Basic, Medium, Extensive on the custom-probe form page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-understanding-probes.json",
+            "quotes": [
+              "Additionally, the assigned Coverage Level (Basic, Medium, Extended) defines the depth of weakness testing."
+            ]
+          },
+          "says": "The coverage levels are Basic, Medium and Extended."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-configuring-custom-probe.json",
+            "quotes": [
+              "Coverage: Select from Basic, Medium, or Extensive."
+            ]
+          },
+          "says": "The Coverage field offers Basic, Medium or Extensive."
+        }
+      ],
+      "impact": "Which top-level name the console shows is not established; whether Extended and Extensive are one level is not stated, so quote the page being relied on."
+    },
+    "risk-score-name": {
+      "summary": "The Understanding Probes page says probe risk priority feeds an Overall Risk Score shown on the Overview page; the Overview page names a Health Score and no risk score.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-understanding-probes.json",
+            "quotes": [
+              "A higher Risk Priority means that any vulnerabilities identified by the probe contribute more to the AI app’s Overall Risk Score shown on the Overview page"
+            ]
+          },
+          "says": "Probe vulnerabilities contribute to an Overall Risk Score shown on the Overview page."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-about-ai-red-teaming-overview.json",
+            "quotes": [
+              "Health Score: Score that indicates the asset’s current security posture based on test results (higher usually indicates better posture)."
+            ]
+          },
+          "says": "The Overview page's tested-asset score is the Health Score, where higher usually indicates better posture; the page names no risk score."
+        }
+      ],
+      "impact": "Whether the Health Score and the Overall Risk Score are one metric under two names, or inverse scales, is not stated; do not equate them or state which direction a probe priority moves the Health Score."
+    }
+  },
+  "gaps": {
+    "probe-catalog": {
+      "kind": "data",
+      "title": "The predefined probes available to an app",
+      "status": "open",
+      "detail": "The captured articles do not list the predefined probes; the only one named is a Context Leakage probe, as a scheduling example.",
+      "resolvable_by": [
+        "operator"
+      ],
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "dataset-form-cut-off": {
+      "kind": "semantic",
+      "title": "The Custom Dataset form text is cut off in the capture",
+      "status": "open",
+      "detail": "The Attack Variations description ends mid-sentence (\"You can learn more, see the\") and a \"Total Number of Attacks:\" entry is empty, so the transformations Attack Variations offers and that field's meaning are not stated.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "score-computation": {
+      "kind": "semantic",
+      "title": "How the Health Score and the Overall Risk Score are computed",
+      "status": "open",
+      "detail": "Neither the Overview page nor the probe pages give a formula or weights; the divergence risk-score-name records that the two pages name different scores.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

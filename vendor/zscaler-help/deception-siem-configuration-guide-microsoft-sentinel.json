@@ -1,0 +1,1030 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "SIEM Configuration Guide for Microsoft Sentinel",
+  "source": {
+    "url": "https://help.zscaler.com/deception/siem-configuration-guide-microsoft-sentinel",
+    "node": "1542384",
+    "revision": "3226044",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on how to configure a Service Connector to forward events or audit logs to Microsoft Sentinel."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you configure a Service Connector, make sure the following prerequisites are met:"
+    },
+    {
+      "item": "Use the TCP protocol.",
+      "depth": 0
+    },
+    {
+      "item": "Create a log analytics workspace on Sentinel. To learn more, refer to the Microsoft documentation.",
+      "depth": 0
+    },
+    {
+      "item": "You have network connectivity between the Service Connector and Sentinel API server on TCP port 443.",
+      "depth": 0
+    },
+    {
+      "item": "A Microsoft Azure contributor has access to the resource group.",
+      "depth": 0
+    },
+    {
+      "item": "A log analytics workspace with Microsoft Sentinel is enabled.",
+      "depth": 0
+    },
+    {
+      "item": "You have a sample JSON log file for events or audit logs to define schema. You can download a sample file from the Zscaler Deception Admin Portal. Go to SIEM, click New, click Integrations, and select an event or audit log.",
+      "depth": 0
+    },
+    {
+      "text": "The Sentinel SIEM integration is proxy aware if direct network connectivity is not available."
+    },
+    {
+      "heading": "Configuring a Service Connector",
+      "level": 1
+    },
+    {
+      "text": "Microsoft has deprecated the legacy log ingestion method. If you previously configured Microsoft Sentinel using this method, you must reconfigure the integration to use data collection rule-based log ingestion."
+    },
+    {
+      "text": "Follow these steps to configure a Service Connector to forward events or audit logs to Microsoft Sentinel:"
+    },
+    {
+      "item": "Step 1: Set Up Azure Infrastructure",
+      "depth": 0
+    },
+    {
+      "item": "a. Create a data collection endpoint.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Microsoft Azure portal using your credentials.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Search for Data Collection Endpoints in the Azure portal.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Click Create.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "On the Create data collection endpoint page, on the Basics tab:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          38
+        ],
+        [
+          52,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Endpoint Name: Enter a name for the endpoint.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select a subscription from the drop-down menu.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource Group: Select a resource group based on the selected subscription.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select a region, and ensure that it matches your log analytics workspace.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Click Review + create.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Review + create tab, review the endpoint details and click Create.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          66,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "When the data collection endpoint is created successfully, copy the log ingestion URI (e.g., https://my-dce-xxxx.region.ingest.monitor.azure.com). The DCE acts as the unique gateway (URL) for your application logs.",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "b. Create a custom table and data collection rule.",
+      "depth": 1
+    },
+    {
+      "item": "Search for Log Analytics Workspace in the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Create a new workspace, or select a preconfigured workspace from the table.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Go to Settings > Tables.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "On the Create a custom log page, on the Basics tab:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          40,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Table name: Enter the name of the table (e.g., MyAppLogs). Azure automatically appends _CL to the end of the name.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Data collection rule: Select Create a new data collection rule.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "The Create a new data collection rule drawer opens.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a new data collection rule drawer, select the same Subscription and Resource group that you selected while creating the data collection endpoint in the previous step, and click Done.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          40
+        ],
+        [
+          65,
+          77
+        ],
+        [
+          82,
+          96
+        ],
+        [
+          191,
+          195
+        ]
+      ]
+    },
+    {
+      "item": "Data collection endpoint: Select the data collection endpoint that you created in the previous step.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Schema and transformation tab, upload your sample JSON file.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Click Transformation editor and add the following KQL to ensure that logs are timestamped correctly:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "source | extend TimeGenerated = now()",
+      "depth": 2
+    },
+    {
+      "item": "Click Run to verify.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Apply.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Review tab, click Create.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          25,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "c. Extract integration keys.",
+      "depth": 1
+    },
+    {
+      "item": "Search for Data Collection Rule in the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Select the data collection rule that you created.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Click JSON View.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Copy the immutableId value (e.g., dcr-c25b2acf48d84826955ac597ddc9cb99).",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Copy the streamDeclarations name (e.g., Custom-qa_sentinel_audit_table_CL).",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Step 2: Manage Application Access",
+      "depth": 0
+    },
+    {
+      "item": "a. Register an application.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Azure Active Directory > App registrations.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          28
+        ],
+        [
+          31,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Click New registration.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "On the Register an application page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter the name of an app (e.g., Zscaler-Deception-Sentinel-App).",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Supported account types: Select Single tenant only - Zscaler ITDR - Azure Research.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Click Register.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to Manage > Certificate & secrets.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          15,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Click New client secret.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the Add a client secret drawer:",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description for the client secret.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Expires: Select an expiration time for the client secret.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Copy the Value and Secret ID from the table.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          9,
+          14
+        ],
+        [
+          19,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "b. Grant RBAC permissions.",
+      "depth": 1
+    },
+    {
+      "item": "Search for Data Collection Rule in the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Select the data collection rule that you created in the previous step.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "From the left-side navigation, select Access Control (IAM).",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          38,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Click Add > Add role assignment.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          12,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "On the Add role assignment page, select the Role tab, select the Job function roles tab, and search for and review Monitoring Metrics Publisher.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          44,
+          48
+        ],
+        [
+          65,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Members tab:",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Assign access to: Select User, group, or service principal.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Click Select members.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "The Select members drawer opens.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the Select members drawer, search for the application name that you created in the previous step (e.g., Zscaler-Deception-Sentinel-App), and click Select.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          150,
+          156
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Review + assign tab, click Review + Assign.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          34,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Step 3: Configure SIEM in the Zscaler Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler Deception Admin Portal, go to Orchestrate > SIEM Integrations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          45,
+          56
+        ],
+        [
+          59,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Integration, and select Sentinel DCR from the drop-down menu.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          34,
+          42
+        ],
+        [
+          43,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Sentinel DCR Details window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the Sentinel SIEM integration.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Enabled: Select to enable SIEM integration.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Service Connector: Select a Service Connector from the drop-down menu:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "If you select a Service Connector that is configured in the Deception Admin Portal, the portal sends logs to Sentinel.",
+      "depth": 3
+    },
+    {
+      "item": "If you select a Service Connector that is configured on a Decoy Connector, the selected Decoy Connector sends logs to Sentinel.",
+      "depth": 3
+    },
+    {
+      "item": "Type of logs: Select an option from the drop-down menu:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Events: Send events to Sentinel.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Audit Logs: Send audit logs to Sentinel.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Include Safe Events: Enable to forward the events that are marked as safe to Sentinel.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Filter: Specify a query if you want to send filtered event logs to Sentinel. If this field is blank, all event logs are sent to Sentinel. To learn how to build queries, see Understanding and Building Queries.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "The Filter option is available only for event logs.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Tenant ID: Enter the tenant ID. To find the tenant ID, search for Microsoft Entra ID in the Azure portal, and copy the tenant ID displayed under Basic information.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          145,
+          162
+        ]
+      ]
+    },
+    {
+      "item": "Client ID: Enter the client ID you copied from the Azure portal.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: Enter the client secret value you copied from the Azure portal.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "DCR Immutable ID: Enter the immutable ID you copied from the data collection rule in the Azure portal.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "DCE Endpoint: Enter the log ingestion URI you copied from the data collection endpoint in the Azure portal.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Stream Name: Enter the stream name you copied from the data collection rule in the Azure portal.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Use Proxy Settings: Enable if the Service Connector requires a proxy to connect to the Sentinel server.",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The Sentinel SIEM integration is added.",
+      "depth": 1
+    },
+    {
+      "item": "To test Sentinel SIEM integration, access a decoy and generate alerts on the Zscaler Deception dashboard. The Sentinel starts receiving the logs in 10 to 15 minutes.",
+      "depth": 0
+    }
+  ]
+}

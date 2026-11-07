@@ -1,0 +1,585 @@
+{
+  "schema_version": 1,
+  "id": "shared.oneapi.rate-limits",
+  "title": "OneAPI rate limits by product, and how the Go SDK throttles",
+  "aliases": [
+    "oneapi rate limit",
+    "429 too many requests oneapi",
+    "x-ratelimit-remaining",
+    "zdx rate limit tier",
+    "cloud branch connector rate limit",
+    "business insights rate limit",
+    "Retry-After 0 seconds",
+    "rate limit headers differ per product"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each product behind the gateway publishes its own limit model. {{models-differ}}"
+    },
+    {
+      "label": "ZIA and ZPA.",
+      "text": "ZIA's weighted limits and headers are in [[zia.api.rate-limits]]; ZPA's per-IP limits and `retry-after` header are in [[zpa.api.rate-limits]]."
+    },
+    {
+      "label": "ZDX.",
+      "text": "{{zdx-tiers}} {{zdx-headers}}"
+    },
+    {
+      "label": "Client Connector.",
+      "text": "The hourly and daily limits are in [[zcc.api.rate-limits:hourly-and-daily-limits]]. {{zcc-oneapi-page}} The legacy page names `X-Rate-Limit-*` headers instead ([[zcc.api.rate-limits:headers]]); which family a OneAPI 429 carries is open ([[zcc.sdk-python.client-configuration:oneapi-429-headers]]), and whether the tenant-level OneAPI limit and the per-IP legacy limit are one bucket is open ([[zcc.api.rate-limits:bucket-scope]])."
+    },
+    {
+      "label": "Cloud & Branch Connector.",
+      "text": "{{cbc-weights}} {{cbc-429-body}}"
+    },
+    {
+      "label": "Business Insights.",
+      "text": "{{bi-tiers}} {{bi-429-body}}"
+    },
+    {
+      "label": "Analytics and Event Monitoring.",
+      "text": "The Analytics GraphQL limit is in [[shared.analytics.graphql-errors-and-limits:analytics-rate-limit]] and the Event Monitoring limit in [[shared.event-monitoring.api:rate-limit]]."
+    },
+    {
+      "label": "Window and backoff.",
+      "text": "{{window-starts-first-call}} {{back-off-exponentially}} The Client Connector instruction is [[zcc.api.rate-limits:back-off-exponentially]]. {{sleep-between-calls}} {{bi-best-practices}}"
+    },
+    {
+      "label": "Go SDK throttling.",
+      "text": "{{go-client-limiters}} The 86,400 seconds there is not the window the limiter holds: {{zcc-zdx-daily-write-cap-is-hourly|ref}} {{go-zdx-limiter-copies-zcc}} {{go-limiter-forgets-after-an-hour}} {{zcc-zdx-daily-write-cap-is-hourly}} How long such a wait actually lasts is open {{gap:limiter-wait-vs-client-timeout}}. How the SDK retries a 429 is in [[shared.sdk-go.retries]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which product's limit model and header names apply before reading remaining-quota headers, since they differ by product.",
+      "uses": [
+        "models-differ",
+        "zdx-headers",
+        "zcc-oneapi-page"
+      ]
+    },
+    {
+      "do": "For Cloud & Branch Connector deletes, whether the run stays within 1 per minute and 40 per hour.",
+      "uses": [
+        "cbc-weights"
+      ]
+    },
+    {
+      "do": "For a Go SDK client calling ZDX, whether a client-side throttle (not a server 429) is what slowed the run.",
+      "uses": [
+        "go-zdx-limiter-copies-zcc"
+      ]
+    },
+    {
+      "do": "Serialize concurrent jobs against one product where possible. Whether they share one budget is open.",
+      "uses": [
+        "concurrent-jobs-share-budget"
+      ]
+    },
+    {
+      "do": "Whether a persistent 429 is cleared by a rate-limit increase is open; do not assume it is.",
+      "uses": [
+        "rate-limit-increase"
+      ]
+    }
+  ],
+  "claims": {
+    "models-differ": {
+      "statement": "Rate limits are not one model across OneAPI: ZIA and Cloud & Branch Connector weight endpoints per method, ZPA counts per IP in 10-second windows, ZDX tiers by license count, Client Connector counts calls per hour with a daily cap on downloads, and Business Insights tiers by endpoint group.",
+      "tier": "B",
+      "derived_from": [
+        "zia.api.rate-limits:zia-default-weights",
+        "zpa.api.rate-limits:limits",
+        "zdx-tiers",
+        "zcc.api.rate-limits:hourly-and-daily-limits",
+        "cbc-weights",
+        "bi-tiers"
+      ],
+      "conditions": "Comparison of the per-product rate-limit pages; no single page states it."
+    },
+    "zdx-tiers": {
+      "statement": "ZDX API limits depend on the tier level by license count: tier 1 (5,000 licenses) 5 per second, 30 per minute, 1,000 per hour and 10,000 per day; tier 2 (20,000) 5, 60, 3,000 and 15,000; tier 3 (100,000) 5, 120, 6,000 and 30,000; tier 4 (more than 100,000) 5, 180, 9,000 and 60,000. Every endpoint is called from a specific IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-zdx.json",
+          "quotes": [
+            "every endpoint is called from a specific IP address and the rate limit is dependent on the Tier Level.",
+            "| Tier Level | Number of Licenses | Requests/second | Requests/minute | Requests/hour | Requests/day |",
+            "| 1 | 5,000 | 5 | 30 | 1,000 | 10,000 |",
+            "| 2 | 20,000 | 5 | 60 | 3,000 | 15,000 |",
+            "| 3 | 100,000 | 5 | 120 | 6,000 | 30,000 |",
+            "| 4 | More than 100,000 | 5 | 180 | 9,000 | 60,000 |"
+          ]
+        }
+      ]
+    },
+    "zdx-headers": {
+      "statement": "ZDX sends the rate-limit headers `x-ratelimit-limit`, `x-ratelimit-remaining` and `x-ratelimit-reset`, the last being the seconds remaining in the current window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-zdx.json",
+          "quotes": [
+            "- x-ratelimit-limit: The rate limit ceiling that is applicable for the current API request.",
+            "- x-ratelimit-remaining: The number of API requests remaining for the current rate limit window.",
+            "- x-ratelimit-reset: The time (in seconds) remaining in the current window after which the rate limit resets."
+          ]
+        }
+      ]
+    },
+    "zcc-oneapi-page": {
+      "statement": "The OneAPI Client Connector page limits all endpoints to 100 calls per hour at the tenant level, except `/downloadDevices`, `/downloadServiceStatus` and `/downloadDisableReasons` at 3 calls per day, and sets `x-ratelimit-limit`, `x-ratelimit-remaining` and `x-ratelimit-reset` when limits are enforced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-client-connector.json",
+          "quotes": [
+            "the system rate limits all endpoints to 100 API calls per hour at the tenant level, except for the /downloadDevices, /downloadServiceStatus, and /downloadDisableReasons endpoints, for which the rate limit is 3 API calls per day.",
+            "The system sets the following headers when rate limits are enforced:",
+            "- x-ratelimit-limit: The rate limit ceiling that is applicable for the current API request.",
+            "- x-ratelimit-remaining: The number of API requests remaining for the current rate limit window.",
+            "- x-ratelimit-reset: The time (in seconds) remaining in the current window after which the rate limit resets."
+          ]
+        }
+      ]
+    },
+    "cbc-weights": {
+      "statement": "Cloud & Branch Connector gives every endpoint a weight with a default rate limit; the typical defaults are Heavy (DELETE) 1 per minute and 40 per hour, Medium (POST, PUT) 1 per second and 400 per hour, and Light (GET) 2 per second and 1,000 per hour, and specific operations can carry a different weight.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-cloud-branch-connector.json",
+          "quotes": [
+            "Every endpoint has a weight, and every weight has a default rate limit.",
+            "| Weight | Typical Assignment | Requests/second | Requests/minute | Requests/hour |",
+            "| Heavy | DELETE | - | 1 | 40 |",
+            "| Medium | POST, PUT | 1 | - | 400 |",
+            "| Light | GET | 2 | - | 1,000 |",
+            "However, specific operations can have a different weight from these typical values."
+          ]
+        }
+      ]
+    },
+    "cbc-429-body": {
+      "statement": "An exceeded Cloud & Branch Connector limit returns 429 with the retry interval in the response body, for example `{\"message\": \"Rate Limit (1/SECOND) exceeded\", \"Retry-After\": \"0 seconds\"}`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-cloud-branch-connector.json",
+          "quotes": [
+            "When the rate limit is exceeded, a 429 HTTP error message is returned with a Retry-After response in the Body.",
+            "\"message\": \"Rate Limit (1/SECOND) exceeded\",",
+            "\"Retry-After\": \"0 seconds\""
+          ]
+        }
+      ]
+    },
+    "bi-tiers": {
+      "statement": "Business Insights sets rate limits by endpoint tier: Heavy, 1 per second and 400 per hour, for Custom Applications and Report Configurations create, get, update and delete; Light, 2 per second and 1,000 per hour, for listing and downloading reports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-bi.json",
+          "quotes": [
+            "The Business Insights API endpoints are subjected to different rate limits based on the endpoint tier:",
+            "| Tier | Requests/Second | Requests/Hour | Applies To |",
+            "| Heavy | 1 | 400 | Custom Applications: Create, Get, Update, Delete; Report Configurations: Create, Get, Update, Delete |",
+            "| Light | 2 | 1,000 | Reports: List All Reports, Download a Report |"
+          ]
+        }
+      ]
+    },
+    "bi-429-body": {
+      "statement": "An exceeded Business Insights limit returns 429 with a body carrying `errorCode` `RATE_LIMIT_EXCEEDED`, `errorDetails` and `timestamp`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-bi.json",
+          "quotes": [
+            "When a rate limit is exceeded, the API returns a 429 status code with the following response:",
+            "\"errorCode\": \"RATE_LIMIT_EXCEEDED\",",
+            "\"timestamp\": 1772573283919",
+            "\"errorDetails\": \"Rate limit exceeded. Maximum 2 requests per second and 1000 requests per hour is allowed.\","
+          ]
+        }
+      ]
+    },
+    "window-starts-first-call": {
+      "statement": "For ZDX and Business Insights, every rate-limit window starts with the first call, and calls may come more than once per second within the limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-zdx.json",
+          "quotes": [
+            "All rate limits start as soon as the first call is executed. Calls can occur more than once per second, but no more than the limits for each operation type."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-bi.json",
+          "quotes": [
+            "All rate limits start as soon as the first call is executed. Calls can occur more than once per second, but no more than the limits for the API type."
+          ]
+        }
+      ]
+    },
+    "back-off-exponentially": {
+      "statement": "The ZDX and Business Insights pages say clients that are rate limited must back off exponentially; Business Insights adds waiting for the suggested retry period on a 429.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-zdx.json",
+          "quotes": [
+            "Clients who are subject to rate limiting need to back off exponentially in order to proceed further."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-bi.json",
+          "quotes": [
+            "When receiving a 429 response, wait for the suggested retry period and use exponential backoff for subsequent retries."
+          ]
+        }
+      ]
+    },
+    "sleep-between-calls": {
+      "statement": "The ZIA and Cloud & Branch Connector pages recommend a wait (sleep) period in scripts after each call to an endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-zia.json",
+          "quotes": [
+            "As a best practice, after each call to an endpoint, make sure your script includes a wait (or sleep) period."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-cloud-branch-connector.json",
+          "quotes": [
+            "As a best practice, after each call to an endpoint, make sure your script includes a wait (or sleep) period."
+          ]
+        }
+      ]
+    },
+    "bi-best-practices": {
+      "statement": "The Business Insights page also recommends tracking API usage, planning Custom Applications and Report Configurations operations to minimize calls, and caching report listings and configuration data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-bi.json",
+          "quotes": [
+            "Monitor Usage: Track your API usage to stay within the limits.",
+            "Batch Operations: For Custom Applications and Report Configurations, plan your operations efficiently to minimize API calls.",
+            "Cache Results: Cache report listings and configuration data when possible to reduce redundant API calls."
+          ]
+        }
+      ]
+    },
+    "go-client-limiters": {
+      "statement": "The Go SDK's OneAPI client throttles on the client side with a limiter per service: ZIA and ZTW, each at 20 GET and 10 POST/PUT/DELETE calls per 10 seconds. At v3.8.55 both had hourly caps of 950 GET, 950 POST/PUT and 380 DELETE per method; at v3.8.58 ZIA's hourly caps are per endpoint (method plus path, IDs normalized) at 950 GET, 380 POST/PUT and 380 DELETE, while ZTW keeps the per-method 950, 950 and 380. ZPA has 20 GET and 10 POST/PUT/DELETE calls per 10 seconds. ZCC and ZDX each get a limiter built as `NewRateLimiter(100, 3, 3600, 86400)`, whose arguments set 100 GET calls per 3,600 seconds and 3 POST/PUT/DELETE calls per 86,400 seconds whatever the path; its comment says 'downloadDevices: 3 per day', but `DownloadDevices` sends a GET. ZIdentity paths (prefix `ziam`), `/admin` paths and any path no service prefix matches use a default limiter, `NewRateLimiter(2, 1, 1, 1)`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.55"
+          ],
+          "quotes": [
+            "20, 10, // GET: 20 per 10 seconds, POST/PUT/DELETE: 10 per 10 seconds",
+            "950, 950, 380, // Hourly: GET: 950, POST/PUT: 950, DELETE: 380 (with safety buffers)",
+            "// ZTW uses same limits as ZIA"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "ziaRateLimiter := rl.NewRateLimiterWithEndpointHourly(",
+            "20, 10, // GET: 20 per 10 seconds, POST/PUT/DELETE: 10 per 10 seconds",
+            "950, 380, 380, // Hourly per endpoint: GET: 950, POST/PUT: 380, DELETE: 380 (with safety buffers)",
+            "// endpoint (method + path, IDs normalized), with safety buffers.",
+            "// ZTW uses same limits as ZIA",
+            "ztwRateLimiter := rl.NewRateLimiterWithHourly( 20, 10, 10, 10, 950, 950, 380, )"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "ZIA: the client-side hourly rate limits now match the ZIA API, which enforces them per endpoint: GET 1000/hr, POST/PUT 400/hr.",
+            "Requests are now counted per endpoint (for example all `PUT /firewallFilteringRules/{ruleId}` calls share one budget)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "zpaRateLimiter := rl.NewRateLimiter(20, 10, 10, 10) // GET: 20 per 10s, POST/PUT/DELETE: 10 per 10s",
+            "zccRateLimiter := rl.NewRateLimiter(100, 3, 3600, 86400) // General: 100 per hour, downloadDevices: 3 per day",
+            "defaultRateLimiter := rl.NewRateLimiter(2, 1, 1, 1) // Default limits",
+            "zdxRateLimiter := rl.NewRateLimiter(100, 3, 3600, 86400) // General: 100 per hour, downloadDevices: 3 per day",
+            "cfg.HTTPClient = getHTTPClient(cfg.Logger, defaultRateLimiter, cfg)",
+            "service, err := detectServiceType(endpoint) if err != nil { return client.oauth2Credentials.HTTPClient }",
+            "return client.oauth2Credentials.ZDXHTTPClient",
+            "return client.oauth2Credentials.HTTPClient // Use default client for ZIdentity admin endpoints",
+            "return \"\", fmt.Errorf(\"unsupported service\")",
+            "if strings.HasPrefix(path, \"ziam\") { return \"ziam\", nil",
+            "} else if strings.HasPrefix(endpoint, \"/admin\") { return \"admin\", nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "quotes": [
+            "func NewRateLimiter(getLimit, postPutDeleteLimit, getFreq, postPutDeleteFreq int) *RateLimiter {",
+            "// created with NewRateLimiterWithEndpointHourly; other limiters behave as Wait."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.55"
+          ],
+          "quotes": [
+            "shouldWait, delay = rlt.Limiter.Wait(req.Method)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/download_devices/download_devices.go",
+          "quotes": [
+            "resp, err := service.Client.NewZccRequestDo(ctx, \"GET\", downloadDevicesEndpoint, queryParams, nil, nil)"
+          ]
+        }
+      ]
+    },
+    "go-limiter-forgets-after-an-hour": {
+      "statement": "Before it checks any limit, the Go `RateLimiter.Wait` removes every recorded request older than one hour, the combined POST/PUT/DELETE list included; it then compares the recorded writes with the write limit and, when the limit is reached and the oldest recorded write is younger than `postPutDeleteFreq` seconds, returns a wait of `postPutDeleteFreq` seconds less that write's age. A limiter built with `NewRateLimiter` takes this path for every request whatever the path, because `WaitFor` hands a limiter without per-endpoint hourly limits to `Wait(method)`, and the transport sleeps for the returned wait plus any configured additional delay, or until the request's context is done, then asks the limiter again and sends the request only once the limiter admits it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "if !rl.perEndpointHourly { return rl.Wait(method) }"
+          ],
+          "after": "func (rl *RateLimiter) WaitFor(method, path string) (bool, time.Duration) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "// created with NewRateLimiterWithEndpointHourly; other limiters behave as Wait.",
+            "// cleanOldRequests removes requests older than the specified cutoff time to prevent memory leaks",
+            "// sleepCtx waits for d, or until the request's context is done."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "oneHourAgo := now.Add(-1 * time.Hour)",
+            "rl.cleanOldRequests(oneHourAgo) switch method {",
+            "case http.MethodPost, http.MethodPut:",
+            "if len(rl.postPutDeleteRequests) >= rl.postPutDeleteLimit { oldestRequest := rl.postPutDeleteRequests[0] if now.Sub(oldestRequest) < time.Duration(rl.postPutDeleteFreq)*time.Second { d := time.Duration(rl.postPutDeleteFreq)*time.Second - now.Sub(oldestRequest) return true, d }"
+          ],
+          "after": "func (rl *RateLimiter) Wait(method string) (bool, time.Duration) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "after": "rl.postPutRequests = append(rl.postPutRequests, now)",
+          "quotes": [
+            "case http.MethodDelete:",
+            "if len(rl.postPutDeleteRequests) >= rl.postPutDeleteLimit {",
+            "rl.deleteRequests = append(rl.deleteRequests, now)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Clean POST/PUT/DELETE combined requests",
+            "for _, t := range rl.postPutDeleteRequests { if t.After(cutoff) { cleaned = append(cleaned, t) } } rl.postPutDeleteRequests = cleaned"
+          ],
+          "after": "func (rl *RateLimiter) cleanOldRequests(cutoff time.Time) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "shouldWait, delay = rlt.Limiter.WaitFor(req.Method, req.URL.Path)",
+            "if !shouldWait { break }",
+            "if err := sleepCtx(req, delay+rlt.AdditionalDelay); err != nil { return nil, err }"
+          ],
+          "after": "func (rlt *RateLimitTransport) RoundTrip(req *http.Request) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "case <-timer.C: return nil case <-req.Context().Done(): return req.Context().Err()"
+          ],
+          "after": "func sleepCtx(req *http.Request, d time.Duration) error {"
+        }
+      ]
+    },
+    "zcc-zdx-daily-write-cap-is-hourly": {
+      "statement": "So the ZCC and ZDX limiters, built for 3 writes per 86,400 seconds, keep a write on record for one hour only: a write is admitted at once when fewer than three writes were recorded in the past hour, so more than three writes a day pass when they are spread over hours, while a fourth write within an hour of the oldest of three is told to wait 86,400 seconds less that write's age, more than 23 hours.",
+      "tier": "B",
+      "derived_from": [
+        "go-client-limiters",
+        "go-limiter-forgets-after-an-hour"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "zccRateLimiter := rl.NewRateLimiter(100, 3, 3600, 86400) // General: 100 per hour, downloadDevices: 3 per day",
+            "zdxRateLimiter := rl.NewRateLimiter(100, 3, 3600, 86400) // General: 100 per hour, downloadDevices: 3 per day"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "retryableClient.HTTPClient.Timeout = time.Second * 60 // Default to 60 seconds if not specified."
+          ],
+          "after": "func getHTTPClient(l logger.Logger, rateLimiter *rl.RateLimiter, cfg *Configuration) *http.Client {"
+        }
+      ],
+      "conditions": "Read from ratelimiter/limiter.go and zscaler/oneapiclient.go at v3.8.58 (HEAD), not run. ZCC and ZDX GETs (100 per 3,600 seconds) are unaffected, since their window equals the one-hour cleanup. How long the transport actually sleeps is not settled here: getHTTPClient gives the OneAPI HTTP client a 60-second timeout by default, and whether net/http puts that deadline on the request context that `sleepCtx` watches is standard-library behaviour no captured source states (gap limiter-wait-vs-client-timeout).",
+      "gaps": [
+        "limiter-wait-vs-client-timeout"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Go SDK: RateLimiter.Wait drops records older than an hour, so a NewRateLimiter write window longer than an hour (ZCC/ZDX 3 per 86400 s) is never held."
+        }
+      ]
+    },
+    "go-zdx-limiter-copies-zcc": {
+      "statement": "The Go SDK builds its ZDX limiter with the same arguments as the ZCC one, commented as 100 calls per hour and 3 per day for downloadDevices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "zdxRateLimiter := rl.NewRateLimiter(100, 3, 3600, 86400) // General: 100 per hour, downloadDevices: 3 per day",
+            "zccRateLimiter := rl.NewRateLimiter(100, 3, 3600, 86400) // General: 100 per hour, downloadDevices: 3 per day",
+            "cfg.ZDXHTTPClient = getHTTPClient(cfg.Logger, zdxRateLimiter, cfg)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "limiter-wait-vs-client-timeout": {
+      "kind": "semantic",
+      "title": "Whether a long Go limiter wait is cut short by the HTTP client's timeout",
+      "status": "open",
+      "detail": "The ZCC and ZDX limiters can ask the rate-limit transport to sleep for most of a day before a write (zcc-zdx-daily-write-cap-is-hourly). The transport sleeps until the wait ends or the request context is done; getHTTPClient sets the HTTP client's Timeout to 60 seconds unless configured. Whether that timeout cancels the sleep (and the request then fails or is retried) is not stated by the captured sources.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "rate-limit-increase": {
+      "kind": "semantic",
+      "title": "Whether a persistent 429 can be cleared by a tenant rate-limit increase",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Persistent 429s across windows mean the tenant may need a rate-limit increase; open a TAM or support case with traffic patterns.' No captured source says whether increases are available for these products; the ZCC question is separate (zcc.api.rate-limits:limit-increase).",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "concurrent-jobs-share-budget": {
+      "kind": "semantic",
+      "title": "Whether concurrent jobs against one product share one budget",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Concurrent jobs across one product double-count against the same budget.' The captured pages give each product its own model (models-differ); none says how concurrent clients are counted.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

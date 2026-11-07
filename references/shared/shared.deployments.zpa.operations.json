@@ -1,0 +1,545 @@
+{
+  "schema_version": 1,
+  "id": "shared.deployments.zpa.operations",
+  "title": "What the ZPA deployment and operations guides say about App Connector, Application Discovery, Browser Access, Client Forwarding Policy, log streaming and provisioning",
+  "aliases": [
+    "zpa deployment and operations guide",
+    "zpa d&o guide"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.deployments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.discovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.forwarding-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.deployments.zpa.leading-practices"
+    }
+  ],
+  "prose": [
+    {
+      "label": "App Connector.",
+      "text": "{{ac-subscription-and-cert}} {{ac-os-responsibility}} {{ac-zdx-egress}} {{ac-reset-and-logs}} See [[zpa.app-connectors]]."
+    },
+    {
+      "label": "Application Discovery.",
+      "text": "{{ad-prereq-and-wildcards}} {{ad-health-and-retention}} Where On Access can be chosen is {{divergence:on-access-scope}}. {{ad-specific-segment}} {{ad-idp-and-search-domains}} {{ad-not-discovered-checks}} See [[zpa.app-segments.discovery]]."
+    },
+    {
+      "label": "Browser Access.",
+      "text": "{{ba-prerequisites}} {{ba-hostnames}} {{ba-cookies-cors}} See [[zpa.browser-access]]."
+    },
+    {
+      "label": "Client Forwarding Policy.",
+      "text": "{{cfp-evaluation}} {{cfp-actions}} {{cfp-precedence}} Which action wins is {{divergence:cfp-bypass-vs-forward}}. {{cfp-criteria-and-posture}} {{cfp-sipa-and-troubleshoot}} See [[zpa.policy.forwarding-rules]]."
+    },
+    {
+      "label": "Log streaming.",
+      "text": "{{lss-retention}} Whether those periods are a ceiling or a floor is {{divergence:lss-retention-bound}}. {{lss-connectors}} {{lss-loss-behaviour}} {{lss-tls}} See [[zpa.log-receivers]]."
+    },
+    {
+      "label": "Provisioning and authentication.",
+      "text": "{{prov-versions-and-methods}} {{prov-scim-switch}} {{prov-okta-scim}} {{prov-auth-domains}} See [[zpa.authentication]]."
+    }
+  ],
+  "claims": {
+    "ac-subscription-and-cert": {
+      "statement": "App Connector deployment requires ZPA Professional, Business or Transformation Edition; certificate verification is not configurable by design, and *.prod.zpath.net must be in the SSL bypass list for App Connector traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-app-connector-deployment-and-operations-guide.json",
+          "quotes": [
+            "ZPA Professional Edition",
+            "ZPA Business Edition",
+            "ZPA Transformation Edition",
+            "By design, certificate verification is not configurable to maintain the service's integrity.",
+            "Ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the App Connector"
+          ]
+        }
+      ]
+    },
+    "ac-os-responsibility": {
+      "statement": "The customer maintains the host an App Connector runs on; Zscaler maintains only the App Connector application, not the underlying operating system.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-app-connector-deployment-and-operations-guide.json",
+          "quotes": [
+            "The customer is responsible for maintaining the host on which the App Connector is running. Zscaler does not maintain the underlying operating system, only the App Connector application."
+          ]
+        }
+      ]
+    },
+    "ac-zdx-egress": {
+      "statement": "For ZPA with ZDX, App Connector firewall rules must allow the configured report protocols to egress towards the application port and to the Zscaler Public Service Edge on port 443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-app-connector-deployment-and-operations-guide.json",
+          "quotes": [
+            "The traffic must egress the App Connector towards the configured application port and to the Zscaler Public Service Edge on port 443.",
+            "For ZPA integration with Digital Experience (ZDX), App Connector firewall requirements must align with the respective ZDX configuration and require the configured report protocols to egress the App Connector"
+          ]
+        }
+      ]
+    },
+    "ac-reset-and-logs": {
+      "statement": "For a connector that no longer connects to the cloud, the guide stops the zpa-connector service, then (under its step to delete the App Connector) runs rm -f /opt/zscaler/var/*, and restarts the service; logs are collected with journalctl -u zpa-connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-app-connector-deployment-and-operations-guide.json",
+          "quotes": [
+            "sudo systemctl stop zpa-connector",
+            "Enter the following command to delete the App Connector:",
+            "rm -f /opt/zscaler/var/*",
+            "sudo journalctl -u zpa-connector -f",
+            "sudo systemctl restart zpa-connector"
+          ]
+        }
+      ]
+    },
+    "ad-prereq-and-wildcards": {
+      "statement": "ZPA discovers an application only when a user requests access to it; applications defined with only a wildcard (*) are not available for application discovery; discovery works with wildcard-format domains or CIDR subnets and wider port ranges excluding TCP and UDP 53.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-application-discovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "ZPA discovers an application only when a user requests access to it.",
+            "Applications defined with only a wildcard, i.e., an asterisk (*), are not available for application discovery.",
+            "Define wider TCP/UDP port ranges for applications excluding TCP and UDP 53 (DNS).",
+            "Enter FQDNs and domain names in wildcard format (e.g., *.<FQDN or Domain Name> or .<FQDN or Domain Name>).",
+            "Enter IP subnets using the Classless Inter-Domain Routing (CIDR) notation (e.g., 10.0.0.0/24)."
+          ]
+        }
+      ]
+    },
+    "ad-health-and-retention": {
+      "statement": "The Application Discovery guide says On Access health reporting is available for only discovered applications; the App Connector reports health from the user's access until up to 30 minutes after use; discovered application data is no longer listed in User Activity Diagnostics after 14 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-application-discovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "On Access health reporting is available for only discovered applications.",
+            "App Connector reports the application's health as soon as a user accesses it and for up to 30 minutes after the user has completed using it.",
+            "After 14 days, discovered application data is no longer listed in the User Activity Diagnostics."
+          ]
+        }
+      ]
+    },
+    "ad-specific-segment": {
+      "statement": "ZPA always matches an application to the most specific app segment even if it could match a wildcard segment; a new specific segment (file.exapp.company.com) is not covered by the access policy of the wildcard segment (*.exapp.company.com) and needs its own policy, and ports on subnet or wildcard segments are not applied to more specific segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-application-discovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "ZPA always matches an application to the most specific app segment, even if that application could potentially match a wildcard app segment.",
+            "The access policy does not cover the app segment in the third bullet.",
+            "ZPA does not apply the ports specified in the app segments that contain IP subnets or wildcards towards app segments that contain more specific IPs or FQDNs.",
+            "You have an app segment defined by a wildcard (*.exapp.company.com).",
+            "You create a new app segment (file.exapp.company.com).",
+            "By defining the app segment (file.exapp.company.com) separately, you must add a new access policy because the application matches the specific app segment."
+          ]
+        }
+      ]
+    },
+    "ad-idp-and-search-domains": {
+      "statement": "If the IdP is defined as an application within an app segment, its Authentication Timeout must be Never, and an IdP domain overlapping a discovery domain must be bypassed in ZPA to avoid reauthentication failure; DNS search domains are needed for hostname-only access (e.g. DFS) so an FQDN is sent for discovery.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-application-discovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "Zscaler Client Connector requests reauthentication, but the reauthentication fails: If your identity provider (IdP) is defined as an application within an application segment, the Authentication Timeout for the IdP application must be set to Never.",
+            "If an IdP domain overlaps with a domain configured for application discovery, you must bypass the IdP domain in ZPA to avoid user reauthentication failure.",
+            "ensure that you configure DNS search domains so that ZPA automatically adds the search domain to the hostname.",
+            "For applications that users access using only the hostname; e.g., distributed file system (DFS)",
+            "which causes an FQDN to be sent through for application discovery."
+          ],
+          "after": "- Applications defined with only a wildcard, i.e., an asterisk (*), are not available for application discovery."
+        }
+      ]
+    },
+    "ad-not-discovered-checks": {
+      "statement": "If an application is not discovered, check it was accessed in the last 14 days, the discovery segment covers its ports, and the discovery criteria cover its destination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-application-discovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "The application was accessed within the last 14 days.",
+            "The application discovery segment covers the ports used by the application in question.",
+            "The specified application discovery criteria cover the destination URL or IP address."
+          ]
+        }
+      ]
+    },
+    "ba-prerequisites": {
+      "statement": "Browser Access needs possibly an additional license, application servers supporting TLS 1.2, and every user (including contractors and third parties) provisioned in the ZPA IdP; it reaches only web-based applications (Privileged Remote Access covers other protocols).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-browser-access-deployment-and-operations-guide.json",
+          "quotes": [
+            "Browser Access might require an additional license for your organization.",
+            "Ensure that application servers support Transport Layer Security (TLS) 1.2 encryption.",
+            "Any user, contractor, or third party using Browser Access must be provisioned in the ZPA IdP.",
+            "Browser Access only accesses web-based applications.",
+            "You can leverage Privileged Remote Access to reach applications on protocols other than HTTP/HTTPS."
+          ]
+        }
+      ]
+    },
+    "ba-hostnames": {
+      "statement": "With different external and internal hostnames, internal hostnames are not on public DNS and backend SSL cannot be verified, so a web server certificate error is shown to end users; with the same hostname, internal hostnames are exposed on public DNS and backend SSL can be verified without a certificate error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-browser-access-deployment-and-operations-guide.json",
+          "quotes": [
+            "Backend Secure Sockets Layer (SSL) cannot be verified, so a web server certificate error is displayed to your end users because the hostname of the application doesn't match the certificate's hostname.",
+            "Internal hostnames are exposed on the public DNS.",
+            "Backend SSL can be verified, so end users don’t receive a web server certificate error.",
+            "Internal hostnames are not exposed, so there is no record of internal hostnames on the public DNS.",
+            "If you intend to use a different external and internal hostname for an application that has browser access enabled within an application segment:"
+          ]
+        }
+      ]
+    },
+    "ba-cookies-cors": {
+      "statement": "Browser Access cookies are session-based and cleared when the browser session ends; users reauthenticate based on the Authentication Timeout of the ZPA timeout policy rule; a 403 Forbidden can occur when an application fails to load a domain with CORS headers enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-browser-access-deployment-and-operations-guide.json",
+          "quotes": [
+            "Browser Access cookies are session-based and are cleared when a web browser's session terminates.",
+            "users are asked to reauthenticate periodically based on the Authentication Timeout setting of the ZPA timeout policy rule.",
+            "You might receive a 403 Forbidden error if the application fails to load a domain with CORS headers enabled."
+          ]
+        }
+      ]
+    },
+    "cfp-evaluation": {
+      "statement": "ZPA evaluates Client Forwarding Policy rules using the most specific application segment and top-down first match, before Access Policy rules; once a match is found other Client Forwarding Policy rules, including conflicts, are disregarded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-client-forwarding-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "ZPA evaluates Client Forwarding Policy rules using the most specific application segment and a top-down, first-match principle. The process occurs before ZPA evaluates Access Policy rules.",
+            "When ZPA finds a match in the Client Forwarding Policy, ZPA disregards other Client Forwarding Policy rules, including conflicts."
+          ]
+        }
+      ]
+    },
+    "cfp-actions": {
+      "statement": "Bypass ZPA bypasses applications for ZPA so Client Connector does not send their requests to ZPA (equivalent to Always for the segment Bypass setting); Only Forward Allowed Applications has Client Connector learn and forward traffic for applications the user is allowed to access, with other applications' requests going to the local network and not logged in ZPA; Forward to ZPA forwards application requests to ZPA, including for applications the user is not authorized to access, and by default these requests are logged in the Diagnostic logs as Policy not configured for access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-client-forwarding-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "This setting is the equivalent of selecting Always for the Bypass setting within an application segment.",
+            "Zscaler Client Connector forwards requests for applications not on the list to the local network. Requests for these applications are not logged in ZPA.",
+            "This includes requests for applications that the user is not authorized to access. By default, these requests are logged in the Diagnostic logs as Policy not configured for access.",
+            "Bypass ZPA: If selected, applications are marked and bypassed for ZPA, and Zscaler Client Connector does not send application requests to ZPA.",
+            "Only Forward Allowed Applications: If selected, Zscaler Client Connector learns about and forwards traffic for applications that a user is allowed to access.",
+            "Forward to ZPA: If selected, Zscaler Client Connector forwards application requests to ZPA. This includes requests for applications that the user is not authorized to access.",
+            "The Access Policy determines the list of applications to which the user has access."
+          ]
+        }
+      ]
+    },
+    "cfp-precedence": {
+      "statement": "The Client Forwarding Policy guide says that if Bypass ZPA and Forward to ZPA rules apply to the same application segment, Forward to ZPA takes precedence; for application segments the bypass setting takes precedence over any new Client Forwarding Policy rule; the Application Segment bypass behavior must be set to Use Client Forwarding Policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-client-forwarding-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "If you have multiple Client Forwarding Policy rules, apply Bypass ZPA and Forward to ZPA rule actions to the same application segment, the Forward to ZPA rule action takes precedence.",
+            "For application segments, the bypass setting takes precedence over any new Client Forwarding Policy rule.",
+            "To use this feature, you must set the Application Segment bypass behavior to Client Forwarding Policy.",
+            "Set the Application Segment bypass behavior to Use Client Forwarding Policy."
+          ]
+        }
+      ]
+    },
+    "cfp-criteria-and-posture": {
+      "statement": "Criteria options include Client Connector Posture Profiles, Client Connect Trusted Networks, Client Types, Machine Groups and SAML and SCIM Attribute; Client Connector re-evaluates posture checks at startup and every 15 minutes thereafter; AND versus OR operators can explain unmet criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-client-forwarding-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "Client Connector Posture Profiles",
+            "SAML and SCIM Attribute",
+            "Zscaler Client Connector re-evaluates posture checks at startup and every 15 minutes thereafter.",
+            "check if the criteria definitions are using either an AND or OR operator.",
+            "Client Connect Trusted Networks",
+            "Client Types",
+            "Machine Groups",
+            "The operator choice could explain why the Client Forwarding Policy criteria are not being met and enforced."
+          ]
+        }
+      ]
+    },
+    "cfp-sipa-and-troubleshoot": {
+      "statement": "Only Forward Allowed Applications is recommended for a Client Forwarding Policy used as part of Source IP Anchoring in ZIA; the policy fails to apply when that action is selected and no Access Policy allowing access exists, because the application is absent from the downloaded list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-client-forwarding-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "Select Only Forward Allowed Applications if you are setting up a Client Forwarding Policy to use as part of Source IP Anchoring in Zscaler Internet Access (ZIA).",
+            "This occurs if Only Forward Allowed Applications is selected and an Access Policy allowing access was not created.",
+            "In this case, the application the user is trying to reach is not present in the list of applications downloaded by Zscaler Client Connector.",
+            "The Client Forwarding Policy is not successfully applied to the application:"
+          ]
+        }
+      ]
+    },
+    "lss-retention": {
+      "statement": "The ZPA SIEM integration guide says that by default Zscaler retains User Activity, User Status and App Connector log information for up to 14 days and audit log information for up to 6 months, and that LSS integrated with a SIEM gives access beyond those periods.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-siem-zpa-integration-deployment-and-operations-guide.json",
+          "quotes": [
+            "By default, Zscaler retains User Activity, User Status, and App Connector log information for up to 14 days and audit log information for up to 6 months.",
+            "You can access logs beyond these periods by using LSS integrated with a SIEM."
+          ]
+        }
+      ]
+    },
+    "lss-connectors": {
+      "statement": "A single Connector Group for both user traffic and log streaming is supported only in proof of concept scenarios and not for production; dedicated App Connectors for LSS log types are recommended, and connectors should be deployed in pairs for availability during upgrades.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-siem-zpa-integration-deployment-and-operations-guide.json",
+          "quotes": [
+            "Using a single Connector Group for both user traffic and log streaming is only supported in proof of concept scenarios and should not be used for any production deployments.",
+            "Zscaler recommends deploying App Connectors in pairs to ensure continuous availability during software upgrades.",
+            "Zscaler recommends creating dedicated App Connectors for LSS log types."
+          ]
+        }
+      ]
+    },
+    "lss-loss-behaviour": {
+      "statement": "LSS does not transmit log data generated during a ZPA-to-App Connector connection loss; after restoration it can retransmit the last 15 minutes of log data but delivery is not guaranteed; it does not transmit data during an App Connector-to-SIEM loss, except Audit Log data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-siem-zpa-integration-deployment-and-operations-guide.json",
+          "quotes": [
+            "The LSS won’t transmit any log data generated during a connection loss between ZPA and the App Connectors. When the connection is restored, the LSS can retransmit the last 15 minutes of the log data, but delivery isn’t guaranteed.",
+            "The LSS does not transmit any log data generated during a loss of connection between the App Connector and the SIEM, except for Audit Log data."
+          ]
+        }
+      ]
+    },
+    "lss-tls": {
+      "statement": "TLS between the log receiver and App Connector should be used across an untrusted network; it requires a client certificate for mutual TLS using a public root CA, and an untrusting receiving component can be diagnosed by temporarily disabling TLS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-siem-zpa-integration-deployment-and-operations-guide.json",
+          "quotes": [
+            "You should use TLS encryption when the App Connector sends logs across an untrusted network",
+            "It requires a client certificate for mutual TLS encryption that uses a public root Certificate Authority (CA).",
+            "Disable TLS encryption temporarily and test whether you receive logs in SIEM to validate.",
+            "The receiving component might not trust the certificate presented for mutual TLS encryption."
+          ]
+        }
+      ]
+    },
+    "prov-versions-and-methods": {
+      "statement": "Zscaler supports only SCIM version 2.0 and SAML version 2.0 and later; SAML auto-provisioning provisions users and attributes each time a new user authenticates into Client Connector, while SCIM pushes users and attributes from the IdP to the ZPA user database.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-user-provisioning-and-authenticating-deployment-and-operations-guide.json",
+          "quotes": [
+            "Zscaler supports only SCIM version 2.0 and SAML version 2.0 and later.",
+            "You can use SAML auto-provisioning to provision users and associated attributes into ZPA every time a new user authenticates into Zscaler Client Connector.",
+            "You can use SCIM to directly push the users and attributes from the IdP to the ZPA user database."
+          ]
+        }
+      ]
+    },
+    "prov-scim-switch": {
+      "statement": "When SCIM is enabled for the first time or the SCIM provisioning option is toggled, the SCIM database is synchronized, which might impact authentication until all users are synced from the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-user-provisioning-and-authenticating-deployment-and-operations-guide.json",
+          "quotes": [
+            "When you enable SCIM for the first time (or toggle the SCIM provisioning option), the SCIM database is synchronized. Database synchronization might impact authentication until all the users are synced from the customer IdP to the Zscaler database."
+          ]
+        }
+      ]
+    },
+    "prov-okta-scim": {
+      "statement": "Users might get a Client Connector connection error when enabling SCIM sync with Okta, because Okta does not sync users to ZPA before SCIM is enabled so users do not initially appear in the SCIM user database.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-user-provisioning-and-authenticating-deployment-and-operations-guide.json",
+          "quotes": [
+            "Okta does not sync users to ZPA in the Okta IdP before you enable SCIM. As a result, users do not initially appear in the SCIM user database when SCIM is enabled in ZPA.",
+            "Users might encounter a Zscaler Client Connector connection error when enabling SCIM sync with Okta."
+          ]
+        }
+      ]
+    },
+    "prov-auth-domains": {
+      "statement": "Authentication domains are added by submitting a provisioning ticket with Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-user-provisioning-and-authenticating-deployment-and-operations-guide.json",
+          "quotes": [
+            "Contact Zscaler Support to add authentication domains by submitting a provisioning ticket with Zscaler Support."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "lss-retention-bound": {
+      "summary": "Whether the ZPA log retention periods are a ceiling or a floor: the SIEM integration guide says up to 14 days and up to 6 months, the ZPA log retention articles say at least 14 days and at least 6 months.",
+      "positions": [
+        {
+          "says": "Zscaler retains User Activity, User Status and App Connector logs for up to 14 days and audit logs for up to 6 months.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-siem-zpa-integration-deployment-and-operations-guide.json",
+            "quotes": [
+              "By default, Zscaler retains User Activity, User Status, and App Connector log information for up to 14 days and audit log information for up to 6 months."
+            ]
+          }
+        },
+        {
+          "says": "Zscaler retains User Activity, User Status and App Connector logs for rolling periods of at least 14 days.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-log-streaming-service.json",
+            "quotes": [
+              "Zscaler retains User Activity, User Status, and App Connector log information for rolling periods of at least 14 days during the subscription term."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether logs older than 14 days can still be present in the console, or are guaranteed to be gone, depends on which page applies; LSS to a SIEM avoids the question."
+    },
+    "on-access-scope": {
+      "summary": "Where On Access health reporting can be chosen: the Application Discovery guide and the discovery article say only for discovered applications, while the application segment settings article makes On Access the console default for any segment.",
+      "positions": [
+        {
+          "says": "On Access health reporting is available for only discovered applications.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-application-discovery-deployment-and-operations-guide.json",
+            "quotes": [
+              "On Access health reporting is available for only discovered applications."
+            ]
+          }
+        },
+        {
+          "says": "Health reporting can be Continuous, On Access or None for an application segment, and the default setting is On Access.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-defined-application-segments.json",
+            "quotes": [
+              "The default setting is On Access."
+            ]
+          }
+        }
+      ],
+      "impact": "An admin cannot tell from the pages whether On Access is selectable on a segment that is not an discovered-application segment, or whether the default applies there."
+    },
+    "cfp-bypass-vs-forward": {
+      "summary": "Which Client Forwarding Policy action wins for the same application segment: the Client Forwarding Policy guide says Forward to ZPA takes precedence over Bypass ZPA, the client forwarding policies article says Bypass ZPA takes precedence for a domain with different ports, and the guide's own evaluation says the first match in top-down order wins.",
+      "positions": [
+        {
+          "says": "If Bypass ZPA and Forward to ZPA rule actions apply to the same application segment, Forward to ZPA takes precedence.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-client-forwarding-policy-deployment-and-operations-guide.json",
+            "quotes": [
+              "If you have multiple Client Forwarding Policy rules, apply Bypass ZPA and Forward to ZPA rule actions to the same application segment, the Forward to ZPA rule action takes precedence.",
+              "When ZPA finds a match in the Client Forwarding Policy, ZPA disregards other Client Forwarding Policy rules, including conflicts."
+            ]
+          }
+        },
+        {
+          "says": "For a given domain with different ports, the Bypass ZPA rule action takes precedence.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-client-forwarding-policies.json",
+            "quotes": [
+              "If you have multiple client forwarding policies with both Bypass ZPA and Forward to ZPA rules for a given domain with different ports, the Bypass ZPA rule action takes precedence."
+            ]
+          }
+        }
+      ],
+      "impact": "The two statements cover different scopes (same segment versus same domain with different ports), and the guide's first-match rule sits beside its Forward-wins rule; neither page reconciles them."
+    }
+  },
+  "gaps": {}
+}

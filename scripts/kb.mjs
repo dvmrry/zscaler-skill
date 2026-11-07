@@ -1,0 +1,207 @@
+#!/usr/bin/env node
+// scripts/kb.mjs — the knowledge-graph CLI.
+//
+//   validate [--no-citations]        schema + reference + prose + citation checks
+//   check <subject-id> ...           validate and lint for the named subjects: their quotes anchored, the structure
+//                                    of the whole graph checked (a removed claim breaks its citers); exit 1 on errors
+//   lint [--json] [--strict]         deterministic Tier A evidence checks (version, identifier, number);
+//                                    --strict exits 1 on any error-level finding
+//   resolve <id | text> [--overlay <dir> | --no-overlay] [--evidence] [--cases] [--pretty]
+//   resolve --each <id> <id> ...     one bundle per argument, as a JSON array (one call for several subjects)
+//   resolve --compact ...            labels and one-line claims only (with --each: scan several, then open one)
+//   resolve --company ...            company facets only (with --each)
+//     The overlay defaults to $ZSCALER_KB_OVERLAY, then <runtime-data mount>/overlay if it has overlay.json.
+//                                    one layer-labelled bundle (JSON on stdout)
+//   map [<product | area> ...]       the spine as text: areas, subjects, opening facts and typed edges
+//   read <subject | area | type | field> ...  (a claim, gap or ledger ID reads its subject; a ZPA LSS status
+//                                    code reads its entry in each log type that lists it)
+//                                    reading text with citable claim IDs, one hop of linked subjects, and
+//                                    company records with an overlay (--no-links: no hop)
+//   render <subject-id>              the subject as Markdown (deterministic)
+//   manifest                         record capture-manifest entries for cited captures
+//   verified [--check]               regenerate references/_meta/verified.json (--check: exit 1 if it is stale)
+//   export-zscalerctl                export the pinned zscalerctl catalogue (needs Go)
+//   import-types                     regenerate references/_meta/types/*.json
+//   migrate-links                    rewrite legacy links to converted docs as kb: links
+//   requote [--write] [--json]       re-quote capture quotes a re-render broke only by spacing (kb-requote.mjs);
+//                                    without --write, lists what it would change
+//   move-claim <from> <to> [--merge] move a claim to another subject, rewriting every reference to it;
+//                                    --merge drops it in favour of an existing claim that says the same
+//   surface <query>                  API, SDK and Terraform surface for a product key (zia, zdx, zid, ...), a Terraform name, API path,
+//                                    Go SDK package, or Python module, class or method (generated layer); a product
+//                                    also lists the legacy operations an SDK calls that the OneAPI spec lacks
+//   releases [<product>] [--since <date>] [--until <date>] [--grep <text>] [--full] [--json]
+//                                    the vendor's release notes for a product key, help-site section or alias,
+//                                    newest first (generated layer); dates are YYYY, YYYY-MM or YYYY-MM-DD; --grep
+//                                    keeps entries containing the text and prints their text, as --full does
+//   freshness [--days <n>] [--upstream] [--json]
+//                                    how old the cited vendor material is, per source and file (by its own date),
+//                                    flagging what is older than --days (365); --upstream adds each pin's newest release
+//
+// Exit codes: 0 ok, 1 validation failed, 2 usage error.
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { buildGraph, loadPublic, validateGraph } from "./kb-lib.mjs";
+import { exportZscalerctl, importTypes } from "./kb-types.mjs";
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+function usage(msg) {
+  if (msg) console.error(`kb: ${msg}`);
+  console.error("usage: kb.mjs <validate|check|lint|resolve|map|read|render|manifest|verified|export-zscalerctl|import-types|migrate-links|requote|move-claim|surface|releases|freshness> [args]");
+  process.exit(2);
+}
+
+function option(args, name) {
+  const i = args.indexOf(name);
+  if (i === -1) return undefined;
+  const v = args[i + 1];
+  args.splice(i, 2);
+  return v;
+}
+
+async function main(argv) {
+  const [cmd, ...args] = argv;
+  if (!cmd) usage();
+  if (["--help", "-h", "help"].includes(cmd)) {
+    // The header comment is the command reference.
+    const header = fs.readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1);
+    const end = header.findIndex((l) => !l.startsWith("//"));
+    process.stdout.write(`${header.slice(0, end).map((l) => l.replace(/^\/\/ ?/, "")).join("\n")}\n`);
+    return 0;
+  }
+  if (cmd === "export-zscalerctl") {
+    const out = exportZscalerctl(ROOT);
+    console.log(`exported ${out.resources.length} resources, ${out.references.length} reference edges, ${out.commands.length} commands`);
+    return 0;
+  }
+  if (cmd === "import-types") {
+    const { written, unmatched } = importTypes(ROOT);
+    for (const f of written) console.log(`wrote ${f}`);
+    if (unmatched.length) console.log(`${unmatched.length} types have no Terraform mapping: ${unmatched.join(", ")}`);
+    return 0;
+  }
+  if (cmd === "move-claim") {
+    const merge = args.includes("--merge");
+    const ids = args.filter((a) => a !== "--merge");
+    if (ids.length !== 2) usage("move-claim needs <from> <to>");
+    const { moveClaim } = await import("./kb-move.mjs");
+    const { from, to, rewritten } = moveClaim(ROOT, ids[0], ids[1], { merge });
+    console.log(`${merge ? "merged" : "moved"} ${from} -> ${to}; rewrote ${rewritten.length} file(s)${rewritten.length ? `: ${rewritten.join(", ")}` : ""}`);
+    return 0;
+  }
+  if (cmd === "surface") {
+    if (!args[0]) usage("surface needs a query");
+    const { lookupSurface } = await import("./kb-surface.mjs");
+    const hits = lookupSurface(ROOT, args[0]);
+    console.log(JSON.stringify(hits, null, 2));
+    return hits.length ? 0 : 1;
+  }
+  if (cmd === "releases") {
+    const since = option(args, "--since");
+    const until = option(args, "--until");
+    const grep = option(args, "--grep");
+    for (const d of [since, until]) if (d !== undefined && !/^\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\d|3[01]))?)?$/.test(d)) usage(`--since and --until take YYYY, YYYY-MM or YYYY-MM-DD, not ${d}`);
+    const product = args.find((a) => !a.startsWith("--"));
+    if (!product && !grep) usage("releases needs a product or --grep");
+    const { lookupReleases, releasesText } = await import("./kb-releases.mjs");
+    const hits = lookupReleases(ROOT, { product, since, until, grep });
+    if (!hits) usage(`no release notes for ${product}; name a product key (zia, zpa, zcc, ...), a help-site section or an alias`);
+    if (args.includes("--json")) console.log(JSON.stringify(hits, null, 2));
+    else process.stdout.write(releasesText(hits, { full: grep !== undefined || args.includes("--full") }));
+    if (!hits.length) console.error("kb releases: no release matches");
+    return hits.length ? 0 : 1;
+  }
+  const g = buildGraph(loadPublic(ROOT));
+  if (cmd === "freshness") {
+    const { freshness, freshnessText } = await import("./kb-freshness.mjs");
+    const json = args.includes("--json");
+    const days = Number(option(args, "--days") || 365);
+    const r = freshness(g, { days, upstream: args.includes("--upstream") });
+    process.stdout.write(json ? `${JSON.stringify(r, null, 2)}\n` : freshnessText(r));
+    return 0;
+  }
+  if (cmd === "requote") {
+    const { requote } = await import("./kb-requote.mjs");
+    const r = requote(g, { write: args.includes("--write") });
+    if (args.includes("--json")) process.stdout.write(`${JSON.stringify(r, null, 2)}\n`);
+    else {
+      for (const f of r.fixed) console.log(`${f.where}: "${f.from.slice(0, 70)}" -> "${f.to.slice(0, 70)}"`);
+      for (const b of r.broken) console.log(`still broken: ${b.where}: ${b.errors[0]}`);
+    }
+    console.error(`kb requote: ${r.fixed.length} quotes ${args.includes("--write") ? "re-quoted" : "to re-quote"} in ${r.files.length} files; ${r.broken.length} entries need a person`);
+    return 0;
+  }
+  if (cmd === "lint") {
+    const { describe, lintGraph } = await import("./kb-lint.mjs");
+    const findings = lintGraph(g);
+    if (args.includes("--json")) process.stdout.write(`${JSON.stringify(findings, null, 2)}\n`);
+    else for (const f of findings) console.log(`${f.level}: ${f.file}: ${f.id}: ${describe(f)}`);
+    const count = (level) => findings.filter((f) => f.level === level).length;
+    console.error(`kb lint: ${count("error")} errors, ${count("warning")} warnings`);
+    return args.includes("--strict") && count("error") ? 1 : 0;
+  }
+  if (cmd === "validate" || cmd === "check") {
+    const ids = cmd === "check" ? args.filter((a) => !a.startsWith("--")) : [];
+    if (cmd === "check" && !ids.length) return usage("check needs at least one subject ID");
+    for (const id of ids) if (g.nodes.get(id)?.kind !== "subject") return usage(`${id} is not a subject`);
+    const only = ids.length ? new Set(ids) : null;
+    const { errors, warnings, stats } = validateGraph(g, { citations: !args.includes("--no-citations"), only });
+    // Legacy Markdown links into the graph (written by migrate-links) must resolve.
+    const { kbLinks, staleMentions, tenantRefs } = await import("./kb-migrate.mjs");
+    for (const { file, id } of kbLinks(ROOT)) {
+      if (!g.nodes.has(id)) errors.push({ file, message: `kb:${id} does not resolve` });
+    }
+    for (const { file, moved, id } of staleMentions(ROOT)) {
+      errors.push({ file, message: `mentions ${moved}, which was converted; use kb:${id}` });
+    }
+    // A tenant type or a zscalerctl read named in a doc exists in the graph and the pinned catalogue.
+    const catalogue = JSON.parse(fs.readFileSync(path.join(ROOT, "references/_meta/imports/zscalerctl.json"), "utf8"));
+    const resources = new Set(catalogue.resources.map((r) => `${r.product} ${r.name}`));
+    const products = new Set([...g.nodes.values()].filter((n) => n.kind === "type").map((n) => n.id.split("/")[0]));
+    for (const r of tenantRefs(ROOT, products)) {
+      if (r.kind === "type" && !g.nodes.has(r.id)) errors.push({ file: r.file, message: `names tenant type ${r.id}, which the graph does not have` });
+      if (r.kind === "read" && !resources.has(`${r.product} ${r.resource}`)) errors.push({ file: r.file, message: `names zscalerctl ${r.product} ${r.resource}, which the pinned zscalerctl catalogue does not have` });
+    }
+    // The retrieval eval's gold facts (scripts/kb-eval.mjs), in every question set, each name the claim that holds them.
+    const { setFiles } = await import("./kb-eval.mjs");
+    for (const file of setFiles()) {
+      const factsFile = path.relative(ROOT, file);
+      for (const q of JSON.parse(fs.readFileSync(file, "utf8")).questions) {
+        for (const f of q.facts) {
+          if (g.nodes.get(f.claim)?.kind !== "claim") errors.push({ file: factsFile, message: `${q.id} fact ${f.id}: ${f.claim} is not a claim` });
+        }
+      }
+    }
+    const evalsFile = "references/_meta/evals/evals.json";
+    for (const e of JSON.parse(fs.readFileSync(path.join(ROOT, evalsFile), "utf8")).evals) {
+      for (const id of e.must_cite || []) {
+        if (!g.nodes.has(id)) errors.push({ file: evalsFile, message: `eval ${e.id} must_cite ${id} does not resolve` });
+      }
+    }
+    for (const w of warnings) console.log(`warning: ${w.file}: ${w.message}`);
+    for (const e of errors) console.error(`error: ${e.file}: ${e.message}`);
+    if (only) {
+      const { describe, lintGraph } = await import("./kb-lint.mjs");
+      const findings = lintGraph(g, { only });
+      for (const f of findings) console.error(`${f.level}: ${f.file}: ${f.id}: ${describe(f)}`);
+      const failed = errors.length + findings.filter((f) => f.level === "error").length;
+      console.log(`kb check: ${ids.join(", ")}: ${failed} errors, ${warnings.length + findings.length - findings.filter((f) => f.level === "error").length} warnings`);
+      return failed ? 1 : 0;
+    }
+    console.log(`kb: ${Object.entries(stats).map(([k, v]) => `${v} ${k}`).join(", ")}; ${errors.length} errors, ${warnings.length} warnings`);
+    return errors.length ? 1 : 0;
+  }
+  const { runCommand } = await import("./kb-resolve.mjs");
+  return runCommand(ROOT, g, cmd, args, { option, usage });
+}
+
+// A reader that stops early (`| head`) closes the pipe; that ends the output, not the command with a stack trace.
+process.stdout.on("error", (e) => {
+  if (e.code === "EPIPE") process.exit(0);
+  throw e;
+});
+// exitCode, not process.exit(): exit() can end the process before a large bundle has drained into a pipe,
+// handing the reader truncated JSON.
+process.exitCode = await main(process.argv.slice(2));

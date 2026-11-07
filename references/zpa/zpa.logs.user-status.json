@@ -1,0 +1,574 @@
+{
+  "schema_version": 1,
+  "id": "zpa.logs.user-status",
+  "title": "What a ZPA User Status log record says and does not say",
+  "aliases": [
+    "zpn_auth_log record",
+    "user status log fields",
+    "SessionStatus ZPN_STATUS_AUTHENTICATED",
+    "PosturesMiss PosturesHit",
+    "TrustedNetworks",
+    "FQDNRegisteredError",
+    "SAMLAttributes",
+    "user cannot connect to ZPA log"
+  ],
+  "binds": [
+    "zpa/user-status-log#SessionStatus",
+    "zpa/user-status-log#Version",
+    "zpa/user-status-log#ClientType",
+    "zpa/user-status-log#SAMLAttributes",
+    "zpa/user-status-log#PosturesHit",
+    "zpa/user-status-log#FQDNRegisteredError",
+    "zpa/user-status-log#ZENCountryCode",
+    "zpa/user-status-log#CountryCode",
+    "zpa/user-status-log#TotalBytesRx",
+    "zpa/user-status-log#TimestampUnAuthentication"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.user-activity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.control-session-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.log-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.diagnostics"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The User Status log (zpn_auth_log) records a Zscaler Client Connector session with Private Access: its status, location, posture and trusted-network results. Several of its field examples disagree with its field table."
+    },
+    {
+      "label": "Status values.",
+      "text": "{{session-status-values}} The DISCONNECTED description is worded as a connect {{divergence:disconnected-description}}. Whether Private and Public Service Edge disconnects differ is open {{gap:disconnect-by-edge-kind}}."
+    },
+    {
+      "label": "Record cardinality.",
+      "text": "{{totals-undefined-scope}} How many records a session produces, and when the byte counters are filled, is open {{gap:record-granularity}}. Where the records are indexed relative to User Activity is open {{gap:receiver-per-type}}."
+    },
+    {
+      "label": "Client and edge.",
+      "text": "{{version-via-pse}} {{client-type-words-and-code}} {{service-edge-location-fields}}"
+    },
+    {
+      "label": "Posture and network lists.",
+      "text": "{{list-fields-delimited}} The posture-miss field is named differently in the example {{divergence:posture-miss-name}}, and the trusted-network fields look swapped {{divergence:trusted-networks-swap}}. What a pattern of results implies is open {{gap:status-reading-guide}}."
+    },
+    {
+      "label": "Client-to-client.",
+      "text": "{{fqdn-error-codes}} The registered flag is true or false in the table but 0 in the example {{divergence:fqdn-registered-value}}. The default template reads both fields as fqdn_registered and fqdn_register_error, not the table names {{divergence:fqdn-template-variables}}. What these hold without client-to-client is open {{gap:c2c-fields-population}}."
+    },
+    {
+      "label": "In Diagnostics.",
+      "text": "The User Status diagnostics are one of the views in [[zpa.troubleshooting.diagnostics]]. {{diag-status-values}} {{disconnect-reason-code}} {{zscaler-ip}} {{pse-selection}} {{hop-two-parts}} {{client-version-and-types}} {{diag-byte-directions}} {{pcc-fields}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the custom template spells the posture field PosturesMiss, as the table and default template do, rather than the example's PosturesMisses.",
+      "uses": [
+        "posture-miss-name"
+      ]
+    },
+    {
+      "do": "Whether a custom template reads the client-to-client fields as fqdn_registered and fqdn_register_error, as the default template does, rather than the table's FQDNRegistered and FQDNRegisteredError.",
+      "uses": [
+        "fqdn-template-variables"
+      ]
+    },
+    {
+      "do": "Whether session counts were deduplicated by SessionID before counting authenticated or disconnected sessions.",
+      "uses": [
+        "record-granularity"
+      ]
+    },
+    {
+      "do": "Whether a record's Version is the Private Service Edge's version, from the additional log sent when the connection came through one, rather than the Client Connector version.",
+      "uses": [
+        "version-via-pse"
+      ]
+    },
+    {
+      "do": "Whether FQDNRegisteredError is read against the client-to-client configuration before treating a non-match code as a fault.",
+      "uses": [
+        "fqdn-error-codes",
+        "c2c-fields-population"
+      ]
+    }
+  ],
+  "claims": {
+    "diag-status-values": {
+      "statement": "User Status diagnostics show a record's status as Authenticated (an authenticated user has connected to Private Access, true for first time authentication and subsequent reauthentications), Authentication Failed (the user was unable to authenticate) or Disconnected (the user successfully disconnected).",
+      "tier": "A",
+      "conditions": "These are the console labels; no captured page names them as the SessionStatus values.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "Authenticated: Authenticated represents that an authenticated user has connected to Private Access. This is true for first time authentication and subsequent reauthentications.",
+            "Authentication Failed: The user was unable to authenticate.",
+            "Disconnected: The user successfully disconnected."
+          ]
+        }
+      ]
+    },
+    "disconnect-reason-code": {
+      "statement": "In User Status diagnostics the Disconnect Reason Code field is visible and indicates the internal code for why the user disconnected, and records can be filtered by a specific reason code.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "The Disconnect Reason Code field is visible and indicates the internal code for why the user disconnected.",
+            "Connection: Reason Code: See logs that resulted in a specific reason code."
+          ]
+        }
+      ]
+    },
+    "zscaler-ip": {
+      "statement": "Zscaler IP is the virtual IP that is assigned to Zscaler Client Connector for server-to-client connectivity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "Zscaler IP: The virtual IP that is assigned to Zscaler Client Connector for server-to-client connectivity."
+          ]
+        }
+      ]
+    },
+    "pse-selection": {
+      "statement": "For every status code, User Status diagnostics show the Private Service Edge selection method (for example Default, Preferred or Always) associated with the user's redirection policy, and whether the domain being accessed by Zscaler Client Connector matches the regular expression (Client-To-Client Enrolled).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "after": "For every status code, the following fields are displayed:",
+          "quotes": [
+            "Private Service Edge Selection: The Private Service Edge selection method (e.g, Default, Preferred, or Always) associated with the user's redirection policy.",
+            "Client-To-Client Enrolled: Indicates whether the domain being accessed by the Zscaler Client Connector matches the regular expression or not. To learn more, see Validating a Client Hostname."
+          ]
+        }
+      ]
+    },
+    "hop-two-parts": {
+      "statement": "There are two parts to every hop in User Status diagnostics: the user's Zscaler Client Connector connecting to a Private Service Edge, and then the Private Service Edge connecting to a Public Service Edge. The first part is the logs that already appear for the session, and a link shows the second part.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "There are two parts to every hop: the user's Zscaler Client Connector connecting to a Private Service Edge, and then the Private Service Edge connecting to a Public Service Edge.",
+            "The first part is the logs that already appear for the session. Click the link to view the log details for the second part of the hop."
+          ]
+        }
+      ]
+    },
+    "client-version-and-types": {
+      "statement": "In User Status diagnostics Client Version is the version number of the client the user uses (for example the Zscaler Client Connector version), and Client Type is Branch Connector, Zscaler Client Connector, Client Connector Partner, Web Browser, Web Browser Unauthenticated, ZIA Inspection or ZIA Public Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "Client Version: The version number of the client the user uses (e.g., the Zscaler Client Connector version on the user's device).",
+            "Client Type: The name of the client the user's device is connecting from (i.e., Branch Connector, Zscaler Client Connector, Client Connector Partner, Web Browser, Web Browser Unauthenticated, ZIA Inspection, or ZIA Public Service Edge)."
+          ]
+        }
+      ]
+    },
+    "diag-byte-directions": {
+      "statement": "User Status diagnostics byte counters include bytes transmitted to and received from a client by a Public or Private Service Edge (Tx to Client, Rx from Client) and bytes transmitted by a Public Service Edge to a Private Service Edge (Tx to Private Service Edge).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "Tx to Client: See bytes transmitted by a Public Service Edge or Private Service Edge to a client.",
+            "Rx from Client: See bytes received by a Public Service Edge or Private Service Edge from a client.",
+            "Tx to Private Service Edge: See bytes transmitted by a Public Service Edge to a Private Service Edge."
+          ]
+        }
+      ]
+    },
+    "pcc-fields": {
+      "statement": "User Status diagnostics can show users' logs by Private Cloud Controller name, and show the name of the Private Cloud Controller group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "Private Cloud Controller Name: See logs of users by Private Cloud Controller name.",
+            "Private Cloud Controller Group Name: The name of the Private Cloud Controller group."
+          ]
+        }
+      ]
+    },
+    "session-status-values": {
+      "statement": "SessionStatus is ZPN_STATUS_AUTHENTICATED when the user successfully authenticated in Private Access and ZPN_STATUS_AUTH_FAILED when the user failed to authenticate; the third value, ZPN_STATUS_DISCONNECTED, is described as 'The user connected from a Public Service Edge for Private Access or a Private Service Edge for Private Access'.",
+      "tier": "A",
+      "conditions": "The DISCONNECTED value was stated as a user disconnecting, which the capture does not say; it now quotes the capture's wording, whose conflict with the value name is the divergence disconnected-description.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-status-log-fields.json",
+          "quotes": [
+            "ZPN_STATUS_AUTHENTICATED: The user successfully authenticated in Private Access",
+            "ZPN_STATUS_AUTH_FAILED: The user failed to authenticate in Private Access",
+            "ZPN_STATUS_DISCONNECTED: The user connected from a Public Service Edge for Private Access or a Private Service Edge for Private Access"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-status-log#SessionStatus"
+      ]
+    },
+    "version-via-pse": {
+      "statement": "The Version field is the Zscaler Client Connector version. When a connection is established through a Private Service Edge, an additional log is sent with the Version field updated to the Private Service Edge version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-status-log-fields.json",
+          "quotes": [
+            "| Version | The Zscaler Client Connector version. When a connection is established through a Private Service Edge, the system sends an additional log with the version field updated to the Private Service Edge version."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-status-log#Version"
+      ]
+    },
+    "client-type-words-and-code": {
+      "statement": "ClientType is described as Zscaler Client Connector, ZPA LSS or Web Browser, and the example record carries the internal code zpn_client_type_zapp.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-status-log-fields.json",
+          "quotes": [
+            "(i.e., Zscaler Client Connector, ZPA LSS, or Web Browser)",
+            "\"ClientType\": \"zpn_client_type_zapp\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-status-log#ClientType"
+      ]
+    },
+    "list-fields-delimited": {
+      "statement": "In the example record SAMLAttributes is one string of name:value pairs separated by commas, and PosturesHit is a comma-separated string; the field table describes SAMLAttributes only as 'The list of SAML attributes reported by the IdP', with no format. The User Status (zpn_auth_log) JSON format in the LSS API article's example response for all log formats instead writes PosturesHit, PosturesMiss, TrustedNetworks and TrustedNetworksNames as JSON arrays and SAMLAttributes as a single value.",
+      "tier": "A",
+      "conditions": "Added what the User Status log format writes for the list fields, which differs from the example's comma-separated strings.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-status-log-fields.json",
+          "quotes": [
+            "\"SAMLAttributes\": \"myname:jdoe,myemail:jdoe@zscaler.com\"",
+            "\"PosturesHit\": \"sm-posture1,sm-posture2\"",
+            "| SAMLAttributes | The list of SAML attributes reported by the IdP |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "after": "\"zpn_auth_log\":{",
+          "quotes": [
+            "\\\"TrustedNetworks\\\": [%j(,){TrustedNetworks}],\\\"TrustedNetworksNames\\\": [%j(,){TrustedNetworksNames}],\\\"SAMLAttributes\\\": %j{SAMLAttributes},\\\"PosturesHit\\\": [%j(,){PosturesHit}],\\\"PosturesMiss\\\": [%j(,){PosturesMiss}]"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-status-log#SAMLAttributes",
+        "zpa/user-status-log#PosturesHit"
+      ]
+    },
+    "fqdn-error-codes": {
+      "statement": "FQDNRegisteredError is FQDN_MATCH when the hostname matches the configured regular expression, and otherwise FQDN_NO_MATCH, FQDN_BAD_SCHEMA, FQDN_BAD_REGEX, FQDN_TOO_MANY_REGEX, FQDN_NO_ENTRIES, FQDN_EMPTY, BROKER_NOT_ENABLED or CUSTOMER_NOT_ENABLED; FQDN_BAD_SCHEMA and BROKER_NOT_ENABLED are given the same meaning, client-to-client disabled for the Public Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-status-log-fields.json",
+          "quotes": [
+            "| FQDNRegisteredError | The status of the registered hostname. The expected value if the hostname matches the regular expression is FQDN_MATCH. The expected values if the hostname does not match the regular expression are: FQDN_NO_MATCH: The hostname does not match with the configured regular expression",
+            "FQDN_BAD_SCHEMA: Client-to-client communication is disabled for the Public Service Edge FQDN_BAD_REGEX: The configured regular expression in the Zscaler Admin Console is incorrect FQDN_TOO_MANY_REGEX: Invalid regular expression configuration due to multiple configured regular expressions",
+            "FQDN_NO_ENTRIES: Your admin has not configured a regular expression in the Zscaler Admin Console FQDN_EMPTY: The FQDN received from the Zscaler Client Connector is null or empty BROKER_NOT_ENABLED: Client-to-client communication is disabled for the Public Service Edge",
+            "CUSTOMER_NOT_ENABLED: Client-to-client communication is disabled for the current customer |"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-status-log#FQDNRegisteredError"
+      ]
+    },
+    "service-edge-location-fields": {
+      "statement": "ZENLatitude, ZENLongitude and ZENCountryCode describe the Public Service Edge, while Latitude, Longitude and CountryCode describe the Zscaler Client Connector location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-status-log-fields.json",
+          "quotes": [
+            "| ZENLatitude | The latitude coordinates for the Public Service Edge |",
+            "| ZENLongitude | The longitude coordinates for the Public Service Edge |",
+            "| ZENCountryCode | The country code for the Public Service Edge",
+            "| Latitude | The latitude coordinate of the Zscaler Client Connector location |",
+            "| Longitude | The longitude coordinate of the Zscaler Client Connector location |",
+            "| CountryCode | The country code of the Zscaler Client Connector location"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-status-log#ZENCountryCode",
+        "zpa/user-status-log#CountryCode"
+      ]
+    },
+    "totals-undefined-scope": {
+      "statement": "TotalBytesRx and TotalBytesTx are described only as the total bytes received and transmitted, and the example record shows both populated on an AUTHENTICATED record with TimestampUnAuthentication empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-status-log-fields.json",
+          "quotes": [
+            "| TotalBytesRx | The total bytes received | %[OPT]d %[OPT]x %[OPT]f %[OPT]o |",
+            "| TotalBytesTx | The total bytes transmitted | %[OPT]d %[OPT]x %[OPT]f %[OPT]o |",
+            "\"SessionStatus\": \"ZPN_STATUS_AUTHENTICATED\"",
+            "\"TimestampUnAuthentication\": \"\",\"TotalBytesRx\": 31274866,\"TotalBytesTx\": 25424152"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-status-log#TotalBytesRx",
+        "zpa/user-status-log#TimestampUnAuthentication"
+      ]
+    }
+  },
+  "gaps": {
+    "record-granularity": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "User Status record cardinality per session and when the byte counters are populated",
+      "blocks": "counting authenticated sessions or summing session bytes from User Status records",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement (ledger log-19): the User Status diagnostics say Authenticated covers both first authentication and subsequent reauthentications (diag-status-values), but the sources do not say whether a session emits one record per status (an AUTHENTICATED record then a DISCONNECTED record) or one consolidated record, whether a reauthentication writes its own record, whether TotalBytesRx and TotalBytesTx are filled only on DISCONNECTED records or as running totals, whether TimestampUnAuthentication is filled only on disconnect, or whether an AUTH_FAILED record carries byte counters. The only example is an AUTHENTICATED record with both byte counters populated and TimestampUnAuthentication empty (totals-undefined-scope). The legacy also states that User Status records are produced when a ZCC client connects or disconnects and describe one session state change; no capture says when the log is generated. Deduplicate by SessionID until a capture across a known session lifecycle is available.",
+      "former_ids": [
+        "log-19"
+      ]
+    },
+    "status-reading-guide": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What a User Status record pattern implies about the user's problem",
+      "blocks": "diagnosing why a user cannot connect to ZPA or reach an application",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: AUTH_FAILED with no User Activity records means the user never established a session and points at IdP or SAML configuration; AUTHENTICATED with no User Activity records means the user enrolled but accessed no applications; a non-empty PosturesMiss alongside access denials means a posture policy is blocking access; many failures on one Version point at a version regression; AUTH_FAILED may not appear in ZIA web logs because Zscaler Client Connector may not forward traffic. The captures define PosturesHit and PosturesMiss as profiles Zscaler Client Connector verified or failed to verify, and say nothing about what follows."
+    },
+    "c2c-fields-population": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What the client-to-client FQDN fields hold when client-to-client is not configured",
+      "blocks": "filtering on FQDNRegisteredError to find real registration problems",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: FQDNRegistered and FQDNRegisteredError are relevant only when ZPA client-to-client communication is configured. The captures describe them as the hostname status for the client-to-client connection; the example record has FQDNRegistered 0 and an empty FQDNRegisteredError (see the divergence fqdn-registered-value). Whether other records hold CUSTOMER_NOT_ENABLED or empty values is not stated."
+    },
+    "receiver-per-type": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether User Status and User Activity logs land in separate receivers or indexes",
+      "blocks": "choosing an index when joining User Status and User Activity logs in a SIEM",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: User Status logs land in a separate LSS receiver from User Activity logs by default and may be in a different Splunk index, and operators should confirm whether LSS receivers co-index log types. The Splunk App's expected index is in zpa.log-receivers.splunk:index-and-fields; which receiver or index each deployment uses for each type is a SIEM deployment choice outside the captures; the receiver configuration is in zpa.log-receivers.configuration."
+    },
+    "disconnect-by-edge-kind": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether ZPN_STATUS_DISCONNECTED differs for Private versus Public Service Edge terminations",
+      "blocks": "distinguishing a user disconnected from a Private Service Edge from one disconnected from a Public Service Edge",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: the exact SessionStatus value when a Private Service Edge terminates a session versus a Public Service Edge is not distinguished; the description mentions both without separate values. The ZEN field names the Public Service Edge selected for the connection."
+    }
+  },
+  "divergences": {
+    "posture-miss-name": {
+      "summary": "PosturesMiss as named in the field table and default template versus the example record",
+      "positions": [
+        {
+          "says": "The field table names the field PosturesMiss, the posture profiles Zscaler Client Connector failed to verify.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-status-log-fields.json",
+            "quotes": [
+              "| PosturesMiss | The posture profiles that Zscaler Client Connector failed to verify for this device"
+            ]
+          }
+        },
+        {
+          "says": "The example record names the same field PosturesMisses.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-status-log-fields.json",
+            "quotes": [
+              "\"PosturesMisses\": \"sm-posture11,sm-posture12\""
+            ]
+          }
+        },
+        {
+          "says": "The default User Status template writes it as PosturesMiss ([[zpa/user-status-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "after": "\"zpn_auth_log\":{",
+            "quotes": [
+              "%s(,){PosturesHit},%s(,){PosturesMiss}"
+            ]
+          }
+        }
+      ],
+      "impact": "Field names are case sensitive and exact. The table and the default template spell it PosturesMiss; the example spells it PosturesMisses. Use PosturesMiss in a custom template and check a real record before building a parser on either."
+    },
+    "fqdn-template-variables": {
+      "summary": "The client-to-client FQDN field names in the table versus the default template's variables",
+      "positions": [
+        {
+          "says": "The field table names the fields FQDNRegistered and FQDNRegisteredError.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-status-log-fields.json",
+            "quotes": [
+              "| FQDNRegistered | The status of the hostname for the client-to-client connection.",
+              "| FQDNRegisteredError | The status of the registered hostname."
+            ]
+          }
+        },
+        {
+          "says": "The default User Status template reads the variables fqdn_registered and fqdn_register_error, labelling them FQDNRegistered and FQDNRegisteredError in its JSON form ([[zpa/user-status-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "after": "\"zpn_auth_log\":{",
+            "quotes": [
+              "%s{fqdn_registered},%s{fqdn_register_error}",
+              "\\\"FQDNRegistered\\\": %j{fqdn_registered},\\\"FQDNRegisteredError\\\": %j{fqdn_register_error}"
+            ]
+          }
+        }
+      ],
+      "impact": "Field names are case sensitive and exact. The table names them FQDNRegistered and FQDNRegisteredError; the default template reads fqdn_registered and fqdn_register_error. A custom template built from the table names may not emit these fields; copy the variables from the default template and check a real record."
+    },
+    "trusted-networks-swap": {
+      "summary": "TrustedNetworks and TrustedNetworksNames contents as described versus in the example",
+      "positions": [
+        {
+          "says": "TrustedNetworks holds the unique IDs of the trusted networks and TrustedNetworksNames holds their names.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-status-log-fields.json",
+            "quotes": [
+              "| TrustedNetworks | The unique IDs for the trusted networks",
+              "| TrustedNetworksNames | The names for the trusted networks"
+            ]
+          }
+        },
+        {
+          "says": "In the example record TrustedNetworks holds a name-like value and TrustedNetworksNames holds a numeric ID.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-status-log-fields.json",
+            "quotes": [
+              "\"TrustedNetworks\": \"TN1_stc1\",\"TrustedNetworksNames\": \"145248739466947538\""
+            ]
+          }
+        }
+      ],
+      "impact": "The example looks swapped relative to the descriptions. Do not rely on which of the two fields holds the ID until a real record is checked."
+    },
+    "fqdn-registered-value": {
+      "summary": "FQDNRegistered values as described versus in the example",
+      "positions": [
+        {
+          "says": "FQDNRegistered is described with expected values true or false.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-status-log-fields.json",
+            "quotes": [
+              "The expected values for this field are true or false."
+            ]
+          }
+        },
+        {
+          "says": "The example record has FQDNRegistered 0.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-status-log-fields.json",
+            "quotes": [
+              "\"FQDNRegistered\": \"0\""
+            ]
+          }
+        }
+      ],
+      "impact": "A filter on true or false misses records that carry 0 or 1."
+    },
+    "disconnected-description": {
+      "summary": "The ZPN_STATUS_DISCONNECTED description in User Status versus the other status logs",
+      "positions": [
+        {
+          "says": "The User Status description reads 'The user connected from a Public Service Edge for Private Access or a Private Service Edge for Private Access'.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-status-log-fields.json",
+            "quotes": [
+              "ZPN_STATUS_DISCONNECTED: The user connected from a Public Service Edge"
+            ]
+          }
+        },
+        {
+          "says": "The App Connector Status description for the same value reads 'App Connector disconnected from a Service Edge for Private Access'.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "app-connector-status-log-fields.json",
+            "quotes": [
+              "ZPN_STATUS_DISCONNECTED: App Connector disconnected from a Service Edge for Private Access"
+            ]
+          }
+        }
+      ],
+      "impact": "The User Status wording is probably a typo for disconnected; the value name and the sibling logs point that way, but the capture does not say so."
+    }
+  }
+}

@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "FTP Control Policy",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/ftp-control-policy",
+    "node": "1528941",
+    "revision": "3107749",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/FTP%20Control%20Policy_1.json?VersionId=BKaHPiJVP49e_5m4yVir0hmWnfFIOqxl",
+    "updated": "2025-04-25",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "FTP Control Policy"
+      }
+    ],
+    "paths": {
+      "/ftpSettings": {
+        "get": {
+          "tags": [
+            "FTP Control Policy"
+          ],
+          "description": "Retrieves the FTP Control status and the list of URL categories for which FTP is allowed. To learn more, see <a href=\"/zia/about-ftp-control\" target=\"_blank\">About FTP Control</a>.",
+          "operationId": "FtpSettingsResource_getFtpSettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/FtpSettings"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "FTP Control Policy"
+          ],
+          "description": "Updates the FTP Control settings. To learn more, see <a href=\"/zia/configuring-ftp-control-policy\" target=\"_blank\">Configuring the FTP Control Policy</a>.",
+          "operationId": "FtpSettingsResource_updateFtpSettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about FTP settings",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/FtpSettings"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/FtpSettings"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "FtpSettings": {
+        "type": "object",
+        "description": "FTP settings information",
+        "required": [
+          "ftpEnabled",
+          "ftpOverHttpEnabled"
+        ],
+        "properties": {
+          "ftpOverHttpEnabled": {
+            "type": "boolean",
+            "description": "Indicates whether to enable FTP over HTTP. By default, the Zscaler service doesn't allow users from a location to upload or download files from FTP sites that use FTP over HTTP. Select this to enable browsers to connect to FTP over HTTP sites and download files. If a remote user uses a dedicated port, then the service supports FTP over HTTP for them."
+          },
+          "ftpEnabled": {
+            "type": "boolean",
+            "description": "Indicates whether to enable native FTP. When enabled, users can connect to native FTP sites and download files."
+          },
+          "urlCategories": {
+            "type": "array",
+            "description": "List of URL categories that allow FTP traffic",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          },
+          "urls": {
+            "type": "array",
+            "description": "Domains or URLs included for the FTP Control settings",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "WebFilteringUrlCategory": {
+        "type": "object",
+        "properties": {
+          "urlSupercategory": {
+            "type": "string",
+            "description": "Super category of the URL category. This field is required when creating custom URL categories.",
+            "enum": [
+              "ANY",
+              "NONE",
+              "ADVANCED_SECURITY",
+              "ENTERTAINMENT_AND_RECREATION",
+              "NEWS_AND_MEDIA",
+              "USER_DEFINED",
+              "EDUCATION",
+              "BUSINESS_AND_ECONOMY",
+              "JOB_SEARCH",
+              "INFORMATION_TECHNOLOGY",
+              "INTERNET_COMMUNICATION",
+              "OFFICE_365",
+              "CUSTOM_SUPERCATEGORY",
+              "CUSTOM_BP",
+              "CUSTOM_BW",
+              "MISCELLANEOUS",
+              "TRAVEL",
+              "VEHICLES",
+              "GOVERNMENT_AND_POLITICS",
+              "GLOBAL_INT",
+              "GLOBAL_INT_BP",
+              "GLOBAL_INT_BW",
+              "GLOBAL_INT_OFC365",
+              "ADULT_MATERIAL",
+              "DRUGS",
+              "GAMBLING",
+              "VIOLENCE",
+              "WEAPONS_AND_BOMBS",
+              "TASTELESS",
+              "MILITANCY_HATE_AND_EXTREMISM",
+              "ILLEGAL_OR_QUESTIONABLE",
+              "SOCIETY_AND_LIFESTYLE",
+              "HEALTH",
+              "SPORTS",
+              "SPECIAL_INTERESTS_SOCIAL_ORGANIZATIONS",
+              "GAMES",
+              "SHOPPING_AND_AUCTIONS",
+              "SOCIAL_AND_FAMILY_ISSUES",
+              "RELIGION",
+              "SECURITY"
+            ]
+          },
+          "deprecated": {
+            "type": "boolean",
+            "description": "List of deprecated URL categories"
+          },
+          "backendName": {
+            "type": "string",
+            "description": "URL category back end name"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the URL category listed under the respective super category"
+          },
+          "userConfiguredName": {
+            "type": "string",
+            "description": "User-configured URL category name"
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about the URL category"
+          }
+        }
+      }
+    }
+  }
+}

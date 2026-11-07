@@ -1,0 +1,441 @@
+{
+  "schema_version": 1,
+  "id": "shared.legacy-api.zia-oauth",
+  "title": "ZIA legacy OAuth 2.0 through an external identity provider",
+  "aliases": [
+    "zia oauth 2.0 external idp",
+    "zia api roles",
+    "cloud name org id api role scope",
+    "oauth-<rolename>$@ admin id",
+    "pingfederate okta entra zia api",
+    "oauth 2.0 authorization servers zia"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.admin-rbac.zia",
+      "because": "shared.admin-rbac.zia:api-role-oauth"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.audit-logs.what-is-recorded",
+      "because": "shared.legacy-api.zia-oauth:audit-admin-id"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.zia-session"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.zia-oauth-idp-setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-api-roles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Before OneAPI, ZIA's cloud service API could already take OAuth 2.0 tokens, issued by the customer's own identity provider rather than by Authentication Service. {{external-idps}} {{cloud-service-only}}"
+    },
+    {
+      "label": "Why use it.",
+      "text": "{{advantages}}"
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{prerequisites}}"
+    },
+    {
+      "label": "Scope.",
+      "text": "{{scope-format}} {{claims-table}} {{api-roles-on-clients}} The OneAPI flow uses an audience instead: [[shared.oneapi.authentication:audience-required]]."
+    },
+    {
+      "label": "Token request.",
+      "text": "{{token-request}} {{token-lifetime}}"
+    },
+    {
+      "label": "Validation.",
+      "text": "{{validation}} {{jwks-cache-retry}}"
+    },
+    {
+      "label": "Authorization servers in ZIA.",
+      "text": "{{server-limit}} {{server-permission}} {{server-fields}} {{validation|ref}} {{optional-claim-checks}} {{jwks-certificate-authentication}} {{last-fetch-time}} How often the key set is fetched is open {{gap:jwks-fetch-period}}."
+    },
+    {
+      "label": "Changing or losing a server.",
+      "text": "{{change-impact}} {{subscription-and-disable}} What happens to tokens when the other server is enabled is open {{gap:second-server-tokens}}."
+    },
+    {
+      "label": "Identity provider setup.",
+      "text": "Setting up Okta, Microsoft Entra ID and PingFederate is in [[shared.legacy-api.zia-oauth-idp-setup]]; the guides differ on where the client credentials go [[shared.legacy-api.zia-oauth-idp-setup:credentials-location]]. The API role object is in [[shared.admin-rbac.zia-api-roles]]."
+    },
+    {
+      "label": "Audit.",
+      "text": "{{audit-admin-id}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a rejected OAuth call, whether the token's scope (or scp or roles) claim is cloud::org ID::API role and names an API role configured in ZIA.",
+      "uses": [
+        "scope-format",
+        "validation"
+      ]
+    },
+    {
+      "do": "For a first-call authorization failure after the identity provider rotated keys, whether the client retried after a minute.",
+      "uses": [
+        "jwks-cache-retry"
+      ]
+    },
+    {
+      "do": "To attribute OAuth API changes in audit logs, which oauth-<rolename>$@<orgid>.<cloud_domain> admin ID they appear under.",
+      "uses": [
+        "audit-admin-id"
+      ]
+    }
+  ],
+  "claims": {
+    "external-idps": {
+      "statement": "ZIA supports OAuth 2.0 for the cloud service API with the Client Credentials flow, using PingFederate, Okta or Microsoft Entra ID as the authorization server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "The Zscaler service uses the Client Credentials OAuth flow, in which the clients exchange their credentials for an access token and gain access to the cloud service API, outside the context of users.",
+            "The Zscaler service supports OAuth 2.0 implementations with PingFederate, Okta, and Microsoft Entra ID (formerly Azure Active Directory)."
+          ]
+        }
+      ]
+    },
+    "cloud-service-only": {
+      "statement": "This OAuth 2.0 method is supported only for the cloud service API, and the vendor recommends it over the API key method for that API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "OAuth 2.0 authentication is supported only for cloud service API."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "Zscaler recommends the OAuth 2.0 authentication method for accessing the cloud service API.",
+            "| Cloud Service API | OAuth 2.0 (recommended) Combination of Basic Authentication and API Key |"
+          ]
+        }
+      ]
+    },
+    "advantages": {
+      "statement": "The vendor lists as advantages that it needs no ZIA admin credentials, scopes access with API roles tied to client applications, and needs no client-side key obfuscation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "OAuth 2.0 authentication offers the following advantages over other authentication methods:",
+            "OAuth 2.0 does not require Internet & SaaS admin credentials for authentication.",
+            "The Client Credentials OAuth flow employs API Roles to define permissions required to access specific categories of cloud service API.",
+            "Instead, API roles are associated with the client applications that are accessing the API.",
+            "OAuth 2.0 does not require obfuscation of credentials, unlike API keys which need to be obfuscated on the client with additional programming for enhanced security."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "It needs an API subscription, API roles configured in ZIA, client applications registered on the authorization server with the required scope, and the authorization server added to ZIA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "You must have an API subscription. If you do not have a subscription, submit a Zscaler Support ticket.",
+            "You must have the API Roles configured in the ZIA Admin Portal.",
+            "You must have your client applications registered on your authorization server (i.e., PingFederate, Okta, or Azure AD) with the required scope and configured appropriately.",
+            "You must have your OAuth 2.0 authorization server added to the ZIA Admin Portal."
+          ]
+        }
+      ]
+    },
+    "scope-format": {
+      "statement": "The scope must be `<Zscaler Cloud Name>::<Org ID>::<API Role>`, for example `zscalerbeta.net::8956412::sampleRole`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "You must configure the scope value in the <Zscaler Cloud Name>::<Org ID>::<API Role> format",
+            "For example, zscalerbeta.net::8956412::sampleRole"
+          ]
+        }
+      ]
+    },
+    "claims-table": {
+      "statement": "The scope claim may be named `scope`, `scp` or `roles` and is required; `iss`, `aud` and a client ID claim (`client_id`, `cid` or `appid`) are optional, and claim names vary with the OAuth vendor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "| scope, scp, or roles | (Required)",
+            "| iss | (Optional) The issuer of the JWT. |",
+            "| aud | (Optional) The intended recipient of the JWT. |",
+            "| client_id, cid, or appid | (Optional)",
+            "The claim names can vary with the OAuth 2.0 vendors."
+          ]
+        }
+      ]
+    },
+    "api-roles-on-clients": {
+      "statement": "API roles are not assigned to Internet & SaaS (ZIA) admin users; they are associated with the client applications that call the API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "Unlike admin roles, API roles are not assigned to Internet & SaaS admin users. Instead, API roles are associated with the client applications that are accessing the API."
+          ]
+        }
+      ]
+    },
+    "token-request": {
+      "statement": "The client POSTs to its identity provider's token endpoint with `grant_type` client_credentials and the scope, presenting its client ID and secret by HTTP Basic authentication or in the body; a failed request returns 400.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "The client makes a POST request to the token endpoint with the client credentials (client ID and client secret) presented using HTTP Basic authentication.",
+            "Alternatively, the client credentials can also be provided using the client_id and client_secret parameters in the body of the POST request.",
+            "\"grant_type\": \"client_credentials\", \"scope\": \"zscalerbeta.net::8956412::sampleRole\"",
+            "If an unsuccessful POST request is made to the token endpoint, the response code returns a 400 error."
+          ]
+        }
+      ]
+    },
+    "token-lifetime": {
+      "statement": "The access token's lifetime is configured on the OAuth provider's console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "You can configure and manage the lifetime of the access token on the OAuth service console."
+          ]
+        }
+      ]
+    },
+    "validation": {
+      "statement": "ZIA verifies the JWT signature with the authorization server's public key, then validates the scope claim: its API role must match an API role configured in ZIA or the request is rejected; it may also verify claims such as audience, issuer and client ID. The authorization servers must be added in ZIA for this.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "The Zscaler service cryptographically verifies the signature of the JWT token using the authorization server's public key.",
+            "If the JWT signature verification is successful, the Zscaler service validates the JWT’s scope claim",
+            "The <API Role> value in the scope is used to authorize the API request.",
+            "This value must match with one of the API Roles configured in the Zscaler Admin Console. If no match is found, the API request is rejected.",
+            "The Zscaler service may verify any additional claims in the JWT, such as audience, issuer, client ID, etc.",
+            "The Zscaler service requires you to add your authorization servers to the Zscaler Admin Console to verify the authenticity of the access token in API requests"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-oauth-2.0-authorization-servers.json",
+          "quotes": [
+            "After the authorization server is added, the Zscaler service can obtain the public key set from the authorization server’s JSON Web Key Set (JWKS) endpoint and cryptographically verify the JWT signature.",
+            "In addition to cryptographically verifying the JWT, the Zscaler service allows you to mandate verification against some of the supported JWT claims, including audience, issuer, and client ID.",
+            "After verifying the authenticity of the JWT, the Zscaler service evaluates the scope claim and other additional claims, if any, to determine whether to accept or reject the API request."
+          ]
+        }
+      ]
+    },
+    "jwks-cache-retry": {
+      "statement": "ZIA caches the identity provider's public key set briefly; after the cache expires or the keys rotate, validation may fail until ZIA refetches the JWKS, so the client should resend a request after a minute if authorization fails the first time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "The Zscaler service caches the public key set for a brief period of time.",
+            "If the caching period expires or if the public keys are rotated by the authorization server, then the validation may fail.",
+            "In such cases, the Zscaler service queries the JWKS endpoint to fetch the public key set.",
+            "So, you need to program your client application to resend an API request after a minute if the authorization fails for the first time."
+          ]
+        }
+      ]
+    },
+    "audit-admin-id": {
+      "statement": "Operations authenticated this way are recorded in the audit logs under an auto-generated admin ID, one per API role, of the form `oauth-<rolename>$@<orgid>.<cloud_domain>`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "API operations that are authenticated using OAuth 2.0 are associated with an auto-generated Admin ID and recorded in Audit Logs.",
+            "An Admin ID is generated for each API role in the following format: oauth-<rolename>$@<orgid>.<cloud_domain>."
+          ]
+        }
+      ]
+    },
+    "server-limit": {
+      "statement": "An organization can have up to two OAuth 2.0 authorization servers with only one enabled at a time, and JWT verification takes place only while the authorization server configuration is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-oauth-2.0-authorization-servers.json",
+          "quotes": [
+            "An organization can have up to two OAuth 2.0 authorization servers with only one being enabled at a time.",
+            "The authorization server configuration must be enabled for the JSON Web Token (JWT) verification to take place."
+          ]
+        }
+      ]
+    },
+    "server-fields": {
+      "statement": "An authorization server's name can contain only alphanumeric characters without spaces and cannot exceed 64 characters, and its description cannot exceed 256 characters. The public key set at the JWKS location is fetched by ZIA on a regular basis to verify JWTs, and the Save button appears only after Validate confirms the JWKS endpoint is configured correctly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-oauth-2.0-authorization-servers.json",
+          "quotes": [
+            "The name can only contain alphanumeric characters without spaces and cannot exceed 64 characters.",
+            "The description cannot exceed 256 characters.",
+            "This public key set is fetched by the Zscaler service on a regular basis to cryptographically verify the authenticity of the JWT in API requests.",
+            "Click Validate to verify that the JWKS endpoint is configured correctly. The Save button appears only after the JWKS endpoint is validated."
+          ]
+        }
+      ]
+    },
+    "jwks-certificate-authentication": {
+      "statement": "If the authorization server uses a TLS certificate signed by an unrecognized CA, or has a root certificate issued by an unrecognized CA, a TLS handshake error occurs when ZIA connects to the JWKS endpoint; to avoid it, the JWKS Certificate Authentication option can be disabled or the server certificate changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-oauth-2.0-authorization-servers.json",
+          "quotes": [
+            "If the authorization server uses an SSL/TLS certificate signed by an unrecognized Certificate Authority (CA) or has a root certificate issued by an unrecognized CA, an SSL/TLS handshake error occurs when the Zscaler service tries to establish an SSL/TLS connection with the JWKS endpoint.",
+            "To avoid this error, you can disable the certificate authentication using the JWKS Certificate Authentication option or change the server certificate."
+          ]
+        }
+      ]
+    },
+    "optional-claim-checks": {
+      "statement": "When a value is specified for the audience, issuer or client ID field, requests are accepted only if the JWT contains a matching aud, iss or client_id claim. The client ID field is left blank when several client applications need access to the API, and where an identity provider uses cid or appid in place of client_id, ZIA matches the configured client ID against the available claim.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-oauth-2.0-authorization-servers.json",
+          "quotes": [
+            "If a value is specified for this field, requests are accepted only if the JWT contains a matching aud claim.",
+            "If a value is specified for this field, requests are accepted only if the JWT contains a matching iss claim.",
+            "If a value is specified for this field, requests are accepted only if the JWT contains a matching client_id claim. If multiple client applications need access to the cloud service API, leave this field blank.",
+            "Some identity providers may use cid or appid claim in place of client_id. The Zscaler service matches the configured client ID value against the available claim from the group."
+          ]
+        }
+      ]
+    },
+    "server-permission": {
+      "statement": "Managing authorization servers needs an admin role with the API Key Management permission enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-oauth-2.0-authorization-servers.json",
+          "quotes": [
+            "You need an admin role with the API Key Management permission enabled to manage your authorization servers."
+          ]
+        }
+      ]
+    },
+    "change-impact": {
+      "statement": "If an authorization server configuration is already in use, changes to it may disrupt the API service, and deleting a server in use stops client applications from accessing the cloud service API with OAuth 2.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-oauth-2.0-authorization-servers.json",
+          "quotes": [
+            "If the authorization server configuration is already in use, any changes to the configuration may lead to disruption in the API service.",
+            "If you delete an authorization server that is currently in use, client applications can no longer access the cloud service API using OAuth 2.0."
+          ]
+        }
+      ]
+    },
+    "subscription-and-disable": {
+      "statement": "A valid API subscription is required to add or manage authorization servers; after expiry the page is readable but not editable, and the configuration is re-enabled on renewal. Zscaler can disable the configuration for exceeding the API call threshold or violating its terms, after which the servers appear disabled, cannot be added, edited or deleted, and all API requests with a JWT from a disabled server are rejected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-oauth-2.0-authorization-servers.json",
+          "quotes": [
+            "A valid API subscription is required to add or manage authorization servers in the Zscaler Admin Console.",
+            "If your API subscription expires, you still have access to the OAuth 2.0 Authorization Servers page, but you cannot make any modifications. The authorization server configuration is re-enabled after your subscription is renewed.",
+            "Zscaler can disable your authorization server configuration if your organization exceeds the threshold for the number of API calls allowed or if the code developed for your organization violates Zscaler's terms and conditions.",
+            "When this occurs, the added authorization servers appear disabled, and you cannot add, edit, or delete the servers. Also, all API requests with the JWT issued by the disabled authorization server are rejected."
+          ]
+        }
+      ]
+    },
+    "last-fetch-time": {
+      "statement": "The authorization servers page shows each server's Status (enabled or disabled) and its Last Successful Fetch Time, the date and time its public key was last fetched from the JWKS endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-oauth-2.0-authorization-servers.json",
+          "quotes": [
+            "Status: The status of the authorization server configuration (enabled or disabled).",
+            "Last Successful Fetch Time: The date and time when the authorization server’s public key was last fetched from its JWKS endpoint."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "jwks-fetch-period": {
+      "kind": "semantic",
+      "title": "How often the JWKS is fetched",
+      "status": "open",
+      "detail": "The authorization server page says the public key set is fetched on a regular basis, and the getting-started page says it is cached for a brief period (see jwks-cache-retry); neither gives a period.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "second-server-tokens": {
+      "kind": "semantic",
+      "title": "What happens to tokens from one server when the other of the two is enabled instead",
+      "status": "open",
+      "detail": "The pages allow two servers with one enabled at a time and say requests with a JWT from a disabled server are rejected in the Zscaler-disabled case; they do not say what happens to tokens from one server when the other is enabled instead.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

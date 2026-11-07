@@ -1,0 +1,410 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.detectors",
+  "title": "AI Guard's detectors: the capabilities Help lists and the detectors the policy editor configures",
+  "aliases": [
+    "ai guard detectors",
+    "ai guard detector list",
+    "prompt injection detection",
+    "jailbreak detection",
+    "toxicity detector",
+    "refusal detection",
+    "competitor detection",
+    "finance advice detector",
+    "legal advice detector",
+    "url reachability",
+    "ai guard pii detector",
+    "how many detectors does ai guard have",
+    "how does zscaler protect against prompt injection",
+    "ai guard custom detectors"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "ai-security.ai-guard.policies",
+      "because": "ai-security.ai-guard.policies:policy-is-detectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors.pii"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors.intellectual-property"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors.competition"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors.topic"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Two sources describe AI Guard's detectors: the product's What Is page lists capabilities, and the policy editor names the detectors with their own settings. They are not the same list."
+    },
+    {
+      "label": "The capability list.",
+      "text": "{{capability-list}} {{sensitive-data}}"
+    },
+    {
+      "label": "Notable detectors.",
+      "text": "{{refusal-dos}} {{advice-detectors}} {{competitor}} {{url-reachability}}"
+    },
+    {
+      "label": "What the policy editor configures.",
+      "text": "{{configurable-detectors}} {{keyword-detectors}} The Topic runbook disagrees about whether Off Topic has a threshold and whether it matches by keyword {{divergence:off-topic-threshold}}. Settings shared by all detectors, and how a policy is applied, are in [[ai-security.ai-guard.policies]]."
+    },
+    {
+      "label": "Per-detector runbooks.",
+      "text": "The PII detector is in [[ai-security.ai-guard.detectors.pii]], the Intellectual Property detector in [[ai-security.ai-guard.detectors.intellectual-property]], the Competition detector in [[ai-security.ai-guard.detectors.competition]], and the Topic and Off Topic detectors in [[ai-security.ai-guard.detectors.topic]]."
+    },
+    {
+      "label": "Languages.",
+      "text": "{{languages}} The detector runbooks give a different count {{divergence:supported-languages}}. The runbook claims that state 28 languages are [[ai-security.ai-guard.detectors.competition:languages-tickers]], [[ai-security.ai-guard.detectors.topic:languages]] and [[ai-security.ai-guard.detectors.intellectual-property:model]]."
+    },
+    {
+      "label": "Counts.",
+      "text": "{{integration-skill-list}} Which list is complete, and the per-direction count, are still open {{gap:taxonomy-source}}. Whether custom detectors can be written is open {{gap:custom-detectors}}. What the AI Guardrails product page address now serves is [[ai-security.family:guardrails-page-is-ai-guard]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Name detector categories from the Help list or the policy editor rather than quoting a total; the Help list calls itself some of the options.",
+      "uses": [
+        "capability-list",
+        "taxonomy-source"
+      ]
+    },
+    {
+      "do": "For a keyword or regex need, the Text detector (regex patterns); for Off Topic (listed topics), whether it has a threshold and matches by keyword is disputed, so read the divergence rather than assume either.",
+      "uses": [
+        "configurable-detectors",
+        "keyword-detectors",
+        "off-topic-threshold"
+      ]
+    },
+    {
+      "do": "Before stating how many languages AI Guard supports, which list applies: the Multilingual Support page's six or the detector runbooks' 28.",
+      "uses": [
+        "languages",
+        "supported-languages"
+      ]
+    }
+  ],
+  "claims": {
+    "capability-list": {
+      "statement": "The What Is AI Guard page lists fifteen capabilities, introduced as some of the options available: Visibility & Access Control; Prompt Injection & Jailbreak Protection; Toxicity; Sensitive Data Protection; Off-Topic Response Detection; Malicious URL Detection & Blocking; Language Detection & Enforcement; Code Injection & Execution Detection; Gibberish & Low-Quality Prompt/Response Filtering; Refusal Detection & Intervention; Finance Advice; Prompt Tagging-based Access Control; Competitor Discussion Detection; URL Reachability Detection; and Legal Advice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-what-is.json",
+          "quotes": [
+            "The following functionality and guardrails are some of the options available to you with AI Guard:",
+            "Visibility & Access Control: You can monitor which applications are accessing private AI systems",
+            "Prompt Injection & Jailbreak Protection: AI models can be manipulated with adversarial prompts",
+            "Toxicity: AI-generated content can potentially be emotionally harmful for workers.",
+            "Sensitive Data Protection: AI models can inadvertently expose or process confidential, regulated, or proprietary information.",
+            "Off-Topic Response Detection: AI Guard detects and prevents off-topic responses",
+            "Malicious URL Detection & Blocking: AI-generated responses can sometimes include harmful or phishing links.",
+            "Language Detection & Enforcement: Organizations can enforce AI interactions in specific approved languages",
+            "Code Injection & Execution Detection: AI Guard detects and prevents unauthorized code snippets embedded in AI interactions",
+            "Gibberish & Low-Quality Prompt/Response Filtering: AI models can sometimes produce nonsensical or low-value responses.",
+            "Refusal Detection & Intervention: When AI refuses to respond to valid queries",
+            "Finance Advice: AI Guard can block actionable financial guidance",
+            "Prompt Tagging-based Access Control: AI Guard has prompt tagging model that automatically classifies prompts into different categories",
+            "Competitor Discussion Detection: You can identify and block prompts that reference competitors",
+            "URL Reachability Detection: AI-provided links can sometimes be outdated or unreachable.",
+            "Legal Advice: Block prompts seeking legal advice, interpretation, or compliance guidance."
+          ]
+        }
+      ],
+      "conditions": "The fifteen quoted items are the whole list under the page's Key Capabilities heading at capture."
+    },
+    "sensitive-data": {
+      "statement": "Under Sensitive Data Protection, AI Guard enables inline inspection and classification to detect and block sensitive data before it is sent to AI APIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-what-is.json",
+          "quotes": [
+            "Sensitive Data Protection: AI models can inadvertently expose or process confidential, regulated, or proprietary information. AI Guard enables inline inspection and classification to detect and block sensitive data before it is sent to AI APIs."
+          ]
+        }
+      ]
+    },
+    "refusal-dos": {
+      "statement": "Refusal Detection flags and intervenes when the AI refuses valid queries, alerting the security team because the refusals might be a denial-of-service attack.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-what-is.json",
+          "quotes": [
+            "When AI refuses to respond to valid queries due to overly restrictive filters or misunderstanding, our system flags and intervenes to alert the security team because it might be a denial-of-service attack."
+          ]
+        }
+      ]
+    },
+    "advice-detectors": {
+      "statement": "Under Finance Advice, AI Guard can block actionable financial guidance (investing, trading, tax, product choices) while allowing neutral finance facts, history and definitions; Legal Advice blocks prompts seeking legal advice, interpretation or compliance guidance while allowing neutral legal facts, definitions and non-legal work inquiries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-what-is.json",
+          "quotes": [
+            "Finance Advice: AI Guard can block actionable financial guidance (investing, trading, tax, product choices); allows neutral finance facts, history, and definitions.",
+            "Legal Advice: Block prompts seeking legal advice, interpretation, or compliance guidance. This allows for neutral legal facts, definitions, and non-legal work inquiries."
+          ]
+        }
+      ]
+    },
+    "competitor": {
+      "statement": "Competitor Discussion Detection identifies and blocks prompts that reference competitors, rival products, pricing comparisons or market strategies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-what-is.json",
+          "quotes": [
+            "Competitor Discussion Detection: You can identify and block prompts that reference competitors, rival products, pricing comparisons, or market strategies."
+          ]
+        }
+      ]
+    },
+    "url-reachability": {
+      "statement": "URL Reachability Detection checks whether URLs in prompts are accessible, safe or broken, to prevent hallucinated links.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-what-is.json",
+          "quotes": [
+            "This guardrail verifies whether URLs in prompts are accessible, safe, or broken to prevent hallucinations."
+          ]
+        }
+      ]
+    },
+    "configurable-detectors": {
+      "statement": "The policy editor names these prompt detectors with extra settings: Code (programming languages), Text (named regular-expression patterns), Competition (competitor names), Language (languages), Secrets (secret types such as API keys or tokens), Off Topic (topics to treat as off topic), PII (types such as Person's name and Location), Topic (custom topics, each with a name and topic definition), Prompt Tags (categories such as News and Media), and Intellectual Property (a sensitive context to keep from leaking). Configuring response detectors follows similar steps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-add-and-manage-ai-guard-policies.json",
+          "quotes": [
+            "Code: Includes a list of Programming Languages where you select for your policy.",
+            "Text: Includes a Regex Pattern category where you enter a Name and the regular expression Pattern you want to add.",
+            "Competition: Includes a Competitors category where you enter your specific competitor names.",
+            "Language: Includes a list of Languages where you select for your policy.",
+            "Secrets: Includes a list of secret types such as API Keys or Tokens.",
+            "Off Topic: Includes a field for adding whatever topic you want to be considered off topic in your policy, such as sports or music.",
+            "PII: Includes a list of personally identifiable information types such as Person's name and Location.",
+            "Topic: Includes the ability to add multiple custom topics to add to your policy.",
+            "Enter a Name and Topic Definition for the topic you want to add.",
+            "Prompt Tags: Includes specific categories to add to your policy, such as News and Media, Shopping and Retail, and Technology.",
+            "Intellectual Property: Includes a Sensitive Context field to enter what you want to avoid leaking, such as a project launch date.",
+            "Configuring response detectors follows similar steps as configuring prompt detectors"
+          ]
+        }
+      ]
+    },
+    "keyword-detectors": {
+      "statement": "Not every prompt detector has a threshold setting: Text and Off Topic do not include it because they activate on specific keywords, phrases or topics, and Text takes regular-expression patterns.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-add-and-manage-ai-guard-policies.json",
+          "quotes": [
+            "Threshold: The lower the threshold setting, the more strict AI Guard is with activating the policy",
+            "Some prompt detectors such as Text and Off Topic don't include this option because those detectors activate with specific keywords, phrases, or topics.",
+            "Text: Includes a Regex Pattern category where you enter a Name and the regular expression Pattern you want to add."
+          ]
+        }
+      ]
+    },
+    "integration-skill-list": {
+      "statement": "Zscaler's Claude Code skill example says AI Guard provides 19 prompt detectors and 21 response detectors, listing prompt detectors under direction IN and response detectors under direction OUT; its reference file calls itself the complete reference of the detectors available in AI Guard policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-skill/README.md",
+          "quotes": [
+            "AI Guard provides 19 prompt detectors and 21 response detectors.",
+            "### Prompt Detectors (Direction: IN)",
+            "### Response Detectors (Direction: OUT)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-skill/references/threat-categories.md",
+          "quotes": [
+            "Complete reference of all detectors available in Zscaler AI Guard policies, organized by scanning direction."
+          ]
+        }
+      ]
+    },
+    "languages": {
+      "statement": "The Multilingual Support page says AI Guard currently supports English, French, German, Japanese, Portuguese and Spanish, with more being added; as more prompt and response detector categories are added they may not support all languages, and a Multilingual badge on a detector's tile marks the categories that support all languages, with a hover that shows which languages that detector supports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-ai-guard-multilingual-support.json",
+          "quotes": [
+            "AI Guard currently supports the following languages with more being added in the future:",
+            "- English",
+            "- French",
+            "- German",
+            "- Japanese",
+            "- Portuguese",
+            "- Spanish",
+            "As more prompt and response detector categories are added, they may not support all languages at this time.",
+            "You can see at-a-glance which detector categories support all languages by finding the Multilingual badge on their tile.",
+            "Hovering your mouse cursor over it will show which languages are supported by the specific detector."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-multilingual-support.json",
+          "quotes": [
+            "AI Guard currently supports the following languages with more being added in the future:",
+            "- English",
+            "- French",
+            "- German",
+            "- Japanese",
+            "- Portuguese",
+            "- Spanish",
+            "As more prompt and response detector categories are added, they may not support all languages at this time.",
+            "You can see at-a-glance which detector categories support all languages by finding the Multilingual badge on their tile.",
+            "Hovering your mouse cursor over it will show which languages are supported by the specific detector."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "supported-languages": {
+      "summary": "How many languages AI Guard supports: the Multilingual Support page lists six, while the detector runbooks say 28.",
+      "positions": [
+        {
+          "says": "The Multilingual Support page lists six languages: English, French, German, Japanese, Portuguese and Spanish.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-ai-guard-multilingual-support.json",
+            "quotes": [
+              "AI Guard currently supports the following languages with more being added in the future:",
+              "- English",
+              "- French",
+              "- German",
+              "- Japanese",
+              "- Portuguese",
+              "- Spanish"
+            ]
+          }
+        },
+        {
+          "says": "The Competition runbook says 28 languages are supported out of the box.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-best-practices-runbook-competitor-detector.json",
+            "quotes": [
+              "Yes. 28 languages are supported out of the box."
+            ]
+          }
+        },
+        {
+          "says": "The Topic and Off Topic runbook says 28 languages are supported out of the box, including Arabic, Chinese, Hindi, Korean, Russian, Thai, Turkish and Vietnamese, which the Multilingual page does not list.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+            "quotes": [
+              "28 languages are supported out of the box, including Arabic, Chinese, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, Thai, Turkish, Vietnamese, and more."
+            ]
+          }
+        },
+        {
+          "says": "The IP runbook says reproduction of confidential English content in French, German or any of 28 supported languages is detected.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-best-practices-runbook-ip-detector.json",
+            "quotes": [
+              "Multilingual reproduction: Reproducing confidential English content in French, German, or any of 28 supported languages is detected."
+            ]
+          }
+        }
+      ],
+      "impact": "The Multilingual page allows per-detector differences, since newer detector categories may not support every language, but it does not reconcile six with 28; an answer on a language outside the six should name which page it rests on and that the other disagrees."
+    },
+    "off-topic-threshold": {
+      "summary": "Whether Off Topic has a threshold and how it matches: the policy-editor page says it has no threshold option and describes activation by specific keywords, phrases or topics, while the Topic runbook gives the pair a threshold and semantic matching rather than exact-substring keywords.",
+      "positions": [
+        {
+          "says": "The policy-editor page says some prompt detectors such as Text and Off Topic do not include the threshold option because they activate with specific keywords, phrases or topics.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-add-and-manage-ai-guard-policies.json",
+            "quotes": [
+              "Some prompt detectors such as Text and Off Topic don't include this option because those detectors activate with specific keywords, phrases, or topics."
+            ]
+          }
+        },
+        {
+          "says": "The Topic and Off Topic runbook gives the pair a threshold with a default of 0.7, says both detectors use the same underlying model and topic definitions, and says the detector does not match keywords by exact substring but uses semantic understanding.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+            "quotes": [
+              "The default is 0.7.",
+              "Both detectors use the same underlying model and the same topic definitions. The only difference is when they are triggered:",
+              "It does not perform keyword matching by exact substring. It uses semantic understanding, so “block” in “writer’s block” won’t trigger a topic about blockchain."
+            ]
+          }
+        }
+      ],
+      "impact": "The keyword-detectors claim states what the policy-editor page says and stands as a statement of that page; whether the console shows a threshold on the Off Topic tile is not settled, so do not tell an administrator Off Topic has no threshold or that it matches only literal keywords."
+    }
+  },
+  "gaps": {
+    "taxonomy-source": {
+      "kind": "semantic",
+      "title": "Which detector list is complete, and how many detectors exist per direction",
+      "status": "open",
+      "former_ids": [
+        "ai-security-03"
+      ],
+      "detail": "The Claude Code skill example lists 19 prompt and 21 response detectors and calls its reference complete (integration-skill-list, a rank-4 example), while the Help page calls its fifteen items some of the options and the policy editor names a different set. Whether the example's list is console-complete, example-local, or ahead of Help is not established.",
+      "blocks": "exact detector names and counts by direction",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "custom-detectors": {
+      "kind": "semantic",
+      "title": "Whether operators can add their own detectors",
+      "status": "open",
+      "detail": "Unverified legacy statement: custom detector authoring (adding intent classifiers) is not in the captures; the detector categories may be fixed. The policy editor accepts custom topics, regex patterns, competitor names and a sensitive context (configurable-detectors), but no page describes adding a new detector.",
+      "blocks": "answers on extending AI Guard beyond its shipped detectors",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

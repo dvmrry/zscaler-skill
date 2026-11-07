@@ -1,0 +1,1009 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.actions",
+  "title": "Cloud App Control actions and action discovery",
+  "aliases": [
+    "cac actions",
+    "granular actions",
+    "availableActions",
+    "allAvailableActions",
+    "zia_cloud_app_control_rule_actions",
+    "ALLOW_AI_ML_CHAT",
+    "cac custom eun",
+    "isolate actions cannot be mixed"
+  ],
+  "binds": [
+    "zia/cloud-app-control#actions",
+    "zia/cloud-app-control#cbiProfile",
+    "zia/cloud-app-control#eunEnabled",
+    "zia/cloud-app-control#browserEunTemplateId"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zbi.isolation-profiles",
+      "because": "zia.cloud-app-control.actions:isolate-not-mixed"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/cloud-app-control"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.terraform.cloud-app-control-rule"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.ai-ml-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Console actions.",
+      "text": "{{console-actions}} Prerequisites for Isolate and Conditional are the same ones URL Filtering has: [[zia.url-filtering.actions]]."
+    },
+    {
+      "label": "Action strings.",
+      "text": "{{actions-is-a-list}} {{action-string-shape}} {{isolate-not-mixed}}"
+    },
+    {
+      "label": "Finding the valid strings.",
+      "text": "{{common-actions-in-console}} {{two-discovery-endpoints}} {{provider-prefers-all-endpoint}} {{python-has-only-old-endpoint}} {{all-available-actions-reassigned}} {{automate-capture-availableactions-only}} How the two endpoints differ is open {{gap:all-vs-available-differs}}. {{issue-522-actions-endpoint-omits-actions}} What v4.8.6 changed is open {{gap:actions-endpoint-fix-in-4-8-6}}, and so is what a multi-app request returns {{gap:multi-app-aggregation}}. Output-shape defects in the data source itself are in [[zia.terraform.data-source-fidelity]]."
+    },
+    {
+      "label": "Notifications.",
+      "text": "{{no-custom-eun}} {{rule-notification-fields}} The two do not obviously agree {{gap:custom-eun-meaning}}."
+    },
+    {
+      "label": "Notification message wording.",
+      "text": "Whether a rule's Client Connector notification message can be custom differs between sources {{divergence:streaming-media-custom-message}}. {{zcc-eun-granular-pages}} What a user sees when a Login granular action is blocked on a page with no such field is open {{gap:login-action-notification}}."
+    },
+    {
+      "label": "Console actions across the category pages.",
+      "text": "{{caution-one-method}} {{conditional-step-up}} {{isolate-profile}} {{isolate-not-doh}} What the DNS Over HTTPS Services page leaves out is open {{gap:doh-caution}}."
+    },
+    {
+      "label": "Quotas.",
+      "text": "{{daily-quotas}} {{quota-exceeded}} {{quota-video-conference}} What a quota does on a rule that cautions, conditionally allows or isolates, and what it counts, is open {{gap:quota-semantics}}."
+    },
+    {
+      "label": "MCP workflow.",
+      "text": "{{python-docstring-action-vocabulary}} {{docstring-misfiled-entries}} {{mcp-actions-tool-forwards}} The workflow skill does not reflect that {{divergence:mcp-representative-app-probing}}. {{mcp-skill-per-tuple-validation}} Only that skill states the whole-create rejection, and the product contract is open {{gap:per-tuple-validation-contract}}. Whether discovery needs a category representative app is also open {{gap:representative-app-actions}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which action strings are valid for the selected applications and rule type, read from the discovery endpoint rather than written by hand.",
+      "uses": [
+        "two-discovery-endpoints",
+        "common-actions-in-console"
+      ]
+    },
+    {
+      "do": "For an exact answer about the actions one application offers, ask for one application at a time.",
+      "uses": [
+        "multi-app-aggregation"
+      ]
+    },
+    {
+      "do": "Whether a template set on a CAC rule is shown to users, which needs a test rather than a reading of the rule form.",
+      "uses": [
+        "custom-eun-meaning",
+        "no-custom-eun",
+        "streaming-media-custom-message"
+      ]
+    }
+  ],
+  "claims": {
+    "console-actions": {
+      "statement": "An AI & ML applications rule for Cloud App Control offers the console actions Allow, Caution, Block, Conditional and Isolate; Isolate is available only if Zero Trust Browser is enabled for the organization.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#actions"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.json",
+          "quotes": [
+            "Choose to allow the users to access the selected applications.",
+            "Choose to display an EUN that cautions users before allowing them access to the selected applications.",
+            "Choose to block the users from accessing the selected applications.",
+            "Choose to conditionally allow the users to access the selected applications.",
+            "Choose to isolate all the traffic that matches the cloud app control rule through a remote browser.",
+            "This action is available only if Zero Trust Browser is enabled for your organization.",
+            "In the Actions section, for Application Access, select one of the following actions to apply when the rule conditions are met:"
+          ]
+        }
+      ]
+    },
+    "actions-is-a-list": {
+      "statement": "In the API the rule's `actions` field is a list of strings, not a single value, so one rule can carry several action strings. The Go SDK model and the Python model's request format use a list, and the provider's `actions` attribute is a set of strings.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#actions"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webApplicationRules~1{rule_type}/post/requestBody/content/application~1json/schema/properties/actions",
+          "expect": {
+            "type": "array",
+            "description": "Action taken when traffic matches rule."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "Actions []string `json:\"actions,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/cloudappcontrol.py",
+          "quotes": [
+            "self.actions = ZscalerCollection.form_list(config[\"actions\"] if \"actions\" in config else [], str)",
+            "\"actions\": self.actions,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "quotes": [
+            "\"actions\": { Type: schema.TypeSet, Optional: true, Elem: &schema.Schema{Type: schema.TypeString}, Description: \"Actions allowed for the specified type.\","
+          ]
+        }
+      ]
+    },
+    "action-string-shape": {
+      "statement": "The provider documents the action prefixes ALLOW, DENY, BLOCK, CAUTION, ISOLATE and ESC (conditional access) for filtering actions, with examples ALLOW_AI_ML_CHAT, DENY_AI_ML_UPLOAD, BLOCK_FILE_SHARE_DOWNLOAD, CAUTION_AI_ML_WEB_USE and ISOLATE_AI_ML_WEB_USE; its example of an ESC action is AI_ML_CONDITIONAL_ACCESS.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#actions"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_cloud_app_control_rule_actions.md",
+          "quotes": [
+            "`ALLOW` - Permissive actions (e.g., ALLOW_AI_ML_CHAT)",
+            "`DENY` - Restrictive actions (e.g., DENY_AI_ML_UPLOAD)",
+            "`BLOCK` - Block actions (e.g., BLOCK_FILE_SHARE_DOWNLOAD)",
+            "`CAUTION` - Warning actions (e.g., CAUTION_AI_ML_WEB_USE)",
+            "`ISOLATE` - Cloud Browser Isolation actions (e.g., ISOLATE_AI_ML_WEB_USE)",
+            "`ESC` - Conditional access actions",
+            "Optional list of action prefixes to filter results. Valid values: `ALLOW`, `DENY`, `BLOCK`, `CAUTION`, `ISOLATE`, `ESC`.",
+            "| `ESC` | Conditional access | AI_ML_CONDITIONAL_ACCESS | ALLOW, DENY |"
+          ]
+        }
+      ]
+    },
+    "isolate-not-mixed": {
+      "statement": "ISOLATE actions cannot be combined with other actions in one rule, and a rule using them needs a Cloud Browser Isolation profile (`cbiProfile`).",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#actions",
+        "zia/cloud-app-control#cbiProfile"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_cloud_app_control_rule_actions.go",
+          "quotes": [
+            "ISOLATE actions require cbi_profile configuration and cannot be mixed with other actions."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "Note: This parameter is required for the ISOLATE action and is not applicable to other actions."
+          ]
+        }
+      ]
+    },
+    "common-actions-in-console": {
+      "statement": "When several applications with granular controls are selected in one category, the console shows only the actions common to all of them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-app-categories.json",
+          "quotes": [
+            "If more than one cloud application with granular controls is selected for a category, then only the actions that are common among the selected applications are displayed."
+          ]
+        }
+      ]
+    },
+    "two-discovery-endpoints": {
+      "statement": "The Go SDK has two action-discovery calls, both taking a rule type and a request of `cloudApps` and `type` and returning a flat list of strings: `AvailableActions` (POST /{rule_type}/availableActions) and `AllAvailableActions` (POST /{rule_type}/allAvailableActions). The release notes describe the second as retrieving all available actions for each application type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "url := fmt.Sprintf(\"%s/%s/availableActions\", webApplicationRulesEndpoint, ruleType)",
+            "url := fmt.Sprintf(\"%s/%s/allAvailableActions\", webApplicationRulesEndpoint, ruleType)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "type AvailableActionsRequest struct { CloudApps []string `json:\"cloudApps,omitempty\"` Type string `json:\"type,omitempty\"` }",
+            "func AvailableActions(ctx context.Context, service *zscaler.Service, ruleType string, payload AvailableActionsRequest) ([]string, error) {",
+            "func AllAvailableActions(ctx context.Context, service *zscaler.Service, ruleType string, payload AvailableActionsRequest) ([]string, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "after": "func AllAvailableActions(ctx context.Context",
+          "quotes": [
+            "resp, err := service.Client.CreateWithRawPayload(ctx, url, string(payloadData))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "after": "func AvailableActions(ctx context.Context",
+          "quotes": [
+            "resp, err := service.Client.CreateWithRawPayload(ctx, url, string(payloadData))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Introduced new ZIA endpoint for Cloud App Control policy actions `allAvailableActions` to retrieve all available actions for each application type."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "after": "func (c *Client) CreateWithRawPayload(ctx context.Context, endpoint string, payload string) ([]byte, error) {",
+          "quotes": [
+            "resp, _, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)"
+          ]
+        }
+      ]
+    },
+    "provider-prefers-all-endpoint": {
+      "statement": "The provider's rule-actions data source calls AllAvailableActions first and falls back to AvailableActions only when the error is a typed response with HTTP 404 or 405. Any other failure (any other status, or an error that is not a typed response) is returned to Terraform without a fallback. It applies a JMESPath filter to the actions, sets available_actions, splits ISOLATE_ actions from the rest, and applies the optional prefix filter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_cloud_app_control_rule_actions.go",
+          "quotes": [
+            "actions, err := cloudappcontrol.AllAvailableActions(ctx, service, ruleType, payload)",
+            "if err != nil && actionsEndpointUnavailable(err) {",
+            "actions, err = cloudappcontrol.AvailableActions(ctx, service, ruleType, payload)",
+            "if err != nil {\n\t\treturn diag.FromErr(err)\n\t}",
+            "with 405 Method Not Allowed (some versions return 404)."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_cloud_app_control_rule_actions.go",
+          "after": "func actionsEndpointUnavailable(err error) bool {",
+          "quotes": [
+            "respErr, ok := errorx.AsErrorResponse(err)\n\tif !ok {\n\t\treturn false\n\t}",
+            "switch respErr.Response.StatusCode {\n\t\tcase http.StatusNotFound, http.StatusMethodNotAllowed:\n\t\t\treturn true",
+            "switch respErr.Parsed.Status {\n\t\tcase http.StatusNotFound, http.StatusMethodNotAllowed:\n\t\t\treturn true",
+            "return false\n}"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_cloud_app_control_rule_actions.go",
+          "after": "func dataSourceCloudAppControlRuleActionsRead(",
+          "quotes": [
+            "filtered, jerr := zscaler.ApplyJMESPathFilter(actions, expr)",
+            "for _, action := range actions {\n\t\tif strings.HasPrefix(action, \"ISOLATE_\") {",
+            "if prefixesInterface, ok := d.GetOk(\"action_prefixes\"); ok {",
+            "_ = d.Set(\"available_actions\", actions)"
+          ]
+        }
+      ]
+    },
+    "python-has-only-old-endpoint": {
+      "statement": "The Python SDK exposes only the older availableActions call, and its request body carries `cloudApps` without a `type` key. It has no counterpart for allAvailableActions.",
+      "tier": "B",
+      "conditions": "Absence claim from reading zscaler/zia/cloudappcontrol.py at the pin: the only action-discovery method is list_available_actions, which posts to /webApplicationRules/{rule_type}/availableActions.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "quotes": [
+            "/webApplicationRules/{rule_type}/availableActions",
+            "body = {\"cloudApps\": cloud_apps}"
+          ]
+        }
+      ]
+    },
+    "no-custom-eun": {
+      "statement": "The deployment guide states that Cloud App Control policies do not support custom End User Notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "Cloud App Control policies do not support custom End User Notifications (EUNs)."
+          ]
+        }
+      ]
+    },
+    "rule-notification-fields": {
+      "statement": "A rule form still carries notification fields: a Browser Notification Template (which appears when the action is Caution or Block), an End User Notification Show/Hide choice (which appears when a granular action is blocked and is set to Show by default) and a Notification Message for the Zscaler Client Connector-based EUN. The rule model has `eunEnabled`, `eunTemplateId` and `browserEunTemplateId`.",
+      "tier": "A",
+      "conditions": "Corrected on recapture (2026-10-18): previously \"A rule form still carries notification fields: a Browser Notification Template (when the action is Caution or Block), an End User Notification Show/Hide choice (only when a granular action is blocked, shown by default) and a Custom Message for Zscaler Client Connector. The rule model has `eunEnabled`, `eunTemplateId` and `browserEunTemplateId`.\" The recaptured page labels the field Notification Message, not Custom Message.",
+      "binds": [
+        "zia/cloud-app-control#eunEnabled",
+        "zia/cloud-app-control#browserEunTemplateId"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-instant-messaging-rule-cloud-app-control.json",
+          "quotes": [
+            "This field appears when the application access is set to either Caution or Block.",
+            "This field appears when the granular action is blocked for the selected applications.",
+            "This field is set to Show by default.",
+            "Notification Message: Select a notification message that you want to show as the Zscaler Client Connector-based EUN.",
+            "Browser Notification Template: Select a browser-based EUN message from the drop-down menu",
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "EunEnabled bool `json:\"eunEnabled,omitempty\"`",
+            "EunTemplateID int `json:\"eunTemplateId,omitempty\"`",
+            "BrowserEunTemplateID int `json:\"browserEunTemplateId,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "all-available-actions-reassigned": {
+      "statement": "At Go SDK v3.8.45 the exported `AllAvailableActions` posted to /{rule_type}/availableActions. From v3.8.46 the same exported name posts to /{rule_type}/allAvailableActions and `AvailableActions` holds the older /availableActions path, so a caller compiled against the earlier name selects a different endpoint after upgrading.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "url := fmt.Sprintf(\"%s/%s/availableActions\", webApplicationRulesEndpoint, ruleType)",
+            "resp, err := service.Client.CreateWithRawPayload(ctx, url, string(payloadData))"
+          ],
+          "after": "func AllAvailableActions(ctx context.Context",
+          "at": [
+            "v3.8.45"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "url := fmt.Sprintf(\"%s/%s/allAvailableActions\", webApplicationRulesEndpoint, ruleType)",
+            "resp, err := service.Client.CreateWithRawPayload(ctx, url, string(payloadData))"
+          ],
+          "after": "func AllAvailableActions(ctx context.Context",
+          "at": [
+            "v3.8.46",
+            "HEAD"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "url := fmt.Sprintf(\"%s/%s/availableActions\", webApplicationRulesEndpoint, ruleType)"
+          ],
+          "after": "func AvailableActions(ctx context.Context",
+          "at": [
+            "v3.8.46",
+            "HEAD"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "after": "func (c *Client) CreateWithRawPayload(ctx",
+          "quotes": [
+            "// Send the raw string as a POST request",
+            "resp, _, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)"
+          ],
+          "at": [
+            "v3.8.45",
+            "HEAD"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "after": "func (c *Client) CreateWithRawPayload(ctx",
+          "quotes": [
+            "// Send the raw string as a POST request",
+            "resp, err := c.Request(ctx, endpoint, \"POST\", data, \"application/json\")"
+          ],
+          "at": [
+            "v3.8.45",
+            "HEAD"
+          ]
+        }
+      ]
+    },
+    "automate-capture-availableactions-only": {
+      "statement": "The captured Automate OpenAPI document describes POST /webApplicationRules/{rule_type}/availableActions (\"Fetches the granular actions supported for the applications\") and lists no allAvailableActions path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webApplicationRules~1{rule_type}~1availableActions/post",
+          "expect": {
+            "description": "<p>Fetches the granular actions supported for the applications.</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/webApplicationRules/{rule_type}/allAvailableActions"
+          ]
+        }
+      ]
+    },
+    "python-docstring-action-vocabulary": {
+      "statement": "The per-category action vocabulary (for example IT_SERVICES, LEGAL, SALES_AND_MARKETING) is enumerated in the Python `add_rule` docstring; the Go model types `Actions` as a plain string list. The docstring lists `CAUTION_LEGAL_USE` under IT_SERVICES and `DENY_DNS_OVER_HTTPS_USE` under LEGAL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "quotes": [
+            "- **IT_SERVICES**:",
+            "- **LEGAL**:",
+            "- **SALES_AND_MARKETING**:",
+            "- **IT_SERVICES**:\n                - `ALLOW_IT_SERVICES_USE`\n                - `CAUTION_LEGAL_USE`",
+            "- **LEGAL**:\n                - `ALLOW_LEGAL_USE`\n                - `DENY_DNS_OVER_HTTPS_USE`"
+          ],
+          "after": "def add_rule(self, rule_type: str, **kwargs)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "Actions              []string `json:\"actions,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "docstring-misfiled-entries": {
+      "statement": "The docstring entries `CAUTION_LEGAL_USE` under IT_SERVICES and `DENY_DNS_OVER_HTTPS_USE` under LEGAL look misfiled.",
+      "tier": "B",
+      "conditions": "Inferred from naming: the other entries in each list carry their category's own token, and these two carry another category's token or name another feature; no source says they are misplaced.",
+      "derived_from": [
+        "zia.cloud-app-control.actions:python-docstring-action-vocabulary"
+      ]
+    },
+    "mcp-actions-tool-forwards": {
+      "statement": "The MCP list-actions tool forwards `rule_type` and the optional `cloud_apps` list to the Python SDK `list_available_actions` and returns what comes back; it does no category-level probing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
+          "after": "def zia_list_cloud_app_control_actions(args: ListActionsInput) -> list[dict[str, Any]]:",
+          "quotes": [
+            "client = get_zscaler_client(service=\"zia\") actions, _, err = client.zia.cloudappcontrol.list_available_actions( rule_type=args.rule_type, cloud_apps=args.cloud_apps or [] ) if err: raise RuntimeError(f\"Failed to list CAC actions for {args.rule_type}: {err}\") return shape_many(list(actions or []))"
+          ]
+        }
+      ]
+    },
+    "mcp-skill-per-tuple-validation": {
+      "statement": "The MCP create workflow skill says the create endpoint validates each `(rule_type, app, action)` tuple, that a multi-app create is frequently rejected with `INVALID_INPUT_ARGUMENT: \"Invalid action provided for selected applications\"`, that the first incompatible pair fails the entire create, and that one rule per app is the safe pattern. The executable create tool builds its payload with `build_rule_payload` and calls the SDK `add_rule`; it does no such validation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+          "quotes": [
+            "the create endpoint validates per `(rule_type, app, action)` tuple",
+            "The first incompatible (app, action) pair fails the entire create.",
+            "in practice ZIA frequently rejects multi-app rules with `INVALID_INPUT_ARGUMENT: \"Invalid action provided for selected applications\"`",
+            "so the only safe pattern is to split."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
+          "quotes": [
+            "\"\"\"Create a ZIA Cloud App Control rule (write). Activate after.\"\"\" payload = build_rule_payload( scalars={ \"name\": args.name, \"action\": args.action, \"description\": args.description, \"enabled\": args.enabled, \"order\": apply_default_order(args.order), \"rank\": apply_default_rank(args.rank), }, advanced=args.advanced, )",
+            "rule, _, err = client.zia.cloudappcontrol.add_rule(args.rule_type, **payload)"
+          ]
+        }
+      ],
+      "conditions": "The no-validation half is an absence claim from reading the create tool at zscaler-mcp-server v0.15.4: between `build_rule_payload` and `add_rule` it calls only `apply_default_order` and `apply_default_rank`. `grep -n \"list_available_actions\\|validate\" src/zscaler_mcp/tools/zia/cloud_app_control.py` returns the list-actions tool's call and the `validate_order`/`validate_rank` calls in the update tool, none in the create tool. Whether the API itself rejects the tuple is the gap per-tuple-validation-contract."
+    },
+    "issue-522-actions-endpoint-omits-actions": {
+      "statement": "Provider issues #522 and #570 concern actions that can be used in a rule but that the `zia_cloud_app_control_rule_actions` data source does not return. In #522 the reporter wrote that the call was not returning all the actions that can be used in a specific Cloud App, and a MEMBER commenter confirmed that ALLOW_FILE_SHARE_UPLOAD and ALLOW_FILE_SHARE_VIEW are not returned by that endpoint, said an internal bug would be raised with the API team, and advised listing the actions manually in `actions` to stop the drift. In #570 the reporter quoted a note that some new actions may not be returned in the API response, and a MEMBER commenter called it an API issue under investigation, not addressable in the provider. Both issues were closed as completed; after #522 closed, a MEMBER replied there on 2026-08-13 to upgrade to v4.8.6, which \"addresses the problem\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-522.json",
+          "quotes": [
+            "The actions: ALLOW_FILE_SHARE_UPLOAD, ALLOW_FILE_SHARE_VIEW are not returned via this endpoint; hence, the diff when running terraform plan/apply.",
+            "We'll raise an internal BUG with the API team to address that.",
+            "Alternatively, you can manually pass the list of actions directly in the `actions` list attribute temporarily to prevent the drift.",
+            "Please upgrade to the latest version v4.8.6 which addresses the problem in quesiton.",
+            "The problem is related to the API used to retrieve the available actions for each rule type via the data source `zia_cloud_app_control_rule_actions`",
+            "## Comment (MEMBER, 2026-08-13)"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-522.json",
+          "quotes": [
+            "API call is not returning all the actions that can be used in a specific Cloud App."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-522.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-02-12)"
+          ],
+          "after": "that's what I did. It is in the example configuration I added in this bug description."
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-570.json",
+          "quotes": [
+            "This is a known issue, and is being investigated via the following issue ONEAPI-2421.",
+            "As you already outlined this is a API issue and is being investigated. This isn't an issue addressable at the provider level.",
+            "Note that some new actions may not be returned in the API response.",
+            "missing actions in the response are an API based issue that as indicated is being handled by the backend API team"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-570.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-05-13)"
+          ],
+          "after": "Yet, I'm not sure, if this is related to this note"
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-522.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-03-10"
+          }
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-570.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-05-15"
+          }
+        }
+      ]
+    },
+    "daily-quotas": {
+      "statement": "On the Consumer rule page, the Allow, Caution, Conditional and Isolate actions each carry an optional Daily Bandwidth Quota (MB) and an optional Daily Time Quota (min). On the Allow action, the bandwidth quota counts data uploaded to and downloaded from the cloud application, from 10 MB to 100K MB. The Allow action's time quota is the time elapsed in a session while uploading and downloading data, ignoring idle time, from 15 to 600 minutes. The Allow action's page text says to enforce a quota on each location, select no specific users, groups or departments; to enforce it on specific users, groups or departments, SSL/TLS Inspection and authentication must be enabled. For a user from a known location the quota resets at midnight in the location's time zone, and for remote users it resets by the organization's time zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Daily Bandwidth Quota (MB): (Optional) The bandwidth quota includes data uploaded to and downloaded from the cloud application.",
+            "Daily Time Quota (min): (Optional) The time quota is based on the amount of time elapsed in a session while uploading and downloading data. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.",
+            "To enforce the quota on each location, do not select specific users, groups, or departments. To enforce the quota on specific users, groups, or departments, SSL/TLS Inspection and authentication must be enabled.",
+            "If a user comes from a known location, the quota is reset at midnight based on the location's time zone; for remote users, the quota is reset based on the organization’s time zone. The minimum value you can enter is 10 MB and the maximum value is 100K MB."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Choose to display an EUN that cautions users before allowing them access to the selected applications.",
+          "quotes": [
+            "Daily Bandwidth Quota (MB): (Optional)",
+            "Daily Time Quota (min): (Optional)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Choose to conditionally allow the users to access the selected applications.",
+          "quotes": [
+            "Daily Bandwidth Quota (MB): (Optional)",
+            "Daily Time Quota (min): (Optional)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Ensure to create isolation profiles for your organization.",
+          "quotes": [
+            "Daily Bandwidth Quota (MB): (Optional)",
+            "Daily Time Quota (min): (Optional)"
+          ]
+        }
+      ]
+    },
+    "quota-exceeded": {
+      "statement": "A daily quota can be defined by bandwidth or time; when users browse the sites after their quota has been reached, the Zscaler service displays a message that explains that the content cannot be viewed because they exceeded their daily quota.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-app-control.json",
+          "quotes": [
+            "Additionally, you can define a daily quota by bandwidth or time.",
+            "When users browse these sites after their quota has been reached, the Zscaler service displays a message that explains that the content cannot be viewed because they exceeded their daily quota."
+          ]
+        }
+      ]
+    },
+    "quota-video-conference": {
+      "statement": "On the Collaboration & Online Meetings rule page, if a user exceeds the daily quota while in a web video conference over an SSL/TLS connection, the service allows the user to finish the meeting but blocks additional video conferences; if the conference is not over an SSL/TLS connection (HTTP), the service ends the connection immediately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-collaboration-online-meetings-rule-for-cloud-app-control.json",
+          "quotes": [
+            "If a user exceeds the daily quota while in a web video conference over an SSL/TLS connection, the service allows the user to finish the meeting but blocks additional video conferences.",
+            "If the video conference is not over an SSL/TLS connection (HTTP connection), the service ends the connection immediately."
+          ]
+        }
+      ]
+    },
+    "caution-one-method": {
+      "statement": "On the Consumer rule page, the Caution action can be selected for only one of the request methods CONNECT, GET or HEAD.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Choose to display an EUN that cautions users before allowing them access to the selected applications.",
+            "You can select this action for only one of the following request methods: CONNECT, GET, or HEAD."
+          ]
+        }
+      ]
+    },
+    "conditional-step-up": {
+      "statement": "On the Consumer rule page, Conditional Access allows access to the selected applications by enforcing step-up authentication, to an authentication level that must be configured in the Admin Console beforehand; Zscaler Client Connector shows a pop-up prompting the user to verify access. The option is available only if the organization is provisioned with the Authentication Service for end users and the traffic forwarding method is Client Connector. When traffic is routed via a Private Service Edge or Virtual Service Edge for Internet & SaaS, conditional access is not supported and user access is blocked with a notification from the browser; it does not apply to isolation traffic, and the page says to raise a provisioning support ticket to enable the feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Conditional Access: Allows access to the selected applications by enforcing step-up authentication.",
+            "In the Authentication Level field, select an authentication level from the drop-down menu. The authentication levels must be configured in the Zscaler Admin Console before configuring a policy in the Zscaler Admin Console to select this option.",
+            "When you try to access applications that require additional authentication, Zscaler Client Connector displays a pop-up notification prompting you to verify your access.",
+            "This option is available only if your organization is provisioned with the Authentication Service for end users and the traffic forwarding method is Zscaler Client Connector.",
+            "However, if your traffic is routed via a Private Service Edge for Internet & SaaS (ZIA) or Virtual Service Edge for Internet & SaaS",
+            "conditional access is not supported and the user access to the applications is blocked with a notification from the browser. Conditional access doesn't apply to isolation traffic. To enable this feature, you can raise a provisioning support ticket."
+          ]
+        }
+      ]
+    },
+    "isolate-profile": {
+      "statement": "On the Consumer rule page, the Isolation Profile field appears when Isolate is selected and lets the admin choose the isolation profiles to which the rule applies; the page says to ensure isolation profiles are created for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Isolation Profile: Appears when you select Isolate. You can choose the isolation profiles to which the rule applies.",
+            "Ensure to create isolation profiles for your organization."
+          ]
+        }
+      ]
+    },
+    "isolate-not-doh": {
+      "statement": "The Isolate action is available only if Zero Trust Browser (formerly Isolation) is enabled for the organization and if the rule is not for DNS over HTTPS apps. The DNS Over HTTPS Services rule page's action descriptions include Allow, Block and Conditional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-app-control.json",
+          "quotes": [
+            "The Isolate action is available only if Zero Trust Browser (formerly Isolation) is enabled for your organization and if the rule is not for DNS over HTTPS apps."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-dns-over-https-services-rule-cloud-app-control.json",
+          "quotes": [
+            "Choose to allow the users to access the selected applications.",
+            "Choose to block the users from accessing the selected applications.",
+            "Choose to conditionally allow the users to access the selected applications."
+          ]
+        }
+      ]
+    },
+    "zcc-eun-granular-pages": {
+      "statement": "The Collaboration & Online Meetings, File Sharing, Social Networking, Streaming Media, System & Development and Webmail rule pages each carry a Client Connector End User Notification field, to show or hide the Client Connector-based EUN message, which appears when the granular action is blocked for the selected applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-collaboration-online-meetings-rule-for-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-file-sharing-rule-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-social-networking-rule-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-streaming-media-rule-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-system-development-rule-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-webmail-rule-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "doh-caution": {
+      "kind": "semantic",
+      "title": "Whether Caution is offered on a DNS Over HTTPS Services rule",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying which actions a DNS Over HTTPS Services rule offers",
+      "detail": "The About page excludes only Isolate for DNS over HTTPS apps, and the DNS Over HTTPS Services rule page's action descriptions have no Caution entry, but no captured page states that Caution is excluded."
+    },
+    "login-action-notification": {
+      "kind": "semantic",
+      "title": "What a user sees when a Login granular action is blocked on the IT Services or Productivity & CRM Tools page",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "telling an operator what notification a blocked Login action shows",
+      "detail": "The IT Services and Productivity & CRM Tools rule pages describe a Login granular action but, unlike the six pages in claim zcc-eun-granular-pages, show no Client Connector End User Notification field in the captured text; only the Browser Notification Template field is there. No captured page says what a user sees when that action blocks."
+    },
+    "quota-semantics": {
+      "kind": "semantic",
+      "title": "What reaching a daily quota does on Caution, Conditional and Isolate rules, and what a quota counts",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "predicting what happens to a user who exceeds a quota on a rule that is not an Allow rule",
+      "detail": "The About page says only that users see a quota message. No captured page says what reaching a quota does on a Caution, Conditional or Isolate rule, or whether a quota counts per user, per application or per rule. The video-conference exception in claim quota-video-conference is stated for the Collaboration & Online Meetings page only."
+    },
+    "all-vs-available-differs": {
+      "kind": "semantic",
+      "title": "How allAvailableActions results differ from availableActions",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "knowing which actions an older client or fallback path omits",
+      "detail": "The release note says the new endpoint retrieves all available actions for each application type, and the provider guide says the fallback 'may omit some newer actions'. Neither source defines which actions differ, and static source cannot show it.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_cloud_app_control_rule_actions.md",
+          "quotes": [
+            "which may omit some newer actions"
+          ]
+        }
+      ],
+      "former_ids": [
+        "zia-49"
+      ]
+    },
+    "multi-app-aggregation": {
+      "kind": "semantic",
+      "title": "What the action endpoints return for several applications",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "trusting an action list built from more than one cloud app",
+      "detail": "The generated provider guide says the API returns only actions supported by all of the listed applications. The provider code and Go wrappers do not define the aggregation (union, intersection or other), whether list order is meaningful, or whether a result is valid for each individual app; the guide's intersection wording is documentation, not evidence of API behavior. Query one application at a time when the answer matters. The console's common-actions behavior is documented separately (claim common-actions-in-console).",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_cloud_app_control_rule_actions.md",
+          "quotes": [
+            "When multiple applications are specified, the API automatically returns only actions supported by ALL applications."
+          ]
+        }
+      ]
+    },
+    "custom-eun-meaning": {
+      "kind": "semantic",
+      "title": "What 'no custom EUNs' excludes when rules carry template fields",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "telling an operator whether a notification template set on a CAC rule takes effect",
+      "detail": "The deployment guide says CAC does not support custom EUNs, yet the rule form and model have browser notification template, EUN and custom message fields. No source says what users see when a template is set. The earlier statement that blocked users see the default notification is not stated by any registered source."
+    },
+    "per-tuple-validation-contract": {
+      "kind": "semantic",
+      "title": "Whether the create call validates each (rule type, app, action) tuple and rejects a mixed multi-app rule as a whole",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "creating one Cloud App Control rule for several apps in a single call",
+      "detail": "Unverified legacy statement: the whole-create rejection, the INVALID_INPUT_ARGUMENT message and the one-rule-per-app pattern come from an MCP workflow skill, not from either SDK or the executable tool. Static code cannot settle it; a live create with a mixed-validity app list would. Tracked in the legacy ledger as zia-53.",
+      "about": [
+        "zia.cloud-app-control.actions"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+          "quotes": [
+            "The first incompatible (app, action) pair fails the entire create."
+          ]
+        }
+      ],
+      "former_ids": [
+        "zia-53"
+      ]
+    },
+    "representative-app-actions": {
+      "kind": "semantic",
+      "title": "Whether action discovery needs a category representative app, and whether allAvailableActions removes the need",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "trusting an action list obtained for a single app as the category vocabulary",
+      "detail": "Unverified legacy statement: the MCP workflow generalizes that discovery may be surfaced through a category representative app. That guidance predates the Go allAvailableActions path, and static code does not show that the new endpoint removes the need for it. Comparing both endpoints with single-app and multi-app requests would settle it. Tracked with the atomic-validation gap as zia-53.",
+      "about": [
+        "zia.cloud-app-control.actions"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+          "quotes": [
+            "not every app in a category is a \"representative\" the API surfaces actions for"
+          ]
+        }
+      ]
+    },
+    "actions-endpoint-fix-in-4-8-6": {
+      "kind": "semantic",
+      "title": "What the v4.8.6 provider release changed for the missing actions",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying the actions data source returns every action the console offers",
+      "detail": "The reply closing issue 522 says v4.8.6 addresses the problem, but the vendored changelog is the only release source and the reply names no change, so whether the data source now returns the omitted file-share actions, or the fix is in the API, is not shown. Call the data source for a file-share rule and compare it with the console's actions."
+    }
+  },
+  "divergences": {
+    "streaming-media-custom-message": {
+      "summary": "Whether a Cloud App Control rule's Client Connector notification message can be a custom one",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+            "quotes": [
+              "Cloud App Control policies do not support custom End User Notifications (EUNs)."
+            ]
+          },
+          "says": "The deployment guide says Cloud App Control policies do not support custom End User Notifications; the existing claim no-custom-eun holds this quote."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-streaming-media-rule-cloud-app-control.json",
+            "quotes": [
+              "Notification Message: Select a custom notification message that you want to show as the Zscaler Client Connector-based EUN."
+            ]
+          },
+          "says": "The Streaming Media rule page words its Notification Message field as selecting a custom notification message to show as the Client Connector-based EUN."
+        }
+      ],
+      "impact": "An answer about custom notifications on a Cloud App Control rule should not rest on either source alone; the open gap custom-eun-meaning stays open."
+    },
+    "mcp-representative-app-probing": {
+      "summary": "Whether the MCP action-discovery tool matches the workflow skill's description of it",
+      "positions": [
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+            "quotes": [
+              "the app the API actually returned actions for (may differ from `resolved_app` because not every app in a category is a \"representative\" the API surfaces actions for — the tool walks the category until it finds one that does)",
+              "zia_list_cloud_app_control_actions(cloud_app=\"<canonical enum>\")"
+            ]
+          },
+          "says": "The create workflow skill calls `zia_list_cloud_app_control_actions(cloud_app=...)` and describes a result with `category`, `resolved_app` and `actions_surfaced_via`; it says the tool walks the category until it finds a representative app."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
+            "quotes": [
+              "rule_type=args.rule_type, cloud_apps=args.cloud_apps or []"
+            ]
+          },
+          "says": "The executable tool takes `cloud_apps` (a list), forwards `rule_type` and `cloud_apps` straight to the SDK, and returns the plain list of actions; it has no category walk and no `category`, `resolved_app` or `actions_surfaced_via` field."
+        }
+      ],
+      "impact": "An agent following the skill expects a diagnostic field and a probing step the tool does not implement; the skill describes behavior that the pinned code lacks."
+    }
+  }
+}

@@ -1,0 +1,586 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "PAC Files",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/pac-files",
+    "node": "1508406",
+    "revision": "2984541",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/PAC%20Files_2.json?VersionId=z8M.xc76seGV5f9ruSDP0GH.3Lgd_plw",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "PAC Files"
+      }
+    ],
+    "paths": {
+      "/pacFiles": {
+        "get": {
+          "tags": [
+            "PAC Files"
+          ],
+          "description": "<p>Retrieves the list of all PAC files which are in deployed state. This list includes default and <a href=\"/zia/using-custom-pac-file-forward-traffic-zia\" target=\"_blank\">custom PAC files</a>. To learn more, see <a href=\"/zia/about-hosted-pac-files\" target=\"_blank\">About Hosted PAC Files</a>.</p>",
+          "operationId": "PacResource_getPacs",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "Returns PAC files with the names that match the search criteria",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "filter",
+              "in": "query",
+              "description": "Retrieves the list of PAC files without the PAC file content in the response",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "pac_content"
+              ]
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 100.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Pac"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "PAC Files"
+          ],
+          "description": "<p>Adds a new custom PAC file. To learn more about PAC file configuration, see <a href=\"/zia/using-custom-pac-file-forward-traffic-zia\" target=\"_blank\">Using Custom PAC Files to Forward Traffic to ZIA</a> and <a href=\"/zia/writing-pac-file\" target=\"_blank\">Writing a PAC File</a>.</p><p><b>Note</b>: Before adding a new PAC file, you can validate the content of the PAC file by sending a POST request to <code>/pacFiles/validate</code>. This request only adds a PAC file. The PAC file needs to be transitioned to the <b>Deploy</b> state in order for the file to be deployed.</p>",
+          "operationId": "PacResource_addPac",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "PAC object that defines PAC file to be created",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/Pac"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Pac"
+              }
+            }
+          }
+        }
+      },
+      "/pacFiles/validate": {
+        "post": {
+          "tags": [
+            "PAC Files"
+          ],
+          "description": "Sends the PAC file content for validation and returns the validation result. To learn more, see <a href=\"/zia/using-custom-pac-file-forward-traffic-zia\" target=\"_blank\">Using Custom PAC Files to Forward Traffic to ZIA</a>. ",
+          "operationId": "PacResource_validatePac",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "PAC file content",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/PacResult"
+              }
+            }
+          }
+        }
+      },
+      "/pacFiles/{pacId}": {
+        "delete": {
+          "tags": [
+            "PAC Files"
+          ],
+          "description": "Deletes an existing PAC file including all of its versions based on the specified ID",
+          "operationId": "PacResource_deletePac",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "pacId",
+              "in": "path",
+              "description": "Specifies the ID of the PAC file",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/pacFiles/{pacId}/version": {
+        "get": {
+          "tags": [
+            "PAC Files"
+          ],
+          "description": "Retrieves all versions of a PAC file based on the specified ID",
+          "operationId": "PacResource_getPacById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "pacId",
+              "in": "path",
+              "description": "Specifies the ID of the PAC file",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "filter",
+              "in": "query",
+              "description": "Excludes specific information about the PAC file from the response such as the PAC file content",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "pac_content"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Pac"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/pacFiles/{pacId}/version/{clonedPacVersion}": {
+        "post": {
+          "tags": [
+            "PAC Files"
+          ],
+          "description": "Adds a new PAC file version by branching an existing version based on the specified ID. To learn more, see <a href=\"/zia/using-custom-pac-file-forward-traffic-zia\" target=\"_blank\">Using Custom PAC Files to Forward Traffic to ZIA</a>.",
+          "operationId": "PacResource_addPacVersion",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "pacId",
+              "in": "path",
+              "description": "Specifies the ID of the PAC file for which a new version needs to be created",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "clonedPacVersion",
+              "in": "path",
+              "description": "Specifies the PAC file version that needs to be branched",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "deleteVersion",
+              "in": "query",
+              "description": "Currently, only 10 versions of a PAC file are supported. If this limit is reached and if you are adding a new version using the <code>POST /pacFiles/{pacId}/version/{clonedPacVersion}</code> endpoint, the <b>deleteVersion</b> parameter can be used to specify the PAC file version that must be replaced with the new version created using this request. However, if the limit is reached and if a version is not specified using this parameter, the version with the least number is automatically replaced. If the limit is not reached, this parameter is ignored.",
+              "required": false,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Pac"
+              }
+            }
+          }
+        }
+      },
+      "/pacFiles/{pacId}/version/{pacVersion}": {
+        "get": {
+          "tags": [
+            "PAC Files"
+          ],
+          "description": "Retrieves a specific version of a PAC file based on the specified ID",
+          "operationId": "PacResource_getPacVersion",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "pacId",
+              "in": "path",
+              "description": "Specifies the ID of the PAC file",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "pacVersion",
+              "in": "path",
+              "description": "Specifies the version of the PAC file",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "filter",
+              "in": "query",
+              "description": "Excludes specific information about the PAC file from the response such as the PAC file content",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "pac_content"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Pac"
+              }
+            }
+          }
+        }
+      },
+      "/pacFiles/{pacId}/version/{pacVersion}/action/{pacVersionAction}": {
+        "put": {
+          "tags": [
+            "PAC Files"
+          ],
+          "description": "Performs the specified action on the PAC file version and updates the file status. Supported actions include deploying, staging, unstaging, and marking or unmarking the file as last known good version can be performed on PAC file versions.",
+          "operationId": "PacResource_updatePacVersionFlag",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "pacId",
+              "in": "path",
+              "description": "Specifies the ID of the PAC file",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "pacVersion",
+              "in": "path",
+              "description": "Specifies the version of the PAC file",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "pacVersionAction",
+              "in": "path",
+              "description": "Specifies the action that must be performed on the PAC file version",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "DEPLOY",
+                "STAGE",
+                "LKG",
+                "UNSTAGE",
+                "REMOVE_LKG"
+              ]
+            },
+            {
+              "name": "newLKGVer",
+              "in": "query",
+              "description": "If you are removing a PAC file version as the last known good version using this request, you need to specify a different version that can be marked as the last known good version.",
+              "required": false,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Pac"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "Pac": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The unique identifier for the PAC file"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the PAC file"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the PAC file"
+          },
+          "domain": {
+            "type": "string",
+            "description": "The domain of your organization to which the PAC file applies"
+          },
+          "pacUrl": {
+            "type": "string",
+            "description": "<p>The URL location of the PAC file that is auto-generated when the PAC file is added for the first time.</p><p><b>Note</b>: This value is not required in POST and PUT requests and the value is ignored if present.</p>"
+          },
+          "pacContent": {
+            "type": "string",
+            "description": "<p>The content of the PAC file. To learn more, see <a href=\"/zia/writing-pac-file\" target=\"_blank\">Writing a PAC File</a>."
+          },
+          "editable": {
+            "type": "boolean",
+            "description": "<p>Indicates whether the PAC file is editable</p><p><b>Note</b>: The Zscaler service provides default PAC files, and admins with sufficient permissions and scope can additionally create and manage their own custom PAC files. To learn more, see  <a href=\"/zia/using-default-pac-files-forward-traffic-zia\" target=\"_blank\">Using Default PAC Files to Forward Traffic to ZIA</a> and <a href=\"/zia/using-custom-pac-file-forward-traffic-zia\" target=\"_blank\">Using Custom PAC Files to Forward Traffic to ZIA</a>. This field is read-only.</p>"
+          },
+          "pacSubURL": {
+            "type": "string",
+            "description": "Obfuscated domain name of the organization to which this PAC file applies"
+          },
+          "pacUrlObfuscated": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether the PAC file URL is obfuscated. If this value is true, the obfuscated URL is returned in the <b>pacSubURL</b> field."
+          },
+          "pacVerificationStatus": {
+            "type": "string",
+            "description": "Indicates the verification status of the PAC file and if any errors are identified in the syntax",
+            "enum": [
+              "VERIFY_NOERR",
+              "VERIFY_ERR",
+              "NOVERIFY"
+            ]
+          },
+          "pacVersionStatus": {
+            "type": "string",
+            "description": "Indicates the status of a specific version of a PAC file as whether it is deployed, staged for deployment, or is marked as the last known good version.",
+            "enum": [
+              "DEPLOYED",
+              "STAGE",
+              "LKG"
+            ]
+          },
+          "pacVersion": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The version number of the PAC file"
+          },
+          "pacCommitMessage": {
+            "type": "string",
+            "description": "The commit message entered while saving the PAC file version as indicated by the pacVersion field"
+          },
+          "totalHits": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The number of times the PAC file was used during the last 30 days"
+          },
+          "lastModificationTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The timestamp when the PAC file was last modified. This value is represented in Unix time."
+          },
+          "lastModifiedBy": {
+            "description": "The username of the admin who last modified the PAC file",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "createTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The timestamp when the PAC file was created. This value is represented in Unix time."
+          }
+        },
+        "description": "<p>Information about the PAC file along with the PAC file content. To learn more, see <a href=\"/zia/writing-pac-file\" target=\"_blank\">Writing a PAC File</a>."
+      },
+      "PacResult": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether the PAC file validation was successful or not"
+          },
+          "messages": {
+            "type": "array",
+            "description": "The list of errors and warnings generated as a result of the PAC file validation",
+            "items": {
+              "$ref": "#/definitions/PacValidationMessage"
+            }
+          },
+          "warningCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The number of warnings present in the list of <b>messages</b>"
+          },
+          "errorCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The number of errors present in the list of <b>messages</b>"
+          }
+        },
+        "description": "Results of PAC file validation"
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of id and name"
+      },
+      "PacValidationMessage": {
+        "type": "object",
+        "description": "Information about the PAC file validation results",
+        "properties": {
+          "severity": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Indicates the severity of the message. A value of 1 indicates a warning, whereas a value of 2 indicates an error."
+          },
+          "endLine": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Designates the number of the last line to which the messages applies"
+          },
+          "endColumn": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Designates the number of the last column to which the messages applies"
+          },
+          "line": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Designates the number of the first line to which the messages applies"
+          },
+          "column": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Designates the number of the first column to which the messages applies"
+          },
+          "message": {
+            "type": "string",
+            "description": "The message string"
+          },
+          "fatal": {
+            "type": "boolean",
+            "description": "A Boolean value indicating the PAC file validation completion status. A true value is returned when validation is not completed."
+          }
+        }
+      }
+    }
+  }
+}

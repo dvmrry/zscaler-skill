@@ -1,0 +1,275 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.tunnel-detection",
+  "title": "DNS tunnel detection",
+  "aliases": [
+    "dns tunneling",
+    "dns tunnel detection",
+    "dns exfiltration",
+    "detecting and controlling dns tunnels",
+    "dns tunnels rule"
+  ],
+  "binds": [
+    "zia/firewall-dns-rules#applications"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.dns-control.predefined-rules",
+      "because": "zia.dns-control.tunnel-detection:unknown-traffic-rule"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia/dns-log",
+      "because": "zia.dns-control.tunnel-detection:logged-in-insights"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/firewall-dns-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{tunnel-purpose}} {{detection-method}} {{three-categories}}"
+    },
+    {
+      "text": "{{tunnels-as-applications}} {{category-selection}} {{unknown-traffic-rule}} {{logged-in-insights}}"
+    },
+    {
+      "text": "The detection signals, the log fields and a carve-out for legitimate tunnels are open {{gap:tunnel-mechanics}}."
+    },
+    {
+      "label": "DNS application groups.",
+      "text": "{{dag-contents}} {{dag-use}} {{dag-fields}} {{dag-investigation}} The selectable tunnels and applications and any group-count limit are open {{gap:dag-members-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the rule's category selection includes the tunnels intended, since a parent category includes all of its tunnels.",
+      "uses": [
+        "category-selection"
+      ]
+    },
+    {
+      "do": "Whether an answer presents detection signals or log fields as fact, since the captured pages do not state them.",
+      "uses": [
+        "tunnel-mechanics"
+      ]
+    }
+  ],
+  "claims": {
+    "tunnel-purpose": {
+      "statement": "DNS Control can detect and prevent DNS tunneling; Zscaler points to a separate page, Detecting and Controlling DNS Tunnels, for details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.json",
+          "quotes": [
+            "DNS Control also allows you to detect and prevent DNS tunneling from occurring on your network. To learn more, see Detecting and Controlling DNS Tunnels."
+          ]
+        }
+      ]
+    },
+    "tunnels-as-applications": {
+      "statement": "A DNS rule's `applications` field holds DNS tunnels and network applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "DNS tunnels and network applications to which the rule applies"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "after": "// DNS tunnels and network applications to which the rule applies",
+          "quotes": [
+            "Applications []string `json:\"applications,omitempty\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#applications"
+      ]
+    },
+    "detection-method": {
+      "statement": "Detection uses machine learning: DNS proxy logs go to the analytics system and a detection engine that computes a risk score per domain; detected tunnel hostnames propagate to all ZIA Public Service Edges, and the proxy acts per your policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "detecting-and-controlling-dns-tunnels.json",
+          "quotes": [
+            "All traffic that goes through this proxy is logged by the service.",
+            "The Zscaler analytics system then fetches these logs, processes them, and sends them to the DNS tunneling detection engine.",
+            "The detection engine uses advanced machine learning techniques to compute a risk score to classify domains.",
+            "When the engine detects a tunnel hostname, the information is propagated to all Public Service Edges for Internet & SaaS (ZIA).",
+            "The proxy server then acts according to your policy configuration."
+          ]
+        }
+      ]
+    },
+    "three-categories": {
+      "statement": "Detected tunnels fall into three categories: Commonly Allowed (productive, mostly security services), Commonly Blocked (malicious or harmful) and Unknown (not yet classified); four further application categories (Network Service, Social Networking, Web, Web Search) can be controlled at DNS level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "detecting-and-controlling-dns-tunnels.json",
+          "quotes": [
+            "The service places any tunnels it detects into one of three categories:",
+            "Commonly Allowed DNS Tunnels: This contains tunnels that use DNS tunneling for productive reasons.",
+            "It is mostly composed of traffic from security services.",
+            "Commonly Blocked DNS Tunnels: This contains tunnels that are malicious, can cause a loss of productivity, or can cause a loss of data.",
+            "Unknown DNS Tunnels: This contains tunnels that are not yet classified.",
+            "There are 4 additional categories that you can control alongside the DNS tunnels:",
+            "Network Service: This contains different network protocols",
+            "Social Networking: This contains popular websites with social networking components",
+            "Web: This contains widely used websites",
+            "Web Search: This contains popular search engines",
+            "These categories give administrators the flexibility to control any of these items at the DNS level."
+          ]
+        }
+      ]
+    },
+    "logged-in-insights": {
+      "statement": "The service logs all detected DNS tunnels and network apps in DNS Insights, and the DNS Overview dashboard shows the most common ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "detecting-and-controlling-dns-tunnels.json",
+          "quotes": [
+            "The service logs all detected DNS tunnels and network apps in DNS Insights.",
+            "You can also view the most commonly encountered tunnels and apps in the DNS Overview dashboard."
+          ]
+        }
+      ]
+    },
+    "unknown-traffic-rule": {
+      "statement": "The predefined Unknown DNS Traffic rule, set to block, stops malformed queries and non-DNS traffic on port 53 and some forms of DNS abuse consistent with tunneling methods; Zscaler also recommends a rule blocking the Commonly Blocked and Unknown tunnel categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-dns-control-rules.json",
+          "quotes": [
+            "Configure the default Unknown DNS Traffic rule to block traffic.",
+            "This rule prevents malformed DNS queries or non-DNS traffic masquerading as DNS traffic on destination port 53.",
+            "In addition, this rule also identifies and blocks certain forms of DNS abuse in real time that are consistent with certain DNS tunneling methods.",
+            "Create a DNS filtering rule to block the following DNS tunnels by using the DNS Tunnel & Network Apps criteria:",
+            "Commonly Blocked DNS Tunnels: These are DNS tunnels in the denylist classification",
+            "Unknown DNS Tunnels: These are DNS tunnels in the graylist classification"
+          ]
+        }
+      ]
+    },
+    "dag-contents": {
+      "statement": "DNS application groups group DNS tunneling traffic and other web applications for policy: legitimate, commonly blocked and unrecognized DNS tunnels and DNS network applications (not to be confused with DPI-based network applications), managed in the DNS Control policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns-application-groups.json",
+          "quotes": [
+            "With DNS application groups, you can create groups based on DNS tunneling traffic as well as other web applications to manage them using policies.",
+            "Group legitimate DNS tunnels, commonly blocked DNS tunnels, unrecognized DNS tunnels, and DNS network applications (not to be confused with DPI-based network applications) to manage them collectively in the DNS Control policy."
+          ]
+        }
+      ]
+    },
+    "dag-use": {
+      "statement": "DNS application groups manage DNS tunnels and web applications through DNS Control rules; the help's example is one group of tunnels and web applications allowed for specific users and another of tunnels blocked for all users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dns-application-groups.json",
+          "quotes": [
+            "You can group together DNS tunnels and web applications using DNS application groups to manage them via DNS Control rules.",
+            "For example, you can create a group to include DNS tunnels and web applications that can be allowed for specific users and another group with DNS tunnels that should be blocked for all users."
+          ]
+        }
+      ]
+    },
+    "dag-fields": {
+      "statement": "A DNS application group's name cannot exceed 255 characters, any number of DNS tunnels and network applications can be selected, and the description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dns-application-groups.json",
+          "quotes": [
+            "Name: Enter a name for the application group, not exceeding a maximum length of 255 characters.",
+            "You can select any number of DNS tunnels and network applications within the group.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "dag-investigation": {
+      "statement": "DNS tunnels detected in the network can be investigated and analyzed using Zscaler DNS logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns-application-groups.json",
+          "quotes": [
+            "Investigate and analyze the DNS tunnels detected in your network using Zscaler DNS logs."
+          ]
+        }
+      ]
+    },
+    "category-selection": {
+      "statement": "Selecting a parent tunnel category in a rule includes all tunnels in it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.json",
+          "quotes": [
+            "For DNS Tunnels & Network Apps, Requested Categories, and Resolved Categories, selecting a parent category includes all of its members.",
+            "For example, if you select Commonly Allowed DNS Tunnels as part of your rule, then all tunnels listed as commonly allowed are included."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dag-members-limits": {
+      "kind": "semantic",
+      "title": "Which tunnels and applications a DNS application group can hold, and how many groups",
+      "status": "open",
+      "detail": "The About and Configuring pages do not list the selectable DNS tunnels and applications, and the limits table has no row for the number of DNS application groups.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "tunnel-mechanics": {
+      "kind": "semantic",
+      "title": "Detection signals, log fields, and a carve-out for legitimate tunnels",
+      "status": "open",
+      "about": [
+        "zia/firewall-dns-rules#applications"
+      ],
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "explaining why a query was or was not treated as a tunnel, and carving out legitimate tools",
+      "detail": "Unverified legacy statement: Detection triggers on \"anomalously long subdomain labels or query strings; high-entropy subdomain names; unusually high query rates for a single domain; DNS record types atypical for normal client usage (TXT, NULL, CNAME)\"; matched queries are \"logged with a tunnel-detection indicator\"; \"No separate 'allow tunnel' action exists\"; and legitimate tools are carved out with \"an Allow rule with explicit domain criteria above the tunnel-detection rule in order.\" The captured page says only that machine learning scores domains, so the signals are unconfirmed; the log is DNS Insights, with no named indicator field; the 'no allow action' wording conflicts with the Commonly Allowed category. Compare with a DNS log sample and a rule using the Commonly Allowed category."
+    }
+  }
+}

@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "id": "zia.alerts.security-ueba",
+  "title": "Security & UEBA alerts: ongoing alerts, alert history and alert details",
+  "aliases": [
+    "security alerts",
+    "ueba alerts",
+    "ongoing alerts",
+    "alert history",
+    "alert summary",
+    "alerts dashboard",
+    "indexed by"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.alerts.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.ueba-alerts"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The email alerts are in [[zia.alerts]]. {{framework}} {{delivery}} The rules that raise them are in [[zia.alerts.rules]]."
+    },
+    {
+      "label": "Ongoing alerts.",
+      "text": "{{ongoing-overview}} {{summary-filters}} {{indexed-by-and-location}}"
+    },
+    {
+      "label": "Alert history.",
+      "text": "{{history}} How long alerts are kept beyond 14 days is open {{gap:retention}}."
+    },
+    {
+      "label": "Alert details.",
+      "text": "{{security-details}} {{ueba-details}}"
+    },
+    {
+      "label": "Relation to email alerts.",
+      "text": "Whether these alerts share a limit or subscription with the email alerts is open {{gap:shared-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an alert rule is enabled and has a delivery set up before concluding no alert fired.",
+      "uses": [
+        "delivery"
+      ]
+    },
+    {
+      "do": "Whether the alert's age is within the 14 days the ongoing view or history shows, since older alerts are not described.",
+      "uses": [
+        "ongoing-overview",
+        "history",
+        "retention"
+      ]
+    }
+  ],
+  "claims": {
+    "framework": {
+      "statement": "The Security & UEBA alerting framework is a solution to view, manage, create and adjust alert rules. Security alerts constantly filter and evaluate all the logs generated from the organization's traffic to trigger new alerts and provide high-level statistics of each event type and threat severity. UEBA alerts monitor and analyze user activities such as logins, file accesses, data transfers and application usage to detect deviations from normal behavior, and are available for Inline and API channels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-security-ueba-alerts.json",
+          "quotes": [
+            "The Security & UEBA alerting framework provides a comprehensive solution to view, manage, create, and adjust alert rules.",
+            "The security alerts provide high-level statistics of each event type and threat severity.",
+            "By monitoring and analyzing user activities, such as logins, file accesses, data transfers, and application usage, UEBA alerts can detect deviations from normal behavior, flagging suspicious activities for further investigation and response.",
+            "This alert type is available for Inline and API channels for better monitoring."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-security-ueba-alerts.json",
+          "quotes": [
+            "The security alerts constantly filter and evaluate all the logs generated from your organization's traffic to trigger new alerts."
+          ],
+          "after": "- Security Alerts"
+        }
+      ]
+    },
+    "delivery": {
+      "statement": "Alert rules need to be enabled and alert notification delivery set up, by email aliases or webhooks; generated alerts are then investigated by viewing the available widgets or the alert summary table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-security-ueba-alerts.json",
+          "quotes": [
+            "Ensure that you enable the alert rules and set up the alert notification delivery.",
+            "You can either use email aliases or webhooks to receive alert notifications.",
+            "After the alert rule is set up, you can start investigating the generated alerts by viewing the various available widgets or the alert summary table."
+          ]
+        }
+      ]
+    },
+    "ongoing-overview": {
+      "statement": "The Ongoing Alerts Overview displays the top 5 threats and event types for each tenant and the number of ongoing alerts, impacted systems, impacted departments and impacted locations. Ongoing alerts can be viewed for a period of 1 hour to 14 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-ongoing-alerts.json",
+          "quotes": [
+            "The Overview displays the top 5 threats and event types for each tenant.",
+            "You can also view the number of ongoing alerts, impacted systems, impacted departments, and impacted locations on this page.",
+            "The ongoing alerts can be viewed for a period of 1 hour to 14 days."
+          ]
+        }
+      ]
+    },
+    "summary-filters": {
+      "statement": "In the Alert Summary, Alert ID is the alert ID created by the service, Client IP is the IP address of the client for which the alert is triggered, Client Ext. IP is the internet gateway location IP address, Alert Rule Name is the alert name added during creation of the rule and Department is the department impacted by a particular threat or part of a preconfigured alert. Advanced filters offer Equals, Ends with, Starts with, Contains and the negations Does not equal, Does not start with, Does not end with and Does not contain. The page says the table can be sorted to prioritize incidents based on most impacted users, most blocked transactions or most frequently seen activity, while its Sort By control sorts by the most impacted systems (the default), last known attempt, most allowed transactions or longest duration; the table downloads as a CSV file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-ongoing-alerts.json",
+          "quotes": [
+            "Alert ID: The alert ID created by the service.",
+            "Client IP: The IP address of the client for which the alert is triggered.",
+            "Client Ext. IP: The internet gateway location IP address.",
+            "Alert Rule Name: The alert name added during creation of the rule.",
+            "Department: The department which was impacted by a particular threat or which was a part of a preconfigured alert.",
+            "You can add advanced filters to tailor certain fields to your specific searches.",
+            "- Equals",
+            "- Ends with",
+            "- Starts with",
+            "- Contains",
+            "- Does not equal",
+            "- Does not start with",
+            "- Does not end with",
+            "- Does not contain",
+            "You can choose to sort the table to prioritize incidents based on most impacted users, most blocked transactions, or most frequently seen activity.",
+            "Sort By: Sort the summary table based on the most impacted systems, last known attempt, most allowed transactions or longest duration. By default, the table is listed for the most impacted systems.",
+            "Click to download a CSV file of the alert summary."
+          ]
+        }
+      ]
+    },
+    "indexed-by-and-location": {
+      "statement": "Indexed By is the unique identifier value by which alerts are indexed for aggregating systems impacted as part of the same incident; all alerts attempt to be indexed by the available threat name or other unique identifiers such as Hostname, Server Destination IP or MD5 hash. Location is the internet gateway location from which the alert originated, and a transaction that did not originate from a location defined in the alert rule is recorded as coming from a remote user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-ongoing-alerts.json",
+          "quotes": [
+            "Indexed By: The unique identifier value by which the alerts are indexed that are used for aggregating systems impacted as part of the same incident.",
+            "All alerts attempt to be indexed by the available threat name or other unique identifiers such as Hostname, Server Destination IP, or MD5 hash.",
+            "Location: The internet gateway location from which the alert originated.",
+            "If the transaction did not originate from a location that was defined in the alert rule, then it is recorded as coming from a remote user."
+          ]
+        }
+      ]
+    },
+    "history": {
+      "statement": "The Alert History page displays all alerts whose evaluation status is ended, up to 14 days from the time the status was changed to Ended. The summary table can be customized to show the security alerts or UEBA alerts by selecting Security or UEBA in the Customize View drop-down menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-alert-history.json",
+          "quotes": [
+            "The Alert History page displays the list of all the alerts with their evaluation status as ended.",
+            "The page also displays alerts up to a period of 14 days from the time that the status was changed to Ended.",
+            "You can customize the summary table to display the security alerts or UEBA alerts by selecting Security or UEBA in the Customize View drop-down menu."
+          ]
+        }
+      ]
+    },
+    "security-details": {
+      "statement": "A security alert's details show Alert Overview (alert rule name, alert ID, whether the alert applies to the organization or a department, the event type and the type of policy action), Alert Details (first and last attempt, allowed versus total transactions, evaluation status and duration), File Information (file type and sandbox information) and First Destination (destination IP, hostname, URL category, application type, category and risk score), with View All Logs for the Insight Logs of the alert. Impacted Systems shows a breakdown by department and location, with IP addresses, event timestamps and a count of allowed over total transactions, and authenticated users can view additional device, OS and traffic forwarding method metadata.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-alert-history.json",
+          "quotes": [
+            "Alert Overview: View the information on the alert rule name, the alert ID, where the alert applies to the organization or a department, the event type, and the type of policy action for the selected alert.",
+            "Alert Details: View the details of the first and last attempt, the number of allowed versus total transactions, the evaluation status, and the duration of the alert.",
+            "File Information: View the file type and sandbox information for the alert.",
+            "First Destination: View the details of the destination IP, the hostname, URL category, the application type, category, and the risk score.",
+            "View All Logs: Click to view the list of all Insight Logs for the alert.",
+            "The Impacted Systems displays a breakdown of the number of systems impacted by department and location.",
+            "You can also view additional information related to the IP addresses, timestamps of events, and a count of allowed over total transactions.",
+            "Authenticated users can view additional metadata related to their device, OS, and traffic forwarding methods."
+          ]
+        }
+      ]
+    },
+    "ueba-details": {
+      "statement": "A UEBA alert's Alert Overview shows the alert rule name, alert ID, identified user, type of policy action, event type, associated tenant, start and end time, the timestamp of when the alert was generated, the user risk score and API logs (the SaaS Security Activities Report). Description shows a graph of the sensitive files downloaded by a user, Create Exception adds the user to the alert exception list, and the details can be downloaded as a PDF.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-alert-history.json",
+          "quotes": [
+            "Alert Overview: View the information on the alert rule name, the alert ID, the identified user, the type of policy action, the event type, the tenant associated with the alert, the start and end time of the alert, the timestamp of when the alert was generated,",
+            "the user risk score, and API logs (i.e., the SaaS Security Activities Report) for the selected alert.",
+            "Description: View a graphical representation to understand the number of sensitive files that were downloaded by a user.",
+            "Create Exception: Add the user to the alert exception list.",
+            "Download a PDF file of the alert details."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "retention": {
+      "kind": "semantic",
+      "title": "Retention of alerts beyond 14 days",
+      "status": "open",
+      "detail": "The ongoing view reaches 1 hour to 14 days and history shows alerts up to 14 days after they ended. No page says how long alerts are retained beyond that.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "shared-limits": {
+      "kind": "semantic",
+      "title": "Whether Security and UEBA alerts share a limit or subscription with the email alerts",
+      "status": "open",
+      "detail": "The Security & UEBA alert pages do not say whether these alerts share the 128-alert limit or subscriptions of the email alerts in zia.alerts.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

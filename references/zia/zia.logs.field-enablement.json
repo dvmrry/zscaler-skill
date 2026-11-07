@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.field-enablement",
+  "title": "Which ZIA log fields are not logged until enabled",
+  "aliases": [
+    "clt_sport empty",
+    "srv_dport empty",
+    "dlprulename empty",
+    "fields not logged by default",
+    "enable logging contact support",
+    "df_hostname empty"
+  ],
+  "binds": [
+    "zia/web-log#clt_sport",
+    "zia/web-log#srv_dport",
+    "zia/web-log#dlprulename",
+    "zia/web-log#df_hostname"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.pipeline",
+      "because": "zia.logs.field-enablement:df-tls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-field-semantics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-records"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Some web log fields are empty unless something is enabled first."
+    },
+    {
+      "label": "Needs Zscaler Support.",
+      "text": "{{clt-sport}} {{srv-dport}} {{dlprulename}} {{console-ports-disabled}}"
+    },
+    {
+      "label": "Needs a DLP setting.",
+      "text": "{{other-dlp-rules}}"
+    },
+    {
+      "label": "Needs TLS Inspection.",
+      "text": "{{df-tls}} The mismatch-only behavior is in [[zia.logs.web-field-semantics]]."
+    },
+    {
+      "label": "Firewall log.",
+      "text": "{{firewall-ports}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an empty client port, server port or allowed DLP rule name is a field that was never enabled rather than missing traffic.",
+      "uses": [
+        "clt-sport",
+        "srv-dport",
+        "dlprulename"
+      ]
+    },
+    {
+      "do": "Whether TLS Inspection applies to the traffic before expecting df_hostname.",
+      "uses": [
+        "df-tls"
+      ]
+    }
+  ],
+  "claims": {
+    "other-dlp-rules": {
+      "statement": "The other DLP rules field is populated only when Evaluate All Rules Mode is enabled for inline DLP rule evaluation on the DLP Advanced Settings page.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#other_dlprulenames"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Other DLP Rules:",
+            "To populate this field, you must enable the Evaluate All Rules Mode for inline DLP rule evaluation in the DLP Advanced Settings page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "To populate this field, you must enable the Evaluate All Rules mode for inline DLP rule evaluation in the DLP Advanced Settings page (Administration > DLP Advanced Settings)."
+          ]
+        }
+      ]
+    },
+    "console-ports-disabled": {
+      "statement": "The Web Insights Logs columns page says the Client Source Port filter is disabled by default and enabled by contacting Zscaler Support, and says the same of a column; the filters page says the same of a filter.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#clt_sport"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Client Source Port: The source port number from which the traffic originated. This filter is disabled by default. To enable it, contact Zscaler Support.",
+            "This column is disabled by default. To enable it, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "This filter is disabled by default. To enable the filter, contact Zscaler SupportZscaler Support."
+          ]
+        }
+      ]
+    },
+    "clt-sport": {
+      "statement": "Logging of the web log client source port, clt_sport, is enabled by contacting Zscaler Support.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#clt_sport"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "To enable logging for Client Source Port, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "srv-dport": {
+      "statement": "Logging of the web log server destination port, srv_dport, is enabled by contacting Zscaler Support.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#srv_dport"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "To enable logging for Server Destination Port, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "dlprulename": {
+      "statement": "Logging of the DLP Allowed Rule Name, dlprulename, is enabled by contacting Zscaler Support.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#dlprulename"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{dlprulename} | The name of the DLP rule applied to the transaction.",
+            "To enable logging for DLP Allowed Rule Name, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "df-tls": {
+      "statement": "df_hostname is populated only when TLS Inspection is enabled.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#df_hostname"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{df_hostname} | An optional field that contains the TLS connection's Server Name Indication (SNI) in cases that the HTTPS request host header does not match the SNI. TLS Inspection must be enabled for this field to be populated."
+          ]
+        }
+      ]
+    },
+    "firewall-ports": {
+      "statement": "The firewall log lists csport and sdport with no enablement note in its field CSV, while the web log lists the client source port and server destination port as needing Support to enable.",
+      "tier": "B",
+      "binds": [
+        "zia/firewall-log#csport",
+        "zia/firewall-log#sdport",
+        "zia/web-log#clt_sport",
+        "zia/web-log#srv_dport"
+      ],
+      "derived_from": [
+        "clt-sport",
+        "srv-dport"
+      ],
+      "conditions": "Compares two vendor CSVs; the absence of a note in the firewall CSV does not show the ports are on by default.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-firewall-logs.json",
+          "quotes": [
+            "this is the client source port of the last session in the aggregate.",
+            "this is the server destination port of the last session in the aggregate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "To enable logging for Client Source Port, contact Zscaler Support.",
+            "To enable logging for Server Destination Port, contact Zscaler Support."
+          ]
+        }
+      ]
+    }
+  }
+}

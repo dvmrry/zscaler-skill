@@ -1,0 +1,443 @@
+{
+  "schema_version": 1,
+  "id": "zdx.dashboards.incidents",
+  "title": "ZDX incidents: the incident area types, their epicenters, key metrics and detection minimums",
+  "aliases": [
+    "incidents dashboard",
+    "zdx incident",
+    "zdx incidents",
+    "incident epicenter",
+    "blackout",
+    "brownout",
+    "intermediate isp incident",
+    "system software hangs",
+    "system software crashes"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.dashboards"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts.snapshot"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An incident is an issue that affects the device performance of multiple users, and the Incidents Dashboard is where the console shows them. {{what-incidents}} {{subscription}}"
+    },
+    {
+      "label": "The dashboard.",
+      "text": "{{time-range-counts}} {{incident-details}}"
+    },
+    {
+      "label": "Epicenters.",
+      "text": "{{epicenters}} {{intermediate-isp}}"
+    },
+    {
+      "label": "Device incidents.",
+      "text": "{{device-subtypes}}"
+    },
+    {
+      "label": "Key metrics by type.",
+      "text": "{{wifi-metrics}} {{last-mile-metrics}} {{intermediate-isp-metrics}} {{zia-pse-metrics}} {{zpa-metrics}} {{application-metrics}} The article's metrics table lists other metrics for Wi-Fi than its Wi-Fi section {{divergence:wifi-key-metrics}}."
+    },
+    {
+      "label": "What counts as an incident.",
+      "text": "{{detection-thresholds}} The alert article scopes the minimums differently {{divergence:minimum-scope}}. What a bad score is and what severity levels exist are open {{gap:severity-and-bad-score}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the incident type's minimum number of impacted devices was reached before expecting an incident for a smaller group of affected users.",
+      "uses": [
+        "detection-thresholds",
+        "minimum-scope"
+      ]
+    },
+    {
+      "do": "Whether the tenant's subscription supports Incidents before treating an empty Incidents Dashboard as no incidents.",
+      "uses": [
+        "subscription"
+      ]
+    }
+  ],
+  "claims": {
+    "what-incidents": {
+      "statement": "Incidents are issues that impact the device performance of multiple users; ZDX uses AI and machine learning to detect and identify them with the metrics that correlate best to the issues. The Incidents Dashboard displays them in 7 area types: Device, Wi-Fi, Last Mile ISP, Intermediate ISP, ZIA (Internet & SaaS) Public Service Edge, ZPA (Private Access) and Application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "The Incidents Dashboard displays incidents in 7 area types: Device, Wi-Fi, Last Mile ISP, Intermediate ISP, ZIA (Internet & SaaS) Public Service Edge, ZPA (Private Access), or Application.",
+            "Incidents are issues that impact the device performance of multiple users.",
+            "ZDX uses AI and machine learning (ML) to detect and identify incidents using the best metrics that correlate to the issues."
+          ]
+        }
+      ]
+    },
+    "subscription": {
+      "statement": "The Incidents Dashboard needs a ZDX subscription level that supports Incidents and View Only permission for the Incidents Dashboard; the subscription table lists Incidents as not supported on Standard, Microsoft 365 and Advanced and supported on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "Your ZDX subscription level supports Incidents.",
+            "View Only permission for the Incidents Dashboard."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Incidents | Not supported | Not supported | Not supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "time-range-counts": {
+      "statement": "The Incidents Dashboard's time range defaults to 14 days, and it counts the total incidents detected and the impacted users from the total incidents within that range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "Time Range: Select a time range to view when incidents occurred. The default is 14 days.",
+            "Total Incidents: The total number of incidents detected within a time range.",
+            "Impacted Users: The number of impacted users from the total incidents within a time range."
+          ]
+        }
+      ]
+    },
+    "epicenters": {
+      "statement": "An incident's epicenter depends on its type. For Device it is the geographical area of impacted Windows devices with system software hangs and crashes, for Wi-Fi the geographical area of impacted SSIDs, and for Last Mile ISP the area of impacted users with the ISP, with Blackout (connectivity issues) and Brownout (performance degradation) as its subtypes. For a ZIA Public Service Edge it is the Public Service Edge's location at the Zscaler Data Center, for ZPA the geographical area of impacted users with ZPA plus the App Connector and Public Service Edge locations, and for Application the area of impacted users, which can go across multiple countries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "Wi-Fi: The geographical area of impacted service set identifiers (SSIDs).",
+            "ZIA Public Service Edge: The location of the Public Service Edge at the Zscaler Data Center.",
+            "ZPA: The geographical area of impacted users with ZPA.",
+            "ZPA App Connector: The location of the App Connector at the Zscaler Data Center."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "Device: The geographical area of impacted Windows devices with system software hangs and crashes.",
+            "Last Mile ISP: The geographical area of impacted users with the ISP.",
+            "Blackout: A subtype of Last Mile ISP. The area of impacted users with connectivity issues on the Last Mile ISP.",
+            "Brownout: A subtype of Last Mile ISP. The area of impacted users with a performance degradation on the Last Mile ISP.",
+            "ZPA Public Service Edge: The location of the Public Service Edge at the Zscaler Data Center.",
+            "Application: The area of impacted users and can go across multiple countries."
+          ],
+          "after": "## Incidents By Epicenters"
+        }
+      ]
+    },
+    "intermediate-isp": {
+      "statement": "An Intermediate ISP incident represents network issues between ISPs or within an ISP backbone: Internal (affected hops inside a single ISP or ASN), between two ISPs or ASNs at the peering point, or from the peering ISP to a Zscaler Data Center. Its epicenter is the data center location if probes are routed through a Zscaler Data Center, and the approximate geolocation of affected users if probes are direct.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "Intermediate ISP: Represents network issues that occur between ISPs or within an ISP backbone.",
+            "Incidents can be Internal (affected hops inside a single ISP/ASN) , between ISP-ISP (affected hops between two ISPs/ASNs at the peering point), or peering ISP to Zscaler Data Center.",
+            "If probes are routed through a Zscaler Data Center, the epicenter is the data center location. If probes are direct, the epicenter is the approximate geolocation of affected users."
+          ]
+        }
+      ]
+    },
+    "device-subtypes": {
+      "statement": "Device incidents are about Windows devices: System Software Hangs are devices that have become unresponsive to user input on applications despite ongoing computer activity, and System Software Crashes are devices with no computer activity because the software has crashed. Their key metrics are the distribution of impacted operating systems and software, the CPU and memory usage percentage of impacted Windows devices, and an event trend of hangs or crashes over time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "System Software Hangs key metrics provide analytical data on where impacted Windows devices have become unresponsive to user input on applications despite ongoing computer activity.",
+            "System Software Crashes key metrics provide analytical data of where impacted Windows devices experience no computer activity because the software has crashed.",
+            "Event Trend: The number of system software hangs for impacted Windows devices that occur over time.",
+            "Event Trend: The number of system software crashes for impacted Windows devices that occur over time."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "Impacted OSs: The distribution of impacted operating systems.",
+            "Impacted Software: The distribution of impacted software.",
+            "CPU Usage: The percentage of CPU usage for impacted Windows devices.",
+            "Memory Usage: The percentage of memory usage for impacted Windows devices."
+          ],
+          "after": "System Software Hangs key metrics provide analytical data on where impacted Windows devices have become unresponsive to user input on applications despite ongoing computer activity."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "Impacted OSs: The distribution of impacted operating systems.",
+            "Impacted Software: The distribution of impacted software.",
+            "CPU Usage: The percentage of CPU usage for impacted Windows devices.",
+            "Memory Usage: The percentage of memory usage for impacted Windows devices."
+          ],
+          "after": "System Software Crashes key metrics provide analytical data of where impacted Windows devices experience no computer activity because the software has crashed."
+        }
+      ]
+    },
+    "incident-details": {
+      "statement": "An incident's details give its severity and duration and the number of impacted users, geolocations and applications, and a Top Impacted Users list of up to 11 users. An alert rule for an incident can be configured with Set Up Alert, and Share Snapshot captures a static image of the current incident details view.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "Severity: The level of severity of the incident.",
+            "Duration: The duration of the incident.",
+            "Displays the impacted number of users, geolocations, and applications.",
+            "The Top Impacted Users list displays up to 11 impacted users.",
+            "Click Set Up Alert () to configure an alert rule for an incident.",
+            "Click Share Snapshot to capture a static image of the current incident details view for sharing or reporting."
+          ]
+        }
+      ]
+    },
+    "wifi-metrics": {
+      "statement": "Wi-Fi incident key metrics are the ZDX Score variation through the access point, its maximum and average latency, packet loss at the first access point (hop 1) and after it (hops 2 to 4), and the average signal strength of users going through the access point.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "ZDX Score Drop: The ZDX Score variation through the Wi-Fi access point.",
+            "Maximum Wi-Fi Access Point Latency: The maximum Wi-Fi Access Point Latency.",
+            "Average Wi-Fi Access Point Latency: The average Wi-Fi Access Point Latency.",
+            "Packet Loss at Wi-Fi Access Point (Hop 1): The packet loss at the first Wi-Fi Access Point.",
+            "Packet Loss after Wi-Fi Access Point (Hop 2): The packet loss after the 1st Wi-Fi Access Point.",
+            "Packet Loss after Wi-Fi Access Point (Hop 3): The packet loss after the 2nd Wi-Fi Access Point.",
+            "Packet Loss after Wi-Fi Access Point (Hop 4): The packet loss after the 3rd Wi-Fi Access Point.",
+            "Wi-Fi Signal Strength: The average signal strength of users going through the Wi-Fi Access Point."
+          ]
+        }
+      ]
+    },
+    "last-mile-metrics": {
+      "statement": "Last Mile ISP Blackout key metrics give an overview of connectivity issues with an ISP: the application's ZDX Score, the total probe errors and the Cloud Path probe errors. Brownout key metrics give an overview of performance degradation with an ISP: the ZDX Score drop, DNS latency, leg latency and packet loss.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "Blackout key metrics provides an overview of connectivity issues with an ISP.",
+            "Application Score: The ZDX Score of the application.",
+            "All Probe Errors: The total number of probe errors.",
+            "Cloud Path Probe Errors: The number of Cloud Path probe errors.",
+            "Brownout key metrics provides an overview of performance degradation with an ISP.",
+            "ZDX Score Drop: The shaded region indicates the ZDX Score Drop for the Last Mile ISP incident.",
+            "DNS Latency: The amount of time DNS takes to resolve for impacted users from the Last Mile ISP incident.",
+            "Leg Latency: The latency for impacted legs from the Last Mile ISP incident.",
+            "Packet Loss: The number of packets lost from the Last Mile ISP incident."
+          ]
+        }
+      ]
+    },
+    "intermediate-isp-metrics": {
+      "statement": "Intermediate ISP key metrics plot a network path from the affected leg to show where the incident occurred, and give the aggregated ZDX Score across impacted users and their configured applications, latency on internal ISP hops or across peering points, leg latency, lost packets along the leg, end-to-end latency and DNS resolution time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "Impacted Intermediate ISP: Based on the affected leg, a network path is plotted to display where the incident occurred.",
+            "ZDX Score for Impacted Users: The aggregated ZDX Score across impacted users and their configured applications.",
+            "ISP Internal/Peering Latency: Latency measured on internal ISP hops or across peering points.",
+            "Leg Latency: The latency on the affected leg.",
+            "Packet Loss: The number of lost packets along the affected leg.",
+            "End-to-End Latency: The overall latency across the path.",
+            "DNS Resolution Time: Time to resolve DNS entries observed on the path."
+          ]
+        }
+      ]
+    },
+    "zia-pse-metrics": {
+      "statement": "ZIA Public Service Edge key metrics give each impacted user's ZDX Score aggregated across their configured applications, first-hop and second-hop latency around the SME from the ZIA Public Service Edge perspective, the number of ZIA transactions and ZIA connectivity errors through the affected Zscaler Data Center, and the Cloud Path and Web probe errors at that data center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "ZDX Score for Impacted Users: The ZDX Score for Impacted Users is calculated across each impacted user and their aggregated ZDX Score from all their configured applications.",
+            "First Hop Latency Around SME: The time calculated, from the ZIA Public Service Edge perspective, across all the users of the SME going through the affected Zscaler Data Center.",
+            "Second Hop Latency Around SME: The average Second Hop Latency, from the ZIA Public Service Edge perspective, across all the users of the SME going through the affected Zscaler Data Center.",
+            "ZIA Transactions: Displays the number of ZIA transactions going through the affected Zscaler Data Center.",
+            "ZIA Connectivity Errors: Displays the number of ZIA errors connecting to the affected Zscaler Data Center.",
+            "- Cloud Path Probe Errors: The number of Cloud Path probe errors at the Zscaler Data Center.",
+            "Web Probe Errors: The number of Web probe errors at the Zscaler Data Center."
+          ]
+        }
+      ]
+    },
+    "zpa-metrics": {
+      "statement": "ZPA App Connector key metrics give an overview of App Connector traffic, connectivity and latency for impacted users, including the average first-hop and second-hop latency across all users going through Private Access and the App Connector Cloud Path probe errors at the Zscaler Data Center. ZPA Public Service Edge incidents also list the Public Service Edge Web probe errors at the Zscaler Data Center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "ZPA App Connector key metrics provides an overview of App Connector traffic, connectivity, and latency for impacted users.",
+            "First Hop Latency Around ZPA: The average First Hop Latency across all the users going through Private Access.",
+            "Second Hop Latency Around ZPA: The average Second Hop Latency across all the users going through Private Access.",
+            "ZPA App Connector Cloud Path Probe Errors: The number of Cloud Path probe errors at the Zscaler Data Center.",
+            "ZPA Public Service Edge Web Probe Errors: The number of Public Service Edge Web probe errors at the Zscaler Data Center."
+          ]
+        }
+      ]
+    },
+    "application-metrics": {
+      "statement": "Application incident key metrics include the number of HTTP errors the application has encountered over time, the ratio of server response time (time to first byte) to page fetch time, the latency from the Public Service Edge to the application, and the number of redirections going through the application over time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "HTTP Errors: The number of HTTP errors the application has encountered over time.",
+            "TTFB-PFT Ratio: The ratio between the server response time (time to first byte) and the time to load the page (page fetch time).",
+            "Last Server Leg Latency: The latency from the Public Service Edge to the application.",
+            "Number of Redirects: The number of redirections going through the application over time."
+          ]
+        }
+      ]
+    },
+    "detection-thresholds": {
+      "statement": "The article says these metrics and thresholds are predetermined. Each incident type has a minimum number of impacted devices with bad scores and the dimensions that determine an impacted area: Application 50 (Country, Application); Last Mile ISP Blackout 20 (Geohash, ISP); Brownout minimum 10 across all customers and 5 per customer (Geohash, ISP); Intermediate ISP minimum 10 users per ASN and 10 users per customer (Geohash, ISP, CCID, ASN, ZIA Data Center); ZIA Public Service Edge minimum 100 across all customers and 10 per customer (ZIA Data Center); Wi-Fi 4 (ZIA Location, SSID); ZPA App Connector minimum 10 per customer per App Connector; ZPA Public Service Edge minimum 100 across all customers and 10 per customer (ZPA Data Center); Device System Software Crash 50 and Hang 50 (Devices).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-incidents-dashboard.json",
+          "quotes": [
+            "These metrics and thresholds are predetermined to provide insights into your organization's impacted devices.",
+            "Minimum Devices: The minimum number of impacted devices with bad scores.",
+            "Dimensions: The dimensions that determine an impacted area.",
+            "| Application | 50 | Country Application |",
+            "| Last Mile ISP - Blackout | 20 | Geohash ISP |",
+            "| Last Mile ISP - Brownout | Minimum 10 across all customers Minimum 5 per customer | Geohash ISP |",
+            "| Intermediate ISP | Minimum 10 users per ASN - ASN edge in Network Intelligence Minimum 10 users per customer | Geohash ISP CCID ASN ZIA Data Center |",
+            "| ZIA Public Service Edge | Minimum 100 across all customers Minimum 10 per customer | ZIA Data Center |",
+            "| Wi-Fi | 4 | ZIA Location SSID |",
+            "| ZPA - App Connector | Minimum 10 per customer per App Connector | App Connector |",
+            "| ZPA - Public Service Edge | Minimum 100 across all customers Minimum 10 per customer | ZPA Data Center |",
+            "| Device - System Software Crash | 50 | Devices |",
+            "| Device - System Software Hang | 50 | Devices |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "minimum-scope": {
+      "summary": "The incident detection minimums: the Incidents Dashboard scopes them across all customers and per customer, while the alert-triggering article scopes them globally (across an organization) and locally (per location), and gives different numbers for a ZIA Public Service Edge incident.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-monitoring-incidents-dashboard.json",
+            "quotes": [
+              "| Last Mile ISP - Brownout | Minimum 10 across all customers Minimum 5 per customer | Geohash ISP |",
+              "| ZIA Public Service Edge | Minimum 100 across all customers Minimum 10 per customer | ZIA Data Center |"
+            ]
+          },
+          "says": "A ZIA Public Service Edge incident needs a minimum of 100 impacted devices across all customers and 10 per customer; a Brownout 10 across all customers and 5 per customer."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "triggering-alert.json",
+            "quotes": [
+              "- An incident requires a minimum number of devices impacted depending on if it is impacted globally (across an organization) or locally (per location).",
+              "| Incident Type | Global Minimum | Local Minimum | Global Total | Local Total | Alert Result |"
+            ]
+          },
+          "says": "An incident requires a minimum number of impacted devices globally (across an organization) or locally (per location), with Global Minimum and Local Minimum columns in the incident table."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "triggering-alert.json",
+            "quotes": [
+              "| ZIA Public Service Edge | 15 | 120 | 16 | 120 | Triggered |"
+            ],
+            "after": "| Incident Type | Global Minimum | Local Minimum | Global Total | Local Total | Alert Result |"
+          },
+          "says": "The alert article's table row for a ZIA Public Service Edge incident reads 15, 120, 16, 120, Triggered under Global Minimum, Local Minimum, Global Total, Local Total and Alert Result."
+        }
+      ],
+      "impact": "The dashboard says across all customers and per customer, the alert article says across an organization and per location, and for ZIA Public Service Edge the numbers differ (100 and 10 against a global minimum of 15 and a local minimum of 120); neither article reconciles them, so which one decides whether an incident exists or an alert triggers is not settled."
+    },
+    "wifi-key-metrics": {
+      "summary": "In the Incidents Dashboard article, the metrics table row for Wi-Fi lists ZPA metrics, while the article's Wi-Fi section lists access point metrics.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-monitoring-incidents-dashboard.json",
+            "quotes": [
+              "| Wi-Fi | 4 | ZIA Location SSID | ZDX Score First Hop Latency around ZPA Second Hop Latency around ZPA ZPA App Connector Cloud Path Probe Errors |"
+            ]
+          },
+          "says": "The table row gives the Wi-Fi key metrics as ZDX Score, first and second hop latency around ZPA and ZPA App Connector Cloud Path probe errors."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-monitoring-incidents-dashboard.json",
+            "quotes": [
+              "Maximum Wi-Fi Access Point Latency: The maximum Wi-Fi Access Point Latency.",
+              "Wi-Fi Signal Strength: The average signal strength of users going through the Wi-Fi Access Point."
+            ]
+          },
+          "says": "The Wi-Fi section gives access point latency, packet loss per hop and signal strength as the key metrics."
+        }
+      ],
+      "impact": "The metrics table row for Wi-Fi is not a safe source for Wi-Fi key metrics; the section's list is the one that matches the incident type."
+    }
+  },
+  "gaps": {
+    "severity-and-bad-score": {
+      "kind": "semantic",
+      "title": "What severity levels an incident has and what a bad score is",
+      "status": "open",
+      "detail": "Incident details carry a Severity described only as the level of severity of the incident, with no enumerated levels. The detection table gives a minimum number of impacted devices with bad scores without defining a bad score.",
+      "blocks": "explaining why a given incident was or was not raised and how severe it is",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

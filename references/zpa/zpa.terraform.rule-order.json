@@ -1,0 +1,1146 @@
+{
+  "schema_version": 1,
+  "id": "zpa.terraform.rule-order",
+  "title": "How the ZPA Terraform provider applies policy rule order (BulkReorder)",
+  "aliases": [
+    "zpa_policy_access_rule_reorder",
+    "terraform zpa reorder",
+    "zpa rules reordered unexpectedly",
+    "BulkReorder",
+    "zpa policy rule order drift",
+    "rule moved below configured rules"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zpa.policy.access-rule-order",
+      "because": "zpa.terraform.rule-order:terminal-rule-can-be-displaced"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.api.policy-wire",
+      "because": "zpa.api.policy-wire:go-bulk-reorder-default-last"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZPA provider orders policy rules differently from the ZIA provider described in [[zia.terraform.rule-order]]. The reorder resource computes one complete ordered list of rule IDs and replaces the policy set's order with a single request. {{sends-id-list-only}} {{synchronous-and-reports-failure}} {{bulk-reorder-status-check-unreachable}} {{delete-is-a-noop}} {{zia-zpa-failure-contrast}}"
+    },
+    {
+      "label": "Sort order of the list.",
+      "text": "{{comparator-managed-first}} {{default-rule-pinned-last-by-name}} {{map-holds-configured-rules}} {{unmanaged-rules-sent-below-managed}} {{terminal-rule-can-be-displaced}} {{configured-deception-rule-treated-as-unmanaged}}"
+    },
+    {
+      "label": "Configured numbers.",
+      "text": "{{validates-positive-and-unique-numbers}} {{numbers-are-relative-only}} {{gapped-numbers-drift}} {{deception-offset-drift}}"
+    },
+    {
+      "label": "Configured IDs.",
+      "text": "{{sdk-sends-only-listed-ids}} {{provider-does-not-check-ids-exist}} {{read-keeps-configured-value-when-id-missing}} {{nonexistent-id-persists}} How the reorder endpoint applies a submitted list, including nonexistent IDs and gapped numbers, is open {{gap:api-bulk-reorder-semantics}}."
+    },
+    {
+      "label": "Duplicate IDs.",
+      "text": "{{duplicate-ids-collapse-into-map}} {{duplicate-ids-pass-validation}}"
+    },
+    {
+      "label": "Context and unparseable orders.",
+      "text": "{{first-two-reads-ignore-caller-context}} {{read-skips-unparseable-order}}"
+    },
+    {
+      "label": "Concurrency.",
+      "text": "{{reorder-not-under-rule-mutex}} {{concurrent-bulk-reorder-last-writer-wins}} What the API does with overlapping rule writes is open {{gap:api-concurrent-writes}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the whole policy type's order is re-read after an apply of a reorder resource, and terminal rules such as `Default_Rule` are still last.",
+      "uses": [
+        "unmanaged-rules-sent-below-managed",
+        "terminal-rule-can-be-displaced",
+        "default-rule-pinned-last-by-name"
+      ]
+    },
+    {
+      "do": "Whether the configured numbers are contiguous from 1 and list every rule that matters, so that the configuration matches the list sent.",
+      "uses": [
+        "numbers-are-relative-only",
+        "gapped-numbers-drift"
+      ]
+    },
+    {
+      "do": "Which provider version produced a plan that shows an order difference when the Deception rule sits at order 1: up to v4.4.15 the unreversed offset explains it, and v4.4.16 reads the offset back.",
+      "uses": [
+        "deception-offset-drift"
+      ]
+    },
+    {
+      "do": "Whether a reorder resource depends on the rule resources it orders, and whether two reorder resources share one policy type.",
+      "uses": [
+        "reorder-not-under-rule-mutex",
+        "concurrent-bulk-reorder-last-writer-wins"
+      ]
+    }
+  ],
+  "claims": {
+    "sends-id-list-only": {
+      "statement": "The ZPA reorder resource does not write a position per rule. `BulkReorder` reads the policy set and every rule of the policy type, sorts the IDs locally, and sends one PUT to the policy set's `reorder` endpoint whose body is a bare ordered list of rule IDs. The configured numbers never go on the wire. The reorder resource `zpa_policy_access_rule_reorder` imports and calls the version 1 policy-set controller (`policysetcontroller`, not `policysetcontrollerv2`); the version 2 controller's `BulkReorder` is not covered here.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "HEAD"
+          ],
+          "quotes": [
+            "var ruleIdsOrdered []string",
+            "path := fmt.Sprintf(mgmtConfig+service.Client.GetCustomerID()+\"/policySet/%s/reorder\", policySet.ID)",
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil)",
+            "policySet, resp, err := GetByPolicyType(context.Background(), service, policySetType)",
+            "all, resp, err := GetAllByType(context.Background(), service, policySetType)",
+            "sort.SliceStable(all, func(i, j int) bool {"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := policysetcontroller.BulkReorder(ctx, service, d.Get(\"policy_type\").(string), ruleIdToOrder); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "import ( \"context\" \"fmt\" \"log\" \"strconv\" \"strings\" \"github.com/hashicorp/go-cty/cty\" \"github.com/hashicorp/terraform-plugin-sdk/v2/diag\" \"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema\"",
+            "\"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation\" \"github.com/zscaler/zscaler-sdk-go/v3/zscaler/zpa/services/policysetcontroller\" )"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "ResourcesMap: map[string]*schema.Resource{",
+          "quotes": [
+            "\"zpa_policy_access_rule_reorder\":               resourcePolicyAccessRuleReorder(),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "HEAD"
+          ],
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "HEAD"
+          ],
+          "quotes": [
+            "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+          ]
+        }
+      ]
+    },
+    "synchronous-and-reports-failure": {
+      "statement": "Unlike the ZIA provider's background worker, the ZPA resource applies the order inside the apply call: a failed PUT comes back as an error from the update, and, only when the PUT succeeds (the update returns the error first otherwise), the update then reads the rules back before returning. On the OneAPI client a non-2xx status reaches the update as the error returned by `NewRequestDo`, not through a status check in `BulkReorder`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "log.Printf(\"[ERROR] Bulk reordering rules failed: %v\", err)",
+            "return resourcePolicyAccessReorderRead(ctx, d, meta)",
+            "if _, err := policysetcontroller.BulkReorder(ctx, service, d.Get(\"policy_type\").(string), ruleIdToOrder); err != nil { log.Printf(\"[ERROR] Bulk reordering rules failed: %v\", err) return diag.FromErr(err) }"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil) if err != nil { return nil, err }"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON) if err != nil { return nil, err }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "if resp.StatusCode >= 300 { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"API error\"))"
+          ],
+          "after": "func (c *Client) ExecuteRequest(ctx context.Context, method, endpoint string, body io.Reader, urlParams url.Values, contentType string) ([]byte, *http.Response, *http.Request, error) {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "// reorderAll runs as a background goroutine and reconciles the desired // order of every rule registered for resourceType against the API's"
+          ]
+        }
+      ]
+    },
+    "bulk-reorder-status-check-unreachable": {
+      "statement": "`BulkReorder`, in both the policysetcontroller and policysetcontrollerv2 packages, checks the reorder PUT for a non-2xx status after `NewRequestDo` returns, but on the OneAPI client that check never fires: `ExecuteRequest` turns any status of 300 or above into an error, which `BulkReorder` returns with a nil response before the check, and `NewRequestDo` reports every success as `StatusCode` 200.",
+      "tier": "B",
+      "derived_from": [
+        "shared.sdk-go.request-handling:request-do-fabricates-200",
+        "shared.sdk-go.request-handling:fabricated-200-disables-status-checks"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil) if err != nil { return nil, err }",
+            "if resp.StatusCode < 200 || resp.StatusCode >= 300 {",
+            "return resp, fmt.Errorf(\"API request failed with status code %d: %s\", resp.StatusCode, string(bodyBytes))"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil) if err != nil { return nil, err }",
+            "if resp.StatusCode < 200 || resp.StatusCode >= 300 {",
+            "return resp, fmt.Errorf(\"API request failed with status code %d: %s\", resp.StatusCode, string(bodyBytes))"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON) if err != nil { return nil, err }",
+            "resp := &http.Response{\n\t\tStatusCode: http.StatusOK,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "if resp.StatusCode < 300 { break }",
+            "if resp.StatusCode >= 400 && resp.StatusCode < 500 { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"client error\"))",
+            "if resp.StatusCode >= 300 { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"API error\"))"
+          ],
+          "after": "func (c *Client) ExecuteRequest(ctx context.Context, method, endpoint string, body io.Reader, urlParams url.Values, contentType string) ([]byte, *http.Response, *http.Request, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/v2_client.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := errorx.CheckErrorInResponse(resp, err); err != nil { return resp, err }"
+          ],
+          "after": "func (client *Client) do(req *http.Request, v interface{}, start time.Time, reqID string) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "if res.StatusCode >= 200 && res.StatusCode <= 299 { return respErr }",
+            "return &ErrorResponse{ Response: res, Err: respErr, Parsed: parsed,"
+          ],
+          "after": "func CheckErrorInResponse(res *http.Response, respErr error) error {"
+        }
+      ],
+      "conditions": "Read from the code at v3.8.58, not exercised. The legacy ZPA client ends the same way: its `do` returns `errorx.CheckErrorInResponse`'s error for any status outside 200-299, so `BulkReorder` again returns nil and that error before its own check. The 403 LIMIT_EXCEEDED, 409/412 edit-lock and 5xx branches of `ExecuteRequest` either retry or return an error; none returns a non-2xx response without one.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Go SDK: BulkReorder's non-2xx status branch is unreachable; failures surface only as NewRequestDo errors with a nil response."
+        }
+      ]
+    },
+    "delete-is-a-noop": {
+      "statement": "Destroying the reorder resource only removes it from state. The delete function makes no API call, so the policy keeps whatever order was last applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "func resourcePolicyAccessReorderDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { return nil }"
+          ]
+        }
+      ]
+    },
+    "comparator-managed-first": {
+      "statement": "The local sort compares two rules by their configured numbers only when both are in the provider's map. When exactly one is in the map it sorts first, so every rule the provider does not manage sorts after every rule it does. When neither is, the comparison falls back to the two rules' positions in the slice being sorted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "HEAD"
+          ],
+          "quotes": [
+            "orderi, existsi := ruleIdToOrder[ruleIDi] orderj, existsj := ruleIdToOrder[ruleIDj] // If both rules exist in the map, compare their orders if existsi && existsj { return orderi <= orderj }",
+            "if existsi && existsj { return orderi <= orderj } // If only one of the rules exists in the map, prioritize it if existsi { return true } else if existsj { return false } // If neither rule exists in the map, maintain their relative order return i <= j"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        }
+      ]
+    },
+    "default-rule-pinned-last-by-name": {
+      "statement": "After sorting, the one rule whose name is exactly `Default_Rule` is taken out and appended last. No other rule is pinned by name or attribute inside `BulkReorder` (the provider separately pins an unconfigured Deception rule that sits at order 1 to 1 through the map). If several rules carry that name, only the last one's ID is appended and the others are left out of the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "HEAD"
+          ],
+          "quotes": [
+            "if rule.Name == \"Default_Rule\" {",
+            "ruleIdsOrdered = append(ruleIdsOrdered, defaultRuleID)",
+            "sort.SliceStable(all, func(i, j int) bool {",
+            "for _, rule := range all { // Check if this is the Default_Rule if rule.Name == \"Default_Rule\" { defaultRuleID = rule.ID continue } // Add all other rules to the ordered list ruleIdsOrdered = append(ruleIdsOrdered, rule.ID) }",
+            "// Append the Default_Rule to the end if it exists if defaultRuleID != \"\" {",
+            "// If neither rule exists in the map, maintain their relative order return i <= j })"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.15"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {",
+            "_, managedByTerraform := userDefinedRules.Orders[deceptionID] if !managedByTerraform { ruleIdToOrder[deceptionID] = 1 }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {",
+            "_, managedByTerraform := configured.Orders[rule.ID] return rule.ID, !managedByTerraform",
+            "deceptionID, deceptionAtOne := deceptionRuleAtOrderOne(existingRules, userDefinedRules) if deceptionAtOne { ruleIdToOrder[deceptionID] = 1 }"
+          ]
+        }
+      ],
+      "conditions": "Absence claim: the body of `BulkReorder` in zscaler/zpa/services/policysetcontroller/policysetcontroller.go at Go SDK v3.8.58 makes one comparison that picks a rule out, `rule.Name == \"Default_Rule\"`."
+    },
+    "map-holds-configured-rules": {
+      "statement": "The map handed to `BulkReorder` is filled from the configured `rules` blocks, plus a pin of a rule named \"Zscaler Deception\" at order 1 to 1 when that rule is not itself configured. Up to v4.4.15 the configured numbers were offset by one whenever that rule sat at order 1, configured or not, and from v4.1.13 through v4.4.15 a configured Deception rule was left out of the map; from v4.4.16 the map holds every configured rule, and the offset and pinning the Deception rule to 1 apply only when the Deception rule is at order 1 and not configured. The provider adds no other policy rules to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "ruleIdToOrder := make(map[string]int)",
+            "deceptionID, deceptionAtOne := deceptionRuleAtOrderOne(existingRules, userDefinedRules)",
+            "ruleIdToOrder[deceptionID] = 1",
+            "ruleIdToOrder[id] = order + 1",
+            "for id, order := range userDefinedRules.Orders { if deceptionAtOne { ruleIdToOrder[id] = order + 1 } else { ruleIdToOrder[id] = order } }",
+            "userDefinedRules, err := getRules(d)",
+            "if _, err := policysetcontroller.BulkReorder(ctx, service, d.Get(\"policy_type\").(string), ruleIdToOrder); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {",
+            "_, managedByTerraform := configured.Orders[rule.ID]",
+            "return rule.ID, !managedByTerraform"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.1.13",
+            "v4.4.10",
+            "v4.4.15"
+          ],
+          "quotes": [
+            "ruleIdToOrder := make(map[string]int)",
+            "ruleIdToOrder[deceptionID] = 1",
+            "ruleIdToOrder[id] = order + 1",
+            "if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {",
+            "_, managedByTerraform := userDefinedRules.Orders[deceptionID] if !managedByTerraform { ruleIdToOrder[deceptionID] = 1 }",
+            "for id, order := range userDefinedRules.Orders { if id == deceptionID { continue } if deceptionAtOne { ruleIdToOrder[id] = order + 1 } else { ruleIdToOrder[id] = order } }",
+            "userDefinedRules, err := getRules(d)",
+            "if _, err := policysetcontroller.BulkReorder(ctx, service, d.Get(\"policy_type\").(string), ruleIdToOrder); err != nil {",
+            "deceptionAtOne = true"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.0.0",
+            "v4.1.11"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {",
+            "if deceptionAtOne { ruleIdToOrder[deceptionID] = 1 baseOrder = 2 }",
+            "for id, order := range userDefinedRules.Orders { ruleIdToOrder[id] = order + baseOrder - 1 }"
+          ]
+        }
+      ],
+      "conditions": "Absence claim: `grep -n 'ruleIdToOrder\\[' zpa/resource_zpa_policy_access_rule_reorder.go` at v4.4.16 finds three writes: the Deception rule's pin to 1 and the two branches of the loop over the configured orders. Per tag, `git show <tag>:zpa/resource_zpa_policy_access_rule_reorder.go | awk '/^func resourcePolicyAccessReorderUpdate\\(/,/^}/'` piped to `grep -c 'if id == deceptionID'` returns 0 at v4.0.0 through v4.1.11 and 1 from v4.1.12 through v4.4.15, and piped to `grep -c managedByTerraform` returns 0 through v4.1.12 and 2 from v4.1.13 through v4.4.15. So at v4.1.12 a Deception rule at order 1 is pinned to 1 whether configured or not, and before v4.1.12 a configured one is overwritten in the loop with its configured number plus one; a configured Deception rule is left out of the map only from v4.1.13 through v4.4.15."
+    },
+    "unmanaged-rules-sent-below-managed": {
+      "statement": "So the list sent is: every configured rule in numeric order (from v4.1.13 through v4.4.15, a configured Deception rule at order 1 goes with the other rules instead), then every other rule of the policy type in its current relative order, then `Default_Rule` (placed last even when it is configured with another number). Rules interleaved with configured rules, and any terminal rule not named exactly `Default_Rule`, end up below all configured rules.",
+      "tier": "B",
+      "derived_from": [
+        "comparator-managed-first",
+        "default-rule-pinned-last-by-name",
+        "map-holds-configured-rules",
+        "sends-id-list-only"
+      ],
+      "conditions": "Follows from the comparator, the name pin and the provider's map as read at the audited refs. From v4.1.13 through v4.4.15 a configured Deception rule at order 1 was not in the map and so counted among the other rules; from v4.4.16 it is a configured rule. The sort is sort.SliceStable, and its fallback for two unmanaged rules compares their current slice positions, so unmanaged rules keep their relative order; read, not run. Applies to whatever list the rules read returned.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "terminal-rule-can-be-displaced": {
+      "statement": "An apply of the reorder resource can therefore move a terminal or safety rule that is not named exactly `Default_Rule` out of last place, and still report success.",
+      "tier": "C",
+      "derived_from": [
+        "unmanaged-rules-sent-below-managed",
+        "synchronous-and-reports-failure"
+      ],
+      "conditions": "Depends on the API applying the submitted ID list as the new order (gap api-bulk-reorder-semantics); on the terminal rule not being in the configuration; and on its name differing from `Default_Rule`.",
+      "gaps": [
+        "api-bulk-reorder-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "configured-deception-rule-treated-as-unmanaged": {
+      "statement": "From v4.1.13 through v4.4.15, if the rule named \"Zscaler Deception\" at order 1 is itself listed in the configuration, it is neither pinned to 1 nor added to the map: the loop skips it, and the comparator then treats it as an unmanaged rule. From v4.4.16 the loop has no skip, so a configured Deception rule is neither pinned nor does it trigger the offset, and goes into the map at its configured number like any other configured rule.",
+      "tier": "B",
+      "derived_from": [
+        "comparator-managed-first"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.1.13",
+            "v4.4.10",
+            "v4.4.15"
+          ],
+          "quotes": [
+            "_, managedByTerraform := userDefinedRules.Orders[deceptionID]",
+            "if id == deceptionID {"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, managedByTerraform := configured.Orders[rule.ID] return rule.ID, !managedByTerraform",
+            "for id, order := range userDefinedRules.Orders { if deceptionAtOne { ruleIdToOrder[id] = order + 1 } else { ruleIdToOrder[id] = order } }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder_unit_test.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "after": "func TestResourcePolicyAccessRuleReorder_ConfiguredDeceptionRuleUsesItsOrder(t *testing.T) {",
+          "quotes": [
+            "got := reorderRequest(t, existing, reorderConfig(\"dec\", \"1\", \"r3\", \"2\", \"r1\", \"3\"))",
+            "if want := []string{\"dec\", \"r3\", \"r1\", \"r2\", \"rd\"}; !reflect.DeepEqual(got, want) {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder_unit_test.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "// A Deception rule that is itself configured is placed at its configured order."
+          ]
+        }
+      ],
+      "conditions": "Depends on a rule with that exact name at order \"1\" in the list read at update time. Read from the code at the audited refs; not run. The v4.4.16 changelog describes only the Read offset, not this change to Update; the evidence for it is the code and the unit test.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "sdk-sends-only-listed-ids": {
+      "statement": "The list sent is built by iterating the rules read from the API. A configured ID that is not among them is never added to the body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "HEAD"
+          ],
+          "quotes": [
+            "for _, rule := range all {",
+            "ruleIdsOrdered = append(ruleIdsOrdered, rule.ID)",
+            "all, resp, err := GetAllByType(context.Background(), service, policySetType)",
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil)"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        }
+      ],
+      "conditions": "Absence claim: `sed -n '/^func BulkReorder(/,/^}/p' zscaler/zpa/services/policysetcontroller/policysetcontroller.go | grep -n 'ruleIdToOrder\\|ruleIdsOrdered = append'` in vendor/zscaler-sdk-go returns six lines at v3.8.42, v3.8.47 and v3.8.58: the signature, a comment, the two comparator lookups (`ruleIdToOrder[ruleIDi]`, `ruleIdToOrder[ruleIDj]`) and two appends, `append(ruleIdsOrdered, rule.ID)` inside `for _, rule := range all` and `append(ruleIdsOrdered, defaultRuleID)`, where defaultRuleID is set from that same loop."
+    },
+    "provider-does-not-check-ids-exist": {
+      "statement": "The update reads the existing rules, but only to look for the Deception rule. It never checks that each configured ID is among them before calling `BulkReorder`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.15"
+          ],
+          "quotes": [
+            "existingRules, _, err := policysetcontroller.GetAllByType(ctx, service, d.Get(\"policy_type\").(string))",
+            "for _, rule := range existingRules {"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "existingRules, _, err := policysetcontroller.GetAllByType(ctx, service, d.Get(\"policy_type\").(string))",
+            "deceptionID, deceptionAtOne := deceptionRuleAtOrderOne(existingRules, userDefinedRules)",
+            "func deceptionRuleAtOrderOne(rules []policysetcontroller.PolicyRule, configured *RulesOrders) (string, bool) { for _, rule := range rules { if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {"
+          ]
+        }
+      ],
+      "conditions": "An absence: in `resourcePolicyAccessReorderUpdate` at v4.4.10 and v4.4.15, read in full, `existingRules` is used only in the Deception loop shown. From v4.4.16 that loop is in `deceptionRuleAtOrderOne`, `existingRules` is only passed to it, and the helper reads only each rule's name, order and ID and whether the Deception ID is configured."
+    },
+    "read-keeps-configured-value-when-id-missing": {
+      "statement": "Read overwrites a configured rule's order only when the rules read from the API contain its ID, and then writes every configured entry back to state. An ID the API no longer has keeps its configured order in state. From v4.4.16 the overwrite also requires the API's order to be above the Deception offset, and stores that order less the offset.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "if currentOrder, exists := currentOrderMap[id]; exists && currentOrder > offset {",
+            "\"order\": strconv.Itoa(order),",
+            "for id := range configuredRules.Orders { if currentOrder, exists := currentOrderMap[id]; exists && currentOrder > offset { configuredRules.Orders[id] = currentOrder - offset } }",
+            "for id, order := range configuredRules.Orders { rulesMap = append(rulesMap, map[string]interface{}{ \"id\": id, \"order\": strconv.Itoa(order), }) }",
+            "if err := d.Set(\"rules\", rulesMap); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessReorderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.15"
+          ],
+          "quotes": [
+            "if currentOrder, exists := currentOrderMap[id]; exists {",
+            "\"order\": strconv.Itoa(order),",
+            "for id := range configuredRules.Orders { if currentOrder, exists := currentOrderMap[id]; exists { configuredRules.Orders[id] = currentOrder } }",
+            "for id, order := range configuredRules.Orders { rulesMap = append(rulesMap, map[string]interface{}{ \"id\": id, \"order\": strconv.Itoa(order), }) }",
+            "if err := d.Set(\"rules\", rulesMap); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessReorderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ]
+    },
+    "nonexistent-id-persists": {
+      "statement": "A configured rule ID that does not exist is left out of the PUT body without any diagnostic and is kept in state as if it were ordered, so state can list a rule the policy does not contain.",
+      "tier": "C",
+      "derived_from": [
+        "sdk-sends-only-listed-ids",
+        "provider-does-not-check-ids-exist",
+        "read-keeps-configured-value-when-id-missing"
+      ],
+      "conditions": "Depends on the API accepting a reorder PUT that carries the complete current list as it would any other (gap api-bulk-reorder-semantics); a rejection would surface as an error instead.",
+      "gaps": [
+        "api-bulk-reorder-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "validates-positive-and-unique-numbers": {
+      "statement": "The provider checks that each order is greater than zero and that no two rules share a number. It does not check that the numbers are contiguous, start at 1, or fit within the number of rules.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "return fmt.Errorf(\"order must be a positive integer greater than 0\")",
+            "return fmt.Errorf(\"duplicate order '%d' used by rules with IDs: %v\", dupOrder, strings.Join(dupRuleIDs, \", \"))"
+          ],
+          "after": "func validateRuleOrders(orders *RulesOrders) error {"
+        }
+      ],
+      "conditions": "An absence: `validateRuleOrders` and the schema's order validator, read in full at v4.4.10 and at the pin, contain only the positivity and duplicate checks."
+    },
+    "numbers-are-relative-only": {
+      "statement": "The configured numbers only decide the relative order of the configured rules. Orders 1 and 3 with nothing at 2 produce the same list as orders 1 and 2, and 999 produces the same list as the last position.",
+      "tier": "B",
+      "derived_from": [
+        "comparator-managed-first",
+        "sends-id-list-only",
+        "validates-positive-and-unique-numbers"
+      ],
+      "conditions": "Follows from the comparator and the bare ID list; the equivalence is read from code, not run."
+    },
+    "gapped-numbers-drift": {
+      "statement": "Because Read replaces each configured number with the order the API reports (less the Deception offset from v4.4.16, when an unconfigured Deception rule is at order 1), a configuration with gaps (1 and 3) or out-of-range numbers can apply cleanly and then show a difference on every later plan.",
+      "tier": "C",
+      "derived_from": [
+        "numbers-are-relative-only",
+        "read-keeps-configured-value-when-id-missing"
+      ],
+      "conditions": "Depends on the API assigning contiguous positions from the submitted list and reporting them in `RuleOrder` (gap api-bulk-reorder-semantics).",
+      "gaps": [
+        "api-bulk-reorder-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "duplicate-ids-collapse-into-map": {
+      "statement": "The configured rules are a set, but `getRules` stores them in a map keyed by ID. Two blocks with the same ID and different orders collapse into one entry (which one survives depends on set iteration order), and `validateRuleOrders` receives only the collapsed map.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "// ❌ REMOVE THIS FAULTY SKIP",
+          "quotes": [
+            "orders.Orders[id] = order",
+            "orders.Orders[id] = order } } return &orders, nil }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := validateRuleOrders(userDefinedRules); err != nil {",
+            "userDefinedRules, err := getRules(d)"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"rules\": { Type: schema.TypeSet,",
+            "rulesSet, ok := d.Get(\"rules\").(*schema.Set) if ok && rulesSet != nil { for _, r := range rulesSet.List() { rule, ok := r.(map[string]interface{}) if !ok || rule == nil { continue } id := rule[\"id\"].(string) order, _ := strconv.Atoi(rule[\"order\"].(string)) // ❌ REMOVE THIS FAULTY SKIP"
+          ]
+        }
+      ]
+    },
+    "duplicate-ids-pass-validation": {
+      "statement": "A configuration that lists the same rule ID twice with different orders therefore passes validation with one of the two orders silently dropped.",
+      "tier": "B",
+      "derived_from": [
+        "duplicate-ids-collapse-into-map",
+        "validates-positive-and-unique-numbers"
+      ],
+      "conditions": "Assumes the two blocks are distinct set elements (a set's identity covers all nested attributes, which is the Terraform plugin SDK's behavior and is not quoted here) and that the schema has no per-ID uniqueness rule, as read in the schema at the audited refs.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "first-two-reads-ignore-caller-context": {
+      "statement": "`BulkReorder` fetches the policy set and the full rule list with `context.Background()`; only the final PUT uses the caller's context.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "HEAD"
+          ],
+          "quotes": [
+            "policySet, resp, err := GetByPolicyType(context.Background(), service, policySetType)",
+            "all, resp, err := GetAllByType(context.Background(), service, policySetType)",
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path,"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ],
+      "conditions": "Absence claim: `sed -n '/^func BulkReorder(/,/^}/p' zscaler/zpa/services/policysetcontroller/policysetcontroller.go | grep -n '\\bctx\\b'` in vendor/zscaler-sdk-go returns two lines at v3.8.42, v3.8.47 and v3.8.58: the signature and `resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, ...`."
+    },
+    "read-skips-unparseable-order": {
+      "statement": "Read parses each API rule's order with `strconv.Atoi` and, if that fails, leaves the rule out of the current-order map with no log or diagnostic. A configured rule whose API order cannot be parsed keeps its configured number in state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "if order, err := strconv.Atoi(rule.RuleOrder); err == nil {",
+            "currentOrderMap[rule.ID] = order",
+            "currentOrderMap := make(map[string]int) for _, rule := range currentRules { if order, err := strconv.Atoi(rule.RuleOrder); err == nil { currentOrderMap[rule.ID] = order } }",
+            "for id := range configuredRules.Orders { if currentOrder, exists := currentOrderMap[id]; exists && currentOrder > offset { configuredRules.Orders[id] = currentOrder - offset } }",
+            "for id, order := range configuredRules.Orders { rulesMap = append(rulesMap, map[string]interface{}{ \"id\": id, \"order\": strconv.Itoa(order), }) }"
+          ],
+          "after": "func resourcePolicyAccessReorderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.15"
+          ],
+          "quotes": [
+            "if order, err := strconv.Atoi(rule.RuleOrder); err == nil {",
+            "currentOrderMap[rule.ID] = order",
+            "currentOrderMap := make(map[string]int) for _, rule := range currentRules { if order, err := strconv.Atoi(rule.RuleOrder); err == nil { currentOrderMap[rule.ID] = order } }",
+            "for id := range configuredRules.Orders { if currentOrder, exists := currentOrderMap[id]; exists { configuredRules.Orders[id] = currentOrder } }",
+            "for id, order := range configuredRules.Orders { rulesMap = append(rulesMap, map[string]interface{}{ \"id\": id, \"order\": strconv.Itoa(order), }) }"
+          ],
+          "after": "func resourcePolicyAccessReorderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "reorder-not-under-rule-mutex": {
+      "statement": "`BulkReorder` takes no lock. Create, update, delete and the single-rule reorder in the same package each take a mutex first: up to v3.8.50 the package-level `ruleMutex`, and from v3.8.51 (#466) `common.PolicyRuleMutex`, which the v2 package's writes share. A comment in `GetPolicyRule` says only create, update and delete need it because of API restrictions, although the single-rule `Reorder` takes it too.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "v3.8.48"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func CreateRule(ctx context.Context, service *zscaler.Service, rule *PolicyRule) (*PolicyRule, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "v3.8.48"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "v3.8.48"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, policySetID, ruleId string) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "v3.8.48"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func Reorder(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, order int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.47",
+            "v3.8.48"
+          ],
+          "quotes": [
+            "// Only CREATE/UPDATE/DELETE need the ruleMutex due to API restrictions"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "common.PolicyRuleMutex.Lock()"
+          ],
+          "after": "func CreateRule(ctx context.Context, service *zscaler.Service, rule *PolicyRule) (*PolicyRule, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "common.PolicyRuleMutex.Lock()"
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "common.PolicyRuleMutex.Lock()"
+          ],
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, policySetID, ruleId string) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "common.PolicyRuleMutex.Lock()"
+          ],
+          "after": "func Reorder(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, order int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "// Only CREATE/UPDATE/DELETE need common.PolicyRuleMutex due to API restrictions"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "var PolicyRuleMutex sync.Mutex",
+            "// and policysetcontrollerv2 packages."
+          ]
+        }
+      ],
+      "conditions": "The absence of any lock in `BulkReorder`, `GetByPolicyType` and `GetAllByType` is from reading those functions in full at v3.8.42, v3.8.47, v3.8.48 and v3.8.55; a search for `ruleMutex` (v3.8.48) and `PolicyRuleMutex` (v3.8.55) in the file found uses only in the four functions quoted. Changed upstream in v3.8.51 (checked 2026-10-18): previously \"`BulkReorder` takes no lock. Create, update, delete and the single-rule reorder in the same package each take the package-level `ruleMutex` first, A comment in `GetPolicyRule` says only create, update and delete need it because of API restrictions, although the single-rule `Reorder` takes it too.\"",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "concurrent-bulk-reorder-last-writer-wins": {
+      "statement": "A bulk reorder can run while another reorder resource, or a policy rule update, is in flight in the same provider process. Its PUT carries a list built from an earlier read, so whichever request lands last determines the final order.",
+      "tier": "C",
+      "derived_from": [
+        "reorder-not-under-rule-mutex",
+        "sends-id-list-only"
+      ],
+      "conditions": "Depends on Terraform running the resources concurrently (no dependency between them) and on the API replacing the whole order with the submitted list (gap api-concurrent-writes). The mutex is per process, so it would not serialize separate runs either way.",
+      "gaps": [
+        "api-concurrent-writes"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "deception-offset-drift": {
+      "statement": "Up to v4.4.15, when the \"Zscaler Deception\" rule sat at order 1, Update sent every configured rule at its configured number plus one, but Read wrote back the API's number unchanged, so a configuration that numbers its rules from 1 could show a difference on every plan. From v4.4.16 Read subtracts the same offset, and the provider's changelog says such a configuration no longer shows a change in every plan.",
+      "tier": "C",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.15"
+          ],
+          "quotes": [
+            "ruleIdToOrder[id] = order + 1",
+            "configuredRules.Orders[id] = currentOrder"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "ruleIdToOrder[id] = order + 1",
+            "offset := 0 if _, shifted := deceptionRuleAtOrderOne(currentRules, configuredRules); shifted { offset = 1 }",
+            "configuredRules.Orders[id] = currentOrder - offset"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "after": "## 4.4.16 (October 26, 2026)",
+          "quotes": [
+            "`zpa_policy_access_rule_reorder`: on a tenant with a `Zscaler Deception` rule at order 1, the configured orders are written one position after it; reading them back now removes that offset again, so a configuration declaring orders `1..N` no longer shows a change in every plan."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder_unit_test.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "after": "func TestResourcePolicyAccessRuleReorder_UpdateWithDeceptionRoundTrips(t *testing.T) {",
+          "quotes": [
+            "d := fx.resourceData(resourcePolicyAccessRuleReorder(), \"\", reorderConfig(\"r3\", \"1\", \"r1\", \"2\"))",
+            "if want := map[string]string{\"r3\": \"1\", \"r1\": \"2\"}; !reflect.DeepEqual(got, want) {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_reorder.md",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "# Orders start from 1 whether or not a Zscaler Deception rule exists: the",
+            "merge(policy, { rule_number = index(local.policy_config.policies, policy) + 1 })"
+          ]
+        }
+      ],
+      "conditions": "Depends on the API reporting each rule's position in `RuleOrder` after the reorder (gap api-bulk-reorder-semantics). The offset and the missing reverse offset up to v4.4.15 are read from the code; the v4.4.16 outcome is stated by the changelog, and the unit tests mock the post-reorder orders.",
+      "gaps": [
+        "api-bulk-reorder-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.16 (PR 699)."
+        }
+      ]
+    },
+    "zia-zpa-failure-contrast": {
+      "statement": "The ZIA provider can finish an apply with rules out of their declared order and report success; the ZPA provider instead sends every rule it does not manage below the configured ones as a side effect of a successful call.",
+      "tier": "B",
+      "derived_from": [
+        "zia.terraform.rule-order:wrong-order-reported-success",
+        "unmanaged-rules-sent-below-managed",
+        "synchronous-and-reports-failure"
+      ],
+      "conditions": "The ZPA half depends on the API applying the submitted ID list as the new order (gap api-bulk-reorder-semantics).",
+      "gaps": [
+        "api-bulk-reorder-semantics"
+      ]
+    }
+  },
+  "gaps": {
+    "api-bulk-reorder-semantics": {
+      "kind": "semantic",
+      "title": "How the ZPA policy set reorder endpoint applies a submitted ID list",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating what the policy looks like after a reorder PUT whose list omits, reorders or reflects the provider's inputs",
+      "detail": "The SDK assumes the position of an ID in the list is its new order and that the list should be complete. No captured source states whether the API requires a complete list, how it numbers rules, or what `RuleOrder` it reports back. Test in a scratch tenant: reorder with an unmanaged rule between two managed ones, with a nonexistent ID in the configuration, and with gapped numbers; re-read every rule's order each time."
+    },
+    "api-concurrent-writes": {
+      "kind": "semantic",
+      "title": "What the ZPA API does with overlapping rule writes",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a reorder racing a rule update loses either change",
+      "detail": "The SDK comment says the API restricts concurrent create, update and delete, but no captured source describes the effect on a full-list reorder. Test in a scratch tenant by issuing a reorder PUT and a rule update at the same time and re-reading the policy."
+    }
+  }
+}

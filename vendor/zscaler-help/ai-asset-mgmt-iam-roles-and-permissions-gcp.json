@@ -1,0 +1,549 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "IAM Roles and Permissions for GCP",
+  "source": {
+    "url": "https://help.zscaler.com/ai-asset-mgmt/iam-roles-and-permissions-gcp",
+    "node": "1541473",
+    "revision": "3218500",
+    "updated": "2026-08-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "As part of the onboarding process, you need to deploy AI Security templates in the Google Cloud Platform (GCP) project. These templates create service accounts and access management (IAM) roles that AI Security requires to connect to the GCP project, discover the resources, and scan data. Each role has permissions for various services and actions, such as resource discovery, data scanning, etc."
+    },
+    {
+      "heading": "IAM Roles",
+      "level": 1
+    },
+    {
+      "text": "AI Security creates the following IAM roles and service accounts to access the GCP projects:"
+    },
+    {
+      "item": "Discovery Service Account",
+      "depth": 0
+    },
+    {
+      "item": "This service account is used by AI Security to discover resources in the GCP projects and to instruct Local Scanner Platform to perform scan-related instructions. The service account is assigned the following Managed Roles, which provide the necessary permissions:",
+      "depth": 0
+    },
+    {
+      "item": "Viewer",
+      "depth": 1
+    },
+    {
+      "item": "Organization Policy Viewer",
+      "depth": 1
+    },
+    {
+      "item": "Folder Viewer",
+      "depth": 1
+    },
+    {
+      "item": "Service Usage Consumer",
+      "depth": 1
+    },
+    {
+      "item": "Service Account User",
+      "depth": 1
+    },
+    {
+      "item": "Security Reviewer",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Asset Viewer",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Purpose"
+        ],
+        [
+          "storage.buckets.get",
+          "Monitored Projects",
+          "To get storage buckets metadata"
+        ],
+        [
+          "storage.managedfolders.get",
+          "Monitored Projects",
+          "To get managed folders metadata"
+        ],
+        [
+          "storage.managedfolders.list",
+          "Monitored Projects",
+          "To list the managed folders"
+        ],
+        [
+          "storage.buckets.getIamPolicy",
+          "Monitored Projects",
+          "To get the storage bucket's IAM policy metadata"
+        ],
+        [
+          "storage.managedfolders.getIamPolicy",
+          "Monitored Projects",
+          "To get the managed folder's IAM policy"
+        ],
+        [
+          "cloudasset.assets.searchAllIamPolicies",
+          "Monitored Projects/Organisation",
+          "To get GCP resources IAM policies"
+        ],
+        [
+          "compute.autoscalers.update",
+          "Orchestrator Project",
+          "To update the Zscaler AI Security instance group manager scaling"
+        ],
+        [
+          "compute.instanceGroupManagers.use",
+          "Orchestrator Project",
+          "To update the Zscaler AI Security instance group manager scaling"
+        ],
+        [
+          "compute.instanceGroupManagers.update",
+          "Orchestrator Project",
+          "To update the Zscaler AI Security instance group manager scaling"
+        ],
+        [
+          "compute.subnetworks.use",
+          "Orchestrator Project",
+          "To attach Zscaler AI Security instance to subnetworks"
+        ],
+        [
+          "compute.instances.setMetadata",
+          "Orchestrator Project",
+          "To create Zscaler AI Security instance"
+        ],
+        [
+          "compute.instances.delete",
+          "Orchestrator Project",
+          "To terminate Zscaler AI Security instance"
+        ],
+        [
+          "compute.instances.setLabels",
+          "Orchestrator Project",
+          "To create Zscaler AI Security instance"
+        ],
+        [
+          "compute.instanceTemplates.create",
+          "Orchestrator Project",
+          "To create Zscaler AI Security instance template"
+        ],
+        [
+          "compute.instances.create",
+          "Orchestrator Project",
+          "To create Zscaler AI Security instance"
+        ],
+        [
+          "compute.disks.create",
+          "Orchestrator Project",
+          "To create Disks for Zscaler AI Security instance"
+        ],
+        [
+          "compute.disks.setLabels",
+          "Orchestrator Project",
+          "To create Disks for Zscaler AI Security instance"
+        ],
+        [
+          "compute.instanceTemplates.delete",
+          "Orchestrator Project",
+          "To delete Zscaler AI Security instance template"
+        ]
+      ]
+    },
+    {
+      "item": "Orchestrator Service Account",
+      "depth": 0
+    },
+    {
+      "item": "This service account is used by the orchestrator instance to perform scan and management operations. The service account is assigned the following Managed Roles, which provide the necessary permissions:",
+      "depth": 0
+    },
+    {
+      "item": "Viewer",
+      "depth": 1
+    },
+    {
+      "item": "Service Usage Consumer",
+      "depth": 1
+    },
+    {
+      "item": "Service Account User",
+      "depth": 1
+    },
+    {
+      "item": "Cloud KMS CryptoKey Encrypter or Decrypter",
+      "depth": 1
+    },
+    {
+      "item": "Service Account Token Creator",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Purpose"
+        ],
+        [
+          "compute.disks.use",
+          "Orchestrator Project",
+          "To create Zscaler AI Security scanner instance disk"
+        ],
+        [
+          "compute.instances.attachDisk",
+          "Orchestrator Project",
+          "To attach Zscaler AI Security scanner instance disk"
+        ],
+        [
+          "compute.instances.detachDisk",
+          "Orchestrator Project",
+          "To detach Zscaler AI Security scanner instance disk"
+        ],
+        [
+          "compute.instances.delete",
+          "Orchestrator Project",
+          "To delete Zscaler AI Security scanner instance"
+        ],
+        [
+          "compute.instanceGroups.update",
+          "Orchestrator Project",
+          "To update Zscaler AI Security instance group manager"
+        ],
+        [
+          "compute.autoscalers.update",
+          "Orchestrator Project",
+          "To update Zscaler AI Security instance group manager"
+        ],
+        [
+          "secretmanager.versions.access",
+          "Orchestrator Project",
+          "To access Zscaler AI Security secret version"
+        ],
+        [
+          "compute.subnetworks.use",
+          "Orchestrator Project",
+          "To attach Zscaler AI Security scanner instance to its subnetwork"
+        ],
+        [
+          "compute.instances.setMetadata",
+          "Orchestrator Project",
+          "To create Zscaler AI Security scanner instance"
+        ],
+        [
+          "compute.instances.setLabels",
+          "Orchestrator Project",
+          "To create Zscaler AI Security scanner instance"
+        ],
+        [
+          "compute.instances.setMachineType",
+          "Orchestrator Project",
+          "To create Zscaler AI Security scanner instance"
+        ],
+        [
+          "compute.instances.setName",
+          "Orchestrator Project",
+          "To create Zscaler AI Security scanner instance"
+        ],
+        [
+          "compute.instances.setServiceAccount",
+          "Orchestrator Project",
+          "To assign Zscaler AI Security scanner instance service account"
+        ],
+        [
+          "cloudsql.instances.get",
+          "Orchestrator Project",
+          "To get the restored cloud SQL instance details"
+        ],
+        [
+          "cloudsql.instances.list",
+          "Orchestrator Project",
+          "To list the restored cloud SQL instances"
+        ],
+        [
+          "cloudsql.instances.delete",
+          "Orchestrator Project",
+          "To delete the restored cloud SQL instances"
+        ],
+        [
+          "resourcemanager.projects.get",
+          "Orchestrator Project",
+          "To retrieve the project details"
+        ],
+        [
+          "cloudsql.backupRuns.get",
+          "Orchestrator Project",
+          "To get restored latest cloud SQL instance backup"
+        ],
+        [
+          "cloudsql.instances.restoreBackup",
+          "Orchestrator Project",
+          "To restore latest cloud SQL backup"
+        ],
+        [
+          "cloudsql.users.update",
+          "Orchestrator Project",
+          "To update restored cloud SQL user"
+        ],
+        [
+          "secretmanager.secrets.delete",
+          "Orchestrator Project",
+          "To delete Zscaler AI Security secret"
+        ],
+        [
+          "secretmanager.secrets.update",
+          "Orchestrator Project",
+          "To update Zscaler AI Security secret"
+        ],
+        [
+          "secretmanager.versions.add",
+          "Orchestrator Project",
+          "To add Zscaler AI Security secret version"
+        ],
+        [
+          "compute.instances.create",
+          "Orchestrator Project",
+          "To create Zscaler AI Security scanner instance"
+        ],
+        [
+          "compute.disks.create",
+          "Orchestrator Project",
+          "To create Zscaler AI Security scanner instance disk"
+        ],
+        [
+          "cloudsql.instances.create",
+          "Orchestrator Project",
+          "To create the restored cloud SQL instance"
+        ],
+        [
+          "secretmanager.secrets.create",
+          "Orchestrator Project",
+          "To create Zscaler AI Security secret"
+        ],
+        [
+          "cloudsql.users.create",
+          "Orchestrator Project",
+          "To create restored cloud SQL user"
+        ],
+        [
+          "logging.sinks.get",
+          "GCP Organisation",
+          "To update Zscaler AI Security org log sink for buckets incremental scans"
+        ],
+        [
+          "logging.sinks.list",
+          "GCP Organisation",
+          "To update Zscaler AI Security org log sink for buckets incremental scans"
+        ],
+        [
+          "logging.sinks.update",
+          "GCP Organisation",
+          "To update Zscaler AI Security org log sink for buckets incremental scans"
+        ]
+      ]
+    },
+    {
+      "item": "Scanner Service Account",
+      "depth": 0
+    },
+    {
+      "item": "This service account is used by the scanner instance to perform scan-related tasks. The service account is assigned the following Managed Roles, which provide the necessary permissions:",
+      "depth": 0
+    },
+    {
+      "item": "Storage Object Viewer",
+      "depth": 1
+    },
+    {
+      "item": "Cloud KMS CryptoKey Encrypter or Decrypter",
+      "depth": 1
+    },
+    {
+      "item": "Viewer",
+      "depth": 1
+    },
+    {
+      "item": "Logs View Accessor",
+      "depth": 1
+    },
+    {
+      "item": "Service Usage Consumer",
+      "depth": 1
+    },
+    {
+      "item": "Service Account User",
+      "depth": 1
+    },
+    {
+      "item": "Service Account Token Creator",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Purpose"
+        ],
+        [
+          "logging.logEntries.list",
+          "Monitored Projects",
+          "To list log entries from log views"
+        ],
+        [
+          "secretmanager.versions.access",
+          "Monitored Projects",
+          "To access Zscaler AI Security secret version"
+        ]
+      ]
+    },
+    {
+      "item": "Target Role",
+      "depth": 0
+    },
+    {
+      "item": "The service account with this role is used to perform scan-related tasks on data stores. The service account is assigned the following Managed Roles and associated permissions:",
+      "depth": 0
+    },
+    {
+      "item": "Storage Object Viewer",
+      "depth": 1
+    },
+    {
+      "item": "Cloud KMS CryptoKey Encrypter or Decrypter",
+      "depth": 1
+    },
+    {
+      "item": "Service Usage Consumer",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Purpose"
+        ],
+        [
+          "storage.managedFolders.list",
+          "Monitored Projects",
+          "To get managed folders of buckets"
+        ],
+        [
+          "cloudkms.cryptoKeyVersions.useToDecrypt",
+          "Monitored Projects",
+          "To decrypt resources for scanning"
+        ],
+        [
+          "cloudkms.cryptoKeyVersions.useToEncrypt",
+          "Monitored Projects",
+          "To encrypt resources for scanning"
+        ],
+        [
+          "cloudsql.backupRuns.create",
+          "Monitored Projects",
+          "To create latest cloud SQL backup"
+        ],
+        [
+          "cloudsql.backupRuns.delete",
+          "Monitored Projects",
+          "To delete cloud SQL backups"
+        ],
+        [
+          "cloudsql.backupRuns.get",
+          "Monitored Projects",
+          "To get latest cloud SQL backup"
+        ],
+        [
+          "cloudsql.backupRuns.list",
+          "Monitored Projects",
+          "To list latest cloud SQL backups"
+        ],
+        [
+          "cloudsql.instances.get",
+          "Monitored Projects",
+          "To get cloud SQL instances"
+        ]
+      ]
+    },
+    {
+      "item": "The following permissions are required to scan GCP BigQuery projects:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Purpose"
+        ],
+        [
+          "bigquery.datasets.get",
+          "Monitored Projects",
+          "To read the metadata of BigQuery datasets"
+        ],
+        [
+          "bigquery.datasets.getIamPolicy",
+          "Monitored Projects",
+          "To check the access permissions configured for datasets"
+        ],
+        [
+          "bigquery.jobs.create",
+          "Monitored Projects",
+          "To run BigQuery jobs"
+        ],
+        [
+          "bigquery.models.getData",
+          "Monitored Projects",
+          "To read data from BigQuery ML models for scanning"
+        ],
+        [
+          "bigquery.models.getMetadata",
+          "Monitored Projects",
+          "To read metadata of BigQuery ML models"
+        ],
+        [
+          "bigquery.models.list",
+          "Monitored Projects",
+          "To list BigQuery ML models in a dataset"
+        ],
+        [
+          "bigquery.routines.get",
+          "Monitored Projects",
+          "To read the routine definitions"
+        ],
+        [
+          "bigquery.routines.list",
+          "Monitored Projects",
+          "To list routines in a dataset"
+        ],
+        [
+          "bigquery.tables.get",
+          "Monitored Projects",
+          "To read the metadata and schema of BigQuery tables"
+        ],
+        [
+          "bigquery.tables.getData",
+          "Monitored Projects",
+          "To read the contents of BigQuery tables for scanning"
+        ],
+        [
+          "bigquery.tables.getIamPolicy",
+          "Monitored Projects",
+          "To check the access permissions configured for tables"
+        ],
+        [
+          "bigquery.tables.list",
+          "Monitored Projects",
+          "To list tables within a BigQuery dataset"
+        ]
+      ]
+    }
+  ]
+}

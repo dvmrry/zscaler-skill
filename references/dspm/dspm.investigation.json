@@ -1,0 +1,401 @@
+{
+  "schema_version": 1,
+  "id": "dspm.investigation",
+  "title": "DSPM investigation queries (predicates, results, saving) and the Data Discovery, AI Data Access and SaaS Overview dashboards",
+  "aliases": [
+    "dspm investigation",
+    "dspm query",
+    "dspm predicates",
+    "dspm save as policy",
+    "dspm data discovery dashboard",
+    "dspm ai data access dashboard",
+    "dspm saas overview dashboard"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "dspm.overview" },
+    { "rel": "see-also", "to": "dspm.inventory" },
+    { "rel": "see-also", "to": "dspm.graphs" },
+    { "rel": "see-also", "to": "dspm.classification" },
+    { "rel": "see-also", "to": "dspm.policies" },
+    { "rel": "see-also", "to": "dspm.alerts" }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{edit-delete}} {{history-saved}}"
+    },
+    {
+      "label": "Results.",
+      "text": "{{results-ordering}} {{results-actions}} Custom policies are in [[dspm.policies]]."
+    },
+    {
+      "label": "Predicates.",
+      "text": "{{predicate-categories}} {{access-predicates}} {{has-data-predicates}} {{malware-predicate}} {{vulnerability-predicates}} {{posture-predicates-guardrails}} {{ai-predicates}} {{posture-predicates-dormant}} The page does not label which cloud each posture table belongs to {{gap:posture-tables-unlabelled}}. Is Dormant and Stale Access Keys are worded differently from the posture state; the open question is recorded under [[dspm.inventory:dormant-wording]] and the posture state is in [[dspm.inventory:posture-identity-90-days]]. The Has Service Account Keys predicate is unavailable for some resources {{gap:service-account-key-availability}}. A label slip on the GCP Logging predicate is noted {{gap:predicate-label-slips}}."
+    },
+    {
+      "label": "Data Discovery dashboard.",
+      "text": "{{discovery-widgets}} {{discovery-top-ordering}} {{discovery-region-map}}"
+    },
+    {
+      "label": "AI Data Access dashboard.",
+      "text": "{{ai-access-metrics}} {{ai-access-sensitive-only}} One widget repeats another widget's text {{gap:ai-top-data-shared}}."
+    },
+    {
+      "label": "SaaS Overview dashboard.",
+      "text": "{{saas-incident-types}} {{saas-widgets}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a predicate claim names the resource types it applies to (Has Malware: AWS S3 buckets, Azure virtual machines and storage accounts, GCP storage buckets; Has Models: AI-related resource types) before offering it for another resource.",
+      "uses": ["malware-predicate", "ai-predicates", "predicate-categories"]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "An investigation is a query on cloud resources that can be saved as an investigation query or converted into a custom security policy, without creating alerts or filtering the dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-investigation.json",
+          "quotes": [
+            "You might want to obtain certain information related to the security posture of your cloud resources without having to create alerts or filter information on the dashboard.",
+            "based on the result, save the investigation or create a custom security policy.",
+            "Cloud: The name of the cloud service provider (AWS, Azure, or GCP)."
+          ]
+        }
+      ]
+    },
+    "edit-delete": {
+      "statement": "An existing or saved investigation query can be edited, but only saved investigation queries can be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-editing-or-deleting-investigation.json",
+          "quotes": [
+            "You can edit an existing or a saved query. But you can delete only saved investigation queries."
+          ]
+        }
+      ]
+    },
+    "results-ordering": {
+      "statement": "Investigation results show resources with the highest severity first, and sorting on Risk or Resource Name lists highest-risk resources first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-investigation-results.json",
+          "quotes": [
+            "Resources with the highest level of severity are displayed in hierarchical order.",
+            "When you sort the data in the Risk or Resource Name column, resources with the highest risk are displayed first, followed by the ones with lower risk."
+          ]
+        }
+      ]
+    },
+    "predicate-categories": {
+      "statement": "Investigation predicates and operators are offered in categories to build highly contextual queries, and the combination of predicates and operators is specific to each primary resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-new-investigation.json",
+          "quotes": [
+            "DSPM offers predicates and operators in the following categories to build highly contextual queries:",
+            "The combination of predicates and operators is specific to each primary resource.",
+            "You can select multiple values when using the Like (%), Not Like !(%), iLike (i%), and Not iLike !(i%) operators."
+          ]
+        }
+      ]
+    },
+    "results-actions": {
+      "statement": "From investigation results you can click Save as Policy to convert the query into a custom policy or Export to download an Excel report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-new-investigation.json",
+          "quotes": [
+            "Click Save as Policy if you want to convert this query into a custom policy.",
+            "Click Export to export the data and download the report as an Excel file."
+          ]
+        }
+      ]
+    },
+    "access-predicates": {
+      "statement": "Access predicates define the network access levels for the resource: Publicly Accessible (true if the resource can be accessed from the internet) and Public Exposure Details (a JSON object, with exposed ports and IP ranges for network-level exposure).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-new-investigation.json",
+          "quotes": [
+            "Returns \"true\" if the resource can be accessed from the internet.",
+            "in case of a network level exposure, the object contains the exposed ports and IP ranges.",
+            "Access predicates define the network access levels for the resource.",
+            "| Publicly Accessible |",
+            "| Public Exposure Details |"
+          ]
+        }
+      ]
+    },
+    "malware-predicate": {
+      "statement": "The Has Malware predicate applies to malware detected in AWS S3 buckets, Azure virtual machines and storage accounts, and GCP storage buckets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-new-investigation.json",
+          "quotes": [
+            "Malware is detected in AWS S3 buckets, Azure virtual machines and storage accounts, and GCP storage buckets.",
+            "| Has Malware |"
+          ]
+        }
+      ]
+    },
+    "vulnerability-predicates": {
+      "statement": "The Has Vulnerability predicate includes CVE ID (as defined in the NVD) and Fix Available (true if a fix is available as defined in the NVD), and Is Vulnerable checks whether the resource contains packages with vulnerabilities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-new-investigation.json",
+          "quotes": [
+            "CVE ID: Returns the CVE ID as defined in the National Vulnerability Database (NVD).",
+            "Fix Available: Returns \"true\" if a fix is available as defined in the NVD.",
+            "Check if the resource contains packages with vulnerabilities.",
+            "| Has Vulnerability |",
+            "| Is Vulnerable |"
+          ]
+        }
+      ]
+    },
+    "posture-predicates-guardrails": {
+      "statement": "In investigations, the Guardrails posture predicate checks whether Guardrails is enabled for an AWS Bedrock Agent, and a posture predicate Exposed to AI service returns true if the resource is exposed to an AI service such as Azure AI Foundry.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-new-investigation.json",
+          "quotes": [
+            "Check if Guardrails is enabled or not for an AWS Bedrock Agent.",
+            "Returns \"true\" if the resource is exposed to an AI service, such as Azure AI Foundry.",
+            "| Exposed to AI service |"
+          ]
+        }
+      ]
+    },
+    "history-saved": {
+      "statement": "The Investigation page's History tab displays by default all queries the user has created, and the Saved tab shows the saved queries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-investigation-results.json",
+          "quotes": [
+            "By default, the History tab displays all the queries that you've created.",
+            "Select the Saved tab to view the saved queries."
+          ]
+        }
+      ]
+    },
+    "ai-predicates": {
+      "statement": "The Has Models predicate is available only for AI-related resource types such as AWS Bedrock, Azure AI Foundry and vertex AI resources, and the Has AI Package Package Status values are Sanctioned, Unsanctioned or Pending.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-new-investigation.json",
+          "quotes": [
+            "This predicate is available only for AI-related resource types, such as AWS Bedrock, Azure AI Foundry, and vertex AI resources.",
+            "Sanctioned: The AI package is approved for use.",
+            "Unsanctioned: The AI package is not approved for use.",
+            "Pending: The AI package is under review awaiting approval.",
+            "| Has Models |",
+            "| Has AI Package |",
+            "Package Status: Check for the approval status of the AI package."
+          ]
+        }
+      ]
+    },
+    "has-data-predicates": {
+      "statement": "The Has Data predicates include Sensitive Data Triggers (number of DLP trigger matches), Sensitive Data Volume (the volume of sensitive data found and the size, in KB, of the file containing it) and Last Completed Scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-new-investigation.json",
+          "quotes": [
+            "| Sensitive Data Triggers | The number of DLP trigger matches. |",
+            "| Sensitive Data Volume | The volume of sensitive data found in the data store and the size (in KB) of the file containing sensitive data. |",
+            "| Last Completed Scan | The date when the data store was last scanned successfully. |",
+            "| Has Data |"
+          ]
+        }
+      ]
+    },
+    "posture-predicates-dormant": {
+      "statement": "The investigation posture predicates include Is Dormant (checks whether the user has logged in over the last 90 days) and Stale Access Keys (checks whether access keys have been rotated in the last 90 days).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-new-investigation.json",
+          "quotes": [
+            "| Is Dormant | Check if the user has logged in over the last 90 days. |",
+            "| Stale Access Keys | Check if the access keys have been rotated in the last 90 days. |"
+          ]
+        }
+      ]
+    },
+    "discovery-widgets": {
+      "statement": "The Data Discovery dashboard has widgets for Data Stores Discovered and Scanned (with Gen AI Classification and DLP Engines tabs), Top Accounts by Sensitive Data, Top Data Stores by Sensitive Data, Data Insights and Data Regions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-data-discovery-dashboard.json",
+          "quotes": [
+            "Data Stores Discovered and Scanned",
+            "Gen AI Classification: The chart displays the files classified using generative AI.",
+            "DLP Engines: The chart displays the number of DLP engines used for data classification.",
+            "Top Accounts by Sensitive Data",
+            "Top Data Stores by Sensitive Data",
+            "Data Insights",
+            "Data Regions"
+          ]
+        }
+      ]
+    },
+    "discovery-top-ordering": {
+      "statement": "On the Data Discovery dashboard, the Top Accounts by Sensitive Data and Top Data Stores by Sensitive Data widgets list entries in descending order of the amount of sensitive data and alerts triggered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-data-discovery-dashboard.json",
+          "quotes": [
+            "Top Accounts by Sensitive Data",
+            "Top Data Stores by Sensitive Data",
+            "The accounts are displayed in descending order based on the amount of sensitive data and alerts triggered for each account.",
+            "The data stores are displayed in descending order based on the amount of sensitive data and alerts triggered for each account."
+          ]
+        }
+      ]
+    },
+    "discovery-region-map": {
+      "statement": "The Data Regions widget is a world map of the regions where cloud accounts and data stores are located; the Show sensitive data only checkbox limits it to regions with data stores containing sensitive data, and circle size is relative between regions by number of sensitive records.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-data-discovery-dashboard.json",
+          "quotes": [
+            "Data Regions",
+            "A world map shows the geographic regions where all of your cloud accounts and data stores are located.",
+            "Select the Show sensitive data only checkbox to view only those regions with data stores containing sensitive data.",
+            "A bigger circle indicates that the region has more number of sensitive records when compared to the region represented by a smaller circle."
+          ]
+        }
+      ]
+    },
+    "ai-access-metrics": {
+      "statement": "The AI Data Access dashboard can be filtered by cloud, business unit, account and region, and its AI Metrics tiles are Deployed AI, Data Shared with AI and Open Alerts on AI Resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-ai-data-access-dashboard.json",
+          "quotes": [
+            "You can apply filters to view data specific to clouds, business units, accounts, and regions.",
+            "AI Metrics",
+            "Deployed AI: The number of AI services deployed across the cloud environment.",
+            "Data Shared with AI: The number of data stores and files that can be accessed by the AI services.",
+            "Open Alerts on AI Resources: The number of open alerts triggered for misconfigurations detected in the AI services."
+          ]
+        }
+      ]
+    },
+    "ai-access-sensitive-only": {
+      "statement": "On the AI Data Access dashboard, the Show Sensitive Data Only checkbox limits the DLP Engines chart to DLP engines marked as sensitive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-ai-data-access-dashboard.json",
+          "quotes": [
+            "Select the Show Sensitive Data Only checkbox to view only those DLP engines that are marked as sensitive."
+          ]
+        }
+      ]
+    },
+    "saas-incident-types": {
+      "statement": "The SaaS Overview dashboard categorizes SaaS data loss incidents as Private (compromise sensitive information), Internal (a data security breach within the organization) or External (originated outside the organization).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-saas-overview-dashboard.json",
+          "quotes": [
+            "SaaS incidents refer to data loss events associated with SaaS applications, categorized into three types: Private (incidents that compromise sensitive information), Internal (incidents that represent a data security breach within your organization), and External (incidents that originated outside your organization)."
+          ]
+        }
+      ]
+    },
+    "saas-widgets": {
+      "statement": "The SaaS Overview dashboard has SaaS Incidents and Top Users with SaaS Incidents bar charts and a SaaS Application with Data Exposure table whose columns include Application Tenant Name and Total Incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-saas-overview-dashboard.json",
+          "quotes": [
+            "Top Users with SaaS Incidents",
+            "SaaS Application with Data Exposure",
+            "This bar chart shows the users who experienced the most data loss incidents from SaaS applications.",
+            "Application Tenant Name: The application responsible for a data loss incident.",
+            "Total Incidents: The total number of data loss incidents from this application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-saas-overview-dashboard.json",
+          "after": "- SaaS Incidents",
+          "quotes": [
+            "This bar chart shows the data loss incidents from SaaS applications in your organization."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "posture-tables-unlabelled": {
+      "kind": "semantic",
+      "title": "Which cloud each investigation posture predicate table belongs to",
+      "status": "open",
+      "detail": "The Creating a New Investigation page names AWS, Azure, GCP and Snowflake posture tabs, but the captured text does not label which table belongs to which; the Is Dormant and Stale Access Keys table is only the fourth by order, so no cloud is stated for it.",
+      "resolves_with": ["source-read"]
+    },
+    "service-account-key-availability": {
+      "kind": "semantic",
+      "title": "Why the Has Service Account Keys predicate is unavailable for two unmanaged Azure databases",
+      "status": "open",
+      "detail": "The Creating a New Investigation page says of the GCP Has Service Account Keys predicate (the Type sub-predicate text) \"This predicate is not available for the unmanaged Azure Microsoft SQL server and unmanaged Azure PostgreSQL server.\"; no reason is given.",
+      "resolves_with": ["source-read"]
+    },
+    "predicate-label-slips": {
+      "kind": "semantic",
+      "title": "Label slip on the GCP Logging investigation predicate",
+      "status": "open",
+      "detail": "The GCP Logging predicate is described as \"The date the resource was created in the cloud environment.\"; no claim is drawn from it.",
+      "resolves_with": ["source-read"]
+    },
+    "ai-top-data-shared": {
+      "kind": "semantic",
+      "title": "What the Top Data Shared with AI widget charts",
+      "status": "open",
+      "detail": "On the AI Data Access dashboard the Top Data Shared with AI widget carries the same text as Data Stores Discovered and Scanned (\"The total number of data stores that are discovered and scanned.\"), so what it charts is unclear.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "id": "zms.policies",
+  "title": "How Microsegmentation resource policies, perimeter policies and policy settings work",
+  "aliases": [
+    "zms policy rules",
+    "microsegmentation perimeter policy",
+    "default resource policy rule",
+    "zms sim block",
+    "microsegmentation policy priority"
+  ],
+  "related": [
+    {"rel": "see-also", "to": "zms.overview"},
+    {"rel": "see-also", "to": "zms.resources"},
+    {"rel": "see-also", "to": "zms.policy-recommendations"},
+    {"rel": "see-also", "to": "zms.portal"}
+  ],
+  "prose": [
+    {"text": "{{policy-layers}} What a policy can be applied between is stated differently by the resource group article {{divergence:policy-endpoints}}."},
+    {"label": "Policy settings.", "text": "{{settings-global}}"},
+    {"label": "Resource policies.", "text": "{{list-columns}} {{priority-order}} {{rule-actions}} {{rule-scope}} {{rule-limits}} {{rule-app-ports}} {{changes-immediate}}"},
+    {"label": "Perimeter policies.", "text": "{{perimeter-purpose}} {{perimeter-fields}} {{perimeter-edit-rg}} {{perimeter-delete-confirm}}"},
+    {"label": "Open questions.", "text": "What Sim Block does is not defined {{gap:sim-block-meaning}}, and the UDP Include-all wording is unclear {{gap:udp-include-all-wording}}."},
+    {"label": "Related.", "text": "Recommendations that create policies are in [[zms.policy-recommendations]] and the groups they connect in [[zms.resources]]."}
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule with a lower priority integer already matches the traffic.",
+      "uses": ["priority-order"]
+    },
+    {
+      "do": "Whether the Default Resource Policy Rule setting is Allow for traffic no other policy covers.",
+      "uses": ["settings-global"]
+    }
+  ],
+  "claims": {
+    "settings-global": {
+      "statement": "The Policy Settings page controls policy enforcement globally; its Default Resource Policy Rule (Allow) is the catch-all for the whole organization's traffic when other policies do not apply, and settings must be confirmed before taking effect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-enabling-microsegmentation-policy-settings.json",
+          "quotes": [
+            "admins can control policy enforcement settings at a global level.",
+            "Click Allow for Default Resource Policy Rule.",
+            "This rule is what the system defaults to if other policies don’t apply to the traffic observed.",
+            "The scope of this policy acts as a catch-all for the entirety of your organization",
+            "You are prompted to confirm policy settings before they take effect."
+          ]
+        }
+      ]
+    },
+    "policy-layers": {
+      "statement": "The Configuring Microsegmentation Policies article says enforcement policies are Layer 3 and Layer 4, protect east-west traffic in cloud and data center environments, and are applied between resource groups or between a resource group and any other resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-microsegmentation-policies.json",
+          "quotes": [
+            "Admins can create Layer 3 and Layer 4 Microsegmentation enforcement policies to protect east-west traffic in both cloud and data center environments.",
+            "Policies are applied between resource groups or between a resource group and any other resource."
+          ]
+        }
+      ]
+    },
+    "priority-order": {
+      "statement": "Policies are evaluated from highest priority (lowest integer) to lowest priority (highest integer), no two policies can share a priority, and the maximum rule order depends on how many rules exist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-microsegmentation-policies.json",
+          "quotes": [
+            "Policies are evaluated from highest priority (lowest integer) to lowest priority (highest integer). No two policies can have the same priority.",
+            "The maximum number possible depends on how many existing rules there are in the list."
+          ]
+        }
+      ]
+    },
+    "rule-actions": {
+      "statement": "A policy rule Action is Allow, Sim Block or Block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-microsegmentation-policies.json",
+          "quotes": [
+            "Action: Select Allow, Sim Block, or Block."
+          ]
+        }
+      ]
+    },
+    "rule-limits": {
+      "statement": "A rule takes up to 10 sources, up to 10 destinations, and up to 10 TCP and 10 UDP additional port ranges, or an Include-all toggle for TCP or UDP ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-microsegmentation-policies.json",
+          "quotes": [
+            "You can select up to 10 sources total.",
+            "You can select up to 10 destinations total.",
+            "Click Add TCP Port Range to add up to 10 ranges, or enable the toggle Include all TCP ports",
+            "Click Add UDP Port Range to add up to 10 ranges, or enable the toggle Include all UDP ports"
+          ]
+        }
+      ]
+    },
+    "rule-scope": {
+      "statement": "A rule's Scope is the AppZones it affects; Include all AppZones is selected by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-microsegmentation-policies.json",
+          "quotes": [
+            "Scope: Select or deselect the checkbox to Include all AppZones. By default, it is already selected."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-microsegmentation-policies.json",
+          "quotes": [
+            "Scope: The AppZone the policy rule should affect."
+          ]
+        }
+      ]
+    },
+    "rule-app-ports": {
+      "statement": "A rule's destination can use an application port template drawn from the Application Catalog, which then shows the ports associated with the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-microsegmentation-policies.json",
+          "quotes": [
+            "Destination application port template: Select from the drop-down menu applications that are in the Application Catalog. When you select an application, it appears in a table that displays the ports associated with it."
+          ]
+        }
+      ]
+    },
+    "list-columns": {
+      "statement": "The Resource Policies page lists each rule's Order (which is applied first), Source, Destination, Applications, Protocol, Scope, Rule Action and Last Hit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-microsegmentation-policies.json",
+          "quotes": [
+            "Order: The ranking of which policy rule should be applied first.",
+            "Scope: The AppZone the policy rule should affect.",
+            "Source: The source location for the policy rule.",
+            "Destination: The destination location for the policy rule.",
+            "Protocol: The protocols added to the policy rule.",
+            "Rule Action: The command for the policy rule to apply.",
+            "Applications: The applications associated with the policy rule, if any.",
+            "Last Hit: The last time the policy rule was triggered."
+          ]
+        }
+      ]
+    },
+    "changes-immediate": {
+      "statement": "Configurations, edits and deletions of policy rules take effect immediately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-deleting-microsegmentation-policy.json",
+          "quotes": [
+            "Any configurations, edits, or deletions of policy rules take effect immediately."
+          ]
+        }
+      ]
+    },
+    "perimeter-purpose": {
+      "statement": "Perimeter policies define how Microsegmentation handles inbound, outbound and internal traffic for managed resource groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-perimeter-policies.json",
+          "quotes": [
+            "Perimeter policies allow you to easily define how Microsegmentation handles inbound, outbound, and internal traffic for managed resource groups."
+          ]
+        }
+      ]
+    },
+    "perimeter-fields": {
+      "statement": "A perimeter policy sets Inbound and Outbound Traffic Enforcement to Sim Block, Block or Disable and Internal Traffic Enforcement to Allow or Disable; it is ordered last by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-adding-perimeter-policy.json",
+          "quotes": [
+            "Inbound Traffic Enforcement: Select Sim Block, Block, or Disable.",
+            "Outbound Traffic Enforcement: Select Sim Block, Block, or Disable.",
+            "Internal Traffic Enforcement: Select Allow or Disable.",
+            "The policy is ordered last by default."
+          ]
+        }
+      ]
+    },
+    "perimeter-delete-confirm": {
+      "statement": "Deleting a perimeter policy at Zero Trust Cloud > Microsegmentation > Perimeter Policies requires entering CONFIRM in the Delete Perimeter Policy Rule window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-deleting-perimeter-policy.json",
+          "quotes": [
+            "From the navigation menu, go to Zero Trust Cloud > Microsegmentation > Perimeter Policies.",
+            "The Delete Perimeter Policy Rule window appears.",
+            "Enter CONFIRM."
+          ]
+        }
+      ]
+    },
+    "perimeter-edit-rg": {
+      "statement": "When editing a perimeter policy the Resource Group field cannot be changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-editing-perimeter-policy.json",
+          "quotes": [
+            "You cannot edit the Resource Group field."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "policy-endpoints": {
+      "summary": "The resource group article says policies apply to traffic between two resource groups; the policy configuration article says they apply between resource groups or between a resource group and any other resource.",
+      "positions": [
+        {
+          "says": "Policies are applied to traffic between two resource groups.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zms-configuring-resource-groups.json",
+            "quotes": [
+              "Policies are applied to traffic between two resource groups."
+            ]
+          }
+        },
+        {
+          "says": "Policies are applied between resource groups or between a resource group and any other resource.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zms-configuring-microsegmentation-policies.json",
+            "quotes": [
+              "Policies are applied between resource groups or between a resource group and any other resource."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a rule's source or destination can be something other than a resource group depends on which article is followed; the captures do not reconcile them."
+    }
+  },
+  "gaps": {
+    "sim-block-meaning": {
+      "kind": "semantic",
+      "title": "What Sim Block does as a policy action",
+      "status": "open",
+      "detail": "The articles list Sim Block beside Allow and Block as a rule action, a perimeter enforcement choice and a flow log action, and none defines it.",
+      "resolves_with": ["source-read"]
+    },
+    "udp-include-all-wording": {
+      "kind": "semantic",
+      "title": "What the Include all UDP ports toggle covers",
+      "status": "open",
+      "detail": "The configuring article words it \"Include all UDP ports to add all available TCP port ranges\"; this is probably a typo, and the captured text does not resolve it.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

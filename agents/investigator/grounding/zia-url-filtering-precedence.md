@@ -7,7 +7,11 @@ last-verified: "2026-05-07"
 confidence: medium
 source-tier: practice
 sources:
-  - "references/zia/url-filtering.md"
+  - "kb:zia.url-filtering"
+  - "kb:zia.url-filtering.rule-order"
+  - "kb:zia.url-categories.membership"
+  - "kb:zia.ssl-inspection.pipeline"
+  - "kb:zia.cloud-app-control.precedence"
 author-status: draft
 ---
 
@@ -24,21 +28,25 @@ author-status: draft
 
 Read these *before* interpreting any web log. URL filtering precedence has two non-obvious gotchas (specificity beats order; HTTPS gets two evaluation passes) that change the hypothesis space.
 
-- [`references/zia/url-filtering.md § Rule order and first-match semantics`](../../../references/zia/url-filtering.md) — the baseline ordering model.
-- [`references/zia/url-filtering.md § The specificity rule — the non-obvious precedence gotcha`](../../../references/zia/url-filtering.md) — when specificity beats explicit order; the implication for "why does rule A beat rule B."
-- [`references/zia/url-filtering.md § URL filtering evaluates twice on inspected HTTPS traffic`](../../../references/zia/url-filtering.md) — the pre-CONNECT vs post-CONNECT pass.
-- [`references/zia/url-filtering.md § Cloud App Control interaction`](../../../references/zia/url-filtering.md) — when CAC overrides URL filtering and vice versa.
+- [`zia.url-filtering.rule-order`](kb:zia.url-filtering.rule-order) — the baseline ordering model.
+- [`zia.url-categories.membership`](kb:zia.url-categories.membership) — when specificity beats explicit order; the implication for "why does rule A beat rule B."
+- [`zia.ssl-inspection.pipeline`](kb:zia.ssl-inspection.pipeline) — the pre-CONNECT vs post-CONNECT pass.
+- [`zia.cloud-app-control.precedence`](kb:zia.cloud-app-control.precedence) — when CAC overrides URL filtering and vice versa.
 
 ## Load docs
 
-- `references/zia/url-filtering.md`
+- `kb:zia.url-filtering`
+- `kb:zia.url-filtering.rule-order`
+- `kb:zia.url-categories.membership`
+- `kb:zia.ssl-inspection.pipeline`
+- `kb:zia.cloud-app-control.precedence`
 
-## Inspect snapshot
+## Inspect tenant config
 
-- `_data/snapshot/<cloud>/zia/url-filtering-rules.json`
-- `_data/snapshot/<cloud>/zia/cloud-app-control-rules.json` (load if Cloud App Control is in the question's scope)
+- The overlay's IaC for `zia/url-filtering-rules` (when `overlay.json` declares `iac`), or `zscalerctl zia url-filtering-rules list` (live, read-only; only when IaC cannot answer or for drift)
+- The overlay's IaC for `zia/cloud-app-control`, or `zscalerctl zia cloud-app-control list` (load if Cloud App Control is in the question's scope)
 
 ## Use runtime logs only when
 
-- The snapshot shows the rule wired correctly but a specific request was blocked or allowed unexpectedly — runtime web log gives the URL classification at request time (categorization can drift), the rule that fired, and the action taken.
+- The tenant config shows the rule wired correctly but a specific request was blocked or allowed unexpectedly — runtime web log gives the URL classification at request time (categorization can drift), the rule that fired, and the action taken.
 - Confirming whether the request was inspected (post-CONNECT pass) or not (pre-CONNECT only) — the action sequence in the web log distinguishes them.

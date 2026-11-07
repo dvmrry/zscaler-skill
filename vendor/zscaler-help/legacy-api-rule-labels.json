@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Rule Labels",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/rule-labels",
+    "node": "1402486",
+    "revision": "3160223",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Rule%20Labels_3.json?VersionId=doP.R7FsFqhPFfO3LpoSAoNIu_wxoybW",
+    "updated": "2025-12-26",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Rule Labels"
+      }
+    ],
+    "paths": {
+      "/ruleLabels": {
+        "get": {
+          "tags": [
+            "Rule Labels"
+          ],
+          "description": "Retrieves a list of rule labels. To learn more, see <a href=\"/zia/about-rule-labels\" target=\"_blank\">About Rule Labels</a>.",
+          "operationId": "RuleLabelResource_getRuleLabels",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "page",
+              "description": "Specifies the page offset",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 250,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/RuleLabel"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Rule Labels"
+          ],
+          "description": "Adds a rule label",
+          "operationId": "RuleLabelResource_addRuleLabel",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/RuleLabel"
+              }
+            }
+          }
+        }
+      },
+      "/ruleLabels/ruleType/{ruleType}": {
+        "get": {
+          "tags": [
+            "Rule Labels"
+          ],
+          "description": "Retrieves a list of rule labels based on the specified rule type",
+          "operationId": "RuleLabelResource_getRuleLabelViaRuleType",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleType",
+              "in": "path",
+              "description": "Specifies the rule type",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "URL_FILTERING"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EntityReference"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ruleLabels/{ruleLabelId}": {
+        "get": {
+          "tags": [
+            "Rule Labels"
+          ],
+          "description": "Gets rule label information for the specified ID.",
+          "operationId": "RuleLabelResource_getRuleLabelById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleLabelId",
+              "description": "The unique identifier for the rule label.",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/RuleLabel"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Rule Labels"
+          ],
+          "description": "Updates rule label information for the specified ID.",
+          "operationId": "RuleLabelResource_updateRuleLabel",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleLabelId",
+              "description": "The unique identifier for the rule label.",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/RuleLabel"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Rule Labels"
+          ],
+          "description": "Deletes the rule label for the specified ID.",
+          "operationId": "RuleLabelResource_deleteRuleLabel",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleLabelId",
+              "description": "The unique identifier for the rule label.",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "RuleLabel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The unique identifier for the rule label."
+          },
+          "name": {
+            "type": "string",
+            "description": "The rule label name."
+          },
+          "description": {
+            "type": "string",
+            "description": "The rule label description."
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp when the rule lable was last modified. This is a read-only field. Ignored by PUT and DELETE requests."
+          },
+          "lastModifiedBy": {
+            "description": "The admin that modified the rule label last. This is a read-only field. Ignored by PUT requests.",
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ]
+          },
+          "createdBy": {
+            "description": "The admin that created the rule label. This is a read-only field. Ignored by PUT requests.",
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ]
+          },
+          "referencedRuleCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The number of rules that reference the label."
+          }
+        },
+        "description": "Rule label information."
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of an ID and name"
+      }
+    }
+  }
+}

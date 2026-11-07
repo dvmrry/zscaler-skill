@@ -1,0 +1,435 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Creating a Gen AI Decoy in AWS",
+  "source": {
+    "url": "https://help.zscaler.com/deception/creating-gen-ai-decoy-aws",
+    "node": "1542574",
+    "revision": "3221540",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "Amazon Web Services (AWS) allows you to build generative AI (Gen AI) applications using various foundation models from leading companies. You can create a Gen AI decoy using the Amazon Bedrock-optimized foundation models. The Gen AI decoys are interactive, and you can customize the decoys to generate fake responses to lure attackers into entering more prompts. You can also log the prompts and responses between the adversary and the Gen AI decoy to gain insights into the objectives of the adversaries."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before creating a Gen AI decoy in AWS, you must ensure that you have:"
+    },
+    {
+      "item": "Configured the integration between AWS and Zscaler Deception.",
+      "depth": 0
+    },
+    {
+      "item": "Enabled or disabled the option to log AI prompts and responses for the AWS account based on your preference.",
+      "depth": 0
+    },
+    {
+      "item": "When logging is enabled, an S3 bucket is created to store prompts and responses from the Gen AI models. This S3 bucket collects prompts and responses from all Gen AI applications in that AWS account, including the legitimate Gen AI applications. However, only those prompts and responses pertaining to the Gen AI decoys created by Deception are sent to the Zscaler Deception Admin Portal. If you want to avoid storing (temporary) prompts and responses from the legitimate Gen AI applications in the S3 bucket, ensure that the Gen AI decoys are deployed in a different AWS account that does not contain any legitimate Gen AI applications.",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) Obtained the necessary CloudShell command for the deployment script using one of the following methods:",
+      "depth": 0
+    },
+    {
+      "item": "Automated Download Method",
+      "depth": 1
+    },
+    {
+      "item": "Manual Download Method",
+      "depth": 1
+    },
+    {
+      "item": "This only applies to the CloudShell-based deployment.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating a Gen AI Decoy",
+      "level": 1
+    },
+    {
+      "text": "To create a Gen AI decoy:"
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > AWS > GenAI.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Decoy.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The GenAI Decoy window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "In the GenAI Decoy window:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the Gen AI decoy application.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Account ID: Select the Account ID associated with the AWS account into which the decoy must be deployed.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the AWS region where the decoy must be deployed.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the foundation model you want to deploy is available in the AWS region.",
+      "depth": 1
+    },
+    {
+      "item": "Provider: Select the provider whose foundation model must be used for creating the decoy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Model: Select the foundation model that must be used for creating the decoy. This option appears only after selecting the provider.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Only the foundation models optimized for Amazon Bedrock are supported.",
+      "depth": 1
+    },
+    {
+      "item": "Description: Enter a description for the decoy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Instructions: Enter instructions for the Gen AI decoy to customize how it responds to prompts. The instructions are given as Gen AI prompts.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "If you use the default instructions, ensure that you replace the placeholder texts with appropriate values.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the decoy based on the method used to configure the integration between AWS and Deception:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Terraform-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Locate the AWS account you added, and click the Download icon in the Actions column.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          48,
+          56
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 2
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the aws-decoys.tf.json file in a text editor.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Locate the backend block in the aws-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "The following example shows a backend block of an S3 bucket-based Terraform back end:",
+      "depth": 2
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"s3\": { \"bucket\": \"your-terraform-state-bucket\", \"key\": \"deception/terraform.tfstate\", \"region\": \"us-east-1\", \"encrypt\": true } } } }",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same AWS account.",
+      "depth": 2
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and run the following command to create a new workspace:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "terraform apply",
+      "depth": 2
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "The necessary resources are deployed, and a JSON file containing the details of the state is downloaded.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings, locate the AWS account you added, and click the Upload icon in the Actions column.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          99,
+          105
+        ],
+        [
+          118,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "CloudShell-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS Management Console as an administrator.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Click the CloudShell icon on the navigation bar to launch AWS CloudShell.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The AWS CloudShell window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the AWS CloudShell window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Run the deployment script using the command obtained via the automated download method or manual download method.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Enter the option to deploy Gen AI decoys and press Enter.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "The deployment script detects the Account ID and deploys the Gen AI decoys to the selected regions.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If you want to add multiple Gen AI to AWS, repeat Step 1 to Step 4 for each decoy and then run the script to sync all decoys simultaneously.",
+      "depth": 0
+    },
+    {
+      "item": "Upon successful deployment, the Gen AI decoy is added to AWS. The deployment status is indicated by the icon next to the name of the decoy in the Gen AI decoys table (Deceive > Cloud Deception > AWS > GenAI) within the Zscaler Deception Admin Portal. To learn how to configure lures using Gen AI decoys, see Configuring Lures Using AWS Decoys",
+      "depth": 0
+    }
+  ]
+}

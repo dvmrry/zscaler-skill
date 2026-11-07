@@ -1,0 +1,1016 @@
+{
+  "schema_version": 1,
+  "id": "uvm.data-sources.endpoint",
+  "title": "UVM endpoint, Microsoft and vulnerability-scanner data sources: CrowdStrike, Defender for Endpoint, Entra ID, Intune, Qualys, Rapid7 and Tenable connectors",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "uvm.data-sources"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "See [[uvm.data-sources]] and [[uvm.overview]]."
+    },
+    {
+      "label": "CrowdStrike.",
+      "text": "{{cs-streams}} {{cs-separate-connectors}} {{cs-falcon-admin}} {{cs-assets-types}} {{cs-cloud-regions-crowdstrike}} {{cs-scope-visibility}} {{cs-stream-filters}}"
+    },
+    {
+      "label": "CrowdStrike CSPM and Identity Protection.",
+      "text": "{{cs-cspm-streams}} {{cs-idp-streams}} {{cs-idp-ad-filter}}"
+    },
+    {
+      "label": "CrowdStrike Falcon Insights.",
+      "text": "{{cs-falcon-insights-scope}} {{cs-fdr-feed}} {{cs-fdr-api-scopes}} {{cs-multi-cid}} {{cs-falcon-regions}} Whether Falcon Insights supports a USGOV2 region is open {{gap:falcon-insights-usgov2}}."
+    },
+    {
+      "label": "Microsoft Defender for Endpoint.",
+      "text": "{{defender-streams}} {{defender-export-api}} {{defender-api-by-stream}} {{defender-permissions}} {{defender-filters}} {{defender-auth-params}}"
+    },
+    {
+      "label": "Microsoft Entra ID.",
+      "text": "{{entra-la}} {{entra-streams}} {{entra-permissions}} {{entra-auth-params}}"
+    },
+    {
+      "label": "Microsoft Intune.",
+      "text": "{{intune-assets-stream}} {{intune-assets-role}} {{intune-assets-secret}} {{intune-assets-troubleshoot}} {{intune-saml-note}} {{intune-audit}}"
+    },
+    {
+      "label": "Qualys VMDR and PC.",
+      "text": "{{qualys-vmdr-streams}} {{qualys-url-by-stream}} {{qualys-permissions}} {{qualys-activation}} {{qualys-vuln-checkboxes}} {{qualys-vuln-status}} {{qualys-severity}} {{qualys-vuln-options}} {{qualys-tag-filters}}"
+    },
+    {
+      "label": "Qualys WAS.",
+      "text": "{{qualys-was-streams}} {{qualys-was-user}} {{qualys-was-activation}}"
+    },
+    {
+      "label": "Rapid7 InsightVM.",
+      "text": "{{rapid7-streams}} {{rapid7-apikey}} {{rapid7-region}} {{rapid7-severity}}"
+    },
+    {
+      "label": "Tenable Vulnerability Management.",
+      "text": "{{tvm-streams}} {{tvm-user}} {{tvm-options}} {{tvm-days}} {{tvm-count-mismatch}}"
+    },
+    {
+      "label": "Tenable Security Center.",
+      "text": "{{tsc-streams}} {{tsc-severity}}"
+    },
+    {
+      "label": "Tenable Nessus.",
+      "text": "{{nessus-records}} {{nessus-permissions}} {{nessus-days}} {{nessus-apikey}}"
+    }
+  ],
+  "claims": {
+    "cs-streams": {
+      "statement": "The CrowdStrike connector has 5 streams: Vulnerabilities, Managed Hosts, Environmental Assets, Incidents and Alerts; Incidents and Alerts data is used to enrich Vulnerabilities and Assets data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-connector.json",
+          "quotes": [
+            "- CrowdStrike Vulnerabilities: Retrieves vulnerabilities",
+            "- CrowdStrike Managed Hosts: Retrieves devices managed by CrowdStrike",
+            "- CrowdStrike Environmental Assets: Retrieves assets in your environment",
+            "- CrowdStrike Incidents: Retrieves security incidents",
+            "- CrowdStrike Alerts: Retrieves security alerts",
+            "CrowdStrike Incidents and CrowdStrike Alerts data is used to enrich Vulnerabilities and Assets data."
+          ]
+        }
+      ]
+    },
+    "cs-separate-connectors": {
+      "statement": "CrowdStrike CSPM and CrowdStrike Identity Protection are separate connectors from the CrowdStrike connector, each with its own page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-connector.json",
+          "quotes": [
+            "For the CrowdStrike CSPM connector, see Configuring the CrowdStrike CSPM Connector. For the CrowdStrike Identity Protection connector, see Configuring the CrowdStrike Identity Protection Connector."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-cspm-connector.json",
+          "quotes": [
+            "For the CrowdStrike connector, see Configuring the CrowdStrike Connector."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-identity-protection-connector.json",
+          "quotes": [
+            "For the CrowdStrike connector, see Configuring the CrowdStrike Connector."
+          ]
+        }
+      ]
+    },
+    "cs-falcon-admin": {
+      "statement": "Creating the CrowdStrike API keys needs the Falcon Administrator role; the CrowdStrike, CrowdStrike CSPM and CrowdStrike Identity Protection pages say so for the client ID and secret, and the Falcon Insights page says a Falcon Administrator role or the correct permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-connector.json",
+          "quotes": [
+            "To create the API keys, you need to have a Falcon Administrator role."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-cspm-connector.json",
+          "quotes": [
+            "To create the client ID and client secret, you need to have a Falcon Administrator role."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-identity-protection-connector.json",
+          "quotes": [
+            "To create the client ID and client secret, you need to have a Falcon Administrator role."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-falcon-insights-connector.json",
+          "quotes": [
+            "you need to have a Falcon Administrator role or be assigned the correct permissions."
+          ]
+        }
+      ]
+    },
+    "cs-assets-types": {
+      "statement": "The Assets Types menu offers Hosts and IoT; by default both are retrieved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-connector.json",
+          "quotes": [
+            "- Hosts: A traditional computing device (e.g., desktop computer, laptop, or server).",
+            "- IoT: Internet-connected devices that are not traditional computers (e.g., cameras or printers).",
+            "By default, both Hosts and IoT devices are retrieved."
+          ]
+        }
+      ]
+    },
+    "cs-cloud-regions-crowdstrike": {
+      "statement": "On the CrowdStrike connector the cloud region menu (CrowdStrike Managed Hosts stream) lists US1, US2, EU1, USGOV1 and USGOV2 with their base URLs, and defaults to US1 if unselected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-connector.json",
+          "quotes": [
+            "If left unselected, the default region is US1.",
+            "| US2 | https://api.us-2.crowdstrike.com |",
+            "| EU1 | https://api.eu-1.crowdstrike.com |",
+            "| USGOV1 | https://api.laggar.gcw.crowdstrike.com |",
+            "| USGOV2 | https://api.us-gov-2.crowdstrike.mil |",
+            "| US1 | https://api.crowdstrike.com |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-connector.json",
+          "quotes": [
+            "This menu is available in the CrowdStrike Managed Hosts stream."
+          ],
+          "after": "https://api.us-gov-2.crowdstrike.mil"
+        }
+      ]
+    },
+    "cs-scope-visibility": {
+      "statement": "On the CrowdStrike page, the API scopes visible when creating keys depend on the products the organization is subscribed to and the cloud region, and the page says a discrepancy suggests the connector might not be compatible with the current CrowdStrike configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-connector.json",
+          "quotes": [
+            "The available scopes are determined by the products your organization is subscribed to and the cloud region where your account is hosted.",
+            "This discrepancy suggests that the connector you are attempting to set up might not be compatible with your current CrowdStrike configuration."
+          ]
+        }
+      ]
+    },
+    "cs-stream-filters": {
+      "statement": "Among the CrowdStrike options are a Product drop-down menu (EPP, IDP, Mobile, XDR, Overwatch and CWPP, defaulting to All Products) and a Split Finding by Apps checkbox that separates records containing more than one app into individual entries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-connector.json",
+          "quotes": [
+            "The Product drop-down menu includes EPP, IDP, Mobile, XDR, Overwatch, and CWPP. The default is All Products.",
+            "The Split Finding by Apps checkbox allows you to separate records containing more than one app into individual entries."
+          ]
+        }
+      ]
+    },
+    "cs-cspm-streams": {
+      "statement": "The CrowdStrike CSPM connector has two streams, Indicators of Misconfiguration (IOM) and Indicators of Attack (IOA); the API client needs the Read scope for CSPM Registration, and the Cloud Provider menu selects AWS, Azure or GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-cspm-connector.json",
+          "quotes": [
+            "- CrowdStrike CSPM Indicators of Misconfiguration (IOM)",
+            "- CrowdStrike CSPM Indicators of Attack (IOA)",
+            "In the Scope table, select the Read checkbox for CSPM Registration.",
+            "Select the cloud provider (i.e., AWS, Azure, or GCP) that you configured CrowdStrike CSPM to scan"
+          ]
+        }
+      ]
+    },
+    "cs-idp-streams": {
+      "statement": "The CrowdStrike Identity Protection connector has two streams, Security Assessment and Domain Users; the API client needs Identity Protection Assessment Read, Identity Protection GraphQL Write and Identity Protection Entities Read (for domain users).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-identity-protection-connector.json",
+          "quotes": [
+            "- CrowdStrike Identity Protection Security Assessment: Retrieves security risk details",
+            "- CrowdStrike Identity Protection Domain Users: Retrieves user data",
+            "Identity Protection Assessment: Select the Read checkbox.",
+            "Identity Protection GraphQL: Select the Write checkbox.",
+            "Identity Protection Entities: Select the Read checkbox. This is for domain users."
+          ]
+        }
+      ]
+    },
+    "cs-idp-ad-filter": {
+      "statement": "A checkbox on the CrowdStrike Identity Protection page is available in the CrowdStrike Identity Protection Security Assessment stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-identity-protection-connector.json",
+          "quotes": [
+            "This checkbox is available in the CrowdStrike Identity Protection Security Assessment stream."
+          ]
+        }
+      ]
+    },
+    "cs-falcon-insights-scope": {
+      "statement": "The CrowdStrike Falcon Insights connector retrieves raw telemetry, system events and alerts for the Agentic SOC application, and requires active Internet & SaaS (ZIA) and Agentic SOC accounts plus an active Falcon Data Replicator add-on subscription from CrowdStrike.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-falcon-insights-connector.json",
+          "quotes": [
+            "retrieve raw telemetry, system events, and alerts for use within the Agentic SOC application",
+            "ensure that you have active Internet & SaaS (ZIA) and Agentic SOC accounts.",
+            "You also need an active Falcon Data Replicator add-on subscription from CrowdStrike"
+          ]
+        }
+      ]
+    },
+    "cs-fdr-feed": {
+      "statement": "Falcon Data Replicator forwards CrowdStrike data to an S3 bucket; the feed's default settings should not be changed because that can leave Agentic SOC without the data needed for threat analysis.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-falcon-insights-connector.json",
+          "quotes": [
+            "Falcon Data Replicator forwards your CrowdStrike data to an S3 bucket.",
+            "Changing the default settings can result in Agentic SOC not having the necessary data to make proper threat analysis, limiting its ability to protect your environment."
+          ]
+        }
+      ]
+    },
+    "cs-fdr-api-scopes": {
+      "statement": "The Falcon Insights API client needs the scopes Alerts Read and Write, Detections Read and Write, Hosts Read and Write, Host Groups Read, NGSIEM Read and Write, and Threatgraph Read.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-falcon-insights-connector.json",
+          "quotes": [
+            "1. Alerts: Read and Write",
+            "2. Detections: Read and Write",
+            "3. Hosts: Read and Write",
+            "4. Host Groups: Read",
+            "5. NGSIEM: Read and Write",
+            "6. Threatgraph: Read"
+          ]
+        }
+      ]
+    },
+    "cs-multi-cid": {
+      "statement": "Agentic SOC supports multi-CID CrowdStrike accounts where each CID has its own FDR feed and S3 bucket, cannot support an aggregated FDR feed for multi-CID accounts, and needs a separate Falcon Insights connector for each CID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-falcon-insights-connector.json",
+          "quotes": [
+            "Agentic SOC supports multi-CID accounts where each CID has its own FDR feed and S3 bucket.",
+            "Agentic SOC cannot support an aggregated Falcon Data Replicator feed for multi-CID accounts.",
+            "You must create new CrowdStrike Falcon Insight connectors for each CID you want to integrate."
+          ]
+        }
+      ]
+    },
+    "cs-falcon-regions": {
+      "statement": "The Falcon Insights Cloud Region menu lists US1, US2, EU1 and USGOV1 with their base URLs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-crowdstrike-falcon-insights-connector.json",
+          "quotes": [
+            "| US1 | https://api.crowdstrike.com |",
+            "| US2 | https://api.us-2.crowdstrike.com |",
+            "| EU1 | https://api.eu-1.crowdstrike.com |",
+            "| USGOV1 | https://api.laggar.gcw.crowdstrike.com |"
+          ]
+        }
+      ]
+    },
+    "defender-streams": {
+      "statement": "The Microsoft Defender for Endpoint connector has 5 streams (Assets, Vulnerabilities, Software Vulnerabilities by Machine, Alerts, Incidents), chosen by feature plan and use case, and they retrieve endpoint data only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-defender-endpoint-connector.json",
+          "quotes": [
+            "There are 5 Microsoft Defender for Endpoint streams. Select those that are based on your Microsoft Defender for Endpoint feature plan and use cases:",
+            "Microsoft Defender for Endpoint Software Vulnerabilities by Machine: Retrieves detailed software vulnerabilities for individual machines across all platforms and environments.",
+            "Microsoft Defender for Endpoint Incidents: Retrieves security incidents, including incident details, affected resources, severity, status, related alerts, and timelines.",
+            "These streams retrieve endpoint data only.",
+            "Microsoft Defender for Endpoint Assets: Retrieves device information, including device details such as ID and owner, operating system, and network information.",
+            "Microsoft Defender for Endpoint Vulnerabilities: Retrieves a list of all the vulnerabilities affecting the organization per machine and software.",
+            "Microsoft Defender for Endpoint Alerts: Retrieves security alerts, including details about the alert, impacted resources, severity, detection source, recommendations, and timestamps for incidents or vulnerabilities."
+          ]
+        }
+      ]
+    },
+    "defender-export-api": {
+      "statement": "Defender vulnerabilities can also be retrieved through Microsoft's Export API, which delivers the same data as the Vulnerabilities stream in a file-based bulk format; access is requested from the Zscaler Account team or Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-defender-endpoint-connector.json",
+          "quotes": [
+            "vulnerabilities can also be retrieved using Microsoft's Export API. This method delivers the same data as the Vulnerabilities stream but in a file-based format designed for efficient bulk retrieval.",
+            "To request access to the Export API, contact your Zscaler Account team or Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "defender-api-by-stream": {
+      "statement": "For Defender for Endpoint, the Incidents stream uses the Microsoft Threat Protection API, while the Vulnerabilities, Alerts, Assets and Software Vulnerabilities by Machine streams use the WindowsDefenderATP API; Application or Delegated permissions are added to the app registration and consent is granted for each permission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-defender-endpoint-connector.json",
+          "quotes": [
+            "Incidents stream: Select the Microsoft Threat Protection API.",
+            "For all other streams (i.e., Vulnerabilities, Alerts, Assets, or Software Vulnerabilities by Machine): Select the WindowsDefenderATP API.",
+            "Select either Application or Delegated.",
+            "Click Grant consent for each permission you add."
+          ]
+        }
+      ]
+    },
+    "defender-permissions": {
+      "statement": "The Defender page lists, under the WindowsDefenderATP API, Machine.Read.All and Machine.ReadWrite.All (Application) and Machine.Read and Machine.ReadWrite (Delegated), and, under the Microsoft Threat Protection API, Incidents.Read.All and Incident.ReadWrite.All (Application) and Incident.Read and Incident.ReadWrite (Delegated).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-defender-endpoint-connector.json",
+          "quotes": [
+            "| Application | Machine.Read.All | 'Read all machine profiles' |",
+            "| Delegated (work or school account) | Machine.ReadWrite | 'Read and write machine information' |",
+            "| Application | Incidents.Read.All | 'Read all incidents' |",
+            "| Delegated (work or school account) | Incident.Read | 'Read incidents' |",
+            "| Application | Incident.ReadWrite.All | 'Read and write all incidents' |",
+            "| Application | Machine.ReadWrite.All | 'Read and write all machine information' |",
+            "| Delegated (work or school account) | Machine.Read | 'Read machine information' |",
+            "| Delegated (work or school account) | Incident.ReadWrite | 'Read and write incidents' |",
+            "Select the WindowsDefenderATP API and add the following permissions:",
+            "Select the Microsoft Threat Protection API and add the following permissions:"
+          ]
+        }
+      ]
+    },
+    "defender-filters": {
+      "statement": "The Defender for Endpoint source can filter the ingested data by severity on the Vulnerabilities stream and filter out resolved incidents with a checkbox on the Incidents stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-defender-endpoint-connector.json",
+          "quotes": [
+            "You can filter the ingested data by severity.",
+            "This field is available in the Microsoft Defender for Endpoint Vulnerabilities stream.",
+            "You can filter out resolved incidents.",
+            "This checkbox is available in the Microsoft Defender for Endpoint Incidents stream."
+          ]
+        }
+      ]
+    },
+    "defender-auth-params": {
+      "statement": "Defender for Endpoint authentication needs the Application (client) ID and Directory (tenant) ID, a client secret and a URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-defender-endpoint-connector.json",
+          "quotes": [
+            "- Application (client) ID and Directory (tenant) ID",
+            "- Client Secret"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-defender-endpoint-connector.json",
+          "quotes": [
+            "To learn more, see Zscaler UVM and Microsoft Services Deployment Guide."
+          ],
+          "after": "- Client Secret\n- To learn more, see Zscaler UVM and Microsoft Services Deployment Guide.\n- URL"
+        }
+      ]
+    },
+    "entra-la": {
+      "statement": "The Microsoft Entra ID connector is in limited availability; contact Zscaler Support to learn more.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-entra-id-connector.json",
+          "quotes": [
+            "The Microsoft Entra ID connector is in limited availability. To learn more, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "entra-streams": {
+      "statement": "The Entra ID connector has 4 streams: Administrative Units, Applications, Devices, and Users & Groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-entra-id-connector.json",
+          "quotes": [
+            "There are 4 Entra ID streams. Select those that are based on your Entra ID feature plan and use cases:",
+            "Entra ID - Administrative Units: Retrieves all administrative units (e.g., name and description) and the members assigned to each unit.",
+            "Entra ID - Applications: Retrieves all applications registered in your Entra ID tenant (e.g., display name and app ID) and the owners for each application.",
+            "Entra ID - Devices: Retrieves all registered devices (e.g., device ID, name, OS, compliance and management fields) and the registered owners for each device.",
+            "Entra ID - Users & Groups: Retrieves a list of all Entra ID users (core profile attributes) and the groups each user is a member of."
+          ]
+        }
+      ]
+    },
+    "entra-permissions": {
+      "statement": "The Entra ID connector needs Microsoft Graph application permissions: AdministrativeUnit.Read.All for Administrative Units, Application.Read.All for Applications, Device.Read.All for Devices, and User.Read.All for Users & Groups; a further Application row lists Group.Read.All with no stream named.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-entra-id-connector.json",
+          "quotes": [
+            "| Entra ID - Administrative Units | Application | AdministrativeUnit.Read.All | 'Read all administrative units' |",
+            "| Entra ID - Applications | Application | Application.Read.All | 'Read all applications' |",
+            "| Entra ID - Devices | Application | Device.Read.All | 'Read all devices' |",
+            "| Entra ID - Users & Groups | Application | User.Read.All | 'Read all users' full profiles' |",
+            "| Application | Group.Read.All | 'Read all groups' |  |"
+          ]
+        }
+      ]
+    },
+    "entra-auth-params": {
+      "statement": "Entra ID authentication needs a Client ID, Client Secret and Tenant ID; the client secret is created under App registrations > Certificates & secrets and the tenant ID is on the Properties tab of the Overview page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-entra-id-connector.json",
+          "quotes": [
+            "You can create a client secret on the App registrations > Certificates & secrets page.",
+            "You can locate the tenant ID on the Properties tab of the Overview page.",
+            "You can locate the client ID on the Overview page."
+          ]
+        }
+      ]
+    },
+    "intune-assets-stream": {
+      "statement": "The Microsoft Intune Assets stream retrieves Intune devices that are mapped to assets, and needs an active Microsoft Intune subscription on the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-intune-assets-connector.json",
+          "quotes": [
+            "This stream retrieves Microsoft Intune devices that are mapped to assets in the system.",
+            "Before getting started, ensure that your tenant has an active Microsoft Intune subscription."
+          ]
+        }
+      ]
+    },
+    "intune-assets-role": {
+      "statement": "For Intune Assets the app role is declared with allowed member type Applications and value DeviceManagementManagedDevices.Read.All, and the app role is created while signed in to the Microsoft Entra admin center as a Cloud Application Administrator or greater.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-intune-assets-connector.json",
+          "quotes": [
+            "sign in to the Microsoft Entra admin center as a Cloud Application Administrator or greater admin role.",
+            "Allowed member types: Select Applications.",
+            "Value: Enter DeviceManagementManagedDevices.Read.All."
+          ]
+        }
+      ]
+    },
+    "intune-assets-secret": {
+      "statement": "When adding the Intune Assets client secret, the page says to select a 24-month expiration, and the secret value is not displayed again after leaving the page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-intune-assets-connector.json",
+          "quotes": [
+            "When you are asked to select an expiration date, select 24 months.",
+            "The client secret is not displayed again after you leave this page."
+          ]
+        }
+      ]
+    },
+    "intune-assets-troubleshoot": {
+      "statement": "For an authorization error on Intune Assets after setup, assign the DeviceManagementManagedDevices.Read.All application permission on Microsoft Graph through the Microsoft APIs tab, then rerun the source with Process Now.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-intune-assets-connector.json",
+          "quotes": [
+            "If you are still getting an authorization error after following the steps, assign the role app permissions through the Microsoft APIs tab.",
+            "On the Microsoft APIs tab, click the Microsoft Graph tile.",
+            "Select DeviceManagementManagedDevices.Read.All.",
+            "Hover over the Microsoft Intune Assets data source and click Process Now."
+          ]
+        }
+      ]
+    },
+    "intune-audit": {
+      "statement": "The Intune Audit Events connector needs an active Intune feature plan for the Microsoft Graph API for Intune, its parameters include Directory (tenant) ID and Application (client) ID, and its permissions step selects the intune read role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-intune-audit-events-connector.json",
+          "quotes": [
+            "The Microsoft Graph API for Intune requires an active Intune feature plan for the tenant.",
+            "For the Permissions step, select the intune read role.",
+            "- Directory (tenant) ID and Application (client) ID"
+          ]
+        }
+      ]
+    },
+    "intune-saml-note": {
+      "statement": "For Intune Assets, an existing SecOps app for API can have the application roles assigned, and this does not apply to the SAML application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-intune-assets-connector.json",
+          "quotes": [
+            "If you already have a SecOps app for API, assign the application roles. This does not apply to the SAML application."
+          ]
+        }
+      ]
+    },
+    "qualys-vmdr-streams": {
+      "statement": "The Qualys VMDR & PC connector has 3 streams: Assets (hosts data), Vulnerabilities (vulnerabilities and potential vulnerabilities categories) and Policy Compliance (compliance posture info records).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-vmdr-pc-connector.json",
+          "quotes": [
+            "There are three Qualys VMDR & PC streams.",
+            "Qualys Assets: Retrieves hosts data, including IP addresses, DNS names, serial numbers, operating systems, and tags.",
+            "Qualys Vulnerabilities: Retrieves vulnerabilities from the vulnerabilities and potential vulnerabilities categories.",
+            "Qualys Policy Compliance: Retrieves compliance posture info records, which includes the compliance posture ID."
+          ]
+        }
+      ]
+    },
+    "qualys-url-by-stream": {
+      "statement": "For Qualys VMDR & PC, Assets and Vulnerabilities use the API server URL as the platform URL and Policy Compliance uses the API gateway URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-vmdr-pc-connector.json",
+          "quotes": [
+            "For Qualys Assets and Qualys Vulnerabilities, use the API server URL.",
+            "For Qualys Policy Compliance, use the API gateway URL."
+          ]
+        }
+      ]
+    },
+    "qualys-permissions": {
+      "statement": "The Qualys VMDR & PC user needs the Manage VM module for Vulnerabilities and Assets and the Manage PC module for Policy Compliance; Zscaler recommends a new user with the Scanner role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-vmdr-pc-connector.json",
+          "quotes": [
+            "For Qualys Vulnerabilities and Qualys Assets, select the Manage VM module checkbox.",
+            "For Qualys Policy Compliance, select the Manage PC module checkbox.",
+            "Zscaler recommends that you create a new user with the Scanner role for this purpose."
+          ]
+        }
+      ]
+    },
+    "qualys-activation": {
+      "statement": "The Qualys VMDR & PC page says that a connector that fails after creating a user with the specified permissions may need the user activation completed, which includes logging into the Qualys console with the new user's credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-vmdr-pc-connector.json",
+          "quotes": [
+            "If you created a user and assigned the specified permissions, but your connector fails, ensure that you have completed the user activation process. This includes logging into the Qualys console using the new user's credentials."
+          ]
+        }
+      ]
+    },
+    "qualys-was-activation": {
+      "statement": "The Qualys WAS page says that if the connector fails after creating a user with the specified permissions, the user activation must be completed, which includes logging into the Qualys console with the new user's credentials; it also says to check the new account's email for a message titled Registration - Start Now.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-was-connector.json",
+          "quotes": [
+            "If you created a user and assigned the specified permissions, but your connector fails, ensure that you have completed the user activation process. This includes logging into the Qualys console using the new user's credentials.",
+            "This includes checking the email associated with the new user account for a message titled Registration - Start Now."
+          ]
+        }
+      ]
+    },
+    "qualys-vuln-checkboxes": {
+      "statement": "The Qualys VMDR & PC page has checkboxes to exclude vulnerabilities found on inactive kernels, vulnerabilities found on inactive ports and services, and vulnerabilities that are not exploitable due to the host configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-vmdr-pc-connector.json",
+          "quotes": [
+            "Select this checkbox to exclude vulnerabilities found on inactive kernels.",
+            "Select this checkbox to exclude vulnerabilities found on inactive ports and services.",
+            "Select this checkbox to exclude vulnerabilities that are not exploitable due to the host configuration."
+          ]
+        }
+      ]
+    },
+    "qualys-vuln-status": {
+      "statement": "The Qualys VMDR & PC page lists the vulnerability statuses New, Active, Re-Opened or Fixed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-vmdr-pc-connector.json",
+          "quotes": [
+            "(i.e., New, Active, Re-Opened, or Fixed)"
+          ]
+        }
+      ]
+    },
+    "qualys-severity": {
+      "statement": "Qualys classifies vulnerability severities from 1 to 5: 1 minimal, 2 medium, 3 high, 4 critical and 5 urgent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-vmdr-pc-connector.json",
+          "quotes": [
+            "Qualys classifies vulnerability severities from 1 to 5 based on the potential impact of the vulnerability and the difficulty of exploitation.",
+            "1: The vulnerability is minimal, or very low.",
+            "3: The vulnerability is high, such as unauthorized access to specific data or services.",
+            "4: The vulnerability is critical, such as full system compromise or significant data theft.",
+            "5: The vulnerability is urgent, such as immediate total system takeover likely being actively exploited in the wild.",
+            "2: The vulnerability is medium, such as limited sensitive information disclosure."
+          ]
+        }
+      ]
+    },
+    "qualys-vuln-options": {
+      "statement": "The Qualys VMDR & PC page has checkboxes to include Asset Reporting Format (ARF) data in vulnerability reports or detection results, to have the latest security updates supersede previous ones, and to save all ports with the same vulnerability (otherwise only the first port with the vulnerability is processed), and a Retrieve Information Gathered Findings (higher volume) option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-vmdr-pc-connector.json",
+          "quotes": [
+            "Select this checkbox to include Asset Reporting Format (ARF) data in your vulnerability reports or detection results.",
+            "Select this checkbox to have the latest security updates supersede previous security updates.",
+            "If the vulnerability is recorded on more than one port, only the first port with the vulnerability is processed. Select this checkbox to save all ports with the same vulnerability in the data.",
+            "Retrieve Information Gathered Findings (higher volume)"
+          ]
+        }
+      ]
+    },
+    "qualys-tag-filters": {
+      "statement": "A Qualys filter excludes specific groups of assets from the scope of data retrieval, with multiple values separated by commas; using it requires also specifying the scope of assets to be retrieved in the include filter, and the include filter requires the same for the exclude filter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-vmdr-pc-connector.json",
+          "quotes": [
+            "to exclude specific groups of assets from the scope of your data retrieval. Separate multiple values with commas.",
+            "When using this filter, you must also specify the scope of assets to be retrieved in the include filter.",
+            "When using this filter, you must also specify the scope of assets to be retrieved in the exclude filter."
+          ]
+        }
+      ]
+    },
+    "qualys-was-streams": {
+      "statement": "The Qualys WAS connector has 2 streams: Assets (web applications within the user's scope) and Vulnerabilities (findings including vulnerabilities, sensitive content and gathered information).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-was-connector.json",
+          "quotes": [
+            "There are two available Qualys WAS streams.",
+            "Qualys Assets: Retrieves the list of web applications within the user's scope.",
+            "Qualys Vulnerabilities: Retrieves a list of findings, including vulnerabilities, sensitive content, and gathered information associated with web applications within the user's scope."
+          ]
+        }
+      ]
+    },
+    "qualys-was-user": {
+      "statement": "For Qualys WAS the API reader user has role Reader with the API checkbox, the Manage VM module and Manage web applications permissions, and after creation is edited to grant full access to the WAS module; only assets from the selected asset groups are ingested.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-qualys-was-connector.json",
+          "quotes": [
+            "User Role: From the drop-down menu, select Reader.",
+            "Allow access to: Select the API checkbox.",
+            "On the Permissions tab, select the Manage VM module and Manage web applications checkboxes.",
+            "After you create the user, edit the user and grant it full access to the WAS module.",
+            "Only assets from the selected asset groups are ingested into the platform."
+          ]
+        }
+      ]
+    },
+    "rapid7-streams": {
+      "statement": "The Rapid7 InsightVM connector has 3 streams (Vulnerabilities, Assets, Policy Compliance); Policy Compliance is in limited availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-rapid7-insightvm-connector.json",
+          "quotes": [
+            "There are three Rapid7 InsightVM streams.",
+            "The Rapid7 InsightVM Policy Compliance stream is in limited availability. To learn more, contact Zscaler Support.",
+            "Rapid7 InsightVM Vulnerabilities: Retrieves all vulnerabilities found on the assets to which you have access.",
+            "Rapid7 InsightVM Assets: Retrieves all assets to which you have access.",
+            "Rapid7 InsightVM Policy Compliance: Retrieves policy compliance data."
+          ]
+        }
+      ]
+    },
+    "rapid7-apikey": {
+      "statement": "The Rapid7 InsightVM API key is generated by a platform admin with at least View Only (Shared) privileges and View Site Asset Data and View Group Asset Data permissions, and inherits the permissions of the user who created it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-rapid7-insightvm-connector.json",
+          "quotes": [
+            "a platform admin with at least View Only (Shared) privileges and View Site Asset Data and View Group Asset Data permissions must generate an API key.",
+            "A user key inherits your account permissions, so the API key inherits the access and permissions of the user who created it."
+          ]
+        }
+      ]
+    },
+    "rapid7-region": {
+      "statement": "The Rapid7 region code is read from the prefix of the InsightVM URL (us.idr.insight.rapid7.com means us), is typically two letters and sometimes a number (e.g., us, us1, eu).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-rapid7-insightvm-connector.json",
+          "quotes": [
+            "the URL us.idr.insight.rapid7.com means that your data region is us.",
+            "The region code is typically two letters and sometimes a number (e.g., us, us1, eu)."
+          ]
+        }
+      ]
+    },
+    "rapid7-severity": {
+      "statement": "A Rapid7 menu lists Critical, Low, Severe, Informational, None, Moderate and is available in the Rapid7 InsightVM Vulnerabilities stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-rapid7-insightvm-connector.json",
+          "quotes": [
+            "(i.e., Critical, Low, Severe, Informational, None, Moderate)",
+            "This menu is available in the Rapid7 InsightVM Vulnerabilities stream."
+          ]
+        }
+      ]
+    },
+    "tvm-streams": {
+      "statement": "The Tenable Vulnerability Management connector has 3 streams: Vulnerabilities (broken down by CVE), Issues (vulnerabilities with no associated CVEs) and Assets; Issues and Vulnerabilities are identical except that Issues has no CVE information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-vulnerability-management-connector.json",
+          "quotes": [
+            "There are three Tenable Vulnerability Management streams.",
+            "Tenable Vulnerability Management - Vulnerabilities: Retrieves vulnerabilities across the scanned assets broken down by CVE.",
+            "Tenable Vulnerability Management - Issues: Retrieves vulnerabilities with no associated CVEs.",
+            "The Issues and Vulnerabilities streams are identical, but the Issues stream does not include CVE information.",
+            "Tenable Vulnerability Management - Assets: Retrieves data related to assets scanned by Tenable (e.g., endpoints, servers, network devices, or web apps)."
+          ]
+        }
+      ]
+    },
+    "tvm-user": {
+      "statement": "For Tenable Vulnerability Management the keys come from a user with role Basic User and a permission of Can View on All Assets, with API Key authentication enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-vulnerability-management-connector.json",
+          "quotes": [
+            "Role: Select Basic User from the drop-down menu.",
+            "API Key: Enable to allow the user to authenticate through an API key.",
+            "Permissions: Select Can View.",
+            "Objects: Select All Assets."
+          ]
+        }
+      ]
+    },
+    "tvm-options": {
+      "statement": "A Tenable Vulnerability Management checkbox splits raw data records based on the output field so that each resulting record contains a unique output, and another allows including vulnerabilities with info-level severity, which are otherwise automatically filtered out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-vulnerability-management-connector.json",
+          "quotes": [
+            "The Split findings by Output checkbox splits raw data records based on the output field, so that each resulting record contains a unique output.",
+            "The Include Info-Level Severity Data checkbox allows you to include vulnerabilities with info-level severity in your data, which are otherwise automatically filtered out."
+          ]
+        }
+      ]
+    },
+    "tvm-days": {
+      "statement": "A Tenable Vulnerability Management field retrieves vulnerabilities that were last found by the vendor in the past input number of days, by default the past 30 days, and is available in the Vulnerabilities and Issues streams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-vulnerability-management-connector.json",
+          "quotes": [
+            "allows you to retrieve vulnerabilities that were last found by the vendor in the past input number of days. By default, data is retrieved from the past 30 days.",
+            "This field is available in the Tenable Vulnerability Management - Vulnerabilities and Tenable Vulnerability Management - Issues streams."
+          ]
+        }
+      ]
+    },
+    "tvm-count-mismatch": {
+      "statement": "Tenable reports vulnerabilities at the plugin level, which includes a group of related CVEs, and the SecOps platform decomposes each Tenable plugin into its constituent CVEs; the page's example plugin is split into 48 distinct CVEs aggregated into a single ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-vulnerability-management-connector.json",
+          "quotes": [
+            "Tenable reports vulnerabilities at the plugin level, which includes a group of related CVEs. The SecOps platform decomposes each Tenable plugin into its constituent CVEs.",
+            "it splits the plugin into the 48 distinct CVEs that comprise it. These 48 findings are then aggregated into a single ticket."
+          ]
+        }
+      ]
+    },
+    "tsc-streams": {
+      "statement": "The Tenable Security Center connector has 2 streams (Vulnerabilities broken down by CVE, and Assets) and needs a server URL, access key and secret key; secret keys cannot be viewed after generation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-security-center-connector.json",
+          "quotes": [
+            "There are two Tenable Security Center streams.",
+            "Tenable Security Center Vulnerabilities: Retrieves vulnerabilities across the scanned assets broken down by CVE.",
+            "The URL is the Tenable Security Center server URL and is required as part of the authentication.",
+            "You cannot view API secret keys after the initial generation. If you lose your existing secret key, you must generate new API keys.",
+            "Tenable Security Center Assets: Retrieves data related to assets scanned by Tenable (e.g., endpoints, servers, network devices, and web app)",
+            "The access key is an API key associated with a user account with the required permissions.",
+            "After enabling API key authentication, you can generate the API access key and secret key."
+          ]
+        }
+      ]
+    },
+    "tsc-severity": {
+      "statement": "A menu on the Tenable Security Center page selects the severity level of vulnerabilities to include in the scope of the ingested data and is available in the Tenable Security Center Vulnerabilities stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-security-center-connector.json",
+          "quotes": [
+            "This menu allows the user to select the severity level of vulnerabilities to include in the scope of the ingested data.",
+            "This menu is available in the Tenable Security Center Vulnerabilities stream."
+          ]
+        }
+      ]
+    },
+    "nessus-records": {
+      "statement": "The Tenable Nessus connector retrieves vulnerability findings where each record is a finding on a specific asset, with a separate record created for each CVE when a finding includes multiple CVEs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-nessus-connector.json",
+          "quotes": [
+            "Each record represents a vulnerability finding on a specific asset. If a finding includes multiple CVEs, the connector creates a separate record for each CVE."
+          ]
+        }
+      ]
+    },
+    "nessus-permissions": {
+      "statement": "The Tenable Nessus API key user needs User Role Basic [16] or higher and Can View access control on the exported asset objects; Administrator [64] users can export without explicit Can View.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-nessus-connector.json",
+          "quotes": [
+            "User Role: Basic [16] or higher.",
+            "Access Control: Can View for the specific asset objects being exported.",
+            "Administrator [64] users can export data without explicit Can View access control permissions."
+          ]
+        }
+      ]
+    },
+    "nessus-days": {
+      "statement": "On the Tenable Nessus page, a number of days sets the days to retrieve data for during each run, and by default the connector retrieves data from the last day if no value is specified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-nessus-connector.json",
+          "quotes": [
+            "Enter the number of days to retrieve data for during each run.",
+            "By default, the connector retrieves data from the last day if no value is specified."
+          ]
+        }
+      ]
+    },
+    "nessus-apikey": {
+      "statement": "A Tenable Nessus API key consists of an access key and a secret key, and cannot be copied or viewed after generation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-nessus-connector.json",
+          "quotes": [
+            "An API key consists of an access key and a secret key.",
+            "Save the API key securely as you cannot copy or view it later."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "falcon-insights-usgov2": {
+      "kind": "semantic",
+      "title": "Whether Falcon Insights supports a USGOV2 cloud region",
+      "status": "open",
+      "detail": "The CrowdStrike page lists US1, US2, EU1, USGOV1 and USGOV2 in its cloud region menu; the Falcon Insights page lists US1, US2, EU1 and USGOV1. The captured pages do not say whether Falcon Insights supports USGOV2.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

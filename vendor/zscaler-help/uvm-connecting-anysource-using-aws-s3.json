@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Connecting AnySource Using AWS S3",
+  "source": {
+    "url": "https://help.zscaler.com/uvm/connecting-anysource-using-aws-s3",
+    "node": "1528386",
+    "revision": "3225364",
+    "updated": "2026-08-16",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Zscaler Security Operations (SecOps) platform can integrate with your AWS S3 buckets to automatically extract data. When a new file is added to the bucket, an alert is triggered and the file is retrieved."
+    },
+    {
+      "heading": "Setting Up an S3 Integration",
+      "level": 1
+    },
+    {
+      "text": "Configuring an integration with your S3 data is a three-step process."
+    },
+    {
+      "item": "1. Create a role that Zscaler can use to pull data.",
+      "depth": 0
+    },
+    {
+      "item": "Generate a unique identifier that will be used by Zscaler's service to assume the role. You can use this UUID Generator.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Run the SecOps platform's Cloud Formation Role Stack. You can either:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Follow the AWS instructions.",
+      "depth": 2
+    },
+    {
+      "item": "Use the following command:",
+      "depth": 2
+    },
+    {
+      "item": "aws cloudformation create-stack \\ --region <Region> \\ --stack-name AvalorStackIntegration \\ --capabilities CAPABILITY_NAMED_IAM \\ --template-url https://avalor-platform-public-prod.s3.amazonaws.com/static/media/avalor-aws-standard.json \\ --parameters ParameterKey=ExternalId, ParameterValue=<Generated UUID>",
+      "depth": 2
+    },
+    {
+      "item": "Replace <Region> with the region of the AWS service you're retrieving data from.",
+      "depth": 3
+    },
+    {
+      "item": "Replace <Generated UUID> with the UUID you created.",
+      "depth": 3
+    },
+    {
+      "item": "The template-url script provides permissions for AWS. If you're connecting to AnySource only, you can edit the script to modify or remove unnecessary permissions.",
+      "depth": 3
+    },
+    {
+      "item": "Permissions",
+      "depth": 4
+    },
+    {
+      "item": "After running the command, the RoleARNID value appears under the stack's Output tab.",
+      "depth": 0
+    },
+    {
+      "item": "2. Create an SQS queue for the SecOps platform to subscribe to.",
+      "depth": 0
+    },
+    {
+      "item": "Create an SQS queue with the access policy as described in the AWS documentation.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Name the queue avalor-s3-event-forwarder.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Copy and save the Queue ARN, to be used in the next step.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Make sure to send the Queue URL to your Zscaler Account team representative to complete the configuration process.",
+      "depth": 0
+    },
+    {
+      "heading": "KMS Encryption (Optional)",
+      "level": 2
+    },
+    {
+      "item": "If your organization uses KMS encryption, add the following to the key policy:",
+      "depth": 0
+    },
+    {
+      "item": "- Sid: Allow Role to use the key Effect: Allow Principal: AWS: !GetAtt AvalorRole.Arn Action: - \"kms:Decrypt\" - \"kms:GenerateDataKey*\" Resource: \"*\"",
+      "depth": 0
+    },
+    {
+      "item": "3. Configure your bucket to send new object notifications to the SQS queue.",
+      "depth": 0
+    },
+    {
+      "item": "The final step is configuring an event notification from the S3 buckets where the data is generated for the SQS Queue. To complete the process, refer to the AWS documentation.",
+      "depth": 0
+    },
+    {
+      "item": "When configuring the bucket:",
+      "depth": 0
+    },
+    {
+      "item": "In step 6, select All object create events under Event Type.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          18,
+          42
+        ],
+        [
+          49,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "In step 7, select SQS Queue as the Destination, then enter SQS queue ARN. Paste the ARN obtained from the previous step.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          18,
+          27
+        ],
+        [
+          59,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Click Save Changes.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Repeat these steps for every bucket that you want to ingest data from.",
+      "depth": 0
+    },
+    {
+      "heading": "Data Source Setup",
+      "level": 1
+    },
+    {
+      "text": "After you finish setting up your S3 integration, send the following details to your Zscaler Account team representative to use in setting up the data source."
+    },
+    {
+      "item": "AWS account ID",
+      "depth": 0
+    },
+    {
+      "item": "Region",
+      "depth": 0
+    },
+    {
+      "item": "Bucket",
+      "depth": 0
+    },
+    {
+      "item": "Role ARN",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) Path",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) External ID: The external ID is the unique identifier you create when creating a role for Zscaler. It is an additional security measure that can be used when accessing your account. While using an External ID is considered best practice, it is not mandatory.",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) File pattern (regex)",
+      "depth": 0
+    },
+    {
+      "heading": "Path and File Pattern Fields",
+      "level": 2
+    },
+    {
+      "text": "You can use the Path and File pattern fields to manage which files are retrieved to the source. This is useful if you have a main bucket for all Zscaler files but want to divide the files into different sources. The Path and File pattern fields can be used separately or together to fit your use case."
+    },
+    {
+      "heading": "Path",
+      "level": 3
+    },
+    {
+      "text": "The Path field is useful when you have subfolders in your main bucket, and each folder contains files that should be associated with a different source in the platform. For example, if one folder holds logs from the production environment and another from the test environment, you can enter the specific path when setting up the source to ensure that only files from that path are uploaded to the source."
+    },
+    {
+      "heading": "File",
+      "level": 3
+    },
+    {
+      "text": "The File pattern field also allows better control over the files uploaded to a specific source. For example, by entering a *.jsonl pattern, the platform will only retrieve files with a .jsonl extension in that particular source. The file pattern should be entered in a regex format."
+    }
+  ]
+}

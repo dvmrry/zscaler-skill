@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.activation-resource",
+  "title": "The zia_activation_status resource: when it activates and what it cannot do",
+  "aliases": [
+    "zia_activation_status",
+    "activation resource terraform",
+    "activation not triggered second apply",
+    "import zia_activation_status",
+    "depends_on activation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The `zia_activation_status` resource is the provider's explicit activation step, one of the methods compared in [[zia.terraform.activation-methods]]. It is a thin wrapper over the activation call, so what it does and does not do follows from a few lines of code."
+    },
+    {
+      "label": "Shape.",
+      "text": "{{status-active-only}} {{create-posts-activation}} {{delete-is-noop}}"
+    },
+    {
+      "label": "When it fires.",
+      "text": "{{activates-only-on-create}} The ordering requirement, that every resource to be activated must be listed in `depends_on`, is in [[zia.terraform.activation-methods]]."
+    },
+    {
+      "label": "Import.",
+      "text": "The documentation and the code disagree {{divergence:docs-say-not-importable-code-has-importer}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the activation resource was already in state when a later apply changed other resources, since it only activates when created or replaced.",
+      "uses": [
+        "activates-only-on-create"
+      ]
+    },
+    {
+      "do": "Whether the apply used the activation resource at all, or the environment variable or the out-of-band activator.",
+      "uses": [
+        "zia.terraform.activation-methods"
+      ]
+    }
+  ],
+  "claims": {
+    "status-active-only": {
+      "statement": "The `zia_activation_status` resource has one required attribute, `status`, whose only accepted value is ACTIVE; changing it forces a new resource, and the resource defines create, read and delete but no update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "\"zia_activation_status\": resourceActivationStatus(),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_activation.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "func resourceActivationStatus() *schema.Resource { return &schema.Resource{ CreateContext: resourceActivationCreate, ReadContext: resourceActivationRead, DeleteContext: resourceActivationDelete, Importer: &schema.ResourceImporter{}, Schema: map[string]*schema.Schema{ \"status\": {",
+            "\"status\": { Type: schema.TypeString, Required: true, ForceNew: true, Description: \"Organization Policy Edit/Update Activation status\", ValidateFunc: validation.StringInSlice([]string{ \"ACTIVE\", }, false), }, }, Timeouts: &schema.ResourceTimeout{ Create: schema.DefaultTimeout(5 * time.Minute), }, } }"
+          ]
+        }
+      ]
+    },
+    "create-posts-activation": {
+      "statement": "Create posts an activation request with the configured status, sets the resource ID to the fixed string \"activation\", and then reads the activation status back.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_activation.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := activation.CreateActivation(ctx, service, req)",
+            "d.SetId(\"activation\")",
+            "return resourceActivationRead(ctx, d, meta)",
+            "req := expandActivation(d)",
+            "Status: d.Get(\"status\").(string),"
+          ]
+        }
+      ]
+    },
+    "delete-is-noop": {
+      "statement": "Delete does nothing: the code comments that an activation cannot be deleted and returns without calling ZIA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_activation.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// Delete doesn't actually do anything, because an activation can't be deleted.",
+            "// Delete doesn't actually do anything, because an activation can't be deleted. return nil"
+          ]
+        }
+      ]
+    },
+    "activates-only-on-create": {
+      "statement": "So the activation call is made on create or replacement; the resource defines no update, but a refreshed status other than ACTIVE would plan a replacement.",
+      "tier": "B",
+      "derived_from": [
+        "status-active-only",
+        "create-posts-activation"
+      ],
+      "conditions": "Inferred from the resource having no update function, one force-new attribute with a single valid value, and the activation call living only in Create. Not stated in the provider documentation or confirmed on a tenant. Read refreshes `status` from ZIA; a non-ACTIVE refreshed value would diff against the ForceNew `status` and plan a replacement."
+    }
+  },
+  "divergences": {
+    "docs-say-not-importable-code-has-importer": {
+      "summary": "Whether `zia_activation_status` can be imported.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_activation_status.md",
+            "quotes": [
+              "Activation is not an importable resource."
+            ]
+          },
+          "says": "The provider documentation says the activation resource is not importable."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_activation.go",
+            "at": [
+              "HEAD"
+            ],
+            "quotes": [
+              "&schema.ResourceImporter{},"
+            ]
+          },
+          "says": "The resource definition registers an importer, an empty one with no import function."
+        }
+      ],
+      "impact": "The documentation tells an agent not to import it, while the code does not reject an import command at the schema level. What an import would store is not shown by the sources, so do not rely on importing this resource."
+    }
+  }
+}

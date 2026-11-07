@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-management.issues",
+  "title": "How AI Asset Management issues are generated, rated, moved between statuses and resolved or snoozed",
+  "aliases": [
+    "ai asset management issues",
+    "issue status",
+    "snooze issue",
+    "resolve issue",
+    "model scan findings"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "ai-security.asset-management" },
+    { "rel": "see-also", "to": "ai-security.asset-management.discovery" },
+    { "rel": "see-also", "to": "ai-security.asset-management.posture-policies" },
+    { "rel": "see-also", "to": "ai-security.asset-management.system-logs" },
+    { "rel": "see-also", "to": "ai-security.asset-inventory-api" }
+  ],
+  "prose": [
+    { "text": "{{issue-definition}} {{issues-default-view}} {{issue-risk-level}} {{issue-age}} {{issue-details-fields}}" },
+    { "label": "Status.", "text": "{{issue-status-values}} {{open-reopen-180}} {{open-data-store-removed}} {{closed-final}} {{closed-causes}} {{frozen-graph}} {{resolved-causes}}" },
+    { "label": "Resolve and snooze.", "text": "{{resolve-permission}} {{resolve-local-only}} {{snooze-permission-default}} {{snooze-notifications}} {{snoozed-survives-delete}} {{snoozed-delete-closes}}" },
+    { "label": "Model scan findings.", "text": "{{scan-findings-views}} {{scan-findings-risk-bands}} {{scan-findings-vulnerability}}" },
+    { "text": "What happens to a snoozed issue when its resource or policy is deleted is in dispute {{divergence:snoozed-delete}}, and so is what disabling a policy does to existing issues {{divergence:policy-disabled-effect}}. The policies that raise issues are in [[ai-security.asset-management.posture-policies]], the assets they apply to are in [[ai-security.asset-management.discovery]], and the hub is [[ai-security.asset-management]]." },
+    { "label": "Open.", "text": "{{gap:removed-store-open-to-closed}} {{gap:resource-impact}}{{gap:timeline-180-days}} {{gap:snooze-maximum}} {{gap:issue-permissions}} {{gap:navigation-paths}}" }
+  ],
+  "checks": [
+    {
+      "do": "Whether the issue was snoozed when its data store or policy was deleted: the Managing Issues page says it stays snoozed, the Issue Status page says it moves to Closed.",
+      "uses": ["snoozed-delete", "snoozed-survives-delete", "snoozed-delete-closes"]
+    },
+    {
+      "do": "Whether a policy was disabled or edited: Issue Status lists these among the Closed scenarios, while Managing Policies says disabling leaves existing issues unchanged.",
+      "uses": ["policy-disabled-effect", "closed-causes"]
+    }
+  ],
+  "claims": {
+    "issue-definition": {
+      "statement": "An issue is the outcome of a policy evaluation done on a resource type; in the vendor's example, 5 publicly exposed S3 buckets containing sensitive data under an enabled detection policy give 5 issues.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-issues.json", "quotes": [
+          "An issue is the outcome of a policy evaluation done on a resource type (e.g., S3 bucket, database).",
+          "if a security policy is enabled to detect any publicly exposed S3 bucket containing sensitive data, and there are 5 such S3 buckets in your cloud storage, AI Security generates 5 issues."
+        ] }
+      ]
+    },
+    "issues-default-view": {
+      "statement": "The Issues View page (AI Infrastructure > Issues > Issues View) displays issues with an open status by default.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-issues.json", "quotes": ["By default, issues with an open status are displayed."] }
+      ]
+    },
+    "issue-risk-level": {
+      "statement": "An issue's risk level is calculated as the average of the policy severity and the resource impact; a Critical policy severity with Medium resource impact gives High.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-issues.json", "quotes": [
+          "The risk level of an issue is calculated as the average of the policy severity and the resource impact.",
+          "if the policy severity is Critical and the resource impact is Medium, then the issue risk level is High."
+        ] }
+      ]
+    },
+    "issue-status-values": {
+      "statement": "The Issues page lists the issue status values Open, Closed, Resolved and Snoozed; issues are first generated as Open.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-issues.json", "quotes": ["Issue Status: The status (Open, Closed, Resolved, and Snoozed) of the issue."] },
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-issue-status.json", "quotes": ["Issues that are initially generated are in Open status."] }
+      ]
+    },
+    "open-reopen-180": {
+      "statement": "An automatically resolved issue is reopened if the violation is detected within 180 days of resolving it.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-issue-status.json", "quotes": ["An automatically resolved issue is reopened if the violation is detected within 180 days of resolving the issue."] }
+      ]
+    },
+    "open-data-store-removed": {
+      "statement": "When a data store is removed from the scan settings, its issues remain open based on the posture assessment of the data store.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-issue-status.json", "quotes": ["When a data store is removed from the scan settings, the issues remain open based on the posture assessment of the data store."] }
+      ]
+    },
+    "closed-final": {
+      "statement": "Closed is the final state of an issue and does not move to any other state; a closed issue is deleted from the AI Security Admin Portal after 180 days.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-issue-status.json", "quotes": [
+          "A closed issue is the final state of an issue (i.e., it does not move to any other state).",
+          "The closed issue is deleted from the AI Security Admin Portal after 180 days."
+        ] }
+      ]
+    },
+    "closed-causes": {
+      "statement": "The listed example scenarios for a Closed issue are: the cloud account is offboarded, the cloud account is deleted from the CSP, the policy is edited, disabled or deleted, the data store is deleted, and a removed data store is not added back to the scan settings.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-issue-status.json", "quotes": ["The cloud account is offboarded. The cloud account is deleted from the CSP. The policy is edited, disabled, or deleted. The data store is deleted. The data store that was removed earlier is not added back to the scan settings."] }
+      ]
+    },
+    "frozen-graph": {
+      "statement": "For closed and resolved issues the issue graph is frozen and its nodes are unclickable, and the Sensitive Data tab on the issue's page is hidden.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-issue-status.json", "quotes": [
+          "The issue graph for a closed issue is frozen and the nodes are unclickable. The Sensitive Data tab in an individual issue's page is hidden.",
+          "The issue graph for a resolved issue is frozen, and the nodes are unclickable. The Sensitive Data tab in an individual issue's page is hidden."
+        ] }
+      ]
+    },
+    "resolved-causes": {
+      "statement": "A resolved issue moves to Closed if the data store, policy or cloud account is deleted; a manually resolved issue stays resolved until reset, and a reset updates the status from the latest policy findings.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-issue-status.json", "quotes": [
+          "A resolved issue moves to the closed state if the data store, policy, or cloud account is deleted.",
+          "A manually resolved issue remains in the resolved state until you reset it. When you reset the issue, the issue status is updated based on the latest policy findings."
+        ] }
+      ]
+    },
+    "resolve-permission": {
+      "statement": "Resolving an issue requires an administrator role or a custom role with the Resolve Issues permission, which also grants permission to reset manually resolved issues.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-issues.json", "quotes": ["To resolve an issue, you must be assigned either an administrator role or a custom role with the Resolve Issues permission. If you have the Resolve Issues permission, you are automatically assigned permissions to reset manually resolved issues."] }
+      ]
+    },
+    "resolve-local-only": {
+      "statement": "A manually resolved issue is resolved only in the AI Security Admin Portal; the policy violation persists in the cloud service provider, and the issue stays resolved until reset.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-issues.json", "quotes": ["the issue is resolved only in the AI Security Admin Portal and the policy violation persists in the cloud service provider (CSP). The issue remains in the resolved state until you reset it."] }
+      ]
+    },
+    "snooze-permission-default": {
+      "statement": "Snoozing an issue requires an administrator role or a custom role with the Snooze Issues permission, which also grants permission to reset snoozed issues; by default an issue is snoozed for 1 day.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-issues.json", "quotes": [
+          "To snooze an issue, you must be assigned either an administrator role or a custom role with the Snooze Issues permission. If you have the Snooze Issues permission, you are automatically assigned permissions to reset snoozed issues.",
+          "By default, the issue is snoozed for 1 day."
+        ] }
+      ]
+    },
+    "snooze-notifications": {
+      "statement": "Snoozing pauses issue notifications, which are not shared with recipients or third-party integrations within the snooze period; unsnoozing updates the issue status from the latest policy findings.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-issues.json", "quotes": [
+          "the issue notifications are paused and not shared with the recipients or third-party integrations within the specified snooze period.",
+          "When you unsnooze an issue, the status of the issue is updated based on the latest policy findings."
+        ] }
+      ]
+    },
+    "snoozed-survives-delete": {
+      "statement": "Per the Managing Issues page, a snoozed issue remains snoozed for the specified duration if the issue is resolved in the CSP or if the resource or policy is deleted.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-issues.json", "quotes": ["A snoozed issue remains snoozed for the specified duration if the issue is resolved in the CSP or if the resource or policy is deleted."] }
+      ]
+    },
+    "snoozed-delete-closes": {
+      "statement": "Per the Issue Status page, if the data store or policy is deleted while an issue is snoozed, the issue moves to Closed irrespective of the snooze period; at snooze expiry or unsnooze the status becomes open or resolved from the latest policy findings.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-issue-status.json", "quotes": [
+          "If the data store or policy is deleted when the issue is snoozed, the issue moves to the closed state irrespective of the snooze period.",
+          "If you unsnooze an issue or if the snooze period expires, the issue status changes to open or resolved based on the latest policy findings."
+        ] }
+      ]
+    },
+    "issue-age": {
+      "statement": "Issue Age is the number of days an issue was in an open state; it starts from zero when an issue is generated or reset (generated November 1st is 0, and November 5th is 4).",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-viewing-issue-details.json", "quotes": [
+          "Issue Age: The number of days the issue was in an open state.",
+          "When an issue is generated or reset, its age is calculated from zero.",
+          "For example, if an issue is generated on November 1st, the issue age is 0. On November 5th, the issue age becomes 4."
+        ] }
+      ]
+    },
+    "issue-details-fields": {
+      "statement": "An issue's page has Issue Details and Remediation tabs; Issue Details shows the MITRE ATT&CK technique and ID, policy severity, policy category, compliance benchmark and compliance category, and Remediation shows the steps to resolve the issue in the CSP.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-viewing-issue-details.json", "quotes": [
+          "MITRE ATT&CK: The MITRE ATT&CK technique and ID",
+          "Policy Severity: The severity (Critical, High, Medium, or Low) of the policy.",
+          "Compliance Benchmark: The compliance benchmark (e.g., GDPR, HIPAA) associated with the policy.",
+          "Compliance Category: The compliance categories",
+          "On the Remediation tab, you can view the remediation steps to resolve the issue in the cloud service provider (CSP).",
+          "Policy Category: The threat category (e.g., Data Loss, Public Exposure) to which the policy belongs."
+        ] }
+      ]
+    },
+    "scan-findings-views": {
+      "statement": "Model Scan Findings (AI Infrastructure > Issues > Model Scan Findings) groups findings by Model ID with a finding count or lists All Findings per scan, and a scan instance can be archived from the All Findings list.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-viewing-scan-results-ai-models.json", "quotes": [
+          "To view the scan details, go to AI Infrastructure > Issues > Model Scan Findings.",
+          "Group by Model ID",
+          "Findings: The number of security risks detected.",
+          "Click the Action icon to archive a specific scan instance from the all findings list."
+        ] }
+      ]
+    },
+    "scan-findings-risk-bands": {
+      "statement": "On a Model Scan Findings scan's General Information, the AI model risk score ranges are Low 0–25, Medium 26–50, High 51–75 and Critical 76–100.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-viewing-scan-results-ai-models.json", "quotes": ["Low: 0–25", "Medium: 26–50", "High: 51–75", "Critical: 76–100"] }
+      ]
+    },
+    "scan-findings-vulnerability": {
+      "statement": "Each vulnerability in a model scan has a name, an ID identifying the detection logic (example Z-AISPM-SEC-014), category, artifact type and remediation; the examples given are GCP Service Account Private Key, code_execution and raw_text.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-viewing-scan-results-ai-models.json", "quotes": [
+          "ID: The unique identifier for the detection logic used to identify the vulnerability (e.g., Z-AISPM-SEC-014).",
+          "Vulnerability: The name of the vulnerability (e.g., GCP Service Account Private Key).",
+          "Category: The classification of the vulnerability (e.g., code_execution)",
+          "Artifact Type: The format of the file where the vulnerability is detected (e.g., raw_text).",
+          "Remediation: The recommended steps to remediate the detected vulnerability."
+        ] }
+      ]
+    }
+  },
+  "divergences": {
+    "snoozed-delete": {
+      "summary": "Managing Issues says a snoozed issue stays snoozed when its resource or policy is deleted, while Issue Status says it moves to Closed irrespective of the snooze period.",
+      "positions": [
+        {
+          "says": "A snoozed issue remains snoozed for the specified duration if the resource or policy is deleted.",
+          "evidence": { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-issues.json", "quotes": ["A snoozed issue remains snoozed for the specified duration if the issue is resolved in the CSP or if the resource or policy is deleted."] }
+        },
+        {
+          "says": "If the data store or policy is deleted while the issue is snoozed, the issue moves to Closed irrespective of the snooze period.",
+          "evidence": { "source": "zscaler-help", "path": "ai-asset-mgmt-issue-status.json", "quotes": ["If the data store or policy is deleted when the issue is snoozed, the issue moves to the closed state irrespective of the snooze period."] }
+        }
+      ],
+      "impact": "The captured pages do not settle which status a snoozed issue holds after its policy is deleted; the status shown in the console decides."
+    },
+    "policy-disabled-effect": {
+      "summary": "Issue Status lists a disabled policy among the scenarios that close an issue, while Managing Policies says the status of existing issues remains unchanged when a policy is disabled.",
+      "positions": [
+        {
+          "says": "A policy being edited, disabled or deleted is a listed scenario for a Closed issue.",
+          "evidence": { "source": "zscaler-help", "path": "ai-asset-mgmt-issue-status.json", "quotes": ["The policy is edited, disabled, or deleted."] }
+        },
+        {
+          "says": "New issues are not generated for disabled policies, and the status of existing issues remains unchanged.",
+          "evidence": { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-policies.json", "quotes": ["New issues are not generated for disabled policies. However, the status of the existing issues remains unchanged."] }
+        }
+      ],
+      "impact": "The pages do not agree on whether disabling a policy closes its existing issues."
+    }
+  },
+  "gaps": {
+    "removed-store-open-to-closed": { "kind": "semantic", "title": "When issues of a data store removed from scan settings stay open and when they close", "status": "open", "detail": "The Issue Status page says issues stay open when a data store is removed from the scan settings, and also lists a removed data store that is not added back as a Closed scenario; it does not say when the open state turns into Closed.", "resolves_with": ["lab-test"] },
+    "resource-impact": { "kind": "semantic", "title": "How an issue resource impact is determined", "status": "open", "detail": "The pages average policy severity with resource impact but give only one example (Critical and Medium give High) and do not define how resource impact is set.", "resolves_with": ["source-read"] },
+    "timeline-180-days": { "kind": "semantic", "title": "Whether the 180-day timelines apply to snoozed issues", "status": "open", "detail": "The Issue Status page gives 180 days for reopening an automatically resolved issue and for deleting a closed issue; it does not say whether either applies to snoozed issues.", "resolves_with": ["source-read"] },
+    "snooze-maximum": { "kind": "semantic", "title": "Whether a snooze duration has a maximum", "status": "open", "detail": "The Managing Issues page gives a default of 1 day and does not state a maximum.", "resolves_with": ["lab-test"] },
+    "issue-permissions": { "kind": "semantic", "title": "Which roles can view issues", "status": "open", "detail": "Only the Resolve Issues and Snooze Issues permissions and an administrator role are named; viewing permissions are not stated.", "resolves_with": ["source-read"] },
+    "navigation-paths": { "kind": "semantic", "title": "Which navigation path leads to the Issues page", "status": "open", "detail": "Pages of the same product name Administration > Issues > Issues and AI Infrastructure > Issues > Issues View; no path is recorded as a fact beyond what the claims quote.", "resolves_with": ["lab-test"] }
+  }
+}

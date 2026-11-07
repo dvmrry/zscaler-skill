@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.web-rule-attribution",
+  "title": "Which rule decided a web transaction, from the logs",
+  "aliases": [
+    "which rule fired in the logs",
+    "rulelabel empty",
+    "urlfilterrulelabel",
+    "apprulelabel",
+    "validate precedence with logs",
+    "siem rule attribution"
+  ],
+  "binds": [
+    "zia/web-log#rulelabel",
+    "zia/web-log#ruletype",
+    "zia/web-log#urlfilterrulelabel",
+    "zia/web-log#apprulelabel",
+    "zia/web-log#urlcat",
+    "zia/web-log#urlcatmethod"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence",
+      "because": "zia.logs.web-rule-attribution:separate-layer-labels"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.membership"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Logs are the empirical check on a precedence answer, but the obvious field is a trap. {{rulelabel-block-only}} Use the per-layer fields instead. {{separate-layer-labels}}"
+    },
+    {
+      "label": "URL category in logs.",
+      "text": "{{category-source}} {{category-membership-from-logs}} That is the offline substitute for the predefined-membership gap in [[zia.url-categories.membership]], as long as the URL has been seen."
+    },
+    {
+      "text": "What action shows when several policy layers weigh in on one transaction, and its full set of values, is open {{gap:action-values-precedence}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which field names the SIEM stores for the NSS web log fields, before writing a query against them.",
+      "uses": [
+        "rulelabel-block-only",
+        "separate-layer-labels",
+        "category-source"
+      ]
+    },
+    {
+      "do": "Whether a URL's category in the logs (`urlcat`, `urlcatmethod`) answers the membership question for that URL, once the URL has been seen.",
+      "uses": [
+        "category-source",
+        "category-membership-from-logs"
+      ]
+    }
+  ],
+  "claims": {
+    "rulelabel-block-only": {
+      "statement": "`rulelabel` and `ruletype` are filled only when a Block rule applied; an allowed transaction has neither, so an empty `rulelabel` does not mean no rule matched.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#rulelabel",
+        "zia/web-log#ruletype"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{rulelabel} | The name of the rule that was applied to the transaction. Applies only to Block rules, not Allow.",
+            "| %s{ruletype} | The type of policy. Applies only to Block rules, not Allow."
+          ]
+        }
+      ]
+    },
+    "separate-layer-labels": {
+      "statement": "URL Filtering and Cloud App Control each have their own rule-name field (`urlfilterrulelabel`, `apprulelabel`), so one record can name both when both layers evaluated, and the allow-side rule is visible there even when `rulelabel` is empty.",
+      "tier": "B",
+      "binds": [
+        "zia/web-log#urlfilterrulelabel",
+        "zia/web-log#apprulelabel"
+      ],
+      "conditions": "The fields are documented separately; that both can be filled in one record follows from both policies evaluating one transaction.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{urlfilterrulelabel} | The name of the rule that was applied to the URL filter",
+            "| %s{apprulelabel} | The name of the rule that was applied to the application"
+          ]
+        }
+      ]
+    },
+    "category-source": {
+      "statement": "`urlcat` records the category of the transaction's destination URL, and `urlcatmethod` records the source of that categorization.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#urlcat",
+        "zia/web-log#urlcatmethod"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{urlcat} | The category of the destination URL",
+            "| %s{urlcatmethod} | Refers to the source of the URL's category."
+          ]
+        }
+      ]
+    },
+    "category-membership-from-logs": {
+      "statement": "Because a logged transaction carries both the URL's category and the source of that categorization, the logs show which category a URL was actually placed in, for URLs that have been seen.",
+      "tier": "B",
+      "binds": [
+        "zia/web-log#urlcat",
+        "zia/web-log#urlcatmethod"
+      ],
+      "derived_from": [
+        "category-source"
+      ],
+      "conditions": "Inference from the field descriptions; the source does not describe reading category membership from logs."
+    }
+  },
+  "gaps": {
+    "action-values-precedence": {
+      "kind": "data",
+      "title": "Full set of action values and which subsystem fills action",
+      "status": "open",
+      "former_ids": [
+        "log-05"
+      ],
+      "detail": "Unverified legacy statement: the web log CSV lists action examples Allowed and Blocked, but tenant logs commonly also show values such as Cautioned, Allowed (Cached) and Blocked (Inline). The CSV does not enumerate the values, say which subsystem (URL Filtering, ATP, DLP, Sandbox, File Type Control, Cloud App Control, Bandwidth Control) fills action when several weigh in, or say whether it shows the first block or the final outcome. A tenant export of about 1,000 records spanning deliberately triggered URL, DLP, ATP and Sandbox blocks would show it.",
+      "blocks": "Counting blocks with action equal to Blocked, or using action to attribute a decision to one policy layer.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

@@ -1,0 +1,664 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Using the Zero Trust Branch Debug Console for Troubleshooting",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/using-zero-trust-branch-debug-console-for-troubleshooting",
+    "node": "1533903",
+    "revision": "3246983",
+    "updated": "2026-10-23",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Zero Trust Branch Debug Console provides a purpose-built diagnostic framework that exposes the internal state of an appliance through simple, direct commands. Commands are grouped by functional area, so you can quickly locate the information you need—whether validating IPSec tunnels, checking DHCP leases, analyzing routing tables, or reviewing Virtual Router Redundancy Protocol (VRRP) status. The Zero Trust Branch Debug Console supports both deployment readiness checks and ongoing operational troubleshooting."
+    },
+    {
+      "heading": "Accessing the Debug Console",
+      "level": 1
+    },
+    {
+      "text": "The Debug Console is intentionally site specific, matching the appliance deployed at that location. This ensures that you always work in the correct operational context."
+    },
+    {
+      "text": "To access the Debug Console:"
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          63
+        ],
+        [
+          66,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Click the name of the site for which you want to access the Debug Console.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "On the site details page, click Troubleshooting left tab > Console top tab.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          59,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting Commands",
+      "level": 1
+    },
+    {
+      "text": "You can use the Debug Console to run site-specific commands for validation and troubleshooting of network issues. Some of the commonly used commands are listed for the following categories:"
+    },
+    {
+      "item": "Basic Network Troubleshooting",
+      "depth": 0
+    },
+    {
+      "item": "The following are some of the commands for basic network diagnostics and troubleshooting:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Purpose",
+          "Use Case"
+        ],
+        [
+          "ifconfig",
+          "Verifies interface status, link state, and assigned IP addresses",
+          "Check whether the interface is up, has an IP address, or is negotiating the link correctly."
+        ],
+        [
+          "docker exec vyos_container su - vyos sh -c",
+          "Shows operational status of VyOS-level network interfaces or runs advanced diagnostics",
+          "Troubleshoot internal network behavior."
+        ],
+        [
+          "ping -c <execution-count> <host> When using the ping command, always use the execution count parameter. Unbounded ping command usage results in failure.",
+          "Validates reachability and basic latency to a destination",
+          "Check if the appliance can reach another host, service, or upstream gateway."
+        ],
+        [
+          "traceroute <host>",
+          "Shows the hop-by-hop path to a destination",
+          "Verify the path used if the traffic reaches the destination via an unexpected path or fails mid-route."
+        ],
+        [
+          "ip route",
+          "Displays the active routing table and nexthop decisions",
+          "Validate how the traffic should be forwarded or confirm the default route selection."
+        ],
+        [
+          "tcpdump -i <interface> -c <execution-count> When using the tcpdump command, always use the execution count parameter. Unbounded tcpdump command usage results in failure.",
+          "Captures packets on a specific interface for analysis",
+          "Diagnose packet drops, tunnel negotiation failures, DNS anomalies, or unexpected traffic behavior."
+        ],
+        [
+          "service systemd-timesyncd status",
+          "Shows whether the Network Time Protocol time is synchronized",
+          "The Network Time Protocol (NTP) must be configured and the appliance and device clocks must be synchronized. If the clocks are inaccurate, a valid certificate might be shown as expired or not valid, which could prevent a secure connection. Make sure the L-3 device allows the User Datagram Protocol (UDP) 123 traffic that is sourced from the appliance to these destinations."
+        ]
+      ]
+    },
+    {
+      "item": "DHCP Diagnostics",
+      "depth": 0
+    },
+    {
+      "item": "The following are some of the commands for DHCP diagnostics and troubleshooting:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Purpose",
+          "Use Case"
+        ],
+        [
+          "ls /etc/dhcp",
+          "Displays the DHCP configuration directory and files",
+          "Locate DHCP configuration files and verify that the expected files are present."
+        ],
+        [
+          "cat /etc/dhcp/<file-name>",
+          "Shows the contents of the specified DHCP configuration file",
+          "Confirm DHCP lease ranges, DNS settings, and other configuration options."
+        ],
+        [
+          "service airgap-dhcp status",
+          "Shows the status of the DHCP service",
+          "When endpoints fail to receive an IP address, verify whether the DHCP service is running."
+        ],
+        [
+          "service securedhcp-relay status",
+          "Checks the operational state of the DHCP relay",
+          "Validate DHCP processing if endpoints are not receiving IP addresses."
+        ],
+        [
+          "airgap-dhcp-cli -a list-leases",
+          "Lists current DHCP leases, including IP and MAC address bindings",
+          "Check allocation history or troubleshoot lease conflicts."
+        ],
+        [
+          "tail -n 10 /var/log/airgap-dhcp You can increase the -n count to show more entries.",
+          "Shows the list of recent DHCP events",
+          "Debug DHCP failures or unexpected behaviors."
+        ],
+        [
+          "cat /etc/dhcp/dhcpd.conf",
+          "Shows the DHCP configuration details stored in the dhcpd.conf file.",
+          "Check if the DHCP server service is running."
+        ],
+        [
+          "airgap-dhcp-cli -a list-leases",
+          "Shows the IP addresses assigned.",
+          "Check the list of IP addresses that are assigned to DHCP."
+        ],
+        [
+          "tail -20 /var/log/airgap-dhcp",
+          "Shows the DHCP-related log messages.",
+          "Check the allocated lease for MAC."
+        ],
+        [
+          "airgap-dhcp-cli -a get-debug-level",
+          "Changes the log level for DHCP messages.",
+          "Change the default log level (4) to another level."
+        ],
+        [
+          "tcpdump -c 10 -i <gateway interface> \"<udp port xx or udp port yy>\"",
+          "Shows DHCP-related packets.",
+          "Collect DHCP packets."
+        ]
+      ]
+    },
+    {
+      "item": "Policy-Based Routing (PBR)",
+      "depth": 0
+    },
+    {
+      "item": "The following are some of the commands for PBR diagnostics and troubleshooting:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Purpose",
+          "Use Case"
+        ],
+        [
+          "iptables -nvL PBR-RULES -t mangle | grep MARK",
+          "Lists PBR rules along with applied flow marks",
+          "Validate routing behavior based on policies."
+        ],
+        [
+          "ipset list <set-name>",
+          "Lists the details and members of a specific IP address set",
+          "Validate and monitor which IP addresses are currently included in a set referenced by policy rules."
+        ],
+        [
+          "ip rule ls | grep <flow-mark>",
+          "Shows which routing rule and routing table apply to traffic with the specified flow mark",
+          "Verify how traffic tagged with the specific flow mark is routed (i.e., the table it uses)."
+        ],
+        [
+          "ip route show table <table-name>",
+          "Displays the routes configured in a specific PBR table",
+          "Verify the nexthop path and interface selection for traffic mapped to that routing table."
+        ]
+      ]
+    },
+    {
+      "item": "Internet & SaaS (ZIA) Tunnel Validation",
+      "depth": 0
+    },
+    {
+      "item": "The following are some of the commands for Internet & SaaS tunnel validation diagnostics and troubleshooting:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Purpose",
+          "Use Case"
+        ],
+        [
+          "docker ps | grep strongswan",
+          "Checks whether the strongSwan container is running",
+          "Use when the Internet & SaaS IPSec tunnel is down or not responding, and you want to confirm the IPSec process is up."
+        ],
+        [
+          "cat /mnt/agdisk/etc/airgap/strongswan/swanctl.conf | grep \"zia\\|addrs\\|proposal\"",
+          "Shows Internet & SaaS-related entries (e.g., tunnel name, addresses, proposals) from the swanctl.conf file",
+          "Verify the Internet & SaaS tunnel ID, local or remote addresses, or crypto proposals configured on the appliance."
+        ],
+        [
+          "docker logs strongswan",
+          "Shows logs from the strongSwan container If the command output displays 'auth failed', then check in Internet & SaaS that the location associated with the site is not deleted or the IPSec credentials are not removed or changed.",
+          "Use when tunnel negotiation is failing, and you need error details from the IPSec daemon."
+        ],
+        [
+          "docker exec strongswan swanctl --terminate --ike <tunnel-name>",
+          "Terminates the Internet & SaaS IPSec tunnel",
+          "Terminate the IPSec tunnel due to unexpected behavior."
+        ],
+        [
+          "docker exec strongswan swanctl --initiate --ike <tunnel-name>",
+          "Initiates the Internet & SaaS IPSec tunnel",
+          "Re-establish the IPSec tunnel after termination or configuration changes."
+        ],
+        [
+          "docker exec strongswan ipsec status",
+          "Shows the current IPSec tunnel status",
+          "Verify whether the Internet & SaaS tunnel is established and functioning."
+        ],
+        [
+          "ip tunnel",
+          "Lists all GRE tunnels (local and remote) associated with the interface",
+          "Verify whether the expected GRE tunnels exist and are up."
+        ],
+        [
+          "ip route | grep ge5",
+          "Checks the static routes for the GRE endpoints via an interface",
+          "Verify that Internet & SaaS traffic (or tunnel endpoints) are routed out through the correct WAN interface."
+        ],
+        [
+          "ip rule ls | grep ipsec",
+          "Checks the flow mark that will take the IPSec path",
+          "Verify whether there is a flow mark that takes the IPSec path."
+        ]
+      ]
+    },
+    {
+      "item": "Private Access (ZPA) App Connector Diagnostics",
+      "depth": 0
+    },
+    {
+      "item": "The following are some of the commands for Private Access App Connector diagnostics and troubleshooting:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Purpose",
+          "Use Case"
+        ],
+        [
+          "service agn-poller status",
+          "Checks whether the Private Access App Connector polling service is running",
+          "Use when the Private Access application is not reachable."
+        ],
+        [
+          "ls -l /etc/airgap/zcc",
+          "Lists all configuration, metadata, and enrollment files",
+          "Validate whether Zero Trust Branch is correctly enrolled with Private Access."
+        ],
+        [
+          "cat /etc/airgap/zcc/zcc_config.json",
+          "Shows information such as Internet & SaaS Org ID, Private Access Org ID, Internet & SaaS cloud, Private Access cloud, and Private Access broker",
+          "Validate enrollment details, cloud information, and other parameters."
+        ],
+        [
+          "cat /etc/airgap/zcc/fqdn.txt",
+          "Displays the Private Access application segments (in FQDN format) downloaded to the Zero Trust Branch appliance",
+          "Validate the Private Access application segments (in FQDN format) downloaded to the Zero Trust Branch appliance."
+        ],
+        [
+          "cat /etc/airgap/zcc/ip.txt",
+          "Displays the Private Access application segments (in IP address format) downloaded to the Zero Trust Branch appliance",
+          "Validate the Private Access application segments (in IP address format) downloaded to the Zero Trust Branch appliance."
+        ],
+        [
+          "tail -n 10",
+          "Displays the recent DNS logs",
+          "Troubleshoot DNS resolution."
+        ],
+        [
+          "docker ps -a",
+          "Shows the Private Access App Connector operational status",
+          "Check whether the Private Access App Connector is running."
+        ],
+        [
+          "docker volume ls",
+          "Shows details of the provisioning key, certificate, etc. stored in the App Connector",
+          "Check where the provisioning key, certificate, etc. are stored."
+        ],
+        [
+          "docker logs --tail 100 Proctor02AppC",
+          "Shows the App Connector docker logs",
+          "Verify the App Connector's docker logs."
+        ],
+        [
+          "curl localhost:9000/fohh/clients?small",
+          "Shows the brokers that are connected to the App Connector",
+          "Verify the brokers connected to the App Connector."
+        ],
+        [
+          "curl localhost:9000/assistant/state/dump | grep 1",
+          "Shows the App Connector name and instance ID",
+          "Verify the App Connector name and instance ID that is spun up in the docker container."
+        ],
+        [
+          "curl localhost:9000/assistant/app/dump/apps",
+          "Shows the list of Private Access apps that are downloaded",
+          "Verify the list of Private Access apps that are downloaded."
+        ],
+        [
+          "docker restart <appconnector name>",
+          "Restarts the App Connector docker container",
+          "Restart the App Connector docker container."
+        ],
+        [
+          "docker logs -n 100 <appconnector name>",
+          "Shows the logs for the specific App Connector",
+          "Verify the App Connector logs."
+        ]
+      ]
+    },
+    {
+      "item": "VRRP for High Availability (HA)",
+      "depth": 0
+    },
+    {
+      "item": "The following are some of the commands for VRRP diagnostics and troubleshooting:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Purpose",
+          "Use Case"
+        ],
+        [
+          "sudo docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show config'",
+          "Displays the HA configuration status",
+          "Check whether the VRRP, sync settings, and interface bindings for HA settings are configured correctly."
+        ],
+        [
+          "docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show vrrp'",
+          "Shows the current VRRP status, including role and priority",
+          "Confirm whether an appliance is active or troubleshoot unexpected VRRP role changes."
+        ],
+        [
+          "docker exec vyos_container su - vyos sh -c 'sudo systemctl status keepalived",
+          "Verifies whether the keepalived service is running",
+          "Use when the appliance does not switch roles or when the VRRP state appears unstable."
+        ],
+        [
+          "docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show conntrack-sync status'",
+          "Displays the connection tracking synchronization status between HA peers",
+          "Use when failover results in a new session drop to confirm that connection sync is working between active and standby appliances."
+        ],
+        [
+          "docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show vrrp detail'",
+          "Displays the detailed VRRP operational information",
+          "Perform deeper diagnostics to investigate timing issues, state transitions, or instability between HA roles."
+        ],
+        [
+          "docker exec vyos_container su - vyos sh -c 'journalctl -u keepalived | head -200'",
+          "Displays the recent logs for the keepalived (VRRP) service",
+          "Troubleshoot VRRP issues and review keepalived service logs for errors and failover events."
+        ],
+        [
+          "docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show int summary'",
+          "Shows the HA interface details",
+          "Verify the HA interface details."
+        ],
+        [
+          "tcpdump -i ge4 -c <number of packets>",
+          "Shows the packets captured on the HA interface",
+          "Verify the packets captured on the HA interface."
+        ]
+      ]
+    },
+    {
+      "item": "Routed Tunnels (RTs)",
+      "depth": 0
+    },
+    {
+      "item": "The following are some of the commands for RT diagnostics and troubleshooting:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Purpose",
+          "Use Case"
+        ],
+        [
+          "ifconfig <overlay-tunnel-interface>",
+          "Displays the interface details for the specific GRE tunnel",
+          "Verify whether the GRE tunnel interface is up and reachable, and has expected IP address assignment."
+        ],
+        [
+          "ifconfig <routed-tunnel-interface>",
+          "Displays the status and IP address configuration of the RT interface",
+          "Verify whether the RT interface is active and configured correctly."
+        ],
+        [
+          "docker exec vyos_container su - vyos sh -c 'ip rule'",
+          "Displays routing rules associated with tunnel-based border gateway protocol (BGP) routing",
+          "Verify whether PBR is correctly steering BGP-learned prefixes into the RT."
+        ],
+        [
+          "sudo docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show vrf'",
+          "Displays Virtual Routing and Forwarding (VRF) instances used for routing BGP traffic through RTs",
+          "Verify whether a dedicated VRF instance exists and is applied for BGP peering and traffic separation."
+        ],
+        [
+          "docker exec vyos_container su - vyos sh -c 'ip neighbor | grep s2s'",
+          "Displays BGP peering information over the GRE tunnel path",
+          "Verify whether a BGP session over the routed GRE tunnel is established and the peer is reachable."
+        ],
+        [
+          "sudo docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show ip route table 500'",
+          "Displays routing table entries for the RTs",
+          "Verify whether the expected prefixes are present and routed through the tunnel interface."
+        ],
+        [
+          "ip address | grep wg_vpn",
+          "Shows the RT details",
+          "Verify the RT at the spoke."
+        ],
+        [
+          "ip address | grep s2s_overlay",
+          "Shows the GRE tunnel over RT at the spoke",
+          "Verify the GRE overlay interface."
+        ],
+        [
+          "ip route show table 500",
+          "Shows the spoke subnets",
+          "Verify the spoke subnets that are advertised and available at the spokes."
+        ]
+      ]
+    },
+    {
+      "item": "WAN Link Monitoring",
+      "depth": 0
+    },
+    {
+      "item": "The following are some of the commands for WAN link monitoring and troubleshooting:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Purpose",
+          "Use Case"
+        ],
+        [
+          "cat /var/log/syslog | grep wan-mon",
+          "Displays WAN-monitoring log entries from syslog",
+          "Verify WAN monitor events such as link up/down or score changes."
+        ],
+        [
+          "ip rule",
+          "Displays routing rules for WAN",
+          "Verify how routing decisions are being made based on WAN scoring or priority."
+        ],
+        [
+          "ip route show table <wan-table>",
+          "Displays the WAN routing table",
+          "Check which WAN interface is preferred based on WAN performance scoring."
+        ],
+        [
+          "ip route show | grep default",
+          "Displays the current default route entries",
+          "Check which WAN interface is used as the default egress path."
+        ]
+      ]
+    },
+    {
+      "item": "DNS Forwarding",
+      "depth": 0
+    },
+    {
+      "item": "The following are some of the commands for DNS forwarding diagnostics and troubleshooting:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Purpose",
+          "Use Case"
+        ],
+        [
+          "cat /etc/airgap/dns_proxy/baseconfig",
+          "Displays the DNS policy base configuration",
+          "Verify whether DNS policy enforcement and forwarding behavior are configured correctly."
+        ],
+        [
+          "cat /etc/airgap/dns_proxy/cache_config.json",
+          "Displays the DNS cache configuration",
+          "Verify DNS cache settings such as TTL and cache size for troubleshooting."
+        ],
+        [
+          "curl -s localhost:9153/metrics | grep \"^coredns_dnscache\"",
+          "Shows DNS cache statistics",
+          "Verify DNS cache effectiveness based on hit/miss patterns."
+        ],
+        [
+          "docker ps -a",
+          "Shows the DNS proxy operational status",
+          "Verify whether the DNS proxy is running."
+        ],
+        [
+          "iptables -t nat -nvL PREROUTING",
+          "",
+          "Verify the DNS traffic diverted from the LAN-side client to the DNS proxy. To divert client DNS traffic to a DNS proxy, use the DNAT method. DNS proxy runs on 127.0.0.1:1053. Add a DNAT rule in the PREROUTING chain in the NAT table, to capture and divert all client-generated DNS traffic to the DNS proxy."
+        ],
+        [
+          "cat /etc/airgap/zcc/mapping_debug.txt",
+          "Shows the FQDN to synthetic IP address mapping",
+          "Check the FQDN to synthetic IP address mapping"
+        ]
+      ]
+    },
+    {
+      "item": "DNS Policies",
+      "depth": 0
+    },
+    {
+      "item": "Zero Trust Branch appliances log all DNS activities and send a copy of the log to Zero Trust Branch Management for storage. The following are some of the commands for DNS diagnostics and troubleshooting based on DNS policies:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Purpose",
+          "Use Case"
+        ],
+        [
+          "ls -lrt /etc/airgap/dns_proxy/policy_logs",
+          "Lists available DNS policy log files",
+          "Verify whether DNS policy logs are generated or check the timestamps for the last log file."
+        ],
+        [
+          "tail /etc/airgap/dns_proxy/policy_logs/dns_policy.log",
+          "Displays the recent DNS policy log entries",
+          "Troubleshoot DNS policy enforcement issues and monitor live DNS resolution attempts."
+        ],
+        [
+          "tail /var/log/syslog | grep module_dns_policy",
+          "Filters syslog messages to display entries specific to the DNS policy module",
+          "View syslog entries for the DNS policy module."
+        ]
+      ]
+    },
+    {
+      "item": "SNMP Configuration",
+      "depth": 0
+    },
+    {
+      "item": "The Simple Network Management Protocol (SNMP) standard is used for network monitoring and management. The following are some of the commands to verify the SNMP configuration:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Purpose",
+          "Use Case"
+        ],
+        [
+          "sudo docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show configuration'",
+          "Shows the SNMP configuration details",
+          "Verify whether the SNMP is enabled on Zero Trust Branch."
+        ],
+        [
+          "iptables -nvL SECURITY_RULES",
+          "Shows the interfaces on which SNMP monitoring can be performed",
+          "Verify the management and WAN interfaces on which SNMP monitoring can be performed. SNMP monitoring is not supported on the LAN interface."
+        ],
+        [
+          "tcpdump -i lo udp port 161",
+          "Shows the SNMP walk packets received in Zero Trust Branch Shows that Zero Trust Branch is responding to the SNMP queries",
+          "Verify whether the SNMP walk packets are received in Zero Trust Branch, and whether Zero Trust Branch is responding to the SNMP queries. If SNMP monitoring is performed on the management interface over Private Access, the packet is received at the management interface and sent to the loopback interface. Perform the packet capture on the loop interface."
+        ],
+        [
+          "tcpdump -i ge3 udp port 161",
+          "Captures SNMP packets on an active or standby appliance",
+          "A single App Connector runs on an active appliance, so the packets are received from the active gateway and forwarded to the standby gateway using the management interface. If packets are received from the active gateway on the management interface, then there are no packets on the loopback interface."
+        ]
+      ]
+    }
+  ]
+}

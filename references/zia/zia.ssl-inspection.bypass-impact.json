@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.bypass-impact",
+  "title": "What stops working when traffic bypasses SSL/TLS inspection",
+  "aliases": [
+    "ssl bypass impact",
+    "dlp not working https",
+    "why wasn't this caught",
+    "features that need ssl inspection",
+    "sandbox ssl bypass",
+    "malware not detected https"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.ssl-inspection.rules",
+      "because": "zia.ssl-inspection.bypass-impact:check-ssl-first"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.sandbox",
+      "because": "zia.ssl-inspection.bypass-impact:dependent-features"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.atp",
+      "because": "zia.ssl-inspection.bypass-impact:dependent-features"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dlp",
+      "because": "zia.ssl-inspection.bypass-impact:dependent-features"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.malware-protection",
+      "because": "zia.ssl-inspection.bypass-impact:dependent-features"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.file-type-control",
+      "because": "zia.ssl-inspection.bypass-impact:dependent-features"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering",
+      "because": "zia.ssl-inspection.bypass-impact:evaluate-variant-keeps-domain-checks"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.exemptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.uninspectable"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Exempting traffic from inspection is a decision about every feature that reads content, not only about TLS. {{dependent-features}} {{uninspected-blind}}"
+    },
+    {
+      "text": "{{check-ssl-first}}"
+    },
+    {
+      "label": "What still applies without decryption.",
+      "items": [
+        {
+          "text": "{{evaluate-variant-keeps-domain-checks}} The behavior of each variant is in [[zia.ssl-inspection.pipeline]]; the URL Filtering criteria that need decryption are in [[zia.url-filtering.criteria]]."
+        },
+        {
+          "text": "Whether policy is evaluated at all for traffic on the global SSL bypass list is a separate tenant switch: [[zia.url-filtering.advanced-settings]]."
+        }
+      ]
+    },
+    {
+      "label": "Google CAPTCHA and geolocation.",
+      "text": "{{google-captcha}} {{google-geolocation}} {{google-mitigations}}"
+    },
+    {
+      "text": "Sandbox coverage for files delivered over HTTPS is in [[zia.sandbox]]. For deciding what to exempt in the first place, see [[zia.ssl-inspection.exemptions]]; for what cannot be inspected regardless, [[zia.ssl-inspection.uninspectable]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the traffic matched a Do Not Inspect rule, before reading a content feature's own policy when it missed something on HTTPS.",
+      "uses": [
+        "check-ssl-first"
+      ]
+    }
+  ],
+  "claims": {
+    "dependent-features": {
+      "statement": "These ZIA security features need decrypted traffic to work on encrypted transactions: Anti-Virus/Malware, Cloud Sandbox, Advanced Threat Prevention, Isolation, Data Loss Prevention, File Type Control, Inline CASB and the Intrusion Prevention System.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Many of Zscaler",
+            "security features require SSL inspection to work on encrypted transactions.",
+            "Anti-Virus/Malware",
+            "Cloud Sandbox",
+            "Advanced Threat Prevention",
+            "Data Loss Prevention (DLP)",
+            "File Type Control",
+            "Inline CASB",
+            "Intrusion Prevention System (IPS)",
+            "Isolation"
+          ]
+        }
+      ]
+    },
+    "uninspected-blind": {
+      "statement": "Zscaler cannot see inside uninspected traffic, so embedded threats, inbound or outbound, are not detected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Zscaler cannot see inside uninspected traffic, meaning any embedded threats (inbound or outbound) are not detected."
+          ]
+        }
+      ]
+    },
+    "check-ssl-first": {
+      "statement": "When a dependent feature missed something on HTTPS, check whether the traffic matched a Do Not Inspect rule before looking at the feature's own policy.",
+      "tier": "B",
+      "conditions": "Diagnostic advice following from the dependency: no source states the troubleshooting order.",
+      "derived_from": [
+        "dependent-features",
+        "uninspected-blind"
+      ]
+    },
+    "evaluate-variant-keeps-domain-checks": {
+      "statement": "On Do Not Inspect with Evaluate Other Policies, URL Filtering and Cloud App Control still evaluate the destination domain, so a block on the domain fires while path-, method- and payload-based rules do not; Do Not Inspect with Bypass Other Policies skips both entirely.",
+      "tier": "B",
+      "derived_from": [
+        "zia.ssl-inspection.pipeline:first-pass-on-domain",
+        "zia.ssl-inspection.pipeline:not-inspected-domain-only",
+        "zia.ssl-inspection.pipeline:bypass-other-policies"
+      ],
+      "conditions": "not-inspected-domain-only names URL Filtering for the Evaluate variant; the Cloud App Control half assumes the domain-level first pass (first-pass-on-domain) applies to it equally."
+    },
+    "google-captcha": {
+      "statement": "A user entering a search string in google.com may get a CAPTCHA screen to complete before search results are displayed. Zscaler forbids use of its proxy services for automated testing in its contract, but some customers doing automated queries on Google trigger a CAPTCHA response, which can affect other users sending traffic through the same Zscaler IP address. Zscaler recommends enabling SSL/TLS Inspection so it can insert an XFF header in each request, which allows Google to isolate the offending client without affecting other clients; it should be enabled for either google.com or the Web Search URL category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-avoiding-google-captcha-and-geolocation-issues.json",
+          "quotes": [
+            "CAPTCHA on google.com: When a user enters a search string in google.com, instead of displaying search results, users are subject to a CAPTCHA screen that they must complete before the search results are displayed.",
+            "While Zscaler forbids the use of its proxy services for automated testing as part of its contract, some customers doing automated queries on Google trigger the search engine to respond with a CAPTCHA.",
+            "This can affect other users sending traffic through the same Zscaler IP address.",
+            "Zscaler recommends that customers enable SSL/TLS Inspection, so Zscaler can insert an XFF header in each request.",
+            "Inserting an XFF header allows Google to isolate the offending client, without affecting the traffic of other clients."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-avoiding-google-captcha-and-geolocation-issues.json",
+          "quotes": [
+            "SSL/TLS Inspection should be enabled for either google.com or the Web Search URL category."
+          ],
+          "after": "# Resolving Google CAPTCHA Issues"
+        }
+      ]
+    },
+    "google-geolocation": {
+      "statement": "A Google geolocation error is a Google homepage and search results that do not match the user's location, for example a Miami user shown Spanish results and https://google.com.mx. The page says these occur when Zscaler data center IP ranges are incorrectly interpreted by Google's Geo-IP mapping system, which Zscaler addressed by sharing its IP ranges with Google, barring a rare corruption of the Geo-IP system. It also says that in certain regions they occur when customers send data to Zscaler from countries where Zscaler has no data center, in which case Google returns content based on the IP address of the Zscaler data center. For this case Zscaler recommends that customers turn on SSL/TLS Inspection, which allows Google to read a customer's actual IP address along with the data center IP address and return geolocalized content, and the page says customers who cannot enable SSL/TLS can run into this issue. Users can use Google's NCR plugin for Chrome to bookmark google.com/ncr, and inconsistencies can be logged with Google or taken up with the ISP at the Google ISP Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-avoiding-google-captcha-and-geolocation-issues.json",
+          "quotes": [
+            "Geolocation error: The Google homepage and search results displayed do not match the user's location.",
+            "For example, a user in Miami might be shown search results in Spanish and the Google homepage URL as https://google.com.mx",
+            "Geolocation errors occur when the Zscaler data center IP address ranges are incorrectly interpreted by Google's Geo-IP mapping system.",
+            "To resolve this issue, Zscaler has shared its IP ranges with Google, and barring a rare corruption of the Geo-IP system, this issue is fixed.",
+            "Also, in certain regions, geolocation errors occur when Zscaler customers are sending data to Zscaler from countries where Zscaler doesn't have a data center.",
+            "In this case, Google returns content based on the IP address of the Zscaler data center.",
+            "To resolve this issue, Zscaler recommends that customers turn on SSL/TLS Inspection. This allows Google to read a customer's actual IP address along with the Zscaler data center IP address and return geolocalized content.",
+            "Customers who cannot enable SSL/TLS can run into this issue.",
+            "ask your users to use Google's NCR plugin for the Chrome browser to bookmark google.com/ncr to redirect your traffic to google.com instead of a local, geolocalized Google page.",
+            "to log any inconsistencies with GeoIP lookups directly with Google, or you can work with your internet service provider (ISP) to update the Google GeoIP database for the IP addresses assigned to you at Google ISP Portal."
+          ]
+        }
+      ]
+    },
+    "google-mitigations": {
+      "statement": "Zscaler and Google are in constant communication about Zscaler's multi-tenant data center footprint and IP address ranges, the Zscaler Operations team performs automated monitoring for Google reCAPTCHA and geolocation issues, and Zscaler has an agreement with Google to use XFF headers to isolate offending Zscaler clients. The page says its suggestions reduce the likelihood of these issues but might not completely resolve them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-avoiding-google-captcha-and-geolocation-issues.json",
+          "quotes": [
+            "Google and Zscaler are in constant communication regarding Zscaler's multi-tenant data center footprint and IP address ranges.",
+            "The Zscaler Operations team performs automated monitoring for Google reCAPTCHA and geolocation issues.",
+            "Zscaler has an agreement with Google to use XFF headers to isolate offending Zscaler clients.",
+            "The suggestions provided in this article reduce the likelihood of these issues occurring, but they might not completely resolve them."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "per-feature-bypass-effects": {
+      "kind": "semantic",
+      "title": "What each dependent feature does on bypassed HTTPS traffic",
+      "status": "open",
+      "detail": "Unverified legacy statement: DLP (Web, Inline CASB, Endpoint DLP sync) 'completely ineffective for HTTPS traffic'; Sandbox 'does not see files delivered over bypassed traffic'; Malware Protection 'can't scan payloads; reduced to URL/reputation matching only'; File Type Control 'MIME-type sniffing falls back to host/path heuristics; reliability drops'; ATP content-based rules 'Known-bad-URL still matches; deep-content detection doesn't'. The captured guide says only that these features require inspection. The ATP known-bad-URL part is supported by the pipeline's first-pass claims. Capturing each feature's help page would settle the rest.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

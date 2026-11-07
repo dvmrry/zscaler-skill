@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-filtering.criteria",
+  "title": "How URL Filtering rule criteria combine",
+  "aliases": [
+    "url filtering criteria",
+    "rule criteria and or",
+    "urlCategories2",
+    "second url categories field",
+    "user risk profile",
+    "unset criteria"
+  ],
+  "binds": [
+    "zia/url-filtering-rules#urlCategories",
+    "zia/url-filtering-rules#urlCategories2",
+    "zia/url-filtering-rules#users",
+    "zia/url-filtering-rules#groups",
+    "zia/url-filtering-rules#departments",
+    "zia/url-filtering-rules#locations",
+    "zia/url-filtering-rules#locationGroups",
+    "zia/url-filtering-rules#userRiskScoreLevels"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.rule-scoping",
+      "because": "zia.locations.rule-scoping:rules-take-both"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.authentication.unauthenticated-traffic",
+      "because": "zia.authentication.unauthenticated-traffic:logged-in-user-misses-user-rule"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.pipeline",
+      "because": "zia.url-filtering.criteria:payload-criteria-need-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Within one rule, criteria combine by a fixed expression. {{operator-expression}} Mostly AND, with three OR groups: identity (configurable OR or AND), location, and device."
+    },
+    {
+      "text": "{{unset-ignored}}"
+    },
+    {
+      "text": "{{url-categories2-and}} {{groups-and}}"
+    },
+    {
+      "label": "Validity window.",
+      "text": "{{rule-validity-period}}"
+    },
+    {
+      "label": "User policy on HTTPS.",
+      "text": "{{https-user-policy}}"
+    },
+    {
+      "label": "API field names.",
+      "text": "{{api-only-scoping}} {{user-risk-score-levels}}"
+    },
+    {
+      "label": "What ZIA can see.",
+      "text": "{{payload-criteria-need-inspection}} See [[zia.ssl-inspection.pipeline]] for when the full request is visible."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a criterion left empty is intended, since an unset criterion is ignored rather than matching nothing.",
+      "uses": [
+        "unset-ignored"
+      ]
+    },
+    {
+      "do": "Whether a second URL Categories field is meant as an AND, which narrows the rule.",
+      "uses": [
+        "url-categories2-and"
+      ]
+    },
+    {
+      "do": "Whether a rule that matches on request method, protocol or path is applied to decrypted traffic.",
+      "uses": [
+        "payload-criteria-need-inspection"
+      ]
+    }
+  ],
+  "claims": {
+    "operator-expression": {
+      "statement": "A rule matches when all four groups are true, joined by AND: Who, Where and When [ (Users OR/AND Groups OR/AND Departments) AND User Risk Profile AND Adaptive Access Profile AND (Location Groups OR Locations) AND Time ]; What [ Request Methods AND Protocols AND URL Categories AND User Agent AND HTTP Header Profiles ]; Source [ Source IP Groups AND Source Countries ]; and Device [ (Device Groups OR Devices) AND Workload Groups AND Device Trust Level ].",
+      "conditions": "Corrected on recapture (2026-10-18): previously \"A rule matches when this expression is true: Source IP Groups AND Source Countries AND URL Categories AND [Users OR/AND Groups OR/AND Departments] AND User Risk Profile AND [Location Groups OR Locations] AND Time AND Request Methods AND Protocols AND User Agent AND [Device Groups OR Devices] AND Device Trust.\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:",
+            "Who, Where, & When: [ (Users OR/AND Groups OR/AND Departments) AND User Risk Profile AND Adaptive Access Profile AND (Location Groups OR Locations) AND Time ] AND",
+            "What: [ Request Methods AND Protocols AND URL Categories AND User Agent AND HTTP Header Profiles ] AND",
+            "Source: [ Source IP Groups AND Source Countries ] AND",
+            "Device: [ (Device Groups OR Devices) AND Workload Groups AND Device Trust Level ]"
+          ]
+        }
+      ]
+    },
+    "unset-ignored": {
+      "statement": "In URL Filtering rules, criteria such as URL Categories and Locations are ignored when left without a value, not treated as \"matches nothing\": leaving Locations empty removes location from the rule's evaluation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "after": "URL Categories: Select any number of URL super categories or categories or both.",
+          "quotes": [
+            "Selecting no value ignores this criterion in the policy evaluation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "Locations: Select up to 32 locations. Selecting no value ignores the criterion in the policy evaluation."
+          ]
+        }
+      ]
+    },
+    "url-categories2-and": {
+      "statement": "A second URL Categories field (`urlCategories2` in the API) is ANDed with the first: the URL must be in a category from each field, which makes the rule narrower, not broader.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#urlCategories",
+        "zia/url-filtering-rules#urlCategories2"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "The URL Categories fields are connected with a logical AND operator."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "The URL Categories fields are connected with a logical AND operator."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "after": "def add_rule(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "Note: The urlCategories and urlCategories2 parameters are connected with a logical AND operator"
+          ]
+        }
+      ]
+    },
+    "groups-and": {
+      "statement": "In the About URL Filtering rule table, the Groups fields are connected with a logical AND operator, as are the URL Categories fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "The Groups fields are connected with a logical AND operator.",
+            "The URL Categories fields are connected with a logical AND operator."
+          ]
+        }
+      ]
+    },
+    "rule-validity-period": {
+      "statement": "A rule can carry a Start Date and Time (the rule is valid starting this date and time), an End Date and Time (the rule ceases to be valid on this date and time) and a Time Zone in which the policy rule is valid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "Start Date and Time: The start date and time of the policy rule, if available. The rule is valid starting this date and time.",
+            "End Date and Time: The end date and time of the policy rule, if available. The rule ceases to be valid on this date and time.",
+            "Time Zone: The time zone in which the policy rule is valid."
+          ]
+        }
+      ]
+    },
+    "https-user-policy": {
+      "statement": "The page says user-based URL policy on HTTPS traffic can be enforced in different ways, which it describes under SSL/TLS Inspection, IP surrogate and Kerberos. With SSL/TLS Inspection enabled, the service decrypts SSL/TLS transactions and sees the HTTP traffic in the tunnel (with the URI and the Zscaler cookie representing the user), and the location must have authentication enabled. If SSL/TLS interception is not feasible, the IP surrogate feature maps a user to a device IP address so the user's policies apply. With Kerberos, the service can enforce user, group and department policies on proxied HTTPS transactions without decrypting them; the location must have authentication and Kerberos enabled, and Kerberos authentication is supported only for traffic forwarded in explicit mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-enforcing-user-based-url-policies-https-traffic.json",
+          "quotes": [
+            "The Zscaler service can enforce user-based URL policies on HTTPS traffic in different ways.",
+            "When SSL/TLS Inspection is enabled, the Zscaler service decrypts SSL/TLS transactions and has full visibility of the HTTP traffic in the SSL/TLS tunnel (with URI and the Zscaler cookie representing the user), so it can enforce user policies.",
+            "The location must have authentication enabled.",
+            "If enabling SSL/TLS interception is not a feasible option for your organization, you can use the IP surrogate feature, which enables the Zscaler service to map a user to a device IP address so it can apply the user's policies.",
+            "The service can enforce granular user, group and department policies on proxied HTTPS transactions, without having to decrypt the HTTPS transactions.",
+            "The location must have authentication and Kerberos enabled.",
+            "The service supports Kerberos authentication only for traffic forwarded in explicit mode."
+          ]
+        }
+      ]
+    },
+    "user-risk-score-levels": {
+      "statement": "The console's User Risk Profile criterion selects user risk score levels (by default Low 0–29, Medium 30–59, High 60–79, Critical 80–100). The API carries it as `userRiskScoreLevels`.",
+      "tier": "B",
+      "binds": [
+        "zia/url-filtering-rules#userRiskScoreLevels"
+      ],
+      "conditions": "The console-label-to-field mapping is a chain of evidence: the help describes the criterion as risk score levels, and the rule model's only risk field is userRiskScoreLevels.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "User Risk Profile: Select the user risk score levels to which the rule applies.",
+            "Low: Level with user risk scores ranging from 0 to 29",
+            "Critical: Level with user risk scores ranging from 80 to 100"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "UserRiskScoreLevels []string `json:\"userRiskScoreLevels,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "api-only-scoping": {
+      "statement": "The API also scopes rules by workload groups (`workloadGroups`) and by HTTP header profiles (`httpHeaderProfiles`).",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#workloadGroups",
+        "zia/url-filtering-rules#httpHeaderProfiles"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "// The list of preconfigured workload groups to which the policy must be applied.",
+            "// Name-ID pairs HTTP header profile to which the rule applies",
+            "WorkloadGroups []common.IDName `json:\"workloadGroups,omitempty\"`",
+            "HTTPHeaderProfiles []common.IDNameExtensions `json:\"httpHeaderProfiles,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "payload-criteria-need-inspection": {
+      "statement": "Criteria that need the request itself (Request Methods, Protocols, URL path) can only be evaluated on decrypted traffic; on uninspected HTTPS only domain-level evaluation exists, so such rules silently do not fire.",
+      "tier": "B",
+      "binds": [
+        "zia/url-filtering-rules#requestMethods",
+        "zia/url-filtering-rules#protocols"
+      ],
+      "conditions": "Chain of evidence: pre-decrypt evaluation sees only the destination domain.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.json",
+          "quotes": [
+            "During a CONNECT request or an incoming SSL/TLS connection (SNI), only the destination domain is available and not the full URL."
+          ]
+        }
+      ]
+    }
+  },
+  "cases": {
+    "two-category-fields-and": {
+      "kind": "rule-evaluation",
+      "claims": [
+        "url-categories2-and"
+      ],
+      "config": {
+        "rules": [
+          {
+            "id": 1,
+            "order": 1,
+            "state": "ENABLED",
+            "action": "BLOCK",
+            "urlCategories": [
+              "SOCIAL_NETWORKING"
+            ],
+            "urlCategories2": [
+              "GAMBLING"
+            ]
+          }
+        ],
+        "predefined": {
+          "social.example": [
+            "SOCIAL_NETWORKING"
+          ]
+        }
+      },
+      "request": {
+        "url": "https://social.example/"
+      },
+      "expect": {
+        "verdict": "no-match"
+      },
+      "note": "The URL is only in the first field's category, so the AND fails and the rule does not match."
+    }
+  }
+}

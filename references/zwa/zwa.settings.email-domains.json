@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": "zwa.settings.email-domains",
+  "title": "Workflow Automation custom email domains: the notification sender, DNS verification, statuses and the default domain",
+  "aliases": [
+    "custom email domain",
+    "notifications@zsworkflow.net",
+    "envelope sender domain",
+    "originating email address"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{default-sender}} The wider settings are in [[zwa.settings]]."
+    },
+    {
+      "label": "Adding a domain.",
+      "text": "{{domain-fields}} {{dns-verification-window}} {{dns-verification-outcome}}"
+    },
+    {
+      "label": "Statuses.",
+      "text": "{{statuses}} {{default-and-delete}}"
+    },
+    {
+      "label": "Editing and reverting.",
+      "text": "{{edit-rules}} {{revert-and-test}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which status the custom email domain shows before expecting notifications from it.",
+      "uses": [
+        "statuses",
+        "dns-verification-outcome"
+      ]
+    }
+  ],
+  "claims": {
+    "default-sender": {
+      "statement": "By default Workflow Automation sends its email notifications (notify user, escalate to approver or manager, bulk actions) from notifications@zsworkflow.net; a custom email domain is optional and, once added, can be used as the sender.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-custom-email-domains.json",
+          "quotes": [
+            "By default, Workflow Automation uses notifications@zsworkflow.net as the sender for these email notifications.",
+            "Adding custom email domains is optional when configuring Workflow Automation.",
+            "After you add a custom email domain, Workflow Automation can use that custom email domain as the sender.",
+            "such as notifying the user of an incident, escalating an incident to an approver or manager, and performing bulk actions"
+          ]
+        }
+      ]
+    },
+    "domain-fields": {
+      "statement": "Adding a custom email domain takes a Domain Name, an Envelope Sender Domain Name (which improves deliverability and SPF alignment and keeps a consistent sending identity) and an Originating Email Address from which notifications are sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-custom-email-domains.json",
+          "quotes": [
+            "Domain Name: Enter the name of the custom email domain.",
+            "Envelope Sender Domain Name: Enter the name of the envelope sender domain.",
+            "Configuring this field improves email deliverability, helps with Sender Policy Framework (SPF) alignment, and ensures a consistent sending identity for your notifications.",
+            "Originating Email Address: Enter the email address from which email notifications are sent."
+          ]
+        }
+      ]
+    },
+    "dns-verification-window": {
+      "statement": "Workflow Automation generates DNS records for verification and sets the status to DNS verification pending; the records must be published within 72 hours or the status changes to Expired, after which the DNS records can be regenerated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-custom-email-domains.json",
+          "quotes": [
+            "Workflow Automation generates DNS records for domain verification",
+            "it might take up to 72 hours for the verification to complete. The status of the custom email domain is set to DNS verification pending.",
+            "You must publish these DNS records to your DNS provider within 72 hours.",
+            "If you do not publish these DNS records within 72 hours, the status of the custom email domain changes to Expired.",
+            "After the custom email domain expires, you can regenerate DNS records for the domain."
+          ]
+        }
+      ]
+    },
+    "dns-verification-outcome": {
+      "statement": "After the records are published, AWS checks them: valid records give the status Success and the domain can be used for notifications; invalid records, or a technical issue, give the status Failed and the domain is not added, so it must be deleted and added again to regenerate the DNS records.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-custom-email-domains.json",
+          "quotes": [
+            "the DNS server calls Amazon Web Services (AWS) to check whether the records are valid",
+            "You can now use this custom email domain for your notifications.",
+            "If the records are valid, the custom email domain is added, and the status of the custom email changes to Success.",
+            "If the records are not valid, or if there is a technical issue with verifying the records, the custom email domain is not added and the status of the custom email domain changes to Failed.",
+            "To use a custom domain that has a Failed status, you must delete the custom email domain and add it again so that the system can regenerate the DNS records."
+          ]
+        }
+      ]
+    },
+    "statuses": {
+      "statement": "A custom email domain has one of five statuses: DNS verification pending, Expired, Failed, In Use or Success; only a Success domain can be made the default, and only one domain can be In Use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-custom-email-domains.json",
+          "quotes": [
+            "DNS verification pending: The custom email domain is pending verification of the DNS records.",
+            "Expired: The custom email domain is expired.",
+            "Failed: The custom email domain failed the verification of DNS records by AWS.",
+            "In Use: The custom email domain that is set as the default for the email notifications. You can only set one custom email domain to this status.",
+            "Success: The custom email domain is verified.",
+            "Only custom email domains with a Success status can be set as the default."
+          ]
+        }
+      ]
+    },
+    "default-and-delete": {
+      "statement": "Only one custom email domain can be the default, which sets its status to In Use; a domain with status In Use cannot be deleted until another domain is made the default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-custom-email-domains.json",
+          "quotes": [
+            "You can only specify one custom email domain as the default. The status of the custom email domain changes to In Use.",
+            "You cannot delete a custom email domain with a status of In Use.",
+            "You can select another domain and make it the default, and then you can delete the previous domain that was the default."
+          ]
+        }
+      ]
+    },
+    "edit-rules": {
+      "statement": "A custom email domain can be edited when its status is Success, In Use or DNS verification pending; for In Use or Success only the Originating Email Address can be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-custom-email-domains.json",
+          "quotes": [
+            "next to a domain name that has a status of Success, In Use, or DNS verification pending",
+            "If the custom email domain has an In Use or Success status, the Add Custom Domain page appears. You can only edit the Originating Email Address field."
+          ]
+        }
+      ]
+    },
+    "revert-and-test": {
+      "statement": "Revert to Zscaler Domain makes zsworkflow.net the originating email domain again; the test email is optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-custom-email-domains.json",
+          "quotes": [
+            "asking whether you are sure that you want to revert to zsworkflow.net as the originating email domain",
+            "where you can send a test email from the custom email domain to verify that it is working correctly. This step is optional."
+          ]
+        }
+      ]
+    }
+  }
+}

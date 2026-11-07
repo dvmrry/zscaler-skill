@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "id": "zia.scim.operations",
+  "title": "ZIA SCIM server operations, paging and rate limit",
+  "aliases": [
+    "scim endpoints",
+    "scim filter",
+    "scim pagination",
+    "scim startIndex",
+    "scim rate limit",
+    "scim bulk",
+    "scim patch",
+    "scim delta sync",
+    "meta.lastModified",
+    "scim totalResults"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.sdk-coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.propagation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Use this when a custom client or a connector misbehaves against the service itself. {{user-operations}} {{group-operations}} {{bulk-and-discovery}}"
+    },
+    {
+      "label": "Filters and incremental reads.",
+      "text": "{{filters}} {{delta-sync}}"
+    },
+    {
+      "label": "Paging.",
+      "text": "{{paging}} The Go SDK helper decides it is finished from totalResults, see [[zia.scim.sdk-coverage]]."
+    },
+    {
+      "label": "Write shape.",
+      "text": "{{patch-example}}"
+    },
+    {
+      "label": "Rate.",
+      "text": "{{rate-limit}} {{first-sync-rate-bound}} The Go SDK client sets no limiter of its own, see [[zia.scim.sdk-coverage]]. How large batches should use Bulk is open {{gap:bulk-limits}}."
+    },
+    {
+      "label": "SCIM Event Logs page.",
+      "text": "{{event-log-contents}} {{event-log-window}} {{event-log-columns}} The page lists no error or status code values {{gap:event-log-code-values}}. Its filter and search names match the request fields of the event log report API, but no capture says they are the same dataset {{gap:event-log-vs-report-api}}."
+    },
+    {
+      "text": "How quickly a pushed change takes effect is in [[zia.scim.propagation]]; what active=false and DELETE do is in [[zia.scim.deactivation]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the verb and endpoint the client actually sends are supported, see the user, group and bulk operations.",
+      "uses": [
+        "user-operations",
+        "group-operations",
+        "bulk-and-discovery"
+      ]
+    },
+    {
+      "do": "Whether the client follows startIndex until the last page rather than stopping at the first 1,000 entries.",
+      "uses": [
+        "user-operations",
+        "paging"
+      ]
+    },
+    {
+      "do": "Whether the request rate stays within 5 requests per second.",
+      "uses": [
+        "rate-limit"
+      ]
+    }
+  ],
+  "claims": {
+    "user-operations": {
+      "statement": "The SCIM server supports, for users: POST /Users to create; GET /Users for up to 1,000 entries and GET /Users?startIndex=<value> for the next 1,000; GET /Users/{UserID}; PUT or PATCH /Users/{UserID} to update; and DELETE /Users/{UserID}.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.json",
+          "quotes": [
+            "| Create User | POST /Users |",
+            "| Retrieve All Users (up to 1,000 entries) | GET /Users |",
+            "| Retrieve All Users (1,000 users from specified index value) | GET /Users?startIndex=<value> |",
+            "| Update User | PUT /Users/{UserID} or PATCH /Users/{UserID} |",
+            "| Delete User | DELETE /Users/{UserID} |",
+            "| Retrieve a Specific User | GET /Users/{UserID} |"
+          ]
+        }
+      ]
+    },
+    "group-operations": {
+      "statement": "For groups it supports POST /Groups, GET /Groups (up to 1,000) with startIndex paging, GET /Groups/{GroupID}, PUT or PATCH /Groups/{GroupID} and DELETE /Groups/{GroupID}.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.json",
+          "quotes": [
+            "| Create Group | POST /Groups |",
+            "| Retrieve All Groups (up to 1,000 entries) | GET /Groups |",
+            "| Update Group | PUT /Groups/{GroupID} or PATCH /Groups/{GroupID} |",
+            "| Delete Group | DELETE /Groups/{GroupID} |",
+            "| Retrieve All Groups (1,000 groups from specified index value) | GET /Groups?startIndex=<value> |",
+            "| Retrieve a Specific Group | GET /Groups/{GroupID} |"
+          ]
+        }
+      ]
+    },
+    "bulk-and-discovery": {
+      "statement": "Beyond users and groups the server exposes POST /Bulk to modify resources, GET /Schemas and /Schemas/{SchemaID}, GET /ServiceProviderConfig, GET /ResourceTypes and /ResourceTypes/{ResourceTypeID}, and POST [prefix]/.search.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.json",
+          "quotes": [
+            "| Endpoint /Bulk |  | |---|---| | Bulk Modify Resources | POST |",
+            "| Retrieve All Resource Schemas | GET /Schemas |",
+            "| Endpoint /ServiceProviderConfig |  | |---|---| | Retrieve the Service Provider's Configuration | GET |",
+            "| Retrieve All Resource Types | GET /ResourceTypes |",
+            "| Endpoint [prefix]/.search |  | |---|---| | Search for Resource Types | POST |",
+            "| Retrieve a Specific Resource Schema | GET /Schemas/{SchemaID} |",
+            "| Retrieve a Specific Resource Type | GET /ResourceTypes/{ResourceTypeID} |"
+          ]
+        }
+      ]
+    },
+    "filters": {
+      "statement": "Users can be filtered by userName, externalID or id with eq, and by meta.lastModified with gt; groups by displayName together with members.value. The help row for the meta.lastModified filter is labelled 'Filter Users by Date Created After' although the filter is on lastModified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.json",
+          "quotes": [
+            "| Filter Users by Username | GET /Users?filter=userName eq <value> |",
+            "| Filter Users by External ID | GET /Users?filter=externalID eq <value> |",
+            "| Filter Users by ID | GET /Users?filter=id eq <value> |",
+            "| Filter Users by Date Created After | GET /Users?filter=meta.lastModified gt <value> |",
+            "GET /Groups?filter=displayName eq <value> and members.value eq <value>"
+          ]
+        }
+      ]
+    },
+    "delta-sync": {
+      "statement": "A client that needs incremental reconciliation can use the meta.lastModified gt filter to read only users changed since its last run, and the userName, externalID and id equality filters for targeted lookups.",
+      "tier": "B",
+      "conditions": "Derived from the filter list; the articles do not describe delta sync, and the help row's 'Date Created After' label leaves it open whether the comparison is on creation or modification time.",
+      "derived_from": [
+        "filters"
+      ]
+    },
+    "paging": {
+      "statement": "totalResults is exact when under 10K; above 10K the service returns a rough estimate to keep responses fast, and after the client fetches the last page the field reflects the precise, final count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "scim-api-examples.json",
+          "quotes": [
+            "The Zscaler service generates an accurate number for the totalResults field if the value is under 10K.",
+            "If the value is over 10K, the Zscaler service provides a rough estimate of the total record count to optimize response times.",
+            "After the client fetches the last page of results, the totalResults field reflects the precise, final count."
+          ]
+        }
+      ]
+    },
+    "rate-limit": {
+      "statement": "Zscaler SCIM servers have a rate limit of 5 requests per second, and applications should be configured to comply to avoid retries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "scim-api-examples.json",
+          "quotes": [
+            "Zscaler SCIM servers have a rate limit of 5 requests per second.",
+            "In order to avoid retries, configure your application to comply with this."
+          ]
+        }
+      ]
+    },
+    "patch-example": {
+      "statement": "In Zscaler's group PATCH example the body uses the PatchOp message schema with an add operation of a members value and is sent as application/json-patch+json; the server answers 204 No Content, as it does for a user delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "scim-api-examples.json",
+          "quotes": [
+            "-H \"Content-Type: application/json-patch+json\"",
+            "\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"",
+            "The server responds with 204 - No Content upon successful operation.",
+            "\"Operations\":[ { \"op\":\"add\", \"value\": { \"members\" :"
+          ],
+          "after": "# Updating a Group With a New Member"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "scim-api-examples.json",
+          "quotes": [
+            "DELETE /Users/{UserID}",
+            "The server responds with 204 - No Content upon successful operation."
+          ],
+          "after": "# Deleting a User"
+        }
+      ]
+    },
+    "event-log-contents": {
+      "statement": "The SCIM Event Logs page lists the recorded SCIM client activity, such as creating, updating and deleting user or group accounts in the Admin Console, together with the SCIM client's logs (timestamps, error codes, status codes) and any configuration changes it made. The activity is recorded only if SCIM-based provisioning is enabled for users on the Zscaler service, and only one SCIM log is audited per day for wrong domain errors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-scim-event-logs.json",
+          "quotes": [
+            "The SCIM Event Logs page lists all the recorded SCIM client activity, such as creating, updating, deleting, etc. user or group accounts in the Zscaler Admin Console. This page also displays the SCIM client's logs (timestamps, error codes, status codes, etc.) and any configuration changes made by them.",
+            "The SCIM client's activities are recorded only if the SCIM-based provisioning is enabled for users on the Zscaler service. Additionally, only one SCIM log is audited per day for wrong domain errors."
+          ]
+        }
+      ]
+    },
+    "event-log-window": {
+      "statement": "The SCIM Event Logs page can be filtered by time range (a specified range within the last 14 days), category, subcategory and result, and searched by message, error code or status code.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-scim-event-logs.json",
+          "quotes": [
+            "Filter by time range, category, subcategory, and result.",
+            "The Time Range filter allows you to filter the event logs for a specified time range within the last 14 days.",
+            "Search for a SCIM event log by message, error code, or status code."
+          ]
+        }
+      ]
+    },
+    "event-log-columns": {
+      "statement": "Each SCIM event log shows a Timestamp (the local time of the client's last activity), Category (Provisioning), Sub-Category (SCIM), Message (the action performed), Result, Error Code and Status Code, and configuration changes can be viewed as the differences between pre-configuration and post-configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-scim-event-logs.json",
+          "quotes": [
+            "Timestamp: The local time of the SCIM client's last activity or action.",
+            "Category: The category where the action is performed (i.e., Provisioning).",
+            "Sub-Category: The subcategory where the action is performed (i.e., SCIM).",
+            "Message: The action performed by the SCIM client.",
+            "Result: The outcome of the action.",
+            "Error Code: The error code that occurred during the action.",
+            "Status Code: The status code corresponding to the result of the action.",
+            "You can view the differences between the pre-configuration and post-configuration changes."
+          ]
+        }
+      ]
+    },
+    "first-sync-rate-bound": {
+      "statement": "A first push of many thousands of records made as individual calls is bounded by the server's rate of 5 requests per second.",
+      "tier": "B",
+      "derived_from": [
+        "rate-limit"
+      ],
+      "conditions": "Assumes one request per record; whether Bulk changes the arithmetic is not documented, see the bulk-limits gap."
+    }
+  },
+  "gaps": {
+    "event-log-code-values": {
+      "kind": "semantic",
+      "title": "Error and status code values on the SCIM Event Logs page",
+      "status": "open",
+      "detail": "The page shows an Error Code and a Status Code per event but lists no values. Its action 'Import SCIM event logs using a CSV file.' reads oddly for a log view and is not interpreted here as an import or an export.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "event-log-vs-report-api": {
+      "kind": "semantic",
+      "title": "Whether SCIM Event Logs are the data the event log report API returns",
+      "status": "open",
+      "detail": "The SCIM Event Logs page filters by category, subcategory and result and searches by message, error code and status code, names that match the request fields of the event log report API (zia.audit-logs.event-log-report:request-fields). No captured page says the two are the same dataset, so they are not treated as one. If a source ties them, the page's Category (Provisioning) and Sub-Category (SCIM) values would bear on the event-contents gap of that subject.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "bulk-limits": {
+      "kind": "data",
+      "title": "Bulk operation limits and request shape",
+      "status": "open",
+      "detail": "The captured articles list POST /Bulk but give no size limit, request example or error behavior, and the SCIM examples article does not cover it. The legacy advice to use Bulk for large first syncs is not backed by a source. The /ServiceProviderConfig response of a tenant, which advertises bulk limits in SCIM, would settle the limits.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "blocks": "advice on batching large initial provisioning",
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

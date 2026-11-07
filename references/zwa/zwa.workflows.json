@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "id": "zwa.workflows",
+  "title": "Workflow Automation workflows: the nine templates, custom workflows, mappings and what the API does not cover",
+  "aliases": [
+    "zwa workflow",
+    "workflow templates",
+    "workflow mapping",
+    "auto notify",
+    "auto escalate",
+    "auto close incident",
+    "zwa automation api"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zwa.incidents",
+      "because": "zwa.workflows:mapping-required"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zwa.audit-logs",
+      "because": "zwa.audit-logs:what-recorded"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows.custom-builder"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows.mappings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings.access"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{manual-or-automatic}} {{same-responses}}"
+    },
+    {
+      "label": "Templates.",
+      "text": "{{predefined-templates}} {{templates-counts}} The Workflow Templates page and the custom workflow description differ on whether a template is required {{divergence:template-required}}. {{resolution-label-template-name}} {{channel-fields-conditional}}"
+    },
+    {
+      "label": "Predefined workflow fields.",
+      "text": "{{predefined-wait-times}} {{predefined-ticketing}} {{predefined-resolution-label}} {{predefined-escalation-approver}} {{predefined-language-fallback}} {{edit-and-delete-rules}}"
+    },
+    {
+      "label": "Custom workflows and mappings.",
+      "text": "{{custom}} {{mapping-required}} {{mapping-permission}} What full access means here is open {{gap:full-access-meaning}}. The custom builder is in [[zwa.workflows.custom-builder]] and the mapping statements in [[zwa.workflows.mappings]]."
+    },
+    {
+      "label": "Status and cloning.",
+      "text": "{{status-draft-published}} {{clone-rules}}"
+    },
+    {
+      "label": "Programmability.",
+      "text": "{{api-tags}} {{no-workflow-api}} Whether workflows can be configured through any API is open {{gap:workflow-api}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the workflow is mapped to attributes the incident actually carries, since an unmapped workflow never triggers.",
+      "uses": [
+        "mapping-required"
+      ]
+    },
+    {
+      "do": "Whether a request to automate workflow setup assumes an API that the sources do not show.",
+      "uses": [
+        "no-workflow-api",
+        "workflow-api"
+      ]
+    }
+  ],
+  "claims": {
+    "manual-or-automatic": {
+      "statement": "Admins remediate incidents either manually from the Incidents and Incident Details pages (for example investigate, notify user, escalate, create ticket, close) or through predefined and custom workflows that automatically perform actions such as notify user, escalate, create ticket and close incident, and can use both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workflows-workflow-automation.json",
+          "quotes": [
+            "Manually perform different actions (e.g., investigate, notify user, escalate, create ticket, and close incident) for one or more incidents using the Incidents page and Incident Details page.",
+            "Configure predefined and custom workflows that automatically perform the different actions (e.g., notify user, escalate, create ticket, and close incident) for one or more incidents.",
+            "Admins can use one or both of these methods to remediate the incidents."
+          ]
+        }
+      ]
+    },
+    "same-responses": {
+      "statement": "Users, managers and approvers respond to actions a workflow generates in the same way as to the same actions performed manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workflows-workflow-automation.json",
+          "quotes": [
+            "The users, managers, and approvers respond to the actions that a workflow generates (e.g., notify user and escalate) in the same way as if an admin manually performed those actions on the Incidents page or Incident Details page."
+          ]
+        }
+      ]
+    },
+    "predefined-templates": {
+      "statement": "A predefined workflow is based on one of nine templates: Auto Close Data Protection Incident With Resolution Label, Auto Close Data Protection Incident (both set the status to Resolved, the first adding a resolution label), Auto Create Tickets (in a ticketing integration such as ServiceNow or Jira Software), Auto Escalate (to the user's manager, or an approver if no manager is found), Auto Notify (through email, Slack or Microsoft Teams), and four notify variants: notify and close if the user does not respond within a configured number of seconds, notify and escalate concurrently without waiting, notify then escalate to the manager or approver after a configured time, and notify then optionally escalate to the manager after a configured time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workflows-workflow-automation.json",
+          "quotes": [
+            "Auto Close Data Protection Incident With Resolution Label: This template automatically sets the status of the incident as Resolved and adds a resolution label for the closure.",
+            "Auto Close Data Protection Incident: This template automatically sets the status of the incident as Resolved.",
+            "Auto Create Tickets: This template automatically creates a ticket in the ticketing integration application (e.g., ServiceNow or Jira Software).",
+            "Auto Escalate: This template automatically escalates the incident to the user's manager or to an approver if the manager is not found in the system.",
+            "Auto Notify: This template automatically notifies the user who generated the incident, through the configured channel (i.e., email, Slack, or Microsoft Teams).",
+            "Auto Notify User and Close Incident: This template automatically notifies the user who generated the incident, through the configured channel (i.e., email, Slack, or Microsoft Teams), and closes the incident if a response is not received from the user after a configurable time period in seconds.",
+            "Auto Notify User and Concurrently Escalate: This template automatically notifies the user who generated the incident, through the configured channel (i.e., email, Slack, or Microsoft Teams), as well as automatically escalating the incident to the manager or approver without waiting for a response from the user.",
+            "Auto Notify User and Escalate: This template automatically notifies the user who generated the incident, through the configured channel (i.e., email, Slack, or Microsoft Teams), and escalates to their manager or approver if the user doesn't respond after a configurable time period in seconds.",
+            "Auto Notify User and Escalate to Manager: This template automatically notifies the user who generated the incident, through the configured channel (i.e., email, Slack, or Microsoft Teams), and optionally escalates to their manager if the user doesn't respond after a configurable time period in seconds."
+          ],
+          "after": "Workflow Automation provides the following workflow templates that you can use:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workflows-workflow-automation.json",
+          "quotes": [
+            "When you configure a predefined workflow, you must select a workflow template on which to base the workflow"
+          ]
+        }
+      ],
+      "conditions": "Read from the capture: the list after \"Workflow Automation provides the following workflow templates that you can use:\" has nine items, and the block after it is the custom-workflow paragraph (\"When you configure a custom workflow\"); no sentence states the count."
+    },
+    "custom": {
+      "statement": "A custom workflow is built by choosing and configuring its steps and actions without a template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workflows-workflow-automation.json",
+          "quotes": [
+            "When you configure a custom workflow, you choose and configure the different steps and actions required for the workflow without using one of the templates."
+          ]
+        }
+      ]
+    },
+    "mapping-required": {
+      "statement": "After configuring a predefined or custom workflow, the admin must map it to one or more incident transaction attributes; the workflow then triggers automatically for incidents with those attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workflows-workflow-automation.json",
+          "quotes": [
+            "After you configure a predefined or custom workflow, you must specify the incidents that use this workflow by mapping the workflow to one or more of the attributes available in an incident transaction.",
+            "Then, when an incident occurs in your organization that contains those attributes, the workflow automatically triggers and performs those actions specified in the workflow."
+          ]
+        }
+      ]
+    },
+    "api-tags": {
+      "statement": "The Workflow Automation API reference groups its operations under DLP Incidents, API Authentication, Audit Logs, CSV User Attributes and Email Quarantine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec",
+          "expect": {
+            "tags": [
+              {
+                "name": "DLP Incidents"
+              },
+              {
+                "name": "API Authentication"
+              },
+              {
+                "name": "Audit Logs"
+              },
+              {
+                "name": "CSV User Attributes"
+              },
+              {
+                "name": "Email Quarantine"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "no-workflow-api": {
+      "statement": "No captured API or SDK configures workflows, templates or mappings: the API reference has no workflow group, and the Python and Go SDKs expose only DLP incident and audit log services.",
+      "tier": "B",
+      "derived_from": [
+        "api-tags",
+        "zwa.api:python-services"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/services/customeraudit/customeraudit.go",
+          "quotes": [
+            "customerAuditEndpoint = \"/dlp/v1/customer/audit\""
+          ]
+        }
+      ],
+      "conditions": "Rests on the API reference's tag list, the Python ZWAService's two properties, and the Go SDK's zwa/services tree holding only common, customeraudit and dlp_incidents at the pin. MCP, Terraform and Ansible were searched for workflow automation by the legacy reference and found nothing; a private or newer API is not ruled out."
+    },
+    "templates-counts": {
+      "statement": "The Workflow Templates page lists each template with its name, description and Counts, the number of workflow definitions created from it; that page says adding a workflow for your organization requires selecting one of the provided templates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-templates.json",
+          "quotes": [
+            "To add a workflow for your organization, you must select one of the templates provided.",
+            "Template Name: The name of the template.",
+            "Template Description: The description for the template.",
+            "Counts: The number of workflow definitions that have been created using this workflow template."
+          ]
+        }
+      ]
+    },
+    "resolution-label-template-name": {
+      "statement": "The Add Workflow procedure for the resolution label template names it Auto Close Data Loss Protection Incident With Resolution Label, and its Workflow Template field defaults to that name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "To enter information for an Auto Close Data Loss Protection Incident With Resolution Label type workflow:",
+            "Workflow Template: Leave the default value of Auto Close Data Loss Protection Incident With Resolution Label."
+          ]
+        }
+      ]
+    },
+    "channel-fields-conditional": {
+      "statement": "The Notification Channel fields of workflow templates appear only if Workflow Automation is integrated with Slack or Microsoft Teams; otherwise notifications are by email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-templates.json",
+          "quotes": [
+            "The Notification Channel fields are only available if you have integrated Workflow Automation with Slack or Microsoft Teams. If the Notification Channel fields are not available, the notifications are by email."
+          ]
+        }
+      ]
+    },
+    "predefined-wait-times": {
+      "statement": "The Auto Notify User and Close Incident template waits a configured number of seconds for the user response before closing the incident; Auto Notify User and Escalate waits before escalating to the manager and approver; Auto Notify User and Escalate to Manager waits before escalating to the manager.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "enter the number of seconds the workflow waits to receive a response from the user before it closes the incident.",
+            "enter the number of seconds the workflow waits to receive a response from the user before it escalates the incident to the manager and approver.",
+            "enter the number of seconds the workflow waits to receive a response from the user before it escalates the incident to the manager."
+          ]
+        }
+      ]
+    },
+    "predefined-ticketing": {
+      "statement": "The Auto Create Tickets workflow offers the ticketing services JiraCloud and ServiceNow; choosing JiraCloud shows a Jira Project field filled from the projects Workflow Automation fetches at Jira Software onboarding; the default ticket assignee must have been added to the Integration Users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "Ticketing services are JiraCloud and ServiceNow. If you select JiraCloud as the service, the Jira Project field appears.",
+            "Workflow Automation fetches all the projects from the Jira Software integration as part of the Jira Software application onboarding.",
+            "Default Ticket Assignee Email: From the drop-down menu, select the email address for the user who will be assigned to the ticket that the workflow creates. The user must be added to the Integration Users."
+          ]
+        }
+      ]
+    },
+    "predefined-resolution-label": {
+      "statement": "When closing an incident, a workflow can associate only one resolution label value with a resolution label name, and the Resolution Label Value field becomes available only if the selected label has configured values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "if the label has configured values, the Resolution Label Value field becomes available. If the label does not have configured values, you cannot enter a resolution label value."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "You can only associate one resolution label value with a resolution label name when closing an incident."
+          ],
+          "after": "To enter information for an Auto Close Data Loss Protection Incident With Resolution Label type workflow:"
+        }
+      ]
+    },
+    "predefined-escalation-approver": {
+      "statement": "In the Auto Escalate, Auto Notify User and Concurrently Escalate and Auto Notify User and Escalate templates the approver chosen must already exist on the Approvers page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "Approver Name: From the drop-down menu, select the name of the approver. The approver must exist on the Approvers page."
+          ],
+          "after": "To enter information for an Auto Escalate template type workflow:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "Approver Name: From the drop-down menu, select the name of the approver. The approver must exist on the Approvers page."
+          ],
+          "after": "To enter information for an Auto Notify User and Concurrently Escalate type workflow:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "Approver Name: From the drop-down menu, select the name of the approver. The approver must exist on the Approvers page."
+          ],
+          "after": "To enter information for an Auto Notify User and Escalate type workflow:"
+        }
+      ]
+    },
+    "predefined-language-fallback": {
+      "statement": "For the Auto Escalate, Auto Notify, Auto Notify User and Close Incident, Auto Notify User and Concurrently Escalate, Auto Notify User and Escalate and Auto Notify User and Escalate to Manager templates, the languages offered depend on the mapped templates, and a language not available in a mapped template set makes Workflow Automation default the notifications to English.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "The languages that appear in the drop-down menu depend on the mapped templates.",
+            "If you select a language here that is not available in a mapped template set, then Workflow Automation defaults the notifications to English."
+          ],
+          "after": "To enter information for an Auto Escalate template type workflow:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "The languages that appear in the drop-down menu depend on the mapped templates.",
+            "If you select a language here that is not available in a mapped template set, then Workflow Automation defaults the notifications to English."
+          ],
+          "after": "To enter information for an Auto Notify template type workflow:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "The languages that appear in the drop-down menu depend on the mapped templates.",
+            "If you select a language here that is not available in a mapped template set, then Workflow Automation defaults the notifications to English."
+          ],
+          "after": "To enter information for an Auto Notify User and Close Incident template type workflow:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "The languages that appear in the drop-down menu depend on the mapped templates.",
+            "If you select a language here that is not available in a mapped template set, then Workflow Automation defaults the notifications to English."
+          ],
+          "after": "To enter information for an Auto Notify User and Concurrently Escalate type workflow:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "The languages that appear in the drop-down menu depend on the mapped templates.",
+            "If you select a language here that is not available in a mapped template set, then Workflow Automation defaults the notifications to English."
+          ],
+          "after": "To enter information for an Auto Notify User and Escalate type workflow:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "The languages that appear in the drop-down menu depend on the mapped templates.",
+            "If you select a language here that is not available in a mapped template set, then Workflow Automation defaults the notifications to English."
+          ],
+          "after": "To enter information for an Auto Notify User and Escalate to Manager type workflow:"
+        }
+      ]
+    },
+    "edit-and-delete-rules": {
+      "statement": "When a predefined workflow is edited, the workflow detail fields can be changed except the Workflow Template field, and the changes apply to future incidents mapped to the workflow without affecting current workflow executions; a workflow is deleted with the Delete icon in the Action column next to it on the Workflows page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "To delete a workflow, click the Delete icon in the Action column next to a workflow on the Workflows page.",
+            "change any of the workflow detail fields except the Workflow Template field.",
+            "The changes apply to future incidents mapped to the workflow. Current workflow executions are not affected by the changes."
+          ]
+        }
+      ]
+    },
+    "status-draft-published": {
+      "statement": "A workflow has status Draft or Published; only custom workflows can be Draft, only published custom workflows are used for incident remediation, and a custom workflow must be Published before it can be mapped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "Statuses are Draft and Published. Only custom workflows can have a draft status.",
+            "A custom workflow must be in a Published state before you can map it."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "Workflow Automation only uses published custom workflows for incident remediation."
+          ],
+          "after": "The custom workflow functionality in Workflow Automation is currently a preview version"
+        }
+      ]
+    },
+    "clone-rules": {
+      "statement": "Only custom workflows, draft or published, can be cloned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "You can only clone custom workflows.",
+            "You can clone draft custom workflows and published custom workflows."
+          ]
+        }
+      ]
+    },
+    "mapping-permission": {
+      "statement": "Only admins with full access to Workflow Automation can map a workflow, from either the Workflows page or the Workflow Mappings page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "Only admins with full access to Workflow Automation can map a workflow. You can add workflow mappings to a workflow from the Workflows page and the Workflow Mappings page."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "full-access-meaning": {
+      "kind": "semantic",
+      "title": "Whether full access to Workflow Automation for mapping means edit access on the Workflows and Mappings role category or full workflow access provisioned in the Admin Console",
+      "status": "open",
+      "detail": "The roles page defines full access as edit access, and a Workflows and Mappings role category enables adding workflows, while the admin assignments page provisions admins with full or restricted workflow access in the Zscaler Admin Console. The captured pages do not say which of these the mapping rule means.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "workflow-api": {
+      "kind": "semantic",
+      "status": "open",
+      "former_ids": [
+        "zwa-01"
+      ],
+      "title": "Whether workflows, templates and mappings can be configured through an API",
+      "detail": "The help documents predefined and custom workflows and their mappings; the API reference and both SDKs cover only incidents, audit logs, CSV user attributes and email quarantine. Whether a vendor API for workflow configuration exists is not established.",
+      "blocks": "automating workflow and mapping setup",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  },
+  "divergences": {
+    "template-required": {
+      "summary": "The Workflow Templates page says adding a workflow requires selecting one of the provided templates, and the workflow overview says a custom workflow is configured without using one of the templates.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-workflow-templates.json",
+            "quotes": [
+              "To add a workflow for your organization, you must select one of the templates provided."
+            ]
+          },
+          "says": "Adding a workflow requires selecting one of the provided templates."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-workflows-workflow-automation.json",
+            "quotes": [
+              "When you configure a custom workflow, you choose and configure the different steps and actions required for the workflow without using one of the templates."
+            ]
+          },
+          "says": "A custom workflow is configured without using one of the templates."
+        }
+      ],
+      "impact": "The templates page does not say it applies only to predefined workflows."
+    }
+  }
+}

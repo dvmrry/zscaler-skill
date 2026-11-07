@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Parsing Bicep Files",
+  "source": {
+    "url": "https://help.zscaler.com/zpc/parsing-bicep-files",
+    "node": "1420196",
+    "revision": "2222166",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "ZPC realizes that organizations use various types of IaC templates (e.g., JSON, YAML, ARM, Cloud Formation Template, Bicep, etc.) in their infrastructure. To support the scanning of all types of templates for security configuration violations, ZPC provides support for parsing Bicep files into Azure Resource Manager (ARM) templates."
+    },
+    {
+      "text": "Bicep is a declarative domain specific language (DSL) that is used to provision Azure resources. To learn more, see the Microsoft documentation."
+    },
+    {
+      "heading": "Known Limitations",
+      "level": 2
+    },
+    {
+      "text": "Although ZPC supports the parsing of Bicep files, there are a few limitations:"
+    },
+    {
+      "item": "ZPC supports the parsing of Bicep files only in GitHub Actions and Azure Pipelines.",
+      "depth": 0
+    },
+    {
+      "item": "While converting a Bicep file, you must provide the folder path where the Bicep file resides and not the directory path because the Bicep CLI does not recognize the directory path.",
+      "depth": 0
+    },
+    {
+      "item": "After the Bicep file is converted to an ARM template (JSON), the policy violations are shown based on the line numbers within the ARM template and not the line numbers within the Bicep file.",
+      "depth": 0
+    },
+    {
+      "item": "To scan and deploy a parameter file along with the Bicep file, see the Microsoft documentation.",
+      "depth": 0
+    },
+    {
+      "heading": "Installing Azure Bicep CLI",
+      "level": 1
+    },
+    {
+      "text": "You need to install and use the Azure Bicep command-line interface (CLI) for compiling the Bicep files into ARM templates. You can also install and use the Azure command-line interface (CLI) which automatically installs the Bicep CLI."
+    },
+    {
+      "text": "To parse a Bicep file with Azure Bicep CLI:"
+    },
+    {
+      "item": "Install the Azure Bicep CLI.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Open the command prompt, and go to the folder that contains the Bicep file.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Run the following command to convert the Bicep file to JSON:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "bicep build main.bicep"
+    },
+    {
+      "text": "The converted JSON file can be deployed and scanned for misconfigurations."
+    },
+    {
+      "heading": "Scanning Bicep Files with CLI Scanner",
+      "level": 1
+    },
+    {
+      "text": "After you've converted the Bicep file to an ARM template (JSON), you can use the Zscaler CLI scanner to scan the file for misconfigurations."
+    },
+    {
+      "text": "To scan the JSON file:"
+    },
+    {
+      "item": "Open the command prompt.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Run the following command to scan the folder that contains the JSON file.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "zscanner scan -d /<folder name>/<folder path>"
+    },
+    {
+      "item": "Run the following command to scan the specific JSON file.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "zscanner scan -f file <filename>"
+    },
+    {
+      "text": "The scan results are displayed as output."
+    },
+    {
+      "heading": "Parsing Bicep Files",
+      "level": 1
+    },
+    {
+      "text": "You can use either GitHub Actions or Azure DevOps to parse your Bicep files."
+    },
+    {
+      "item": "Parse Bicep Files Using GitHub Actions",
+      "depth": 0
+    },
+    {
+      "item": "Parse Bicep Files Using Azure DevOps",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "Before parsing the Bicep files, you must have:"
+    },
+    {
+      "item": "An Azure account with an active subscription.",
+      "depth": 0
+    },
+    {
+      "item": "A GitHub account.",
+      "depth": 0
+    },
+    {
+      "item": "A GitHub repository to store your Bicep files and your workflow files.",
+      "depth": 0
+    },
+    {
+      "text": "To parse the Bicep file in GitHub Actions:"
+    },
+    {
+      "item": "Log in to your GitHub account.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Select Actions from the top menu, then click on set up a workflow yourself.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          48,
+          74
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "GitHub Actions uses YAML syntax to define the workflow. Each workflow is stored as a separate YAML file in your code repository, in a directory named .github/workflows."
+    },
+    {
+      "item": "Rename the main.yml file, if required.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Edit the YAML file:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "name: Bicep Build and Scan on: push jobs: build_and_scan: name: Build and Scan runs-on: ubuntu-latest steps: - name : Code Checkout uses: actions/checkout@v2 - name : Azure Login uses: azure/login@v1 with: creds: ${{ secrets.AZURE_CREDENTIALS }} - name: Bicep Build uses: Azure/bicep-build-action@v1.0.0 with: bicepFilePath: ./main.bicep outputFilePath: ./azuredeploy.json - name : Zscaler IAC Scan uses : ZscalerCWP/Zscaler-IaC-Action@main id : zscaler-iac-scan with: client_id : ${{ secrets.ZSCANNER_CLIENT_ID }} client_secret : ${{ secrets.ZSCANNER_CLIENT_SECRET }} fail_build : 'true' output_format : 'human+github-sarif' region : 'CUSTOM' log_level : 'debug' iac_file : 'azuredeploy.json'"
+    },
+    {
+      "text": "Replace the ZSCANNER_CLIENT_ID and ZSCANNER_CLIENT_SECRET values with the values you copied and saved while onboarding the GitHub account on the ZPC Admin Portal. To learn more, see Configuring IaC Scan for GitHub Actions."
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Start commit",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "text": "This action starts the workflow and the Bicep file is converted to a JSON file and scanned for any misconfigurations."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "Before parsing the Bicep files, you must have:"
+    },
+    {
+      "item": "An Azure subscription.",
+      "depth": 0
+    },
+    {
+      "item": "An Azure DevOps organization.",
+      "depth": 0
+    },
+    {
+      "item": "A Bicep file in a repository.",
+      "depth": 0
+    },
+    {
+      "text": "To parse the Bicep file in Azure DevOps:"
+    },
+    {
+      "item": "Sign in to your Azure DevOps organization.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Select New project. To learn more, see the Microsoft documentation.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Enter the Project name.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select Private Project.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Under Advanced, select the required version control system (Git or Azure Repos) and the process.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Open your project and select the repository that has the workflow.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "Install and configure the Zscaler IaC Scan in this repository. To learn more, see Configuring IaC Scan for Azure Repos.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "Create an Azure Pipeline job. To learn more, see the Microsoft documentation.",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "Edit the YAML file.",
+      "depth": 0,
+      "number": 10
+    },
+    {
+      "text": "trigger: - main pool: vmImage: ubuntu-latest steps: - script: az bicep build --file src/main.bicep --outfile src/azuredeploy.json displayName: 'Compile Bicep file' - task: ZscalerIaCScan@1 inputs: region: 'CUSTOM' clientId: ZSCANNER_CLIENT_ID clientSecret: ZSCANNER_CLIENT_SECRET iacfile: 'src/azuredeploy.json' failBuild: true"
+    },
+    {
+      "text": "Replace the ZSCANNER_CLIENT_ID and ZSCANNER_CLIENT_SECRET values with the values you copied and saved while onboarding the Azure account on the ZPC Admin Portal. To learn more, see Configuring IaC Scan for Azure Pipelines."
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "When you run the Pipeline job, the Bicep file is converted to a JSON file and scanned for misconfigurations and policy violations."
+    },
+    {
+      "text": "You can compile multiple Bicep files in a single workflow and scan the entire directory."
+    }
+  ]
+}

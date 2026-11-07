@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.licensing",
+  "title": "Which firewall features need Advanced Firewall",
+  "aliases": [
+    "basic firewall",
+    "standard firewall",
+    "advanced firewall",
+    "firewall license",
+    "firewall tier",
+    "user group criteria not available firewall"
+  ],
+  "binds": [
+    "zia/firewall-filtering-rules#users",
+    "zia/firewall-filtering-rules#groups",
+    "zia/firewall-filtering-rules#departments",
+    "zia/firewall-filtering-rules#nwApplications",
+    "zia/ips-policies"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.best-practices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The firewall comes in a standard and an Advanced tier. {{identity-and-apps-need-advanced}} {{ips-needs-advanced}} {{standard-tier-has-rules}}"
+    },
+    {
+      "text": "What the API returns when a gated criterion is submitted on the standard tier is open {{gap:standard-tier-criteria}}."
+    },
+    {
+      "label": "The Standard and Advanced Firewall table.",
+      "text": "{{capability-table-criteria}} {{both-tiers}} {{dns-tiers}} The 64-rule DNS figure is attached to different tier names on two pages {{divergence:dns-64-rules-tier}}. {{advanced-only}} {{standard-logging}} {{standard-forwarding-control}} {{wildcard-fqdn-edition}}"
+    },
+    {
+      "label": "Other gated features in the help.",
+      "text": "[[zia.firewall.network-applications:dpi-licensing]] [[zia.firewall.application-services:custom-licensing]] [[zia.dns-control.gateways:translation-licensing]] [[zia.dns-control.ecs:subscription]] [[zia.firewall.destination-groups:wildcard-nonweb]]"
+    },
+    {
+      "text": "The rule cap and the FQDN-per-group cap also differ by tier: [[zia.firewall.limits]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the license allows the criterion when a rule with a user, group, department or network application, or an IPS rule, cannot be created.",
+      "uses": [
+        "identity-and-apps-need-advanced",
+        "ips-needs-advanced"
+      ]
+    }
+  ],
+  "claims": {
+    "identity-and-apps-need-advanced": {
+      "statement": "Configuring and applying firewall policies based on users, groups, departments or network applications requires Advanced Firewall.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#users",
+        "zia/firewall-filtering-rules#groups",
+        "zia/firewall-filtering-rules#departments",
+        "zia/firewall-filtering-rules#nwApplications"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-policies.json",
+          "quotes": [
+            "Advanced Firewall is required to configure and apply policies based on users, groups, departments, or network applications"
+          ]
+        }
+      ]
+    },
+    "ips-needs-advanced": {
+      "statement": "IPS Control is available only with Advanced Firewall.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-policies"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.json",
+          "quotes": [
+            "IPS Control is available only with Advanced Firewall"
+          ]
+        }
+      ]
+    },
+    "standard-tier-has-rules": {
+      "statement": "A standard-tier tenant can hold Firewall Filtering rules, up to the standard-tier cap.",
+      "tier": "B",
+      "conditions": "Assumes a published per-tier rule cap means rules can be created on that tier; no source states this in so many words. Which criteria those rules may use is open (standard-tier-criteria).",
+      "derived_from": [
+        "zia.firewall.limits:filtering-rule-cap"
+      ]
+    },
+    "capability-table-criteria": {
+      "statement": "The Standard and Advanced Firewall table lists firewall policies based on five criteria: Network and Application Services (5-tuple firewall), FQDN Filtering (FQDN and wildcard FQDN), Location Awareness (known locations, sublocations and remote users), User Awareness (users, groups and departments) and Application Awareness (network applications using deep packet inspection). Standard Firewall is Supported with limitations: User Awareness and Application Awareness criteria are not supported and only 10 Firewall Filtering rules are allowed. Advanced Firewall is Supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-firewall-capabilities.json",
+          "quotes": [
+            "The following table lists the features and functionalities offered by Standard and Advanced Firewall:",
+            "Network and Application Services: Manage your traffic based on network services and application services that are designated to use specific IP addresses, ports, and protocols (5-tuple firewall).",
+            "FQDN Filtering: Control your network traffic based on fully qualified domain names (FQDN) and wildcard FQDN*.",
+            "Location Awareness: Enforce policies on internet traffic from known locations (locations configured in the Zscaler Admin Console), sublocations, and remote users.",
+            "User Awareness: Define granular policies based on users, groups, and departments.",
+            "Application Awareness: Identify and control traffic that belongs to network applications using deep packet inspection (DPI).",
+            "| Supported with limitations: User Awareness and Application Awareness criteria are not supported Only 10 Firewall Filtering rules are allowed | Supported"
+          ]
+        }
+      ]
+    },
+    "both-tiers": {
+      "statement": "In the Standard and Advanced Firewall table, Destination NAT and FTP Traffic Control are Supported on both Standard Firewall and Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-firewall-capabilities.json",
+          "quotes": [
+            "Destination NAT: Create rules to redirect your traffic to specific IP addresses and ports within a network using destination NAT. | Supported | Supported",
+            "FTP Traffic Control: Use configuration settings to manage native FTP traffic and FTP over HTTP traffic. Configure policies to allow access to specific FTP sites. | Supported | Supported"
+          ]
+        }
+      ]
+    },
+    "dns-tiers": {
+      "statement": "In the Standard and Advanced Firewall table, DNS Security and Control is Supported on Standard Firewall with only 64 rules allowed, and Supported on Advanced Firewall. DNS Tunnel and DNS Application Control is N/A on Standard Firewall and Supported on Advanced Firewall. The DNS Dashboards, Insights, and Logs row is Supported on Standard Firewall with a logging limitation: DNS tunnel and DNS application information are not populated in DNS logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-firewall-capabilities.json",
+          "quotes": [
+            "DNS Security and Control: Define granular DNS filtering policies to control DNS attributes, requests, and responses. Optimize DNS resolution using Zscaler Trusted DNS Resolver hosted in Zscaler data centers.",
+            "| Supported (only 64 rules are allowed) | Supported",
+            "DNS Tunnel and DNS Application Control: Secure your DNS traffic from DNS tunneling, malicious domains, malware, and phishing attacks. Control DNS applications including web pages, social networking sites, search engines, and network services at the DNS level. | N/A | Supported",
+            "DNS Dashboards, Insights, and Logs: Analyze your traffic information using customizable dashboards, interactive charts, and real-time logs.",
+            "Supported. Limitations in logging: DNS tunnel and DNS application information are not populated in DNS logs. | Supported"
+          ]
+        }
+      ]
+    },
+    "advanced-only": {
+      "statement": "In the Standard and Advanced Firewall table, IPS Control, including custom IPS signature rules, and Non-Standard Traffic Redirection are N/A on Standard Firewall and Supported on Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-firewall-capabilities.json",
+          "quotes": [
+            "IPS Control: Use signature-based IPS to monitor your traffic in real time and protect your network against identified threats over all ports and protocols.",
+            "In addition to the signatures managed by Zscaler, create and deploy custom IPS signature rules to identify unique threats that are specific to your organization's requirements and threat landscape. | N/A | Supported",
+            "Non-Standard Traffic Redirection: Identify outbound HTTP, HTTPS, FTP, DNS, RTSP, and PPTP traffic that is destined for non-standard ports and redirect the traffic to the web proxy (secure web gateway) for full web visibility and security. | N/A | Supported"
+          ]
+        }
+      ]
+    },
+    "standard-logging": {
+      "statement": "In the Standard and Advanced Firewall table, Firewall and IPS Dashboards, Insights, and Logs are Supported on Standard Firewall with logging limitations that include full logging for each blocked flow but aggregated logging every 15 minutes for allowed flows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-firewall-capabilities.json",
+          "quotes": [
+            "Firewall & IPS Dashboards, Insights, and Logs: Analyze your traffic information using customizable dashboards, interactive charts, and real-time logs.",
+            "Supported. Limitations in logging in Standard Firewall include full logging for each blocked flow but aggregated logging every 15 minutes for allowed flows. | Supported"
+          ]
+        }
+      ]
+    },
+    "standard-forwarding-control": {
+      "statement": "In the Standard and Advanced Firewall table, the Forwarding Control policy (including Source IP Anchoring) is Supported with limitations on Standard Firewall: users, groups, departments, custom application service groups or device groups criteria are not supported in it. It is Supported on Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-firewall-capabilities.json",
+          "quotes": [
+            "Miscellaneous: Forwarding Control policy (including Source IP Anchoring) | Supported with limitations: Users, groups, departments, custom application service groups, or device groups criteria are not supported in the Forwarding Control policy. | Supported"
+          ]
+        }
+      ]
+    },
+    "wildcard-fqdn-edition": {
+      "statement": "Wildcard FQDN support for non-web traffic requires an Internet & SaaS edition that includes parsing of DNS traffic via DNS Control/Security; the page says this is available across all new Internet & SaaS editions (2023 editions) and earlier editions with Advanced Firewall. Wildcard FQDN match against web traffic (HTTP and TLS/SNI) can function without parsing DNS packets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-firewall-capabilities.json",
+          "quotes": [
+            "*Wildcard FQDN support for non-web traffic requires an Internet & SaaS (ZIA) edition that includes parsing of DNS traffic via DNS Control/Security. This capability is available across all new Internet & SaaS editions (2023 editions) and earlier Internet & SaaS editions with Advanced Firewall.",
+            "Wildcard FQDN match against web traffic (HTTP and TLS/SNI) can function without the need for parsing DNS packets."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "dns-64-rules-tier": {
+      "summary": "The 64-rule DNS Control cap is attached to Standard Firewall on the capabilities page and to Essential DNS Control on the Ranges & Limitations page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-firewall-capabilities.json",
+            "quotes": [
+              "| Supported (only 64 rules are allowed) | Supported"
+            ]
+          },
+          "says": "DNS Security and Control is Supported on Standard Firewall with only 64 rules allowed."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "DNS Control Policy Rules per Organization | 1,000 rules, if subscribed to Advanced DNS Control. Only 64 rules are supported for Essential DNS Control."
+            ]
+          },
+          "says": "1,000 DNS Control rules with Advanced DNS Control; only 64 rules for Essential DNS Control."
+        }
+      ],
+      "impact": "Neither page says that Standard Firewall includes Essential DNS Control or the reverse, so the tier that gives the 64-rule cap cannot be read from either page alone."
+    }
+  },
+  "gaps": {
+    "standard-tier-criteria": {
+      "kind": "semantic",
+      "title": "What the API returns when a standard-tier tenant submits a gated criterion",
+      "status": "partial",
+      "detail": "The Understanding Firewall Capabilities table now states which criteria the standard tier lacks (capability-table-criteria): the limitation text for Standard Firewall names User Awareness and Application Awareness as not supported and a 10-rule cap, and says nothing else about the other three criteria. Neither the captures nor the SDKs say what the API returns when a standard-tier tenant submits a gated criterion.",
+      "blocks": "telling an operator whether a rejected rule is a license problem",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

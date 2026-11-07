@@ -1,0 +1,613 @@
+{
+  "schema_version": 1,
+  "id": "zwa.incidents.integrations",
+  "title": "Workflow Automation integrations: DLP GCP privacy settings, Slack, Microsoft Teams, ServiceNow and Jira Software",
+  "aliases": [
+    "zwa integrations",
+    "dlp gcp integration",
+    "zwa slack integration",
+    "zwa teams integration",
+    "zwa servicenow",
+    "zwa jira",
+    "integration users",
+    "jira cloud integration",
+    "labels not supported",
+    "hide evidence data"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.details"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.aws-dlp-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.azure-dlp-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.gcp-dlp-integration"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{integration-kinds}} {{divergence:integration-app-list}} The AWS, Azure and GCP integrations are in [[zwa.aws-dlp-integration]], [[zwa.azure-dlp-integration]] and [[zwa.gcp-dlp-integration]], and incident ingestion is in [[zwa.incidents]]. Who can configure them differs between pages {{divergence:integration-admin-access}}."
+    },
+    {
+      "label": "DLP GCP integration.",
+      "text": "{{gcp-admin-access}} {{gcp-prerequisites}} {{gcp-validate}} {{gcp-statuses}} {{gcp-connected-count}}"
+    },
+    {
+      "label": "DLP GCP privacy settings.",
+      "text": "{{gcp-privacy-admin}} {{gcp-privacy-end-user}} {{gcp-privacy-manager}} {{gcp-non-triggered-scope}} {{gcp-no-read-access}} The same flags as the admin sees them in the drawer are in [[zwa.incidents.details]]; as end users see them in notifications, in [[zwa.incidents.notifications]]. Their defaults for the non-triggered end user and manager settings are open {{gap:gcp-non-triggered-defaults}}."
+    },
+    {
+      "label": "Slack and Microsoft Teams.",
+      "text": "{{dlp-integration-first}} {{slack-teams-tenant}} {{chat-uses}} Where Channel Type appears in the drawer is in [[zwa.incidents.details]]."
+    },
+    {
+      "label": "ServiceNow.",
+      "text": "{{ticketing-tenant}} {{servicenow-ticket-user}} {{servicenow-sync}} {{servicenow-deleted}}"
+    },
+    {
+      "label": "Jira Software.",
+      "text": "{{jira-user-project}} {{jira-project-settings}} {{jira-sync-settings}} {{jira-field-mapping}} {{jira-autosync-disabled}} {{jira-complete-status}} {{jira-deleted}} How often the syncs run and which complete statuses exist is only partly stated {{gap:sync-schedule-and-statuses}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the DLP application integration is configured before looking at a Slack, Teams, ServiceNow or Jira integration, since each page lists it first.",
+      "uses": [
+        "dlp-integration-first"
+      ]
+    },
+    {
+      "do": "For a Jira project whose Auto Sync is disabled, whether the field mapping is empty or the Labels field is missing from the project.",
+      "uses": [
+        "jira-autosync-disabled"
+      ]
+    },
+    {
+      "do": "When evidence links or trigger data are missing in the Admin Console, the Hide Evidence Data and Hide Trigger Data settings on the DLP GCP integration and whether read access to the storage accounts was enabled.",
+      "uses": [
+        "gcp-privacy-admin",
+        "gcp-no-read-access"
+      ]
+    }
+  ],
+  "claims": {
+    "integration-kinds": {
+      "statement": "The Integration page adds the source of DLP incidents to Workflow Automation, and the Integration page lists ServiceNow and Jira Software as the applications available within Workflow Automation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-integrations.json",
+          "quotes": [
+            "The Integration page allows you to add the source of the Data Loss Prevention (DLP) incidents to Workflow Automation.",
+            "The applications available within Workflow Automation are ServiceNow and Jira Software.",
+            "You can also integrate Workflow Automation with SaaS applications sanctioned for Zscaler."
+          ]
+        }
+      ]
+    },
+    "gcp-prerequisites": {
+      "statement": "Adding a DLP GCP integration requires GCP cloud resources and the client_email, private_key and project_id from the service account key; the integration also takes a prefix for the storage bucket and topic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Ensure that you have successfully created cloud resources in GCP. Various outputs (client_email, private_key, project_id) from the service account key creation are required to add a DLP GCP application integration in Workflow Automation.",
+            "Prefix for Bucket and Topic: Enter a prefix for the storage bucket and topic."
+          ]
+        }
+      ]
+    },
+    "gcp-validate": {
+      "statement": "A DLP GCP integration can be added only if Validate passes; on the add page, after a failed validation or wrong values the integration must be disabled, corrected and re-enabled, and on the edit page the values are corrected first and the integration then disabled and re-enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "You can only add the integration if it passes validation.",
+            "If the validation fails for any reason, or if you created or updated the configuration with the wrong values, you must disable the integration, correct the values for it, and re-enable the integration."
+          ],
+          "after": "Prefix for Bucket and Topic: Enter a prefix for the storage bucket and topic."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "you must disable and re-enable the integration after you correct the values for the integration."
+          ]
+        }
+      ]
+    },
+    "gcp-statuses": {
+      "statement": "DLP GCP connected accounts show Enabled, Disabled or Failed; only those can be deleted, and Deleted accounts can have only their data privacy settings edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Only connected accounts with a status of Enabled, Disabled, or Failed can be deleted.",
+            "For integrations with a Deleted status, you can only edit the data privacy field settings.",
+            "along with their statuses (Enabled, Disabled, or Failed) in the Connected Accounts section."
+          ]
+        }
+      ]
+    },
+    "gcp-connected-count": {
+      "statement": "On the tile, the connected-accounts count excludes accounts with a Failed or Deleted status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "This number does not include accounts with a Failed or Deleted status."
+          ],
+          "after": "In the tile view, under the Connected Apps section, you can view:"
+        }
+      ]
+    },
+    "gcp-privacy-admin": {
+      "statement": "Admin privacy settings on the DLP GCP integration: Hide Evidence Data - Admin and Hide Trigger Data - Admin are selected by default; Hide Policy Details - Admin and Hide Policy Details for Non-Triggered Matches - Admin are not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Hide Evidence Data - Admin: Select if you do not want admins to be able to generate presigned evidence links for an incident on the Violation Content tab of the Incident Details drawer. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+            "Hide Trigger Data - Admin: Select if you do not want admins to be able to see the trigger data for an incident on the Violation Content tab of the Incident Details drawer. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+            "Hide Policy Details - Admin: Select if you do not want the admins to be able to view any of the policy details for the incident on the Violation Details tab of the Incident Details drawer. Otherwise, they can view the policy details for the incident. This checkbox is not selected by default.",
+            "This checkbox is only available if you do not select the Hide Policy Details - Admin checkbox. This checkbox is not selected by default.",
+            "Hide Policy Details for Non-Triggered Matches - Admin:"
+          ]
+        }
+      ]
+    },
+    "gcp-privacy-end-user": {
+      "statement": "End user privacy settings on the DLP GCP integration: Hide Evidence Data, Hide Trigger Data and Hide Policy Details are selected by default; the non-triggered-matches setting is available only when Hide Policy Details - End User is not selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Hide Evidence Data - End User: Select if you do not want the end users responding to an incident notification to be able to generate presigned evidence links for an incident. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+            "Hide Trigger Data - End User: Select if you do not want the end users responding to an incident notification to be able to see the trigger data for an incident. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+            "Hide Policy Details - End User: Select if you do not want the end users responding to an incident notification to be able to view any of the policy details for the incident. Otherwise, they can view the policy details for the incident. This checkbox is selected by default.",
+            "This checkbox is only available if you do not select the Hide Policy Details - End User checkbox.",
+            "Hide Policy Details for Non-Triggered Matches - End User:"
+          ]
+        }
+      ]
+    },
+    "gcp-privacy-manager": {
+      "statement": "Manager/Approver privacy settings on the DLP GCP integration: Hide Evidence Data, Hide Trigger Data and Hide Policy Details are selected by default; the non-triggered-matches setting is available only when Hide Policy Details - Manager/Approver is not selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Hide Evidence Data - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to generate presigned evidence links for the incident. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+            "Hide Trigger Data - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to see the trigger data for the incident. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+            "Hide Policy Details - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to view the policy details for the incident. Otherwise, they can view the policy details for the incident. This checkbox is selected by default.",
+            "This checkbox is only available if you do not select the Hide Policy Details - Manager/Approver checkbox.",
+            "Hide Policy Details for Non-Triggered Matches - Manager/Approver:"
+          ]
+        }
+      ]
+    },
+    "gcp-non-triggered-scope": {
+      "statement": "Hide Policy Details for Non-Triggered Matches - Admin hides the Non-Triggered Engines and Dictionaries section and the Other Matched Rules section of the policy details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Hide Policy Details for Non-Triggered Matches - Admin: Select if you do not want the admins to be able to view the Non-Triggered Engines and Dictionaries section and the Other Matched Rules section of the policy details"
+          ]
+        }
+      ]
+    },
+    "gcp-no-read-access": {
+      "statement": "If Hide Evidence Data or Hide Trigger Data is disabled but read access to the storage accounts was not enabled when the cloud resources were created, no one can generate evidence links or view trigger data in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "If you disable Hide Evidence Data or Hide Trigger Data for the integration, but you did not enable read access to the storage accounts when creating the cloud resources, no one can generate evidence links or view trigger data in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "gcp-admin-access": {
+      "statement": "Super admins or admins with Full or Restricted access to Workflow Automation can configure the DLP GCP application integration, which must exist before incidents are available on the Incidents page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Super admins or admins with Full or Restricted access to Workflow Automation can configure the DLP Google Cloud Platform (GCP) application integration.",
+            "Before your organization's DLP incidents are available for review and remediation on the Incidents page in the Zscaler Admin Console, you must configure DLP GCP application integration."
+          ]
+        }
+      ]
+    },
+    "slack-teams-tenant": {
+      "statement": "Slack and Microsoft Teams are integrated by adding them as SaaS application tenants under Data Security > DSPM > SaaS Application Tenants with the Workflow Automation checkbox selected under Select Features, which authorizes them with Internet & SaaS (ZIA).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-slack.json",
+          "quotes": [
+            "When adding the tenant, ensure that you select the Workflow Automation checkbox under the Select Features section. This process authorizes the Slack application with Internet & SaaS (ZIA) and integrates the Slack application with Workflow Automation.",
+            "from the navigation menu, go to Data Security > DSPM > SaaS Application Tenants.",
+            "add the Slack application as a SaaS application tenant using the Slack admin credentials."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-microsoft-teams.json",
+          "quotes": [
+            "When adding the tenant, ensure that you select the Workflow Automation checkbox under the Select Features section. This process authorizes the Microsoft Teams application with Internet & SaaS (ZIA) and integrates the Microsoft Teams application with Workflow Automation.",
+            "from the navigation menu, go to Data Security > DSPM > SaaS Application Tenants.",
+            "add the Microsoft Teams application as a SaaS application tenant using the Microsoft Teams admin credentials."
+          ]
+        }
+      ]
+    },
+    "chat-uses": {
+      "statement": "With Slack or Teams integrated, user, escalation and digest notifications can be delivered as messages, and workflow definitions can select Slack or Teams messages instead of email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-slack.json",
+          "quotes": [
+            "admins or the application can initiate different notifications (user, escalation, and digest) to remediate the incident.",
+            "The workflow functionality can also use Slack messages instead of emails when notifications are initiated.",
+            "these notifications can be delivered through Slack messages to the appropriate users or admins associated with the incident.",
+            "When defining a workflow definition, you can select Slack messages for the different actions contained within it."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-microsoft-teams.json",
+          "quotes": [
+            "admins or the application can initiate different notifications (user, escalation, and digest) to remediate the incident.",
+            "The workflow functionality can also use Microsoft Teams messages instead of emails when notifications are initiated.",
+            "these notifications can be delivered through Teams messages to the appropriate users or admins associated with the incident.",
+            "When defining a workflow definition, you can select Teams messages for the different actions contained within it."
+          ]
+        }
+      ]
+    },
+    "dlp-integration-first": {
+      "statement": "Slack, Microsoft Teams, ServiceNow and Jira Software integrations each require a DLP application integration (AWS, Azure or GCP) to be configured first, and admin credentials for the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-slack.json",
+          "quotes": [
+            "Configure the Data Loss Prevention (DLP) application integration for your organization using Amazon Web Services, Azure, or Google Cloud Platform.",
+            "Ensure that you have admin credentials for the Slack application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-microsoft-teams.json",
+          "quotes": [
+            "Configure the Data Loss Prevention (DLP) application integration for your organization using Amazon Web Services, Azure, or Google Cloud Platform.",
+            "Ensure that you have admin credentials for the Microsoft Teams application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-servicenow.json",
+          "quotes": [
+            "Configure the Data Loss Prevention (DLP) application integration for your organization using Amazon Web Services, Azure, or Google Cloud Platform.",
+            "Ensure that you have admin credentials for the ServiceNow application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-jira-software.json",
+          "quotes": [
+            "Configure the Data Loss Prevention (DLP) application integration for your organization using Amazon Web Services, Azure, or Google Cloud Platform.",
+            "Ensure that you have admin credentials for Jira Software."
+          ]
+        }
+      ]
+    },
+    "ticketing-tenant": {
+      "statement": "ServiceNow and Jira Software are added as SaaS application tenants with the Workflow Automation checkbox in Select Features; the ServiceNow tile then appears under Connected Apps, and for Jira the tile is named Jira Cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-servicenow.json",
+          "quotes": [
+            "ensure that you select the Workflow Automation checkbox in the Select Features section.",
+            "On the Integrations dashboard in Workflow Automation, the ServiceNow application appears as a tile in the Connected Apps section.",
+            "configure and add the ServiceNow application as a SaaS application tenant using the ServiceNow admin credentials."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-jira-software.json",
+          "quotes": [
+            "ensure that you select the Workflow Automation checkbox in the Select Features section.",
+            "On the Integrations dashboard in Workflow Automation, the Jira Cloud tile appears in the Connected Apps section.",
+            "configure and add Jira Software as a SaaS application tenant using the Jira Software admin credentials."
+          ]
+        }
+      ]
+    },
+    "servicenow-ticket-user": {
+      "statement": "The user a ServiceNow ticket is assigned to must exist in ServiceNow and already be on the Integration Users page in Workflow Automation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-servicenow.json",
+          "quotes": [
+            "The user they select must exist in the ServiceNow application and must have already been added on the Integration Users page in Workflow Automation.",
+            "the admin selects the user to assign to the ticket in ServiceNow."
+          ]
+        }
+      ]
+    },
+    "servicenow-sync": {
+      "statement": "ServiceNow ticket-status sync is optional and runs daily; when the ticket is closed in ServiceNow only the Closed status appears on the drawer, and an optional setting closes the incident when Workflow Automation receives Closed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-servicenow.json",
+          "quotes": [
+            "The sync process runs daily.",
+            "When the ticket is closed in ServiceNow, only the Closed status for a ticket appears on the Incident Details drawer in Workflow Automation. None of the other ServiceNow ticket statuses appear on the Incident Details drawer.",
+            "After you select this checkbox, the Close incident when ticket is closed checkbox appears on the page.",
+            "after Workflow Automation receives the Closed status through the sync process, it automatically closes the incident.",
+            "(Optional) Sync ticket status: Select this checkbox if you want to sync the ticket status between ServiceNow and Workflow Automation."
+          ]
+        }
+      ]
+    },
+    "servicenow-deleted": {
+      "statement": "ServiceNow integrations show Enabled or Disabled statuses, and deleted integrations cannot be enabled or disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-servicenow.json",
+          "quotes": [
+            "You cannot enable or disable ServiceNow integrations that have been deleted.",
+            "all the ServiceNow integrations appear along with their statuses (Enabled and Disabled)"
+          ]
+        }
+      ]
+    },
+    "jira-user-project": {
+      "statement": "A Jira ticket assignee must exist in Jira Software and already be on the Integration Users page, and the admin chooses the Jira project when creating the ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-jira-software.json",
+          "quotes": [
+            "The user they select must exist in Jira Software and must have already been added to the Integration Users page in Workflow Automation.",
+            "the admin selects the user to assign the ticket to in Jira Software and specifies the Jira project where the ticket is created in Jira Software."
+          ]
+        }
+      ]
+    },
+    "jira-project-settings": {
+      "statement": "Before a Jira ticket can be created from the Incident Details drawer, project settings must be configured, including field mappings and a complete status; all projects and their metadata sync when the integration is first enabled, and the project list can be synced manually with Sync Project List.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-jira-software.json",
+          "quotes": [
+            "Before you can create a Jira Software ticket on the Incident Details drawer in Workflow Automation, you must configure the project settings for the Jira projects in Workflow Automation. This process includes defining the field mappings for the project and specifying a complete status for the project.",
+            "When you enable the Jira Cloud integration for the first time, all the projects and their metadata for the Jira Cloud integration are synced with Workflow Automation and are displayed on the page.",
+            "At the top right of the project details section, click Sync Project List to manually sync the Jira Cloud integration project list with Workflow Automation."
+          ]
+        }
+      ]
+    },
+    "jira-sync-settings": {
+      "statement": "Jira project-list and ticket-status syncs are optional and each run daily; only the project's chosen complete status appears in the Ticket section, and Close incident when ticket is closed is a further option, without which Workflow Automation does not automatically close.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-jira-software.json",
+          "quotes": [
+            "Sync project list: Select this checkbox if you want to automatically sync the project list between the Jira Cloud integration and Workflow Automation. The sync process runs daily.",
+            "Sync ticket status: Select this checkbox if you want to sync the ticket status between the Jira Cloud integration and Workflow Automation. The sync process runs daily.",
+            "only the complete status that you specified for a project appears in the Ticket section for an incident.",
+            "If you do not select this checkbox, Workflow Automation does not automatically close the ticket.",
+            "(Optional) Close incident when ticket is closed: Select this checkbox if you want Workflow Automation to automatically close the incident in Workflow Automation when the Jira ticket matches the complete status you defined for the project on the Jira Integration details page."
+          ]
+        }
+      ]
+    },
+    "jira-field-mapping": {
+      "statement": "Jira field mapping is per project and issue type: required Jira fields are listed and cannot be deleted (only edited), Issue Type is auto-mapped and not editable, and optional field mappings can be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-jira-software.json",
+          "quotes": [
+            "After you select an issue type, all the required Jira fields for that project and issue type are listed on the page and cannot be deleted.",
+            "You cannot edit or delete the Issue Type Jira field mapping.",
+            "You can only edit a required field mapping. You cannot delete required field mappings.",
+            "You can edit or delete optional field mappings.",
+            "The system automatically maps the Issue Type Jira field for you."
+          ]
+        }
+      ]
+    },
+    "jira-autosync-disabled": {
+      "statement": "A Jira project's Auto Sync is disabled when its field mapping is empty or when the Labels field is not supported for the project; Workflow Automation uses labels to find and sync tickets, and for Labels Not Supported the fix is to add the Labels field to the Jira project.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-jira-software.json",
+          "quotes": [
+            "Mapping is Empty: The field mapping has not been added for the project using this section of the page.",
+            "Labels Not Supported: The Labels field is not supported for the project in the Jira Software application.",
+            "Workflow Automation uses labels to search for and sync the tickets in Jira Software with the tickets on the Incident Details drawer in Workflow Automation.",
+            "To correct this issue, you must add the Labels field to the project in the Jira Software."
+          ]
+        }
+      ]
+    },
+    "jira-complete-status": {
+      "statement": "Each Jira project has a Complete Status chosen from the project's statuses; until one is selected the field shows Click to change status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-jira-software.json",
+          "quotes": [
+            "If a status has not been selected, Click to change status appears for the Complete Status field.",
+            "All the completed statuses for the project in Jira Software are available for selection (e.g., In Progress, To Do, In Review, Done, and Closed)."
+          ]
+        }
+      ]
+    },
+    "jira-deleted": {
+      "statement": "Deleted Jira Cloud integrations cannot be enabled or disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-integration-jira-software.json",
+          "quotes": [
+            "You cannot enable or disable Jira Cloud integrations that have been deleted."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "gcp-non-triggered-defaults": {
+      "kind": "semantic",
+      "title": "Defaults of the non-triggered-matches settings for end users and managers on the DLP GCP integration",
+      "status": "open",
+      "detail": "The GCP page states the Admin variant is not selected by default, but gives no default for Hide Policy Details for Non-Triggered Matches - End User or - Manager/Approver.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "sync-schedule-and-statuses": {
+      "kind": "semantic",
+      "title": "Time of the daily syncs and the full set of Jira complete statuses",
+      "status": "open",
+      "detail": "The ServiceNow and Jira pages say the sync process runs daily without giving a time, and the Jira page lists complete statuses only as an example (\"e.g., In Progress, To Do, In Review, Done, and Closed\"). The Jira page's second sentence about Close incident when ticket is closed names the ticket where the first names the incident; the page does not say whether they differ.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  },
+  "divergences": {
+    "integration-app-list": {
+      "summary": "The Integration page names ServiceNow and Jira Software as the applications available within Workflow Automation, while the Slack and Microsoft Teams pages integrate those two applications as SaaS application tenants.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-adding-integrations.json",
+            "quotes": [
+              "The applications available within Workflow Automation are ServiceNow and Jira Software."
+            ]
+          },
+          "says": "The applications available within Workflow Automation are ServiceNow and Jira Software."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-workflow-automation-integration-slack.json",
+            "quotes": [
+              "add the Slack application as a SaaS application tenant using the Slack admin credentials."
+            ]
+          },
+          "says": "Slack is added as a SaaS application tenant and integrated with Workflow Automation; the Teams page says the same for Microsoft Teams."
+        }
+      ],
+      "impact": "ServiceNow and Jira Software are not the only applications that integrate with Workflow Automation; Slack and Microsoft Teams are integrated through the same SaaS tenant route."
+    },
+    "integration-admin-access": {
+      "summary": "The Integration page says all admins can configure the AWS, Azure and GCP integrations, while the GCP page limits configuration to super admins or admins with Full or Restricted access to Workflow Automation.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-adding-integrations.json",
+            "quotes": [
+              "All admins can configure the DLP Amazon Web Service (AWS), Azure, and Google Cloud Platform (GCP) application integrations"
+            ]
+          },
+          "says": "All admins can configure the DLP AWS, Azure and GCP application integrations."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+            "quotes": [
+              "Super admins or admins with Full or Restricted access to Workflow Automation can configure the DLP Google Cloud Platform (GCP) application integration."
+            ]
+          },
+          "says": "Super admins or admins with Full or Restricted access to Workflow Automation can configure the DLP GCP application integration."
+        }
+      ],
+      "impact": "Which admins can configure an integration is not settled between the overview and the GCP page; an admin without Full or Restricted access may or may not be able to."
+    }
+  }
+}

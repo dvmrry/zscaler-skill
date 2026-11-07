@@ -1,0 +1,850 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.gre",
+  "title": "GRE tunnels to ZIA: requirements, bandwidth and deployment",
+  "aliases": [
+    "gre tunnel",
+    "gre bandwidth",
+    "gre static ip",
+    "gre mtu mss",
+    "border router gre",
+    "global public service edge",
+    "no default route"
+  ],
+  "binds": [
+    "zia/gre-tunnels",
+    "zia/static-ips"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.model",
+      "because": "zia.locations.model:what-a-location-holds"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.locations.ip-scoping",
+      "because": "zia.locations.ip-scoping:matches-inner-ips"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.proxy-mode.forwarding-map",
+      "because": "zia.proxy-mode.forwarding-map:tunnel-transparent"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.proxy-mode.explicit",
+      "because": "zia.traffic-forwarding.gre:explicit-via-global-edges"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/gre-tunnels"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/static-ips"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.terraform.traffic-forwarding-resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre-failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.gre"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.static-ips"
+    }
+  ],
+  "prose": [
+    {
+      "text": "GRE is the tunnel for sites whose router can build it. This subject covers what the tunnel needs and how it scales; health checks and failover are in [[zia.traffic-forwarding.gre-failover]], and which method to pick is in [[zia.traffic-forwarding.methods]]."
+    },
+    {
+      "label": "What it is and what it needs.",
+      "text": "{{overview}} {{static-ip-required}} {{source-ip-provisioned}} {{page-fields}}"
+    },
+    {
+      "label": "How much it carries.",
+      "text": "{{bandwidth-limit}} {{nat-limit-reason}} {{one-gbps-reason}} {{scale-out}} {{client-persistence}}"
+    },
+    {
+      "label": "Where to build it.",
+      "text": "{{internal-router}} {{border-router}} {{primary-backup-per-egress}} {{routing-and-nat}} A sublocation matches IP addresses carried inside the parent's tunnel (or XFF client addresses) and adds no forwarding path of its own ([[zia.locations.ip-scoping]])."
+    },
+    {
+      "label": "No default route.",
+      "text": "{{explicit-via-global-edges}} What explicit mode means for the traffic is in [[zia.proxy-mode.forwarding-map]]."
+    },
+    {
+      "label": "Provisioning.",
+      "text": "{{provisioning}} {{vip-selection}} What the Python SDK does with VIPs passed to a create or update is in [[zia.sdk-python.service-behaviors:gre-documented-vips-replaced]]. {{api-surface}} {{support-provisioning-inputs}} {{finding-vips}} The firewall module's view of tunnel traffic is in [[zia.firewall.traffic-path]]; the bandwidth Bandwidth Control enforces per location is in [[zia.locations.bandwidth]]."
+    },
+    {
+      "label": "Self-provisioning and CSV import.",
+      "text": "{{one-static-ip}} {{dc-picker}} {{internal-range}} {{pse-nat-self-provisioning}} {{csv-import}}"
+    },
+    {
+      "label": "What the service does with the tunnel.",
+      "text": "{{vip-binding}} {{inside-subnets}} {{tunnel-insights}}"
+    },
+    {
+      "label": "Cisco 881 ISR example.",
+      "text": "{{cisco-example-mss-nat}} {{cisco-pbr-cpu}}"
+    },
+    {
+      "label": "MTU and MSS.",
+      "text": "{{mtu-mss}} {{mtu-procedure}} {{mss-discovery}} The article's worked example is open {{gap:mtu-example-conflict}}. The symptom of an unclamped MSS is open {{gap:mss-symptom}}. Whether premium data centers can be used with a Support ticket is open {{gap:premium-dc-support}}. {{ipv6-inside-gre}} IPv6 across every forwarding method is in [[zia.traffic-forwarding.ipv6]]. What else IPv6 over GRE needs is partly open {{gap:ipv6-coverage}}; IPSec's coverage is in [[zia.traffic-forwarding.ipsec]]."
+    },
+    {
+      "text": "{{vse-unnumbered}} Virtual Service Edge clusters are [[zia.virtual-service-edge.clusters]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tunnel's source IP is a provisioned static IP.",
+      "uses": [
+        "source-ip-provisioned"
+      ]
+    },
+    {
+      "do": "Whether the inner addresses are NATed, which sets the tunnel to 1 Gbps or 250 Mbps.",
+      "uses": [
+        "bandwidth-limit"
+      ]
+    },
+    {
+      "do": "Whether the primary and secondary VIPs are in different data centers.",
+      "uses": [
+        "internal-router"
+      ]
+    }
+  ],
+  "claims": {
+    "overview": {
+      "statement": "A GRE tunnel functions like a VPN without encryption: a GRE-capable router encapsulates the packet and sends it across the public network to the Zscaler service. GRE adds a 4-byte header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-generic-routing-encapsulation-gre.json",
+          "quotes": [
+            "A GRE tunnel functions like a VPN but without encryption; it transports packets from one endpoint to another through the public network.",
+            "A Generic Routing Encapsulation (GRE) tunnel is ideal for forwarding internet-bound traffic from your corporate network to the Zscaler service.",
+            "A GRE-capable router encapsulates a payload packet inside a GRE packet."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.json",
+          "quotes": [
+            "GRE = 4 bytes header"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/gre-tunnels"
+      ]
+    },
+    "static-ip-required": {
+      "statement": "The tunnel's egress port needs a static IP address: the perimeter router must support GRE and its egress port must have a static IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.json",
+          "quotes": [
+            "Your organization’s perimeter edge router must support GRE and its egress port must have a static IP address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-generic-routing-encapsulation-gre.json",
+          "quotes": [
+            "If your corporate router supports GRE and its egress port has a static IP address, Zscaler recommends that you configure a GRE tunnel"
+          ]
+        }
+      ]
+    },
+    "source-ip-provisioned": {
+      "statement": "A tunnel's source IP must already be provisioned as a static IP in the service, and the static IP list can be filtered to addresses not yet used by a tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels/post/requestBody/content/application~1json/schema/properties/sourceIp",
+          "expect": {
+            "description": "The source IP address of the GRE tunnel. This is typically a static IP address in the organization or SD-WAN. This IP address must be provisioned within the Zscaler service using the /staticIP endpoint."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1staticIP/get/parameters/[name=availableForGreTunnel]",
+          "expect": {
+            "description": "Set to true to get only the static IP addresses that are not yet associated to a GRE tunnel."
+          }
+        }
+      ],
+      "binds": [
+        "zia/gre-tunnels",
+        "zia/static-ips"
+      ]
+    },
+    "bandwidth-limit": {
+      "statement": "Zscaler supports at most 1 Gbps per GRE tunnel when the internal endpoint addresses are not NATed and 250 Mbps when they are (source NAT, including source PAT).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-generic-routing-encapsulation-gre.json",
+          "quotes": [
+            "Zscaler supports a maximum bandwidth of 1 Gbps for each GRE tunnel if the internal tunnel endpoint IP addresses are not source network address translated (NATed). If the internal tunnel endpoint IP addresses are source NATed, then Zscaler can only support up to 250 Mbps of traffic for each tunnel."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.json",
+          "quotes": [
+            "The restriction also applies when performing source NAT with source PAT."
+          ]
+        }
+      ]
+    },
+    "nat-limit-reason": {
+      "statement": "The NAT limit exists because the service load-balances GRE traffic over multiple servers by the internal IP addresses of the tunnel; when every packet carries the same internal source address the balancer cannot spread it across nodes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-generic-routing-encapsulation-gre.json",
+          "quotes": [
+            "If the internal tunnel endpoint IP addresses are source NATed, then Zscaler can only support up to 250 Mbps of traffic for each tunnel.",
+            "This is because the Zscaler service uses the internal IP addresses of the GRE tunnel to load-balance GRE traffic over multiple servers.",
+            "If the internal source IP address is the same for all traffic across multiple GRE tunnels, then the load-balancer cannot be effective in balancing the traffic across different nodes"
+          ]
+        }
+      ]
+    },
+    "scale-out": {
+      "statement": "Above 1 Gbps, Zscaler recommends more tunnels with different public source IP addresses, each with a backup: 2 Gbps is two primary and two backup tunnels, 3 Gbps is three and three.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.json",
+          "quotes": [
+            "If your organization wants to forward more than 1 Gbps of traffic, Zscaler recommends configuring more GRE tunnels with different public source IP addresses.",
+            "For example, if your organization forwards 2 Gbps of traffic, you can configure two primary GRE tunnels and two backup GRE tunnels. If your organization forwards 3 Gbps of traffic, you can configure three primary GRE tunnels and three backup GRE tunnels."
+          ]
+        }
+      ]
+    },
+    "client-persistence": {
+      "statement": "With several egress IPs, client persistence should be maintained (load balancer, ECMP or other), because a server that checks persistence refuses connections arriving from a different egress IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.json",
+          "quotes": [
+            "When configuring multiple GRE tunnels, you should maintain client persistence to avoid issues because a server with persistence checking refuses connection to different egress IP addresses.",
+            "You can use a Load Balancer (LB), ECMP, or other means to maintain persistence."
+          ]
+        }
+      ]
+    },
+    "internal-router": {
+      "statement": "Zscaler's recommended deployment is two tunnels from an internal router behind the firewall, a primary to a Public Service Edge in one data center and a secondary to another. The tunnel source is a public IP configured on the router's loopback interface, the firewall needs a rule allowing GRE from the router, and internal IP addresses stay visible for policy and logging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "gre-deployment-scenarios.json",
+          "quotes": [
+            "Zscaler recommends that you configure two GRE tunnels from an internal router behind the firewall to the Public Service Edge for Internet & SaaS (ZIA): a primary tunnel from the router to a Public Service Edge in one data center and a secondary tunnel from the router to a Public Service Edge in another data center.",
+            "the GRE tunnel source IP address is a public IP address that is configured on the loopback interface of the router",
+            "On the firewall, you'll need to define a rule that allows GRE traffic from the router.",
+            "This type of deployment provides visibility into the internal IP addresses, which can be used for the Zscaler security policies and logging."
+          ]
+        }
+      ]
+    },
+    "border-router": {
+      "statement": "If an internal router is not feasible, a tunnel can be built from the border router, which must send internet-bound traffic to the Public Service Edges and requires NAT disabled on the firewall so internal IPs remain visible.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "gre-deployment-scenarios.json",
+          "quotes": [
+            "If configuring GRE tunnels from an internal router to the Public Service Edges is not feasible, then you can configure a GRE tunnel from your border router to the Public Service Edge.",
+            "You also need to disable NAT on your firewall to provide internal IP address visibility to the Public Service Edges.",
+            "In this type of deployment, you need to configure the border router to send internet-bound traffic to the Public Service Edges."
+          ]
+        }
+      ]
+    },
+    "explicit-via-global-edges": {
+      "statement": "For explicit proxy mode over GRE in an environment with no default route, the tunnel is used with the Global Public Service Edge addresses 185.46.212.88 to .93, .97 and .98. These are dummy addresses that no Public Service Edge listens on but all know about, so traffic is routed to them through a GRE or IPSec tunnel and a PAC file directs users there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "gre-deployment-scenarios.json",
+          "quotes": [
+            "To configure GRE tunnels with the explicit proxy mode in no default route environment, use the following set of global Public Service Edge IP addresses:",
+            "- 185.46.212.88 - 185.46.212.89 - 185.46.212.90 - 185.46.212.91 - 185.46.212.92 - 185.46.212.93 - 185.46.212.97 - 185.46.212.98"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-global-public-service-edges.json",
+          "quotes": [
+            "The addresses of these Public Service Edges do not listen for traffic but are dummy addresses that all Public Service Edges know about.",
+            "Ensure that you route the traffic destined to the Global Public Service Edge IP address through a GRE or an IPSec tunnel.",
+            "Use PAC files to direct the corporate user traffic to the Global Public Service Edge IP address."
+          ]
+        }
+      ]
+    },
+    "primary-backup-per-egress": {
+      "statement": "Zscaler requires primary and backup tunnels from every internet egress location and, where applicable, from each internet service provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.json",
+          "quotes": [
+            "Zscaler requires building primary and backup GRE tunnels from every internet egress location and, if applicable, from each internet service provider."
+          ]
+        }
+      ]
+    },
+    "provisioning": {
+      "statement": "A tunnel is provisioned either through a Zscaler Support ticket or by self-provisioning in the Admin Console; regional surcharge and premium data centers are excluded from the data center picker because of possible extra cost or specialized usage restrictions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.json",
+          "quotes": [
+            "Submit a Zscaler Support ticket or contact Zscaler Support to receive the GRE tunneling configuration.",
+            "Self-provision a GRE tunnel using the Zscaler Admin Console",
+            "regional surcharge and premium data centers are excluded from the picker due to possible additional costs or specialized usage restrictions"
+          ]
+        }
+      ]
+    },
+    "vip-selection": {
+      "statement": "A tunnel names a primary and a secondary destination VIP; the Python SDK's add_gre_tunnel docstring says the closest recommended VIPs are chosen automatically when they aren't specified. The within-country flag restricts VIPs to the source IP's country, and the unnumbered flag supports automated SD-WAN provisioning with no internal tunnel addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/gre_tunnel.py",
+          "quotes": [
+            "Note: If the `primary_dest_vip` and `secondary_dest_vip` aren't specified then the closest recommended VIPs will be automatically chosen."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels/post/requestBody/content/application~1json/schema/properties/withinCountry",
+          "expect": {
+            "description": "Restrict the data center virtual IP addresses (VIPs) only to those within the same country as the source IP address"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels/post/requestBody/content/application~1json/schema/properties/ipUnnumbered",
+          "expect": {
+            "description": "This is required to support the automated SD-WAN provisioning of GRE tunnels, when set to true gre_tun_ip and gre_tun_id are set to null"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels/post/requestBody/content/application~1json/schema/properties/primaryDestVip",
+          "expect": {
+            "description": "The primary destination data center and virtual IP address (VIP) of the GRE tunnel"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels/post/requestBody/content/application~1json/schema/properties/secondaryDestVip",
+          "expect": {
+            "description": "The secondary destination data center and virtual IP address (VIP) of the GRE tunnel"
+          }
+        }
+      ],
+      "binds": [
+        "zia/gre-tunnels"
+      ]
+    },
+    "mtu-mss": {
+      "statement": "MTU and MSS for the tunnel are calculated from the WAN interface: for a 1,500-byte WAN, GRE MTU is 1,500 - 20 - 4 = 1,476 and GRE MSS is 1,476 - 20 - 20 = 1,436. An incorrect MTU causes fragmentation and degraded performance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.json",
+          "quotes": [
+            "Zscaler recommends that you calculate the maximum transmission unit (MTU) and maximum segment size (MSS) values on the GRE tunnel based on the MTU and MSS configuration of the WAN interface. An incorrectly configured MTU results in higher fragmentation, leading to performance degradation.",
+            "GRE MTU = MTU (1,500) – IP (20) – GRE (4) = 1,476",
+            "GRE MSS = GRE MTU (1,476) – IP (20) – TCP (20) = 1,436"
+          ]
+        }
+      ]
+    },
+    "api-surface": {
+      "statement": "Tunnels are managed at /greTunnels; recommended destination VIPs come from /vips/recommendedList (also grouped by data center at /vips/groupByDatacenter), and /orgProvisioning/ipGreTunnelInfo returns IP addresses with their tunnel details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1vips~1recommendedList/get",
+          "expect": {
+            "description": "Gets a list of recommended GRE tunnel virtual IP addresses (VIPs), based on source IP address or latitude/longitude coordinates."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1orgProvisioning~1ipGreTunnelInfo/get",
+          "expect": {
+            "description": "<p>Gets a list of IP addresses with GRE tunnel details.</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1vips~1groupByDatacenter/get",
+          "expect": {
+            "description": "Gets a list of recommended GRE tunnel virtual IP addresses (VIPs), grouped by data center, based on source IP address or latitude/longitude coordinates."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels/get",
+          "expect": {
+            "description": "Gets all provisioned GRE tunnel information."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels/post",
+          "expect": {
+            "description": "<p>Adds a GRE tunnel configuration.</p><p><b>Note:</b> Specifying  <code>withinCountryOnly</code> or <code>subcloud</code> parameter is  mandatory if this endpoint uses a virtual IP address (VIP) retrieved by  passing either of these parameters in <code>GET /vips/recommendedList</code>.</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels~1{Id}/put",
+          "expect": {
+            "description": "Updates the GRE tunnel information for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels~1{Id}/delete",
+          "expect": {
+            "description": "Deletes the GRE tunnel information for the specified ID."
+          }
+        }
+      ],
+      "binds": [
+        "zia/gre-tunnels"
+      ]
+    },
+    "mtu-procedure": {
+      "statement": "A suboptimal MTU for a GRE or IPSec tunnel results in severe performance degradation. An optimal tunnel MTU is equal to or lower than the network appliance MTU and the path MTU, where Path MTU = MSS + 20 bytes (IP header) + 8 bytes (ICMP header); the tunnel header length is subtracted from the lower of the two values, 24 bytes for a GRE tunnel. If the organization experiences issues performing these tasks, Zscaler recommends a tunnel MTU of 1400.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-determining-the-optimal-mtu-for-gre-or-ipsec-tunnels.json",
+          "quotes": [
+            "A suboptimal maximum transmission unit (MTU) for your organization's GRE or IPSec tunnel results in severe performance degradation.",
+            "An optimal tunnel MTU is equal to or lower than the following key values:",
+            "The Network Appliance MTU: The maximum total data per packet allowed by the edge network appliance from which the tunnel is built",
+            "The Path MTU: The maximum total data per packet allowed by appliances that stand in the path between your network appliance and the Public Service Edge",
+            "Path MTU = MSS + 20 Bytes (IP Header) + 8 bytes (ICMP Header)",
+            "Subtract the tunnel header length from the lower of these two MTU values to set your tunnel MTU.",
+            "For GRE tunnel, the header length = 24 bytes.",
+            "If you experience issues performing the tasks above, Zscaler recommends that you use a tunnel MTU of 1400."
+          ]
+        }
+      ]
+    },
+    "mss-discovery": {
+      "statement": "The MTU article gives ping-sweep commands: `ping -g [network appliance MTU value minus 50] -G 1600 -h 10 -D [destination]` (the page says the -g component of the ping command applies only to appliances running macOS), a `for /l` loop with `-f`, and a `for size in` loop with `-M do`. For GRE tunnels, Zscaler Customer Support can provide the IP addresses of the primary and secondary Public Service Edges to which the organization must forward traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-determining-the-optimal-mtu-for-gre-or-ipsec-tunnels.json",
+          "quotes": [
+            "The -g component of the ping command applies only to appliances running macOS.",
+            "ping -g [network appliance MTU value minus 50] -G 1600 -h 10 -D [destination]",
+            "for /l %i in(<Sweep Min Size, Sweep Count Increase By, Sweep Max Size>)do @ping -n 1 -w 100 <Ping Destination IP> -l %i -f.",
+            "for size in {<Sweep Min Size>..<Sweep Max Size>..<Sweep Count Increase By>}; do ping -s $size -c 1 -M do <Ping Destination IP>; done",
+            "GRE Tunnels: If you're building GRE tunnels, Zscaler Customer Support can provide you with the IP addresses of the primary and secondary Public Service Edges to which your organization must forward traffic."
+          ]
+        }
+      ]
+    },
+    "vse-unnumbered": {
+      "statement": "GRE tunnels configured on Virtual Service Edges are established dynamically with no internal IP addresses, like unnumbered GRE tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-generic-routing-encapsulation-gre.json",
+          "quotes": [
+            "GRE tunnels configured on Virtual Service Edges are dynamically established with no internal IP addresses, similar to unnumbered GRE tunnels."
+          ]
+        }
+      ]
+    },
+    "one-gbps-reason": {
+      "statement": "Zscaler set the 1 Gbps limit because much of the internet infrastructure uses 1 Gbps links, and multilink technologies such as LACP still aggregate 1 Gbps interfaces, so more than 1 Gbps from a single source IP address becomes a bottleneck.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-generic-routing-encapsulation-gre.json",
+          "quotes": [
+            "Zscaler set the bandwidth limit to 1 Gbps because a significant part of the internet infrastructure uses network links that are 1 Gbps.",
+            "Multilink technologies such as Link Aggregation Control Protocol (LACP) still rely on aggregating multiple 1 Gbps interfaces, so having more than 1 Gbps of traffic from a single source IP address results in a bottleneck."
+          ]
+        }
+      ]
+    },
+    "page-fields": {
+      "statement": "The GRE Tunnels page lists, for each tunnel, its primary and secondary data center VIPs, Managed By (self or a specific Zscaler partner) and the admin who last modified it. Primary and secondary tunnels are configured from a single static IP address so that one can take over if the other becomes unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-gre-tunnels.json",
+          "quotes": [
+            "Configure primary and secondary GRE tunnels from a single static IP address to support failover if one tunnel becomes unavailable.",
+            "Primary Data Center VIP: The virtual IP address of the primary data center for the GRE tunnel.",
+            "Secondary Data Center VIP: The virtual IP address of the secondary data center for the GRE tunnel.",
+            "Managed By: Indicates if self or a specific Zscaler partner manages it.",
+            "Last Modified By: The username of the admin who modified the GRE tunnel last."
+          ]
+        }
+      ]
+    },
+    "pse-nat-self-provisioning": {
+      "statement": "Self-provisioning a GRE tunnel to a Private Service Edge cluster is supported only for clusters deployed on public IP space (a non-NAT environment); a tunnel to a cluster inside a NAT environment is requested with a support ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-self-provisioning-gre-tunnels.json",
+          "quotes": [
+            "Self-provisioning of GRE tunnels towards Private Service Edge for Internet & SaaS (ZIA) clusters is only supported for clusters deployed on public IP space (i.e., a non-NAT environment).",
+            "If you need to build a GRE tunnel towards a Private Service Edge cluster deployed within a NAT environment, submit a support ticket from your Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "one-static-ip": {
+      "statement": "In the self-provisioning wizard a GRE tunnel maps exactly one static IP address, which cannot be changed when the tunnel is edited, and a static IP that is already mapped to a location is not offered for a GRE tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-self-provisioning-gre-tunnels.json",
+          "quotes": [
+            "You can map only one static IP address with a GRE tunnel. You cannot modify this field if you are editing an existing configuration.",
+            "A static IP address that is already mapped with a location is not available for mapping with a GRE tunnel and therefore does not appear in the drop-down menu."
+          ]
+        }
+      ],
+      "conditions": "The second sentence sits uneasily with Configuring GRE Tunnels, where the location is given the tunnel's static IP as its source address; the self-provisioning article does not say whether the order (tunnel first, then location) matters, so the article's wording is kept as written."
+    },
+    "dc-picker": {
+      "statement": "In the self-provisioning wizard the Primary and Secondary Data Center VIP fields each list the 5 geographically closest data centers and by default auto-select an active VIP by geographical proximity. Domestic Preference prioritizes data centers in the IP address's country of origin even when they are farther away, and with it enabled each field auto-selects an active VIP in that country. The primary and secondary destinations must not point to the same data center. Organizations with Private Service Edges see Private Service Edge VIPs listed first, and data centers flagged Do Not Provision (DNP) on config.zscaler.com are not listed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-self-provisioning-gre-tunnels.json",
+          "quotes": [
+            "Domestic Preference: Enable this option to prioritize Zscaler data centers from the country of origin of the IP address, even if they are farther away from other Zscaler data centers.",
+            "Primary Data Center VIP: Select a primary data center VIP address that is active on the Zscaler cloud. This field lists the 5 geographically closest data centers to choose from. By default, an active data center VIP address is auto-selected based on geographical proximity.",
+            "Ensure that the primary and the secondary VIP address destinations do not point to the same data center.",
+            "If your organization uses Private Service Edges for Internet & SaaS, the Primary and Secondary Data Center VIP fields first list Private Service Edge VIP addresses.",
+            "Data centers marked with the Do Not Provision (DNP) flag on the config.zscaler.com page are not displayed in the Primary and Secondary Data Center VIP lists."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-self-provisioning-gre-tunnels.json",
+          "quotes": [
+            "If Domestic Preference is enabled, then an active data center VIP address within the country of origin of the IP address is auto-selected."
+          ],
+          "after": "Domestic Preference: Enable this option to prioritize Zscaler data centers from the country of origin of the IP address, even if they are farther away from other Zscaler data centers."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-self-provisioning-gre-tunnels.json",
+          "quotes": [
+            "This field lists the 5 geographically closest data centers to choose from.",
+            "By default, an active data center VIP address is auto-selected based on geographical proximity.",
+            "If Domestic Preference is enabled, then an active data center VIP address within the country of origin of the IP address is auto-selected."
+          ],
+          "after": "Ensure that the primary and the secondary VIP address destinations do not point to the same data center."
+        }
+      ],
+      "gaps": [
+        "premium-dc-support"
+      ],
+      "conditions": "What the Do Not Provision flag means is not stated (the page says to contact Support); whether it is the same exclusion as the regional surcharge and premium data centers in provisioning is open."
+    },
+    "internal-range": {
+      "statement": "On the Internal IP Range tab, Is Unnumbered IP is enabled when no internal IP address is needed on either side of the tunnel. Otherwise the admin selects an internal range from a default pool of 10 ranges on the Zscaler cloud or searches the other available RFC1918 ranges; when searching, the field displays the next available IP addresses by default, and for the 10.x.x.x series a range must take the form 10.aa.bb.cc with aa below 255 and cc 0 or a multiple of 8, otherwise the field displays the next IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-self-provisioning-gre-tunnels.json",
+          "quotes": [
+            "Is Unnumbered IP: Enable this option if you do not require an internal IP address on each side of your GRE tunnel.",
+            "Select Internal GRE IP Range: Select an internal IP address range from the default pool of 10 available IP address ranges on the Zscaler cloud.",
+            "You can also search for and select from other available RFC1918 IP address ranges (10.0. 0.0/8, 172.16. 0.0/12, 192.168. 0.0/16).",
+            "By default, when searching for an IP address, the Select Internal GRE IP Range field displays the next available IP addresses.",
+            "Especially for the 10.x.x.x IP series, the following criteria must be met. Otherwise, the field displays the next IP address:",
+            "10.aa.bb.cc, where aa must be < 255, cc must be 0 or multiple of 8"
+          ]
+        }
+      ],
+      "conditions": "Only the 10.x.x.x form rule is given; what the default pool holds and the form rules for 172.16/12 and 192.168/16 ranges are not stated."
+    },
+    "csv-import": {
+      "statement": "A CSV import can add up to 3,000 GRE tunnels. Its fields include Action (+ or -), Internal IP Range, VIPs Within Country Only (true or false, whether data centers in the IP address's country of origin are prioritized) and IP Unnumbered (true when no internal IP address is needed). Override Existing Entries is selected to update existing tunnels, including deleting them or adding new ones; adding a tunnel that already exists without it returns an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-importing-gre-tunnels-csv-file.json",
+          "quotes": [
+            "You can add up to 3,000 GRE tunnels.",
+            "Action: Enter + or - to indicate whether you want to add or delete a GRE tunnel.",
+            "Internal IP Range: Enter an internal IP address range for the GRE tunnel.",
+            "VIPs Within Country Only: Enter true or false to indicate whether you prioritize Zscaler data centers from the country of origin of the IP address.",
+            "IP Unnumbered: Enter true or false to indicate whether you require an internal IP address on each side of your GRE tunnel. For example, enter true if you do not require an internal IP address.",
+            "Select Override Existing Entries, if you want to update existing GRE tunnels, including deleting existing GRE tunnels or adding new GRE tunnels.",
+            "If you attempt to add a new GRE tunnel that already exists without selecting this option, the Zscaler service displays an error message."
+          ]
+        }
+      ],
+      "conditions": "The import article points to Ranges & Limitations for the 3,000 figure, but the limits table has no GRE row, so the per-organization tunnel limit is unstated."
+    },
+    "routing-and-nat": {
+      "statement": "The GRE guidelines recommend policy-based routing, where supported, so that only internet-bound traffic enters the tunnel. Most routers apply PBR before NAT, which preserves internal client IP addresses; a router that NATs first should consider disabling NAT so the service sees internal addresses. A firewall ACL that blocks inbound connections needs a rule allowing GRE (protocol 47).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gre-tunnels.json",
+          "quotes": [
+            "If supported, use policy-based routing (PBR) to ensure that only internet-bound traffic is sent through the GRE tunnel.",
+            "Most routers apply the policy-based route to redirect traffic to the tunnel before they apply network address translation (NAT) to the traffic. Therefore, the internal client IP addresses of traffic routed through the tunnel are preserved.",
+            "If your router performs NAT before it sends traffic through the tunnel, consider disabling NAT to allow the Zscaler service to see internal IP addresses.",
+            "If your firewall has an ACL blocking inbound connections, configure a rule to allow GRE traffic (protocol 47)."
+          ]
+        }
+      ]
+    },
+    "support-provisioning-inputs": {
+      "statement": "To have Zscaler Support provision the tunnels, the organization gives the tunnel source's public IP address and the router's physical location; Zscaler then assigns the Virtual IP (VIP) addresses used as the source and destination inside the tunnel, from a non-routable pool it manages, so no two customers use the same addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gre-tunnels.json",
+          "quotes": [
+            "Contact Zscaler Support and provide the following information so Zscaler can provision the GRE tunnels:",
+            "The public IP address of the tunnel source",
+            "The physical location of your router",
+            "Zscaler then assigns Virtual IP (VIP) addresses for use as the source and destination addresses inside the tunnel.",
+            "Zscaler assigns these addresses from a pool of non-routable address space that Zscaler manages to ensure that no two customers attempt to use the same IP addresses."
+          ]
+        }
+      ]
+    },
+    "vip-binding": {
+      "statement": "Each Public Service Edge listens specifically for traffic from the tunnel's source VIP addressed to its destination VIP, and associates those virtual addresses with the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gre-tunnels.json",
+          "quotes": [
+            "The Public Service Edge listens specifically for traffic from the source VIP address and addressed to its destination VIP address.",
+            "When your GRE tunnel sends traffic to the Zscaler service, the Public Service Edge associates the virtual source and destination addresses with your organization."
+          ]
+        }
+      ]
+    },
+    "inside-subnets": {
+      "statement": "The location's static IP is the public source address of both tunnels. Zscaler assigns a /29 for the tunnels, split into two /30 subnets; in the first /30, the first host address goes to the location and the second to the Zscaler data center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gre-tunnels.json",
+          "quotes": [
+            "The static IP address that you assigned to your location is the public source IP address for both the GRE tunnels.",
+            "Zscaler assigns a /29 subnet for the GRE tunnels. You need to split it into two /30 subnets.",
+            "For the first /30 subnet, assign the first host IP address to your location and the second host IP address to the Zscaler data center."
+          ]
+        }
+      ]
+    },
+    "tunnel-insights": {
+      "statement": "Tunnel Insights (Data Explorer > Internet & SaaS > Tunnel Insights) shows data on, and the health and status of, configured GRE tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gre-tunnels.json",
+          "quotes": [
+            "Go to Data Explorer > Internet & SaaS > Tunnel Insights to see data, as well as monitor the health and status of your configured GRE tunnels."
+          ]
+        }
+      ]
+    },
+    "finding-vips": {
+      "statement": "GRE destination VIPs are listed under GRE Virtual IP at config.zscaler.com/<Zscaler Cloud Name>/cenr; the admin finds the VIPs of the two data centers closest to the organization's location and chooses one as the primary tunnel destination and the other as the backup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-locating-virtual-ip-addresses-your-internet-and-saas-public-service-edges.json",
+          "quotes": [
+            "Go to config.zscaler.com/<Zscaler Cloud Name>/cenr.",
+            "Under GRE Virtual IP, find the VIP addresses of the two data centers closest to the organization's location. Choose one as the destination for your primary GRE tunnel and the other as the destination for your backup GRE tunnel."
+          ]
+        }
+      ]
+    },
+    "cisco-example-mss-nat": {
+      "statement": "The Cisco 881 ISR GRE example sets the MSS to 1436, based on the path MTU, and configures no NAT on the interface, so the service can log internal IP addresses and sublocations can be configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-gre-configuration-example-cisco-881-isr.json",
+          "quotes": [
+            "Set the TCP maximum segment size (MSS) to an appropriate value based on the MTU of the path between the client and the Zscaler data center. In this example, the MSS value is set to 1436.",
+            "NAT is not configured on the interface in this example, so the Zscaler service can log internal IP addresses, and you can configure sublocations."
+          ]
+        }
+      ]
+    },
+    "cisco-pbr-cpu": {
+      "statement": "The Cisco 881 ISR GRE example says some Cisco routers forward PBR traffic in the software path, causing CPU spikes and performance issues; if that follows a PBR rollout, Zscaler recommends IP route-based forwarding instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-gre-configuration-example-cisco-881-isr.json",
+          "quotes": [
+            "Some Cisco routers forward PBR traffic in the software path instead of employing hardware forwarding, which leads to CPU spikes and performance issues. If you experience performance issues after implementing PBR, Zscaler recommends that you use IP route-based forwarding instead of PBR."
+          ]
+        }
+      ]
+    },
+    "ipv6-inside-gre": {
+      "statement": "IPv6 traffic can be sent inside an IPv4 GRE tunnel with no additional tunnel configuration; for clients inside a location, both web and non-web IPv6 traffic can be forwarded inside an IPv4 GRE or IPSec tunnel. IPv6 support is in limited availability and is provisioned through Zscaler Support, it must be enabled at the organization level before other IPv6 settings, and it must be enabled for the location, because IPv6 traffic arriving at a location without it is dropped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "You can send IPv6 traffic within an IPv4 GRE tunnel without any additional configurations.",
+            "To have IPv6 support provisioned for your organization, contact Zscaler Support.",
+            "You need to enable IPv6 support at the organization level to configure other IPv6-related settings.",
+            "To forward IPv6 traffic from specific organization locations to the Zscaler service, you need to enable IPv6 support for those locations and then set up GRE or IPSec tunnels to the Service Edge (Public, Private, or Virtual) for Internet & SaaS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "For clients inside a location: Forward IPv6 traffic inside an IPv4 tunnel to Service Edges for Internet & SaaS (ZIA) using a GRE tunnel or IPSec tunnel. Both web and non-web traffic can be forwarded using these tunneling methods.",
+            "IPv6 support is in limited availability. To learn more, contact Zscaler Support.",
+            "If IPv6 support is not enabled for a location, the IPv6 traffic arriving at the location is dropped."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "mtu-example-conflict": {
+      "kind": "semantic",
+      "title": "The MTU article's worked sweep example against its own rule",
+      "status": "open",
+      "detail": "The article's first command starts the sweep at the network appliance MTU value minus 50, but its worked example uses -g 1330 for an appliance MTU of 1330. The example does not follow the minus-50 rule it illustrates; which value the sweep should start at is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "mss-symptom": {
+      "kind": "semantic",
+      "title": "Symptom of an unclamped GRE MSS",
+      "status": "open",
+      "detail": "Unverified legacy statement: Failing to clamp MSS is a common cause of browsing works but large file transfers hang complaints under GRE. No captured source states it; operator experience or a tenant observation would settle it.",
+      "resolves_with": [
+        "operator-experience"
+      ]
+    },
+    "ipv6-coverage": {
+      "kind": "semantic",
+      "title": "IPv6 coverage of GRE tunnels",
+      "status": "partial",
+      "detail": "Unverified legacy statement: GRE and IPSec tunnel configuration may not cover IPv6 traffic; check router and firewall capability explicitly. The Configuring IPv6 Settings and Understanding IPv6 Support articles say IPv6 traffic can be sent within an IPv4 GRE tunnel without additional tunnel configuration, but only once IPv6 is provisioned through Zscaler Support and enabled for the organization and the originating location (ipv6-inside-gre); IPSec's side is ipv6-selectors in zia.traffic-forwarding.ipsec. Router and firewall capability to carry IPv6 inside the tunnel is not addressed.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "premium-dc-support": {
+      "kind": "semantic",
+      "title": "Whether premium data centers can be used with a Support ticket",
+      "status": "open",
+      "detail": "Unverified legacy statement: Premium/surcharge data centers are excluded from the VIP picker UI and require a Support ticket. No captured source states it; Zscaler Support or a vendor article would settle it.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

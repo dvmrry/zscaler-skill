@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.regions",
+  "title": "Cloud & Branch Connector regions: three region lists that must not be conflated",
+  "aliases": [
+    "cloud connector regions",
+    "cloud connector supported regions",
+    "supportedRegions",
+    "ztc_supported_regions",
+    "workload discovery regions",
+    "is cloud connector available in region"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.regions.zero-trust-gateways"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.regions.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.regions.topology"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Is it available in this region?\" has three different answers depending on what is meant. Each list below answers only its own question."
+    },
+    {
+      "steps": [
+        {
+          "label": "Customer-deployed Cloud Connector VMs.",
+          "text": "Where the VM itself can be deployed: [[cloud-connector.regions.deployment]]."
+        },
+        {
+          "label": "Zscaler-managed Zero Trust Gateways.",
+          "text": "The help article's AWS and GCP tables: [[cloud-connector.regions.zero-trust-gateways]]."
+        },
+        {
+          "label": "Workload discovery.",
+          "text": "{{wds-endpoint}} {{wds-cloud-types}}"
+        }
+      ]
+    },
+    {
+      "text": "No source states that any two of these lists are equal, or that the gateway tables match Public Service Edge locations {{gap:region-set-parity}}."
+    },
+    {
+      "text": "How Cloud Connectors in different regions relate to each other, and to the Service Edges they reach: [[cloud-connector.regions.topology]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which of the three region questions is being asked: VM deployment, Zero Trust Gateway, or workload discovery.",
+      "uses": [
+        "wds-endpoint",
+        "cloud-connector.regions.zero-trust-gateways:scope"
+      ]
+    },
+    {
+      "do": "For workload discovery, the tenant's live answer from the supported-regions endpoint rather than a gateway table.",
+      "uses": [
+        "wds-endpoint",
+        "region-set-parity"
+      ]
+    }
+  ],
+  "claims": {
+    "wds-endpoint": {
+      "statement": "The API's `/publicCloudInfo/supportedRegions` operation is described as retrieving the AWS regions supported for workload discovery settings (WDS); its items are regions supported by Zscaler's Tag Discovery Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1supportedRegions/get",
+          "expect": {
+            "description": "Retrieves a list of AWS regions supported for  workload discovery settings (WDS)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1supportedRegions/get/responses/default/content/application~1json/schema/items",
+          "expect": {
+            "description": "Regions supported by Zscaler’s Tag Discovery Service.",
+            "title": "SupportedRegion"
+          }
+        }
+      ]
+    },
+    "wds-cloud-types": {
+      "statement": "Each returned region has an `id`, a `name` and a `cloudType` whose values are AWS, AZURE and GCP, although the same field's description calls AWS the default and mandatory value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1supportedRegions/get/responses/default/content/application~1json/schema/items/properties/cloudType",
+          "expect": {
+            "enum": [
+              "AWS",
+              "AZURE",
+              "GCP"
+            ],
+            "description": "The cloud type. The default and mandatory value is AWS."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/common/common.go",
+          "after": "type SupportedRegions struct {",
+          "quotes": [
+            "ID int `json:\"id,omitempty\"`",
+            "Name string `json:\"name,omitempty\"`",
+            "CloudType string `json:\"cloudType,omitempty\"`"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "region-set-parity": {
+      "kind": "data",
+      "title": "Whether the workload-discovery, Zero Trust Gateway and Cloud Connector region sets coincide",
+      "status": "open",
+      "detail": "The workload-discovery set is a live tenant answer; the Zero Trust Gateway tables are a help article; no region list for Cloud Connector VMs is captured. Nothing states that any two are equal, or that the gateway tables correspond one-to-one to Public Service Edge locations. Part of ledger entry cloud-connector-22 (whose deployment questions sit in cloud-connector.regions.deployment:standard-cc-regions).",
+      "blocks": "using one region list to answer a question about another",
+      "resolvable_by": [
+        "operator"
+      ],
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

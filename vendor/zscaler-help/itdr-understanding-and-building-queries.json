@@ -1,0 +1,696 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding and Building Queries",
+  "source": {
+    "url": "https://help.zscaler.com/itdr/understanding-and-building-queries",
+    "node": "1534991",
+    "revision": "3161908",
+    "updated": "2026-03-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "Zscaler ITDR uses a purpose-built rule engine to evaluate queries used to build user-defined conditions and filters across different modules. The rules are built using Boolean expressions based on a custom query language. You can use the query language to build custom conditions or filters in the following modules:"
+    },
+    {
+      "item": "Filter in Dashboard",
+      "depth": 0
+    },
+    {
+      "item": "Conditions in Orchestration Rules",
+      "depth": 0
+    },
+    {
+      "item": "Event Filters in SIEM Integrations",
+      "depth": 0
+    },
+    {
+      "heading": "Query Syntax",
+      "level": 1
+    },
+    {
+      "text": "In ITDR, the queries for conditions and filters are built using Boolean expressions. The syntax is modeled based on Python Boolean expressions. A simple Boolean expression has the following syntax:"
+    },
+    {
+      "text": "<operand> <comparison_operator> <operand> <boolean_operator> <operand> ..."
+    },
+    {
+      "text": "where,"
+    },
+    {
+      "item": "operand can be an identifier, constant, or an expression that evaluates to a value. Examples of operands: x, 5, true, and false.",
+      "depth": 0
+    },
+    {
+      "item": "comparison_operator is used to compare two operands and returns a Boolean value (true or false) based on the comparison result. Comparison operators: == (equal to), != (not equal to), > (greater than), < (less than), >= (greater than or equal to), and <= (less than or equal to).",
+      "depth": 0
+    },
+    {
+      "item": "boolean_operator is used to combine multiple Boolean expressions and returns a Boolean value based on the combination. Boolean operators: and, or, and not.",
+      "depth": 0
+    },
+    {
+      "text": "In addition, you can use parentheses to group sub-expressions and establish the order of evaluation. They are useful when combining multiple Boolean expressions to create complex expressions. The following example is a complex expression:"
+    },
+    {
+      "text": "(attacker.ip is \"192.168.1.1\" and attacker.port > 200) or decoy.port > 200"
+    },
+    {
+      "text": "where,"
+    },
+    {
+      "item": "attacker.ip is an identifier.",
+      "depth": 0
+    },
+    {
+      "item": "is is a comparison operator.",
+      "depth": 0
+    },
+    {
+      "item": "\"192.168.1.1\" is a constant.",
+      "depth": 0
+    },
+    {
+      "item": "attacker.ip is \"192.168.1.1\" is an expression.",
+      "depth": 0
+    },
+    {
+      "item": "attacker.port > 200 is also an expression.",
+      "depth": 0
+    },
+    {
+      "item": "decoy.port > 200 is also an expression.",
+      "depth": 0
+    },
+    {
+      "text": "These three expressions are combined together using Boolean operators and/or to create a complex Boolean expression. In this example, the expression evaluates to true if the attacker.ip field is equal to \"192.168.1.1\" and attacker.port is greater than 200 or just decoy.port is greater than 200."
+    },
+    {
+      "heading": "Building a Query",
+      "level": 1
+    },
+    {
+      "text": "Based on your requirements, you can construct queries by using the appropriate values for each component, conforming to the syntax."
+    },
+    {
+      "item": "Fields",
+      "depth": 0
+    },
+    {
+      "item": "Fields are used as operands in the query. A field is always placed on the left side of a simple Boolean expression. Depending on the module, ITDR provides a list of supported values for fields. The fields can be of different data types. To fetch a list of supported values, type a relevant text in the query editor, and a list of all possible fields is shown in a drop-down menu.",
+      "depth": 0
+    },
+    {
+      "item": "The query editor is available in the following sections in ITDR:",
+      "depth": 0
+    },
+    {
+      "item": "Under Investigate, an interactive query builder is located on the top of the dashboard to filter dashboard items.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under the General section of the Rule Details window to create rule conditions: To access the Rule Details window, go to Orchestrate > Rules, and add (by clicking Add Rule) or edit (by clicking the edit icon) a rule.",
+      "depth": 1,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          33,
+          45
+        ],
+        [
+          94,
+          106
+        ],
+        [
+          121,
+          140
+        ],
+        [
+          163,
+          171
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under the General section of the SIEM integration details window to create filters for various SIEM integrations: To access the respective SIEM integration details window, go to Orchestrate > SIEM Integrations, and add a new integration (by clicking Add Integration and choosing a preferred solution) or edit (by clicking the edit icon) an existing integration.",
+      "depth": 1,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          178,
+          209
+        ],
+        [
+          250,
+          265
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The availability of fields varies between each module.",
+      "depth": 0
+    },
+    {
+      "item": "Operators",
+      "depth": 0
+    },
+    {
+      "item": "The rule engine in ITDR provides different types of operators to perform different operations, such as binary comparisons, bound tests, regular expression tests, and membership tests. You can build complex conditions and filters based on your requirements by using different supported operations.",
+      "depth": 0
+    },
+    {
+      "item": "Binary Comparisons",
+      "depth": 1
+    },
+    {
+      "item": "Binary comparisons are operations in which two operands are compared using different operators and a truth value is established. All comparison operators are binary operators. The general syntax of binary comparison expressions is:",
+      "depth": 1
+    },
+    {
+      "item": "<operand> <comparison_operator> <operand>",
+      "depth": 1
+    },
+    {
+      "item": "The following table lists all supported comparison operators with examples:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Operation",
+          "Operator",
+          "Alternative Keywords",
+          "Description"
+        ],
+        [
+          "Equality (comparison)",
+          "==",
+          "is",
+          "Checks if two values are equal or the same. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Example: attacker.ip is \"192.168.1.1\""
+        ],
+        [
+          "Lesser than or earlier (comparison)",
+          "<",
+          "less than or before",
+          "Checks if the value of the left side of the operator is lesser or occurs before the value on the right side of the operator. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Example: attacker.port less than 128"
+        ],
+        [
+          "Lesser than or equal to/before or equal to (comparison)",
+          "<=",
+          "Not applicable",
+          "Checks if the value of the left side of the operator is equal/lesser or occurs before the value of on the right side of the operator. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Example: attacker.score < 50"
+        ],
+        [
+          "Greater than or after",
+          ">",
+          "greater than or after",
+          "Checks if the value of the left side of the operator is greater or occurs after the value on the right side of the operator. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Example: decoy.port > 100"
+        ],
+        [
+          "Greater than or equal to/after or equal to (comparison)",
+          ">=",
+          "Not applicable",
+          "Checks if the value of the left side of the operator is equal/greater or occurs after the value on the right side of the operator. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Example: decoy.port >= 100"
+        ],
+        [
+          "Non-equality (comparison)",
+          "!=",
+          "is not",
+          "Checks if two values are not the same. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Example: decoy.type is not \"recon\""
+        ]
+      ]
+    },
+    {
+      "item": "Bound Tests",
+      "depth": 1
+    },
+    {
+      "item": "Bound tests are performed using ternary operators to check whether a given field (identifier) occurs (or does not occur) between two values (constants). The constants can be integers, fractional numbers, or dates. The general syntax of bound test expressions is:",
+      "depth": 1
+    },
+    {
+      "item": "<operand> <bound_operator> <constant_1> and <constant_2>",
+      "depth": 1
+    },
+    {
+      "item": "where,",
+      "depth": 1
+    },
+    {
+      "item": "operand is a field.",
+      "depth": 2
+    },
+    {
+      "item": "bound_operator is either between or not between based on the bound test.",
+      "depth": 2
+    },
+    {
+      "item": "constant_1 and constant_2 are any two supported constants.",
+      "depth": 2
+    },
+    {
+      "item": "The following table lists all supported bound test operators with examples:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Operation",
+          "Operator",
+          "Description"
+        ],
+        [
+          "Is within range?",
+          "between/and",
+          "Checks if the field value occurs between two constants. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Example: timestamp between '2023-10-12 12:22' and '2023-11-3 12:22'"
+        ],
+        [
+          "Is outside range?",
+          "not between/and",
+          "Checks if the field value is outside the range of two constants. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Example: decoy.port not between 50 and 100"
+        ]
+      ]
+    },
+    {
+      "item": "Symbols in binary comparison operators can be used as an alternative to keyword-based bound test operations. The binary comparison operators (<= and >=) can be used to define the range limits.",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Operation",
+          "Keyword-based bound test expression",
+          "Equivalent Expression"
+        ],
+        [
+          "Is within range?",
+          "timestamp between '10am' and '8pm'",
+          "timestamp >= '10am' and timestamp <= '8pm'"
+        ],
+        [
+          "Is outside range?",
+          "network.orig_bytes not between 2000 and 3000",
+          "network.orig_bytes >= 2000 and network.orig_bytes <= 3000"
+        ]
+      ]
+    },
+    {
+      "item": "Regular Expression Operators",
+      "depth": 1
+    },
+    {
+      "item": "The regular expression test allows you to compare a field value against a regular expression constant. The general syntax of the regex test expressions is:",
+      "depth": 1
+    },
+    {
+      "item": "identifier regex_operator regex_expression",
+      "depth": 1
+    },
+    {
+      "item": "where,",
+      "depth": 1
+    },
+    {
+      "item": "identifier is always a supported field.",
+      "depth": 2
+    },
+    {
+      "item": "regex operator is ~ or like.",
+      "depth": 2
+    },
+    {
+      "item": "regex_expression is any standard regular expression string.",
+      "depth": 2
+    },
+    {
+      "item": "Regular expressions can only be compared to string-type fields.",
+      "depth": 1
+    },
+    {
+      "item": "The regex operator checks if the field value on the left side of the operator matches with the regular expression on the right side of the operator.",
+      "depth": 1
+    },
+    {
+      "item": "For example, consider the following regex test expression:",
+      "depth": 1
+    },
+    {
+      "item": "web.method like /.*get.*/I",
+      "depth": 1
+    },
+    {
+      "item": "The expression checks if the value of web.method matches with the get string irrespective of the text case. An equivalent expression using the symbol is:",
+      "depth": 1
+    },
+    {
+      "item": "web.method ~ /.*get.*/I",
+      "depth": 1
+    },
+    {
+      "item": "The regular expressions are built using the JavaScript regex notation.",
+      "depth": 2
+    },
+    {
+      "item": "The regular expression constant follows the JavaScript notation of forward slashes at the beginning and the end. Example: /[0-9a-b]+(a|b)/.",
+      "depth": 2
+    },
+    {
+      "item": "The expression accepts flags that have the same meaning as Python's re flags.",
+      "depth": 2
+    },
+    {
+      "item": "I: Performs case-insensitive matching. Expressions like [A-Z] will match lowercase letters, too. This is not affected by the current locale configured in the Zscaler ITDR Admin Portal. To achieve this effect on non-ASCII Unicode characters such as ü and Ü, add the UNICODE flag. This flag is not supported in the Filters in Dashboard. However, you can use it in regular expression queries in conditions in Orchestration Rules, event filters in SIEM Integrations, and ThreatParse rules in Miragemaker.",
+      "depth": 3
+    },
+    {
+      "item": "L: Makes \\w, \\W, \\b, \\B, \\s, and \\S dependent on the current locale configured in the ITDR Admin Portal.",
+      "depth": 3
+    },
+    {
+      "item": "M: When specified, the pattern character ^ matches at the beginning of the string and at the beginning of each line (immediately following each newline), and the pattern character $ matches at the end of the string and at the end of each line (immediately preceding each newline). By default, ^ matches only at the beginning of the string, $ only at the end of the string, and immediately before the newline (if any) at the end of the string.",
+      "depth": 3
+    },
+    {
+      "item": "S: Makes the '.' special character match any character at all, including a newline; without this flag, '.' will match anything except a new line.",
+      "depth": 3
+    },
+    {
+      "item": "Membership Tests",
+      "depth": 1
+    },
+    {
+      "item": "The membership operation is used to check whether a value is within a string or list constant. The membership operators are binary operators and can have a constant or a field on either of the sides. However, at least one of the operands must be a field (identifier). The general syntax of the membership test expressions is:",
+      "depth": 1
+    },
+    {
+      "item": "operand_1 membership_operator operand_2",
+      "depth": 1
+    },
+    {
+      "item": "where,",
+      "depth": 1
+    },
+    {
+      "item": "operand_1 and operand_2 are either an identifier or a constant.",
+      "depth": 2
+    },
+    {
+      "item": "membership_operator is either in or not in.",
+      "depth": 2
+    },
+    {
+      "table": [
+        [
+          "Operation",
+          "Operator",
+          "Description"
+        ],
+        [
+          "Is a member?",
+          "in",
+          "Checks if a value is part of another string or list constant. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Examples: windows.Version in [5, 2] \"powershell\" in windows.CommandLine"
+        ],
+        [
+          "Not a member?",
+          "not/in",
+          "Checks if a value is not a part of another string or list constant. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Example: attacker.ip not in [\"10.10.2.2\", \"10.10.2.1\"]"
+        ]
+      ]
+    },
+    {
+      "item": "Logical Operators",
+      "depth": 1
+    },
+    {
+      "item": "The Boolean logical operators are used to combine two or more simple expressions to build compound Boolean expressions. The general syntax of Boolean expressions is:",
+      "depth": 1
+    },
+    {
+      "item": "expression_1 logical_operator expression_2",
+      "depth": 1
+    },
+    {
+      "item": "where,",
+      "depth": 1
+    },
+    {
+      "item": "expression_1 and expression_2 are simple Boolean expressions that independently evaluate to true or false.",
+      "depth": 2
+    },
+    {
+      "item": "logical_operator is either logical AND or logical OR.",
+      "depth": 2
+    },
+    {
+      "item": "The following table lists all supported logical operators with examples:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Operation",
+          "Operator",
+          "Description"
+        ],
+        [
+          "Logical AND",
+          "and",
+          "Checks if both sides of the operator evaluate to true. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Example: attacker.ip is \"192.168.1.1\" and attacker.port > 200"
+        ],
+        [
+          "Logical OR",
+          "or",
+          "Checks if either of the sides of the operator evaluates to true. If yes, the expression evaluates to true. Otherwise, the expression evaluates to false. Example: attacker.ip is \"192.168.1.1\" or decoy.port > 200"
+        ],
+        [
+          "Logical NOT",
+          "not",
+          "Inverts the truth value of a constant or an expression. If an expression or a constant evaluates to true, then the logical NOT operation changes the truth value to false and vice versa. Example: attacker.ip is not \"192.168.1.1\""
+        ]
+      ]
+    },
+    {
+      "item": "Operator Precedence",
+      "depth": 0
+    },
+    {
+      "item": "When building a compound Boolean expression, the rule engine must evaluate the expression starting from one of the operators. The rule engine uses the operator precedence to determine the order of evaluation as described in the following table:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Precedence (Rank)",
+          "Operators",
+          "Description"
+        ],
+        [
+          "1",
+          "between...and...",
+          "Ternary comparisons, including membership tests and identity tests"
+        ],
+        [
+          "2",
+          ">, after, greater than, >=, <, before, less than, <=, ==, is, !=, is not, in, not in, ~, like",
+          "Binary comparisons, including membership tests and identity tests"
+        ],
+        [
+          "3",
+          "and",
+          "Logical AND"
+        ],
+        [
+          "4",
+          "or",
+          "Logical OR"
+        ]
+      ]
+    },
+    {
+      "item": "Within a compound expression, the rule engine evaluates expressions from the highest-ranked operations and then proceeds to evaluate lower-ranked expressions.",
+      "depth": 0
+    },
+    {
+      "item": "Constants",
+      "depth": 0
+    },
+    {
+      "item": "ITDR supports different types of constants to build expressions for filters and rule conditions. The following table lists all types of supported constants:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Constant",
+          "Description"
+        ],
+        [
+          "True, true",
+          "Boolean True"
+        ],
+        [
+          "False, false",
+          "Boolean False"
+        ],
+        [
+          "null",
+          "Represents an undefined value"
+        ],
+        [
+          "1, 2,-3,...",
+          "Integer constant"
+        ],
+        [
+          "1, 0.1, -.2,...",
+          "Decimal constant"
+        ],
+        [
+          "\"something\"",
+          "String constant"
+        ],
+        [
+          "'2016-10-12T6:7:8Z'",
+          "DateTime constant"
+        ],
+        [
+          "'2016-10-9'",
+          "Date constant"
+        ],
+        [
+          "'6:7:8Z', '7am'",
+          "Time constant"
+        ],
+        [
+          "[1,2,\"test\",0.1]",
+          "List constant"
+        ]
+      ]
+    },
+    {
+      "item": "String constants are enclosed in double quotation marks.",
+      "depth": 1
+    },
+    {
+      "item": "Date, Time, and DateTime constants are enclosed in single quotation marks.",
+      "depth": 1
+    },
+    {
+      "item": "Dates cannot be extracted from the timestamp identifier in the Investigate module.",
+      "depth": 1
+    },
+    {
+      "item": "The format for date constant is timestamp::date is '2016-10-24'.",
+      "depth": 1
+    },
+    {
+      "item": "12 AM denotes midnight and 12 PM denotes noon.",
+      "depth": 1
+    },
+    {
+      "item": "List constants are enclosed in square brackets. Lists can be heterogeneous (containing items of different data types) or homogeneous (containing items of the same data type). However, heterogeneous lists are supported only in the Orchestrate module.",
+      "depth": 1
+    },
+    {
+      "item": "Lists cannot contain identifiers. However, it allows all constants including null. You can also have nested lists (lists within a list) and recursive lists (lists containing the same items). Example: [[\"Get-Alias\", \"Out-Default\"], [\"Get-Alias\"], \"Set-StrictMode\"].",
+      "depth": 1
+    },
+    {
+      "item": "The keyword now can be used with date and time constants to add or subtract values relative to the current date or time. Example: timestamp after 'now - 7 days' and timestamp between 'now - 2 hours' and 'now + 2 hours'.",
+      "depth": 1
+    },
+    {
+      "heading": "Single Constant or Identifier Expressions",
+      "level": 3
+    },
+    {
+      "item": "The simplest expressions you can write can contain simple constants such as:",
+      "depth": 0
+    },
+    {
+      "item": "true returns all events.",
+      "depth": 1
+    },
+    {
+      "item": "0 evaluates to false and returns nothing.",
+      "depth": 1
+    },
+    {
+      "item": "1 evaluates to true and returns all events.",
+      "depth": 1
+    },
+    {
+      "item": "\"Hello\" evaluates to false and returns all events.",
+      "depth": 1
+    },
+    {
+      "item": "false returns nothing.",
+      "depth": 1
+    },
+    {
+      "item": "[1,2,3] evaluates to true and returns all events.",
+      "depth": 1
+    },
+    {
+      "item": "null returns nothing.",
+      "depth": 1
+    },
+    {
+      "item": "While single constant expressions have no identifiers, they are still valid and are checked against all events. The evaluation of a single constant expression depends on whether the constant is truthful. The truthfulness of single constants is determined as follows:",
+      "depth": 0
+    },
+    {
+      "item": "Boolean true evaluates to true.",
+      "depth": 1
+    },
+    {
+      "item": "null is always false.",
+      "depth": 1
+    },
+    {
+      "item": "Integers other than 0 evaluate to true.",
+      "depth": 1
+    },
+    {
+      "item": "Decimals other than 0 evaluate to true.",
+      "depth": 1
+    },
+    {
+      "item": "Strings evaluate to true for non-empty strings.",
+      "depth": 1
+    },
+    {
+      "item": "Dates/times are always true.",
+      "depth": 1
+    },
+    {
+      "item": "Lists evaluate to true for non-empty lists.",
+      "depth": 1
+    }
+  ]
+}

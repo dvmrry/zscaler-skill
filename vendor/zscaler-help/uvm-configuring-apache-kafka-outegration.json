@@ -1,0 +1,421 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Apache Kafka Outegration",
+  "source": {
+    "url": "https://help.zscaler.com/uvm/configuring-apache-kafka-outegration",
+    "node": "1540205",
+    "revision": "3239000",
+    "updated": "2026-09-24",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Apache Kafka outegration is used to publish entity data from the Zscaler Security Operations (SecOps) platform applications (e.g., UVM) to an external Kafka topic, ensuring a secure and reliable data flow."
+    },
+    {
+      "text": "This article is a step-by-step guide to configuring the Kafka outegration."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before configuring the outegration, make sure you have met the following prerequisites:"
+    },
+    {
+      "item": "Create a Kafka topic.",
+      "depth": 0
+    },
+    {
+      "item": "A Kafka topic must be previously created and configured for each outegration.",
+      "depth": 0
+    },
+    {
+      "item": "Configure mTLS for authentication.",
+      "depth": 0
+    },
+    {
+      "item": "Authentication is handled via Mutual TLS (mTLS), where the SecOps platform and Kafka broker verify each other's certificates. To set up mTLS authentication, ensure that you retrieve the following to enter them in the corresponding fields during the outegration setup:",
+      "depth": 0
+    },
+    {
+      "item": "Client Private Key: Generate an RSA-2048 private key (size must be exactly 2048 bits) or ECDSA (size can be 256, 384, and 521 bits) in PEM format. This key can be optionally encrypted.",
+      "depth": 1
+    },
+    {
+      "item": "Key Password: Obtain the password to decrypt the private key. This is required only if the generated client private key is encrypted.",
+      "depth": 1
+    },
+    {
+      "item": "Client Certificate Chain: Create the complete certificate chain (client certificate followed by any intermediate Certificate Authorities) in PEM format.",
+      "depth": 1
+    },
+    {
+      "item": "Broker CA Certificate: Obtain the Kafka broker's Certificate Authority (CA) certificate in PEM format. This is necessary if your broker uses a private CA.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, refer to the Kafka documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Configure the isolation level.",
+      "depth": 0
+    },
+    {
+      "item": "Kafka outegration ensures exactly-once behavior by publishing via transactions. For consistent behavior, the isolation level must be explicitly configured with isolation.level=read_committed. Failure to set this property potentially results in consumers reading messages from rolled-back transactions, which can compromise data integrity.",
+      "depth": 0
+    },
+    {
+      "item": "Enable ACL rules.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that the Kafka cluster allows the transaction ID zscaler-producer-transactional in the ACL rules.",
+      "depth": 0
+    },
+    {
+      "item": "ACL Rules: kafka-acls.sh --bootstrap-server <your-broker-address>:<port> --add \\ --allow-principal 'User:provider-test-client' \\ --operation WRITE --operation DESCRIBE \\ --transactional-id 'zscaler-producer-transactional' kafka-acls.sh --bootstrap-server <your-broker-address>:<port> --add \\ --allow-principal 'User:provider-test-client' \\ --operation IDEMPOTENT_WRITE \\ --cluster",
+      "depth": 0
+    },
+    {
+      "item": "Configure the port in Internet & SaaS (ZIA).",
+      "depth": 0
+    },
+    {
+      "item": "In Internet & SaaS network configuration, port 9094 is the only authorized port open to all IP addresses for Kafka traffic. To request the opening of any new or additional ports, contact Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring the Kafka Outegration",
+      "level": 1
+    },
+    {
+      "text": "To configure the Kafka outegration, complete the following steps:"
+    },
+    {
+      "item": "Step 1: Authenticate the Kafka Connection (Connect)",
+      "depth": 0
+    },
+    {
+      "item": "To establish a secure connection with the Kafka cluster, you need to authenticate with the security certificates you previously generated.",
+      "depth": 0
+    },
+    {
+      "item": "In the SecOps platform, go to Configure > Outegrations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          39
+        ],
+        [
+          42,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create and select Kafka.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          24,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "The Connect step appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "In the Details section:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Display Name: Enter a name for the outegration.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Active: Enable to activate the Kafka outegration.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Bootstrap Servers: Enter the bootstrap endpoint in host:port format (e.g., kafka-broker1:9092, kafka-broker2:9092).",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Topic: Enter the name of the Kafka topic for publishing ticket details.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Authentication: Select an existing authentication ID, or click Create New to set up a new authentication and enter the required parameters you retrieved earlier into the corresponding fields.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          63,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Test in the bottom-right corner of the page to verify the connection.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "After the connection is verified, click Next to proceed to the Settings step.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          40,
+          44
+        ],
+        [
+          63,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Step 2: Configure the Outegration Visibility and Behavior (Settings)",
+      "depth": 0
+    },
+    {
+      "item": "In the Settings step of the outegration setup wizard, configure Kafka outegration's visibility and behavior within the SecOps platform. In this step, you'll set the SecOps entity that triggers the Kafka dispatch (e.g., ticket, policy violation).",
+      "depth": 0
+    },
+    {
+      "item": "To configure the outegration's visibility and behavior, in the Advanced Settings section, from the Create Kafka item from drop-down menu, select the entity that you want to configure the outegration for.",
+      "depth": 0,
+      "strong": [
+        [
+          63,
+          80
+        ],
+        [
+          99,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Step 3: Map the Outegration Fields (Mapping)",
+      "depth": 0
+    },
+    {
+      "item": "In the Mapping step, configure the field mapping between your SecOps ticket fields and Kafka record value fields.",
+      "depth": 0
+    },
+    {
+      "item": "The main objective of the mapping process is to map source fields with their corresponding Kafka record value fields. To do this, specify the source field on the left and the Kafka record value field on the right.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating a New Mapping",
+      "level": 2
+    },
+    {
+      "item": "To create a new mapping from a SecOps ticket to Kafka:",
+      "depth": 0
+    },
+    {
+      "item": "Configure the source field value (left):",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Click Mapping.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Click Add value on the left.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Field Editor appears.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the Field Editor, select one of the following methods to configure the value of the field:",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Field (Dictionary)",
+      "depth": 3
+    },
+    {
+      "item": "Expression",
+      "depth": 3
+    },
+    {
+      "item": "For use cases that require more advanced configuration, you can use the Expression Editor to configure the field value to be mapped to the target field.",
+      "depth": 3
+    },
+    {
+      "item": "Enter a value in the Kafka field (right).",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Repeat the mapping process for any Kafka field you want to map.",
+      "depth": 0
+    },
+    {
+      "item": "You can also set a SecOps ticket field as mandatory by selecting the Set as Mandatory checkbox in the Column Menu to the right of the mapping. Some fields can be set as mandatory by default.",
+      "depth": 0,
+      "strong": [
+        [
+          69,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Setting a field as mandatory guarantees that critical fields (e.g., Ticket Assignee) are always populated before a ticket is dispatched. Attempts to dispatch a ticket without a value in a mandatory field will trigger an error message.",
+      "depth": 0
+    },
+    {
+      "heading": "Previewing the Ticket to Kafka Mapping",
+      "level": 2
+    },
+    {
+      "item": "After completing the field mappings from SecOps ticket to Kafka record value fields dispatch mapping, preview the mapping to review the configuration. This helps ensure that ticket dispatch is behaving as expected and that the Kafka record fields are populated correctly.",
+      "depth": 0
+    },
+    {
+      "item": "To preview the mapping, click Preview on the bottom right of the data mapping fields. The Mapping Preview window appears. In the left of the Mapping Preview window, tickets in your account are listed and organized by ticket ID. You can select, filter, or search for tickets and preview the mapping to their corresponding Kafka record value fields. You can also open the actual ticket in a new tab for a more in-depth review.",
+      "depth": 0,
+      "strong": [
+        [
+          30,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "When the outegration setup is complete, you can begin dispatching SecOps alerts and events to Kafka. To learn more, see Creating & Managing Third-Party Tickets."
+    }
+  ]
+}

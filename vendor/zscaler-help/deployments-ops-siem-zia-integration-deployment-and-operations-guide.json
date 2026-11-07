@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "SIEM and ZIA Integration Deployment and Operations Guide",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-deployments-operations/siem-zia-integration-deployment-and-operations-guide",
+    "node": "1417481",
+    "revision": "3210262",
+    "updated": "2026-06-24",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide describes the benefits of integrating your security information and event management (SIEM) into Zscaler, and the steps necessary for configuring Zscaler Internet Access (ZIA) to work with your SIEM. With this integration, Zscaler can send logs related to web, firewall, DNS, and tunnel traffic to the SIEM. To learn more, see About Nanolog Streaming Service (NSS)."
+    },
+    {
+      "heading": "Value of SIEM Integration with ZIA",
+      "level": 1
+    },
+    {
+      "text": "Integrating a SIEM with ZIA provides the following benefits:"
+    },
+    {
+      "item": "Comprehensive real-time logging and visibility for all users and locations.",
+      "depth": 0
+    },
+    {
+      "item": "Facilitates compliance and event correlation.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Phase",
+      "level": 1
+    },
+    {
+      "text": "The deployment phase includes initially setting up and integrating Zscaler solutions into an existing network infrastructure. During the deployment phase, you configure ZIA to integrate with your SIEM. The following sections discuss the steps to deploy ZIA and SIEM integration."
+    },
+    {
+      "text": "There are primarily two ways Zscaler can send logs to the SIEM tool:"
+    },
+    {
+      "item": "Using Zscaler’s NSS. Zscaler uses NSS to send the logs to the SIEM. The NSS is a virtual device that sits between the Zscaler Cloud Nanolog cluster and the SIEM. NSS receives encrypted, compressed, and tokenized logs from the cloud and decrypts, uncompresses, and de-tokenizes them. Then NSS converts the logs into a format that the SIEM can process and sends it to the SIEM.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Using cloud-to-cloud log streaming. For customers with a SIEM deployed in the cloud (e.g., Splunk Cloud), Zscaler can send the logs to the cloud provider via HTTPS API.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "NSS appliances are included with the ZIA Essentials Edition or later. You can optionally add the following:"
+    },
+    {
+      "item": "For cloud NSS:",
+      "depth": 0
+    },
+    {
+      "item": "ZIA Transformational Edition and later.",
+      "depth": 1
+    },
+    {
+      "item": "Cloud NSS subscription.",
+      "depth": 1
+    },
+    {
+      "item": "For one-hour log recovery capability:",
+      "depth": 0
+    },
+    {
+      "item": "ZIA Transformational Edition and later.",
+      "depth": 1
+    },
+    {
+      "item": "NSS Log Recovery subscription.",
+      "depth": 1
+    },
+    {
+      "text": "Separate NSS appliances are required for web and firewall logging."
+    },
+    {
+      "heading": "Deployment Steps",
+      "level": 2
+    },
+    {
+      "text": "The following steps explain how to integrate ZIA and a SIEM system:"
+    },
+    {
+      "item": "Understand the SIEM infrastructure. Cloud-to-cloud logging is supported only if the SIEM infrastructure is in the cloud. Zscaler supports cloud-to-cloud logging only if the SIEM vendor supports API-based feeds.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Only applicable to NSS deployments:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Identify the correct sizing for the NSS. Depending on the size of the organization and the volume of traffic received by Zscaler, the size of the virtual appliance can vary. Ensure that the virtual machine (VM) is built based on the traffic volume:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Sizing guide for AWS.",
+      "depth": 2
+    },
+    {
+      "item": "Sizing guide for Azure.",
+      "depth": 2
+    },
+    {
+      "item": "Sizing guide for VMware.",
+      "depth": 2
+    },
+    {
+      "item": "Deploy the NSS. To learn more, see Deploying NSS Virtual Appliances.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Configure the NSS feeds. To learn more, see About NSS Feeds.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Configure firewalls to allow NSS traffic to pass through using the information on the Zscaler Cloud Configuration Requirements for your Zscaler Cloud (e.g., https://config.zscaler.com/<cloudname>/nss). To learn more, see What is my cloud name for ZIA?",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Configure cloud NSS feeds (only applicable to cloud NSS deployments).",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Considerations",
+      "level": 2
+    },
+    {
+      "text": "Review the following considerations:"
+    },
+    {
+      "item": "You cannot deploy NSS VMs in active-active mode, which means only one NSS server can connect to the cloud at a time. If you want fault-tolerant NSS deployment, deploy NSS in active-standby mode. In active-standby mode, the standby VM remains disconnected from the cloud and becomes active only when the other NSS is completely disconnected from the cloud. Two VMs using the same certificate to connect to the cloud can result in an inconsistent logging experience.",
+      "depth": 0
+    },
+    {
+      "item": "For a fault-tolerant active-active solution, Zscaler recommends subscribing to two NSS services for web and firewall, and running one VM for web and one VM for firewall logs.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler NSS buffers logs for up to one hour. If there is an interruption between the NSS and SIEM (e.g., if the SIEM is unavailable due to maintenance), NSS can buffer the logs for one hour. VM sizing is important to ensure accurate data.",
+      "depth": 0
+    },
+    {
+      "item": "Each NSS server can support a maximum of 8 configured NSS feeds in different formats to different SIEM IP addresses on different ports.",
+      "depth": 0
+    },
+    {
+      "heading": "Operations Phase",
+      "level": 1
+    },
+    {
+      "text": "This section describes common practices used to operate Zscaler solutions when integrated with your environment. You can monitor and tune ZIA and SIEM integration during the operations phase to meet your infrastructure needs."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "For ZIA and SIEM operations, complete the following prerequisites:"
+    },
+    {
+      "item": "Add NSS feeds for alerts to ensure that the operations team is alerted when there is an issue on NSS.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that the operations team can access the NSS server in case they need to troubleshoot issues.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that the NSS IP addresses are included in every relevant standard operating procedure (SOP) document.",
+      "depth": 0
+    },
+    {
+      "heading": "Common Troubleshooting Items",
+      "level": 2
+    },
+    {
+      "text": "The following list describes common issues related to ZIA and SIEM operation:"
+    },
+    {
+      "item": "Troubleshooting commands for NSS servers.",
+      "depth": 0
+    },
+    {
+      "item": "How to troubleshoot forbidden errors on Zscaler NSS that stop it from sending logs to Microsoft Cloud App Security (MCAS).",
+      "depth": 0
+    },
+    {
+      "item": "How to troubleshoot NSS cloud logs not getting received on Splunk Cloud.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment and Operations Checklist",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends downloading the ZIA SIEM Integration Deployment and Operations Checklist to help plan and implement ZIA and SIEM integration: Download PDF"
+    },
+    {
+      "heading": "Additional Information",
+      "level": 1
+    },
+    {
+      "text": "For more SIEM integration information and troubleshooting instructions, see the Zscaler Support Portal and the Zscaler Zenith Community."
+    }
+  ]
+}

@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.vm-operations",
+  "title": "Operating and troubleshooting a deployed NSS VM: the nss command set, error codes and connection checks",
+  "aliases": [
+    "nss cli",
+    "sudo nss",
+    "nss troubleshoot",
+    "nss test-firewall",
+    "nss collect-diagnostics",
+    "nss support-access",
+    "nss update error 96 97 99",
+    "nss install-cert"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.servers"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-network"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.reliability"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{sudo-only}}"
+    },
+    {
+      "label": "Service and network.",
+      "text": "{{lifecycle-commands}} {{network-commands}}"
+    },
+    {
+      "label": "Updates.",
+      "text": "{{update-commands}} {{update-error-codes}}"
+    },
+    {
+      "label": "Diagnosing.",
+      "text": "{{diagnostic-commands}} {{service-interface-probes}} {{verify-connections}}"
+    },
+    {
+      "label": "Support access.",
+      "text": "{{support-access}}"
+    },
+    {
+      "label": "SNMP and MCAS.",
+      "text": "{{snmp-and-mcas-commands}} {{nss-snmp-mibs}} The MIB article does not give the NSS admin-user command, only that the steps are identical to its Virtual Service Edge example {{gap:nss-snmp-admin-command}}."
+    },
+    {
+      "label": "Certificate and standby.",
+      "text": "{{certificate-handling}} {{passive-backup-not-started}} Standby and active-active layouts are in [[shared.nss.reliability]]."
+    }
+  ],
+  "claims": {
+    "sudo-only": {
+      "statement": "By default root login is not permitted on the NSS VM, so admins must use the sudo utility to run a command with higher privileges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "By default, root login is not permitted, so admins must use the sudo utility to run a command with higher privileges."
+          ]
+        }
+      ]
+    },
+    "lifecycle-commands": {
+      "statement": "`sudo nss start`, `sudo nss stop` and `sudo nss restart` control the service, and `sudo nss halt` shuts the OS down smoothly. `sudo nss enable-autostart` starts the NSS automatically after reboot and `sudo nss disable-autostart` disables that.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "sudo nss start",
+            "sudo nss stop",
+            "To smoothly shut down the OS:",
+            "sudo nss halt",
+            "To automatically start the NSS after reboot:",
+            "sudo nss enable-autostart",
+            "To disable the automatic start of the NSS after reboot:",
+            "sudo nss disable-autostart"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "sudo nss restart"
+          ],
+          "after": "To restart the service:"
+        }
+      ]
+    },
+    "network-commands": {
+      "statement": "`sudo nss configure` changes the network configuration (IP addresses, gateway information) for the service, `sudo nss configure --wipe` removes the network settings it configured, `sudo nss dump-config` displays the configuration file it changed, and `sudo nss reset-network` resets the network configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "To change the network configuration (i.e., IP addresses, gateway information) for the service:",
+            "To remove the network settings that were configured using the sudo nss configure command:",
+            "sudo nss configure --wipe",
+            "To display the configuration file that was changed using the sudo nss configure command:",
+            "sudo nss dump-config",
+            "To reset the network configuration:",
+            "sudo nss reset-network"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "sudo nss configure"
+          ],
+          "after": "To change the network configuration (i.e., IP addresses, gateway information) for the service:"
+        }
+      ]
+    },
+    "update-commands": {
+      "statement": "`sudo nss checkversion` checks whether a new NSS version is available, `sudo nss update-now` manually updates to the latest version, and `sudo nss force-update-now` forces the update regardless of whether a new version is available. After the first NSS software deployment, the software is automatically updated with new versions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "To check whether a new NSS version is available:",
+            "sudo nss checkversion",
+            "To force the NSS to update, regardless of whether a new version is available:",
+            "sudo nss force-update-now"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "sudo nss update-now"
+          ],
+          "after": "To manually update the NSS to the latest version:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "After the first NSS software deployment, the software is automatically updated with new versions."
+          ]
+        }
+      ]
+    },
+    "update-error-codes": {
+      "statement": "`sudo nss update-now` can return error code 96 (the client certificate is invalid), 97 (a timeout occurred while contacting the upgrade server) or 99 (a problem occurred while downloading and installing the latest version, and the force-update-now command needs to be explicitly issued).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "The following are error codes that you might encounter when executing the sudo nss update-now command:",
+            "| 96 | The client certificate is invalid. |",
+            "| 97 | A timeout occurred while contacting the upgrade server. |",
+            "| 99 | A problem occurred while downloading and installing the latest version. The sudo force-update-now command needs to be explicitly issued. |"
+          ]
+        }
+      ]
+    },
+    "diagnostic-commands": {
+      "statement": "`sudo nss test-firewall` does active firewall configuration probing by attempting to resolve the DNS names and establishing outbound connections to the Zscaler cloud, and does not reset the management IP interface, so it can be run on an SSH connection. `sudo nss troubleshoot netstat` shows the active connections on the service IP address. `sudo nss troubleshoot connection` probes the connection status over a period of time and indicates whether connections are stable or flapping. `sudo nss troubleshoot feeds` shows the status of the TCP, HTTP and Cloud NSS feeds and determines whether logs are queued due to slow consumption by the SIEM. `sudo nss collect-diagnostics` collects the configuration, vital statistics regarding the health of the NSS, and error statistics, and downloads them to a local file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "sudo nss test-firewall",
+            "This command does active firewall configuration probing by attempting to resolve the DNS names and establishing outbound connections to the Zscaler cloud. This command doesn't reset the management IP interface, so you can run it on an SSH connection.",
+            "sudo nss troubleshoot netstat",
+            "To show the active connections on the service IP address:",
+            "sudo nss troubleshoot connection",
+            "This command probes the connection status over a period of time and indicates whether the connections are stable or flapping.",
+            "sudo nss troubleshoot feeds",
+            "To show the status of the NSS feeds for TCP, HTTP, and Cloud NSS:",
+            "This command probes the status of the feeds and determines whether the logs are queued due to the slow consumption of logs by your security information and event management (SIEM).",
+            "sudo nss collect-diagnostics",
+            "This command collects the configuration, vital statistics regarding the health of the NSS, and error statistics, and then downloads the data to a local file."
+          ]
+        }
+      ]
+    },
+    "snmp-and-mcas-commands": {
+      "statement": "`sudo nss snmp-admin-configure` changes the SNMP admin user configuration, `sudo nss snmp-trap-configure` the SNMP trap configuration and `sudo nss snmp-community-string <community string>` sets the community string, and `sudo nss configure-mcas2` sets up and enables MCAS. The article says the NSS must be restarted with the sudo nss restart command for each change to take effect, and that MCAS can be re-enabled by re-issuing the sudo nss configure-mcas2 command.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "To change the SNMP admin user configuration:",
+            "sudo nss snmp-admin-configure",
+            "To change the SNMP trap configuration:",
+            "sudo nss snmp-trap-configure",
+            "sudo nss snmp-community-string <community string>",
+            "To set up and enable MCAS:",
+            "You can re-enable MCAS by re-issuing the sudo nss configure-mcas2 command."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "You must restart the NSS using the sudo nss restart command for the changes to take effect."
+          ],
+          "after": "sudo nss snmp-admin-configure"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "You must restart the NSS using the sudo nss restart command for the changes to take effect."
+          ],
+          "after": "sudo nss snmp-trap-configure"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "You must restart the NSS using the sudo nss restart command for the changes to take effect."
+          ],
+          "after": "sudo nss snmp-community-string <community string>"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "sudo nss configure-mcas2"
+          ],
+          "after": "To set up and enable MCAS:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "You must restart the NSS using the sudo nss restart command for the changes to take effect. To learn more, see Integrating with Microsoft Cloud App Security."
+          ]
+        }
+      ]
+    },
+    "support-access": {
+      "statement": "An admin can allow Zscaler Support to log in to their NSS server without opening a firewall connection for inbound traffic. The feature is disabled by default and must be enabled explicitly for the duration that remote support assistance is required. `sudo nss support-access-start` creates a long-lived SSH tunnel to the Zscaler cloud and sets up remote port forwarding, `sudo nss support-access-status` checks that tunnel and `sudo nss enable-remote-debugging` enables a remote debugging session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "An admin can request remote assistance and allow Zscaler Support to log in to their NSS server without having to open a firewall connection for inbound traffic. This feature is disabled by default and must be enabled explicitly for the duration that remote support assistance is required.",
+            "sudo nss support-access-start",
+            "This creates a long-lived SSH tunnel to the Zscaler cloud and sets up remote port forwarding.",
+            "sudo nss support-access-status",
+            "sudo nss enable-remote-debugging"
+          ]
+        }
+      ]
+    },
+    "service-interface-probes": {
+      "statement": "The troubleshooting article's Use Case commands check DNS resolution issues on the service interface and routes to the surface interface: `/sc/bin/smmgr -ys smnet='ping <IP address or Domain Name>'` checks reachability of an address using ICMP, `/sc/bin/smmgr -ys smnet=ifconfig` prints the interface IP address configuration, and `/sc/bin/smmgr -ys host=\"<FQDN of SIEM server>\" -ys port=<Listening port> -ys connect=tcp` checks the port reachability of a server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "You can use the following commands to check the DNS resolution issues on the service interface and routes to the surface interface:",
+            "To check the reachability of a server IP address using ICMP:",
+            "/sc/bin/smmgr -ys smnet='ping <IP address or Domain Name>'",
+            "To print the server interface IP address config details:",
+            "/sc/bin/smmgr -ys smnet=ifconfig",
+            "To check the communication or port reachability of a server:",
+            "/sc/bin/smmgr -ys host=\"<FQDN of SIEM server>\" -ys port=<Listening port> -ys connect=tcp"
+          ]
+        }
+      ]
+    },
+    "verify-connections": {
+      "statement": "A working NSS lists a connection to the Zscaler cloud on port 443, the control connection that authenticates the NSS to the Zscaler Central Authority and downloads the configuration, which is also the data connection to the Nanolog. It also lists a long-lived TCP connection to the SIEM on the specified log data port; with multiple feeds configured, multiple connections must be listed. The absence of either, even after waiting a few minutes, usually indicates a firewall configuration issue and the logs cannot be streamed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Connection to the Zscaler cloud on port 443: This is the control connection that is used to authenticate NSS to the Zscaler Central Authority (CA) and to download the configuration. It's also the data connection to the Nanolog so it can stream the logs.",
+            "Connection to the SIEM: This is the long-lived TCP connection to the SIEM on the specified log data port. If there are multiple feeds configured, multiple connections must be listed.",
+            "The absence of any one of the preceding connections, even after waiting a few minutes, usually indicates that there is a firewall configuration issue and the logs cannot be streamed."
+          ]
+        }
+      ]
+    },
+    "certificate-handling": {
+      "statement": "The AWS guide installs the SSL certificate with `sudo nss install-cert NssCertificate.zip` and says it must be installed on only one active NSS VM at a time, because several NSS VMs using one certificate cause cloud connection flapping that disrupts streaming. If the certificate is not removed from the VM, its file permission must be changed to readable only by the root user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "sudo nss install-cert NssCertificate.zip",
+            "Make sure that the SSL certificate is installed on only one active NSS VM at a time. Having multiple NSS VMs that use only one certificate causes cloud connection flapping, which disrupts the streaming of logs to the NSS.",
+            "If you do not remove the SSL certificate from the VM, you must change the file permission to be readable only by the root user."
+          ]
+        }
+      ]
+    },
+    "nss-snmp-mibs": {
+      "statement": "The NSS MIB bundle, NSSMIBS.tgz, contains ZSCALER-NSSFEED-MIB (information specific to NSS feeds) and ZSCALER-NSS-MIB (information specific to the NSS instance) along with ZSCALER-OSNIC-MIB, ZSCALER-PROCESSHEALTH-MIB, ZSCALER-PROCESSWATCHDOG-MIB, ZSCALER-ROLEHEALTH-MIB, ZSCALER-SWAPINFO-MIB and ZSCALER-ZSCALERNIC-MIB. The MIB article says the steps for configuring NSS are identical to its Virtual Service Edge example, and to use the nss status command for NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-accessing-zscaler-snmp-mibs.json",
+          "quotes": [
+            "| NSSMIBS.tgz | This file contains the following MIB files: ZSCALER-NSSFEED-MIB ZSCALER-NSS-MIB ZSCALER-OSNIC-MIB ZSCALER-PROCESSHEALTH-MIB ZSCALER-PROCESSWATCHDOG-MIB ZSCALER-ROLEHEALTH-MIB ZSCALER-SWAPINFO-MIB ZSCALER-ZSCALERNIC-MIB |",
+            "| ZSCALER-NSSFEED-MIB.mib | This module describes information specific to NSS feeds. |",
+            "| ZSCALER-NSS-MIB.mib | This module describes information specific to the NSS instance. |",
+            "The steps for configuring NSS are identical to the Virtual Service Edge example shown in this article.",
+            "For NSS, use the nss status command."
+          ]
+        }
+      ]
+    },
+    "passive-backup-not-started": {
+      "statement": "The AWS guide says to run sudo nss start unless the instance is planned for passive backup, and that it can take a few minutes for the NSS to start streaming logs to the SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Unless you are planning to use this instance for passive backup, run the command sudo nss start",
+            "It can take a few minutes for the NSS to start streaming logs to the SIEM."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "nss-snmp-admin-command": {
+      "kind": "semantic",
+      "title": "The NSS command for the SNMP admin user as the MIB article would give it",
+      "status": "open",
+      "detail": "The MIB article's admin-user command is vzen snmp-admin-configure, and it says only that the NSS steps are identical to its Virtual Service Edge example. The command for NSS in this subject is sudo nss snmp-admin-configure (snmp-and-mcas-commands); the NSS command is not inferred from 'identical'.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

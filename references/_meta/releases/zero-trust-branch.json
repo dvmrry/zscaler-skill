@@ -1,0 +1,784 @@
+{
+ "schema_version": 1,
+ "generated_by": "scripts/gen-releases.mjs",
+ "product": "zero-trust-branch",
+ "pages": {
+  "ztb-release-upgrade-summary-2025.json": {
+   "title": "Release Upgrade Summary (2025)",
+   "url": "https://help.zscaler.com/zero-trust-branch/release-upgrade-summary-2025",
+   "captured_at": "2026-11-04",
+   "releases": 8,
+   "entries": 9
+  },
+  "ztb-release-upgrade-summary-2026.json": {
+   "title": "Release Upgrade Summary (2026)",
+   "url": "https://help.zscaler.com/zero-trust-branch/release-upgrade-summary-2026",
+   "captured_at": "2026-11-04",
+   "releases": 10,
+   "entries": 11
+  }
+ },
+ "releases": [
+  {
+   "date": "2026-09-17",
+   "page": "ztb-release-upgrade-summary-2026.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.1.2-P1",
+     "body": [
+      "# Enhancements",
+      "## China Connection Proxy Support for Appliance Management (Preview)",
+      "Added support for Zero Trust Branch appliances deployed in mainland China to use dedicated China Connection Proxies instead of connecting directly to back-end infrastructure. Zero Trust Branch appliances in mainland China might not be able to reliably connect to their cloud back-end infrastructure, which can affect registration, receiving policy updates, reporting telemetry, and downloading upgrade images. The Zero Trust Branch back end now includes dedicated China Connection Proxies that use reliable premium connectivity to facilitate appliance-to-back end connectivity.",
+      "## Configurable TCP Idle Timeout for Private Access M-Tunnel",
+      "Added a configurable TCP idle timeout setting for Private Access (ZPA) Microtunnel (M-Tunnel). In warehouse environments, IoT and OT devices accessing private applications through Private Access could lose their sessions while moving between facility zones if transit times exceeded 10 minutes. When a session timed out, unsaved progress could be lost and users could be required to reauthenticate, reducing operational efficiency. This behavior also limited broader adoption of Private Access and Zscaler Branch Connector at sites running SAP warehouse applications. The TCP idle timeout is available under Connectivity > App Connectors (Private Access) > Private Access Settings on the Sites page and can be configured from the default of 10 minutes up to 60 minutes to better support IoT and OT devices and SAP warehouse applications.",
+      "## Factory Default Configuration Enables DHCP Client Mode on Additional WAN Ports",
+      "Updated the factory default configuration to enable DHCP client mode on additional WAN interfaces. Previously, DHCP client mode was enabled only on a limited subset of WAN interface ports, restricting out-of-box connectivity to those predesignated ports. For platforms with both SFP and non-SFP media types, one SFP port and one non-SFP port are selected. DHCP is enabled on the following ports:",
+      "| Appliance | Ports |",
+      "|---|---|",
+      "| ZT400 | ge3 |",
+      "| ZT600 | ge5 and ge6 |",
+      "| ZT800 | ge2 and ge7 |",
+      "| ZT8010 | ge2 and xe7 |",
+      "## Primary WAN Interface as a Tagged VLAN for Appliance Activation",
+      "Added support for configuring a VLAN tag on a physical WAN interface with static IP address for appliance activation. Previously, WAN interfaces did not support tagged VLANs for appliance activation.",
+      "Known caveats:",
+      "- DHCP is not supported with this configuration.",
+      "- The CLI might display 0.0.0.0 instead of the configured static IP address. However, this does not affect functionality.",
+      "- Zscaler Admin Console might display a duplicate entry for the primary WAN interface.",
+      "Tagged ebond interfaces are not supported for appliance activation.",
+      "# Resolved Issues",
+      "## Zero Trust Branch Appliance",
+      "- Fixed an issue where a corresponding release event might not be sent to the Zero Trust Branch cloud when a DHCP client declined an offered IP address (DHCPDECLINE), potentially resulting in stale IP assignment records. DHCPDECLINE packets trigger a corresponding DHCP release event that is uploaded to the Zero Trust Branch cloud, helping keep IP assignment records accurate. The fix includes changes to the appliance.",
+      "- Fixed an issue where switching the primary WAN interface from static addressing to DHCP could cause the appliance to fail to program the default route, potentially black-holing traffic. After the configuration is changed from static to DHCP, the appliance successfully issues a DHCP request, obtains an IP address from the new address pool, and automatically programs the corresponding default route. The fix includes changes to the appliance.",
+      "- Fixed an issue where, during migration from another DHCP server to Zero Trust Branch, clients attempting to renew an IP address previously assigned by a different DHCP server could incorrectly receive an ACK for an unavailable IP address, causing the client to lose connectivity. When the requested IP address is unavailable, the DHCP server sends a NAK, causing the client to request another IP address. Zero Trust Branch then allocates and offers a different available address from the correct scope, helping ensure seamless connectivity after migration. The fix includes changes to the appliance.",
+      "- Fixed an issue where the DHCP server could offer an IP address from the previous subnet scope when a DHCP client moved from one VLAN to another, causing the client to receive a NAK and fail to obtain an IP address on the new VLAN. The DHCP server uses the relay agent IP (GIADDR) to determine the correct scope for the offer and releases the stale lease from the old VLAN so that the IP address becomes available. The fix includes changes to the appliance.",
+      "- Fixed an issue where a DHCP profile with no DHCP options could trigger an exception in the internal process and prevent the updated DHCP configuration from being applied. Error handling for empty DHCP options has been updated so that no exception is thrown during DHCP configuration generation. As a workaround, configure a dummy, unused DHCP option in the DHCP profile. The fix includes changes to the appliance.",
+      "- Fixed an issue where an appliance using the hub3.goairgap.com:1883 proxy could appear disconnected in the Zscaler Admin Console after a power outage. IP address handling for hub3.goairgap.com after power outages has been corrected. As a workaround, remove the proxy configuration. The fix includes changes to the appliance.",
+      "- Updated SNMP access to disable SNMP by default on WAN and management interfaces. Previously, SNMPv3 was enabled and accessible on the WAN-facing interface, making the device discoverable and enumerable from the public internet and exposing it to unauthorized reconnaissance. SNMP is available on an in-band loopback interface. When an SNMP server IP address is configured, SNMP is enabled to listen for that server. The fix includes changes to the UI, back end, and appliance.",
+      "- Fixed an issue where validation did not prevent users from entering an invalid CIDR for the loopback management IP address. UI validation accepts only a /32 CIDR for the loopback management IP address and prevents invalid CIDR values. As a workaround, configure the loopback management IP address for the lo0 management interface with a /32 CIDR. The fix includes changes to the UI.",
+      "- Fixed an issue in the new Zscaler Zero Trust Branch Command Line Interface (ZCLI) where configuring the web proxy required the proxy URL to include the http:// or https:// scheme, which could cause proxy configuration to fail when using commands such as config web-proxy https://hub3.goairgap.com:1883. ZCLI proxy configuration handling has been updated so that the command works correctly. The fix includes changes to the appliance.",
+      "- Fixed an issue where the WAN IP address configured on an ebond interface could be lost when a member link was bounced on the peer side while a Virtual IP (VIP) address was enabled on the ebond. When a member link is now bounced on the peer side, the configured WAN IP address remains intact and only the affected member link goes down. If all member links go down, the ebond interface remains configured and its link status changes to Down. The fix includes changes to the appliance.",
+      "- Updated IP range validation for the Zero Trust Branch loopback management IP address (mgt_zone + lo0). Previously, customers could be prevented from placing the loopback management IP address within ranges that already existed elsewhere in their network. Because the loopback resides on the appliance itself as a single /32 and has no addressing relationship with the surrounding subnets, the previous overlap rule was too restrictive for some deployments. The loopback management IP address can be configured with any required IP address, including addresses within existing LAN VLAN ranges or private and reserved IP space such as RFC1918, RFC6598, RFC3927, and RFC1122. The specific IP address must not already be in use as an interface IP address on the same active and standby appliance pair. The fix includes changes to the UI.",
+      "- Fixed an issue where, under certain circumstances, the conntrack table used for stateful flow tracking could be incorrectly sized for the hardware form factor. In large deployments, this could cause the conntrack table to overflow and result in client disconnects. The methodology used to size the conntrack table has been improved so that it works correctly under all circumstances. The fix includes changes to the appliance.",
+      "- Fixed an issue where deleting a border gateway protocol (BGP) session through the UI could cause the API call to rely solely on the BGP session ID without a site qualifier, potentially deleting all BGP sessions with the same name across multiple sites. The BGP session delete API requires both cluster_id and bgp_id, ensuring site-scoped deletion and preventing accidental removal of same-named BGP sessions at other locations. The fix includes changes to the UI and back end.",
+      "- Fixed an issue where Primary WAN details might not be correctly auto-populated during the RMA process. When an existing appliance underwent RMA, the back end could append the cluster ID to an appliance name that was already suffixed, resulting in names such as appliance-219-219 instead of the expected appliance-219. Because the appliance name no longer matched the associated Primary WAN interface, the RMA standby appliance workflow could fail to identify the appliance or auto-populate its Primary WAN details. Appliance names are preserved during appliance creation, template deployment, and RMA operations, preventing the cluster ID from being appended multiple times. The fix includes changes to the UI and back end.",
+      "## Zero Trust SD-WAN",
+      "- Fixed an issue where admins might not be able to create a new site when the country name was set to The Netherlands. In this case, the Zscaler Admin Console could return the error: ZIAM SendLocationRequest error: Request body is invalid error. The Zscaler Admin Console allows site creation when the country is set to The Netherlands. The fix includes changes to the UI.",
+      "- Fixed an issue where, after a Workload Location was created, the IPSec tunnel could continue sending traffic to the existing Server Location. Traffic could continue to use the previous server-type Internet & SaaS (ZIA) location even after switching from a Server Location to a Workload Location. UI validation has been added to prevent this condition during the location switch workflow. The fix includes changes to the UI and back end.",
+      "- Fixed an issue where referencing Internet & SaaS location of type Corporate for a Zero Trust Branch site could result in a null value without displaying an error in the Zscaler Admin Console. Creating a Zero Trust Branch site through the API using an Internet & SaaS location of type Corporate fails with the following error: Error: 'location has unsupported profile type: CORPORATE. The fix includes changes to the back end.",
+      "- Fixed an issue where internet traffic loss could occur on some older appliances after the cloud was updated to version 8.1.2. The IPSec route table could become empty, causing traffic to use the default route table and potentially be sent over the WAN instead of the tunnel. This issue surfaced when the back-end API began sending configuration entries in timestamp order. The back-end API returns entries in their original order, and an additional check in the configuration mechanism prevents spurious default route churn in the IPSec routing table, ensuring stable, tunnel-based internet traffic forwarding. The fix includes changes to the back end and appliance.",
+      "- Updated the terminology on the Global Settings page for Zero Trust Branch in the Zscaler Admin Console to reflect the renaming of ZPA to Private Access. ZPA DNS is now displayed as Private Access DNS. The fix includes changes to the UI.",
+      "- Fixed an issue where App Connector DNS queries processed through DNS Proxy were not differentiated from other DNS clients. When App Connector attempted to resolve the FQDN of a target resource that was also configured as an Application Segment on the Zero Trust Branch appliance, DNS Proxy could return a synthetic IP address, including for locally configured applications or wildcard segments. Because App Connector might not route traffic through a synthetic IP address, this could result in connectivity failure and service disruption for the affected resource. DNS Proxy behavior has been updated so that App Connector queries might not resolve to synthetic IP addresses. This supports deployments where a wildcard Application Segment is pushed to the Zero Trust Branch appliance and customers want to use Private Access to connect clients between Zero Trust Branch VLANs instead of relying on direct routing between VLAN interfaces. As a workaround, in addition to Local Interface IPs, add 127.0.0.0/8 as a source in the DNS policy. The fix includes changes to the appliance.",
+      "- Fixed an issue where synthetic IP address DNS resolution caching could cause App Connector lookup failures. When a client behind a Zero Trust Branch appliance queried an FQDN and received a synthetic IP address, the resolution was cached in DNS Proxy. If App Connector subsequently attempted to resolve the same FQDN, DNS Proxy could serve the cached synthetic IP address instead of evaluating the DNS policy rule that redirects the query to the authoritative DNS server. Because App Connector might not route traffic through a synthetic IP address, the connection could fail. Because synthetic IP addresses are issued locally on the appliance by BZCC, DNS Proxy caching provides little value for these responses. Caching for synthetic IP DNS resolutions is disabled so that each DNS request is handled by the Private Access resolver. The fix includes changes to the appliance.",
+      "- Updated DNS policy fallback behavior. Previously, if a DNS query matched a DNS policy and the associated resolver could not resolve it, the request either fell back directly to the WAN DNS server or, following a later behavioral change, returned an error to the client to prevent private domain leakage. Although the error response prevented leakage, it affected deployments that relied on fallback resolution through the WAN DNS server. With this update, if a DNS query matches a policy and the configured resolver cannot resolve it, the system continues evaluating subsequent matching DNS policies. If another matching policy is found, that policy is applied. If no additional matching policy exists, the query falls back to the last rule, which uses the Private DNS server. Admins can continue to prevent private domain leakage by adding an explicit deny or drop DNS policy for sensitive domains after the resolver-based policy. The fix includes changes to the appliance.",
+      "- Fixed an issue where a hub could download new spokes but fail to correctly initialize them because of a race condition in which the appliance object was not ready when the spokes initiated Routed Tunnels to the hub. In some cases, the in-memory data could be empty when the hub attempted to initialize the spokes. The appliance refreshes the in-memory data and handles the new client information. The fix includes changes to the appliance.",
+      "## Usability and Reliability",
+      "- Fixed an issue where modifying the destination address or adding destination entries to a cloned Forwarding policy with a Routed Tunnel destination could unintentionally propagate the changes to the original source policy, resulting in unintended changes to the parent policy configuration. Cloned policy handling has been updated so that modifications to the cloned policy do not affect the original policy. The fix includes changes to the UI.",
+      "- Fixed an issue where sites were sorted by the site name instead of the displayed site name. Because the site name and displayed site name are separate site attributes, site sorting has been updated to use the displayed site name. The fix includes changes to the UI and back end.",
+      "- Fixed an issue where configured public subnets could be excluded from appliance routing after a service restart or software upgrade. Some customers use publicly routable IP address ranges on the LAN side as private IP space and add these ranges under Zero Trust Branch > Resources > Global Settings > Public IP Subnets in the Zscaler Admin Console so that they are treated as part of the private IP subnet. In some cases, after a service restart or software upgrade, these configured public subnets were not applied correctly, causing traffic destined for those public IP ranges to be routed to the internet instead of being locally routed through the private network. The back-end group membership initialization workflow correctly merges configured public subnet definitions into private subnet group attributes during startup. The merged IP group is automatically propagated to appliances after a back-end restart so that traffic for these subnets is routed locally as part of the private IP space without requiring manual intervention. As a workaround, admins can manually force a routing update by navigating to Zero Trust Branch > Resources > Global Settings > Public IP Subnets > Settings in the Zscaler Admin Console and clicking Save. The fix includes changes to the back end and appliance.",
+      "- Fixed an issue where assets with an assignment type of DHCP Relay were displayed correctly on the Asset Inventory page but showed an incorrect assignment type in the individual asset details view. The assignment type labels have been corrected so that DHCP, Static, Reserved, and DHCP Relay assignment types are displayed correctly. The fix includes changes to the back end.",
+      "- Fixed an issue where the Downloadable Versions / Available Versions drop-down menu in Appliance Version Manager could display only a partial list immediately after the page loaded. The drop-down menu is available only after the page finishes loading, ensuring that the full list is displayed. The fix includes changes to the UI.",
+      "- Fixed an issue where changes to VLAN settings, such as DHCP or subnet configuration, might not be reflected on the VLAN Status page. The VLAN Status page reflects changes made to the VLAN configuration. As a workaround, open the VLAN in edit mode to accurately view the current VLAN configuration details. The fix includes changes to the UI.",
+      "- Fixed an issue where customers might not be able to delete user-defined network group objects, such as CIDR-Zoom or CIDR-MSTeams, because the delete option in the Zscaler Admin Console could be disabled. The Zscaler Admin Console could incorrectly report that these objects were still referenced by Traffic Forwarding policies even when the configuration templates, sites, or appliances hosting those policies had already been deleted. The appliance configuration template removal process automatically and cleanly deletes all associated policy-based routing policies and rules. Object validation logic has also been improved to ignore references from deleted templates, deleted appliances, and other soft-deleted policies. The fix includes changes to the back end."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-09-09",
+   "page": "ztb-release-upgrade-summary-2026.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.8P5c",
+     "body": [
+      "# Resolved Issues",
+      "The following issues were resolved:",
+      "- Fixed an issue where an expired appliance certificate could prevent the appliance from establishing a secure outbound tunnel to Private Access (ZPA). In 8.0.x, the appliance certificate is valid for one year from the time the appliance is activated. However, certificate auto-renewal logic was not included in the 8.0.x image. Following certain events, such as an appliance upgrade or restart, a manual restart of the Private Access service, or a broker redirection initiated by the Private Access cloud, the appliance could attempt to reuse the expired certificate, resulting in Private Access traffic disruption. This fix restores automatic certificate renewal to prevent that condition.",
+      "- Fixed an issue where the DHCP server did not honor DHCPDECLINE messages from clients and could reassign declined IP addresses that were already in use, resulting in duplicate IP addresses. The DHCP server prevents declined IP addresses from being reassigned.",
+      "- Fixed an issue where some clients were assigned an Automatic Private IP Addressing (APIPA) when a DHCP Offer was not successfully received. In certain cases, lost DHCP Offer messages caused clients to retransmit DHCP Discover requests, which triggered unnecessary lease reallocation and increased DHCP processing activity. When conflict detection was enabled, this could lead to higher server load and noticeable processing delays."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-08-11",
+   "page": "ztb-release-upgrade-summary-2026.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.8P5b",
+     "body": [
+      "# Resolved Issues",
+      "The following issues were resolved:",
+      "- Fixed an issue where the DHCP server failed to parse Vendor Class Identifier (VCI) filters containing spaces, which prevented the server from offering all configured DHCP options and resulted in access points failing to receive IP addresses.",
+      "- Fixed an issue where the DHCP server incorrectly offered IP addresses from a customer's previous VLAN scope when a device transitioned between VLANs, resulting in assignment failures and endpoints defaulting to Automatic Private IP Addressing (APIPA).",
+      "- Fixed an issue where the ebondx WAN IP address failed to restore following a port channel bounce on the peer link.",
+      "- Fixed an issue where the DHCP server incorrectly acknowledged requested IP addresses that were already assigned to other clients, causing duplicate IP issues. The fix ensures the server now sends a DHCP Negative Acknowledgement (NAK) packet when a requested IP is unavailable, forcing the client to restart the DHCP process to obtain a unique address.",
+      "- Fixed an issue where DHCPDECLINE packets did not trigger a release event to the backend, resulting in stale or incorrect entries on the Assets page (Asset Intelligence > Assets)",
+      "- Fixed an issue where default routes were repeatedly added to and deleted from the IPSec route table, leading to intermittent internet connectivity issues.",
+      "- Fixed an issue where IP addresses were prematurely deleted from the lease table after a NAK was sent, which could lead to duplicate IP assignments. The fix ensures these IPs are moved to a \"ping-check-failed\" state for one hour to prevent them from being reassigned to other devices.",
+      "- Fixed an issue where the connection tracking (conntrack) table was incorrectly sized for the hardware form factor, preventing potential table overflows and client disconnects in large scale deployments."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-07-21",
+   "page": "ztb-release-upgrade-summary-2026.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.8P5a",
+     "body": [
+      "# Resolved Issues",
+      "The following issues were resolved:",
+      "- Fixed an issue where log retention enhancements, introduced by certain gateway upgrades in the 8.0.8P5 release, could cause the log upload step to fail silently post-upgrade on certain systems. The fix updates the log upload mechanism, ensuring rotated component logs are reliably uploaded.",
+      "- Fixed an issue where, on high availability (HA) standby gateways, intermittent changes in the standby DROP policy that were preventing border gateway protocol (BGP) peering until a switchover were causing the BGP neighbor state on routed tunnels to flap. The fix streamlines the DROP policy enforcement to prevent policy flaps and peering state bouncing.",
+      "- Fixed an issue where after certain service reboots, LAN-to-Private Access (ZPA) traffic could intermittently fail due to a missing default Private Access route or rule path on the Zero Trust Branch gateway. The fix enhances the periodic self-healing functionality to verify and restore the default Private Access default route, ensuring that the route is always present in the Private Access route table.",
+      "- Fixed an issue where some policy-based routing (PBR) rules were not programmed, which resulted in incorrect routing and forwarding policy behavior. The fix enhances PBR reconciliation, strengthening the resiliency of rules programming.",
+      "- Fixed an issue where PBR rules that match on destination app segments could fail to install on Zero Trust Branch appliances, especially on those where referenced app segments were missing, which resulted in routing issues for matching user traffic. The fix updates how this issue is handled in the PBR retry loop to ensure PBR rules are properly reconciled and installed.",
+      "- Fixed an issue where a gateway upgrade process incorrectly cleared the required web proxy configuration for certain system services, which resulted in syslog and telemetry upload mechanism failures. The fix ensures that the gateway upgrade process correctly restores the web proxy configuration for all system services.",
+      "- Fixed an issue where Zero Trust Branch could incorrectly provide 8.8.8.8 as the DNS server to endpoints instead of the VLAN-configured DNS on DHCPINFORM packets. The fix ensures that Zero Trust Branch now replies with the configured DNS server on DHCPINFORM packets.",
+      "- Fixed an issue where after a reboot, a timing issue sometimes caused the Open Shortest Path First (OSPF) configuration to apply before interfaces were fully operational, which prevented the configuration from being correctly applied and intermittently caused OSPF adjacency failures in Virtual Routing and Forwarding deployments. The fix updates the configuration reconciliation logic to handle these circumstances and ensures the OSPF configuration is properly applied on reboot."
+     ]
+    },
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.1.2",
+     "body": [
+      "Zero Trust Branch 8.1.2 includes all features introduced in 8.1.1. If you are upgrading from a version prior to 8.1.1, review the Zero Trust Branch 8.1.1 Release Notes before upgrading to assess potential impacts to your environment, especially the automatic advertisement for IP-based application segments to the LAN-side Layer 3 devices.",
+      "# New Features and Enhancements",
+      "The following enhancements were added as part of the Zero Trust Branch 8.1.2 release:",
+      "## DTLS-Based Internet & SaaS Connectivity Support and Location Enhancements",
+      "Added support for DTLS-based connectivity to Internet & SaaS, enabling secure, higher-throughput tunnels with automatic fallback to TLS when DTLS is unavailable. This update aligns new Zero Trust Branch deployments with Zero Trust Branch groups and sublocations to simplify branch onboarding while providing greater flexibility for transport options.",
+      "For existing sites, you can create a new location that supports Zscaler Tunnel (Z-Tunnel) and associate it with the site.",
+      "You can enable Zscaler Tunnel (Z-Tunnel) for a site on the Connectivity tab.",
+      "See image.",
+      "Use DTLS tunnels in Traffic Forwarding policy rules that are currently configured to use IPSec tunnels.",
+      "The following location enhancements were added:",
+      "- Support for location templates while adding new sites. This applies only for new deployments. Existing sites and appliances cannot be switched to new location types without full redeployment.",
+      "- See image.",
+      "- Location templates provide the default configuration for Internet & SaaS locations. When creating a new site, you can use the default location template. If required, you can create new locations from the Zscaler Admin Console before using those locations with a site.",
+      "- Beginning with version 8.1.2, the new locations created for Zero Trust Branch sites would create corresponding Internet & SaaS locations with VPN credentials with the Workload type. For these sites, you can switch from IPSec tunnel to Zscaler Tunnel (Z-Tunnel).",
+      "## Custom Internet & SaaS (ZIA) Gateway Objects Support",
+      "You can define custom ZIA Gateway objects to steer traffic to specific gateways for policy enforcement, performance, routing, regional compliance requirements, configure primary and secondary gateways with failover for resiliency, and pin sites to a gateway for troubleshooting.",
+      "After creating a custom ZIA Gateway, you must use it in the Forwarding policy. You can use up to two ZIA Gateways with a site.",
+      "See image.",
+      "## Support for Hub Deployment in Microsoft Azure and Amazon Web Services (AWS)",
+      "Added support for deploying a hub in AWS and Azure, with downloadable ISO, Virtual Hard Disk (VHD), and Open Virtual Appliance (OVA) images, helping standardize and accelerate cloud-based deployments while reducing manual setup.",
+      "For AWS, you must download the OVA image and convert it to Amazon Machine Image (AMI) using the AWS CLI.",
+      "You can access these images from Service Portal > Zero Trust Branch > Settings > ZTB Images.",
+      "## Support for China Deployments",
+      "Added support for China deployments in Zero Trust Branch, enabling consistent Zero Trust connectivity for branches in China, including support for bootstrap, provisioning, and back-end communications, custom Internet & SaaS (ZIA) gateway selection, connectivity to China public Internet & SaaS and Private Access data centers, and support for partner-hosted Private Access brokers.",
+      "For China-based sites, Zscaler recommends enabling the subcloud and using a custom ZIA Gateway to connect to China data centers. If the subcloud is not used, the Internet & SaaS connection might become unreliable and connections might be routed to data centers outside China.",
+      "## Support for Internet Group Management Protocol (IGMP) Querier",
+      "Added support for the IGMP Querier on Layer 2 VLANs, enabling the Zero Trust Branch appliance to periodically transmit IGMP Query messages and maintain multicast group membership for more reliable multicast traffic across VLANs.",
+      "See image.",
+      "The IGMP Querier supports IGMPv2 and IGMPv3. Ensure that the appropriate version is configured for your environment.",
+      "## Private Access (ZPA) Log Level Configuration",
+      "Added support for configuring ZPA log levels on Zero Trust Branch appliances.",
+      "See image.",
+      "ZPA Logs must be enabled only for active appliances.",
+      "## Management Interface Enhancement",
+      "Added support for both in-band and out-of-band management interfaces in Zero Trust Branch to provide stronger management-plane isolation. Admins can configure management access using a loopback interface within the main routing domain or a dedicated physical interface in a separate management Virtual Routing and Forwarding (VRF) instance for isolated access.",
+      "See image.",
+      "- If the management interface was reachable in existing versions via LAN or WAN, the management IP address becomes unreachable after the upgrade as it is moved to a separate VRF instance.",
+      "- A gateway must be configured on the management interface to allow access to Zero Trust Branch through the management interface from any network.",
+      "- If the management interface is used to monitor appliances using SNMP over Private Access, only active appliances can be monitored.",
+      "## Support for Link Layer Discovery Protocol (LLDP)",
+      "Added support for LLDP on Zero Trust Branch interfaces to discover neighboring devices and display device information, including device identity, port descriptions, OS versions, and management IP addresses, helping simplify troubleshooting and validate physical connectivity.",
+      "See image.",
+      "LLDP is enabled by default on LAN, HA, and management interfaces. You can enable it manually on other interfaces as needed. LLDP works only when the out-of-band management interface is configured.",
+      "## Border Gateway Protocol (BGP) Route Filtering",
+      "Added support for BGP prefix filtering using import and export maps to control inbound and outbound route advertisements.",
+      "See image.",
+      "The route map filters for both import and export options allow filtering by including or excluding IP prefixes.",
+      "See image.",
+      "The following limitations apply:",
+      "- Network object groups with FQDN members cannot be used for route filtering.",
+      "- Only one export and one import route-map is supported per BGP peer or neighbor.",
+      "- Only user-defined network object groups can be used in route-maps.",
+      "- Route matching supports only IP-based prefix lists. AS-PATH, MED, and Communities are not supported.",
+      "## System and WAN Health Monitoring",
+      "Added support for real-time and historical monitoring of tunnel, connectivity, system and WAN health, including appliance resource utilization, WAN bandwidth usage, interface state changes, and WAN performance metrics. Admins can monitor CPU, memory, disk usage, interface status, throughput, latency, jitter, packet loss, WANMon scores, and timestamped interface Up/Down events, and they can run on-demand WAN speed tests to validate link performance and troubleshoot connectivity issues.",
+      "See image.",
+      "## Weight-Based High Availability (HA)",
+      "Added support for weighted interface tracking in Zero Trust Branch HA deployments to enable weight-based failover decisions and reduce unnecessary failovers during transient WAN, interface, or service failures. The weigh-based failover tracks the following components:",
+      "| Category | Components |",
+      "|---|---|",
+      "| Services | agn-poller securedhcp-relay agn-dhcp-uploader agn-state-monitor |",
+      "| Processes | zcc-client |",
+      "| Containers | vyos_container policy_container dnsproxy_container zeek |",
+      "## Interface Enhancements",
+      "The following enhancements were made to improve interface configuration, status visibility, and connectivity validation:",
+      "- Added interface utilization metrics, throughput calculations, refresh controls, and administrative status management to the Interfaces page.",
+      "- See image.",
+      "- Added support to modify speed from the UI. This setting allows manual configuration of the interface speed using a drop-down menu with the following options:",
+      "  - GE Interface: Auto (default), 100M, 1G",
+      "  - XE Interface: Auto (default), 100M, 1G, 10G",
+      "  - Desired Duplex: This feature is provided to support connectivity with legacy equipment requiring specific duplex types. A drop-down menu offers the following options: Auto (default), Half, Full.",
+      "  - Desired MTU (Maximum Transmission Unit): A number input field where the maximum permissible value is 9000.",
+      "  - Admin Status: This control physically enables (Admin Up) or disables (Admin Down) the interface. Changing the administrative status also reflects in the link status. An Up (default) / Down toggle button is implemented for this purpose.",
+      "- See image.",
+      "## Appliance Admin Console",
+      "Added Appliance Admin Console, a command-line interface, for appliance management and troubleshooting, providing configuration (starts with config), operational (starts with run), and status or show (starts with show) commands with improved usability, mandatory password changes on first login, and audit logging to help prevent unintended shell access.",
+      "See image.",
+      "## Asset Enhancements",
+      "Added support for updating device and asset details through CSV import on the Assets page, including hostname, description, segmentation granularity, and supported curated attributes. CSV validation and per-row error reporting are also supported.",
+      "## Site Health Monitoring",
+      "The site Overview page includes the following widgets:",
+      "- Connectivity Health: Shows health status of Internet & SaaS IPSec tunnels. It also includes an option to probe Private Access endpoints to check if the endpoints are reachable from the site.",
+      "- Critical Services Health: Shows the status of various components of Zero Trust Branch.",
+      "See image.",
+      "## Low Bandwidth Mode Support",
+      "Added low bandwidth mode for Zero Trust Branch appliances running version 8.1.2 or later to optimize performance in bandwidth-constrained environments.",
+      "See image.",
+      "The following limitations apply when low bandwidth mode is enabled:",
+      "- Asset Discovery is disabled.",
+      "- Configuration updates can take up to an hour if the configuration control channel is unavailable.",
+      "- Requires manual configuration from Zscaler Support for a Private Access setting configuration.",
+      "## DHCP Enhancements",
+      "### Address Conflict Detection",
+      "Added a check to detect duplicate IP address conflicts before assigning DHCP leases, improving reliability and preventing IP address conflicts in the network.",
+      "See image.",
+      "### Support for DHCP Profiles (Per-VLAN) Option",
+      "Zero Trust Branch supports granular control over DHCP configurations with per-VLAN DHCP options, simplifying multi-VLAN deployments by allowing you to configure DHCP options on a per-VLAN basis for enhanced security and operational flexibility. This enhancement allows you to assign different DHCP options to different VLANs, ensuring that corporate devices receive necessary network information while guest devices are isolated from sensitive internal services. Each DHCP profile can be configured for either a DHCP Server (with custom options) or a DHCP Relay.",
+      "You can create a DHCP profile and associate it with a VLAN.",
+      "See image.",
+      "## Support for Zscaler Branch Connector Groups",
+      "Added support to associate Branch Connector groups with Zero Trust Branch sites for consistent policy application in Internet & SaaS and Private Access.",
+      "## Support for Internet & SaaS and Private Access Sublocations",
+      "Zero Trust Branch syncs with Zscaler Central Authority (CA) for obtaining sublocation definitions and applies labels to traffic origination from those locations within networks managed by Zero Trust Branch. This ensures Private Access differentiates traffic from network segments and applies policies for sublocation traffic originating from a Zero Trust Branch network.",
+      "See image.",
+      "## ENTITY-MIB Support",
+      "Added support for ENTITY-MIB for SNMP, which allows capturing host-level metrics, such as CPU and disk usage, through a host-based SNMP proxy service.",
+      "# UI Enhancements",
+      "The following UI enhancements were added:",
+      "- A new field (Comment) to support adding comments while configuring static routes.",
+      "- See image.",
+      "- Support for uploading networks and MAC addresses in bulk via CSV files to create objects.",
+      "- See image.",
+      "- Option to clone forwarding policies.",
+      "- See image.",
+      "- Option to filter security policies based on the Ransomware Kill Switch indicators.",
+      "- See image.",
+      "- Support to view (read-only) system default groups.",
+      "- See image.",
+      "- An Appliance Inventory page that automatically populates appliance hardware serial numbers and provides visibility into deployed devices and their status, simplifying appliance registration for Zero Touch Provisioning and improving operational oversight.",
+      "- See image.",
+      "# Resolved Issues",
+      "## Zero Trust Branch Appliance",
+      "- Fixed an issue where the airgap-dhcp-cli -a list leases command did not consistently display all active DHCP leases. The fix includes the changes to the appliance.",
+      "- Fixed an issue where the VyOS show interfaces command failed with the RuntimeError only one class can be registered for prefix 'ebond' type, preventing interface information from being displayed. The command works as expected. The fix includes the changes to the appliance.",
+      "- Fixed an issue where DHCP requests reached the appliance, but DHCP responses were not returned, preventing clients from obtaining IP addresses. The fix includes the changes to the appliance.",
+      "- Fixed an issue where the configured custom DHCP lease time was not applied to clients that did not request the IP Address Lease Time option in the DHCP Parameter Request List. The configured lease time is provided to DHCP clients regardless of whether the option is included in the request list. The fix includes the changes to the appliance.",
+      "- Added the Router ID per Appliance option to the OSPF routing page. This option enables each appliance in an HA pair to send LSAs using a separate router ID, allowing upstream routers to process them correctly and preventing route flapping. The fix includes the changes to the UI, back end, and appliance.",
+      "- Fixed an issue where iptables rules could intermittently fail to apply when the kernel was busy. The system retires failed rule updates to ensure the rules are applied successfully. The fix includes the changes to the appliance.",
+      "- Fixed an issue where the WAN VLAN ID was not included in the activation link, causing the WAN interface to default to VLAN 1 after Zero Touch Provisioning (ZTP) and preventing the VLAN from being changed. The activation link includes the WAN VLAN ID, allowing the appliance to apply the configured VLAN during activation. The fix includes the changes to the appliance.",
+      "## Zero Trust SD-WAN",
+      "- Fixed an issue where failover was not triggered when the primary WAN next hop is unreachable and no distribution method was configured.",
+      "- Fixed an issue where certain Zscaler IP addresses were not referenced in default routing policies.",
+      "- Fixed an issue where, after enabling DTLS, the virtual Zscaler Branch Connector name included both the site name and location name even when there was no naming conflict. The Branch Connector is created with the name of the Zero Trust Branch site name by default and uses the location name if there is a naming conflict. The fix includes the changes to the back end.",
+      "- Fixed an issue where RT routes were not fully advertised when a single hub served a large number of spoke sites. The fix includes the changes to the appliance.",
+      "- Added logs and UI notifications for route updates to best link and balanced policy-based routing tables. The fix includes the changes to the appliance.",
+      "- Fixed an issue where the latest WAN monitoring metrics, such as packet loss and latency, were not updated in the UI when the WANMON score change was below the configured threshold. Changed logic so the latest loss/latency/score are updated in the UI regardless of score difference. The fix includes the changes to the appliance.",
+      "- Fixed an issue where sublocation updates from Internet & SaaS (ZIA) could take up to 30 minutes to appear in Zero Trust Branch because manual synchronization relied on periodic polling. Added event-driven synchronization for the site-level Sync Sublocation action, allowing updates to be reflected in Zero Trust Branch within approximately 30 seconds. The fix includes the changes to the UI.",
+      "- Fixed an issue where traffic from the LAN could not reach Private Access (ZPA) because the Private Access route table (900) and the default route through zpa0 were missing. The zcc-client routing setup was fixed to configure route table 900 with a default route through zpa0. The fix includes the changes to the appliance.",
+      "- Fixed an issue where DNS queries could time out during deployment because 127.0.0.53 (systemd-resolved stub) was listed after public DNS servers (1.1.1.1 and 8.8.8.8), causing DNS lookups to bypass the stub and fail when the public DNS servers were blocked. The DNS configuration was reordered to prioritize 127.0.0.53 for both the system and container, ensuring that queries go through systemd-resolved before falling back to other DNS servers. The fix includes the changes to the appliance.",
+      "- Fixed an issue where the configured DNS server fallback did not occur when the first DNS server returned a NOTIMP response. The fix includes the changes to the appliance.",
+      "## Zero Trust Device Segmentation",
+      "- Fixed an issue where micro-subnets (previously known as Airgap+) configured on the VLAN interface were not added to DHCP scopes, causing them to overlap with the DHCP pool. As a result, the appliance-reserved /30 IP addresses were assigned to clients, and in some cases, clients received the appliance’s own /30 IP address. The DHCP logic was updated to prevent reserved IP addresses from being assigned to unauthorized MAC addresses and to prevent Airgap+ ranges from being configured within the DHCP pool. The fix includes the changes to the back end.",
+      "- Fixed an issue where Zeek could bind to an incorrect LAN interface when no VLAN-tagged networks were configured, causing deceive discovery to fail. Zeek selects the correct LAN interface in configurations without VLAN-tagged networks. The fix includes the changes to the appliance.",
+      "- Fixed an issue where changes to an asset’s segmentation were not reflected in the Assets table after using Update Assets. The fix includes the changes to the back end.",
+      "## Usability and Reliability",
+      "- Added support for collecting Zero Trust Branch appliance telemetry, including CPU, memory, disk, network, process, Docker, and Zero Trust Branch application metrics. Appliance metrics are collected using OpenTelemetry and sent to a centralized, multi-tenant telemetry platform for storage, querying, and monitoring. The fix includes changes to the back end, appliance, database, and infrastructure."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-06-08",
+   "page": "ztb-release-upgrade-summary-2026.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.8P5",
+     "body": [
+      "# Security and Appliance Hardening Fixes",
+      "As a leading zero trust security company that is a member of both Anthropic's Project Glasswing and OpenAI's Trusted Access for Cyber programs, Zscaler has paired its rigorous software development life cycle (SDLC) with frontier AI to surface new categories of risk that traditional security tools miss. These updates are validated, prioritized, and remediated through established SDLC processes by Zscaler ThreatLabz and Security Engineering.",
+      "Zscaler remains dedicated to the relentless hardening of our cloud environments and the Zero Trust Exchange (ZTE) against emerging threats. Release 8.0.8P5 incorporates a set of security fixes and internal improvements surfaced by frontier AI models. By design, Zero Trust Branch products are engineered in accordance with zero trust principles to eliminate the attack surface, ensuring they are inherently secure through their architecture. There is no evidence suggesting that any of the risks mitigated by these patches have been exploited.",
+      "As part of our managed operations, Zero Trust Branch management services are automatically updated to the latest version, requiring no manual intervention from customers.",
+      "For Zero Trust Branch appliances, this 8.0.8P5 release will be accessible as an upgrade option beginning June 2026, allowing customers to schedule the update according to their specific business requirements.",
+      "As part of an operational change beginning with this release, the CLI SHELL option is no longer available from the Airgap console for Zero Trust Branch appliances. This ongoing platform hardening does not affect the security or normal operation of the appliance.",
+      "# New Features and Enhancements",
+      "The following enhancements to Zero Trust Branch are supported as part of the 8.0.8P5 release:",
+      "- Option to change the admin password using the Zscaler Admin Console is added.",
+      "- See image.",
+      "- Option to change the IPSec remote endpoint (which was previously automatic) is added. To learn more, see Deploying a Zero Trust Branch Appliance.",
+      "# Resolved Issues",
+      "The following issues were resolved:",
+      "- Fixed an issue where failover was not triggered when the primary WAN nexthop was unreachable and the traffic distribution method was configured to None.",
+      "- Fixed an issue where concurrent thread race conditions caused unintended flushing of the FIREWALL-OUTPUT chain and resulted in recurring policy count mismatch alerts.",
+      "- Fixed an issue where security rules were reapplied unnecessarily and resulted in iptables updates occurring without configuration changes."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-06-05",
+   "page": "ztb-release-upgrade-summary-2026.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.8P4a",
+     "body": [
+      "# Resolved Issues",
+      "The following issues were resolved:",
+      "- Fixed an issue where adding a second WAN interface might remove ipsec0 established off the first WAN interface due to an incorrect, empty configuration, which resulted in a cleanup that deleted all IPSec interfaces and disconnected IPSec tunnels. The fix addresses incorrect, empty configurations so that interfaces are not deleted and tunnels stay connected.",
+      "- Fixed an issue where an IPSec API call for last_update_time caused a container to restart due to API failure recovery triggering configuration pull and processing, which resulted in noisy logs and potential tunnel flap. The fix changes the API failure recovery to avoid triggering configuration pull and processing without an actual config change event, thereby avoiding noisy logs and potential tunnel flap."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-04-13",
+   "page": "ztb-release-upgrade-summary-2026.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.8P4",
+     "body": [
+      "The following enhancements to Zero Trust Branch are supported as part of the 8.0.8P4 release:",
+      "# Dynamic DNS (DDNS) Updates for Windows Endpoints",
+      "DNS Proxy allows Windows DDNS update packets to be forwarded to private DNS servers based on the configured DNS policies. This ensures endpoints can successfully update DNS records after receiving an IP address from Zero Trust Branch and improves visibility during troubleshooting. The DNS Proxy plugin handles DDNS packets that the core DNS service manages, forwards Transaction Signature (TSIG) updates to the private DNS server, and sends DDNS updates over TCP 53 from the DNS Proxy container.",
+      "# Disable DNS Proxy Service Option for Device Segmentation",
+      "A new UI control has been added to enable or disable DNS Proxy Service for a site. This provides admins greater flexibility in DNS handling, simplifies troubleshooting, and ensures the appliance consistently applies the setting across the site.",
+      "See image.",
+      "FQDN-based policies are not enforced when DNS Proxy Service is disabled.",
+      "To learn more, see Managing Sites and Configuring a VLAN.",
+      "# App Connector Auto‑Recovery Status and Provisioning Key Usage Limits",
+      "A new status for invalid hardware IDs has been added to the App Connector page. This makes it easier for admins to identify hardware mismatch conditions. As a recovery measure, the appliance attempts to automatically reprovision the App Connector. During this auto-recovery process, the UI displays the state Re-provisioning App Connector. If the auto-recovery fails because the provisioning key utilization limit has been reached, the App Connector page instead shows Provisioning key utilization count exceeded, and the UI provides instructions to increase the Maximum Reuse of Provisioning Key setting in the Zscaler Admin Console.",
+      "See image.",
+      "# Resolved Issues",
+      "The following issues were resolved:",
+      "- Resolved an issue where the Intel Ethernet Controller (IEC) xe9 interface reset behavior on ZT8010 (as part of the ebond1 interface) could cause unexpected resets, improving link stability.",
+      "- Resolved an issue where management VLAN interfaces could reappear immediately after being removed in the UI, ensuring the UI reflects the intended configuration. To learn more, see Configuring a VLAN.",
+      "- Resolved an issue where WAN health monitoring scores could remain stuck at 0 until services were restarted, ensuring accurate score reporting without manual intervention.",
+      "- Resolved an issue where routes associated with disabled VLANs could be advertised over routed tunnels, preventing unintended route propagation. To learn more, see Configuring a VLAN.",
+      "- Resolved an issue where policy reordering could fail with an error, allowing successful rule reordering.",
+      "- Resolved an issue where CSV import for static routes could fail, restoring successful bulk route creation and updates.",
+      "- Resolved an issue where SNMP monitoring could stop functioning after an upgrade, restoring post-upgrade visibility.",
+      "- Resolved an issue where route sharing could occur for disabled VLANs, ensuring configuration and routing state remain consistent.",
+      "- Resolved an issue where policy-based routing rules could not be deleted on the Virtual Router Redundancy Protocol active appliance, ensuring configuration changes apply as expected.",
+      "- Resolved an issue where IPSec configuration might not update properly when the WAN interface IP address changed, preventing stale tunnel settings.",
+      "- Resolved an issue where disabling a non-primary WAN interface could cause complete IPSec traffic loss with tunnel traffic continuity.",
+      "- Resolved an issue where the appliance could generate an additional ServFail response when forwarding a successful No Error DDNS update response from the server.",
+      "- Resolved an issue where newly created App Connector objects could start in an incorrect Reprovisioning in Progress state.",
+      "- Resolved an issue where users were not redirected to the login page after logout or session timeout. To learn more, see Configuring the Authentication Session."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-03-17",
+   "page": "ztb-release-upgrade-summary-2026.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.8P3a",
+     "body": [
+      "# New Features and Enhancements",
+      "This release includes the following new features and enhancements to improve routing control and traffic management:",
+      "## Enhanced WAN Monitoring and Traffic Routing",
+      "Enhanced WAN monitoring allows for more granular control over WAN failover behavior. You can configure a Switchover Threshold within your routing policies to control the sensitivity of link-failover decisions. This threshold determines how tolerant the system is to minor network fluctuations before initiating a switchover, reducing unnecessary failovers and improving routing stability.",
+      "- When traffic distribution is set to Best, the appliance switches from the primary to the secondary link only when the difference in their performance scores exceeds the configured Switchover Threshold.",
+      "- When traffic distribution is set to Balanced, a link is removed from the Equal-Cost Multi-Path (ECMP) group only when its performance score degrades beyond the configured Switchover Threshold.",
+      "See image.",
+      "To learn more, see Managing Routing Policies.",
+      "## WAN Interface Prioritization for IPSec Tunnels",
+      "Zero Trust Branch allows defining a preferred order of WAN interfaces for establishing IPSec tunnels, which provides granular control over tunnel placement and ensures that traffic traversing IPSec tunnels prioritizes the highest-quality or lowest-cost links, while still maintaining automatic failover. This is beneficial for sites that have multiple WAN links with asymmetric bandwidth (e.g., a primary high-speed fiber connection and a secondary lower-speed LTE backup).",
+      "This capability applies to both IPSec tunnels to Zscaler Internet Access (ZIA) and site-to-site routed tunnels.",
+      "To learn more, see Configuring Zero Trust Branch Site-to-Site Connectivity Over Routed Tunnels and Secure Internet Access with Zscaler Zero Trust Branch.",
+      "## Granular Routing Control for DHCP Relay and System Traffic",
+      "A new UI option, Apply for locally generated traffic, has been added to the policy-based routing (PBR) rule configuration. When this option is enabled, it ensures that traffic originating from the appliance itself, such as DHCP relay packets, is correctly routed to the specified nexthop interface. This allows admins to precisely direct system-generated traffic, restoring full functionality for advanced routing topologies, in multiple Virtual Routing and Forwarding DHCP relay scenarios.",
+      "See image.",
+      "To learn more, see Configuring Zero Trust Branch Site-to-Site Connectivity Over Routed Tunnels, Configuring Routing Policies, and Configuring a High Availability Site with Virtual Router Redundancy Protocol.",
+      "# Security Updates",
+      "This release includes the following updates to enhance appliance security and connection reliability:",
+      "## Security Hardening for WAN Interface ICMP Handling",
+      "The security posture of the Zero Trust Branch appliance has been significantly enhanced. Firewall rules on WAN interfaces are updated to drop all unsolicited ICMP Echo Requests. As a result, the appliance processes only ICMP Echo Replies associated with a session that the Zero Trust Branch appliance itself initiated. This change hardens the appliance against external reconnaissance and minimizes its overall attack surface.",
+      "This change does not affect essential ICMP messages required for network diagnostics, such as Path MTU Discovery.",
+      "To learn more, see Understanding Firewall Policies and Using the Zero Trust Branch CLI Console.",
+      "## Enhanced IPSec Tunnel Reliability for ZIA Connectivity",
+      "The stability of IPSec tunnels connecting the Zero Trust Branch appliance to Zscaler Internet Access (ZIA) has been improved to prevent intermittent disconnections.",
+      "The appliance's firewall rules allow inbound IKE (UDP port 500) and IPSec NAT-Traversal (UDP port 4500) traffic on its WAN interfaces. These firewall rules are strictly limited to allowing traffic only from the specific ZIA VPN gateway IP addresses configured for the tunnel, ensuring all necessary IPSec control communications are processed correctly.",
+      "To learn more, see Configuring Zero Trust Branch Site-to-Site Connectivity Over Routed Tunnels and Secure Internet Access with Zscaler Zero Trust Branch.",
+      "# Resolved Issues",
+      "This release includes the following resolved issues:",
+      "## Updated ZIA Gateway Endpoint Discovery for Enhanced Cloud Compatibility",
+      "The Zero Trust Branch management service has been updated to use public Zscaler Internet Access (ZIA) gateway endpoints for all API communications. This change aligns with a broader Zscaler cloud update that restricts the use of legacy private endpoints, ensuring continued seamless connectivity and service availability between Zero Trust Branch appliances and the ZIA cloud.",
+      "If your environment has an upstream firewall with highly restrictive outbound rules, you must ensure that your firewall policies allow connections to the public ZIA gateway IP addresses for your Zscaler cloud. Failure to do so might prevent the establishment or maintenance of IPSec tunnels to ZIA.",
+      "To find the latest ZIA IP address ranges for your cloud, see the Zscaler documentation.",
+      "To learn more, see Secure Internet Access with Zscaler Zero Trust Branch and Understanding Firewall Policies.",
+      "## Resolved DHCP Relay Failures After VLAN Interface Flaps",
+      "The DHCP relay service has been enhanced to be more resilient. It can dynamically handle changes to the underlying interface identifier, ensuring that it automatically recovers and resumes processing DHCP requests after a link flap event, improving service reliability and removing manual intervention.",
+      "To learn more, see Configuring a VLAN.",
+      "## Improved DNS Request Processing in Multi-VRF Environments",
+      "The DNS logic has been corrected to ensure requests are routed to and processed by the DNS service associated with their originating Virtual Routing and Forwarding (VRF), restoring proper DNS functionality across all multiple VRF deployments.",
+      "To learn more, see Configuring a High Availability Site with Virtual Router Redundancy Protocol and Adding a Border Gateway Protocol to a Site.",
+      "## Corrected Stale Interface Entries After VRF Deletion",
+      "Network interfaces associated with a custom Virtual Routing and Forwarding (VRF) are correctly removed from the internal routing policy set (ipset) after the VRF deletion. The configuration cleanup process has been corrected to ensure interfaces are reliably removed when a VRF is deleted, ensuring routing and DNS policies are applied correctly.",
+      "To learn more, see Configuring a High Availability Site with Virtual Router Redundancy Protocol and Adding a Border Gateway Protocol to a Site.",
+      "## Resolved ZPA Connectivity Failures After RootFS Upgrade",
+      "This release ensures stable Zscaler Private Access (ZPA) connectivity for Zero Trust Branch appliances upgraded using the RootFS method. It corrects an issue in the 8.0.8P2 version, where an incorrect internal Zscaler Client Connector binary in that RootFS image prevented the required zpa0 network interface from being created. The RootFS upgrade process has been repaired by using the corrected client binary, ensuring ZPA connections remain stable after the upgrade.",
+      "To learn more, see Upgrading Zero Trust Branch Appliances in Standalone Deployments and Upgrading Zero Trust Branch Appliances in an HA Cluster.",
+      "## Resolved Issues with Missing Routing Policies Due to API Call Timeouts",
+      "This release ensures routing policies are consistently applied on the appliance."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-02-18",
+   "page": "ztb-release-upgrade-summary-2026.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.1.1",
+     "body": [
+      "The following enhancements to Zero Trust Branch are supported as part of the 8.1.1 release:",
+      "# Support for Private Access (ZPA) Microtenants",
+      "You can register Zscaler Zero Trust Branch with a ZPA Microtenant while provisioning the Zero Trust Branch site. This allows Zero Trust Branch to access application segments from that Microtenant. If you registered Zero Trust Branch with a non-default Microtenant, Zero Trust Branch can also access application segments from the default Microtenant.",
+      "You can register App Connectors that are integrated with Zero Trust Branch with the same ZPA Microtenant as Zero Trust Branch. When you configure the App Connector, simply copy and paste the provisioning key that belongs to the Microtenant.",
+      "A Microtenant must be configured in Private Access before you can select it in the Zero Trust Branch Admin Portal during site provisioning.",
+      "See image.",
+      "To learn more, see About Microtenants, Configuring Microtenants, and Zero Trust Branch Support for Microtenants.",
+      "# UI Enhancements",
+      "The updated menu on the site details page, with its new vertical, simplified left-side navigation, provides a more intuitive user experience and consistency with other Zscaler user interfaces.",
+      "See image.",
+      "# Support for Active-Active App Connector",
+      "Private Access App Connectors are fully supported in the new active-active high availability (HA) deployment mode. When an App Connector sends traffic through the standby appliance, the traffic is correctly routed and source-NATed through the active appliance, ensuring that return traffic is properly handled and connectivity is maintained.",
+      "To learn more, see Creating a Zero Trust Branch Enhanced WAN Edge High Availability Cluster.",
+      "# WAN Appliance Active-Active High Availability Deployment",
+      "Zero Trust Branch supports an enhanced HA deployment mode for WAN appliances. This enables an active-active WAN configuration using an enhanced HA template and provides new routing options within the forwarding policy settings.",
+      "See image.",
+      "Enhanced HA is not supported for the following deployments:",
+      "- Subnets that are not connected to Zero Trust Branch",
+      "- ZT400 appliances",
+      "- Zero Trust Branch VM deployments",
+      "To learn more, see Creating a Zero Trust Branch Enhanced WAN Edge High Availability Cluster and Adding App Connectors to a Site.",
+      "# Static Mapping of FQDN App Segment to Synthetic IP Addresses",
+      "For organizations with multiple Zero Trust Branch sites across different data centers in an active-active configuration, Zero Trust Branch supports static mapping of FQDN-based application segments to their synthetic IP addresses (from the 100.70.0.0/16 range). This ensures the synthetic IP address for a given application remains consistent across all Zero Trust Branch clusters, preventing traffic drops.",
+      "To learn more, see What Are Site DNS Policies? and Understanding Private Application Connectivity for Branches.",
+      "# VLAN Configuration and UI Terminology Enhancements",
+      "The Zero Trust Branch Admin Portal is updated to improve clarity.",
+      "- In the Add VLAN drawer:",
+      "  - Airgap VLAN is renamed to VLAN.",
+      "  - Separate toggles for independently configuring DHCP and Device Segmentation replace the DHCP drop-down menu.",
+      "- On the Assets page:",
+      "  - Airgapped is renamed to Segmentation.",
+      "  - Protection Type is renamed to Segmentation Type, and values updated:",
+      "    - Airgap-Lite is renamed to Network Segmentation.",
+      "    - Airgap is renamed to Device Segmentation.",
+      "    - Airgap+ is renamed to Microsubnet Segmentation.",
+      "- On the Policies page:",
+      "  - Airgap Network is renamed to ZTB Network.",
+      "  - Airgap Isolation Violation is renamed to Isolation Violation.",
+      "- On the UI and console references:",
+      "  - Assets by Protection is renamed to Assets by Segmentation.",
+      "  - Airgap Networks Gateway is renamed to Zero Trust Branch Appliance. In the Zero Trust Branch Appliances:",
+      "    - Activate Gateway is now Activate Appliance.",
+      "    - Configure Gateway is now Configure Appliance.",
+      "    - Show Gateway Status is now Show Appliance Status.",
+      "    - Airgap Gateway Configuration is now Zero Trust Branch Appliance Configuration.",
+      "- In the CLI, the primary command to access the console is renamed from airgap-console to ztb-console.",
+      "See image.",
+      "To learn more, see the following:",
+      "- Configuring a VLAN",
+      "- Understanding Protection Solutions",
+      "- Managing Your Assets",
+      "- Understanding Routing Policies",
+      "- Configuring Airgap-Lite Mode for Assets",
+      "- Using the Zero Trust Branch Debug Console for Troubleshooting",
+      "- Upgrading Zero Trust Branch Appliances in an HA Cluster",
+      "- Upgrading Zero Trust Branch Appliances in Standalone Deployments",
+      "- Creating a Zero Trust Branch High Availability Cluster",
+      "# BGP Advertisement for Private Access Synthetic IP Addresses",
+      "Zero Trust Branch supports the advertisement for Private Access synthetic IP address ranges into the LAN-side network via the border gateway protocol (BGP). For example, this enables routing of traffic from print servers in data centers to printers located at branch sites, so that the print servers can send print job traffic to Zero Trust Branch.",
+      "To learn more, see Adding a Border Gateway Protocol to a Site and Understanding Private Application Connectivity for Branches.",
+      "# Firewall Rule Restoration for Zero Trust Branch Appliances",
+      "The upgrade process is improved to ensure default rules, which are required for stateful connections and management access, are correctly restored, preventing connectivity loss."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-01-21",
+   "page": "ztb-release-upgrade-summary-2026.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.8P2",
+     "body": [
+      "The following enhancements to Zero Trust Branch are supported as part of the 8.0.8P2 release:",
+      "# Firewall Rule Restoration for Zero Trust Branch Appliances",
+      "The upgrade process is improved to ensure all required rules are restored successfully, preventing connectivity loss and ensuring stable operation post-upgrade.",
+      "To learn more, see Understanding Zero Trust Branch Software Upgrades.",
+      "# Improved Reliability for ZPA Integration and Provisioning",
+      "An acknowledgment mechanism has been introduced that allows the gateway to confirm successful provisioning and certificate persistence. If provisioning fails, the system allows reprovisioning by deleting and recreating the certificate on Zscaler Private Access (ZPA), so the gateway can retrieve missing files and establish reliable outbound connectivity.",
+      "# Improved DHCP Relay Stability for Inactive VLANs",
+      "The DHCP relay is improved by consolidating per-interface socket renewal logic to eliminate a race condition that could stop assigning the IP addresses on VLANs left inactive for extended periods, ensuring the DHCP relay service remains stable and reliably provides IP addresses across all configured VLANs.",
+      "To learn more, see Configuring a VLAN.",
+      "# Correct Display of High Availability Status After Upgrade",
+      "The upgrade logic has been corrected to address an issue that could cause an incorrect high availability (HA) status to be displayed in the portal after an upgrade.",
+      "To learn more, see Understanding Zero Trust Branch Software Upgrades and Creating a Zero Trust Branch High Availability Cluster.",
+      "# Improved Stability for Bonded Ethernet Interfaces",
+      "The sequence and logic for applying untagged VLAN configuration to bonded Ethernet (ebond) interfaces in high availability (HA) deployments have been updated to ensure stable operation for bonded LAN interfaces. The bonded interface uses the hardware MAC address of its first member link, providing a unique MAC address for each appliance, preventing MAC flapping on the connected switch, and avoiding related traffic interruptions.",
+      "To learn more, see Creating a Zero Trust Branch High Availability Cluster and Configuring a VLAN.",
+      "# Stable Traffic Forwarding for PBR in Balanced Mode",
+      "The policy-based routing (PBR) logic is updated to ensure that the Balanced mode identifies and removes down WAN links from its routing tables, preventing traffic interruptions during ISP outages or when a WAN nexthop is down.",
+      "To learn more, see Understanding Routing Policies and Configuring Routing Policies.",
+      "# Improved ZPA Service Stability on Appliance Startup",
+      "The appliance startup logic has been improved to ensure the Zscaler Private Access (ZPA) client initialization service starts only after a default route is present on the primary WAN interface. This change avoids a timing condition that could prevent the service from initializing, ensuring reliable ZPA connectivity.",
+      "To learn more, see Understanding Private Application Connectivity for Branches."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2025-12-22",
+   "page": "ztb-release-upgrade-summary-2025.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.8P1",
+     "body": [
+      "# Resolved Issues",
+      "The following issues were addressed:",
+      "- Resolves an issue where deleting a Virtual Routing and Forwarding (VRF) configuration from the Zero Trust Branch Admin Portal did not remove the corresponding interface binding.",
+      "- Resolves an issue where DHCP Option 43 did not support hexadecimal values, preventing correct configuration of devices that require hex-encoded option data.",
+      "- Resolves an issue where DNS proxy regex was case sensitive, causing domain-matching failures.",
+      "- Resolves an issue where configuring VLAN or VRF on GE interfaces could fail due to automatic IPv6 link-local address assignment.",
+      "- Resolves an issue where ebond interfaces could not be configured using the Airgap terminal interface, preventing ebond from being used as a primary WAN interface.",
+      "- Resolves an issue where DNS policy did not allow underscore (_) characters in domain objects, preventing configuration of SRV records."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2025-12-09",
+   "page": "ztb-release-upgrade-summary-2025.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.8",
+     "body": [
+      "# Resolved Issues",
+      "The following issues were resolved:",
+      "- Resolves a rare threading issue in the configuration daemon that could cause some internal processes to restart unexpectedly.",
+      "- Resolves an issue where both appliances in high availability (HA) deployment retained a Virtual Router Redundancy Protocol (VRRP) priority of 254 after the 8.0.7 upgrade.",
+      "- Resolves an issue where DHCP lease sync might stop working between the HA units."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2025-11-07",
+   "page": "ztb-release-upgrade-summary-2025.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.7",
+     "body": [
+      "The following enhancements to Zero Trust Branch are supported as part of the 8.0.7 release:",
+      "# Remote Support Access",
+      "You can grant Zscaler Support personnel temporary super admin-level access to the Zero Trust Branch Admin Portal to assist with troubleshooting and configuration reviews. This access is strictly time bound, manually configured and activated by the admin only when required, and automatically revoked after the session expires. All actions performed during the remote session are fully audited to maintain transparency and security.",
+      "You can grant or revoke remote support access from the Zero Trust Branch Admin Portal (user profile drop-down menu > Remote Support Access).",
+      "See image.",
+      "To learn more, see Managing Remote Support Access."
+     ]
+    },
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.7 Preview",
+     "body": [
+      "The following enhancement to Zero Trust Branch is supported for Preview as part of the 8.0.7 release:",
+      "# Use Root FS Upgrade Method",
+      "The Use Legacy Method to Change Version option is renamed to Use Root FS Upgrade Method.",
+      "See image",
+      "To learn more, see Understanding Zero Trust Branch Software Upgrades, Understanding Zero Trust Branch Software Upgrades, and Upgrading Zero Trust Branch Appliances in an HA Cluster."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2025-10-28",
+   "page": "ztb-release-upgrade-summary-2025.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.6",
+     "body": [
+      "The following enhancements to Zero Trust Branch are supported as part of the 8.0.6 release:",
+      "# Gateway Version Manager",
+      "When you click the Upgrade available icon for a site, the Gateway Version Manager panel opens and provides a rich set of options:",
+      "- You can perform upgrade operations on a per-gateway basis.",
+      "- As the operations progress, you can observe the gateway status change (e.g., Initializing, Restarting, Standalone, Active, Standby) and the download and activation percentages complete.",
+      "- You can download up to three versions, activate a version, and designate a version as default. The appliance uses the default version after a factory reset, so consider designating the latest version as default. You can delete versions you no longer need, as long as the versions are not Default or Active.",
+      "- The following enhancement is available for Preview:",
+      "  - If you are upgrading from version 8.0.6 or later, you can disable Use Legacy Method to Change Version to upgrade the entire file system, which offers highly reliable upgrades. In a high availability (HA) deployment, this option also allows you to upgrade active and standby gateways separately, with no need for automatic switchover during the upgrade process. If you do not use this option, you can select a version and upgrade as before.",
+      "See image.",
+      "To learn more, see Upgrading Zero Trust Branch Appliances in Standalone Deployments and Upgrading Zero Trust Branch Appliances in an HA Cluster.",
+      "# Gateway Monitoring",
+      "On the Interfaces tab for a site, you can click the score in the last column of a WAN interface row to easily assess gateway uptime and WAN performance metrics.",
+      "See image.",
+      "To learn more, see Interface Monitoring.",
+      "On the Monitoring tab for a site, you can see real-time gateway resource usage (i.e., CPU, memory, disk). The gateway refreshes resource usage data every 5 minutes.",
+      "See image.",
+      "To learn more, see Upgrading Zero Trust Branch Appliances in Standalone Deployments and Upgrading Zero Trust Branch Appliances in an HA Cluster.",
+      "# Single VLAN in LAN as Source for DNS Proxy",
+      "When a DNS server is accessible through a Routed Tunnel (RT), DNS requests take the source IP addresses of the VLANs that are shared over the RT. You can instead select Use for DNS Proxy on the VLANs tab for a site. This sets up a specific VLAN in the LAN for DNS proxy, so DNS requests take the source IP address of that VLAN interface on the appliance.",
+      "See image.",
+      "To learn more, see Configuring Zero Trust Branch Site-to-Site Connectivity Over Routed Tunnels.",
+      "# Sharing Static Routes over Routed Tunnels",
+      "VLANs or subnets that are indirectly connected to Zero Trust Branch spokes (sites) can be shared via border gateway protocol (BGP) over routed tunnels. When you enable Share Over RT on a new or existing static route, the target subnet is advertised over the routed tunnel to the hub and across the SD-WAN fabric.",
+      "See image.",
+      "To learn more, see Configuring Zero Trust Branch Site-to-Site Connectivity Over Routed Tunnels.",
+      "# Separate WAN and Private DNS Servers for a Site",
+      "To make it easier to manage DNS redirection and policies, you can configure WAN DNS servers and private DNS servers separately in the DNS settings for a site. The WAN DNS servers are used for site activation and DNS queries that the appliance initiates. The private DNS servers resolve DNS queries for both private namespaces (internal domains) and public domains. The values you enter populate the respective system group (e.g., System-Private-DNS-Servers-Group).",
+      "You can apply DNS redirection to the DNS policy for WAN DNS servers in addition to other DNS servers. Based on default DNS policies, the App Connector uses the WAN DNS server to resolve all Zscaler domains (Default-ZScaler-Domains-DNS-Policy) and the private DNS server to resolve all non-Zscaler domains (Default-DNS-Policy).",
+      "See image.",
+      "To learn more, see What Are Site DNS Policies? and Configuring Site DNS Policies.",
+      "# Support for DHCP Options",
+      "There are additional standard DHCP options in the menu on the DHCP Options tab for a site. All options in the DHCP options menu are supported, except for the Domain Name Server (DNS) option, because per-interface DNS settings take precedence over it. For any DHCP options not listed, you can use the custom DHCP option and create your own.",
+      "See image."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2025-09-11",
+   "page": "ztb-release-upgrade-summary-2025.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.5",
+     "body": [
+      "The following enhancement to Zero Trust Branch (formerly [[variable:zero-trust-device-segmentation]]) is supported as part of the 8.0.5 release:",
+      "# Manual Synchronization of ZIA and ZPA to Zero Trust Branch",
+      "When the Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA) integrations with Zero Trust Branch are not synchronized or properly configured, the Location drop-down menu on the Add Site page might not display. Error messages describe the problems and direct you to the Zscaler Services Integration tile on the Settings > Integrations page, where you can manually trigger a sync action to resolve the issues independently, without contacting Zscaler Support.",
+      "This feature is intended only for customers using SD-WAN functionality within Zero Trust Branch.",
+      "See images.",
+      "To perform this action, you must have Super Admin role permissions in Authentication Service.",
+      "To learn more, see Adding a Site."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2025-08-18",
+   "page": "ztb-release-upgrade-summary-2025.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.4",
+     "body": [
+      "The following enhancements to Zero Trust Branch (formerly [[variable:zero-trust-device-segmentation]]) are supported as part of the 8.0.4 release:",
+      "# Enhancements to Connectivity",
+      "Zero Trust Branch has the following enhancements to connectivity:",
+      "- Allows DHCP to be used on the primary WAN interface, which can then be used for device activation.",
+      "- Establishes the following predefined DNS policies:",
+      "  - Match DNS queries for Zscaler domains, and redirect them to the WAN DNS servers. This ensures that GeoIP location is properly identified and that the closest Zscaler data center is utilized for outbound traffic.",
+      "  - Match DNS queries from the embedded AppC process and forward them to customer-configured private DNS servers. This ensures that when enabled, the AppC process can resolve the customer's private DNS namespaces.",
+      "  - Match any downloaded app segment FQDN or wildcard FQDN, and return a predefined, non-configurable, synthetic IP address.",
+      "- Allows users to configure custom DNS policies with the following specifications:",
+      "  - Defined DNS gateways that specify primary and secondary DNS resolvers that are used as forwarders in policy.",
+      "  - Match any specified source IP address/CIDRs and FQDN, or wildcard FQDN, and redirect (forward) the query to a user-defined DNS gateway.",
+      "  - Match any specified source IP address/CIDRs and FQDN and override the response to a user-defined IP address.",
+      "  - Match any specified source IP address/CIDRs and FQDN, or wildcard FQDN, and reject the query.",
+      "- See image.",
+      "# Enhancements to Routing and Firewall Policies",
+      "Zero Trust Branch has the following enhancements to the routing and firewall policies:",
+      "- Traffic originating from the gateway (e.g., DHCP or DNS) and destined for Zscaler Private Access (ZPA) app segments is routed to ZPA using a predefined routing policy.",
+      "- Traffic originating from the gateway (e.g., DHCP or DNS) and destined for Airgap Network is permitted using a predefined firewall policy.",
+      "- Establishes the following predefined routing policies:",
+      "  - Default-ZPA-PBR: Any traffic sourced from Airgap Network and destined to ZPA app segments is forwarded to ZPA.",
+      "  - Default ZIA Rule: Any traffic sourced from Airgap Network and destined to non-RFC 1918 subnets is forwarded to Zscaler Internet Access (ZIA). Note that ZIA policies must be configured to allow this traffic.",
+      "  - Default-App-Segment-PBR: Any traffic sourced from Local Interface IPs and destined to ZPA app segments is forwarded to ZPA.",
+      "  - Default Zscaler Rule: Any traffic destined to Zscaler cloud endpoints is sent directly via WAN interfaces.",
+      "- See image.",
+      "- Default policies are automatically created for new sites only in release 8.0.4. Sites upgraded from release 8.0.3 need these policies to be manually created.",
+      "- Added border gateway protocol (BGP) support on WAN links for active and standby gateways. Standby gateways can now pre-learn WAN routes, enhancing routing convergence during failover.",
+      "- DHCP relay support over routed tunnel and ZPA app segments.",
+      "# Enhancements to the Platform",
+      "Zero Trust Branch supports the ZT8010, offering high throughput with 8x 10G SFP+ ports, 10x GbE RJ45 ports, and a redundant power supply for improved reliability and performance.",
+      "To learn more, see What are Site DNS Policies? and Configuring Site DNS Policies."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2025-04-30",
+   "page": "ztb-release-upgrade-summary-2025.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Branch 8.0.1",
+     "body": [
+      "The following enhancements to Zero Trust Branch (formerly [[variable:zero-trust-device-segmentation]]) are supported as part of the 8.0.1 release:",
+      "# Enhancements to Provisioning",
+      "Zero Trust Branch has the following enhancements to provisioning:",
+      "- Support for creating Zscaler Internet Access (ZIA) locations using the Zero Trust Branch Admin Portal.",
+      "- Support for default and custom templates for ZT400 and ZT600.",
+      "# Enhancements to Connectivity",
+      "Zero Trust Branch has the following enhancements to connectivity:",
+      "- Location-based (ZIA locations) automated connectivity to the nearest ZIA data center via IPSec.",
+      "- Connectivity with ZIA over IPSec, with a primary and secondary IPSec tunnel.",
+      "- Branch-to-hub connectivity over a routed tunnel to support applications requiring Source IP visibility. You can create routed tunnels from a branch to a standalone or primary and secondary hub site, and share subnets over the routed tunnel.",
+      "- Open Shortest Path First (OSPF) support on LAN and WAN interfaces.",
+      "- App Connector support to allow zero trust connectivity for private applications hosted in sites and data centers.",
+      "- Routing policy that forwards select traffic to specific destinations based on your needs. The supported forwarding methods are LAN and WAN interfaces with the optional next hop IP, ZIA-IPSec, ZIA-GRE, ZPA, and routed tunnel. For example, to forward specific traffic through ZIA, configure source, destination, and ports, and then select either the ZIA-IPSec or ZIA-GRE traffic-forwarding method.",
+      "- WAN link selection is supported on WAN interfaces only. You can choose among three traffic-forwarding methods:",
+      "  - None: Traffic strictly follows the defined primary and secondary WAN interfaces. If the primary WAN interface goes down, the traffic is switched to the secondary WAN interface.",
+      "  - Best Link: Link score is calculated based on packet loss, jitter, and latency for the WAN interfaces. The best-performing WAN interface is selected for traffic forwarding.",
+      "  - Load Balanced: Traffic is load balanced on the primary and secondary WAN interfaces defined in the routing policy.",
+      "- Routing policy supports destination matching based on Zscaler Private Access (ZPA) app segments, including wildcard FQDN matching for FQDN App Segments. For example, *.acme.loc would catch all current and future ZPA app segments within the acme.loc namespace.",
+      "- Destination matching in the routing policy includes top SaaS applications.",
+      "# Enhancements to the Platform",
+      "Zero Trust Branch has the following enhancements to platform support:",
+      "- Support for SNMPv3.",
+      "- Enhanced Active Directory (AD) integration supports multiple domain controllers and multiple AD query strings.",
+      "- Factory reset support for ZT400, ZT600, and ZT800."
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2025-01-15",
+   "page": "ztb-release-upgrade-summary-2025.json",
+   "entries": [
+    {
+     "status": "Feature Available",
+     "title": "Zero Trust Device Segmentation 7.8",
+     "body": [
+      "The following enhancements to Zero Trust Device Segmentation are supported as part of the 7.8 release:",
+      "# Provisioning Enhancements",
+      "Zero Trust Device Segmentation has the following enhancements to provisioning:",
+      "- Zero Touch Provisioning allows easier configuration and enables onboarding at remote or branch office locations with a single URL click.",
+      "- Device Segmentation includes default templates, allowing ease of deployment for multiple sites, and the ability to create custom templates.",
+      "  - Templates are supported for ZT800 and virtual machine (VM) form factors for both standalone and high-availability deployments.",
+      "  - Templates support multiple LAN/WAN interfaces and zones. To learn more, see Managing Templates.",
+      "# Platform and Connectivity Enhancements",
+      "Zero Trust Device Segmentation has the following enhancements to platform support and connectivity:",
+      "- Support for connectivity with Zscaler Internet Access (ZIA) over GRE. You can configure policy-based routing to define the traffic that needs to leverage ZIA.",
+      "- Supports connectivity using source-based criteria based on user, TCP/UDP port, IP, network, MAC, or other device attributes. To learn more, see Managing Objects.",
+      "- Site-to-site VPN allows connectivity between isolated networks via wireguard connection.",
+      "- Support for a dedicated high-availability link to allow faster failover time."
+     ]
+    }
+   ]
+  }
+ ]
+}

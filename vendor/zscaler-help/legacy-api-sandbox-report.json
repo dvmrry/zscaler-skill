@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Sandbox Report",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/sandbox-report",
+    "node": "1402456",
+    "revision": "3002211",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Sandbox%20Report_4.json?VersionId=pumSkGGdZNYWZ5Mj3iNnFq72OiaiYVCp",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Sandbox Report"
+      }
+    ],
+    "paths": {
+      "/sandbox/report/quota": {
+        "get": {
+          "tags": [
+            "Sandbox Report"
+          ],
+          "description": "<p>The resource access quota for retrieving Sandbox Detail Reports is restricted to 3,000 requests per day, with a rate limit of 2/sec and 1,000/hour. Use GET <code>/sandbox/report/quota</code> to retrieve details regarding your organization's daily Sandbox API resource usage (i.e., used quota, unused quota).</p>\n",
+          "operationId": "getVerdictReportQuotaUsageDetails",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/RatingQuota"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/sandbox/report/{md5Hash}": {
+        "get": {
+          "tags": [
+            "Sandbox Report"
+          ],
+          "description": "<p>Gets a full (i.e., complete) or summary detail report for an MD5 hash of a file that was analyzed by Sandbox. To view a full summary report response example, as well as possible enum values for various Sandbox Report attributes, see <a href=\"/zia/sandbox-report-use-cases\" target=\"_blank\">Sandbox Report Use Cases</a>.</p>\n",
+          "operationId": "getVerdictReport",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "md5Hash",
+              "in": "path",
+              "description": "MD5 hash of the file that was analyzed by Sandbox.",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "details",
+              "in": "query",
+              "description": "Type of report, full or summary.",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "RatingQuota": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Start time"
+          },
+          "used": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Used daily quota"
+          },
+          "allowed": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Allowed daily quota"
+          },
+          "scale": {
+            "type": "string",
+            "description": "<p>Scale Unit (i.e., DAYS)</p>",
+            "enum": [
+              "NANOSECONDS",
+              "MICROSECONDS",
+              "MILLISECONDS",
+              "SECONDS",
+              "MINUTES",
+              "HOURS",
+              "DAYS"
+            ]
+          },
+          "unused": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unused daily quota",
+            "readOnly": true
+          }
+        },
+        "description": "API usage quota details."
+      }
+    }
+  }
+}

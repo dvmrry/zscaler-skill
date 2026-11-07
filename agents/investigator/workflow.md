@@ -162,7 +162,7 @@ node scripts/investigator-artifacts.mjs verify-case --root <repo-root> --case-sl
 ```
 
 If verification fails, stop and report the failure. Do not load Step 2 files,
-enumerate snapshots, or generate hypotheses.
+enumerate tenant config, or generate hypotheses.
 
 If verification passes, continue with `agents/investigator/harness.md` Step 2 or
 the next journal update, using the proposed loads from

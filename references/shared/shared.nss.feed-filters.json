@@ -1,0 +1,981 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.feed-filters",
+  "title": "What each NSS log type's feed can filter on, and the rules for matching",
+  "aliases": [
+    "nss feed filters",
+    "nss filter wildcards",
+    "web policy action filter",
+    "firewall nss filters",
+    "dns nss filters",
+    "tunnel nss filters",
+    "saas security nss filters",
+    "sandbox verdict nss filters",
+    "dlp nss filters"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feed-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.firewall-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.nss-feed-format"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Matching rules.",
+      "text": "{{filters-and}} {{wildcards}} {{include-exclude-defaults}} {{category-threat-coupling}} The general rule for combining filter fields and values is open {{gap:value-logic}}."
+    },
+    {
+      "label": "Entering values.",
+      "text": "{{users-select-all}} {{ip-entry-forms}}"
+    },
+    {
+      "label": "Web.",
+      "text": "{{web-policy-action}} {{public-ip-meaning}} {{web-transaction-filters}} {{web-security-filters}} {{cloud-aiml-http-url-classes}} Whether the HTTP web feed lacks the AI/ML filter and the URL Include and Exclude options is open {{gap:http-web-filter-absences}}."
+    },
+    {
+      "label": "Firewall.",
+      "text": "{{firewall-actions}} {{firewall-aggregate-addresses}} The Firewall Log Type choice is in [[zia.logs.firewall-records]]."
+    },
+    {
+      "label": "HTTP and Cloud Firewall feeds.",
+      "text": "{{firewall-policy-actions-all}} {{firewall-aggregate-filters}} The Durations filter's average against the Insights sum, and the byte filters, are a further position on [[zia.logs.firewall-records:aggregate-counters-source]]. Whether the Durations filter compares seconds against the millisecond duration fields is open {{gap:duration-filter-field}}. {{firewall-classification-filters}} {{firewall-public-ip}} Whether VPN tunnel traffic also makes the internal IP available is open {{gap:firewall-public-ip-vpn}}."
+    },
+    {
+      "label": "DNS.",
+      "text": "{{dns-actions}} {{dns-policy-actions-all}} {{dns-session-filters}} How the nine Cloud DNS filter values map to the action fields is open {{gap:dns-filter-values-vs-fields}}."
+    },
+    {
+      "label": "Tunnel.",
+      "text": "{{tunnel-records}} {{tunnel-types}}"
+    },
+    {
+      "label": "SaaS Security.",
+      "text": "{{saas-app-categories}} {{saas-policy-type-default}} {{saas-event}} {{saas-time-units}} {{saas-unlimited-users}} The users cap on the limits page differs {{divergence:user-cap}}. {{saas-activity}} {{saas-activity-filters}} {{saas-event-version}} {{saas-category-filters}} {{saas-download-time}} {{saas-nonprovisioned-owner}} The HTTP SaaS Security article describes Internal Recipients twice, with different meanings {{gap:saas-internal-recipients-defect}}. The application lists differ between the TCP and the HTTP and Cloud articles {{gap:saas-app-lists-differ}}, and whether the Users and Departments no-limit statement holds on the HTTP and Cloud SaaS Security feeds is open {{gap:saas-users-departments-http-cloud}}."
+    },
+    {
+      "label": "Data loss prevention.",
+      "text": "{{endpoint-dlp-record-type}} {{email-dlp-filters}}"
+    },
+    {
+      "label": "Sandbox.",
+      "text": "{{sandbox-filters}}"
+    },
+    {
+      "label": "Cloud App Governance and Posture.",
+      "text": "Whether the Cloud 3rd-Party App Governance and Posture Management feeds can be filtered at all is open {{gap:app-governance-posture-filters}}."
+    },
+    {
+      "label": "MCAS.",
+      "text": "{{web-who-users}} The MCAS feed's Who group lists Locations where those articles list Users, which does not settle whether MCAS filters by user {{gap:mcas-who-group}}."
+    }
+  ],
+  "claims": {
+    "web-who-users": {
+      "statement": "The TCP, HTTP and Cloud web feed articles each list a Users filter under Who, which limits the logs to specific users who generated transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Users: Use this filter to limit the logs to specific users who generated transactions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-web-logs.json",
+          "quotes": [
+            "Users: Use this filter to limit the logs to specific users who generated transactions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-web-logs.json",
+          "quotes": [
+            "Users: Use this filter to limit the logs to specific users who generated transactions."
+          ]
+        }
+      ]
+    },
+    "filters-and": {
+      "statement": "The TCP web feed article says admins can configure multiple filter types and gives one example: if an admin selects the location HQ and the department Finance, the NSS selects logs that belong to both the HQ location and Finance department. It adds that a large number of filters or complex filters, such as string searches, can impact NSS performance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "For example, if an admin selects the location HQ and the department Finance, the NSS selects logs that belong to both the HQ location and Finance department.",
+            "A large number of filters or complex filters, such as string searches, can impact the NSS performance."
+          ]
+        }
+      ]
+    },
+    "wildcards": {
+      "statement": "The web feed's Referer URLs filter accepts wildcards; the quoted rule is that *string is suffix matching, matching URLs ending with 'string'. Multiple strings are allowed, one per line, and string search is not case-sensitive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "*string -> Suffix matching match URLs ending with ‘string’"
+          ],
+          "after": "Referer URLs: Use this filter to limit the logs based on the Referer URL in the HTTP header. You can use wildcards based on the rules:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Multiple strings are allowed. Enter one string per line, then click Add Items. String search is not case-sensitive."
+          ]
+        }
+      ]
+    },
+    "include-exclude-defaults": {
+      "statement": "The URL Classes filter has an Include option, enabled by default with the default value Any, and an Exclude option whose default value is None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Include: Use this filter to include selected URL classes in the logs. This filter is enabled by default. The default value for this filter is Any.",
+            "Exclude: Use this filter to exclude selected URL classes from the logs. The default value for this filter is None."
+          ]
+        }
+      ]
+    },
+    "category-threat-coupling": {
+      "statement": "The URL Categories filter falls under the same filter class as the Advanced Threats filter: if at least one advanced threat is selected, the specific URL categories to include must also be selected, and when at least one URL category is selected, the default Any option in the Advanced Threats filter does not apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "The URL Categories filter falls under the same filter class as the Advanced Threats filter. This means if you select at least one advanced threat, then you must also select the specific URL categories that you want included in the logs.",
+            "When you select at least one URL category, the default Any option in the Advanced Threats filter does not apply."
+          ]
+        }
+      ]
+    },
+    "users-select-all": {
+      "statement": "In the web feed's Users filter, Select All selects all results, deleted users appear with a strikethrough line, and Hide Deleted hides them from the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Click Select All to select all results. Deleted users appear with a strikethrough line. Select Hide Deleted to hide these deleted users from the list."
+          ]
+        }
+      ]
+    },
+    "ip-entry-forms": {
+      "statement": "The Client IP Addresses filter accepts a range of IP addresses (for example 192.0.2.1-192.0.2.10), and for item lists up to 500 items can be viewed on a page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "A range of IP addresses (e.g., 192.0.2.1-192.0.2.10)",
+            "For item lists, you can view up to 500 items on a page"
+          ],
+          "after": "Client IP Addresses: Use this filter to limit the logs based on a client’s private IP address. You can enter:"
+        }
+      ]
+    },
+    "web-policy-action": {
+      "statement": "In the web feed's policy action filter, transactions for which the service displayed a Caution page are considered blocked, and if users proceed they are considered allowed. Policy Reason values are the policy reason strings that are in transaction drilldown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Transactions wherein the service displayed a Caution page are considered blocked transactions; if users proceed with the transactions, they are considered allowed.",
+            "These are the policy reason strings that are in transaction drilldown."
+          ]
+        }
+      ]
+    },
+    "public-ip-meaning": {
+      "statement": "The internal IP address is available if traffic is forwarded to the service through a GRE or VPN tunnel or from the XFF header; if the internal IP address is not available, the value is the same as the client IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "The internal IP address is available if traffic forwarding is forwarded to the service through a GRE or VPN tunnel or from the XFF header. If the internal IP address is not available, the value is the same as the client IP address."
+          ]
+        }
+      ]
+    },
+    "web-transaction-filters": {
+      "statement": "The web feed's supported protocols are HTTP, HTTPS, and FTP. Request size filters use bytes by default, and KB, MB, GB or TB can be specified, for example 10KB-1MB or 200.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Supported protocols are HTTP, HTTPS, and FTP."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "By default, the service uses bytes, but you can also specify KB, MB, GB, or TB (e.g., 10KB-1MB, 200)."
+          ],
+          "after": "Request Sizes: Use this filter to limit the logs based on HTTP request size."
+        }
+      ]
+    },
+    "web-security-filters": {
+      "statement": "The Suspicious Content filter limits logs by the Page Risk Index score of a transaction, a single value or a range between 0 and 100. Encrypted File in the unscannable options means encrypted or password-protected files, and the Miscellaneous <Cloud Application Category> Apps option represents all the newly added lesser-known predefined applications for a category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Suspicious Content: Use this filter to limit the logs based on the Page Risk Index score of a transaction. Enter either a single value or a range of values, between 0 and 100.",
+            "Encrypted File: Encrypted or password-protected (e.g., GZIP, PDF)",
+            "The Miscellaneous <Cloud Application Category> Apps (e.g., Miscellaneous Finance Apps) option in this filter represents all the newly added lesser-known predefined applications"
+          ]
+        }
+      ]
+    },
+    "cloud-aiml-http-url-classes": {
+      "statement": "The Cloud NSS web feed has an AI/ML Detection Source filter that limits logs by the AI/ML detection source for the transaction, and the HTTP web feed article's URL Classes filter says to select the classes to include, with multiple selections allowed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-web-logs.json",
+          "quotes": [
+            "AI/ML Detection Source: Use this filter to limit the logs based on the AI/ML detection source for the transaction."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-web-logs.json",
+          "quotes": [
+            "URL Classes: Use this filter to limit the logs to specific URL classes. Select those that you want to include. Multiple selections are allowed."
+          ]
+        }
+      ]
+    },
+    "firewall-actions": {
+      "statement": "Firewall feed filters include Block/ICMP, packets dropped because they matched a Firewall rule and sent the client an ICMP error of Type 3 and code 9 or 10; Block/Reset, which for TCP traffic drops the matching packets and sends the client a TCP reset and for non-TCP traffic is the same as Block/Drop; IPS Reset, packets reset due to IPS policy; the DNAT Policy Action, for traffic on which the service performed destination NAT; and Client Destination Names, a destination FQDN filter for Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "Block/ICMP: Packets that were dropped because they matched a Firewall rule and sent the client an ICMP error message of Type 3 (Destination Unreachable) and code 9 or 10 (network/host administratively prohibited).",
+            "Block/Reset: For TCP traffic, the Zscaler service drops all packets that match the Firewall rule and sends the client a TCP reset.",
+            "For non-TCP traffic, it's the same as Block/Drop.",
+            "IPS Reset: Packets that were reset due to IPS policy.",
+            "DNAT Policy Action: Use this filter to limit the logs to traffic on which the service performed destination NAT and redirected traffic to specific IP addresses and optionally, ports.",
+            "Client Destination Names: For Advanced Firewall, use this filter to limit the logs to traffic associated with a specific destination FQDN."
+          ]
+        }
+      ]
+    },
+    "firewall-aggregate-addresses": {
+      "statement": "For aggregated sessions, the client destination IP address filter value is that of the last session in the aggregate, and the Countries filter is the country code that corresponds to the server IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "For aggregated sessions, this is the client destination IP address of the last session in the aggregate.",
+            "Countries: The country code that corresponds to the server IP address."
+          ]
+        }
+      ]
+    },
+    "dns-actions": {
+      "statement": "DNS feed filters include Redirect, limiting logs to transactions in which the service redirected the DNS request or response, and Response Redirect, limiting logs to DNS responses the service redirected. Rule Names filter on specific rules in the DNS Control policy. The DNS Responses filter limits logs to sessions that contained specific data in the DNS responses, and domain names, IPv4 and IPv6 addresses can be specified there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-dns-logs.json",
+          "quotes": [
+            "Redirect: Use this filter to limit the logs to transactions wherein the service redirected the DNS request or response.",
+            "Response Redirect: Use this filter to limit the logs to DNS responses that the service redirected.",
+            "Rule Names: Use this filter to limit the logs based on specific rules in the DNS Control policy.",
+            "DNS Responses: Use this filter to limit the logs to sessions that contained specific data in the DNS responses. You can specify domain names, IPv4 and IPv6 addresses."
+          ]
+        }
+      ]
+    },
+    "tunnel-records": {
+      "statement": "A tunnel feed can send multiple tunnel log record types in a single feed: IKE Phase 1 (details for IPSec Phase 1 negotiation, IPSec only), Sample (statistics collected in 60-second sample windows, GRE and IPSec) and Tunnel Event (status change events, GRE and IPSec).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-tunnel-logs.json",
+          "quotes": [
+            "You can select multiple tunnel log record types (e.g., IKE Phase 2, Sample) to send in a single NSS feed.",
+            "IKE Phase 1: Details for IPSec Phase 1 negotiation (applies to IPSec only).",
+            "Sample: Statistics collected in 60-second sample windows (applies to both GRE and IPSec).",
+            "Tunnel Event: Status change events (applies to both GRE and IPSec)."
+          ]
+        }
+      ]
+    },
+    "tunnel-types": {
+      "statement": "The tunnel feed's Tunnel Type values include EAS Client Tunnel, the tunnel type for the extranet broker connection, and Z-Tunnel 2.0, which uses DTLS, TLS, or UDP, of which only Zscaler Cloud & Branch Connector supports UDP. There is no limit to the number of VPN credentials that can be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-tunnel-logs.json",
+          "quotes": [
+            "EAS Client Tunnel: The tunnel type for the extranet broker connection.",
+            "Z-Tunnel 2.0: Tunnel that uses DTLS, TLS, or UDP to send packets to the Zscaler service. Note that only Zscaler Cloud & Branch Connector supports UDP.",
+            "There is no limit to the number of VPN credentials that you can select."
+          ]
+        }
+      ]
+    },
+    "saas-app-categories": {
+      "statement": "A SaaS Security feed's Application Category limits the data to a specific category. The listed applications include Microsoft Dynamics 365, Citrix ShareFile, Smartsheet, ChatGPT, Jira Software and Bitbucket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "Application Category: Choose an application category to limit the data to a specific category:",
+            "Microsoft Dynamics 365",
+            "Citrix ShareFile",
+            "Smartsheet",
+            "- ChatGPT",
+            "Jira Software",
+            "Bitbucket"
+          ]
+        }
+      ]
+    },
+    "saas-policy-type-default": {
+      "statement": "By default the SaaS Security DLP and Malware policy types are not selected, so all incidents and violations, with or without a rule name, are exported through the NSS; DLP and Malware must be explicitly selected to export only incidents with valid rule names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "By default, the DLP and Malware policy types are not selected. Therefore, all incidents and violations with or without a rule name are exported through the NSS.",
+            "You must explicitly select DLP and Malware policy types from the list to export only the incidents with valid rule names through the NSS."
+          ]
+        }
+      ]
+    },
+    "saas-event": {
+      "statement": "In the SaaS Security feed, Incident means a violation was detected in the scan and a configured DLP or malware rule was also triggered, and Violation means a violation was detected in the scan, either a DLP engine was matched or malware was detected. A feed configured with the earlier version of the filter remains supported until it is edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "Incident: A violation was detected in the scan and a configured DLP or malware rule was also triggered.",
+            "Violation: A violation was detected in the scan (i.e., either a DLP engine was matched or malware was detected.)",
+            "Any NSS feed that you previously configured using the earlier version of the filter remains supported until you make any edits or changes to the feed."
+          ]
+        }
+      ]
+    },
+    "saas-time-units": {
+      "statement": "The SaaS Security Scan Time filter, the time the Data at Rest Scanning policy took to scan content within the tenant, takes a specific value or a range with a dash; the default unit is milliseconds and MS or SEC can be specified, for example 10MS-100MS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "Scan Time: Filter logs based on the time the Data at Rest Scanning policy took to scan content within the tenant. Enter either a specific value or a range with a dash. The default unit of measure is milliseconds, but you can specify this unit using either MS or SEC (e.g., 10MS-100MS)."
+          ]
+        }
+      ]
+    },
+    "saas-unlimited-users": {
+      "statement": "The SaaS Security feed article says there is no limit to the number of users or departments that can be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "There's no limit to the number of users that you can select.",
+            "There's no limit to the number of departments that you can select."
+          ]
+        }
+      ]
+    },
+    "saas-activity": {
+      "statement": "A SaaS Security Activity feed tracks activities, such as Create, Delete and Share, that users performed in the organization's sanctioned SaaS applications. If applicable the activity can have a second object listed, and the default option is None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-saas-security-activity-logs.json",
+          "quotes": [
+            "you can track activities (e.g., Create, Delete, Share) that users performed in your organization’s sanctioned SaaS applications.",
+            "If applicable, the activity can have a second object listed. The default option is None."
+          ]
+        }
+      ]
+    },
+    "endpoint-dlp-record-type": {
+      "statement": "The Endpoint DLP Record Type filter distinguishes DLP incidents, user activities in which DLP policy rules were violated, from sensitive activities, in which movement of sensitive data was detected based on the file content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "DLP incidents are user activities in which DLP policy rules were violated. Sensitive activities are activities in which movement of sensitive data was detected based on the file content."
+          ]
+        }
+      ]
+    },
+    "email-dlp-filters": {
+      "statement": "The Email DLP Record Type includes Scan, meaning the scan is normal with no DLP rule violation or movement of sensitive data detected. The Policy Action option Custom Header Insertion limits logs to transactions that resulted in a different action, such as quarantine, taken by the email application as defined by a custom header such as X-Zscaler-Scan:Quarantine, and the Severity filter limits logs to transactions associated with a specific DLP rule severity as configured in the Outbound Email Policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-email-dlp-logs.json",
+          "quotes": [
+            "Scan: The scan is normal (i.e., no DLP rule violation or movement of sensitive data was detected.)",
+            "Select Custom Header Insertion to limit the logs to transactions that resulted in a different action (e.g., quarantine) taken by the email application (e.g., Microsoft Exchange) as defined by a custom header (e.g., X-Zscaler-Scan:Quarantine).",
+            "Severity: Use this filter to limit the logs to transactions associated with a specific DLP rule severity as configured in the Outbound Email Policy."
+          ]
+        }
+      ]
+    },
+    "sandbox-filters": {
+      "statement": "The Sandbox Verdict Download File Type filter includes file types that are not eligible for Sandbox analysis, for which no log data is available. SHA limits logs by the SHA-256 hash of a file, and the verdicts filter covers Sandbox, Advanced Threat Protection and Malware Protection verdicts, optionally Benign for non-malicious verdicts. If no techniques are specified, verdicts associated with any possible MITRE ATT&CK technique are displayed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "This filter currently includes file types that are not eligible for Sandbox analysis. No log data is available for these file types, if selected.",
+            "SHA: Use this filter to limit the logs based on the SHA-256 hash of a file.",
+            "This filter includes verdicts related to Sandbox (e.g., Sandbox Adware), Advanced Threat Protection (e.g., Suspicious Content), and Malware Protection (e.g., Trojan) policies. Optionally, select Benign to limit the logs to non-malicious verdicts.",
+            "If you do not specify techniques in this filter, verdicts associated with any possible MITRE ATT&CK technique are displayed."
+          ]
+        }
+      ]
+    },
+    "firewall-policy-actions-all": {
+      "statement": "The HTTP Firewall and Cloud Firewall feed articles list the Firewall & IPS Policy Actions filter, which limits logs by the action the service took under the Firewall Filtering and IPS policies and accepts multiple actions: Allow, Block/Drop, IPS Drop, Block/ICMP, Block/Reset and IPS Reset. Separate filters select Firewall Filtering Rule Name and IPS Rule Name, and DNAT Destination Names limits logs to traffic redirected to specific FQDNs after destination NAT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "Firewall & IPS Policy Actions: Use this filter to limit the logs based on the action the service took, in accordance with the Firewall Filtering and IPS policies. You can choose multiple actions:",
+            "Allow: Packets that were allowed through the Firewall or IPS due to policy.",
+            "Block/Drop: Packets that were silently dropped due to Firewall policy.",
+            "IPS Drop: Packets that were silently dropped due to IPS policy.",
+            "Block/ICMP: Packets that were dropped because they matched a Firewall rule and sent the client an ICMP error message of Type 3 (Destination Unreachable) and code 9 or 10 (network/host administratively prohibited).",
+            "Block/Reset: For TCP traffic, the Zscaler service drops all packets that match the Firewall rule and sends the client a TCP reset.",
+            "IPS Reset: Packets that were reset due to IPS policy.",
+            "Firewall Filtering Rule Name: Use this filter to limit the logs based on specific rules in your Firewall policies.",
+            "IPS Rule Name: Use this filter to limit the logs based on specific rules in your IPS policies.",
+            "DNAT Destination Names: Use this filter to limit the logs to traffic that was redirected to specific FQDNs after the service performed destination NAT."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-for-firewall-logs.json",
+          "quotes": [
+            "Firewall & IPS Policy Actions: Use this filter to limit the logs based on the action the service took, in accordance with the Firewall Filtering and IPS policies. You can choose multiple actions:",
+            "Allow: Packets that were allowed through the Firewall or IPS due to policy.",
+            "Block/Drop: Packets that were silently dropped due to Firewall policy.",
+            "IPS Drop: Packets that were silently dropped due to IPS policy.",
+            "Block/ICMP: Packets that were dropped because they matched a Firewall rule and sent the client an ICMP error message of Type 3 (Destination Unreachable) and code 9 or 10 (network/host administratively prohibited).",
+            "Block/Reset: For TCP traffic, the Zscaler service drops all packets that match the Firewall rule and sends the client a TCP reset.",
+            "IPS Reset: Packets that were reset due to IPS policy.",
+            "Firewall Filtering Rule Name: Use this filter to limit the logs based on specific rules in your Firewall policies.",
+            "IPS Rule Name: Use this filter to limit the logs based on specific rules in your IPS policies.",
+            "DNAT Destination Names: Use this filter to limit the logs to traffic that was redirected to specific FQDNs after the service performed destination NAT."
+          ]
+        }
+      ]
+    },
+    "firewall-aggregate-filters": {
+      "statement": "On the HTTP Firewall and Cloud Firewall feed articles, the bytes filters say that for aggregated sessions the value is the total bytes sent from, or received by, the server across all sessions in the aggregate; the Durations filter, in seconds, says that for aggregated sessions it indicates the average session duration; the client source and destination port and server source and destination port filters and the server's tunnel IP address say the value is that of the last session in the aggregate; and Number of Sessions filters aggregated logs by session count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "Inbound Bytes: Use this filter to limit the logs based on the number of bytes sent from the server to the client.",
+            "For aggregated sessions, this is the total bytes sent from the server across all sessions in the aggregate.",
+            "For aggregated sessions, this is the total bytes received by the server across all sessions in the aggregate.",
+            "Durations: Use this filter to limit the logs based on the duration of the sessions, in seconds.",
+            "For aggregated sessions, this indicates the average session duration.",
+            "Number of Sessions: For aggregated logs, you can filter by the number of sessions.",
+            "For aggregated sessions, this is the client source port of the last session in the aggregate.",
+            "For aggregated sessions, this is the client destination port of the last session in the aggregate.",
+            "For aggregated sessions, this is the server source port of the last session in the aggregate.",
+            "For aggregated sessions, this is the server destination port of the last session in the aggregate.",
+            "For aggregated sessions, this is the server's tunnel IP address corresponding to the last session in the aggregate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-for-firewall-logs.json",
+          "quotes": [
+            "Inbound Bytes: Use this filter to limit the logs based on the number of bytes sent from the server to the client.",
+            "For aggregated sessions, this is the total bytes sent from the server across all sessions in the aggregate.",
+            "For aggregated sessions, this is the total bytes received by the server across all sessions in the aggregate.",
+            "Durations: Use this filter to limit the logs based on the duration of the sessions, in seconds.",
+            "For aggregated sessions, this indicates the average session duration.",
+            "Number of Sessions: For aggregated logs, you can filter by the number of sessions.",
+            "For aggregated sessions, this is the client source port of the last session in the aggregate.",
+            "For aggregated sessions, this is the client destination port of the last session in the aggregate.",
+            "For aggregated sessions, this is the server source port of the last session in the aggregate.",
+            "For aggregated sessions, this is the server destination port of the last session in the aggregate.",
+            "For aggregated sessions, this is the server's tunnel IP address corresponding to the last session in the aggregate."
+          ]
+        }
+      ]
+    },
+    "firewall-classification-filters": {
+      "statement": "The HTTP Firewall and Cloud Firewall feed articles list Server IP Classes, Server IP Super Categories and Server IP Categories (the URL class, super category or category that corresponds to the server IP address) and Traffic Forwarding (the forwarding method used to send traffic to the Zscaler Firewall; one or more methods or Any). Network Applications Include is enabled by default with default value Any and Exclude has default None. Threat Names takes *string (suffix), String* (prefix), *string* (substring) or an exact string, several allowed one per line, not case-sensitive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "Server IP Classes: The URL class that corresponds to the server IP address.",
+            "Server IP Super Categories: The URL super category that corresponds to the server IP address.",
+            "Server IP Categories: The URL category that corresponds to the server IP address.",
+            "Traffic Forwarding: Use this filter to limit the logs based on the traffic forwarding method used to send traffic to the Zscaler Firewall. Choose one or more of the listed methods or choose Any.",
+            "Include: Use this filter to include selected network applications in the logs. This filter is enabled by default. The default value for this filter is Any.",
+            "Exclude: Use this filter to exclude selected network applications from the logs. The default value for this filter is None.",
+            "*string -> Suffix matching match threat names ending with ‘string’",
+            "String* -> Prefix matching match threat names beginning with ‘string’",
+            "*string* -> Substring matching match threat names containing ‘string’",
+            "String -> Exact matching match threat names that are exactly ‘string’",
+            "Multiple strings are allowed. Enter one string per line. String search is not case-sensitive."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-for-firewall-logs.json",
+          "quotes": [
+            "Server IP Classes: The URL class that corresponds to the server IP address.",
+            "Server IP Super Categories: The URL super category that corresponds to the server IP address.",
+            "Server IP Categories: The URL category that corresponds to the server IP address.",
+            "Traffic Forwarding: Use this filter to limit the logs based on the traffic forwarding method used to send traffic to the Zscaler Firewall. Choose one or more of the listed methods or choose Any.",
+            "Include: Use this filter to include selected network applications in the logs. This filter is enabled by default. The default value for this filter is Any.",
+            "Exclude: Use this filter to exclude selected network applications from the logs. The default value for this filter is None.",
+            "*string -> Suffix matching match threat names ending with ‘string’",
+            "String* -> Prefix matching match threat names beginning with ‘string’",
+            "*string* -> Substring matching match threat names containing ‘string’",
+            "String -> Exact matching match threat names that are exactly ‘string’",
+            "Multiple strings are allowed. Enter one string per line. String search is not case-sensitive."
+          ]
+        }
+      ]
+    },
+    "firewall-public-ip": {
+      "statement": "The HTTP Firewall and Cloud Firewall feed articles say of the Client Public IP Addresses filter that the internal IP address is available if traffic is forwarded to the service through a GRE tunnel or from the XFF header, and that otherwise the value is the same as the client IP address. The TCP web feed article words the same sentence with \"a GRE or VPN tunnel\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "Client Public IP Addresses: Use this filter to limit the logs based on a client’s public IP address.",
+            "The internal IP address is available if traffic forwarding is forwarded to the service through a GRE tunnel or from the XFF header.",
+            "If the internal IP address is not available, the value is the same as the client IP address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-for-firewall-logs.json",
+          "quotes": [
+            "Client Public IP Addresses: Use this filter to limit the logs based on a client’s public IP address.",
+            "The internal IP address is available if traffic forwarding is forwarded to the service through a GRE tunnel or from the XFF header.",
+            "If the internal IP address is not available, the value is the same as the client IP address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "The internal IP address is available if traffic forwarding is forwarded to the service through a GRE or VPN tunnel or from the XFF header."
+          ]
+        }
+      ]
+    },
+    "dns-policy-actions-all": {
+      "statement": "The Cloud DNS feed's Policy Actions filter has nine values: Allow, Block, Redirect, Request Allow, Request Block, Request Redirect, Response Allow, Response Block and Response Redirect, the request and response variants limiting logs to DNS requests only or DNS responses only; Rule Name limits logs to specific rules in the DNS Control policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-dns-logs.json",
+          "quotes": [
+            "Allow: Use this filter to limit the logs to allowed DNS requests and responses.",
+            "Block: Use this filter to limit the logs to DNS requests and responses that the service dropped.",
+            "Redirect: Use this filter to limit the logs to transactions wherein the service redirected the DNS request or response.",
+            "Request Allow: Use this filter to limit the logs to allowed DNS requests only.",
+            "Request Block: Use this filter to limit the logs to DNS requests that the service dropped.",
+            "Request Redirect: Use this filter to limit the logs to DNS requests that the service redirected.",
+            "Response Allow: Use this filter to limit the logs to allowed DNS responses only.",
+            "Response Block: Use this filter to limit the logs to DNS responses that the service dropped.",
+            "Response Redirect: Use this filter to limit the logs to DNS responses that the service redirected.",
+            "Rule Name: Use this filter to limit the logs based on specific rules in the DNS Control policy."
+          ]
+        }
+      ]
+    },
+    "dns-session-filters": {
+      "statement": "The Cloud DNS feed also filters IP Domain Classes, IP Domain Super Categories and IP Domain Categories by the URL class, super category or category with the domain in the request, plus Domains, DNS Request Types, DNS Response Codes, Server Ports (individual ports and a range of ports) and Durations, the session duration in seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-dns-logs.json",
+          "quotes": [
+            "IP Domain Classes: Use this filter to limit the logs to specific URL classes with the domain in the request.",
+            "IP Domain Super Categories: Use this filter to limit the logs to specific URL super categories with the domain in the request.",
+            "IP Domain Categories: Use this filter to limit the logs to specific URL categories associated with the domain in the request.",
+            "Domains: Use this filter to limit the logs to sessions associated with specific domains.",
+            "DNS Request Types: Use this filter to limit the logs to sessions associated with specific DNS request types.",
+            "DNS Response Codes: Use this filter to limit the logs to sessions associated with specific DNS response codes.",
+            "Server Ports: Use this filter to limit the logs to specific server ports. You can specify individual ports and a range of ports.",
+            "Durations: Use this filter to limit the logs based on the duration of the sessions, in seconds."
+          ]
+        }
+      ]
+    },
+    "saas-event-version": {
+      "statement": "The HTTP SaaS Security article lists the Event filter values Any (any type of event in the scan), Incident, Scan (no violation was detected; the scan is considered normal) and Violation. A previous version of the Event filter, available for Internet & SaaS (ZIA) 6.2 and earlier, does not include Violation; a feed configured with it remains supported until it is edited or changed, when the filter is replaced by the latest version, and newly configured feeds support the latest version by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "Any: Any type of event in the scan.",
+            "Scan: No violation was detected in the scan. The scan is considered normal.",
+            "Incident: A violation was detected in the scan and a configured DLP or malware rule was also triggered.",
+            "Violation: A violation was detected in the scan (i.e., either a DLP engine was matched or malware was detected.)",
+            "Any NSS feed that you previously configured using the earlier version of the filter remains supported until you make any edits or changes to the feed.",
+            "A previous version of the Event filter, available for Internet & SaaS (ZIA) 6.2 and earlier, does not include Violation as an option.",
+            "The Event filter is then replaced by the latest version, which includes the Violation option.",
+            "All newly configured NSS feeds support the latest version of the filter by default."
+          ]
+        }
+      ]
+    },
+    "saas-category-filters": {
+      "statement": "Beyond the filters already claimed from the TCP article, the HTTP SaaS Security feed article lists External Recipients (outside the organization) and Internal Recipients (within it) under Collaboration, and Channel Name, Bucket Name, Project Name, Repository Name and Message Size (the size of the email message) filters. DLP filters cover DLP Engines, DLP Dictionaries and the Severity of incidents detected by the Data at Rest Scanning DLP policy; Malware filters cover Malware Classes, Malware Names and Threat Name; Application filters cover the sanctioned SaaS Application and the SaaS Application Tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "External Recipients: Filter logs to specific recipients outside your organization. Multiple selections are allowed."
+          ],
+          "after": "Select Hide Deleted to hide these deleted departments from the list."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "Internal Recipients: Filter logs to specific recipients within your organization. Multiple selections are allowed.",
+            "Channel Name: Filter logs to specific channel names. You can enter multiple channel names separated by commas.",
+            "Bucket Name: Filter logs to specific bucket names.",
+            "Project Name: Filter logs to specific project names.",
+            "Repository Name: Filter logs to specific repository names.",
+            "Message Size: Filter logs by the size of the email message.",
+            "DLP Engines: Filter logs to transactions in which data leakage was detected based on specific DLP engines.",
+            "DLP Dictionaries: Filter logs to transactions in which data leakage was detected based on specific DLP dictionaries.",
+            "Severity: Choose the severity level of the incidents detected by the Data at Rest Scanning DLP policy.",
+            "Malware Classes: Filter logs based on the specific malware class.",
+            "Malware Names: Filter logs based on the specific malware names.",
+            "Threat Name: Filter logs based on specific threats that were detected.",
+            "SaaS Application: Filter logs based on the specific sanctioned SaaS application.",
+            "SaaS Application Tenant: Filter logs based on the specific SaaS application tenant."
+          ]
+        }
+      ]
+    },
+    "saas-download-time": {
+      "statement": "The HTTP SaaS Security Download Time filter limits logs by the file download time; the default unit of measure is milliseconds, and MS or SEC can be specified, for example 10MS-100MS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "Download Time: Filter logs based on the file download time."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "The default unit of measure is milliseconds, but you can specify this unit using either MS or SEC (e.g., 10MS-100MS)."
+          ],
+          "after": "Download Time: Filter logs based on the file download time."
+        }
+      ]
+    },
+    "saas-nonprovisioned-owner": {
+      "statement": "The HTTP SaaS Security article says that when a non-provisioned file owner within the organization is later provisioned to the Internet & SaaS, logs associated with that file owner can be filtered under the User field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "When a non-provisioned file owner within your organization is later provisioned to the Internet & SaaS, you can filter logs associated with that file owner under the User field."
+          ],
+          "after": "Channel Name: Filter logs to specific channel names. You can enter multiple channel names separated by commas."
+        }
+      ]
+    },
+    "saas-activity-filters": {
+      "statement": "The HTTP SaaS Security Activity feed article lists User (search by username or email address, no limit to the number of users, deleted users shown with a strike through line), Tenant and Activity (several of each allowed), and Object 1 Type and Object 2 Type filters, each with the default option None. The Cloud article gives one combined Object 1 Type and Object 2 Type filter and also says there is no limit to the users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-saas-security-activity-logs.json",
+          "quotes": [
+            "User: Filter logs based on specific users that generated transactions. You can search for users by username or email address. There's no limit to the number of users that you can select.",
+            "Users that are deleted after they are selected appear with a strike through line.",
+            "Tenant: Filter logs based on a specific application tenant. You can specify multiple tenants.",
+            "Activity: Filter logs based on a specific activity. You can specify multiple types of activity.",
+            "Object 1 Type: Filter logs based on the type of object 1 (e.g., User Session). You can search for specific object types. The default option is None.",
+            "Object 2 Type: Filter logs based on the type of object 2 (e.g., Email). You can search for specific object types. The default option is None."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-saas-security-activity-logs.json",
+          "quotes": [
+            "There's no limit to the number of users that you can select.",
+            "Object 1 Type and Object 2 Type: Filter logs based on the type of object (e.g., Organization)."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "user-cap": {
+      "summary": "The limits page caps users per NSS feed filter at 1,024, while the TCP SaaS Security article and the HTTP and Cloud SaaS Security Activity articles say there is no limit.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Number of Users per NSS Feed Filter | 1,024 users |"
+            ]
+          },
+          "says": "The limits page lists 1,024 users per NSS feed filter (shared.nss.feeds:filter-caps)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-tcp-nss-feeds-saas-security-logs.json",
+            "quotes": [
+              "There's no limit to the number of users that you can select."
+            ]
+          },
+          "says": "The SaaS Security feed article says there is no limit to the users that can be selected."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-http-nss-feeds-saas-security-activity-logs.json",
+            "quotes": [
+              "There's no limit to the number of users that you can select."
+            ]
+          },
+          "says": "The HTTP SaaS Security Activity feed article says there is no limit to the users that can be selected."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-cloud-nss-feeds-saas-security-activity-logs.json",
+            "quotes": [
+              "There's no limit to the number of users that you can select."
+            ]
+          },
+          "says": "The Cloud SaaS Security Activity feed article says there is no limit to the users that can be selected."
+        }
+      ],
+      "impact": "Whether a SaaS Security feed filter is exempt from the 1,024 cap cannot be settled from the vendor text."
+    }
+  },
+  "gaps": {
+    "duration-filter-field": {
+      "kind": "semantic",
+      "title": "Which duration field the Firewall and DNS Durations filter compares",
+      "status": "open",
+      "detail": "The Firewall and DNS Durations filters take seconds, while the firewall fields durationms and avgduration are milliseconds (zia.logs.firewall-records:avgduration). Which field the filter compares against, and on aggregated records whether it uses the average, is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "firewall-public-ip-vpn": {
+      "kind": "semantic",
+      "title": "Whether VPN tunnel traffic also makes the internal IP available on the Firewall feed",
+      "status": "open",
+      "detail": "The HTTP and Cloud Firewall articles name a GRE tunnel or the XFF header for when the internal IP address is available, and the TCP web article names a GRE or VPN tunnel or the XFF header. The firewall wording omits VPN rather than denying it, so the two are recorded as differing labels, not as a divergence; whether VPN tunnel traffic also gives an internal IP on the Firewall feed is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "dns-filter-values-vs-fields": {
+      "kind": "semantic",
+      "title": "Mapping of the nine Cloud DNS Policy Actions filter values to the action fields",
+      "status": "open",
+      "detail": "The nine filter values (dns-policy-actions-all) are not mapped to the reqaction and resaction field values in the DNS log; zia.logs.dns-outcome gap action-enum-open stays open.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "saas-internal-recipients-defect": {
+      "kind": "semantic",
+      "title": "Internal Recipients under Email is described as filtering channel names",
+      "status": "open",
+      "detail": "In the HTTP, Cloud and TCP SaaS Security articles the Internal Recipients filter appears twice: under Collaboration it filters recipients within the organization, and under Email it is described with the Channel Name wording. This looks like a defect inside the pages; no source says which description applies to the Email filter.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "Internal Recipients: Filter logs to specific recipients within your organization. Multiple selections are allowed.",
+            "Internal Recipients: Filter logs to specific channel names. You can enter multiple channel names separated by commas."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "Internal Recipients: Filter logs to specific recipients within your organization. Multiple selections are allowed.",
+            "Internal Recipients: Filter logs to specific channel names. You can enter multiple channel names separated by commas."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "Internal Recipients: Filter logs to specific recipients within your organization. Multiple selections are allowed.",
+            "Internal Recipients: Filter logs to specific channel names. You can enter multiple channel names separated by commas."
+          ]
+        }
+      ]
+    },
+    "saas-app-lists-differ": {
+      "kind": "semantic",
+      "title": "SaaS Security application lists differ between the TCP and the HTTP and Cloud articles",
+      "status": "open",
+      "detail": "The TCP SaaS Security article lists Webex Teams under Collaboration and Google Cloud Platform and Microsoft Azure under Public Cloud Storage; the HTTP and Cloud lists have none of the three (Collaboration lists Microsoft Teams, Slack and Zoom, Public Cloud Storage lists only Amazon S3). That is an absence, so it is not claimed, and it is a divergence only if the lists are complete enumerations. The saas-app-categories claim names none of the three.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "saas-users-departments-http-cloud": {
+      "kind": "semantic",
+      "title": "Whether the Users and Departments no-limit statement holds on the HTTP and Cloud SaaS Security feeds",
+      "status": "open",
+      "detail": "The TCP SaaS Security article says there is no limit to the users or departments that can be selected (saas-unlimited-users). The HTTP and Cloud SaaS Security articles describe Select All and Hide Deleted for the same filters with no limit statement. See the divergence user-cap.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "app-governance-posture-filters": {
+      "kind": "semantic",
+      "title": "Whether the Cloud App Governance and Posture Management feeds can be filtered",
+      "status": "open",
+      "detail": "Both Cloud articles go from the feed settings straight to saving and activating with no filter step, as do their TCP siblings. Whether these feeds can be filtered at all is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "value-logic": {
+      "kind": "semantic",
+      "title": "How filter values and filter fields combine",
+      "status": "open",
+      "detail": "The articles say multiple selections are allowed and give one example of two filters on different fields (filters-and). They never state a general rule for how filters on different fields combine, nor how several values in one field combine, so AND across fields and OR within a field are implied but not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "http-web-filter-absences": {
+      "kind": "semantic",
+      "title": "Filters the HTTP web feed does not have",
+      "status": "open",
+      "detail": "Diffing the HTTP web article against the TCP one showed no AI/ML Detection Source filter and no Include or Exclude options on its URL Classes, Super Categories and Categories filters, while the Cloud web article has AI/ML Detection Source. An absence cannot be quoted, so it is not claimed.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "mcas-who-group": {
+      "kind": "semantic",
+      "title": "Whether the MCAS feed filters by user",
+      "status": "open",
+      "detail": "The MCAS article lists Locations under its Who group, where every other web feed lists Users. That is probably a doc error, but no source says so, and the article does not state that MCAS cannot filter by user.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

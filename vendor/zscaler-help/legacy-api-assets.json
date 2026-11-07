@@ -1,0 +1,411 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Assets",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/assets",
+    "node": "1534290",
+    "revision": "3159645",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Assets_0.json?VersionId=JIN6w6YyZ284a6jdHNpbxJ6_8K4r.EOU",
+    "updated": "2025-12-29",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "description": "API Reference Guide for the Zscaler EASM API",
+      "title": "Zscaler External Attack Surface Management (EASM) Public API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/easm-ui/v1",
+    "securityDefinitions": {
+      "BearerAuth": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    },
+    "tags": [
+      {
+        "name": "Assets"
+      }
+    ],
+    "paths": {
+      "/organizations/:orgId/assets": {
+        "get": {
+          "tags": [
+            "Assets"
+          ],
+          "parameters": [
+            {
+              "default": "Bearer your-token",
+              "description": "API authentication token",
+              "in": "header",
+              "name": "Authorization",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/assets.GetAssetsResponse"
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "description": "Retrieves the list of internet-facing assets that EASM detects for your organization. To learn more, see <a href=\"/easm/about-asset-inventory\" target=\"_blank\">About Asset Inventory</a> and <a href=\"/easm/understanding-asset-discovery\" target=\"_blank\">Understanding Asset Discovery</a>."
+        }
+      },
+      "/organizations/:orgId/assets/:assetId/certificates": {
+        "get": {
+          "tags": [
+            "Assets"
+          ],
+          "parameters": [
+            {
+              "default": "Bearer your-token",
+              "description": "API authentication token",
+              "in": "header",
+              "name": "Authorization",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/assets.GetAssetCertificatesResponse"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "description": "Retrieves the list of SSL/TLS certificates used on an asset based on the specified asset ID. To learn more, see <a href=\"/easm/understanding-asset-details\" target=\"_blank\">Understanding Asset Details</a>."
+        }
+      },
+      "/organizations/:orgId/assets/:assetId/services": {
+        "get": {
+          "tags": [
+            "Assets"
+          ],
+          "parameters": [
+            {
+              "default": "Bearer your-token",
+              "description": "API authentication token",
+              "in": "header",
+              "name": "Authorization",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/assets.GetAssetServicesResponse"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "description": "Retrieves the list of services running on an asset based on the specified asset ID. To learn more, see <a href=\"/easm/understanding-asset-details\" target=\"_blank\">Understanding Asset Details</a>."
+        }
+      },
+      "/organizations/:orgId/assets/:assetId/technologies": {
+        "get": {
+          "tags": [
+            "Assets"
+          ],
+          "parameters": [
+            {
+              "default": "Bearer your-token",
+              "description": "API authentication token",
+              "in": "header",
+              "name": "Authorization",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/assets.GetAssetTechnologiesResponse"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "description": "Retrieves the list of technologies used on an asset based on the specified asset ID. To learn more, see <a href=\"/easm/understanding-asset-details\" target=\"_blank\">Understanding Asset Details</a>."
+        }
+      }
+    },
+    "definitions": {
+      "assets.GetAssetsResponse": {
+        "properties": {
+          "next_link": {
+            "type": "string"
+          },
+          "prev_link": {
+            "type": "string"
+          },
+          "results": {
+            "description": "The list of assets and their details",
+            "items": {
+              "$ref": "#/definitions/gitlab_corp_zscaler_com_zscaler_easm_easm-ui_internal_controllers_publicApi_assets.Asset"
+            },
+            "type": "array"
+          },
+          "total_results": {
+            "description": "The total number of assets present in the response",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "assets.GetAssetCertificatesResponse": {
+        "properties": {
+          "Certificates": {
+            "description": "The list of certificates that an asset uses and their details",
+            "items": {
+              "$ref": "#/definitions/gitlab_corp_zscaler_com_zscaler_easm_easm-ui_internal_controllers_publicApi_assets.Certificate"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "assets.GetAssetServicesResponse": {
+        "properties": {
+          "Services": {
+            "description": "The list of services running on an asset and their details",
+            "items": {
+              "$ref": "#/definitions/gitlab_corp_zscaler_com_zscaler_easm_easm-ui_internal_controllers_publicApi_assets.Service"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "assets.GetAssetTechnologiesResponse": {
+        "properties": {
+          "Technologies": {
+            "description": "The list of technologies used on an asset and their details",
+            "items": {
+              "$ref": "#/definitions/gitlab_corp_zscaler_com_zscaler_easm_easm-ui_internal_controllers_publicApi_assets.Technology"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "gitlab_corp_zscaler_com_zscaler_easm_easm-ui_internal_controllers_publicApi_assets.Asset": {
+        "description": "Information about the asset",
+        "properties": {
+          "country": {
+            "description": "The country of origin detected for the asset",
+            "type": "string"
+          },
+          "findings_count": {
+            "description": "The number of findings detected for the asset",
+            "type": "integer"
+          },
+          "first_seen": {
+            "description": "The timestamp when the asset was first discovered in a scan",
+            "type": "string"
+          },
+          "id": {
+            "description": "A unique identifier that EASM assigns to the asset",
+            "type": "string"
+          },
+          "is_stale": {
+            "description": "A Boolean value that indicates whether the asset is stale, meaning it was not detected in a scan for over 30 days.",
+            "type": "boolean"
+          },
+          "last_seen": {
+            "description": "The timestamp when the finding was last observed in a scan",
+            "type": "string"
+          },
+          "name": {
+            "description": "Asset name",
+            "type": "string"
+          },
+          "profile_id": {
+            "description": "ID of the <a href=\"/easm/about-discovery-profiles\" target=\"_blank\">discovery profile</a> through which this asset was detected",
+            "type": "string"
+          },
+          "risk_level": {
+            "description": "The risk level assigned to the asset from the following values: Minimum, Low, Medium, High, and Critical.",
+            "type": "string"
+          },
+          "risk_score": {
+            "description": "The risk score computed for the asset",
+            "type": "number"
+          },
+          "status": {
+            "description": "Indicates the <a href=\"/easm/modifying-asset-status\" target=\"_blank\">asset status</a> as Approved, Candidate, or Archived.",
+            "type": "string"
+          },
+          "type": {
+            "description": "The asset type categorized into Domain, Host, Web Page, Certificate, ASN, IP Address, or IP Block.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "gitlab_corp_zscaler_com_zscaler_easm_easm-ui_internal_controllers_publicApi_assets.Certificate": {
+        "description": "Information about the certificate",
+        "properties": {
+          "expires_at": {
+            "description": "The certificate's date of expiration",
+            "type": "string"
+          },
+          "first_seen": {
+            "description": "The timestamp when the certificate was first detected in the asset",
+            "type": "string"
+          },
+          "is_stale": {
+            "description": "A true value indicates that the certificate was not detected for more than 30 days and is therefore marked stale. A false value indicates that the certificate was observed in the scan in the last 30 days.",
+            "type": "boolean"
+          },
+          "issued_at": {
+            "description": "The certificate's date of issue",
+            "type": "string"
+          },
+          "last_seen": {
+            "description": "The timestamp when the certificate was last detected in the asset",
+            "type": "string"
+          },
+          "subject_common_name": {
+            "description": "The server name protected by the SSL certificate",
+            "type": "string"
+          },
+          "subject_key_identifier": {
+            "description": "The Subject Key Identifier (SKI) of the certificate, which is an extension providing a unique identifier for the certificate's public key.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "gitlab_corp_zscaler_com_zscaler_easm_easm-ui_internal_controllers_publicApi_assets.Service": {
+        "description": "Information about the service",
+        "properties": {
+          "created_at": {
+            "description": "The timestamp when the service was first detected in the asset",
+            "type": "string"
+          },
+          "ip": {
+            "description": "The IP address on which the service is running or installed",
+            "type": "string"
+          },
+          "port": {
+            "description": "The port that the service uses",
+            "type": "string"
+          },
+          "protocol": {
+            "description": "The protocol that the service uses",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "The timestamp when the service was first seen in the asset",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "gitlab_corp_zscaler_com_zscaler_easm_easm-ui_internal_controllers_publicApi_assets.Technology": {
+        "description": "Information about the technology",
+        "properties": {
+          "created_at": {
+            "description": "The timestamp when the technology was first detected in the asset",
+            "type": "string"
+          },
+          "cves": {
+            "description": "The CVE IDs for any associated vulnerabilities or exploits, highlighting any risky technologies used on the asset, such as those with known vulnerabilities or deprecated technologies (e.g., ISC BIND and Apache HTTP Server).",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ip": {
+            "description": "The IP address on which the technology is installed",
+            "type": "string"
+          },
+          "name": {
+            "description": "The technology name",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "The timestamp when the technology was last observed in the asset",
+            "type": "string"
+          },
+          "version": {
+            "description": "The version of the technology",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    }
+  }
+}

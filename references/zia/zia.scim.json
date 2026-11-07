@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "id": "zia.scim",
+  "title": "ZIA SCIM provisioning",
+  "aliases": [
+    "scim",
+    "scim provisioning zia",
+    "scim user not appearing",
+    "scim group not in policy",
+    "scim troubleshooting",
+    "idp push zia"
+  ],
+  "binds": [
+    "zia/users",
+    "zia/groups",
+    "zia/departments"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.ad-integration.saml-auto-provisioning",
+      "because": "zia.ad-integration.saml-auto-provisioning:scim-excludes"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ad-integration.directory-sync",
+      "because": "zia.scim.setup:not-with-directory"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication.methods",
+      "because": "zia.scim.setup:scim2-and-saml"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.scim.operations"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.scim.sdk-coverage"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/users"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/groups"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/departments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.provisioning-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.attribute-mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.groups-and-departments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.deactivation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.propagation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"The user is in the IdP but not in ZIA policy\" or \"the group is missing from the rule\" has a short list of places to look. {{purpose}}"
+    },
+    {
+      "steps": [
+        {
+          "label": "Is SCIM actually enabled for this IdP, with the right prerequisites?",
+          "text": "[[zia.scim.setup]]."
+        },
+        {
+          "label": "Did the attribute the rule needs get sent and mapped?",
+          "text": "[[zia.scim.attribute-mapping]]."
+        },
+        {
+          "label": "Did the group or department land as the object the rule references?",
+          "text": "[[zia.scim.groups-and-departments]]."
+        },
+        {
+          "label": "Is the client within the server's operations and limits?",
+          "text": "Endpoints, filters, paging and the rate limit: [[zia.scim.operations]]."
+        },
+        {
+          "label": "What does disabling or deleting do?",
+          "text": "[[zia.scim.deactivation]]."
+        },
+        {
+          "label": "How quickly does a change show up?",
+          "text": "[[zia.scim.propagation]]."
+        },
+        {
+          "label": "Is the problem the Go or Python client rather than the service?",
+          "text": "[[zia.scim.sdk-coverage]]."
+        }
+      ]
+    },
+    {
+      "text": "The shared SCIM protocol mechanics are in [[shared.scim]], and the ZPA side is in [[zpa.scim]]. Provisioning choices around SCIM (the alternatives, the directory-sync migration) are in [[zia.ad-integration.provisioning-methods]]. What SAML does to the same users is in [[zia.ad-integration.saml-auto-provisioning]]. The migration flag is in [[zia.authentication.settings:scim-migration-flag]]."
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "SCIM provisions users and groups onto Zscaler, automatically updates a user's group and department in the Zscaler user database to follow the directory, and deprovisions users deleted from the directory. It can be driven by a custom SCIM client calling the REST API, or by an IdP partnered with Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.json",
+          "quotes": [
+            "Automatically updating a user's group and department on the Zscaler user database to reflect changes in your user directory.",
+            "Deprovisioning users from the Zscaler database when users are deleted from your user directory.",
+            "Firstly, you can use custom SCIM clients to make REST API calls to Zscaler.",
+            "Provisioning users and groups onto Zscaler.",
+            "Secondly, you can use one of the IdPs partnered with Zscaler."
+          ]
+        }
+      ]
+    }
+  }
+}

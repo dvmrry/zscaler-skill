@@ -1,0 +1,5025 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Azure DLP Application Integration Using Zscaler Incident Receiver",
+  "source": {
+    "url": "https://help.zscaler.com/workflow-automation/configuring-azure-dlp-application-integration-using-zscaler-incident-receiver",
+    "node": "1531119",
+    "revision": "3247020",
+    "updated": "2026-10-14",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "To configure Workflow Automation DLP application integration using Zscaler Incident Receiver (ZIR), you must deploy a ZIR Azure instance. Doing so enables your organization to receive Data Loss Prevention (DLP) incident metadata files and the evidence file from ZIR and upload them to your organization's Azure storage containers in your Azure account."
+    },
+    {
+      "text": "To configure DLP application integration using Zscaler Incident Receiver:"
+    },
+    {
+      "item": "1. Create a resource in Microsoft Azure.",
+      "depth": 0
+    },
+    {
+      "item": "You can create Microsoft Azure resources automatically by using a Bash script in Azure, or you can create them manually.",
+      "depth": 0
+    },
+    {
+      "item": "Creating resources automatically using a Bash script",
+      "depth": 1
+    },
+    {
+      "item": "a. Download the Zscaler Bash script and the Azure resource manager template files from the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Workflow Automation > Integrations. The Integrations dashboard appears, displaying a DLP Azure application tile. The Tile View icon is selected by default.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          83
+        ],
+        [
+          89,
+          101
+        ],
+        [
+          134,
+          143
+        ],
+        [
+          166,
+          175
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click anywhere within the DLP Azure application tile. The Zscaler DLP Azure Integration details page appears, displaying a Configuration Steps tab and a Configuration tab.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          26,
+          35
+        ],
+        [
+          58,
+          87
+        ],
+        [
+          123,
+          142
+        ],
+        [
+          153,
+          166
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click the Configuration Steps tab. Under Azure Resource Stack Setup, click the following links:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          29
+        ],
+        [
+          41,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "The run-filewatcher.sh Bash script is used when installing or upgrading the container in the Filewatcher VM.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click the create-app-registration.sh link to download the Zscaler Bash script.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Click the ZscalerAzureIntegrationRM.json link to download the Azure DLP Integration resource manager template.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Click the FileWatcherVM.json link to download the Azure Filewatcher resource manager template.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "b. Set up the resource manager stack in Azure using the script and template files that Zscaler provides.",
+      "depth": 2
+    },
+    {
+      "item": "You can set up the resource manager stack in the Azure portal using the Bash script and the template files you previously downloaded from the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "To set up the resource manager stack:",
+      "depth": 2
+    },
+    {
+      "item": "i. In Azure, create the app registration for the DLP Integration and the Filewatcher.",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the Azure portal as a user with Owner permission in Azure.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "In the top right of the Azure portal, click the Cloud Shell icon and select Bash as a shell. The Cloud Shell virtual terminal appears at the bottom of the page.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          48,
+          59
+        ],
+        [
+          76,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "At the top of Cloud Shell virtual terminal, click the Upload/Download icon.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          54,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Upload and select the Bash script file (create-app-registration.sh) that you previously downloaded from the Zscaler Admin Console. A message appears in the bottom right when the upload is complete.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Enter the following command and press Enter:",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "bash create-app-registration.sh -d <customer display name> -y <number of years in which the secret is valid>",
+      "depth": 4
+    },
+    {
+      "item": "For example, bash create-app-registration.sh -d zscaler-Azure-Integration - y 3. This script creates the app registrations for both the DLP Integration and the Filewatcher, along with the client secrets for those apps. By default, the script creates a password/secret with one-year validity for the service principal, but you can change the number of years. The customer display name value that you enter in the command is used for the containers and storage accounts in Azure.",
+      "depth": 4
+    },
+    {
+      "item": "Copy and save the output values you receive from the script for both the DLP Integration app registration and the Filewatcher registration. You use the output values for the DLP Integration app registration later when you set up the integration in Workflow Automation. You use the output values for the Filewatcher later when you set up the Docker container in the Filewatcher.",
+      "depth": 4,
+      "number": 6
+    },
+    {
+      "item": "The following is an example of output received from the DLP Integration app registration:",
+      "depth": 4
+    },
+    {
+      "item": "{ \"applicationClientSecret\": \"k1r8Q~xxxxxxxxxxxxxxxxx.xxxxxxxxxxx\", \"tenantId\": \"aa698f79-a76e-4d05-8330-xxxxxxxxxx\", \"appName\": \"zscaler-Azure-Integration\", \"applicationObjectId\": \"929cbf20-c9ce-418b-xxxx-xxxxxxxxxx\", \"servicePrincipalObjectId\": \"5c4de7fb-xxxx-4b69-xxxx-xxxxxxxxxxx\" }",
+      "depth": 4
+    },
+    {
+      "item": "The system enters the customer display name value that you entered in the Bash command as the appName for the registration.",
+      "depth": 4
+    },
+    {
+      "item": "The following is an example of the output received from the Filewatcher app registration:",
+      "depth": 4
+    },
+    {
+      "item": "{ \"applicationClientSecret\": \"xxxx~xxxxxxxxxx_xxxxxxxxxxx\", \"tenantId\": \"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxx\", \"appName\": \"zscaler-Azure-Integration-filewatcher\", \"applicationObjectId\": \"0d7e2f75-79a0-43e3-b5f9-xxxxxxxx\", \"applicationClientId\": \"28dfa6aa-3456-404f-b5da-xxxxxxxxx\", \"servicePrincipalObjectId\": \"xxxxxx-75d7-48f1-be7f-xxxxxxxxx\" }",
+      "depth": 4
+    },
+    {
+      "item": "The system enters the customer display name value that you entered in the Bash command as the appName for the registration along with the Filewatcher appended at the end.",
+      "depth": 4
+    },
+    {
+      "item": "The output values from the script include credentials that you must protect and keep secure.",
+      "depth": 4
+    },
+    {
+      "item": "ii. Deploy the resource manager template for Filewatcher in Azure.",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the Azure portal as a user with Contributor permission in Azure.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "In the Azure portal, under Azure services, click the Deploy a custom template icon. The Custom deployment page appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          53,
+          77
+        ],
+        [
+          88,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Custom deployment page, click Build your own template in the editor. The Edit template page appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          74
+        ],
+        [
+          80,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Edit template page, click the Load file icon at the top of the page and select the Filewatcher template (FileWatcherVM.json) you previously downloaded from Workflow Automation. The template file is displayed on the Edit template page.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          37,
+          46
+        ],
+        [
+          222,
+          235
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save. The Custom deployment page reappears.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Custom deployment page:",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "In the Project details section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select a subscription. The subscription associated with your account appears by default.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource Group: From the drop-down menu, select the resource group where you want to deploy the storage account, blob containers, system topics, role definition, etc. If you want to create a new resource group, click Create new.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          217,
+          227
+        ]
+      ]
+    },
+    {
+      "item": "In the Instance details section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select the region. The region associated with your resource group appears by default.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Admin Password: Enter the admin password.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Vm Size: Enter Standard_D2ads_v6 (Gen2) as the size of the virtual machine (VM). Standard_D2s_v3 appears by default.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          15,
+          39
+        ],
+        [
+          81,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "Vm Name: Enter the name for the virtual machine.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "OS Version: From the drop-down menu, select the operating system version. The OS versions are Ubuntu-22-04 and Redhat-9.2. Ubuntu-22-04 appears by default.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          94,
+          106
+        ],
+        [
+          111,
+          121
+        ],
+        [
+          123,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "Create Virtual Network: To create a virtual network, select true. To not create a virtual network, select false.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          60,
+          64
+        ],
+        [
+          106,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Network Name: If you select true in the Create Virtual Network field, then enter the name of the virtual network. If you select false in the Create Virtual Network field, then enter the name of an existing virtual network.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          36,
+          40
+        ],
+        [
+          48,
+          70
+        ],
+        [
+          136,
+          141
+        ],
+        [
+          149,
+          171
+        ]
+      ]
+    },
+    {
+      "item": "Subnet Name: If you select true in the Create Virtual Network field, then enter the subnet name for the virtual network. If you select false in the Create Virtual Network field, then enter an existing subnet name.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          27,
+          31
+        ],
+        [
+          39,
+          61
+        ],
+        [
+          135,
+          140
+        ],
+        [
+          148,
+          170
+        ]
+      ]
+    },
+    {
+      "item": "Location: Enter the location. The location associated with the resource group appears by default.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Require Public IP: To create a public IP address, select true. To not create a public IP address, select false.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          57,
+          61
+        ],
+        [
+          105,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Review + Create. Azure runs a final validation of the template. Wait until the template passes the validation.",
+      "depth": 5,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Create. The deployment Overview page appears, displaying the deployment details.",
+      "depth": 5,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          29,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Wait until the deployment is complete. After the deployment completes successfully, a message appears at the top of the page with a green check mark stating that the deployment is complete.",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "From the left-side navigation, select Outputs. The deployment Outputs page appears.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          38,
+          45
+        ],
+        [
+          62,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "On the Outputs page, click the Copy to clipboard icon next to the hostPublicIP field (if created) or hostPrivateIP field. You need this information to complete the Filewatcher container setup.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          31,
+          48
+        ],
+        [
+          66,
+          78
+        ],
+        [
+          101,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "iii. Deploy the resource manager template for DLP Integration in Azure.",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the Azure portal as a user with Owner permission in Azure. Owner permission is required because you add role definitions and assignments during this procedure.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "In the Azure portal, under Azure services, click the Deploy a custom template icon. The Custom deployment page appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          53,
+          77
+        ],
+        [
+          88,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Custom deployment page, click Build your own template in the editor. The Edit template page appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          74
+        ],
+        [
+          80,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Edit template page, click the Load file icon at the top of the page and select the DLP Integration template (ZscalerAzureIntegrationRM.json) you previously downloaded from Workflow Automation. The template file is displayed on the Edit template page.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          37,
+          46
+        ],
+        [
+          238,
+          251
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save. The Custom deployment page reappears.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Custom deployment page:",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "In the Project details section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select a subscription. The subscription associated with your account appears by default. You can find the subscription name by going to the Subscriptions page in Azure.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          179,
+          192
+        ]
+      ]
+    },
+    {
+      "item": "Resource Group: From the drop-down menu, select the resource group where you want to deploy the storage account, blob containers, system topics, role definition, etc. If you want to create a new resource group, click Create new.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          217,
+          227
+        ]
+      ]
+    },
+    {
+      "item": "In the Instance details section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select a region. The region associated with the resource group appears by default.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Storage Account Name: Enter the name of the storage account.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "App Service Principal Object Id: Enter the servicePrincipalObjectId value from the output of the create app registration DLP integration script.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "File Watcher Service Principal Object Id: Enter the servicePrincipalObjectId value from the output of the create app registration Filewatcher script.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Enable Read Access To Data Blob: To enable read access to the incident violation details in the Zscaler Admin Console, select yes. Yes appears by default.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          31
+        ],
+        [
+          126,
+          129
+        ],
+        [
+          131,
+          134
+        ]
+      ]
+    },
+    {
+      "item": "Create Private DNS Zone: If you need to create the Private DNS Zone and link it to the virtual network, select true.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          111,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "If you want to restrict the storage account to selected IP addresses (i.e., if you select true for this field), then you must allowlist the IP addresses associated with your Workflow Automation cloud to communicate with the storage account. The IP addresses associated with your cloud are listed on NAT Gateway IP addresses.",
+      "depth": 6,
+      "strong": [
+        [
+          90,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "You can find your cloud in the URL that admins use to log in to the Zscaler Admin Console. For example, if you log in to https://app.produs1.zsworkflow.net/, then that organization's cloud is produs1.",
+      "depth": 6
+    },
+    {
+      "item": "Storage Account Public DNS Zone Forwarder: Select privatelink.blob.core.windows.net as the Private DNS Zone for the private endpoint for the storage account.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          41
+        ],
+        [
+          50,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Network Name: Enter the name of the virtual network where the Filewatcher VM is created.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Subnet Name: Enter the subnet name where the Filewatcher VM is created.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Review + Create. Azure runs a final validation of the template. Wait until the template passes the validation.",
+      "depth": 5,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Create. The deployment Overview page appears, displaying the deployment details.",
+      "depth": 5,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          29,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Wait until the deployment is complete. After the deployment completes successfully, a message appears at the top of the page with a green check mark, stating that the deployment is complete.",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "From the left-side navigation, select Outputs. The deployment Outputs page appears.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          38,
+          45
+        ],
+        [
+          62,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "On the Outputs page, click the Copy to clipboard icon next to the storageAccountName and the systemTopicResourceId fields and store in your local system. These values are required when creating the DLP Azure Integration in the Zscaler Admin Console.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          31,
+          48
+        ],
+        [
+          66,
+          84
+        ],
+        [
+          93,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Different storage containers that share a common name prefix are used for storing DLP incident data and metadata files. The names of the data and metadata containers are set to <containerNamePrefix>-data and <containerNamePrefix>-metadata, respectively. The Zscaler DLP Incident Management service reads and stores the incident metadata file (with trigger data stripped), but it never reads or stores the incident data files.",
+      "depth": 3
+    },
+    {
+      "item": "To notify the service when new incidents are uploaded to the storage container, an Event Grid topic is created in the Azure account. The metadata storage container is configured to publish BlobCreated notifications to the Event Grid topic. The Zscaler service hosts a Webhook endpoint, which is used to subscribe to the Event Grid topic. When the Zscaler service receives a notification on the Webhook endpoint, it reads the metadata file associated with the notification from the storage container. To do so, a service principal is created in the Azure account that has permissions to read from the metadata storage container and, optionally, the data storage container. The read permission for the data storage container is only required if you want users who respond to incidents to be able to view incident data files through short-lived, pre-signed Shared Access Signature (SAS) URL links.",
+      "depth": 3
+    },
+    {
+      "item": "Creating resources manually using the Azure console",
+      "depth": 1
+    },
+    {
+      "item": "a. Create the app registrations for the DLP Integration and the Filewatcher using Azure console.",
+      "depth": 2
+    },
+    {
+      "item": "For more information about the app registration process on the Microsoft Azure console, refer to the Microsoft documentation.",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the Microsoft Azure console.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "On the main page, click the App registrations option. You can also search for app registrations and select the App registrations option. The Register an application page appears.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          28,
+          45
+        ],
+        [
+          111,
+          128
+        ],
+        [
+          141,
+          164
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Register an application page:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a display name for your application.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Supported account types: Select Accounts in any organizational directory and personal Microsoft accounts. This option allows you to register a multitenant application that can support users who have organizational and personal Microsoft accounts.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URI (optional): From the drop-down menu, select Web.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          57,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Click Register to complete the app registration. The new application's overview page appears.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the overview page, copy and save the following details for future use:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "Display name",
+      "depth": 4
+    },
+    {
+      "item": "Application (client) ID",
+      "depth": 4
+    },
+    {
+      "item": "Object ID",
+      "depth": 4
+    },
+    {
+      "item": "Directory (tenant) ID",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Next to the Client credentials, click Add a certificate or secret. The Certificates & secrets page appears.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          12,
+          30
+        ],
+        [
+          38,
+          65
+        ],
+        [
+          71,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Certificates & secrets page, click New client secret. The Add a client secret pane opens.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          42,
+          59
+        ],
+        [
+          65,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Add a client secret pane:",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description for the client secret.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Expires: From the drop-down menu, select an expiration timeline for the client secret. You can also enter a custom timeline based on your requirements.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Click Add. The client secret value and secret ID display on the Certificates & secrets page.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          64,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Certificates & secrets page, ensure that you copy and save the client secret's value for future use.",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "You cannot view the secret value again after you leave this page.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "To create an app registration for Filewatcher, follow the preceding procedure for DLP Integration with a different application name. Ensure that you copy and save the client secret's value for the Filewatcher application.",
+      "depth": 2
+    },
+    {
+      "item": "b. Deploy the Filewatcher virtual machine (VM) in Azure.",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the Microsoft Azure console. Ensure that your account has access to create VMs.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "On the main page, select the Virtual machine. You can also search for virtual machines and select the Virtual machine option. The Virtual machine page appears.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          29,
+          44
+        ],
+        [
+          102,
+          117
+        ],
+        [
+          130,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "On the Virtual machines page, click Create > Virtual machine. The Create a virtual machine page appears.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          36,
+          42
+        ],
+        [
+          45,
+          60
+        ],
+        [
+          66,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Create a virtual machine page, on the Basics tab:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          45,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "In the Project details section:",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select a subscription. The subscription associated with your account appears by default.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: From the drop-down menu, select an existing resource group. If you want to create a new resource group, click Create new.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          126,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "In the Instance details section:",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Virtual machine name: Enter a display name for your VM.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select a region where you want to deploy the storage account. The region associated with the resource group appears by default.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Availability option: From the drop-down menu, select Availability zone.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          53,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Availability Zone: From the drop-down menu, select a zone based on your requirements. You can also select multiple zones.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Security type: From the drop-down menu, select Standard.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          47,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Image: From the drop-down menu, select an image for the VM. You can select any one of the following:",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Ubuntu-22-04",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Redhat-9.2",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "VM architecture: Select x64.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Size: Select the VM size. Size Standard_D2s_v3 appears by default.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          31,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Administrator account section, for Authentication type, select Password.",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          42,
+          61
+        ],
+        [
+          70,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "Username: Enter a unique username.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Password: Enter a password that satisfies the password requirements.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Confirm password: Re-enter the password to confirm.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that you save the username and the password for future use.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Inbound port rules section:",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Public inbound ports: Select Allow selected ports.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Select inbound ports: From the drop-down menu, select SSH (22).",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          54,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Networking tab, in the Network interface section:",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          30,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Network: From the drop-down menu, select a virtual network. If you want to create a new virtual network, click Create new.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          119,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "Subnet: From the drop-down menu, select a subnet. The default subnet automatically populates.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Public IP: From the drop-down menu, select a public IP address. The default public IP address automatically populates. If you want to use private IP addresses, select None.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          167,
+          172
+        ]
+      ]
+    },
+    {
+      "item": "NIC network security group: Select Basic.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          35,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Public inbound ports: Select Allow selected ports.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Select inbound ports: From the drop-down menu, select SSH (22).",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          54,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Click Review + Create. The Review + Create tab appears.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          27,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Review + Create tab, review the values and settings you entered, and then click Create. The deployment Overview page appears, displaying the deployment details.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          87,
+          93
+        ],
+        [
+          110,
+          118
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "From the deployment Overview page, click Go to resource to go to the virtual machine you deployed for Filewatcher.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          20,
+          28
+        ],
+        [
+          41,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "(Optional) Copy the public IP address displayed. Log in from your system using the public IP address and the username and password you entered when deploying the VM.",
+      "depth": 3,
+      "number": 9
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "c. Deploy the Azure resources for DLP Integration.",
+      "depth": 2
+    },
+    {
+      "item": "You must complete the following steps to deploy the resource manager template for DLP integration:",
+      "depth": 2
+    },
+    {
+      "item": "Create Storage Accounts",
+      "depth": 3
+    },
+    {
+      "item": "To deploy the Azure resources for DLP integration:",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the Microsoft Azure console.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "On the main page, select the Storage accounts option. You can also search for storage accounts and select the Storage accounts option. The Storage accounts page appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          29,
+          45
+        ],
+        [
+          110,
+          126
+        ],
+        [
+          139,
+          155
+        ]
+      ]
+    },
+    {
+      "item": "On the Storage accounts page, click Create. The Create a storage account page appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          36,
+          42
+        ],
+        [
+          48,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Create a storage account page, on the Basics tab:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          45,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "In the Project details section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select a subscription. The subscription associated with your account appears by default.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: From the drop-down menu, select an existing resource group. The resource group must be the same one you used for creating the VM.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the Instance details section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Storage account name: Enter a name for your storage account.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select the region for the storage account.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Performance: Leave the default setting.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Redundancy: Leave the default settings.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Networking tab:",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the Network connectivity section, in the Network access field, select Enable public access from selected virtual networks and IP address.",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          44,
+          58
+        ],
+        [
+          73,
+          139
+        ]
+      ]
+    },
+    {
+      "item": "In the Virtual networks section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Network Subscription: Select the subscription that you selected on the Basics tab.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          28
+        ],
+        [
+          79,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Network: Click Create virtual network. The Create virtual network pane appears.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          23,
+          45
+        ],
+        [
+          51,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for your virtual network.",
+      "depth": 7,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Resource Group: From the drop-down menu, select the resource group you used earlier.",
+      "depth": 7,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Location: From the drop-down menu, select a location for the virtual network.",
+      "depth": 7,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Address space: Enter the public IP addresses that you want to allowlist.",
+      "depth": 7,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Subnets: Enter the subnets of the IP addresses that you want to allowlist.",
+      "depth": 7,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "To view the various IP addresses of different Workflow Automation clouds associated with Zscaler, see NAT Gateway IP addresses.",
+      "depth": 7
+    },
+    {
+      "item": "Click OK.",
+      "depth": 7,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "In the Network routing section, for the Routing preference field, select Microsoft network routing.",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          40,
+          58
+        ],
+        [
+          73,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "Click Review. The Review tab appears.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          18,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Review tab, review the values and settings you entered, and then click Create. The deployment Overview page appears, displaying the deployment details.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          78,
+          84
+        ],
+        [
+          101,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "After the storage account successfully deploys, you must create three containers for the storage account.",
+      "depth": 3
+    },
+    {
+      "item": "To create the containers:",
+      "depth": 3
+    },
+    {
+      "item": "Go to the newly created storage account.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "On the storage account page, go to Data storage > Containers. The Containers page appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          47
+        ],
+        [
+          50,
+          60
+        ],
+        [
+          66,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Click Container. The New container pane appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          21,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the New container pane:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a unique name for your container. The word data should follow the unique name—for example, <containerName>-data.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Similarly, create two new containers with unique names followed by metadata and checkpoints, respectively. For example, <containerName>-metadata and <containerName>-checkpoints.",
+      "depth": 4
+    },
+    {
+      "item": "Different storage containers that share a common name suffix are used for storing DLP incident data and metadata files. The name of the data bucket is set to <containerNamePrefix>-data, and the name of the metadata bucket is set to <containerNamePrefix>-metadata. The Zscaler DLP Incident Management service reads and stores the incident metadata file (with trigger data stripped), but it never reads or stores the incident data files.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Create Role Assignments",
+      "depth": 3
+    },
+    {
+      "item": "You need to create two roles, assigning one to the DLP application and one to the Filewatcher application.",
+      "depth": 3
+    },
+    {
+      "item": "Create Role for the DLP Application",
+      "depth": 4
+    },
+    {
+      "item": "To create a role for DLP:",
+      "depth": 4
+    },
+    {
+      "item": "Go to the resource group you created.",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "On the resource group page, in the left-side navigation, go to Access control (IAM). The Access control (IAM) page appears.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          63,
+          83
+        ],
+        [
+          89,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Access control (IAM) page, select Add > Add custom role. The Create a custom role page appears.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          41,
+          44
+        ],
+        [
+          47,
+          62
+        ],
+        [
+          68,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Create a custom role page:",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "On the Basics tab, enter a name for the role in the Custom role name field. Ensure that you mention DLP in the name to differentiate it from the Filewatcher application's role. You can leave the other default settings on the page.",
+      "depth": 6,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          52,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "On the JSON tab, click Edit and replace the action parameters that appear by default with the following JSON. Then click Save.",
+      "depth": 6,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          23,
+          27
+        ],
+        [
+          121,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "\"actions\": [ \"Microsoft.Storage/storageAccounts/blobServices/containers/read\", \"Microsoft.Storage/storageAccounts/blobServices/generateUserDelegationKey/action\", \"Microsoft.EventGrid/systemTopics/eventSubscriptions/write\", \"Microsoft.EventGrid/systemTopics/eventSubscriptions/read\", \"Microsoft.EventGrid/systemTopics/eventSubscriptions/delete\" ] \"dataActions\": [ \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\" ]",
+      "depth": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Create. The Review + create tab appears.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          18,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "On the Review + create tab, review the values and settings you entered, and then click Create.",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          87,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "After creating the role, assign it to the DLP application.",
+      "depth": 4
+    },
+    {
+      "item": "To complete role assignments:",
+      "depth": 4
+    },
+    {
+      "item": "On the Access control (IAM) page, select Add > Add roles assignments. The Add role assignment page appears.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          41,
+          44
+        ],
+        [
+          47,
+          50
+        ],
+        [
+          51,
+          68
+        ],
+        [
+          74,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Role tab, search for and select the role you created for DLP app registration.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Members tab:",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Assign Access to: Select User, group, or service principal.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Members: Click Select members. The Select members pane appears.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          15,
+          29
+        ],
+        [
+          35,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "In the Select members pane, from the drop-down menu, select the DLP app registration you created.",
+      "depth": 7,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Select.",
+      "depth": 7,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Review + assign. The Review + assign tab appears.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          27,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Review the values and settings you entered, and then click Review + assign.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          59,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Create Role for the Filewatcher Application",
+      "depth": 4
+    },
+    {
+      "item": "To create a role for Filewatcher:",
+      "depth": 4
+    },
+    {
+      "item": "Go to the newly created storage account.",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "On the storage account page, in the left-side navigation, select Access control (IAM). The Access control (IAM) page appears.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          65,
+          85
+        ],
+        [
+          91,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "On Access control (IAM) page, select the Roles tab.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          3,
+          23
+        ],
+        [
+          41,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Select any one of the configured basic roles that appear. Click More, then select Clone. The Create a custom role page appears.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          64,
+          68
+        ],
+        [
+          82,
+          87
+        ],
+        [
+          93,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Create a custom role page:",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "On the Basics tab, enter a name for the role in the Custom role name field. Ensure that you mention Filewatcher in the name to differentiate it from the DLP application's role. You can leave the other default settings on the page.",
+      "depth": 6,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          52,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "On the JSON tab, click Edit and replace the action parameters that appear by default with the following JSON. Then click Save.",
+      "depth": 6,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          23,
+          27
+        ],
+        [
+          121,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "\"actions\": [ \"Microsoft.Storage/storageAccounts/blobServices/containers/read\", \"Microsoft.Storage/storageAccounts/blobServices/containers/write\" ], \"dataActions: [ \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\", \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write\", \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/move/action\", \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action\" ]",
+      "depth": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Create. The Review + create tab appears.",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          18,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the Review + create tab, review the values and settings you entered, and then click Create.",
+      "depth": 5,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          87,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "After creating the role, assign it to the Filewatcher application.",
+      "depth": 4
+    },
+    {
+      "item": "To complete role assignments:",
+      "depth": 4
+    },
+    {
+      "item": "On the Access control (IAM) page, select Add > Add roles assignments. The Add role assignment page appears.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          41,
+          44
+        ],
+        [
+          47,
+          68
+        ],
+        [
+          74,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "On the Role tab, search for and select the role you created for Filewatcher app registration.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Members tab:",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Assign Access to: Select User, group, or service principal.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Members: Click Select members. The Select members pane appears.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          15,
+          29
+        ],
+        [
+          35,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "In the Select members pane, from the drop-down menu, select the Filewatcher app registration you created.",
+      "depth": 7,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Select.",
+      "depth": 7,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Review + assign. The Review + assign tab appears.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          27,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Review the values and settings you entered, and then click Review + assign.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          59,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Create Event Grid System Topics",
+      "depth": 3
+    },
+    {
+      "item": "To create the event grid system topics for the storage account:",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the Microsoft Azure console.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "On the main page, select Event Grid System Topics. You can also search for Event Grid System Topics and select it. The Event Grid | System topics page appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          25,
+          49
+        ],
+        [
+          119,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "Click Create. The Create Event Grid System Topics page appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          18,
+          24
+        ],
+        [
+          25,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Create Event Grid System Topic page, on the Basics tab:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          14,
+          37
+        ],
+        [
+          51,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "In the Topic Details section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Topic Types: From the drop-down menu, select Storage Accounts (blob & GPv2).",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          45,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select the subscription associated with your account.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource Group: From the drop-down menu, select the resource group you created.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Resource: From the drop-down menu, select the storage account you created.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "In the System Topic Details section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the system topic.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Location: Select a location for the system topic.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Leave the other default settings.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Review + create. The Review + create tab appears.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          27,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Review the details you entered and then click Create. The deployment Overview page appears, displaying the deployment details.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          46,
+          52
+        ],
+        [
+          69,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "You can view the newly created system topic on the Events tab of your storage account.",
+      "depth": 3,
+      "strong": [
+        [
+          51,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Create Private DNS Zones",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the Microsoft Azure console.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "On the main page, select Private DNS zone. You can also search for Private DNS zone and select it. The Private DNS zone page appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          25,
+          41
+        ],
+        [
+          103,
+          119
+        ]
+      ]
+    },
+    {
+      "item": "Click Create. The Create Private DNS zone page appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          18,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Create Private DNS zone page, on the Basics tab:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          44,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select a subscription associated with your account.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: From the drop-down menu, select the resource group you created.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter privatelink.blob.core.windows.net",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Resource group location: Location is selected by default, and you cannot change it.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Review + Create. The Review create tab appears.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          27,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Review the details you entered and then click Create. The deployment Overview page appears, displaying the deployment details.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          46,
+          52
+        ],
+        [
+          69,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Create Private Endpoints",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the Microsoft Azure console.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "On the main page, select Private endpoints. You can also search for Private endpoints. The Private Link Center | Private endpoints page appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          25,
+          42
+        ],
+        [
+          91,
+          130
+        ]
+      ]
+    },
+    {
+      "item": "Click Create. The Create a private endpoint page appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          18,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Create a private endpoint page, on the Basics tab:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          46,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "In the Project details section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select a subscription associated with your account.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: From the drop-down menu, select the resource group you created.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the Instance details section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the private endpoint.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Network Interface name: This field is automatically populated.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select a location for the private endpoint.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Resource tab:",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Connection method: Select Connect to an Azure resource in my directory.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select a subscription associated with your account.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource type: From the drop-down menu, select Microsoft Storage/storage Accounts.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          47,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Resource: From the drop-down menu, select the storage account resource you created.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Target sub-resource: From the drop-down menu, select blob.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          53,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Virtual Network tab:",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the Networking section:",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Virtual network: From the drop-down menu, select the virtual network you created.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Subnet: From the drop-down menu, select default.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          40,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Network policy for private endpoints: Disable this field.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "In the Private IP configuration section, select Dynamically allocate IP address.",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          48,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the DNS tab, for Integrate with private DNS zone, select Yes.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          10
+        ],
+        [
+          20,
+          51
+        ],
+        [
+          60,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "The Configuration name, Subscription, Resource group, and Private DNS zone are automatically populated.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Tags tab, click Review + create. The Review + create tab appears.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          23,
+          38
+        ],
+        [
+          44,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Review all the details you entered and then click Create. The deployment Overview page appears, displaying the deployment details.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          50,
+          56
+        ],
+        [
+          73,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "2. (Optional) Set up Azure Front Door to access the storage account through a private endpoint.",
+      "depth": 0
+    },
+    {
+      "item": "After you create the storage account, you can set up Azure Front Door Premium to use private endpoints when configuring Zscaler Azure DLP integration. This step is optional and only required if you want Workflow Automation to access the storage account through private endpoints. To learn more, refer to the Microsoft documentation.",
+      "depth": 0
+    },
+    {
+      "item": "To set up private endpoints to access the storage account:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the storage account you created.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "From the left-side navigation, click Front Door and CDN. The Front Door and CDN page appears.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          37,
+          55
+        ],
+        [
+          61,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Front Door and CDN page, in the New Endpoint section:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          39,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Service type: Select Azure Front Door.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Create new/use existing profile: Select Create new.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          31
+        ],
+        [
+          40,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Profile name: Enter a name for your profile.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Endpoint name: Enter a name for the new endpoint.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Endpoint host name: This field is populated automatically.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Origin host name: From the drop-down menu, select the origin host name.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Pricing tier: Select Azure Front Door Premium Security optimized.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Private link: Select Enable private link.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          21,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select a region for your endpoint.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Target sub resource: From the drop-down menu, select blob.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          53,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Click Create. The deployment Overview page appears, displaying the deployment details.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          29,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Overview page, click Go to resource. You are redirected to the storage account page.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          28,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the storage account page, from the left-side navigation, select Networking.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          67,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Networking page, on the Private endpoint connections tab, select the newly created private endpoint and click Approve.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          31,
+          59
+        ],
+        [
+          117,
+          124
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Front Door and CDN page, where the endpoint is successfully approved for usage. You can also view details such as the Host name, Profile name, Service type, Tier, and Status, of your private endpoint.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          10,
+          28
+        ],
+        [
+          128,
+          137
+        ],
+        [
+          139,
+          151
+        ],
+        [
+          153,
+          165
+        ],
+        [
+          167,
+          171
+        ],
+        [
+          177,
+          183
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "You must approve the new private endpoints to use them when configuring the Zscaler Azure DLP integration.",
+      "depth": 1
+    },
+    {
+      "item": "Similarly, you can create additional private endpoints.",
+      "depth": 0
+    },
+    {
+      "item": "3. Install a container or upgrade the container in the Filewatcher VM.",
+      "depth": 0
+    },
+    {
+      "item": "After deploying the resource manager template in Azure, either automatically or manually, install a container or upgrade a container in the Filewatcher VM for DLP integration using either the Docker or Podman platforms.",
+      "depth": 0
+    },
+    {
+      "item": "For installing Docker, refer to the following Docker documentation for the specific OS you are using. Ensure that you also complete the post-installation process to successfully deploy Docker on your system.",
+      "depth": 1
+    },
+    {
+      "item": "Red Hat Enterprise Linux",
+      "depth": 2
+    },
+    {
+      "item": "Ubuntu",
+      "depth": 2
+    },
+    {
+      "item": "For installing Podman, refer to the Podman documentation.",
+      "depth": 1
+    },
+    {
+      "heading": "Security Recommendations",
+      "level": 6
+    },
+    {
+      "item": "The following are security recommendations for the Filewatcher VM:",
+      "depth": 0
+    },
+    {
+      "item": "Podman is recommended for running the Filewatcher container. Podman is daemonless and because of this, containers run directly as the invoking user with no privileged intermediary and with no daemon socket to exploit.",
+      "depth": 1
+    },
+    {
+      "item": "Do not expose the Filewatcher VM publicly. The VM must have no public IPs. Restrict the NSG inbound rule 22/TCP to known corporate CIDR's only. If SSH is required, use a bastion or jump host.",
+      "depth": 1
+    },
+    {
+      "item": "Restrict sudo privileges on the Filewatcher host.",
+      "depth": 1
+    },
+    {
+      "item": "The Filewatcher VM must receive regular OS updates. Unpatched kernels expose multiple local privilege-escalation CVEs.",
+      "depth": 1
+    },
+    {
+      "item": "For Docker only, you have the option to block container access to Azure IMDS. Although Filewatcher does not use it internally, running the following command avoids any user from accessing Azure IMDS:",
+      "depth": 1
+    },
+    {
+      "item": "$ iptables -I DOCKER-USER 1 -d 169.254.169.254/32 -j DROP",
+      "depth": 1
+    },
+    {
+      "heading": "Storage Recommendations",
+      "level": 6
+    },
+    {
+      "item": "The following are storage recommendations for the Filewatcher VM:",
+      "depth": 0
+    },
+    {
+      "item": "If you have a single disk, Zscaler recommends that you allocate at least 200 GB for the Filewatcher VM.",
+      "depth": 1
+    },
+    {
+      "item": "If you have multiple disks, Zscaler recommends allocating 100 GB to the root and other partitions and allocating a minimum of 100 GB to the SFTP folder (zscaler-files). This is required in case of any issues where the Filewatcher is unable to upload files to the storage blob.",
+      "depth": 1
+    },
+    {
+      "item": "If the VM to which you are adding a container is a new VM, then follow the steps for installing a new container. Otherwise, if the existing container image version is earlier than 1.80.0, then follow the steps for upgrading a container.",
+      "depth": 0
+    },
+    {
+      "item": "Installing a New Container",
+      "depth": 1
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 3
+    },
+    {
+      "item": "Before you begin:",
+      "depth": 1
+    },
+    {
+      "item": "Do not run this script with root.",
+      "depth": 2
+    },
+    {
+      "item": "Allow the following domains on the firewall for downloading the Filewatcher container image:",
+      "depth": 2
+    },
+    {
+      "item": "public.ecr.aws:443",
+      "depth": 3
+    },
+    {
+      "item": "gallery.ecr.aws:443",
+      "depth": 3
+    },
+    {
+      "item": "Allow the following domains on the Filewatcher outbound connection to the MSFT Identity Services:",
+      "depth": 2
+    },
+    {
+      "item": "login.microsoftonline.com",
+      "depth": 3
+    },
+    {
+      "item": "*.aadcdn.msftauth.net",
+      "depth": 3
+    },
+    {
+      "item": "*.aadcdn.msftauthimages.net",
+      "depth": 3
+    },
+    {
+      "item": "*.aadcdn.msauthimages.net",
+      "depth": 3
+    },
+    {
+      "item": "*.logincdn.msftauth.net",
+      "depth": 3
+    },
+    {
+      "item": "login.live.com",
+      "depth": 3
+    },
+    {
+      "item": "*.msauth.net",
+      "depth": 3
+    },
+    {
+      "item": "*.aadcdn.microsoftonline-p.com",
+      "depth": 3
+    },
+    {
+      "item": "*.microsoftonline-p.com",
+      "depth": 3
+    },
+    {
+      "item": "Ensure that the current user has access to Docker or Podman. If the current user does not have access to Docker, run the following command:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo usermod -aG docker <user>",
+      "depth": 2
+    },
+    {
+      "item": "To install a new container:",
+      "depth": 1
+    },
+    {
+      "item": "Download the run-filewatcher.sh script from the Zscaler Admin Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Workflow Automation > Integrations. The Integrations dashboard appears, displaying a DLP Azure application tile. The Tile View icon is selected by default.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          83
+        ],
+        [
+          89,
+          101
+        ],
+        [
+          134,
+          143
+        ],
+        [
+          166,
+          175
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click anywhere within the DLP Azure application tile. The Zscaler DLP Azure Integration details page appears, displaying a Configuration Steps tab and a Configuration tab.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          26,
+          35
+        ],
+        [
+          58,
+          87
+        ],
+        [
+          123,
+          142
+        ],
+        [
+          153,
+          166
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click the Configuration Steps tab. Under Azure Resource Stack Setup, click the run-filewatcher.sh link to download the Zscaler Bash script.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          29
+        ],
+        [
+          41,
+          67
+        ],
+        [
+          79,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In Azure, go to the Filewatcher server by pasting the hostPublicIP field value (if created) or hostPrivateIP field value that you copied from the Outputs page when you deployed the Filewatcher template on the command line. Then press Enter.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          54,
+          66
+        ],
+        [
+          95,
+          108
+        ],
+        [
+          146,
+          153
+        ]
+      ]
+    },
+    {
+      "item": "Enter the admin password you used when you deployed the Filewatcher template and press Enter.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Copy the run-filewatcher.sh Bash script that you previously downloaded to the Filewatcher VM in the user's home directory.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "This script assumes that the current user has permission to run Podman or Docker.",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following command and press Enter:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "azure-user@filewatcher-vm:~$ bash run-filewatcher.sh",
+      "depth": 2
+    },
+    {
+      "item": "The script asks you for the following information:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "container_name_prefix=<Storage Account Name>",
+      "depth": 3
+    },
+    {
+      "item": "AZURE_CLIENT_ID=<applicationClientId>: The value from the Bash script output for the Filewatcher App registration.",
+      "depth": 3
+    },
+    {
+      "item": "AZURE_CLIENT_SECRET=<applicationClientSecret>: The value from the Bash script output for the Filewatcher App registration.",
+      "depth": 3
+    },
+    {
+      "item": "AZURE_TENANT_ID=<tenantID>: The value from the Bash script output for the Filewatcher App registration.",
+      "depth": 3
+    },
+    {
+      "item": "image-version=1.80.0: The latest image version for the Filewatcher container.",
+      "depth": 3
+    },
+    {
+      "item": "source_folder=/var/data: Use the default value.",
+      "depth": 3
+    },
+    {
+      "item": "file_processor_thread_pool_size=8: The number of files that can be uploaded at a time. Use the default value.",
+      "depth": 3
+    },
+    {
+      "item": "file_process_wait_time_in_millis=5000: The time to wait after the file event is received in the Filewatcher. It might take some time for the Incident Receiver to copy the content of the file. Use the default value.",
+      "depth": 3
+    },
+    {
+      "item": "delete_folders_older_than=7: Use the default value.",
+      "depth": 3
+    },
+    {
+      "item": "health_check_interval_in_sec=300: The interval in which the Filewatcher sends the message (\"I am alive\") to the Zscaler Admin Console. Use the default value.",
+      "depth": 3
+    },
+    {
+      "item": "Are you using docker or podman=docker or podman. The default value is podman.",
+      "depth": 3
+    },
+    {
+      "item": "is_gov_cloud=no or yes. The default value is no. For commercial clouds, select no.",
+      "depth": 3
+    },
+    {
+      "item": "The script does the following:",
+      "depth": 2
+    },
+    {
+      "item": "Creates the envfile.txt file in the current directory.",
+      "depth": 3
+    },
+    {
+      "item": "Creates the zscaler-files folder in the current directory where the Incident Receiver sends the incidents by Secure File Transfer Protocol (SFTP).",
+      "depth": 3
+    },
+    {
+      "item": "The Filewatcher container uploads the files from the zscaler-files folder to the Azure Blob containers.",
+      "depth": 3
+    },
+    {
+      "item": "The following images are examples of the Bash script using Podman and Docker.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Upgrading a Container",
+      "depth": 1
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 3
+    },
+    {
+      "item": "Before you begin:",
+      "depth": 1
+    },
+    {
+      "item": "Do not run this script with root.",
+      "depth": 2
+    },
+    {
+      "item": "Allow the following domains on the firewall for downloading the Filewatcher container image:",
+      "depth": 2
+    },
+    {
+      "item": "public.ecr.aws:443",
+      "depth": 3
+    },
+    {
+      "item": "gallery.ecr.aws:443",
+      "depth": 3
+    },
+    {
+      "item": "Allow the following domains on the Filewatcher outbound connection to the MSFT Identity Services:",
+      "depth": 2
+    },
+    {
+      "item": "login.microsoftonline.com",
+      "depth": 3
+    },
+    {
+      "item": "*.aadcdn.msftauth.net",
+      "depth": 3
+    },
+    {
+      "item": "*.aadcdn.msftauthimages.net",
+      "depth": 3
+    },
+    {
+      "item": "*.aadcdn.msauthimages.net",
+      "depth": 3
+    },
+    {
+      "item": "*.logincdn.msftauth.net",
+      "depth": 3
+    },
+    {
+      "item": "login.live.com",
+      "depth": 3
+    },
+    {
+      "item": "*.msauth.net",
+      "depth": 3
+    },
+    {
+      "item": "*.aadcdn.microsoftonline-p.com",
+      "depth": 3
+    },
+    {
+      "item": "*.microsoftonline-p.com",
+      "depth": 3
+    },
+    {
+      "item": "Ensure the current user has access to Docker or Podman. If the current user does not have access to Docker, run the following command:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo usermod -aG docker <user>",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that zscaler-files and envfile.txt follow this hierarchy in the user's home folder:",
+      "depth": 2
+    },
+    {
+      "item": "To upgrade a container:",
+      "depth": 1
+    },
+    {
+      "item": "Download the run-filewatcher.sh script from the Zscaler Admin Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Workflow Automation > Integrations. The Integrations dashboard appears, displaying a DLP Azure application tile. The Tile View icon is selected by default.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          83
+        ],
+        [
+          89,
+          101
+        ],
+        [
+          134,
+          143
+        ],
+        [
+          166,
+          175
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click anywhere within the DLP Azure application tile. The Zscaler DLP Azure Integration details page appears, displaying a Configuration Steps tab and a Configuration tab.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          26,
+          35
+        ],
+        [
+          58,
+          87
+        ],
+        [
+          123,
+          142
+        ],
+        [
+          153,
+          166
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click the Configuration Steps tab. Under Azure Resource Stack Setup, click the run-filewatcher.sh link to download the Zscaler Bash script.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          29
+        ],
+        [
+          41,
+          67
+        ],
+        [
+          79,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In Azure, go to the Filewatcher server by pasting the hostPublicIP field value (if created) or hostPrivateIP field value that you copied from the Outputs page when you deployed the Filewatcher template on the command line. Then press Enter.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          54,
+          66
+        ],
+        [
+          95,
+          108
+        ],
+        [
+          146,
+          153
+        ]
+      ]
+    },
+    {
+      "item": "Enter the admin password you used when you deployed the Filewatcher template and press Enter.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Copy the run-filewatcher.sh Bash script that you previously downloaded to the Filewatcher VM in the user's home directory.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "This script assumes that the current user has permission to run Podman or Docker.",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following command and press Enter:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "azure-user@filewatcher-vm:~$ bash run-filewatcher.sh",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that your current directory contents looks similar to the following:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "The script asks you for the following information:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "container_name_prefix=<Storage Account Name>",
+      "depth": 3
+    },
+    {
+      "item": "AZURE_CLIENT_ID=<applicationClientId>: The value from the Bash script output for the Filewatcher App registration.",
+      "depth": 3
+    },
+    {
+      "item": "AZURE_CLIENT_SECRET=<applicationClientSecret>: The value from the Bash script output for the Filewatcher App registration.",
+      "depth": 3
+    },
+    {
+      "item": "AZURE_TENANT_ID=<tenantID>: The value from the Bash script output for the Filewatcher App registration.",
+      "depth": 3
+    },
+    {
+      "item": "image-version=1.80.0: The latest image version for the Filewatcher container.",
+      "depth": 3
+    },
+    {
+      "item": "source_folder=/var/data: Use the default value.",
+      "depth": 3
+    },
+    {
+      "item": "file_processor_thread_pool_size=8: The number of files that can be uploaded at a time. Use the default value.",
+      "depth": 3
+    },
+    {
+      "item": "file_process_wait_time_in_millis=5000: The time to wait after the file event is received in the Filewatcher. It might take some time to copy the content of the file by the Incident Receiver. Use the default value.",
+      "depth": 3
+    },
+    {
+      "item": "delete_folders_older_than=7: Use the default value.",
+      "depth": 3
+    },
+    {
+      "item": "health_check_interval_in_sec=300: The interval in which the Filewatcher sends the message (I am alive) to the Zscaler Admin Console. Use the default value.",
+      "depth": 3
+    },
+    {
+      "item": "Are you using docker or podman=docker or podman. The default value is podman.",
+      "depth": 3
+    },
+    {
+      "item": "is_gov_cloud=no or yes. The default value is no. For commercial clouds, select no.",
+      "depth": 3
+    },
+    {
+      "item": "This script does the following:",
+      "depth": 2
+    },
+    {
+      "item": "Updates the envfile.txt file in the current directory.",
+      "depth": 3
+    },
+    {
+      "item": "Uses the existing folder in the current directory where the Incident Receiver sends the incidents by SFTP. The envfile.txt file must not be inside the zscaler-files folder.",
+      "depth": 3
+    },
+    {
+      "item": "The Filewatcher container uploads the files from the zscaler-files folder to the Azure Blob containers.",
+      "depth": 3
+    },
+    {
+      "item": "The following images are examples of the Bash script using Podman and Docker.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "4. Add a DLP Azure application integration in Workflow Automation using the output from the Bash script and the Azure resource manager stack.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Workflow Automation > Integrations. The Integrations dashboard appears, displaying a DLP Azure application tile. The Tile View icon is selected by default.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          83
+        ],
+        [
+          89,
+          101
+        ],
+        [
+          134,
+          137
+        ],
+        [
+          138,
+          143
+        ],
+        [
+          166,
+          175
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) On the Integrations dashboard, change the format for the dashboard. Click the List View icon to view the integrations in a list.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          18,
+          30
+        ],
+        [
+          89,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After you select a view option, perform one of the following procedures:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "In the tile view: In the DLP Azure application tile, click the Add icon. The add Zscaler DLP Azure Integration page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          63,
+          66
+        ],
+        [
+          81,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "In the list view:",
+      "depth": 2
+    },
+    {
+      "item": "Next to the DLP Azure application integration, click Connect. The Zscaler DLP Azure Integration details page appears, displaying a Configuration Steps tab and a Configuration tab.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          53,
+          60
+        ],
+        [
+          66,
+          95
+        ],
+        [
+          131,
+          150
+        ],
+        [
+          161,
+          174
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Configuration Steps tab provides the instructions for configuring a DLP Azure application integration, a link to download the Bash script, and links to download the Zscaler resource manager template files.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "On the Configuration tab, click Add New. The add Zscaler DLP Azure Integration page appears.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          32,
+          39
+        ],
+        [
+          49,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "On the add Zscaler DLP Azure Integration page, in the Zscaler Azure DLP Integration section, enter an Integration Name.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          11,
+          40
+        ],
+        [
+          54,
+          83
+        ],
+        [
+          102,
+          118
+        ]
+      ]
+    },
+    {
+      "item": "In the Account Credentials section:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Tenant ID: Copy the TenantId output from the Bash script for the DLP integration and enter it here.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client ID: Copy the applicationClientId output from the Bash script for the DLP integration and enter it here.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: Copy the applicationClientSecret output from the Bash script for the DLP integration and enter it here.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Zscaler Azure DLP Integration section:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Storage Account Name: Copy the storageAccountName output from the deployment of the resource manager template for DLP integration and enter it here.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Custom Storage Endpoint URL: (Optional) If you do not want Workflow Automation to access the storage account through a default public endpoint, enter a custom storage endpoint URL in the format https://<custom endpoint>. If you want to use a public endpoint, leave the field blank.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Event Grid System Topic Resource ID: Copy the systemTopicResourceID output from the deployment of the resource manager template for DLP integration and enter it here.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "In the Privacy Settings section:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Hide Evidence Data - Admin: Select if you do not want admins to be able to generate presigned evidence links for an incident on the Violation Content tab of the Incident Details drawer. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          132,
+          149
+        ],
+        [
+          161,
+          177
+        ]
+      ]
+    },
+    {
+      "item": "Hide Trigger Data - Admin: Select if you do not want admins to be able to see the trigger data for an incident on the Violation Content tab of the Incident Details drawer. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          118,
+          135
+        ],
+        [
+          147,
+          163
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details - Admin: Select if you do not want the admins to be able to view any of the policy details for the incident on the Violation Details tab of the Incident Details drawer. Otherwise, they can view the policy details for the incident. This checkbox is not selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ],
+        [
+          135,
+          152
+        ],
+        [
+          164,
+          180
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details for Non-Triggered Matches - Admin: Select if you do not want the admins to be able to view the Non-Triggered Engines and Dictionaries section and the Other Matched Rules section of the policy details for the incident on the Violation Details tab of the Incident Details drawer. Otherwise, they can view these sections of the policy details for the incident. This checkbox is only available if you do not select the Hide Policy Details - Admin checkbox. This checkbox is not selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          53
+        ],
+        [
+          115,
+          153
+        ],
+        [
+          170,
+          189
+        ],
+        [
+          244,
+          261
+        ],
+        [
+          273,
+          289
+        ],
+        [
+          435,
+          462
+        ]
+      ]
+    },
+    {
+      "item": "Hide Evidence Data - End User: Select if you do not want the end users responding to an incident notification to be able to generate presigned evidence links for an incident. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Hide Trigger Data - End User: Select if you do not want the end users responding to an incident notification to be able to see the trigger data for an incident. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details - End User: Select if you do not want the end users responding to an incident notification to be able to view any of the policy details for the incident. Otherwise, they can view the policy details for the incident. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details for Non-Triggered Matches - End User: Select if you do not want the end users responding to an incident notification to be able to view the Non-Triggered Engines and Dictionaries section and the Other Matched Rules section of the policy details for the incident. Otherwise, they can view these sections of the policy details for the incident. This checkbox is only available if you do not select the Hide Policy Details - End User checkbox.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          56
+        ],
+        [
+          160,
+          198
+        ],
+        [
+          215,
+          234
+        ],
+        [
+          420,
+          450
+        ]
+      ]
+    },
+    {
+      "item": "Hide Evidence Data - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to generate presigned evidence links for the incident. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Hide Trigger Data - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to see the trigger data for the incident. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to view the policy details for the incident. Otherwise, they can view the policy details for the incident. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details for Non-Triggered Matches - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to view the Non-Triggered Engines and Dictionaries section and the Other Matched Rules section of the policy details for the incident. Otherwise, they can view these sections of the policy details for the incident. This checkbox is only available if you do not select the Hide Policy Details - Manager/Approver checkbox.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          64
+        ],
+        [
+          191,
+          229
+        ],
+        [
+          246,
+          265
+        ],
+        [
+          451,
+          489
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If you disable Hide Evidence Data or Hide Trigger Data in the integration, but you did not enable read access to the data blob when creating the resource manager stack, no one can generate evidence links or view trigger data in the Zscaler Admin Console.",
+      "depth": 1,
+      "strong": [
+        [
+          15,
+          33
+        ],
+        [
+          37,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Click Validate. The system validates the account credentials that are entered with the Azure integration. It also checks whether the format is correct for the Event Grid System Topic Resource Id. You can only add the integration if it passes validation.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          159,
+          194
+        ]
+      ]
+    },
+    {
+      "item": "If the validation fails for any reason, or if the configuration has been created or updated with the wrong values, you must disable the integration, correct the values for the integration, and re-enable it.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add. The Zscaler DLP Azure Integration details page appears, displaying the DLP integration under Connected Accounts with an Enabled status.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          15,
+          44
+        ],
+        [
+          104,
+          122
+        ],
+        [
+          131,
+          138
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see Managing DLP Azure Application Integrations in Workflow Automation.",
+      "depth": 0
+    },
+    {
+      "item": "5. Set Up the Zscaler Incident Receiver.",
+      "depth": 0
+    },
+    {
+      "item": "Configure the ZIR VM on an Azure instance. When configuring the SFTP storage for the ZIR VM, use the following information from the Filewatcher VM:",
+      "depth": 0
+    },
+    {
+      "item": "For storage_sftp_fqdn, enter the IP address of the Filewatcher VM.",
+      "depth": 1
+    },
+    {
+      "item": "For storage_sftp_port, enter the upload port of the SFTP server/Filewatcher VM. By default, 22 appears.",
+      "depth": 1,
+      "strong": [
+        [
+          92,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "For storage_dir, enter the storage directory (e.g., /home/<username>/zscaler-files) that is set up on the Filewatcher VM.",
+      "depth": 1
+    },
+    {
+      "item": "For storage_sftp_username, enter a username for the login for the SFTP server/Filewatcher VM.",
+      "depth": 1
+    },
+    {
+      "item": "For password, enter the password for the username.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more about configuring the ZIR in Azure, see Configuring the Zscaler Incident Receiver for Azure VMs.",
+      "depth": 0
+    }
+  ]
+}

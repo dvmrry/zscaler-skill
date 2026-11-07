@@ -1,0 +1,350 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control",
+  "title": "ZIA DNS Control",
+  "aliases": [
+    "dns control",
+    "dns control policy",
+    "zia dns policy",
+    "dns filtering rule",
+    "firewall dns rules",
+    "why is dns control not firing"
+  ],
+  "binds": [
+    "zia/firewall-dns-rules"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.dns-control.criteria",
+      "because": "zia.dns-control.criteria:condition-logic"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.dns-control.predefined-rules",
+      "because": "zia.dns-control:default-rules"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.time-intervals.rule-usage",
+      "because": "zia.time-intervals.rule-usage:rule-types"
+    },
+    {
+      "rel": "reached-via",
+      "to": "zia.traffic-forwarding.methods",
+      "because": "zia.dns-control:dns-via-forwarding"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall",
+      "because": "zia.dns-control:firewall-prereq"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.dns-outcome",
+      "because": "zia.logs.dns-outcome:request-response-pairs"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia/dns-log",
+      "because": "zia.logs.dns-outcome:request-response-pairs"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/firewall-dns-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.doh"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.eun"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.tunnel-detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.gateways"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.ecs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.ip-pools"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.nrod"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.api-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{firewall-module}} {{scope}} Whether a URL Filtering block also affects resolution is open {{gap:url-filtering-independent}}. The web side is in [[zia.url-filtering]]."
+    },
+    {
+      "text": "{{firewall-prereq}} {{dns-via-forwarding}} {{iterative-needs-config}} {{dns-services-empty}} The custom service that sets the DNS ports is in [[zia.firewall:custom-port-services]]."
+    },
+    {
+      "label": "Evaluation.",
+      "text": "{{ascending-order}} {{disabled-skipped}} Whether a match stops evaluation is open {{gap:first-match}}. {{default-rules}} {{limits}} {{dns-proxy-inspection}}"
+    },
+    {
+      "text": "[[cloud-connector.dns.gateways:cbc-gateways-differ]] [[cloud-connector.dns.policies:cbc-has-dns-policies]] The ZIA DNS Control action that redirects to a gateway is covered in [[zia.dns-control.actions]], and the ZIA gateway object in [[zia.dns-control.gateways]]."
+    },
+    {
+      "items": [
+        {
+          "text": "Rules Zscaler ships, including the ZPA resolvers that Source IP Anchoring depends on: [[zia.dns-control.predefined-rules]]."
+        },
+        {
+          "text": "What a rule can match on: [[zia.dns-control.criteria]]. What it can do, and what each API action requires: [[zia.dns-control.actions]]."
+        },
+        {
+          "text": "End user notifications for blocked or redirected DNS requests: [[zia.dns-control.eun]]. DNS over HTTPS: [[zia.dns-control.doh]]. DNS tunneling: [[zia.dns-control.tunnel-detection]]. Newly registered domains and classification delay: [[zia.dns-control.nrod]]. EDNS Client Subnet injection: [[zia.dns-control.ecs]]. IP pools for Source IP Anchoring: [[zia.dns-control.ip-pools]]."
+        },
+        {
+          "text": "The REST resource, wire keys, and client divergences: [[zia.dns-control.api-rules]]. Rule ordering through Terraform: [[zia.terraform.rule-order]]."
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the location has the firewall configured, before reading the DNS Control rule list.",
+      "uses": [
+        "firewall-prereq"
+      ]
+    },
+    {
+      "do": "Whether a domain that must be unreachable is blocked in both URL Filtering and DNS Control.",
+      "uses": [
+        "url-filtering-independent"
+      ]
+    },
+    {
+      "do": "Which product a \"DNS gateway\" refers to, since Cloud & Branch Connector gateways are a separate feature.",
+      "uses": [
+        "cloud-connector.dns.gateways:cbc-gateways-differ"
+      ]
+    }
+  ],
+  "claims": {
+    "dns-proxy-inspection": {
+      "statement": "The DNS Security and Control reference architecture says that when the DNS request reaches the ZTE, no DNS requests can bypass inspection unless authorized, since users can be restricted to only using DNS servers the organization specifies.",
+      "tier": "A",
+      "conditions": "Applies once the DNS request reaches the ZTE, that is, when DNS traffic is forwarded to the Zscaler service.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-zscaler-dns-security-and-control-0.json",
+          "quotes": [
+            "When the DNS request reaches the ZTE, the request is open and inspected.",
+            "No DNS requests can bypass inspection unless you authorize it, as you can restrict your users to only using DNS servers you specify."
+          ]
+        }
+      ]
+    },
+    "scope": {
+      "statement": "DNS Control lets an admin define rules that control DNS requests and responses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.json",
+          "quotes": [
+            "With DNS Control, you can define rules that control DNS requests and responses."
+          ]
+        }
+      ]
+    },
+    "firewall-prereq": {
+      "statement": "DNS Control requires the firewall to be configured for locations, and a Firewall Filtering rule that allows DNS traffic (Network Services condition matches DNS).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.json",
+          "quotes": [
+            "To enable DNS Control, you need to configure the firewall for locations. In addition, ensure a Firewall Filtering rule is configured to allow DNS traffic (Network Services condition matches DNS), per the Recommended Firewall Control policy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.json",
+          "quotes": [
+            "After configuring the DNS Control rules, you must enable firewall for known locations to apply the rules to the corresponding location traffic."
+          ]
+        }
+      ]
+    },
+    "ascending-order": {
+      "statement": "DNS Control rules are evaluated in ascending numerical order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.json",
+          "quotes": [
+            "DNS policy rules are evaluated in ascending numerical order."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#order"
+      ]
+    },
+    "default-rules": {
+      "statement": "The DNS Control policy has default rules that allow all DNS traffic. They always hold the lowest precedence; their actions can be modified but they cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.json",
+          "quotes": [
+            "The DNS control policy also has default rules that allow all DNS traffic. These rules always maintain the lowest precedence. You can modify their actions, but you cannot delete them."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#defaultRule"
+      ]
+    },
+    "iterative-needs-config": {
+      "statement": "DNS Control applies to recursive and iterative requests, but iterative requests need extra policy configuration to transit the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.json",
+          "quotes": [
+            "You can apply the DNS Control policy to recursive and iterative DNS requests with appropriate policy configurations. Iterative DNS requests require additional policy configurations to transit the traffic through the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "dns-services-empty": {
+      "statement": "If no values are selected for the DNS Services option (Services Applicable to DNS Transaction Policies in Advanced Settings), DNS Control policies are not enforced on the organization's traffic. Zscaler might still resolve DNS queries if the predefined NAT rule Zscaler Trusted DNS Resolver is enabled, and that rule can be manually disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-ports.json",
+          "quotes": [
+            "If no values are selected for the DNS Services option, DNS Control policies are not enforced on your organization's traffic. However, Zscaler might still resolve your DNS queries if the predefined NAT rule, Zscaler Trusted DNS Resolver, is enabled. You can manually disable this rule, if required.",
+            "Services Applicable to DNS Transaction Policies: From the DNS Services list, choose the custom service that specifies the ports your organization uses for DNS traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "If no values are selected for the DNS Services option, DNS Control policies are not enforced on your organization's traffic. However, Zscaler might still resolve your DNS queries if the predefined NAT rule, Zscaler Trusted DNS Resolver, is enabled. You can manually disable this rule, if required."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "A tenant can hold up to 1,000 DNS Control rules with Advanced DNS Control and 64 with Essential.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "DNS Control Policy Rules per Organization | 1,000 rules, if subscribed to Advanced DNS Control. Only 64 rules are supported for Essential DNS Control."
+          ]
+        }
+      ],
+      "conditions": "The same Ranges & Limitations page's Forwarding table lists \"DNS Control Policy Rules | 1,020 rules\"; the claim follows the per-organization row, and the two figures are not reconciled on the page."
+    },
+    "firewall-module": {
+      "statement": "DNS Control is a module of Zscaler Firewall: its best practices apply when DNS traffic is forwarded to the Zscaler service and inspected by the DNS Control module of Zscaler Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-dns-control-rules.json",
+          "quotes": [
+            "These best practices are applicable when DNS traffic is forwarded to the Zscaler service and inspected by the DNS Control module of Zscaler Firewall."
+          ]
+        }
+      ]
+    },
+    "disabled-skipped": {
+      "statement": "A disabled DNS Control rule keeps its place in the rule order; the service skips it and moves to the next rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.json",
+          "quotes": [
+            "A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#state",
+        "zia/firewall-dns-rules#order"
+      ]
+    },
+    "dns-via-forwarding": {
+      "statement": "The Zscaler service directs users' DNS requests that are forwarded via GRE tunnels, IPSec tunnels, or Zscaler Client Connector using Z-Tunnel 2.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.json",
+          "quotes": [
+            "The Zscaler service directs users' DNS requests forwarded via GRE tunnels, IPSec tunnels, or Zscaler Client Connector (using Zscaler Tunnel (Z-Tunnel) 2.0) to a public DNS service"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "first-match": {
+      "kind": "semantic",
+      "title": "Whether the first matching DNS Control rule ends evaluation",
+      "status": "open",
+      "about": [
+        "zia/firewall-dns-rules#order"
+      ],
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating which rule decides a query when several match",
+      "detail": "Unverified legacy statement: \"Rule evaluation is ascending rule order, first-match-wins, same model as Firewall Filtering and URL Filtering.\" The help pages state ascending order and that disabled rules are skipped, but not that evaluation stops at the first match. Test with two overlapping rules of different actions."
+    },
+    "url-filtering-independent": {
+      "kind": "semantic",
+      "title": "Whether a URL Filtering block leaves DNS resolution untouched",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "telling an operator whether blocking a domain needs rules in both modules",
+      "detail": "Unverified legacy statement: \"A URL Filtering block for badsite.com does nothing to the DNS lookup itself; a DNS Control block prevents resolution from completing at all.\" No captured page compares the two modules. Test by blocking a domain in URL Filtering only and resolving it from a client. Also: \"An operator who needs to block both resolution and access needs rules in both modules, or just a DNS Control block (which prevents access by making the domain unresolvable).\""
+    }
+  }
+}

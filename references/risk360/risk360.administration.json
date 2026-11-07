@@ -1,0 +1,475 @@
+{
+  "schema_version": 1,
+  "id": "risk360.administration",
+  "title": "Risk360 administration: Seeds Management domains, admin roles and permissions, audit logs and the Score Change Log",
+  "aliases": [
+    "risk360 seeds management",
+    "risk360 external attack surface domains",
+    "risk360 admin roles",
+    "risk360 audit logs",
+    "risk360 score change log"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "risk360.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.scoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.alerts"
+    }
+  ],
+  "prose": [
+    {
+      "heading": "Setup order"
+    },
+    {
+      "text": "{{setup-steps}} {{admin-role-flow}}"
+    },
+    {
+      "heading": "Seeds Management"
+    },
+    {
+      "text": "{{seed-weekly-scan}} {{seed-location}} {{seed-domain-limit}} {{seed-scan-latency}} {{seed-csv}} How subdomains and domains past the limit are handled is not stated {{gap:seed-scope}}."
+    },
+    {
+      "heading": "Admin roles"
+    },
+    {
+      "text": "{{role-default-super-admin}} {{role-hierarchy}} Whether an admin may edit a role of equal scope differs between the pages {{divergence:role-edit-scope}}. {{role-prerequisites}} {{role-page-columns}}"
+    },
+    {
+      "text": "{{role-permission-dashboard-users}} {{role-permission-admin-mgmt}} {{role-permission-remote-assistance}} Which Risk360 areas Full Access and View-Only Access cover beyond these permissions is open {{gap:role-access-areas}}."
+    },
+    {
+      "heading": "Audit logs and the Score Change Log"
+    },
+    {
+      "text": "{{audit-records}} {{audit-filters}} {{audit-fields}}"
+    },
+    {
+      "text": "{{score-change-log}} {{score-change-fields}} {{csv-times-pdt}} Retention and the console time zone are not stated on these pages {{gap:log-retention-timezone}}. The factor and entity overrides that the audit logs capture are in [[risk360.scoring]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the domains were added to Seeds Management and 24–48 hours have passed since they were added, when asking about scan results for those domains.",
+      "uses": [
+        "seed-scan-latency",
+        "seed-weekly-scan"
+      ]
+    },
+    {
+      "do": "Whether the admin's role has Administrator Management or Remote Assistance Management access at the level the task needs.",
+      "uses": [
+        "role-permission-admin-mgmt",
+        "role-permission-remote-assistance",
+        "role-edit-scope"
+      ]
+    },
+    {
+      "do": "That times in the CSV downloaded from the audit logs or the Score Change Log are in PDT.",
+      "uses": [
+        "csv-times-pdt"
+      ]
+    }
+  ],
+  "claims": {
+    "setup-steps": {
+      "statement": "The configuration guide for Risk360 has four steps: role-based administration, domains for external attack surface analysis, peer score and financial risk settings, and alerting rules that trigger when a preset threshold is reached.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-step-step-configuration-guide-risk360.json",
+          "quotes": [
+            "Step 1: Configure Role-Based Administration",
+            "Step 2: Configure Domains for External Attack Surface Analysis",
+            "Step 3: Manage Peer Score and Financial Risk Settings",
+            "Step 4: Configure Alerting",
+            "Configure rules to trigger alerts when a preset threshold is reached.",
+            "You can customize the parameters used to calculate your industry's peer risk score and your organization's financial exposure."
+          ]
+        }
+      ]
+    },
+    "admin-role-flow": {
+      "statement": "For an organization enabled with Authentication Service, Authentication Service users are assigned as Risk360 service admins: add the Risk360 admin role in Experience Center, add the users in the Authentication Service Admin Portal, then assign them a Risk360 admin role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-step-step-configuration-guide-risk360.json",
+          "quotes": [
+            "Your organization is enabled with Authentication Service and you must assign Authentication Service users as Risk360 service admins:",
+            "Add Risk360 admin role in Experience Center.",
+            "Add users in the Authentication Service Admin Portal.",
+            "Assign users a Risk360 admin role."
+          ]
+        }
+      ]
+    },
+    "seed-weekly-scan": {
+      "statement": "Seeds Management scans the added domains weekly to identify publicly exposed assets, and shows the risk quantified for them as factors on the Factors page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-seeds-management.json",
+          "quotes": [
+            "the Risk360 service performs weekly scans to identify publicly exposed assets within the domains for potential cyberattacks",
+            "The Risk360 service also quantifies the risk determined on various parameters for the exposed assets and visualizes them as factors on the Factors page."
+          ]
+        }
+      ]
+    },
+    "seed-domain-limit": {
+      "statement": "Up to 10 domains can be added for scanning, whether one at a time or from a CSV file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-seeds-management.json",
+          "quotes": [
+            "You can add up to 10 domains for scanning."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "risk360-adding-domain-external-attack-surface-analysis.json",
+          "quotes": [
+            "You can add up to 10 domains."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "risk360-adding-domains-using-csv.json",
+          "quotes": [
+            "You can add up to 10 domains."
+          ]
+        }
+      ]
+    },
+    "seed-scan-latency": {
+      "statement": "After domains are added (singly or from a CSV file), the Risk360 service takes up to 24–48 hours to scan and analyze them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-seeds-management.json",
+          "quotes": [
+            "the Risk360 service takes up to 24–48 hours to scan and analyze the domains."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "risk360-adding-domain-external-attack-surface-analysis.json",
+          "quotes": [
+            "The Risk360 service takes up to 24–48 hours to scan and analyze the domains."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "risk360-adding-domains-using-csv.json",
+          "quotes": [
+            "The Risk360 service takes up to 24–48 hours to scan and analyze the domains."
+          ]
+        }
+      ]
+    },
+    "seed-location": {
+      "statement": "The Seeds Management page is under Administration > Legacy Admin Management > Risk360.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-seeds-management.json",
+          "quotes": [
+            "On the Seeds Management page (Administration > Legacy Admin Management > Risk360)"
+          ]
+        }
+      ]
+    },
+    "seed-csv": {
+      "statement": "Domains are bulk-added by downloading a CSV template, listing the domains, uploading the file and clicking Save after a successful-upload message; on an error, the domains must be in the correct format in the CSV file before reuploading.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-adding-domains-using-csv.json",
+          "quotes": [
+            "Click Download CSV Template. A CSV template for uploading the domains is downloaded to your device.",
+            "After a successful upload message is displayed, click Save.",
+            "If an error message is displayed, ensure that the domains are added in the correct format in the CSV file and reupload the file."
+          ]
+        }
+      ]
+    },
+    "role-default-super-admin": {
+      "statement": "Zscaler provides a default super admin role with full access to Risk360, assigned to the default admin and assignable to other admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-role-management-risk360.json",
+          "quotes": [
+            "Zscaler provides a default super admin role that has full access to the Risk360. This role is assigned to the default admin, but you can assign this role to other admins as necessary."
+          ]
+        }
+      ]
+    },
+    "role-hierarchy": {
+      "statement": "The About Role Management page says role assignment maintains hierarchy so an admin can't modify the settings of an admin with a broader scope, and that the Role Management page lets an admin edit a configured admin role with lesser scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-role-management-risk360.json",
+          "quotes": [
+            "Assign roles to admins to maintain hierarchy among the admins so that the admin can't modify the settings of an admin with a broader scope.",
+            "Edit a configured admin role with lesser scope."
+          ]
+        }
+      ]
+    },
+    "role-prerequisites": {
+      "statement": "Configuring a Risk360 admin role requires the proper permissions to configure a role and organizational scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-adding-admin-roles-risk360.json",
+          "quotes": [
+            "You must have the proper permissions to configure a role.",
+            "You must have organizational scope."
+          ]
+        }
+      ]
+    },
+    "role-permission-dashboard-users": {
+      "statement": "In a Risk360 admin role, Dashboard and User Management permissions are each View Only or None; View Only allows viewing the dashboard or the User Management page respectively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-adding-admin-roles-risk360.json",
+          "quotes": [
+            "View Only: Allows admins to view the dashboard.",
+            "None: Doesn’t allow access to the dashboard.",
+            "View Only: Allows admins to view the User Management page.",
+            "None: Doesn’t allow access to the User Management page."
+          ]
+        }
+      ]
+    },
+    "role-permission-admin-mgmt": {
+      "statement": "In a Risk360 admin role, Administrator Management is Full, View Only or None; Full covers adding, editing and deleting admin accounts, viewing auditors, configuring password expiration and SAML single sign-on for admins, and, under Role Management, adding, editing and deleting only roles that have equal or lesser scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-adding-admin-roles-risk360.json",
+          "quotes": [
+            "Administrators: Admins can add, edit, and delete admin accounts.",
+            "Auditors: Admins can view the auditors.",
+            "Administrator Management: Admins can configure password expiration and SAML single sign-on for admins.",
+            "Role Management: Admins can only add, edit, and delete roles that have equal or lesser scope.",
+            "View Only: Allows admins to view, but not edit, the following pages.",
+            "None: Doesn’t allow admins access to Administration Management."
+          ]
+        }
+      ]
+    },
+    "role-permission-remote-assistance": {
+      "statement": "Remote Assistance Management lets admins allow Zscaler Support to log in remotely to the Zscaler Admin Console; its permission in a Risk360 role is Full, View Only or None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-adding-admin-roles-risk360.json",
+          "quotes": [
+            "In Remote Assistance Management, admins can allow Zscaler Support to securely and remotely log in to your Zscaler Admin Console.",
+            "Full: Allows admins to access the Remote Assistance.",
+            "View Only: Allows admins to view the Remote Assistance.",
+            "None: Doesn’t allow access to the Remote Assistance."
+          ]
+        }
+      ]
+    },
+    "role-page-columns": {
+      "statement": "The Role Management page (Administration > Role Management > Risk360) lists each role's Full Access areas, View-Only Access areas and Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-role-management-risk360.json",
+          "quotes": [
+            "On the Role Management page (Administration > Role Management > Risk360)",
+            "Full Access: The areas of Risk360 where admins with this role have full access.",
+            "View-Only Access: The areas of Risk360 where admins with this role have view-only access.",
+            "Name: The name of the role."
+          ]
+        }
+      ]
+    },
+    "audit-records": {
+      "statement": "Zscaler records the login name and IP address of every user who changes configuration settings; the Risk360 Audit Logs page is under Data Explorer > Audit Logs > Risk360.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-audit-logs.json",
+          "quotes": [
+            "Zscaler records the login name and IP address of every user who changes configuration settings.",
+            "On the Audit Logs page (Data Explorer > Audit Logs > Risk360)"
+          ]
+        }
+      ]
+    },
+    "audit-filters": {
+      "statement": "Risk360 audit logs can be searched by Resource, Admin ID or Client IP and filtered by Time Range, Action, Category, Sub-Category, Interface or Result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-audit-logs.json",
+          "quotes": [
+            "Search for the logs by Resource, Admin ID, or Client IP.",
+            "Filter logs by Time Range, Action, Category, Sub-Category, Interface, or Result."
+          ]
+        }
+      ]
+    },
+    "audit-fields": {
+      "statement": "Audit log entries carry Interface (UI or API based) and Result (Success, Failure or Partially Failed).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-audit-logs.json",
+          "quotes": [
+            "Interface: How the user performed their actions. The interface is either UI or API based.",
+            "Result: The outcome of an action (Success, Failure, or Partially Failed)."
+          ]
+        }
+      ]
+    },
+    "csv-times-pdt": {
+      "statement": "Times in the CSV downloaded from the Risk360 Audit Logs page and from the Score Change Log page are in PDT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-audit-logs.json",
+          "quotes": [
+            "The times mentioned in the CSV file are in PDT."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk360-score-change-logs.json",
+          "quotes": [
+            "The times mentioned in the CSV file are in PDT."
+          ]
+        }
+      ]
+    },
+    "score-change-log": {
+      "statement": "The Score Change Log page (Data Explorer > Risk360 > Score Change Log) records risk score changes across categories and factors and can be filtered by Change Event, Category, Factor Group or Factor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk360-score-change-logs.json",
+          "quotes": [
+            "The Score Change Log page (Data Explorer > Risk360 > Score Change Log) records the risk score change logs across categories and factors.",
+            "Filter Data: Filter logs by Change Event, Category, Factor Group, or Factor."
+          ]
+        }
+      ]
+    },
+    "score-change-fields": {
+      "statement": "Each score change log row has a Change Event (override, weight or score), Risk Category (External Attack Surface, Compromise, Lateral Propagation or Data Loss), Factor Group, Factor, Notes, Previous Value and Current Value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk360-score-change-logs.json",
+          "quotes": [
+            "Change Event: The event that affected the risk score (override, weight, or score).",
+            "Risk Category: The Risk360 category where the change occurred (External Attack Surface, Compromise, Lateral Propagation, or Data Loss).",
+            "Previous Value: The score before the event.",
+            "Current Value: The current score after the event.",
+            "Factor Group: The factor group that is affected.",
+            "Factor: The factor that is affected.",
+            "Notes: Any additional information about the event."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "role-edit-scope": {
+      "summary": "The About Role Management page and the Add Role page state the scope of roles an admin can edit differently.",
+      "positions": [
+        {
+          "says": "An admin can edit a configured admin role with lesser scope.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "risk360-about-role-management-risk360.json",
+            "quotes": [
+              "Edit a configured admin role with lesser scope."
+            ]
+          }
+        },
+        {
+          "says": "With Role Management access, an admin can add, edit and delete roles that have equal or lesser scope.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "risk360-adding-admin-roles-risk360.json",
+            "quotes": [
+              "Role Management: Admins can only add, edit, and delete roles that have equal or lesser scope."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether an admin can edit a role of equal scope is not settled; do not state it either way."
+    }
+  },
+  "gaps": {
+    "seed-scope": {
+      "kind": "semantic",
+      "title": "Whether Seeds Management enumerates subdomains and what happens past 10 domains",
+      "status": "open",
+      "detail": "The captured pages give the weekly scan and the 10-domain limit but do not state a value for the page's View scan frequency, whether subdomains are enumerated, or what happens when more than 10 domains are added.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "role-access-areas": {
+      "kind": "semantic",
+      "title": "Which Risk360 areas the Full Access and View-Only Access columns cover",
+      "status": "open",
+      "detail": "The role pages list Dashboard, Administrator Management, User Management and Remote Assistance Management permissions; they do not say whether alerts, financial risk or reports fall under any of them, or what the Full Access and View-Only Access columns cover beyond those.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "log-retention-timezone": {
+      "kind": "semantic",
+      "title": "Audit log and Score Change Log retention and console time zone",
+      "status": "open",
+      "detail": "The captured pages state that CSV times are in PDT but not how long these logs are kept or which time zone the console shows; they do not define each Change Event value (override, weight, score) individually. The overview's logs-retention claim (risk360.overview:logs-retention) gives a rolling retention of up to a year for Risk360 logs generally, without saying whether it covers these two logs.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

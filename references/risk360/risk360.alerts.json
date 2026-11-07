@@ -1,0 +1,581 @@
+{
+  "schema_version": 1,
+  "id": "risk360.alerts",
+  "title": "Risk360 alerts: rule criteria and throttling, alert lifecycle, causes, webhooks, email and the ServiceNow sample",
+  "aliases": [
+    "risk360 alert rules",
+    "risk360 ongoing alerts",
+    "risk360 alert history",
+    "risk360 webhooks"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "risk360.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.scoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.administration"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{rule-subjects}} {{rule-criteria}} {{throttling}} {{rule-templates}} {{rule-delivery}}"
+    },
+    {
+      "label": "Lifecycle.",
+      "text": "{{lifecycle}} {{time-window-filter}} {{daily-notification}} {{disable-mute-delete}} {{mute-semantics}} {{ended-on}}"
+    },
+    {
+      "label": "Cause.",
+      "text": "{{cause-level}} The cause when the criteria sit at the organization level is not fully described {{gap:org-level-cause}}. {{composite-cause}} {{cause-colors}}"
+    },
+    {
+      "label": "Email.",
+      "text": "{{email-fields}}"
+    },
+    {
+      "label": "Webhooks.",
+      "text": "{{webhook-auth}} {{webhook-shared-url}} {{webhook-status-save}} {{webhook-list}} Which field carries the Active and Error values differs between the pages {{divergence:webhook-status-field}}, and the payload schema is documented only through the sample script {{gap:webhook-payload}}."
+    },
+    {
+      "label": "ServiceNow sample.",
+      "text": "{{servicenow-instance}} {{servicenow-auth}} {{servicenow-url}} {{servicenow-payload-fields}} {{servicenow-cause-types}} {{servicenow-status-mapping}} {{servicenow-impact}} {{servicenow-test-webhook}}"
+    },
+    {
+      "text": "Throttling units, recipient limits and rule-count limits are not stated {{gap:throttling-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the rule's criteria have persisted for the Minimum Throttling Criteria number of days before expecting the first alert notification, and whether the rule is Enabled and not muted.",
+      "uses": [
+        "throttling",
+        "lifecycle",
+        "disable-mute-delete",
+        "mute-semantics"
+      ]
+    },
+    {
+      "do": "Whether the webhook's URL has no spaces and its Authentication Type (Basic or Token) matches what the webhook provider uses, when the webhook shows Error.",
+      "uses": [
+        "webhook-shared-url",
+        "webhook-auth",
+        "webhook-status-field"
+      ]
+    }
+  ],
+  "claims": {
+    "lifecycle": {
+      "statement": "An alert rule's alert becomes ongoing, and is shown on the Ongoing Alerts tab, when the rule's criteria are satisfied for the throttling period defined in the rule; when the criteria are no longer satisfied the alert stops and is listed on the Alert History tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "When the alert rule's criteria is satisfied for the throttling period defined in the alert rule, the alert becomes an ongoing alert and starts to get displayed on the Ongoing Alerts tab.",
+            "When the criteria of the alert are no longer satisfied, the alert stops and is listed under the Alert History tab."
+          ]
+        }
+      ]
+    },
+    "daily-notification": {
+      "statement": "The About Alerts page says users receive a daily alert notification as long as the alert criteria are true, and words the end of that as \"until the alert rule is not modified, disabled, deleted, or muted\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "Users receive a daily alert notification as long as the alert criteria are true and until the alert rule is not modified, disabled, deleted, or muted."
+          ]
+        }
+      ]
+    },
+    "disable-mute-delete": {
+      "statement": "Disabling an alert rule stops the alerting engine evaluating its criteria while the rule stays configured; muting an ongoing alert stops notifications but not evaluation, and the alert stays trackable on the Ongoing Alerts tab; deleting an alert removes the rule from the Alert Rules page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "Disabling an alert rule causes the alerting engine not to evaluate the alert criteria. However, the alert rule stays configured on the Alert Rules tab.",
+            "Muting an ongoing alert stops sending alert notifications. However, it doesn't impact the evaluation of the alert, and you can still track the ongoing alert on the Ongoing Alerts tab.",
+            "Deleting an alert removes the alert rule from the Alert Rules page."
+          ]
+        }
+      ]
+    },
+    "mute-semantics": {
+      "statement": "The Alert Rules tab offers a way to mute or unmute notifications from an alert rule; the page describes this as ensuring the rule is enabled but no notification is initiated when the alert is triggered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "Mute or unmute notifications from an alert rule. This ensures the rule is enabled, but no notification is initiated when the alert is triggered."
+          ]
+        }
+      ]
+    },
+    "ended-on": {
+      "statement": "In an alert notification, Started On shows when the alert started and Ended On shows Ongoing while the alert persists; when the alert ends, users receive a further notification whose Ended On shows the end date and time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "The Started On field in the alert notification shows the date and time when the alert started and the Ended On field shows Ongoing because the alert is still persisting.",
+            "Subsequently, the users receive an alert notification with the Ended On field in the notification showing the date and time when the alert ended."
+          ]
+        }
+      ]
+    },
+    "cause-level": {
+      "statement": "The Ongoing Alerts and Alert History tabs each say an alert's cause is due to risk score or financial loss changes at one level below the defined alert criteria, and that if the criteria is defined at the organization level the cause is due to changes in the 4 attack stages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "The cause of an alert is due to risk score or financial loss changes at one level below the defined alert criteria.",
+            "if the criteria is defined at the organization level, then the cause is due to changes in the 4 attack stages"
+          ],
+          "after": "The Ongoing Alerts tab (Analytics > Risk360 > Alerts > Ongoing Alerts)"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "The cause of an alert is due to risk score or financial loss changes at one level below the defined alert criteria.",
+            "if the criteria is defined at the organization level, then the cause is due to changes in the 4 attack stages"
+          ],
+          "after": "The Alert History tab (Analytics > Risk360 > Alerts > Alert History)"
+        }
+      ]
+    },
+    "composite-cause": {
+      "statement": "For a composite rule with criteria at different levels, the alerting engine breaks the rule into each element and derives the cause for each element separately; for a rule with Org-level and factor group elements the causes are changes at the 4 attack stages and in the factors under the factor group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "the alerting engine breaks the rule into each element and derives the cause for each element separately.",
+            "the causes would be due to changes at the 4 attack stages of the attack and the changes in the factors under the factor group.",
+            "When the alert criteria is a composite rule with the criteria at different levels",
+            "if the rule criteria has an Org level and factor group elements"
+          ],
+          "after": "The Ongoing Alerts tab (Analytics > Risk360 > Alerts > Ongoing Alerts)"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "the alerting engine breaks the rule into each element and derives the cause for each element separately.",
+            "the causes would be due to changes at the 4 attack stages of the attack and the changes in the factors under the factor group."
+          ],
+          "after": "The Alert History tab (Analytics > Risk360 > Alerts > Alert History)"
+        }
+      ]
+    },
+    "time-window-filter": {
+      "statement": "The Ongoing Alerts and Alert History tabs can be filtered for the last 1 day, 2, 5, 7, or 14 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "Filter the data on the page for the last 1 day, 2, 5, 7, or 14 days."
+          ],
+          "after": "The Ongoing Alerts tab (Analytics > Risk360 > Alerts > Ongoing Alerts)"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "Filter the data on the page for the last 1 day, 2, 5, 7, or 14 days."
+          ],
+          "after": "The Alert History tab (Analytics > Risk360 > Alerts > Alert History)"
+        }
+      ]
+    },
+    "cause-colors": {
+      "statement": "In an alert's Cause, the change in risk score or potential loss at each level over the last 24 hours is colored red for an increase, green for a decrease and gray for no change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "Cause: The change in the risk score or potential loss at different levels (i.e., organization, category, factor group, and factor) in the last 24 hours. The red, green, and gray colors indicate an increase, decrease, and no change in the risk score or potential financial loss, respectively."
+          ],
+          "after": "The Details tab shows the following information about the alert"
+        }
+      ]
+    },
+    "rule-criteria": {
+      "statement": "An alert rule's criteria choose All or Any, an item from Org, Category, Factor Group or Factor, and an operator from =, >, <, ≥, ≤, increases by or decreases by.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-configuring-alert-rule-risk360.json",
+          "quotes": [
+            "Select All or Any from the drop-down menu.",
+            "Select the item for which you want to trigger the alert from Org, Category, Factor Group, or Factor.",
+            "Select the operator for the criteria, i.e., equal to (=), greater than (>), less than (<), greater than or equal to (≥), less than or equal to (≤), increases by, or decreases by."
+          ]
+        }
+      ]
+    },
+    "rule-subjects": {
+      "statement": "Alert rules can be configured for financial loss or risk score changes at organization, category, factor group or factor levels, and trigger an email or webhook notification.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-configuring-alert-rule-risk360.json",
+          "quotes": [
+            "You can configure alert rules for various criteria (i.e., financial loss or risk score changes at organization, category, factor group, or factor levels) that trigger an email or webhook notification to the recipients."
+          ]
+        }
+      ]
+    },
+    "throttling": {
+      "statement": "Minimum Throttling Criteria is the number of days the criteria must persist before the alert notification is triggered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-configuring-alert-rule-risk360.json",
+          "quotes": [
+            "Minimum Throttling Criteria: Enter the number of days the criteria must persist before triggering the alert notification."
+          ]
+        }
+      ]
+    },
+    "rule-templates": {
+      "statement": "An alert rule can start from an existing rule template or from Create New; a template skips the wizard to the Configure Delivery Method step, and its predefined values can be edited via Back.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-configuring-alert-rule-risk360.json",
+          "quotes": [
+            "Choose an existing rule template or start configuring from the beginning by clicking Create New.",
+            "If you've selected a rule template, the service skips to the Configure Delivery Method section.",
+            "However, you can click Back to edit the predefined values in the Define Criteria & Throttling section."
+          ]
+        }
+      ]
+    },
+    "rule-delivery": {
+      "statement": "A rule's severity is Critical, High, Medium or Low, its status Enabled or Disabled, and its delivery method Email and/or Webhook; the custom message applies to both email and webhooks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-configuring-alert-rule-risk360.json",
+          "quotes": [
+            "Severity: Select the severity of the rule from Critical, High, Medium, or Low.",
+            "Status: Select Enabled or Disabled for the rule.",
+            "Delivery Method: Select the alert delivery methods from Email and Webhook.",
+            "Custom Message: Enter a custom message that is displayed within the alert notification when this alert is triggered. This message is applicable for both email and webhooks."
+          ]
+        }
+      ]
+    },
+    "webhook-auth": {
+      "statement": "A webhook's authentication type is Basic (username and password) or Token (a bearer token), and the webhook provider determines which is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-configuring-alert-webhooks-risk360.json",
+          "quotes": [
+            "Authentication Type: Select the authentication type for the webhook from Basic or Token. The webhook provider determines the authentication type used.",
+            "Enter a Username and Password.",
+            "Enter the bearer token."
+          ]
+        }
+      ]
+    },
+    "webhook-shared-url": {
+      "statement": "Several alert rules can be assigned to the same webhook, and a webhook's URL must not include spaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-configuring-alert-webhooks-risk360.json",
+          "quotes": [
+            "assign multiple alert rules to the same webhook from your third-party provider for alert delivery.",
+            "URL: Enter the URL of the webhook provider. Ensure the URL does not include any spaces."
+          ]
+        }
+      ]
+    },
+    "webhook-status-save": {
+      "statement": "The webhook configuration page says the Alert Status field on the Webhooks page displays Active if the webhook is configured successfully and Error if not, and to resolve the error check the URL and Authentication Type fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-configuring-alert-webhooks-risk360.json",
+          "quotes": [
+            "If the webhook is configured successfully, the Alert Status field on the Webhooks page displays Active. If not, the field displays Error.",
+            "To resolve the error, check for issues in the URL or the Authentication Type fields."
+          ]
+        }
+      ]
+    },
+    "webhook-list": {
+      "statement": "The Webhooks tab lists each integration's name, URL, authentication type (Basic or Token) and authentication status (Active, Error or In Progress).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-alerts-risk360.json",
+          "quotes": [
+            "Filter the ongoing alerts by Name, Authentication Type, or Status.",
+            "Authentication Type: The authentication type configured for the integration (Basic or Token).",
+            "Authentication Status: This shows the integration authentication status (Active, Error, or In Progress).",
+            "Name: The name of the integration.",
+            "URL: The URL of the integration."
+          ]
+        }
+      ]
+    },
+    "email-fields": {
+      "statement": "The alert email shows the rule name, severity, criteria (highlighted when one or more criteria are met), Started On, Ended On (Ongoing if not ended), cause and the custom message.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-understanding-alert-email-risk360.json",
+          "quotes": [
+            "Alert Rule Name: The name of the alert rule.",
+            "Alert Severity: The level of severity for this alert rule. The severity is set when the rule is configured.",
+            "If one or more alert criteria are met, then it is highlighted.",
+            "Ended On: The alert end time. If the alert end time has not ended, then it indicates Ongoing.",
+            "Alert Cause: The activity that triggered the criteria in the rule.",
+            "Customer Message: The custom message specified when the rule was configured.",
+            "Started On: This indicates the alert start time."
+          ]
+        }
+      ]
+    },
+    "servicenow-instance": {
+      "statement": "Zscaler's ServiceNow webhook configuration guide builds its sample on a ServiceNow developer instance, which automatically hibernates (wake every 24 hours) and is reclaimed if unused for 10 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-servicenow-webhook-configuration-guide-risk360.json",
+          "quotes": [
+            "This article provides a sample configuration that can be built on per user requirements. The following ServiceNow webhook sample configuration uses a ServiceNow developer configuration.",
+            "This instance automatically hibernates, so you must wake it every 24 hours. Also, the instance is reclaimed if you don’t use it for 10 days."
+          ]
+        }
+      ]
+    },
+    "servicenow-auth": {
+      "statement": "In the ServiceNow sample, Basic authentication needs a non-admin ServiceNow user so admin credentials are not shared, and Token authentication needs the script's token edited to match the bearer token in the webhook configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-servicenow-webhook-configuration-guide-risk360.json",
+          "quotes": [
+            "To use basic authentication for your webhook, you must create a non-admin user on ServiceNow so that admin credentials need not be shared.",
+            "Edit the token in your script to the one used for the webhook configuration in the Experience Center.",
+            "Enter the same bearer token used in the script."
+          ]
+        }
+      ]
+    },
+    "servicenow-url": {
+      "statement": "In the ServiceNow sample, the webhook URL is the ServiceNow instance hostname concatenated with the API name from the Scripted REST APIs page; each triggered alert then creates an entry in the ServiceNow Incident table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-servicenow-webhook-configuration-guide-risk360.json",
+          "quotes": [
+            "Enter the ServiceNow developer instance hostname concatenated with the API name from the Scripted REST APIs page in the ServiceNow instance",
+            "Whenever an alert is triggered, a webhook notification is sent, thereby creating an entry in the ServiceNow Incident table."
+          ]
+        }
+      ]
+    },
+    "servicenow-payload-fields": {
+      "statement": "The ServiceNow sample Basic-authentication script reads these properties from the decoded webhook request body: alertId, ruleName, status, url, startTime, endTime, criteriaString, severity, alert_causes and custom_msg.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-servicenow-webhook-configuration-guide-risk360.json",
+          "quotes": [
+            "var alertId = jData.alertId;",
+            "var ruleName = jData.ruleName;",
+            "var alertstatus = jData.status;",
+            "var url = '[code]<a href=\"' + jData.url + '\" target=\"_blank\">View alert in Risk360</a>[/code]';",
+            "if (jData.severity == \"High\" || jData.severity == \"Critical\")",
+            "var startTime = jData.startTime;",
+            "var endTime = jData.endTime;",
+            "var criteria = jData.criteriaString;",
+            "for (var i = 0; i < jData.alert_causes.length; i++) {",
+            "if (jData.custom_msg == undefined || jData.custom_msg === null) {",
+            "var reqData = request.body.dataString;",
+            "var jData = new global.JSON().decode(reqData);"
+          ],
+          "after": "Script for Basic authentication"
+        }
+      ]
+    },
+    "servicenow-cause-types": {
+      "statement": "In the ServiceNow sample Basic-authentication script, each alert_causes entry is branched on its type value: Org, Category, FactorGroup or Factor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-servicenow-webhook-configuration-guide-risk360.json",
+          "quotes": [
+            "if (cause.type === \"Org\") {",
+            "} else if (cause.type === \"Category\") {",
+            "} else if (cause.type === \"FactorGroup\") {",
+            "} else if (cause.type === \"Factor\") {",
+            "var cause = jData.alert_causes[i];"
+          ],
+          "after": "Script for Basic authentication"
+        }
+      ]
+    },
+    "servicenow-status-mapping": {
+      "statement": "In the ServiceNow sample Basic-authentication script, alert status STARTED or ONGOING sets incident state 2 (in progress) and ENDED_ON_RULE_DEL or ENDED_ON_RULE_MODIFY sets state 8 (cancelled); the script also uses state 6 (resolved) and state 1 (new).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-servicenow-webhook-configuration-guide-risk360.json",
+          "quotes": [
+            "if (alertstatus == \"STARTED\" || alertstatus == \"ONGOING\")",
+            "state = 2; // in progress",
+            "else if (alertstatus == \"ENDED_ON_RULE_DEL\" || alertstatus == \"ENDED_ON_RULE_MODIFY\")",
+            "state = 8; // cancelled",
+            "state = 6; // resolved",
+            "if (state == 2) // in progress",
+            "state = 1; // new"
+          ],
+          "after": "Script for Basic authentication"
+        }
+      ]
+    },
+    "servicenow-impact": {
+      "statement": "The ServiceNow sample Basic-authentication script starts with impact 1 and tests severity High or Critical, then Medium, then Low, and contains impact = 2 and impact = 3 assignments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-servicenow-webhook-configuration-guide-risk360.json",
+          "quotes": [
+            "if (jData.severity == \"High\" || jData.severity == \"Critical\")",
+            "else if (jData.severity == \"Medium\")",
+            "else if (jData.severity == \"Low\")",
+            "impact = 2;",
+            "impact = 3;",
+            "var impact = 1;"
+          ],
+          "after": "Script for Basic authentication"
+        }
+      ]
+    },
+    "servicenow-test-webhook": {
+      "statement": "The ServiceNow sample Basic-authentication script tests whether ruleName equals test (ignoring case), in a branch commented as a test webhook.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-servicenow-webhook-configuration-guide-risk360.json",
+          "quotes": [
+            "if (ruleName.equalsIgnoreCase(\"test\")) {",
+            "// test webhook"
+          ],
+          "after": "Script for Basic authentication"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "webhook-status-field": {
+      "summary": "The webhook configuration page and the About Alerts page disagree on which Webhooks-page field shows Active and Error.",
+      "positions": [
+        {
+          "says": "The Alert Status field on the Webhooks page displays Active or Error.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "risk360-configuring-alert-webhooks-risk360.json",
+            "quotes": [
+              "If the webhook is configured successfully, the Alert Status field on the Webhooks page displays Active. If not, the field displays Error."
+            ]
+          }
+        },
+        {
+          "says": "Alert Status is whether the alert is enabled or disabled; Active, Error or In Progress belong to Authentication Status.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "risk360-about-alerts-risk360.json",
+            "quotes": [
+              "Alert Status: The status of the alert, whether enabled or disabled.",
+              "Authentication Status: This shows the integration authentication status (Active, Error, or In Progress)."
+            ]
+          }
+        }
+      ],
+      "impact": "Which column to read for a webhook error depends on the page; check both Alert Status and Authentication Status on the tenant."
+    }
+  },
+  "gaps": {
+    "org-level-cause": {
+      "kind": "semantic",
+      "title": "What the Cause is when the rule's criteria are at the organization level",
+      "status": "open",
+      "detail": "The Ongoing Alerts and Alert History tabs give the cause as changes one level below the criteria, and for organization-level criteria as changes in the 4 attack stages; the Details tab lists Cause changes at organization, category, factor group and factor levels, and the ServiceNow sample script branches on a cause type of Org. No captured page says what an Org cause covers or what sits above Org.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "webhook-payload": {
+      "kind": "semantic",
+      "title": "The alert webhook payload schema and full list of status values",
+      "status": "open",
+      "detail": "Only the ServiceNow sample script shows the JSON properties a webhook request carries; no captured page documents the payload schema or every value of its status property.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "throttling-limits": {
+      "kind": "semantic",
+      "title": "Throttling units, email recipient limits and rule-count limits",
+      "status": "open",
+      "detail": "The rule page enters throttling as a number of days, while the About Alerts page also shows a Throttling time frame without units. No captured page states email recipient limits or a limit on the number of rules.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -567,7 +567,7 @@ ${subtype || "(not specified — infer from scope)"}
  * This is the SOC analog of the auditor's record-check-output.
  * A finding can then cite "evidence:<name>" as its resolving source.
  *
- * evidenceType: snapshot | siem | api | log (optional, defaults to "snapshot")
+ * evidenceType: iac | siem | api | log (optional, defaults to "iac")
  */
 export function recordEvidence(args) {
   const root = resolveRepoRoot(args.root);
@@ -586,8 +586,8 @@ export function recordEvidence(args) {
     );
   }
 
-  const evidenceType = String(args.evidenceType || "snapshot").trim();
-  const validEvidenceTypes = new Set(["snapshot", "siem", "api", "log"]);
+  const evidenceType = String(args.evidenceType || "iac").trim();
+  const validEvidenceTypes = new Set(["iac", "siem", "api", "log"]);
   if (!validEvidenceTypes.has(evidenceType)) {
     throw new Error(
       `--evidence-type must be one of: ${[...validEvidenceTypes].join(", ")}. Got: ${evidenceType}`,

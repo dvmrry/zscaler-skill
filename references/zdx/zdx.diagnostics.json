@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "id": "zdx.diagnostics",
+  "title": "ZDX Diagnostics Sessions (deep traces): what they are and where each part is covered",
+  "aliases": [
+    "diagnostics session",
+    "deep trace",
+    "deeptrace",
+    "deep tracing",
+    "zdx troubleshooting",
+    "client.zdx.troubleshooting",
+    "when to start a diagnostics session"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.session-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.start-request"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.session-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.analysis"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.mcp-tools"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.session-types"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Diagnostics Session is an on-demand, per-device investigation that Client Connector runs. This subject places the term and points to the parts."
+    },
+    {
+      "label": "What it is for.",
+      "text": "{{low-scores}} The API's troubleshooting area is deep tracing on a user's device ([[shared.log-export.zdx:api-scope]]). {{api-scope}}"
+    },
+    {
+      "label": "One thing, two names.",
+      "text": "{{same-sessions}}"
+    },
+    {
+      "label": "Where each part is.",
+      "text": "The four console session types and their options and results: [[zdx.diagnostics.session-types]]. Statuses: [[zdx.diagnostics.session-status]]. Starting one through the API, with its limits: [[zdx.diagnostics.start-request]]. Reading, deleting and the session record: [[zdx.diagnostics.session-records]]. Score analysis jobs: [[zdx.diagnostics.analysis]]. The MCP tools: [[zdx.diagnostics.mcp-tools]]."
+    },
+    {
+      "label": "In the console.",
+      "text": "{{session-collection-interval}} {{session-requirements}} {{session-duration-and-export}} The contract and the help differ on the length {{divergence:session-length-help}}."
+    },
+    {
+      "label": "Limits.",
+      "text": "{{session-limit-tiers}} The contract's tenant-wide figure differs {{divergence:active-session-limit}}."
+    },
+    {
+      "label": "Managing a session.",
+      "text": "{{session-actions}} {{session-table-fields}}"
+    },
+    {
+      "label": "Live troubleshooting.",
+      "text": "{{live-troubleshooting-api}} How these sessions relate to Diagnostics Sessions is not documented {{gap:live-vs-deep-trace}}. No SDK calls them, [[zdx.applications:config-no-sdk]]."
+    }
+  ],
+  "claims": {
+    "low-scores": {
+      "statement": "The ZDX Score article says a Diagnostics session can be started to help evaluate and troubleshoot issues related to low scores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "You can start a Diagnostics session to help evaluate and troubleshoot issues related to low scores."
+          ]
+        }
+      ]
+    },
+    "api-scope": {
+      "statement": "The Automate guide describes a deep tracing session as gathering comprehensive diagnostics about a specific device that is having trouble connecting to the network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Starting a deep tracing session allows you to gather comprehensive diagnostics details about a specific device that is having trouble connecting to the network."
+          ]
+        }
+      ]
+    },
+    "same-sessions": {
+      "statement": "The console's Diagnostics Sessions and the API's deep traces are one pool of sessions: the API's session limit counts sessions started from the UI.",
+      "tier": "B",
+      "derived_from": [
+        "zdx.diagnostics.start-request:session-limits"
+      ],
+      "conditions": "No source names both terms together; inferred from the contract counting UI-initiated sessions in the deep-trace limit and from both describing an on-demand session on one device."
+    },
+    "live-troubleshooting-api": {
+      "statement": "The contract's `/v1/config/tracing` operations manage live troubleshooting sessions: create and start one, list them (filterable by IDs, search term, states, session types and active status), count them, read, update, stop and delete one, read its state and its status (active/inactive), and validate a PCAP filter expression. Reads need the `zdx-ltsession:read` permission and writes `zdx-ltsession:write`; creating, updating, stopping and deleting a session also need `zdx-user-device-name-access:read`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing/post",
+          "expect": {
+            "description": "Creates and starts a new live troubleshooting session with the specified parameters. Requires 'zdx-ltsession:write' and 'zdx-user-device-name-access:read' permissions."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing/get",
+          "expect": {
+            "description": "Retrieves a paginated list of live troubleshooting sessions with optional filtering and sorting. Results can be filtered by IDs, search term, states, session types, and active status. Requires 'zdx-ltsession:read' permission."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1count/get",
+          "expect": {
+            "description": "Retrieves the count of live troubleshooting sessions based on optional filtering criteria. Requires 'zdx-ltsession:read' permission."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}/get",
+          "expect": {
+            "description": "Retrieves detailed information about a specific live troubleshooting session by its ID. Requires 'zdx-ltsession:read' permission."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}/put",
+          "expect": {
+            "description": "Updates an existing live troubleshooting session with the provided parameters. Requires 'zdx-ltsession:write' and 'zdx-user-device-name-access:read' permissions."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}~1stop/put",
+          "expect": {
+            "description": "Stops a running live troubleshooting session by its ID. Requires 'zdx-ltsession:write' and 'zdx-user-device-name-access:read' permissions."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}/delete",
+          "expect": {
+            "description": "Deletes a specific live troubleshooting session by its ID. Requires 'zdx-ltsession:write' and 'zdx-user-device-name-access:read' permissions."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}~1state/get",
+          "expect": {
+            "description": "Retrieves the current state of a specific live troubleshooting session. Requires 'zdx-ltsession:read' permission."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}~1status/get",
+          "expect": {
+            "description": "Retrieves the status (active/inactive) of a specific live troubleshooting session. Requires 'zdx-ltsession:read' permission."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1validatePcapExpression/post",
+          "expect": {
+            "description": "Validates a PCAP filter expression for live troubleshooting sessions. This ensures the filter syntax is correct before applying it to a session. Requires 'zdx-ltsession:write' permission."
+          }
+        }
+      ]
+    },
+    "session-collection-interval": {
+      "statement": "During a Diagnostics session information is collected every minute for the Web probe and the Cloud Path probe, as well as device statistics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-diagnostics.json",
+          "quotes": [
+            "During a session, information is collected every minute for the Web probe and Cloud Path probe, as well as device statistics."
+          ]
+        }
+      ]
+    },
+    "session-requirements": {
+      "statement": "Diagnostics needs the minimum required versions of Client Connector and ZDX Module, a Digital Experience subscription level that supports Diagnostics, and an admin role configured for Diagnostics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-diagnostics.json",
+          "quotes": [
+            "You're running the minimum required versions of Zscaler Client Connector and ZDX Module.",
+            "Your Digital Experience subscription level supports Diagnostics.",
+            "Your admin role is configured for Diagnostics."
+          ]
+        }
+      ]
+    },
+    "session-limit-tiers": {
+      "statement": "The subscription table gives Total Diagnostics Sessions and Total Active Sessions as not supported on Standard, 25 each on Microsoft 365 and Advanced, and 100 each on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Total Diagnostics Sessions | Not supported | 25 | 25 | 100 |",
+            "| Total Active Sessions | Not supported | 25 | 25 | 100 |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "# Diagnostics"
+        }
+      ]
+    },
+    "session-duration-and-export": {
+      "statement": "A session can be run to monitor issues from 5 minutes to 60 minutes; starting one needs an active probe on the device that must have run for a minimum of 30 minutes; session information can be viewed on the Diagnostics page and exported as a PDF file, but an admin with View Only permission for Diagnostics details cannot use Export PDF.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-diagnostics.json",
+          "quotes": [
+            "You can choose to run the session to monitor issues from 5 minutes to 60 minutes.",
+            "To start a session, an active probe is required on the device. The active probe must run for a minimum duration of 30 minutes.",
+            "You can view session information on the Diagnostics page and also export it as a PDF file for reference and information sharing."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-diagnostics-session-results.json",
+          "quotes": [
+            "If you have View Only permission for Diagnostics details, you cannot use the Export PDF feature to save the results."
+          ]
+        }
+      ]
+    },
+    "session-actions": {
+      "statement": "From the Diagnostics page an admin can copy a session's details into a new session with all fields editable, end a session in the In Progress table, or delete a session, which removes it from the Diagnostics page; a copy does not include a device that has a session in progress or is no longer associated with the user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-diagnostics.json",
+          "quotes": [
+            "Copy the details of the selected session and start a new session with all details of an existing session copied. All fields are editable.",
+            "End a session in the In Progress table.",
+            "Delete the session. Deleting a session removes it from the Diagnostics page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-starting-new-diagnostics-session.json",
+          "quotes": [
+            "If the device has a session in progress or is no longer associated with the user, it is not copied."
+          ]
+        }
+      ]
+    },
+    "session-table-fields": {
+      "statement": "The session tables give each session's type, Created Time (when the admin created it), Start Time (when Client Connector accepted the request and started collecting data) and Created By (the admin's name and email address), with Duration in minutes in the In Progress table and End Time in the History table, sorted by Start Time with the latest first by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-diagnostics-session-information.json",
+          "quotes": [
+            "Session Type: The type of session selected during configuration.",
+            "Created Time: The time the session was created by the Digital Experience (ZDX) admin.",
+            "Start Time: The time that Zscaler Client Connector accepted the request and started collecting data.",
+            "Created By: The name and email address of the admin who created the session.",
+            "Duration (minutes): How long the Diagnostics session is, in minutes, in the In Progress table.",
+            "End Time: The time the session ended in the History table.",
+            "By default, the lists are sorted by the Start Time, displaying the session with the latest Start Time first."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "session-length-help": {
+      "summary": "The length of a Diagnostics session: the API contract says up to 15 minutes; the About Diagnostics help says 5 to 60 minutes, and the Starting a New Diagnostics Session help lists 5, 15, 30 and 60 minutes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/requestBody/content/application~1json/schema/properties/session_length_minutes",
+            "expect": {
+              "description": "Session length in minutes (upto 15 mins)"
+            }
+          },
+          "says": "`session_length_minutes` goes up to 15 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-about-diagnostics.json",
+            "quotes": [
+              "You can choose to run the session to monitor issues from 5 minutes to 60 minutes."
+            ]
+          },
+          "says": "A session can run from 5 minutes to 60 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-starting-new-diagnostics-session.json",
+            "quotes": [
+              "you can set the duration to 5 minutes, 15 minutes, 30 minutes, or 60 minutes using the Run Session For option"
+            ]
+          },
+          "says": "With Packet Capture Probing added to another type the Run Session For option offers 5, 15, 30 and 60 minutes."
+        }
+      ],
+      "impact": "A 30- or 60-minute session the console offers may be refused or shortened when started through the API; the sources do not say whether the console and the API share a limit. The existing divergence session-length-range in zdx.diagnostics.start-request holds the SDK positions."
+    },
+    "active-session-limit": {
+      "summary": "How many Diagnostics sessions can be active: the API contract limits deep traces to 15 active sessions across all devices, UI sessions included; the subscription table gives 25 total active sessions on Microsoft 365 and Advanced and 100 on Advanced Plus.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post",
+            "expect": {
+              "description": "Start deep trace on a device. Limited to 1 active session on a device at any time. Overall 15 active sessions at any point of time across all devices - includes sessions initiated from UI."
+            }
+          },
+          "says": "Overall 15 active sessions across all devices, including sessions started from the UI."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Total Active Sessions | Not supported | 25 | 25 | 100 |",
+              "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+            ],
+            "after": "# Diagnostics"
+          },
+          "says": "Total Active Sessions is not supported on Standard, 25 on Microsoft 365 and Advanced, and 100 on Advanced Plus."
+        }
+      ],
+      "impact": "No tier's figure equals the contract's 15; which limit an API start meets first is not stated by either source. The start-article help also says a Deep Tracing special application is not counted toward the sessions limit."
+    }
+  },
+  "gaps": {
+    "live-vs-deep-trace": {
+      "kind": "semantic",
+      "title": "How live troubleshooting sessions relate to Diagnostics Sessions",
+      "status": "open",
+      "detail": "The contract's /v1/config/tracing area manages live troubleshooting sessions with their own permissions and a PCAP filter, while the deep-trace operations under /v1/devices/{id}/deeptraces start Diagnostics Sessions. No captured source says whether the two are one feature, whether a live session appears among a device's deep traces, or what a live session captures. Searched: the help captures for 'live troubleshooting' and 'ltsession' (no match) and the contract's operation descriptions.",
+      "blocks": "choosing between a live troubleshooting session and a deep trace, and finding a session's results",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

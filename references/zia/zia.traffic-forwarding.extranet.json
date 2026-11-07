@@ -1,0 +1,496 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.extranet",
+  "title": "Extranet Application Support: extranets, traffic selectors, extranet locations and traffic flow",
+  "aliases": [
+    "extranet",
+    "Extranet Application Support",
+    "traffic selector",
+    "B2B Exchange",
+    "extranet location"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipsec"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.group-assignment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.automation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.ip-pools"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.predefined-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.insights.logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.server-groups-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.ipsec.device-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what}} {{not-default}} {{zpa-side}}"
+    },
+    {
+      "label": "The extranet object.",
+      "text": "{{extranet-object}} {{configuration-rules}} {{limits}} What an ephemeral DNS response is, and why a selector needs at least 20 addresses, are open {{gap:extranet-mechanics}}."
+    },
+    {
+      "label": "Extranet locations.",
+      "text": "{{extranet-locations}} {{auto-dynamic-group}} Group conditions are in [[zia.locations.groups]]; the Ansible module's extranet fields are in [[zia.locations.automation]]; the location-level behavior is partly open there {{gap:zia.locations.automation:extranet-locations-depth}}."
+    },
+    {
+      "label": "IPSec.",
+      "text": "{{no-null-phase2}} The general IPSec settings are in [[shared.ipsec.device-settings]]."
+    },
+    {
+      "label": "Traffic flow.",
+      "text": "{{flow-user-to-partner}} {{flow-partner-to-org}}"
+    },
+    {
+      "label": "Console page and logs.",
+      "text": "{{page-and-insights}} The Extranet filters of the Insights logs are in [[zia.insights.logs]]."
+    },
+    {
+      "label": "Private Access API lookups.",
+      "text": "{{zpa-api-lookups}} {{zpa-api-shapes}} How these lookups relate to the extranet values in server groups and application segments is open {{gap:zpn-er-id-link}}. Sources not read for this subject are open {{gap:unread-sources}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the extranet has a default traffic selector and a default DNS server, and whether each selector range holds at least 20 addresses.",
+      "uses": [
+        "configuration-rules"
+      ]
+    },
+    {
+      "do": "Whether the extranet location has a VPN credential and the Extranet Location Type before expecting the extranet to be usable.",
+      "uses": [
+        "extranet-locations"
+      ]
+    },
+    {
+      "do": "Whether the partner's IPSec Phase 2 proposal uses NULL encryption.",
+      "uses": [
+        "no-null-phase2"
+      ]
+    }
+  ],
+  "claims": {
+    "what": {
+      "statement": "Extranet Application Support lets Private Access users reach private applications hosted on a business partner's network, and lets partners establish IPSec tunnels directly to the Zero Trust Exchange, for bidirectional resource access through secure IPSec tunnels without partners installing additional hardware or software.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-extranet.json",
+          "quotes": [
+            "Zscaler Extranet Application Support allows Private Access (ZPA) users to access private applications hosted on a business partner's network",
+            "With Zscaler Extranet Application Support, your organization's partners can establish IPSec tunnels directly to the Zero Trust Exchange (ZTE)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-extranet-application-support.json",
+          "quotes": [
+            "Zscaler Extranet Application Support enables bidirectional resource access between your organization and a partner through secure IPSec tunnels without requiring partners to install any additional hardware or software."
+          ]
+        }
+      ]
+    },
+    "not-default": {
+      "statement": "Extranet Application Support is not enabled by default; it is obtained through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-extranet.json",
+          "quotes": [
+            "Extranet Application Support is not enabled by default. To access Extranet Application Support, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "zpa-side": {
+      "statement": "The Zscaler service facilitates the creation and management of extranets and Private Access manages user access to extranet resources. After an extranet location is configured, an admin can use it to configure server groups and application segments managed with Private Access access policies, and the VPN credentials associated with the extranet location to create the IPSec tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-extranet-application-support.json",
+          "quotes": [
+            "The Zscaler service facilitates the creation and management of extranets, and Private Access manages user access to extranet resources."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-extranet.json",
+          "quotes": [
+            "After an extranet location is configured, an admin can use it to configure server groups and application segments, which can be managed with Private Access access policies."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-extranet.json",
+          "quotes": [
+            "They need the VPN credentials associated with the extranet location to create the IPSec tunnel to the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "no-null-phase2": {
+      "statement": "Extranet Application Support does not support NULL encryption for IPSec IKE Phase 2 configuration, and Zscaler recommends an AES-GCM-based encryption algorithm instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-extranet.json",
+          "quotes": [
+            "Extranet Application Support does not support NULL encryption for IPSec IKE Phase 2 configuration. Zscaler recommends using the AES-GCM-based encryption algorithm instead."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-extranet-application-support.json",
+          "quotes": [
+            "Extranet Application Support does not support NULL encryption for IPSec IKE Phase 2 configuration. Zscaler recommends using the AES-GCM-based encryption algorithm instead."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-extranet.json",
+          "quotes": [
+            "Extranet Application Support does not support NULL encryption for IPSec IKE Phase 2 configuration. Zscaler recommends using the AES-GCM-based encryption algorithm instead."
+          ]
+        }
+      ]
+    },
+    "extranet-object": {
+      "statement": "Each extranet has traffic selectors and DNS servers specified for it. A traffic selector is an IPSec traffic-steering rule for forwarding traffic between tunnels; each can contain multiple IP address ranges and uses IKEv2. When an extranet is assigned to a location, specific traffic selectors and DNS servers can be selected, or the defaults designated during configuration are used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-extranet-application-support.json",
+          "quotes": [
+            "Each extranet has traffic selectors and DNS servers specified for it.",
+            "A traffic selector is an IPSec traffic-steering rule for forwarding traffic between tunnels. Each traffic selector can contain multiple IP address ranges and uses the industry standard IKEv2 protocol.",
+            "You can select specific traffic selectors and DNS servers when assigning an extranet to a location or use defaults that are designated during configuration."
+          ]
+        }
+      ]
+    },
+    "configuration-rules": {
+      "statement": "A default traffic selector and a default DNS server must be selected for an extranet. A traffic selector range's end value must be greater than its starting address, and the range must include a minimum of 20 IP addresses. A DNS server entry takes the IP addresses of DNS Server 1 and DNS Server 2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-extranet.json",
+          "quotes": [
+            "Default: Enable this to designate a traffic selector as the default. You must select a default traffic selector.",
+            "The value must be greater than the starting address. The range of the traffic selector must include a minimum of 20 IP addresses.",
+            "Default: Enable this to designate a DNS server as the default. You must select a default DNS server.",
+            "DNS Server 1: Enter the IP address of the DNS server 1.",
+            "DNS Server 2: Enter the IP address of the DNS server 2."
+          ]
+        }
+      ]
+    },
+    "extranet-locations": {
+      "statement": "Extranet locations must have a VPN credential assigned. To use extranet resources, the extranet must be assigned to a location, whose Location Type is set to Extranet. A shared public IP address is not to be chosen for a specific tenant's location, and Enforce Firewall Control is enabled automatically for extranet locations and cannot be disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-extranet.json",
+          "quotes": [
+            "Extranet locations must have a VPN credential assigned to them.",
+            "To use extranet resources, the extranet must be assigned to a location.",
+            "For Location Type, select Extranet from the drop-down menu.",
+            "Do not choose a shared public IP address for a specific tenant’s location.",
+            "Enforce Firewall Control: Firewall control is automatically enabled for extranet locations and cannot be disabled."
+          ]
+        }
+      ]
+    },
+    "auto-dynamic-group": {
+      "statement": "After a location is assigned to an extranet it is automatically added to a dynamic location group for the extranet resource, which the Zscaler service creates if none exists for that extranet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-extranet.json",
+          "quotes": [
+            "After a location is assigned to an extranet, it is automatically added to a dynamic location group for the assigned extranet resource. The Zscaler service creates one if a dynamic location group for the extranet does not already exist."
+          ]
+        }
+      ]
+    },
+    "flow-user-to-partner": {
+      "statement": "For a user reaching a partner application, a Public Service Edge for Private Access checks the user's eligibility and, once the user is authorized, sends a request to a Public Service Edge for Internet & SaaS, which forwards it through an IPSec tunnel to the partner's IPSec gateway. The request goes to the designated DNS server and then through the right tunnel to the partner data center based on the designated traffic selector, and after DNS resolution the Internet & SaaS edge sends the application payload back to the Private Access edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-extranet-application-support.json",
+          "quotes": [
+            "User eligibility is checked by a Public Service Edge for Private Access.",
+            "After the user is authorized, the Public Service Edge for Private Access sends a request to a Public Service Edge for Internet & SaaS which forwards the request through an IPSec tunnel to the extranet partner's IPSec gateway.",
+            "The request is forwarded to the designated DNS server and then sent through the right tunnel to the partner data center based on the designated traffic selector.",
+            "After DNS resolution, the application payload is sent by the Public Service Edge for Internet & SaaS back to the Public Service Edge for Private Access."
+          ]
+        }
+      ]
+    },
+    "flow-partner-to-org": {
+      "statement": "For a partner user reaching the organization's applications, if the DNS request is valid the Internet & SaaS Public Service Edge sends an ephemeral DNS response back to the partner user; the partner user's traffic is inspected by Internet & SaaS policies and validated by the Private Access access policy, and the application is delivered from the organization's data center through the App Connector, the Zero Trust Exchange and the IPSec tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-extranet-application-support.json",
+          "quotes": [
+            "If the DNS request is valid, the Public Service Edge for Internet & SaaS sends an ephemeral DNS response back to the partner user.",
+            "The partner user's traffic is inspected by Internet & SaaS policies and validated by the Private Access access policy.",
+            "The application is delivered to the partner from your organization's data center through the App Connector, ZTE, and IPSec tunnel."
+          ]
+        }
+      ]
+    },
+    "page-and-insights": {
+      "statement": "The Extranet page (Private Access > B2B Exchange > Extranet) shows the traffic selectors and DNS servers configured for each extranet, marking the default traffic selector and default DNS server with a check mark, and lets an admin view insights and insights logs for configured extranets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-extranet.json",
+          "quotes": [
+            "On the Extranet page (Private Access > B2B Exchange > Extranet), you can do the following:",
+            "Traffic Selector: The traffic selectors configured for the extranet. The default traffic selector is designated with a check mark.",
+            "DNS Server: The DNS servers configured for the extranet. The default DNS server is designated with a check mark.",
+            "View insights and insights logs for configured extranets."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "The limits table lists 1,000 extranets, 5,000 extranet locations, 16 traffic selectors per extranet and 16 DNS servers per extranet; its Access Policy row, under Policies, also lists 50 locations and 10 location groups for extranet application support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Extranet resources | 1,000 extranets |",
+            "| Extranet locations | 5,000 extranet locations |",
+            "| Traffic selectors per extranet | 16 traffic selectors |",
+            "| DNS servers per extranet | 16 DNS servers |",
+            "50 locations for extranet application support 10 location groups for extranet application support"
+          ]
+        }
+      ]
+    },
+    "zpa-api-lookups": {
+      "statement": "The Extranet API document, titled Zscaler Private Access API Portal, has three GET operations under /mgmtconfig/v1/admin/customers/{customerId}: extranetResource/partner returns the extranet's partner details; location/extranetResource/{zpnErId} returns its location details, including sublocations when fetchSubLocations is set; and locationGroup/extranetResource/{zpnErId} returns its location group details, including special location groups when isSpecialLocationGroupInclude is set. zpnErId is the ID of the extranet resource, and the operations page results with a default page size of 20 and a maximum of 500.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/info",
+          "expect": {
+            "title": "Zscaler Private Access API Portal"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1extranetResource~1partner/get",
+          "expect": {
+            "description": "Gets the partner details of the extranet for the specified customer."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1location~1extranetResource~1{zpnErId}/get",
+          "expect": {
+            "description": "Gets the location details of the extranet for the specified customer."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1location~1extranetResource~1{zpnErId}/get/parameters/[name=fetchSubLocations]",
+          "expect": {
+            "description": "Indicate whether to fetch sublocation details."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1location~1extranetResource~1{zpnErId}/get/parameters/[name=zpnErId]",
+          "expect": {
+            "description": "The ID of the extranet resource."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1locationGroup~1extranetResource~1{zpnErId}/get",
+          "expect": {
+            "description": "Gets the location group details of the extranet for the specified customer."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1locationGroup~1extranetResource~1{zpnErId}/get/parameters/[name=isSpecialLocationGroupInclude]",
+          "expect": {
+            "description": "Indicates whether to include special location groups."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1extranetResource~1partner/get/parameters/[name=pagesize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1location~1extranetResource~1{zpnErId}/get/parameters/[name=pagesize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1locationGroup~1extranetResource~1{zpnErId}/get/parameters/[name=pagesize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
+          }
+        }
+      ],
+      "conditions": "The captured ZPA OpenAPI (automate-zscaler/openapi/zpa.openapi.json) has no path containing xtranet, so this document is the only API source for these lookups here."
+    },
+    "zpa-api-shapes": {
+      "statement": "The partner and location lookups return a paged list of name and ID pairs. The location group lookup returns location groups, each with a required id, a name (the name of the extranet location group) and ziaLocations (the extranet locations that can reach the application via an IPSec tunnel).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1extranetResource~1partner/get/responses/200/content/*~1*/schema",
+          "expect": {
+            "$ref": "#/components/schemas/PageListNameIdDto"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1location~1extranetResource~1{zpnErId}/get/responses/200/content/*~1*/schema",
+          "expect": {
+            "$ref": "#/components/schemas/PageListNameIdDto"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1locationGroup~1extranetResource~1{zpnErId}/get/responses/200/content/*~1*/schema",
+          "expect": {
+            "$ref": "#/components/schemas/PageListLocationGroupDTO"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/components/schemas/LocationGroupDTO",
+          "expect": {
+            "required": [
+              "id"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/components/schemas/LocationGroupDTO/properties/name",
+          "expect": {
+            "description": "The name of the extranet location group."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-extranet.json",
+          "pointer": "/spec/components/schemas/LocationGroupDTO/properties/ziaLocations",
+          "expect": {
+            "description": "The extranet locations that can reach the application via an IPSec tunnel."
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "extranet-mechanics": {
+      "kind": "semantic",
+      "title": "What an ephemeral DNS response is, how selector ranges relate to IP pools, and why a selector needs 20 addresses",
+      "status": "open",
+      "detail": "The partner-to-organization flow says the Internet & SaaS edge sends an ephemeral DNS response without defining it. A traffic selector range must include at least 20 IP addresses with no reason given. The Ansible module's extranet_ip_pool and default_extranet_ts_pool options (zia.locations.automation) name a traffic selector IP pool, and how that relates to the selector ranges here and to zia.dns-control.ip-pools is not stated.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "zpn-er-id-link": {
+      "kind": "semantic",
+      "title": "How the Private Access extranet lookups relate to the extranet values in server groups",
+      "status": "open",
+      "detail": "The extranet lookups take zpnErId, the ID of the extranet resource, and return name-ID pairs and location groups. zpa.api.server-groups-wire carries extranetDTO, locationDTO and locationGroupDTO values; the lookups plausibly supply them, but the specification does not say so, and it does not say what the partner details hold beyond name-ID pairs or what a special location group is.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "unread-sources": {
+      "kind": "semantic",
+      "title": "Extranet sources not read",
+      "status": "open",
+      "detail": "Not read for this subject: the ZIA OpenAPI /extranet and /extranet/lite operations, the Terraform zia_extranet resource and data source (Early Access per zia.terraform.early-access), the Ansible zia_extranet module and its info module, and the Go and Python SDK extranet resource services.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

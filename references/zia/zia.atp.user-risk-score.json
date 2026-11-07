@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "id": "zia.atp.user-risk-score",
+  "title": "User Risk Score: its static and real-time parts, the indicators and variables the page names, and where it is used",
+  "aliases": [
+    "user risk score",
+    "risk score",
+    "static risk score",
+    "real-time risk score",
+    "risky user"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.atp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.reports.risk"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication.user-risk-scores"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.scoring"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The User Risk Score is a per-user value that Zscaler builds from the organization's user behavior trends. {{profile-built}} {{computed-in-zia}}"
+    },
+    {
+      "label": "The two parts.",
+      "text": "{{static-and-realtime}} {{reset-to-low}}"
+    },
+    {
+      "label": "What feeds it.",
+      "text": "{{indicators-categories}} {{post-infection-examples}} {{pre-infection-examples}} {{suspicious-examples}} {{log-basis}} {{scaling-factors}} Which indicators exist in full and what they weigh is open {{gap:indicator-catalog}}."
+    },
+    {
+      "label": "Where it is used.",
+      "text": "{{policy-criterion}} {{risk360-report}} {{company-score}} {{platform-use}} The bands are not on this page {{gap:score-bands}}, and the report-side computation question is partly open {{gap:realtime-setting}}. Report widgets are in [[zia.reports.risk]] and the Private Access side is in [[zpa.authentication.user-risk-scores]]."
+    }
+  ],
+  "claims": {
+    "profile-built": {
+      "statement": "Zscaler analyzes the organization's user behavior trends and builds a risk profile dynamically by assigning a User Risk Score to each user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "Zscaler analyzes your organization's user behavior trends and builds a risk profile dynamically by assigning a User Risk Score to each user."
+          ]
+        }
+      ]
+    },
+    "computed-in-zia": {
+      "statement": "The computation happens in Internet & SaaS, using a proprietary algorithm, for each user authenticated to Internet & SaaS, and the score is then propagated to Private Access, where it can be used unchanged or overridden for individual users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "The User Risk Score computation happens in Internet & SaaS and then it is propagated to Private Access.",
+            "Each user authenticated to Internet & SaaS is dynamically assigned a risk score value after it's calculated using a proprietary algorithm.",
+            "In Private Access, you can use the computed User Risk Score without any change, or you can override the risk score for users at the individual level to allow more flexibility in access policies."
+          ]
+        }
+      ]
+    },
+    "reset-to-low": {
+      "statement": "Internet & SaaS provides an option to reset the User Risk Score to Low for individual users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "Internet & SaaS provides an option to reset the User Risk Score to Low for individual users."
+          ]
+        }
+      ]
+    },
+    "static-and-realtime": {
+      "statement": "The score has a static baseline built from the user's behavior over the past 7 days and updated every 24 hours, and a real-time score that updates the baseline every two minutes throughout the day, changing whenever the user interacts with known or suspected malicious content, and is reset to the static baseline at a 24-hour window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "Static (baseline) Risk Score: A static score is established based on a user's behavior over the past 7 days and is updated every 24 hours.",
+            "Real-time Risk Score: The real-time score updates the baseline (i.e., static score) every two minutes throughout the day, changing whenever a user interacts with known or suspected malicious content.",
+            "The real-time risk score is reset to the static baseline score at a 24-hour window and the process continues."
+          ]
+        }
+      ]
+    },
+    "indicators-categories": {
+      "statement": "Zscaler considers over 65 indicators of risky behavior and classifies them into three categories: post-infection behavior (past victimization by cyberattacks), pre-infection behavior (near-miss malicious infections) and suspicious behavior (behavior that could lead to a breach).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "Zscaler considers over 65 indicators of risky behaviors and classifies them into three major categories to assign appropriate risk scores.",
+            "Post-infection behavior: Includes user behaviors that have resulted in past victimization by cyberattacks",
+            "Pre-infection behavior: Includes a range of user behaviors that lead to near-miss malicious infections",
+            "Suspicious behavior: Includes user engagement in suspicious behavior that could lead to a breach in security"
+          ]
+        }
+      ]
+    },
+    "post-infection-examples": {
+      "statement": "The page's examples of post-infection indicators are blocked botnet traffic and blocked command-and-control traffic attempted after a user was infected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "Indicators of post-infection behavior include blocked actions that were attempted after a user was infected, such as:",
+            "- Botnet traffic",
+            "- Command-and-control traffic"
+          ]
+        }
+      ]
+    },
+    "pre-infection-examples": {
+      "statement": "The page's examples of pre-infection indicators include malware blocked by ATP or inline Sandbox, blocked known or suspected malicious URLs, blocked phishing sites, blocked pages with known browser exploits, blocked adware and spyware, blocked pages with a high Page Risk Index score, quarantined pages, blocked files with known vulnerabilities, blocked emails containing viruses and detected mobile app vulnerabilities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "Malware blocked by Zscaler's Advanced Threat Protection or inline Sandbox",
+            "Blocked known or suspected malicious URLs",
+            "Blocked websites with known or suspected phishing content",
+            "Blocked pages with known browser exploits",
+            "Blocked known or suspected adware and spyware",
+            "Blocked pages with a high Page Risk Index score",
+            "- Quarantined pages",
+            "Blocked files with known vulnerabilities",
+            "Blocked emails containing viruses",
+            "Detected mobile app vulnerabilities"
+          ]
+        }
+      ]
+    },
+    "suspicious-examples": {
+      "statement": "Among the page's suspicious-behavior indicators are URLs placed on the denylist, DLP compliance violations, anonymizing sites, attempts to browse blocked URL categories, tunnel blocks, fake proxy authentication, IPS blocks of crypto mining and blockchain traffic, and disallowed use of a DNS-over-HTTPS site.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "- URLs placed on the denylist",
+            "- DLP compliance violations",
+            "- Anonymizing sites",
+            "Attempts to browse blocked URL categories",
+            "- Tunnel blocks",
+            "- Fake proxy authentication",
+            "Intrusion Prevention System (IPS) blocks of crypto mining and blockchain traffic",
+            "Disallowed use of a DNS-over-HTTPS site"
+          ]
+        }
+      ]
+    },
+    "log-basis": {
+      "statement": "The policy match information in the log data is the basis for identifying whether a user has engaged in a risky behavior, and is then used in the score computation. The page's example is that a blocked malicious URL (suspicious behavior) poses less of a threat of a breach than an active malware infection (post-infection behavior).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "The policy match information in the log data serves as a basis for identifying whether a user has engaged in a risky behavior, and then it is subsequently used in the User Risk Score computation process.",
+            "For example, a blocked malicious URL (i.e., suspicious behavior) does not pose a serious threat to a security breach compared to an active malware infection (i.e., post-infection behavior)."
+          ]
+        }
+      ]
+    },
+    "scaling-factors": {
+      "statement": "The computation begins when log data is collected and aggregated by user, and scaling factors are used where necessary to ensure a more accurate risk assessment for the users. The page's examples of the variables, which it says are not a complete list, are the category the indicator belongs to, the severity of the threat, and the frequency of occurrence and length of infection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "When the log data is collected and aggregated by a user, the risk score computation begins.",
+            "scaling factors are used where necessary to ensure a more accurate risk assessment for the users",
+            "Examples of these variables include but are not limited to:",
+            "The category to which the indicator belongs",
+            "The severity of the imminent threat or the actual threat detected",
+            "The frequency of the threat occurrence and the length of infection"
+          ]
+        }
+      ]
+    },
+    "policy-criterion": {
+      "statement": "Defining the User Risk Score as a policy criterion lets an admin configure the Access Policy in Private Access and the URL Filtering, Cloud App Control and Data Loss Prevention policies in Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "By defining the User Risk Score as a policy criterion, you can configure the following policies in Private Access and Internet & SaaS",
+            "Access Policy in Private Access",
+            "URL Filtering Policy in Internet & SaaS",
+            "Cloud App Control Policy in Internet & SaaS",
+            "Data Loss Prevention (DLP) Policy in Internet & SaaS"
+          ]
+        }
+      ]
+    },
+    "risk360-report": {
+      "statement": "The Risk Score Report is at Analytics > Risk360 in the Admin Console, and its Top Risky Users widget drills into a user's current score and trend, the events that influenced the score in chronological order, DLP violations, unsanctioned cloud applications accessed and risky URLs the user attempted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "You can view the Risk Score Report, a graphical representation of the User Risk Score metrics generated by Zscaler to perform data analysis, by going to Analytics > Risk360 in the Zscaler Admin Console.",
+            "Using the Top Risky Users widget, you can drill down the metrics for individual users",
+            "User's current risk score and risk score trend over a specific timeline",
+            "List of events that influenced the risk score in a chronological order",
+            "DLP violations made by the user",
+            "List of unsanctioned cloud applications accessed by the user",
+            "List of risky URLs that the user attempted to access"
+          ]
+        }
+      ]
+    },
+    "company-score": {
+      "statement": "The risk scores assigned to users influence the organization's overall risk score, and the Company Risk Score Report shows how scores are distributed across users and locations and compares the distribution with peer organizations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "Furthermore, the risk score assigned to the users influences your organization's overall risk score.",
+            "By using the Company Risk Score Report, you can examine how risk scores are distributed across your users and locations and also compare your organization's risk score distribution with your peer organizations and benchmark against industry standards."
+          ]
+        }
+      ]
+    },
+    "platform-use": {
+      "statement": "The page says the User Risk Score is used across the Zscaler platform, driving policies for Internet & SaaS (ZIA) and Private Access (ZPA) and feeding data into Risk360.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-risk-score.json",
+          "quotes": [
+            "Take advantage of the User Risk Score's usage across the Zscaler platform, driving policies for Internet & SaaS (ZIA) and Private Access (ZPA) and feeding data into Risk360 for comprehensive risk visibility and management."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "score-bands": {
+      "kind": "semantic",
+      "title": "What score bands this page's score maps to",
+      "status": "open",
+      "detail": "The page gives no score bands. Bands appear on other pages (zia.url-filtering.criteria, zia.dlp.rules, zpa.authentication.user-risk-scores) and zia.reports.risk records a band divergence; none is stated by this article.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "realtime-setting": {
+      "kind": "semantic",
+      "title": "How the real-time score relates to the Enable Real-Time Risk Score Updates setting",
+      "status": "open",
+      "detail": "This page describes a real-time score that updates every two minutes but does not mention the Enable Real-Time Risk Score Updates setting recorded in zia.reports.risk:user-risk-realtime, so the gap zia.reports.risk:user-risk-computation is only partly answered.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "indicator-catalog": {
+      "kind": "semantic",
+      "title": "The full catalog of 65+ indicators and their weights",
+      "status": "open",
+      "detail": "The page lists examples of indicators in each category and says over 65 are considered; it does not give the full catalog or the weights.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

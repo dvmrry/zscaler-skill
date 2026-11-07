@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "id": "zia.sandbox.submission",
+  "title": "Submitting files to Sandbox and out-of-band inspection (Discan)",
+  "aliases": [
+    "discan",
+    "zscsb submit",
+    "submit file for inspection",
+    "out-of-band file inspection",
+    "sandbox submission api"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.sandbox.rules",
+      "because": "zia.sandbox.submission:submit-needs-rule"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Two SDK calls push a file to Sandbox outside the normal download path. {{submit}} {{submit-needs-rule}} {{daily-quota}} Reading the result is covered in [[zia.sandbox.report]], and the rule fields in [[zia.sandbox.rules]]."
+    },
+    {
+      "label": "Discan.",
+      "text": "{{discan}}"
+    },
+    {
+      "text": "{{automate-publication}} Whether the two routes still work on a tenant is open {{gap:submission-route-status}}."
+    },
+    {
+      "label": "The Sandbox Scanning Portal.",
+      "text": "{{scanning-portal}} {{scanning-portal-results}} {{scanning-portal-check-status}} The portal's limits are open {{gap:portal-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a clean Discan result is read as no known-bad signal, not as a detonation verdict, since Discan includes no dynamic analysis.",
+      "uses": [
+        "discan"
+      ]
+    },
+    {
+      "do": "Whether the submit and Discan routes work on the target tenant before a customer is promised them.",
+      "uses": [
+        "automate-publication",
+        "submission-route-status"
+      ]
+    }
+  ],
+  "claims": {
+    "submit": {
+      "statement": "The submit call sends a raw or archive file to Sandbox for analysis (up to 100 files per day). Files are scanned by Zscaler antivirus and sent to the sandbox; the `force` parameter makes the sandbox reanalyze a file that already has a verdict. The verdict is read afterwards from the report endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go",
+          "quotes": [
+            "You can submit up to 100 files per day",
+            "you can use the 'force' parameter to make the sandbox to reanalyze it",
+            "After files are sent for analysis, you must use GET /sandbox/report/{md5Hash} in order to retrieve the verdict.",
+            "Submit: Submits raw or archive files (e.g., ZIP) to Sandbox for analysis.",
+            "By default, files are scanned by Zscaler antivirus (AV) and submitted directly to the sandbox in order to obtain a verdict.",
+            "However, if a verdict already exists for the file"
+          ]
+        }
+      ]
+    },
+    "submit-needs-rule": {
+      "statement": "A file whose type is not covered by the default policy rule is analyzed only if a Sandbox policy rule includes that file type; otherwise the response shows \"Unknown\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go",
+          "quotes": [
+            "If not, an 'Unknown' message is shown in the response.",
+            "You must have a Sandbox policy rule configured within the ZIA Admin Portal in order to analyze files that aren't present in the default policy rule.",
+            "Ensure that you have explicitly added Sandbox policy rules that include the appropriate file types within your request."
+          ]
+        }
+      ]
+    },
+    "discan": {
+      "statement": "Discan submits a file for out-of-band inspection that yields a real-time verdict for known and unknown files, using Malware Prevention, Advanced Threat Prevention, the Sandbox cloud effect, AI/ML analysis and third-party threat intelligence. It supports the file types of the Malware Protection and ATP policies, limits each file to 400 MB, and includes no dynamic file analysis. The Go SDK calls it `Discan` (POST /zscsb/discan); the Python SDK calls it `submit_file_for_inspection`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go",
+          "quotes": [
+            "Sandbox cloud effect, AI/ML-driven file analysis, and integrated third-party threat intelligence feeds",
+            "each file is limited to a size of 400 MB",
+            "Note: Dynamic file analysis is not included in out-of-band file inspection.",
+            "Discan Submits raw or archive files (e.g., ZIP) to the Zscaler service for out-of-band file inspection to generate real-time verdicts for known and unknown files.",
+            "It leverages capabilities such as Malware Prevention, Advanced Threat Prevention,",
+            "All file types that are currently supported by the Malware Protection policy and Advanced Threat Protection policy are supported for inspection",
+            "discanEndpoint = \"/zscsb/discan\"",
+            "func Discan(ctx context.Context, service *zscaler.Service, filename string, file io.Reader) (*ScanResult, error) {",
+            "return scanFile(ctx, service, filename, file, \"\", discanEndpoint)",
+            "data, _, _, err := service.Client.ExecuteRequest(ctx, \"POST\", endpoint, &gzippedFile, urlParams, contentType)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "def submit_file_for_inspection(self, file_path: str)",
+            "_sandbox_base_endpoint = \"/zscsb\"",
+            "/discan \"\"\")"
+          ]
+        }
+      ]
+    },
+    "automate-publication": {
+      "statement": "The public Automate capture no longer lists `POST /zscsb/submit` or `POST /zscsb/discan`; the pinned Go and Python SDKs still construct both paths. This shows a gap between publication and clients, not that the backend routes were retired.",
+      "tier": "B",
+      "conditions": "The removal from the capture is stated by the capture notes. That it says nothing about the backend is an inference: a capture drop is not a retirement notice, and no tenant test is vendored.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/rosetta.md",
+          "quotes": [
+            "Removed from capture: `POST /zscsb/submit` (`zia/sandbox-submission-api/submit-file`).",
+            "Removed from capture: `POST /zscsb/discan` (`zia/sandbox-submission-api/submit-file-for-scan`)."
+          ]
+        }
+      ],
+      "gaps": [
+        "submission-route-status"
+      ]
+    },
+    "scanning-portal": {
+      "statement": "With Advanced Sandbox, suspicious files can be submitted by hand through the Sandbox Scanning Portal, where the engine executes and monitors them in a controlled sandbox, records and analyzes malicious behavior, and applies the organization's Malware Protection and Sandbox policies. No Sandbox analysis is done if the file is blocked by Malware Protection, is clean, or was analyzed before.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-sandbox-scanning-portal.json",
+          "quotes": [
+            "With Advanced Sandbox, you can manually submit suspicious files for behavioral analysis by uploading them to the Sandbox Scanning Portal.",
+            "Executes and monitors suspicious objects in a controlled sandbox",
+            "Records and analyzes any malicious behaviors",
+            "Applies the Malware Protection and Sandbox policies configured by your organization",
+            "The Zscaler service doesn't perform Sandbox analysis if the file is blocked by the Malware Protection policy, is clean, or was previously analyzed by the Sandbox engine."
+          ]
+        }
+      ]
+    },
+    "scanning-portal-results": {
+      "statement": "A portal upload's file name cannot contain spaces. Its status is a blocked sign (blocked by the Malware Protection or Sandbox policies, with the reason shown) or a check mark, which indicates one of the results the page lists, one being that the file was unknown and sent for analysis. File contents are treated as confidential and not viewable in the portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-sandbox-scanning-portal.json",
+          "quotes": [
+            "The file name cannot contain spaces.",
+            "Blocked: If you see a blocked sign, it indicates that the file was blocked based on the Malware Protection or Sandbox policies.",
+            "This column also displays why the file was blocked (e.g., due to a virus or malicious behavior).",
+            "Check Mark: If you see a check mark, it indicates one of the following results:",
+            "The file was unknown and sent for analysis.",
+            "All files are treated as confidential and the information they contain is not viewable in the Sandbox Scanning Portal."
+          ]
+        }
+      ]
+    },
+    "scanning-portal-check-status": {
+      "statement": "To tell whether a portal upload was clean or sent for analysis, the Sandbox logs must be viewed. Filtering by Sandbox MD5, no log means the file is clean and a log means it is unknown and sent for analysis. Filtering by Uploaded URL with https://filecheck.zscaler.com/<Uploaded URL>, a display of None means clean and Sent for Analysis means the engine is analyzing the file. Files uploaded simultaneously share the first segment of the Uploaded URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-sandbox-scanning-portal.json",
+          "quotes": [
+            "To check whether the file was clean or sent for analysis, you must view the Sandbox logs, which you can access from the Zscaler Admin Console.",
+            "Under Select Filters, choose Sandbox MD5.",
+            "If a log isn’t generated, then the file is clean. If a log is generated, then the file is unknown and sent for analysis.",
+            "The first segment of the Uploaded URL is the same for files you upload simultaneously to the Sandbox Scanning Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-sandbox-scanning-portal.json",
+          "after": "Filter by Uploaded URL",
+          "quotes": [
+            "Enter https://filecheck.zscaler.com/<Uploaded URL>.",
+            "If it displays None, the file is clean. If it displays Sent for Analysis, the Sandbox engine is analyzing the file."
+          ]
+        }
+      ]
+    },
+    "daily-quota": {
+      "statement": "Advanced Sandbox allows 100 API file submissions per day by default; the quota can be raised through the Zscaler account team or Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-sandbox.json",
+          "quotes": [
+            "By default, Advanced Sandbox allows for 100 API file submissions per day. This quota can be raised by contacting your Zscaler Account team or Zscaler Support."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "submission-route-status": {
+      "kind": "data",
+      "title": "Whether /zscsb/submit and /zscsb/discan still work on a tenant",
+      "status": "open",
+      "detail": "The routes are absent from the public operation pages but present in both SDKs. Validate against the target tenant before treating them as current.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "dynamic-analysis-duration": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: dynamic analysis takes 3 to 10 minutes",
+      "status": "partial",
+      "detail": "Unverified legacy statement: The earlier reference gave this range. The Go SDK notes that a report is available 10 minutes after submission. The end user notification help page says only that Sandbox analysis might take a few minutes, depending on the size and type of the file, and gives no figure (see zia.sandbox.quarantine:quarantine-page).",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-sandbox-end-user-notifications.json",
+          "quotes": [
+            "The Sandbox analysis might take a few minutes, depending on the size and type of the file."
+          ]
+        }
+      ]
+    },
+    "portal-limits": {
+      "kind": "semantic",
+      "title": "The Sandbox Scanning Portal's size limit, quota and relation to the API submission quota",
+      "status": "open",
+      "detail": "The portal page states no file size limit, no daily quota, and no relation to the 100-per-day API submission quota. It also gives no retention period for the Sandbox Detail Report.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

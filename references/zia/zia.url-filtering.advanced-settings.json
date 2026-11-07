@@ -1,0 +1,413 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-filtering.advanced-settings",
+  "title": "Advanced URL Filtering settings that change outcomes",
+  "aliases": [
+    "advanced policy settings",
+    "newly registered domains",
+    "NROD",
+    "miscellaneous or unknown",
+    "embedded sites categorization",
+    "translated pages bypass",
+    "AI/ML content categorization",
+    "CIPA compliance",
+    "gen ai prompt capture",
+    "global ssl bypass policy evaluation"
+  ],
+  "binds": [
+    "zia/advanced-settings"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline",
+      "because": "zia.url-filtering.advanced-settings:global-ssl-bypass-evaluation"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence",
+      "because": "zia.cloud-app-control.precedence:cascading-allow-path"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-categories.membership",
+      "because": "zia.url-filtering.advanced-settings:nrod-definition"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/advanced-settings"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.api.advanced-settings-wire"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.terraform.url-filtering-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Tenant-wide settings change URL Filtering outcomes without any rule changing."
+    },
+    {
+      "label": "Uncategorized traffic.",
+      "text": "{{misc-unknown}} {{nrod-definition}} {{nrod-lookup-prerequisite}}"
+    },
+    {
+      "label": "What URL is judged.",
+      "text": "{{embedded-sites}} {{aiml-redirect}}"
+    },
+    {
+      "label": "Exclusions and bypasses.",
+      "text": "{{cipa-exclusive}} {{global-ssl-bypass-evaluation}} For how SSL inspection decides what URL Filtering sees at all, see [[zia.ssl-inspection.pipeline]]."
+    },
+    {
+      "text": "{{genai-prompts}} The Python response model reads only eight of the prompt flags {{divergence:prompt-flags-python-model}}."
+    },
+    {
+      "label": "Writing through automation.",
+      "text": "{{go-full-state-write}} What a serialized Creative Commons false does to an enabled setting is open {{gap:creative-commons-backend-effect}}."
+    },
+    {
+      "label": "One-click breakouts.",
+      "text": "{{ucaas-one-click-fields}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule on NROD matches anything, given that the Suspicious New Domains lookup must be enabled first.",
+      "uses": [
+        "nrod-lookup-prerequisite"
+      ]
+    },
+    {
+      "do": "Whether a block on a category stops a redirecting response, given that AI/ML categorization follows redirects.",
+      "uses": [
+        "aiml-redirect"
+      ]
+    },
+    {
+      "do": "Whether URL Filtering rules apply to globally SSL-bypassed traffic, which depends on a separate evaluation switch.",
+      "uses": [
+        "global-ssl-bypass-evaluation"
+      ]
+    },
+    {
+      "do": "Whether the advanced settings are read in full before any one toggle is written.",
+      "uses": [
+        "go-full-state-write"
+      ]
+    },
+    {
+      "do": "Whether a tenant-wide setting explains a rule that should have fired and did not.",
+      "uses": [
+        "embedded-sites",
+        "aiml-redirect"
+      ]
+    }
+  ],
+  "claims": {
+    "misc-unknown": {
+      "statement": "Miscellaneous or Unknown holds sites Zscaler has not yet classified; blocking it outright also blocks newly encountered legitimate sites.",
+      "tier": "B",
+      "conditions": "The definition is documented; the operational consequence follows from it.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-url-categories.json",
+          "quotes": [
+            "Miscellaneous or Unknown: Sites that have not yet been classified by Zscaler."
+          ]
+        }
+      ]
+    },
+    "nrod-definition": {
+      "statement": "Newly Registered and Observed Domains (NROD) is a subset of Miscellaneous: uncategorized domains created in the last 30 days or seen for the first time, found by checking Miscellaneous or Unknown URLs against an NROD database. It can be used only in URL Filtering rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-url-categories.json",
+          "quotes": [
+            "Newly Registered and Observed Domains: Sites whose domains were created in the last 30 days and are currently not categorized by Zscaler.",
+            "This category also includes domains that we encounter for the first time.",
+            "This category is a subset of the Miscellaneous category.",
+            "when a URL is found in the Miscellaneous or Unknown category, it is checked against Zscaler's NROD database.",
+            "This category can only be used in URL Filtering rules."
+          ]
+        }
+      ]
+    },
+    "nrod-lookup-prerequisite": {
+      "statement": "Enable Suspicious New Domains Lookup is required to use the Newly Registered and Observed Domains and Newly Revived Domains categories in a rule; it identifies newly registered and observed domains within hours of going live, and also identifies newly revived domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-policy-settings.json",
+          "quotes": [
+            "Enable Suspicious New Domains Lookup: Enable this option to provide advanced protection to users against the newly registered and observed domains that are identified within hours of going live. This feature also identifies newly revived domains.",
+            "This feature is a prerequisite for using the Newly Registered and Observed Domains and Newly Revived Domains URL categories in a policy rule."
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    },
+    "embedded-sites": {
+      "statement": "Without Embedded Sites Categorization, a page viewed through a translation service is judged by the translator's URL; enabling it enforces URL Filtering on the translated site itself.",
+      "tier": "B",
+      "conditions": "The enabled behavior is documented; the disabled behavior is inferred from the setting existing to change it.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-policy-settings.json",
+          "quotes": [
+            "Enable this option to allow the service to enforce the URL Filtering policy for sites that are translated using translation service websites."
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    },
+    "aiml-redirect": {
+      "statement": "With AI/ML content categorization on, a blocked-category site that answers with a redirect (3xx) is allowed and the redirect is followed, and a server error (5xx) is logged as allowed; other responses follow the policy for the identified category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-policy-settings.json",
+          "quotes": [
+            "When AI/ML-based content categorization is enabled, the handling of transactions depends on the HTTP response codes received from the website server.",
+            "If the policy is set to block a category (e.g., Gambling), but the server responds with a redirect (3xx response code)",
+            "then Zscaler allows the transaction to proceed and follows the redirect.",
+            "error (5xx), then Zscaler logs the transaction as allowed.",
+            "Other response codes: For all other response codes, Zscaler blocks or allows the site based on your configured policy for the identified category."
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    },
+    "cipa-exclusive": {
+      "statement": "CIPA compliance cannot be enabled together with newly-registered-domain lookup, embedded-site categorization, SafeSearch enforcement, or dynamic content categorization; both SDKs check for that combination and return an error before the PUT is built or sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "EnableCIPACompliance cannot be enabled with the following options: EnableNewlyRegisteredDomains, ConsiderEmbeddedSites, EnforceSafeSearch, EnableDynamicContentCat",
+            "if urlAndAppSettings.EnableCIPACompliance {",
+            "resp, err := service.Client.UpdateWithPut(ctx, urladvSettingsEndpoint, urlAndAppSettings)",
+            "EnforceSafeSearch, EnableDynamicContentCat\") } } // Pass the struct directly to the UpdateWithPut method resp, err := service.Client.UpdateWithPut(ctx, urladvSettingsEndpoint, urlAndAppSettings)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "cannot be True when 'enable_cipa_compliance' is True",
+            "if kwargs.get(\"enable_cipa_compliance\") is True:",
+            "mutually_exclusive = [ \"enable_newly_registered_domains\", \"consider_embedded_sites\", \"enforce_safe_search\", \"enable_dynamic_content_cat\", ]",
+            "return ( None, None, ValueError(f\"Invalid configuration:",
+            "ValueError(f\"Invalid configuration: '{key}' cannot be True when 'enable_cipa_compliance' is True\"),",
+            "response, error = self._request_executor.execute(request, AdvancedUrlFilterAndCloudAppSettings)",
+            "cannot be True when 'enable_cipa_compliance' is True\"), ) http_method = \"put\".upper()"
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    },
+    "go-full-state-write": {
+      "statement": "The Go SDK sends every advanced-settings boolean even when false (except `blockSkype`, and `safeSearchApps` stays optional), so a sparse struct written to toggle one setting turns the others off.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "// URLAdvancedPolicySettings is the full set of advanced URL filtering and cloud",
+            "// The booleans deliberately omit omitempty: a caller disabling a setting sends",
+            "// false, and dropping that false from the body would leave the setting enabled.",
+            "// The two exceptions are BlockSkype and SafeSearchApps, which the service",
+            "EnableCIPACompliance bool `json:\"enableCIPACompliance\"`",
+            "BlockSkype bool `json:\"blockSkype,omitempty\"`",
+            "SafeSearchApps []string `json:\"safeSearchApps,omitempty\"`"
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    },
+    "global-ssl-bypass-evaluation": {
+      "statement": "Policy evaluation for traffic on the global SSL bypass list is a separate switch (`enableEvaluatePolicyOnGlobalSSLBypass`) that defaults to off, so URL Filtering rules may not apply to globally bypassed traffic.",
+      "tier": "B",
+      "binds": [
+        "zia/advanced-settings"
+      ],
+      "conditions": "The field and its default are in the SDKs; its effect on URL Filtering specifically is inferred from the field's description.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/advanced_settings/advanced_settings.go",
+          "quotes": [
+            "// A Boolean value indicating whether policy evaluation for global SSL bypass traffic is enabled or not"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/advanced_settings.py",
+          "quotes": [
+            "config[\"enableEvaluatePolicyOnGlobalSSLBypass\"] if \"enableEvaluatePolicyOnGlobalSSLBypass\" in config else False"
+          ]
+        }
+      ]
+    },
+    "genai-prompts": {
+      "statement": "Gen AI prompt capture covers the named applications (ChatGPT, Microsoft Copilot, Gemini, Perplexity, Poe, Meta AI, WRITER, DeepSeek, Grok AI, Claude, Mistral, Grammarly, QuillBot, Google AI). Prompts are logged in Web Insights up to 2 KB each; Copilot prompts are stored only for unauthenticated users, and capture works for Copilot Chat but not Copilot inside Office apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-policy-settings.json",
+          "quotes": [
+            "Enabling the following options allows Zscaler to categorize and store the prompts for the respective applications:",
+            "ChatGPT - Microsoft Copilot - Gemini - Perplexity - Poe - Meta AI - WRITER - DeepSeek - Grok AI - Claude - Mistral - Grammarly - QuillBot - Google AI",
+            "The prompts for these applications are logged on the Web Insights Logs page.",
+            "The Zscaler service stores prompts up to a maximum of 2 KB in size for these",
+            "Prompts for the Microsoft Copilot application are stored only if the user is not authenticated to it.",
+            "Zscaler's DLP inspection and prompt capture capabilities are currently limited to Microsoft Copilot Chat.",
+            "Support for Microsoft Copilot embedded within Microsoft Office applications is currently unavailable."
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    },
+    "ucaas-one-click-fields": {
+      "statement": "The Microsoft 365 and UCaaS one-click toggles (`enableMsftO365`, `enableUcaasZoom`, `enableUcaasLogMeIn`, `enableUcaasRingCentral`, `enableUcaasWebex`) are fields of the URL Filtering and Cloud App Control settings at `/advancedUrlFilterAndCloudAppSettings`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "urladvSettingsEndpoint       = \"/zia/api/v1/advancedUrlFilterAndCloudAppSettings\"",
+            "EnableMsftO365 bool `json:\"enableMsftO365\"`",
+            "EnableUcaasZoom bool `json:\"enableUcaasZoom\"`",
+            "EnableUcaasLogMeIn bool `json:\"enableUcaasLogMeIn\"`",
+            "EnableUcaasRingCentral bool `json:\"enableUcaasRingCentral\"`",
+            "EnableUcaasWebex bool `json:\"enableUcaasWebex\"`"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "nrod-lag": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-04"
+      ],
+      "title": "Upper bound on how quickly a new domain reaches NROD",
+      "status": "partial",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "detail": "Documented only as \"within hours of going live\" (claim nrod-lookup-prerequisite)."
+    },
+    "settings-not-live-readable": {
+      "kind": "data",
+      "title": "Reading a tenant's advanced URL Filtering and Cloud App settings",
+      "status": "open",
+      "detail": "These settings (API advancedUrlFilterAndCloudAppSettings) are carried by IaC as Terraform zia_url_filtering_and_cloud_app_settings but are not read by zscalerctl and not listed in its schema gaps. Check them in IaC; otherwise ask the operator.",
+      "resolvable_by": [
+        "iac",
+        "operator"
+      ]
+    },
+    "creative-commons-backend-effect": {
+      "kind": "semantic",
+      "title": "What a serialized enableCreativeCommonsSearchResults:false does to an enabled setting",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "applying the URL and cloud-app settings resource to a tenant that has Creative Commons search results enabled",
+      "detail": "Unverified legacy statement: no tenant test establishes whether a previously enabled Creative Commons setting is disabled, ignored or rejected when the provider PUT carries false. The provider version bump does not resolve it. Tracked in the legacy ledger as zia-72.",
+      "about": [
+        "zia.url-filtering.advanced-settings"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "EnableCreativeCommonsSearchResults bool `json:\"enableCreativeCommonsSearchResults\"`"
+          ]
+        }
+      ],
+      "former_ids": [
+        "zia-72"
+      ]
+    },
+    "ucaas-one-click-location": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-65"
+      ],
+      "title": "Where the UCaaS one-click toggles live",
+      "status": "resolved",
+      "resolves_with": [
+        "code-read"
+      ],
+      "resolution": "In the URL Filtering and Cloud App Control settings object (claim ucaas-one-click-fields), which the ZIA advanced-settings model does not carry."
+    }
+  },
+  "divergences": {
+    "prompt-flags-python-model": {
+      "summary": "How many Gen AI prompt flags each SDK models",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/models/url_filter_cloud_app_settings.py",
+            "quotes": [
+              "self.enable_quillbot_ai_prompt = config[\"enableQuillbotAIPrompt\"] if \"enableQuillbotAIPrompt\" in config else False",
+              "\"enableChatGptPrompt\": self.enable_chat_gpt_prompt,",
+              "\"enableMicrosoftCoPilotPrompt\": self.enable_microsoft_copilot_prompt,",
+              "\"enableGeminiPrompt\": self.enable_gemini_prompt,",
+              "\"enablePOEPrompt\": self.enable_poe_prompt,",
+              "\"enableMetaPrompt\": self.enable_meta_prompt,",
+              "\"enablePerPlexityPrompt\": self.enable_perplexity_prompt,",
+              "\"enableGoogleAIPrompt\": self.enable_google_ai_prompt,",
+              "\"enableQuillbotAIPrompt\": self.enable_quillbot_ai_prompt,"
+            ]
+          },
+          "says": "The Python response model reads and emits eight prompt flags: ChatGPT, Microsoft Copilot, Gemini, Poe, Meta, Perplexity, Google AI and QuillBot."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+            "quotes": [
+              "EnableDeepSeekPrompt bool `json:\"enableDeepSeekPrompt\"`",
+              "EnableGrammarlyPrompt bool `json:\"enableGrammarlyPrompt\"`"
+            ]
+          },
+          "says": "The Go model also carries DeepSeek, Writer, Grok, Mistral, Claude and Grammarly, for 14 in all, matching the Help list."
+        }
+      ],
+      "impact": "A typed Python read silently lacks six prompt flags; do not inventory Gen AI prompt capture posture from the Python model alone."
+    }
+  }
+}

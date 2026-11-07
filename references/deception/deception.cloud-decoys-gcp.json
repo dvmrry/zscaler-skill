@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "id": "deception.cloud-decoys-gcp",
+  "title": "GCP Cloud Deception: setup, log permissions, decoy types and lures",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.cloud-decoys"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.plans"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.cloud-decoys-azure"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.cloud-decoys-aws"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{decoy-types}} {{prerequisites}} {{terraform-package}} {{project-settings}} {{enabled-meaning}} {{edit-project-field}} The shared model is [[deception.cloud-decoys]]; the other providers are [[deception.cloud-decoys-azure]] and [[deception.cloud-decoys-aws]]; plan decoy totals are in [[deception.plans]] and the product is introduced in [[deception.overview]]."
+    },
+    {
+      "label": "Logging.",
+      "text": "{{log-collection}} {{service-account-permissions}} The log polling interval is not stated {{gap:log-polling-interval}}."
+    },
+    {
+      "label": "Decoy types.",
+      "text": "{{service-account-decoy}} {{cloud-storage-decoy}} {{cloud-sql-decoy}} {{cloud-sql-postgres-delete-error}} {{secret-manager-decoy}} {{artifact-registry-decoy}}"
+    },
+    {
+      "label": "Lures.",
+      "text": "{{lure-methods}} {{lure-page-copy-text}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the service account created during the integration has the permissions the integration uses.",
+      "uses": [
+        "service-account-permissions"
+      ]
+    },
+    {
+      "do": "Whether TF_APPEND_USER_AGENT was set before running Terraform for the GCP deployment.",
+      "uses": [
+        "terraform-package"
+      ]
+    }
+  ],
+  "claims": {
+    "decoy-types": {
+      "statement": "The GCP page says Cloud Deception configures decoys that mimic legitimate GCP resources, such as service accounts, cloud storages, cloud SQLs, secret managers and artifact registries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-cloud-deception-gcp.json",
+          "quotes": [
+            "Configure decoys that mimic legitimate GCP resources, such as service accounts, cloud storages, cloud SQLs, secret managers, and artifact registries."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "GCP setup requires access to a GCP project with an Administrator role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-gcp.json",
+          "quotes": [
+            "ensure that you have access to a GCP project with an Administrator role."
+          ]
+        }
+      ]
+    },
+    "log-collection": {
+      "statement": "Deception fetches only decoy-associated logs from GCP using Logging query language, using a logging bucket for public cloud storage decoys and audit logs for all other decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-cloud-deception-gcp.json",
+          "quotes": [
+            "Deception fetches only the logs associated with decoys from GCP using Logging query language. Deception deploys a logging bucket that is used to collect logs for public cloud storage decoys. For all other decoys, audit logs are used."
+          ]
+        }
+      ]
+    },
+    "service-account-permissions": {
+      "statement": "The permissions used for the service account created during GCP integration are LogViewer (read-only access to standard logs), privateLogViewer (read-only access to private logs such as Data Access audit logs, required to determine who accesses the decoys) and view access for the _AllLogs view in the _Default logging bucket (required to retrieve all access logs associated with the decoys).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-cloud-deception-gcp.json",
+          "quotes": [
+            "The following permissions are used for the service account created during the integration:",
+            "LogViewer: Grants read-only access to view all standard logs, but excludes logs that might contain sensitive information.",
+            "privateLogViewer: Grants read-only access specifically to view private logs (e.g., Data Access audit logs) that are restricted from the standard LogViewer role. This is required to determine who accesses the decoys.",
+            "View access for _AllLogs view in the _Default logging bucket: This is required to retrieve all access logs associated with the decoys."
+          ]
+        }
+      ]
+    },
+    "terraform-package": {
+      "statement": "GCP Terraform deployment uses gcp-decoys.tf.json, requires setting export TF_APPEND_USER_AGENT=\"<value_from_ui>\" before running Terraform, and exports the state as JSON with `terraform output -json gcp_terraform_output > deployment-output.json`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-gcp.json",
+          "quotes": [
+            "open the gcp-decoys.tf.json file in a text editor.",
+            "export TF_APPEND_USER_AGENT=\"<value_from_ui>\"",
+            "terraform output -json gcp_terraform_output > deployment-output.json"
+          ]
+        }
+      ]
+    },
+    "project-settings": {
+      "statement": "The GCP Project Setting asks for a Region for the resources (health check function and logging bucket); the integration creates a Service Account Email for logging resources, a Logging Bucket for gathering logs, and a cloud Health Check Function, which the management page calls a health check lambda function.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-gcp.json",
+          "quotes": [
+            "Region: Select the region where you want to deploy the resources (i.e., health check function and logging bucket).",
+            "Created for logging resources.",
+            "Created for gathering logs.",
+            "A cloud function created for the health check."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-gcp-decoys.json",
+          "quotes": [
+            "At the time of integration, Zscaler Deception deploys a health check lambda function on GCP."
+          ]
+        }
+      ]
+    },
+    "enabled-meaning": {
+      "statement": "On the GCP projects list, Enabled indicates whether logs for the GCP project are being polled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-cloud-deception-gcp.json",
+          "quotes": [
+            "Enabled: Indicates whether the logs for the GCP project are being polled."
+          ]
+        }
+      ]
+    },
+    "edit-project-field": {
+      "statement": "Editing a GCP project in the Admin Portal exposes the Enabled setting, which modifies the status of Cloud Deception for the project.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-cloud-deception-settings-gcp-project.json",
+          "quotes": [
+            "In the GCP Project Setting drawer, select Enabled to modify the status of Cloud Deception for the GCP project."
+          ]
+        }
+      ]
+    },
+    "service-account-decoy": {
+      "statement": "A GCP service account decoy carries API credentials that can be placed in credential files on endpoints using landmine decoys; any enumeration using the credentials is logged as an attack.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-service-account-decoy-gcp.json",
+          "quotes": [
+            "You can create service account decoys with API credentials that can be placed in credential files on endpoints using landmine decoys. Any enumeration using these credentials is detected and logged as an attack."
+          ]
+        }
+      ]
+    },
+    "cloud-storage-decoy": {
+      "statement": "Cloud storage decoys detect public cloud storage enumeration by organization keywords and private storage access through compromised identities; ACL Public is accessible to anyone and Private only to internal adversaries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-cloud-storage-decoy-gcp.json",
+          "quotes": [
+            "Cloud storage decoys can detect the following attack paths:",
+            "Public: Adversaries can enumerate public cloud storage by using keywords related to an organization to find exposed cloud storage accounts on the internet in an attempt to steal sensitive data.",
+            "Private: Adversaries with compromised identities of your organization can target cloud storage accounts that are accessible via the compromised identities.",
+            "Select Public if you want the cloud storage decoy to be accessible to anyone.",
+            "Select Private if you want the cloud storage decoy to be accessible only to internal adversaries."
+          ]
+        }
+      ]
+    },
+    "cloud-sql-decoy": {
+      "statement": "Cloud SQL decoys are MySQL or PostgreSQL databases (public or private) with ACL Public (accessible to anyone) or Private (internal adversaries only) and a root password; the VPC Network Name field appears only if ACL is Private.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-cloud-sql-decoy-gcp.json",
+          "quotes": [
+            "You can create cloud SQL decoy databases (public or private) based on MySQL or PostgreSQL to lure adversaries that are looking for databases to disrupt services or steal data.",
+            "Select Public if you want the cloud SQL database decoy to be accessible to anyone.",
+            "Select Private if you want the cloud SQL database decoy to be accessible only to internal adversaries.",
+            "Password: Enter a root password for the database.",
+            "VPC Network Name: Enter the name of the network in the VPC where you want to place the decoy. This option appears only if the ACL value is set to Private."
+          ]
+        }
+      ]
+    },
+    "cloud-sql-postgres-delete-error": {
+      "statement": "Removing a PostgreSQL Cloud SQL decoy can fail with 'failed to delete user postgres ... role \"postgres\" cannot be dropped because some objects depend on it'; the documented fix is to find google_sql_user.sql-user-<decoy-name> in `terraform state list`, remove it with `terraform state rm <resource_id>`, and run `terraform apply`, noting that deleting the entire instance also deletes the exploitable user and is considered the safest operation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-cloud-sql-decoy-gcp.json",
+          "quotes": [
+            "Error, failed to deleteuser postgres in instance <your-decoy-name>: googleapi: Error 400: Invalid request: failed to delete user postgres: . role \"postgres\" cannot be dropped because some objects depend on it",
+            "terraform state list",
+            "From the result, look for google_sql_user.sql-user-<you-decoy-name>",
+            "terraform state rm <resource_id>",
+            "Deleting the entire instance also deletes the user that can be exploited, so it is considered the safest operation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-cloud-sql-decoy-gcp.json",
+          "quotes": [
+            "terraform apply"
+          ],
+          "after": "terraform state rm <resource_id>"
+        }
+      ]
+    },
+    "secret-manager-decoy": {
+      "statement": "Secret manager decoys contain fake secret identifiers or access references, and any attempt to access or enumerate them is logged as an attack.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-secret-manager-decoy-gcp.json",
+          "quotes": [
+            "You can create secret manager decoys containing fake secret identifiers or access references. Any attempt to access or enumerate these decoy secrets is detected and logged as an attack."
+          ]
+        }
+      ]
+    },
+    "artifact-registry-decoy": {
+      "statement": "An artifact registry decoy holds decoy artifacts and any attempt to access or enumerate it is logged as an attack; the Repository Format field takes a format, with docker, python and npm given as examples.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-artifact-registry-decoy-gcp.json",
+          "quotes": [
+            "You can create an artifact registry with decoy artifacts. Any attempt to access or enumerate these repositories is detected and logged as an attack.",
+            "Repository Format: Select the repository format (e.g., docker, python, or npm) for the artifact registry decoy that must be placed in GCP."
+          ]
+        }
+      ]
+    },
+    "lure-methods": {
+      "statement": "Per the GCP lures page, service account decoys with API credentials are placed on endpoints using the landmine decoys Cloud Lures and File Decoys via Credential Files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-lures-using-gcp-decoys.json",
+          "quotes": [
+            "Cloud Lures",
+            "File Decoys via Credential Files"
+          ],
+          "after": "You can create service account decoys with API credentials that can be placed on endpoints using the following landmine decoys:"
+        }
+      ]
+    },
+    "lure-page-copy-text": {
+      "statement": "The GCP lures page's Cloud SQL, Secret Manager and Artifact Registry entries each say \"Any interaction with the cloud storage decoy is logged as an attack.\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-lures-using-gcp-decoys.json",
+          "quotes": [
+            "Cloud SQL Decoys"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-lures-using-gcp-decoys.json",
+          "quotes": [
+            "Any interaction with the cloud storage decoy is logged as an attack."
+          ],
+          "after": "Optionally, the credentials of the master user (or root) of the database along with the URL can be added to a landmine policy as a lure."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-lures-using-gcp-decoys.json",
+          "quotes": [
+            "Any interaction with the cloud storage decoy is logged as an attack."
+          ],
+          "after": "You can create secret manager decoys containing fake secret identifiers or access references."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-lures-using-gcp-decoys.json",
+          "quotes": [
+            "Any interaction with the cloud storage decoy is logged as an attack."
+          ],
+          "after": "You can create an artifact registry with decoy artifacts."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "log-polling-interval": {
+      "kind": "semantic",
+      "title": "How often Deception polls GCP logs",
+      "status": "open",
+      "detail": "The captured GCP pages state no interval for polling decoy logs; the Azure and AWS pages state a 3-minute log poll. The GCP setup page gives a 15-minute interval only for the health check function's poll of the GCP account. The GCP pages describe Terraform deployment only and document no Force Delete option or Cloud Shell deployment; that is an absence found by reading, not a claim.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,507 @@
+{
+  "schema_version": 1,
+  "id": "zbi.private-access-isolation",
+  "title": "Private Access isolation policy: when private application requests go to isolation, and what else they need",
+  "aliases": [
+    "zpa isolation policy",
+    "isolation policy rule",
+    "zpa cloud browser isolation",
+    "isolate private app",
+    "bypass isolation",
+    "zpa isolation timeout",
+    "zpa_policy_isolation_rule"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zpa.policy.evaluation-order",
+      "because": "zpa.policy.evaluation-order:default-isolation"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.policy",
+      "because": "zbi.private-access-isolation:access-policy-too"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.rule-fields"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{clientless-access}}"
+    },
+    {
+      "label": "Two policies.",
+      "text": "{{access-policy-too}} What a user sees when the isolation rule matches but access policy denies the application is open {{gap:isolated-but-denied}}."
+    },
+    {
+      "label": "Rules.",
+      "text": "{{criteria-logic}} {{rule-order}} {{rule-action}} {{default-rule}} The default rule's place in Private Access evaluation: [[zpa.policy.evaluation-order:default-isolation]]. The wire actions are ISOLATE and BYPASS_ISOLATE: [[zpa.terraform.policy-rule-resources:inspection-profile-required-for-inspect]]."
+    },
+    {
+      "label": "Criteria.",
+      "text": "Whether a posture profile can be a criterion is disputed between sources: [[zpa.posture-profiles.policy-operand:posture-isolation]]. Whether SCIM operands are accepted is open: [[zpa.scim.policy-criteria:zpa-68-isolation-scim]]."
+    },
+    {
+      "label": "Configuring a rule.",
+      "text": "{{rule-action-values}} {{web-browser-only}} {{unsupported-criteria}} {{rule-criteria}} {{name-characters}} Which criteria isolation rules actually accept is open {{gap:accepted-criteria}}."
+    },
+    {
+      "label": "Session timeout.",
+      "text": "{{session-timeout}} How this interacts with the container idle timeout is open {{gap:timeout-vs-idle}}. {{maintenance}}"
+    },
+    {
+      "label": "Forwarding internet traffic.",
+      "text": "{{pa-only-traffic-statement}} {{default-forwarding-gap}} {{forward-via-zia-option}} {{forward-profile-settings}} {{forward-dlp-sipa}} The User Portal article describes private application traffic differently {{divergence:private-app-traffic-path}}."
+    },
+    {
+      "label": "SaaS applications from unmanaged devices.",
+      "text": "{{user-portal-catalog}} {{saas-placeholder-domain}} {{saas-forward-option-required}} {{saas-auth-flow}}"
+    },
+    {
+      "label": "Automation.",
+      "text": "The Python SDK requires a profile ID only for the isolate action: [[zpa.policy.rule-fields:isolation-profile-required-for-isolate]]. {{mcp-create-requires-profile}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an access policy rule allows the application as well as the isolation rule sending it to isolation.",
+      "uses": [
+        "access-policy-too"
+      ]
+    },
+    {
+      "do": "Which isolation rule matched first in rule order, or whether the uneditable default rule applied.",
+      "uses": [
+        "rule-order",
+        "default-rule",
+        "zpa.policy.evaluation-order:default-isolation"
+      ]
+    },
+    {
+      "do": "Whether the shortest configured timeout policy explains an unexpected reauthentication.",
+      "uses": [
+        "session-timeout",
+        "timeout-vs-idle"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "Private Access isolation policy rules define when application requests are redirected to isolation; they require isolation to be enabled for the organization and an isolation profile to exist before the rule is set up.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "you can create rules that define when application requests are redirected to isolation. This requires having isolation enabled for your organization and creating an isolation profile prior to setting up the isolation policy rule."
+          ]
+        }
+      ]
+    },
+    "clientless-access": {
+      "statement": "Zscaler describes isolation policy as giving clientless access to critical applications through a containerized isolated browser so that the posture of the user's machine does not affect the applications, and as enforcing exfiltration controls that stop copy, paste, upload and download between the user's computer and the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "Define policies to provide secure clientless access to critical applications via a containerized isolated browser on the Zscaler cloud, ensuring the posture of a user's machine doesn't affect the related applications.",
+            "Enforce data exfiltration controls by ensuring users are unable to copy, paste, upload, or download files between their computers and the applications they are accessing."
+          ]
+        }
+      ]
+    },
+    "access-policy-too": {
+      "statement": "Besides an isolation policy, an access policy must be defined for the application to be reachable from within the isolation environment; requests not directed to isolation are reviewed against access policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "Along with defining an isolation policy, you also need to define an access policy for the application to be accessible from within the browser isolation environment. Application requests not directed to isolation are reviewed based on access policies."
+          ]
+        }
+      ]
+    },
+    "criteria-logic": {
+      "statement": "A request must match all the conditions within an isolation rule, and isolation rules use only the AND and OR operators.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "A user's application request must match all the conditions within a policy rule.",
+            "Isolation policy rules use AND and OR operators only."
+          ]
+        }
+      ]
+    },
+    "rule-order": {
+      "statement": "Private Access applies isolation rules in the order listed on the Isolation Policy page, and the rule order can be changed by entering a new number.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "Private Access applies policy rules based on the order they are listed here. Change the rule order by clicking on the number and manually entering in a new value."
+          ]
+        }
+      ]
+    },
+    "rule-action": {
+      "statement": "An isolation rule's action either allows or bypasses isolation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "Rule Action: Indicates if the rule is to allow or bypass isolation."
+          ]
+        }
+      ]
+    },
+    "default-rule": {
+      "statement": "The isolation policy has a default rule that cannot be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "Review the default rule. This rule cannot be edited."
+          ]
+        }
+      ]
+    },
+    "session-timeout": {
+      "statement": "Once the user is authenticated, the isolation session timeout is the minimum timeout across all configured timeout policies, after which the user must reauthenticate with Private Access to reach applications through isolation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "When the user is authenticated, the session timeout value is the minimum timeout across all configured timeout policies. After the timeout happens, the user needs to reauthenticate with Private Access to access applications via isolation."
+          ]
+        }
+      ]
+    },
+    "maintenance": {
+      "statement": "During a Private Access maintenance period, isolation might not be available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "If Private Access is undergoing a maintenance period, isolation might not be available."
+          ]
+        }
+      ]
+    },
+    "rule-action-values": {
+      "statement": "An isolation rule's Rule Action is Allow Isolation or Bypass Isolation, and the isolation profile field is required when the Rule Action is Allow Isolation. Isolation rules implement controls based on isolation profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-isolation-policies.json",
+          "quotes": [
+            "Rule Action: Select Allow Isolation or Bypass Isolation.",
+            "Isolation Profile: Select an isolation profile for the rule to use for allowing isolation. This field is required for creating an isolation policy that has the Rule Action set to Allow Isolation.",
+            "Isolation policy rules allow you to implement controls based on isolation profiles."
+          ]
+        }
+      ]
+    },
+    "web-browser-only": {
+      "statement": "The Web Browser client type is required for isolation policy rules, it is the only client type available, and it is preselected for the rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-isolation-policies.json",
+          "quotes": [
+            "The Web Browser client type is required for isolation policy rules, and it is the only client type available. It is preselected for the rule."
+          ]
+        }
+      ]
+    },
+    "unsupported-criteria": {
+      "statement": "The Client Connector Posture Profiles, Client Connector Trusted Networks and Machine Groups criteria may appear in the drop-down menu, but the page says they are not supported with the Web Browser client type, which is required for isolation policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-isolation-policies.json",
+          "quotes": [
+            "The Client Connector Posture Profiles, Client Connector Trusted Networks, and the Machine Groups criteria may appear in the drop-down menu, but they are not supported with Web Browser client type, which is required for isolation policies.",
+            "Rules using the Web Browser client type can not also use the Client Connector Posture Profiles, Client Connector Trusted Networks, and the Machine Groups criteria."
+          ]
+        }
+      ],
+      "conditions": "This is the Configuring Isolation Policies page's wording. The same page also describes up to 10 posture condition sets, so whether posture is accepted is the disputed question in zpa.posture-profiles.policy-operand:posture-isolation and is not settled here."
+    },
+    "rule-criteria": {
+      "statement": "The isolation rule page lists External IAM IdP, Applications (segments and segment groups), Chrome Enterprise Browser with an optional configured Chrome posture profile, Client Connector Posture Profiles, Client Connector Trusted Networks, Machine groups and Platforms as criteria. The SAML and SCIM Attributes criteria cannot be configured with the Cloud Connector Group criteria, and multiple Cloud Connector groups in a rule are joined by AND.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-isolation-policies.json",
+          "quotes": [
+            "To use External IAM IdP, select the IdP from the drop-down menu.",
+            "Choose the application segments and segment groups to which this rule applies:",
+            "Enable Chrome Enterprise Browser to verify that users are accessing private applications via the Chrome Enterprise browser.",
+            "When enabled, you can also select a configured Chrome posture profile to evaluate criteria for access to private applications.",
+            "You can add up to 10 Client Connector Posture Profile condition sets to the rule.",
+            "Choose the trusted networks to which the rule applies, and click Done.",
+            "Choose the Machine groups to which this rule applies, and click Done.",
+            "Choose the platforms to which the rule applies and click Save.",
+            "The SAML and SCIM Attributes criteria type cannot be configured with the Cloud Connector Group criteria type.",
+            "If you've added multiple Cloud Connector groups to the policy rule, ZPA uses an AND Boolean operator between them."
+          ]
+        }
+      ]
+    },
+    "name-characters": {
+      "statement": "An isolation rule name cannot contain special characters, with the exception of periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-isolation-policies.json",
+          "quotes": [
+            "Name: Enter an isolation policy name. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    },
+    "mcp-create-requires-profile": {
+      "statement": "The MCP server's isolation rule create tool raises an error when `action_type` is isolate and no `zpn_isolation_profile_id` is given, and creates the rule through the Python SDK's `add_isolation_rule_v2`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/access_isolation_rules.py",
+          "quotes": [
+            "if args.action_type.lower() == \"isolate\" and not args.zpn_isolation_profile_id:",
+            "raise ValueError(\"zpn_isolation_profile_id is required when action_type is 'isolate'\")",
+            "client.zpa.policies.add_isolation_rule_v2(**payload)"
+          ]
+        }
+      ]
+    },
+    "pa-only-traffic-statement": {
+      "statement": "The forwarding article states that an isolation browser initiated from Private Access policies can send traffic only via Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+          "quotes": [
+            "However, an isolation browser initiated from Private Access policies can send traffic only via Private Access."
+          ]
+        }
+      ]
+    },
+    "default-forwarding-gap": {
+      "statement": "Applications defined in Private Access are forwarded via the Private Access client on the isolation container and traffic not defined as a Private Access application is sent directly to the internet, which the article says creates a gap in the organization's security policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+          "quotes": [
+            "Any applications defined in Private Access are forwarded via the Private Access client on the isolation container, and any traffic that is not defined as a Private Access application is sent directly to the internet.",
+            "This traffic flow creates a gap in the security policies defined by the organization."
+          ]
+        }
+      ]
+    },
+    "forward-via-zia-option": {
+      "statement": "Zero Trust Browser supports sending non-private application traffic via Internet & SaaS even when the isolation session starts from a Private Access policy; the feature is enabled per Private Access isolation profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+          "quotes": [
+            "Zero Trust Browser supports sending any non-private application traffic via Internet & SaaS, even though the isolation session is initiated via a Private Access policy.",
+            "You can enable this feature per Private Access isolation profile."
+          ]
+        }
+      ]
+    },
+    "forward-profile-settings": {
+      "statement": "The Private Access profile setting Forward Internet Traffic via Internet & SaaS (Company Settings tab), when enabled, takes a Cloud Name | Organization ID and a recommended or custom PAC file URL; for remote users on Z-Tunnel 1.0 the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option in Advanced Settings applies firewall rules to traffic forwarded using dedicated IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "Forward Internet Traffic via Internet & SaaS: Enable or disable this setting.",
+            "Cloud Name (Cloud Name | Organization ID): Select the Zscaler cloud name and organization ID.",
+            "PAC File URL: Select to use either a recommended or custom PAC file.",
+            "For remote users using Z-Tunnel 1.0, select the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option in Advanced Settings to apply firewall rules to the traffic forwarded using dedicated IP addresses."
+          ]
+        }
+      ]
+    },
+    "forward-dlp-sipa": {
+      "statement": "Forwarding private application traffic via Internet & SaaS lets DLP and security policies apply to it and lets Internet & SaaS provide connectivity to the private applications through the Source IP Anchoring route.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+          "quotes": [
+            "Zero Trust Browser can forward the private application traffic via Internet & SaaS ensuring that all these policies are applied.",
+            "It can also ensure that Internet & SaaS provides connectivity to the private applications via the Source IP Anchoring route.",
+            "Users who isolate private web applications might also want to enforce DLP policies or security policies on the traffic."
+          ]
+        }
+      ]
+    },
+    "saas-placeholder-domain": {
+      "statement": "To isolate a SaaS application whose domain the organization does not own, the admin defines a Private Access application segment with an application using a placeholder domain, configured for browser access; the URL is rewritten to its full extent when pushed into isolation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-secure-saas-access-unmanaged-devices-user-portal.json",
+          "quotes": [
+            "Because the admin does not own this domain, they must define an application segment with an application using a placeholder domain",
+            "The admin has ensured that the application defined is configured for browser access."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+          "quotes": [
+            "However, the URL is rewritten to its full extent when pushed into isolation."
+          ]
+        }
+      ]
+    },
+    "saas-forward-option-required": {
+      "statement": "The isolation profile selected for the SaaS isolation policy must have Forward Internet Traffic via Internet & SaaS enabled under Company Settings; otherwise the SaaS traffic from the isolated browser is not forwarded via Internet & SaaS and is not inspected, logged or enforced by its policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-secure-saas-access-unmanaged-devices-user-portal.json",
+          "quotes": [
+            "has the Forward Internet Traffic via Internet & SaaS option enabled under the Company Settings tab.",
+            "the SaaS application traffic generated from the isolated browser is not forwarded via Internet & SaaS and the traffic is not inspected, logged, or enforced with the policies defined on Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "saas-auth-flow": {
+      "statement": "From an unmanaged device, accessing the placeholder domain prompts authentication with the Private Access IdP, then redirects to an isolation session where the user authenticates to Internet & SaaS before the isolated browser reaches the original SaaS URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-secure-saas-access-unmanaged-devices-user-portal.json",
+          "quotes": [
+            "you are prompted to authenticate with your identity provider (IdP), which is configured with Private Access.",
+            "you are redirected to an isolation session and prompted to authenticate to Internet & SaaS.",
+            "the isolated browser accesses the original SaaS application URL configured in the application segment that you created",
+            "try accessing the placeholder domain that you used to create the application segment."
+          ]
+        }
+      ]
+    },
+    "user-portal-catalog": {
+      "statement": "The User Portal is a portal where users see a catalog of all published private and SaaS applications published via Private Access Browser Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-secure-saas-access-unmanaged-devices-user-portal.json",
+          "quotes": [
+            "Users can access the user portal URL and see the list of all published private and SaaS applications.",
+            "You can create a portal called the User Portal for users to access as a catalog of applications published via Private Access Browser Access."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "private-app-traffic-path": {
+      "summary": "The forwarding article says private application traffic can be forwarded via Internet & SaaS (Source IP Anchoring route), while the User Portal article says traffic of applications defined on Private Access continues to be forwarded via Private Access's ZTNA service.",
+      "positions": [
+        {
+          "says": "Zero Trust Browser can forward private application traffic via Internet & SaaS, which provides connectivity to the private applications via the Source IP Anchoring route.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+            "quotes": [
+              "Zero Trust Browser can forward the private application traffic via Internet & SaaS ensuring that all these policies are applied.",
+              "It can also ensure that Internet & SaaS provides connectivity to the private applications via the Source IP Anchoring route."
+            ]
+          }
+        },
+        {
+          "says": "Traffic generated by applications defined on Private Access continues to be forwarded via Private Access's ZTNA service.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-secure-saas-access-unmanaged-devices-user-portal.json",
+            "quotes": [
+              "Any traffic generated by applications defined on Private Access will continue to be forwarded via Private Access"
+            ]
+          }
+        }
+      ],
+      "impact": "An answer on which service carries private application traffic from an isolation session depends on which article is followed; the User Portal article may describe a different flow, which neither page settles."
+    }
+  },
+  "gaps": {
+    "accepted-criteria": {
+      "kind": "semantic",
+      "title": "Which criteria an isolation rule actually accepts",
+      "status": "open",
+      "detail": "The Configuring Isolation Policies page says Web Browser is the only client type and that posture, trusted network and machine group criteria are not supported with it, yet it also says a Client Connector Posture Profile must be selected before a client type, describes up to 10 posture condition sets and a Machine group criterion. Which criteria an isolation rule accepts is open; the help is one position in zpa.posture-profiles.policy-operand:posture-isolation.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "isolated-but-denied": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What the user sees when isolation policy matches but access policy denies the application",
+      "detail": "Unverified legacy statement: a user can pass the isolation policy (the session is isolated) but fail access policy, so the isolated session loads but the application inside it is denied. The help says only that an access policy is needed for the application to be accessible from within isolation.",
+      "blocks": "telling an access-policy denial from a broken isolation session",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "timeout-vs-idle": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "How the Private Access timeout and the container idle timeout combine",
+      "detail": "Unverified legacy statement: Private Access isolation uses the minimum timeout across configured timeout policies in addition to the 10-minute container idle timeout, and the lower of the two wins. The sources state each separately but not how they interact.",
+      "blocks": "predicting when a Private Access isolated session ends",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

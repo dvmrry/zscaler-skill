@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "id": "zpa.software-components.appliance",
+  "title": "The ZPA appliance: models, hardware and power, ports, installation troubleshooting and enrollment",
+  "aliases": [
+    "zpa appliance",
+    "ZS-ZPA-APPL-8010",
+    "ZS-ZPA-APPL-8010-APPC",
+    "ZS-ZPA-APPL-8010-PSE",
+    "ZS-ZPA-PSE-8010",
+    "ZT-8010",
+    "private access hardware appliance"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.software-components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.what-it-is"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.enrollment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{models-and-specs}} The Private Service Edge model is named two ways {{divergence:pse-model-name}}."
+    },
+    {
+      "label": "Hardware.",
+      "text": "{{physical-and-power}} {{package-contents}} {{pairing}} The meaning of pairing into groups is open {{gap:appliance-details}}."
+    },
+    {
+      "label": "Ports.",
+      "text": "{{port-map}}"
+    },
+    {
+      "label": "Installation problems.",
+      "text": "{{power-beep}} {{install-troubleshooting}}"
+    },
+    {
+      "label": "Enrolling it.",
+      "text": "{{preinstalled-and-enrollment}} {{default-credentials}} {{network-and-ssh}} {{key-files}} {{verify-enrollment}} The Host Platform string for a Private Service Edge appliance is worded differently on another page, see [[zpa.private-service-edges.what-it-is:appliance-host-platform]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the appliance model is the App Connector or the Private Service Edge one, before choosing which enrollment steps apply.",
+      "uses": [
+        "models-and-specs",
+        "pse-model-name",
+        "preinstalled-and-enrollment"
+      ]
+    },
+    {
+      "do": "Whether a continuous beep means one power source is unplugged or a power supply is faulty.",
+      "uses": [
+        "power-beep"
+      ]
+    },
+    {
+      "do": "Which port the appliance is cabled to, and whether link aggregation is in use, which is not supported.",
+      "uses": [
+        "port-map",
+        "network-and-ssh"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "For customers with multiple global sites that need high-performance connectivity between them (such as users accessing large files and medical records, without virtual computing power available), high-performance and high-throughput hardware appliances are available for Private Access App Connectors and Private Service Edges. ZPA appliances include a single high-performance App Connector or Private Service Edge, and the Understanding ZPA Appliances page says the feature is in limited availability, to be discussed with the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-zpa-appliances.json",
+          "quotes": [
+            "For customers who have multiple global sites with a need for high-performance connectivity between these sites (such as users accessing large files and medical records, without virtual computing power available)",
+            "high-performance and high-throughput hardware appliances are available for Private Access App Connectors and Private Service Edges.",
+            "ZPA appliances include a single, high-performance App Connector or Private Service Edge with scaling to meet large throughput requirements.",
+            "This feature is in limited availability. To learn more, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "models-and-specs": {
+      "statement": "The Understanding ZPA Appliances table names the App Connector appliance ZS-ZPA-APPL-8010-APPC and the Private Service Edge appliance ZS-ZPA-APPL-8010-PSE; both list 16C / 128GB / 1TB, ports of 10x 1GbE and 8x 10 GbE (SFP+), a 1U (2 x PSU) form factor and 3 Gbps throughput.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-zpa-appliances.json",
+          "quotes": [
+            "| Hardware Model | ZS-ZPA-APPL-8010-APPC | ZS-ZPA-APPL-8010-PSE |",
+            "| CPU / Memory / Storage | 16C / 128GB / 1TB | 16C / 128GB / 1TB |",
+            "| Ports | 10x 1GbE 8x 10 GbE (SFP+) | 10x 1GbE 8x 10 GbE (SFP+) |",
+            "| Form Factor | 1U (2 x PSU) | 1U (2 x PSU) |",
+            "| Throughput | 3 Gbps | 3 Gbps |"
+          ]
+        }
+      ]
+    },
+    "physical-and-power": {
+      "statement": "The ZPA appliance is a 1U, 19-inch rack-mountable form factor with a weight of 18.96 lbs (8.6 kg) and a total packaged weight of 33 lbs (15 kg). The environmental and power table for ZS-ZPA-APPL-8010 gives an operating temperature of 32 to 104°F (0 to 40°C), relative humidity of 5 to 90% (operating) and 5 to 95% (non-operating), internal AC power, 1 + 1 redundant power supply, typical power consumption of 107.8W idle and 225.5W at full load, and maximum power consumption of 300W with a redundant PSU or 350W with a single PSU.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-zpa-appliance-wall-and-rack-mount-instruction-manual.json",
+          "quotes": [
+            "The ZPA appliance is a 1U, 19-inch rack-mountable form factor.",
+            "The ZPA appliance has a weight of 18.96 lbs (8.6 kg), and its total packaged weight is 33 lbs (15 kg).",
+            "The following table provides environmental and power specifications for ZS-ZPA-APPL-8010:",
+            "| Operating Temperature | 32 to 104°F (0 to 40°C) |",
+            "| Relative Humidity | 5 to 90% (operating); 5 to 95% (non-operating) |",
+            "| Power Supply | Internal AC |",
+            "| Redundant Power Supply | 1 + 1 |",
+            "| Typical Power Consumption | Idle Mode: 107.8W Full Load Mode: 225.5W |",
+            "| Maximum Power Consumption | Redundant PSU: 300W Single PSU: 350W |"
+          ]
+        }
+      ]
+    },
+    "package-contents": {
+      "statement": "The package contains the ZS-ZPA-APPL-8010-XX (APPC/PSE) unit, 2 RJ45 cables, a USB serial console cable, 4 SFP+ FTLX8574D3BCL, 6 A screws for attaching the brackets to the appliance, 6 B screws for mounting the appliance to the rack and 2 ear brackets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-zpa-appliance-wall-and-rack-mount-instruction-manual.json",
+          "quotes": [
+            "1x ZS-ZPA-APPL-8010-XX(APPC/PSE) unit",
+            "2x RJ45 cable",
+            "1x USB serial console cable",
+            "4 x SFP+ FTLX8574D3BCL",
+            "6x A screws for attaching the brackets to the appliance",
+            "6x B screws for mounting the appliance to the rack",
+            "2x ear brackets"
+          ]
+        }
+      ]
+    },
+    "power-beep": {
+      "statement": "A continuous beep indicates that the second power source is unplugged or faulty, or that only one power supply is active or the power supply is defective; to silence it, press the round button located near or between the power supplies or connect the second power source, and if the power supply is faulty, contact Zscaler Support to request a Return Merchandise Authorization (RMA).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-zpa-appliance-wall-and-rack-mount-instruction-manual.json",
+          "quotes": [
+            "A continuous beep indicates that the second power source is unplugged or faulty.",
+            "To silence the beep, press the round button located near or between the power supplies, or connect the second power source.",
+            "A continuous beeping sound indicates that only one power supply is active or that the power supply is defective.",
+            "If the power supply is faulty, contact Zscaler Support to request a Return Merchandise Authorization (RMA)."
+          ]
+        }
+      ]
+    },
+    "install-troubleshooting": {
+      "statement": "If the appliance does not power on, the page says to verify that the power outlet is active (a power LED should be on, otherwise there is no power to the unit) and that the power supply is securely plugged in. If a network cable is connected but no link light appears, there could be an issue with the cable, the appliance port or the connected switch port; the page says to replace the cable, try a different port on the appliance, and power cycle the device to confirm the LED returns to a normal state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-zpa-appliance-wall-and-rack-mount-instruction-manual.json",
+          "quotes": [
+            "Verify that the power outlet is active and functioning. A power LED light should be on. If not, it indicates a lack of power to the unit.",
+            "Check that the power supply is securely plugged into the unit and the power source.",
+            "If a network cable is connected, but no link light appears, there could be an issue with the cable, the port on the ZPA appliance, or the port on the connected switch.",
+            "Replace the cable with a new one to see if that resolves the issue.",
+            "If the problem persists, try connecting to a different port on the ZPA appliance to determine if the port is faulty.",
+            "Power cycle the device and confirm if the LED returns to a normal state."
+          ]
+        }
+      ]
+    },
+    "pairing": {
+      "statement": "Two or more appliances can be deployed in a network location and paired into groups for load balancing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-zpa-appliance-wall-and-rack-mount-instruction-manual.json",
+          "quotes": [
+            "You can deploy two or more appliances in a network location and pair them into groups for load balancing."
+          ]
+        }
+      ]
+    },
+    "port-map": {
+      "statement": "Ports can be configured using Linux commands from the command-line interface. The port table lists C as an RJ45 serial console; 1 to 6 (GE1/eno1, GE2/enp1s0, GE3/ens84f3, GE4/ens84f2, GE5/ens84f1, GE6/ens84f0) and 11 to 14 (GE11/ens83f0, GE12/ens83f1, GE13/ens83f2, GE14/ens83f3) as 1GbE RJ45 LAN ports; 7 to 10 (XE7/eno4, XE8/eno5, XE9/eno2, XE10/eno3) as 10G SFP+ LAN ports, with port 7 the default traffic port; and 15 to 18 (XE15/ens5f3, XE16/ens5f2, XE17/ens5f1, XE18/ens5f0) as Optional SFP+ 10G LAN ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-zpa-appliance-physical-port-mapping.json",
+          "quotes": [
+            "You can configure the ports using Linux commands from the command-line interface.",
+            "| C | Console | RJ45 | 1GbE | Serial console |",
+            "| 1 | GE1/eno1 | RJ45 | 1GbE | LAN |",
+            "| 2 | GE2/enp1s0 | RJ45 | 1GbE | LAN |",
+            "| 3 | GE3/ens84f3 | RJ45 | 1GbE | LAN |",
+            "| 4 | GE4/ens84f2 | RJ45 | 1GbE | LAN |",
+            "| 5 | GE5/ens84f1 | RJ45 | 1GbE | LAN |",
+            "| 6 | GE6/ens84f0 | RJ45 | 1GbE | LAN |",
+            "| 7 | XE7/eno4 | SFP+ | 10G | LAN (default traffic port) |",
+            "| 8 | XE8/eno5 | SFP+ | 10G | LAN |",
+            "| 9 | XE9/eno2 | SFP+ | 10G | LAN |",
+            "| 10 | XE10/eno3 | SFP+ | 10G | LAN |",
+            "| 11 | GE11/ens83f0 | RJ45 | 1GbE | LAN |",
+            "| 12 | GE12/ens83f1 | RJ45 | 1GbE | LAN |",
+            "| 13 | GE13/ens83f2 | RJ45 | 1GbE | LAN |",
+            "| 14 | GE14/ens83f3 | RJ45 | 1GbE | LAN |",
+            "| 15 | XE15/ens5f3 | Optional SFP+ | 10G | LAN |",
+            "| 16 | XE16/ens5f2 | Optional SFP+ | 10G | LAN |",
+            "| 17 | XE17/ens5f1 | Optional SFP+ | 10G | LAN |",
+            "| 18 | XE18/ens5f0 | Optional SFP+ | 10G | LAN |"
+          ]
+        }
+      ]
+    },
+    "preinstalled-and-enrollment": {
+      "statement": "The ZPA hardware appliance is shipped with an App Connector or Private Service Edge installed on it, and before use the App Connector or Private Service Edge must be enrolled, including applying a provisioning key. For an App Connector the Admin Console steps are to add an App Connector group, add an App Connector provisioning key to use for enrollment and add the App Connector; for a Private Service Edge, to add a Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-deploying-app-connector-private-service-edge-zpa-appliances.json",
+          "quotes": [
+            "The ZPA hardware appliance is shipped with an App Connector or Private Service Edge for Private Access (ZPA) installed on it.",
+            "Before you can use the appliance, you need to enroll the App Connector or Private Service Edge, including applying a provisioning key.",
+            "Add an App Connector group.",
+            "Add an App Connector provisioning key to use for enrollment.",
+            "Add the App Connector.",
+            "For Private Service Edge, add a Private Service Edge."
+          ]
+        }
+      ]
+    },
+    "default-credentials": {
+      "statement": "Through console access the appliance login is Username admin and Password zscaler, and the page says to change the password after logging in for the first time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-deploying-app-connector-private-service-edge-zpa-appliances.json",
+          "quotes": [
+            "On the ZPA appliance, using console access, log in to the box with the following credentials:",
+            "Username: admin",
+            "Password: zscaler",
+            "Make sure you change the password after logging in for the first time."
+          ]
+        }
+      ]
+    },
+    "network-and-ssh": {
+      "statement": "The page recommends connecting to port 7 XE7/eno4 SFP+, says link aggregation mechanisms are not supported at this time, and says to configure the network interface if necessary for an environment that is not a standard DHCP environment. It has the sshd service enabled if ssh to the appliance is wanted, and for an App Connector SSH disabled after the App Connector is enrolled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-deploying-app-connector-private-service-edge-zpa-appliances.json",
+          "quotes": [
+            "It is recommended that you connect to port 7 XE7/eno4 SFP+ port.",
+            "Link aggregation mechanisms are not supported at this time.",
+            "If necessary, configure the network interface based on your environment (not a standard DHCP environment).",
+            "Enable the sshd service if you want to use ssh to connect to the appliance:",
+            "After the App Connector is enrolled, disable SSH using the following command:"
+          ]
+        }
+      ]
+    },
+    "key-files": {
+      "statement": "The procedure stops the zpa-connector service and creates a provisioning key file with 644 permissions at /opt/zscaler/var/provision_key for an App Connector, and stops the Private Service Edge service and creates the file at /opt/zscaler/var/service-edge/provision_key for a Private Service Edge, then starts zpa-connector or zpa-service-edge with systemctl. If the provisioning key was not detected when the App Connector was first started, the App Connector is in a sleep cycle and looks for the key again every 24 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-deploying-app-connector-private-service-edge-zpa-appliances.json",
+          "quotes": [
+            "Stop running the zpa-connector service.",
+            "Stop running the Private Service Edge service.",
+            "Create a provisioning key file with 644 permissions at /opt/zscaler/var/provision_key.",
+            "Create a provisioning key file with 644 permissions at /opt/zscaler/var/service-edge/provision_key.",
+            "[admin@zpa-connector ~]$ sudo systemctl start zpa-connector",
+            "[admin@zpa-service-edge ~]$ sudo systemctl start zpa-service-edge",
+            "If the provisioning key was not detected when the App Connector was first started, the App Connector is in a sleep cycle and will look for the key again every 24 hours."
+          ]
+        }
+      ]
+    },
+    "verify-enrollment": {
+      "statement": "After enrollment the page says to verify that the App Connector's Host Platform has ZS-ZPA-APPL-8010 and that the Private Service Edge's Host Platform is ZS-ZPA-PSE-8010, and to check that the appliance appears in the Appliances widget; the App Connector or Private Service Edge must have enrolled successfully at least once to appear within the Health dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-deploying-app-connector-private-service-edge-zpa-appliances.json",
+          "quotes": [
+            "Click the App Connector name and verify that the Host Platform has ZS-ZPA-APPL-8010.",
+            "Click the Private Service Edge name and verify that the Host Platform is ZS-ZPA-PSE-8010.",
+            "Check that the ZPA appliance you deployed appears in the Appliances widget.",
+            "The App Connector must have enrolled successfully at least once for it to appear within the Health dashboard.",
+            "The Private Service Edge must have enrolled successfully at least once for it to appear within the Health dashboard."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "pse-model-name": {
+      "summary": "The name of the Private Service Edge appliance: ZS-ZPA-APPL-8010-PSE or ZS-ZPA-PSE-8010",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-zpa-appliance-wall-and-rack-mount-instruction-manual.json",
+            "quotes": [
+              "ZS-ZPA-APPL-8010-PSE - Private Service Edge appliance"
+            ]
+          },
+          "says": "The mount manual names the Private Service Edge appliance ZS-ZPA-APPL-8010-PSE."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-zpa-appliance-physical-port-mapping.json",
+            "quotes": [
+              "The following image and table describe the physical port mapping on the ZS-ZPA-APPL-8010 and ZS-ZPA-PSE-8010 appliances."
+            ]
+          },
+          "says": "The port mapping page names the appliances ZS-ZPA-APPL-8010 and ZS-ZPA-PSE-8010."
+        }
+      ],
+      "impact": "The pages give two different names for the Private Service Edge appliance; no page says whether they are a hardware model and a platform string."
+    }
+  },
+  "gaps": {
+    "appliance-details": {
+      "kind": "semantic",
+      "title": "What the appliance pages leave unstated",
+      "status": "open",
+      "detail": "Not captured: the Hardware Usage Terms page. Not stated: whether OAuth enrollment tokens work on the appliance (the procedure uses only provisioning keys), whether sshd is off by default, what Optional SFP+ means for ports 15 to 18 given that 4 SFP+ transceivers are packaged, how pairing into groups for load balancing maps to App Connector or Private Service Edge groups, and what the limited-availability note covers. The appliance has no API or Terraform object in the graph.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

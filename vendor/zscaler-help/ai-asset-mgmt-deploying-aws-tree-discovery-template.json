@@ -1,0 +1,665 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying the AWS Tree Discovery Template",
+  "source": {
+    "url": "https://help.zscaler.com/ai-asset-mgmt/deploying-aws-tree-discovery-template",
+    "node": "1539741",
+    "revision": "3207458",
+    "updated": "2026-06-19",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "After adding the organization details, deploy the tree discovery template. This template includes the policies and permissions required to create IAM roles in the AWS root account, along with the Cloudtrail details required to perform incremental data scans. The IAM roles provide AI Security with read-only access to discover the resources in the AWS organization."
+    },
+    {
+      "heading": "Deploying the Templates",
+      "level": 1
+    },
+    {
+      "text": "When the CloudTrail S3 bucket is present in one of the following accounts:"
+    },
+    {
+      "item": "Management account: AI Security generates only the tree discovery template. Download and deploy this template in the AWS root account.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "An account other than the management account: AI Security generates both the CloudTrail and tree discovery templates. Deploy the CloudTrail template in the AWS account where the CloudTrail S3 bucket is present, and then deploy the tree discovery template. The CloudTrail template provides AI Security with the access required to analyze the trails and perform incremental data scans.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          44
+        ]
+      ]
+    },
+    {
+      "text": "To deploy the templates:"
+    },
+    {
+      "item": "Under Connect to the Organization, for Template Type, select CloudFormation or Terraform.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          33
+        ],
+        [
+          39,
+          52
+        ],
+        [
+          61,
+          75
+        ],
+        [
+          79,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Click CloudTrail to download the template to your local system.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the CloudFormation template in AWS.",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS Management Console and go to CloudFormation.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          48,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Stacks.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Click Create stack.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Create stack page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Prepare template: Select Choose an existing template.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Specify template: Select Upload a template file to upload the template you downloaded from the AI Security Admin Portal.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Upload a template file: Click Choose file, browse and select template, then click Open.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          30,
+          41
+        ],
+        [
+          82,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify stack details page, under Stack name, enter a unique stack name.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure stack options page, click Next.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Review and create page, under Capabilities, select the I acknowledge checkbox to acknowledge AWS CloudFormation's creation of IAM resources with custom names.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          49
+        ],
+        [
+          62,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the Terraform template in AWS.",
+      "depth": 1
+    },
+    {
+      "item": "Update the backend.tf file with the name of the storage services where you want to store the Terraform state files. For example:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "bucket: Enter the name of the S3 bucket.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "region: Enter the primary region.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "dynamodb_table: Enter the name of the dynamoDB table.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Open the Command Prompt or any other CLI app in your local system.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Switch to the directory that contains the Terraform template.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Copy and paste the access keys of the root account and press Enter.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Run the following commands:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "To initialize the Terraform working directory:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "terraform init",
+      "depth": 3
+    },
+    {
+      "item": "To verify the changes in the Terraform configuration:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "terraform plan",
+      "depth": 3
+    },
+    {
+      "item": "To run the Terraform script:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "terraform apply",
+      "depth": 3
+    },
+    {
+      "item": "For Do you want to perform these actions?, enter yes and press Enter.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Click Tree Discovery to download the template to your local system.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the CloudFormation template in AWS.",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS Management Console and go to CloudFormation.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          48,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Stacks.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Click Create stack.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Create stack page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Prepare template: Select Template is ready.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Specify template: Select Upload a template file to upload the template you downloaded from the AI Security Admin Portal",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Upload a template file: Click Choose file, browse and select template, then click Open.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          30,
+          41
+        ],
+        [
+          82,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify stack details page, under Stack name, enter a unique stack name.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure stack options page, click Next.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Review and create page, under Capabilities, select the I acknowledge checkbox to acknowledge AWS CloudFormation's creation of IAM resources with custom names.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          49
+        ],
+        [
+          62,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the Terraform template in AWS.",
+      "depth": 1
+    },
+    {
+      "item": "Update the backend.tf file with the name of the storage services where you want to store the Terraform state files. For example:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "bucket: Enter the name of the S3 bucket.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "region: Enter the region.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "dynamodb_table: Enter the name of the dynamoDB table.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Open the Command Prompt or any other CLI app in your local system.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Switch to the directory that contains the Terraform template.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Copy and paste the access keys of the target account and press Enter.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Run the following commands:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "To initialize the Terraform working directory:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "terraform init",
+      "depth": 3
+    },
+    {
+      "item": "To verify the changes in the Terraform configuration:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "terraform plan",
+      "depth": 3
+    },
+    {
+      "item": "To run the Terraform script:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "terraform apply",
+      "depth": 3
+    },
+    {
+      "item": "For Do you want to perform these actions?, enter yes and press Enter.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "AI Security validates the template deployment every hour by checking the IAM roles and permissions.",
+      "depth": 0
+    },
+    {
+      "text": "You can also validate the template immediately by clicking Validate.",
+      "strong": [
+        [
+          59,
+          67
+        ]
+      ]
+    },
+    {
+      "text": "If the validation is successful, you are directed to the Orchestrator & Monitoring Scope section."
+    }
+  ]
+}

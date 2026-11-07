@@ -1,0 +1,2001 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "3rd-Party App Governance API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/3rd-party-app-governance-api",
+    "node": "1451786",
+    "revision": "3166213",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/3rd_party_app_governance_updated_3.json?VersionId=RQdXthuRppLAfsxEEAdVo6h1w1PdusHv",
+    "updated": "2026-01-29",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "description": "3rd-Party App Governance API <br/><br/> <b>Constraints:</b><ul><li> For query parameters, ensure that the provided characters adhere to the specifications outlined in RFC 7230 and RFC 3986.<br/>  <li> Special characters and encoding must follow the standards defined in RFC 3986.</ul>",
+      "version": "1.0",
+      "title": "3rd-Party App Governance API",
+      "contact": {
+        "email": "support@zscaler.com"
+      }
+    },
+    "tags": [
+      {
+        "name": "Applications",
+        "description": "Get app information or submit an app for analysis"
+      },
+      {
+        "name": "App Views",
+        "description": "Get information about custom views and their related apps"
+      },
+      {
+        "name": "Posture",
+        "description": "Get scan result retrieval based on filters such as app, risk level, or compliance framework or enable bulk actions for efficient security posture management at scale."
+      }
+    ],
+    "paths": {
+      "/apps/app": {
+        "get": {
+          "tags": [
+            "Applications"
+          ],
+          "operationId": "getApp",
+          "description": "https://api.apptotal.zscaler.com/v1/apps/app <br/><br/><b>Constraints:</b><ul><li>  For query parameters, ensure that the provided characters adhere to the specifications  outlined in RFC 7230 and RFC 3986.<br/><li> Special characters and encoding must follow the standards defined in RFC 3986.</ul> Searches the 3rd-Party App Governance App Catalog by either  app ID or URL (i.e., a valid consent or marketplace link). You must use one of the required parameters—<code>app_id </code> or <code>url</code>—for your search. If you use both an app ID and a  URL for your search, an error is returned. <br/><ul><li>If the app is found in the catalog, a <code>200</code> response is received and the app's information is returned. </li><li>If the app is not initially found in the catalog, a <code>202</code> response is received and the app is submitted for analysis in the 3rd-Party App Governance Sandbox. </li><br/><b>Note</b>: After analysis is complete, a subsequent <code>GET</code> request is required to fetch the app's information. As a best practice, allow 24 hours for analysis and then resubmit the required <code>GET</code> request. </ul><ul><li>If the app is not found in the catalog, a <code>404</code> response is received.</li><li>If the URL is not valid, a <code>400</code> response is received.</li><br/><b>Note</b>: If you cannot find the app via the API, you can troubleshoot by <a target=_blank href=\"https://help.zscaler.com/zia/searching-apps\\\">manually searching for the app</a> in the 3rd-Party App Governance Admin Portal. If you cannot find the app through manual search, contact Zscaler Support. </ul>To learn more, see the Responses in the right-side panel.\n",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "app_id",
+              "description": "The app identifier (e.g., OAuth client ID)",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "url",
+              "description": "Valid consent link or marketplace link",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "verbose",
+              "description": "Return a verbose report including potentially heavy artifacts (e.g., extracted URLs and a list of vulnerabilities)",
+              "required": false,
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "headers": {
+                "X-Rate-Limit-Remaining": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The requests remaining until the quota limit is reached"
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Application"
+                  }
+                }
+              }
+            },
+            "202": {
+              "description": "Application Analysis Underway",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SimpleMessageResponse"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Input Parameter"
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "404": {
+              "description": "Application Not Found"
+            },
+            "409": {
+              "headers": {
+                "Retry-After": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The seconds remaining until the rate limit resets"
+                }
+              },
+              "description": "Rate Limit Exceeded"
+            },
+            "500": {
+              "description": "Internal Server Error Occurred"
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Applications"
+          ],
+          "operationId": "postApp",
+          "description": "https://api.apptotal.zscaler.com/v1/apps/app <br/><br/> Submits an app for analysis in the 3rd-Party App Governance Sandbox. After analysis is complete, a subsequent <code>GET</code> request is required to fetch the app's information.\n",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimpleAppIdRequest"
+                }
+              }
+            },
+            "description": "The app identifier (e.g., OAuth client ID)"
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "headers": {
+                "X-Rate-Limit-Remaining": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The requests remaining until the quota limit is reached"
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid Request Body"
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "409": {
+              "headers": {
+                "Retry-After": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The seconds remaining until the rate limit resets"
+                }
+              },
+              "description": "Rate Limit Exceeded"
+            },
+            "500": {
+              "description": "Internal Server Error Occurred"
+            }
+          }
+        }
+      },
+      "/apps/search": {
+        "get": {
+          "tags": [
+            "Applications"
+          ],
+          "description": "https://api.apptotal.zscaler.com/v1/apps/search <br/><br/> <b>Constraints:</b><ul><li> For query parameters, ensure that the provided characters adhere to the specifications outlined in RFC 7230 and RFC 3986.<br/>  <li> Special characters and encoding must follow the standards defined in RFC 3986.</ul> Searches for an app by name. Any app whose name contains the search term (<code>appName</code>) is returned. <br/><br/><b>Note</b>: The maximum number of results that are returned is 200.\n",
+          "parameters": [
+            {
+              "name": "appName",
+              "in": "query",
+              "description": "The app  name",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 3
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "description": "Limit the number of results",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 200,
+                "default": 50
+              }
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Page number",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "headers": {
+                "X-Rate-Limit-Remaining": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The remaining requests until the quota limit is reached"
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/PaginationResponse"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid Request Body"
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "409": {
+              "headers": {
+                "Retry-After": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The seconds remaining until the rate limit resets"
+                }
+              },
+              "description": "Rate Limit Exceeded"
+            },
+            "500": {
+              "description": "Internal Server Error Occurred"
+            }
+          }
+        }
+      },
+      "/app_views/{appViewId}/accounts": {
+        "get": {
+          "tags": [
+            "App views"
+          ],
+          "operationId": "getAppIdsToAccounts",
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/appViewId"
+            }
+          ],
+          "description": "https://api.apptotal.zscaler.com/v1/app_views/{appViewId}/accounts <br/><br/>\nRetrieves the associated user accounts for a view ID.</br>\n\nThis endpoint accepts a view ID and returns a map. Each key in the map is an app ID.</br>\n\n<ul><li>For app instances authorized by individual users, the value is an array of strings containing those users' email addresses.</li>\n<li>For app instances that are authorized for the entire tenant, the value is `null`.</li>\n<li>If an app instance has no users, the value is an empty array.</li></ul>\n",
+          "responses": {
+            "200": {
+              "description": "Success. Returns a map where keys are app IDs and values are a list of associated user emails. The value is `null` if the app is authorized for the entire tenant.\n",
+              "headers": {
+                "X-Rate-Limit-Remaining": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The requests remaining until the quota limit is reached"
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AppAccountsMap"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid Request Body. The list of app instance IDs in the request body cannot be empty."
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "409": {
+              "headers": {
+                "Retry-After": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The seconds remaining until the rate limit resets"
+                }
+              },
+              "description": "Rate Limit Exceeded"
+            },
+            "500": {
+              "description": "An internal server error occurred"
+            }
+          }
+        }
+      },
+      "/app_views/list": {
+        "get": {
+          "operationId": "getViews",
+          "tags": [
+            "App Views"
+          ],
+          "description": "https://api.apptotal.zscaler.com/v1/app_views/list <br/><br/> Retrieves the list of <a target=_blank href=\"https://help.zscaler.com/zia/custom-views\\\">custom views</a> that you have configured in the 3rd-Party App Governance Admin Portal and includes all configurations that define the custom view.",
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "headers": {
+                "X-Rate-Limit-Remaining": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The requests remaining until the quota limit is reached"
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/AppViewsResponse"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid Request Body"
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "409": {
+              "headers": {
+                "Retry-After": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The seconds remaining until the rate limit resets"
+                }
+              },
+              "description": "Rate Limit Exceeded"
+            },
+            "500": {
+              "description": "Internal Server Error Occurred"
+            }
+          }
+        }
+      },
+      "/app_views/{appViewId}/apps": {
+        "get": {
+          "operationId": "getViewApps",
+          "tags": [
+            "App Views"
+          ],
+          "description": "https://api.apptotal.zscaler.com/v1/app_views/{appViewId}/apps <br/><br/> Retrieves all assets (i.e., apps) that are related to a specified argument (i.e., <a target=_blank href=\"https://help.zscaler.com/zia/custom-views\\\">custom view</a>). Uses the value of <code>id</code> from <code>GET /app_views/list</code> to return the app IDs of the apps related to the custom view.",
+          "parameters": [
+            {
+              "name": "appViewId",
+              "in": "path",
+              "description": "The custom view identifier",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "headers": {
+                "X-Rate-Limit-Remaining": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The requests remaining until the quota limit is reached"
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/AppViewAppsResponse"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid Request Body"
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "409": {
+              "headers": {
+                "Retry-After": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The seconds remaining until the rate limit resets"
+                }
+              },
+              "description": "Rate Limit Exceeded"
+            },
+            "500": {
+              "description": "Internal Server Error Occurred"
+            }
+          }
+        }
+      },
+      "/app_views/{appViewId}/apps_extended": {
+        "get": {
+          "operationId": "getViewAppsExtended",
+          "tags": [
+            "App views extended"
+          ],
+          "description": "https://api.apptotal.zscaler.com/v1/app_views/{appViewId}/apps_extended <br/><br/> Retrieves all assets (apps) attributes which are part of a specified argument app view, with extended information.",
+          "parameters": [
+            {
+              "name": "appViewId",
+              "in": "path",
+              "description": "The custom view identifier",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "description": "Limit the number of results",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 200,
+                "default": 50
+              }
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Page number",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "verbose",
+              "description": "Return a verbose report including potentially heavy artifacts (e.g., extracted URLs and a list of vulnerabilities)",
+              "required": false,
+              "schema": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "headers": {
+                "X-Rate-Limit-Remaining": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The requests remaining until the quota limit is reached"
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AppViewAppsExtendedResponse"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Input Parameter"
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "409": {
+              "headers": {
+                "Retry-After": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The seconds remaining until the rate limit resets"
+                }
+              },
+              "description": "Rate Limit Exceeded"
+            },
+            "500": {
+              "description": "Internal Server Error Occurred"
+            }
+          }
+        }
+      },
+      "/posture/assets": {
+        "get": {
+          "tags": [
+            "Posture"
+          ],
+          "description": "https://api.apptotal.zscaler.com/v1/posture/assets <br/><br/>Returns a paginated list of asset control instances for a specific control ID in the 3rd-Party App Governance Posture tab.",
+          "operationId": "getAssets",
+          "parameters": [
+            {
+              "name": "controlId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "The control ID to query"
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "default": 50
+              },
+              "description": "Maximum number of rows to return"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "default": 1
+              },
+              "description": "Zero-based results page to return"
+            }
+          ],
+          "requestBody": {
+            "required": false,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Not used; all parameters are in query and attributes."
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AssetPaginationResponse"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "500": {
+              "description": "Internal Server Error Occurred"
+            }
+          }
+        }
+      },
+      "/posture/assets/status": {
+        "put": {
+          "tags": [
+            "Posture"
+          ],
+          "description": "https://api.apptotal.zscaler.com/v1/posture/assets/status <br/><br/>Enables or disables multiple asset control instances simultaneously by their IDs in the 3rd-Party App Governance Posture tab.",
+          "operationId": "assetsStatus",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusRequest"
+                },
+                "example": {
+                  "entityIds": [
+                    "asset-uuid-1",
+                    "asset-uuid-2"
+                  ],
+                  "status": "DISABLED"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Toggle Operation Completed",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PerformerResult"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid Request Body"
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "500": {
+              "description": "Internal Server Error Occurred"
+            }
+          }
+        }
+      },
+      "/posture/controls": {
+        "post": {
+          "tags": [
+            "Posture"
+          ],
+          "description": "https://api.apptotal.zscaler.com/v1/posture/controls <br/><br/>Retrieves a paginated list of controls based on filter and sort criteria in the 3rd-Party App Governance Posture tab.\n",
+          "operationId": "listControls",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "limit",
+              "description": "Maximum number of results to return (pagination limit)",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "default": 50
+              }
+            },
+            {
+              "in": "query",
+              "name": "page",
+              "description": "Page number for pagination",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "default": 1
+              }
+            }
+          ],
+          "requestBody": {
+            "required": false,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilteredQueryRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ControlsListResponse"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid Request"
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "409": {
+              "headers": {
+                "Retry-After": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The seconds remaining until the rate limit resets"
+                }
+              },
+              "description": "Rate Limit Exceeded"
+            },
+            "500": {
+              "description": "Internal Server Error Occurred"
+            }
+          }
+        }
+      },
+      "/posture/controls/filters": {
+        "get": {
+          "tags": [
+            "Posture"
+          ],
+          "description": "https://api.apptotal.zscaler.com/v1/posture/controls/filters <br/><br/>Returns a map of available filters and their display names in the 3rd-Party App Governance Posture tab.",
+          "operationId": "getFilters",
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "headers": {
+                "X-Rate-Limit-Remaining": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The requests remaining until the quota limit is reached"
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "409": {
+              "headers": {
+                "Retry-After": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "The seconds remaining until the rate limit resets"
+                }
+              },
+              "description": "Rate Limit Exceeded"
+            },
+            "500": {
+              "description": "Internal Server Error Occurred"
+            }
+          }
+        }
+      },
+      "/posture/controls/status": {
+        "put": {
+          "tags": [
+            "Posture"
+          ],
+          "description": "https://api.apptotal.zscaler.com/v1/posture/controls/status <br/><br/>Enables or disables multiple controls simultaneously by their IDs in the 3rd-Party App Governance Posture tab.",
+          "operationId": "controlsStatus",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusRequest"
+                },
+                "example": {
+                  "entityIds": [
+                    "control-uuid-1",
+                    "control-uuid-2"
+                  ],
+                  "status": "ENABLED"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Toggle Operation Completed",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PerformerResult"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid Request Body"
+            },
+            "401": {
+              "description": "Not Authenticated"
+            },
+            "403": {
+              "description": "Access Forbidden"
+            },
+            "500": {
+              "description": "Internal Server Error Occurred"
+            }
+          }
+        }
+      }
+    },
+    "servers": [
+      {
+        "url": "https://api.apptotal.zscaler.com/v1"
+      }
+    ],
+    "security": [
+      {
+        "ApiKeyAuth": []
+      }
+    ],
+    "components": {
+      "parameters": {
+        "appViewId": {
+          "name": "appViewId",
+          "in": "path",
+          "description": "The custom view identifier",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "securitySchemes": {
+        "ApiKeyAuth": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "X-API-Key",
+          "description": "All requests must include the `X-API-Key` header containing your API key."
+        }
+      },
+      "schemas": {
+        "AppAccountsMap": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/components/schemas/UserEmailAccounts"
+          },
+          "description": "A map where each key is an app ID. The value is an array of email addresses of users. The value is `null` for apps that are authorized for the entire tenant.\n",
+          "example": {
+            "123e4567-e89b-12d3-a456-426614174000": [
+              "user1@example.com",
+              "user2@example.com"
+            ],
+            "abcdefg-hijkl-mnop-qrs-tuvwxyz123": null,
+            "789e0123-f45a-67b8-c90d-123456789012": []
+          }
+        },
+        "UserEmailAccounts": {
+          "properties": {
+            "email": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string",
+                "format": "email",
+                "example": "user1@example.com"
+              }
+            }
+          }
+        },
+        "PerformerResult": {
+          "type": "object",
+          "properties": {
+            "succeed": {
+              "type": "integer",
+              "description": "Number of entities successfully toggled",
+              "example": 5
+            },
+            "failed": {
+              "type": "integer",
+              "description": "Number of entities failed to toggle",
+              "example": 1
+            },
+            "filtered": {
+              "type": "integer",
+              "description": "Number of entities ignored/filtered out (not valid targets)",
+              "example": 2
+            }
+          }
+        },
+        "AssetResponse": {
+          "type": "object",
+          "properties": {
+            "assetType": {
+              "type": "string",
+              "example": "ACCOUNT"
+            },
+            "assetName": {
+              "type": "string",
+              "example": "asdf@zsdemo2.com"
+            },
+            "id": {
+              "type": "string",
+              "example": "dc596244-1dc5-2094-2ac5-050362736e1c"
+            },
+            "status": {
+              "type": "string",
+              "example": "FAIL"
+            },
+            "controlResultAssetStatus": {
+              "type": "string",
+              "example": "ENABLED"
+            }
+          }
+        },
+        "AssetPaginationResponse": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "example": 8
+            },
+            "currentPage": {
+              "type": "integer",
+              "example": 1
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AssetResponse"
+              }
+            }
+          }
+        },
+        "ControlInstanceResponse": {
+          "type": "object",
+          "properties": {
+            "controlResultAsset": {
+              "$ref": "#/components/schemas/ControlResultAsset"
+            },
+            "assetName": {
+              "type": "string"
+            },
+            "controlInstanceId": {
+              "type": "string"
+            },
+            "integrationId": {
+              "type": "string"
+            },
+            "assetExternalIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AssetExternalId"
+              }
+            },
+            "controlExternalIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ControlExternalId"
+              }
+            },
+            "controlResultAssetStatus": {
+              "type": "string"
+            }
+          }
+        },
+        "AssetExternalId": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        "ControlExternalId": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        "ControlResultAsset": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "controlResultsId": {
+              "type": "string"
+            },
+            "assetId": {
+              "type": "string"
+            },
+            "assetType": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "evidence": {
+              "$ref": "#/components/schemas/Evidence"
+            }
+          }
+        },
+        "Evidence": {
+          "type": "object",
+          "properties": {
+            "highlightedKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "responseMetadata": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "ControlsListResponse": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "example": 50
+            },
+            "currentPage": {
+              "type": "integer",
+              "example": 1
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Control"
+              }
+            }
+          }
+        },
+        "Control": {
+          "type": "object",
+          "properties": {
+            "controlName": {
+              "type": "string"
+            },
+            "controlId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "tenantName": {
+              "type": "string"
+            },
+            "categoryIds": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "categoryNames": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "violationDescription": {
+              "type": "string"
+            },
+            "policyStatus": {
+              "type": "string",
+              "enum": [
+                "PARTIAL",
+                "COMPLIANT",
+                "NON_COMPLIANT"
+              ]
+            },
+            "platformId": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string",
+              "enum": [
+                "LOW",
+                "MEDIUM",
+                "HIGH",
+                "CRITICAL"
+              ]
+            },
+            "failedAssets": {
+              "type": "integer"
+            },
+            "compliance": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Compliance"
+              }
+            },
+            "remediationThreat": {
+              "type": "string"
+            },
+            "mitreTactic": {
+              "$ref": "#/components/schemas/MitreTactic"
+            },
+            "mitreTechniques": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/MitreTechnique"
+              }
+            },
+            "complexity": {
+              "type": "string",
+              "enum": [
+                "LOW",
+                "MEDIUM",
+                "HIGH"
+              ]
+            },
+            "lastScanTime": {
+              "type": "string",
+              "description": "Epoch time in milliseconds as string",
+              "example": "1739465411000"
+            }
+          }
+        },
+        "Compliance": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": "string"
+            },
+            "controlNumber": {
+              "type": "string"
+            },
+            "controlCategory": {
+              "type": "string"
+            }
+          }
+        },
+        "MitreTactic": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        },
+        "MitreTechnique": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        },
+        "FilteredQueryRequest": {
+          "type": "object",
+          "properties": {
+            "filterSpec": {
+              "type": "object",
+              "properties": {
+                "control-policy-status": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "pass",
+                      "fail",
+                      "partial",
+                      "pending",
+                      "disabled"
+                    ]
+                  },
+                  "example": [
+                    "pass"
+                  ]
+                },
+                "control-category": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "authentication",
+                      "access control",
+                      "security posture",
+                      "auditing",
+                      "encryption",
+                      "administrator",
+                      "end user",
+                      "email security",
+                      "application permissions",
+                      "data management",
+                      "mobile device management",
+                      "code review management",
+                      "configuration management",
+                      "mobile access management",
+                      "device application management",
+                      "application management",
+                      "data encryption",
+                      "group management"
+                    ]
+                  },
+                  "example": [
+                    "authentication"
+                  ]
+                },
+                "control-severity": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  "example": [
+                    "low"
+                  ]
+                },
+                "control-compliance": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "example": [
+                    "cis google workspace 1.0.0"
+                  ]
+                },
+                "control-platform": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "example": [
+                    "atlassian"
+                  ]
+                },
+                "control-complexity": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  "example": [
+                    "low"
+                  ]
+                }
+              },
+              "example": {
+                "control-policy-status": [
+                  "pass"
+                ],
+                "control-category": [
+                  "authentication"
+                ],
+                "control-severity": [
+                  "low"
+                ],
+                "control-compliance": [
+                  "cis google workspace 1.0.0"
+                ],
+                "control-platform": [
+                  "atlassian"
+                ],
+                "control-complexity": [
+                  "low"
+                ]
+              }
+            },
+            "orderSpecs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/OrderSpec"
+              }
+            }
+          }
+        },
+        "OrderSpec": {
+          "type": "object",
+          "properties": {
+            "property": {
+              "type": "string"
+            },
+            "direction": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        },
+        "Application": {
+          "type": "object",
+          "required": [
+            "name",
+            "publisher",
+            "platform",
+            "description",
+            "categories",
+            "permissionLevel",
+            "risk",
+            "logoUrl"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "example": "Sample App"
+            },
+            "publisher": {
+              "$ref": "#/components/schemas/Publisher"
+            },
+            "platform": {
+              "type": "string",
+              "example": "Google Workspace"
+            },
+            "description": {
+              "type": "string",
+              "example": "Sample App offers an easy way to do your daily tasks."
+            },
+            "redirectUrls": {
+              "description": "Premium Only",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "format": "url",
+              "example": [
+                "https://login.sample-corp.com/oauth2/token"
+              ]
+            },
+            "websiteUrls": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "format": "url",
+              "example": [
+                "https://sample-corp.com/app"
+              ]
+            },
+            "categories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "example": [
+                "Games",
+                "Productivity"
+              ]
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "example": [
+                "OAuth",
+                "3rd Party"
+              ]
+            },
+            "permissionLevel": {
+              "type": "number",
+              "format": "float",
+              "example": 7.5
+            },
+            "riskScore": {
+              "type": "number",
+              "format": "float",
+              "example": 6.2
+            },
+            "risk": {
+              "type": "string",
+              "enum": [
+                "LOW",
+                "MEDIUM",
+                "HIGH"
+              ],
+              "example": "LOW"
+            },
+            "externalIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ExternalId"
+              }
+            },
+            "clientId": {
+              "type": "string",
+              "example": "745653580800-3f83vttrac3pp3gcrdoh5s74n6agihe.apps.googleusercontent.com"
+            },
+            "permissions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Permission"
+              }
+            },
+            "compliance": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "example": [
+                  "GDPR",
+                  "CCPA"
+                ]
+              }
+            },
+            "dataRetention": {
+              "type": "string",
+              "example": "Data Retention Policy: We do not keep customer data. We rely on our re-seller to handle customer account and payment information..."
+            },
+            "clientType": {
+              "type": "string",
+              "example": "Web Client"
+            },
+            "totalEnabledUsers": {
+              "type": "integer",
+              "example": 40
+            },
+            "logoUrl": {
+              "type": "string",
+              "format": "url",
+              "example": "https://sample-corp.com/pr/sample_logo.png"
+            },
+            "privacyPolicyUrl": {
+              "type": "string",
+              "format": "url",
+              "example": "https://sample-corp.com/privacy"
+            },
+            "termsOfServiceUrl": {
+              "type": "string",
+              "format": "url",
+              "example": "https://sample-corp.com/terms"
+            },
+            "marketplaceUrl": {
+              "type": "string",
+              "format": "url",
+              "example": "https://sample-marketplace.com/apps/sample"
+            },
+            "marketplaceData": {
+              "$ref": "#/components/schemas/MarketplaceData"
+            },
+            "platformVerified": {
+              "type": "boolean",
+              "example": false
+            },
+            "canonicVerified": {
+              "type": "boolean",
+              "example": true
+            },
+            "developerEmail": {
+              "type": "string",
+              "format": "email",
+              "example": "dev@sample-corp.com"
+            },
+            "consentScreenshot": {
+              "type": "string",
+              "format": "url",
+              "example": "https://sightd-production-public-assets.s3.amazonaws.com/consent-screen-images/1234567890.png"
+            },
+            "ipAddresses": {
+              "description": "Premium Only",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/IpAddress"
+              }
+            },
+            "extractedUrls": {
+              "description": "Premium Only",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "example": [
+                "https://sample-corp.com/endpoint",
+                "https://suspicious-domain.com/script.js"
+              ]
+            },
+            "extractedApiCalls": {
+              "description": "Premium Only",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "example": [
+                "chrome.tabs.getSelected",
+                "chrome.app.getDetails"
+              ]
+            },
+            "vulnerabilities": {
+              "description": "Premium Only",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Vulnerability"
+              }
+            },
+            "apiActivities": {
+              "description": "Premium Only",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Activity"
+              }
+            },
+            "risks": {
+              "description": "Premium Only",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Risk"
+              }
+            },
+            "insights": {
+              "description": "Premium Only",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Insight"
+              }
+            },
+            "instances": {
+              "description": "Premium Only",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Instance"
+              }
+            }
+          }
+        },
+        "Publisher": {
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "example": "Sample Corporation"
+            },
+            "description": {
+              "type": "string",
+              "example": "Sample is the leading provider of productivity apps."
+            },
+            "siteUrl": {
+              "type": "string",
+              "format": "url",
+              "example": "https://sample-corp.com"
+            },
+            "logoUrl": {
+              "type": "string",
+              "format": "url",
+              "example": "https://sample-corp.com/assets/pr/sample_logo.png"
+            }
+          }
+        },
+        "ExternalId": {
+          "required": [
+            "id",
+            "type"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "745653580800-3f83vttrac3pp3gcrdoh5s74n6agihe.apps.googleusercontent.com"
+            },
+            "type": {
+              "type": "string",
+              "example": "clientId"
+            }
+          }
+        },
+        "Permission": {
+          "required": [
+            "scope",
+            "service"
+          ],
+          "type": "object",
+          "properties": {
+            "scope": {
+              "type": "string",
+              "example": "https://www.googleapis.com/auth/drive.readonly"
+            },
+            "service": {
+              "type": "string",
+              "example": "Drive and Docs"
+            },
+            "description": {
+              "type": "string",
+              "example": "Allows read-only access to file metadata and file content"
+            },
+            "accessType": {
+              "type": "string",
+              "enum": [
+                "Sign-in Only",
+                "Account Access",
+                "System Access",
+                "Broad Data Access"
+              ]
+            },
+            "level": {
+              "type": "string",
+              "enum": [
+                "LOW",
+                "MEDIUM",
+                "HIGH"
+              ],
+              "example": "LOW"
+            }
+          }
+        },
+        "Activity": {
+          "required": [
+            "operationType",
+            "percentage"
+          ],
+          "properties": {
+            "operationType": {
+              "type": "string",
+              "example": "drive.files.get"
+            },
+            "percentage": {
+              "type": "number",
+              "example": 1
+            }
+          }
+        },
+        "Risk": {
+          "required": [
+            "name",
+            "category"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string",
+              "enum": [
+                "LOW",
+                "MEDIUM",
+                "HIGH"
+              ],
+              "example": "LOW"
+            }
+          }
+        },
+        "Insight": {
+          "required": [
+            "description",
+            "timestamp"
+          ],
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "number",
+              "format": "int64"
+            },
+            "urls": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "example": {
+                "Twitter Account": "https://twitter.com/zscaler"
+              }
+            }
+          }
+        },
+        "Instance": {
+          "required": [
+            "id",
+            "integrationId",
+            "status",
+            "classification"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "integrationId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "Enabled",
+                "Disabled",
+                "Deleted",
+                "Not Installed"
+              ]
+            },
+            "classification": {
+              "type": "string",
+              "enum": [
+                "Sanctioned",
+                "Unsanctioned",
+                "Unclassified",
+                "Reviewing"
+              ]
+            }
+          }
+        },
+        "Vulnerability": {
+          "required": [
+            "name",
+            "version",
+            "cveId"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "cveId": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string",
+              "enum": [
+                "LOW",
+                "MEDIUM",
+                "HIGH"
+              ],
+              "example": "LOW"
+            }
+          }
+        },
+        "MarketplaceData": {
+          "properties": {
+            "stars": {
+              "type": "number"
+            },
+            "downloads": {
+              "type": "integer"
+            },
+            "reviews": {
+              "type": "integer"
+            }
+          }
+        },
+        "SimpleAppIdRequest": {
+          "required": [
+            "appId"
+          ],
+          "properties": {
+            "appId": {
+              "type": "string"
+            }
+          }
+        },
+        "SimpleMessageResponse": {
+          "required": [
+            "message"
+          ],
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "IpAddress": {
+          "properties": {
+            "ispName": {
+              "type": "string"
+            },
+            "ipAddress": {
+              "type": "string"
+            },
+            "proxyType": {
+              "type": "string"
+            },
+            "usageType": {
+              "type": "string"
+            },
+            "domainName": {
+              "type": "string"
+            },
+            "countryCode": {
+              "type": "string"
+            }
+          }
+        },
+        "AppViewsResponse": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "0cd0b469-9477-4bf9-939b-3aaaa6aedaa7"
+            },
+            "name": {
+              "type": "string",
+              "example": "High risk apps"
+            },
+            "createdBy": {
+              "type": "string",
+              "example": "admin@zscaler.com"
+            },
+            "createdAt": {
+              "type": "number",
+              "example": 1707224066585
+            },
+            "spec": {
+              "$ref": "#/components/schemas/Spec"
+            }
+          }
+        },
+        "PaginationResponse": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "example": 1
+            },
+            "currentPage": {
+              "type": "integer"
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "$ref": "#/components/schemas/SearchApplicationResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "SearchApplicationResponse": {
+          "properties": {
+            "appId": {
+              "type": "string",
+              "example": "745653580800-3f83vttrac3pp3gcrdoh5s74n6agihe.apps.googleusercontent.com"
+            },
+            "name": {
+              "type": "string",
+              "example": "app name"
+            },
+            "provider": {
+              "type": "string",
+              "example": "SLACK"
+            },
+            "publisher": {
+              "type": "string",
+              "example": "goog"
+            }
+          }
+        },
+        "Spec": {
+          "properties": {
+            "map": {
+              "type": "string",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "example": {
+            "service": [
+              "account"
+            ],
+            "status": [
+              "enabled"
+            ]
+          }
+        },
+        "AppViewAppsResponse": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "0cd0b469-9477-4bf9-939b-3aaaa6aedaa7"
+            },
+            "appIds": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "example": [
+                  "745653580800-3f83vttrac3pp3gcrdoh5s74n6agihe.apps.googleusercontent.com",
+                  "ab1388c2-9477-4bf9-939b-4a5a2111daa7"
+                ]
+              }
+            },
+            "spec": {
+              "$ref": "#/components/schemas/Spec"
+            }
+          }
+        },
+        "AppViewAppsExtendedResponse": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "0cd0b469-9477-4bf9-939b-3aaaa6aedaa7"
+            },
+            "apps": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Application"
+              }
+            },
+            "count": {
+              "description": "Total count of applications matching the filter",
+              "type": "integer",
+              "example": 50
+            },
+            "currentPage": {
+              "description": "Current page number",
+              "type": "integer",
+              "example": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

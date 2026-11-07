@@ -1,0 +1,641 @@
+{
+  "schema_version": 1,
+  "id": "deception.landmine-decoys",
+  "title": "Landmine decoy modules and lures: what each deploys, on which operating systems, and how it is tested",
+  "aliases": [
+    "defense evasion",
+    "privilege escalation module",
+    "file decoys",
+    "cloud lures",
+    "browser lures",
+    "session lures",
+    "advanced deception capabilities"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.ad-decoys"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.endpoint-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-agents"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{defense-evasion}} The policy that carries these modules is in [[deception.landmine-policies]], the Active Directory decoys they can plant in memory are in [[deception.ad-decoys]] and the product hub is [[deception.overview]]; see also [[deception.landmine-agents]] and [[deception.endpoint-settings]]. The per-feature limits are not stated in these articles {{gap:ranges-limitations}}."
+    },
+    {
+      "label": "Privilege escalation.",
+      "text": "{{privesc-mitm}} {{privesc-brute}} {{privesc-memory}}"
+    },
+    {
+      "label": "File decoys.",
+      "text": "{{custom-files}} {{credential-files}} {{credential-hidden}} {{preconfigured-datasets}}"
+    },
+    {
+      "label": "Lure settings and advanced capabilities.",
+      "text": "{{lure-settings}} {{advanced-modules}} {{advanced-modules-matrix}} {{kerberoast-license}}"
+    },
+    {
+      "label": "Testing.",
+      "text": "{{test-fake-process}} {{test-catch-all}}"
+    },
+    {
+      "label": "Cloud lures.",
+      "text": "{{cloud-types}} {{cloud-folders}} Where the AWS IAM lure stores credentials on macOS is open {{gap:cloud-lure-macos-folder}}. {{azure-sp-folder}} {{azure-user-folder}} {{cloud-fileshare}}"
+    },
+    {
+      "label": "Browser lures.",
+      "text": "{{browser-matrix}} {{browser-targets}} {{browser-edge}} {{browser-chrome-profile}} {{browser-passwords}} {{browser-genai-auth}}"
+    },
+    {
+      "label": "Session lures.",
+      "text": "{{session-windows}} {{session-rdp}} {{session-macos}} Whether DbVisualizer applies on macOS differs between pages {{divergence:session-dbvisualizer-macos}}. {{session-linux}} {{session-targets}} What the session lure article means by adding the target decoy to \"the browser\" is open {{gap:session-lure-browser-wording}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which operating systems a module supports, since Defense Evasion is supported on Windows and macOS only and advanced capabilities on Windows and macOS via Landmine Agents only.",
+      "uses": [
+        "defense-evasion",
+        "advanced-modules"
+      ]
+    },
+    {
+      "do": "Whether a custom file decoy, credential file decoy or preconfigured dataset decoy applies to the endpoint's OS and installer type, and that at most two of each are deployed per endpoint.",
+      "uses": [
+        "custom-files",
+        "credential-files",
+        "preconfigured-datasets"
+      ]
+    },
+    {
+      "do": "Which browser a lure targets on which OS before relying on it.",
+      "uses": [
+        "browser-matrix"
+      ]
+    },
+    {
+      "do": "That Catch All applies a test policy to all endpoints.",
+      "uses": [
+        "test-catch-all"
+      ]
+    }
+  ],
+  "claims": {
+    "defense-evasion": {
+      "statement": "The Defense Evasion module creates fake security processes (a Process Name and Process Path) on endpoints to trap adversaries who try to stop security processes such as antivirus, EDR or DLP; it is supported for Windows and macOS endpoints only, and the configured process can take more than two minutes to restart after it is stopped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-defense-evasion.json",
+          "quotes": [
+            "The Defense Evasion module enables you to create fake security processes on endpoint machines to trap adversaries who attempt to stop security processes, such as antivirus, endpoint detection and response (EDR), data loss prevention (DLP), etc.",
+            "The Defense Evasion module is supported for Windows and macOS endpoints only.",
+            "The configured process can take more than two minutes to restart after it is stopped.",
+            "Process Name: Enter a name for the fake process.",
+            "Process Path: Enter a path for the fake process."
+          ]
+        }
+      ]
+    },
+    "privesc-mitm": {
+      "statement": "MITM Detection in the Privilege Escalation module is supported on Windows, macOS and Linux endpoints via Landmine Agents only; it has an LLMNR poisoning option and an Interval (in minutes) to broadcast LLMNR name requests, and for each request a hostname is randomly selected, generated at random by the Deception Admin Portal if the field is blank.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-privilege-escalation.json",
+          "quotes": [
+            "MITM Detection is supported on Windows, macOS, and Linux endpoints via Landmine Agents only.",
+            "LLMNR poisoning: Select to enable LLMNR poisoning for adversaries.",
+            "Interval (In minutes): Enter a value to broadcast LLMNR name requests.",
+            "For each request, a hostname is randomly selected. If this field is blank, the Zscaler Deception Admin Portal generates the hostnames at random."
+          ]
+        }
+      ]
+    },
+    "privesc-brute": {
+      "statement": "Brute Force Detection is supported on Windows and macOS endpoints via Landmine Agents only; Local Users detects brute force attacks against local admin accounts. With the default values of 5 and 30 minutes, a brute force attack is detected only if there are at least 5 unsuccessful login attempts within 30 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-privilege-escalation.json",
+          "quotes": [
+            "Brute Force Detection is supported on Windows and macOS endpoints via Landmine Agents only.",
+            "The default value is 5.",
+            "The default value is 30 minutes.",
+            "then a brute force attack is detected only if there are at least 5 unsuccessful login attempts within 30 minutes.",
+            "Local Users: Enable to detect brute force attacks against local admin accounts."
+          ]
+        }
+      ]
+    },
+    "privesc-memory": {
+      "statement": "In-Memory Credentials Detection counters adversaries who harvest credentials from the LSASS process in memory after obtaining administrative or system privileges; Use AD Decoy Users plants decoy credentials using the usernames configured for the AD decoys, Use Additional Custom Credentials deploys them for a specified username and domain, and the detection is supported on Windows endpoints only via Landmine Agents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-privilege-escalation.json",
+          "quotes": [
+            "Adversaries harvest credentials from the local security authority subsystem service (LSASS) process in the memory after they obtain administrative or system privileges.",
+            "In-Memory Credentials Detection is supported on Windows endpoints only via Landmine Agents.",
+            "Use AD Decoy Users: Enable to plant decoy credentials in the memory using the username configured for the accounts in the Active Directory (AD) decoys.",
+            "Use Additional Custom Credentials: Enable to deploy decoy credentials for the specified username and domain in the system's memory."
+          ]
+        }
+      ]
+    },
+    "custom-files": {
+      "statement": "A custom file decoy can be a Microsoft Office or HTML file (File Type such as PPT, XLSX, DOCX or HTML) placed on a specific path with a specific name; it is supported only for Windows (via both Landmine Agent and Agentless) and macOS (via Landmine Agent) endpoints, with a maximum of two per endpoint and any two selected at random if more are configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-file-decoys.json",
+          "quotes": [
+            "A custom file decoy can be a Microsoft Office or HTML file.",
+            "Custom file decoys are supported only for Windows (via both Landmine Agent and Agentless) and macOS (via Landmine Agent) endpoints.",
+            "You can deploy a maximum of two custom file decoys on each endpoint. If more than two custom file decoys are configured, any two are selected at random.",
+            "File Type: Select a file type from the drop-down menu (e.g., PPT, XLSX, DOCX, or HTML).",
+            "Custom file decoys are decoy files that are placed on a specific path with a specific name."
+          ]
+        }
+      ]
+    },
+    "credential-files": {
+      "statement": "Credential file decoys are supported for Windows (via Landmine Agents), macOS (via Landmine Agents) and Linux endpoints (via Landmine Agentless only); the Network Credential section generates CSV files for network and Threat Intelligence (TI) decoys, the Credential section generates TXT files for network, cloud, TI and Active Directory decoys, and at most two credential file decoys are deployed on each endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-file-decoys.json",
+          "quotes": [
+            "Credential file decoys are supported for Windows (via Landmine Agents), macOS (via Landmine Agents) and Linux endpoints (via Landmine Agentless only).",
+            "The Network Credential section supports generating credential files (in CSV format only) for network and Threat Intelligence (TI) decoys. The Credential section supports generating credential files (in TXT format only) for all types of decoys (network decoys, cloud decoys, TI decoys, and Active Directory decoys).",
+            "You can deploy a maximum of two credential file decoys on each endpoint."
+          ]
+        }
+      ]
+    },
+    "credential-hidden": {
+      "statement": "For a credential file decoy, the Hidden option applies only to policies for Windows endpoints applied through Landmine Agents; for policies applied to Linux endpoints through Landmine Agentless, the file can be hidden by prefixing its name with a dot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-file-decoys.json",
+          "quotes": [
+            "Hidden: (Optional) Enable if you want to hide the file. This option applies only to policies for Windows endpoints applied through Landmine Agents.",
+            "For policies applied to Linux endpoints through Landmine Agentless, you can hide the file by prefixing the file name with a dot (.)."
+          ]
+        }
+      ]
+    },
+    "preconfigured-datasets": {
+      "statement": "Preconfigured file datasets create a directory of decoy files for each endpoint using the file datasets defined in Miragemaker; file decoys using them are supported only for Windows and macOS endpoints via Landmine Agents, with a maximum of two per endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-file-decoys.json",
+          "quotes": [
+            "Preconfigured file datasets enable you to create a directory of decoy files for each endpoint using the file datasets defined in Miragemaker.",
+            "File decoys using preconfigured file datasets are supported only for Windows (via Landmine Agents) and macOS (via Landmine Agents) endpoints.",
+            "You can deploy a maximum of two preconfigured file dataset decoys on each endpoint."
+          ]
+        }
+      ]
+    },
+    "lure-settings": {
+      "statement": "Lure Settings affect all the lures in the landmine policy: Use IP addresses instead of hostnames of decoys in lures ensures IP addresses are used instead of hostnames across the policy, and with Custom Username Configuration enabled and a dataset chosen from the Username Datalist drop-down menu, usernames for session and credential lures are selected randomly from that list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-customizing-lure-settings.json",
+          "quotes": [
+            "This setting affects all the lures in the landmine policy.",
+            "Use IP addresses instead of hostnames of decoys in lures: Enable to ensure that IP addresses are used instead of hostnames for decoys across the landmine policy.",
+            "When this option is enabled, usernames for session and credential lures are selected randomly from this list.",
+            "Custom Username Configuration: Enable and choose a dataset from the Username Datalist drop-down menu."
+          ]
+        }
+      ]
+    },
+    "advanced-modules": {
+      "statement": "The Advanced Deception Capabilities module provides PsExec Detection, Ransomware Detection (special decoy files and processes, detection of shadow copy deletion, and an in-memory mutex that inoculates against certain strains of ransomware) and Triage (events for processes making an outbound connection to the network or TI decoys); the module is supported on Windows and macOS endpoints via Landmine Agents only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-advanced-deception-capabilities.json",
+          "quotes": [
+            "PsExec Detection: PsExec is a system administration utility that executes programs on remote Windows hosts.",
+            "It also detects if the shadow copy is deleted from the endpoint, which is a common activity of ransomware. Zscaler Deception adds in-memory mutex to the system, which inoculates it against certain strains of ransomware.",
+            "Triage: The Triage feature monitors and raises events for processes on the system that make an outbound connection to your network or Threat Intelligence (TI) decoys.",
+            "Advanced Deception Capabilities module is supported on Windows and macOS endpoints via Landmine Agents only.",
+            "Ransomware Detection: The Ransomware feature deploys special files and processes decoys that are generally targeted by ransomware."
+          ]
+        }
+      ]
+    },
+    "advanced-modules-matrix": {
+      "statement": "In the supported features page's Advanced Deception Capabilities table, PsExec Detection, Ransomware Detection and Kerberoast Detection are marked Yes only for the Landmine Agent on Windows, and Triage is marked Yes for the Landmine Agent on Windows and macOS; every Landmine Agentless column is No.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-supported-deception-features-landmine-agent-and-agentless.json",
+          "quotes": [
+            "| Modules | Features/Browsers/Software/File Decoys | Landmine Agent | Landmine Agentless | | | | |",
+            "| Windows | macOS | Linux | Windows | macOS | Linux | | |",
+            "| Advanced Deception Capabilities | PsExec Detection | Yes | No | No | No | No | No |",
+            "| Ransomware Detection | Yes | No | No | No | No | No |",
+            "| Triage | Yes | Yes | No | No | No | No |",
+            "| Kerberoast Detection | Yes | No | No | No | No | No |"
+          ],
+          "after": "The following table shows features supported in the Advanced Deception Capabilities module"
+        }
+      ]
+    },
+    "kerberoast-license": {
+      "statement": "The Kerberoast Detection (Decoy) option is shown in the Advanced Deception Module for tenants with Deception-only licenses; for tenants with Deception and ITDR licenses it is included in the Active Directory Threat Detection Module under ITDR > Manage > Threat Detection, and it is supported on Windows endpoints via Landmine Agent only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-advanced-deception-capabilities.json",
+          "quotes": [
+            "The Kerberoast Detection (Decoy) option is shown in the Advanced Deception Module for tenants with Deception-only licenses.",
+            "For tenants with Deception and ITDR licenses, this option is included in the Active Directory Threat Detection Module under ITDR > Manage > Threat Detection.",
+            "It is supported on Windows endpoints via Landmine Agent only."
+          ]
+        }
+      ]
+    },
+    "test-fake-process": {
+      "statement": "To test defense evasion, the name of a fake security process is noted from the Details pane and the process is terminated in the Windows task manager; an event is recorded in the Investigate dashboard, which can be filtered with type=endpoint and sub_type=fake_process.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-testing-landmine-decoys.json",
+          "quotes": [
+            "type=endpoint and sub_type=fake_process",
+            "Open the task manager in Windows and terminate the process.",
+            "An event is recorded in the Investigate dashboard.",
+            "To test defense evasion, note the name of the fake security processes displayed in the Details pane."
+          ]
+        }
+      ]
+    },
+    "test-catch-all": {
+      "statement": "For testing, Catch All can be selected as the selection criterion for the landmine policy; it applies policies to all endpoints, so caution is advised.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-testing-landmine-decoys.json",
+          "quotes": [
+            "For the purposes of testing, you can select Catch All as the selection criterion for the landmine policy.",
+            "Selecting Catch All as the selection criterion applies policies to all endpoints. Exercise caution when using this option."
+          ]
+        }
+      ]
+    },
+    "cloud-types": {
+      "statement": "Cloud lures are AWS IAM (places credentials of selected decoy AWS IAM users on endpoints), Azure File Shares (mounts selected file share decoys), Azure Service Principals (places secrets of selected service principal decoys), Azure Users (places credentials of selected decoy Azure users), Azure Storage Explorer (access to storage account container decoys via the Azure Storage Explorer app) and GCP Service Account (to access other GCP decoys); the supported AWS and Azure decoys must be configured before the cloud lures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-cloud-lures.json",
+          "quotes": [
+            "You must configure the supported AWS and Azure decoys before setting up the cloud lures.",
+            "Azure Storage Explorer: Used to enable access to storage account container decoys via the Azure Storage Explorer app from endpoints.",
+            "GCP Service Account: Used to access other GCP decoys.",
+            "AWS IAM: Used to place the credentials of selected decoy AWS IAM users on endpoints.",
+            "Azure File Shares: Used to mount selected file share decoys on endpoints.",
+            "Azure Service Principals: Used to place the secrets of selected service principal decoys on endpoints.",
+            "Azure Users: Used to place the credentials of selected decoy Azure users on endpoints."
+          ]
+        }
+      ]
+    },
+    "cloud-folders": {
+      "statement": "The cloud lures page says the AWS IAM lure creates a hidden folder named .aws under C:\\Users\\<username>\\ on Windows endpoints and under /users/<username>/ on Linux endpoints to store the credentials; service principal decoys and Azure user decoys are not supported on Linux endpoints. The supported features page marks AWS IAM Yes for the Landmine Agent and Agentless on Windows, macOS and Linux.",
+      "tier": "A",
+      "conditions": "The Linux path /users/<username>/ is quoted as the vendor writes it. The cloud lures page gives no macOS folder in the quoted text; see the cloud-lure-macos-folder gap.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-supported-deception-features-landmine-agent-and-agentless.json",
+          "quotes": [
+            "| Modules | Features/Browsers/Software/File Decoys | Landmine Agent | Landmine Agentless | | | | |",
+            "| Windows | macOS | Linux | Windows | macOS | Linux | | |",
+            "| Cloud Lures | Amazon Web Services (AWS) Identity Access Management (IAM) | Yes | Yes | Yes | Yes | Yes | Yes |"
+          ],
+          "after": "The following table shows features supported in the Cloud Lures, Browser Lures, and Session Lures modules"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-cloud-lures.json",
+          "quotes": [
+            "a hidden folder with the name .aws is created under C:\\Users\\<username>\\ on Windows endpoints and under /users/<username>/on Linux endpoints to store the credentials.",
+            "Service principal decoys are not supported on Linux endpoints.",
+            "Azure user decoys are not supported on Linux endpoints."
+          ]
+        }
+      ]
+    },
+    "azure-sp-folder": {
+      "statement": "The Azure Service Principals cloud lure creates a hidden folder named .azure under C:\\Users\\<username>\\ on Windows endpoints to store secrets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-cloud-lures.json",
+          "quotes": [
+            "a hidden folder with the name .azure is created under C:\\Users\\<username>\\ on Windows endpoints to store secrets."
+          ],
+          "after": "Azure Service Principals: Used to place the secrets"
+        }
+      ]
+    },
+    "azure-user-folder": {
+      "statement": "The Azure Users cloud lure creates a hidden folder named .azure under C:\\Users\\<username>\\ on Windows endpoints to store secrets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-cloud-lures.json",
+          "quotes": [
+            "a hidden folder with the name .azure is created under C:\\Users\\<username>\\ on Windows endpoints to store secrets."
+          ],
+          "after": "Azure Users: Used to place the credentials"
+        }
+      ]
+    },
+    "cloud-fileshare": {
+      "statement": "With the Azure File Shares cloud lure enabled, the decoy file share is mounted as a network drive on the endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-cloud-lures.json",
+          "quotes": [
+            "When this option is enabled, the decoy file share is mounted as a network drive on the endpoints.",
+            "Azure File Shares: Used to mount selected file share decoys on endpoints."
+          ]
+        }
+      ]
+    },
+    "browser-matrix": {
+      "statement": "Browser lures add decoy credentials, cookies and bookmarks to browsers such as Google Chrome, Mozilla Firefox and Microsoft Edge on endpoints; Windows endpoints support lures for Chrome, Firefox and Edge, macOS endpoints for Chrome only, and Linux endpoints for Chrome and Firefox.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-browser-lures.json",
+          "quotes": [
+            "Windows endpoints support lures for Chrome, Firefox, and Edge.",
+            "macOS endpoints support lures for Chrome only.",
+            "Linux endpoints support lures for Chrome and Firefox.",
+            "The Browser Lures module enables you to add decoy credentials, cookies, and bookmarks to browsers such as Google Chrome, Mozilla Firefox, and Microsoft Edge on endpoints."
+          ]
+        }
+      ]
+    },
+    "browser-targets": {
+      "statement": "If the Target decoys field is blank, all of the decoys running the web service are used as a default pool, and a maximum of two decoys are deployed for each browser and the type of lure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-browser-lures.json",
+          "quotes": [
+            "If the Target decoys field is blank, all of the decoys running the web service are used as a default pool.",
+            "A maximum of two decoys are deployed for each browser and the type of lure."
+          ]
+        }
+      ]
+    },
+    "browser-edge": {
+      "statement": "For Edge browser lures on endpoints running landmine agent or agentless up to version 4.23, the Force Apply option (disabled by default) disables the Startup boost option in the browser settings; when Startup boost is enabled the browser runs in the background with minimal processes, which can prevent landmine policies from being applied to the browser; for later versions the policies are applied even if Startup boost is enabled in Edge, without Force Apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-browser-lures.json",
+          "quotes": [
+            "if your environment includes endpoints running landmine agent or agentless up to version 4.23, you can select the Force Apply option to disable the Startup boost option in the browser settings.",
+            "By default, the Force Apply option is disabled.",
+            "For newer versions (later than 4.23) of landmine agent and agentless, the polices are applied even if the Startup boost option is enabled in Edge browsers without using the Force Apply option.",
+            "When the Startup boost option is enabled in the browser settings, the browser runs in the background with minimal processes to improve performance.",
+            "However, this can prevent landmine policies from being applied to the browser."
+          ]
+        }
+      ]
+    },
+    "browser-chrome-profile": {
+      "statement": "For Chrome browsers, a new profile with a random name is created to store lures, maintained as a hidden profile alongside the default user profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-browser-lures.json",
+          "quotes": [
+            "For Chrome browsers, a new profile with a random name is created to store lures. This is maintained as a hidden profile and exists alongside the default user profile."
+          ]
+        }
+      ]
+    },
+    "browser-passwords": {
+      "statement": "Passwords for the browser lures are generated according to the rules configured in the Password Settings module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-browser-lures.json",
+          "quotes": [
+            "Passwords for the browser lures are generated according to the rules configured in the Password Settings module."
+          ]
+        }
+      ]
+    },
+    "browser-genai-auth": {
+      "statement": "If the target decoy is an authentication-enabled generative AI decoy and the Credentials lure option is enabled for a browser, adversaries can use the fake credentials stored in the browsers to log in to the generative AI decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-browser-lures.json",
+          "quotes": [
+            "If the target decoy is an authentication-enabled generative AI decoy and the Credentials lure option is enabled for a browser, then adversaries can use the fake credentials stored in the browsers to log in to the generative AI decoys."
+          ]
+        }
+      ]
+    },
+    "session-windows": {
+      "statement": "On Windows endpoints the session lures are DbVisualizer and SQuirrel DB (network decoys with MySQL or PostgreSQL), PuTTY and WinSCP Session (SSH service), RDP and Windows Credentials (Windows service), Network Drives (Shares service) and FileZilla (FTP service).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-session-lures.json",
+          "quotes": [
+            "| DbVisualizer | Network decoys with these services enabled: MySQL PostgreSQL |",
+            "| PuTTY | Network decoys with the SSH service enabled |",
+            "| WinSCP Session | Network decoys with the SSH service enabled |",
+            "| RDP | Network decoys with the Windows service enabled |",
+            "| Windows Credentials | Network decoys with the Windows service enabled |",
+            "| Network Drives | Network decoys with the Shares service enabled |",
+            "| SQuirrel DB | Network decoys with these services enabled: MySQL PostgreSQL |",
+            "| FileZilla | Network decoys with the FTP service enabled |"
+          ],
+          "after": "The following table lists the different types of lures that can be deployed on Windows endpoints."
+        }
+      ]
+    },
+    "session-rdp": {
+      "statement": "The RDP session lure adds credentials for the decoy Windows VM to Windows Credential Manager and a file to initiate a connection to it in the current user's Documents folder (%userprofile%\\Documents); selecting Hidden prevents users from using the RDP file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-session-lures.json",
+          "quotes": [
+            "In addition, a file to initiate a connection to the decoy Windows VM is added to the current user's Documents folder (%userprofile%\\Documents).",
+            "You can prevent users from using the RDP file by selecting Hidden.",
+            "Credentials to access the decoy Windows VM is added to Windows Credential Manager."
+          ]
+        }
+      ]
+    },
+    "session-macos": {
+      "statement": "On macOS endpoints the session lures page lists FileZilla (FTP service), the /etc/hosts file (Web service and TI decoys), Bash/Zsh History, and the SSH config file, where information to access the decoy SSH servers is placed into /etc/ssh/ssh_config.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-session-lures.json",
+          "quotes": [
+            "| /etc/hosts file | Network decoys with Web service enabled and TI decoys |",
+            "Information to access the decoy SSH servers is generated and placed into the /etc/ssh/ssh_config file.",
+            "| FileZilla | Network decoys with the FTP service enabled |",
+            "| Bash/Zsh History | Network decoys with these services enabled: Web FTP SSH TI decoys Azure decoys:"
+          ],
+          "after": "The following table lists the different types of lures that can be deployed on macOS endpoints."
+        }
+      ]
+    },
+    "session-linux": {
+      "statement": "On Linux endpoints the session lures include FileZilla (FTP service), the /etc/hosts file (Web service and TI decoys), Bash/Zsh History (Web, FTP and SSH services and TI decoys, adding commands to the bash or Z shell history) and the SSH Config File (SSH service).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-session-lures.json",
+          "quotes": [
+            "| Bash/Zsh History | Network decoys with these services enabled: Web FTP SSH TI decoys | Commands to access Web, FTP, and SSH decoys are added to the bash or Z shell history.",
+            "| FileZilla | Network decoys with the FTP service enabled |",
+            "| /etc/hosts file | Network decoys with Web service enabled and TI decoys |",
+            "| SSH Config File | Network decoys with the SSH service enabled |"
+          ],
+          "after": "The following table lists the different types of lures that can be deployed on Linux endpoints."
+        }
+      ]
+    },
+    "session-targets": {
+      "statement": "When no decoy is selected for a session lure, a target decoy is chosen randomly if a decoy with a supported service is enabled and deployed; a maximum of two decoys are deployed for each lure type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-session-lures.json",
+          "quotes": [
+            "When no decoy is selected, a target decoy is chosen randomly if a decoy with a supported service is enabled and deployed.",
+            "A maximum of two decoys are deployed for each lure type."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "session-dbvisualizer-macos": {
+      "summary": "The session lures page lists DbVisualizer in its table of lures deployable on macOS endpoints; the supported features page marks DbVisualizer No for the Landmine Agent on macOS.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-configuring-session-lures.json",
+            "quotes": [
+              "| DbVisualizer | Network decoys with these services enabled: MySQL PostgreSQL |"
+            ],
+            "after": "The following table lists the different types of lures that can be deployed on macOS endpoints."
+          },
+          "says": "DbVisualizer is in the table of lures that can be deployed on macOS endpoints."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-supported-deception-features-landmine-agent-and-agentless.json",
+            "quotes": [
+              "| DbVisualizer | Yes | No | No | Yes | No | No |"
+            ]
+          },
+          "says": "DbVisualizer is marked Yes for the Landmine Agent on Windows and No on macOS and Linux, and Yes for Landmine Agentless on Windows and No on macOS and Linux."
+        }
+      ],
+      "impact": "The session lures page does not say which installer its macOS table applies to, so whether a macOS agent deploys a DbVisualizer lure is not settled."
+    }
+  },
+  "gaps": {
+    "cloud-lure-macos-folder": {
+      "kind": "semantic",
+      "title": "Where does the AWS IAM cloud lure store credentials on macOS?",
+      "status": "open",
+      "detail": "The supported features page marks AWS IAM cloud lures Yes for agent and agentless on Windows, macOS and Linux, while the cloud lures page gives a folder for Windows and Linux endpoints only.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "ranges-limitations": {
+      "kind": "semantic",
+      "title": "What are the per-feature limits for landmine decoys and lures?",
+      "status": "open",
+      "detail": "The landmine articles cite a Ranges & Limitations page for limits; it was not part of the captures used here, so limits not stated in the cited articles are not recorded.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "session-lure-browser-wording": {
+      "kind": "semantic",
+      "title": "Does the session lure default-pool note about adding decoys to \"the browser\" apply to session lures?",
+      "status": "open",
+      "detail": "The session lures article says a landmine agent adds the chosen decoys to the browser although it is about session lures, not browser lures; the captured article does not say whether this is wording carried over from the browser lures article or a real behavior.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

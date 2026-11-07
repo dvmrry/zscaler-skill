@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Resolving Configuration Issues for GCP",
+  "source": {
+    "url": "https://help.zscaler.com/ai-asset-mgmt/resolving-configuration-issues-gcp",
+    "node": "1539957",
+    "revision": "3227810",
+    "updated": "2026-08-03",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The following error messages are displayed in the CLI app if there are issues while onboarding accounts: AI Security Admin Portal"
+    },
+    {
+      "table": [
+        [
+          "Error Message",
+          "Resolution"
+        ],
+        [
+          "Error creating Subnetwork: googleapi: Error 403: Permission denied on 'locations/[REGION]' (or it may not exist). Details: LOCATION_POLICY_VIOLATED { \"@type\": \"type.googleapis.com/google.rpc.LocalizedMessage\", \"locale\": \"en-US\", \"message\": \"Permission denied on 'locations/[REGION]' (or it may not exist).\" }",
+          "Run the terraform destroy command to purge the template. Change the orchestrator in the AI Security Admin Portal. Download and deploy the new GCP template. Ensure that the selected region has the necessary permissions."
+        ],
+        [
+          "Error deleting Logging Bucket Config \"[BUCKET_LOCATION]/[BUCKET_NAME]\": googleapi: Error 400: Only buckets in state ACTIVE can be deleted",
+          "In the Google Cloud console, go to the Logs Storage page. Restore the bucket for which the error is occurring. To learn more, refer to the Google Cloud documentation. Run the terraform destroy command to purge the template."
+        ],
+        [
+          "Error: Failed to query available provider packages Could not retrieve the list of available versions for provider hashicorp/google: locked provider registry.terraform.io/hashicorp/google 5.40.0 does not match configured version constraint 6.0.0; must use terraform init -upgrade to allow selection of new versions To see which modules are currently depending on hashicorp/google and what versions are specified, run the following command: terraform providers",
+          "Run the terraform init -upgrade command to allow the selection of new versions. This command updates the locked provider version to match the configured version."
+        ],
+        [
+          "Error waiting for updating managed group instances: Networks specified in new and old network interfaces must be the same. Error waiting for Updating managed group instances: Networks specified in new and old network interfaces must be the same. Expected: projects/devrnd1/global/networks/dev-byon-controlplane-vpc Actual: projects/devrnd1/global/networks/dev-byon-workerplane-vpc with module.control-plane.module.instance_group_manager.google_compute_instance_group_manager.instance_group_manager, on modules/sub-modules/instance-group-manager/instance_group.tf line 3, in resource \"google_compute_instance_group_manager\" \"instance_group_manager\": 3: resource \"google_compute_instance_group_manager\" \"instance_group_manager\" { Cause: The issue is due to a mismatch between the network interfaces specified in the old and new configurations for the managed instance group.",
+          "In the Google Cloud console, go to the VM instances page. Identify and open the impacted VM instance. Identify and open the orchestrator instance group to which the VM is integrated. Stop the VM instance and delete the associated template. Delete the instance group. Download and redeploy the template."
+        ],
+        [
+          "Attempt to delete a Logging Bucket Config that is not in the ACTIVE state. │ Error deleting Logging Bucket Config \"projects/cwpalpha-f1-proj-1/locations/us-west4/buckets/zscaler-intrelonedotnine-rsninemar11\": googleapi: Error 400: Only buckets in state ACTIVE can be deleted",
+          "Change the orchestrator in the AI Security Admin Portal. Download and deploy the new GCP template."
+        ],
+        [
+          "Creating a duplicate KeyRing resource with the specified name results in a conflict. │ Error creating KeyRing: googleapi: Error 409: KeyRing projects/cwpalpha-f1-proj-1/locations/us-central1/keyRings/z-ai-sec-worker-e2dde520-705463f8-worker-crypto-key-ring already exists. │ │ with module.worker-plane.module.crypto_key[\"us-central1\"].google_kms_key_ring.keyring, │ on modules/sub-modules/crypto-key/crypto_key.tf line 3, in resource \"google_kms_key_ring\" \"keyring\": │ 3: resource \"google_kms_key_ring\" \"keyring\" {",
+          "Change the orchestrator in the AI Security Admin Portal. Download and deploy the new GCP template."
+        ],
+        [
+          "Error while creating the instance template: │ Error creating instance template: googleapi: Error 404: The resource <resource_path> was not found, notFound │ │ with module.control-plane.module.instance_template.google_compute_instance_template.instance_template, │ on modules/sub-modules/instance-template/template.tf line 16, in resource \"google_compute_instance_template\" \"instance_template\": │ 16: resource \"google_compute_instance_template\" \"instance_template\" { Cause: Specified network resource does not exist.",
+          "Verify the existence of the specified network resource. Update the network resource reference in the instance template configuration. Download and deploy the new GCP template."
+        ],
+        [
+          "Unable to Remove Service Networking Connection Error: Unable to remove Service Networking Connection, err: Error waiting for Delete Service Networking Connection: Error code 3, message: There is a peering operation in progress on the local or peer network. Try again later. │ Help Token: <token-id> Cause: Unable to remove the Service Networking Connection because of an ongoing operation.",
+          "Rerun the template."
+        ],
+        [
+          "Error while executing the local-exec provisioner in a Terraform module. Error: local-exec provisioner error with module.test-connectivity.terraform_data.check_connectivity, on modules/sub-modules/test-connectivity/test-connectivity.tf line 120, in resource \"terraform_data\" \"check_connectivity\": 120: provisioner \"local-exec\" { Error running command ' TEST_NAME=<test-name> PROJECT=\"<project-name>\" connection_status=$(gcloud network-management connectivity-tests describe \"$TEST_NAME\" --project=\"$PROJECT\" --format=\"get(reachabilityDetails.result)\") if [[ \"$connection_status\" == \"REACHABLE\" ]]; then echo \"Connectivity test succeeded\" else echo \"Connectivity test failed\" exit 1 fi echo \"{\\\"status\\\": \\\"$connection_status\\\",\\\"testName\\\": \\\"$TEST_NAME\\\"}\" > ./output.json ': exit status 1. Output: Connectivity test failed",
+          "Rerun the template."
+        ],
+        [
+          "Error while executing the GCP custom template: │ Error updating Logging Bucket Config \"projects/<bucket-path>\": googleapi: Error 400: Buckets must be in an ACTIVE state to be modified │ with module.logging.google_logging_project_bucket_config.log_bucket, │ on modules/sub-modules/logging/logging.tf line 17, in resource \"google_logging_project_bucket_config\" \"log_bucket\": │ 17: resource \"google_logging_project_bucket_config\" \"log_bucket\" {",
+          "Restore the log bucket. Run the terraform destroy command to purge the template. Rerun the template."
+        ]
+      ]
+    }
+  ]
+}

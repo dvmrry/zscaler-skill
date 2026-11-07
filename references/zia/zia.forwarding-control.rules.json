@@ -1,0 +1,584 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control.rules",
+  "title": "Forwarding Control rule criteria, limits and ordering",
+  "aliases": [
+    "forwarding control criteria",
+    "forwarding rule limits",
+    "forwarding rule order",
+    "forwarding rule 1024",
+    "nw_services block",
+    "road warrior forwarding rule",
+    "advanced firewall subscription forwarding"
+  ],
+  "binds": [
+    "zia/forwarding-rules",
+    "zia/forwarding-rules#order",
+    "zia/forwarding-rules#rank",
+    "zia/forwarding-rules#state",
+    "zia/forwarding-rules#locations",
+    "zia/forwarding-rules#users",
+    "zia/forwarding-rules#nwServices",
+    "zia/forwarding-rules#srcIpv6Groups"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.rule-scoping",
+      "because": "zia.forwarding-control.rules:criteria-logic"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.ip-scoping",
+      "because": "zia.forwarding-control.rules:xff-uses-locations"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.time-intervals.rule-usage",
+      "because": "zia.time-intervals.rule-usage:rule-types"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dns-control.predefined-rules",
+      "because": "zia.forwarding-control.rules:wildcard-fqdn-dns"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall.licensing",
+      "because": "zia.forwarding-control.rules:subscription"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/forwarding-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.terraform.rule-order"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.getting-started"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{subscription}} {{subscription-custom-app-groups}} {{rule-limit}} {{page-listing}}"
+    },
+    {
+      "label": "Matching.",
+      "text": "{{criteria-logic}} {{unset-is-any}} {{identity-limits}} Sources differ on those numbers {{divergence:selector-limits}}. {{road-warrior}} The firewall has a Z-Tunnel 1.0 and PAC option of the same name: [[zia.firewall.traffic-path]]. {{xff-uses-locations}} {{ipv6-all-group}} {{wildcard-fqdn-dns}}"
+    },
+    {
+      "label": "Order.",
+      "text": "{{order-and-rank}} {{disabled-rules}} Whether evaluation stops at the first match is open {{gap:first-match}}. The same ordering model is described for URL Filtering in [[zia.url-filtering.rule-order]]."
+    },
+    {
+      "label": "Terraform.",
+      "text": "{{required-members}} {{nw-services-block}} Order handling through Terraform has its own traps: [[zia.terraform.rule-order]]; ZPA-method delays are in [[zia.forwarding-control.terraform]]."
+    },
+    {
+      "text": "For anchored traffic, the Private Access side is in [[zia.forwarding-control.sipa]]."
+    },
+    {
+      "label": "Add Forwarding Rule.",
+      "text": "{{name-description-limits}} The ZPA and Direct methods are also in [[zia.forwarding-control.methods:console-methods]] and [[zia.forwarding-control.methods:direct-meaning]]. {{method-zpa-direct}} For the Private Access page: {{device-groups}} {{source-ip-formats}} {{admin-rank-bounds}} {{unauthenticated-and-app-criteria}} {{app-service-groups}} The gateway field's dependency on application segments is in [[zia.forwarding-control.zpa-gateway:rule-needs-common-gateway]]. The Application Segment criterion and the page's wording of the ZPA method are open {{gap:sipa-page-details}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the rule is enabled, and its rule order and rank against other enabled rules that match.",
+      "uses": [
+        "disabled-rules",
+        "order-and-rank"
+      ]
+    },
+    {
+      "do": "Whether the Road Warrior scope matches how the user connects.",
+      "uses": [
+        "road-warrior"
+      ]
+    },
+    {
+      "do": "Whether unset criteria are intended as Any.",
+      "uses": [
+        "unset-is-any"
+      ]
+    }
+  ],
+  "claims": {
+    "name-description-limits": {
+      "statement": "In the Add Forwarding Rule pages, the rule name cannot exceed 63 characters and the optional description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "after": "Forward to Gateway: Choose the appropriate proxy gateway. To configure a proxy gateway, see Configuring Gateways for Proxies.",
+          "quotes": [
+            "The name cannot exceed 63 characters.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "The name cannot exceed 63 characters.",
+            "Description: (Optional) Click Add Description and enter additional notes or information about the rule in the text field.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "method-zpa-direct": {
+      "statement": "For a Forwarding rule, the ZPA forwarding method sends traffic to a Private Access App Connector through the Private Access gateway, and Direct sends it straight to the destination server using the Zscaler service IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "choose ZPA to forward the traffic to a Private Access App Connector through the Private Access gateway.oxy service.",
+            "Select Direct to directly forward the traffic to the destination server using the Zscaler service IP address."
+          ]
+        }
+      ]
+    },
+    "device-groups": {
+      "statement": "The Device Groups criterion takes a group by device platform for Zscaler Client Connector traffic, or Cloud Browser Isolation, IoT or No Client Connector for isolation traffic, IoT traffic or traffic not tunneled through Zscaler Client Connector; the Cloud Browser Isolation and IoT groups exist only if Zero Trust Browser and IoT discovery are enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "Device Groups: Select the device groups to which the rule applies.",
+            "For Zscaler Client Connector traffic, select the appropriate group based on the device platform.",
+            "Select Cloud Browser Isolation, IoT, or No Client Connector to apply the rule to isolation traffic, IoT traffic, or traffic that is not tunneled through Zscaler Client Connector, respectively.",
+            "The Cloud Browser Isolation and IoT groups are available only if Zero Trust Browser (formerly Isolation) and IoT discovery are enabled for your organization."
+          ]
+        }
+      ]
+    },
+    "source-ip-formats": {
+      "statement": "The Source IP Addresses criterion takes IPv4 only, as an individual address (192.0.2.1), a subnet (192.0.2.0/24) or an address range (192.0.2.1 - 192.0.2.5).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "IP Addresses: Enter the source IP address (IPv4 only) in any of the following formats:",
+            "An individual address, such as 192.0.2.1",
+            "A subnet, such as 192.0.2.0/24",
+            "An address range, such as 192.0.2.1 - 192.0.2.5"
+          ]
+        }
+      ]
+    },
+    "admin-rank-bounds": {
+      "statement": "The Admin Rank option appears if Admin Ranking is enabled on the Advanced Settings page, and the admin's own rank determines the values selectable (a rank higher than the admin's own cannot be chosen).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "This option appears if you enable Admin Ranking on the Advanced Settings page.",
+            "Your assigned admin rank determines the values you can select (e.g., you cannot select a rank higher than your own)."
+          ]
+        }
+      ]
+    },
+    "unauthenticated-and-app-criteria": {
+      "statement": "To apply a Forwarding rule to unauthenticated traffic the rule must apply to all locations, and, when the policy for unauthenticated users is enabled under Advanced Settings, selections in the Users and Departments fields can target it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "To apply this rule to unauthenticated traffic, the rule must apply to all locations.",
+            "If you've enabled the policy for unauthenticated users under Advanced Settings and want to apply this rule to unauthenticated traffic, you can do so by making selections accordingly in the Users and Departments fields."
+          ]
+        }
+      ]
+    },
+    "app-service-groups": {
+      "statement": "The Application Service Groups criterion accepts any number of application service groups, and the service provides predefined and custom application services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "Application Service Groups: Select any number of application service groups to which the rule applies. The service provides predefined and custom application services."
+          ]
+        }
+      ]
+    },
+    "subscription": {
+      "statement": "Any Forwarding Control policy, including Source IP Anchoring, that uses user conditions (users, groups, departments or device groups) requires an Advanced Firewall subscription.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "Any Forwarding Control policy (including Source IP Anchoring) based on user conditions such as users, groups, departments, or device groups requires a subscription to the Advanced Firewall."
+          ]
+        }
+      ]
+    },
+    "subscription-custom-app-groups": {
+      "statement": "The About Forwarding Control page says any Forwarding Control policy, including Source IP Anchoring, based on user conditions such as custom application service groups, users, groups, departments or device groups requires a subscription to the Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-forwarding-policies.json",
+          "quotes": [
+            "Any Forwarding Control policy (including Source IP Anchoring) based on user conditions such as custom application service groups, users, groups, departments, or device groups requires a subscription to the Advanced Firewall."
+          ]
+        }
+      ]
+    },
+    "page-listing": {
+      "statement": "The Forwarding Control page lists rules in ascending rule order by default and paginates up to 500 rules per page. Its Forwarding Method column shows Direct, Proxy Chaining, Dedicated IP, GeoIP or ZPA, and its ZPA Application Segment column populates values only for the Private Access Forwarding rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-forwarding-policies.json",
+          "quotes": [
+            "By default, the rules are listed in the ascending rule order.",
+            "The Forwarding rules are paginated with up to 500 rules displayed per page.",
+            "Forwarding Method: The forwarding method used in the rule. It can be Direct, Proxy Chaining, Dedicated IP, GeoIP, or ZPA.",
+            "ZPA Application Segment: The Private Access app segment of the policy rule. This column populates values only for the Private Access Forwarding rules."
+          ]
+        }
+      ]
+    },
+    "rule-limit": {
+      "statement": "A tenant can create up to 1,024 Forwarding rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "You can create up to 1,024 Forwarding rules."
+          ]
+        }
+      ]
+    },
+    "criteria-logic": {
+      "statement": "Within the Who, Where and When tab, criteria combine as [Users OR Groups OR Departments] AND [Locations OR Location Groups] AND Device Groups; Services is Network Service Groups OR Network Services; Source is Source IPv4 Groups OR IP Addresses; Destination is Destination Groups OR Destination IP Address/Wildcard FQDN OR Countries OR URL Categories; and the tabs combine with AND.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "Who, Where, & When: [Users (OR) Groups (OR) Departments] (AND) [Locations (OR) Location Groups] (AND) Device Groups.",
+            "Services: Network Service Groups (OR) Network Services.",
+            "Source: Source IPv4 Groups (OR) IP Addresses.",
+            "Destination: Destination Groups (OR) Destination IP Address/Wildcard FQDN (OR) Countries (OR) URL Categories.",
+            "In addition to the logical operators between criteria, the relationship between tabs is (AND)."
+          ]
+        }
+      ]
+    },
+    "unset-is-any": {
+      "statement": "A criterion left without values is set to Any and is ignored during policy evaluation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "If you do not select specific values for any of these fields, the field is set to Any by default, and the criterion is ignored during policy evaluation."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ]
+    },
+    "identity-limits": {
+      "statement": "A rule can select up to 32 users, 32 groups, 32 departments, 32 locations and 32 location groups; Zscaler Support can raise the user, group, department and location limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "Contact Zscaler Support to increase the default limit for Users, Groups, or Departments.",
+            "Users: Select up to 32 organization users to which the rule applies.",
+            "Groups: Select up to 32 user groups to which this rule applies.",
+            "Departments: Select up to 32 departments to which the rule applies.",
+            "Contact Zscaler Support to increase the default limit for Locations.",
+            "Locations: Select up to 32 locations to which the rule applies.",
+            "Location Groups: Select up to 32 location groups to which the rule applies."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#users",
+        "zia/forwarding-rules#groups",
+        "zia/forwarding-rules#departments",
+        "zia/forwarding-rules#locations",
+        "zia/forwarding-rules#locationGroups"
+      ]
+    },
+    "road-warrior": {
+      "statement": "Selecting the Road Warrior location applies a rule only to remote users' traffic, and rules for other locations also apply to remote user traffic from those locations. Rules for the Road Warrior location apply to Z-Tunnel 1.0 and PAC only when Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors is on in Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "If you want to apply this rule only to remote users’ traffic, select Road Warrior from the Locations field. Rules configured for locations other than Road Warrior also apply to remote user traffic from those locations.",
+            "The rules configured for the Road Warrior location apply to Z-Tunnel 1.0 and PAC only when the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option is enabled in Advanced Settings."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#locations"
+      ]
+    },
+    "xff-uses-locations": {
+      "statement": "To match on the address in the X-Forwarded-For header, use the Locations criterion rather than Source IP Groups, because the sublocation is what detects the source address from that header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "If you want to use the IP address mentioned in the XFF header, use this option instead of the Source IPs Groups option under the Source IP criteria because the sublocation is used to detect the source IP addresses based on the XFF header."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#locations",
+        "zia/forwarding-rules#srcIpGroups"
+      ]
+    },
+    "ipv6-all-group": {
+      "statement": "For IPv6, the console accepts only the All IPv6 group as a source or destination group; custom IPv6 groups and individual, subnet or range IPv6 addresses are not supported. Source and destination IP address entries are IPv4 only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "Source IPv6 Groups: To control source IPv6 addresses with this rule, select the All IPv6 group, which is the default source IPv6 group for all IPv6 addresses.",
+            "Custom source IPv6 groups are not currently supported.",
+            "Specifying individual, subnet, or range of IPv6 addresses is not currently supported.",
+            "IP Addresses: Enter the source IP address (IPv4 only) in any of the following formats:",
+            "Destination IPv6 Groups: To control destination IPv6 addresses with this rule, select the All IPv6 Group, which is the default destination IPv6 group for all IPv6 addresses.",
+            "Custom destination IPv6 groups are not currently supported.",
+            "Destination IP Address/Wildcard FQDN: Enter IP addresses (IPv4 only) or FQDNs"
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#srcIpv6Groups",
+        "zia/forwarding-rules#destIpv6Groups"
+      ]
+    },
+    "wildcard-fqdn-dns": {
+      "statement": "Forwarding rules that match on wildcard FQDNs only evaluate correctly if client DNS requests are forwarded to the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "Forwarding rules based on Wildcard FQDNs require DNS requests from clients to be forwarded to the Zscaler service to evaluate criteria match."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#destAddresses"
+      ]
+    },
+    "order-and-rank": {
+      "statement": "Rules are evaluated in ascending rule order. A rule's admin rank is 0 to 7 (0 is the highest), and a rule with a higher admin rank always precedes a rule with a lower admin rank.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "Rule Order: A rule order is automatically assigned and displayed. It determines the rule's position in the ascending order of evaluation used for all rules within the policy.",
+            "Admin Rank: Click Edit and select an admin rank 0 to 7 (0 is the highest rank)",
+            "so that a rule with a higher admin rank always precedes a rule with a lower admin rank."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#order",
+        "zia/forwarding-rules#rank"
+      ]
+    },
+    "disabled-rules": {
+      "statement": "A rule created in the console starts Disabled and must be enabled to be enforced. A disabled rule can hold a rule order; evaluation skips it and moves to the next rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "Rule Status: By default, the status is Disabled. You need to enable the rule to activate and enforce it on your traffic.",
+            "Disabled rules can have a rule order assigned. During evaluation, the service skips the disabled rules and moves to the successive ones."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#state"
+      ]
+    },
+    "required-members": {
+      "statement": "The published contract requires `forwardMethod`, `name` and `rank` to create a rule; the Terraform resource instead requires `forward_method` and `order` and treats `rank` as optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1forwardingRules/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "type": "object",
+            "required": [
+              "forwardMethod",
+              "name",
+              "rank"
+            ]
+          }
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "Type: schema.TypeInt, Optional: true, Description: \"Admin rank assigned to the forwarding rule\","
+          ],
+          "after": "\"rank\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"forward_method\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"order\": {"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#forwardMethod",
+        "zia/forwarding-rules#rank",
+        "zia/forwarding-rules#order"
+      ]
+    },
+    "nw-services-block": {
+      "statement": "In Terraform, `nw_services` on a forwarding rule is a nested block with an `id` list, not a scalar; resolve the named service first and pass its ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_rule.md",
+          "quotes": [
+            "nw_services { id = [data.zia_firewall_filtering_network_service.this.id] }"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#nwServices"
+      ]
+    }
+  },
+  "divergences": {
+    "selector-limits": {
+      "summary": "How many users, groups and locations a Forwarding Control rule can select",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-forwarding-policy.json",
+            "quotes": [
+              "Locations: Select up to 32 locations to which the rule applies."
+            ],
+            "after": "Configuring Forwarding Rules for Proxy Chaining"
+          },
+          "says": "Up to 32 locations, 32 users, 32 groups and 32 departments, raisable through Support."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_forwarding_control_rule.md",
+            "quotes": [
+              "You can manually select up to `8` locations.",
+              "You can manually select up to `4` general and/or special users."
+            ]
+          },
+          "says": "The Terraform documentation says up to 8 locations and 4 users (and 8 groups); the resource schema sets no maximum for these blocks."
+        }
+      ],
+      "impact": "Do not reject a plan or design because of the Terraform documentation's smaller numbers; the console figure is 32, and the provider does not enforce the smaller ones."
+    }
+  },
+  "gaps": {
+    "sipa-page-details": {
+      "kind": "semantic",
+      "title": "Application Segment criterion and the ZPA method wording on the Private Access Forwarding rule page",
+      "status": "open",
+      "detail": "The page does not say whether Source IP Anchoring is required of every selected Application Segment or how many segments can be selected. It words the ZPA method as going \"through the Private Access gateway.oxy service\" without defining gateway.oxy, and gives no limit on the number of rule labels.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "first-match": {
+      "kind": "semantic",
+      "title": "Whether Forwarding Control stops at the first matching rule",
+      "status": "open",
+      "about": [
+        "zia/forwarding-rules#order"
+      ],
+      "detail": "Unverified legacy statement: \"Rule evaluation is first-match-wins in ascending Rule Order, with Admin Rank as a structural gate - same model as URL Filtering and Firewall.\" The captured Forwarding Control help states ascending evaluation order and that disabled rules are skipped, but not that evaluation ends at the first match. Resolve with a lab test of two overlapping enabled rules, or a vendor statement.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating which rule governs when two enabled rules both match"
+    }
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Not Allowed to Use HTTP Tunnel",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/not-allowed-use-http-tunnel",
+    "node": "1538960",
+    "revision": "3224144",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "An HTTP tunneling attempt on a non-HTTP port was detected and blocked because the organization has enabled the option to Block tunneling to non-web ports."
+    },
+    {
+      "item": "The Zscaler service offers this control using the option Block Tunneling to Non-HTTP/HTTPS Ports under Administration > Advanced Settings > HTTP Tunnel Control.",
+      "depth": 0,
+      "strong": [
+        [
+          57,
+          96
+        ],
+        [
+          103,
+          117
+        ],
+        [
+          120,
+          137
+        ],
+        [
+          140,
+          159
+        ]
+      ]
+    },
+    {
+      "item": "This option is enabled by default for explicit proxy mode of traffic forwarding. When enabled, it blocks the HTTP Connect method requests from all the ports not defined under HTTP/HTTPS services.",
+      "depth": 0
+    },
+    {
+      "item": "It is not applicable in the case of transparent proxy mode (e.g., IPSec, GRE without Zscaler Client Connector, or PAC file).",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "To troubleshoot this issue:"
+    },
+    {
+      "item": "Determine the services forwarded to HTTP Web Proxy under Administration > Advanced Settings.",
+      "depth": 0,
+      "strong": [
+        [
+          57,
+          71
+        ],
+        [
+          74,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Look up the ports corresponding to these services from Administration > Network Services.",
+      "depth": 0,
+      "strong": [
+        [
+          55,
+          69
+        ],
+        [
+          72,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Review in the Web Insights logs whether one of these ports is used for the concerned transaction. If not, then it is correctly blocked as per the feature Block Tunneling to Non-HTTP/HTTPS Ports.",
+      "depth": 0,
+      "strong": [
+        [
+          154,
+          193
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Solution",
+      "level": 2
+    },
+    {
+      "text": "The following section describes how to solve the issue:"
+    },
+    {
+      "text": "Zscaler doesn't recommend disabling the Block Tunneling option for non-HTTP/HTTPS ports, because this is a global setting and would allow HTTP tunneling to all the ports.",
+      "strong": [
+        [
+          40,
+          55
+        ]
+      ]
+    },
+    {
+      "text": "You can configure the Zscaler service to map non-HTTP/HTTPS traffic to standard HTTP/HTTPS services, and allow the connection:"
+    },
+    {
+      "item": "Create a custom network service under Administration > Network Services. Add a new network service and add the required port under TCP Destination Ports. To learn more, see Adding Network Services.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          38,
+          52
+        ],
+        [
+          55,
+          71
+        ],
+        [
+          131,
+          152
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Administration > Advanced Settings. Under Services Forwarded to HTTP Web Proxy, add the network service you created to the HTTP Services.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          40
+        ],
+        [
+          48,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Add a firewall control policy to allow access to this nonstandard port traffic and ensure Enforce Firewall Control under Location Management for this location user traffic to allow nonstandard port traffic. To learn more, see Configuring Firewall Filtering Policies and Enabling Firewall Locations.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          90,
+          114
+        ],
+        [
+          121,
+          140
+        ]
+      ]
+    },
+    {
+      "item": "Enable the options Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors for the firewall rules to be applied on the remote user traffic forwarded via Z-Tunnel 1.0 or PAC.",
+      "depth": 0,
+      "strong": [
+        [
+          19,
+          51
+        ],
+        [
+          56,
+          73
+        ]
+      ]
+    },
+    {
+      "text": "If none of the above steps help, submit a case to Zscaler Support with the following information:"
+    },
+    {
+      "item": "If you have enabled Remote Assistance, the complete URL and the timestamp when a user tried accessing it via the Zscaler service. Otherwise, the Web Insights logs showing all the columns for the relevant transactions.",
+      "depth": 0
+    },
+    {
+      "item": "Client packet capture (if Zscaler Client Connector is installed).",
+      "depth": 0
+    }
+  ]
+}

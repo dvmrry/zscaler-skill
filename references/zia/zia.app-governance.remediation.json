@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "id": "zia.app-governance.remediation",
+  "title": "Revoke, ban and end user review in 3rd-Party App Governance: what each does and where it is recorded",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance.app-risk"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance.platforms"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{revoke-vs-ban}} {{revoke-notification-email}} The consent a platform needs for these actions is in [[zia.app-governance.platforms]]."
+    },
+    {
+      "label": "End User Review.",
+      "text": "{{end-user-review}} {{review-responses}} {{review-auto-revoke}} {{review-records}}"
+    },
+    {
+      "label": "On many apps at once.",
+      "text": "{{bulk-actions}} Policies can run the same actions automatically: [[zia.app-governance.policies]]. The status a revoked or reviewed app takes is in [[zia.app-governance.app-risk]]."
+    }
+  ],
+  "claims": {
+    "revoke-vs-ban": {
+      "statement": "Revoke (supported by Google) removes all permissions granted for the app and does not prevent users from installing the app and giving consent in the future, though app classification and policies can be used to prevent reinstalling. Ban (supported by Microsoft) blocks access to the app, preventing users from using it in the future. An app can also be revoked for individual users, and banning for individual users is not currently supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-revoking-banning-apps.json",
+          "quotes": [
+            "Revoke (supported by Google): Removes all permissions granted for the app. This does not prevent users from installing the app and giving consent in the future.",
+            "You can use the app classification and policies to prevent users from reinstalling the app.",
+            "Ban (supported by Microsoft): Blocks access to the app, preventing users from using the app in the future.",
+            "You can also revoke an app for individual users. Banning an app for individual users is not currently supported."
+          ]
+        }
+      ]
+    },
+    "revoke-notification-email": {
+      "statement": "The default email sent by revoke or ban can be viewed but not edited. Emails cannot be sent when revoking domain-wide applications authorized at the organization level for all users. After an app is banned or revoked, its status changes in 3rd-Party App Governance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-revoking-banning-apps.json",
+          "quotes": [
+            "You can view the default email to be sent, but you cannot edit it.",
+            "You cannot send emails when revoking domain-wide applications that are authorized at the organization level for all users."
+          ],
+          "after": "In the App Inventory, go to the Automated Workflow column and the app that you want to revoke or ban for all users."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-revoking-banning-apps.json",
+          "quotes": [
+            "After you ban or revoke an application, its status changes in 3rd-Party App Governance."
+          ]
+        }
+      ]
+    },
+    "end-user-review": {
+      "statement": "In the end user review process, users confirm via Slack or email whether they are using the apps currently enabled for them. Based on the response, their access to the app is either automatically revoked or maintained, and the response is recorded as a User Activity in 3rd-Party App Governance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-end-user-review.json",
+          "quotes": [
+            "In the review process, users confirm via Slack or email if they are using the apps currently enabled for them. Based on their response, their access to the app is either automatically revoked or maintained, and their response is recorded as a User Activity in 3rd-Party App Governance."
+          ]
+        }
+      ]
+    },
+    "review-responses": {
+      "statement": "In both the Slack message and the email review form, \"I'm using this app\" maintains access to the app, and \"I'm not using this app\" and \"I don't remember installing it\" revoke it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-end-user-review.json",
+          "quotes": [
+            "I'm using this app: Access to the app is maintained.",
+            "I'm not using this app: Access to the app is revoked.",
+            "I don't remember installing it: Access to the app is revoked."
+          ],
+          "after": "If you configure the request for review to be sent via Slack, the user receives the following message:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-end-user-review.json",
+          "quotes": [
+            "I'm using this app: Access to the app is maintained.",
+            "I'm not using this app: Access to the app is revoked.",
+            "I don't remember installing it: Access to the app is revoked."
+          ],
+          "after": "Clicking the Review button redirects the user to the form:"
+        }
+      ]
+    },
+    "review-auto-revoke": {
+      "statement": "Depending on the platform (for example Google), access to the app can be automatically revoked. If all users of an app each confirm that the app is not in use and the platform supports the Revoke action, access is automatically revoked and the App Status changes to Deleted in the App Inventory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-end-user-review.json",
+          "quotes": [
+            "Depending on the platform (e.g., Google), access to the app can be automatically revoked.",
+            "If all users of an app each confirm that the app is not in use and the platform supports the Revoke action, then access is automatically revoked and the App Status changes to Deleted in the App Inventory."
+          ]
+        }
+      ]
+    },
+    "review-records": {
+      "statement": "After users submit their responses, the responses are recorded in the Activities tab of the App Panel and User Panel and in the Audit Log. To see user responses as they are received, enable the User Responded to App Review policy and configure notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-end-user-review.json",
+          "quotes": [
+            "After users submit their responses, the responses are recorded in the Activities tab of the App Panel and User Panel, as well as the Audit Log.",
+            "To see user responses as they are received, enable the User Responded to App Review policy and configure notifications."
+          ]
+        }
+      ]
+    },
+    "bulk-actions": {
+      "statement": "Bulk actions on selected apps include Add To Inventory (from the app catalog), Change Classification and Set Automated Workflow. After the end user review or revoke/ban process is complete, a summary shows the number of apps for which the action was successful, failed or non-applicable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-taking-bulk-actions-on-apps.json",
+          "quotes": [
+            "Add To Inventory: Select multiple apps from 3rd-Party App Governance's app catalog and add them to the inventory.",
+            "Change Classification: Change classification assigned to the selected apps.",
+            "Set Automated Workflow: Select the type of automated workflow you wish to set for the selected apps.",
+            "After the end user review or revoke/ban process is complete, a summary appears indicating the number of apps for which the action was successful, failed, or non-applicable."
+          ]
+        }
+      ]
+    }
+  }
+}

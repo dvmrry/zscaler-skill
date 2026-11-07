@@ -1,0 +1,383 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.intermediate-ca",
+  "title": "Intermediate CA certificates for SSL/TLS inspection: protection types, limits, key types, CSR signing, chain upload and the default",
+  "aliases": [
+    "intermediate ca certificates page",
+    "ssl intermediate certificate",
+    "software protection intermediate ca",
+    "cloud hsm protection intermediate ca",
+    "sign csr active directory certificate services",
+    "default intermediate ca certificate"
+  ],
+  "binds": [
+    "zia/intermediate-ca-certificates"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.cipher-suites"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/intermediate-ca-certificates"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{page-and-columns}} {{protection-types}} {{certificate-limits}} {{one-default}} {{delete-rules}}"
+    },
+    {
+      "label": "Keys and signing.",
+      "text": "{{key-type-and-signature}} {{region-and-path-length}} {{hsm-attestation}} {{csr-signing-requirements}} {{adcs-signing-example}}"
+    },
+    {
+      "label": "Uploading and replacing.",
+      "text": "{{chain-upload}} {{invalid-upload-keeps-previous}} {{replace-certificate}} {{custom-intermediate-no-root-key}}"
+    },
+    {
+      "text": "Who signs the certificate, where the root must be trusted and where the key is stored are in [[zia.ssl-inspection.certificates]]; a rule chooses its own intermediate in [[zia.ssl-inspection.actions]]. What Custom Certificate Compliance is, which gates the EC P-256 key type, is not described {{gap:custom-certificate-compliance}}. How the eight certificates split between the two protection types is not stated {{gap:software-hsm-split}}. What an invalid upload falls back to for a tenant with no earlier upload is not stated {{gap:no-previous-upload}}."
+    }
+  ],
+  "claims": {
+    "page-and-columns": {
+      "statement": "The Intermediate CA Certificates page (Internet Access > Resources > SSL Intermediate Certificate) manages the custom or default intermediate CA certificate for SSL/TLS Inspection. It lists each Software Protection or Cloud HSM Protection certificate with Name, Protection Type, Region, Validity Start Date, Expiration Date, Description, Key Type and Status (enabled or disabled), and searches by name, protection type, region, key type or status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-intermediate-ca-certificates.json",
+          "quotes": [
+            "You can use the Intermediate CA Certificates page to manage your custom or default intermediate CA certificate for SSL/TLS Inspection.",
+            "On the Intermediate CA Certificates page (Internet Access > Resources > SSL Intermediate Certificate), you can do the following:",
+            "Search for the intermediate CA certificate by name, protection type, region, key type, or status.",
+            "For each intermediate CA certificate (Software Protection or Cloud HSM Protection), you can view:",
+            "Name: The name of the certificate.",
+            "Protection Type: The protection type of the certificate.",
+            "Region: The region of the certificate.",
+            "Validity Start Date: The date from which the certificate is valid.",
+            "Expiration Date: The expiration date of the certificate.",
+            "Description: Additional notes or information about the certificate.",
+            "Key Type: The key type selected while configuring the intermediate CA certificate.",
+            "Status: The status of the certificate (enabled or disabled)."
+          ]
+        }
+      ]
+    },
+    "delete-rules": {
+      "statement": "A custom intermediate CA certificate can be edited or deleted and the Zscaler Intermediate CA Certificate can be edited and viewed, but a draft or the default intermediate CA certificate cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-intermediate-ca-certificates.json",
+          "quotes": [
+            "Edit or delete a custom intermediate CA certificate.",
+            "You cannot delete a draft or the default intermediate CA certificate.",
+            "Edit and view the Zscaler Intermediate CA Certificate."
+          ]
+        }
+      ]
+    },
+    "protection-types": {
+      "statement": "Zscaler offers subscriptions to software and cloud HSM protection types for configuring intermediate CA certificates for SSL/TLS Inspection, and an organization can subscribe to one or both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-choosing-ca-certificate-ssltls-inspection.json",
+          "quotes": [
+            "Zscaler offers subscriptions to software and cloud HSM protection types to configure your intermediate CA certificates for SSL/TLS Inspection.",
+            "You can subscribe to one or both of the protection types based on your requirements."
+          ]
+        }
+      ]
+    },
+    "certificate-limits": {
+      "statement": "Without the cloud HSM protection subscription, an organization can create up to two software intermediate CA certificates with the enabled status for SSL/TLS Inspection. With both software and cloud HSM subscriptions it can create up to 8 intermediate CA certificates, but only 4 can be enabled at a time and used for interception.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-choosing-ca-certificate-ssltls-inspection.json",
+          "quotes": [
+            "If you have not subscribed to the cloud HSM protection type, Zscaler allows you to create up to two software intermediate CA certificates with the enabled status and can be used for SSL/TLS Inspection.",
+            "If you have subscribed to both software and cloud HSM protection types, Zscaler allows you to create up to 8 intermediate CA certificates, but only 4 can be enabled at a time and used for SSL/TLS interception."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-software-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "Zscaler allows you to create two software intermediate CA certificates with the enabled status that can be used for SSL/TLS Inspection."
+          ]
+        }
+      ]
+    },
+    "one-default": {
+      "statement": "There can be only one default intermediate CA certificate, either Zscaler's default intermediate certificate or an enabled custom intermediate CA certificate. The Default Certificate option makes a certificate the default, on the Zscaler Intermediate CA Certificate page and in the Software Protection and Cloud HSM Protection configuration pages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-choosing-ca-certificate-ssltls-inspection.json",
+          "quotes": [
+            "You can only have one default intermediate CA certificate.",
+            "It can either be Zscaler’s default intermediate certificate or an enabled custom intermediate CA certificate.",
+            "You can enable the Default Certificate option to make the Zscaler Intermediate CA Certificate the default certificate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-software-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "Enable the Default Certificate option to make this certificate the default intermediate CA certificate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-cloud-hsm-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "Enable the Default Certificate option to make this certificate the default intermediate CA certificate."
+          ]
+        }
+      ]
+    },
+    "key-type-and-signature": {
+      "statement": "On both the Software Protection and Cloud HSM Protection pages the Key Type can be RSA 2048 or EC P-256, and the EC P-256 option is available if Custom Certificate Compliance is enabled for the organization. Key type and size cannot be edited in the step after that choice, and the signature algorithm is set to SHA-256 by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-software-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "Key Type: Select the key size from the drop-down menu. The key size can be RSA 2048 or EC P-256.",
+            "The EC P-256 option is available if Custom Certificate Compliance is enabled for your organization.",
+            "You cannot edit key type and size in this step.",
+            "Signature Algorithm: The signature algorithm is set to SHA-256 by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-cloud-hsm-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "Key Type: Select the key size from the drop-down menu. The key size can be RSA 2048 or EC P-256.",
+            "The EC P-256 option is available if Custom Certificate Compliance is enabled for your organization.",
+            "You cannot edit key type and size in this step.",
+            "Signature Algorithm: The signature algorithm is set to SHA-256 by default."
+          ]
+        }
+      ]
+    },
+    "region-and-path-length": {
+      "statement": "On the Software Protection page the Region is set to Global by default and the Path Length Constraint can be set to 0 or 1. On the Cloud HSM Protection page the admin selects the Region and the Path Length Constraint is set to 0 by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-software-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "Region: This field is set to Global by default.",
+            "Path Length Constraint: Select the path length constraint for the software intermediate certificate. This field can either be set to 0 or 1."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-cloud-hsm-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "Region: Select your region for the certificate.",
+            "Path Length Constraint: The path length constraint for the Cloud HSM Protection intermediate certificate is set to 0 by default."
+          ]
+        }
+      ]
+    },
+    "hsm-attestation": {
+      "statement": "For a Cloud HSM Protection certificate the admin can optionally download an attestation bundle, the statement that verifies the private key is generated and protected inside the HSM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-cloud-hsm-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "(Optional) Click Download Attestation Bundle to download the attestation statement to verify that the private key is generated and is protected inside HSM."
+          ]
+        }
+      ]
+    },
+    "csr-signing-requirements": {
+      "statement": "On both the Software Protection and Cloud HSM Protection pages the CSR must be signed as a Subordinate Certification Authority or Intermediate Certification Authority; if OpenSSL is used, basicConstraints=CA:TRUE and keyUsage=keyCertSign, cRLSign must be set during signing; and the intermediate certificate is uploaded in PEM format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-software-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "Ensure that the CSR is signed as a Subordinate Certification Authority or Intermediate Certification Authority.",
+            "If you use OpenSSL, ensure that the following attributes are set during signing:",
+            "basicConstraints=CA:TRUE keyUsage=keyCertSign, cRLSign",
+            "browse and upload your intermediate certificate and click Next. The file must be in PEM format."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-cloud-hsm-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "Ensure that the CSR is signed as a Subordinate Certification Authority or Intermediate Certification Authority.",
+            "If you use OpenSSL, ensure that the following attributes are set during signing:",
+            "basicConstraints=CA:TRUE keyUsage=keyCertSign, cRLSign",
+            "browse and upload your intermediate certificate and click Next. The file must be in PEM format."
+          ]
+        }
+      ]
+    },
+    "adcs-signing-example": {
+      "statement": "Zscaler's Active Directory Certificate Services example signs the CSR as a subordinate or intermediate CA with certreq -submit and the SubCA certificate template; the issued certificate can be saved as a .cer file so long as the admin has domain administrator access permissions, and the Zscaler service only accepts certificates with the .pem extension.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-signing-csr-using-active-directory-certificate-services.json",
+          "quotes": [
+            "Ensure that the CSR is signed as a subordinate CA or intermediate CA.",
+            "certreq -submit -attrib \"CertificateTemplate:SubCA\" zscalerdemo.csr zscalerdemo.cer",
+            "The issued certificate can be saved as zscalerdemo.cer so long as you have domain administrator access permissions.",
+            "The Zscaler service only accepts certificates with the .pem extension."
+          ]
+        }
+      ]
+    },
+    "invalid-upload-keeps-previous": {
+      "statement": "The Software Protection and Cloud HSM Protection pages both say the organization's root certificate must be installed on users' browsers, and that if an uploaded custom certificate is invalid (for example the common name does not match) the service does not use the Zscaler root certificate and continues to use the previously uploaded self-signed certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-software-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "Ensure that your organization’s root certificate is installed on the browsers of your users.",
+            "If you upload a custom certificate that is invalid, for example, and the common name in the certificate does not match, the Zscaler service does not use the Zscaler root certificate.",
+            "Instead, it continues to use the previously uploaded self-signed certificate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-cloud-hsm-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "Ensure that your organization’s root certificate is installed on the browsers of your users.",
+            "If you upload a custom certificate that is invalid, for example, and the common name in the certificate does not match, the Zscaler service does not use the Zscaler root certificate.",
+            "Instead, it continues to use the previously uploaded self-signed certificate."
+          ]
+        }
+      ]
+    },
+    "chain-upload": {
+      "statement": "Uploading the intermediate certificate chain is optional on both the Software Protection and Cloud HSM Protection pages. When it is uploaded the service sends the intermediate root certificate with the chain and the signed server certificate to users' machines; without it the service sends only the organization's intermediate root certificate and its signed server certificate. Zscaler says the chain lets users' machines validate even if browsers hold only the root, and lets certificates be rotated without a new key ceremony or certificate push.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-software-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "You can optionally upload the intermediate certificate chain that includes any other intermediate certificates that complete the chain to the intermediate root certificate you upload.",
+            "When you upload the certificate chain, the Zscaler service sends the intermediate root certificate along with this key chain and the signed server certificate to your users’ machines during SSL/TLS Inspection.",
+            "If you do not upload the certificate chain, the Zscaler service sends only your organization’s intermediate root certificate and its signed server certificate to the user’s machine.",
+            "The certificate chain ensures that your users’ machines can validate the server certificate signed by your organization’s intermediate CA even if the users’ browsers have only the root certificate in their certificate store.",
+            "It enables you to rotate certificates efficiently without the need for a new key ceremony or certificate push to your organization’s users."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-cloud-hsm-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "You can optionally upload the intermediate certificate chain that includes any other intermediate certificates that complete the chain to the intermediate root certificate you upload.",
+            "When you upload the certificate chain, the Zscaler service sends the intermediate root certificate along with this key chain and the signed server certificate to your users’ machines during SSL/TLS Inspection.",
+            "If you do not upload the certificate chain, the Zscaler service sends only your organization’s intermediate root certificate and its signed server certificate to the user’s machine.",
+            "The certificate chain ensures that your users’ machines can validate the server certificate signed by your organization’s intermediate CA even if the users’ browsers have only the root certificate in their certificate store.",
+            "It enables you to rotate certificates efficiently without the need for a new key ceremony or certificate push to your organization’s users."
+          ]
+        }
+      ]
+    },
+    "replace-certificate": {
+      "statement": "On both the Software Protection and Cloud HSM Protection pages the intermediate certificate or the chain of an existing custom certificate can be replaced, provided the new intermediate certificate is not the default certificate and is associated with an SSL/TLS policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-software-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "You can also replace the intermediate certificate or the intermediate certificate chain for an existing custom certificate.",
+            "Ensure that the new intermediate certificate is not the default certificate and is associated with an SSL/TLS policy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-cloud-hsm-protection-intermediate-ca-certificate.json",
+          "quotes": [
+            "You can also replace the intermediate certificate or the intermediate certificate chain for an existing custom certificate.",
+            "Ensure that the new intermediate certificate is not the default certificate and is associated with an SSL/TLS policy."
+          ]
+        }
+      ]
+    },
+    "custom-intermediate-no-root-key": {
+      "statement": "With a custom intermediate certificate the service does not use the organization's root certificate or private keys; it uses the intermediate signed by the organization's own CA, so a trusted CA already deployed on the organization's machines can be used, and the intermediate's validity period can be controlled or the certificate revoked in the Admin Console at any time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-choosing-ca-certificate-ssltls-inspection.json",
+          "quotes": [
+            "The Zscaler service doesn't use your organization’s root certificate or private keys.",
+            "Instead, it uses the custom intermediate certificate signed by your own CA, so you can use a trusted CA that is already deployed on your organization's machines.",
+            "You can control the validity period of the intermediate certificate or revoke it in the Zscaler Admin Console at any time."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "custom-certificate-compliance": {
+      "kind": "semantic",
+      "title": "What Custom Certificate Compliance is and how it is enabled",
+      "status": "open",
+      "detail": "It gates the EC P-256 key type and client-side ECDSA, but none of the captured SSL/TLS inspection pages says what it is or how an organization enables it.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "software-hsm-split": {
+      "kind": "semantic",
+      "title": "How the 8 created and 4 enabled intermediate certificates split between software and Cloud HSM",
+      "status": "open",
+      "detail": "The pages give the totals for an organization with both subscriptions but not how many may be software versus Cloud HSM, nor the region values offered for Cloud HSM.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "no-previous-upload": {
+      "kind": "semantic",
+      "title": "What an invalid custom upload falls back to when there was no previous custom upload",
+      "status": "open",
+      "detail": "The pages say the service continues to use the previously uploaded self-signed certificate; they do not define the case of a tenant with no earlier upload.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

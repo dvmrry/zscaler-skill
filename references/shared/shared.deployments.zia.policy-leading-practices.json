@@ -1,0 +1,421 @@
+{
+  "schema_version": 1,
+  "id": "shared.deployments.zia.policy-leading-practices",
+  "title": "What the ZIA Policy Leading Practices Guide recommends for module flow, policy types, advanced settings, URL filtering and firewall",
+  "aliases": [
+    "zia policy leading practices",
+    "zia policy best practices"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.deployments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.enforcement-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.traffic-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.deployments.zia.policy-controls"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Traffic flow.",
+      "text": "{{module-flow}} {{insights-logging}} {{non-web-without-firewall}}"
+    },
+    {
+      "label": "Order of operations.",
+      "text": "{{web-order-of-operations}} {{enforcement-examples}} The guide's flat list and the per-request orders in [[zia.atp.enforcement-order]] disagree on Cloud App Control and URL Control against ATP: {{divergence:web-order-vs-atp}}."
+    },
+    {
+      "label": "Choosing a policy type and criteria.",
+      "text": "{{policy-type-selection}} {{criteria-guidance}}"
+    },
+    {
+      "label": "Advanced settings.",
+      "text": "{{advanced-policy-settings}} {{advanced-settings-global}} {{auto-proxy-forwarding-mechanism}}"
+    },
+    {
+      "label": "URL Filtering and Cloud App Control.",
+      "text": "{{url-baseline-shape}} {{cac-risk-profile}} {{cac-category-notes}} See [[zia.url-filtering]]."
+    },
+    {
+      "label": "Firewall and DNS.",
+      "text": "{{firewall-tiers}} {{firewall-default-rule}} {{firewall-rule-priority}} {{quic-block}} {{network-app-dpi-leakage}} {{dns-forwarding-options}} See [[zia.firewall]] and [[zia.dns-control]]."
+    }
+  ],
+  "claims": {
+    "module-flow": {
+      "statement": "Outbound web traffic goes to the firewall module and, if no firewall policy is violated, to the web module; outbound non-web traffic bound for ports other than 80/443 goes to the firewall module and is allowed to the internet if no firewall policy is violated; inbound web traffic (ports 80/443 in response to HTTP GET/POST requests) goes to the web module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "The ZIA Public Service Edge sends outbound internet web traffic from your organization to the firewall module for policy evaluation.",
+            "The ZIA Public Service Edge sends outbound non-web traffic bound for ports other than 80/443 (or other HTTP/HTTPS ports) directly to the firewall module for policy evaluation.",
+            "The ZIA Public Service Edge sends inbound web traffic (HTTP/HTTPS traffic for ports 80/443) from the internet in response to HTTP GET/POST requests to its web module for policy evaluation.",
+            "If the traffic does not violate any firewall policies, it sends the traffic to the web module for policy evaluation.",
+            "If the traffic does not violate any firewall policies, it allows the traffic to the internet."
+          ]
+        }
+      ]
+    },
+    "insights-logging": {
+      "statement": "When web traffic violates a firewall policy both Firewall Insights and Web Insights show it blocked; if it passes the firewall policy and is blocked by a web policy, Firewall Insights still shows it allowed while Web Insights shows it blocked.",
+      "tier": "A",
+      "conditions": "The policy enforcement article carries the same statement and a later one that the Firewall logs show a web-module block as blocked; that question is open in zia.firewall.traffic-path.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "When the web traffic violates a firewall policy, both the Firewall Insights logs and the Web Insights logs indicate that the traffic is blocked.",
+            "if the traffic passes through the firewall policy but is blocked due to a web policy violation later, the Firewall Insights logs still indicate that the traffic is allowed, whereas the Web Insights logs indicate it as blocked."
+          ]
+        }
+      ]
+    },
+    "web-order-of-operations": {
+      "statement": "Under the heading 'Web module policies are enforced in the following order of operations', the guide lists Firewall, SSL Inspection, Advanced Threat Protection (ATP), Malware/Antivirus (AV), Cloud App Control, URL Control, File Type Control, Data Loss Prevention (DLP) and Cloud Sandbox; the web module applies policies in an order based on the web traffic types, whether the traffic is encrypted or not, and whether SSL inspection is enabled or disabled, and a policy violation blocks the transaction immediately and other web policies are not applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "Web module policies are enforced in the following order of operations:",
+            "The web module applies policies in a specific order based on the web traffic types, whether the traffic is encrypted or not, and whether SSL inspection is enabled or disabled.",
+            "If the service finds a policy violation, it immediately blocks the transaction and does not apply other web policies."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "- SSL Inspection",
+            "- Advanced Threat Protection (ATP)",
+            "- Malware/Antivirus (AV)",
+            "- Cloud App Control",
+            "- URL Control",
+            "- File Type Control",
+            "- Data Loss Prevention (DLP)",
+            "- Cloud Sandbox",
+            "- Firewall"
+          ],
+          "after": "Web module policies are enforced in the following order of operations:"
+        }
+      ]
+    },
+    "enforcement-examples": {
+      "statement": "In the guide's example a File Type Control policy blocks PDFs and a DLP policy blocks SSNs: a PDF containing SSNs is blocked by File Type Control, the DLP policy is not triggered and the auditor is not notified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "the service blocks the transaction because of the File Type Control policy preventing PDFs. The DLP policy is not triggered, and the service doesn’t notify the auditor that a user has attempted to send SSNs from the organization.",
+            "The DLP policy blocks documents containing US Social Security numbers (SSNs)"
+          ]
+        }
+      ]
+    },
+    "policy-type-selection": {
+      "statement": "The guide positions Cloud App Control for explicit allow/block/restrict of a known list of applications or aspects of user access, URL Filtering as the default access control space, File Type Control for limiting file types on permitted destinations, and Firewall for outbound non-web traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "Use Cloud App Control when you must explicitly allow, block, or restrict user access to a known list of applications or control aspects of user access",
+            "URL Filter is the default access control space.",
+            "File Type Control is best for creating policies that limit user file type access on permitted destinations and web browsing.",
+            "A firewall policy is best for controlling outbound connectivity for all non-web traffic"
+          ]
+        }
+      ]
+    },
+    "criteria-guidance": {
+      "statement": "For user criteria the guide says to use Groups or Department and avoid specific users unless testing or access is limited to a small (less than 4) set; Location Groups are easier to manage than individual locations; time is based on the data center's time; ZIA device trust levels are High, Medium and Low.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "Avoid using specific users unless testing or access is limited to a small (less than 4) set of users.",
+            "While building policies for individual locations is acceptable, it is easier to manage Location Groups.",
+            "Set access based on the data center’s time.",
+            "Device Trust levels in ZIA are High, Medium, and Low",
+            "Use Groups or Department for criteria, as this places control within the user directory space."
+          ]
+        }
+      ]
+    },
+    "advanced-policy-settings": {
+      "statement": "The guide recommends Disable for CIPA Compliance (unless K-12 education), Enable for Suspicious New Domains Lookup, AI/ML-based Content Categorization, Embedded Sites Categorization, SafeSearch (which requires SSL inspection) and Microsoft-Recommended Click-to-Run Microsoft 365 Configuration, and Optional for Identity-based Block Override.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "Children's Internet Protection Act (CIPA) Compliance. Set to Disable (unless in K-12 education).",
+            "Suspicious New Domains Lookup. Set to Enable.",
+            "AI/ML-based Content Categorization. Set to Enable.",
+            "Embedded Sites Categorization. Set to Enable.",
+            "SafeSearch. Set to Enable. This feature applies safe search enforcement on many top search sites. This feature requires you to enable SSL inspection of the traffic.",
+            "Identity-based Block Override. Set to Optional.",
+            "Microsoft-Recommended Click-to-Run Microsoft 365 Configuration. Set to Enable."
+          ]
+        }
+      ]
+    },
+    "advanced-settings-global": {
+      "statement": "The guide recommends Disable for Cascading to URL Filtering (a global option that often causes more issues than it resolves), and Enable for Policy for Unauthenticated Traffic, Block Domain Fronting and Auto Proxy Forwarding for Non-Defined Ports (Enable All).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "Cascading to URL Filtering. Set to Disable.",
+            "This setting isn’t commonly used and often causes more issues than it resolves.",
+            "Policy for Unauthenticated Traffic. Set to Enable.",
+            "Block Domain Fronting. Set to Enable.",
+            "Auto Proxy Forwarding for Non-Defined Ports. Set to Enable All."
+          ]
+        }
+      ]
+    },
+    "auto-proxy-forwarding-mechanism": {
+      "statement": "With Auto Proxy Forwarding for Non-Defined Ports enabled, non-standard traffic not already redirected to the SWG is redirected on the next session to that IP, port and protocol (example: HTTPS found on 2.2.2.2:32556); a Cloud Firewall rule permitting the traffic initially and an Allow rule with HTTPS as the network application are needed to discover it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "You must create a Cloud Firewall rule that permits the traffic initially and an Allow rule with HTTPS defined as the network application to discover non-standard HTTPS.",
+            "For example, if HTTPS is discovered on destination IP:2.2.2.2 and port:32556, subsequent sessions are directed to the SWG proxy for full policy inspection.",
+            "With the Auto Proxy Forwarding for Non-Defined Ports toggles enabled, any non-standard traffic (by destination port) not currently redirected to the SWG or other specialized engines is subsequently redirected on the next session that targets that IP, port, and protocol destination."
+          ]
+        }
+      ]
+    },
+    "url-baseline-shape": {
+      "statement": "The URL Filtering baseline is Global > Specific > Global, ending in an unwritten, non-configurable default allow-all rule; the example rule set includes a Global Security-based Block rule with action Block listing the categories Newly Registered and Observed Domains, Peer-to-Peer Site, Anonymizer, Computer Hacking, Copyright Infringement, Custom Encrypted Content, Newly Revived Domains, Other Security and Spyware/Adware.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "The best approach for URL Filtering is to set a policy for Global > Specific > Global.",
+            "| Default | Default Allow-all. This rule is unwritten and is the default action for URL Filtering Policy. Anything not matching a prior policy is allowed and is evaluated by the next policy module. | Unwritten. No criteria. Not configurable. | Allow |",
+            "Global Security-based Block.",
+            "Category: Newly Registered and Observed Domains, Peer-to-Peer Site, Anonymizer, Computer Hacking, Copyright Infringement, Custom Encrypted Content, Newly Revived Domains, Other Security, Spyware/Adware."
+          ]
+        }
+      ]
+    },
+    "cac-risk-profile": {
+      "statement": "The guide suggests a risk profile for applications with a Risk Index of 4 or 5 in an Unsanctioned status, applied across Cloud Application categories to block or restrict risky applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "Creating a risk profile for applications with a Risk Index of 4 or 5 in an Unsanctioned status allows you to apply the profile to various Cloud Application categories and block or restrict access to risky applications."
+          ]
+        }
+      ]
+    },
+    "cac-category-notes": {
+      "statement": "By category: DNS Over HTTPS Services should be blocked if DNS Control is used; for File Sharing, allow the approved service in Cloud App Control and block others via URL Filtering File Host category; upload control within File Sharing, posting control in Social Networking and sending restriction in Webmail need SSL inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "If you use Zscaler’s DNS Control features within the environment, Zscaler recommends blocking these services",
+            "A common recommendation is to allow access to the organization’s selected/approved file-sharing service within Cloud App Control and then block the other services through a URL Filtering policy with the File Host category.",
+            "SSL inspection is highly recommended for any permitted webmail services and is necessary to restrict sending.",
+            "Social Networking: Contains popular social networking and media applications (Facebook, Discord, Reddit, TikTok, etc.). This category can granularly control access to the services and the user's ability to post to the service. SSL inspection is necessary to control posting.",
+            "Rules created within File Sharing give additional control to allow or block uploading traffic if viewing is allowed. This assists in permitting users access to view (download) files from third-party sites while preventing the upload of files to the same. SSL inspection is necessary for the additional feature to work."
+          ]
+        }
+      ]
+    },
+    "firewall-tiers": {
+      "statement": "Standard Firewall provides Layer 3, Layer 4 and FQDN rules with aggregate logging for all flows and detailed logging where a block action is selected; Advanced Firewall adds per-user conditions, DPI application identification, detection and redirection of non-standard web traffic, DNS controls, IPS controls for non-web traffic and detailed logging for each session and flow.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "Zscaler’s Standard Firewall provides aggregate logging for all flows and detailed logging where a block action is selected.",
+            "Zscaler’s Advanced Firewall adds per-user conditions (per-user, group, department, etc.), application identification through Deep Packet Inspection (DPI)",
+            "The Advanced Firewall also adds detailed logging for each session and flow, regardless of whether they are allowed by policy or blocked.",
+            "an ability to detect and redirect non-standard web traffic to the SWG and other modules, DNS controls, and IPS controls for non-web traffic.",
+            "The Standard Firewall is available in all tiers of service that includes the SWG proxy and provides Layer 3, Layer 4, and FQDN rules."
+          ]
+        }
+      ]
+    },
+    "firewall-default-rule": {
+      "statement": "The guide says all Zscaler tenants ship with the default Firewall Filtering Rule set to Block (default block), while historically ZIA Firewall shipped with a default Allow setting that many customers kept.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "Today, all Zscaler tenants ship with the default Firewall Filtering Rule set for the Block.",
+            "Historically, ZIA Firewall shipped with a default Allow rule setting, and many customers have maintained this setting."
+          ]
+        }
+      ]
+    },
+    "firewall-rule-priority": {
+      "statement": "Under default block, system-defined allow rules for Zscaler proxy traffic, Microsoft 365 and Click-to-Run should rank highest (a rule above Zscaler proxy traffic stops the proxy functioning); the Recommended Firewall rule targets standard web (TCP:80, TCP:443) and DNS (TCP:53 or UDP:53) network services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "Putting any other rule higher than the Zscaler proxy traffic rule causes the proxy not to function.",
+            "The Recommended Firewall rule is also a system-defined rule that allows certain known traffic to pass the Layer 3 and Layer 4 firewall",
+            "This rule uses network services (port plus protocol) and specifically targets standard web (TCP:80 as HTTP and TCP:443 as HTTPS) and DNS (TCP:53 or UDP:53).",
+            "Highest priority to main system-defined rules: Ensure top rules are the rules set to allow. This includes allowing Zscaler proxy traffic, Microsoft 365, and any other Click-to-Run rules to permit UCaaS communication.",
+            "The following best practices assume a default block strategy is in place:"
+          ]
+        }
+      ]
+    },
+    "quic-block": {
+      "statement": "Zscaler recommends blocking QUIC (mostly UDP:443, which is the current definition of the QUIC network service) and forcing communications into HTTP/2 or HTTPS; the guide says selecting the ICMP block drops the UDP packet and sends the client ICMP Type 3 (Destination Unreachable) Code 13 (Communication Administratively Prohibited), which gives the client a potentially faster switchover to another web transport method, and that QUIC also appears on UDP:80.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "Zscaler recommends blocking QUIC and forcing communications into HTTP/2 or HTTPS, which SWG fully manages.",
+            "Most QUIC is UDP:443, also the current definition of the network service QUIC.",
+            "Since QUIC appears on UDP:80, you might consider modifying the default definition of the network service QUIC",
+            "This allows the client a potentially faster switchover to another web transport method",
+            "The selection of the ICMP block drops the UDP packet and sends the client a Type 3 error message (Destination Unreachable) and Code 13 (Communication Administratively Prohibited) via ICMP."
+          ]
+        }
+      ]
+    },
+    "network-app-dpi-leakage": {
+      "statement": "DPI application detection does not usually happen on the first packet, so several packets might be allowed before an action; network applications should be blended with another condition or placed lower in the rule list, otherwise many flow log entries can be Allowed due to insufficient app data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "The challenge with any DPI firewall is that application detection does not usually happen on the first packet. This means that several packets might be allowed before the application identification concludes",
+            "The best way to do this is to blend network applications with at least one other condition in a rule, such as source or destination IP address, user, or network service.",
+            "If you don’t follow this practice, you could get a lot of flow log entries for flows that were only short bursts and ended independent of firewall policy (before the network application was identified) as Allowed due to insufficient app data.",
+            "Alternatively, you can lower the priority of a rule (place it further down the rule list) with network applications"
+          ]
+        }
+      ]
+    },
+    "dns-forwarding-options": {
+      "statement": "For DNS Control, DNS traffic can be forwarded via GRE or IPSec tunnels, via Z-Tunnel 2.0 on Client Connector with DNS included, or by forwarding recursive DNS requests from a DNS server (which loses all end user context).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "Including DNS into the existing GRE or IPSec forwarding tunnels.",
+            "Enabling Z-Tunnel 2.0 on deployed Zscaler Client Connector clients and including DNS traffic",
+            "Forwarding recursive DNS requests directly from a DNS server. This requires creating a location with the IP address of the DNS server sending traffic to ZIA. This method loses all end user context but is often done as an initial step for DNS security."
+          ]
+        }
+      ]
+    },
+    "non-web-without-firewall": {
+      "statement": "The Policy for Non-Web Traffic Without Firewall Enabled section says the Public Service Edge inspects the traffic and applies the policy using only the firewall module if the organization has not enabled firewall policy for the location, and then that it neither scans nor applies any policy to the traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+          "quotes": [
+            "The ZIA Public Service Edge neither scans nor applies any policy to the traffic.",
+            "The ZIA Public Service Edge inspects the traffic and applies the policy using only the firewall module if the organization has not enabled firewall policy for the location."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "web-order-vs-atp": {
+      "summary": "Where ATP and Malware/Antivirus fall against Cloud App Control and URL Control: the leading practices guide lists ATP and AV before Cloud App Control and URL Control, while the policy enforcement article's HTTP GET order puts Cloud App Control and URL Filtering before most ATP checks.",
+      "positions": [
+        {
+          "says": "The web module order lists Advanced Threat Protection (ATP) and Malware/Antivirus (AV) before Cloud App Control and URL Control.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-zia-policy-leading-practices-guide.json",
+            "quotes": [
+              "- Advanced Threat Protection (ATP)",
+              "- Malware/Antivirus (AV)",
+              "- Cloud App Control",
+              "- URL Control"
+            ],
+            "after": "Web module policies are enforced in the following order of operations:"
+          }
+        },
+        {
+          "says": "For an HTTP GET request the order starts with Custom Malicious URLs (ATP), then Cloud App Control, then URL Filtering, with Country-Based Blocking and IPS Signature Detection later.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-policy-enforcement.json",
+            "quotes": [
+              "1. Custom Malicious URLs (Advanced Threat Protection)",
+              "2. Cloud App Control:",
+              "3. URL Filtering:",
+              "6. Country-Based Blocking (Advanced Threat Protection)"
+            ],
+            "after": "This is a user request to retrieve a resource from the web (e.g., a web page)."
+          }
+        }
+      ],
+      "impact": "Which block a user sees when both an ATP check and a Cloud App or URL rule match depends on which page applies; the guide's list is described as an order based on traffic type, encryption and SSL inspection, so it may be a summary rather than a conflict, but neither page says so."
+    }
+  },
+  "gaps": {}
+}

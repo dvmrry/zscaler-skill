@@ -1,0 +1,592 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Business Continuity Settings",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/configuring-business-continuity-settings",
+    "node": "1507016",
+    "revision": "3249615",
+    "updated": "2026-10-13",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Business Continuity provides access to your applications during Private Access (ZPA)-related cloud outages or Internet Service Provider (ISP) outages. Configuring the Business Continuity settings in Private Access is the first step in enabling Business Continuity for your organization. To learn more about additional prerequisites and an overview of the feature, see Understanding Business Continuity."
+    },
+    {
+      "heading": "FQDN or SNI in Business Continuity",
+      "level": 1
+    },
+    {
+      "text": "Business Continuity requires DNS servers hosted in your organization's infrastructure to resolve the FQDNs."
+    },
+    {
+      "text": "If you are using Zscaler-managed Business Continuity, this section can be skipped as Zscaler provides a Business Continuity domain (e.g., tenant_name.zpa.zsbcs.net)."
+    },
+    {
+      "text": "The following table shows examples of FQDNs that are used in Business Continuity."
+    },
+    {
+      "table": [
+        [
+          "Component",
+          "FQDN"
+        ],
+        [
+          "Zscaler Client Connector",
+          "The initial DNS request to get the Private Cloud Controller IP addresses (e.g., any2bcp.<business_continuity_domain>) The TLS connection to the Private Cloud Controller for identity provider (IdP) redirection (e.g., bcpsp.<business_continuity_domain>) The TLS connection to the Private Cloud Controller for the SAML request (e.g., bcpsp-<pcc gid>.<business_continuity_domain>)"
+        ],
+        [
+          "Private Service Edges and App Connectors",
+          "The DNS request to get the Private Cloud Controller's IP address is co2bcp.<business_continuity_domain> for App Connectors and pb2bcp.<business_continuity_domain> for Private Service Edges for Private Access. Based on the DNS resolution, the Private Service Edge or App Connectors establish a TLS connection to the Private Cloud Controller."
+        ]
+      ]
+    },
+    {
+      "text": "The following table shows examples of Server Name Indication (SNI) that are used in Business Continuity."
+    },
+    {
+      "table": [
+        [
+          "Component",
+          "SNI"
+        ],
+        [
+          "Zscaler Client Connector TLS connections to the Private Cloud Controller",
+          "Enrolled users' SNI is c2.<business_continuity_domain> New users' SNI is c2site.<business_continuity_domain>"
+        ],
+        [
+          "Zscaler Client Connector TLS connections to the Private Service Edge",
+          "Enrolled users' SNI is c2.<business_continuity_domain> New users' SNI is c2site.<business_continuity_domain>"
+        ]
+      ]
+    },
+    {
+      "heading": "Configuring Business Continuity Settings",
+      "level": 1
+    },
+    {
+      "text": "To configure Business Continuity settings for Private Access:"
+    },
+    {
+      "item": "Go to Infrastructure > Business Continuity > Settings.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          42
+        ],
+        [
+          45,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "On the Settings page, configure the following Business Continuity settings as needed:",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "General Information",
+      "depth": 1
+    },
+    {
+      "item": "Business Continuity Domain: Enter a valid domain name for Business Continuity. This domain is used by the following components:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Client Connector to contact the Private Cloud Controller and Private Service Edges (e.g., any2bcp.<business_continuity_domain>, c2site.<business_continuity_domain> for new users, and c2.<business_continuity_domain> for enrolled users)",
+      "depth": 3
+    },
+    {
+      "item": "App Connectors for control channel to Private Cloud Controller (e.g., co2bcp.<business_continuity_domain>)",
+      "depth": 3
+    },
+    {
+      "item": "Private Service Edges for control channel to Private Cloud Controller (e.g., pb2bcp.<business_continuity_domain>)",
+      "depth": 3
+    },
+    {
+      "item": "Private Cloud Controllers for authenticating users and validating assertions received from the IdP (e.g., bcpsp.<business_continuity_domain>)",
+      "depth": 3
+    },
+    {
+      "item": "A Business Continuity SP FQDN is generated per Private Cloud Controller for the authentication of users in Business Continuity (e.g., bcpsp-<pccgid>.<business_continuity_domain>)",
+      "depth": 3
+    },
+    {
+      "item": "To learn more, see FQDN or SNI in Business Continuity.",
+      "depth": 2
+    },
+    {
+      "item": "Changing the Business Continuity Domain initiates a new enrollment process for Private Cloud Controllers, and updates the SP Assertion Consumer Service URL and Entity ID.",
+      "depth": 2,
+      "strong": [
+        [
+          13,
+          39
+        ],
+        [
+          122,
+          155
+        ],
+        [
+          160,
+          169
+        ]
+      ]
+    },
+    {
+      "item": "New User Enrollment: Enable to enroll new users during Business Continuity.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Mutual TLS authentication between users and Private Service Edges is not supported for new user enrollment during Business Continuity.",
+      "depth": 2
+    },
+    {
+      "item": "Configuration Backup",
+      "depth": 1
+    },
+    {
+      "item": "Enable to back up configuration data used by App Connectors and Private Service Edges to an SQLite database, configuration files (image snapshots, metadata, and version number), and configuration snapshots (cryptographic and configuration files) used by the Private Cloud Controller. By default, this is disabled.",
+      "depth": 1
+    },
+    {
+      "item": "Maximum Number of Backups: Enter the maximum number of backup copies to retain, and ensure that there is enough disk space to store the selected number of backups. The default is 15 backups, and a maximum of 100 backups can be created.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that you provision enough disk space to store the selected number of backups.",
+      "depth": 2
+    },
+    {
+      "item": "Backup Path: Enter the path to store backups of database and configuration files for the Private Cloud Controller. A new drive must be mounted, or an NFS/SMB must be shared for the backup path.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "If you change the backup path, ensure that the path is owned by zscaler:zscaler. For example, if you change the backup path to /home/backup, then you need to ensure that the zscaler user has read/write permissions to /home/backup. To add the zscaler user as the owner of the backup path, enter the following command: chown zscaler:zscaler /home/backup.",
+      "depth": 2
+    },
+    {
+      "item": "Backup Frequency: Select how frequently a backup occurs (Hourly, Daily, or Weekly). By default, Daily is selected.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          57,
+          63
+        ],
+        [
+          65,
+          70
+        ],
+        [
+          75,
+          81
+        ],
+        [
+          96,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Backup Schedule: Select when to create a backup copy based on the backup frequency selected.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "For Hourly, select a range between 4, 8, 12, and 24 hours. By default, 8 Hours is selected. The Private Cloud Controller calculates the hours based on the time backups are enabled.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          10
+        ],
+        [
+          71,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "For Daily, select a time based on a 15-minute interval. By default, 12 AM is selected.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          9
+        ],
+        [
+          68,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "For Weekly, select a day and time. By default, Monday at 12 AM is selected.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          10
+        ],
+        [
+          47,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "The backup schedule is based on the time zone of the Private Cloud Controller.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more about restoring Private Cloud Controller backups, see Restoring Private Cloud Controller Backups.",
+      "depth": 1
+    },
+    {
+      "item": "Control Channel Recovery",
+      "depth": 1
+    },
+    {
+      "item": "Maximum Wait Time to Enter Business Continuity Mode (App Connectors and Private Service Edges): Enter an integer to specify the duration (in minutes or hours) that App Connectors and Private Service Edges must wait before switching to Business Continuity. You can select the duration as Minute(s) or Hour(s) from the drop-down menu. By default, 2 Minute(s) is selected. The minimum limit for this field is 1 minute. The maximum limit for this field is 2 hours, or 120 minutes.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          94
+        ],
+        [
+          287,
+          296
+        ],
+        [
+          300,
+          307
+        ],
+        [
+          345,
+          356
+        ]
+      ]
+    },
+    {
+      "item": "Switch Users to Public Cloud: Choose one of the following options:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Time-Based: Select to switch users to the public cloud after the maximum wait time to exit Business Continuity.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "If you select this option, the Maximum Wait Time to Exit Business Continuity Mode (Users) field appears. Enter an integer to specify the duration that Private Service Edges must wait before sending a message to Zscaler Client Connector to try and re-establish the control and data channel to the Zero Trust Exchange (ZTE). Select the duration as Minute(s), Hour(s), or Day(s) from the drop-down menu. By default, 24 Hour(s) is selected. The minimum supported value is 10 minutes. The maximum limit for this field is 7 days, 168 hours, or 10,080 minutes.",
+      "depth": 3,
+      "strong": [
+        [
+          31,
+          89
+        ],
+        [
+          346,
+          355
+        ],
+        [
+          357,
+          364
+        ],
+        [
+          369,
+          375
+        ],
+        [
+          413,
+          423
+        ]
+      ]
+    },
+    {
+      "item": "Automatic: Select to switch users to the public cloud when there are no active connections. By default, Automatic is selected.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          104,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "Business Continuity IdP Configuration",
+      "depth": 1
+    },
+    {
+      "item": "Existing IdP for Authentication: Select to use the same IdP configuration that is configured for user authentication for normal operations under Administration > Private Access Authentication > IdP Configuration > IdP Configuration. To learn more, see About IdP Configuration.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          31
+        ],
+        [
+          145,
+          159
+        ],
+        [
+          162,
+          191
+        ],
+        [
+          194,
+          211
+        ],
+        [
+          214,
+          231
+        ]
+      ]
+    },
+    {
+      "item": "New IdP for Authentication: Select to configure a new IdP for authenticating users in Business Continuity. If you select this option, complete the following:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "IdP Metadata File: Click Upload File to upload the IdP metadata file used to authenticate users for Business Continuity.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          25,
+          31
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "IdP Certificate: Click the Copy icon to copy the IdP certificate to your clipboard. This field is autopopulated with the IdP certificate details from the uploaded IdP metadata file.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          27,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Single Sign-On URL: Click the Copy icon to copy the single sign-on URL to your clipboard. This field is autopopulated with the single sign-on URL details from the uploaded IdP metadata file.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          30,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "IdP Entity ID: Click the Copy icon to copy the IdP entity ID to your clipboard. This field is autopopulated with the IdP entity ID from the uploaded IdP metadata file.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          25,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Service Provider Information",
+      "depth": 1
+    },
+    {
+      "item": "If you selected an existing IdP under Business Continuity IdP Configuration, the Assertion Consumer Service URL and Entity ID fields are populated with the user authentication IdP configuration information to use in Business Continuity.",
+      "depth": 2,
+      "strong": [
+        [
+          38,
+          75
+        ],
+        [
+          81,
+          111
+        ],
+        [
+          116,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If you selected a new IdP under Business Continuity IdP Configuration, provide the following information:",
+      "depth": 2,
+      "strong": [
+        [
+          32,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Metadata: Click Download Metadata to download the service provider metadata based on your IdP configuration.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          16,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Assertion Consumer Service URL: Click the Copy icon to copy the service provider URL based on the entered Business Continuity Domain.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          42,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Certificate: Click Download Certificate to download the service provider certificate based on the entered Business Continuity Domain.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          19,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Entity ID: Click the Copy icon to copy the service provider entity ID based on the entered Business Continuity Domain.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          21,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

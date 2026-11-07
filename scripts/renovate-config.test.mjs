@@ -6,7 +6,7 @@ const config = JSON.parse(
   fs.readFileSync(new URL("../renovate.json", import.meta.url), "utf8"),
 );
 
-test("compatibility-sensitive submodules require individual dashboard approval", () => {
+test("the ZIA provider requires individual dashboard approval", () => {
   const baseRuleIndex = config.packageRules.findIndex(
     (rule) =>
       rule.matchManagers?.includes("git-submodules") &&
@@ -28,10 +28,7 @@ test("compatibility-sensitive submodules require individual dashboard approval",
   const approvalRule = config.packageRules[approvalRuleIndex];
   assert.equal(approvalRule.groupName, null);
   assert.equal(approvalRule.commitMessageTopic, "{{{depName}}}");
-  assert.deepEqual(new Set(approvalRule.matchDepNames), new Set([
-    "vendor/terraform-aws-cloud-connector-modules",
-    "vendor/terraform-azurerm-cloud-connector-modules",
-    "vendor/terraform-gcp-cloud-connector-modules",
-    "vendor/terraform-provider-zia",
-  ]));
+  // Only the ZIA provider waits for approval, so it is pinned at a released tag; the vendored modules are read,
+  // never run, so they follow the grouped bump like every other source.
+  assert.deepEqual(new Set(approvalRule.matchDepNames), new Set(["vendor/terraform-provider-zia"]));
 });

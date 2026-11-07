@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "zbi.troubleshooting",
+  "title": "Isolation Debug Mode and the Network Latency window: what they do, capture and export",
+  "aliases": [
+    "debug mode isolation",
+    "isolation debug zip",
+    "network latency window isolation",
+    "export isolation session logs",
+    "isolation HAR netlog"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.cloud-browser"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{debug-purpose}}"
+    },
+    {
+      "label": "Debug Mode.",
+      "text": "{{debug-start}} {{debug-stop-timeout}} {{debug-zip}} {{debug-general-information}} The ZIP password is set in the profile: [[zbi.isolation-profiles:debug-mode-zip-password]]. One ZIP field is not defined {{gap:ectx-field}}."
+    },
+    {
+      "label": "Network Latency.",
+      "text": "{{network-latency-window}} {{network-latency-export}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Debug Mode was started, which terminates and restarts the session and closes the other tabs.",
+      "uses": [
+        "debug-start"
+      ]
+    },
+    {
+      "do": "Whether the latency statistics were exported and sent to Zscaler Support.",
+      "uses": [
+        "network-latency-window",
+        "network-latency-export"
+      ]
+    }
+  ],
+  "claims": {
+    "debug-start": {
+      "statement": "Starting Debug Mode terminates the current isolation session and restarts it with debug mode active; only the selected tab enters debug mode, the other tabs of the session close with their information lost, and tabs opened afterwards are automatically in debug mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-debug-mode-isolation.json",
+          "quotes": [
+            "notes that the current isolation session will be terminated to begin a new one.",
+            "only the selected tab enters debug mode. The other tabs in the existing session close automatically, and any information on those tabs is lost when the session restarts.",
+            "If you open new tabs while in the restarted isolated session, the new tabs are automatically in debug mode."
+          ]
+        }
+      ]
+    },
+    "debug-stop-timeout": {
+      "statement": "Debug mode deactivates by itself after a timeout of 10 minutes if not stopped manually; data is still captured if the isolation session ends during debug mode, and stopping with several tabs open captures data from all tabs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-debug-mode-isolation.json",
+          "quotes": [
+            "If you do not manually stop debug mode, it deactivates after a timeout period of 10 minutes.",
+            "If you end your isolation session while using debug mode, all data from the debugging is still captured.",
+            "If you stop debug mode when there are multiple tabs open, the data from all tabs is captured."
+          ]
+        }
+      ]
+    },
+    "debug-zip": {
+      "statement": "When debug mode ends a ZIP file named debug_DDMMYY: TimeinUTC, encrypted with a password set by the admin, is generated and downloaded; it holds console logs, HAR data, netlog data, network latency information and general Zscaler information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-debug-mode-isolation.json",
+          "quotes": [
+            "The ZIP file is named in the format debug_DDMMYY: TimeinUTC and is encrypted by a password set by the admin.",
+            "Console Logs: Information from the website(s) accessed while in isolation.",
+            "HTTP Archive format (HAR) Data: Information about the isolated session.",
+            "Netlog Data: Information from the web browser used.",
+            "Network Latency: Information from the isolation network diagnostics tab.",
+            "General Information: Information that pertains to Zscaler, such as:"
+          ]
+        }
+      ]
+    },
+    "debug-general-information": {
+      "statement": "The General Information part of the debug ZIP includes the isolation profile name and ID, the Internet & SaaS or Private Access tenant ID, the isolation tenant ID, isolation region and cluster information, the isolation browser egress IP address, the Internet & SaaS PAC file, any modified PAC file, flow details and correlation IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-debug-mode-isolation.json",
+          "quotes": [
+            "Isolation profile name and ID",
+            "Isolation region and cluster information",
+            "Isolation browser egress IP address",
+            "Internet & SaaS PAC file",
+            "Modified PAC file (if applicable)",
+            "Flow details (Internet & SaaS Flow/IdP Proxy Flow/Private Access Flow)",
+            "Correlation IDs (endpoint session ID, pod ID, etc.)",
+            "Internet & SaaS (ZIA) or Private Access (ZPA) tenant ID (including the cloud name)",
+            "Isolation tenant ID"
+          ]
+        }
+      ]
+    },
+    "debug-purpose": {
+      "statement": "Debug Mode lets an end user troubleshoot whether an issue relates to the isolated session itself, without revealing confidential information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-debug-mode-isolation.json",
+          "quotes": [
+            "This allows users to decipher whether the issue occurring is related to the isolated session itself or something else related to their web browsing.",
+            "Debug Mode allows users to troubleshoot the issue without revealing confidential information.",
+            "An end user of Zero Trust Browser, however, cannot see these details that are typically available in the native browser."
+          ]
+        }
+      ]
+    },
+    "network-latency-window": {
+      "statement": "The Network Latency window shows live, real-time latency statistics for WebSocket and HTTP connectivity: last value, number of pings, max, 99%, 75%, 50Mean and standard deviation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-accessing-network-latency-isolation.json",
+          "quotes": [
+            "This window has live, real-time statistics of network latency for WebSocket and HTTP connectivity.",
+            "Last value: The last ping latency",
+            "Number of pings: The total pings sent",
+            "Max: The worst value logged",
+            "99%: When 99% of pings have latency less than the indicated Last Value",
+            "75%: When 75% of pings have latency less than the indicated Last Value",
+            "50Mean: When 50% of pings have latency less than the indicated Last Value",
+            "Std. deviation: The variance across pings"
+          ]
+        }
+      ]
+    },
+    "network-latency-export": {
+      "statement": "Export Logs in the Network Latency window saves the report to the device as a text file by default, which can be sent to Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-accessing-network-latency-isolation.json",
+          "quotes": [
+            "Click Export Logs. By default, the report is saved to your device as a text file.",
+            "you can save the information captured in the Network Latency window to share as a report with Zscaler Support"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ectx-field": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What the debug ZIP field Expected cooperative transmission count (ECTX) means",
+      "detail": "The extraction report found a debug ZIP field named Expected cooperative transmission count (ECTX) that the debug article does not define; it links Accessing Network Diagnostics in Isolation, which is not captured under that title.",
+      "blocks": "interpreting the network latency data in a debug ZIP",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

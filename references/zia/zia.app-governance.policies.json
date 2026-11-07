@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "id": "zia.app-governance.policies",
+  "title": "3rd-Party App Governance policies and notification channels, including the NSS channel",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance.inventory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance.remediation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance.app-risk"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feeds"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia/3rd-party-app-governance-log",
+      "because": "zia.app-governance.policies:alert-channels"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-a-policy-does}} {{condition-is-a-view}} The portal is in [[zia.app-governance]], and custom views are in [[zia.app-governance.inventory]]."
+    },
+    {
+      "label": "Responses.",
+      "text": "{{responses}} Revoke, ban and review are in [[zia.app-governance.remediation]]. {{inline-edit}}"
+    },
+    {
+      "label": "Out-of-the-box policies.",
+      "text": "{{out-of-the-box-policies}} {{example-views}}"
+    },
+    {
+      "label": "Alerts.",
+      "text": "{{alert-channels}} The log type is [[zia/3rd-party-app-governance-log]], and the feed subscription requirement is [[shared.nss.feeds:sspm-subscription]]. What the Zscaler Workflow Automation channel carries is open {{gap:workflow-automation-channel}}."
+    },
+    {
+      "label": "Outbound integrations.",
+      "text": "{{outbound-slack}} {{outbound-email}}"
+    }
+  ],
+  "claims": {
+    "what-a-policy-does": {
+      "statement": "Policies set and perform automatic actions such as classifying an app as sanctioned or unsanctioned, or taking automated action such as revoke, ban or review, and set notifications for new applications added to the inventory that match a rule (view).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-3rd-party-app-governance-policies.json",
+          "quotes": [
+            "Policies enable you to easily and efficiently set and perform automatic actions such as classifying an app as sanctioned or unsanctioned, or take automated action such as revoke, ban, or review.",
+            "They also enable you to set notifications for new applications that are added to the application inventory matching a rule (view)."
+          ]
+        }
+      ]
+    },
+    "condition-is-a-view": {
+      "statement": "A policy's condition is a custom view, so the policy triggers every new app in that view, and only one custom view is supported per policy. Adding the App Status filter when creating a custom view for a policy makes the policy trigger again if an app is reinstalled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-3rd-party-app-governance-policies.json",
+          "quotes": [
+            "This means that the policy triggers every new app in that view. Only one custom view is supported per policy.",
+            "You should consider adding the App Status filter when creating custom views to be used in policies, so if an app is reinstalled, the policy is triggered again."
+          ]
+        }
+      ]
+    },
+    "alert-channels": {
+      "statement": "Each time a policy is triggered, its alert is sent via one of Slack, Email, In-app, Zscaler Workflow Automation or Zscaler Nanolog Streaming Service. The Nanolog Streaming Service option sends 3rd-party app logs to NSS, and the page says NSS and Cloud NSS feeds must be configured for 3rd-party app logs to stream log data to a SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-3rd-party-app-governance-policies.json",
+          "quotes": [
+            "Send alert via: Define how you want to receive alerts for this policy (every time the policy is triggered). You can select one of the following options:",
+            "Slack: Notifications are sent to the selected Slack channel.",
+            "Email: Notifications are sent through default email addresses.",
+            "In-app: Notifications are received within 3rd-Party App Governance and are accessible via the notification icon.",
+            "Zscaler Workflow Automation: Notifications are sent through Zscaler Workflow Automation.",
+            "Zscaler Nanolog Streaming Service: 3rd-party app logs are sent to NSS, through which they are sent to your security information and event management (SIEM) system.",
+            "You must configure NSS and Cloud NSS feeds for 3rd-party app logs to stream log data to your SIEM system."
+          ]
+        }
+      ]
+    },
+    "responses": {
+      "statement": "A policy's response for new apps matching it can set a Classification value and an Automated workflow. The page also lists End User Review (through Slack or email, where a personalized message can also be added) and Revoke/Ban options. It can also set how findings not resolved on those apps are marked, and the policy can be enabled or disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-3rd-party-app-governance-policies.json",
+          "quotes": [
+            "Under Response (for new apps matching policy), select the actions you want to take when the policy is triggered:",
+            "Classification: Select the desired classification value for the apps.",
+            "Automated workflow (for new apps matching policy): Select the desired automated workflow.",
+            "End User Review: Select this option if you want to invoke an end user review for the app. Choose if you want the review done through Slack or email. You can also add a personalized message.",
+            "Revoke/Ban: Select this option to revoke or ban apps.",
+            "Mark apps findings as: From this drop-down menu, select how you want to handle any findings not resolved on these apps.",
+            "Policy enabled: Select whether this policy is enabled or disabled."
+          ]
+        }
+      ]
+    },
+    "inline-edit": {
+      "statement": "On the Policies page, attributes such as Notify Via, Classification, Automated Workflow and Enabled/Disabled can be edited inline, and changes are saved immediately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-3rd-party-app-governance-policies.json",
+          "quotes": [
+            "Inline Editing: Click and edit applicable attributes such as Notify Via, Classification, Automated Workflow, Enabled/Disabled, etc. Your changes are saved immediately."
+          ]
+        }
+      ]
+    },
+    "out-of-the-box-policies": {
+      "statement": "3rd-Party App Governance supports out-of-the-box policies such as new risky apps, app risk increased and new high/medium severity findings. They are marked Zscaler in the Author column, and not all of their attributes can be modified: the condition cannot be changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-3rd-party-app-governance-policies.json",
+          "quotes": [
+            "3rd-Party App Governance supports a set of out-of-the-box policies such as new risky apps, app risk increased, new high/medium severity findings, etc.",
+            "You can see which of the policies are out of the box in the Author column (they are marked as Zscaler).",
+            "Not all of the out-of-the-box policy attributes can be modified (i.e., you cannot change the condition for out-of-the-box policies)."
+          ]
+        }
+      ]
+    },
+    "example-views": {
+      "statement": "The policies page lists best practice policies as views, each with a view link and a Suggested Policy: apps with mail access, Reviewing; high-risk apps, Reviewing > Unsanctioned; GDPR violation, Unsanctioned; open source apps, Reviewing; gaming apps by category, Unsanctioned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-3rd-party-app-governance-policies.json",
+          "quotes": [
+            "The following table lists the best practice policies widely adopted by our clients.",
+            "| View | View Link | Suggested Policy |",
+            "| Apps with mail access | https://apptotal.zscaler.com/apps?page=1&access-type=broad+data+access&origin=3rd+party&service=gmail | Reviewing |",
+            "| High-risk apps | https://apptotal.zscaler.com/apps?page=1&risk-score=high | Reviewing > Unsanctioned |",
+            "| GDPR violation | https://apptotal.zscaler.com/apps?page=1&access-type=broad+data+access&noncompliance=gdpr | Unsanctioned |",
+            "| Open Source Apps | https://apptotal.zscaler.com/apps?page=1&indicators=open-source+app | Reviewing |",
+            "| Gaming apps (by category) | https://apptotal.zscaler.com/apps?page=1&categories=gaming | Unsanctioned |"
+          ]
+        }
+      ]
+    },
+    "outbound-slack": {
+      "statement": "The Slack outbound integration populates a list of public Slack channels, and a private channel can be selected only after 3rd-Party App Governance is added to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-outbound-integrations.json",
+          "quotes": [
+            "A list of your public Slack channels is populated.",
+            "If the channel you wish to select is a private channel, you must add 3rd-Party App Governance to the channel."
+          ]
+        }
+      ]
+    },
+    "outbound-email": {
+      "statement": "The email outbound integration takes one or more Policy Email addresses from which a notification is sent when a policy is triggered, a Revocation Email address from which users are notified when a previously accessible app is revoked or banned, and an access token created through SendGrid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-outbound-integrations.json",
+          "quotes": [
+            "Under Policy Email, enter one or more email addresses from which a notification is sent when a policy is triggered.",
+            "Under Revocation Email, enter an email address from which a notification is sent to users when a previously accessible app is revoked or banned.",
+            "Enter the access token, and click Connect. To create an access token, refer to the SendGrid documentation."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "workflow-automation-channel": {
+      "kind": "semantic",
+      "title": "What the Zscaler Workflow Automation alert channel carries",
+      "status": "open",
+      "detail": "The policies page says notifications are sent through Zscaler Workflow Automation and does not say what the notification contains or which Workflow Automation feature it feeds.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

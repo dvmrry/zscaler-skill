@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "id": "zpa.authentication.idp-migration",
+  "title": "Migrating Private Access to a new IdP",
+  "aliases": [
+    "IdP migration",
+    "migrate to a new IdP",
+    "dummy domain migration",
+    "switch IdP"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication.idp-configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.saml-attributes.registration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.authentication"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Migrating to a new IdP has two methods, and Zscaler prefers editing the existing IdP. {{edit-recommended}}"
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{prerequisites}}"
+    },
+    {
+      "label": "Editing the existing IdP.",
+      "text": "{{edit-method}} {{reauth-not-automatic}} Whether the stated reauthentication behavior holds outside a migration is open in [[zpa.troubleshooting.authentication]]."
+    },
+    {
+      "label": "Two additional IdP configurations.",
+      "text": "{{dummy-domain-method}} How many days a few days is before the old IdP can be decommissioned is open {{gap:decommission-wait}}."
+    },
+    {
+      "label": "Falling back.",
+      "text": "{{fallback}}"
+    },
+    {
+      "label": "Caveats.",
+      "text": "{{caveats}}"
+    },
+    {
+      "text": "The IdP fields are in [[zpa.authentication.idp-configuration]], and the SAML attributes the migration replaces and the SCIM setup it enables are in [[zpa.saml-attributes.registration]] and [[zpa.scim.setup]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the existing IdP can be edited or serves both admins and users, which decides the method.",
+      "uses": [
+        "edit-recommended",
+        "dummy-domain-method"
+      ]
+    },
+    {
+      "do": "Whether the two IdPs hold the same user data and the same NameID and userName mappings.",
+      "uses": [
+        "prerequisites"
+      ]
+    },
+    {
+      "do": "Whether users have reauthenticated since the migration, since reauthentication does not happen automatically and SCIM-based policy needs provisioned users.",
+      "uses": [
+        "reauth-not-automatic",
+        "caveats"
+      ]
+    }
+  ],
+  "claims": {
+    "edit-recommended": {
+      "statement": "Zscaler recommends migrating by editing the existing IdP: adding a new IdP can duplicate groups and departments and existing policies might no longer apply, and editing avoids recreating policies that reference SAML or SCIM attributes. The best-practices page also recommends editing the existing IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-new-idp-configuration.json",
+          "quotes": [
+            "Zscaler recommends editing the existing IdP to migrate to a new IdP. Adding a new IdP for migration can duplicate groups and departments, and your existing policies might no longer apply.",
+            "Edit the existing IdP to avoid recreating policies that reference the SAML or SCIM attributes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-idp-configuration-best-practices.json",
+          "quotes": [
+            "Zscaler recommends editing the existing IdP to migrate to a new IdP."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "The same user data (groups, users and departments) must be present in both IdPs, their SAML and SCIM mapping attributes must match, and the NameID (SAML) and userName (SCIM) mappings must be defined the same way in both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-new-idp-configuration.json",
+          "quotes": [
+            "Ensure that the same user data (Groups, Users, Departments) are present in both IdPs.",
+            "Ensure that the SAML and SCIM mapping attributes match in both IdPs.",
+            "For SAML, ensure that the NameID mapping is defined the same way in both IdPs.",
+            "For SCIM, ensure that the userName mapping is defined the same way in both IdPs."
+          ]
+        }
+      ]
+    },
+    "edit-method": {
+      "statement": "In the edit method the admin copies the SCIM Service Provider Endpoint and the token (generating a new token with Generate New Token if it was not saved), updates the configuration with the new IdP's metadata or, if it cannot be downloaded, its Single Sign-On URL, IdP Entity ID and IdP Certificate, and enables SCIM Sync. Zscaler recommends updating all SAML attribute names from the new IdP, including those used in policies, unless the names are the same in both IdPs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-new-idp-configuration.json",
+          "quotes": [
+            "Copy the SCIM Service Provider Endpoint.",
+            "Copy the token. If the token wasn't saved, click Generate New Token to generate a new token.",
+            "If the IdP doesn't have the option to download the metadata, then manually update the Single Sign-On URL, IdP Entity ID, and IdP Certificate.",
+            "In the Edit IdP Configuration window, enable SCIM Sync to update the user data in the Zscaler Admin Console.",
+            "Zscaler recommends updating all SAML Attribute names from the new IdP, including the attributes that are used in the policies, to ensure that existing policies continue to work without disruption. If the attribute name coming from both IdPs is the same, then this step is not required."
+          ]
+        }
+      ]
+    },
+    "reauth-not-automatic": {
+      "statement": "After the migration, reauthentication does not happen automatically until Client Connector reconnects to the Public Service Edge for Private Access or the user triggers a timeout policy that requires reauthentication. Two triggers the page lists are turning Private Access off and on in the Client Connector Private Access tab, and exiting and relaunching Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-new-idp-configuration.json",
+          "quotes": [
+            "Reauthentication does not happen automatically post-IdP migration until Zscaler Client Connector reconnects to the Public Service Edge for Private Access, or until the user triggers a timeout policy that requires them to reauthenticate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-new-idp-configuration.json",
+          "after": "Reauthentication does not happen automatically post-IdP migration",
+          "quotes": [
+            "This happens when the user performs one of the following actions:",
+            "On the Private Access tab within Zscaler Client Connector, click Off and then click On.",
+            "Exit and relaunch Zscaler Client Connector from the taskbar."
+          ]
+        }
+      ]
+    },
+    "dummy-domain-method": {
+      "statement": "The second method needs two IdP configurations created first and is recommended when editing the existing IdP and migrating does not work, for example when an existing IdP is used for both admins and users. It enables SCIM Sync and SCIM Attributes for policy on the new configuration, adds the same SCIM and SAML attributes from IdP 2 to the access, timeout and client forwarding policies (an error appears in Client Connector if an admin accesses the application during that step), then removes the domain from IdP 1 and adds it to IdP 2. The existing IdP stays enabled and unmodified for a few days, and can be decommissioned after validating there are no observable issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-new-idp-configuration.json",
+          "quotes": [
+            "Prior to migrating to a new IdP configuration, you must create two IdP configurations to perform the migration.",
+            "Zscaler recommends using this migration method when editing an existing IdP and migrating to a new IdP does not work (e.g., when an existing IdP is being used for both admins and users).",
+            "Enable SCIM Sync and SCIM Attributes for policy to configure the SCIM integration between the Zscaler service and the new IdP configuration.",
+            "Edit the access policies, timeout policies, and client forwarding policies and add the same SCIM and SAML attributes from IdP 2 so that they have the same attributes from IdP 1.",
+            "An error message appears in Zscaler Client Connector if an admin accesses the application while this step is in progress.",
+            "Remove domain2.com from IdP 1.",
+            "Add domain2.com to the newly created IdP configuration (IdP 2).",
+            "Ensure the existing IdP configuration is enabled and not modified in Private Access or on the IdP for a few days. The existing IdP can be decommissioned after you have validated that there aren't any observable issues post-migration."
+          ]
+        }
+      ]
+    },
+    "fallback": {
+      "statement": "To fall back from the edit method the admin adds the IdP configuration from the previous IdP used before migration and enables SCIM Sync for it. To fall back from the second method the admin removes the domain2.com dummy domain from IdP 2, adds it to IdP 1 and reauthenticates to authenticate against IdP 1. The second-method fallback then enables SCIM Sync for the previous IdP configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-new-idp-configuration.json",
+          "after": "Zscaler recommends updating all SAML Attribute names from the new IdP",
+          "quotes": [
+            "To revert the configuration changes in the Zscaler Admin Console for fallback:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-new-idp-configuration.json",
+          "quotes": [
+            "Editing an Existing IdP and Migrating to a New IdP",
+            "Add the IdP configuration from the previous IdP that was used before migration.",
+            "Remove the domain2.com dummy domain from IdP 2.",
+            "Add the domain2.com dummy domain to IdP 1.",
+            "Reauthenticate again to authenticate against IdP 1."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-new-idp-configuration.json",
+          "after": "Reauthenticate again to authenticate against IdP 1.",
+          "quotes": [
+            "Enable SCIM Sync for the previous IdP configuration that was used before migration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-new-idp-configuration.json",
+          "after": "Add the IdP configuration from the previous IdP that was used before migration.",
+          "quotes": [
+            "Enable SCIM Sync for the previous IdP configuration that was used before migration."
+          ]
+        }
+      ]
+    },
+    "caveats": {
+      "statement": "Users logged in to Private Access during the migration see an authentication error in Client Connector and must reauthenticate, which is required to apply the new SAML attributes. If SCIM Attributes for Policy is enabled and users are not provisioned to the Admin Console through SCIM, they cannot log in to Private Access with Client Connector. Privileged Remote Access and browser-based authenticated sessions still require reauthentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-new-idp-configuration.json",
+          "quotes": [
+            "Users logged in to the Private Access service during the migration see an authentication error message in Zscaler Client Connector and must reauthenticate to regain access.",
+            "Reauthentication is required to apply the new SAML attributes.",
+            "If SCIM Attributes for Policy is enabled and users are not provisioning to the Zscaler Admin Console via SCIM, then the users cannot log in to the Private Access service using Zscaler Client Connector.",
+            "Privileged Remote Access (PRA)- and browser-based authenticated sessions still require users to reauthenticate."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "decommission-wait": {
+      "kind": "semantic",
+      "title": "How long the old IdP is kept before decommissioning",
+      "status": "open",
+      "detail": "The page says to keep the existing IdP enabled and unmodified for a few days and decommission it after validating there are no observable issues; it gives no number of days.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

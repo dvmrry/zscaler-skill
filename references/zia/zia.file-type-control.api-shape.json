@@ -1,0 +1,921 @@
+{
+  "schema_version": 1,
+  "id": "zia.file-type-control.api-shape",
+  "title": "File Type Control API shape: rules, categories and custom types",
+  "aliases": [
+    "file type control api",
+    "fileTypeRules",
+    "filteringAction",
+    "fileTypeCategories",
+    "customFileTypes",
+    "file type enum",
+    "ftp protocols token FOHTTP_RULE",
+    "zia_file_type_control_rules"
+  ],
+  "binds": [
+    "zia/file-type-rules",
+    "zia/custom-file-types"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/file-type-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/custom-file-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "label": "The rule resource.",
+      "text": "{{rule-crud}} {{filtering-action-enum}} {{size-in-kb}}"
+    },
+    {
+      "label": "Protocols.",
+      "text": "{{protocols-enum}} {{protocol-token-mapping}}"
+    },
+    {
+      "label": "File types.",
+      "text": "{{file-types-deprecated}} {{file-types-contract-enum}} {{categories-lookup}} Terraform's data source for it has its own failure behavior: [[zia.terraform.data-source-fidelity:file-type-categories-swallow-enum-failure]]."
+    },
+    {
+      "label": "Custom types.",
+      "text": "{{custom-file-types}} {{custom-file-types-console}} What the ServiceNow restriction means and how many custom types an organization can hold are open {{gap:servicenow-restriction}} {{gap:custom-file-type-count}}. The update path is open {{divergence:custom-file-type-update-path}}."
+    },
+    {
+      "text": "The help page and the Python SDK disagree on the maximum rule name length {{divergence:rule-name-length}}. Which field combinations the API accepts is open {{gap:filtering-action-dependencies}}."
+    },
+    {
+      "text": "A Terraform defect sends `passwordProtected` as false on every write; see [[zia.terraform.field-fidelity:file-type-password-protected-never-mapped]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which file-type representation a rule uses, the deprecated fileTypes list or fileTypeCategories.",
+      "uses": [
+        "file-types-deprecated"
+      ]
+    },
+    {
+      "do": "Whether a passwordProtected false on a Terraform-managed rule reflects an admin choice, since the provider sends it on every write.",
+      "uses": [
+        "zia.terraform.field-fidelity:non-omitempty-bools-force-false"
+      ]
+    }
+  ],
+  "claims": {
+    "rule-crud": {
+      "statement": "File Type Control is a rule resource: `GET` and `POST` on `/fileTypeRules`, and `GET`, `PUT` and `DELETE` on `/fileTypeRules/{ruleId}`, with a reduced `GET /fileTypeRules/lite`.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/get",
+          "expect": {
+            "operationId": "File Type Rule Resource Get Rules"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post",
+          "expect": {
+            "operationId": "File Type Rule Resource Add Rule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules~1{ruleId}/get",
+          "expect": {
+            "operationId": "File Type Rule Resource Get Rule By ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules~1{ruleId}/put",
+          "expect": {
+            "operationId": "File Type Rule Resource Update Rule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules~1{ruleId}/delete",
+          "expect": {
+            "operationId": "File Type Rule Resource Delete Rule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules~1lite/get",
+          "expect": {
+            "operationId": "File Type Rule Resource Get Summary"
+          }
+        }
+      ]
+    },
+    "filtering-action-enum": {
+      "statement": "`filteringAction` takes BLOCK, CAUTION or ALLOW. `operation` takes UPLOAD, DOWNLOAD or UPLOAD_DOWNLOAD, and `state` takes ENABLED or DISABLED.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#filteringAction",
+        "zia/file-type-rules#operation",
+        "zia/file-type-rules#state"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/filteringAction",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "BLOCK",
+              "CAUTION",
+              "ALLOW"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/operation",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "UPLOAD",
+              "DOWNLOAD",
+              "UPLOAD_DOWNLOAD"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/state",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "DISABLED",
+              "ENABLED"
+            ]
+          }
+        }
+      ]
+    },
+    "protocols-enum": {
+      "statement": "`protocols` takes ANY_RULE, SMRULEF_CASCADING_ALLOWED, FOHTTP_RULE, FTP_RULE, HTTPS_RULE and HTTP_RULE. The Python SDK model stores it as an unconstrained list of strings.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#protocols"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/protocols/items",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ANY_RULE",
+              "SMRULEF_CASCADING_ALLOWED",
+              "FOHTTP_RULE",
+              "FTP_RULE",
+              "HTTPS_RULE",
+              "HTTP_RULE"
+            ]
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/filetyperules.py",
+          "quotes": [
+            "self.protocols = ZscalerCollection.form_list(config[\"protocols\"] if \"protocols\" in config else [], str)"
+          ]
+        }
+      ]
+    },
+    "protocol-token-mapping": {
+      "statement": "The four protocol choices in the console map to the contract tokens as FTP over HTTP = FOHTTP_RULE, HTTP = HTTP_RULE, HTTPS = HTTPS_RULE and Native FTP = FTP_RULE. The console choices that require a Firewall subscription are FTP over HTTP and Native FTP.",
+      "tier": "B",
+      "binds": [
+        "zia/file-type-rules#protocols"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.json",
+          "quotes": [
+            "FTP over HTTP: Files from FTP over HTTP websites. (Requires Firewall subscription.)",
+            "HTTP: Files from HTTP websites.",
+            "Native FTP: Files from native FTP servers. (Requires Firewall subscription.)"
+          ]
+        }
+      ],
+      "conditions": "The token-to-label pairing is inferred from the names; no source lists the mapping. The legacy page read FTP_RULE as 'FTP' in general and omitted FOHTTP_RULE."
+    },
+    "size-in-kb": {
+      "statement": "`minSize`, `maxSize` and `sizeQuota` are in KB; `timeQuota` is in minutes. `minSize` and `maxSize` default to 0 in the Python model.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#minSize",
+        "zia/file-type-rules#maxSize",
+        "zia/file-type-rules#sizeQuota",
+        "zia/file-type-rules#timeQuota"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/sizeQuota",
+          "expect": {
+            "type": "integer",
+            "description": "Size quota in KB, beyond which the policy must be applied. If not set, size quota is not enforced. Ignored if action is BLOCK."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/timeQuota",
+          "expect": {
+            "type": "integer",
+            "description": "Time quota in minutes, after which the policy must be applied. If not set, no time quota is enforced. Ignored if action is BLOCK."
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/filetyperules.py",
+          "quotes": [
+            "self.min_size = config[\"minSize\"] if \"minSize\" in config else 0",
+            "self.max_size = config[\"maxSize\"] if \"maxSize\" in config else 0"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/minSize",
+          "expect": {
+            "description": "Minimum file size (in KB) used for evaluation of the FTP rule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/maxSize",
+          "expect": {
+            "description": "Maximum file size (in KB) used for evaluation of the FTP rule"
+          }
+        }
+      ]
+    },
+    "file-types-deprecated": {
+      "statement": "The contract marks `fileTypes` as replaced by `fileTypeCategories`, a list of objects with `id`, `name` and `parent`, and recommends moving to the new attribute. The Python model has `fileTypes` only.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#fileTypes"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/fileTypes",
+          "expect": {
+            "description": "This field is replaced with <b>fileTypeCategories</b>. Zscaler recommends updating your API configurations to use the <b>fileTypeCategories</b> attribute in place of fileTypes."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/fileTypeCategories/items/properties/parent",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/filetyperules.py",
+          "quotes": [
+            "self.file_types = ZscalerCollection.form_list(config[\"fileTypes\"] if \"fileTypes\" in config else [], str)",
+            "current_obj_format = { \"id\": self.id, \"protocols\": self.protocols, \"order\": self.order, \"timeQuota\": self.time_quota, \"sizeQuota\": self.size_quota, \"description\": self.description, \"locations\": [loc.request_format() for loc in (self.locations or [])],",
+            "\"locationGroups\": [loc_group.request_format() for loc_group in (self.location_groups or [])], \"departments\": [dept.request_format() for dept in (self.departments or [])], \"groups\": [group.request_format() for group in (self.groups or [])],",
+            "\"users\": [user.request_format() for user in (self.users or [])], \"devices\": [device.request_format() for device in (self.devices or [])], \"deviceGroups\": [dg.request_format() for dg in (self.device_groups or [])], \"timeWindows\": [window.request_format() for window in (self.time_windows or [])],",
+            "\"labels\": [label.request_format() for label in (self.labels or [])], \"zpaAppSegments\": [zpa.request_format() for zpa in (self.zpa_app_segments or [])], \"urlCategories\": self.url_categories, \"fileTypes\": self.file_types, \"deviceTrustLevels\": self.device_trust_levels, \"minSize\": self.min_size,",
+            "\"maxSize\": self.max_size, \"filteringAction\": self.filtering_action, \"capturePCAP\": self.capture_pcap, \"operation\": self.operation, \"activeContent\": self.active_content, \"unscannable\": self.unscannable, \"state\": self.state, \"rank\": self.rank, \"lastModifiedTime\": self.last_modified_time,",
+            "\"lastModifiedBy\": self.last_modified_by, \"accessControl\": self.access_control, \"name\": self.name, \"cloudApplications\": self.cloud_applications, \"passwordProtected\": self.password_protected, }"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/fileTypeCategories",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/fileTypeCategories/items/properties/id",
+          "expect": {
+            "description": "File type ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/fileTypeCategories/items/properties/name",
+          "expect": {
+            "description": "File type description"
+          }
+        }
+      ],
+      "conditions": "Absence claim: `grep -n -i fileTypeCategor zscaler/zia/models/filetyperules.py` at v1.11.3-1-g4f8f54df returns nothing; `grep -n fileTypeCategories zscaler/zia/file_type_control_rule.py` returns only the `/fileTypeCategories` path of `list_file_type_categories`, a lookup call, not a model field."
+    },
+    "file-types-contract-enum": {
+      "statement": "The contract's `fileTypes` vocabulary is a closed list beginning ANY and NONE followed by FTCATEGORY_* tokens (JAVASCRIPT, FLASH, ZIP and so on, ending FTCATEGORY_TS). The Terraform provider declares `file_types` as an unconstrained set of strings, so it does not check values against this list.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#fileTypes"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/fileTypes/items",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "NONE",
+              "FTCATEGORY_JAVASCRIPT",
+              "FTCATEGORY_FLASH",
+              "FTCATEGORY_JAVA_APPLET",
+              "FTCATEGORY_HTA",
+              "FTCATEGORY_HAR",
+              "FTCATEGORY_ZIP",
+              "FTCATEGORY_GZIP",
+              "FTCATEGORY_TAR",
+              "FTCATEGORY_BZIP2",
+              "FTCATEGORY_RAR",
+              "FTCATEGORY_STUFFIT",
+              "FTCATEGORY_ISO",
+              "FTCATEGORY_CAB",
+              "FTCATEGORY_P7Z",
+              "FTCATEGORY_SCZIP",
+              "FTCATEGORY_DMG",
+              "FTCATEGORY_PKG",
+              "FTCATEGORY_NUPKG",
+              "FTCATEGORY_MF",
+              "FTCATEGORY_EGG",
+              "FTCATEGORY_ALZ",
+              "FTCATEGORY_LZ4",
+              "FTCATEGORY_LZOP",
+              "FTCATEGORY_ZST",
+              "FTCATEGORY_RZIP",
+              "FTCATEGORY_LZIP",
+              "FTCATEGORY_LRZIP",
+              "FTCATEGORY_DACT",
+              "FTCATEGORY_ZPAQ",
+              "FTCATEGORY_BH",
+              "FTCATEGORY_B64",
+              "FTCATEGORY_LZMA",
+              "FTCATEGORY_XZ",
+              "FTCATEGORY_FCL",
+              "FTCATEGORY_ZIPX",
+              "FTCATEGORY_CPIO",
+              "FTCATEGORY_LZH",
+              "FTCATEGORY_MP3",
+              "FTCATEGORY_WAV",
+              "FTCATEGORY_OGG_VORBIS",
+              "FTCATEGORY_M3U",
+              "FTCATEGORY_VPR",
+              "FTCATEGORY_AAC",
+              "FTCATEGORY_ADE",
+              "FTCATEGORY_DB2",
+              "FTCATEGORY_SQL",
+              "FTCATEGORY_EDMX",
+              "FTCATEGORY_FRM",
+              "FTCATEGORY_ACCDB",
+              "FTCATEGORY_DBF",
+              "FTCATEGORY_VIRTUAL_HARD_DISK",
+              "FTCATEGORY_DB",
+              "FTCATEGORY_SDB",
+              "FTCATEGORY_KDBX",
+              "FTCATEGORY_DXL",
+              "FTCATEGORY_WINDOWS_EXECUTABLES",
+              "FTCATEGORY_MICROSOFT_INSTALLER",
+              "FTCATEGORY_WINDOWS_LIBRARY",
+              "FTCATEGORY_WINDOWS_LNK",
+              "FTCATEGORY_PYTHON",
+              "FTCATEGORY_POWERSHELL",
+              "FTCATEGORY_VISUAL_BASIC_SCRIPT",
+              "FTCATEGORY_MSP",
+              "FTCATEGORY_REG",
+              "FTCATEGORY_BAT",
+              "FTCATEGORY_BASH_SCRIPTS",
+              "FTCATEGORY_SHELL_SCRAP",
+              "FTCATEGORY_DEB",
+              "FTCATEGORY_APPX",
+              "FTCATEGORY_MSC",
+              "FTCATEGORY_ELF",
+              "FTCATEGORY_MACH",
+              "FTCATEGORY_DRV",
+              "FTCATEGORY_GBA",
+              "FTCATEGORY_SMD",
+              "FTCATEGORY_XBEH",
+              "FTCATEGORY_PSX",
+              "FTCATEGORY_THREETWOX",
+              "FTCATEGORY_NDS",
+              "FTCATEGORY_BITMAP",
+              "FTCATEGORY_PHOTOSHOP",
+              "FTCATEGORY_WINDOWS_META_FORMAT",
+              "FTCATEGORY_GIF",
+              "FTCATEGORY_JPEG",
+              "FTCATEGORY_PNG",
+              "FTCATEGORY_WEBP",
+              "FTCATEGORY_TIFF",
+              "FTCATEGORY_DCM",
+              "FTCATEGORY_THREEDM",
+              "FTCATEGORY_KML",
+              "FTCATEGORY_JPD",
+              "FTCATEGORY_DNG",
+              "FTCATEGORY_RWZ",
+              "FTCATEGORY_GREENSHOT",
+              "FTCATEGORY_IMG",
+              "FTCATEGORY_HIGH_EFFICIENCY_IMAGE_FILES",
+              "FTCATEGORY_AAF",
+              "FTCATEGORY_OMFI",
+              "FTCATEGORY_PLS",
+              "FTCATEGORY_HLP",
+              "FTCATEGORY_MDZ",
+              "FTCATEGORY_MST",
+              "FTCATEGORY_WINDOWS_SCRIPT_FILES",
+              "FTCATEGORY_GRP",
+              "FTCATEGORY_PIF",
+              "FTCATEGORY_JOB",
+              "FTCATEGORY_PSW",
+              "FTCATEGORY_ONENOTE",
+              "FTCATEGORY_CATALOG",
+              "FTCATEGORY_NETMON",
+              "FTCATEGORY_HIVE",
+              "FTCATEGORY_APK",
+              "FTCATEGORY_IPA",
+              "FTCATEGORY_MOBILECONFIG",
+              "FTCATEGORY_MS_POWERPOINT",
+              "FTCATEGORY_MS_WORD",
+              "FTCATEGORY_MS_EXCEL",
+              "FTCATEGORY_MS_RTF",
+              "FTCATEGORY_MS_MDB",
+              "FTCATEGORY_MS_MSG",
+              "FTCATEGORY_MS_PST",
+              "FTCATEGORY_MS_VSIX",
+              "FTCATEGORY_VSDX",
+              "FTCATEGORY_OAB",
+              "FTCATEGORY_OLM",
+              "FTCATEGORY_MS_PUB",
+              "FTCATEGORY_TNEF",
+              "FTCATEGORY_OPEN_OFFICE_DOC",
+              "FTCATEGORY_OPEN_OFFICE_DRAWINGS",
+              "FTCATEGORY_OPEN_OFFICE_PRESENTATIONS",
+              "FTCATEGORY_OPEN_OFFICE_SPREADSHEETS",
+              "FTCATEGORY_PDF_DOCUMENT",
+              "FTCATEGORY_POSTSCRIPT",
+              "FTCATEGORY_COMPILED_HTML_HELP",
+              "FTCATEGORY_DWG",
+              "FTCATEGORY_CGR",
+              "FTCATEGORY_SLDPRT",
+              "FTCATEGORY_TXT",
+              "FTCATEGORY_UNK",
+              "FTCATEGORY_IPT",
+              "FTCATEGORY_XPS",
+              "FTCATEGORY_CSV",
+              "FTCATEGORY_STL",
+              "FTCATEGORY_IQY",
+              "FTCATEGORY_CERT",
+              "FTCATEGORY_INTERNET_SIGNUP",
+              "FTCATEGORY_PCAP",
+              "FTCATEGORY_TTF",
+              "FTCATEGORY_CRX",
+              "FTCATEGORY_CER",
+              "FTCATEGORY_DER",
+              "FTCATEGORY_P7B",
+              "FTCATEGORY_PEM",
+              "FTCATEGORY_JKS",
+              "FTCATEGORY_KEY",
+              "FTCATEGORY_P12",
+              "FTCATEGORY_CHEMDRAW_FILES",
+              "FTCATEGORY_CML",
+              "FTCATEGORY_BPL",
+              "FTCATEGORY_CCC",
+              "FTCATEGORY_CP",
+              "FTCATEGORY_DEVFILE",
+              "FTCATEGORY_MM",
+              "FTCATEGORY_AES",
+              "FTCATEGORY_WOFF2",
+              "FTCATEGORY_STEP_FILES",
+              "FTCATEGORY_RVT",
+              "FTCATEGORY_EMF",
+              "FTCATEGORY_PCD",
+              "FTCATEGORY_INF",
+              "FTCATEGORY_SAM",
+              "FTCATEGORY_PMD",
+              "FTCATEGORY_EOT",
+              "FTCATEGORY_OPENXML",
+              "FTCATEGORY_FODT",
+              "FTCATEGORY_JOBOPTIONS",
+              "FTCATEGORY_IDML",
+              "FTCATEGORY_CXP",
+              "FTCATEGORY_ENEX",
+              "FTCATEGORY_OTF",
+              "FTCATEGORY_LGX",
+              "FTCATEGORY_CBZ",
+              "FTCATEGORY_DPB",
+              "FTCATEGORY_GLB",
+              "FTCATEGORY_PM3",
+              "FTCATEGORY_CD3",
+              "FTCATEGORY_FLN",
+              "FTCATEGORY_IVR",
+              "FTCATEGORY_VU3",
+              "FTCATEGORY_PFB",
+              "FTCATEGORY_WIM",
+              "FTCATEGORY_APPLE_DOCUMENTS",
+              "FTCATEGORY_TABLEAU_FILES",
+              "FTCATEGORY_AUTOCAD",
+              "FTCATEGORY_INTEGRATED_CIRCUIT_FILES",
+              "FTCATEGORY_LOG_FILES",
+              "FTCATEGORY_EML_FILES",
+              "FTCATEGORY_DAT",
+              "FTCATEGORY_INI",
+              "FTCATEGORY_IGS",
+              "FTCATEGORY_TMP",
+              "FTCATEGORY_MUI",
+              "FTCATEGORY_HBS",
+              "FTCATEGORY_ICS",
+              "FTCATEGORY_PUB",
+              "FTCATEGORY_DRAWIO",
+              "FTCATEGORY_PRT",
+              "FTCATEGORY_PS2",
+              "FTCATEGORY_PS3",
+              "FTCATEGORY_ACIS",
+              "FTCATEGORY_VDA",
+              "FTCATEGORY_PARASOLID",
+              "FTCATEGORY_PGP",
+              "FTCATEGORY_BIN",
+              "FTCATEGORY_JSON",
+              "FTCATEGORY_XML",
+              "FTCATEGORY_BINHEX",
+              "FTCATEGORY_QUARKXPRESS",
+              "FTCATEGORY_GO_FILES",
+              "FTCATEGORY_SWIFT_FILES",
+              "FTCATEGORY_RUBY_FILES",
+              "FTCATEGORY_PERL_FILES",
+              "FTCATEGORY_MATLAB_FILES",
+              "FTCATEGORY_INCLUDE_FILES",
+              "FTCATEGORY_JAVA_FILES",
+              "FTCATEGORY_MAKE_FILES",
+              "FTCATEGORY_YAML_FILES",
+              "FTCATEGORY_VISUAL_BASIC_FILES",
+              "FTCATEGORY_C_FILES",
+              "FTCATEGORY_XAML",
+              "FTCATEGORY_BASIC_SOURCE_CODE",
+              "FTCATEGORY_SCT",
+              "FTCATEGORY_A_FILE",
+              "FTCATEGORY_MS_CPP_FILES",
+              "FTCATEGORY_ASM",
+              "FTCATEGORY_BORLAND_CPP_FILES",
+              "FTCATEGORY_CLW",
+              "FTCATEGORY_COBOL",
+              "FTCATEGORY_CSX",
+              "FTCATEGORY_DELPHI",
+              "FTCATEGORY_DMD",
+              "FTCATEGORY_DSP",
+              "FTCATEGORY_F_FILES",
+              "FTCATEGORY_NATVIS",
+              "FTCATEGORY_NCB",
+              "FTCATEGORY_NFM",
+              "FTCATEGORY_POD",
+              "FTCATEGORY_QLIKVIEW_FILES",
+              "FTCATEGORY_RES_FILES",
+              "FTCATEGORY_RPY",
+              "FTCATEGORY_RSP",
+              "FTCATEGORY_SAS",
+              "FTCATEGORY_SC",
+              "FTCATEGORY_SCALA",
+              "FTCATEGORY_SWC",
+              "FTCATEGORY_TCC",
+              "FTCATEGORY_TLH",
+              "FTCATEGORY_TLI",
+              "FTCATEGORY_VISUAL_CPP_FILES",
+              "FTCATEGORY_X1B",
+              "FTCATEGORY_IFC",
+              "FTCATEGORY_BCP",
+              "FTCATEGORY_FOR",
+              "FTCATEGORY_NCI",
+              "FTCATEGORY_AU3",
+              "FTCATEGORY_BGI",
+              "FTCATEGORY_MANIFEST",
+              "FTCATEGORY_NLS",
+              "FTCATEGORY_TLB",
+              "FTCATEGORY_ASHX",
+              "FTCATEGORY_EXP",
+              "FTCATEGORY_FLASH_VIDEO",
+              "FTCATEGORY_AVI",
+              "FTCATEGORY_MPEG",
+              "FTCATEGORY_MP4",
+              "FTCATEGORY_3GPP",
+              "FTCATEGORY_QUICKTIME_VIDEO",
+              "FTCATEGORY_WINDOWS_MEDIA_MOVIE",
+              "FTCATEGORY_MKV",
+              "FTCATEGORY_WEBM",
+              "FTCATEGORY_VS4",
+              "FTCATEGORY_TS"
+            ]
+          }
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_file_type_control_rules.go",
+          "after": "\"file_types\": {",
+          "quotes": [
+            "Type: schema.TypeSet,",
+            "Type: schema.TypeString,"
+          ]
+        }
+      ],
+      "conditions": "The provider half rests on an absence: the `file_types` schema block declares a TypeSet of TypeString and no ValidateFunc (the only file_types check is the active_content CustomizeDiff, see zia.file-type-control.criteria:provider-active-content-checks). Tenant custom file types are runtime data and are not in this list; use the fileTypeCategories lookup. Searched: `grep -n 'ValidateFunc\\|ValidateDiagFunc' zia/resource_zia_file_type_control_rules.go` at v4.8.17 returns eight validators, all on other attributes and none in the `file_types` block; `grep -n file_types` on the same file returns the schema block, the read's `d.Set`, the expand and the CustomizeDiff active_content branch, which allows four values."
+    },
+    "categories-lookup": {
+      "statement": "`GET /fileTypeCategories` returns predefined and custom file types for use as rule conditions. The `enums` query parameter selects ZSCALERDLP (DLP rules with content inspection), EXTERNALDLP (DLP rules without content inspection) or FILETYPECATEGORYFORFILETYPECONTROL (File Type Control); `excludeCustomFileTypes` drops custom types.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#fileTypes"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeCategories/get",
+          "expect": {
+            "operationId": "File Type Category Resource Get File Type Categories"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/file_type_control_rule.py",
+          "quotes": [
+            "``FILETYPECATEGORYFORFILETYPECONTROL``: File Type Control policy"
+          ],
+          "after": "def list_file_type_categories("
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeCategories/get",
+          "expect": {
+            "description": "<p>Retrieves the list of all file types, including predefined and custom file types, available for configuring rule conditions in different ZIA policies. You can retrieve predefined file types for specific file categories of policies by using the <b>enum</b> request parameter and by specifying one of the following values:</p><ul><li><code>ZSCALERDLP</code>: Web DLP rules with content inspection</li><li><code>EXTERNALDLP</code>: Web DLP rules without content inspection</li><li><code>FILETYPECATEGORYFORFILETYPECONTROL</code>: File Type Control policy</li></ul>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeCategories/get/parameters/[name=enums]",
+          "expect": {
+            "name": "enums",
+            "description": "<p>Specifies the file type category for specific policies to retrieve the corresponding list of predefined file types supported for the policy category. The following values are supported:</p><ul><li><code>ZSCALERDLP</code>: DLP rules with content inspection</li><li><code>EXTERNALDLP</code>: DLP rules without content inspection</li><li><code>FILETYPECATEGORYFORFILETYPECONTROL</code>: File Type Control policy</li></ul>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeCategories/get/parameters/[name=excludeCustomFileTypes]",
+          "expect": {
+            "name": "excludeCustomFileTypes",
+            "description": "A Boolean value specifying whether custom file types must be excluded from the list or not"
+          }
+        }
+      ]
+    },
+    "custom-file-types": {
+      "statement": "Custom file types are managed at `/customFileTypes` (list, create, update on the collection), `/customFileTypes/{id}` (get, delete) and `/customFileTypes/count`. An `extension` is at most 10 characters and cannot reuse an existing Zscaler extension; `fileTypeId` is the ID kept across predefined and custom types and differs from the record's own `id`.",
+      "tier": "A",
+      "binds": [
+        "zia/custom-file-types",
+        "zia/custom-file-types#extension",
+        "zia/custom-file-types#fileTypeId"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes/get",
+          "expect": {
+            "operationId": "Custom File Type Resource Get All Custom File Types"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes~1count/get",
+          "expect": {
+            "operationId": "Custom File Type Resource Get Custom File Type Count"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes/post/requestBody/content/application~1json/schema/properties/extension",
+          "expect": {
+            "type": "string",
+            "description": "Specifies the file type extension. The maximum extension length is 10 characters. Existing Zscaler extensions cannot be added to custom file types."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes/post/requestBody/content/application~1json/schema/properties/fileTypeId",
+          "expect": {
+            "type": "integer",
+            "description": "File type ID. This ID is assigned and maintained for all file types including predefined and custom file types, and this value is different from the custom file type ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes/post",
+          "expect": {
+            "description": "Adds a new custom file type. ."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes/put",
+          "expect": {
+            "description": "Updates information for a custom file type based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes~1{id}/get",
+          "expect": {
+            "description": "Retrieves information about a custom file type based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes~1{id}/delete",
+          "expect": {
+            "description": "Deletes a custom file type based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes/post/requestBody/content/application~1json/schema/properties/id",
+          "expect": {
+            "description": "Custom file type ID. This ID is assigned and maintained exclusively for custom file types, and this value is different from the file type ID (i.e., fileTypeId field)."
+          }
+        }
+      ]
+    },
+    "custom-file-types-console": {
+      "statement": "The console Help describes custom file types as simple extension-based detections, and the feature is enabled by contacting Zscaler Support. A custom file type name can contain only alphanumeric characters, underscores, hyphens, periods, parentheses and spaces; the maximum extension length is 10 characters; existing Zscaler extensions cannot be added; custom file types are restricted for the ServiceNow application; and only standard file extensions are supported.",
+      "tier": "A",
+      "binds": [
+        "zia/custom-file-types#name",
+        "zia/custom-file-types#extension"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-file-types.json",
+          "quotes": [
+            "Creating and configuring custom file types with simple extension-based detections provides you with greater flexibility when creating File Type Control policies.",
+            "To enable this feature, contact Zscaler support.",
+            "File type names can only contain alphanumeric characters, underscores, hyphens, periods, parentheses, and spaces.",
+            "The maximum extension length is 10 characters.",
+            "Existing Zscaler extensions cannot be added to custom file types. Custom file types are restricted for the ServiceNow application. Only standard file extensions are supported."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "custom-file-type-update-path": {
+      "summary": "The contract updates a custom file type with `PUT /customFileTypes` on the collection; the Python SDK sends the update to `/customFileTypes/{id}`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1customFileTypes/put",
+            "expect": {
+              "operationId": "Custom File Type Resource Update Custom File Type"
+            }
+          },
+          "says": "Update is a PUT on /customFileTypes, with no ID in the path."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/custom_file_types.py",
+            "quotes": [
+              "/customFileTypes/{file_id}"
+            ],
+            "after": "def update_custom_file_type(self, file_id: int, **kwargs)"
+          },
+          "says": "Update is a PUT on /customFileTypes/{file_id}."
+        }
+      ],
+      "impact": "A client built from the contract and a client built from the Python SDK address different URLs for the same update. Which one the service accepts is not shown."
+    },
+    "rule-name-length": {
+      "summary": "The help page and the Python SDK disagree on the maximum rule name length.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-file-type-control-policy.json",
+            "quotes": [
+              "The name cannot exceed 63 characters."
+            ]
+          },
+          "says": "A rule name is at most 63 characters."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/file_type_control_rule.py",
+            "quotes": [
+              "name (str): Name of the rule, max 31 chars."
+            ],
+            "after": "def add_rule("
+          },
+          "says": "A rule name is at most 31 characters."
+        }
+      ],
+      "impact": "A name between 32 and 63 characters is accepted by the console per the help page but is documented as invalid by the SDK. Which limit the API enforces is not shown."
+    }
+  },
+  "gaps": {
+    "servicenow-restriction": {
+      "kind": "semantic",
+      "title": "What \"restricted for the ServiceNow application\" means for custom file types",
+      "status": "open",
+      "detail": "The Configuring Custom File Types page says custom file types are restricted for the ServiceNow application and does not say what is restricted or how it shows in a rule.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "custom-file-type-count": {
+      "kind": "semantic",
+      "title": "How many custom file types an organization can hold",
+      "status": "open",
+      "detail": "The contract has a count operation for custom file types, and the Configuring Custom File Types page states no limit on their number; no limit has been checked.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "filtering-action-dependencies": {
+      "kind": "semantic",
+      "title": "Field combinations the API accepts or rejects",
+      "status": "open",
+      "detail": "Which combinations of `filteringAction`, `activeContent`, `unscannable`, `passwordProtected`, `operation` and the size fields the API accepts is not stated. The Python SDK passes them as flat arguments with no cross-field validation; the Terraform provider rejects active_content without a supported file type or together with unscannable (zia.file-type-control.criteria:provider-active-content-checks), but that is provider behavior. The contract's passwordProtected note adds a Malware Protection Security Exceptions dependency. Resolves with a lab test of the API directly.",
+      "blocks": "knowing whether a rejected rule write is a provider check or an API rule",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "former_ids": [
+        "zia-57"
+      ]
+    }
+  }
+}

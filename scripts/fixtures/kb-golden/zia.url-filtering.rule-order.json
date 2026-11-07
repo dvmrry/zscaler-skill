@@ -1,0 +1,345 @@
+{
+  "bundle_version": 1,
+  "query": "zia.url-filtering.rule-order",
+  "tiers": {
+    "knowledge": {
+      "public": true,
+      "company": true
+    },
+    "iac": {
+      "available": true,
+      "repos": [
+        {
+          "id": "iac",
+          "kind": "json",
+          "path": "scripts/fixtures/kb-overlay/iac",
+          "available": true
+        },
+        {
+          "id": "zia-tf",
+          "kind": "terraform",
+          "path": "scripts/fixtures/kb-overlay/zia-tf",
+          "available": true
+        }
+      ]
+    },
+    "live": {
+      "available": true
+    }
+  },
+  "resolved": {
+    "id": "zia.url-filtering.rule-order",
+    "kind": "subject"
+  },
+  "subject": {
+    "id": "zia.url-filtering.rule-order",
+    "title": "URL Filtering rule order and first match",
+    "aliases": [
+      "url filtering rule precedence",
+      "why does rule A beat rule B",
+      "first match wins",
+      "disabled rule order",
+      "admin rank rule order"
+    ],
+    "related": [
+      {
+        "rel": "decided-by",
+        "to": "zia.url-categories.membership",
+        "because": "zia.url-categories.membership:resolved-before-rules",
+        "title": "Which URL category a URL belongs to"
+      },
+      {
+        "rel": "decided-by",
+        "to": "zia.url-filtering.criteria",
+        "because": "zia.url-filtering.criteria:operator-expression",
+        "title": "How URL Filtering rule criteria combine"
+      },
+      {
+        "rel": "interacts-with",
+        "to": "zia.cloud-app-control.precedence",
+        "because": "zia.cloud-app-control.precedence:cac-allow-skips-url-filtering",
+        "title": "Cloud App Control versus URL Filtering: which applies"
+      },
+      {
+        "rel": "interacts-with",
+        "to": "zia.ssl-inspection.pipeline",
+        "because": "zia.ssl-inspection.pipeline:url-filtering-twice",
+        "title": "Where SSL inspection sits in ZIA web policy evaluation (the two passes)"
+      },
+      {
+        "rel": "logged-in",
+        "to": "zia.logs.web-rule-attribution",
+        "because": "zia.logs.web-rule-attribution:separate-layer-labels",
+        "title": "Which rule decided a web transaction, from the logs"
+      }
+    ],
+    "checks": [
+      {
+        "do": "Which category the URL belongs to, since it is resolved before any rule is walked.",
+        "uses": [
+          "zia.url-categories.membership:resolved-before-rules"
+        ]
+      },
+      {
+        "do": "Whether a higher rule fails to fire only because the URL resolved to a different category.",
+        "uses": [
+          "zia.url-categories.membership:resolved-before-rules",
+          "zia.url-filtering.rule-order:ascending-order"
+        ]
+      },
+      {
+        "do": "Whether a disabled rule is the reason a higher rule appears not to fire.",
+        "uses": [
+          "zia.url-filtering.rule-order:disabled-holds-slot"
+        ]
+      },
+      {
+        "do": "Whether an admin rank limits the positions a rule can take in the order.",
+        "uses": [
+          "zia.url-filtering.rule-order:admin-rank-precedes"
+        ]
+      }
+    ],
+    "prose": {
+      "text": "URL Filtering is a first-match policy. URL Filtering rules evaluate in ascending `order` (Rule 1 before Rule 2). [ascending-order] Evaluation of the policy rules stops at the first match. [first-match]\n\n**Category first.** Which category a URL is in is decided before any rule is walked: [Category membership is resolved before rules are walked: a rule matches a URL through the category the URL resolved to, not through every category with a matching entry.](kb:zia.url-categories.membership:resolved-before-rules).\n\n**Disabled rules and admin ranks.** A disabled rule is skipped but keeps its position in the order. [disabled-holds-slot] With Admin Rank enabled, a rule's admin rank (0 is highest, 7 lowest) constrains the order values it can take: a higher-ranked rule always precedes a lower-ranked one, and an admin cannot pick a rank above their own. [admin-rank-precedes]\n\n**Rules that never run.** If Cloud App Control explicitly allows the transaction, URL Filtering does not run unless cascading is enabled ([Cloud App Control versus URL Filtering: which applies](kb:zia.cloud-app-control.precedence)). On inspected HTTPS, URL Filtering runs twice, once on the domain and once on the full URL ([Where SSL inspection sits in ZIA web policy evaluation (the two passes)](kb:zia.ssl-inspection.pipeline)).",
+      "order": [
+        "ascending-order",
+        "first-match",
+        "disabled-holds-slot",
+        "admin-rank-precedes"
+      ]
+    }
+  },
+  "neighbors": [
+    {
+      "id": "zia.url-filtering",
+      "title": "ZIA URL Filtering",
+      "rel": "parent"
+    },
+    {
+      "id": "zia.url-filtering.actions",
+      "title": "URL Filtering actions and their prerequisites",
+      "rel": "sibling"
+    },
+    {
+      "id": "zia.url-filtering.advanced-settings",
+      "title": "Advanced URL Filtering settings that change outcomes",
+      "rel": "sibling"
+    },
+    {
+      "id": "zia.url-filtering.cipa",
+      "title": "The CIPA Compliance Rule and the Enable CIPA Compliance option",
+      "rel": "sibling"
+    },
+    {
+      "id": "zia.url-filtering.criteria",
+      "title": "How URL Filtering rule criteria combine",
+      "rel": "sibling"
+    },
+    {
+      "id": "zia.url-filtering.http-header-profiles",
+      "title": "HTTP Header Control: header profiles (criteria) and header insertion profiles, their logic, limits and disallowed keys",
+      "rel": "sibling"
+    },
+    {
+      "id": "zia.url-filtering.icap-receivers",
+      "title": "ICAP receivers for URL Filtering",
+      "rel": "sibling"
+    },
+    {
+      "id": "zia.url-filtering.list-pagination",
+      "title": "Listing URL Filtering rules and URL categories without truncation",
+      "rel": "sibling"
+    }
+  ],
+  "claims": [
+    {
+      "id": "zia.url-filtering.rule-order:ascending-order",
+      "tier": "A",
+      "confidence": "high",
+      "binds": [
+        "zia/url-filtering-rules#order"
+      ],
+      "citations": [
+        {
+          "source": "zscaler-help",
+          "path": "vendor/zscaler-help/configuring-url-filtering-policy.json",
+          "as_of_basis": "pdf-last-modified"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "vendor/zscaler-help/zia-about-url-filtering.json",
+          "as_of_basis": "pdf-last-modified"
+        }
+      ],
+      "in_prose": true
+    },
+    {
+      "id": "zia.url-filtering.rule-order:first-match",
+      "tier": "A",
+      "confidence": "high",
+      "binds": [
+        "zia/url-filtering-rules#order"
+      ],
+      "citations": [
+        {
+          "source": "zscaler-help",
+          "path": "vendor/zscaler-help/configuring-url-filtering-policy.json",
+          "as_of_basis": "pdf-last-modified"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "vendor/zscaler-help/zia-about-url-filtering.json",
+          "as_of_basis": "pdf-last-modified"
+        }
+      ],
+      "in_prose": true
+    },
+    {
+      "id": "zia.url-filtering.rule-order:disabled-holds-slot",
+      "tier": "A",
+      "confidence": "high",
+      "binds": [
+        "zia/url-filtering-rules#state",
+        "zia/url-filtering-rules#order"
+      ],
+      "citations": [
+        {
+          "source": "zscaler-help",
+          "path": "vendor/zscaler-help/configuring-url-filtering-policy.json",
+          "as_of_basis": "pdf-last-modified"
+        }
+      ],
+      "in_prose": true
+    },
+    {
+      "id": "zia.url-filtering.rule-order:admin-rank-precedes",
+      "tier": "A",
+      "confidence": "high",
+      "binds": [
+        "zia/url-filtering-rules#rank",
+        "zia/url-filtering-rules#order"
+      ],
+      "citations": [
+        {
+          "source": "zscaler-help",
+          "path": "vendor/zscaler-help/configuring-url-filtering-policy.json",
+          "as_of_basis": "pdf-last-modified"
+        }
+      ],
+      "in_prose": true
+    }
+  ],
+  "gaps": [
+    {
+      "id": "zia.url-filtering.rule-order:admin-rank-order-collision",
+      "kind": "semantic",
+      "title": "Whether two rules at different admin ranks can share an order value",
+      "status": "resolved",
+      "former_ids": [
+        "zia-05"
+      ],
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The console constrains the order values each admin rank can take so that a higher-ranked rule always precedes a lower-ranked one (claim admin-rank-precedes); with Admin Rank off, order is a flat sequence. No source describes two ranks sharing a value."
+    }
+  ],
+  "divergences": [],
+  "cases": [
+    {
+      "id": "zia.url-filtering.rule-order:first-match-shadows-later-rule",
+      "kind": "rule-evaluation",
+      "claims": [
+        "zia.url-filtering.rule-order:ascending-order",
+        "zia.url-filtering.rule-order:first-match"
+      ],
+      "request": {
+        "url": "https://www.example.com/"
+      },
+      "expect": {
+        "verdict": "block",
+        "rule": 1
+      }
+    },
+    {
+      "id": "zia.url-filtering.rule-order:disabled-rule-skipped",
+      "kind": "rule-evaluation",
+      "claims": [
+        "zia.url-filtering.rule-order:disabled-holds-slot",
+        "zia.url-filtering.rule-order:first-match"
+      ],
+      "request": {
+        "url": "https://www.example.com/"
+      },
+      "expect": {
+        "verdict": "allow",
+        "rule": 2
+      }
+    }
+  ],
+  "types": [
+    {
+      "id": "zia/url-filtering-rules",
+      "kind": "config",
+      "names": {
+        "zscalerctl": "zia url-filtering-rules",
+        "terraform": "zia_url_filtering_rules",
+        "terraform_data_source": "zia_url_filtering_rules"
+      },
+      "live": {
+        "command": "zscalerctl zia url-filtering-rules list",
+        "available": true
+      },
+      "fields": {
+        "order": {
+          "type": "integer",
+          "description": "Order of execution of the rule with respect to other URL filtering rules."
+        },
+        "rank": {},
+        "state": {
+          "type": "string",
+          "description": "Rule state."
+        }
+      }
+    }
+  ],
+  "company": [
+    {
+      "layer": "company",
+      "id": "company.zia.url-filtering-iac",
+      "kind": "iac-coverage",
+      "relation": "extends",
+      "about": [
+        "zia/url-filtering-rules"
+      ],
+      "title": "Synthetic fixture: URL Filtering rules in our IaC",
+      "refresh": "15m",
+      "iac": [
+        {
+          "label": "disabled in our pipeline",
+          "source": "iac:coverage.json#/resources/zia_url_filtering_rules/disabled",
+          "value": [
+            {
+              "when": {
+                "action": "ISOLATE"
+              },
+              "reason": "Provider cannot rebuild cbi_profile on import; ISOLATE rules are managed in the console."
+            }
+          ]
+        },
+        {
+          "label": "checks we added",
+          "source": "iac:coverage.json#/resources/zia_url_filtering_rules/checks",
+          "value": [
+            "assert-clean after import for the imported addresses only"
+          ]
+        },
+        {
+          "label": "the rule as our Terraform declares it",
+          "location": "zia-tf:url_filtering.tf zia_url_filtering_rules.block_gambling"
+        }
+      ]
+    }
+  ]
+}

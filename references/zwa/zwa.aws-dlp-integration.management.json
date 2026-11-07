@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "id": "zwa.aws-dlp-integration.management",
+  "title": "Managing the AWS DLP integration in Workflow Automation: who can configure it, statuses, edit, delete and disable rules, and the Integrations dashboard",
+  "aliases": [
+    "manage dlp aws integration",
+    "integration status enabled disabled failed deleted",
+    "delete aws dlp integration",
+    "disable aws dlp integration",
+    "integrations dashboard workflow automation",
+    "connected accounts aws dlp"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.aws-dlp-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.aws-dlp-integration.privacy-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{who-configures}} {{required-for-incidents}}"
+    },
+    {
+      "label": "Statuses.",
+      "text": "{{statuses}} {{configuration-tab}}"
+    },
+    {
+      "label": "Changing an integration.",
+      "text": "{{edit-rules}} {{validate-on-edit}} {{disable-enable}} {{delete-rules}}"
+    },
+    {
+      "label": "Dashboard.",
+      "text": "{{dashboard-view}} What Failed means is open {{gap:failed-status-meaning}}. The settings edited here are in [[zwa.aws-dlp-integration.privacy-settings]], and the integration is described in [[zwa.aws-dlp-integration]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the integration's status is Enabled, Disabled, Failed or Deleted before changing it, since only some statuses can be deleted and a Deleted integration allows only privacy field edits.",
+      "uses": [
+        "statuses",
+        "edit-rules",
+        "delete-rules"
+      ]
+    },
+    {
+      "do": "Whether the admin has Full or Restricted Workflow Automation access, or is a super admin.",
+      "uses": [
+        "who-configures"
+      ]
+    }
+  ],
+  "claims": {
+    "who-configures": {
+      "statement": "Super admins, or admins with Full or Restricted access to Workflow Automation, can configure the DLP application integration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-aws-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Super admins or admins with Full or Restricted access to Workflow Automation can configure the DLP application integration."
+          ]
+        }
+      ]
+    },
+    "required-for-incidents": {
+      "statement": "For a tenant using the AWS integration, the DLP AWS application integration must be configured before DLP incidents are available for review and remediation on the Incidents page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-aws-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Before your organization's DLP incidents are available for review and remediation on the Incidents page in the Zscaler Admin Console, the DLP Amazon Web Services (AWS) application integration must be configured."
+          ]
+        }
+      ]
+    },
+    "statuses": {
+      "statement": "On the Zscaler DLP Integration details page, the Connected Accounts section shows each integration's status as Enabled, Disabled or Failed; deleted integrations appear when Show Deleted Accounts is selected at the top right of that section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-aws-application-integrations-workflow-automation.json",
+          "quotes": [
+            "The Zscaler DLP Integration details page appears, displaying all the existing DLP AWS app integrations along with their specific statuses (Enabled, Disabled, and Failed) under the Connected Accounts section."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-aws-application-integrations-workflow-automation.json",
+          "quotes": [
+            "To display the deleted application integrations, select Show Deleted Accounts at the top right of the Connected Accounts section."
+          ],
+          "after": "all the existing DLP AWS app integrations along with their specific statuses (Enabled, Disabled, and Failed) under the Connected Accounts section."
+        }
+      ]
+    },
+    "edit-rules": {
+      "statement": "When editing, all displayed fields can be edited except IAM-Cross-Account Role External ID; for integrations with a Deleted status only the data privacy field settings can be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-aws-application-integrations-workflow-automation.json",
+          "quotes": [
+            "edit any of the fields that are displayed except for the IAM-Cross-Account Role External ID field. For integrations with a Deleted status, you can only edit the data privacy field settings."
+          ]
+        }
+      ]
+    },
+    "delete-rules": {
+      "statement": "Only connected accounts with a status of Enabled, Disabled or Failed can be deleted; Delete Integration changes the status to Deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-aws-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Only connected accounts with a status of Enabled, Disabled, or Failed can be deleted.",
+            "click Delete Integration. The status of the integration changes to Deleted."
+          ]
+        }
+      ]
+    },
+    "disable-enable": {
+      "statement": "Disable Integration applies to a connected account with an Enabled status and Enable Integration to one with a Disabled status, and the status changes accordingly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-aws-application-integrations-workflow-automation.json",
+          "quotes": [
+            "click the Edit icon next to a connected account with an Enabled status that you want to disable or an account with a Disabled status that you want to enable.",
+            "click Disable Integration or Enable Integration. The status of the integration changes to Disabled or Enabled."
+          ]
+        }
+      ]
+    },
+    "validate-on-edit": {
+      "statement": "Editing an integration also requires Validate to pass, and after a validation failure the admin must disable and re-enable the integration once the values are corrected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-aws-application-integrations-workflow-automation.json",
+          "quotes": [
+            "The integration can only be changed if it passes validation.",
+            "If the validation fails for any reason or if the configuration has been created or updated with the wrong values, the admin must disable and re-enable the integration after they have corrected the values for the integration."
+          ]
+        }
+      ]
+    },
+    "dashboard-view": {
+      "statement": "The Integrations dashboard displays all integrations by default (Connected filters to connected ones) and defaults to the tile view; the Connected status count excludes accounts with a Failed or Deleted status in both the tile and list views.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-aws-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Select All to display all the integrations or select Connected to display only those integrations that are connected. By default, all integrations are displayed.",
+            "By default, the dashboard is displayed in the tile view.",
+            "An oval is displayed at the top of the tile listing the number of accounts that are connected and the status of Connected. This number does not include accounts with a Failed or Deleted status.",
+            "An oval is displayed in the field listing the number of accounts that are connected and the status of Connected. This number does not include accounts with a Failed or Deleted status."
+          ]
+        }
+      ]
+    },
+    "configuration-tab": {
+      "statement": "The Configuration tab lists the DLP AWS application integration accounts with each account's status and the date it was last modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-aws-application-integrations-workflow-automation.json",
+          "quotes": [
+            "On the Configuration tab, you can view the list of DLP AWS application integration accounts along with the status of each account and the date when each account was last modified."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "failed-status-meaning": {
+      "kind": "semantic",
+      "title": "What does the Failed status mean and what causes it?",
+      "status": "open",
+      "detail": "The page lists Enabled, Disabled and Failed (and Deleted after deletion) without defining Failed or saying what moves an integration into it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

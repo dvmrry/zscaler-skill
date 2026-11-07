@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Forwarding Traffic to Virtual Service Edges for Internet & SaaS",
+  "source": {
+    "url": "https://help.zscaler.com/zia/forwarding-traffic-virtual-service-edges-internet-saas",
+    "node": "1401276",
+    "revision": "3205136",
+    "updated": "2026-05-15",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Virtual Service Edges for Internet & SaaS (ZIA) are hosted within an organization's premises. Zscaler recommends that you deploy Virtual Service Edges behind your firewall, though you can deploy them in the DMZ as well. The following sections describe the different ways that your organization can forward traffic to a Virtual Service Edge cluster."
+    },
+    {
+      "text": "Virtual Service Edges support IPv6 traffic if it's only forwarded via GRE tunnels. Contact Zscaler Support to enable and configure IPv6 for your organization."
+    },
+    {
+      "heading": "GRE Tunnels",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends that you configure a GRE tunnel from your internal router to the Virtual Service Edge cluster IP address. Because you are using internal IP addresses for the tunnel, you don't need to contact Zscaler to register the tunnel IP addresses. Though a Virtual Service Edge cluster provides failover and redundancy, you can also configure backup GRE tunnels between the internal router and Public Service Edges for Internet & SaaS."
+    },
+    {
+      "text": "GRE tunnels configured on Virtual Service Edges are dynamically established with no internal IP addresses, similar to unnumbered GRE tunnels. This requires Virtual Service Edges to be configured as locations. Zscaler uses any internal IP address configured on the router side of GRE tunnels for routing purposes only. Proxy settings or ICMP ping on these internal ranges are not supported. You must use GRE keepalives and ICMP pings to the Virtual Service Edge Virtual IP (VIP) for tunnel monitoring."
+    },
+    {
+      "heading": "PAC Files",
+      "level": 1
+    },
+    {
+      "text": "You can configure your users' devices to use a PAC file to forward their traffic to the internal Virtual Service Edge. You can edit the Zscaler default PAC file and add the Virtual Service Edge Cluster IP address as the proxy, for example:"
+    },
+    {
+      "text": "return \"PROXY 10.84.0.188:80; DIRECT\";"
+    },
+    {
+      "text": "You can configure a failover to the Public Service Edge too, as shown in the following example:"
+    },
+    {
+      "text": "Return \"PROXY 10.84.0.188:80; PROXY ${GATEWAY}:80; PROXY ${SECONDARY_GATEWAY}:80;DIRECT\";"
+    },
+    {
+      "text": "If you want a user to browse through the Virtual Service Edge while in the office and automatically switch over to a Public Service Edge when the user is out of the office, add the variable ${SRCIP} to direct the browser to send traffic to the Virtual Service Edge. The following is a sample argument:"
+    },
+    {
+      "text": "var egressip = \"${SRCIP}\"; if (shExpMatch(egressip,\"203.0.113.10\")) { /* User is in the office */ return \"PROXY 10.84.0.188:80;DIRECT\"; }"
+    },
+    {
+      "heading": "L2 Redirect",
+      "level": 1
+    },
+    {
+      "text": "If your router or switch is in the same subnet as the Virtual Service Edge cluster IP address, then you can configure your router or switch to use L2 forwarding to redirect packets to the Virtual Service Edge."
+    },
+    {
+      "text": "Cisco Web Cache Communication Protocol (WCCP) configurations don't work with Virtual Service Edges."
+    },
+    {
+      "text": "To learn more, see Configuring Virtual Service Edge Clusters for Internet & SaaS."
+    },
+    {
+      "heading": "Traffic from Home Users",
+      "level": 1
+    },
+    {
+      "text": "A location for Virtual Service Edge is created to allow home users to utilize Virtual Service Edges. However, this could lead to a Denial of Service (DoS) attack. To mitigate the risk of a DoS attack and avoid unauthorized access to the Virtual Service Edge, you can configure parameters on the Virtual Service Edge so that only the users' Zscaler Client Connector and GRE tunnel traffic are processed."
+    },
+    {
+      "text": "Ensure that your firewall allows the outbound connections listed on the ZIA Virtual Service Edge config page (i.e., config.zscaler.com/<Zscaler Cloud Name>/zia-v-sedge) and access to and from the IP addresses on the Zscaler Hub IP Addresses page (i.e., config.zscaler.com/<Zscaler Cloud Name>/hubs)."
+    },
+    {
+      "text": "You can find the <Zscaler Cloud Name> in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/zia-v-sedge. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names. ​​​​​​"
+    },
+    {
+      "text": "To configure Virtual Service Edge for home users:"
+    },
+    {
+      "item": "Stop the Virtual Service Edge using the following command:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "sudo vzen stop",
+      "depth": 0
+    },
+    {
+      "item": "Create the vzen_custom.config file using the following command:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "vi/sc/sme/conf/vzen_custom.conf",
+      "depth": 0
+    },
+    {
+      "item": "The vzen_custom.config file pre-exists if your organization uses the dual arm configuration for Virtual Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "Add the following line to the vzen_custom.config file:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "[SME] forbid_nongvzt_users=1 [-end-of-SME-]",
+      "depth": 0
+    },
+    {
+      "item": "Save and quit the file.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Start the Virtual Service Edge using the following command:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "sudo vzen start",
+      "depth": 0
+    }
+  ]
+}

@@ -7,13 +7,13 @@ last-verified: "2026-05-15"
 confidence: medium
 source-tier: practice
 sources:
-  - "references/shared/cloud-architecture.md"
-  - "references/zcc/index.md"
-  - "references/zia/traffic-forwarding-methods.md"
-  - "references/zpa/app-segments.md"
-  - "references/zia/url-filtering.md"
-  - "references/zia/ssl-inspection.md"
-  - "references/zpa/app-connector.md"
+  - "kb:shared.cloud-architecture"
+  - "kb:zcc.forwarding-profiles"
+  - "kb:zia.traffic-forwarding"
+  - "`kb:zpa.app-segments`"
+  - "kb:zia.url-filtering"
+  - "kb:zia.ssl-inspection"
+  - "`kb:zpa.app-connectors`"
 author-status: draft
 ---
 
@@ -54,32 +54,31 @@ Fast triage:
 
 | Stage | Failure cues | First docs | Related grounding |
 |---|---|---|---|
-| Origin | DNS points somewhere unexpected; host override; suffix issue | `references/shared/terminology.md` | none |
-| Forwarding | Z-Tunnel down; PAC/DIRECT surprise; GRE/IPsec/Cloud Connector path issue | `references/zcc/index.md`, `references/zia/traffic-forwarding-methods.md`, `references/cloud-connector/index.md` | none |
-| Identity | user/group/attribute mismatch; SCIM/SAML drift; step-up auth ambiguity | `references/zidentity/index.md`, `references/shared/scim-provisioning.md` | none |
-| Service Edge | wrong PoP; PSE/PSEN issue; subcloud/routing concern | `references/shared/cloud-architecture.md`, `references/zia/private-service-edge.md` | none |
-| Routing | internet vs private-app path is wrong; app segment catches/misses traffic | `references/zpa/app-segments.md`, `references/shared/source-ip-anchoring.md` | `grounding/zpa-segment-matching.md` |
-| ZIA policy | URL/category/rule/CAC/SSL/DLP/Sandbox outcome looks wrong | `references/zia/url-filtering.md`, `references/zia/ssl-inspection.md` | `grounding/zia-url-filtering-precedence.md`, `grounding/zia-ssl-inspection-bypass.md` |
-| ZPA connector | segment allowed but app not reached; empty `Connector`; no connector eligible | `references/zpa/app-connector.md`, `references/zpa/segment-server-groups.md` | `grounding/zpa-connector-assignment.md` |
-| Egress/response | destination allowlist/source-IP issue; SIPA; post-CONNECT surprise | `references/shared/source-ip-anchoring.md`, `references/zia/ssl-inspection.md` | depends on path |
+| Origin | DNS points somewhere unexpected; host override; suffix issue | `node scripts/kb.mjs resolve shared.terminology` | none |
+| Forwarding | Z-Tunnel down; PAC/DIRECT surprise; GRE/IPsec/Cloud Connector path issue | `kb:zcc.forwarding-profiles`, `kb:zia.traffic-forwarding`, `kb:cloud-connector.forwarding` | none |
+| Identity | user/group/attribute mismatch; SCIM/SAML drift; step-up auth ambiguity | `kb:zidentity.overview`, `node scripts/kb.mjs resolve shared.scim` | none |
+| Service Edge | wrong PoP; PSE/PSEN issue; subcloud/routing concern | `node scripts/kb.mjs resolve shared.cloud-architecture`, `kb:zia.private-service-edge` | none |
+| Routing | internet vs private-app path is wrong; app segment catches/misses traffic | `kb:zpa.app-segments`, `node scripts/kb.mjs resolve shared.source-ip-anchoring` | `grounding/zpa-segment-matching.md` |
+| ZIA policy | URL/category/rule/CAC/SSL/DLP/Sandbox outcome looks wrong | `kb:zia.url-filtering`, `kb:zia.ssl-inspection` | `grounding/zia-url-filtering-precedence.md`, `grounding/zia-ssl-inspection-bypass.md` |
+| ZPA connector | segment allowed but app not reached; empty `Connector`; no connector eligible | `kb:zpa.app-connectors`, `kb:zpa.server-groups` | `grounding/zpa-connector-assignment.md` |
+| Egress/response | destination allowlist/source-IP issue; SIPA; post-CONNECT surprise | `node scripts/kb.mjs resolve shared.source-ip-anchoring`, `kb:zia.ssl-inspection` | depends on path |
 
-## Inspect snapshot
+## Inspect tenant config
 
-Load only the cloud and product path for the stage being tested:
+Load only the product and types for the stage being tested. Use the overlay's
+IaC when `overlay.json` declares `iac`; use live read-only `zscalerctl` only when
+IaC cannot answer or for drift:
 
-- ZIA: `_data/snapshot/<cloud>/zia/`
-- ZPA: `_data/snapshot/<cloud>/zpa/`
-- ZCC: `_data/snapshot/<cloud>/zcc/`
+- ZIA: the overlay's IaC for the relevant `zia/<type-id>`, or `zscalerctl zia <type-id> list`
+- ZPA: the overlay's IaC for the relevant `zpa/<type-id>`, or `zscalerctl zpa <type-id> list`
+- ZCC: the overlay's IaC for the relevant `zcc/<type-id>`, or `zscalerctl zcc <type-id> list`
 
-Examples: `_data/snapshot/zs1/zia/`, `_data/snapshot/zs2/zpa/`,
-`_data/snapshot/beta/zcc/`.
-
-If a fork also has a product-first export from older scripts, treat it only as
-user-pointed scratch evidence. Do not treat it as canonical tenant truth, and
-do not collapse multi-cloud tenant state into that layout.
+Examples: `zia/url-filtering-rules`, `zpa/application-segments`,
+`zcc/forwarding-profiles`. Use `node scripts/kb.mjs resolve <type-id>` for field
+shapes. Do not collapse multi-cloud tenant state into one view.
 
 ## Use runtime logs only when
 
-- The snapshot explains what is configured but not what happened for this request.
+- The tenant config explains what is configured but not what happened for this request.
 - The symptom is time-bound, session-bound, or user-bound.
 - You need to prove the request entered a specific stage or path.

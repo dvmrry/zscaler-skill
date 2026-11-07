@@ -1,0 +1,804 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "IAM Roles and Permissions for Microsoft Azure",
+  "source": {
+    "url": "https://help.zscaler.com/ai-asset-mgmt/iam-roles-and-permissions-microsoft-azure",
+    "node": "1540254",
+    "revision": "3246014",
+    "updated": "2026-10-15",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "As part of the onboarding process, you need to deploy the AI Security templates in the Microsoft Entra tenant. These templates create a service principal (enterprise application), custom roles, and managed identities in Microsoft Entra ID. AI Security requires these roles to connect to the Microsoft Entra tenant, discover the resources, and collect metadata."
+    },
+    {
+      "heading": "IAM Roles",
+      "level": 1
+    },
+    {
+      "text": "AI Security creates the following IAM roles to access the Azure subscriptions:"
+    },
+    {
+      "item": "Resource Discovery Role",
+      "depth": 0
+    },
+    {
+      "item": "AI Security requires the resource discovery role to identify resources within the onboarded subscriptions. This role is assigned at the management group level and has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Type",
+          "Purpose"
+        ],
+        [
+          "*/read",
+          "Management group",
+          "Actions",
+          "To allow read permissions to read the metadata of Azure resources"
+        ],
+        [
+          "Microsoft.Insights/DiagnosticSettings/read",
+          "Management group",
+          "Actions",
+          "To discover diagnostic settings"
+        ],
+        [
+          "Microsoft.Insights/eventtypes/values/read",
+          "Management group",
+          "Actions",
+          "To read activity logs"
+        ],
+        [
+          "Microsoft.Resources/subscriptions/resourceGroups/read",
+          "Management group",
+          "Actions",
+          "To discover Azure resource groups"
+        ],
+        [
+          "Microsoft.Storage/storageAccounts/blobServices/containers/read",
+          "Management group",
+          "Actions",
+          "To discover Azure blob containers"
+        ],
+        [
+          "Microsoft.Storage/storageAccounts/listkeys/action",
+          "Management group",
+          "Actions",
+          "To discover Azure storage account keys"
+        ]
+      ]
+    },
+    {
+      "item": "AI Security Access Role",
+      "depth": 0
+    },
+    {
+      "item": "AI Security requires the access role to send data scan requests to the storage account queues that are used by the orchestrator subscription. The role is assigned at the AI Security resource group level and has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Type",
+          "Purpose"
+        ],
+        [
+          "Microsoft.Compute/virtualMachines/read",
+          "AI Security resource group",
+          "Actions",
+          "To read virtual machines"
+        ],
+        [
+          "Microsoft.Compute/virtualMachineScaleSets/deallocate/action",
+          "AI Security resource group",
+          "Actions",
+          "To deallocate virtual machine scale set"
+        ],
+        [
+          "Microsoft.Compute/virtualMachineScaleSets/virtualMachines/delete",
+          "AI Security resource group",
+          "Actions",
+          "To delete virtual machine in a virtual machine scale set"
+        ],
+        [
+          "Microsoft.Compute/virtualMachineScaleSets/write",
+          "AI Security resource group",
+          "Actions",
+          "To create or update virtual machine scale set"
+        ]
+      ]
+    },
+    {
+      "item": "Target Role",
+      "depth": 0
+    },
+    {
+      "item": "The orchestrator subscription requires the target role to scan the data stores. The role is assigned at the monitoring scope or target subscriptions level and has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Type",
+          "Purpose"
+        ],
+        [
+          "*/read",
+          "Monitored Subscriptions",
+          "Actions",
+          "To allow read permissions to read the metadata of Azure resources"
+        ],
+        [
+          "Microsoft.Compute/disks/beginGetAccess/action",
+          "Monitored Subscriptions",
+          "Actions",
+          "To get the SAS URI of the disk"
+        ],
+        [
+          "Microsoft.DBforPostgreSQL/flexibleServers/write",
+          "Monitored Subscriptions",
+          "Actions",
+          "To restore the PostgreSQL Flexible Server into the Orchestrator subscription"
+        ],
+        [
+          "Microsoft.Insights/DiagnosticSettings/write",
+          "Monitored Subscriptions",
+          "Actions",
+          "To create a diagnostic setting for Azure storage accounts"
+        ],
+        [
+          "Microsoft.Sql/servers/databases/write",
+          "Monitored Subscriptions",
+          "Actions",
+          "To restore the SQL server into the Orchestrator subscription"
+        ],
+        [
+          "Microsoft.Storage/storageAccounts/listkeys/action",
+          "Monitored Subscriptions",
+          "Actions",
+          "To read Azure storage account keys"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/read",
+          "Monitored Subscriptions",
+          "DataActions",
+          "To list the keys in a specified vault"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/unwrap/action",
+          "Monitored Subscriptions",
+          "DataActions",
+          "To unwrap a symmetric key with a Key Vault key"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/wrap/action",
+          "Monitored Subscriptions",
+          "DataActions",
+          "To wrap a symmetric key with a Key Vault key"
+        ],
+        [
+          "Microsoft.Storage/storageAccounts/blobServices/*/read",
+          "Monitored Subscriptions",
+          "DataActions",
+          "To read blobs from containers"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/secrets/getSecret/action",
+          "Monitored Subscriptions",
+          "DataActions",
+          "To get the value of a secret This permission is conditional and only required if Custom Network is used with Unmanaged DB Scanning."
+        ],
+        [
+          "Microsoft.ContainerRegistry/registries/pull/read",
+          "Monitored Subscriptions",
+          "Actions",
+          "To pull or get images from a container registry."
+        ],
+        [
+          "Microsoft.ContainerRegistry/registries/catalog/read",
+          "Monitored Subscriptions",
+          "DataActions",
+          "To list repositories in a container registry."
+        ],
+        [
+          "Microsoft.ContainerRegistry/registries/repositories/metadata/read",
+          "Monitored Subscriptions",
+          "DataActions",
+          "To get the metadata of a specific repository for a container registry."
+        ],
+        [
+          "Microsoft.ContainerRegistry/registries/repositories/content/read",
+          "Monitored Subscriptions",
+          "DataActions",
+          "To pull or get images from a container registry."
+        ]
+      ]
+    },
+    {
+      "item": "Orchestrator Role",
+      "depth": 0
+    },
+    {
+      "item": "The orchestrator instance requires this role to scan the data. The role is assigned at the AI Security resource group level and has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Type",
+          "Purpose"
+        ],
+        [
+          "*/read",
+          "AI Security resource group",
+          "Actions",
+          "To allow read permissions to read the metadata of Azure resources"
+        ],
+        [
+          "Microsoft.Compute/disks/beginGetAccess/action",
+          "AI Security resource group",
+          "Actions",
+          "To get the SAS URI of the disk"
+        ],
+        [
+          "Microsoft.Compute/disks/delete",
+          "AI Security resource group",
+          "Actions",
+          "To delete the disk"
+        ],
+        [
+          "Microsoft.Compute/disks/write",
+          "AI Security resource group",
+          "Actions",
+          "To create the disk"
+        ],
+        [
+          "Microsoft.Compute/snapshots/delete",
+          "AI Security resource group",
+          "Actions",
+          "To delete the snapshot"
+        ],
+        [
+          "Microsoft.Compute/snapshots/write",
+          "AI Security resource group",
+          "Actions",
+          "To create a snapshot"
+        ],
+        [
+          "Microsoft.Compute/virtualMachines/delete",
+          "AI Security resource group",
+          "Actions",
+          "To delete the virtual machine"
+        ],
+        [
+          "Microsoft.Compute/virtualMachines/extensions/write",
+          "AI Security resource group",
+          "Actions",
+          "To create virtual machine extension This permission is conditional and only required if Custom Network is selected."
+        ],
+        [
+          "Microsoft.Compute/virtualMachines/write",
+          "AI Security resource group",
+          "Actions",
+          "To create a virtual machine for scanning"
+        ],
+        [
+          "Microsoft.Compute/virtualMachineScaleSets/read",
+          "AI Security resource group",
+          "Actions",
+          "To read the properties of virtual machine scale sets"
+        ],
+        [
+          "Microsoft.Compute/virtualMachineScaleSets/virtualMachines/write",
+          "AI Security resource group",
+          "Actions",
+          "To update the properties of a virtual machine in a VM scale sets"
+        ],
+        [
+          "Microsoft.DBforPostgreSQL/flexibleServers/delete",
+          "AI Security resource group",
+          "Actions",
+          "To delete the PostgreSQL flexible server used for scanning"
+        ],
+        [
+          "Microsoft.DBforPostgreSQL/flexibleServers/PrivateEndpointConnectionsApproval/action",
+          "AI Security resource group",
+          "Actions",
+          "To determine if the user is allowed to approve a private endpoint connection"
+        ],
+        [
+          "Microsoft.DBforPostgreSQL/flexibleServers/read",
+          "AI Security resource group",
+          "Actions",
+          "To read the properties of the PostgreSQL flexible server"
+        ],
+        [
+          "Microsoft.DBforPostgreSQL/flexibleServers/write",
+          "AI Security resource group",
+          "Actions",
+          "To create the PostgreSQL flexible server for scanning"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/versions/read",
+          "AI Security resource group",
+          "Actions",
+          "To list the versions of a specified key, or read the specified version of a key"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/secrets/write",
+          "AI Security resource group",
+          "Actions",
+          "To create a new secret"
+        ],
+        [
+          "Microsoft.ManagedIdentity/userAssignedIdentities/assign/action",
+          "AI Security resource group",
+          "Actions",
+          "To assign the user-managed identity to scanner-related instances"
+        ],
+        [
+          "Microsoft.Network/networkSecurityGroups/join/action",
+          "AI Security resource group",
+          "Actions",
+          "To join the scanner network security group"
+        ],
+        [
+          "Microsoft.Network/privateEndpoints/delete",
+          "AI Security resource group",
+          "Actions",
+          "To delete the private endpoint created for scanning"
+        ],
+        [
+          "Microsoft.Network/privateEndpoints/write",
+          "AI Security resource group",
+          "Actions",
+          "To create the private endpoint for scanning"
+        ],
+        [
+          "Microsoft.Network/virtualNetworks/subnets/join/action",
+          "AI Security resource group",
+          "Actions",
+          "To join the scanner virtual network"
+        ],
+        [
+          "Microsoft.Network/virtualNetworks/subnets/joinViaServiceEndpoint/action",
+          "AI Security resource group",
+          "Actions",
+          "To join SQL database to scanner subnet"
+        ],
+        [
+          "Microsoft.Sql/servers/databases/delete",
+          "AI Security resource group",
+          "Actions",
+          "To delete the SQL server database created for scanning"
+        ],
+        [
+          "Microsoft.Sql/servers/databases/write",
+          "AI Security resource group",
+          "Actions",
+          "To create the SQL server database for scanning"
+        ],
+        [
+          "Microsoft.Sql/servers/delete",
+          "AI Security resource group",
+          "Actions",
+          "To delete the SQL server for scanning"
+        ],
+        [
+          "Microsoft.Sql/servers/write",
+          "AI Security resource group",
+          "Actions",
+          "To create the SQL server for scanning"
+        ],
+        [
+          "Microsoft.Sql/servers/virtualNetworkRules/delete",
+          "AI Security resource group",
+          "Actions",
+          "To delete a virtual network rule added for scanning"
+        ],
+        [
+          "Microsoft.Sql/servers/virtualNetworkRules/write",
+          "AI Security resource group",
+          "Actions",
+          "To create a virtual network rule for scanning"
+        ],
+        [
+          "Microsoft.Storage/storageAccounts/listkeys/action",
+          "AI Security resource group",
+          "Actions",
+          "To discover Azure storage account keys"
+        ],
+        [
+          "Microsoft.Storage/storageAccounts/queueServices/queues/read",
+          "AI Security resource group",
+          "Actions",
+          "To read AI Security queues"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/read",
+          "AI Security resource group",
+          "DataActions",
+          "To list the keys in a specified vault"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/unwrap/action",
+          "AI Security resource group",
+          "DataActions",
+          "To unwrap a symmetric key with a Key Vault key"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/wrap/action",
+          "AI Security resource group",
+          "DataActions",
+          "To wrap a symmetric key with a Key Vault key"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/secrets/delete",
+          "AI Security resource group",
+          "DataActions",
+          "To delete a secret created for scanning"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/secrets/getSecret/action",
+          "AI Security resource group",
+          "DataActions",
+          "To get the value of a secret"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/secrets/readMetadata/action",
+          "AI Security resource group",
+          "DataActions",
+          "To read the metadata of the secret"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/secrets/setSecret/action",
+          "AI Security resource group",
+          "DataActions",
+          "To set the value for the secret"
+        ],
+        [
+          "Microsoft.Storage/storageAccounts/fileServices/fileshares/files/write",
+          "Monitored Subscriptions",
+          "DataActions",
+          "To write MIP labeled files"
+        ],
+        [
+          "Microsoft.Storage/storageAccounts/fileServices/writeFileBackupSemantics/action",
+          "Monitored Subscriptions",
+          "DataActions",
+          "To write file backup semantics privilege"
+        ]
+      ]
+    },
+    {
+      "heading": "API Permissions",
+      "level": 2
+    },
+    {
+      "item": "The following API permissions are required for MIP labeling:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Application",
+          "Application Permission",
+          "Scope",
+          "Type",
+          "Purpose"
+        ],
+        [
+          "Azure Rights Management Services",
+          "Content.Writer",
+          "Orchestrator Managed Identity",
+          "Application",
+          "To create protected content"
+        ],
+        [
+          "Microsoft Information Protection Sync Service",
+          "UnifiedPolicy.Tenant.Read",
+          "Orchestrator Managed Identity",
+          "Application",
+          "To read all unified policies of the tenant"
+        ]
+      ]
+    },
+    {
+      "item": "Scanner Role",
+      "depth": 0
+    },
+    {
+      "item": "The scanner role is used by the scanner instances that are launched in the orchestrator subscription to perform data scanning. The role is assigned at the AI Security resource group level and has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Type",
+          "Purpose"
+        ],
+        [
+          "*/read",
+          "AI Security resource group",
+          "Actions",
+          "To allow read permissions to read the metadata of Azure resources"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/secrets/getSecret/action",
+          "AI Security resource group",
+          "DataActions",
+          "To get the value of a secret"
+        ],
+        [
+          "Microsoft.Storage/storageAccounts/blobServices/*/read",
+          "AI Security resource group",
+          "DataActions",
+          "To read blobs from containers"
+        ]
+      ]
+    },
+    {
+      "item": "Custom Network Configuration Role",
+      "depth": 0
+    },
+    {
+      "item": "To configure a custom network in your organization, the orchestrator requires the following roles and permissions at the subscription level, to establish a connection between the custom network components, the scanner instance, and SQL database.",
+      "depth": 0
+    },
+    {
+      "item": "These permissions are conditional and only required if Custom Network is selected.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Type",
+          "Purpose"
+        ],
+        [
+          "Microsoft.Network/networkSecurityGroups/join/action",
+          "Orchestrator Subscription",
+          "Actions",
+          "To join the Network Security Group of the Custom Network mode"
+        ],
+        [
+          "Microsoft.Network/virtualNetworks/subnets/join/action",
+          "Orchestrator Subscription",
+          "Actions",
+          "To join the subnet of the Custom Network"
+        ],
+        [
+          "Microsoft.Network/virtualNetworks/subnets/joinViaServiceEndpoint/action",
+          "Orchestrator Subscription",
+          "Actions",
+          "To join the SQL database to a subnet of the Custom Network"
+        ]
+      ]
+    },
+    {
+      "item": "Encryption Role",
+      "depth": 0
+    },
+    {
+      "item": "This role is used by the Local Scanner Platform to perform the CMK encryption related tasks on instances.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Type",
+          "Purpose"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/read",
+          "AI Security resource group",
+          "Actions",
+          "To list the keys in a specified vault"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/unwrap/action",
+          "AI Security resource group",
+          "DataActions",
+          "To unwrap a symmetric key with a Key Vault key"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/wrap/action",
+          "AI Security resource group",
+          "DataActions",
+          "To wrap a symmetric key with a Key Vault key"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/read",
+          "AI Security resource group",
+          "DataActions",
+          "To list the keys in a specified vault"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/decrypt/action",
+          "AI Security resource group",
+          "DataActions",
+          "To decrypt ciphertext with a key"
+        ],
+        [
+          "Microsoft.KeyVault/vaults/keys/encrypt/action",
+          "AI Security resource group",
+          "DataActions",
+          "To encrypt plaintext with a key"
+        ]
+      ]
+    },
+    {
+      "item": "Custom Role (AI Agent)",
+      "depth": 0
+    },
+    {
+      "item": "The custom role is required to collect data from AI services. Assign this role to the Tree Discovery service principal, created by the Tree Discovery template, for each subscription.",
+      "depth": 0
+    },
+    {
+      "item": "This role is required only when AI service data collection is enabled.",
+      "depth": 1
+    },
+    {
+      "item": "Assign the role at the subscription level, not the root management group.",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Scope",
+          "Type",
+          "Purpose"
+        ],
+        [
+          "Microsoft.MachineLearningServices/workspaces/*/read",
+          "Service Principal",
+          "notActions",
+          "To read the machine learning services workspace"
+        ],
+        [
+          "Microsoft.CognitiveServices/accounts/OpenAI/assistants/read",
+          "Service Principal",
+          "DataActions",
+          "To read the OpenAI assistants"
+        ],
+        [
+          "Microsoft.CognitiveServices/accounts/OpenAI/assistants/files/read",
+          "Service Principal",
+          "DataActions",
+          "To read the OpenAI assistant files"
+        ],
+        [
+          "Microsoft.CognitiveServices/accounts/OpenAI/assistants/threads/messages/read",
+          "Service Principal",
+          "DataActions",
+          "To read the OpenAI assistant thread messages"
+        ],
+        [
+          "Microsoft.CognitiveServices/accounts/OpenAI/assistants/threads/messages/files/read",
+          "Service Principal",
+          "DataActions",
+          "To read the OpenAI assistant thread message files"
+        ],
+        [
+          "Microsoft.CognitiveServices/accounts/OpenAI/assistants/threads/runs/read",
+          "Service Principal",
+          "DataActions",
+          "To read the OpenAI assistant thread run"
+        ],
+        [
+          "Microsoft.CognitiveServices/accounts/OpenAI/assistants/threads/runs/steps/read",
+          "Service Principal",
+          "DataActions",
+          "To read the OpenAI assistant thread run step"
+        ],
+        [
+          "Microsoft.CognitiveServices/accounts/OpenAI/assistants/vector_stores/read",
+          "Service Principal",
+          "DataActions",
+          "To read the vector stores"
+        ],
+        [
+          "Microsoft.CognitiveServices/accounts/OpenAI/assistants/vector_stores/file_batches/read",
+          "Service Principal",
+          "DataActions",
+          "To read vector store file batches"
+        ],
+        [
+          "Microsoft.CognitiveServices/accounts/OpenAI/assistants/vector_stores/files/read",
+          "Service Principal",
+          "DataActions",
+          "To read vector store files"
+        ],
+        [
+          "Microsoft.CognitiveServices/accounts/AIServices/agents/read",
+          "Service Principal",
+          "DataActions",
+          "To read AI services metadata"
+        ]
+      ]
+    },
+    {
+      "item": "Service Principal API Permissions",
+      "depth": 0
+    },
+    {
+      "item": "The following API permissions are required for the AI Security service principal registered in Microsoft Entra ID:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Type",
+          "Purpose"
+        ],
+        [
+          "Application.Read.All",
+          "Application",
+          "To read all applications"
+        ],
+        [
+          "AuditLog.Read.All",
+          "Application",
+          "To read all audit log data"
+        ],
+        [
+          "Directory.Read.All",
+          "Application",
+          "To read directory data"
+        ],
+        [
+          "Organization.Read.All",
+          "Application",
+          "To read organization information"
+        ],
+        [
+          "Reports.Read.All",
+          "Application",
+          "To read all usage reports"
+        ],
+        [
+          "RoleManagement.Read.Directory",
+          "Application",
+          "To read all directory RBAC settings"
+        ],
+        [
+          "RoleManagementPolicy.Read.Directory",
+          "Application",
+          "To read all policies for privileged role assignments of your company's directory"
+        ],
+        [
+          "User.Read",
+          "Delegate",
+          "To sign in and read user profile"
+        ],
+        [
+          "UserAuthenticationMethod.Read.All",
+          "Application",
+          "To read all users' authentication methods"
+        ]
+      ]
+    }
+  ]
+}

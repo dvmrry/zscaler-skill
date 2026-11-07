@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Safeguarding SSL/TLS Keys & Data Collected During SSL/TLS Inspection",
+  "source": {
+    "url": "https://help.zscaler.com/zia/safeguarding-ssltls-keys-and-data-collected-during-ssltls-inspection",
+    "node": "1399196",
+    "revision": "3191645",
+    "updated": "2026-04-16",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Zscaler software architecture is engineered to minimize exposure of the private keys as well as the SSL/TLS intercepted data collected during SSL/TLS Inspection. The keys and data are kept secure through all phases:"
+    },
+    {
+      "item": "Key Generation",
+      "depth": 0
+    },
+    {
+      "item": "When the administrator of an organization requests a CSR for an intermediate Central Authority (CA), the Zscaler CA generates a 2048-bit private and public key pair. The private key is immediately encrypted with AES encryption using a password. When a Public Service Edge for Internet & SaaS (ZIA) requests the private key for SSL/TLS Inspection, it uses this same algorithm to decrypt the private key, as explained in Key Distribution. This ensures that the private key password isn't transmitted or stored on disk on any system; it's stored in the system’s memory only.",
+      "depth": 0
+    },
+    {
+      "item": "The CA encrypts the private key and stores it in an SQL database that contains your organization’s policies. The SQL database is accessible only to your organization by logging in with authorized admin credentials. Any write operation to the CA database is immediately replicated to two other identical CA servers in physically separate locations in the US for rapid disaster recovery. The keys are never in the decrypted state on the CA server after they are encrypted.",
+      "depth": 0
+    },
+    {
+      "item": "Key Distribution",
+      "depth": 0
+    },
+    {
+      "item": "When a user from your organization tries to access a site that uses HTTPS/SSL/TLS, the Public Service Edge requests your organization’s key pair from the CA. The CA sends the key pair over a 2048-bit TLS connection to the Public Service Edge, along with your organization’s intermediate certificate. The CA sends the key pair and certificate only to the requesting Public Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "If a location’s traffic is sent to an organization’s private Public Service Edge only, then the CA sends the private key to the private Public Service Edges only. It does not send the organization’s keys and intermediate certificate to public Public Service Edges in the Zscaler cloud.",
+      "depth": 0
+    },
+    {
+      "item": "The Public Service Edge maintains the private key unencrypted in its RAM to generate certificates for the websites that the user visits. These certificates are dynamically generated each time in RAM and not stored in any storage medium.",
+      "depth": 0
+    },
+    {
+      "item": "Additionally, the Public Service Edge caches the intermediate certificate that it received from the CA, until it receives a new intermediate certificate from the CA. Your organization sets the expiration date for the certificate and can revoke it at any time. Administrators cannot use the intermediate certificate issued to Zscaler to sign any other certificate because the private key never leaves the Zscaler CA or Public Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "If all CA servers in a cluster are not available due to a catastrophic event and the Public Service Edges are still active, the Public Service Edges continue to perform SSL/TLS Inspection as long as an organization’s policies, certificates and keys already reside in the Public Service Edge’s memory. If a Public Service Edge does not have the policy and keys for an organization, then the Public Service Edge won't decrypt the SSL/TLS traffic. In the unlikely event that both the CA and Public Service Edge are not available, the Zscaler service supports a proxy bypass capability where all traffic is allowed without protection.",
+      "depth": 0
+    },
+    {
+      "item": "Key Deletion",
+      "depth": 0
+    },
+    {
+      "item": "A Public Service Edge allocates memory from a special region for all SSL/TLS operations. This region of memory is always zeroed out as soon as the memory is released. This applies to packet buffers as well as key storage areas. A Public Service Edge also does not allow a data dump from this area from the command line. All data is zeroed out if a process core must be dumped due to a software error. Due to these precautions, the Zscaler cloud is invulnerable to SSL/TLS Heartbleed attacks.",
+      "depth": 0
+    },
+    {
+      "item": "The CA sends SSL/TLS keys only to the Public Service Edges that process your organization’s traffic. They are only ephemerally present in the Public Service Edge RAM and are zeroed out of RAM after they are unused for a short period of time.",
+      "depth": 0
+    },
+    {
+      "item": "When a new intermediate certificate is generated, a new key is generated as well. The old key and intermediate certificate are removed from the database, as well as the database backup.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler takes your organization's security and privacy seriously and strives to ensure your data is securely handled. Zscaler audits its security designs regularly to ensure it meets the highest level of security standards possible.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler operation processes and its Information Security Management System (ISMS) are ISO 27001 and SOC 2 Type II certified. All Public Service Edges and CAs are monitored for 24 hours. Access to the CA and Public Service Edges is highly restricted and controlled.",
+      "depth": 0
+    }
+  ]
+}

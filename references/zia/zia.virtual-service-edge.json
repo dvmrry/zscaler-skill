@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge",
+  "title": "ZIA Virtual Service Edge",
+  "aliases": [
+    "virtual service edge",
+    "vse",
+    "vzen",
+    "virtual zen",
+    "zia vse",
+    "vse cluster",
+    "software service edge"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.model",
+      "because": "zia.virtual-service-edge.clusters:bind-to-location"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.forwarding-control.sipa",
+      "because": "zia.virtual-service-edge.limits:no-sipa"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.virtual-service-edge.clusters",
+      "because": "zia.virtual-service-edge.clusters:production-needs-cluster"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.virtual-service-edge.platforms",
+      "because": "zia.virtual-service-edge.platforms:supported-platforms"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/vzen-clusters"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/vzen-nodes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.network-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.cloud-deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.bring-up"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Virtual Service Edge (VSE) is the software form factor of an on-premises Service Edge. Questions about it split cleanly, and the answers differ by platform, so establish the platform first."
+    },
+    {
+      "steps": [
+        {
+          "label": "Where can it run, and what version?",
+          "text": "The platform list, which platforms can cluster, and the image requirements: [[zia.virtual-service-edge.platforms]]. Per-cloud deployment on Azure, AWS and GCP: [[zia.virtual-service-edge.cloud-deployment]]. The install sequence on the VM: [[zia.virtual-service-edge.bring-up]]."
+        },
+        {
+          "label": "How much can one VM do?",
+          "text": "Throughput, SSL connections per second, memory and the SSL card: [[zia.virtual-service-edge.sizing]]."
+        },
+        {
+          "label": "What is a cluster, and what does one need?",
+          "text": "Size limits, licensing, the cluster object, binding to a Location: [[zia.virtual-service-edge.clusters]]. How traffic is spread and how the cluster fails over: [[zia.virtual-service-edge.load-balancing]]."
+        },
+        {
+          "label": "What does the network have to provide?",
+          "text": "[[zia.virtual-service-edge.network-requirements]]. Sending traffic to it: [[zia.virtual-service-edge.forwarding]]."
+        },
+        {
+          "label": "Who runs it day to day?",
+          "text": "Upgrades, who can see it, logging and hardening: [[zia.virtual-service-edge.upgrades]], [[zia.virtual-service-edge.operations]]. The vzen command line: [[zia.virtual-service-edge.troubleshooting]]."
+        },
+        {
+          "label": "What does it not do, and how is it automated?",
+          "text": "[[zia.virtual-service-edge.limits]], [[zia.virtual-service-edge.api-surface]]."
+        }
+      ]
+    },
+    {
+      "text": "The hardware form factor is a different operating model with different limits: [[zia.private-service-edge]]. {{hardware-sizing-differs}}"
+    }
+  ],
+  "claims": {
+    "hardware-sizing-differs": {
+      "statement": "A Virtual Service Edge is sized as a single VM of up to 600 Mbps total throughput, while the hardware Private Service Edge is sized per cluster design (Private Service Edge 3 for 1 Gbps download, Private Service Edge 5 for 2 Gbps download), so the hardware sizing figures do not carry over to a Virtual Service Edge.",
+      "tier": "B",
+      "derived_from": [
+        "zia.virtual-service-edge.sizing:single-vm-size",
+        "zia.private-service-edge.sizing:design-pse3",
+        "zia.private-service-edge.sizing:design-pse5"
+      ],
+      "conditions": "Compares the two sizing bases as the pages state them. Covers sizing only; whether the operating assumptions also differ is not claimed here."
+    }
+  }
+}

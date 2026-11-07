@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk.disaster-recovery",
+  "title": "ZSDK disaster recovery: scope, prerequisites, settings and DNS records",
+  "aliases": [
+    "zsdk disaster recovery",
+    "zsdk dr",
+    "zsdk dr dns txt record",
+    "zsdk max age for authentication"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.app-connectors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose-and-scope}} {{bypass-cloud-default-off}}"
+    },
+    {
+      "heading": "Prerequisites and settings"
+    },
+    {
+      "text": "{{prerequisites}} {{firewall-requirement}} {{settings-fields}}"
+    },
+    {
+      "heading": "DNS records"
+    },
+    {
+      "text": "{{dns-records}} {{client-behavior-after-upload}} Which client the Client Connector wording means is open {{gap:client-connector-wording}}. The TXT record format shown in the prerequisites differs from the configuration example {{gap:txt-record-format}}, and the meaning of its fields and of the settings is open {{gap:settings-meaning}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether end users run ZSDK version 2.0 or later, a separate DR domain exists, and the Private Service Edge IP addresses are in the DNS records.",
+      "uses": [
+        "prerequisites",
+        "dns-records"
+      ]
+    },
+    {
+      "do": "Whether a firewall in front of the Private Service Edge allows outbound connections to the Public Service Edge IP addresses and inbound connections from App Connectors and Zscaler Client Connectors.",
+      "uses": [
+        "firewall-requirement"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose-and-scope": {
+      "statement": "Disaster recovery ensures business continuity when the Zscaler service is impacted globally, and can be enabled on defined application segments, App Connector groups and Private Service Edge groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-viewing-disaster-recovery.json",
+          "quotes": [
+            "Disaster recovery ensures business continuity when Zscaler service is impacted globally."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-viewing-disaster-recovery.json",
+          "quotes": [
+            "Defined Application Segments",
+            "App Connector Groups",
+            "Private Service Edge Groups"
+          ],
+          "after": "In the ZSDK Admin Portal, you can enable disaster recovery on the following:"
+        }
+      ]
+    },
+    "bypass-cloud-default-off": {
+      "statement": "Application segments and Private Service Edge groups designated for disaster recovery bypass the ZSDK cloud; disaster recovery is disabled by default on both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "Application segments that are designated for disaster recovery bypass the ZSDK cloud to ensure business continuity in the event of a disaster scenario. Disaster recovery is disabled by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-zsdk-private-service-edges.json",
+          "quotes": [
+            "Private Service Edge groups that are designated for disaster recovery bypass the ZSDK cloud to ensure business continuity in the event of a disaster scenario. Disaster recovery is disabled by default."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Before enabling disaster recovery, critical segments and groups must be identified, end users must run ZSDK version 2.0 or later, and a separate DNS domain name must be created for it with the Private Service Edge IP addresses entered in what the page calls the \"TXT DNS A record\" (it mixes the TXT and A record names).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-configuring-disaster-recovery.json",
+          "quotes": [
+            "Identify critical application segments, App Connector groups, and ZSDK Private Service Edge groups to designate for disaster recovery.",
+            "Ensure the end user's machines are running ZSDK version 2.0 or later.",
+            "Create a separate domain name in your DNS for disaster recovery.",
+            "Then enter the IP addresses of the Private Service Edges designated for disaster recovery into the TXT DNS A record."
+          ]
+        }
+      ]
+    },
+    "settings-fields": {
+      "statement": "The Disaster Recovery Settings page takes Max Age for Authentication (a number plus Hours, Days or Weeks), a Disaster Recovery Public Key and a Disaster Recovery Domain Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-configuring-disaster-recovery.json",
+          "quotes": [
+            "Max Age for Authentication: Enter a numerical value and select an age type (Hours, Days, Weeks).",
+            "Disaster Recovery Public Key: Upload a public key.",
+            "Disaster Recovery Domain Name: Enter the domain name."
+          ]
+        }
+      ]
+    },
+    "dns-records": {
+      "statement": "Disaster recovery needs two DNS record types: a DNS TXT record that triggers it (for the initial version, v=1;k=all;b=on;d=dr.domain.com, where b=on enables disaster recovery for the domain) and a DNS A record that the page says Zscaler Client Connector uses to discover the Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-configuring-disaster-recovery.json",
+          "quotes": [
+            "DNS TXT: Triggers the activity of disaster recovery.",
+            "If this is the initial version, then enter the following: v=1;k=all;b=on;d=dr.domain.com.",
+            "When b=on, disaster recovery is enabled for your organization's domain.",
+            "DNS A: Used by Zscaler Client Connector to discover the Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "firewall-requirement": {
+      "statement": "A Private Service Edge deployed behind a firewall must be allowed outbound connections to the Public Service Edge IP addresses and inbound connections from App Connectors and Zscaler Client Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-configuring-disaster-recovery.json",
+          "quotes": [
+            "your firewall must be configured to let the Private Service Edge establish outbound connections to the IP addresses of the Public Service Edge, and establish inbound connections from App Connectors and Zscaler Client Connectors."
+          ]
+        }
+      ]
+    },
+    "client-behavior-after-upload": {
+      "statement": "Upon a successful upload of the DNS records to the cloud computing platforms, the ZSDK client attempts connections to the Private Service Edges enabled for disaster recovery.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-configuring-disaster-recovery.json",
+          "quotes": [
+            "Upon a successful upload, the ZSDK client attempts connections to the Private Service Edges that are enabled for disaster recovery.",
+            "After the DNS records are created, upload them onto your cloud computing platforms."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "client-connector-wording": {
+      "kind": "semantic",
+      "title": "Which client the Zscaler Client Connector wording in the disaster recovery steps refers to",
+      "status": "open",
+      "detail": "The DNS A record description and the firewall requirement name Zscaler Client Connector, while the upload step says the ZSDK client attempts connections and the hub separates ZSDK from Client Connector. No captured page says whether these are the same client.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "txt-record-format": {
+      "kind": "semantic",
+      "title": "Whether the DR TXT record is b=off or b=on",
+      "status": "open",
+      "detail": "The Configuring Disaster Recovery article's prerequisites say to ensure the TXT DNS A record has the format v=1;k=all;b=off;d=your.disaster-recovery.domain, while its configuration step for the initial version gives v=1;k=all;b=on;d=dr.domain.com. and says b=on enables disaster recovery. The captured page does not say whether b=off is the stored state before a disaster or an example format.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "settings-meaning": {
+      "kind": "semantic",
+      "title": "What the DR settings and TXT fields mean",
+      "status": "open",
+      "detail": "The articles do not define what Max Age for Authentication bounds, what the k= and v= TXT fields mean, or what the Disaster Recovery Public Key contains. ZSDK version 2.0 or later is stated as an end-user requirement without saying which component version it names.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

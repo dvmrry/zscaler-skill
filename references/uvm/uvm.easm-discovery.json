@@ -1,0 +1,424 @@
+{
+  "schema_version": 1,
+  "id": "uvm.easm-discovery",
+  "title": "How EASM discovery profiles work: seeds and their formats, limits, scan cadence, permissions and reports",
+  "aliases": [
+    "discovery profile",
+    "easm seeds",
+    "external attack surface management discovery",
+    "discovery settings"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.tickets"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{discovery-methods}} {{discovery-process}}"
+    },
+    {
+      "label": "Risk detection.",
+      "text": "{{risk-detections}} {{inactive-aging}}"
+    },
+    {
+      "label": "Access.",
+      "text": "{{access}} {{edit-delete-permission}} {{export-permission}}"
+    },
+    {
+      "label": "Seeds.",
+      "text": "{{seed-types}} {{seed-limit}} {{exclude-needs-include}} {{profile-per-entity}} {{divergence:profiles-per-entity}} [[easm.discovery:profile-one-per-org]]"
+    },
+    {
+      "label": "Seed formats.",
+      "text": "{{ip-format}} {{block-format}} {{domain-org-format}} {{csv-format}}"
+    },
+    {
+      "label": "Scanning and profile changes.",
+      "text": "{{scan-weekly}} {{profile-list}} {{results-location}} {{edit-profile}} {{delete-profile}} Limits on the number of profiles and the aging default are open {{gap:profile-limits}}; aging rules are in [[unified.secops-platform.data.asset-aging]]."
+    },
+    {
+      "label": "Reports.",
+      "text": "{{report-contents}} {{report-purposes}}"
+    },
+    {
+      "label": "Related.",
+      "text": "[[uvm.overview]] [[aem.overview]] [[uvm.tickets]]"
+    }
+  ],
+  "claims": {
+    "profile-list": {
+      "statement": "The EASM Settings page lists each discovery profile with its name, counts of included and excluded seeds, last scan timestamp and scan status; the Status column tracks progress, successful completion and failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-discovery-settings.json",
+          "quotes": [
+            "The discovery profile is saved and displayed on the EASM Settings page.",
+            "you can view your configured discovery profiles along with their name, individual counts of included and excluded seeds, last scan timestamp, and scan status.",
+            "you can track the scan status, including progress, successful completion, and failure, under the Status column."
+          ]
+        }
+      ]
+    },
+    "results-location": {
+      "statement": "After a scan completes, the ingested assets are viewed on the Assets page (the page places the unified asset inventory in AEM) and the associated risk detections on the Findings page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-discovery-settings.json",
+          "quotes": [
+            "After scanning is completed, you can view the ingested assets on the Assets page and the associated risk detections on the Findings page.",
+            "you can view the unified asset inventory in Asset Exposure Management (AEM)"
+          ]
+        }
+      ]
+    },
+    "csv-format": {
+      "statement": "Domain, IP address and IP block seeds can be uploaded from a CSV file with each entry in a separate row and no header row required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-discovery-settings.json",
+          "quotes": [
+            "Ensure that the file contains valid domains, with each entry listed in a separate row. A header row is not required.",
+            "Ensure that the file contains valid IP addresses, with each entry listed in a separate row. A header row is not required.",
+            "Ensure that the file contains valid IP address blocks, with each entry listed in a separate row. A header row is not required."
+          ]
+        }
+      ]
+    },
+    "profile-per-entity": {
+      "statement": "A discovery profile groups relevant seeds by including or excluding seeds across asset types, and separate profiles can be created for different business entities such as a parent company and its subsidiaries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-discovery-settings.json",
+          "quotes": [
+            "You can create a discovery profile by including or excluding specific seeds across different asset types.",
+            "Discovery profiles add a layer of granularity to tracking and managing your attack surface by grouping relevant seeds.",
+            "you can create distinct discovery profiles for different business entities (e.g., parent company, subsidiaries) to individually manage the corresponding attack surfaces."
+          ]
+        }
+      ]
+    },
+    "report-purposes": {
+      "statement": "The exported discovery profile reports are described as usable for executive- and board-level communication, for summarizing the inherited risks of a target company in mergers and acquisitions, and for auditing to demonstrate continuous monitoring.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-exporting-reports-discovery-profiles.json",
+          "quotes": [
+            "These reports can be used in executive- and board-level communication to report on the organization's external posture across dimensions",
+            "They can also be used in mergers and acquisitions to summarize the inherited risks of a target company",
+            "These reports also serve auditing purposes to demonstrate continuous monitoring and adherence to regulatory frameworks."
+          ]
+        }
+      ]
+    },
+    "access": {
+      "statement": "On the SecOps platform, access to EASM capabilities requires AEM or UVM or both, and configuring and managing discovery settings requires Read, Create, Edit and Delete permissions for the EASM Configuration resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-discovery-settings.json",
+          "quotes": [
+            "To access Zscaler's EASM capabilities, your organization must have either AEM or UVM, or both.",
+            "To configure and manage EASM Discovery Settings, your assigned role must include Read, Create, Edit, and Delete permissions for the EASM Configuration resource.",
+            "In the Zscaler Security Operations (SecOps) platform, go to Configure > EASM Settings."
+          ]
+        }
+      ]
+    },
+    "edit-delete-permission": {
+      "statement": "Managing (editing and deleting) discovery profiles requires Read, Edit and Delete permissions for the EASM Configuration resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-discovery-profiles.json",
+          "quotes": [
+            "your assigned role must include Read, Edit, and Delete permissions for the EASM Configuration resource."
+          ]
+        }
+      ]
+    },
+    "export-permission": {
+      "statement": "Exporting a discovery profile report requires Read permission under the EASM Configuration resource, and the report is generated and downloaded as a PPTX file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-exporting-reports-discovery-profiles.json",
+          "quotes": [
+            "your assigned role must include Read permission under the EASM Configuration resource.",
+            "The report is generated and downloaded to your system as a PPTX file."
+          ]
+        }
+      ]
+    },
+    "seed-types": {
+      "statement": "A seed is a known legitimate asset such as a domain, IP address or IP address block, and an organization name can also be used as a seed for reverse domain lookup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-discovery-settings.json",
+          "quotes": [
+            "A seed is a known, legitimate asset belonging to your organization—such as a domain, IP address, or IP address block",
+            "You can also use an organization's name as a seed to find related domains by performing a reverse domain lookup."
+          ]
+        }
+      ]
+    },
+    "scan-weekly": {
+      "statement": "Discovery profile scan frequency is set automatically to Weekly and cannot be changed; modifying the seeds in a profile triggers a new scan, and a scan typically takes a few hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-discovery-settings.json",
+          "quotes": [
+            "Scanning frequency is automatically set to Weekly and cannot be changed.",
+            "when seeds within a discovery profile are modified, a new scan is triggered",
+            "The scanning process typically takes a few hours"
+          ]
+        }
+      ]
+    },
+    "seed-limit": {
+      "statement": "A discovery profile can have a maximum of 100 seeds across the seed types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-discovery-settings.json",
+          "quotes": [
+            "A discovery profile can have a maximum of 100 seeds across the seed types."
+          ]
+        }
+      ]
+    },
+    "exclude-needs-include": {
+      "statement": "Excluding domains, IP addresses, IP blocks or organizations requires first including at least one seed of any type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-discovery-settings.json",
+          "quotes": [
+            "To exclude specific domains, you must first include at least one seed (of any type) to define the target for initiating scanning.",
+            "To exclude specific IP addresses, you must first include at least one seed (of any type) to define the target for initiating scanning.",
+            "To exclude specific IP address blocks, you must first include at least one seed (of any type) to define the target for initiating scanning.",
+            "To exclude specific organizations from scanning, you must first include at least one seed (of any type) to define the target for initiating scanning."
+          ]
+        }
+      ]
+    },
+    "ip-format": {
+      "statement": "IP seed addresses must be strictly formatted IPv4; subnet mask, port number and CIDR notation are not supported, and IPv6 is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-discovery-settings.json",
+          "quotes": [
+            "The IP address must be a strictly formatted IPv4 address (e.g., 192.0.2.2). Subnet mask, port number, and CIDR notation (e.g., appending /24 is invalid) are not supported. IPv6 addresses are also not supported."
+          ]
+        }
+      ]
+    },
+    "block-format": {
+      "statement": "IP block seeds must be an IPv4 address followed by a slash and an unsigned integer prefix between 20 and 32 inclusive; prefixes from 0 to 19 and explicit signs are not allowed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-discovery-settings.json",
+          "quotes": [
+            "The IP address portion must strictly adhere to the formatting rules for IPv4 addresses.",
+            "The subnet mask portion must be a valid, unsigned integer. Explicit positive or negative signs (e.g., +24 or -24) are not allowed.",
+            "The subnet mask must be between 20 and 32, inclusive of these numbers (e.g., 192.0.2.0/32). Subnet masks between 0 and 19, including these numbers, are not allowed."
+          ]
+        }
+      ]
+    },
+    "domain-org-format": {
+      "statement": "Domain seeds support domains, subdomains, top-level domains and punycode extensions, and organization seed names must be at least 4 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-discovery-settings.json",
+          "quotes": [
+            "Domains, subdomains, top-level domains, and punycode extensions are supported."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-discovery-settings.json",
+          "quotes": [
+            "The organization name must have a minimum length of 4 characters."
+          ]
+        }
+      ]
+    },
+    "inactive-aging": {
+      "statement": "Outdated or irrelevant discovered assets are marked inactive depending on the asset aging configuration, and results appear in AEM (asset inventory) and UVM (risks and findings).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-discovery-settings.json",
+          "quotes": [
+            "Outdated or irrelevant assets are identified and marked inactive depending on your asset aging configuration.",
+            "you can view the unified asset inventory in Asset Exposure Management (AEM), and the risks identified for the assets and enriched security insights in Unified Vulnerability Management (UVM)."
+          ]
+        }
+      ]
+    },
+    "edit-profile": {
+      "statement": "Existing seeds in a discovery profile cannot be edited, only removed and re-added; adding or removing seeds triggers a new scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-discovery-profiles.json",
+          "quotes": [
+            "You cannot edit seeds that are already present in the discovery profile. You can remove them and add new seeds to make changes.",
+            "When you add or remove seeds in a discovery profile, a new discovery scan is triggered to update the asset inventory based on the modified profile."
+          ]
+        }
+      ]
+    },
+    "delete-profile": {
+      "statement": "Deleting a discovery profile removes all references to its scan data, including discovered assets and associated risk findings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-discovery-profiles.json",
+          "quotes": [
+            "Deleting a discovery profile removes all references to the scan data, including discovered assets and associated risk findings, and can no longer be accessed on the platform."
+          ]
+        }
+      ]
+    },
+    "discovery-methods": {
+      "statement": "EASM discovery uses methods and data sources including WHOIS reverse lookup, ICANN regex analysis, DNS record lookup, web content analysis, certificate transparency logs, GitHub repository scanning, Nuclei patterns, certificate analysis and LLM subnet and IP inferencing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-understanding-zscaler-easm-capabilities.json",
+          "quotes": [
+            "including WHOIS reverse lookup, ICANN regex analysis, DNS record lookup, web content analysis, certificate transparency logs (CTLogs), GitHub repository scanning, Nuclei patterns, certificate analysis, LLM subnet and IP inferencing, and more."
+          ]
+        }
+      ]
+    },
+    "discovery-process": {
+      "statement": "Discovery starts from one or more seed assets and expands through successive layers of connected assets using passive and active scanning; ownership is validated automatically by a proprietary LLM comparing WHOIS fields such as Registrant Organization and Registrant Email against seed domains, and a discovery chain is presented; scans run weekly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-understanding-asset-discovery-zscaler-easm.json",
+          "quotes": [
+            "The discovery process is initiated using one or more seed assets",
+            "further expands the discovery net to subsequent layers of connections",
+            "EASM capabilities use both passive and active scanning methods to continuously discover and inventory all internet-facing assets",
+            "It automatically validates ownership of the discovered assets by using a proprietary LLM.",
+            "It analyzes WHOIS data of seed domains and associated assets, comparing fields, such as \"Registrant Organization\" and \"Registrant Email\" against seed domains to verify asset attribution to the organization.",
+            "a discovery chain is presented for source traceability and attestation of the asset's connection to the organization.",
+            "The organization's external attack surface is continuously monitored through weekly scans"
+          ]
+        }
+      ]
+    },
+    "risk-detections": {
+      "statement": "EASM risk assessment identifies exposures such as CVEs, misconfigurations, open ports, expired certificates or domains, phishing and lookalike domains, exposed database services and outdated TLS versions, with an out-of-the-box risk score that is combined with other SecOps platform risk context.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-understanding-asset-discovery-zscaler-easm.json",
+          "quotes": [
+            "identifying critical exposures such as CVEs, misconfigurations, open ports, expired certificates or domains, phishing and lookalike domains, exposed database services, outdated TLS versions, and more.",
+            "It provides out-of-the-box risk scoring to help security teams prioritize high-impact risks and vulnerabilities for remediation.",
+            "This risk score is further integrated with other risk contexts uncovered by the Zscaler Security Operations (SecOps) platform"
+          ]
+        }
+      ]
+    },
+    "report-contents": {
+      "statement": "Discovery profile reports include metrics such as known vulnerabilities, exposed servers and public cloud instances, outdated SSL/TLS, domain expiration and registered lookalike domains, and the report data varies by discovery profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-exporting-reports-discovery-profiles.json",
+          "quotes": [
+            "The report data varies across discovery profiles depending on the asset and risk information identified.",
+            "Some key metrics included are known vulnerabilities, exposed servers and public cloud instances, outdated SSL/TLS, domain expiration, and registered lookalike domains highlighting phishing domains for virtual takedown."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "profiles-per-entity": {
+      "summary": "The unified portal's pages describe separate discovery profiles for different business entities, while the EASM tenant's discovery profiles page says only one profile can be configured for an organization.",
+      "positions": [
+        {
+          "says": "Distinct discovery profiles can be created for different business entities such as a parent company and subsidiaries.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "aem-configuring-discovery-settings.json",
+            "quotes": [
+              "you can create distinct discovery profiles for different business entities (e.g., parent company, subsidiaries) to individually manage the corresponding attack surfaces."
+            ]
+          }
+        },
+        {
+          "says": "Currently only one discovery profile can be configured for an organization.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-about-discovery-profiles.json",
+            "quotes": [
+              "Currently, only one discovery profile can be configured for an organization."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a second profile can be added depends on which surface the tenant uses; the EASM page ties separation to custom organizations. Not observed."
+    }
+  },
+  "gaps": {
+    "profile-limits": {
+      "kind": "semantic",
+      "title": "Limits on discovery profiles, the asset aging period and the CSV file",
+      "status": "open",
+      "detail": "The unified portal pages give no limit on the number of discovery profiles (the EASM tenant's page says one per organization), and no scan-status values beyond progress, successful completion and failure, no division of the 100 seeds among seed types, and no CSV size limit. The asset aging period is configured by aging rules, whose time-based categories and fallback default are in [[unified.secops-platform.data.asset-aging]]; no captured page here gives a default number.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

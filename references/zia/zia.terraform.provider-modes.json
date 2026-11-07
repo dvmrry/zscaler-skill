@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.provider-modes",
+  "title": "ZIA Terraform provider authentication, client modes and rate limiting",
+  "aliases": [
+    "zia provider skip_credentials_validation",
+    "zia provider fedramp gov",
+    "zia sandbox token terraform",
+    "terraform 429 retry-after zia",
+    "EDIT_LOCK_NOT_AVAILABLE terraform",
+    "zia provider parallelism"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.api.rate-limits",
+      "because": "zia.api.rate-limits:zia-429-headers"
+    },
+    {
+      "rel": "depends-on",
+      "to": "shared.oneapi.authentication",
+      "because": "shared.oneapi.authentication:client-credentials-flow"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.credential-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZIA Terraform provider supports OneAPI and the legacy framework, and has a no-credential mode and its own rate-limit handling. {{legacy-compat-since-4-0}} {{legacy-client-switch}} {{issue-598-put-bypassed-legacy-client}}"
+    },
+    {
+      "label": "Government clouds.",
+      "text": "{{fedramp-gov-values}}"
+    },
+    {
+      "label": "Configuration-only mode.",
+      "text": "{{skip-credentials-builds-no-client}} {{skip-credentials-intended-use}} {{skip-credentials-calls-fail}} {{skip-credentials-since-4-8-7}}"
+    },
+    {
+      "label": "Sandbox credentials.",
+      "text": "{{sandbox-auth-variables}} The legacy variables are no longer supported, and a resource page still names them: [[zia.terraform.sandbox-resources:sandbox-token-variable-names]]."
+    },
+    {
+      "label": "Rate limiting.",
+      "text": "{{retry-after-transparent}} {{keep-default-parallelism}} {{parallelism-ignored}} {{static-ip-post-1-per-second}} {{static-ip-legacy-rate-row}} Whether the OneAPI endpoint has the same limit is open {{gap:static-ip-oneapi-limit}}. {{provider-default-retries-100}}"
+    },
+    {
+      "label": "Coverage.",
+      "text": "{{provider-tracks-public-api}} {{object-presence-not-entitlement}}"
+    },
+    {
+      "label": "Write lock.",
+      "text": "{{write-lock-is-not-rate-limit}} How applies compete for that lock: [[zia.terraform.activation-methods]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a provider that errors on every resource was configured with `skip_credentials_validation`, which builds no client.",
+      "uses": [
+        "skip-credentials-builds-no-client",
+        "skip-credentials-calls-fail"
+      ]
+    },
+    {
+      "do": "Whether a 409 on a write is tenant write-lock contention rather than rate limiting before changing the run's parallelism.",
+      "uses": [
+        "write-lock-is-not-rate-limit",
+        "parallelism-ignored",
+        "keep-default-parallelism"
+      ]
+    },
+    {
+      "do": "Whether the provider version is at least v4.7.25 before configuring a FedRAMP cloud.",
+      "uses": [
+        "fedramp-gov-values"
+      ]
+    }
+  ],
+  "claims": {
+    "legacy-compat-since-4-0": {
+      "statement": "Since provider v4.0.0 the ZIA provider offers backwards compatibility with the legacy Zscaler API framework alongside OneAPI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "As of version v4.0.0, this Terraform provider offers backwards compatibility to the Zscaler legacy API framework."
+          ],
+          "after": "The ZIA Terraform Provider now offers support for [OneAPI]"
+        }
+      ]
+    },
+    "fedramp-gov-values": {
+      "statement": "OneAPI reaches the government (FedRAMP) clouds through the `gov` and `govus` cloud values, and the provider documents this as supported only from v4.7.25; earlier versions are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "Supported Zidentity Gov Cloud `gov` or `govus`",
+            "FedRAMP cloud is only supported when upgrading to the provider version `>=v4.7.25`. Earlier versions are NOT supported."
+          ]
+        }
+      ]
+    },
+    "skip-credentials-builds-no-client": {
+      "statement": "With `skip_credentials_validation` (or `ZSCALER_SKIP_CREDENTIALS_VALIDATION`) the provider skips credential validation and never builds the API client, because the OneAPI SDK performs an OAuth handshake in its constructor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "Skip credentials validation and API client initialization entirely."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/config.go",
+          "quotes": [
+            "// The OneAPI SDK performs an OAuth handshake inside its constructor, // so \"skipping validation\" means never building the client.",
+            "} else if os.Getenv(\"ZSCALER_SKIP_CREDENTIALS_VALIDATION\") != \"\" {"
+          ]
+        }
+      ]
+    },
+    "skip-credentials-intended-use": {
+      "statement": "The documented use of `skip_credentials_validation` is a configuration in which every `zia_*` resource and data source is conditionally disabled (for example `count = 0`); plan and apply then succeed with a warning even without credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "- `skip_credentials_validation` - (Optional) When set to `true`, the provider skips credential validation and does not initialize the API client.",
+            "This is intended for configurations where the ZIA provider is declared but every `zia_*` resource and data source is conditionally disabled (e.g., `count = 0`)",
+            "With this flag enabled, `terraform plan`/`apply` succeeds with a warning even when no credentials are supplied"
+          ]
+        }
+      ]
+    },
+    "skip-credentials-calls-fail": {
+      "statement": "With that flag set, every resource and data source CRUD function is wrapped so that one which does attempt an API call returns an explanatory error instead of dereferencing a nil service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "for _, r := range p.ResourcesMap { guardResourceAgainstInertClient(r) }",
+            "for _, ds := range p.DataSourcesMap { guardResourceAgainstInertClient(ds) }",
+            "// guardResourceAgainstInertClient wraps a resource's CRUD and import // functions so that, in skip_credentials_validation mode, they return a"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/config.go",
+          "quotes": [
+            "return a descriptive error instead of dereferencing the nil Service."
+          ]
+        }
+      ]
+    },
+    "skip-credentials-since-4-8-7": {
+      "statement": "The `skip_credentials_validation` attribute was added in provider v4.8.7.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added the provider attribute `skip_credentials_validation`"
+          ],
+          "after": "## 4.8.7 (August,17 2026)"
+        }
+      ]
+    },
+    "sandbox-auth-variables": {
+      "statement": "Sandbox authentication uses its own token and cloud, set through `ZSCALER_SANDBOX_TOKEN` and `ZSCALER_SANDBOX_CLOUD` or the `sandbox_token` and `sandbox_cloud` attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "requires the following new environment variables the `ZSCALER_SANDBOX_CLOUD` and `ZSCALER_SANDBOX_TOKEN` or authentication attributes `sandbox_token` and `sandbox_cloud`"
+          ]
+        }
+      ]
+    },
+    "parallelism-ignored": {
+      "statement": "The provider-block `parallelism` attribute is deprecated and ignored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "\"parallelism\": { Type: schema.TypeInt, Optional: true,",
+            "Deprecated and ignored. Previously limited the number of concurrent API requests."
+          ]
+        }
+      ]
+    },
+    "retry-after-transparent": {
+      "statement": "When ZIA answers HTTP 429, the provider waits the interval in the `Retry-After` header and retries the request transparently, so exceeding a rate limit costs a short delay rather than a failed apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "the provider waits the indicated interval and retries the request transparently",
+            "Exceeding a rate limit therefore costs a short delay rather than a failed apply, including on large bulk deployments."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "the provider honours the Retry-After header returned on a 429 response and retries transparently."
+          ]
+        }
+      ]
+    },
+    "keep-default-parallelism": {
+      "statement": "The provider documentation says to run Terraform with its default settings, with nothing to configure to stay within the rate limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "Run Terraform with its default settings.",
+            "You do not need to configure anything to stay within these limits."
+          ]
+        }
+      ]
+    },
+    "write-lock-is-not-rate-limit": {
+      "statement": "An HTTP 409 reporting `EDIT_LOCK_NOT_AVAILABLE` or `Failed during enter Org barrier` means another session is modifying the configuration, not that a rate limit was exceeded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "An `HTTP 409` response reporting `EDIT_LOCK_NOT_AVAILABLE` or `Failed during enter Org barrier` indicates that another session is modifying the configuration, not that a rate limit was exceeded."
+          ]
+        }
+      ]
+    },
+    "static-ip-post-1-per-second": {
+      "statement": "The provider documentation gives `/staticIP` as an example of an endpoint limited to 1 POST request per second, while some endpoints allow several per second.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "some endpoints allow multiple POST requests per second, while others (such as `/staticIP`) are limited to 1 POST request per second."
+          ]
+        }
+      ]
+    },
+    "provider-tracks-public-api": {
+      "statement": "The provider maintains parity with publicly available API endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "The ZIA Terraform provider maintain parity with publicly available API endpoints."
+          ]
+        }
+      ]
+    },
+    "object-presence-not-entitlement": {
+      "statement": "So the presence of a Terraform resource or data source shows API coverage, not that a given tenant is entitled to or has enabled the feature.",
+      "tier": "B",
+      "derived_from": [
+        "provider-tracks-public-api",
+        "zia.terraform.url-filtering-rules:isolate-needs-cbi",
+        "zia.terraform.early-access:early-access-resources"
+      ],
+      "conditions": "Inferred: provider coverage follows the public API, and entitlement is a property of the tenant. Resources that are subscription-gated (ISOLATE) or Early Access are still present in the provider."
+    },
+    "static-ip-legacy-rate-row": {
+      "statement": "Zscaler's legacy ZIA API rate limit summary lists /staticIP at 2/sec and 1000/hr for GET and 1/sec and 400/hr for POST (a resource URI by method table).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-rate-limit-summary.json",
+          "quotes": [
+            "| Resource URI | GET (read) | POST (create) | PUT (replace) | DELETE |",
+            "| /staticIP | 2/sec and 1000/hr | 1/sec and 400/hr | - | - |",
+            "The following table summarizes the Zscaler Internet Access (ZIA) API resources and their rate limits for each method."
+          ]
+        }
+      ]
+    },
+    "provider-default-retries-100": {
+      "statement": "The Terraform ZIA provider sets its own default retry count of 100, which its source describes as deliberately above the SDK default so that bulk applies survive sustained rate limiting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/config.go",
+          "quotes": [
+            "retryCount:     100, // Deliberately above the SDK default so bulk applies survive sustained rate limiting."
+          ]
+        }
+      ]
+    },
+    "legacy-client-switch": {
+      "statement": "The provider chooses the legacy ZIA client when use_legacy_client is true, from the provider attribute or, when that is unset, from ZSCALER_USE_LEGACY_CLIENT being the string true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/config.go",
+          "quotes": [
+            "if val, ok := d.GetOk(\"use_legacy_client\"); ok {",
+            "config.useLegacyClient = val.(bool)",
+            "} else if os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\") != \"\" {",
+            "config.useLegacyClient = strings.ToLower(os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\")) == \"true\""
+          ]
+        }
+      ]
+    },
+    "issue-598-put-bypassed-legacy-client": {
+      "statement": "Provider issue #598 reported that on v4.8.3 with ZSCALER_USE_LEGACY_CLIENT=true, `zia_url_filtering_and_cloud_app_settings` read through the legacy client but sent its PUT to the OneAPI host, which answered 401, because the resource called `service.Client.ExecuteRequest` directly instead of a method that checks `UseLegacyClient`. It was closed as completed on 2026-08-06; on 2026-08-07 a repository member's comment asked for an upgrade to the latest minor release, v4.8.5, saying the issue was largely due to upstream API changes, and a non-member replied that they would test in the morning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-598.json",
+          "quotes": [
+            "Terraform v1.15.8",
+            "3. OneAPI returns HTTP 401.",
+            "The SDK's normal UpdateWithPut method checks UseLegacyClient and dispatches through LegacyClient.ZiaClient:",
+            "## Comment (MEMBER, 2026-08-07) @(user) please upgrade your provider configuration to the latest minor release v4.8.5. The issue was largely due to upstream api changes.",
+            "provider registry.terraform.io/zscaler/zia v4.8.3",
+            "# zia_url_filtering_and_cloud_app_settings bypasses legacy client for PUT and returns 401",
+            "This appears to be caused by the resource calling service.Client.ExecuteRequest(...) directly for its full-payload PUT:",
+            "When ZSCALER_USE_LEGACY_CLIENT=true, both the GET and PUT requests should be routed through the legacy ZIA client.",
+            "Comment (NONE, 2026-08-07)",
+            "Will do. I will test in the morning and I appreciate the help."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-598.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-08-06"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "static-ip-oneapi-limit": {
+      "kind": "semantic",
+      "title": "Whether the OneAPI /staticIP endpoint carries the same limit as the legacy table",
+      "status": "open",
+      "detail": "The per-endpoint limit appears in the legacy API rate limit summary and in the provider guide, but the OneAPI rate-limiting guide for ZIA is not among the captured sources, so whether the OneAPI endpoint the provider uses by default has the same figure is not confirmed against a primary OneAPI table or a live bulk-POST test.",
+      "blocks": "treating the legacy figure as the limit that applies to OneAPI-based Terraform runs",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

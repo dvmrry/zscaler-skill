@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "id": "zia.saas-apps.quic-conferencing",
+  "title": "QUIC and HTTP/3 behind ZIA: where it escapes and how to block it",
+  "aliases": [
+    "quic bypasses inspection",
+    "http/3 zscaler",
+    "block quic firewall rule",
+    "udp 443 z-tunnel 1.0",
+    "z-tunnel 2.0 quic",
+    "teams webex media quality zscaler",
+    "chrome quic certificate error"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.firewall.rule-order",
+      "because": "zia.saas-apps.quic-conferencing:default-rule-blocks"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.uninspectable",
+      "because": "zia.saas-apps.quic-conferencing:cert-errors"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dns-control",
+      "because": "zia.saas-apps.quic-conferencing:dns-https-records"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.zcc",
+      "because": "zia.saas-apps.quic-conferencing:tunnel1-udp-leaves"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall.network-services",
+      "because": "zia.saas-apps.quic-conferencing:udp-80"
+    }
+  ],
+  "prose": [
+    {
+      "text": "QUIC (HTTP/3 over UDP, see [[zia.saas-apps]] for the other causes) is the reason an app can seem to ignore SSL inspection: SSL/TLS Inspection needs TCP session information, and QUIC does not use TCP. The headline fact, that Zscaler recommends blocking QUIC so the browser falls back to TCP, is in [[zia.ssl-inspection.uninspectable]]. {{cert-errors}}"
+    },
+    {
+      "text": "How to block it depends on how the traffic reaches Zscaler ([[zia.firewall.traffic-path]] covers the firewall path)."
+    },
+    {
+      "items": [
+        {
+          "label": "GRE, IPSec or Client Connector with Z-Tunnel 2.0:",
+          "text": "{{tunnel2-firewall-rule}} {{default-rule-blocks}} {{udp-80}} Rule placement follows the usual firewall order: [[zia.firewall.rule-order]]."
+        },
+        {
+          "label": "Z-Tunnel 1.0:",
+          "text": "{{tunnel1-device-firewall}} {{tunnel1-udp-leaves}}"
+        },
+        {
+          "label": "TCP 80 and 443 only:",
+          "text": "{{tcp-only-branch}}"
+        },
+        {
+          "label": "Without a firewall change:",
+          "text": "{{dns-https-records}} The DNS Control mechanics are in [[zia.dns-control]]."
+        }
+      ]
+    },
+    {
+      "text": "Conferencing media behavior is open {{gap:conferencing-media}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether conferencing media is UDP and which tunnel mode carries it, before choosing a QUIC block.",
+      "uses": [
+        "conferencing-media",
+        "tunnel1-udp-leaves",
+        "tunnel2-firewall-rule"
+      ]
+    }
+  ],
+  "claims": {
+    "cert-errors": {
+      "statement": "Zscaler cannot examine QUIC sessions when SSL/TLS Inspection is on, and users may also see certificate errors when QUIC is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "managing-quic-protocol.json",
+          "quotes": [
+            "Because of this, Zscaler cannot examine QUIC sessions when users have SSL/TLS Inspection enabled. When using QUIC, users might also experience certificate errors."
+          ]
+        }
+      ]
+    },
+    "tunnel2-firewall-rule": {
+      "statement": "For traffic arriving through a GRE or IPSec tunnel, or Client Connector with Z-Tunnel 2.0, QUIC is blocked with a Firewall Filtering rule on the QUIC network service, which forces the browser back to TCP 80 and 443. Z-Tunnel 2.0 can send all ports and protocols.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "managing-quic-protocol.json",
+          "quotes": [
+            "you can effectively block QUIC by creating a Firewall Filtering rule. This blocks QUIC UDP flows and forces the browser to default to TCP 80/443.",
+            "As configured in the following steps, the Firewall Filtering rule blocks QUIC at the network service level.",
+            "Click the Services tab and select QUIC under Network Services."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-z-tunnel-1.0-z-tunnel-2.0.json",
+          "quotes": [
+            "Z-Tunnel 2.0 is capable of sending all ports and protocols."
+          ]
+        }
+      ]
+    },
+    "default-rule-blocks": {
+      "statement": "The default Firewall Filtering rule (lowest rank) normally blocks QUIC unless it is specifically allowed, but admin-created permissive rules above it often let QUIC through, so a QUIC block rule may need to precede them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "managing-quic-protocol.json",
+          "quotes": [
+            "Normally, the default Firewall Filtering Rule (the lowest rank rule) blocks QUIC unless specifically allowed.",
+            "However, admins often create more general connectivity rules or groups of rules (e.g., User X or Source IP Address Y to Destination Group IP Address Y is allowed) that are overly permissive and do not explicitly exclude the use of QUIC.",
+            "For this reason, one or more QUIC block rules might be needed to precede admin-defined allow rules."
+          ]
+        }
+      ]
+    },
+    "udp-80": {
+      "statement": "QUIC can use UDP destination port 80 as well as 443, so to include port 80 in the QUIC network service, the predefined network service can be modified or a custom network service configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "managing-quic-protocol.json",
+          "quotes": [
+            "In addition to UDP destination port 443, QUIC can use UDP destination port 80.",
+            "To include port 80 in the network service definition of QUIC, you can modify the predefined network service or configure a custom network service."
+          ]
+        }
+      ]
+    },
+    "tunnel1-device-firewall": {
+      "statement": "If only Client Connector traffic on Z-Tunnel 1.0 (which sends all proxy-aware traffic or port 80 and 443 traffic, depending on the forwarding profile configuration) is sent to Zscaler, or for remote users, the help says to create a block rule on the device firewall for UDP 80 and 443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "managing-quic-protocol.json",
+          "quotes": [
+            "If you are only sending Zscaler Client Connector traffic that uses Z-Tunnel 1.0 to Zscaler (or leveraging remote users), create a block rule on your device firewall to block UDP 80 and 443."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-z-tunnel-1.0-z-tunnel-2.0.json",
+          "quotes": [
+            "Z-Tunnel 1.0 sends all proxy-aware traffic or port 80/443 traffic to the Zscaler service, depending on the forwarding profile configuration."
+          ]
+        }
+      ]
+    },
+    "tunnel1-udp-leaves": {
+      "statement": "So when the only traffic sent to Zscaler is Client Connector traffic on Z-Tunnel 1.0, or TCP 80 and 443 over a tunnel, QUIC UDP does not reach Zscaler at all, and no Zscaler Firewall Filtering rule inspects or blocks it.",
+      "tier": "B",
+      "derived_from": [
+        "tunnel1-device-firewall",
+        "tcp-only-branch"
+      ],
+      "conditions": "Inference from Help directing the block to the device firewall when only Z-Tunnel 1.0 traffic is sent to Zscaler (tunnel1-device-firewall) and to the branch firewall when only TCP 80 and 443 go over the tunnel (tcp-only-branch); the legacy phrasing \"egresses outside the tunnel\" is not in a source."
+    },
+    "tcp-only-branch": {
+      "statement": "If only TCP 80 and 443 go over the tunnel to Zscaler, QUIC is blocked on the branch firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "managing-quic-protocol.json",
+          "quotes": [
+            "If you are only sending TCP 80/443 over a tunnel to Zscaler, block QUIC on your branch firewall."
+          ]
+        }
+      ]
+    },
+    "dns-https-records": {
+      "statement": "QUIC can also be discouraged with a DNS Control rule that blocks the HTTPS resource record type with a Server Failure response, because browsers use those records to choose HTTP/3 and the Zscaler web proxy currently does not support HTTP/3.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "managing-quic-protocol.json",
+          "quotes": [
+            "Additionally, you can manage QUIC using the DNS Control policy by blocking the HTTPS DNS resource record type.",
+            "HTTPS records are increasingly used by web browsers and applications to leverage the use of HTTP/3 with QUIC, which the Zscaler web proxy currently does not support.",
+            "Zscaler recommends configuring your DNS Control policy to block HTTPS resource records to suppress the use of HTTP/3 over QUIC",
+            "This rule configuration blocks HTTPS resource records and sends a Server Failure response (i.e., ServFail DNS response code per RFC 6895) to the client."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "conferencing-media": {
+      "kind": "semantic",
+      "title": "Webex and Teams media over Z-Tunnel 2.0 and process-based bypass",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The canonical case where this matters: WebEx media (UDP 9000 SRTP, fallback TCP 443) and Microsoft Teams call quality. If Z-Tunnel 2.0 captures the media flow, voice/video degrades. Process-based bypass of the conferencing client is the documented pattern.\" The captured Z-Tunnel and QUIC pages do not mention Webex or Teams media; the captured Advanced Policy Settings page covers a UCaaS One Click option for Zoom, GoTo, RingCentral, Webex and Talkdesk, not Teams media.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
+    }
+  }
+}

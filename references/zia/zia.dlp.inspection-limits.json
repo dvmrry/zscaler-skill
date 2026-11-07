@@ -1,0 +1,370 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.inspection-limits",
+  "title": "DLP file size, archive and text limits: why DLP did not catch a large file",
+  "aliases": [
+    "dlp 400 mb",
+    "dlp file size limit",
+    "dlp did not catch large file",
+    "dlp archive depth",
+    "dlp nested zip",
+    "dlp extracted text limit",
+    "dlp incident evidence size",
+    "dlp 100 mb"
+  ],
+  "binds": [
+    "zia/dlp-web-rules#minSize"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.evaluation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rule-wire-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Size, depth and extracted-text limits bound what DLP scans, and the sources state them inconsistently {{divergence:file-size-conflict}}."
+    },
+    {
+      "text": "{{whole-file-cap}} Whether that is the true maximum is open {{gap:file-size-cap}}. {{extracted-text-window}} {{extracted-text-tail-uninspected}}"
+    },
+    {
+      "label": "Archives.",
+      "text": "{{archive-entry-cap}} {{archive-depth}} The maximum size is also stated for files extracted from archives, which conflicts with the per-entry wording {{divergence:archive-extracted-cap}}."
+    },
+    {
+      "label": "Past the limit.",
+      "text": "What happens to content past a limit is open {{gap:over-limit-behavior}}."
+    },
+    {
+      "label": "Incident evidence.",
+      "text": "{{evidence-file-cap}} Timeouts on large uploads are open {{gap:large-upload-timeout}}."
+    },
+    {
+      "label": "Images.",
+      "text": "{{ocr-images}} {{ocr-channels}} No OCR size or resolution limit is stated {{gap:ocr-size-limit}}. How the per-rule `ocrEnabled` field interacts with these switches is open [[zia.dlp.rule-wire-shape:ocr-switch-interaction]]."
+    },
+    {
+      "text": "If the file was never decrypted, or an upstream policy blocked it first, see [[zia.dlp.evaluation]]. The rule-side minimum data size and file type criteria are in [[zia.dlp.rules]]. The Endpoint DLP rule article's figure is [[zia.dlp.endpoint-rules:file-size-limit]], and it is one of the positions in the file size divergence above."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which file-size figure applies to the file, and which source states it.",
+      "uses": [
+        "whole-file-cap",
+        "file-size-cap"
+      ]
+    },
+    {
+      "do": "Whether the transaction in Web Insights shows a limit as the cause, before concluding that one was.",
+      "uses": [
+        "over-limit-behavior"
+      ]
+    }
+  ],
+  "claims": {
+    "whole-file-cap": {
+      "statement": "DLP engines are documented to support files up to 400 MB.",
+      "tier": "A",
+      "conditions": "Corrected on recapture (2026-10-18): the content-inspection article was previously cited for \"Zscaler DLP engines can scan files of up to 100 MB.\" That sentence is no longer in it; the article now gives 400 MB as the file limit and 100 MB for the extracted text (see extracted-text-window).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.json",
+          "quotes": [
+            "Zscaler DLP engines can scan files with a maximum size of 400 MB."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "The Zscaler DLP engines support files up to 400 MB and can scan the first 100 MB of the extracted text."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "after": "You then configure your policy rules based on that setting:",
+          "quotes": [
+            "The Zscaler DLP engines support files up to 400 MB and can scan the first 100 MB of the extracted text."
+          ]
+        }
+      ],
+      "gaps": [
+        "file-size-cap"
+      ]
+    },
+    "extracted-text-window": {
+      "statement": "DLP engines can scan the first 100 MB of a file's extracted text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "The Zscaler DLP engines support files up to 400 MB and can scan the first 100 MB of the extracted text."
+          ]
+        }
+      ]
+    },
+    "archive-entry-cap": {
+      "statement": "For an archive, the size of each file inside it when decompressed can also be a maximum of 100 MB, a separate cap from the whole-file cap.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.json",
+          "quotes": [
+            "For an archived file, the size of individual files when decompressed can also be a maximum of 100 MB.",
+            "Zscaler DLP engines can scan files with a maximum size of 400 MB."
+          ]
+        }
+      ]
+    },
+    "archive-depth": {
+      "statement": "DLP engines can scan up to 5 levels of compression.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.json",
+          "quotes": [
+            "DLP engines can scan up to 5 levels of compression."
+          ]
+        }
+      ],
+      "gaps": [
+        "over-limit-behavior"
+      ]
+    },
+    "evidence-file-cap": {
+      "statement": "DLP incident evidence files are capped at 100 MB, and larger files are replaced with a `.txt` placeholder. The Azure Incident Receiver deployment page also says the policy-violating files can be a maximum of 100 MB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+          "quotes": [
+            "The policy-violating files can be a maximum of 100 MB."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "after": "The following table shows the ranges and limitations for Data Loss Prevention (DLP):",
+          "quotes": [
+            "If an evidence file for a DLP incident exceeds 100 MB in size, the Zscaler service replaces the original file with a placeholder evidence file.",
+            "The placeholder file retains the original name with \".txt\" appended"
+          ]
+        }
+      ]
+    },
+    "ocr-images": {
+      "statement": "OCR settings are configured for the organization and apply to all DLP policies, and if OCR options are not enabled, DLP rules do not apply to image files. DLP engines support OCR scanning of PNG, JPEG, TIFF and BMP files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-advanced-settings.json",
+          "quotes": [
+            "You configure OCR settings for your organization, and those settings apply to all DLP policies that you create.",
+            "If OCR options are not enabled, DLP rules don't apply to image files.",
+            "DLP engines support OCR scanning of PNG, JPEG, TIFF, and BMP files."
+          ]
+        }
+      ]
+    },
+    "ocr-channels": {
+      "statement": "The service can use OCR to scan images for sensitive text as part of inline DLP, Data at Rest Scanning DLP and Outbound Email DLP policies, through three options on the DLP Advanced Settings page: Inline DLP (images in data in transit), SaaS Security API (images in data at rest) and Outbound Email DLP (images in outbound emails sent to external domains).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-advanced-settings.json",
+          "quotes": [
+            "The Zscaler service allows you to use optical character recognition (OCR) to scan images for sensitive text data as part of your inline Data Loss Prevention (DLP), Data at Rest Scanning DLP, and Outbound Email DLP policies.",
+            "Inline DLP: Enable this option to allow the Zscaler DLP engines to scan images for text content in data in transit.",
+            "SaaS Security API: Enable this option to allow the Zscaler DLP engines to scan images for text content in data at rest.",
+            "Outbound Email DLP: Enable this option to allow the Zscaler DLP engines to scan images for text content in outbound emails sent to external domains."
+          ]
+        }
+      ]
+    },
+    "extracted-text-tail-uninspected": {
+      "statement": "A document under the file-size cap can still have its tail uninspected when its extracted text is larger than 100 MB.",
+      "tier": "B",
+      "derived_from": [
+        "extracted-text-window"
+      ],
+      "conditions": "Derived from the stated 100 MB window; no source describes the tail explicitly."
+    }
+  },
+  "divergences": {
+    "archive-extracted-cap": {
+      "summary": "The content-inspection article says the maximum size also applies to files extracted from archives, which reads as 400 MB, while the same article and the engines article give 100 MB for decompressed archive entries.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-dlp-policy-rules-content-inspection.json",
+            "quotes": [
+              "The maximum size also applies to files extracted from archive files."
+            ]
+          },
+          "says": "The overall maximum size applies to each file extracted from an archive."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-dlp-engines.json",
+            "quotes": [
+              "For an archived file, the size of individual files when decompressed can also be a maximum of 100 MB."
+            ]
+          },
+          "says": "Each decompressed entry is limited to 100 MB."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+            "after": "You then configure your policy rules based on that setting:",
+            "quotes": [
+              "The maximum size also applies to files extracted from archive files."
+            ]
+          },
+          "says": "The Evaluate All Rules article repeats that the overall maximum size applies to files extracted from archives."
+        }
+      ],
+      "impact": "The per-entry cap for a large archive member is either 400 MB or 100 MB depending on which sentence is read."
+    },
+    "file-size-conflict": {
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+            "quotes": [
+              "The Zscaler DLP engines support files up to 400 MB and can scan the first 100 MB of the extracted text."
+            ],
+            "after": "# Policy Execution"
+          },
+          "says": "The engines support files up to 400 MB."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+            "quotes": [
+              "Zscaler DLP engines can scan files of up to 100 MB."
+            ],
+            "after": "# Policy Execution"
+          },
+          "says": "The engines can scan files of up to 100 MB (File Type field)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-dlp-engines.json",
+            "quotes": [
+              "Zscaler DLP engines can scan files with a maximum size of 400 MB."
+            ]
+          },
+          "says": "The engines article gives 400 MB for Zscaler DLP engines, with no per-product limit."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+            "quotes": [
+              "The Zscaler DLP engines support files up to 100 MB. The maximum size also applies to files extracted from archive files."
+            ]
+          },
+          "says": "The Endpoint DLP policy rules article says the Zscaler DLP engines support files up to 100 MB."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-outbound-email-policy-rules.json",
+            "after": "- 6. Define your policy rules.",
+            "quotes": [
+              "Zscaler DLP engines can scan files of up to 100 MB. For an archived file, the size of individual files when decompressed can also be a maximum of 100 MB."
+            ]
+          },
+          "says": "The Outbound Email policy rules article says the engines can scan files of up to 100 MB."
+        }
+      ],
+      "impact": "Whether a 100-400 MB file is content-inspected by a file-type DLP rule, an Endpoint DLP rule or an Outbound Email rule is unclear; the engines article states 400 MB without a per-product limit.",
+      "summary": "Whole-file DLP scan limit: 400 MB in the engines and content-inspection articles versus 100 MB in the Evaluate All Rules File Type field, the Endpoint DLP rule article and the Outbound Email rule article"
+    }
+  },
+  "gaps": {
+    "file-size-cap": {
+      "kind": "semantic",
+      "title": "The true maximum file size Zscaler DLP engines scan",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "stating a single whole-file cap",
+      "detail": "The default-mode DLP article and the engines article give 400 MB as the file limit and 100 MB for extracted text. The Evaluate All Rules article says the same in its limits notes but its File Type field still says the engines \"can scan files of up to 100 MB\". No source settles which figure applies to file-type rules in that mode. The Endpoint DLP policy rules article also says the DLP engines support files up to 100 MB (zia.dlp.endpoint-rules:file-size-limit), and the engines article gives 400 MB with no per-product limit; both are positions of the file-size-conflict divergence. The Outbound Email policy rule article also says the DLP engines can scan files of up to 100 MB, and that for an archived file the size of individual files when decompressed can also be a maximum of 100 MB, so a second article still gives 100 MB for the whole file.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "after": "- 6. Define your policy rules.",
+          "quotes": [
+            "Zscaler DLP engines can scan files of up to 100 MB. For an archived file, the size of individual files when decompressed can also be a maximum of 100 MB."
+          ]
+        }
+      ]
+    },
+    "over-limit-behavior": {
+      "kind": "semantic",
+      "title": "What the service does with content past a DLP limit",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "saying that nested or oversized content silently evades DLP, or that it is blocked, or that it is logged",
+      "detail": "The help states scanning limits but not whether a file over the size cap, deeper than 5 compression levels, or past the extracted-text window is allowed, blocked or logged. The related question of large uploads that time out before scanning completes is also not described. Unverified legacy statement: \"An attacker wrapping payload in 6-level-nested ZIPs silently evades DLP\"; and for evidence files, \"a .txt placeholder containing minimal metadata\" (the placeholder contents are not described)."
+    },
+    "ocr-size-limit": {
+      "kind": "semantic",
+      "title": "Whether OCR has an image size or resolution limit",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "saying a large or low-resolution image is or is not scanned",
+      "detail": "The DLP Advanced Settings page lists the supported image formats and the three OCR options but states no size or resolution limit for OCR."
+    },
+    "large-upload-timeout": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: large uploads time out before DLP completes",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ],
+      "blocks": "advising what to look for in Web Insights for a timed-out scan",
+      "detail": "Unverified legacy statement: \"Large file uploads time out before DLP completes. For files close to the whole-file size cap, DLP may take long enough that the HTTP connection's underlying timeout intervenes. Investigate with Web Insights - look for 'DLP pending' or timeout states in log records.\" No registered source describes this or any such log state. The live-read-only field timeoutFailClosedEnabled (zia.dlp.rule-wire-shape) is unexplained but may be related."
+    }
+  }
+}

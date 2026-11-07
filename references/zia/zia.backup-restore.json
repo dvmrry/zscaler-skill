@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "id": "zia.backup-restore",
+  "title": "ZIA Backup and Restore",
+  "aliases": [
+    "zia backup",
+    "zia restore point",
+    "backup and restore",
+    "restore zia configuration",
+    "roll back zia policy"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.dlp",
+      "because": "zia.backup-restore.restore-semantics:dlp-edm-idm"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering",
+      "because": "zia.backup-restore.restore-semantics:overwrites-all"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.audit-logs.what-is-recorded",
+      "because": "zia.audit-logs.what-is-recorded:category-values"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.backup-restore.restore-semantics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.backup-restore.restore-points"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Can I roll ZIA back to how it was?\" has two halves."
+    },
+    {
+      "steps": [
+        {
+          "label": "What will a restore do, and what will it leave alone?",
+          "text": "It replaces the covered policies and removes anything newer from the covered policy areas, and does not restore DLP for EDM or IDM tenants: [[zia.backup-restore.restore-semantics]]."
+        },
+        {
+          "label": "Is the restore point I need still there?",
+          "text": "Twelve points total, one golden, and scheduled backups evict the oldest: [[zia.backup-restore.restore-points]]."
+        }
+      ]
+    },
+    {
+      "text": "To find out who created a point, and when, use the audit trail: [[zia.audit-logs]]. DLP policy behavior is in [[zia.dlp]]."
+    },
+    {
+      "label": "Downloading and printing policies.",
+      "text": "{{download-print-policies}} Whether a downloaded ZIP can be restored is open {{gap:zip-restorable}}."
+    }
+  ],
+  "claims": {
+    "download-print-policies": {
+      "statement": "All of the organization's configured policies can be downloaded into a PDF or ZIP file; a ZIP holds a JSON representation of the policies with one JSON file for each policy type. Policies that support the View by option can be printed in either Rule Order or Rule Label view.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-downloading-and-printing-policies.json",
+          "quotes": [
+            "You can download all of your organization's configured policies into a PDF or ZIP file.",
+            "When you download policies in the ZIP format, a single ZIP file containing JSON representation of the policies is generated. One JSON file is created for each policy type within the ZIP file.",
+            "Policies that support the View by option can be printed either in Rule Order or Rule Label view."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zip-restorable": {
+      "kind": "semantic",
+      "title": "Whether the downloaded policy ZIP can be restored",
+      "status": "open",
+      "detail": "The Downloading and Printing Policies page describes the PDF and ZIP downloads but does not say whether the JSON in the ZIP can be uploaded or used by restore; the restore points are a separate mechanism.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

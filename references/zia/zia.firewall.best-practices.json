@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.best-practices",
+  "title": "Recommended Firewall Filtering, DNS Control and IPS Control rules",
+  "aliases": [
+    "firewall best practices",
+    "recommended firewall policy",
+    "Default Firewall Filtering Rule",
+    "Block Malicious IPs and Domains",
+    "Default Cloud IPS Rule",
+    "Critical Risk DNS Categories"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.predefined-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.licensing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.network-services"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.application-services"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{scope}}"
+    },
+    {
+      "label": "Firewall Filtering rules.",
+      "text": "{{default-rule}} {{block-malicious}} {{recommended-policy}} {{recommended-rule-settings}} {{recommended-service-ports}} The predefined rules named here are described in [[zia.firewall.predefined-rules]]. {{icmp-quic}} {{smb}} {{allow-rule-conditions}}"
+    },
+    {
+      "label": "DNS Control rules.",
+      "text": "{{dns-rules}}"
+    },
+    {
+      "label": "IPS Control rules.",
+      "text": "{{ips-default}}"
+    },
+    {
+      "text": "What the tiers include is in [[zia.firewall.licensing]]; the firewall as a whole is in [[zia.firewall]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the recommended rule needs Advanced Firewall before advising it on a Standard Firewall tenant.",
+      "uses": [
+        "dns-rules",
+        "ips-default",
+        "allow-rule-conditions"
+      ]
+    }
+  ],
+  "claims": {
+    "scope": {
+      "statement": "The Best Practices for Firewall Control Policy article provides recommendations and best practices for configuring and using the Zscaler Firewall Control policy with Standard or Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-best-practices-firewall-control-policy.json",
+          "quotes": [
+            "This article provides recommendations and best practices for configuring and using the Zscaler Firewall Control policy with Standard or Advanced Firewall."
+          ]
+        }
+      ]
+    },
+    "default-rule": {
+      "statement": "The article recommends enabling the predefined Default Firewall Filtering Rule with the Block action and assigning it the lowest rule order, so that any traffic not explicitly allowed to the internet is blocked, and reviewing the Firewall logs to assess traffic match and impact. It is supported in Standard and Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-best-practices-firewall-control-policy.json",
+          "quotes": [
+            "| Default Firewall Filtering Rule | Enable this predefined rule with the Block action and assign the lowest rule order. | This rule ensures that any traffic that is not explicitly allowed to the internet is blocked.",
+            "You can review the Firewall logs to assess traffic match and impact. | Supported in Standard and Advanced Firewall"
+          ]
+        }
+      ]
+    },
+    "block-malicious": {
+      "statement": "The article recommends enabling the predefined Block Malicious IPs and Domains rule and assigning a very high rule order; the rule blocks IP addresses and FQDNs resolved to highly risky IP addresses. It is supported in Standard and Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-best-practices-firewall-control-policy.json",
+          "quotes": [
+            "Block Malicious IPs and Domains | Enable this predefined rule and assign a very high rule order. | This rule blocks IP addresses and FQDNs resolved to highly risky IP addresses. | Supported in Standard and Advanced Firewall"
+          ]
+        }
+      ]
+    },
+    "recommended-policy": {
+      "statement": "The article recommends configuring the recommended Firewall rule as an Allow rule that includes only HTTP, HTTPS and DNS as network service conditions, at a high rule order. The rule allows traffic that is managed more granularly by the web proxy and the DNS Control to pass through the Firewall checks at the Network and Transport layers and be managed in those modules, where all web and DNS rules are defined.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-best-practices-firewall-control-policy.json",
+          "quotes": [
+            "| Recommended Firewall Policy | Configure the recommended Firewall rule as an Allow rule, but include only HTTP, HTTPS, and DNS as network service conditions and assign a high rule order.",
+            "This rule allows traffic that is managed more granularly by the web proxy and the DNS Control to pass through the Firewall checks at the Network and Transport layers and be managed in those modules. All web and DNS rules are defined in the web proxy and DNS Control modules."
+          ]
+        }
+      ]
+    },
+    "recommended-rule-settings": {
+      "statement": "The Recommended Firewall Control Policy page configures the recommended rule with rule order 1 or the highest order applicable to admin-defined rules (as opposed to system-defined rules like Office 365 One Click Rule and Zscaler Proxy Traffic), Device Groups including Cloud Browser isolation, No Client Connector and OS types, the HTTP, HTTPS and DNS network services, and the Allow action for Network Traffic. It says those services must be allowed through the firewall for the DNS Control and Web (secure web gateway) modules to evaluate the traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-firewall-control-policy.json",
+          "quotes": [
+            "Rule Order: Apply rule order 1 or the highest order applicable to admin-defined rules (as opposed to system-defined rules like Office 365 One Click Rule, Zscaler Proxy Traffic, etc.). Rules are evaluated in ascending numerical order.",
+            "Device Groups: Select the required device groups, including Cloud Browser isolation, No Client Connector, and OS types.",
+            "Network Services: Select the HTTP, HTTPS, and DNS network services. These services must be allowed through the firewall for the DNS Control and Web (secure web gateway) modules to evaluate the traffic.",
+            "Under Actions, select Allow for Network Traffic."
+          ]
+        }
+      ]
+    },
+    "recommended-service-ports": {
+      "statement": "By default the HTTP network service uses port 80, HTTPS uses 443 and DNS uses 53. To send custom network services to the DNS Control and Web modules for evaluation, they must be configured in Advanced Settings using the Services Forwarded to HTTP Web Proxy and Services Applicable to DNS Transaction Policies options, and Zscaler recommends against changing the default ports for the HTTP, HTTPS and DNS network services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-firewall-control-policy.json",
+          "quotes": [
+            "By default, the HTTP network service uses port 80, HTTPS uses 443, and DNS uses 53.",
+            "Additionally, to send the custom network services to the DNS Control and Web modules for evaluation, you must configure these services in the Advanced Settings using the Services Forwarded to HTTP Web Proxy and Services Applicable to DNS Transaction Policies options.",
+            "Zscaler recommends against changing the default ports for HTTP, HTTPS, and DNS network services."
+          ]
+        }
+      ]
+    },
+    "icmp-quic": {
+      "statement": "The article recommends rules that block ICMP and QUIC using the network service criteria at a high rule order, and says the Block/ICMP rule action must be used for both, which for QUIC ensures a rapid failover to other options and a better user experience. It suggests considering adding UDP port 80 to the default QUIC network service, or defining a new network service with that port in the Block rule. The QUIC rule ensures that only web traffic supported by the web proxy is allowed, and the ICMP rule ensures that only ICMP for authorized users is allowed and reduces the attack surface for ICMP tunneling.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-best-practices-firewall-control-policy.json",
+          "quotes": [
+            "| Custom Rules to Block ICMP and QUIC | Configure rules that block ICMP and QUIC using the network service criteria and assign a high rule order.",
+            "Consider adding UDP port 80 to the default QUIC network service, or defining a new network service with this port number and including it in this Block rule.",
+            "The QUIC rule ensures that only web traffic that is supported by the web proxy is allowed and other web traffic is blocked. The ICMP rule ensures that only ICMP for authorized users is allowed and reduces the attack surface for ICMP tunneling.",
+            "For both these rules, the Block/ICMP rule action must be used. Specifically for QUIC, this action ensures a rapid failover to other options and a better user experience."
+          ]
+        }
+      ]
+    },
+    "smb": {
+      "statement": "The article recommends a rule that blocks SMB using the network service criteria at a moderate rule order, and says that in general there is no requirement to allow SMB to the internet in most environments, and that the Default Firewall Filtering Rule and strictly defined rule sets typically remove the need to explicitly block SMB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-best-practices-firewall-control-policy.json",
+          "quotes": [
+            "| Custom Rule to Block SMB | Configure a rule that blocks SMB using the network service criteria and assign a moderate rule order.",
+            "In general, there is no requirement to allow SMB to the internet in most environments. The Default Firewall Filtering Rule and strictly defined rule sets typically remove the need to explicitly block SMB."
+          ]
+        }
+      ]
+    },
+    "allow-rule-conditions": {
+      "statement": "Zscaler recommends creating any Allow rule using at least three or more conditions, including user, group, department, source or destination IP address, network service, application service and network application, and strongly recommends against using network applications as the only rule condition in any Allow or Block rule. Rules using network application criteria require Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-best-practices-firewall-control-policy.json",
+          "quotes": [
+            "Zscaler recommends creating any Allow rule using at least three or more conditions, including user, group, department, source or destination IP address, network service, application service, and network application.",
+            "Zscaler strongly recommends against using network applications as the only rule condition in any Allow or Block rule. | Using three or more rule conditions ensures that any Allow rule is strictly defined and reduces risk exposure to a minimum. | Rules using network application criteria require Advanced Firewall."
+          ]
+        }
+      ]
+    },
+    "dns-rules": {
+      "statement": "For DNS Control, the article recommends enabling the predefined Critical Risk DNS Categories rule with the Block action configured for DNS categorizations as well as DNS tunnels at a high rule order, and considering enabling all predefined rules related to blocking risky DNS at a moderate to high rule order. Standard Firewall includes support for blocking DNS categorizations; DNS tunnel block requires Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-best-practices-firewall-control-policy.json",
+          "quotes": [
+            "| Critical Risk DNS Categories | Enable this predefined rule with the Block action configured for DNS categorizations as well as DNS tunnels and assign a high rule order.",
+            "| Risky DNS | Consider enabling all predefined rules related to blocking risky DNS, including DNS categorizations and DNS tunnels, and assign a moderate to high rule order."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-best-practices-firewall-control-policy.json",
+          "quotes": [
+            "Standard Firewall includes support for blocking DNS categorizations; DNS tunnel block requires Advanced Firewall."
+          ],
+          "after": "Critical Risk DNS Categories"
+        }
+      ]
+    },
+    "ips-default": {
+      "statement": "For IPS Control, the article recommends enabling the predefined Default Cloud IPS Rule with the Block action at the lowest rule order; the rule covers all low false-positive IPS detections created by ThreatLabz that must be blocked. It suggests considering higher-order rules for internal security teams and other sensitive users, groups, departments or locations who might need access to malware for research or exclusion from non-web IPS protections. The row says it requires Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-best-practices-firewall-control-policy.json",
+          "quotes": [
+            "| Default Cloud IPS Rule | Enable this predefined rule configured with the Block action and assign the lowest rule order.",
+            "This rule covers all low false-positive IPS detections created by ThreatLabz that must be blocked.",
+            "Consider creating higher-order rules for internal security teams and other sensitive users, groups, departments, or locations who might need access to malware for research, or otherwise might need exclusion from non-web IPS protections.",
+            "| Requires Advanced Firewall"
+          ]
+        }
+      ]
+    }
+  }
+}

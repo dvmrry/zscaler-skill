@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Using Pattern Matching for Application Segments",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/using-pattern-matching-application-segments",
+    "node": "1485996",
+    "revision": "3234022",
+    "updated": "2026-09-10",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This feature is in limited availability. To learn more, contact Zscaler Support."
+    },
+    {
+      "text": "Private Access (ZPA) supports patterns within FQDN-based application segments. Configuring applications with pattern definition helps to build optimal configurations. It also future proofs the configuration in the case where new servers are brought online and match the existing patterns for applications. This means no configuration changes are required in the application segment definition. To learn more, see Configuring Defined Application Segments."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "To configure pattern matching for application segments, ensure the following prerequisites are met:"
+    },
+    {
+      "item": "Multimatch must be enabled on the tenant and the specific application segment. To learn more, see Using Application Segment Multimatch.",
+      "depth": 0
+    },
+    {
+      "item": "App Connectors are upgraded to version 24.298.1 or later. To learn more, see About App Connector Groups.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler Client Connector is upgraded to the following versions per OS:",
+      "depth": 0
+    },
+    {
+      "item": "Windows versions:",
+      "depth": 1
+    },
+    {
+      "item": "4.7.0.88 or later",
+      "depth": 2
+    },
+    {
+      "item": "4.6.0.282 or later",
+      "depth": 2
+    },
+    {
+      "item": "macOS version: 4.5.2.98 or later",
+      "depth": 1
+    },
+    {
+      "item": "iOS version: 4.4.1 or later",
+      "depth": 1
+    },
+    {
+      "item": "To use the Private Access pattern matching feature for iOS applications, you must enable the Use Tunnel SDK Version 4.3 or above setting in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Android version: 3.10 or later",
+      "depth": 1
+    },
+    {
+      "item": "Linux version: 4.2 or later",
+      "depth": 1
+    },
+    {
+      "heading": "Supported Patterns of Applications in Application Segments",
+      "level": 1
+    },
+    {
+      "text": "The asterisk (*) and question mark (?) symbols are the supported characters for pattern configuration in application segments."
+    },
+    {
+      "table": [
+        [
+          "Pattern Type",
+          "Example"
+        ],
+        [
+          "Pattern matching in the initial part of the FQDN",
+          "*.acme.com *nonprod.acme.com"
+        ],
+        [
+          "Pattern matching in the middle part of the application",
+          "psl*.ms.acme.com www.jira*.acme.com *w*.acme.com"
+        ],
+        [
+          "Matching one character with “?”",
+          "w?w.jira.acme.com w??.jira.acme.com"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          12
+        ],
+        [
+          0,
+          1,
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "text": "The maximum number of patterns an admin can configure is 500. To learn more, see Ranges & Limitations."
+    },
+    {
+      "heading": "App Connector Selection",
+      "level": 2
+    },
+    {
+      "text": "Pattern matching does not select the most specific application for App Connector selection. Therefore, ensure you have at least one App Connector group available for similar applications. To learn more, see About App Connector Groups."
+    },
+    {
+      "text": "When application access matches multiple application segments for pattern matching, the App Connector selection is based on the most specific application segments that are pattern matching, regardless of the application segment that matches the access policy rule."
+    },
+    {
+      "text": "The following table shows example application segment configurations:"
+    },
+    {
+      "table": [
+        [
+          "Application Segment Name",
+          "Domain or Pattern Match",
+          "Protocol & Port",
+          "Multimatch",
+          "Match",
+          "Server Group Name"
+        ],
+        [
+          "AS1",
+          "important-server*.eu.example.com",
+          "TCP/22",
+          "Yes",
+          "Yes",
+          "SG1"
+        ],
+        [
+          "AS2",
+          "important-server?.eu.example.com",
+          "TCP/22",
+          "Yes",
+          "Yes",
+          "SG2"
+        ],
+        [
+          "AS3",
+          "important-*.eu.example.com",
+          "TCP/22",
+          "Yes",
+          "Yes",
+          "SG3"
+        ],
+        [
+          "AS4",
+          "*.eu.example.com",
+          "All",
+          "Yes",
+          "Yes",
+          "SG4"
+        ],
+        [
+          "AS5",
+          "*.example.com",
+          "All",
+          "No",
+          "No",
+          "SG5"
+        ]
+      ]
+    },
+    {
+      "text": "When a user accesses important-server1.eu.example.com on the TCP protocol for port 22, it matches AS1, AS2, AS3, and AS4 because these are the most specific application segments with pattern matching. However, since AS4 is the wildcard application segment and AS5 does not have Multimatch enabled, the App Connector selection only applies to SG1, SG2, and SG3."
+    }
+  ]
+}

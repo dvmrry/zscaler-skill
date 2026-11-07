@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.forwarding",
+  "title": "Sending traffic to a Virtual Service Edge: GRE, PAC, L2 redirect, home users and Kerberos host names",
+  "aliases": [
+    "forward traffic to vse",
+    "vse gre tunnel",
+    "vse pac file",
+    "vse l2 forwarding",
+    "vse wccp",
+    "vse kerberos",
+    "forbid_nongvzt_users",
+    "spnego_krb_noport_bypass"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.network-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.clusters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.pac"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The forwarding page covers how traffic is sent to a Virtual Service Edge. {{placement-behind-firewall}} {{ipv6-gre-only-page}} The same statement on other pages names IPSec as well, see [[zia.virtual-service-edge.network-requirements]]."
+    },
+    {
+      "label": "GRE.",
+      "text": "{{gre}} The VIP-unnumbered tunnel detail is in [[zia.traffic-forwarding.gre]]."
+    },
+    {
+      "label": "PAC.",
+      "text": "{{pac}} PAC syntax and variables are in [[zia.traffic-forwarding.pac]]."
+    },
+    {
+      "label": "Layer 2.",
+      "text": "{{l2-and-wccp}}"
+    },
+    {
+      "label": "Home users.",
+      "text": "{{home-users}} What the parameter name refers to is not defined {{gap:nongvzt-meaning}}."
+    },
+    {
+      "label": "Kerberos.",
+      "text": "{{kerberos-hostnames}} {{kerberos-ports}} The page's port statements differ {{divergence:kerberos-ports-scope}}. Two terms on the page are not defined {{gap:kerberos-terms}}."
+    }
+  ],
+  "claims": {
+    "placement-behind-firewall": {
+      "statement": "Zscaler recommends deploying Virtual Service Edges behind the organization's firewall, though they can be deployed in the DMZ as well.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-forwarding-traffic-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "Zscaler recommends that you deploy Virtual Service Edges behind your firewall, though you can deploy them in the DMZ as well."
+          ]
+        }
+      ]
+    },
+    "ipv6-gre-only-page": {
+      "statement": "The forwarding page says Virtual Service Edges support IPv6 traffic if it is only forwarded via GRE tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-forwarding-traffic-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "Virtual Service Edges support IPv6 traffic if it's only forwarded via GRE tunnels."
+          ]
+        }
+      ]
+    },
+    "gre": {
+      "statement": "Zscaler recommends a GRE tunnel from the internal router to the Virtual Service Edge cluster IP address. Because the tunnel uses internal IP addresses the tunnel IPs need not be registered with Zscaler, backup GRE tunnels between the internal router and Public Service Edges are also possible. GRE tunnels configured on Virtual Service Edges are dynamically established with no internal IP addresses, similar to unnumbered GRE tunnels, which requires Virtual Service Edges to be configured as locations. Zscaler uses any internal IP address on the router side of the tunnels for routing purposes only, so proxy settings or ICMP ping on those ranges are not supported, and tunnel monitoring must use GRE keepalives and ICMP pings to the Virtual Service Edge VIP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-forwarding-traffic-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "Zscaler recommends that you configure a GRE tunnel from your internal router to the Virtual Service Edge cluster IP address.",
+            "Because you are using internal IP addresses for the tunnel, you don't need to contact Zscaler to register the tunnel IP addresses.",
+            "you can also configure backup GRE tunnels between the internal router and Public Service Edges for Internet & SaaS.",
+            "GRE tunnels configured on Virtual Service Edges are dynamically established with no internal IP addresses, similar to unnumbered GRE tunnels. This requires Virtual Service Edges to be configured as locations.",
+            "Zscaler uses any internal IP address configured on the router side of GRE tunnels for routing purposes only. Proxy settings or ICMP ping on these internal ranges are not supported.",
+            "You must use GRE keepalives and ICMP pings to the Virtual Service Edge Virtual IP (VIP) for tunnel monitoring."
+          ]
+        }
+      ]
+    },
+    "pac": {
+      "statement": "A PAC file can be edited to add the Virtual Service Edge cluster IP address as the proxy; the page's example is Return \"PROXY 10.84.0.188:80; PROXY ${GATEWAY}:80; PROXY ${SECONDARY_GATEWAY}:80;DIRECT\"; and it suggests adding the variable ${SRCIP} to direct the browser to send traffic to the Virtual Service Edge. The addresses are the vendor's examples.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-forwarding-traffic-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "You can edit the Zscaler default PAC file and add the Virtual Service Edge Cluster IP address as the proxy, for example:",
+            "Return \"PROXY 10.84.0.188:80; PROXY ${GATEWAY}:80; PROXY ${SECONDARY_GATEWAY}:80;DIRECT\";",
+            "add the variable ${SRCIP} to direct the browser to send traffic to the Virtual Service Edge."
+          ]
+        }
+      ]
+    },
+    "l2-and-wccp": {
+      "statement": "If a router or switch is in the same subnet as the Virtual Service Edge cluster IP address it can be configured to use L2 forwarding to redirect packets to the Virtual Service Edge. Cisco Web Cache Communication Protocol (WCCP) configurations do not work with Virtual Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-forwarding-traffic-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "If your router or switch is in the same subnet as the Virtual Service Edge cluster IP address, then you can configure your router or switch to use L2 forwarding to redirect packets to the Virtual Service Edge.",
+            "Cisco Web Cache Communication Protocol (WCCP) configurations don't work with Virtual Service Edges."
+          ]
+        }
+      ]
+    },
+    "home-users": {
+      "statement": "A location for a Virtual Service Edge created to allow home users to use it could lead to a Denial of Service (DoS) attack. Parameters can be configured on the Virtual Service Edge so that only the users' Zscaler Client Connector and GRE tunnel traffic are processed, with `forbid_nongvzt_users=1` in the SME section of the configuration file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-forwarding-traffic-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "A location for Virtual Service Edge is created to allow home users to utilize Virtual Service Edges. However, this could lead to a Denial of Service (DoS) attack.",
+            "you can configure parameters on the Virtual Service Edge so that only the users' Zscaler Client Connector and GRE tunnel traffic are processed.",
+            "[SME] forbid_nongvzt_users=1 [-end-of-SME-]"
+          ]
+        }
+      ]
+    },
+    "kerberos-hostnames": {
+      "statement": "The Enable Kerberos option appears in the Edit Location window only after Kerberos is enabled. For cluster deployment mode the Kerberos host name uses the cluster IP address and for standalone deployment mode the proxy IP address of the Virtual Service Edge instance, in the format vzen-<Proxy IP Address>-<Company ID>.gateway.<Cloud Name>.net; the page's cluster example is vzen-10-66-63-22-370255.gateway.zscalertwo.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-kerberos-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "You must enable Kerberos in order for the Enable Kerberos option to appear within the Edit Location window.",
+            "For cluster deployment mode, use the cluster IP address:",
+            "vzen-10-66-63-22-370255.gateway.zscalertwo.net",
+            "For standalone deployment mode, use the proxy IP address of the Virtual Service Edge instance:",
+            "vzen-<Proxy IP Address>-<Company ID>.gateway.<Cloud Name>.net"
+          ]
+        }
+      ]
+    },
+    "kerberos-ports": {
+      "statement": "If Kerberos is enabled only in Authentication Settings and not in the Virtual Service Edge location configuration, forward proxy traffic landing on ports 80/9443/DPPC-Port using the host name format does normal authentication, except port 8800. The page also says the Virtual Service Edge redirects traffic to gateway authentication for ports 8800 and 8443 if Kerberos is enabled for the location, and that adding spnego_krb_noport_bypass=1 to the vzen_custom.conf file avoids bypassing Kerberos for these ports. If Kerberos is enabled for a location with that parameter set, all the ports the Virtual Service Edge listens on enforce Kerberos authentication. The pauth_port (8080) enforces digest authentication irrespective of that parameter or of Kerberos or digest being enabled for the location, and the Kerberos port (8800) enforces Kerberos authentication irrespective of that parameter or of Kerberos being enabled for the location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-kerberos-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "If Kerberos is enabled only in Authentication Settings and not in the Virtual Service Edge location configuration, all forward proxy traffic landing on ports 80/9443/DPPC-Port using the hostname format",
+            "will do normal authentication, except port 8800.",
+            "The Virtual Service Edge redirects traffic to gateway authentication for ports 8800 and 8443 if Kerberos is enabled for the location.",
+            "You can avoid bypassing Kerberos authentication for these ports by adding the following parameter to the vzen_custom.conf file:",
+            "If Kerberos is enabled for a location with the spnego_krb_noport_bypass=1 parameter set in the vzen_custom.conf file, then all the ports that the Virtual Service Edge is listening on, enforce Kerberos authentication.",
+            "The pauth_port (8080) enforces digest authentication irrespective of the spnego_krb_noport_bypass=1 parameter set in the vzen_custom.conf file or either Kerberos or digest authentication being enabled for the location.",
+            "The Kerberos port (8800) enforces Kerberos authentication irrespective of the spnego_krb_noport_bypass=1 parameter set in the vzen_custom.conf file or Kerberos authentication being enabled for the location."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "kerberos-ports-scope": {
+      "summary": "Which ports use Kerberos when the Virtual Service Edge location has Kerberos enabled.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deploying-kerberos-virtual-service-edges-internet-saas.json",
+            "quotes": [
+              "will do normal authentication, except port 8800. If the Virtual Service Edge location has Kerberos enabled, then all ports will use Kerberos authentication."
+            ]
+          },
+          "says": "If the location has Kerberos enabled, all ports use Kerberos authentication."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deploying-kerberos-virtual-service-edges-internet-saas.json",
+            "quotes": [
+              "The Virtual Service Edge redirects traffic to gateway authentication for ports 8800 and 8443 if Kerberos is enabled for the location."
+            ]
+          },
+          "says": "With Kerberos enabled for the location, ports 8800 and 8443 are redirected to gateway authentication."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deploying-kerberos-virtual-service-edges-internet-saas.json",
+            "quotes": [
+              "The pauth_port (8080) enforces digest authentication irrespective of the"
+            ]
+          },
+          "says": "The pauth_port 8080 enforces digest authentication irrespective of the setting."
+        }
+      ],
+      "impact": "\"All ports use Kerberos\" does not hold for 8080 (digest) and 8443 (redirected to gateway authentication) as the page describes them; port 8800 enforces Kerberos either way and so agrees. The page gives a vzen_custom.conf parameter for the 8800 and 8443 redirect, and whether 8080 can be changed is not stated."
+    }
+  },
+  "gaps": {
+    "nongvzt-meaning": {
+      "kind": "semantic",
+      "title": "What forbid_nongvzt_users refers to",
+      "status": "open",
+      "detail": "The page sets forbid_nongvzt_users=1 to limit processing to Client Connector and GRE tunnel traffic but does not define what \"nongvzt\" stands for.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "kerberos-terms": {
+      "kind": "semantic",
+      "title": "Company ID source and DPPC-Port in the Kerberos page",
+      "status": "open",
+      "detail": "The Kerberos host name includes a Company ID and the page names a DPPC-Port; neither the source of the Company ID nor what DPPC-Port means is defined on the page.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

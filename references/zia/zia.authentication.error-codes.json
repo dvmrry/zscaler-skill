@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.error-codes",
+  "title": "ZIA authentication error codes: generic, directory, Kerberos and Identity Proxy",
+  "aliases": [
+    "authentication error code",
+    "Internet & SaaS Authentication Error Codes",
+    "error code 471000",
+    "kerberos error code",
+    "ldap error code",
+    "identity proxy error code",
+    "0x1389",
+    "211000",
+    "421000"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.directory-sync"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{tables-on-page}}"
+    },
+    {
+      "label": "Generic codes.",
+      "text": "{{generic-codes}}"
+    },
+    {
+      "label": "Directory codes.",
+      "text": "{{dir-search-and-sync-list}} {{dir-bind-and-password}} {{dir-connection-and-config}} {{dir-deleted-user}} {{dir-secondary-and-sync-running}}"
+    },
+    {
+      "label": "Kerberos codes.",
+      "text": "{{krb-simple-codes}} {{krb-471000-pac-and-gpo}} {{krb-471000-trust-and-connectivity}} {{krb-token-and-name}} {{kerberos-standalone-page}} Code 48100 is printed with five digits {{gap:printed-forms}}. The deployment and trust facts behind these causes are in [[zia.authentication.kerberos]]."
+    },
+    {
+      "label": "Identity Proxy codes.",
+      "text": "The Identity Proxy table is owned by [[zia.authentication.identity-proxy]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which table the code belongs to (generic, directory, Kerberos or Identity Proxy), then the row for that exact code.",
+      "uses": [
+        "tables-on-page"
+      ]
+    },
+    {
+      "do": "For a Kerberos 471000, which of the five occurrences matches the symptoms in the traffic capture or ticket listing.",
+      "uses": [
+        "krb-471000-pac-and-gpo",
+        "krb-471000-trust-and-connectivity"
+      ]
+    }
+  ],
+  "claims": {
+    "tables-on-page": {
+      "statement": "The Internet & SaaS Authentication Error Codes page has a table of codes the Zscaler service displays when user authentication fails, a table of codes it displays when it can't authenticate a user, Kerberos codes shown on an error page when Kerberos authentication fails, and Identity Proxy codes displayed when the service provider's (cloud app's) authentication requests fail.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-authentication-error-codes.json",
+          "quotes": [
+            "The following table lists the error codes that the Zscaler service displays when user authentication fails:",
+            "The following table lists the error codes that the Zscaler service displays when it can't authenticate a user:",
+            "If Kerberos authentication fails, the Zscaler service displays a page with an error code.",
+            "Identity Proxy error codes are displayed when the service provider (i.e., cloud app) authentication requests fail."
+          ]
+        }
+      ]
+    },
+    "generic-codes": {
+      "statement": "Code 211000 occurs when gateway-redirected traffic is forwarded from a location where authentication is disabled; the page says to check whether the gateway-redirected traffic and the actual traffic have different routing. Code 421000 occurs when the organization information extracted from the user cookie does not match the organization's DPPC port used for forwarding; the page says to clear the cookies and try again, and if the error persists to export logs and contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-authentication-error-codes.json",
+          "quotes": [
+            "| 211000 | This error occurs when gateway redirected traffic is forwarded from a location where authentication is disabled. | Check if you have different routing for the gateway redirected traffic and the actual traffic. |",
+            "| 421000 | This error occurs when the organization's information extracted from the user cookie does not match the organization's DPPC port used for forwarding traffic. | Clear the cookies and try again. If the error persists, export logs and contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "dir-search-and-sync-list": {
+      "statement": "Code 100 (ldapsearch could not be done) is an invalid LDAP filter, fixed by checking the filter syntax in the Admin Console and that the same filter works with ldapsearch. Code 103 (user not found on the LDAP servers) is a failed ldapsearch for the user, which can use email or username depending on advanced search status; code 112 is a problem with the advanced search filter used for logins; for both the page says to check that a manual ldapsearch returns users with the same query or filter. Code 113 (user not in the list of synchronized users) is fixed by synchronizing the user data and retrying.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-authentication-error-codes.json",
+          "quotes": [
+            "| 100 | The ldapsearch couldn't be done against the directory. | Invalid LDAP filter. | Check the LDAP search filter in the Zscaler Admin Console and ensure the syntax is correct. Verify if the same filter works with the ldapsearch. |",
+            "| 103 | The user wasn't found on the LDAP servers (search failed). | The ldapsearch for the user failed. The search can be done using \"email\" or \"username\" based on advanced search status. | Check if a manual ldapsearch returns the user with the same query as the one configured in the Zscaler Admin Console. |",
+            "| 112 | The advanced search query couldn't be sent. | Your organization is using an advanced search query for logins, and there's a problem with the advanced search filter used. | Check the advanced search filter. Ensure that ldapsearch returns users with the same filter. |",
+            "| 113 | The user wasn't found in the list of synchronized users. | The user is not in the list of synchronized users. | Synchronize the user data and retry. |"
+          ]
+        }
+      ]
+    },
+    "dir-bind-and-password": {
+      "statement": "Code 101 is an incorrect login password, fixed by correcting the password. Code 105 (error performing a Bind with the user's credentials) means the DN might be invalid, fixed by checking that a manual Bind works with the same credentials. Code 110 (LDAP Bind failed) means the admin's LDAP Bind password might be wrong, fixed by checking it. Code 104 (the user's DN could not be found) is the user's DN not being readable due to LDAP library issues, and the page says to consult the LDAP admin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-authentication-error-codes.json",
+          "quotes": [
+            "| 101 | Incorrect password. | Incorrect login password. | Correct the password. |",
+            "| 104 | The user's DN couldn't be found. | The user's DN couldn't be read due to LDAP library issues. | Consult your LDAP admin. |",
+            "| 105 | Error performing a Bind with the user's credentials. | The DN might be invalid. | Check if a manual Bind works with the same user credentials. |",
+            "| 110 | The LDAP Bind failed. | The admin's LDAP Bind password might be wrong. | Check the password. |"
+          ]
+        }
+      ]
+    },
+    "dir-connection-and-config": {
+      "statement": "Codes 102 (the server closed the LDAP connection unexpectedly; \"This should only be a transient error\"), 114 (connection to the directory server reset) and 115 (an admin activated new configuration settings in the Admin Console) are each fixed by retrying. Code 111 is an internal error and the page says to retry or contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-authentication-error-codes.json",
+          "quotes": [
+            "| 102 | The LDAP connection closed. | The server closed the connection unexpectedly. | Retry. This should only be a transient error. |",
+            "| 111 | Internal error. | Internal error. | Retry or contact Zscaler Support. |",
+            "| 114 | Login failed. The connection to the directory server was reset. | The connection to the directory server was reset. | Retry. |",
+            "| 115 | Login failed. The configuration changed. | An admin activated new configuration settings in the Zscaler Admin Console. | Retry. |"
+          ]
+        }
+      ]
+    },
+    "dir-deleted-user": {
+      "statement": "Codes 106 (internal error) and 116 (login failed, the user was deleted) both occur when a deleted user tries to log in; the page says to check whether the user is in the list of synchronized users and to synchronize the users (116: synchronize the user data and retry).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-authentication-error-codes.json",
+          "quotes": [
+            "| 106 | Internal error. | A deleted user tried to log in. | Check if the user is on the list of synchronized users. Synchronize the users. |",
+            "| 116 | Login failed. The user was deleted. | A deleted user tried to log in. | Check if the user is in the list of synchronized users. Synchronize the user data and retry. |"
+          ]
+        }
+      ]
+    },
+    "dir-secondary-and-sync-running": {
+      "statement": "Code 108 (LDAP context not found) occurs when a user in a second directory tries to log in with no secondary LDAP configuration; the page says Zscaler must unset flags in the database for secondary users or do a sync-preview sync once for the organization. Code 109 occurs when a user tries to log in during synchronization, and the page says to wait until the synchronization is completed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-authentication-error-codes.json",
+          "quotes": [
+            "| 108 | The LDAP context wasn't found. | A user in a second directory tried to log in when there was no secondary LDAP configuration. | Zscaler must \"unset\" flags in the DB for secondary users or do a sync-preview sync once for your organization. |",
+            "| 109 | The synchronization is in progress. Users are not allowed to log in. | A user tried to log in during the synchronization. | Wait until the synchronization is completed. |"
+          ]
+        }
+      ]
+    },
+    "krb-simple-codes": {
+      "statement": "Code 391000 is a generic \"page cannot load\" error (contact Zscaler Support). Codes 441000 and 461000 mean the user was deleted or cannot be found in the registered domain (add the user). Code 451000 means the realm is not a registered domain on the Zscaler service (contact Zscaler Support to add the realm).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-authentication-error-codes.json",
+          "quotes": [
+            "| 391000 | The page cannot load. | Generic error code. | Contact Zscaler Support. |",
+            "| 441000, 461000 | The user cannot be found. | The user was deleted or cannot be found in the registered domain. | Add the user. |",
+            "| 451000 | The domain does not exist. | The realm is not a registered domain on the Zscaler service. | Contact Zscaler Support to add the realm as a registered domain. |"
+          ]
+        }
+      ]
+    },
+    "krb-471000-pac-and-gpo": {
+      "statement": "Code 471000 means the proxy authorization header does not contain the encoded Kerberos ticket, which the page says in almost all cases means NTLM was used. Occurrence 1: traffic went to the Public Service Edge IP address with the default Zscaler PAC file instead of the Kerberos PAC file, fixed by using the Kerberos PAC file. Occurrence 2: the user's computer lacks the GPO updates, the domain controller lacks them, or the user is not logged in to the domain, with a traffic capture showing no query to the domain controller for the Zscaler ticket; the fix is to verify the registry settings, the domain controller's GPO configuration and the domain login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-authentication-error-codes.json",
+          "quotes": [
+            "| 471000 (Occurrence 1) | The proxy authorization header does not contain the encoded Kerberos ticket. In almost all cases, this means that NTLM was used.",
+            "The traffic was sent to the Public Service Edge for Internet & SaaS (ZIA) IP address. The default Zscaler PAC file was used instead of the Kerberos PAC file.",
+            "| Change the PAC file. Ensure that you use the Kerberos PAC file. |",
+            "| 471000 (Occurrence 2) |  | The user's computer does not have the GPO updates, the GPO updates are not on the domain controller, or the user is not logged in to the domain.",
+            "Symptoms: A traffic capture from the user's computer does not show any query to the domain controller for the Zscaler ticket.",
+            "Verify the registry settings to ensure the user's computer has the Zscaler Kerberos settings. If they are not on the computer, verify that the domain controller has the GPO configurations. Verify that the user is logged in to the domain."
+          ]
+        }
+      ]
+    },
+    "krb-471000-trust-and-connectivity": {
+      "statement": "For code 471000, occurrence 3 is AES encryption not enabled in the realm trust on the domain controller (a capture shows ETYPE_NOSUPP errors), fixed by selecting the AES option in the trust. Occurrence 4 is a realm trust that is not configured or was configured with an incorrect password (a capture shows PRINCIPAL_UNKNOWN): check the realm name is in upper case and the Zscaler cloud name is correct, otherwise regenerate the trust password in the Admin Console, delete the trust on the domain controller and create a new one. Occurrence 5 is the user's computer being unable to connect to the domain controller (after clearing tickets and refreshing the browser, no Kerberos tickets are listed, including the domain controller's); for a DirectAccess user the page gives a command to see whether the client considers the workstation inside or outside the intranet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-authentication-error-codes.json",
+          "quotes": [
+            "| 471000 (Occurrence 3) |  | AES encryption is not enabled in the realm trust on the domain controller.",
+            "A traffic capture shows the domain controller returning ETYPE_NOSUPP errors. | Modify the realm trust relationship and ensure that the AES encryption option is selected. |",
+            "| 471000 (Occurrence 4) |  | The realm trust relationship is not configured on the domain controller or the realm trust was configured with an incorrect password.",
+            "A traffic capture shows the domain controller returning PRINCIPAL_UNKNOWN error.",
+            "Ensure that the realm name is in upper case and that the Zscaler cloud name is correct.",
+            "If they are both correct, then the passwords in the organization's realm and the Zscaler realm might not match. Log in to the Zscaler Admin Console, regenerate the trust password, and copy it.",
+            "On the domain controller, delete the trust configuration and create a new one as described in Kerberos Trust Relationship Configuration for Windows Server and GPO Push.",
+            "| 471000 (Occurrence 5) |  | The user's computer cannot connect to the domain controller.",
+            "Symptoms: When you run klist purge to clear the tickets, refresh the browser, and then run klist again, Kerberos tickets are not displayed, including those of the domain controller.",
+            "If the user is using DirectAccess, run netsh name show effectivepolicy to determine if the DirectAccess client considers the workstation as being in the intranet or outside."
+          ]
+        }
+      ]
+    },
+    "kerberos-standalone-page": {
+      "statement": "A standalone Internet & SaaS Error Codes for Kerberos Authentication page opens by saying the Zscaler service displays a page with an error code if Kerberos authentication fails, and has rows for codes 391000, 441000 and 461000, 451000, 471000 (Occurrence 1), 48100 (printed with five digits) and 510000.",
+      "tier": "A",
+      "conditions": "A diff of the page's intro and twelve rows against the Kerberos table of zia-internet-saas-authentication-error-codes.json returned empty, so the page can serve as a second source for claims krb-simple-codes, krb-471000-pac-and-gpo, krb-471000-trust-and-connectivity and krb-token-and-name; the quotes here are a sample of rows, not all twelve.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-zia-error-codes-kerberos-authentication.json",
+          "quotes": [
+            "If Kerberos authentication fails, the Zscaler service displays a page with an error code.",
+            "| 391000 | The page cannot load. | Generic error code. | Contact Zscaler Support. |",
+            "| 441000, 461000 | The user cannot be found. | The user was deleted or cannot be found in the registered domain. | Add the user. |",
+            "| 451000 | The domain does not exist. | The realm is not a registered domain on the Zscaler service. | Contact Zscaler Support to add the realm as a registered domain. |",
+            "| 471000 (Occurrence 1) | The proxy authorization header does not contain the encoded Kerberos ticket. In almost all cases, this means that NTLM was used.",
+            "| 48100 | Invalid encoding of Kerberos credentials. | Possible header corruption. Ensure that there is no intermediate proxy or L7 device that might be corrupting the header. | Contact Zscaler Support. |",
+            "| 510000 | The user name is too long. | The user's login name exceeds the maximum allowed characters. | Contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "krb-token-and-name": {
+      "statement": "Code 48100 (as printed) is an invalid encoding of Kerberos credentials, possibly header corruption by an intermediate proxy or L7 device (contact Zscaler Support). Codes 491000 and 501000 are an invalid Kerberos token or username: occurrence 1 is an incorrect computer time (ensure it is correct and synchronizes with an NTP server, since Kerberos is very sensitive to clocks being in sync), occurrence 2 is other issues (contact Zscaler Support). Code 510000 means the login name exceeds the maximum allowed characters (contact Zscaler Support).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-authentication-error-codes.json",
+          "quotes": [
+            "| 48100 | Invalid encoding of Kerberos credentials. | Possible header corruption. Ensure that there is no intermediate proxy or L7 device that might be corrupting the header. | Contact Zscaler Support. |",
+            "| 491000, 501000 (Occurrence 1) | Invalid Kerberos token or username. | The computer time is incorrect. | Kerberos is very sensitive to clocks being in sync. Ensure that computer time is correct and it synchronizes with an NTP server. |",
+            "| 491000, 501000 (Occurrence 2) |  | Other issues. | Contact Zscaler Support. |",
+            "| 510000 | The user name is too long. | The user's login name exceeds the maximum allowed characters. | Contact Zscaler Support. |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "printed-forms": {
+      "kind": "semantic",
+      "title": "Whether Kerberos code 48100 is 481000",
+      "status": "open",
+      "detail": "The Kerberos table prints 48100 with five digits among six-digit neighbours (471000, 491000); the page does not say whether 481000 was meant. The claim quotes it as printed.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.ssl-inspection-wire",
+  "title": "SSL Inspection rule wire notes: Kerberos road warriors, ZPA segments and predefined rules",
+  "aliases": [
+    "road_warrior_for_kerberos",
+    "zpa_app_segments ssl inspection",
+    "predefined ssl inspection rules cannot be deleted terraform"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.api-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A few SSL Inspection rule settings are not covered by the console criteria. The nested action shape is in [[zia.ssl-inspection.api-shape]] and the rule inventory and cap in [[zia.ssl-inspection.rules]]."
+    },
+    {
+      "label": "Settings.",
+      "text": "{{road-warrior-kerberos}} {{zpa-app-segments}}"
+    },
+    {
+      "label": "Predefined rules.",
+      "text": "{{predefined-not-destroyable}} {{mcp-sharepoint-enum-report}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a predefined SSL Inspection rule is being deleted, which the provider does not support.",
+      "uses": [
+        "predefined-not-destroyable"
+      ]
+    },
+    {
+      "do": "Whether the rule was meant to cover remote PAC users on Kerberos, which is its own SSL Inspection rule setting.",
+      "uses": [
+        "road-warrior-kerberos"
+      ]
+    }
+  ],
+  "claims": {
+    "road-warrior-kerberos": {
+      "statement": "The SSL Inspection rule setting road_warrior_for_kerberos applies the rule to remote users that use PAC with Kerberos authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ssl_inspection_rules.py",
+          "quotes": [
+            "road_warrior_for_kerberos (bool): The rule is applied to remote users that use PAC with Kerberos authentication."
+          ]
+        }
+      ]
+    },
+    "zpa-app-segments": {
+      "statement": "An SSL Inspection rule can name ZPA application segments that have Source IP Anchoring enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ssl_inspection_rules.py",
+          "quotes": [
+            "zpa_app_segments (list): List of Source IP Anchoring-enabled ZPA Application Segments"
+          ]
+        }
+      ]
+    },
+    "predefined-not-destroyable": {
+      "statement": "Default and predefined rules cannot be deleted; predefined ones can be imported and reordered, but destroying one fails; default rules should not be imported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ssl_inspection_rules.md",
+          "quotes": [
+            "Zscaler SSL Inspection rules contain default and predefined rules which cannot be deleted.",
+            "Predefined rules can be managed via the Terraform provider for reordering purposes; however, `destroy` operations are not supported for predefined rules",
+            "DO NOT import or manage Default Rules.",
+            "The import of `predefined` rules is still possible in case you want o have them under the Terraform management; however, remember that these rules cannot be deleted. That means, the provider will fail when executing `terraform destroy`"
+          ]
+        }
+      ]
+    },
+    "mcp-sharepoint-enum-report": {
+      "statement": "MCP server issue #56 reported that adding SharePoint Online to an SSL inspection rule returned no response because the SSL inspection API accepts only internal enum strings such as ONEDRIVE; it was closed as completed on 2026-04-28 with a reply from a member of the repository's organization, signed Zscaler DevRel, to upgrade to v0.10.5.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-56.json",
+          "quotes": [
+            "the SSL inspection API only accepts Zscaler's internal enum strings (like ONEDRIVE, ONEDRIVE_PERSONAL). This means  the correct enum for SharePoint isn't resolving.",
+            "## Comment (MEMBER, 2026-04-28) Upgrade to the latest version of the mcp server v0.10.5 Zscaler DevRel",
+            "When trying to add \"Sharepoint Online\" (ID 655377) into existing SSL inspection rule, the api response is none."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 0.11.0 (May 4, 2026)",
+            "**Cloud-application name auto-resolution** for `zia_create_ssl_inspection_rule`, `zia_update_ssl_inspection_rule`",
+            "`\"Sharepoint Online\"` are silently translated to the canonical enums the API requires (`GOOGLE_DRIVE`, `ONEDRIVE`, `SHAREPOINT_ONLINE`)"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-56.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-04-28"
+          }
+        }
+      ],
+      "conditions": "The reply names v0.10.5 while the auto-resolution entry sits in the 0.11.0 section; the changelog does not tie the entry to the issue."
+    }
+  }
+}

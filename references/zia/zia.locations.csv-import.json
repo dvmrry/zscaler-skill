@@ -1,0 +1,381 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.csv-import",
+  "title": "Bulk location and sublocation changes by CSV: row types, field rules, export and limits",
+  "aliases": [
+    "location csv",
+    "import locations from csv",
+    "configuring multiple locations and sublocations",
+    "download csv locations",
+    "sample import csv",
+    "override existing entries locations",
+    "sublocationip",
+    "bulk add locations"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.locations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.automation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.model"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.ip-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.cloud-deployment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{row-types}} {{format}}"
+    },
+    {
+      "label": "Location rows.",
+      "text": "{{required-fields}} {{identifying-field}} {{field-dependencies}} {{gre-location-only}} {{managed-by}} The allowed Location-Type values are open {{gap:location-type-values}}. The Download (Mbps) field is described two ways {{divergence:download-field-direction}}. Whether sublocations inherit the row's group is disputed {{divergence:group-inheritance}}, and the page's single-Virtual-Service-Edge remark is one side of [[zia.virtual-service-edge.cloud-deployment:standalone-production]]."
+    },
+    {
+      "label": "Sublocation rows.",
+      "text": "{{sublocation-rows}} The group question is also in [[zia.locations.groups:membership-independent]]."
+    },
+    {
+      "label": "Export and import.",
+      "text": "{{download}} The export's format is open {{gap:download-format}}. {{import}} How many locations an import can add differs between pages {{divergence:import-count}}, and the sublocation count is part of [[zia.locations.sublocations:default-cap]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Download CSV export is being reused as an import file, since the export cannot add or delete locations.",
+      "uses": [
+        "format",
+        "download"
+      ]
+    },
+    {
+      "do": "Whether a location's group membership is relied on for its sublocations, since the pages differ on inheritance.",
+      "uses": [
+        "group-inheritance"
+      ]
+    }
+  ],
+  "claims": {
+    "row-types": {
+      "statement": "The location CSV format has a line shape for each row type: Location and SubLocation rows enter those words, and the format lines led by + give IP (a location name and an address), sublocationip (a sublocation name, an address and the parent location's name), VPN (a location name, VPN type and VPN username), PORT (a location name and a dedicated port), VirtualServiceEdge and VirtualServiceEdgeCluster (each a location name and the Virtual Service Edge or cluster name).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "+, IP, <location-name>, <ip>",
+            "+, sublocationip, <sublocation-name>, <ip>, <parentLocation-name>",
+            "+, VPN, <location-name>, <vpn-type>, <vpn-username>",
+            "+, PORT, <location-name>, <Dedicated port>",
+            "+, VirtualServiceEdge, <location-name>, <VirtualServiceEdgeName>",
+            "+, VirtualServiceEdgeCluster, <location-name>, <VirtualServiceEdgeClusterName>",
+            "Location (Required): Enter the word Location.",
+            "SubLocation (Required): Enter the word SubLocation."
+          ]
+        }
+      ]
+    },
+    "format": {
+      "statement": "The Download CSV export cannot be used to add or delete locations or location features; a new CSV file must be created, and a file in the wrong format returns an error. A field that is not required and not used is left blank so the service knows it is skipped, values are not case sensitive, one file can add or delete several types of information, and each additional IP address for a location needs its own row.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "You can click Download CSV to download a CSV file that displays your currently configured locations, but you cannot use this file for adding and deleting additional locations or location features. You must create a new CSV file.",
+            "If you try to import a CSV file that does not use the correct format, an error message appears.",
+            "If a field is not required, and you do not want to enter a value for the field, you must leave the field blank to indicate to the service that you are skipping over this value.",
+            "The values are not case sensitive.",
+            "You can use one CSV file to add or delete multiple types of information.",
+            "If you want to add multiple IP addresses to a location, you must enter a new row for each IP address."
+          ]
+        }
+      ]
+    },
+    "required-fields": {
+      "statement": "On a Location row Country and Time Zone are required, and Location-Type sets the location's primary web traffic type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "Country (Required): Enter the country for the location.",
+            "Time Zone (Required): Enter the location time zone.",
+            "Location-Type: Enter any of the following location types to set it as the primary web traffic for the location:"
+          ]
+        }
+      ]
+    },
+    "identifying-field": {
+      "statement": "IP is required unless a Dedicated Port, VPN-Type/VPN-userName, or a Virtual Service Edge cluster or cluster name is given, and VPN-type and Dedicated Port follow the same pattern; a value in Dedicated Port also requires Auth to be enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "IP (Required unless you enter a value for Dedicated Port, VPN-Type/VPN-userName, VirtualServiceEdgeCluster, or VirtualServiceEdgeClusterName): Enter the public IP address of the location.",
+            "VPN-type (Required unless you enter a value for IP, Dedicated port, VirtualServiceEdgeName, or VirtualServiceEdgeClusterName)",
+            "Dedicated Port (Required unless you enter a value for IP or VPN-type/VPN-userName, VirtualServiceEdgeName, or VirtualServiceEdgeClusterName): If you are entering a value here, you must also enable Auth."
+          ]
+        }
+      ],
+      "conditions": "The IP field's list reads \"VirtualServiceEdgeCluster, or VirtualServiceEdgeClusterName\" where the other fields read VirtualServiceEdgeName; the statement follows the page."
+    },
+    "field-dependencies": {
+      "statement": "Location row dependencies: Auth-Enable is required with a Dedicated Port or Surrogate IP; SurrogateIP-Enable requires Auth to be enabled; SurrogateIP-Enforced-KnownBrowsers requires Surrogate IP; AUP-Enable and Caution-Enable each require Auth to be disabled; aupBlockInternetAccess-Enable and aupForceSSLInspection-Enable require AUP-Enable; Caution-Enable also needs traffic forwarded by a GRE or IPSec tunnel without NAT or by forward proxy chaining with XFF-Enable on for the location; IPS-Enable requires firewall controls; Kerberos-Enable requires Auth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "Auth-Enable (Required if entering a value in Dedicated Port or if enabling Surrogate IP)",
+            "SurrogateIP-Enable (If you enable this feature, Auth must be enabled): Enter SurrogateIP-Enable to enable Surrogate IP",
+            "SurrogateIP-Enforced-KnownBrowsers (If you enable this feature, Surrogate IP must be enabled)",
+            "AUP-Enable (If you enable this feature, Auth must be disabled): If you want to display an Acceptable Use Policy (AUP) for unauthenticated traffic, and require users to accept it at this location",
+            "aupBlockInternetAccess-Enable (If you enable this feature, AUP-Enable must be enabled)",
+            "aupForceSSLInspection-Enable (If you enable this feature, AUP-Enable must be enabled)",
+            "Forward proxy chaining with the XFF-Enable option turned on for the location"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "after": "- The following fields are required for adding or deleting locations:",
+          "quotes": [
+            "Caution-Enable (If you enable this feature, Auth must be disabled): If you want to display a caution notification to unauthenticated users, enter Caution-Enable.",
+            "If you enable this feature, you must use one of the following methods to forward traffic to the service:",
+            "A GRE or IPSec tunnel without NAT",
+            "IPS-Enable (If you enable this feature, firewall controls must be enabled)",
+            "Kerberos-Enable (If you enable this feature, Auth must be enabled)"
+          ]
+        }
+      ]
+    },
+    "gre-location-only": {
+      "statement": "The location CSV page says GRE tunnels are bound to locations only, not sublocations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "after": "- The following fields are required for adding or deleting locations:",
+          "quotes": [
+            "GRE tunnels are bound to locations only, not sublocations."
+          ]
+        }
+      ]
+    },
+    "sublocation-rows": {
+      "statement": "A SubLocation row cannot carry a value for VPN-type, Dedicated port, VirtualServiceEdgeName or VirtualServiceEdgeClusterName (each is an empty comma) and must name its parent location. The location type WORKLOAD is entered for a sublocation of a parent location created in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "VPN-type: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "Dedicated port: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "VirtualServiceEdgeName: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "VirtualServiceEdgeClusterName: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "Parent Location Name (Required): Enter the name of the parent location to which this sublocation belongs.",
+            "Enter the location-type WORKLOAD, if you want to create a sublocation to a parent location created in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "managed-by": {
+      "statement": "A location row's Managed By field takes the name of the partner managing the location, or is left blank if no partner manages it; the valid partner names include Cisco Viptela, Citrix SD-WAN, CloudGenix, HPE Aruba, Riverbed SteelConnect, Silver Peak and VMware VeloCloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "Managed By: Enter the name of the partner that is managing the location. The valid partner names are:",
+            "Cisco Viptela",
+            "Citrix SD-WAN",
+            "CloudGenix",
+            "HPE Aruba",
+            "Riverbed SteelConnect",
+            "Silver Peak",
+            "VMware VeloCloud",
+            "If the location is not being managed by a partner, leave the field blank."
+          ]
+        }
+      ],
+      "conditions": "The page lists an eighth name, ngena, which is too short to quote alone."
+    },
+    "download": {
+      "statement": "Download CSV allows one file per hour, takes longer when there are thousands of locations, and its file cannot be used to import location and sublocation modifications because it uses a different format. The limits table also lists Download CSV file as one file per hour.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-downloading-location-info-to-CSV.json",
+          "quotes": [
+            "You can download only one file per hour.",
+            "If you have thousands of locations, then it takes more time to download all the available locations.",
+            "The CSV file you download here cannot be used to import location and sublocation modifications because it uses a different format."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Download CSV file | One file per hour |"
+          ]
+        }
+      ]
+    },
+    "import": {
+      "statement": "An import file must be in the same format as the Sample Import CSV file Zscaler provides. Override Existing Entries is selected to update existing locations, including deleting them, as well as add new ones; adding a location that already exists without it returns an error that identical locations cannot be imported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-importing-locations-using-a-csv.json",
+          "quotes": [
+            "Make sure that the CSV file you are importing is in the same format as the Sample Import CSV file provided by Zscaler.",
+            "If you want to update your existing locations, including deleting locations, as well as add new locations, select the Override Existing Entries checkbox.",
+            "If you attempt to add a location that already exists and this option is not selected, the Zscaler service displays an error message stating that identical locations cannot be imported."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "group-inheritance": {
+      "summary": "Whether a sublocation inherits its parent location's location-group membership: the location CSV page says it does, About Location Groups says the two join groups independently, and Understanding Sublocations gives a sublocation of a console-created parent the Workload Traffic Group by default.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-multiple-locations-and-sublocations.json",
+            "quotes": [
+              "Group Name: Enter the location group name. Any sublocations inherit the group membership from their parent location."
+            ]
+          },
+          "says": "In the CSV's Group Name field, any sublocations inherit the group membership from their parent location."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-location-groups.json",
+            "quotes": [
+              "A location can join a location group independently of its sublocations, and a sublocation independently of its parent location."
+            ]
+          },
+          "says": "A location joins a group independently of its sublocations, and a sublocation independently of its parent."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-sublocations.json",
+            "quotes": [
+              "After you add a sublocation to a location created in the Zscaler Admin Console, the Workload traffic type and Workload Traffic Group are applied as the default location type and the location group for the sublocation, respectively."
+            ]
+          },
+          "says": "A sublocation added to a console-created location gets the Workload Traffic Group as its default group."
+        }
+      ],
+      "impact": "A policy scoped to a location group may or may not reach a parent's sublocations depending on which page is read; the CSV sentence may describe only the CSV Group Name column, which the page does not say. The existing claim is [[zia.locations.groups:membership-independent]]."
+    },
+    "download-field-direction": {
+      "summary": "The location CSV page describes the Download (Mbps) field for a location as the maximum upload bandwidth limit, and the same field for a sublocation as the maximum download bandwidth limit.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-multiple-locations-and-sublocations.json",
+            "quotes": [
+              "Download (Mbps) (Required if enabling bandwidth control): Enter the maximum upload bandwidth limit for the location."
+            ]
+          },
+          "says": "In the Location section the Download (Mbps) field is the maximum upload bandwidth limit."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-multiple-locations-and-sublocations.json",
+            "quotes": [
+              "Download (Mbps) (Required if enabling bandwidth control): Enter the maximum download bandwidth limit for the sublocation."
+            ]
+          },
+          "says": "In the SubLocation section the Download (Mbps) field is the maximum download bandwidth limit."
+        }
+      ],
+      "impact": "A CSV that sets bandwidth control from the location description may put the upload limit in a field the sublocation section calls the download limit."
+    },
+    "import-count": {
+      "summary": "How many locations a CSV import can add: the import article says up to 32,000 locations, while the limits table gives 1,000 imported locations per CSV file.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-importing-locations-using-a-csv.json",
+            "quotes": [
+              "You can add up to 32,000 locations and 16K sublocations per location."
+            ]
+          },
+          "says": "An import can add up to 32,000 locations and 16K sublocations per location."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Imported Locations per CSV file | 1,000 entries |"
+            ]
+          },
+          "says": "1,000 imported locations per CSV file."
+        }
+      ],
+      "impact": "The 32,000 may be an organization total reached over several files, but the import article does not say so; a bulk load sized to one page may break the other."
+    }
+  },
+  "gaps": {
+    "location-type-values": {
+      "kind": "semantic",
+      "title": "Which Location-Type values a Location row accepts",
+      "status": "open",
+      "detail": "The location section lists location types after the Location-Type field and the sublocation section adds WORKLOAD. Items such as IOT and SERVER are too short to quote, so the list is not stated here, and whether EXTRANET or WORKLOAD can be set on a Location row is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "download-format": {
+      "kind": "semantic",
+      "title": "The column layout of the Download CSV file",
+      "status": "open",
+      "detail": "The download page says only that the file uses a format different from the import format; the layout is not described.",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    }
+  }
+}

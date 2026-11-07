@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   FULL_CHECKS,
   exitCodeForResults,
@@ -10,20 +13,20 @@ import {
   uninitializedSubmodulePaths,
 } from "./check-full.mjs";
 
+const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
 test("full gate includes both Node and Python checks", () => {
   assert.ok(FULL_CHECKS.some((check) => check.args.includes("scripts/check-fast.mjs")));
   assert.ok(FULL_CHECKS.some((check) => check.command.endsWith(".py")));
-  assert.ok(FULL_CHECKS.some((check) => check.args.includes("--strict-inventory")));
   assert.ok(FULL_CHECKS.some((check) => check.args.includes("scripts/agent_patterns.test.py")));
-  const freshness = FULL_CHECKS.find((check) =>
-    check.args.includes("scripts/check-reference-freshness.mjs"),
-  );
-  const baseFlag = freshness.args.indexOf("--base");
-  assert.ok(baseFlag >= 0);
-  assert.ok(freshness.args[baseFlag + 1]);
-  assert.ok(freshness.args.includes("--strict"));
-  const semantic = FULL_CHECKS.find((check) => check.name === "semantic citation evidence coverage");
-  assert.ok(semantic.args.includes("--strict-sources"));
+  assert.ok(FULL_CHECKS.some((check) => check.args.join(" ") === "scripts/kb.mjs validate"));
+  assert.ok(FULL_CHECKS.some((check) => check.args.join(" ") === "scripts/kb.mjs lint --strict"));
+});
+
+test("hygiene CI runs the full gate and nothing else", () => {
+  const workflow = fs.readFileSync(path.join(repositoryRoot, ".github", "workflows", "check-hygiene.yml"), "utf8");
+  assert.match(workflow, /run: node scripts\/check-full\.mjs/);
+  assert.doesNotMatch(workflow, /continue-on-error:\s*true/);
 });
 
 test("submodule preflight identifies only uninitialized entries", () => {

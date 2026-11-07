@@ -1,0 +1,525 @@
+{
+  "schema_version": 1,
+  "id": "unified.secops-platform.data.model",
+  "title": "The Agentic SecOps Platform data model: entity types, Data Model Management, field settings, processing and Entity Management Runs",
+  "aliases": [
+    "data model",
+    "data model management",
+    "entity types",
+    "entity management runs"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.unification"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.asset-aging"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.assets-findings"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.tickets"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{dm-definition}} {{dm-pipeline}} {{dm-change-caution}}"
+    },
+    {
+      "heading": "Entity types"
+    },
+    {
+      "text": "{{et-uvm}} {{et-global-vuln}} {{et-asset-component-kinds}}"
+    },
+    {
+      "label": "Other applications.",
+      "text": "{{et-violation-ticket}} {{et-soc-identity}}"
+    },
+    {
+      "heading": "Data Model Management"
+    },
+    {
+      "text": "{{dm-mgmt-page}} {{dm-field-types}} The reconciliation defaults table names further types {{divergence:field-type-list}}. {{dm-role}}"
+    },
+    {
+      "label": "Adding entities and fields.",
+      "text": "{{dm-add-entity}} {{dm-add-field}} {{dm-relations}}"
+    },
+    {
+      "label": "Field settings.",
+      "text": "{{dm-visibility}} {{dm-calculation}} The two pages give Unlink & Override opposite directions {{divergence:unlink-override-direction}}. {{dm-manual-updates}} {{dm-usage-tab}}"
+    },
+    {
+      "label": "Processing.",
+      "text": "{{dm-process}} Which \"projects\" and \"projections\" the options mean is not defined {{gap:dm-projects-undefined}}."
+    },
+    {
+      "label": "Entity Management Runs.",
+      "text": "{{dm-run-status}} {{dm-run-types}} The source runs list defines Batched differently {{divergence:batched-run-type}}. How long run history is kept is not stated {{gap:dm-run-retention}}."
+    }
+  ],
+  "claims": {
+    "dm-definition": {
+      "statement": "The data model is an entity-based relational database that provides the canonical schema for entities and fields, defining names, types, relationships, defaults, fallback logic and how conflicting values from multiple sources are resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-data-model-agentic-security-operations-platform.json",
+          "quotes": [
+            "The data model is an entity-based relational database within the Agentic Security Operations Platform",
+            "it defines names, types, relationships, defaults, fallback logic, and how conflicting values from multiple sources are resolved",
+            "It provides the canonical schema for entities and fields across your data sources"
+          ]
+        }
+      ]
+    },
+    "dm-pipeline": {
+      "statement": "Data flows through the model in these steps: create a source and ingest, map ingested fields (mapping is configured per source and all fields have preconfigured defaults), create merge and unification rules, then view the unified records in UVM, AEM, Agentic SOC and Identity Protection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-data-model-agentic-security-operations-platform.json",
+          "quotes": [
+            "The following procedure shows the configuration steps necessary to process, transform, and consume data within the data model:",
+            "Create a data source and ingest its data.",
+            "Map ingested fields to the data model.",
+            "All fields within the Agentic SecOps Platform are preconfigured with field defaults, and mapping is configured per source.",
+            "Create merge and unification rules.",
+            "View the unified records within Unified Vulnerability Management (UVM), Asset Exposure Management (AEM), Agentic SOC, and Identity Protection."
+          ]
+        }
+      ]
+    },
+    "dm-change-caution": {
+      "statement": "The help advises consulting the Zscaler Account team before changing the data model, warning that uninformed changes can cause fragmented or duplicated data, and advises starting with defaults and adding unification overrides only when business outcomes require them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-data-model-agentic-security-operations-platform.json",
+          "quotes": [
+            "Consult your Zscaler Account team when making changes to the data model.",
+            "Uninformed or well-meaning changes to the data model can affect data integrity and cause fragmented or duplicated data",
+            "Start with the default configuration in the Agentic SecOps Platform, and only introduce field‑unification overrides or custom mapping transforms when business outcomes require them."
+          ]
+        }
+      ]
+    },
+    "et-uvm": {
+      "statement": "The core UVM entities the page describes are Global Vulnerability (a publicly disclosed NVD vulnerability with a CVE ID), Finding (an instance on a component of an asset), Asset, Component and Ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-entity-types.json",
+          "quotes": [
+            "A global vulnerability represents a publicly disclosed security vulnerability documented by the National Vulnerability Database (NVD) and is assigned a unique CVE identifier",
+            "A finding is a specific instance of a vulnerability or misconfiguration detected on a particular component of an asset.",
+            "An asset refers to any organization-owned resource that can carry risk due to potential vulnerabilities or misconfigurations.",
+            "A component is the specific part of an asset that introduces a vulnerability or misconfiguration to the environment.",
+            "A ticket acts as the operational entity for tracking, grouping, and initiating the remediation process for vulnerabilities and misconfigurations.",
+            "While there are many entities in the Agentic Security Operations Platform, the following sections describe the core entities for Unified Vulnerability Management (UVM)",
+            "The following sections show information about UVM entity types:"
+          ]
+        }
+      ]
+    },
+    "et-global-vuln": {
+      "statement": "Each occurrence of a global vulnerability on an asset or component is a unique finding linked back to the global vulnerability entity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-entity-types.json",
+          "quotes": [
+            "A global vulnerability can exist on multiple assets and components across your environment.",
+            "Each occurrence of the vulnerability is treated as a unique finding, linked back to the original global vulnerability entity for centralized tracking and contextual analysis."
+          ]
+        }
+      ]
+    },
+    "et-asset-component-kinds": {
+      "statement": "Assets can be servers, endpoints, code repositories, containers and images, and components can be software, packages or operating systems.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-entity-types.json",
+          "quotes": [
+            "Servers (e.g., production or cloud instances)",
+            "Endpoints (e.g., workstations, laptops)",
+            "Code Repositories (e.g., GitHub repositories)",
+            "Containers (e.g., Docker images)",
+            "Images (e.g., virtual machine templates)",
+            "Software (e.g., Adobe Acrobat, Google Chrome)",
+            "Packages (e.g., Python libraries, Java dependencies)",
+            "Operating systems (e.g., Windows 10, Linux)"
+          ]
+        }
+      ]
+    },
+    "et-violation-ticket": {
+      "statement": "An AEM violation ticket consolidates policy violations, and its default grouping rule is based on the policy assignee and policy name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-entity-types.json",
+          "quotes": [
+            "it is specifically designed to consolidate and track policy violations.",
+            "with the default grouping rule based on the policy assignee and policy name.",
+            "A violation ticket in AEM functions similarly to a standard ticket"
+          ]
+        }
+      ]
+    },
+    "et-soc-identity": {
+      "statement": "Agentic SOC has Alert (a security notification from third-party products and Zscaler, aggregated and reduced via agentic AI) and Incident (a grouping of alerts representing the full attack story) entities, and Identity Protection has an identity finding entity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-entity-types.json",
+          "quotes": [
+            "An alert is a security notification generated by third-party products and Zscaler. Agentic SOC aggregates and reduces alerts via agentic AI.",
+            "An incident is a grouping of alerts, representing the full attack story rather than isolated data points.",
+            "An identity finding is a specific instance of a risk or misconfiguration detected in affected identity entities such as users, groups, or applications.",
+            "The following sections show information about Agentic SOC entity types:",
+            "Identity Protection Entity Types"
+          ]
+        }
+      ]
+    },
+    "dm-mgmt-page": {
+      "statement": "Data Model Management (Configure > Data Model) shows each entity or field's Entity Type, System Name (the database name used in queries and field-value calculations), Type, Tags (defined by Zscaler, not configurable), Visibility and Allow Manual Override.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-data-model-management.json",
+          "quotes": [
+            "On the Data Model Management page (Configure > Data Model)",
+            "System Name: The database name, which is used in queries and field-value calculations.",
+            "Tags: The tags assigned to the entity or field. Tags are defined by Zscaler and cannot be configured.",
+            "Allow Manual Override: Indicates if you can manually override the field's value.",
+            "Entity Type: The type of entity.",
+            "Type: The field type classification.",
+            "Visibility: Indicates if the field is visible when the entity is viewed within the Agentic SecOps Platform."
+          ]
+        }
+      ]
+    },
+    "dm-field-types": {
+      "statement": "Field types are Text, Number, Boolean, Date, Date & Time, and the Repeated variants of each.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-data-model-management.json",
+          "quotes": [
+            "Available options are Text, Number, Boolean, Date, Date & Time, Repeated Text, Repeated Number, Repeated Boolean, Repeated Date, Repeated Date & Time."
+          ]
+        }
+      ]
+    },
+    "dm-role": {
+      "statement": "Changing entities and fields requires a role with Read, Create, Edit and Delete permissions under the Platform - Model Management resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-adding-and-managing-entities-and-fields.json",
+          "quotes": [
+            "your assigned role must include the Read, Create, Edit, and Delete permissions under the Platform - Model Management resource"
+          ]
+        }
+      ]
+    },
+    "dm-add-entity": {
+      "statement": "Adding an entity is irreversible: entities cannot be deleted from the data model except through Zscaler Support, and a new entity is created with the default fields First Seen, Last Seen, Tags, Sources, ID, Locked, State, Created, Last Update, Last State Transition, Key, Name and Type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-adding-and-managing-entities-and-fields.json",
+          "quotes": [
+            "This action is irreversible. You cannot delete entities from the Agentic SecOps Platform data model. To delete an existing entity, contact Zscaler Support.",
+            "An entity is created with the following default fields: First Seen, Last Seen, Tags, Sources, ID, Locked, State, Created, Last Update, Last State Transition, Key, Name, Type."
+          ]
+        }
+      ]
+    },
+    "dm-add-field": {
+      "statement": "Adding a field is irreversible: fields cannot be deleted from the data model except through Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-adding-and-managing-entities-and-fields.json",
+          "quotes": [
+            "This action is irreversible. You cannot delete fields from the Agentic SecOps Platform data model. To delete an existing field from an entity, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "dm-visibility": {
+      "statement": "Field visibility controls whether a field is viewable in UVM, AEM and other SecOps applications; hidden fields are still processed, aggregated and unified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-adding-and-managing-entities-and-fields.json",
+          "quotes": [
+            "Field visibility determines whether a field is viewable within Unified Vulnerability Management (UVM), Asset Exposure Management (AEM), and other SecOps applications.",
+            "The Agentic SecOps Platform still processes, aggregates, and runs unification rules for hidden fields."
+          ]
+        }
+      ]
+    },
+    "dm-calculation": {
+      "statement": "Every field has a default formula (calculations are Python script shown in the field drawer), and the help recommends using field unification rules to modify it; null and error handling each default to Set Null.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-adding-and-managing-entities-and-fields.json",
+          "quotes": [
+            "Every field in the data model has a default formula that determines what values the field will contain when data is aggregated.",
+            "Zscaler recommends using field unification rules.",
+            "Set Null: Set empty or null values as Null. This option is default.",
+            "Set Null: Set values as Null. This option is default.",
+            "You can see default formulas and calculations (i.e., Python script) for each field in the field drawer.",
+            "This provides an easy, intuitive way to modify field formulas and calculations."
+          ]
+        }
+      ]
+    },
+    "dm-manual-updates": {
+      "statement": "Allow Manual Updates lets users change a field value after unification, can be restricted to roles or resources, and the optional Require Reason on update toggle, when enabled, offers Always (selected by default) or Specific conditions; some fields and entities do not allow it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-adding-and-managing-entities-and-fields.json",
+          "quotes": [
+            "Allow users to make manual changes to a field value after aggregation and unification rules have run.",
+            "Restrict to Roles: Select which roles are allowed to manually update the field.",
+            "Require Reason on update: Enable to require rationale when a manual update occurs, then select an option:",
+            "Always: A reason is always required when a manual update occurs. This option is selected by default.",
+            "Specific: Select conditions under which a reason is required.",
+            "Some fields and entities do not allow you to enable manual updates."
+          ]
+        }
+      ]
+    },
+    "dm-usage-tab": {
+      "statement": "A field's Usage tab lists the reports, views, dashboards, data model fields, data source mappings, UI configurations and measurements that include the field, and shows only sections where the field is in use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-adding-and-managing-entities-and-fields.json",
+          "quotes": [
+            "Reports: All reports that include the field.",
+            "Data Source Mapping: All data sources that include mapping to the field.",
+            "Measurement: All calculated measurements that include the field.",
+            "Sections are only displayed if the field is currently in use.",
+            "View: All saved views that include the field.",
+            "Dashboards: All dashboards that include the field.",
+            "Data Model Fields: All data model fields that the field is included in.",
+            "UI Configuration: All UI configurations that include the field."
+          ]
+        }
+      ]
+    },
+    "dm-process": {
+      "statement": "Process All or Process by entity manually applies unification rules and reconciliation logic outside scheduled runs; Process by entity offers the options Run selected and dependent projects or Run selected projections only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-data-model-management.json",
+          "quotes": [
+            "manually applies unification rules and reconciliation logic for newly ingested data outside scheduled runs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-adding-and-managing-entities-and-fields.json",
+          "quotes": [
+            "Process All: Click to process all entities.",
+            "Process by entity: Click the drop-down menu to select the entities you want to process",
+            "Select Run selected and dependent projects or Run selected projections only, and click Process."
+          ]
+        }
+      ]
+    },
+    "dm-run-status": {
+      "statement": "Entity Management Runs have statuses Completed, Canceled, Failed and Partially Completed; a Partially Completed run had some data manipulation errors and should be processed again manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-adding-and-managing-entities-and-fields.json",
+          "quotes": [
+            "Partially Completed: The run encountered some errors during data manipulation. You should manually process this run again to ensure that all data manipulation is completed.",
+            "Failed: The run encountered an error during data manipulation that prevented it from completing successfully.",
+            "Completed: The run successfully completed without data manipulation issues.",
+            "Canceled: The run was intentionally stopped by the user."
+          ]
+        }
+      ]
+    },
+    "dm-run-types": {
+      "statement": "Entity Management run types include Agg process (manual Process or Process All), Batched (its configured schedule), Auto-batched (platform-managed batch process) and Post manual operation (a user overriding a field value); all are categorized as Aggregate runs, and the full list is available from Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-adding-and-managing-entities-and-fields.json",
+          "quotes": [
+            "All Entity Management runs are categorized as Aggregate runs",
+            "Agg process: A run manually initiated by a user by clicking Process or Process All",
+            "Batched: A run initiated by its configured schedule.",
+            "Auto-batched: A run initiated as part of a platform-managed batch process.",
+            "Post manual operation: A run initiated by a user overriding a field value.",
+            "For a complete list of all run types, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "dm-relations": {
+      "statement": "Relationships between entities and their fields are defined on Configure > Relations, and proper relations prevent orphan records.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-adding-and-managing-entities-and-fields.json",
+          "quotes": [
+            "Relationships between entities and their fields are defined on the Configure > Relations page.",
+            "Establishing proper relations prevents orphan records and preserves the integrity of your data."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "field-type-list": {
+      "summary": "The Data Model Management page lists the available field types as Text, Number, Boolean, Date, Date & Time and their Repeated variants; the attribute reconciliation defaults table has rows for IP, Fix and Message field types and none for Date & Time.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-about-data-model-management.json",
+            "quotes": [
+              "Available options are Text, Number, Boolean, Date, Date & Time, Repeated Text, Repeated Number, Repeated Boolean, Repeated Date, Repeated Date & Time."
+            ]
+          },
+          "says": "The available field types are Text, Number, Boolean, Date, Date & Time and the Repeated variants."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-attribute-reconciliation-default-functions.json",
+            "quotes": [
+              "| IP | COLLECT_DISTINCT_FLAT | A list of distinct IP addresses |",
+              "| Fix | COLLECT_DISTINCT_FLAT | A list of distinct fixes |",
+              "| Message | MAX | The structured message data returned for the entity |"
+            ]
+          },
+          "says": "The reconciliation defaults table gives IP, Fix and Message fields their own defaults."
+        }
+      ],
+      "impact": "Do not give the field type list as closed or complete; the reconciliation table names IP, Fix and Message types that the list omits, and it has no Date & Time row."
+    },
+    "unlink-override-direction": {
+      "summary": "Unlink & Override in the Data Model drawer removes the field from field unification rules; on the Data Unification - Fields page the same action overrides the data model logic, which the field unification page describes as a unidirectional update.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-adding-and-managing-entities-and-fields.json",
+            "quotes": [
+              "If you have already configured field unification rules for this field, click Unlink & Override. This removes the field from field unification rules."
+            ]
+          },
+          "says": "In the Data Model drawer, Unlink & Override removes the field from field unification rules."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-understanding-field-unification-data-model-and-application-settings.json",
+            "quotes": [
+              "field unification rules update the corresponding rules in the data model unidirectionally.",
+              "Creating or updating a field unification rule populates and overrides the corresponding data model logic"
+            ]
+          },
+          "says": "Field unification rules override the data model logic, and the data model does not update them back."
+        }
+      ],
+      "impact": "Name which page's Unlink & Override is meant; the two pages give it opposite directions."
+    },
+    "batched-run-type": {
+      "summary": "The Entity Management Runs list defines Batched as a run initiated by its configured schedule; the source runs list defines Batched as a run initiated as part of a platform-managed batch process.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-adding-and-managing-entities-and-fields.json",
+            "quotes": [
+              "Batched: A run initiated by its configured schedule."
+            ]
+          },
+          "says": "Entity Management Runs: Batched is a scheduled run."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-tracking-data-source-runs.json",
+            "quotes": [
+              "Batched: A run initiated as part of a platform-managed batch process."
+            ]
+          },
+          "says": "Source runs: Batched is a platform-managed batch run."
+        }
+      ],
+      "impact": "Do not carry the meaning of Batched from one run list to the other."
+    }
+  },
+  "gaps": {
+    "dm-projects-undefined": {
+      "kind": "semantic",
+      "title": "What \"projects\" and \"projections\" mean in the Process options",
+      "status": "open",
+      "detail": "The Process options read \"Run selected and dependent projects or Run selected projections only\"; no captured article defines projects or projections.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "dm-run-retention": {
+      "kind": "semantic",
+      "title": "How long Entity Management Runs history is retained, and the full run-type list",
+      "status": "open",
+      "detail": "No captured article gives a retention period for Entity Management Runs, and the help sends readers to Zscaler Support for the complete list of run types.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

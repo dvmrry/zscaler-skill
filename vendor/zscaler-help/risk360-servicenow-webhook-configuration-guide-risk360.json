@@ -1,0 +1,1966 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "ServiceNow Webhook Configuration Guide for Risk360",
+  "source": {
+    "url": "https://help.zscaler.com/risk360/servicenow-webhook-configuration-guide-risk360",
+    "node": "1546780",
+    "revision": "3250041",
+    "updated": "2026-10-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide provides information on configuring webhooks using ServiceNow for alerts in Risk360. This article provides a sample configuration that can be built on per user requirements. The following ServiceNow webhook sample configuration uses a ServiceNow developer configuration."
+    },
+    {
+      "text": "To configure webhook using ServiceNow:"
+    },
+    {
+      "item": "Create a ServiceNow developer account at https://developer.servicenow.com/.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Create a developer instance.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "This instance automatically hibernates, so you must wake it every 24 hours. Also, the instance is reclaimed if you don’t use it for 10 days.",
+      "depth": 0
+    },
+    {
+      "item": "In the Filter Navigator search window on the left sidebar, enter rest.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Under Scripted Web Services, click Scripted REST APIs.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          27
+        ],
+        [
+          35,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Click New at the top of the page to create a new resource.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the API name and click Submit.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          29,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "The API appears on the page.",
+      "depth": 0
+    },
+    {
+      "item": "Click the API name to open it.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "At the bottom of the page, under the Resources tab, select New.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          37,
+          46
+        ],
+        [
+          59,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Based on the authentication type you want to configure the webhook, choose one of the following methods:",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "Basic Authentication",
+      "depth": 1
+    },
+    {
+      "item": "Enter your preferred name and select POST as the http method.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Check the authentication box.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Paste the following script in the Script field and click Submit.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          57,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Script for Basic authentication",
+      "depth": 3
+    },
+    {
+      "item": "(function process( /*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {",
+      "depth": 3
+    },
+    {
+      "item": "// implement resource here",
+      "depth": 3
+    },
+    {
+      "item": "var reqData = request.body.dataString;",
+      "depth": 3
+    },
+    {
+      "item": "var jData = new global.JSON().decode(reqData);",
+      "depth": 3
+    },
+    {
+      "item": "var alertId = jData.alertId;",
+      "depth": 3
+    },
+    {
+      "item": "var ruleName = jData.ruleName;",
+      "depth": 3
+    },
+    {
+      "item": "if (ruleName.equalsIgnoreCase(\"test\")) {",
+      "depth": 3
+    },
+    {
+      "item": "// test webhook",
+      "depth": 3
+    },
+    {
+      "item": "return;",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "var alertstatus = jData.status;",
+      "depth": 3
+    },
+    {
+      "item": "var url = '[code]<a href=\"' + jData.url + '\" target=\"_blank\">View alert in Risk360</a>[/code]';",
+      "depth": 3
+    },
+    {
+      "item": "var startTime = jData.startTime;",
+      "depth": 3
+    },
+    {
+      "item": "var endTime = jData.endTime;",
+      "depth": 3
+    },
+    {
+      "item": "var state;",
+      "depth": 3
+    },
+    {
+      "item": "if (alertstatus == \"STARTED\" || alertstatus == \"ONGOING\")",
+      "depth": 3
+    },
+    {
+      "item": "state = 2; // in progress",
+      "depth": 3
+    },
+    {
+      "item": "else if (alertstatus == \"ENDED_ON_RULE_DEL\" || alertstatus == \"ENDED_ON_RULE_MODIFY\")",
+      "depth": 3
+    },
+    {
+      "item": "state = 8; // cancelled",
+      "depth": 3
+    },
+    {
+      "item": "else",
+      "depth": 3
+    },
+    {
+      "item": "state = 6; // resolved",
+      "depth": 3
+    },
+    {
+      "item": "var impact = 1;",
+      "depth": 3
+    },
+    {
+      "item": "if (jData.severity == \"High\" || jData.severity == \"Critical\")",
+      "depth": 3
+    },
+    {
+      "item": "impact = 1;",
+      "depth": 3
+    },
+    {
+      "item": "else if (jData.severity == \"Medium\")",
+      "depth": 3
+    },
+    {
+      "item": "impact = 2;",
+      "depth": 3
+    },
+    {
+      "item": "else if (jData.severity == \"Low\")",
+      "depth": 3
+    },
+    {
+      "item": "impact = 3;",
+      "depth": 3
+    },
+    {
+      "item": "var gdt = new GlideDateTime();",
+      "depth": 3
+    },
+    {
+      "item": "var criteria = jData.criteriaString;",
+      "depth": 3
+    },
+    {
+      "item": "//based on type of alert cause",
+      "depth": 3
+    },
+    {
+      "item": "var orgAlertCauses = [];",
+      "depth": 3
+    },
+    {
+      "item": "var categoryAlertCauses = [];",
+      "depth": 3
+    },
+    {
+      "item": "var factorgroupAlertCauses = [];",
+      "depth": 3
+    },
+    {
+      "item": "var factorAlertCauses = [];",
+      "depth": 3
+    },
+    {
+      "item": "// Manually iterate through the alert causes and categorize them",
+      "depth": 3
+    },
+    {
+      "item": "for (var i = 0; i < jData.alert_causes.length; i++) {",
+      "depth": 3
+    },
+    {
+      "item": "var cause = jData.alert_causes[i];",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.type === \"Org\") {",
+      "depth": 3
+    },
+    {
+      "item": "var status;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.prev < 0)",
+      "depth": 3
+    },
+    {
+      "item": "prev = 0;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.cur > cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Increase\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.cur < cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Decrease\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"No Change\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "orgAlertCauses.push({",
+      "depth": 3
+    },
+    {
+      "item": "id: cause.id,",
+      "depth": 3
+    },
+    {
+      "item": "status: status",
+      "depth": 3
+    },
+    {
+      "item": "});",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.type === \"Category\") {",
+      "depth": 3
+    },
+    {
+      "item": "var status;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.prev < 0)",
+      "depth": 3
+    },
+    {
+      "item": "prev = 0;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.cur > cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Increase\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.cur < cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Decrease\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"No Change\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "categoryAlertCauses.push({",
+      "depth": 3
+    },
+    {
+      "item": "id: cause.id,",
+      "depth": 3
+    },
+    {
+      "item": "status: status",
+      "depth": 3
+    },
+    {
+      "item": "});",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.type === \"FactorGroup\") {",
+      "depth": 3
+    },
+    {
+      "item": "var status;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.prev < 0)",
+      "depth": 3
+    },
+    {
+      "item": "prev = 0;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.cur > cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Increase\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.cur < cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Decrease\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"No Change\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "factorgroupAlertCauses.push({",
+      "depth": 3
+    },
+    {
+      "item": "id: cause.id,",
+      "depth": 3
+    },
+    {
+      "item": "status: status",
+      "depth": 3
+    },
+    {
+      "item": "});",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.type === \"Factor\") {",
+      "depth": 3
+    },
+    {
+      "item": "var status;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.prev < 0)",
+      "depth": 3
+    },
+    {
+      "item": "prev = 0;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.cur > cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Increase\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.cur < cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Decrease\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"No Change\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "factorAlertCauses.push({",
+      "depth": 3
+    },
+    {
+      "item": "id: cause.id,",
+      "depth": 3
+    },
+    {
+      "item": "status: status",
+      "depth": 3
+    },
+    {
+      "item": "});",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "// Initialize a string to hold the output",
+      "depth": 3
+    },
+    {
+      "item": "var output = \"\";",
+      "depth": 3
+    },
+    {
+      "item": "var numbering = 1;",
+      "depth": 3
+    },
+    {
+      "item": "// Build the output string dynamically for \"Org\" type",
+      "depth": 3
+    },
+    {
+      "item": "if (orgAlertCauses.length > 0) {",
+      "depth": 3
+    },
+    {
+      "item": "output += numbering + \". Organization Level Change\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "for (var j = 0; j < orgAlertCauses.length; j++) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\t. \" + orgAlertCauses[j].id + \" (\" + orgAlertCauses[j].status + \")\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "numbering++;",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "// Build the output string dynamically for \"Category\" type",
+      "depth": 3
+    },
+    {
+      "item": "if (categoryAlertCauses.length > 0) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\n\" + numbering + \". Category Level Change\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "for (var k = 0; k < categoryAlertCauses.length; k++) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\t. \" + categoryAlertCauses[k].id + \" (\" + categoryAlertCauses[k].status + \")\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "numbering++;",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "if (factorgroupAlertCauses.length > 0) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\n\" + numbering + \". Factor Group Level Change\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "for (var l = 0; l < factorgroupAlertCauses.length; l++) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\t. \" + factorgroupAlertCauses[l].id + \" (\" + factorgroupAlertCauses[l].status + \")\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "numbering++;",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "if (factorAlertCauses.length > 0) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\n\" + numbering + \". Factor Level Change\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "for (var m = 0; m < factorAlertCauses.length; m++) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\t. \" + factorAlertCauses[m].id + \" (\" + factorAlertCauses[m].status + \")\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "if (jData.custom_msg == undefined || jData.custom_msg === null) {",
+      "depth": 3
+    },
+    {
+      "item": "jData.custom_msg = \"\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "var desc = \"\";",
+      "depth": 3
+    },
+    {
+      "item": "desc = \"Rule Name: \" + ruleName + \"\\n\\nCriteria: \\n\" + criteria + \"\\n\\nAlert Cause:\\n\" + output + \"\\nCustom Message:\\n\" + jData.custom_msg;",
+      "depth": 3
+    },
+    {
+      "item": "var gr = new GlideRecord('incident');",
+      "depth": 3
+    },
+    {
+      "item": "gr.addQuery('short_description', 'CONTAINS', alertId);",
+      "depth": 3
+    },
+    {
+      "item": "gr.query();",
+      "depth": 3
+    },
+    {
+      "item": "if (gr.next()) {",
+      "depth": 3
+    },
+    {
+      "item": "gr.state = state;",
+      "depth": 3
+    },
+    {
+      "item": "gr.impact = impact;",
+      "depth": 3
+    },
+    {
+      "item": "if (state == 6) {",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_code = \"Alert resolved\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (state == 8) {",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_code = \"Rule deleted or modified\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_notes = \" \";",
+      "depth": 3
+    },
+    {
+      "item": "var sd = gr.short_description;",
+      "depth": 3
+    },
+    {
+      "item": "gr.short_description = \"Risk360 Alert \" + alertId;",
+      "depth": 3
+    },
+    {
+      "item": "gr.description = desc;",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_notes = url;",
+      "depth": 3
+    },
+    {
+      "item": "gdt.setValue(startTime * 1000);",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_start = gdt.getDisplayValue();",
+      "depth": 3
+    },
+    {
+      "item": "if (alertstatus == \"STARTED\" || alertstatus == \"ONGOING\") {",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_end = \"\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "gdt.setValue(endTime * 1000);",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_end = gdt.getDisplayValue();",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "//gr.caller_id = e9f176e2db54101087f7478239961941;",
+      "depth": 3
+    },
+    {
+      "item": "gr.update();",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "gr.newRecord();",
+      "depth": 3
+    },
+    {
+      "item": "if (state == 2) // in progress",
+      "depth": 3
+    },
+    {
+      "item": "state = 1; // new",
+      "depth": 3
+    },
+    {
+      "item": "gr.state = state;",
+      "depth": 3
+    },
+    {
+      "item": "gr.impact = impact;",
+      "depth": 3
+    },
+    {
+      "item": "if (state == 6) {",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_code = \"Alert resolved\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (state == 8) {",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_code = \"Rule deleted or modified\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_notes = \" \";",
+      "depth": 3
+    },
+    {
+      "item": "gr.short_description = \"Risk360 Alert \" + alertId;",
+      "depth": 3
+    },
+    {
+      "item": "gr.description = desc;",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_notes = url;",
+      "depth": 3
+    },
+    {
+      "item": "gdt.setValue(startTime * 1000);",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_start = gdt.getDisplayValue();",
+      "depth": 3
+    },
+    {
+      "item": "if (alertstatus == \"STARTED\" || alertstatus == \"ONGOING\") {",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_end = \"\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "gdt.setValue(endTime * 1000);",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_end = gdt.getDisplayValue();",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "//gr.caller_id = e9f176e2db54101087f7478239961941;",
+      "depth": 3
+    },
+    {
+      "item": "var result = gr.insert();",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "})(request, response);",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To use basic authentication for your webhook, you must create a non-admin user on ServiceNow so that admin credentials need not be shared.",
+      "depth": 2
+    },
+    {
+      "item": "Enter Users in the Filter Navigator search box on the left side of the page.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          19,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Select Users under Users and Groups.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          19,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Click New on the top bar to open a new user page.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Enter the username and password for this user.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Token authentication",
+      "depth": 1
+    },
+    {
+      "item": "Enter your preferred name and select POST as the http method.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Disable the authentication box.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Paste the script under Token Authentication in the Script field and click Submit.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          23,
+          43
+        ],
+        [
+          74,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Script for Token authentication",
+      "depth": 3
+    },
+    {
+      "item": "(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {",
+      "depth": 3
+    },
+    {
+      "item": "// implement resource here",
+      "depth": 3
+    },
+    {
+      "item": "var headers = request.headers;",
+      "depth": 3
+    },
+    {
+      "item": "var authHeader = request.getHeader('authorization');",
+      "depth": 3
+    },
+    {
+      "item": "var token = authHeader.split(\" \");",
+      "depth": 3
+    },
+    {
+      "item": "if (token[1] != gs.getProperty(\"risk.360.token\"))",
+      "depth": 3
+    },
+    {
+      "item": "response.setError(new sn_ws_err.BadRequestError('Bad token'));",
+      "depth": 3
+    },
+    {
+      "item": "var reqData = request.body.dataString;",
+      "depth": 3
+    },
+    {
+      "item": "var jData = new global.JSON().decode(reqData);",
+      "depth": 3
+    },
+    {
+      "item": "var alertId = jData.alertId;",
+      "depth": 3
+    },
+    {
+      "item": "var ruleName = jData.ruleName;",
+      "depth": 3
+    },
+    {
+      "item": "if (ruleName.equalsIgnoreCase(\"test\")) {",
+      "depth": 3
+    },
+    {
+      "item": "// test webhook",
+      "depth": 3
+    },
+    {
+      "item": "return;",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "var alertstatus = jData.status;",
+      "depth": 3
+    },
+    {
+      "item": "var url = '[code]<a href=\"' + jData.url + '\" target=\"_blank\">View alert in Risk360</a>[/code]';",
+      "depth": 3
+    },
+    {
+      "item": "var startTime = jData.startTime;",
+      "depth": 3
+    },
+    {
+      "item": "var endTime = jData.endTime;",
+      "depth": 3
+    },
+    {
+      "item": "var state;",
+      "depth": 3
+    },
+    {
+      "item": "if (alertstatus == \"STARTED\" || alertstatus == \"ONGOING\")",
+      "depth": 3
+    },
+    {
+      "item": "state = 2; // in progress",
+      "depth": 3
+    },
+    {
+      "item": "else if (alertstatus == \"ENDED_ON_RULE_DEL\" || alertstatus == \"ENDED_ON_RULE_MODIFY\")",
+      "depth": 3
+    },
+    {
+      "item": "state = 8; // cancelled",
+      "depth": 3
+    },
+    {
+      "item": "else",
+      "depth": 3
+    },
+    {
+      "item": "state = 6; // resolved",
+      "depth": 3
+    },
+    {
+      "item": "var impact = 1;",
+      "depth": 3
+    },
+    {
+      "item": "if (jData.severity == \"High\" || jData.severity == \"Critical\")",
+      "depth": 3
+    },
+    {
+      "item": "impact = 1;",
+      "depth": 3
+    },
+    {
+      "item": "else if (jData.severity == \"Medium\")",
+      "depth": 3
+    },
+    {
+      "item": "impact = 2;",
+      "depth": 3
+    },
+    {
+      "item": "else if (jData.severity == \"Low\")",
+      "depth": 3
+    },
+    {
+      "item": "impact = 3;",
+      "depth": 3
+    },
+    {
+      "item": "var gdt = new GlideDateTime();",
+      "depth": 3
+    },
+    {
+      "item": "var criteria = jData.criteriaString;",
+      "depth": 3
+    },
+    {
+      "item": "//based on type of alert cause",
+      "depth": 3
+    },
+    {
+      "item": "var orgAlertCauses = [];",
+      "depth": 3
+    },
+    {
+      "item": "var categoryAlertCauses = [];",
+      "depth": 3
+    },
+    {
+      "item": "var factorgroupAlertCauses = [];",
+      "depth": 3
+    },
+    {
+      "item": "var factorAlertCauses = [];",
+      "depth": 3
+    },
+    {
+      "item": "// Manually iterate through the alert causes and categorize them",
+      "depth": 3
+    },
+    {
+      "item": "for (var i = 0; i < jData.alert_causes.length; i++) {",
+      "depth": 3
+    },
+    {
+      "item": "var cause = jData.alert_causes[i];",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.type === \"Org\") {",
+      "depth": 3
+    },
+    {
+      "item": "var status;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.prev < 0)",
+      "depth": 3
+    },
+    {
+      "item": "prev = 0;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.cur > cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Increase\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.cur < cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Decrease\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"No Change\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "orgAlertCauses.push({",
+      "depth": 3
+    },
+    {
+      "item": "id: cause.id,",
+      "depth": 3
+    },
+    {
+      "item": "status: status",
+      "depth": 3
+    },
+    {
+      "item": "});",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.type === \"Category\") {",
+      "depth": 3
+    },
+    {
+      "item": "var status;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.prev < 0)",
+      "depth": 3
+    },
+    {
+      "item": "prev = 0;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.cur > cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Increase\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.cur < cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Decrease\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"No Change\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "categoryAlertCauses.push({",
+      "depth": 3
+    },
+    {
+      "item": "id: cause.id,",
+      "depth": 3
+    },
+    {
+      "item": "status: status",
+      "depth": 3
+    },
+    {
+      "item": "});",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.type === \"FactorGroup\") {",
+      "depth": 3
+    },
+    {
+      "item": "var status;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.prev < 0)",
+      "depth": 3
+    },
+    {
+      "item": "prev = 0;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.cur > cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Increase\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.cur < cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Decrease\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"No Change\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "factorgroupAlertCauses.push({",
+      "depth": 3
+    },
+    {
+      "item": "id: cause.id,",
+      "depth": 3
+    },
+    {
+      "item": "status: status",
+      "depth": 3
+    },
+    {
+      "item": "});",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.type === \"Factor\") {",
+      "depth": 3
+    },
+    {
+      "item": "var status;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.prev < 0)",
+      "depth": 3
+    },
+    {
+      "item": "prev = 0;",
+      "depth": 3
+    },
+    {
+      "item": "if (cause.cur > cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Increase\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (cause.cur < cause.prev) {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"Decrease\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "status = \"No Change\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "factorAlertCauses.push({",
+      "depth": 3
+    },
+    {
+      "item": "id: cause.id,",
+      "depth": 3
+    },
+    {
+      "item": "status: status",
+      "depth": 3
+    },
+    {
+      "item": "});",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "// Initialize a string to hold the output",
+      "depth": 3
+    },
+    {
+      "item": "var output = \"\";",
+      "depth": 3
+    },
+    {
+      "item": "var numbering = 1;",
+      "depth": 3
+    },
+    {
+      "item": "// Build the output string dynamically for \"Org\" type",
+      "depth": 3
+    },
+    {
+      "item": "if (orgAlertCauses.length > 0) {",
+      "depth": 3
+    },
+    {
+      "item": "output += numbering + \". Organization Level Change\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "for (var j = 0; j < orgAlertCauses.length; j++) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\t. \" + orgAlertCauses[j].id + \" (\" + orgAlertCauses[j].status + \")\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "numbering++;",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "// Build the output string dynamically for \"Category\" type",
+      "depth": 3
+    },
+    {
+      "item": "if (categoryAlertCauses.length > 0) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\n\" + numbering + \". Category Level Change\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "for (var k = 0; k < categoryAlertCauses.length; k++) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\t. \" + categoryAlertCauses[k].id + \" (\" + categoryAlertCauses[k].status + \")\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "numbering++;",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "if (factorgroupAlertCauses.length > 0) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\n\" + numbering + \". Factor Group Level Change\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "for (var l = 0; l < factorgroupAlertCauses.length; l++) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\t. \" + factorgroupAlertCauses[l].id + \" (\" + factorgroupAlertCauses[l].status + \")\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "numbering++;",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "if (factorAlertCauses.length > 0) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\n\" + numbering + \". Factor Level Change\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "for (var m = 0; m < factorAlertCauses.length; m++) {",
+      "depth": 3
+    },
+    {
+      "item": "output += \"\\t. \" + factorAlertCauses[m].id + \" (\" + factorAlertCauses[m].status + \")\\n\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "if (jData.custom_msg == undefined || jData.custom_msg === null) {",
+      "depth": 3
+    },
+    {
+      "item": "jData.custom_msg = \"\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "var desc = \"\";",
+      "depth": 3
+    },
+    {
+      "item": "desc = \"Rule Name: \" + ruleName + \"\\n\\nCriteria: \\n\" + criteria + \"\\n\\nAlert Cause:\\n\" + output + \"\\nCustom Message:\\n\" + jData.custom_msg;",
+      "depth": 3
+    },
+    {
+      "item": "var gr = new GlideRecord('incident');",
+      "depth": 3
+    },
+    {
+      "item": "gr.addQuery('short_description', 'CONTAINS', alertId);",
+      "depth": 3
+    },
+    {
+      "item": "gr.query();",
+      "depth": 3
+    },
+    {
+      "item": "if (gr.next()) {",
+      "depth": 3
+    },
+    {
+      "item": "gr.state = state;",
+      "depth": 3
+    },
+    {
+      "item": "gr.impact = impact;",
+      "depth": 3
+    },
+    {
+      "item": "if (state == 6) {",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_code = \"Alert resolved\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (state == 8) {",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_code = \"Rule deleted or modified\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_notes = \" \";",
+      "depth": 3
+    },
+    {
+      "item": "var sd = gr.short_description;",
+      "depth": 3
+    },
+    {
+      "item": "gr.short_description = \"Risk360 Alert \" + alertId;",
+      "depth": 3
+    },
+    {
+      "item": "gr.description = desc;",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_notes = url;",
+      "depth": 3
+    },
+    {
+      "item": "gdt.setValue(startTime * 1000);",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_start = gdt.getDisplayValue();",
+      "depth": 3
+    },
+    {
+      "item": "if (alertstatus == \"STARTED\" || alertstatus == \"ONGOING\") {",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_end = \"\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "gdt.setValue(endTime * 1000);",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_end = gdt.getDisplayValue();",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "//gr.caller_id = e9f176e2db54101087f7478239961941;",
+      "depth": 3
+    },
+    {
+      "item": "gr.update();",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "gr.newRecord();",
+      "depth": 3
+    },
+    {
+      "item": "if (state == 2) // in progress",
+      "depth": 3
+    },
+    {
+      "item": "state = 1; // new",
+      "depth": 3
+    },
+    {
+      "item": "gr.state = state;",
+      "depth": 3
+    },
+    {
+      "item": "gr.impact = impact;",
+      "depth": 3
+    },
+    {
+      "item": "if (state == 6) {",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_code = \"Alert resolved\";",
+      "depth": 3
+    },
+    {
+      "item": "} else if (state == 8) {",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_code = \"Rule deleted or modified\";",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "gr.close_notes = \" \";",
+      "depth": 3
+    },
+    {
+      "item": "gr.short_description = \"Risk360 Alert \" + alertId;",
+      "depth": 3
+    },
+    {
+      "item": "gr.description = desc;",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_notes = url;",
+      "depth": 3
+    },
+    {
+      "item": "gdt.setValue(startTime * 1000);",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_start = gdt.getDisplayValue();",
+      "depth": 3
+    },
+    {
+      "item": "if (alertstatus == \"STARTED\" || alertstatus == \"ONGOING\") {",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_end = \"\";",
+      "depth": 3
+    },
+    {
+      "item": "} else {",
+      "depth": 3
+    },
+    {
+      "item": "gdt.setValue(endTime * 1000);",
+      "depth": 3
+    },
+    {
+      "item": "gr.work_end = gdt.getDisplayValue();",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "//gr.caller_id = e9f176e2db54101087f7478239961941;",
+      "depth": 3
+    },
+    {
+      "item": "var result = gr.insert();",
+      "depth": 3
+    },
+    {
+      "item": "}",
+      "depth": 3
+    },
+    {
+      "item": "})(request, response);",
+      "depth": 3
+    },
+    {
+      "item": "Edit the token in your script to the one used for the webhook configuration in the Experience Center.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "The resource is populated on the Scripted REST Service page.",
+      "depth": 2,
+      "strong": [
+        [
+          33,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Analytics > Risk360 > Alerts > Webhooks > Add Webhook.",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          62,
+          71
+        ],
+        [
+          74,
+          81
+        ],
+        [
+          84,
+          90
+        ],
+        [
+          93,
+          101
+        ],
+        [
+          104,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Complete the following fields:",
+      "depth": 0,
+      "number": 11
+    },
+    {
+      "item": "Name: Enter the name of the webhook.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Select Enabled or Disabled for the webhook.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ],
+        [
+          26,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "URL: Enter the ServiceNow developer instance hostname concatenated with the API name from the Scripted REST APIs page in the ServiceNow instance (e.g., https://dev91028.service-now.com/api/516508/alertsincident).",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Type: Select the authentication type for the webhook from Basic or Token.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Basic",
+      "depth": 2
+    },
+    {
+      "item": "Enter the Username and Password for the user in ServiceNow.",
+      "depth": 2,
+      "strong": [
+        [
+          10,
+          18
+        ],
+        [
+          23,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Token",
+      "depth": 2
+    },
+    {
+      "item": "Enter the same bearer token used in the script. A bearer token is a unique alphanumeric string used for authentication.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The webhook is successfully configured. Whenever an alert is triggered, a webhook notification is sent, thereby creating an entry in the ServiceNow Incident table.",
+      "depth": 0
+    },
+    {
+      "text": "To view the webhook notification:"
+    },
+    {
+      "item": "Go to the ServiceNow instance.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Enter incidents in the Filter Navigator search box on the left side of the page.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          23,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Click Incidents.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The Incidents page appears, showing the list of incidents (alerts). Click an incident to view more details about the alert.",
+      "depth": 0
+    }
+  ]
+}

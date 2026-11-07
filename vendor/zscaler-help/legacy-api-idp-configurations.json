@@ -1,0 +1,618 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "IdP Configurations",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/idp-configurations",
+    "node": "1485281",
+    "revision": "3107253",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/IdP%20Management_0.json?VersionId=Pd1.tfT.07v83baZ_SivVEqQU24ZhcrA",
+    "updated": "2025-05-14",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Zscaler Private Access API Portal",
+      "description": "To access detailed ZPA API documentation, including references and use cases, refer to the [Zscaler Help Portal](/zpa/about-zpa-api).",
+      "version": "1.0"
+    },
+    "extensions": {
+      "x-original-swagger-version": "2.0"
+    },
+    "tags": [
+      {
+        "name": "IdP Management"
+      }
+    ],
+    "paths": {
+      "/mgmtconfig/v2/admin/customers/{customerId}/idp": {
+        "get": {
+          "tags": [
+            "IdP Management"
+          ],
+          "summary": "Gets all configured IdP details for the specified customer.",
+          "operationId": "getAllIdp",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "description": "The unique identifier of the ZPA tenant.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "scimEnabled",
+              "in": "query",
+              "description": "Returns all SCIM IdPs if set to true. Returns all non SCIM IdPs if set to false.",
+              "required": false,
+              "allowEmptyValue": true,
+              "explode": false,
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "name": "userAttributes",
+              "in": "query",
+              "required": false,
+              "explode": false,
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to support search by features and fields for the API.",
+              "required": false,
+              "allowEmptyValue": true,
+              "explode": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page number.",
+              "required": false,
+              "allowEmptyValue": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "example": "1"
+            },
+            {
+              "name": "pagesize",
+              "in": "query",
+              "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500.",
+              "required": false,
+              "allowEmptyValue": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "example": "20"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PageListIdp"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/mgmtconfig/v1/admin/customers/{customerId}/idp/{idpId}": {
+        "get": {
+          "tags": [
+            "IdP Management"
+          ],
+          "summary": "Gets details of the IdP for the specified ID.",
+          "operationId": "getIdpById_1",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "description": "The unique identifier of the ZPA tenant.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "idpId",
+              "in": "path",
+              "description": "The unique identifier of the IdP.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Idp"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "PageListIdp": {
+          "properties": {
+            "totalPages": {
+              "type": "integer",
+              "description": "The total number of pages per the pagination attribute.",
+              "format": "int32"
+            },
+            "currentCount": {
+              "type": "integer",
+              "description": "The current count of resources per the search feature.",
+              "format": "int64"
+            },
+            "totalCount": {
+              "type": "integer",
+              "description": "The total count of resources per the search feature.",
+              "format": "int64"
+            },
+            "list": {
+              "type": "array",
+              "description": "The total list of IdP resources.",
+              "items": {
+                "$ref": "#/components/schemas/Idp"
+              }
+            }
+          }
+        },
+        "ZPathAPIError": {
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "The reason for the cause of the error status code. To learn more, see <a href=\"/zpa/api-response-codes-and-error-messages\" target= _blank>API Response Codes and Error Messages</a>."
+            },
+            "id": {
+              "type": "string",
+              "description": "The unique identifier of the error status code."
+            },
+            "params": {
+              "type": "array",
+              "description": "The parameters that were sent in the request body.",
+              "items": {
+                "type": "object"
+              }
+            },
+            "hostname": {
+              "type": "string",
+              "description": "The client server address or domain name."
+            }
+          }
+        },
+        "Idp": {
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the IdP.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the IdP is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the IdP is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the IdP.",
+              "format": "int64"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the IdP."
+            },
+            "certificates": {
+              "type": "array",
+              "description": "The list of IdP certificates.",
+              "items": {
+                "$ref": "#/components/schemas/IdpCertDto"
+              }
+            },
+            "loginUrl": {
+              "type": "string",
+              "description": "The IdP login URL.",
+              "readOnly": true
+            },
+            "idpEntityId": {
+              "type": "string",
+              "description": "The unique identifier of the IdP entity.",
+              "readOnly": true
+            },
+            "migrationDetail": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string",
+              "description": "The description of the IdP."
+            },
+            "autoProvision": {
+              "type": "integer",
+              "description": "The default value is 0.",
+              "format": "int32"
+            },
+            "signSamlRequest": {
+              "type": "integer",
+              "description": "The signed SAML request towards the IdP. The default value is 1.",
+              "format": "int32"
+            },
+            "loginNameAttribute": {
+              "type": "string",
+              "description": "The IdP login name attribute."
+            },
+            "ssoType": {
+              "type": "array",
+              "description": "Indicates whether the IdP is an Admin IdP or User IdP.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "domainList": {
+              "type": "array",
+              "description": "The list of domains used in this IdP.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "useCustomSPMetadata": {
+              "type": "boolean",
+              "description": "Indicates if custom service provider metadata is used (true) or not (false)."
+            },
+            "scimEnabled": {
+              "type": "boolean",
+              "description": "Indicates whether SCIM is enabled (true) or not (false)."
+            },
+            "scimSharedSecret": {
+              "type": "string",
+              "description": "Indicates that a bearer token is provided for the Secret Token field when enabling SCIM.",
+              "writeOnly": true
+            },
+            "enableScimBasedPolicy": {
+              "type": "boolean",
+              "description": "Indicates whether SCIM attributes and groups from this IdP are used in access, client forwarding, and timeout policies (true) or not (false)."
+            },
+            "disableSamlBasedPolicy": {
+              "type": "boolean",
+              "description": "Indicates whether SAML attributes from this IdP are used in access, client forwarding, and timeout policies (true) or not (false)."
+            },
+            "reauthOnUserUpdate": {
+              "type": "boolean",
+              "description": "Indicates whether reauthentication occurs on the user update (true) or not (false)."
+            },
+            "userSpSigningCertId": {
+              "type": "integer",
+              "description": "The unique identifier of the user service provider signing certificate.",
+              "format": "int64"
+            },
+            "adminSpSigningCertId": {
+              "type": "integer",
+              "description": "The unique identifier of the user service provider signing certificate.",
+              "format": "int64"
+            },
+            "enableArbitraryAuthDomains": {
+              "type": "integer",
+              "description": "Indicates whether SCIM attributes and groups from this IdP are used in access, client forwarding, and timeout policies (true) or not (false).",
+              "format": "int32"
+            },
+            "iamIdpId": {
+              "type": "string"
+            },
+            "userMetadata": {
+              "$ref": "#/components/schemas/ServiceProvider"
+            },
+            "adminMetadata": {
+              "$ref": "#/components/schemas/ServiceProvider"
+            },
+            "oneIdentityEnabled": {
+              "type": "boolean",
+              "description": "Indicates whether ZIdentity is enabled for the IdP (true) or not (false)."
+            },
+            "scimServiceProviderEndpoint": {
+              "type": "string",
+              "description": "The SCIM Service Provider Endpoint provided in the ZPA Admin Portal when enabling SCIM."
+            },
+            "scimSharedSecretExists": {
+              "type": "boolean",
+              "description": "When set to true, indicates that a bearer token is provided for the Secret Token field when enabling SCIM."
+            },
+            "forceAuth": {
+              "type": "boolean",
+              "description": "Indiciates whether Force Authentication is enabled for the IdP (true) or not (false). To learn more, see <a href=/zpa/configuring-idp-single-sign>Configuring an IdP for Single Sign-On</a>."
+            },
+            "loginHint": {
+              "type": "boolean",
+              "description": "Indicates if the username of the admin or user is sent in the authentication request to the IdP and is prepopulated on the sign-in page of the external IdP (true) or not (false). To learn more, see <a href=/zpa/configuring-idp-single-sign>Configuring an IdP for Single Sign-On</a>."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "The default value if null is True."
+            },
+            "delta": {
+              "type": "string",
+              "description": "The delta of the IdP."
+            },
+            "redirectBinding": {
+              "type": "boolean",
+              "description": "Indiciates whether ZPA sends the SAML request as an HTTP redirect (true) or not (false)."
+            }
+          }
+        },
+        "IdpCertDto": {
+          "required": [
+            "certificate"
+          ],
+          "properties": {
+            "getcName": {
+              "type": "string",
+              "description": "The canonical name of the IdP certificate."
+            },
+            "serialNo": {
+              "type": "string",
+              "description": "The serial number of the IdP certificate."
+            },
+            "certificate": {
+              "type": "string",
+              "description": "The certificate of the IdP."
+            },
+            "validFromInSec": {
+              "type": "integer",
+              "description": "The start time of when this certificate is valid.",
+              "format": "int64"
+            },
+            "validToInSec": {
+              "type": "integer",
+              "description": "The end time of when this certificate is valid.",
+              "format": "int64"
+            }
+          }
+        },
+        "ServiceProvider": {
+          "properties": {
+            "spEntityId": {
+              "type": "string",
+              "description": "The unique identifier of the service provider entity."
+            },
+            "spPostUrl": {
+              "type": "string",
+              "description": "The post URL of the service provider."
+            },
+            "certificateUrl": {
+              "type": "string",
+              "description": "The URL of the service provider certificate."
+            },
+            "spMetadataUrl": {
+              "type": "string",
+              "description": "The metadata URL of the service provider."
+            },
+            "spBaseUrl": {
+              "type": "string",
+              "description": "The base URL of the service provider."
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,379 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.notification-templates",
+  "title": "DLP notification templates: auditor email subject, macros, attachments and TLS",
+  "aliases": [
+    "DLP notification template",
+    "dlp auditor email",
+    "dlp email macros",
+    "DLP Violation subject",
+    "dlpNotificationTemplates"
+  ],
+  "binds": [
+    "zia/dlp-notification-templates"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-notification-templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{templates-page}} Whether a rule sends a notification at all, and the end user notification, are in [[zia.dlp.incident-forwarding]]."
+    },
+    {
+      "label": "Subject line.",
+      "text": "{{default-subject}} {{inline-subject-macros}}"
+    },
+    {
+      "label": "Macros per channel.",
+      "text": "{{macros-per-channel}} {{default-included-macros}} Which subject-line macros the Outbound Email and Endpoint lists accept beyond those shown, and the page's \"all three notification template types\" wording against its four lists, are open {{gap:subject-macro-coverage}}."
+    },
+    {
+      "label": "Message body.",
+      "text": "{{message-formats}} {{body-macro-semantics}} {{body-list-limits}} {{dlptriggers-and-other-rules}} {{saas-email-endpoint-body-macros}}"
+    },
+    {
+      "label": "Attachments and TLS.",
+      "text": "{{attach-and-tls}}"
+    },
+    {
+      "label": "Not described.",
+      "text": "What the \"On the DLP tab\" step implies about other tabs is open {{gap:other-tabs}}, and how the help's fields map to the notification template API object is open {{gap:api-field-mapping}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which channel's macro list (inline web, SaaS Security Data at Rest Scanning, Outbound Email or Endpoint DLP) a macro is being read from, since the lists differ.",
+      "uses": [
+        "macros-per-channel",
+        "default-subject"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "DLP notification templates define the email notifications sent to the organization's auditors when a DLP policy is triggered, and DLP policy rules can reference them. The Configuring page says templates can be referenced when configuring policy rules for inline web DLP, SaaS Security Data at Rest Scanning DLP, Outbound Email DLP and Endpoint DLP; the About page names inline web and SaaS Security API DLP policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dlp-notification-templates.json",
+          "quotes": [
+            "You can create templates for the email notifications that are sent to your organization's auditors when an inline web or a SaaS Security API DLP policy is triggered.",
+            "When configuring DLP policy rules, you can reference one of the templates you configure here."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "quotes": [
+            "You can create templates for the email notification, which can be referenced while configuring policy rules for inline web Data Loss Prevention (DLP), SaaS Security Data at Rest Scanning DLP policies, Outbound Email DLP, and Endpoint Data Loss Prevention (DLP)."
+          ]
+        }
+      ]
+    },
+    "templates-page": {
+      "statement": "The DLP Notification Templates page lists each template's Name and its Subject, the subject text including any macros, and lets an admin edit or delete a template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dlp-notification-templates.json",
+          "quotes": [
+            "Name: The name of the DLP notification template. You can sort this column.",
+            "Subject: The subject text, including any macros, that is used for the DLP notification.",
+            "Edit or delete a DLP notification template."
+          ]
+        }
+      ]
+    },
+    "default-subject": {
+      "statement": "By default, the Subject line uses the text DLP Violation: with the ${TRANSACTION_ID} and ${RULENAME} macros, which list the ID of the transaction that triggered the DLP rule and the triggered rule's name; the text can be modified. For Outbound Email DLP notification templates the Subject field is populated the same way, but the service does not support the ${RULENAME} macro in their subject line.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "quotes": [
+            "By default, the Subject line for the notification uses the text DLP Violation: with the ${TRANSACTION_ID} and ${RULENAME} macros.",
+            "These macros list the ID of the transaction that triggered the DLP rule as well as the triggered DLP rule's name. However, you can modify this text.",
+            "The Subject field is automatically populated with the ${TRANSACTION_ID} and ${RULENAME} macros; however, the Zscaler service does not support the ${RULENAME} macro for the subject line in Outbound Email DLP notification templates."
+          ]
+        }
+      ]
+    },
+    "inline-subject-macros": {
+      "statement": "The inline web DLP subject-line macros are ${ACTION}, ${DEPARTMENT}, ${DLPMD5}, ${ENGINE_EXPRESSION}, ${ENGINES}, ${FILENAME}, ${FILESIZE}, ${REFERRER_URL}, ${RULENAME}, ${TIMESTAMP}, ${TOTAL_TRIGGERED_DICTIONARIES}, ${TOTAL_TRIGGERED_ENGINES}, ${TRANSACTION_ID}, ${URL} and ${USER}. ${DLPMD5} and ${TRANSACTION_ID} can be used as a filter in the Web Logs to find the relevant transactions, and ${USER} gives \"unknown\" if the user's name is unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "after": "You can use the following macros in the subject line:",
+          "quotes": [
+            "${ACTION}: Specifies the action of the triggered the DLP rule (i.e., whether the transaction was allowed or blocked).",
+            "${DEPARTMENT}: Shows the department of the user who triggered the DLP rule.",
+            "${DLPMD5}: Provides the MD5 hash of the file that triggered the DLP rule. You can use this number as a filter in the Web Logs to find the relevant transactions.",
+            "${ENGINE_EXPRESSION}: Specifies the DLP engine expression associated with the triggered policy",
+            "${ENGINES}: Lists the DLP engines associated with the triggered policy.",
+            "${FILENAME}: Specifies the name of the file that triggered the DLP rule.",
+            "${FILESIZE}: Specifies the size of the file that triggered the DLP rule.",
+            "${REFERRER_URL}: Shows the referrer URL of the user who triggered the DLP rule.",
+            "${RULENAME}: Specifies the name of the triggered the DLP rule.",
+            "${TIMESTAMP}: Specifies the time the user attempted to send violating content.",
+            "${TOTAL_TRIGGERED_DICTIONARIES}: Specifies the total number of DLP dictionaries triggered across all DLP rules.",
+            "${TOTAL_TRIGGERED_ENGINES}: Specifies the total number of DLP engines triggered across all DLP rules.",
+            "${TRANSACTION_ID}: Provides the transaction ID of the transaction that triggered a DLP rule. You can use this unique number as a filter in the Web Logs to find the relevant transactions.",
+            "${URL}: Specifies the destination URL (i.e., the URL accessed).",
+            "${USER}: Specifies the name of the user, if any. If the user's name is unavailable, \"unknown\" is used."
+          ]
+        }
+      ]
+    },
+    "macros-per-channel": {
+      "statement": "The Configuring page gives a subject-line macro list and a message-body macro list for each of Inline Web DLP, SaaS Security Data at Rest Scanning DLP, Outbound Email DLP and Endpoint DLP, and the About page says the notification template macros for inline web DLP and SaaS Security API DLP are different.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dlp-notification-templates.json",
+          "quotes": [
+            "The notification template macros for the inline web DLP and SaaS Security API DLP are different."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "quotes": [
+            "You can use the following macros in the subject line:",
+            "The following macros can be used in the message body:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "after": "You can use the following macros in the subject line:",
+          "quotes": [
+            "Macros for Inline Web DLP",
+            "Macros for SaaS Security Data at Rest Scanning DLP",
+            "Macros for Outbound Email DLP",
+            "Macros for Endpoint DLP"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "after": "The following macros can be used in the message body:",
+          "quotes": [
+            "Macros for Inline Web DLP",
+            "Macros for SaaS Security Data at Rest Scanning DLP",
+            "Macros for Outbound Email DLP",
+            "Macros for Endpoint DLP"
+          ]
+        }
+      ]
+    },
+    "default-included-macros": {
+      "statement": "For inline web DLP and SaaS Security Data at Rest Scanning DLP, the ${TRANSACTION_ID}, ${USER}, ${URL}, ${TYPE}, ${DLPMD5}, ${ENGINES_IN_RULE} and ${DICTIONARIES} macros are included in the notification by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "quotes": [
+            "For inline web DLP and SaaS Security Data at Rest Scanning DLP, the ${TRANSACTION_ID}, ${USER}, ${URL}, ${TYPE}, ${DLPMD5}, ${ENGINES_IN_RULE}, and ${DICTIONARIES} macros are included in the notification by default."
+          ]
+        }
+      ]
+    },
+    "message-formats": {
+      "statement": "A template has a Message as Plain Text and a Message as HTML, a customized message delivered through email (Delivery Status Notification) to the auditor when a policy triggers and blocks content. The two fields are independent, so a change in one must be made by hand in the other. An admin can edit the Name, Subject, Message as Plain Text and Message as HTML fields later, and enable or disable the Attach Violating Content and Use TLS settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "quotes": [
+            "This message is delivered through email (Delivery Status Notification) to the auditor when a policy triggers and blocks content.",
+            "The Message as Plain Text field and the Message as HTML field are independent of one another (i.e., if you make a change in one field, you must manually update the other field to reflect the same change).",
+            "You can edit the Name, Subject, Message as Plain Text, and Message as HTML fields. You can also enable or disable the Attach Violating Content and Use TLS settings."
+          ]
+        }
+      ]
+    },
+    "body-macro-semantics": {
+      "statement": "In the inline web DLP message-body list, ${DICTIONARIES} lists the triggered dictionaries with the match count (for dictionaries such as Credit Cards) or score (for machine learning dictionaries such as Financial Statements or Source Code). ${TYPE} is the Cloud App category of the destination traffic, or \"Web Posting\" if the destination matches none. ${SEVERITY} is the triggered rule's severity (for example Information, Low, Medium or High), and ${CLIENT_IP} is the user's IP address, if available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "after": "The following macros can be used in the message body:",
+          "quotes": [
+            "${DICTIONARIES}: Lists the DLP dictionaries associated with the triggered policy, which includes the match count (for dictionaries such as Credit Cards) or score (for machine learning dictionaries such as Financial Statements or Source Code), for each dictionary triggered due to a content match.",
+            "${TYPE}: Specifies the Cloud App category for the destination traffic. For example, \"File Sharing\" can be a type. If the destination does not match any Cloud App categories, the type is \"Web Posting.\"",
+            "${SEVERITY}: Specifies the triggered DLP rule's severity (e.g., Information, Low, Medium, or High).",
+            "${CLIENT_IP}: Specifies the user's IP address, if available."
+          ]
+        }
+      ]
+    },
+    "body-list-limits": {
+      "statement": "In the inline web DLP message body, ${DICTIONARIES_IN_RULE} and ${DICTIONARIES_NOT_IN_RULE} share a maximum limit and list up to 25 dictionaries combined, and ${ENGINES_IN_RULE} and ${ENGINES_NOT_IN_RULE} share a maximum limit and list up to 25 engines combined; if more than 25 are triggered the IN_RULE macro is prioritized. In the vendor's dictionary example, of 35 triggered dictionaries the 15 in the rule are all listed and ${DICTIONARIES_NOT_IN_RULE} lists only 10 of the other 20.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "after": "The following macros can be used in the message body:",
+          "quotes": [
+            "Macros for Inline Web DLP",
+            "The ${DICTIONARIES_IN_RULE} and ${DICTIONARIES_NOT_IN_RULE} macros share a maximum limit and can only list up to 25 dictionaries combined. If more than 25 dictionaries are triggered, the ${DICTIONARIES_IN_RULE} macro is prioritized.",
+            "The ${ENGINES_IN_RULE} and ${ENGINES_NOT_IN_RULE} macros share a maximum limit and can only list up to 25 engines combined. If more than 25 engines are triggered, the ${ENGINES_IN_RULE} macro is prioritized.",
+            "For example, an uploaded document triggers a total of 35 dictionaries in your DLP policy. Of those 35 dictionaries:",
+            "15 dictionaries are associated with the triggered DLP rule and the ${DICTIONARIES_IN_RULE} macro lists all 15 dictionaries.",
+            "20 dictionaries aren’t associated with the triggered DLP rule and the ${DICTIONARIES_NOT_IN_RULE} macro only lists 10 of those dictionaries due to the maximum limit."
+          ]
+        }
+      ]
+    },
+    "dlptriggers-and-other-rules": {
+      "statement": "The inline web DLP, SaaS Security Data at Rest Scanning DLP and Endpoint DLP message-body lists each give ${DLPTRIGGERS}, which lists the content that matched a dictionary; each says the service reports 25 items by default, with a possible increase to 125 items through Zscaler Support. The inline web and SaaS entries add a 15-byte prefix and suffix around the DLP trigger. ${OTHER_MATCHED_RULES} specifies up to 8 rules that were matched but not triggered for a violation, and applies only to organizations with Evaluate All Rules mode enabled; otherwise it does not return a value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "after": "The following macros can be used in the message body:",
+          "quotes": [
+            "Macros for Inline Web DLP",
+            "${DLPTRIGGERS}: Lists the content that matched a dictionary, as well as a 15-byte prefix and suffix around the DLP trigger to provide context about the DLP incident. The Zscaler service reports 25 items by default.",
+            "Contact Zscaler Support for a possible increase in this limit to 125 items.",
+            "${OTHER_MATCHED_RULES}: Specifies up to 8 rules that were matched but not triggered for a violation.",
+            "The ${OTHER_MATCHED_RULES} macro applies only to organizations with Evaluate All Rules mode enabled. If you do not have Evaluate All Rules mode enabled, this macro does not return a value."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "after": "The following macros can be used in the message body:",
+          "quotes": [
+            "Macros for SaaS Security Data at Rest Scanning DLP"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "after": "${CASB}: Specifies the name of the SaaS application tenant",
+          "quotes": [
+            "${DLPTRIGGERS}: Lists the content that matched a dictionary, as well as a 15-byte prefix and suffix around the DLP trigger to provide context about the DLP incident. The Zscaler service reports 25 items by default.",
+            "Contact Zscaler Support for a possible increase in this limit to 125 items."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "after": "${ACTION}: Specifies the action of the triggered Endpoint DLP rule",
+          "quotes": [
+            "${DLPTRIGGERS}: Lists the content that matched a dictionary. The Zscaler service reports 25 items by default.",
+            "Contact Zscaler Support for a possible increase in this limit to 125 items."
+          ]
+        }
+      ]
+    },
+    "saas-email-endpoint-body-macros": {
+      "statement": "Channel-specific body macros: ${CASB} gives the name of the SaaS application tenant, the file path of the file that triggered the SaaS Security Data at Rest Scanning DLP rule, collaborators and collaboration scope. ${EMAIL_DETAILS} returns a table common to all recipients with details about the email that triggered the DLP rule, and ${EMAIL_TRIGGERED_RECIPIENTS} returns a dynamic table of details about the email's recipients. Endpoint DLP has ${EPDLP_*} macros such as ${EPDLP_ACTTYPE}, ${EPDLP_CHANNEL}, ${EPDLP_DEVNAME}, ${EPDLP_SRCNAME} and ${EPDLP_DSTNAME}, and ${EPDLP_CON_ACT} and ${EPDLP_CON_JUS} apply only when the rule Action is Confirm.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "quotes": [
+            "${CASB}: Specifies the name of the SaaS application tenant, the file path of the file that triggered the SaaS Security Data at Rest Scanning DLP rule, collaborators, and collaboration scope.",
+            "${EMAIL_DETAILS}: Returns a table that is common for all recipients and includes details about the email that triggered the DLP rule.",
+            "${EMAIL_TRIGGERED_RECIPIENTS}: Returns a dynamic table that includes details about the recipients of the email that triggered the DLP rule.",
+            "${EPDLP_ACTTYPE}: Specifies the type of activity performed by the user (i.e., printing, uploading to personal cloud, saving to removable storage, or saving to network share).",
+            "${EPDLP_CHANNEL}: Specifies the channel used when the Endpoint DLP rule was triggered (e.g., Printing, Removable Storage, Network Share, or Personal Cloud Storage).",
+            "${EPDLP_CON_ACT}: Specifies the confirmation action taken by the end user after the Endpoint DLP rule was triggered (i.e., justify or cancel). This macro applies only when the rule Action is Confirm.",
+            "${EPDLP_CON_JUS}: Specifies the justification provided by the end user after the Endpoint DLP rule was triggered. This macro applies only when the rule Action is Confirm.",
+            "${EPDLP_DEVNAME}: Specifies the hostname of the device used when the Endpoint DLP rule was triggered.",
+            "${EPDLP_SRCNAME}: Specifies the name of the source for the data associated with the activity",
+            "${EPDLP_DSTNAME}: Specifies the name of the destination for the data associated with the activity"
+          ]
+        }
+      ]
+    },
+    "attach-and-tls": {
+      "statement": "Attach Violating Content adds an attachment of the violating content to the notifications emailed to auditors. Use TLS sends the notification email over a TLS connection and needs the email recipient's SMTP server to support TLS; Zscaler recommends TLS because any email sent might contain sensitive content. The attachments and the violating content in them are never stored on disk; the attachments, violating content and body of the notification emails are placed in RAM, the service creates and sends an encrypted email through TLS, and all data is then deleted from RAM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-notification-templates.json",
+          "quotes": [
+            "Enable Attach Violating Content if you want an attachment of the violating content added to the notifications emailed to auditors.",
+            "Enable Use TLS to use a TLS connection to send the notification email. If you enable this option, ensure that the email recipient's SMTP server supports TLS.",
+            "Zscaler recommends that you use TLS because any email you send might contain sensitive content.",
+            "These attachments and the violating content contained in them are never stored on disk.",
+            "The attachments, violating content, and body of the notification emails are placed in RAM, and the Zscaler service creates and sends an encrypted email through TLS. All data is then deleted from RAM and no sensitive information is stored."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "subject-macro-coverage": {
+      "kind": "semantic",
+      "title": "Which subject-line macros Outbound Email and Endpoint accept, and what \"all three notification template types\" means",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "saying a subject-line macro is accepted for every channel",
+      "detail": "The Configuring page says the ${USER} macro can be included \"for all three notification template types\" yet lists four macro sets, and it does not state which subject-line macros Outbound Email and Endpoint accept beyond those listed."
+    },
+    "other-tabs": {
+      "kind": "semantic",
+      "title": "What the \"On the DLP tab\" step implies about other tabs on the template page",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "describing other notification template tabs",
+      "detail": "The Configuring page's second step says \"On the DLP tab\", which implies other tabs that no captured page describes."
+    },
+    "api-field-mapping": {
+      "kind": "semantic",
+      "title": "How the help's template fields map to the notification template API object",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "reading or writing a template through the API or Terraform",
+      "detail": "The help fields (Name, Subject, Message as Plain Text, Message as HTML, Attach Violating Content, Use TLS) were not mapped to the zia/dlp-notification-templates fields (name, subject, plainTextMessage, htmlMessage, attachContent, tlsEnabled); the API, SDK and Terraform were not read for this subject."
+    }
+  }
+}

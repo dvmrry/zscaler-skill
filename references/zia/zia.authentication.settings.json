@@ -1,0 +1,621 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.settings",
+  "title": "The organization-wide authentication settings object",
+  "aliases": [
+    "authSettings",
+    "auth settings",
+    "org_auth_type",
+    "orgAuthType",
+    "saml_enabled",
+    "kerberos_enabled",
+    "kerberos_pwd",
+    "auto_provision",
+    "directory_sync_migrate_to_scim_enabled",
+    "password_strength",
+    "password_expiry",
+    "one_time_auth",
+    "authentication_settings",
+    "authSettings/lite"
+  ],
+  "binds": [
+    "zia/auth-settings"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.ad-integration.saml-auto-provisioning",
+      "because": "zia.ad-integration.saml-auto-provisioning:scim-excludes"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/auth-settings"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.ad-integration.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.frequency"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.methods"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Everything organization-wide about how users authenticate sits in one object. {{org-object}}"
+    },
+    {
+      "label": "Values.",
+      "text": "{{enum-values}} The frequency field is covered in [[zia.authentication.frequency]]."
+    },
+    {
+      "label": "What depends on what.",
+      "text": "{{ldap-and-saml-completeness}} {{hosted-db-only}} {{one-time-auth}}"
+    },
+    {
+      "label": "Fields that bite.",
+      "text": "{{kerberos-pwd-read-only}} {{auto-provision}} {{scim-migration-flag}} For the SCIM side see [[zia.scim]]."
+    },
+    {
+      "label": "The Default Settings page.",
+      "text": "{{default-settings-page}} What holds these settings under Authentication Service is open {{gap:authentication-service-scope}}. {{who-manages-auth}} {{repository-types-availability}} {{auth-type-preconditions}} {{sp-cert-expiry}}"
+    },
+    {
+      "label": "Directory sync to SCIM in the console.",
+      "text": "{{migration-switch-effects}} {{scim-revert-procedure}} What state survives a revert, and whether the flag can be undone beyond that procedure, is open {{gap:scim-migration-reversibility}}."
+    },
+    {
+      "label": "Passwords for hosted users.",
+      "text": "{{password-policy}} {{password-expiry-default}} Two help pages name a different default strength {{divergence:password-strength-default}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which password strength the tenant has set before stating a default for hosted users.",
+      "uses": [
+        "password-policy",
+        "password-strength-default"
+      ]
+    },
+    {
+      "do": "The exact value names against the spec.",
+      "uses": [
+        "enum-values"
+      ]
+    },
+    {
+      "do": "Whether the field being set is read-only, as kerberosPwd is.",
+      "uses": [
+        "kerberos-pwd-read-only"
+      ]
+    }
+  ],
+  "claims": {
+    "org-object": {
+      "statement": "The organization's default authentication settings are one object, read and written at /authSettings. A separate GET /authSettings/lite returns the same model, but authFrequency, authCustomFrequency, lastSyncStartTime and lastSyncEndTime are not applicable to the Lite API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/paths/~1authSettings/get",
+          "expect": {
+            "description": "<p> Retrieves the organization's default authentication settings information, including authentication profile and Kerberos authentication information.</p>"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/paths/~1authSettings/put",
+          "expect": {
+            "description": "<p> Updates the organization's default authentication settings information.</p>"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/paths/~1authSettings~1lite/get",
+          "expect": {
+            "description": "<p>Retrieves organization's default authentication settings information."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/authFrequency",
+          "expect": {
+            "description": "How frequently the users are required to authenticate (i.e., cookie expiration duration after a user is first authenticated). This field is not applicable to the Lite API."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/authCustomFrequency",
+          "expect": {
+            "description": "<p>How frequently the users are required to authenticate. This field is customized to set the value in days. Valid range is 1–180.</p><p>This field is not applicable to the Lite API.</p>"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/lastSyncStartTime",
+          "expect": {
+            "description": "Timestamp (epoch time in seconds) corresponding to the start of the last LDAP sync. This is reset when the organization's authentication type is changed to a different directory authentication type. Applicable only for directory-based authentication. This field is not applicable to the Lite API."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/lastSyncEndTime",
+          "expect": {
+            "description": "Timestamp (epoch time in seconds) corresponding to the end of the last LDAP sync. This is reset when the organization's authentication type is changed to a different directory authentication type. Applicable only for directory-based authentication. This field is not applicable to the Lite API."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/auth_settings/auth_settings.go",
+          "quotes": [
+            "authSettingsLiteEndpoint = \"/zia/api/v1/authSettings/lite\"",
+            "cookie expiration duration after a user is first authenticated). This field is not applicable to the Lite API."
+          ]
+        }
+      ]
+    },
+    "enum-values": {
+      "statement": "The spec lists these values: orgAuthType is ANY, NONE, SAFECHANNEL_DIR, MICROSOFT_ACTIVE_DIR, OPENLDAP_DIR, NOVELL_DIR, IBM_DOMINO_DIR, SUN_DIR or SMAUTH_ENTERPRISE_HOSTED; oneTimeAuth is OTP_DISABLED, OTP_TOKEN or OTP_LINK; passwordStrength is NONE, MEDIUM or STRONG; passwordExpiry is NEVER, ONE_MONTH, THREE_MONTHS or SIX_MONTHS. The Python SDK's passwordStrength and passwordExpiry docstrings give the same values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/orgAuthType",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "NONE",
+              "SAFECHANNEL_DIR",
+              "MICROSOFT_ACTIVE_DIR",
+              "OPENLDAP_DIR",
+              "NOVELL_DIR",
+              "IBM_DOMINO_DIR",
+              "SUN_DIR",
+              "SMAUTH_ENTERPRISE_HOSTED"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/oneTimeAuth",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "OTP_DISABLED",
+              "OTP_TOKEN",
+              "OTP_LINK"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/passwordStrength",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "MEDIUM",
+              "STRONG"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/passwordExpiry",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "NEVER",
+              "ONE_MONTH",
+              "THREE_MONTHS",
+              "SIX_MONTHS"
+            ]
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "quotes": [
+            "Supported values: NONE, MEDIUM, STRONG.",
+            "Supported values: NEVER, ONE_MONTH, THREE_MONTHS, SIX_MONTHS."
+          ]
+        }
+      ],
+      "conditions": "Until the 2026-10-18 recapture the legacy API reference page gave other value sets for these fields; it now gives the same values as the OpenAPI document, so the two divergences recording the difference were removed."
+    },
+    "ldap-and-saml-completeness": {
+      "statement": "Setting orgAuthType to an LDAP-based type requires a complete LdapProperties configuration, and enabling SAML (samlEnabled) requires complete SamlSettings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/orgAuthType",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "quotes": [
+            "User authentication type. Setting this to an LDAP-based authentication requires a complete LdapProperties configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/samlEnabled",
+          "expect": {
+            "description": "Whether or not to authenticate users using SAML Single Sign-On. Enabling SAML requires complete SamlSettings."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/orgAuthType",
+          "expect": {
+            "description": "User authentication type. Setting it to an LDAP-based authentication requires a complete LdapProperties configuration."
+          }
+        }
+      ]
+    },
+    "hosted-db-only": {
+      "statement": "passwordStrength and passwordExpiry apply to form-based authentication of hosted DB users only, not to SAML or directory authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/passwordStrength",
+          "expect": {
+            "description": "Password strength required for form-based authentication of hosted DB users. Not applicable for other authentication types (e.g. SAML SSO or Directory)."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/passwordExpiry",
+          "expect": {
+            "description": "Password expiration required for form-based authentication of hosted DB users. Not applicable for other authentication types (e.g. SAML SSO or Directory)."
+          }
+        }
+      ]
+    },
+    "one-time-auth": {
+      "statement": "oneTimeAuth (OTP_DISABLED, OTP_TOKEN or OTP_LINK) is described for orgAuthType NONE, where administrators must provide new users' passwords and a one-time token or link with a temporary password is emailed to new users; with SAML single sign-on enabled the one-time token is not applicable and the field has no effect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/oneTimeAuth",
+          "expect": {
+            "description": "When the orgAuthType is NONE, administrators must manually provide the password to new end users. For new users who have not yet authenticated, a one-time token or link with a temporary password is sent as an email by the security cloud. If SAML Single Sign-On is enabled, this one-time token is not applicable, and this field is ineffective.",
+            "enum": [
+              "OTP_DISABLED",
+              "OTP_TOKEN",
+              "OTP_LINK"
+            ]
+          }
+        }
+      ]
+    },
+    "kerberos-pwd-read-only": {
+      "statement": "kerberosPwd is read-only and can be set only through the generateKerberosPassword API. The Python AuthenticationSettings model's request_format still maps kerberos_pwd to kerberosPwd, though update_authentication_settings sends the caller's keyword arguments as the body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/kerberosPwd",
+          "expect": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "quotes": [
+            "kerberos_pwd (str): Read-only. Can only be set through the generate KerberosPassword API."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "after": "def update_authentication_settings(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "body = {} body.update(kwargs)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/authentication_settings.py",
+          "after": "def request_format(self) -> Dict[str, Any]:",
+          "quotes": [
+            "\"kerberosPwd\": self.kerberos_pwd,"
+          ]
+        }
+      ],
+      "gaps": [
+        "kerberos-pwd-write-behavior"
+      ]
+    },
+    "auto-provision": {
+      "statement": "autoProvision enables SAML auto-provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/autoProvision",
+          "expect": {
+            "type": "boolean",
+            "description": "Enable SAML Auto-Provisioning"
+          }
+        }
+      ],
+      "gaps": [
+        "auto-provision-scope"
+      ]
+    },
+    "scim-migration-flag": {
+      "statement": "directorySyncMigrateToScimEnabled disables directory synchronization for the user repository type so that SCIM provisioning or SAML auto-provisioning can be enabled; it is the setting for migrating from directory synchronization to SCIM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/directorySyncMigrateToScimEnabled",
+          "expect": {
+            "description": "Enable to disable directory synchronization for this user repository type so you can enable SCIM provisioning or SAML auto-provisioning. Use this setting to migrate from directory synchronization to SCIM provisioning."
+          }
+        }
+      ],
+      "gaps": [
+        "scim-migration-reversibility"
+      ]
+    },
+    "default-settings-page": {
+      "statement": "In the article's Authentication Service context, the Default Settings page displays limited options and the authentication settings are managed with Authentication Service; the article lists configuring the authentication frequency and Kerberos authentication as what an administrator does on the page.",
+      "gaps": [
+        "authentication-service-scope"
+      ],
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-authentication-profile.json",
+          "quotes": [
+            "The Default Settings page displays limited options. Authentication settings are managed with Authentication Service.",
+            "1. Configure the authentication frequency.",
+            "2. Configure Kerberos authentication."
+          ]
+        }
+      ]
+    },
+    "who-manages-auth": {
+      "statement": "With Authentication Service for Admins, the default method for user authentication to the Zscaler service is managed with the Authentication Profile; with Authentication Service for Admins and Users, user authentication is managed by Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "If your organization uses Authentication Service for Admins, the default method for user authentication to the Zscaler service is managed with the Authentication Profile.",
+            "If your organization uses Authentication Service for Admins and Users, user authentication is managed by Authentication Service."
+          ]
+        }
+      ]
+    },
+    "repository-types-availability": {
+      "statement": "Active Directory (AD) and OpenLDAP user repositories are available only when SCIM provisioning is disabled and SAML auto-provisioning is enabled for only one identity provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "Active Directory (AD) and OpenLDAP user repositories are only available when SCIM provisioning is disabled and SAML auto-provisioning is enabled for only one identity provider (IdP)."
+          ]
+        }
+      ]
+    },
+    "migration-switch-effects": {
+      "statement": "Disable Directory Sync & Enable SCIM Provisioning appears only when Active Directory or OpenLDAP is chosen for the User Repository Type and SAML for the Authentication Type. Enabling it makes the service disable directory synchronization, so the Authentication Wizard and the Advanced Configuration options for AD and OpenLDAP disappear along with the Directory Synchronization section; SCIM provisioning or SAML auto-provisioning can then be enabled for the IdPs, and the Form-Based option for Authentication Type becomes unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "Disable Directory Sync & Enable SCIM Provisioning: This setting only appears if you choose Active Directory or OpenLDAP for the User Repository Type and SAML for the Authentication Type.",
+            "The Zscaler service disables directory synchronization. Therefore, the Authentication Wizard and Advanced Configuration options for AD and OpenLDAP disappear, as well as the Directory Synchronization section.",
+            "You can enable SCIM provisioning or SAML auto-provisioning for your IdPs.",
+            "The Formed-Based option for Authentication Type becomes unavailable."
+          ]
+        }
+      ]
+    },
+    "auth-type-preconditions": {
+      "statement": "Zscaler recommends SAML Single Sign-On (SSO) as the authentication type, and at least one IdP must be configured to enable SAML. With AD or OpenLDAP user repositories, Form-Based authentication requires Disable Directory Sync & Enable SCIM Provisioning to be disabled, and SAML requires SCIM provisioning to be disabled and SAML auto-provisioning enabled for only one IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "Zscaler recommends using SAML Single Sign-On (SSO).",
+            "You must configure at least one IdP to enable SAML.",
+            "If you're using AD or OpenLDAP user repositories, you must disable Disable Directory Sync & Enable SCIM Provisioning to choose Form-Based authentication.",
+            "If you're using AD or OpenLDAP user repositories, you must disable SCIM provisioning and enable SAML auto-provisioning for only one IdP to choose SAML authentication."
+          ]
+        }
+      ]
+    },
+    "sp-cert-expiry": {
+      "statement": "When the Zscaler service provider (SP) signing SSL certificate is about to expire or has expired, the page shows the SP SSL Certificate Expiration Date for the SAML signing certificate, with a Caution icon when the certificate expires within 30 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "Also, if the Zscaler service provider (SP) signing SSL certificate is about to expire or expired, the following field appears:",
+            "SP SSL Certificate Expiration Date: Displays the expiration date for the SAML signing certificate of the SP. A Caution icon appears if the certificate expires within 30 days."
+          ]
+        }
+      ]
+    },
+    "password-policy": {
+      "statement": "For Form-Based hosted users the console's Password Strength offers None (no restriction on strength or complexity, not recommended), Medium (at least 8 characters with at least one non-alphabetic character) and Strong (at least 8 characters with at least one digit, one capital letter and one special character); only ASCII characters are allowed for the password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "None: Choose to place no restriction on the strength or complexity of the passwords. Not recommended.",
+            "Medium: Choose to require users to set passwords that are at least 8 characters long and that contain at least one non-alphabetic character. This is the default.",
+            "Strong: Choose to require users to set passwords that are at least 8 characters long and that contain at least one digit, one capital letter, and one special character.",
+            "Only ASCII characters are allowed for the password."
+          ]
+        }
+      ]
+    },
+    "password-expiry-default": {
+      "statement": "The Password Expiration default is Never, but Zscaler strongly recommends setting the duration higher.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "The default is Never, but Zscaler strongly recommends setting the duration higher."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-hosted-user-database.json",
+          "quotes": [
+            "Password Expiration: Choose the duration after which users must change their passwords. The default is Never."
+          ]
+        }
+      ]
+    },
+    "scim-revert-procedure": {
+      "statement": "The AD-to-SCIM migration guide documents how to revert from SCIM to AD provisioning: disable Enable SCIM Provisioning, disable Disable Directory Sync & Enable SCIM Provisioning on the Default Settings tab, disable the SCIM configuration in the IdP application, then click Sync Now on the Default Settings page. The guide's migration steps also instruct to make sure not to disable that option or change the repository types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-active-directory-scim-ldap-provisioning-migration-guide.json",
+          "quotes": [
+            "If you need to revert from SCIM to AD provisioning:",
+            "2. Disable the Enable SCIM Provisioning option.",
+            "3. Go to the Default Settings tab and disable the Disable Directory Sync & Enable SCIM Provisioning option.",
+            "4. In the IdP application that you previously configured SCIM for, disable the SCIM configuration.",
+            "5. Go to Administration > Internet & SaaS Authentication > Internet Authentication Settings > Default Settings, and click Sync Now.",
+            "Make sure that you do not disable the Disable Directory Sync & Enable SCIM Provisioning option or change the repository types."
+          ]
+        }
+      ],
+      "gaps": [
+        "scim-migration-reversibility"
+      ]
+    }
+  },
+  "divergences": {
+    "password-strength-default": {
+      "summary": "Two help pages name a different default Password Strength for Form-Based hosted users.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-default-authentication-profile.json",
+            "quotes": [
+              "Medium: Choose to require users to set passwords that are at least 8 characters long and that contain at least one non-alphabetic character. This is the default."
+            ]
+          },
+          "says": "Medium is the default password strength."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-hosted-user-database.json",
+            "quotes": [
+              "None: Have no restriction on the strength or complexity of the passwords. This is the default."
+            ]
+          },
+          "says": "None is the default password strength."
+        }
+      ],
+      "impact": "Do not state the default strength a tenant starts with; read the live passwordStrength value. The enum-values claim lists NONE, MEDIUM and STRONG without a default, so it does not conflict."
+    }
+  },
+  "gaps": {
+    "authentication-service-scope": {
+      "kind": "semantic",
+      "title": "What holds the authentication settings when Authentication Service manages them",
+      "status": "open",
+      "detail": "Several pages say a page is limited or unavailable under Authentication Service for Admins, or for Admins and Users, and that settings are then managed with Authentication Service. What then holds the IdP, frequency and user settings belongs to ZIdentity subjects and is not covered by the captured ZIA articles.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "saying where to change authentication settings for a tenant using Authentication Service"
+    },
+    "kerberos-pwd-write-behavior": {
+      "kind": "semantic",
+      "title": "What an update that includes kerberosPwd does",
+      "status": "open",
+      "detail": "Unverified legacy statement: Setting kerberosPwd in an update_authentication_settings call is silently ignored; the field is accepted in the payload and appears to succeed but does not change the credential. No registered source states this. A lab update that sends kerberosPwd, then a read of the credential's effect, would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "whether rotating the Kerberos password through the settings update can succeed, fail or be ignored"
+    },
+    "auto-provision-scope": {
+      "kind": "semantic",
+      "title": "Who gets a user record when SAML auto-provisioning is on",
+      "status": "open",
+      "detail": "Unverified legacy statement: With autoProvision true, any user whose IdP account is in scope for the ZIA SAML app has a ZIA user record created at first login, which can cause user-count surprises and license problems. No registered source states this. A vendor statement on auto-provisioning scope and licensing, or a lab login by an in-scope user, would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "answering how many users a tenant will end up with"
+    },
+    "scim-migration-reversibility": {
+      "kind": "semantic",
+      "title": "What state survives turning off the directory-sync migration switch",
+      "status": "partial",
+      "detail": "The migration guide documents a console revert (scim-revert-procedure), so the legacy statement that rolling back is not self-service is not borne out for the console path; the legacy advice to confirm SCIM is fully operational first stays unsourced. What happens to SCIM-created users and groups after the revert and Sync Now is not stated, and neither is whether the API field can be toggled back the same way. A lab toggle back, or a vendor statement, would settle it.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "advice on whether the migration flag is safe to try"
+    }
+  }
+}

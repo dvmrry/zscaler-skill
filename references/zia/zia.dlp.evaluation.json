@@ -1,0 +1,404 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.evaluation",
+  "title": "Why DLP did or did not fire: pipeline position, evaluation mode and exemptions",
+  "aliases": [
+    "dlp didn't fire",
+    "dlp not triggering",
+    "dlp ssl bypass",
+    "evaluate all rules",
+    "dlp exception rules",
+    "dlp sub rule",
+    "dlp pipeline position",
+    "cloud apps and url exceptions for dlp",
+    "enableEvaluateAllDlpRules"
+  ],
+  "binds": [
+    "zia/dlp-web-rules",
+    "zia/dlp-global-options"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.dlp.rules",
+      "because": "zia.dlp.evaluation:evaluate-all-default-vs-mode"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering",
+      "because": "zia.dlp.evaluation:dlp-after-url-and-file-type"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence",
+      "because": "zia.dlp.evaluation:dlp-after-url-and-file-type"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.pipeline",
+      "because": "zia.dlp.evaluation:decrypt-dependency"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.web-field-semantics",
+      "because": "zia.logs.web-field-semantics:dlp-rule-fields"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-web-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-global-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.exact-data-match"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.inspection-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rule-wire-shape"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Three separate things decide whether a DLP rule gets a say, in this order: whether DLP is reached, which evaluation mode the tenant uses, and what is exempted."
+    },
+    {
+      "label": "Is DLP reached?",
+      "text": "{{dlp-after-url-and-file-type}} {{earlier-block-skips-dlp}} {{earlier-block-no-dlp}} Earlier policies are in [[zia.url-filtering]] and [[zia.cloud-app-control.precedence]]. {{decrypt-dependency}} {{scope-bounded-by-decryption}} The decrypt side is in [[zia.ssl-inspection.pipeline]]. Whether this is the most common cause is open {{gap:ssl-bypass-most-common-cause}}."
+    },
+    {
+      "label": "Which mode?",
+      "text": "{{evaluate-all-default-vs-mode}} Whether rule order matters among parent rules in that mode differs between the articles {{divergence:parent-rule-order}}. {{evaluate-all-switch}} {{rule-evaluation-setting}} The API shape of sub-rules is in [[zia.dlp.rule-wire-shape]]. {{exception-rules}} {{exception-rule-first-match}} The About page's parent-rule order statement is the other side of that difference {{divergence:parent-rule-order|ref}}."
+    },
+    {
+      "label": "What is exempt?",
+      "text": "{{exemption-list}} {{exemptions-override-rules}} {{exemption-limits}} What URL encoded data covers is open {{gap:url-encoded-data-scope}}. The EDM modes on the same Advanced Settings page are in [[zia.dlp.exact-data-match]], and the OCR switches in [[zia.dlp.inspection-limits]]."
+    },
+    {
+      "text": "Size, archive and text limits that stop inspection of a file that was reached are in [[zia.dlp.inspection-limits]]; timeouts on large uploads are open [[zia.dlp.inspection-limits:large-upload-timeout]]. Rule criteria are in [[zia.dlp.rules]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant evaluates rules in order to the first match or evaluates all rules, read from webDlpGlobalOptions before assuming first match.",
+      "uses": [
+        "evaluate-all-default-vs-mode",
+        "evaluate-all-switch"
+      ]
+    },
+    {
+      "do": "Whether rules written for one evaluation mode still give the same result after the other mode is enabled.",
+      "uses": [
+        "evaluate-all-default-vs-mode"
+      ]
+    },
+    {
+      "do": "Whether an exemption on the DLP Advanced Settings page, which overrides rules, covers the application, URL or custom category before reasoning over the rules that target it.",
+      "uses": [
+        "exemption-list",
+        "exemptions-override-rules"
+      ]
+    },
+    {
+      "do": "Which statement about rule order among parent rules in Evaluate All Rules mode is being relied on, since the articles differ.",
+      "uses": [
+        "evaluate-all-default-vs-mode",
+        "parent-rule-order"
+      ]
+    }
+  ],
+  "claims": {
+    "dlp-after-url-and-file-type": {
+      "statement": "For a POST request the Public Service Edge applies policies in a listed order in which Cloud App Control, URL Filtering, Malware Protection and File Type Control all come before Data Loss Prevention.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.json",
+          "after": "The Public Service Edge scans the POST request and applies policies in the following order:",
+          "quotes": [
+            "Cloud App Control: The Public Service Edge checks if the requested application violates the Cloud App Control policy configured by your organization.",
+            "URL Filtering: The Public Service Edge checks if the requested URL belongs to URL categories or custom URL categories blocked by your organization's URL Filtering policy.",
+            "Malware Protection: The Public Service Edge checks files in the request against anti-virus and anti-spyware signatures.",
+            "File Type Control: The Public Service Edge checks if the POST request violates your File Type Control policy.",
+            "Data Loss Prevention: The Public Service Edge checks if the POST request includes content that violates your organization's DLP policy.",
+            "2. Cloud App Control:",
+            "3. URL Filtering:",
+            "10. Malware Protection:",
+            "11. File Type Control:",
+            "12. Data Loss Prevention:"
+          ]
+        }
+      ]
+    },
+    "earlier-block-skips-dlp": {
+      "statement": "In the vendor's example, where File Type Control blocks outbound PDFs and the DLP policy blocks documents containing US Social Security numbers and notifies auditors, a PDF containing credit card numbers is blocked by File Type Control rather than DLP: the DLP policy is never triggered, and the auditor is not notified that a user attempted to send Social Security numbers out of the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.json",
+          "quotes": [
+            "Under the File Type Control policy, the organization blocks PDFs from being sent out of its corporate network.",
+            "Under the DLP policy, the organization blocks documents containing US Social Security numbers and specifies that the Zscaler service send notifications to auditors when it detects users attempting to do so.",
+            "If a user in this organization attempts to send a PDF that contains credit card numbers, the service blocks the transaction, but it does so because of the File Type Control policy, rather than the DLP policy.",
+            "The DLP policy itself is never triggered, and the service does not send a notification alerting the auditor that a user has attempted to send Social Security numbers out of the organization."
+          ]
+        }
+      ]
+    },
+    "earlier-block-no-dlp": {
+      "statement": "So when an earlier policy blocks a transaction, the DLP policy is not triggered and sends no notification.",
+      "tier": "B",
+      "derived_from": [
+        "earlier-block-skips-dlp",
+        "dlp-after-url-and-file-type"
+      ],
+      "conditions": "Generalized from the vendor's one example, a File Type Control block (earlier-block-skips-dlp), and from the listed order in which Cloud App Control, URL Filtering, Malware Protection and File Type Control come before Data Loss Prevention (dlp-after-url-and-file-type). No source states the outcome for every earlier policy that blocks."
+    },
+    "decrypt-dependency": {
+      "statement": "Payload-based checks, DLP among them, do not run on traffic that SSL inspection does not decrypt, so an SSL inspection bypass upstream silently removes DLP for that traffic.",
+      "tier": "B",
+      "derived_from": [
+        "zia.ssl-inspection.pipeline:not-inspected-domain-only"
+      ],
+      "conditions": "Follows from the SSL inspection subject's reading of the documented no-inspection path; this subject adds no new source."
+    },
+    "scope-bounded-by-decryption": {
+      "statement": "A DLP rule cannot reach traffic that SSL inspection does not decrypt, so its effective scope is the decrypted subset regardless of its own criteria.",
+      "tier": "B",
+      "derived_from": [
+        "decrypt-dependency"
+      ],
+      "conditions": "Inference from the decrypt dependency; no source states it for DLP scope directly."
+    },
+    "evaluate-all-default-vs-mode": {
+      "statement": "By default inline DLP rules are evaluated in rule order and evaluation stops at the first match. In Evaluate All Rules mode (enabled through the Zscaler account team) the service evaluates all rules and enforces the rule with the most restrictive action; the Evaluate All Rules article says that mode uses rule order only when multiple rules with the same action are matched.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "This article applies only to organizations with Evaluate All Rules mode enabled. To access this feature, contact your Zscaler Account team.",
+            "By default, the Zscaler service evaluates inline Data Loss Prevention (DLP) policy rules according to rule order, with evaluation stopping at the first match.",
+            "you can instead have the Zscaler service evaluate all rules, enforcing the rule with the most restrictive action.",
+            "Evaluate All Rules mode uses rule order only when multiple rules with the same action are matched."
+          ]
+        }
+      ]
+    },
+    "evaluate-all-switch": {
+      "statement": "The mode is set on the DLP Advanced Settings page, and all existing inline DLP rules must be deleted before the evaluation method is changed. The API exposes it as the `enableEvaluateAllDlpRules` flag of the `webDlpGlobalOptions` resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "With Evaluate All Rules mode enabled for your organization, you first set how the Zscaler service evaluates inline DLP rules on the DLP Advanced Settings page",
+            "You must first delete all existing inline DLP rules before you change the way the Zscaler service evaluates rules."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_global_options/dlp_global_options.go",
+          "quotes": [
+            "webDlpGlobalOptionsEndpoint = \"/zia/api/v1/webDlpGlobalOptions\"",
+            "EnableEvaluateAllDlpRules   bool                      `json:\"enableEvaluateAllDlpRules,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "exception-rules": {
+      "statement": "In Evaluate All Rules mode an admin can add exception rules, child rules that exclude specific users or groups from a parent rule, with no limit on how many a parent can have. The API accepts exception rules only when the tenant's inline DLP evaluation is set to evaluate all rules.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#parentRule"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "you have the ability to create exception rules, which are child rules that allow you to exclude specific users or groups in your organization",
+            "There is not a limit to the number of exception rules that you can assign to each parent rule."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "quotes": [
+            "// Note: Exception rules can be configured only when the inline DLP rule evaluation type is set to evaluate all DLP rules in the DLP Advanced Settings."
+          ]
+        }
+      ]
+    },
+    "exemption-list": {
+      "statement": "To exempt a specific website, custom URL category or cloud application from DLP evaluation, add it to the Cloud Apps & URL Exceptions for DLP list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "after": "You then configure your policy rules based on that setting:",
+          "quotes": [
+            "If you want to exempt a specific website or custom URL category from DLP evaluation, you must add the website or URL category to the Cloud Apps & URL Exceptions for DLP list.",
+            "If you want to exempt a specific cloud application from DLP evaluation, you must add the cloud application to the Cloud Apps & URL Exceptions for DLP list."
+          ]
+        }
+      ]
+    },
+    "exemptions-override-rules": {
+      "statement": "Adding cloud applications and websites to the Cloud Apps & URL Exceptions for DLP list on the DLP Advanced Settings page stops the service inspecting them, and these exemptions override the rules created for the DLP policy: in the vendor's example, another admin's rule to inspect an exempted application has no effect, because the service does not inspect those transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-advanced-settings.json",
+          "quotes": [
+            "You can stop the Zscaler service from inspecting specific cloud applications and websites by adding them to the Cloud Apps & URL Exceptions for DLP list.",
+            "The exemptions you configure on the DLP Advanced Settings page override the rules you create for the DLP policy.",
+            "Another admin creates a DLP policy rule to inspect the same application. When users send content to the application, the Zscaler service doesn’t inspect these transactions."
+          ]
+        }
+      ]
+    },
+    "exemption-limits": {
+      "statement": "The exemption list takes up to 256 cloud applications, up to 256 URLs (each added separately) and up to 256 custom URL categories. Enabling Exempt URL Encoded Data exempts all URL encoded data from DLP evaluation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-advanced-settings.json",
+          "quotes": [
+            "You can search for and select up to 256 applications.",
+            "You can add up to 256 URLs, but you must add each entry separately.",
+            "You can search for and select up to 256 custom URL categories.",
+            "Exempt URL Encoded Data: Enable this option to exempt all URL encoded data from DLP evaluation."
+          ]
+        }
+      ],
+      "gaps": [
+        "url-encoded-data-scope"
+      ]
+    },
+    "rule-evaluation-setting": {
+      "statement": "The Inline DLP Rule Evaluation setting on the DLP Advanced Settings page appears only in organizations with Evaluate All Rules mode enabled. With By Rule Order, DLP engines rely on rule order and evaluation stops when a matching rule is found; with Evaluate All Rules, if multiple rules match the rule engine selects the rule with the most restrictive action. The method applies to all of the organization's inline DLP rules, and changing it requires first deleting all existing inline DLP rules.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-global-options#enableEvaluateAllDlpRules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-advanced-settings.json",
+          "after": "- Inline DLP Rule Evaluation",
+          "quotes": [
+            "This setting appears only in organizations with Evaluate All Rules mode enabled.",
+            "By Rule Order: Select this option if you want DLP engines to rely on rule order during evaluation. When the engine finds a matching rule, evaluation stops.",
+            "Evaluate All Rules: Select this option if you want DLP engines to evaluate all rules.",
+            "If multiple rules match, the rule engine selects the rule with the most restrictive action.",
+            "The evaluation method you select is applied to all inline DLP rules for your organization. If you want to change the evaluation method, you must first delete all existing inline DLP rules."
+          ]
+        }
+      ]
+    },
+    "exception-rule-first-match": {
+      "statement": "The About DLP page says that when the service is configured to evaluate all rules, rule order is not enforced for parent rules, exception rule evaluation stops at the first match, and an exception replaces a parent rule upon match; it also says parent rules and exception rules apply only when Evaluate All Rules mode is enabled.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#parentRule"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-loss-prevention.json",
+          "quotes": [
+            "Rule order is not enforced for parent rules when the Zscaler service is configured to evaluate all rules. Exception rule evaluation stops at the first match, and an exception replaces a parent rule upon match.",
+            "Parent rules and exception rules apply only when Evaluate All Rules mode is enabled."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "parent-rule-order": {
+      "summary": "Whether rule order matters among parent rules in Evaluate All Rules mode.",
+      "positions": [
+        {
+          "says": "The Evaluate All Rules article says that mode uses rule order only when multiple rules with the same action are matched.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+            "quotes": [
+              "Evaluate All Rules mode uses rule order only when multiple rules with the same action are matched."
+            ]
+          }
+        },
+        {
+          "says": "The About DLP page says rule order is not enforced for parent rules when the service is configured to evaluate all rules.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-data-loss-prevention.json",
+            "quotes": [
+              "Rule order is not enforced for parent rules when the Zscaler service is configured to evaluate all rules."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether rule order breaks ties between matched parent rules with the same action in Evaluate All Rules mode is not settled by either page. Do not state either as fact."
+    }
+  },
+  "gaps": {
+    "url-encoded-data-scope": {
+      "kind": "semantic",
+      "title": "What \"URL encoded data\" covers in the Exempt URL Encoded Data option",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "saying which requests Exempt URL Encoded Data removes from DLP evaluation",
+      "detail": "The DLP Advanced Settings page says the option exempts all URL encoded data from DLP evaluation and does not define what that data covers."
+    },
+    "ssl-bypass-most-common-cause": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: an SSL inspection bypass is the single most common cause of DLP not firing",
+      "status": "open",
+      "resolves_with": [
+        "operator-experience",
+        "tenant-data"
+      ],
+      "blocks": "ranking causes of a missed DLP detection",
+      "detail": "Unverified legacy statement: \"The single most common 'DLP didn't fire' cause is an SSL Inspection bypass upstream.\" No registered source ranks causes; the decrypt dependency itself is held in decrypt-dependency."
+    },
+    "evaluate-all-semantic-detail": {
+      "kind": "semantic",
+      "title": "Whether Evaluate All Rules logs every matched rule and how exception rules interact with parent actions",
+      "status": "partial",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "explaining which rules appear in logs when several match, and how a matched exception rule's action combines with its parent rule's action",
+      "detail": "The help states the most restrictive action is enforced and that exception rules exclude users or groups. Narrowed by exception-rule-first-match: the About DLP page says exception rule evaluation stops at the first match and an exception replaces a parent rule upon match; what that leaves unsaid is how the exception's action relates to the parent's and which rules appear in logs. Unverified legacy statement: \"Evaluate All Rules ... is an alternative mode that runs every DLP rule against every request ... when you want to log ALL DLP violations for audit purposes.\" Logging of non-enforced matches is not stated by any registered source."
+    },
+    "pipeline-terminal-tier": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: DLP sits in the terminal tier of the full-URL pass with Sandbox, Malware, File Type Control and IPS content checks",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "saying all those checks share one tier",
+      "detail": "Unverified legacy statement: \"DLP is in the terminal tier of the full-URL pass alongside Sandbox, Malware, File Type Control, and IPS content checks.\" The captured enforcement order lists these as separate numbered steps with DLP after File Type Control (see dlp-after-url-and-file-type); the 'tier' grouping is not stated."
+    }
+  }
+}

@@ -11,7 +11,7 @@ const helpScripts = [
   "check-data-contract.mjs", "setup-data-mount.mjs", "runtime-data-path.mjs",
   "doctor.mjs", "check-helper-command-refs.mjs", "prepare-overlay-submission.mjs",
   "soc-artifacts.mjs", "auditor-artifacts.mjs", "investigator-artifacts.mjs",
-  "check-reference-freshness.mjs", "check-vendor-refresh.mjs",
+  "check-vendor-refresh.mjs",
   "vendor-impact-summary.mjs", "refresh-discovery.mjs", "bridge/run-investigation.mjs",
 ];
 const cases = [
@@ -22,6 +22,11 @@ const cases = [
   { script: "check-workflow-metadata.mjs", args: [], code: 1, output: /Workflow metadata report/ },
   { script: "check-release-state.mjs", args: [], code: 1, output: /Release state check failed/ },
   { script: "check-worktree-whitespace.mjs", args: [], code: 1, output: /check-worktree-whitespace:/ },
+  { script: "kb-drift.mjs", args: [], code: 2, output: /usage: node scripts\/kb-drift\.mjs/ },
+  { script: "kb-refresh.mjs", args: [], code: 2, output: /usage: node scripts\/kb-refresh\.mjs/ },
+  { script: "capture-queue.mjs", args: ["--limit", "0"], code: 2, output: /usage: capture-queue\.mjs/ },
+  { script: "kb-eval.mjs", args: [], code: 2, output: /usage: kb-eval\.mjs/ },
+  { script: "bump-pins.mjs", args: ["--bogus"], code: 2, output: /usage: node scripts\/bump-pins\.mjs/ },
 ];
 
 test("every native entrypoint guard has a subprocess regression case", () => {
@@ -42,7 +47,7 @@ test("real CLI entrypoints execute through encoded and symlinked paths; imports 
   for (const root of [plain, encoded]) {
     fs.cpSync(scriptsDir, path.join(root, "scripts"), { recursive: true });
     fs.mkdirSync(path.join(root, "agents"));
-    for (const name of ["VERSION", ".release-please-manifest.json", "pyproject.toml", "uv.lock", "CHANGELOG.md"]) {
+    for (const name of ["VERSION", "pyproject.toml", "uv.lock"]) {
       fs.copyFileSync(path.join(scriptsDir, "..", name), path.join(root, name));
     }
   }

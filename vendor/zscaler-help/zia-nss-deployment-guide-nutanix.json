@@ -1,0 +1,2388 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "NSS Deployment Guide for Nutanix",
+  "source": {
+    "url": "https://help.zscaler.com/zia/nss-deployment-guide-nutanix",
+    "node": "1530967",
+    "revision": "3250823",
+    "updated": "2026-10-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler’s Nanolog Streaming Service (NSS) supports the configuration and deployment of an NSS virtual machine (VM) on Nutanix."
+    },
+    {
+      "text": "After configuring and deploying an NSS VM on Nutanix, you can stream your organization’s web or firewall logs from the Zscaler cloud to your security information and event management (SIEM."
+    },
+    {
+      "text": "The following guide describes the deployment procedure with sample configurations."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure you have a subscription to either NSS for Web or NSS for Firewall and review the following specifications and requirements:"
+    },
+    {
+      "item": "VM Specs",
+      "depth": 0
+    },
+    {
+      "item": "You create a VM instance as a step in the deployment procedure. The VM must meet the following requirements:",
+      "depth": 0
+    },
+    {
+      "item": "vCPUs: 2 vCPU (1 shared core)",
+      "depth": 1
+    },
+    {
+      "item": "CPU speed: Greater than or equal to 2.40GHz",
+      "depth": 1
+    },
+    {
+      "item": "Instance memory:",
+      "depth": 1
+    },
+    {
+      "item": "8 GB for up to 8K users",
+      "depth": 2
+    },
+    {
+      "item": "16 GB for up to 20K users",
+      "depth": 2
+    },
+    {
+      "item": "32 GB for up to 50K users",
+      "depth": 2
+    },
+    {
+      "item": "48 GB for up to 75K users",
+      "depth": 2
+    },
+    {
+      "item": "64 GB for more than 75K users",
+      "depth": 2
+    },
+    {
+      "item": "Boot disk size: 500 GB",
+      "depth": 1
+    },
+    {
+      "item": "Network Specs",
+      "depth": 0
+    },
+    {
+      "item": "Two network interfaces: You create two network interfaces as a step in the deployment procedure.",
+      "depth": 1
+    },
+    {
+      "item": "The first network interface is the management IP address. It is used for control connections to the Zscaler cloud and to make an SSH connection to the NSS VM for configuration and management. You can customize the deployment and define a separate IP address for the SSH connection to the NSS VM.",
+      "depth": 2
+    },
+    {
+      "item": "The second network interface is the service IP address. It is used for data connections to the Zscaler cloud and to the SIEM.",
+      "depth": 2
+    },
+    {
+      "item": "Two public IP addresses: The two public IP addresses are not required when using a NAT. A NAT network configuration works correctly as long as it has sufficient network bandwidth.",
+      "depth": 1
+    },
+    {
+      "item": "Bandwidth for log download: 11 Mbps for 10K users is an example average value.",
+      "depth": 1
+    },
+    {
+      "item": "Firewall Requirements",
+      "depth": 0
+    },
+    {
+      "item": "The firewall requirements are as follows:",
+      "depth": 0
+    },
+    {
+      "item": "You must deploy the NSS VM instance behind a network security group. The NSS VM instance requires only outbound connections to the Zscaler cloud. It doesn't require any inbound connections to your network from the Zscaler cloud.",
+      "depth": 1
+    },
+    {
+      "item": "To view the firewall requirements for your specific account, refer to the Zscaler configuration requirements for your Zscaler cloud: https://config.zscaler.com/<Zscaler Cloud Name>/nss.",
+      "depth": 1
+    },
+    {
+      "item": "You can find the name of your Zscaler cloud in the URL that you use to log in to the Zscaler service. For example, if you log in to admin.zscaler.net, then go to https://config.zscaler.com/zscaler.net/nss. To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 1
+    },
+    {
+      "item": "The Zscaler Hub IP address ranges are necessary to ensure that the service isn't affected by future Zscaler cloud expansion.",
+      "depth": 1
+    },
+    {
+      "item": "Communication from the NSS instance to the Zscaler cloud must be excluded from Secure Sockets Layer (SSL) inspection to ensure that the NSS can authenticate to the Nanolog cluster using Mutual Transport Layer Security (mTLS).",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler does not recommend or support forwarding outbound traffic from the NSS to or through the Public Service Edge for Internet Access (ZIA) as this can result in networking, latency, and administration issues.",
+      "depth": 1
+    },
+    {
+      "heading": "Deploying NSS",
+      "level": 1
+    },
+    {
+      "text": "To deploy NSS:"
+    },
+    {
+      "item": "Step 1: In the Zscaler Admin Console, Add an NSS Server and Download the SSL Certificate",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Data Explorer > Log Streaming > Internet Log Streaming - Nanolog Streaming Service.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          61
+        ],
+        [
+          64,
+          86
+        ],
+        [
+          89,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "From the NSS Servers tab, click Add NSS Server.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          20
+        ],
+        [
+          32,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "The Add NSS Server window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the Add NSS Server window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the NSS server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Type: NSS for Web is selected by default. To add an NSS server for firewall logs, select NSS for Firewall.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          6,
+          17
+        ],
+        [
+          89,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "If you have Zscaler Cloud & Branch Connector, NSS for Firewall (NSS type) displays as NSS for Firewall, Cloud & Branch Connector.",
+      "depth": 2,
+      "strong": [
+        [
+          46,
+          62
+        ],
+        [
+          86,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "Status: The NSS server is Enabled by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          26,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The NSS server is added to the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "Click Download in the SSL Certificate column of the newly added NSS server, and then save the SSL certificate for later configuring the NSS on the VM instance.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          22,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 2: In the Zscaler Admin Console, Add a TCP NSS Feed",
+      "depth": 0
+    },
+    {
+      "item": "A TCP Nanolog Streaming Service (NSS) feed specifies the data from the logs that the NSS sends to the security information and event management (SIEM) system. You can filter the data so that you send only the data you need to the SIEM, and you can add up to 16 TCP NSS feeds for each NSS server. (Web and Firewall logs are each limited to 8 feeds per NSS server to ensure optimal performance.) Each feed can have different filters and fields, and a different output format (e.g., CSV). To learn more about how to configure each feed, see:",
+      "depth": 0
+    },
+    {
+      "item": "Adding TCP NSS Feeds for Web Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for Firewall Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for DNS Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for Tunnel Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for SaaS Security Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for SaaS Security Activity Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for Alerts",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for Admin Audit Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for Endpoint DLP Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for Email DLP Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for Sandbox Verdict Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for Authentication Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for SCIM Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for 3rd-Party App Governance Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding TCP NSS Feeds for Posture Management Logs",
+      "depth": 1
+    },
+    {
+      "item": "When adding a feed, note the SIEM IP address and TCP port for later verifying the NSS-to-SIEM connection.",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) Step 3: In the Zscaler Admin Console, Add an HTTP NSS Feed",
+      "depth": 0
+    },
+    {
+      "item": "In addition to TCP-based NSS feeds, you can optionally stream NSS logs to SIEM over HTTP connections. To add HTTP-based NSS feeds, you must:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command in your VM instance:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "nss configure-nssas",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) Run the following command to configure a self-signed certificate: You can use self-signed or internally issued certificates for the SIEM connectivity test.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "nss add-cert-to-trust <self-signed certificate>",
+      "depth": 1
+    },
+    {
+      "item": "Replace <self-signed certificate> with the path of your self-signed certificate from the NSS node in the command.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to restart the NSS service:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "sudo nss restart",
+      "depth": 1
+    },
+    {
+      "item": "After the NSS restarts, you can configure HTTPS-based NSS feeds for Internet Access.",
+      "depth": 0
+    },
+    {
+      "item": "An HTTP NSS feed specifies the data from the logs that the HTTP NSS sends to the security information and event management (SIEM) system. You can add up to 8 HTTP NSS feeds for each NSS server. Web and firewall log types are each limited to two feeds per NSS server to ensure optimal performance.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about how to configure each feed, see the following links:",
+      "depth": 0
+    },
+    {
+      "item": "Adding HTTP NSS Feeds for Web Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding HTTP NSS Feeds for Firewall Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding HTTP NSS Feeds for DNS Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding HTTP NSS Feeds for Tunnel Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding HTTP NSS Feeds for SaaS Security Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding HTTP NSS Feeds for SaaS Security Activity Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding HTTP NSS Feeds for Alerts",
+      "depth": 1
+    },
+    {
+      "item": "Adding HTTP NSS Feeds for Admin Audit Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding HTTP NSS Feeds for Endpoint DLP Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding HTTP NSS Feeds for Email DLP Logs",
+      "depth": 1
+    },
+    {
+      "item": "Adding HTTP NSS Feeds for Sandbox Verdict Logs",
+      "depth": 1
+    },
+    {
+      "item": "Step 4. In the Zscaler Admin Console, Compute the Recommended VM Instance Specifications",
+      "depth": 0
+    },
+    {
+      "item": "You must enter information about your traffic and users so that the Zscaler service can compute the appropriate resources for your NSS.",
+      "depth": 0
+    },
+    {
+      "item": "The NSS buffers the logs for at least one hour. If a SIEM goes offline for maintenance, or if the connection between the NSS and the SIEM is disrupted, the NSS buffers the logs and sends them when the connection is re-established. The amount of memory required to buffer the logs is incorporated into the VM spec computation. The buffer size increases proportionally to the amount of RAM allocated to the NSS.",
+      "depth": 0
+    },
+    {
+      "item": "To compute the appropriate resources for your NSS:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Data Explorer > Log Streaming > Internet Log Streaming - Nanolog Streaming Service.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          61
+        ],
+        [
+          64,
+          86
+        ],
+        [
+          89,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "Click Deploy NSS Virtual Appliance.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "The NSS Virtual Appliance Deployment window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "In the NSS Virtual Appliance Deployment window, choose either of the following NSS types:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "NSS for Web",
+      "depth": 2
+    },
+    {
+      "item": "To determine the memory and bandwidth requirements:",
+      "depth": 2
+    },
+    {
+      "item": "Number of Users: Enter the number of users. The Zscaler service displays the recommended resources.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Peak Transactions per Hour: Enter the peak number of transactions in an hour. You can retrieve this data by going to Internet Access > Dashboards. This is recommended to fine-tune the VM specification to your organization’s workload.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          117,
+          132
+        ],
+        [
+          135,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The recommended internet bandwidth is the peak bandwidth required to download the logs from the Nanolog in the Zscaler cloud. If the NSS is not allocated the bandwidth it needs, the logs can accumulate in the Nanolog. This can result in frequent connection resets and the logs not being streamed to the NSS.",
+      "depth": 2
+    },
+    {
+      "item": "NSS for Firewall",
+      "depth": 2
+    },
+    {
+      "item": "To determine the memory and bandwidth requirements:",
+      "depth": 2
+    },
+    {
+      "item": "Number of Users: Enter the number of users. The Zscaler service displays the recommended resources.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Peak Sessions per Hour: Enter the peak number of sessions in an hour. You can retrieve this data by going to Internet Access > Dashboards > Firewall Overview. This is recommended to fine-tune the VM specification to your organization’s workload.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          109,
+          124
+        ],
+        [
+          127,
+          137
+        ],
+        [
+          140,
+          157
+        ]
+      ]
+    },
+    {
+      "item": "Peak DNS Requests per Hour: Enter the peak number of DNS requests in an hour. You can retrieve this data by going to Internet Access > Dashboards > DNS Overview. This is recommended to fine-tune the VM specification to your organization’s workload.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          117,
+          132
+        ],
+        [
+          135,
+          145
+        ],
+        [
+          148,
+          160
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The recommended internet bandwidth is the peak bandwidth required to download the logs from the Nanolog in the Zscaler cloud. If the NSS is not allocated the bandwidth it needs, the logs can accumulate in the Nanolog. This can result in frequent connection resets and the logs not being streamed to the NSS.",
+      "depth": 2
+    },
+    {
+      "item": "If you have a subscription to Cloud & Branch Connector, NSS for Firewall (NSS type) displays as NSS for Firewall, Cloud & Branch Connector.",
+      "depth": 1,
+      "strong": [
+        [
+          56,
+          72
+        ],
+        [
+          96,
+          138
+        ]
+      ]
+    },
+    {
+      "item": "For your platform, select Nutanix.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          26,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Compute.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "The recommended VM specs and hypervisor specs are displayed.",
+      "depth": 1
+    },
+    {
+      "item": "Click Download NSS Virtual Appliance and save for later uploading the image in Nutanix.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Close.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Step 5: In the Nutanix Console, Upload the NSS Image",
+      "depth": 0
+    },
+    {
+      "item": "Click the Gear icon in the top-right corner of the screen.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the left-side navigation, click Image Configuration.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Image Configuration page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "On the Image Configuration page, click + Upload Image.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          39,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Create Image window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the Create Image window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter the name of the image.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Image Type: Select DISK.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Image Source: Choose one of the following:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "From URL: Enter the URL of the image that you previously downloaded from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Upload a file: Upload the image that you previously downloaded from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Wait for the image to upload completely, which can take a few minutes.",
+      "depth": 2
+    },
+    {
+      "item": "Step 6: In the Nutanix Console, Create the VM Instance",
+      "depth": 0
+    },
+    {
+      "item": "In the drop-down menu in the top-left corner of the screen, select VM.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          67,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The VM page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "In the top-right corner of the VM page, click + Create VM.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          31,
+          33
+        ],
+        [
+          46,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Create VM window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Create VM window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the General Configuration section, enter the name of the VM.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Compute Details section, enter the required number of CPU cores and the amount of RAM that you previously computed in the Zscaler Admin Console.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Disks section, click + Add New Disk.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          28,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Add Disk window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Disk window, configure the following fields and click Add:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          65,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Operation: Select Clone from Image Service.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Bus Type: Leave SCSI as is.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          16,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Image: Select the image that you previously uploaded.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Network Adapters (NIC) section, click + Add New NIC.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          45,
+          46
+        ],
+        [
+          47,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Create NIC window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the Create NIC window, select your desired subnet and click Add. To create a subnet, refer to the Nutanix documentation.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          63,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "This is the NIC for the management interface. To learn more, see Network Specs.",
+      "depth": 2
+    },
+    {
+      "item": "Click + Add New NIC and repeat the previous step to add a second NIC for the service interface. To learn more, see Network Specs.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save to create the VM.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Step 7: Configure and Verify the NSS on the VM Instance",
+      "depth": 0
+    },
+    {
+      "item": "To configure and start the NSS on the VM instance:",
+      "depth": 0
+    },
+    {
+      "item": "a. Configure the NSS on the VM instance and install the SSL certificate.",
+      "depth": 1
+    },
+    {
+      "item": "Go to the newly created VM instance and connect via SSH.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "When prompted, enter the username and password (e.g., zsroot / zsroot).",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Run the following command to configure the NSS:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "sudo nss configure",
+      "depth": 2
+    },
+    {
+      "item": "When prompted, enter the following IP addresses:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Nameserver IP address",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Internal service IP address associated with the service interface",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Default gateway for the internal service IP address",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "The following configuration is an example. Replace the values in red with the IP addresses for your deployment:",
+      "depth": 2
+    },
+    {
+      "item": "[root@nss /usr/home/zsroot]# nss dump-config Configured Values: CloudName:zscalerthree.net nameserver:169.254.169.254 Mgmt IP: Default gateway for Mgmt IP: Internal Mgmt IP: route_net: Service IP Address:/dev/tap0:192.168.4.13/24 Default gateway for Service IP:192.168.4.1 Routes for Siem N/w:",
+      "depth": 2
+    },
+    {
+      "item": "Copy the previously downloaded SSL certificate to the VM instance.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Run the following command to install the SSL certificate:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "nss install-cert <SSL Certificate>",
+      "depth": 2
+    },
+    {
+      "item": "Replace the parameter in red with the SSL certificate file name (e.g.,",
+      "depth": 2
+    },
+    {
+      "item": "NssCertificate.zip) if you are in the path of the file. If not, use the file path (e.g., /usr/home/zsroot/NssCertificate.zip).",
+      "depth": 2
+    },
+    {
+      "item": "The NSS uses the SSL certificate to authenticate itself to the Zscaler service. Ensure that the SSL certificate is installed on only one active VM at a time. Having multiple VMs that use only one certificate causes cloud connection flapping, which disrupts log streaming.",
+      "depth": 2
+    },
+    {
+      "item": "Before starting the NSS, run the following command to download and install the NSS binaries:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "sudo nss update-now",
+      "depth": 2
+    },
+    {
+      "item": "After the first NSS software deployment, the software is automatically updated with new versions.",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to reboot the NSS:",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "sudo reboot",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to start the NSS:",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "sudo nss start",
+      "depth": 2
+    },
+    {
+      "item": "The NSS starts within a few minutes.",
+      "depth": 2
+    },
+    {
+      "item": "b. Verify the NSS configuration.",
+      "depth": 1
+    },
+    {
+      "item": "To verify the NSS configuration, run the following command:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss troubleshoot netstat | less",
+      "depth": 1
+    },
+    {
+      "item": "The output of the command shows the following TCP connections:",
+      "depth": 1
+    },
+    {
+      "item": "Connection to the Zscaler cloud on port 443: This is the control connection that is used to authenticate the NSS to the Zscaler Central Authority (CA) and to download the configuration. It is also the data connection to the Zscaler Nanolog so that it can stream the logs.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Connection to the SIEM: This is the long-lived TCP connection to the SIEM on the specified log data port (e.g., 192.168.0.3.34561). If there are multiple feeds configured, then multiple connections must be listed.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "The following image shows a sample output verifying the TCP connections are established:",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 2
+    },
+    {
+      "item": "If the NSS does not start, open the /etc/rc.conf file to verify the following configuration:",
+      "depth": 1
+    },
+    {
+      "item": "#configurable per-machine info goes here (vtnet0 is mgmt and vtnet1 is service int) network_interfaces=\"lo0 vtnet0 vtnet1\" ifconfig_vtnet0=\"UP\" ifconfig_vtnet0=\"DHCP\" ifconfig_vtnet0=\"SYNCDHCP mtu 1460\"",
+      "depth": 1
+    },
+    {
+      "item": "The configuration confirms that there are two network interfaces (i.e., management and service), and that the management interface (i.e., vtnet0) is working as expected. If the configuration is not present in /etc/rc.conf, add it to the file and save, and then run the following command to restart the service:",
+      "depth": 1
+    },
+    {
+      "item": "/etc/rc.d/netif restart",
+      "depth": 1
+    },
+    {
+      "item": "If the NSS connection with the Zscaler CA fluctuates (i.e., it is established and then disconnects), run the following command:",
+      "depth": 1
+    },
+    {
+      "item": "ifconfig vtnet1 -rxcsum -txcsum -rxcsum6 -txcsum6 -tso4",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler recommends adding a custom route in the sc.conf file if your downstream SIEM IP address is in the same subnet.",
+      "depth": 1
+    },
+    {
+      "item": "c. (Optional) Remove the SSL certificate.",
+      "depth": 1
+    },
+    {
+      "item": "As a security measure, you can remove the SSL certificate from the VM. To remove the SSL certificate, run the rm command. See the following example:",
+      "depth": 1
+    },
+    {
+      "item": "rm NssCertificate.zip",
+      "depth": 1
+    },
+    {
+      "item": "If you do not remove the SSL certificate from the VM, you must change the file permission to be readable only by the root user.",
+      "depth": 1
+    },
+    {
+      "heading": "Post-Deployment Tasks",
+      "level": 1
+    },
+    {
+      "text": "After you have verified your deployment, you can perform additional tasks:"
+    },
+    {
+      "item": "Troubleshoot Deployed NSS Servers",
+      "depth": 0
+    },
+    {
+      "item": "You can use the following commands within the virtual machine (VM) console for your platform to configure and troubleshoot the NSS server. By default, root login is not permitted, so admins must use the sudo utility to run a command with higher privileges.",
+      "depth": 0
+    },
+    {
+      "item": "To start the service:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss start",
+      "depth": 1
+    },
+    {
+      "item": "To stop the service:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss stop",
+      "depth": 1
+    },
+    {
+      "item": "To restart the service:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss restart",
+      "depth": 1
+    },
+    {
+      "item": "To smoothly shut down the OS:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss halt",
+      "depth": 1
+    },
+    {
+      "item": "To change the network configuration (i.e., IP addresses, gateway information) for the service:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss configure",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see the NSS deployment guide for your platform.",
+      "depth": 1
+    },
+    {
+      "item": "To configure additional interfaces:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss configure split-interface",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see Configuring the Additional Interfaces from the Console.",
+      "depth": 1
+    },
+    {
+      "item": "To configure an explicit proxy:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss configure proxy",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see Configuring NSS in Explicit Proxy Mode.",
+      "depth": 1
+    },
+    {
+      "item": "To remove the configuration (if you configured additional interfaces using the sudo nss configure split-interface command):",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss configure split-interface --wipe",
+      "depth": 1
+    },
+    {
+      "item": "To remove the network settings that were configured using the sudo nss configure command:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss configure --wipe",
+      "depth": 1
+    },
+    {
+      "item": "To display the configuration file that was changed using the sudo nss configure command:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss dump-config",
+      "depth": 1
+    },
+    {
+      "item": "To install NSS certificates from a specified certificate bundle file:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss install-cert <certificate bundle file>",
+      "depth": 1
+    },
+    {
+      "item": "To check whether a new NSS version is available:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss checkversion",
+      "depth": 1
+    },
+    {
+      "item": "To manually update the NSS to the latest version:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss update-now",
+      "depth": 1
+    },
+    {
+      "item": "To force the NSS to update, regardless of whether a new version is available:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss force-update-now",
+      "depth": 1
+    },
+    {
+      "item": "To check the firewall configuration:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss test-firewall",
+      "depth": 1
+    },
+    {
+      "item": "This command does active firewall configuration probing by attempting to resolve the DNS names and establishing outbound connections to the Zscaler cloud. This command doesn't reset the management IP interface, so you can run it on an SSH connection.",
+      "depth": 1
+    },
+    {
+      "item": "To view troubleshooting help command information:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss troubleshoot help",
+      "depth": 1
+    },
+    {
+      "item": "To show the active connections on the service IP address:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss troubleshoot netstat",
+      "depth": 1
+    },
+    {
+      "item": "The output is similar to that of the netstat utility.",
+      "depth": 1
+    },
+    {
+      "item": "To show the connections and their statuses:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss troubleshoot connection",
+      "depth": 1
+    },
+    {
+      "item": "This command probes the connection status over a period of time and indicates whether the connections are stable or flapping.",
+      "depth": 1
+    },
+    {
+      "item": "To show the status of the NSS feeds for TCP, HTTP, and Cloud NSS:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss troubleshoot feeds",
+      "depth": 1
+    },
+    {
+      "item": "This command probes the status of the feeds and determines whether the logs are queued due to the slow consumption of logs by your security information and event management (SIEM).",
+      "depth": 1
+    },
+    {
+      "item": "To generate diagnostic information to send to Zscaler Support:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss collect-diagnostics",
+      "depth": 1
+    },
+    {
+      "item": "This command collects the configuration, vital statistics regarding the health of the NSS, and error statistics, and then downloads the data to a local file. You can email this file to Zscaler Support for troubleshooting purposes.",
+      "depth": 1
+    },
+    {
+      "item": "To reset the network configuration:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss reset-network",
+      "depth": 1
+    },
+    {
+      "item": "To change the SNMP admin user configuration:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss snmp-admin-configure",
+      "depth": 1
+    },
+    {
+      "item": "You must restart the NSS using the sudo nss restart command for the changes to take effect.",
+      "depth": 1
+    },
+    {
+      "item": "To change the SNMP trap configuration:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss snmp-trap-configure",
+      "depth": 1
+    },
+    {
+      "item": "You must restart the NSS using the sudo nss restart command for the changes to take effect.",
+      "depth": 1
+    },
+    {
+      "item": "To set the SNMP community string:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss snmp-community-string <community string>",
+      "depth": 1
+    },
+    {
+      "item": "You must restart the NSS using the sudo nss restart command for the changes to take effect.",
+      "depth": 1
+    },
+    {
+      "item": "To automatically start the NSS after reboot:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss enable-autostart",
+      "depth": 1
+    },
+    {
+      "item": "To disable the automatic start of the NSS after reboot:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss disable-autostart",
+      "depth": 1
+    },
+    {
+      "item": "To set up and enable MCAS:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss configure-mcas2",
+      "depth": 1
+    },
+    {
+      "item": "You must restart the NSS using the sudo nss restart command for the changes to take effect. To learn more, see Integrating with Microsoft Cloud App Security.",
+      "depth": 1
+    },
+    {
+      "item": "To disable MCAS:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss disable-mcas",
+      "depth": 1
+    },
+    {
+      "item": "You must restart the NSS using the sudo nss restart command for the changes to take effect. You can re-enable MCAS by re-issuing the sudo nss configure-mcas2 command.",
+      "depth": 1
+    },
+    {
+      "heading": "Enabling Remote Access",
+      "level": 1
+    },
+    {
+      "item": "An admin can request remote assistance and allow Zscaler Support to log in to their NSS server without having to open a firewall connection for inbound traffic. This feature is disabled by default and must be enabled explicitly for the duration that remote support assistance is required.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following commands to manage remote access to your NSS server:",
+      "depth": 0
+    },
+    {
+      "item": "To enable Zscaler Support to access your NSS server:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss support-access-start",
+      "depth": 1
+    },
+    {
+      "item": "This creates a long-lived SSH tunnel to the Zscaler cloud and sets up remote port forwarding. Zscaler Support can then use this tunnel to log in to your NSS server.",
+      "depth": 1
+    },
+    {
+      "item": "To disable Zscaler Support access to your NSS server:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss support-access-stop",
+      "depth": 1
+    },
+    {
+      "item": "This brings down the long-lived SSH tunnel to the Zscaler cloud and all the remote connections.",
+      "depth": 1
+    },
+    {
+      "item": "To check the status of the Zscaler Support access to your NSS server:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss support-access-status",
+      "depth": 1
+    },
+    {
+      "item": "This checks the status of the long-lived SSH tunnel to the Zscaler cloud, which Zscaler Support uses to log in to your NSS server.",
+      "depth": 1
+    },
+    {
+      "item": "To enable a remote debugging session:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss enable-remote-debugging",
+      "depth": 1
+    },
+    {
+      "item": "To disable a remote debugging session:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss disable-remote-debugging",
+      "depth": 1
+    },
+    {
+      "heading": "Error Codes",
+      "level": 1
+    },
+    {
+      "item": "The following are error codes that you might encounter when executing the sudo nss update-now command:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Error Code",
+          "Description"
+        ],
+        [
+          "96",
+          "The client certificate is invalid."
+        ],
+        [
+          "97",
+          "A timeout occurred while contacting the upgrade server."
+        ],
+        [
+          "99",
+          "A problem occurred while downloading and installing the latest version. The sudo force-update-now command needs to be explicitly issued."
+        ]
+      ]
+    },
+    {
+      "heading": "Use Case",
+      "level": 1
+    },
+    {
+      "item": "You can use the following commands to check the DNS resolution issues on the service interface and routes to the surface interface:",
+      "depth": 0
+    },
+    {
+      "item": "To check the reachability of a server IP address using ICMP:",
+      "depth": 1
+    },
+    {
+      "item": "/sc/bin/smmgr -ys smnet='ping <IP address or Domain Name>'",
+      "depth": 1
+    },
+    {
+      "item": "To print the server interface IP address config details:",
+      "depth": 1
+    },
+    {
+      "item": "/sc/bin/smmgr -ys smnet=ifconfig",
+      "depth": 1
+    },
+    {
+      "item": "To check the DNS resolution of a hostname:",
+      "depth": 1
+    },
+    {
+      "item": "/sc/bin/smmgr -ys smnet='route'/sc/bin/smmgr -ys host=\"<Domain Name>\" -ys connect=dns",
+      "depth": 1
+    },
+    {
+      "item": "To check the communication or port reachability of a server:",
+      "depth": 1
+    },
+    {
+      "item": "/sc/bin/smmgr -ys host=\"<FQDN of SIEM server>\" -ys port=<Listening port> -ys connect=tcp",
+      "depth": 1
+    },
+    {
+      "heading": "What happens if the NSS goes down?",
+      "level": 1
+    },
+    {
+      "item": "In the event of a connection loss between the NSS server and the cloud Nanolog, the cloud retransmits the logs to the NSS up to a maximum of one hour. If the NSS is down for more than an hour, the logs falling out of the one-hour window aren't retrieved by the NSS.",
+      "depth": 0
+    },
+    {
+      "item": "Configure Advanced NSS Settings",
+      "depth": 0
+    },
+    {
+      "item": "When deploying the NSS, additional features that facilitate successful deployment require advanced NSS settings in cases where you have specific requirements or restrictions. It includes the following topics:",
+      "depth": 0
+    },
+    {
+      "item": "The first three sections listed pertain to the NSS deployment over VMware vSphere only.",
+      "depth": 0
+    },
+    {
+      "item": "Configuring a Second Management Interface",
+      "depth": 1
+    },
+    {
+      "item": "Configuring a Second Service Interface",
+      "depth": 1
+    },
+    {
+      "item": "Configuring the Additional Interfaces from the Console",
+      "depth": 1
+    },
+    {
+      "item": "Configuring a Local NTP Server",
+      "depth": 1
+    },
+    {
+      "item": "Configuring NSS in Explicit Proxy Mode",
+      "depth": 1
+    },
+    {
+      "item": "Updating an NSS VM Hostname",
+      "depth": 1
+    },
+    {
+      "item": "Allowing SSH Access to the NSS Only from a Specific Subnet or IP Address",
+      "depth": 1
+    },
+    {
+      "item": "Setting Up Key-Based Authentication to the NSS",
+      "depth": 1
+    },
+    {
+      "item": "Sometimes, the default management interface can't be used for SSH due to VLAN restrictions. In those cases, Zscaler recommends that you add an additional interface just for management, so the first interface is used only for control connections to the cloud.",
+      "depth": 0
+    },
+    {
+      "item": "There are two ways to add a second management interface:",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you log in to your client and configure the additional interface from the console tab. See Configuring the Additional Interfaces from the Console.",
+      "depth": 1
+    },
+    {
+      "item": "Alternatively, you can manually configure the second management interface.",
+      "depth": 1
+    },
+    {
+      "item": "To manually add a management interface:",
+      "depth": 0
+    },
+    {
+      "item": "Shut down the NSS and stop the VM.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Using your client, assign an additional interface to the VM. Map it to an appropriate network or VLAN.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Reboot the NSS.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Run the following command and ensure that the em2 interface is active:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "ifconfig",
+      "depth": 0
+    },
+    {
+      "item": "Update the system configuration file /etc/rc.conf to configure the interface automatically after each system restart. To do this, run the following command:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "sudo vi /etc/rc.conf",
+      "depth": 0
+    },
+    {
+      "item": "Add the em2 interface to the list of network interfaces. Modify the line that starts with network_interfaces and change it to:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "network_interfaces=\"em0 em1 em2 lo0\"",
+      "depth": 0
+    },
+    {
+      "item": "Add a new line at the end of the file:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "ifconfig_em2=\"<subnet-ip-address>\"",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you replace <subnet-ip-address> with the IP address of the subnet. For example:",
+      "depth": 0
+    },
+    {
+      "item": "ifconfig_em2=\"192.168.1.100/24”",
+      "depth": 0
+    },
+    {
+      "item": "The default gateway is automatically added via the em0 interface. To add a static route to a different subnet or VLAN for the newly added em2 interface, add the following lines at the end of the file:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "static_routes=\"em2\" route_em2=\"-net <destination-subnet> <gateway-ip-address>\"",
+      "depth": 0
+    },
+    {
+      "item": "Replace <destination-subnet> with the IP address of the destination subnet, and replace <gateway-ip-address> with the appropriate gateway IP address. For example:",
+      "depth": 0
+    },
+    {
+      "item": "static_routes=\"em2\" route_em2=\"-net 198.51.100.0/24 192.168.1.3\"",
+      "depth": 0
+    },
+    {
+      "item": "Reboot the VM.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "To verify the changes, ping the newly added subnet gateway and run the following command to print the route information:",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "sudo netstat -rn",
+      "depth": 0
+    },
+    {
+      "item": "The NSS typically uses the service interface to download logs from the Nanolog in the Zscaler cloud and send them to your security information and event management (SIEM).",
+      "depth": 0
+    },
+    {
+      "item": "Some organizations might need to use one interface to connect to the Zscaler cloud and another interface to connect to the SIEM. For example, an organization might have a SIEM in a management LAN that is not routed to the internet, and it might also have a service LAN that is routed to the internet but not to the management LAN, as shown in the following diagram:",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If your organization has a similar requirement, you can configure a second service interface. You can then use one interface to connect to the Zscaler cloud to download the logs and a different interface to send the logs to the SIEM located in the management LAN.",
+      "depth": 0
+    },
+    {
+      "item": "There are two ways to add a second service interface:",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you log in to your client and configure the additional interface from the console tab. See Configuring the Additional Interfaces from the Console.",
+      "depth": 1
+    },
+    {
+      "item": "Alternatively, you can manually configure the second service interface.",
+      "depth": 1
+    },
+    {
+      "item": "To manually add a second service interface:",
+      "depth": 0
+    },
+    {
+      "item": "Shut down the NSS and stop the VM.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Using your client, assign an additional interface to the VM. Map it to an appropriate network or VLAN.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Reboot the NSS.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Run the following command and ensure that the em2 interface is active:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "ifconfig",
+      "depth": 0
+    },
+    {
+      "item": "Copy the sc.conf file.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "cp /sc/conf/sc.conf /sc/conf/sc.conf.old",
+      "depth": 0
+    },
+    {
+      "item": "Use the vi Editor to edit the sc.conf file. Run the following command:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "vi /sc/conf/sc.conf",
+      "depth": 0
+    },
+    {
+      "item": "Add the following lines to the file, replacing the sample values in red per your configuration:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "smnet_dev=em2=zs1:192.168.223.41/24 smnet_route=10.0.0.0/8/192.168.223.1",
+      "depth": 0
+    },
+    {
+      "item": "In this example, em2=zs1 is the second service interface, and 192.168.223.41/24 is the service IP address with the subnet mask. If your SIEM is in the same subnet, then the second line is not required. If your SIEM is in a different subnet, add smnet_route and define values in the second line. For example, to reach 10.0.0.0/8, use gateway 192.168.223.1.",
+      "depth": 0
+    },
+    {
+      "item": "Save the changes in the file and then restart the NSS by running the following command:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "sudo nss restart",
+      "depth": 0
+    },
+    {
+      "item": "Verify whether the NSS is using the second service interface by running the following command:",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "sudo nss dump-config",
+      "depth": 0
+    },
+    {
+      "item": "To configure both a second management interface and service interface, first ensure that you run the following command to establish your network settings:",
+      "depth": 0
+    },
+    {
+      "item": "sudo nss configure",
+      "depth": 0
+    },
+    {
+      "item": "Then, run the following command to specify the IP addresses for the additional interfaces and their corresponding routes:",
+      "depth": 0
+    },
+    {
+      "item": "sudo nss configure split-interface",
+      "depth": 0
+    },
+    {
+      "item": "During a split-interface configuration, the NSS asks for an smnet_route. If your SIEM is in a different network compared to the NSS smnet interface (em3=zs1) subnet, you can enter specific routes for feeds.",
+      "depth": 0
+    },
+    {
+      "item": "See the following example:",
+      "depth": 0
+    },
+    {
+      "item": "[root@NSS /sc/update]# nss configure split-interface ifconfig_em2 (Internal Management interface IP address with netmask) [1.1.1.1/23]: route_net:-net 1.1.1.2/12 2.1.1.1 (Options <c:change, d:delete, n:no change>) [n] Do you wish to add a new route_net? <n:no y:yes> [n]: smnet_dev=em3 (Internal Service interface IP address with netmask) [10.10.35.20/24]: Do you wish to add a new smnet_route? <n:no y:yes> [n]: y Atleast one entry required for smnet_route smnet_route (Static route for Siem N/w ,e.g (network/subnet/gateway): 172.12.1.0/21/10.10.35.1) []: 1.3.2.1/2/2.2.1.2 Do you wish to add a new smnet_route? <n:no y:yes> [n]: 2.1.2.3/2/43.3.3.2",
+      "depth": 0
+    },
+    {
+      "item": "If you have a local NTP server, you can configure the NSS to synchronize time with that server:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command as root:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "crontab -e",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "PATH=/sbin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/games:/sc/update:/home/zsroot/bin:/sc/update",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "*/10 * * * * ntpdate -u <ntp-server-name>",
+      "depth": 0
+    },
+    {
+      "item": "Replace <ntp-server-name> with your local NTP server's FQDN or IP address.",
+      "depth": 0
+    },
+    {
+      "item": "Save and exit.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "The time synchronization command runs every 10 minutes. You can find logs for the NTP process in /var/log/cron.",
+      "depth": 0
+    },
+    {
+      "item": "Some customers might have a no-default route environment. This prevents the NSS from establishing connections to the Zscaler cloud. For this scenario, you can configure the NSS in explicit proxy mode, so that it tunnels all Zscaler cloud-bound connections through a proxy. These include network connections and TCP connections from the NSS to the:",
+      "depth": 0
+    },
+    {
+      "item": "Nanolog (SMSM)",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler Central Authority (CA) (SMCA)",
+      "depth": 1
+    },
+    {
+      "item": "Update server (SMCDSS) for software updates",
+      "depth": 1
+    },
+    {
+      "item": "Kafka server for audit log streaming",
+      "depth": 1
+    },
+    {
+      "item": "Connections from the NSS to the SIEM are not tunneled.",
+      "depth": 0
+    },
+    {
+      "item": "The NSS in explicit proxy mode can tunnel Zscaler cloud-bound connections. Based on your configuration, you can tunnel these connections without the need for internet-facing DNS resolution.",
+      "depth": 0
+    },
+    {
+      "item": "If you configure the dnsoverproxy flag to 1, then the NSS in explicit proxy mode makes a CONNECT request to the following domains, and the explicit proxy performs the name resolution:",
+      "depth": 0
+    },
+    {
+      "item": "msmca.<cloudname> for the connection to the Zscaler CA",
+      "depth": 1
+    },
+    {
+      "item": "zdistribute.<cloudname> for the connection to the update server",
+      "depth": 1
+    },
+    {
+      "item": "kproxy.hdeu1.zdataservices.net for the connection to the Kafka server",
+      "depth": 1
+    },
+    {
+      "item": "If you configure the dnsoverproxy flag to 0, then the NSS needs DNS resolution for the connections to the current master CA IP address, update server, and Kafka server.",
+      "depth": 0
+    },
+    {
+      "item": "NTP connections are not tunneled. The NSS needs DNS resolution for the NTP server. To learn more, see Configuring a Local NTP Server.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the NSS in explicit proxy mode:",
+      "depth": 0
+    },
+    {
+      "item": "Run the nss configure command to configure the two network interfaces.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Run the nss configure proxy command. For example:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "[root@NSS /usr/home/zsroot]# nss configure proxy proxyserver (Proxy Host ) [10.81.153.26]: proxyport (Proxy Port ) [443]: dnsoverproxy (DNS over proxy: 0/1 ) []: 1 Successfully configured proxy",
+      "depth": 0
+    },
+    {
+      "item": "To undo this configuration, you can use remove:",
+      "depth": 0
+    },
+    {
+      "item": "nss configure proxy remove",
+      "depth": 0
+    },
+    {
+      "item": "Run the sudo nss restart command to restart the NSS service.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "When the NSS starts, it tries to connect to the Zscaler CA or Nanolog using the proxy it configured.",
+      "depth": 1
+    },
+    {
+      "item": "Run the nss troubleshoot netstat command to verify the proxy (e.g., 10.81.153.26) connections for the Zscaler CA and Nanolog.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To update your NSS VM hostname:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to your NSS VM.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Edit the file /etc/rc.conf using the vi Editor.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "[zsroot@New_Hostname ~/$ vi /etc/rc.conf",
+      "depth": 0
+    },
+    {
+      "item": "Add the hostname entry to the file.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "hostname=<name>",
+      "depth": 0
+    },
+    {
+      "item": "Run the reboot command.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "root@New_Hostname:/usr/home/zsroot # reboot",
+      "depth": 0
+    },
+    {
+      "item": "After the NSS restarts, your new hostname appears.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "You can restrict SSH access based on IP/Subject using the following configuration in sshd_config:",
+      "depth": 0
+    },
+    {
+      "item": "AllowUsers zsroot@10.66.70.*",
+      "depth": 0
+    },
+    {
+      "item": "In this example, SSH is allowed only from the source IP address range 10.66.70.0/24. Then, run the following command to make the configuration change effective:",
+      "depth": 0
+    },
+    {
+      "item": "service sshd restart",
+      "depth": 0
+    },
+    {
+      "item": "To configure key-based authentication:",
+      "depth": 0
+    },
+    {
+      "item": "Create a .ssh directory in the home directory: /home/zsroot/ under the user root.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Upload your user public key file to the file authorized_keys under the directory /home/zsroot/.ssh.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Adjust the file /etc/ssh/sshd_config with the following updates: (Make a backup of this file before changing it.)",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "ChallengeResponseAuthentication no PasswordAuthentication no",
+      "depth": 0
+    },
+    {
+      "item": "These entries are set to yes by default. You can set them to no or comment them out.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following command to restart the sshd service:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "service sshd restart",
+      "depth": 0
+    },
+    {
+      "item": "Replace option restart with stop and start as required.",
+      "depth": 0
+    },
+    {
+      "item": "Test the new configuration on the client side using SSH (e.g., PuTTY).",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Deploy Multiple NSS Virtual Machines for Reliability",
+      "depth": 0
+    },
+    {
+      "item": "An NSS server represents the NSS VM in the Zscaler Admin Console. When you create an NSS server in the console, an SSL certificate is generated. You download the SSL certificate from the console and upload it to the NSS VM that you configure and deploy. The newly configured NSS VM uses the SSL certificate to authenticate itself to the Zscaler service.",
+      "depth": 0
+    },
+    {
+      "item": "Each NSS server supports up to 16 NSS feeds. (Web and Firewall logs are each limited to 8 feeds per NSS to ensure optimal performance.) Each NSS feed can have different filters and fields and a different output format (e.g., CSV).",
+      "depth": 0
+    },
+    {
+      "item": "For site reliability, you can deploy multiple NSS VMs, either in an active-active or active-passive configuration.",
+      "depth": 0
+    },
+    {
+      "heading": "Active-Active Configuration",
+      "level": 2
+    },
+    {
+      "item": "Zscaler recommends leveraging two NSS servers per NSS type (i.e., NSS for Web and NSS for Firewall) and deploying each pair in an active-active configuration. In this configuration, you create two NSS servers of the same NSS type in the Zscaler Admin Console with separate SSL certificates.",
+      "depth": 0
+    },
+    {
+      "item": "Running multiple active NSS VMs with the same SSL certificate causes cloud connection flapping, which disrupts the streaming of logs to the NSS.",
+      "depth": 0
+    },
+    {
+      "item": "Optionally, for optimal reliability, you can configure the NSS VMs to stream logs to two separate SIEMs. In this configuration, each NSS VM runs independently, streaming logs to its respective SIEM at the same time.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler does not recommend configuring two NSS VMs of the same NSS type to stream logs to a single SIEM. In this case, each NSS VM sends copies of the same logs to the SIEM, which might not be able to deduplicate them.",
+      "depth": 0
+    },
+    {
+      "heading": "Active-Passive Configuration",
+      "level": 2
+    },
+    {
+      "item": "Alternatively, you can deploy multiple NSS VMs in an active-passive configuration. In this configuration, you create one NSS server (for Web or Firewall) in the Zscaler Admin Console and use the generated SSL certificate to deploy one active NSS VM; the second VM serves as a cold standby. Both NSS VMs use the same SSL certificate in this configuration, but they should not connect to the Zscaler Nanolog at the same time as this results in connection flapping.",
+      "depth": 0
+    },
+    {
+      "item": "If the active NSS VM fails, you must perform failover activities, ideally within one hour of the failure to prevent data loss. In this time frame, you can leverage the following NSS reliability mechanisms:",
+      "depth": 0
+    },
+    {
+      "item": "NSS to SIEM: The NSS buffers the logs in the VM memory to increase its resiliency to transient network issues between the SIEM and the NSS. If the connection drops, the NSS replays logs from the buffer, according to the Duplicate Logs setting.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Nanolog to SIEM: If the connectivity between the Zscaler cloud and the NSS is interrupted, the NSS misses logs that arrived at the Nanolog cluster during the interruption, and they are not delivered to the SIEM. When the connection is restored, the NSS one-hour recovery allows the Nanolog to replay logs up to one hour back.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Standby VM nodes are not configured for automatic ZSOS upgrades. Zscaler recommends redeploying a standby VM at least once a year to prevent outdated ZSOS settings.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about NSS for Web, NSS for Firewall, and NSS Log Recovery subscriptions, contact Zscaler Support.",
+      "depth": 0
+    }
+  ]
+}

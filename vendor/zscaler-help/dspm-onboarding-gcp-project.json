@@ -1,0 +1,1374 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Onboarding a GCP Project",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/onboarding-gcp-project",
+    "node": "1543017",
+    "revision": "3249059",
+    "updated": "2026-10-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can onboard a single Google Cloud Platform (GCP) project for DSPM to monitor and scan the data stores to identify sensitive data, misconfigurations, and vulnerabilities."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before onboarding the GCP project, ensure you have completed the following:"
+    },
+    {
+      "item": "You must have the following roles:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Role Name",
+          "Role ID",
+          "Scope",
+          "State",
+          "Description"
+        ],
+        [
+          "GCP Owner",
+          "roles/owner",
+          "Orchestrator project",
+          "Mandatory",
+          "To create, modify, and delete any resource or service within the assigned scope."
+        ],
+        [
+          "Project IAM Admin",
+          "roles/resourcemanager.projectIamAdmin",
+          "Target project",
+          "Mandatory",
+          "To access and administer project IAM policies."
+        ],
+        [
+          "Role Administrator",
+          "roles/iam.roleAdmin",
+          "Target project",
+          "Mandatory",
+          "To provide DSPM access to create, update, delete, and manage custom IAM roles at the project level."
+        ],
+        [
+          "Logs Configuration Writer",
+          "roles/logging.configWriter",
+          "Target project",
+          "Mandatory",
+          "To provide permissions to create and modify Cloud Logging configurations."
+        ],
+        [
+          "Service Usage Consumer",
+          "roles/serviceusage.serviceUsageConsumer",
+          "All projects (Target and state file)",
+          "Mandatory",
+          "To inspect service states and operations for quota and billing of a project."
+        ],
+        [
+          "Storage Object Admin",
+          "roles/storage.objectAdmin",
+          "Terraform state file GCP bucket project",
+          "Mandatory",
+          "To store the Terraform state files."
+        ],
+        [
+          "Organization Policy Administrator",
+          "roles/orgpolicy.policyAdmin",
+          "Orchestrator project",
+          "Optional",
+          "To override the service account key creation policy."
+        ],
+        [
+          "Super Admin",
+          "-",
+          "Admin portal",
+          "Optional",
+          "To create a custom role in the Google Admin Console to assign permissions to user, group, and domain resources. This is required for DSPM to gain read-only access to resource data."
+        ]
+      ]
+    },
+    {
+      "item": "Override the service account key creation policy.",
+      "depth": 0
+    },
+    {
+      "item": "See instructions.",
+      "depth": 0
+    },
+    {
+      "item": "By default, the disable service account key creation policy prevents you from creating a service account key. Override the disable service account key creation policy for the project where you want to create the service account:",
+      "depth": 0
+    },
+    {
+      "item": "Sign in to the Google Cloud Console and go to Organization policies.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Select the organization from the project picker.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Search for Disable service account key creation and click Disable service account key creation.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          58,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Policy for Disable service account key creation page, click MANAGE POLICY.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          54
+        ],
+        [
+          67,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under the Policy source section, select Override parent's policy.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          10,
+          23
+        ],
+        [
+          40,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Under the Rules section, click ADD A RULE.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          15
+        ],
+        [
+          31,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the New rule window, under the Enforcement section, select Off.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          34,
+          45
+        ],
+        [
+          62,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Click Done.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click SET POLICY to apply the changes.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure the status of Disable service account key creation policy is set to Not enforced.",
+      "depth": 0,
+      "strong": [
+        [
+          75,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Create a custom role in the Google Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "See instructions.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command on Google Cloud Shell or gcloud CLI:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "gcloud organizations describe <ORG_ID>",
+      "depth": 1
+    },
+    {
+      "item": "Replace <ORG_ID> with your organization ID, which is required to get the directoryCustomerId.",
+      "depth": 1
+    },
+    {
+      "item": "Copy the directoryCustomerId value from the output.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Google Admin SDK Directory.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Click the API tag in the right panel and paste the copied directoryCustomerId into the customer string.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          13
+        ],
+        [
+          87,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Copy the following request provided and paste it into the Request body field.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          58,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "{ \"roleName\": \"role_name\", \"rolePrivileges\": [ { \"privilegeName\": \"DOMAIN_MANAGEMENT\", \"serviceId\": \"00haapch16h1ysv\" }, { \"privilegeName\": \"GROUPS_RETRIEVE\", \"serviceId\": \"00haapch16h1ysv\" }, { \"privilegeName\": \"USERS_RETRIEVE\", \"serviceId\": \"00haapch16h1ysv\" } ] }",
+      "depth": 1
+    },
+    {
+      "item": "Replace role_name with a desired name for the new role.",
+      "depth": 1
+    },
+    {
+      "item": "Click Execute.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "You are prompted to log in again. You can see the JSON output that includes the newly created role.",
+      "depth": 1
+    },
+    {
+      "item": "{ \"kind\": \"admin#directory#role\", \"etag\": \"\\\"0A0Bc2deFgHi\\\"\", \"roleId\": \"4123456782\", \"roleName\": \"role_name\", \"roleDescription\": \"\", \"rolePrivileges\": [ { \"privilegeName\": \"DOMAIN_MANAGEMENT\", \"serviceId\": \"00abcdef16g1hij\" } , { \"privilegeName\": \"GROUPS_RETRIEVE\", \"serviceId\": \"00abcdef16g1hij\" } , { \"privilegeName\": \"USERS_RETRIEVE\", \"serviceId\": \"00abcdef16g1hij\" } ], \"isSystemRole\": false, \"isSuperAdminRole\": false }",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the Google Admin Console, search for the newly created role, then click View privileges to see the assigned permissions.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          83,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The following roles are created and permissions are assigned:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Role",
+          "Permission",
+          "Description"
+        ],
+        [
+          "User",
+          "Read",
+          "To collect the user data"
+        ],
+        [
+          "Group",
+          "Read",
+          "To collect the group and member data"
+        ],
+        [
+          "Domain Management",
+          "Read",
+          "To collect domain resources"
+        ]
+      ]
+    },
+    {
+      "item": "Enable the required GCP APIs in the selected GCP project.",
+      "depth": 0
+    },
+    {
+      "item": "Click to view the list of required APIs.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "API",
+          "Description",
+          "Project to Enable On"
+        ],
+        [
+          "admin.googleapis.com",
+          "Discover Google Workspace account resources",
+          "Orchestrator, Target"
+        ],
+        [
+          "cloudresourcemanager.googleapis.com",
+          "Discover Google Cloud Platform resource containers",
+          "Orchestrator, Target"
+        ],
+        [
+          "cloudasset.googleapis.com",
+          "Discover the history and inventory of Google Cloud resources",
+          "Orchestrator, Target"
+        ],
+        [
+          "monitoring.googleapis.com",
+          "Discover cloud monitoring data and configurations",
+          "Orchestrator, Target"
+        ],
+        [
+          "orgpolicy.googleapis.com",
+          "Discover governance rules on GCP resources",
+          "Orchestrator, Target"
+        ],
+        [
+          "apikeys.googleapis.com",
+          "Manage and use API keys for Google Cloud services and APIs",
+          "Orchestrator, Target"
+        ],
+        [
+          "bigquery.googleapis.com",
+          "Discover and classify sensitive data in BigQuery tables",
+          "Orchestrator, Target"
+        ],
+        [
+          "serviceusage.googleapis.com",
+          "Consume quota for a project",
+          "Orchestrator, Target"
+        ],
+        [
+          "iam.googleapis.com",
+          "Discover identity and access control for Google Cloud resources",
+          "Orchestrator, Target"
+        ],
+        [
+          "networkmanagement.googleapis.com",
+          "Check connections between the virtual private cloud (VPC) network and DSPM. It is required for BYON.",
+          "Orchestrator"
+        ],
+        [
+          "logging.googleapis.com",
+          "Discover logs resources and perform logging operations",
+          "Orchestrator"
+        ],
+        [
+          "secretmanager.googleapis.com",
+          "Discover secret manager resources and perform operations",
+          "Orchestrator"
+        ],
+        [
+          "servicenetworking.googleapis.com",
+          "Enable private connections between the virtual private cloud (VPC) network and DSPM",
+          "Orchestrator"
+        ],
+        [
+          "cloudkms.googleapis.com",
+          "Discover Key Management Service (KMS) resources and perform KMS-related operations",
+          "Orchestrator, Target"
+        ],
+        [
+          "storage.googleapis.com",
+          "Discover storage resources and read data from storage",
+          "Orchestrator, Target"
+        ],
+        [
+          "sqladmin.googleapis.com",
+          "Manage Cloud SQL instances",
+          "Orchestrator, Target"
+        ],
+        [
+          "compute.googleapis.com",
+          "Discover compute resources and perform compute-related operations This is required to enable notebooks.googleapis.com and compute resources on the target project.",
+          "Orchestrator, Target To enable this API, the project must be linked to billing."
+        ],
+        [
+          "aiplatform.googleapis.com",
+          "Interact with Google's unified artificial intelligence and machine learning platform for DSPM to scan the AI models for vulnerabilities",
+          "Target"
+        ],
+        [
+          "notebooks.googleapis.com",
+          "Manage Vertex AI resources",
+          "Target compute.googleapis.com must be enabled on the target project to enable notebooks.googleapis.com."
+        ]
+      ]
+    },
+    {
+      "item": "Run the following commands in the gcloud CLI:",
+      "depth": 0
+    },
+    {
+      "item": "To set your project ID:",
+      "depth": 1
+    },
+    {
+      "item": "gcloud config set project <PROJECT_ID>",
+      "depth": 1
+    },
+    {
+      "item": "Replace <PROJECT_ID> with your project ID, which is required to authenticate your API requests and associate them with the correct project.",
+      "depth": 1
+    },
+    {
+      "item": "To enable the required API:",
+      "depth": 1
+    },
+    {
+      "item": "gcloud services enable <API_SERVICE_NAME>",
+      "depth": 1
+    },
+    {
+      "item": "Replace <API_SERVICE_NAME> with the API you want to enable.",
+      "depth": 1
+    },
+    {
+      "item": "For example, if your project ID is 812345678902, you can enable the admin.googleapis.com API by running:",
+      "depth": 1
+    },
+    {
+      "item": "gcloud config set project 812345678902",
+      "depth": 1
+    },
+    {
+      "item": "gcloud services enable admin.googleapis.com",
+      "depth": 1
+    },
+    {
+      "item": "Identify a GCP project that has the required roles and which is linked to a billing account to deploy the orchestrator template.",
+      "depth": 0
+    },
+    {
+      "item": "Install the following tools:",
+      "depth": 0
+    },
+    {
+      "item": "gcloud CLI to connect to the Google Cloud project and deploy the template using gcloud CLI. To learn more, refer to the Google Cloud documentation.",
+      "depth": 1
+    },
+    {
+      "item": "Terraform CLI v1.7.5 or later to run Terraform on a Windows system. To learn more, refer to the Microsoft documentation.",
+      "depth": 1
+    },
+    {
+      "item": "Enable debug logging (optional but recommended for troubleshooting).",
+      "depth": 0
+    },
+    {
+      "item": "See instructions.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following commands to enable the debug logs:",
+      "depth": 0
+    },
+    {
+      "item": "PowerShell",
+      "depth": 1
+    },
+    {
+      "item": "$env:TF_LOG=\"TRACE\" $env:TF_LOG_PATH=\"<filepath>filename.log\"",
+      "depth": 1
+    },
+    {
+      "item": "Bash",
+      "depth": 1
+    },
+    {
+      "item": "export TF_LOG=\"TRACE\" $ export TF_LOG_PATH=\"<filepath>filename.log\"",
+      "depth": 1
+    },
+    {
+      "heading": "Onboarding a Single GCP Project",
+      "level": 1
+    },
+    {
+      "text": "To onboard a GCP project:"
+    },
+    {
+      "item": "1. Select GCP project.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Data Security > DSPM > Configuration > Cloud Accounts.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          52
+        ],
+        [
+          55,
+          68
+        ],
+        [
+          71,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Click Add New.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Select Cloud Provider window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "For Select Cloud Type, click the GCP tile.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          33,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "For Select Onboarding Type, click the Project tile.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          4,
+          26
+        ],
+        [
+          38,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "2. Provide GCP project details.",
+      "depth": 0
+    },
+    {
+      "item": "Provide the following details and click Apply.",
+      "depth": 0,
+      "strong": [
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "DSPM Alias: Enter a user-friendly name for the project.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Custom Role Name Prefix: Enter a unique role name. This role name is added as a prefix to all the custom roles that are created during the onboarding process.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Service Account Prefix: Enter a unique name for the service account. This is added as a prefix to the service account created during the onboarding process.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Notification Emails (Optional): Enter the email addresses of the recipients who must be notified of any configuration or permissions issues encountered with the onboarded project. You can add up to 30 email addresses to receive notifications about the issues. You can also add email addresses after completing the onboarding process.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "3. Add orchestrator details and select the network configuration.",
+      "depth": 0
+    },
+    {
+      "item": "In the Orchestrator Configuration section, provide the following GCP project details to deploy the DSPM orchestrator scanner and click Apply:",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          135,
+          140
+        ]
+      ]
+    },
+    {
+      "item": "Orchestrator Project ID: Enter the project ID.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Select the Orchestrator Region: Select the region.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Network Configuration: Select one of the following:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Custom: Select to use your organization's resources to deploy the orchestrator.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "VPC Selflink: Enter the selflink of the VPC network where you want to deploy the orchestrator. The VPC selflink is the unique identifier for your VPC network in the selected region. To find the VPC and subnet selflink, run the following command on Google Cloud Shell:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "gcloud compute networks describe <vpc-network-name>",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Subnet Selflink: Enter the selflink of the subnet within the selected VPC where you want to deploy the orchestrator. The subnet selflink identifies the specific subnet network that is used for deployment.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler: Select to use Zscaler resources to deploy the orchestrator. DSPM automatically provisions network resources in the orchestrator project after the template is deployed.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "4. Select services to monitor.",
+      "depth": 0
+    },
+    {
+      "item": "In the Configure Services section, select the services that DSPM must monitor and click Apply. DSPM permissions are restricted to monitor and scan the data only in the selected services.",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          88,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "5. Select regions to monitor.",
+      "depth": 0
+    },
+    {
+      "item": "In the Configure Regions section, select the regions that DSPM must monitor. If you selected the custom network configuration, enter the VPC Selflink and Subnet Selflink for each selected region. DSPM creates and deploys resources required for scanning only in the selected regions.",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          137,
+          149
+        ],
+        [
+          154,
+          169
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "6. Select the target projects to monitor.",
+      "depth": 0
+    },
+    {
+      "item": "In the Add Target Projects section, add the target projects that you want DSPM to monitor:",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Target Projects.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Target Projects window, enter the following information:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Project ID: Enter the project ID.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Project Name (Optional): Enter the project name.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          13,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Business Unit: Select a business unit for the project.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Click + Add Project to add more projects to monitor.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "7. Configure evidence.",
+      "depth": 0
+    },
+    {
+      "item": "DSPM discovers files and tables containing sensitive data and generates snippets of evidence data to investigate and validate the findings. You can choose an existing storage account or add a new one to store these evidence snippets. In the Evidence section, select one of the following and click Apply:",
+      "depth": 0,
+      "strong": [
+        [
+          241,
+          249
+        ],
+        [
+          297,
+          302
+        ]
+      ]
+    },
+    {
+      "item": "Custom: Enter the name of the storage account present in the orchestrator project.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler: DSPM creates a storage container in the orchestrator project to upload the snippet of evidence data.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "8. Configure custom tags.",
+      "depth": 0
+    },
+    {
+      "item": "In the Resource Tags section, configure custom tags to identify the resources created by DSPM.",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Custom Tags.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "The Add Custom Tags window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Custom Tags window, enter a key and value pair for the tag.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Tag, and enter key-value pairs to add more tags.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Done.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "9. Deploy orchestrator.",
+      "depth": 0
+    },
+    {
+      "item": "Download and deploy the GCP onboarding template:",
+      "depth": 0
+    },
+    {
+      "item": "a. Download and modify the GCP onboarding template.",
+      "depth": 1
+    },
+    {
+      "item": "In the Deploy Orchestrator section, click GCP Onboarding to download the template as a ZIP file and extract it to a folder on your system.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          42,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Locate the backend.tf file and open it in a text editor.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Add the name of the storage bucket and a preferred prefix where you want to store the Terraform state files, then save and close the backend.tf file.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "b. Deploy the GCP onboarding template.",
+      "depth": 1
+    },
+    {
+      "item": "Use any of the following methods:",
+      "depth": 1
+    },
+    {
+      "item": "Google Cloud Shell (Recommended)",
+      "depth": 2
+    },
+    {
+      "item": "Sign in to the Google Cloud Console.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "On the Project Selector, select the Google Cloud project where you want to apply the Terraform configuration.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Activate Cloud Shell at the top.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "This launches a session in the bottom pane. It can take a few seconds for the session to initialize.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "From the More menu, click Upload, then select the Folder option. Click Choose Folder to select the folder containing the modified Terraform file from your system, and click the Upload button.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          13
+        ],
+        [
+          26,
+          32
+        ],
+        [
+          50,
+          56
+        ],
+        [
+          71,
+          84
+        ],
+        [
+          177,
+          183
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Run the commands to initialize the template.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "gcloud CLI",
+      "depth": 2
+    },
+    {
+      "item": "Open the Command Prompt or any other CLI app on your local system.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Change the current working directory to the folder containing the modified Terraform file from your system.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Run the commands to initialize the template.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "c. Initialize the GCP onboarding template.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following commands to initialize the template. This is required to manage your infrastructure resources.",
+      "depth": 1
+    },
+    {
+      "item": "To initialize the Terraform configuration:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "terraform init",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To verify the changes in the Terraform configuration:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "terraform plan",
+      "depth": 2
+    },
+    {
+      "item": "When you run the terraform plan or terraform apply command, Terraform verifies that all the required APIs are enabled. If any necessary API is missing, an error message is displayed to enable it to continue. To avoid this, ensure that the required APIs are enabled in your project. To enable the necessary APIs, see Enable APIs.",
+      "depth": 2
+    },
+    {
+      "item": "For Enter a value, enter the regions where you want DSPM to monitor and scan data in the following format:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "[\"region name1\", \"region name2\", \"region name3\", and so on.]",
+      "depth": 2
+    },
+    {
+      "item": "DSPM creates resources required for data scanning only in these specified regions.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To run the Terraform script and deploy resources with network analysis enabled:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "terraform apply -var=‘enable_test_connectivity=true’",
+      "depth": 2
+    },
+    {
+      "item": "To deploy resources with network analysis disabled:",
+      "depth": 2
+    },
+    {
+      "item": "terraform apply -var=‘enable_test_connectivity=false’",
+      "depth": 2
+    },
+    {
+      "item": "For Enter a value, enter the regions where you want to deploy the template in the following format:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "[\"region name1\", \"region name2\", \"region name3\", and so on.]",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "For Do you want to perform these actions?, enter yes and then press Enter.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          4,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "After the onboarding template is successfully deployed, copy the generated JSON file in the Generated JSON section and click Validate. The required resources are created in the GCP orchestrator project.",
+      "depth": 1,
+      "strong": [
+        [
+          92,
+          106
+        ],
+        [
+          125,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    }
+  ]
+}

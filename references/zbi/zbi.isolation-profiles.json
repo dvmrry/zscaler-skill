@@ -1,0 +1,651 @@
+{
+  "schema_version": 1,
+  "id": "zbi.isolation-profiles",
+  "title": "Isolation profiles: the object every isolation rule names, its defaults and the open lifecycle questions",
+  "aliases": [
+    "isolation profile",
+    "cbi profile",
+    "browser isolation profile",
+    "default isolation profile",
+    "defaultProfile",
+    "isDefault",
+    "cbiProfile",
+    "zpn_isolation_profile_id"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/browser-isolation-profiles"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa/isolation-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.misc-unknown-subscription"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.root-certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.banner-notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.data-redaction"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.persistent-state"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.end-user-experience"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.cbi-appprotection-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{default-profiles}} {{per-profile-banner-cert}}"
+    },
+    {
+      "label": "Defaults.",
+      "text": "{{default-profile-name}} {{default-profile-edit-delete-use}} {{default-profile-controls}}"
+    },
+    {
+      "label": "Which profile a rule needs.",
+      "text": "{{zia-profile-required-for-isolate}} {{pa-profile-required}} {{pa-profile-prerequisite}}"
+    },
+    {
+      "label": "Profile settings.",
+      "text": "{{zia-pac-file-url}} {{zia-override-pac-geoproximity}} {{regions-at-least-two}} {{zia-copy-paste-file-transfer}} {{pa-file-transfer-flattened}} {{mic-camera-needs-turbo}} {{deep-linking-allow-list}} {{watermark-contents}} {{pa-local-browser-rendering}} {{debug-mode-zip-password}} {{experience-tab-url-bar-banner}}"
+    },
+    {
+      "label": "Deleting.",
+      "text": "{{pa-profile-in-use-not-deletable}} The Private Access delete page says otherwise {{divergence:pa-profile-delete-rule}}."
+    },
+    {
+      "label": "Settings with their own subjects.",
+      "text": "Root certificates: [[zbi.root-certificates]]. Banner themes: [[zbi.banner-notifications]]. Data redaction: [[zbi.data-redaction]]. Persistent State: [[zbi.persistent-state]]. What the user sees in each experience mode: [[zbi.end-user-experience]]. Debug Mode itself: [[zbi.troubleshooting]]."
+    },
+    {
+      "label": "Internet & SaaS side.",
+      "text": "{{zia-profile-list}} {{zia-default-flag}} Whether an Internet & SaaS profile and a Private Access profile with the same purpose are one object is open {{gap:zia-zpa-profile-identity}}."
+    },
+    {
+      "label": "Private Access side.",
+      "text": "Private Access profiles are written through the CBI configuration API, whose wire details are in [[zpa.api.cbi-appprotection-wire]]; the provider's constraints, including at least two regions, are in [[zpa.terraform.resource-constraints:cbi-profile-constraints]]. The provider's isolation profile data source can return a different profile than the ID given: [[zpa.terraform.data-source-selection:invalid-id-falls-back-to-name-isolation-profile]]."
+    },
+    {
+      "label": "Settings.",
+      "text": "The setting names are visible in the Miscellaneous & Unknown profile, [[zbi.misc-unknown-subscription:fixed-settings]], but what some of them do is still not quoted {{gap:setting-semantics}}. How region selection bears on data residency is open {{gap:region-residency}}. Which regions can be selected is open too {{gap:region-list}}."
+    },
+    {
+      "label": "Lifecycle.",
+      "text": "How default profiles are created and whether their default flag can change is open {{gap:default-lifecycle}}. What happens when a profile a rule still names is deleted is open {{gap:delete-referenced}}, and so is how a profile change reaches sessions already running {{gap:update-propagation}}."
+    },
+    {
+      "text": "One region is named in the release notes: {{canada-region}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the profile a rule names still exists, on the side (Internet & SaaS or Private Access) the rule belongs to.",
+      "uses": [
+        "zia-profile-list",
+        "zia-zpa-profile-identity",
+        "delete-referenced"
+      ]
+    },
+    {
+      "do": "Whether the profile's settings were changed while the user's session was running.",
+      "uses": [
+        "update-propagation"
+      ]
+    }
+  ],
+  "claims": {
+    "default-profiles": {
+      "statement": "Default isolation profiles are created automatically for every organization that has Cloud Browser, and admins can create multiple isolation profiles for both Internet & SaaS and Private Access in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-browser.json",
+          "quotes": [
+            "Default isolation profiles are automatically created for all organizations when they have Cloud Browser.",
+            "You can also manually create multiple isolation profiles for both Internet & SaaS and Private Access in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "per-profile-banner-cert": {
+      "statement": "Isolation profiles can be edited at any time, and each profile has a banner theme for the isolation end user notification and a choice of root certificates; the configuration guide gives these steps for Internet & SaaS and Private Access profiles alike.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "step-step-configuration-guide-cloud-browser.json",
+          "quotes": [
+            "Create an Internet & SaaS isolation profile. You can edit your isolation profiles at any time.",
+            "Choose banner themes for the isolation end user notification that appears for each isolation profile.",
+            "Choose the root certificates for each isolation profile."
+          ],
+          "after": "For Internet & SaaS isolation profiles:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "step-step-configuration-guide-cloud-browser.json",
+          "after": "For Private Access isolation profiles:",
+          "quotes": [
+            "Create a Private Access isolation profile. You can edit your isolation profiles at any time.",
+            "Choose banner themes for the isolation end user notification that appears for each isolation profile.",
+            "Choose the root certificates for each isolation profile."
+          ]
+        }
+      ]
+    },
+    "zia-profile-list": {
+      "statement": "The Internet & SaaS API lists the cloud browser isolation profiles offered in the Isolation Profile field of URL Filtering and Cloud App Control rules; each entry has an `id` (a UUID), a `name`, a `url` and a `defaultProfile` flag that marks a default profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get",
+          "expect": {
+            "description": "<p>Gets a list of all the cloud browser isolation profiles in the Isolation Profile field for <a href=\"https://help.zscaler.com/zia/configuring-url-filtering-policy#Action\" target=\"_blank\">URL Filtering Policy</a> and <a href=\"https://help.zscaler.com/zia/adding-rules-cloud-app-control-policy\" target=\"_blank\">Cloud App Control Policy</a> rules.</p>",
+            "operationId": "Browser Isolation Resource Get Cloud Browser Isolation Profiles"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get/responses/200/content/application~1json/schema/items/properties/id",
+          "expect": {
+            "description": "<p>The universally unique identifier (UUID) for the browser isolation profile</p>",
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get/responses/200/content/application~1json/schema/items/properties/url",
+          "expect": {
+            "description": "<p>The browser isolation profile URL</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get/responses/200/content/application~1json/schema/items/properties/name",
+          "expect": {
+            "description": "<p>Name of the browser isolation profile</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get/responses/200/content/application~1json/schema/items/properties/defaultProfile",
+          "expect": {
+            "description": "<p>(Optional) Indicates whether this is a default browser isolation profile. Zscaler sets this field.</p>  ",
+            "type": "boolean"
+          }
+        }
+      ]
+    },
+    "zia-default-flag": {
+      "statement": "On the Internet & SaaS side, `defaultProfile` says whether a profile is a default profile, and the contract says Zscaler sets this field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get/responses/200/content/application~1json/schema/items/properties/defaultProfile",
+          "expect": {
+            "description": "<p>(Optional) Indicates whether this is a default browser isolation profile. Zscaler sets this field.</p>  ",
+            "type": "boolean"
+          }
+        }
+      ]
+    },
+    "canada-region": {
+      "statement": "The July ZIA release summary says Canada was added as an isolation region in Zero Trust Browser, selectable when configuring isolation profiles for Internet & SaaS (ZIA).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-release-upgrade-summary-2026-july.json",
+          "quotes": [
+            "Canada has been added as an isolation region in Zero Trust Browser. You can select the region when configuring isolation profiles for Internet & SaaS (ZIA)."
+          ]
+        }
+      ],
+      "tier": "A"
+    },
+    "default-profile-name": {
+      "statement": "Each default isolation profile is automatically named Default Isolation Profile <Tenant ID> <Cloud Name>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-default-isolation-profiles-zero-trust-browser.json",
+          "quotes": [
+            "Each default isolation profile is automatically named Default Isolation Profile <Tenant ID> <Cloud Name>."
+          ]
+        }
+      ]
+    },
+    "default-profile-edit-delete-use": {
+      "statement": "Admins can edit the default isolation profiles but not delete them; using them is not required, and they are used only if the organization creates no isolation profiles of its own.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-default-isolation-profiles-zero-trust-browser.json",
+          "quotes": [
+            "Admins can edit these default isolation profiles but not delete them.",
+            "It is not required to use the default isolation profiles for any configuration.",
+            "They are only used if your organization does not manually create any isolation profiles."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-deleting-isolation-profile-internet-and-saas.json",
+          "quotes": [
+            "You cannot delete default isolation profiles."
+          ]
+        }
+      ]
+    },
+    "default-profile-controls": {
+      "statement": "On the default isolation profiles the only security control enabled automatically is viewing Office files in isolation; all other security controls are disabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-default-isolation-profiles-zero-trust-browser.json",
+          "quotes": [
+            "The only security control automatically enabled for the default isolation profiles is the ability to view office files in isolation.",
+            "All other security controls are disabled by default."
+          ]
+        }
+      ]
+    },
+    "zia-profile-required-for-isolate": {
+      "statement": "An Internet & SaaS policy whose action is Isolate must reference an isolation profile; the profiles determine how the user interacts with the isolated page, where the isolation containers are spun up and what the isolation experience looks like.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-about-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "When creating an Internet & SaaS (ZIA) policy with the action as Isolate, you must reference an isolation profile in the policy you're creating.",
+            "where the isolation containers are spun up, and what the isolation experience looks like to the user",
+            "These profiles determine certain attributes and specifications about how the user interacts with the isolated web page"
+          ]
+        }
+      ]
+    },
+    "pa-profile-required": {
+      "statement": "To configure Zero Trust Browser for a Private Access application a Private Access isolation profile must be used; it determines attributes of the isolation browser, how it handles web requests and the level of interaction with the user's native browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-about-isolation-profiles-private-access.json",
+          "quotes": [
+            "To configure Zscaler Zero Trust Browser for your application, you must use a Private Access (ZPA) isolation profile.",
+            "They also define how the isolation browser handles web requests, as well as the level of interaction with the user's native browser.",
+            "These profiles determine certain attributes and specifications of the isolation browser."
+          ]
+        }
+      ]
+    },
+    "zia-pac-file-url": {
+      "statement": "In an Internet & SaaS isolation profile, choosing the recommended PAC file URL fills the Automatic proxy configuration URL field with the recommended PAC file from the Hosted PAC Files list, and the isolation browser applies the PAC file in the endpoint experience containers so that internet traffic from the isolated browser is also forwarded through the Internet & SaaS cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "PAC File URL: Choose to use either the recommended PAC file URL or your own manually configured PAC file URL.",
+            "the Automatic proxy configuration URL field is populated by default with the recommended PAC file from your Hosted PAC Files list in Internet & SaaS.",
+            "any traffic to the internet from the isolated browser is also forwarded through the Internet & SaaS cloud.",
+            "The isolation browser configures the PAC file within the endpoint experience containers"
+          ]
+        }
+      ]
+    },
+    "zia-override-pac-geoproximity": {
+      "statement": "The Internet & SaaS isolation profile setting Override PAC file and return traffic to ZIA Public Service Edge can be enabled or disabled; the article explains that the Public Service Edges use auto-geoproximity, so traffic returns to the Service Edge closest to the user, not to the isolation browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "Override PAC file and return traffic to ZIA Public Service Edge: Enable or disable this setting.",
+            "The Public Service Edges for Internet & SaaS use auto-geoproximity, meaning that the traffic is returned to the Service Edge closest to the location of the user, not the location of the isolation browser."
+          ]
+        }
+      ]
+    },
+    "regions-at-least-two": {
+      "statement": "Both the Internet & SaaS and the Private Access isolation profile wizards require at least two regions on the Regions tab; on the Internet & SaaS side containers are leased to the user only from the selected regions, based on the least network latency.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "On the Regions tab, select at least two regions.",
+            "The isolation containers are leased to the user only from the selected regions based on the least network latency."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "select at least two regions where the isolation profile should be available"
+          ]
+        }
+      ]
+    },
+    "zia-copy-paste-file-transfer": {
+      "statement": "The Internet & SaaS isolation profile Security tab has separate copy-and-paste and file-transfer settings for local computer to isolation and for isolation to local computer; for file transfer from isolation to the local computer, if enabled, the admin selects Flattened PDF (CDR), Sandbox Scanned file or the Original File.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "Allow Copy & Paste From: Enable or disable the following settings:",
+            "Allow File Transfers From: Enable or disable the following settings:",
+            "Isolation to local computer: Allows the user to transfer files from the isolation browser to their local computer. If you enable this setting, select whether the file transfer will be a Flattened PDF (CDR), Sandbox Scanned file, or the Original File.",
+            "Local computer to isolation: Allows the user to copy and paste from their local computer to the isolation browser.",
+            "Isolation to local computer: Allows the user to copy and paste from the isolation browser to their local computer.",
+            "Local computer to isolation: Allows the user to transfer files from their local computer to the isolation browser."
+          ]
+        }
+      ]
+    },
+    "pa-file-transfer-flattened": {
+      "statement": "In the Private Access isolation profile, enabling file transfer from the local computer to isolation lets the admin enable or disable Isolation to Local Computer (Flattened Files Only) so transferred files are flattened only; enabling file transfer from isolation to the local computer automatically disables that flattened-only option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "Local Computer to Isolation: Allow file transfers from the local computer to the isolation browser. If you enable this setting, enable or disable Isolation to Local Computer (Flattened Files Only) for the files transferred to be flattened files only.",
+            "Isolation to Local Computer: Allow file transfers from the isolation browser to the local computer. If you enable this setting, Isolation to Local Computer (Flattened Files Only) is automatically disabled."
+          ]
+        }
+      ]
+    },
+    "mic-camera-needs-turbo": {
+      "statement": "Allowing the microphone and camera in an isolated session (an optional setting in both profile types) requires Turbo Mode to be enabled and is not supported on mobile devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "You must also enable Turbo Mode to enable this setting. This setting is not supported on mobile devices.",
+            "Allow microphone and camera: (Optional) Enable this setting for users to access their device's microphone and camera while in an isolated session."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "You must also enable Turbo Mode to enable this setting. This setting is not supported on mobile devices.",
+            "Enable Mic and Camera: (Optional) Enable this setting for users to access their device's microphone and camera while in an isolated session."
+          ]
+        }
+      ]
+    },
+    "deep-linking-allow-list": {
+      "statement": "With Application Deep Linking enabled the admin adds the allowed application links to a list; if the feature is disabled for the profile, or the application is not on the list, the user sees an error that the application is not allowed by policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "If you enable this setting, add the specific links for the allowed applications to the list.",
+            "If you disable this feature for the isolation profile, or an application is not on the list in the isolation profile, the user sees an error message explaining that the application isn't allowed by policy.",
+            "Allow Application Deep Linking: Enabling this setting allows the user to open applications from their local machine via the rendered deep link data on an isolated web page."
+          ]
+        }
+      ]
+    },
+    "watermark-contents": {
+      "statement": "Internet & SaaS isolation profiles can enable watermarking, displaying the User ID, a Date & Timestamp in UTC and a custom Watermark Message; the Private Access profile offers checkboxes for User ID, Date & Timestamp (UTC) and Message.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "Admins can enable watermarking per isolation profile and choose to display the User ID, Date & Timestamp (in UTC), and a custom Watermark Message."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "Select the checkboxes for User ID, Date & Timestamp (UTC), and Message to include those options."
+          ]
+        }
+      ]
+    },
+    "pa-local-browser-rendering": {
+      "statement": "The Private Access isolation profile has an Allow Local Browser Rendering setting that lets the browser render local files while in isolation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "Allow Local Browser Rendering: Enable or disable this setting for the browser to render local files while in isolation."
+          ]
+        }
+      ]
+    },
+    "pa-profile-in-use-not-deletable": {
+      "statement": "Private Access isolation profiles used in Private Access isolation policies cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "you cannot delete Private Access isolation profiles used in Private Access isolation policies."
+          ]
+        }
+      ]
+    },
+    "debug-mode-zip-password": {
+      "statement": "When Debug Mode is enabled in an isolation profile, the admin can set a password for the ZIP file created at the end of a debug troubleshoot and should share it with the user associated with the profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "Enable Debug Mode: Enable or disable Debug Mode. If you enable it, you can set a password for the ZIP file that is created at the end of a debug troubleshoot.",
+            "Make sure to share the password with the user associated with the isolation profile."
+          ]
+        }
+      ]
+    },
+    "experience-tab-url-bar-banner": {
+      "statement": "The Persist URL bar setting is described differently per profile type: Internet & SaaS says it gives a persisting isolation URL bar, and Private Access says it lets the last accessed URL reappear in a new session; in Private Access the Default isolation banner is selected automatically for new profiles and for preconfigured default profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "Persist Browser Isolation URL bar: Enable or disable this setting to have a persisting isolation URL bar."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "Persist Isolation URL Bar: Enable or disable this setting to allow the last accessed URL to reappear in a new session.",
+            "The Default isolation banner is automatically selected when adding a new profile or to preconfigured default isolation profiles."
+          ]
+        }
+      ]
+    },
+    "pa-profile-prerequisite": {
+      "statement": "Before creating a Private Access isolation profile, Zero Trust Browser must be enabled for the organization in Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "make sure Zero Trust Browser is enabled for your organization in Private Access."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "pa-profile-delete-rule": {
+      "summary": "The Private Access profile creation article says profiles used in Private Access isolation policies cannot be deleted, while the Private Access delete page says the profile can be deleted at any time.",
+      "positions": [
+        {
+          "says": "Private Access isolation profiles used in Private Access isolation policies cannot be deleted.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+            "quotes": [
+              "you cannot delete Private Access isolation profiles used in Private Access isolation policies."
+            ]
+          }
+        },
+        {
+          "says": "After creating a Private Access isolation profile, it can be deleted at any time.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-deleting-isolation-profile-private-access.json",
+            "quotes": [
+              "After creating a Private Access (ZPA) isolation profile, you can delete the profile at any time."
+            ]
+          }
+        }
+      ],
+      "impact": "An answer on whether a profile in use can be deleted depends on which article is followed; both are quoted, neither is settled."
+    }
+  },
+  "gaps": {
+    "zia-zpa-profile-identity": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether Internet & SaaS and Private Access isolation profiles are the same objects",
+      "detail": "Unverified legacy statement: treat Internet & SaaS and Private Access profile identity as distinct unless a tenant-side comparison proves they map one to one. Admins create profiles for each service separately, the Internet & SaaS API lists profiles with a UUID id, and Private Access has its own CBI profile API; no source says whether one list holds the other's profiles.",
+      "blocks": "reusing a profile ID from one service's API in the other's rule",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "setting-semantics": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What each isolation profile setting does",
+      "detail": "Legacy list of settings the profile carries: Turbo Mode, PAC File URL and Override PAC File, Debug Mode, Root Certificate, Copy and Paste, File Transfer and Print, Read-Only Isolation, View office files in Isolation, local browser rendering, Application Deep Linking, Votiro CDR, Region Selection, Isolation Banner, Persist URL bar, Isolation Experience, Watermarking and Persistent State. Several settings now have claims: [[zbi.isolation-profiles:experience-tab-url-bar-banner]] for the Persist URL bar, which the two profile types describe differently, and [[zbi.persistent-state]] for Persistent State, which restores authentication state and browsing history into a new session. Settings with no claim here, such as Read-Only Isolation and View office files in Isolation, still lack a quoted meaning. Which API field carries each setting is in a separate gap of zbi.api.",
+      "blocks": "explaining what an isolated user can and cannot do under a given profile",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "region-residency": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether region selection confines containers to regions for data residency",
+      "detail": "Unverified legacy statement: region selection on the isolation profile controls which region hosts the container, so data-residency reviewers can confine containers to specific regions. [[zbi.isolation-profiles:regions-at-least-two]] covers that both wizards require at least two regions and that Internet & SaaS containers are leased only from the selected regions by least latency. Still open: the residency effect and whether the default is All, which only the Miscellaneous & Unknown profile shows (Region Selection: All).",
+      "blocks": "answering data-residency questions about Cloud Browser",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "default-lifecycle": {
+      "kind": "semantic",
+      "status": "partial",
+      "former_ids": [
+        "zbi-03"
+      ],
+      "title": "How default profiles are created and whether the default flag can change",
+      "detail": "Default profiles are created automatically when an organization has Cloud Browser, and on the Internet & SaaS side the contract says Zscaler sets `defaultProfile`. The Private Access CBI API's examples show an `isDefault` flag on profiles and certificates without marking it read-only or describing create and update behavior. Still open: what triggers default profile creation and whether the Private Access flag can be set or cleared through profile writes.",
+      "blocks": "managing default profiles as code",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "delete-referenced": {
+      "kind": "semantic",
+      "status": "open",
+      "former_ids": [
+        "zbi-05"
+      ],
+      "title": "What happens when a profile that a rule still names is deleted",
+      "detail": "The Private Access CBI API, SDKs and Terraform provider expose profile delete, and isolation rules reference a profile by `zpnIsolationProfileId`. For Private Access, the profile creation article says a profile used in Private Access isolation policies cannot be deleted ([[zbi.isolation-profiles:pa-profile-in-use-not-deletable]]), though the delete page says it can be deleted at any time {{divergence:pa-profile-delete-rule}}. Still open: for an Internet & SaaS rule's profile, whether deleting a referenced profile is refused, leaves a dangling reference, or changes runtime behavior.",
+      "blocks": "predicting the effect of deleting or recreating a profile",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "update-propagation": {
+      "kind": "semantic",
+      "status": "open",
+      "former_ids": [
+        "zbi-06"
+      ],
+      "title": "How a profile change reaches isolated sessions already running",
+      "detail": "Profiles can be edited at any time, but no source says whether running sessions keep the old settings, take the new ones live, restart, or fail when their profile changes.",
+      "blocks": "explaining why a profile change did not take effect for a user at once",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "region-list": {
+      "kind": "data",
+      "status": "partial",
+      "title": "Which regions an isolation profile can select",
+      "detail": "The July ZIA release summary says Canada was added as an isolation region in Zero Trust Browser for Internet & SaaS profiles (claim canada-region). Still open: the full list of selectable regions and any region identifier or API enum value, which no captured page or contract gives.",
+      "blocks": "answering whether a given region (Canada, for example) can host a tenant's isolation containers",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

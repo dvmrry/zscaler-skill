@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "Analytics API Codes",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/response-codes/analytics/",
+    "revision": "119bec8f.605c849f.js",
+    "updated": "2026-10-18",
+    "updated_basis": "first-seen"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "The Analytics API uses the following response codes and error messages. The following table provides the list of response codes and their descriptions, along with possible causes and remediation."
+    },
+    {
+      "table": [
+        [
+          "HTTP Status Code",
+          "Description",
+          "Potential Causes",
+          "Troubleshooting Steps"
+        ],
+        [
+          "200 OK",
+          "The request was successfully received by OneAPI, but one or more GraphQL queries within the request failed. The error information is available in the errors array in the response body. To learn more, see Error Response Structure.",
+          "Service failure: There was a failure in an upstream service that handles a specific data domain query.Query error: Malformed GraphQL query, invalid parameters (e.g., start_time, end_time, or limit), or requesting data domains or fields that are not permitted by the API client's role.",
+          "Check errors array: Examine the message, path, and extensions fields in the errors array for details on the failure.Review query: Validate the GraphQL query’s syntax and input parameter values against the Analytics API GraphQL Schema Reference.Check API client role: Ensure that the API client has the Zscaler Insights Reader role assigned for access to the necessary data domains."
+        ],
+        [
+          "401 Unauthorized",
+          "The request lacks valid authentication credentials, or the access token provided is invalid.",
+          "Missing Authorization header: The Authorization header was not included in the request.Invalid token: The OAuth 2.0 access token is expired, revoked, or incorrectly generated.Token validation issues: Common issues include an incorrect audience or issuer claims specified during token generation.Incorrect token: An incorrect token might be used. For example, when using multiple environments (beta, production) or multiple tenants, an access token from a different environment or tenant was used.Missing or incorrect roles: The API client might not be assigned appropriate roles for the API call being made. Some APIs, such as ZIA, require specific API roles to be used.",
+          "Verify authentication setup: Ensure that authentication is set up correctly in your API client application and that the Authorization header is being sent. To learn more, see Working with the Analytics API.Check token: Obtain a new access token using the defined procedure. If you are using client credentials, ensure that the client ID and client secret values are correct.Validate audience or issuer claim: Verify that the audience value is set to https://api.zscaler.com and the access token URL points to the correct Authentication Service tenant domain."
+        ],
+        [
+          "403 Forbidden",
+          "The request is correctly authenticated, but the API client does not have the necessary permissions to access the requested resource or data.",
+          "Insufficient role: The API client is not assigned the role required to query the specific data domain or function.Policy restriction: A security policy on the Zscaler platform might be blocking access.",
+          "Check API client role: Verify that the API client has the Zscaler Insights Reader role assigned. To learn more see, Working with the Analytics API."
+        ],
+        [
+          "400 Bad Request",
+          "The request could not be understood by the server due to malformed syntax.",
+          "Malformed GraphQL: There are syntax errors in the GraphQL query (e.g., missing braces, incorrect field names, or invalid JSON variables).Invalid header format: Required headers such as User-Agent are incorrectly formatted.",
+          "Review query syntax: Validate the query structure using the GraphQL interface in your API client application (e.g., Postman).Check User-Agent header: Ensure that the User-Agent header adheres to the required format: PartnerName/AppName/Version (Device; OS Version) Region=COUNTRY."
+        ],
+        [
+          "500 Internal Server Error",
+          "An internal server error occurred while processing the request.",
+          "N/A",
+          "N/A"
+        ]
+      ]
+    },
+    {
+      "item": "Single query isolation: If a multi-domain query fails, isolate the individual queries to determine which specific domain or function is causing the error.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Introspection check: If you receive errors for all queries, try using GraphQL schema introspection in your API client application, if supported. To learn how to use introspection in Postman, see Working with the Analytics API. A successful introspection confirms that authentication and connectivity to the endpoint are working correctly.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "heading": "Error Response Structure",
+      "level": 2
+    },
+    {
+      "text": "Errors are reported in the response body in the errors array. When a query fails, the HTTP response code can still be 200 OK. This is generally caused by failures in the service."
+    },
+    {
+      "text": "The following example shows the error format:"
+    },
+    {
+      "code": "{\n  \"errors\": [\n    {\n      \"message\": \"Data fetching Failed: Forbidden to use API\",\n      \"locations\": [\n        {\n          \"line\": 51,\n          \"column\": 9\n        }\n      ],\n      \"path\": [\n        \"WEB_TRAFFIC\",\n        \"protocols\"\n      ],\n      \"extensions\": {\n        \"code\": \"FORBIDDEN\",\n        \"http_status\": 403,\n        \"classification\": \"INTERNAL_ERROR\"\n      }\n    }\n  ],\n  \"data\": {\n    \"WEB_TRAFFIC\": {\n      \"protocols\": {\n        \"entries\": []\n      }\n    }\n  }\n}"
+    }
+  ]
+}

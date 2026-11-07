@@ -1,0 +1,566 @@
+{
+  "schema_version": 1,
+  "id": "easm.lookalike-domains",
+  "title": "EASM lookalike domains: the raw-domain key, deception methods, risk categories and missing signals",
+  "aliases": [
+    "easm lookalike domains",
+    "lookalike_raw",
+    "typosquatting easm",
+    "easm deception method",
+    "phishing lookalike",
+    "easm lookalike details empty"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "easm.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "easm.mcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "easm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "easm.dashboards"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Lookalike domains are domains that imitate an organization's seed domains."
+    },
+    {
+      "label": "Identity.",
+      "text": "{{keyed-by-raw}} {{raw-and-original}}"
+    },
+    {
+      "label": "What a record says.",
+      "text": "{{deception-methods}} {{risk-category}} {{status}} {{registration}}"
+    },
+    {
+      "label": "Details call.",
+      "text": "The SDK may not read the details response correctly {{divergence:details-envelope}}."
+    },
+    {
+      "label": "What a record does not say.",
+      "text": "{{no-hosting-signals}} {{skill-asks-for-signals}} {{signals-not-in-api}}"
+    },
+    {
+      "heading": "In the Admin Portal"
+    },
+    {
+      "text": "{{detection-basis}} {{risk-categories-help}} The category names differ between sources {{divergence:risk-category-names}}. {{risk-score-scale}} {{status-meanings}} {{status-examples}} {{list-columns}} {{details-fields}} {{filters}} {{csv-download}}"
+    },
+    {
+      "label": "Alerts.",
+      "text": "{{phishing-alert}} {{dashboard-alert}} {{zia-block}} The dashboard widget is in [[easm.dashboards]]. {{exposure-score-def}} The numeric bands of the Exposure Score are open {{gap:exposure-vs-risk-score}}."
+    },
+    {
+      "label": "Trust.",
+      "text": "The registrant and hostname strings are authored outside the tenant, which is why the MCP tools flag them as untrusted: [[shared.mcp-server.results:untrusted-set]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a lookalike details call returning empty fields, whether the raw body nests the record under results.",
+      "uses": [
+        "details-envelope"
+      ]
+    },
+    {
+      "do": "Whether hosting or MX evidence was gathered outside EASM before calling a lookalike active.",
+      "uses": [
+        "signals-not-in-api"
+      ]
+    }
+  ],
+  "claims": {
+    "keyed-by-raw": {
+      "statement": "A lookalike domain is fetched by its raw domain name, not an opaque ID: `get_lookalike_domain` takes `lookalike_raw` and calls `/lookalike-domains/{lookalike_raw}/details`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/lookalike_domains.py",
+          "quotes": [
+            "def get_lookalike_domain(self, org_id: str, lookalike_raw: str) -> APIResult[LookalikeDomainDetails]:",
+            "lookalike_raw (str): The lookalike domain name (e.g., \"assuredartners.com\").",
+            "/lookalike-domains/{lookalike_raw}/details"
+          ]
+        }
+      ]
+    },
+    "raw-and-original": {
+      "statement": "`lookalike_raw` is the lookalike domain and `original_domain` the legitimate domain it mimics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/lookalike_raw",
+          "expect": {
+            "description": "The lookalike domain URL"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/original_domain",
+          "expect": {
+            "description": "The legitimate domain mimicked by the lookalike domain"
+          }
+        }
+      ]
+    },
+    "deception-methods": {
+      "statement": "`deception_method` is a list drawn from EdgeInsertion, Extension, Homograph, Hyphenation, KeyboardTypos, MidInsertion, Omission, PhoneticReplacement, Repetition, TldSwap, Typoglycemia, VowelReplacement and Typos.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/deception_method/items",
+          "expect": {
+            "enum": [
+              "EdgeInsertion",
+              "Extension",
+              "Homograph",
+              "Hyphenation",
+              "KeyboardTypos",
+              "MidInsertion",
+              "Omission",
+              "PhoneticReplacement",
+              "Repetition",
+              "TldSwap",
+              "Typoglycemia",
+              "VowelReplacement",
+              "Typos"
+            ]
+          }
+        }
+      ]
+    },
+    "risk-category": {
+      "statement": "`risk_category` is Phishing Lookalike, Registered Lookalike, Preventative Lookalike or Watchlist Lookalike, and `risk_score` is an integer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/risk_category",
+          "expect": {
+            "enum": [
+              "Phishing Lookalike",
+              "Registered Lookalike",
+              "Preventative Lookalike",
+              "Watchlist Lookalike"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/risk_score",
+          "expect": {
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "status": {
+      "statement": "A lookalike entry's `status` is NOT_VERIFIED, VERIFIED, RISK_ACCEPTED, RESOLVED or DISPUTED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/status",
+          "expect": {
+            "enum": [
+              "NOT_VERIFIED",
+              "VERIFIED",
+              "RISK_ACCEPTED",
+              "RESOLVED",
+              "DISPUTED"
+            ]
+          }
+        }
+      ]
+    },
+    "registration": {
+      "statement": "`is_registered` says whether the domain is registered; `registrar`, `registered_by` and `expiration_date` are filled when available, and `created_date` is when EASM detected the domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/registered_by",
+          "expect": {
+            "description": "An individual or entity that owns the registered domain, if available."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/created_date",
+          "expect": {
+            "description": "The timestamp when the lookalike domain was detected in a scan and added to EASM"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/is_registered",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/registrar",
+          "expect": {
+            "description": "The internet company that was used to register the domain, if available."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/expiration_date",
+          "expect": {
+            "description": "The domain registration expiration date, if available."
+          }
+        }
+      ]
+    },
+    "no-hosting-signals": {
+      "statement": "A lookalike record has no similarity score, active-hosting or DNS/MX field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties",
+          "expect": {
+            "remediation": {
+              "description": "Risk remediation recommendations for the lookalike domain",
+              "type": "string"
+            }
+          },
+          "expect_absent": [
+            "similarity",
+            "similarity_score",
+            "is_active",
+            "active",
+            "mx_records",
+            "dns_records"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/models/lookalike_domains.py",
+          "quotes": [
+            "\"updated_date\": self.updated_date, }"
+          ],
+          "after": "class LookalikeDomainDetails(ZscalerObject):"
+        }
+      ],
+      "conditions": "The expect_absent names are the plausible spellings checked; the model's request format, quoted to its closing brace, lists fourteen fields and none of them."
+    },
+    "skill-asks-for-signals": {
+      "statement": "The MCP server's EASM review skill asks the agent to report whether a lookalike domain actively hosts content and has MX records, with a similarity column in its example table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/easm/review-attack-surface/SKILL.md",
+          "quotes": [
+            "- Whether the domain is actively hosting content",
+            "- DNS records (MX records suggest email phishing)",
+            "| Domain              | Similarity | Registered | Active | MX Records | Risk  |"
+          ]
+        }
+      ]
+    },
+    "signals-not-in-api": {
+      "statement": "The similarity, active-hosting and MX signals the skill asks for cannot come from the EASM API or the MCP tools; reporting them needs another source such as a DNS lookup.",
+      "tier": "B",
+      "derived_from": [
+        "no-hosting-signals",
+        "skill-asks-for-signals"
+      ],
+      "conditions": "Follows from no-hosting-signals and skill-asks-for-signals."
+    },
+    "detection-basis": {
+      "statement": "EASM detects lookalike domains that resemble the seed domains configured via a discovery profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-lookalike-domains.json",
+          "quotes": [
+            "EASM detects domains that resemble the seed domains that you configured via a discovery profile."
+          ]
+        }
+      ]
+    },
+    "risk-categories-help": {
+      "statement": "The help article lists the lookalike risk categories as Verified Phishing (verified by Zscaler's web risk analyzer service), Registered Lookalike (registered through a registrar) and Preventative Lookalike (not registered with a registrar).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-lookalike-domain-details.json",
+          "quotes": [
+            "Verified Phishing: Indicates that the domain is verified to be a phishing site by Zscaler's web risk analyzer service.",
+            "Registered Lookalike: Indicates that the domain is registered through an internet company that provides domain registration services (i.e., registrar).",
+            "Preventative Lookalike: Indicates that the domain is not registered with a registrar."
+          ]
+        }
+      ]
+    },
+    "risk-score-scale": {
+      "statement": "Lookalike Risk Score is on a scale of 1 to 100, with higher meaning higher risk, based on factors such as deception method, graphical similarity, registration status and identification of malicious or potentially phishing domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-lookalike-domains.json",
+          "quotes": [
+            "Risk Score: A risk score computed for the lookalike domain on a scale of 1 to 100 (a higher score represents higher risk)",
+            "based on various factors, such as the deception method used, graphical similarity between the original and lookalike domain, domain registration status, and identification of malicious and potentially phishing domain."
+          ]
+        }
+      ]
+    },
+    "status-meanings": {
+      "statement": "Lookalike domains initially detected by EASM are tagged Not Verified; Resolved is for domains whose remediation steps are taken or planned, and a Resolved domain discovered again in a subsequent scan is marked Not Verified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-lookalike-domain-status.json",
+          "quotes": [
+            "Not Verified: All lookalike domains initially detected by EASM for your legitimate seed domains are automatically tagged with the label \"Not Verified\".",
+            "Resolved: Lookalike domains for which remediation steps are taken or are planned can be marked as resolved.",
+            "However, if the lookalike domain is discovered again in a subsequent scan, then it is marked as \"Not Verified\"."
+          ]
+        }
+      ]
+    },
+    "status-examples": {
+      "statement": "Documented examples: a high-risk domain verified to be a phishing site for Verified, a domain not registered yet that can be put on the watchlist for Risk Accepted, and a fake domain taken offline or suspended by the registrar for Resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-lookalike-domain-status.json",
+          "quotes": [
+            "An example could be a high-risk domain that is verified to be a phishing site.",
+            "Risk Accepted: Represents that the risk is deemed acceptable. An example could be a domain that is not registered yet and can be put on the watchlist.",
+            "if a fake domain is taken offline or suspended by the registrar after reporting and the threat is eliminated, it can be marked as resolved.",
+            "Verified: Lookalike domains are manually investigated and verified for risks."
+          ]
+        }
+      ]
+    },
+    "list-columns": {
+      "statement": "The Lookalike Domains page lists, per lookalike domain, Registered (registration status through a registrar) and Registered By (the individual or entity responsible, if available).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-lookalike-domains.json",
+          "quotes": [
+            "Registered: The registration status of the lookalike domain through a domain name registrar.",
+            "Registered By: An individual or entity responsible for registering the lookalike domain, if available."
+          ]
+        }
+      ]
+    },
+    "phishing-alert": {
+      "statement": "When EASM detects phishing lookalike domains, an alert icon appears on the Lookalike Domains tab in the left-side navigation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-lookalike-domains.json",
+          "quotes": [
+            "When EASM detects phishing lookalike domains, an alert icon appears on the Lookalike Domains tab in the left-side navigation."
+          ]
+        }
+      ]
+    },
+    "dashboard-alert": {
+      "statement": "On the Insights Overview dashboard, detected phishing lookalikes raise an alert with a link to the Lookalike Domains page filtered to Risk Category Phishing Lookalike and Status Verified and Not Verified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-interacting-insights-overview-dashboard.json",
+          "quotes": [
+            "When EASM detects phishing lookalike domains, an alert appears on this widget with a link to the Lookalike Domains page with the appropriate filters selected (Risk Category is Phishing Lookalike and Status includes Verified and Not Verified)."
+          ]
+        }
+      ]
+    },
+    "zia-block": {
+      "statement": "The Insights Overview dashboard help page says that, after the phishing lookalike alert, the domains can be blocked for organization users via ZIA by configuring URL Filtering policy rules using custom URL categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-interacting-insights-overview-dashboard.json",
+          "quotes": [
+            "When EASM detects phishing lookalike domains, an alert appears on this widget with a link to the Lookalike Domains page",
+            "You can block these domains for your organization users via Zscaler Internet Access (ZIA) by configuring URL Filtering policy rules using custom URL categories."
+          ]
+        }
+      ]
+    },
+    "exposure-score-def": {
+      "statement": "The Insights Overview dashboard describes the Exposure Score as the risk score computed for the lookalike domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-interacting-insights-overview-dashboard.json",
+          "quotes": [
+            "Exposure Score: The risk score computed for the lookalike domain."
+          ]
+        }
+      ]
+    },
+    "filters": {
+      "statement": "The Lookalike Domains Exposure Score filter uses Low, Medium, High and Critical, and the Lookalike Domain column is always shown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-filtering-customizing-lookalike-domains-page.json",
+          "quotes": [
+            "Exposure Score: Filters the lookalike domains based on their exposure score and categorization into Low, Medium, High, and Critical",
+            "The Lookalike Domain column is always shown and cannot be modified."
+          ]
+        }
+      ]
+    },
+    "csv-download": {
+      "statement": "The Lookalike Domains page downloads as a CSV file that replicates the table as displayed, including any sorting, filtering and column selection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-downloading-lookalike-domains.json",
+          "quotes": [
+            "The data captured in the file directly replicates the table as it is displayed on the Lookalike Domains page, reflecting any customization made through sorting, filtering, and selecting columns.",
+            "You can download the list of all lookalike domains that are tracked for your seed domains as a CSV file from the Lookalike Domains page."
+          ]
+        }
+      ]
+    },
+    "details-fields": {
+      "statement": "The Lookalike Domain Details drawer shows a Lookalike Domain Annotation label, and the registrar, registrant organization and registration expiration where available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-lookalike-domain-details.json",
+          "quotes": [
+            "Lookalike Domain Annotation: A label for the lookalike domain.",
+            "Lookalike Domain Registrar: The internet company that was used to register the domain, if available.",
+            "Lookalike Registrant Organization: An individual or entity that owns the registered domain, if available.",
+            "Lookalike Registration Expiration: The domain registration expiration date, if available."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "risk-category-names": {
+      "summary": "The help article lists Verified Phishing, Registered Lookalike and Preventative Lookalike; the API enum has Phishing Lookalike, Registered Lookalike, Preventative Lookalike and Watchlist Lookalike; the Insights Overview page uses both phishing names.",
+      "positions": [
+        {
+          "says": "The help article lists the risk categories as Verified Phishing, Registered Lookalike and Preventative Lookalike.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-understanding-lookalike-domain-details.json",
+            "quotes": [
+              "Verified Phishing: Indicates that the domain is verified to be a phishing site by Zscaler's web risk analyzer service."
+            ]
+          }
+        },
+        {
+          "says": "The API `risk_category` enum is Phishing Lookalike, Registered Lookalike, Preventative Lookalike and Watchlist Lookalike.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/easm.openapi.json",
+            "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results/items/properties/risk_category",
+            "expect": {
+              "enum": [
+                "Phishing Lookalike",
+                "Registered Lookalike",
+                "Preventative Lookalike",
+                "Watchlist Lookalike"
+              ]
+            }
+          }
+        },
+        {
+          "says": "The Insights Overview alert filters on Risk Category Phishing Lookalike.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-accessing-interacting-insights-overview-dashboard.json",
+            "quotes": [
+              "Risk Category is Phishing Lookalike and Status includes Verified and Not Verified"
+            ]
+          }
+        }
+      ],
+      "impact": "Match on the name the surface in front of you uses; whether Verified Phishing and Phishing Lookalike are the same category, and what Watchlist Lookalike covers, is not stated."
+    },
+    "details-envelope": {
+      "summary": "The contract wraps the lookalike details response in `results` and `total_results`; the SDK reads the details fields from the top level of the body.",
+      "positions": [
+        {
+          "says": "The details response has `results` (a list of lookalike records) and `total_results`.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/easm.openapi.json",
+            "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains~1{lookalikeRaw}~1details/get/responses/200/content/application~1json/schema/properties",
+            "expect_absent": [
+              "lookalike_raw",
+              "original_domain"
+            ]
+          }
+        },
+        {
+          "says": "`get_lookalike_domain` builds `LookalikeDomainDetails` directly from the response body.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zeasm/lookalike_domains.py",
+            "quotes": [
+              "result = LookalikeDomainDetails(response.get_body())"
+            ]
+          }
+        }
+      ],
+      "impact": "If the server follows the contract, the SDK's details object (and the MCP get tool) comes back with every field empty; read the raw body's results[0] instead."
+    }
+  },
+  "gaps": {
+    "exposure-vs-risk-score": {
+      "kind": "semantic",
+      "title": "What numeric ranges the lookalike Exposure Score bands Low, Medium, High and Critical cover",
+      "status": "open",
+      "detail": "The Insights page describes the Exposure Score as the risk score computed for the lookalike domain, but the Exposure Score filter bands Low, Medium, High and Critical have no stated numeric ranges.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

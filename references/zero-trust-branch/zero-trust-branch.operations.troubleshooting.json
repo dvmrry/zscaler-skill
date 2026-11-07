@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.operations.troubleshooting",
+  "title": "What the Zero Trust Branch configuration and activation troubleshooting page documents: symptoms and the checks it gives",
+  "aliases": [
+    "ztb activation issues",
+    "ztb appliance status red",
+    "ztb gwactivation",
+    "ztb ha active-active troubleshooting",
+    "ztb devices not receiving ip address"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.debug-console"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{location-not-recognized}} {{activation-dns}} {{activation-after-update}} The deployment procedure is in [[zero-trust-branch.deployment]], and the wider operations area is in [[zero-trust-branch.operations]]."
+    },
+    {
+      "label": "Connectivity.",
+      "text": "{{connectivity-red-status}} {{outbound-ports-upstream}} The page and the deployment pages name different hub hosts for TCP 1883 {{divergence:hub-host-name}}. {{gateway-disconnected}} The page numbers the console menu differently from the deployment pages {{divergence:configure-gateway-menu-number}}. The Debug Console is in [[zero-trust-branch.operations.debug-console]]. The page's standby-standby mode is not defined {{gap:standby-standby-mode}}."
+    },
+    {
+      "label": "High availability.",
+      "text": "{{ha-active-active}}"
+    },
+    {
+      "label": "Devices and traffic.",
+      "text": "{{dhcp-relay-checks}} {{no-internet-return-route}} {{nat-source-check}} {{east-west-windows-firewall}} {{segmentation-policy-checks}}"
+    }
+  ],
+  "claims": {
+    "location-not-recognized": {
+      "statement": "Adding a site can fail with the error \"ZIAM SendLocationRequest: Error creating location response.\", and the fix given is to check whether the site or location name already exists in Internet & SaaS (ZIA).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "\"ZIAM SendLocationRequest: Error creating location response.\"",
+            "Check whether the site or location name already exists in Internet & SaaS (ZIA)."
+          ]
+        }
+      ]
+    },
+    "activation-dns": {
+      "statement": "The activation-issues checklist includes that DNS resolves gwactivation.goairgap.com, <customer name>-api.goairgap.com and hub3.goairgap.com, and that the web proxy is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "Verify the following to resolve any activation issues:",
+            "gwactivation.goairgap.com",
+            "<customer name>-api.goairgap.com",
+            "hub3.goairgap.com",
+            "Web proxy is configured."
+          ]
+        }
+      ]
+    },
+    "activation-after-update": {
+      "statement": "If the gateway is not working after an update and DNS cannot resolve *-api.goairgap.com, the steps are to delete the site and then reconfigure the site, gateway, network and web proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "If the gateway is not working after an update and DNS cannot resolve *-api.goairgap.com:",
+            "On the Sites page, delete the required site.",
+            "Next, reconfigure the site, gateway, network, and web proxy, and then check the connectivity again."
+          ]
+        }
+      ]
+    },
+    "connectivity-red-status": {
+      "statement": "A red appliance status in the Admin Console after an activation issue indicates that communication between the appliance and the console is severed and the appliance cannot reach the internet; the checks include storage utilization crossing the threshold level in the alarms and audit logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "If there is an activation issue, the Zero Trust Branch appliance status appears red in the Zscaler Admin Console.",
+            "This indicates that the communication between the appliance and the Zscaler Admin Console is severed, and the appliance cannot communicate with the internet.",
+            "Verify the alarms and audit logs to see whether the appliance's storage utilization has crossed the threshold level."
+          ]
+        }
+      ]
+    },
+    "outbound-ports-upstream": {
+      "statement": "The appliance must be allowed outbound connections to hub.goairgap.com (TCP 1883) and wg.goairgap.com (UDP 51820), and App ID, IDS, IPS and SSL Forward Proxy should be disabled for the control traffic initiated from the appliance on the upstream L3 device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "hub.goairgap.com (TCP: 1883)",
+            "wg.goairgap.com (UDP: 51820)",
+            "Disable the App ID, Intrusion Detection System (IDS), Intrusion Prevention System (IPS), and SSL Forward Proxy (FP) for the control traffic (initiated from the appliance) on the upstream L3 device."
+          ]
+        }
+      ]
+    },
+    "ha-active-active": {
+      "statement": "For appliances in active-active mode, HA troubleshooting checks that the appliances reach each other over the HA interface, the switch is not blocking VRRP messages, there are no MAC move or snooping violations, GARP messages are not blocked, and the SVI interface for the VLAN on the switch is disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "Appliances can reach each other over the HA interface.",
+            "The switch connecting to the HA interface is not blocking the VRRP messages.",
+            "There are no MAC move or snooping violations on the switch connecting to the HA interface.",
+            "The Gratuitous Address Resolution Protocol (GARP) messages from the appliances are not blocked.",
+            "The SVI interface for the VLAN on the switch is disabled."
+          ]
+        }
+      ]
+    },
+    "dhcp-relay-checks": {
+      "statement": "If the appliance is a DHCP relay and devices are not receiving an IP address, the checks include that the DHCP server has a route and can reach the subnet and that no other DHCP servers or relays run in the VLAN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "Devices Are Not Receiving the IP Address",
+            "If the appliance is a DHCP relay:",
+            "Ensure the DHCP server has a route and can reach the subnet.",
+            "Ensure there are no other DHCP servers or relays running in the VLAN."
+          ]
+        }
+      ]
+    },
+    "no-internet-return-route": {
+      "statement": "Devices that get an IP address and ping the default gateway but cannot reach the internet is described as occurring when the upstream firewall or router has no return route to the VLAN with the appliance WAN virtual IP address as next hop.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "Devices can receive the IP address and ping the Zero Trust Branch appliance's default gateway but cannot reach the internet.",
+            "This occurs when the upstream firewall or router does not have a return route to the VLAN with the appliance WAN virtual IP (VIP) address as a nexthop."
+          ]
+        }
+      ]
+    },
+    "nat-source-check": {
+      "statement": "If NAT is enabled, packets egressing the WAN interface must carry the WAN interface's source IP address, which the packet capture must show.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "If Network Address Translation (NAT) is enabled, check whether the packets egressing the WAN interface have the source IP address of the WAN interface.",
+            "The packet capture must show the outgoing packets with the source IP address of the WAN interface."
+          ]
+        }
+      ]
+    },
+    "east-west-windows-firewall": {
+      "statement": "For east-west traffic with a Windows test device, the host firewall must not be blocking inbound traffic, and Windows has three firewall profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "For a Windows test device, verify that the host firewall is not blocking the inbound traffic (Windows has three firewall profiles)."
+          ]
+        }
+      ]
+    },
+    "segmentation-policy-checks": {
+      "statement": "Checking that a segmentation policy works includes confirming the policy hit count is increasing (requires version 7.7.x), disabling log throttling for the specific policies if no flow logs appear, and, when testing with Windows ICMP, waiting 5 minutes for the session to close because Windows ICMP uses the same ICMP ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "Verify that the policy hit count is increasing (requires 7.7.x version).",
+            "If you don’t see the flow logs, disable log throttling for the specific policies and verify the flow logs again.",
+            "wait for the session to close (5 minutes) and try again. Windows ICMP uses the same ICMP ID.",
+            "Segmentation Policy Is Not Working"
+          ]
+        }
+      ]
+    },
+    "gateway-disconnected": {
+      "statement": "For a gateway shown as disconnected, option 4 (Show Gateway Status) in the console checks the gateway status, a name resolution error must be resolved before the appliance reaches the cloud, and the upstream L3 device should not block the DNS (UDP 53) port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "enter 4 (Show Gateway Status) and press Enter to check the gateway status.",
+            "If there is a name resolution error, then resolve this error before the appliance reaches the cloud. Also, check whether the upstream L3 device is blocking the DNS (UDP 53) port."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "hub-host-name": {
+      "summary": "The activation-issues page lists hub.goairgap.com on TCP 1883 as the outbound destination, while its own DNS checklist and the deployment procedure use hub3.goairgap.com:1883.",
+      "positions": [
+        {
+          "says": "The appliance must be allowed outbound connections to hub.goairgap.com (TCP 1883).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+            "quotes": [
+              "hub.goairgap.com (TCP: 1883)"
+            ]
+          }
+        },
+        {
+          "says": "The deployment procedure lists the web proxy as hub3.goairgap.com:1883.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-deploying-zero-trust-branch-appliance.json",
+            "quotes": [
+              "Web proxy: hub3.goairgap.com:1883"
+            ]
+          }
+        },
+        {
+          "says": "The 8.1.2-P1 release note refers to the hub3.goairgap.com:1883 proxy.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-release-upgrade-summary-2026.json",
+            "quotes": [
+              "Fixed an issue where an appliance using the hub3.goairgap.com:1883 proxy could appear disconnected in the Zscaler Admin Console after a power outage."
+            ]
+          }
+        }
+      ],
+      "impact": "A firewall rule built from the outbound-ports list alone may allow hub.goairgap.com but not the hub3 host the appliance's web proxy uses; the pages do not say whether both hosts are needed."
+    },
+    "configure-gateway-menu-number": {
+      "summary": "The activation-issues page gives Configure Gateway as console menu item 1, while the deployment page gives it as item 2.",
+      "positions": [
+        {
+          "says": "In the console, enter 1 (Configure Gateway).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+            "quotes": [
+              "In the Zscaler console, enter 1 (Configure Gateway), press Enter, and then configure the WAN interface as in the previous step."
+            ]
+          }
+        },
+        {
+          "says": "In the console, enter 2 (Configure Gateway).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-deploying-zero-trust-branch-appliance.json",
+            "quotes": [
+              "In the console, enter 2 (Configure Gateway) from the menu and press Enter."
+            ]
+          }
+        }
+      ],
+      "impact": "Menu numbers, including 4 (Show Gateway Status) on the troubleshooting page, may differ by release; the pages do not tie the numbering to a version, so confirm the label on the menu before entering a number."
+    }
+  },
+  "gaps": {
+    "standby-standby-mode": {
+      "kind": "semantic",
+      "title": "What the troubleshooting page's standby-standby HA mode is",
+      "status": "open",
+      "detail": "The captured troubleshooting page names a \"standby-standby mode\" next to active-active mode but does not define it, so only the active-active checks are recorded.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "id": "zia.backup-restore.restore-points",
+  "title": "ZIA restore point limits, golden point and scheduled eviction",
+  "aliases": [
+    "12 restore points",
+    "golden restore point",
+    "restore point limit",
+    "scheduled backup deletes oldest",
+    "restore point name length"
+  ],
+  "related": [
+    {
+      "rel": "logged-in",
+      "to": "zia.audit-logs.what-is-recorded",
+      "because": "zia.audit-logs.what-is-recorded:category-values"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.backup-restore.restore-semantics"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Restore points are a bounded set with different rules for manual and scheduled creation. Whether a failed scheduled backup is logged or alerted is not stated {{gap:scheduled-failure-logging}}."
+    },
+    {
+      "text": "Creation: {{manual-or-scheduled}} {{scheduled-access}} {{schedule-fields}} The page that lists them: {{page-columns}} Name and description limits: {{field-limits}}"
+    },
+    {
+      "text": "The cap: {{limit-12}} {{golden}}"
+    },
+    {
+      "label": "At the cap.",
+      "text": "{{manual-blocked-at-limit}} {{scheduled-evicts}} {{golden-survives-eviction}}"
+    },
+    {
+      "text": "A Backup & Restore category exists in the audit log filters: [[zia.audit-logs.what-is-recorded]]. What a restore does to the live configuration is in [[zia.backup-restore.restore-semantics]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "How many restore points exist, and whether the point you need is the golden one, before a change window.",
+      "uses": [
+        "limit-12",
+        "golden"
+      ]
+    },
+    {
+      "do": "Whether a scheduled backup is due that would evict the point you need, since the oldest point is removed to make room.",
+      "uses": [
+        "scheduled-evicts",
+        "golden"
+      ]
+    }
+  ],
+  "claims": {
+    "manual-or-scheduled": {
+      "statement": "Backups are created manually on demand or automatically on a schedule in the Admin Console; each restore point records the date and time its backup was created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.json",
+          "quotes": [
+            "A restore point represents the date and time when a backup was created",
+            "Backups can be automated using schedules or created manually on demand in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "limit-12": {
+      "statement": "An organization can have up to 12 restore points, counting manual and scheduled backups together.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.json",
+          "quotes": [
+            "An organization can have up to 12 restore points, including manual and scheduled backups."
+          ]
+        }
+      ]
+    },
+    "golden": {
+      "statement": "One restore point can be designated the Golden Restore Point; it exists indefinitely and cannot be deleted, and only one can exist at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.json",
+          "quotes": [
+            "You can designate one of the restore points as the Golden Restore Point that exists indefinitely",
+            "The Golden Restore Point cannot be deleted.",
+            "There can be only one Golden Restore Point at any given point in time."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-restore-points-manually.json",
+          "quotes": [
+            "There can be only one golden restore point at any given point in time, and you cannot delete it."
+          ]
+        }
+      ]
+    },
+    "manual-blocked-at-limit": {
+      "statement": "At 12 restore points a new restore point cannot be added manually until an existing one is deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.json",
+          "quotes": [
+            "If the number of restore points reaches a limit of 12, you cannot add a new restore point manually without deleting an existing one."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-restore-points-manually.json",
+          "quotes": [
+            "If the number of restore points reaches a limit of 12, you cannot add a new restore point manually without deleting an existing one."
+          ]
+        }
+      ]
+    },
+    "scheduled-evicts": {
+      "statement": "When a scheduled backup would exceed the limit, the oldest restore point is removed to make room; if the oldest is the golden one, the next oldest is removed instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.json",
+          "quotes": [
+            "during scheduled automatic backup, the oldest restore point is removed to create the new one when the limit is exceeded.",
+            "If the oldest restore point is a Golden Restore Point, then the next oldest restore point is removed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-scheduled-backup-configuration.json",
+          "quotes": [
+            "If the number of restore points reaches a limit of 12, then the next restore point is created by removing the oldest restore point in the list. However, if the oldest restore point is a Golden Restore Point, then the next oldest restore point is removed."
+          ]
+        }
+      ]
+    },
+    "scheduled-access": {
+      "statement": "Scheduled backups must be requested from the Zscaler Account team: the Creating Scheduled Backup Configuration page says to contact the Zscaler Account team to access the feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-scheduled-backup-configuration.json",
+          "quotes": [
+            "To access this feature, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "schedule-fields": {
+      "statement": "A scheduled backup configuration has a Restore Point Prefix Name, a Frequency of Weekly (with a Day of the week) or Monthly (with a Date), a Restore Point Creation Time and a Time Zone in which the configuration is valid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-scheduled-backup-configuration.json",
+          "quotes": [
+            "Restore Point Prefix Name: Enter a restore point prefix name.",
+            "Frequency: Select either Weekly or Monthly.",
+            "Date: Select the date on which you want the restore point to be created. This field appears when the Frequency is selected as Monthly.",
+            "Day: Select the day of the week when you want the restore point to be created. This field appears when the Frequency is selected as Weekly.",
+            "Restore Point Creation Time: Select the time at which you want the restore point to be created.",
+            "Time Zone: Select the time zone in which the scheduled backup configuration should be valid."
+          ]
+        }
+      ]
+    },
+    "page-columns": {
+      "statement": "The Backup & Restore page lists each restore point with Restore Point Name, Description, Created By and Created On, and marks the golden one with a flag icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.json",
+          "quotes": [
+            "Restore Point Name: The name of the restore point.",
+            "Description: The description of the restore point, if available.",
+            "Created By: The admin that created the restore point.",
+            "Created On: The date and time the restore point was created.",
+            "A restore point with the Flag icon alongside it represents a Golden Restore Point"
+          ]
+        }
+      ]
+    },
+    "field-limits": {
+      "statement": "A restore point name is limited to 128 characters and its description to 10,240 bytes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Restore Point Name | 128 characters |",
+            "| Restore Point Description | 10,240 bytes |"
+          ]
+        }
+      ]
+    },
+    "golden-survives-eviction": {
+      "statement": "A scheduled backup at the limit removes the oldest non-golden restore point without any administrator choosing it, while the Golden Restore Point is never evicted or deleted; designating the point to retain as golden is what protects it.",
+      "tier": "B",
+      "derived_from": [
+        "scheduled-evicts",
+        "golden"
+      ],
+      "conditions": "Only one golden point can exist, so only one point can be protected this way."
+    }
+  },
+  "gaps": {
+    "scheduled-failure-logging": {
+      "kind": "semantic",
+      "title": "Whether a failed scheduled backup is logged or alerted",
+      "status": "open",
+      "detail": "The scheduled backup configuration page describes the fields and the 12-point eviction but does not say whether a failed scheduled backup is logged or raises an alert.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,1277 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "User Management",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/user-management",
+    "node": "1402506",
+    "revision": "3226946",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/User%20Management_18.json?VersionId=nZbrtEsAiC10hnYwfmLX3eJKGjqLpJef",
+    "updated": "2026-08-21",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "User Management"
+      }
+    ],
+    "paths": {
+      "/departments": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Retrieves a list of departments. The search parameters find matching values within the <code>name</code> or <code>comments</code> fields.</p>\n",
+          "operationId": "getDepartments",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against a department's name or comments attributes",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "limitSearch",
+              "in": "query",
+              "description": "Limits the search to match only against the department name",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            },
+            {
+              "name": "sortBy",
+              "in": "query",
+              "description": "Sorts the departments based on available values",
+              "required": false,
+              "type": "string",
+              "default": "id",
+              "enum": [
+                "id",
+                "name",
+                "expiry",
+                "status",
+                "externalId",
+                "rank"
+              ]
+            },
+            {
+              "name": "sortOrder",
+              "in": "query",
+              "description": "Sorts the order of departments based on available values",
+              "required": false,
+              "type": "string",
+              "default": "asc",
+              "enum": [
+                "asc",
+                "desc",
+                "ruleExecution"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Department"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Adds a department for an organization. To learn more, see <a href=\"/zia/adding-departments\" target=\"_blank\">Adding Departments</a>.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"/oneapi/understanding-oneapi\" target=\"_blank\">Zscaler OneAPI</a> only.</p>",
+          "operationId": "DepartmentResource_addDepartment",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Department information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/Department"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Department"
+              }
+            }
+          }
+        }
+      },
+      "/departments/lite": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Retrieves a list of departments. The search parameters find matching values within the <code>name</code> or <code>comments</code> fields.</p>",
+          "operationId": "DepartmentResource_getDepartmentsLite",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against a department's name or comments attributes",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "id",
+              "description": "Department ID",
+              "in": "query",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "collectionFormat": "multi"
+            },
+            {
+              "name": "includeDefaultDept",
+              "in": "query",
+              "description": "Specifies whether to include the default department for a user",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            },
+            {
+              "name": "sortBy",
+              "in": "query",
+              "description": "Sorts the departments based on available values",
+              "required": false,
+              "type": "string",
+              "default": "id",
+              "enum": [
+                "id",
+                "name",
+                "expiry",
+                "status",
+                "externalId",
+                "rank"
+              ]
+            },
+            {
+              "name": "sortOrder",
+              "in": "query",
+              "description": "Sorts the order of departments based on available values",
+              "required": false,
+              "type": "string",
+              "default": "asc",
+              "enum": [
+                "asc",
+                "desc",
+                "ruleExecution"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Department"
+              }
+            }
+          }
+        }
+      },
+      "/departments/{id}": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Retrieves the department based on the specified ID</p>",
+          "operationId": "getDepartment",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Unique identifier for the department",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Department"
+              }
+            }
+          }
+        }
+      },
+      "/departments/lite/{id}": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Retrieves the department based on the specified ID</p>",
+          "operationId": "DepartmentResource_getDepartmentLite",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Unique identifier for the department",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Department"
+              }
+            }
+          }
+        }
+      },
+      "/departments/{departmentId}": {
+        "put": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Updates the department for an organization based on the specified ID.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"/oneapi/understanding-oneapi\" target=\"_blank\">Zscaler OneAPI</a> only.</p>",
+          "operationId": "DepartmentResource_updateDepartment",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "departmentId",
+              "in": "path",
+              "description": "Department ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Department"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Deletes a department for an organization based on the specified ID.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"/oneapi/understanding-oneapi\" target=\"_blank\">Zscaler OneAPI</a> only.</p>",
+          "operationId": "DepartmentResource_deleteDepartment",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "departmentId",
+              "in": "path",
+              "description": "Department ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/groups": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Retrieves a list of groups. The search parameters find matching values in the <code>name</code> or <code>comments</code> attributes.</p>\n",
+          "operationId": "getGroups",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against a group's name or comments attributes",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "adminScopeSupport",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "description": "A Boolean value that indicates whether the group is part of the admin scope. When you set the value to <b>true</b>, the group is included in the admin scope."
+            },
+            {
+              "name": "definedBy",
+              "in": "query",
+              "description": "The string value defined by the group name or other applicable attributes",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            },
+            {
+              "name": "sortBy",
+              "in": "query",
+              "description": "Sorts the groups based on available values",
+              "required": false,
+              "type": "string",
+              "default": "id",
+              "enum": [
+                "id",
+                "name",
+                "expiry",
+                "status",
+                "externalId",
+                "rank",
+                "modTime"
+              ]
+            },
+            {
+              "name": "sortOrder",
+              "in": "query",
+              "description": "Sorts the order of groups based on available values",
+              "required": false,
+              "type": "string",
+              "default": "asc",
+              "enum": [
+                "asc",
+                "desc",
+                "ruleExecution"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Group"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Adds a new group. To learn more, see <a href=\"/zia/adding-groups\" target=\"_blank\">Adding Groups</a>.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"/oneapi/understanding-oneapi\" target=\"_blank\">Zscaler OneAPI</a> only.</p>",
+          "operationId": "GroupResource_addGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Group information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/Group"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Group"
+              }
+            },
+            "201": {
+              "description": "Group created successfully"
+            },
+            "401": {
+              "description": "Unauthorized access"
+            },
+            "403": {
+              "description": "Forbidden access"
+            }
+          }
+        }
+      },
+      "/groups/lite": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Retrieves a list of group names. The search parameters find matching values in the <code>name</code> or <code>comments</code> attributes.</p>",
+          "operationId": "GroupResource_getGroupsLite",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against a group's name or comments attributes",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "adminScopeSupport",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "description": "A Boolean value that indicates whether the group is part of the admin scope. When you set the value to <b>true</b>, the group is included in the admin scope."
+            },
+            {
+              "name": "definedBy",
+              "in": "query",
+              "description": "The string value defined by the group name",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            },
+            {
+              "name": "sortBy",
+              "in": "query",
+              "description": "Sorts the group names based on available values",
+              "required": false,
+              "type": "string",
+              "default": "id",
+              "enum": [
+                "id",
+                "name",
+                "expiry",
+                "status",
+                "externalId",
+                "rank",
+                "modTime"
+              ]
+            },
+            {
+              "name": "sortOrder",
+              "in": "query",
+              "description": "Sorts the order of group names based on available values",
+              "required": false,
+              "type": "string",
+              "default": "asc",
+              "enum": [
+                "asc",
+                "desc",
+                "ruleExecution"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Group"
+              }
+            }
+          }
+        }
+      },
+      "/groups/{groupId}": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Retrieves the group based on the specified ID</p>",
+          "operationId": "GroupResource_getGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "Group ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Group"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Updates an existing group based on the specified ID.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"/oneapi/understanding-oneapi\" target=\"_blank\">Zscaler OneAPI</a> only.</p>",
+          "operationId": "GroupResource_updateGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "Group ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Group information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/Group"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Group updated successfully",
+              "schema": {
+                "$ref": "#/definitions/Group"
+              }
+            },
+            "400": {
+              "description": "Invalid request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Deletes the group based on the specified ID.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"/oneapi/understanding-oneapi\" target=\"_blank\">Zscaler OneAPI</a> only.</p>",
+          "operationId": "GroupResource_deleteGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "Group ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Group deleted successfully"
+            },
+            "403": {
+              "description": "User does not have the required permissions"
+            },
+            "404": {
+              "description": "Group not found"
+            }
+          }
+        }
+      },
+      "/groups/lite/{groupId}": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Retrieves the group based on the specified ID</p>",
+          "operationId": "GroupResource_getGroupLite",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "Group ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Group"
+              }
+            }
+          }
+        }
+      },
+      "/users": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Gets a list of all users and allows user filtering by name, department, or group. The <code>name</code> search parameter performs a partial match. The <code>dept</code> and <code>group</code> parameters perform a 'starts with' match.</p>\n",
+          "operationId": "getUsers",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "name",
+              "in": "query",
+              "description": "Filters by user name.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "dept",
+              "in": "query",
+              "description": "Filters by department name.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "group",
+              "in": "query",
+              "description": "Filters by group name.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 100 and the maximum size is 10,000.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/User"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Adds a new user. A user can belong to multiple groups, but can only belong to one department.</p>\n",
+          "operationId": "addUser",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "user",
+              "description": "User information.",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          }
+        }
+      },
+      "/users/bulkDelete": {
+        "post": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Bulk delete users up to a maximum of 500 users per request. The response returns the user IDs that were successfully deleted.</p>\n",
+          "operationId": "bulkDeleteUsers",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "userIds",
+              "description": "The user IDs to bulk delete.",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/IdListInteger"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/IdList"
+              }
+            }
+          }
+        }
+      },
+      "/users/references": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "Gets the list of Name-ID pairs for all users in the ZIA Admin Portal that can be referenced in user criteria within policies. Users can be filtered by name and the <code>name</code> search parameter performs a partial match. Administrators can be optionally included in the list by using the <code>includeAdminUsers</code> parameter.",
+          "operationId": "UserZResource_getUserReferences",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "name",
+              "in": "query",
+              "description": "Filters by user name",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "includeAdminUsers",
+              "in": "query",
+              "description": "Specifies whether to include the administrator users when retrieving the list",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 1 and the maximum size is 100.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EntityReference"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/{userId}": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Gets the user information for the specified ID.</p>\n",
+          "operationId": "getUser",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "path",
+              "description": "The unique identifer for the user.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Updates the user information for the specified ID. However, the <code>email</code> attribute is read-only.</p>\n",
+          "operationId": "updateUser",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "path",
+              "description": "The unique identifer for the user.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "user",
+              "description": "User information.",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "<p>Deletes the user for the specified ID.</p>\n",
+          "operationId": "deleteUser",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "path",
+              "description": "The unique identifer for the user.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/users/auditors": {
+        "get": {
+          "tags": [
+            "User Management"
+          ],
+          "description": "Gets a list of auditors. To learn more, see <a href=\"/zia/about-auditors\" target=\"_blank\">About Auditors</a>.",
+          "operationId": "UserResource_getAuditors",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "Department": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Department ID",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Department name"
+          },
+          "idpId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Identity provider (IdP) ID. This field is not applicable to the Lite API."
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about this department. This field is not applicable to the Lite API."
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "List of deleted departments",
+            "default": false
+          }
+        }
+      },
+      "Group": {
+        "type": "object",
+        "required": [
+          "name",
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier for the group"
+          },
+          "name": {
+            "type": "string",
+            "description": "Group name"
+          },
+          "idpId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unique identifier for the identity provider (IdP)"
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about the  group"
+          },
+          "adminScopeSupport": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates if the group is part of the admin scope"
+          },
+          "isSystemDefined": {
+            "type": "boolean",
+            "description": "System-defined group"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "department",
+          "email",
+          "groups",
+          "name",
+          "password"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "User ID",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "<p>User name. This appears when choosing users for policies.</p><p><b>Note</b>: The name field allows values containing UTF-8 characters up to a maximum of 127 characters.</p>"
+          },
+          "email": {
+            "type": "string",
+            "description": "<p>User email consists of a user name and domain name. It does not have to be a valid email address, but it must be unique and its domain must belong to the organization.</p><p><b>Note</b>: The email field allows values of alphanumeric characters and certain special characters up to a maximum of 127 characters. The use of the <code>@</code> symbol is mandatory. This field corresponds to the User ID (also referred to as Login ID) field in the UI. However, the data validation in the UI uses different constraints.</p>"
+          },
+          "groups": {
+            "type": "array",
+            "description": "List of Groups a user belongs to. Groups are used in policies.",
+            "items": {
+              "$ref": "#/definitions/Group"
+            }
+          },
+          "department": {
+            "description": "Department a user belongs to",
+            "allOf": [
+              {
+                "$ref": "#/definitions/Department"
+              }
+            ]
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about this user."
+          },
+          "tempAuthEmail": {
+            "type": "string",
+            "description": "Temporary Authentication Email. If you enabled one-time tokens or links, enter the email address to which the Zscaler service sends the tokens or links. If this is empty, the service sends the email to the User email."
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password. Applicable only when authentication type is Hosted DB. Password strength must follow what is defined in the auth settings."
+          },
+          "adminUser": {
+            "type": "boolean",
+            "description": "True if this user is an Admin user",
+            "readOnly": true,
+            "default": false
+          },
+          "type": {
+            "type": "string",
+            "description": "User type. Provided only if this user is not an end user.",
+            "readOnly": true,
+            "enum": [
+              "SUPERADMIN",
+              "ADMIN",
+              "AUDITOR",
+              "GUEST",
+              "REPORT_USER",
+              "UNAUTH_TRAFFIC_DEFAULT"
+            ]
+          }
+        }
+      },
+      "IdListInteger": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "IdList": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of an ID and name"
+      }
+    }
+  }
+}

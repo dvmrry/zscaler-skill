@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments",
+  "title": "ZPA application segments",
+  "aliases": [
+    "application segment",
+    "app segment",
+    "which application segment handles this request",
+    "overlapping application segments",
+    "zpa application segment matching",
+    "app segments",
+    "application segments"
+  ],
+  "binds": [
+    "zpa/application-segments"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zpa.app-segments.matching",
+      "because": "zpa.app-segments.matching:granularity-ranking"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zpa.app-segments.bypass",
+      "because": "zpa.app-segments.bypass:bypass-beats-cfp"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zpa.policy.multimatch",
+      "because": "zpa.policy.multimatch:match-order"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.policy.evaluation-order",
+      "because": "zpa.policy.evaluation-order:segment-then-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.api.app-segments-wire"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.app-segments.api-fields"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.app-segments.sdk-behavior"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.app-segments.ansible-children"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.multimatch"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.multimatch-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.definition"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.segment-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.share-and-move"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.enterprise-apps"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.peer-to-peer"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.health-reporting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.double-encryption"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.discovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.dns-search-domains"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.pattern-matching"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.private-link-domains"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.ai-recommendations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.import"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.tags"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.admin-console"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Which application segment handles this request, and how is it configured?\" splits into the questions below."
+    },
+    {
+      "steps": [
+        {
+          "label": "Which segment is picked when several cover the destination?",
+          "text": "Granularity, port misses and carve-outs: [[zpa.app-segments.matching]], with the exact-match behavior itself in [[zpa.policy.multimatch]]."
+        },
+        {
+          "label": "Does the Bypass setting override that?",
+          "text": "[[zpa.app-segments.bypass]]."
+        },
+        {
+          "label": "Can one request match more than one segment?",
+          "text": "Multimatch consistency and examples in [[zpa.app-segments.multimatch]], its prerequisites and restrictions in [[zpa.app-segments.multimatch-requirements]]."
+        },
+        {
+          "label": "What may a segment contain and which settings interact?",
+          "text": "Entries, ports and wildcards in [[zpa.app-segments.definition]]; health reporting, connector selection, CNAME, ICMP, encryption and anchoring in [[zpa.app-segments.settings]]."
+        },
+        {
+          "label": "How do health checks, Double Encryption and discovery work?",
+          "text": "Health Reporting modes and the check mechanism: [[zpa.app-segments.health-reporting]]. Double Encryption: [[zpa.app-segments.double-encryption]]. Application discovery and the 14-day widget: [[zpa.app-segments.discovery]]. DNS search domains: [[zpa.app-segments.dns-search-domains]]."
+        },
+        {
+          "label": "Can a segment hold patterns, or route by CNAME?",
+          "text": "Asterisk and question-mark patterns in FQDNs: [[zpa.app-segments.pattern-matching]]. Private link resources matched by returned CNAME: [[zpa.app-segments.private-link-domains]]."
+        },
+        {
+          "label": "How are segments created in bulk, recommended or labeled?",
+          "text": "AI-powered recommendations: [[zpa.app-segments.ai-recommendations]]. CSV import and merge: [[zpa.app-segments.import]]. Namespaces and tags: [[zpa.app-segments.tags]]. The Defined Application Segments page, with its delete and edit locks: [[zpa.app-segments.admin-console]]."
+        },
+        {
+          "label": "What do the API and SDK fields look like?",
+          "text": "[[zpa.app-segments.api-fields]], with move and share in [[zpa.microtenants.share-and-move]]."
+        },
+        {
+          "label": "How are common enterprise applications set up?",
+          "text": "Unified communications, FTP, RDP, file servers, Citrix, Configuration Manager, SAP and others: [[zpa.app-segments.enterprise-apps]]."
+        },
+        {
+          "label": "Can a segment reach a user's device instead of a server?",
+          "text": "Client-to-client and server-to-client connectivity and the Zscaler IP ranges: [[zpa.peer-to-peer]]."
+        },
+        {
+          "label": "Which tool defects change what is sent?",
+          "text": "[[zpa.app-segments.sdk-behavior]], [[zpa.app-segments.ansible-children]] and the Terraform lifecycle in [[zpa.terraform.app-segment-lifecycle]]."
+        }
+      ]
+    },
+    {
+      "text": "Every segment belongs to a segment group: [[zpa.segment-groups]]. After the segment is chosen, access policy decides whether the request is allowed: [[zpa.policy.evaluation-order]]."
+    }
+  ]
+}

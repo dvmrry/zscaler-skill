@@ -1,0 +1,363 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Changing a GCP Orchestrator Account",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/changing-gcp-orchestrator-account",
+    "node": "1498126",
+    "revision": "3249687",
+    "updated": "2026-10-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "DSPM regularly scans the data stores of the target projects by leveraging the orchestrator template deployed in the GCP orchestrator project while onboarding."
+    },
+    {
+      "text": "After onboarding an organization, you can change the orchestrator project if the existing orchestrator project is being decommissioned, deleted, or if an incorrect project was selected while onboarding. When you change the orchestrator project, you must run the orchestrator template in the new project. DSPM validates the template deployment and updates the orchestrator status accordingly."
+    },
+    {
+      "text": "This option is available only for tenants onboarded through Zscaler network configuration mode."
+    },
+    {
+      "text": "Until the new orchestrator project is successfully validated, the following changes occur:"
+    },
+    {
+      "item": "The existing orchestrator is disabled.",
+      "depth": 0
+    },
+    {
+      "item": "The DSPM connection status moves to the Waiting for Connection state and Configuration status moves to the Pending state.",
+      "depth": 0
+    },
+    {
+      "item": "The data scans are stopped.",
+      "depth": 0
+    },
+    {
+      "item": "The target projects move to the Needs Attention state.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Be assigned either an administrator role or a custom role with the Configure New Orchestrator permission in the Zscaler Admin Console."
+    },
+    {
+      "heading": "Changing Orchestrator Subscription",
+      "level": 1
+    },
+    {
+      "text": "To change the orchestrator project:"
+    },
+    {
+      "item": "From the navigation menu, go to Data Security > DSPM > Cloud Accounts.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          52
+        ],
+        [
+          55,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "The Cloud Accounts page appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Cloud Accounts page, select the organization to which you want to change the orchestrator subscription.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Manage, and then select Configure New Orchestrator from the drop-down menu.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          30,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "In the New Orchestrator window, read the caution and then select the I understand checkbox.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          69,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Click Continue.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure an Orchestrator project page:",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Select an orchestrator project on which you want to deploy the DSPM's orchestrator template.",
+      "depth": 1
+    },
+    {
+      "item": "Select Orchestrator Region: Select a region where you want to deploy the orchestrator project.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Log Bucket Name: Enter a unique name for the log bucket. This log bucket stores the activity logs of the target projects. The log bucket is created while deploying the onboarding template. The name must be unique, otherwise DSPM shows an error message.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Grant Permissions section, download the GCP onboarding template, which includes policies and permissions to create custom roles in the GCP organization, and deploy it on your cloud account. This template provides DSPM with the permissions to access the organization.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Before running the template on the new orchestrator subscription, purge the template that was previously deployed on the existing orchestrator by running the terraform destroy command.",
+      "depth": 0
+    },
+    {
+      "item": "a. In the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "Click GCP Onboarding to download the template as a ZIP file.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "b. On the Local System",
+      "depth": 1
+    },
+    {
+      "item": "Update and run the template in the gcloud using the CLI app:",
+      "depth": 1
+    },
+    {
+      "item": "Extract the downloaded ZIP file to a local directory on your system.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Locate the backend.tf file within the extracted folder and open it in a text editor.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Update the file by adding the name of the storage bucket and a preferred prefix where you would like to store the Terraform state files, and then, save and close the backend.tf file.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Open the Command Prompt or any other CLI app on your local system.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Switch to the directory containing the downloaded Terraform file.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Run the following commands:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "To initialize the working directory and apply the Terraform configuration:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "terraform init",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "To verify the changes in the Terraform configuration:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "terraform plan",
+      "depth": 3
+    },
+    {
+      "item": "For Enter a value, enter the regions where you want DSPM to monitor and scan data in the following format:",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "[\"region name1\", \"region name2\", \"region name3\", and so on.]",
+      "depth": 3
+    },
+    {
+      "item": "DSPM creates resources required for data scanning only in these specified regions.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "To run the Terraform script:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "terraform apply",
+      "depth": 3
+    },
+    {
+      "item": "For Enter a value, enter the regions where you want to deploy the template in the following format:",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "[\"region name1\", \"region name2\", \"region name3\", and so on.]",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "For Do you want to perform these actions?, enter yes and then press Enter.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Done.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "DSPM validates the template deployment every hour by checking the roles that are created and permissions granted.",
+      "depth": 0
+    },
+    {
+      "item": "An error message appears if there is any issue while deploying the template. Rerun the template in the root account. After the template is successfully deployed, the DSPM begins the data scan for the onboarded projects, and you are directed to the Overview page to view the status of the onboarded project and orchestrator details.",
+      "depth": 0
+    }
+  ]
+}

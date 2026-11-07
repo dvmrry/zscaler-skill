@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Business Continuity",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/understanding-business-continuity",
+    "node": "1507011",
+    "revision": "3249614",
+    "updated": "2026-10-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Business Continuity for Private Access (ZPA) allows users to continue to access applications during Private Access-related cloud outages or Internet Service Provider (ISP) outages. Business Continuity helps organizations achieve uninterrupted access to applications without any manual intervention."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "The following prerequisites must be met for Business Continuity:"
+    },
+    {
+      "item": "Ensure the following:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "End users' machines are running Zscaler Client Connector versions 4.6 and later for Windows.",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controllers can receive inbound connections from end users, App Connectors, and Private Service Edges for Zscaler Private Access (ZPA) on port 443.",
+      "depth": 1
+    },
+    {
+      "item": "End users are able to resolve the Business Continuity FQDNs and can connect to the Private Cloud Controllers and Private Service Edges using the Business Continuity SNIs on port 443.",
+      "depth": 1
+    },
+    {
+      "item": "App Connectors and Private Service Edges can resolve the Business Continuity FQDNs, and can connect to the Private Cloud Controllers outbound connections on port 443.",
+      "depth": 1
+    },
+    {
+      "item": "The Private Service Edge can receive inbound connections from end users and all App Connectors on port 443.",
+      "depth": 1
+    },
+    {
+      "item": "To ensure that Business Continuity functions properly, Private Cloud Controllers must run on the same or a later software version as the App Connectors and Private Service Edges.",
+      "depth": 1
+    },
+    {
+      "item": "All applications must be configured before entering Business Continuity.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "All access policies must be configured before entering Business Continuity.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Customers must provide the following infrastructure:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "DNS servers",
+      "depth": 1
+    },
+    {
+      "item": "Per-tenant identity provider (IdP) to be used during Business Continuity",
+      "depth": 1
+    },
+    {
+      "item": "The following infrastructure changes are optional:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "SIEM for visibility or logging during Business Continuity.",
+      "depth": 1
+    },
+    {
+      "item": "Microsoft's Group Policy Object (GPO) or Mobile Device Management functionalities to install Zscaler Client Connector with customer-specific configurations for new user enrollment.",
+      "depth": 1
+    },
+    {
+      "heading": "Overview",
+      "level": 1
+    },
+    {
+      "text": "The following procedures assume the prerequisites are met and provide an overview of the steps needed to configure Business Continuity within the Zscaler Admin Console:"
+    },
+    {
+      "item": "Configure the Business Continuity settings.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Add Private Clouds, Private Cloud Controllers, and Private Cloud Controller groups. App Connectors and Private Service Edges leverage Private Clouds and Private Cloud Controllers when the Private Access cloud is not available or reachable. Private Clouds, Private Cloud Controllers, and Private Cloud Controller groups that are managed by Zscaler are read only and cannot be configured, edited, or deleted.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Private Clouds are the logical grouping of Private Cloud Controller groups, App Connector groups, Private Service Edge groups, and log receivers. If you are using Zscaler-managed Business Continuity, you can still associate a Private Cloud Controller group, Private Service Edge group, and App Connector group to a Private Cloud. To learn more, see Configuring Private Cloud Controllers and Configuring Private Clouds.",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler Client Connector Portal, complete the following steps:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Enable Business Continuity per app profile. To learn more, see Configuring Zscaler Client Connector App Profiles.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Infrastructure > Business Continuity > Settings, and then sync, download, and copy the thumbprint of the Business Continuity configuration. To learn more, see About Business Continuity.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          42
+        ],
+        [
+          45,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Deploy Zscaler Client Connector with the Business Continuity installation parameters. To learn more, see Customizing Zscaler Client Connector with Install Options for EXE and Customizing Zscaler Client Connector with Install Options for MSI.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "text": "To learn more about how to enter and exit Business Continuity, see Entering and Exiting Business Continuity."
+    },
+    {
+      "heading": "Limitations",
+      "level": 1
+    },
+    {
+      "text": "The following limitations apply for Business Continuity:"
+    },
+    {
+      "item": "For new users who enrolled during active Business Continuity:",
+      "depth": 0
+    },
+    {
+      "item": "Mutual TLS authentication between users and Private Service Edges is not supported.",
+      "depth": 1
+    },
+    {
+      "item": "SCIM attributes are not supported. Only SAML attributes are supported for access policies, timeout policies, and client forwarding policies.",
+      "depth": 1
+    },
+    {
+      "item": "While in active Business Continuity, configuration changes (including deployment of Private Service Edges and App Connectors) are not supported.",
+      "depth": 0
+    },
+    {
+      "item": "Browser Access, Source IP Anchoring, Cloud Connector, and Branch Connector client types are not supported.",
+      "depth": 0
+    },
+    {
+      "item": "You cannot renew certificates for on-premises server components (i.e., App Connectors, Private Service Edges, and Private Cloud Controllers) while in active Business Continuity. These components maintain certificate validity for one year, but can be renewed earlier by specifying the Certificate Renewal Threshold when configuring a Private Cloud.",
+      "depth": 0
+    },
+    {
+      "item": "App Connectors, Private Service Edges, and Private Cloud Controllers do not automatically upgrade to Business Continuity.",
+      "depth": 0
+    }
+  ]
+}

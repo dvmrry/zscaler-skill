@@ -1,0 +1,1423 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Private Cloud Controller Deployment Guide for VMware Platforms",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/private-cloud-controller-deployment-guide-vmware-platforms",
+    "node": "1529183",
+    "revision": "3226425",
+    "updated": "2026-07-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites and how to deploy a Private Cloud Controller on a VMware platform. For general information regarding Private Cloud Controller deployment, see Deploying Private Cloud Controllers."
+    },
+    {
+      "item": "Step 1: Make Sure You Have Met All Private Cloud Controller Deployment Prerequisites",
+      "depth": 0
+    },
+    {
+      "item": "Before deploying a Private Cloud Controller on any supported platform, Zscaler highly recommends reading the following information and making the necessary changes to your organization's environment, where applicable.",
+      "depth": 0
+    },
+    {
+      "item": "Each Private Cloud Controller supports between 100 to 250 Mbps of SIEM throughput. Use the information on this page to determine the Private Cloud Controller sizing requirements for your deployment. Private Cloud Controller sizing must be based on the number of users that need to be redirected and the expected SIEM throughput.",
+      "depth": 0
+    },
+    {
+      "item": "Private Cloud Controller Specifications and Sizing Requirements",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controller Platform Prerequisites",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controller Security Guidance and Firewall Requirements",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controller Zscaler Client Connector Requirements",
+      "depth": 1
+    },
+    {
+      "item": "After you have met all of the prerequisites, you can deploy the Private Cloud Controller on a supported platform.",
+      "depth": 0
+    },
+    {
+      "item": "The following specifications are recommended by Zscaler for up to 250 Mbps SIEM throughput based on the sizing. Refer to the following table for the sizing and relevant SIEM data throughput.",
+      "depth": 0
+    },
+    {
+      "item": "Memory (RAM), vCPU (for virtual machines), SIEM throughput, or CPU (for physical machines) cores:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Active Users",
+          "Memory",
+          "SIEM Throughput",
+          "vCPU or CPU Cores"
+        ],
+        [
+          "Up to 2,000",
+          "16 GB",
+          "100 Mbps",
+          "4 vCPUs or 4 CPUs"
+        ],
+        [
+          "Up to 4,000",
+          "32 GB",
+          "150 Mbps",
+          "8 vCPUs or 8 CPUs"
+        ],
+        [
+          "Up to 10,000",
+          "64 GB",
+          "250 Mbps",
+          "16 vCPUs or 16 CPUs"
+        ]
+      ]
+    },
+    {
+      "item": "Disk Space: 64 GB (thin provisioned) for all deployment platforms",
+      "depth": 1
+    },
+    {
+      "item": "Network Card: 1 NIC (minimum)",
+      "depth": 1
+    },
+    {
+      "item": "Depending on your deployment use case, each Private Cloud Controller must be able to accept incoming connections from either internal or external sources or both internal and external sources on TCP port 443. For example, if you enable Private Access (ZPA) for both remote and office users, each Private Cloud Controller needs to accept incoming connections from both internal and external endpoints running Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Private Cloud Controllers are reachable over the internet for remote users in Business Continuity.",
+      "depth": 0
+    },
+    {
+      "item": "In the scenario where a Private Cloud Controller is deployed behind a firewall, the firewall performs destination network address translation (DNAT) for the Private Cloud Controller's private IP address. In this case, the flow of traffic is from Zscaler Client Connector to the Private Cloud Controller. The firewall then translates the destination public IP address that Zscaler Client Connector connects to the private IP address of the Private Cloud Controller. The firewall advertises a public IP address on the internet. It is necessary to configure the public IP address advertised by the firewall as a publish IP address of the respective Private Cloud Controller. In the case of disaster recovery, you must add this IP address as the A record for that Private Cloud Controller.",
+      "depth": 0
+    },
+    {
+      "item": "Your firewalls must be configured to let the Private Cloud Controller establish outbound connections to the IP addresses of the Public Service Edge for Private Access, and establish inbound connections from App Connectors, Private Service Edges, and Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "The following conditions apply to each Private Cloud Controller that is placed behind a firewall:",
+      "depth": 0
+    },
+    {
+      "item": "They must accept incoming connections from internal sources, remote users, and on-premises users (as applicable and dependent on your use case) on TCP port 443.",
+      "depth": 1
+    },
+    {
+      "item": "They must have a unique private IP address that can be reached over the internal network.",
+      "depth": 1
+    },
+    {
+      "item": "After a Private Cloud Controller is enrolled, an outbound TLS tunnel over TCP port 443 is established to the Private Access cloud infrastructure. This communication channel provides various functionality and includes the following traffic:",
+      "depth": 0
+    },
+    {
+      "item": "Periodic keepalives to the Public Service Edge",
+      "depth": 1
+    },
+    {
+      "item": "Tenant-specific configuration and policy download",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controller software upgrades (upgrades are completed based on a weekly schedule)",
+      "depth": 1
+    },
+    {
+      "item": "You can deploy additional Private Cloud Controllers at any time using the same provisioning key to add them to the existing Private Cloud Controller group, while ensuring network and internet connectivity. Private Cloud Controllers are designed to scale elastically. You can deploy additional Private Cloud Controllers in the same Private Cloud Controller group to increase the total throughput as required by your deployment. Zscaler recommends that you deploy Private Cloud Controllers in pairs (N+1), where N is the number of Private Cloud Controllers as per the sizing requirements. To learn more, see Deploying Private Cloud Controllers and Private Cloud Controller Deployment Guides for Supported Platforms.",
+      "depth": 0
+    },
+    {
+      "item": "After deployment, ensure that the Private Cloud Controller meets your sizing requirements. If disk space fills up in the Private Cloud Controller, Zscaler recommends archiving files and creating more log space.",
+      "depth": 0
+    },
+    {
+      "heading": "Understanding Private Cloud Controller Throughput",
+      "level": 1
+    },
+    {
+      "item": "Throughput numbers are aggregate (i.e., total inbound and outbound). Each Private Cloud Controller supports up to 250 Mbps SIEM throughput. Private Cloud Controllers communicate over the provided (default) gateway, which is most likely your ISP WAN broadband connection.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you check your existing VPN solution's average and peak throughput and the number of users when determining your sizing requirements. Be sure to only account for user or client VPN traffic and not any site-to-site tunnel traffic.",
+      "depth": 0
+    },
+    {
+      "item": "Private Cloud Controller sizing must be based on the number of users that need to be redirected and the expected SIEM throughput. The exact throughput can vary and depends on other network factors such as your internal network setup and latency. Make sure that you have enough Private Cloud Controllers to support the connection and room for failover (N+1).",
+      "depth": 0
+    },
+    {
+      "item": "To horizontally scale your deployment, Zscaler recommends that you have more Private Cloud Controllers with lower specifications rather than fewer Private Cloud Controllers with higher specifications. For example, if you have fewer Private Cloud Controllers with higher specifications and one fails, you could adversely affect more user application traffic or sessions than a smaller Private Cloud Controller that fails.",
+      "depth": 0
+    },
+    {
+      "item": "Before you begin any procedures within the Private Cloud Controller Deployment Guide for Linux, make sure that you have all of the following prerequisites:",
+      "depth": 0
+    },
+    {
+      "item": "Intel x86_64/AMD 64-based architecture",
+      "depth": 1
+    },
+    {
+      "item": "systemd",
+      "depth": 1
+    },
+    {
+      "item": "Root or sudo access to the system to configure a new package repository and install packages",
+      "depth": 1
+    },
+    {
+      "item": "DNS resolution and network access",
+      "depth": 1
+    },
+    {
+      "item": "For OAuth 2.0 enrollment, Manager software and Private Cloud Controller version 25.47.3 or later",
+      "depth": 1
+    },
+    {
+      "item": "An OAuth 2.0 enrollment token obtained from a hyperscaler marketplace, virtual image, or RPM installer provided by Zscaler, or a Private Cloud Controller provisioning key obtained from the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "The OAuth server only supports IPv4-based communication. If a Private Cloud Controller only has an IPv6 address, it cannot access the OAuth server.",
+      "depth": 1
+    },
+    {
+      "item": "A static MAC address",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controllers can be deployed in different ways, so the security features for each deployment type are slightly different.",
+      "depth": 0
+    },
+    {
+      "heading": "Operating System Security",
+      "level": 1
+    },
+    {
+      "item": "Some organizations choose to firewall or otherwise restrict outbound traffic to the internet from the data center. It is possible to deploy a Private Cloud Controller in such an environment as long as the Private Cloud Controller can reach all Zscaler data centers containing Public Service Edges. For firewall configuration information for your deployment, see config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "heading": "Firewall Requirements and Interoperability Guidelines",
+      "level": 1
+    },
+    {
+      "item": "All of the Zscaler data centers containing Public Service Edges must be allowed. A partial firewall configuration will result in connectivity problems for end users. Zscaler's policy is to provide a 90-day notice for activating additional IP CIDR ranges to provide organizations with sufficient opportunity for changing control policies.",
+      "depth": 0
+    },
+    {
+      "item": "Because the service enforces TLS certificate pinning for both client and server certificates, all forms of inline or man-in-the-middle TLS interception or inspection must be disabled. Private Cloud Controllers do not function if the TLS certificates presented by the Public Service Edges do not cryptographically verify against Zscaler-trusted public keys.",
+      "depth": 0
+    },
+    {
+      "item": "By design, certificate verification is not configurable to maintain the integrity of the service, so ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the Private Cloud Controller. This is necessary to allow the Private Cloud Controller to resolve and reach Public Service Edges. Private Cloud Controller requires your firewall configuration to accept incoming connections from users. Also, if you need to allowlist additional Zscaler IP addresses, refer to config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names. It might be possible to allowlist based on Zscaler cloud hostnames instead of IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "Private Cloud Controllers require that the Zscaler Client Connector is at least on version 4.6 or later for Windows.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Deploy the Private Cloud Controller on a VMware Platform",
+      "depth": 0
+    },
+    {
+      "item": "Deploying on VMware vCenter",
+      "depth": 1
+    },
+    {
+      "item": "The following deployment procedure provides additional information on prerequisites and how to deploy a Private Cloud Controller on a VMware platform with vCenter.",
+      "depth": 1
+    },
+    {
+      "item": "Make sure the following prerequisites are met for VMware vCenter:",
+      "depth": 1
+    },
+    {
+      "item": "VMware vCenter version ESXi 7.0 Update 2 or later.",
+      "depth": 2
+    },
+    {
+      "item": "Access to vCenter to deploy an OVA file as a virtual machine (VM).",
+      "depth": 2
+    },
+    {
+      "item": "Access to vCenter to configure the virtual NIC of the VM onto the appropriate Virtual Network or VLAN.",
+      "depth": 2
+    },
+    {
+      "item": "Access to vCenter to modify the vApp attributes of the VM.",
+      "depth": 2
+    },
+    {
+      "item": "VMware vSphere Client Integration Plugin installed (which enables the functionality needed to upload new OVA/OVF images into vSphere).",
+      "depth": 2
+    },
+    {
+      "item": "To deploy a Private Cloud Controller on VMware vCenter:",
+      "depth": 1
+    },
+    {
+      "item": "Obtain the latest VMware image from Zscaler. You can also use the following link to download the file for the vSphere Web Client:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-pcc-el9-2026.07.ova.",
+      "depth": 2
+    },
+    {
+      "item": "Connect to a vCenter Server with the vSphere Web Client and log in.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Home, then click VMs and Templates.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          23,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "From the Actions menu, select Deploy OVF Template.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          16
+        ],
+        [
+          30,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Deploy OVF Template window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "For 1 Source > 1a Select source, complete one of the following procedures:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          4,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Select URL, enter the following URL for the Private Cloud Controller image into the provided field, then click Next:",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          10
+        ],
+        [
+          111,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-pcc-el9-2026.07.ova",
+      "depth": 3
+    },
+    {
+      "item": "The image is downloaded and then uploads to vCenter.",
+      "depth": 3
+    },
+    {
+      "item": "If you've already downloaded the VMware image to your local system, select Local file, click Browse to locate the image file, and then click Next.",
+      "depth": 3,
+      "strong": [
+        [
+          75,
+          85
+        ],
+        [
+          93,
+          99
+        ],
+        [
+          141,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 1 Source > 1b Review details, verify that the OVF template details are correct, then click Next.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          4,
+          24
+        ],
+        [
+          25,
+          32
+        ],
+        [
+          95,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 2 Destination > 2a Select name and folder, the name and folder specified in vCenter has no impact on the Private Access service. Select a name and folder that is suitable for your organization, then click Next.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          4,
+          45
+        ],
+        [
+          209,
+          213
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 2 Destination > 2b Select a resource, select the destination resource (i.e., cluster, host, vApp, or resource pool), then click Next.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          4,
+          40
+        ],
+        [
+          132,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 2 Destination > 2c Select storage, choose Thin Provision for the virtual disk format, then click Next. This selection generally results in smaller disk space utilization.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          4,
+          37
+        ],
+        [
+          46,
+          60
+        ],
+        [
+          101,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 2 Destination > 2d Setup networks, configure the IP allocation network settings as necessary.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          4,
+          37
+        ],
+        [
+          53,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "The Private Cloud Controller is preconfigured to obtain an IP address on its primary interface via DHCP.",
+      "depth": 1
+    },
+    {
+      "item": "If the DHCP service is available in your environment, select DHCP.",
+      "depth": 2,
+      "strong": [
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "If the DHCP service is not available in your environment, you must complete the following networking tasks:",
+      "depth": 2
+    },
+    {
+      "item": "Configure Static IP Addressing",
+      "depth": 3
+    },
+    {
+      "item": "Configure the Domain Name System (DNS) Resolver",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 3 Ready to complete, ensure that the Power on after deployment checkbox is not selected, then click Finish.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          4,
+          23
+        ],
+        [
+          41,
+          66
+        ],
+        [
+          104,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Within the Recent Tasks panel, you can monitor the deployment progress.",
+      "depth": 1,
+      "strong": [
+        [
+          11,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After the deployment has successfully completed, ensure that the VM has not been powered on before proceeding to the next step.",
+      "depth": 1
+    },
+    {
+      "item": "Within the Navigator panel, select the deployed VM, and select Edit Settings from the Actions menu.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          11,
+          20
+        ],
+        [
+          63,
+          76
+        ],
+        [
+          86,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Edit Settings window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Settings window, select the vApp Options tab.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          40,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Under Authoring > OVF settings:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "For OVF environment transport, select the VMware Tools checkbox.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          4,
+          29
+        ],
+        [
+          42,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "For Installation boot, select the Enable checkbox.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "From the Actions menu, select Power > Power On.",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          9,
+          16
+        ],
+        [
+          30,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Verify the local time on the VMware machine is correct. If not, update the time using Network Time Protocol.",
+      "depth": 2,
+      "number": 14
+    },
+    {
+      "item": "Make any necessary network configuration changes.",
+      "depth": 2,
+      "number": 15
+    },
+    {
+      "item": "Enroll the Private Cloud Controller using one of the following methods:",
+      "depth": 2,
+      "number": 16
+    },
+    {
+      "item": "The image attempts to use OAuth enrollment tokens by default but applies a provisioning key first if one is available.",
+      "depth": 2
+    },
+    {
+      "item": "OAuth 2.0 enrollment token",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "See instructions.",
+      "depth": 3
+    },
+    {
+      "item": "In the software component's virtual serial console, a login prompt appears followed by an OAuth Token value, similar to the following example:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "$ OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T",
+      "depth": 4
+    },
+    {
+      "item": "Copy the OAuth token that appears. Tokens are valid for 2 hours.",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, add the enrollment token for your software component:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "App Connector",
+      "depth": 5
+    },
+    {
+      "item": "Private Service Edge",
+      "depth": 5
+    },
+    {
+      "item": "Private Cloud Controller",
+      "depth": 5
+    },
+    {
+      "item": "Network Connector",
+      "depth": 5
+    },
+    {
+      "item": "Add an App Connector and enter the OAuth enrollment token on the Add App Connectors page. To learn more, see Configuring App Connectors.",
+      "depth": 3,
+      "strong": [
+        [
+          65,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Add a Private Service Edge and enter the OAuth enrollment token on the Add Private Service Edge page. To learn more, see Configuring Private Service Edges.",
+      "depth": 3,
+      "strong": [
+        [
+          71,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Add a Private Cloud Controller and enter the OAuth enrollment token on the Add Private Cloud Controller page. To learn more, see Configuring Private Cloud Controllers.",
+      "depth": 3,
+      "strong": [
+        [
+          75,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "Add a Network Connector and enter the OAuth enrollment token on the Add Network Connector page. To learn more, see Configuring Network Connectors.",
+      "depth": 3,
+      "strong": [
+        [
+          68,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Private Cloud Controller provisioning key.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "See instructions.",
+      "depth": 3
+    },
+    {
+      "item": "Stop the running Private Cloud Controller service.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "$ sudo systemctl stop zpa-pcc",
+      "depth": 3
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions at /opt/zscaler/var/pcc/provision_key. For example:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "$ sudo touch /opt/zscaler/var/pcc/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "$ sudo chmod 644 /opt/zscaler/var/pcc/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and click Save. Use an editor, such as vi.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          92,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "$ sudo vi /opt/zscaler/var/pcc/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key:",
+      "depth": 3
+    },
+    {
+      "item": "echo \"<PCC Provisioning Key>\" | sudo tee /opt/zscaler/var/pcc/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "Make sure that the key is within double quotes (\").",
+      "depth": 3
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "$ sudo cat /opt/zscaler/var/pcc/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 3
+    },
+    {
+      "item": "Start the Private Cloud Controller service.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "$ sudo systemctl start zpa-pcc",
+      "depth": 3
+    },
+    {
+      "item": "After enrolling the Private Cloud Controller, verify that the deployed Private Cloud Controller is running and healthy.",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler highly recommends updating the Private Cloud Controller system software before proceeding.",
+      "depth": 2,
+      "number": 17
+    },
+    {
+      "item": "Deploying on VMware vSphere Hypervisor (ESXi)",
+      "depth": 1
+    },
+    {
+      "item": "The following deployment procedure provides additional information on prerequisites and how to deploy a Private Cloud Controller on a VMware platform with vSphere Hypervisor.",
+      "depth": 1
+    },
+    {
+      "item": "Make sure the following prerequisites are met for VMware vSphere Hypervisor (ESXi) :",
+      "depth": 1
+    },
+    {
+      "item": "RHEL 9 deployments are supported on ESXi 7.0 Update 2 or later. To learn more about ESXi support, see End-of-Support for VMware vSphere Hypervisor (ESXi) Version 5.5.",
+      "depth": 2
+    },
+    {
+      "item": "VMware offers ESXi as part of a paid vSphere edition or free of charge with the vSphere Hypervisor edition. However, the free version of the platform does not include several deployment features. Specifically, the standalone vSphere Hypervisor edition is not able to parse the extended OVF attributes that allow you to provide the Private Cloud Controller provisioning key during deployment.",
+      "depth": 2
+    },
+    {
+      "item": "A VMware vSphere Client",
+      "depth": 2
+    },
+    {
+      "item": "A Hypervisor account",
+      "depth": 2
+    },
+    {
+      "item": "To deploy a Private Cloud Controller on vSphere Hypervisor (ESXi):",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the vSphere Hypervisor (ESXi) Server with the vSphere Client.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to File > Deploy OVF Template.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Complete one of the following procedures:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Enter the following URL for the Private Cloud Controller image into the provided field, then click Next: https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-pcc-el9-2026.07.ova",
+      "depth": 3,
+      "strong": [
+        [
+          99,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "If you use this option, the image is downloaded from the URL and uploaded to the vSphere Hypervisor (ESXi) server from the local system.",
+      "depth": 3
+    },
+    {
+      "item": "If you've already downloaded the VMware image to your local system, click Browse to locate the file, then click Next.",
+      "depth": 3,
+      "strong": [
+        [
+          74,
+          80
+        ],
+        [
+          112,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "Verify that the OVF Template Details are correct, then click Next.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          16,
+          36
+        ],
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "The Name and Location specified in vSphere Hypervisor (ESXi) has no impact on the Private Access service. Select a name and folder that is suitable for your organization, then click Next.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          182,
+          186
+        ]
+      ]
+    },
+    {
+      "item": "After you are asked to select a Storage configuration, make sure that you select Thin Provision for the disk format, then click Next. This selection generally results in smaller disk space utilization.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          32,
+          39
+        ],
+        [
+          81,
+          95
+        ],
+        [
+          128,
+          132
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that the Power on after deployment checkbox is selected, then click Finish.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          16,
+          41
+        ],
+        [
+          75,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Within the Recent Tasks panel, you can monitor the deployment progress. After the deployment has successfully completed, ensure that the VM has powered on before proceeding to the next step.",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "The Private Cloud Controller is preconfigured to obtain an IP address on its primary interface via DHCP.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "If the DHCP service is available in your environment, go to the following step.",
+      "depth": 3
+    },
+    {
+      "item": "If the DHCP service is not available in your environment, you must complete the following networking tasks before proceeding to the next step:",
+      "depth": 3
+    },
+    {
+      "item": "Configure Static IP Addressing",
+      "depth": 4
+    },
+    {
+      "item": "Configure the Domain Name System (DNS) Resolver",
+      "depth": 4
+    },
+    {
+      "item": "Verify the local time on the VMware machine is correct. If not, update the time using Network Time Protocol.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "Make any necessary network configuration changes before applying the provisioning key.",
+      "depth": 2,
+      "number": 10
+    },
+    {
+      "item": "Apply and populate the Private Cloud Controller provisioning key.",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "See instructions.",
+      "depth": 2
+    },
+    {
+      "item": "Stop running the Private Cloud Controller service.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "$ sudo systemctl stop zpa-pcc",
+      "depth": 2
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions at /opt/zscaler/var/pcc/provision_key. For example:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "$ sudo touch /opt/zscaler/var/pcc/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo chmod 644 /opt/zscaler/var/pcc/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and click Save. Use an editor, such as vi.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          92,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "$ sudo vi /opt/zscaler/var/pcc/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "If you are using vi, make sure it is in insert mode before you paste the key into the file.",
+      "depth": 2
+    },
+    {
+      "item": "If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key:",
+      "depth": 2
+    },
+    {
+      "item": "echo \"<PCC Provisioning Key>\" | sudo tee /opt/zscaler/var/pcc/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "Make sure that the key is within double quotes (\").",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "$ sudo cat /opt/zscaler/var/pcc/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 2
+    },
+    {
+      "item": "Start the Private Cloud Controller service.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "$ sudo systemctl start zpa-pcc",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler highly recommends updating the Private Access software before proceeding.",
+      "depth": 2,
+      "number": 12
+    },
+    {
+      "item": "Step 3: Configure the Networking for the Deployed Private Cloud Controller",
+      "depth": 0
+    },
+    {
+      "item": "After you have deployed a software component on a supported platform, you can complete the following networking configurations. Software components refer to App Connectors, Private Service Edges, Private Cloud Controllers, and Network Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "You can configure a Domain Name System (DNS) Resolver, Network Time Protocol (NTP) servers, static routing, and other features from the Zscaler Admin Console. To learn more, see Editing Network Settings.",
+      "depth": 0
+    },
+    {
+      "item": "Configure DHCP IP Addressing (App Connector, Private Service Edge, or Private Cloud Controller)",
+      "depth": 1
+    },
+    {
+      "item": "Configure Static IP Addressing (all software components)",
+      "depth": 1
+    },
+    {
+      "item": "Configure Additional Interfaces (App Connector or Private Service Edge)",
+      "depth": 1
+    },
+    {
+      "item": "Configure a Proxy Bypass (App Connector)",
+      "depth": 1
+    },
+    {
+      "item": "Configure yum to Use an HTTP Proxy Server (App Connector or Private Service Edge)",
+      "depth": 1
+    },
+    {
+      "item": "By default, virtual machine-based App Connectors, Private Service Edges, or Private Cloud Controllers are configured to use DHCP networking on their primary interface. If necessary, you can configure a static IP address for the software component.",
+      "depth": 0
+    },
+    {
+      "item": "If DHCP is not available, you can configure a static IP address on a VM-based App Connector, Private Service Edge, Private Cloud Controller, or Network Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "View the IP address.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 1
+    },
+    {
+      "item": "View the current connection profile.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Modify the connection profile using the following format: <profile name> connection.id <new connection name>. For example:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" connection.id LAN autoconnect yes",
+      "depth": 0
+    },
+    {
+      "item": "Review the current connection profile.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Edit the profile using a static IP and a default gateway with the following format: <connection ID> ipv4.method manual ipv4.addresses <IP addresses> ipv4.gateway <gateway IP> ipv4.dns <DNS IP> ipv4.dns-search <domain name>. For example:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ sudo nmcli connection modify LAN ipv4.method manual ipv4.addresses 172.30.1.88/24 ipv4.gateway 172.30.1.1 ipv4.dns 172.30.1.254 ipv4.dns-search company.com",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, bring the connection ID back up. For example:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ sudo nmcli connection up LAN",
+      "depth": 0
+    },
+    {
+      "item": "Verify the IP address.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "Verify the default gateway.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "$ ip route show default",
+      "depth": 0
+    },
+    {
+      "item": "Verify the DNS settings.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "$ sudo cat /etc/resolv.conf",
+      "depth": 0
+    },
+    {
+      "item": "If necessary, additional changes can be made to interfaces by configuring new ones using nmcli connection add con-name or by renaming existing ones using nmcli connection modify.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "View the IP address.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "View the current connection profiles.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Configure the interface's IP network using either a dynamic or static Ethernet configuration.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "For dynamic, modify the connection profile. For example:",
+      "depth": 0
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" ipv4.method auto autoconnect yes",
+      "depth": 0
+    },
+    {
+      "item": "For static, modify the connection profile and identify the IP addresses and gateway using the following format: <profile name> ipv4.method manual ipv4.addresses <address> ipv4.gateway <gateway IP>. For example:",
+      "depth": 0
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" ipv4.method manual ipv4.addresses 192.168.2.241/24 ipv4.gateway 192.168.2.254",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, bring the connection profile back up. For example:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "$ sudo nmcli connection up \"Profile 1\"",
+      "depth": 0
+    },
+    {
+      "item": "Verify the IP address.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "Verify the new connection.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "If you want to configure yum to communicate through an HTTP proxy server, refer to the Red Hat documentation.",
+      "depth": 0
+    },
+    {
+      "item": "If an App Connector is configured to send traffic to a proxy, you can set up a proxy bypass on it for the traffic that needs to be exempted from the proxy (i.e., traffic between the App Connector and the Public or Private Service Edges for Private Access). To use a proxy bypass for an App Connector, a proxy bypass file needs to be added to the App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the App Connector to do a proxy bypass:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the App Connector console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Create a file named opt/zscaler/var/proxy-bypass. Use an editor, such as vi. For example:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$sudo vi /opt/zscaler/var/proxy-bypass",
+      "depth": 0
+    },
+    {
+      "item": "Enter the necessary bypass entries using IP addresses, subnets, domains, or domains with a prefix wildcard. For example:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "1.2.3.4 111.222.33.0/24 myexampledomain.com *.internal.local",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, restart the App Connector using the following command:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-connector",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Verify that the deployed Private Cloud Controller is running and healthy. Also, check that it meets your sizing requirements.",
+      "depth": 0
+    },
+    {
+      "text": "After you have verified your deployment, you can perform additional tasks to maintain the system (i.e., changing your Private Cloud Controller console admin credentials or performing system software updates)."
+    }
+  ]
+}

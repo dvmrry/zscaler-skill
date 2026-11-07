@@ -13,7 +13,7 @@ sources:
   - "agents/architect/methodology.md"
   - "agents/declared-records.md"
   - "agents/siem-emission-discipline.md"
-  - "references/zpa/logs/app-connector-metrics.md"
+  - "`kb:zpa.logs.app-connector-metrics`"
 dependencies:
   - "harness.md"
   - "grounding/index.md"
@@ -69,7 +69,7 @@ You draw on two layers, each with different access modes (per [`siem-emission-di
 **Always available** in some form. Sources:
 
 - Zscaler API config — via SDK / Postman / direct API. References under `references/zpa/`, `references/zia/`, `references/zcc/`, `references/zidentity/`. Also `vendor/zscaler-sdk-go/`, `vendor/zscaler-sdk-python/`.
-- Snapshot exports (if maintained in user's private fork)
+- Overlay IaC or live read-only `zscalerctl` output (if the overlay declares them)
 - User-described config (when API access isn't possible — same handoff modes as the SIEM emission discipline)
 
 ### Layer 2: Utilization evidence
@@ -83,9 +83,9 @@ You draw on two layers, each with different access modes (per [`siem-emission-di
 
 Plus **Zscaler-specific utilization** when LSS feeds are configured:
 
-- ZPA App Connector Metrics LSS — CPU, memory, throughput, active connections (see [`../zpa/logs/app-connector-metrics.md`](../../references/zpa/logs/app-connector-metrics.md))
+- ZPA App Connector Metrics LSS — CPU, memory, throughput, active connections (see [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics))
 - ZPA Private Service Edge metrics, Private Cloud Controller metrics — same shape for PSE / PCC
-- Splunk patterns for these in [`./splunk-queries.md`](../../references/shared/splunk-queries.md): `§ connector-throughput-utilization`, `§ connector-top-by-connection-count`, `§ connector-cpu-mem-alert`
+- Splunk checks for these are in [`shared.splunk.zpa-validation`](kb:shared.splunk.zpa-validation); each named check (`connector-throughput-utilization`, `connector-top-by-connection-count`, `connector-cpu-mem-alert`) resolves to it
 
 When LSS feeds are absent, the first recommendation is often "configure these to enable utilization-based analysis."
 
@@ -138,7 +138,7 @@ Each finding becomes a `Proposed` recommendation. Confidence is calibrated per [
 If you don't have direct API / SDK access and the user hasn't pasted a dump:
 
 - **Reason from typical Zscaler architectural patterns** — the structural issues above are visible from a verbal description (e.g., "we have one App Connector Group serving us-east-1" → SPOF flag is justified)
-- **Cite ZPA / ZIA best practices and references as evidence** — e.g., `references/zpa/app-connector.md`, `references/zpa/app-segments.md`
+- **Cite ZPA / ZIA best practices and references as evidence** — e.g., `kb:zpa.app-connectors`, `kb:zpa.app-segments`
 - **Flag explicitly that recommendations are pattern-based**, not specific-config-based. Default confidence `Medium`; `Low` for speculative pattern reasoning with no tenant context
 - **Ask the user to confirm specifics** when a recommendation hinges on them — e.g., "this depends on whether ACG-east currently has 1 or 2 connectors; can you confirm?"
 
@@ -245,5 +245,5 @@ Do not load the diagnostics template during ordinary first response. Load it whe
 - [`auditor/prompt.md`](../auditor/prompt.md) — `/z-auditor` playbook
 - [`soc/prompt.md`](../soc/prompt.md) — `/z-soc` playbook (security-posture sibling)
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — modes and rules for SIEM data access
-- [`splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk patterns for connector / PSE / PCC utilization
-- ZPA App Connector Metrics schema — [`../zpa/logs/app-connector-metrics.md`](../../references/zpa/logs/app-connector-metrics.md)
+- [`shared.splunk`](kb:shared.splunk) — Splunk patterns for connector / PSE / PCC utilization
+- ZPA App Connector Metrics schema — [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics)

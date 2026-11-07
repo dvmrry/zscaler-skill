@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Enabling SCIM for Identity Management",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/enabling-scim-identity-management",
+    "node": "1484446",
+    "revision": "3243354",
+    "updated": "2026-09-18",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Within the Zscaler Admin Console, you can set up SCIM for identity management. Using SCIM allows you to quickly remove users from Private Access (ZPA) when you delete them in your user directory."
+    },
+    {
+      "text": "Prior to enabling SCIM, you should configure an IdP for SAML authentication to use for single sign-on. To learn more, see Configuring an IdP for Single Sign-On."
+    },
+    {
+      "text": "Zscaler only supports SCIM version 2.0."
+    },
+    {
+      "text": "To enable SCIM:"
+    },
+    {
+      "item": "Go to Administration > Private Access Authentication > IdP Configuration.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          52
+        ],
+        [
+          55,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "In the table, locate the IdP you want to modify and click the Edit icon.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          62,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit IdP Configuration window, select Enabled for SCIM Sync.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          45,
+          52
+        ],
+        [
+          57,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Copy the SCIM Service Provider Endpoint. This is used when configuring SCIM in the IdP.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Click Generate New Token to create a bearer token. The bearer token is a unique alphanumeric string that is used to authenticate SCIM requests.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "The token does not display again after saving. Copy the token to your clipboard before saving.",
+      "depth": 0
+    },
+    {
+      "item": "Complete the configuration to enable SCIM on your IdP.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "(Optional) Select Enabled for SCIM Attributes for Policy if you want to allow SCIM attributes and SCIM groups from this IdP to be used when configuring Access Policies, Client Forwarding Policies, and Timeout Policies.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          18,
+          25
+        ],
+        [
+          30,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "When you first enable SCIM Attributes for Policy, an existing user's Zscaler Client Connector connection also needs to be enabled for SCIM. Only policies with SCIM criteria are evaluated for this user after the user successfully reauthenticates. The reauthentication process does not impact ongoing connections to applications or the ability to use SAML as a criteria in Private Access policies.",
+      "depth": 0,
+      "strong": [
+        [
+          22,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "You must enable this setting for Private Access to process SCIM attributes and SCIM groups in policy rules. This setting only applies if SCIM Sync is enabled as well. To learn more, see Configuring an IdP for Single Sign-On.",
+      "depth": 0,
+      "strong": [
+        [
+          137,
+          146
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "After SCIM is enabled, Zscaler checks if a user is present in the SCIM database. Based on this information, Zscaler decides if the user is allowed or blocked access to Private Access. Customers need to ensure SCIM user sync is complete prior to enabling SCIM policies for these users, otherwise the Private Access service does not recognize the users and evaluate policies for them. After SCIM Sync is enabled, Zscaler recommends waiting a minimum of 48 hours, or up to a week, before enabling SCIM policies. It can take up to several days for the IdP to completely sync all user information to Private Access. Zscaler recommends that SCIM Sync be enabled in advance, prior to enabling SCIM Attributes for Policy.",
+      "strong": [
+        [
+          389,
+          398
+        ],
+        [
+          635,
+          644
+        ],
+        [
+          686,
+          712
+        ]
+      ]
+    },
+    {
+      "text": "Once you have completed these steps, you can go back into the IdP to configure it for identity management. The following configuration guides provide instructions on how to complete SCIM configuration within the IdP:"
+    },
+    {
+      "item": "SCIM Configuration Guide for Microsoft Azure AD",
+      "depth": 0
+    },
+    {
+      "item": "PingFederate integration with Private Access",
+      "depth": 0
+    },
+    {
+      "item": "SCIM Configuration Guide for Okta",
+      "depth": 0
+    },
+    {
+      "text": "Users may encounter a connection error in the Zscaler Client Connector when enabling SCIM sync with Okta. Okta does not sync users to Private Access in the Okta IdP before you enable SCIM. As a result, users do not initially appear in the SCIM user database when SCIM is enabled in Private Access. Zscaler recommends the following to resolve the connection error in Zscaler Client Connector:"
+    },
+    {
+      "item": "Enable PROVISION_OUT_OF_SYNC_USERS in Okta.",
+      "depth": 0
+    },
+    {
+      "item": "Unassign and reassign all users and groups from Zscaler Private Access in Okta, and then wait for the sync to occur.",
+      "depth": 0
+    }
+  ]
+}

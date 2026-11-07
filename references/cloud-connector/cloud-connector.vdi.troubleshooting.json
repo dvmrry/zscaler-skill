@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.vdi.troubleshooting",
+  "title": "Troubleshooting Client Connector for VDI: registration, authentication and data-path causes and actions",
+  "aliases": [
+    "client connector for vdi troubleshooting",
+    "vdi location fetch errors",
+    "vdi registration failing",
+    "vdi authentication failing"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi.forwarding-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.insights.analytics"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The vendor's troubleshooting article groups causes into registration, authentication and data-path tables; its flow charts are images and are not captured {{gap:location-fetch-and-charts}}. Session insights, which one row points to, are in [[cloud-connector.insights.analytics]]."
+    },
+    {
+      "heading": "Registration"
+    },
+    {
+      "items": [
+        {
+          "label": "Location fetch errors.",
+          "text": "{{registration-location-fetch}}"
+        },
+        {
+          "label": "Service interface.",
+          "text": "{{registration-service-interface}}"
+        },
+        {
+          "label": "Onboard parameter.",
+          "text": "{{registration-onboard}} The parameter is described in [[cloud-connector.vdi.install]]."
+        },
+        {
+          "label": "Route to the VIP.",
+          "text": "{{registration-vip-route}}"
+        }
+      ]
+    },
+    {
+      "heading": "Authentication"
+    },
+    {
+      "items": [
+        {
+          "label": "Roaming profile.",
+          "text": "{{auth-roaming-profile}}"
+        },
+        {
+          "label": "IWA.",
+          "text": "{{auth-iwa}}"
+        },
+        {
+          "label": "Bypasses.",
+          "text": "{{auth-bypasses}} The profile's bypass entries are in [[cloud-connector.vdi.forwarding-profiles]]."
+        },
+        {
+          "label": "Wrong user.",
+          "text": "{{auth-wrong-user}}"
+        }
+      ]
+    },
+    {
+      "heading": "Internet & SaaS data path"
+    },
+    {
+      "text": "{{internet-data-path}}"
+    },
+    {
+      "heading": "Private Access data path"
+    },
+    {
+      "text": "{{private-system-traffic}} {{private-access-policy}} Which part SAML is not supported for is open {{gap:saml-scope}}. {{private-routing-dns-pool}}"
+    }
+  ],
+  "claims": {
+    "registration-location-fetch": {
+      "statement": "In the registration table, location fetch errors in Client Connector for VDI can occur for multiple reasons, and the action is to collect its logs and contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Zscaler Client Connector for VDI is experiencing location fetch errors.",
+            "Location fetch errors can occur for multiple reasons. Collect Zscaler Client Connector for VDI's logs and contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "registration-service-interface": {
+      "statement": "In the registration table, when the Cloud & Branch Connector service interface is unreachable or Cloud & Branch Connector is displayed inactive, the action is to test whether the service interface is reachable with and without Client Connector for VDI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The Zscaler Cloud & Branch Connector service interface is unreachable or Cloud & Branch Connector is displayed inactive.",
+            "Test whether the Cloud & Branch Connector service interface is reachable with and without Zscaler Client Connector for VDI."
+          ]
+        }
+      ]
+    },
+    "registration-onboard": {
+      "statement": "In the registration table, when the onboard parameter is not set, the action is to set the onboarding behavior to 1 or 0; the default is 1, which allows Client Connector for VDI to onboard itself to the Workload Communications (WLC) tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The Zscaler Client Connector for VDI onboard parameter is not set.",
+            "Ensure that the onboarding behavior is set to either 1 or 0. The default is 1, which allows Zscaler Client Connector for VDI to onboard itself to the Workload Communications (WLC) tenant."
+          ]
+        }
+      ]
+    },
+    "registration-vip-route": {
+      "statement": "In the registration table, when routing is not configured for 185.46.212.80, the action is to ensure a route for that destination points toward the Cloud Connector, Branch Connector or a load balancer; by default Client Connector for VDI connects to 185.46.212.80.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Routing is not configured for 185.46.212.80.",
+            "By default, Zscaler Client Connector for VDI connects to 185.46.212.80. Ensure that a route is configured for this destination pointing toward the Cloud Connector, Branch Connector, or a load balancer."
+          ]
+        }
+      ]
+    },
+    "auth-roaming-profile": {
+      "statement": "In the authentication table, when the VDI environment completes a backup and restoration of the roaming profile, Client Connector for VDI stores and reads the user configuration file in the roaming profile; if the VM loads more slowly than Client Connector for VDI, a timeout issue might occur, and the action is to configure CONFIGREADTIMEOUT so it waits a minimum of 0 and a maximum of 300 seconds for profiles to restore. The MSI install-options article says CONFIGREADTIMEOUT is only supported on Client Connector for VDI version 1.1.0.8 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "CONFIGREADTIMEOUT is only supported on Zscaler Client Connector for VDI version 1.1.0.8 and later."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "When the VDI environment completes a backup and restoration of the roaming profile, Zscaler Client Connector for VDI stores and reads the user configuraton file in the roaming profile.",
+            "Configure the CONFIGREADTIMEOUT parameter so that Zscaler Client Connector for VDI waits a minimum of 0 and a maximum of 300 seconds for profiles to restore.",
+            "If the virtual machine (VM) loads more slowly than Zscaler Client Connector for VDI, a timeout issue might occur."
+          ]
+        }
+      ]
+    },
+    "auth-iwa": {
+      "statement": "In the authentication table, the article says IWA relies on browser and/or Internet settings, so the configured settings are reviewed against the Microsoft documentation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "IWA relies on browser and/or Internet settings, so review your configured settings and refer to the Microsoft documentation."
+          ]
+        }
+      ]
+    },
+    "auth-bypasses": {
+      "statement": "In the authentication table, the actions are to ensure the backup and restore IP addresses are bypassed; to ensure all FSLogix IP addresses are bypassed; when Client Connector for VDI cannot reach the identity provider, to ensure there is a bypass from the Zscaler Admin Console and FQDN bypasses from the Cloud Connector; and to ensure all Zscaler authentication domains are bypassed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Ensure that the backup and restore IP addresses are bypassed.",
+            "Ensure that all FSLogix IP addresses are bypassed.",
+            "Zscaler Client Connector for VDI is not able to reach the identity provider (IdP).",
+            "Ensure that there is a bypass from the Zscaler Admin Console and FQDN bypasses from the Cloud Connector.",
+            "Ensure that all Zscaler authentication domains are bypassed."
+          ]
+        }
+      ]
+    },
+    "auth-wrong-user": {
+      "statement": "In the authentication table, when the correct user is not shown at ip.zscaler.com, the action is to ensure that all bypasses and authentications are functioning, and to collect packet captures and ensure that traffic is tunneled properly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "You do not see the correct user when navigating to ip.zscaler.com.",
+            "Ensure that all bypasses and authentications are functioning. Collect the packet captures and ensure that traffic is tunneled properly."
+          ]
+        }
+      ]
+    },
+    "internet-data-path": {
+      "statement": "In the Internet & SaaS data-path table, a cause is that the incorrect tunnel mode is configured; an action cell states that A2A tunneling mode is not recommended and is being deprecated; other actions include reviewing the Cloud Connector session insights to verify whether the traffic is forwarded to Internet & SaaS, ensuring workload routes send the traffic to Cloud Connector and the traffic forwarding rule sends it to Internet & SaaS, and, for an incorrect policy, checking the Internet & SaaS insights logs and matching them with the rule preceding the correct rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The incorrect tunnel mode is configured for Zscaler Client Connector for VDI.",
+            "A2A tunneling mode is not recommended and is being deprecated.",
+            "Review the Cloud Connector session insights to verify whether the traffic is forwarded to Internet & SaaS.",
+            "Ensure that workload routes are properly configured to send the traffic to Cloud Connector and the traffic forwarding rule is configured to send traffic to Internet & SaaS.",
+            "check the Internet & SaaS insights logs and match them with the rule preceding the correct rule."
+          ]
+        }
+      ]
+    },
+    "private-system-traffic": {
+      "statement": "In the Private Access data-path table, SMB, Kerberos, Windows network, DNS, ICMP and NFS traffic are treated as system user traffic by Client Connector for VDI, so Private Access needs a correct access policy for the system user; the article says this is a Windows limitation, not a Zscaler limitation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "SMB, Kerberos, Windows network, DNS, ICMP, and NFS traffic are treated as system user traffic by Zscaler Client Connector for VDI. Ensure that Private Access has a correct access policy configured for the system user.",
+            "This is a Windows limitation, not a Zscaler limitation."
+          ]
+        }
+      ]
+    },
+    "private-access-policy": {
+      "statement": "In the Private Access data-path table, the access policy is configured with the client type Client Connector for VDI; if the access policy contains user attributes, SCIM must be enabled, and the article adds that SAML is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Ensure that the access policy is configured with the client type as Zscaler Client Connector for VDI. If the access policy contains user attributes, enable System for Cross-domain Identity Management (SCIM). SAML is not supported."
+          ]
+        }
+      ]
+    },
+    "private-routing-dns-pool": {
+      "statement": "In the Private Access data-path table, the actions are to ensure workload routes send the traffic to Cloud Connector and the traffic forwarding rule sends traffic to Private Access, to ensure the VDI forwarding policy includes the synthetic IP pools in the Include list, and to ensure Cloud Connector is seeing DNS requests and able to match them to the Private Access application or FQDN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Ensure that workload routes are properly configured to send the traffic to Cloud Connector and the traffic forwarding rule is configured to send traffic to Private Access.",
+            "Ensure that the VDI forwarding policy includes synthetic IP pools in the Include list.",
+            "Ensure that Cloud Connector is seeing DNS requests and able to match them to the Private Access application or FQDN."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "location-fetch-and-charts": {
+      "kind": "semantic",
+      "title": "Location fetch error causes and the troubleshooting flow charts",
+      "status": "open",
+      "detail": "The article says location fetch errors occur for multiple reasons and gives no codes or causes; its troubleshooting flow charts are images and are not in the capture.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "saml-scope": {
+      "kind": "semantic",
+      "title": "What SAML is not supported for in the Private Access access policy row",
+      "status": "open",
+      "detail": "The sentence SAML is not supported follows the instruction to enable SCIM when the access policy contains user attributes. It reads as SAML attributes not being usable as policy criteria, but the article does not say what is unsupported. Templates require SAML in Internet & SaaS for the IdP authentication type, so the scope is left as quoted.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

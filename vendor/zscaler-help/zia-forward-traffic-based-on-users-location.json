@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Forwarding Traffic Based on User's Location Using PAC Files",
+  "source": {
+    "url": "https://help.zscaler.com/zia/forward-traffic-based-on-users-location",
+    "node": "1398651",
+    "revision": "3233312",
+    "updated": "2026-10-28",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "You can use PAC files to forward your traffic to the Zscaler service. When the Zscaler service receives traffic, it checks whether the traffic is from a known location (a location that is configured in the Zscaler Admin Console), or from an unknown location (remote user traffic). Typically, traffic from a known location is sent to port 80, where the service performs SSL inspection according to the location's policies, and remote user traffic is forwarded to port 9443, where the service always performs SSL inspection."
+    },
+    {
+      "text": "The exemption of URL and URL categories is applicable only to traffic generated from known locations and not for remote user traffic."
+    },
+    {
+      "text": "If your users work from your corporate office and work remotely, you might want to add an argument to the PAC file so that the browser forwards your traffic to a different port on the Public Service Edge for Internet & SaaS (ZIA), depending on the user's location."
+    },
+    {
+      "item": "Using Fixed Gateway IP Addresses",
+      "depth": 0
+    },
+    {
+      "item": "If each of your locations has a fixed gateway IP address, you can write an argument in the PAC file stating that if the PAC file receives traffic from the fixed IP addresses, the browser forwards that traffic to port 80. Otherwise, the PAC file forwards traffic to port 9443.",
+      "depth": 0
+    },
+    {
+      "item": "This option is accurate and independent of your computer configuration. However, you must update the list of gateway IP addresses in the PAC file when there are changes to your locations.",
+      "depth": 0
+    },
+    {
+      "item": "To use this option, replace the IP addresses in the following lines with your own gateway IP addresses. Then add the lines to the PAC file you are using:",
+      "depth": 0
+    },
+    {
+      "item": "/*Creating an array which will contain all known gateway IP */ var allGateways= [ \"192.0.2.0/24\", \"198.51.100.0/24\", \"203.0.113.0/24\" ]; if (allGateways.indexOf(\"${SRCIP}\")>=0) return \"PROXY ${GATEWAY}:80; PROXY ${SECONDARY_GATEWAY}:80; DIRECT\"; else return \"PROXY ${GATEWAY}:9443; PROXY ${SECONDARY_GATEWAY}:9443\";",
+      "depth": 0
+    },
+    {
+      "item": "Using Device IP Addresses",
+      "depth": 0
+    },
+    {
+      "item": "Every device that connects to the internet has an IP address. You can write an argument in the PAC file stating that if the IP address of a user's device falls within your corporate subnetwork, the browser forwards traffic to port 80. Traffic from IP addresses that are not in the subnetwork is forwarded to port 9443.",
+      "depth": 0
+    },
+    {
+      "item": "This option is simple and quick to execute, as it only relies on your computer configuration. However, your private IP address range might overlap with other company networks, such as a Wi-Fi hotspot at a coffee shop.",
+      "depth": 0
+    },
+    {
+      "item": "In this example, the subnetworks are 10.10.1.0/24, 172.16.1.0/24, and 192.168.1.0/24. To use this option, replace the subnetworks in the following lines with your own. Then add the lines to the PAC file you are using:",
+      "depth": 0,
+      "strong": [
+        [
+          37,
+          49
+        ],
+        [
+          51,
+          64
+        ],
+        [
+          70,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "/* If client IP falls in corporate subnet send traffic on regular port 80 */ if ( isInNet(myIpAddress(), \"10.10.1.0\", \"255.255.255.0\")|| isInNet(myIpAddress(), \"172.16.1.0\", \"255.255.255.0\")|| isInNet(myIpAddress(), \"192.168.1.0\", \"255.255.255.0\")|| ) return \"PROXY ${GATEWAY}:80; PROXY ${SECONDARY_GATEWAY}:80; DIRECT\"; else return \"PROXY ${GATEWAY}:9443; PROXY ${SECONDARY_GATEWAY}:9443;",
+      "depth": 0
+    },
+    {
+      "item": "Using DNS",
+      "depth": 0
+    },
+    {
+      "item": "You can determine the location of a user by referencing an internal DNS server. You can write an argument in the PAC file stating that if an IP address was resolved by an internal DNS server, the browser forwards traffic to port 80. Traffic from IP addresses that were not resolved by an internal DNS server is sent to port 9443.",
+      "depth": 0
+    },
+    {
+      "item": "This option is efficient and works as long as your DNS resolution is the same across all of your company locations. However, it might slow down browsing to the internet if your DNS servers do not respond quickly enough.",
+      "depth": 0
+    },
+    {
+      "item": "This method of identifying the user location does not work if the remote user is connected to a VPN and if the hostname is resolved using the internal DNS server over the VPN.",
+      "depth": 0
+    },
+    {
+      "item": "In this example, the internal DNS server is DNS.safemarch.com. To use this option, replace the internal DNS server in the following lines with your own. Then add the lines to the PAC file you are using:",
+      "depth": 0,
+      "strong": [
+        [
+          44,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "/*Creating a variable hostIP and populating it with the IP address obtained by resolving DNS.safemarch.com*/ var hostIP= dnsResolve(\"DNS.safemarch.com\"); /* If the value of the variable hostIP is not equal to 10.35.3.43 i.e. internal server, send traffic through Zscaler on port 9443 which would enforce SSL scanning else send traffic on regular port 80 */ if (hostIP !== \"10.35.3.43\") return \"PROXY ${GATEWAY}:9443; PROXY ${SECONDARY_GATEWAY}:9443; DIRECT\"; else return \"PROXY ${GATEWAY}:80; PROXY ${SECONDARY_GATEWAY}:80; DIRECT\";",
+      "depth": 0
+    },
+    {
+      "text": "To learn more about writing PAC files, including guidelines, see Best Practices for Writing PAC Files and Writing a PAC File."
+    },
+    {
+      "text": "Zscaler recommends creating a copy of the default PAC file and customizing it, as necessary."
+    }
+  ]
+}

@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-filtering.actions",
+  "title": "URL Filtering actions and their prerequisites",
+  "aliases": [
+    "url filtering actions",
+    "url filter rule action",
+    "allow caution block isolate conditional",
+    "allow override",
+    "block override",
+    "override users not prompted",
+    "ICAP_RESPONSE"
+  ],
+  "binds": [
+    "zia/url-filtering-rules#action",
+    "zia/url-filtering-rules#blockOverride",
+    "zia/url-filtering-rules#overrideUsers",
+    "zia/url-filtering-rules#overrideGroups",
+    "zia/url-filtering-rules#cbiProfile"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zbi.policy",
+      "because": "zia.url-filtering.actions:isolate-needs-zbi"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.pipeline",
+      "because": "zia.url-filtering.actions:override-unrestricted-without-inspection"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.web-rule-attribution",
+      "because": "zia.logs.web-rule-attribution:rulelabel-block-only"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The five console actions are Allow, Caution, Block, Isolate, and Conditional. Allow and Block need no explanation; the other three carry prerequisites that decide whether the action can take effect at all. {{caution}} {{isolate-needs-zbi}} {{conditional-prereqs}}"
+    },
+    {
+      "label": "Allow Override.",
+      "text": "{{override-conditions}} {{override-prompt-session}} {{override-unrestricted-without-inspection}} Whether a rule's action is enforceable on HTTPS at all depends on the inspection path: see [[zia.ssl-inspection.pipeline]]."
+    },
+    {
+      "text": "{{api-action-values}} Reading an ISOLATE rule by ID may lack its isolation profile {{divergence:isolate-cbi-profile-get-by-id}}. {{header-insertion-custom-only}} {{quotas}} {{quota-renewal}} {{rule-eun-precedence}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether override users never receive the prompt, which is checked first on the rule's action and blockOverride fields.",
+      "uses": [
+        "override-conditions"
+      ]
+    },
+    {
+      "do": "Whether a rule's Allow Override traffic is unrestricted, which depends on SSL inspection and end-user notifications being off.",
+      "uses": [
+        "override-unrestricted-without-inspection"
+      ]
+    }
+  ],
+  "claims": {
+    "caution": {
+      "statement": "Caution shows an end-user notification (default or a redirect page) before letting the user through.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "Select to display an EUN that cautions users before allowing them access to the site. When you select this value, the service can either display the default EUN or redirect users to an EUN that is hosted on the site you specify in the Redirect URL field."
+          ]
+        }
+      ]
+    },
+    "isolate-needs-zbi": {
+      "statement": "Isolate sends matching traffic through a remote browser using a chosen isolation profile, and exists only when Zero Trust Browser is enabled for the organization.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#action",
+        "zia/url-filtering-rules#cbiProfile"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "Select to isolate all the traffic that matches the URL Filtering rule through a remote browser.",
+            "This action is available only if Zero Trust Browser is enabled for your organization.",
+            "You can choose the isolation profiles to which the rule applies."
+          ]
+        }
+      ]
+    },
+    "conditional-prereqs": {
+      "statement": "Conditional enforces step-up authentication before access. It needs Authentication Service for end users and Client Connector forwarding; through Private or Virtual Service Edges the category is blocked instead, and it does not apply to isolation traffic.",
+      "conditions": "Statement word changed on recapture (2026-10-18): the capture now says \"Authentication Service\" where the statement said \"ZIdentity\".",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "Conditional Access: Allows access to the selected URL categories by enforcing step-up authentication.",
+            "This option is available only if your organization is provisioned with Authentication Service for end users and the traffic forwarding method is Zscaler Client Connector.",
+            "However, if your traffic is routed via a Private Service Edge or Virtual Service Edge, conditional access is not supported and the user access to the URL category is blocked with a notification from the browser.",
+            "Conditional access doesn't apply to isolation traffic."
+          ]
+        }
+      ]
+    },
+    "override-conditions": {
+      "statement": "Override users and groups take effect only when `blockOverride` is true and the action is BLOCK; override users additionally require that no override groups are set.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#blockOverride",
+        "zia/url-filtering-rules#overrideUsers",
+        "zia/url-filtering-rules#overrideGroups"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "after": "def add_rule(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "override_users (:obj:`list` of :obj:`int`): The IDs of users that this rule can be overridden for. Only applies if ``block_override`` is True, ``action`` is `BLOCK` and ``override_groups`` is not set.",
+            "override_groups (:obj:`list` of :obj:`int`): The IDs of groups that this rule can be overridden for. Only applies if ``block_override`` is True and ``action`` is `BLOCK`."
+          ]
+        }
+      ]
+    },
+    "override-unrestricted-without-inspection": {
+      "statement": "Traffic matching an Allow Override is permitted without restriction when SSL inspection is off and Show End User Notifications is off in the corresponding SSL inspection rule.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#blockOverride"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "By default, traffic matching the Allow Override rule is permitted without any restrictions if SSL/TLS Inspection is disabled and the Show End User Notifications option is disabled in the SSL/TLS Inspection rule for the corresponding traffic."
+          ]
+        }
+      ]
+    },
+    "override-prompt-session": {
+      "statement": "With the Allow Override option, some users or groups can be allowed to override a block; in the page's example, teachers are prompted to enter their override password, which can be company-provided credentials such as single sign-on credentials or hosted database credentials based on the Enable Identity-based Block Override settings. Permitted users can access the blocked page only during their current browser session and must reauthenticate in another browser session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "Additionally, you can allow some users or groups to override the block with the Allow Override option.",
+            "Teachers are prompted to enter their override password.",
+            "This can be company-provided credentials such as single sign-on credentials or hosted database credentials based on the Enable Identity-based Block Override settings.",
+            "Permitted users are allowed to access the blocked page only during their current browser session. They are required to reauthenticate when they try to access it in another browser session."
+          ]
+        }
+      ]
+    },
+    "quota-renewal": {
+      "statement": "For an Allow rule, the daily time quota is based on the time that the rule is created: for example, if the rule is created at 11:00 AM PST, the quota is renewed at 11:00 AM PST the next day.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "Allow: The service allows access to the URLs in the selected categories.",
+            "You can still restrict access by specifying a daily quota for bandwidth and time.",
+            "The daily time quota is based on the time that the rule is created. For example, if the rule is created at 11:00 AM PST, then the quota is renewed at 11:00 AM PST the next day."
+          ]
+        }
+      ]
+    },
+    "rule-eun-precedence": {
+      "statement": "The EUNs specified in the rules take precedence over the default EUN configured on the Administration > End User Notification > End User Notifications page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "The EUNs that you specify in the rules take precedence over the default EUN that you configure on the Administration > End User Notification > End User Notifications page."
+          ]
+        }
+      ]
+    },
+    "api-action-values": {
+      "statement": "Through the API, `action` also accepts `ICAP_RESPONSE` and the sentinels `ANY` and `NONE`.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "after": "def add_rule(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "action (str): Action taken when traffic matches rule criteria. Accepted values are: `ANY`, `NONE`, `BLOCK`, `CAUTION`, `ALLOW` and `ICAP_RESPONSE`"
+          ]
+        }
+      ]
+    },
+    "header-insertion-custom-only": {
+      "statement": "HTTP header insertion on an Allow rule works only for custom URL categories.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#httpHeaderActionProfiles"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "The HTTP custom header insertion works only for custom URL categories."
+          ]
+        }
+      ]
+    },
+    "quotas": {
+      "statement": "Allow and Isolate rules can carry a daily bandwidth quota (10 to 100,000 MB) and a daily time quota (15 to 600 minutes), after which the sites are blocked.",
+      "conditions": "The Caution and Conditional sections of the same page label the time quota \"(MB)\", which looks garbled; the Allow and Isolate sections cited here say \"(min)\".",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#sizeQuota",
+        "zia/url-filtering-rules#timeQuota"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "Daily Bandwidth Quota (MB): (Optional) The daily bandwidth limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked.",
+            "The minimum value you can enter is 10 MB and the maximum value is 100,000 MB.",
+            "The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.",
+            "Daily Time Quota (min): (Optional) The daily time limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked."
+          ],
+          "after": "Select this to allow access to all sites in the selected URL categories."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "The minimum value you can enter is 10 MB and the maximum value is 100,000 MB.",
+            "The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.",
+            "Daily Bandwidth Quota (MB): (Optional) The daily bandwidth limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked.",
+            "Daily Time Quota (min): (Optional) The daily time limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked."
+          ],
+          "after": "Select to isolate all the traffic that matches the URL Filtering rule through a remote browser."
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "isolate-cbi-profile-get-by-id": {
+      "summary": "Whether GET-by-ID returns cbiProfile for ISOLATE rules",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+            "quotes": [
+              "// API bug workaround: GET by ID does not return the cbiProfile object for ISOLATE rules,"
+            ]
+          },
+          "says": "The Go SDK says GET by ID does not return cbiProfile for ISOLATE rules while GetAll does, and falls back to GetAll to fill it in."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/url_filtering.py",
+            "quotes": [
+              "response, error = self._request_executor.execute(request, URLFilteringRule)"
+            ],
+            "after": "def get_rule("
+          },
+          "says": "The Python get_rule issues one GET and parses the rule; it has no fallback."
+        }
+      ],
+      "impact": "A Python read of an ISOLATE rule by ID can come back without its isolation profile object; read it from the list or use the Go fallback pattern. The Go comment is the only statement of the bug; no capture shows it."
+    }
+  }
+}

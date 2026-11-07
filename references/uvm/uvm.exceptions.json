@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "id": "uvm.exceptions",
+  "title": "How UVM exception requests work: roles, statuses, review, permissions and settings",
+  "aliases": [
+    "uvm exception request",
+    "exceptions manager",
+    "request exception button",
+    "sla extension request"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.tickets"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{personas}} {{lifecycle}}"
+    },
+    {
+      "label": "Requesting.",
+      "text": "{{exception-per-ticket}} {{request-fields}} {{reviewer-default}}"
+    },
+    {
+      "label": "Statuses.",
+      "text": "{{statuses}} {{cancel-causes}}"
+    },
+    {
+      "label": "Reviewing.",
+      "text": "{{review-permission}} {{audit-fields}} {{approve-modified}} {{exceptions-page}}"
+    },
+    {
+      "label": "Settings.",
+      "text": "{{settings-permission}} {{gap:settings-steps}}"
+    },
+    {
+      "label": "External sync.",
+      "text": "{{external-sync}}"
+    },
+    {
+      "label": "Related.",
+      "text": "[[uvm.overview]] [[uvm.tickets]]"
+    }
+  ],
+  "claims": {
+    "personas": {
+      "statement": "The exception process has an Exceptions Manager (configures settings, permissions and reviewer assignment rules), a Requester (typically a remediation owner) and a Reviewer who approves or denies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-understanding-exception-requests.json",
+          "quotes": [
+            "Exceptions Manager: Configures exceptions settings, defines user permissions for requesting exceptions, and sets rules to assign exception reviewers.",
+            "Requester: Typically a remediation owner who is assigned remediation tasks that might require a timeline extension.",
+            "Reviewer: Designated reviewers who assess exception requests.",
+            "make a decision to approve or deny the request"
+          ]
+        }
+      ]
+    },
+    "lifecycle": {
+      "statement": "A submitted exception is created in the Exceptions View with the Requested status and linked to its ticket; approval changes the status to Approved and automatically defers the ticket's due date to the new date, while denial leaves the original timeline in effect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-understanding-exception-requests.json",
+          "quotes": [
+            "A new exception is created in the Exceptions View with the Requested status. This exception is automatically linked to the source remediation ticket that is awaiting assessment.",
+            "If Approved: The exception's status changes to Approved, and the due date on the associated remediation ticket is automatically deferred to the new date.",
+            "If Denied: The exception's status changes to Denied. The request is rejected, and the original remediation timeline for the ticket remains in effect."
+          ]
+        }
+      ]
+    },
+    "exception-per-ticket": {
+      "statement": "An exception applies to the entire ticket, not to individual findings, so a subset of findings must be split into a separate ticket, and findings across tickets must be merged first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-requesting-exceptions.json",
+          "quotes": [
+            "An exception applies to the entire ticket, not individual findings within it.",
+            "To request an exception for a subset of a ticket's findings, split the relevant findings into a new, separate ticket.",
+            "To request an exception for findings across multiple tickets, merge the relevant tickets or findings into a single, consolidated ticket."
+          ]
+        }
+      ]
+    },
+    "request-fields": {
+      "statement": "The Request Exception dialog asks for a Reason and a Requested SLA date, may show additional fields depending on organization settings, and accepts optional attachments; if Exceptions is enabled in the account, requesters can submit exception requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-requesting-exceptions.json",
+          "quotes": [
+            "If Exceptions is enabled in your account, you can submit exception requests.",
+            "Reason: Select a reason for the exception from the drop-down menu.",
+            "Requested SLA: Select the date for the ticket's SLA extension.",
+            "Additional fields might appear depending on your organization's settings.",
+            "(Optional) Click Add Attachment to upload documents that can support justification for the request."
+          ]
+        }
+      ]
+    },
+    "reviewer-default": {
+      "statement": "If no designated reviewers are assigned in the account, the Reviewer field remains empty by default, which typically means all users with reviewer permissions review exceptions; the approved SLA is auto-populated with the requested SLA by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-requesting-exceptions.json",
+          "quotes": [
+            "If no designated reviewers are assigned in your account, the Reviewer field remains empty by default. This typically means all users with reviewer permissions are responsible for reviewing exceptions.",
+            "By default, when submitting an exception request, the approved SLA field in the exception is auto-populated with the requested SLA."
+          ]
+        }
+      ]
+    },
+    "statuses": {
+      "statement": "The Requesting Exceptions page lists the exception statuses Approved (ticket SLA updated and ticket locked to prevent new findings), Denied (original SLA unchanged) and Cancelled (automatic, when the ticket's SLA is updated to a later date than requested); requesters cannot cancel manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-requesting-exceptions.json",
+          "quotes": [
+            "Approved: The request was accepted. The ticket's SLA date automatically updates to the approved date, and the ticket is locked to prevent new findings from being added.",
+            "Denied: The request was rejected, and the ticket's original SLA date remains unchanged.",
+            "Cancelled: The request was automatically cancelled because the ticket's SLA was updated to a later date than the one you requested.",
+            "You cannot manually cancel a request. If it's no longer needed, add a comment notifying the reviewer."
+          ]
+        }
+      ]
+    },
+    "cancel-causes": {
+      "statement": "Causes of automatic cancellation include a manual change of the ticket SLA to a later date, a new lower-severity finding added to the ticket pushing the SLA date, and critical or high severity findings split from the ticket to a new ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-requesting-exceptions.json",
+          "quotes": [
+            "The ticket's SLA date was manually changed to a later date.",
+            "A new finding with lower severity was added to the ticket, consequently pushing the ticket's SLA date.",
+            "Findings with critical or high severity were split from the ticket to a new ticket."
+          ]
+        }
+      ]
+    },
+    "review-permission": {
+      "statement": "Reviewing exceptions requires a role with Read, Create, Edit, Delete and Audit permissions under the Vulnerabilities App > Exception Operational View resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-reviewing-exception-requests.json",
+          "quotes": [
+            "your assigned role must include the Read, Create, Edit, Delete, and Audit permissions under the Vulnerabilities App > Exception Operational View resource."
+          ]
+        }
+      ]
+    },
+    "settings-permission": {
+      "statement": "Exception settings require Read and Edit under the Vulnerabilities App > Exception Settings resource, and selecting Enable at the top of the page activates the Request Exception button in the ticket drawer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-exception-settings.json",
+          "quotes": [
+            "your assigned role must include the Read and Edit permissions under the Vulnerabilities App > Exception Settings resource.",
+            "select Enable to allow exception request submissions for UVM tickets at the top of the page to activate the Request Exception button in the UVM tickets drawer."
+          ]
+        }
+      ]
+    },
+    "audit-fields": {
+      "statement": "When auditing, Approved SLA defaults to the requested SLA but can be changed; Original SLA is the first SLA date assigned to the ticket and Current SLA the SLA currently assigned, which can differ because of new findings or previously approved exceptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-reviewing-exception-requests.json",
+          "quotes": [
+            "Approved SLA: This field defaults to the requested SLA but you can modify it to grant a different SLA extension date.",
+            "Original SLA: The first SLA date assigned to the ticket for which the request was submitted.",
+            "Current SLA: The SLA date currently assigned to the ticket, which can be different from the original due to new findings that were added to the ticket or to previously approved exception requests for the ticket."
+          ]
+        }
+      ]
+    },
+    "approve-modified": {
+      "statement": "To approve with a modified date, change the Approved SLA, click Apply Changes and then Approve; approval extends the ticket SLA and locks the ticket, and the request is cancelled automatically if the ticket SLA is extended past the requested SLA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-reviewing-exception-requests.json",
+          "quotes": [
+            "first change the Approved SLA field value, click Apply Changes, and then click Approve.",
+            "The exception request is automatically cancelled if the ticket's SLA is extended to a date later than the requested SLA.",
+            "the ticket's SLA is automatically extended, and the ticket is locked to prevent new findings from being added to it."
+          ]
+        }
+      ]
+    },
+    "exceptions-page": {
+      "statement": "The Exceptions page has charts Exceptions by Ticket Severity, Active Tickets by Exception Status Buckets and Exceptions by Requester, and a table that by default shows each request's ID, Status, Reason and Requested SLA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-reviewing-exception-requests.json",
+          "quotes": [
+            "The Exceptions page features charts that represent key exception insights",
+            "Exceptions by Ticket Severity",
+            "Active Tickets by Exception Status Buckets",
+            "Exceptions by Requester",
+            "By default, the table displays key information about each request, including its ID, Status, Reason, and Requested SLA."
+          ]
+        }
+      ]
+    },
+    "external-sync": {
+      "statement": "An exception request can be synced to an external system such as ServiceNow IRM through an outegration, by selecting the exception request in the table and clicking Create <Outegration> Ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-requesting-exceptions.json",
+          "quotes": [
+            "If your organization uses an outegration (e.g., ServiceNow IRM) to track exceptions, you can sync your request.",
+            "In the table, click the exception request you want to sync.",
+            "Click Create <Outegration> Ticket."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "settings-steps": {
+      "kind": "semantic",
+      "title": "What the Exception Settings steps for the request form, reviewer assignment and email notifications configure",
+      "status": "open",
+      "detail": "The captured Exception Settings article names Configuring the Exception Request Form, Assigning Reviewers and Email Notifications as steps without detail.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

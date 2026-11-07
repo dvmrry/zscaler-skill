@@ -1,0 +1,1434 @@
+{
+  "schema_version": 1,
+  "id": "zpa.terraform.app-segment-lifecycle",
+  "title": "What the ZPA Terraform provider sends, keeps and cleans up for application segments and their associations",
+  "aliases": [
+    "application segment update clears flags",
+    "terraform zpa app segment extranet false",
+    "clientless app hidden",
+    "pra app segment update ignored",
+    "browser access wrong clientless app id",
+    "sharedMicrotenantDetails empty",
+    "inspection profile associate_all_controls false",
+    "custom control not attached to profile",
+    "app segment destroy leaves policy rule operand",
+    "server_groups second block ignored"
+  ],
+  "binds": [
+    "zpa/application-segments",
+    "zpa/browser-access",
+    "zpa/inspection-app-segments",
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zpa.microtenants.share-and-move",
+      "because": "zpa.terraform.app-segment-lifecycle:phantom-shared-microtenant-object"
+    },
+    {
+      "rel": "depends-on",
+      "to": "shared.sdk-go.zero-value-writes",
+      "because": "zpa.terraform.app-segment-lifecycle:parent-flags-always-serialized"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZPA application segments come in four kinds (main, browser access, inspection, PRA), each with its own Terraform resource and SDK package. All four update by sending a full struct rebuilt from Terraform arguments, so what the schema cannot express goes out as Go zero values. The omitempty clears themselves are in [[shared.sdk-go.zero-value-writes]]; this subject covers what is specific to segments and the objects hanging off them."
+    },
+    {
+      "label": "Parent flags.",
+      "text": "{{parent-flags-always-serialized}} {{parent-flags-never-set}} {{main-update-builds-from-state}} {{unrelated-update-may-blank-flags}} What ZPA does with a false value for these flags on a PUT is open {{gap:api-app-segment-put-semantics}}."
+    },
+    {
+      "label": "Empty objects.",
+      "text": "{{phantom-shared-microtenant-object}}"
+    },
+    {
+      "label": "Nested apps.",
+      "text": "{{inspection-subapp-flags-always-serialized}} {{inspection-subapp-expand-subset}} {{inspection-update-may-reset-subapp-state}} {{browser-hidden-sent-false}} {{pra-update-sends-remote-values}} {{pra-update-returns-read-after-update}} {{main-resource-unsupported-for-appprotection-segments}}"
+    },
+    {
+      "label": "Child identity.",
+      "text": "{{browser-child-id-positional-fallback}} {{browser-set-order-not-remote}} {{browser-child-id-may-duplicate}} {{nested-apps-matched-by-name}}"
+    },
+    {
+      "label": "Sharing and associations.",
+      "text": "{{main-share-separate-write}} {{association-block-first-only}} {{association-block-first-only-drops-rest}} {{association-block-first-only-places}}"
+    },
+    {
+      "label": "Deletes.",
+      "text": "Segment group, server group and connector group cleanups are in [[zpa.terraform.delete-paths]]. {{main-delete-v1-cleanup-ignores-errors}} {{detach-drops-emptied-conditions-4-4-15}} {{other-segment-deletes-skip-policy-detach}} {{delete-can-leave-policy-references}} Whether the v1 policy listing returns rules written through the v2 endpoints is open {{gap:api-v1-listing-covers-v2-rules}}. Operand rewriting by the v1 cleanup is covered in [[zpa.terraform.policy-rule-writes]]."
+    },
+    {
+      "label": "Inspection profile and custom control associations.",
+      "text": "{{associate-all-controls-no-false-branch}} {{associate-error-ignored}} {{custom-control-association-errors-logged}}"
+    },
+    {
+      "text": "On read the provider merges the returned server groups into one block: {{server-groups-flatten-single-block}}"
+    },
+    {
+      "label": "Segment group applications.",
+      "text": "What the segment group resource sends is in [[zpa.segment-groups.api-surface:tf-resource-schema]]. {{segment-group-membership-check}} {{segment-group-membership-change-fails-plan}} Whether a reordered list plans an update on every run is open {{gap:segment-group-applications-drift}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether extranet, API protection, AppProtection and reauth flags are unchanged after an apply that changed only a name or port range, by re-reading the segment.",
+      "uses": [
+        "parent-flags-always-serialized",
+        "unrelated-update-may-blank-flags"
+      ]
+    },
+    {
+      "do": "Whether every configured server group reached ZPA, since only the IDs in the first `server_groups` block are sent.",
+      "uses": [
+        "association-block-first-only"
+      ]
+    },
+    {
+      "do": "Which policy types hold APP operands that name the ID of a destroyed segment.",
+      "uses": [
+        "delete-can-leave-policy-references"
+      ]
+    },
+    {
+      "do": "Whether the remote inspection profile association is set, by reading the profile from the API, since state reflects the configured value.",
+      "uses": [
+        "associate-all-controls-no-false-branch"
+      ]
+    }
+  ],
+  "claims": {
+    "parent-flags-always-serialized": {
+      "statement": "The SDK request structs for the four application segment kinds declare some API flags without `omitempty`, so they are always in the request body, as false when the caller leaves them unset: `extranetEnabled`, `apiProtectionEnabled`, `autoAppProtectEnabled` and `adpEnabled` on the main segment; `extranetEnabled`, `apiProtectionEnabled` and `bypassOnReauth` on browser access; `extranetEnabled` and `apiProtectionEnabled` on inspection and PRA.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#extranetEnabled",
+        "zpa/application-segments#adpEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "ExtranetEnabled bool `json:\"extranetEnabled\"`",
+            "AutoAppProtectEnabled bool `json:\"autoAppProtectEnabled\"`",
+            "ADPEnabled bool `json:\"adpEnabled\"`",
+            "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`",
+            "BypassType string `json:\"bypassType,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "ExtranetEnabled bool `json:\"extranetEnabled\"`",
+            "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`",
+            "BypassOnReauth bool `json:\"bypassOnReauth\"`",
+            "SegmentGroupID string `json:\"segmentGroupId,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`",
+            "ExtranetEnabled bool `json:\"extranetEnabled\"`",
+            "BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "ExtranetEnabled bool `json:\"extranetEnabled\"`",
+            "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`",
+            "BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "parent-flags-never-set": {
+      "statement": "The four resources build the request from Terraform arguments and never assign the unmodeled flags: the main segment expander sets `APIProtectionEnabled` and `BypassOnReauth` but not `ExtranetEnabled`, `AutoAppProtectEnabled` or `ADPEnabled`; the browser access expander sets none of its three; the inspection and PRA expanders set neither `ExtranetEnabled` nor `APIProtectionEnabled`. The schemas have no matching arguments to read.",
+      "tier": "B",
+      "derived_from": [
+        "parent-flags-always-serialized"
+      ],
+      "conditions": "Absence claim. Searched with `git -C vendor/terraform-provider-zpa grep -n -i -E 'extranetenabled|autoappprotect|adpenabled|apiprotectionenabled|bypassonreauth' <ref> -- zpa/resource_zpa_application_segment.go zpa/resource_zpa_application_segment_browser_access.go zpa/resource_zpa_application_segment_inspection.go zpa/resource_zpa_application_segment_pra.go` at v4.4.10 and HEAD. Hits are limited to the assignments quoted here and to reads from the API response (`resp.BypassOnReauth` and similar). The same files were read at both refs; the provider files are unchanged between them.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandApplicationSegmentRequest(",
+          "quotes": [
+            "APIProtectionEnabled: d.Get(\"api_protection_enabled\").(bool),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandInspectionApplicationSegment(",
+          "quotes": [
+            "AutoAppProtectEnabled: d.Get(\"auto_app_protect_enabled\").(bool),"
+          ]
+        }
+      ]
+    },
+    "main-update-builds-from-state": {
+      "statement": "The main application segment update builds its request from Terraform arguments: its expander reads the existing segment, but uses that segment's TCP and UDP port ranges only to choose between the two configured port-range forms. The update then reads the segment again only to detect that it is gone, ignores any other error from that read, discards the result, and sends the rebuilt struct as the PUT body. The SDK's `Update` sends the struct it is given as the PUT body.",
+      "tier": "A",
+      "conditions": "Absence read from the code, not run: `Update` in the Go SDK is one NewRequestDo PUT call with the struct and no read or merge before it, and in the expander the remote port ranges appear only in the two isSameSlice comparisons.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentUpdate(",
+          "quotes": [
+            "req := expandApplicationSegmentRequest(ctx, d, zClient, id)",
+            "if _, _, err := applicationsegment.Get(ctx, service, id); err != nil {",
+            "if _, err := applicationsegment.Update(ctx, service, id, req); err != nil {",
+            "if _, _, err := applicationsegment.Get(ctx, service, id); err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil } } if _, err := applicationsegment.Update(ctx, service, id, req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandApplicationSegmentRequest(",
+          "quotes": [
+            "resource, _, err := applicationsegment.Get(ctx, service, id)",
+            "remoteTCPAppPortRanges = resource.TCPPortRanges",
+            "remoteUDPAppPortRanges = resource.UDPPortRanges",
+            "if isSameSlice(TCPAppPortRange, TCPAppPortRanges) || isSameSlice(TCPAppPortRange, remoteTCPAppPortRanges) {",
+            "if isSameSlice(UDPAppPortRange, UDPAppPortRanges) || isSameSlice(UDPAppPortRange, remoteUDPAppPortRanges) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, appID string, appSegmentRequest ApplicationSegmentResource)",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, appSegmentRequest, nil)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "unrelated-update-may-blank-flags": {
+      "statement": "So an update that changes only an unrelated argument sends `false` for flags the Terraform schema cannot express, which can switch off extranet, API protection, auto AppProtection, ADP or bypass-on-reauth behavior that was enabled outside Terraform.",
+      "tier": "C",
+      "derived_from": [
+        "parent-flags-always-serialized",
+        "parent-flags-never-set",
+        "main-update-builds-from-state"
+      ],
+      "conditions": "Depends on how ZPA treats a PUT that carries false for a flag that is currently true (gap api-app-segment-put-semantics), and on the browser access, inspection and PRA updates also being full PUTs of a struct rebuilt from state (browser access, inspection and PRA updates read and confirmed as full PUTs of a rebuilt struct).",
+      "gaps": [
+        "api-app-segment-put-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "phantom-shared-microtenant-object": {
+      "statement": "Each of the four request structs holds `SharedMicrotenantDetails` by value with `omitempty`, which Go's JSON encoder does not omit. The provider never assigns it on a write (it only reads `SharedToMicrotenants` from a response), so every create and update carries `sharedMicrotenantDetails` with an empty `sharedFromMicrotenant` object.",
+      "tier": "B",
+      "derived_from": [
+        "shared.sdk-go.zero-value-writes:value-struct-omitempty-emits-empty-object"
+      ],
+      "binds": [
+        "zpa/application-segments#sharedMicrotenantDetails"
+      ],
+      "conditions": "Absence claim. Searched with `git -C vendor/terraform-provider-zpa grep -n SharedMicrotenantDetails <ref> -- zpa/resource_zpa_application_segment*.go` at v4.4.10 and HEAD: the only hit is the response read in the main segment resource. The nested `SharedFromMicrotenant` field is also a value struct tagged `omitempty`. What ZPA does with the empty object is gap empty-object-semantics in shared.sdk-go.zero-value-writes.",
+      "gaps": [
+        "shared.sdk-go.zero-value-writes:empty-object-semantics"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "SharedMicrotenantDetails SharedMicrotenantDetails `json:\"sharedMicrotenantDetails,omitempty\"`",
+            "SharedFromMicrotenant SharedFromMicrotenant `json:\"sharedFromMicrotenant,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "SharedMicrotenantDetails SharedMicrotenantDetails `json:\"sharedMicrotenantDetails,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "SharedMicrotenantDetails SharedMicrotenantDetails `json:\"sharedMicrotenantDetails,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "SharedMicrotenantDetails SharedMicrotenantDetails `json:\"sharedMicrotenantDetails,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if len(resp.SharedMicrotenantDetails.SharedToMicrotenants) > 0 {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "inspection-subapp-flags-always-serialized": {
+      "statement": "The inspection nested-app struct (`AppsConfig`) sends `enabled`, `adpEnabled`, `allowOptions`, `hidden`, `trustUntrustedCert` and `portal` without `omitempty`. The SDK's inspection `Update` only injects `appId` and `inspectAppId` into those entries, matching by name; it does not copy the other fields from the existing app.",
+      "tier": "A",
+      "binds": [
+        "zpa/inspection-app-segments#commonAppsDto"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type AppsConfig struct {",
+          "quotes": [
+            "AdpEnabled bool `json:\"adpEnabled\"`",
+            "AllowOptions bool `json:\"allowOptions\"`",
+            "Hidden bool `json:\"hidden\"`",
+            "Portal bool `json:\"portal\"`",
+            "Enabled bool `json:\"enabled\"`",
+            "TrustUntrustedCert bool `json:\"trustUntrustedCert\"`",
+            "Name string `json:\"name,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "at": [
+            "v3.8.42"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, id string, appSegmentInspection *AppSegmentInspection)",
+          "quotes": [
+            "for i, appConfig := range appSegmentInspection.CommonAppsDto.AppsConfig { if existingApp, ok := existingInspectionApps[appConfig.Name]; ok {",
+            "appSegmentInspection.CommonAppsDto.AppsConfig[i].AppID = existingResource.ID // main app ID appSegmentInspection.CommonAppsDto.AppsConfig[i].InspectAppID = existingApp.ID // InspectAppID for sub-app } }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "at": [
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, id string, appSegmentInspection *AppSegmentInspection)",
+          "quotes": [
+            "for i, appConfig := range appSegmentInspection.CommonAppsDto.AppsConfig { if existingApp, ok := existingInspectionApps[appConfig.Name]; ok {",
+            "appSegmentInspection.CommonAppsDto.AppsConfig[i].AppID = existingResource.ID appSegmentInspection.CommonAppsDto.AppsConfig[i].InspectAppID = existingApp.ID } }"
+          ]
+        }
+      ],
+      "conditions": "The loop is quoted whole at each pin (separately, because only v3.8.42 carries inline comments): its body holds only the AppID and InspectAppID assignments."
+    },
+    "inspection-subapp-expand-subset": {
+      "statement": "The inspection resource's expander builds each nested app from a subset of fields (ids, name, port, protocol, certificate, domain, trust-untrusted-cert, app types; up to v4.4.11 also description, which v4.4.12 dropped from the schema and the expander). It does not assign `Enabled`, `AdpEnabled`, `AllowOptions`, `Hidden` or `Portal`, and the `Protocols` assignment is commented out in the expander. Up to v4.4.11 it was also commented out in the flattener; v4.4.12 rewrote the flattener (#690), which maps no protocols field.",
+      "tier": "B",
+      "derived_from": [
+        "inspection-subapp-flags-always-serialized"
+      ],
+      "conditions": "Absence claim for the unassigned fields. Searched the `expandInspectionAppsConfig` body in zpa/resource_zpa_application_segment_inspection.go at v4.4.10, v4.4.11 and HEAD (v4.4.14); the struct literal there lists exactly the assigned fields, and the HEAD flattener `mapInspectAppsToCommonApps` has no protocols key. The commented lines are quoted. Changed upstream in v4.4.12 (checked 2026-10-18): previously \"The inspection resource's expander builds each nested app from a subset of fields (ids, name, description, port, protocol, certificate, domain, trust-untrusted-cert, app types). It does not assign `Enabled`, `AdpEnabled`, `AllowOptions`, `Hidden` or `Portal`, and the `Protocols` assignment is commented out in both the expander and the flattener.\"",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandInspectionAppsConfig(",
+          "quotes": [
+            "// Protocols: protocols, // Set protocols here",
+            "TrustUntrustedCert: appConfigMap[\"trust_untrusted_cert\"].(bool),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.11"
+          ],
+          "after": "func expandInspectionAppsConfig(",
+          "quotes": [
+            "Description: appConfigMap[\"description\"].(string),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.11"
+          ],
+          "after": "func mapInspectAppsToCommonApps(",
+          "quotes": [
+            "// \"protocols\": app.Protocols,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "after": "func mapInspectAppsToCommonApps(",
+          "quotes": [
+            "toMap := func(app applicationsegmentinspection.InspectionAppDto) map[string]interface{} {",
+            "\"trust_untrusted_cert\": app.TrustUntrustedCert,"
+          ]
+        }
+      ]
+    },
+    "inspection-update-may-reset-subapp-state": {
+      "statement": "So updating an inspection segment sends every nested app with `enabled`, `adpEnabled`, `allowOptions`, `hidden`, `portal` false and no protocol list, whatever those apps hold remotely.",
+      "tier": "C",
+      "derived_from": [
+        "inspection-subapp-flags-always-serialized",
+        "inspection-subapp-expand-subset"
+      ],
+      "conditions": "Depends on how ZPA treats those members in a PUT (gap api-app-segment-put-semantics).",
+      "gaps": [
+        "api-app-segment-put-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "browser-hidden-sent-false": {
+      "statement": "The browser access resource has no `hidden` argument. Its expander for clientless apps assigns `AllowOptions`, `Enabled` and others but not `Hidden`, and the SDK declares `Hidden` without `omitempty`, so every clientless app in a create or update carries `hidden: false`.",
+      "tier": "B",
+      "binds": [
+        "zpa/browser-access#clientlessApps"
+      ],
+      "conditions": "Absence claim. Searched `git -C vendor/terraform-provider-zpa grep -n -i hidden <ref> -- zpa/resource_zpa_application_segment_browser_access.go` at v4.4.10 and HEAD: no hits. That the API then un-hides a hidden app is not shown by the client (gap api-app-segment-put-semantics); only the wire value is claimed.",
+      "gaps": [
+        "api-app-segment-put-semantics"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_browser_access.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandClientlessApps(",
+          "quotes": [
+            "AllowOptions: clientlessApp[\"allow_options\"].(bool),",
+            "TrustUntrustedCert: clientlessApp[\"trust_untrusted_cert\"].(bool),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type ClientlessApps struct {",
+          "quotes": [
+            "Hidden bool `json:\"hidden\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "pra-update-sends-remote-values": {
+      "statement": "On a PRA segment update, every nested app whose domain already exists remotely is rebuilt from the remote object (name, enabled, port, protocol, connection security, domain, description). The configured values for that app are used only to decide whether its domain is still present. Only apps with a new domain are taken from the configuration. A change to an existing app's port, protocol, connection security, name or description is therefore not sent.",
+      "tier": "A",
+      "binds": [
+        "zpa/pra-app-segments#praApps"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandSRAApplicationSegment(",
+          "quotes": [
+            "if existing != nil {",
+            "if _, found := currentHCLDomains[domain]; found { app := applicationsegmentpra.AppsConfig{ AppID: pra.AppID, PRAAppID: pra.ID, Name: pra.Name, Enabled: pra.Enabled, AppTypes: []string{\"SECURE_REMOTE_ACCESS\"}, ApplicationPort: pra.ApplicationPort,",
+            "ApplicationPort: pra.ApplicationPort, ApplicationProtocol: pra.ApplicationProtocol, ConnectionSecurity: pra.ConnectionSecurity, Domain: pra.Domain, Description: pra.Description, } fullAppsConfig = append(fullAppsConfig, app) } else {",
+            "if _, exists := existingDomains[app.Domain]; !exists {",
+            "existingDomains[pra.Domain] = pra",
+            "for _, app := range hclDefinedDto.AppsConfig { currentHCLDomains[app.Domain] = struct{}{} }",
+            "if _, exists := existingDomains[app.Domain]; !exists { fullAppsConfig = append(fullAppsConfig, app) }",
+            "details.CommonAppsDto.AppsConfig = fullAppsConfig"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentPRAUpdate(",
+          "quotes": [
+            "req := expandSRAApplicationSegment(ctx, d, zClient, id, resp)",
+            "_, err = applicationsegmentpra.Update(ctx, service, id, &req)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "browser-child-id-positional-fallback": {
+      "statement": "For a clientless app with an empty ID, the browser access SDK `Update` assigns the ID of the existing app at the same list position. The provider fills IDs by name first, so only apps whose name matches no existing app (new or renamed) reach the positional fallback. Those apps come from a Terraform set, read as a list.",
+      "tier": "A",
+      "binds": [
+        "zpa/browser-access#clientlessApps"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, appID string, browserAccess *BrowserAccess)",
+          "quotes": [
+            "if browserAccess.ClientlessApps[i].ID == \"\" && len(existingState.ClientlessApps) > i {",
+            "browserAccess.ClientlessApps[i].ID = existingState.ClientlessApps[i].ID"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_browser_access.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentBrowserAccessUpdate(",
+          "quotes": [
+            "existingClientlessByName[existing.Name] = existing",
+            "for i := range req.ClientlessApps {",
+            "if existing, ok := existingClientlessByName[req.ClientlessApps[i].Name]; ok {",
+            "req.ClientlessApps[i].ID = existing.ID"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_browser_access.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandClientlessApps(",
+          "quotes": [
+            "clientless := clientlessInterface.(*schema.Set).List()"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "browser-set-order-not-remote": {
+      "statement": "Their list position therefore follows the set's own ordering, not the order of the remote list.",
+      "tier": "B",
+      "derived_from": [
+        "browser-child-id-positional-fallback"
+      ],
+      "conditions": "A Terraform schema.Set lists its elements in its own hash order; that ordering is Terraform plugin SDK behavior, not quoted from a captured source. Split out of browser-child-id-positional-fallback."
+    },
+    "browser-child-id-may-duplicate": {
+      "statement": "So adding or renaming a clientless app can give it the ID of an existing app that another entry in the same request already carries by name, producing a request in which two entries have one ID and one existing app is replaced or overwritten.",
+      "tier": "C",
+      "derived_from": [
+        "browser-child-id-positional-fallback"
+      ],
+      "conditions": "Depends on the position the new entry takes in the set's list order, on the new entry's index being below the length of the existing list, and on how ZPA treats two entries with the same ID (gap api-app-segment-put-semantics). Not exercised against a live API.",
+      "gaps": [
+        "api-app-segment-put-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "nested-apps-matched-by-name": {
+      "statement": "The inspection and PRA SDK `Update` functions find each existing nested app through a map keyed by name. Two desired apps with the same name both receive the same ID, and a renamed app is treated as new. The inspection resource sets each nested app's name to its domain, so the identity in practice is the domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, id string, appSegmentInspection *AppSegmentInspection)",
+          "quotes": [
+            "existingInspectionApps[inspectionApp.Name] = inspectionApp",
+            "if existingApp, ok := existingInspectionApps[appConfig.Name]; ok {",
+            "appSegmentInspection.CommonAppsDto.AppsConfig[i].InspectAppID = existingApp.ID"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "// Step 2: Map existing PRA apps by name",
+          "quotes": [
+            "existingPraApps[praApp.Name] = praApp",
+            "if existingApp, ok := existingPraApps[appConfig.Name]; ok {",
+            "appSegmentPra.CommonAppsDto.AppsConfig[i].PRAAppID = existingApp.ID"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandInspectionAppsConfig(",
+          "quotes": [
+            "appConfigMap[\"name\"] = appConfigMap[\"domain\"].(string)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "main-share-separate-write": {
+      "statement": "Sharing a main application segment to microtenants is a second API call made after the segment is written. On create, the ID is set before the share call, and a share failure returns an error with the segment already created. On update, a share failure returns an error after the parent PUT has been applied. Neither path rolls back.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentCreate(",
+          "quotes": [
+            "d.SetId(resp.ID)",
+            "applicationsegment_share.AppSegmentMicrotenantShare(ctx, service, resp.ID, shareReq)",
+            "failed to share application segment to microtenants: %w",
+            "if _, err := applicationsegment_share.AppSegmentMicrotenantShare(ctx, service, resp.ID, shareReq); err != nil { return diag.FromErr(fmt.Errorf(\"failed to share application segment to microtenants: %w\", err)) }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentUpdate(",
+          "quotes": [
+            "if _, err := applicationsegment.Update(ctx, service, id, req); err != nil {",
+            "applicationsegment_share.AppSegmentMicrotenantShare(ctx, service, id, shareReq)",
+            "failed to share updated application segment to microtenants: %w",
+            "if _, err := applicationsegment_share.AppSegmentMicrotenantShare(ctx, service, id, shareReq); err != nil { return diag.FromErr(fmt.Errorf(\"failed to share updated application segment to microtenants: %w\", err)) }"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ],
+      "conditions": "Absence claim: `sed -n '/^func resourceApplicationSegmentCreate(/,/^}/p' zpa/resource_zpa_application_segment.go | grep -n 'defer\\|Delete'`, and the same for resourceApplicationSegmentUpdate, in vendor/terraform-provider-zpa return nothing at v4.4.10 and v4.4.16: neither function defers or calls a delete or revert."
+    },
+    "association-block-first-only": {
+      "statement": "The helper that turns the `server_groups` argument into a request indexes only the first block (`blocks[0]`) and builds its server groups from the `id` set in that block; it returns only a slice, no error. The schema declares `server_groups` as an optional list with no item limit before its element.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#serverGroups"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandCommonServerGroups(",
+          "quotes": [
+            "raw, ok := d.GetOk(\"server_groups\")",
+            "block, ok := blocks[0].(map[string]interface{})",
+            "d *schema.ResourceData) []servergroup.ServerGroup {",
+            "idRaw, ok := block[\"id\"]",
+            "for _, id := range idSet.List() {",
+            "blocks := raw.([]interface{}) if len(blocks) == 0 { return nil } block, ok := blocks[0].(map[string]interface{})"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"server_groups\": { Type: schema.TypeList, Optional: true, Elem: &schema.Resource{"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "association-block-first-only-drops-rest": {
+      "statement": "So any `server_groups` block after the first is dropped without an error, and only the IDs in the first block reach the request.",
+      "tier": "B",
+      "derived_from": [
+        "association-block-first-only"
+      ],
+      "conditions": "Rests on a read of the whole helper at the pin, which indexes no block but blocks[0], and on the segment request carrying the helper's result."
+    },
+    "association-block-first-only-places": {
+      "statement": "The same first-block-only read is in the other association expanders in `common.go` (app connector groups, app server groups, service edge groups), which feed the v1 and v2 access policy rules, the redirection rule and the server group resource, and in the server group, service edge group (`trusted_networks`) and user portal link expanders, where the schema allows several blocks (the private cloud and `service_edges` expanders are single-block by schema).",
+      "tier": "B",
+      "derived_from": [
+        "association-block-first-only"
+      ],
+      "conditions": "Search: `git -C vendor/terraform-provider-zpa grep -n 'blocks\\[0\\]' v4.4.10 -- zpa` lists zpa/common.go (four helpers), resource_zpa_private_cloud.go, resource_zpa_server_group.go, resource_zpa_service_edge_group.go (two) and resource_zpa_user_portal_link.go. Callers: `grep -n -E 'expandCommon(AppConnector|ServiceEdge)Groups|expandAppServerGroups'` shows the policy access rule (v1, v2), redirection rule and server group resources. The `server_groups` argument of the main, browser access, inspection and PRA segment resources is read at v4.4.10 as `Type: schema.TypeList, Optional: true` with no `MaxItems` (searched the schema block in each file); a configuration with two blocks therefore plans and applies, and sends the first block's IDs only. Checked: the private cloud summary fields and the service edge group `service_edges` have `MaxItems: 1`, so first-only is by design there; the server group `servers` and `app_connector_groups`, service edge group `trusted_networks` and user portal link `user_portals` schemas have no `MaxItems` (or it is commented out), as do the policy rule and redirection rule association arguments."
+    },
+    "main-delete-v1-cleanup-ignores-errors": {
+      "statement": "Deleting a main application segment calls a cleanup that returns nothing. The cleanup lists rules of five policy types through the v1 policy controller, skips a policy type when listing its set or rules fails, skips a rule when its update fails, and the delete then runs regardless.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentDelete(",
+          "quotes": [
+            "detachAppsFromAllPolicyRules(ctx, d.Id(), service)",
+            "if _, err := applicationsegment.Delete(ctx, service, d.Id()); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachAppsFromAllPolicyRules(",
+          "quotes": [
+            "var rules []policysetcontroller.PolicyRule",
+            "types := []string{\"ACCESS_POLICY\", \"TIMEOUT_POLICY\", \"SIEM_POLICY\", \"CLIENT_FORWARDING_POLICY\", \"INSPECTION_POLICY\"}",
+            "policySet, _, err := policysetcontroller.GetByPolicyType(ctx, policySetControllerService, t) if err != nil { continue }",
+            "r, _, err := policysetcontroller.GetAllByType(ctx, policySetControllerService, t) if err != nil { continue }",
+            "if _, err := policysetcontroller.UpdateRule(ctx, policySetControllerService, rule.PolicySetID, rule.ID, &rule); err != nil { continue }",
+            "policySetControllerService *zscaler.Service) {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachAppConnectorGroupFromV1Policies(",
+          "quotes": [
+            "accessPolicySet, _, err := policysetcontroller.GetByPolicyType(ctx, service, \"ACCESS_POLICY\")",
+            "log.Printf(\"[WARN] Failed to get v1 access policy set: %v\", err)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "detach-drops-emptied-conditions-4-4-15": {
+      "statement": "Up to v4.4.14 the main application segment's policy cleanup set each condition's operands to the ones left after removing the segment (`rule.Conditions[i].Operands = operands`), so a condition could be left with no operands, and the v4.4.15 changelog says deleting a segment no longer fails in that case. From v4.4.15 the cleanup skips a condition left with no operands and sends the remaining conditions.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.14"
+          ],
+          "quotes": [
+            "rule.Conditions[i].Operands = operands"
+          ],
+          "after": "func detachAppsFromAllPolicyRules("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "if len(operands) == 0 && len(condition.Operands) > 0 { continue }",
+            "rule.Conditions = conditions"
+          ],
+          "after": "func detachAppsFromAllPolicyRules("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_application_segment`: deleting a segment no longer fails when removing it from a policy rule leaves a condition with no operands; that condition is now removed."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.15 (PR 698)."
+        }
+      ]
+    },
+    "other-segment-deletes-skip-policy-detach": {
+      "statement": "The browser access, inspection and PRA delete functions do not call the policy cleanup. Browser access calls the SDK delete directly, inspection first removes the segment from its segment group when `segment_group_id` is set, and PRA has a policy-detach call commented out (named for connector groups, not for application segments). All three SDK delete calls pass `ForceDelete: true`.",
+      "tier": "B",
+      "conditions": "Absence claim. Searched `git -C vendor/terraform-provider-zpa grep -n detachAppsFromAllPolicyRules <ref> -- zpa` at v4.4.10 and HEAD: only the main segment resource's delete and the helper itself. Delete functions read in full at both refs. Policy rule APP operands are the references at issue; the PRA console and credential cleanups in zpa.terraform.delete-paths and zpa.terraform.policy-rule-writes cover different rule types.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_browser_access.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentBrowserAccessDelete(",
+          "quotes": [
+            "if _, err := applicationsegmentbrowseraccess.Delete(ctx, service, id); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentInspectionDelete(",
+          "quotes": [
+            "if err := detachSegmentGroup(ctx, zClient, id, gID); err != nil {",
+            "if _, err := applicationsegmentinspection.Delete(ctx, service, id); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentPRADelete(",
+          "quotes": [
+            "// detachAppConnectorGroupFromAllAccessPolicyRules(ctx, d, service)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "common.DeleteApplicationQueryParams{ForceDelete: true, MicroTenantID: service.MicroTenantID()}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "common.DeleteApplicationQueryParams{ForceDelete: true, MicroTenantID: service.MicroTenantID()}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "common.DeleteApplicationQueryParams{ForceDelete: true, MicroTenantID: service.MicroTenantID()}"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "delete-can-leave-policy-references": {
+      "statement": "So a destroy of a main segment can finish successfully while a policy rule still has an APP operand for it (a cleanup step was skipped or failed), and a destroy of a browser access, inspection or PRA segment does not remove such operands before asking ZPA to delete the segment with force.",
+      "tier": "C",
+      "derived_from": [
+        "main-delete-v1-cleanup-ignores-errors",
+        "other-segment-deletes-skip-policy-detach"
+      ],
+      "conditions": "Depends on ZPA accepting a forced delete of a segment that policy rules reference, and on what it does with those references (gap zpa.terraform.delete-paths:api-delete-referenced-object), and on whether the v1 listing returns rules created through the v2 endpoints, which the main cleanup, unlike the segment group cleanup, does not list separately (gap api-v1-listing-covers-v2-rules). The v1 `UpdateRule` it uses also blanks operand names (zpa.terraform.policy-rule-writes:v1-sdk-erases-operand-names).",
+      "gaps": [
+        "zpa.terraform.delete-paths:api-delete-referenced-object",
+        "api-v1-listing-covers-v2-rules"
+      ]
+    },
+    "associate-all-controls-no-false-branch": {
+      "statement": "The inspection profile resource calls `PutAssociate` only when `associate_all_controls` is true, in both create and update, and never calls the SDK's `PutDeassociate`. Read sets the argument from its own configured value, not from the API. Changing it from true to false therefore sends nothing that de-associates, and state shows false.",
+      "tier": "B",
+      "binds": [
+        "zpa/inspection-app-segments"
+      ],
+      "conditions": "Absence claim. Searched `git -C vendor/terraform-provider-zpa grep -n -E 'PutDeassociate|PutAssociate' <ref> -- .` at v4.4.10 and HEAD: two `PutAssociate` calls, both in resource_zpa_inspection_profile.go, no `PutDeassociate`. Whether the update PUT itself drops associated predefined controls is not shown by the client (gap api-app-segment-put-semantics).",
+      "gaps": [
+        "api-app-segment-put-semantics"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceInspectionProfileCreate(",
+          "quotes": [
+            "if v, ok := d.GetOk(\"associate_all_controls\"); ok && v.(bool) {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceInspectionProfileRead(",
+          "quotes": [
+            "_ = d.Set(\"associate_all_controls\", d.Get(\"associate_all_controls\"))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "func PutDeassociate(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "associate-error-ignored": {
+      "statement": "The result of `PutAssociate` is discarded in create and update. The SDK function returns an error, but the call is a bare statement, so a failed association is not reported and the resource finishes as created or updated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceInspectionProfileCreate(",
+          "quotes": [
+            "inspection_profile.PutAssociate(ctx, service, resp.ID, p)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceInspectionProfileUpdate(",
+          "quotes": [
+            "inspection_profile.PutAssociate(ctx, service, req.ID, p)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "func PutAssociate(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "custom-control-association-errors-logged": {
+      "statement": "Associating an inspection custom control with its profiles is done by a helper with no return value: it logs a failed control lookup and returns, logs a failed profile lookup and continues to the next profile, and logs a failed profile patch, the loop's last statement, before the loop and the function close; create and update call it without a result to check. On delete, the loop that removes the control from each profile skips a profile whose lookup fails and ignores the error from the profile update, then deletes the control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "func updateInspectionProfile(ctx context.Context, zClient *Client, customControlID string, req *inspection_custom_controls.InspectionCustomControl) {",
+            "log.Printf(\"[ERROR] Error patching inspection profile: %s\", err)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func updateInspectionProfile(",
+          "quotes": [
+            "log.Printf(\"[ERROR] Error fetching inspection custom control: %s\", err) return",
+            "for _, profileName := range req.AssociatedInspectionProfileNames {",
+            "log.Printf(\"[ERROR] Error fetching inspection profile: %s\", err) continue",
+            "if _, err := inspection_profile.Patch(ctx, zClient.Service, profile.ID, updateProfile); err != nil { log.Printf(\"[ERROR] Error patching inspection profile: %s\", err) } } }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceInspectionCustomControlsCreate(",
+          "quotes": [
+            "updateInspectionProfile(ctx, zClient, resp.ID, &req)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceInspectionCustomControlsUpdate(",
+          "quotes": [
+            "updateInspectionProfile(ctx, zClient, id, &req)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceInspectionCustomControlsDelete(",
+          "quotes": [
+            "inspectionProfileRemote, _, err := inspection_profile.Get(ctx, service, inspectionProfile.ID) if err != nil { continue }",
+            "inspection_profile.Update(ctx, service, inspectionProfile.ID, inspectionProfileRemote) } if _, err := inspection_custom_controls.Delete(ctx, service, d.Id()); err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "pra-update-returns-read-after-update": {
+      "statement": "The PRA segment update's error returns cover only its initial Get, the app ID step, port validation and the SDK Update; on its normal path it ends by returning the result of a Read, with no comparison of the configured nested apps against what was sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentPRAUpdate(",
+          "quotes": [
+            "_, err = applicationsegmentpra.Update(ctx, service, id, &req)",
+            "return resourceApplicationSegmentPRARead(ctx, d, meta)",
+            "return diag.FromErr(fmt.Errorf(\"error retrieving application segment: %v\", err))",
+            "return diag.FromErr(fmt.Errorf(\"error setting app_id and pra_app_id in common_apps_dto: %v\", err))",
+            "if err := validateAppPorts(req.SelectConnectorCloseToApp, req.UDPAppPortRange, req.UDPPortRanges); err != nil { return diag.FromErr(err) }",
+            "return diag.FromErr(fmt.Errorf(\"error updating application segment: %v\", err)) } return resourceApplicationSegmentPRARead(ctx, d, meta)"
+          ]
+        }
+      ],
+      "conditions": "At v4.4.10 and v4.4.16, `awk '/^func resourceApplicationSegmentPRAUpdate\\(/,/^}/' zpa/resource_zpa_application_segment_pra.go | grep -n -E '==|!=|Equal|reflect|len\\(|HasChange'` returns only `microTenantID != \"\"` and four `err != nil` checks (the Get, setAppIDsInCommonAppsDto, validateAppPorts and the Update); nothing compares the configured nested apps with what was sent."
+    },
+    "server-groups-flatten-single-block": {
+      "statement": "On read, the provider turns the server groups the API returns for a segment into one `server_groups` block whose `id` is a set of the non-empty group IDs, and into nothing when none has an ID; the base, Browser Access, PRA and Inspection segment resources all set `server_groups` this way.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "if group.ID != \"\" { ids = append(ids, group.ID) }",
+            "if len(ids) == 0 { return nil }",
+            "return []interface{}{ map[string]interface{}{ \"id\": schema.NewSet(schema.HashString, ids), }, }"
+          ],
+          "after": "func flattenCommonAppServerGroupSimple(serverGroups []servergroup.ServerGroup) []interface{} {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "_ = d.Set(\"server_groups\", flattenCommonAppServerGroupSimple(resp.ServerGroups))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "quotes": [
+            "_ = d.Set(\"server_groups\", flattenCommonAppServerGroupSimple(resp.ServerGroups))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "quotes": [
+            "_ = d.Set(\"server_groups\", flattenCommonAppServerGroupSimple(resp.AppServerGroups))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_browser_access.go",
+          "quotes": [
+            "if err := d.Set(\"server_groups\", flattenCommonAppServerGroupSimple(resp.AppServerGroups)); err != nil {"
+          ]
+        }
+      ]
+    },
+    "segment-group-membership-check": {
+      "statement": "The segment group resource's Read sets applications to the IDs of the applications the API returns for the group. At v4.4.11 to v4.4.13 an update sent the configured applications list through UpdateV2. From v4.4.14 the argument is deprecated, the docs say to manage membership with segment_group_id on zpa_application_segment, and on an existing group the plan fails when the configured application IDs add to or remove from the IDs in state; the IDs are compared as sets, so order alone is not a change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.11",
+            "v4.4.12",
+            "v4.4.13"
+          ],
+          "after": "func resourceSegmentGroupUpdate(",
+          "quotes": [
+            "req := expandSegmentGroup(d)",
+            "if _, err := segmentgroup.UpdateV2(ctx, service, id, &req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.11",
+            "v4.4.12",
+            "v4.4.13"
+          ],
+          "after": "func expandSegmentGroup(d *schema.ResourceData) segmentgroup.SegmentGroup {",
+          "quotes": [
+            "Applications: expandSegmentGroupApplications(d.Get(\"applications\").([]interface{})),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "if err := d.Set(\"applications\", flattenSegmentGroupApplicationsSimple(resp)); err != nil {",
+            "\"id\": segmentGroupApplication.ID,",
+            "if d.Id() == \"\" || !d.HasChange(\"applications\") {",
+            "added, deleted := segmentGroupApplicationChanges(oldList, newList)",
+            "application segment membership cannot be changed from zpa_segment_group (%d added, %d removed)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "// ignored: listing the same applications in a different order is no change."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_segment_group.md",
+          "quotes": [
+            "The `applications` attribute is deprecated and will be removed in a future major release.",
+            "Manage membership with the `segment_group_id` attribute of",
+            "Adding or removing applications in the `applications` block of an existing segment group is rejected at plan time.",
+            "attribute of [`zpa_application_segment`](zpa_application_segment.md)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_segment_group`: the `applications` attribute is **deprecated** and will be removed in a future major release.",
+            "Updates previously sent every application associated with the segment group"
+          ],
+          "after": "## 4.4.14 (October 8, 2026)"
+        }
+      ],
+      "conditions": "Changed upstream in v4.4.14 (checked 2026-10-18): previously \"carrying the applications list on the segment group in Terraform configuration produces phantom drift\" (the unverified legacy statement held open in gap segment-group-applications-drift). The old update path is the same at v4.4.11, v4.4.12 and v4.4.13; the plan-time check first appears in v4.4.14."
+    },
+    "segment-group-membership-change-fails-plan": {
+      "statement": "From v4.4.14 a segment group whose configuration lists applications does not drift silently: when a segment joins or leaves the group through its segment_group_id, the next Read changes the IDs in state, the configured list no longer matches them as a set, and the plan fails with the membership error until the list is corrected or the block is removed.",
+      "tier": "B",
+      "derived_from": [
+        "segment-group-membership-check",
+        "zpa.segment-groups.api-surface:tf-resource-schema"
+      ],
+      "conditions": "Follows from Read writing the API's membership into state and the plan-time check comparing ID sets on an existing group. It assumes Terraform diffs the configured list against the refreshed state for this Optional and Computed attribute, which is Terraform behavior not shown in a captured source."
+    },
+    "main-resource-unsupported-for-appprotection-segments": {
+      "statement": "The `zpa_application_segment` resource documents that a segment on which Auto App Protection or Active Directory Inspection has been enabled, for example in the Admin Portal, becomes an inspection segment that only `zpa_application_segment_inspection` supports: it must be imported there and removed from `zpa_application_segment`, because any update the main resource applies disables the feature and leaves the per-domain inspection configuration invalid. Issue #687 reported that an unrelated update did exactly that and also made the segment vanish from the console's main list; it was closed as completed on 2026-10-01 with a reply from a member of the repository's organization, signed Zscaler DevRel, naming `zpa_application_segment_inspection` and its `trust_untrusted_cert` setting as the supported way to manage such a segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment.md",
+          "quotes": [
+            "Enabling **Auto App Protection** or **Active Directory Inspection** on an application segment — for example in the ZPA Admin Portal — converts it into an *inspection* application segment, which is only supported by the [`zpa_application_segment_inspection`](zpa_application_segment_inspection.md) resource.",
+            "A segment that has been converted must be imported into `zpa_application_segment_inspection` and removed from `zpa_application_segment`.",
+            "any update it applies disables AppProtection or Active Directory Inspection and leaves the segment's per-domain inspection configuration in an invalid state."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-687.json",
+          "quotes": [
+            "applying *any* unrelated Terraform update to that segment corrupts the linked Inspection configuration and the segment disappears from the console's main Application Segments list"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-687.json",
+          "after": "## Comment (MEMBER, 2026-10-01)",
+          "quotes": [
+            "Zscaler DevRel"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-687.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-10-01) @(user) Upgrade to the latest version",
+            "AppProtection (Auto App Protection) and Active Directory Inspection are not supported attributes of the zpa_application_segment resource. They are supported only by the zpa_application_segment_inspection resource",
+            "The \"Use Untrusted Certificates\" option you mentioned is available there as common_apps_dto.apps_config.trust_untrusted_cert."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-687.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-10-01"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-app-segment-put-semantics": {
+      "kind": "semantic",
+      "title": "How ZPA treats false, empty-object and duplicate-ID members in application segment PUTs",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the wire values above clear, keep or reject remote state",
+      "detail": "The client sends false for unmodeled flags, hidden false, zeroed nested-app flags, empty association objects, and in one path an ID shared by two entries. No captured source says what ZPA does with each. Test in a scratch tenant: enable a flag outside Terraform, apply an unrelated change, and re-read the segment; repeat with a hidden clientless app and with an inspection nested app that has options enabled."
+    },
+    "api-v1-listing-covers-v2-rules": {
+      "kind": "semantic",
+      "title": "Whether the v1 policy listing returns rules written through the v2 endpoints",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the main segment delete cleanup reaches APP operands in rules created through the v2 resources",
+      "detail": "The main cleanup lists rules with the v1 policy controller only. Create a rule with a v2 resource that has an APP operand for a test segment, then list the policy type through the v1 call and check whether the rule and operand appear."
+    },
+    "segment-group-applications-drift": {
+      "kind": "semantic",
+      "title": "Whether a segment group applications list in a different order from the API's plans an update on every run",
+      "status": "partial",
+      "detail": "Unverified legacy statement (operator field observation from production Terraform use): segment group membership is managed from the application segment side, and carrying the applications list on the segment group in Terraform configuration produces phantom drift. From v4.4.14 the code settles membership changes: a membership change fails the plan instead of drifting. Still open: the plan-time check ignores order, but applications is a list that Read fills in the API's order, so whether a configuration listing the current applications in another order plans an in-place update on every run is not shown; the changelog says such configurations keep working without changes. The legacy drift on versions before v4.4.14 is also unreproduced. Plan twice with the applications listed in an order different from the API's.",
+      "blocks": "telling whether listing a segment group's current applications in another order leaves a permanent plan difference",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Configurations that list the segment group's current applications, in any order, keep working without changes."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "// ignored: listing the same applications in a different order is no change."
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "id": "zia.workload-groups",
+  "title": "ZIA Workload Groups: scoping rules to cloud workloads",
+  "aliases": [
+    "workload groups",
+    "workloadGroups",
+    "workload group",
+    "policy scoping by cloud tag",
+    "zia_workload_groups",
+    "cloud workload scoping",
+    "workload traffic policy"
+  ],
+  "binds": [
+    "zia/workload-groups"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.workload-groups.expressions",
+      "because": "zia.workload-groups:cloud-metadata-source"
+    },
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.workload-discovery",
+      "because": "zia.workload-groups:discovered-in-cloud-connector"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/workload-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups.rule-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.group-assignment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{cloud-metadata-source}}"
+    },
+    {
+      "text": "Location groups are covered elsewhere: the predefined Workload Traffic location group and how a location lands in it are in [[zia.locations.groups]] and [[zia.locations.group-assignment]], and the sublocations Cloud Connector creates for workloads are in [[zia.locations.workload-scopes]]. {{both-fields}}"
+    },
+    {
+      "label": "Before expecting any of this to exist.",
+      "text": "{{discovery-prerequisite}} {{discovered-in-cloud-connector}}"
+    },
+    {
+      "label": "Who can change them.",
+      "text": "{{edit-permission}} {{console-page}}"
+    },
+    {
+      "label": "Reading order.",
+      "steps": [
+        {
+          "text": "What an expression can say, and what it cannot be shown to do: [[zia.workload-groups.expressions]]."
+        },
+        {
+          "text": "Which rules accept a workload group, and how many per rule: [[zia.workload-groups.rule-scoping]]."
+        },
+        {
+          "text": "Reading and writing them through the API, Terraform and MCP: [[zia.workload-groups.api-surface]]."
+        }
+      ]
+    },
+    {
+      "text": "How ZIA evaluates an expression against live traffic is open [[zia.workload-groups.expressions:runtime-evaluation]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the question asks how an expression matches live traffic, which no source establishes, or what the console help and examples state.",
+      "uses": [
+        "zia.workload-groups.expressions:runtime-evaluation",
+        "zia.workload-groups.expressions:example"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "A workload group selects cloud workloads by building an expression from tag types and key-value pairs, and is then used as a criterion in Internet & SaaS (ZIA) policies so that security policy applies to the workload traffic.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-workload-groups.json",
+          "quotes": [
+            "The Workload Group page enables you to create workload groups to apply security policies for your cloud workloads deployed on a public cloud service provider, such as the Amazon Web Services (AWS) platform.",
+            "You can create a workload group by building an expression using various tag types and key-value pairs.",
+            "You can use the workload group as a criterion in Internet & SaaS (ZIA) policies such as SSL/TLS Inspection, Firewall Filtering, URL Filtering, and DLP to apply security policies to the workload traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workload-groups.json",
+          "quotes": [
+            "You can define a workload group by building an expression using different tag types and key-value pairs in the Zscaler Admin Console.",
+            "A workload group is used to logically group all the workloads with user-defined tags and cloud service provider-defined attributes that align with the tag expression of that workload group."
+          ]
+        }
+      ]
+    },
+    "cloud-metadata-source": {
+      "statement": "Membership comes from cloud-native metadata: workloads with user-defined tags and provider-defined attributes that match the group's expression belong to the group, and their traffic is forwarded by Cloud Connectors to the Zero Trust Exchange where the selected policies apply.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workload-groups.json",
+          "quotes": [
+            "A workload group is used to logically group all the workloads with user-defined tags and cloud service provider-defined attributes that align with the tag expression of that workload group.",
+            "The workloads with user-defined tags and attributes that match the expression are considered a part of workload group A.",
+            "the traffic from the workloads under workload group A is forwarded by Cloud Connectors to the Zero Trust Exchange (ZTE), and the selected security policies are applied."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-workload-groups.json",
+          "quotes": [
+            "Leverage cloud-native metadata available on the public cloud to apply policies to workload traffic."
+          ]
+        }
+      ]
+    },
+    "discovery-prerequisite": {
+      "statement": "The feature needs a subscription to a Workload SKU and a Cloud & Branch Connector account; after subscribing, Zscaler Support must enable the Workload Discovery Service Endpoint before Workload Groups can be used.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-workload-groups.json",
+          "quotes": [
+            "Ensure that your organization has a subscription to one of the Workload SKUs and an account with Cloud & Branch Connector in the Zscaler Admin Console. When subscribed, contact Zscaler Support to enable the Workload Discovery Service Endpoint to access the Workload Groups feature."
+          ]
+        }
+      ]
+    },
+    "discovered-in-cloud-connector": {
+      "statement": "The deployed workloads and their discovered tags can be viewed on the Cloud & Branch Connector Partner Integrations page in the Admin Console.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workload-groups.json",
+          "quotes": [
+            "You can view the deployed workloads and their respective tags discovered on the Cloud & Branch Connector Partner Integrations page in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-workload-groups.json",
+          "quotes": [
+            "You can view all the workloads and their respective tags in Cloud Connector in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "edit-permission": {
+      "statement": "Only admins with full policy access can add or edit workload groups.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-workload-groups.json",
+          "quotes": [
+            "Only admins with full policy access can add or edit the workload groups."
+          ]
+        }
+      ]
+    },
+    "both-fields": {
+      "statement": "The Terraform URL Filtering rule and SSL inspection rule resources carry both `workload_groups` and `location_groups`, so a rule can scope by both.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "\"location_groups\":",
+            "\"workload_groups\":"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_ssl_inspection_rules.go",
+          "quotes": [
+            "\"location_groups\":",
+            "\"workload_groups\":"
+          ]
+        }
+      ]
+    },
+    "console-page": {
+      "statement": "The console lists each group with its name, description, last modifier and last-modified time, and offers search, add, edit and delete.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-workload-groups.json",
+          "quotes": [
+            "- Name: The name of the workload group.",
+            "- Last Modified By: The name of the latest user who modified the workload group.",
+            "- Last Modified On: The date and time the workload group was last modified.",
+            "2. Search for a workload group.",
+            "1. Add a workload group.",
+            "5. Edit a workload group.",
+            "6. Delete a workload group.",
+            "- Description: Additional notes or information about the workload group."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

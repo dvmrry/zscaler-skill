@@ -1,0 +1,527 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Log Types, Levels, and Formats",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/understanding-log-types-levels-and-formats",
+    "node": "1533790",
+    "revision": "3249560",
+    "updated": "2026-10-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Monitoring and logging are crucial to securing any system, as they help detect anomalies, ensure compliance, and troubleshoot issues. Zero Trust Branch provides comprehensive logging and monitoring capabilities to ensure visibility and control across your branch network infrastructure."
+    },
+    {
+      "text": "Zero Trust Branch appliances generate several types of logs that help admins analyze branch traffic, understand policy outcomes, and troubleshoot operational issues. This article explains the log types, logging levels, log formats, retention behavior, throttling characteristics, and how customer logs are isolated within the system."
+    },
+    {
+      "item": "Log Types",
+      "depth": 0
+    },
+    {
+      "heading": "Log Types",
+      "level": 1
+    },
+    {
+      "item": "Zero Trust Branch appliances capture two primary types of traffic logs: packet logs and flow logs. These logs provide different levels of detail and are used for complementary troubleshooting needs.",
+      "depth": 0,
+      "strong": [
+        [
+          72,
+          83
+        ],
+        [
+          88,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "By default, Zscaler only logs the traffic flow once per hour based on the 4-tuple (source IP address, destination IP address, destination port, protocol) for each policy match. For example, an admin creates a policy denying access sourced from any IP address and destined for 8.8.8.8 on port 53. If Host A sends multiple DNS requests to 8.8.8.8, then only one request is logged within an hour. If Host B does the same thing, then only a single entry appears for Host B. If Host A or B repeats this process after an hour, a new entry appears in the log.",
+      "depth": 0
+    },
+    {
+      "item": "To enable more verbose logging, select Disable Log Throttling when you add or edit a policy. To learn more, see Configuring Security Policies.",
+      "depth": 0,
+      "strong": [
+        [
+          39,
+          61
+        ]
+      ]
+    },
+    {
+      "heading": "Packet Logs",
+      "level": 2
+    },
+    {
+      "item": "Packet logs provide a rich set of data that allows you to analyze traffic flowing through a network, providing insight into traffic patterns and helping you to troubleshoot issues. Packet logs help track packet flow, verify firewall rules, and ensure trusted communication paths. For example, when troubleshooting DNS resolution or verifying a rule, these logs give all relevant context including interface, protocol, and rule hits. Packet logs can be filtered by a number of attributes, including source (e.g., IP address, port, OS, browser, or geolocation), destination (e.g., name, location, country, IP address, or port), and host (name and OS). Zero Trust Branch Management sends metadata to the Zero Trust Branch appliances.",
+      "depth": 0
+    },
+    {
+      "item": "Packet logs display all captured packet headers that hit any policy in a per-packet manner.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Data Explorer > Zero Trust Branch > Packet Logs.",
+      "depth": 0,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          65
+        ],
+        [
+          68,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Flow Logs",
+      "level": 2
+    },
+    {
+      "item": "Flow logs help you to troubleshoot issues using session flow details for a source/destination pair and a policy/action set.",
+      "depth": 0
+    },
+    {
+      "item": "You can filter them by a number of attributes, including source (e.g., IP address, port, OS, browser, or geolocation), destination (e.g., name, location, country, IP address, or port), and more.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Data Explorer > Zero Trust Branch > Flow Logs.",
+      "depth": 0,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          65
+        ],
+        [
+          68,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Flow logs are near real time. Traffic charts need to collect and compile the data before it is displayed in the graphs. As a result, expect a 5- to 7-minute delay in traffic charts.",
+      "depth": 0
+    },
+    {
+      "item": "Flow logs display selected fields in a table format. You can see the policy name and the action (drop, allow) clearly.",
+      "depth": 0
+    },
+    {
+      "heading": "Logging Levels",
+      "level": 1
+    },
+    {
+      "item": "Zero Trust Branch supports multiple logging levels to give admins flexibility based on operational needs and troubleshooting depth:",
+      "depth": 0
+    },
+    {
+      "item": "Info: Captures standard operational events and routine activities. This is the default level.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Warning: Records potential issues that do not interrupt operations but might require attention.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Error: Captures critical incidents or failures that need immediate investigation, such as misconfigurations or connectivity failures.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Debug: Provides detailed, granular information for diagnostic purposes. This level produces significantly more logs and is typically enabled only during targeted troubleshooting.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Admins can adjust logging levels to match their compliance, performance, or diagnostic needs.",
+      "depth": 0
+    },
+    {
+      "heading": "Log Format",
+      "level": 1
+    },
+    {
+      "heading": "Stored Logs Format",
+      "level": 2
+    },
+    {
+      "item": "Logs are stored in a structured JSON format to support consistent parsing, analysis, and integration with third-party security information and event management (SIEM) platforms.",
+      "depth": 0
+    },
+    {
+      "item": "Each entry includes key fields such as:",
+      "depth": 0
+    },
+    {
+      "item": "Action",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Agent information: Name, ID, type, version",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Destination: IP, port, MAC",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Event: Action, dataset, module, time zone",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "IPTables data: Input/output device, length, type-of-service (TOS), time-to-live (TTL), precedence bits",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Log metadata: File path, offset, original log reference",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Network type",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Policy",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Protocol",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Source: IP address, port, MAC",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Tags",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Timestamp",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Tunnel information",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Logs can be exported in JSON or CSV formats for external analysis or long-term storage.",
+      "depth": 0
+    },
+    {
+      "heading": "Traffic Log Format",
+      "level": 2
+    },
+    {
+      "item": "The traffic log is a consolidated record of network activity showing various parameters. The following is an example of a typical traffic log:",
+      "depth": 0
+    },
+    {
+      "item": "Nov 18 13:59:49 mcdl--POD130--AGN01 [HTTP-ALLOW-10-A] IN=eth0 OUT=eth1 MAC=00:0c:29:bd:a5:e7:00:0c:29:00:ff:9d:08:00 SRC=10.90.130.22 DST=34.107.243.93 LEN=60 TOS=00 PREC=0x00 TTL=63 ID=44295 DF PROTO=TCP SPT=33714 DPT=443 SEQ=651940018 ACK=0 WINDOW=64240 SYN URGP=0 MARK=802",
+      "depth": 0
+    },
+    {
+      "item": "The following table provides information about fields in the traffic log:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description"
+        ],
+        [
+          "Nov 18 13:59:49",
+          "Timestamp of the log"
+        ],
+        [
+          "mcdl--POD130--AGN01",
+          "Combined value indicating tenant name, site name, and gateway name, separated by double hyphens (--)"
+        ],
+        [
+          "[HTTP-ALLOW-10-A]",
+          "Combined value indicating policy name, policy ID, and policy action, separated by a hyphen (-)"
+        ],
+        [
+          "IN=eth0",
+          "Input interface"
+        ],
+        [
+          "OUT=eth1",
+          "Output interface"
+        ],
+        [
+          "MAC=00:0c:29:bd:a5:e7:00:0c:29:00:ff:9d:08:00",
+          "Combined value indicating destination MAC address and source MAC address, separated by a colon (:)"
+        ],
+        [
+          "SRC=10.90.130.22",
+          "Source IP address"
+        ],
+        [
+          "DST=34.107.243.93",
+          "Destination IP address"
+        ],
+        [
+          "LEN=60 TOS=00 PREC=0x00 TTL=63 ID=44295 DF",
+          "IP header options"
+        ],
+        [
+          "PROTO=TCP",
+          "Transport protocol"
+        ],
+        [
+          "SPT=33714",
+          "Source port"
+        ],
+        [
+          "DPT=443",
+          "Destination port"
+        ],
+        [
+          "SEQ=651940018 ACK=0 WINDOW=64240 SYN URGP=0 MARK=802",
+          "TCP header options"
+        ]
+      ]
+    },
+    {
+      "heading": "Log Retention and Size Limits",
+      "level": 1
+    },
+    {
+      "item": "Zero Trust Branch applies retention and sizing limits to ensure efficient storage and predictable performance. Session logs (including flow records) are retained for 7 days by default. Customers requiring longer retention can do one of the following:",
+      "depth": 0
+    },
+    {
+      "item": "Export logs to external SIEM platforms.",
+      "depth": 1
+    },
+    {
+      "item": "Request extended retention through their master service agreement (MSA).",
+      "depth": 1
+    },
+    {
+      "heading": "Additional Retention Behavior",
+      "level": 2
+    },
+    {
+      "item": "Zero Trust Branch applies the following additional behavior for log retention:",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler Admin Console displays up to 500 log entries at a time.",
+      "depth": 1
+    },
+    {
+      "item": "Exported log files can be up to 10 MB in size.",
+      "depth": 1
+    },
+    {
+      "item": "Private Access (ZPA)-related logs do not appear in the Zscaler Admin Console. They are available only in Private Access diagnostics.",
+      "depth": 1
+    },
+    {
+      "heading": "Log Throttling",
+      "level": 1
+    },
+    {
+      "item": "To maintain performance and prevent excessive log volume, Zero Trust Branch employs log throttling mechanisms. By default, throttling is enabled in Firewall and Segmentation policies for east–west traffic.",
+      "depth": 0
+    },
+    {
+      "heading": "Throttling Behavior",
+      "level": 2
+    },
+    {
+      "item": "Only one flow per hour is logged for each unique combination of:",
+      "depth": 0
+    },
+    {
+      "item": "Source IP address",
+      "depth": 1
+    },
+    {
+      "item": "Destination IP address",
+      "depth": 1
+    },
+    {
+      "item": "Destination port",
+      "depth": 1
+    },
+    {
+      "item": "Protocol",
+      "depth": 1
+    },
+    {
+      "item": "If throttling is disabled, Zero Trust Branch logs every matching flow.",
+      "depth": 0
+    },
+    {
+      "heading": "Segregated Customer Logs",
+      "level": 1
+    },
+    {
+      "item": "Zero Trust Branch ensures complete log isolation for each customer tenant, ensuring strict multi-tenant isolation, compliance, and security. The isolation mechanisms include:",
+      "depth": 0
+    },
+    {
+      "item": "Dedicated ingestion records (tables) for each customer’s graph-generation data",
+      "depth": 1
+    },
+    {
+      "item": "Separate Analytics Data Store spaces for packet logs and flow logs",
+      "depth": 1
+    },
+    {
+      "item": "Individual cloud storage buckets for syslogs",
+      "depth": 1
+    },
+    {
+      "item": "Dedicated tables for each customer’s alarms and notifications",
+      "depth": 1
+    },
+    {
+      "item": "Logging Levels",
+      "depth": 0
+    },
+    {
+      "item": "Log Format",
+      "depth": 0
+    },
+    {
+      "item": "Log Retention and Size Limits",
+      "depth": 0
+    },
+    {
+      "item": "Log Throttling",
+      "depth": 0
+    },
+    {
+      "item": "Segregated Customer Logs",
+      "depth": 0
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Private Service Edge Deployment Guide for Docker",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/private-service-edge-deployment-guide-docker",
+    "node": "1485946",
+    "revision": "3249760",
+    "updated": "2026-10-05",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Private Service Edge for Private Access (ZPA) Docker image is available on Docker Hub for both the AMD64 and ARM64 platforms:"
+    },
+    {
+      "item": "docker pull zscaler/zpa-service-edge:latest.amd64",
+      "depth": 0
+    },
+    {
+      "item": "docker pull zscaler/zpa-service-edge:latest.arm64",
+      "depth": 0
+    },
+    {
+      "text": "To learn more about the different repositories available, refer to the Docker Hub."
+    },
+    {
+      "text": "Docker support is not available for Kubernetes."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "item": "An environment variable named ZPA_PROVISION_KEY is required to run this image. You can retrieve the provisioning key from the Zscaler Admin Console. To learn more, see About Private Service Edge Provisioning Keys.",
+      "depth": 0
+    },
+    {
+      "item": "You must configure a Publish IP in the Admin UI. This public IP address receives requests for port 443 from clients and App Connectors when communicating with the Private Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "After the Publish IP is configured, restart Docker using the command: docker restart <container_name>.",
+      "depth": 0
+    },
+    {
+      "item": "You can use the docker ps command to find the container name under the NAMES column.",
+      "depth": 0
+    },
+    {
+      "text": "[zuser@centos zpa-service-edge]$ sudo docker ps -a CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES 5b2131e8c773 zpa-service-edge:test \"/start.sh\" 23 hours ago Up 23 hours 0.0.0.0:443->443/tcp zpa-service-edge"
+    },
+    {
+      "text": "Only one container per host is allowed. The container is deployed in a Docker Community Edition (CE) environment and is not an orchestration tool like Docker Swarm or Kubernetes."
+    },
+    {
+      "heading": "Deploying a Docker Image on x86-64 Systems",
+      "level": 1
+    },
+    {
+      "text": "A minimum of 4 cores and 8 GB RAM is required for x86-64 systems."
+    },
+    {
+      "text": "To deploy the Docker image, create a new container using the run command and provisioning key."
+    },
+    {
+      "text": "Docker provides a random name for the container if you don’t include the “--name” option when you run the following command. If you want, you can replace “zpa-service-edge” with a different container name."
+    },
+    {
+      "text": "For example:"
+    },
+    {
+      "text": "The domain (e.g., api.private.com) in the echo statement will depend on what Private Access cloud you are on."
+    },
+    {
+      "text": "sudo docker run -d --init \\ -p 443:443 --name zpa-service-edge \\ --cap-add cap_net_admin \\ --cap-add cap_net_bind_service \\ --cap-add cap_net_raw \\ --cap-add cap_sys_nice \\ --cap-add cap_sys_time \\ --cap-add cap_sys_resource \\ --restart always \\ -e ZPA_PROVISION_KEY=\"3|api.private.zscaler.com|...\" \\ zscaler/zpa-service-edge:latest.amd64"
+    },
+    {
+      "text": "To deploy the Docker image, create a new container using the run command and provisioning key."
+    },
+    {
+      "text": "If needed, configure log rotation to ensure that container logs do not reach full capacity. You can also configure the networking for the deployed software component."
+    },
+    {
+      "heading": "Deploying a Docker Image on an Arm Platform",
+      "level": 1
+    },
+    {
+      "text": "A minimum of 2 cores and 4 GB RAM is required for ARM64 systems."
+    },
+    {
+      "text": "To deploy the Docker image on ARM64 architecture, create a new container using the run command and provisioning key."
+    },
+    {
+      "text": "Docker provides a random name for the container if you don’t include the “--name” option when you run the following command. If you want, you can replace “zpa-service-edge” with a different container name."
+    },
+    {
+      "text": "For example:"
+    },
+    {
+      "text": "The domain (e.g., api.private.com) in the echo statement will depend on what Private Access cloud you are on."
+    },
+    {
+      "text": "sudo docker run -d --init \\ -p 443:443 --name zpa-service-edge \\ --cap-add cap_net_admin \\ --cap-add cap_net_bind_service \\ --cap-add cap_net_raw \\ --cap-add cap_sys_nice \\ --cap-add cap_sys_time \\ --cap-add cap_sys_resource \\ --restart always \\ -e ZPA_PROVISION_KEY=\"2|api.private.zscaler.com|...\" \\ zscaler/zpa-service-edge:latest.arm64"
+    },
+    {
+      "text": "To deploy the Docker container, ensure --init is included in the run command."
+    },
+    {
+      "text": "If needed, configure log rotation to ensure that container logs do not reach full capacity. You can also configure the networking for the deployed software component."
+    },
+    {
+      "heading": "Configuring Log Rotation",
+      "level": 2
+    },
+    {
+      "text": "By default, Docker logs do not rotate and can continue to grow until the root partition reaches full capacity, which can cause servers to power down. To avoid this, you can configure log rotation so the logs roll over after they reach the limit for the Docker container."
+    },
+    {
+      "text": "To configure log rotation for a Docker container, enter the following command:"
+    },
+    {
+      "text": "sudo docker run -d \\ --log-driver=json-file \\ --log-opt max-size=<number>m \\ --log-opt max-file=<number> \\"
+    },
+    {
+      "text": "In the following example, there is a maximum of 10 log files with a maximum size for each log file of 500 MB."
+    },
+    {
+      "text": "sudo docker run -d \\ --log-driver=json-file \\ --log-opt max-size=500m \\ --log-opt max-file=10 \\"
+    },
+    {
+      "heading": "Linux Capabilities",
+      "level": 2
+    },
+    {
+      "text": "The following table provides a list of Linux capabilities that the container uses:"
+    },
+    {
+      "table": [
+        [
+          "Linux Capability",
+          "Behavior or Operation",
+          "Description"
+        ],
+        [
+          "CAP_NET_ADMIN",
+          "Performs the following network-related operations: Interfaces configuration. Administration of the IP firewall, masquerading, and accounting. Modifies the routing tables. Binds to any address for transparent proxying. Sets the type-of-service (TOS). Clears the driver statistics. Sets in promiscuous mode. Enables multicasting.",
+          "Fundamental to Private Access networking."
+        ],
+        [
+          "CAP_NET_BIND_SERVICE",
+          "Binds a socket to the internet domain privileged ports (port numbers less than 1024).",
+          "This capability is required to bind to a port below 1024. If you are running a service that listens to a port above 1024, remove this capability."
+        ],
+        [
+          "CAP_NET_RAW",
+          "Binds to any address for transparent proxying and uses RAW and PACKET sockets.",
+          "Fundamental to Private Access networking."
+        ],
+        [
+          "CAP_SYS_BOOT*",
+          "Reboots or loads a new kernel for future execution.",
+          "This capability is optional and can be turned off in the container."
+        ],
+        [
+          "CAP_SYS_NICE",
+          "Performs the following network-related operations: Lowers the processed nice value (i.e., nice(2) and setpriority(2)) and changes the nice value for arbitrary processes. Sets scheduling policies in real time for the calling process and sets scheduling policies and priorities for arbitrary processes (i.e., sched_setscheduler(2), sched_setparam(2), and sched_attr(2)). Sets CPU affinity for arbitrary processes (i.e., sched_setaffinity(2)). Sets the input or output (I/O) scheduling class and priority for arbitrary processes (i.e., ioprio_set(2)). Applies migrate_pages(2) to arbitrary processes and allows the processes to migrate to arbitrary nodes. Applies move_pages(2) to arbitrary processes. Uses the MPOL_MF_MOVE_ALL flag with mbind(2) and move_pages(2).",
+          "Private Access forks new processes and assigns the CPU affinity."
+        ],
+        [
+          "CAP_SYS_TIME",
+          "Sets the system clock (i.e., settimeofday(2), time(2), adjtimex(2)) and the real-time (hardware) clock.",
+          "N/A"
+        ],
+        [
+          "CAP_SYS_RESOURCE",
+          "Increases resource limits.",
+          "Increases resource limits for SYS_RESOURCE."
+        ]
+      ]
+    }
+  ]
+}

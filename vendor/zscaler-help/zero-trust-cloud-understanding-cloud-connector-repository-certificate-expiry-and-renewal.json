@@ -1,0 +1,678 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Cloud Connector Repository Certificate Expiry and Renewal",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-cloud/understanding-cloud-connector-repository-certificate-expiry-and-renewal",
+    "node": "1546120",
+    "revision": "3249215",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides troubleshooting information and guidelines about the TLS server certificate for Cloud Connector expiration of the software update repository (pkg-repo.zscaler.com). When this certificate is renewed, the repository uses a new DigiCert G2 certificate chain. To learn more, see End-of-Support for Cloud Connector Repository Certificate."
+    },
+    {
+      "text": "When updating your virtual machines (VMs) to use the latest marketplace images, consider the following:"
+    },
+    {
+      "item": "Required Action to Take",
+      "depth": 0
+    },
+    {
+      "item": "Existing, active Cloud Connectors update automatically through regularly scheduled upgrades. The Zscaler service monitors upgrade activity across all clouds and users, and regularly generates internal reports to identify any users whose connectors do not appear to be upgrading.",
+      "depth": 0
+    },
+    {
+      "item": "For new Cloud Connector deployments, Zscaler-provided Infrastructure as Code (IaC) templates are designed to use the latest available image version by default. Unless you hard-code older image versions in custom IaC templates, the main requirement is to rerun or refresh your templates so that subsequent deployments use the latest images.",
+      "depth": 0
+    },
+    {
+      "item": "Amazon Web Services (AWS): Use image version ZS42.1.0 or later (Deployed AMI Name: starts with zs-cc-ga-03092026).",
+      "depth": 1
+    },
+    {
+      "item": "Microsoft Azure: Use image version 42.1.0 or later.",
+      "depth": 1
+    },
+    {
+      "item": "Google Cloud Platform (GCP): Use image version zs-cc-ga-03092026 or later.",
+      "depth": 1
+    },
+    {
+      "item": "For autoscaling group (ASG) deployments, you must update your launch/instance template to reference the new marketplace image. If you do not update your launch/instance template, new instances cannot connect to the software update repository.",
+      "depth": 0
+    },
+    {
+      "item": "Users Who Are Impacted",
+      "depth": 0
+    },
+    {
+      "item": "To determine whether you are impacted:",
+      "depth": 0
+    },
+    {
+      "item": "Check your Cloud Connector software version:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Zero Trust Cloud > Cloud Connector > Cloud Connector Groups.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          78
+        ],
+        [
+          81,
+          96
+        ],
+        [
+          99,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "The Cloud Connector Groups page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "On the Cloud Connector Groups page, expand a Cloud Connector group and click the Edit icon.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          81,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "The Edit Cloud Connector window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Cloud Connector window, click the Upgrade Status tab.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          46,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "On the Upgrade Status tab, in the Upgrade Information section, locate the Current Version.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          34,
+          53
+        ],
+        [
+          74,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Connectors running version 1.146.5 or later have received the automatic CA bundle update and are not affected. To learn more, see About Cloud Connector Groups.",
+      "depth": 2
+    },
+    {
+      "item": "Check your deployment image version. If you are deploying new Cloud Connectors or using ASGs, verify the marketplace image version in your launch configuration. If the image version is older than the fixed versions, you are using an affected image and must update it. To learn more, see Identifying the Zscaler Cloud Connector Version.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Cloud Connectors Are Not Automatically Updating",
+      "depth": 0
+    },
+    {
+      "item": "Cloud or Branch Connectors might not update automatically for reasons including:",
+      "depth": 0
+    },
+    {
+      "item": "Firewall and/or SSL inspection connectivity issues. Users can resolve this issue in their own environment.",
+      "depth": 1
+    },
+    {
+      "item": "Modifying the scheduled upgrade windows to circumvent automatic updates. Users can resolve this issue by stopping modifying configurations.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler-controlled block filtering (per user request and/or Zscaler debugging necessities). To disable filtering, contact Zscaler Support.",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Connector appliance issues might prevent updates from proceeding (i.e., process errors, crashes, or disk partition space issues). To troubleshoot this issue, contact Zscaler Support.",
+      "depth": 1
+    },
+    {
+      "item": "Redeploying Existing Cloud Connectors",
+      "depth": 0
+    },
+    {
+      "item": "Existing Cloud Connectors do not need to be redeployed, as long as they remain current by running the latest software through regular, automatic scheduled upgrades.",
+      "depth": 0
+    },
+    {
+      "item": "Some improvements (i.e., performance enhancements, operating system security fixes, and other platform updates) might only be available through newer image releases. Zscaler recommends that all new deployments use the latest marketplace images and that existing instance fleets be refreshed periodically.",
+      "depth": 0
+    },
+    {
+      "item": "Refreshing existing fleets typically involves updating CI/CD deployment pipelines based on the original IaC method used, such as Terraform or CloudFormation, to ensure that future deployments are not unintentionally pinned to older image versions. This is important for autoscaling deployments, where cloud providers might rely on constructs such as launch templates or Virtual Machine Scale Set (VMSS) profiles.",
+      "depth": 0
+    },
+    {
+      "item": "Changes to ASG Deployments",
+      "depth": 0
+    },
+    {
+      "item": "If you use ASGs (AWS ASG, Azure VMSS, or GCP Managed Instance Group (MIG)), you must update your launch/instance template to reference the new marketplace image.",
+      "depth": 0
+    },
+    {
+      "item": "AWS: Update the AMI ID in your launch template and create a new launch template version. Update your ASG to use the new launch template version.",
+      "depth": 1
+    },
+    {
+      "item": "Azure: Update the image reference in your VMSS model and trigger a model update.",
+      "depth": 1
+    },
+    {
+      "item": "GCP: Create a new instance template with the updated image and update your MIG to use the new template.",
+      "depth": 1
+    },
+    {
+      "item": "If you do not update ASG configurations, newly scaled-out instances use the old image, which is unable to connect to the software update repository after expiration.",
+      "depth": 0
+    },
+    {
+      "item": "Verifying that the AWS ASG Launch Template Is Set to Use the Latest Cloud Connector Image",
+      "depth": 0
+    },
+    {
+      "item": "The Terraform module templates utilize the following aws_ami data source. Without modification, this code asks to find the newest (most_recent) AMI ID available for the Cloud Connector image product code. The value is outputted to an attribute: data.aws_ami.cloudconnector.id.",
+      "depth": 0
+    },
+    {
+      "item": "################################################################################ # Locate Latest CC AMI by product code ################################################################################ data \"aws_ami\" \"cloudconnector\" { most_recent = true filter { name = \"product-code\" values = var.aws_region == \"cn-north-1\" || var.aws_region == \"cn-northwest-1\" ? [\"axnpwhsb4facossmbm1h9yad6\"] : [\"2l8tfysndbav4tv2nfjwak3cu\"] #change product code value for China marketplace } owners = [\"aws-marketplace\"] }",
+      "depth": 0
+    },
+    {
+      "item": "The data source attribute is then fed into the cc_asg module as the input variable: ami_id.",
+      "depth": 0
+    },
+    {
+      "item": "# Create the specified CC VMs via Launch Template and Autoscaling Group module \"cc_asg\" { source = \"../../modules/terraform-zscc-asg-aws\" ami_id = contains(var.ami_id, \"\") ? [data.aws_ami.cloudconnector.id] : var.ami_id",
+      "depth": 0
+    },
+    {
+      "item": "You can verify the resulting deployment configuration in AWS within the ASG details.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "By rerunning Terraform utilizing the original deployment state details, the AWS launch template where the image_id is changed from ami-0b11365e64b30005e (old ZS6.1.26.2) to new ami-07c8a4afe978a3087 (new ZS42.1.0) is shown. AWS is also bumping the launch template version from two to three. Enter yes and press enter to apply the change. Applying this change has no effect on running Cloud Connector appliances on the ASGs that are using this launch template.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If you check the ASG details again, the launch template is still set to use the latest version, and the AMI ID is changed to ami-07c8a4afe978a3087.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Future scale-out or health-based replacement instances are automatically deployed from this new AMI. If you want to proactively refresh your instance, you can mandate instance replacements with this new AMI, either manually or with cloud native tools (i.e., Instance Refresh), which is recommended as a best practice to test and verify.",
+      "depth": 0
+    },
+    {
+      "item": "Updating the launch template does not automatically replace existing EC2 instances. To roll out the new AMI to your running environment, use the following best practices:",
+      "depth": 0
+    },
+    {
+      "item": "Use the recommended Instance Refresh feature to replace instances in your ASG automatically. This performs a rolling update, ensuring availability is maintained.",
+      "depth": 1
+    },
+    {
+      "item": "In the AWS Console, navigate to your ASG's Instance Refresh page and click Start instance refresh.",
+      "depth": 1,
+      "strong": [
+        [
+          75,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "In Terraform, ensure that your aws_autoscaling_group resource includes an instance_refresh block to automate this process upon launch template updates.",
+      "depth": 1
+    },
+    {
+      "item": "Manually terminate instances one by one. The ASG automatically launches replacement instances using the new launch template version and thus the new AMI.",
+      "depth": 1
+    },
+    {
+      "item": "Verifying that the Azure VMSS Is Set to Use the Latest Cloud Connector Image",
+      "depth": 0
+    },
+    {
+      "item": "To verify that your Azure VMSS uses the latest Cloud Connector image:",
+      "depth": 0
+    },
+    {
+      "item": "Deploy a VMSS deployment with Terraform version 24.3.5.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Azure portal, go to your VMSS deployment.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "In your VMSS deployment, from the left-side navigation, click Operating system.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          62,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "On the Operating system page, click Change image reference.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          36,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Change image reference page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "On the Change image reference page, configure the following:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select image source: Select Platform image.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Image: Select the latest marketplace image for Zscaler Cloud Connector.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "VM architecture: Select x64.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Apply to apply the changes.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "On the Scaling page, in the Instance limits section, configure the following:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          28,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Minimum: Enter 3.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Maximum: Enter 5.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Default: Enter 3.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Save the profile.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "On the Operating system page, the newly scaled-out instance has the latest marketplace image, and the Image Reference shows the version as latest.",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          102,
+          117
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Verifying that the GCP ASGs Are Set to Use the Latest Cloud Connector Image",
+      "depth": 0
+    },
+    {
+      "item": "To verify that your GCP ASG uses the latest Cloud Connector image:",
+      "depth": 0
+    },
+    {
+      "item": "Deploy a GCP ASG deployment with production-image-cc-gcp-zs42-202601211704.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the GCP console, on the Instance templates page, create a new instance template.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          27,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "On the Instance templates page, search for and select your template.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the instance template page, click Create similar.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          37,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Create an instance template page, in the Boot disk section, click Change. The Boot disk window appears.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          34
+        ],
+        [
+          48,
+          57
+        ],
+        [
+          73,
+          79
+        ],
+        [
+          85,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "In the Boot disk window, click the Custom images tab.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          35,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "From the Image drop-down menu, select the marketplace Zscaler GCP image.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          9,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Save your changes and create the instance template according to your preferences.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "Navigate to the Instance Groups page and select your GCP ASG instance group.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          16,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "On the instance group page, click Edit.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          34,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "In the Instance template & overrides section, from the Instance template drop-down menu, select the new instance template.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          36
+        ],
+        [
+          55,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Group size & autoscaling section, reconfirm the minimum, maximum, and the metrics values.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          7,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Click Save to update the new template to the GCP ASG deployment.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Scale out a new instance by changing the minimum and maximum values in an instance group. The newly scaled-out instance appears with a newly selected instance template.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    }
+  ]
+}

@@ -1,0 +1,252 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.runbook.gre",
+  "title": "Runbook: GRE tunnel hard down, flapping and up-but-no-traffic",
+  "aliases": [
+    "GRE Tunnel is Hard Down",
+    "GRE Tunnel is Flapping",
+    "GRE Tunnel is UP but Traffic Not Working"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook.tunnel-path" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.gre" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.gre-failover" }
+  ],
+  "prose": [
+    {
+      "label": "Hard down.",
+      "text": "{{hard-down-reachability}} {{hard-down-internal-ip}} {{internal-range}} {{divergence:internal-range-size}} {{tunnel-config-sample}}"
+    },
+    {
+      "label": "Keepalives.",
+      "text": "{{keepalive-nat}} {{cisco-commands}} {{mss}}"
+    },
+    {
+      "label": "Flapping.",
+      "text": "{{flapping-monitoring}} {{flapping-failover-test}} {{maintenance-and-loss}} What marks a flap in the sample IP SLA output is open {{gap:ip-sla-flap-threshold}}. MTR and latency checks are in [[zia.traffic-forwarding.runbook.tunnel-path]]."
+    },
+    {
+      "label": "Up but no traffic.",
+      "text": "{{up-no-traffic}}"
+    }
+  ],
+  "claims": {
+    "hard-down-reachability": {
+      "statement": "For a GRE tunnel that will not come up, the runbook says to ping the Zscaler GRE VIP from the customer gateway; if it is unreachable, check firewalls and ACLs, capture packets on the edge device to verify traffic leaves the network, and engage the ISP about GRE restrictions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "From the customer gateway, ping the Zscaler DC GRE VIP:",
+            "If the GRE VIP is not reachable, check the network infrastructure for potential firewalls, access control lists (ACLs), or any other rules restricting access:",
+            "Perform a packet capture on the edge device to verify that traffic is leaving the customer network.",
+            "Engage with the ISP to ensure there are no restrictions on GRE traffic."
+          ],
+          "after": "GRE Tunnel is Hard Down"
+        }
+      ]
+    },
+    "hard-down-internal-ip": {
+      "statement": "In the runbook's section on troubleshooting Zscaler public DC issues, if the GRE VIP is reachable, the runbook says to ping the Zscaler GRE internal IP sourced from the tunnel interface (example: ping 172.21.37.162 source tun1); if it is unreachable, validate the tunnel configuration, addresses and routing against the location's GRE Tunnel Information, found by searching Locations for the GRE source IP. GRE tunnels configured on Virtual Service Edges are established with no internal IP addresses, like unnumbered GRE tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The following sections describe how to troubleshoot Zscaler public DC issues."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "ping <Zscaler GRE Internal IP> source <tunnel-interface>",
+            "Example: ping 172.21.37.162 source tun1",
+            "If the GRE internal IP is unreachable, ensure tunnel configuration, address assignments, and routing are correct by validating the GRE configuration.",
+            "Search for the location using the GRE source IP and view the location details under GRE Tunnel Information."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-generic-routing-encapsulation-gre.json",
+          "quotes": [
+            "GRE tunnels configured on Virtual Service Edges are dynamically established with no internal IP addresses, similar to unnumbered GRE tunnels."
+          ]
+        }
+      ]
+    },
+    "internal-range": {
+      "statement": "The runbook says GRE internal ranges are auto-assigned using a /30; in the vendor's example the network address is 172.21.37.160, the customer GRE internal IP .161, the Zscaler GRE internal IP .162 and the broadcast .163.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "GRE internal ranges are auto-assigned using a /30 (4 IPs, including network and broadcast).",
+            "Network address: 172.21.37.160 Customer GRE internal IP: 172.21.37.161 Zscaler GRE internal IP: 172.21.37.162 Broadcast address: 172.21.37.163"
+          ]
+        }
+      ]
+    },
+    "tunnel-config-sample": {
+      "statement": "In the vendor's primary tunnel sample, the tunnel source is optional and defaults to the outbound interface IP if not specified, and the tunnel destination must point to the correct GRE VIP as per the config page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "tunnel source 110.45.236.11 ----------> OPTIONAL. Defaults to outbound interface IP if not specified.",
+            "Make sure the tunnel destination is pointing to correct GRE VIP as per the config page."
+          ]
+        }
+      ]
+    },
+    "keepalive-nat": {
+      "statement": "GRE keepalives are not supported if the GRE tunnel traverses NAT, and the runbook says to ensure they are disabled in that case; where the gateway uses NAT, GRE packets must be NAT'd to the IP defined as the GRE source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "GRE keepalives are not supported if the GRE tunnel traverses through NAT. In such scenarios, ensure that GRE keepalives are disabled.",
+            "If the customer gateway uses NAT, ensure that GRE packets are correctly NAT'd to the IP defined as the GRE source."
+          ]
+        }
+      ]
+    },
+    "cisco-commands": {
+      "statement": "The runbook says a GRE tunnel might remain down due to failed IP SLA probes or GRE keepalives; on a Cisco router it names 'debug tunnel keepalive' and 'show interface tunnel <tunnel-number>' for keepalive status (Up/Down), and 'show ip sla summary' for IP SLA probe status and failures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "In some cases, the GRE tunnel might remain down due to failed IP SLA probes or GRE keepalives.",
+            "'debug tunnel keepalive' 'show interface tunnel <tunnel-number>' to display the current status of Keepalives(Up/Down)",
+            "'show ip sla summary' to validate the IP SLA status and if there are any failures."
+          ]
+        }
+      ]
+    },
+    "mss": {
+      "statement": "For a physical link MTU of 1500 the runbook says to configure the GRE tunnel MSS as 1436.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For a physical link MTU of 1500, configure GRE tunnel MSS as 1436."
+          ]
+        }
+      ]
+    },
+    "flapping-monitoring": {
+      "statement": "For a flapping GRE tunnel (frequent up/down transitions), Zscaler recommends an Active/Standby pair with automatic failover based on application-layer health monitoring and HTTP probes for health (ICMP probes if the gateway does not support HTTP probes); the runbook also says to confirm the health probes are targeting gateway.<cloudname>.net/vpntest.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "GRE tunnel flapping occurs when the tunnel frequently transitions between up and down states.",
+            "Zscaler recommends that customers configure an Active/Standby pair of GRE tunnels with automatic failover based on application-layer health monitoring.",
+            "Zscaler recommends configuring HTTP probes for GRE tunnels to monitor health. You can use ICMP probes if HTTP probes are not supported by the gateway device.",
+            "Confirm that the health probes are targeting gateway.<cloudname>.net/vpntest."
+          ],
+          "after": "GRE Tunnel is Flapping"
+        }
+      ]
+    },
+    "flapping-failover-test": {
+      "statement": "To test GRE failover the runbook says to ensure traffic shifts to the secondary tunnel when the primary fails, and to use show ip sla summary and show ip sla statistics on a Cisco gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Ensure traffic shifts seamlessly to the secondary GRE tunnel if the primary fails.",
+            "Enter the show ip sla statistics command to see operation statistics information.",
+            "Enter the show ip sla summary command on a Cisco gateway confirms the status of IP SLA probes."
+          ]
+        }
+      ]
+    },
+    "maintenance-and-loss": {
+      "statement": "Scheduled maintenance on the Zscaler data center might temporarily affect GRE tunnels, and observable packet loss can cause Layer 7 health monitoring to fail and the GRE tunnel to flap.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Scheduled maintenance or events on the Zscaler DC might temporarily affect GRE tunnels.",
+            "An observable packet loss can cause Layer 7 health monitoring to fail, which would make the GRE tunnel flap."
+          ]
+        }
+      ]
+    },
+    "up-no-traffic": {
+      "statement": "For a GRE tunnel that is up but passes no traffic, the runbook says to review the Tunnel Insight logs with Tunnel Type and Tunnel Source IP filters, validate static or policy-based routing sends traffic over the tunnel, and check that Rx/Tx bytes increment on the gateway; it also says to run PCAP on the gateway device to validate that the intended traffic is routed over the tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Make sure you have proper routing configured using static routes or policy-based routing to route the traffic over the GRE tunnel.",
+            "Validate from the tunnel status on the GRE gateway that the Rx/Tx bytes are incrementing.",
+            "Run PCAP on the gateway device to validate if the intended traffic is routed over the tunnel.",
+            "Review the Tunnel Insight logs and validate if you are receiving any traffic over the configured GRE tunnel with filters like Tunnel Type and Tunnel Source IP."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "internal-range-size": {
+      "summary": "The troubleshooting runbook says GRE internal ranges are auto-assigned using a /30, while the GRE tunnel configuration article says Zscaler assigns a /29 that is split into two /30 subnets.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+            "quotes": [
+              "GRE internal ranges are auto-assigned using a /30 (4 IPs, including network and broadcast)."
+            ]
+          },
+          "says": "GRE internal ranges are auto-assigned using a /30 (4 IPs, including network and broadcast)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-gre-tunnels.json",
+            "quotes": [
+              "Zscaler assigns a /29 subnet for the GRE tunnels. You need to split it into two /30 subnets."
+            ]
+          },
+          "says": "Zscaler assigns a /29 subnet for the GRE tunnels, which you split into two /30 subnets."
+        }
+      ],
+      "impact": "Both pages end at a /30 per tunnel, but they differ on whether the assignment is a single /30 or a /29 you split. Do not tell an admin the range is a /29 or an automatic /30 without checking the location's GRE Tunnel Information."
+    }
+  },
+  "gaps": {
+    "ip-sla-flap-threshold": {
+      "kind": "semantic",
+      "title": "What IP SLA thresholds mark a GRE or IPSec tunnel as flapping",
+      "status": "open",
+      "detail": "The runbook's Cisco sample IP SLA output for flapping shows only round-trip times and a Timeout return code; it gives no threshold or timeout value that marks a flap.",
+      "resolves_with": ["source-read", "support-ticket"]
+    }
+  }
+}

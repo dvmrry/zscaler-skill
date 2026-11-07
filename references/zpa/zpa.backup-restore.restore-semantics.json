@@ -1,0 +1,428 @@
+{
+  "schema_version": 1,
+  "id": "zpa.backup-restore.restore-semantics",
+  "title": "What restoring a ZPA backup does: overwrite and removal, legacy backups, reports, the pre-restore backup, the documented inconsistencies and failure reasons",
+  "aliases": [
+    "zpa restore",
+    "restore inconsistency",
+    "pre-restore backup",
+    "restore report",
+    "legacy backup",
+    "restore activities",
+    "restore failed"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.backup-restore"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.backup-restore.restore-semantics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.bypass"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.user-portal"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{overwrites-and-removes}}"
+    },
+    {
+      "label": "Backups and limits.",
+      "text": "{{legacy-backups}} {{restore-limit-per-day}} The backups themselves are in [[zpa.backup-restore]]."
+    },
+    {
+      "label": "Before and after.",
+      "text": "{{pre-checks-and-read-only}} {{pre-restore-reports}} {{pre-restore-backup}} The timestamp format is given two ways {{divergence:pre-restore-timestamp}}. {{restore-activities}} {{restore-failures}}"
+    },
+    {
+      "label": "Documented inconsistencies: application segments.",
+      "text": "{{inconsistency-app-segments}} {{inconsistency-same-domain-double-encryption}} Application segments with the same domain and the Bypass setting are documented against another rule {{divergence:same-domain-bypass}}. {{inconsistency-microtenant-conflicts}} {{inconsistency-browser-access}}"
+    },
+    {
+      "label": "Documented inconsistencies: groups, servers, certificates, policies and portals.",
+      "text": "{{inconsistency-groups-servers-certificates}} {{inconsistency-policies}} {{inconsistency-user-portals}} Whether policies, certificates and user portals are backed up at all is disputed in [[zpa.backup-restore]]. Whether pre-restore backups count toward the backup limit is open {{gap:pre-restore-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the backup is current before restoring, since a restore overwrites everything and removes components that are not in it.",
+      "uses": [
+        "overwrites-and-removes",
+        "legacy-backups"
+      ]
+    },
+    {
+      "do": "Whether the inconsistency report was downloaded and read before the restore, and whether the pre-restore backup was created.",
+      "uses": [
+        "pre-restore-reports",
+        "pre-restore-backup"
+      ]
+    },
+    {
+      "do": "Whether segments with the same domain disagree on Bypass, since the restore article and the segment-precedence claim describe that differently.",
+      "uses": [
+        "same-domain-bypass",
+        "zpa.app-segments.bypass:same-fqdn-always"
+      ]
+    },
+    {
+      "do": "Whether a restore stopped by an inconsistency matches one of the documented rows, and which of them name a fix.",
+      "uses": [
+        "inconsistency-app-segments",
+        "inconsistency-microtenant-conflicts",
+        "inconsistency-policies"
+      ]
+    }
+  ],
+  "claims": {
+    "overwrites-and-removes": {
+      "statement": "Restoring application segments, policies and configuration settings from a backup overwrites all current ones, including all rules and their components, and a component in the current configuration that is not in the backup is removed when the backup is applied; Zscaler therefore says to review the policies in the backup before restoring it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "When you restore application segments, policies, and configuration settings from a backup, it overwrites all your current application segments, policies, and configuration settings, including all the rules and their components.",
+            "If your current configuration has a component that is not present in the backup, that component is removed when the backup is applied."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "When you restore policies and configuration settings from a backup, it overwrites all your current policies and configuration settings, including all the rules and their components.",
+            "If your current configuration has a component that is not in the backup, then that component is removed when the backup is restored.",
+            "Therefore, you should review the policies in the backup before restoring it."
+          ]
+        }
+      ]
+    },
+    "legacy-backups": {
+      "statement": "A backup created before some of the additional features were introduced is a legacy backup that can only restore the policies and configurations that belonged to it, and applying it does not override policies and configurations that were not supported in the platform version at the time of the backup creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "If the backup was created before some of the additional features were introduced, then that legacy backup can only be used to restore the policies and configurations that belonged to it.",
+            "Applying a legacy backup does not override policies and configurations that were not supported in the platform version at the time of the backup creation."
+          ]
+        }
+      ]
+    },
+    "restore-limit-per-day": {
+      "statement": "Policies and configurations can be restored from a backup a maximum of 10 times per day.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "You can restore policies and configurations from a backup a maximum of 10 times per day."
+          ]
+        }
+      ]
+    },
+    "pre-restore-reports": {
+      "statement": "Before a restore, an Inconsistency Report shows inconsistencies in application management and policy management if the backup is applied, and can be downloaded as a CSV file; a Full Report shows inconsistencies and modifications from the current backup in application management and policy management if the backup is applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "Inconsistency Report: Shows inconsistencies in application management and policy management if the backup is applied.",
+            "Click the Download icon () to download the inconsistency report as a CSV file.",
+            "Full Report: Shows inconsistencies and modifications from the current backup in application management and policy management if the backup is applied."
+          ]
+        }
+      ]
+    },
+    "pre-checks-and-read-only": {
+      "statement": "Restoring verifies certain conditions before applying the backup, for example that all provisioned static IP addresses in the backup are still associated with the current tenant and the expiration timestamp of the certificates persisted in the backup. While a backup is created or a restore is applied, a banner shows that the Backup and Restore page is read-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "This action verifies certain conditions (e.g., ensuring that all provisioned static IP addresses in the backup are still associated with the current tenant, ensuring that the expiration timestamp for all certificates persisted in the backup, etc.) before applying the backup.",
+            "a banner appears at the top of the Backup and Restore page to indicate that the page is read-only for the duration of the backup creation, or for the duration that the restore is being applied."
+          ]
+        }
+      ]
+    },
+    "pre-restore-backup": {
+      "statement": "Before restoring a backup, a pre-restore backup of the existing configuration is automatically created, for use in case the restored backup has post-restore issues, and it has the Pre-Restore Configuration naming convention followed by a timestamp.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "Before restoring a backup, a pre-restore backup of the existing configuration is automatically created.",
+            "The pre-restore backup of the configuration can be used in case the backup that was restored has post-restore issues.",
+            "The pre-restore backup of a configuration has the Pre-Restore Configuration naming convention.",
+            "The timestamp is listed after the Pre-Restore Configuration text"
+          ]
+        }
+      ]
+    },
+    "restore-activities": {
+      "statement": "Each backup's Restore Activities list shows the Admin ID of the admin who restored it, when the restore was initiated and its status (Completed, Failure or In Progress). The restore report lists the configurations changed, with their status after the restore; unchanged configurations are not listed, and the full report can be downloaded as a CSV file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-restore-activities-and-restore-reports.json",
+          "quotes": [
+            "Admin ID: The admin ID of the admin who restored the backup.",
+            "Initiated At: The time when the backup is restored.",
+            "Status: The status of the restore (Completed, Failure, In Progress).",
+            "Configuration: The list of configurations for the backup. Any unchanged configurations are not listed in the table.",
+            "Status: The status of the configurations after the backup is restored.",
+            "click the Download icon to download the full report as a CSV file."
+          ]
+        }
+      ]
+    },
+    "restore-failures": {
+      "statement": "A restore is reported as failed when the pre-restore backup failed or because of an unexpected exception.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "The restore failed due to the failed pre-restore backup.",
+            "The restore failed due to an unexpected exception."
+          ]
+        }
+      ]
+    },
+    "inconsistency-app-segments": {
+      "statement": "An application segment inconsistency occurs when the restore is applied and the number of applications exceeds the maximum limit, or when the application that has a server group which was deleted is restored (the server group having been added in the Default Microtenant after the backup was created and then used in a different application within a Microtenant).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "An inconsistency occurs for an application segment when the restore is applied and the number of applications exceeds the maximum limit.",
+            "An inconsistency occurs for an application segment when the restore is applied and the application that has a server group which was deleted is restored.",
+            "The server group in this case was added in the Default Microtenant after the backup was created, and then was used in a different application within a Microtenant."
+          ]
+        }
+      ]
+    },
+    "inconsistency-same-domain-double-encryption": {
+      "statement": "When two or more application segments contain the same domain they must have Double Encryption set to the same value; the documented resolution is to ensure Double Encryption is set to the same value (Enabled or Disabled) for those segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "When two or more application segments contain the same domain, they must have Double Encryption set to the same value.",
+            "Ensure that Double Encryption is set to the same value (i.e., Enabled or Disabled) for two or more application segments that contain the same domain."
+          ]
+        }
+      ]
+    },
+    "inconsistency-microtenant-conflicts": {
+      "statement": "A restore also raises application segment inconsistencies when the TCP or UDP port range of an application overlaps the port range of an existing application in a different Microtenant, when the segment's application domain already exists as an FQDN in a user portal or privileged portal (the resolution is to update the portal to use a different FQDN), when the segment references policies within a Microtenant (remove the segment from the policies), or when a duplicate DNS search domain exists for an application within a Microtenant (remove the duplicate domain from the Microtenant).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "An inconsistency occurs for an application segment when the restore is applied and the TCP port range of an application overlaps with the port range of an existing application in a different Microtenant.",
+            "An inconsistency occurs for an application segment when the restore is applied and the UDP port range of an application overlaps with the port range of an existing application in a different Microtenant.",
+            "the domain of the application already exists as a FQDN in the user portal and exists as an application in the application segment",
+            "the application already exists as a FQDN in the privileged portal and exists as an application in the application segment.",
+            "Update the user portal or the privileged portal to use a different FQDN.",
+            "An inconsistency occurs for an application segment when the restore is applied and the application segment references policies within a Microtenant.",
+            "Remove the application segment from the policies.",
+            "An inconsistency occurs for an application segment when the restore is applied and a duplicate DNS search domain exists for an application within a Microtenant.",
+            "Remove the duplicate domain from the Microtenant."
+          ]
+        }
+      ]
+    },
+    "inconsistency-browser-access": {
+      "statement": "A Browser Access application segment raises an inconsistency when its Browser Access FQDN is used in other tenants before the restore is applied (the resolution is to remove the Browser Access application from the other tenants), when a wildcard domain exists for its domain or vice versa in a different Microtenant (remove the wildcard domain of the Browser Access application from the other Microtenant), or when its associated web server certificate is deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "The Browser Access FQDN is used in other tenants prior to applying the restore.",
+            "The wildcard domain exists for the given domain of the Browser Access application segment, or vice versa in a different Microtenant.",
+            "The web server certificate associated with the application segment is deleted.",
+            "Remove the Browser Access application from the other tenants.",
+            "Remove the wildcard domain of the Browser Access application from the other Microtenant."
+          ]
+        }
+      ]
+    },
+    "inconsistency-groups-servers-certificates": {
+      "statement": "Other documented restore inconsistencies: a segment group that is deleted but linked with policies other than access, timeout and client forwarding policies within the same Microtenant, or a Default Microtenant segment group linked with any policies in another Microtenant; a server linked to a server group referenced by Internet & SaaS (the resolution is to remove the server from that group); a server group that has no App Connector group or is used in an application segment within a Microtenant; and a certificate when a Certificate Signing Request with the same subject exists, when a Browser Access application references the certificate within a Microtenant, or when a user portal within a Microtenant references it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "The segment group is deleted but is linked with policies other than access policies, timeout policies, and client forwarding policies within the same Microtenant, or the segment group in the Default Microtenant is linked with any policies within another Microtenant.",
+            "An inconsistency occurs for a server if the server is linked to a server group that is referenced by Internet & SaaS (ZIA).",
+            "Remove the server from the server group that is referenced by Internet & SaaS.",
+            "The server group doesn't have an App Connector group.",
+            "The server group is used in an application segment that is within a Microtenant.",
+            "A Certficate Signing Request (CSR) exists with the same subject.",
+            "The certificate of the Browser Access application is referenced within a Microtenant.",
+            "The user portal within a Microtenant references the certificate."
+          ]
+        }
+      ]
+    },
+    "inconsistency-policies": {
+      "statement": "The restoring article lists inconsistencies for an access policy when a backup is applied if the application or segment group, IdP, trusted network, posture, location, Branch Connector group, Cloud Connector group, SAML attribute name, SCIM attribute name, SCIM attribute value (removed in the latest SCIM sync), risk score, machine group, or App Connector group or server group is no longer present; traffic fails if an App Connector group or server group is used in the policy and there are no App Connectors. Client forwarding and timeout policies have their own lists, and a policy using an application segment no longer shared to it, or an application moved to another Microtenant, is also inconsistent (the resolution for the move is to move the application back to the current Microtenant).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "An inconsistency occurs for an access policy in the following scenarios when a backup is applied: The application or segment group are no longer present.",
+            "The IdP is no longer present.",
+            "The risk score is no longer present. The Machine group is no longer present.",
+            "The App Connector group or server group is deleted and no longer exists.",
+            "Traffic fails if an App Connector group or server group is used in the policy and there are no App Connectors.",
+            "An inconsistency occurs for a client forwarding policy in the following scenarios when a backup is applied:",
+            "An inconsistency occurs for a timeout policy in the following scenarios when a backup is applied:",
+            "An inconsistency occurs for a policy when a backup is applied and the policy is using an application segment that is no longer shared to the policy.",
+            "An inconsistency occurs for an access policy, client forwarding policy, or timeout policy when the application is moved to another Microtenant.",
+            "Move the application back to the current Microtenant."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "The Trusted Network is not present in the Zscaler Admin Console.",
+            "The Posture is not present in the Zscaler Admin Console.",
+            "The Location is no longer present.",
+            "The Branch Connector group is no longer present.",
+            "The Cloud Connector group is no longer present.",
+            "The SAML attribute name is no longer present.",
+            "The SCIM attribute name is no longer present.",
+            "The SCIM attribute value is no longer present due to the value being removed in the latest SCIM sync."
+          ],
+          "after": "An inconsistency occurs for an access policy in the following scenarios when a backup is applied:"
+        }
+      ]
+    },
+    "inconsistency-user-portals": {
+      "statement": "A user portal raises a restore inconsistency when its associated web server certificate is deleted, or when its portal URL has a domain that conflicts with an application segment used by a Microtenant (the resolution is to update the user portal to use another domain).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-policies-and-configurations-backup.json",
+          "quotes": [
+            "The web server certificate associated to the user portal is deleted.",
+            "The portal URL has a domain that is conflicting with an application segment that is used by a Microtenant.",
+            "Update the user portal so that it uses another domain."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "same-domain-bypass": {
+      "summary": "The restoring article says application segments with the same domain must use the same Bypass setting; the application segment article says that when the same FQDN is in several segments and one has Bypass Always, that segment takes precedence.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-restoring-policies-and-configurations-backup.json",
+            "quotes": [
+              "When two or more application segments contain the same domain, they must use the same Bypass settings.",
+              "Ensure the Bypass settings are set to either Use Client Forwarding Policy or On Corporate Network for two or more application segments with the same domain.",
+              "conflicting Bypass settings (i.e., Use Client Forwarding Policy, Always, or On Corporate Network)"
+            ]
+          },
+          "says": "Segments with the same domain must use the same Bypass setting; the row's enumeration of conflicting Bypass settings is Use Client Forwarding Policy, Always or On Corporate Network, and its resolution names Use Client Forwarding Policy or On Corporate Network."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-defined-application-segments.json",
+            "quotes": [
+              "if the same FQDN is defined in multiple application segments, and one of them has the Bypass setting set to Always, then that application segment takes precedence."
+            ]
+          },
+          "says": "If the same FQDN is defined in several segments and one has Bypass Always, that segment takes precedence (the claim zpa.app-segments.bypass:same-fqdn-always)."
+        }
+      ],
+      "impact": "The two articles describe segments that share a domain differently; neither says how the other applies. The existing claim zpa.app-segments.bypass:same-fqdn-always is not changed; an answer about Bypass settings on segments sharing a domain uses this divergence rather than either statement alone."
+    },
+    "pre-restore-timestamp": {
+      "summary": "The restoring article gives the pre-restore backup timestamp format with hyphens in the time, while its example uses colons and stamps the restored backup's creation time.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-restoring-policies-and-configurations-backup.json",
+            "quotes": [
+              "The timestamp is listed after the Pre-Restore Configuration text, and is in the MM-DD-YYYY hh-mm-ss format"
+            ]
+          },
+          "says": "The timestamp is in the MM-DD-YYYY hh-mm-ss format."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-restoring-policies-and-configurations-backup.json",
+            "quotes": [
+              "For example, after restoring a backup that was created on December 25, 2024, at 12:15 PM, the backup appears as Pre-Restore Configuration 12-25-2024 12:15:00."
+            ]
+          },
+          "says": "The example separates the time with colons and uses the creation time of the restored backup."
+        }
+      ],
+      "impact": "Matching pre-restore backups by name should not rely on the separator or on which time is stamped; the format sentence does not say which time is used."
+    }
+  },
+  "gaps": {
+    "pre-restore-limits": {
+      "kind": "semantic",
+      "title": "Whether pre-restore backups count toward the 10-backup limit, and what the 10-restores-a-day limit counts",
+      "status": "open",
+      "detail": "The articles do not say whether pre-restore backups count toward the 10-backup limit or expire after 10 days. Whether the 10 restores a day are counted per backup or per tenant, and in which time zone the day is measured, is not stated. Whether Microtenant-scoped configuration is backed up is not stated either, although most inconsistency rows concern Microtenants.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

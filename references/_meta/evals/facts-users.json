@@ -1,0 +1,364 @@
+{
+  "schema_version": 1,
+  "description": "Gold facts for scripts/kb-eval.mjs --set users: questions worded the way people ask them, symptom first, each with the facts a correct answer states and the claim that holds each.",
+  "questions": [
+    {
+      "id": "u-net-02",
+      "turn": "I fat-fingered a bracket in our proxy auto-config file and the console warned me about errors, but it still let me save it. Is that normal? How does it show up on the hosted file list afterwards, and does saving it hit users right away or can I test it first?",
+      "facts": [
+        {
+          "id": "save-with-errors",
+          "claim": "zia.traffic-forwarding.pac:validation",
+          "fact": "The console checks PAC syntax but still lets a file with errors be saved."
+        },
+        {
+          "id": "error-accepted",
+          "claim": "shared.pac-files.hosting:page-columns",
+          "fact": "A file saved with errors the admin accepted shows a status of Error-Accepted instead of Verified."
+        },
+        {
+          "id": "staging",
+          "claim": "zia.traffic-forwarding.pac:changes-immediate",
+          "fact": "Changes affect traffic immediately, but a staged version is served from its own hosted URL, different from the deployed version's."
+        }
+      ]
+    },
+    {
+      "id": "u-net-03",
+      "turn": "Some sites from our office go straight out and never touch Zscaler. Our PAC has a bunch of exceptions that return DIRECT, and I'm not sure which line is catching them. What does DIRECT do to that traffic, in what order does the file get read, and how do I check from a browser whether I'm actually going through Zscaler?",
+      "facts": [
+        {
+          "id": "direct-bypass",
+          "claim": "zia.proxy-mode.explicit:pac-function",
+          "fact": "A PAC file can return DIRECT for destinations that should bypass the service."
+        },
+        {
+          "id": "top-down",
+          "claim": "shared.pac-files.syntax:top-down",
+          "fact": "The PAC file is parsed top-down and the first matching statement wins."
+        },
+        {
+          "id": "ip-check",
+          "claim": "shared.pac-files.syntax:ip-zscaler-check",
+          "fact": "Visiting ip.zscaler.com shows whether the browser reached the web server directly or through a Public Service Edge."
+        }
+      ]
+    },
+    {
+      "id": "u-net-04",
+      "turn": "A partner only accepts connections from our own office IP list and keeps rejecting our users' traffic that goes through Zscaler. Someone said we can make it come out of one of our own servers instead. What address will the partner actually see, and what do I set on the private-app side to make it work?",
+      "facts": [
+        {
+          "id": "connector-ip",
+          "claim": "zia.forwarding-control.sipa:purpose",
+          "fact": "The destination sees the IP address of the Private Access App Connector as the source."
+        },
+        {
+          "id": "segment-settings",
+          "claim": "zia.forwarding-control.sipa:segment-settings",
+          "fact": "The application segment needs the Source IP Anchor option enabled and Use Client Forwarding Policy selected under Bypass."
+        },
+        {
+          "id": "no-user-criteria",
+          "claim": "zia.forwarding-control.sipa:no-user-criteria",
+          "fact": "If anchored traffic is scoped to certain users in ZIA, do not add SAML or SCIM user criteria to the segment's access policy."
+        }
+      ]
+    },
+    {
+      "id": "u-net-05",
+      "turn": "Our Entra tenant only lets people in from the office network, and everyone behind Zscaler gets blocked at sign-in even with the right password. We want to send traffic out of our own IP. Do we have to push all of our Microsoft 365 traffic that way, or just some of it, and which hostnames and DNS rules matter?",
+      "facts": [
+        {
+          "id": "login-only",
+          "claim": "zia.saas-apps.conditional-access:anchor-login-only",
+          "fact": "Only the initial sign-in traffic to the Microsoft login domain needs anchoring; after sign-in the app traffic uses a token and does not need redirecting."
+        },
+        {
+          "id": "login-host",
+          "claim": "zia.saas-apps.conditional-access:login-hosts",
+          "fact": "The anchored segment names login.microsoftonline.com on TCP 80 and 443."
+        },
+        {
+          "id": "dns-rules",
+          "claim": "zia.saas-apps.conditional-access:dns-resolver-rules",
+          "fact": "The ZPA Resolver DNS Control rules for Locations and for Road Warrior must be enabled and ranked first."
+        }
+      ]
+    },
+    {
+      "id": "u-net-06",
+      "turn": "We put Zscaler connector VMs in front of our Azure workloads and now the workloads have no internet. What does the connector itself need for outbound access, how does it get out, and what happens to traffic when one of the connectors goes bad?",
+      "facts": [
+        {
+          "id": "outbound-only",
+          "claim": "cloud-connector.azure.network:outbound-only",
+          "fact": "A Cloud Connector needs only outbound connections to the Zscaler cloud and no inbound connections from it."
+        },
+        {
+          "id": "nat-gateway",
+          "claim": "cloud-connector.azure.network:nat-per-zone-help",
+          "fact": "In a scale-set deployment a NAT gateway with a dedicated IP address carries the connectors' outbound traffic in each zone."
+        },
+        {
+          "id": "unhealthy-probe",
+          "claim": "cloud-connector.overview.load-balancing:health-codes",
+          "fact": "A healthy Cloud Connector answers the load balancer's probe with HTTP 200; an unhealthy one answers 503 or not at all."
+        },
+        {
+          "id": "existing-flows",
+          "claim": "cloud-connector.overview.load-balancing:unhealthy-sessions",
+          "fact": "Existing connections through a connector that turns unhealthy might fail temporarily until the flow ages out."
+        }
+      ]
+    },
+    {
+      "id": "u-net-07",
+      "turn": "A user says their SSH session to a server on port 22 got cut, and I need to see it in Zscaler. I only ever look at the web logs. Where do I look for a connection that isn't HTTP, what does a record there stand for, and is there anything separate for name lookups?",
+      "facts": [
+        {
+          "id": "nonweb-firewall",
+          "claim": "zia.firewall.traffic-path:nonweb-firewall-only",
+          "fact": "Traffic to ports other than 80 and 443 goes straight to the firewall module, not the web proxy."
+        },
+        {
+          "id": "firewall-aggregation",
+          "claim": "zia.logs.firewall-records:aggregation-rule",
+          "fact": "With the Standard Firewall subscription allowed sessions are logged as aggregates over a 15-minute window, while every blocked session gets its own detailed log."
+        },
+        {
+          "id": "dns-log",
+          "claim": "zia.logs.dns-outcome:request-response-pairs",
+          "fact": "The DNS log records the rule and action separately for the request and for the response."
+        }
+      ]
+    },
+    {
+      "id": "u-zcc-01",
+      "turn": "On my Windows laptop with Client Connector in tunnel mode, curl to https://api.example.com works fine, but ssh to a server on the internet on port 22 just times out. Why would some tools get through and not others?",
+      "facts": [
+        {
+          "id": "tunnel1-scope",
+          "claim": "zia.traffic-forwarding.zcc:z-tunnel-1",
+          "fact": "Z-Tunnel 1.0 forwards by CONNECT requests like a proxy and sends only proxy-aware traffic or port 80/443 traffic."
+        },
+        {
+          "id": "tunnel2-all-ports",
+          "claim": "zia.traffic-forwarding.zcc:z-tunnel-2",
+          "fact": "Z-Tunnel 2.0 sends packets over DTLS or TLS and can carry all ports and protocols."
+        }
+      ]
+    },
+    {
+      "id": "u-zia-02",
+      "turn": "Our devs have a CLI tool and a Python script that throw certificate errors whenever they're on the corp network, but Chrome loads the same sites fine. We already pushed the company root cert to the OS. What's going on and what are our options to fix it?",
+      "facts": [
+        {
+          "id": "own-store",
+          "claim": "zia.ssl-inspection.certificates:own-trust-stores",
+          "fact": "Some apps (Python, developer tooling, Firefox) keep their own trust store, so installing the Zscaler root in the OS is not enough."
+        },
+        {
+          "id": "install-root",
+          "claim": "zia.ssl-inspection.certificates:own-trust-store-remedies",
+          "fact": "The recommended fix is to install the Zscaler root or custom intermediate certificate into the application's own trust store."
+        }
+      ]
+    },
+    {
+      "id": "u-zia-04",
+      "turn": "I'm trying to work out which rule let a request through. In the web log the rule label column is empty for allowed requests, so I can't tell. Which log fields show which policy rule acted?",
+      "facts": [
+        {
+          "id": "label-block-only",
+          "claim": "zia.logs.web-rule-attribution:rulelabel-block-only",
+          "fact": "The rulelabel and ruletype fields are filled only when a Block rule applied, so an empty one does not mean no rule matched."
+        },
+        {
+          "id": "layer-labels",
+          "claim": "zia.logs.web-rule-attribution:separate-layer-labels",
+          "fact": "URL Filtering and Cloud App Control have their own rule-name fields (urlfilterrulelabel and apprulelabel), which show the allow-side rule."
+        }
+      ]
+    },
+    {
+      "id": "u-zia-05",
+      "turn": "The logs show a 403 for a request to app.example.com and the user says the site is broken. Is that the website returning 403 or is it Zscaler doing it?",
+      "facts": [
+        {
+          "id": "svc-generates",
+          "claim": "zia.logs.web-field-semantics:respcode-403",
+          "fact": "The service generates a 403 Forbidden response itself for blocked transactions."
+        },
+        {
+          "id": "not-origin",
+          "claim": "zia.logs.web-field-semantics:respcode-not-origin",
+          "fact": "A 403 in the response code field on a blocked transaction does not show that the origin server returned 403."
+        }
+      ]
+    },
+    {
+      "id": "u-zia-06",
+      "turn": "One of our internal tools talks to the internet but never shows up in Zscaler logs, even though browsers on the same machines do. I'm guessing it ignores the proxy/PAC settings. Why would that happen, and would switching how we forward traffic fix it?",
+      "facts": [
+        {
+          "id": "pac-app-support",
+          "claim": "zia.traffic-forwarding.pac:limitations",
+          "fact": "PAC forwarding only covers applications that support PAC files, and users can bypass it by disabling the file."
+        },
+        {
+          "id": "tunnel-all-ports",
+          "claim": "zia.traffic-forwarding.methods:tunnel-benefits",
+          "fact": "GRE and IPSec tunnels forward all ports and protocols with no configuration on computers, and users on the corporate network cannot bypass them."
+        },
+        {
+          "id": "zcc-all-ports",
+          "claim": "zia.traffic-forwarding.zcc:benefits",
+          "fact": "Client Connector forwards all ports and protocols."
+        }
+      ]
+    },
+    {
+      "id": "u-zia-07",
+      "turn": "We want certain destinations to skip the login prompt for ZIA users. Is that done per URL, per app or per category, where do I set it, and does skipping auth change how policy applies to that traffic?",
+      "facts": [
+        {
+          "id": "per-method-lists",
+          "claim": "zia.authentication.exemptions:bypass-by-method",
+          "fact": "Advanced settings carry bypass lists per authentication method (cookie, Kerberos, Digest, Basic), each by custom URL, cloud application and URL category."
+        },
+        {
+          "id": "location-attribution",
+          "claim": "zia.authentication.exemptions:global-exempt-categories",
+          "fact": "Exempted URL categories are a global exemption and the Exempted URLs list is local, and traffic to either is attributed to the location, not the user."
+        }
+      ]
+    },
+    {
+      "id": "u-zpa-01",
+      "turn": "Our users in Frankfurt keep landing on a connector in the US even though we have one sitting in a Frankfurt DC. Why would it pick the far one, and how long does a user stay stuck on it once they land?",
+      "facts": [
+        {
+          "id": "location-latency",
+          "claim": "zpa.app-connectors.selection:closest-by-location-and-latency",
+          "fact": "ZPA picks the closest connector using the user's location and the connector-to-application latency."
+        },
+        {
+          "id": "not-geography",
+          "claim": "zpa.app-connectors.selection:nearest-is-not-geography-alone",
+          "fact": "Because latency to the application is an input, the geographically nearest connector is not necessarily chosen."
+        },
+        {
+          "id": "affinity-15",
+          "claim": "zpa.app-connectors.selection:affinity-15-minutes",
+          "fact": "An active user stays on the same connector for 15 minutes after their last request, refreshed on each request."
+        }
+      ]
+    },
+    {
+      "id": "u-zpa-02",
+      "turn": "In our ZPA logs I see sessions closed with NO_CONNECTOR_AVAILABLE and the connector ID showing as 0. Does that mean our connectors are down, and where do I look to check them?",
+      "facts": [
+        {
+          "id": "id-zero",
+          "claim": "zpa.app-connectors.selection:connector-id-zero",
+          "fact": "The connector ID shows as zero when the central authority cannot determine the application or resolve the connection to a connector, as for APP_NOT_REACHABLE, INVALID_DOMAIN and NO_CONNECTOR_AVAILABLE."
+        },
+        {
+          "id": "connection-health",
+          "claim": "zpa.app-connectors.health:connection-health-column",
+          "fact": "The App Connectors page shows each connector's Connection Health as Connected or Disconnected, separate from enabled or disabled status."
+        },
+        {
+          "id": "alive-below-target",
+          "claim": "zpa.app-connectors.health:alive-below-target",
+          "fact": "In the connector metrics, AliveTargetCount below TargetCount means some configured targets are not alive through that connector."
+        }
+      ]
+    },
+    {
+      "id": "u-zpa-03",
+      "turn": "Connecting to an internal web app over ZPA takes ages to set up and sometimes times out. Which fields in the user activity log would show me where the time is going, and how do I see which connector and edge handled it?",
+      "facts": [
+        {
+          "id": "timing-phases",
+          "claim": "zpa.troubleshooting.log-fields:timing-fields",
+          "fact": "The log's timing fields include AppLearnTime, CAProcessingTime, ConnectorZENSetupTime, ConnectionSetupTime and ServerSetupTime."
+        },
+        {
+          "id": "connector-fields",
+          "claim": "zpa.troubleshooting.log-fields:connector-fields",
+          "fact": "Connector is the App Connector name, ConnectorZEN the Public Service Edge on the connector side and ClientZEN the edge that received the client's request."
+        }
+      ]
+    },
+    {
+      "id": "u-zpa-04",
+      "turn": "Someone pasted AST_MT_SETUP_ERR_NO_DNS_TO_SERVER from a ZPA log and asked me what it means. Where does a code like that come from, and is it the same thing as the InternalReason column?",
+      "facts": [
+        {
+          "id": "user-activity-code",
+          "claim": "zpa.troubleshooting.log-fields:status-codes-endpoint",
+          "fact": "It is a User Activity (zpn_trans_log) status code from the LSS API's status-codes list."
+        },
+        {
+          "id": "dns-failed",
+          "claim": "zpa.troubleshooting.log-fields:status-codes-endpoint",
+          "fact": "Its listed name says the App Connector's DNS resolution failed for the application (\"AC: DNS resolution failed for unmonitored app\"), an ActionableError with status Error."
+        },
+        {
+          "id": "internal-reason-inferred",
+          "claim": "zpa.troubleshooting.log-fields:internal-reason-status-codes",
+          "fact": "InternalReason values appear to be these codes, but that is inferred, not stated by a source."
+        }
+      ]
+    },
+    {
+      "id": "u-zpa-05",
+      "turn": "Some users get asked to sign in to ZPA again way sooner than we expected, and when we flip a laptop to non-compliant its existing session just carries on. What controls how often people re-authenticate, and how fast does a posture change actually bite?",
+      "facts": [
+        {
+          "id": "auth-vs-idle",
+          "claim": "zpa.policy.timeout-rules:auth-vs-idle",
+          "fact": "A timeout policy sets an authentication timeout that forces reauthentication and an idle timeout whose expiry does not."
+        },
+        {
+          "id": "reauth-resets-all",
+          "claim": "zpa.policy.timeout-rules:reauth-resets-all",
+          "fact": "One reauthentication gets a new SAML assertion and resets the timer for all applications."
+        },
+        {
+          "id": "group-activity",
+          "claim": "zpa.policy.timeout-rules:activity-counts-per-group",
+          "fact": "Reauthentication settings are per segment group, so activity in one app counts for all apps in that group."
+        },
+        {
+          "id": "posture-cadence",
+          "claim": "zpa.posture-profiles.evaluation:cadence",
+          "fact": "Client Connector evaluates posture every 15 minutes, new connections use the updated posture and existing connections are not affected."
+        }
+      ]
+    },
+    {
+      "id": "u-zpa-06",
+      "turn": "Nobody can reach tools.internal.example and I can't find a single ZPA log line for it. Does the Zscaler client even send that traffic to ZPA?",
+      "facts": [
+        {
+          "id": "intercepts-defined",
+          "claim": "zpa.troubleshooting.no-access:zcc-intercepts-defined-apps",
+          "fact": "Client Connector recognizes the internal applications defined in Private Access policies, intercepts requests for them and forwards them to the Zero Trust Exchange."
+        },
+        {
+          "id": "other-elsewhere",
+          "claim": "zpa.troubleshooting.no-access:other-traffic-elsewhere",
+          "fact": "Other traffic goes to Internet and SaaS rather than Private Access."
+        },
+        {
+          "id": "unmatched-not-forwarded",
+          "claim": "zpa.troubleshooting.no-access:unmatched-not-forwarded",
+          "fact": "A destination that no application segment covers is not forwarded to Private Access."
+        }
+      ]
+    }
+  ]
+}

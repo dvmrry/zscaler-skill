@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting.performance-runbook.tunnel-overhead",
+  "title": "Performance runbook: Check for Traffic Imbalance, Z-Tunnel 2.0 over GRE or IPSec, tunnel limits and gateway-variable load distribution",
+  "aliases": [
+    "Check for Traffic Imbalance",
+    "traffic imbalance",
+    "Z-Tunnel 2.0 over GRE",
+    "Z-Tunnel 2.0 over IPSec",
+    "GATEWAY_FX"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.traffic-forwarding.mixed-deployments" },
+    { "rel": "see-also", "to": "shared.log-correlation.zcc-in-zia" },
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-runbook" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.gre" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.ipsec" },
+    { "rel": "see-also", "to": "shared.pac-files.variables" }
+  ],
+  "prose": [
+    {
+      "label": "GRE.",
+      "text": "{{ztunnel2-over-gre}} {{check-ztunnel2-over-gre}} {{divergence:tunnel-version-values}} {{gre-recommendations}} {{divergence:gre-source-ips-vs-fallback}} {{divergence:switch-to-ztunnel1-vs-adopt-2}}"
+    },
+    {
+      "label": "IPSec.",
+      "text": "{{ztunnel2-over-ipsec}} {{check-ztunnel2-over-ipsec}} {{ipsec-recommendations}}"
+    },
+    {
+      "label": "Explicit and PAC.",
+      "text": "{{explicit-pac-tunnel1-recommendations}} {{gap:gateway-fn-undefined}} {{gap:on-trusted-undefined}}"
+    }
+  ],
+  "claims": {
+    "ztunnel2-over-gre": {
+      "statement": "Under its Check for Traffic Imbalance heading, the runbook says sending Client Connector Z-Tunnel 2.0 over a GRE tunnel is not a recommended setup because of added overhead and causes suboptimal traffic processing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check for Traffic Imbalance",
+            "sending Zscaler Client Connector Z-Tunnel 2.0 over a GRE tunnel causes suboptimal processing of traffic. This is not a recommended setup due to additional overhead on both Z-Tunnel 2.0 and the GRE tunnel."
+          ]
+        }
+      ]
+    },
+    "check-ztunnel2-over-gre": {
+      "binds": ["zia/web-log#trafficredirectmethod", "zia/web-log#ztunnelversion"],
+      "statement": "To detect Z-Tunnel 2.0 over GRE, the runbook finds the GRE egress IP at ip.zscaler.com and looks in Web Insights for a transaction with Traffic Forwarding: Zscaler Client Connector over GRE and a Zscaler Client Connector Tunnel Version of Z-Tunnel 2.0 TLS, ztunnel_2.0 dtls1.0, ztunnel_2.0 dtls1.2 or ztunnel_2.0 udp.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Find the public egress IP address of the GRE tunnel using ip.zscaler.com.",
+            "Traffic Forwarding: Zscaler Client Connector over GRE.",
+            "Zscaler Client Connector Tunnel Version: Z-Tunnel 2.0 TLS OR ztunnel_2.0 dtls1.0 OR ztunnel_2.0 dtls1.2 OR ztunnel_2.0 udp."
+          ]
+        }
+      ]
+    },
+    "gre-recommendations": {
+      "statement": "For Z-Tunnel 2.0 behind GRE, the runbook recommends Z-Tunnel 1.0 for On-Trusted networks with IP surrogacy enabled on all locations for both Known or Unknown User agents, or bypassing Zscaler's recommended hub IPs by policy based routing so Z-Tunnel 2.0 goes direct, ensuring the public egress IP is configured and associated as a Known Location; GRE is supported to 1 Gbps per tunnel if the inner endpoint IPs are not NAT'd, and more tunnels with different public source IPs are suggested.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Switch to Z-Tunnel 1.0 for On-Trusted network behind a GRE tunnel and Enable IP surrogacy on all locations for both Known or Unknown User agents.",
+            "Bypass Zscaler's Recommended Hub IP addresses at the router and firewall level, using Policy Based Routing from the GRE tunnel, so that Z-Tunnel 2.0 traffic goes DIRECT to the internet. Ensure the Public Egress IP is configured and associated as a Known Location.",
+            "Zscaler supports a maximum bandwidth of 1 Gbps for each GRE tunnel if the internal tunnel endpoint IP addresses are not source network address translated (NAT'd).",
+            "Configure more GRE tunnels with different public source IP addresses."
+          ]
+        }
+      ]
+    },
+    "ztunnel2-over-ipsec": {
+      "statement": "Sending Client Connector Z-Tunnel 2.0 over an IPSec tunnel is not a recommended setup because of added overhead and causes suboptimal traffic processing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "sending the Zscaler Client Connector Z-Tunnel 2.0 over the IPSec tunnel causes suboptimal processing of traffic. This is not a recommended setup due to additional overhead on both Z-Tunnel 2.0 and IPSec tunnel."
+          ]
+        }
+      ]
+    },
+    "check-ztunnel2-over-ipsec": {
+      "binds": ["zia/web-log#trafficredirectmethod", "zia/web-log#ztunnelversion"],
+      "statement": "To detect Z-Tunnel 2.0 over IPSec, the runbook finds the IPSec egress IP at ip.zscaler.com and looks in Web Insights for Traffic Forwarding: Zscaler Client Connector over IPSec Tunnel with a Tunnel Version of Z-Tunnel 2.0 TLS, ztunnel_2.0 dtls1.0, ztunnel_2.0 dtls1.2 or ztunnel_2.0 udp.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Find the public egress IP address of the IPSec tunnel using ip.zscaler.com.",
+            "Traffic Forwarding: Zscaler Client Connector over IPSec Tunnel.",
+            "Zscaler Client Connector Tunnel Version is Z-Tunnel 2.0 TLS, ztunnel_2.0 dtls1.0, ztunnel_2.0 dtls1.2, or ztunnel_2.0 udp."
+          ]
+        }
+      ]
+    },
+    "ipsec-recommendations": {
+      "statement": "For Z-Tunnel 2.0 behind IPSec, the runbook recommends Z-Tunnel 1.0 for On-Trusted networks with IP surrogacy enabled on all locations for both Known or Unknown User agents, or bypassing the hub IPs by policy based routing, ensuring the public egress IP is configured and associated as a Known Location, states a 400 Mbps limit per public source IP address, and suggests multiple tunnels with different source IPs or with the same source IP using NAT-T and source port randomization with IKEv2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Switch to Z-Tunnel 1.0 for On-Trusted network behind an IPSec tunnel and Enable IP surrogacy on all locations for both Known or Unknown User agents.",
+            "Bypass Zscaler's Recommended Hub IP addresses at the router and firewall level, using Policy Based Routing from the IPSec tunnel, so that Z-Tunnel 2.0 traffic goes DIRECT to the internet. Ensure the Public Egress IP is configured and associated as a Known Location.",
+            "Zscaler IPSec tunnels support a limit of 400 Mbps for each public source IP address.",
+            "Configure multiple IPSec tunnels with different public source IP addresses.",
+            "Configure multiple IPSec VPN tunnels with the same public source IP address using NAT-T and source port randomization with IKEv2."
+          ]
+        }
+      ]
+    },
+    "explicit-pac-tunnel1-recommendations": {
+      "statement": "For Explicit/PAC or Client Connector Tunnel 1.0/TWLP, the runbook recommends ${GATEWAY_FX} in the PAC file for the Client Connector method and ${GATEWAY_Fn} for the PAC method, more NAT pool IPs per proxy instance, and Z-Tunnel 2.0 with the egress IP in a Known Location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For Explicit/PAC or Zscaler Client Connector Tunnel 1.0/TWLP",
+            "Use the ${GATEWAY_FX} variable for the Zscaler Client Connector method.",
+            "Use the ${GATEWAY_Fn} variable for PAC method.",
+            "Add more IP address in the NAT pool for better load distribution per Proxy instance.",
+            "Zscaler recommends adopting Z-Tunnel 2.0 and ensure the Egress IP is associated to a Known Location."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "tunnel-version-values": {
+      "summary": "The runbook tells the reader to look in Web Insights for a Traffic Forwarding value of Zscaler Client Connector over GRE or over IPSec Tunnel and a Tunnel Version of Z-Tunnel 2.0 TLS or ztunnel_2.0 dtls/udp values; the NSS web log format lists a different set of forwarding method values, none of them over GRE or over IPSec Tunnel, and gives ZTUNNEL_1_0 as its ztunnelversion example.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Traffic Forwarding: Zscaler Client Connector over GRE.",
+              "Zscaler Client Connector Tunnel Version: Z-Tunnel 2.0 TLS OR ztunnel_2.0 dtls1.0 OR ztunnel_2.0 dtls1.2 OR ztunnel_2.0 udp."
+            ]
+          },
+          "says": "Web Insights shows Traffic Forwarding: Zscaler Client Connector over GRE (or over IPSec Tunnel) and a Zscaler Client Connector Tunnel Version of Z-Tunnel 2.0 TLS or ztunnel_2.0 dtls1.0, dtls1.2 or udp."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "nss-feed-output-format-web-logs.json",
+            "quotes": [
+              "| %s{ztunnelversion} | The Z-Tunnel version | ZTUNNEL_1_0 | Zscaler Client Connector",
+              "PAC_IPSEC (PAC File over IPSec Tunnel) Zscaler Client Connector (Zscaler App)"
+            ]
+          },
+          "says": "The NSS ztunnelversion field is described by the example ZTUNNEL_1_0, and the trafficredirectmethod values end with PAC_IPSEC and Zscaler Client Connector (Zscaler App), with no over GRE or over IPSec Tunnel value."
+        }
+      ],
+      "impact": "The labels the runbook says to search for are the Insights UI labels for these fields (zia/web-log#trafficredirectmethod and #ztunnelversion); a search for them in NSS-fed logs may not match the values the NSS format lists, and shared.log-correlation.zcc-in-zia holds an open gap on the ztunnelversion values."
+    },
+    "gre-source-ips-vs-fallback": {
+      "summary": "The runbook recommends configuring more GRE tunnels with different public source IP addresses; the Z-Tunnel 2.0 requirement is a NAT device that uses a single IP for all connections from one device, otherwise the client falls back to Z-Tunnel 1.0.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Configure more GRE tunnels with different public source IP addresses."
+            ]
+          },
+          "says": "For Z-Tunnel 2.0 behind GRE, configure more GRE tunnels with different public source IP addresses."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-z-tunnel-1.0-z-tunnel-2.0.json",
+            "quotes": [
+              "For Z-Tunnel 2.0, use a NAT device that uses a single IP for all connections from a single device.",
+              "Otherwise, you’ll encounter load-balancing issues where control and data connections land on different Service Edges, and Z-Tunnel 2.0 fails to establish and falls back to Z-Tunnel 1.0."
+            ]
+          },
+          "says": "Z-Tunnel 2.0 needs a single IP for all connections from one device, or its control and data connections can land on different Service Edges and it falls back to Z-Tunnel 1.0."
+        }
+      ],
+      "impact": "Whether adding GRE tunnels with different source IPs helps or triggers fallback depends on whether one device's connections can leave through more than one of them; see zia.traffic-forwarding.mixed-deployments:gre-ztunnel2-egress."
+    },
+    "switch-to-ztunnel1-vs-adopt-2": {
+      "summary": "For Z-Tunnel 2.0 behind GRE or IPSec the runbook recommends switching to Z-Tunnel 1.0 for On-Trusted networks, while its Explicit/PAC recommendation says to adopt Z-Tunnel 2.0; the Client Connector runbook's switch to Z-Tunnel 1.0 is described as not recommended as a permanent solution.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Switch to Z-Tunnel 1.0 for On-Trusted network behind a GRE tunnel and Enable IP surrogacy on all locations for both Known or Unknown User agents."
+            ]
+          },
+          "says": "Switch to Z-Tunnel 1.0 for On-Trusted networks behind a GRE tunnel."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Zscaler recommends adopting Z-Tunnel 2.0 and ensure the Egress IP is associated to a Known Location."
+            ]
+          },
+          "says": "Zscaler recommends adopting Z-Tunnel 2.0."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+            "quotes": [
+              "The workaround is not recommended as a permanent solution. Modifying the MTU size is only for testing purposes."
+            ]
+          },
+          "says": "In the Client Connector runbook's MTU steps, switching to Z-Tunnel 1.0 is a testing workaround that is not recommended as a permanent solution."
+        }
+      ],
+      "impact": "Whether Z-Tunnel 1.0 is a standing recommendation for On-Trusted networks behind GRE or IPSec or only a temporary test depends on which page is read; Z-Tunnel 1.0 does not intercept non-web traffic."
+    }
+  },
+  "gaps": {
+    "gateway-fn-undefined": {
+      "kind": "semantic",
+      "title": "What Fn means in the ${GATEWAY_Fn} PAC variable",
+      "status": "open",
+      "detail": "The runbook names ${GATEWAY_Fn} for the PAC method without defining Fn. [[shared.pac-files.variables]] documents the _FX suffix and the _F0 to _F7 index tokens, and says non-Client Connector clients can use the Gateway Index Tokens, but the runbook does not say Fn means those tokens.",
+      "resolves_with": ["source-read"]
+    },
+    "on-trusted-undefined": {
+      "kind": "semantic",
+      "title": "What On-Trusted behavior the GRE and IPSec recommendations assume",
+      "status": "open",
+      "detail": "The runbook names On-Trusted networks in its Z-Tunnel 1.0 recommendations without defining the behavior beyond the name.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

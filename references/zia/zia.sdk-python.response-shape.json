@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-python.response-shape",
+  "title": "What the Python SDK returns: result, response and error, and why try/except misses API errors",
+  "aliases": [
+    "python sdk tuple",
+    "result response error",
+    "sdk does not raise",
+    "try except sdk zia",
+    "resp.search jmespath",
+    "mock sdk tuple"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.request-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python SDK reports API errors in its return value by default, though some calls raise regardless. How its pages are walked is in [[zia.sdk-python.pagination]], and its retry and rate-limit behavior is in [[zia.api.rate-limits]]."
+    },
+    {
+      "label": "Return shape.",
+      "text": "[[shared.sdk-python.response-handling:tuple-return]] {{single-assignment-yields-tuple}} {{result-models-snake-case-attrs}}"
+    },
+    {
+      "label": "Errors are values.",
+      "text": "{{errors-in-third-slot}} {{validation-errors-returned}} {{callers-must-check-error}} Whether a later SDK release will raise instead is open {{gap:raise-proposal}}."
+    },
+    {
+      "label": "Filtering.",
+      "text": "[[shared.sdk-python.response-handling:search-current-page]]"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the call site unpacks all three values and tests the error value before using the result.",
+      "uses": [
+        "shared.sdk-python.response-handling:tuple-return",
+        "errors-in-third-slot",
+        "callers-must-check-error"
+      ]
+    },
+    {
+      "do": "Whether a test double returns a tuple rather than raising, since a raising mock does not match the SDK.",
+      "uses": [
+        "callers-must-check-error"
+      ]
+    },
+    {
+      "do": "Whether a configuration rejected by the SDK came back as an error value rather than an exception.",
+      "uses": [
+        "validation-errors-returned"
+      ]
+    }
+  ],
+  "claims": {
+    "errors-in-third-slot": {
+      "statement": "The URL filtering `list_rules` call catches exceptions raised while building its result models and returns them in the third slot with a None result, instead of raising.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "try: result = [] for item in response.get_results(): result.append(URLFilteringRule(self.form_response_body(item))) except Exception as error: return (None, response, error)"
+          ],
+          "after": "def list_rules("
+        }
+      ]
+    },
+    "validation-errors-returned": {
+      "statement": "The SDK's own pre-send validation also comes back as an error value: updating the advanced URL filter settings with CIPA compliance and a mutually exclusive setting both true returns a ValueError in the tuple.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "for key in mutually_exclusive: if kwargs.get(key) is True: return ( None, None, ValueError(f\"Invalid configuration: '{key}' cannot be True when 'enable_cipa_compliance' is True\"), )",
+            "Updates the URL and Cloud App Control advanced policy settings",
+            "if kwargs.get(\"enable_cipa_compliance\") is True:",
+            "/advancedUrlFilterAndCloudAppSettings"
+          ],
+          "after": "def update_url_and_app_settings("
+        }
+      ]
+    },
+    "callers-must-check-error": {
+      "statement": "So a try/except around a ZIA SDK call does not catch API errors; the caller has to test the error value of every returned tuple, and a test double has to return tuples rather than raise.",
+      "tier": "B",
+      "derived_from": [
+        "shared.sdk-python.response-handling:tuple-return",
+        "shared.sdk-python.errors:api-error-object",
+        "shared.sdk-python.errors:raise-exception",
+        "errors-in-third-slot"
+      ],
+      "conditions": "Holds with the default `raiseException=False` (with True, the same API errors are raised as `ZscalerAPIException`: raise-exception), for calls that complete the request path as the ZIA methods read at the pin do; construction errors and the page iterator can still raise. API errors reach the error slot because the request executor hands a non-2xx response back there as a `ZscalerAPIError` (api-error-object). errors-in-third-slot is quoted from one method, URL filtering `list_rules`, and covers only exceptions raised while building its result models; that every other ZIA method catches those the same way is not quoted."
+    },
+    "single-assignment-yields-tuple": {
+      "statement": "Assigning a call to a single name therefore binds the whole tuple, not the list or object, so iterating it yields the result, response and error.",
+      "tier": "B",
+      "derived_from": [
+        "shared.sdk-python.response-handling:tuple-return"
+      ],
+      "conditions": "Follows directly from the return shape."
+    },
+    "result-models-snake-case-attrs": {
+      "statement": "A result model exposes snake_case attributes; its request_format output uses the API's camelCase keys, and as_dict converts those keys to snake_case and leaves out None values. The URL category model reads customCategory into custom_category, and its request_format writes it back as customCategory.",
+      "tier": "A",
+      "conditions": "Corrected because as_dict, inherited from the base class, returns snake_case keys; the camelCase entry is in request_format. Previously \"A result model exposes snake_case attributes but its as_dict output uses the API's camelCase keys: the URL category model reads customCategory into custom_category and writes it back as customCategory.\"",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/urlcategory.py",
+          "quotes": [
+            "class URLCategory(ZscalerObject):",
+            "self.custom_category = config[\"customCategory\"] if \"customCategory\" in config else False",
+            "\"customCategory\": self.custom_category,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "quotes": [
+            "for key, val in self.request_format().items():",
+            "if val is None: continue",
+            "# Otherwise it's a simple type (string, int, etc.) else: result[to_snake_case(key)] = val",
+            "The keys are in camelCase as expected by the API."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "raise-proposal": {
+      "kind": "semantic",
+      "title": "Whether the SDK maintainers will change the SDK to raise on errors",
+      "status": "open",
+      "detail": "Unverified legacy statement: An upstream issue (zscaler-sdk-python #297, open at capture) is said to quote the maintainers on every endpoint repeating a catch that returns the exception in the tuple, and to propose raising instead; the issue is not in the vendored tree and the statement that the pattern was carried over from the Go SDK is also unsourced here.",
+      "blocks": "Whether to rely on try/except in scripts written against a newer SDK release.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

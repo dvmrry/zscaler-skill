@@ -1,0 +1,519 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.user-activity-diagnostics",
+  "title": "What a ZPA User Activity entry shows in Diagnostics and Live Logs",
+  "aliases": [
+    "user activity diagnostics",
+    "zpa diagnostics user activity",
+    "zpa live logs user activity",
+    "zpa hop connection id",
+    "zpa transaction trends"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.diagnostics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.log-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.user-activity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.session-status-codes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.user-status"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Diagnostics and Live Logs views of a User Activity entry use their own labels and units, and the vendor pages do not equate them with the LSS fields {{gap:console-lss-field-mapping}}. How the views are reached, their ranges and their export are in [[zpa.troubleshooting.diagnostics]]."
+    },
+    {
+      "label": "Identity.",
+      "text": "{{username-nameid}} That conflicts with the LSS field table {{divergence:username-nameid-vs-lss}}."
+    },
+    {
+      "label": "Status and connection.",
+      "text": "{{connection-states}} Whether this column is the LSS ConnectionStatus field is open [[zpa.troubleshooting.log-fields:status-meanings]]. {{connection-type}} {{client-types}} {{location-fallback}} {{source-ip}}"
+    },
+    {
+      "label": "Service Edges and hops.",
+      "text": "{{hop}} The hop is defined differently on three pages {{divergence:hop-definitions}}. {{redirect-icon}} {{byte-directions}} {{total-bytes}}"
+    },
+    {
+      "label": "Timing.",
+      "text": "{{policy-processing-ms}} The LSS field table describes the policy time differently {{divergence:policy-processing-meaning}}."
+    },
+    {
+      "label": "Special cases.",
+      "text": "{{extranet-unavailable}} {{b2b-default-timeout}} {{icmp-success-caveat}} {{auth-service-fields}} {{posture-lists}}"
+    },
+    {
+      "label": "Privileged Remote Access.",
+      "text": "{{pra-fields}}"
+    },
+    {
+      "label": "Filters and Live Logs.",
+      "text": "{{filters-of-note}} {{live-session-type-filter}} {{app-activity-extra}} The values of several fields are named but never listed {{gap:undefined-value-sets}}."
+    },
+    {
+      "label": "Trends.",
+      "text": "{{trends}}"
+    }
+  ],
+  "claims": {
+    "username-nameid": {
+      "statement": "The Username shown in User Activity diagnostics is the NameID in the SAML assertion from the IdP and not the username entered in Zscaler Client Connector. Extranet location and sublocation names might also appear with Extranet Application Support, and a Browser Access unauthenticated HTTP preflight OPTIONS request shows the username ZPA BA Unauthenticated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Username: The user who requested the application. This is the NameID in the SAML assertion from the IdP and not the username entered in Zscaler Client Connector.",
+            "The extranet location and sublocation names might also appear if you are using Extranet Application Support.",
+            "For users that are accessing applications using Browser Access through an unauthenticated HTTP preflight OPTIONS request, the username appears as ZPA BA Unauthenticated."
+          ]
+        }
+      ]
+    },
+    "connection-states": {
+      "statement": "The console Status of a User Activity entry is Open Connection (the user is currently connected to the application), Active Connection (the user is currently using it) or Closed Connection (the user's connection has ended).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Open Connection : The user is currently connected to the application.",
+            "Active Connection : The user is currently using the application.",
+            "Closed Connection : The user's connection has ended."
+          ]
+        }
+      ]
+    },
+    "connection-type": {
+      "statement": "Connection Type is the connection type of the application request (ZPA, ZDX, Web Probe Cacheless, HTTP Web Probe or HTTPS Web Probe) and is set to ZPA by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Connection Type: The connection type of the application request (i.e., ZPA, ZDX, Web Probe Cacheless, HTTP Web Probe, or HTTPS Web Probe). By default, the Connection Type is set to ZPA."
+          ]
+        }
+      ]
+    },
+    "client-types": {
+      "statement": "A User Activity entry's Client Type is Branch Connector, Extranet, Zscaler Client Connector, Client Connector Partner, Web Browser, Web Browser Unauthenticated or ZIA Public Service Edge; the list on the Trends client-type filter also names Cloud Connector, Machine Tunnel and Cloud Browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Client Type: The name of the client the user's device is connecting from (i.e., Branch Connector, Extranet, Zscaler Client Connector, Client Connector Partner, Web Browser, Web Browser Unauthenticated, or ZIA Public Service Edge).",
+            "(i.e., Branch Connector, Extranet, Web Browser, ZIA Service Edge, Client Connector, Client Connector Partner, Cloud Connector, Machine Tunnel, Web Browser Unauthenticated, or Cloud Browser)."
+          ]
+        }
+      ]
+    },
+    "location-fallback": {
+      "statement": "If Private Access is unable to determine the user's location, the private IP address is shown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "If Private Access is unable to determine the user's location, then the private IP address is shown."
+          ]
+        }
+      ]
+    },
+    "source-ip": {
+      "statement": "Source IP Address and Source Port are the IP address and port of the Branch Connector, Cloud Connector or Service Edge for Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Source IP Address: The IP address of the Branch Connector, Cloud Connector, or Service Edge for Internet & SaaS.",
+            "Source Port: The port of the Branch Connector, Cloud Connector, or Service Edge for Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "hop": {
+      "statement": "A hop occurs when a user's request is forwarded to a Public Service Edge because the App Connector cannot reach the Private Service Edge; the log information shown for the connection is the first part of the hop, and the Private Service Edge then forwards the request to a Public Service Edge. Connections without a hop do not show the Hop Connection ID, and Origin Service Edge shows the original Service Edge if a hop occurs between two or more Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "A hop occurs when a user's request is forwarded to a Public Service Edge as the App Connector is not able to reach the Private Service Edge. (This is the first part of the hop, and the log information is what appears for the connection.) The Private Service Edge then forwards the request to a Public Service Edge.",
+            "Hop Connection ID: The ID associated with the connection hop. Connections without a hop do not show this ID.",
+            "Origin Service Edge: Displays the original Service Edge if a hop occurs between two or more Service Edges."
+          ]
+        }
+      ]
+    },
+    "total-bytes": {
+      "statement": "Total Bytes is the total bytes (B) and kilobytes (KB) of the request and the response, respectively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Total Bytes: The total bytes (B) and kilobytes (KB) of the request and the response, respectively."
+          ]
+        }
+      ]
+    },
+    "auth-service-fields": {
+      "statement": "With a subscription to Authentication Service for users, the SAML Attributes field is replaced with Session Attributes; with Authentication Service subscribed and the feature enabled for the tenant, SCIM Users is replaced with Authentication Service Users and SCIM Groups with Groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "If you are subscribed to Authentication Service for users, the SAML Attributes field is replaced with Session Attributes.",
+            "If you are subscribed to Authentication Service and have this feature enabled for your tenant, the SCIM Users field is replaced with Authentication Service Users.",
+            "If you are subscribed to Authentication Service and have this feature enabled for your tenant, the SCIM Groups field is replaced with Groups."
+          ]
+        }
+      ]
+    },
+    "posture-lists": {
+      "statement": "The verified and unverified posture profile fields show a list of those profiles, and show Unavailable when there are no posture profiles to display.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "then a list of verified posture profiles are displayed for this field. If it displays Unavailable, there are no posture profiles to display.",
+            "then a list of unverified posture profiles are displayed for this field. If it displays Unavailable, there are no posture profiles to display."
+          ]
+        }
+      ]
+    },
+    "redirect-icon": {
+      "statement": "As part of setting up the TLS session, a Zscaler hosted Service Edge directs the user's Zscaler Client Connector to connect with another Service Edge at a particular location. Control Service Edge is the name of the control Public Service Edge or Private Service Edge forwarded in the request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "As part of setting up the TLS session, Zscaler hosted Service Edge directs the user's Zscaler Client Connector to connect with another Service Edge at a particular location.",
+            "Control Service Edge: The name of the control Public Service Edge or Private Service Edge forwarded in the request."
+          ]
+        }
+      ]
+    },
+    "policy-processing-ms": {
+      "statement": "In the console, Policy Processing is the latency in milliseconds between the Public or Private Service Edge and the Central Authority, and Connection Setup Time is the latency in milliseconds for the App Connector to set up the connection to the application server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Policy Processing: The latency in milliseconds (ms) between the Public Service Edge or Private Service Edge and the Central Authority (CA).",
+            "Connection Setup Time: The latency in milliseconds (ms) for the App Connector to set up the connection to the application server."
+          ]
+        }
+      ]
+    },
+    "byte-directions": {
+      "statement": "The Service Edge section's byte counters include RX From Client and TX To App Connector for a Public or Private Service Edge, RX From and TX To Private Service Edge for a Public Service Edge, and RX From and TX To Public Service Edge for a Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "RX From Client: See the number of bytes received by a Public Service Edge or Private Service Edge from a client.",
+            "TX To App Connector: See the number of bytes transmitted by a Public Service Edge or Private Service Edge to an App Connector.",
+            "RX From Private Service Edge: See the number of bytes received by a Public Service Edge from a Private Service Edge.",
+            "TX To Private Service Edge: See the number of bytes transmitted by a Public Service Edge to a Private Service Edge.",
+            "RX From Public Service Edge: See the number of bytes received by a Private Service Edge from a Public Service Edge.",
+            "TX To Public Service Edge: See the number of bytes transmitted by a Private Service Edge to a Public Service Edge."
+          ]
+        }
+      ]
+    },
+    "extranet-unavailable": {
+      "statement": "For an extranet connection, the App Connector fields (Name, IP:Port & Protocol, Location, App Connector ID, Connection Setup Time, App Connector Group Name and App Connector Group ID) appear as Unavailable; a location group field appears as Unavailable if the organization doesn't use location groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Values for the following fields appear as Unavailable because they apply to the App Connector: Name, IP:Port & Protocol, Location, App Connector ID, Connection Setup Time, App Connector Group Name, and App Connector Group ID.",
+            "If your organization doesn't use location groups, this field appears as Unavailable."
+          ]
+        }
+      ]
+    },
+    "b2b-default-timeout": {
+      "statement": "If application access for Business-to-Business (B2B) Federation is denied by the default timeout policy rule (7 days), B2B Default Timeout Rule appears in the Timeout Policy Name field. A filter shows requests by the B2B Federation transaction ID, a unique attribute shared with both the host and guest partner for every connection and is used for troubleshooting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "If application access for Business-to-Business (B2B) Federation is denied by the default timeout policy rule (i.e., 7 days), then B2B Default Timeout Rule appears in the Timeout Policy Name field.",
+            "B2B Federation Transaction ID: See requests by the host and guest partner B2B Federation transaction ID. The transaction ID is a unique and common attribute shared with both the host and guest partner for every connection and is used for troubleshooting."
+          ]
+        }
+      ]
+    },
+    "pra-fields": {
+      "statement": "Credential Login Type is the credential type used to log into a privileged console (password, SSH private key or passphrase); a transferred file's Status shows Success if it was downloaded or uploaded and Denied if not. File inspection needs a privileged capabilities policy for the privileged console set to Enable Inspection and Integrations for the Internet & SaaS Sandbox configured. The PRA error field does not show if there isn't an error, and the session recording field shows Unavailable when no recordings are available and Started when one is in progress.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Credential Login Type: The credential type used to log into a privileged console (i.e., password, SSH private key, or passphrase).",
+            "Status: If the file was downloaded or uploaded, then the status shows as Success. If the file wasn’t downloaded or uploaded, then the status shows Denied.",
+            "For inspection to work, you need to have a privileged capabilities policy for the privileged console set to Enable Inspection and have Integrations for the Internet & SaaS Sandbox configured.",
+            "This field doesn’t show if there isn’t an error.",
+            "If there are no privileged session recordings available, the field shows as Unavailable. If a privileged session recording is in progress, it shows as Started."
+          ]
+        }
+      ]
+    },
+    "icmp-success-caveat": {
+      "statement": "If an application is configured for ICMP Access, the IP data appears and the status might show as successful (for example BRK_MT_TERMINATED) after the App Connector is selected, even when the application is unreachable; this can occur if the App Connector is set up to provide on access or no health reporting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "If you configure an application for ICMP Access, the IP data appears and the status might show as successful (e.g., BRK_MT_TERMINATED) after the App Connector is selected, even when it is unreachable. This can occur if the App Connector is set up to provide on access or no health reporting."
+          ]
+        }
+      ]
+    },
+    "trends": {
+      "statement": "On the Trends tab, the Info transactions trend varies over time to reflect that transactions have moved from an open state, for ongoing requests, to a closed state (Success); Show Error Codes shows the top errors for the selected time range; the Total Data Transferred Trend shows the total data received, and the Reauth Blocks Trend the number of reauthorization blocks, within the selected time range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "The trend of Info Transactions varies over time to reflect that user transactions have moved from an open state, for ongoing requests, to a closed state (Success).",
+            "Click Show Error Codes to see the top errors for the selected time range.",
+            "The Total Data Transferred Trend chart shows the total data received within the selected time range.",
+            "The Reauth Blocks Trend chart shows the number of reauthorization blocks that occurred in the selected time range."
+          ]
+        }
+      ]
+    },
+    "filters-of-note": {
+      "statement": "User Activity filters include Path Decision Result Code (the App Connector path decision result code; to learn more, contact Zscaler Support), Dispatcher ID, Service Edge Type (Public or Private), User Platform (Windows, Linux, macOS, iOS or Android), Privileged Session Recording (Started or Available) and Inspection Status (the status of inspection tunnel connections).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Path Decision Result Code: See requests by the specific App Connector path decision result code. To learn more, contact Zscaler Support.",
+            "Dispatcher ID: See requests based on the dispatcher ID.",
+            "Service Edge: Type: See logs by the Service Edge type (i.e., Public or Private).",
+            "User: Platform: See logs based on the device platform (i.e., Windows, Linux, macOS, iOS, or Android).",
+            "Privileged: Session Recording: See requests by availability status for privileged session recordings (i.e., Started or Available).",
+            "Inspection Status: See the status of inspection tunnel connections."
+          ]
+        }
+      ]
+    },
+    "live-session-type-filter": {
+      "statement": "Live Logs can filter User Activity by the session type of the user, which the page prints as DTLA or TLS, and of the App Connector, DTLS or TLS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-live-logs.json",
+          "quotes": [
+            "User: Session Type: See requests by the session type of the user (DTLA or TLS).",
+            "App Connector: Session Type: See requests by the session type of the App Connector (DTLS or TLS)."
+          ]
+        }
+      ]
+    },
+    "app-activity-extra": {
+      "statement": "The Live Logs Application Activity view has a Requested Port & Protocol field, the destination port and protocol of the requested application, and a Routed Through Service Edge filter for requests that go through a Public or Private Service Edge or not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-live-logs.json",
+          "quotes": [
+            "Requested Port & Protocol: The destination port and protocol of the requested application.",
+            "Routed Through Service Edge: See requests that go through a Public Service Edge or Private Service Edge or not."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "console-lss-field-mapping": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the console's User Activity fields are the LSS fields of the same name",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "detail": "The Diagnostics and Live Logs pages label Status, Policy Processing and Connection Setup Time differently from the LSS field table, with Policy Processing in other units, and both sources label the user field Username while describing it differently. The LSS table gives no unit for ConnectionSetupTime. No captured page says a console column is a given LSS field, so both surfaces describe the same records only by inference; compare a console entry with the LSS record of the same connection before treating the descriptions as interchangeable."
+    },
+    "undefined-value-sets": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Value sets that the User Activity diagnostics name but never list",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "detail": "Path Decision Result Code values are left to Zscaler Support, and the PRA Files Inspection Type and File Category values are not listed in the captured pages."
+    }
+  },
+  "divergences": {
+    "username-nameid-vs-lss": {
+      "summary": "The User Activity Username as the name entered into Client Connector (LSS field table) versus the SAML NameID (Diagnostics, Live Logs, Users dashboard)",
+      "positions": [
+        {
+          "says": "The LSS field table describes Username as the username as entered into Zscaler Client Connector.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "| Username | The username as entered into Zscaler Client Connector"
+            ]
+          }
+        },
+        {
+          "says": "The User Activity diagnostics page says the Username is the NameID in the SAML assertion from the IdP, not the username entered in Client Connector.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-user-activity-diagnostics.json",
+            "after": "Username: The user who requested the application.",
+            "quotes": [
+              "This is the NameID in the SAML assertion from the IdP and not the username entered in Zscaler Client Connector."
+            ]
+          }
+        },
+        {
+          "says": "The Live Logs page gives the same description for the user activity Username.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-live-logs.json",
+            "after": "# Viewing User Activity Real-Time Events and Logs",
+            "quotes": [
+              "Username: The user who requested the application. This is the NameID in the SAML assertion from the IdP and not the username entered in Zscaler Client Connector."
+            ]
+          }
+        },
+        {
+          "says": "The Users dashboard gives the same description for Name.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-viewing-users-dashboard.json",
+            "after": "Users Blocked by Policies",
+            "quotes": [
+              "Name: The username. This is the NameID in the SAML assertion from the IdP and not the username entered in Zscaler Client Connector."
+            ]
+          }
+        }
+      ],
+      "impact": "The two surfaces describe the same records with different identities. Do not assume the LSS Username matches the console's Username, or that either is the name the user typed, without comparing a record on both surfaces."
+    },
+    "hop-definitions": {
+      "summary": "Three descriptions of a hop on the User Activity and User Status pages",
+      "positions": [
+        {
+          "says": "The User Activity page defines a hop as a request forwarded to a Public Service Edge because the App Connector cannot reach the Private Service Edge.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-user-activity-diagnostics.json",
+            "quotes": [
+              "A hop occurs when a user's request is forwarded to a Public Service Edge as the App Connector is not able to reach the Private Service Edge."
+            ]
+          }
+        },
+        {
+          "says": "The User Activity hop filter says hops typically go from Client Connector to a Public Service Edge, then to another Public Service Edge managed by Zscaler.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-user-activity-diagnostics.json",
+            "quotes": [
+              "Typically, hops occur when the connection goes from Zscaler Client Connector to a Public Service Edge, and then to another Public Service Edge managed by Zscaler."
+            ]
+          }
+        },
+        {
+          "says": "The User Status page says a hop has two parts: Client Connector to a Private Service Edge, then the Private Service Edge to a Public Service Edge.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-user-status-diagnostics.json",
+            "quotes": [
+              "There are two parts to every hop: the user's Zscaler Client Connector connecting to a Private Service Edge, and then the Private Service Edge connecting to a Public Service Edge."
+            ]
+          }
+        }
+      ],
+      "impact": "What path a hop describes differs between the pages, so a Hop Connection ID does not tell which components the two parts connect without a record to read."
+    },
+    "policy-processing-meaning": {
+      "summary": "Policy Processing as access policy processing time in microseconds (LSS) versus a latency in milliseconds to the Central Authority (console)",
+      "positions": [
+        {
+          "says": "The LSS field table describes PolicyProcessingTime as the time in microseconds taken for processing the access policy associated with the application.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "| PolicyProcessingTime | The time in microseconds taken for processing the access policy associated with the application |"
+            ]
+          }
+        },
+        {
+          "says": "The Diagnostics page describes Policy Processing as the latency in milliseconds between the Public or Private Service Edge and the Central Authority.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-user-activity-diagnostics.json",
+            "quotes": [
+              "Policy Processing: The latency in milliseconds (ms) between the Public Service Edge or Private Service Edge and the Central Authority (CA)."
+            ]
+          }
+        }
+      ],
+      "impact": "The unit and the measured interval differ between the descriptions; whether they are the same measure is not stated. Convert units and check a record on both surfaces before comparing console and LSS figures."
+    }
+  }
+}

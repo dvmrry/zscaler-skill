@@ -1,0 +1,537 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.outbound-email-tenants",
+  "title": "Outbound Email DLP email tenants and mail-server setup (SEG, Gmail, Exchange)",
+  "aliases": [
+    "email tenant",
+    "email tenants",
+    "key for transport rules",
+    "smart host fqdn",
+    "X-Zscaler-TenantID"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.email-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An email tenant is the Outbound Email DLP object that makes the Zscaler service the smart host for the organization's outbound email. {{what-tenants-are}} {{providers}} {{security-options}} {{configuration-info}} {{next-hop-address}} {{next-hop-tls}} {{edit-page-next-hop-validation}} The rules that use tenants are in [[zia.dlp.outbound-email-policy]]."
+    },
+    {
+      "label": "Secure email gateway.",
+      "text": "{{seg-flow}} {{seg-domain-routing}} {{client-cert-cn}} {{source-ip-allow-list}} {{seg-tenant-header-and-accept}} {{verdict-headers}} {{smart-host-ips}} {{seg-validation}}"
+    },
+    {
+      "label": "Gmail.",
+      "text": "{{gmail-routing}} {{gmail-reject-and-modify}} {{gmail-drive-notifications}}"
+    },
+    {
+      "label": "Exchange.",
+      "text": "{{exchange-zwa-authorization}} {{exchange-connectors}} {{exchange-outbound-rule}} {{exchange-inbound-rule}} {{exchange-quarantine-mapping}}"
+    },
+    {
+      "label": "The tenant key header.",
+      "text": "The pages spell the header that carries the tenant key differently {{divergence:tenant-key-header}}. Whether a quarantined message also carries a Block header, and so is recognized as processed, is open in [[zia.dlp.outbound-email-policy]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which spelling of the tenant key header the mail server rule uses before comparing it to what reaches the smart host.",
+      "uses": [
+        "tenant-key-header"
+      ]
+    },
+    {
+      "do": "Whether the tenant's next hop uses a valid, trusted certificate, since self-signed, expired or otherwise invalid ones are not allowed.",
+      "uses": [
+        "next-hop-tls"
+      ]
+    }
+  ],
+  "claims": {
+    "what-tenants-are": {
+      "statement": "Email tenants let the Zscaler service act as a smart host for inspecting email content sent to external domains as part of outbound email policy rules. Adding a tenant is the first step in setting up an outbound email policy, tenants can be included in or excluded from rules, and editing one carries over to every setting that uses it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "Email tenants allow you to use the Zscaler service as a smart host for inspecting email content sent to external domains as part of your outbound email policy rules.",
+            "The email tenants you create are used as part of the mail flow rules that you configure on your email server to act on content that violates your outbound email policy rules."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-email-tenants.json",
+          "quotes": [
+            "Manage email tenants that you want to include in, or exclude from, outbound email policy rules.",
+            "Edit tenants quickly from the profile, which carries over to every setting using that email tenant."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-step-step-configuration-guide-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "Adding an email tenant is the first step in setting up an outbound email policy."
+          ]
+        }
+      ]
+    },
+    "edit-page-next-hop-validation": {
+      "statement": "The Editing Email Tenants page lists strictly enforcing SSL/TLS for secure SMTP connections, a server certificate validation that requires the presented certificate to be valid and trusted, and not allowing self-signed, expired or otherwise invalid certificates; it also says the tenants being edited are used as part of the mail flow rules configured on the email server.",
+      "tier": "A",
+      "conditions": "A diff of the page against zia-adding-email-tenants.json differs only in the add and edit verbs, so the page repeats the Adding page; neither page gives a tenant count (gap tenant-counts).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-email-tenants.json",
+          "quotes": [
+            "The email tenants you edit are used as part of the mail flow rules that you configure on your email server to act on content that violates your outbound email policy rules.",
+            "- Strictly enforces SSL/TLS for secure SMTP connections.",
+            "- Performs server certificate validation that requires the presented certificate to be valid and trusted.",
+            "- Does not allow self-signed, expired, or otherwise invalid certificates."
+          ]
+        }
+      ]
+    },
+    "providers": {
+      "statement": "A tenant's email service provider is a Secure Email Gateway, Gmail or Exchange. A SEG tenant (for example Mimecast or Cisco IronPort) can be onboarded, and once onboarded on the Email Tenants page it can be selected when creating outbound email policy rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "On the Add page, under Choose the Email Service Provider, select Secure Email Gateway, Gmail, or Exchange.",
+            "If your organization uses a secure email gateway (SEG) (e.g., Mimecast, Cisco IronPort), you can onboard your SEG tenant to use as part of your outbound email DLP policies.",
+            "After you onboard SEG tenants on the Email Tenants page, you can then select those tenants when creating outbound email policy rules."
+          ]
+        }
+      ]
+    },
+    "security-options": {
+      "statement": "The tenant name must be unique. Under Email Tenant Security Options, Outbound Email Security is selected automatically and is not configurable. The Workflow Automation option is available for Exchange only (Exchange Online), lets admins review and manage quarantined emails from Workflow Automation, and makes the Authorize the SaaS Application and Assign Role sections available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "Under Name Email Tenant, enter a unique Tenant Name.",
+            "Under Email Tenant Security Options, the setting for Outbound Email Security is automatically selected and is not configurable.",
+            "Under Email Tenant Security Options, the Workflow Automation option is available for Exchange only.",
+            "This setting allows you to review and manage quarantined emails from Workflow Automation and is available only for Exchange Online.",
+            "When you select this option, the Authorize the SaaS Application and Assign Role sections become available."
+          ],
+          "after": "- Configure Secure Email Gateway"
+        }
+      ]
+    },
+    "configuration-info": {
+      "statement": "The tenant page shows the Smart Host FQDN and the Key for Transport Rules. The key is unique to each email tenant and the service uses it to verify the source of email messages received by the Zscaler smart host.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "The Smart Host FQDN and Key for Transport Rules information appears."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-segs-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "The key is unique to each email tenant that you onboard and is used by the Zscaler service to verify the source of email messages received by the Zscaler smart host."
+          ]
+        }
+      ]
+    },
+    "next-hop-address": {
+      "statement": "The Next Hop Address is where the service sends email content after inspection and can be an IPv4 address, an IPv6 address or a valid domain name, with a port number for the email domain. The page's examples are port 587 for the SEG and Gmail tenants and 25 for Exchange, and Gmail's next hop address is smtp-relay.gmail.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "Next Hop Address: Specify information for the next hop, which is where the Zscaler service sends email content after inspection.",
+            "You can enter an IPv4 address, an IPv6 address, or a valid domain name.",
+            "Next Hop Address: Enter smtp-relay.gmail.com as the address of the relay host for the Gmail domain."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "Port Number: Enter the port number for the email domain (e.g., 587)."
+          ],
+          "after": "Configure Gmail"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "Port Number: Enter the port number for the email domain (e.g., 25)."
+          ],
+          "after": "Configure Exchange"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "Port Number: Enter the port number for the email domain (e.g., 587)."
+          ],
+          "after": "- Configure Secure Email Gateway"
+        }
+      ]
+    },
+    "next-hop-tls": {
+      "statement": "For next-hop validation, the service strictly enforces SSL/TLS for secure SMTP connections. It requires the presented server certificate to be valid and trusted and does not allow self-signed, expired or otherwise invalid certificates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "Strictly enforces SSL/TLS for secure SMTP connections.",
+            "Performs server certificate validation that requires the presented certificate to be valid and trusted.",
+            "Does not allow self-signed, expired, or otherwise invalid certificates."
+          ]
+        }
+      ]
+    },
+    "seg-domain-routing": {
+      "statement": "For a SEG tenant, the service uses the source IP address of the incoming connection to determine the next hop for explicitly configured domains. Domains not configured explicitly are default domains; if Default domain is selected the source IP maps messages to the next hop servers, and for this routing the SEG must include the X-Zscaler-TenantID: <tenant-key> header in messages sent to the smart host.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "For explicitly configured domains, the Zscaler service uses the source IP address for the incoming connection to determine the mapping to the next hop.",
+            "Domains that you do not explicitly configure are considered default domains.",
+            "If you select Default domain from the list, the Zscaler service uses the source IP of the incoming connection to map messages to the corresponding next hop servers.",
+            "For this routing to occur, your SEG must include the X-Zscaler-TenantID: <tenant-key> header in messages sent to the Zscaler smart host."
+          ]
+        }
+      ]
+    },
+    "client-cert-cn": {
+      "statement": "The Client Certificate Common Name field does not support wildcard characters for subdomain matching, but if the connecting client has a wildcard certificate, the configured common name should match it exactly, including the wildcard characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "This field does not support wildcard characters for subdomain matching (e.g., *.example.com).",
+            "However, if the common name of the connecting client has a wildcard certificate, then the configured common name should match exactly, including wildcard characters."
+          ]
+        }
+      ]
+    },
+    "source-ip-allow-list": {
+      "statement": "The Source IP Allow list takes the IP addresses allowed to send SMTP traffic, in CIDR form in the page's example (10.20.30.0/24 allows traffic originating from 10.20.30.0 to 10.20.30.255).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "Source IP Allow list: Enter the IP addresses for allowed SMTP traffic (e.g., 10.20.30.0/24 allows SMTP traffic originating from 10.20.30.0 to 10.20.30.255) then click Add Items."
+          ]
+        }
+      ]
+    },
+    "exchange-zwa-authorization": {
+      "statement": "For an Exchange tenant with Workflow Automation, after the SaaS application is authorized the Tenant ID is populated in the Admin Console, and an Exchange admin role must be assigned (Exchange Administrator) to the Zscaler SaaS Connector ID in the Azure portal to grant assignments and access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "After successfully authorizing the SaaS Application, the Tenant ID should now be populated in the Zscaler Admin Console.",
+            "You must assign an Exchange admin role to be able to grant assignments and access.",
+            "On the All Roles page, use the search bar to search for Exchange Administrator.",
+            "In the Azure portal, on the Select a member page, paste the Zscaler SaaS Connector ID into the search box."
+          ]
+        }
+      ]
+    },
+    "seg-flow": {
+      "statement": "A SEG tenant must be onboarded in the Admin Console before the SEG is configured, and the basic configuration process and workflow is the same across SEG products. The email server routes outbound email to the SEG, the SEG routes it to the smart host, the smart host adds a verdict header (for example X-Zscaler-Block or X-Zscaler-Quarantine) and sends it back to the SEG as the configured next hop, and the SEG applies its policy based on the header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-segs-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "Although there are many SEG options available, the basic configuration process and workflow is the same across products.",
+            "Your email server (i.e., Exchange or Gmail) routes the outbound email to your SEG.",
+            "Your SEG routes the message to the Zscaler smart host for inspection.",
+            "The Zscaler smart host evaluates the message based on outbound email DLP policies, adds a verdict header to the email (e.g., X-Zscaler-Block, X-Zscaler-Quarantine), and then sends the message back to your SEG.",
+            "Your SEG receives the inspected message from the Zscaler smart host as the configured next hop and applies SEG policy based on the Zscaler header (i.e., delivers to the recipient or takes enforcement action).",
+            "Before you can configure your SEG to use Zscaler Outbound Email DLP, you must first onboard your SEG tenant in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "smart-host-ips": {
+      "statement": "The Email DLP page lists all of the outbound connections that need to be configured for the Zscaler smart host to communicate with the SEG, and with the Gmail server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-segs-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "The Email DLP page lists all of the outbound connections that need to be configured for the Zscaler smart host to communicate with your SEG."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gmail-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "The Email DLP page lists all of the outbound connections that need to be configured for the Zscaler smart host to communicate with your Gmail server."
+          ]
+        }
+      ]
+    },
+    "seg-tenant-header-and-accept": {
+      "statement": "The SEG is configured to add X-Zscaler-TenantID: <tenant-key> on messages routed to Zscaler, and to accept processed email from the smart host by allowlisting the smart host egress IPs or validating the client certificate Common Name presented by Zscaler. The page says this ensures only authorized smart host connections can relay scanned emails back to the SEG.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-segs-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "Configure your SEG to add X-Zscaler-TenantID: <tenant-key> on messages routed to Zscaler.",
+            "Your SEG must be configured to accept processed email from the Zscaler smart host by allowlisting the Zscaler smart host egress IPs or validating the client certificate Common Name (CN) presented by Zscaler.",
+            "This configuration ensures that only authorized Zscaler smart host connections can relay scanned emails back to your SEG."
+          ]
+        }
+      ]
+    },
+    "verdict-headers": {
+      "statement": "The SEG article says the service appends one of three headers to each outbound email: X-Zscaler-Block: 0, which the SEG should deliver; X-Zscaler-Block: 1, which it should block; or X-Zscaler-Quarantine: 1, which it should quarantine. The SEG should use the headers to detect messages already processed, to prevent mail routing loops, and a rule can attach a custom header such as X-Zscaler-Encrypt:1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-segs-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "The Zscaler service appends one of the following three headers to each outbound email message:",
+            "X-Zscaler-Block: 0: Your SEG should deliver emails that use this header to the intended recipient.",
+            "X-Zscaler-Block: 1: Your SEG should block emails that contain this header.",
+            "X-Zscaler-Quarantine: 1: Your SEG should quarantine emails that use this header.",
+            "Your SEG should use these headers to detect messages that have already been processed by the Zscaler service to prevent mail routing loops",
+            "you can configure an outbound email policy rule in the Zscaler Admin Console to attach a custom header (e.g., X-Zscaler-Encrypt:1) to emails that trigger the policy."
+          ]
+        }
+      ]
+    },
+    "seg-validation": {
+      "statement": "If the email is visible in Email DLP Insights Logs, the SEG article says this indicates the SEG is successfully routing mail to the Zscaler smart host and the email flow is working as expected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-segs-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "If the email is visible in Email DLP Insights Logs, it indicates that your SEG is successfully routing mail to the Zscaler smart host and the email flow is working as expected."
+          ]
+        }
+      ]
+    },
+    "gmail-routing": {
+      "statement": "Gmail needs routing for bidirectional communication with the smart host and compliance rules for the mail flow in both directions; Google Admin console changes can take up to 24 hours to propagate. The host route selects Require mail to be transmitted via a secure (TLS) connection (Recommended). The SMTP relay rule allows only addresses in the organization's domains and accepts mail only from the specified IP addresses. The outbound compliance rule matches Source IP is not within the range, adds the header key Zscaler-Tenantid with the Key for Transport Rules as value, and changes the route to the host.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gmail-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "you must configure routing to allow bidirectional communication between your Gmail server and the Zscaler smart host, and you must configure compliance rules to determine how mail flows from your Gmail server to the Zscaler service, and vice versa.",
+            "Configuration changes in the Google Admin console can sometimes take up to 24 hours to propagate across Google Services before reaching your users.",
+            "Select Require mail to be transmitted via a secure (TLS) connection (Recommended).",
+            "On the Routing page, in the SMTP relay service section, click Add another rule.",
+            "In the Allowed senders section, select Only addresses in my domains from the drop-down menu.",
+            "In the Authentication section, select Only accept mail from the specified IP addresses.",
+            "select Source IP is not within the range from the drop-down menu",
+            "Enter Zscaler-Tenantid in the Header key field, then paste the Key for Transport Rules value from the Zscaler Admin Console in the Header value field.",
+            "In the Add setting window, in the Route section, select Change route then select the host you created earlier from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "gmail-reject-and-modify": {
+      "statement": "In Gmail, a compliance rule that matches the text X-Zscaler-Block: 1 rejects emails returned with that Block header value, and the sender receives a rejection message. An optional rule modifies emails returned with a Block header value of 0 according to the configured actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gmail-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "With this rule in place, all emails returned with a X-Zscaler-Block header value of 1 are rejected and are not delivered to the recipient. Instead, the sender receives a rejection message.",
+            "In the Match type section, select Contains text from the drop-down menu, enter X-Zscaler-Block: 1 in the Content field.",
+            "you can configure an optional compliance rule to modify the message before delivery (i.e., adding a prefix to the subject).",
+            "With this rule in place, all emails returned with an X-Zscaler-Block header value of 0 are modified according to the actions you configure."
+          ]
+        }
+      ]
+    },
+    "gmail-drive-notifications": {
+      "statement": "With Gmail, the service blocks the notification emails Google sends when a Google Drive file is shared unless google.com is added as a known domain for the organization. The page says this does not affect the file being shared, only the notification email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gmail-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "If your organization uses Google Drive to share files, the Zscaler service blocks the notification emails sent by Google when a file is shared unless you add google.com as a known domain for your organization.",
+            "This issue does not affect the file being shared, only the notification email."
+          ]
+        }
+      ]
+    },
+    "exchange-connectors": {
+      "statement": "Exchange needs connectors for bidirectional communication with the smart host and mail flow (transport) rules. The send connector goes from Office 365 to a Partner organization, is used only when a transport rule redirects messages to it, routes through the smart host FQDN, and requires a certificate issued by a trusted certificate authority whose subject name or SAN matches the Zscaler cloud domain (e.g., *.zscloud.net). Zscaler recommends disabling it until all connectors and mail flow rules are configured. The receive connector comes from the organization's email server and authenticates by the sender domain matching the Zscaler cloud domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-microsoft-exchange-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "you must configure connectors to allow bidirectional communication between your Exchange server and the Zscaler smart host, and you must configure mail flow rules (also known as transport rules) to determine how mail flows from your Exchange server to the Zscaler service, and vice versa.",
+            "In the Connection from section select Office 365, and in the Connection to section, select Partner organization, then click Next.",
+            "Zscaler recommends disabling the connector that sends email from your Exchange server to the Zscaler smart host until all connectors and mail flow rules are configured.",
+            "On the Use of connector page, select Only when I have a transport rule set up that redirects messages to this connector, then click Next.",
+            "On the Routing page, select Route email through these smart hosts, specify the Smart Host FQDN, then click the + button to add the smart host server.",
+            "On the Security restrictions page, select Issued by a trusted certificate authority, then select the Add the subject name or subject alternative name (SAN) matches this domain name checkbox.",
+            "Enter the domain for the Zscaler cloud where your smart host is located (i.e., *.zscloud.net), then click Next.",
+            "In the Connection from section select Your organization's email server, then click Next.",
+            "On the Authenticating sent email page, select By verifying that the sender domain matches one of the following domains, enter the domain for the Zscaler cloud where your smart host is located (i.e., *.zscloud.net), click the Add icon, then click Next."
+          ]
+        }
+      ]
+    },
+    "exchange-outbound-rule": {
+      "statement": "The Exchange outbound mail flow rule applies to recipients outside the organization whose sender domain is one of the domains in the Organization profile, redirects the message to the send connector, and has the admin enter X-Zscaler-TenantId for the message header value. It needs an exception that includes the default Allow and Block header values (1 and 0), so already-inspected email is not returned to the smart host, and it is created with Rule mode set to Test without Policy Tips.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-microsoft-exchange-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "In the select recipient location drawer, select Outside the organization from the drop-down menu.",
+            "In the And section, in the drop-down menu, select The sender, then select domain is.",
+            "Repeat this step for each domain listed in your Organization profile.",
+            "Do the following: Select Redirect the message to, then select The following connector from the second drop-down menu.",
+            "For the message header value, enter X-Zscaler-TenantId, then click Save.",
+            "To ensure that mail flow rules are configured correctly and that already-inspected email is not returned to the Zscaler smart host for inspection, you need to add an exception that includes the default Allow and Block Zscaler header values.",
+            "For the specify words or phrases value, enter 1 to indicate the Block action and click Add, then enter 0 to indicate the Allow action and click Add, then click Save.",
+            "On the Set rule settings page, ensure that Rule mode is set to Test without Policy Tips, specify other settings for the rule as needed (i.e., severity, activation dates, etc.), then click Next."
+          ]
+        }
+      ]
+    },
+    "exchange-inbound-rule": {
+      "statement": "After the service inspects an email it sends it back to the Exchange server at the next hop address configured on the email tenant. The inbound mail flow rule matches the value 1 in the header to indicate the message is blocked, selects reject the message and include an explanation, and is set to Enforce mode. With connectors and rules in place, the page says the earlier outbound rule's mode can safely be set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-microsoft-exchange-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "After the Zscaler service inspects and processes email content, it sends the content back to the Exchange server (to the next hop address configured on the email tenant).",
+            "For the specify words or phrases value, enter 1 to indicate that the message is blocked, click Add, select the value, then click Save.",
+            "In the Select one drop-down menu, select reject the message and include an explanation.",
+            "On the Set rule settings page, ensure that Rule mode is set to Enforce, specify other settings for the rule as needed (i.e., severity, activation dates, etc.), then click Next.",
+            "With connectors and mail flow rules in place, you can safely set the rule mode for the mail flow rule you created earlier that sends email to the Zscaler smart host."
+          ]
+        }
+      ]
+    },
+    "exchange-quarantine-mapping": {
+      "statement": "If an outbound email policy rule uses the Quarantine action, the service attaches the X-Zscaler-Quarantine:1 header to triggering emails, and the page says this header must be mapped in Exchange so that affected emails are quarantined on the Exchange server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-microsoft-exchange-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "Similarly, if you configure an outbound email policy rule to use the Quarantine action in the Zscaler Admin Console, the Zscaler service attaches the X-Zscaler-Quarantine:1 header to emails that trigger the policy.",
+            "You must map the X-Zscaler-Quarantine:1 header in Exchange so that affected emails are quarantined on the Exchange server."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "tenant-key-header": {
+      "summary": "The pages spell the header that carries the tenant key as X-Zscaler-TenantID, X-Zscaler-TenantId and Zscaler-Tenantid.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-segs-zscaler-outbound-email-dlp.json",
+            "quotes": [
+              "Configure your SEG to add X-Zscaler-TenantID: <tenant-key> on messages routed to Zscaler."
+            ]
+          },
+          "says": "The SEG page, like the tenant page, writes X-Zscaler-TenantID: <tenant-key>."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-microsoft-exchange-zscaler-outbound-email-dlp.json",
+            "quotes": [
+              "For the message header value, enter X-Zscaler-TenantId, then click Save."
+            ]
+          },
+          "says": "The Exchange page writes X-Zscaler-TenantId, with a lowercase d."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-gmail-zscaler-outbound-email-dlp.json",
+            "quotes": [
+              "Enter Zscaler-Tenantid in the Header key field, then paste the Key for Transport Rules value from the Zscaler Admin Console in the Header value field."
+            ]
+          },
+          "says": "The Gmail page enters Zscaler-Tenantid as the header key, without the X- prefix."
+        }
+      ],
+      "impact": "Whether the service matches the header name case-insensitively, and whether the X- prefix is required, is not stated, so a tenant header that differs from the SEG page's spelling is not shown to be wrong by the pages."
+    }
+  },
+  "gaps": {
+    "tenant-counts": {
+      "kind": "semantic",
+      "title": "Limits on email tenants",
+      "status": "open",
+      "detail": "The tenant articles give no limit on the number of email tenants or domains per tenant.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

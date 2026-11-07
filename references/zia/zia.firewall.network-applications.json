@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.network-applications",
+  "title": "Network applications and network application groups: DPI identification, undetermined-app outcomes, rule placement",
+  "aliases": [
+    "network application",
+    "network application group",
+    "DPI application identification",
+    "Allow due to insufficient app data",
+    "Blocked by Web Proxy Policy"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.licensing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.network-services"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{definition}} {{category-attribute}} {{dpi-licensing}}"
+    },
+    {
+      "label": "How identification works.",
+      "text": "{{dpi-multi-packet}} {{dpi-undetermined}} The meaning of sufficient data is open {{gap:sufficient-data}}."
+    },
+    {
+      "label": "Two logged outcomes.",
+      "text": "{{allow-insufficient-data}} {{blocked-by-web-policy}} Which log value carries the first outcome is open {{gap:insufficient-data-log-value}}."
+    },
+    {
+      "label": "Rule placement.",
+      "text": "{{placement-advice}} What higher and lower order mean in rule numbers is open {{gap:order-direction}}."
+    },
+    {
+      "label": "Groups.",
+      "text": "{{o365-group}} {{group-object}} The members of the Microsoft Office 365 group are open {{gap:o365-members}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule with network applications as its only condition sits below the rules that can match on the first packet.",
+      "uses": [
+        "placement-advice",
+        "dpi-multi-packet"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "Network applications are predefined applications maintained by Zscaler from Layer 7 information. The service identifies them dynamically with Deep Packet Inspection (DPI), controls their traffic with Firewall Filtering rules to allow or block it, and lets them be grouped but not edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-applications.json",
+          "quotes": [
+            "Network applications are predefined applications maintained by Zscaler based on information in Layer 7 of the OSI model.",
+            "The Zscaler service can identify network applications dynamically using Deep Packet Inspection (DPI) and control the network application traffic using Firewall Filtering rules.",
+            "You can group network applications but cannot edit or delete them.",
+            "Define security policies based on network applications and enforce condition-based allow or block action on your network traffic."
+          ]
+        }
+      ]
+    },
+    "category-attribute": {
+      "statement": "A network application's Category is the classification that groups it into a specific category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-applications.json",
+          "quotes": [
+            "Category: The classification that groups the network application into a specific category."
+          ]
+        }
+      ]
+    },
+    "dpi-licensing": {
+      "statement": "Advanced Firewall is required to identify and control network application traffic using DPI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-applications.json",
+          "quotes": [
+            "Advanced Firewall is required to identify and control network application traffic using DPI."
+          ]
+        }
+      ]
+    },
+    "dpi-multi-packet": {
+      "statement": "Network service and application service rule conditions match on the first packet, whereas DPI often needs more than one packet of traffic directed to the destination to be allowed and assessed before it can determine the network application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-applications.json",
+          "quotes": [
+            "Unlike the evaluation of network service or application service rule conditions that match on the first packet, the DPI used for identifying network applications often requires more than one packet of traffic directed to the destination",
+            "to be allowed and assessed before it can determine the type of traffic or network application."
+          ]
+        }
+      ]
+    },
+    "dpi-undetermined": {
+      "statement": "If DPI cannot determine the network application after examining sufficient data, the Firewall module matches the assessed packets to a policy action, based on Firewall rule evaluation at the base protocol (TCP or UDP), the encryption protocol (SSL/TLS) or the high-level protocol (HTTP or HTTPS).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-applications.json",
+          "quotes": [
+            "If the DPI cannot determine the network application after examining sufficient data, the Firewall module matches the assessed packets to a policy action.",
+            "The policy action is based on the Firewall rule evaluation at the base protocol (TCP or UDP), encryption (SSL/TLS) protocol, or high-level protocol (HTTP or HTTPS)."
+          ]
+        }
+      ]
+    },
+    "allow-insufficient-data": {
+      "statement": "If the DPI session terminates unexpectedly (for example non-gracefully, without a FIN or RST) before the application is determined, the transactions for the allowed packets are logged with the Allow due to insufficient app data action, assuming no higher-ranked Firewall rule blocked the base, encryption or high-level protocol first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-applications.json",
+          "quotes": [
+            "If the DPI session terminates unexpectedly (e.g., non-gracefully without a FIN or RST) before it could determine the application by examining sufficient data, then the transactions for the allowed packets are logged with the Allow due to insufficient app data action.",
+            "This also assumes that a higher-ranked Firewall rule did not block the base protocol, encryption protocol, or high-level protocol used by the application before the session terminated."
+          ]
+        }
+      ]
+    },
+    "blocked-by-web-policy": {
+      "statement": "If the DPI session terminates because a web policy (for example URL Filtering or Cloud App Control) blocked the traffic, the Firewall module logs the transaction with an implicit rule, Blocked by Web Proxy Policy. Sessions are logged individually with Full Logging and the Block/Drop action in Firewall Insights Logs, and their full details are in Web Insights Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-applications.json",
+          "quotes": [
+            "However, if the DPI session terminates due to a web policy (e.g., URL Filtering policy or Cloud App Control policy) blocking the traffic, then the transaction is logged using an implicit rule, Blocked by Web Proxy Policy, by the Firewall module.",
+            "Sessions are logged individually using Full Logging with the Block/Drop action and can be viewed in Firewall Insights Logs.",
+            "The full details of these sessions are available in Web Insights Logs."
+          ]
+        }
+      ]
+    },
+    "placement-advice": {
+      "statement": "Zscaler advises placing a rule whose only condition is network applications in a lower order than rules where a first packet match is possible, keeping first-packet block rules at a higher order than network-application rules, and combining network applications in a higher-order rule with other conditions such as users, network services and destination IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-applications.json",
+          "quotes": [
+            "If you configure a rule with network applications as the only condition, place the rule in a lower order than rules where a first packet match is possible (i.e., rules based on network services, application services, destination IP addresses, users, etc.).",
+            "These rules must be of a higher order than the network application-based rules to prevent packets from being allowed unnecessarily from traffic that would otherwise be blocked.",
+            "Additionally, it ensures that only a subset of all traffic flows is examined for network application identification.",
+            "If network applications are part of a higher-order rule, ensure that network applications are combined with other conditions (e.g., users, network services, and destination IP addresses)"
+          ]
+        }
+      ]
+    },
+    "o365-group": {
+      "statement": "Zscaler provides a predefined Microsoft Office 365 network application group that is ready to use in policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-applications.json",
+          "quotes": [
+            "Zscaler provides a predefined Microsoft Office 365 application group to facilitate rule creation for Microsoft Office 365 apps."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-application-groups.json",
+          "quotes": [
+            "The Zscaler service provides a predefined Microsoft Office 365 network application group that is ready to use in policies."
+          ]
+        }
+      ]
+    },
+    "group-object": {
+      "statement": "A network application group combines predefined network applications into logical groups reusable across Firewall Filtering rules to allow or block traffic. An organization can create up to 126 groups, each holding up to 8,000 network applications, and a group's description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-application-groups.json",
+          "quotes": [
+            "The Zscaler service provides a set of predefined network applications.",
+            "A network application group allows you to combine these applications into logical groups, which simplifies the creation and management of your Firewall policies.",
+            "Reuse consistent application group definitions across multiple Firewall Filtering rules and enforce condition-based actions to allow or block specific types of traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-application-groups.json",
+          "quotes": [
+            "You can create a maximum of 126 network application groups and add up to 8,000 network applications to a group.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Network Application Groups | 126 groups |",
+            "| Network Applications per Group | 8,000 network applications |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "sufficient-data": {
+      "kind": "semantic",
+      "title": "How much data DPI needs before it counts as sufficient",
+      "status": "open",
+      "detail": "The page says DPI examines sufficient data to determine the application but does not define it, nor say how many packets are typical beyond more than one.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "insufficient-data-log-value": {
+      "kind": "semantic",
+      "title": "Which log value carries Allow due to insufficient app data",
+      "status": "open",
+      "detail": "The page names the action but not the Firewall Insights or NSS value for it. The NSS firewall page gives action only as Allowed or Blocked, and no capture in this area ties the two. Nothing here relates EVAL_NWAPP to DPI or names the nwapp and nwsvc log fields.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "order-direction": {
+      "kind": "semantic",
+      "title": "Whether higher and lower order map to lower and higher rule numbers",
+      "status": "open",
+      "detail": "The page's higher order and lower order are not tied to rule numbers. The rule-order question is tracked in zia.firewall.rule-order.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "o365-members": {
+      "kind": "semantic",
+      "title": "Which applications the predefined Microsoft Office 365 group holds",
+      "status": "open",
+      "detail": "Both pages say the group exists and is ready to use; neither lists its members.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

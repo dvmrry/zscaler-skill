@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.settings",
+  "title": "Terraform global settings resources: URL lists, end user notification and browser control",
+  "aliases": [
+    "zia_security_settings",
+    "zia_end_user_notification",
+    "zia_browser_control_policy",
+    "smart_isolation_profile",
+    "NOT_SUBSCRIBED browser control",
+    "whitelist_urls 255",
+    "blacklist_urls 275000",
+    "browser control ANY drift"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A few global settings resources have rules that the schema does not show: caps on the URL lists, a rejected content type in notifications, and special handling of empty or equivalent values in browser control. Each is a place where a plan can differ from what the API holds."
+    },
+    {
+      "label": "URL lists.",
+      "text": "{{url-lists-capped}} The two lists are written with two separate calls: [[zia.terraform.multi-step-writes]]."
+    },
+    {
+      "label": "End user notifications.",
+      "text": "{{eun-no-javascript}} {{issue-472-javascript-and-escape-drift}} Whether the escape drift remains is open {{gap:issue-472-escape-drift-current}}."
+    },
+    {
+      "label": "Browser control.",
+      "text": "{{profile-needs-real-value}} {{absent-profile-recorded-as-none}} {{profile-change-skipped-when-empty}} {{any-normalised-by-api}} The data-source side of the empty profile is in [[zia.terraform.data-source-fidelity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a browser control plan fails with NOT_SUBSCRIBED on a tenant without Cloud Browser Isolation, and whether the profile block holds a real value.",
+      "uses": [
+        "profile-change-skipped-when-empty",
+        "profile-needs-real-value"
+      ]
+    },
+    {
+      "do": "Whether a browser control list drift is the ANY, NONE and empty-list equivalence rather than a real change.",
+      "uses": [
+        "any-normalised-by-api"
+      ]
+    },
+    {
+      "do": "Whether a notification text containing a script tag is the cause of an HTTP 406 on the end user notification resource.",
+      "uses": [
+        "eun-no-javascript"
+      ]
+    },
+    {
+      "do": "Whether the allowlist or denylist length is within the schema caps.",
+      "uses": [
+        "url-lists-capped"
+      ]
+    }
+  ],
+  "claims": {
+    "url-lists-capped": {
+      "statement": "The `zia_security_settings` schema caps the allowlist (`whitelist_urls`) at 255 entries and the denylist (`blacklist_urls`) at 275000 entries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_security_policy_settings.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "\"whitelist_urls\": { Type: schema.TypeSet, Optional: true, Computed: true, MaxItems: 255, Description: \"Allowlist URLs whose contents will not be scanned. Allows up to 255 URLs.\",",
+            "\"blacklist_urls\": { Type: schema.TypeSet, Optional: true, Computed: true, MaxItems: 275000, Description: \"URLs on the denylist for your organization. Allow up to 275000 URLs.\","
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "\"zia_security_settings\": resourceSecurityPolicySettings(),"
+          ]
+        }
+      ]
+    },
+    "eun-no-javascript": {
+      "statement": "The provider documents that the ZIA API does not accept JavaScript tags in end user notification text attributes and answers them with an HTTP 406 Rejected error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_end_user_notification.md",
+          "quotes": [
+            "The ZIA API currently does not accept JavaScript tags in notification text attributes. Using JavaScript tags will result in an HTTP 406 Rejected error."
+          ]
+        }
+      ]
+    },
+    "profile-needs-real-value": {
+      "statement": "The browser control resource treats a `smart_isolation_profile` as configured only when its `id`, `name` or `url` is non-empty, because the service reports an all-zero profile object on tenants that have none and a bare block in HCL flattens to empty strings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_browser_control_policy.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// smartIsolationProfileConfigured reports whether a smart_isolation_profile // value holds an actual profile. The presence of the block is not sufficient:",
+            "// the service reports an all-zero profile object on tenants that have none, // and a bare block in HCL flattens to empty strings.",
+            "id, _ := profile[\"id\"].(string) name, _ := profile[\"name\"].(string) url, _ := profile[\"url\"].(string) if id != \"\" || name != \"\" || url != \"\" { return true } } return false }"
+          ]
+        }
+      ]
+    },
+    "profile-change-skipped-when-empty": {
+      "statement": "A smart isolation profile change is sent only when one side holds a real profile; the code comments that an all-empty block left in state by earlier releases is not worth sending because tenants without a Cloud Browser Isolation subscription are answered with 403 NOT_SUBSCRIBED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_browser_control_policy.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// A profile change is only worth an update when one side holds a real",
+            "// profile. State written by earlier releases can contain an all-empty // block, and dropping that is not a configuration change worth sending — // tenants without a Cloud Browser Isolation subscription are answered // with 403 NOT_SUBSCRIBED.",
+            "if smartIsolationProfileConfigured(before) || smartIsolationProfileConfigured(after) {"
+          ]
+        }
+      ]
+    },
+    "absent-profile-recorded-as-none": {
+      "statement": "When the service reports no profile, Read records that absence and so clears an all-empty block left by an earlier release, except that state holding a real profile the service did not echo back is left alone to avoid false drift.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_browser_control_policy.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// that too — an absent profile is a real answer here, and writing it through // is what clears an all-empty block left behind by an earlier release.",
+            "The one // case to leave alone is state that holds a real profile the service did not // echo back, which would otherwise be dropped and show up as drift.",
+            "if len(apiProfile) > 0 { return true } return !smartIsolationProfileConfigured(stateProfile)"
+          ]
+        }
+      ]
+    },
+    "any-normalised-by-api": {
+      "statement": "The Browser Control API accepts the value ANY in a request but normalizes it server-side to an empty list or [\"NONE\"], treating ANY, NONE and no entries as equivalent; the provider keeps a declared [\"ANY\"] in state when the API returns that no-entries form so later plans converge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_browser_control_policy.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// \"ANY\" in the request is accepted but normalized server-side to either an // empty list (bypass_plugins / bypass_applications) or [\"NONE\"]",
+            "// (blocked_*_versions). The API treats ANY, NONE and \"no entries\" as // equivalent, so without this normalization every plan after apply shows",
+            "// If the API returned the \"no entries\" sentinel AND the current state value",
+            "// [\"ANY\"], we keep [\"ANY\"] so subsequent plans converge. Otherwise the API"
+          ]
+        }
+      ]
+    },
+    "issue-472-javascript-and-escape-drift": {
+      "statement": "Provider issue #472, still open, reports that `zia_end_user_notification` `custom_text` holding JavaScript was rejected, which a repository member put down to the API not supporting JavaScript tags in the payload and escalated as an internal bug, and that on provider 4.4.9/10 heredoc formatting was not respected and a heredoc using the Terraform escape `$${` led to a change swapping back to escape from the native `${` result. On the heredoc indentation, the member answered that the provider sets the HCL as returned by the API and pointed the reporter to Zscaler support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-472.json",
+          "quotes": [
+            "## Comment (MEMBER, 2025-09-03) @(user) This is an api issue and has been escalated. The API does not support JavaScript tags in the payload.",
+            "## Comment (MEMBER, 2025-09-09) @(user) WebUI and API are not the same. An internal BUG issue has been raised with our engineering team",
+            "it wants to do a change and swap back to escape from native `${` result",
+            "As for the heredoc indentation, the provider sets the HCL as returned by the API.",
+            "- there's still a problem with 4.4.9/10 and not respecting heredoc format",
+            "the terraform escape characters `$${` to pass the java vars thru",
+            "uses the arg `custom_text`",
+            "- zia_end_user_notification",
+            "If there are problem still problems please contact Zscaler support and make reference of this GitHub Issue."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-472.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "issue-472-escape-drift-current": {
+      "kind": "semantic",
+      "title": "Whether the current provider still rewrites `$${` in end user notification text",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that escaped template syntax in notification text plans cleanly",
+      "detail": "Issue 472 reports the drift on v4.4.9 and v4.4.10, was never reported fixed, and the vendored provider is much later, so whether `$${` still produces a plan change is not shown. Apply a notification whose `custom_text` holds `$${` and plan again."
+    }
+  }
+}

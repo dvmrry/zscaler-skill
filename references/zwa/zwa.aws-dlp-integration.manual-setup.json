@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "id": "zwa.aws-dlp-integration.manual-setup",
+  "title": "Setting up the AWS DLP integration resources by hand: SNS access policy, buckets, trust policy, cross-account policies and customer-managed key policies",
+  "aliases": [
+    "manual aws setup workflow automation",
+    "sts:ExternalId trust policy",
+    "customer managed key s3 sns",
+    "SSE-KMS buckets dlp",
+    "sns topic access policy",
+    "AccountOwnerAccess"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.aws-dlp-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.aws-dlp-integration.cloudformation-parameters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.cloud-to-cloud-forwarding"
+    }
+  ],
+  "prose": [
+    {
+      "label": "SNS topic and buckets.",
+      "text": "{{sns-topic-policy}} Who may publish, subscribe and change the topic is described two ways {{divergence:sns-policy-scope}}. {{bucket-settings}} {{event-notification}}"
+    },
+    {
+      "label": "Cross-account role.",
+      "text": "{{trust-policy}} {{required-policies}} {{optional-data-policy}}"
+    },
+    {
+      "label": "Customer-managed keys.",
+      "text": "{{sse-kms}} {{cmk-key-policy}} {{cmk-role-policies}} The KMS actions for the uploading role differ between pages {{divergence:cmk-generate-data-key}}."
+    },
+    {
+      "text": "The CloudFormation route to the same resources is in [[zwa.aws-dlp-integration.cloudformation-parameters]], and the overview in [[zwa.aws-dlp-integration]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the cross-account role's trust policy names the Workflow Automation role and the Customer GUID as sts:ExternalId.",
+      "uses": [
+        "trust-policy"
+      ]
+    },
+    {
+      "do": "Whether the two required policies are attached to the cross-account role, and whether the optional data bucket policy was skipped.",
+      "uses": [
+        "required-policies",
+        "optional-data-policy"
+      ]
+    }
+  ],
+  "claims": {
+    "sns-topic-policy": {
+      "statement": "In the manual SNS setup the SNS topic is created as type Standard, and the topic policy JSON includes a statement letting the s3.amazonaws.com service principal SNS:Publish.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Type: Select Standard.",
+            "\"Sid\": \"S3MetadataBucketPublish\", \"Effect\": \"Allow\", \"Principal\": { \"Service\": \"s3.amazonaws.com\" }, \"Action\": \"SNS:Publish\""
+          ]
+        }
+      ]
+    },
+    "bucket-settings": {
+      "statement": "The manually created data bucket is named <bucketNamePrefix>-data and has the Block all public access checkbox selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Bucket name: Enter the name of the bucket as <bucketNamePrefix>-data",
+            "In the Block Public Access settings for this bucket section, select the Block all public access checkbox."
+          ]
+        }
+      ]
+    },
+    "event-notification": {
+      "statement": "The metadata bucket event notification uses Object creation event types Put and Post with an SNS topic destination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "In the Event Types section, under Object creation, select the Put and Post checkboxes.",
+            "Destination: Select SNS topic."
+          ]
+        }
+      ]
+    },
+    "trust-policy": {
+      "statement": "The cross-account role custom trust policy lets the Workflow Automation role (zwaAccountID, zwaRole) assume the role via sts:AssumeRole when sts:ExternalId equals <GUID>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "This policy allows the Zscaler AWS account to assume the role.",
+            "\"Principal\": { \"AWS\": \"arn:aws:iam::<zwaAccountID>:role/<zwaRole>\" }",
+            "\"Action\": \"sts:AssumeRole\", \"Condition\": { \"StringEquals\": { \"sts:ExternalId\": \"<GUID>\" } }",
+            "<GUID>: Customer GUID. Copy the Customer GUID displayed on the Account Settings page."
+          ]
+        }
+      ]
+    },
+    "required-policies": {
+      "statement": "Two policies are required on the cross-account role: metadata S3 bucket read access (so Workflow Automation can read the metadata JSON) and SNS subscribe or unsubscribe (SNS:Subscribe, SNS:Unsubscribe, SNS:ConfirmSubscription).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "(Required) Metadata S3 bucket read access policy. This policy allows Workflow Automation to read the metadata JSON in the S3 bucket.",
+            "(Required) SNS topic subscribe or unsubscribe policy. This policy allows Workflow Automation to subscribe or unsubscribe on SNS via the cross-account role.",
+            "\"SNS:Subscribe\", \"SNS:Unsubscribe\", \"SNS:ConfirmSubscription\""
+          ]
+        }
+      ]
+    },
+    "optional-data-policy": {
+      "statement": "The data S3 bucket read access policy on the cross-account role is optional: it lets Workflow Automation display data files using a presigned URL, and can be skipped to hide the data files in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "(Optional) Data S3 bucket read access policy. This policy allows Workflow Automation to display the data files using a presigned URL. If you want to hide the data files in the Zscaler Admin Console, you can skip this policy."
+          ]
+        }
+      ]
+    },
+    "cmk-key-policy": {
+      "statement": "The documented KMS key policy update adds a statement allowing the cross-account role kms:Decrypt, kms:Encrypt, kms:GenerateDataKey* and kms:DescribeKey, and one allowing the S3 service principal kms:Decrypt and kms:GenerateDataKey*.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Update the key policy with the following policy:",
+            "\"Principal\": { \"AWS\": \"arn:aws:iam::<AWS Account Id>:role/<cross Account Role>\" }",
+            "\"Action\": [ \"kms:Decrypt\", \"kms:Encrypt\", \"kms:GenerateDataKey*\", \"kms:DescribeKey\" ]",
+            "\"Principal\": { \"Service\": \"s3.amazonaws.com\" }, \"Action\": [ \"kms:Decrypt\", \"kms:GenerateDataKey*\" ]"
+          ]
+        }
+      ]
+    },
+    "cmk-role-policies": {
+      "statement": "With customer-managed keys, a KMS policy with kms:Decrypt on the key ARN is attached to the IAM cross-account role, and a policy with kms:GenerateDataKey on the key ARN is attached to the ZIR role for uploading data to the S3 buckets (Cloud-to-Cloud role on the Cloud-to-Cloud page).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "\"Sid\": \"KMSAccess\", \"Effect\": \"Allow\", \"Action\": \"kms:Decrypt\"",
+            "\"Action\": \"kms:GenerateDataKey\", \"Resource\"",
+            "In the policy JSON, update the Resource value with the Customer Managed Key ARN.",
+            "In the policy JSON, update the Resource value to be the Customer Managed Key ARN.",
+            "4. Attach the following policy to the ZIR role for uploading data to S3 buckets:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "4. Attach the following policy to the Cloud-to-Cloud role for uploading data to S3 buckets:"
+          ]
+        }
+      ]
+    },
+    "sse-kms": {
+      "statement": "To attach the key to both S3 buckets (data and metadata), default encryption is set to Server-side encryption with AWS Key Management Service keys (SSE-KMS).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Attach the key to both of the S3 buckets (data and metadata):",
+            "Encryption type: Select Server-side encryption with AWS Key Management Service keys (SSE-KMS)."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "sns-policy-scope": {
+      "summary": "The page describes the SNS topic policy as allowing only the metadata bucket to publish and the Zscaler account to subscribe, but its policy JSON grants a wider set of actions to any principal when the source owner is the Zscaler account.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+            "quotes": [
+              "The policy of the SNS topic allows only the metadata S3 bucket to publish to it and the Zscaler AWS account to subscribe to it. Your AWS account has all other permissions on the topic."
+            ]
+          },
+          "says": "Only the metadata S3 bucket may publish and the Zscaler AWS account may subscribe; the organization's account has all other permissions."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+            "quotes": [
+              "\"Sid\": \"AccountOwnerAccess\", \"Effect\": \"Allow\", \"Principal\": { \"AWS\": \"*\" }",
+              "\"AWS:SourceOwner\": \"<zwaAccountID>\""
+            ]
+          },
+          "says": "The AccountOwnerAccess statement allows Principal * actions including SNS:Publish, SNS:Subscribe, SNS:DeleteTopic and SNS:SetTopicAttributes when AWS:SourceOwner is <zwaAccountID>."
+        }
+      ],
+      "impact": "The prose and the JSON give different answers to who can publish to, subscribe to and change the topic; the Cloud-to-Cloud page carries the same policy text, and which reading AWS enforces is not settled by the page."
+    },
+    "cmk-generate-data-key": {
+      "summary": "The Cloud-to-Cloud role's KMS policy is given with different actions on the Workflow Automation page and on the ZIA Cloud-to-Cloud AWS page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+            "quotes": [
+              "\"Action\": \"kms:GenerateDataKey\", \"Resource\""
+            ]
+          },
+          "says": "The ZIR role policy for uploading to the S3 buckets grants kms:GenerateDataKey."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-aws.json",
+            "quotes": [
+              "Alternatively, if you are using Workflow Automation and KMS keys, enter the following JSON string:",
+              "\"Action\": [ \"kms:Decrypt\", \"kms:GenerateDataKey*\" ], \"Resource\": [ \"<bucket kms key arn>\" ]"
+            ]
+          },
+          "says": "For Workflow Automation with KMS keys the ZIA Cloud-to-Cloud page gives kms:Decrypt and kms:GenerateDataKey*."
+        }
+      ],
+      "impact": "Which KMS actions the uploading role needs is not settled; the Workflow Automation page's Cloud-to-Cloud step names the role but quotes no policy of its own."
+    }
+  },
+  "gaps": {}
+}

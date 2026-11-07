@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "id": "aem.policy-templates",
+  "title": "AEM Tool Coverage, CMDB Hygiene and OS End of Life policies, and updating CMDB asset records",
+  "aliases": [
+    "tool coverage policy",
+    "cmdb hygiene policy",
+    "os end of life policy",
+    "update cmdb",
+    "endoflife.date"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "aem.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.policy-violations"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.dashboards"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Tool Coverage.",
+      "text": "{{tool-coverage-population}} {{tool-coverage-scenario}} {{advanced-scenario}}"
+    },
+    {
+      "label": "CMDB Hygiene.",
+      "text": "{{cmdb-hygiene-purpose}} {{cmdb-hygiene-scenarios}} {{cmdb-conflicting-exclude}}"
+    },
+    {
+      "label": "Updating CMDB records.",
+      "text": "{{cmdb-servicenow-only}} {{cmdb-ticket-grouping}} {{cmdb-update-prereq}} {{cmdb-update-behaviour}}"
+    },
+    {
+      "label": "OS End of Life.",
+      "text": "{{os-eol-source}} {{os-eol-population}} {{os-eol-dates-conditions}} The supported operating system list is open {{gap:supported-os-list}}. The OS End of Life dashboard is in [[aem.dashboards:os-eol-access]]."
+    },
+    {
+      "label": "Creating policies.",
+      "text": "The general policy workflow is in [[aem.policies]]."
+    }
+  ],
+  "claims": {
+    "tool-coverage-population": {
+      "statement": "For the Tool Coverage policy the Asset Population is the group of assets required to have a tool installed; an EDR example narrows it to Workstations and Servers (excluding Cloud assets) seen in the last 14 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-using-tool-coverage-policy.json",
+          "quotes": [
+            "(i.e., identify the group of assets that are required to have a particular tool installed)",
+            "you can narrow down your asset population to include only Workstations and Servers, and thus exclude Cloud assets which are not expected to have EDR.",
+            "by narrowing the asset population down to assets that have been seen in the last 14 days."
+          ]
+        }
+      ]
+    },
+    "tool-coverage-scenario": {
+      "statement": "A Tool Coverage policy treats an asset as noncompliant if it is not covered by a critical tool; the template takes the source that should have covered the asset within a number of days (e.g. last 14 days) and a field that indicates lack of coverage (e.g. the Asset Has EDR field returning FALSE).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-using-tool-coverage-policy.json",
+          "quotes": [
+            "an asset is considered noncompliant if it's not covered by a critical tool in your environment.",
+            "Specify the source that should have covered the asset (e.g., CrowdStrike Vulnerabilities for tracking CrowdStrike EDR coverage), within a certain number of days (e.g., last 14 days).",
+            "Specify a field that indicates lack of coverage (e.g., the Asset Has EDR field returns FALSE)."
+          ]
+        }
+      ]
+    },
+    "advanced-scenario": {
+      "statement": "For policy scenarios the Tool Coverage template does not support, the Advanced policy scenario setup defines custom conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-using-tool-coverage-policy.json",
+          "quotes": [
+            "For more complex policy scenarios not supported by the template, use the Advanced policy scenario setup to define custom conditions."
+          ]
+        }
+      ]
+    },
+    "cmdb-hygiene-purpose": {
+      "statement": "The CMDB Hygiene policy tracks assets in a CMDB (for example ServiceNow CMDB) and alerts on missing or conflicting asset information; its asset population typically includes assets currently documented in the CMDB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-using-cmdb-hygiene-policy.json",
+          "quotes": [
+            "to track assets in your CMDB (e.g., ServiceNow CMDB) and alerts on missing or conflicting asset information.",
+            "For CMDB hygiene policies, the asset population typically includes those currently documented in your CMDB."
+          ]
+        }
+      ]
+    },
+    "cmdb-hygiene-scenarios": {
+      "statement": "CMDB Hygiene flags an asset as noncompliant in two common cases, a missing value or conflicting values in critical fields (e.g. Asset Owner ID); each scenario is configured as a separate policy because each may need its own scoring settings, violation titles and descriptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-using-cmdb-hygiene-policy.json",
+          "quotes": [
+            "First, identify critical fields in your CMDB (e.g., Asset Owner ID).",
+            "The two common cases where an asset is considered noncompliant are if it's missing a value, or if it contains conflicting values in these critical fields.",
+            "Configure a policy to address and flag each scenario separately, as each scenario might require unique scoring settings, violation titles, and violation descriptions."
+          ]
+        }
+      ]
+    },
+    "cmdb-conflicting-exclude": {
+      "statement": "In the Conflicting Values scenario, values that don't indicate a conflict (for example Unknown from one source when another source holds a valid owner name) can be excluded from consideration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-using-cmdb-hygiene-policy.json",
+          "quotes": [
+            "When certain values are not indicative of a conflict, you can exclude them from consideration.",
+            "For example, if an asset's owner ID field is populated with a valid owner name from one source, but with Unknown from another source, you can exclude Unknown to ensure that only genuine data inconsistencies are flagged."
+          ]
+        }
+      ]
+    },
+    "cmdb-servicenow-only": {
+      "statement": "The page on updating asset records in the CMDB says \"this feature\" is currently supported only for ServiceNow CMDB, after it describes CMDB Hygiene policy rules; the CMDB Hygiene policy page gives ServiceNow CMDB as an example (e.g.).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-updating-asset-records-cmdb.json",
+          "quotes": [
+            "The CMDB Hygiene policy rules that can be configured in the AEM app are designed to automatically detect and flag assets with incomplete, inaccurate, or inconsistent data within your CMDB.",
+            "Currently, this feature is only supported for ServiceNow CMDB."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "aem-using-cmdb-hygiene-policy.json",
+          "quotes": [
+            "to track assets in your CMDB (e.g., ServiceNow CMDB)"
+          ]
+        }
+      ]
+    },
+    "cmdb-ticket-grouping": {
+      "statement": "The CMDB update page says detected CMDB Hygiene policy violations are grouped into violation tickets based on the policy name and policy assignee, which is the basis of the default grouping rule set; an account can hold several rule sets but only one is active at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-updating-asset-records-cmdb.json",
+          "quotes": [
+            "The CMDB Hygiene policy rules that can be configured in the AEM app are designed to automatically detect and flag assets with incomplete, inaccurate, or inconsistent data within your CMDB. The detected policy violations are grouped into violation tickets based on the policy name and policy assignee."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-grouping-rules-aem.json",
+          "quotes": [
+            "During the initial setup, a default rule set based on best practices is created based on the policy name and policy assignee.",
+            "While you can create multiple rule sets within an account, only one rule set can be active at a time."
+          ]
+        }
+      ]
+    },
+    "cmdb-update-prereq": {
+      "statement": "Updating CMDB asset records requires connecting the relevant data source (e.g. ServiceNow Assets) and configuring the CMDB outegration to dispatch assets from AEM to the CMDB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-updating-asset-records-cmdb.json",
+          "quotes": [
+            "Ensure that you connect the relevant data source (e.g., ServiceNow Assets) to your account.",
+            "Configure the CMBD outegration to dispatch assets from AEM to CMDB."
+          ]
+        }
+      ]
+    },
+    "cmdb-update-behaviour": {
+      "statement": "Update CMDB updates all assets associated with the selected ticket, creating a new CMDB record for an asset that does not exist and updating the record with new or modified field values for one that does; the update time can vary, especially for bulk updates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-updating-asset-records-cmdb.json",
+          "quotes": [
+            "All the assets associated with the selected ticket are updated in the CMDB.",
+            "If an asset does not exist, a new record for the asset is created in the CMDB.",
+            "If an asset already exists, the asset record is updated with the new or modified field values in the CMDB.",
+            "The CMDB update process time might vary, especially during bulk updates."
+          ]
+        }
+      ]
+    },
+    "os-eol-source": {
+      "statement": "The OS End of Life policy uses lifecycle data from the Endoflife.date database; for unsupported operating systems the page says to contact the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-using-os-end-life-policy.json",
+          "quotes": [
+            "The OS End of Life policy uses lifecycle data sourced from the Endoflife.date database to retrieve OS lifecycle dates.",
+            "For inquiries about unsupported operating systems, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "os-eol-population": {
+      "statement": "For an OS End of Life policy the asset population can be narrowed to recently active assets running a supported OS, e.g. last seen within the last 7 days with Asset Operating System set to Is Not Empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-using-os-end-life-policy.json",
+          "quotes": [
+            "you can narrow the scope to assets that have been active recently and are running a supported OS.",
+            "assets that were last seen within the last 7 days and Asset Operating System is set to Is Not Empty."
+          ]
+        }
+      ]
+    },
+    "os-eol-dates-conditions": {
+      "statement": "An OS End of Life policy selects a lifecycle date (End of Life, End of Support or Extended Support) and a condition, Has passed or Is within the next <timeframe>; each option targets a specific lifecycle stage and needs a separate policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-using-os-end-life-policy.json",
+          "quotes": [
+            "End of Life Date: The date when the OS stops receiving updates and security patches.",
+            "End of Support Date: The date when technical or customer support for the OS ends.",
+            "Extended Support Date: The date when the extended support period (if available) concludes for the OS.",
+            "Has passed: Generate a policy violation for assets with an OS that has already reached the specified lifecycle expiration.",
+            "Is within the next <timeframe>: Generate a policy violation for assets nearing the lifecycle expiration within a defined timeframe.",
+            "Each option targets a specific stage of the OS lifecycle, requiring a separate policy for accurate monitoring."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "supported-os-list": {
+      "kind": "semantic",
+      "title": "Which operating systems the OS End of Life policy supports",
+      "status": "open",
+      "detail": "The page has a collapsed \"List of Supported Operating Systems\" that is absent from the capture; only the Endoflife.date lifecycle source and the instruction to contact the Account team for unsupported systems are captured.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

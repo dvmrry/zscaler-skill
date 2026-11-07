@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "id": "zia.audit-logs.what-is-recorded",
+  "title": "What the ZIA admin audit log records and how the console shows it",
+  "aliases": [
+    "zia audit log",
+    "admin audit log retention",
+    "who changed this config",
+    "audit log columns",
+    "audit log 6 months",
+    "failed login lockout audit"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.report-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.streaming"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.backup-restore"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The admin audit log answers \"who changed what, when, from where, and with what result\". {{scope}} {{purposes}} Failed sign-in attempts that lead to a lockout are recorded: {{lockout-recorded}}"
+    },
+    {
+      "label": "Retention.",
+      "text": "{{retention}} Whether that window can be extended is open {{gap:retention-window}}, and so is how it compares with traffic log retention {{gap:retention-scope}}."
+    },
+    {
+      "text": "Reading it in the console: {{console-page}} {{search-prefix-only}} {{csv-timezone}}"
+    },
+    {
+      "text": "What each entry carries: {{columns}} {{resource-meaning}} {{oauth-admin-id}} {{trace-id-oneapi}}"
+    },
+    {
+      "label": "Filters.",
+      "text": "{{action-values}} {{category-values}} The category list is also how to find the change history of an area such as restore points, which are covered in [[zia.backup-restore]]."
+    },
+    {
+      "label": "Incidental changes.",
+      "text": "{{incidental-rule-changes}} {{config-diff}}"
+    },
+    {
+      "text": "To pull the same data programmatically see [[zia.audit-logs.report-api]]; to stream it to a SIEM see [[zia.audit-logs.streaming]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the time window fits the 6-month retention before relying on the trail.",
+      "uses": [
+        "retention",
+        "retention-window"
+      ]
+    },
+    {
+      "do": "Whether the CSV's PDT times match the timezone of the incident timeline.",
+      "uses": [
+        "csv-timezone"
+      ]
+    },
+    {
+      "do": "Whether a change in the trail was a direct action or an incidental rule-order shift: an entry shows only the rule created, so for the full effect read the rule list.",
+      "uses": [
+        "incidental-rule-changes"
+      ]
+    }
+  ],
+  "claims": {
+    "scope": {
+      "statement": "ZIA records the actions of every admin in the Admin Console and the actions that occur through the cloud service APIs, so a change made by an API client appears in the same trail as a console change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "Zscaler records the actions of every Internet & SaaS (ZIA) admin in the Zscaler Admin Console and the actions that occur through the cloud service APIs.",
+            "Interface: The means by which the action was performed.",
+            "The interface values are: Admin UI or API."
+          ]
+        }
+      ]
+    },
+    "purposes": {
+      "statement": "The documented uses are viewing the alterations made to the console (such as PAC file modifications or URL Filtering policy alterations), viewing everything an admin changed during a login session, demonstrating compliance, and detecting suspicious activity or unauthorized access to the admin interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "View Internet & SaaS alterations made to the Zscaler Admin Console, such as PAC file modifications or URL Filtering policy alterations.",
+            "View details on all the changes made by an administrator during a login session.",
+            "Detect and investigate suspicious activity and track unauthorized access to the administrative user interface.",
+            "Use them frequently to demonstrate compliance with security policies."
+          ]
+        }
+      ]
+    },
+    "lockout-recorded": {
+      "statement": "An admin account that makes 5 unsuccessful login attempts within 1 minute is locked out for 5 minutes, and the failed attempts are recorded in the audit log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "If an admin account makes 5 unsuccessful attempts to log in within 1 minute, the account is locked out for 5 minutes and the failed attempts are recorded in the audit log."
+          ]
+        }
+      ]
+    },
+    "retention": {
+      "statement": "Audit logs are stored for up to 6 months.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "The audit logs are stored for up to 6 months."
+          ]
+        }
+      ]
+    },
+    "console-page": {
+      "statement": "The Internet & SaaS audit log page is at Data Explorer > Audit Logs > Internet & SaaS; it filters by time range, action, category, sub-category, interface and result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "On the Audit Logs page for Internet & SaaS (Data Explorer > Audit Logs > Internet & SaaS), you can do the following:",
+            "Filter by time range, action, category, sub-category, interface, and result."
+          ]
+        }
+      ]
+    },
+    "search-prefix-only": {
+      "statement": "Console search over resource, admin ID, client IP, trace ID or configuration changes returns only entries that start with or exactly match the search string, so a substring search misses entries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "Search for an audit log by resource, admin ID, client IP, trace ID, or configuration changes.",
+            "The search only shows results starting with or completely matching the search string."
+          ]
+        }
+      ]
+    },
+    "csv-timezone": {
+      "statement": "The console's CSV download expresses times in PDT, while the on-screen Timestamp is the local time of the action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "Download a CSV file. The times in the CSV file are in PDT.",
+            "Timestamp: The date and local time the action occurred."
+          ]
+        }
+      ]
+    },
+    "columns": {
+      "statement": "Each entry shows Timestamp, Action, Category, Sub-Category, Resource, Admin ID, Client IP, Interface (Admin UI or API), Trace ID and Result (success or failure).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "Timestamp: The date and local time the action occurred.",
+            "Sub-Category: The subject under the selected category.",
+            "Resource: The specific subject within a sub-category.",
+            "Action: The action performed by the admin in the Zscaler Admin Console",
+            "Category: A location in the Zscaler Admin Console",
+            "Admin ID: The admin's login ID",
+            "Client IP: The source IP address",
+            "Trace ID: The trace ID is generated",
+            "The interface values are: Admin UI or API.",
+            "Result: The outcome of an action.",
+            "If the action was a success, a green circle with a checkmark inside is displayed.",
+            "If the action was a failure, a red circle with an X inside is displayed."
+          ]
+        }
+      ]
+    },
+    "resource-meaning": {
+      "statement": "Resource is the specific subject within a sub-category: when an admin adds a new admin, the resource is the name of the admin that was added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "Resource: The specific subject within a sub-category. For example, if an admin adds a new admin, then the resource is the name of the admin that was added."
+          ]
+        }
+      ]
+    },
+    "oauth-admin-id": {
+      "statement": "Admin ID is the admin's login ID, or the internal API user `oauth-<rolename>$@<orgid>.<cloud-domain>` when an API action was authenticated by an external OAuth 2.0 server; Client IP is the admin's source address or the API client application's address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "Admin ID: The admin's login ID or the internal API user (oauth-<rolename>$@<orgid>.<cloud-domain>) if an APIs action was authenticated by an external OAuth 2.0 authentication server.",
+            "Client IP: The source IP address for the admin or the client application's IP address that executed the API."
+          ]
+        }
+      ]
+    },
+    "trace-id-oneapi": {
+      "statement": "Trace ID is generated and logged for transactions associated with Internet & SaaS API requests made via Zscaler OneAPI; it correlates API transactions with the OneAPI platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "The trace ID is generated and logged for transactions associated with Internet & SaaS API requests made via Zscaler OneAPI.",
+            "The trace ID helps admins correlate API transactions with the OneAPI platform"
+          ]
+        }
+      ]
+    },
+    "action-values": {
+      "statement": "The Action filter's list of all potential values includes Activate, Forced Activate, Sign Out, and PAC file operations such as Create New PAC Version, Stage PAC Version and Change Deployed PAC Version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "List of all potential actions"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "Activate",
+            "Forced Activate",
+            "Create New PAC Version",
+            "Stage PAC Version",
+            "Change Deployed PAC Version",
+            "Sign Out"
+          ],
+          "after": "List of all potential actions"
+        }
+      ]
+    },
+    "category-values": {
+      "statement": "Category is the location in the Admin Console where an action was performed, and its potential values include Activation, Backup & Restore and Audit Logs (among others), so actions taken in the activation and Backup & Restore areas are logged under those categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "List of all potential categories",
+            "Category: A location in the Zscaler Admin Console where the action was performed by a user or an API."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "Activation",
+            "Backup & Restore",
+            "Audit Logs"
+          ],
+          "after": "List of all potential categories"
+        }
+      ]
+    },
+    "incidental-rule-changes": {
+      "statement": "Rule-order shifts caused incidentally by creating a rule at a higher order are not shown in the audit log (only the new rule creation is), although the rule-list API response reflects them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "Policy rule changes that occur incidentally as a result of admin or API client actions on other rules are not shown in audit logs.",
+            "In this scenario, only the new rule creation is displayed and the incidental rule order changes to other rules are not shown in audit logs.",
+            "However, when you use the API to retrieve the list of policy rules, such as Firewall Filtering rules, the API response reflects all changes to rules, including incidental changes.",
+            "For example, when a new rule is created in a higher order (e.g., order 1), the rule order for all existing rules shifts down"
+          ]
+        }
+      ]
+    },
+    "config-diff": {
+      "statement": "An entry's configuration changes can be opened to show the pre-change and post-change difference, as an addition or deletion, or as an update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-audit-logs.json",
+          "quotes": [
+            "You can view differences between the pre-configuration and post-configuration changes.",
+            "View additions or deletions.",
+            "View updates."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "retention-window": {
+      "kind": "data",
+      "title": "Whether the 6-month audit retention is rolling or extendable",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Whether the window is rolling or absolute, and whether it can be extended via subscription, is not confirmed.\" The help page says only that logs are stored for up to 6 months.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ],
+      "blocks": "telling an investigator how far back an audit trail can be pulled",
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "retention-scope": {
+      "kind": "semantic",
+      "title": "Whether the 6-month retention is specific to admin audit logs",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"This retention period applies to admin audit logs only; data-plane traffic logs have different retention governed by the NSS/Nanolog system.\" The help page states the 6 months for audit logs and says nothing about traffic log retention.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

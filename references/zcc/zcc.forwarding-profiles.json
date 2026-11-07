@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "id": "zcc.forwarding-profiles",
+  "title": "ZCC forwarding profiles",
+  "aliases": [
+    "forwarding profile",
+    "zcc forwarding profile",
+    "how does zcc decide where to send traffic",
+    "traffic bypassed zscaler",
+    "web forwarding profile",
+    "zcc_forwarding_profile",
+    "traffic goes direct instead of through zscaler",
+    "why didn't zia see this traffic",
+    "app ignores the system proxy",
+    "proxy-unaware application"
+  ],
+  "binds": [
+    "zcc/forwarding-profiles"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zcc.trusted-networks.detection",
+      "because": "zcc.trusted-networks.detection:criteria-defined"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zcc.forwarding-profiles.network-types",
+      "because": "zcc.forwarding-profiles.network-types:network-type-displayed"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zcc.app-profiles.selection",
+      "because": "zcc.forwarding-profiles.assignment:app-profile-selects"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.bypass",
+      "because": "zpa.app-segments.bypass:bypass-beats-cfp"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.web-records",
+      "because": "zia.logs.web-records:psedge-field"
+    },
+    {
+      "rel": "logged-in",
+      "to": "shared.z-tunnel",
+      "because": "shared.z-tunnel:log-field"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zcc/forwarding-profiles"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zcc.api.forwarding-profile-wire"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zcc.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.assignment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.internet-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.private-access-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.fail-open"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.proxy-ports"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} \"Where did this device's traffic go?\" needs four questions answered in order."
+    },
+    {
+      "steps": [
+        {
+          "label": "Which forwarding profile does the device run?",
+          "text": "The one its app profile selects, as of the last login or restart: [[zcc.forwarding-profiles.assignment]]."
+        },
+        {
+          "label": "Which network type was the device in?",
+          "text": "On-Trusted, VPN-Trusted, Split VPN-Trusted or Off-Trusted: [[zcc.forwarding-profiles.network-types]], decided for On-Trusted by the trusted network criteria in [[zcc.trusted-networks.detection]]."
+        },
+        {
+          "label": "What does the profile do on that network type?",
+          "text": "Separately for internet traffic and for Private Access: [[zcc.forwarding-profiles.internet-actions]], [[zcc.forwarding-profiles.private-access-actions]]."
+        },
+        {
+          "label": "If it tunnels, how?",
+          "text": "Z-Tunnel version, transport and bypasses: [[zcc.z-tunnel]]."
+        }
+      ]
+    },
+    {
+      "text": "When the app cannot protect traffic at all, the fail-open settings decide: [[zcc.forwarding-profiles.fail-open]]. Reading or writing profiles through the API, including the undocumented integer codes: [[zcc.api.forwarding-profile-wire]]."
+    },
+    {
+      "label": "Copying and finding profiles.",
+      "text": "{{copy}} Where the copy lands in the table conflicts with the default profile always being last, [[zcc.forwarding-profiles.assignment:default-profile]] {{divergence:copy-position}}. {{search}}"
+    },
+    {
+      "label": "Dedicated proxy port.",
+      "text": "Client Connector's dedicated proxy port page is described with the ZIA proxy ports: [[zia.forwarding-control.proxy-ports:client-connector-port]]."
+    },
+    {
+      "label": "Unified tunnel.",
+      "text": "Profiles can also carry an `enableUnifiedTunnel` flag and a unified tunnel list, whose entries each name a network type and carry separate ZIA and ZPA action codes: [[zcc.api.forwarding-profile-wire:unified-tunnel-shape]]. What unified tunnel mode changes for the device is open {{gap:unified-tunnel-semantics}}."
+    }
+  ],
+  "claims": {
+    "copy": {
+      "statement": "A forwarding profile can be copied and customized instead of configuring each setting in a new profile; the default profile cannot be copied, and a maximum of 10 profiles can be copied at the same time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-copying-forwarding-profile.json",
+          "quotes": [
+            "You can copy an existing Forwarding Profile and customize the profile to fit your needs, instead of having to configure each setting in a new profile.",
+            "You cannot copy the default profile.",
+            "You can copy a maximum of 10 profiles at the same time."
+          ]
+        }
+      ]
+    },
+    "search": {
+      "statement": "The Forwarding Profile page can be searched by profile name, with Enter displaying the results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-searching-forwarding-profile.json",
+          "quotes": [
+            "In the Search by Profile Name field, enter search words and press Enter to display your search results."
+          ]
+        }
+      ]
+    },
+    "purpose": {
+      "statement": "A forwarding profile tells Client Connector how to treat traffic from users' systems in different network environments, for the Internet & SaaS and Private Access services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "The forwarding profile tells Zscaler Client Connector how to treat traffic from your users' systems in different network environments for the Internet & SaaS and Private Access services."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "copy-position": {
+      "summary": "The Copying a Forwarding Profile page says a copied profile appears at the bottom of the Forwarding Profile table, while About Forwarding Profiles says the default profile is always the last profile in the table.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-copying-forwarding-profile.json",
+            "quotes": [
+              "Your copied profile appears at the bottom of the Forwarding Profile table."
+            ]
+          },
+          "says": "A copied profile appears at the bottom of the Forwarding Profile table."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-forwarding-profiles.json",
+            "quotes": [
+              "It is always the last forwarding profile in the table on the Forwarding Profile page."
+            ]
+          },
+          "says": "The default forwarding profile is always the last profile in the table (existing claim zcc.forwarding-profiles.assignment:default-profile)."
+        }
+      ],
+      "impact": "If copies go to the bottom, the default profile cannot always be last; the pages do not say which order the table shows after a copy."
+    }
+  },
+  "gaps": {
+    "unified-tunnel-semantics": {
+      "kind": "semantic",
+      "title": "What unified tunnel mode changes for the device",
+      "status": "open",
+      "former_ids": [
+        "zcc-84"
+      ],
+      "about": [
+        "zcc/forwarding-profiles#unifiedTunnel"
+      ],
+      "detail": "Unverified legacy statement (inferred from the structure): ZIA and ZPA traffic share a single transport connection instead of two separate tunnels, with policy still separate per traffic kind. No captured help page describes unified tunnel.",
+      "blocks": "explaining tunnel behavior on a profile with unified tunnel enabled",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "do": "Before reading ZIA policy for traffic ZIA never logged: which network type the device was in, and whether the profile's Internet & SaaS action for it is None, which tunnels nothing.",
+      "uses": [
+        "zcc.forwarding-profiles.network-types:network-type-displayed",
+        "zcc.forwarding-profiles.internet-actions:none-mode",
+        "zcc.forwarding-profiles.internet-actions:trusted-none-skips-zia"
+      ]
+    },
+    {
+      "do": "Whether the trusted network criteria matched where the user actually was, which puts the device On-Trusted and selects the On-Trusted actions.",
+      "uses": [
+        "zcc.trusted-networks.detection:criteria-defined",
+        "zcc.trusted-networks.detection:any-all",
+        "zcc.forwarding-profiles.network-types:on-trusted"
+      ]
+    },
+    {
+      "do": "When a Private Access application is not reached and its segment configuration looks right: the profile's Private Access action for the device's network type, which is set separately from the internet action and can be None.",
+      "uses": [
+        "zcc.forwarding-profiles.private-access-actions:independent-of-internet",
+        "zcc.forwarding-profiles.private-access-actions:none-direct",
+        "zpa.app-segments.bypass:bypass-beats-cfp"
+      ]
+    }
+  ]
+}

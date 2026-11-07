@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.vm-network",
+  "title": "NSS VM interfaces and firewall requirements: management and service roles, outbound-only, no SSL inspection",
+  "aliases": [
+    "nss management interface",
+    "nss service interface",
+    "nss firewall requirements",
+    "nss ssl inspection exclusion",
+    "nss nat",
+    "nss mtls"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.servers"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-advanced-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{two-interfaces}}"
+    },
+    {
+      "label": "Reaching the Zscaler cloud.",
+      "text": "{{outbound-only}} {{no-ssl-inspection}} {{not-through-zia}} {{nat}}"
+    },
+    {
+      "label": "Reaching the VM.",
+      "text": "{{ssh-inbound}} {{subnets-dns}}"
+    },
+    {
+      "label": "More interfaces.",
+      "text": "A second management or service interface is in [[shared.nss.vm-advanced-settings]]."
+    }
+  ],
+  "claims": {
+    "two-interfaces": {
+      "statement": "The AWS guide says the first network interface is the management IP address, used for control connections to the Zscaler cloud and for SSH to the NSS VM, and the second is the service IP address, used for data connections to the Zscaler cloud and to the SIEM. A separate IP address can be defined for the SSH connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "The first network interface is the management IP address. It is used for control connections to the Zscaler cloud and to make an SSH connection to the NSS VM for configuration and management.",
+            "You can customize the deployment and define a separate IP address for the SSH connection to the NSS VM.",
+            "The second network interface is the service IP address. It is used for data connections to the Zscaler cloud and to the SIEM."
+          ]
+        }
+      ]
+    },
+    "nat": {
+      "statement": "The AWS guide says the two elastic IPs are not required when using a NAT, which works correctly as long as it has sufficient network bandwidth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "The two elastic IPs are not required when using a NAT. A NAT network configuration works correctly as long as it has sufficient network bandwidth."
+          ]
+        }
+      ]
+    },
+    "outbound-only": {
+      "statement": "The NSS instance is deployed behind a VM network security group and requires only outbound connections to the Zscaler cloud, with no inbound connections from the Zscaler cloud. Firewall requirements for a given account are at config.zscaler.com/<Zscaler Cloud Name>/nss, and the IP address ranges keep the service unaffected by future Zscaler cloud expansion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "You must deploy the NSS instance behind a VM network security group. The NSS instance requires only outbound connections to the Zscaler cloud. It doesn't require any inbound connections to your network from the Zscaler cloud.",
+            "To view the firewall requirements for your specific account, refer to the Zscaler Cloud Configuration Requirements for your Zscaler cloud: https://config.zscaler.com/<Zscaler Cloud Name>/nss.",
+            "The IP address ranges are necessary to ensure that the service isn't affected by future Zscaler cloud expansion."
+          ]
+        }
+      ]
+    },
+    "no-ssl-inspection": {
+      "statement": "Communication from the NSS instance to the Zscaler cloud must be excluded from SSL inspection to ensure that the NSS can authenticate to the Nanolog cluster using Mutual Transport Layer Security (mTLS).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Communication from the NSS instance to the Zscaler cloud must be excluded from Secure Sockets Layer (SSL) inspection to ensure that the NSS can authenticate to the Nanolog cluster using Mutual Transport Layer Security (mTLS)."
+          ]
+        }
+      ]
+    },
+    "not-through-zia": {
+      "statement": "Zscaler does not recommend or support forwarding outbound traffic from the NSS to or through the Public Service Edge for Internet Access (ZIA), as this can result in networking, latency, and administration issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Zscaler does not recommend or support forwarding outbound traffic from the NSS to or through the Public Service Edge for Internet Access (ZIA) as this can result in networking, latency, and administration issues."
+          ]
+        }
+      ]
+    },
+    "ssh-inbound": {
+      "statement": "To connect to the EC2 instance via SSH, port 22 must be open for inbound connections, and in production only a specific IP address or range of addresses should be authorized, not 0.0.0.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "To connect to your EC2 instance via SSH, you are required to open port 22 for inbound connections. In production, you should authorize only a specific IP address or range of addresses to access your instance and not use 0.0.0.0."
+          ]
+        }
+      ]
+    },
+    "subnets-dns": {
+      "statement": "The vSphere guide says internal IP addresses are allowed, and the management IP address and service IP address can be on different subnets, as long as the DNS server can be reached on both subnets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-vmware-vsphere.json",
+          "quotes": [
+            "Internal IP addresses are allowed. The management IP address and service IP address can be on different subnets, as long as the DNS server can be reached on both subnets."
+          ]
+        }
+      ]
+    }
+  }
+}

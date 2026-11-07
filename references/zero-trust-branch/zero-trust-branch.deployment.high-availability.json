@@ -1,0 +1,539 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.deployment.high-availability",
+  "title": "How Zero Trust Branch high availability works: standard HA, Enhanced WAN Edge HA, VRRP and ebond bonding interfaces",
+  "aliases": [
+    "ztb ha",
+    "WAN Edge HA",
+    "Advanced HA",
+    "ebond",
+    "ebond0",
+    "ebond1",
+    "WAN Transit Link"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment.appliances"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment.templates-and-sites"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment.vlan"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{ha-cluster-model}} The deployment hub is [[zero-trust-branch.deployment]]."
+    },
+    {
+      "label": "Standard HA.",
+      "text": "{{ha-prerequisites}} {{ha-direct-connect-unsupported}} {{ha-template-and-activation-order}} The pages disagree on how the primary is chosen {{divergence:primary-selection}}."
+    },
+    {
+      "label": "Enhanced WAN Edge HA.",
+      "text": "{{enhanced-ha-model}} {{enhanced-ha-no-stateful-failover}} {{enhanced-ha-prerequisites}} The page's GE5 transit port does not match the deployment page's interface table for the ZT600 and ZT800 {{gap:transit-port-vs-deployment-table}}. {{enhanced-ha-transit-link}} {{enhanced-ha-two-links}} {{enhanced-ha-ui-roles}} {{enhanced-ha-traffic-distribution}} The forwarding policies page defines the same values differently, see [[zero-trust-branch.deployment.policies]]. {{enhanced-ha-wan-monitoring}} How the WAN score is computed is not defined on these pages {{gap:wan-score-scale}}."
+    },
+    {
+      "label": "VRRP.",
+      "text": "{{vrrp-dedicated-ha-link}} {{vrrp-auth-rationale}} {{vrrp-password-change}} {{vrrp-password-length}} {{vrrp-password-field}} {{vrrp-group-priority}} {{vrrp-advertisement}} {{vrrp-preempt-tracking}}"
+    },
+    {
+      "label": "Bonding interfaces.",
+      "text": "{{ebond-model}} {{ebond-limitations}} {{ebond-switch-side}} {{ebond-deploy-support}} {{ebond-vlan-tagging}} The pages disagree on tagging over a primary WAN bond {{divergence:ebond-wan-tagging}}. No maximum number of member interfaces per ebond is stated {{gap:ebond-member-limit}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the appliance is a ZT600, ZT800 or ZT8010 and not a ZT400 or VM, before planning Enhanced HA.",
+      "uses": [
+        "enhanced-ha-prerequisites"
+      ]
+    },
+    {
+      "do": "Whether the standard HA appliances are cabled through a switch and not directly to each other.",
+      "uses": [
+        "ha-prerequisites",
+        "ha-direct-connect-unsupported"
+      ]
+    },
+    {
+      "do": "Whether the appliance is a ZT400 before planning an ebond WAN interface.",
+      "uses": [
+        "ebond-deploy-support"
+      ]
+    }
+  ],
+  "claims": {
+    "ha-cluster-model": {
+      "statement": "The standard HA page describes a cluster of two identical appliances, a primary (active) and a secondary (standby) node; traffic session state synchronization gives stateful failover and VRRP determines roles, monitors health and initiates failover.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-high-availability-cluster.json",
+          "quotes": [
+            "consists of two identical Zero Trust Branch appliances (or nodes). One node is the primary node and has the active role.",
+            "The session state information on the primary node is continuously synchronized to the secondary node",
+            "VRRP determines the active and standby roles of the nodes, monitors the health and availability of the nodes, and initiates a failover when necessary.",
+            "Traffic session state synchronization enables seamless, stateful failover between the nodes."
+          ]
+        }
+      ]
+    },
+    "ha-prerequisites": {
+      "statement": "Standard HA prerequisites: a dedicated unused VLAN for HA only, two switch ports on that VLAN, a cable from each appliance's GE4 to the switch, and the appliances connected through a switch rather than a crossover cable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-high-availability-cluster.json",
+          "quotes": [
+            "Dedicate an unused VLAN for HA only.",
+            "Configure two ports on the switch for that VLAN.",
+            "Connect a cable from the GE4 port of each appliance to one of the two ports on the switch.",
+            "The two appliances are connected to each other via a switch, not via a crossover cable that connects them directly."
+          ]
+        }
+      ]
+    },
+    "ha-direct-connect-unsupported": {
+      "statement": "For a standard HA cluster, connecting the appliances directly to each other is not supported: failover does not function properly; the HA link synchronizes TCP, UDP and ICMP connections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-high-availability-cluster.json",
+          "quotes": [
+            "This is the only supported way to connect the appliances. If you connect the appliances to each other directly, the failover does not function properly.",
+            "TCP, UDP, and ICMP connections are synchronized between the nodes using this link."
+          ]
+        }
+      ]
+    },
+    "ha-template-and-activation-order": {
+      "statement": "An HA site requires an HA template (standard_mode_ha deployment type); the standard HA page says the appliance activated first becomes the primary node and the other the secondary, and during activation states such as Initializing and Post-update appear before primary Active and secondary Standby.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-high-availability-cluster.json",
+          "quotes": [
+            "You must use an HA template to launch a Zero Trust Branch cluster.",
+            "The appliance that is activated first becomes the primary node and the other appliance becomes the secondary node.",
+            "When both appliances are activated, the primary appliance state is Active and the secondary appliance state is Standby.",
+            "ensuring that you select standard_mode_ha for the Deployment Type.",
+            "which goes through several states, such as Initializing and Post-update"
+          ]
+        }
+      ]
+    },
+    "enhanced-ha-model": {
+      "statement": "The Enhanced HA page says Enhanced HA (WAN Edge HA) enables active-active WAN traffic distribution using a dedicated WAN Transit Link between the active and standby nodes and eliminates dependency on Layer 2 switches; LAN interfaces remain in standard HA active-standby mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-enhanced-wan-edge-high-availability-cluster.json",
+          "quotes": [
+            "enhances the standard HA cluster by enabling an active-active traffic distribution for Zero Trust Branch appliances in an HA mode.",
+            "By leveraging a dedicated WAN Transit Link between the active and standby nodes, Enhanced HA ensures both appliances actively participate in WAN traffic routing.",
+            "This optimized configuration eliminates dependency on Layer 2 switches",
+            "Standby appliances actively forward traffic via WAN interfaces, while LAN interfaces remain in standard HA mode (active-standby)."
+          ]
+        }
+      ]
+    },
+    "enhanced-ha-no-stateful-failover": {
+      "statement": "Enhanced HA does not support stateful failover for traffic routed through the secondary appliance, so active TCP, HTTP or other session-based traffic is interrupted and must be re-established if it switches between the WAN links of the two appliances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-enhanced-wan-edge-high-availability-cluster.json",
+          "quotes": [
+            "Enhanced HA does not support stateful failover for traffic routed through the secondary appliance.",
+            "any active TCP, HTTP, or other session-based traffic is interrupted and must be re-established if it switches between the WAN links of the two different appliances."
+          ]
+        }
+      ]
+    },
+    "enhanced-ha-prerequisites": {
+      "statement": "Enhanced WAN Edge HA supports only ZT600, ZT800 and ZT8010 (not ZT400 or VMs); the WAN Transit Link uses GE5 on ZT600 and ZT800 and XE10 on ZT8010, on both appliances, and WAN links must go to separate ISPs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-enhanced-wan-edge-high-availability-cluster.json",
+          "quotes": [
+            "Use only supported appliances (ZT600, ZT800, and ZT8010).",
+            "The ZT400 and virtual machine (VM) appliances are not supported.",
+            "ZT600: Use port GE5 on both appliances.",
+            "ZT800: Use port GE5 on both appliances.",
+            "ZT8010: Use port XE10 on both appliances.",
+            "WAN links must be connected to separate ISPs for redundancy and failover support."
+          ]
+        }
+      ]
+    },
+    "enhanced-ha-transit-link": {
+      "statement": "The WAN Transit Link connects via a direct back-to-back Ethernet cable or a switch; if a switch is used, its ports must be on a different VLAN from the standard HA control link.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-enhanced-wan-edge-high-availability-cluster.json",
+          "quotes": [
+            "Connect the WAN Transit Link using a direct back‑to‑back Ethernet cable between the specified ports, or via a switch.",
+            "If you use a switch for the connection, you must place the WAN Transit Link ports on a different VLAN from the standard HA control link."
+          ]
+        }
+      ]
+    },
+    "enhanced-ha-two-links": {
+      "statement": "The Enhanced HA topology has two connections between the appliances: the standard HA link for control plane communication and the WAN Transit Link for data plane traffic; failover scenarios revert to standard HA using the HA link, and the cluster reverts to standard HA on a WAN transit link failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-enhanced-wan-edge-high-availability-cluster.json",
+          "quotes": [
+            "the standard HA link for control plane communication and the new WAN Transit Link for data plane traffic.",
+            "Failover scenarios automatically revert to standard HA using the HA link assigned for redundancy.",
+            "Reverts seamlessly to standard HA upon a WAN transit link failure for uninterrupted service.",
+            "The Enhanced HA topology includes two connections between the appliances"
+          ]
+        }
+      ]
+    },
+    "enhanced-ha-ui-roles": {
+      "statement": "In an Enhanced HA cluster the UI shows one appliance Active and the other Standby for their control-plane roles, but both can forward WAN traffic; the embedded Private Access App Connector runs active-active while the gateway is active-standby.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-enhanced-wan-edge-high-availability-cluster.json",
+          "quotes": [
+            "In an Enhanced HA cluster, the UI shows one appliance as Active and the other as Standby to indicate their control‑plane roles, but both appliances can forward WAN traffic.",
+            "While the Zero Trust Branch gateway operates in an active-standby mode, the embedded Private Access App Connector in a WAN Edge HA deployment operates in an active-active mode.",
+            "This active-active behavior applies only to the embedded App Connector in WAN Edge HA deployments."
+          ]
+        }
+      ]
+    },
+    "enhanced-ha-traffic-distribution": {
+      "statement": "The Enhanced HA page says WAN HA Mode Enhanced enables active-active routing (the section appears only for sites using an Advanced HA template), and Traffic Distribution is Balanced (all selected WAN links on both appliances, Failover Group Active-Active Links), Best (single best-performing link, Active-Standby Links) or None (system selects a path without active direction).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-enhanced-wan-edge-high-availability-cluster.json",
+          "quotes": [
+            "(This section only appears for sites using an Advanced HA template.)",
+            "Balanced: This enables true active-active load balancing. Traffic is distributed across all selected WAN links on both appliances. The Failover Group shows as Active-Active Links.",
+            "Best: The cluster sends traffic to the single best-performing WAN link at any given time, regardless of whether it is on the primary or secondary appliance. The Failover Group shows as Active-Standby Links.",
+            "None: The system selects a path without active direction.",
+            "Select Enhanced. This enables the active-active routing functionality.",
+            "Scroll down to the WAN HA Mode section."
+          ]
+        }
+      ]
+    },
+    "enhanced-ha-wan-monitoring": {
+      "statement": "With Debug Logs set to High, the WAN interface scores from WAN monitoring can be read with cat /var/log/syslog | grep wan-mon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-zero-trust-branch-enhanced-wan-edge-high-availability-cluster.json",
+          "quotes": [
+            "set Debug Logs to High.",
+            "cat /var/log/syslog | grep wan-mon",
+            "To check the score of the WAN interfaces received from WAN monitoring:"
+          ]
+        }
+      ]
+    },
+    "vrrp-dedicated-ha-link": {
+      "statement": "Before release 7.8 Zero Trust Branch ran VRRP over a WAN link, which the page calls less reliable; from release 7.8 a dedicated HA link makes VRRP independent of WAN issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ha-site-vrrp.json",
+          "quotes": [
+            "Prior to release 7.8, Zero Trust Branch used a WAN link to run VRRP, which is less reliable",
+            "Beginning with release 7.8, Zero Trust Branch introduced a dedicated HA link.",
+            "This ensures that VRRP is independent of WAN issues, leading to faster and more reliable failovers"
+          ]
+        }
+      ]
+    },
+    "vrrp-auth-rationale": {
+      "statement": "Without VRRP authentication, any appliance in the same broadcast domain could send advertisements with a higher priority and take over as master; a misconfigured appliance with an identical VRRP ID could disrupt an active group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ha-site-vrrp.json",
+          "quotes": [
+            "Without configured authentication, any appliance within the same broadcast domain could send VRRP advertisements with a higher priority and take over as the master router",
+            "A misconfigured appliance with an identical VRRP ID could unintentionally disrupt an active VRRP group."
+          ]
+        }
+      ]
+    },
+    "vrrp-password-change": {
+      "statement": "Changing the VRRP password on an existing site could trigger a VRRP switchover and should be done in a scheduled maintenance window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ha-site-vrrp.json",
+          "quotes": [
+            "when you are updating the password on an existing site, perform this task during a scheduled maintenance window, as this change could potentially trigger a VRRP switchover"
+          ]
+        }
+      ]
+    },
+    "vrrp-password-length": {
+      "statement": "The VRRP page recommends a password of 6 characters or fewer because of known issues with longer passwords, and says the password may contain only printable ASCII characters (A-Z, a-z, 0-9).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ha-site-vrrp.json",
+          "quotes": [
+            "It is recommended to configure VRRP authentication with a password length of 6 characters or fewer because there are known issues when handling longer passwords with VRRP.",
+            "The password must be a secure combination containing only printable ASCII characters (A–Z, a–z, 0–9)."
+          ]
+        }
+      ]
+    },
+    "vrrp-password-field": {
+      "statement": "The VRRP Password field is optional and takes a maximum of 8 alphabetic characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ha-site-vrrp.json",
+          "quotes": [
+            "Password: (Optional) Enter a password to encrypt this VRRP configuration (maximum of 8 alphabetic characters)."
+          ]
+        }
+      ]
+    },
+    "vrrp-group-priority": {
+      "statement": "VRRP Group ID is a number between 1 and 255 that Zero Trust Branch fills in automatically; Priority is between 1 and 255 and the site with the highest number is primary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ha-site-vrrp.json",
+          "quotes": [
+            "A unique numerical identifier (between 1 and 255) that groups routers together for redundancy purposes. Zero Trust Branch automatically fills in this value.",
+            "Enter the rank (between 1 and 255) for this Zero Trust Branch site to determine which is the primary in the VRRP group.",
+            "The Zero Trust Branch site with the highest number (e.g., 255 is higher than 254) has priority."
+          ]
+        }
+      ]
+    },
+    "vrrp-advertisement": {
+      "statement": "The VRRP Advertisement Interval defaults to 1 second, and the secondary becomes primary if it misses three advertisements from the primary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ha-site-vrrp.json",
+          "quotes": [
+            "The default value is 1.",
+            "If the secondary appliance misses three advertisements from the primary, it becomes the new primary.",
+            "Advertisement Interval: The interval, in seconds, for the primary appliance to send VRRP advertisements to the secondary appliance."
+          ]
+        }
+      ]
+    },
+    "vrrp-preempt-tracking": {
+      "statement": "Enabling Preempt turns on interface tracking with a default weight of 10; if the tracked interface of the primary appliance goes down the secondary becomes primary; Advanced Track Options are shown only when Preempt is enabled and are supported only on appliances running version 8.3.0 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ha-site-vrrp.json",
+          "quotes": [
+            "Preempt: Enable this option to turn on interface tracking with a default weight of 10.",
+            "Track Interface for <appliance 1>: Select the interface to be tracked for the primary appliance. If this interface goes down, the secondary appliance becomes the primary.",
+            "Advanced Track Options: Modify interface tracking by selecting different options from the drop-down menu. This option is shown only when the Preempt option is enabled, and it is supported only for Zero Trust Branch appliances running version 8.3.0 or later."
+          ]
+        }
+      ]
+    },
+    "ebond-model": {
+      "statement": "The two bonding interfaces ebond0 and ebond1 are logical interfaces combining multiple physical ports, with load balancing using 5-tuple hashing; settings configured once on the logical interface apply to the member interfaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-bonding-interfaces.json",
+          "quotes": [
+            "The two bonding interfaces, ebond0 and ebond1, are logical interfaces created by combining multiple physical network interfaces (ports).",
+            "Load balancing using 5-tuple hashing improves network throughput and efficiency.",
+            "those settings are then automatically applied to the individual physical member interfaces.",
+            "Network admins can configure settings once on the logical port channel interface"
+          ]
+        }
+      ]
+    },
+    "ebond-limitations": {
+      "statement": "Bonding limitations: members must be the same type (all LAN or all WAN) and same port speed; Q-in-Q is not supported; bonding on the primary WAN interface is for untagged interfaces only; all member links must terminate on the same node.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-bonding-interfaces.json",
+          "quotes": [
+            "Members must be of the same interface type (all LAN or all WAN).",
+            "Members must have the same port speed.",
+            "Multiple tags (Q-in-Q) are not supported.",
+            "Bonding is supported on the primary WAN interface for untagged interfaces only. VLAN-tagged subinterfaces on the primary WAN interface are not supported.",
+            "All bonding interface member links must terminate on the same Zero Trust Branch node."
+          ]
+        }
+      ]
+    },
+    "ebond-switch-side": {
+      "statement": "An ebond can connect to a port channel on a switch stack or MLAG, virtual Port Channel or VSS provided it is a single Layer 2 domain presenting one logical Layer 3 nexthop (SVI).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-bonding-interfaces.json",
+          "quotes": [
+            "An ebond can connect to a port channel on a switch stack or Multi-Chassis Link Aggregation (MLAG), virtual Port Channel, or Virtual Switching System (VSS) provided it is a single Layer 2 domain presenting one logical Layer 3 nexthop (Switched Virtual Interface)."
+          ]
+        }
+      ]
+    },
+    "ebond-deploy-support": {
+      "statement": "Deploying with an ebond WAN interface is not supported on the ZT400 and requires LACP (802.3ad) to be configured on the switch where the WAN interfaces connect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-deploying-zero-trust-branch-using-ebond-interface.json",
+          "quotes": [
+            "The ZT400 appliance is not supported.",
+            "Before proceeding, configure LACP (802.3ad) on the switch where the WAN interfaces will connect. Zero Trust Branch supports LACP using the 802.3ad standard."
+          ]
+        }
+      ]
+    },
+    "ebond-vlan-tagging": {
+      "statement": "The VLAN configuration page says bonding interfaces support 802.1Q tagging (sub-interfaces) for both LAN and WAN, and that the SVI moves to Zero Trust Branch so VLANs are added after the appliance is registered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-vlan.json",
+          "quotes": [
+            "Bonding interfaces support tagging (with 802.1Q, sub-interfaces) for both LAN and WAN.",
+            "After the Zero Trust Branch appliance is registered, you must add the VLANs as the switched virtual interface (SVI) moved to Zero Trust Branch."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "primary-selection": {
+      "summary": "The standard HA creation page says the first appliance activated becomes primary, while the VRRP page ranks sites by priority to decide the primary and the HA model says VRRP determines the roles.",
+      "positions": [
+        {
+          "says": "The appliance that is activated first becomes the primary node.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-creating-zero-trust-branch-high-availability-cluster.json",
+            "quotes": [
+              "The appliance that is activated first becomes the primary node and the other appliance becomes the secondary node."
+            ]
+          }
+        },
+        {
+          "says": "The VRRP priority, with the highest number winning, determines the primary in the group.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-ha-site-vrrp.json",
+            "quotes": [
+              "Enter the rank (between 1 and 255) for this Zero Trust Branch site to determine which is the primary in the VRRP group.",
+              "The Zero Trust Branch site with the highest number (e.g., 255 is higher than 254) has priority."
+            ]
+          }
+        }
+      ],
+      "impact": "An admin who sets VRRP priorities may expect a different primary than the activation order gives."
+    },
+    "ebond-wan-tagging": {
+      "summary": "The VLAN page says bonding interfaces support 802.1Q tagging for both LAN and WAN, while the bonding page says bonding on the primary WAN interface supports untagged interfaces only.",
+      "positions": [
+        {
+          "says": "Bonding interfaces support tagging with 802.1Q sub-interfaces for both LAN and WAN.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-vlan.json",
+            "quotes": [
+              "Bonding interfaces support tagging (with 802.1Q, sub-interfaces) for both LAN and WAN."
+            ]
+          }
+        },
+        {
+          "says": "Bonding on the primary WAN interface is for untagged interfaces only, and VLAN-tagged subinterfaces on it are not supported.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-understanding-bonding-interfaces.json",
+            "quotes": [
+              "Bonding is supported on the primary WAN interface for untagged interfaces only. VLAN-tagged subinterfaces on the primary WAN interface are not supported."
+            ]
+          }
+        }
+      ],
+      "impact": "Planning tagged subinterfaces on a bonded primary WAN interface works from one page and fails from the other."
+    }
+  },
+  "gaps": {
+    "transit-port-vs-deployment-table": {
+      "kind": "semantic",
+      "title": "Whether GE5 is free for the WAN Transit Link on the ZT600 and ZT800",
+      "status": "open",
+      "detail": "The Enhanced HA page names GE5 for the WAN Transit Link on the ZT600 and ZT800, while the deployment page's interface table lists GE5* (fixed) as a ZT600 WAN port and GE5 as a ZT800 LAN port. The pages do not say whether the transit link replaces that role.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "wan-score-scale": {
+      "kind": "semantic",
+      "title": "How the WAN score is scaled and computed",
+      "status": "open",
+      "detail": "The Enhanced HA and forwarding policy pages mention WAN scores from WAN monitoring and a Switchover Threshold with a default of 6, but do not define the score scale or how a score is computed; a sample log on the Enhanced HA page shows a score of 25.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "ebond-member-limit": {
+      "kind": "semantic",
+      "title": "Maximum number of member interfaces per ebond",
+      "status": "open",
+      "detail": "The bonding and ebond deployment pages give example topologies only; none states a maximum number of member interfaces per bonding interface.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

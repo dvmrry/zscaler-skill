@@ -1,0 +1,940 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Shadow IT Report",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/shadow-it-report-api",
+    "node": "1457501",
+    "revision": "2815256",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Shadow%20IT%20Report_11.json?VersionId=LeOCr81H3QckRMFgs2s7uIRTELapikPo",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Shadow IT Report"
+      }
+    ],
+    "paths": {
+      "/cloudApplications/bulkUpdate": {
+        "put": {
+          "tags": [
+            "Shadow IT Report"
+          ],
+          "description": "Updates application status and tag information for predefined or custom cloud applications based on the IDs specified",
+          "operationId": "CloudApplicationsResource_bulkUpdateCloudApplication",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/CloudApplication"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/cloudApplications/lite": {
+        "get": {
+          "tags": [
+            "Shadow IT Report"
+          ],
+          "description": "Gets the list of predefined and custom cloud applications",
+          "operationId": "CloudApplicationsResource_getCloudApplicationsLite",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "pageNumber",
+              "description": "Specifies the page number. The numbering starts at 0.",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 0,
+              "format": "int32"
+            },
+            {
+              "name": "limit",
+              "description": "Specifies the maximum number of cloud applications that must be retrieved in a page",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 1000,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/NamedItem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/customTags": {
+        "get": {
+          "tags": [
+            "Shadow IT Report"
+          ],
+          "description": "Gets the list of custom tags available to assign to cloud applications",
+          "operationId": "CustomTagResource_getAllCustomTags",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/CustomTag"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/shadowIT/applications/export": {
+        "post": {
+          "tags": [
+            "Shadow IT Report"
+          ],
+          "description": "<p>Export the Shadow IT Report (in CSV format) for the <a href=\"/zia/about-cloud-applications\" target=\"_blank\">cloud applications</a> recognized by Zscaler based on their usage in your organization. This report lists cloud applications along with a number of parameters including the sanction status for each application, the risk index assigned for the application, application usage details, application hosting information, and application security-related information, such as SSL certificate validity, data encryption (in transit), security certifications, published CVE, involvement in data breaches, etc. </p><p>You can generate this report for specific applications by using the <b>application</b> parameter. If no value is specified for this parameter, the report is generated for all cloud applications. You can customize the report by using various filters to show only the cloud applications that match specific parameters. To learn more, see <a href=\"/zia/about-shadow-it-report\" target=\"_blank\">About Shadow IT Report</a>.</p>",
+          "operationId": "ShadowITReportResource_getReportDataApplicationsExport",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "text/csv"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "<p>Information used to generate the Shadow IT Report for the <a href=\"/zia/about-cloud-applications\" target=\"_blank\">cloud applications</a> recognized by Zscaler based on their usage in your organization.</p>",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/ShadowITApplicationRequest"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/shadowIT/applications/{entity}/exportCsv": {
+        "post": {
+          "tags": [
+            "Shadow IT Report"
+          ],
+          "description": "<p>Export the Shadow IT Report (in CSV format) for the list of users or known <a href=\"/zia/about-locations\" target=\"_blank\">locations</a> identified with using the <a href=\"/zia/about-cloud-applications\" target=\"_blank\">cloud applications</a> specified in the request. This report includes information about each user who has interacted with the application or the known location from where the application is accessed, application category, application usage details, the number of transactions made, last accessed time, etc. </p><p>You can customize the report per your requirements by using various filters. To learn more, see <a href=\"/zia/about-application-information\" target=\"_blank\">About Application Information</a>.</p>",
+          "operationId": "ShadowITReportResource_getReportTransactionsExport",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "text/csv"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "<p>Information used to generate the Shadow IT Report for the list of users that have interacted with a specific <a href=\"/zia/about-cloud-applications\" target=\"_blank\">cloud application</a> or the known <a href=\"/zia/about-locations\" target=\"_blank\">locations</a> where the cloud application is accessed.</p>",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/ShadowITRequest"
+              }
+            },
+            {
+              "name": "entity",
+              "in": "path",
+              "description": "<p>Indicates whether the Shadow IT Report must be generated to retrieve the list of users who have interacted with a cloud application or the known <a href=\"/zia/about-locations\" target=\"_blank\">locations</a> where the cloud application is accessed</p>",
+              "required": true,
+              "type": "string",
+              "default": "USER",
+              "enum": [
+                "USER",
+                "LOCATION"
+              ]
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "CloudApplication": {
+        "type": "object",
+        "description": "Cloud application information",
+        "properties": {
+          "sanctionedState": {
+            "type": "string",
+            "description": "The cloud application status that indicates whether it is sanctioned or unsanctioned",
+            "enum": [
+              "UN_SANCTIONED",
+              "SANCTIONED",
+              "ANY"
+            ]
+          },
+          "applicationIds": {
+            "type": "array",
+            "description": "The list of cloud application IDs for which the status (sanctioned or unsanctioned) and tags have to be updated",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "customTags": {
+            "type": "array",
+            "description": "The list of custom tags that must be assigned to the cloud applications",
+            "items": {
+              "$ref": "#/definitions/CustomTag"
+            }
+          }
+        }
+      },
+      "NamedItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier of the cloud application",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the cloud application"
+          }
+        }
+      },
+      "CustomTag": {
+        "type": "object",
+        "description": "Name-ID information of custom tags",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the custom tag"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the custom tag"
+          }
+        }
+      },
+      "ShadowITApplicationRequest": {
+        "type": "object",
+        "properties": {
+          "duration": {
+            "type": "string",
+            "description": "<p>(Required) Filters the data by using predefined time frames.</p>",
+            "enum": [
+              "LAST_1_DAYS",
+              "LAST_7_DAYS",
+              "LAST_15_DAYS",
+              "LAST_MONTH",
+              "LAST_QUARTER"
+            ]
+          },
+          "application": {
+            "type": "array",
+            "description": "<p>The list of cloud applications for which the Shadow IT Report must be generated. If no value is specified for this parameter, the report is generated for all cloud applications recognized by Zscaler based on their usage in your organization.</p>",
+            "items": {
+              "type": "string"
+            }
+          },
+          "appName": {
+            "type": "string",
+            "description": "<p>Filters the data based on the cloud application name that matches the specified string</p>"
+          },
+          "order": {
+            "example": "\"order\": {\n        \"on\": \"RISK_SCORE\",\n        \"by\": \"INCREASING\"\n    }\n}",
+            "description": "<p>Sorts the list in increasing or decreasing order based on the specified attribute. The on field specifies which attribute must be sorted, whereas the by field indicates the sorting order as increasing or decreasing.</p>",
+            "$ref": "#/definitions/Order"
+          },
+          "applicationCategory": {
+            "type": "array",
+            "description": "<p>Filters the data based on the cloud application category.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "WEB_MAIL",
+                "SOCIAL_NETWORKING",
+                "STREAMING",
+                "P2P",
+                "INSTANT_MESSAGING",
+                "WEB_SEARCH",
+                "GENERAL_BROWSING",
+                "ADMINISTRATION",
+                "ENTERPRISE_COLLABORATION",
+                "BUSINESS_PRODUCTIVITY",
+                "SALES_AND_MARKETING",
+                "SYSTEM_AND_DEVELOPMENT",
+                "CONSUMER",
+                "FILE_SHARE",
+                "HOSTING_PROVIDER",
+                "IT_SERVICES",
+                "DNS_OVER_HTTPS",
+                "HUMAN_RESOURCES",
+                "LEGAL",
+                "HEALTH_CARE",
+                "FINANCE",
+                "CUSTOM_CAPP",
+                "AI_ML"
+              ]
+            }
+          },
+          "dataConsumed": {
+            "type": "array",
+            "description": "<p>Filters the data by the cloud application usage in terms of the total amount of data uploaded and downloaded from the application. The min and max fields specify the minimum and maximum values in the range, respectively.</p>",
+            "items": {
+              "$ref": "#/definitions/RangeLong"
+            }
+          },
+          "riskIndex": {
+            "type": "array",
+            "description": "<p>Filters the data based on the risk index assigned to cloud applications.</p>",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "sanctionedState": {
+            "type": "array",
+            "description": "<p>Filters the data based on the status of the cloud applications.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "UN_SANCTIONED",
+                "SANCTIONED",
+                "ANY"
+              ]
+            }
+          },
+          "employees": {
+            "type": "array",
+            "description": "<p>Filters the data based on the employee count of the cloud application vendor.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "RANGE_1_100",
+                "RANGE_100_1000",
+                "RANGE_1000_10000",
+                "RANGE_10000_INF"
+              ]
+            }
+          },
+          "supportedCertifications": {
+            "description": "<p>Filters the cloud applications by security certifications. The <b>operation</b> field indicates whether the specified security certifications are included or excluded, whereas the <b>value</b> field specifies the list of security certifications.</p>",
+            "$ref": "#/definitions/IncludeExcludeMultiFilterOperationVendorComplianceID"
+          },
+          "sourceIpRestriction": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they have source IP restrictions.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "mfaSupport": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they support multi-factor authentication.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "adminAuditLogs": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they support admin audit logging.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "hadBreachInLast3Years": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they are involved in the data breaches reported in the last three years.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "havePoorItemsOfService": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they have questionable parameters in their terms of service.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "passwordStrength": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they require strong passwords.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "sslPinned": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they use SSL Pinning.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "evasive": {
+            "type": "array",
+            "description": "<p>Checks if the application supports accessing data anonymously without expecting the user to create an account and log in. If there is no login option, anyone can access the application anonymously without providing their identity. For example, some applications allow users to share files without authenticating them. This can lead malicious users to spread malware and makes identifying the user difficult.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "haveHTTPSecurityHeaderSupport": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications by the presence of security headers.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "dnsCAAPolicy": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications by the presence of DNS CAA policy.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "haveWeakCipherSupport": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on the cryptographic keys used by the application and flags key sizes that are less than 128 bits.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "sslCertificationValidity": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they have a valid SSL certificate.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "malwareScanningContent": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they include malware content.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "fileSharing": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they include file-sharing provision.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "remoteAccessScreenSharing": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they support remote access and screen sharing.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "senderPolicyFramework": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they support Sender Policy Framework.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "domainKeysIdentifiedMail": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they support DomainKeys Identified Mail (DKIM).</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "domainBasedMessageAuthentication": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they support Domain-based Message Authentication.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "vulnerableDisclosureProgram": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they support Vulnerability Disclosure Policy.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "wafSupport": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether WAF is enabled for the applications.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "vulnerability": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they have published Common Vulnerabilities and Exposures (CVE).</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "validSSLCertificate": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they have a valid SSL certificate.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "dataEncryptionInTransit": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they support data encryption in transit.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "vulnerableToHeartBleed": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they are vulnerable to Heartbleed attack.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "vulnerableToPoodle": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they are vulnerable to Poodle attack.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "vulnerableToLogJam": {
+            "type": "array",
+            "description": "<p>Filters the cloud applications based on whether they are vulnerable to Logjam attack.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "sslCertKeyAlgo": {
+            "type": "array",
+            "description": "<p>Filters the list of SaaS applications based on the cryptographic signature algorithms used in their SSL/TLS certificates.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "UN_KNOWN",
+                "SHA1_RSA",
+                "SHA384_ECDSA",
+                "SHA512_RSA",
+                "SHA1_ECDSA",
+                "SHA256_RSA",
+                "SHA512_RSA_PSS",
+                "MD5_SHA1_RSA",
+                "SHA384_RSA",
+                "SHA512_ECDSA",
+                "SHA256_ECDSA",
+                "SHA256_RSA_PSS"
+              ]
+            }
+          },
+          "certKeySize": {
+            "description": "<p>Filters the data by the size of the SSL certificate public keys used by the cloud applications. The <b>operation</b> field indicates whether the specified security certifications are included or excluded, whereas the <b>value</b> field specifies the list of security certifications.</p>",
+            "$ref": "#/definitions/IncludeExcludeMultiFilterOperationCertKeySize"
+          }
+        }
+      },
+      "ShadowITRequest": {
+        "type": "object",
+        "properties": {
+          "duration": {
+            "type": "string",
+            "description": "<p>(Required) Filters the data by using predefined timeframes.</p>",
+            "enum": [
+              "LAST_1_DAYS",
+              "LAST_7_DAYS",
+              "LAST_15_DAYS",
+              "LAST_MONTH",
+              "LAST_QUARTER"
+            ]
+          },
+          "application": {
+            "type": "array",
+            "description": "<p>(Required) The cloud application for which user or location data must be retrieved.</p><p><b>Note</b>: Only one cloud application can be specified at a time in this field.</p>",
+            "items": {
+              "type": "string"
+            }
+          },
+          "order": {
+            "example": "\"order\": {\n        \"on\": \"RISK_SCORE\",\n        \"by\": \"INCREASING\"\n    }\n}",
+            "description": "<p>Sorts the list in increasing or decreasing order the specified attribute. The <b>on</b> field specifies which attribute must be sorted, whereas the <b>by</b> field indicates the sorting order as increasing or decreasing.</p>",
+            "$ref": "#/definitions/Order"
+          },
+          "downloadBytes": {
+            "type": "array",
+            "description": "<p>Filters the data by the cloud application usage in terms of the amount of data (in bytes) downloaded from the application. The min and max fields specify the minimum and maximum values in the range respectively.</p>",
+            "items": {
+              "$ref": "#/definitions/RangeLong"
+            }
+          },
+          "uploadBytes": {
+            "type": "array",
+            "description": "<p>Filters the data by the cloud application usage in terms of the amount of data (in bytes) uploaded to the application. The min and max fields specify the minimum and maximum values in the range respectively.</p>",
+            "items": {
+              "$ref": "#/definitions/RangeLong"
+            }
+          },
+          "dataConsumed": {
+            "type": "array",
+            "description": "<p>Filters the data by the cloud application usage in terms of the total amount of data uploaded and downloaded from the application. The min and max fields specify the minimum and maximum values in the range respectively.</p>",
+            "items": {
+              "$ref": "#/definitions/RangeLong"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "<p>Filters the data by user. The id and name fields specify the user information.</p>",
+            "items": {
+              "$ref": "#/definitions/EntityIdName"
+            }
+          },
+          "locations": {
+            "type": "array",
+            "description": "<p>Filters the data by location. The id and name fields specify the location information.</p>",
+            "items": {
+              "$ref": "#/definitions/EntityIdName"
+            }
+          },
+          "departments": {
+            "type": "array",
+            "description": "<p>Filters the data by department. The id and name fields specify the department information.</p>",
+            "items": {
+              "$ref": "#/definitions/EntityIdName"
+            }
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "string",
+            "enum": [
+              "RISK_SCORE",
+              "APPLICATION",
+              "APPLICATION_CATEGORY",
+              "SANCTIONED_STATE",
+              "TOTAL_BYTES",
+              "UPLOAD_BYTES",
+              "DOWNLOAD_BYTES",
+              "AUTHENTICATED_USERS",
+              "TRANSACTION_COUNT",
+              "UNAUTH_LOCATION",
+              "LAST_ACCESSED"
+            ]
+          },
+          "by": {
+            "type": "string",
+            "enum": [
+              "INCREASING",
+              "DECREASING"
+            ]
+          }
+        }
+      },
+      "RangeLong": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "max": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "IncludeExcludeMultiFilterOperationVendorComplianceID": {
+        "type": "object",
+        "properties": {
+          "operation": {
+            "type": "string",
+            "enum": [
+              "INCLUDE",
+              "EXCLUDE"
+            ]
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "CSA_STAR",
+                "ISO_27001",
+                "HIPAA",
+                "FISMA",
+                "FEDRAMP",
+                "SOC2",
+                "ISO_27018",
+                "PCI_DSS",
+                "ISO_27017",
+                "SOC1",
+                "SOC3",
+                "GDPR",
+                "CCPA",
+                "FERPA",
+                "COPPA",
+                "HITECH",
+                "EU_US_SWISS_PRIVACY_SHIELD",
+                "EU_US_PRIVACY_SHIELD_FRAMEWORK",
+                "CISP",
+                "AICPA",
+                "FIPS",
+                "SAFE_BIOPHARMA",
+                "ISAE_3000",
+                "SSAE_18",
+                "NIST",
+                "ISO_14001",
+                "SOC",
+                "TRUSTE",
+                "ISO_26262",
+                "ISO_20252",
+                "RGPD",
+                "ISO_20243",
+                "ISO_10002",
+                "JIS_Q_15001_2017"
+              ]
+            }
+          }
+        }
+      },
+      "IncludeExcludeMultiFilterOperationCertKeySize": {
+        "type": "object",
+        "properties": {
+          "operation": {
+            "type": "string",
+            "enum": [
+              "INCLUDE",
+              "EXCLUDE"
+            ]
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "UN_KNOWN",
+                "BITS_2048",
+                "BITS_256",
+                "BITS_3072",
+                "BITS_384",
+                "BITS_4096",
+                "BITS_1024"
+              ]
+            }
+          }
+        }
+      },
+      "EntityIdName": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pid": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "deleted": {
+            "type": "boolean"
+          },
+          "getlId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    }
+  }
+}

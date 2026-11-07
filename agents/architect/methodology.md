@@ -89,7 +89,7 @@ Reading current configuration to identify structural issues:
 
 - Zscaler API config dumps (via SDK / Postman — see references in `zpa/`, `zia/`, `zcc/`)
 - Reference docs documenting Zscaler concepts (segments, connector groups, policies, etc.)
-- Snapshot exports if maintained in the user's private fork
+- Overlay IaC or live read-only `zscalerctl` output, if the overlay declares them
 
 Config-only recommendations are common and valuable — many scaling issues are visible from layout alone (single-connector groups, missing LSS receivers, regional SPOFs, sticky-session LB misconfig, etc.).
 

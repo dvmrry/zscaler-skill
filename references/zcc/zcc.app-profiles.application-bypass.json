@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "id": "zcc.app-profiles.application-bypass",
+  "title": "Application Bypass: adding custom IP-based and process-based applications for an app profile to bypass",
+  "aliases": [
+    "application bypass",
+    "IP bypass",
+    "process bypass",
+    "process-based application bypass",
+    "IP-based application bypass",
+    "predefined IP-based applications"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.bypasses"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.location-policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.macos-extensions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Application Bypass is where custom IP-based and process-based applications for an app profile to bypass are added. {{what-it-is}} {{page-view}}"
+    },
+    {
+      "label": "Domains.",
+      "text": "{{no-domain-bypass}} The PAC file side is in [[zcc.pac-files]] and [[zcc.z-tunnel.bypasses]]."
+    },
+    {
+      "label": "IP-based applications.",
+      "text": "{{ip-based}} {{android-ip-only}}"
+    },
+    {
+      "label": "Process-based applications.",
+      "text": "{{process-based}} Which tunnel versions Application Bypass covers is given differently by the pages [[zcc.z-tunnel.bypasses:application-bypass-tunnel-versions]]."
+    },
+    {
+      "label": "On Windows.",
+      "text": "{{process-windows-path}} The console location for adding a process-based application is named differently by two pages {{divergence:process-console-location}}. {{process-windows-matching}} {{process-windows-wfp}}"
+    },
+    {
+      "label": "On macOS.",
+      "text": "{{process-macos}} The MDM route for earlier versions and Route-based Interception is in [[zcc.install.macos-extensions]]."
+    },
+    {
+      "label": "Open.",
+      "text": "The full list of predefined applications and the limits on custom applications are open {{gap:predefined-and-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a process-based bypass that has no effect: whether the application was restarted after it was added to the app profile, on Windows whether Install WFP Driver is enabled in the app profile, and on macOS whether Transparent Proxy-based Traffic Interception is enabled and the client is 4.8 or later.",
+      "uses": [
+        "process-based",
+        "process-windows-wfp",
+        "process-macos"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Application Bypass is the Admin Console page (Infrastructure > Client Connector > IP Bypass) where the available predefined IP-based applications can be viewed and IP-based and process-based applications can be added; the applications to bypass are selected in App Profiles under Traffic Steering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-application-bypass-info.json",
+          "quotes": [
+            "In Application Bypass, you can view the available predefined IP-based applications and add IP-based applications to bypass traffic.",
+            "You can also add process-based applications to bypass traffic.",
+            "Select applications to bypass traffic in App Profiles under Traffic Steering.",
+            "On the Application Bypass page (Infrastructure > Client Connector > IP Bypass), you can do the following:"
+          ]
+        }
+      ]
+    },
+    "no-domain-bypass": {
+      "statement": "Domain-based bypasses cannot be configured on the Application Bypass page; to bypass a specific domain, it can be added to a custom PAC file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-application-bypass-info.json",
+          "quotes": [
+            "You cannot configure domain-based bypasses on this page. If you want to bypass a specific domain, you can add it to a custom PAC file."
+          ]
+        }
+      ]
+    },
+    "page-view": {
+      "statement": "The page lists the IP-based applications Client Connector bypasses with their Last Edited Timestamp, and the View icon shows the Protocol, Port and IP Address of a bypassed IP-based application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-application-bypass-info.json",
+          "quotes": [
+            "View a list of IP-based applications that Zscaler Client Connector bypasses, along with the Last Edited Timestamp details.",
+            "Click the View icon to view the Protocol, Port, and IP Address of a bypassed IP-based application."
+          ]
+        }
+      ]
+    },
+    "ip-based": {
+      "statement": "In addition to predefined applications (the page's examples are Microsoft Teams and Zoom), an IP-based application is added on the IP-Based tab with Custom, with a name and, for IPv4 or IPv6 addresses, ports (valid port numbers 1-65535, a range such as 80-100, or an asterisk, separated by commas), a protocol (an asterisk represents any protocol) and the addresses or subnet, separated by commas.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-ip-based-applications-bypass-traffic.json",
+          "quotes": [
+            "In addition to using predefined applications (e.g., Microsoft Teams and Zoom), you can add IP-based applications to bypass traffic.",
+            "On the IP-Based tab, click Custom.",
+            "Enter the application’s name in the Name field.",
+            "Port: Enter valid port numbers (1–65535) or a range of port numbers (e.g., 80–100) or an asterisk (*), separated by commas.",
+            "Protocol: Select one of the following protocols for your application:",
+            "Asterisk (*) to represent any protocol",
+            "IPv4 Addresses or IPv6 Addresses: Enter the IPv4/IPv6 addresses or subnet for the application, separated by commas."
+          ]
+        }
+      ]
+    },
+    "android-ip-only": {
+      "statement": "The page says Android only supports IP-based bypasses and does not support ports and protocols; all traffic associated with the specified IP is bypassed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-ip-based-applications-bypass-traffic.json",
+          "quotes": [
+            "Android only supports IP-based bypasses and does not support ports and protocols. All traffic that is associated with the specified IP is bypassed."
+          ]
+        }
+      ]
+    },
+    "process-based": {
+      "statement": "The process-based page says process-based applications are defined with information such as paths, app identifiers, executable signatures and certificate attributes, to help identify applications that can frequently change; it says they can be selected in App Profiles to bypass traffic for both Z-Tunnel 1.0 and Z-Tunnel 2.0, and that after the application is added to the app profile it must be restarted before traffic is bypassed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-process-based-applications-bypass-traffic.json",
+          "quotes": [
+            "Add information such as paths, app identifiers, executable signatures, and certificate attributes to help identify process-based applications that can frequently change.",
+            "You can then select these applications in App Profiles to bypass traffic for both Zscaler Tunnel (Z-Tunnel) 1.0 and Z-Tunnel 2.0.",
+            "After you add the process-based application to the app profile, you must restart the application before traffic is bypassed."
+          ]
+        }
+      ]
+    },
+    "process-windows-path": {
+      "statement": "On Windows (Infrastructure > Client Connector > Process Bypass), the Path field takes the executable file names for the application: a single asterisk matches any full single path component, a wildcard cannot be used for partial components, two asterisks (**) match any number of consecutive path components (the page's example is **\\ms-teams.exe), environment variables such as %APPDATA%\\Zoom\\bin can be used, and several entries can be added at once separated by commas.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-process-based-applications-bypass-traffic.json",
+          "after": "- Windows",
+          "quotes": [
+            "From the navigation menu, go to Infrastructure > Client Connector > Process Bypass."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-process-based-applications-bypass-traffic.json",
+          "quotes": [
+            "Path: Enter the executable file names for the application. You can use wildcards or environment variables as follows:",
+            "Use a single asterisk (*) to match any full single path component.",
+            "You can’t use a wildcard for partial components.",
+            "Use two asterisks (**) to match any number of consecutive path components.",
+            "For example: **\\ms-teams.exe.",
+            "The following example shows how to use environment variables in a path: %APPDATA%\\Zoom\\bin."
+          ],
+          "after": "- Windows"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-process-based-applications-bypass-traffic.json",
+          "after": "- Windows",
+          "quotes": [
+            "You can add multiple items at the same time by separating each item with a comma"
+          ]
+        }
+      ]
+    },
+    "process-windows-matching": {
+      "statement": "A Windows process-based application can also have Matching Criteria, with one or more options selected from a drop-down menu: SHA2 Signature (an application name and the hash of the executable file), Certificate Signer (a certificate name and the certificate thumbprint) and Certificate Subject (a certificate name and a name that matches the subject of the certificate).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-process-based-applications-bypass-traffic.json",
+          "quotes": [
+            "Matching Criteria: Select one or more options from the drop-down menu and then complete the fields that display.",
+            "SHA2 Signature",
+            "Application Name: Enter a unique name of the executable signature that distinguishes it from other signatures.",
+            "Application Signature: Enter the hash of the executable file.",
+            "Certificate Signer",
+            "Certificate Name: Enter a unique name of the code signing certificate to distinguish it from other signatures.",
+            "Certificate Thumbprint: Enter the Certificate Thumbprint. You can use File Explorer to locate the certificate thumbprint.",
+            "Certificate Name: Enter a unique name of the certificate subject to distinguish it from other certificate subjects.",
+            "Certificate Subject: Enter a name that matches the subject of the certificate."
+          ],
+          "after": "- Windows"
+        }
+      ]
+    },
+    "process-windows-wfp": {
+      "statement": "On Windows, Install WFP Driver must be enabled in App Profiles to use Process-Based Application Bypass.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-process-based-applications-bypass-traffic.json",
+          "quotes": [
+            "You must enable Install WFP Driver in App Profiles to use Process-Based Application Bypass."
+          ],
+          "after": "- Windows"
+        }
+      ]
+    },
+    "process-macos": {
+      "statement": "On macOS, the page says that to use the feature Transparent Proxy-based Traffic Interception must be enabled, that it applies to Client Connector version 4.8 for macOS and later, and to contact Zscaler Support to enable it. The App Identifier is entered as TeamIdentifier.BundleIdentifier or BundleIdentifier, with a maximum of five bundle identifiers in a single application, or as the full path to the app if it has no bundle identifier, where wildcards are not allowed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-process-based-applications-bypass-traffic.json",
+          "quotes": [
+            "To use this feature, you must enable Transparent Proxy-based Traffic Interception. Applies to Zscaler Client Connector version 4.8 for macOS and later. Contact Zscaler Support to enable this feature.",
+            "TeamIdentifier.BundleIdentifier (e.g., UBF8T346G9.com.microsoft.teams2).",
+            "BundleIdentifier (e.g., com.apple.Safari).",
+            "You can define a maximum of five bundle identifiers as part of a single application.",
+            "The full path to the app if the app doesn't have a bundle identifier (e.g., /opt/homebrew/Cellar/podman/5.7.0/libexec/podman/gvproxy). Wildcards are not allowed."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "process-console-location": {
+      "summary": "The About Application Bypass page lists adding process-based applications among the actions on the Application Bypass page (Infrastructure > Client Connector > IP Bypass); the process-based page gives Infrastructure > Client Connector > Process Bypass for adding one.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-about-application-bypass-info.json",
+            "quotes": [
+              "On the Application Bypass page (Infrastructure > Client Connector > IP Bypass), you can do the following:",
+              "View and add process-based applications."
+            ]
+          },
+          "says": "Process-based applications are viewed and added on the Application Bypass page at Infrastructure > Client Connector > IP Bypass."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-adding-process-based-applications-bypass-traffic.json",
+            "after": "You can add process-based applications for each of the following platforms:",
+            "quotes": [
+              "From the navigation menu, go to Infrastructure > Client Connector > Process Bypass."
+            ]
+          },
+          "says": "A process-based application is added from Infrastructure > Client Connector > Process Bypass."
+        }
+      ],
+      "impact": "The pages may describe one page with two menu entries or different pages; neither says which, so the console path for adding a process-based application depends on which page is read."
+    }
+  },
+  "gaps": {
+    "two-asterisk-capture": {
+      "kind": "semantic",
+      "title": "What the two-asterisk Path wildcard looks like on the process-based page",
+      "status": "resolved",
+      "detail": "Capture defect, not a vendor fact: in the capture of Adding Process-Based Applications to Bypass Traffic the literal two-asterisk wildcard characters in the Windows Path rule and in the example that follows it were taken as bold markers and are missing from the text, so the rule is readable only as matching any number of consecutive path components and the example is not usable. The single-asterisk rule and its example are intact. Re-rendering the capture (help_capture.py rerender) or reading the live page settles it.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The capture was re-rendered after the help capture renderer stopped reading a page's literal ** as bold: it now reads \"Use two asterisks (**) to match any number of consecutive path components. For example: **\\ms-teams.exe.\", which process-windows-path quotes."
+    },
+    "predefined-and-limits": {
+      "kind": "semantic",
+      "title": "The predefined IP-based application list and the limits on custom applications",
+      "status": "open",
+      "detail": "The pages give Microsoft Teams and Zoom only as examples of predefined applications, and a limit of five bundle identifiers per application on macOS. They do not give the full predefined list, limits on custom applications or entries, or whether a Linux variant exists.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

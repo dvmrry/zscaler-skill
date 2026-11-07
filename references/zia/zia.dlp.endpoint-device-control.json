@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.endpoint-device-control",
+  "title": "Device Control rules per device class, the default rule, first-match evaluation and device control resources",
+  "aliases": [
+    "Device Control",
+    "device control policy",
+    "Nearby Sharing",
+    "removable storage rule",
+    "printer rule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-inventory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-data-scan"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-intent"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-and-classes}} {{default-rule}} {{first-match-evaluation}}"
+    },
+    {
+      "label": "Actions.",
+      "text": "The vendor's pages list different actions for Device Control rules {{divergence:action-lists}}. {{other-class-actions}} What None and Read Only mean is open {{gap:none-and-read-only}}."
+    },
+    {
+      "label": "Criteria.",
+      "text": "{{criteria-logic}} {{network-type-criterion}} {{rule-details-limits}}"
+    },
+    {
+      "label": "Per-class rules.",
+      "text": "{{device-per-user}} {{nearby-sharing}} {{floppy-windows-only}}"
+    },
+    {
+      "label": "Resources and activation.",
+      "text": "{{resources}} Whether these are the same objects as the Endpoint DLP resources is open {{gap:two-resource-pages}}. Activation of device control rules is covered in [[zia.dlp.endpoint-settings:activation]]."
+    },
+    {
+      "label": "Related.",
+      "text": "Endpoint DLP rules evaluate differently, in [[zia.dlp.endpoint-enforcement]]; the devices the inventory detects are in [[zia.dlp.endpoint-inventory]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which actions a Device Control rule offers for its device class, since the About page and the per-class rule pages list different actions.",
+      "uses": [
+        "action-lists",
+        "none-and-read-only"
+      ]
+    },
+    {
+      "do": "Whether the default rule is disabled, since no other rules are enforced when it is.",
+      "uses": [
+        "default-rule"
+      ]
+    },
+    {
+      "do": "Whether the endpoint's Client Connector version supports the Network Type criterion before relying on it.",
+      "uses": [
+        "network-type-criterion"
+      ]
+    }
+  ],
+  "claims": {
+    "what-and-classes": {
+      "statement": "Administrators can define device control policy rules, which differ from the endpoint DLP rules, for the usage of devices based on criteria such as user, department, endpoint and device. The About page lists removable storage devices, floppy disks (supported on Windows only) and portable (MTP) devices among the classes, and says rules intercept as soon as the device is plugged into the endpoint, even before data is exfiltrated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-device-control.json",
+          "quotes": [
+            "Administrators can define and set up device control policy rules (which differ from the endpoint DLP rules) for the usage of devices based on rule criteria, such as user, department, endpoint, device, etc.",
+            "Removable Storage Devices (e.g., USB drives, external hard drives)",
+            "Floppy Disks (Supported on Windows only)",
+            "Portable Devices (MTP devices such as smartphones, digital cameras, portable media players, etc.)",
+            "Intercept as soon as the device is plugged into the endpoint, even before data is exfiltrated, thereby preventing sensitive information from leaving the network."
+          ]
+        }
+      ]
+    },
+    "default-rule": {
+      "statement": "Device Control includes a default rule whose action, severity, description and end user notifications can be modified. The default rules cannot be deleted but can be edited, and when the default rule is disabled, no other rules are enforced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-device-control.json",
+          "quotes": [
+            "Device Control includes a default rule that administrators can customize by modifying its action, severity, description, and end user notifications. The default rules cannot be deleted, but they can be edited. When the default rule is disabled, no other rules are enforced."
+          ]
+        }
+      ]
+    },
+    "first-match-evaluation": {
+      "statement": "Device control rules are evaluated in sequential order starting from rule order 1. If a rule matches, the policy is enforced based on that rule, and if no rules match, the default rule is applied. The printer rule article adds that rule evaluation stops at the first match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-device-control.json",
+          "quotes": [
+            "Rules are evaluated in sequential order, starting from rule order 1.",
+            "If a rule matches, the policy is enforced based on that rule.",
+            "If no rules match, the default rule is applied."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-printer-rule.json",
+          "quotes": [
+            "Rule evaluation stops at the first match."
+          ]
+        }
+      ]
+    },
+    "other-class-actions": {
+      "statement": "The portable device, CD/DVD, floppy disk and nearby sharing rule articles each list Allow or Block as the actions to select for a violation that matches the rule criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-portable-device-rule.json",
+          "quotes": [
+            "Action: Select an action (i.e., Allow or Block) for violation that matches the criteria in the rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-cddvd-rule.json",
+          "quotes": [
+            "Action: Select an action (i.e., Allow or Block) for violation that matches the criteria in the rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-floppy-disk-rule.json",
+          "quotes": [
+            "Action: Select an action (i.e., Allow or Block) for violation that matches the criteria in the rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-nearby-share-rule.json",
+          "quotes": [
+            "Action: Select an action (i.e., Allow or Block) for violation that matches the criteria in the rule."
+          ]
+        }
+      ]
+    },
+    "criteria-logic": {
+      "statement": "The removable storage, printer and portable device rule articles each state that the rule triggers on [device AND (Users OR User Groups OR Departments) AND (Device OR Device Group) AND Network Type AND Device Trust Level AND User Risk Profile], with Removable Storage, Printers or Portable Devices as the device term. The CD/DVD, floppy disk and nearby sharing articles give the same expression without a device term. The removable storage article says a criterion that is not selected is ignored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-removable-storage-rule.json",
+          "quotes": [
+            "If not selected, the service ignores the criterion. The rule triggers based on the following relationships: [Removable Storage AND (Users OR User Groups OR Departments) AND (Device OR Device Group) AND Network Type AND Device Trust Level AND User Risk Profile]."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-printer-rule.json",
+          "quotes": [
+            "[Printers AND (Users OR User Groups OR Departments) AND (Device OR Device Group) AND Network Type AND Device Trust Level AND User Risk Profile]"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-portable-device-rule.json",
+          "quotes": [
+            "[Portable Devices AND (Users OR User Groups OR Departments) AND (Device OR Device Group) AND Network Type AND Device Trust Level AND User Risk Profile]"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-cddvd-rule.json",
+          "quotes": [
+            "[(Users OR User Groups OR Departments) AND (Device OR Device Group) AND Network Type AND Device Trust Level AND User Risk Profile]"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-floppy-disk-rule.json",
+          "quotes": [
+            "[(Users OR User Groups OR Departments) AND (Device OR Device Group) AND Network Type AND Device Trust Level AND User Risk Profile]"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-nearby-share-rule.json",
+          "quotes": [
+            "[(Users OR User Groups OR Departments) AND (Device OR Device Group) AND Network Type AND Device Trust Level AND User Risk Profile]"
+          ]
+        }
+      ]
+    },
+    "network-type-criterion": {
+      "statement": "The removable storage rule's Network Type selects one or more of Trusted, Off-Trusted or VPN, and the endpoints must run specific Zscaler Client Connector versions for rule enforcement. The removable storage, printer, portable device, CD/DVD, floppy disk and nearby sharing articles each give Windows 4.8.600 or later and macOS 4.7.1 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-removable-storage-rule.json",
+          "quotes": [
+            "Network Type: Select one or more network types to apply the rule to those network types (i.e., Trusted, Off-Trusted, or VPN). Ensure endpoints are running the following Zscaler Client Connector versions for rule enforcement:",
+            "Windows: 4.8.600 or later",
+            "macOS: 4.7.1 or later"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-printer-rule.json",
+          "quotes": [
+            "Windows: 4.8.600 or later",
+            "macOS: 4.7.1 or later"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-portable-device-rule.json",
+          "quotes": [
+            "Windows: 4.8.600 or later",
+            "macOS: 4.7.1 or later"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-cddvd-rule.json",
+          "quotes": [
+            "Windows: 4.8.600 or later",
+            "macOS: 4.7.1 or later"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-floppy-disk-rule.json",
+          "quotes": [
+            "Windows: 4.8.600 or later",
+            "macOS: 4.7.1 or later"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-nearby-share-rule.json",
+          "quotes": [
+            "Windows: 4.8.600 or later",
+            "macOS: 4.7.1 or later"
+          ]
+        }
+      ]
+    },
+    "rule-details-limits": {
+      "statement": "A printer rule's description cannot exceed 250 characters and its severity is High, Medium, Low or Info. The printer and removable storage articles each say the default rule of that class can be edited but not deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-printer-rule.json",
+          "quotes": [
+            "The description cannot exceed 250 characters.",
+            "Severity: Select the severity of the violation from the drop-down menu (i.e., High, Medium, Low, or Info).",
+            "You can edit the default printer rule, but you cannot delete it."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-removable-storage-rule.json",
+          "quotes": [
+            "You can edit the default removable storage rule, but you cannot delete it."
+          ]
+        }
+      ]
+    },
+    "device-per-user": {
+      "statement": "A removable storage rule's devices can be uploaded from a CSV file up to 50 MB. Each CSV row creates a rule criterion, and when subsequent CSV files are imported under the same rule, new rows are appended and existing criteria are not updated, duplicated or deleted. A device's Serial Number and the Client Connector user's email address each default to Any.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-removable-storage-rule.json",
+          "quotes": [
+            "You can import CSV files that contain removable storage serial numbers that are linked to an authorized Zscaler Client Connector user's email address in the rule editor.",
+            "You can upload a CSV file up to 50 MB.",
+            "Each CSV row creates a rule criterion. When subsequent CSV files are imported under the same rule, new rows are appended to the criteria. Existing criteria are not updated, duplicated, or deleted.",
+            "Serial Number: Enter the removable storage device's serial number. The default value is Any.",
+            "User: Enter the email address of the Zscaler Client Connector user. The default value is Any."
+          ]
+        }
+      ]
+    },
+    "nearby-sharing": {
+      "statement": "Nearby Sharing rules can fully block file transfers to nearby devices: on Windows, file transfer over Bluetooth, Nearby Share and Phone Link, and on macOS, AirDrop, Universal Clipboard, iPhone Sync & Mirroring and file transfer over Bluetooth. When Bluetooth is disabled as part of nearby sharing blocking, it applies only to file transfer over Bluetooth and does not block devices such as headphones, keyboards or mice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-nearby-share-rule.json",
+          "quotes": [
+            "Administrators can set up policy rules for Nearby Sharing to fully block file transfers to nearby devices",
+            "Windows: File transfer over Bluetooth, Nearby Share, and Phone Link.",
+            "macOS: AirDrop, Universal Clipboard, iPhone Sync & Mirroring, and File transfer over Bluetooth.",
+            "When Bluetooth is disabled as part of nearby sharing blocking, it only applies to file transfer over Bluetooth. It does not apply to Bluetooth devices such as headphones, keyboards, mouses, etc., and does not block them."
+          ]
+        }
+      ]
+    },
+    "floppy-windows-only": {
+      "statement": "Floppy disk rules are only supported for Windows devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-floppy-disk-rule.json",
+          "quotes": [
+            "Floppy disk rules are only supported for Windows devices."
+          ]
+        }
+      ]
+    },
+    "resources": {
+      "statement": "A device control resource's Vendor ID applies to removable storage and portable devices only, and its UNC path applies to printers only. A printer resource takes an IP address or CIDR and a UNC path, and removable storage and portable device resources each take a serial number.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-resources.json",
+          "quotes": [
+            "Vendor ID: The vendor ID for the resource. Applicable for removable storage and portable devices only.",
+            "UNC: The UNC path for the printer resource. Applicable to printers only."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-printer-resource.json",
+          "quotes": [
+            "IP Address: Enter the IP Address or CIDR for the printer resource.",
+            "UNC Path: Enter the UNC path for the printer resource."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-removable-storage-resource.json",
+          "quotes": [
+            "Serial Number: Enter the removable storage resource's serial number."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-portable-device-resource.json",
+          "quotes": [
+            "Serial Number: Enter the portable device's serial number."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "action-lists": {
+      "summary": "The Device Control About page lists the rule actions as Allow, Block and Read-Only, while the removable storage and printer rule pages add None and the printer page omits Read Only.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-device-control.json",
+            "quotes": [
+              "Action: The action taken when the policy rule is triggered (i.e., Allow, Block, or Read-Only)."
+            ]
+          },
+          "says": "The action taken when the policy rule is triggered is Allow, Block or Read-Only."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-managing-removable-storage-rule.json",
+            "quotes": [
+              "Action: Select an action (i.e., Allow, Block, Read Only, or None) for violation that matches the criteria in the rule."
+            ],
+            "after": "The New Exception page opens. Specify settings in the rule editor for the removable storage device."
+          },
+          "says": "A removable storage rule's action is Allow, Block, Read Only or None."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-managing-printer-rule.json",
+            "quotes": [
+              "Action: Select an action (i.e., Allow, Block, or None) for violation that matches the criteria in the rule."
+            ]
+          },
+          "says": "A printer rule's action is Allow, Block or None."
+        }
+      ],
+      "impact": "Whether None is a selectable action on every Device Control rule, and whether Read Only exists beyond removable storage, cannot be settled from the pages, which do not agree on the list."
+    }
+  },
+  "gaps": {
+    "none-and-read-only": {
+      "kind": "semantic",
+      "title": "What the None and Read Only actions mean",
+      "status": "open",
+      "detail": "Neither None nor Read Only is defined in the captured articles. Also open is whether Read Only applies to classes other than removable storage, and why the About page lists Read-Only but not None.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "two-resource-pages": {
+      "kind": "semantic",
+      "title": "Whether device control resources and Endpoint DLP resources are the same objects",
+      "status": "open",
+      "detail": "Endpoint DLP resources and device control resources (under Endpoint Data Scan) both hold removable storage and printers with overlapping fields. No captured article says whether they are the same objects; the device control pages also add portable devices, and CIDR and UNC for printers.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,397 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.dns-outcome",
+  "title": "What happened to a DNS query: rules, actions, response values and errors",
+  "aliases": [
+    "dns reqaction resaction",
+    "dns log blocked query",
+    "dns log res field",
+    "EMPTY_RESP",
+    "dns log error code",
+    "request rule name response rule name",
+    "dns log domcat vs respipcat"
+  ],
+  "binds": [
+    "zia/dns-log#reqrulelabel",
+    "zia/dns-log#reqaction",
+    "zia/dns-log#resrulelabel",
+    "zia/dns-log#resaction",
+    "zia/dns-log#res",
+    "zia/dns-log#restype",
+    "zia/dns-log#error",
+    "zia/dns-log#domcat",
+    "zia/dns-log#respipcat"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.logs.dns-record-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.dns-gateway-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each query can carry a request-stage and a response-stage rule and action. {{request-response-pairs}} {{reqaction-examples}} {{block-value}} The value sets and whether both fire together are open {{gap:action-enum-open}}."
+    },
+    {
+      "label": "Response value.",
+      "text": "{{res-ip-or-name}} How to tell an address from a sentinel is open {{gap:res-sentinels-open}}."
+    },
+    {
+      "label": "Errors.",
+      "text": "{{error-meaning}} {{empty-resp-both}} The mapping to standard response codes is open {{gap:error-rcode-open}}. {{error-codes}} {{error-sources}} {{internal-codes}} {{request-type-logging}}"
+    },
+    {
+      "label": "Rule name and gateway column.",
+      "text": "{{rule-name-and-bypass}} {{resolver-gateway-column}} The NSS page describes the same field differently: [[zia.logs.dns-gateway-fields:resolver-gateway-meaning]]."
+    },
+    {
+      "label": "Categories.",
+      "text": "{{request-vs-response-category}} Which one decides when they disagree is open {{gap:category-precedence-open}}."
+    },
+    {
+      "text": "Field naming and encodings are in [[zia.logs.dns-record-fields]]; the gateway outcome fields are in [[zia.logs.dns-gateway-fields]]; the policy that produces these actions is in [[zia.dns-control.actions]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a blocked-DNS filter reads reqaction, resaction or both, since which field carries a response-stage block is unsettled.",
+      "uses": [
+        "request-response-pairs",
+        "reqaction-examples",
+        "action-enum-open"
+      ]
+    },
+    {
+      "do": "Whether a res value is an address or a sentinel before parsing it as an IP.",
+      "uses": [
+        "res-ip-or-name",
+        "empty-resp-both",
+        "res-sentinels-open"
+      ]
+    },
+    {
+      "do": "Whether the error field maps to a standard DNS response code.",
+      "uses": [
+        "error-meaning",
+        "error-rcode-open"
+      ]
+    }
+  ],
+  "claims": {
+    "error-codes": {
+      "statement": "The DNS Error Code values are UNSUPPORTED (the parser cannot decode but the DNS header has no error), BYPASS (bypassed by the cloud domain or bypass list), INT_ERROR (the parser failed on supported types), SRV_TIMEOUT (the server did not respond), EMPTY_RESP (no error but an empty answer section), REQ_BLOCKED (request blocked by the firewall, so no response), ADMIN_DROP (session force-dropped by CLI command), WCDN_TIMEOUT (timed out waiting for the Message Transport System to sync a wildcard domain resolution), IPS_BLOCK (blocked by IPS signature match) and FQDN_RESOLV_FAIL (the DNS Gateway server FQDN could not be resolved).",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#error"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-insights-logs-columns.json",
+          "quotes": [
+            "UNSUPPORTED | The DNS parser cannot decode, but there is no error in the DNS header.",
+            "BYPASS | DNS transaction bypassed due to cloud domain/bypass list.",
+            "INT_ERROR | DNS parser failed to parse supported types.",
+            "SRV_TIMEOUT | DNS transaction timed out as server didn't respond.",
+            "EMPTY_RESP | DNS response has no error, but the answer section is empty.",
+            "REQ_BLOCKED | DNS request blocked by firewall, hence no DNS response.",
+            "ADMIN_DROP | DNS transaction prematurely terminated due to the session being forced-dropped via CLI command.",
+            "WCDN_TIMEOUT | DNS transaction timed out while waiting for Zscaler Message Transport System (MTS) to sync a wildcard domain resolution.",
+            "IPS_BLOCK | DNS transaction blocked by IPS signature match.",
+            "FQDN_RESOLV_FAIL | DNS Gateway server value for FQDN could not be resolved."
+          ]
+        }
+      ]
+    },
+    "error-sources": {
+      "statement": "The DNS Error Code column carries the response code of a DNS Control rule with the Block with Response Code action and, when DNS Gateways forward queries to an external DNS service over DoH and an HTTP response arrives without a DNS response, the service's translation of the HTTP status code into an equivalent DNS response; the page says all error codes derive from the standard set by the Internet Engineering Task Force Organization.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#error"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-insights-logs-columns.json",
+          "quotes": [
+            "All error codes derive from the standard set by the Internet Engineering Task Force Organization.",
+            "When using DNS Gateways to forward DNS queries (inbound over UDP/TCP/DoH) to an external DNS service over DoH, the Zscaler service may receive an HTTP response without a DNS response due to an error.",
+            "When the traffic matches with a DNS Control rule configured with the Block with Response Code action, the corresponding response code is populated in this field.",
+            "In that case, the service tries to translate the HTTP status code into an equivalent DNS response and logs it using the DNS Error Code field."
+          ]
+        }
+      ]
+    },
+    "internal-codes": {
+      "statement": "Empty_Resp, Bypass, Int_Error and Srv_TimeOut are Zscaler internal error codes that might appear in the DNS Error Code column but are not listed under the DNS Error Code filter; Zscaler uses them for diagnostic purposes.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#error"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-insights-logs-filters.json",
+          "quotes": [
+            "The following Zscaler internal error codes might appear in the DNS Error Code column:",
+            "Empty_Resp - Bypass - Int_Error - Srv_TimeOut",
+            "These codes are not listed under the DNS Error Code filter. Zscaler uses these error codes for diagnostic purposes."
+          ]
+        }
+      ]
+    },
+    "block-value": {
+      "statement": "The DNS Insights Logs Request Action and Response Action show a Block value for block rules configured with either the Block or the Block with Response Code action.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#reqaction",
+        "zia/dns-log#resaction"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-insights-logs-columns.json",
+          "quotes": [
+            "For block rules configured with either Block or Block with Response Code action, this field populates a \"Block\" value."
+          ],
+          "after": "Request Action: The action taken on the DNS request."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-insights-logs-columns.json",
+          "quotes": [
+            "For block rules configured with either Block or Block with Response Code action, this field populates a \"Block\" value."
+          ],
+          "after": "Response Action: The action taken on the DNS response."
+        }
+      ]
+    },
+    "rule-name-and-bypass": {
+      "statement": "The DNS Insights Logs Rule Name column is displayed only when the traffic is blocked; the article lists the reasons the Zscaler Bypass Traffic rule populates in the logs: the queried domain matches a Zscaler cloud domain, the query matches a Microsoft 365 endpoint in the Office 365 One Click predefined Firewall Filtering rules if enabled, the response has no resolved IP or CNAME, or the response is not completely analyzed because of its record type, DNS Control analyzing A, AAAA, CNAME and PTR responses in detail.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-insights-logs-columns.json",
+          "quotes": [
+            "Rule Name: The rule that was triggered by the DNS request, response, or both.",
+            "This column is only displayed in the logs if the traffic is blocked. By default, this column is not displayed for allowed traffic.",
+            "The following are the reasons why the Zscaler Bypass Traffic rule populates in the logs:",
+            "When the domain name in the DNS request query matches a Zscaler cloud domain.",
+            "When the DNS request query matches an Microsoft 365 endpoint listed in the Office 365 One Click predefined Firewall Filtering rules, if enabled.",
+            "When the DNS response does not contain a resolved IP or CNAME.",
+            "When the DNS response is not completely analyzed because of its resource record type. DNS Control performs detailed analysis of responses for A, AAAA, CNAME, and PTR record types."
+          ]
+        }
+      ]
+    },
+    "request-type-logging": {
+      "statement": "DNS policy control and action enforcement are supported for all available DNS request types, but DNS logs might not display the specific request type values for all of them; the A6 type, for example, is logged as DNS type not mapped by ZS firewall.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#reqtype"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-insights-logs-columns.json",
+          "quotes": [
+            "DNS policy control and action enforcement are supported for all available DNS request types, but DNS logs might not display the specific request type values for all DNS request types",
+            "| A6 | IPv6 address record | DNS type not mapped by ZS firewall |"
+          ]
+        }
+      ]
+    },
+    "resolver-gateway-column": {
+      "statement": "The DNS Insights Logs article describes Resolver Gateway as the name of the DNS resolver (primary or secondary, within the configured DNS Gateway of the triggered rule) that was successfully used to resolve the DNS request, or the error resolution, if any.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-insights-logs-columns.json",
+          "quotes": [
+            "Resolver Gateway: The name of the DNS resolver (primary or secondary, within the configured DNS Gateway of the triggered rule) that was successfully used to resolve the DNS request or displays the error resolution, if any."
+          ]
+        }
+      ]
+    },
+    "request-response-pairs": {
+      "statement": "The DNS NSS feed gives separate rule and action fields for the request (reqrulelabel, reqaction) and for the response (resrulelabel, resaction), mapped in DNS Insights Logs to Request Rule Name, Request Action, Response Rule Name and Response Action.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#reqrulelabel",
+        "zia/dns-log#reqaction",
+        "zia/dns-log#resrulelabel",
+        "zia/dns-log#resaction"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-dns-logs.json",
+          "quotes": [
+            "If applicable, the DNS fields are mapped to their corresponding columns in DNS Insights Logs (Data Explorer > Internet & SaaS > DNS Insights > Logs).",
+            "| %s{reqrulelabel} | The name of the rule that was applied to the DNS request | | Request Rule Name",
+            "| %s{reqaction} | The name of the action that was applied to the DNS request | REQ_ALLOW RES_BLOC | Request Action |",
+            "| %s{resrulelabel} | The name of the rule that was applied to the DNS response | | Response Rule Name",
+            "| %s{resaction} | The name of the action that was applied to the DNS response | | Response Action"
+          ]
+        }
+      ]
+    },
+    "reqaction-examples": {
+      "statement": "The DNS field table lists REQ_ALLOW and RES_BLOC as the example values of reqaction, and gives no example for resaction.",
+      "conditions": "Statement word changed on recapture (2026-10-18): the source is now the DNS field table in nss-feed-output-format-dns-logs.json, not the CSV.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#reqaction",
+        "zia/dns-log#resaction"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-dns-logs.json",
+          "quotes": [
+            "| %s{reqaction} | The name of the action that was applied to the DNS request | REQ_ALLOW RES_BLOC | Request Action",
+            "| %s{resaction} | The name of the action that was applied to the DNS response |  | Response Action"
+          ]
+        }
+      ]
+    },
+    "res-ip-or-name": {
+      "statement": "The res field is the resolved IP or name in the DNS response, with IPv4 and IPv6 addresses and EMPTY_RESP as examples, and restype is the means or format of the response, for example IPv4 or IPv6.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#res",
+        "zia/dns-log#restype"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-dns-logs.json",
+          "quotes": [
+            "| %s{res} | The resolved IP or NAME in the DNS response | 192.168.2.200, 2a02:2e0:40c:102:1:2b:10:80, 2001:db8::2:1, EMPTY_RESP | Resolved IP or Name",
+            "| %s{restype} | The DNS response type. The means or format of the response. | IPv4, IPv6 | DNS Response Type"
+          ]
+        }
+      ]
+    },
+    "error-meaning": {
+      "statement": "The error field is the DNS error code, usually an incomplete or failed transaction, shown in Insights as DNS Error Code.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#error"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-dns-logs.json",
+          "quotes": [
+            "If applicable, the DNS fields are mapped to their corresponding columns in DNS Insights Logs (Data Explorer > Internet & SaaS > DNS Insights > Logs).",
+            "| %s{error} | The DNS error code. Usually an incomplete or failed transaction. | EMPTY_RESP | DNS Error Code"
+          ]
+        }
+      ]
+    },
+    "empty-resp-both": {
+      "statement": "EMPTY_RESP is one of the example values of the res field and the example value of the error field.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#res",
+        "zia/dns-log#error"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-dns-logs.json",
+          "quotes": [
+            "| %s{res} | The resolved IP or NAME in the DNS response | 192.168.2.200, 2a02:2e0:40c:102:1:2b:10:80, 2001:db8::2:1, EMPTY_RESP | Resolved IP or Name",
+            "| %s{error} | The DNS error code. Usually an incomplete or failed transaction. | EMPTY_RESP | DNS Error Code"
+          ]
+        }
+      ]
+    },
+    "request-vs-response-category": {
+      "statement": "The domcat field categorizes the DNS request and respipcat categorizes the DNS response, and each has its own Insights column.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#domcat",
+        "zia/dns-log#respipcat"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-dns-logs.json",
+          "quotes": [
+            "If applicable, the DNS fields are mapped to their corresponding columns in DNS Insights Logs (Data Explorer > Internet & SaaS > DNS Insights > Logs).",
+            "| %s{domcat} | The category of the content of the DNS request | Professional Services | Request Categories |",
+            "| %s{respipcat} | The category of the content of the DNS response | Adult Themes | Response Categories |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "action-enum-open": {
+      "kind": "semantic",
+      "title": "The reqaction and resaction value sets and whether both fire together",
+      "status": "open",
+      "blocks": "a SIEM rule that detects blocked DNS",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: the CSV does not enumerate the values of either field, does not expand the prefixes (RES_BLOC appears as a reqaction example), and does not say whether both fields are always populated, so a rule filtering on one may miss response-stage blocks and one filtering on both may double-count. A tenant test with a request-stage and a response-stage block rule would settle it (legacy clarification log-14).",
+      "former_ids": [
+        "log-14"
+      ]
+    },
+    "res-sentinels-open": {
+      "kind": "semantic",
+      "title": "The sentinel values of res and how to tell them from addresses",
+      "status": "open",
+      "blocks": "parsing res programmatically",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: only EMPTY_RESP is shown; the sentinel set, how names such as CNAME targets differ from sentinels, what res holds for multi-answer responses and how it interacts with restype when empty are not stated (legacy clarification log-15).",
+      "former_ids": [
+        "log-15"
+      ]
+    },
+    "error-rcode-open": {
+      "kind": "semantic",
+      "title": "How error relates to standard DNS response codes",
+      "status": "open",
+      "blocks": "mapping DNS errors to NXDOMAIN, SERVFAIL or REFUSED",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: the relationship of error to RCODE values is not stated; EMPTY_RESP is a Zscaler token, not a standard code."
+    },
+    "category-precedence-open": {
+      "kind": "semantic",
+      "title": "Which of domcat and respipcat drives policy when they disagree",
+      "status": "open",
+      "blocks": "explaining a DNS block when the request and resolved IP categories differ",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: when the request matches one category and the resolved IP another, which one drives the decision and which populates which Insights filter is not stated."
+    }
+  }
+}

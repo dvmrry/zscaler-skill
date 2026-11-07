@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "id": "identity-protection.alerts",
+  "title": "The Identity Protection Alerts page in the Identities menu: list, bulk update, alert drawer, verdicts and score calculation",
+  "aliases": [
+    "identities > alerts",
+    "identity protection alerts",
+    "alert verdict",
+    "alert score calculation",
+    "alert drawer"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.change-detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.identity-findings"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.incidents"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{sources}} Which other integrated products can supply alerts, and how alerts are produced from change detection, is open {{gap:alert-production}}."
+    },
+    {
+      "label": "The list and alert details.",
+      "text": "{{page-summaries}} {{page-actions}} {{list-columns}}"
+    },
+    {
+      "label": "Changing alerts.",
+      "text": "{{bulk-update}} {{create-incident}} The Update dialog and the alert drawer list different verdict values {{divergence:verdict-values-differ}}."
+    },
+    {
+      "label": "The alert drawer.",
+      "text": "{{drawer-top-panel}} {{drawer-details-fields}} {{verdict-values}} {{score-calculation}} How the Risk Score and Score Calculation relate is unclear {{divergence:risk-score-basis}}. {{entities-tab}} {{related-incidents-tab}} The incident statuses differ from the Incidents page {{divergence:incident-statuses-differ}}."
+    },
+    {
+      "label": "Open questions.",
+      "text": "What the Discovered, Acknowledged, Confirmed and Remediated statuses mean, and the weights in the score, are open {{gap:status-and-score}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which verdict list applies: the Update dialog on the Alerts page lists Accepted through Recommendation Status Unspecified, and the alert drawer lists No verdict through True Positive.",
+      "uses": [
+        "verdict-values-differ",
+        "bulk-update",
+        "verdict-values"
+      ]
+    },
+    {
+      "do": "Which statuses an alert can be set to before reading a status as a triage outcome.",
+      "uses": [
+        "drawer-top-panel",
+        "status-and-score"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "Identity Protection alerts notify about anomalous activities related to identities, giving the detected activity, associated user or entity and risk level; similar alerts are correlated and grouped into incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-about-alerts.json",
+          "quotes": [
+            "Alerts are triggered to notify you about anomalous activities related to identities.",
+            "Alerts provide details about the detected activity, associated user or entity, and the risk level.",
+            "Alerts for similar kinds of anomalous activities are correlated and grouped into incidents to help security teams investigate potential threats and remediate issues."
+          ]
+        }
+      ]
+    },
+    "sources": {
+      "statement": "Alerts aggregate data from different sources such as ITDR Change Detection AD and ITDR Change Detection Entra.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-about-alerts.json",
+          "quotes": [
+            "Alerts aggregate data from different sources such as ITDR Change Detection AD and ITDR Change Detection Entra."
+          ]
+        }
+      ]
+    },
+    "page-summaries": {
+      "statement": "The Alerts page (Identities > Alerts) shows the number of alerts triggered per integrated product, the distribution of alerts across severity score ranges, and the number of alerts detected, incidents created by grouping them, and active incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-about-alerts.json",
+          "quotes": [
+            "On the Alerts page (Identities > Alerts), you can do the following:",
+            "See the number of alerts triggered for each integrated product.",
+            "View the distribution of alerts across different severity score ranges, and identify the overall risk level to prioritize high severity alerts and remediate the issue.",
+            "View the number of alerts detected, the number of incidents created by grouping the alerts, and the number of active incidents."
+          ]
+        }
+      ]
+    },
+    "page-actions": {
+      "statement": "On the Alerts page, system-saved or saved views can be selected, alerts searched, filtered and grouped (for example by alert first seen, alert last seen, alert tags), the table refreshed, the alert list exported as a CSV file, and columns changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-about-alerts.json",
+          "quotes": [
+            "Select from system-saved views or views you previously saved.",
+            "Group the alerts by category (e.g., alert first seen, alert last seen, alert tags).",
+            "Export the list of alerts and their associated details as a CSV file.",
+            "Modify the columns displayed in the table.",
+            "Search for an alert.",
+            "Filter the alert information.",
+            "Refresh the alerts table to reflect the most current information."
+          ]
+        }
+      ]
+    },
+    "bulk-update": {
+      "statement": "Selecting alerts and clicking Update on the Alerts page changes Severity (Critical, High, Low, Medium or None), Status (Remediated, Acknowledged, Confirmed or Discovered), Title and Verdict (Accepted, Executed, Partial, Proposed, Scheduled, Success, Under Review or Recommendation Status Unspecified).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-about-alerts.json",
+          "quotes": [
+            "Select alerts from the list, and click Update to change the following settings:",
+            "Severity: Select the severity level for the alert (Critical, High, Low, Medium, or None).",
+            "Status: Select the status for the alert (Remediated, Acknowledged, Confirmed, or Discovered).",
+            "Title: Enter the title for the alert.",
+            "Verdict: Select the verdict for the alert (Accepted, Executed, Partial, Proposed, Scheduled, Success, Under Review, or Recommendation Status Unspecified)."
+          ]
+        }
+      ]
+    },
+    "create-incident": {
+      "statement": "Selected alerts can be turned into an incident with Create Incident on the Alerts page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-about-alerts.json",
+          "quotes": [
+            "Select alerts from the list, and click Create Incident to create an incident based on the selected alerts."
+          ]
+        }
+      ]
+    },
+    "list-columns": {
+      "statement": "The About Alerts page says that clicking an alert shows its details, and for each alert lists ID, Severity (Critical, High, Low, Medium or None), Severity Score, Title, Created, Sources (alerts triggered by Zscaler have the Zscaler logo), Tactic and Technique (MITRE ATT&CK).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-about-alerts.json",
+          "quotes": [
+            "ID: The unique identifier of the alert.",
+            "Severity: The severity level of the alert (Critical, High, Low, Medium, or None).",
+            "Severity Score: The severity score of the alert.",
+            "Created: The date the alert was created.",
+            "Sources: The source of the alert (e.g., alerts triggered by Zscaler have the Zscaler logo).",
+            "Tactic: The MITRE ATT&CK tactic for which the alert is triggered.",
+            "Technique: The MITRE ATT&CK technique for which the alert is triggered.",
+            "Click an alert to view its details. For each alert, you can see:",
+            "Title: The title of the alert."
+          ]
+        }
+      ]
+    },
+    "drawer-top-panel": {
+      "statement": "The alert drawer's top panel shows Name, First Seen, Last Seen, Alert ID and Risk Score, which by default reflects the highest severity score among the findings detected on the asset; Alert Status can be set to Discovered, Acknowledged, Confirmed or Remediated, and changes are saved with Apply Changes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-viewing-managing-alerts.json",
+          "quotes": [
+            "First Seen: The date and time when the alert was first seen.",
+            "Alert ID: The ID of the alert.",
+            "Risk Score: The alert's severity level and severity score. By default, it reflects the highest severity score among the findings detected on the asset.",
+            "Alert Status: Mark the status of the alert (Discovered, Acknowledged, Confirmed, or Remediated).",
+            "Click Apply Changes after making changes to the alert, or close the drawer.",
+            "Name: The name of the alert.",
+            "Last Seen: The date and time when the alert was last seen."
+          ]
+        }
+      ]
+    },
+    "drawer-details-fields": {
+      "statement": "The alert drawer's Details tab shows Source (for example Okta Alerts), Frequency (count of alerts with the same name for the last month), Tactic, Technique, Incidents (number of incidents associated with the alert), Created Time, Verdict and Description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-viewing-managing-alerts.json",
+          "quotes": [
+            "Source: The source of the alert (e.g., Okta Alerts).",
+            "Frequency: The count of alerts with the same name for the last month.",
+            "Incidents: The number of incidents associated with the alert.",
+            "Created Time: The date and time when the alert was triggered.",
+            "Description: The description of the alert.",
+            "Verdict: The verdict of the alert which is used to calculate the alert risk score. Select one of the following verdicts:",
+            "Tactic: The MITRE ATT&CK tactic associated with the alert.",
+            "Technique: The MITRE ATT&CK technique associated with the alert."
+          ]
+        }
+      ]
+    },
+    "verdict-values": {
+      "statement": "The alert drawer's Verdict is used to calculate the alert risk score, with the values No verdict, Benign, False Positive, Inconclusive, Malicious, Suspicious and True Positive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-viewing-managing-alerts.json",
+          "quotes": [
+            "Verdict: The verdict of the alert which is used to calculate the alert risk score. Select one of the following verdicts:",
+            "No verdict: No determination is made for the alert yet.",
+            "Benign: The alert does not indicate a security threat.",
+            "False Positive: The alert is triggered, but the detected condition does not represent the threat the alert is intended to detect.",
+            "Inconclusive: The available evidence is not enough to determine whether the alert indicates a legitimate or malicious condition.",
+            "Malicious: The alert indicates a malicious condition that represents a security threat.",
+            "Suspicious: The alert indicates a potential security threat, but the available evidence is not enough to confirm it as malicious.",
+            "True Positive: The alert identifies the security condition or threat it is intended to detect."
+          ]
+        }
+      ]
+    },
+    "score-calculation": {
+      "statement": "The alert Score Calculation is the alert's cumulative score, calculated by summing the severity scores of the alert (Critical, High, Medium, Low) and the alert verdict and rounding the result, and can be used to prioritize alerts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-viewing-managing-alerts.json",
+          "quotes": [
+            "Score Calculation: The alert's cumulative score that is calculated by summing the severity scores of the alert (i.e., Critical, High, Medium, Low) and the alert verdict, and rounding the result. This indicator can be used to prioritize alerts."
+          ]
+        }
+      ]
+    },
+    "entities-tab": {
+      "statement": "The alert drawer's Entities tab lists the users or assets that received alerts, with the three entities with the most alerts listed at the top.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-viewing-managing-alerts.json",
+          "quotes": [
+            "The Entities tab displays the list of users or assets that received alerts.",
+            "At the top, the three entities with the most alerts are listed."
+          ]
+        }
+      ]
+    },
+    "related-incidents-tab": {
+      "statement": "The alert drawer's Related Incidents tab lists incidents with ID, Alerts (number of alerts associated with incidents), Incident Risk Mass (the risk mass calculated for the incident), Assignee and Status (Discovered, Acknowledged, Confirmed or Remediated), and can export to CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "identity-protection-viewing-managing-alerts.json",
+          "quotes": [
+            "Click the Export as CSV icon to export the incidents list to a CSV file.",
+            "Alerts: The number of alerts associated with incidents.",
+            "Incident Risk Mass: The risk mass calculated for the incident.",
+            "Assignee: The user assigned to the incident.",
+            "Status: The current status of the incident (Discovered, Acknowledged, Confirmed, or Remediated).",
+            "ID: The ID of the incident."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "verdict-values-differ": {
+      "summary": "The Alerts page's Update dialog lists the verdict values Accepted through Recommendation Status Unspecified, while the alert drawer lists No verdict through True Positive.",
+      "positions": [
+        {
+          "says": "The Update dialog's Verdict is one of Accepted, Executed, Partial, Proposed, Scheduled, Success, Under Review or Recommendation Status Unspecified.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "identity-protection-about-alerts.json",
+            "quotes": [
+              "Verdict: Select the verdict for the alert (Accepted, Executed, Partial, Proposed, Scheduled, Success, Under Review, or Recommendation Status Unspecified)."
+            ]
+          }
+        },
+        {
+          "says": "The alert drawer's Verdict is one of No verdict, Benign, False Positive, Inconclusive, Malicious, Suspicious or True Positive.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "identity-protection-viewing-managing-alerts.json",
+            "quotes": [
+              "Verdict: The verdict of the alert which is used to calculate the alert risk score. Select one of the following verdicts:",
+              "No verdict: No determination is made for the alert yet.",
+              "Benign: The alert does not indicate a security threat.",
+              "False Positive: The alert is triggered, but the detected condition does not represent the threat the alert is intended to detect.",
+              "Inconclusive: The available evidence is not enough to determine whether the alert indicates a legitimate or malicious condition.",
+              "Malicious: The alert indicates a malicious condition that represents a security threat.",
+              "Suspicious: The alert indicates a potential security threat, but the available evidence is not enough to confirm it as malicious.",
+              "True Positive: The alert identifies the security condition or threat it is intended to detect."
+            ]
+          }
+        }
+      ],
+      "impact": "An answer naming the values an admin can set as an alert's verdict depends on whether it is set from the Update dialog or from the alert drawer; neither page says the lists apply to different fields. The Incidents page's alert drawer example in [[soc-workbench.incidents]] (gap drawer-example-values) names the same Accepted, Executed and Partial values."
+    },
+    "risk-score-basis": {
+      "summary": "The alert drawer describes the Risk Score as the highest severity score among findings on the asset, while also saying the verdict is used to calculate the alert risk score and that the Score Calculation sums severity scores and the verdict.",
+      "positions": [
+        {
+          "says": "Risk Score by default reflects the highest severity score among the findings detected on the asset.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "identity-protection-viewing-managing-alerts.json",
+            "quotes": [
+              "Risk Score: The alert's severity level and severity score. By default, it reflects the highest severity score among the findings detected on the asset."
+            ]
+          }
+        },
+        {
+          "says": "The verdict is used to calculate the alert risk score, and the Score Calculation is a sum of severity scores and the verdict, rounded.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "identity-protection-viewing-managing-alerts.json",
+            "quotes": [
+              "Verdict: The verdict of the alert which is used to calculate the alert risk score. Select one of the following verdicts:",
+              "Score Calculation: The alert's cumulative score that is calculated by summing the severity scores of the alert (i.e., Critical, High, Medium, Low) and the alert verdict, and rounding the result. This indicator can be used to prioritize alerts."
+            ]
+          }
+        }
+      ],
+      "impact": "An answer giving an alert's Risk Score as a maximum, a sum or a verdict-adjusted value depends on which description applies; the page does not say how the Risk Score and Score Calculation relate, and the 'highest severity' wording also appears for assets in [[aem.assets]] and [[soc-workbench.assets]]."
+    },
+    "incident-statuses-differ": {
+      "summary": "The alert drawer's Related Incidents tab lists four incident statuses including Remediated, while the Taking Action on Incidents page lists Discovered, Opened, Acknowledged, Not Remediated, Confirmed and Closed, with no Remediated.",
+      "positions": [
+        {
+          "says": "An incident's Status is Discovered, Acknowledged, Confirmed or Remediated.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "identity-protection-viewing-managing-alerts.json",
+            "quotes": [
+              "Status: The current status of the incident (Discovered, Acknowledged, Confirmed, or Remediated)."
+            ]
+          }
+        },
+        {
+          "says": "Analysts and AI agents set incident statuses Discovered, Opened, Acknowledged, Not Remediated, Confirmed and Closed, and Confirmed means the incident is closed.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "agentic-soc-taking-action-incidents.json",
+            "quotes": [
+              "Analysts and AI agents can set the following statuses:",
+              "Opened: An analyst has begun actively investigating the incident.",
+              "Confirmed: The incident is closed and the assigned verdict is confirmed to be correct.",
+              "Closed: The incident is closed without passing judgment on the assigned verdict."
+            ]
+          }
+        }
+      ],
+      "impact": "An answer listing the statuses an incident can have depends on which page is followed; neither page says whether the Related Incidents tab and the Incidents page show the same incident object."
+    }
+  },
+  "gaps": {
+    "alert-production": {
+      "kind": "semantic",
+      "title": "How alerts are produced from ITDR change detection and which other products can supply them",
+      "status": "open",
+      "detail": "The Alerts pages name ITDR Change Detection AD, ITDR Change Detection Entra and 'Okta Alerts' as example sources, but do not say how alerts are produced from change detection or which other integrated products can supply alerts. Roles and permissions needed to view or update alerts are also not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "status-and-score": {
+      "kind": "semantic",
+      "title": "What the alert status values mean and the weights in the score calculation",
+      "status": "open",
+      "detail": "The alert pages list the statuses Discovered, Acknowledged, Confirmed and Remediated without defining them. The Score Calculation sums the severity scores and the verdict but gives no weights or severity score ranges.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

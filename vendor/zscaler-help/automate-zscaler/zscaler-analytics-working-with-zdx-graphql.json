@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "Working with the ZDX GraphQL API",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/zscaler-analytics/working-with-zdx-graphql",
+    "revision": "049c0f41.90c6ebe1.js",
+    "updated": "2026-10-18",
+    "updated_basis": "first-seen"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "This article outlines best practices, error-handling information, and example requests for the ZDX GraphQL API. To learn the general concepts of the Analytics API and how to use it, see Working with the Analytics API."
+    },
+    {
+      "heading": "Best Practices",
+      "level": 1
+    },
+    {
+      "text": "To optimize API performance, apply the following best practices:"
+    },
+    {
+      "text": "Transport",
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Send the Accept-Encoding: gzip header for every request. This is mandatory. Configure your client wrapper to fail fast if this header is missing. Most HTTP libraries (such as Python requests or axios) automatically include this header and decompress payloads transparently. However, raw sockets and curl scripts do not.",
+      "depth": 0
+    },
+    {
+      "item": "Reuse connections using HTTP persistent connections (Keep-Alive or requests.Session) to avoid paying the TLS handshake penalty on every call.",
+      "depth": 0
+    },
+    {
+      "text": "Rate-Limit Hygiene",
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Throttle client-side requests against your daily budget. Track consumption metrics and configure alerts to trigger at 80% usage.",
+      "depth": 0
+    },
+    {
+      "item": "When receiving an HTTP 429 status code, use exponential backoff with jitter and honor the Retry-After header value if present. Never retry requests in a tight loop.",
+      "depth": 0
+    },
+    {
+      "item": "Use a single shared rate limiter per tenant credential. Running multiple scripts simultaneously under the same API key can silently exhaust your rate limits.",
+      "depth": 0
+    },
+    {
+      "text": "Query Efficiency",
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Request only the specific fields required for your use case. Requesting a full Device object with all metric families when you only need the profile field results in wasted payload sizes and unnecessary server-side processing.",
+      "depth": 0
+    },
+    {
+      "item": "The end_cursor field returns an empty string (not null) on the final page. Page through data using first: 1000 (the maximum allowed value) and iterate through end_cursor until has_next_page is false.",
+      "depth": 0
+    },
+    {
+      "item": "Filter data server-side (using loc_id, dept_id, geoloc, os_name, or event_id) instead of retrieving the full dataset to filter within client-side code.",
+      "depth": 0
+    },
+    {
+      "item": "You can request up to 8 domains in a single query. You do not need to populate all 8 domains. However, if you require metrics for multiple applications, combining them into a single request instead of executing individual requests helps preserve your daily API budget. Apply this pattern logically where it aligns with your workflow.",
+      "depth": 0
+    },
+    {
+      "item": "Rate limits are shared at the tenant level, not the team level. If multiple teams or scripts consume the API, coordinate usage internally. Share a common client wrapper, document which services consume specific limits, and consolidate overlapping data retrievals (for example, two teams sweeping the same fleet hourly consumes double the daily budget because of redundant data).",
+      "depth": 0
+    },
+    {
+      "item": "The time_range parameter determines your data granularity, not just your scope. The API is bulk oriented, meaning metrics return aggregated over the entirety of your requested time range. A two-hour window returns a single two-hour aggregate, and you cannot recover hourly details from this payload.",
+      "depth": 0
+    },
+    {
+      "item": "To retrieve 24 hours of data with hourly granularity, pull 24 separate one-hour windows rather than a single 24-hour block. Plan your budget accordingly: hourly granularity for a 5,000-device fleet requires approximately 120 calls per day (5 pages × 24 windows), which remains well within Tier 1 limits.",
+      "depth": 0
+    },
+    {
+      "text": "Sync Patterns",
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Perform incremental synchronization by polling the last completed one-hour window every hour, then deduplicating records using the combination of device_id and timestamp.",
+      "depth": 0
+    },
+    {
+      "item": "Perform full-fleet resynchronizations nightly at most.",
+      "depth": 0
+    },
+    {
+      "item": "Hardware and operating system properties (DeviceProfile) do not change frequently, so cache them for 24 hours. Do not cache health and application performance metrics.",
+      "depth": 0
+    },
+    {
+      "item": "Schedule resource-intensive jobs during off-peak hours and distribute them across the day. Avoid consuming your entire daily budget at the start of the business day.",
+      "depth": 0
+    },
+    {
+      "heading": "Error Handling",
+      "level": 1
+    },
+    {
+      "text": "Implement the following error-handling guidelines in your API client:"
+    },
+    {
+      "item": "Check the GraphQL errors array even when receiving an HTTP 200 status code. Partial responses are valid in GraphQL specifications.",
+      "depth": 0
+    },
+    {
+      "item": "Always capture the x-request-id response header and include it in your application logs and support tickets. This ID is critical for the Zscaler team to debug server-side issues.",
+      "depth": 0
+    },
+    {
+      "item": "Design your error-handling logic to branch on the error code, not the message text. Only retry requests that return retryable codes. To learn more, see ZDX GraphQL API Codes.",
+      "depth": 0
+    },
+    {
+      "item": "Use GraphQL query variables. Never string-interpolate user input directly into your query string.",
+      "depth": 0
+    },
+    {
+      "item": "Log total_count relative to the actual edges returned. A persistent total_count: 0 typically indicates an incorrect filter configuration rather than an empty dataset.",
+      "depth": 0
+    },
+    {
+      "heading": "Request Examples",
+      "level": 1
+    },
+    {
+      "text": "Use the following Python reference implementations to start your integration with the ZDX GraphQL API."
+    },
+    {
+      "heading": "Minimal Implementation (Automatic Decompression with Requests)",
+      "level": 2
+    },
+    {
+      "text": "The Python requests library automatically sends the Accept-Encoding: gzip, deflate header and decompresses responses transparently. However, you should still declare the header explicitly to document the requirement in your codebase."
+    },
+    {
+      "code": "import requests\n\nAPI_URL = \"https://api.zdx.example.com/graphql\"\n\nsession = requests.Session()  # keep-alive: reuse TLS connection\nsession.headers.update({\n    \"Authorization\": \"Bearer <token>\",\n    \"Content-Type\": \"application/json\",\n    \"Accept-Encoding\": \"gzip\",   # mandatory\n})\n\nquery = \"\"\"\nquery ListDevices($from: DateTime!, $to: DateTime!, $first: Int!, $after: String) {\n  ZDX {\n    devices(first: $first, after: $after, time_range: {from: $from, to: $to}) {\n      total_count\n      page_info { has_next_page end_cursor }\n      edges { node { id { value } name { value } profile { os_name zdx_version } } }\n    }\n  }\n}\n\"\"\"\n\nresp = session.post(API_URL, json={\n    \"query\": query,\n    # one-hour window: API aggregates metrics over the whole range requested\n    \"variables\": {\"from\": \"2026-09-09T00:00:00Z\", \"to\": \"2026-09-09T01:00:00Z\",\n                  \"first\": 1000, \"after\": None},\n})\nresp.raise_for_status()\ndata = resp.json()                 # already decompressed by requests\nif data.get(\"errors\"):             # partial errors arrive on HTTP 200\n    raise RuntimeError(data[\"errors\"])\n\n# verify compression actually happened (optional sanity check)\nassert resp.headers.get(\"Content-Encoding\") == \"gzip\""
+    },
+    {
+      "heading": "Manual Decompression (Standard Library Only)",
+      "level": 2
+    },
+    {
+      "text": "This example is designed for environments where you are working directly with raw socket streams without external library dependencies."
+    },
+    {
+      "code": "import gzip, json, urllib.request\n\nreq = urllib.request.Request(\n    API_URL,\n    data=json.dumps({\"query\": query, \"variables\": variables}).encode(),\n    headers={\n        \"Authorization\": \"Bearer <token>\",\n        \"Content-Type\": \"application/json\",\n        \"Accept-Encoding\": \"gzip\",   # mandatory\n    },\n)\nwith urllib.request.urlopen(req) as resp:\n    raw = resp.read()\n    if resp.headers.get(\"Content-Encoding\") == \"gzip\":\n        raw = gzip.decompress(raw)   # urllib does NOT auto-decompress\n    data = json.loads(raw)"
+    },
+    {
+      "heading": "Production Pattern with Pagination, Backoff, and Budget Management",
+      "level": 2
+    },
+    {
+      "text": "This example demonstrates a production-ready client design. It handles persistent connections, enforces a local daily rate-limit budget, automates cursor-based pagination, and implements exponential backoff with jitter for transient errors."
+    },
+    {
+      "code": "import time, random, requests\n\nclass ZdxClient:\n    def __init__(self, token, url, daily_budget=10_000):  # tier 1 default\n        self.s = requests.Session()\n        self.s.headers.update({\n            \"Authorization\": f\"Bearer {token}\",\n            \"Content-Type\": \"application/json\",\n            \"Accept-Encoding\": \"gzip\",\n        })\n        self.url = url\n        self.calls_today = 0\n        self.daily_budget = daily_budget\n\n    RETRYABLE = {\"RATE_LIMITED\", \"RETRY_LATER\", \"DATA_NOT_READY\", \"RESOURCE_LOCKED\",\n                 \"INTERNAL_SERVER_ERROR\", \"SERVICE_UNAVAILABLE\", \"TIMEOUT\",\n                 \"DEPENDENCY_FAILURE\"}\n\n    def post(self, query, variables, max_retries=5):\n        if self.calls_today >= self.daily_budget:\n            raise RuntimeError(\"daily API budget exhausted\")\n        for attempt in range(max_retries):\n            resp = self.s.post(self.url, json={\"query\": query, \"variables\": variables})\n            self.calls_today += 1\n            req_id = resp.headers.get(\"x-request-id\")  # include in every log/ticket\n            if resp.status_code == 429:\n                wait = float(resp.headers.get(\"Retry-After\",\n                             2 ** attempt + random.random()))\n                time.sleep(wait)\n                continue\n            resp.raise_for_status()\n            data = resp.json()\n            errors = data.get(\"errors\")\n            if errors:\n                codes = {e.get(\"extensions\", {}).get(\"code\") for e in errors}\n                if codes & self.RETRYABLE:\n                    time.sleep(2 ** attempt + random.random())\n                    continue\n                # non-retryable: bad query/auth — retrying wastes budget\n                raise RuntimeError(f\"GraphQL errors {codes} (x-request-id={req_id}): {errors}\")\n            return data[\"data\"]\n        raise RuntimeError(f\"retries exhausted (last x-request-id={req_id})\")\n\n    def all_devices(self, query, variables):\n        \"\"\"Walk all pages. end_cursor is empty string (not null) on last page.\"\"\"\n        after = None\n        while True:\n            page = self.post(query, {**variables, \"after\": after})[\"ZDX\"][\"devices\"]\n            yield from (e[\"node\"] for e in page[\"edges\"])\n            if not page[\"page_info\"][\"has_next_page\"]:\n                break\n            after = page[\"page_info\"][\"end_cursor\"]\n\nclient = ZdxClient(\"<token>\", API_URL)\n\n# 24 hours of data at hourly granularity = 24 x 1-hour windows.\n# The API aggregates over the requested range; one 24h call = one 24h aggregate.\nfrom datetime import datetime, timedelta, timezone\n\nstart = datetime(2026, 9, 9, tzinfo=timezone.utc)\nfor h in range(24):\n    frm, to = start + timedelta(hours=h), start + timedelta(hours=h + 1)\n    for device in client.all_devices(query, {\"from\": frm.isoformat(),\n                                             \"to\": to.isoformat(),\n                                             \"first\": 1000}):\n        print(frm, device[\"id\"][\"value\"])"
+    },
+    {
+      "text": "Although Python requests decompress gzip automatically, if you need to log raw network payload sizes, compare resp.headers.get(\"Content-Length\") (wire payload size) against len(resp.content) (decompressed payload size) to demonstrate bandwidth efficiency."
+    }
+  ]
+}

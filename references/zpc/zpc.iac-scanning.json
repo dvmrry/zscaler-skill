@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "zpc.iac-scanning",
+  "title": "What ZPC IaC Scan covers: entitlement, supported templates and operating systems, Bicep, skipping policies, disabling and alert status",
+  "aliases": ["IaC Scan", "Zscaler IaC Scan", "zpc-skip-policy", "IaC scanning"],
+  "related": [
+    { "rel": "see-also", "to": "zpc.overview" },
+    { "rel": "see-also", "to": "zpc.iac-integrations" },
+    { "rel": "see-also", "to": "zpc.iac-workstations" },
+    { "rel": "see-also", "to": "portfolio.cloud-protection" }
+  ],
+  "prose": [
+    { "text": "{{policy-count}} {{scan-triggers-and-features}} The product hub is [[zpc.overview]]; per-platform setup is in [[zpc.iac-integrations]] and [[zpc.iac-workstations]]. Whether the service is still available is open {{gap:service-status}}." },
+    { "label": "Entitlement.", "text": "{{entitlement}}" },
+    { "label": "Templates.", "text": "{{template-versions}} {{arm-linked-templates}} {{terraform-plan-support}} {{terraform-plan-support-about}} Whether Terraform Plan runs on Jenkins in Pipeline mode is open {{gap:terraform-plan-jenkins-pipeline}}. {{supported-functions-scope}} Which functions belong to which template list is open {{gap:functions-per-template}}." },
+    { "label": "Operating systems.", "text": "{{os-table-rows}} {{os-ubuntu-unversioned}} {{unsupported-os-fails}} The unlabelled OS tables are open {{gap:os-tables-unlabelled}}." },
+    { "label": "Bicep.", "text": "{{bicep-parsing}} {{bicep-limitations}} {{bicep-cli}}" },
+    { "label": "Skipping policies.", "text": "{{skip-policy-syntax}} {{skip-policy-templates}}" },
+    { "label": "Disabling and deleting.", "text": "{{disable-scanning}} {{delete-closes-alerts}}" },
+    { "label": "Alert status.", "text": "{{alert-status-default}} {{alert-auto-close}} The per-platform closed scenarios are open {{gap:closed-scenarios-per-platform}}." }
+  ],
+  "checks": [
+    {
+      "do": "Whether the CI/CD or CLI Scanner integration uses a supported operating system: using an unsupported one makes the IaC integration fail.",
+      "uses": ["unsupported-os-fails"]
+    },
+    {
+      "do": "Whether Terraform Plan on Jenkins in Pipeline mode is supported: the templates page wording is ambiguous.",
+      "uses": ["terraform-plan-support", "terraform-plan-support-about"]
+    },
+    {
+      "do": "Policies can be skipped by default, but the skip rule is not effective for a policy whose skip option the administrator disabled on the IaC Policies page.",
+      "uses": ["skip-policy-syntax"]
+    }
+  ],
+  "claims": {
+    "entitlement": {
+      "statement": "IaC Scan needs a software entitlement: if it expires, or the subscription is removed or downgraded (for example from ZPC-Advanced to ZPC-Essential), the IaC scan cannot be performed.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-about-iac-integrations.json", "quotes": ["If the software entitlement expires or if you've removed or downgraded the subscription (e.g., reverted from ZPC-Advanced to ZPC-Essential version), then you cannot perform the IaC scan."] }]
+    },
+    "policy-count": {
+      "statement": "The IaC Scan tool checks code against more than 100 security policies for configuration errors such as missing database encryption and publicly exposed services.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-about-iac-integrations.json", "quotes": ["The IaC Scan tool leverages more than 100 security policies to check for configuration errors in your code, such as missing database encryption, publicly exposed services, etc."] }]
+    },
+    "scan-triggers-and-features": {
+      "statement": "The IaC Scan scans code automatically after each pull or merge request within code repositories and CI/CD tools, and is also available as a command line interface tool.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-about-iac-integrations.json", "quotes": ["Automatically scan the code after each pull or merge request within code repositories and CI/CD tools.", "The IaC Scan is also available as a command line interface tool."] }]
+    },
+    "template-versions": {
+      "statement": "The IaC Scan supports AWS CloudFormation (JSON, YAML), Kubernetes and Azure Resource Manager (ARM) in all versions, Helm from version 3, Terraform from version 0.14, and Terraform Plan versions 0.x and 1.x.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-supported-iac-templates-and-functions.json", "quotes": ["AWS Cloud Formation (JSON, YAML): All versions", "Kubernetes: All versions", "Azure Resource Manager (ARM): All versions", "Helm: Version 3 and above", "Terraform: Version 0.14 and above", "Terraform Plan: Versions 0.x and 1.x"] }]
+    },
+    "arm-linked-templates": {
+      "statement": "For an ARM template linked to a remote template, ZPC downloads the remote template, scans it, and also reports violations detected in the linked templates.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-supported-iac-templates-and-functions.json", "quotes": ["If an ARM template is linked to a remote template, then ZPC downloads the remote template, performs the scan on the remote template, and also reports violations that are detected in the linked templates."] }]
+    },
+    "terraform-plan-support": {
+      "statement": "The templates page says Terraform Plan supports all CI/CD pipelines except Jenkins in Pipeline mode only, and that some alert properties are not captured for Terraform Plan templates.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-supported-iac-templates-and-functions.json", "quotes": ["Terraform Plan supports all CI/CD Pipelines, except for Jenkins in Pipeline mode only.", "some alert properties are not captured for Terraform Plan templates"] }]
+    },
+    "terraform-plan-support-about": {
+      "statement": "The About IaC Integrations page lists Terraform Plan as supported on all CI/CD pipelines and says it is supported in Pipeline mode for Jenkins.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-about-iac-integrations.json", "quotes": ["Terraform Plan: All CI/CD Pipelines. However, Terraform Plan is supported in Pipeline mode for Jenkins."] }]
+    },
+    "supported-functions-scope": {
+      "statement": "The templates page documents supported functions for CloudFormation, Terraform and ARM templates, and lists function names such as Fn::Sub.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-supported-iac-templates-and-functions.json", "quotes": ["The Zscaler IaC Scan supports various functions for the following templates:", "- Fn::Sub", "- CloudFormation Template", "- Terraform Template", "- ARM Template"] }]
+    },
+    "os-table-rows": {
+      "statement": "The Supported OS Versions page introduces its OS tables as covering CI/CD tools and the CLI Scanner, and one table lists MacOS Catalina and above, Ubuntu 22.04 LTS, Ubuntu 20.04.4 LTS, Windows 10 Desktop, Windows 11 Pro and Windows 2019 Server.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-supported-os-versions-iac-scanning.json", "quotes": ["The following OS versions are supported for CI/CD tools and CLI Scanner:", "| MacOS Catalina and above |", "| Ubuntu 22.04 LTS |", "| Ubuntu 20.04.4 LTS |", "| Windows 10 Desktop |", "| Windows 11 Pro |", "| Windows 2019 Server |"] }]
+    },
+    "os-ubuntu-unversioned": {
+      "statement": "One OS table on the Supported OS Versions page lists Ubuntu without a version.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-supported-os-versions-iac-scanning.json", "quotes": ["| Ubuntu |"] }]
+    },
+    "unsupported-os-fails": {
+      "statement": "On the Jenkins, GitHub Actions, Azure Pipelines, Terraform Cloud, other CI/CD tools and CLI Scanner pages, using an unsupported operating system makes the IaC integration fail.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "zpc-configuring-iac-scan-jenkins.json", "quotes": ["Ensure you use the supported operating systems only, otherwise the IaC integration fails."] },
+        { "source": "zscaler-help", "path": "zpc-configuring-iac-scan-github-actions.json", "quotes": ["Ensure you use the supported operating systems only, otherwise the IaC integration fails."] },
+        { "source": "zscaler-help", "path": "zpc-configuring-iac-scan-azure-pipelines.json", "quotes": ["Ensure you use the supported operating systems only, otherwise the IaC integration fails."] },
+        { "source": "zscaler-help", "path": "zpc-configuring-iac-scan-terraform-cloud.json", "quotes": ["Ensure you use the supported operating systems only, otherwise the IaC integration fails."] },
+        { "source": "zscaler-help", "path": "zpc-configuring-iac-scan-other-cicd-tools.json", "quotes": ["Ensure you use the supported operating systems only, otherwise the IaC integration fails."] },
+        { "source": "zscaler-help", "path": "zpc-configuring-iac-cli-scanner.json", "quotes": ["Ensure you use the supported operating systems only, otherwise the IaC integration fails."] }
+      ]
+    },
+    "bicep-parsing": {
+      "statement": "ZPC parses Bicep files into ARM templates, and only in GitHub Actions and Azure Pipelines.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-parsing-bicep-files.json", "quotes": ["ZPC provides support for parsing Bicep files into Azure Resource Manager (ARM) templates.", "ZPC supports the parsing of Bicep files only in GitHub Actions and Azure Pipelines."] }]
+    },
+    "bicep-limitations": {
+      "statement": "When converting a Bicep file, the folder path where the file resides must be given rather than the directory path, because the Bicep CLI does not recognise the directory path; after conversion, violations are shown against line numbers in the ARM template, not the Bicep file.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-parsing-bicep-files.json", "quotes": ["While converting a Bicep file, you must provide the folder path where the Bicep file resides and not the directory path because the Bicep CLI does not recognize the directory path.", "the policy violations are shown based on the line numbers within the ARM template and not the line numbers within the Bicep file."] }]
+    },
+    "bicep-cli": {
+      "statement": "Compiling Bicep files into ARM templates needs the Azure Bicep CLI, or the Azure CLI, which installs the Bicep CLI automatically; the page converts with bicep build main.bicep.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-parsing-bicep-files.json", "quotes": ["You need to install and use the Azure Bicep command-line interface (CLI) for compiling the Bicep files into ARM templates.", "You can also install and use the Azure command-line interface (CLI) which automatically installs the Bicep CLI.", "bicep build main.bicep"] }]
+    },
+    "skip-policy-syntax": {
+      "statement": "A policy is skipped by adding a zpc-skip-policy comment with the IaC policy ID to the configuration file; by default policies can be skipped, but if the administrator disabled skipping for a policy on the IaC Policies page, the skip rule is not effective for that policy ID.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-skipping-iac-policies.json", "quotes": ["#zpc-skip-policy: <Policy_ID>: <Comment or Reason for the Skip>", "By default, the policies can be skipped.", "If the administrator has disabled the option to skip a specific policy on the IaC Policies page, then the skip rule is not effective for the specific policy ID."] }]
+    },
+    "skip-policy-templates": {
+      "statement": "Skip rules can be added to templates including CloudFormation JSON, CloudFormation YAML and Kubernetes, using the zpc-skip-policy key; the page gives an example snippet per template.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-skipping-iac-policies.json", "quotes": ["You can add a skip rule to the following templates:", "\"metadata\": { \"zpc-skip-policy\": \"ZS-AZURE-004:comment\" },", "#zpc-skip-policy: ZS-AWS-00030:testing", "\"Metadata\": {\"zpc-skip-policy\": \"ZS-AWS-00018,ZS-AWS-00025\"},", "Metadata: zpc-skip-policy: \"ZS-AWS-00021:new comment;\"", "metadata: annotations: zpc-skip-policy: \"ZS-K8S-00006:new comment\"", "- CloudFormation JSON", "- CloudFormation YAML", "- Kubernetes"] }]
+    },
+    "disable-scanning": {
+      "statement": "IaC scanning can be disabled per repository within GitHub, GitLab or Azure Repos; ZPC then removes the repository from the integration, scanning is enabled for all repositories by default, and a scan already in progress completes first.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-disabling-iac-scanning.json", "quotes": ["You can disable the IaC scanning for selected repositories within GitHub, GitLab, or Azure Repos.", "ZPC disables the IaC scanning and removes the selected repository from the IaC integration.", "By default, the scanning is enabled for all repositories.", "Any scanning that is currently in progress is completed, then the IaC scanning is disabled for the repository."] }]
+    },
+    "delete-closes-alerts": {
+      "statement": "When an integration account is deleted, a repository is removed from scanning, or the resource or branch is deleted in the version control system or CI/CD pipeline, alert notifications are not sent for that account and the alert status changes to Closed; deleting a GitHub integration also removes the Zscaler IaC app from Installed Apps and Authorized Apps in GitHub.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-editing-or-deleting-iac-integration.json", "quotes": ["Whenever you delete an account from IaC integration, remove a repository from scanning in the ZPC Admin Portal, delete the resource or branch from the version control system or CI/CD pipeline, alert notifications will not be sent for that account and the alert status changes to Closed on the Alerts page.", "Whenever you delete a GitHub integration, the Zscaler IaC app is also automatically removed from the Installed Apps and Authorized Apps section within GitHub."] }]
+    },
+    "alert-status-default": {
+      "statement": "By default an IaC alert for a policy violation shows as Open in the ZPC Admin Portal, and ZPC updates it to Resolved when the issue is addressed.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-viewing-iac-alert-status.json", "quotes": ["By default, whenever an IaC alert is triggered for IaC policy violations, the status of the alert is displayed as Open in the ZPC Admin Portal. When you address the issue, ZPC updates the alert status as Resolved."] }]
+    },
+    "alert-auto-close": {
+      "statement": "ZPC automatically changes the IaC alert status to Closed in listed scenarios on each platform, including a deleted Azure repo and a deleted Terraform workspace, and shows the reason when the alert is viewed.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-viewing-iac-alert-status.json", "quotes": ["However, ZPC automatically changes the IaC alert status to Closed in the following scenarios on each platform:", "When you view the alert details, you can see the reason why the alert was closed", "Azure repo is deleted", "Terraform workspace is deleted"] }]
+    }
+  },
+  "gaps": {
+    "service-status": {
+      "kind": "semantic",
+      "title": "Whether the ZPC IaC Scan features these pages describe are still available",
+      "status": "open",
+      "detail": "portfolio.cloud-protection records ZPC end of life as planned for March 15, 2026. None of the captured IaC pages says whether it describes a service still available, so none of these facts is claimed as current.",
+      "resolves_with": ["source-read"]
+    },
+    "terraform-plan-jenkins-pipeline": {
+      "kind": "semantic",
+      "title": "Whether Terraform Plan is supported on Jenkins in Pipeline mode",
+      "status": "open",
+      "detail": "The templates page says \"all CI/CD Pipelines, except for Jenkins in Pipeline mode only\", which reads either as an exception for Jenkins Pipeline mode or as Jenkins supported in Pipeline mode only; the About IaC Integrations page says Terraform Plan is supported in Pipeline mode for Jenkins. Under the second reading the pages agree; which reading is meant is not stated.",
+      "resolves_with": ["source-read", "lab-test", "support-ticket"]
+    },
+    "functions-per-template": {
+      "kind": "semantic",
+      "title": "Which supported functions belong to CloudFormation, Terraform or ARM",
+      "status": "open",
+      "detail": "The templates page flattens the function lists, so which functions belong to which template is not stated per list; the list repeats contains, tomap and length, and ends with Formatdate, Timeadd and Timestamp under no heading.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "os-tables-unlabelled": {
+      "kind": "semantic",
+      "title": "Which OS table applies to CI/CD tools and which to the CLI Scanner",
+      "status": "open",
+      "detail": "The Supported OS Versions page introduces CI/CD tools and CLI Scanner, then shows two tables without labels. Rows shared by both tables (Amazon Linux 2, Amazon Linux 2023, Debian GNU/Linux 11, Red Hat Enterprise Linux 8.6, SUSE Linux Enterprise Server 15 SP3 and 12 SP2) cannot be quoted uniquely, and which table belongs to which is not stated.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "closed-scenarios-per-platform": {
+      "kind": "semantic",
+      "title": "Which closed-alert scenario belongs to which platform",
+      "status": "open",
+      "detail": "Viewing IaC Alert Status lists the scenarios in which ZPC closes an alert on each platform, but the capture runs the lists together without per-platform labels and several lines repeat, so per-platform reasons cannot be quoted.",
+      "resolves_with": ["source-read", "lab-test"]
+    }
+  }
+}

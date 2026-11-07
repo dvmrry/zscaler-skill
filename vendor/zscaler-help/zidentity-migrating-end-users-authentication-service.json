@@ -1,0 +1,741 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Migrating End Users to Authentication Service",
+  "source": {
+    "url": "https://help.zscaler.com/authentication-service/migrating-end-users-authentication-service",
+    "node": "1528880",
+    "revision": "3249574",
+    "updated": "2026-10-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "Authentication Service (formerly ZIdentity) is the common identity and authentication service that provides a centralized and unified platform for all Zscaler services. End user migration is the process of migrating existing end user authentication workflows and service entitlements from various Zscaler services to Authentication Service to streamline user management and improve administrative efficiency, strengthen access control and security. You no longer need to configure the external identity provider (IdP) for each Zscaler service separately."
+    },
+    {
+      "text": "After the end user migration, users can authenticate with Authentication Service and enroll into the Zscaler services (Internet & SaaS (ZIA), Private Access (ZPA), Digital Experience (ZDX), and others) with a single set of credentials, eliminating the need for multiple ones. Authentication Service for users also enables new features like step-up authentication and Adaptive Access Engine."
+    },
+    {
+      "item": "Existing customers who have already completed admin migration can migrate their users. Contact the Zscaler Support to enable your tenant for end user migration.",
+      "depth": 0
+    },
+    {
+      "item": "Privileged Remote Access (PRA) or emergency access users are not eligible for end user migration. These users are synced with Authentication Service after migration is completed, and they must reauthenticate as hosted users or guest users with the external IdP depending on the organization's configuration. To learn more, see Migrating Private Access End Users to Authentication Service.",
+      "depth": 0
+    },
+    {
+      "item": "The allowlisted domains for Private Access emergency access is synchronized as Authentication Service guest domains.",
+      "depth": 0
+    },
+    {
+      "item": "End user migration does not disrupt users, and they are not required to log out and log in again to Zscaler Client Connector during or after the end user migration provided the following supported Zscaler Client Connector versions are used during migration:",
+      "depth": 0
+    },
+    {
+      "item": "Windows 4.8 or later",
+      "depth": 1
+    },
+    {
+      "item": "MacOS 4.8 or later",
+      "depth": 1
+    },
+    {
+      "item": "Android 4.1 or later",
+      "depth": 1
+    },
+    {
+      "item": "iOS 4.4.4 or later",
+      "depth": 1
+    },
+    {
+      "item": "Linux 3.7.2 or later",
+      "depth": 1
+    },
+    {
+      "item": "Okta customers must use the Okta Integration Network (OIN) Zscaler App. Customers who have previously set up an Okta integration using any other service need to change to the OIN Zscaler App. If not, Okta's group membership provisioning over SCIM using a custom app results in incomplete group memberships.",
+      "depth": 0
+    },
+    {
+      "item": "Deception landmine client is not supported.",
+      "depth": 0
+    },
+    {
+      "text": "End user migration includes the following benefits:"
+    },
+    {
+      "item": "Simplified administration: Manage users in one place and save time with automated access provisioning.",
+      "depth": 0
+    },
+    {
+      "item": "Improved user experience: Log in once, log in securely, and access all Zscaler services.",
+      "depth": 0
+    },
+    {
+      "item": "Stronger safeguards: Enforce MFA at Zscaler and centralize policy enforcement to minimize security gaps. This is applicable only for hosted users (created in Authentication Service).",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before starting the end user migration, you need to complete the following pre-migration tasks:"
+    },
+    {
+      "item": "All IdPs configured in Zscaler services like Internet & SaaS, Private Access, etc., must be the same IdPs that are used by admins and must be configured in the exact same way in Authentication Service. Zscaler recommends adding the exact Internet & SaaS and Private Access IdP configurations in Authentication Service. For example, if Internet & SaaS and Private Access have two IdPs mapped with unique domains, then the same two IdPs and domains must be added to Authentication Service. To learn more, see About External Identity Providers.",
+      "depth": 0
+    },
+    {
+      "item": "Any SCIM groups used in policies must be configured properly in Authentication Service.",
+      "depth": 0
+    },
+    {
+      "item": "The same domains mapped in Internet & SaaS and Private Access to the external IdP are mapped to the IdP configured in Authentication Service.",
+      "depth": 0
+    },
+    {
+      "item": "All end user data and group data are provisioned in Authentication Service. This is necessary to properly manage the service entitlements and test users in the migration process, and ensure that policies configured in Internet & SaaS and Private Access continue to work seamlessly.",
+      "depth": 0
+    },
+    {
+      "item": "User and session attributes are defined in Authentication Service. If SAML attributes are used in the policies, then these attributes must be configured in Authentication Service.",
+      "depth": 0
+    },
+    {
+      "item": "The end user systems must be running the required Zscaler Client Connector versions. To learn more, see Understanding the Zscaler Client Connector App Downloads.",
+      "depth": 0
+    },
+    {
+      "text": "The above actions ensure that admins need not reconfigure Internet & SaaS and Private Access policy rules and can use the existing identity data set in the policy rule criteria. The reason to fetch all the data and correlate on Authentication Service is to ensure that Internet & SaaS, Private Access, and Zscaler Client Connector policies function smoothly without any disruption. For example, let’s consider that a Internet & SaaS policy defined for certain groups allows the groups to access a specific internet site. If the group is not correlated on Authentication Service, then the users in the group might be blocked because that group doesn’t exist on Authentication Service. In the case of a Private Access policy, a certain user attribute or session attribute (previously referred to as SCIM attribute and SAML attribute respectively) is used in decision-making to block or allow user access to a private site. Correlation with Authentication Service attributes ensures that they are accounted for after end user migration."
+    },
+    {
+      "text": "Rollback after end user migration: In case you want to revert the users to the existing external IdP and restore their pre-migration state, you can contact Zscaler Support. Rollback is allowed only for 14 days after migration. After rollback, if there are any changes to users and groups on the external IdP, then the admin must sync the users and groups again before re-initiating the end user migration. Migrating users immediately after rollback is restricted. You must wait for 24 hours before re-initiating end user migration.",
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "heading": "Migrating End Users",
+      "level": 1
+    },
+    {
+      "text": "The admin user with a Super Admin role must complete these steps:"
+    },
+    {
+      "item": "When you receive an email that your organization is set up for end user migration, click the link in the email and log in to the Zscaler Admin Console if your tenant is enabled for Experience Center. The email is sent from no-reply@zscaler.com with the subject line \"Authentication Service End User Migration.\"",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "The top banner shows a message and a link. Click the link to start the end user migration.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "On the next page, read the prerequisites and conditions.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next and complete the following steps:",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The following first three audit activities must be completed successfully to be able to move to the next step and review the service entitlements. Also, ensure that the identity configuration and policy rule criteria in Authentication Service are equivalent to what was used in Internet & SaaS and Private Access.",
+      "depth": 0
+    },
+    {
+      "item": "a. Audit the IdPs.",
+      "depth": 1
+    },
+    {
+      "item": "On the IdP Policy Audit page, the IdPs and domains of the individual Zscaler services that are correctly mapped to the corresponding IdPs and domains in Authentication Service are displayed.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Make sure to map the default IdP in Internet & SaaS to the primary IdP in Authentication Service, so the groups can be mapped without any issues.",
+      "depth": 2
+    },
+    {
+      "item": "Any mismatched IdPs are shown, evaluate and adjust the IdPs and domains in the specific Zscaler service and return to this page. For example, if Internet & SaaS has 2 domains mapped (e.g., safemarcha.com and safemarchb.com) and Authentication Service has only safemarcha.com mapped, the admin should either add safemarchb.com to the IdP in Authentication Service, remove safemarchb.com from the IdP in Internet & SaaS, or select the domains that must be excluded from the Skipped Domains drop-down menu. See image. In another scenario, there might be one IdP in Internet & SaaS and 2 IdPs in Private Access.",
+      "depth": 2,
+      "strong": [
+        [
+          472,
+          487
+        ]
+      ]
+    },
+    {
+      "item": "You can proceed to the next step only after you match the IdPs.",
+      "depth": 2
+    },
+    {
+      "item": "To match the IdPs:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "On the External Identities page, click the Edit icon for the primary identity provider.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          43,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page, under Basics Configurations, select the required domains from the Domains drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          42,
+          63
+        ],
+        [
+          102,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Update.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click the link in the top banner to go back to the IdP Audit page and proceed to the next step.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          51,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "b. Audit the groups.",
+      "depth": 1
+    },
+    {
+      "item": "On the Group Policy Audit page, view the groups for the required Zscaler service that are mapped correctly to the corresponding group in Authentication Service. To learn more, see Adding User Groups.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "If any mismatched groups are displayed, evaluate and adjust the group configuration with Authentication Service and return to this page.",
+      "depth": 2
+    },
+    {
+      "item": "You can proceed to the next step only after you match the groups.",
+      "depth": 2
+    },
+    {
+      "item": "Review the user attributes to ensure that any policy in Internet & SaaS or Private Access that uses attributes in the criteria has a matching attribute in Authentication Service. To learn more, see Adding User Attributes.",
+      "depth": 1
+    },
+    {
+      "item": "On the User Attribute Policy Audit page, view the user attributes that are mapped correctly to the corresponding user attributes in Authentication Service.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If any mismatched user attributes or session attributes (for Private Access) are displayed, evaluate and adjust the attributes with Authentication Service and return to this page. You can proceed to the next step only after you match the user attributes.",
+      "depth": 2
+    },
+    {
+      "item": "To match the attributes:",
+      "depth": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "On the External Identities page, click the Edit icon for the primary identity provider.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          43,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page, go to the Advanced section, define the attribute and select it.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          46,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Remove the attribute from the policy rule in Internet & SaaS or Private Access if it's no longer being used.",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "Click Update.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click the link in the top banner to go back to the Session Attributes Audit page and proceed to the next step.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          51,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The End User Entitlement page is visible only when end user migration is enabled for your tenant. You need to manually assign the entitlements for the first time. Zscaler recommends assigning service entitlements to groups.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler might not have the complete information of users that were historically assigned to specific Zscaler services because some users are assigned directly to Internet & SaaS or Private Access at the external IdP. You must review the service entitlement assignments in Authentication Service to ensure that the right users are assigned to the right services.",
+      "depth": 1
+    },
+    {
+      "item": "If users are using Zscaler Client Connector, then you need to sync the end user Zscaler Client Connector enrolled services to Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > User Groups",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "Create a group for each Zscaler service using this format: \"Migrated [service] Service Entitlements - [cloud-orgid]\". For example, \"Migrated Internet Access Service Entitlements - zscalertwo.com-123987456\".",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Next, go to Administration > Subscription > End User Entitlements.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          12,
+          26
+        ],
+        [
+          29,
+          41
+        ],
+        [
+          44,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "On the Service Entitlements page, click the required Zscaler service and assign user groups to that service. To learn more, see Assigning Entitlements to Users and User Groups.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If users do not use Zscaler Client Connector, then you need to first assign users to the corresponding Zscaler service.",
+      "depth": 2
+    },
+    {
+      "item": "Return to the end user migration wizard (click the link in the top banner), go to the Service Entitlements page and review the user groups and device groups assigned to service entitlements and make adjustments if necessary.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          86,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Before selecting the test users, you must provision the user details from your external IdP using SCIM to Authentication Service. To learn more, see Adding Users.",
+      "depth": 1
+    },
+    {
+      "item": "You can select a subset of users as test users and migrate them to Authentication Service in controlled phases to validate the single sign-on (SSO) process and ensure the policies work properly for these users.",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler recommends that the test users verify as many Internet & SaaS and Private Access policies as applicable to ensure they and similar users experience consistent policy actions as they experienced prior to the migration.",
+      "depth": 2
+    },
+    {
+      "item": "Ensure the test users are assigned with the service entitlement to the correct Zscaler service. Though it is not mandatory, Zscaler recommends that the test users log out and log in to verify and confirm their Zscaler service enrollment.",
+      "depth": 2
+    },
+    {
+      "item": "For Private Access test users:",
+      "depth": 3
+    },
+    {
+      "item": "Only existing users from the external IdP can be selected as test users.",
+      "depth": 3
+    },
+    {
+      "item": "At least one test user is required before initiating full migration.",
+      "depth": 3
+    },
+    {
+      "item": "Group mappings for pilot users must exactly match the existing groups in the external IdP. If there is a group mismatch, the pilot users cannot be migrated even if Authentication Service allows it.",
+      "depth": 2
+    },
+    {
+      "item": "Test users must verify and confirm if they are able to successfully reauthenticate to Private Access after the test migration.",
+      "depth": 2
+    },
+    {
+      "item": "A minimum of one user and a maximum of 1,000 users can be selected as test users. You can proceed to the next step in 24 hours after the test users are successfully migrated to Authentication Service. Until then, the Next button is disabled. Come back to this page after 24 hours.",
+      "depth": 2,
+      "strong": [
+        [
+          217,
+          221
+        ]
+      ]
+    },
+    {
+      "item": "You can only migrate 1000 test users. After this, you must perform end user migration to migrate the remaining users.",
+      "depth": 1
+    },
+    {
+      "item": "On the Test Users page, the Users tab shows the list of users that are not migrated.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          28,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the required users who are considered as test users, then click Migrate Test Users.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          71,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the confirmation window, click Migrate Test Users.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          34,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The test users are migrated and a message appears indicating the migration is successful.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The test users are completely migrated and no further changes are applied to them when the admin migrates all the users (during complete migration).",
+      "depth": 2
+    },
+    {
+      "item": "After the test user migration has started, any new changes to device tokens, device groups, and service entitlements in Zscaler Client Connector are not synced with Authentication Service.",
+      "depth": 2
+    },
+    {
+      "item": "Private Access emergency access users cannot be selected as test users.",
+      "depth": 2
+    },
+    {
+      "item": "On the Summary page, review the audit details and edit the configuration, if required.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Make sure the policy audits do not have any errors before migration.",
+      "depth": 2
+    },
+    {
+      "item": "Click Complete Migration.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "On the Authentication Service End User Migration page, you can see the status of the migration. The migration process can take several minutes or hours to complete.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "You can come back to this page later by clicking the link in the top banner.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "After the migration is completed, a message is displayed that the migration is completed successfully.",
+      "depth": 2
+    },
+    {
+      "item": "Authentication Service is the new identity and authentication service for all the migrated end users.",
+      "depth": 2
+    },
+    {
+      "item": "c. Audit the user attributes.",
+      "depth": 1
+    },
+    {
+      "item": "d. Review and assign service entitlements.",
+      "depth": 1
+    },
+    {
+      "item": "e. Migrate test users.",
+      "depth": 1
+    },
+    {
+      "item": "f. Migrate all users.",
+      "depth": 1
+    }
+  ]
+}

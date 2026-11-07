@@ -1,0 +1,398 @@
+{
+  "schema_version": 1,
+  "id": "zwa.notifications",
+  "title": "Workflow Automation notification templates (email, Slack, Teams): default families, status and edit rules, the digest flag and email builder settings",
+  "aliases": [
+    "notification templates",
+    "email notification template",
+    "slack notification template",
+    "teams notification template",
+    "digest notification template",
+    "template family",
+    "end-user justification template",
+    "escalation template"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.notifications.merge-tags"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.notifications.survey-templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.notifications.template-mappings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} The merge tags and links available in the builders are in [[zwa.notifications.merge-tags]], the surveys the notifications link to are in [[zwa.notifications.survey-templates]], and which templates are used for which incident is in [[zwa.notifications.template-mappings]]."
+    },
+    {
+      "label": "Default families.",
+      "text": "{{default-email-families}} {{default-slack-families}} {{default-teams-families}} {{slack-teams-integration-required}}"
+    },
+    {
+      "label": "The templates page.",
+      "text": "{{list-type-status}} {{one-per-language}} {{family-fixed}}"
+    },
+    {
+      "label": "Editing and status.",
+      "text": "{{defaults-view-clone-only}} {{draft-and-published-edit}} {{published-only}} Which templates a mapping can select is stated two ways {{divergence:mapping-template-status}}. {{clone-name-prefix}} {{translate-reset}}"
+    },
+    {
+      "label": "Template settings.",
+      "text": "{{digest-flag}} {{email-subject-line}} {{time-zone}}"
+    },
+    {
+      "label": "Email builder.",
+      "text": "{{email-builder-tools}} {{email-preheader-title}}"
+    },
+    {
+      "text": "How a published template is chosen when a family has several languages is open {{gap:language-selection}}, and so is whether Slack and Teams digests differ from email {{gap:chat-digest-differences}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the template is Draft, Published or System Default before editing it, since only draft and published templates can be edited and only published ones are used.",
+      "uses": [
+        "defaults-view-clone-only",
+        "published-only",
+        "list-type-status"
+      ]
+    },
+    {
+      "do": "Whether Workflow Automation is integrated with Slack or Microsoft Teams before looking for Slack or Teams templates.",
+      "uses": [
+        "slack-teams-integration-required",
+        "list-type-status"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "Notification templates set the format of the notifications Workflow Automation sends when an admin asks the end user to justify actions or escalates an incident to an approver, of the digest notifications to users and DLP admins, and of the notifications sent from workflows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-notification-templates.json",
+          "quotes": [
+            "Notifications are sent when the admin asks the end user to justify actions that led to an incident and when the admin escalates the incident to an approver from the Incidents page or the Incident Details drawer.",
+            "The format for the digest notifications that Workflow Automation sends to the users and the Data Loss Prevention (DLP) admins.",
+            "The format for the notifications that are generated and sent from the various workflows defined in Workflow Automation."
+          ]
+        }
+      ]
+    },
+    "default-email-families": {
+      "statement": "The system default email notification template families are End-user Justification - Email Template, Escalation - Email Template, Digest - Email Template and DLP Admin Digest - Email Template, each with a default template of the same name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-notification-templates.json",
+          "quotes": [
+            "| End-user Justification - Email Template | End-user Justification - Email Template |",
+            "| Escalation - Email Template | Escalation - Email Template |",
+            "| Digest - Email Template | Digest - Email Template |",
+            "| DLP Admin Digest - Email Template | DLP Admin Digest - Email Template |"
+          ]
+        }
+      ]
+    },
+    "default-slack-families": {
+      "statement": "The system default Slack notification template families are End-user Justification - Slack Template, Escalation - Slack Template, Digest - Slack Template and DLP Admin Digest - Slack Template, each with a default template of the same name, and are available only if Workflow Automation is integrated with Slack.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-notification-templates.json",
+          "quotes": [
+            "These families and templates are only available if you have integrated Workflow Automation with Slack.",
+            "| End-user Justification - Slack Template | End-user Justification - Slack Template |",
+            "| Escalation - Slack Template | Escalation - Slack Template |",
+            "| Digest - Slack Template | Digest - Slack Template |",
+            "| DLP Admin Digest - Slack Template | DLP Admin Digest - Slack Template |"
+          ]
+        }
+      ]
+    },
+    "default-teams-families": {
+      "statement": "The system default Microsoft Teams notification template families are End-user Justification - Teams Template, Escalation - Teams Template, Digest - Teams Template and DLP Admin Digest - Teams Template, each with a default template of the same name, and are available only if Workflow Automation is integrated with Microsoft Teams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-notification-templates.json",
+          "quotes": [
+            "These families and templates are only available if you have integrated Workflow Automation with Microsoft Teams.",
+            "| End-user Justification - Teams Template | End-user Justification - Teams Template |",
+            "| Escalation - Teams Template | Escalation - Teams Template |",
+            "| Digest - Teams Template | Digest - Teams Template |",
+            "| DLP Admin Digest - Teams Template | DLP Admin Digest - Teams Template |"
+          ]
+        }
+      ]
+    },
+    "one-per-language": {
+      "statement": "For each notification template family, only one template can be created in each language; two templates of the same language cannot be created for a single family.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-notification-templates.json",
+          "quotes": [
+            "For each template family, you can create only one template in each language. You cannot create two templates of the same language for a single template family."
+          ]
+        }
+      ]
+    },
+    "defaults-view-clone-only": {
+      "statement": "Admins cannot edit the system default notification templates, only view and clone them; only draft and published templates can be edited, and system default templates cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-notification-templates.json",
+          "quotes": [
+            "Admins cannot edit the system default notification templates. They can only view and clone the default notification templates.",
+            "You can only edit draft and published notification templates. You cannot edit or delete system default notification templates."
+          ]
+        }
+      ]
+    },
+    "list-type-status": {
+      "statement": "The Notification Templates page lists each template's type (Email, Slack or Teams) and status (Draft, Published or System Default); Slack and Teams types are present only if Workflow Automation is integrated with Slack and Microsoft Teams respectively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-notification-templates.json",
+          "quotes": [
+            "Template types are Email, Slack, and Teams. The Slack and Microsoft Teams templates are only available if you have integrated Workflow Automation with Slack and Microsoft Teams, respectively.",
+            "Statuses are Draft, Published, and System Default."
+          ]
+        }
+      ]
+    },
+    "published-only": {
+      "statement": "Workflow Automation only uses published templates for its notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-email-notification-templates.json",
+          "quotes": [
+            "Workflow Automation only uses published templates for its notifications."
+          ]
+        }
+      ]
+    },
+    "family-fixed": {
+      "statement": "The template family of a notification template cannot be edited after the template is added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-email-notification-templates.json",
+          "quotes": [
+            "You cannot edit the template family for a template after the template is added."
+          ]
+        }
+      ]
+    },
+    "draft-and-published-edit": {
+      "statement": "Saving an edited draft template as a draft keeps it on the Notification Templates page with draft status, and updating an edited published template keeps its published status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-notification-templates.json",
+          "quotes": [
+            "Click Save as Draft. The edited template appears on the Notification Templates page with a draft status.",
+            "Click Update Template. The published template is updated. The template still appears on the Notification Templates page with a published status."
+          ]
+        }
+      ]
+    },
+    "clone-name-prefix": {
+      "statement": "A cloned notification template's Template Name starts with \"Clone of\" followed by the name of the template that was cloned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-notification-templates.json",
+          "quotes": [
+            "In the Template Name field, \"Clone of\" appears in front of the name of the notification template that you cloned."
+          ]
+        }
+      ]
+    },
+    "translate-reset": {
+      "statement": "Reset in the email template Translate window reverts the template to its original language and also reverts any changes made after translation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-email-notification-templates.json",
+          "quotes": [
+            "To revert the template to the original language, click Reset. Doing so also reverts any changes made after translation."
+          ]
+        }
+      ]
+    },
+    "digest-flag": {
+      "statement": "The Digest option on a notification template marks it as a digest notification template (user digest or DLP admin digest) rather than a non-digest one (user notification or escalation); the Digest Type field then appears, with digest types End User and Admin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-email-notification-templates.json",
+          "quotes": [
+            "Digest: Enable this option to make this template a digest notification template.",
+            "This option identifies whether the template is for a digest type of notification (user digest or DLP admin digest) or a non-digest type of notification (user notification or escalation).",
+            "After you select this option, the Digest Type field appears.",
+            "Digest types are End User and Admin."
+          ]
+        }
+      ]
+    },
+    "email-subject-line": {
+      "statement": "An email notification template's Subject Line defaults to \"DLP Incident Notification - ACTION REQUIRED\", supports only English, and is limited to 100 characters; the Source Language defaults to English.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-email-notification-templates.json",
+          "quotes": [
+            "DLP Incident Notification - ACTION REQUIRED appears by default in the subject line. This field only supports the default language, English, and has a character limitation of 100.",
+            "Source Language: From the drop-down menu, select a language in which you want to create the notification template. The default language is English."
+          ]
+        }
+      ]
+    },
+    "time-zone": {
+      "statement": "The optional Time Zone field sets the time zone in which time-related merge tags appear in notifications that use the template; the Time merge tag is the time the incident occurred.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "Time Zone: (Optional) From the drop-down menu, select the time zone in which you want the time-related merge tags to appear in the notifications using this template.",
+            "The Time merge tag represents the time when the incident occurred."
+          ]
+        }
+      ]
+    },
+    "email-builder-tools": {
+      "statement": "The email template builder's Rich Text Editor provides the tools Columns, Button, Divider, Heading, Paragraph, Image, Menu, HTML and Table; the template design area starts as a single row with one column.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-email-notification-templates.json",
+          "quotes": [
+            "The Rich Text Editor, which contains all the tools (Columns, Button, Divider, Heading, Paragraph, Image, Menu, HTML, and Table) that you can use to create the email notification template.",
+            "The template design area, which is blank except for a single row with one column."
+          ]
+        }
+      ]
+    },
+    "email-preheader-title": {
+      "statement": "In the email template builder the Preheader Text follows the subject line in the notification email, and the HTML Title field sets the HTML title tag in the exported HTML.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-email-notification-templates.json",
+          "quotes": [
+            "enter text in the Preheader Text field for the notification email. This text follows the subject line in an email notification that is created using this template.",
+            "enter text in the HTML Title field for the notification email. This text sets the HTML title tag in the exported HTML."
+          ]
+        }
+      ]
+    },
+    "slack-teams-integration-required": {
+      "statement": "Slack notification templates can only be added if Workflow Automation is integrated with Slack, and Microsoft Teams notification templates only if it is integrated with Microsoft Teams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "You can only add Slack notification templates if you have integrated Workflow Automation with Slack."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-microsoft-teams-notification-templates.json",
+          "quotes": [
+            "You can only add Microsoft Teams notification templates if you have integrated Workflow Automation with Microsoft Teams."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "language-selection": {
+      "kind": "semantic",
+      "title": "How is a published template chosen when a family has templates in several languages?",
+      "status": "open",
+      "detail": "The pages say only one template per language can exist in a family and that only published templates are used, but not how the language is chosen for a recipient or any language fallback.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "chat-digest-differences": {
+      "kind": "semantic",
+      "title": "Do Slack and Teams digest templates behave differently from email digest templates?",
+      "status": "open",
+      "detail": "The captured pages describe Slack and Teams digest templates by their availability under the integration, the Digest option and Digest Type field, and the merge-tag groups; no behavioural difference from email is stated or excluded.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  },
+  "divergences": {
+    "mapping-template-status": {
+      "summary": "The notification templates page says template mappings can only be updated with published templates, while the template mappings page says all template families that have been added are available for selection.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-notification-templates.json",
+            "quotes": [
+              "You can only update the template mappings with templates that are in a published status."
+            ]
+          },
+          "says": "Template mappings can only be updated with templates in a published status."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-incident-and-digest-template-mappings.json",
+            "quotes": [
+              "All email notification template families that have been added on the Notification Templates page are available for selection."
+            ]
+          },
+          "says": "All email notification template families added on the Notification Templates page are available for selection."
+        }
+      ],
+      "impact": "It is not stated whether a family that has only draft templates can be selected in a mapping."
+    }
+  }
+}

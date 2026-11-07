@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Inventory",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/inventory",
+    "node": "1471396",
+    "revision": "3244393",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Inventory_3.json?VersionId=ZO2lHcviHhrLql4k99xNbpNCPgi7Yhdu",
+    "updated": "2026-10-08",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.3",
+    "info": {
+      "title": "ZDX API",
+      "version": "0.1.0",
+      "description": "APIs for Zscaler Digital Experience (ZDX).\n"
+    },
+    "servers": [
+      {
+        "url": "https://api.zdxcloud.net/v1",
+        "description": "production"
+      },
+      {
+        "url": "https://dev.zdxapi.zscaler.net/v1",
+        "description": "dev"
+      },
+      {
+        "url": "http://localhost:8080/v1",
+        "description": "local"
+      }
+    ],
+    "security": [
+      {
+        "BearerAuth": []
+      }
+    ],
+    "tags": [
+      {
+        "name": "Inventory"
+      }
+    ],
+    "paths": {
+      "/inventory/software": {
+        "get": {
+          "description": "Gets the current overview about your organization's distribution of software across all users (e.g., software names, the number of users using a specific model, and the software vendor).",
+          "tags": [
+            "Inventory"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/userids"
+            },
+            {
+              "$ref": "#/components/parameters/deviceids"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Software Inventory List",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "software": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/SoftwareOverview"
+                        }
+                      },
+                      "next_offset": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "examples": {
+                    "softwareOverview": {
+                      "$ref": "#/components/schemas/SoftwareOverview"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/inventory/software/{software_key}": {
+        "get": {
+          "description": "Gets the list of all users and devices for a given software name and version.",
+          "tags": [
+            "Inventory"
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "software_key",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/userids"
+            },
+            {
+              "$ref": "#/components/parameters/deviceids"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Software Group Overview ",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "software": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/SoftwareUserList"
+                        }
+                      },
+                      "next_offset": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "examples": {
+                    "softwareOverview": {
+                      "$ref": "#/components/schemas/SoftwareOverview"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "parameters": {
+        "locations": {
+          "in": "query",
+          "name": "loc",
+          "description": "The Zscaler location (ID). You can add multiple location IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "departments": {
+          "in": "query",
+          "name": "dept",
+          "description": "The department (ID). You can add multiple department IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "active_geo": {
+          "in": "query",
+          "name": "geo",
+          "description": "The active geolocation (ID). You can add multiple active geolocation IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "userids": {
+          "in": "query",
+          "name": "userids",
+          "description": "The user IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "deviceids": {
+          "in": "query",
+          "name": "deviceids",
+          "description": "The device IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        }
+      },
+      "schemas": {
+        "SoftwareOverview": {
+          "type": "object",
+          "properties": {
+            "software_key": {
+              "type": "string"
+            },
+            "software_name": {
+              "type": "string"
+            },
+            "vendor": {
+              "type": "string"
+            },
+            "software_group": {
+              "type": "string"
+            },
+            "software_install_type": {
+              "type": "string"
+            },
+            "user_total": {
+              "type": "integer"
+            },
+            "device_total": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "responses": {
+        "UnauthorizedError": {
+          "description": "Unauthorized"
+        },
+        "Forbidden": {
+          "description": "Forbidden"
+        }
+      }
+    }
+  }
+}

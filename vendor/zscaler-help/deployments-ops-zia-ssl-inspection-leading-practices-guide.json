@@ -1,0 +1,1577 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Internet & SaaS TLS and SSL Inspection Leading Practices Guide",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-deployments-operations/zia-ssl-inspection-leading-practices-guide",
+    "node": "1456351",
+    "revision": "3212292",
+    "updated": "2026-06-13",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Internet & SaaS SSL and TLS Inspection Leading Practices Guide provides a set of best practices for configuring and deploying Internet & SaaS Secure Sockets Layer (SSL), and its successor Transport Layer Security (TLS) inspection in an organization's network environment."
+    },
+    {
+      "text": "Encrypting communications helps maintain the privacy and security of information passed between sender and receiver communications. SSL and its successor TLS are protocols designed for the privacy and security of internet services. While these protocols do a great job of keeping information private from prying eyes, these security tools also conceal threats to the user, device, and organization. This is where the inspection of SSL and TLS encrypted traffic becomes a necessity."
+    },
+    {
+      "text": "The modern term is typically TLS, while the function in the Zscaler UI generally uses SSL to encompass all encrypted traffic. This document uses TLS unless referring to a specific section of the Zscaler UI."
+    },
+    {
+      "text": "Inspecting encrypted traffic is done by Zscaler’s Zero Trust Exchange (ZTE) at scale, allowing organizations to control risk and enforce policy. Enabling TLS inspection is a required first step towards:"
+    },
+    {
+      "item": "Controlling risk",
+      "depth": 0
+    },
+    {
+      "item": "Inspect Traffic (malware, data loss)",
+      "depth": 0
+    },
+    {
+      "item": "Adaptive control",
+      "depth": 0
+    },
+    {
+      "item": "Enforcing policy",
+      "depth": 0
+    },
+    {
+      "item": "Per session policy decision and enforcement",
+      "depth": 0
+    },
+    {
+      "item": "Allowing, blocking, and restricting tenants",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Traffic Inspection Strategy",
+      "level": 1
+    },
+    {
+      "text": "A good zero trust strategy is to inspect as much traffic as possible, and understand how to properly handle non-inspected traffic. First, implement a baseline traffic inspection policy, and then expand inspection to additional URL categories."
+    },
+    {
+      "text": "Zscaler recommends inspecting as much traffic as possible, but 100% traffic inspection is typically not feasible due to legal liability, regulatory concerns, Sarbanes-Oxley Act (SOX) requirements, personal identifying information (PII) issues, and other limiting factors. Zscaler often sees companies achieve a 60–70 percent TLS inspection rate. The key to a good strategy for any organization is understanding why something is or is not inspected. Internet & SaaS makes it easy to understand TLS transactions and make policies around TLS inspection."
+    },
+    {
+      "heading": "Why Inspect?",
+      "level": 2
+    },
+    {
+      "text": "With more than 95% of global traffic encrypted, most threats are passed within encryption and are invisible without implementing inline TLS inspection."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "ThreatLabz, Zscaler’s in-house security research team, created the ThreatLabz 2024 Encrypted Attacks Report, a whitepaper reviewing security threat trends for 2024."
+    },
+    {
+      "heading": "What Can’t Be Inspected",
+      "level": 2
+    },
+    {
+      "text": "TLS inspection requires that the endpoints trust the certificate presented by the inspecting service. You must install a certificate onto each endpoint to build this trust. As such, inspection is not possible on devices that cannot reasonably install the certificate (e.g., IoT/OT, BYOD, guest networks, etc.)."
+    },
+    {
+      "text": "Some vendors and developers have implemented coding techniques commonly referred to as certificate pinning (see Certificate Pinning or Hard-Coded Certificates) that work to prevent Man-in-the-Middle (MiTM) inspection. As such, Zscaler cannot inspect TLS traffic from sites or applications that use certificate pinning (e.g., Apple, many Microsoft 365 apps, Adobe, Cisco WebEx, Dropbox app, etc.)."
+    },
+    {
+      "text": "Finally, Zscaler cannot inspect sites and applications using client-authentication certificates mutual Transport Layer Security (mTLS), or use unsupported ciphers."
+    },
+    {
+      "heading": "What Commonly Isn’t Inspected",
+      "level": 2
+    },
+    {
+      "text": "Certain services currently posing little to no security risk are commonly not inspected. Examples include conferencing and communication systems (Teams, Zoom, etc.). Additionally, TLS inspection is often configured to exempt URL categories having PII concerns (such as Health Care, Finance, or Banking). The most common are Health and Finance sites. Discuss sites that raise legal or regulatory concerns with HR, councils, or legal experts for local privacy laws."
+    },
+    {
+      "heading": "Tools Dependent On TLS Inspection",
+      "level": 2
+    },
+    {
+      "text": "Many of Zscaler’s ZTE security features require TLS inspection to work on encrypted transactions. Anything which inspects the payload, or requires policy on HTTP Headers, or redirects the user with injected content, would require TLS inspection. Some of the features that depend on TLS inspection are:"
+    },
+    {
+      "item": "Anti-Virus/Malware",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Sandbox",
+      "depth": 0
+    },
+    {
+      "item": "Advanced Threat Prevention",
+      "depth": 0
+    },
+    {
+      "item": "Isolation",
+      "depth": 0
+    },
+    {
+      "item": "Data Loss Prevention (DLP)",
+      "depth": 0
+    },
+    {
+      "item": "File Type Control",
+      "depth": 0
+    },
+    {
+      "item": "Inline CASB",
+      "depth": 0
+    },
+    {
+      "item": "Intrusion Prevention System (IPS)",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Zscaler must see the contents of transactions to effectively block malware, manage data loss, and protect users. While Zscaler can still protect traffic with zero trust strategies without TLS inspection, organizations miss out on the full benefit of many Zscaler security features if they don’t employ TLS inspection."
+    },
+    {
+      "heading": "Deploying TLS Inspection",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe considerations when deploying TLS inspection."
+    },
+    {
+      "heading": "Stakeholders",
+      "level": 2
+    },
+    {
+      "text": "Work with internal stakeholders (i.e., executives, legal teams, human resources, etc.) to align TLS inspection requirements and to establish consensus on the need for change. Stakeholders must understand TLS inspection benefits and the risks of not implementing TLS inspection. Without TLS inspection, the organization can’t ensure that encrypted traffic is free from the threat of malicious inbound content, or verify the legitimacy of sensitive outbound data. Consult and inform your stakeholders during all phases of TLS inspection rollout because they are crucial for successfully implementing TLS inspection."
+    },
+    {
+      "text": "To learn more, see Encryption, Privacy, & Data Protection: A Balancing Act."
+    },
+    {
+      "heading": "Compliance Documentation and Communication",
+      "level": 2
+    },
+    {
+      "text": "Implementing TLS inspection is a technical initiative, but it also requires preparing the organization for the change. Typically, organizations must update computer usage policies, acceptable use agreements, and other internal documentation related to IT systems. In some regions and countries, TLS inspection requires the involvement of workers’ councils and unions."
+    },
+    {
+      "heading": "Root Certificate",
+      "level": 2
+    },
+    {
+      "text": "You must decide between using the Zscaler Central Authority (CA) or your own existing CA with Zscaler as an intermediate CA. Using your existing CA requires an additional Zscaler subscription."
+    },
+    {
+      "text": "Either way, you must deploy the certificate to all necessary devices and handle adding the custom certificate to an Application-Specific Trust Store. Adding the customer certificate is required, since some applications do not leverage the system’s built-in certificate store. This is often found with software development tools and custom applications."
+    },
+    {
+      "text": "To learn more, see Adding Custom Certificate to an Application-Specific Trust Store and Choosing the CA Certificate for SSL/TLS Inspection."
+    },
+    {
+      "heading": "Deployment Guide",
+      "level": 1
+    },
+    {
+      "text": "You must ensure that your organization continues to operate without interruption while you roll out TLS inspection. Zscaler recommends starting your inspection rollout with a limited group of users and policies from various departments or business units and expanding as your policy becomes more robust. This method allows you to learn as you deploy with minimal disruption. Follow the general guidance provided to maximize your chances of success."
+    },
+    {
+      "item": "Complete all prerequisites.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Deploy the selected Root CA Certificate (follow phasing if necessary).",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Stage inspection policy for the pilot.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Building Policy",
+      "level": 2
+    },
+    {
+      "text": "The following provides a general template for policy building:"
+    },
+    {
+      "item": "Build using a granular, rule-based engine that includes:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "User, Group, and Department",
+      "depth": 1
+    },
+    {
+      "item": "URL Category and Cloud Apps",
+      "depth": 1
+    },
+    {
+      "item": "Location and Location Group",
+      "depth": 1
+    },
+    {
+      "item": "Avoid breaking cert-pinned apps, including client OS, user agents, etc.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Enforce secure TLS usage:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Minimum TLS versions",
+      "depth": 1
+    },
+    {
+      "item": "Certificate validation/revocation",
+      "depth": 1
+    },
+    {
+      "item": "Inspect OneDrive, SharePoint, etc., but exclude Click-to-Run from Microsoft 365.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Initial Recommended Policy",
+      "level": 2
+    },
+    {
+      "text": "Read this entire section before taking any action, as it contains general guidance on the initial policy set as well as basic pilot phasing. Implementing these rules in a production environment is likely to cause impact, and thus should not be done until all preparations have been made."
+    },
+    {
+      "item": "Enable the Microsoft 365 One Click policy. The Microsoft 365 One Click policy is a set of rules made in consultation with Microsoft to provide the best experience for Microsoft 365. Additionally, the Microsoft 365 Click-to-Run policies are automatically updated if Microsoft makes a change. To learn more, see Best Practices for Implementing Access to Microsoft 365 with Zscaler.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          34
+        ],
+        [
+          47,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Go to Policies > Access Control > Internet & SaaS > Advanced Settings",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          31
+        ],
+        [
+          34,
+          49
+        ],
+        [
+          52,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable Microsoft-Recommended One Click Office 365 Configuration.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Go to Policies > Common Configuration > SSL/TLS Inspection > SSL/TLS Inspection Policy.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          37
+        ],
+        [
+          40,
+          58
+        ],
+        [
+          61,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Build rules with the intention to eventually align with the following leading practices examples. To learn more, see Configuring SSL/TLS Inspection Policy.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "table": [
+        [
+          "Rule",
+          "Name/Purpose",
+          "Criteria",
+          "Actions"
+        ],
+        [
+          "1",
+          "Smart Isolation One Click Rule (if licensed)",
+          "URL Category: Suspicious Domains",
+          "Inspect: Untrusted Server Certificates: Block OCSP Revocation Check: Enabled Block No Server Name Indication (SNI): Disabled Block Undecryptable Traffic: Enabled Minimum Client TLS Version: TLS 1.0 Minimum Server TLS Version: TLS 1.0 Enable HTTP/2: Enabled"
+        ],
+        [
+          "2",
+          "Zscaler Recommended Exemption Rule",
+          "N/A",
+          "Do Not Inspect: Evaluate Other Polcies: Show End User Notifications: Disabled Untrusted Server Certificates: Block OCSP Revocation Check: Enabled Minimum TLS Version: TLS 1.0"
+        ],
+        [
+          "3",
+          "Exclude Endpoint Protection Services",
+          "Cloud Applications: Microsoft Defender Advanced Threat Protection, CrowdStrike, etc.",
+          "Do Not Inspect: Bypass Other Policies Block No Server Name Indication (SNI): Disabled"
+        ],
+        [
+          "4+",
+          "Global Source-Based Exemptions (Repeat as necessary for Locations, Groups, Devices, etc.)",
+          "Specific mixture of source criteria needing to be exempted from inspection. Locations and Location Groups Groups and Departments Device Groups Example: Location Groups: Locations_NoSSL Device Groups: No Client Connector",
+          "Do Not Inspect: Evaluate Other Policies Show End User Notifications: Disabled Untrusted Server Certificates: Allow OCSP Revocation Check: Enabled Minimum TLS Version: TLS 1.2"
+        ],
+        [
+          "5",
+          "Inspect Rule for OneDrive, SharePoint, and Microsoft Login Services",
+          "Cloud Applications: OneDrive, SharePoint, Microsoft Login Services Device Groups: Windows, macOS (Disabled to start, or set criteria to include an empty group or sublocation to avoid impacting traffic immediately—refining criteria later as necessary)",
+          "Inspect Untrusted Server Certificates: Block OCSP Revocation Check: Enabled Block No Server Name Indication (SNI): Enabled Block Undecryptable Traffic: Enabled Minimum Client TLS Version: TLS 1.2 Minimum Server TLS Version: TLS 1.2 Enable HTTP/2: Enabled"
+        ],
+        [
+          "6",
+          "Office 365 One Click (Auto-generated earlier in Step 3).",
+          "N/A",
+          "Do Not Inspect: Evaluate Other Policies Show End User Notifications: Enabled Untrusted Server Certificates: Allow OCSP Revocation Check: Enabled Block No Server Name Indication (SNI): Disabled Minimum TLS Version: TLS 1.2"
+        ],
+        [
+          "7+",
+          "Specific Exemption Rules (Granular by source and destination as individual rules)",
+          "Criteria defined to ensure specific source and destination exemption needs are met without being overly risky. Example: Device Groups: iOS URL Category: Custom_iOS_Bypass",
+          "Do Not Inspect: Evaluate Other Policies Show End User Notifications: Disabled Untrusted Server Certificates: Block OCSP Revocation Check: Enabled Block No Server Name Indication (SNI): Enabled Minimum TLS Version: TLS 1.2"
+        ],
+        [
+          "8+",
+          "Global Source-Based Exemptions (Repeat as necessary for Locations, Groups, Devices, etc.)",
+          "Specific mixture of source criteria needing to be exempted from inspection. Locations and Location Groups Groups and Departments Device Groups Example: Location Groups: Locations_NoSSL Device Groups: No Client Connector",
+          "Do Not Inspect: Evaluate Other Policies Show End User Notifications: Disabled Untrusted Server Certificates: Block OCSP Revocation Check: Enabled Minimum TLS Version: TLS 1.2"
+        ],
+        [
+          "9+",
+          "Global Destination-Based Exemptions (Repeat as necessary, for different use case tracking)",
+          "Specific destinations (URL Category, Cloud Application, Destination Group, etc.) needing exemption from inspection. Example: URL Category: Finance, Health, Custom_No_Inspect-Certificate_Pinning",
+          "Do Not Inspect: Evaluate Other Policies Show End User Notifications: Disabled Untrusted Server Certificates: Block OCSP Revocation Check: Enabled Block No Server Name Indication (SNI): Enabled Minimum TLS Version: TLS 1.2"
+        ],
+        [
+          "10+",
+          "Action Exceptions (Create as necessary to handle specific use cases)",
+          "Rules defined to address specific sources or destinations where settings must be changed within the Actions list. These can be for Inspect or Do Not Inspect type rules. Common reasons are for Minimum TLS Version downgrades; accepting Undecryptable traffic, or those with No SNI; Untrusted certificate acceptance; etc. Use Custom URL Categories and individual rules for managing the different exceptions by type and following practice guidance within the organization.",
+          "(As Needed)"
+        ],
+        [
+          "11",
+          "Inspect All",
+          "Criteria: None (Inspecting everything not exempted previously)",
+          "Inspect: Untrusted Server Certificates: Block OCSP Revocation Check: Enabled Block Undecryptable Traffic: Enabled Minimum Client TLS Version: TLS 1.2 Minimum Server TLS Version: TLS 1.2"
+        ],
+        [
+          "Default",
+          "Default Rule",
+          "N/A",
+          "Do Not Inspect: Evaluate other policies."
+        ]
+      ]
+    },
+    {
+      "item": "Consider the following when building policy:",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "User Attributes (Group/Department):",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "This works only if the traffic forwarded to the Zscaler service is routed by the Zscaler Client Connector (preferred) or if Enforce Surrogate IP is enabled for the locations and traffic is flowing through a GRE/IPSec tunnel to the Zscaler service.",
+      "depth": 2
+    },
+    {
+      "item": "Reason: Without Zscaler Client Connector, or Enforce Authentication + Surrogate IP, the service cannot identify the user (before inspection) to properly match and apply user-based policies.",
+      "depth": 2,
+      "strong": [
+        [
+          45,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Device Groups (OS Type): The Device OS Type is only identified if traffic is forwarded to the Zscaler service via the Zscaler Client Connector; otherwise it is flagged as No Client Connector.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          171,
+          190
+        ]
+      ]
+    },
+    {
+      "item": "Location Groups:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Use location groups whenever possible to more easily manage and maintain groupings of locations for various purposes. For example, a list of locations to be inspected (e.g., Locations_SSL) and not inspected (e.g., Locations_NoSSL).",
+      "depth": 2
+    },
+    {
+      "item": "Use the location group as criteria in policy, instead of individually identifying locations, where location-based logic is necessary.",
+      "depth": 2
+    },
+    {
+      "item": "When defining new locations to the system, ensure they are added to the proper location group to automatically apply all relevant policies, instead of needing to update all relevant rules individually.",
+      "depth": 2
+    },
+    {
+      "item": "Communicate with pilot users.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "Plan the user pilot and make adjustments.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Modify policy to meet the needs of new pilot testers during each phase.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "As testers continue their work, collect their feedback and adjust policy as necessary to account for any situations where critical applications or services are broken by inspection.",
+      "depth": 2
+    },
+    {
+      "item": "Use an FQDN or Cloud Application where possible to avoid exempting traffic based upon IP address.",
+      "depth": 2
+    },
+    {
+      "item": "Properly investigate, understand, and document the reasons for inspection bypass of each application or service.",
+      "depth": 2
+    },
+    {
+      "item": "This documentation assists in ongoing operations and maintenance of policies.",
+      "depth": 3
+    },
+    {
+      "item": "To learn more, see Handling Exceptions.",
+      "depth": 3
+    },
+    {
+      "item": "Repeat pilot steps as necessary to cover all initially planned criteria and phases, and to include any new use cases discovered during the pilot.",
+      "depth": 2
+    },
+    {
+      "item": "Expand deployment:",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "Expand your policy configuration to include all the leading practice policy configurations needed to cover your successfully tested use cases.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enable inspection for more locations, user groups, destinations, and devices as appropriate.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Continue to Investigate any reported issues, and document exceptions to keep the business moving forward.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Measure and report. To learn more, see Reporting.",
+      "depth": 0,
+      "number": 10
+    },
+    {
+      "item": "Continue to identify additional use cases and work through necessary testing to attain the organization’s goals. Inspect as much of the TLS-encrypted traffic as possible.",
+      "depth": 0,
+      "number": 11
+    },
+    {
+      "item": "Leverage web insights with the filter Client SSL Handshake Failure Reason to identify transactions that failed SSL inspection and investigate for the proper action to take.",
+      "depth": 0,
+      "number": 12
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Checklist",
+      "level": 2
+    },
+    {
+      "text": "Zscaler recommends downloading the Internet & SaaS SSL Inspection Leading Practices Checklist to help plan and implement Internet & SaaS SSL Inspection: Download PDF."
+    },
+    {
+      "heading": "Considerations",
+      "level": 3
+    },
+    {
+      "text": "Review the following considerations when deploying TLS inspection."
+    },
+    {
+      "heading": "Policy Guidelines",
+      "level": 4
+    },
+    {
+      "text": "Zscaler recommends an SSL/TLS inspection policy set which makes granular exemptions only as necessary, and has a default Inspect action on any remaining traffic. Consider the following when configuring policy:"
+    },
+    {
+      "item": "Build with the intention of Opt-Out in mind. Define a final rule to inspect everything not explicitly exempted by an earlier rule. Why: Any new groups, applications, categories, or locations are automatically inspected until configured otherwise.",
+      "depth": 0
+    },
+    {
+      "item": "Reference User Groups instead of individual users.",
+      "depth": 0
+    },
+    {
+      "item": "When you must set a policy for specific users, it is commonly easier to use Groups.",
+      "depth": 1
+    },
+    {
+      "item": "Why: Groups help make policies easier to manage by keeping the identity provider (IdP) as the source of truth on membership and therefore policy matching.",
+      "depth": 1
+    },
+    {
+      "item": "Rule order matters.",
+      "depth": 0
+    },
+    {
+      "item": "Rules are evaluated in a top-down, first-match style.",
+      "depth": 1
+    },
+    {
+      "item": "If something needs to be inspected and is otherwise exempted, insert an inspection rule before the exemption rule.",
+      "depth": 1
+    },
+    {
+      "item": "For example, if you must inspect all devices actively running Zscaler Client Connector, even if they are coming from locations which should not be inspected, build one rule to inspect the Device Groups running Zscaler Client Connector and then another rule to exempt the locations or location group as necessary.",
+      "depth": 1
+    },
+    {
+      "item": "Simple is generally better.",
+      "depth": 0
+    },
+    {
+      "item": "Configure with a logical structure in mind.",
+      "depth": 1
+    },
+    {
+      "item": "If granular rules are necessary, insert them appropriately within the structure, and keep the quantity of rules minimal (unless the environment specifically calls for more complexity).",
+      "depth": 1
+    },
+    {
+      "item": "Why: A straightforward and structured policy configuration is easier for admins to understand and maintain.",
+      "depth": 1
+    },
+    {
+      "item": "Avoid using Bypass Other Policies for any custom exemption rules. Why: In addition to not inspecting the SSL/TLS connection, any traffic matching the criteria in a Bypass Other Policies rule ignores Cloud App Control and URL Filtering policies and is Allowed.",
+      "depth": 0,
+      "strong": [
+        [
+          12,
+          33
+        ],
+        [
+          164,
+          185
+        ],
+        [
+          251,
+          258
+        ]
+      ]
+    },
+    {
+      "item": "Test the Pilot and Production phases with appropriate granularity.",
+      "depth": 1
+    },
+    {
+      "item": "TLS inspection can be tested and deployed by more than just user groups and locations.",
+      "depth": 1
+    },
+    {
+      "item": "Targeting specific URL categories is usually less disruptive to production environments when already fully deployed to the Zero Trust Exchange (ZTE).",
+      "depth": 1
+    },
+    {
+      "item": "One approach is to test inspection for categories which are less business-critical, before moving to the more critical ones, to help validate that inspection works while reducing the risk of production issues.",
+      "depth": 1
+    },
+    {
+      "text": "To learn more, see Best Practices: Testing and Rolling Out SSL Inspection."
+    },
+    {
+      "heading": "Handling Exceptions",
+      "level": 4
+    },
+    {
+      "text": "In rare cases, TLS inspection might cause applications not to function as expected or at all. The most common reasons for decryption failures and inability to inspect are:"
+    },
+    {
+      "item": "The device is missing the proper Root CA certificate.",
+      "depth": 0
+    },
+    {
+      "item": "Expired or incorrect certificate for the site or application.",
+      "depth": 0
+    },
+    {
+      "item": "Certificate pinning by an application. To learn more, see Certificate Pinning or Hard-Coded Certificates.",
+      "depth": 0
+    },
+    {
+      "text": "Traffic using a protocol that the Public Service Edge for Internet & SaaS doesn’t understand and/or cannot decrypt."
+    },
+    {
+      "text": "Zscaler recommends that organizations perform a thorough review of each site, system, and service that is not compatible with inspection. If the organization legitimately needs the traffic, and the risk of not inspecting this traffic is accepted, then specific exemptions should be made to tightly restrict access to the necessary domains from only the required sources whenever possible."
+    },
+    {
+      "heading": "Expired or Incorrect Certificates",
+      "level": 5
+    },
+    {
+      "text": "When a certificate is expired or incorrect, allowing users to proceed and access the application risks the user visiting a malicious site. Legitimate sites, barring unforeseen issues, keep their certificates up-to-date. While users might be inconvenienced by an inaccessible site or application, prioritize their safety and that of the organization."
+    },
+    {
+      "text": "A certificate’s components must be correct and match the server information. If a failure occurs, you can choose to Allow, Caution, or Block the connection. Zscaler recommends blocking access until the certificate issue is addressed on the server side."
+    },
+    {
+      "text": "Zscaler also supports Online Certificate Status Protocol (OCSP) revocation checks. When enabled, the Public Service Edge for Internet & SaaS checks the revocation status of the certificate. It makes this check even if the certificate is correct in all other aspects. If the issuing CA revokes the certificate, the Public Service Edge for Internet & SaaS treats the certificate as an untrusted certificate. The same action you choose for failed trust certificates applies to an OCSP failure."
+    },
+    {
+      "text": "Zscaler generally recommends dropping all traffic associated with bad certificates and enabling OCSP for all inspection rules."
+    },
+    {
+      "heading": "Certificate Pinning or Hard-Coded Certificates",
+      "level": 5
+    },
+    {
+      "text": "Certificate pinning, or hard-coded certificates, is another type of exemption. These are based on the client application, not the server. Certificate pinning is different from HTTP Public Key Pinning (HPKP)."
+    },
+    {
+      "text": "In certificate pinning, the application is hard-coded with a server certificate and treats any other certificate as invalid. This prevents MiTM attacks, but it also prevents trusted MiTM from being possible."
+    },
+    {
+      "text": "This method is common with iOS and Android applications, which can make it more difficult to manage those environments."
+    },
+    {
+      "text": "The industry is deprecating certificate pinning due to certificate issues causing a loss of access. Application vendors, as with public CAs, are moving to shorter lifetimes for their intermediate CAs. Those developers who persist with certificate pinning are raising the cost of certificate maintenance and risking users losing connection with their service."
+    },
+    {
+      "text": "If possible, look to replace the application if you encounter certificate pinning. Bypass inspection on an application's traffic only if the application is of such high value to the organization that it is worth the risks associated with not inspecting the traffic. Otherwise, deny the traffic."
+    },
+    {
+      "text": "Additionally, it might be worthwhile to reach out to the application vendor and inquire as to why they have adopted certificate pinning. Ask them to discontinue the practice for the sake of customer security."
+    },
+    {
+      "text": "Many trusted teams are advising against certificate pinning. To learn more, refer to this Sectigo blog post."
+    },
+    {
+      "heading": "Undecryptable Traffic",
+      "level": 5
+    },
+    {
+      "text": "The Public Service Edge for Internet & SaaS can decrypt most publicly documented encryption methods. Be suspicious of any traffic which cannot be decrypted. While it’s possible that the Zscaler service is unable to decrypt a particular protocol, it is more likely that the protocol is broken, not secure, and should not be used. For more information, see Supported Cipher Suites in SSL Inspection."
+    },
+    {
+      "text": "Sites also sometimes use custom encryption protocols. Most often, this happens with nation-state actors using custom encryption due to classified communications. Those protocols are considered state secrets and are not available to the Zscaler service. It is rare to see custom encryption schemes if you are not a government employee or contractor. Block this traffic in most cases. If you use one of these protocols in your organization, you must bypass that traffic from inspection."
+    },
+    {
+      "text": "Zscaler recommends blocking undecryptable traffic unless your organization has a specific use case for communication."
+    },
+    {
+      "heading": "Bypassing Inspection",
+      "level": 5
+    },
+    {
+      "text": "Zscaler strongly recommends that you inspect all traffic and place an inspection exemption only in controlled and understood exceptions. Bypass inspection of traffic in specific circumstances. Choose to bypass traffic only after consulting your legal counsel for the impacted region. In general, bypasses are applicable only for specific functions such as:"
+    },
+    {
+      "item": "Banking and finance destinations.",
+      "depth": 0
+    },
+    {
+      "item": "Healthcare destinations.",
+      "depth": 0
+    },
+    {
+      "item": "Business functions requiring the use of undecryptable traffic.",
+      "depth": 0
+    },
+    {
+      "item": "Business functions requiring the use of certificate-pinned sites or applications.",
+      "depth": 0
+    },
+    {
+      "item": "Applications, such as certain parts of Microsoft 365, that have issues when inspected.",
+      "depth": 0
+    },
+    {
+      "text": "When creating inspection bypasses, try to keep the following guidance in mind:"
+    },
+    {
+      "item": "Zscaler recommends creating at least one URL category and/or IP and FQDN Destination Group specific to managing TLS exceptions.",
+      "depth": 0
+    },
+    {
+      "item": "Avoid creating bypasses to resolve access issues without proper investigation and understanding. If an inspection bypass is used as a troubleshooting step, it should only remain in place if there is no other way to clear the issue AND the destination is sufficiently trusted.",
+      "depth": 0
+    },
+    {
+      "item": "Avoid adding major domains to the list (Alexa top 100). Common exemptions to avoid are:",
+      "depth": 0
+    },
+    {
+      "item": "(.s3).amazonaws.com",
+      "depth": 1
+    },
+    {
+      "item": "(.blob.core).windows.net",
+      "depth": 1
+    },
+    {
+      "item": ".cloudfront.net",
+      "depth": 1
+    },
+    {
+      "item": "Similar major content delivery networks (CDNs)",
+      "depth": 1
+    },
+    {
+      "item": "These are destinations where any subscriber can get their own file storage subdomain. For example, exempting these domains from inspection means no inspection occurs for any AWS S3 or Azure Blob storage account, and thus they should not be exempted without serious consideration.",
+      "depth": 1
+    },
+    {
+      "item": "Avoid adding IP addresses in favor of FQDNs or domains.",
+      "depth": 0
+    },
+    {
+      "item": "Avoid trying to manage domains if a matching Cloud Application exists.",
+      "depth": 0
+    },
+    {
+      "item": "While adding domains, try bypassing the most specific domains instead of wildcards (i.e., add corp.safemarch.com and eng.safemarch.com instead of .safemarch.com).",
+      "depth": 0
+    },
+    {
+      "item": "Do not add file paths or anything other than the FQDN (i.e., safemarch.com/games/), as anything beyond the domain is not visible without first inspecting the communication.",
+      "depth": 0
+    },
+    {
+      "item": "Document your bypass entries and reasoning within your documentation system for future reference during the audit and review.",
+      "depth": 0
+    },
+    {
+      "item": "Except for compliance and privacy reasons, ensure you understand why a bypass is necessary (open a ticket with your vendor or partner).",
+      "depth": 0
+    },
+    {
+      "item": "In very rare cases when SIPA is combined with an application that uses XFF headers to understand source IP, you can use an inspection bypass to avoid Zscaler XFF header injection. You should only use this if the destination is sufficiently trusted.",
+      "depth": 0
+    },
+    {
+      "text": "General guidance is that all bypass entries should be reviewed at least annually to ensure they are still required and approved."
+    },
+    {
+      "heading": "QUIC Protocol",
+      "level": 4
+    },
+    {
+      "text": "Google developed the Quick UDP Internet Connections (QUIC) protocol to speed up internet connectivity on its browsers and devices. This is accomplished by skipping the TCP handshake and using UDP instead. However, Zscaler’s TLS/SSL inspection relies on TCP session information, so Zscaler recommends blocking Google QUIC. When blocked, the browser or device falls back on TCP connections."
+    },
+    {
+      "text": "The block rule should use a Block/ICMP action, instead of Block/Drop or Block/Reset, as the ICMP response more quickly triggers the application to fall back to TCP. Zscaler’s firewall and Zscaler Client Connector both support blocking QUIC connections. You can also block this protocol using conventional branch office firewalls if needed. To learn more, see Managing the QUIC Protocol."
+    },
+    {
+      "heading": "Developer Environments",
+      "level": 4
+    },
+    {
+      "text": "Developers often need rapidly changing access, and use tools which might not integrate well with TLS Inspection. However, developers often have access to core resources and production data, meaning they present a risk to an organization for data exfiltration and cyber security. It's important to get the balance correct for the company to be secure, and for developers to have agile working practices. Developers often need direct internet access to their customer-facing applications, especially if they still use certificate pinning. Developers must ensure their applications function as expected, the certificates are correct, etc. Development environments might also have local development resources that include custom DNS and mail servers. One of the most common barriers to deploying TLS inspection for developers is that many developer tools use custom certificate stores which are addressed in the next section."
+    },
+    {
+      "text": "Work with your development teams to understand their workflow. Development teams are ideal candidates for their own department or group label. You can exempt their workloads from inspection (or even from Zscaler forwarding all together), allowing for development and testing. However, it should be clear that this is a risk to the organization. Have a plan to limit devices in a developer test lab from accessing or being accessed by the rest of the organization."
+    },
+    {
+      "text": "Create a set of URLs that support their development. If you allow your developer teams to deploy resources, consider using wildcard certificates to bypass specified sites not only from inspection but from any bandwidth constraints."
+    },
+    {
+      "text": "For initial deployment, engage with the developer community early to ensure they understand the journey and give them an opportunity to contribute to the plan. Deploying TLS inspection where there was previously none causes friction in their world. The most expedient way to deploy inspection is to engage with the development teams up front, include them in the deployment like the rest of the user community, and have a rapid response team to update configuration (such as exemptions, or bypasses) for unforeseen issues. Some organizations setup automation so that a development team member can open a service ticket to submit a destination for bypass, which is then automatically pushed to the Zscaler configuration to allow immediate access. This ticket then also triggers review by the security team to ensure that the configuration is an acceptable risk."
+    },
+    {
+      "text": "This path can cause too much friction within some organizations. Another option would be to use group attributes to identify the developer community and slow-role TLS inspection to those users. This path can take longer to achieve maximum coverage, but can reduce impact on developers and support staff during initial deployment."
+    },
+    {
+      "text": "For all other traffic, your developers should have the same policies as others in the organization. Order the development-specific rules higher in the list than the general employee rules to ensure that the rules for general users don’t interfere with permissions for developers."
+    },
+    {
+      "text": "To learn more about specific strategies in managing inspection within developer environments, see the Software Developer Solutions Guide."
+    },
+    {
+      "heading": "Custom Trust Stores",
+      "level": 4
+    },
+    {
+      "text": "Every OS has a default system root CA certificate store. Some applications host their own certificate trust store and might also need to be updated. Micro-services, containerized apps, developer environments, and security tools are common examples. For TLS inspection to work, the certificate chain must be pre-deployed, which means some of these environments need direct intervention to be compatible."
+    },
+    {
+      "text": "Zscaler recommends handling the applications with custom trust stores by installing the Zscaler root cert (or custom intermediate cert) into the application’s cert store. This is done manually or automatically via a tool like Microsoft System Center Configuration Manager (SCCM)."
+    },
+    {
+      "text": "You can also disable cert validation, which Zscaler recommends only for short terms and testing. Alternatively, you can exempt the traffic from developer users (which is less desirable) from TLS inspection. You can also exempt the destination domains to which these apps connect. To learn more, see Developer Environments."
+    },
+    {
+      "text": "Additionally, ChromeOS devices use Custom Trust Stores. ChromeOS doesn’t trust any managed or user-installed certificates for OS-level communications. As such, you can only inspect user traffic, and you must exempt the traffic between the device and Google’s ChromeOS services. Put the list of required exemptions by domain into a custom URL category and then bypass the custom URL category from inspection. For instructions on deploying a custom certificate to ChromeOS devices, refer to the Google Help Center."
+    },
+    {
+      "text": "To learn more, see Adding Custom Certificates to an Application-Specific Trust Store."
+    },
+    {
+      "heading": "Mobile Devices (iOS/Android/Android on ChromeOS)",
+      "level": 4
+    },
+    {
+      "text": "Installing the certificate on mobile devices requires Mobile Device Management (MDM) and is also commonly the best way to deploy the Zscaler Client Connector application."
+    },
+    {
+      "text": "Inspection for all traffic is not always possible. To learn more, see Certificate Pinning or Hard-coded Certificates and Custom Trust Stores."
+    },
+    {
+      "heading": "Handling Servers and other Workloads",
+      "level": 4
+    },
+    {
+      "text": "Enforcing TLS inspection for servers can be challenging, depending on the environment, management schema, and services used. Due to the potential complexity, server networks are typically excluded from the initial TLS inspection projects and are deployed when production user inspection is mostly completed. Inspection of workload traffic is a critical component when securing an enterprise."
+    },
+    {
+      "text": "Regarding servers, the primary challenge is getting the root CA certificate installed on the host machines, as well as any containers and applications which make use of Custom Trust Stores. To learn more, see Custom Trust Stores. Adding the requisite certificate to the trusted CA store should be handled in a similar process to other infrastructure or DevOps changes in an environment."
+    },
+    {
+      "text": "Zscaler recommends restricting server access to explicitly permitted destinations and blocking all other access, as this can greatly assist in reducing risk from non-inspection until or after inspection is enabled."
+    },
+    {
+      "heading": "BYOD and Guest Networks",
+      "level": 4
+    },
+    {
+      "text": "BYOD and guest network traffic are generally impossible to inspect because the Root CA Certificate cannot be installed on these devices. Ensure any BYOD and guest networks are completely segmented away from your organization’s network with no chance of accessing anything other than the internet."
+    },
+    {
+      "heading": "IoT Devices",
+      "level": 4
+    },
+    {
+      "text": "Internet of Things (IoT) devices are in a similar state to BYOD and guest networks. While you might be able to manage and configure them, most of them don’t accept modifications to the certificate trust store. If your devices are compatible, then inspection might still be possible, though it is likely that a custom policy is required along with the creation of one or more sublocations specific to these nodes. Other components of the Zero Trust Exchange should be used to secure these traffic flows (restrict destinations & applications that these devices can communicate with, etc.)."
+    },
+    {
+      "heading": "Minimum Protocol Versions (TLS Version Enforcement)",
+      "level": 4
+    },
+    {
+      "text": "Internet & SaaS supports many protocols and ciphers when inspecting TLS/SSL. As you use inspection, the Internet & SaaS service reports on which protocols and ciphers are used by your clients and infrastructure. To learn more, see Supported Cipher Suites in SSL Inspection."
+    },
+    {
+      "text": "Zscaler recommends initially allowing all supported protocols and ciphers to minimize user disruption. During this time, you can discover what is in use on your network and which services or platforms still use legacy encryption. Using the provided dashboards, you can discover which applications use legacy security and move to strengthen your requirements for connections."
+    },
+    {
+      "text": "The Zscaler Admin Console supports a display of the versions of TLS and SSL used in your organization. Using this information, you can upgrade or disable services still tied to legacy encryption suites. Zscaler recommends blocking all TLS versions earlier than 1.2, including any legacy SSL services, noting that some services might require special exception rules until they can be upgraded."
+    },
+    {
+      "heading": "Planning Guidance: Pilot to Production",
+      "level": 2
+    },
+    {
+      "text": "A comprehensive pilot makes expansion fairly straightforward. If the pilot covers enough business units and use cases, then expanding to more users is generally not too challenging. It all comes down to planning, communication, and execution. The next sections cover some of the necessary decisions and provide baseline recommendations to get you successfully through your pilot phases and into production."
+    },
+    {
+      "heading": "Pilot Planning",
+      "level": 3
+    },
+    {
+      "text": "A project as significant as TLS inspection must begin with careful planning and multiple rounds of piloting before an organization can confidently push out to the entire environment. For piloting, Zscaler recommends starting with identifying the use cases you want to cover, then selecting who is included in each use case, for what traffic inspection is enabled, and planning the stages, timing, and success criteria for each."
+    },
+    {
+      "heading": "Identifying Use Cases",
+      "level": 4
+    },
+    {
+      "text": "Use case identification is done by considering the environment. The best way to assemble this list is by thinking about where your users and traffic live. Consider these pieces:"
+    },
+    {
+      "item": "Are all users working remotely, or are they in the office?",
+      "depth": 0
+    },
+    {
+      "item": "Is the Zscaler Client Connector installed on your workstations?",
+      "depth": 0
+    },
+    {
+      "item": "Is there a mobile device fleet (Android and iOS) to be protected?",
+      "depth": 0
+    },
+    {
+      "item": "Are there critical services that must be tightly controlled?",
+      "depth": 0
+    },
+    {
+      "item": "Who has access to the most sensitive services or information?",
+      "depth": 0
+    },
+    {
+      "item": "What kind of compliance requirements must be met?",
+      "depth": 0
+    },
+    {
+      "item": "What are the servers allowed to communicate with externally?",
+      "depth": 0
+    },
+    {
+      "text": "Let the answers to these questions guide you toward the sources (users, servers, devices, etc.) that need protection, as well as how their traffic communicates with the Zscaler service."
+    },
+    {
+      "heading": "User Selection",
+      "level": 4
+    },
+    {
+      "text": "Understanding the use cases in your environment leads you to align users (both pilot and production) to each use case. For each of your use cases, select users to act as a pilot group. Which users make good pilot testers?"
+    },
+    {
+      "text": "The first users to onboard in the pilot group must understand that they might experience some issues and disruptions. Select a group of users that can handle interruptions. You don’t want to include users at a critical time of year in either their product development or regulatory calendars. While you can rapidly roll back changes to policy, try to avoid that scenario. Select a minimally vulnerable group and ensure that you have that group’s full cooperation before starting the pilot program."
+    },
+    {
+      "text": "Don't include IT or development staff in the pilot group because IT and development users often try to work around issues before reporting them. Additionally, their work often entails operating in an environment that does not match that of the average user. Ensure the pilot group consists of a diverse set of average users in an office location, business unit, or small region. The more job functions this group performs, the more applications will be tested and the more notifications you’ll receive. You also want feedback on your notification copy to see if it’s clearly conveying the required information and the escalation process for resolving issues."
+    },
+    {
+      "text": "Ensure that your pilot group knows how the escalation process works. Ideally, have a representative of your security or IT team offer a presentation about inspection and escalation and perhaps be available for real-time communication should an issue arise. Make sure that you have someone in place to make real-time changes or implement a quick rollback of policy. Zscaler makes it simple to roll back policy quickly, and direct communication with your security team is vital for the successful support of the pilot."
+    },
+    {
+      "text": "The pilot group must be identified by the policy engine so that the appropriate rules are applied. There are several options for you to select from depending on your needs, including user and location options."
+    },
+    {
+      "text": "When you start your policy selections, you will likely expand the policy to apply to more users. You might rewrite the policy as you learn more about your users and application needs. When you are building out policies for long-term use:"
+    },
+    {
+      "item": "If you have a policy that applies to many of your users no matter where they are, focus on the user selection criteria via group.",
+      "depth": 0
+    },
+    {
+      "item": "If the policy is only relevant based on location, such as required by a government mandate, choose the location selection criteria. You might also have criteria that apply only when users are in a particular location.",
+      "depth": 0
+    },
+    {
+      "text": "After your pilot group is onboard and operational, you can start to roll out an inspection to the rest of your organization. Plan for this rollout to move quickly, region by region, until all your users are inspected."
+    },
+    {
+      "heading": "Traffic Selection",
+      "level": 4
+    },
+    {
+      "text": "After designating users for your use cases, the next step is identifying what traffic to inspect. This is based on a selection of one or more source-based criteria as well as the selection of destination-based criteria. Doing this helps to define inspected traffic versus not-inspected traffic, either during the pilot phase or throughout the entire process."
+    },
+    {
+      "text": "For source-based criteria, consider what you know of the use case along with how you can build policy to explicitly target the sources:"
+    },
+    {
+      "item": "By user group or department (e.g., Operations, Sales, HR, Finance, etc.).",
+      "depth": 0
+    },
+    {
+      "item": "By location or network (e.g., sublocation, remote workers, HQ, branch sites, building floors).",
+      "depth": 0
+    },
+    {
+      "item": "By device type or purpose:",
+      "depth": 0
+    },
+    {
+      "item": "Windows, macOS, mobile OS, servers, kiosks, or IoT",
+      "depth": 1
+    },
+    {
+      "item": "Running Zscaler Client Connector or not",
+      "depth": 1
+    },
+    {
+      "text": "Consider if you need to separate employees, contractors, servers, kiosks, executives, developers, etc., into different policy sets or phases."
+    },
+    {
+      "text": "With the source in mind, consider which destinations to select for inspection. Will you:"
+    },
+    {
+      "item": "Inspect all destination URL categories and Cloud applications? What about categories discussed with your stakeholders regarding a sensitive and private nature (e.g., PII or health) or if categories might need to be exempted for legal reasons (e.g., finance, government)?",
+      "depth": 0
+    },
+    {
+      "item": "Take a phased approach to select groups of URL categories per phase?",
+      "depth": 0
+    },
+    {
+      "item": "Start with destinations least likely to impact your business.",
+      "depth": 1
+    },
+    {
+      "item": "Start with those most likely to be risky.",
+      "depth": 1
+    },
+    {
+      "item": "Start with the largest (or lowest) by volume.",
+      "depth": 1
+    },
+    {
+      "text": "After understanding the source and destination criteria, consider which traffic should not be inspected. How should you construct a policy to ensure that this traffic is excluded for each of your use cases without overlapping other scenarios where the traffic should be inspected?"
+    },
+    {
+      "text": "Perhaps the most common approach is to target all users running Zscaler Client Connector while in a remote worker (i.e., not on your trusted networks) state and then expand to cover Zscaler Client Connector users from any location. Eventually, this covers systems without Zscaler Client Connector that do have the certificate. Begin by inspecting URL categories less likely to impact business, and steadily inspect more categories as you receive feedback and gain confidence. To learn more, see Deploying SSL Inspection."
+    },
+    {
+      "heading": "Example Scenario",
+      "level": 5
+    },
+    {
+      "text": "In the following scenario, the setup inspects all traffic from only Zscaler Client Connector users from location HQ (except for the Finance and Health categories), Microsoft 365 traffic (but does inspect OneDrive and SharePoint), and Zoom Cloud application traffic."
+    },
+    {
+      "text": "The following policy rules are built in the simplest way while permitting for more scenarios to be added later:"
+    },
+    {
+      "item": "Rule 1: Inspect if Cloud App is OneDrive or SharePoint, Device Group is Android, iOS, Windows, or macOS, and the Location is HQ",
+      "depth": 0
+    },
+    {
+      "item": "Rule 2: Exempt Microsoft 365 traffic via Click-to-Run",
+      "depth": 0
+    },
+    {
+      "item": "Rule 3: Exempt URL categories of Finance and Health, plus Cloud Application of Zoom",
+      "depth": 0
+    },
+    {
+      "item": "Rule 4: Exempt if Device Group is No Client Connector for Location HQ",
+      "depth": 0
+    },
+    {
+      "item": "Rule 5: Inspect all traffic from location HQ",
+      "depth": 0
+    },
+    {
+      "text": "You now have a policy that inspects only the target traffic and are prepared to build on this policy as you expand the deployment. To make things even easier to manage, you could use location groups to apply a similar policy:"
+    },
+    {
+      "item": "Build a Location Group that is only inspected when users run Zscaler Client Connector (e.g., Locations_SSL_CltConEnforce and add HQ and any other locations to this group).",
+      "depth": 0
+    },
+    {
+      "item": "Modify the rules where you have referenced Location equals HQ and instead select the Locations_SSL_CltConEnforce for your Location Group criteria.",
+      "depth": 0
+    },
+    {
+      "item": "Any new locations that follow the same schema need only be added to the proper Location Group, and policy is applied as appropriate.",
+      "depth": 0
+    },
+    {
+      "text": "You can also build a Location Group where all traffic is inspected (not just Zscaler Client Connector) and name it Locations_SSL, and a Location Group for any of your locations not yet in scope or never to be inspected, called Locations_NoSSL. Build a policy using these Location Groups as necessary, and the new location policies become a matter of assigning the location to the proper group."
+    },
+    {
+      "heading": "Timing and Success Criteria",
+      "level": 4
+    },
+    {
+      "text": "It’s a challenge to plan the timing of the project and its phases. Ideally, you want to move quickly to ensure your environment is protected from threats immediately. However, you must also give adequate time for testing, feedback, and learning at each stage."
+    },
+    {
+      "text": "Organizations that prioritize and understand the importance of TLS inspection can reasonably expect successful deployment of TLS inspection to most of their use cases within 45–90 days (although this timing depends on the environment’s size, complexity, and distance along their zero trust journey)."
+    },
+    {
+      "text": "The timing of the project should consider the phases and use cases. Some of the most common considerations when building project timing are:"
+    },
+    {
+      "item": "Deploy to remote users before on-premises?",
+      "depth": 0
+    },
+    {
+      "item": "Complete workstations before mobile devices?",
+      "depth": 0
+    },
+    {
+      "item": "Target one operating system at a time?",
+      "depth": 0
+    },
+    {
+      "item": "Deploy for Zscaler Client Connector devices first?",
+      "depth": 0
+    },
+    {
+      "item": "Do the mission-critical devices first or last?",
+      "depth": 0
+    },
+    {
+      "item": "When to address compliance requirements?",
+      "depth": 0
+    },
+    {
+      "item": "When to do servers, kiosks, and/or IoT?",
+      "depth": 0
+    },
+    {
+      "text": "Set realistic schedules to permit adequate time for testing, feedback, and learning at each stage. Do not be afraid to move to expanded deployment in any use cases you have successfully tested, even if other use cases are still being explored. Expand where and when you are comfortable, making certain not to overlap into spaces not yet ready for production. As you expand into production, if significantly impacting issues are reported, be prepared to roll back a bit and consider the new scenarios to investigate and test."
+    },
+    {
+      "text": "Establish success criteria in the planning phase for pilot stages and production state."
+    },
+    {
+      "text": "Pilot criteria might be something like:"
+    },
+    {
+      "item": "Tested with 10 users for 5 business days.",
+      "depth": 0
+    },
+    {
+      "item": "Addressed reported issues within two hours.",
+      "depth": 0
+    },
+    {
+      "item": "Received fewer than three issue reports in the last two days of testing.",
+      "depth": 0
+    },
+    {
+      "text": "The idea is to keep it simple. Test some percentage of the use case base (i.e., 1–5 percent) for a set amount of time to give you confidence across most applications and services. Keep track of how many issues are reported for the test duration, along with how long it takes the team to investigate and resolve them. Monitor if the number of reported issues reduces dramatically (or stops) within the last small portion of the test window. If users are functional, reported issues are addressed, and things look good, then you can reasonably expect a production expansion in this use case to be similar."
+    },
+    {
+      "text": "Project success criteria are different. Base them on your discovered use cases, the expected percentage of traffic represented by these use cases, and what traffic is not covered under the project."
+    },
+    {
+      "text": "Project success criteria might look like this:"
+    },
+    {
+      "item": "90%+ of the user base has traffic inspection enabled in some form.",
+      "depth": 0
+    },
+    {
+      "item": "Reported issues below one per 100 users per day.",
+      "depth": 0
+    },
+    {
+      "item": "65%+ of all encrypted traffic is being inspected.",
+      "depth": 0
+    },
+    {
+      "text": "An expectation of a majority of the user base being inspected, reported issues being relatively low, and having a target for overall inspection is a reasonable way to judge success. You could expand upon this and report the additional threats detected with the added visibility of TLS inspection to the environment."
+    },
+    {
+      "text": "Remember, the goal is to inspect as much encrypted web traffic as possible. There must be a baseline of what is acceptable to the organization as a percentage of total traffic inspected–knowing that some traffic can’t be inspected."
+    },
+    {
+      "text": "Example:"
+    },
+    {
+      "text": "If an environment has 15% traffic sent to exempted destinations (certificate pinned, much of it Microsoft 365, other desired or necessary exemptions), along with 20% of traffic being from sources to not be inspected (guest network, IoT, anything not in scope); then it can be expected that nearly 35% of traffic is not going to be inspected. As such, 65% is the absolute maximum inspection rate possible when considering all traffic from the environment."
+    },
+    {
+      "heading": "Communication",
+      "level": 4
+    },
+    {
+      "text": "Communication is key. You must let your users know changes are coming, typically with your updated Acceptable Use Policy, and give the users guidance on how to report any issues they might experience."
+    },
+    {
+      "text": "Review and evaluate feedback, lessons learned, and results at each stage. Share updates and reports with the key stakeholders to keep them informed and focused on the need and benefits of the project."
+    },
+    {
+      "heading": "Risk Tolerance and Acceptance Plans",
+      "level": 4
+    },
+    {
+      "text": "If you can’t inspect traffic, what criteria does the organization set to determine if the risk is acceptable? Will the traffic be permitted or blocked? Negotiate this guidance with stakeholders during the planning stage, as it will become necessary to act quickly on established plans when investigating and resolving reported issues."
+    },
+    {
+      "text": "Important considerations:"
+    },
+    {
+      "item": "The Zscaler service cannot see inside uninspected traffic, meaning any embedded threats (inbound or outbound) are not detected.",
+      "depth": 0
+    },
+    {
+      "item": "Determine under what circumstances traffic is exempted from inspection and communications permitted:",
+      "depth": 0
+    },
+    {
+      "item": "Destinations exempted by privacy and legal requirements.",
+      "depth": 1
+    },
+    {
+      "item": "Business critical services (and what determines business-critical status).",
+      "depth": 1
+    },
+    {
+      "item": "Connections to partners or vendors.",
+      "depth": 1
+    },
+    {
+      "item": "Low-risk destinations (and what determines low risk).",
+      "depth": 1
+    },
+    {
+      "item": "How to handle undecryptable traffic.",
+      "depth": 0
+    },
+    {
+      "item": "How to handle revoked certificates.",
+      "depth": 0
+    },
+    {
+      "item": "How to handle untrusted server certificates.",
+      "depth": 0
+    },
+    {
+      "item": "Is there a minimum TLS version, and what should be done with exceptions?",
+      "depth": 0
+    },
+    {
+      "item": "Is policy set globally or for some grouping (user, location, network, device, etc.)?",
+      "depth": 0
+    },
+    {
+      "text": "Establish your guidance early, and continue to update as you learn more about your environment and the services that require exception handling."
+    },
+    {
+      "heading": "Root Certificates",
+      "level": 4
+    },
+    {
+      "text": "Certificates play a critical role in securing web applications by confirming the validity of the applications. A user’s device trusts the certificate because of a chain of trust link showing the server certificate’s relationship to a trusted Certificate Authority (CA). The information contained in the certificate allows for the setup of secure connections with TLS/SSL using public-key encryption."
+    },
+    {
+      "text": "In Internet & SaaS, the Central Authority is a private CA, acting as both root and intermediate CA for the Internet & SaaS service or as an intermediate to your private CA. The Central Authority authorizes the Public Service Edge for Internet & SaaS to act as intermediate CAs, issuing certificates to end users for their requested destinations."
+    },
+    {
+      "text": "Generally, preventing interception is what you want. Having a third party be able to impersonate a legitimate service with a valid certificate allows the impersonator to see into the transactions. When a legitimate TLS/SSL inspection occurs, impersonating all the destinations a user wants to visit is exactly what happens. The Internet & SaaS proxy must sit in the traffic flow and must present itself as the legitimate service the user is attempting to achieve."
+    },
+    {
+      "text": "To do this, the Public Service Edge for Internet & SaaS acts as a short-lived intermediate CA. As a user requests a connection, the Public Service Edge for Internet & SaaS issues certificates on demand for the application. From the browser’s point of view, the Public Service Edge for Internet & SaaS certificate is valid for the destination. This is because the user or administrator imported the Public Service Edge for Internet & SaaS trust chain into the device’s certificate store."
+    },
+    {
+      "text": "Zscaler provides three options for root CA certificates: using your own certificate authority, using your own CA with Zscaler Cloud Hardware Security Model (HSM), or leveraging Zscaler’s CA. From a functional standpoint, the two options are equivalent, but there are differences in the deployment of the root CA. The option you choose depends on your current infrastructure. If you already have your own CA infrastructure in place, you might prefer to use your own certificates. Your client machines are already preloaded with your root CA certificate, and they can begin to use the Internet & SaaS service immediately without additional certificate installations in the client certificate store. To learn more, see Safeguarding SSL Keys."
+    },
+    {
+      "text": "If you don’t have a robust CA practice in place already, or don’t want to make Zscaler an intermediate CA to your organization, Zscaler's CA is the best choice. Zscaler CA is a private CA. You must install Zscaler's root CA in your machines’ certificate stores for the devices to trust the Zscaler Root CA certificate."
+    },
+    {
+      "text": "Using your existing CA is possible with licensing."
+    },
+    {
+      "heading": "Reporting",
+      "level": 4
+    },
+    {
+      "text": "Implementing TLS inspection for an environment is typically done in phases and over an extended time. During these phases, and onward into operations, the ability to report on various progress metrics is important."
+    },
+    {
+      "text": "Details to find commonly desired views are as follows."
+    },
+    {
+      "heading": "Security Policy Audit Report",
+      "level": 5
+    },
+    {
+      "text": "View an overall summary of TLS traffic inspection:"
+    },
+    {
+      "item": "Go to Analytics > Internet & SaaS > Security Policy Audit Report.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          18,
+          33
+        ],
+        [
+          36,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Select the SSL/TLS Inspection row to expand the details.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Interactive Reports",
+      "level": 5
+    },
+    {
+      "text": "This reporting section includes predefined and custom reports:"
+    },
+    {
+      "item": "Go to Analytics, and enable Switch to Existing Reports.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          28,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Go to Internet & SaaS > Analytics > Interactive Reports.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          24,
+          33
+        ],
+        [
+          36,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Traffic Distribution by Protocol, which includes:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Traffic by protocol",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Threats by protocol",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Sandbox threats",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Top applications by protocol",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "SSL Traffic Overview, which includes:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Top ciphers",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "SSL/TLS versions",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Web Insights",
+      "level": 5
+    },
+    {
+      "text": "The Web Insights section is helpful in providing aggregated data and in further narrowing results before drilling into additional insights and/or logs. Web Insights is reached by going to Logs > Web Insights.",
+      "strong": [
+        [
+          188,
+          192
+        ],
+        [
+          195,
+          207
+        ]
+      ]
+    },
+    {
+      "text": "TLS inspection efforts can be enhanced with the filtering of various data sections by protocol being either HTTPS or SSL; indicating whether traffic was TLS inspected or not inspected, respectively."
+    },
+    {
+      "text": "Example data types to check:"
+    },
+    {
+      "item": "Threat Category",
+      "depth": 0
+    },
+    {
+      "item": "Download/Upload File Type",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Applications",
+      "depth": 0
+    },
+    {
+      "item": "URL Categories",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Building an Inspection Policy",
+      "level": 4
+    },
+    {
+      "text": "Understanding the process of creating an TLS Inspection policy is crucial for proper implementation and ongoing operations of an inspection program. Fortunately, policy creation is fairly straightforward and similar to policy creation in other areas of Internet & SaaS."
+    },
+    {
+      "item": "Add an SSL Inspection Rule by going to Policies > Common Configuration > SSL/TLS Inspection > SSL/TLS Inspection Policy.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          39,
+          47
+        ],
+        [
+          50,
+          70
+        ],
+        [
+          73,
+          91
+        ],
+        [
+          94,
+          119
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Rule.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Configure the rule as needed. To learn more, see Configuring SSL/TLS Inspection Policy.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Save and Review Rule. Rule order matters.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "To learn more, see Configuring SSL Inspection Policy."
+    }
+  ]
+}

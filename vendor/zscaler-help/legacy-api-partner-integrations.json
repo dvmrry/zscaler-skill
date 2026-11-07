@@ -1,0 +1,3086 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Partner Integrations",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/partner-integrations",
+    "node": "1532710",
+    "revision": "3182441",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Partner%20Integrations%20%283%29.json?VersionId=8t1poxWWYjc7ZUsK0j9Ne9QSe5iSOjlL",
+    "updated": "2026-03-06",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Cloud & Branch Connector API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "v1.0"
+    },
+    "servers": [
+      {
+        "url": "https://{host}:{port}/wapi/v1",
+        "variables": {
+          "host": {
+            "description": "Private APIs Server IP/Domain name hosting Cloud Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      },
+      {
+        "url": "https://{host}:{port}/api/v1",
+        "variables": {
+          "host": {
+            "description": "Public APIs Server IP/Domain name hosting Cloud Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      }
+    ],
+    "tags": [
+      {
+        "name": "Partner Integrations"
+      }
+    ],
+    "paths": {
+      "/publicCloudInfo": {
+        "get": {
+          "operationId": "AwsAccountZResource_getAwsAccount",
+          "description": " Retrieves the list of AWS accounts with metadata. To learn more, see <a href=\"/cloud-branch-connector/about-amazon-web-services-accounts\" target=\"_blank\">About Amazon Web Services Accounts</a>.",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "page",
+              "description": " Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "description": "Specifies the page size.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AwsAccount"
+                    }
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        },
+        "post": {
+          "operationId": "AwsAccountZResource_createAwsAccount",
+          "description": "Creates a new AWS account with the provided account and region details. You can create a maximum of 512 accounts in each organization. To learn more, see <a href=\"/cloud-branch-connector/adding-amazon-web-services-account\" target=\"_blank\">Adding an Amazon Web Services Account</a>.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AwsAccount"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AwsAccount"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudInfo/cloudFormationTemplate": {
+        "get": {
+          "operationId": "AwsAccountZResource_getCloudFormationTemplateUrl",
+          "description": "Retrieves the CloudFormation template URL. To learn more, see <a href=\"/cloud-branch-connector/adding-amazon-web-services-account\" target=\"_blank\">Adding an Amazon Web Services Account</a>.",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "awsAccountId",
+              "description": "(Optional) The AWS account ID to customize the CloudFormation template URL. If an <code>awsAccountId</code> is provided, the URL is customized with account-specific values, or a generic template URL is returned.",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                    "description": "A CloudFormation template URL is returned."
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudInfo/count": {
+        "get": {
+          "operationId": "AwsAccountZResource_getAwsAccountCount",
+          "description": "Retrieves the total number of AWS accounts.",
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Returns the total number of AWS accounts.",
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudInfo/generateExternalId": {
+        "post": {
+          "operationId": "AwsAccountZResource_generateExternalId",
+          "description": "Creates an external ID for an AWS account.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateExternalIdRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                    "description": "Returns the External ID of the AWS account."
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudInfo/lite": {
+        "get": {
+          "operationId": "AwsAccountZResource_getAwsAccountSummary",
+          "description": "Retrieves basic information about the AWS cloud accounts. For additional details, use the <code>GET /publicCloudInfo</code> method.",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "cloudType",
+              "description": "The cloud type. The default and mandatory value is AWS.",
+              "schema": {
+                "type": "string",
+                "default": "AWS",
+                "enum": [
+                  "AWS",
+                  "AZURE",
+                  "GCP"
+                ]
+              }
+            },
+            {
+              "in": "query",
+              "name": "search",
+              "description": "The search string.",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "description": "Specifies the page size. ",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PublicCloudInfoSummary"
+                    }
+                  }
+                }
+              },
+              "description": "Defaultresponse. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudInfo/supportedRegions": {
+        "get": {
+          "operationId": "AwsAccountZResource_getAwsSupportedRegions",
+          "description": "Retrieves a list of AWS regions supported for  workload discovery settings (WDS).",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "description": "Specifies the page size. ",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SupportedRegion"
+                    }
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudInfo/{id}": {
+        "get": {
+          "operationId": "AwsAccountZResource_getAwsAccountById",
+          "description": "Retrieves the existing AWS account details based on the provided ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "description": "The unique ID of the AWS account.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "query",
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "description": "Specifies the page size.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AwsAccount"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        },
+        "put": {
+          "operationId": "AwsAccountZResource_updateAwsAccount",
+          "description": "Updates the existing AWS account details based on the provided ID. ",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "description": "The unique ID of the AWS account.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AwsAccount"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AwsAccount"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        },
+        "delete": {
+          "operationId": "AwsAccountZResource_deleteAwsAccount",
+          "description": "Removes a specific AWS account based on the provided ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "description": "The unique ID of the AWS account.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {}
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudInfo/{id}/changeState": {
+        "put": {
+          "operationId": "AwsAccountZResource_disableAwsAccount",
+          "description": "Enables or disables a specific AWS account in all regions based on the provided ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "description": "The unique ID of the AWS account.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "query",
+              "name": "enable",
+              "description": " Set <code>true</code> to enable the AWS account, and <code>false</code> to disable it.",
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AwsAccount"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudTenant": {
+        "get": {
+          "operationId": "PublicCloudTenantZResource_getPublicCloudTenants",
+          "description": "Retrieves a paginated list of all Microsoft Azure accounts. To learn more, see <a href=\"/cloud-branch-connector/about-microsoft-azure-accounts\" target=\"_blank\">About Microsoft Azure Accounts</a>.",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "page",
+              "description": "Specifies the starting point of the current page in pagination, determining which set of records is displayed.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "description": "Specifies the number of records included in a single response page.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PublicCloudTenant"
+                    }
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        },
+        "post": {
+          "operationId": "PublicCloudTenantZResource_createPublicCloudTenant",
+          "description": "Creates a new Azure account. To learn more, see <a href=\"/cloud-branch-connector/configuring-workload-discovery-service-microsoft-azure-accounts\" target=\"_blank\">Configuring the Workload Discovery Service for Microsoft Azure Accounts</a>.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCloudTenant"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicCloudTenant"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudTenant/ccGroups": {
+        "get": {
+          "operationId": "PublicCloudTenantZResource_getCCGroupsAvailable",
+          "description": "Retrieves the list of available Cloud Connector groups for the specified region and the associated Azure account ID.",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "region",
+              "description": "The Azure account region.",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            },
+            {
+              "in": "query",
+              "name": "tenantId",
+              "description": "The unique ID of the Azure account.",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EcGroup"
+                    }
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudTenant/count": {
+        "get": {
+          "operationId": "PublicCloudTenantZResource_getPublicCloudTenantCount",
+          "description": "Retrieves the total number of Azure accounts.",
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudTenant/supportedRegions": {
+        "get": {
+          "operationId": "PublicCloudTenantZResource_getAzureSupportedRegions",
+          "description": "Retrieves supported Azure regions.",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "description": "Specifies the page size.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Retreives the list of supported regions for the cloud type.",
+              "content": {
+                "application/json": {
+                  "example": [
+                    {
+                      "cloudType": "AZURE",
+                      "id": 0,
+                      "name": "string"
+                    }
+                  ],
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SupportedRegion"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/publicCloudTenant/{id}": {
+        "get": {
+          "operationId": "PublicCloudTenantZResource_getPublicCloudTenantById",
+          "description": "Retrieves the details of an Azure account based on the specified unique account ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "description": "The unique ID of the Azure account.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicCloudTenant"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        },
+        "put": {
+          "operationId": "PublicCloudTenantZResource_updatePublicCloudTenant",
+          "description": "Updates the details of an Azure account based on the specified unique account ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "description": "The unique ID of the Azure account.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCloudTenant"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicCloudTenant"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        },
+        "delete": {
+          "operationId": "PublicCloudTenantZResource_deletePublicCloudTenant",
+          "description": "Deletes an Azure account based on the specified unique account ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "description": "The unique ID of the Azure account.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {}
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/discoveryService/azure/subscriptionSync": {
+        "put": {
+          "operationId": "DiscoveryServZResource_updateAzureSubscriptionStatus",
+          "description": "Updates Azure subscription permission status.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AzurePermissionReq"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AzurePermissionResponse"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/discoveryService/azure/tenantPermission": {
+        "post": {
+          "operationId": "DiscoveryServZResource_getAzureTenantPermission",
+          "description": "Verifies whether the provided Azure credentials are valid and can scan tags for Azure subscriptions.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AzurePermissionReq"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AzurePermissionResponse"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/discoveryService/azure/{region}/resourceGroups": {
+        "post": {
+          "operationId": "DiscoveryServZResource_getAzureResourceGroups",
+          "description": "Retrieves the list of resource groups based on the specified Azure region name, subscription, and credentials.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "region",
+              "description": "The Azure region name.",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AzurePermissionReq"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/discoveryService/azure/{region}/storageAccounts": {
+        "post": {
+          "operationId": "DiscoveryServZResource_getAzureStorageAccounts",
+          "description": "Retrieves the list of storage accounts based on the specified Azure region, subscription, and credentials.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "region",
+              "description": "Azure region name.",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AzurePermissionReq"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AzureStorageAccountDetails"
+                    }
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/discoveryService/azure/{region}/topicSync": {
+        "put": {
+          "operationId": "DiscoveryServZResource_updateAzureTopicStatus",
+          "description": "Retrieves event grid details for the specified Azure account ID and region.",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "tenantId",
+              "description": "The unique ID of the Azure account.",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "region",
+              "description": "The Azure region.",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AzureTopicDetails"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/discoveryService/workloadDiscoverySettings": {
+        "get": {
+          "operationId": "DiscoveryServZResource_getWorkloadDiscoverySettings",
+          "description": "Retrieves the workload discovery service settings.",
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadDiscoverySetting"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/discoveryService/{id}/permissions": {
+        "put": {
+          "operationId": "DiscoveryServZResource_getPermissions",
+          "description": "Verifies the specified AWS account permissions using the discovery role and external ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "description": "The unique identifier for the AWS account.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionReq"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Returns details of permission verification."
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/accountGroups": {
+        "get": {
+          "operationId": "AwsAccountGroupZResource_getAccountGroups",
+          "description": "Retrieves the details of AWS account groups with metadata. To learn more, see <a href=\"/cloud-branch-connector/about-amazon-web-services-account-groups\" target=\"_blank\">About Amazon Web Services Account Groups</a>.",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "description": "Specifies the page size.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AwsAccountGroup"
+                    }
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        },
+        "post": {
+          "operationId": "AwsAccountGroupZResource_createAccountGroup",
+          "description": "Creates an AWS account group. You can create a maximum of 128 groups in each organization. To learn more, see <a href=\"/cloud-branch-connector/adding-amazon-web-services-account-group\" target=\"_blank\">Adding an Amazon Web Services Account Group</a>.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AwsAccountGroup"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AwsAccountGroup"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/accountGroups/count": {
+        "get": {
+          "operationId": "AwsAccountGroupZResource_getAccountGroupsCount",
+          "description": "Retrieves the total number of AWS account groups.",
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Returns the total number of AWS groups."
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/accountGroups/lite": {
+        "get": {
+          "operationId": "AwsAccountGroupZResource_getAccountGroupsLite",
+          "description": "Retrieves the ID and name of all the AWS account groups. For additional details, use the <code>GET /accountGroups</code> method.",
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EntityResponse"
+                    }
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      },
+      "/accountGroups/{id}": {
+        "get": {
+          "operationId": "AwsAccountGroupZResource_getAccountGroupById",
+          "description": "Retrieves the specific AWS account group details based on the provided group ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "description": "The ID of the AWS account group.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "query",
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "description": "Specifies the page size.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AwsAccountGroup"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        },
+        "put": {
+          "operationId": "AwsAccountGroupZResource_updateAccountGroup",
+          "description": "Updates the existing AWS account group details based on the provided ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "description": "The unique ID of the AWS account group.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AwsAccountGroup"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AwsAccountGroup"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        },
+        "delete": {
+          "operationId": "AwsAccountGroupZResource_deleteAccountGroup",
+          "description": "Removes a specific AWS account group based on the provided ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "description": "The unique ID of the AWS account group.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {}
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Partner Integrations"
+          ]
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "AwsAccount": {
+          "type": "object",
+          "description": "The AWS Account information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique ID of the AWS account.",
+              "format": "int32"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the AWS account. The name must be non-null, non-empty, unique, and 128 characters or fewer in length."
+            },
+            "accountDetails": {
+              "$ref": "#/components/schemas/AwsAccountDetails"
+            },
+            "accountGroups": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "cloudType": {
+              "type": "string",
+              "description": "The cloud type. The default and mandatory value is AWS.",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "GCP"
+              ]
+            },
+            "externalId": {
+              "type": "string",
+              "description": "<p>A unique external ID for the AWS account.</p><p><b>Note:</b><ul><li>The ID must be unique across different organizations. Two organizations cannot use the same external ID.</li><li>Multiple accounts can share the same external ID within the same organization.</li><li>The ID must be between 2 and 128 characters long.</li><li>The ID can include letters, numbers, and the following symbols: <code>+</code>, <code>=</code>, <code>,</code>, <code>.</code>, <code>@ </code>,<code>:</code>, <code>/</code>, and <code>-</code>.</li></ul></p>"
+            },
+            "lastModTime": {
+              "type": "integer",
+              "description": "The date and time when the AWS account was last modified.",
+              "format": "int32"
+            },
+            "lastModUser": {
+              "$ref": "#/components/schemas/EntityReference"
+            },
+            "lastSyncTime": {
+              "type": "integer",
+              "description": "The last time the AWS account was synced.",
+              "format": "int32"
+            },
+            "permissionStatus": {
+              "description": "Indicates whether the provided credentials (external ID and AWS role name) have permission to access the AWS account."
+            },
+            "regionStatus": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RegionStatus"
+              }
+            },
+            "supportedRegions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SupportedRegion"
+              }
+            }
+          }
+        },
+        "GenerateExternalIdRequest": {
+          "type": "object",
+          "properties": {
+            "awsAccountId": {
+              "type": "string",
+              "description": "The ID of the AWS account where workloads are deployed. The ID is non-null, non-empty, and unique, and contains 12 digits."
+            },
+            "awsRoleName": {
+              "type": "string",
+              "description": "The AWS trusting role in your account. The name is non-null, non-empty, unique, and 64 characters or fewer in length."
+            }
+          }
+        },
+        "PublicCloudInfoSummary": {
+          "type": "object",
+          "description": "Public cloud information summary.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "A unique identifier for the public cloud.",
+              "format": "int32"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of your AWS account."
+            },
+            "accountId": {
+              "type": "string",
+              "description": "The AWS account ID where workloads are deployed."
+            },
+            "cloudType": {
+              "type": "string",
+              "description": "The cloud type. The default and mandatory value is AWS.",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "GCP"
+              ]
+            }
+          }
+        },
+        "SupportedRegion": {
+          "type": "object",
+          "description": "Regions supported by the Zscaler Tag Discovery Service.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique ID of the supported region.",
+              "format": "int32"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the supported region."
+            },
+            "cloudType": {
+              "type": "string",
+              "description": "The cloud type. The default and mandatory value is AWS.",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "GCP"
+              ]
+            }
+          }
+        },
+        "PublicCloudTenant": {
+          "type": "object",
+          "properties": {
+            "cloudType": {
+              "description": "The cloud type. The default and mandatory value is AZURE.",
+              "type": "string",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "GCP"
+              ],
+              "example": "AZURE"
+            },
+            "id": {
+              "description": "The unique ID of the Azure account.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "infoMsg": {
+              "description": "<p>An error message that specifies something unexpected happened when adding the Azure account details in a specific region.</p><p><b>Note:</b> For sub-locations, this attribute is a read-only field as the value is inherited from the parent location.</p>\n",
+              "type": "string"
+            },
+            "lastModTime": {
+              "description": "The date and time the Azure account was last modified.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "lastModUser": {
+              "$ref": "#/components/schemas/EntityReference"
+            },
+            "name": {
+              "description": "The name of the Azure account.",
+              "type": "string"
+            },
+            "publicCloudStorageAccounts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PublicCloudStorageAccount"
+              }
+            },
+            "publicCloudTopics": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PublicCloudTopic"
+              }
+            },
+            "subscriptionGroups": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SubscriptionGroup"
+              }
+            },
+            "tenantDetails": {
+              "$ref": "#/components/schemas/AzureTenantDetails"
+            }
+          }
+        },
+        "EcGroup": {
+          "type": "object",
+          "description": "Cloud & Branch Connector group information.",
+          "properties": {
+            "autoScale": {
+              "description": "Indicates whether autoscaling is enabled for the VM.",
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "ID of the Cloud or Branch Connector group."
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of the Cloud or Branch Connector group."
+            },
+            "desc": {
+              "type": "string",
+              "description": "Description of the Cloud or Branch Connector group."
+            },
+            "deployType": {
+              "type": "string",
+              "description": "Deployment type of the Cloud or Branch Connector group.",
+              "enum": [
+                "ONPREM",
+                "CLOUD",
+                "DISABLED",
+                "MON_DELETED",
+                "DELETING",
+                "DELETING_LAST",
+                "DELETED"
+              ]
+            },
+            "status": {
+              "type": "array",
+              "description": "Status of the Cloud or Branch Connector group.",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "ONPREM",
+                  "CLOUD",
+                  "DISABLED",
+                  "MON_DELETED",
+                  "DELETING",
+                  "DELETING_LAST",
+                  "DELETED"
+                ]
+              }
+            },
+            "platform": {
+              "type": "string",
+              "description": "The platform of the Cloud or Branch Connector group.",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "CENTOS",
+                "REDHAT_LINUX",
+                "VMWARE_ESXI"
+              ]
+            },
+            "awsAvailabilityZone": {
+              "type": "string",
+              "description": "AWS availability zone of Cloud Connector group. This attribute is subject to change.",
+              "enum": [
+                "AF_SOUTH_1A",
+                "AF_SOUTH_1B",
+                "AF_SOUTH_1C",
+                "AP_EAST_1A",
+                "AP_EAST_1B",
+                "AP_EAST_1C",
+                "AP_NORTHEAST_1A",
+                "AP_NORTHEAST_1C",
+                "AP_NORTHEAST_1D",
+                "AP_NORTHEAST_1E",
+                "AP_NORTHEAST_2A",
+                "AP_NORTHEAST_2B",
+                "AP_NORTHEAST_2C",
+                "AP_NORTHEAST_2D",
+                "AP_NORTHEAST_3A",
+                "AP_NORTHEAST_3B",
+                "AP_NORTHEAST_3C",
+                "AP_SOUTHEAST_1A",
+                "AP_SOUTHEAST_1B",
+                "AP_SOUTHEAST_1C",
+                "AP_SOUTHEAST_2A",
+                "AP_SOUTHEAST_2B",
+                "AP_SOUTHEAST_2C",
+                "AP_SOUTHEAST_3A",
+                "AP_SOUTHEAST_3B",
+                "AP_SOUTHEAST_3C",
+                "AP_SOUTH_1A",
+                "AP_SOUTH_1B",
+                "AP_SOUTH_1C",
+                "CA_CENTRAL_1A",
+                "CA_CENTRAL_1B",
+                "CA_CENTRAL_1D",
+                "CN_NORTHWEST_1A",
+                "CN_NORTHWEST_1B",
+                "CN_NORTHWEST_1C",
+                "CN_NORTH_1A",
+                "CN_NORTH_1B",
+                "EU_CENTRAL_1A",
+                "EU_CENTRAL_1B",
+                "EU_CENTRAL_1C",
+                "EU_NORTH_1A",
+                "EU_NORTH_1B",
+                "EU_NORTH_1C",
+                "EU_SOUTH_1A",
+                "EU_SOUTH_1B",
+                "EU_SOUTH_1C",
+                "EU_WEST_1A",
+                "EU_WEST_1B",
+                "EU_WEST_1C",
+                "EU_WEST_2A",
+                "EU_WEST_2B",
+                "EU_WEST_2C",
+                "EU_WEST_3A",
+                "EU_WEST_3B",
+                "EU_WEST_3C",
+                "ME_SOUTH_1A",
+                "ME_SOUTH_1B",
+                "ME_SOUTH_1C",
+                "SA_EAST_1A",
+                "SA_EAST_1B",
+                "SA_EAST_1C",
+                "US_EAST_1A",
+                "US_EAST_1B",
+                "US_EAST_1C",
+                "US_EAST_1D",
+                "US_EAST_1E",
+                "US_EAST_1F",
+                "US_EAST_2A",
+                "US_EAST_2B",
+                "US_EAST_2C",
+                "US_GOV_EAST_1A",
+                "US_GOV_EAST_1B",
+                "US_GOV_EAST_1C",
+                "US_GOV_WEST_1A",
+                "US_GOV_WEST_1B",
+                "US_GOV_WEST_1C",
+                "US_WEST_1A",
+                "US_WEST_1B",
+                "US_WEST_1C",
+                "US_WEST_2A",
+                "US_WEST_2B",
+                "US_WEST_2C",
+                "US_WEST_2D"
+              ]
+            },
+            "azureAvailabilityZone": {
+              "type": "string",
+              "description": "Azure availability zone of Cloud Connector group. This attribute is subject to change.",
+              "enum": [
+                "ASIA_0",
+                "ASIA_1",
+                "ASIA_2",
+                "ASIA_3",
+                "ASIAPACIFIC_0",
+                "ASIAPACIFIC_1",
+                "ASIAPACIFIC_2",
+                "ASIAPACIFIC_3",
+                "AUSTRALIA_0",
+                "AUSTRALIA_1",
+                "AUSTRALIA_2",
+                "AUSTRALIA_3",
+                "AUSTRALIACENTRAL_0",
+                "AUSTRALIACENTRAL_1",
+                "AUSTRALIACENTRAL_2",
+                "AUSTRALIACENTRAL_3",
+                "AUSTRALIACENTRAL2_0",
+                "AUSTRALIACENTRAL2_1",
+                "AUSTRALIACENTRAL2_2",
+                "AUSTRALIACENTRAL2_3",
+                "AUSTRALIAEAST_0",
+                "AUSTRALIAEAST_1",
+                "AUSTRALIAEAST_2",
+                "AUSTRALIAEAST_3",
+                "AUSTRALIASOUTHEAST_0",
+                "AUSTRALIASOUTHEAST_1",
+                "AUSTRALIASOUTHEAST_2",
+                "AUSTRALIASOUTHEAST_3",
+                "BRAZIL_0",
+                "BRAZIL_1",
+                "BRAZIL_2",
+                "BRAZIL_3",
+                "BRAZILSOUTH_0",
+                "BRAZILSOUTH_1",
+                "BRAZILSOUTH_2",
+                "BRAZILSOUTH_3",
+                "BRAZILSOUTHEAST_0",
+                "BRAZILSOUTHEAST_1",
+                "BRAZILSOUTHEAST_2",
+                "BRAZILSOUTHEAST_3",
+                "CANADA_0",
+                "CANADA_1",
+                "CANADA_2",
+                "CANADA_3",
+                "CANADACENTRAL_0",
+                "CANADACENTRAL_1",
+                "CANADACENTRAL_2",
+                "CANADACENTRAL_3",
+                "CANADAEAST_0",
+                "CANADAEAST_1",
+                "CANADAEAST_2",
+                "CANADAEAST_3",
+                "CENTRALINDIA_0",
+                "CENTRALINDIA_1",
+                "CENTRALINDIA_2",
+                "CENTRALINDIA_3",
+                "CENTRALUS_0",
+                "CENTRALUS_1",
+                "CENTRALUS_2",
+                "CENTRALUS_3",
+                "CENTRALUSEUAP_0",
+                "CENTRALUSEUAP_1",
+                "CENTRALUSEUAP_2",
+                "CENTRALUSEUAP_3",
+                "CENTRALUSSTAGE_0",
+                "CENTRALUSSTAGE_1",
+                "CENTRALUSSTAGE_2",
+                "CENTRALUSSTAGE_3",
+                "EASTASIA_0",
+                "EASTASIA_1",
+                "EASTASIA_2",
+                "EASTASIA_3",
+                "EASTASIASTAGE_0",
+                "EASTASIASTAGE_1",
+                "EASTASIASTAGE_2",
+                "EASTASIASTAGE_3",
+                "EASTUS_0",
+                "EASTUS_1",
+                "EASTUS_2",
+                "EASTUS_3",
+                "EASTUS2_0",
+                "EASTUS2_1",
+                "EASTUS2_2",
+                "EASTUS2_3",
+                "EASTUS2EUAP_0",
+                "EASTUS2EUAP_1",
+                "EASTUS2EUAP_2",
+                "EASTUS2EUAP_3",
+                "EASTUS2STAGE_0",
+                "EASTUS2STAGE_1",
+                "EASTUS2STAGE_2",
+                "EASTUS2STAGE_3",
+                "EASTUSSTAGE_0",
+                "EASTUSSTAGE_1",
+                "EASTUSSTAGE_2",
+                "EASTUSSTAGE_3",
+                "EUROPE_0",
+                "EUROPE_1",
+                "EUROPE_2",
+                "EUROPE_3",
+                "FRANCE_0",
+                "FRANCE_1",
+                "FRANCE_2",
+                "FRANCE_3",
+                "FRANCECENTRAL_0",
+                "FRANCECENTRAL_1",
+                "FRANCECENTRAL_2",
+                "FRANCECENTRAL_3",
+                "FRANCESOUTH_0",
+                "FRANCESOUTH_1",
+                "FRANCESOUTH_2",
+                "FRANCESOUTH_3",
+                "GERMANY_0",
+                "GERMANY_1",
+                "GERMANY_2",
+                "GERMANY_3",
+                "GERMANYNORTH_0",
+                "GERMANYNORTH_1",
+                "GERMANYNORTH_2",
+                "GERMANYNORTH_3",
+                "GERMANYWESTCENTRAL_0",
+                "GERMANYWESTCENTRAL_1",
+                "GERMANYWESTCENTRAL_2",
+                "GERMANYWESTCENTRAL_3",
+                "GLOBAL_0",
+                "GLOBAL_1",
+                "GLOBAL_2",
+                "GLOBAL_3",
+                "INDIA_0",
+                "INDIA_1",
+                "INDIA_2",
+                "INDIA_3",
+                "JAPAN_0",
+                "JAPAN_1",
+                "JAPAN_2",
+                "JAPAN_3",
+                "JAPANEAST_0",
+                "JAPANEAST_1",
+                "JAPANEAST_2",
+                "JAPANEAST_3",
+                "JAPANWEST_0",
+                "JAPANWEST_1",
+                "JAPANWEST_2",
+                "JAPANWEST_3",
+                "JIOINDIACENTRAL_0",
+                "JIOINDIACENTRAL_1",
+                "JIOINDIACENTRAL_2",
+                "JIOINDIACENTRAL_3",
+                "JIOINDIAWEST_0",
+                "JIOINDIAWEST_1",
+                "JIOINDIAWEST_2",
+                "JIOINDIAWEST_3",
+                "KOREA_0",
+                "KOREA_1",
+                "KOREA_2",
+                "KOREA_3",
+                "KOREACENTRAL_0",
+                "KOREACENTRAL_1",
+                "KOREACENTRAL_2",
+                "KOREACENTRAL_3",
+                "KOREASOUTH_0",
+                "KOREASOUTH_1",
+                "KOREASOUTH_2",
+                "KOREASOUTH_3",
+                "NORTHCENTRALUS_0",
+                "NORTHCENTRALUS_1",
+                "NORTHCENTRALUS_2",
+                "NORTHCENTRALUS_3",
+                "NORTHCENTRALUSSTAGE_0",
+                "NORTHCENTRALUSSTAGE_1",
+                "NORTHCENTRALUSSTAGE_2",
+                "NORTHCENTRALUSSTAGE_3",
+                "NORTHEUROPE_0",
+                "NORTHEUROPE_1",
+                "NORTHEUROPE_2",
+                "NORTHEUROPE_3",
+                "NORWAY_0",
+                "NORWAY_1",
+                "NORWAY_2",
+                "NORWAY_3",
+                "NORWAYEAST_0",
+                "NORWAYEAST_1",
+                "NORWAYEAST_2",
+                "NORWAYEAST_3",
+                "NORWAYWEST_0",
+                "NORWAYWEST_1",
+                "NORWAYWEST_2",
+                "NORWAYWEST_3",
+                "SOUTHAFRICA_0",
+                "SOUTHAFRICA_1",
+                "SOUTHAFRICA_2",
+                "SOUTHAFRICA_3",
+                "SOUTHAFRICANORTH_0",
+                "SOUTHAFRICANORTH_1",
+                "SOUTHAFRICANORTH_2",
+                "SOUTHAFRICANORTH_3",
+                "SOUTHAFRICAWEST_0",
+                "SOUTHAFRICAWEST_1",
+                "SOUTHAFRICAWEST_2",
+                "SOUTHAFRICAWEST_3",
+                "SOUTHCENTRALUS_0",
+                "SOUTHCENTRALUS_1",
+                "SOUTHCENTRALUS_2",
+                "SOUTHCENTRALUS_3",
+                "SOUTHCENTRALUSSTAGE_0",
+                "SOUTHCENTRALUSSTAGE_1",
+                "SOUTHCENTRALUSSTAGE_2",
+                "SOUTHCENTRALUSSTAGE_3",
+                "SOUTHEASTASIA_0",
+                "SOUTHEASTASIA_1",
+                "SOUTHEASTASIA_2",
+                "SOUTHEASTASIA_3",
+                "SOUTHEASTASIASTAGE_0",
+                "SOUTHEASTASIASTAGE_1",
+                "SOUTHEASTASIASTAGE_2",
+                "SOUTHEASTASIASTAGE_3",
+                "SOUTHINDIA_0",
+                "SOUTHINDIA_1",
+                "SOUTHINDIA_2",
+                "SOUTHINDIA_3",
+                "SWEDENCENTRAL_0",
+                "SWEDENCENTRAL_1",
+                "SWEDENCENTRAL_2",
+                "SWEDENCENTRAL_3",
+                "SWITZERLAND_0",
+                "SWITZERLAND_1",
+                "SWITZERLAND_2",
+                "SWITZERLAND_3",
+                "SWITZERLANDNORTH_0",
+                "SWITZERLANDNORTH_1",
+                "SWITZERLANDNORTH_2",
+                "SWITZERLANDNORTH_3",
+                "SWITZERLANDWEST_0",
+                "SWITZERLANDWEST_1",
+                "SWITZERLANDWEST_2",
+                "SWITZERLANDWEST_3",
+                "UAE_0",
+                "UAE_1",
+                "UAE_2",
+                "UAE_3",
+                "UAECENTRAL_0",
+                "UAECENTRAL_1",
+                "UAECENTRAL_2",
+                "UAECENTRAL_3",
+                "UAENORTH_0",
+                "UAENORTH_1",
+                "UAENORTH_2",
+                "UAENORTH_3",
+                "UK_0",
+                "UK_1",
+                "UK_2",
+                "UK_3",
+                "UKSOUTH_0",
+                "UKSOUTH_1",
+                "UKSOUTH_2",
+                "UKSOUTH_3",
+                "UKWEST_0",
+                "UKWEST_1",
+                "UKWEST_2",
+                "UKWEST_3",
+                "UNITEDSTATES_0",
+                "UNITEDSTATES_1",
+                "UNITEDSTATES_2",
+                "UNITEDSTATES_3",
+                "UNITEDSTATESEUAP_0",
+                "UNITEDSTATESEUAP_1",
+                "UNITEDSTATESEUAP_2",
+                "UNITEDSTATESEUAP_3",
+                "WESTCENTRALUS_0",
+                "WESTCENTRALUS_1",
+                "WESTCENTRALUS_2",
+                "WESTCENTRALUS_3",
+                "WESTEUROPE_0",
+                "WESTEUROPE_1",
+                "WESTEUROPE_2",
+                "WESTEUROPE_3",
+                "WESTINDIA_0",
+                "WESTINDIA_1",
+                "WESTINDIA_2",
+                "WESTINDIA_3",
+                "WESTUS_0",
+                "WESTUS_1",
+                "WESTUS_2",
+                "WESTUS_3",
+                "WESTUS2_0",
+                "WESTUS2_1",
+                "WESTUS2_2",
+                "WESTUS2_3",
+                "WESTUS2STAGE_0",
+                "WESTUS2STAGE_1",
+                "WESTUS2STAGE_2",
+                "WESTUS2STAGE_3",
+                "WESTUS3_0",
+                "WESTUS3_1",
+                "WESTUS3_2",
+                "WESTUS3_3",
+                "WESTUSSTAGE_0",
+                "WESTUSSTAGE_1",
+                "WESTUSSTAGE_2",
+                "WESTUSSTAGE_3"
+              ]
+            },
+            "azureRegion": {
+              "description": "Supported regions for Azure. This attribute is subject to change.",
+              "type": "string",
+              "enum": [
+                "AUSTRALIACENTRAL",
+                "AUSTRALIACENTRAL2",
+                "AUSTRALIAEAST",
+                "AUSTRALIASOUTHEAST",
+                "BRAZILSOUTH",
+                "BRAZILSOUTHEAST",
+                "CANADACENTRAL",
+                "CANADAEAST",
+                "CENTRALINDIA",
+                "CENTRALUS",
+                "CENTRALUSEUAP",
+                "EASTASIA",
+                "EASTUS",
+                "EASTUS2",
+                "EASTUS2EUAP",
+                "FRANCECENTRAL",
+                "FRANCESOUTH",
+                "GERMANYNORTH",
+                "GERMANYWESTCENTRAL",
+                "JAPANEAST",
+                "JAPANWEST",
+                "KOREACENTRAL",
+                "KOREASOUTH",
+                "NORTHCENTRALUS",
+                "NORTHEUROPE",
+                "NORWAYEAST",
+                "NORWAYWEST",
+                "SOUTHAFRICANORTH",
+                "SOUTHAFRICAWEST",
+                "SOUTHCENTRALUS",
+                "SOUTHEASTASIA",
+                "SOUTHINDIA",
+                "SWITZERLANDNORTH",
+                "SWITZERLANDWEST",
+                "UAECENTRAL",
+                "UAENORTH",
+                "UKSOUTH",
+                "UKWEST",
+                "WESTCENTRALUS",
+                "WESTEUROPE",
+                "WESTINDIA",
+                "WESTUS",
+                "WESTUS2",
+                "ASIA",
+                "ASIAPACIFIC",
+                "AUSTRALIA",
+                "BRAZIL",
+                "CANADA",
+                "CENTRALUSSTAGE",
+                "EASTASIASTAGE",
+                "EASTUS2STAGE",
+                "EASTUSSTAGE",
+                "EUROPE",
+                "GLOBAL",
+                "INDIA",
+                "JAPAN",
+                "NORTHCENTRALUSSTAGE",
+                "SOUTHCENTRALUSSTAGE",
+                "SOUTHEASTASIASTAGE",
+                "UK",
+                "UNITEDSTATES",
+                "WESTUS2STAGE",
+                "WESTUSSTAGE",
+                "JIOINDIAWEST",
+                "JIOINDIACENTRAL",
+                "SWEDENCENTRAL",
+                "WESTUS3",
+                "FRANCE",
+                "GERMANY",
+                "KOREA",
+                "NORWAY",
+                "SOUTHAFRICA",
+                "SWITZERLAND",
+                "UAE",
+                "UNITEDSTATESEUAP",
+                "CHINAEAST",
+                "CHINAEAST2",
+                "CHINANORTH",
+                "CHINANORTH2",
+                "CHINANORTH3",
+                "BRAZILUS",
+                "USGOVVIRGINIA",
+                "USGOVARIZONA",
+                "USGOVTEXAS",
+                "USDODEAST",
+                "USDODCENTRAL",
+                "USSECEAST",
+                "USSECWEST",
+                "USSECWESTCENTRAL",
+                "CHINAEAST3",
+                "ITALYNORTH",
+                "SPAINCENTRAL",
+                "QATARCENTRAL",
+                "ISRAELCENTRAL",
+                "SWEDENSOUTH",
+                "MEXICOCENTRAL",
+                "NEWZEALANDNORTH",
+                "POLANDCENTRAL"
+              ]
+            },
+            "namespace": {
+              "description": "The namespace that limits the IP addresses sent to the Cloud Connector and ensures that duplicate IP addresses map correctly.",
+              "type": "string"
+            },
+            "location": {
+              "description": "Location of Cloud or Branch Connector group.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "maxEcCount": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Maximum VM count for Cloud & Branch Connector group."
+            },
+            "provTemplate": {
+              "description": "Provisioning template of Cloud or Branch Connector group.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "tunnelMode": {
+              "type": "string",
+              "description": "Encryption type used when forwarding traffic to ZIA.",
+              "enum": [
+                "UNENCRYPTED",
+                "DTLS"
+              ]
+            },
+            "ecVMs": {
+              "type": "array",
+              "description": "Virtual Machine (VM) information of Cloud or Branch Connector group.",
+              "items": {
+                "$ref": "#/components/schemas/EcVM"
+              }
+            }
+          }
+        },
+        "AzurePermissionReq": {
+          "description": "Azure permission details.",
+          "type": "object",
+          "properties": {
+            "appRegistration": {
+              "$ref": "#/components/schemas/AzureAppRegistration"
+            },
+            "subscriptionId": {
+              "description": "The Azure subscription ID (externalId), which is specified when creating or updating the account.",
+              "type": "string"
+            }
+          }
+        },
+        "AzurePermissionResponse": {
+          "type": "object",
+          "properties": {
+            "applicationRegistrationPermission": {
+              "$ref": "#/components/schemas/AzureAppRegistration"
+            },
+            "subscription": {
+              "description": "The unique ID of the Azure subscription.",
+              "type": "string"
+            }
+          }
+        },
+        "AzureStorageAccountDetails": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "description": "The name of the Azure storage account.",
+              "type": "string"
+            },
+            "resourceGroup": {
+              "description": "The name of the Azure resource group where the storage account is located.",
+              "type": "string"
+            }
+          }
+        },
+        "AzureTopicDetails": {
+          "type": "object",
+          "properties": {
+            "partnerDestinationActivated": {
+              "description": "Indicates whether the partner destination status of the Azure account is activated to send messages from the Azure account to the Zscaler service.",
+              "type": "boolean"
+            },
+            "partnerDestinationCreated": {
+              "description": "Indicates whether the partner destination status of the Azure account has been created.",
+              "type": "boolean"
+            },
+            "partnerDestinationMessageCount": {
+              "description": "The total number of messages that the partner destination has received since the creation of the destination.",
+              "type": "string"
+            },
+            "partnerTopicActivated": {
+              "description": "Indicates whether the partner topic status of the Azure account is activated to receive tags.",
+              "type": "boolean"
+            },
+            "partnerTopicCreated": {
+              "description": "Indicates whether the partner topic status of the Azure account has been created.",
+              "type": "boolean"
+            },
+            "partnerTopicMessageCount": {
+              "description": "The total number of messages that the partner topic has sent since the creation of the topic.",
+              "type": "string"
+            }
+          }
+        },
+        "WorkloadDiscoverySetting": {
+          "type": "object",
+          "description": "Workload discovery service settings details",
+          "properties": {
+            "trustedAccountId": {
+              "type": "string",
+              "description": "The ID of the Zscaler AWS account that is required in the AWS trust policy."
+            },
+            "trustedRoleName": {
+              "type": "string",
+              "description": "The name of the trusted role in the Zscaler AWS account."
+            }
+          }
+        },
+        "PermissionReq": {
+          "type": "object",
+          "description": "Permission request details.",
+          "properties": {
+            "discoveryRole": {
+              "type": "string",
+              "description": "The IAM role associated with the AWS account."
+            },
+            "externalId": {
+              "type": "string",
+              "description": "The unique external ID for the AWS account."
+            }
+          }
+        },
+        "AwsAccountGroup": {
+          "type": "object",
+          "description": "AWS account group information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The ID of the AWS account group.",
+              "format": "int32"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the AWS account group. Must be non-null, non-empty, unique, and 128 characters or fewer in length."
+            },
+            "description": {
+              "type": "string",
+              "description": "(Optional) The description of the AWS account group. Must be less than or equal to 512 characters."
+            },
+            "cloudConnectorGroups": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "cloudType": {
+              "type": "string",
+              "description": "The cloud type. The default and manadatory value is AWS.",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "GCP"
+              ]
+            },
+            "publicCloudAccounts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            }
+          }
+        },
+        "EntityResponse": {
+          "type": "object",
+          "description": "An immutable reference to an entity, including ID and name.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The ID of the entity.",
+              "format": "int32"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the entity."
+            }
+          }
+        },
+        "AwsAccountDetails": {
+          "type": "object",
+          "description": "The AWS account details.",
+          "properties": {
+            "awsAccountId": {
+              "type": "string",
+              "description": "The AWS account ID where workloads are deployed. The ID is non-null, non-empty, and unique, and contains 12 digits."
+            },
+            "awsRoleName": {
+              "type": "string",
+              "description": "The AWS trusting role in your account. The name is non-null, non-empty, and 64 characters or fewer in length."
+            },
+            "cloudWatchGroupArn": {
+              "type": "string",
+              "description": "The resource name (ARN) of the AWS CloudWatch log group."
+            },
+            "eventBusName": {
+              "type": "string",
+              "description": "The name of the event bus that sends notifications to the Zscaler service using EventBridge."
+            },
+            "externalId": {
+              "type": "string",
+              "description": "(Optional) The unique external ID for the AWS account. If provided, it must match the externalId specified outside of <code> accountDetails</code>."
+            },
+            "logInfoType": {
+              "type": "string",
+              "description": "The type of log information. Supported types are <code>INFO</code> and <code>ERROR</code>.",
+              "enum": [
+                "INFO",
+                "ERROR"
+              ]
+            },
+            "troubleShootingLogging": {
+              "type": "boolean",
+              "description": "Indicates whether logging is enabled for troubleshooting purposes."
+            },
+            "trustedAccountId": {
+              "type": "string",
+              "description": "(Optional) The ID of the Zscaler AWS account."
+            },
+            "trustedRole": {
+              "type": "string",
+              "description": "(Optional) The name of the trusted role in the Zscaler AWS account."
+            }
+          }
+        },
+        "EntityReference": {
+          "type": "object",
+          "description": "An immutable reference to an entity, which consists of ID, name, etc.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int64",
+              "description": "An ID that uniquely identifies an entity."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the entity."
+            },
+            "isNameL10nTag": {
+              "type": "boolean",
+              "description": "Indicates whether the entity is localized for internationalization."
+            },
+            "extensions": {
+              "type": "object",
+              "description": "An object for storing additional properties related to entity configuration.",
+              "additionalProperties": {
+                "type": "string",
+                "description": "Custom attributes within the extensions object."
+              }
+            },
+            "deleted": {
+              "type": "boolean",
+              "description": "Indicates the deletion status of the entity."
+            },
+            "externalId": {
+              "type": "string",
+              "description": "The external ID of the entity."
+            },
+            "associationTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The timestamp when the entity was linked or associated."
+            }
+          }
+        },
+        "RegionStatus": {
+          "type": "object",
+          "description": "The status and configuration details of the region where the workloads are deployed.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique ID of the region.",
+              "format": "int32"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the region."
+            },
+            "cloudType": {
+              "type": "string",
+              "description": "The cloud type. The default and mandatory value is AWS.",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "GCP"
+              ]
+            },
+            "status": {
+              "type": "boolean",
+              "description": "Indicates the operational status of the region."
+            }
+          }
+        },
+        "PublicCloudStorageAccount": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "The ID of the Azure storage account.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": {
+              "description": "The name of the Azure storage account.",
+              "type": "string"
+            },
+            "prefix": {
+              "description": "A prefix added to the name of the storage account, which enables you to organize the queues.",
+              "type": "string"
+            },
+            "region": {
+              "$ref": "#/components/schemas/SupportedRegion",
+              "example": [
+                {
+                  "cloudType": "AZURE",
+                  "id": 0,
+                  "name": "string"
+                }
+              ]
+            },
+            "resourceGroup": {
+              "description": "The resource group associated with the storage account.",
+              "type": "string"
+            },
+            "subscription": {
+              "description": "The subscription where the storage account is located.",
+              "type": "string"
+            }
+          }
+        },
+        "PublicCloudTopic": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "The ID of the event grid where the Zscaler service creates an instance of the partner topic and partner destination.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "lastSyncTime": {
+              "description": "The last time the event grid was refreshed.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "region": {
+              "$ref": "#/components/schemas/SupportedRegion",
+              "example": [
+                {
+                  "cloudType": "AZURE",
+                  "id": 0,
+                  "name": "string"
+                }
+              ]
+            },
+            "resourceGroup": {
+              "description": "The resource group associated with the event grid.",
+              "type": "string"
+            },
+            "status": {
+              "description": "An object that provides details about partner topic and partner destination message counts, creation status, and activation status."
+            },
+            "subscription": {
+              "description": "The subscription associated with the event grid.",
+              "type": "string"
+            }
+          }
+        },
+        "SubscriptionGroup": {
+          "type": "object",
+          "properties": {
+            "cloudConnectorGroupList": {
+              "description": "List of the Cloud Connectors associated with the Azure subscription group.",
+              "type": "array",
+              "example": [
+                {
+                  "id": 0,
+                  "name": "string",
+                  "platform": "AZURE",
+                  "autoScale": true,
+                  "azureRegion": "AUSTRALIACENTRAL",
+                  "namespace": "string"
+                }
+              ],
+              "items": {
+                "$ref": "#/components/schemas/EcGroup"
+              }
+            },
+            "cloudType": {
+              "description": "The cloud type. The default and mandatory value is AZURE.",
+              "type": "string",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "GCP"
+              ],
+              "example": "AZURE"
+            },
+            "id": {
+              "description": "The ID of the subscription group.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "lastModTime": {
+              "description": "The date and time when the subscription group was last modified.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "lastModUser": {
+              "$ref": "#/components/schemas/EntityReference"
+            },
+            "name": {
+              "description": "<p>The name of the subscription group.</p><p><b>Note</b>: The API automatically sets the name to <azure_account_name>_default, overriding any value provided by the user.</p></n>",
+              "type": "string"
+            },
+            "subscriptionList": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PublicCloudSubscription"
+              }
+            },
+            "supportedRegions": {
+              "type": "array",
+              "example": [
+                {
+                  "cloudType": "AZURE",
+                  "id": 0,
+                  "name": "string"
+                }
+              ],
+              "items": {
+                "$ref": "#/components/schemas/SupportedRegion"
+              }
+            }
+          }
+        },
+        "EcVM": {
+          "type": "object",
+          "description": "The virtual machine (VM) information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The ID of the VM."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the VM."
+            },
+            "status": {
+              "type": "array",
+              "description": "The status of the VM.",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "DISABLED",
+                  "REGISTERED",
+                  "RESERVED1",
+                  "PKG_REPO_REGISTERED",
+                  "ENABLING",
+                  "DISABLING",
+                  "DELETING",
+                  "DELETING_LAST",
+                  "DELETED"
+                ]
+              }
+            },
+            "autoScale": {
+              "type": "boolean",
+              "description": "Indicates whether auto scaling is enabled for the VM."
+            },
+            "buildVersion": {
+              "type": "string",
+              "description": "The build version of the VM."
+            },
+            "ccRoleName": {
+              "type": "string",
+              "description": "The Cloud Connector provisioning role name assigned to the VM."
+            },
+            "failOpen": {
+              "type": "boolean",
+              "description": "Indicates whether automatic failover is enabled.",
+              "readOnly": true
+            },
+            "formFactor": {
+              "type": "string",
+              "description": "The form factor size of the VM. The supported values are <code>SAMLL</code>, <code>MEDIUM</code>, or <code>LARGE</code>.",
+              "enum": [
+                "SMALL",
+                "MEDIUM",
+                "LARGE"
+              ]
+            },
+            "managementNw": {
+              "$ref": "#/components/schemas/EcNetwork"
+            },
+            "ecInstances": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EcInstance"
+              }
+            },
+            "cityGeoId": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The city geographic ID where the VM is deployed."
+            },
+            "deployAsGateway": {
+              "type": "boolean",
+              "description": "Indicates whether the VM is deployed as a gateway."
+            },
+            "dnsCache": {
+              "type": "boolean",
+              "readOnly": true,
+              "description": "Indicates whether auto populate DNS cache is enabled for the VM."
+            },
+            "haStatus": {
+              "type": "string",
+              "description": "Indicates the high availability (HA) status of the VM.",
+              "enum": [
+                "INIT",
+                "ACTIVE",
+                "STANDBY",
+                "DISABLED"
+              ]
+            },
+            "hardwareInfo": {
+              "$ref": "#/components/schemas/HardwareInfo"
+            },
+            "lanDns": {
+              "$ref": "#/components/schemas/EcDns"
+            },
+            "lastTemplateConfigPushFailed": {
+              "type": "boolean",
+              "description": "Indicates whether the last provisioning template configuration push failed."
+            },
+            "lastUpgradeTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The date and time when the VM was last upgraded."
+            },
+            "metaConfig": {
+              "$ref": "#/components/schemas/EcVmMetaConfig"
+            },
+            "natIp": {
+              "type": "string",
+              "description": "The NAT IP of the VM."
+            },
+            "operationalStatus": {
+              "type": "string",
+              "description": "Indicates the operational status of the VM."
+            },
+            "pkgRepoSerialNumber": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The package repository certificate serial number of the VM."
+            },
+            "provTemplate": {
+              "$ref": "#/components/schemas/EntityReference"
+            },
+            "provTemplateStatus": {
+              "type": "string",
+              "description": "The deployment status of the provisioning template.",
+              "enum": [
+                "STAGED",
+                "NOT_DEPLOYED",
+                "DEPLOYED",
+                "EDITABLE"
+              ]
+            },
+            "trafficDistribution": {
+              "type": "string",
+              "description": "The traffic distribution type across WANs.",
+              "enum": [
+                "BALANCED",
+                "BEST_LINK"
+              ]
+            },
+            "upgradeStatus": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The scheduled upgrade status of the VM."
+            },
+            "upgradeStartTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The start time of the VM upgrade."
+            },
+            "upgradeEndTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The end time of the VM upgrade."
+            },
+            "upgradeDayOfWeek": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The scheduled upgrade day of the week. By default, this is Sunday."
+            },
+            "useWanDns": {
+              "type": "boolean",
+              "description": "Indicates whether WAN DNS is used for name resolution."
+            },
+            "usedForZtp": {
+              "type": "boolean",
+              "description": "Indicates whether the VM is used for Zero Touch Provisioning (ZTP)."
+            },
+            "zeroTrustVm": {
+              "type": "boolean",
+              "description": "Indicates whether the VM is configured as a Zero Trust Gateway."
+            },
+            "ziaGateway": {
+              "type": "string",
+              "description": "The ZIA gateway of the VM."
+            },
+            "ziaGateways": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The list of ZIA gateways of the VM."
+            },
+            "zpaBroker": {
+              "type": "string",
+              "description": "The ZPA broker of the VM."
+            },
+            "zpaBrokers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The list of The ZPA brokers of the VM."
+            }
+          }
+        },
+        "EcNetwork": {
+          "type": "object",
+          "description": "Cloud or Branch Connector management network information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The ID of the Cloud or Branch Connector network."
+            },
+            "ipStart": {
+              "type": "string",
+              "description": "The start IP address of the Cloud or Branch Connector network."
+            },
+            "ipEnd": {
+              "type": "string",
+              "description": "The end IP address of the Cloud or Branch Connector network."
+            },
+            "admin": {
+              "type": "string",
+              "enum": [
+                "NOSHUTDOWN",
+                "SHUTDOWN"
+              ],
+              "description": "The administrative state of the Cloud or Branch Connector network. Indicates whether the network is operational or shut down."
+            },
+            "natIp": {
+              "type": "string",
+              "description": "The NAT IP of the Cloud or Branch Connector network."
+            },
+            "netmask": {
+              "type": "string",
+              "description": "The subnet mask of Cloud or Branch Connector network."
+            },
+            "defaultGateway": {
+              "type": "string",
+              "description": "The default gateway IP address of the Cloud or Branch Connector network."
+            },
+            "nwType": {
+              "type": "string",
+              "description": "The network configuration type (e.g., DHCP (Automatic) and Static (Manual)).",
+              "enum": [
+                "AUTOMATIC",
+                "MANUAL",
+                "DELETING",
+                "SHUTDOWN_ON",
+                "PORT_STATUS_UP",
+                "DELETED"
+              ]
+            },
+            "portStatusUp": {
+              "type": "boolean",
+              "description": "Indicates whether the physical port associated with the interface is operational."
+            },
+            "shutdownOn": {
+              "type": "boolean",
+              "description": "Indicates whether the interface is shut down."
+            },
+            "dns": {
+              "$ref": "#/components/schemas/EcDns"
+            }
+          }
+        },
+        "EcDns": {
+          "type": "object",
+          "description": "DNS of Cloud or Branch Connector network.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The DNS ID of the server that the Cloud or Branch Connector inherited."
+            },
+            "ips": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The DNS IP addresses of the Cloud or Branch Connector."
+            },
+            "dnsType": {
+              "type": "string",
+              "description": "The type of DNS (e.g., Automatic and Static)",
+              "enum": [
+                "AUTOMATIC",
+                "MANUAL",
+                "DELETING",
+                "DELETED"
+              ]
+            }
+          }
+        },
+        "EcInstance": {
+          "type": "object",
+          "description": "Cloud or Branch Connector instance information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The ID of the Cloud or Branch Connector instance."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the Cloud or Branch Connector instance."
+            },
+            "ecInstanceType": {
+              "type": "string",
+              "description": "The type of the Cloud or Branch Connector instance. This attribute is subject to change.",
+              "enum": [
+                "ANY",
+                "NONE",
+                "ALERTEVAL",
+                "ALERTNOTIF",
+                "SMBA",
+                "SMBAG",
+                "SMBAC",
+                "SMESXI",
+                "SMBAS",
+                "SMPC",
+                "SMCA",
+                "SMCDS",
+                "SMDNSD",
+                "PAC",
+                "SMEZA",
+                "SMAA",
+                "H_MON",
+                "SMFCCLT",
+                "ZSCMCLT",
+                "SMCDS",
+                "SMCDSDLP",
+                "SMSCIM",
+                "ZSCMCDSSCLT",
+                "FALCONCA",
+                "LOAD_BALANCER",
+                "MADM_UI",
+                "MADM_BACKEND_WEBSVC",
+                "MADM_GROUP_SYNC_APP",
+                "MADM_ZAPP_DEVINFO_PUB",
+                "MADM_ZAPP_DEV_CLEANUP",
+                "MADM_LB",
+                "MADM_SQL",
+                "CQM",
+                "DATAKEEPER",
+                "LOCAL_MTS",
+                "SMSM",
+                "S_RELAY",
+                "M_RELAY",
+                "ZSQUERY",
+                "SMCASB",
+                "SMTP",
+                "SMQTN",
+                "SMUI",
+                "UIZ",
+                "UIAE",
+                "UISALES",
+                "SMBAUI",
+                "ZSAPI",
+                "SMFALCONUI",
+                "MOBILEAPP_REG",
+                "MOBILEAPP_NF",
+                "SMEDGEUI",
+                "SMPARTNERUI",
+                "ZSCALER_ANALYTICS_UI",
+                "VZEN",
+                "NSS",
+                "ZAB",
+                "ADP",
+                "ZIRSVR",
+                "SME",
+                "SMIKE",
+                "SMDLP",
+                "SVPN",
+                "SMRESTSVR",
+                "ZSCALER_ANALYTICS_SCHEDULER"
+              ]
+            },
+            "flags": {
+              "type": "string",
+              "description": "Indicates the status of the Cloud or Branch Connector instance.",
+              "enum": [
+                "DISABLED",
+                "MON_DELETED",
+                "REGISTERED",
+                "ACTIVE",
+                "DELETING",
+                "DELETED"
+              ]
+            },
+            "serviceNw": {
+              "$ref": "#/components/schemas/EcNetwork"
+            },
+            "virtualNw": {
+              "$ref": "#/components/schemas/EcNetwork"
+            },
+            "natIp": {
+              "type": "string",
+              "description": "The NAT IP address of the Cloud or Branch Connector instance."
+            },
+            "registerTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The time (in seconds) when the Cloud or Branch Connector instance was registered."
+            },
+            "dnsIp": {
+              "type": "array",
+              "description": "The DNS IP address of the Cloud or Branch Connector instance.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "zpaId": {
+              "type": "integer",
+              "description": "The ZPA ID associated with the Cloud or Branch Connector instance.",
+              "format": "int64"
+            }
+          }
+        },
+        "HardwareInfo": {
+          "description": "The hardware configuration of the VM.",
+          "type": "object",
+          "properties": {
+            "deviceName": {
+              "type": "string",
+              "description": "The device name of the VM hardware configuration."
+            },
+            "modelType": {
+              "type": "string",
+              "enum": [
+                "ZT600",
+                "ZT800",
+                "ZT400"
+              ],
+              "description": "The model type of the VM hardware configuration."
+            },
+            "serialNum": {
+              "type": "string",
+              "description": "A unique serial number assigned to the VM hardware configuration."
+            }
+          }
+        },
+        "EcVmMetaConfig": {
+          "type": "object",
+          "description": "Metadata related to the VM configuration.",
+          "properties": {
+            "hostName": {
+              "type": "string",
+              "description": "The hostname of the VM."
+            },
+            "nativeId": {
+              "type": "string",
+              "description": "The native public cloud instance ID of the VM."
+            },
+            "repoTag": {
+              "type": "string",
+              "description": "The URL of the package repository associated with the VM."
+            },
+            "uuid": {
+              "type": "string",
+              "description": "The universally unique identifier (UUID) assigned to the VM."
+            }
+          }
+        },
+        "PublicCloudSubscription": {
+          "type": "object",
+          "properties": {
+            "cloudType": {
+              "description": "The cloud type. The default value is AZURE.",
+              "type": "string",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "GCP"
+              ],
+              "example": "AZURE"
+            },
+            "externalId": {
+              "description": "The ID of the Azure subscription.",
+              "type": "string"
+            },
+            "id": {
+              "description": "The ID of the Azure subscription.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "lastSyncTime": {
+              "description": "The last time the Azure subscription status was refreshed.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": {
+              "description": "The name of the Azure subscription.",
+              "type": "string"
+            },
+            "permissionStatus": {
+              "description": "Indicates whether the provided credentials have permission to access the Azure account."
+            }
+          }
+        },
+        "AzureTenantDetails": {
+          "type": "object",
+          "properties": {
+            "applicationId": {
+              "description": "The application ID of the Azure account.",
+              "type": "string"
+            },
+            "applicationSecret": {
+              "description": "The application secret of the Azure account.",
+              "type": "string"
+            },
+            "azureDirectoryId": {
+              "description": "The directory ID of the Azure account.",
+              "type": "string"
+            }
+          }
+        },
+        "AzureAppRegistration": {
+          "description": "Azure application registration details.",
+          "type": "object",
+          "properties": {
+            "applicationId": {
+              "description": "The Azure application ID.",
+              "type": "string"
+            },
+            "applicationSecret": {
+              "description": "The Azure application secret.",
+              "type": "string"
+            },
+            "azureDirectoryId": {
+              "description": "The Azure directory ID.",
+              "type": "string"
+            },
+            "canListSubscriptions": {
+              "description": "Indicates whether the provided credentials are able to scan tags for the available Azure subscriptions.",
+              "type": "boolean"
+            },
+            "credentialsMismatched": {
+              "description": "Indicates whether the provided Azure credentials are mismatched.",
+              "type": "boolean"
+            },
+            "subscriptions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AzureSubscriptionDetails"
+              }
+            },
+            "tenantEntryId": {
+              "description": "The ID of the Azure account created in Zscaler.",
+              "type": "string"
+            }
+          }
+        },
+        "AzureSubscriptionDetails": {
+          "type": "object",
+          "properties": {
+            "canDescribeNic": {
+              "description": "Indicates whether NIC information can be obtained using the provided Azure credentials.",
+              "type": "boolean"
+            },
+            "canDescribeVm": {
+              "description": "Indicates whether VM information can be obtained using the provided Azure credentials.",
+              "type": "boolean"
+            },
+            "canDescribeVnet": {
+              "description": "Indicates whether Vnet information can be obtained using the provided Azure credentials.",
+              "type": "boolean"
+            },
+            "errorDescription": {
+              "description": "Description of the error if the provided Azure credentials fail.",
+              "type": "string"
+            },
+            "resourceGroups": {
+              "description": "The list of resource groups within the Azure subscription.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "status": {
+              "description": "The resource discovery status in an Azure subscription. The available values are PENDING, ALLOWED, and DENIED.",
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "ALLOWED",
+                "DENIED"
+              ]
+            },
+            "storageAccounts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AzureStorageAccountDetails"
+              }
+            },
+            "subscription": {
+              "description": "The unique ID of the Azure subscription.",
+              "type": "string"
+            },
+            "subscriptionName": {
+              "description": "The Azure subscription name.",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

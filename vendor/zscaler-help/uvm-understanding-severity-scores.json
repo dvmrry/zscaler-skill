@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Severity Scores",
+  "source": {
+    "url": "https://help.zscaler.com/uvm/understanding-severity-scores",
+    "node": "1527926",
+    "revision": "3223618",
+    "updated": "2026-08-09",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "In vulnerability management, vulnerabilities are given severity scores that are used to prioritize remediation efforts. Severity scores typically range from 0 to 10, where a higher score indicates greater criticality requiring immediate attention and resolution, and thus takes precedence over vulnerabilities with lower scores."
+    },
+    {
+      "text": "Standard severity scoring frameworks like CVSS and EPSS, as well as scanner-provided scores, often fall short in addressing an organization's unique context."
+    },
+    {
+      "text": "Unified Vulnerability Management (UVM) calculates severity scores based on context and incorporates data from various industry tools and sources, providing more effective and accurate risk assessment. To learn more, see Configuring Severity Score Formulas."
+    },
+    {
+      "text": "The score context is divided into two categories:"
+    },
+    {
+      "item": "Base score: The initial numerical value derived from processing all score inputs gathered from a particular finding that serves as a foundational reference point. The base score is the main component that carries most of the weight in determining the overall score. It grounds the evaluation in the numerical values obtained from the input data.",
+      "depth": 0
+    },
+    {
+      "item": "Risk and mitigating factors: Additional factors tailored to the unique context of the organization that can shift the score depending on their weight. Assigning more weight to risk and mitigating factors implies that they have a substantial impact on the final score, while less weight indicates that the base score remains the dominant one. For example, risks such as public access raise the severity score, while mitigating factors such as firewalls lower the severity score.",
+      "depth": 0
+    },
+    {
+      "text": "By taking into account specific risks and mitigating factors within an organization, UVM adjusts the initial score and provides an updated severity score. This allows for a more accurate assessment of the actual level of criticality associated with each finding."
+    },
+    {
+      "text": "When reviewing your tickets on the Tickets page, each ticket displays both the original and updated severity scores for comparison purposes."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "You can drill down into the details of the severity score by clicking a finding. Here you can see the initial score, score calculations, and adjustments made based on the configured risk and mitigating factors."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "How the Severity Score Is Calculated",
+      "level": 1
+    },
+    {
+      "text": "The total severity score is composed of the base score and the risk and mitigating factors, and is calculated per finding. The total score must be 100% or higher to save the score setting. The score is calculated for each component (i.e., base score factors and risk and mitigating factors) separately. The two separate calculations are then summed to make up the final finding severity score."
+    },
+    {
+      "text": "The following example assumes a balance of 60% for the base score and 40% for the risk and mitigating factors score."
+    },
+    {
+      "item": "Calculating Each Component Separately",
+      "depth": 0
+    },
+    {
+      "item": "Summing the Total Score",
+      "depth": 0
+    },
+    {
+      "heading": "When the Total Score Exceeds 100%",
+      "level": 2
+    },
+    {
+      "text": "If the total score exceeds 100%, the calculation caps the risk and mitigating share of the total score to bring it back to 100%. This process is always according to the base score percentage. For example, if the base score and risk and mitigating factors are set equally at 50% and 50%, and we change the base score to 70%, the percentage of the factors is reduced to 30%. To allow the risk and mitigating factors to have more influence, reduce the weight of the base score."
+    },
+    {
+      "heading": "When the Total Score Is Below 100%",
+      "level": 2
+    },
+    {
+      "text": "To ensure every finding's score always sums to a complete 100%, the score uses a dynamic weight allocation mechanism. If the risk and mitigating factors don't use their full allocated weight (e.g., if a factor is null or not applicable to a specific finding), the unused portion of their allocated weight is proportionally reallocated to the individual factors of the base score."
+    },
+    {
+      "text": "For example, consider the following score allocation:"
+    },
+    {
+      "text": "Base score (60% of total score):"
+    },
+    {
+      "item": "CVSS 40%",
+      "depth": 0
+    },
+    {
+      "item": "EPSS 20%",
+      "depth": 0
+    },
+    {
+      "text": "Risk and Mitigating Factors (60% > capped at 40%):"
+    },
+    {
+      "item": "Asset Is Crown Jewel - 20%",
+      "depth": 0
+    },
+    {
+      "item": "Asset Has PII - 12%",
+      "depth": 0
+    },
+    {
+      "item": "CISA Known Exploited - 10%",
+      "depth": 0
+    },
+    {
+      "item": "Asset Is Behind Firewall - 8%",
+      "depth": 0
+    },
+    {
+      "item": "Asset Has EDR - 10%",
+      "depth": 0
+    },
+    {
+      "text": "If the risk and mitigating factors contribute only 30% to a finding's score, leaving 10% unused from their 40% allocation, the unused 10% is added to the base score. This 10% increases the base score's total contribution from 60% to 70%, and is proportionally distributed to CVSS and EPSS based on their original shares within the base score (CVSS gains 6.67%, EPSS gains 3.33%)."
+    }
+  ]
+}

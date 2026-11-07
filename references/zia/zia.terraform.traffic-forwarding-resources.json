@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.traffic-forwarding-resources",
+  "title": "Terraform GRE tunnel, static IP, VPN credential and location resources",
+  "aliases": [
+    "zia_traffic_forwarding_gre_tunnel",
+    "zia_traffic_forwarding_static_ip geo_override",
+    "Missing geo Coordinates",
+    "zia_location_management ip_addresses vpn_credentials",
+    "sub-location parent_id terraform"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.vpn-credentials"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These resources build the egress path a location uses to reach Zscaler. {{gre-vips-auto-selected}} {{gre-vip-one-attribute}}"
+    },
+    {
+      "label": "Static IPs.",
+      "text": "{{static-ip-coordinates-optional}} {{static-ip-geo-override-wording}} {{static-ip-v4-6-2-auto-coordinates}} How coordinate discovery writes: [[zia.terraform.multi-step-writes]]."
+    },
+    {
+      "label": "VPN credentials.",
+      "text": "{{vpn-credential-psk-omitted}} What the credential types are: [[zia.traffic-forwarding.vpn-credentials]]."
+    },
+    {
+      "label": "Locations.",
+      "text": "{{location-ip-or-vpn}} {{sub-location-needs-ips}} Dynamic location group handling: [[zia.locations.group-assignment]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a static IP with `geo_override = true` supplies coordinates or leaves them to the API.",
+      "uses": [
+        "static-ip-coordinates-optional",
+        "static-ip-v4-6-2-auto-coordinates"
+      ]
+    },
+    {
+      "do": "Whether a location carries IP addresses or VPN credentials, and for a sub-location IP addresses.",
+      "uses": [
+        "location-ip-or-vpn",
+        "sub-location-needs-ips"
+      ]
+    }
+  ],
+  "claims": {
+    "gre-vips-auto-selected": {
+      "statement": "If `primary_dest_vip` and `secondary_dest_vip` are not set, the provider queries the Zscaler cloud for the GRE tunnel's primary and secondary destination datacenter and VIP; the blocks can override this.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_traffic_forwarding_gre_tunnel.md",
+          "quotes": [
+            "The provider automatically query the Zscaler cloud for the primary and secondary destination datacenter and virtual IP address (VIP) of the GRE tunnel.",
+            "The attribute can be overriden if needed by setting the parameters: `primary_dest_vip` and `secondary_dest_vip`."
+          ]
+        }
+      ]
+    },
+    "gre-vip-one-attribute": {
+      "statement": "Within a destination VIP block only one of `datacenter` and `virtual_ip` is required; given a datacenter name such as YVR1 the provider selects the available VIP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_traffic_forwarding_gre_tunnel.md",
+          "quotes": [
+            "Although the example shows 2 valid attributes defined (datacenter, virtual_ip) within the primary_dest_vip and secondary_dest_vip, only one attribute is required.",
+            "If setting the datacenter name as the attribute i.e YVR1. The provider will automatically select the available VIP."
+          ]
+        }
+      ]
+    },
+    "static-ip-coordinates-optional": {
+      "statement": "`latitude` and `longitude` on a static IP are optional and computed; when not provided the API determines them from the IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_traffic_forwarding_static_ips.go",
+          "quotes": [
+            "Optional: true, Computed: true, ValidateFunc: ValidateLatitude, DiffSuppressFunc: DiffSuppressFuncCoordinate, Description: \"Latitude with 7 digit precision after decimal point, ranges between -90 and 90 degrees. If not provided, the API will automatically determine it from the IP address.\"",
+            "Optional: true, Computed: true, ValidateFunc: ValidateLongitude, DiffSuppressFunc: DiffSuppressFuncCoordinate, Description: \"Longitude with 7 digit precision after decimal point, ranges between -180 and 180 degrees. If not provided, the API will automatically determine it from the IP address.\""
+          ]
+        }
+      ]
+    },
+    "static-ip-v4-6-2-auto-coordinates": {
+      "statement": "Since provider v4.6.2 the static IP resource determines coordinates automatically when `geo_override = true` but none are given, which removed the \"Missing geo Coordinates\" API error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 4.6.2 (November, 20 2025)",
+            "Fixed `zia_traffic_forwarding_static_ip` resource to auto-determine latitude and longitude coordinates when `geo_override = true` but coordinates are not explicitly provided, eliminating \"Missing geo Coordinates\" API error"
+          ]
+        }
+      ]
+    },
+    "static-ip-geo-override-wording": {
+      "statement": "The provider describes `geo_override` as: if not set, coordinates and city are determined from the IP address; otherwise the latitude and longitude must be provided.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_traffic_forwarding_static_ips.go",
+          "quotes": [
+            "\"geo_override\": { Type: schema.TypeBool, Computed: true, Optional: true, Description: \"If not set, geographic coordinates and city are automatically determined from the IP address. Otherwise, the latitude and longitude coordinates must be provided.\","
+          ]
+        }
+      ]
+    },
+    "vpn-credential-psk-omitted": {
+      "statement": "The `pre_shared_key` is omitted from the output for security reasons.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_traffic_forwarding_vpn_credentials.md",
+          "quotes": [
+            "The `pre_shared_key` parameter is ommitted from the output for security reasons."
+          ]
+        }
+      ]
+    },
+    "location-ip-or-vpn": {
+      "statement": "The provider documents `ip_addresses` as required if `vpn_credentials` are not defined and `vpn_credentials` as required if `ip_addresses` are not defined; the schema marks both Optional and declares no cross-field constraint on them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_location_management.md",
+          "quotes": [
+            "The value is required if `vpn_credentials` are not defined.",
+            "The value is required if `ip_addresses` are not defined."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "Optional: true,"
+          ],
+          "after": "\"ip_addresses\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "Optional: true,"
+          ],
+          "after": "\"vpn_credentials\": {"
+        }
+      ],
+      "conditions": "Absence claim. Search at terraform-provider-zia v4.8.17: `grep -n \"ExactlyOneOf\\|AtLeastOneOf\\|RequiredWith\\|ConflictsWith\" zia/resource_zia_location_management.go` returns nothing; the resource's one `CustomizeDiff` checks only `static_location_groups` against `exclude_from_manual_groups`; `checkVPNCredentials` checks only that a credential of type IP has an `ip_address`."
+    },
+    "sub-location-needs-ips": {
+      "statement": "Creating a sub-location (a non-zero `parent_id`) fails when `ip_addresses` is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "if parentIDInt, ok := d.GetOk(\"parent_id\"); ok && parentIDInt.(int) != 0 {",
+            "when the location is a sub-location ip_addresses must not be empty: %v"
+          ]
+        }
+      ]
+    }
+  }
+}

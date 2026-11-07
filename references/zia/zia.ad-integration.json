@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "zia.ad-integration",
+  "title": "How users, groups and departments get into ZIA",
+  "aliases": [
+    "active directory integration",
+    "AD integration",
+    "user provisioning",
+    "ldap sync",
+    "user not found in policy",
+    "group not available in rule",
+    "provisioning vs authentication",
+    "ZIA user database"
+  ],
+  "binds": [
+    "zia/users",
+    "zia/groups",
+    "zia/departments"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.unauthenticated-traffic",
+      "because": "zia.ad-integration:identity-needed"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.scim.setup",
+      "because": "zia.scim.setup:not-with-directory"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication",
+      "because": "zia.ad-integration:identity-needed"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/users"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/groups"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/departments"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.ad-integration.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.provisioning-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.directory-sync"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.saml-auto-provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.identity-objects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.hosted-user-database"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.authentication-bridge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Why can policy not see this user, group or department?\" has two separate halves, and tenants mix them freely: how the identity reaches the ZIA user database (provisioning), and how traffic proves who it is (authentication). {{identity-needed}} A rule scoped by user, group or department is therefore judged against whatever the two halves produced; for the authentication half see [[zia.authentication]] and [[zia.authentication.unauthenticated-traffic]]."
+    },
+    {
+      "steps": [
+        {
+          "label": "Which provisioning method is in use, and which authentication methods can it pair with?",
+          "text": "[[zia.ad-integration.provisioning-methods]]. SCIM is its own area: [[zia.scim]]. Users, groups and departments added by hand or by CSV, and one-time tokens and links: [[zia.ad-integration.hosted-user-database]]. Deploying the Zscaler Authentication Bridge: [[zia.ad-integration.authentication-bridge]]."
+        },
+        {
+          "label": "If it is directory synchronization,",
+          "text": "how it syncs, how often, and what it does to users removed from the directory: [[zia.ad-integration.directory-sync]]."
+        },
+        {
+          "label": "If it is SAML,",
+          "text": "what auto-provisioning creates and overwrites at login: [[zia.ad-integration.saml-auto-provisioning]]."
+        },
+        {
+          "label": "What do the resulting objects look like, and what limits apply?",
+          "text": "[[zia.ad-integration.identity-objects]]."
+        },
+        {
+          "label": "Is it managed as code?",
+          "text": "[[zia.ad-integration.terraform]]."
+        }
+      ]
+    },
+    {
+      "text": "The organization-wide switches that tie these together (auto-provision, the directory-sync migration flag, SAML) are one settings object, documented in [[zia.authentication.settings]] and [[zia.authentication.methods]]; they are not restated here. Per-location Kerberos and Surrogate IP behavior is in [[zia.authentication.methods]] and [[zia.authentication.surrogate-ip]]."
+    },
+    {
+      "text": "What reporting and cross-product policy show for users that were never provisioned is open {{gap:web-insights-attribution}}."
+    },
+    {
+      "text": "Traffic without authentication is covered in [[zia.authentication.unauthenticated-traffic]]. The ZPA Active Directory controls (AppProtection inspection of Kerberos, SMB and LDAP) are a different feature; see [[zpa.appprotection.active-directory]]. The user and department log fields are documented in the [[zia.logs.web-records]]."
+    }
+  ],
+  "claims": {
+    "identity-needed": {
+      "statement": "Enforcing policy by department, group and user, and reporting by user, requires users, groups and departments to be provisioned into the Zscaler database first and authentication to be enabled. With authentication disabled at a known location the service does not know who the users are and applies the location's policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-provisioning-and-authenticating-users.json",
+          "quotes": [
+            "provisioning and authenticating users are required. Provisioning must be done first",
+            "the service does not know who the users are and to which domain they belong to because authentication is disabled",
+            "The Zscaler service can enforce web and firewall policies by location, department, group, and user, and it can track internet usage by location, department, and user.",
+            "Provisioning must be done first and involves uploading users, groups, and departments to the service database.",
+            "Enabling authentication allows the Zscaler service to identify the traffic that it receives so it can enforce the configured location, department, group and user policies, as well as provide user and department logging and reporting.",
+            "If authentication is disabled for a known location,",
+            "When the Zscaler service receives traffic from a known location or at a dedicated proxy port that is associated with a location, the service automatically applies the location's policies"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "web-insights-attribution": {
+      "kind": "semantic",
+      "title": "What reporting and cross-product policy show for users that were never provisioned",
+      "status": "open",
+      "detail": "Unverified legacy statement: Without AD data, per-user reporting in ZIA Web Insights shows `anonymous` or the source IP rather than the login name, and ZPA policy rules that cross-reference ZIA user identity have no data to match on. The provisioning article says only that user and department reporting needs provisioning and authentication. A lab tenant with an unprovisioned user, or a vendor statement, would settle what each report shows.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "advice on what to expect in reports and ZPA policy for unprovisioned users"
+    }
+  }
+}

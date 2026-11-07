@@ -1,0 +1,381 @@
+{
+  "schema_version": 1,
+  "id": "zcc.support-options.cli",
+  "title": "Client Connector's command line: ZSACli on Windows and zscli on macOS, enabling it, disable passwords, commands and rate limits",
+  "aliases": [
+    "zsacli",
+    "zscli",
+    "zcc command line interface",
+    "zcc cli",
+    "interacting with client connector remotely",
+    "disable zpa from command line",
+    "update installation parameters without reinstalling"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.support-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.passwords-and-otp.app-profile-passwords"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.platform-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.precedence"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.cloud-architecture.module-upgrades"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Client Connector has a command line for interacting with its services on a device. {{availability}}"
+    },
+    {
+      "label": "What it can do.",
+      "text": "{{capabilities}} The page limits enabling or disabling Internet & SaaS and ZDX to Windows, while its own macOS section offers them {{divergence:cli-zia-zdx-platforms}}."
+    },
+    {
+      "label": "Enabling it.",
+      "text": "{{enable-in-app-profile}} {{disable-passwords}} The app profile's own description of those passwords is in [[zcc.passwords-and-otp.app-profile-passwords]]."
+    },
+    {
+      "label": "Where it is.",
+      "text": "{{windows-path}} {{macos-path}}"
+    },
+    {
+      "label": "Commands.",
+      "text": "{{enable-disable}} {{status}} What zdp names is disputed {{divergence:zdp-meaning}}. {{params}} {{zdx-update}} {{macos-diagnose}}"
+    },
+    {
+      "label": "Open.",
+      "text": "Whether the Windows-only commands exist on macOS and the reverse, whether Linux has a CLI, the status and help rate limits, and the JSON schema of the status output are not stated {{gap:coverage}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a CLI that reports it is disabled from the policy, the Command Line Interface option in the user's app profile, and for a disable that asks for a password, the password generated in that app profile.",
+      "uses": [
+        "enable-in-app-profile",
+        "disable-passwords",
+        "enable-disable"
+      ]
+    },
+    {
+      "do": "Before telling an admin that the CLI can or cannot control Internet & SaaS and ZDX on macOS, the divergence between the page's introduction and its macOS section.",
+      "uses": [
+        "capabilities",
+        "cli-zia-zdx-platforms"
+      ]
+    },
+    {
+      "do": "Before reading a zdp status value as Endpoint DLP or Deception, the divergence between the CLI page and the managePass contract.",
+      "uses": [
+        "status",
+        "zdp-meaning"
+      ]
+    }
+  ],
+  "claims": {
+    "availability": {
+      "statement": "Client Connector's command line interface is available only on Client Connector 4.4 and later for Windows and 4.3 and later for macOS, and some options require later versions of Client Connector for Windows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "quotes": [
+            "This feature is available only for Zscaler Client Connector version 4.4 and later for Windows and Zscaler Client Connector version 4.3 and later for macOS. Some options require later versions of Zscaler Client Connector for Windows."
+          ]
+        }
+      ]
+    },
+    "capabilities": {
+      "statement": "The page's introduction says the CLI views the status of services and enables or disables Private Access; it scopes enabling or disabling Internet & SaaS and ZDX to 4.8 and later for Windows only, updating installation parameters without reinstalling to 4.9 and later for Windows only, and upgrading the ZDX Module to 4.7 and later for Windows only. Its example use is an outage that requires disabling Private Access for all users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "quotes": [
+            "View the status of services.",
+            "Enable or disable the Private Access (ZPA) service.",
+            "Enable or disable the Internet & SaaS (ZIA) service and the Digital Experience (ZDX) service (Zscaler Client Connector version 4.8 and later for Windows only).",
+            "Update installation parameters without reinstalling Zscaler Client Connector (Zscaler Client Connector version 4.9 and later for Windows only).",
+            "Upgrade the Digital Experience (ZDX) Module for Windows (Zscaler Client Connector version 4.7 and later for Windows only).",
+            "This feature is useful if you must interact with services on behalf of users (for example, an outage requires you to disable Private Access for all users)."
+          ]
+        }
+      ]
+    },
+    "enable-in-app-profile": {
+      "statement": "The CLI is enabled in the app profile: in the Command Line Interface Access section of the Add Windows Policy or Add macOS Policy window, enable the Command Line Interface. If a message says the CLI is disabled from the policy, the Command Line Interface option in the app profile must be enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "quotes": [
+            "In the Command Line Interface Access section of the Add Windows Policy window, enable the Command Line Interface.",
+            "In the Command Line Interface Access section of the Add macOS Policy window, enable the Command Line Interface."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "after": "To use CLI for Windows devices:",
+          "quotes": [
+            "If a message displays indicating that the CLI is disabled from the policy, enable the Command Line Interface option in the app profile."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "after": "To use CLI for macOS devices:",
+          "quotes": [
+            "If a message displays indicating that the CLI is disabled from the policy, enable the Command Line Interface option in the app profile."
+          ]
+        }
+      ]
+    },
+    "disable-passwords": {
+      "statement": "In the page's Windows steps, the app profile can require a password for disabling Private Access, Internet & SaaS or ZDX through the CLI (Disable ZPA Password, Disable ZIA Password, Disable ZDX Password); its macOS steps offer the same three. A new policy, or changes to an existing one, must be saved before a password is generated, and the generated password expires after two hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "after": "To enable the CLI for Windows devices:",
+          "quotes": [
+            "Enable Disable ZPA Password to require a password when disabling the Private Access service using the CLI.",
+            "Enable Disable ZIA Password to require a password when disabling the Internet & SaaS service using the CLI.",
+            "Enable Disable ZDX Password to require a password when disabling the ZDX service using the CLI.",
+            "If you're adding a new policy, you must first save your policy before generating a password.",
+            "If you're editing an existing policy, you must first save your changes before generating a password.",
+            "Click Copy to copy the password to your clipboard. The password expires after two hours."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "after": "To enable the CLI for macOS devices:",
+          "quotes": [
+            "Enable Disable ZPA Password to require a password when disabling the Private Access service using the CLI.",
+            "Enable Disable ZIA Password to require a password when disabling the Internet & SaaS service using the CLI.",
+            "Enable Disable ZDX Password to require a password when disabling the Digital Experience service using the CLI.",
+            "If you're adding a new policy, you must first save your policy before generating a password.",
+            "If you're editing an existing policy, you must first save your changes before generating a password.",
+            "Click Copy to copy the password to your clipboard. The password expires after two hours."
+          ]
+        }
+      ]
+    },
+    "windows-path": {
+      "statement": "On Windows the CLI is ZSACli.exe, run from a command prompt started as an administrator: C:\\Program Files\\Zscaler\\ZSACli\\ZSACli.exe for 64-bit and C:\\Program Files (x86)\\Zscaler\\ZSACli\\ZSACli.exe for 32-bit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "quotes": [
+            "For 64-bit: C:\\Program Files\\Zscaler\\ZSACli\\ZSACli.exe <command>",
+            "For 32-bit: C:\\Program Files (x86)\\Zscaler\\ZSACli\\ZSACli.exe <command>"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "after": "To use CLI for Windows devices:",
+          "quotes": [
+            "Start a command prompt as an administrator."
+          ]
+        }
+      ]
+    },
+    "macos-path": {
+      "statement": "On macOS the CLI is /Applications/Zscaler/Zscaler.app/Contents/PlugIns/zscli.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "quotes": [
+            "/Applications/Zscaler/Zscaler.app/Contents/PlugIns/zscli <command>"
+          ]
+        }
+      ]
+    },
+    "enable-disable": {
+      "statement": "In the Windows command table, enable -s <service> turns a service on and disable -s <service> turns it off, with zia (Internet & SaaS), zpa (Private Access) or zdx (Digital Experience) as the service. Enabling Private Access for a partner tenant adds -u <partner username> after zpa; a disable password generated in the app profile is added with -p after the service. enable can be run five or fewer times per minute and disable three or fewer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "after": "To use CLI for Windows devices:",
+          "quotes": [
+            "| enable -s <service> | Turn on the entered service. |",
+            "Possible values for <service>: zia (indicates Internet & SaaS) zpa (indicates Private Access) zdx (indicates Digital Experience) If you are enabling Private Access for a partner tenant, add -u <partner username> after zpa. Can be run five or fewer times per minute.",
+            "| disable -s <service> | Turn off the entered service. |",
+            "If you enabled Disable <Service> Password and generated a password in app profiles, add -p <disable password> after <service>. Example: ZSAcli.exe disable -s zpa -p <disable password> Can be run three or fewer times per minute."
+          ]
+        }
+      ]
+    },
+    "status": {
+      "statement": "status -s <service> displays the status of a service in JSON format, or of all services with all. In the Windows table the services are zia, zpa, zdx, deception (Zscaler Deception) and zep (Anti-Tampering); in the macOS table they are zia, zpa, zdx and zdp, which that table describes as Endpoint Data Loss Prevention.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "after": "To use CLI for Windows devices:",
+          "quotes": [
+            "Display the status in a JSON format of the entered service, or for all services if you enter all.",
+            "zia (indicates Internet & SaaS) zpa (indicates Private Access) zdx (indicates Digital Experience) deception (indicates Zscaler Deception) zep (indicates Anti-Tampering) all (indicates all services)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "quotes": [
+            "zia (indicates Internet & SaaS) zpa (indicates Private Access) zdx (indicates Digital Experience) zdp (indicates Endpoint Data Loss Prevention) all (indicates all services)"
+          ]
+        }
+      ]
+    },
+    "params": {
+      "statement": "On Windows, params -u <parameter name>=<new value> updates an installation parameter (cloudName, deviceToken, externalDeviceId, policyToken, strictEnforcement, userDomain or bcpConfigFilePath); params -list shows the parameters available for updating and their current values, params -get <parameter name> shows one of them, and the command can be run five or fewer times per minute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "quotes": [
+            "| params -u <parameter name>=<new value> | Update the specified installation parameter with the new value. |",
+            "Possible values for <parameter name>: cloudName deviceToken externalDeviceId policyToken strictEnforcement userDomain bcpConfigFilePath",
+            "To view the parameters available for updating and the current value (if set), enter params -list. To view a specific parameter and its value (if set), enter params -get <parameter name>. Can be run five or fewer times per minute."
+          ]
+        }
+      ]
+    },
+    "zdx-update": {
+      "statement": "On Windows, update -s zdx upgrades the ZDX Module with a package from a path (-f) or a URL (-u), each with its checksum (-c); ZDX Module upgrades from the CLI must be enabled first, and the package and checksum can be downloaded and copied from the Client Connector App Store page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "after": "To use CLI for Windows devices:",
+          "quotes": [
+            "| update -s zdx -f <path to ZDX package> -c <checksum> | Upgrades the ZDX Module with the update package in the path you enter. |",
+            "| update -s zdx -u <url> -c <checksum> | Upgrades the ZDX Module with the update package located at the URL you enter. |",
+            "You must first enable ZDX Module upgrades from the CLI. You can download the package and copy the checksum on the Client Connector App Store page."
+          ]
+        }
+      ]
+    },
+    "macos-diagnose": {
+      "statement": "On macOS, diagnose -r runs diagnostics for Client Connector and outputs a file location for the diagnostics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+          "quotes": [
+            "| diagnose -r | Runs diagnostics for Zscaler Client Connector and outputs a file location for the diagnostics. |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "cli-zia-zdx-platforms": {
+      "summary": "Whether the CLI can control Internet & SaaS and ZDX on macOS: the CLI page's introduction scopes it to Windows only, while its own macOS section and the app profile page offer the ZIA and ZDX disable passwords on macOS.",
+      "positions": [
+        {
+          "says": "The CLI page's introduction: enabling or disabling Internet & SaaS and ZDX is 4.8 and later for Windows only.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+            "quotes": [
+              "Enable or disable the Internet & SaaS (ZIA) service and the Digital Experience (ZDX) service (Zscaler Client Connector version 4.8 and later for Windows only)."
+            ]
+          }
+        },
+        {
+          "says": "The same page's macOS steps: the macOS app profile can require a password to disable Internet & SaaS and Digital Experience through the CLI.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+            "after": "To enable the CLI for macOS devices:",
+            "quotes": [
+              "Enable Disable ZIA Password to require a password when disabling the Internet & SaaS service using the CLI.",
+              "Enable Disable ZDX Password to require a password when disabling the Digital Experience service using the CLI."
+            ]
+          }
+        },
+        {
+          "says": "The app profile page: the ZIA disable password for the CLI applies to Client Connector 5.0 or later for macOS.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-zscaler-client-connector-app-profiles.json",
+            "quotes": [
+              "Disable ZIA Password: Select this option to require a password when disabling the Internet & SaaS service via CLI. Applies to Zscaler Client Connector version 5.0 or later for macOS."
+            ]
+          }
+        }
+      ],
+      "impact": "The pages do not settle whether, and from which version, the macOS CLI can disable Internet & SaaS and ZDX; the macOS service values in the status table (zia, zdx) fit the macOS section rather than the introduction."
+    },
+    "zdp-meaning": {
+      "summary": "What zdp names: the CLI page's macOS table describes it as Endpoint Data Loss Prevention, while the managePass contract describes zdpDisablePass as the password to disable Zscaler Deception.",
+      "positions": [
+        {
+          "says": "The CLI page's macOS status table: zdp indicates Endpoint Data Loss Prevention (the Windows table lists Deception separately as deception).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-interacting-zscaler-client-connector-remotely.json",
+            "quotes": [
+              "zia (indicates Internet & SaaS) zpa (indicates Private Access) zdx (indicates Digital Experience) zdp (indicates Endpoint Data Loss Prevention) all (indicates all services)"
+            ]
+          }
+        },
+        {
+          "says": "The managePass contract: zdpDisablePass is the password to disable Zscaler Deception.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/zdpDisablePass",
+            "expect": {
+              "description": "Password to disable Zscaler Deception."
+            }
+          }
+        }
+      ],
+      "impact": "Whether zdp, zdpDisableOtp and zdpDisablePass name Endpoint DLP or Deception is not settled; this is further vendor evidence for the open gaps in zcc.devices.record-fields (zd-vs-zdp) and zcc.passwords-and-otp.otp (zdp-otp-meaning)."
+    }
+  },
+  "gaps": {
+    "coverage": {
+      "kind": "semantic",
+      "title": "Commands the CLI page does not cover per platform",
+      "status": "open",
+      "detail": "The macOS table has no params or update rows and the Windows table no diagnose row, and the page does not say whether those commands exist on the other OS. It does not cover Linux, gives no rate limits for status, does not list the deception and zep status values in the macOS table, and does not give the JSON schema of the status output.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

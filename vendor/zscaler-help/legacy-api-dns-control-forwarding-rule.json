@@ -1,0 +1,1128 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "DNS Control Forwarding Rule",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/dns-control-forwarding-rule",
+    "node": "1535255",
+    "revision": "3175304",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/DNS%20Control%20Forwarding%20Rule_0.json?VersionId=DGvFmk2lHzEqYcaA2qj6E69l0nmqpzaz",
+    "updated": "2026-01-27",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Cloud & Branch Connector API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "v1.0"
+    },
+    "servers": [
+      {
+        "url": "https://{host}:{port}/wapi/v1",
+        "variables": {
+          "host": {
+            "description": "Private APIs Server IP/Domain name hosting Cloud Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      },
+      {
+        "url": "https://{host}:{port}/api/v1",
+        "variables": {
+          "host": {
+            "description": "Public APIs Server IP/Domain name hosting Cloud Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      }
+    ],
+    "tags": [
+      {
+        "name": "DNS Control Forwarding Rule"
+      }
+    ],
+    "paths": {
+      "/ecRules/ecDns": {
+        "get": {
+          "operationId": "EcRuleZResource_getEcDnsRules",
+          "description": "<p>Retrieves the list of DNS forwarding rules.</p> \n <p><strong>&#9888; This API endpoint is accessible only via <a href=\"https://help.zscaler.com/oneapi\">OneAPI</a>.</strong></p>",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "ruleName",
+              "description": "The search string used to match against the rule name.",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "ruleOrder",
+              "description": "The search string used to match against the rule order.",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "ruleDescription",
+              "description": "The search string used to match against the rule description.",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "ruleAction",
+              "description": "Specifies the rule action.",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "ALLOW",
+                  "BLOCK",
+                  "REDIR_REQ",
+                  "REDIR_RES",
+                  "REDIR_ZPA",
+                  "REDIR_REQ_DOH",
+                  "REDIR_REQ_KEEP_SENDER",
+                  "REDIR_REQ_TCP",
+                  "REDIR_REQ_UDP",
+                  "BLOCK_WITH_RESPONSE",
+                  "BLOCK_WITH_EUN"
+                ]
+              }
+            },
+            {
+              "in": "query",
+              "name": "location",
+              "description": "The search string used to match against the locations or sublocations used in rule configurations.",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "description": "Specifies the page size. The default size is 50.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 50
+              }
+            },
+            {
+              "in": "query",
+              "name": "sortBy",
+              "description": "The rule parameter by which the list must be sorted.",
+              "schema": {
+                "type": "string",
+                "default": "order"
+              }
+            },
+            {
+              "in": "query",
+              "name": "sortOrder",
+              "description": "Specifies whether the list must be sorted by ascending or descending rule order or by rule processing order.",
+              "schema": {
+                "type": "string",
+                "default": "ruleExecution",
+                "enum": [
+                  "asc",
+                  "desc",
+                  "ruleExecution"
+                ]
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EcDnsRule"
+                    }
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "DNS Control Forwarding Rule"
+          ]
+        },
+        "post": {
+          "operationId": "EcRuleZResource_createEcDnsForwardingRule",
+          "description": "<p>Creates a DNS forwarding rule.</p> \n <p><strong>&#9888; This API endpoint is accessible only via <a href=\"https://help.zscaler.com/oneapi\">OneAPI</a>.</strong></p>",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcDnsRule"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcDnsRule"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "DNS Control Forwarding Rule"
+          ]
+        }
+      },
+      "/ecRules/ecDns/{ruleId}": {
+        "get": {
+          "operationId": "EcRuleZResource_getEcDnsById",
+          "description": "<p>Retrieves a DNS forwarding rule configuration based on the specified ID.</p> \n <p><strong>&#9888; This API endpoint is accessible only via <a href=\"https://help.zscaler.com/oneapi\">OneAPI</a>.</strong></p>",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ruleId",
+              "description": "ID of the rule.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcDnsRule"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "DNS Control Forwarding Rule"
+          ]
+        },
+        "put": {
+          "operationId": "EcRuleZResource_updateEcDnsRule",
+          "description": "<p>Updates DNS forwarding rule configuration based on the specified ID.</p> \n <p><strong>&#9888; This API endpoint is accessible only via <a href=\"https://help.zscaler.com/oneapi\">OneAPI</a>.</strong></p>",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ruleId",
+              "description": "ID of the rule.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcDnsRule"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcDnsRule"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "DNS Control Forwarding Rule"
+          ]
+        },
+        "delete": {
+          "operationId": "EcRuleZResource_deleteEcDnsRule",
+          "description": "<p>Deletes a DNS forwarding rule based on the specified ID.</p> \n <p><strong>&#9888; This API endpoint is accessible only via <a href=\"https://help.zscaler.com/oneapi\">OneAPI</a>.</strong></p>",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ruleId",
+              "description": "ID of the rule.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {}
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "DNS Control Forwarding Rule"
+          ]
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "EcDnsRule": {
+          "type": "object",
+          "properties": {
+            "accessControl": {
+              "description": "Access permission to the rule available for the current user.",
+              "type": "string",
+              "enum": [
+                "NONE",
+                "READ_ONLY",
+                "READ_WRITE"
+              ]
+            },
+            "action": {
+              "description": "Action triggered when the traffic aligns with the policy.",
+              "type": "string",
+              "enum": [
+                "ALLOW",
+                "BLOCK",
+                "REDIR_REQ",
+                "REDIR_RES",
+                "REDIR_ZPA",
+                "REDIR_REQ_DOH",
+                "REDIR_REQ_KEEP_SENDER",
+                "REDIR_REQ_TCP",
+                "REDIR_REQ_UDP",
+                "BLOCK_WITH_RESPONSE",
+                "BLOCK_WITH_EUN"
+              ]
+            },
+            "blockResponseCode": {
+              "type": "string",
+              "enum": [
+                "FORMERR",
+                "SERVFAIL",
+                "NXDOMAIN",
+                "NOTIMP",
+                "REFUSED"
+              ]
+            },
+            "defaultRule": {
+              "description": "Indicates whether the rule is a default rule.",
+              "type": "boolean"
+            },
+            "departments": {
+              "description": "Name-ID pair of departments to which the rule applies.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "description": {
+              "description": "The description of the rule.",
+              "type": "string"
+            },
+            "destAddresses": {
+              "description": "The destination IP addresses to which the rule applies.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "destCountries": {
+              "description": "The destination countries to which the rule applies.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "ANY",
+                  "NONE",
+                  "COUNTRY_AD",
+                  "COUNTRY_AE",
+                  "COUNTRY_AF",
+                  "COUNTRY_AG",
+                  "COUNTRY_AI",
+                  "COUNTRY_AL",
+                  "COUNTRY_AM",
+                  "COUNTRY_AN",
+                  "COUNTRY_AO",
+                  "COUNTRY_AQ",
+                  "COUNTRY_AR",
+                  "COUNTRY_AS",
+                  "COUNTRY_AT",
+                  "COUNTRY_AU",
+                  "COUNTRY_AW",
+                  "COUNTRY_AZ",
+                  "COUNTRY_BA",
+                  "COUNTRY_BB",
+                  "COUNTRY_BD",
+                  "COUNTRY_BE",
+                  "COUNTRY_BF",
+                  "COUNTRY_BG",
+                  "COUNTRY_BH",
+                  "COUNTRY_BI",
+                  "COUNTRY_BJ",
+                  "COUNTRY_BM",
+                  "COUNTRY_BN",
+                  "COUNTRY_BO",
+                  "COUNTRY_BR",
+                  "COUNTRY_BS",
+                  "COUNTRY_BT",
+                  "COUNTRY_BV",
+                  "COUNTRY_BW",
+                  "COUNTRY_BY",
+                  "COUNTRY_BZ",
+                  "COUNTRY_CA",
+                  "COUNTRY_CC",
+                  "COUNTRY_CD",
+                  "COUNTRY_CF",
+                  "COUNTRY_CG",
+                  "COUNTRY_CH",
+                  "COUNTRY_CI",
+                  "COUNTRY_CK",
+                  "COUNTRY_CL",
+                  "COUNTRY_CM",
+                  "COUNTRY_CN",
+                  "COUNTRY_CO",
+                  "COUNTRY_CR",
+                  "COUNTRY_CU",
+                  "COUNTRY_CV",
+                  "COUNTRY_CX",
+                  "COUNTRY_CY",
+                  "COUNTRY_CZ",
+                  "COUNTRY_DE",
+                  "COUNTRY_DJ",
+                  "COUNTRY_DK",
+                  "COUNTRY_DM",
+                  "COUNTRY_DO",
+                  "COUNTRY_DZ",
+                  "COUNTRY_EC",
+                  "COUNTRY_EE",
+                  "COUNTRY_EG",
+                  "COUNTRY_EH",
+                  "COUNTRY_ER",
+                  "COUNTRY_ES",
+                  "COUNTRY_ET",
+                  "COUNTRY_FI",
+                  "COUNTRY_FJ",
+                  "COUNTRY_FK",
+                  "COUNTRY_FM",
+                  "COUNTRY_FO",
+                  "COUNTRY_FR",
+                  "COUNTRY_FX",
+                  "COUNTRY_GA",
+                  "COUNTRY_GB",
+                  "COUNTRY_GD",
+                  "COUNTRY_GE",
+                  "COUNTRY_GF",
+                  "COUNTRY_GH",
+                  "COUNTRY_GI",
+                  "COUNTRY_GL",
+                  "COUNTRY_GM",
+                  "COUNTRY_GN",
+                  "COUNTRY_GP",
+                  "COUNTRY_GQ",
+                  "COUNTRY_GR",
+                  "COUNTRY_GS",
+                  "COUNTRY_GT",
+                  "COUNTRY_GU",
+                  "COUNTRY_GW",
+                  "COUNTRY_GY",
+                  "COUNTRY_HK",
+                  "COUNTRY_HM",
+                  "COUNTRY_HN",
+                  "COUNTRY_HR",
+                  "COUNTRY_HT",
+                  "COUNTRY_HU",
+                  "COUNTRY_ID",
+                  "COUNTRY_IE",
+                  "COUNTRY_IL",
+                  "COUNTRY_IN",
+                  "COUNTRY_IO",
+                  "COUNTRY_IQ",
+                  "COUNTRY_IR",
+                  "COUNTRY_IS",
+                  "COUNTRY_IT",
+                  "COUNTRY_JM",
+                  "COUNTRY_JO",
+                  "COUNTRY_JP",
+                  "COUNTRY_KE",
+                  "COUNTRY_KG",
+                  "COUNTRY_KH",
+                  "COUNTRY_KI",
+                  "COUNTRY_KM",
+                  "COUNTRY_KN",
+                  "COUNTRY_KP",
+                  "COUNTRY_KR",
+                  "COUNTRY_KW",
+                  "COUNTRY_KY",
+                  "COUNTRY_KZ",
+                  "COUNTRY_LA",
+                  "COUNTRY_LB",
+                  "COUNTRY_LC",
+                  "COUNTRY_LI",
+                  "COUNTRY_LK",
+                  "COUNTRY_LR",
+                  "COUNTRY_LS",
+                  "COUNTRY_LT",
+                  "COUNTRY_LU",
+                  "COUNTRY_LV",
+                  "COUNTRY_LY",
+                  "COUNTRY_MA",
+                  "COUNTRY_MC",
+                  "COUNTRY_MD",
+                  "COUNTRY_MG",
+                  "COUNTRY_MH",
+                  "COUNTRY_MK",
+                  "COUNTRY_ML",
+                  "COUNTRY_MM",
+                  "COUNTRY_MN",
+                  "COUNTRY_MO",
+                  "COUNTRY_MP",
+                  "COUNTRY_MQ",
+                  "COUNTRY_MR",
+                  "COUNTRY_MS",
+                  "COUNTRY_MT",
+                  "COUNTRY_MU",
+                  "COUNTRY_MV",
+                  "COUNTRY_MW",
+                  "COUNTRY_MX",
+                  "COUNTRY_MY",
+                  "COUNTRY_MZ",
+                  "COUNTRY_NA",
+                  "COUNTRY_NC",
+                  "COUNTRY_NE",
+                  "COUNTRY_NF",
+                  "COUNTRY_NG",
+                  "COUNTRY_NI",
+                  "COUNTRY_NL",
+                  "COUNTRY_NO",
+                  "COUNTRY_NP",
+                  "COUNTRY_NR",
+                  "COUNTRY_NU",
+                  "COUNTRY_NZ",
+                  "COUNTRY_OM",
+                  "COUNTRY_PA",
+                  "COUNTRY_PE",
+                  "COUNTRY_PF",
+                  "COUNTRY_PG",
+                  "COUNTRY_PH",
+                  "COUNTRY_PK",
+                  "COUNTRY_PL",
+                  "COUNTRY_PM",
+                  "COUNTRY_PN",
+                  "COUNTRY_PR",
+                  "COUNTRY_PS",
+                  "COUNTRY_PT",
+                  "COUNTRY_PW",
+                  "COUNTRY_PY",
+                  "COUNTRY_QA",
+                  "COUNTRY_RE",
+                  "COUNTRY_RO",
+                  "COUNTRY_RU",
+                  "COUNTRY_RW",
+                  "COUNTRY_SA",
+                  "COUNTRY_SB",
+                  "COUNTRY_SC",
+                  "COUNTRY_SD",
+                  "COUNTRY_SE",
+                  "COUNTRY_SG",
+                  "COUNTRY_SH",
+                  "COUNTRY_SI",
+                  "COUNTRY_SJ",
+                  "COUNTRY_SK",
+                  "COUNTRY_SL",
+                  "COUNTRY_SM",
+                  "COUNTRY_SN",
+                  "COUNTRY_SO",
+                  "COUNTRY_SR",
+                  "COUNTRY_ST",
+                  "COUNTRY_SV",
+                  "COUNTRY_SY",
+                  "COUNTRY_SZ",
+                  "COUNTRY_TC",
+                  "COUNTRY_TD",
+                  "COUNTRY_TF",
+                  "COUNTRY_TG",
+                  "COUNTRY_TH",
+                  "COUNTRY_TJ",
+                  "COUNTRY_TK",
+                  "COUNTRY_TM",
+                  "COUNTRY_TN",
+                  "COUNTRY_TO",
+                  "COUNTRY_TL",
+                  "COUNTRY_TR",
+                  "COUNTRY_TT",
+                  "COUNTRY_TV",
+                  "COUNTRY_TW",
+                  "COUNTRY_TZ",
+                  "COUNTRY_UA",
+                  "COUNTRY_UG",
+                  "COUNTRY_UM",
+                  "COUNTRY_US",
+                  "COUNTRY_UY",
+                  "COUNTRY_UZ",
+                  "COUNTRY_VA",
+                  "COUNTRY_VC",
+                  "COUNTRY_VE",
+                  "COUNTRY_VG",
+                  "COUNTRY_VI",
+                  "COUNTRY_VN",
+                  "COUNTRY_VU",
+                  "COUNTRY_WF",
+                  "COUNTRY_WS",
+                  "COUNTRY_YE",
+                  "COUNTRY_YT",
+                  "COUNTRY_RS",
+                  "COUNTRY_ZA",
+                  "COUNTRY_ZM",
+                  "COUNTRY_ME",
+                  "COUNTRY_ZW",
+                  "COUNTRY_AX",
+                  "COUNTRY_GG",
+                  "COUNTRY_IM",
+                  "COUNTRY_JE",
+                  "COUNTRY_BL",
+                  "COUNTRY_MF",
+                  "COUNTRY_SS"
+                ]
+              }
+            },
+            "destIpCategories": {
+              "description": "The destination IP categories to which the rule applies.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "destIpGroups": {
+              "description": "The destination IP groups to which the rule applies.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "destIpv6Groups": {
+              "description": "The destination IPv6 groups to which the rule applies.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "deviceGroups": {
+              "description": "The device groups to which the rule applies.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "devices": {
+              "description": "The devices to which the rule applies.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "dnsGateway": {
+              "description": "The DNS gateway to which the rule applies.",
+              "$ref": "#/components/schemas/EntityReference"
+            },
+            "ecGroups": {
+              "type": "array",
+              "description": "Specifies the Cloud & Branch Connector groups to which the rule applies.",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "groups": {
+              "type": "array",
+              "description": "Specifies the groups to which the rule applies.",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "id": {
+              "description": "The ID of the rule.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "labels": {
+              "type": "array",
+              "description": "The name-ID pair of labels associated with the rule.",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "lastModifiedBy": {
+              "description": "The user who last modified the rule.",
+              "$ref": "#/components/schemas/EntityReference"
+            },
+            "lastModifiedTime": {
+              "description": "Timestamp when the rule was last modified.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "locationGroups": {
+              "description": "The location groups to which the rule applies.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "locations": {
+              "description": "The locations to which the rule applies.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "name": {
+              "description": "The name of the rule.",
+              "type": "string"
+            },
+            "order": {
+              "description": "The order of the rule.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "predefined": {
+              "description": "Specifies whether the rule is predefined.",
+              "type": "boolean"
+            },
+            "rank": {
+              "type": "integer",
+              "description": "The admin rank assigned to the rule.",
+              "format": "int32"
+            },
+            "redirectIp": {
+              "description": "The IP address to which the traffic is redirected to when the DNS rule is triggered.",
+              "type": "string"
+            },
+            "resCategories": {
+              "description": "The destination IP address categories for which the DNS rule applies.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "sourceCountries": {
+              "description": "The source countries to which the rule applies.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "ANY",
+                  "NONE",
+                  "COUNTRY_AD",
+                  "COUNTRY_AE",
+                  "COUNTRY_AF",
+                  "COUNTRY_AG",
+                  "COUNTRY_AI",
+                  "COUNTRY_AL",
+                  "COUNTRY_AM",
+                  "COUNTRY_AN",
+                  "COUNTRY_AO",
+                  "COUNTRY_AQ",
+                  "COUNTRY_AR",
+                  "COUNTRY_AS",
+                  "COUNTRY_AT",
+                  "COUNTRY_AU",
+                  "COUNTRY_AW",
+                  "COUNTRY_AZ",
+                  "COUNTRY_BA",
+                  "COUNTRY_BB",
+                  "COUNTRY_BD",
+                  "COUNTRY_BE",
+                  "COUNTRY_BF",
+                  "COUNTRY_BG",
+                  "COUNTRY_BH",
+                  "COUNTRY_BI",
+                  "COUNTRY_BJ",
+                  "COUNTRY_BM",
+                  "COUNTRY_BN",
+                  "COUNTRY_BO",
+                  "COUNTRY_BR",
+                  "COUNTRY_BS",
+                  "COUNTRY_BT",
+                  "COUNTRY_BV",
+                  "COUNTRY_BW",
+                  "COUNTRY_BY",
+                  "COUNTRY_BZ",
+                  "COUNTRY_CA",
+                  "COUNTRY_CC",
+                  "COUNTRY_CD",
+                  "COUNTRY_CF",
+                  "COUNTRY_CG",
+                  "COUNTRY_CH",
+                  "COUNTRY_CI",
+                  "COUNTRY_CK",
+                  "COUNTRY_CL",
+                  "COUNTRY_CM",
+                  "COUNTRY_CN",
+                  "COUNTRY_CO",
+                  "COUNTRY_CR",
+                  "COUNTRY_CU",
+                  "COUNTRY_CV",
+                  "COUNTRY_CX",
+                  "COUNTRY_CY",
+                  "COUNTRY_CZ",
+                  "COUNTRY_DE",
+                  "COUNTRY_DJ",
+                  "COUNTRY_DK",
+                  "COUNTRY_DM",
+                  "COUNTRY_DO",
+                  "COUNTRY_DZ",
+                  "COUNTRY_EC",
+                  "COUNTRY_EE",
+                  "COUNTRY_EG",
+                  "COUNTRY_EH",
+                  "COUNTRY_ER",
+                  "COUNTRY_ES",
+                  "COUNTRY_ET",
+                  "COUNTRY_FI",
+                  "COUNTRY_FJ",
+                  "COUNTRY_FK",
+                  "COUNTRY_FM",
+                  "COUNTRY_FO",
+                  "COUNTRY_FR",
+                  "COUNTRY_FX",
+                  "COUNTRY_GA",
+                  "COUNTRY_GB",
+                  "COUNTRY_GD",
+                  "COUNTRY_GE",
+                  "COUNTRY_GF",
+                  "COUNTRY_GH",
+                  "COUNTRY_GI",
+                  "COUNTRY_GL",
+                  "COUNTRY_GM",
+                  "COUNTRY_GN",
+                  "COUNTRY_GP",
+                  "COUNTRY_GQ",
+                  "COUNTRY_GR",
+                  "COUNTRY_GS",
+                  "COUNTRY_GT",
+                  "COUNTRY_GU",
+                  "COUNTRY_GW",
+                  "COUNTRY_GY",
+                  "COUNTRY_HK",
+                  "COUNTRY_HM",
+                  "COUNTRY_HN",
+                  "COUNTRY_HR",
+                  "COUNTRY_HT",
+                  "COUNTRY_HU",
+                  "COUNTRY_ID",
+                  "COUNTRY_IE",
+                  "COUNTRY_IL",
+                  "COUNTRY_IN",
+                  "COUNTRY_IO",
+                  "COUNTRY_IQ",
+                  "COUNTRY_IR",
+                  "COUNTRY_IS",
+                  "COUNTRY_IT",
+                  "COUNTRY_JM",
+                  "COUNTRY_JO",
+                  "COUNTRY_JP",
+                  "COUNTRY_KE",
+                  "COUNTRY_KG",
+                  "COUNTRY_KH",
+                  "COUNTRY_KI",
+                  "COUNTRY_KM",
+                  "COUNTRY_KN",
+                  "COUNTRY_KP",
+                  "COUNTRY_KR",
+                  "COUNTRY_KW",
+                  "COUNTRY_KY",
+                  "COUNTRY_KZ",
+                  "COUNTRY_LA",
+                  "COUNTRY_LB",
+                  "COUNTRY_LC",
+                  "COUNTRY_LI",
+                  "COUNTRY_LK",
+                  "COUNTRY_LR",
+                  "COUNTRY_LS",
+                  "COUNTRY_LT",
+                  "COUNTRY_LU",
+                  "COUNTRY_LV",
+                  "COUNTRY_LY",
+                  "COUNTRY_MA",
+                  "COUNTRY_MC",
+                  "COUNTRY_MD",
+                  "COUNTRY_MG",
+                  "COUNTRY_MH",
+                  "COUNTRY_MK",
+                  "COUNTRY_ML",
+                  "COUNTRY_MM",
+                  "COUNTRY_MN",
+                  "COUNTRY_MO",
+                  "COUNTRY_MP",
+                  "COUNTRY_MQ",
+                  "COUNTRY_MR",
+                  "COUNTRY_MS",
+                  "COUNTRY_MT",
+                  "COUNTRY_MU",
+                  "COUNTRY_MV",
+                  "COUNTRY_MW",
+                  "COUNTRY_MX",
+                  "COUNTRY_MY",
+                  "COUNTRY_MZ",
+                  "COUNTRY_NA",
+                  "COUNTRY_NC",
+                  "COUNTRY_NE",
+                  "COUNTRY_NF",
+                  "COUNTRY_NG",
+                  "COUNTRY_NI",
+                  "COUNTRY_NL",
+                  "COUNTRY_NO",
+                  "COUNTRY_NP",
+                  "COUNTRY_NR",
+                  "COUNTRY_NU",
+                  "COUNTRY_NZ",
+                  "COUNTRY_OM",
+                  "COUNTRY_PA",
+                  "COUNTRY_PE",
+                  "COUNTRY_PF",
+                  "COUNTRY_PG",
+                  "COUNTRY_PH",
+                  "COUNTRY_PK",
+                  "COUNTRY_PL",
+                  "COUNTRY_PM",
+                  "COUNTRY_PN",
+                  "COUNTRY_PR",
+                  "COUNTRY_PS",
+                  "COUNTRY_PT",
+                  "COUNTRY_PW",
+                  "COUNTRY_PY",
+                  "COUNTRY_QA",
+                  "COUNTRY_RE",
+                  "COUNTRY_RO",
+                  "COUNTRY_RU",
+                  "COUNTRY_RW",
+                  "COUNTRY_SA",
+                  "COUNTRY_SB",
+                  "COUNTRY_SC",
+                  "COUNTRY_SD",
+                  "COUNTRY_SE",
+                  "COUNTRY_SG",
+                  "COUNTRY_SH",
+                  "COUNTRY_SI",
+                  "COUNTRY_SJ",
+                  "COUNTRY_SK",
+                  "COUNTRY_SL",
+                  "COUNTRY_SM",
+                  "COUNTRY_SN",
+                  "COUNTRY_SO",
+                  "COUNTRY_SR",
+                  "COUNTRY_ST",
+                  "COUNTRY_SV",
+                  "COUNTRY_SY",
+                  "COUNTRY_SZ",
+                  "COUNTRY_TC",
+                  "COUNTRY_TD",
+                  "COUNTRY_TF",
+                  "COUNTRY_TG",
+                  "COUNTRY_TH",
+                  "COUNTRY_TJ",
+                  "COUNTRY_TK",
+                  "COUNTRY_TM",
+                  "COUNTRY_TN",
+                  "COUNTRY_TO",
+                  "COUNTRY_TL",
+                  "COUNTRY_TR",
+                  "COUNTRY_TT",
+                  "COUNTRY_TV",
+                  "COUNTRY_TW",
+                  "COUNTRY_TZ",
+                  "COUNTRY_UA",
+                  "COUNTRY_UG",
+                  "COUNTRY_UM",
+                  "COUNTRY_US",
+                  "COUNTRY_UY",
+                  "COUNTRY_UZ",
+                  "COUNTRY_VA",
+                  "COUNTRY_VC",
+                  "COUNTRY_VE",
+                  "COUNTRY_VG",
+                  "COUNTRY_VI",
+                  "COUNTRY_VN",
+                  "COUNTRY_VU",
+                  "COUNTRY_WF",
+                  "COUNTRY_WS",
+                  "COUNTRY_YE",
+                  "COUNTRY_YT",
+                  "COUNTRY_RS",
+                  "COUNTRY_ZA",
+                  "COUNTRY_ZM",
+                  "COUNTRY_ME",
+                  "COUNTRY_ZW",
+                  "COUNTRY_AX",
+                  "COUNTRY_GG",
+                  "COUNTRY_IM",
+                  "COUNTRY_JE",
+                  "COUNTRY_BL",
+                  "COUNTRY_MF",
+                  "COUNTRY_SS"
+                ]
+              }
+            },
+            "sourceIpGroupExclusion": {
+              "description": "Specifies whether source IP addresses and groups are included or excluded.",
+              "type": "boolean"
+            },
+            "srcIpGroups": {
+              "description": "The source IP groups to which the rule applies.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "srcIps": {
+              "description": "The source IP addresses to which the rule applies.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "srcIpv6Groups": {
+              "description": "The source IPv6 addresses to which the rule applies.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "state": {
+              "description": "Specifies whether the rule is enabled or disabled.",
+              "type": "string",
+              "enum": [
+                "DISABLED",
+                "ENABLED"
+              ]
+            },
+            "templateSyncedRuleFlag": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "SMRULEF1_SECURELYSHARE_SUPPORT_OLD_VERSIONS",
+                "SMRULEF1_TEMPLATE_SYNCED_RULE",
+                "SMRULEF1_CASB_DOMAIN_PROFILE_IDS_INCLUDE",
+                "SMRULEF1_CASB_EMAIL_PROFILE_IDS_INCLUDE",
+                "SMRULEF1_CASB_ENTITY_GROUP_IDS_EXCLUDE"
+              ],
+              "writeOnly": true
+            },
+            "timeWindows": {
+              "description": "Specifies the time interval during which the policy must be enforced.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "users": {
+              "description": "The name-ID pair of users for which the policy must be applied.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "zpaIpGroup": {
+              "description": "Specifies the ZPA IP group that resolves DNS request.",
+              "$ref": "#/components/schemas/EntityReference"
+            }
+          },
+          "required": [
+            "name",
+            "order"
+          ]
+        },
+        "EntityReference": {
+          "type": "object",
+          "description": "An immutable reference to an entity, which consists of ID, name, etc.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int64",
+              "description": "An ID that uniquely identifies an entity."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the entity."
+            },
+            "isNameL10nTag": {
+              "type": "boolean",
+              "description": "Indicates whether the entity is localized for internationalization."
+            },
+            "extensions": {
+              "type": "object",
+              "description": "An object for storing additional properties related to entity configuration.",
+              "additionalProperties": {
+                "type": "string",
+                "description": "Custom attributes within the extensions object."
+              }
+            },
+            "deleted": {
+              "type": "boolean",
+              "description": "Indicates the deletion status of the entity."
+            },
+            "externalId": {
+              "type": "string",
+              "description": "The external ID of the entity."
+            },
+            "associationTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The timestamp when the entity was linked or associated."
+            }
+          }
+        }
+      }
+    }
+  }
+}

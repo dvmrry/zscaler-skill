@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "id": "shared.deployments.zpa.disaster-recovery",
+  "title": "What the ZPA disaster recovery deployment and operations guide requires, leaves unsupported and how activation is detected",
+  "aliases": [
+    "zpa disaster recovery",
+    "zpa dr mode"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.deployments"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.deployments.zia.disaster-recovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery.dns-records"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{prereqs}} {{segment-requirement}} The console and record facts are in [[zpa.private-service-edges.disaster-recovery]] and [[zpa.private-service-edges.disaster-recovery.dns-records]]."
+    },
+    {
+      "label": "DNS record.",
+      "text": "{{txt-record}} {{activation-and-detection}} The command that shows activation is open {{gap:activation-command}}."
+    },
+    {
+      "label": "During an outage.",
+      "text": "{{not-supported}} {{reauth-extension}} {{outage-assumptions}} The ZIA side is in [[shared.deployments.zia.disaster-recovery]], which records the macOS version spelling that differs between the two guides."
+    }
+  ],
+  "claims": {
+    "prereqs": {
+      "statement": "ZPA disaster recovery prerequisites include Client Connector 4.0 or later for Windows, 3.7.1.38 or later for macOS, a customer-owned modifiable public DNS record, the Zscaler DNS Record Generator (Windows only) and a separate DNS domain name whose A record holds the public IP addresses of the Private Service Edges designated for disaster recovery.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "Ensure the end user’s machines run Zscaler Client Connector version 4.0 or later for Windows.",
+            "Ensure the end user’s machines run Zscaler Client Connector version 3.7.1.38 or later for macOS.",
+            "Download the Zscaler DNS Record Generator (Windows only).",
+            "Create a separate domain name in your DNS for disaster recovery. Then enter the public IP addresses of the ZPA Private Service Edge designated for disaster recovery into the DNS A record.",
+            "Create a public DNS record that is customer-owned and modifiable to enable and disable disaster recovery."
+          ]
+        }
+      ]
+    },
+    "txt-record": {
+      "statement": "The ZPA disaster recovery DNS TXT record needs at minimum v=1, b=on and k=zpa (or k=all for ZPA and ZIA); testing uses b=test; Zscaler recommends the lowest TTL, 30 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "v=1 to indicate the DNS record version.",
+            "b=on to enable disaster recovery.",
+            "k=zpa or k=all (for ZPA and ZIA).",
+            "Choose the lowest TTL for the DNS TXT record (Zscaler recommends 30 seconds) for swift DNS update propagation downstream.",
+            "- b=test"
+          ]
+        }
+      ]
+    },
+    "segment-requirement": {
+      "statement": "An application segment with disaster recovery enabled must be associated with a server group, which must be associated with at least one App Connector Group designated for disaster recovery.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "An application segment with disaster recovery enabled must be associated with a server group. The server group must be associated with at least one App Connector Group designated for disaster recovery."
+          ]
+        }
+      ]
+    },
+    "not-supported": {
+      "statement": "Disaster recovery does not support authentication and reauthentication, Browser Access, Client-Based Remote Assistance, Cloud Connectors, Dashboards and Diagnostics, enrollment of new App Connectors, ZPA Private Service Edges or Zscaler Client Connector, AppProtection for Private Application Traffic, Log Streaming Service, Machine Tunnels, policy or configuration updates, Source IP Anchoring, SCIM Configuration, user enrollments and Zscaler Deception.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "Disaster recovery doesn’t support the following functions and features:",
+            "- Client-Based Remote Assistance.",
+            "- Cloud Connectors.",
+            "- Dashboards and Diagnostics.",
+            "- Machine Tunnels.",
+            "- Policies or configuration updates.",
+            "- Source IP Anchoring.",
+            "- SCIM Configuration.",
+            "- User enrollments.",
+            "- Zscaler Deception.",
+            "- AppProtection for Private Application Traffic.",
+            "- Log Streaming Service.",
+            "Authentication and reauthentication. (Reauthentication behavior is modified during disaster recovery.",
+            "- Enrollment of new App Connectors, ZPA Private Service Edges, or Zscaler Client Connector.",
+            "- Browser Access."
+          ]
+        }
+      ]
+    },
+    "reauth-extension": {
+      "statement": "During disaster recovery, by default the SAML assertion validity is extended by 14 days from the date the SAML assertion was issued, which is when a user reauthenticates; the value can be customized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "By default, the Security Assertion Markup Language (SAML) assertion validity is extended by 14 days from the date the SAML assertion was issued. The SAML assertion is issued when a user reauthenticates. You can customize the value."
+          ]
+        }
+      ]
+    },
+    "activation-and-detection": {
+      "statement": "Activating disaster recovery via DNS disrupts existing Client Connector connections, and the services for both App Connector (zpa-connector) and ZPA Private Service Edges (zpa-service-edge) enabled for disaster recovery restart after activation via DNS; Client Connector checks the DNS TXT record every 200 seconds, and the guide says a command it prints as 'journaltctl -f', run on the ZPA Public Service Edge, shows the message 'DR mode is activated!'.",
+      "conditions": "The command is quoted as printed; systemd's tool is spelled journalctl, as in the App Connector guide's 'journalctl -u zpa-connector', so the spelling and the host are open.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "Activate disaster recovery via the DNS records with caution, as it disrupts existing Zscaler Client Connector connections.",
+            "Zscaler Client Connector checks the DNS TXT record every 200 seconds.",
+            "Look for the message to confirm that disaster recovery is successfully triggered: DR mode is activated!",
+            "You can run the journaltctl -f command on the ZPA Public Service Edge.",
+            "The services for both App Connector (zpa-connector) and ZPA Private Service Edges (zpa-service-edge) that are enabled for disaster recovery restart after disaster recovery is activated via DNS."
+          ]
+        }
+      ]
+    },
+    "outage-assumptions": {
+      "statement": "During a ZPA global outage, customers should assume the ZPA Admin Portal is unavailable and configuration changes, client enrollments or new user authentication are not possible; clients do not reconnect automatically after ZPA services are restored unless disaster recovery is disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-disaster-recovery-deployment-and-operations-guide.json",
+          "quotes": [
+            "During ZPA global outage, customers should assume that the ZPA Admin Portal is unavailable and configuration changes, client enrollments, or new user authentication are not possible.",
+            "Even after ZPA services are restored, the client machines do not automatically reconnect to the Zscaler cloud unless disaster recovery is disabled."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "activation-command": {
+      "kind": "semantic",
+      "title": "Which command and host show the disaster recovery activation message",
+      "status": "open",
+      "detail": "The guide prints the command as 'journaltctl -f' and places it on the ZPA Public Service Edge, a host customers are not normally given a shell on. The spelling is probably a vendor typo for journalctl, but the page does not say which Service Edge type, or which command, shows 'DR mode is activated!'.",
+      "blocks": "telling an operator which command confirms disaster recovery activation",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

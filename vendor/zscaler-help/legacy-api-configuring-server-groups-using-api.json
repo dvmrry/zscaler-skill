@@ -1,0 +1,432 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Server Groups Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-server-groups-using-api",
+    "node": "1484796",
+    "revision": "3160696",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) server group use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "Before you create a new server group, you must get the required list of App Connector groups. To learn more, see Configuring App Connector Groups Using API."
+    },
+    {
+      "heading": "Creating a New Server Group",
+      "level": 1
+    },
+    {
+      "text": "To add a new server group:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint in the server-group-controller: /mgmtconfig/v1/admin/customers/{customerId}/serverGroup.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/serverGroup.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the entire JSON payload to create a server group and provide the required details:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the server group.",
+      "depth": 0
+    },
+    {
+      "item": "enabled: Indicates if the server group is enabled (true) or disabled (false).",
+      "depth": 0
+    },
+    {
+      "item": "dynamicDiscovery: This field controls dynamic discovery of the servers.",
+      "depth": 0
+    },
+    {
+      "item": "Associated App Connector groups",
+      "depth": 0
+    },
+    {
+      "item": "Provide the associated server list only when the auto-server-discovery is disabled (i.e., dynamicDiscovery= false)",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"dynamicDiscovery\":false, \"name\":\"<serverGroupName>\", \"description\":\"desc\", \"servers\":[ { \"id\":\"<serverId1>\", }, { \"id\":\"<serverId2>\", } ], \"appConnectorGroups\":[ { \"id\":\"<appConnectorGroupId1>\", }, { \"id\":\"<appConnectorGroupId2>\", } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View the example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"217246660303024819\", \"enabled\": true, \"name\": \"Example Test Server Group\", \"description\": \"Example Server Group for testing\", \"servers\": [ { \"id\": \"217246660302995951\", \"configSpace\": \"DEFAULT\" }, { \"id\": \"217246660303024816\", \"configSpace\": \"DEFAULT\" } ], \"ipAnchored\": false, \"configSpace\": \"DEFAULT\", \"dynamicDiscovery\": false, \"appConnectorGroups\": [ { \"id\": \"217246660303020475\", \"name\": \"11113\", \"enabled\": true, \"siemAppConnectorGroup\": false }, { \"id\": \"217246660303023146\", \"name\": \"1 mp connector grp\", \"enabled\": true, \"siemAppConnectorGroup\": false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "You choose the server group criteria you want to include in the JSON payload. Refer to the Adding Field Descriptions section below for supported values."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the server group use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "This field defines the name of the server group",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "This field is the description of the server group",
+          "No",
+          "String"
+        ],
+        [
+          "enabled",
+          "This field defines if the server group is enabled or disabled",
+          "No",
+          "true, false"
+        ],
+        [
+          "dynamicDiscovery",
+          "This field controls dynamic discovery of the servers",
+          "Yes",
+          "true, false"
+        ],
+        [
+          "appConnectorGroups",
+          "This field is a json array of App Connector Group IDs",
+          "Yes",
+          "Accepts values in the format: { \"id\":\"<appConnectorGrpId>\", }"
+        ],
+        [
+          "servers",
+          "This field is a list of servers that are applicable only when dynamic discovery is disabled. Server name is required only in cases where the new servers need to be created in this API. For existing servers, pass only the serverId.",
+          "No",
+          "Accepts values in the format: { \"id\":\"<serverId>\", }"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all Microtenants associated with the tenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    },
+    {
+      "heading": "Getting Details for a Particular Server Group",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular server group:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the server-group-controller: /mgmtconfig/v1/admin/customers/{customerId}/serverGroup/{groupId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "groupId: The ID of the particular server group you want to get details for.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/serverGroup/72057615512764618."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"creationTime\": \"1612476914\", \"modifiedBy\": \"72057615512764617\", \"id\": \"72057615512764618\", \"enabled\": false, \"name\": \"TestAppServerGrp\", \"learningEnabled\": false, \"description\": \"string\", \"ipAnchored\": false, \"configSpace\": \"DEFAULT\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for All Server Groups",
+      "level": 1
+    },
+    {
+      "text": "To get details for all the server groups:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the server-group-controller: /mgmtconfig/v1/admin/customers/{customerId}/serverGroup.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/serverGroup.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"list\": [ { \"modifiedTime\": \"1612391262\", \"creationTime\": \"1574113633\", \"modifiedBy\": \"72057615512764552\", \"id\": \"72057615512764532\", \"enabled\": true, \"name\": \"AWS Connector\", \"learningEnabled\": true, \"ipAnchored\": false, \"configSpace\": \"DEFAULT\", \"connectorGroups\": [ { \"id\": \"72057615512764441\", \"modifiedTime\": \"1610747816\", \"creationTime\": \"1553590280\", \"modifiedBy\": \"72057594037928174\", \"name\": \"AWS\", \"enabled\": true, \"location\": \"Oregon City, OR 97045, USA\", \"cityCountry\": \"Oregon City, US\", \"countryCode\": \"US\", \"siemConnectorGroup\": false } ] }, { \"creationTime\": \"1579729263\", \"modifiedBy\": \"72057615512764417\", \"id\": \"72057615512764545\", \"enabled\": true, \"name\": \"PB App\", \"learningEnabled\": false, \"servers\": [ { \"id\": \"72057615512764544\", \"creationTime\": \"1579729244\", \"modifiedBy\": \"72057615512764417\", \"name\": \"PB App\", \"address\": \"10.0.0.190\", \"enabled\": true, \"configSpace\": \"DEFAULT\" }, { \"id\": \"72057615512764604\", \"creationTime\": \"1612389365\", \"modifiedBy\": \"72057615512764603\", \"name\": \"TestApplicationServer\", \"address\": \"10.0.0.190\", \"enabled\": true, \"description\": \"string\", \"configSpace\": \"DEFAULT\" } ], \"applications\": [ { \"id\": \"72057615512764533\", \"name\": \"PB App\" } ], \"ipAnchored\": false, \"configSpace\": \"DEFAULT\", \"connectorGroups\": [ { \"id\": \"72057615512764441\", \"modifiedTime\": \"1610747816\", \"creationTime\": \"1553590280\", \"modifiedBy\": \"72057594037928174\", \"name\": \"AWS\", \"enabled\": true, \"location\": \"Oregon City, OR 97045, USA\", \"cityCountry\": \"Oregon City, US\", \"countryCode\": \"US\", \"siemConnectorGroup\": false } ] }, { \"modifiedTime\": \"1560279822\", \"creationTime\": \"1551291935\", \"modifiedBy\": \"72057615512764417\", \"id\": \"72057615512764418\", \"enabled\": true, \"name\": \"Server Group\", \"learningEnabled\": true, \"servers\": [ { \"id\": \"72057615512764604\", \"creationTime\": \"1612389365\", \"modifiedBy\": \"72057615512764603\", \"name\": \"TestApplicationServer\", \"address\": \"10.0.0.190\", \"enabled\": true, \"description\": \"string\", \"configSpace\": \"DEFAULT\" } ], \"applications\": [ { \"id\": \"72057615512764419\", \"name\": \"Internal Application\" } ], \"ipAnchored\": false, \"configSpace\": \"DEFAULT\", \"connectorGroups\": [ { \"id\": \"72057615512764449\", \"modifiedTime\": \"1610747816\", \"creationTime\": \"1560278889\", \"modifiedBy\": \"72057594037928174\", \"name\": \"Azure\", \"enabled\": true, \"location\": \"Oregon, USA\", \"cityCountry\": \"Brothers, US\", \"countryCode\": \"US\", \"siemConnectorGroup\": false } ] }, { \"creationTime\": \"1560983270\", \"modifiedBy\": \"72057615512764447\", \"id\": \"72057615512764473\", \"enabled\": true, \"name\": \"srvgrp1\", \"learningEnabled\": false, \"servers\": [ { \"id\": \"72057615512764472\", \"creationTime\": \"1560983093\", \"modifiedBy\": \"72057615512764447\", \"name\": \"srv1\", \"address\": \"10.0.3.7\", \"enabled\": true, \"configSpace\": \"DEFAULT\" }, { \"id\": \"72057615512764604\", \"creationTime\": \"1612389365\", \"modifiedBy\": \"72057615512764603\", \"name\": \"TestApplicationServer\", \"address\": \"10.0.0.190\", \"enabled\": true, \"description\": \"string\", \"configSpace\": \"DEFAULT\" } ], \"applications\": [ { \"id\": \"72057615512764474\", \"name\": \"app1\" }, { \"id\": \"72057615512764478\", \"name\": \"app2\" } ], \"ipAnchored\": false, \"configSpace\": \"DEFAULT\", \"connectorGroups\": [ { \"id\": \"72057615512764449\", \"modifiedTime\": \"1610747816\", \"creationTime\": \"1560278889\", \"modifiedBy\": \"72057594037928174\", \"name\": \"Azure\", \"enabled\": true, \"location\": \"Oregon, USA\", \"cityCountry\": \"Brothers, US\", \"countryCode\": \"US\", \"siemConnectorGroup\": false } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/serverGroup?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/serverGroup?page=1&pagesize=2."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"11\", \"list\": [ { \"modifiedTime\": \"1584421166\", \"creationTime\": \"1492592504\", \"modifiedBy\": \"144118148382064930\", \"id\": \"144118148382064812\", \"enabled\": true, \"name\": \"161_sg\", \"description\": \"DESC - u\", \"servers\": [ { \"id\": \"144118148382064811\", \"modifiedTime\": \"1498248533\", \"creationTime\": \"1492592483\", \"modifiedBy\": \"144118148382064667\", \"name\": \"Server_161\", \"address\": \"10.66.62.243\", \"enabled\": true, \"description\": \"DESC\", \"configSpace\": \"DEFAULT\" } ], \"ipAnchored\": false, \"configSpace\": \"DEFAULT\", \"dynamicDiscovery\": false, \"appConnectorGroups\": [ { \"id\": \"144118148382064739\", \"creationTime\": \"1471333758\", \"modifiedBy\": \"144118148382064667\", \"name\": \"New_Connector\", \"enabled\": true, \"description\": \"desc\", \"overrideVersionProfile\": false, \"dnsQueryType\": \"IPV4_IPV6\", \"lssAppConnectorGroup\": false } ] }, { \"creationTime\": \"1549613557\", \"modifiedBy\": \"144118148382064667\", \"id\": \"144118148382065088\", \"enabled\": true, \"name\": \"akk\", \"servers\": [ { \"id\": \"144118148382065089\", \"creationTime\": \"1549613557\", \"modifiedBy\": \"144118148382064667\", \"name\": \"akk\", \"address\": \"10.65.1.220\", \"enabled\": true, \"configSpace\": \"DEFAULT\" } ], \"ipAnchored\": false, \"configSpace\": \"DEFAULT\", \"dynamicDiscovery\": false, \"appConnectorGroups\": [ { \"id\": \"144118148382064835\", \"modifiedTime\": \"1611094156\", \"creationTime\": \"1499715985\", \"modifiedBy\": \"72057594037928187\", \"name\": \"Azure Connectors\", \"enabled\": true, \"versionProfileId\": \"72057594037928267\", \"overrideVersionProfile\": true, \"location\": \"California, USA\", \"dnsQueryType\": \"IPV4_IPV6\", \"cityCountry\": \"Sanger, US\", \"countryCode\": \"US\", \"lssAppConnectorGroup\": false } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to search by features and fields. To search by features and fields:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/73186051597795328/serverGroup&search={searchString}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format fieldName operator fieldValue. Only search string values that correspond to the values for valid fields and filters are supported. For example, the string name%20LIKE%20test is supported for the Name filter, using the Contains (LIKE) operator, for the filter value test.",
+      "depth": 0,
+      "strong": [
+        [
+          266,
+          270
+        ],
+        [
+          289,
+          297
+        ]
+      ]
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/73186051597795328/serverGroup&search=name%20LIKE%20test."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"16\", \"totalCount\": \"16\", \"list\": [ { \"creationTime\": \"1657606560\", \"modifiedBy\": \"72057594038606761\", \"id\": \"72057594038606770\", \"enabled\": true, \"name\": \"test-group1\", \"description\": \"Testing\", \"applications\": [ { \"id\": \"72057594038606771\", \"name\": \"test-segment\" } ], \"ipAnchored\": false, \"configSpace\": \"DEFAULT\", \"microtenantName\": \"Default\", \"dynamicDiscovery\": true, \"appConnectorGroups\": [ { \"id\": \"72057594038011105\", \"modifiedTime\": \"1664486317\", \"creationTime\": \"1620326590\", \"modifiedBy\": \"72057594037982266\", \"name\": \"App_Connector_Test_1\", \"enabled\": true, \"versionProfileId\": \"0\", \"overrideVersionProfile\": false, \"location\": \"1234 Test Rd, Bronx, NY 10466, USA\", \"dnsQueryType\": \"IPV4_IPV6\", \"cityCountry\": \"New York, US\", \"countryCode\": \"US\", \"tcpQuickAckApp\": false, \"tcpQuickAckAssistant\": false, \"tcpQuickAckReadAssistant\": false, \"ipAcl\": [ \"::/0\" ], \"lssAppConnectorGroup\": false } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If you use the ZPA API Portal or the Reference Guide to make your API calls, the search field string does not require any characters. For example, name%20LIKE%20test is name LIKE test."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating Server Group Details",
+      "level": 1
+    },
+    {
+      "text": "To update the server group details:"
+    },
+    {
+      "item": "Use the updated JSON payload from the Creating a New Server Group section and send a PUT request to the following endpoint in the server-group-controller: /mgmtconfig/v1/admin/customers/{customerId}/serverGroup/{groupId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/serverGroup/72057615512764618."
+    },
+    {
+      "item": "Provide the required details:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "name: The name of the Server Group.",
+      "depth": 0
+    },
+    {
+      "item": "enabled: Indicates the status of the Server Group is enabled (true) or disabled (false).",
+      "depth": 0
+    },
+    {
+      "item": "dynamicDiscovery: This field controls dynamic discovery of the servers.",
+      "depth": 0
+    },
+    {
+      "item": "Information about the associated App Connector Groups.",
+      "depth": 0
+    },
+    {
+      "item": "Provide the associated server list only when the auto-server-discovery is disabled (i.e., learningEnabled is false)",
+      "depth": 1
+    },
+    {
+      "text": "Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "groupId: The ID of the server group captured in the Creating a New Server Group section.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/serverGroup/72057615512764618."
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"dynamicDiscovery\":false, \"name\":\"<serverGroupName>\", \"description\":\"desc\", \"servers\":[ { \"id\":\"<serverId1>\" }, { \"id\":\"<serverId2>\" } ], \"appConnectorGroups\":[ { \"id\":\"<appConnectorGroupId1>\" }, { \"id\":\"<appConnectorGroupId2>\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the server group is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "If a server group is configured using Zscaler Deception, then the update and delete options are unavailable."
+    },
+    {
+      "heading": "Deleting a Server Group",
+      "level": 1
+    },
+    {
+      "text": "To delete a server group:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint in the server-group-controller: /mgmtconfig/v1/admin/customers/{customerId}/serverGroup/{groupId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "groupId: The ID of the server group captured in the Creating a New Server Group section.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/serverGroup/72057615512764618."
+    },
+    {
+      "text": "An object that is referenced in another object cannot be deleted. Error code 400 is returned in this situation."
+    },
+    {
+      "item": "View error code 400",
+      "depth": 0
+    },
+    {
+      "item": "{ \"params\": [ \"Application\", \"app 3 created on postman feb 5_edited\" ], \"id\": \"resource.referenced\", \"reason\": \"Resource is being referenced in Application : app 3 created on postman feb 5_edited.\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the application server group is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "If a server group is configured using Zscaler Deception, then the update and delete options are unavailable."
+    }
+  ]
+}

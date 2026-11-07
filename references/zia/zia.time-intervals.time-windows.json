@@ -1,0 +1,372 @@
+{
+  "schema_version": 1,
+  "id": "zia.time-intervals.time-windows",
+  "title": "Time windows versus time intervals",
+  "aliases": [
+    "timeWindows endpoint",
+    "firewall time window data source",
+    "zia_firewall_filtering_time_window",
+    "Work hours Weekends Off hours",
+    "predefined time interval",
+    "terraform time interval resource"
+  ],
+  "binds": [
+    "zia/time-windows",
+    "zia/time-intervals"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/time-windows"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/time-intervals"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.schema"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.rule-usage"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZIA has two schedule objects with nearly the same shape. Time intervals are the ones an admin creates, in [[zia.time-intervals.schema]]. The time window catalog is a second, separate list. {{catalog-endpoints}} {{read-only}}"
+    },
+    {
+      "text": "{{day-key-singular}}"
+    },
+    {
+      "label": "Terraform.",
+      "text": "{{tf-data-source}} The docs give other types for its outputs {{divergence:tf-data-source-types}}. {{no-managed-resource}} Whether that is intentional is open {{gap:terraform-resource-intent}}. Whether the catalog's predefined names also exist among intervals is open {{gap:predefined-intervals}}. {{tf-examples-use-time-window-catalog}} Which of the two objects the other rule types' `timeWindows` entry accepts is open {{gap:rule-field-references}}; see [[zia.time-intervals.rule-usage]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the catalog's predefined names, such as Work hours, appear in a live list of intervals.",
+      "uses": [
+        "predefined-intervals"
+      ]
+    }
+  ],
+  "claims": {
+    "catalog-endpoints": {
+      "statement": "`GET /timeWindows` and `GET /timeWindows/lite` list the time intervals used by the Firewall policy or the URL Filtering policy; they are separate from `/timeIntervals`.",
+      "tier": "A",
+      "binds": [
+        "zia/time-windows"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeWindows/get",
+          "expect": {
+            "operationId": "Time Window Resource Get Time Windows",
+            "tags": [
+              "Firewall Policies",
+              "URL Filtering Policy"
+            ],
+            "description": "<p>Gets a list of <a href=\"https://help.zscaler.com/zia/defining-time-intervals\" target=\"_blank\">time intervals</a> used for by the Firewall policy or the URL Filtering policy.</p>\n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeWindows~1lite/get",
+          "expect": {
+            "tags": [
+              "Firewall Policies",
+              "URL Filtering Policy"
+            ],
+            "description": "<p>Gets a name and ID dictionary of <a href=\"https://help.zscaler.com/zia/defining-time-intervals\" target=\"_blank\">time intervals</a> used by the Firewall policy or the URL Filtering policy.</p> \n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/get",
+          "expect": {
+            "operationId": "Time Interval Resource Get Time Interval"
+          }
+        }
+      ]
+    },
+    "read-only": {
+      "statement": "The time window catalog is read-only in the API specification: both paths expose only GET.",
+      "tier": "B",
+      "derived_from": [
+        "catalog-endpoints"
+      ],
+      "conditions": "Absence of any other method on the two paths in the captured OpenAPI document."
+    },
+    "day-key-singular": {
+      "statement": "A time window names its days in `dayOfWeek` (singular), where a time interval uses `daysOfWeek`; the other four fields match.",
+      "tier": "A",
+      "binds": [
+        "zia/time-windows#dayOfWeek"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeWindows/get/responses/200/content/application~1json/schema/items/properties/dayOfWeek",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/cloud_firewall_time_windows.py",
+          "quotes": [
+            "\"dayOfWeek\": self.days_of_week,"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeWindows/get/responses/200/content/application~1json/schema/items/properties",
+          "expect": {
+            "id": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "startTime": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "endTime": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          "expect_absent": [
+            "daysOfWeek"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "dayOfWeek"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/daysOfWeek",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/id",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/name",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/startTime",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/endTime",
+          "expect": {
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "tf-data-source": {
+      "statement": "The Terraform provider exposes the catalog as the data source `zia_firewall_filtering_time_window`, looked up by `id` or `name` (documented examples: Work hours, Weekends, Off hours). Its schema returns `start_time` and `end_time` as integers and `day_of_week` as a list of strings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "\"zia_firewall_filtering_time_window\": dataSourceFWTimeWindow(),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_fw_filtering_time_window.go",
+          "quotes": [
+            "\"id\": { Type: schema.TypeInt, Computed: true, Optional: true, },",
+            "\"name\": { Type: schema.TypeString, Optional: true, },",
+            "\"start_time\": { Type: schema.TypeInt, Computed: true, },",
+            "\"end_time\": { Type: schema.TypeInt, Computed: true, },",
+            "\"day_of_week\": { Type: schema.TypeList, Elem: &schema.Schema{Type: schema.TypeString},"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_firewall_filtering_time_window.md",
+          "quotes": [
+            "name = \"Work hours\"",
+            "name = \"Weekends\"",
+            "name = \"Off hours\""
+          ]
+        }
+      ],
+      "conditions": "Statement changed from \"returning start_time, end_time and day_of_week as strings\": that is the docs; the schema types the times as TypeInt and day_of_week as a list of strings, so the claim now states the schema and the docs' types are the tf-data-source-types divergence. Lookup by id added from the schema."
+    },
+    "no-managed-resource": {
+      "statement": "The Terraform provider has no managed resource or data source for user-created time intervals; only the time window data source exists in the documentation.",
+      "tier": "B",
+      "derived_from": [
+        "tf-data-source"
+      ],
+      "conditions": "Absence: the provider docs directories at the pin contain no time interval resource or data source page."
+    },
+    "tf-examples-use-time-window-catalog": {
+      "statement": "In the Terraform provider's examples, the Firewall Filtering, Firewall DNS, Firewall IPS, Forwarding Control and Traffic Capture rules fill their time windows with the id of the `zia_firewall_filtering_time_window` data source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_filtering_rule.md",
+          "quotes": [
+            "id = [data.zia_firewall_filtering_time_window.work_hours.id]"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_dns_rule.md",
+          "quotes": [
+            "id = [data.zia_firewall_filtering_time_window.work_hours.id]"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_ips_rule.md",
+          "quotes": [
+            "id = [data.zia_firewall_filtering_time_window.work_hours.id]"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_rule.md",
+          "quotes": [
+            "id = [data.zia_firewall_filtering_time_window.work_hours.id]"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_traffic_capture_rules.md",
+          "quotes": [
+            "id = [data.zia_firewall_filtering_time_window.work_hours.id]"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "terraform-resource-intent": {
+      "kind": "semantic",
+      "title": "Whether a Terraform time interval resource is planned or deliberately excluded",
+      "status": "open",
+      "former_ids": [
+        "zia-23"
+      ],
+      "detail": "The provider has no resource for `/timeIntervals`; whether that is planned, excluded on purpose, or available only through the API and SDKs is not stated in the provider source. The provider changelog or issue tracker may say.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "about": [
+        "zia.time-intervals.time-windows:no-managed-resource"
+      ]
+    },
+    "predefined-intervals": {
+      "kind": "data",
+      "title": "Whether predefined objects such as Work hours also exist in /timeIntervals",
+      "status": "open",
+      "former_ids": [
+        "zia-25"
+      ],
+      "detail": "The Terraform data source documents Work hours, Weekends and Off hours as names in the time window catalog. Whether the same predefined objects also appear in the `/timeIntervals` list, or that endpoint is entirely user-managed, is not shown. A list on a clean tenant answers it.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia time-intervals list",
+      "about": [
+        "zia.time-intervals.time-windows:catalog-endpoints"
+      ]
+    },
+    "rule-field-references": {
+      "kind": "semantic",
+      "title": "Which object a rule's timeWindows entry references: an interval or a window",
+      "status": "partial",
+      "detail": "Unverified legacy statement: the shared `timeWindows` field \"accepts a list of {id, name} references to either Time Interval or Firewall Time Window objects depending on the rule type\". The Terraform examples show which catalog five rule types use (claim tf-examples-use-time-window-catalog); for URL Filtering, SSL Inspection, Cloud App Control, DLP, File Type Control, Bandwidth Control and the other rule types no source says which catalog supplies the ID.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  },
+  "divergences": {
+    "tf-data-source-types": {
+      "summary": "The time window data source docs type start_time, end_time and day_of_week as strings and name as required; the schema types the times as integers, day_of_week as a list of strings, and name as optional.",
+      "positions": [
+        {
+          "says": "The docs list name as required and start_time, end_time and day_of_week as strings.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/data-sources/zia_firewall_filtering_time_window.md",
+            "quotes": [
+              "* `name` - (Required) The name of the time window to be exported.",
+              "* `start_time` - (String)",
+              "* `end_time` - (String)",
+              "* `day_of_week` - (String). The supported values are:"
+            ]
+          }
+        },
+        {
+          "says": "The schema declares name optional, start_time and end_time as TypeInt, and day_of_week as a list of strings.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/data_source_zia_fw_filtering_time_window.go",
+            "quotes": [
+              "\"name\": { Type: schema.TypeString, Optional: true, },",
+              "\"start_time\": { Type: schema.TypeInt, Computed: true, },",
+              "\"end_time\": { Type: schema.TypeInt, Computed: true, },",
+              "\"day_of_week\": { Type: schema.TypeList, Elem: &schema.Schema{Type: schema.TypeString},"
+            ]
+          }
+        }
+      ],
+      "impact": "Expressions that treat day_of_week as one string (for example string functions on it) fail type checks, and start_time and end_time come back as numbers; write configurations against the schema types."
+    }
+  }
+}

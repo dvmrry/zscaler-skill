@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.gcp.troubleshooting",
+  "title": "Troubleshooting Cloud Connector on GCP: not registering, inactive, routing by network tags, private apps and IP forwarding",
+  "aliases": [
+    "gcp cloud connector troubleshooting",
+    "cloud connector gcp not in console",
+    "cloud connector gcp inactive",
+    "cloud connector gcp wrong geolocation",
+    "pkg update cloud connector gcp",
+    "userdata.cfg cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.hashicorp-vault"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This is the GCP counterpart of [[cloud-connector.aws.troubleshooting]]; the deployment it troubleshoots is in [[cloud-connector.gcp]]. {{not-in-console}}"
+    },
+    {
+      "label": "Deployment and registration.",
+      "text": "{{vpc-limit}} {{login-fails}} {{ssh-keys}}"
+    },
+    {
+      "label": "Inactive or misplaced connectors.",
+      "text": "{{inactive}} {{wrong-geolocation}}"
+    },
+    {
+      "label": "Workload traffic.",
+      "text": "{{routing-tags}} {{private-apps}} {{ip-forwarding}} {{traffic-not-restored}}"
+    },
+    {
+      "label": "Vault credentials.",
+      "text": "Credentials kept in HashiCorp Vault have their own troubleshooting table in [[cloud-connector.gcp.hashicorp-vault]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a connector missing from the console, whether the user data, provisioning URL format, Secret Manager Secret Accessor role and package repository reachability are in order.",
+      "uses": [
+        "not-in-console"
+      ]
+    },
+    {
+      "do": "For an inactive connector, whether Secret Manager holds the current credentials after a rotation and whether routes, Cloud NAT, DNS and firewall rules allow TCP/UDP 443.",
+      "uses": [
+        "inactive"
+      ]
+    },
+    {
+      "do": "Whether IP forwarding is enabled on the service interface and the network tags put workloads and connectors on the correct default route.",
+      "uses": [
+        "ip-forwarding",
+        "routing-tags"
+      ]
+    },
+    {
+      "do": "For private application failures, whether the Terraform Private Access endpoint parameters and application name match the GCP Cloud DNS forwarding configuration.",
+      "uses": [
+        "private-apps"
+      ]
+    }
+  ],
+  "claims": {
+    "not-in-console": {
+      "statement": "For a deployed Cloud Connector missing from the console, the checks include verifying the user data (in GCP Secret Manager or in /etc/cloud/cloud.cfg.d/userdata.cfg on the appliance), that the provisioning URL has the correct format with no spaces, that the service account the Cloud Connector uses has the Secret Manager Secret Accessor role, and that sudo pkg update works to confirm the package repository is reachable and certificates are valid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "You can verify user data by reviewing the GCP Secret Manager, or by reviewing the User Data file located on the appliance here: /etc/cloud/cloud.cfg.d/userdata.cfg",
+            "Verify that the provisioning URL is in the correct format and there are no spaces.",
+            "Also, ensure that the service account that the Cloud Connector is using has the Secret Manager Secret Accessor role assigned to it.",
+            "Verify that you can do a package update to confirm that the package repository is reachable and certificates are valid. Run the sudo pkg update command."
+          ]
+        }
+      ]
+    },
+    "vpc-limit": {
+      "statement": "When the Terraform script fails to create a VPC in a greenfield deployment, the troubleshooting table says to check whether the user has surpassed the VPC creation limit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "| Terraform script fails to create a virtual private cloud (VPC) in a greenfield deployment. | Check whether the user has surpassed the VPC creation limit."
+          ]
+        }
+      ]
+    },
+    "wrong-geolocation": {
+      "statement": "When a Cloud Connector shows the wrong geolocation in the Zscaler Admin Console, the troubleshooting table says to verify that the outbound NAT and routing take the appropriate egress path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "| Cloud Connector is in the wrong geolocation in the Zscaler Admin Console. | Verify that the outbound NAT and routing take the appropriate egress path."
+          ]
+        }
+      ]
+    },
+    "inactive": {
+      "statement": "For an inactive Cloud Connector, the checks include that GCP Secret Manager has the correct secret credentials in case of a secrets rotation, that the network is connected (route tables, Cloud NAT and DNS), and that the firewall rule is not blocking the Cloud Connector TCP/UDP 443 traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "GCP Secret Manager has the correct secret credentials in case of a secrets rotation.",
+            "The network is connected. Verify the route tables, Cloud NAT, and DNS. The firewall rule is not blocking the Cloud Connector TCP/UDP 443 traffic."
+          ]
+        }
+      ]
+    },
+    "login-fails": {
+      "statement": "For console sign-in failures, the troubleshooting table says to contact Zscaler Support when the Cloud Connector SKUs are not enabled, and when authentication failed to verify that the username and all credentials are valid and confirm in the Admin Console that the admin exists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-google-cloud-platform.json",
+          "after": "- Unable to log in to the Zscaler Admin Console",
+          "quotes": [
+            "| Cloud Connector SKUs not enabled. | Contact Zscaler Support. |",
+            "| Authentication failed. | Verify that the username and all credentials are valid. In the Zscaler Admin Console, confirm that the admin exists. |"
+          ]
+        }
+      ]
+    },
+    "routing-tags": {
+      "statement": "For internet access failures, the ingress and egress checks include reviewing network tags, depending on the architecture chosen, so that workloads and Cloud Connectors use the correct default route.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-google-cloud-platform.json",
+          "after": "- Workloads unable to access internet applications",
+          "quotes": [
+            "Depending on the architecture chosen, review network tags to ensure that workloads are using the correct default route.",
+            "Depending on the architecture chosen, review network tags to ensure that the Cloud Connectors are using the correct default route."
+          ]
+        }
+      ]
+    },
+    "private-apps": {
+      "statement": "For private application failures, the checks include that the Terraform template's Private Access endpoint parameters (specifically the GCP Cloud DNS forwarding rules) are accurate, that the application name matches the GCP Cloud DNS forwarding configuration, and, when FQDN-based Private Access App Segments are in use, that DNS is passing through the Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "The parameters in the Terraform template that pertain to the Private Access endpoints are accurate (specifically, the GCP Cloud DNS forwarding rules).",
+            "The application name matches the GCP Cloud DNS forwarding configuration.",
+            "If FQDN-based Private Access App Segments are in use, verify that DNS is passing through the Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "ip-forwarding": {
+      "statement": "IP forwarding must be enabled on the Cloud Connector service interface to avoid connectivity disruptions and/or unreachable destinations; it is enabled by default on the service NIC with the Zscaler Terraform deployment script.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "To avoid connectivity disruptions and/or unreachable destinations, IP forwarding must be enabled on the Cloud Connector service interface.",
+            "The IP Forwarding setting is enabled by default on the service NIC of the Cloud Connector with the Zscaler Terraform deployment script."
+          ]
+        }
+      ]
+    },
+    "ssh-keys": {
+      "statement": "The troubleshooting page says to configure SSH keys exclusively using Terraform during deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "Configure SSH keys exclusively using Terraform during deployment."
+          ]
+        }
+      ]
+    },
+    "traffic-not-restored": {
+      "statement": "When traffic is not restored after a Cloud Connector failure, the checks include that the Cloud Connector instance is healthy in the GCP Load Balancing console and that the backup instance is in good health with the high-availability model.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "In the Load Balancing console of GCP, the Cloud Connector instance is healthy.",
+            "The Cloud Connector backup instance is in good health with the high-availability model."
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -40,20 +40,22 @@ A stage line:
 Treat the context window as a shared runtime resource. Load the smallest
 artifact that can answer the current question, then stop.
 
-1. **Route, then read.** Use workflow metadata, the capability registry, or a
-   short `rg` search to choose a source. Do not open broad product folders,
-   `references/_meta/clarifications.md`, runbooks, or vendor trees before a
-   concrete question points there.
-2. **Prefer indexes before bodies.** Load `agents/**/grounding/index.md`,
-   `references/<product>/index.md`, or a source viewer index before child
-   cards. Read a child card only when the index names it as relevant.
-3. **Search long ledgers, don't page them in.** For
-   `references/_meta/clarifications.md`, search by product prefix and keyword
-   first, for example `rg -n "^(### )?(zia|shared)-|ucTemplateId|urlCategories2"
-   references/_meta/clarifications.md`, then read the small matching section.
-   Always include the `shared-` prefix alongside the product one — cross-product
-   clarifications (37 entries) live under `shared-`, not under each product, so a
-   product-only grep silently misses them.
+1. **Route, then read.** For Zscaler knowledge, follow `SKILL.md` "Using the
+   knowledge graph": pick areas from the spine (`references/_meta/spine/<product>.json`,
+   then `<product>/<area>.json`), then read them with
+   `node scripts/kb.mjs read <area | subject | type | field> ...` in one call. For
+   anything else, use workflow metadata, the capability registry, or a short
+   `rg` search to choose a source. Do not open product folders, runbooks, or
+   vendor trees before a concrete question points there.
+2. **Prefer indexes before bodies.** The spine is the graph's index: an area
+   lists its subjects with their opening facts and sizes, and an area too large
+   to read whole reads as its hub and an index of its subjects. Load
+   `agents/**/grounding/index.md` or a source viewer index before child cards.
+   Read a child only when the index names it as relevant.
+3. **Read, don't page in.** `read` prints a subject's claims, gaps and
+   divergences with citable IDs and follows one hop of links; old clarification
+   IDs (`zia-02`) read as their subjects. `resolve` gives the same knowledge as
+   JSON for scripts. Do not read or grep the graph's JSON files to answer.
 4. **Default search exclusions.** Broad searches should exclude local runtime
    copies and generated/stale workspaces: `--glob '!.claude/worktrees/**'`.
    Exclude raw vendor source under `vendor/**` unless the current workflow
@@ -62,34 +64,36 @@ artifact that can answer the current question, then stop.
    (the captured API contract, divergences, rosetta, and the `issue-routing`
    worklist) is reference-grade reconciliation data, not raw vendor source —
    search it like `references/**`, not like a vendor tree.
-5. **Treat `_data/` as scoped evidence, not reference background.** Search
-   `_data/snapshot/`, `_data/cases/`, or `_data/iac/` only when the question is
-   tenant-specific, case-specific, or deployment-specific. Operational knowledge
+5. **Treat `_data/` as scoped evidence, not reference background.** Open the
+   IaC files `read` locates (its "IaC repos" header and each company record's
+   IaC lines), search `_data/cases/`, or run the read-only `zscalerctl` command
+   a type names, only when the question is tenant-specific, case-specific, or
+   deployment-specific. Company records arrive through `read`; do not search
+   the overlay's record files. Operational knowledge
    follows the narrower v1 rule below.
-6. **One-pass answer budget.** For ad-hoc Q&A, aim for one primary reference
-   plus one clarification check. Add more only when the user asks for a
-   comparison, conflict, or cross-product behavior.
+6. **One-pass answer budget.** For ad-hoc Q&A, aim for one `read` call with the
+   areas and subjects the question turns on, plus one follow-up read for a
+   subject it names. Add more only when the user asks for a comparison,
+   conflict, or cross-product behavior.
 7. **Record what mattered.** Procedural roles with artifacts should record the
    files actually used, not every file considered. Rejected broad searches do
    not belong in evidence ledgers.
 
 ### Operational knowledge (v1)
 
-Ad-hoc Q&A and the investigator may perform a bounded read of operational
-knowledge under `<mount>/knowledge/`: search only product directories matching
-the question plus `shared/`, inspect frontmatter first, and load bodies only for
-relevant `active` records. Follow
-[`docs/data-contract/knowledge.md`](../docs/data-contract/knowledge.md) for the
-schema, applicability rules, and required answer-time disclosures.
+Company knowledge arrives through the resolver: with an overlay configured,
+`node scripts/kb.mjs resolve` merges its active records into each bundle as
+`layer: company` facets, so no workflow reads the overlay's files to find them.
+Follow [`docs/data-contract/knowledge.md`](../docs/data-contract/knowledge.md)
+for the answer-time disclosures. With no overlay, or no facets, a bundle carries
+none. An overlay that cannot be opened, or whose `overlay.json` is invalid, is
+dropped with a warning (`read` also says so on stdout), and an invalid record is
+skipped with one; `scripts/check-data-contract.mjs` reports what is wrong.
 
-Missing runtime data, a missing `knowledge/` directory, or zero matches is
-silent. Do not warn, diagnose, or broaden the search. A malformed record is
-different: skip it and preserve an invalid-record diagnostic where the workflow
-has diagnostics or artifacts.
-
-This permission does not extend to architect, SOC, or retro in v1. Researcher
-and auditor have a hard exclusion and must never load `knowledge/`, including
-when a broad search or user-supplied scope would otherwise include it.
+Researcher and auditor have a hard exclusion: their output is upstream-bound, so
+they resolve with `--no-overlay` and never load the overlay or the retired
+`<mount>/knowledge/`, including when a broad search or user-supplied scope would
+otherwise include them.
 
 **Safety boundaries are not budgeted.** A doc that prevents a harmful action —
 `agents/siem-emission-discipline.md` (tenant-data / SIEM emission rules) — is a
@@ -108,8 +112,8 @@ Pick the most specific stage that fits. Capitalize only the first word. Backtick
 | Stage              | Use when                                                  | Example                                                          |
 |--------------------|-----------------------------------------------------------|------------------------------------------------------------------|
 | `locating source`  | Deciding which file/dir to read; pre-load orientation     | `Locating source for ZIA URL filtering precedence.`              |
-| `reading <path>`   | About to load a specific file                              | `Reading references/zia/url-filtering.md.`                       |
-| `searching <dir>`  | About to grep / rglob a directory tree                     | `Searching _data/snapshot/zs2/policies/ for matching rules.`     |
+| `reading <path>`   | About to load a specific file                              | `Reading kb:zia.url-filtering.`                       |
+| `searching <dir>`  | About to grep / rglob a directory tree                     | `Searching _data/iac/zia/ for matching rules.`        |
 | `querying <name>`  | Dispatched a SIEM / API call                              | `Querying Splunk for connector availability metrics.`            |
 | `checking citations` | Verifying claim-to-source pairing after reads complete   | `Checking citations against 3 loaded references.`                |
 | `composing answer` | Synthesis stage after all reads complete                   | `Composing answer from 3 loaded sources.`                        |
@@ -153,8 +157,8 @@ Do not announce before:
 - ✗ `Reading the URL filtering file…` — too vague; cite the path.
 - ✗ `Just a moment please…` — content-free; no signal about what's happening.
 - ✗ `Reading…<long pause>…done` — heartbeat-style; one line, no continuation.
-- ✓ `Reading references/zia/url-filtering.md.`
-- ✓ `Searching _data/snapshot/zs2/policies/ for SSL bypasses.`
+- ✓ `Reading kb:zia.url-filtering.`
+- ✓ `Searching _data/iac/zia/ for SSL bypasses.`
 - ✓ `Querying Splunk for connector_id="abc-123" last 24h.`
 - ✓ `Composing answer from 3 loaded sources.`
 - ✓ `Waiting for user — Checkpoint 2.` (procedural only)

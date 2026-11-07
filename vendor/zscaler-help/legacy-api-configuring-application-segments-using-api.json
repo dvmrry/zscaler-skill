@@ -1,0 +1,5752 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Application Segments Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-application-segments-using-api",
+    "node": "1484781",
+    "revision": "3164273",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information for managing Zscaler Private Access (ZPA) application segments using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Calls",
+      "level": 1
+    },
+    {
+      "text": "Before you create an application segment, enable or disable AppProtection on an existing application segment, or enable AppProtection on a new application segment, you must get the following required details:"
+    },
+    {
+      "item": "Details of all application segments. To learn more, see Getting Details of All Application Segments.",
+      "depth": 0
+    },
+    {
+      "item": "Segment group IDs. To learn more, see Configuring Segment Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Server Group IDs. To learn more, see Configuring Server Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Certificate ID. To learn more, see Configuring Certificates Using API.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating an Application Segment",
+      "level": 1
+    },
+    {
+      "text": "To create an application segment:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/application",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the entire JSON payload to create an application segment and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The name of the application segment",
+      "depth": 0
+    },
+    {
+      "item": "The domains of the application. To learn more, see Adding Field Descriptions.",
+      "depth": 0
+    },
+    {
+      "item": "The TCP and UDP ports. You can provide multiple port ranges using the format in the entire JSON payload. To learn more, see Adding Field Descriptions.",
+      "depth": 0
+    },
+    {
+      "item": "Other details like the segment group and server group IDs",
+      "depth": 0
+    },
+    {
+      "item": "View the entire JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"autoAppProtectEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassOnReauth\":\"false\",",
+      "depth": 0
+    },
+    {
+      "item": "\"inspectTrafficWithZia\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"ALWAYS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"clientlessApps\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"allowOptions\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"appId\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationPort\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationProtocol\":\"HTTP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateId\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateName\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"cname\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"hidden\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"path\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"trustUntrustedCert\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":\"true\",",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultIdleTimeout\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultMaxAge\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"string\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"selectConnectorCloseToApp\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"learningEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"string\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"fromPort1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"toPort1\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"fromPort2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"toPort2\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"fromPort1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"toPort1\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"fromPort2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"toPort2\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "View the minimum criteria JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":\"true\",",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"fromPort1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"toPort1\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"domainName or IpAddress\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"<segmentGroupId>\",",
+      "depth": 0
+    },
+    {
+      "item": "\"selectConnectorCloseToApp\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"<serverGroupId>\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "View the example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038648257\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Test Example\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"exampletest.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"335\",",
+      "depth": 0
+    },
+    {
+      "item": "\"335\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"445\",",
+      "depth": 0
+    },
+    {
+      "item": "\"445\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroup\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038071913\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"123\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpKeepAliveEnabled\":\"0\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroupDTOs\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1646056922\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1612438082\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038052745\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594037988579\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantName\":\"Default\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"1234\",",
+      "depth": 0
+    },
+    {
+      "item": "\"learningEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"/><img src=x onerror=alert(document.cookie)>\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ConnectorGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594037962495\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"yo111\",",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"siemConnectorGroup\":false",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038010497\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Abcdefg12\",",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"siemConnectorGroup\":false",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038011104\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"App_Connector_Test\",",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"siemConnectorGroup\":false",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038011105\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"App_Connector_Test_1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"siemConnectorGroup\":false",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038011107\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"App_Connector_Test_10_ITER1_PRA_ENABLED\",",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"siemConnectorGroup\":false",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"restrictedEntity\":false",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"icmpAccessType\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"autoAppProtectEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassOnReauth\":\"false\",",
+      "depth": 0
+    },
+    {
+      "item": "\"inspectTrafficWithZia\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"cnameConfig\":\"NOFLATTEN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"commonAppsDto\":{",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpKeepAlive\":\"0\",",
+      "depth": 0
+    },
+    {
+      "item": "\"selectConnectorCloseToApp\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "An error is returned if Inspect Traffic with ZIA is not enabled on your tenant and InspectTrafficWithZia is passed as enabled when making a POST or PUT request. The following is an example error:",
+      "strong": [
+        [
+          24,
+          48
+        ]
+      ]
+    },
+    {
+      "text": "{ \"params\":[ \"inspectTrafficWithZia\", \"testApplication, \"feature.application.inspect_traffic_with_zia\", \"72057594037927936\" ], \"id\":\"config.change.not.allowed.sku.not.enabled\", \"reason\":\"Cannot update config inspectTrafficWithZia of testApplication as this is managed by SKU feature.application.inspect_traffic_with_zia which is not enabled for customer 72057594037927936\" }"
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "You choose the application segment criteria you want to include in the JSON payload. You can also use the minimum criteria JSON payload to create an application segment. Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "heading": "Active Directory (AD) Protection Support",
+      "level": 2
+    },
+    {
+      "text": "To create an application segment and enable Active Directory Inspection:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/application",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the entire JSON payload to create an application segment and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The name of the application segment",
+      "depth": 0
+    },
+    {
+      "item": "The domains of the application",
+      "depth": 0
+    },
+    {
+      "item": "The TCP and UDP ports. You can provide multiple port ranges using the format in the entire JSON payload. To learn more, see the Adding Field Descriptions section.",
+      "depth": 0
+    },
+    {
+      "item": "Other details like the segment group and server group IDs",
+      "depth": 0
+    },
+    {
+      "item": "Set adpEnabled as true. This field is highlighted in the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "If adpEnabled is set to true, then autoAppProtectEnabled cannot be set to true for inspection by AppProtection. To learn more, see the Adding Field Descriptions section.",
+      "depth": 0
+    },
+    {
+      "item": "TCP and UDP protocols. These fields are highlighted in the JSON payload. To learn more, see the Adding Field Descriptions section.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"selectConnectorCloseToApp\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"icmpAccessType\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpKeepAlive\":\"0\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Example Application Segment\",",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"\",",
+      "depth": 0
+    },
+    {
+      "item": "\"adpEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"exampleApp.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"trustUntrustedCert\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowOptions\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"commonAppsDto\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"appsConfig\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"domainJson\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"showADInspectionToggle\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"viewId\":\"3814358737_2917168947\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isEmptyModel\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"exampleapp.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"exampleapp.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"protocols\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"LDAP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"SMB\",",
+      "depth": 0
+    },
+    {
+      "item": "\"KERBEROS\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationProtocol\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateId\":null,",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationPort\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"trustUntrustedCert\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowOptions\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"localDomain\":\"\",",
+      "depth": 0
+    },
+    {
+      "item": "\"adpEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"appTypes\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"INSPECT\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"443\",",
+      "depth": 0
+    },
+    {
+      "item": "\"443\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpProtocols\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"LDAP\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"334\",",
+      "depth": 0
+    },
+    {
+      "item": "\"334\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpProtocols\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"KERBEROS\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"exampleApp.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"hideDependencies\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroup\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpKeepAliveEnabled\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"skipDetailedAppInfo\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"segmentGroup\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Example Segment Group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"\",",
+      "depth": 0
+    },
+    {
+      "item": "\"applications\":[",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroupDTOs\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"learningEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"ServerGroup\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Example Server Group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"\",",
+      "depth": 0
+    },
+    {
+      "item": "\"servers\":[",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"ConnectorGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038010497\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Abcdefg12\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"learningEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"ServerGroup\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Example Server Group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"\",",
+      "depth": 0
+    },
+    {
+      "item": "\"servers\":[",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"ConnectorGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038010497\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Abcdefg12\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038668832\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Example Application Segment\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"exampleapp.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"443\",",
+      "depth": 0
+    },
+    {
+      "item": "\"443\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"334\",",
+      "depth": 0
+    },
+    {
+      "item": "\"334\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroup\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038668830\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1691079323\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1691079323\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038040687\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Example Segment Group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpKeepAliveEnabled\":\"0\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroupDTOs\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038668831\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Example Server Group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"learningEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"ConnectorGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038010497\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Abcdefg12\",",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"wafDisabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"siemConnectorGroup\":false",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"icmpAccessType\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassOnReauth\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"inspectTrafficWithZia\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"cnameConfig\":\"NOFLATTEN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"commonAppsDto\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"appsConfig\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"exampleapp.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationPort\":\"0\",",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationProtocol\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"exampleapp.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"hidden\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"portal\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"appId\":\"72057594038668832\",",
+      "depth": 0
+    },
+    {
+      "item": "\"trustUntrustedCert\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowOptions\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"appTypes\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"INSPECT\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"protocols\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"LDAP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"SMB\",",
+      "depth": 0
+    },
+    {
+      "item": "\"KERBEROS\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"adpEnabled\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpKeepAlive\":\"0\",",
+      "depth": 0
+    },
+    {
+      "item": "\"selectConnectorCloseToApp\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpProtocols\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"LDAP\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpProtocols\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"KERBEROS\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"adpEnabled\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "You choose the application segment criteria you want to include in the JSON payload. Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "heading": "AppProtection Support",
+      "level": 2
+    },
+    {
+      "text": "To create a new application segment and enable AppProtection on an application:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application"
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The name of the application segment",
+      "depth": 0
+    },
+    {
+      "item": "The domains of the application",
+      "depth": 0
+    },
+    {
+      "item": "The TCP and UDP ports",
+      "depth": 0
+    },
+    {
+      "item": "Other details like segment group and server group IDs",
+      "depth": 0
+    },
+    {
+      "item": "Ensure \"appTypes\": [\"INSPECT\"] and the other fields in \"commonAppsDto\" are included in the JSON payload. These fields are highlighted in red.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"string\", \"description\":\"string\", \"matchStyle\": \"EXCLUSIVE\", \"enabled\":true, \"healthReporting\":\"ON_ACCESS\", \"ipAnchored\":false, \"doubleEncrypt\":false, \"bypassType\":\"NEVER\", \"isCnameEnabled\":true, \"tcpPortRanges\":[ \"from\", \"to\" ], \"udpPortRanges\":[ \"from\", \"to\" ], \"domainNames\":[ \"domainName\" ], \"serverGroups\":[ { \"id\":\"<serverGroupId>\" } ], \"segmentGroupId\":\"<segmentGroupId>\", \"commonAppsDto\":{ \"appsConfig\":[ { \"name\":\"string\", \"domain\":\"<domainName>\", \"applicationProtocol\":\"HTTP\", \"applicationPort\":\"80\", \"appTypes\":[ \"INSPECT\" ], \"enabled\":true } ] } }",
+      "depth": 0
+    },
+    {
+      "item": "View the example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038079016\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"inspect.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"WAAP_Public_API_1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"WAAP Public API One\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038048851\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"dynamicDiscovery\":false",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"80\",",
+      "depth": 0
+    },
+    {
+      "item": "\"88\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"90\",",
+      "depth": 0
+    },
+    {
+      "item": "\"98\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"icmpAccessType\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"commonAppsDto\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"appsConfig\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"common_app\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationPort\":\"80\",",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationProtocol\":\"HTTP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"inspect.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"hidden\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"portal\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"appId\":\"72057594038079016\",",
+      "depth": 0
+    },
+    {
+      "item": "\"trustUntrustedCert\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowOptions\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"appTypes\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"INSPECT\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"72057594037988995\",",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "When creating an application segment with AppProtection enabled, the field matchStyle must be set to EXCLUSIVE. To learn more, see Adding Field Descriptions."
+    },
+    {
+      "heading": "Microtenant Support",
+      "level": 2
+    },
+    {
+      "text": "To move an application segment from one Microtenant to the Default Microtenant and vice versa:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/move.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "applicationId: The ID of the application.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/application/72057594038642786/move"
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "targetSegmentGroupId: The unique identifier of the target segment group that the application segment is being moved to.",
+      "depth": 0
+    },
+    {
+      "item": "targetMicroTenantId: The unique identifier of the Microtenant that the application segment is being moved to. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "item": "targetServerGroupId: The unique identifier of the target server group that the application segment is being moved to. To learn more, see Configuring Server Groups using API.",
+      "depth": 0
+    },
+    {
+      "text": "Browser Access on an application segment does not persist if the application segment is moved from the default Microtenant to another Microtenant. You must select the web server certificate after the application segment is moved."
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"targetSegmentGroupId\": <targetSegmentGroupId>, \"targetMicrotenantId\": <targetMicroTenantId>, \"targetServerGroupId\": <targetServerGroupId> }",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"targetMicrotenantId\":\"73201978410270733\", \"targetServerGroupId\":\"73201978410273451\", \"targetSegmentGroupId\":\"73201978410273450\" }",
+      "depth": 0
+    },
+    {
+      "text": "The pre- and post-configuration changes for any successful move operation can be viewed and downloaded in the Audit Logs."
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Privileged Remote Access Support",
+      "level": 2
+    },
+    {
+      "text": "To create a new application segment with Privileged Remote Access (PRA) enabled on an application:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/application",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Name of the application segment",
+      "depth": 1
+    },
+    {
+      "item": "Domains of the application",
+      "depth": 1
+    },
+    {
+      "item": "TCP and UDP ports",
+      "depth": 1
+    },
+    {
+      "item": "Segment Group ID",
+      "depth": 1
+    },
+    {
+      "item": "Server Group ID",
+      "depth": 1
+    },
+    {
+      "item": "Ensure \"appTypes\": [\"SECURE_REMOTE_ACCESS\"] and the other fields in \"commonAppsDto\" are included in the JSON payload.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"<NAME>\", \"commonAppsDto\":{ \"appsConfig\":[ { \"name\":\"<NAME>\", \"domain\":\"<DOMAIN_NAME>\", \"appTypes\":[ \"SECURE_REMOTE_ACCESS\" ], \"applicationPort\":\"3389\", \"applicationProtocol\":\"RDP\", \"connectionSecurity\":\"ANY\", \"enabled\":true } ] }, \"segmentGroup\":{ \"enabled\":true, \"tcpKeepAliveEnabled\":0, \"skipDetailedAppInfo\":false, \"name\":\"<Server Group Name>\", \"applications\":[ ] }, \"tcpPortRanges\":[ \"<port_from>\", \"<port_to>\" ], \"udpPortRanges\":[ \"<port_from>\", \"<port_to>\" ], \"domainNames\":[ \"<DOMAIN_NAME>\" ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"test-pra-app3\", \"commonAppsDto\":{ \"appsConfig\":[ { \"name\":\"testdomain3\", \"domain\":\"testdomain3\", \"appTypes\":[ \"SECURE_REMOTE_ACCESS\" ], \"applicationPort\":\"3389\", \"applicationProtocol\":\"RDP\", \"connectionSecurity\":\"ANY\", \"enabled\":true } ] }, \"applicationGroup\":{ \"enabled\":true, \"tcpKeepAliveEnabled\":0, \"skipDetailedAppInfo\":false, \"name\":\"Internal Application Group2\", \"applications\":[ ] }, \"tcpPortRanges\":[ \"3389\", \"3389\" ], \"udpPortRanges\":[ \"3389\", \"3389\" ], \"domainNames\":[ \"testdomain3\" ] }",
+      "depth": 0
+    },
+    {
+      "item": "View the example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"Sample app segment\", \"description\":\"sample app segment\", \"enabled\":true, \"healthReporting\":\"ON_ACCESS\", \"ipAnchored\":false, \"doubleEncrypt\":false, \"bypassType\":\"NEVER\", \"isCnameEnabled\":true, \"tcpPortRanges\":[ \"443\", \"443\" ], \"domainNames\":[ \"domain.com\" ], \"udpPortRanges\":[ ], \"segmentGroupId\":\"72057594038043583\", \"serverGroups\":[ { \"id\":\"72057594037988996\" } ], \"commonAppsDto\":{ \"appsConfig\":[ { \"name\":\"domain.com\", \"domain\":\"domain.com\", \"applicationProtocol\":\"HTTPS\", \"certificateId\":\"72057594038037594\", \"applicationPort\":\"443\", \"appTypes\":[ \"SECURE_REMOTE_ACCESS\" ], \"enabled\":true } ] } }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the application segment use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "Name of the application",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "Description of the application",
+          "No",
+          "String"
+        ],
+        [
+          "enabled",
+          "Whether this application is enabled or not",
+          "No",
+          "Default: false Supported values: true, false"
+        ],
+        [
+          "domainNames",
+          "List of domains and IP addresses. When creating or updating an application segment using the ZPA cloud service API, ZPA supports domains that contain asterisks (*) and question marks (?) within the prefix of top-level domains (i.e., TLD+1). To support the application pattern match, matchStyle must be set to INCLUSIVE (i.e., Multimatch must be enabled). To learn more, see Using Pattern Matching for Application Segments and Configuring Defined Application Segments.",
+          "Yes",
+          "List of string values"
+        ],
+        [
+          "configSpace",
+          "Whether the configuration is created as part of the SIEM or the application segment",
+          "No",
+          "Default: DEFAULT Supported values: DEFAULT SIEM"
+        ],
+        [
+          "healthReporting",
+          "Whether health reporting for the app is Continuous or On Access. If matchStyle is set to INCLUSIVE, then healthReporting must be set to either NONE or ON ACCESS. To learn more, see Understanding Health Reporting.",
+          "No",
+          "Supported values: NONE ON_ACCESS CONTINUOUS"
+        ],
+        [
+          "ipAnchored",
+          "Whether Source IP Anchoring for use with ZIA is enabled or disabled for the app. If ipAnchored is set to true, then matchStyle must be set to EXCLUSIVE.",
+          "No",
+          "Default: false Supported: true, false"
+        ],
+        [
+          "doubleEncrypt",
+          "Whether Double Encryption is enabled or disabled for the app. If doubleEncrypt is set to true, then matchStyle must be set to EXCLUSIVE.",
+          "No",
+          "Default: false Boolean: true, false"
+        ],
+        [
+          "isCnameEnabled",
+          "Indicates if Zscaler Client Connector receives CNAME DNS records from the connectors",
+          "No",
+          "Default: true Boolean: true, false"
+        ],
+        [
+          "icmpAccessType",
+          "Indicates the ICMP access type",
+          "No",
+          "Default: NONE Supported values: NONE PING_TRACEROUTING PING"
+        ],
+        [
+          "bypassType",
+          "Indicates whether users can bypass ZPA to access applications",
+          "No",
+          "Default: NEVER Supported values: ALWAYS NEVER ON_NET The value NEVER indicates the use of the client forwarding policy."
+        ],
+        [
+          "tcpPortRange",
+          "TCP port ranges used to access the app",
+          "No",
+          "List of valid TCP ports. The application segment API supports multiple TCP and UDP port ranges. The port ranges are in the format: \"tcpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" } ] For providing multiple ports, use the following format: \"tcpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" }, { \"from\":\"fromPort2\", \"to\":\"toPort2\" } ]]"
+        ],
+        [
+          "updPortRange",
+          "UDP port ranges used to access the app",
+          "No",
+          "List of valid UDP ports. The port ranges are in the format: \"udpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" } ] For providing multiple ports, use the following format: \"udpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" }, { \"from\":\"fromPort2\", \"to\":\"toPort2\" } ]"
+        ],
+        [
+          "tcpPortRanges",
+          "TCP port ranges used to access the app. Note that this field will be deprecated in a future release.",
+          "",
+          "List of valid TCP ports. The port ranges are in the format: \"tcpPortRanges\":[ \"from\", \"to\" ] For providing multiple ports, use the following format: \"tcpPortRanges\":[ \"fromPort1\", \"toPort1\", \"fromPort2\", \"toPort2\" ]"
+        ],
+        [
+          "udpPortRanges",
+          "UDP port ranges used to access the app. Note that this field will be deprecated in a future release.",
+          "",
+          "List of valid UDP ports. The port ranges are in the format: \"udpPortRanges\":[ \"from\", \"to\" ] For providing multiple ports, use the following format: \"udpPortRanges\":[ \"fromPort1\", \"toPort1\", \"fromPort2\", \"toPort2\" ]"
+        ],
+        [
+          "segmentGroupId",
+          "ID of the segment group",
+          "Yes",
+          "A valid segment group ID"
+        ],
+        [
+          "segmentGroupName",
+          "Name of the segment group. Not required for PUT and POST requests.",
+          "No",
+          "String"
+        ],
+        [
+          "serverGroups:id",
+          "ID of the server group",
+          "Yes",
+          "A valid server group ID"
+        ],
+        [
+          "serverGroups:name",
+          "Name of the server group. Not required for PUT and POST requests.",
+          "No",
+          "String"
+        ],
+        [
+          "selectConnectorCloseToApp",
+          "Whether the App Connector is closest to the application (True) or closest to the user (False).",
+          "No",
+          "Default: false Boolean: true, false"
+        ],
+        [
+          "clientlessApps",
+          "List of clientless or Browser Access applications. If a list of Browser Access applications are provided, then the field matchStyle must be set to EXCLUSIVE.",
+          "No",
+          ""
+        ],
+        [
+          "commonAppsDto",
+          "List of applications (e.g., AppProtection, Privileged Remote Access, or Browser Access). If AppProtection or Browser Access applications are provided, then the field matchStyle must be set to EXCLUSIVE.",
+          "Yes",
+          ""
+        ],
+        [
+          "commonAppsDto.appsconfig",
+          "List of applications to be configured",
+          "Yes",
+          ""
+        ],
+        [
+          "commonAppsDto.appsConfig.name",
+          "Name of the AppProtection or Privileged Remote Access application",
+          "Yes",
+          "String"
+        ],
+        [
+          "commonAppsDto.appsConfig.domain",
+          "Domain name of the AppProtection or Privileged Remote Access application",
+          "Yes",
+          "String"
+        ],
+        [
+          "commonAppsDto.appsConfig.applicationProtocol",
+          "Protocol for the Privileged Console or AppProtection application",
+          "Yes",
+          "Supported values: HTTP HTTPS RDP SSH VNC"
+        ],
+        [
+          "commonAppsDto.appsConfig.certificateId",
+          "ID of the signing certificate. This field is required if the applicationProtocol is set to HTTPS. The certificateId is not supported if the applicationProtocol is set to HTTP.",
+          "Yes",
+          "A valid certificate ID"
+        ],
+        [
+          "commonAppsDto.appsConfig.applicationPort",
+          "Port for the AppProtection or Privileged Remote Access application",
+          "Yes",
+          "String"
+        ],
+        [
+          "commonAppsDto.appsConfig.connectionSecurity",
+          "The connection security mode for the application",
+          "Yes",
+          "String For RDP, the supported values are: ANY NLA TLS RDP"
+        ],
+        [
+          "commonAppsDto.appsConfig.appTypes",
+          "Indicates the type of application",
+          "Yes",
+          "String Supported values: INSPECT: AppProtection SECURE_REMOTE_ACCESS: Privileged Remote Access"
+        ],
+        [
+          "commonAppsDto.appsConfig.enabled",
+          "Whether this application is enabled or not",
+          "Yes",
+          "String"
+        ],
+        [
+          "commonAppsDto.deletedInspectApps",
+          "Indicates the AppProtection application to be disabled",
+          "Yes",
+          "A valid application ID"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all Microtenants associated with the tenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ],
+        [
+          "targetSegmentGroupId",
+          "The unique identifier of the target segment group that the application segment is being moved to. This field is required if you want to move an application segment.",
+          "No",
+          "Integer"
+        ],
+        [
+          "targetMicrotenantId",
+          "The unique identifier of the Microtenant that the application segment is being moved to. This field is required if you want to move an application segment.",
+          "No",
+          "Integer"
+        ],
+        [
+          "targetServerGroupId",
+          "The unique identifier of the target server group that the application segment is being moved to. This field is required if you want to move an application segment.",
+          "No",
+          "Integer"
+        ],
+        [
+          "shareToMicrotenants",
+          "The unique identifier of the Microtenant that the application segment is being shared to. This field is required if you want to share an application segment.",
+          "No",
+          "Integer"
+        ],
+        [
+          "adpEnabled",
+          "Indicates if Active Directory Inspection is enabled or not for the application. This allows the application segment's traffic to be inspected by Active Directory (AD) Protection. By default, this field is set to false. If adpEnabled is set to true, then the field matchStyle must be set to EXCLUSIVE. If adpEnabled is set to true, then autoAppProtectEnabled cannot be set to true. To learn more, see Configuring Defined Application Segments.",
+          "No",
+          "Boolean Supported values: true, false"
+        ],
+        [
+          "protocols",
+          "Indicates the AD Protection protocols to be inspected on the application. This field is only required if adpEnabled is set to true.",
+          "No",
+          "String Supported values: LDAP SMB KERBEROS"
+        ],
+        [
+          "tcpProtocols",
+          "Indicates the AD Protection protocols to be inspected on the specified TCP port ranges. This field is only required if adpEnabled is set to true.",
+          "No",
+          "String Supported values: NONE LDAP SMB KERBEROS"
+        ],
+        [
+          "udpProtocols",
+          "Indicates the AD Protection protocols to be inspected on the specified UDP port ranges. This field is only required if adpEnabled is set to true.",
+          "No",
+          "String Supported values: NONE LDAP SMB KERBEROS"
+        ],
+        [
+          "bypassOnReauth",
+          "Indicates if Bypass During Reauthentication is enabled for the application. To learn more, see Configuring Defined Application Segments.",
+          "No",
+          "Default: false Boolean: true, false"
+        ],
+        [
+          "inspectTrafficWithZia",
+          "Indicates if Inspect Traffic with ZIA is enabled for the application. When enabled, this leverages a single posture for securing internet/SaaS and private applications, and applies Data Loss Prevention policies to the application segment you are creating. To learn more, see Configuring Defined Application Segments.",
+          "No",
+          "Default: false Boolean: true, false"
+        ],
+        [
+          "matchStyle",
+          "Indicates if Multimatch is enabled for the application segment. If enabled (INCLUSIVE), the request allows traffic to match multiple applications. If disabled (EXCLUSIVE), the request allows traffic to match a single application. A domain can only be INCLUSIVE or EXCLUSIVE, and any application segment can only contain inclusive or exclusive domains. To learn more, see Configuring Defined Application Segments.",
+          "No",
+          "Default: EXCLUSIVE Supported values: INCLUSIVE: All matched applications marked as INCLUSIVE, including their domains, protocols, and ports, are selected for application access. This includes the application segments and segment groups marked as INCLUSIVE that are selected for the policy evaluation. EXCLUSIVE: The first matched application marked as EXCLUSIVE is selected for application access."
+        ],
+        [
+          "autoAppProtectEnabled",
+          "If autoAppProtectEnabled is set to true, this field indicates if the application segment’s traffic is inspected by AppProtection. If set to true, a valid AppProtection enrollment certificate must be generated to inspect application segment traffic by AppProtection. If adpEnabled is set to true for Active Directory Inspection, then autoAppProtectEnabled cannot be true. To learn more, see Configuring Defined Application Segments.",
+          "No",
+          "Boolean: true, false"
+        ],
+        [
+          "weightedLoadBalancing",
+          "Indicates if the application load balancing configuration for application segments is enabled (true) or disabled (false). This field is not supported when sending a POST request to the /mgmtconfig/v1/admin/customers/{customerId}/application endpoint to create an application segment, or when sending a PUT request to the /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId} endpoint to update an application segment.",
+          "No",
+          "Boolean: true, false"
+        ],
+        [
+          "extLabel",
+          "The authentication domain name prefix used for the managed application URL",
+          "",
+          "String and integer The supported string can include integers, lowercase characters, and hyphens (-). This field supports integers between 3 and 31 (e.g., server-2)."
+        ],
+        [
+          "extDomain",
+          "The external domain name prefix of the Browser Access application that is used for Zscaler-managed certificates when creating a managed application. This field is returned when making GET requests to retrieve application segment details. If you are using Zscaler-managed certificates and pass the external domain name prefix, the certificateId field becomes null.",
+          "No",
+          "String and integer Periods (.) are not supported since the FQDN includes a period as part of the suffix or top-level domain."
+        ]
+      ]
+    },
+    {
+      "heading": "Getting Details for a Particular Application Segment",
+      "level": 1
+    },
+    {
+      "text": "To get application segment details:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "applicationId: The particular application segment ID you want to get details for.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/144118148382064640/application/144118148382065748"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": \"1716571633\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1716571633\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"144118148382064930\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"144118148382065748\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\": [",
+      "depth": 0
+    },
+    {
+      "item": "\"example.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"Copy of Test App Segment\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\": [",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"144118148382064812\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": \"1584421166\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1492592504\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"144118148382064930\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"161_sg\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\": \"DESC - u\",",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\": \"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"weight\": \"0\",",
+      "depth": 0
+    },
+    {
+      "item": "\"passive\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"extranetEnabled\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"dynamicDiscovery\": false",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\": [",
+      "depth": 0
+    },
+    {
+      "item": "\"89\",",
+      "depth": 0
+    },
+    {
+      "item": "\"90\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRange\": [",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\": \"89\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\": \"90\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\": \"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\": \"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\": \"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"icmpAccessType\": \"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassOnReauth\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"inspectTrafficWithZia\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\": \"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpKeepAlive\": \"0\",",
+      "depth": 0
+    },
+    {
+      "item": "\"selectConnectorCloseToApp\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\": \"EXCLUSIVE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isIncompleteDRConfig\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"adpEnabled\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"autoAppProtectEnabled\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"apiProtectionEnabled\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"fqdnDnsCheck\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"weightedLoadBalancing\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"extranetEnabled\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantName\": \"Default\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\": \"144118148382065533\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\": \"exampleSegmentGroup\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for All Application Segments",
+      "level": 1
+    },
+    {
+      "text": "To get details of all application segments:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/application",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"totalPages\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"totalCount\": \"6\",",
+      "depth": 0
+    },
+    {
+      "item": "\"list\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1560983316\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1560983270\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764447\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764474\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"www.oneone.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"app1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764473\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1560983270\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764447\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"srvgrp1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"learningEnabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"80\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"80\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"72057615512764420\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"Internal Application Group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":\"true\",",
+      "depth": 0
+    },
+    {
+      "item": "\"clientlessApps\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764475\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1560983316\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1560983270\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764447\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"www.oneone.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateId\":\"72057615512764448\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateName\":\"Wild Card Cert\",",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationPort\":\"80\",",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationProtocol\":\"HTTP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"www.oneone.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"path\":\"/\",",
+      "depth": 0
+    },
+    {
+      "item": "\"hidden\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"appId\":\"72057615512764474\",",
+      "depth": 0
+    },
+    {
+      "item": "\"trustUntrustedCert\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowOptions\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"cname\":\"67.72057615512764416.h.b.zpa-app.net\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"icmpAccessType\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassOnReauth\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"inspectTrafficWithZia\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\":\"false\",",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpKeepAlive\":\"0\",",
+      "depth": 0
+    },
+    {
+      "item": "\"selectConnectorCloseToApp\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"adpEnabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"autoAppProtectEnabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"isIncompleteDRConfig\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantName\":\"Default\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"217246660303026632\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"test-app-seg-group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1560990371\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1560983656\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764447\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764478\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"www.onetwo.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"app2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764473\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1560983270\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764447\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"srvgrp1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"learningEnabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"80\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"90\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"72057615512764420\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"Internal Application Group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":\"true\",",
+      "depth": 0
+    },
+    {
+      "item": "\"clientlessApps\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764479\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1560983656\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764447\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"www.onetwo.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateId\":\"72057615512764448\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateName\":\"Wild Card Cert\",",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationPort\":\"80\",",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationProtocol\":\"HTTP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"www.onetwo.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"path\":\"/\",",
+      "depth": 0
+    },
+    {
+      "item": "\"hidden\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"appId\":\"72057615512764478\",",
+      "depth": 0
+    },
+    {
+      "item": "\"trustUntrustedCert\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowOptions\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"cname\":\"68.72057615512764416.h.b.zpa-app.net\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassOnReauth\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"inspectTrafficWithZia\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1564600894\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1551291935\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764423\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764419\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"crm.lanuk.ca\",",
+      "depth": 0
+    },
+    {
+      "item": "\"test.lanuk.ca\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Internal Application\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764418\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1560279822\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1551291935\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764417\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Server Group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"learningEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"65535\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"65535\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"72057615512764420\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"Internal Application Group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":\"true\",",
+      "depth": 0
+    },
+    {
+      "item": "\"clientlessApps\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764451\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1560286271\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1560279796\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764417\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"crm.lanuk.ca\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateId\":\"72057615512764448\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateName\":\"Wild Card Cert\",",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationPort\":\"80\",",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationProtocol\":\"HTTP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"crm.lanuk.ca\",",
+      "depth": 0
+    },
+    {
+      "item": "\"path\":\"/\",",
+      "depth": 0
+    },
+    {
+      "item": "\"hidden\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"appId\":\"72057615512764419\",",
+      "depth": 0
+    },
+    {
+      "item": "\"trustUntrustedCert\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowOptions\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"cname\":\"61.72057615512764416.h.b.zpa-app.net\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassOnReauth\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"inspectTrafficWithZia\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1581028834\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1574113633\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764423\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764533\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"10.0.0.190\",",
+      "depth": 0
+    },
+    {
+      "item": "\"*.pb.ca\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"PB App\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764545\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1579729263\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764417\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"PB App\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"learningEnabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"65535\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"72057615512764420\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"Internal Application Group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":\"true\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassOnReauth\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"inspectTrafficWithZia\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1612473591\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764611\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764612\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"1.1.1.1\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Test\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"80\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"80\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":\"true\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassOnReauth\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"inspectTrafficWithZia\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the endpoint /mgmtconfig/v1/admin/customers/{customerId}/application?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application?page=1&pagesize=2"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"totalCount\": \"6\", \"list\": [ { \"modifiedTime\": \"1648481104\", \"creationTime\": \"1489571905\", \"modifiedBy\": \"144118148382065486\", \"id\": \"144118148382064803\", \"domainNames\": [ \"crm.lanukcorp.com\" ], \"name\": \"CRM AWS\", \"description\": \"Test text\", \"selectConnectorCloseToApp\": true, \"serverGroups\": [ { \"id\": \"144118148382064657\", \"modifiedTime\": \"1591165070\", \"creationTime\": \"1452154381\", \"modifiedBy\": \"144118148382064642\", \"name\": \"Do not delete Apps AWS\", \"enabled\": true, \"configSpace\": \"DEFAULT\", \"dynamicDiscovery\": true } ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"80\", \"80\" ], \"tcpPortRange\": [ { \"from\": \"80\", \"to\": \"80\" } ], \"doubleEncrypt\": false, \"configSpace\": \"DEFAULT\", \"bypassType\": \"NEVER\", \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"isCnameEnabled\": true, \"ipAnchored\": false, \"bypassOnReauth\":false, \"inspectTrafficWithZia\": false, \"healthReporting\": \"ON_ACCESS\", \"useInDrMode\": \"false\", \"tcpKeepAlive\": \"0\", \"selectConnectorCloseToApp\": false, \"adpEnabled\": false, \"autoAppProtectEnabled\": false, \"isIncompleteDRConfig\": false, \"microtenantName\": \"Default\", \"segmentGroupId\": \"144118148382064801\", \"segmentGroupName\": \"Do not delete\" }, { \"creationTime\": \"1616227608\", \"modifiedBy\": \"144118148382064667\", \"id\": \"144118148382065459\", \"domainNames\": [ \"api.github.com\" ], \"name\": \"test\", \"selectConnectorCloseToApp\": true, \"serverGroups\": [ { \"id\": \"144118148382064657\", \"modifiedTime\": \"1591165070\", \"creationTime\": \"1452154381\", \"modifiedBy\": \"144118148382064642\", \"name\": \"Do not delete Apps AWS\", \"enabled\": true, \"configSpace\": \"DEFAULT\", \"dynamicDiscovery\": true } ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"1\", \"52\", \"54\", \"65535\" ], \"udpPortRanges\": [ \"1\", \"52\", \"54\", \"65535\" ], \"tcpPortRange\": [ { \"from\": \"1\", \"to\": \"52\" }, { \"from\": \"54\", \"to\": \"65535\" } ], \"udpPortRange\": [ { \"from\": \"1\", \"to\": \"52\" }, { \"from\": \"54\", \"to\": \"65535\" } ], \"doubleEncrypt\": false, \"configSpace\": \"DEFAULT\", \"bypassType\": \"NEVER\", \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"isCnameEnabled\": true, \"ipAnchored\": false, \"bypassOnReauth\":false, \"inspectTrafficWithZia\": false, \"healthReporting\": \"ON_ACCESS\", \"segmentGroupId\": \"144118148382064801\", \"segmentGroupName\": \"Do not delete\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Application Type Details for the Application Segment",
+      "level": 1
+    },
+    {
+      "text": "To get application type details for the application segment:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/application/getAppsByType?applicationType={applicationType}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "applicationType: The type of application. The supported values are AppProtection (INSPECT) or Privileged Remote Access (SECURE_REMOTE_ACCESS).",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v2/admin/customers/145256180497776640/application/getAppsByType?applicationType=SECURE_REMOTE_ACCESS"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\":\"1\", \"totalCount\": \"8\", \"list\":[ { \"id\":\"145256180497776887\", \"name\":\"1.1.1.122\", \"enabled\":true, \"applicationPort\":\"22\", \"applicationProtocol\":\"SSH\", \"domain\":\"1.1.1.122\", \"appId\":\"145256180497776882\", \"hidden\":false, \"portal\":false }, { \"id\":\"145256180497776669\", \"name\":\"eng-workstation.sahuhaus.local\", \"enabled\":true, \"applicationPort\":\"3389\", \"applicationProtocol\":\"RDP\", \"domain\":\"eng-workstation.sahuhaus.local\", \"appId\":\"145256180497776668\", \"hidden\":false, \"portal\":false, \"connectionSecurity\":\"ANY\" }, { \"id\":\"145256180497776776\", \"name\":\"testapp4.com\", \"enabled\":true, \"applicationPort\":\"22\", \"applicationProtocol\":\"SSH\", \"domain\":\"testapp4.com\", \"appId\":\"145256180497776741\", \"hidden\":false, \"portal\":false }, { \"id\":\"145256180497776778\", \"name\":\"testapp5.com\", \"enabled\":true, \"applicationPort\":\"22\", \"applicationProtocol\":\"SSH\", \"domain\":\"testapp5.com\", \"appId\":\"145256180497776777\", \"hidden\":false, \"portal\":false }, { \"id\":\"145256180497776742\", \"name\":\"testapp.com\", \"enabled\":true, \"applicationPort\":\"22\", \"applicationProtocol\":\"SSH\", \"domain\":\"testapp.com\", \"appId\":\"145256180497776741\", \"hidden\":false, \"portal\":false }, { \"id\":\"145256180497776787\", \"name\":\"test-vnc.com\", \"enabled\":true, \"applicationPort\":\"5900\", \"applicationProtocol\":\"VNC\", \"domain\":\"test-vnc.com\", \"appId\":\"145256180497776786\", \"hidden\":false, \"portal\":false }, { \"id\":\"145256180497776660\", \"name\":\"ubuntu-desktop.sahuhaus.local\", \"enabled\":true, \"applicationPort\":\"22\", \"applicationProtocol\":\"SSH\", \"domain\":\"ubuntu-desktop.sahuhaus.local\", \"appId\":\"145256180497776659\", \"hidden\":false, \"portal\":false }, { \"id\":\"145256180497776971\", \"name\":\"zscaler.com\", \"enabled\":true, \"applicationPort\":\"22\", \"applicationProtocol\":\"SSH\", \"domain\":\"zscaler.com\", \"appId\":\"145256180497776970\", \"hidden\":false, \"portal\":false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to get application type details by Microtenant ID. To get application type details by Microtenant ID (microtenantId):"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: mgmtconfig/v1/admin/customers/{customerId}/application/getAppsByType?applicationType={applicationType}?microtenantId={microtenantId}&search={searchString}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "applicationType: The type of application. The supported values are AppProtection (INSPECT) or Privileged Remote Access (SECURE_REMOTE_ACCESS).",
+      "depth": 0
+    },
+    {
+      "item": "Valid search string values. The search string values are in the following format: {filter}%20{operator}%20{filterValue}. The supported filter value is ownershipType. The supported operator value is EQ (equals). The supported values for the ownershipType filter value are:",
+      "depth": 0
+    },
+    {
+      "item": "INHERITED: The application is inherited by the Microtenant.",
+      "depth": 1
+    },
+    {
+      "item": "MICROTENANT_SPECIFIC: The application is Microtenant specific.",
+      "depth": 1
+    },
+    {
+      "item": "SHARED_FROM_THIS_MICROTENANT: The application is shared from this Microtenant.",
+      "depth": 1
+    },
+    {
+      "item": "SHARED_TO_THIS_MICROTENANT: The application is shared to this Microtenant.",
+      "depth": 1
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/145256180497776640/application/getAppsByType?applicationType=SECURE_REMOTE_ACCESS?microtenantId=145260601092866314&search=ownershipType%20EQ%20MICROTENANT_SPECIFIC"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\":\"1\", \"totalCount\":\"0\", \"list\":[ { \"id\":\"145260601092866291\", \"name\":\"example-Microtenanta-test.com\", \"enabled\":true, \"applicationPort\":\"22\", \"applicationProtocol\":\"SSH\", \"domain\":\"example-Microtenanta-test.com\", \"microtenantId\":\"145260601092866116\", \"microtenantName\":\"Microtenant A\", \"appId\":\"145260601092866290\", \"hidden\":false }, { \"id\":\"145260601092866295\", \"name\":\"mithun-app-seg-test.com\", \"enabled\":true, \"applicationPort\":\"22\", \"applicationProtocol\":\"SSH\", \"domain\":\"example-app-seg-test.com\", \"microtenantId\":\"145260601092866116\", \"microtenantName\":\"Microtenant A\", \"appId\":\"145260601092866294\", \"hidden\":false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating Application Segment Details",
+      "level": 1
+    },
+    {
+      "text": "To update an application segment:"
+    },
+    {
+      "item": "Use the updated JSON payload from Creating an Application Segment and send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "applicationId: The particular application segment ID you want to update.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application/217246660302996821"
+    },
+    {
+      "text": "You can provide multiple port ranges using the format in the entire JSON payload. To learn more, refer to the entire JSON payload, or see the Adding Field Descriptions section."
+    },
+    {
+      "item": "View the entire JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"ALWAYS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"clientlessApps\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"allowOptions\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"appId\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationPort\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationProtocol\":\"HTTP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateId\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateName\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"cname\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"hidden\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"path\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"trustUntrustedCert\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":\"true\",",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultIdleTimeout\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultMaxAge\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"string\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"selectConnectorCloseToApp\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"learningEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"string\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"fromPort1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"toPort1\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"fromPort2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"toPort2\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"fromPort1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"toPort1\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"fromPort2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"toPort2\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "View the minimum criteria JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":\"true\",",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRange\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"fromPort1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"toPort1\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"domainName or IpAddress\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"<segmentGroupId>\",",
+      "depth": 0
+    },
+    {
+      "item": "\"selectConnectorCloseToApp\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"<serverGroupId>\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "An error is returned if Inspect Traffic with ZIA is not enabled on your tenant and InspectTrafficWithZia is passed as enabled when making a POST or PUT request. The following is an example error:",
+      "strong": [
+        [
+          24,
+          48
+        ]
+      ]
+    },
+    {
+      "text": "{ \"params\":[ \"inspectTrafficWithZia\", \"testApplication\", \"feature.application.inspect_traffic_with_zia\", \"72057594037927936\" ], \"id\":\"config.change.not.allowed.sku.not.enabled\", \"reason\":\"Cannot update config inspectTrafficWithZia of testApplication as this is managed by SKU feature.application.inspect_traffic_with_zia which is not enabled for customer 72057594037927936\" }"
+    },
+    {
+      "text": "A successful response returns code 204, meaning the application segment is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "The following limits are applicable when updating an application segment using the ZPA cloud service API:"
+    },
+    {
+      "item": "If an application segment is configured using Zscaler Deception, then the update and delete options are unavailable.",
+      "depth": 0
+    },
+    {
+      "item": "The weightedLoadBalancing field is not supported when sending a PUT request to the /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId} endpoint to update an application segment.",
+      "depth": 0
+    },
+    {
+      "item": "Removing all active server groups that have values for the weight field greater than 0 disables application load balancing and high availability. To learn more, see Managing Application Load Balancing and High Availability Using API.",
+      "depth": 0
+    },
+    {
+      "heading": "AD Protection Support",
+      "level": 2
+    },
+    {
+      "text": "To update an application segment and enable Active Directory Inspection:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "applicationId: The particular application segment ID you want to update.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application/217246660302996821"
+    },
+    {
+      "text": "You can provide multiple port ranges using the format in the entire JSON payload. To learn more, refer to the entire JSON payload, or see the Adding Field Descriptions section."
+    },
+    {
+      "item": "Provide the following in the JSON payload:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Set adpEnabled as true. This field is highlighted in the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "TCP and UDP protocols. These fields are highlighted in the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"selectConnectorCloseToApp\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"icmpAccessType\":\"PING\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpKeepAlive\":\"0\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038668832\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"exampleapp.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"443\",",
+      "depth": 0
+    },
+    {
+      "item": "\"443\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpProtocols\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"SMB\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"334\",",
+      "depth": 0
+    },
+    {
+      "item": "\"334\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpProtocols\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"LDAP\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"clientlessApps\":null,",
+      "depth": 0
+    },
+    {
+      "item": "\"inspectionApps\":null,",
+      "depth": 0
+    },
+    {
+      "item": "\"praApps\":null,",
+      "depth": 0
+    },
+    {
+      "item": "\"adpEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Example Application Segment\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038668831\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"selectedServerGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"72057594038668831\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"Example Segment Group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"72057594038668830\",",
+      "depth": 0
+    },
+    {
+      "item": "\"commonAppsDto\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"appsConfig\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"domainJson\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"showADInspectionToggle\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"viewId\":\"3814358737_2917168947\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isEmptyModel\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"exampleapp.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"exampleapp.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"protocols\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"LDAP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"SMB\",",
+      "depth": 0
+    },
+    {
+      "item": "\"KERBEROS\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationProtocol\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateId\":null,",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationPort\":0,",
+      "depth": 0
+    },
+    {
+      "item": "\"trustUntrustedCert\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowOptions\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"localDomain\":\"\",",
+      "depth": 0
+    },
+    {
+      "item": "\"adpEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"appTypes\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"INSPECT\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the application segment is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "AppProtection Support",
+      "level": 2
+    },
+    {
+      "text": "The following operations to enable or disable AppProtection on an application are supported for the same endpoint to update an application segment:"
+    },
+    {
+      "item": "Enable AppProtection on an Existing Application Segment",
+      "depth": 0
+    },
+    {
+      "item": "To enable AppProtection on an existing application segment:",
+      "depth": 0
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 1
+    },
+    {
+      "item": "applicationId: The ID of the application.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application/217246660302996821",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "The name of the application segment",
+      "depth": 1
+    },
+    {
+      "item": "The domains of the application",
+      "depth": 1
+    },
+    {
+      "item": "The TCP and UDP ports",
+      "depth": 1
+    },
+    {
+      "item": "Other details like the segment group and server group IDs",
+      "depth": 1
+    },
+    {
+      "item": "Ensure \"appTypes\": [\"INSPECT\"] and the other fields in \"commonAppsDto\" are included in the JSON payload. These fields are highlighted in red.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 1
+    },
+    {
+      "item": "{ \"name\":\"string\", \"domainNames\":[ \"existing domain name\", \"new domain name\" ], \"serverGroups\":[ { \"id\":\"<serverGroupId>\" } ], \"enabled\":true, \"passiveHealthEnabled\":true, \"tcpPortRange\":[ \"from\", \"to\" ], \"udpPortRanges\":[ \"from\", \"to\" ], \"doubleEncrypt\":false, \"configSpace\":\"DEFAULT\", \"bypassType\":\"NEVER\", \"healthCheckType\":\"DEFAULT\", \"icmpAccessType\":\"NONE\", \"isCnameEnabled\":true, \"ipAnchored\":false, \"healthReporting\":\"ON_ACCESS\", \"segmentGroupId\":\"<segmentGroupId>\", \"commonAppsDto\":{ \"appsConfig\":[ { \"name\":\"string\", \"enabled\":true, \"applicationProtocol\":\"HTTPS\", \"applicationPort\":\"443\", \"path\":\"/\", \"domain\":\"string\", \"trustUntrustedCert\":false, \"allowOptions\":false, \"certificateId\":\"<signingCertId>\", \"appTypes\":[ \"INSPECT\" ] } ] } }",
+      "depth": 0
+    },
+    {
+      "item": "Sample JSON payload",
+      "depth": 1
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"domain.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"app segment name\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594037988996\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"from\":\"10\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\":\"10\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"icmpAccessType\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"72057594037988995\",",
+      "depth": 0
+    },
+    {
+      "item": "\"commonAppsDto\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"appsConfig\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"domain.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationProtocol\":\"HTTPS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"applicationPort\":\"10\",",
+      "depth": 0
+    },
+    {
+      "item": "\"path\":\"/\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domain\":\"domain.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"trustUntrustedCert\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"allowOptions\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"certificateId\":\"72057594038037594\",",
+      "depth": 0
+    },
+    {
+      "item": "\"appTypes\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"INSPECT\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages.",
+      "depth": 0
+    },
+    {
+      "item": "You choose the application criteria you want to include in the JSON payload. Refer to the Adding Field Descriptions section for supported values.",
+      "depth": 0
+    },
+    {
+      "item": "Disable AppProtection on an Existing Application Segment",
+      "depth": 0
+    },
+    {
+      "item": "To disable AppProtection on an existing application segment:",
+      "depth": 0
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 1
+    },
+    {
+      "item": "applicationId: The ID of the application.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application/217246660302996821",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use one of the following JSON payloads and provide the following information:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "The name of the application segment",
+      "depth": 1
+    },
+    {
+      "item": "The domains of the existing or new application segment",
+      "depth": 1
+    },
+    {
+      "item": "The TCP and UDP ports",
+      "depth": 1
+    },
+    {
+      "item": "Other details like the segment group and server group IDs",
+      "depth": 1
+    },
+    {
+      "item": "Include the \"deletedInspectApps\" field. This field is highlighted in red.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "View the entire JSON payload",
+      "depth": 1
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"existing domain name\",",
+      "depth": 0
+    },
+    {
+      "item": "\"new domain name\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"<serverGroupId>\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"from\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"from\",",
+      "depth": 0
+    },
+    {
+      "item": "\"to\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"icmpAccessType\":\"NONE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"<segmentGroupId>\",",
+      "depth": 0
+    },
+    {
+      "item": "\"commonAppsDto\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"deletedInspectApps\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"<applicationId>\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "Sample JSON payload",
+      "depth": 1
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"WAAP_Public_API_Test\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"WAAP Public API Test\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"20\",",
+      "depth": 0
+    },
+    {
+      "item": "\"28\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"udpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"30\",",
+      "depth": 0
+    },
+    {
+      "item": "\"38\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"inspect.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057594038048851\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"72057594037988995\",",
+      "depth": 0
+    },
+    {
+      "item": "\"commonAppsDto\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"deletedInspectApps\":[",
+      "depth": 0
+    },
+    {
+      "item": "72057594038079024",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "View the minimum criteria JSON payload",
+      "depth": 1
+    },
+    {
+      "item": "{ \"domainNames\": [\"existing domain name\"], \"commonAppsDto\": { \"deletedInspectApps\": [ <applicationId> ] } }",
+      "depth": 0
+    },
+    {
+      "item": "Sample JSON payload",
+      "depth": 1
+    },
+    {
+      "item": "{ \"domainNames\": [\"inspect3.com\"], \"commonAppsDto\": { \"deletedInspectApps\": [ 72057594038079526 ] } }",
+      "depth": 0
+    },
+    {
+      "item": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages.",
+      "depth": 0
+    },
+    {
+      "item": "You choose the application criteria you want to include in the JSON payload. Refer to the Adding Field Descriptions section for supported values.",
+      "depth": 0
+    },
+    {
+      "heading": "Microtenant Support",
+      "level": 2
+    },
+    {
+      "text": "To share an application segment to Microtenants:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/application/{applicationId}/share.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "applicationId: The ID of the application.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/customers/72057594037927936/application/72057594038642786/share"
+    },
+    {
+      "item": "Use the following JSON payload and provide the microtenantId, the unique identifier of the Microtenants you want to share to, in the shareToMicrotenants model.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"shareToMicrotenants\": [ <MicrotenantId> <MicrotenantId> … ] }",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"shareToMicrotenants\":[ \"73201978410270795\", \"73201978410270803\", \"73201978410270741\" ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting an Application Segment",
+      "level": 1
+    },
+    {
+      "text": "To delete an application segment:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following key-value pairs in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "applicationId: The particular application segment ID you want to delete.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application/217246660302996821"
+    },
+    {
+      "text": "An object that is referenced in another object cannot be deleted. Error code 400 is returned in this situation."
+    },
+    {
+      "item": "View error code 400",
+      "depth": 0
+    },
+    {
+      "item": "{ \"params\": [ \"Application\", \"app 3 created on postman feb 5_edited\" ], \"id\": \"resource.referenced\", \"reason\": \"Resource is being referenced in Application : app 3 created on postman feb 5_edited.\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the application segment is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "If an application segment is configured using Zscaler Deception, then the update and delete options are unavailable."
+    }
+  ]
+}

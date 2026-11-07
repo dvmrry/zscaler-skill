@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "id": "zwa.settings.activity-and-alerts",
+  "title": "Workflow Automation Downloads, bulk actions and Notification Center alerts: statuses, restarts and the alert list",
+  "aliases": [
+    "zwa downloads",
+    "zwa bulk actions",
+    "notification center alerts",
+    "incident export csv"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{downloads-availability}} The wider settings are in [[zwa.settings]] and the incident actions are in [[zwa.incidents]]."
+    },
+    {
+      "label": "Downloads.",
+      "text": "{{downloads-statuses}} {{downloads-restart}}"
+    },
+    {
+      "label": "Bulk actions.",
+      "text": "{{bulk-actions-list}} {{bulk-actions-statuses}} {{bulk-actions-restart}}"
+    },
+    {
+      "label": "Notification Center.",
+      "text": "{{notification-center-alerts}} {{notification-center-fields}} The causes behind those alerts are not given {{gap:alert-causes}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which status the download or bulk action shows, since only a Complete download can be downloaded.",
+      "uses": [
+        "downloads-availability",
+        "downloads-statuses",
+        "bulk-actions-statuses"
+      ]
+    }
+  ],
+  "claims": {
+    "downloads-availability": {
+      "statement": "Incidents exported from the Incidents page become a CSV file on the Downloads page that is available for up to 7 days; only a file with status Complete can be downloaded, and an email notifies when the download is completed, suspended, partially completed or failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-downloads.json",
+          "quotes": [
+            "The Downloads page allows you to download the incidents that you export on the Incidents page to a CSV file.",
+            "The incident file is available to download for up to 7 days.",
+            "You can only download an incident file with the Complete status. If the status of the file is Partially Complete, Suspended, or Failed, you cannot download it.",
+            "You receive an email notification when your incident file download is completed, suspended, partially completed, or has failed."
+          ]
+        }
+      ]
+    },
+    "downloads-statuses": {
+      "statement": "A download has status Complete, Partially Complete, Suspended or Failed, and Workflow Automation automatically resumes a Suspended download when the technical issue is resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-downloads.json",
+          "quotes": [
+            "Complete: The export action performed is successfully completed for the selected incidents, and the incident file is ready to download.",
+            "Partially Complete: The export action performed is incomplete for some of the selected incidents.",
+            "Suspended: The export action performed is suspended due to technical issues. Workflow Automation automatically resumes the download activity when the issue is resolved.",
+            "Failed: The export action performed failed for the selected incidents."
+          ]
+        }
+      ]
+    },
+    "downloads-restart": {
+      "statement": "A partially complete download can be resumed and a failed one retried, at most three times, after which the export must be performed again on the Incidents page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-downloads.json",
+          "quotes": [
+            "For a partially complete download, click the Resume icon in the Actions column to restart downloading the pending incidents.",
+            "For a failed download, click the Retry icon in the Actions column to restart the download.",
+            "You can only restart an incident file download a maximum of three times. If you reach the maximum number of attempts, go to the Incidents page and perform the export action again."
+          ]
+        }
+      ]
+    },
+    "bulk-actions-list": {
+      "statement": "The bulk actions are Assign DLP Admin, Assign to Me, Close incidents, Add Labels and Update Incident Group; DLP admins with full access can perform them for all incidents on the Incidents page, and an email notifies when a bulk action is complete, suspended, partially complete or failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-bulk-actions.json",
+          "quotes": [
+            "DLP admins with full access to Workflow Automation can perform bulk actions for all incidents that are available on the Incidents page.",
+            "Assign DLP Admin",
+            "Assign to Me",
+            "Close incidents",
+            "Add Labels",
+            "Update Incident Group",
+            "Workflow Automation sends you an email notification when your bulk action is complete, suspended, partially complete, or has failed."
+          ]
+        }
+      ]
+    },
+    "bulk-actions-statuses": {
+      "statement": "A bulk action has status Complete, Partially Complete, Suspended or Failed, and a Suspended bulk action is automatically resumed by Workflow Automation after the technical issue is resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-bulk-actions.json",
+          "quotes": [
+            "Complete: The bulk action is successfully completed for the selected incidents.",
+            "Partially Complete: The bulk action is incomplete for a few of the selected incidents.",
+            "Suspended: The bulk action is suspended due to technical issues. After the issue is resolved, Workflow Automation automatically resumes the bulk action.",
+            "Failed: The bulk action failed for the selected incidents."
+          ]
+        }
+      ]
+    },
+    "bulk-actions-restart": {
+      "statement": "A partially complete bulk action can be resumed and a failed one retried, at most three times, after which the bulk action must be performed again on the Incidents page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-bulk-actions.json",
+          "quotes": [
+            "For a partially complete bulk action, in the Actions column, click the Resume icon to restart the bulk action.",
+            "For a failed bulk action, in the Actions column, click the Retry icon to restart the bulk action.",
+            "You can only restart a bulk action a maximum of three times. If you reach the maximum number of attempts, go to the Incidents page and perform the bulk action again."
+          ]
+        }
+      ]
+    },
+    "notification-center-alerts": {
+      "statement": "The Notification Center alert table has these rows, each with severity High: Filewatcher issues, a default incident group with no admin, Incident Receiver issues, an integration not working, and no active channel for user digest or for admin digest notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-alert-notifications.json",
+          "quotes": [
+            "| Filewatcher | The Filewatcher is experiencing issues for Host IP: {hostIP } SystemId: {systemId} with integration: {integrationName} | High |",
+            "| Incident Group | Default incident group does not have an admin | High |",
+            "| Incident Receiver | The IR is experiencing issues for SystemId: {systemId} with integration: {integrationName} | High |",
+            "| Integration | {integrationName} integration is not working | High |",
+            "| Notification | No active channel for user digest notification | High |",
+            "| Notification | No active channel for admin digest notification | High |"
+          ]
+        }
+      ]
+    },
+    "notification-center-fields": {
+      "statement": "Each Notification Center alert shows a unique generated sequential ID, the module (such as Filewatcher, Integration, Notification, Incident Receiver or Incident Group), severity, summary, and the First Detected and Last Detected times.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-alert-notifications.json",
+          "quotes": [
+            "ID: The ID associated with the alert notification. It is a unique generated sequential ID.",
+            "Module: The feature area of Workflow Automation that is related to this alert notification. For example, Filewatcher, Integration, Notification, Incident Receiver, or Incident Group.",
+            "Severity: The severity of the alert notification.",
+            "Summary: The summary description of the alert notification.",
+            "First Detected: The date and time the alert issue was first detected.",
+            "Last Detected: The date and time the alert issue was last detected."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "alert-causes": {
+      "kind": "semantic",
+      "title": "What causes the Notification Center alerts and how to clear them",
+      "status": "open",
+      "detail": "The alert table lists Filewatcher, Incident Receiver and Integration alerts with severity High, but the captured page gives no cause, remedy or severity logic, and the Filewatcher and Incident Receiver terms are defined on integration pages outside this subject.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "id": "zcc.interoperability",
+  "title": "Client Connector alongside other software and networks: where each interoperability answer lives, plus debugging proxies, alternative cloud domains and iCloud Private Relay",
+  "aliases": [
+    "client connector interoperability",
+    "alternative cloud domains",
+    "icloud private relay",
+    "charles proxy",
+    "fiddler"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.interoperability.vpn-clients"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.interoperability.security-software"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.interoperability.no-default-route"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.pac-files"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files.variables"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Client Connector runs next to other software and networks, and each case has its own subject: a corporate VPN client is in [[zcc.interoperability.vpn-clients]], allowlisting in antivirus and host firewalls is in [[zcc.interoperability.security-software]], and an environment whose only egress is a proxy is in [[zcc.interoperability.no-default-route]]; the PAC files involved are in [[zcc.pac-files]]."
+    },
+    {
+      "label": "iCloud Private Relay.",
+      "text": "{{icloud-private-relay}} {{icloud-admin-controls}}"
+    },
+    {
+      "label": "Charles and Fiddler.",
+      "text": "{{charles}} {{fiddler-chain}} {{fiddler-profiles}} {{fiddler-gateway}}"
+    },
+    {
+      "label": "Alternative cloud domains.",
+      "text": "{{acd-why}} {{acd-prerequisites}} {{acd-discovery}} {{acd-pac-selection}} Which domains exist and how they are provisioned is open {{gap:acd-provisioning}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For DNS or traffic problems on an iOS or macOS device: whether iCloud Private Relay is enabled on it.",
+      "uses": [
+        "icloud-private-relay",
+        "icloud-admin-controls"
+      ]
+    },
+    {
+      "do": "For a Fiddler chain: that the app profile has Rule Order 1, is enabled and has Disabled Loopback Restriction enabled, and that the forwarding action matches how Fiddler sets the system proxy.",
+      "uses": [
+        "fiddler-profiles"
+      ]
+    },
+    {
+      "do": "For users in China: that the version and forwarding profile prerequisites for an alternative cloud domain are met.",
+      "uses": [
+        "acd-prerequisites",
+        "acd-discovery"
+      ]
+    }
+  ],
+  "claims": {
+    "icloud-private-relay": {
+      "statement": "iCloud Private Relay encrypts client DNS traffic before Client Connector intercepts it, which interferes with the app's ability to process DNS requests and can disrupt both Internet & SaaS and Private Access traffic flows; Zscaler recommends disabling it when deploying Client Connector to iOS and macOS devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-interoperability-apple-icloud-private-relay.json",
+          "quotes": [
+            "iCloud Private Relay encrypts client DNS traffic before it is intercepted by Zscaler Client Connector.",
+            "This interferes with Zscaler Client Connector’s ability to process DNS requests and can disrupt both Internet & SaaS and Private Access traffic flows.",
+            "Zscaler recommends disabling iCloud Private Relay when deploying Zscaler Client Connector to iOS and macOS devices to avoid connectivity issues."
+          ]
+        }
+      ]
+    },
+    "icloud-admin-controls": {
+      "statement": "Administrators can Disable iCloud Private Relay in App Profiles (Client Connector 4.4 and later for iOS), can return an NXDOMAIN response for the hostnames used by iCloud Private Relay traffic to alert end users that they must disable it, and, when Jamf Pro or another MDM deploys Client Connector, can restrict it by distributing a configuration profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-interoperability-apple-icloud-private-relay.json",
+          "quotes": [
+            "You can Disable iCloud Private Relay in App Profiles.",
+            "Applies to Zscaler Client Connector version 4.4 and later for iOS.",
+            "Administrators can return an NXDOMAIN response for the hostnames used by iCloud Private Relay traffic to alert end users that they must disable iCloud Private Relay.",
+            "If you use Jamf Pro or another MDM to deploy Zscaler Client Connector, you can restrict iCloud Private Relay by distributing a configuration profile."
+          ]
+        }
+      ]
+    },
+    "charles": {
+      "statement": "On macOS, Client Connector is interoperable with the Charles Web Debugging Proxy: if Charles is detected the app creates a proxy chain, automatically configuring external proxy settings in Charles so the system routes all traffic through Charles first and then to the app. If Charles is installed after Client Connector, users must restart Charles twice after installation so the app can modify its configuration; if Charles was installed before, users do not need to restart it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-app-charles-proxy-interoperability.json",
+          "quotes": [
+            "On macOS devices, Zscaler Client Connector is interoperable with the Charles Web Debugging Proxy application.",
+            "If Charles Proxy is detected, Zscaler Client Connector creates a proxy chain.",
+            "The app automatically configures external proxy settings in the Charles application so that the user's system routes all traffic through the Charles Proxy first, then sends the traffic on to the app.",
+            "Keep in mind that if you install the Charles Proxy after installing Zscaler Client Connector, users must restart the Charles Proxy twice after installation, so that Zscaler Client Connector can automatically modify the Charles Proxy configuration for proxy chaining.",
+            "If the you installed Charles Proxy on a user's device before installing Zscaler Client Connector, Zscaler Client Connector works seamlessly and users do not need to restart the Charles Proxy."
+          ]
+        }
+      ]
+    },
+    "fiddler-chain": {
+      "statement": "To use Telerik Fiddler with Client Connector, the app must be configured to use a PAC file that points to a specific port, so that traffic flows Browser > Fiddler > Client Connector > Destination Page (the steps use Fiddler 5.0.20182.28034); the page's PAC returns PROXY 127.0.0.1:<Port for Fiddler> then PROXY ${ZAPP_LOCAL_PROXY}. To debug on a local web server the browser's PAC file may ignore the request for 127.0.0.1, and the workaround is a hosts file entry pointing to 127.0.0.1 (for example 127.0.0.1 server.local).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-fiddler-zscaler-client-connector.json",
+          "quotes": [
+            "To use the Telerik Fiddler application with Zscaler Client Connector, you must configure Zscaler Client Connector to use a PAC file to point to a specific port.",
+            "At a high level, the flow of traffic should be: Browser > Fiddler > Zscaler Client Connector > Destination Page.",
+            "The version used for the following steps is Fiddler 5.0.20182.28034.",
+            "return \"PROXY 127.0.0.1:<Port for Fiddler>; PROXY ${ZAPP_LOCAL_PROXY};\";",
+            "If you want to debug on a local web server, the browser’s PAC file may ignore the request for 127.0.0.1.",
+            "As a workaround, create a host file entry pointing to 127.0.0.1 (e.g., 127.0.0.1 server.local)."
+          ]
+        }
+      ]
+    },
+    "fiddler-profiles": {
+      "statement": "For Fiddler the forwarding profile selects Tunnel with Local Proxy or Tunnel for any network, and the PAC step is not required if Fiddler automatically configures the system proxy; in that case Tunnel must be used and not Tunnel with Local Proxy, because Client Connector enforces its own system proxy in Tunnel with Local Proxy mode. The app profile must have Rule Order 1, must be enabled, and must have the Disabled Loopback Restriction switch enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-fiddler-zscaler-client-connector.json",
+          "quotes": [
+            "This step is not required if you are using Fiddler to automatically configure the system proxy, as Fiddler manages the system proxy settings.",
+            "Select Tunnel with Local Proxy or Tunnel mode for any application network (i.e., On-Trusted Network, VPN-Trusted Network, Off-Trusted Network).",
+            "If you have configured Fiddler to automatically populate system proxy settings, you must use Tunnel mode and not Tunnel With Local Proxy mode.",
+            "This is because the Zscaler Client Connector enforces its own system proxy in Tunnel With Local Proxy mode.",
+            "The Rule Order must be 1.",
+            "The app profile must be enabled.",
+            "The Disabled Loopback Restriction switch must be enabled."
+          ]
+        }
+      ]
+    },
+    "fiddler-gateway": {
+      "statement": "The port Client Connector listens on is added to Fiddler's proxy string (the page's example is http=127.0.0.1:9000;https=127.0.0.1:9000;ftp=127.0.0.1:9000;); with the Fiddler AutoResponder feature the Accept all CONNECTs option must be disabled. When Internet Security is ON Fiddler can be opened and used, and errors Fiddler shows during startup can be ignored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-fiddler-zscaler-client-connector.json",
+          "quotes": [
+            "You must add the port that Zscaler Client Connector listens on to the proxy string.",
+            "http=127.0.0.1:9000;https=127.0.0.1:9000;ftp=127.0.0.1:9000;",
+            "If you are using the Fiddler AutoResponder feature, the Accept all CONNECTs option must be disabled.",
+            "When Internet Security for Zscaler Client Connector is ON, you can open and use Fiddler.",
+            "Ignore any errors that Fiddler displays during startup."
+          ]
+        }
+      ]
+    },
+    "acd-why": {
+      "statement": "When a Client Connector user in China connects to a Zscaler server also located in China, the connection might be blocked because the cloud on which the organization is provisioned is not registered in China; an alternative cloud domain registered in China can override the default cloud domain when connecting to the Internet & SaaS service and the Private Access service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-understanding-alternative-cloud-domains.json",
+          "quotes": [
+            "However, when a Zscaler Client Connector user in China connects to a Zscaler server also located in China, the connection might be blocked because the cloud on which your organization is provisioned is not registered in China.",
+            "You can use an alternative cloud domain registered in China that can override the default cloud domain when connecting to the Internet & SaaS service and the Private Access service."
+          ]
+        }
+      ]
+    },
+    "acd-prerequisites": {
+      "statement": "Alternative cloud domains need Client Connector 4.4 or later for Windows or 4.2 or later for macOS. With Internet & SaaS and Z-Tunnel 2.0, the forwarding profile needs a Tunnel Driver Type of Packet Filter-Based (Client Connector for Windows only), a forwarding profile action of Tunnel and a Tunnel Version Selection of Z-Tunnel 2.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-understanding-alternative-cloud-domains.json",
+          "quotes": [
+            "Zscaler Client Connector version 4.4 or later for Windows",
+            "Zscaler Client Connector version 4.2 or later for macOS",
+            "If you use Internet & SaaS with Zscaler Tunnel (Z-Tunnel) 2.0, configure a forwarding profile with these settings:",
+            "A Tunnel Driver Type of Packet Filter-Based (Zscaler Client Connector for Windows only)",
+            "A forwarding profile action of Tunnel.",
+            "A Tunnel Version Selection of Z-Tunnel 2.0"
+          ]
+        }
+      ]
+    },
+    "acd-discovery": {
+      "statement": "Client Connector determines whether an alternative cloud domain is configured as part of Service Edge Discovery, then uses the discovered domain to connect to the Service Edge for Internet & SaaS and the Service Edge for Private Access; it connects to it automatically if a compatible version is used, and Zscaler Support can disable the feature for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-understanding-alternative-cloud-domains.json",
+          "quotes": [
+            "Zscaler Client Connector determines whether an alternative cloud domain is configured as part of the Service Edge Discovery.",
+            "Zscaler Client Connector then uses the alternative cloud domain that was discovered to connect to the Service Edge for Internet & SaaS and Service Edge for Private Access.",
+            "Zscaler Client Connector automatically connects to the alternative cloud domain if you use a compatible version of the app.",
+            "If required, you can disable this feature for your organization by contacting Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "acd-pac-selection": {
+      "statement": "On Client Connector 4.7 or later for Windows, the app locates the alternative cloud name in the default return statement of the PAC file associated with the app profile. If the PAC file uses the ${GATEWAY_FX} macro or a similar macro, the PAC server replaces it with the alternative cloud domain along with the Public Service Edge for Internet & SaaS IP address and port; if the return statement does not include an alternative domain, the app uses the alternative domain in the HTTP response header of the PAC file and connects based on the app's location, not the Service Edge location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-understanding-alternative-cloud-domains.json",
+          "quotes": [
+            "If you use Zscaler Client Connector version 4.7 or later for Windows, Zscaler Client Connector locates the alternative cloud name in the default return statement of the PAC file associated with the app profile.",
+            "If the PAC file uses the ${GATEWAY_FX} macro or a similar macro, the PAC server replaces the macro with the alternative cloud domain along with the Public Service Edge for Internet & SaaS IP address and port.",
+            "If the return statement does not include an alternative domain, Zscaler Client Connector uses the alternative domain in the HTTP response header of the PAC file and connects based on the Zscaler Client Connector location (and not the Service Edge location)."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "acd-provisioning": {
+      "kind": "semantic",
+      "title": "Which alternative cloud domains exist and how they are provisioned",
+      "status": "open",
+      "detail": "The article describes the feature and says Zscaler Support can disable it; it does not give the domain names or how an organization is provisioned with one.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

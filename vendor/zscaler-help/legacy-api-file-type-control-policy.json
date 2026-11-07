@@ -1,0 +1,1247 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "File Type Control Policy",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/file-type-control-policy",
+    "node": "1510756",
+    "revision": "3139331",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/File%20Type%20Control%20Policy_7.json?VersionId=oriUyjBj6JKUsZu6Vnl_WhTvmuz.2lJM",
+    "updated": "2025-09-19",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "File Type Control Policy"
+      }
+    ],
+    "paths": {
+      "/fileTypeRules": {
+        "get": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "<p>Retrieves all the rules in the File Type Control policy</p>",
+          "operationId": "FileTypeRuleResource_getRules",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/FileTypeRule"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "<p>Adds a new File Type Control policy rule</p>",
+          "operationId": "FileTypeRuleResource_addRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The File Type Control policy rule information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/FileTypeRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/FileTypeRule"
+              }
+            }
+          }
+        }
+      },
+      "/fileTypeRules/lite": {
+        "get": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "<p>Retrieves all the rules in the File Type Control policy</p>",
+          "operationId": "FileTypeRuleResource_getSummary",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/FileTypeRule"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/fileTypeRules/{ruleId}": {
+        "get": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "<p>Retrieves the File Type Control policy rule information for the specified ID</p>",
+          "operationId": "FileTypeRuleResource_getRuleById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "description": "Unique identifier for the policy rule",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/FileTypeRule"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "<p>Updates the File Type Control policy rule information for the specified ID</p>",
+          "operationId": "FileTypeRuleResource_updateRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "description": "Unique identifier for the policy rule",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The File Type Control policy rule information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/FileTypeRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/FileTypeRule"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "<p>Deletes a File Type Control policy rule information for the specified ID</p>",
+          "operationId": "FileTypeRuleResource_deleteRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "description": "Unique identifier for the policy rule",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/fileTypeCategories": {
+        "get": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "<p>Retrieves the list of all file types, including predefined and custom file types, available for configuring rule conditions in different ZIA policies. You can retrieve predefined file types for specific file categories of policies by using the <b>enum</b> request parameter and by specifying one of the following values:</p><ul><li><code>ZSCALERDLP</code>: Web DLP rules with content inspection</li><li><code>EXTERNALDLP</code>: Web DLP rules without content inspection</li><li><code>FILETYPECATEGORYFORFILETYPECONTROL</code>: File Type Control policy</li></ul>",
+          "operationId": "FileTypeCategoryResource_getFileTypeCategories",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "enums",
+              "in": "query",
+              "description": "<p>Specifies the file type category for specific policies to retrieve the corresponding list of predefined file types supported for the policy category. The following values are supported:</p><ul><li><code>ZSCALERDLP</code>: DLP rules with content inspection</li><li><code>EXTERNALDLP</code>: DLP rules without content inspection</li><li><code>FILETYPECATEGORYFORFILETYPECONTROL</code>: File Type Control policy</li></ul>",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "collectionFormat": "multi",
+              "x-example": "FileTypeCategoryForFileTypeControl"
+            },
+            {
+              "name": "excludeCustomFileTypes",
+              "in": "query",
+              "description": "A Boolean value specifying whether custom file types must be excluded from the list or not",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/FileTypeCategoryDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/customFileTypes": {
+        "get": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "Retrieves the list of <a href=\"/zia/configuring-custom-file-types\" target=\"_blank\">custom file types</a>. Custom file types can be configured as rule conditions in different ZIA policies.",
+          "operationId": "CustomFileTypeResource_getAllCustomFileTypes",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 250,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/CustomFileType"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "Adds a new custom file type. To learn more, see <a href=\"/zia/configuring-custom-file-types\" target=\"_blank\">Configuring Custom File Types</a>.",
+          "operationId": "CustomFileTypeResource_createCustomFileType",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Custom file type information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/CustomFileType"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CustomFileType"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "Updates information for a custom file type based on the specified ID",
+          "operationId": "CustomFileTypeResource_updateCustomFileType",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The request Body contains the custom file type information to be updated and also specifies the ID of the custom file to be modified.",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/CustomFileType"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CustomFileType"
+              }
+            }
+          }
+        }
+      },
+      "/customFileTypes/count": {
+        "get": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "Retrieves the count of custom file types available",
+          "operationId": "CustomFileTypeResource_getCustomFileTypeCount",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        }
+      },
+      "/customFileTypes/{id}": {
+        "get": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "Retrieves information about a custom file type based on the specified ID",
+          "operationId": "CustomFileTypeResource_getCustomFileTypeById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Custom file type ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CustomFileType"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "File Type Control Policy"
+          ],
+          "description": "Deletes a custom file type based on the specified ID",
+          "operationId": "CustomFileTypeResource_deleteCustomFileType",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Custom file type ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "FileTypeRule": {
+        "type": "object",
+        "description": "File Type rule",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier for a file type policy"
+          },
+          "protocols": {
+            "type": "array",
+            "description": "Protocol for the given rule. This field is not applicable to the Lite API.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY_RULE",
+                "SMRULEF_CASCADING_ALLOWED",
+                "FOHTTP_RULE",
+                "FTP_RULE",
+                "HTTPS_RULE",
+                "HTTP_RULE"
+              ]
+            }
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Order of policy execution with respect to other file type policies. Order N indicates N-th file type policy is evaluated. This field is not applicable to the Lite API."
+          },
+          "timeQuota": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Time quota in minutes, after which the policy must be applied. If not set, no time quota is enforced. Ignored if action is BLOCK."
+          },
+          "sizeQuota": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Size quota in KB, beyond which the policy must be applied. If not set, size quota is not enforced. Ignored if action is BLOCK."
+          },
+          "description": {
+            "type": "string",
+            "description": "Comments provided by the administrator"
+          },
+          "locations": {
+            "type": "array",
+            "description": "Name-ID pairs of locations for which the policy must be applied. If not set, the policy is applied for all locations.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "locationGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of locations groups for which rule must be applied.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "description": "Name-ID pairs of groups for which the policy must be applied. If not set, the policy is applied for all groups.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "departments": {
+            "type": "array",
+            "description": "Name-ID pairs of departments for which the rule is applied. If not set, the rule is applied for all departments.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "Name-ID pairs of users for which the policy must be applied. If not set, user criteria is not considered for policy enforcement.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "urlCategories": {
+            "type": "array",
+            "description": "List of URL categories for which the policy must be applied. If not set, the policy is applied for all URL categories.",
+            "items": {
+              "$ref": "#/definitions/UrlCategoryForPolicy"
+            }
+          },
+          "fileTypes": {
+            "type": "array",
+            "description": "This field is replaced with <b>fileTypeCategories</b>. Zscaler recommends updating your API configurations to use the <b>fileTypeCategories</b> attribute in place of fileTypes.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "FTCATEGORY_JAVASCRIPT",
+                "FTCATEGORY_FLASH",
+                "FTCATEGORY_JAVA_APPLET",
+                "FTCATEGORY_HTA",
+                "FTCATEGORY_HAR",
+                "FTCATEGORY_ZIP",
+                "FTCATEGORY_GZIP",
+                "FTCATEGORY_TAR",
+                "FTCATEGORY_BZIP2",
+                "FTCATEGORY_RAR",
+                "FTCATEGORY_STUFFIT",
+                "FTCATEGORY_ISO",
+                "FTCATEGORY_CAB",
+                "FTCATEGORY_P7Z",
+                "FTCATEGORY_SCZIP",
+                "FTCATEGORY_DMG",
+                "FTCATEGORY_PKG",
+                "FTCATEGORY_NUPKG",
+                "FTCATEGORY_MF",
+                "FTCATEGORY_EGG",
+                "FTCATEGORY_ALZ",
+                "FTCATEGORY_LZ4",
+                "FTCATEGORY_LZOP",
+                "FTCATEGORY_ZST",
+                "FTCATEGORY_RZIP",
+                "FTCATEGORY_LZIP",
+                "FTCATEGORY_LRZIP",
+                "FTCATEGORY_DACT",
+                "FTCATEGORY_ZPAQ",
+                "FTCATEGORY_BH",
+                "FTCATEGORY_B64",
+                "FTCATEGORY_LZMA",
+                "FTCATEGORY_XZ",
+                "FTCATEGORY_FCL",
+                "FTCATEGORY_ZIPX",
+                "FTCATEGORY_CPIO",
+                "FTCATEGORY_LZH",
+                "FTCATEGORY_MP3",
+                "FTCATEGORY_WAV",
+                "FTCATEGORY_OGG_VORBIS",
+                "FTCATEGORY_M3U",
+                "FTCATEGORY_VPR",
+                "FTCATEGORY_AAC",
+                "FTCATEGORY_ADE",
+                "FTCATEGORY_DB2",
+                "FTCATEGORY_SQL",
+                "FTCATEGORY_EDMX",
+                "FTCATEGORY_FRM",
+                "FTCATEGORY_ACCDB",
+                "FTCATEGORY_DBF",
+                "FTCATEGORY_VIRTUAL_HARD_DISK",
+                "FTCATEGORY_DB",
+                "FTCATEGORY_SDB",
+                "FTCATEGORY_KDBX",
+                "FTCATEGORY_DXL",
+                "FTCATEGORY_WINDOWS_EXECUTABLES",
+                "FTCATEGORY_MICROSOFT_INSTALLER",
+                "FTCATEGORY_WINDOWS_LIBRARY",
+                "FTCATEGORY_WINDOWS_LNK",
+                "FTCATEGORY_PYTHON",
+                "FTCATEGORY_POWERSHELL",
+                "FTCATEGORY_VISUAL_BASIC_SCRIPT",
+                "FTCATEGORY_MSP",
+                "FTCATEGORY_REG",
+                "FTCATEGORY_BAT",
+                "FTCATEGORY_BASH_SCRIPTS",
+                "FTCATEGORY_SHELL_SCRAP",
+                "FTCATEGORY_DEB",
+                "FTCATEGORY_APPX",
+                "FTCATEGORY_MSC",
+                "FTCATEGORY_ELF",
+                "FTCATEGORY_MACH",
+                "FTCATEGORY_DRV",
+                "FTCATEGORY_GBA",
+                "FTCATEGORY_SMD",
+                "FTCATEGORY_XBEH",
+                "FTCATEGORY_PSX",
+                "FTCATEGORY_THREETWOX",
+                "FTCATEGORY_NDS",
+                "FTCATEGORY_BITMAP",
+                "FTCATEGORY_PHOTOSHOP",
+                "FTCATEGORY_WINDOWS_META_FORMAT",
+                "FTCATEGORY_GIF",
+                "FTCATEGORY_JPEG",
+                "FTCATEGORY_PNG",
+                "FTCATEGORY_WEBP",
+                "FTCATEGORY_TIFF",
+                "FTCATEGORY_DCM",
+                "FTCATEGORY_THREEDM",
+                "FTCATEGORY_KML",
+                "FTCATEGORY_JPD",
+                "FTCATEGORY_DNG",
+                "FTCATEGORY_RWZ",
+                "FTCATEGORY_GREENSHOT",
+                "FTCATEGORY_IMG",
+                "FTCATEGORY_HIGH_EFFICIENCY_IMAGE_FILES",
+                "FTCATEGORY_AAF",
+                "FTCATEGORY_OMFI",
+                "FTCATEGORY_PLS",
+                "FTCATEGORY_HLP",
+                "FTCATEGORY_MDZ",
+                "FTCATEGORY_MST",
+                "FTCATEGORY_WINDOWS_SCRIPT_FILES",
+                "FTCATEGORY_GRP",
+                "FTCATEGORY_PIF",
+                "FTCATEGORY_JOB",
+                "FTCATEGORY_PSW",
+                "FTCATEGORY_ONENOTE",
+                "FTCATEGORY_CATALOG",
+                "FTCATEGORY_NETMON",
+                "FTCATEGORY_HIVE",
+                "FTCATEGORY_APK",
+                "FTCATEGORY_IPA",
+                "FTCATEGORY_MOBILECONFIG",
+                "FTCATEGORY_MS_POWERPOINT",
+                "FTCATEGORY_MS_WORD",
+                "FTCATEGORY_MS_EXCEL",
+                "FTCATEGORY_MS_RTF",
+                "FTCATEGORY_MS_MDB",
+                "FTCATEGORY_MS_MSG",
+                "FTCATEGORY_MS_PST",
+                "FTCATEGORY_MS_VSIX",
+                "FTCATEGORY_VSDX",
+                "FTCATEGORY_OAB",
+                "FTCATEGORY_OLM",
+                "FTCATEGORY_MS_PUB",
+                "FTCATEGORY_TNEF",
+                "FTCATEGORY_OPEN_OFFICE_DOC",
+                "FTCATEGORY_OPEN_OFFICE_DRAWINGS",
+                "FTCATEGORY_OPEN_OFFICE_PRESENTATIONS",
+                "FTCATEGORY_OPEN_OFFICE_SPREADSHEETS",
+                "FTCATEGORY_PDF_DOCUMENT",
+                "FTCATEGORY_POSTSCRIPT",
+                "FTCATEGORY_COMPILED_HTML_HELP",
+                "FTCATEGORY_DWG",
+                "FTCATEGORY_CGR",
+                "FTCATEGORY_SLDPRT",
+                "FTCATEGORY_TXT",
+                "FTCATEGORY_UNK",
+                "FTCATEGORY_IPT",
+                "FTCATEGORY_XPS",
+                "FTCATEGORY_CSV",
+                "FTCATEGORY_STL",
+                "FTCATEGORY_IQY",
+                "FTCATEGORY_CERT",
+                "FTCATEGORY_INTERNET_SIGNUP",
+                "FTCATEGORY_PCAP",
+                "FTCATEGORY_TTF",
+                "FTCATEGORY_CRX",
+                "FTCATEGORY_CER",
+                "FTCATEGORY_DER",
+                "FTCATEGORY_P7B",
+                "FTCATEGORY_PEM",
+                "FTCATEGORY_JKS",
+                "FTCATEGORY_KEY",
+                "FTCATEGORY_P12",
+                "FTCATEGORY_CHEMDRAW_FILES",
+                "FTCATEGORY_CML",
+                "FTCATEGORY_BPL",
+                "FTCATEGORY_CCC",
+                "FTCATEGORY_CP",
+                "FTCATEGORY_DEVFILE",
+                "FTCATEGORY_MM",
+                "FTCATEGORY_AES",
+                "FTCATEGORY_WOFF2",
+                "FTCATEGORY_STEP_FILES",
+                "FTCATEGORY_RVT",
+                "FTCATEGORY_EMF",
+                "FTCATEGORY_PCD",
+                "FTCATEGORY_INF",
+                "FTCATEGORY_SAM",
+                "FTCATEGORY_PMD",
+                "FTCATEGORY_EOT",
+                "FTCATEGORY_OPENXML",
+                "FTCATEGORY_FODT",
+                "FTCATEGORY_JOBOPTIONS",
+                "FTCATEGORY_IDML",
+                "FTCATEGORY_CXP",
+                "FTCATEGORY_ENEX",
+                "FTCATEGORY_OTF",
+                "FTCATEGORY_LGX",
+                "FTCATEGORY_CBZ",
+                "FTCATEGORY_DPB",
+                "FTCATEGORY_GLB",
+                "FTCATEGORY_PM3",
+                "FTCATEGORY_CD3",
+                "FTCATEGORY_FLN",
+                "FTCATEGORY_IVR",
+                "FTCATEGORY_VU3",
+                "FTCATEGORY_PFB",
+                "FTCATEGORY_WIM",
+                "FTCATEGORY_APPLE_DOCUMENTS",
+                "FTCATEGORY_TABLEAU_FILES",
+                "FTCATEGORY_AUTOCAD",
+                "FTCATEGORY_INTEGRATED_CIRCUIT_FILES",
+                "FTCATEGORY_LOG_FILES",
+                "FTCATEGORY_EML_FILES",
+                "FTCATEGORY_DAT",
+                "FTCATEGORY_INI",
+                "FTCATEGORY_IGS",
+                "FTCATEGORY_TMP",
+                "FTCATEGORY_MUI",
+                "FTCATEGORY_HBS",
+                "FTCATEGORY_ICS",
+                "FTCATEGORY_PUB",
+                "FTCATEGORY_DRAWIO",
+                "FTCATEGORY_PRT",
+                "FTCATEGORY_PS2",
+                "FTCATEGORY_PS3",
+                "FTCATEGORY_ACIS",
+                "FTCATEGORY_VDA",
+                "FTCATEGORY_PARASOLID",
+                "FTCATEGORY_PGP",
+                "FTCATEGORY_BIN",
+                "FTCATEGORY_JSON",
+                "FTCATEGORY_XML",
+                "FTCATEGORY_BINHEX",
+                "FTCATEGORY_QUARKXPRESS",
+                "FTCATEGORY_GO_FILES",
+                "FTCATEGORY_SWIFT_FILES",
+                "FTCATEGORY_RUBY_FILES",
+                "FTCATEGORY_PERL_FILES",
+                "FTCATEGORY_MATLAB_FILES",
+                "FTCATEGORY_INCLUDE_FILES",
+                "FTCATEGORY_JAVA_FILES",
+                "FTCATEGORY_MAKE_FILES",
+                "FTCATEGORY_YAML_FILES",
+                "FTCATEGORY_VISUAL_BASIC_FILES",
+                "FTCATEGORY_C_FILES",
+                "FTCATEGORY_XAML",
+                "FTCATEGORY_BASIC_SOURCE_CODE",
+                "FTCATEGORY_SCT",
+                "FTCATEGORY_A_FILE",
+                "FTCATEGORY_MS_CPP_FILES",
+                "FTCATEGORY_ASM",
+                "FTCATEGORY_BORLAND_CPP_FILES",
+                "FTCATEGORY_CLW",
+                "FTCATEGORY_COBOL",
+                "FTCATEGORY_CSX",
+                "FTCATEGORY_DELPHI",
+                "FTCATEGORY_DMD",
+                "FTCATEGORY_DSP",
+                "FTCATEGORY_F_FILES",
+                "FTCATEGORY_NATVIS",
+                "FTCATEGORY_NCB",
+                "FTCATEGORY_NFM",
+                "FTCATEGORY_POD",
+                "FTCATEGORY_QLIKVIEW_FILES",
+                "FTCATEGORY_RES_FILES",
+                "FTCATEGORY_RPY",
+                "FTCATEGORY_RSP",
+                "FTCATEGORY_SAS",
+                "FTCATEGORY_SC",
+                "FTCATEGORY_SCALA",
+                "FTCATEGORY_SWC",
+                "FTCATEGORY_TCC",
+                "FTCATEGORY_TLH",
+                "FTCATEGORY_TLI",
+                "FTCATEGORY_VISUAL_CPP_FILES",
+                "FTCATEGORY_X1B",
+                "FTCATEGORY_IFC",
+                "FTCATEGORY_BCP",
+                "FTCATEGORY_FOR",
+                "FTCATEGORY_NCI",
+                "FTCATEGORY_AU3",
+                "FTCATEGORY_BGI",
+                "FTCATEGORY_MANIFEST",
+                "FTCATEGORY_NLS",
+                "FTCATEGORY_TLB",
+                "FTCATEGORY_ASHX",
+                "FTCATEGORY_EXP",
+                "FTCATEGORY_FLASH_VIDEO",
+                "FTCATEGORY_AVI",
+                "FTCATEGORY_MPEG",
+                "FTCATEGORY_MP4",
+                "FTCATEGORY_3GPP",
+                "FTCATEGORY_QUICKTIME_VIDEO",
+                "FTCATEGORY_WINDOWS_MEDIA_MOVIE",
+                "FTCATEGORY_MKV",
+                "FTCATEGORY_WEBM",
+                "FTCATEGORY_VS4",
+                "FTCATEGORY_TS"
+              ]
+            }
+          },
+          "fileTypeCategories": {
+            "type": "array",
+            "description": "The list of file types to which the rule applies",
+            "items": {
+              "$ref": "#/definitions/FileTypeCategoryDTO"
+            }
+          },
+          "devices": {
+            "type": "array",
+            "description": "Name-ID pairs of device for which the rule is applied",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of device groups for which the rule is applied",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceTrustLevels": {
+            "type": "array",
+            "description": "<p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your <a href=\"/client-connector/adding-zia-posture-profiles\" target=\"_blank\">posture configurations</a> in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "UNKNOWN_DEVICETRUSTLEVEL",
+                "LOW_TRUST",
+                "MEDIUM_TRUST",
+                "HIGH_TRUST"
+              ]
+            }
+          },
+          "minSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Minimum file size (in KB) used for evaluation of the FTP rule"
+          },
+          "maxSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum file size (in KB) used for evaluation of the FTP rule"
+          },
+          "filteringAction": {
+            "type": "string",
+            "description": "Action taken when traffic matches policy. This field is not applicable to the Lite API.",
+            "enum": [
+              "BLOCK",
+              "CAUTION",
+              "ALLOW"
+            ]
+          },
+          "capturePCAP": {
+            "type": "boolean",
+            "description": "Enable or disable Capture PCAP Settings "
+          },
+          "operation": {
+            "type": "string",
+            "description": "File operation performed. This field is not applicable to the Lite API.",
+            "enum": [
+              "UPLOAD",
+              "DOWNLOAD",
+              "UPLOAD_DOWNLOAD"
+            ]
+          },
+          "activeContent": {
+            "type": "boolean",
+            "description": "Flag to check whether a file has active content or not"
+          },
+          "unscannable": {
+            "type": "boolean",
+            "description": "Flag to check whether a file is unscannable or not"
+          },
+          "passwordProtected": {
+            "type": "boolean",
+            "description": "<p>A Boolean field indicating whether the rule applies to password-protected files. This criterion is used in combination with the fileTypes criterion and is applicable only to specific file types such as 7-Zip, RAR, ZIP, ZIPx, PDF, password-protected Microsoft Office files, and other password-protected and encrypted files. So, when the passwordProtected field is set to true, only the applicable file types can be specified using the <b>fileTypes</b> field.</p><p><b>Note</b>: Traffic is evaluated against this criterion only when uploading and downloading of password-protected files is allowed at the organization level via the Security Exceptions in the Malware Protection policy.</p>"
+          },
+          "state": {
+            "type": "string",
+            "description": "Administrative state of the policy. This field is not applicable to the Lite API.",
+            "enum": [
+              "DISABLED",
+              "ENABLED"
+            ]
+          },
+          "timeWindows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "rank": {
+            "type": "integer",
+            "description": "Admin rank. This field is not applicable to the Lite API.",
+            "format": "int32"
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp when the rule was last modified. Ignored if the request is POST or PUT. "
+          },
+          "lastModifiedBy": {
+            "description": "Admin user that last modified the rule. Ignored if the request is POST or PUT.",
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ]
+          },
+          "accessControl": {
+            "type": "string",
+            "description": "Access privilege of this rule based on the admin's RBA state. Ignored if the request is POST or PUT.",
+            "enum": [
+              "NONE",
+              "READ_ONLY",
+              "READ_WRITE"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "Rule Name"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "zpaAppSegments": {
+            "type": "array",
+            "description": "List of Source IP Anchoring-enabled ZPA Application Segments for which this rule is applicable",
+            "items": {
+              "$ref": "#/definitions/AppSegment"
+            }
+          },
+          "cloudApplications": {
+            "type": "array",
+            "description": "The list of cloud applications to which the File Type Control policy rule must be applied",
+            "items": {
+              "$ref": "#/definitions/PolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          }
+        }
+      },
+      "FileTypeCategoryDTO": {
+        "type": "object",
+        "description": "File type information",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "File type ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "File type description"
+          },
+          "parent": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "NONE",
+              "EXECUTABLES",
+              "OFFICE_DOCUMENTS",
+              "OTHER_DOCUMENTS",
+              "ACTIVE_WEB_CONTENTS",
+              "ARCHIVES",
+              "AUDIO",
+              "VIDEO",
+              "IMAGES",
+              "MOBILE",
+              "OTHER",
+              "GAMING",
+              "SOURCE_CODE",
+              "DATABASE",
+              "MICROSOFT",
+              "MEDIA",
+              "OPEN_OFFICE_FILES",
+              "USER_DEFINED"
+            ],
+            "description": "Parent category of the file type"
+          }
+        }
+      },
+      "CustomFileType": {
+        "type": "object",
+        "description": "Custom file type information",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Custom file type ID. This ID is assigned and maintained exclusively for custom file types, and this value is different from the file type ID (i.e., fileTypeId field)."
+          },
+          "name": {
+            "type": "string",
+            "description": "Custom file type name"
+          },
+          "extension": {
+            "type": "string",
+            "description": "Specifies the file type extension. The maximum extension length is 10 characters. Existing Zscaler extensions cannot be added to custom file types."
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information about the custom file type, if any."
+          },
+          "fileTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "File type ID. This ID is assigned and maintained for all file types including predefined and custom file types, and this value is different from the custom file type ID."
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of id and name"
+      },
+      "UrlCategoryForPolicy": {
+        "type": "object",
+        "properties": {
+          "val": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mask": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "urlSupercategory": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "NONE",
+              "ADVANCED_SECURITY",
+              "ENTERTAINMENT_AND_RECREATION",
+              "NEWS_AND_MEDIA",
+              "USER_DEFINED",
+              "EDUCATION",
+              "BUSINESS_AND_ECONOMY",
+              "JOB_SEARCH",
+              "INFORMATION_TECHNOLOGY",
+              "INTERNET_COMMUNICATION",
+              "OFFICE_365",
+              "CUSTOM_SUPERCATEGORY",
+              "CUSTOM_BP",
+              "CUSTOM_BW",
+              "MISCELLANEOUS",
+              "TRAVEL",
+              "VEHICLES",
+              "GOVERNMENT_AND_POLITICS",
+              "GLOBAL_INT",
+              "GLOBAL_INT_BP",
+              "GLOBAL_INT_BW",
+              "GLOBAL_INT_OFC365",
+              "ADULT_MATERIAL",
+              "DRUGS",
+              "GAMBLING",
+              "VIOLENCE",
+              "WEAPONS_AND_BOMBS",
+              "TASTELESS",
+              "MILITANCY_HATE_AND_EXTREMISM",
+              "ILLEGAL_OR_QUESTIONABLE",
+              "SOCIETY_AND_LIFESTYLE",
+              "HEALTH",
+              "SPORTS",
+              "SPECIAL_INTERESTS_SOCIAL_ORGANIZATIONS",
+              "GAMES",
+              "SHOPPING_AND_AUCTIONS",
+              "SOCIAL_AND_FAMILY_ISSUES",
+              "RELIGION",
+              "SECURITY"
+            ]
+          },
+          "deprecated": {
+            "type": "boolean"
+          },
+          "backendName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "userConfiguredName": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          }
+        }
+      },
+      "AppSegment": {
+        "type": "object",
+        "description": "Application Segment information",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "A unique identifier assigned to the Application Segment",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the Application Segment"
+          },
+          "externalId": {
+            "type": "integer",
+            "description": "Indicates the external ID. Applicable only when this reference is of an external entity.",
+            "format": "int64"
+          },
+          "zpaTenantId": {
+            "type": "integer",
+            "description": "ID of the ZPA tenant where the Application Segment is configured",
+            "format": "int64"
+          }
+        }
+      },
+      "PolicyWebApplication": {
+        "type": "object",
+        "properties": {
+          "val": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "webApplicationClass": {
+            "type": "string",
+            "description": "<p>The cloud application class selected from the available options</p>",
+            "enum": [
+              "ANY",
+              "NONE",
+              "WEB_MAIL",
+              "SOCIAL_NETWORKING",
+              "STREAMING",
+              "P2P",
+              "INSTANT_MESSAGING",
+              "WEB_SEARCH",
+              "GENERAL_BROWSING",
+              "ADMINISTRATION",
+              "ENTERPRISE_COLLABORATION",
+              "BUSINESS_PRODUCTIVITY",
+              "SALES_AND_MARKETING",
+              "SYSTEM_AND_DEVELOPMENT",
+              "CONSUMER",
+              "FILE_SHARE",
+              "HOSTING_PROVIDER",
+              "IT_SERVICES",
+              "DNS_OVER_HTTPS",
+              "HUMAN_RESOURCES",
+              "LEGAL",
+              "HEALTH_CARE",
+              "FINANCE",
+              "CUSTOM_CAPP",
+              "AI_ML"
+            ]
+          },
+          "backendName": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "deprecated": {
+            "type": "boolean"
+          },
+          "misc": {
+            "type": "boolean"
+          },
+          "appNotReady": {
+            "type": "boolean"
+          },
+          "underMigration": {
+            "type": "boolean"
+          },
+          "appCatModified": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

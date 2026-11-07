@@ -1,0 +1,1625 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring SAML for SSO",
+  "source": {
+    "url": "https://help.zscaler.com/zpc/configuring-saml-sso",
+    "node": "1392516",
+    "revision": "2926496",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "You can configure ZPC as the service provider (SP) and use the Security Assertion Markup Language (SAML) single sign-on (SSO) for provisioning and authenticating administrators. To learn more about SAML, see About SAML."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before configuring the Zscaler service for SAML, ensure you obtain the SAML IdP certificate from your identity provider (IdP). You need to upload this IdP certificate to the ZPC Admin Portal when you're adding the IdP configuration."
+    },
+    {
+      "heading": "Configuring SAML",
+      "level": 1
+    },
+    {
+      "text": "To configure SAML-based SSO with ZPC:"
+    },
+    {
+      "item": "1. Download the XML Metadata from the ZPC Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "2. Configure the IdP for SAML",
+      "depth": 0
+    },
+    {
+      "item": "3. Add the IdP in the ZPC Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "4. Add Administrators to ZPC",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring SAML JIT Provisioning",
+      "level": 1
+    },
+    {
+      "text": "You can enable SAML just-in-time (JIT) provisioning to allow ZPC to automatically retrieve information related to users such as first name, or role name from the SAML response. If the user doesn't exist in the database, then the user is added to the database along with the role information. This new user is activated, and can access the ZPC Admin Portal."
+    },
+    {
+      "text": "JIT works only when you log in via an IDP-initiated SSO."
+    },
+    {
+      "text": "Before configuring SAML JIT provisioning, make sure to first create a group in the ZPC Admin Portal, add the same group name to the IdP, and assign users to this group. Or if you have an existing group on the IdP portal, then add the same group name in the ZPC Admin Portal. All users in the existing IdP group are provisioned on ZPC. This step is mandatory to avoid any errors during configuration."
+    },
+    {
+      "text": "IdP groups are prioritized over ZPC groups. If a user is part of both groups, they are logged into the IdP group."
+    },
+    {
+      "text": "To configure SAML Just-in-Time (JIT) provisioning with ZPC, you must enable JIT on the ZPC Admin Portal:"
+    },
+    {
+      "item": "Go to Administration > Single Sign On.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "On the Single Sign On page, click the Edit icon for the IdP.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          38,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Select the checkbox under Enable JIT.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          26,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "Follow the relevant configuration guides of Okta, PingOne, OneLogin, and Azure AD to configure ZPC as an SP for your IdP."
+    },
+    {
+      "text": "Follow the relevant configuration guides to configure ZPC as an SP for your IdP:"
+    },
+    {
+      "item": "Okta",
+      "depth": 0
+    },
+    {
+      "item": "PingOne",
+      "depth": 0
+    },
+    {
+      "item": "OneLogin",
+      "depth": 0
+    },
+    {
+      "item": "Azure AD",
+      "depth": 0
+    },
+    {
+      "item": "CyberArk Iadaptive",
+      "depth": 0
+    },
+    {
+      "item": "Log in to Okta with admin privileges.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "In the left-navigation menu, click Applications.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Click Create App Integration.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Select SAML 2.0, then click Next.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          28,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "On the General Settings tab, enter your App Name and click Next.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          40,
+          48
+        ],
+        [
+          59,
+          63
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Under SAML Settings:",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "For Single Sign on URL, enter the ACS URL provided in the XML Metadata that you downloaded from the ZPC Admin Portal.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select the Use this for Recipient URL and Destination URL checkbox.",
+      "depth": 1,
+      "strong": [
+        [
+          11,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "For Audience URI (SP Entity ID), enter the Entity ID provided in the XML Metadata that you downloaded from the ZPC Admin Portal.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "From the Name ID format drop-down menu, select Email Address.",
+      "depth": 1,
+      "strong": [
+        [
+          9,
+          23
+        ],
+        [
+          47,
+          60
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Select I'm an Okta customer adding an internal app, then click Finish.",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          50
+        ],
+        [
+          63,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "On the Sign On tab, click View Setup Instructions to view the following details. Copy and save this information because you need it when adding an IdP configuration:",
+      "depth": 0,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          26,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Identity Provider SSO URL",
+      "depth": 1
+    },
+    {
+      "item": "Identity Provider Issuer",
+      "depth": 1
+    },
+    {
+      "item": "X.509 Certificate",
+      "depth": 1
+    },
+    {
+      "text": "To learn more, see the Okta documentation."
+    },
+    {
+      "item": "Log in to PingOne with admin privileges.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Go to Connections > Applications.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          20,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Application, then select WEB APP.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          35,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Choose SAML as your connection type.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Configure.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Enter the Application Name, then click Next.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          26
+        ],
+        [
+          39,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Click Import Metadata, then upload the XML Metadata that you downloaded from the ZPC Admin Portal.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Enter the Assertion Validation Duration, then click Save and Continue.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          10,
+          39
+        ],
+        [
+          52,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "From the PingOne User Attribute drop-down menu, select Family Name.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          9,
+          31
+        ],
+        [
+          55,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and Close.",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Select your application, then click the Configuration tab.",
+      "depth": 0,
+      "number": 11,
+      "strong": [
+        [
+          40,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Download the Metadata that contains the following details. Copy and save this information, as you need it for adding an IdP configuration:",
+      "depth": 0,
+      "number": 12
+    },
+    {
+      "item": "Identity Provider SSO URL",
+      "depth": 1
+    },
+    {
+      "item": "Identity Provider Issuer",
+      "depth": 1
+    },
+    {
+      "item": "X.509 Certificate",
+      "depth": 1
+    },
+    {
+      "text": "To learn more, see the PingOne documentation."
+    },
+    {
+      "item": "Log in to OneLogin with admin privileges.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Click Applications, then click Add App.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          31,
+          38
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Search for SAML, then select the SAML Test Connector (Advanced) connector.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          33,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Enter the Display Name, then click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          22
+        ],
+        [
+          35,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "On the Configuration tab:",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "ACS (Consumer) URL: Enter the ACS URL provided in the XML Metadata that you downloaded from the ZPC Admin Portal.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "ACS(Consumer) URL Validator: Enter the following URL:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "text": "https:\\/\\/app.us.zpccloud.net\\/auth\\/saml\\/acs"
+    },
+    {
+      "item": "Audience (EntityID): Enter the Entity ID provided in the XML Metadata that you downloaded from the ZPC Admin Portal.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Go to the SSO tab to view the following details. Copy and save this information, as you need it for adding an IdP configuration:",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Identity Provider SSO URL",
+      "depth": 1
+    },
+    {
+      "item": "Identity Provider Issuer",
+      "depth": 1
+    },
+    {
+      "item": "X.509 Certificate",
+      "depth": 1
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "To learn more about configuring SSO, see the OneLogin documentation."
+    },
+    {
+      "item": "Go to Administration > Single Sign On.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Click Add IdP Configuration.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Click Download XML Metadata.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The XML Metadata contains the following information which you need to submit while adding an IdP configuration:"
+    },
+    {
+      "item": "Name Identifier Format: ZPC only supports email address as the Name ID format.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Entity ID: A unique identifier for a SAML entity.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Assertion Consumer Service (ACS) URL: ZPC destination URL where the SAML response must be sent to by the IdP.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "text": "You can add a single IdP configuration for one tenant. To learn more, see Adding an IdP Configuration."
+    },
+    {
+      "text": "You need to add the administrators to ZPC after configuring SAML-based authentication. To learn more, see About Administrators."
+    },
+    {
+      "item": "Log in to the Azure AD Portal with admin privileges.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "In the left-navigation menu, select Azure Active Directory, then select Enterprise applications.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          58
+        ],
+        [
+          72,
+          95
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click New application > Create your own application.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          24,
+          39
+        ],
+        [
+          40,
+          51
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "In the Create your own application section:",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Enter a name for the application that you want to configure with Azure AD.",
+      "depth": 1
+    },
+    {
+      "item": "Select Integrate any other application you don't find in the gallery.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The newly created application page appears."
+    },
+    {
+      "item": "In the left-navigation menu, select Single sign-on > Setup single sign on.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          36,
+          50
+        ],
+        [
+          53,
+          73
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Edit in the Basic SAML Configuration section.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          18,
+          42
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "In the Basic SAML Configuration window:",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Under Identifier (Entity ID), click Add Identifier and enter the Entity ID provided in the XML Metadata that you downloaded from the ZPC Admin Portal.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          28
+        ],
+        [
+          36,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Under Reply URL (Assertion Consumer Service URL), click Add reply URL and enter the ACS URL provided in the XML Metadata that you downloaded from the ZPC Admin Portal.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          48
+        ],
+        [
+          56,
+          69
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "A message appears indicating that the SAML configuration was saved successfully."
+    },
+    {
+      "text": "Next, you must add the user to the application."
+    },
+    {
+      "item": "Go back to the application page.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "In the left-navigation menu, select Users and groups > Add user/groups.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          52
+        ],
+        [
+          55,
+          70
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Add Assignment page, click Users and groups to view the list of users.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          34,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Enter the name of the user or search for the specific user.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Select. The user is selected.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Assign.The user is assigned to the application.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Next, click Users and groups again.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          12,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "On the Manage claims page:",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "For Name identifier format, select email address from the drop-down menu.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          26
+        ],
+        [
+          35,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "For Source attribute, select user.mail from the drop-down menu.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          20
+        ],
+        [
+          29,
+          38
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "To learn more, see the Microsoft documentation."
+    },
+    {
+      "item": "Log in to the CyberArk Identity Admin Portal.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Apps & Widgets > Web Apps.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          49
+        ],
+        [
+          52,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Web Apps.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Add Web Apps screen, select the Custom tab.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          39,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Search for SAML app and click Add.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          30,
+          33
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "In the confirmation window that appears, click Yes.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          47,
+          50
+        ]
+      ]
+    },
+    {
+      "text": "The SAML web app is added."
+    },
+    {
+      "item": "Close the Application Catalog.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          10,
+          29
+        ]
+      ]
+    },
+    {
+      "text": "The Settings page opens for the SAML web app that you added.",
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Enter the name and description for the SAML web app.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "heading": "Configuring the IdP",
+      "level": 2
+    },
+    {
+      "item": "In the left-side navigation of the SAML web app page, select Trust to set up the IdP configuration.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          61,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Select Manual Configuration.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Click the arrows to view the IdP Entity ID/Issuer and Signing Certificate fields.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          29,
+          49
+        ],
+        [
+          54,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Copy the Entity ID and save it. This value is used in the SAML assertion to identify the IdP attempting to authenticate.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Download the Signing Certificate to your local system. The certificate is used for secure SSO authentication between CyberArk Identity and ZPC.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          13,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Copy the Single Sign-On URL and save it. ZPC uses this URL to notify CyberArk Identity of SAML SSO.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          27
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Log in to the ZPC Admin Portal and add the IdP configuration. Use the values you copied in step 3 to configure the IdP.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "heading": "Configuring the Service Provider",
+      "level": 2
+    },
+    {
+      "text": "Next, you need to configure ZPC as the Service Provider in the CyberArk Identity Admin Portal."
+    },
+    {
+      "item": "In the left-side navigation of the SAML web app page, select Trust.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          61,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Scroll down to view the Service Provider Configuration.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          24,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Select Manual Configuration and enter the following:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "SP Entity/ ID / Audience: Enter the Entity ID provided in the XML metadata file that you downloaded while adding the IdP configuration in the ZPC Admin Portal.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Assertion Consumer Service (ACS) URL: Enter the URL provided in the XML metadata file that you downloaded from the ZPC Admin Portal.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "NameID Format: By default, the format is Unspecified. Retain this value.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          41,
+          52
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "The status of the SAML web app changes to Ready to Deploy.",
+      "strong": [
+        [
+          42,
+          57
+        ]
+      ]
+    },
+    {
+      "heading": "Setting up the SAML Response",
+      "level": 2
+    },
+    {
+      "item": "In the left-side navigation of the SAML web app page, select SAML Response to map the attributes from ZPC to SAML attributes.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          61,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Enter the following attributes:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "table": [
+        [
+          "Attribute Name",
+          "Attribute Value"
+        ],
+        [
+          "http://schemas.xmlsoap.org/claims/Group",
+          "Click the Edit icon and select LoginUser from the drop-down list. Then select RoleNames from the list."
+        ],
+        [
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
+          "Click the Edit icon and select LoginUser from the drop-down list. Then select RoleNames from the list."
+        ],
+        [
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+          "Click the Edit icon, select LoginUser from the drop-down list. Select DisplayName from the list."
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          14
+        ],
+        [
+          0,
+          1,
+          0,
+          15
+        ],
+        [
+          1,
+          1,
+          10,
+          14
+        ],
+        [
+          1,
+          1,
+          31,
+          40
+        ],
+        [
+          1,
+          1,
+          78,
+          87
+        ],
+        [
+          2,
+          1,
+          10,
+          14
+        ],
+        [
+          2,
+          1,
+          31,
+          40
+        ],
+        [
+          2,
+          1,
+          78,
+          87
+        ],
+        [
+          3,
+          1,
+          10,
+          14
+        ],
+        [
+          3,
+          1,
+          28,
+          37
+        ],
+        [
+          3,
+          1,
+          70,
+          81
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Scroll down and click Preview SAML Response to check if the attributes are mapped correctly.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          22,
+          43
+        ]
+      ]
+    },
+    {
+      "heading": "Adding Roles",
+      "level": 2
+    },
+    {
+      "text": "You need to add a role and assign users to this role."
+    },
+    {
+      "text": "Roles function as groups in the CyberArk Iadaptive."
+    },
+    {
+      "text": "To add a role:"
+    },
+    {
+      "item": "In the left-side navigation of the CyberArk Identity Admin Portal, select Roles.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          74,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Role.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Enter a name for the role, then click Save.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          38,
+          42
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The newly added role is displayed on the Roles page.",
+      "strong": [
+        [
+          41,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Click the role name again to view the Roles page and assign users to this role.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          38,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Select Members, then click Add.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          27,
+          30
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Search for the users that you want to add. Select the checkbox for the required users, then click Add.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          98,
+          101
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "When you create users, ensure that the Login name is the same as the email address for users. See image. If not, the SAML authentication fails."
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "The users are now part of this role."
+    },
+    {
+      "heading": "Assigning Permission to Role",
+      "level": 2
+    },
+    {
+      "text": "You must assign permission for the role to access the SAML application."
+    },
+    {
+      "item": "In the left-side navigation of the SAML web app page, select Permissions.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          61,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "In the pop-up window that appears, search for the role.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "The role is displayed."
+    },
+    {
+      "item": "Select the checkbox for the role, then click Add.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          45,
+          48
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "After completing these steps, users can log in to the ZPC Admin Portal using SAML SSO. To learn more, see the CyberArk documentation."
+    }
+  ]
+}

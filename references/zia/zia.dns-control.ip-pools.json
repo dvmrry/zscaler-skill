@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.ip-pools",
+  "title": "IP pools for Source IP Anchoring and Extranet",
+  "aliases": [
+    "IP pool",
+    "fallback IP pool",
+    "extranet IP pool"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.predefined-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.actions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{uses}}"
+    },
+    {
+      "label": "Predefined pools.",
+      "text": "{{predefined-pools}} Whether predefined pools can be edited is disputed {{divergence:predefined-editable}}. The help names the rules differently from the graph {{gap:rule-names}}."
+    },
+    {
+      "label": "Writing one.",
+      "text": "{{one-range}} {{extranet-only}} {{pool-type}} {{custom-editable}} {{public-ip-warning}} {{description-field}} Range sizes, default ranges and the API form are open {{gap:pool-api-and-sizes}}."
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "IP pools are used by Source IP Anchoring for transparent traffic. When a DNS request hits a rule preconfigured to forward traffic to Private Access (ZPA), Zscaler assigns the request an ephemeral IP address from the rule's IP pool before forwarding it to Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-ip-pool.json",
+          "quotes": [
+            "IP pools are used by Source IP Anchoring for transparent traffic.",
+            "When an incoming DNS request hits any of these rules that are preconfigured to forward the traffic to Private Access (ZPA), Zscaler assigns an ephemeral IP address to the DNS request from the respective IP pool before forwarding it to Private Access."
+          ]
+        }
+      ]
+    },
+    "uses": {
+      "statement": "IP pools take custom address ranges for location traffic and remote user traffic, extend Source IP Anchoring support to non-web traffic through forwarding rules, and include fallback pools that keep source IP-anchored traffic redirecting to Private Access during ZIA control plane maintenance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-ip-pool.json",
+          "quotes": [
+            "Define custom IP address ranges for IP pools used for location traffic and remote user traffic.",
+            "Extend Source IP Anchoring support to non-web traffic from locations and remote users by leveraging forwarding rules.",
+            "Define fallback IP pools to ensure that the source IP-anchored traffic redirects to Private Access during Internet & SaaS (ZIA) control plane maintenance."
+          ]
+        }
+      ]
+    },
+    "predefined-pools": {
+      "statement": "Zscaler provides predefined IP pools associated with four preconfigured DNS rules: Private Access Resolver for Locations, Private Access Resolver for Road Warrior, Fallback Private Access Resolver for Locations and Fallback Private Access Resolver for Road Warrior. Any change in a pool is reflected in the Action column of the associated DNS rule when the rule is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-ip-pool.json",
+          "quotes": [
+            "predefined IP pools that are associated with the following preconfigured DNS rules:",
+            "- Private Access Resolver for Locations",
+            "- Private Access Resolver for Road Warrior",
+            "Fallback Private Access Resolver for Locations",
+            "Fallback Private Access Resolver for Road Warrior",
+            "Any change in the IP pool is reflected in the Action column of the associated DNS rule when the rule is enabled."
+          ]
+        }
+      ]
+    },
+    "public-ip-warning": {
+      "statement": "Configuring an IP pool with public IP addresses is not recommended, because it can conflict with normal DNS resolution when a domain other than a Source IP Anchoring application resolves to a public address matching the pool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-ip-pool.json",
+          "quotes": [
+            "Configuring the IP pool with public IP addresses is not recommended as it can lead to a conflict during normal DNS resolution if the domain names (other than those of applications with Source IP Anchoring enabled) resolve to a public IP address that matches the address configured in the IP pool."
+          ]
+        }
+      ]
+    },
+    "one-range": {
+      "statement": "An IP pool holds at most one IP address range, entered as a subnet or a range of addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-ip-pool.json",
+          "quotes": [
+            "You can configure a maximum of one IP address range for an IP pool."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-ip-pool.json",
+          "quotes": [
+            "IP Addresses: Enter IP addresses as a subnet or range of addresses.",
+            "You can add a maximum of only one IP address range for an IP pool."
+          ]
+        }
+      ]
+    },
+    "pool-type": {
+      "statement": "The pool Type field displays Extranet if the pool was created manually or automatically for Extranet Application Support, and is left blank for pools created automatically for Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-ip-pool.json",
+          "quotes": [
+            "This field displays Extranet if the IP pool was created either manually or automatically for Extranet Application Support. It is left blank for IP pools created automatically for Private Access."
+          ]
+        }
+      ]
+    },
+    "extranet-only": {
+      "statement": "Custom IP pools can be configured for Zscaler Extranet Application Support and only extranet-type pools can be created; access to Extranet Application Support is through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-ip-pool.json",
+          "quotes": [
+            "You can configure custom IP pools for Zscaler Extranet Application Support. Only extranet-type IP pools can be created.",
+            "To access Extranet Application Support, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "custom-editable": {
+      "statement": "The IP Pools page lets an admin edit or delete custom IP pools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-ip-pool.json",
+          "quotes": [
+            "Edit or delete custom IP pools."
+          ]
+        }
+      ]
+    },
+    "description-field": {
+      "statement": "An IP pool has an optional description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-ip-pool.json",
+          "quotes": [
+            "Description: (Optional) Enter a description for the IP pool."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "predefined-editable": {
+      "summary": "The About IP Pool page says predefined IP pools can be edited and also lists them as read-only.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-ip-pool.json",
+            "quotes": [
+              "You can view or edit the predefined IP pools that are associated with the following preconfigured DNS rules:",
+              "You can edit the default name of the IP pools or even the IP pool range based on your needs."
+            ]
+          },
+          "says": "Predefined pools can be viewed or edited, including their default name and range."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-ip-pool.json",
+            "quotes": [
+              "View details for read-only, predefined IP pools."
+            ]
+          },
+          "says": "The page lists viewing details for read-only, predefined IP pools."
+        }
+      ],
+      "impact": "An answer about changing a predefined pool's range cannot rely on this page alone; a lab test of the console would settle it."
+    }
+  },
+  "gaps": {
+    "rule-names": {
+      "kind": "semantic",
+      "title": "Which names the four predefined DNS rules currently carry",
+      "status": "open",
+      "detail": "This page calls them Private Access Resolver rules; zia.dns-control.predefined-rules calls them ZPA Resolver rules, from other help pages. The captures do not say which is current, which may be a console rename.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "pool-api-and-sizes": {
+      "kind": "semantic",
+      "title": "IP pool range sizes, default ranges and API representation",
+      "status": "open",
+      "detail": "The pages give no range-size limits and no default ranges for the predefined pools, and the API representation is not in the captured specs; the DNS rule references a pool as zpaIpGroup.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,602 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.migration.end-users",
+  "title": "How end users are migrated to Authentication Service: eligibility, prerequisites, the wizard's audits, test users and rollback",
+  "aliases": [
+    "Migrating End Users to Authentication Service",
+    "end user migration",
+    "migrate end users to ZIdentity",
+    "test users",
+    "pilot users",
+    "end user migration rollback"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview.external-idps"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.migration.end-users.private-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.migration.admins"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{eligibility}} The Private Access guidelines for the same migration are in [[zidentity.migration.end-users.private-access]], and migrating admins is in [[zidentity.migration.admins]]."
+    },
+    {
+      "label": "Not eligible, not supported, and the Okta and emergency-domain conditions.",
+      "text": "{{pra-emergency-users}} {{emergency-domains}} {{deception-landmine}} {{okta-oin-app}}"
+    },
+    {
+      "label": "What users get.",
+      "text": "{{benefits-mfa-hosted-only}}"
+    },
+    {
+      "label": "Client Connector versions.",
+      "text": "{{cc-versions-no-relogin}} The Linux minimum differs between the migration pages {{divergence:linux-minimum-version}}. Whether users must reauthenticate after migration differs between the pages {{divergence:reauth-after-migration}}."
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{prereq-idps}} {{prereq-groups-attrs-users}} {{prereq-why-group-correlation}} {{attribute-renames}}"
+    },
+    {
+      "label": "The wizard.",
+      "text": "{{wizard-super-admin-email}} {{wizard-audits-gate}} {{audit-default-idp-primary}} {{audit-domain-mismatch-example}} {{audit-session-attributes}} The Skipped Domains drop-down and the Session Attributes Audit link are not defined {{gap:audit-terms-undefined}}."
+    },
+    {
+      "label": "Entitlements.",
+      "text": "{{entitlements-manual-first-time}} {{entitlements-incomplete-history}} {{entitlement-group-naming}}"
+    },
+    {
+      "label": "Test users.",
+      "text": "{{test-users-limits}} {{test-users-prereq-scim}} {{test-users-pa-rules}} {{test-users-pilot-group-mapping}} {{test-users-after-migrate}} What the 24-hour wait gates beyond the disabled Next button is open {{gap:test-user-wait-gates}}."
+    },
+    {
+      "label": "Complete migration.",
+      "text": "{{complete-migration-duration}} What happens to API clients, Terraform or SDK-driven identities during the migration is open {{gap:api-identities-during-migration}}."
+    },
+    {
+      "label": "Rollback.",
+      "text": "{{rollback-window}} {{rollback-resync-wait}} The sync requirement differs from the Private Access page {{divergence:rollback-sync-requirement}}, which also has Adaptive Access and Step-Up Authentication configurations deleted for rollback eligibility: [[zidentity.migration.end-users.private-access:rollback-requirements]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Client Connector versions the end user machines run, against the minimums the migration pages list.",
+      "uses": [
+        "cc-versions-no-relogin",
+        "linux-minimum-version",
+        "reauth-after-migration"
+      ]
+    },
+    {
+      "do": "Whether the rollback window after migration has passed, and whether 24 hours have passed since a rollback before re-initiating.",
+      "uses": [
+        "rollback-window",
+        "rollback-resync-wait",
+        "rollback-sync-requirement"
+      ]
+    }
+  ],
+  "claims": {
+    "eligibility": {
+      "statement": "Customers who have already completed admin migration can migrate their end users, after Zscaler Support enables the tenant for end user migration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "Existing customers who have already completed admin migration can migrate their users. Contact the Zscaler Support to enable your tenant for end user migration."
+          ]
+        }
+      ]
+    },
+    "pra-emergency-users": {
+      "statement": "Privileged Remote Access (PRA) or emergency access users are not eligible for end user migration; they are synced with Authentication Service after migration completes and must reauthenticate as hosted users or guest users with the external IdP, depending on the organization's configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "Privileged Remote Access (PRA) or emergency access users are not eligible for end user migration.",
+            "These users are synced with Authentication Service after migration is completed, and they must reauthenticate as hosted users or guest users with the external IdP depending on the organization's configuration."
+          ]
+        }
+      ]
+    },
+    "emergency-domains": {
+      "statement": "The allowlisted domains for Private Access emergency access are synchronized as Authentication Service guest domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "The allowlisted domains for Private Access emergency access is synchronized as Authentication Service guest domains."
+          ]
+        }
+      ]
+    },
+    "cc-versions-no-relogin": {
+      "statement": "The end user migration page says migration does not disrupt users and they need not log out and in again to Client Connector during or after migration, provided the supported Client Connector versions are used: Windows 4.8 or later, macOS 4.8 or later, Android 4.1 or later, iOS 4.4.4 or later, and Linux 3.7.2 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "End user migration does not disrupt users, and they are not required to log out and log in again to Zscaler Client Connector during or after the end user migration provided the following supported Zscaler Client Connector versions are used during migration:",
+            "Windows 4.8 or later",
+            "MacOS 4.8 or later",
+            "Android 4.1 or later",
+            "iOS 4.4.4 or later",
+            "Linux 3.7.2 or later"
+          ]
+        }
+      ]
+    },
+    "okta-oin-app": {
+      "statement": "Okta customers must use the Okta Integration Network (OIN) Zscaler App; customers that previously set up an Okta integration using any other service need to change to it; the page states that Okta's group membership provisioning over SCIM using a custom app results in incomplete group memberships.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "Okta customers must use the Okta Integration Network (OIN) Zscaler App.",
+            "Customers who have previously set up an Okta integration using any other service need to change to the OIN Zscaler App.",
+            "Okta's group membership provisioning over SCIM using a custom app results in incomplete group memberships."
+          ]
+        }
+      ]
+    },
+    "deception-landmine": {
+      "statement": "The Deception landmine client is not supported for end user migration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "Deception landmine client is not supported."
+          ]
+        }
+      ]
+    },
+    "benefits-mfa-hosted-only": {
+      "statement": "After end user migration users can enroll into Zscaler services with one set of credentials, and Authentication Service for users also enables step-up authentication and the Adaptive Access Engine; the page says the stronger-safeguards benefit (enforce MFA at Zscaler) is applicable only for hosted users (created in Authentication Service).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "users can authenticate with Authentication Service and enroll into the Zscaler services (Internet & SaaS (ZIA), Private Access (ZPA), Digital Experience (ZDX), and others) with a single set of credentials",
+            "Authentication Service for users also enables new features like step-up authentication and Adaptive Access Engine.",
+            "Stronger safeguards: Enforce MFA at Zscaler and centralize policy enforcement to minimize security gaps. This is applicable only for hosted users (created in Authentication Service)."
+          ]
+        }
+      ]
+    },
+    "prereq-idps": {
+      "statement": "Before end user migration, all IdPs configured in Zscaler services like Internet & SaaS, Private Access, etc. must be the same IdPs that are used by admins and be configured in the exact same way in Authentication Service, and the same domains mapped to the external IdP in Internet & SaaS and Private Access must be mapped to the IdP in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "All IdPs configured in Zscaler services like Internet & SaaS, Private Access, etc., must be the same IdPs that are used by admins and must be configured in the exact same way in Authentication Service.",
+            "The same domains mapped in Internet & SaaS and Private Access to the external IdP are mapped to the IdP configured in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "prereq-groups-attrs-users": {
+      "statement": "Before end user migration, SCIM groups used in policies must be configured in Authentication Service, all end user and group data must be provisioned there, and if SAML attributes are used in policies those attributes must be configured in Authentication Service; end user systems must run the required Client Connector versions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "Any SCIM groups used in policies must be configured properly in Authentication Service.",
+            "All end user data and group data are provisioned in Authentication Service.",
+            "If SAML attributes are used in the policies, then these attributes must be configured in Authentication Service.",
+            "The end user systems must be running the required Zscaler Client Connector versions."
+          ]
+        }
+      ]
+    },
+    "prereq-why-group-correlation": {
+      "statement": "The page gives the reason for correlating groups: if a group is not correlated on Authentication Service, users in the group might be blocked because the group does not exist there; its example is an Internet & SaaS policy defined for certain groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "If the group is not correlated on Authentication Service, then the users in the group might be blocked because that group doesn’t exist on Authentication Service.",
+            "a Internet & SaaS policy defined for certain groups allows the groups to access a specific internet site"
+          ]
+        }
+      ]
+    },
+    "attribute-renames": {
+      "statement": "In the page's Private Access policy case, a user attribute or session attribute was previously referred to as SCIM attribute and SAML attribute respectively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "In the case of a Private Access policy, a certain user attribute or session attribute (previously referred to as SCIM attribute and SAML attribute respectively)"
+          ]
+        }
+      ]
+    },
+    "rollback-window": {
+      "statement": "Rollback after end user migration is requested through Zscaler Support and is allowed only for 14 days after migration; it reverts users to the existing external IdP and restores their pre-migration state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "In case you want to revert the users to the existing external IdP and restore their pre-migration state, you can contact Zscaler Support.",
+            "Rollback is allowed only for 14 days after migration."
+          ]
+        }
+      ]
+    },
+    "rollback-resync-wait": {
+      "statement": "After a rollback, if users and groups changed on the external IdP the admin must sync them again before re-initiating end user migration, and a 24-hour wait applies before re-initiating.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "After rollback, if there are any changes to users and groups on the external IdP, then the admin must sync the users and groups again before re-initiating the end user migration.",
+            "Migrating users immediately after rollback is restricted. You must wait for 24 hours before re-initiating end user migration."
+          ]
+        }
+      ]
+    },
+    "wizard-super-admin-email": {
+      "statement": "An admin with the Super Admin role completes the end user migration wizard, starting from the link in the email that the organization is set up for end user migration, sent from no-reply@zscaler.com with the subject line \"Authentication Service End User Migration.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "The admin user with a Super Admin role must complete these steps:",
+            "When you receive an email that your organization is set up for end user migration, click the link in the email",
+            "The email is sent from no-reply@zscaler.com with the subject line \"Authentication Service End User Migration.\""
+          ]
+        }
+      ]
+    },
+    "wizard-audits-gate": {
+      "statement": "The first three audits (IdPs, groups, user attributes) must each be completed successfully before the wizard moves on to review service entitlements; the next step is allowed only after the IdPs, the groups and the user attributes match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "The following first three audit activities must be completed successfully to be able to move to the next step and review the service entitlements.",
+            "You can proceed to the next step only after you match the IdPs.",
+            "You can proceed to the next step only after you match the groups.",
+            "You can proceed to the next step only after you match the user attributes."
+          ]
+        }
+      ]
+    },
+    "audit-default-idp-primary": {
+      "statement": "In the IdP audit, the default IdP in Internet & SaaS must be mapped to the primary IdP in Authentication Service so groups can be mapped without issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "Make sure to map the default IdP in Internet & SaaS to the primary IdP in Authentication Service, so the groups can be mapped without any issues."
+          ]
+        }
+      ]
+    },
+    "audit-domain-mismatch-example": {
+      "statement": "In the page's example where Internet & SaaS has two domains mapped and Authentication Service has one, the admin can add the missing domain to the IdP in Authentication Service, remove it from the IdP in Internet & SaaS, or select it in the Skipped Domains drop-down menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "if Internet & SaaS has 2 domains mapped (e.g., safemarcha.com and safemarchb.com) and Authentication Service has only safemarcha.com mapped",
+            "the admin should either add safemarchb.com to the IdP in Authentication Service, remove safemarchb.com from the IdP in Internet & SaaS, or select the domains that must be excluded from the Skipped Domains drop-down menu."
+          ]
+        }
+      ]
+    },
+    "audit-session-attributes": {
+      "statement": "The user attribute audit covers user attributes and, for Private Access, session attributes; to match attributes the admin defines the attribute in the Advanced section of the Edit External Identity page and removes the attribute from the Internet & SaaS or Private Access policy rule if it is no longer used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "If any mismatched user attributes or session attributes (for Private Access) are displayed, evaluate and adjust the attributes with Authentication Service and return to this page.",
+            "On the Edit External Identity page, go to the Advanced section, define the attribute and select it.",
+            "Remove the attribute from the policy rule in Internet & SaaS or Private Access if it's no longer being used."
+          ]
+        }
+      ]
+    },
+    "entitlements-manual-first-time": {
+      "statement": "The End User Entitlement page is visible only when end user migration is enabled for the tenant; entitlements must be assigned manually the first time, and Zscaler recommends assigning service entitlements to groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "The End User Entitlement page is visible only when end user migration is enabled for your tenant. You need to manually assign the entitlements for the first time. Zscaler recommends assigning service entitlements to groups."
+          ]
+        }
+      ]
+    },
+    "entitlements-incomplete-history": {
+      "statement": "Zscaler might not have complete information on users historically assigned to services because some users are assigned directly to Internet & SaaS or Private Access at the external IdP, and the page says admins must review the service entitlement assignments in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "Zscaler might not have the complete information of users that were historically assigned to specific Zscaler services because some users are assigned directly to Internet & SaaS or Private Access at the external IdP.",
+            "You must review the service entitlement assignments in Authentication Service to ensure that the right users are assigned to the right services."
+          ]
+        }
+      ]
+    },
+    "entitlement-group-naming": {
+      "statement": "For Client Connector users the admin syncs enrolled services by creating a group per service named \"Migrated [service] Service Entitlements - [cloud-orgid]\" (for example \"Migrated Internet Access Service Entitlements - zscalertwo.com-123987456\") and, on the Service Entitlements page, assigning user groups to the service; users who do not use Client Connector are first assigned to the corresponding service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "If users are using Zscaler Client Connector, then you need to sync the end user Zscaler Client Connector enrolled services to Authentication Service.",
+            "Create a group for each Zscaler service using this format: \"Migrated [service] Service Entitlements - [cloud-orgid]\".",
+            "For example, \"Migrated Internet Access Service Entitlements - zscalertwo.com-123987456\".",
+            "On the Service Entitlements page, click the required Zscaler service and assign user groups to that service.",
+            "If users do not use Zscaler Client Connector, then you need to first assign users to the corresponding Zscaler service."
+          ]
+        }
+      ]
+    },
+    "test-users-limits": {
+      "statement": "A minimum of one and a maximum of 1,000 test users can be selected; the next step becomes available 24 hours after the test users are migrated (the Next button is disabled until then), and only 1000 test users can be migrated before the remaining users are migrated by the end user migration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "A minimum of one user and a maximum of 1,000 users can be selected as test users.",
+            "You can proceed to the next step in 24 hours after the test users are successfully migrated to Authentication Service. Until then, the Next button is disabled.",
+            "You can only migrate 1000 test users. After this, you must perform end user migration to migrate the remaining users."
+          ]
+        }
+      ]
+    },
+    "test-users-prereq-scim": {
+      "statement": "Before selecting test users, the user details must be provisioned from the external IdP to Authentication Service using SCIM; test users should be assigned the right service entitlement, and Zscaler recommends (but does not require) that they log out and in to confirm enrollment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "Before selecting the test users, you must provision the user details from your external IdP using SCIM to Authentication Service.",
+            "Ensure the test users are assigned with the service entitlement to the correct Zscaler service.",
+            "Though it is not mandatory, Zscaler recommends that the test users log out and log in to verify and confirm their Zscaler service enrollment."
+          ]
+        }
+      ]
+    },
+    "test-users-pa-rules": {
+      "statement": "For Private Access test users, only existing users from the external IdP can be selected, at least one test user is required before full migration, and Private Access emergency access users cannot be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "Only existing users from the external IdP can be selected as test users.",
+            "At least one test user is required before initiating full migration.",
+            "Private Access emergency access users cannot be selected as test users."
+          ]
+        }
+      ]
+    },
+    "test-users-pilot-group-mapping": {
+      "statement": "Group mappings for pilot users must exactly match the existing groups in the external IdP; if there is a group mismatch, the pilot users cannot be migrated even if Authentication Service allows it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "Group mappings for pilot users must exactly match the existing groups in the external IdP. If there is a group mismatch, the pilot users cannot be migrated even if Authentication Service allows it."
+          ]
+        }
+      ]
+    },
+    "test-users-after-migrate": {
+      "statement": "Migrated test users are not changed again at complete migration; once test user migration has started, new changes to device tokens, device groups and service entitlements in Client Connector are not synced with Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "The test users are completely migrated and no further changes are applied to them when the admin migrates all the users (during complete migration).",
+            "After the test user migration has started, any new changes to device tokens, device groups, and service entitlements in Zscaler Client Connector are not synced with Authentication Service."
+          ]
+        }
+      ]
+    },
+    "complete-migration-duration": {
+      "statement": "The page says to make sure the policy audits do not have any errors before migration, and that the migration process can take several minutes or hours to complete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-end-users-authentication-service.json",
+          "quotes": [
+            "Make sure the policy audits do not have any errors before migration.",
+            "The migration process can take several minutes or hours to complete."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "linux-minimum-version": {
+      "summary": "The two end user migration pages give different minimum Linux Client Connector versions.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-migrating-end-users-authentication-service.json",
+            "quotes": [
+              "Linux 3.7.2 or later"
+            ]
+          },
+          "says": "Linux 3.7.2 or later, as the supported Client Connector version for end user migration."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+            "quotes": [
+              "Linux 4.2.1 or later"
+            ]
+          },
+          "says": "Linux 4.2.1 or later, as the version end users' machines must run before migration."
+        }
+      ],
+      "impact": "A Linux Client Connector between 3.7.2 and 4.2.1 meets one page's minimum and not the other's; neither page says which applies when both do."
+    },
+    "reauth-after-migration": {
+      "summary": "The end user migration page says users need not log out and in again, while the Private Access page forces all users and devices to reauthenticate after 7 days and has Client Connector trigger a mandatory reauthentication period for test users.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-migrating-end-users-authentication-service.json",
+            "quotes": [
+              "End user migration does not disrupt users, and they are not required to log out and log in again to Zscaler Client Connector during or after the end user migration"
+            ]
+          },
+          "says": "Users are not required to log out and in again to Client Connector during or after end user migration, on the supported versions."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+            "quotes": [
+              "After migration, all users and devices are forced to reauthenticate at a staggered period after 7 days.",
+              "Zscaler Client Connector triggers a mandatory reauthentication period based on the configured timeout policy."
+            ]
+          },
+          "says": "After migration all users and devices are forced to reauthenticate at a staggered period after 7 days, and test users face a mandatory reauthentication period."
+        }
+      ],
+      "impact": "Whether Private Access users reauthenticate after migration is not settled; the pages may mean a manual log out and in against a forced reauthentication, which neither says."
+    },
+    "rollback-sync-requirement": {
+      "summary": "The end user migration page requires a re-sync after rollback only if users or groups changed on the external IdP, while the Private Access page requires a complete IdP sync after migration or rollback.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-migrating-end-users-authentication-service.json",
+            "quotes": [
+              "After rollback, if there are any changes to users and groups on the external IdP, then the admin must sync the users and groups again before re-initiating the end user migration."
+            ]
+          },
+          "says": "Users and groups must be synced again only if they changed on the external IdP."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+            "quotes": [
+              "A complete sync of the IdP is required after migration or rollback."
+            ]
+          },
+          "says": "A complete IdP sync is required after migration or rollback."
+        }
+      ],
+      "impact": "An admin of a Private Access tenant cannot tell whether a sync is needed when nothing changed on the IdP."
+    }
+  },
+  "gaps": {
+    "audit-terms-undefined": {
+      "kind": "semantic",
+      "title": "What the audit's Skipped Domains drop-down and Session Attributes Audit link do",
+      "status": "open",
+      "detail": "The page names the Skipped Domains drop-down menu and the Session Attributes Audit link without defining them, and its closing list repeats the audit steps without content.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "test-user-wait-gates": {
+      "kind": "semantic",
+      "title": "What the 24-hour test-user wait gates beyond the disabled Next button",
+      "status": "open",
+      "detail": "The page says the Next button is disabled until 24 hours after the test users migrate; it does not say what the wait protects or what is measured during it.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "api-identities-during-migration": {
+      "kind": "semantic",
+      "title": "What happens to API clients, Terraform or SDK-driven identities during end user migration",
+      "status": "open",
+      "detail": "The page does not say what happens to them. Whether the OneAPI spec, the Go and Python SDKs and the Terraform provider carry migration state has not been checked.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

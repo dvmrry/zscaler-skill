@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.nss-runbook.connectivity",
+  "title": "NSS runbook: connectivity failures between NSS and the Central Authority, Nanolog server and SIEM",
+  "aliases": [
+    "Connectivity Between NSS and Zscaler Cloud or SIEM"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.logs.nss-runbook" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.diagnostics" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.vm-health" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.log-loss" },
+    { "rel": "see-also", "to": "shared.nss.vm-operations" },
+    { "rel": "see-also", "to": "shared.nss.vm-network" }
+  ],
+  "prose": [
+    {
+      "label": "The three connections.",
+      "text": "{{three-connections}} {{divergence:third-connection}} {{siem-before-nanolog}}"
+    },
+    {
+      "label": "Central Authority.",
+      "text": "{{ca-dns}} {{ca-rtt}} {{ca-ssl-inspection}} {{ca-packet-capture}} {{divergence:ca-capture-interface}} {{arp-only-interface-config}}"
+    },
+    {
+      "label": "Nanolog server.",
+      "text": "{{nanolog-recv-q}} {{nanolog-packet-capture}}"
+    },
+    {
+      "label": "SIEM.",
+      "text": "{{siem-checks}}"
+    }
+  ],
+  "claims": {
+    "three-connections": {
+      "statement": "The runbook treats NSS connectivity as three basic connections (Zscaler Central Authority server, Zscaler Nanolog server, SIEM), checked with sudo nss troubleshoot connection or netstat, and expects the connections on the NSS cloud config page to be allowed on the network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "make sure all connections mentioned on the NSS cloud config page are allowed on your network.",
+            "running Network Connectivity Checks like sudo nss troubleshoot connection or sudo nss troubleshoot netstat | grep tcp show an unstable connection towards any one of the three basic connections Zscaler Central Authority Server/Zscaler Nanolog server /SIEM."
+          ]
+        }
+      ]
+    },
+    "siem-before-nanolog": {
+      "statement": "If both the Zscaler Nanolog server and SIEM connections fail, troubleshoot the SIEM connection first because the Nanolog server connection depends on the SIEM connection being established.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If both the Zscaler Nanolog server and SIEM connections are failing, prioritize troubleshooting the SIEM connection, as the Zscaler Nanolog server connection depends on the successful establishment of the SIEM connection."
+          ]
+        }
+      ]
+    },
+    "ca-dns": {
+      "statement": "For a failing CA connection the runbook checks from sudo nss test-firewall output whether smcacluster.<cloud>.net resolves, and compares the DNS server in /etc/resolv.conf via nslookup with public DNS 8.8.8.8.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "From the sudo nss test-firewall output, check if the CA FQDN smcacluster.<cloud>.net is resolvable or not.",
+            "Check the DNS server configured in cat /etc/resolv.conf and run an nslookup with this server as compared to resolution using public DNS server (8.8.8.8)."
+          ]
+        }
+      ]
+    },
+    "ca-rtt": {
+      "statement": "The runbook says a CA round trip time above 200ms is expected because the CA connection could be overseas, but a time as high as above 400ms needs investigation from the NSS network perspective.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The CA connection could be an overseas connection, so a round trip time of >200ms is expected.",
+            "But if this is as high as >400ms, it needs an investigation from the NSS network perspective."
+          ]
+        }
+      ]
+    },
+    "ca-ssl-inspection": {
+      "statement": "A successful connect=tcp to the CA does not rule out an SSL problem, so the runbook tests connect=ssl too; an intermediate device performing SSL inspection might intercept and drop the connections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Although the connect=tcp output indicates a successful connection, it is still important to test using connect=ssl to determine if the issue lies with the SSL connection.",
+            "An intermediate network device performing SSL inspection might be intercepting and dropping the connections."
+          ]
+        }
+      ]
+    },
+    "ca-packet-capture": {
+      "statement": "On a management-interface capture for CA communication, SYN packets with no SYN-ACK are silent drops, and reset packets with a TTL differing from the other packets from the CA IP indicate a block by an intermediate device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Take a packet capture on the management interface to analyze CA communication.",
+            "Check if the capture indicates silent drops in the network, such as SYN packets sent to CA IP but no SYN-ACK received in response.",
+            "Check if the capture reveals connection blocks caused by intermediate network device, identified by reset packets with a TTL value differing from the other packets received from the CA IP."
+          ]
+        }
+      ]
+    },
+    "arp-only-interface-config": {
+      "statement": "If a capture shows no requests to the CA and only unanswered ARP requests, the runbook says it is likely an interface IP configuration issue and lists checks on gateway reachability, unique service and management IPs in one subnet, unique MAC addresses and, as a last resort, redeploying the OVA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "if there are only ARP requests without any response back, it is likely to be an issue with the interface IP configurations.",
+            "Make sure management and service interfaces can communicate with Default gateway.",
+            "Run sudo nss test-firewall, and make sure Service and Management IP addresses are unique and from same subnet.",
+            "Test by changing service interface IP subnet. If issue persists, you might need to redeploy ova as a last resort.",
+            "Run ifconfig to see the MAC addresses assigned to the interfaces, make sure these are unique"
+          ]
+        }
+      ]
+    },
+    "nanolog-recv-q": {
+      "statement": "A high Recv-Q in sudo /sc/bin/smmgr -ys smnet=netstat reflects the queue between the Nanolog server and NSS; if it is overutilized the runbook checks bandwidth requirements against the NSS deployment guide and gives 11 Mbps for 10K users as an example average value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Run sudo /sc/bin/smmgr -ys smnet=netstat | less to see if the Recv-Q is overutilized. This reflects Q status between Zscaler Nanolog server and NSS.",
+            "(11 Mbps for 10K users is an example average value)",
+            "If Recv-Q is overutilized, check if the customer has Bandwidth Requirements as per the recommendation in NSS deployment guide."
+          ]
+        }
+      ]
+    },
+    "nanolog-packet-capture": {
+      "statement": "For Nanolog connectivity the runbook takes a capture on the service interface to analyze communication with the Nanolog server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Take a packet capture on the Service interface to analyze Zscaler Nanolog server communication."
+          ]
+        }
+      ]
+    },
+    "siem-checks": {
+      "statement": "For a failing SIEM connection the runbook checks the SIEM IP, port and feed filters with sudo /sc/bin/smmgr -ys getsminfo=nss_feed_info_all, tests reachability on the configured port with connect=tcp, and says to allowlist the NSS IP on filtering devices in between.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Run sudo /sc/bin/smmgr -ys getsminfo=nss_feed_info_all to make sure the SIEM IP, Port, and Feed filters are reflecting correctly.",
+            "Users should ensure the configured SIEM IP and port are reachable from the NSS service interface.",
+            "If there are any filtering or networking devices between NSS and SIEM, allowlist the NSS IP as required.",
+            "Take a pcap on the service interface to see the communication between NSS and SIEM.",
+            "Run sudo /sc/bin/smmgr -s host=<SIEM_IP> -s port=<SIEM_port> -ys connect=tcp to see if there are reachability issues to SIEM IP on the configured port."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {},
+  "divergences": {
+    "third-connection": {
+      "summary": "The runbook's connectivity checks name SIEM as the third of three connections, while its connection-test step names NSS as the third.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "show an unstable connection towards any one of the three basic connections Zscaler Central Authority Server/Zscaler Nanolog server /SIEM."
+            ]
+          },
+          "says": "The three basic connections are the Central Authority server, the Nanolog server and the SIEM."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Run sudo NSS Troubleshoot Connection to see if all three necessary connections towards CA, Zscaler Nanolog server, and NSS are stable."
+            ]
+          },
+          "says": "sudo nss troubleshoot connection checks three connections towards CA, the Nanolog server and NSS."
+        }
+      ],
+      "impact": "The page does not say whether the third connection is SIEM or NSS. Do not tell an admin which third connection the command checks without saying the page names both."
+    },
+    "ca-capture-interface": {
+      "summary": "The runbook's CA steps take the capture on the management interface, while its capture guidance puts connectivity checks toward the CA on the service interface.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Take a packet capture on the management interface to analyze CA communication."
+            ]
+          },
+          "says": "For CA communication, capture on the management interface."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "For issues related to log retrieval (missing/delayed logs) or connectivity issues with CA/Zscaler Nanolog server/SIEM, enter a pcap on the service interface."
+            ]
+          },
+          "says": "For connectivity issues with CA, the Nanolog server or SIEM, capture on the service interface."
+        }
+      ],
+      "impact": "The page does not say which interface to capture for a CA connection problem. Do not name one interface as the answer; the CA steps and the capture guidance differ."
+    }
+  }
+}

@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "id": "zpa.server-groups.multiple-on-segment",
+  "title": "Several server groups on one application segment",
+  "aliases": [
+    "multiple server groups",
+    "weighted load balancing",
+    "weightedLbConfig",
+    "server group weight",
+    "passive server group",
+    "which server group handles traffic",
+    "two server groups on a segment"
+  ],
+  "binds": [
+    "zpa/application-segments#serverGroups",
+    "zpa/application-segments#weightedLoadBalancing"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.multimatch",
+      "because": "zpa.server-groups.multiple-on-segment:multimatch-specific-fqdn-server-group"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.role"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.chain-check"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Whether a segment may carry several server groups is disputed {{divergence:several-server-groups-on-edit}}, and what decides between them depends on weighted load balancing and on Multimatch."
+    },
+    {
+      "label": "Weighted load balancing.",
+      "text": "{{weighted-lb-mapping}} How traffic is spread without it is open {{gap:behavior-without-weighted-lb}}. What happens when one group is healthy and another broken is open {{gap:healthy-and-broken-group}}."
+    },
+    {
+      "label": "Application load balancing.",
+      "text": "{{lb-purpose}} {{lb-public-service-edges-only}} {{lb-weights-override-path-selection}} {{lb-stickiness}} {{lb-ignores-app-health}}"
+    },
+    {
+      "label": "Passive groups.",
+      "text": "{{lb-passive-failover}} {{lb-no-overlapping-connector-groups}} {{lb-microtenant-move}} The split between weighted non-passive groups and the meaning of a healthy connector are open {{gap:weighted-split-and-healthy}}."
+    },
+    {
+      "label": "Multimatch.",
+      "text": "{{multimatch-specific-fqdn-server-group}} {{multimatch-same-fqdn-same-server-group}}"
+    },
+    {
+      "text": "How the segment itself is chosen when several segments match is in [[zpa.policy.multimatch]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether weighted load balancing is enabled on the segment and which weight and passive flag each server group carries.",
+      "uses": [
+        "weighted-lb-mapping"
+      ]
+    },
+    {
+      "do": "Whether the segment is a Multimatch segment, in which case the specific FQDN segment's server group is used and sibling segments for the same FQDN must share one server group.",
+      "uses": [
+        "multimatch-specific-fqdn-server-group",
+        "multimatch-same-fqdn-same-server-group"
+      ]
+    },
+    {
+      "do": "Whether load balancing is on, whether the transaction came from a Private Service Edge, and whether a sticky connector or a passive group explains which App Connector served the user.",
+      "uses": [
+        "lb-public-service-edges-only",
+        "lb-weights-override-path-selection",
+        "lb-stickiness",
+        "lb-passive-failover"
+      ]
+    },
+    {
+      "do": "Whether a statement that a segment keeps several server groups rests on the editing page's advice to save only one.",
+      "uses": [
+        "several-server-groups-on-edit"
+      ]
+    },
+    {
+      "do": "Whether the behavior without weighted load balancing is being relied on; no source states it.",
+      "uses": [
+        "behavior-without-weighted-lb",
+        "healthy-and-broken-group"
+      ]
+    }
+  ],
+  "claims": {
+    "weighted-lb-mapping": {
+      "statement": "Weighted load balancing on an application segment is configured through a mapping of server groups to a weight and a passive flag.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "A list of mappings that define server groups and their associated weights and passive flags."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "ApplicationToServerGroupMaps []ApplicationToServerGroupMapping",
+            "Passive bool `json:\"passive\"`",
+            "Weight string `json:\"weight\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/application-segments#weightedLoadBalancing"
+      ]
+    },
+    "lb-purpose": {
+      "statement": "Ranking server groups by weight with load balancing is a way to ensure application access requests are sent to the App Connectors with server groups that can support their traffic. One use the page gives is validating a new application environment at reduced scale and capacity, then gradually redirecting traffic to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-application-load-balancing-and-high-availability.json",
+          "quotes": [
+            "When you bring new application environments online, you need to validate them at a reduced scale and capacity until a certain confidence level is achieved.",
+            "When proven, you can gradually redirect traffic to the new environments without large architectural shifts or cutovers.",
+            "Using load balance to rank your server groups by weight is a way to ensure application access requests are sent to the App Connectors with server groups that can support their traffic."
+          ]
+        }
+      ]
+    },
+    "lb-public-service-edges-only": {
+      "statement": "Application load balancing is available only for Public Service Edges for Private Access, and its configuration is not honored for transactions originating from Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-application-load-balancing-and-high-availability.json",
+          "quotes": [
+            "This feature is only available for Public Service Edges for Private Access (ZPA). Any configuration done for application load balancing will not be honored for the transactions originating from Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "lb-weights-override-path-selection": {
+      "statement": "With load balancing, application access requests are routed to App Connectors based on the weights defined for the segment's server groups. All other geo-IP and health-based path selection modes, including Closer to User and Closer to App, are ignored for that segment, and the weight runs from 0, the lightest, to 1,000, the heaviest.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-application-load-balancing-and-high-availability.json",
+          "quotes": [
+            "Application access requests should be routed to the App Connectors based on the weights defined for the server groups for an application segment.",
+            "All other geo-IP and health-based path selection modes are ignored for the application segment configured with this option. Path selection using Closer to User and Closer to App are not applicable.",
+            "Weight: Enter a value for the numeric weight to rank each server group, with 0 being the lightest and 1,000 being the heaviest."
+          ]
+        }
+      ]
+    },
+    "lb-stickiness": {
+      "statement": "After the route selection for a load balancing transaction, the same App Connector serves the user for the next 15 minutes, and the expiration is reset each time the same user accesses the same application again. The stickiness ends early when load balancing is disabled, the server group holding the sticky connector is removed from the segment, that group's weight is set to zero, that group is disabled, or the sticky connector is inactive (disconnected, disabled, or in a disabled App Connector group).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-application-load-balancing-and-high-availability.json",
+          "quotes": [
+            "After the route selection for a load balancing transaction is made, the same App Connector is served for the next 15 minutes to maintain the user session.",
+            "Each time the same user accesses the same application again, the expiration time is reset.",
+            "This stickiness is invalidated before the expiration time in the following cases:",
+            "Disabling load balancing.",
+            "Removal of a server group from the application segment containing the sticky connector.",
+            "The weight of the server group has the sticky connector set to zero.",
+            "Disabling a server group that has the sticky connector.",
+            "The sticky connector is inactive (i.e., disconnected, disabled, or in an App Connector group that is disabled)."
+          ]
+        }
+      ]
+    },
+    "lb-ignores-app-health": {
+      "statement": "Transactions routed by load balancing do not consider application health. For applications with on-access health monitoring routed this way, application health is not generated and the applications are not shown in the Health dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-application-load-balancing-and-high-availability.json",
+          "quotes": [
+            "Transactions routed via load balancing do not consider application health.",
+            "For on-access health monitoring applications routed via load balancing, application health is not generated, and those applications are not shown in the Health dashboard."
+          ]
+        }
+      ]
+    },
+    "lb-passive-failover": {
+      "statement": "Traffic requests are routed to the App Connectors in a passive server group when the active group has failed the health monitoring threshold of 50% unhealthy connectors. Failover to the passive group needs less than 50% of the active group's connectors healthy and more than 50% of the passive group's healthy; switching back needs less than 50% of the passive group's healthy and more than 50% of the active group's.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-application-load-balancing-and-high-availability.json",
+          "quotes": [
+            "This means that traffic requests are routed to the App Connectors in the passive group when the active group has failed to pass the health monitoring threshold (i.e., 50% unhealthy connectors in the active group).",
+            "When used for passive failover: Less than 50% of active group connectors are healthy, and more than 50% of passive group connectors are healthy.",
+            "When used for switching back to an active group: Less than 50% of passive group connectors are healthy, and more than 50% of active group connectors are healthy."
+          ]
+        }
+      ]
+    },
+    "lb-no-overlapping-connector-groups": {
+      "statement": "App Connector groups should not overlap within the server groups; if they do, the same App Connector can be selected as active and passive groups per the weights and mode of selection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-application-load-balancing-and-high-availability.json",
+          "quotes": [
+            "Ensure that App Connector groups do not overlap within the server groups. If they do overlap, the same App Connector can be selected as active and passive groups per weights and mode of selection."
+          ]
+        }
+      ]
+    },
+    "lb-microtenant-move": {
+      "statement": "A server group moved to a new Microtenant needs its load balancing weight reassigned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-application-load-balancing-and-high-availability.json",
+          "quotes": [
+            "If you move a server group to a new Microtenant, you must reassign the load balancing weight for those server groups."
+          ]
+        }
+      ]
+    },
+    "multimatch-specific-fqdn-server-group": {
+      "statement": "When both a wildcard and a specific FQDN application segment have Multimatch enabled, the specific FQDN segment's server group is used for App Connector selection even if the traffic matches the wildcard rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "If both wildcard and specific FQDN application segments have Multimatch enabled, the specific FQDN application segment's server group is used for App Connector selection",
+            "the specific FQDN application segment's server group is used for App Connector selection, even if the traffic to the FQDN matches the wildcard or the specific FQDN rule."
+          ]
+        }
+      ]
+    },
+    "multimatch-same-fqdn-same-server-group": {
+      "statement": "Multimatch application segments for the same FQDN with different ports must all use the same server group; with different server groups any of them can be chosen at random to proxy the traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "If multiple Multimatch application segments exist for the same FQDN but with different ports, they must all use the same server group.",
+            "If different server groups are used, any of them can be randomly selected to proxy the traffic to that FQDN, leading to unpredictable behavior."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "several-server-groups-on-edit": {
+      "summary": "Whether an application segment may keep several server groups",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-editing-defined-application-segments.json",
+            "quotes": [
+              "If you select multiple server groups when editing, only one server group should be saved.",
+              "Multiple server groups mapped to the same application segment can cause the console to disconnect."
+            ]
+          },
+          "says": "When editing, only one server group should be saved, because several server groups mapped to one segment can cause the console to disconnect."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-application-load-balancing-and-high-availability.json",
+            "quotes": [
+              "Server Groups: Select server groups from the drop-down menu that host the application segments you want ranked."
+            ]
+          },
+          "says": "Load balancing selects several server groups for a segment and ranks them by weight."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+            "quotes": [
+              "ApplicationToServerGroupMaps []ApplicationToServerGroupMapping",
+              "Passive bool   `json:\"passive\"`",
+              "Weight  string `json:\"weight\"`"
+            ],
+            "after": "type WeightedLoadBalancerConfig struct {"
+          },
+          "says": "The Go SDK segment model carries a list of server group mappings with weights and passive flags."
+        }
+      ],
+      "impact": "The editing page advises saving one server group, while the load balancing page and the SDK model treat a list of server groups on one segment as a configuration. Neither page says the editing advice is limited to segments without load balancing, so a statement that a segment holds several server groups, or that it should hold one, rests on one side of this."
+    }
+  },
+  "gaps": {
+    "weighted-split-and-healthy": {
+      "kind": "semantic",
+      "title": "How traffic splits between weighted non-passive server groups, what a healthy connector is, and how load balancing fits the Multimatch same-server-group rule",
+      "status": "open",
+      "about": [
+        "zpa/application-segments#serverGroups"
+      ],
+      "detail": "The load balancing article gives weights from 0 to 1,000 and the 50% thresholds for passive groups, but no rule for splitting traffic between weighted groups that are not passive. It does not define what makes a connector healthy for the thresholds, and it does not describe how load balancing interacts with the Multimatch rule that segments for one FQDN share a server group.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "behavior-without-weighted-lb": {
+      "kind": "semantic",
+      "title": "How traffic is spread across several server groups when weighted load balancing is not configured",
+      "status": "open",
+      "about": [
+        "zpa/application-segments#serverGroups"
+      ],
+      "detail": "Unverified legacy statement: \"Without explicit weighted LB config, behavior across multiple Server Groups is unspecified in source code (Tier D: likely round-robin or first-match, but unconfirmed).\" The Multimatch article states a random choice only for the same-FQDN case. A help article on weighted load balancing, which was not found at the guessed ZPA help URLs, or a lab test with two groups would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "healthy-and-broken-group": {
+      "kind": "semantic",
+      "title": "What happens when one of several server groups is healthy and another is broken",
+      "status": "open",
+      "about": [
+        "zpa/application-segments#serverGroups"
+      ],
+      "detail": "Unverified legacy statement: \"Each is independent — at least one must satisfy hops 3 and 4 for the segment to deliver traffic. If one is healthy and another is broken, weighted load balancing decides which connectors are tried first.\" The load balancing article describes failover to a passive group at a 50% unhealthy-connector threshold (claim lb-passive-failover), but not what happens between active groups or when a group is broken rather than below that threshold. Break one group in a scratch tenant and observe which connectors are tried.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

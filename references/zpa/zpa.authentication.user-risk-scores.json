@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "id": "zpa.authentication.user-risk-scores",
+  "title": "User risk scores in Private Access",
+  "aliases": [
+    "User Risk Scores page",
+    "override user risk score",
+    "risk score levels",
+    "risk expiry"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication.idp-configuration"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{definition}} {{unsupported-portals}}"
+    },
+    {
+      "label": "Levels.",
+      "text": "{{levels}}"
+    },
+    {
+      "label": "The page.",
+      "text": "{{page-columns}} {{idp-deletion}} Which risk sources exist besides ZIA, how Risk Expiry is set and what Override Risk Expiry can be set to is open {{gap:sources-and-expiry}}."
+    },
+    {
+      "label": "Overriding.",
+      "text": "{{override-rules}}"
+    },
+    {
+      "text": "Risk scores as a rule criterion are covered in [[zpa.policy.criteria]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which level the score falls in and whether an override is in effect, since the page shows both the score and the overridden score.",
+      "uses": [
+        "levels",
+        "page-columns",
+        "override-rules"
+      ]
+    },
+    {
+      "do": "Whether the IdP was deleted, which deletes the scores of its users.",
+      "uses": [
+        "idp-deletion"
+      ]
+    },
+    {
+      "do": "Whether the rule is applied to a User Portal or Privileged Remote Access Portal, which do not support user risk scores.",
+      "uses": [
+        "unsupported-portals"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "A user risk score estimates the organization's risk exposure from a particular user, generated from the user's DLP violations, risky behavior, unsanctioned cloud application usage and other suspicious factors. User risk scores can be added as a criteria type to access policy rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-user-risk-scores.json",
+          "quotes": [
+            "The user risk score estimates your organization's risk exposure from a particular user. User risk scores are generated based on a user’s DLP violations, risky behavior, unsanctioned cloud application usage, and other suspicious factors.",
+            "You can add user risk scores as a criteria type to access policy rules."
+          ]
+        }
+      ]
+    },
+    "unsupported-portals": {
+      "statement": "User risk scores are not supported in User Portals or Privileged Remote Access Portals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-user-risk-scores.json",
+          "quotes": [
+            "User risk scores are not supported in User Portals or Privileged Remote Access Portals."
+          ]
+        }
+      ]
+    },
+    "page-columns": {
+      "statement": "The User Risk Scores page lists Username, Risk Source (for example ZIA), Risk Score (Low, Medium, High, Critical), Risk Expiry, Last Updated, Overridden Risk Score and Overridden Risk Expiry. The IdP Name filter is applied by default and can be cleared.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-user-risk-scores.json",
+          "quotes": [
+            "Username: The username associated to the user risk score.",
+            "Risk Source: The risk source (e.g., ZIA).",
+            "Risk Score: The risk score (Low, Medium, High, Critical).",
+            "Risk Expiry: The date the user risk score expires.",
+            "Last Updated: The date the user risk score was last updated.",
+            "Overridden Risk Score: Indicates the overridden risk score (Low, Medium, High, Critical).",
+            "Overridden Risk Expiry: The date the overridden user risk score expires.",
+            "By default, the IdP Name filter is applied and can be cleared."
+          ]
+        }
+      ]
+    },
+    "idp-deletion": {
+      "statement": "When an IdP is deleted, all user risk scores associated with the users of that IdP are also deleted, and the IdP Name filter no longer shows the deleted IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-user-risk-scores.json",
+          "quotes": [
+            "When an IdP gets deleted, all user risk scores associated with the users of that IdP are also deleted. The IdP Name filter no longer shows the name of the IdP that was deleted."
+          ]
+        }
+      ]
+    },
+    "levels": {
+      "statement": "The available user risk scores are Low (0–29), Medium (30–59), High (60–79) and Critical (80–100).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-user-risk-scores.json",
+          "quotes": [
+            "Low (0–29)",
+            "Medium (30–59)",
+            "High (60–79)",
+            "Critical (80–100)"
+          ]
+        }
+      ]
+    },
+    "override-rules": {
+      "statement": "An admin can edit or override a user risk score's override risk score and override risk expiration. Override User Risk Score is available with scores that have not already been overridden, Edit User Risk Score and Reset with scores that have been overridden, and Reset returns an overridden score to its original value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-user-risk-scores.json",
+          "quotes": [
+            "You can edit or override any user risk score's override risk score and override risk expiration.",
+            "The Override User Risk Score option is available with any user risk scores that have not already been overridden. The Edit User Risk Score and Reset options are available with any user risk scores that have been overridden."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-user-risk-scores.json",
+          "quotes": [
+            "Reset an overridden risk score to its original risk score value."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "sources-and-expiry": {
+      "kind": "semantic",
+      "title": "Risk sources other than ZIA, how Risk Expiry is set, and what Override Risk Expiry can be",
+      "status": "open",
+      "detail": "The page gives ZIA only as an example risk source, and describes Risk Expiry and Overridden Risk Expiry only as dates.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

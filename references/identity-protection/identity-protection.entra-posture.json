@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "id": "identity-protection.entra-posture",
+  "title": "Entra ID posture in Identity Protection: dashboard, issues, roadmap, reports and remediation",
+  "aliases": [
+    "entra id posture",
+    "entra id posture dashboard",
+    "entra id vulnerability report",
+    "entra id executive summary report",
+    "entra id delta report"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.ad-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.change-detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.identity-details"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{dashboard-top-lists}} {{dashboard-scan-actions}}"
+    },
+    {
+      "label": "Issues.",
+      "text": "{{risk-types}} {{best-practice-examples}} {{issue-detail-fields}} How a severity rating is assigned is not stated {{gap:severity-rating-method}}."
+    },
+    {
+      "label": "Top identities.",
+      "text": "{{top-identities-columns}}"
+    },
+    {
+      "label": "Risk Reduction Roadmap.",
+      "text": "{{risk-reduction-roadmap}}"
+    },
+    {
+      "label": "Reports.",
+      "text": "{{scan-report}} {{executive-summary}} {{delta-report}}"
+    },
+    {
+      "label": "Remediation.",
+      "text": "{{remediation-actions}} {{revoke-session-guests}} {{remediation-mfa-actions}} {{remediation-history}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Revoke Session remediation applies to a guest user, since it does not revoke guest user sessions.",
+      "uses": [
+        "revoke-session-guests"
+      ]
+    },
+    {
+      "do": "Whether Remove Active Role Assignment or Remove Group Membership is run for one identity, since neither supports bulk.",
+      "uses": [
+        "remediation-actions"
+      ]
+    }
+  ],
+  "claims": {
+    "dashboard-top-lists": {
+      "statement": "The Entra ID Posture dashboard shows tenant risk severity (Critical, High, Medium or Low), the top 5 issues and the top 10 identities with the highest risks, and filters by tenant and timestamp.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-posture.json",
+          "quotes": [
+            "Filter scan results by Entra ID tenant and timestamp.",
+            "View the tenant risk severity, categorized as Critical, High, Medium, or Low.",
+            "View a list of the top 5 issues that are found in the Entra ID.",
+            "View a list of the top 10 identities that have the highest risks in the Entra ID tenant."
+          ]
+        }
+      ]
+    },
+    "dashboard-scan-actions": {
+      "statement": "An Entra ID tenant configured for a vulnerability scan is scanned at the scheduled time, and an on-demand scan can be triggered instead; deleting a scan report deletes all vulnerability results for that tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-posture.json",
+          "quotes": [
+            "After you configure an Entra ID tenant for a vulnerability scan, the scan is triggered at the scheduled time.",
+            "If you don't want to wait till the scheduled time, you can trigger an on-demand scan manually.",
+            "Delete a scan report. After you delete the scan report, all the vulnerability results pertaining to that Entra ID tenant are deleted."
+          ]
+        }
+      ]
+    },
+    "risk-types": {
+      "statement": "Zscaler ITDR detects five risk types in an Entra ID tenant: Best Practice Violations, Hybrid Environment Risk, Insecure Privilege Management, Access Control Issues and Weak Authentication Measures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-entra-id-issues.json",
+          "quotes": [
+            "Zscaler ITDR detects the following risk types in an Entra ID tenant:",
+            "Best Practice Violations: Security best practices help you to secure your environment in the Entra ID tenant.",
+            "Hybrid Environment Risk: The Entra ID hybrid-joined devices feature",
+            "Insecure Privilege Management: Entra ID has privileged roles and permissions",
+            "Access Control Issues: Access control issues in Entra ID include",
+            "Weak Authentication Measures: Weak authentication mechanisms or misconfigured access controls in Entra ID"
+          ]
+        }
+      ]
+    },
+    "best-practice-examples": {
+      "statement": "The vendor's Best Practice Violations examples are enabling security defaults, enforcing MFA, limiting guest user permissions, revoking deprecated user roles, and limiting the number of global administrators to less than 5.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-entra-id-issues.json",
+          "quotes": [
+            "Best Practice Violations: Security best practices help you to secure your environment in the Entra ID tenant.",
+            "For example, enabling security defaults, enforcing multi-factor authentication (MFA), limiting guest user permissions, revoking deprecated user roles, limiting the number of global administrators to less than 5, etc."
+          ]
+        }
+      ]
+    },
+    "issue-detail-fields": {
+      "statement": "An Entra ID issue's detail page shows a remediation assessment of Easy, Moderate or Difficult and MITRE ATT&CK tactics, and can start Entra ID remediation or add objects to the safelist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-entra-id-findings-recommendations.json",
+          "quotes": [
+            "Remediation: The remediation assessment (Easy, Moderate, Difficult).",
+            "MITRE ATT&CK Tactics: The type of MITRE ATT&CK tactic (e.g., Lateral Movement, Initial Access, etc.).",
+            "click Remediation to automatically remediate Entra ID issues, and click Add Objects to Safelist to add Entra ID objects to the safelist."
+          ]
+        }
+      ]
+    },
+    "top-identities-columns": {
+      "statement": "Clicking Top 10 Identities lists Identity and Principal ID, and Download Identities exports the issue details in Excel format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-top-vulnerable-entra-id-identities.json",
+          "quotes": [
+            "Click Top 10 Identities.",
+            "Identity: The name of the user or service principal.",
+            "Principal ID: The user or service principal ID.",
+            "You can click Download Identities to download the issue details in the Excel format."
+          ]
+        }
+      ]
+    },
+    "risk-reduction-roadmap": {
+      "statement": "The Entra ID Risk Reduction Roadmap uses a slider to view the current severity level and set a target severity level, and categorizes severity as Critical, High, Medium or Low.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-entra-id-risk-reduction-roadmap.json",
+          "quotes": [
+            "The interactive slider in the Risk Reduction Roadmap on the Entra ID Posture dashboard allows you to view the current risk severity level and set a target severity level.",
+            "Zscaler ITDR categorizes risk severity into 4 levels: Critical, High, Medium, or Low."
+          ]
+        }
+      ]
+    },
+    "scan-report": {
+      "statement": "The Entra ID vulnerability report shows issues for identities, service principals and configuration settings, can be downloaded as an Excel report or raise a ServiceNow ticket, and is permanently deleted when the retention policy period expires.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-entra-id-posture-scan-report.json",
+          "quotes": [
+            "The Entra ID vulnerability report shows issues for the identities, service principals, and configuration settings.",
+            "The Entra ID vulnerability reports are permanently deleted when the retention policy period expires.",
+            "Click Download Excel Report to download the report as an Excel file.",
+            "Click the Create ServiceNow ticket icon to create a ServiceNow ticket to track and assess the issue."
+          ]
+        }
+      ]
+    },
+    "executive-summary": {
+      "statement": "The Entra ID Executive Summary report downloads as a PDF; its Tenant Security Rating is Critical or High if a single critical or high issue is found, and Total Changes Detected covers the last 30 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-downloading-zscaler-itdr-microsoft-entra-id-assessment-posture-report.json",
+          "quotes": [
+            "The report is downloaded to your system as a PDF.",
+            "Tenant Security Rating: The security rating of the tenant. Provides a Critical or High rating to the tenant even if a single critical or high issue is identified.",
+            "Total Changes Detected: The total changes identified in the tenant in the last 30 days."
+          ]
+        }
+      ]
+    },
+    "delta-report": {
+      "statement": "The Entra ID delta report compares two historical scans, and its Excel version reports identity-level information and calls the first scan Scan B and the second Scan A.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-downloading-entra-id-delta-report.json",
+          "quotes": [
+            "ITDR allows you to compare two historical",
+            "The delta report is downloaded to your system in the Excel format. The first scan is referred to as Scan B and the second as Scan A.",
+            "identity-level information in separate tabs for in-depth analysis"
+          ]
+        }
+      ]
+    },
+    "remediation-actions": {
+      "statement": "Entra ID remediation actions include Disable User and Revoke Session (bulk remediation supported), and Remove Active Role Assignment and Remove Group Membership (specific identity only).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-remediating-entra-id-identities.json",
+          "quotes": [
+            "| Remediation Action Name | Action Description | Bulk Remediation Supported? |",
+            "| Disable User | Changes the accountEnabled attribute of the Entra ID identity to false. | Yes |",
+            "| Revoke Session | Revokes Entra ID active user sessions to ensure any potentially compromised sessions are terminated. This remediation action doesn’t revoke guest user sessions. | Yes |",
+            "| Remove Active Role Assignment | Removes one or more role assignments from the active user. This remediation action is available for a specific identity only. You cannot run this remediation action on multiple identities (bulk). | No |",
+            "| Remove Group Membership | Removes one or more group memberships. You cannot run this remediation action on a group with dynamic memberships. This remediation action is available for a specific identity only. You cannot run this remediation action on multiple identities (bulk). | No |",
+            "ITDR runs these remediation actions in the background via single or multiple API calls to the Entra ID tenant."
+          ]
+        }
+      ]
+    },
+    "remediation-mfa-actions": {
+      "statement": "Enforce MFA creates a conditional access policy requiring MFA for all applications; Enforce phishing-resistant MFA uses FIDO2 keys or similar methods and can be run on global admin-level users only; for both actions, subsequent users are appended to the existing policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-remediating-entra-id-identities.json",
+          "quotes": [
+            "| Enforce MFA | Creates a conditional access policy in the Entra ID tenant that enforces users to use multi-factor authentication (MFA) for all applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-remediating-entra-id-identities.json",
+          "quotes": [
+            "Subsequent users are appended to the existing policy."
+          ],
+          "after": "for all applications. The conditional policy is created for the first user only."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-remediating-entra-id-identities.json",
+          "quotes": [
+            "FIDO2 keys or similar authentication methods are used.",
+            "Subsequent users are appended to the existing policy.",
+            "You can run this remediation action on global admin-level users only."
+          ],
+          "after": "| Enforce phishing-resistant MFA |"
+        }
+      ]
+    },
+    "remediation-history": {
+      "statement": "Entra ID remediation history shows a Failure Reason column, and Download CSV returns the latest 5,000 results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-entra-id-remediation-history.json",
+          "quotes": [
+            "Failure Reason: The reason for the remediation failure.",
+            "Click Download CSV to download the latest 5,000 remediation history results to a CSV file."
+          ]
+        }
+      ]
+    },
+    "revoke-session-guests": {
+      "statement": "Revoke Session does not revoke guest user sessions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-remediating-entra-id-identities.json",
+          "quotes": [
+            "This remediation action doesn’t revoke guest user sessions."
+          ],
+          "after": "| Revoke Session |"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "severity-rating-method": {
+      "kind": "semantic",
+      "title": "How an Entra ID issue or tenant gets its Critical, High, Medium or Low rating",
+      "status": "open",
+      "detail": "The articles name the four severity levels and say the executive report rates the tenant Critical or High if a single critical or high issue is found, but do not state how an individual issue is rated or how the 0 to 100 risk score on the Risk Summary is computed. The scan report's retention period and the scan schedule defaults are also not in these articles.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

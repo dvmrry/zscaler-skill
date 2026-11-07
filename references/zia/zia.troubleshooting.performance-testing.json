@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting.performance-testing",
+  "title": "Measuring ZIA performance: the Cloud Performance Test and why common speed tests mislead",
+  "aliases": [
+    "speedtest.zscaler.com",
+    "cloud performance test",
+    "zscaler speed test",
+    "speedtest slow through zscaler",
+    "iperf zscaler",
+    "measuring zscaler performance",
+    "data trickling"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.verification"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.pac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.dns-resolution"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{cloud-performance-test}} {{access}}"
+    },
+    {
+      "label": "What the page shows.",
+      "text": "{{page-details}} {{results}} {{more-diagnostics}}"
+    },
+    {
+      "label": "Common speed tests.",
+      "text": "{{common-tools-inaccurate}} {{speedtest-length}} {{data-trickling}} {{caching}} {{iperf}} {{no-ping-tests}}"
+    },
+    {
+      "label": "What to expect.",
+      "text": "{{expectations}}"
+    },
+    {
+      "label": "Causes outside the service.",
+      "text": "{{mtr-loss}} {{dns-dependency}} {{gateway-nat}} How the edge is verified is in [[zia.traffic-forwarding.verification]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the figure the user quotes came from Speedtest, Iperf or a ping test, which the vendor says can mislead through the service, before treating it as the service's throughput.",
+      "uses": [
+        "common-tools-inaccurate",
+        "speedtest-length",
+        "data-trickling",
+        "iperf",
+        "no-ping-tests"
+      ]
+    },
+    {
+      "do": "Whether the expectation is one user filling the enterprise's whole egress pipe, which the vendor says should not be expected.",
+      "uses": [
+        "expectations"
+      ]
+    }
+  ],
+  "claims": {
+    "cloud-performance-test": {
+      "statement": "The Zscaler Cloud Performance Test is a browser-based tool for collecting performance troubleshooting information for end users connecting to the internet through Internet & SaaS; it runs tests such as download or upload bandwidth between the browser and the Public or Private Service Edge the traffic is forwarded to. Zscaler recommends it, powered by Digital Experience (ZDX), over third-party speed tests such as Speedtest.net, because those add latency and variables that make troubleshooting difficult.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-zscaler-cloud-performance-test-tool.json",
+          "quotes": [
+            "The Zscaler Cloud Performance Test is a browser-based tool for collecting performance troubleshooting information for end users when connecting to the internet through Internet & SaaS (ZIA).",
+            "This tool runs several performance tests, such as download or upload bandwidth, between the browser and the Public Service Edge for Internet & SaaS (ZIA) or Private Service Edge for Internet & SaaS (ZIA) to which the traffic is forwarded.",
+            "Zscaler recommends you use our proprietary Cloud Performance Test tool powered by Digital Experience (ZDX) over third-party speed test tools, such as Speedtest.net, because these tools introduce additional latency and variables that make it difficult to troubleshoot issues."
+          ]
+        }
+      ]
+    },
+    "access": {
+      "statement": "The user must be authenticated to Internet & SaaS to use the tool; a user who is not authenticated (the page's example is working remotely with Client Connector enabled) is prompted for a user ID and password. The tool is hosted only on HTTP, not HTTPS: entering http://speedtest.zscaler.com redirects automatically to the user's Public or Private Service Edge, which acts as the speed test server. The username is hidden and only the domain part is visible.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-zscaler-cloud-performance-test-tool.json",
+          "quotes": [
+            "Ensure that you are authenticated to Internet & SaaS to access this tool.",
+            "If you are not authenticated (i.e., working remotely with Zscaler Client Connector enabled), you are prompted to enter your user ID and password.",
+            "The Zscaler Cloud Performance Test tool is hosted only on HTTP and not on HTTPS.",
+            "The username is hidden, and only the domain part of the traffic or email is visible.",
+            "Open your browser and enter http://speedtest.zscaler.com in the address bar.",
+            "You are automatically redirected to your Public Service Edge or Private Service Edge instance, which acts as the server for the speed test tool."
+          ]
+        }
+      ]
+    },
+    "page-details": {
+      "statement": "Before the test the page shows the user's email ID with the username hidden, the proxy server's Proxy Hostname and the Cloud Name, plus a geolocation map of the user and the connected data center with the traffic forwarding method at the bottom of the map.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-zscaler-cloud-performance-test-tool.json",
+          "quotes": [
+            "User Name: The email ID of the user with the hidden username.",
+            "Proxy Hostname: The name of the proxy server.",
+            "Cloud Name: The name of your Zscaler cloud.",
+            "The geolocation map displays the geographic location of the user and the connected data center.",
+            "You can also view your traffic forwarding method at the bottom of this map."
+          ]
+        }
+      ]
+    },
+    "results": {
+      "statement": "The test reports HTTP Ping (average application-layer HTTP round-trip time to the test server on the Service Edge, over multiple small requests, in milliseconds), HTTP Jitter (variation across the pings, in milliseconds, where lower means more consistent) and Download and Upload Bandwidth (average Mbps from multiple simultaneous large transfers with a Zscaler-hosted HTTP test server, excluding outliers). It also reports a Cloud Path, an ICMP Traceroute Latency and summarized ZDX path from a reverse ICMP traceroute started at the Service Edge toward the device. Results download as a CSV file, and the date and time of the last test appear at the bottom of the page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-zscaler-cloud-performance-test-tool.json",
+          "quotes": [
+            "HTTP Ping: Displays the average HTTP round-trip time observed in the application layer between the browser and the test server hosted on the Public Service Edge or Private Service Edge. The average time is calculated based on multiple subsequent small HTTP requests. It is measured in milliseconds.",
+            "HTTP Jitter: Displays the variation across the HTTP ping measurements. A lower jitter value indicates that the network connectivity is more consistent. It is measured in milliseconds.",
+            "Download Bandwidth: Displays the average bandwidth value in Mbps between your device and the Public Service Edge or Private Service Edge based on multiple simultaneous large file downloads from a Zscaler-hosted HTTP test server, excluding outliers.",
+            "Upload Bandwidth: Displays average bandwidth value in Mbps between your device and the Public Service Edge or Private Service Edge based on multiple simultaneous large file uploads to a Zscaler-hosted HTTP test server, excluding outliers.",
+            "Cloud Path (Probe: Zscaler Service Edge to Client): Displays the ICMP Traceroute Latency in milliseconds and a summarized ZDX path calculated based on a reverse ICMP traceroute initiated from the Public Service Edge or Private Service Edge to your device.",
+            "Download Results: Click Download Results to download your speed test results as a CSV file.",
+            "You can view the date and time of the last test executed at the bottom of the page."
+          ]
+        }
+      ]
+    },
+    "more-diagnostics": {
+      "statement": "Clicking More Diagnostics shows the Cloud Path in the other direction, calculated with a forward ICMP traceroute, whatever the Z-Tunnel version. When the user is connected through Z-Tunnel 2.0 a More Client Connector Diagnostics section also appears, with File Download Speed (Z-Tunnel and direct download speed between the device and the Zscaler data center, from a single large file download from a Zscaler-hosted HTTP test server) and UDP Throttling (speed throttling information such as latency, jitter and packet loss percentage).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-zscaler-cloud-performance-test-tool.json",
+          "quotes": [
+            "Irrespective of the Z-Tunnel version, clicking More Diagnostics displays the Cloud Path with a change in direction, which is calculated using a forward ICMP traceroute.",
+            "When you click More Diagnostics, and if you are connected via Z-Tunnel 2.0, the More Client Connector Diagnostics section appears.",
+            "File Download Speed: Displays the Z-Tunnel and direct download speed between your device and the Zscaler data center. The speed is calculated based on a single large file download from a Zscaler-hosted HTTP test server.",
+            "UDP Throttling: Displays the speed throttling information such as latency, jitter, packet loss percentage, etc."
+          ]
+        }
+      ]
+    },
+    "common-tools-inaccurate": {
+      "statement": "Common network performance tools such as Speedtest and Iperf can give inaccurate results when using the Zscaler service. Zscaler recommends the Zscaler Cloud Performance Test tool, one of the browser's network analysis tools, or Wireshark.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-measuring-performance-zscaler-service.json",
+          "quotes": [
+            "Common tools for network performance measurement, such as Speedtest and Iperf, can provide inaccurate results when using the Zscaler service.",
+            "Zscaler recommends that you use the Zscaler Cloud Performance Test tool, one of your browser's network analysis tools, or Wireshark."
+          ]
+        }
+      ]
+    },
+    "speedtest-length": {
+      "statement": "As the page's example of test length, Speedtest runs for only 10 seconds, which matters because many internet service providers boost the available bandwidth for a short period or for a portion of a transaction; the page says the file that can be moved in 10 seconds usually falls within that boosting window, the page says this can provide results that are much higher than the true average speed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-measuring-performance-zscaler-service.json",
+          "quotes": [
+            "For example, the length used for Speedtest is only 10 seconds.",
+            "This has an impact as many internet service providers boost the available bandwidth for a short period of time or for a portion of a transaction.",
+            "Since the type of file that can be uploaded or downloaded over 10 seconds usually falls within this boosting window, this can provide results that are much higher than the true average speed."
+          ]
+        }
+      ]
+    },
+    "data-trickling": {
+      "statement": "With data trickling, Zscaler sends a small amount of data to the browser to keep the session open while the rest is buffered for scanning. The page says this can cause problems because Speedtest leaves the fastest 10% and the slowest 30% of data out of its analysis, so the buffer release is likely to be treated as an outlier and not included in the results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-measuring-performance-zscaler-service.json",
+          "quotes": [
+            "With data trickling, Zscaler sends a small amount of data to the browser to keep the session open while the rest of the data is buffered for scanning.",
+            "This can cause problems as Speedtest does not include the fastest 10% or the slowest 30% of data in their analysis.",
+            "As a result, the buffer release is likely to be treated as an outlier and not included in the results."
+          ]
+        }
+      ]
+    },
+    "caching": {
+      "statement": "The page names caching as another cause of misleading test results: many types of services and software cache content known to be safe, and when that type of data is included in a test it gives results with much higher speeds than could be achieved without caching.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-measuring-performance-zscaler-service.json",
+          "quotes": [
+            "Many types of services and software cache content that is known to be safe.",
+            "If this type of data is included, it gives results with much higher speeds than could be achieved without caching."
+          ]
+        }
+      ]
+    },
+    "iperf": {
+      "statement": "Iperf shares many of the same issues as Speedtest and is also highly susceptible to server limitations and limitations on a single session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-measuring-performance-zscaler-service.json",
+          "quotes": [
+            "Iperf shares many of the same issues as Speedtest.",
+            "In addition, it's highly susceptible to both server limitations and limitations on a single session."
+          ]
+        }
+      ]
+    },
+    "no-ping-tests": {
+      "statement": "Zscaler does not recommend ping tests to measure end user performance, because it implements ICMP deprioritization in its data centers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-measuring-performance-zscaler-service.json",
+          "quotes": [
+            "Zscaler does not recommend using ping tests to measure the end user performance because Zscaler implements ICMP deprioritization on its data centers (DCs)."
+          ]
+        }
+      ]
+    },
+    "expectations": {
+      "statement": "The Zscaler service inspects content on an individual user session basis, so one user should not be expected to fill the entire network pipe the enterprise has available; a 10 Gbps internet egress does not automatically give a user 10 Gbps. The page says its video codec table shows a 4 Mbps connection can provide HD-quality video, and that the major video streaming and video conferencing companies it names all recommend 5 Mbps or more; the page footnotes the table with \"Refer to the Microsoft documentation.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-measuring-performance-zscaler-service.json",
+          "quotes": [
+            "The Zscaler service inspects content on an individual user session basis.",
+            "There should be no expectation of one user being able to fill the entire available network pipe the enterprise has available.",
+            "As a result, having a 10 Gbps internet egress does not automatically allow a user to get 10 Gbps.",
+            "As displayed in the preceding table, a connection of 4 Mbps is capable of providing HD-quality video.",
+            "Further, the following major video streaming and video conferencing companies all recommend 5 Mbps or more to use their products.",
+            "Refer to the Microsoft documentation."
+          ]
+        }
+      ]
+    },
+    "mtr-loss": {
+      "statement": "The page says packet loss in MTR results does not necessarily indicate a connectivity problem; in its example the loss begins at the end of the trace, which is the customer's gateway, and it concludes the problem is with the customer's ISP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-measuring-performance-zscaler-service.json",
+          "quotes": [
+            "When analyzing your traffic, it's also important to be aware of how to interpret MTR results, as packet loss doesn't necessarily indicate a connectivity problem.",
+            "Since the loss begins at the end of the trace and the end of the trace is the customer's gateway, this indicates that the problem is with the customer's ISP."
+          ]
+        }
+      ]
+    },
+    "dns-dependency": {
+      "statement": "With transparent forwarding the browser is not aware of a proxy, so every site users access must be resolved by the computer itself, which increases dependency on DNS. With PAC files pac.<cloudname>.net must be resolved, and logic such as dnsResolve(host) or isInNet makes every new domain accessed need resolving. The page says that with high DNS dependency a delayed response from the DNS server negatively affects page loading times.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-measuring-performance-zscaler-service.json",
+          "quotes": [
+            "When using transparent traffic forwarding methods, the browser is not aware of a proxy being present in the transaction. Consequently, all websites that users access need to be resolved by the computer itself. This increases dependency on DNS.",
+            "While using PAC files, the pac.<cloudname>.net needs to be resolved, which requires DNS.",
+            "In addition, if logic such as dnsResolve(host) or isInNet(host, \"y.y.y.y\", \"x.x.x.x\") is used, then every new domain that is accessed needs to be resolved.",
+            "When there is a high dependency on DNS, a delayed response from the DNS server negatively affects page loading times."
+          ]
+        }
+      ]
+    },
+    "gateway-nat": {
+      "statement": "Performing NAT on the gateway device before forwarding traffic to the Public Service Edge can also affect performance, because the device performing the NAT overload could run out of source ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-measuring-performance-zscaler-service.json",
+          "quotes": [
+            "Performing NAT on your gateway device before forwarding traffic to the Public Service Edge can also impact performance.",
+            "The device performing the NAT overload could potentially run out of source ports."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

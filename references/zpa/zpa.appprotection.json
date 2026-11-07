@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection",
+  "title": "ZPA AppProtection",
+  "aliases": [
+    "appprotection",
+    "zpa waf",
+    "zpa ips",
+    "zpa inspection",
+    "inline inspection private applications",
+    "zpa appprotection overview"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zpa.appprotection.policy",
+      "because": "zpa.appprotection.policy:first-match"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zpa.appprotection.profiles",
+      "because": "zpa.appprotection.profiles:override-modes"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zpa.appprotection.segment-opt-in",
+      "because": "zpa.appprotection.segment-opt-in:auto-appprotection"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.policy.evaluation-order",
+      "because": "zpa.policy.evaluation-order:policy-types"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.appprotection.entitlement",
+      "because": "zpa.appprotection.entitlement:browser-protection-option"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zpa.appprotection.logging",
+      "because": "zpa.appprotection.logging:lss-log-type"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.appprotection.api-surface"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.api.cbi-appprotection-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.controls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.active-directory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.naming"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.monitoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.browser-protection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.browser-protection-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.custom-controls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.autonomous-application-shield"
+    }
+  ],
+  "prose": [
+    {
+      "text": "AppProtection inspects traffic to private applications for attacks, as a question separate from who may reach them. {{inline-inspection}} {{builtin-controls}}"
+    },
+    {
+      "steps": [
+        {
+          "label": "Which name is in front of you?",
+          "text": "The console says AppProtection while the SDK, API and Terraform say Inspection: [[zpa.appprotection.naming]]."
+        },
+        {
+          "label": "Is the application set up for it?",
+          "text": "{{profile-into-policy}} The segment switch and its exclusions: [[zpa.appprotection.segment-opt-in]]; the Active Directory path: [[zpa.appprotection.active-directory]]."
+        },
+        {
+          "label": "Which rule applies?",
+          "text": "Actions, criteria and operators: [[zpa.appprotection.policy]]."
+        },
+        {
+          "label": "What does the profile do?",
+          "text": "Paranoia level, actions and the default profile: [[zpa.appprotection.profiles]]; the controls themselves: [[zpa.appprotection.controls]]; custom HTTP and WebSocket controls: [[zpa.appprotection.custom-controls]]."
+        },
+        {
+          "label": "Where do events go?",
+          "text": "[[zpa.appprotection.logging]]; the console dashboards and diagnostics: [[zpa.appprotection.monitoring]]."
+        },
+        {
+          "label": "What depends on the subscription?",
+          "text": "[[zpa.appprotection.entitlement]]; monitoring Browser Protection: [[zpa.appprotection.browser-protection]]; Browser Protection rules and profiles: [[zpa.appprotection.browser-protection-policy]]."
+        }
+      ]
+    },
+    {
+      "text": "Scans and recommended controls for private applications: [[zpa.appprotection.autonomous-application-shield]]. Calls and SDK behavior: [[zpa.appprotection.api-surface]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Walk the questions in order: the name, the segment switch, the rule, the profile, the controls, the log.",
+      "uses": [
+        "inline-inspection",
+        "profile-into-policy"
+      ]
+    }
+  ],
+  "claims": {
+    "inline-inspection": {
+      "statement": "AppProtection does inline inspection of application flows in real time for malicious content, including HTTPS traffic through real-time inspection of encrypted traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "protecting-private-applications-zpa-appprotection.json",
+          "quotes": [
+            "AppProtection allows you to do inline inspection of application flows in real time, and to inspect them for malicious content. This includes HTTPS traffic through real-time inspection of encrypted traffic."
+          ]
+        }
+      ]
+    },
+    "builtin-controls": {
+      "statement": "AppProtection has built-in controls for the most common attack types, including the OWASP Top 10 such as SQL injection and cross-site scripting, and it watches for network discovery tools such as port scanners.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "protecting-private-applications-zpa-appprotection.json",
+          "quotes": [
+            "AppProtection provides you with built-in controls for the most common attack types.",
+            "The system also watches for network discovery tools such as port scanners.",
+            "These include the Open Worldwide Application Security Project (OWASP) Top 10 list covering common attacks such as Structured Query Language (SQL) injections and cross-site scripting (XSS)."
+          ]
+        }
+      ]
+    },
+    "profile-into-policy": {
+      "statement": "A profile is added to an AppProtection policy for Private Access to use, and the web applications that require AppProtection before users can access them are identified when the application segment is created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "After creating an AppProtection profile, you can add it to an AppProtection policy for the Private Access service to use."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-applications.json",
+          "quotes": [
+            "When creating an application segment, you can identify the web applications that require AppProtection before users can access those applications."
+          ]
+        }
+      ]
+    }
+  }
+}

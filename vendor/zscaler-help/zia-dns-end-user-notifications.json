@@ -1,0 +1,576 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "DNS End User Notifications",
+  "source": {
+    "url": "https://help.zscaler.com/zia/dns-end-user-notifications",
+    "node": "1529651",
+    "revision": "3246910",
+    "updated": "2026-10-20",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler supports different types of End User Notifications (EUNs) for the DNS Control policy. These EUNs are displayed to end users when their activities trigger DNS Control rules with specific actions, such as blocking traffic or redirecting responses. All these notifications are configured at the individual rule level."
+    },
+    {
+      "text": "The following table provides an overview of the EUNs supported and distinguishes key features between different EUN types:"
+    },
+    {
+      "table": [
+        [
+          "DNS EUN Type",
+          "DNS Basic Web EUN (Static Web EUN)",
+          "DNS Advanced Web EUN (Integrated with Internet & SaaS (ZIA) Web Proxy)",
+          "Zscaler Client Connector-Based EUN"
+        ],
+        [
+          "Advantage",
+          "Eliminates the need for organizations to host and manage their own web notification page.",
+          "Zscaler Client Connector displays a pop-up notification to notify users of DNS Control policy actions.",
+          ""
+        ],
+        [
+          "Use Case",
+          "Best used for unauthenticated users, such as in guest Wi-Fi situations where a web EUN is presented.",
+          "Ideal for authenticated users for seamless web experience with SSL/TLS decryption. It can also be used for unauthenticated users from existing locations.",
+          "Ideal for user devices running Zscaler Client Connector."
+        ],
+        [
+          "Dependencies",
+          "Web EUN requests can reach the EUN web server via Internet & SaaS or directly through the internet (without going via Internet & SaaS).",
+          "Web EUN requests must be sent to Internet & SaaS using standard forwarding methods (via Generic Routing Encapsulation (GRE), Internet Protocol Security (IPSec) tunnel, or Z-Tunnel 2.0) or from a known location defined in Internet & SaaS (guest Wi-Fi scenario).",
+          "Supported on Windows devices running Zscaler Client Connector version 4.8 or later over Z-Tunnel 2.0."
+        ],
+        [
+          "Policy Configuration",
+          "Enabled on a per-rule basis in DNS Control, requiring manual configuration of an EUN IP address using the Redirect Response action in a DNS Control rule.",
+          "Enabled on a per-rule basis in DNS Control using the Block action in rules with an additional option to enable the web EUN notification.",
+          "Enabled on a per-rule basis for Block, Block with Response Code, and Redirect Response actions in DNS Control, with an option to select the default or custom notification message."
+        ],
+        [
+          "DNS Request Types",
+          "Applicable to DNS A requests.",
+          "Applicable to DNS A and AAAA requests.",
+          "Applicable to all DNS traffic managed by the DNS Control."
+        ],
+        [
+          "EUN IP Addresses and FQDNs",
+          "Fixed IP: 34.215.46.88 FQDN: blockpage.zscaler.com (a CNAME record that resolves to IP addresses that could change).",
+          "Zscaler-managed web page.",
+          "N/A"
+        ],
+        [
+          "EUN Web Page Customization Support",
+          "Static, non-customizable.",
+          "Standard customization available for web EUN.",
+          "Fully customizable—including custom notification message, layout, additional details to display, and more."
+        ],
+        [
+          "Certificate Trust Requirements",
+          "Zscaler Certificate Authority (CA) certificate is not used. However, if a web EUN request is sent via Internet & SaaS with SSL/TLS Inspection enabled, the client browser or device needs to trust the Zscaler CA certificate (or the custom certificate that the organization uses).",
+          "Client browser or device is required to trust the Zscaler CA certificate (or the custom certificate that the organization uses). To learn more, see Choosing the CA Certificate for SSL/TLS Inspection.",
+          "N/A"
+        ],
+        [
+          "Applicable Traffic",
+          "Primarily designed to support HTTP-based web EUN requests, with potential compatibility for HTTPS-based web EUN requests depending on browser behavior, which is outside of Zscaler's control.",
+          "Supported for HTTP- and HTTPS-based web EUN requests.",
+          "Supported for all DNS transactions managed by the DNS Control, including DNS over UDP, TCP, and HTTPS."
+        ]
+      ],
+      "strong": [
+        [
+          6,
+          1,
+          0,
+          8
+        ],
+        [
+          6,
+          1,
+          23,
+          27
+        ]
+      ]
+    },
+    {
+      "text": "The following sections provide further detailed information on each DNS EUN type and how to configure them in Internet & SaaS."
+    },
+    {
+      "heading": "DNS Advanced Web EUN (Integrated with Internet & SaaS Web Proxy)",
+      "level": 1
+    },
+    {
+      "text": "Zscaler provides a standard EUN page for web traffic that is built into the secure web gateway's (i.e., web proxy's) EUN infrastructure and therefore seamlessly integrated with the policy action. This EUN is supported along with the DNS Control policy's Block action, so the EUN displays to users when their traffic is blocked, informing them of your organization's policy restriction. Configuring this EUN in the DNS Control policy requires enabling the web EUN within the rule. Zscaler hosts this EUN web page, eliminating the need for organizations to host their own EUN web page. You can customize the notification to display your organization's name, logo, and a custom message to inform users of why access to specific sites is blocked."
+    },
+    {
+      "text": "The EUN web page is served only for DNS requests corresponding to A and AAAA DNS record types. It is accessible for web traffic routed through Internet & SaaS using standard forwarding methods (via GRE, IPSec tunnel, or Z-Tunnel 2.0). This page is also accessible for web traffic that is sent directly to the web server's resolved IP address without being routed through Internet & SaaS (e.g., guest Wi-Fi environment), but the traffic should come from a known location (i.e., source IP address registered as a location in Internet & SaaS)."
+    },
+    {
+      "text": "The EUN web page is accessible over HTTP and HTTPS. For HTTPS access, a Zscaler intermediate CA certificate or a custom certificate that the organization configures is used to complete a Transport Layer Security (TLS) handshake with the client. If the user's device has a Zscaler certificate installed, no certificate warning displays. However, in guest Wi-Fi environments where a certificate is not installed on the user's device, a certificate error or warning displays in the browser."
+    },
+    {
+      "text": "This web EUN configuration is supported only with the Block action of the DNS Control policy."
+    },
+    {
+      "text": "The following sections describe how to customize the web EUN and configure it in DNS Control rules:"
+    },
+    {
+      "item": "1. (Optional) Customize the Web EUN.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > End User Notification > End User Notifications.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          70
+        ],
+        [
+          73,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "The Global EUN Configuration tab is selected.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Click Edit.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit drawer that appears:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Under Configure Notifications:",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Notification Type: Select Default.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Display Reason: Enable to display the reason for blocking access in the notification.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Display Company Name: Enable to include your organization's name in the notification.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Display Company Logo: Enable to display your organization's logo in the notification. You can upload your organization's logo on the Organization profile page.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the text box, provide a custom message to be displayed in the notification. You can customize the appearance of this notification with CSS styles.",
+      "depth": 3
+    },
+    {
+      "item": "This option allows you to customize a portion of the notification message. Some texts in the notification are auto-generated based on policy restrictions and are not customizable.",
+      "depth": 3
+    },
+    {
+      "item": "Under IT Support, you can provide contact details such as email address and phone number and include a link to your organization's policy.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "These customization settings are shared by other browser-based EUNs, such as block notifications for other policies, caution messages, and quarantine notifications, so ensure that the customizations are considered globally for all browser-based EUNs. To learn more, see Configuring Browser-Based Global End User Notifications.",
+      "depth": 0
+    },
+    {
+      "item": "2. Configure the Web EUN in DNS Control rules.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Internet Access > Policy > DNS Control, and add a new rule or edit an existing rule.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          24,
+          30
+        ],
+        [
+          33,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "On the DNS rule configuration page, select the necessary rule conditions.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Under Actions:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Select Block from the Network Traffic drop-down menu.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          22,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Select Enabled for Web EUN.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          19,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see Configuring the DNS Control Policy.",
+      "depth": 0
+    },
+    {
+      "heading": "DNS Basic Web EUN (Static Web EUN)",
+      "level": 1
+    },
+    {
+      "text": "This is a static EUN web page that Zscaler hosts and fully manages at a publicly routable IP address: 34.215.46.88. You can redirect users to this static web EUN page by manually configuring this IP address in the DNS Control policy using the Redirect Response action. The Redirect Response action replaces the IP address of the resolved hostname in the DNS response with a preferred IP address before sending the response to the client. Organizations can use this Redirect Response action to direct users to an EUN page when access to a domain is blocked. The EUN page can either be the Zscaler-hosted static EUN web page hosted at 34.215.46.88 or a custom EUN web page hosted at a dedicated IP address managed by the organization."
+    },
+    {
+      "text": "The Zscaler-hosted EUN web page eliminates the need for organizations to host and manage their own notification page. This static DNS EUN web page is primarily designed to support HTTP-based web EUN requests, with potential compatibility for HTTPS-based web EUN requests depending on browser behavior, which is outside of Zscaler's control. It is available for tunneled traffic (sent via GRE, IPSec tunnel, or Z-Tunnel 2.0) and is also accessible to users whose web traffic is not sent through forwarding tunnels and unauthenticated users, making it well-suited for guest Wi-Fi environments and similar scenarios. To learn more, see DNS Static Web End User Notification."
+    },
+    {
+      "text": "This static EUN configuration is supported only with the Redirect Response action of the DNS Control policy. This EUN web page is non-customizable."
+    },
+    {
+      "text": "To configure this static EUN for a DNS Control rule:"
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Policy > DNS Control, and add a new rule or edit an existing rule.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          56
+        ],
+        [
+          59,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "On the DNS rule configuration page, select the necessary rule conditions.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Under Actions:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Select Redirect Response from the Network Traffic drop-down menu.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          34,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Enter 34.215.46.88 in the IP Address field.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          26,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "To learn more, see Configuring the DNS Control Policy."
+    },
+    {
+      "heading": "Zscaler Client Connector-Based EUN",
+      "level": 1
+    },
+    {
+      "text": "This EUN is displayed through Zscaler Client Connector installed on a user's endpoint when the user activity triggers a DNS Control rule configured with the EUN. It uses the Internet & SaaS Notification Framework that is bundled with Zscaler Client Connector and extends EUN support for various Internet & SaaS policies. This EUN is integrated with the DNS Control policy and allows you to enable the notification on a per-rule basis. It is supported with the DNS rule's Block, Block with Response Code, and Redirect Response actions, enabling organizations to show this notification to end users when they access blocked traffic or when a DNS redirect is performed. Configuring this EUN in the DNS Control policy requires enabling the Zscaler Client Connector EUN option and selecting an appropriate notification message within the policy rule."
+    },
+    {
+      "text": "Zscaler provides a ready-to-use, editable notification message by default. In addition, you can create fully customized notification messages and associate distinct messages with individual DNS rules, depending on your requirements. This EUN is ideal for endpoints running Zscaler Client Connector and is displayed for policy violations detected in DNS traffic managed the DNS Control."
+    },
+    {
+      "item": "This EUN is supported on Windows devices running Zscaler Client Connector version 4.8 and later over Z-Tunnel 2.0.",
+      "depth": 0
+    },
+    {
+      "item": "The EUN configuration is supported with Block, Block with Response Code, and Redirect Response actions of the DNS Control policy.",
+      "depth": 0
+    },
+    {
+      "item": "The DNS Advanced Web EUN and Zscaler Client Connector EUN cannot function simultaneously. When both options are enabled, the Web EUN takes precedence and only this notification is displayed to users.",
+      "depth": 0
+    },
+    {
+      "text": "The following sections describe how to customize the Zscaler Client Connector EUN and configure it in DNS Control rules:"
+    },
+    {
+      "item": "1. (Optional) Customize the notification message.",
+      "depth": 0
+    },
+    {
+      "item": "2. Configure the Zscaler Client Connector EUN in DNS Control rules.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Policy > DNS Control, and add a new rule or edit an existing rule.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          56
+        ],
+        [
+          59,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "On the DNS rule configuration page, select the necessary rule conditions.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Under Actions, select Block or Redirect Response action from the Network Traffic drop-down menu, as required for the rule.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          22,
+          27
+        ],
+        [
+          31,
+          48
+        ],
+        [
+          65,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Under Notification:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Select Enabled for Client Connector EUN.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          19,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Select the default or custom message from the Notification Message drop-down menu.",
+      "depth": 2,
+      "strong": [
+        [
+          46,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

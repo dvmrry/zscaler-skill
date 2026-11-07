@@ -1,0 +1,528 @@
+{
+  "schema_version": 1,
+  "id": "shared.admin-rbac.unified",
+  "title": "Unified RBAC: Admin Console roles, access levels, permission categories, scopes, assignments and obfuscation",
+  "aliases": [
+    "unified rbac",
+    "unified role-based access control",
+    "experience center roles",
+    "admin console role management",
+    "SuperAdmin ReadOnly roles",
+    "unified role assignments",
+    "unified obfuscation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-obfuscation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zdx"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.adaptive-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.audit-logs"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{limited-availability}} {{roles-and-scope}}"
+    },
+    {
+      "label": "Predefined roles and the role list.",
+      "text": "{{predefined-roles}} {{role-list}} {{delete-duplicate}}"
+    },
+    {
+      "label": "Access levels.",
+      "text": "{{access-levels}} {{only-subscribed-features}}"
+    },
+    {
+      "label": "Permission categories.",
+      "text": "{{permission-categories}} {{platform-permissions}} {{selected-permissions}}"
+    },
+    {
+      "label": "Scopes.",
+      "text": "{{scopes}} What happens when a Time Duration runs out, and what the Applications scope limits, are not stated {{gap:time-duration-expiry}} {{gap:applications-scope}}."
+    },
+    {
+      "label": "Saving and assigning.",
+      "text": "{{activation}} {{assignments}} How several roles held by one admin combine, and how these roles relate to the per-product roles and to the admin entitlements chosen at assignment, is not stated {{gap:role-combination}}."
+    },
+    {
+      "label": "Obfuscation.",
+      "text": "{{obfuscation-scope}} {{obfuscation-fields}} {{obfuscation-types}} Whether an obfuscated value can be revealed is not stated {{gap:obfuscation-reveal}}. The ZIA role model's obfuscation is in [[shared.admin-rbac.zia-obfuscation]]."
+    },
+    {
+      "label": "Open.",
+      "text": "The role object behind the roles endpoints is unmined {{gap:roles-api-unmined}}, and only the permission categories and the permissions named here were extracted {{gap:permission-leaves}}. What these roles record is in [[shared.audit-logs]]."
+    },
+    {
+      "text": "Role changes are recorded in the role management audit log: [[unified.audit-logs]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an admin who cannot open or change a page in the Zscaler Admin Console, the role's access level (No Access, View Only or Full Access) for the permission that covers it, and whether the tenant uses Unified RBAC at all.",
+      "uses": [
+        "limited-availability",
+        "access-levels",
+        "only-subscribed-features"
+      ]
+    },
+    {
+      "do": "For a role that cannot be deleted, whether it still has assignments.",
+      "uses": [
+        "delete-duplicate"
+      ]
+    },
+    {
+      "do": "For an admin who has a role but no access, that the role has an assignment and that the change was activated.",
+      "uses": [
+        "assignments",
+        "activation"
+      ]
+    },
+    {
+      "do": "For an admin whose Digital Experience access is time-limited, the role's Time Duration scope.",
+      "uses": [
+        "scopes",
+        "time-duration-expiry"
+      ]
+    }
+  ],
+  "claims": {
+    "limited-availability": {
+      "statement": "Unified Role-Based Access Control (RBAC) is in limited availability and is reached through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-role-management.json",
+          "quotes": [
+            "Unified Role-Based Access Control (RBAC) is a feature in limited availability. To access this feature, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "roles-and-scope": {
+      "statement": "Unified RBAC roles manage access to pages and features in the Zscaler Admin Console with granular permissions, and each role can take an optional scope that specifies to what, when or where it applies; the Role Management page is at Administration > Role Management > Role Management.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-role-management.json",
+          "quotes": [
+            "You can create admin roles that manage access to pages and features in the Zscaler Admin Console.",
+            "You can also select an optional scope for each role that specifies to what, when, or where the role applies.",
+            "On the Role Management page (Administration > Role Management > Role Management)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "quotes": [
+            "Role-based access control in the Zscaler Admin Console allows you to configure granular permissions for administrators on the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "predefined-roles": {
+      "statement": "Two predefined roles exist by default: SuperAdmin (full access to all permissions) and ReadOnly (view-only access to all permissions); the role list marks a role Custom when the organization created it and Predefined when the Zscaler service created it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-role-management.json",
+          "quotes": [
+            "There are two predefined roles that are available by default:",
+            "SuperAdmin: A role with full access to all permissions.",
+            "ReadOnly: A role with view-only access to all permissions.",
+            "Type: Displays Custom if the role was created by your organization. Displays Predefined if the role was created automatically by the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "role-list": {
+      "statement": "The role list shows per role the number of permissions, scopes and assignments (admins the role is assigned to); not all permissions can be assigned a scope, roles can be filtered by the permissions they manage, and roles with no assignments can be hidden.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-role-management.json",
+          "quotes": [
+            "Permissions: Displays the number of permissions the role manages.",
+            "Scopes: Displays the number of scopes assigned to the role.",
+            "Not all permissions can be assigned a scope.",
+            "Assignments: Displays the number of admins the role is assigned to.",
+            "Filter roles visible in the table by the permissions they manage.",
+            "Hide roles with no assignments from the table."
+          ]
+        }
+      ]
+    },
+    "delete-duplicate": {
+      "statement": "Only roles with no assignments can be deleted, and a duplicated role is created with no assignments: existing assignments are not copied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-role-management.json",
+          "quotes": [
+            "Delete a role. You can only delete roles with no assignments.",
+            "Duplicate a role. Duplicate roles are created with no assignments. Any existing assignments are not copied to duplicate roles."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "quotes": [
+            "You can only click the icon if the role has no assignments.",
+            "Role duplicates do not retain assignments from the source role. The duplicate role has no assignments."
+          ]
+        }
+      ]
+    },
+    "access-levels": {
+      "statement": "For each permission category, subcategory and individual permission a role is granted No Access, View Only or Full Access; a mix within a category shows the category as Mixed, some individual permissions offer only No Access and View Only or only No Access and Full Access, and a category or subcategory menu offers only the options shared by all its individual permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "quotes": [
+            "For each permission category, subcategory, and individual permission, you can grant the role one of the following access levels:",
+            "No Access: Prevents admins from accessing the selected feature or page.",
+            "View Only: Allows admins to view the selected feature or page, but does not allow them to make any changes to it.",
+            "Full Access: Grants admins the ability to both view and make changes to the selected feature or page.",
+            "Configuring a mix of different permissions within a category causes the drop-down permissions menu for that category to display Mixed.",
+            "Some individual permissions can only be configured as either No Access and View Only or No Access and Full Access.",
+            "The drop-down menu for each permission category and subcategory only contain options that are shared by all individual permissions."
+          ]
+        }
+      ]
+    },
+    "only-subscribed-features": {
+      "statement": "The Create Role page displays permissions only for features the organization has access to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "quotes": [
+            "The Create Role page only displays permissions for features that your organization has access to."
+          ]
+        }
+      ]
+    },
+    "permission-categories": {
+      "statement": "The permission categories on the Create Role page are Platform (general settings and preferences for the console, alerts and audit logs), Authentication, Users and Department, API Key Management, Supportability, Dashboards, Private Access, AI, Analytics, Zscaler Cloud Configuration, Digital Experience Configuration, Policy, Integrations, Infrastructure, and Logs and Reports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "quotes": [
+            "Configure permissions for the entire Platform category, which encompasses management of general settings and preferences for the Zscaler Admin Console, alerts, and audit logs",
+            "Manage access to authentication configuration and settings for the following Zscaler services:",
+            "Manage access to user, group, and department management for the following Zscaler services:",
+            "Manage access to creation and control of API keys for the following Zscaler services:",
+            "Manage access to support features for the Zscaler service.",
+            "Manage access to dashboards for the following Zscaler services:",
+            "Manage access to the following Private Access features, settings, and resources:",
+            "Manage access to AI integrations and permissions.",
+            "Manage access to analytics for the following Zscaler services:",
+            "Manage access to configuration and settings for the following Zscaler cloud services:",
+            "Manage access to the following configurations and settings for Digital Experience:",
+            "Manage access to policy pages in the following categories:",
+            "Manage access to the following third-party integrations for Internet & SaaS:",
+            "Manage access to system resources and infrastructure for the following:",
+            "Manage access to the following Private Access logs:",
+            "Users and Department",
+            "API Key Management",
+            "Zscaler Cloud Configuration",
+            "Digital Experience Configuration"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "after": "Client Connector Public API",
+          "quotes": [
+            "Supportability"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "after": "Manage access to the following application segment resources:",
+          "quotes": [
+            "Logs and Reports"
+          ]
+        }
+      ]
+    },
+    "platform-permissions": {
+      "statement": "Platform covers Role Management, Admin Management, advanced global settings (including Advanced Policy Settings and IPv6 Configuration), Backup & Restore, Company Information, User Portal AUP, Micro Tenant, Alerts (Internet & SaaS Alerts, Security and UEBA Alerts, Platform Alerts and Digital Experience Alerts) and Audit Logs (Internet & SaaS, Private Access, Client Connector, Experience Center and Role Management).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "quotes": [
+            "Manage access to the role management page for the Zscaler Admin Console.",
+            "Admin Management",
+            "Manage access to the following advanced global settings:",
+            "Advanced Policy Settings",
+            "IPv6 Configuration",
+            "Backup & Restore",
+            "Company Information",
+            "User Portal AUP",
+            "Micro Tenant",
+            "Internet & SaaS Alerts",
+            "Security and UEBA Alerts",
+            "Platform Alerts",
+            "Digital Experience Alerts",
+            "Manage access to system activity logs for the following Zscaler services:",
+            "Internet & SaaS Audit Logs",
+            "Private Access Audit Logs",
+            "Client Connector Audit Logs",
+            "Experience Center Audit Logs",
+            "Role Management Audit Logs"
+          ]
+        }
+      ]
+    },
+    "selected-permissions": {
+      "statement": "Among the permissions, API Key Management covers the Private Access API Key and the Client Connector Public API; Supportability covers support features, with the page pointing to Enabling Remote Assistance; the Adaptive Access permission manages dynamic risk score permissions; and Integrations covers Microsoft Cloud App Security, Azure Virtual WAN, Internet Access Crowdstrike, Microsoft Defender for Endpoint and Workflow Automation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "quotes": [
+            "Private Access API Key",
+            "Client Connector Public API",
+            "Manage access to support features for the Zscaler service. To learn more, see Enabling Remote Assistance.",
+            "Manage access to dynamic risk score permissions.",
+            "Microsoft Cloud App Security",
+            "Azure Virtual WAN",
+            "Internet Access Crowdstrike",
+            "Microsoft Defender for Endpoint",
+            "Workflow Automation"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "after": "Client Connector Public API",
+          "quotes": [
+            "Supportability"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "after": "Bandwidth Classes Policy Component",
+          "quotes": [
+            "Adaptive Access"
+          ]
+        }
+      ]
+    },
+    "scopes": {
+      "statement": "A role's optional scope is one of Locations, Location Groups, Departments, Applications (only with compatible Digital Experience permissions) or Time Duration, from 2 Hours to 48 Hours or Full Access for the role to always be available; Time Duration is available only with compatible Digital Experience permissions and applies only to those permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "quotes": [
+            "(Optional) In the Assign Scope (Optional) section, select one of the following scopes from the menu:",
+            "Locations: Choose locations for the role to apply to.",
+            "Location Groups: Choose location groups for the role to apply to.",
+            "Departments: Choose departments for the role to apply to.",
+            "Applications: Choose applications for the role to apply to. This scope is only available when compatible Digital Experience permissions are selected.",
+            "Time Duration: Choose a time duration for the role from 2 Hours to 48 Hours, or select Full Access for the role to always be available.",
+            "This scope is only available when compatible Digital Experience permissions are selected, and only applies to those permissions."
+          ]
+        }
+      ]
+    },
+    "activation": {
+      "statement": "Creating, editing, duplicating and deleting a role each end by activating the change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-administrator-roles.json",
+          "quotes": [
+            "Click Save and activate the change.",
+            "After you finish all of your edits, click Save and activate the change.",
+            "After you confirm the details of the role, click Save and activate the change.",
+            "In the confirmation window, click Delete and activate the change."
+          ]
+        }
+      ]
+    },
+    "assignments": {
+      "statement": "Assignments are added to a role after it is created: an assignment selects Users, User Groups or API Clients, then the admin entitlements the role applies to, and the change is activated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-role-assignments.json",
+          "quotes": [
+            "After you create a role, assignments can be added to the role.",
+            "Select either Users, User Groups, or API Clients.",
+            "Select the admin entitlements for which you want the role to apply.",
+            "Activate the change."
+          ]
+        }
+      ]
+    },
+    "obfuscation-scope": {
+      "statement": "Information can be obfuscated for roles with compatible Internet & SaaS (ZIA) and Digital Experience permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-role-management.json",
+          "quotes": [
+            "You can obfuscate information for roles with compatible Internet & SaaS (ZIA) and Digital Experience permissions."
+          ]
+        }
+      ]
+    },
+    "obfuscation-fields": {
+      "statement": "Obfuscation is enabled on a role's Obfuscation tab with Add Obfuscation, only for roles with Internet & SaaS or Digital Experience permissions that expose obfuscatable information types; the change is saved and activated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-obfuscation-administrator-roles.json",
+          "quotes": [
+            "You can only enable obfuscation for roles with Internet & SaaS or Digital Experience permissions that expose information types that can be obfuscated.",
+            "On the Obfuscation tab, click Add Obfuscation.",
+            "Click Save and activate the change."
+          ]
+        }
+      ]
+    },
+    "obfuscation-types": {
+      "statement": "In the Configure Obfuscation pane, Digital Experience offers Username, Device Name, Wi-Fi Name, IP Address and Location Name, and Internet & SaaS offers Username, Device Name and AI Prompt.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-obfuscation-administrator-roles.json",
+          "quotes": [
+            "In the Configure Obfuscation pane, you can select to obfuscate the following information:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-obfuscation-administrator-roles.json",
+          "after": "Digital Experience:",
+          "quotes": [
+            "Username",
+            "Device Name",
+            "Wi-Fi Name",
+            "IP Address",
+            "Location Name"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-obfuscation-administrator-roles.json",
+          "after": "Internet & SaaS:",
+          "quotes": [
+            "Username",
+            "Device Name",
+            "AI Prompt"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "roles-api-unmined": {
+      "kind": "semantic",
+      "title": "The Unified RBAC role object in the urbac OpenAPI spec",
+      "status": "open",
+      "detail": "vendor/zscaler-api-specs/automate-zscaler/openapi/urbac.openapi.json has POST /v1/roles, POST /v1/roles/query and GET, PUT and DELETE /v1/roles/{roleId} beside the audit query. The graph cites this spec only for the audit query, so the role object (permissions, scope encoding, whether assignments are exposed) is unmined. The Go and Python SDKs have no Unified RBAC client (shared.audit-logs:sdk-coverage).",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "time-duration-expiry": {
+      "kind": "semantic",
+      "title": "What a Time Duration role does when the time runs out",
+      "status": "open",
+      "detail": "The page gives 2 Hours to 48 Hours or Full Access for the Time Duration scope and does not say what the role does when the time runs out, or whether the time is reckoned from assignment. The ZDX role page lists 12, 24 and 48 hours (shared.admin-rbac.zdx:time-duration); these are different pages, so this is not a contradiction.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "applications-scope": {
+      "kind": "semantic",
+      "title": "What the Applications scope limits",
+      "status": "open",
+      "detail": "The page says the Applications scope chooses applications for the role to apply to, available with compatible Digital Experience permissions, and does not say what it limits (compare shared.admin-rbac.zdx gap applications-scope).",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "role-combination": {
+      "kind": "semantic",
+      "title": "How several Unified RBAC roles held by one admin combine, and how they relate to per-product roles",
+      "status": "open",
+      "detail": "The captured pages do not say how several roles held by one admin combine, how a Unified RBAC role relates to the per-product roles, or how it relates to the admin entitlements chosen at assignment.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "obfuscation-reveal": {
+      "kind": "semantic",
+      "title": "Whether obfuscated values can be revealed in Unified RBAC",
+      "status": "open",
+      "detail": "The obfuscation pages do not say whether an obfuscated value can be revealed, as the ZIA auditor override does.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "permission-leaves": {
+      "kind": "semantic",
+      "title": "The individual permissions under each Create Role category",
+      "status": "open",
+      "detail": "The Create Role permission tree runs to several hundred individual permissions; only the categories and the permissions named here were extracted. The capture unified-configuring-administrator-roles.json holds the full list.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

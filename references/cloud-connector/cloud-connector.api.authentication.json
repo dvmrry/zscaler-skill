@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.api.authentication",
+  "title": "Reaching and signing in to the Cloud Connector API: OneAPI, legacy ZTC credentials and government clouds",
+  "aliases": [
+    "ztw authentication",
+    "ztc_username ztc_password ztc_api_key ztc_cloud",
+    "cloud connector api legacy login",
+    "connector.zscaler.net api",
+    "ztw fedramp",
+    "ztc provider gov cloud",
+    "ztw oneapi"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.oneapi.authentication",
+      "because": "shared.oneapi.authentication:client-credentials-flow"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.government-clouds"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-config"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Cloud & Branch Connector API is reached two ways: through the OneAPI gateway with a bearer token, or through the legacy connector host with portal credentials and a session. This subject records how each client picks a path and where the government-cloud question stands."
+    },
+    {
+      "label": "OneAPI path.",
+      "text": "{{go-oneapi-routes-ztw}} {{python-oneapi-default}} How the token itself is obtained is in [[shared.oneapi.authentication]]."
+    },
+    {
+      "label": "Legacy path.",
+      "text": "{{go-legacy-credentials}} {{go-legacy-host}} {{help-legacy-server}} {{legacy-session-header}}"
+    },
+    {
+      "label": "The legacy API key.",
+      "text": "{{legacy-key-provisioned}} {{one-key}} {{edit-key-rules}} {{same-key-across-orgs}} {{regenerate-delete}} The key page's Last Modified By description disagrees with the edit and regenerate procedures {{divergence:key-modified-by}}. {{key-disabled}} {{subscription-expiry}} The threshold of API calls is not given {{gap:key-call-threshold}}. Which admins may view or change the key is a role permission: [[shared.admin-rbac.cloud-connector:api-key-mgmt]]."
+    },
+    {
+      "text": "In legacy mode several Go ZTW services are sent through the ZIA legacy client, which the ZTC provider never builds: [[cloud-connector.sdk-go.service-defects:legacy-ztw-only-client-fails-generic-calls]]."
+    },
+    {
+      "heading": "Government (FedRAMP) clouds"
+    },
+    {
+      "text": "The Go SDK builds dedicated government routes for every OneAPI service, ZTW included: [[shared.oneapi.government-clouds:go-gov-routing]]. The ZTC provider passes its cloud setting through to those routes, [[cloud-connector.terraform.provider-config:provider-carries-gov-routes]], while the FedRAMP version floor its documentation gives is not a release of that provider, [[cloud-connector.terraform.provider-config:version-floors-not-ztc]]."
+    },
+    {
+      "text": "Whether a government ZTW tenant accepts OneAPI is open: [[cloud-connector.terraform.provider-config:fedramp-live-acceptance]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which path a failing client is on: a OneAPI client (vanity domain, client ID and secret or key) or the legacy ZTC_USERNAME, ZTC_PASSWORD, ZTC_API_KEY and ZTC_CLOUD credentials, since the hosts and failure modes differ.",
+      "uses": [
+        "go-oneapi-routes-ztw",
+        "go-legacy-credentials",
+        "go-legacy-host"
+      ]
+    },
+    {
+      "do": "For a government tenant, whether OneAPI acceptance for ZTW has been confirmed by a release note, the vendor or a tenant test before moving it off legacy credentials.",
+      "uses": [
+        "cloud-connector.terraform.provider-config:fedramp-live-acceptance"
+      ]
+    },
+    {
+      "do": "For a legacy client that suddenly fails to authenticate, whether the key shows Disabled (call threshold, terms violation or an expired API subscription) or was edited, regenerated or deleted, which invalidates the old key immediately; who last modified the key is a divergence between the pages.",
+      "uses": [
+        "key-disabled",
+        "subscription-expiry",
+        "edit-key-rules",
+        "regenerate-delete",
+        "key-modified-by"
+      ]
+    }
+  ],
+  "claims": {
+    "go-oneapi-routes-ztw": {
+      "statement": "The Go SDK's OneAPI client classifies any path starting with `ztw` as the ZTW service and sends it through a dedicated `ZTWHTTPClient` with its own rate limiter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "} else if strings.HasPrefix(path, \"ztw\") { return \"ztw\", nil",
+            "case \"ztw\": return client.oauth2Credentials.ZTWHTTPClient",
+            "cfg.ZTWHTTPClient = getHTTPClient(cfg.Logger, ztwRateLimiter, cfg)"
+          ]
+        }
+      ]
+    },
+    "python-oneapi-default": {
+      "statement": "The Python SDK's unified client builds the `ztw` service on its OneAPI request executor by default. With `use_legacy_client` set, the `ztw` accessor returns the supplied legacy ZTW helper instead, and raises a RuntimeError if no helper was supplied; it does not fall back to OneAPI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "def ztw(self): if self.use_legacy_client: return self._require_legacy_client(\"ZTW\", self.ztw_legacy_client) if self._ztw is None: # Pass RequestExecutor directly self._ztw = ZTWService(self._request_executor) return self._ztw",
+            "use_legacy_client: bool = False,",
+            "raise RuntimeError( f\"Legacy {service_name} client requested but no legacy client instance was provided. \""
+          ]
+        }
+      ]
+    },
+    "go-legacy-credentials": {
+      "statement": "The Go SDK's legacy ZTW configuration reads `ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY` and `ZTC_CLOUD` (and an optional `ZSCALER_PARTNER_ID`), and returns an error if any of the four is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_config.go",
+          "quotes": [
+            "if cfg.ZTW.Client.ZTCUsername == \"\" || cfg.ZTW.Client.ZTCPassword == \"\" || cfg.ZTW.Client.ZTCApiKey == \"\" || cfg.ZTW.Client.ZTCCloud == \"\" {",
+            "return nil, fmt.Errorf(\"client credentials (ZTC_USERNAME, ZTC_PASSWORD, ZTC_API_KEY, ZTC_CLOUD) are missing\")",
+            "PartnerID   string `yaml:\"partnerId\" envconfig:\"ZSCALER_PARTNER_ID\"`"
+          ]
+        }
+      ]
+    },
+    "go-legacy-host": {
+      "statement": "The legacy Go client's base URL is built from the cloud name as `https://connector.<cloud>.net/api/v1`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_config.go",
+          "quotes": [
+            "ztwAPIVersion             = \"api/v1\"",
+            "rawURL := fmt.Sprintf(\"https://connector.%s.net/%s\", cfg.ZTW.Client.ZTCCloud, ztwAPIVersion)"
+          ]
+        }
+      ]
+    },
+    "help-legacy-server": {
+      "statement": "The legacy API reference names its public server as `https://{host}:{port}/api/v1`, with `connector.zscaler.net` as the default host and 443, 8443 or 1443 as the port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/servers/[url=https:~1~1{host}:{port}~1api~1v1]/variables",
+          "expect": {
+            "host": {
+              "description": "Public APIs Server IP/Domain name hosting Cloud Connector Services",
+              "default": "connector.zscaler.net"
+            },
+            "port": {
+              "default": "443",
+              "enum": [
+                "443",
+                "8443",
+                "1443"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "legacy-session-header": {
+      "statement": "The legacy Go client checks its session before each request and sends the session ID in a `JSessionID` header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_client.go",
+          "after": "func (c *Client) GenericRequest(",
+          "quotes": [
+            "err = c.checkSession()",
+            "req.Header.Set(\"JSessionID\", jSessionID)"
+          ]
+        }
+      ]
+    },
+    "legacy-key-provisioned": {
+      "statement": "The organization's API key is initially provisioned by Zscaler, enabled, and displayed with the base URL on the Cloud & Branch Connector API page (Administration > API > Legacy API > Cloud & Branch Connector API); the base URL and key are required to authenticate via the API and create a session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-cloud-branch-connector-api-management.json",
+          "quotes": [
+            "Your organization's API key is initially provisioned by Zscaler, enabled, and displayed within the Cloud & Branch Connector API page along with the base URL. The base URL and key are required to authenticate via the API and create a session.",
+            "On the API Key Management page (Administration > API > Legacy API > Cloud & Branch Connector API), you can do the following:"
+          ]
+        }
+      ]
+    },
+    "one-key": {
+      "statement": "An organization can only have one API key and must delete the existing key before adding a new one; the new key is immediately valid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-managing-organization-api-keys.json",
+          "quotes": [
+            "Your organization can only have one API key. You must delete the existing key before you can add a new one.",
+            "The new API key is immediately valid and displayed in the tab."
+          ]
+        }
+      ]
+    },
+    "edit-key-rules": {
+      "statement": "An edited key must be alphanumeric (A-Z, a-z, 0-9) and exactly 12 characters, cannot be the same as the current key, immediately invalidates the old key after confirmation, and the edit cannot be undone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-managing-organization-api-keys.json",
+          "quotes": [
+            "The new key must be alphanumeric (A-Z, a-z, 0-9) and exactly 12 characters in length.",
+            "The new key cannot be the same as the Current API Key.",
+            "After confirmation, the old API key is immediately invalidated.",
+            "After an API key is edited, the action cannot be undone."
+          ]
+        }
+      ]
+    },
+    "same-key-across-orgs": {
+      "statement": "For an admin managing multiple organizations in the Admin Console who wants the same key string across them, Zscaler recommends editing the key instead of adding a new one or regenerating it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-cloud-branch-connector-api-management.json",
+          "quotes": [
+            "if you are managing multiple organizations within the Zscaler Admin Console and want to maintain the same key string across them, Zscaler recommends editing the key instead of adding a new one or regenerating it."
+          ]
+        }
+      ]
+    },
+    "regenerate-delete": {
+      "statement": "After confirmation a regenerate immediately generates a random key string and invalidates the old one, and a delete immediately removes and invalidates the key; the regenerate cannot be undone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-managing-organization-api-keys.json",
+          "quotes": [
+            "After confirmation, a random key string is immediately generated and the old string is invalidated.",
+            "After confirmation, the key is immediately removed and invalidated.",
+            "After an API key is regenerated, the action cannot be undone."
+          ]
+        }
+      ]
+    },
+    "key-disabled": {
+      "statement": "The key can be disabled if the organization exceeds the threshold number of API calls allowed or its code violates Zscaler's terms and conditions; then the ability to add, regenerate or delete the key is removed and a Disabled status appears, and Zscaler Support or the service provider must be contacted to re-enable it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-managing-organization-api-keys.json",
+          "quotes": [
+            "The key can be disabled if your organization exceeds the threshold number of API calls allowed, or the code developed for your organization violates Zscaler's terms and conditions.",
+            "If this occurs, the ability to add, regenerate, or delete the key is removed and a Disabled status appears.",
+            "You must contact Zscaler Support or your service provider to re-enable the key."
+          ]
+        }
+      ]
+    },
+    "subscription-expiry": {
+      "statement": "If the API subscription expires, the Cloud & Branch Connector API page can still be accessed but cannot be modified, and the existing key is still valid but disabled until it is re-enabled after the subscription is renewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-managing-organization-api-keys.json",
+          "quotes": [
+            "If your API subscription expires, you still have access to the Cloud & Branch Connector API page, but you are not able to make any modifications. Also, your existing API key is still valid but disabled.",
+            "It is re-enabled after your subscription is renewed."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "key-modified-by": {
+      "summary": "The API management page describes the key's Last Modified By column as \"Only Zscaler modifies the key\", while the key management page gives admins procedures to edit, regenerate and delete the key.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-about-cloud-branch-connector-api-management.json",
+            "quotes": [
+              "Last Modified By: Only Zscaler modifies the key."
+            ]
+          },
+          "says": "API management page: only Zscaler modifies the key."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-managing-organization-api-keys.json",
+            "quotes": [
+              "To edit the Cloud Service API key:",
+              "After confirmation, a random key string is immediately generated and the old string is invalidated."
+            ]
+          },
+          "says": "Key management page: an admin edits the key and regenerates it with a random key string, so the key changes by admin action."
+        }
+      ],
+      "impact": "Neither page says whether the column describes the initial provisioning only or records admin edits, so the column cannot be relied on to say who changed the key."
+    }
+  },
+  "gaps": {
+    "key-call-threshold": {
+      "kind": "semantic",
+      "title": "The API call threshold that disables the legacy key, and whether OneAPI clients need the key",
+      "status": "open",
+      "detail": "The key management page says the key can be disabled above a threshold number of API calls and gives no value; see cloud-connector.api.rate-limits for rate limits. The page also says the Cloud Sandbox Submission API key cannot be edited, without saying which key it means, and does not say whether OneAPI clients need this key.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

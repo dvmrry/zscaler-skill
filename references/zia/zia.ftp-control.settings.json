@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "id": "zia.ftp-control.settings",
+  "title": "FTP Control settings and API object",
+  "aliases": [
+    "ftp control settings",
+    "ftpSettings",
+    "allow ftp over http",
+    "allow native ftp",
+    "ftp allowed urls",
+    "ftp control api",
+    "zia_ftp_control_policy"
+  ],
+  "binds": [
+    "zia/ftp-control-policy"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zia.url-categories.membership",
+      "because": "zia.ftp-control.settings:native-ftp-scoping"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall",
+      "because": "zia.ftp-control.scope:ftp-sits-in-firewall"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/ftp-control-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ftp-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ftp-control.scope"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{allow-fohttp}} {{native-ftp-scoping}} {{recommended-ftp-policy}} The recommended policy does not state the tenant default, which stays open {{gap:native-ftp-default}}. {{urls-need-proxy-retrieval}} {{allowed-urls-count-toward-custom-limit}} {{console-has-no-action-or-user-scope}} The ALLOW, CAUTION and BLOCK actions belong to File Type Control: [[zia.file-type-control.actions]]."
+    },
+    {
+      "text": "Over the API: {{api-get-put}} {{api-fields}} {{enable-fohttp-flag}} The shape of `urlCategories` differs between sources {{divergence:url-categories-element-type}}."
+    },
+    {
+      "text": "The default of the native FTP switch is open {{gap:native-ftp-default}}, and how Allow Any URL Category appears in the API is open {{gap:allow-any-category-representation}}."
+    },
+    {
+      "text": "Defaults and passive-only behavior are in [[zia.ftp-control.scope]]; who the policy applies to is in [[zia.ftp-control.scope]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule list, action column or user scoping is being sought for FTP, since the console documents none.",
+      "uses": [
+        "console-has-no-action-or-user-scope"
+      ]
+    },
+    {
+      "do": "Whether URL Filtering precedence explains an FTP failure, checked before the user's location when the settings look right.",
+      "uses": [
+        "zia.ftp-control.scope:ftp-url-filtering-precedence"
+      ]
+    }
+  ],
+  "claims": {
+    "allow-fohttp": {
+      "statement": "The FTP Control page has an Allow FTP over HTTP option that lets browsers connect to FTP over HTTP sites and download files. A remote user on a dedicated port is supported for FTP over HTTP.",
+      "tier": "A",
+      "binds": [
+        "zia/ftp-control-policy#ftpOverHttpEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ftp-control-policy.json",
+          "quotes": [
+            "Allow FTP over HTTP: By default, the Zscaler service doesn't allow users from a location to upload or download files from FTP sites that use FTP over HTTP.",
+            "Enable this option to allow browsers to connect to FTP over HTTP sites and download files.",
+            "If a remote user uses a dedicated port, then the service supports FTP over HTTP for them."
+          ]
+        }
+      ]
+    },
+    "native-ftp-scoping": {
+      "statement": "Allow Native FTP lets users connect to native FTP sites and download files. When it is on, Allow Any URL Category opens FTP to every category. With that off, the policy is limited to the Allowed URL Categories (super categories, categories or both, including custom categories) and up to 25,000 Allowed URLs.",
+      "tier": "A",
+      "binds": [
+        "zia/ftp-control-policy#ftpEnabled",
+        "zia/ftp-control-policy#urlCategories",
+        "zia/ftp-control-policy#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ftp-control-policy.json",
+          "quotes": [
+            "Allow Native FTP: Enable this option to allow users to connect to native FTP sites and download files.",
+            "Allow Any URL Category: Enable this option to allow FTP traffic for all URL categories.",
+            "Allowed URL Categories: You can select URL super categories, URL categories, or both.",
+            "You can also search for categories or add a custom category by clicking the Add icon.",
+            "You can add up to 25,000 URLs."
+          ]
+        }
+      ]
+    },
+    "recommended-ftp-policy": {
+      "statement": "The recommended FTP Control policy, which the Zscaler service includes on the FTP Control page, disables Allow FTP over HTTP and Allow Native FTP, and, listed after Allow Native FTP, disables Allow Any URL Category and sets Allowed URL Categories to None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-ftp-control-policy.json",
+          "quotes": [
+            "The Zscaler service includes the recommended FTP Control policy on the FTP Control page.",
+            "- Disable Allow FTP over HTTP",
+            "- Disable Allow Native FTP",
+            "Disable Allow Any URL Category",
+            "Set Allowed URL Categories to None"
+          ]
+        }
+      ]
+    },
+    "urls-need-proxy-retrieval": {
+      "statement": "Allowed URLs work when the FTP proxy can retrieve the URLs. With transparent traffic forwarding, enter an IP address instead of a URL. The vendor's alternatives are an FQDN-based Firewall rule that allows the traffic, forward proxy mode, or FTP traffic over HTTP CONNECT.",
+      "tier": "A",
+      "binds": [
+        "zia/ftp-control-policy#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ftp-control-policy.json",
+          "quotes": [
+            "This feature is successful when the FTP proxy can retrieve the URLs.",
+            "If you are using transparent traffic forwarding, enter an IP address instead of a URL.",
+            "Alternatively, Zscaler recommends implementing one of the following workarounds:",
+            "FQDN-based Firewall rule set to allow traffic",
+            "Forward proxy mode",
+            "FTP traffic over HTTP CONNECT"
+          ]
+        }
+      ]
+    },
+    "allowed-urls-count-toward-custom-limit": {
+      "statement": "Allowed URLs in FTP Control settings count toward the 25K custom URLs/TLDs limit, together with custom category entries, auth exemption URLs and the other lists the limits page names.",
+      "tier": "A",
+      "binds": [
+        "zia/ftp-control-policy#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "Custom URLs/TLDs | 25K URLs/TLDs | Includes: Custom URLs/TLDs in all URL Categories/TLD Categories Auth Exemption URLs in Advanced settings Blocked Malicious URLs in Advanced Threat Protection settings Blocked URLs in SSL Inspection settings Allowed URLs in FTP Control settings Bandwidth Class Domains",
+            "The default limit for custom URLs/TLDs is 25K."
+          ]
+        }
+      ]
+    },
+    "console-has-no-action-or-user-scope": {
+      "statement": "The FTP Control configuration steps describe two allow-or-block settings, FTP over HTTP and native FTP, with URL category and URL scoping for native FTP. They describe no allow/block/alert action selector and no user, group or department scoping.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ftp-control-policy.json",
+          "quotes": [
+            "Allow or block FTP over HTTP traffic and native FTP traffic.",
+            "You can also allow or block native FTP traffic by URL categories or specified URLs."
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. The recaptured configuration page (revision 3240462) lists every setting on the Edit page; none is an action or a user, group, department or location selector. A tenant console could still expose more than the help page documents."
+    },
+    "api-get-put": {
+      "statement": "FTP Control is one settings object. The API exposes `GET` and `PUT` on `/ftpSettings` and nothing to create or delete rules.",
+      "tier": "A",
+      "binds": [
+        "zia/ftp-control-policy"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ftpSettings/get",
+          "expect": {
+            "operationId": "Ftp Settings Resource Get Ftp Settings"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ftpSettings/put",
+          "expect": {
+            "operationId": "Ftp Settings Resource Update Ftp Settings"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ftpSettings",
+          "expect_absent": [
+            "post",
+            "delete",
+            "patch"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ftp_control_policy.py",
+          "quotes": [
+            "/ftpSettings"
+          ],
+          "after": "def update_ftp_settings(self, **kwargs)"
+        }
+      ],
+      "conditions": "The 'nothing to create or delete' half rests on the path item holding only `get` and `put` in the contract. Over automate-zscaler/openapi/zia.openapi.json in the capture of 2026-09-07, `jq -r '.paths | keys[] | select(test(\"ftp\"; \"i\"))'` returns only /ftpSettings, and its path item holds only get and put."
+    },
+    "api-fields": {
+      "statement": "The settings object has four fields: `ftpOverHttpEnabled`, `ftpEnabled`, `urlCategories` and `urls`. A read returns `ftpEnabled` and `ftpOverHttpEnabled` always.",
+      "tier": "A",
+      "binds": [
+        "zia/ftp-control-policy#ftpOverHttpEnabled",
+        "zia/ftp-control-policy#ftpEnabled",
+        "zia/ftp-control-policy#urlCategories",
+        "zia/ftp-control-policy#urls"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ftpSettings/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "object",
+            "required": [
+              "ftpEnabled",
+              "ftpOverHttpEnabled"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ftpSettings/get/responses/200/content/application~1json/schema/properties/ftpOverHttpEnabled",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ftpSettings/get/responses/200/content/application~1json/schema/properties/ftpEnabled",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ftpSettings/get/responses/200/content/application~1json/schema/properties/urlCategories",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ftpSettings/get/responses/200/content/application~1json/schema/properties/urls",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ],
+      "conditions": "Closed count: over the 2026-09-07 capture of automate-zscaler/openapi/zia.openapi.json, `python3 -c \"import json;s=json.load(open('automate-zscaler/openapi/zia.openapi.json'));print(list(s['paths']['/ftpSettings']['get']['responses']['200']['content']['application/json']['schema']['properties']))\"` returns ['ftpEnabled', 'ftpOverHttpEnabled', 'urlCategories', 'urls'], and the PUT request body has the same four properties."
+    },
+    "enable-fohttp-flag": {
+      "statement": "Enabling FTP over HTTP for Client Connector and PAC users is a single boolean write, `ftpOverHttpEnabled`, scoped by `urlCategories` and `urls`; there is no per-flow rule object.",
+      "tier": "B",
+      "derived_from": [
+        "zia.ftp-control.settings:allow-fohttp",
+        "zia.ftp-control.settings:api-fields",
+        "zia.ftp-control.settings:api-get-put"
+      ],
+      "conditions": "Follows from the console option, the API fields and the settings object's GET/PUT shape (the claims derived from); the absence of a per-flow rule object rests on the API surface having no FTP rule endpoint."
+    }
+  },
+  "divergences": {
+    "url-categories-element-type": {
+      "summary": "The contract shapes `urlCategories` as objects; the Python SDK model forms the list as strings.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1ftpSettings/get/responses/200/content/application~1json/schema/properties/urlCategories/items",
+            "expect": {
+              "type": "object"
+            }
+          },
+          "says": "urlCategories items are URL category objects (name, backendName, urlSupercategory and more)."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/models/ftp_control_policy.py",
+            "quotes": [
+              "config[\"urlCategories\"] if \"urlCategories\" in config else [], str"
+            ]
+          },
+          "says": "The model forms the urlCategories list with element type str."
+        }
+      ],
+      "impact": "Reading or round-tripping `urlCategories` through the Python SDK may not preserve the category objects the API returns. What the API accepts on write is not shown by either source."
+    }
+  },
+  "gaps": {
+    "native-ftp-default": {
+      "kind": "semantic",
+      "title": "Default of ftpEnabled and what turning it off does",
+      "status": "open",
+      "detail": "The default value of `ftpEnabled` on a new tenant, and what switching it off does to native FTP, is not stated. The FTP over HTTP half is sourced (default-deny, only native FTP allowed by default: zia.ftp-control.scope:ftp-default). Unverified legacy statement: 'native FTP is default-allow'. The configuration page and the API both carry an Allow Native FTP switch, which the default-allow wording does not explain. Resolves with a tenant read of ftp-control-policy on a fresh tenant or a lab test.",
+      "blocks": "advising whether a tenant that never touched FTP Control allows native FTP",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "allow-any-category-representation": {
+      "kind": "data",
+      "title": "How Allow Any URL Category appears in the API",
+      "status": "open",
+      "detail": "The console has an Allow Any URL Category switch for native FTP. The `/ftpSettings` object has no field of that name, only `urlCategories` and `urls`. How 'any category' is represented (an empty list, a specific category, or ignored) is not stated by the contract or the SDK.",
+      "blocks": "reading a tenant's native FTP scope from its API object",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia ftp-control-policy show"
+    }
+  }
+}

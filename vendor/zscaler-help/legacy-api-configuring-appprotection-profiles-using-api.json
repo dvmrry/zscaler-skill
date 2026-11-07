@@ -1,0 +1,661 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring AppProtection Profiles Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-appprotection-profiles-using-api",
+    "node": "1485386",
+    "revision": "3160718",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) AppProtection profile use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Calls",
+      "level": 1
+    },
+    {
+      "text": "Before creating a new AppProtection profile, you must get the following required details:"
+    },
+    {
+      "item": "All predefined AppProtection controls. To learn more, see Configuring AppProtection Controls Using API.",
+      "depth": 0
+    },
+    {
+      "item": "All predefined AppProtection control versions. To learn more, see Configuring AppProtection Controls Using API.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating a New AppProtection Profile",
+      "level": 1
+    },
+    {
+      "text": "To create a new AppProtection profile:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint in the inspection-profile-controller: /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057594038056531/inspectionProfile.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Name of the application",
+      "depth": 0
+    },
+    {
+      "item": "Paranoia level: An integer which refers to the associated paranoia level. The supported values are 1, 2, 3, or 4.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure the required predefinedControls and predefinedControlsVersion fields are included in the JSON payload. These fields are highlighted in red. All the mandatory predefined controls must be passed. To learn more, see Prerequisite API Calls.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "View the entire JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"controlsInfo\": [{ \"controlType\": \"CUSTOM\", \"count\": 0 }], \"creationTime\": 0, \"customControls\": [{ \"action\": \"PASS\", \"actionValue\": \"string\", \"associatedInspectionProfileNames\": [{ \"id\": 0, \"name\": \"string\" }], \"controlNumber\": 0, \"controlRuleJson\": \"string\", \"creationTime\": 0, \"defaultAction\": \"PASS\", \"defaultActionValue\": \"string\", \"description\": \"string\", \"id\": 0, \"modifiedBy\": 0, \"modifiedTime\": 0, \"name\": \"string\", \"paranoiaLevel\": 0, \"rules\": [{ \"conditions\": [{ \"lhs\": \"SIZE\", \"op\": \"RX\", \"rhs\": \"string\" }], \"names\": [ \"string\" ], \"type\": \"REQUEST_HEADERS\" }], \"severity\": \"CRITICAL\", \"type\": \"REQUEST\", \"version\": \"string\" }], \"description\": \"string\", \"globalControlActions\": [ \"string\" ], \"id\": 0, \"incarnationNumber\": 0, \"modifiedBy\": 0, \"modifiedTime\": 0, \"name\": \"string\", \"paranoiaLevel\": 0, \"predefinedControls\": [{ \"action\": \"PASS\", \"actionValue\": \"string\", \"associatedInspectionProfileNames\": [{ \"id\": 0, \"name\": \"string\" }], \"attachment\": \"string\", \"controlGroup\": \"string\", \"controlNumber\": 0, \"creationTime\": 0, \"defaultAction\": \"PASS\", \"defaultActionValue\": \"string\", \"description\": \"string\", \"id\": 0, \"modifiedBy\": 0, \"modifiedTime\": 0, \"name\": \"string\", \"paranoiaLevel\": 0, \"severity\": \"CRITICAL\", \"version\": \"string\" }], \"predefinedControlsVersion\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the minimum criteria JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"string\", \"paranoiaLevel\": \"string\", \"predefinedControlsVersion\": \"string\", \"predefinedControls\": [ { \"id\": \"string\", \"action\": \"string\", \"actionValue\": \"string\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"73170362082263059\", \"modifiedTime\": \"1652719814\", \"creationTime\": \"1652719814\", \"modifiedBy\": \"72057594038056531\", \"name\": \"Example AppProtection Profile\", \"description\": \"desc\", \"paranoiaLevel\": \"1\", \"globalControlActions\": [ \"PREDEFINED:NONE\", \"CUSTOM:NONE\", \"OVERRIDE_ACTION:NONE\" ], \"predefinedControlsVersion\": \"OWASP_CRS/3.3.0\", \"predefinedControls\": [ { \"id\": \"72057594038049511\", \"action\": \"BLOCK\" }, { \"id\": \"72057594038049512\", \"action\": \"BLOCK\" }, { \"id\": \"72057594038049513\", \"action\": \"BLOCK\" }, { \"id\": \"72057594038049514\", \"action\": \"BLOCK\" }, { \"id\": \"72057594038050059\", \"action\": \"BLOCK\" }, { \"id\": \"72057594038010025\", \"action\": \"BLOCK\" }, { \"id\": \"72057594038010028\", \"action\": \"BLOCK\" }, { \"id\": \"72057594038010032\", \"action\": \"BLOCK\" }, { \"id\": \"72057594038010066\", \"action\": \"BLOCK\" } ], \"customControls\": [ { \"id\": \"73170362082263045\", \"action\": \"PASS\" } ], \"incarnationNumber\": \"1\", \"commonGlobalOverrideActionsConfig\": { \"IS_OVERRIDE_ACTION_NONE\": \"TRUE\" } }",
+      "depth": 0
+    },
+    {
+      "text": "You choose the AppProtection profile criteria you want to include in the JSON payload. Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you may use for the AppProtection profile use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "Name of the application",
+          "Yes",
+          "Any string"
+        ],
+        [
+          "description",
+          "Description of the application",
+          "No",
+          "Any string"
+        ],
+        [
+          "paranoiaLevel",
+          "The OWASP Predefined Paranoia Level. To learn more, see Configuring AppProtection Profiles.",
+          "Yes",
+          "Integer Range: [1-4], inclusive"
+        ],
+        [
+          "associatedInspectionProfileName",
+          "Name of the AppProtection profile",
+          "No",
+          "String"
+        ],
+        [
+          "controlNumber",
+          "Domain name of the AppProtection application",
+          "No",
+          "Integer"
+        ],
+        [
+          "predefinedControlsVersion",
+          "Protocol for the AppProtection application",
+          "Yes",
+          "String"
+        ],
+        [
+          "predefinedControls",
+          "The predefined controls",
+          "Yes",
+          "JSON"
+        ],
+        [
+          "predefinedControls.id",
+          "ID of the predefined control",
+          "Yes",
+          "String"
+        ],
+        [
+          "predefinedControls.action",
+          "The action of the predefined control",
+          "Yes",
+          "Supported values: PASS BLOCK REDIRECT"
+        ],
+        [
+          "predefinedControls.actionValue",
+          "Value for the predefined controls action. This field is only required if the action is set to REDIRECT.",
+          "Yes",
+          "String"
+        ],
+        [
+          "InspectionPredefinedControl.attachment",
+          "Control attachment",
+          "No",
+          "String"
+        ],
+        [
+          "InspectionPredefinedControl.controlGroup",
+          "Control group",
+          "No",
+          "String"
+        ],
+        [
+          "customControls.type",
+          "Types for custom controls",
+          "No",
+          "String"
+        ],
+        [
+          "customControls.controlRuleJson",
+          "Custom controls string in JSON format",
+          "No",
+          "String"
+        ],
+        [
+          "customControls.rules.type",
+          "Request headers for the custom controls",
+          "No",
+          "Supported values: REQUEST_HEADERS REQUEST_URI QUERY_STRING REQUEST_COOKIES REQUEST_METHOD REQUEST_BODY RESPONSE_HEADER RESPONSE_BODY"
+        ],
+        [
+          "customControls.rules.names",
+          "Name types for the custom controls",
+          "No",
+          "String"
+        ],
+        [
+          "customControls.rules.conditions.lhs",
+          "Signifies the key for the object type",
+          "No",
+          "String"
+        ],
+        [
+          "customControls.rules.conditions.rhs",
+          "Denotes the value for the given object type. Its value depends upon the key.",
+          "No",
+          "String"
+        ],
+        [
+          "customControls.rules.conditions.op",
+          "Denotes the operation type",
+          "No",
+          "String"
+        ],
+        [
+          "controlsInfo.controlType",
+          "Control types",
+          "No",
+          "String. Supported values: CUSTOM PREDEFINED ZSCALER"
+        ],
+        [
+          "controlsInfo.count",
+          "Control information counts",
+          "No",
+          "Long"
+        ]
+      ]
+    },
+    {
+      "heading": "Getting Details for All AppProtection Profiles",
+      "level": 1
+    },
+    {
+      "text": "To get all AppProtection profiles:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the inspection-profile-controller: /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/inspectionProfile.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"9\", \"list\": [ { \"id\": \"217246660303025210\", \"modifiedTime\": \"1627001532\", \"creationTime\": \"1627001532\", \"modifiedBy\": \"72057594037994933\", \"name\": \"test_local\", \"description\": \"inspect simple http app \", \"paranoiaLevel\": \"4\", \"globalControlActions\": [ \"PREDEFINED:PASS\", \"CUSTOM:NONE\", \"OVERRIDE_ACTION:COMMON\" ], \"controlsInfo\": [ { \"controlType\": \"PREDEFINED\", \"count\": \"50\" } ], \"incarnationNumber\": \"0\", \"commonGlobalOverrideActionsConfig\": { \"PREDEF_CNTRL_GLOBAL_ACTION\": \"PASS\", \"IS_OVERRIDE_ACTION_COMMON\": \"TRUE\" } } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile?page=1&pagesize=20 .",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/inspectionProfile?page=1&pagesize=2."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"50\", \"list\": [ { \"id\": \"72057594038049518\", \"modifiedTime\": \"1648567589\", \"creationTime\": \"1629746592\", \"modifiedBy\": \"72057594037973665\", \"name\": \"test\", \"description\": \"example description\", \"paranoiaLevel\": \"2\", \"globalControlActions\": [ \"PREDEFINED:NONE\", \"CUSTOM:NONE\", \"OVERRIDE_ACTION:SPECIFIC\" ], \"controlsInfo\": [ { \"controlType\": \"CUSTOM\", \"count\": \"1\" }, { \"controlType\": \"PREDEFINED\", \"count\": \"207\" } ], \"incarnationNumber\": \"48\", \"commonGlobalOverrideActionsConfig\": { \"IS_OVERRIDE_ACTION_SPECIFIC\": \"TRUE\" } }, { \"id\": \"72057594038071229\", \"modifiedTime\": \"1645227522\", \"creationTime\": \"1645227522\", \"modifiedBy\": \"72057594038006701\", \"name\": \"test2\", \"paranoiaLevel\": \"1\", \"globalControlActions\": [ \"PREDEFINED:PASS\", \"CUSTOM:PASS\", \"OVERRIDE_ACTION:COMMON\" ], \"controlsInfo\": [ { \"controlType\": \"CUSTOM\", \"count\": \"2\" }, { \"controlType\": \"PREDEFINED\", \"count\": \"11\" } ], \"incarnationNumber\": \"1\", \"commonGlobalOverrideActionsConfig\": { \"PREDEF_CNTRL_GLOBAL_ACTION\": \"PASS\", \"CUSTOM_CNTRL_GLOBAL_ACTION\": \"PASS\", \"IS_OVERRIDE_ACTION_COMMON\": \"TRUE\" } } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to search by features and fields. To search by features and fields:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/73186051597795328/inspectionProfile&search={searchString}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format fieldName operator fieldValue. Only search string values that correspond to the values for valid fields and filters are supported. For example, the string paranoiaLevel%20EQ%201 is supported for the Paranoia Level filter, using the Equals (EQ) operator, for the filter value 1.",
+      "depth": 0,
+      "strong": [
+        [
+          270,
+          284
+        ],
+        [
+          303,
+          309
+        ]
+      ]
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/73186051597795328/inspectionProfile&search=paranoiaLevel%20EQ%201."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"71\", \"totalCount\": \"71\", \"list\": [ { \"id\": \"72057594038071229\", \"modifiedTime\": \"1669379350\", \"creationTime\": \"1645227522\", \"modifiedBy\": \"72057594037940740\", \"name\": \"aaThreatlabzProfile\", \"description\": \"to test in-progress controls\", \"paranoiaLevel\": \"1\", \"globalControlActions\": [ \"PREDEFINED:PASS\", \"CUSTOM:PASS\", \"WEBSOCKET:BLOCK\", \"THREATLABZ:NONE\", \"OVERRIDE_ACTION:COMMON\" ], \"controlsInfo\": [ { \"controlType\": \"CUSTOM\", \"count\": \"2\" }, { \"controlType\": \"PREDEFINED\", \"count\": \"60\" }, { \"controlType\": \"WEBSOCKET_CUSTOM\", \"count\": \"1\" }, { \"controlType\": \"WEBSOCKET_PREDEFINED\", \"count\": \"4\" } ], \"incarnationNumber\": \"53\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If you use the ZPA API PortaI or the Reference Guide to make your API calls, the search field string does not require any characters. For example, paranoiaLevel%20EQ%201 is paranoiaLevel EQ 1."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of the AppProtection Profile",
+      "level": 1
+    },
+    {
+      "text": "To get details of the AppProtection profile:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the inspection-profile-controller: /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "inspectionProfileId: The unique identifier of the inspection profile.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/inspectionProfile/217246660303025210."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"72057594038049518\", \"modifiedTime\": \"1648567589\", \"creationTime\": \"1629746592\", \"modifiedBy\": \"72057594037973665\", \"name\": \"sample name\", \"description\": \"sample description\", \"paranoiaLevel\": \"2\", \"globalControlActions\": [ \"PREDEFINED:NONE\", \"CUSTOM:NONE\", \"OVERRIDE_ACTION:SPECIFIC\" ], \"predefinedControls\": [ { \"id\": \"72057594038010284\", \"modifiedTime\": \"1619611688\", \"creationTime\": \"1619611688\", \"name\": \"SQL Injection Attack Data fetch attempt\", \"description\": \"This rule detects SQL Injection Attack by Data fetch attempt.\", \"severity\": \"CRITICAL\", \"controlNumber\": \"942480\", \"version\": \"OWASP_CRS/3.3.0\", \"paranoiaLevel\": \"2\", \"defaultAction\": \"BLOCK\", \"action\": \"BLOCK\", \"controlGroup\": \"SQL Injection\" }, { \"id\": \"72057594038010287\", \"modifiedTime\": \"1619611688\", \"creationTime\": \"1619611688\", \"name\": \"SQLi bypass attempt by ticks or backticks detected\", \"description\": \"This rule detects SQL Injection bypass attempt by ticks or backticks.\", \"severity\": \"CRITICAL\", \"controlNumber\": \"942510\", \"version\": \"OWASP_CRS/3.3.0\", \"paranoiaLevel\": \"2\", \"defaultAction\": \"BLOCK\", \"action\": \"BLOCK\", \"controlGroup\": \"SQL Injection\" }, { \"id\": \"72057594038010288\", \"modifiedTime\": \"1619611688\", \"creationTime\": \"1619611688\", \"name\": \"SQLi bypass attempt by ticks detected\", \"description\": \"This rule detects SQL Injection bypass attempt by ticks.\", \"severity\": \"CRITICAL\", \"controlNumber\": \"942511\", \"version\": \"OWASP_CRS/3.3.0\", \"paranoiaLevel\": \"3\", \"defaultAction\": \"BLOCK\", \"action\": \"BLOCK\", \"controlGroup\": \"SQL Injection\" }, }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating an AppProtection Profile",
+      "level": 1
+    },
+    {
+      "text": "To update an AppProtection profile:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the inspection-profile-controller: /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "inspectionProfileId: The unique identifier of the AppProtection profile.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/inspectionProfile/217246660303025210 in the inspection-profile-controller."
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Name of the application",
+      "depth": 0
+    },
+    {
+      "item": "Paranoia level: An integer which refers to the associated paranoia level. The supported values are 1, 2, 3, or 4.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"controlsInfo\": [{ \"controlType\": \"CUSTOM\", \"count\": 0 }], \"creationTime\": 0, \"customControls\": [{ \"action\": \"PASS\", \"actionValue\": \"string\", \"associatedInspectionProfileNames\": [{ \"id\": 0, \"name\": \"string\" }], \"controlNumber\": 0, \"controlRuleJson\": \"string\", \"creationTime\": 0, \"defaultAction\": \"PASS\", \"defaultActionValue\": \"string\", \"description\": \"string\", \"id\": 0, \"modifiedBy\": 0, \"modifiedTime\": 0, \"name\": \"string\", \"paranoiaLevel\": 0, \"rules\": [{ \"conditions\": [{ \"lhs\": \"SIZE\", \"op\": \"RX\", \"rhs\": \"string\" }], \"names\": [ \"string\" ], \"type\": \"REQUEST_HEADERS\" }], \"severity\": \"CRITICAL\", \"type\": \"REQUEST\", \"version\": \"string\" }], \"description\": \"string\", \"globalControlActions\": [ \"string\" ], \"id\": 0, \"incarnationNumber\": 0, \"modifiedBy\": 0, \"modifiedTime\": 0, \"name\": \"string\", \"paranoiaLevel\": 0, \"predefinedControls\": [{ \"action\": \"PASS\", \"actionValue\": \"string\", \"associatedInspectionProfileNames\": [{ \"id\": 0, \"name\": \"string\" }], \"attachment\": \"string\", \"controlGroup\": \"string\", \"controlNumber\": 0, \"creationTime\": 0, \"defaultAction\": \"PASS\", \"defaultActionValue\": \"string\", \"description\": \"string\", \"id\": 0, \"modifiedBy\": 0, \"modifiedTime\": 0, \"name\": \"string\", \"paranoiaLevel\": 0, \"severity\": \"CRITICAL\", \"version\": \"string\" }], \"predefinedControlsVersion\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "text": "Passing an empty list of custom or predefined controls in the JSON payload dissociates the controls from the AppProtection profile. The JSON payload passed for the PUT request to update the AppProtection profile is considered the source of truth and replaces the old custom or predefined controls with the new values. You choose the AppProtection profile criteria you want to include in the JSON payload. Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "text": "A successful response yields Code 204 - No Content, meaning the AppProtection profile is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Associating All Predefined Controls to an AppProtection Profile",
+      "level": 2
+    },
+    {
+      "text": "To associate all predefined controls with an AppProtection profile:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the inspection-profile-controller: /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}/associateAllPredefinedControls.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "inspectionProfileId: The unique identifier of the AppProtection profile.",
+      "depth": 0
+    },
+    {
+      "item": "version: The predefined control version. The supported value is OWASP_CRS/3.30.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/inspectionProfile/217246660303025210/associateAllPredefinedControls."
+    },
+    {
+      "text": "To associate all predefined controls to an AppProtection profile using a version:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the inspection-profile-controller: /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}/associateAllPredefinedControls?version=<version_id>.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/inspectionProfile/217246660303025210/associateAllPredefinedControls?version=1.0.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "A successful response yields Code 204 - No Content, meaning the AppProtection profile is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Dissociate All Predefined Controls from an AppProtection Profile",
+      "level": 2
+    },
+    {
+      "text": "This API is deprecated and will not be supported after January 27, 2023. To learn more, see Dissociate All Predefined Controls from an AppProtection Profile."
+    },
+    {
+      "text": "To dissociate all predefined controls from an AppProtection profile:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the inspection-profile-controller: /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}/deAssociateAllPredefinedControls.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "inspectionProfileId: The unique identifier of the inspection profile.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/inspectionProfile/217246660303025210/deAssociateAllPredefinedControls"
+    },
+    {
+      "text": "A successful response yields Code 204 - No Content, meaning the AppProtection profile is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Dissociate All Predefined Controls from an AppProtection Profile",
+      "level": 2
+    },
+    {
+      "text": "To dissociate all predefined controls from an AppProtection profile:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the inspection-profile-controller: /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}/dissociateAllPredefinedControls.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "inspectionProfileId: The unique identifier of the AppProtection profile.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/inspectionProfile/217246660303025210/deAssociateAllPredefinedControls"
+    },
+    {
+      "text": "A successful response yields Code 204 - No Content, meaning the inspection profile is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Partially Updating the AppProtection Profile and Controls",
+      "level": 2
+    },
+    {
+      "text": "To partially update the AppProtection profile and controls:"
+    },
+    {
+      "item": "Send a PATCH request to the following endpoint in the inspection-profile-controller: /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}/patch.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "inspectionProfileId: The unique identifier of the AppProtection profile.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/inspectionProfile/217246660303025210/patch."
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Name of the application",
+      "depth": 0
+    },
+    {
+      "item": "Paranoia level: An integer which refers to the associated paranoia level. The supported values are 1, 2, 3, or 4.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"controlsInfo\": [{ \"controlType\": \"CUSTOM\", \"count\": 0 }], \"creationTime\": 0, \"customControls\": [{ \"action\": \"PASS\", \"actionValue\": \"string\", \"associatedInspectionProfileNames\": [{ \"id\": 0, \"name\": \"string\" }], \"controlNumber\": 0, \"controlRuleJson\": \"string\", \"creationTime\": 0, \"defaultAction\": \"PASS\", \"defaultActionValue\": \"string\", \"description\": \"string\", \"id\": 0, \"modifiedBy\": 0, \"modifiedTime\": 0, \"name\": \"string\", \"paranoiaLevel\": 0, \"rules\": [{ \"conditions\": [{ \"lhs\": \"SIZE\", \"op\": \"RX\", \"rhs\": \"string\" }], \"names\": [ \"string\" ], \"type\": \"REQUEST_HEADERS\" }], \"severity\": \"CRITICAL\", \"type\": \"REQUEST\", \"version\": \"string\" }], \"description\": \"string\", \"globalControlActions\": [ \"string\" ], \"id\": 0, \"incarnationNumber\": 0, \"modifiedBy\": 0, \"modifiedTime\": 0, \"name\": \"string\", \"paranoiaLevel\": 0, \"predefinedControls\": [{ \"action\": \"PASS\", \"actionValue\": \"string\", \"associatedInspectionProfileNames\": [{ \"id\": 0, \"name\": \"string\" }], \"attachment\": \"string\", \"controlGroup\": \"string\", \"controlNumber\": 0, \"creationTime\": 0, \"defaultAction\": \"PASS\", \"defaultActionValue\": \"string\", \"description\": \"string\", \"id\": 0, \"modifiedBy\": 0, \"modifiedTime\": 0, \"name\": \"string\", \"paranoiaLevel\": 0, \"severity\": \"CRITICAL\", \"version\": \"string\" }], \"predefinedControlsVersion\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "text": "The PATCH request to partially update the AppProtection profile and controls adds new controls or updates existing controls with the inputs in the payload. You choose the AppProtection profile criteria you want to include in the JSON payload. Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "text": "A successful response yields Code 204 - No Content, meaning the AppProtection profile is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting an AppProtection Profile",
+      "level": 1
+    },
+    {
+      "text": "To delete an AppProtection profile:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint in the inspection-profile-controller: /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "inspectionProfileId: The unique identifier of the inspection profile.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/inspectionProfile/217246660303025210."
+    },
+    {
+      "text": "A successful response yields Code 204 - No Content, meaning the AppProtection profile is deleted. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

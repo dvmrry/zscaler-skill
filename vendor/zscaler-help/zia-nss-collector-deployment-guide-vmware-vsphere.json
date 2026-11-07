@@ -1,0 +1,1559 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "NSS Collector Deployment Guide for VMware vSphere",
+  "source": {
+    "url": "https://help.zscaler.com/zia/nss-collector-deployment-guide-vmware-vsphere",
+    "node": "1463366",
+    "revision": "3250837",
+    "updated": "2026-10-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The NSS Collector functionality and the data collected using this functionality are exclusive to SaaS Security Report. To enable this feature for your organization, contact Zscaler Support."
+    },
+    {
+      "text": "This guide describes the tasks required to deploy Nanolog Streaming Service (NSS) Collector to collect logs in real time from third-party security devices inside your network perimeter and stream them to the Zscaler cloud. Each step in the guide links you to the appropriate article for that configuration task on vSphere."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure you have a subscription to NSS Collector and review the following specifications and requirements:"
+    },
+    {
+      "item": "VM Specs",
+      "depth": 0
+    },
+    {
+      "item": "2 CPU cores: NSS Collector uses one core for the control plane and another core for the data plane.",
+      "depth": 1
+    },
+    {
+      "item": "Instance memory:",
+      "depth": 1
+    },
+    {
+      "item": "8 GB for up to 15K users",
+      "depth": 2
+    },
+    {
+      "item": "16 GB for up to 40K users",
+      "depth": 2
+    },
+    {
+      "item": "32 GB for up to 100K users",
+      "depth": 2
+    },
+    {
+      "item": "Data disk size: 500 GB",
+      "depth": 1
+    },
+    {
+      "item": "Host Specs",
+      "depth": 0
+    },
+    {
+      "item": "Hypervisor: VMware ESX/ESXi v5.0 and later",
+      "depth": 1
+    },
+    {
+      "item": "Host CPU: 64-bit Xeon or equivalent",
+      "depth": 1
+    },
+    {
+      "item": "Host CPU Speed: Greater than or equal to 2.40GHz",
+      "depth": 1
+    },
+    {
+      "item": "VMware vSphere Client or vCenter",
+      "depth": 1
+    },
+    {
+      "item": "Network Specs",
+      "depth": 0
+    },
+    {
+      "item": "Network Adapter: E1000",
+      "depth": 1
+    },
+    {
+      "item": "VM Network: 2 Virtual NICs. Optionally, you might need two additional virtual NICs.",
+      "depth": 1
+    },
+    {
+      "item": "Bandwidth for Log Streaming: 11 Mbps for 10K users is an example average value.",
+      "depth": 1
+    },
+    {
+      "item": "IP Addresses: The following table lists the IP addresses and the interfaces on which they're configured. Internal IP addresses are allowed. The management IP address and service IP address can be on different subnets, as long as the DNS server can be reached on both subnets.",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Virtual Interface",
+          "IP Address",
+          "Description"
+        ],
+        [
+          "em0 (First network adapter)",
+          "Management IP Address",
+          "This is used for control connections to the Zscaler cloud and to make an SSH connection to the NSS Collector VM for configuration and management. You can customize the deployment and define a separate IP address for the SSH connection to the NSS Collector VM."
+        ],
+        [
+          "em1 (Second network adapter)",
+          "Service IP Address",
+          "This is used for data connections to the Zscaler cloud."
+        ]
+      ]
+    },
+    {
+      "item": "Firewall Requirements",
+      "depth": 0
+    },
+    {
+      "item": "The firewall requirements are as follows:",
+      "depth": 0
+    },
+    {
+      "item": "You must deploy the NSS Collector instance behind a VM network security group. The NSS Collector instance requires only outbound connections to the Zscaler cloud. It doesn't require any inbound connections to your network from the Zscaler cloud.",
+      "depth": 1
+    },
+    {
+      "item": "To view the firewall requirements for your specific account, refer to the Zscaler Cloud Configuration Requirements for your Zscaler cloud: https://config.zscaler.com/<Zscaler Cloud Name>/nss.",
+      "depth": 1
+    },
+    {
+      "item": "You can find the name of your Zscaler cloud in the URL you use to log in to the Zscaler service. For example, if you log in to admin.zscaler.net, then go to https://config.zscaler.com/zscaler.net/nss. To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 1
+    },
+    {
+      "item": "The IP address ranges are necessary to ensure that the service isn't affected by future Zscaler cloud expansion.",
+      "depth": 1
+    },
+    {
+      "item": "Communication from the NSS Collector to the Zscaler cloud must be excluded from Secure Sockets Layer (SSL) inspection to ensure that the NSS Collector can authenticate to the Nanolog cluster using Mutual Transport Layer Security (mTLS).",
+      "depth": 1
+    },
+    {
+      "item": "User Provisioning",
+      "depth": 0
+    },
+    {
+      "item": "To leverage complete SaaS Security Report functionality, users whose traffic traversed through third-party vendor devices need to be provisioned through one of the mechanisms supported by Zscaler. To learn about user provisioning, see Choosing Provisioning and Authentication Methods.",
+      "depth": 0
+    },
+    {
+      "heading": "Deploying NSS Collector",
+      "level": 1
+    },
+    {
+      "text": "To deploy NSS Collector:"
+    },
+    {
+      "item": "Step 1: In the Zscaler Admin Console, Add an NSS Collector Server and Download the SSL Certificate",
+      "depth": 0
+    },
+    {
+      "item": "You can configure the NSS Collector server in the Zscaler Admin Console to obtain the packaged software (VM image) that must be installed in your organization’s network perimeter. To learn more about NSS Collectors and their use in third-party log integration with Zscaler, see Understanding Nanolog Streaming Service (NSS).",
+      "depth": 0
+    },
+    {
+      "item": "An organization can have up to 4 NSS Collector servers.",
+      "depth": 0
+    },
+    {
+      "item": "To add an NSS Collector server:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Data Explorer > Log Streaming > Internet Log Streaming - Nanolog Streaming Service.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          61
+        ],
+        [
+          64,
+          86
+        ],
+        [
+          89,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "On the NSS Collector Servers tab, click Add NSS Collector Server.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          40,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "In the Add NSS Collector Server window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the NSS Collector server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Vendor: Select the vendor of the third-party firewall or web proxy service used by your organization for which the logs must be integrated with Zscaler.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Status: Select Enabled to allow the NSS Collector to process and stream logs from the third-party firewalls or web proxies to the Zscaler service. When disabled, the NSS Collector does not process or stream logs from third-party security solutions.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "When the NSS Collector server is added to the Zscaler Admin Console, Zscaler generates the packaged software for installation and issues an SSL certificate to the server.",
+      "depth": 0
+    },
+    {
+      "item": "To download the packaged software and the SSL certificate for the server:",
+      "depth": 0
+    },
+    {
+      "item": "Click the Edit icon displayed against the NSS Collector server.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit NSS Server window:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Under the SSL Certificate field, you can download the SSL Certificate issued for the NSS Collector server. You can also regenerate a new certificate for the server as required. The SSL certificate must be installed on the NSS Collector VM so that the NSS Collector can authenticate as a client with the Zscaler service.",
+      "depth": 2,
+      "strong": [
+        [
+          10,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Under the Software Package field, you can download the packaged software generated for the server for installation.",
+      "depth": 2,
+      "strong": [
+        [
+          10,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "You can also download the SSL certificate directly from the NSS Collector Servers table by clicking the Download button against the required NSS Collector server under the SSL Certificate column.",
+      "depth": 0,
+      "strong": [
+        [
+          60,
+          81
+        ],
+        [
+          104,
+          112
+        ],
+        [
+          172,
+          187
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Use the ESX/ESXi Server to Configure and Start the NSS Collector on the VM Instance",
+      "depth": 0
+    },
+    {
+      "item": "Before you configure and start the NSS Collector on the vSphere client, ensure that you have downloaded the NSS Collector OVA file and SSL certificate from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the NSS Collector virtual appliance on the VM, log in to the vSphere client and perform the following actions:",
+      "depth": 0
+    },
+    {
+      "item": "a. Import the NSS Collector OVA file.",
+      "depth": 1
+    },
+    {
+      "item": "Go to File > Deploy OVF Template and use the Deploy OVF Template wizard to deploy the NSS Collector VM.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          13,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "b. Configure the network.",
+      "depth": 1
+    },
+    {
+      "item": "Select the NSS Collector VM and either click the Power On button or power on the virtual machine.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          49,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "On the Console tab, log in to the ZscalerOS command prompt with the following credentials:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 3
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 3
+    },
+    {
+      "item": "By default, root login is not permitted. Administrators must use the utility sudo to run a command with higher privileges.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler strongly recommends that you change this default password by running the command passwd. For more details about running this command, click here.",
+      "depth": 1
+    },
+    {
+      "item": "To change the password, enter passwd and your username. For example, if you are using the default username, the command is:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "passwd zsroot",
+      "depth": 1
+    },
+    {
+      "item": "When prompted, specify the following:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Your current password",
+      "depth": 3
+    },
+    {
+      "item": "Your new password",
+      "depth": 3
+    },
+    {
+      "item": "Enter the command sudo nss configure and complete the following:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Enter the DNS server IP address (e.g., 192.168.1.1).",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Enter the management interface IP with CIDR netmask. Use the management IP address for SSH or FTP (e.g., 192.168.3.1/16).",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Enter the default gateway for the management IP address (e.g., 192.168.1.1).",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Enter the service IP address with CIDR netmask (e.g., 192.168.3.2/16). NSS Collector uses the service IP address to communicate with the Zscaler cloud and with your security information and event management (SIEM).",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "Enter the default gateway for the service IP address (e.g., 192.168.1.1).",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "The management IP address and service IP address can be on different subnets, as long as the DNS server can be reached on both subnets.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Check the applied network configuration by running the following command:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "sudo nss dump-config",
+      "depth": 1
+    },
+    {
+      "item": "c. Configure the NSS Collector.",
+      "depth": 1
+    },
+    {
+      "item": "Enter the command sudo nss collector-configure and then enter the third-party log vendor name (PANFW, FORTIFW, or BLUECOAT).",
+      "depth": 1
+    },
+    {
+      "item": "d. Install the SSL certificate.",
+      "depth": 1
+    },
+    {
+      "item": "The NSS Collector uses this certificate to authenticate itself to the Zscaler service. Ensure that the SSL certificate is installed on only one active NSS Collector VM at a time. Having multiple NSS Collector VMs that use the same certificate causes cloud connection flapping, which would disrupt the streaming of logs to the Zscaler cloud.",
+      "depth": 1
+    },
+    {
+      "item": "Navigate to the SSL certificate that you previously downloaded from the Zscaler Admin Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Use FTP, SCP, or SFTP to upload it to the management IP address of the NSS Collector.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "On the vSphere client, click the Console tab, and log in with the following credentials:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          33,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 3
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 3
+    },
+    {
+      "item": "Go to the Console tab or use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "sudo nss install-cert",
+      "depth": 1
+    },
+    {
+      "item": "Specify the path to the uploaded certificate bundle.",
+      "depth": 1
+    },
+    {
+      "item": "Check the configuration by running the following command:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "sudo nss dump-config",
+      "depth": 1
+    },
+    {
+      "item": "e. Download the NSS Collector binaries.",
+      "depth": 1
+    },
+    {
+      "item": "Before starting the NSS Collector:",
+      "depth": 1
+    },
+    {
+      "item": "On the vSphere client, click the Console tab or use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command to download and install the NSS Collector binaries:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo nss update-now",
+      "depth": 1
+    },
+    {
+      "item": "After the first NSS Collector software deployment, the software is automatically updated with new versions.",
+      "depth": 1
+    },
+    {
+      "item": "f. Start the NSS Collector.",
+      "depth": 1
+    },
+    {
+      "item": "On the vSphere client, click the Console tab or use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo nss start",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that the command shows that the NSS Collector started successfully. It can take a few minutes for the NSS Collector to start collecting logs and sending them to the Zscaler cloud.",
+      "depth": 1
+    },
+    {
+      "item": "After starting the NSS Collector for the first time, you can run the following command to check that the latest NSS Collector software version is installed:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss checkversion",
+      "depth": 1
+    },
+    {
+      "item": "To enable the NSS Collector to start automatically after a restart, run the following command:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss enable-autostart",
+      "depth": 1
+    },
+    {
+      "item": "You can also explore other options by running the following command:",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss help",
+      "depth": 1
+    },
+    {
+      "item": "Step 3: Configure Third-Party syslog Feed for NSS Collector",
+      "depth": 0
+    },
+    {
+      "item": "The following configuration steps pertain to Palo Alto Networks and they provide information on how to configure a syslog feed for the NSS Collector to collect traffic logs of clients behind the Palo Alto Networks firewall.",
+      "depth": 0
+    },
+    {
+      "item": "The configuration steps cover the minimum information required in each step and use examples where necessary. For details on all of the configuration fields, refer to the Palo Alto Networks documentation.",
+      "depth": 0
+    },
+    {
+      "item": "a. Configure Syslog Server Profile",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Palo Alto Networks firewall via the web interface.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to the Devices tab, click the Server Profiles drop-down menu in the left-side navigation, and select Syslog.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          33,
+          48
+        ],
+        [
+          104,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "Click Add and provide the following information in the window that appears:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the syslog server profile.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "On the Servers tab, click Add, and fill out the following information:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          26,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the syslog server.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Syslog Server: Enter the IP address of the syslog server (i.e., NSS Collector server) deployed for your organization on the Zscaler cloud. This information can be obtained from the SSL certificate generated and downloaded for the NSS Collector server that is configured in the Zscaler Admin Console.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Transport: Select TCP as the transport protocol for your syslog messages.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Port: Specify the port number of the syslog server. Default and custom ports are supported.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Format: Select IETF as the syslog format.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Facility: Select LOG_USER from the drop-down menu to log user-based traffic.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Custom Log Format tab, click Log Type to specify a custom log format. In the window that appears, click the Traffic field and enter the following string, and click OK to save the value:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          36,
+          44
+        ],
+        [
+          115,
+          122
+        ],
+        [
+          171,
+          173
+        ]
+      ]
+    },
+    {
+      "item": "CEF:0|Palo Alto Networks|PAN-OS|$sender_sw_version|$subtype|$type|1|rt=$cef-formatted-receive_time deviceExternalId=$serial src=$src dst=$dst suser=$srcuser app=$app spt=$sport proto=$proto act=$action in=$bytes_sent out=$bytes_received start=$cef-formatted-time_generated reason=$session_end_reason",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click OK to save the settings.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "b. Configure Log Forwarding Profile",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Objects tab, click Log Forwarding in the left-side navigation, and click Add to create a log forwarding profile.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          29,
+          43
+        ],
+        [
+          83,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "In the window that appears, enter a name and description for the profile.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Click Add to add a match list profile and fill out the following details:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the match list profile.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Log Type: Select traffic from the drop-down menu.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Filter: Select All Logs from the drop-down menu.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Forward Method: Click Add and select the syslog server profile configured in the previous step from the list displayed.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          22,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK to save the log forwarding profile.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "c. Configure a Security Policy to Allow User Traffic and Enable Logging",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Policies tab, click Security on the left-side navigation, and click Add.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          18
+        ],
+        [
+          30,
+          38
+        ],
+        [
+          78,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Alternatively, you can modify an existing security policy to include the traffic log forwarding configurations.",
+      "depth": 2
+    },
+    {
+      "item": "On the General tab, enter a name for the rule.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Configure the rule criteria under the respective tabs as necessary. The rule must be configured to allow traffic coming from the trust zone (LAN) under the Source tab to reach the untrust zone (WAN) under the Destination tab.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          156,
+          162
+        ],
+        [
+          209,
+          220
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Actions tab:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Under Action Setting, select Allow for Action.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          29,
+          34
+        ],
+        [
+          39,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Under Log Setting:",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Enable Log at Session Start and Log at Session End options.",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          32,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "From the Log Forwarding drop-down menu, select the log forwarding profile configured in the previous step.",
+      "depth": 4,
+      "strong": [
+        [
+          9,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK to save the security policy.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "d. Configure User Authentication by Enabling Captive Portal",
+      "depth": 1
+    },
+    {
+      "item": "The traffic log data forwarded by Palo Alto Networks firewall is processed by Zscaler and made available for analysis in the SaaS Security Report in the Zscaler Admin Console. The SaaS Security Report provides analytics for the entire organization, as well as on a per user basis. To facilitate report generation on a per user basis, the identity of users must be verified by Palo Alto Networks firewall and logs must be recorded for the user-based traffic. To do this, you need to add the Internet Access (ZIA) users to the Palo Alto Networks firewall and configure an authentication mechanism for the users. When the NSS Collector server receives the log data, it matches the user information with the Internet Access users and then forwards the logs pertaining to Internet Access users to Zscaler for processing.",
+      "depth": 1
+    },
+    {
+      "item": "The following sections provide step-by-step instructions for this configuration:",
+      "depth": 1
+    },
+    {
+      "item": "This configuration uses a captive portal as the authentication mechanism. However, you can use other Palo Alto Networks firewall-supported authentication mechanisms per your deployment. To learn more, refer to the Palo Alto Networks documentation.",
+      "depth": 1
+    },
+    {
+      "item": "i. Create an Interface Management Profile",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Network tab, click the Network Profiles drop-down menu in the left-side navigation, and select Interface Mgmt.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          33,
+          49
+        ],
+        [
+          105,
+          119
+        ]
+      ]
+    },
+    {
+      "item": "Click Add to create an Interface Management profile.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Enter a name for the profile.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Under Permitted Services, select Response Pages and User-ID and any other necessary permitted services. These services are required for enabling captive portal authentication on the trust interface.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          24
+        ],
+        [
+          33,
+          47
+        ],
+        [
+          52,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click OK to save the Interface Management profile.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "ii. Map the Interface Management Profile with the Client-Side LAN Interface",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Network tab, click Interfaces, and then click Ethernet.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          29,
+          39
+        ],
+        [
+          56,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Locate the client-side LAN interface that is typically configured for your environment in the Palo Alto Networks firewall. Click the ethernet interface to modify its settings and map the Interface Management profile configured in the previous step.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "In the window that appears, go to the Advanced tab, and select the Interface Management profile configured in the previous step using the Management Profile drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          38,
+          46
+        ],
+        [
+          138,
+          156
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click OK to save the configuration. The following image shows an example configuration of the client-side LAN interface.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "iii. Add Users for the Captive Portal and Map Them to an Authentication Profile",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Device tab, click the Local User Database drop-down menu in the left-side navigation, and then select Users.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          16
+        ],
+        [
+          32,
+          51
+        ],
+        [
+          112,
+          117
+        ]
+      ]
+    },
+    {
+      "item": "Click Add displayed at the bottom-left corner of the page and fill out the user information in the window that appears:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The username and password information in the Palo Alto Networks firewall must match the user details configured in the Zscaler Admin Console.",
+      "depth": 3
+    },
+    {
+      "item": "Name: Enter the username.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Mode: Select Password as the mode.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Password: Enter the user's login password.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Confirm Password: Re-enter the user's login password.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable.",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click OK to save the configuration.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "On the Device tab, click Authentication Profile in the left-side navigation, and click Add.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          25,
+          47
+        ],
+        [
+          87,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Fill out the following information in the authentication profile:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "Name: Enter a name for the profile.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "On the Authentication tab:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Select Type as Local Database using the drop-down menu. Local Database authentication type corresponds to the captive portal authentication mechanism used in this example configuration. You can select the authentication type depending on the authentication mechanism used in your firewall deployment.",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          15,
+          29
+        ],
+        [
+          56,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Optionally, you can select the Username Modifier using the drop-down menu to restrict the format in which users must enter their username in the authentication portal served by the Palo Alto Networks firewall.",
+      "depth": 5,
+      "strong": [
+        [
+          31,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Advanced tab, click Add, and select the list of users configured earlier.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          27,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click OK to save the configuration.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "The following image shows an example authentication profile configuration:",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "iv. Enable Captive Portal",
+      "depth": 2
+    },
+    {
+      "item": "On the Device tab, click User Identification in the left-side navigation, and go to the Captive Portal Settings tab.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          25,
+          44
+        ],
+        [
+          88,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "Click the Settings icon on the top-right to make modifications.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the window that appears, select Enable Captive Portal and enter the necessary information, such as:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          35,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Profile: Select the authentication profile configured in the previous step using the drop-down menu.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Mode: Select the Redirect checkbox to allow the firewall to intercept web requests that match the authentication profile and redirect them to the specified redirect host.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          17,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Redirect Host: Enter the IP address of the Palo Alto Networks firewall trust interface to which the client must be redirected for authentication.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click OK to save the configuration.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    }
+  ]
+}

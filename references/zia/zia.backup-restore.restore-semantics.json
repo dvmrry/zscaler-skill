@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "id": "zia.backup-restore.restore-semantics",
+  "title": "What restoring a ZIA restore point does and does not revert",
+  "aliases": [
+    "restore point overwrite",
+    "zia restore removes",
+    "backup restore dlp edm idm",
+    "what does zia restore cover",
+    "golden restore point restore"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.dlp",
+      "because": "zia.backup-restore.restore-semantics:dlp-edm-idm"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering",
+      "because": "zia.backup-restore.restore-semantics:overwrites-all"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.backup-restore.restore-points"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A restore is destructive, and its reach is smaller than \"everything\"."
+    },
+    {
+      "text": "Before restoring: {{stored-policies-read-only}} {{verify-before-restore}}"
+    },
+    {
+      "text": "What it does: {{overwrites-all}} {{absent-removed}} {{legacy-restore-point}} Which features make a restore point legacy, and how to tell one apart, is not stated {{gap:legacy-features}}. Rule components that belong to other areas move with it; URL categories used by rules are part of the replacement, see [[zia.url-filtering]]."
+    },
+    {
+      "text": "What it covers: {{included-policies}} The list is of policy families only {{gap:configuration-settings}}. Whether backup and restore is available through the API, SDKs, Terraform or MCP is open {{gap:api-surface}}."
+    },
+    {
+      "text": "What it does not restore: {{dlp-edm-idm}} DLP behavior is in [[zia.dlp]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "What was created after the chosen restore point, since a restore removes it.",
+      "uses": [
+        "absent-removed"
+      ]
+    },
+    {
+      "do": "Whether a tenant with EDM or IDM needs its DLP policies put back by hand, since a restore does not restore DLP for those tenants.",
+      "uses": [
+        "dlp-edm-idm"
+      ]
+    }
+  ],
+  "claims": {
+    "overwrites-all": {
+      "statement": "Restoring a restore point overwrites all current policies and configuration settings, including all rules and their components such as URL categories and time intervals; it is a replacement, not a merge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.json",
+          "quotes": [
+            "When you restore policies and configuration settings from a restore point, it overwrites all your current policies and configuration settings, including all the rules and their components (e.g., URL categories and time intervals)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-restoring-policies-configurations-from-restore-point.json",
+          "quotes": [
+            "When you restore policies and configuration settings from a restore point, it overwrites all your current policies and configuration settings, including all the rules and their components, such as URL categories and time intervals."
+          ]
+        }
+      ]
+    },
+    "absent-removed": {
+      "statement": "A component present in the current configuration but absent from the selected restore point is removed by the restore, so a component created after the point was taken is removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.json",
+          "quotes": [
+            "it overwrites all your current policies and configuration settings, including all the rules and their components (e.g., URL categories and time intervals).",
+            "If your current configuration has a component that is not present in the restore point, that component is removed when the restore point is restored.",
+            "The policies that are included in the backup are listed as follows:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-restoring-policies-configurations-from-restore-point.json",
+          "quotes": [
+            "If your current configuration has a component that is not in the restore point, such as a URL category, that component is removed when the restore point is restored."
+          ]
+        }
+      ]
+    },
+    "stored-policies-read-only": {
+      "statement": "A restore point's stored policies can be selected by type (for example Sandbox, Firewall Control, DLP) to see their rules before restoring, and all the stored policies shown there are read-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-restoring-policies-configurations-from-restore-point.json",
+          "quotes": [
+            "Select any of the stored policies listed by type (e.g., Sandbox, Firewall Control, DLP) to see their rules.",
+            "All the stored policies that appear here are read-only."
+          ]
+        }
+      ]
+    },
+    "legacy-restore-point": {
+      "statement": "A restore point created before some of the additional features were introduced can only be used to restore the policies and configurations persisted in it; applying it does not override policies and configurations that were not supported in the platform version when it was created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-restoring-policies-configurations-from-restore-point.json",
+          "quotes": [
+            "If the restore point was created before some of the additional features were introduced, then that legacy restore point can only be used to restore the policies and configurations that have been persisted in it.",
+            "Applying a legacy restore point does not override policies and configurations that were not supported in the platform version at the time of the restore point creation."
+          ]
+        }
+      ]
+    },
+    "verify-before-restore": {
+      "statement": "In the Verify & Restore window the restore point is verified for any error message or warning before Confirm; the verification checks certain conditions, for example that all provisioned static IP addresses in the restore point are still associated with the current tenant and the expiration timestamp of the certificates persisted in the restore point, before the restore point is applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-restoring-policies-configurations-from-restore-point.json",
+          "quotes": [
+            "In the Verify & Restore window, verify the restore point to check for any error message or warning and click Confirm.",
+            "This action verifies certain conditions (e.g., ensuring that all provisioned static IP addresses in the restore point are still associated with the current tenant, ensuring that the expiration timestamp for all certificates persisted in the restore point) before applying the restore point."
+          ]
+        }
+      ]
+    },
+    "dlp-edm-idm": {
+      "statement": "For organizations with Exact Data Match (EDM) or Indexed Document Match (IDM) enabled, Backup and Restore does not restore Data Loss Prevention policies, so a successful restore is not evidence that DLP policy state was restored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.json",
+          "quotes": [
+            "For organizations with Exact Data Match (EDM) or Indexed Document Match (IDM) enabled, the Backup and Restore feature doesn’t restore the Data Loss Prevention (DLP) policies."
+          ]
+        }
+      ]
+    },
+    "included-policies": {
+      "statement": "The backup covers these policy families: Advanced Threat Protection, Bandwidth Control, Browser Control, Cloud App Control, Data Loss Prevention, DNS Control, File Type Control, Firewall Control, Forwarding Control, FTP Control, IPS Control, Malware Protection, Mobile App Store Control, Mobile Malware Protection, SaaS Security API DLP, SaaS Security API Malware Detection, Sandbox, SSL Inspection and URL Filtering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.json",
+          "quotes": [
+            "The policies that are included in the backup are listed as follows:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.json",
+          "after": "The policies that are included in the backup are listed as follows:",
+          "quotes": [
+            "Advanced Threat Protection policies",
+            "Bandwidth Control policies",
+            "Browser Control policies",
+            "Cloud App Control policies",
+            "Data Loss Prevention (DLP) policies",
+            "DNS Control policies",
+            "File Type Control policies",
+            "Firewall Control policies",
+            "Forwarding Control policies",
+            "FTP Control policies",
+            "IPS Control policies",
+            "Malware Protection policies",
+            "Mobile App Store Control policies",
+            "Mobile Malware Protection policies",
+            "SaaS Security API DLP policies",
+            "SaaS Security API Malware Detection policies",
+            "Sandbox policies",
+            "SSL Inspection policies",
+            "URL Filtering policies"
+          ]
+        }
+      ],
+      "gaps": [
+        "configuration-settings"
+      ]
+    }
+  },
+  "gaps": {
+    "legacy-features": {
+      "kind": "semantic",
+      "title": "Which features make a restore point legacy, and how to tell one apart",
+      "status": "open",
+      "detail": "The restore page says a restore point created before some additional features were introduced is a legacy restore point that restores only what it persisted, but does not name the features or say how to tell a legacy point apart.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "configuration-settings": {
+      "kind": "semantic",
+      "title": "Which non-policy configuration settings a restore point holds",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"An unlisted family must not be inferred to be either included in or excluded from a restore point.\" The help page says backups hold \"policies and configuration settings\" but lists only policy families, so settings such as locations, admin accounts or PAC files are not shown to be in or out.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "telling an admin what a restore will revert outside the listed policies"
+    },
+    "api-surface": {
+      "kind": "semantic",
+      "title": "Whether backup and restore is available through the API, SDKs, Terraform or MCP",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"does not generalize those semantics to an API, SDK, Terraform provider, or MCP surface\". A search of the ZIA OpenAPI paths, the ZIA Terraform provider and the Go SDK found nothing named backup or restore, so the feature is documented only as a console function. The Adding API Roles article, however, lists a Backup Controls category in the cloud service API (it says Full, View Only, None or Custom permissions can be assigned for the Administration Controls and Backup Controls API category), which points to an API surface without naming endpoints; the gap stays open.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "[ISSUE] update_segment sends empty port-range lists for the port keys the caller did not pass, clearing them",
+  "source": {
+    "url": "https://github.com/zscaler/zscaler-sdk-python/issues/580",
+    "repo": "zscaler/zscaler-sdk-python",
+    "number": 580,
+    "state": "closed",
+    "created_at": "2026-09-08",
+    "updated_at": "2026-10-06",
+    "labels": [
+      "documentation"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-10-06",
+    "updated": "2026-10-06",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "[ISSUE] update_segment sends empty port-range lists for the port keys the caller did not pass, clearing them",
+      "level": 1
+    },
+    {
+      "heading": "[ISSUE] update_segment sends empty port-range lists for the port keys the caller did not pass, clearing them",
+      "level": 1
+    },
+    {
+      "text": "**Environment**"
+    },
+    {
+      "text": "| | | |---|---| | SDK version | `zscaler-sdk-python` 1.9.44 (editable install of `master` @ `e7f5f7ef`) | | Python | 3.11.15 | | OS | macOS (arm64) | | Affected product / resource | ZPA / `application_segment` |"
+    },
+    {
+      "text": "Found by reading the SDK source and confirmed with the offline reproduction below (a stub request executor, so no credentials and no network are involved). All identifiers used are synthetic."
+    },
+    {
+      "text": "---"
+    },
+    {
+      "heading": "Description",
+      "level": 2
+    },
+    {
+      "text": "`ApplicationSegmentAPI.update_segment` builds the `PUT` body directly from `kwargs` with no merge against the segment's current state:"
+    },
+    {
+      "code": "# zscaler/zpa/application_segment.py:396\nbody = kwargs"
+    },
+    {
+      "text": "and then, for each of the four port keys, **explicitly writes an empty list when the caller did not supply one**:"
+    },
+    {
+      "code": "# zscaler/zpa/application_segment.py:435-453\nif \"tcp_port_ranges\" in body:\n    body[\"tcpPortRanges\"] = body.pop(\"tcp_port_ranges\")\nelse:\n    body[\"tcpPortRanges\"] = []\n\nif \"tcp_port_range\" in body:\n    body[\"tcpPortRange\"] = [{\"from\": pr[\"from\"], \"to\": pr[\"to\"]} for pr in body.pop(\"tcp_port_range\")]\nelse:\n    body[\"tcpPortRange\"] = []\n\nif \"udp_port_ranges\" in body:\n    body[\"udpPortRanges\"] = body.pop(\"udp_port_ranges\")\nelse:\n    body[\"udpPortRanges\"] = []  # Explicitly clear if not provided\n\nif \"udp_port_range\" in body:\n    body[\"udpPortRange\"] = [{\"from\": pr[\"from\"], \"to\": pr[\"to\"]} for pr in body.pop(\"udp_port_range\")]\nelse:\n    body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
+    },
+    {
+      "text": "So a caller who only wants to change, say, the description ends up sending a body that also zeroes all four port keys. The affected keys are exactly these four — `tcpPortRanges`, `tcpPortRange`, `udpPortRanges` and `udpPortRange`. No other key in the method is set to `[]` on the omitted-key path."
+    },
+    {
+      "text": "The remaining fields (`name`, `domainNames`, `segmentGroupId`, `serverGroups`, …) are not explicitly cleared, but because `body = kwargs` they are simply absent from the `PUT`, so whether they survive depends entirely on the server's `PUT` semantics. The four port keys are different in that they are cleared unconditionally, regardless of those semantics."
+    },
+    {
+      "text": "Two things in the codebase suggest the explicit-`[]` behaviour is an oversight rather than a deliberate contract:"
+    },
+    {
+      "item": "`update_access_rule` in the same service filters unset values out of its `PUT` payload —",
+      "depth": 0
+    },
+    {
+      "text": "`payload = {k: v for k, v in payload.items() if v is not None}`, with the comment *\"Filter out None values if you prefer not to send them\"* (`zscaler/zpa/policies.py:710`). `zscaler/ztw/location_template.py` does the same."
+    },
+    {
+      "item": "`APIClient.format_request_body` (`zscaler/api_client.py:81-94`) skips `None` values by",
+      "depth": 0
+    },
+    {
+      "text": "design (`if val is None: continue`). It is present in the base class but does not appear to be referenced anywhere outside its own recursive call, so the ZPA update path never picks up that convention."
+    },
+    {
+      "item": "`add_segment` (`zscaler/zpa/application_segment.py:283-291`) handles the same four keys with",
+      "depth": 0
+    },
+    {
+      "text": "`if`/`elif` and no clearing branch, so an omitted key is simply not sent. The asymmetry is only in `update_segment`."
+    },
+    {
+      "text": "Possibly related: #571 raises the same read-modify-write concern for policy rules, including `\"appConnectorGroups\": [...] or []` surviving the `None` filter for the same reason."
+    },
+    {
+      "heading": "Reproduction",
+      "level": 2
+    },
+    {
+      "text": "Fully offline — no credentials, no network."
+    },
+    {
+      "code": "import json\n\nfrom zscaler.zpa.application_segment import ApplicationSegmentAPI\n\nSEGMENT_ID = \"<id>\"\nCONFIG = {\"client\": {\"customerId\": \"<id>\"}}\n\n\nclass StubResponse:\n    def __init__(self, body):\n        self._body = body\n\n    def get_body(self):\n        return self._body\n\n    def get_results(self):\n        return []\n\n    def get_status(self):\n        return 200\n\n\nclass StubExecutor:\n    \"\"\"Stands in for RequestExecutor: records requests, replies with an empty body.\"\"\"\n\n    def __init__(self):\n        self.requests = []\n\n    def create_request(self, method, endpoint, body=None, headers=None, params=None,\n                       use_raw_data_for_body=False):\n        req = {\"method\": method, \"endpoint\": endpoint.strip(),\n               \"body\": {} if body is None else body, \"params\": params or {}}\n        self.requests.append(req)\n        return req, None\n\n    def execute(self, request, response_type=None, return_raw_response=False):\n        return StubResponse({}), None\n\n\nex = StubExecutor()\nseg, resp, err = ApplicationSegmentAPI(ex, CONFIG).update_segment(\n    SEGMENT_ID, description=\"new description\")\n\nput = [r for r in ex.requests if r[\"method\"] == \"PUT\"][0]\nprint(\"PUT body actually sent:\")\nprint(json.dumps(put[\"body\"], indent=2, sort_keys=True))\nprint(\"err =\", err)"
+    },
+    {
+      "text": "The equivalent live call, on a segment that has TCP ports configured:"
+    },
+    {
+      "code": "client.zpa.application_segment.update_segment(\n    segment_id=\"<id>\",\n    description=\"new description\",\n)"
+    },
+    {
+      "heading": "Expected behaviour",
+      "level": 2
+    },
+    {
+      "text": "A caller who does not mention the port keys should not have them modified. Either the keys should be omitted from the request body, or the method should merge them from the segment's current state, or the destructive behaviour should be documented on the method so it is a choice rather than a surprise."
+    },
+    {
+      "heading": "Actual behaviour",
+      "level": 2
+    },
+    {
+      "code": "PUT body actually sent:\n{\n  \"description\": \"new description\",\n  \"tcpPortRange\": [],\n  \"tcpPortRanges\": [],\n  \"udpPortRange\": [],\n  \"udpPortRanges\": []\n}\nerr = None"
+    },
+    {
+      "heading": "Root cause",
+      "level": 2
+    },
+    {
+      "text": "| Location | Code | |---|---| | `zscaler/zpa/application_segment.py:396` | `body = kwargs` — no merge with current state | | `zscaler/zpa/application_segment.py:438` | `body[\"tcpPortRanges\"] = []` when omitted | | `zscaler/zpa/application_segment.py:443` | `body[\"tcpPortRange\"] = []` when omitted | | `zscaler/zpa/application_segment.py:448` | `body[\"udpPortRanges\"] = []` when omitted | | `zscaler/zpa/application_segment.py:453` | `body[\"udpPortRange\"] = []` when omitted |"
+    },
+    {
+      "heading": "Suggested direction",
+      "level": 2
+    },
+    {
+      "text": "Without knowing whether `update_segment` is meant to be a full-replacement `PUT` or a partial update, I'd rather ask than propose a patch. The options I can see:"
+    },
+    {
+      "item": "Drop the four `else` branches so unmentioned keys are simply not sent. Smallest diff, but it",
+      "depth": 0
+    },
+    {
+      "text": "removes any way to clear port ranges, unless passing `[]` explicitly is treated as \"clear\" (which would work, since the presence check would then be meaningful)."
+    },
+    {
+      "item": "Reuse the `{k: v for k, v in ... if v is not None}` filter already used by",
+      "depth": 0
+    },
+    {
+      "text": "`update_access_rule`, or wire up `APIClient.format_request_body`, so the whole body follows one convention rather than two."
+    },
+    {
+      "item": "Keep the current behaviour and document `update_segment` as a full replacement, so callers",
+      "depth": 0
+    },
+    {
+      "text": "know they must read-modify-write."
+    },
+    {
+      "text": "I'm happy to open a PR for whichever of these you'd prefer — the first is a four-line change, but I don't want to guess at the intended contract."
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-10-06)",
+      "level": 2
+    },
+    {
+      "text": "This is intentional: since v1.4.3 (#296), update_segment sends omitted port fields as empty lists so ports removed from the desired configuration are actually cleared — before that change, omitting them left stale ports in place, which was reported as a bug. Updates are full replacements, so pass the segment's current ports on every update if you want to keep them. In 1.11.1 we added a note to the update_segment* docstrings to make this explicit."
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}

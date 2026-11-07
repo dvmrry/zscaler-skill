@@ -132,7 +132,7 @@ test("doctor honors the committed runtime-data mount path", () => {
   const mount = path.join(root, "tenant-data");
   fs.mkdirSync(mount, { recursive: true });
   fs.writeFileSync(path.join(mount, "README.md"), "# tenant-data\n", "utf8");
-  for (const dirname of ["cases", "schemas", "snapshot", "iac", "audits", "soc-reviews"]) {
+  for (const dirname of ["cases", "schemas", "overlay", "iac", "audits", "soc-reviews"]) {
     fs.mkdirSync(path.join(mount, dirname), { recursive: true });
     fs.writeFileSync(path.join(mount, dirname, ".gitkeep"), "", "utf8");
   }

@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.usage-insights",
+  "title": "Usage insights: policy and segment usage, user-group relationships and quarterly reports",
+  "aliases": [
+    "usage page",
+    "policy usage report",
+    "application segments usage",
+    "application and user group relationships",
+    "qbr report",
+    "where are my apps being served from"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.segment-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Usage insights are the console reports on how users and applications use Private Access. {{what-it-is}} The rules they inform are in [[zpa.policy]], and the objects they categorize in [[zpa.app-segments]] and [[zpa.segment-groups]]."
+    },
+    {
+      "label": "Policy usage.",
+      "text": "{{policy-usage}} {{run-report}} {{usage-details}}"
+    },
+    {
+      "label": "Application segments.",
+      "text": "{{segments-usage}}"
+    },
+    {
+      "label": "Relationships.",
+      "text": "{{relationships}} {{relationships-reports}}"
+    },
+    {
+      "label": "Quarterly reports.",
+      "text": "{{qbr}} {{hosting-detection}} {{hosting-unknown}} The reports are called quarterly but generated monthly {{gap:qbr-period}}."
+    },
+    {
+      "label": "Distribution.",
+      "text": "{{report-distribution}} Which object the AWS name belongs to is open {{gap:aws-role-name}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a missing policy usage report is the 72-hour Run Report window around the first Saturday of the month, or the 90-day and one-per-day report limits.",
+      "uses": [
+        "run-report"
+      ]
+    },
+    {
+      "do": "Whether a rule or segment showing no usage data had no usage in the selected range.",
+      "uses": [
+        "usage-details"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "The Usage page provides insights into an organization's usage patterns between users and applications, which can be categorized by application segment, segment group or user group. The page says to review the patterns to design better access policy rules and to download reports of private application usage on a quarterly cadence.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-usage-insights.json",
+          "quotes": [
+            "The Usage page provides actionable insights into an organization's usage patterns between users and applications.",
+            "you can categorize the collected data based on application segments, segment groups, or user groups",
+            "Review usage patterns to design better access policy rules.",
+            "Download reports of private application usage on a quarterly cadence."
+          ]
+        }
+      ]
+    },
+    "report-distribution": {
+      "statement": "Detailed insights report distribution to the organization's cloud storage is configured under Cloud Configuration with a Bucket Name, Region and IAM Role ARN. For an AWS bucket the name should always be ZscalerInsightsReportRole, and Zscaler recommends rotating Microsoft Azure and Google Cloud credentials every 3 months.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-cloud-report-distribution.json",
+          "quotes": [
+            "you can configure its settings to enable the detailed insights report distribution to your cloud storage.",
+            "Under Cloud Configuration, enter your Bucket Name, Region, and IAM Role ARN.",
+            "For an AWS bucket, the name should always be ZscalerInsightsReportRole.",
+            "For security purposes, Zscaler recommends rotating Microsoft Azure and Google Cloud credentials every 3 months."
+          ]
+        }
+      ]
+    },
+    "policy-usage": {
+      "statement": "Policy Usage categorizes users, based on the number of unique users (more than zero) against each access policy rule, into 1 of 10 percentage bars, and each bar indicates a tenth percentage of access policy rules based on usage. Its widgets display the number of most used and the number of least used access policy rules, the latter including unused ones, and a table gives each rule's unique users and Private Access transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-policy-usage.json",
+          "quotes": [
+            "The distribution of users is calculated based on the number of unique users (must be more than zero users) against each access policy rule. Then the distribution categorizes the users into 1 of 10 percentage bars based on their usage of the access policy rule.",
+            "Each bar indicates a tenth percentage of access policy rules based on usage.",
+            "Most Used Access Policy Rules: Displays the number of most used access policy rules.",
+            "Unused Access Policy Rules: Displays the number of the least used access policy rules. These include unused access policies.",
+            "Unique Users: The number of unique users impacted by the access policy rule.",
+            "Transactions: The number of Private Access (ZPA) transactions going through the access policy."
+          ]
+        }
+      ]
+    },
+    "run-report": {
+      "statement": "A policy usage report automatically expires after 90 days and cannot be run when there is no more data to add after a recent update. Run Report is disabled for 72 hours before and after 12:00 AM on the first Saturday of every month because of scheduled automatic reports, and customers with the Segmentation Add-On feature can generate one report per day while others can generate one every 90 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-policy-usage.json",
+          "quotes": [
+            "The report automatically expires after 90 days. You cannot run the report if there is no more data to add when the report was recently updated.",
+            "Run Report is disabled for 72 hours before and after 12:00 AM on the first Saturday of every month due to scheduled automatic reports.",
+            "Additionally, customers with the Segmentation Add-On feature can generate one report per day, and customers without the feature can generate one report every 90 days."
+          ]
+        }
+      ]
+    },
+    "segments-usage": {
+      "statement": "Application Segments Usage reports default to a 14 Days time range. An application accessed through different ports or protocols is counted separately for each, the table counts the access policy rules that allowed access to the segment, and a chart shows the top 10 application segments by discovered host count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-application-segments-usage.json",
+          "quotes": [
+            "By default, the time range of the report is set to 14 Days.",
+            "If the same application is accessed through different ports and/or protocols (e.g., TCP, UDP), then each application is counted separately.",
+            "Access Policy Rules: The number of access policy rules that allowed access to the application segment.",
+            "Discovered Host Count Bar Chart: Displays the top 10 application segments by discovered host count."
+          ]
+        }
+      ]
+    },
+    "usage-details": {
+      "statement": "The details report for an access policy automatically refreshes every 30 days. No data is shown for an access policy or an application segment that has had no usage within the time range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-policy-usage-details.json",
+          "quotes": [
+            "The report automatically refreshes every 30 days.",
+            "No data is shown if the access policy has not seen usage within the time range (e.g., unused access policy)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-application-segments-usage-details.json",
+          "quotes": [
+            "No data is shown if the application segment has no usage within the time range (e.g., unused application segment)."
+          ]
+        }
+      ]
+    },
+    "relationships": {
+      "statement": "Application and User Group Relationships give insight into the relationships of application and user groups to ensure least privileged access. Excluding multiple items uses OR logic, excluding Branch and Cloud Connector access policy rules is supported only for Application Segments, the maximum number of reports to retain is chosen (for example 4, 5 or 6) with older reports deleted, and a SCIM Attribute value can be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-application-and-user-group-relationships.json",
+          "quotes": [
+            "To help you design better policy, you can gain insights into the relationships of the application and user groups to ensure least privileged access, a central tenet of Zscaler's Zero Trust Network Access (ZTNA).",
+            "Excluding multiple items uses the OR logic.",
+            "The option to exclude Branch and Cloud Connector access policy rules is supported only for Application Segments.",
+            "For Maximum number of reports to retain, select the maximum number of reports to retain (e.g., 4, 5, or 6). Older reports are deleted.",
+            "SCIM Attribute: Select the SCIM attribute value from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "relationships-reports": {
+      "statement": "Only customers with the Segmentation Add-On can generate detailed report views for the last 6 reports (180 days). The sunburst chart shows the remaining items as Others when there are more than 10 for the top inner ring or items are excluded, a maximum of 10 items can be selected, and an application whose ports cannot be classified shows type Unknown, for up to 14 days until classified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-application-and-user-group-relationships.json",
+          "quotes": [
+            "Only customers with the Segmentation Add-On can generate detailed report views for the last 6 reports (i.e., 180 days).",
+            "If there are more than 10 items for the top inner ring or if you exclude items, then the remaining items are displayed as Others in the sunburst chart.",
+            "A maximum of 10 items can be selected.",
+            "If ports for an application can't be classified, then the application type appears as Unknown.",
+            "Applications can be classified as Unknown for up to 14 days until a proper classification occurs."
+          ]
+        }
+      ]
+    },
+    "qbr": {
+      "statement": "A new QBR report is generated on the first weekend of every month, or the following weekend if the first weekend falls on the first or second day of the month. The reports are stored as PowerPoint files in the Zscaler cloud, displayed for the last 3 years with up to 12 stored, and give the quarterly overview of the top 10 application segments and data transfer in TBytes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-quarterly-business-review-reports.json",
+          "quotes": [
+            "A new QBR report is generated on the first weekend of every month. However, if the first weekend falls on the first or second day of the month, then the report is generated on the following weekend.",
+            "The QBR reports are securely stored as a PowerPoint file in the Zscaler cloud. The QBR reports are displayed for the last 3 years, and up to 12 reports are stored.",
+            "Displays the quarterly overview of the top 10 application segments and data transfer (in TBytes) across your organization."
+          ]
+        }
+      ]
+    },
+    "hosting-detection": {
+      "statement": "The Where are my apps being served from? page shows hosting providers and details of the App Connectors that have been serving applications for the last quarter, generated on the same schedule as the quarterly business reports. Private applications are filtered by AWS, Azure, Google Cloud or Data Center with at least one selected, and Zscaler uses the user device's location service to determine the general vicinity of the application's location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-where-your-apps-are-served.json",
+          "quotes": [
+            "The Where are my apps being served from? page provides a view of hosting providers and analytical details of the App Connectors that have been serving your applications for the last quarter.",
+            "The report is generated on the same schedule as the quarterly business reports.",
+            "Filter private applications based upon selection (AWS, Azure, Google Cloud, Data Center). At least one private application must be selected to display data.",
+            "Zscaler uses the user device's location service to determine the general vicinity of the private application's location."
+          ]
+        }
+      ]
+    },
+    "hosting-unknown": {
+      "statement": "When hosting provider details are not determined, Unknown appears next to the private application's name in the Bar and Map views. For accurate location tracking for data center environments, the App Connector group's Hosting Detection is set to Manual with host data center information selected or entered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-where-your-apps-are-served.json",
+          "quotes": [
+            "If hosting provider details are not determined, Unknown appears next to the name of the private applications in the Bar and Map views."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-quarterly-business-review-reports.json",
+          "quotes": [
+            "For accurate location tracking regarding data center environments, edit the App Connector group, set Hosting Detection to Manual, and then select or enter host data center information."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "aws-role-name": {
+      "kind": "semantic",
+      "title": "Whether the AWS name ZscalerInsightsReportRole is the bucket name or the IAM role name",
+      "status": "open",
+      "detail": "The page says 'For an AWS bucket, the name should always be ZscalerInsightsReportRole' while asking for a Bucket Name, a Region and an IAM Role ARN. It does not say whether the name belongs to the bucket or to the IAM role. The supported cloud types appear only in an image.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "qbr-period": {
+      "kind": "semantic",
+      "title": "What period a QBR report covers",
+      "status": "open",
+      "detail": "The pages call the reports quarterly and generate one on the first weekend of every month. They do not state the period each report covers.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    }
+  }
+}

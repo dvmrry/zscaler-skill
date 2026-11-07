@@ -1,0 +1,462 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Integrating with CrowdStrike",
+  "source": {
+    "url": "https://help.zscaler.com/zia/integrating-crowdstrike",
+    "node": "1401291",
+    "revision": "3249853",
+    "updated": "2026-10-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler's integration leverages CrowdStrike APIs to provide endpoint detection and response (EDR) visibility for Sandbox-detected malware. After the integration is configured, the Zscaler service calls the CrowdStrike Falcon API and requests information for endpoints that have been exposed to the malicious file. CrowdStrike uses the new file signature to detect compromised points throughout your organization's network."
+    },
+    {
+      "text": "You can view information about the affected endpoints in the Sandbox logs and reports of the Zscaler Admin Console. You can also contain endpoints from the Zscaler Admin Console and go to the CrowdStrike Falcon Console for further investigation and remediation. These automated workflows reduce the threat dwell time and remediation time."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you begin the CrowdStrike integration, ensure you have:"
+    },
+    {
+      "item": "CrowdStrike Falcon",
+      "depth": 0
+    },
+    {
+      "item": "A CrowdStrike admin account with the Falcon Administrator role",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler Advanced Sandbox",
+      "depth": 0
+    },
+    {
+      "text": "To learn more, refer to the CrowdStrike documentation."
+    },
+    {
+      "heading": "Step 1: Create an API Client for CrowdStrike",
+      "level": 1
+    },
+    {
+      "text": "To create an API client for CrowdStrike:"
+    },
+    {
+      "item": "Log in to the Falcon Console.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Obtain the client ID, secret, and customer ID:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Obtain the Client ID and Secret",
+      "depth": 1
+    },
+    {
+      "item": "To create an API client for CrowdStrike and obtain the client ID and secret:",
+      "depth": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Support and resources > API clients and keys.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          35,
+          56
+        ],
+        [
+          59,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The API clients and keys page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "On the OAuth2 API Clients tab, click Create API client.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          14,
+          25
+        ],
+        [
+          37,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Create API client window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "In the Create API client window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Client name: Enter a name for the API client (e.g., Zscaler API).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description for the API client.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Scope: Select the following API scopes:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Detections: Read only",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          12,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Hosts: Read and Write",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          16,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "IOCs (Indicators of Compromise): Read only",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          33,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The API client created window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the API client created window, copy the Client ID and Secret values.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          43,
+          52
+        ],
+        [
+          57,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "You must copy the client Secret now. You aren't able to retrieve the client secret later. The Zscaler service uses the Client ID and Secret to authenticate to CrowdStrike. You need this Secret to complete the integration in the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          25,
+          31
+        ],
+        [
+          119,
+          128
+        ],
+        [
+          133,
+          139
+        ],
+        [
+          186,
+          192
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Done.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Obtain the Customer ID",
+      "depth": 1
+    },
+    {
+      "item": "To obtain the CrowdStrike customer ID:",
+      "depth": 1
+    },
+    {
+      "item": "In the top-right navigation, click the Profile icon, then your email addresss.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          39,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The User profile page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Under CID Details, copy the CID (Customer ID). You need it to complete the integration in the Zscaler Admin Console.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          28,
+          31
+        ],
+        [
+          33,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "heading": "Step 2: Set Up Your CrowdStrike Integration with Zscaler",
+      "level": 1
+    },
+    {
+      "text": "To set up your CrowdStrike integration in the Zscaler Admin Console:"
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Go to Cyberthreat Protection > Partner Integrations > Crowdstrike.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          28
+        ],
+        [
+          31,
+          51
+        ],
+        [
+          54,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Under CrowdStrike Authentication Credentials:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "API Auth FQDN: The fully qualified domain name (FQDN) for the CrowdStrike OAuth API. It's typically api.crowdstrike.com. If your organization accesses APIs using a different FQDN, enter it instead.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Client ID: Enter your client ID.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Secret: Enter your client secret.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Customer ID: Enter your customer ID.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Only alphanumeric symbols are accepted for the Customer ID. Remove any dashes from the value you enter.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "If your CrowdStrike credentials are valid, the Zscaler service can call the CrowdStrike Falcon APIs and sync your endpoint hits to the Zscaler service. You then can view file and endpoint information in the CrowdStrike Endpoint Hits report."
+    }
+  ]
+}

@@ -76,7 +76,7 @@ Four options drawn from the closed set defined in `agents/soc/prompt.md`, plus t
 
 Step 1 parses the user's framing. When a blocking field such as the tenant cloud is missing, ask an open choice — do not invent a default:
 
-> I cannot determine the tenant cloud from your framing. It selects the snapshot path for Step 2.
+> I cannot determine the tenant cloud from your framing. It selects the IaC and live-read scope for Step 2.
 >
 > - `zs1`
 > - `zs2`

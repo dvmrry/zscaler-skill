@@ -1,0 +1,334 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.browser-protection-policy",
+  "title": "Browser Protection policy rules and profiles: actions, criteria and fingerprint settings",
+  "aliases": [
+    "browser protection policy",
+    "browser protection profile",
+    "continuous fingerprint",
+    "session fingerprint timeout",
+    "monitor or do not monitor"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.browser-protection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.entitlement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.conditions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{rules-purpose}} {{profile-purpose}} {{no-isolation}}"
+    },
+    {
+      "label": "Rules.",
+      "text": "{{rule-action}} {{criteria-all-match}} {{rule-criteria}} {{filter-by-profile}} {{rule-name-characters}}"
+    },
+    {
+      "label": "Criteria operators.",
+      "text": "What a rule does when a SAML or SCIM criterion is used under AND and the identity provider's setting is disabled differs between the pages {{divergence:scim-and-disabled}}."
+    },
+    {
+      "label": "Profiles.",
+      "text": "{{profile-criteria}} {{continuous-fingerprint}} {{profile-copy}} {{profile-name-characters}}"
+    },
+    {
+      "text": "The dashboard and Clientless Access diagnostics that show the fingerprints are in [[zpa.appprotection.browser-protection]]; the subscription dependence is in [[zpa.appprotection.entitlement]]. The client types a rule accepts, the attribute lists and the limits are open {{gap:client-types}} {{gap:attribute-lists}} {{gap:limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the rule's action is Monitor or Do Not Monitor and which profile it names.",
+      "uses": [
+        "rule-action"
+      ]
+    },
+    {
+      "do": "Whether Applications and User Portals are both selected on one rule, which the console does not allow.",
+      "uses": [
+        "rule-criteria"
+      ]
+    },
+    {
+      "do": "Whether a rule uses SCIM or SAML criteria under AND with the identity provider's setting disabled, and which page's wording is relied on.",
+      "uses": [
+        "scim-and-disabled"
+      ]
+    },
+    {
+      "do": "Whether the Continuous Fingerprint timeout explains how often fingerprints are collected for a domain.",
+      "uses": [
+        "continuous-fingerprint"
+      ]
+    }
+  ],
+  "claims": {
+    "rules-purpose": {
+      "statement": "Browser Protection policy rules set up Browser Protection for designated browsers and operating systems: a rule monitors and fingerprints users' browser access sessions based on specific criteria (application segments and SAML and SCIM attributes) and applies a previously created Browser Protection profile with the attributes used to create a fingerprint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-browser-protection-policy.json",
+          "quotes": [
+            "Browser Protection policy rules allow you to set up Browser Protection for designated browsers and operating systems.",
+            "Create a policy to monitor and fingerprint user browser access sessions based on specific criteria (application segments and SAML and SCIM attributes).",
+            "Apply a previously created Browser Protection profile to a policy with the unique attributes that are used to create a fingerprint."
+          ]
+        }
+      ]
+    },
+    "profile-purpose": {
+      "statement": "A Browser Protection profile consists of selected browser and operating system attributes: it curates the attributes used to create a unique browser fingerprint for each user's browser access session (for example OS name, browser engine version, user agent string and geolocation), excludes the attributes that should not be used, and is then added to a Browser Protection policy for Private Access to use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-browser-protection-profiles.json",
+          "quotes": [
+            "Each Browser Protection profile consists of selected browser and operating system attributes.",
+            "Curate the attributes used to create a unique browser fingerprint for each user's browser access session (e.g., OS name, browser engine version, user agent string, geolocation, etc.).",
+            "Exclude the attributes that should not be used to create a fingerprint.",
+            "After creating a Browser Protection profile, add it to a Browser Protection policy for the Private Access (ZPA) service to use."
+          ]
+        }
+      ]
+    },
+    "no-isolation": {
+      "statement": "Browser Protection is not supported with Isolation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-browser-protection-policy.json",
+          "quotes": [
+            "Browser Protection is not supported with Isolation."
+          ]
+        }
+      ]
+    },
+    "rule-action": {
+      "statement": "A Browser Protection rule's action is Monitor or Do Not Monitor, and the rule names a Browser Protection profile, which the page calls a security profile with a set of common or control-specific actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-browser-protection-policies.json",
+          "quotes": [
+            "Rule Action: Select Monitor or Do Not Monitor.",
+            "Browser Protection Profile: Choose a Browser Protection profile that is a security profile with a set of common or control-specific actions."
+          ]
+        }
+      ]
+    },
+    "criteria-all-match": {
+      "statement": "A user's application request must match all the conditions within a Browser Protection policy rule, the rules use AND and OR operators, and Private Access applies them in the order they are listed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-browser-protection-policy.json",
+          "quotes": [
+            "Criteria: These are the conditions of a policy rule. A user's application request must match all the conditions within a policy rule.",
+            "Browser Protection policy rules use AND and OR operators.",
+            "Private Access applies policy rules based on the order they are listed here."
+          ]
+        }
+      ]
+    },
+    "rule-criteria": {
+      "statement": "A rule's criteria are the application segments and segment groups, Client Types, SAML and SCIM Attributes or Session and User Attributes, an External IAM IdP, and User Portals. Applications and User Portals cannot both be selected on one rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-browser-protection-policies.json",
+          "quotes": [
+            "Choose the application segments and segment groups to which this rule applies:",
+            "Client Types",
+            "SAML and SCIM Attributes or Session and User Attributes",
+            "To use External IAM IdP, select the IdP from the drop-down menu.",
+            "User Portals: Choose the user portals, and click Done.",
+            "If you selected the Applications criteria option, you cannot also select the User Portals criteria option.",
+            "If you selected the User Portals criteria option, you cannot also select the Applications criteria option."
+          ]
+        }
+      ]
+    },
+    "filter-by-profile": {
+      "statement": "The Browser Protection Policy page can be filtered to the rules associated with one Browser Protection profile, by selecting the profile under General Profile Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-browser-protection-policy.json",
+          "quotes": [
+            "Select a Browser Protection profile under General Profile Settings to view the Browser Protection policies associated with that specific profile."
+          ]
+        }
+      ]
+    },
+    "rule-name-characters": {
+      "statement": "A Browser Protection rule name cannot contain special characters except periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-browser-protection-policies.json",
+          "quotes": [
+            "Name: Enter a Browser Protection policy name. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    },
+    "profile-criteria": {
+      "statement": "A profile's criteria are Browser attributes, Operating System attributes, and a Collect Location (Use for Fingerprint) checkbox that captures the monitored user's geolocation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-browser-protection-profiles.json",
+          "quotes": [
+            "Browser: Select the browser attributes you want to include in the Browser Protection profile.",
+            "Operating System: Select the operating system attributes you want to include in the Browser Protection profile.",
+            "Collect Location (Use for Fingerprint): Select the checkbox to capture the monitored user's geolocation."
+          ]
+        }
+      ]
+    },
+    "continuous-fingerprint": {
+      "statement": "In a profile's Timeouts section, Continuous Fingerprint continuously monitors the users' browser access fingerprints during a session and is disabled by default. Its time interval is the minimum time before the next fingerprint is captured again for a domain, with a default of 5 minutes and a maximum of 24 hours, and the profile list shows it as the Session Fingerprint Timeout.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-browser-protection-profiles.json",
+          "quotes": [
+            "In the Timeouts section, enable Continuous Fingerprint to continuously monitor the users' browser access fingerprints assigned to the Browser Protection profile during a session.",
+            "The default time limit for the timeout is 5 minutes, and the maximum time limit is 24 hours.",
+            "The time interval set is the minimum amount of time before the next fingerprint is captured again for a domain.",
+            "This setting is disabled by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-browser-protection-profiles.json",
+          "quotes": [
+            "Session Fingerprint Timeout: The minimum time interval before collecting the next fingerprint for a domain associated with the Browser Protection profile session."
+          ]
+        }
+      ]
+    },
+    "profile-copy": {
+      "statement": "An existing Browser Protection profile can be copied to create a new one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-browser-protection-profiles.json",
+          "quotes": [
+            "Copy an existing Browser Protection profile, and use it to create a new Browser Protection profile."
+          ]
+        }
+      ]
+    },
+    "profile-name-characters": {
+      "statement": "A Browser Protection profile name cannot contain special characters except periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-browser-protection-profiles.json",
+          "quotes": [
+            "Name: Enter a name for the Browser Protection profile. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "scim-and-disabled": {
+      "summary": "On the Browser Protection configuring page, SCIM criteria under AND with the identity provider's setting disabled are said to be evaluated, while the same page says SAML criteria under AND are not evaluated and the client forwarding page says SCIM criteria under AND are not evaluated.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-browser-protection-policies.json",
+            "quotes": [
+              "AND: Private Access evaluates this policy rule. You must remove the criteria for SCIM attributes and SCIM groups for Private Access to process the policy rule."
+            ]
+          },
+          "says": "Browser Protection page, SCIM under AND: Private Access evaluates the rule, yet the admin must remove the SCIM criteria for it to process the rule."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-browser-protection-policies.json",
+            "quotes": [
+              "AND: Private Access does not evaluate this policy rule. You must remove the criteria under SAML Attributes for Private Access to process the policy rule."
+            ]
+          },
+          "says": "Browser Protection page, SAML under AND: Private Access does not evaluate the rule."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-client-forwarding-policies.json",
+            "quotes": [
+              "AND: Private Access does not evaluate this policy rule. You must remove the criteria for SCIM attributes and SCIM groups for Private Access to process the policy rule."
+            ]
+          },
+          "says": "Client forwarding page, SCIM under AND: Private Access does not evaluate the rule."
+        }
+      ],
+      "impact": "The Browser Protection page's SCIM wording contradicts its own instruction to remove the criteria and the two sibling statements, so whether such a rule is evaluated or skipped is not settled by the pages."
+    }
+  },
+  "gaps": {
+    "client-types": {
+      "kind": "semantic",
+      "title": "Which client types a Browser Protection rule accepts",
+      "status": "open",
+      "detail": "The configuring page lists a Client Types criterion, but its Client Types text is the isolation wording (required for isolation policy rules), so the client types a Browser Protection rule accepts are not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "attribute-lists": {
+      "kind": "semantic",
+      "title": "The browser and operating system attributes a profile offers",
+      "status": "open",
+      "detail": "The profile pages name Browser and Operating System attribute selections and give examples (OS name, browser engine version, user agent string, geolocation) without listing the attributes.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "limits": {
+      "kind": "semantic",
+      "title": "Browser Protection limits",
+      "status": "open",
+      "detail": "The Ranges & Limitations values for Browser Protection are not in the captures, and the Terraform browser protection rule resource and the API were not checked.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

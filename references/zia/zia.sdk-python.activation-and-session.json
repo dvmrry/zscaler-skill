@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-python.activation-and-session",
+  "title": "When the Python SDK ends a ZIA session and what that does to staged changes",
+  "aliases": [
+    "context manager activates changes",
+    "with ZscalerClient activation",
+    "python sdk implicit activation",
+    "deauthenticate activates",
+    "password expiry zidentity"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.api.activation",
+      "because": "zia.sdk-python.activation-and-session:exit-can-activate"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.api-surface"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This is about when the Python SDK ends a ZIA session and what the platform then does with staged changes. The platform behavior is documented by the provider guide, and the SDK only decides when the session ends."
+    },
+    {
+      "label": "Leaving a with block.",
+      "text": "{{oneapi-exit-deauthenticates}} {{deauth-only-after-mutation}} {{legacy-exit-always-logs-out}}"
+    },
+    {
+      "label": "What the platform does.",
+      "text": "{{exit-can-activate}} The platform behavior it rests on is [[zia.terraform.activation-methods:session-end-autoactivation]]. The same behavior seen from a time-interval write is in [[zia.time-intervals.api-surface]]."
+    },
+    {
+      "label": "Zidentity tenants.",
+      "text": "{{password-expiry-zidentity}} {{password-expiry-endpoint}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the script wrote anything before it exited, and which client type it used, when asked whether changes went live without an activate call.",
+      "uses": [
+        "oneapi-exit-deauthenticates",
+        "deauth-only-after-mutation",
+        "legacy-exit-always-logs-out",
+        "exit-can-activate"
+      ]
+    },
+    {
+      "do": "Whether the tenant has been migrated to Zidentity before relying on the admin-role or admin-user calls.",
+      "uses": [
+        "password-expiry-zidentity"
+      ]
+    }
+  ],
+  "claims": {
+    "oneapi-exit-deauthenticates": {
+      "statement": "Leaving a `ZscalerClient` `with` block on the OneAPI client calls the executor's `deauthenticate` for a ZIA or ZTW session; for ZIA the code comment says it deauthenticates only if mutations occurred.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "def __exit__(self, exc_type, exc_val, exc_tb): \"\"\"Automatically close session within context manager.\"\"\"",
+            "elif not self.use_legacy_client and hasattr(self._request_executor, \"deauthenticate\"):",
+            "# For ZIA, deauthenticate only if mutations occurred; executor will decide.",
+            "self._request_executor.deauthenticate(service_type)",
+            "if service_type.lower() in [\"zia\", \"ztw\"]: # For ZIA, deauthenticate only if mutations occurred; executor will decide."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/__init__.py",
+          "quotes": [
+            "from zscaler.oneapi_client import Client as ZscalerClient"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "with ZscalerClient(config) as client:"
+          ],
+          "after": "### New SDK Example"
+        }
+      ]
+    },
+    "deauth-only-after-mutation": {
+      "statement": "The executor marks a session as mutated on any POST, PUT or DELETE, and skips the ZIA logout when none occurred; the code comment says ZIA requires the explicit logout to activate staged configurations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if request[\"method\"].upper() in [\"POST\", \"PUT\", \"DELETE\"]: self._mutations_occurred = True",
+            "if service_type.lower() in [\"zia\", \"ztw\"] and not self._mutations_occurred:",
+            "logger.debug(f\"{service_type.upper()} service: No mutations occurred during session, skipping deauthentication\")",
+            "Both ZIA and ZTW require explicit deauthentication to activate staged configurations"
+          ]
+        }
+      ]
+    },
+    "legacy-exit-always-logs-out": {
+      "statement": "The legacy ZIA client's context exit always calls `deauthenticate()`, which sends a DELETE to `/api/v1/authenticatedSession` and treats only a 204 as success; it does not check for earlier writes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/legacy.py",
+          "quotes": [
+            "logger.debug(\"deauthenticating...\")",
+            "logout_url = self.url + \"/api/v1/authenticatedSession\"",
+            "if response.status_code == 204:",
+            "def __exit__(self, exc_type: Optional[type], exc_val: Optional[Exception], exc_tb: Optional[Any]) -> None: logger.debug(\"deauthenticating...\") self.deauthenticate()",
+            "response = requests.delete(logout_url, headers=headers, timeout=self.timeout)",
+            "self.auth_details = None return True else: return False",
+            "def deauthenticate(self) -> bool: \"\"\" Ends the ZIA authentication session. \"\"\" logout_url = self.url + \"/api/v1/authenticatedSession\" headers = self.headers.copy()",
+            "headers.update({\"Cookie\": f\"JSESSIONID={self.session_id}\"}) headers.update(self.request_executor.get_custom_headers()) try: response = requests.delete(logout_url, headers=headers, timeout=self.timeout)"
+          ]
+        }
+      ]
+    },
+    "exit-can-activate": {
+      "statement": "A Python script that writes through a `with` client and then exits the block ends its ZIA API session, so the platform activates its pending changes without an explicit activate call. A script that only reads does not trigger that logout.",
+      "tier": "B",
+      "derived_from": [
+        "oneapi-exit-deauthenticates",
+        "deauth-only-after-mutation",
+        "zia.terraform.activation-methods:session-end-autoactivation"
+      ],
+      "conditions": "Holds when the logout DELETE succeeds (OneAPI `deauthenticate` treats only HTTP 200 as success and otherwise only logs a warning), for the OneAPI client with ZIA as the last service used; the legacy client logs out on every exit, so its with block ends the session whether or not it wrote."
+    },
+    "password-expiry-zidentity": {
+      "statement": "The Python docstrings for the admin-role password-expiry get and update calls say the method is not compatible with Zidentity-enabled tenants, and the admin-user list docstring says the endpoint returns an empty list for tenants migrated to Zidentity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_roles.py",
+          "quotes": [
+            "Note: This method is not compatible with Zidentity enabled Tenants"
+          ],
+          "after": "def get_password_expiry_settings(self)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_roles.py",
+          "quotes": [
+            "Note: This method is not compatible with Zidentity enabled Tenants"
+          ],
+          "after": "def update_password_expiry_settings(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_users.py",
+          "quotes": [
+            "For tenants migrated to Zidentity this endpoint will return an empty list."
+          ]
+        }
+      ]
+    },
+    "password-expiry-endpoint": {
+      "statement": "The current Python `update_password_expiry_settings` sends its PUT to `/passwordExpiry/settings`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_roles.py",
+          "quotes": [
+            "/passwordExpiry/settings",
+            "http_method = \"put\".upper()"
+          ],
+          "after": "def update_password_expiry_settings(self, **kwargs)"
+        }
+      ]
+    }
+  }
+}

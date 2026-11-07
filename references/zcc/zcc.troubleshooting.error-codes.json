@@ -1,0 +1,595 @@
+{
+  "schema_version": 1,
+  "id": "zcc.troubleshooting.error-codes",
+  "title": "Client Connector error codes: cloud authentication, cloud, Admin Console and Report an Issue",
+  "aliases": [
+    "zcc error codes",
+    "client connector error code",
+    "cloud authentication error codes",
+    "Zscaler Admin Console error codes",
+    "report an issue error codes",
+    "internal error contact administrator"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.troubleshooting.private-access-auth-errors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices.lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.collection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{tables}} What the page leaves undefined is listed at the end {{gap:code-coverage}}."
+    },
+    {
+      "label": "Cloud authentication codes, negative numbers.",
+      "text": "{{pac-init}} {{auth-init}} {{credentials-and-network}} {{auth-generic}}"
+    },
+    {
+      "label": "Cloud codes, 1 to 28.",
+      "text": "{{cloud-generic}} {{cookie-and-token}} {{version-and-time}} {{license-and-org}} {{device-info}} {{device-limit}} Whether the device-limit code agrees with the device record is in [[zcc.devices.lifecycle]]."
+    },
+    {
+      "label": "Cloud codes, 1000 and above.",
+      "text": "{{cloud-credentials}} {{saml-1005}} {{ldap}} {{driver-1060}} {{discovery-and-enrollment}}"
+    },
+    {
+      "label": "Admin Console codes, 3005 to 3026.",
+      "text": "{{console-request-and-password}} {{console-license}} {{console-device-identity}} {{console-pac}} {{console-profile-name}} {{console-policy-download}}"
+    },
+    {
+      "label": "Admin Console codes, 3024 and above.",
+      "text": "{{console-platform}} {{console-ios-push}} {{console-registration}} {{enroll-throttle-3071}} {{other-tenant-3100}} {{quarantined-3102}} The Private Access error codes that follow 3049 and 3050 are in [[zcc.troubleshooting.private-access-auth-errors]]."
+    },
+    {
+      "label": "Report an Issue codes.",
+      "text": "{{report-an-issue-form}} {{report-an-issue-internal}} {{report-an-issue-logs}} Collecting the logs the table asks for is in [[zcc.logging.collection]]."
+    }
+  ],
+  "claims": {
+    "tables": {
+      "statement": "The in-use error codes come in four tables: Cloud Authentication Error Codes, Cloud Error Codes, Zscaler Admin Console Error Codes and Report an Issue Error Codes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "The following tables provide lists of error messages your user might see on Zscaler Client Connector while the app is in use:",
+            "- Cloud Authentication Error Codes",
+            "- Cloud Error Codes",
+            "- Zscaler Admin Console Error Codes",
+            "- Report an Issue Error Codes"
+          ]
+        }
+      ]
+    },
+    "pac-init": {
+      "statement": "-1 (Failed to Initialize Authentication: PAC Download Failed) occurs when the device fails to download the PAC file, which stops Client Connector from authenticating the user; it is likely the device could not connect to the cloud when downloading it. -2 (Invalid Custom PAC File) occurs when the device downloads an invalid PAC file, for example one with an incorrect format; check the syntax of the arguments within the PAC file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| -1 | Failed to Initialize Authentication: PAC Download Failed. | This error occurs when the device fails to download the PAC file, which stops Zscaler Client Connector from authenticating the user.",
+            "It is likely that the device could not connect to the cloud when downloading the PAC file.",
+            "| -2 | Failed to Initialize Authentication: Invalid Custom PAC File. | This error occurs when the device downloads an invalid PAC file. For example, the format of the PAC file is incorrect. | Check the syntax of the arguments within the PAC file."
+          ]
+        }
+      ]
+    },
+    "auth-init": {
+      "statement": "-3 (VPN Detected) occurs if Client Connector detects an active VPN on the device; check the forwarding profile configuration. -4 (Authentication Disabled) occurs if the organization has not configured an authentication source. -5 (Failed to Identify Authentication Service) occurs if Client Connector cannot determine the configured authentication type, for example differentiating between a Hosted Database user and an Active Directory user. For -4 and -5, check the Authentication Profile configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| -3 | Failed to Initialize Authentication: VPN Detected. | This error occurs if Zscaler Client Connector detects an active VPN on the device. | Check the forwarding profile configuration. |  |",
+            "| -4 | Failed to Initialize Authentication: Authentication Disabled. | This error occurs if your organization has not configured an authentication source. | Check the Authentication Profile configuration. |  |",
+            "| -5 | Failed to Identify Authentication Service. | This error occurs if Zscaler Client Connector cannot determine the configured authentication type. For example, differentiating between a Hosted Database user or an Active Directory user. | Check the Authentication Profile configuration. |  |"
+          ]
+        }
+      ]
+    },
+    "credentials-and-network": {
+      "statement": "-6 (Login Failed) and -11 (Credentials are not Valid) occur when the user enters incorrect credentials. -7 (Network Connection not Available) occurs when Client Connector cannot find an active network on the device. -8 (Network Connection Failed) occurs when Client Connector is unable to connect to the cloud; go to config.zscaler.com/<Zscaler Cloud Name> to check the connection and to config.zscaler.com/<Zscaler Cloud Name>/zscaler-app to verify the device can connect to the listed IP addresses. -13 (DNS Resolution failed) occurs due to an issue with the hostname conversion to IP address; verify the DNS server and use packet capture for further analysis.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| -6 | Failed to Authenticate: Login Failed. | This error occurs when the user enters incorrect credentials. | Verify if the user’s credentials are correct. |  |",
+            "| -11 | Failed to Authenticate, Credentials are not Valid. | This error occurs when the user enters incorrect credentials. | Verify the user’s credentials. |  |",
+            "| -7 | Network Connection not Available. | This error occurs when Zscaler Client Connector cannot find an active network on the device. | Search for an active network. If the device is connected to a network, try connecting to another network. |  |",
+            "| -8 | Network Connection Failed. | This error occurs when Zscaler Client Connector is unable to connect to the cloud.",
+            "Go to config.zscaler.com/<Zscaler Cloud Name> to check if you have connected to the Zscaler service.",
+            "Go to config.zscaler.com/<Zscaler Cloud Name>/zscaler-app and verify that the device can connect to the listed IP addresses.",
+            "| -13 | DNS Resolution failed. | This error occurs due to an issue with the hostname conversion to IP address.",
+            "Verify that the correct DNS server is configured and that the DNS server is resolving the DNS queries correctly and on time. Use packet capture for further analysis."
+          ]
+        }
+      ]
+    },
+    "auth-generic": {
+      "statement": "-9, -10 and -14 (Internal Error: Contact Administrator) are generic errors; the action is to export logs and contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| -9 | Internal Error: Contact Administrator. | This is a generic error. | Export logs and contact Zscaler Support. |  |",
+            "| -10 | Internal Error: Contact Administrator. | This is a generic error. | Export logs and contact Zscaler Support. |  |",
+            "| -14 | Internal Error: Contact Administrator. | This is a generic error. | Export logs and contact Zscaler Support. |  |"
+          ]
+        }
+      ]
+    },
+    "cloud-generic": {
+      "statement": "Cloud error codes 1, 19 and 23 are generic errors and 7, 9, 10, 11, 14, 15, 24 and 25 are triggered by the cloud servers; all show \"Zscaler Client Connector Internal Error, Please Contact Administrator.\" and the action is to export logs and contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 1 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This is a generic error. | Export logs and contact Zscaler Support. |",
+            "| 19 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This is a generic error. | Export logs and contact Zscaler Support. |",
+            "| 23 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This is a generic error. | Export logs and contact Zscaler Support. |",
+            "| 7 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error is triggered by the cloud servers. | Export logs and contact Zscaler Support. |",
+            "| 9 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error is triggered by the cloud servers. | Export logs and contact Zscaler Support. |",
+            "| 10 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error is triggered by the cloud servers. | Export logs and contact Zscaler Support. |",
+            "| 11 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error is triggered by the cloud servers. | Export logs and contact Zscaler Support. |",
+            "| 14 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error is triggered by the cloud servers. | Export logs and contact Zscaler Support. |",
+            "| 15 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error is triggered by the cloud servers. | Export logs and contact Zscaler Support. |",
+            "| 24 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error is triggered by the cloud servers. | Export logs and contact Zscaler Support. |",
+            "| 25 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error is triggered by the cloud servers. | Export logs and contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "cookie-and-token": {
+      "statement": "2 (Zscaler Internet Security Authentication Error) occurs when the user's cookie is expired or no longer valid. 8 occurs when the device does not send a cookie to the server. 27 occurs when a device sends an invalid authentication token, and 28 when it does not send one. For 2, 27 and 28 the action is to have the user reauthenticate to Client Connector, and if the issue persists export logs and contact Zscaler Support; for 8, export logs and contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 2 | Zscaler Internet Security Authentication Error. | This authentication error occurs when the user’s cookie is expired or is no longer valid. | Have the user reauthenticate to Zscaler Client Connector. If the issue persists, export logs and contact Zscaler Support. |",
+            "| 8 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error occurs when the device does not send a cookie to the server. | Export logs and contact Zscaler Support. |",
+            "| 27 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error occurs when a device sends an invalid authentication token. | Have the user reauthenticate to Zscaler Client Connector. If the issue persists, export logs and contact Zscaler Support. |",
+            "| 28 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error occurs when a device does not send an authentication token. | Have the user reauthenticate to Zscaler Client Connector. If the issue persists, export logs and contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "version-and-time": {
+      "statement": "3 (Enrollment Version Error) occurs when the device runs a version not supported by the cloud; upgrade to the latest version of Client Connector. 4 (Bad Timestamp Error) occurs when there is a time mismatch between the device and the server; check the system time. 5 occurs when the device does not send its version to the cloud, and 6 when it does not send a timestamp to the server; for both, export logs and contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3 | Zscaler Internet Security Enrollment Version Error. | This error occurs when the device runs a version that is not supported by the cloud. | Upgrade to the latest version of Zscaler Client Connector. |",
+            "| 4 | Zscaler Internet Security Enrollment System Bad Timestamp Error, Please check the system time and ensure that it's accurate. | This error occurs when there is a time mismatch between the device and the server. | Check the system time and ensure that it is accurate. |",
+            "| 5 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error occurs when the device does not send its version to the cloud. | Export logs and contact Zscaler Support. |",
+            "| 6 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error occurs when the device does not send a timestamp to the server. | Export logs and contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "license-and-org": {
+      "statement": "12 occurs when the Internet & SaaS service is disabled for the organization, or the organization has not subscribed to a Client Connector license. 20 (License not Subscribed) occurs when a device tries to connect to the cloud using an organization that does not exist. 22 occurs when the organization is not licensed or the status of its account is Agreement Pending. 1000 and 1001 occur when the organization is not licensed or does not exist. For all, export logs and contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 12 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error occurs when the Internet & SaaS service is disabled for your organization. This error also occurs if your organization has not subscribed to Zscaler Client Connector license. | Export logs and contact Zscaler Support. |",
+            "| 20 | Zscaler Client Connector License not Subscribed. | This error occurs when a device tries to connect to the cloud using an organization that does not exist. | Export logs and contact Zscaler Support. |",
+            "| 22 | Zscaler Client Connector License not Subscribed. | This error occurs when the device attempts to connect to the cloud and your organization is not licensed or the status of your account is Agreement Pending. | Export logs and contact Zscaler Support. |",
+            "| 1000 | Zscaler Client Connector License not Subscribed. | This error occurs when the device attempts to connect to the cloud and your organization is not licensed or the organization does not exist. | Export logs and contact Zscaler Support. |",
+            "| 1001 | Zscaler Client Connector License not Subscribed. | This error occurs when the device attempts to connect to the cloud and your organization is not licensed or the organization does not exist. | Export logs and contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "device-info": {
+      "statement": "13 occurs when a device with an invalid device type connects to the cloud; 16, 17, 18 and 26 occur when the server is provided invalid device information. For all, export logs and contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 13 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error occurs when a device with an invalid device type connects to the cloud. | Export logs and contact Zscaler Support. |",
+            "| 16 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error occurs when the server is provided invalid device information. | Export logs and contact Zscaler Support. |",
+            "| 17 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error occurs when the server is provided invalid device information. | Export logs and contact Zscaler Support. |",
+            "| 18 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error occurs when the server is provided invalid device information. | Export logs and contact Zscaler Support. |",
+            "| 26 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error occurs when the server is provided invalid device information. | Export logs and contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "device-limit": {
+      "statement": "21 (User has exceeded number of devices limit) occurs when the user tries to enroll more than 16 devices under one username; the action is to remove devices for that user from the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 21 | Zscaler Internet Security Enrollment Error - User has exceeded number of devices limit. | This error occurs when the user tries to enroll more than 16 devices under one username. | From the Zscaler Admin Console, remove devices for that user."
+          ]
+        }
+      ]
+    },
+    "cloud-credentials": {
+      "statement": "1002 and 1019 (Credentials are not Valid) occur when the user enters incorrect credentials. 1012 (Failed to Authenticate, Please try again) occurs when user information cannot be found. 1006 occurs when the cloud is unable to process the credentials provided. 1003 and 1004 are generic errors and 1007 is triggered by the cloud servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 1002 | Failed to Authenticate, Credentials are not Valid. | This error occurs when the user enters the incorrect credentials. | Verify if the user’s credentials are correct. |",
+            "| 1019 | Failed to Authenticate, Credentials are not Valid. | This error occurs when the user enters the incorrect credentials. | Verify the user’s credentials. |",
+            "| 1012 | Failed to Authenticate, Please try again. | This error occurs when user information cannot be found. | Verify the user’s credentials. |",
+            "| 1006 | Zscaler Client Connector Internal Error, Please Contact Administrator | This is triggered when the cloud is unable to process the credentials provided. | Export logs and contact Zscaler Support. |",
+            "| 1003 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This is a generic error. | Export logs and contact Zscaler Support. |",
+            "| 1004 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This is a generic error. | Export logs and contact Zscaler Support. |",
+            "| 1007 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error is triggered by the cloud servers. | Export logs and contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "saml-1005": {
+      "statement": "1005 (IdP Authentication Failed) occurs when the cloud receives an invalid SAML response; verify the SAML configuration and check the SAML process end-to-end.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 1005 | IdP Authentication Failed, Please Contact Administrator. | This error occurs when the cloud receives an invalid SAML response. | Verify the SAML configuration and check the SAML process end-to-end. |"
+          ]
+        }
+      ]
+    },
+    "ldap": {
+      "statement": "LDAP Authentication Failed codes: 1008 occurs when the Zscaler Authentication Bridge (ZAB) is not connected; 1009 is an internal error; 1013 occurs when the user is not found or has been deleted; 1014 when LDAP services are down for the organization; 1015 when the Central Authority (CA) is not ready to authenticate; 1016, 1017 and 1018 when the cloud fails to communicate with LDAP. For these, verify the LDAP configuration and ensure network connectivity. 1010 and 1011 occur when the cloud is unable to process the credentials provided by the user; verify the LDAP configuration and that the credentials entered are valid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 1008 | LDAP Authentication Failed, Please Contact Administrator. | This error occurs when the Zscaler Authentication Bridge (ZAB) is not connected. | Verify the LDAP configuration and ensure network connectivity. |",
+            "| 1009 | LDAP Authentication Failed, Please Contact Administrator. | This is an internal error. | Verify the LDAP configuration and ensure network connectivity. |",
+            "| 1013 | LDAP Authentication Failed, Please Contact Administrator. | This error occurs when the user is not found or has been deleted. | Verify the LDAP configuration and ensure network connectivity. |",
+            "| 1014 | LDAP Authentication Failed, Please Contact Administrator. | This error occurs when LDAP services are down for the organization. | Verify the LDAP configuration and ensure network connectivity. |",
+            "| 1015 | LDAP Authentication Failed, Please Contact Administrator. | This error occurs when the Central Authority (CA) is not ready to authenticate. | Verify the LDAP configuration and ensure network connectivity. |",
+            "| 1016 | LDAP Authentication Failed, Please Contact Administrator. | This error is triggered when the cloud fails to communicate with LDAP. | Verify the LDAP configuration and ensure network connectivity. |",
+            "| 1017 | LDAP Authentication Failed, Please Contact Administrator. | This error is triggered when the cloud fails to communicate with LDAP. | Verify the LDAP configuration and ensure network connectivity. |",
+            "| 1018 | LDAP Authentication Failed, Please Contact Administrator. | This error is triggered when the cloud fails to communicate with LDAP. | Verify the LDAP configuration and ensure network connectivity. |",
+            "| 1010 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error is triggered when the cloud is unable to process the credentials provided by the user. | Verify the LDAP configuration and ensure that the credentials entered by the user are valid. |",
+            "| 1011 | Zscaler Client Connector Internal Error, Please Contact Administrator. | This error is triggered when the cloud is unable to process the credentials provided by the user. | Verify the LDAP configuration and ensure that the credentials entered by the user are valid. |"
+          ]
+        }
+      ]
+    },
+    "driver-1060": {
+      "statement": "1060 occurs when a required Client Connector driver or service is missing or failed to install after a partial install or upgrade; repair or reinstall Client Connector to restore the driver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 1060 | Internal Error: Contact Administrator | This error occurs when a required Zscaler Client Connector driver or service is missing or failed to install after a partial install or upgrade. | Repair or reinstall Zscaler Client Connector to restore the driver. |"
+          ]
+        }
+      ]
+    },
+    "discovery-and-enrollment": {
+      "statement": "10060 occurs when Client Connector fails to connect to the network; check network connectivity. 10101 (Failed to Discover Service for Given User) occurs when it fails to fetch user cloud information; verify the user's credentials, that the user exists in the user authentication source, and that the company name is provisioned correctly. 10104 (Service Configuration not Found) occurs when it fails to fetch the policy; export logs and contact Zscaler Support. 10108 (Failed to Enroll Device) occurs when device registration fails, either from an inability to reach the server or an error response from it, and applies to Internet & SaaS and Private Access; check network connectivity and whether there is a trust post for the cloud status. 10110 occurs when the user enters a username that cannot be found. 10111 occurs due to an issue in the processing of a request; retry the failed operation. 10112 is a generic error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 10060 | Network Connection Failed: Check Your Network. | This error occurs when Zscaler Client Connector fails to connect to your network. | Check network connectivity. |",
+            "| 10101 | Failed to Discover Service for Given User. | This error occurs when Zscaler Client Connector fails to fetch user cloud information. | Verify the user's credentials. Verify that the user exists in the user authentication source. Verify your company name is provisioned correctly. |",
+            "| 10104 | Service Configuration not Found. | This error occurs when Zscaler Client Connector fails to fetch the policy. | Export logs and contact Zscaler Support. |",
+            "| 10108 | Failed to Enroll Device. | This error occurs when the device registration fails either due to an inability to reach the server or an error response from the server. This applies to Internet & SaaS and Private Access. | Check network connectivity. Check if there is a trust post for the cloud status. |",
+            "| 10110 | Username not valid. | This error occurs when the user enters a username that cannot be found. | Verify that the user is entering the correct username. Verify that the user exists in the user authentication source. |",
+            "| 10111 | Internal Error. | This error occurs due to an issue in the processing of a request. | Retry the failed operation. If the error persists, export logs and contact Zscaler Support. |",
+            "| 10112 | Internal Error: Contact Administrator. | This is a generic error. | Export logs and contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "console-request-and-password": {
+      "statement": "Admin Console codes: 3005 occurs when the device sends an invalid request (ensure Client Connector is current and traffic is not modified between the device and the server). 3006 occurs when the user enters a password that does not match the username; 3007 when the user enters a username that cannot be found; 3008 when the user attempts to log out and the app has no record of a logged in user; 3009 when the user's password has expired (reset it and check the Authentication Profile's password expiration setting); 3010 when the user changes the password and enters the old password incorrectly; 3015 when the entered new password does not meet the password strength requirements (check the Authentication Profile's password strength settings).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3005 | Internal Error: Contact Administrator. | This error occurs when the device sends an invalid request. | Ensure that the version of Zscaler Client Connector is current. Check that traffic is not being modified between the device and the server. |",
+            "| 3006 | User Password is not Valid. | This error occurs when the user enters a password that does not match the username. | Check if the configuration of the Authentication Profile is correct. Verify that the user is entering the correct password. |",
+            "| 3007 | Username is not Valid. | This error occurs when the user enters a username that cannot be found. | Verify that the user is entering the correct password. Verify that the user exists in the user authentication source. |",
+            "| 3008 | User is not Logged in. | This error occurs when the user attempts to log out of Zscaler Client Connector and the app does not have a record of a logged in user. | Have the user exit Zscaler Client Connector and attempt to log in again. |",
+            "| 3009 | Password has Expired. | This error occurs when the user’s password has expired. | Reset the password for the user and check the password expiration setting of the Authentication Profile. |",
+            "| 3010 | Password is not Valid. | This error occurs when the user attempts to change the password and enters the old password incorrectly. | Verify that the user is entering the old password correctly or reset the password for the user. |",
+            "| 3015 | Provided Password is not Strong Enough. | This error occurs when the user tries to change the password and the entered password does not meet the password strength requirements. | Have the user enter a more secure password or reset the password for the user.",
+            "Check the password strength settings of the Authentication Profile."
+          ]
+        }
+      ]
+    },
+    "console-license": {
+      "statement": "3011 (User not Subscribed to Service) occurs when the device attempts to connect to the cloud and the organization is not licensed. 3014 (Service Subscription has Expired) occurs when the organization's license has expired. 3018 (Already Subscribed to Zscaler service) is triggered on the cloud when attempting to create a new domain that already exists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3011 | User not Subscribed to Service. | This error occurs when the device attempts to connect to the cloud and your organization is not licensed. | Export logs and contact Zscaler Support. |",
+            "| 3014 | Service Subscription has Expired. | This error occurs when your organization license has expired. | Contact Zscaler Support. |",
+            "| 3018 | Already Subscribed to Zscaler service. | This error is triggered on the cloud when attempting to create a new domain that already exists. | Contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "console-device-identity": {
+      "statement": "3012 occurs when the device connects to the cloud and sends an invalid device identifier that does not match any enrolled device. 3013 (Device is not Registered) occurs if the user connects from a device that is not available in the Admin Console. For both, have the user reauthenticate to Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3012 | Internal Error: Contact Administrator. | This error occurs when the device attempts to connect to the cloud and sends an invalid device identifier that does not match any enrolled device. | Have the user reauthenticate to Zscaler Client Connector. |",
+            "| 3013 | Device is not Registered. | This error occurs if the user attempts to connect from a device that is not available in the Zscaler Admin Console. | Have the user reauthenticate to Zscaler Client Connector with the device. |"
+          ]
+        }
+      ]
+    },
+    "console-pac": {
+      "statement": "3016 (PAC URL is not Valid) and 3020 (Invalid PAC File URL) occur when an invalid PAC file URL is specified in the forwarding profile; verify the URL is correct and resolves to a PAC file. 3017 (PAC File is not Valid) and 3021 (Invalid PAC File Content) occur when an invalid PAC file is specified in the forwarding profile; check the syntax of the arguments within the PAC file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3016 | PAC URL is not Valid. | This error occurs when an invalid PAC file URL is specified in the forwarding profile. | Verify that the PAC file URL entered in the forwarding profile is correct and resolves to a PAC file. |",
+            "| 3020 | Invalid PAC File URL. | This error occurs when an invalid PAC file URL is specified in the forwarding profile. | Verify that the PAC file URL entered in the forwarding profile is correct and resolves to a PAC file. |",
+            "| 3017 | PAC File is not Valid. | This error occurs when an invalid PAC file is specified in the forwarding profile. | Check the syntax of the arguments within the PAC file. To learn more, see Best Practices For Writing PAC Files. |",
+            "| 3021 | Invalid PAC File Content. | This error occurs when an invalid PAC file is specified in the forwarding profile. | Check the syntax of the arguments within the PAC file. To learn more, see Best Practices For Writing PAC Files. |"
+          ]
+        }
+      ]
+    },
+    "console-profile-name": {
+      "statement": "3019 (Profile Name Already in Use) occurs when attempting to create an app profile with the same name as an existing app profile; change the name of the new app profile or remove the existing one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3019 | Profile Name Already in Use. | This error occurs when attempting to create an app profile with the same name as an existing app profile. | Change the name of the new app profile or remove the existing app profile. |"
+          ]
+        }
+      ]
+    },
+    "console-policy-download": {
+      "statement": "3022 occurs when the device tries to retrieve an updated profile and already has the latest profile; ignore it. 3023 occurs if the device attempts to download the policy and the download fails, and also for admins browsing the forwarding profile or app profiles pages; attempt to update the policy from the device again. 3025 occurs when the device attempts to update its policy with a policy that no longer exists; download the policy again, and if that fails log out and reauthenticate to Client Connector. 3026 occurs if the session expires while the device downloads a policy, and if the download is interrupted and then resumes, it might not be completed; ensure the device has connectivity, then update the policy again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3022 | Internal Error: Contact Administrator. | This error occurs when the device tries to retrieve an updated profile and already has the latest profile. | Ignore this error. |",
+            "| 3023 | Internal Error: Contact Administrator. | This error occurs if the device attempts to download the policy and the download fails. This error also occurs for admins browsing the forwarding profile or app profiles pages. | Attempt to update the policy from the device again. |",
+            "| 3025 | Internal Error: Contact Administrator. | This error occurs when the device attempts to update its policy with a policy that no longer exists. | Download the policy again. If this fails, log out and reauthenticate to Zscaler Client Connector. |",
+            "| 3026 | Internal Error: Contact Administrator. | This error occurs if the session expires while the device downloads a policy. If the download is interrupted and then resumes, it might not be completed. | Ensure the device has connectivity, then update the policy again. |"
+          ]
+        }
+      ]
+    },
+    "console-platform": {
+      "statement": "3024 (Device not Supported) occurs if the connecting device is not a recognized and supported platform, or if a supported platform attempts to connect as a different platform, for example a Windows device attempting to connect as a macOS device; ensure the user is running the correct and current version of Client Connector. 3051 (Invalid Device) occurs when an iOS or Android device attempts to connect to a macOS or Windows endpoint; ensure Client Connector is current.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3024 | Device not Supported. | This error occurs if the connecting device is not a recognized and supported platform. This error also occurs if a supported platform attempts to connect as a different platform. For example, a Windows device attempting to connect as a macOS device.",
+            "Ensure that the user is running the correct and current version of Zscaler Client Connector.",
+            "| 3051 | Invalid Device. | This error occurs when an iOS or Android device attempts to connect to a macOS or Windows endpoint. | Ensure that the version of Zscaler Client Connector is current. |"
+          ]
+        }
+      ]
+    },
+    "console-ios-push": {
+      "statement": "3027 occurs when an iOS device sends an invalid push notification token; have the user reauthenticate to Client Connector, and if that fails, reinstall it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3027 | Internal Error: Contact Administrator. | This error occurs when an iOS device sends an invalid push notification token. | Have the user reauthenticate to Zscaler Client Connector. If this fails, reinstall Zscaler Client Connector. |"
+          ]
+        }
+      ]
+    },
+    "console-registration": {
+      "statement": "3049 (Failed to register with Private Access) occurs when the device attempts to register for Private Access and the certificate signing process fails; 3050 (Failed to deregister with Private Access) occurs when removing or deregistering a device from the Admin Console and the cloud fails to remove it. Each is followed by a more specific Private Access authentication error code. 3053 (Failed to register with Internet & SaaS) occurs when registration for Internet & SaaS fails; check whether there is a trust post for the cloud status and contact Zscaler Support. 3054 (Failed to Deregister Device) occurs if the user logs out or the admin removes a device and the cloud fails to remove it. 3068 (Service is disabled) occurs if the Private Access service is disabled for the user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3049 | Failed to register with Private Access. | This error occurs when the device attempts to register for Private Access and during the certificate signing process, the signing fails.",
+            "| 3050 | Failed to deregister with Private Access. | This error occurs when removing or deregistering a device from the Zscaler Admin Console and the cloud fails to remove it.",
+            "| 3053 | Failed to register with Internet & SaaS. | This error occurs when the device attempts to register for Internet & SaaS and fails. | Check if there is a trust post for the cloud status. Contact Zscaler Support. |",
+            "| 3054 | Failed to Deregister Device. | This error occurs if the user logs out of the device or the admin removes a device and the cloud fails to remove it. | Export logs and contact Zscaler Support. |",
+            "| 3068 | Service is disabled. | This error occurs if the Private Access service is disabled for the user. | Contact Zscaler Support. |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "after": "| 3049 |",
+          "quotes": [
+            "This error is followed by a more specific Private Access authentication error code."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "after": "| 3050 |",
+          "quotes": [
+            "This error is followed by a more specific Private Access authentication error code."
+          ]
+        }
+      ]
+    },
+    "enroll-throttle-3071": {
+      "statement": "3071 occurs when too many requests are logged into the server, so Client Connector could not enroll; it retries automatically (the message says in 12 seconds), and the retry time interval value is dynamic and might vary depending on the Admin Console's load.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3071 | Zscaler Client Connector was unable to enroll at this time. It will automatically retry in 12 seconds. Failed to register with service. | This error occurs when too many requests are logged into the server. The retry time interval value is dynamic and might vary depending on the Zscaler Admin Console's load."
+          ]
+        }
+      ]
+    },
+    "other-tenant-3100": {
+      "statement": "3100 occurs when the device is already registered with another tenant under the same cloud; remove the device from the prior tenant via the Admin Console, then log in to Client Connector again to register with the current tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3100 | Internal Error: Contact Administrator. | The device is already registered with another tenant under the same cloud. | Remove the device from the prior tenant via the Zscaler Admin Console. Login to the Zscaler Client Connector again to register with the current tenant."
+          ]
+        }
+      ]
+    },
+    "quarantined-3102": {
+      "statement": "3102 (Device is in quarantined state) occurs when the user logged in from a quarantined device. The resolution is in the Admin Console at Infrastructure > Connectors > Client > Partner Devices, selecting the View icon of the device, after which the device is removed from quarantine and the user is allowed to log in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 3102 | Device is in quarantined state | The user logged in from a quarantined device. | In the Zscaler Admin Console, go to Infrastructure > Connectors > Client > Partner Devices, then select the View icon of the device. The device is removed from quarantine and the user is allowed to log in. |"
+          ]
+        }
+      ]
+    },
+    "report-an-issue-form": {
+      "statement": "Report an Issue codes 8790 to 8798 all show \"Failed to report an issue\" and the action is to export logs and contact Zscaler Support. 8790 is a generic error. Form fields: 8791 occurs when the user has not entered a username in the Name field, 8792 when the Name entry is too long; 8793 when no destination email address is provided, 8794 when the email address is too long; 8795 when no subject is provided, 8796 when the subject is too long; 8797 when the list of email addresses in the CC field is too long; 8798 when the message in the Comments field is too long.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 8790 | Failed to report an issue | This is a generic error. | Export logs and contact Zscaler Support. |",
+            "| 8791 | Failed to report an issue | This error occurs when the user tries to report an issue and has not entered a username in the Name field of the form. | Export logs and contact Zscaler Support. |",
+            "| 8792 | Failed to report an issue | This error occurs when the user tries to report an issue and has entered a username in the Name field of the form that is too long. | Export logs and contact Zscaler Support. |",
+            "| 8793 | Failed to report an issue | This error occurs when the user tries to report an issue and has not provided a destination email address. | Export logs and contact Zscaler Support. |",
+            "| 8794 | Failed to report an issue | This error occurs when the user tries to report an issue and has provided an email address that is too long. | Export logs and contact Zscaler Support. |",
+            "| 8795 | Failed to report an issue | This error occurs when the user tries to report an issue and has not provided a subject. | Export logs and contact Zscaler Support. |",
+            "| 8796 | Failed to report an issue | This error occurs when the user tries to report an issue and has provided a subject that is too long. | Export logs and contact Zscaler Support. |",
+            "| 8797 | Failed to report an issue | This error occurs when the user tries to report an issue and the list of email addresses in the CC field of the form is too long. | Export logs and contact Zscaler Support. |",
+            "| 8798 | Failed to report an issue | This error occurs when the user tries to report an issue and enters a message in the Comments field of the form that is too long. | Export logs and contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "report-an-issue-internal": {
+      "statement": "Report an Issue codes for internal values that are too long, each showing \"Failed to report an issue\" with the action to export logs and contact Zscaler Support: 8799 the internal field for the Problem field, 8800 the Priority value, 8801 the internal value for the account type, 8802 the internally generated ticket ID number, 8803 the internal organization identifier, 8804 the internally provided email address for the admin, 8810 the internal value for the application version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 8799 | Failed to report an issue | This error occurs when the user tries to report an issue and the internal field for the Problem field is too long. | Export logs and contact Zscaler Support. |",
+            "| 8800 | Failed to report an issue | This error occurs when the user tries to report an issue and the value for the Priority field is too long. | Export logs and contact Zscaler Support. |",
+            "| 8801 | Failed to report an issue | This error occurs when the user tries to report an issue and the internal value for the account type is too long. | Export logs and contact Zscaler Support. |",
+            "| 8802 | Failed to report an issue | This error occurs when the user tries to report an issue and the internally generated ticket ID number is too long. | Export logs and contact Zscaler Support. |",
+            "| 8803 | Failed to report an issue | This error occurs when the user tries to report an issue and the internal organization identifier is too long. | Export logs and contact Zscaler Support. |",
+            "| 8804 | Failed to report an issue | This error occurs when the user tries to report an issue and the internally provided email address for the admin is too long. | Export logs and contact Zscaler Support. |",
+            "| 8810 | Failed to report an issue | This error occurs when the user tries to report an issue and the internal value for the application version is too long. | Export logs and contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "report-an-issue-logs": {
+      "statement": "Report an Issue codes for the log attachment, each showing \"Failed to report an issue\" with the action to export logs and contact Zscaler Support: 8805 occurs when there is no log file to attach, 8806 when no log file is present in the submission, 8807 when an invalid log file is attached, 8808 when the size of the specified log file is too large, 8809 when the cloud responds with an invalid response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-errors.json",
+          "quotes": [
+            "| 8805 | Failed to report an issue | This error occurs when the user tries to report an issue and there is no log file to attach. | Export logs and contact Zscaler Support. |",
+            "| 8806 | Failed to report an issue | This error occurs when the user tries to report an issue and no log file is present in the submission. | Export logs and contact Zscaler Support. |",
+            "| 8807 | Failed to report an issue | This error occurs when the user tries to report an issue and an invalid log file is attached. | Export logs and contact Zscaler Support. |",
+            "| 8808 | Failed to report an issue | This error occurs when the user tries to report an issue and the size of the specified log file is too large. | Export logs and contact Zscaler Support. |",
+            "| 8809 | Failed to report an issue | This error occurs when the user tries to report an issue and the cloud responds with an invalid response. | Export logs and contact Zscaler Support. |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "code-coverage": {
+      "kind": "semantic",
+      "title": "What the codes the page does not list, or lists only as generic, mean, and where the user sees a code",
+      "status": "open",
+      "detail": "The tables skip numbers (for example -12, 29 to 999, 1020 to 1059, 3001 to 3004, 3028 to 3048, 3052, 3055 to 3067, 3069, 3070, 3072 to 3099 and 3101), and nothing may be inferred for them. Several codes are defined only as generic or triggered by the cloud servers: -9, -10, -14, 1, 7, 9, 10, 11, 14, 15, 19, 23, 24, 25, 1003, 1004, 1007 and 10112. The page does not say where the user sees the code, in the app window or in logs. 10108 and 3053 say to check a trust post for the cloud status without giving a URL. 3071 names no retry limit, and the 12 seconds is only the message's example of a dynamic interval. The Report an Issue codes name length limits and a maximum log file size (8808) without giving values.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

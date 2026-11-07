@@ -1,0 +1,487 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.provisioning-keys",
+  "title": "App Connector provisioning keys",
+  "aliases": [
+    "provisioning key",
+    "app connector provisioning key",
+    "maximum reuse of provisioning key",
+    "provisioning key utilization count",
+    "provisioning key exhausted",
+    "connector will not enroll key",
+    "view or export provisioning key after creation",
+    "http status 401 enroll"
+  ],
+  "binds": [
+    "zpa/app-connectors",
+    "zpa/app-connector-groups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.connector-groups",
+      "because": "zpa.app-connectors.provisioning-keys:key-names-group"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.api.provisioning-keys-wire"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.app-connectors.provisioning-key-tooling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A provisioning key is one of the two ways to enroll a connector; this subject covers what the key is and how it is consumed."
+    },
+    {
+      "label": "What a key is.",
+      "text": "{{key-enrolls-connector}} {{key-names-group}} {{key-selects-signing-cert}} {{key-format-example}}"
+    },
+    {
+      "label": "Handling.",
+      "text": "{{key-is-secret}} {{key-hidden-after-creation}} The pages differ on whether such a key still appears in the table {{divergence:hidden-key-in-table}}. {{view-export-one-way}} {{deception-managed-read-only}}"
+    },
+    {
+      "label": "Editing and naming.",
+      "text": "{{editable-fields}} {{name-rules}} {{signing-cert-redeploy}}"
+    },
+    {
+      "label": "Use limits.",
+      "text": "{{max-reuse}} {{max-reuse-recommendation}} {{imdsv2-headroom}} {{exhausted-key-blocks-deploy}} {{multiple-keys-per-group}} Whether moving a connector between groups needs a new key is not stated {{gap:cross-group-move}}."
+    },
+    {
+      "label": "Adding to an existing group.",
+      "text": "{{add-to-existing-group}} Cloud Connector and Branch Connector groups are in [[zpa.private-infrastructure.cloud-branch-connectors]]."
+    },
+    {
+      "label": "When enrollment fails on the key.",
+      "text": "{{mcp-skill-key-issues-first}} {{mcp-skill-exhaustion-test}} {{incorrect-copy-error}} What an exhausted key looks like on the connector, and whether copied whitespace breaks a key, are not sourced {{gap:exhausted-key-symptom}} {{gap:trailing-whitespace}}."
+    },
+    {
+      "text": "How the SDKs and the MCP server model keys is in [[zpa.app-connectors.provisioning-key-tooling]]; association types and provider lookups are in [[zpa.sdk-go.service-defects]]; the `enabled = false` write is in [[shared.sdk-go.zero-value-writes]]. The wider enrollment sequence is in [[zpa.app-connectors.enrollment]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The key's maximum and utilization count, before blaming the connector for a failed enrollment.",
+      "uses": [
+        "max-reuse",
+        "exhausted-key-blocks-deploy",
+        "mcp-skill-exhaustion-test"
+      ]
+    },
+    {
+      "do": "Whether the connector console shows the 401 enrollment failure that the help attributes to an incorrectly copied key.",
+      "uses": [
+        "incorrect-copy-error"
+      ]
+    },
+    {
+      "do": "Whether the key column is blank because the View or Export option was disabled, which makes the key unrecoverable.",
+      "uses": [
+        "key-hidden-after-creation",
+        "hidden-key-in-table"
+      ]
+    },
+    {
+      "do": "Whether the key is Deception-configured or Zscaler-managed before planning to edit or delete it.",
+      "uses": [
+        "deception-managed-read-only"
+      ]
+    }
+  ],
+  "claims": {
+    "add-to-existing-group": {
+      "statement": "To add an App Connector to an existing group with a provisioning key, verify in the Provisioning Key Utilization column that the key has enough available reuses (if not, edit the key's maximum reuse value), then copy the key and use it when deploying the App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-connectors-existing-connector-group.json",
+          "quotes": [
+            "This article describes how to add an App Connector to an existing group if you are using a provisioning key for enrollment.",
+            "Verify that the private key you plan to use has enough available keys to reuse in the Provisioning Key Utilization column.",
+            "If not, edit the provisioning key to update the maximum reuse value.",
+            "Copy the App Connector provisioning key from the list. You will need to enter this key when you deploy the App Connector to a platform."
+          ]
+        }
+      ]
+    },
+    "key-enrolls-connector": {
+      "statement": "A provisioning key is a text string that enrolls an App Connector; it works as the connector's credential, letting the Private Access cloud verify the connector and complete deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-connector-provisioning-keys.json",
+          "quotes": [
+            "The provisioning key is a text string that is used to enroll an App Connector.",
+            "The provisioning key functions like a credential for the App Connector, enabling the Private Access (ZPA) cloud to verify the App Connector's authenticity and complete the deployment process."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "key-names-group": {
+      "statement": "Each key is associated with a specific App Connector group, so the key tells the Private Access cloud which group a connector is deployed into.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-connector-provisioning-keys.json",
+          "quotes": [
+            "each key is associated with a specific App Connector group, so the key allows the Private Access cloud to identify the App Connector group to which an App Connector must be deployed."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups"
+      ]
+    },
+    "key-is-secret": {
+      "statement": "Provisioning keys should be treated as secrets because they can create a resource for a tenant, and must not be transmitted or stored in clear text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-connector-provisioning-keys.json",
+          "quotes": [
+            "Provisioning keys should be treated as secrets and properly protected because they can create a resource for a tenant.",
+            "The provisioning key must also be secured and not transmitted or stored in clear text."
+          ]
+        }
+      ]
+    },
+    "key-format-example": {
+      "statement": "The help's example key is pipe-separated: a leading number, the API host api.private.zscaler.com, then a long base64 payload. The enrollment error output shows the same host in its nonce.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-connector-provisioning-keys.json",
+          "quotes": [
+            "1|api.private.zscaler.com|68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ",
+            "error:Login request failed - http status(401) nonce(<3|api.private.zscaler.com|0/Z6lDT...>)"
+          ]
+        }
+      ],
+      "conditions": "Reads the field layout from one example key and one error line; the help does not define the fields."
+    },
+    "max-reuse": {
+      "statement": "A key can be limited to a number of uses when it is generated (Maximum Reuse of Provisioning Key), and Private Access tracks the count and shows it as the Provisioning Key Utilization Count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-connector-provisioning-keys.json",
+          "quotes": [
+            "When you generate a provisioning key, you can specify the number of times a key can be used to deploy App Connectors.",
+            "This entry is based on the value entered for Maximum Reuse of Provisioning Key when adding or editing a provisioning key.",
+            "Private Access tracks the number of times a key is used to deploy an App Connector and displays it on the App Connector Provisioning Keys page.",
+            "Provisioning Key Utilization Count: The number of times the provisioning key has been used."
+          ]
+        }
+      ]
+    },
+    "exhausted-key-blocks-deploy": {
+      "statement": "When a key has been used its maximum number of times it cannot deploy more App Connectors, but its maximum can always be edited. The Copy icon is disabled with a Warning icon at that point.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-connector-provisioning-keys.json",
+          "quotes": [
+            "When a key is used the maximum number of times, you cannot use it to deploy more App Connectors. However, you can always edit the maximum number of times a key can be used.",
+            "If the Provisioning Key Utilization Count is reached, you cannot copy the key. A Warning icon appears next to the disabled Copy icon. You can edit the key to raise the limit."
+          ]
+        }
+      ],
+      "gaps": [
+        "exhausted-key-symptom"
+      ]
+    },
+    "multiple-keys-per-group": {
+      "statement": "Several provisioning keys can be associated with one App Connector group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-connector-provisioning-keys.json",
+          "quotes": [
+            "You also have the option of associating multiple provisioning keys to a single App Connector group."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups"
+      ]
+    },
+    "key-hidden-after-creation": {
+      "statement": "If View or Export Provisioning Key After Creation was disabled, the key column is blank and the copy and download icons are hidden. Unless a backup is in an external credential vault, a new key must be generated, and it can be attached to the same App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-connector-provisioning-keys.json",
+          "quotes": [
+            "This entry is blank if you disabled the View or Export Provisioning Key After Creation option when configuring App Connector groups.",
+            "If the provisioning key doesn't appear, and a backup of the provisioning key isn't securely stored in an external credential vault, a new key must be generated. A new provisioning key can be created and attached to the same App Connector.",
+            "Copy the provisioning key to your clipboard.",
+            "If you disabled the View or Export Provisioning Key After Creation option when configuring an App Connector group, this icon is hidden for security purposes.",
+            "Download the provisioning key to your system in a file format.",
+            "If you disabled the View or Export Provisioning Key After Creation option when configuring an App Connector, this icon is hidden for security purposes."
+          ]
+        }
+      ]
+    },
+    "incorrect-copy-error": {
+      "statement": "A key that was copied incorrectly shows up in the App Connector console as an enrollment attempt ending in a 401 login failure and Certificate enrollment failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-connector-provisioning-keys.json",
+          "quotes": [
+            "When a provisioning key is incorrectly copied, the following error appears in your App Connector console when it tries to enroll:",
+            "error:Login request failed - http status(401)",
+            "notice:Certificate enrollment failed."
+          ]
+        }
+      ]
+    },
+    "deception-managed-read-only": {
+      "statement": "A provisioning key configured with Zscaler Deception, or managed by Zscaler, has its edit and delete options unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-connector-provisioning-keys.json",
+          "quotes": [
+            "If a provisioning key is configured using Zscaler Deception or is managed by Zscaler, then the edit and delete options are unavailable."
+          ]
+        }
+      ]
+    },
+    "key-selects-signing-cert": {
+      "statement": "A provisioning key lets the admin select the signing certificate used to enroll App Connector certificates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-connector-provisioning-keys.json",
+          "quotes": [
+            "Select the signing certificate used to enroll App Connector certificates.",
+            "App Connector provisioning keys provide the following benefits and enable you to:"
+          ]
+        }
+      ]
+    },
+    "mcp-skill-key-issues-first": {
+      "statement": "The MCP server's connector troubleshooting skill calls provisioning key issues the leading cause of enrollment failure and lists three: max_usage reached, a key copied incorrectly, and a key associated with the wrong connector group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/troubleshoot-app-connector/SKILL.md",
+          "quotes": [
+            "Provisioning key issues are the #1 cause of enrollment failures.",
+            "1. **Provisioning key issues** (most common):\n   - Key max_usage reached (Step 3 above)\n   - Key copied incorrectly -- administrator should re-copy the exact key\n   - Key associated with wrong connector group\n\n2. **DNS resolution failure:**"
+          ]
+        }
+      ]
+    },
+    "mcp-skill-exhaustion-test": {
+      "statement": "The same skill tests exhaustion by comparing the key's max_usage with its current enrollment count: if equal, no new enrollments can use the key. A ZMS skill in the same repository writes the test as usageCount >= maxUsage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/troubleshoot-app-connector/SKILL.md",
+          "quotes": [
+            "max_usage` vs current enrollment count -- if equal, no new enrollments can use this key"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "skills/zms/troubleshoot-agent-deployment/SKILL.md",
+          "quotes": [
+            "usageCount >= maxUsage"
+          ]
+        }
+      ],
+      "conditions": "The ZMS skill covers a different product's keys; it is cited only for how the same predicate is phrased."
+    },
+    "view-export-one-way": {
+      "statement": "View or Export Provisioning Key After Creation is enabled by default; if enabled it can be disabled at a later time, but if disabled it cannot be enabled again. Disabling it hides the provisioning key from the Provisioning Key column of the table and disables copying or downloading the key after creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-app-connector-provisioning-keys.json",
+          "quotes": [
+            "View or Export Provisioning Key After Creation: Disable this option to hide the provisioning key from the Provisioning Key column of the table and disable copying or downloading the key after creation.",
+            "If disabled, you cannot enable this option. If this option is enabled, you can disable it at a later time. This option is enabled by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-connector-provisioning-keys.json",
+          "quotes": [
+            "If disabled, you cannot enable this option. If this option is enabled, you can disable it at a later time. This option is enabled by default."
+          ]
+        }
+      ]
+    },
+    "name-rules": {
+      "statement": "The provisioning key name cannot contain special characters, with the exception of periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-app-connector-provisioning-keys.json",
+          "quotes": [
+            "The provisioning key name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    },
+    "max-reuse-recommendation": {
+      "statement": "Zscaler recommends setting Maximum Reuse of Provisioning Key to the number of App Connectors planned for immediate deployment, to reduce the possibility of compromise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-app-connector-provisioning-keys.json",
+          "quotes": [
+            "Maximum Reuse of Provisioning Key: The maximum number of instances that this key can be used to enroll an App Connector. Zscaler recommends setting this option to the number of App Connectors you plan to deploy immediately, to reduce the possibility of compromise."
+          ]
+        }
+      ]
+    },
+    "imdsv2-headroom": {
+      "statement": "For an App Connector provisioned in an AWS IMDSv2 required environment with version 24.566.1 or earlier, a new App Connector is automatically created during re-enrollment due to a hardware fingerprint change, so the provisioning key value should be increased to account for the additional key's creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-app-connector-provisioning-keys.json",
+          "quotes": [
+            "If an App Connector was provisioned in an AWS IMDSv2 required environment with version <=24.566.1, a new App Connector is automatically created during re-enrollment due to a hardware fingerprint change. Ensure that you increase the provisioning key value to account for the additional key's creation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-connector-provisioning-keys.json",
+          "quotes": [
+            "If an App Connector was provisioned in an AWS IMDSv2 required environment with App Connector version 24.566.1 or earlier, a new App Connector is automatically created during re-enrollment due to a hardware fingerprint change."
+          ]
+        }
+      ]
+    },
+    "signing-cert-redeploy": {
+      "statement": "The signing certificate (the enrollment (CA) certificate) of a key signs the certificates of all App Connectors deployed with the key. If App Connectors were deployed with a signing certificate that has expired and a new certificate is configured, they automatically redeploy using the new certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-app-connector-provisioning-keys.json",
+          "quotes": [
+            "Signing Certificate: The signing certificate (i.e., enrollment (CA) certificate) for this provisioning key.",
+            "All App Connectors deployed with this key will have their certificates signed with this signing certificate.",
+            "If any of your App Connectors were deployed with a signing certificate that has expired, and you’ve configured a new certificate, the App Connectors automatically redeploy using the new certificate."
+          ]
+        }
+      ]
+    },
+    "editable-fields": {
+      "statement": "On the Edit App Connector Provisioning Key page only these fields can be modified: Name, Maximum Reuse of Provisioning Key, App Connector Group, Signing Certificate and View or Export Provisioning Key After Creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-connector-provisioning-keys.json",
+          "quotes": [
+            "In the Edit App Connector Provisioning Key page, you can only modify the following fields:",
+            "Name: The provisioning key name.",
+            "Maximum Reuse of Provisioning Key: The maximum number of instances where this key can be used to enroll an App Connector.",
+            "App Connector Group: The App Connector group to associate with this provisioning key.",
+            "Signing Certificate: The signing certificate (i.e., enrollment (CA) certificate) for this provisioning key. For example, if your certificate expires, you might need to select a new certificate.",
+            "View or Export Provisioning Key After Creation: Disable this option to hide the provisioning key from the Provisioning Key column of the table"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "exhausted-key-symptom": {
+      "kind": "semantic",
+      "title": "Symptom of an exhausted key",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Symptoms: new App Connector instances fail to enroll; old ones keep working.\" and \"A literal copy of this error in a support ticket narrows diagnosis to 'key is wrong, truncated, or utilization-exhausted.'\" The help ties the 401 error only to an incorrectly copied key and says an exhausted key cannot be used or copied; it does not show what an enrolling connector logs for an exhausted key.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "trailing-whitespace": {
+      "kind": "semantic",
+      "title": "Whitespace in a copied provisioning key",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Provisioning keys copied from the portal UI can silently include trailing whitespace. Operators pasting the key into a deployment template should trim whitespace; the notice:Login request failed - http status(401) error in the error log is the giveaway.\" No source states that the portal copy adds whitespace.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "cross-group-move": {
+      "kind": "semantic",
+      "title": "Moving a connector between groups",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Cross-group moves require re-enrollment with a different key.\" The help says a key identifies the group a connector is deployed into and that a deployed connector is replaced by deleting and re-enrolling it (see enrollment); it does not say that moving between groups requires a new key.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  },
+  "divergences": {
+    "hidden-key-in-table": {
+      "summary": "Whether a key whose View or Export option was disabled still appears in the provisioning keys table",
+      "positions": [
+        {
+          "says": "About App Connector Provisioning Keys describes a table entry that is blank when the option was disabled, so the row is shown with a blank key.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-connector-provisioning-keys.json",
+            "quotes": [
+              "This entry is blank if you disabled the View or Export Provisioning Key After Creation option when configuring App Connector groups."
+            ]
+          }
+        },
+        {
+          "says": "Editing App Connector Provisioning Keys says only keys that can be viewed or exported after creation appear in the table.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-editing-connector-provisioning-keys.json",
+            "quotes": [
+              "Only keys that can be viewed or exported after creation appear in the table."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a key with the option disabled is listed with a blank key or not listed at all is unsettled; the editing note may mean only exportable keys can be edited, but no page says so. Check the keys page before telling an admin where to find such a key."
+    }
+  }
+}

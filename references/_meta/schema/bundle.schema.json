@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bundle.schema.json",
+  "title": "Resolver output: one layer-labelled bundle",
+  "description": "The stable contract for every consumer of `kb.mjs resolve` (skill loader, Medina pack, MCP wrapper). A bundle is a subject bundle, a type bundle, or a candidate list.",
+  "type": "object",
+  "required": ["bundle_version", "query", "tiers", "resolved"],
+  "properties": {
+    "bundle_version": { "const": 1 },
+    "query": { "type": "string" },
+    "tiers": {
+      "type": "object",
+      "required": ["knowledge", "iac", "live"],
+      "properties": {
+        "knowledge": {
+          "type": "object", "required": ["public", "company"],
+          "properties": { "public": { "const": true }, "company": { "type": "boolean" } },
+          "additionalProperties": false
+        },
+        "iac": {
+          "type": "object", "required": ["available"],
+          "properties": {
+            "available": { "type": "boolean" },
+            "repos": {
+              "description": "The overlay's IaC repositories: where each is (relative to the skill root; IaC reads go there and only there), whether it is checked out, and its last commit date.",
+              "type": "array",
+              "items": {
+                "type": "object", "required": ["id", "kind", "path", "available"],
+                "properties": {
+                  "id": { "type": "string" }, "kind": { "enum": ["json", "terraform"] }, "path": { "type": "string" },
+                  "available": { "type": "boolean" }, "committed": { "type": "string" }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "live": { "$ref": "#/$defs/availability" }
+      },
+      "additionalProperties": false
+    },
+    "resolved": {
+      "anyOf": [
+        { "type": "null" },
+        {
+          "type": "object", "required": ["id", "kind"],
+          "properties": {
+            "id": { "type": "string" },
+            "kind": { "enum": ["subject", "claim", "case", "divergence", "gap", "type", "field", "product"] }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "focus": { "type": "string" },
+    "match": {
+      "description": "How text candidates were found: an exact alias, every query word in one alias or title, or (when neither matched) a ranking by the query's words, best first.",
+      "enum": ["alias", "all-words", "ranked"]
+    },
+    "neighbors": {
+      "description": "A subject's parent, children and siblings, with titles: the subjects next to it that may hold the answer.",
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["id", "title", "rel"],
+        "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "rel": { "enum": ["parent", "child", "sibling"] } },
+        "additionalProperties": false
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["id", "kind", "title"],
+        "properties": {
+          "id": { "type": "string" }, "kind": { "type": "string" }, "title": { "type": "string" },
+          "matched": { "description": "For a ranked candidate: its public line (claim statement, gap title or prose) that best fits the query, or its company line when no public line does.", "type": "string" },
+          "matched_company": { "description": "For a ranked candidate whose `matched` is public: the company-record line that best fits the query, when one does.", "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "areas": {
+      "description": "For a product query: its areas, generated from subject IDs (the area's own subject when one exists, and every subject under it).",
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["id", "subjects"],
+        "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "subjects": { "type": "array", "items": { "type": "string" } } },
+        "additionalProperties": false
+      }
+    },
+    "subject": {
+      "type": "object", "required": ["id", "title", "related", "prose"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/subject-id" },
+        "title": { "type": "string" },
+        "aliases": { "type": "array", "items": { "type": "string" } },
+        "related": { "type": "array", "items": { "type": "object" } },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["do", "uses"],
+            "properties": { "do": { "type": "string" }, "uses": { "type": "array", "items": { "type": "string" } } },
+            "additionalProperties": false
+          }
+        },
+        "prose": {
+          "type": "object", "required": ["text", "order"],
+          "properties": { "text": { "type": "string" }, "order": { "type": "array", "items": { "type": "string" } } },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "claims": { "type": "array", "items": { "$ref": "#/$defs/claim" } },
+    "gaps": { "type": "array", "items": { "$ref": "#/$defs/gap" } },
+    "divergences": { "type": "array", "items": { "type": "object", "required": ["id", "summary", "impact", "positions"] } },
+    "cases": { "type": "array", "items": { "type": "object", "required": ["id", "kind", "claims", "expect"] } },
+    "types": { "type": "array", "items": { "$ref": "#/$defs/type" } },
+    "type": { "$ref": "#/$defs/type" },
+    "subjects": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["id", "title", "claims"],
+        "properties": {
+          "id": { "type": "string" }, "title": { "type": "string" },
+          "claims": { "type": "array", "items": { "type": "object", "required": ["id", "statement", "tier", "confidence"] } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "company": { "type": "array", "items": { "$ref": "#/$defs/facet" } },
+    "hint": { "type": "string" },
+    "view": { "description": "Present only on a reduced view: `compact` (`resolve --compact`), where `summary` replaces the subject or type body, or `company` (`resolve --company`), which carries only `company`.", "enum": ["compact", "company"] },
+    "matched": { "description": "Compact view of a text query that resolved: the subject's line that best fits the query.", "type": "string" },
+    "summary": {
+      "description": "Compact view: the subject or type as labels. Claims carry one-line statements (cut at 200 characters); resolve the ID without --compact for prose, citations, checks, cases and types.",
+      "type": "object",
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "claims": { "type": "array", "items": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "status": { "type": "string" }, "kind": { "type": "string" }, "rel": { "type": "string" }, "tier": { "enum": ["A", "B"] }, "statement": { "type": "string" }, "summary": { "type": "string" } }, "additionalProperties": false } },
+        "gaps": { "type": "array", "items": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "status": { "type": "string" }, "kind": { "type": "string" }, "rel": { "type": "string" }, "tier": { "enum": ["A", "B"] }, "statement": { "type": "string" }, "summary": { "type": "string" } }, "additionalProperties": false } },
+        "divergences": { "type": "array", "items": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "status": { "type": "string" }, "kind": { "type": "string" }, "rel": { "type": "string" }, "tier": { "enum": ["A", "B"] }, "statement": { "type": "string" }, "summary": { "type": "string" } }, "additionalProperties": false } },
+        "company": { "description": "Company facets in full, as in the full bundle.", "type": "array", "items": { "$ref": "#/$defs/facet" } },
+        "neighbors": { "type": "array", "items": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "status": { "type": "string" }, "kind": { "type": "string" }, "rel": { "type": "string" }, "tier": { "enum": ["A", "B"] }, "statement": { "type": "string" }, "summary": { "type": "string" } }, "additionalProperties": false } },
+        "related": { "type": "array", "items": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "status": { "type": "string" }, "kind": { "type": "string" }, "rel": { "type": "string" }, "tier": { "enum": ["A", "B"] }, "statement": { "type": "string" }, "summary": { "type": "string" } }, "additionalProperties": false } },
+        "subjects": { "type": "array", "items": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "status": { "type": "string" }, "kind": { "type": "string" }, "rel": { "type": "string" }, "tier": { "enum": ["A", "B"] }, "statement": { "type": "string" }, "summary": { "type": "string" } }, "additionalProperties": false } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "availability": {
+      "type": "object", "required": ["available"],
+      "properties": { "available": { "type": "boolean" } },
+      "additionalProperties": false
+    },
+    "claim": {
+      "type": "object",
+      "required": ["id", "tier", "confidence", "citations"],
+      "oneOf": [{ "required": ["statement"] }, { "required": ["in_prose"] }],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/item-id" },
+        "statement": { "type": "string" },
+        "in_prose": { "description": "The statement is inlined in subject.prose and not repeated here.", "const": true },
+        "tier": { "enum": ["A", "B", "C", "D"] },
+        "confidence": { "enum": ["high", "medium", "low"] },
+        "conditions": { "type": "string" },
+        "binds": { "type": "array", "items": { "type": "string" } },
+        "gaps": { "type": "array", "items": { "type": "string" } },
+        "derived_from": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string" },
+        "citations": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "required": ["source", "path"],
+            "properties": {
+              "source": { "type": "string" }, "path": { "type": "string" }, "pointer": { "type": "string" },
+              "as_of": { "description": "When the vendor last changed the cited material (not when it was captured).", "type": "string" },
+              "as_of_basis": { "description": "Where as_of comes from: commit-date, pdf-last-modified, file-last-modified, release-filename, pdf-moddate, issue-updated-at or first-seen.", "type": "string" },
+              "at": { "type": "array", "items": { "type": "string" } },
+              "lines": { "description": "Rendered line numbers of the anchors; quote text appears with --evidence.", "type": "array", "items": { "type": "integer" } },
+              "quotes": {
+                "type": "array",
+                "items": {
+                  "type": "object", "required": ["text"],
+                  "properties": { "text": { "type": "string" }, "line": { "type": "integer" } },
+                  "additionalProperties": false
+                }
+              },
+              "anchor_errors": { "type": "array", "items": { "type": "string" } }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "gap": {
+      "type": "object", "required": ["id", "kind", "title", "status"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/item-id" },
+        "kind": { "enum": ["semantic", "data"] },
+        "title": { "type": "string" }, "status": { "type": "string" },
+        "former_ids": { "type": "array" }, "about": { "type": "array" }, "blocks": { "type": "string" },
+        "detail": { "type": "string" }, "resolves_with": { "type": "array" }, "resolvable_by": { "type": "array" },
+        "live_command": { "type": "string" }, "resolution": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "type": {
+      "type": "object", "required": ["id", "kind", "fields"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/type-id" },
+        "kind": { "enum": ["config", "log"] },
+        "title": { "type": "string" }, "names": { "type": "object" }, "iac": { "type": "object" },
+        "live": {
+          "type": "object", "required": ["command", "available"],
+          "properties": { "command": { "type": "string" }, "available": { "type": "boolean" }, "note": { "type": "string" } },
+          "additionalProperties": false
+        },
+        "fields": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "facet": {
+      "type": "object", "required": ["layer", "id", "kind", "relation", "about", "title"],
+      "properties": {
+        "layer": { "const": "company" },
+        "id": { "$ref": "common.schema.json#/$defs/company-id" },
+        "kind": { "type": "string" }, "relation": { "type": "string" }, "about": { "type": "array" },
+        "title": { "type": "string" }, "statement": { "type": "string" }, "scope": { "type": "object" },
+        "do_not_infer": { "type": "string" }, "validated": { "type": "string" },
+        "confidence": { "type": "string" }, "map": { "type": "object" }, "dropped_fields": { "type": "array" },
+        "refresh": { "type": "string" }, "evidence": { "type": "array" }, "system": { "type": "string" },
+        "iac": {
+          "type": "array",
+          "items": {
+            "description": "A json pointer's resolved value (source, value), a terraform pointer's location (repo:file and resource address) for the reader to open, or a pointer that does not resolve (error). committed is the file's last commit date.",
+            "anyOf": [
+              {
+                "type": "object", "required": ["label", "source", "value"],
+                "properties": { "label": { "type": "string" }, "source": { "type": "string" }, "value": {}, "committed": { "type": "string" } },
+                "additionalProperties": false
+              },
+              {
+                "type": "object", "required": ["label", "location"],
+                "properties": { "label": { "type": "string" }, "location": { "type": "string" }, "committed": { "type": "string" } },
+                "additionalProperties": false
+              },
+              {
+                "type": "object", "required": ["label", "error"],
+                "properties": { "label": { "type": "string" }, "source": { "type": "string" }, "location": { "type": "string" }, "error": { "type": "string" } },
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

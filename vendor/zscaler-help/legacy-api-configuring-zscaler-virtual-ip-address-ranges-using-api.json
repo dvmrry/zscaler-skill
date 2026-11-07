@@ -1,0 +1,449 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Zscaler Virtual IP Address Ranges Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-zscaler-virtual-ip-address-ranges-using-api",
+    "node": "1530861",
+    "revision": "3144067",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler virtual IP address ranges using APIs. All APIs are rate limited. To learn more, see Adding IP Ranges and Understanding Rate Limiting."
+    },
+    {
+      "heading": "Getting the IP Address Range by Page and Page Size",
+      "level": 1
+    },
+    {
+      "text": "To get the IP address range details by page and page size:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/search.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057594037927936/v2/ipRanges/search.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"sortBy\": { \"sortName\": \"string\", \"sortOrder\": \"string\" }, \"filterBy\": [ { \"filterName\": \"string\", \"operator\": \"string\", \"values\": [ \"string\" ], \"commaSepValues\": \"string\" } ], \"pageBy\": { \"page\": \"string\", \"pageSize\": \"string\", } }",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"filterBy\": [ { \"filterName\": \"IP address\", \"operator\": \"LIKE\", \"values\": [ \"10.0.0.0\" ], \"commaSepValues\": \"string\" } ], \"pageBy\": { \"page\": \"1\", \"pageSize\": \"20\", \"validPage\": 0, \"validPageSize\": 0 } }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"2\", \"totalCount\": \"21\", \"list\": [ { \"id\": \"72057594038636775\", \"modifiedTime\": \"1675179304\", \"creationTime\": \"1675178886\", \"modifiedBy\": \"72057594037957297\", \"isDeleted\": \"0\", \"customerId\": \"72057594037927936\", \"name\": \"TempDis\", \"description\": \"s\", \"ipRangeBegin\": \"10.1.1.1\", \"ipRangeEnd\": \"10.1.1.40\", \"latitudeInDb\": \"28.7040592\", \"longitudeInDb\": \"77.10249019999999\", \"location\": \"Delhi, India\", \"countryCode\": \"IN\", \"enabled\": true, \"totalIps\": \"40\", \"sccmFlag\": false }, { \"id\": \"72057594038642797\", \"modifiedTime\": \"1679431340\", \"creationTime\": \"1679330645\", \"modifiedBy\": \"72057594038078999\", \"isDeleted\": \"0\", \"customerId\": \"72057594037927936\", \"name\": \"test\", \"ipRangeBegin\": \"172.16.255.1\", \"ipRangeEnd\": \"172.16.255.30\", \"latitudeInDb\": \"37.7749295\", \"longitudeInDb\": \"-122.4194155\", \"location\": \"San Francisco, CA, USA\", \"countryCode\": \"US\", \"enabled\": true, \"totalIps\": \"30\", \"sccmFlag\": false }, { \"id\": \"72057594038624863\", \"modifiedTime\": \"1679432841\", \"creationTime\": \"1669363443\", \"modifiedBy\": \"72057594038078999\", \"isDeleted\": \"0\", \"customerId\": \"72057594037927936\", \"name\": \"disabled ip range test\", \"ipRangeBegin\": \"10.0.0.10\", \"ipRangeEnd\": \"10.0.0.100\", \"enabled\": true, \"totalIps\": \"91\", \"sccmFlag\": false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All IP Address Ranges",
+      "level": 1
+    },
+    {
+      "text": "To get details of all IP address ranges:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057594037927936/v2/ipRanges.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "[ { \"id\": \"72057594038636775\", \"modifiedTime\": \"1675179304\", \"creationTime\": \"1675178886\", \"modifiedBy\": \"72057594037957297\", \"isDeleted\": \"0\", \"customerId\": \"72057594037927936\", \"name\": \"Example IP Address Range\", \"description\": \"s\", \"ipRangeBegin\": \"10.1.1.1\", \"ipRangeEnd\": \"10.1.1.40\", \"latitudeInDb\": \"28.7040592\", \"longitudeInDb\": \"77.10249019999999\", \"location\": \"Delhi, India\", \"countryCode\": \"IN\", \"enabled\": true, \"totalIps\": \"40\", \"sccmFlag\": false }, { \"id\": \"72057594038642797\", \"modifiedTime\": \"1679431340\", \"creationTime\": \"1679330645\", \"modifiedBy\": \"72057594038078999\", \"isDeleted\": \"0\", \"customerId\": \"72057594037927936\", \"name\": \"Example IP Address Range 2\", \"ipRangeBegin\": \"10.90.255.1\", \"ipRangeEnd\": \"10.90.255.30\", \"latitudeInDb\": \"37.7749295\", \"longitudeInDb\": \"-122.4194155\", \"location\": \"San Francisco, CA, USA\", \"countryCode\": \"US\", \"enabled\": true, \"totalIps\": \"30\", \"sccmFlag\": false } ]",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for a Particular IP Address Range",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular IP address range:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/{ipRangeId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "ipRangeId: The unique identifier of the IP address range.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/v2/ipRanges/72057594038636775.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"72057594038636775\", \"modifiedTime\": \"1675179304\", \"creationTime\": \"1675178886\", \"modifiedBy\": \"72057594037957297\", \"isDeleted\": \"0\", \"customerId\": \"72057594037927936\", \"name\": \"Example IP Address Range\", \"description\": \"s\", \"ipRangeBegin\": \"10.1.1.1\", \"ipRangeEnd\": \"10.1.1.40\", \"latitudeInDb\": \"28.7040592\", \"longitudeInDb\": \"77.10249019999999\", \"location\": \"Delhi, India\", \"countryCode\": \"IN\", \"enabled\": true, \"totalIps\": \"40\", \"sccmFlag\": false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding a New IP Address Range",
+      "level": 1
+    },
+    {
+      "text": "To add a new IP address range:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057594037927936/v2/ipRanges.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of IP address range.",
+      "depth": 1
+    },
+    {
+      "item": "ipRangeBegin: The beginning IP address range. The beginning IP address range must be less than the ending IP address range. The subnetCidr field is not required if ipRangeBegin or ipRangeEnd fields are passed.",
+      "depth": 1
+    },
+    {
+      "item": "ipRangeEnd: The ending IP address range. The ending IP address range must be greater than the beginning IP address range. The subnetCidr field is not required if ipRangeBegin or ipRangeEnd fields are passed.",
+      "depth": 1
+    },
+    {
+      "item": "subnetCidr: The IP address subnet in Classless Inter-Domain Routing (CIDR) notation used for server-to-client connectivity. The ipRangeBegin or ipRangeEnd fields are not required if subnetCidr is passed.",
+      "depth": 1
+    },
+    {
+      "item": "location: The location of the IP address range.",
+      "depth": 1
+    },
+    {
+      "item": "latitudeInDb: The latitude coordinate for the location of the IP address range.",
+      "depth": 1
+    },
+    {
+      "item": "longitudeInDb: The longitude coordinate for the location of the IP address range.",
+      "depth": 1
+    },
+    {
+      "item": "sccmFlag: Indicates if the location hint is sent along with a Zscaler IP address to Zscaler Client Connector if it is configured. If Zscaler Client Connector receives the location hint, Zscaler Client Connector creates a pseudo network adapter and applies the location hint to the name of the adapter for the System Center Configuration Manager (SCCM) location boundary.",
+      "depth": 1
+    },
+    {
+      "item": "enabled: Indicates if the IP address range is enabled (true) or disabled (false).",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"string\", \"description\": \"string\", \"ipRangeBegin\": \"string\", \"ipRangeEnd\": \"string\", \"subnetCidr\": \"string\", \"latitudeInDb\": \"string\", \"longitudeInDb\": \"string\", \"location\": \"string\", \"countryCode\": \"string\", \"enabled\": true, \"sccmFlag\": true, \"locationHint\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"Example IP Address Range\", \"enabled\":true, \"ipRangeBegin\":\"194.158.10.0\", \"ipRangeEnd\":\"194.158.15.0\", \"description\":\"Example Description\", \"sccmFlag\":false, \"latitudeInDb\":37.7749295, \"longitudeInDb\":-122.4194155, \"countryCode\":\"US\", \"location\":\"San Francisco, CA, USA\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"72057594038900885\", \"modifiedTime\": \"1752776656\", \"creationTime\": \"1752776656\", \"modifiedBy\": \"72057594038040687\", \"isDeleted\": \"0\", \"customerId\": \"72057594037927936\", \"name\": \"Example IP Address Range\", \"description\": \"Example Description\", \"ipRangeBegin\": \"194.158.10.0\", \"ipRangeEnd\": \"194.158.15.0\", \"latitudeInDb\": \"37.7749295\", \"longitudeInDb\": \"-122.4194155\", \"location\": \"San Francisco, CA, USA\", \"countryCode\": \"US\", \"enabled\": true, \"totalIps\": \"1281\", \"sccmFlag\": false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating an IP Address Range",
+      "level": 1
+    },
+    {
+      "text": "To update an existing IP address range:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/{ipRangeId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "ipRangeId: The unique identifier of the IP address range.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/v2/ipRanges/72057594038636775.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of IP address range.",
+      "depth": 1
+    },
+    {
+      "item": "ipRangeBegin: The beginning IP address range. The beginning IP address range must be less than the ending IP address range. The subnetCidr field is not required if ipRangeBegin or ipRangeEnd fields are passed.",
+      "depth": 1
+    },
+    {
+      "item": "ipRangeEnd: The ending IP address range. The ending IP address range must be greater than the beginning IP address range. The subnetCidr field is not required if ipRangeBegin or ipRangeEnd fields are passed.",
+      "depth": 1
+    },
+    {
+      "item": "subnetCidr: The IP address subnet in Classless Inter-Domain Routing (CIDR) notation used for server-to-client connectivity. The ipRangeBegin or ipRangeEnd fields are not required if subnetCidr is passed.",
+      "depth": 1
+    },
+    {
+      "item": "location: The location of the IP address range.",
+      "depth": 1
+    },
+    {
+      "item": "latitudeInDb: The latitude coordinate for the location of the IP address range.",
+      "depth": 1
+    },
+    {
+      "item": "longitudeInDb: The longitude coordinate for the location of the IP address range.",
+      "depth": 1
+    },
+    {
+      "item": "sccmFlag: Indicates if the location hint is sent along with a Zscaler IP address to Zscaler Client Connector if it is configured. If Zscaler Client Connector receives the location hint, Zscaler Client Connector creates a pseudo network adapter and applies the location hint to the name of the adapter for the System Center Configuration Manager (SCCM) location boundary.",
+      "depth": 1
+    },
+    {
+      "item": "enabled: Indicates if the IP address range is enabled (true) or disabled (false).",
+      "depth": 1
+    },
+    {
+      "item": "View the example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"string\", \"description\": \"string\", \"ipRangeBegin\": \"string\", \"ipRangeEnd\": \"string\", \"subnetCidr\": \"string\", \"latitudeInDb\": \"string\", \"longitudeInDb\": \"string\", \"location\": \"string\", \"countryCode\": \"string\", \"enabled\": true, \"sccmFlag\": true, \"locationHint\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the IP address range is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting an IP Address Range",
+      "level": 1
+    },
+    {
+      "text": "To delete an existing IP address range:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/{ipRangeId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "ipRangeId: The unique identifier of the IP address range.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/v2/ipRanges/72057594038636775.",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200, meaning the IP address range is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes available fields you can use for the IP address range API use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "enabled",
+          "Indicates if the IP address range is enabled (true) or disabled (false)",
+          "Yes",
+          "Default: true Boolean: true, false"
+        ],
+        [
+          "ipRangeBegin",
+          "The beginning IP address range. The beginning IP address range must be less than the ending IP address range. The subnetCidr field is not required if ipRangeBegin or ipRangeEnd fields are passed.",
+          "Yes",
+          "String"
+        ],
+        [
+          "ipRangeEnd",
+          "The ending IP address range. The ending IP address range must be greater than the beginning IP address range. The subnetCidr field is not required if ipRangeBegin or ipRangeEnd fields are passed.",
+          "Yes",
+          "String"
+        ],
+        [
+          "latitudeInDb",
+          "The latitude coordinate for the location of the IP address range",
+          "Yes",
+          "String"
+        ],
+        [
+          "location",
+          "The location of the IP address range",
+          "Yes",
+          "String"
+        ],
+        [
+          "locationHint",
+          "The location hint to be sent along with a Zscaler virtual IP address to Zscaler Client Connector if it is configured. This field is required if the sccmFlag field is set to true.",
+          "No",
+          "String"
+        ],
+        [
+          "longitudeInDb",
+          "The longitude coordinate for the location of the IP address range",
+          "Yes",
+          "String"
+        ],
+        [
+          "name",
+          "The name of the IP address range",
+          "Yes",
+          "String"
+        ],
+        [
+          "sccmFlag",
+          "Indicates if the location hint is sent along with a Zscaler virtual IP address to Zscaler Client Connector if it is configured. If Zscaler Client Connector receives the location hint, Zscaler Client Connector creates a pseudo network adapter and applies the location hint to the name of the adapter for the System Center Configuration Manager (SCCM) location boundary.",
+          "Yes",
+          "Default: false Boolean: true, false"
+        ],
+        [
+          "subnetCidr",
+          "The IP address subnet in Classless Inter-Domain Routing (CIDR) notation used for server-to-client connectivity. The ipRangeBegin or ipRangeEnd fields are not required if subnetCidr is passed.",
+          "Yes",
+          "String"
+        ]
+      ]
+    }
+  ]
+}

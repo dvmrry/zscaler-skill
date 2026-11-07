@@ -1,0 +1,410 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing App Connectors Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/managing-app-connectors-using-api",
+    "node": "1484941",
+    "revision": "3160710",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information about managing Zscaler Private Access (ZPA) App Connectors using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Getting Details for a Particular App Connector",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular App Connector:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the connector-controller: /mgmtconfig/v1/admin/customers/{customerId}/connector/{connectorId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "connectorId: The App Connector ID of the customer.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/connector/217246660303024871."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"217246660303024871\", \"modifiedTime\": \"1617841545\", \"creationTime\": \"1617841545\", \"modifiedBy\": \"-2\", \"name\": \"example_provising_key-2\", \"fingerprint\": \"TQ0iesqrg2CwSD/CyyP/Tdb4XpEid0o/c8v9yTiJZVE=\", \"issuedCertId\": \"10723\", \"enabled\": true, \"upgradeAttempt\": \"0\", \"location\": \"British Columbia, Canada\", \"provisioningKeyId\": \"6211\", \"provisioningKeyName\": \"example_provising_key\", \"enrollmentCert\": { \"id\": \"2858\", \"name\": \"Mock Company Root Certificate\" }, \"appConnectorGroupId\": \"217246660303024864\", \"appConnectorGroupName\": \"example_connector_group\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for All App Connectors",
+      "level": 1
+    },
+    {
+      "text": "To get details for all App Connectors:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the connector-controller: /mgmtconfig/v1/admin/customers/{customerId}/connector.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/connector.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"168\", \"list\": [ { \"id\": \"217246660303024865\", \"modifiedTime\": \"1617747782\", \"creationTime\": \"1617747781\", \"modifiedBy\": \"-2\", \"name\": \"example_provising_key-1\", \"fingerprint\": \"ypAytG0R89+86b/HJEP3C86SJNiEjKLMXZGi7UzC070=\", \"issuedCertId\": \"10718\", \"enabled\": true, \"currentVersion\": \"21.67.2-5-gc17a10071-dirty\", \"upgradeStatus\": \"UNKNOWN\", \"controlChannelStatus\": \"ZPN_STATUS_DISCONNECTED\", \"upgradeAttempt\": \"0\", \"lastBrokerConnectTime\": \"1617750694\", \"lastBrokerConnectTimeDuration\": \"132d 19h 50m 43s\", \"lastBrokerDisconnectTime\": \"1617751234\", \"lastBrokerDisconnectTimeDuration\": \"132d 19h 41m 43s\", \"platform\": \"osx20\", \"latitude\": \"53.7266683\", \"longitude\": \"-127.647621\", \"location\": \"British Columbia, Canada\", \"provisioningKeyId\": \"6211\", \"provisioningKeyName\": \"example_provising_key\", \"enrollmentCert\": { \"id\": \"2858\", \"name\": \"Mock Company Root Certificate\" }, \"appConnectorGroupId\": \"217246660303024864\", \"appConnectorGroupName\": \"example_connector_group\" }, { \"id\": \"217246660303024871\", \"modifiedTime\": \"1617841545\", \"creationTime\": \"1617841545\", \"modifiedBy\": \"-2\", \"name\": \"example_provising_key-2\", \"fingerprint\": \"TQ0iesqrg2CwSD/CyyP/Tdb4XpEid0o/c8v9yTiJZVE=\", \"issuedCertId\": \"10723\", \"enabled\": true, \"upgradeAttempt\": \"0\", \"location\": \"British Columbia, Canada\", \"platformDetail\": \"ESXi\", \"provisioningKeyId\": \"6211\", \"provisioningKeyName\": \"example_provising_key\", \"enrollmentCert\": { \"id\": \"2858\", \"name\": \"Mock Company Root Certificate\" }, \"appConnectorGroupId\": \"217246660303024864\", \"appConnectorGroupName\": \"example_connector_group\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "To search for App Connectors that last connected with the ZPA Public Service Edge, use search=lastBrokerConnectTimeDuration LT (N), where (N) equals the days (d), hours (h), minutes (m), and seconds (s) in integers."
+    },
+    {
+      "text": "To search for all App Connectors that last disconnected with the ZPA Public Service Edge, use search=lastBrokerDisconnectTimeDuration LT (N), where (N) equals the days (d), hours (h), minutes (m), and seconds (s) in integers."
+    },
+    {
+      "text": "For example, to search for App Connectors that last connected with the ZPA Public Service Edge within 150 days, use search=lastBrokerConnectTimeDuration LT 150d."
+    },
+    {
+      "text": "The following filters are supported for use with the search parameter:"
+    },
+    {
+      "item": "lastBrokerConnectTimeDuration: Filters for App Connectors that last connected with the ZPA Public Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "lastBrokerDisconnectTimeDuration: Filters for App Connectors that last disconnected with the ZPA Public Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "controlChannelStatus: Filters for inactive App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "currentVersion: Filters for the current version of the App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "expectedVersion: Filters for the expected version of the App Connector based on the associated version profile.",
+      "depth": 0
+    },
+    {
+      "text": "For example, to search for an App Connector that has controlChannelStatus as disconnected with the last disconnected time greater than (N) days, use controlChannelStatus EQ ZPN_STATUS_DISCONNECTED AND lastBrokerDisconnectTimeDuration GT 15d."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"128\", \"list\": [ { \"id\": \"217246660303024865\", \"modifiedTime\": \"1617747782\", \"creationTime\": \"1617747781\", \"modifiedBy\": \"-2\", \"name\": \"example_provising_key-1\", \"fingerprint\": \"ypAytG0R89+86b/HJEP3C86SJNiEjKLMXZGi7UzC070=\", \"issuedCertId\": \"10718\", \"enabled\": true, \"currentVersion\": \"21.67.2-5-gc17a10071-dirty\", \"upgradeStatus\": \"UNKNOWN\", \"controlChannelStatus\": \"ZPN_STATUS_DISCONNECTED\", \"upgradeAttempt\": \"0\", \"lastBrokerConnectTime\": \"1617750694\", \"lastBrokerConnectTimeDuration\": \"181d 13h 38m 46s\", \"lastBrokerDisconnectTime\": \"1617751234\", \"lastBrokerDisconnectTimeDuration\": \"181d 13h 29m 46s\", \"platform\": \"osx20\", \"latitude\": \"53.7266683\", \"longitude\": \"-127.647621\", \"location\": \"British Columbia, Canada\", \"provisioningKeyId\": \"6211\", \"provisioningKeyName\": \"example_provising_key\", \"enrollmentCert\": { \"id\": \"2858\", \"name\": \"Mock Company Root Certificate\" }, \"appConnectorGroupId\": \"217246660303024864\", \"appConnectorGroupName\": \"example_connector_group\" }, { \"id\": \"217246660303025075\", \"modifiedTime\": \"1622502016\", \"creationTime\": \"1622502016\", \"modifiedBy\": \"-2\", \"name\": \"example_provising_key-4\", \"fingerprint\": \"TkL50KRJxbkaCEOLtkS/Exv9qeUoHcuMtTHfr/gS8FQ=\", \"issuedCertId\": \"10766\", \"enabled\": true, \"currentVersion\": \"21.172.1-703-g4f9451e18\", \"previousVersion\": \"21.172.1-703-g9cedf7b87-dirty\", \"lastUpgradeTime\": \"1628190895\", \"upgradeStatus\": \"UNKNOWN\", \"controlChannelStatus\": \"ZPN_STATUS_DISCONNECTED\", \"upgradeAttempt\": \"0\", \"lastBrokerConnectTime\": \"1628206943\", \"lastBrokerConnectTimeDuration\": \"60d 13h 07m 56s\", \"lastBrokerDisconnectTime\": \"1628209139\", \"lastBrokerDisconnectTimeDuration\": \"60d 12h 31m 21s\", \"platform\": \"osx20\", \"latitude\": \"53.7266683\", \"longitude\": \"-127.647621\", \"location\": \"British Columbia, Canada\", \"platformDetail\": \"ESXi\", \"provisioningKeyId\": \"6211\", \"provisioningKeyName\": \"example_provising_key\", \"enrollmentCert\": { \"id\": \"2858\", \"name\": \"Mock Company Root Certificate\" }, \"appConnectorGroupId\": \"217246660303024864\", \"appConnectorGroupName\": \"example_connector_group\" } ] } { \"totalPages\": \"128\", \"list\": [ { \"id\": \"217246660303024865\", \"modifiedTime\": \"1617747782\", \"creationTime\": \"1617747781\", \"modifiedBy\": \"-2\", \"name\": \"example_provising_key-1\", \"fingerprint\": \"ypAytG0R89+86b/HJEP3C86SJNiEjKLMXZGi7UzC070=\", \"issuedCertId\": \"10718\", \"enabled\": true, \"currentVersion\": \"21.67.2-5-gc17a10071-dirty\", \"upgradeStatus\": \"UNKNOWN\", \"controlChannelStatus\": \"ZPN_STATUS_DISCONNECTED\", \"upgradeAttempt\": \"0\", \"lastBrokerConnectTime\": \"1617750694\", \"lastBrokerConnectTimeDuration\": \"181d 13h 38m 46s\", \"lastBrokerDisconnectTime\": \"1617751234\", \"lastBrokerDisconnectTimeDuration\": \"181d 13h 29m 46s\", \"platform\": \"osx20\", \"latitude\": \"53.7266683\", \"longitude\": \"-127.647621\", \"location\": \"British Columbia, Canada\", \"provisioningKeyId\": \"6211\", \"provisioningKeyName\": \"example_provising_key\", \"enrollmentCert\": { \"id\": \"2858\", \"name\": \"Mock Company Root Certificate\" }, \"appConnectorGroupId\": \"217246660303024864\", \"appConnectorGroupName\": \"example_connector_group\" }, { \"id\": \"217246660303025075\", \"modifiedTime\": \"1622502016\", \"creationTime\": \"1622502016\", \"modifiedBy\": \"-2\", \"name\": \"example_provising_key-4\", \"fingerprint\": \"TkL50KRJxbkaCEOLtkS/Exv9qeUoHcuMtTHfr/gS8FQ=\", \"issuedCertId\": \"10766\", \"enabled\": true, \"currentVersion\": \"21.172.1-703-g4f9451e18\", \"previousVersion\": \"21.172.1-703-g9cedf7b87-dirty\", \"lastUpgradeTime\": \"1628190895\", \"upgradeStatus\": \"UNKNOWN\", \"controlChannelStatus\": \"ZPN_STATUS_DISCONNECTED\", \"upgradeAttempt\": \"0\", \"lastBrokerConnectTime\": \"1628206943\", \"lastBrokerConnectTimeDuration\": \"60d 13h 07m 56s\", \"lastBrokerDisconnectTime\": \"1628209139\", \"lastBrokerDisconnectTimeDuration\": \"60d 12h 31m 21s\", \"platform\": \"osx20\", \"latitude\": \"53.7266683\", \"longitude\": \"-127.647621\", \"location\": \"British Columbia, Canada\", \"provisioningKeyId\": \"6211\", \"provisioningKeyName\": \"example_provising_key\", \"enrollmentCert\": { \"id\": \"2858\", \"name\": \"Mock Company Root Certificate\" }, \"appConnectorGroupId\": \"217246660303024864\", \"appConnectorGroupName\": \"example_connector_group\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "The following rule tag operations are allowed:"
+    },
+    {
+      "item": "GT: Greater than",
+      "depth": 0
+    },
+    {
+      "item": "LT: Less than",
+      "depth": 0
+    },
+    {
+      "item": "GTEQ: Greater than or equal to",
+      "depth": 0
+    },
+    {
+      "item": "LTEQ: Less than or equal to",
+      "depth": 0
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the connector-controller: /mgmtconfig/v1/admin/customers/{customerId}/connector?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/connector?page=1&pagesize=20."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"list\": [ { \"id\": \"144118148382064836\", \"modifiedTime\": \"1621702841\", \"creationTime\": \"1499716060\", \"modifiedBy\": \"-2\", \"name\": \"Azure Connector-1\", \"fingerprint\": \"Ic7rJNG6HQvjQ7EJj0uR76WBpm6mtCe3JCrLw91WmXE=\", \"issuedCertId\": \"258586\", \"enabled\": true, \"expectedVersion\": \"22.73.4\", \"currentVersion\": \"22.73.4\", \"previousVersion\": \"22.48.2\", \"lastUpgradeTime\": \"1647708745\", \"upgradeStatus\": \"COMPLETE\", \"controlChannelStatus\": \"ZPN_STATUS_AUTHENTICATED\", \"upgradeAttempt\": \"0\", \"ctrlBrokerName\": \"US-CA-9396\", \"lastBrokerConnectTime\": \"1649128946\", \"lastBrokerConnectTimeDuration\": \"17h 32m 50s\", \"sargeVersion\": \"17.20.2\", \"lastBrokerDisconnectTime\": \"1649128888\", \"lastBrokerDisconnectTimeDuration\": \"17h 33m 48s\", \"privateIp\": \"10.0.0.4\", \"publicIp\": \"10.0.0.1\", \"platform\": \"el7\", \"applicationStartTime\": \"1647708745\", \"latitude\": \"36.778261\", \"longitude\": \"-119.417932\", \"location\": \"California, USA\", \"platformDetail\": \"Azure\", \"provisioningKeyId\": \"554\", \"provisioningKeyName\": \"Azure Connector\", \"enrollmentCert\": { \"id\": \"117\", \"name\": \"Connector\" }, \"appConnectorGroupId\": \"144118148382064835\", \"appConnectorGroupName\": \"Azure Connectors\" }, { \"id\": \"144118148382065437\", \"modifiedTime\": \"1621702855\", \"creationTime\": \"1591139746\", \"modifiedBy\": \"-2\", \"name\": \"*Do not Delete* Lanukcorp AWS Connectors-4\", \"fingerprint\": \"Gvyg1hnlredGtyt7EWyLVRlyinXmXZnknbAfM9lClf4=\", \"issuedCertId\": \"258589\", \"enabled\": true, \"expectedVersion\": \"22.73.4\", \"currentVersion\": \"22.73.4\", \"previousVersion\": \"22.48.2\", \"lastUpgradeTime\": \"1647708563\", \"upgradeStatus\": \"COMPLETE\", \"controlChannelStatus\": \"ZPN_STATUS_AUTHENTICATED\", \"upgradeAttempt\": \"0\", \"ctrlBrokerName\": \"US-WA-0317\", \"lastBrokerConnectTime\": \"1649062642\", \"lastBrokerConnectTimeDuration\": \"01d 11h 57m 54s\", \"sargeVersion\": \"18.66.2\", \"lastBrokerDisconnectTime\": \"1647708499\", \"lastBrokerDisconnectTimeDuration\": \"17d 04h 06m 57s\", \"privateIp\": \"10.0.1.108\", \"publicIp\": \"52.222.36.1\", \"platform\": \"el7\", \"applicationStartTime\": \"1647711424\", \"latitude\": \"45.3573429\", \"longitude\": \"-122.606758\", \"location\": \"Oregon City, OR 97045, USA\", \"provisioningKeyId\": \"154\", \"provisioningKeyName\": \"*Do not Delete* Lanukcorp AWS Connectors\", \"enrollmentCert\": { \"id\": \"117\", \"name\": \"Connector\" }, \"appConnectorGroupId\": \"144118148382064655\", \"appConnectorGroupName\": \"AWS Assistants\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to search by features and fields. To search by features and fields:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/73186051597795328/connector&search={searchString}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format fieldName operator fieldValue. Only search string values that correspond to the values for valid fields and filters are supported. For example, the string enabled%EQ%true is supported for the Status filter, using the Equals (EQ) operator, for the True (Enabled) filter value.",
+      "depth": 0,
+      "strong": [
+        [
+          263,
+          269
+        ],
+        [
+          288,
+          294
+        ],
+        [
+          318,
+          322
+        ]
+      ]
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/73186051597795328/connector&search=enabled%20EQ%20true."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"16\", \"totalCount\": \"16\", \"list\": [ { \"id\": \"72057594038053055\", \"modifiedTime\": \"1662757554\", \"creationTime\": \"1633089623\", \"modifiedBy\": \"72057594038058534\", \"name\": \"Example App Connector\", \"description\": \"Example description\", \"fingerprint\": \"ZWM5OWM1ODcwMzcxMDJmOGY2Mzc3YjE5NjUyODJhOGUyZTAwNWMwZjhkN2\", \"enabled\": true, \"upgradeAttempt\": \"0\", \"location\": \"1234 Example Location\", \"microtenantName\": \"Default\", \"provisioningKeyId\": \"8588\", \"provisioningKeyName\": \"Abct\", \"appConnectorGroupId\": \"72057594038009372\", \"appConnectorGroupName\": \"Example App Connector Group\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If you use the ZPA API Portal or the Reference Guide to make your API calls, the search field string does not require any characters. For example, enabled%20EQ%20true is enabled EQ true."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating an App Connector",
+      "level": 1
+    },
+    {
+      "text": "To update an App Connector:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the connector-controller: /mgmtconfig/v1/admin/customers/{customerId}/connector/{connectorId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "connectorId: The App Connector ID of the customer.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/connector/217246660303024871."
+    },
+    {
+      "item": "Use the following JSON payload to update an App Connector and provide the following information about the App Connector:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "name: Name of the App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "description: Description of the App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "enabled: Whether the App Connector is enabled or not.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"description\": \"Test Connector\", \"enabled\": true, \"name\": \"Test_Connector\", }",
+      "depth": 0
+    },
+    {
+      "text": "Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "text": "A successful response yields code 204, meaning the App Connector is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "If an App Connector is configured using Zscaler Deception, then the update and delete options are unavailable."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the App Connector use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "Name of the App Connector",
+          "No",
+          "String"
+        ],
+        [
+          "description",
+          "Description of the App Connector",
+          "No",
+          "String"
+        ],
+        [
+          "enabled",
+          "Whether the App Connector is enabled or not",
+          "No",
+          "Default: true Supported values: true, false"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all Microtenants associated with the tenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    },
+    {
+      "heading": "Deleting an App Connector",
+      "level": 1
+    },
+    {
+      "text": "To delete an App Connector:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint in the connector-controller: /mgmtconfig/v1/admin/customers/{customerId}/connector/{connectorId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "connectorId: The App Connector ID of the customer.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/connector/217246660303024871."
+    },
+    {
+      "text": "A successful response yields code 204, meaning the App Connector is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "If an App Connector is configured using Zscaler Deception, then the update and delete options are unavailable."
+    },
+    {
+      "heading": "Bulk Deleting App Connectors",
+      "level": 1
+    },
+    {
+      "text": "To bulk delete App Connectors:"
+    },
+    {
+      "item": "Provide the following JSON payload with the App Connector IDs you wish to bulk delete, then send a POST request to the following endpoint in the connector-controller: /mgmtconfig/v1/admin/customers/{customerId}/connector/bulkDelete.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"ids\": [ \"<AppConnectorId>\", \"<AppConnectorId2>\" ] }",
+      "depth": 0
+    },
+    {
+      "item": "View the example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"ids\": [ \"217246660303024723\", \"217246660303024725\" ] }",
+      "depth": 0
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/connector/bulkDelete.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "A successful response yields code 200, meaning the App Connectors are deleted. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

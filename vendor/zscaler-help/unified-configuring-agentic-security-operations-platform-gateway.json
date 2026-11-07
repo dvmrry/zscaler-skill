@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Agentic Security Operations Platform Gateway",
+  "source": {
+    "url": "https://help.zscaler.com/unified/configuring-agentic-security-operations-platform-gateway",
+    "node": "1545265",
+    "revision": "3249387",
+    "updated": "2026-10-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Agentic Security Operations Platform (Agentic SecOps Platform) supports connecting on-premises outegrations and data sources through the Zscaler gateway at the account level, allowing for seamless onboarding of customers with on-premises installations for their vendors. In this article, the resource you intend to connect is referred to as the on-premises service. The objective is to make the on-premises service accessible through the Agentic SecOps Platform. This article outlines a recommended setup using a virtual machine (VM)."
+    },
+    {
+      "text": "The Zscaler gateway setup process begins with creating a VM and generating a public SSH key. You then share the public key along with the VM's public IP address and gateway IP addresses with Zscaler. Using this information, Zscaler creates a representative VM instance and notifies you when the setup is complete. You then establish a reverse SSH tunnel and inform Zscaler. Upon confirmation, Zscaler completes the gateway configuration and notifies you. At this point, the Zscaler gateway is fully operational and ready for use."
+    },
+    {
+      "text": "You should receive this article and the zscaler-gateway.sh script file after communication with Zscaler Support. If you have not received the script, contact Zscaler Support or your Zscaler Account team for assistance with setting up a gateway for your account."
+    },
+    {
+      "heading": "Using the Zscaler Gateway",
+      "level": 1
+    },
+    {
+      "text": "The Zscaler gateway is used in one of the following configuration processes:"
+    },
+    {
+      "item": "When creating a data source, select the relevant gateway in the Retrieval section of the source setup page.",
+      "depth": 0
+    },
+    {
+      "item": "When configuring the Jira Data Center outegration, select the relevant gateway in the Details section.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "For this setup, you must create or use a VM dedicated to running a reverse SSH tunnel. Do not use your local computer."
+    },
+    {
+      "text": "Ensure that you have the following requirements for the VM:"
+    },
+    {
+      "item": "Connectivity: Deploy the instance in a private subnet with a dedicated virtual network interface (vNIC) for secure communication within the private network.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that the on-premises service is accessible from the VM you intend to use. It is crucial to test this connectivity before proceeding.",
+      "depth": 0
+    },
+    {
+      "item": "Operating system: Your VM should be set up with one of the supported Linux distributions:",
+      "depth": 0
+    },
+    {
+      "item": "Ubuntu",
+      "depth": 1
+    },
+    {
+      "item": "Red Hat Enterprise Linux (RHEL)",
+      "depth": 1
+    },
+    {
+      "item": "Centos",
+      "depth": 1
+    },
+    {
+      "item": "Amazon-Linux",
+      "depth": 1
+    },
+    {
+      "item": "Instance specifications:",
+      "depth": 0
+    },
+    {
+      "item": "Use small instance types with at least 2 vCPUs and 4 GB of RAM.",
+      "depth": 1
+    },
+    {
+      "item": "The instance size should be flexible and might vary based on traffic patterns. Ensure the chosen instance type supports scalability (both vertical and horizontal scaling) to handle workload fluctuations.",
+      "depth": 1
+    },
+    {
+      "item": "Select instance resources based on expected traffic volume, with the ability to adjust instance sizing dynamically depending on actual usage.",
+      "depth": 1
+    },
+    {
+      "item": "Network configuration: The VM must be configured to listen on port 22 for incoming SSH connections.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring the Zscaler Gateway",
+      "level": 1
+    },
+    {
+      "text": "This article accompanies the zscaler-gateway.sh script. The script first checks for an existing SSH key pair. If none are found, it creates one and displays the public key for you to send to Zscaler. Next, it verifies whether autossh is installed and attempts to install it if necessary. Finally, the script configures a service to establish the reverse SSH tunnel."
+    },
+    {
+      "item": "Step 1: Generate the SSH Key Pair",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Request the VM Instance Creation",
+      "depth": 0
+    },
+    {
+      "item": "Step 3: Zscaler Creates a Representative Instance for the Gateway",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Rerun the Script to Establish the Reverse SSH Tunnel",
+      "depth": 0
+    },
+    {
+      "item": "Step 5: Zscaler Sets Up the Gateway in the Agentic SecOps Platform",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "During the Zscaler gateway setup process, you might encounter an error message such as May 06 08:53:28 xxxxxxxx autossh[392026]: Host key verification failed. This typically means that the remote server (Zscaler gateway) has not yet been authorized for its initial SSH connection."
+    },
+    {
+      "text": "To resolve the authorization issue:"
+    },
+    {
+      "item": "Determine which user created the service under /etc/systemd/system/. In the example below, the user is root.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "ls -la /etc/systemd/system/zscaler-gateway -rw-r--r-- 1 root root 0 May 7 14:41 zscaler-gateway",
+      "depth": 0
+    },
+    {
+      "item": "Authorize the server from the appropriate user (e.g., root) by running the following command. The variables needed for this command are defined in the script provided by Zscaler Support.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "ssh -i $<Key Path> -o StrictHostKeyChecking=no $<Gateway User>@$<Gateway Public DNS Name> \"exit\"",
+      "depth": 0
+    }
+  ]
+}

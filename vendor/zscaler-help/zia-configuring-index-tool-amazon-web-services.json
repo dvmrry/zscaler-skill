@@ -1,0 +1,1093 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Index Tool with Amazon Web Services",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-index-tool-amazon-web-services",
+    "node": "1443226",
+    "revision": "3247372",
+    "updated": "2026-09-24",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Before you can create index templates for DLP dictionaries (i.e., Exact Data Match (EDM) and Indexed Document Match (IDM) templates), you must configure the virtual machine (VM) image for the Index Tool with Amazon Web Services (AWS), Azure, or VMware."
+    },
+    {
+      "text": "To learn more about the VMware Index Tool, see Configuring the Index Tool for Azure VMs and Configuring the Index Tool with VMware."
+    },
+    {
+      "text": "Since the Index Tool provides access to highly sensitive information, ensure that everyone who has access to it is authorized and authenticated."
+    },
+    {
+      "heading": "Deploying a Zscaler Index Tool VM with AWS",
+      "level": 1
+    },
+    {
+      "text": "To deploy a Zscaler Index Tool VM on Amazon Web Services:"
+    },
+    {
+      "item": "1. Ensure that you meet all the prerequisites.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy the Zscaler Index Tool you need the following:",
+      "depth": 0
+    },
+    {
+      "item": "If your index templates include less than 300 million records, Zscaler recommends the following configuration:",
+      "depth": 1
+    },
+    {
+      "item": "Hypervisor: AWS EC2",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "RAM: 16 GB",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "If your index templates include more than 300 million records, Zscaler recommends the following configuration:",
+      "depth": 1
+    },
+    {
+      "item": "Hypervisor: AWS EC2",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "RAM: 64 GB",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "You need a Zscaler Index Tool added in the Zscaler Admin Console. You need this configuration to complete the VM setup.",
+      "depth": 1
+    },
+    {
+      "item": "2. Request the Index Tool VM from Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "item": "Request the Index Tool VM from Zscaler Support",
+      "depth": 0
+    },
+    {
+      "item": "Before you can configure the Index Tool VM with AWS, you must contact Zscaler Support and request the Index Tool VM for your shared AWS account and region. Zscaler Support then provides you with the shared Index Tool VM information, Amazon Machine Image (AMI) ID and description to use when configuring the Index Tool with AWS.",
+      "depth": 0
+    },
+    {
+      "item": "Make note of the AMI ID and name that was shared with your account. You need this information when configuring the Index Tool VM with AWS.",
+      "depth": 0
+    },
+    {
+      "item": "3. Configure the Index Tool VM.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure you have added an Index Tool Configuration. You need this configuration to complete the VM setup.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Log in to the AWS Management Console.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Click the Services icon at the top left of the page. The Services navigation menu is displayed.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Compute > EC2.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The EC2 Management Console appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Create a security group to be used in the configuration of the Index Tool VM:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "In another window, go to config.zscaler.com. The Zscaler Config page is displayed.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          49,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select your organization's Zscaler cloud from the Cloud drop-down menu at the top left of the page.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          50,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Go to Zscaler Index Tool Requirements. The Zscaler Index Tool Requirements page lists all of the outbound connections that need to be configured for the Zscaler Index Tool to communicate with the Zscaler cloud.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          37
+        ],
+        [
+          43,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Make note of all of the IPs that are listed in the different tables on this page because you need to add them to the security group.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Return to the EC2 Management Console, and go to Network & Security > Security Groups. The Security Groups page is displayed.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          48,
+          85
+        ],
+        [
+          90,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Security Groups page, click Create security group in the top right of the page. The Create security group page is displayed.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          35,
+          56
+        ],
+        [
+          91,
+          112
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Create security group page:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Basic details: Enter a name for the security group in the Security Group Name field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          58,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Inbound rules: Add only necessary incoming traffic IPs for the Index Tool VM. The Index Tool VM does not require an open port for internet traffic.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Since the Index Tool provides access to highly sensitive information, ensure that everyone who has access to it is authorized and authenticated.",
+      "depth": 2
+    },
+    {
+      "item": "Outbound Rules: Add the outgoing traffic IPs that you gathered earlier from the Zscaler Index Tool Requirements page at config.zscaler.com.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          80,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "Click Create security group at the bottom right of the page.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Launch an instance for the Index Tool VM:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "In the EC2 Management Console, go to Instances > Instances. The Instances page is displayed.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          59
+        ],
+        [
+          64,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Instances page, click Launch instances at the top right of the page. The Launch an instance page is displayed.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          29,
+          45
+        ],
+        [
+          80,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) In the Name and tags section, enter a name for the Index Tool VM in the Name field.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          18,
+          31
+        ],
+        [
+          83,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Application and OS Images (Amazon Machine Image) section:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Click the My AMIs tab.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Select the Shared with me option.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "In the Amazon Machine Image (AMI) drop-down menu, select the AMI image that Zscaler Support shared with you. For example, Zscaler ADP/EDM 500GB (6.2r.46.331757).",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Instance type section, in the Instance type drop-down menu, select the appropriate instance type required for the Index Tool VM. The instance type depends on the total number of cells that you plan to use within the Index Tool VM. For example, if you plan to use less than 500 million cells, select the t2.large instance type, t3.large instance type, or something similar. If you plan to use more than 500 million cells, select the t2.xlarge instance type, t3.xlarge instance type or something similar.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          37,
+          50
+        ],
+        [
+          310,
+          318
+        ],
+        [
+          334,
+          342
+        ],
+        [
+          439,
+          448
+        ],
+        [
+          464,
+          473
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Key pair (login) section, in the Key pair name drop-down menu, select your key pair name.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          40,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Network settings section, under Firewall (security groups):",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          39,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Select the Select existing security group option.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "In the Security groups drop-down menu, select the security group you previously created.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "AWS automatically assigns the network IP address for the instance. You do not need to enter the IP address information unless it is required by your organization.",
+      "depth": 2
+    },
+    {
+      "item": "Click Launch instance in the lower right of the page. A message is displayed stating that the launch of the instance was successfully initiated and it lists the instance ID that was created.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Right-click the instance ID, and select Open Link in New Tab. The Instances page is displayed listing the instance with an Instance state of Pending. After a few seconds, the Instance state changes from Pending to Running.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          40,
+          60
+        ],
+        [
+          66,
+          75
+        ],
+        [
+          123,
+          137
+        ],
+        [
+          141,
+          148
+        ],
+        [
+          175,
+          189
+        ],
+        [
+          203,
+          210
+        ],
+        [
+          214,
+          221
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Instances page, click the Instance ID. The Instance summary page is displayed. On the Instance summary page, you can view the details for the instance, including the IP addresses that were assigned to the instance.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          33,
+          44
+        ],
+        [
+          50,
+          66
+        ],
+        [
+          93,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If you are using a public IP address, when you shut down and restart the instance, the IP address changes.",
+      "depth": 2
+    },
+    {
+      "item": "After the instance is fully started, change the key permissions to read-only by entering the following command:",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "chmod 400 <Pvt_key>",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the VM as user zsroot with the key pair using the following command:",
+      "depth": 2,
+      "number": 12
+    },
+    {
+      "item": "ssh -i <Pvt_key> zsroot@<VM_IP>",
+      "depth": 2
+    },
+    {
+      "item": "After logging in, change the zs-root password:",
+      "depth": 2,
+      "number": 13
+    },
+    {
+      "item": "Enter the SSH command passwd linux to the IP address of the VM instance.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command to change the password:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "sudo zap change-password",
+      "depth": 3
+    },
+    {
+      "item": "Enter a new root password.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Re-enter the new root password.",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "After the password is changed, you need to log in to zsroot again using the new password.",
+      "depth": 2
+    },
+    {
+      "item": "Return to the Zscaler Admin Console, and go to Data Security > Common Resources > Index Tool.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          47,
+          60
+        ],
+        [
+          63,
+          79
+        ],
+        [
+          82,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Index Tool Configuration you added previously, and under the SSL Certificate column, click Download.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          72,
+          87
+        ],
+        [
+          102,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Copy the SSL client certificate ZIP file to the VM and install it:",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "In this example, scp is used to copy the file:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "scp <SSL_certificate_zip_filename> zsroot@<vm_ip>:~/",
+      "depth": 2
+    },
+    {
+      "item": "For example:",
+      "depth": 2
+    },
+    {
+      "item": "scp EdmClientCertificate.zip zsroot@10.66.108.100:~/",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following command to install the SSL certificate:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp configure <SSL_certificate_zip_filename>",
+      "depth": 2
+    },
+    {
+      "item": "For example:",
+      "depth": 2
+    },
+    {
+      "item": "sudo zadp configure EdmClientCertificate.zip",
+      "depth": 2
+    },
+    {
+      "item": "Enter the domain name that is used for the Index Tool's FQDN. For example, if the Index Tool is reachable from indextool.mycompany.com, then the domain name entered here is mycompany.com.The self-signed certificate would be generated for *.mycompany.com.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Enter a passphrase, then re-enter the passphrase to confirm it.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "You are prompted to enter the full path name to the text file where the passphrase is stored. You can also press Enter twice to accept the default location and file, /home/zsroot/zscaler_zadp_webui_certificate_pass.txt.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If the service was configured properly, it performs the following actions:",
+      "depth": 2
+    },
+    {
+      "item": "Checks if the network is configured correctly",
+      "depth": 3
+    },
+    {
+      "item": "Installs the SSL client certificate you specified",
+      "depth": 3
+    },
+    {
+      "item": "Generates a self-signed SSL server certificate. If you need to install a custom server certificate, see the next step.",
+      "depth": 3
+    },
+    {
+      "item": "Downloads the latest install package",
+      "depth": 3
+    },
+    {
+      "item": "(Optional) If you need to install a self-signed or custom SSL server certificate:",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "Enter the following command to install the server certificate:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp install-server-cert",
+      "depth": 2
+    },
+    {
+      "item": "Enter the full path to the PEM-formatted certificate file.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Enter the following command to restart the Index Tool service:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "sudo zadp restart",
+      "depth": 2
+    },
+    {
+      "item": "Go to https://<IP Address of the Index Tool VM> to access the Index Tool. After the Index Tool service has started, you can log in with your Zscaler Admin Console login credentials and create Index Templates to use when creating DLP dictionaries. To learn more, see Creating an Exact Data Match Template and Creating an Indexed Document Match Template.",
+      "depth": 1,
+      "number": 11
+    },
+    {
+      "heading": "Updating and Customizing a Deployed Index Tool VM",
+      "level": 1
+    },
+    {
+      "text": "With your Index Tool VM running, you can update and customize the VM based on your organization's needs."
+    },
+    {
+      "item": "Update the Index tool VM",
+      "depth": 0
+    },
+    {
+      "item": "If you successfully configured the Index Tool, the service automatically downloads the latest install package before it starts. To manually update the service:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to stop the service:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp stop",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to install the update:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp update-now",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to start the service:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "sudo zadp start",
+      "depth": 0
+    },
+    {
+      "item": "Run the Index Tool VM in Explicit Proxy Mode",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VM as user zsroot.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp configure-proxy",
+      "depth": 0
+    },
+    {
+      "item": "AWS manages network configuration, so you cannot directly configure the network from the Incident Receiver VM.",
+      "depth": 0
+    },
+    {
+      "item": "For Do you require a proxy server configuration?, enter y and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "For proxyserver, enter the IP address of your proxy server (e.g., proxy.zscaler.net) and press Enter.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "For proxyport, enter your proxy port number (e.g., 9443) and press Enter.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "The VM then tests the connection and when this is successful, the configuration is complete.",
+      "depth": 1
+    },
+    {
+      "item": "To remove the explicit proxy configuration:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp configure-proxy",
+      "depth": 0
+    },
+    {
+      "item": "For Do you require proxy server configuration?, enter n and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "For Do you want to delete current proxy configuration?, enter y and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "heading": "Requirements for Explicit Proxy Mode",
+      "level": 2
+    },
+    {
+      "item": "If you're using explicit proxy mode, DNS and NTP connections are not tunneled, meaning, you need an internal DNS server to run in this mode. The Index Tool needs to have DNS resolution for the current Master CA IP, update server, and the NTP server. The Index Tool host also must be able to query a DNS server to resolve the following settings:",
+      "depth": 0
+    },
+    {
+      "item": "smcacluster.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "update1.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "update2.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "zdistribute.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "The NTP server. By default, the Index Tool VM has the following FQDNs for NTP servers configured:",
+      "depth": 1
+    },
+    {
+      "item": "0.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "1.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "2.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "You can override these FQDNs to your internal IP address in your DNS server configuration or using other methods.",
+      "depth": 0
+    },
+    {
+      "item": "In addition, since the proxy configuration doesn't allow authentication, you must configure the proxy server to allow specific IP/Mac addresses without user and password authentication.",
+      "depth": 0
+    },
+    {
+      "item": "The proxy server must also allow SSL bypass for communication from the VM to a specific set of IP addresses. These IPs are listed at config.zscaler.com/<cloudname>.net/edm. You can find your cloud name in the URL that your admins use to log in to the Zscaler service. For example, if an organization logs in to admin.zscalertwo.net, then that organization's cloud name is zscalertwo. So, you would go to config.zscaler.com/zscalertwo.net. To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "item": "Configure the Index Tool Service to Run without Elevated Privileges",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VM as user zsroot.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command to stop the service:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp stop",
+      "depth": 0
+    },
+    {
+      "item": "Open the /sc/conf/sc.conf file and update the value for zadp_ui_port to a port number higher than 1,000.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Enter the following command to restart the service:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "sudo zadp start",
+      "depth": 0
+    },
+    {
+      "heading": "Index Tool VM Commands",
+      "level": 1
+    },
+    {
+      "text": "The following commands can be used to configure, update, and troubleshoot your VM:"
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Description"
+        ],
+        [
+          "sudo zadp stop",
+          "Stops the Zscaler Index Tool service."
+        ],
+        [
+          "sudo zadp start",
+          "Starts the Zscaler Index Tool service."
+        ],
+        [
+          "sudo zadp update-now",
+          "Updates the Zscaler Index Tool service. The service must be stopped before you can run this command."
+        ],
+        [
+          "sudo zadp restart",
+          "Restarts the Zscaler Index Tool service."
+        ],
+        [
+          "sudo zadp status",
+          "Displays whether the Zscaler Index Tool service is running or stopped."
+        ],
+        [
+          "sudo zadp force-update-now",
+          "Forces the Zscaler Index Tool service to update to the latest version regardless of what version is on the VM. The service is automatically stopped before the update begins."
+        ],
+        [
+          "sudo zadp troubleshoot",
+          "Runs a series of checks to help troubleshoot issues, such as checking the installed certificate, the zcloud server configuration, all services, and whether or not an update is needed."
+        ],
+        [
+          "sudo zadp collect-diagnostics",
+          "Creates a file with diagnostic information to send to Zscaler Support for troubleshooting purposes."
+        ],
+        [
+          "sudo zadp configure-syslog-server",
+          "Configures external syslog server forwarding on the Zscaler Index Tool to forward file SFTP events and to log any critical changes to the configuration files monitored by the Index Tool. The external syslog server forwarding happens over UDP port 514, which cannot be modified."
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,536 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.overview.external-idps.configuration",
+  "title": "Configuring an external IdP in Authentication Service: domains, login ID attribute, OIDC and SAML fields, admin MFA enforcement, signing certificates and IdP-initiated sign-in",
+  "aliases": [
+    "Adding OpenID Providers",
+    "Adding SAML Identity Providers",
+    "Login ID Attribute",
+    "Enforce Zscaler MFA for Admins",
+    "IdP-initiated sign-in",
+    "idp_id",
+    "zidServiceId",
+    "Request Signing and Decryption Certificate",
+    "SAML Request Signing",
+    "Identity Vendor"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview.external-idps"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview.external-idps.integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.step-up.levels"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.identity-proxy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This is the per-IdP configuration form of Authentication Service; what IdPs are, their limits and retention are in [[zidentity.overview.external-idps]], and what each vendor's guide adds is in [[zidentity.overview.external-idps.integrations]]."
+    },
+    {
+      "label": "Domains.",
+      "text": "{{domains}}"
+    },
+    {
+      "label": "Login ID.",
+      "text": "{{login-id-oidc}} {{login-id-saml}}"
+    },
+    {
+      "label": "OIDC.",
+      "text": "{{oidc-endpoints}} {{oidc-client}} {{oidc-advanced}}"
+    },
+    {
+      "label": "SAML.",
+      "text": "{{saml-inputs}} {{idp-certificate-format}} {{signed-responses-only}} {{saml-advanced}}"
+    },
+    {
+      "label": "Signing and decryption certificates.",
+      "text": "{{signing-certificate-lifecycle}} The expiry banner and icons are in [[zidentity.overview.external-idps:cert-warnings]]. {{delete-confirm}}"
+    },
+    {
+      "label": "Admin MFA.",
+      "text": "{{enforce-admin-mfa}} Whether it starts enabled is open {{gap:enforce-mfa-default}}. Where the console shows it per IdP: [[zidentity.overview.external-idps:admin-mfa-per-idp]]."
+    },
+    {
+      "label": "Identity Proxy.",
+      "text": "{{identity-proxy-device-attribute}}"
+    },
+    {
+      "label": "IdP-initiated sign-in and admin redirect.",
+      "text": "{{idp-initiated-login-url}} {{experience-center-redirect}} Whether OIDC admins are redirected the same way is open {{gap:experience-center-oidc}}."
+    },
+    {
+      "label": "Identity Vendor.",
+      "text": "{{identity-vendor-values}}"
+    },
+    {
+      "label": "Open.",
+      "text": "What the SAML SP URL is {{gap:saml-sp-url}}, which signing algorithms SAML Request Signing offers {{gap:signing-algorithms}}, and what happens at certificate expiry and secret expiry {{gap:certificate-expiry-behavior}} are not stated."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an IdP whose users arrive under the wrong IdP, whether its Domains match the domain part of the login ID, and whether the Login ID Attribute is the attribute the IdP actually sends.",
+      "uses": [
+        "domains",
+        "login-id-oidc",
+        "login-id-saml"
+      ]
+    },
+    {
+      "do": "For a SAML IdP that rejects sign-in, whether the IdP signs both the SAML response and the assertion.",
+      "uses": [
+        "signed-responses-only"
+      ]
+    },
+    {
+      "do": "For IdP-initiated sign-in, whether the IdP is the primary (idp_id default) or a secondary (the last segment of its Redirect URI).",
+      "uses": [
+        "idp-initiated-login-url"
+      ]
+    }
+  ],
+  "claims": {
+    "domains": {
+      "statement": "An OIDC IdP's Domains field selects the domain for which the IdP authenticates users, which lets the Zscaler service show an incoming user the correct IdP; the OIDC and SAML pages say a primary IdP or multiple secondary IdPs can each be assigned a subset of the user domains, and a secondary IdP can be added only if a primary is already configured (the OIDC page's wording).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "You can add a primary OP or multiple secondary OPs and assign a subset of user domains to a specific OP.",
+            "Domains: Select the domain for which the OP is responsible for authenticating the users. This allows the Zscaler service to display the correct OP to authenticate an incoming user.",
+            "You can add a secondary IdP only if a primary IdP is already configured."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-saml-identity-providers.json",
+          "quotes": [
+            "You can add a primary IdP or multiple secondary IdPs and assign a subset of user domains to a specific IdP."
+          ]
+        }
+      ]
+    },
+    "enforce-admin-mfa": {
+      "statement": "The Enforce Zscaler MFA for Admins option makes admins who use an external IdP authenticate with MFA in Authentication Service, whether or not MFA is configured on the external IdP; an email is sent to all super admins in Authentication Service when the option is disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "Enforce Zscaler MFA for Admins: Enable this option to ensure that admins using an external IdP authenticate with the multi-factor authentication (MFA) process in Authentication Service, irrespective of whether MFA is configured on the external IdP.",
+            "An email is sent to all super admins in Authentication Service when the Enforce Zscaler MFA for Admins option is disabled."
+          ]
+        }
+      ]
+    },
+    "login-id-oidc": {
+      "statement": "For an OIDC IdP the Login ID Attribute is populated with `preferred_username` by default; any attribute in the ID token or the UserInfo endpoint response can be used if its value is in email address format, it must exist in the received tokens and match exactly, and the domain part of the received email addresses must match one of the domains configured in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "Login ID Attribute: Enter an attribute whose value must be used as the login ID. This attribute must exist in the tokens received from the IdP.",
+            "By default, the preferred_username attribute is populated in this field when the OIDC option is selected in the Protocol field.",
+            "You can use any attribute that is present in the ID token or the response of the UserInfo endpoint, provided its value is in the email address format",
+            "Ensure that the domain part of the email addresses received in the ID tokens match with one of the domains configured in Authentication Service.",
+            "Ensure that the attribute you enter matches exactly with the attribute received in the ID token or the UserInfo endpoint."
+          ]
+        }
+      ]
+    },
+    "login-id-saml": {
+      "statement": "For a SAML IdP the Login ID Attribute is populated with `NameID` by default; any attribute in the SAML assertion can be used if its value is in email address format, and the domain part of the received email addresses must match one of the domains configured in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-saml-identity-providers.json",
+          "quotes": [
+            "By default, the NameID attribute is populated in this field when the SAML option is selected in the Protocol field.",
+            "You can use any attribute that is present in the SAML assertion, provided its value is in the email address format",
+            "Ensure that the domain part of the email addresses received in the SAML assertion matches with one of the domains configured in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "oidc-endpoints": {
+      "statement": "An OIDC IdP is described either by a metadata URL (pasted and fetched) or by an issuer URL plus an authorization endpoint (where the user is redirected and an authorization code is sent to Authentication Service), a token endpoint (where the code is exchanged for an ID token and access token), a JWKS endpoint (public keys that validate token signatures) and a user information endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "Metadata URL: Paste the link to the OP's metadata file and click Fetch.",
+            "Issuer: Enter the issuer URL of the OP.",
+            "Authorization Endpoint: Enter the OP's URL where the user is redirected for authentication. Upon successful authentication at this endpoint, an authorization code is sent to Authentication Service.",
+            "Token Endpoint: Enter the OP's URL where Authentication Service presents the authorization code in exchange for an ID token and access token.",
+            "JWKS Endpoint: Enter the JSON Web Key Set (JWKS) URL where the JWKS is obtained containing public keys that are used to validate digital signatures on ID tokens and access tokens issued by the OP.",
+            "User Information Endpoint: Enter the OP's URL from where the user information is received when an access token is provided."
+          ]
+        }
+      ]
+    },
+    "oidc-client": {
+      "statement": "Authentication Service's Redirect URI is registered at the OP when configuring it as the relying party; Authentication Service authenticates to the OP's token endpoint with a client ID and client secret using Client Secret Basic or Client Secret Post, and Requested Scopes are included in the authentication request and, depending on the OP, can retrieve more user attributes. The Auth0 guide says the openid, email and profile scopes are added by default when OIDC is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "Redirect URI: Copy the URI. You need this URI when configuring Authentication Service as the RP in the OP's portal.",
+            "Token Endpoint Authentication Method: Select the token authentication method to be used when Authentication Service authenticates itself to the OP to exchange the authorization code for tokens (i.e., Client Secret Basic or Client Secret Post).",
+            "Client ID: Enter the client ID. The unique identifier used by the OP for Authentication Service.",
+            "Client Secret: Enter the client secret. This is a confidential code used to authenticate Authentication Service to the OP.",
+            "Requested Scopes: Enter the scopes you want Authentication Service to include in the authentication request to the OP. Depending on configuration at the OP, it's possible to use scopes to retrieve additional user attributes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-auth0-external-idp.json",
+          "quotes": [
+            "By default, when the OIDC protocol is selected, the openid, email, and profile scopes are added."
+          ]
+        }
+      ]
+    },
+    "oidc-advanced": {
+      "statement": "An OIDC IdP's advanced options are Login Hint (populates the Login ID field at login and includes the login ID in the OIDC authentication request), Levels to Authentication Context Mapping (maps the IdP's authentication contexts for step-up), an optional Default Requested Authentication Context (the authentication context class reference values passed in the request, defining the authentication method or levels required) and Session Attribute Mapping (maps IdP attributes to session attributes).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "Login Hint: Enable the option to automatically populate the Login ID field during the login process. The login ID is included in the OIDC authentication request that Authentication Service sends to the external IdP.",
+            "Levels to Authentication Context Mapping: Map the required authentication contexts from IdP for step-up authentication.",
+            "Default Requested Authentication Context (Optional): Enter the authentication context class reference values to be passed in the authentication request to the OP. The value defines the authentication method or levels required from the user (e.g., password only, multi-factor authentication, etc.).",
+            "Session Attribute Mapping: Map the IdP attributes to the session attributes as required."
+          ]
+        }
+      ]
+    },
+    "identity-proxy-device-attribute": {
+      "statement": "When configuring Zscaler Identity Proxy for Cloud Apps, the Is Device Managed session attribute must be mapped to the appropriate IdP attribute, on both the OIDC and the SAML page, and the managed devices settings configured in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "If you are configuring Zscaler Identity Proxy for Cloud Apps, you must map the Is Device Managed session attribute with the appropriate IdP attribute, and then configure the managed devices settings in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-saml-identity-providers.json",
+          "quotes": [
+            "If you are configuring Zscaler Identity Proxy for Cloud Apps, you must map the Is Device Managed session attribute with the appropriate IdP attribute, and then configure the managed devices settings in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "saml-inputs": {
+      "statement": "A SAML IdP is described by a pasted and fetched IdP Metadata URL, an uploaded IdP Metadata file, or the IdP Issuer URI (the entity ID in the IdP's metadata), the IdP Single Sign-On URL and the uploaded IdP Certificates that verify the IdP's digital signature; the SP Entity ID to give the IdP is copied from the console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-saml-identity-providers.json",
+          "quotes": [
+            "IdP Metadata URL: Paste the link to the IdP's metadata file and click Fetch.",
+            "IdP Metadata: Upload the metadata file of the IdP.",
+            "IdP Issuer URI: Enter the issuer URI of the IdP. This value is the entity ID in the IdP's metadata.",
+            "IdP Single Sign-On URL: Enter the IdP's URL where the user is redirected for authentication.",
+            "IdP Certificates: Upload the SAML certificate that is used to verify the digital signature of the IdP.",
+            "SP Entity ID: Copy the service provider (SP) entity ID. You need this ID when configuring Authentication Service as your SP."
+          ]
+        }
+      ]
+    },
+    "idp-certificate-format": {
+      "statement": "An uploaded SAML IdP certificate must be in base-64 encoded PEM format, with a .pem extension and no other periods in the file name; more than one IdP certificate can be uploaded if required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-saml-identity-providers.json",
+          "quotes": [
+            "The certificate must be in base-64 encoded PEM format. The file extension must be .pem and have no other periods (.) in the file name.",
+            "You can upload more than one IdP certificate, if required."
+          ]
+        }
+      ]
+    },
+    "signed-responses-only": {
+      "statement": "The help says to select Sign SAML response and assertion as the signing option on the IdP because Authentication Service does not process any SAML response that is not signed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-saml-identity-providers.json",
+          "quotes": [
+            "Ensure to select Sign SAML response and assertion as the signing option on the IdP because Authentication Service does not process any SAML response that is not signed."
+          ]
+        }
+      ]
+    },
+    "saml-advanced": {
+      "statement": "A SAML IdP's advanced options are SAML Request Signing (its Signing Algorithm shows only when signing is enabled), Login Hint (includes the login ID in the SAML authentication request), Encrypted SAML Assertion, and up to 2 generated request signing and decryption certificates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-saml-identity-providers.json",
+          "quotes": [
+            "SAML Request Signing: Enable the option to configure SAML request signing for authentication.",
+            "Signing Algorithm: Select an algorithm that must be used to sign the SAML requests. This option is shown only when the SAML Request Signing option is enabled.",
+            "Login Hint: Enable the option to automatically populate the Login ID field during the login process. The login ID is included in the SAML authentication request that Authentication Service sends to the external IdP.",
+            "Encrypted SAML Assertion: Enable the option to configure encrypted SAML response for authentication.",
+            "Request signing and Decryption Certificate: You can generate up to 2 request signing and decryption certificates."
+          ]
+        }
+      ]
+    },
+    "signing-certificate-lifecycle": {
+      "statement": "A Request Signing and Decryption Certificate is added from the Edit Primary or Secondary IdP page with two years of validity; at most two exist at a time, of which only one can be active, an active one cannot be deleted, and each certificate shows a serial number and can be downloaded, possibly for upload to the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-editing-or-deleting-saml-identity-provider.json",
+          "quotes": [
+            "A new Request Signing and Decryption Certificate is added with two years of validity.",
+            "You can have a maximum of two Request Signing and Decryption Certificates at a time, out of which only one can be active.",
+            "Delete: Click the Delete icon to delete the certificate. An active certificate cannot be deleted.",
+            "Serial Number: The serial number of the certificate.",
+            "Download: Click the Download icon to download the certificate. You might need to upload this certificate to the IdP."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-saml-identity-providers.json",
+          "quotes": [
+            "After configuring information on the Advanced tab, you can add a Request Signing and Decryption Certificate from the Edit Primary or Secondary IdP page."
+          ]
+        }
+      ]
+    },
+    "delete-confirm": {
+      "statement": "Deleting a SAML IdP asks the admin to read the confirmation message and enter CONFIRM before clicking Delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-editing-or-deleting-saml-identity-provider.json",
+          "quotes": [
+            "Read the confirmation message, enter CONFIRM, then click Delete."
+          ]
+        }
+      ]
+    },
+    "idp-initiated-login-url": {
+      "statement": "For IdP-initiated SSO the value of the idp_id URL parameter is default when the IdP is the primary IdP and, for a secondary IdP, comes from the final segment of its Redirect URI (the Entra ID guide's Home page URL form is `https://<your_domain>.zslogin.net/?idp_id=default` or `...?idp_id=<final_segment_from_redirect_URI>`); the Okta guide uses it for Initiate Login URI and the OneLogin guide for Login URL, with the same two forms.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "quotes": [
+            "This step is required for enabling the IdP-initiated SSO option for Authentication Service Portal.",
+            "The value for the idp_id URL parameter is default if you are configuring Entra ID as your primary IdP in the Zscaler Admin Console. If you are configuring Entra ID as a secondary IdP, the value for idp_id must be sourced from the final segment of the Redirect URI.",
+            "Home page URL if Entra ID is configured as your primary IdP in the Zscaler Admin Console: https://<your_domain>.zslogin.net/?idp_id=default",
+            "Home page URL if Entra ID is configured as your secondary IdP in the Zscaler Admin Console: https://<your_domain>.zslogin.net/?idp_id=<final_segment_from_redirect_URI>"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "quotes": [
+            "If you are configuring Okta as your secondary IDP, the final segment in the Redirect URI is required for configuring Initiate Login URI in the Okta Admin Console.",
+            "https://<your_domain>.zslogin.net/?idp_id=default",
+            "https://<your_domain>.zslogin.net/?idp_id=<final_segment_from_redirect_URI>"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-onelogin-external-idp.json",
+          "quotes": [
+            "If you are configuring OneLogin as a secondary IdP in the Zscaler Admin Console, the final segment in the Redirect URI is required for configuring Login URL in the OneLogin Portal.",
+            "https://<your_domain>.zslogin.net/?idp_id=default",
+            "https://<your_domain>.zslogin.net/?idp_id=<final_segment_from_redirect_URI>"
+          ]
+        }
+      ]
+    },
+    "experience-center-redirect": {
+      "statement": "The Okta and Auth0 guides say all admins authenticating with SAML for Authentication Service and IdP integrations are redirected to Experience Center, unless the zidServiceId attribute is configured in the IdP within the Authentication Service tenant, in which case they go to the Authentication Service Admin Portal; the Okta guide gives its value as 800000000103, the same for all tenants, and the Entra ID guide scopes the claim to administrator groups and says to contact Zscaler Support to change the default redirection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "quotes": [
+            "All admins authenticating using the SAML protocol for Authentication Service and IdP integrations are redirected to Experience Center.",
+            "However, if the zidServiceId attribute is configured in the IdP within the Authentication Service tenant, then the admins are redirected to the Authentication Service Admin Portal instead of Experience Center.",
+            "In the Name field, enter zidServiceId.",
+            "In the Value field, enter 800000000103. This value is the same for all tenants."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "quotes": [
+            "Enter zidServiceId as the attribute name.",
+            "Under Claim conditions, configure administrator groups for which you want to send the claim:",
+            "Enter 800000000103 as the Value. This value is the same for all tenants.",
+            "To change the default redirection, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-auth0-external-idp.json",
+          "quotes": [
+            "All admins authenticating using the SAML protocol for Authentication Service and IdP integrations are redirected to Experience Center.",
+            "However, if the zidServiceId attribute is configured in the IdP within the Authentication Service tenant, then the admins are redirected to the Authentication Service Admin Portal instead of Experience Center."
+          ]
+        }
+      ]
+    },
+    "identity-vendor-values": {
+      "statement": "The vendor guides select these Identity Vendor values: Okta, Microsoft Entra ID, PingOne, PingFederate and OneLogin under their own names, Active Directory Federation Service (OIDC section) or Active Directory Federated Service (SAML section) for AD FS, and Others for Auth0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-auth0-external-idp.json",
+          "quotes": [
+            "Identity Vendor: Select Others from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-ad-fs-external-idp.json",
+          "quotes": [
+            "Identity Vendor: Select Active Directory Federation Service from the drop-down menu.",
+            "Identity Vendor: Select Active Directory Federated Service from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingone-external-idp.json",
+          "quotes": [
+            "Identity Vendor: Select PingOne from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-onelogin-external-idp.json",
+          "quotes": [
+            "Identity Vendor: Select OneLogin from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-okta-external-idp.json",
+          "after": "Supported Features for SCIM",
+          "quotes": [
+            "Identity Vendor: Select Okta from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "after": "- OIDC-Based Authentication via Microsoft Entra Gallery App Integration",
+          "quotes": [
+            "Identity Vendor: Select Microsoft Entra ID from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingfederate-external-idp.json",
+          "after": "- OIDC-Based Authentication",
+          "quotes": [
+            "Identity Vendor: Select PingFederate from the drop-down menu."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "enforce-mfa-default": {
+      "kind": "semantic",
+      "title": "Whether Enforce Zscaler MFA for Admins starts enabled",
+      "status": "open",
+      "detail": "None of the captured IdP configuration pages says whether the option starts on or off; the Authentication Service overview only says MFA is required by default.",
+      "blocks": "telling whether a newly added IdP's admins get Authentication Service MFA",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "experience-center-oidc": {
+      "kind": "semantic",
+      "title": "Whether OIDC admins are redirected to Experience Center",
+      "status": "open",
+      "detail": "The Experience Center note appears in the Auth0, OneLogin and PingOne guides, which cover only OIDC, but speaks only of admins authenticating with the SAML protocol. The Okta guide's sentence about raising a Support ticket of type Provisioning asks to change a default that already redirects to Experience Center, and the Entra ID guide says only to contact Zscaler Support.",
+      "blocks": "telling where an OIDC-authenticated admin lands",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "saml-sp-url": {
+      "kind": "semantic",
+      "title": "What the SAML page's SP URL is",
+      "status": "open",
+      "detail": "The SAML page describes an SP URL field: copy the SP entity ID, needed when configuring Authentication Service as the SP on the IdP portal. What it is (the Entra guide uses a Reply URL) is not stated by the Zscaler page.",
+      "blocks": "knowing which value goes into the IdP's reply or ACS field",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "signing-algorithms": {
+      "kind": "semantic",
+      "title": "Which signing algorithms SAML Request Signing offers",
+      "status": "open",
+      "detail": "The SAML page does not list the algorithms. The Entra ID guide picks SHA-256 and the PingFederate guide says only to select the signing algorithm.",
+      "blocks": "choosing a request signing algorithm the IdP accepts",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "certificate-expiry-behavior": {
+      "kind": "semantic",
+      "title": "What happens when the active request signing certificate or an OAuth 2 client secret expires",
+      "status": "open",
+      "detail": "The captured pages do not say what happens when the active Request Signing and Decryption Certificate expires or how the second certificate becomes active. They also do not list the Expires On choices for an OAuth 2 client secret, and state no bearer-token expiry.",
+      "blocks": "planning certificate and secret rotation without an outage",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

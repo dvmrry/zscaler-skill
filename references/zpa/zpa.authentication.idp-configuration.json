@@ -1,0 +1,582 @@
+{
+  "schema_version": 1,
+  "id": "zpa.authentication.idp-configuration",
+  "title": "Configuring an IdP for Private Access single sign-on",
+  "aliases": [
+    "IdP configuration",
+    "IdP Configuration page",
+    "add an IdP",
+    "Use with Arbitrary Domains",
+    "Force Authentication",
+    "Login Hint",
+    "SAML Attributes for Policy",
+    "SCIM Attributes for Policy",
+    "admin SSO",
+    "user SSO"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication.idp-certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication.idp-migration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication.idp-guides"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.saml-attributes.policy-criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.troubleshooting.private-access-auth-errors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An IdP configuration is the Private Access object that ties an identity provider to single sign-on. {{both-sides-configured}} {{any-idp}} {{limit-10}}"
+    },
+    {
+      "label": "How users and admins sign in.",
+      "text": "{{sp-initiated-model}} The Client Connector error list reads differently from this page on IdP-initiated sign-in {{divergence:sp-initiated-scope}}; the error is in [[zcc.troubleshooting.private-access-auth-errors:sp-initiated-only]]."
+    },
+    {
+      "label": "User or Admin.",
+      "text": "{{user-or-admin}} {{legacy-both}}"
+    },
+    {
+      "label": "Fields.",
+      "text": "{{name-rules}} {{domains}} {{saml-fields}} {{request-and-session-options}}"
+    },
+    {
+      "label": "Arbitrary domains.",
+      "text": "{{arbitrary-domains-purpose}} {{arbitrary-domains-constraints}} Which tenants cannot use the option with a single IdP is open {{gap:arbitrary-domains-tenants}}."
+    },
+    {
+      "label": "Setup flow and status.",
+      "text": "{{sp-metadata-pause}} {{status-and-disable}} {{verify}}"
+    },
+    {
+      "label": "Policy settings on the IdP.",
+      "text": "{{saml-attributes-for-policy}} The page's mention of SCIM criteria under the SAML setting may be a copy error {{gap:scim-criteria-under-saml-setting}}. {{scim-attributes-for-policy}} {{scim-not-at-first-setup}} The SCIM setting is named differently on the access policy page {{divergence:scim-policy-setting-name}}; that page's claim is [[zpa.saml-attributes.policy-criteria:idp-setting-required]]."
+    },
+    {
+      "label": "Authentication Service.",
+      "text": "{{auth-service-migrated-idps}} The page itself is described two ways {{divergence:idp-page-under-auth-service}}. {{managed-and-delete}}"
+    },
+    {
+      "label": "Best practices.",
+      "text": "{{with-internet-saas}} {{admin-sso-and-multiple-idps}}"
+    },
+    {
+      "text": "Certificates are in [[zpa.authentication.idp-certificates]], moving to another IdP in [[zpa.authentication.idp-migration]], the per-IdP guides in [[zpa.authentication.idp-guides]], and enabling SCIM in [[zpa.scim.setup]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the configuration is for User or Admin SSO, and whether a legacy Both configuration is involved, before reasoning about SCIM or arbitrary domains.",
+      "uses": [
+        "user-or-admin",
+        "legacy-both",
+        "arbitrary-domains-purpose"
+      ]
+    },
+    {
+      "do": "Whether the tenant is on Authentication Service, which changes what the page offers; the sources differ on read only against hidden.",
+      "uses": [
+        "auth-service-migrated-idps",
+        "idp-page-under-auth-service"
+      ]
+    },
+    {
+      "do": "Whether the setting that allows SCIM attributes and groups in policy is enabled and the user has reauthenticated, keeping in mind that the pages name it differently.",
+      "uses": [
+        "scim-attributes-for-policy",
+        "scim-not-at-first-setup",
+        "scim-policy-setting-name"
+      ]
+    },
+    {
+      "do": "Whether an IdP-initiated sign-in is being attempted by a user or an admin, since the sources scope IdP-initiated sign-in differently.",
+      "uses": [
+        "sp-initiated-model",
+        "sp-initiated-scope"
+      ]
+    }
+  ],
+  "claims": {
+    "sp-initiated-model": {
+      "statement": "Users must authenticate into Zscaler Client Connector through a SAML 2.0-compliant IdP with the SP-initiated model. Private Access user SSO is SP initiated, while admin SSO can be SP initiated (Single Sign-On Using IdP on the Admin Console's Sign In page) or IdP initiated (logging in directly to the IdP).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-idp-configuration.json",
+          "quotes": [
+            "they must first authenticate into Zscaler Client Connector using any SAML 2.0-compliant identity provider (IdP) with the service provider-initiated (SP initiated) model",
+            "Private Access user SSO is SP initiated, but Private Access admin SSO can be SP initiated or IdP initiated.",
+            "When a Private Access admin selects Single Sign-On Using IdP on the Zscaler Admin Console's Sign In page, the login is SP initiated. If the Private Access admin logs directly into their IdP, it's IdP initiated."
+          ]
+        }
+      ]
+    },
+    "both-sides-configured": {
+      "statement": "The IdP must be configured to recognize Zscaler as a valid SP, and the IdP's full details must be configured in the Admin Console. IdP configuration also enables SCIM so that users and groups can be provisioned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-idp-configuration.json",
+          "quotes": [
+            "The IdP must be configured to recognize Zscaler as a valid SP, and you must configure the full details for the IdP within the Zscaler Admin Console.",
+            "Use SCIM, a standard protocol for automating the exchange of identity information, so that you can provision users and groups."
+          ]
+        }
+      ]
+    },
+    "limit-10": {
+      "statement": "Up to 10 IdP configurations can be added for single sign-on, and the ranges and limitations page lists 10 IdP configurations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "Within the Zscaler Admin Console, you can add up to 10 IdP configurations for single sign-on (SSO)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| IdP Configurations | 10 configurations |"
+          ],
+          "after": "Private Access (ZPA) Ranges and Limitations"
+        }
+      ]
+    },
+    "any-idp": {
+      "statement": "The published configuration guides cover specific IdPs, but ZPA can support any IdP. The IdP must already be in place before an IdP configuration is added, and the private.zscaler.com references in the article's examples might differ with the organization's assigned cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "The following configuration guides provide instructions on how to configure specific IdPs for SSO, but ZPA can support any IdP.",
+            "Before you can add an IdP configuration using the Zscaler Admin Console, you must have the IdP in place for your organization.",
+            "The references to private.zscaler.com within the examples of this article might differ depending on your organization’s assigned cloud."
+          ]
+        }
+      ]
+    },
+    "user-or-admin": {
+      "statement": "Each IdP configuration is set to User or Admin for Single Sign-On. Using the same IdP for both needs a configuration for each, different IdPs can serve admin and user SSO, and SCIM is only available for user SSO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "Single Sign-On: Select User or Admin.",
+            "If you want to use the same IdP for both admin and user SSO, you must add a configuration for each. You can also use different IdPs for admin and user SSO, if desired. If you plan to use the IdP for SCIM too, SCIM is only available for user SSO."
+          ]
+        }
+      ]
+    },
+    "legacy-both": {
+      "statement": "A configuration set to use Both (admin and user SSO) shows Both selected under Single Sign-On, and changing it needs a new IdP configuration. On the IdP Configuration page such a configuration is listed with Admin, User in that column.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-idp-configuration.json",
+          "quotes": [
+            "If the IdP configuration was configured to use Both (i.e., admin and user SSO), this is selected under Single Sign-On. However, if you want to make any modifications, you need to add a new IdP configuration within the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-idp-configuration.json",
+          "quotes": [
+            "If the IdP configuration was configured to use Both (i.e., admin and user SSO), it is listed in the table with Admin, User displayed for this column."
+          ]
+        }
+      ]
+    },
+    "name-rules": {
+      "statement": "An IdP configuration's name cannot contain special characters other than periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "Name: Enter a name for your organization's IdP. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    },
+    "domains": {
+      "statement": "The Domains field shows the primary and secondary authentication domains configured for the organization, and a domain can be associated with only one IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "The domains shown here are the primary and secondary authentication domains configured for your organization. A domain can only be associated to one IdP."
+          ]
+        }
+      ]
+    },
+    "saml-fields": {
+      "statement": "Uploading the IdP metadata file fills in the SAML configuration; the Single Sign-On URL (the IdP portal users are directed to) and the IdP Entity ID are entered otherwise. For users to authenticate from the internet the URL must be publicly resolvable, and it must be protected with HTTPS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "After uploading the metadata file, the window auto-populates with the proper information.",
+            "Single Sign-On URL: Enter the URL of the IdP portal to which users are directed for authentication. If you want users to authenticate from the internet, ensure that it is publicly resolvable. Additionally, ensure that it is protected using HTTPS.",
+            "IdP Entity ID: Enter the entity ID for your IdP."
+          ]
+        }
+      ]
+    },
+    "request-and-session-options": {
+      "statement": "The configuration selects whether Private Access sends a Signed or Unsigned SAML request and whether HTTP-Redirect is used. Force Authentication defaults to Disabled and, when enabled, makes users of that IdP re-enter credentials at reauthentication regardless of SAML IdP session state. Login Hint defaults to Enabled and sends the username in the authentication request so the IdP can prepopulate it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "ZPA (SP) SAML Request: Select whether you want Private Access as the SP to send a Signed or Unsigned SAML request towards the IdP.",
+            "HTTP-Redirect: If Private Access needs to send the SAML response as an HTTP redirect, make sure that this is set to Enabled.",
+            "Force Authentication: Enable this option, if you want users for that specific IdP to re-enter their login credentials at the time of reauthentication, regardless of any session state/cookie for SAML IdP. The default is set to Disabled.",
+            "Login Hint: When enabled, the username of the admin or user is sent in the authentication request to the IdP and can be prepopulated on the sign-in page of the external IdP. By default, Enabled is selected."
+          ]
+        }
+      ]
+    },
+    "arbitrary-domains-purpose": {
+      "statement": "Use with Arbitrary Domains lets third-party users use SSO with any authentication domain without adding it to the selected domains, for clientless access (browser-based access, Privileged Remote Access and Cloud Browser Isolation). The option appears only when Single Sign-On is User, and it does not work with Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "Enabling arbitrary domains allows third-party users to access single sign-on to use any authentication domain without needing to add it to the list of selected domains.",
+            "Clientless access allows users secure access via browser-based access, Privileged Remote Access, and Cloud Browser Isolation.",
+            "Single Sign-On must be set to User for this option to appear.",
+            "This option does not work with Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "arbitrary-domains-constraints": {
+      "statement": "Only one IdP configuration can have arbitrary domains enabled unless the existing one is deleted or disabled. A single IdP created without a domain and with Use with Arbitrary Domains enabled makes the Client Connector login fail, so a domain must be configured on at least one IdP. For some tenants the option is unavailable with a single IdP and more than one IdP must be configured. The option cannot be disabled on an IdP configured for emergency access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "If an arbitrary domain-enabled IdP configuration already exists, then this option is not available unless you delete or disable the existing arbitrary domain-enabled IdP configuration.",
+            "If a single IdP is created without a domain selected and Use with Arbitrary Domains is enabled, the Zscaler Client Connector login fails. A domain must be configured to at least one IdP in the account to use this feature.",
+            "If a single IdP is created in the Zscaler Admin Console, the Use with Arbitrary Domains option is not available for some tenants. To enable Use with Arbitrary Domains, you need to configure more than one IdP.",
+            "The Use with Arbitrary Domains option cannot be disabled on an IdP if the IdP is configured for emergency access."
+          ]
+        }
+      ]
+    },
+    "sp-metadata-pause": {
+      "statement": "The SP metadata and certificate information is specific to the IdP and the Single Sign-On selection. Setup can be paused with Pause to add the SP information to the IdP first, and the status of a configuration paused during setup shows as resume.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "The SP metadata and certificate information is specific to your IdP and the Single Sign-On selection made in step 2c.",
+            "You can click Pause if you need to upload or manually add the SP information to your IdP before continuing."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-idp-configuration.json",
+          "quotes": [
+            "Status: The status of the IdP configuration (i.e., enabled, disabled, or resume if the configuration was paused during set up)."
+          ]
+        }
+      ]
+    },
+    "status-and-disable": {
+      "statement": "After saving, the status can be changed to Disabled at any time by editing the configuration. Changing it from Enabled to Disabled applies to SAML authentication and, with clientless access, to arbitrary domains (Privileged Remote Access, Browser Access and Cloud Browser Isolation).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "Status: Make sure that the IdP configuration is Enabled. After saving, you can change the status to Disabled at any time by editing the configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-idp-configuration.json",
+          "quotes": [
+            "If you are editing the IdP to change the Status from Enabled to Disabled, this change applies to SAML authentication and arbitrary domains if you are using clientless access (Privileged Remote Access, Browser Access, and Cloud Browser Isolation)."
+          ]
+        }
+      ]
+    },
+    "verify": {
+      "statement": "A user SSO configuration is verified by importing SAML attributes: if Private Access is correctly configured as the SP, the link redirects to the IdP's SSO login page. For an admin SSO test, the NameID in the SAML assertion must be set to the username of a Private Access admin. The test URLs are https://samlsp.private.zscaler.com/auth/v2/login?domain=<domain name>&ssotype=test and https://adminsamlsp.private.zscaler.com/auth/v2/login?domain=<domain name>&ssotype=test.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "If Private Access was correctly configured as your SP, the link redirects you to the SSO login page provided by your IdP.",
+            "For the IdP, make sure that the NameID in the SAML assertion is set to the username of a Private Access admin.",
+            "https://samlsp.private.zscaler.com/auth/v2/login?domain=<domain name>&ssotype=test",
+            "https://adminsamlsp.private.zscaler.com/auth/v2/login?domain=<domain name>&ssotype=test"
+          ]
+        }
+      ]
+    },
+    "saml-attributes-for-policy": {
+      "statement": "SAML Attributes for Policy on the IdP allows that IdP's SAML attributes in Access, Client Forwarding and Timeout Policies. After it is first enabled Zscaler requires the user to reauthenticate in Client Connector, and the page says policies with SCIM criteria are evaluated for that user only after the user successfully reauthenticates. Zscaler recommends disabling the setting only after SAML attributes are removed as policy criteria, because with it disabled a rule with SAML attribute criteria might not be evaluated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "SAML Attributes for Policy: Select whether you want to allow SAML attributes from this IdP to be used when configuring Access Policies, Client Forwarding Policies, and Timeout Policies.",
+            "After you first enable SAML Attributes for Policy, Zscaler requires a user to reauthenticate in Zscaler Client Connector. Zscaler only evaluates policies with SCIM criteria for this user after the user successfully reauthenticates.",
+            "Zscaler recommends disabling this setting only after SAML attributes are removed as policy criteria in a rule. If this setting is disabled and a policy rule has SAML attribute criteria, Zscaler might not evaluate the policy rule."
+          ]
+        }
+      ]
+    },
+    "scim-attributes-for-policy": {
+      "statement": "On the IdP configuration page the setting that allows SCIM attributes and SCIM groups from the IdP in Access, Client Forwarding and Timeout Policies is labelled SCIM Attributes for Policy. Zscaler recommends disabling it only after SCIM attributes and SCIM groups are removed as policy criteria in a rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "SCIM Attributes for Policy: Select whether you want to allow SCIM attributes and SCIM groups from this IdP to be used when configuring Access Policies, Client Forwarding Policies, and Timeout Policies.",
+            "Zscaler recommends disabling this setting only after SCIM attributes and SCIM groups are removed as policy criteria in a rule."
+          ]
+        }
+      ]
+    },
+    "scim-not-at-first-setup": {
+      "statement": "The page recommends not enabling SCIM when first setting up an IdP, and says the SCIM-for-policy setting applies only if SCIM Sync is enabled as well.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "Zscaler recommends not enabling SCIM at this point when setting up an IdP.",
+            "This setting only applies if SCIM Sync is set to enabled as well."
+          ]
+        }
+      ]
+    },
+    "auth-service-migrated-idps": {
+      "statement": "IdPs migrated to Authentication Service are disabled, marked with an orange Info icon, and deleted 30 days after migration. An IdP configured for both admin and user SSO is updated to User SSO after 30 days, and the Add button is hidden when subscribed to Authentication Service for users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-idp-configuration.json",
+          "quotes": [
+            "An orange Info icon () is displayed next to disabled IdPs that have been migrated to Authentication Service. These IdPs will be deleted 30 days after migration.",
+            "If your IdP is configured for both Admin single sign-on (SSO) and User SSO, then the IdP will be updated to User SSO after 30 days.",
+            "The Add button is hidden if you are subscribed to Authentication Service for users."
+          ]
+        }
+      ]
+    },
+    "managed-and-delete": {
+      "statement": "IdP configurations managed by Zscaler are read only and cannot be edited. An IdP cannot be deleted if it is used for emergency access or managed by Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-idp-configuration.json",
+          "quotes": [
+            "IdP configurations that are managed by Zscaler are read only and cannot be edited.",
+            "An IdP cannot be deleted if it is used for emergency access or managed by Zscaler."
+          ]
+        }
+      ]
+    },
+    "with-internet-saas": {
+      "statement": "The user SSO best practices say that, if Client Connector is also used for Internet & SaaS, its authentication should also use SAML and ideally the same IdP as Private Access to avoid a double login. A Private Access account cannot be associated with a Client Connector account on a different cloud. With the same IdP in both products users reach applications through Client Connector or Browser Access; if Internet & SaaS does not use the Private Access IdPs, authentication domains must be configured in Private Access and users reach applications through Browser Access only. If a Private Access IdP's authentication domain is not associated with the Internet & SaaS IdP, users see an error using that domain in Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-idp-configuration-best-practices.json",
+          "quotes": [
+            "authentication into Zscaler Client Connector for internet access should also use SAML and ideally the same IdP as Private Access (ZPA) to avoid having the user log in twice.",
+            "It is not possible to associate a Private Access account to a Zscaler Client Connector account on different clouds.",
+            "If Internet & SaaS and Private Access are using the same IdP, then users can access applications through Private Access using Zscaler Client Connector or Browser Access.",
+            "If the IdPs in Private Access are not being used by Internet & SaaS, authentication domains must be configured in Private Access. Zscaler Client Connector does not require these domains. As a result, users can access applications through Private Access using Browser Access only.",
+            "If the authentication domain associated with the IdP configured in Private Access is not associated with the IdP configured in Internet & SaaS, users will see an error when using that domain for authentication in Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "admin-sso-and-multiple-idps": {
+      "statement": "For admin SSO a Private Access admin account must exist and the NameID in the SAML assertion must match it. Zscaler recommends configuring multiple IdPs for users authenticating through Browser Access who do not require Client Connector, and for organizations using Client Connector only for Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-idp-configuration-best-practices.json",
+          "quotes": [
+            "If you are configuring your IdP for admin SSO, make sure that a Private Access admin account exists and that NameID in the SAML assertion matches the admin account.",
+            "Zscaler recommends configuring multiple IdPs for:",
+            "Users that are authenticating via Browser Access and do not require Zscaler Client Connector.",
+            "Organizations who are using Zscaler Client Connector only for Private Access."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "idp-page-under-auth-service": {
+      "summary": "Whether the IdP Configuration page is read only or hidden for a tenant subscribed to Authentication Service.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-idp-configuration.json",
+            "quotes": [
+              "The IdP Configuration page is read only if you are subscribed to Authentication Service for users."
+            ]
+          },
+          "says": "The page is read only if subscribed to Authentication Service for users."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-idp-single-sign.json",
+            "quotes": [
+              "The IdP Configuration page is hidden if you are subscribed to Authentication Service and have this feature enabled for your tenant."
+            ]
+          },
+          "says": "The page is hidden if subscribed to Authentication Service and the feature is enabled for the tenant."
+        }
+      ],
+      "impact": "The pages differ on the state (read only against hidden) and on the condition (a subscription for users against a subscription plus the feature enabled); neither says which holds for a given tenant."
+    },
+    "sp-initiated-scope": {
+      "summary": "Whether Private Access accepts only SP-initiated sign-in or also IdP-initiated sign-in for admin SSO.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-zscaler-client-connector-private-access-authentication-errors.json",
+            "quotes": [
+              "Only the service provider (SP) initiated SSO is supported with Private Access."
+            ]
+          },
+          "says": "The Client Connector error list gives, for error 42017 (IdP originated SSO not supported), that only SP-initiated SSO is supported with Private Access."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-idp-configuration.json",
+            "quotes": [
+              "Private Access user SSO is SP initiated, but Private Access admin SSO can be SP initiated or IdP initiated."
+            ]
+          },
+          "says": "User SSO is SP initiated; admin SSO can be SP initiated or IdP initiated."
+        }
+      ],
+      "impact": "The two may differ only in scope, since error 42017 sits in the Client Connector error list, but neither page states that scope; an IdP-initiated admin sign-in is therefore not settled by either alone."
+    },
+    "scim-policy-setting-name": {
+      "summary": "The name of the IdP setting that allows SCIM attributes and groups in policy.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-access-policies.json",
+            "quotes": [
+              "In order for Private Access to process SAML and SCIM criteria in a rule, you must enable the SAML Attributes for Policy setting for SAML and the SCIM Attributes and Groups for Policy setting for SCIM when configuring an IdP."
+            ]
+          },
+          "says": "The access policy page calls it SCIM Attributes and Groups for Policy."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-idp-single-sign.json",
+            "quotes": [
+              "SCIM Attributes for Policy: Select whether you want to allow SCIM attributes and SCIM groups from this IdP to be used when configuring Access Policies, Client Forwarding Policies, and Timeout Policies."
+            ]
+          },
+          "says": "The IdP configuration page calls it SCIM Attributes for Policy."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-enabling-scim-identity-management.json",
+            "quotes": [
+              "(Optional) Select Enabled for SCIM Attributes for Policy if you want to allow SCIM attributes and SCIM groups from this IdP to be used when configuring Access Policies, Client Forwarding Policies, and Timeout Policies."
+            ]
+          },
+          "says": "The SCIM enabling page also calls it SCIM Attributes for Policy."
+        }
+      ],
+      "impact": "A search for the setting by one label misses the pages that use the other; the descriptions are the same, so they most likely name one setting, but no page says so."
+    }
+  },
+  "gaps": {
+    "scim-criteria-under-saml-setting": {
+      "kind": "semantic",
+      "title": "Whether policies with SCIM criteria under the SAML Attributes for Policy setting is a copy error",
+      "status": "open",
+      "detail": "The page says, under SAML Attributes for Policy, that Zscaler only evaluates policies with SCIM criteria for the user after reauthentication. The sentence may belong to the SCIM setting and be a copy error; the page does not say.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "arbitrary-domains-tenants": {
+      "kind": "semantic",
+      "title": "Which tenants cannot use Use with Arbitrary Domains with a single IdP",
+      "status": "open",
+      "detail": "The page says the option is unavailable for some tenants when a single IdP is created, and that more than one IdP must then be configured. It does not say which tenants.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

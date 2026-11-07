@@ -1,0 +1,540 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Defining Patterns for Custom DLP Dictionaries",
+  "source": {
+    "url": "https://help.zscaler.com/zia/defining-patterns-custom-dictionaries",
+    "node": "1400056",
+    "revision": "3249139",
+    "updated": "2026-10-09",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "You can use alphanumeric patterns to configure custom dictionaries that match a wide variety of data types. For example, you can define patterns to detect data like phone numbers, driver's license numbers, or credit card numbers for specific issuers (a number of sample patterns are provided in this article). To learn more, see Adding Custom DLP Dictionaries."
+    },
+    {
+      "text": "General guidelines for patterns are as follows:"
+    },
+    {
+      "item": "A dictionary can contain up to 8 patterns.",
+      "depth": 0
+    },
+    {
+      "item": "Each pattern can have a maximum of 256 bytes.",
+      "depth": 0
+    },
+    {
+      "item": "You can use tokens (?i and ?-i) for case-insensitive matches.",
+      "depth": 0
+    },
+    {
+      "heading": "Syntax Requirements for Patterns",
+      "level": 1
+    },
+    {
+      "item": "Metacharacters Supported by Zscaler",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Metacharacter (POSIX ERE)",
+          "Definition",
+          "Supported by Zscaler?"
+        ],
+        [
+          ".",
+          "Matches any single character",
+          "Supported"
+        ],
+        [
+          "[]",
+          "Matches a single character from those given between the brackets, matches character ranges (e.g., [a–z])",
+          "Supported"
+        ],
+        [
+          "[^ ]",
+          "Matches a single character not from those given between ^ and ]",
+          "Supported"
+        ],
+        [
+          "^",
+          "Matches the starting position within the string",
+          "Supported"
+        ],
+        [
+          "$",
+          "Matches the ending position within the string",
+          "Supported"
+        ],
+        [
+          "()",
+          "Defines a capture group",
+          "Capture groups are not supported. Parentheses can be used for bounding subexpressions."
+        ],
+        [
+          "\\n",
+          "References a capture group",
+          "Not Supported"
+        ],
+        [
+          "*",
+          "Repeats the preceding element 0 or more times",
+          "Supported"
+        ],
+        [
+          "{m,n}",
+          "Matches the preceding element at least m times and not more than n times. Requires m is less than or equal to n.",
+          "Zscaler recommends specifying a range as small as possible with m and n. Additionally, you should use the {m,n} construct to quantify the most specific preceding characters (e.g., [a-z]{3,5} instead of .{3,100}. If you provide a range that is too wide, the pattern might not be accepted."
+        ],
+        [
+          "?",
+          "Repeats the preceding element 0 or 1 times",
+          "Supported"
+        ],
+        [
+          "+",
+          "Repeats the preceding element 1 or more times",
+          "Supported"
+        ],
+        [
+          "|",
+          "Matches either the expression before or the expression after the operator (e.g., \"abc|def\" matches \"abc\" or \"def\")",
+          "Supported"
+        ]
+      ]
+    },
+    {
+      "item": "Shorthand Character Classes Supported by Zscaler",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Character class",
+          "Definition",
+          "Supported by Zscaler?"
+        ],
+        [
+          "\\d",
+          "Matches any single character that is a digit (i.e., [0–9])",
+          "Supported"
+        ],
+        [
+          "\\D",
+          "Matches any single character that is a non-digit",
+          "Supported"
+        ],
+        [
+          "\\s",
+          "Matches any single horizontal whitespace character across a single line (i.e., a space \" \" or tab)",
+          "Supported"
+        ],
+        [
+          "\\S",
+          "Matches any single non-whitespace character",
+          "Supported"
+        ],
+        [
+          "\\w",
+          "Matches any single word character (i.e., ASCII characters [a–zA–Z0–9_])",
+          "Supported"
+        ],
+        [
+          "\\W",
+          "Matches any single non-word character",
+          "Supported"
+        ],
+        [
+          "\\b",
+          "Matches any single word boundary",
+          "Supported"
+        ]
+      ]
+    },
+    {
+      "item": "Nested Repeats",
+      "depth": 0
+    },
+    {
+      "item": "A repeat of an expression containing a repeat (*, +, ?, or {m,n}) is supported. Examples of repeated elements are in red text below:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Syntax with Nested Repeats",
+          "Syntax without Nested Repeats"
+        ],
+        [
+          "\\d-[A-Z]{2}?X - Matches \"5-X\" or \"5-GAX\"",
+          "\\d-([A-Z][A-Z])?X"
+        ],
+        [
+          "(\\d{3}-){1,2}\\d{4} - Matches \"555-555-5555\" or \"555-5555\" \\d{3}-(\\d{3}-)?\\d{4}",
+          "\\d{3}-(\\d\\d\\d-)?\\d{4}"
+        ]
+      ]
+    },
+    {
+      "item": "Base Tokens",
+      "depth": 0
+    },
+    {
+      "item": "Your patterns are no longer required to begin with a simple sequence of alphabetic and numeric characters of a known length called the \"base token.\" A base token ends with an expression that is non-alphanumeric (e.g., \";\"), or with the end of the pattern.",
+      "depth": 0
+    },
+    {
+      "item": "The following are examples of patterns with and without base tokens:",
+      "depth": 0
+    },
+    {
+      "item": "Example - US phone numbers:",
+      "depth": 0
+    },
+    {
+      "item": "Without a base token: (1-)?\\d{3}-\\d{3}-\\d{4} - Starts with an optional expression (in red).",
+      "depth": 1
+    },
+    {
+      "item": "Without a base token: (CA)-\\d{6} - Starts with grouping (in red).",
+      "depth": 1
+    },
+    {
+      "item": "With a base token::",
+      "depth": 1
+    },
+    {
+      "item": "1-\\d{3}-\\d{3}-\\d{4} - Starts with a single-number token (in red).",
+      "depth": 2
+    },
+    {
+      "item": "\\d{3}-\\d{3}-\\d{4} - Starts with a three-number token (in red).",
+      "depth": 2
+    },
+    {
+      "item": "Example - IPv4 Address in dotted-quad notation:",
+      "depth": 0
+    },
+    {
+      "item": "Without a Base Token: [0-9.]{7,15} - Mix of numeric characters and punctuation (in red).",
+      "depth": 1
+    },
+    {
+      "item": "With a Base Token: \\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3} - Starts with 1-3 numeric characters (in red).",
+      "depth": 1
+    },
+    {
+      "item": "Sample Patterns",
+      "depth": 0
+    },
+    {
+      "item": "Australian Business Number (ABN)",
+      "depth": 1
+    },
+    {
+      "item": "\\d{2} \\d{3} \\d{3} \\d{3} or [0-9]{2} [0-9]{3} [0-9]{3} [0-9]{3} matches: 12 333 444 555",
+      "depth": 1
+    },
+    {
+      "item": "California Driver's License Number",
+      "depth": 1
+    },
+    {
+      "item": "[A-Z]\\d{7} or [A-Z]\\d{7} matches: A1234567 X7654321",
+      "depth": 1
+    },
+    {
+      "item": "Credit Card Numbers for Specific Issuers (for example, Wells Fargo VISA)",
+      "depth": 1
+    },
+    {
+      "item": "4147[- ]?18\\d{2}[ -]?\\d{4}[ -]?\\d{4} matches: 4147180011112222 4147-1800-1111-2222 4147 1800 1111 2222",
+      "depth": 1
+    },
+    {
+      "item": "Hong Kong Identity Card (HKID)",
+      "depth": 1
+    },
+    {
+      "item": "[A-Z]{1,2}\\d{6}[0-9A] matches: A1234567 BF1234567 N123456A ZX123456A",
+      "depth": 1
+    },
+    {
+      "item": "IPv4 Address (CIDR notation)",
+      "depth": 1
+    },
+    {
+      "item": "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(\\/(\\d|[1-2]\\d|3[0-2]))? matches: 192.168.100.0 192.168.100.0/24",
+      "depth": 1
+    },
+    {
+      "item": "Tokens for case-insensitive pattern matching",
+      "depth": 1
+    },
+    {
+      "item": "/foo-(?i)BaR-(?-i)bAZ/ matches: BaR (case-insensitive) bAZ (case-sensitive) foo-BAR-bAZ doesn't match: foo-BAR-baz",
+      "depth": 1
+    },
+    {
+      "item": "SWIFT Code",
+      "depth": 1
+    },
+    {
+      "item": "[A-Z]{6}[A-Z0-9]{2,5} matches: CALCUS6L BCLFUS66 BIMIUS33 BBVAUS33GCI",
+      "depth": 1
+    },
+    {
+      "item": "Unicode Characters",
+      "depth": 1
+    },
+    {
+      "item": "(财务|税务)部门 matches: 财务部门 税务部门",
+      "depth": 1
+    },
+    {
+      "item": "\\d{2,4}年\\d{1,2}月\\d{1,2}日 matches: 2023年01月30日 23年1月30日",
+      "depth": 1
+    },
+    {
+      "item": "United States Phone Numbers",
+      "depth": 1
+    },
+    {
+      "item": "[2-9]\\d{2}[-. ]\\d{4} matches: 555-1212 555.1212 555 1212",
+      "depth": 1
+    },
+    {
+      "item": "[2-9]\\d{2}\\)?[-. ][2-9]\\d{2}[-. ]\\d{4} matches: (415) 555-1212 * 415-555-1212 415 555 1212 415.555.1212 (* matches a substring)",
+      "depth": 1
+    },
+    {
+      "item": "Lookaround Constructs",
+      "depth": 0
+    },
+    {
+      "item": "For custom dictionaries that use patterns with lookaround constructs (also known as zero-length assertions), you must:",
+      "depth": 0
+    },
+    {
+      "item": "Select Match Any Patterns and Any Phrases as the Match Type.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          41
+        ],
+        [
+          49,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Configure at least one phrase.",
+      "depth": 1
+    },
+    {
+      "item": "Consider the following examples:",
+      "depth": 0
+    },
+    {
+      "item": "Sample regex with lookaround constructs",
+      "depth": 1
+    },
+    {
+      "item": "\\b(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#@!])[A-Za-z\\d#@!]{8,30}\\b",
+      "depth": 1
+    },
+    {
+      "item": "Custom dictionary using sample regex",
+      "depth": 1
+    },
+    {
+      "item": "In the examples, the regex uses lookaround constructs to detect passwords that:",
+      "depth": 0
+    },
+    {
+      "item": "Start and end with word boundaries",
+      "depth": 1
+    },
+    {
+      "item": "Are 8 to 30 bytes long",
+      "depth": 1
+    },
+    {
+      "item": "Contain at least one uppercase character, one lowercase character, one digit, and one special character (i.e., #@!)",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see Adding Custom DLP Dictionaries.",
+      "depth": 0
+    },
+    {
+      "heading": "Adding Patterns",
+      "level": 1
+    },
+    {
+      "text": "To add patterns:"
+    },
+    {
+      "item": "From the navigation menu, go to Data Security > Common Resources > Dictionaries & Engines.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          64
+        ],
+        [
+          67,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "On the DLP Dictionaries tab, click Add DLP Dictionary or click the Edit icon for an existing dictionary.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          35,
+          53
+        ],
+        [
+          67,
+          71
+        ]
+      ]
+    },
+    {
+      "text": "The Add DLP Dictionary or Edit DLP Dictionary window appears.",
+      "strong": [
+        [
+          4,
+          7
+        ],
+        [
+          8,
+          22
+        ],
+        [
+          26,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "In the Add DLP Dictionary or Edit DLP Dictionary window:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          29,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "In the Dictionary Type drop-down menu, select Patterns & Phrases.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          46,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Enter the Pattern you want the dictionary to match. To learn more, see the guidelines and syntax requirements for patterns.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Choose the Action the dictionary takes upon detecting valid matches:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Count All: The dictionary counts all matches of the pattern, including identical patterns, toward the match count. For example, you create a dictionary with a pattern for US phone numbers and choose Count All. When the dictionary scans content containing three instances of the same exact US phone number, it counts all three instances as three matches.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          199,
+          208
+        ]
+      ]
+    },
+    {
+      "item": "Count Unique: The dictionary counts each unique match of the pattern toward the match count only once, regardless of how many times it appears in the content. For example, you create a dictionary with a pattern for US phone numbers and choose Count Unique. When the dictionary scans content containing three instances of the same exact US phone number, it counts all three instances as one match.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "To add another pattern, click Add Pattern.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          30,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

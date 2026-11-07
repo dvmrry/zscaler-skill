@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting.performance-runbook.zdx-and-bandwidth",
+  "title": "Performance runbook: ZDX evaluation, Bandwidth Control throttling and additional network checks",
+  "aliases": [
+    "ZDX score drop",
+    "Bandwidth Action Throttled",
+    "Cloud Path hop-by-hop"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-runbook" }
+  ],
+  "prose": [
+    {
+      "label": "ZDX.",
+      "text": "{{zdx-prerequisite}} {{zdx-score-cloud-path}} {{zdx-web-probe-device}}"
+    },
+    {
+      "label": "Bandwidth Control.",
+      "text": "{{bandwidth-control-check}} {{bandwidth-control-remedy}}"
+    },
+    {
+      "label": "Additional checks.",
+      "text": "{{additional-checks}}"
+    }
+  ],
+  "claims": {
+    "zdx-prerequisite": {
+      "statement": "The ZDX evaluation applies when the organization has a ZDX subscription and requires ZDX probes configured for at least one impacted application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Use this section when your organization has a Digital Experience (ZDX) subscription",
+            "Confirm ZDX probes are configured for at least one of the impacted applications before proceeding."
+          ]
+        }
+      ]
+    },
+    "zdx-score-cloud-path": {
+      "statement": "For an impacted user the runbook compares the ZDX Score against a known good point in time and inspects Cloud Path hop-by-hop latency and packet loss across Client > Egress, Egress > Service Edge and Service Edge > Destination legs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check for a ZDX Score drop and compare against a known good point in time.",
+            "Analyze Cloud Path (network path).",
+            "inspect hop‑by‑hop latency and packet loss across legs such as Client > Egress, Egress > Internet & SaaS/Private Access Service Edge, and Service Edge > Destination."
+          ]
+        }
+      ]
+    },
+    "zdx-web-probe-device": {
+      "statement": "The runbook correlates Web Probe Page Fetch Time components (DNS, TCP connect, SSL handshake, Server Processing/TTFB, redirects) to separate app from network contributors, and checks Device Health (CPU, memory, Wi-Fi quality, tunnel type) in the incident window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Review Web Probe Metrics (application layer).",
+            "Correlate Page Fetch Time and its components (DNS, TCP connect, SSL handshake, Server Processing/TTFB, redirects) to isolate app vs. network contributors.",
+            "Check Device Health (endpoint).",
+            "Validate device factors (CPU, memory, Wi‑Fi quality, tunnel type) during the incident window to rule in/out endpoint causes."
+          ]
+        }
+      ]
+    },
+    "bandwidth-control-check": {
+      "statement": "To check for Bandwidth Control throttling, the runbook verifies Bandwidth Control is enabled on the Location or its Sublocations and that Web Insights shows Bandwidth Action Throttled, or Throttled response bytes and Throttled request bytes, for the impacted Location or Sublocation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check Location Management configuration, if no Sublocation, check the reported main Locations and verify that Bandwidth Control is enabled.",
+            "Check Location Management configuration and, if Sublocations exist, and verify that Bandwidth Control is enabled.",
+            "Check Web Insights on Bandwidth Consumption with filters and verify that the Bandwidth Action is Throttled for each impacted Location or Sublocation.",
+            "Alternatively, you can check Web Insights Logs with filters like Throttled response bytes and Throttled request bytes"
+          ]
+        }
+      ]
+    },
+    "bandwidth-control-remedy": {
+      "statement": "For users of a Known Location with the bandwidth control policy enabled, the runbook suggests a sublocation with fewer client IPs and bandwidth control disabled on it, then reviewing top bandwidth users and the policy if performance improves.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If users of a Known Location and bandwidth control policy are enabled, Zscaler suggests creating a sublocation with less client IPs and disabling the bandwidth control policy on the sublocation.",
+            "If the performance improves, then review the top bandwidth users and the bandwidth control policy."
+          ]
+        }
+      ]
+    },
+    "additional-checks": {
+      "statement": "The runbook's additional checks include reverting the latest network change, reviewing ISP details (single or multi, provider, link size), load balancing across ISPs, and failovers to a secondary ISP link.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Revert the most recent network change to see if it addresses the problem.",
+            "Review the ISP details (Single or Multi, Provider Name, Link size).",
+            "Check to see if traffic load is balanced between multiple ISPs.",
+            "Check for any failovers to a secondary ISP link."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "zia_url_categories: REMOVE_FROM_LIST update fails with 400 \"Request body is invalid\"",
+  "source": {
+    "url": "https://github.com/zscaler/ziacloud-ansible/issues/134",
+    "repo": "zscaler/ziacloud-ansible",
+    "number": 134,
+    "state": "open",
+    "created_at": "2026-10-02",
+    "updated_at": "2026-10-02",
+    "labels": [
+      "bug"
+    ],
+    "updated": "2026-10-02",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "zia_url_categories: REMOVE_FROM_LIST update fails with 400 \"Request body is invalid\"",
+      "level": 1
+    },
+    {
+      "heading": "Describe the bug",
+      "level": 2
+    },
+    {
+      "text": "Updating an existing ZIA custom URL category with `zscaler.ziacloud.zia_url_categories` (`state: present`) fails when the module needs to remove URLs. Starting in collection **2.1.0** (PR [#108](https://github.com/zscaler/ziacloud-ansible/pull/108)), updates use incremental `REMOVE_FROM_LIST` / `ADD_TO_LIST` instead of a full category replace. The `REMOVE_FROM_LIST` call returns HTTP 400 (`Request body is invalid.`), so URLs are not removed from Zscaler and the Ansible task fails."
+    },
+    {
+      "text": "This blocks automation that syncs a blacklist (or similar) custom URL category from a desired list into ZIA when the category already contains URLs that must be deleted. The same playbook pattern worked before the incremental-update change (reported working ~3 months ago; fails repeatedly in prod and pre-prod)."
+    },
+    {
+      "heading": "Expected behavior",
+      "level": 2
+    },
+    {
+      "text": "With `state: present` and a desired `urls` list, the ZIA category should match that list: URLs not in the desired set should be removed, and the task should complete with `changed: true` without API 400 errors. Behavior should match pre-2.1.0 full-update semantics, or `REMOVE_FROM_LIST` should send a request body the ZIA API accepts."
+    },
+    {
+      "heading": "Current behavior",
+      "level": 2
+    },
+    {
+      "text": "The module diffs current vs desired URLs and calls `update_url_category(..., action=\"REMOVE_FROM_LIST\", **remove_payload)`. ZIA returns 400. Representative task result:"
+    },
+    {
+      "code": "{\n  \"ansible_job_id\": \"j895969414117.163\",\n  \"changed\": false,\n  \"finished\": 1,\n  \"msg\": \"Failed to remove URLs from category: {\\n  \\\"status\\\": 400,\\n  \\\"code\\\": null,\\n  \\\"message\\\": \\\"Request body is invalid.\\\",\\n  \\\"url\\\": \\\"https://api.zsapi.net/zia/api/v1/urlCategories/CUSTOM_XX\\\"\\n}\",\n  \"results_file\": \"/root/.ansible_async/j895969414117.163\",\n  \"started\": 1,\n  \"stderr\": \"\",\n  \"stderr_lines\": [],\n  \"stdout\": \"\",\n  \"stdout_lines\": []\n}"
+    },
+    {
+      "text": "With `ignore_errors: yes`, the failure is ignored and stale URLs remain on the category. At higher verbosity, the module emits a warning like `Payload for SDK (REMOVE_FROM_LIST): {...}` before the error."
+    },
+    {
+      "text": "Relevant code path in `plugins/modules/zia_url_categories.py` (approx. lines 396–427 on 2.2.4): build `urls_to_remove` / `db_to_remove`, copy full `updated_data` into `remove_payload`, then call `REMOVE_FROM_LIST`."
+    },
+    {
+      "heading": "Possible solution",
+      "level": 2
+    },
+    {
+      "text": "Suspected contributing factors in the current remove path:"
+    },
+    {
+      "item": "**`remove_payload` includes non-URL category fields and module defaults** (`custom_category: true`, `type: URL_CATEGORY`, `configured_name`, etc.) on a `REMOVE_FROM_LIST` action. ZIA may reject that body; a minimal payload with only `urls` / `db_categorized_urls` to remove may be required.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "**Omitted list parameters are treated as empty desired lists** during diff. If the playbook only sets `configured_name` and `urls`, existing `db_categorized_urls` can be queued for removal unintentionally.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "**Large remove batches** (hundreds/thousands of URLs in one `REMOVE_FROM_LIST`) may exceed what the API accepts; chunking removes or falling back to a full replace for large diffs could help.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "Possible fixes: send a minimal body for `REMOVE_FROM_LIST`/`ADD_TO_LIST`; treat unspecified list fields as “leave unchanged” rather than `[]`; chunk large removals; or fall back to the pre-2.1.0 full `update_url_category` when the remove set is large / when the incremental call fails."
+    },
+    {
+      "text": "Workarounds today: pin `zscaler.ziacloud` to **&lt; 2.1.0**; pass complete desired state for all list fields the module diffs; batch removals in the playbook."
+    },
+    {
+      "heading": "Steps to reproduce",
+      "level": 2
+    },
+    {
+      "item": "Install `zscaler.ziacloud` **2.1.0 or later** (`ansible-galaxy collection list zscaler.ziacloud`).",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use or create a custom URL category that already contains multiple URLs **not** in the desired list (use a large list to mirror production).",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Run:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "code": "- name: Update category with desired URLs\n  zscaler.ziacloud.zia_url_categories:\n    configured_name: \"{{ blacklist_category_name }}\"\n    urls:\n      - .subdomain.example.net\n    state: present\n  register: update_result"
+    },
+    {
+      "item": "Observe task failure with `Failed to remove URLs from category` and HTTP 400 `Request body is invalid` against `/zia/api/v1/urlCategories/<CUSTOM_ID>`.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "Optional production-like conditions: desired list much smaller than remote (e.g. slice of a normalized list), `async`/`poll`, `ignore_errors: yes`."
+    },
+    {
+      "heading": "Screenshots",
+      "level": 2
+    },
+    {
+      "text": "N/A — failure is API/Ansible task output (see Current behavior JSON). Capture the `Payload for SDK (REMOVE_FROM_LIST):` module warning from a verbose run if useful (redact URLs/category names)."
+    },
+    {
+      "heading": "Context",
+      "level": 2
+    },
+    {
+      "text": "This issue was reported via support case with Red Hat."
+    },
+    {
+      "heading": "Your Environment",
+      "level": 2
+    },
+    {
+      "item": "Collection: zscaler.ziacloud **2.1.0+** (reproduced analysis against **2.2.4**; regression introduced in **2.1.0** / PR #108)",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler SDK Python Library & version (e.g. zscaler-sdk-python 0.1.1): collection requires `zscaler-sdk-python>=1.9.30`;",
+      "depth": 0
+    },
+    {
+      "text": "_Analysis performed with Cursor._"
+    }
+  ]
+}

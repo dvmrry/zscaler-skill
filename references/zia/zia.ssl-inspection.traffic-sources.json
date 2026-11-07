@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.traffic-sources",
+  "title": "How SSL/TLS inspection applies by traffic source: known locations, Client Connector, a dedicated proxy port, and ports 9443, 80/443/9400/9480 and 8800",
+  "aliases": [
+    "ssl inspection deployment scenarios",
+    "ssl inspection port 9443",
+    "ssl inspection remote users",
+    "ssl inspection dedicated proxy port",
+    "ssl inspection kerberos port 8800"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.proxy-ports"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files.syntax"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files.kerberos"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.unauthenticated-traffic"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{known-location-authentication}}"
+    },
+    {
+      "label": "Remote users.",
+      "text": "{{remote-users-client-connector}} {{port-9443}} {{ports-80-443-9400-9480}} What SSL/TLS inspection does for remote users on those ports differs from the rule criteria page {{divergence:remote-port-interception}}. {{port-8800-kerberos}} Whether that setting is now the Remote Users with Kerberos rule criterion is not stated {{gap:kerberos-setting-or-criterion}}."
+    },
+    {
+      "label": "Dedicated proxy port.",
+      "text": "{{dedicated-port}} {{dedicated-port-first-https}} Which feature needs the dedicated-port subscription on the deployment page's port 9443 sentence is not stated {{gap:port-9443-subscription}}."
+    },
+    {
+      "text": "What each port is for is in [[zia.forwarding-control.proxy-ports]] and [[shared.pac-files.syntax]]; how unauthenticated traffic is treated is in [[zia.authentication.unauthenticated-traffic]]; the rule criteria are in [[zia.ssl-inspection.criteria]]."
+    }
+  ],
+  "claims": {
+    "known-location-authentication": {
+      "statement": "For HTTPS from a known location, Zscaler recommends enabling authentication so URL and Cloud App Control policies apply at the user level; with authentication disabled the service applies location-based URL and Cloud App Control policies and cannot apply any user or group policies, so the appropriate location must be specified in the Location setting of those policies. The deployment best practices likewise say to enable user authentication so the service can apply user policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deployment-scenarios-ssltls-inspection.json",
+          "quotes": [
+            "Authentication Enabled: Zscaler recommends this configuration because it enables the service to enforce granular URL and Cloud App Control policies at the user level.",
+            "Authentication Disabled: The service applies location-based URL and Cloud App Control policies.",
+            "It cannot apply any user or group policies because authentication is disabled.",
+            "Ensure that the appropriate location is specified in the Location setting of the URL and Cloud App Control policies."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-ssltls-inspection.json",
+          "quotes": [
+            "Enable user authentication as well, to allow the service to apply user policies."
+          ]
+        }
+      ]
+    },
+    "remote-users-client-connector": {
+      "statement": "For remote users, or users from an unknown location, the deployment scenarios page says extra steps are needed and the recommended option is to install and use Client Connector on their machines.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deployment-scenarios-ssltls-inspection.json",
+          "quotes": [
+            "There are some extra steps needed when dealing with remote users, or users from an unknown location.",
+            "The recommended option is to install and use Zscaler Client Connector on the client machines of your remote users."
+          ]
+        }
+      ]
+    },
+    "dedicated-port": {
+      "statement": "If the organization has subscribed to a dedicated port and has gateway locations created on it, whether SSL/TLS traffic is inspected can be defined by the location configuration, and because the port is unique to the organization it is used as an identifier to apply the organization's SSL/TLS and authentication bypasses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deployment-scenarios-ssltls-inspection.json",
+          "quotes": [
+            "If your organization has subscribed to a dedicated port and has gateway locations created using the dedicated port, your organization’s users might forward traffic to Zscaler on said port.",
+            "Whether SSL/TLS traffic should be inspected or not is something that can be defined by the location configuration.",
+            "As the port is unique to the organization, it would be used as an identifier to apply your organization's SSL/TLS and authentication bypasses."
+          ]
+        }
+      ]
+    },
+    "dedicated-port-first-https": {
+      "statement": "On a dedicated port, a first transaction from an unregistered IP that is an HTTPS request must be authenticated before the service accepts it, to ensure Zscaler is not used as an open proxy by unauthorized users. If Show Notifications is enabled under Internet Access > Policy > SSL/TLS Inspection, the transaction is intercepted and checked for a valid authentication cookie and the user is redirected for authentication if there is none; if Show Notifications is disabled the transaction is dropped and the user must first access an HTTP page and authenticate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deployment-scenarios-ssltls-inspection.json",
+          "quotes": [
+            "However, if the first transaction from a user is from an unregistered IP and is an HTTPS request, the identity of the user is unknown and to accept the traffic the transaction needs to be authenticated.",
+            "This is to ensure Zscaler is not used as an open proxy by unauthorized users.",
+            "If the organization has Show Notifications enabled under Internet Access > Policy > SSL/TLS Inspection in the Zscaler Admin Console, then the transaction is intercepted and checked for a valid authentication cookie.",
+            "If the cookie is not present, the user is redirected for authentication.",
+            "If the organization has Show Notifications disabled, then the transaction is dropped."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-deployment-scenarios-ssltls-inspection.json",
+          "after": "If the organization has Show Notifications disabled, then the transaction is dropped.",
+          "quotes": [
+            "The user would need to access an HTTP page and provide a valid authentication cookie or go through the authentication process before accessing the HTTPS page."
+          ]
+        }
+      ]
+    },
+    "port-9443": {
+      "statement": "Users who connect to Public Service Edges on port 9443 have all HTTPS connections subject to SSL/TLS Inspection, and lose the ability to bypass traffic by URLs and URL categories from SSL/TLS scanning and authentication; a user who forwards to port 9443 without the certificate installed sees certificate warnings. The deployment best practices add that the list of URL categories and cloud apps not decrypted does not apply to remote users who configure their browsers or PAC files to send traffic to port 9443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deployment-scenarios-ssltls-inspection.json",
+          "quotes": [
+            "Users can connect to Public Service Edges for Internet & SaaS (ZIA) on port 9443 and all HTTPS connections are subject to SSL/TLS Inspection.",
+            "The drawback of this method is that the capability to bypass certain traffic based on URLs and URL categories from SSL/TLS scanning and authentication is lost.",
+            "If it is not installed and a user forwards traffic to port 9443, the browser displays certificate warnings."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-ssltls-inspection.json",
+          "quotes": [
+            "The list of URL categories and cloud apps for which SSL/TLS transactions are not decrypted does not apply to remote users who configure their browsers or PAC files to send traffic to port 9443."
+          ]
+        }
+      ]
+    },
+    "ports-80-443-9400-9480": {
+      "statement": "For remote users who forward traffic to Zscaler on ports 80, 443, 9400 and 9480, the deployment scenarios page says SSL/TLS traffic is not intercepted and policies are not implemented on it, a first HTTPS transaction from an unregistered IP address is blocked so the user must first access an HTTP page and authenticate, and SSL/TLS and authentication bypass are not applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deployment-scenarios-ssltls-inspection.json",
+          "quotes": [
+            "Remote users might forward traffic to Zscaler on ports 80/443/9400 and 9480.",
+            "SSL/TLS traffic is not intercepted and policies are not implemented on SSL/TLS traffic.",
+            "If the first transaction from an unregistered IP address and is on HTTPS, the transaction is blocked.",
+            "SSL/TLS and authentication bypass are not applied."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-deployment-scenarios-ssltls-inspection.json",
+          "after": "If the first transaction from an unregistered IP address and is on HTTPS, the transaction is blocked.",
+          "quotes": [
+            "The user would need to access an HTTP page and provide a valid authentication cookie or go through the authentication process before accessing the HTTPS page."
+          ]
+        }
+      ]
+    },
+    "port-8800-kerberos": {
+      "statement": "Remote users might forward traffic on port 8800, where Public Service Edges attempt to authenticate the user with Kerberos; the organization might choose to inspect that HTTPS traffic by enabling Enable SSL/TLS Inspection for Remote Users with Kerberos under Internet Access > Policy > SSL/TLS Inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deployment-scenarios-ssltls-inspection.json",
+          "quotes": [
+            "Remote users might use port 8800 to forward traffic to Zscaler, and Public Service Edges attempt to authenticate the user using the Kerberos method of authentication.",
+            "The organization might choose to inspect HTTPS traffic by enabling Enable SSL/TLS Inspection for Remote Users with Kerberos under Internet Access > Policy > SSL/TLS Inspection."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "remote-port-interception": {
+      "summary": "The deployment scenarios page says SSL/TLS traffic from remote users on ports 80/443/9400/9480 is not intercepted and has no policies; the SSL/TLS inspection rule page has a criterion that applies to traffic forwarded in explicit proxy mode (PAC or PAC over tunnel).",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deployment-scenarios-ssltls-inspection.json",
+            "quotes": [
+              "Remote users might forward traffic to Zscaler on ports 80/443/9400 and 9480.",
+              "SSL/TLS traffic is not intercepted and policies are not implemented on SSL/TLS traffic."
+            ]
+          },
+          "says": "Remote users on ports 80/443/9400/9480 get no SSL/TLS interception and no policies on that traffic."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-ssl-tls-inspection-policy.json",
+            "quotes": [
+              "This criterion applies only to SSL/TLS traffic forwarded in explicit proxy mode (PAC or PAC over tunnel) and not to traffic forwarded via a transparent proxy (tunnel) or Z-Tunnel 1.0 due to lack of user agent context."
+            ]
+          },
+          "says": "The criterion applies only to SSL/TLS traffic forwarded in explicit proxy mode (PAC or PAC over tunnel), not to transparent proxy (tunnel) or Z-Tunnel 1.0 traffic."
+        }
+      ],
+      "impact": "The pages may describe different eras or different user populations; neither says whether a rule's criteria are evaluated for remote PAC traffic on those ports, so the question is open between them."
+    }
+  },
+  "gaps": {
+    "kerberos-setting-or-criterion": {
+      "kind": "semantic",
+      "title": "Whether the Enable SSL/TLS Inspection for Remote Users with Kerberos setting still exists or became the Remote Users with Kerberos rule criterion",
+      "status": "open",
+      "detail": "The deployment scenarios page names a policy setting; the current rule page has a Remote Users with Kerberos rule criterion (see zia.ssl-inspection.criteria). No captured page says whether one replaced the other.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "port-9443-subscription": {
+      "kind": "semantic",
+      "title": "Which feature needs the dedicated proxy port subscription on the deployment page's port 9443 sentence",
+      "status": "open",
+      "detail": "After the sentence about the do-not-decrypt list not applying to port 9443 users, the deployment page says 'To use this feature, your organization must subscribe to a dedicated proxy port.' It does not say whether the feature is port 9443 or the bypass list for remote users.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

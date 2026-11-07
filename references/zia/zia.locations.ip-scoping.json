@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.ip-scoping",
+  "title": "Which IP addresses a sublocation matches, overlap rules and XFF",
+  "aliases": [
+    "sublocation ip addresses",
+    "sublocation overlap",
+    "inner ip",
+    "xff sublocation",
+    "use xff from client request",
+    "sublocation ip range format",
+    "same ip in multiple locations"
+  ],
+  "binds": [
+    "zia/sublocations",
+    "zia/locations#ipAddresses",
+    "zia/locations#xffForwardEnabled"
+  ],
+  "related": [
+    {
+      "rel": "reached-via",
+      "to": "zia.traffic-forwarding.gre",
+      "because": "zia.locations.ip-scoping:matches-inner-ips"
+    },
+    {
+      "rel": "reached-via",
+      "to": "zia.traffic-forwarding.ipsec",
+      "because": "zia.locations.ip-scoping:matches-inner-ips"
+    },
+    {
+      "rel": "reached-via",
+      "to": "zia.traffic-forwarding.proxy-chaining",
+      "because": "zia.locations.ip-scoping:xff-opt-in"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/sublocations"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/locations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.inheritance"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations"
+    }
+  ],
+  "prose": [
+    {
+      "label": "What a sublocation matches.",
+      "text": "{{matches-inner-ips}} {{formats}} {{ranges-per-sublocation}}"
+    },
+    {
+      "label": "Overlap.",
+      "text": "{{no-overlap-within-location}} Scoped Workload sublocations are the exception that allows overlapping ranges: [[zia.locations.workload-scopes]]."
+    },
+    {
+      "label": "Forwarding.",
+      "text": "{{forwarding-fields-parent-only}} {{sublocation-no-forwarding-fields}} Whether a sublocation can have a forwarding method of its own is partly answered {{gap:sublocation-own-forwarding}}, and so is whether a static-IP-only parent can have sublocations {{gap:static-ip-parent}}."
+    },
+    {
+      "label": "XFF.",
+      "text": "{{xff-opt-in}} For a sublocation the XFF setting is read-only and inherited: [[zia.locations.inheritance]]."
+    },
+    {
+      "text": "Traffic that matches no sublocation range goes to `other`: [[zia.locations.sublocations]]."
+    }
+  ],
+  "claims": {
+    "matches-inner-ips": {
+      "statement": "A sublocation matches on IP addresses encapsulated within a GRE or IPSec tunnel, or on client addresses taken from X-Forwarded-For headers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-sublocations.json",
+          "quotes": [
+            "Sublocations enable an organization to create new locations that reference IP addresses that are encapsulated within a GRE or IPSec tunnel, or that are passed to the Zscaler service through X-Forwarded-For (XFF) headers."
+          ]
+        }
+      ]
+    },
+    "no-overlap-within-location": {
+      "statement": "Sublocations of one location cannot have overlapping IP addresses, but the same IP address can exist in more than one location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-sublocations.json",
+          "quotes": [
+            "Sublocations cannot have overlapping IP addresses within a location.",
+            "Although IP addresses within a location cannot overlap, the same IP address can exist in multiple locations."
+          ]
+        }
+      ]
+    },
+    "formats": {
+      "statement": "The API takes parent-location `ipAddresses` as single egress IPs; for a sublocation each entry is a single IP, a CIDR (`10.10.33.0/24`) or a range (`10.10.33.1-10.10.33.10`), and the description lists egress, internal or GRE tunnel addresses. The console also accepts ranges such as 10.10.20.2 to 10.10.20.250.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/ipAddresses",
+          "expect": {
+            "description": "<p>For locations: IP addresses of the egress points that are provisioned in the Zscaler Cloud. Each entry is a single IP address (e.g., 238.10.33.9).</p> <p>For sub-locations: Egress, internal, or GRE tunnel IP addresses. Each entry is either a single IP address, CIDR (e.g., 10.10.33.0/24), or range (e.g., 10.10.33.1-10.10.33.10)).</p>",
+            "x-applicableTo": "BOTH"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-sublocations.json",
+          "quotes": [
+            "Sublocations can reference IP address ranges (e.g., 10.10.20.2 to 10.10.20.250)."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations#ipAddresses"
+      ]
+    },
+    "ranges-per-sublocation": {
+      "statement": "A sublocation can hold at most 2,000 IP address ranges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| IP Address Ranges per Sublocation | 2,000 IP address ranges |"
+          ]
+        }
+      ]
+    },
+    "forwarding-fields-parent-only": {
+      "statement": "In the API, `vpnCredentials` and `ports` apply to parent locations only; `ipAddresses` applies to both. ",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/vpnCredentials",
+          "expect": {
+            "x-applicableTo": "TOP"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/ports",
+          "expect": {
+            "x-applicableTo": "TOP"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/ipAddresses",
+          "expect": {
+            "x-applicableTo": "BOTH"
+          }
+        }
+      ],
+      "conditions": "`x-applicableTo: TOP` marks fields the schema applies to top-level locations only."
+    },
+    "sublocation-no-forwarding-fields": {
+      "statement": "In the location CSV format GRE tunnels are bound to locations only, not sublocations, and a SubLocation row cannot carry a VPN type, dedicated port, Virtual Service Edge name or Virtual Service Edge cluster name (each is left as an empty comma) and must name its parent location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "GRE tunnels are bound to locations only, not sublocations."
+          ],
+          "after": "- The following fields are required for adding or deleting locations:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "VPN-type: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "Dedicated port: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "VirtualServiceEdgeName: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "VirtualServiceEdgeClusterName: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "Parent Location Name (Required): Enter the name of the parent location to which this sublocation belongs."
+          ]
+        }
+      ],
+      "conditions": "Scoped to the CSV import format; the page does not state the API or console behavior."
+    },
+    "xff-opt-in": {
+      "statement": "Use XFF from Client Request is set per location for proxy-chained deployments: the service reads the client RFC 1918 address from the XFF header an on-premises proxy inserts, uses it to identify the client's sublocation, applies that sublocation's policy, then replaces the XFF header with the gateway's public IP before forwarding.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.json",
+          "quotes": [
+            "Use XFF from Client Request: Enable this option if this location uses proxy chaining to forward traffic to the Zscaler service, and you want the service to discover the client RFC 1918 IP address from the X-Forwarded-For (XFF) headers that your on-premises proxy server inserts in outbound HTTP requests.",
+            "The XFF header identifies the client IP address, which can be leveraged by the service to identify the client’s sublocation.",
+            "Using the XFF headers, the service can apply the appropriate sublocation policy to the transaction",
+            "When the service forwards the traffic to its destination, it removes the original XFF header and replaces it with an XFF header that contains the IP address of the client gateway (the organization’s public IP address)"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations#xffForwardEnabled"
+      ]
+    }
+  },
+  "gaps": {
+    "static-ip-parent": {
+      "kind": "semantic",
+      "title": "Sublocations under a static-IP location with no tunnel",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Static IP parent (no tunnel): sublocations are not applicable in the same way — static IP locations identify traffic by public egress IP only. Sublocation differentiation within a static-IP location requires XFF to carry inner IPs.\" The help articles list only GRE, IPSec and XFF as the sources of sublocation addresses and do not discuss static-IP-only locations. Resolve with the Configuring Sublocations article's addressing text or a lab test.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "about": [
+        "zia/sublocations"
+      ]
+    },
+    "sublocation-own-forwarding": {
+      "kind": "semantic",
+      "title": "Whether a sublocation can have its own forwarding method",
+      "status": "partial",
+      "detail": "Partly answered by sublocation-no-forwarding-fields: the location CSV format binds GRE tunnels to locations only and a SubLocation row cannot carry a VPN type, dedicated port or Virtual Service Edge, but that is the CSV format only, not the API or console. Unverified legacy statements: \"A sublocation does not define its own forwarding method. It reuses the parent location's forwarding method\" and \"There is no mechanism to assign a different GRE tunnel or IPSec SA to a sublocation versus its parent. Forwarding method differentiation requires separate parent locations.\" The schema marks `vpnCredentials` and `ports` parent-only (forwarding-fields-parent-only) but no source states the conclusion. Resolve with a Zscaler statement or a lab attempt to attach a credential to a sublocation.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "about": [
+        "zia/sublocations"
+      ]
+    },
+    "xff-use-cases-and-rationale": {
+      "kind": "semantic",
+      "title": "Why XFF is opt-in and which deployments use it",
+      "status": "open",
+      "detail": "Unverified legacy statements: use cases \"CDN / reverse-proxy terminates TLS then forwards to ZIA — native source IP is the CDN's; XFF carries the client IP\" and \"B2B extranet — partner traffic arrives from a VPN with shared egress; XFF preserves the partner-tenant identity\", and the rationale \"XFF is opt-in per location because accepting unauthenticated headers is a spoofing risk\". The help states only the proxy-chaining use (xff-opt-in). Resolve with a Zscaler statement of intended XFF deployments and of header trust.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

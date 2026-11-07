@@ -1,0 +1,619 @@
+{
+  "schema_version": 1,
+  "id": "zcc.end-user",
+  "title": "The Client Connector app as users see it: Classic UI and Modern UI menus, status, enrollment and notifications, by OS where the pages cover it",
+  "aliases": [
+    "Classic UI",
+    "Modern UI",
+    "Modern Experience",
+    "Status Orb",
+    "system tray menu",
+    "Quick Actions",
+    "Do Not Disturb",
+    "Authenticate Early",
+    "Export Logs",
+    "end user guide"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.end-user.service-windows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.end-user.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.pop-ups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.partner-tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.platform-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.user-access"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{classic-and-modern}} The console setting that picks the default is in [[zcc.platform-settings]]. {{self-disabling}}"
+    },
+    {
+      "label": "Windows tray menu.",
+      "text": "{{windows-tray-options}}"
+    },
+    {
+      "label": "Other platforms.",
+      "text": "{{other-os-menus}} {{android-quick-actions}}"
+    },
+    {
+      "label": "Exporting logs.",
+      "text": "The pages say Export Logs saves a text file in some places and a ZIP file in others {{divergence:export-logs-format}}. The Troubleshoot section's own wording is in [[zcc.end-user.troubleshooting:windows-troubleshoot-section]]."
+    },
+    {
+      "label": "Leaving the app.",
+      "text": "{{logout-close-exit}}"
+    },
+    {
+      "label": "Status and version.",
+      "text": "{{status-orb}} {{about-window}} The fields of the service windows are in [[zcc.end-user.service-windows]]."
+    },
+    {
+      "label": "Enrolling.",
+      "text": "{{enrollment-flow}} {{android-enrollment}} Adding a partner tenant from the app is in [[zcc.partner-tenants]]."
+    },
+    {
+      "label": "Notifications window.",
+      "text": "{{notifications-window}} {{mobile-filter}} {{user-settings}} {{framework-on-windows}}"
+    },
+    {
+      "label": "Self Service.",
+      "text": "{{self-service}} The pop-up message catalog is in [[zcc.notifications.pop-ups]]."
+    },
+    {
+      "label": "Troubleshooting from the app.",
+      "text": "The Troubleshoot section, Report an Issue and Zscaler Diagnostics are in [[zcc.end-user.troubleshooting]]."
+    },
+    {
+      "label": "Open questions.",
+      "text": "The Modern UI pages describe Windows, with Android and Android on ChromeOS for Private Access and quick actions, and not macOS, Linux or iOS {{gap:modern-ui-coverage}}. The Do Not Disturb options Disabled and Enabled read inverted against a pause {{gap:dnd-options-meaning}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user is on the Classic or the Modern UI, since menu and field names differ and Client Connector before 5.0 shows only Classic.",
+      "uses": [
+        "classic-and-modern"
+      ]
+    },
+    {
+      "do": "Before telling a user where an exported log file is or what format it has, the divergence over text file versus ZIP.",
+      "uses": [
+        "export-logs-format"
+      ]
+    },
+    {
+      "do": "Whether the user chose Exit or Sign Out, since Exit leaves the services running in the Modern UI and Sign Out needs enrollment again.",
+      "uses": [
+        "logout-close-exit"
+      ]
+    }
+  ],
+  "claims": {
+    "classic-and-modern": {
+      "statement": "The Classic UI is the version of the app available with Client Connector versions earlier than 5.0, and the Modern UI is the modernized UI available with version 5.0. In the Modern UI the Modern Experience setting can be disabled to display the Classic UI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+          "quotes": [
+            "This article provides information about the Classic UI version of the app available with Zscaler Client Connector versions earlier than 5.0."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-zscaler-client-connector-modern-ui.json",
+          "quotes": [
+            "Modern Experience: Enable this setting to view the Zscaler Client Connector app using the modernized UI available with Zscaler Client Connector version 5.0.",
+            "If you disable this setting, the app displays in the Classic UI used with Zscaler Client Connector versions earlier than 5.0."
+          ]
+        }
+      ]
+    },
+    "self-disabling": {
+      "statement": "The app recognizes when it is connected to a trusted network, such as a corporate office network, and depending on the organization's configuration can disable Internet & SaaS, Private Access, ZDX and Endpoint DLP services accordingly; it disables its services for a period of time and re-enables itself after the user has had a chance to complete the steps necessary to connect. In the Classic UI's Windows navigation, the app does not show an option for a service the organization is not subscribed to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+          "quotes": [
+            "It automatically recognizes when you are connected to a trusted network (for example, your corporate office network) and depending on your organization's configuration, can disable Internet & SaaS, Private Access, ZDX, and Endpoint DLP services accordingly.",
+            "The app disables its services for a period of time and re-enables itself after you've had a chance to complete the steps necessary to connect."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+          "after": "- Windows - To navigate the main controls in the app:",
+          "quotes": [
+            "If your organization is not subscribed to one of these services, you do not see that option in the left-side navigation."
+          ]
+        }
+      ]
+    },
+    "logout-close-exit": {
+      "statement": "In the Classic UI on Windows, logging out might require a password set by the organization's admin and the user must complete enrollment again on logging back in, closing the window does not log the user out, and Exit exits the app and disables the Zscaler service, possibly with a password. In the Modern UI, signing out also means completing enrollment again, while the Exit icon closes the app without signing the user out and the services continue to run.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+          "after": "- Windows - To navigate the main controls in the app:",
+          "quotes": [
+            "You might be required to enter a password your organization's admin has set for the app.",
+            "If you log out of the app, you must complete enrollment again when you log back in.",
+            "Click the Close icon to close the window. This does not log you out of the app.",
+            "Exit: Click to exit the app and disable the Zscaler service. Depending on your organization's policies, you might be required to enter a password configured by your organization's admin."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-modern-ui.json",
+          "quotes": [
+            "If you sign out of the app, you must complete enrollment again when you log back in.",
+            "Clicking the Exit icon on the top-right corner of the app closes the app but does not sign you out, and the services continue to run."
+          ]
+        }
+      ]
+    },
+    "windows-tray-options": {
+      "statement": "The Classic UI's Windows system tray icon menu offers Open Zscaler, Authenticate (without opening the application), Authenticate Early (reauthenticate before authentication expires), Register (complete the device enrollment), Notifications, Export Logs, Report an Issue (if the organization has enabled it) and Exit. For Client Connector 4.9 and later with the Zscaler Notification Framework, Notifications offers Mute for 30 minutes, 1 hour or 2 hours, or Until Resumed, which makes the option display as Notifications (Paused). The page says Export Logs saves logs as a text file on the device. On the Quick Actions page's Windows list, Do Not Disturb pauses pop-up notifications and displays as Notifications [Paused] when Until Resumed is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+          "after": "Zscaler Client Connector displays an icon in the system tray, as shown in the following image:",
+          "quotes": [
+            "Open Zscaler: Click to open the app window.",
+            "Authenticate: Click to authenticate Zscaler Client Connector without opening the application.",
+            "Authenticate Early: Click to reauthenticate before your authentication expires.",
+            "Register: Click to complete the device enrollment.",
+            "Notifications: If you use Zscaler Client Connector version 4.9 and later and the Zscaler Notification Framework, you can select to view options to pause pop-up notifications:",
+            "Mute for 30 minutes: Do not display pop-up notifications for 30 minutes.",
+            "Mute for 1 hour: Do not display pop-up notifications for 1 hour.",
+            "Mute for 2 hours: Do not display pop-up notifications for 2 hours.",
+            "Until Resumed: Do not display pop-up notifications until you select to resume them. When you select this option, the Notifications option displays as Notifications (Paused).",
+            "Export Logs: Click to export logs. Logs are saved as a text file on your device.",
+            "Report an Issue: If your organization has enabled this option, you can click to report an issue.",
+            "Exit: Click to exit the app and disable the Zscaler service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-quick-actions-zscaler-client-connector.json",
+          "after": "You can right-click the app icon in the system tray to view a list of options.",
+          "quotes": [
+            "Do Not Disturb: Pause pop-up notifications:",
+            "When you select Until Resumed, this option displays as Notifications [Paused]."
+          ]
+        }
+      ]
+    },
+    "other-os-menus": {
+      "statement": "In the Classic UI, the macOS menu bar icon offers Open, Export Logs, Report an Issue and Exit, and the Linux icon's right-click menu offers Open Zscaler, Export Logs, Report An Issue and Exit. On Android and on Android on ChromeOS the icon displays with an exclamation point when authentication expires and Reauthenticate displays only when authentication expires; on Android the menu also offers Export Logs and Report an Issue, if the organization has enabled that option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+          "after": "## Zscaler Client Connector Menu Bar Options",
+          "quotes": [
+            "Zscaler Client Connector displays an icon in the menu bar, as shown in the following image.",
+            "Open: Click to open the app window.",
+            "Export Logs: Click to export logs. Logs are saved as a text file on your device.",
+            "Report an Issue: If your organization has enabled this option, you can click to report an issue.",
+            "Exit: Click to exit the app and disable the Zscaler service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+          "after": "Click the Log Out icon on the top menu bar to log out of Zscaler Client Connector.",
+          "quotes": [
+            "Right-click the Zscaler Client Connector icon to display the following options:",
+            "Open Zscaler: Opens the app window.",
+            "Export Logs: Exports log files and saves them as text files on your device.",
+            "Report An Issue: Your organization must enable this option.",
+            "Exit: Exits the app and disables the Zscaler service.",
+            "For instructions on completing the form, see Reporting an Issue with Zscaler Client Connector for Linux."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+          "after": "In the Zscaler Client Connector window for Android, you can:",
+          "quotes": [
+            "When authentication expires, the Zscaler Client Connector icon displays with an exclamation point",
+            "Reauthenticate: This option only displays when your authentication expires. Click to authenticate.",
+            "Export Logs: Click to export logs. Logs are saved as a text file on your device.",
+            "Report an Issue: If your organization has enabled this option, you can click to report an issue to Zscaler."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+          "after": "In the Zscaler Client Connector window for Android on ChromeOS, you can:",
+          "quotes": [
+            "When authentication expires, the Zscaler Client Connector icon displays with an exclamation point",
+            "Reauthenticate: This option only displays when your authentication expires. Click to authenticate."
+          ]
+        }
+      ]
+    },
+    "android-quick-actions": {
+      "statement": "On the Quick Actions page's Android list, pressing and holding the icon offers Authenticate Early (reauthenticate Private Access before authentication expires), Export Logs, Report an Issue (if the organization has enabled it), and Do Not Disturb options listed as Disabled (turn notifications off), Enabled (turn notifications on), 30 Minutes, 1 Hour and 2 Hours. On Android on ChromeOS the options include Authenticate Early, Export Logs and the Disabled and Enabled options.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-quick-actions-zscaler-client-connector.json",
+          "after": "- Android - You can press and hold the icon",
+          "quotes": [
+            "Authenticate Early: Reauthenticate Private Access (ZPA) before your authentication expires.",
+            "Export Logs: Click to export logs. Logs are saved as a text file on your device.",
+            "Report an Issue: If your organization has enabled this option, you can click to report an issue.",
+            "Disabled: Turn notifications off.",
+            "Enabled: Turn notifications on.",
+            "30 Minutes: Do not display pop-up notifications for 30 minutes.",
+            "1 Hour: Do not display pop-up notifications for 1 hour.",
+            "2 Hours: Do not display pop-up notifications for 2 hours."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-quick-actions-zscaler-client-connector.json",
+          "after": "- Android on ChromeOS - You can press and hold the icon",
+          "quotes": [
+            "Authenticate Early: Reauthenticate Private Access before your authentication expires.",
+            "Export Logs: Export logs that are saved as a text file on your device.",
+            "Disabled: Turn notifications off.",
+            "Enabled: Turn notifications on."
+          ]
+        }
+      ]
+    },
+    "status-orb": {
+      "statement": "In the Modern UI, the Status Orb shows the status of the security services: green when all enabled services are connected and active, orange when one or more enabled services requires user action (for example authentication), and blue when one or more enabled services is currently unavailable, with an additional message of more information such as the internet not being connected or a service connecting. A red number on the Notifications icon counts pending notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-modern-ui.json",
+          "quotes": [
+            "Status Check: View the Status Orb to view the status of the security services. Possible options include:",
+            "Green: All enabled services are connected and active.",
+            "Orange: One or more of the enabled services requires user action (e.g., authentication).",
+            "Blue: One or more of the enabled services is currently unavailable.",
+            "An additional message displays with more information (e.g., the internet isn't connected or a service is in the process of connecting).",
+            "If you have pending notifications, a red number displays on the Notifications icon indicating the number of notifications."
+          ]
+        }
+      ]
+    },
+    "about-window": {
+      "statement": "The Classic UI's About information includes Update App, which updates to the latest version approved by the organization and is not available on Android; App Policy, the name of the app profile assigned to the device; and Update Policy, which manually refreshes internet security policies and the PAC file. The Modern UI information page also lists UI Language, whose default is based on the app profile and which applies to Client Connector for Windows, and Theme, Light or Dark or following the Device Theme setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-zscaler-client-connector-classic-ui.json",
+          "quotes": [
+            "Update App: You can click or tap to update the app to the latest version approved by your organization if an update has not already occurred.",
+            "For Android devices, this option is not available.",
+            "App Policy: Displays the name of the app profile assigned to the device.",
+            "Update Policy: You can click or tap to manually refresh your internet security policies and PAC file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-zscaler-client-connector-modern-ui.json",
+          "quotes": [
+            "UI Language: The language in which the Zscaler Client Connector app displays. The default language is based on the app profile. Applies to Zscaler Client Connector for Windows.",
+            "Theme: The color theme in which the app displays. You can select Light or Dark mode, or you can select to follow the Device Theme setting."
+          ]
+        }
+      ]
+    },
+    "enrollment-flow": {
+      "statement": "In the Windows steps for enrolling in the Classic UI, the username must be in email format unless the organization's admin configured the settings to log in without entering the organization's domain, the user might be required to enter a password or might be redirected to the organization's single sign-on form, and if the organization has configured an Acceptable Use Policy the user must accept it to proceed to enrollment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enrolling-zscaler-service-zscaler-client-connector-classic-ui.json",
+          "after": "To enroll in the Zscaler service using the Windows version",
+          "quotes": [
+            "The username must be in email format, unless your organization's admin configured the settings to log in without entering your organization's domain.",
+            "You might be required to enter a password and click Login.",
+            "You might be redirected to your organization’s single sign-on (SSO) form.",
+            "If your organization has configured an Acceptable Use Policy (AUP), the AUP window appears. You must accept the AUP to proceed to enrollment."
+          ]
+        }
+      ]
+    },
+    "android-enrollment": {
+      "statement": "In the Android steps for enrolling in the Classic UI, the user is prompted to allow Zscaler to send notifications (recommended: Allow) and, based on how the organization installed Client Connector, to allow access to contacts (recommended: Allow), and is told when post notification permission is missing; the enrollment screen also offers Export logs and entering the cloud name to connect to. After enrollment the app must be allowed to establish a VPN tunnel, and if it is not allowed the user must restart the app to see the prompt again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enrolling-zscaler-service-zscaler-client-connector-classic-ui.json",
+          "after": "To enroll in the Zscaler service using the Android version",
+          "quotes": [
+            "You are prompted to Allow Zscaler to send you notifications. The recommended setting is Allow.",
+            "Based on how your organization installed Zscaler Client Connector, you might be prompted to Allow Zscaler to access your contacts. The recommended setting is Allow.",
+            "Export logs.",
+            "You are prompted that you don’t have post notification permission.",
+            "Enter the cloud name that you want to connect to.",
+            "After the app completes enrollment, allow it to establish a VPN tunnel. If you do not allow the app to establish the VPN, you must restart the app to see this prompt again."
+          ]
+        }
+      ]
+    },
+    "notifications-window": {
+      "statement": "In the Windows steps for viewing notifications in the Classic UI, each notification lists the Application relevant to the action that triggered it, the Time it was received and the Message; for example, an upload to Dropbox.com in violation of a cloud app control policy shows Dropbox.com in the Application column. Clear All clears all notifications from the page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-notifications-zscaler-client-connector-classic-ui.json",
+          "after": "Viewing Notifications on Windows",
+          "quotes": [
+            "Application: Displays the name of the application relevant to the action that triggered the notification.",
+            "As another example, if you attempted to upload content to Dropbox.com in violation of one of your organization's cloud app control policies in the Internet & SaaS service, you would receive a notification and see Dropbox.com in the Application column.",
+            "Time: Displays the time when the notification was received.",
+            "Message: Displays the notification message.",
+            "Click Clear All to clear all notifications from this page."
+          ]
+        }
+      ]
+    },
+    "mobile-filter": {
+      "statement": "On Android, the Delete icon in the top-right corner clears all notifications from the screen, and notifications can be viewed from Today, the Last 7 Days, the Last 10 Days, or All.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-notifications-zscaler-client-connector-classic-ui.json",
+          "after": "Viewing Notifications on Android - In",
+          "quotes": [
+            "Tap the Delete icon in the top-right corner to clear all notifications from this screen.",
+            "You can view notifications from Today, the Last 7 Days, the Last 10 Days, or view All notifications."
+          ]
+        }
+      ]
+    },
+    "user-settings": {
+      "statement": "In the Windows steps for viewing notifications in the Classic UI, users can manually enable or disable pop-up notifications (the default is set by the admin, and the setting does not affect Private Access reauthentication notifications), override the default configured in the Admin Console to show Private Access reauthentication notifications, and pause notifications with Do Not Disturb (DND) Mode in 30-minute, 1-hour or 2-hour increments; on Client Connector 4.9 they can select Enabled to pause notifications indefinitely until they select Disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-notifications-zscaler-client-connector-classic-ui.json",
+          "after": "Viewing Notifications on Windows",
+          "quotes": [
+            "Manually enable or disable pop-up notifications. The default setting is set by the admin.",
+            "This setting doesn’t affect Private Access reauthentication notifications.",
+            "Override the default setting that was configured in the Zscaler Admin Console to show Private Access reauthentication notifications.",
+            "Pause notifications by enabling Do Not Disturb (DND) Mode. You can pause notifications in 30-minute, 1-hour, or 2-hour increments.",
+            "If you use Zscaler Client Connector version 4.9, you can select Enabled to pause notifications indefinitely until you select Disabled."
+          ]
+        }
+      ]
+    },
+    "framework-on-windows": {
+      "statement": "For Client Connector 3.8 and later for Windows, the Zscaler Notification Framework can be used instead, and notifications then cannot be disabled in Windows settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-notifications-zscaler-client-connector-classic-ui.json",
+          "quotes": [
+            "For Zscaler Client Connector version 3.8 and later for Windows, you can instead use Zscaler's Notification Framework. You cannot disable notifications in Windows settings."
+          ]
+        }
+      ]
+    },
+    "self-service": {
+      "statement": "After the admins have configured the Self Service settings, users receive notifications when issues are detected and need attention. Each contains a brief diagnosis and recommendation that might resolve the CPU or Wi-Fi issue, appears as a dialog window on the user's screen and is also recorded on the Notifications page; users can enable the toggle for Show Self Service notification popups under Settings and can give feedback on whether the recommendation helped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-self-service-notifications-zscaler-client-connector-classic-ui.json",
+          "quotes": [
+            "After the admins have configured the Self Service settings, users receive notifications when issues are detected and need attention.",
+            "Each notification contains a brief diagnosis and recommendation that might resolve the CPU or Wi-Fi issue.",
+            "Under Settings, enable the toggle for Show Self Service notification popups.",
+            "Self Service notifications appear as a dialog window on a user’s screen.",
+            "The notifications are also recorded on the Notifications page.",
+            "You can also provide feedback if you found the recommendation helpful."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "export-logs-format": {
+      "summary": "End-user pages for the tray menu, menu bar and Android quick actions, say Export Logs saves logs as a text file, and the App Supportability overview says users can export logs as a text file, while the Troubleshoot pages and the logging controls article say the exported logs are a ZIP file.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+            "after": "Zscaler Client Connector displays an icon in the system tray, as shown in the following image:",
+            "quotes": [
+              "Export Logs: Click to export logs. Logs are saved as a text file on your device."
+            ]
+          },
+          "says": "Classic UI, Windows tray menu: logs are saved as a text file."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+            "after": "## Zscaler Client Connector Menu Bar Options",
+            "quotes": [
+              "Export Logs: Click to export logs. Logs are saved as a text file on your device."
+            ]
+          },
+          "says": "Classic UI, macOS menu bar: logs are saved as a text file."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+            "after": "Right-click the Zscaler Client Connector icon to display the following options:",
+            "quotes": [
+              "Export Logs: Exports log files and saves them as text files on your device."
+            ]
+          },
+          "says": "Classic UI, Linux tray menu: log files are saved as text files."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-using-zscaler-client-connector-classic-ui.json",
+            "after": "In the Zscaler Client Connector window for Android, you can:",
+            "quotes": [
+              "Export Logs: Click to export logs. Logs are saved as a text file on your device."
+            ]
+          },
+          "says": "Classic UI, Android: logs are saved as a text file."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-quick-actions-zscaler-client-connector.json",
+            "after": "- Android - You can press and hold the icon",
+            "quotes": [
+              "Export Logs: Click to export logs. Logs are saved as a text file on your device."
+            ]
+          },
+          "says": "Modern UI quick actions, Android: logs are saved as a text file."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-quick-actions-zscaler-client-connector.json",
+            "after": "- Android on ChromeOS - You can press and hold the icon",
+            "quotes": [
+              "Export Logs: Export logs that are saved as a text file on your device."
+            ]
+          },
+          "says": "Modern UI quick actions, Android on ChromeOS: logs are saved as a text file."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-about-app-supportability.json",
+            "quotes": [
+              "Allow users to access logging controls. Users can export logs as a text file, clear logs, and change the logging mode."
+            ]
+          },
+          "says": "App Supportability overview: users given access to logging controls can export logs as a text file."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+            "after": "The Troubleshoot section includes the following features on Windows devices:",
+            "quotes": [
+              "Export Logs: Click this option to export logs to a ZIP file, then email that folder to your organization’s support admin."
+            ]
+          },
+          "says": "Classic UI Troubleshoot section, Windows: logs are exported to a ZIP file."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+            "after": "The Troubleshoot section includes the following features on macOS devices:",
+            "quotes": [
+              "Export Logs: Click this option to export logs to a ZIP file, then email that folder to your organization’s support admin."
+            ]
+          },
+          "says": "Classic UI Troubleshoot section, macOS: logs are exported to a ZIP file."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+            "after": "The Troubleshoot section includes the following features on Linux devices:",
+            "quotes": [
+              "Export Logs: Click this option to export logs to a ZIP file, then email that folder to your organization’s support admin."
+            ]
+          },
+          "says": "Classic UI Troubleshoot section, Linux: logs are exported to a ZIP file."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-troubleshooting-zscaler-client-connector-modern-ui.json",
+            "quotes": [
+              "Export Logs: Click this option to export logs to a ZIP file, then email that folder to your organization’s support admin."
+            ]
+          },
+          "says": "Modern UI Troubleshooting page: logs are exported to a ZIP file."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-user-access-logging-controls-zscaler-client-connector.json",
+            "quotes": [
+              "Upon export, the logs are saved as a ZIP file on the user's device.",
+              "Export logs from the Zscaler Client Connector system tray icon shortcut menu."
+            ]
+          },
+          "says": "Admin logging controls article: exporting from the system tray icon shortcut menu saves a ZIP file (existing claim zcc.logging.user-access:visible-capabilities)."
+        }
+      ],
+      "impact": "The tray menu and the Troubleshoot section both offer Export Logs but the pages give the output as a text file and as a ZIP file; the file format a user gets from each entry point is not settled by the pages."
+    }
+  },
+  "gaps": {
+    "modern-ui-coverage": {
+      "kind": "semantic",
+      "title": "Modern UI on macOS, Linux and iOS",
+      "status": "open",
+      "detail": "The Modern UI pages describe Windows, plus Android and Android on ChromeOS for Private Access and quick actions; macOS, Linux and iOS in the Modern UI are not described. The Classic enrollment page for Linux lists the Acceptable Use Policy step before authentication while the Windows, macOS and Android sections list it after, and whether the order differs is open.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "dnd-options-meaning": {
+      "kind": "semantic",
+      "title": "Meaning of the Do Not Disturb Disabled and Enabled options",
+      "status": "open",
+      "detail": "The Android quick actions page lists Disabled as turning notifications off and Enabled as turning them on under Do Not Disturb, which reads inverted against a pause; the pages do not say which is meant.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

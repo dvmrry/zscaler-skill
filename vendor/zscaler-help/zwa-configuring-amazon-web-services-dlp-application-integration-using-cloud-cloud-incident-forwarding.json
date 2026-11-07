@@ -1,0 +1,4059 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Amazon Web Services DLP Application Integration Using Cloud-to-Cloud Incident Forwarding",
+  "source": {
+    "url": "https://help.zscaler.com/workflow-automation/configuring-amazon-web-services-dlp-application-integration-using-cloud-cloud-incident-forwarding",
+    "node": "1531125",
+    "revision": "3249588",
+    "updated": "2026-10-14",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Workflow Automation DLP application integration with an Amazon Web Services (AWS) EC2 instance using Zscaler Cloud-to-Cloud Incident Forwarding enables your organization to send Data Loss Prevention (DLP) incident metadata and evidence files to your organization's AWS Simple Storage Service (S3) buckets in your AWS account without deploying appliances."
+    },
+    {
+      "text": "To configure the AWS DLP application integration using Cloud-to-Cloud Incident Forwarding:"
+    },
+    {
+      "item": "1. Create resources for AWS.",
+      "depth": 0
+    },
+    {
+      "item": "You can create AWS resources by creating a CloudFormation stack in AWS, or you can create them manually using the AWS console.",
+      "depth": 0
+    },
+    {
+      "item": "Creating AWS Resources Using a CloudFormation Stack in AWS",
+      "depth": 1
+    },
+    {
+      "item": "a. Download the Zscaler template file from the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Workflow Automation > Integrations. The Integrations dashboard appears, displaying a DLP application tile. The Tile View icon is selected by default.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          83
+        ],
+        [
+          89,
+          101
+        ],
+        [
+          134,
+          137
+        ],
+        [
+          160,
+          169
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Integrations dashboard, at the top left of the dashboard, click the List View icon to change the format for the dashboard.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          75,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the list view format, click Connect next to the DLP application integration. The Zscaler DLP Integration details page appears, displaying a Configuration Steps tab and a Configuration tab.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          31,
+          38
+        ],
+        [
+          84,
+          107
+        ],
+        [
+          143,
+          162
+        ],
+        [
+          173,
+          186
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click the Configuration Steps tab.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "On the Configuration Steps tab, under CloudFormation Stack Setup, click the template link to download the Zscaler template file.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          38,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "b. Create the CloudFormation stack in AWS using the template file that Zscaler provides.",
+      "depth": 2
+    },
+    {
+      "item": "You can create the CloudFormation stack on the AWS console using the template file you previously downloaded from the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "item": "Make sure the following prerequisites are met:",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that you have the following list of permissions in AWS, at a minimum, to successfully create the CloudFormation stack:",
+      "depth": 3
+    },
+    {
+      "table": [
+        [
+          "Permissions",
+          "AWS Resource Creation"
+        ],
+        [
+          "AmazonS3FullAccess",
+          "To create the data and metadata bucket for uploading incidents and incident metadata."
+        ],
+        [
+          "AWSKeyManagementServicePowerUser",
+          "To create the Key Management Service (KMS) Key for encrypting the message in the Simple Notification Service (SNS) topic."
+        ],
+        [
+          "IAMFullAccess or Custom IAM Policy with permission to Create Role and Create Policy",
+          "To create a cross-account policy for accessing the S3 bucket. To create a cross-account role and attach the cross-account policy. To create the Trust Relationship between the Workflow Automation account and the cross-account role."
+        ],
+        [
+          "AmazonSNSFullAccess",
+          "To create an SNS topic. To provide access for the S3 bucket to publish to the SNS topic. To provide access to Workflow Automation, to subscribe the Simple Queue Service (SQS) to the SNS topic."
+        ]
+      ]
+    },
+    {
+      "item": "Choose the region where you want the S3 buckets to be created on the AWS console. On the AWS console, select the CloudFormation service and then, from the drop-down menu at the top of the console, select the region.",
+      "depth": 3
+    },
+    {
+      "heading": "Creating the CloudFormation Stack",
+      "level": 1
+    },
+    {
+      "item": "To create the CloudFormation stack:",
+      "depth": 2
+    },
+    {
+      "item": "At the top left of the AWS console, click the Services icon.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          46,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Go to Management & Governance > CloudFormation.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          29
+        ],
+        [
+          32,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Click Create stack and from the drop-down menu, select With new resources (standard). The Create stack page appears.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          55,
+          84
+        ],
+        [
+          90,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "On the Create stack page:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "In the Prerequisites - Prepare template section, select Choose an existing template.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          39
+        ],
+        [
+          56,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "In the Specify template section:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Select Upload a template file.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Click Choose file and upload the Zscaler template file that you downloaded.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next. The Specify stack details page appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Specify stack details page:",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "In the Provide a stack name section, enter a Stack name—for example, ZscalerIntegration.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          17,
+          27
+        ],
+        [
+          45,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Zscaler Specific Configuration parameters section:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "zwaAccountID: Copy the AWS Account from the Account Settings page in the Zscaler Admin Console and enter it here. This parameter is the Workflow Automation AWS account.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          23,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "zwaRole: Copy the Role Name from the Account Settings page in the Zscaler Admin Console and enter it here. This enables the integration to be restricted to only this role in your Workflow Automation AWS account.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          18,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "customerGuid: Copy the Customer Globally Unique Identifier (GUID) from the Account Settings page in the Zscaler Admin Console and enter it here.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "ziaRoleARN: Enter the Cloud-to-Cloud Role Amazon Resource Name (ARN), which is the only role allowed to write S3 objects for the S3 bucket policy. A ziaRoleARN is a string of characters. You can find this ARN in the AWS account where the Cloud-to-Cloud Incident Forwarding is hosted.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the S3 Configuration parameters section:",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "bucketNamePrefix: Enter an S3 bucket name prefix—for example, corp-abc-com. The prefix can be up to 40 characters. Ensure that you do not use dots (.) in the name prefix.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "encryptBuckets: Select true to enable KMS encryption on both S3 buckets with KMS keys. By default, false appears.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          27
+        ],
+        [
+          99,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "kmsArnS3: This parameter only applies if you select true for the encryptBuckets parameter in this section, and you select false in the allowKMSKeyCreate parameter in the KMS Encryption Configuration parameters section. Enter the KMS key ARN to be used for the encryption on the S3 buckets in your AWS account. A kmsArnS3 is a string of characters.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          52,
+          56
+        ],
+        [
+          65,
+          79
+        ],
+        [
+          122,
+          127
+        ],
+        [
+          135,
+          152
+        ],
+        [
+          170,
+          198
+        ]
+      ]
+    },
+    {
+      "item": "lockRententionMode: From the drop-down menu, select the retention mode for any object version that is protected by Object Lock. Retention modes are Governance and Compliance. To learn more about retention modes, refer to the Amazon Simple Storage Service User Guide.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          148,
+          158
+        ],
+        [
+          163,
+          173
+        ]
+      ]
+    },
+    {
+      "item": "lockRententionDays: Enter the number of days during which an object remains locked. By default, 180 appears.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          96,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "enableCloudtrail: Select true to enable S3 data events in CloudTrail to capture and audit all activity within the S3 bucket. By default, false appears.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          29
+        ],
+        [
+          137,
+          142
+        ]
+      ]
+    },
+    {
+      "item": "cloudTrailLogsBucket: This parameter only applies if you select true for the enableCloudtrail parameter in this section. Enter the name of the S3 bucket designated for publishing CloudTrail logs. To learn more about CloudTrail event logging, refer to the Amazon Simple Storage Service User Guide.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          64,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "enableExpiration: Select true to enable the lifecycle policy to expire objects and clean up versions and multipart uploads. By default, false appears. To learn more about expiring objects, refer to the Amazon Simple Storage Service User Guide.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          29
+        ],
+        [
+          136,
+          141
+        ]
+      ]
+    },
+    {
+      "item": "expirationDaysCurrent: Enter the number of days after which the current object versions expire. By default, 365 appears.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          108,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "expirationDaysNonCurrent: Enter the number of days after which the non-current versions are permanently deleted. By default, 60 appears.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          125,
+          127
+        ]
+      ]
+    },
+    {
+      "item": "incompleteMultipartDays: Enter the number of days after which incomplete multipart uploads are aborted. By default, 7 appears.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          116,
+          117
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the SNS Topic Configuration parameters section:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "snsTopicName: The default SNS topic name appears in the field. You can change the name of the SNS topic if you want. The CloudFormation stack script creates an SNS topic with this name.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "encryptTopic: Select true to enable KMS encryption on the SNS topic with KMS keys. By default, false appears.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          25
+        ],
+        [
+          95,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "kmsArnSNS: This parameter only applies if you select true for the encryptTopic parameter in this section, and you select false in the allowKMSKeyCreate parameter in the KMS Encryption Configuration parameters section. Enter the KMS key ARN to be used for the encryption on the SNS topic in your AWS account. A kmsArnSNS is a string of characters.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          53,
+          57
+        ],
+        [
+          66,
+          78
+        ],
+        [
+          121,
+          126
+        ],
+        [
+          134,
+          151
+        ],
+        [
+          169,
+          197
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the KMS Encryption Configuration parameters section, in the allowKMSKeyCreate field, select true to enable the CloudFormation stack script to create a KMS key and link that key to the S3 buckets and the SNS topic for encryption. By default, false appears. This parameter only applies if you select true for the encryptBuckets parameter in the S3 Configuration parameters section and the encryptTopic parameter in the SNS Topic Configuration parameters section. If you don't enable this option, and you want to use encryption for the S3 buckets and the SNS topic, you must enter an already created KMS key ARN in the kmsArnS3 parameter in the S3 Configuration parameters section and the kmsArnSNS parameter in the SNS Top Configuration parameters section.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          35
+        ],
+        [
+          63,
+          80
+        ],
+        [
+          95,
+          99
+        ],
+        [
+          244,
+          249
+        ],
+        [
+          301,
+          305
+        ],
+        [
+          314,
+          328
+        ],
+        [
+          346,
+          362
+        ],
+        [
+          390,
+          402
+        ],
+        [
+          420,
+          443
+        ],
+        [
+          619,
+          627
+        ],
+        [
+          645,
+          661
+        ],
+        [
+          689,
+          698
+        ],
+        [
+          716,
+          737
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Cross Account Role Configuration parameters section:",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "crossAccountRoleName: Enter an Identity and Access Management (IAM) cross-account role name—for example, zscaler-cross-account-role. A role name is a string of characters.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "enableReadAccessToDataBucket: Select true to enable the integration account to have read access to the data bucket. By default, true appears.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          28
+        ],
+        [
+          37,
+          41
+        ],
+        [
+          128,
+          132
+        ]
+      ]
+    },
+    {
+      "item": "createSupportRole: Select true to enable the CloudFormation stack script to create an additional support role for your account. After this role is created, Zscaler Support can assume this role and assist you with troubleshooting any integration configuration issues that you might have in your AWS account. This role is restricted and cannot access any of the incidents or the data associated with those incidents in your account. By default, true appears. Creating a support role is optional.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          30
+        ],
+        [
+          443,
+          447
+        ],
+        [
+          455,
+          456
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next. The Configure stack options page appears.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Configure stack options page:",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) In the Tags section, configure the tags that you want to apply to the resources that the stack creates.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          18,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "(Optional) In the Permissions section, choose the IAM role for CloudFormation to use for all operations performed in the stack.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          18,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the next sections (Stack failure options and Advanced options) on the page, leave the default values.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          22,
+          43
+        ],
+        [
+          48,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "In the Capabilities section (bottom of page), select the I acknowledge that AWS CloudFormation might create IAM resources with custom names checkbox.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          57,
+          139
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next. The Review and create page appears.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Review and create page, review the configuration and then click Submit at the bottom of the page.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          71,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Wait for the stack creation to be completed. The stack creation process can take several minutes. Initially, the stack creation status is CREATE_IN_PROGRESS.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "After the stack creation is completed, the status changes to CREATE_COMPLETE.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click the Outputs tab to view the IAM cross-account role ARN and the external ID, SNS topic ARN, support role ARN (if created), and S3 bucket name prefix (copied from input) outputs. Copy these values. They are required when adding a DLP Application Integration in Workflow Automation.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          10,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Different S3 buckets that share a common name prefix are used for storing DLP incident data and metadata files. The names of the data and metadata buckets are set to <bucketNamePrefix>-data and <bucketNamePrefix>-metadata, respectively. The Zscaler DLP Incident Management service needs to read and store the incident metadata file (with trigger data stripped), but it never reads and stores the incident data files.",
+      "depth": 2
+    },
+    {
+      "item": "To notify the service when new incidents are uploaded to S3, an SNS topic is created in the AWS account. The metadata S3 bucket is configured to publish ObjectCreated notifications to the SNS topic. The Zscaler service subscribes an SQS queue housed in the Zscaler AWS account to the SNS topic. When the Zscaler service receives a notification on the SQS queue, it needs to read the metadata file associated with the notification from S3. To do so, an IAM cross-account is created in the AWS account that grants the Zscaler AWS account permissions to read from the metadata S3 bucket and optionally the data S3 bucket. The read permission for the data S3 bucket is only required if you want users who respond to incidents to be able to view incident data files through short-lived presigned S3 URL links.",
+      "depth": 2
+    },
+    {
+      "item": "a. Create the AWS resources manually.",
+      "depth": 3
+    },
+    {
+      "item": "b. (Optional) Perform additional steps for customer-managed keys on the S3 buckets and SNS topic.",
+      "depth": 3
+    },
+    {
+      "item": "c. (Optional) Create a support role manually.",
+      "depth": 3
+    },
+    {
+      "item": "You can use the following resource creation template to manually create the support role and policies that Zscaler Support can assume. Zscaler Support can then use this role to assist you with troubleshooting configuration integration issues with your AWS integration account.",
+      "depth": 3
+    },
+    {
+      "item": "On the AWS console, search for IAM.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select IAM. The IAM dashboard appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the IAM dashboard, in the left-side navigation, click Roles. The Roles page appears, listing all the existing roles.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          57,
+          62
+        ],
+        [
+          68,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Roles page, click Create role. The Create role page appears.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          25,
+          36
+        ],
+        [
+          42,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "On the Create role page, in the Trusted entity type section, select AWS account.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          32,
+          51
+        ],
+        [
+          68,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next. The Add permissions page appears.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Add permissions page, click Create policy. The Specify permissions page appears.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          35,
+          48
+        ],
+        [
+          54,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify permissions page, click the JSON tab.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          43,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "In the Policy editor section, add the following policy:",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Action\": [ \"s3:GetBucketPolicyStatus\", \"s3:GetBucketOwnershipControls\", \"s3:GetBucketAcl\", \"s3:GetBucketNotification\", \"s3:GetBucketLocation\", \"s3:GetBucketPolicy\" ], \"Resource\": [ \"arn:aws:s3:::{S3MetadataBucketName}\", \"arn:aws:s3:::{S3DataBucketName}\" ], \"Effect\": \"Allow\", \"Sid\": \"S3Permissions\" }, { \"Action\": [ \"sns:ListSubscriptionsByTopic\", \"sns:GetTopicAttributes\", \"sns:GetSubscriptionAttributes\" ], \"Resource\": [ \"{SNSTopicARN}\" ], \"Effect\": \"Allow\", \"Sid\": \"SNSPermissions\" }, { \"Action\": [ \"iam:GetRole\", \"iam:GetRolePolicy\", \"iam:ListRolePolicies\", \"iam:ListAttachedRolePolicies\" ], \"Resource\": [ \"{CrossAccountRoleARN}\" ], \"Effect\": \"Allow\", \"Sid\": \"IAMPermissions\" } ]",
+      "depth": 4
+    },
+    {
+      "item": "Replace the following variables in the policy with the values for your organization:",
+      "depth": 4
+    },
+    {
+      "item": "CrossAccountRoleARN: ARN of the cross-account role created for the integration",
+      "depth": 5
+    },
+    {
+      "item": "SNSTopicARN: ARN of the SNS topic that was created",
+      "depth": 5
+    },
+    {
+      "item": "S3MetadataBucketName: Name of the S3 metadata bucket",
+      "depth": 5
+    },
+    {
+      "item": "S3DataBucketName: Name of the S3 data bucket",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "(Optional) If the DLP integration has SNS and S3 encryption with customer managed keys, add the following additional policy:",
+      "depth": 4,
+      "number": 10
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Action\": [ \"kms:GetKeyPolicy\" ], \"Resource\": [ \"{S3KmsKeyArn}\" ], \"Effect\": \"Allow\", \"Sid\": \"S3KMSPermissions\" } ] } { \"Version\": \"2012-10-17\",> \"Statement\": [ { \"Action\": [ \"kms:GetKeyPolicy\" ], \"Resource\": [ \"{snskmsKeyArn}\" ], \"Effect\": \"Allow\", \"Sid\": \"SNSKMSPermissions\" } ] }",
+      "depth": 4
+    },
+    {
+      "item": "Replace the following variables in the policy with the values for your organization:",
+      "depth": 4
+    },
+    {
+      "item": "snskmsKeyArn: ARN of the KMS key used for encrypting the SNS topic",
+      "depth": 5
+    },
+    {
+      "item": "s3kmsKeyArn: ARN of the KMS key used for encrypting the S3 buckets",
+      "depth": 5
+    },
+    {
+      "item": "After the policy is updated, click Next. The Review and create page appears.",
+      "depth": 4,
+      "number": 11,
+      "strong": [
+        [
+          35,
+          39
+        ],
+        [
+          45,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "On the Review and create page, in the Policy details section, enter the name for the policy in the Policy Name field.",
+      "depth": 4,
+      "number": 12,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          38,
+          52
+        ],
+        [
+          99,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "At the bottom of the page, click Create Policy. The Policies page appears, listing all the policies.",
+      "depth": 4,
+      "number": 13,
+      "strong": [
+        [
+          33,
+          46
+        ],
+        [
+          52,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "On the Policies page, in the left-side navigation, click Roles. The Roles page appears, listing all the roles.",
+      "depth": 4,
+      "number": 14,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          57,
+          62
+        ],
+        [
+          68,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "On the Roles page, click Create role. The Create role page appears.",
+      "depth": 4,
+      "number": 15,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          25,
+          36
+        ],
+        [
+          42,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "On the Create role page, at the top right of the page, click the Refresh icon to load the newly created policy. The Add permissions page appears.",
+      "depth": 4,
+      "number": 16,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          65,
+          72
+        ],
+        [
+          116,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "On the Add permissions page, in the search field, enter the name of the newly created policy.",
+      "depth": 4,
+      "number": 17,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select the policy name.",
+      "depth": 4,
+      "number": 18
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next. The Name, review, and create page appears.",
+      "depth": 4,
+      "number": 19,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          16,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "On the Name, review, and create page, enter the name for the role in the Role name field.",
+      "depth": 4,
+      "number": 20,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          73,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "At the bottom right of the page, click Create role. A new support role is created.",
+      "depth": 4,
+      "number": 21,
+      "strong": [
+        [
+          39,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "AWS integration requires three AWS resources:",
+      "depth": 2
+    },
+    {
+      "item": "S3 Bucket: The S3 bucket names share a common prefix. The names of the data and metadata buckets are <bucketNamePrefix>-data and <bucketNamePrefix>-metadata, respectively.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "SNS Topic: The metadata S3 bucket pushes notifications to the SNS topic which is subscribed to the Workflow Automation SQS Queue.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "IAM Cross-Account Role: The IAM cross-account role allows read-only access to the Workflow Automation AWS account to the data and metadata buckets.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "You can also use encryption on S3 and SNS with Customer Managed Keys (CMK) through KMS.",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler recommends that the metadata bucket and SNS topic are always in the same region. If you want to grant S3 data bucket access so that Workflow Automation can generate presigned links, the data buckets must also be in the same region.",
+      "depth": 2
+    },
+    {
+      "item": "Decide on the S3 bucket name prefix to use. The names of the S3 buckets are <bucketNamePrefix>-data and <bucketNamePrefix>-metadata.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "The bucket name prefix is also used as a property when adding a DLP Application Integration in Workflow Automation.",
+      "depth": 3
+    },
+    {
+      "item": "Find your Workflow Automation environment information (Workflow Automation AWS Account ID and Role Name) and customer GUID. In the Zscaler Admin Console, from the navigation menu, go to Administration > Workflow Automation > Advanced Account Settings and expand the Customer Information section to see the AWS Account, Role Name, and Customer GUID. To learn more, see Managing Account Settings.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          186,
+          200
+        ],
+        [
+          203,
+          222
+        ],
+        [
+          225,
+          250
+        ],
+        [
+          266,
+          286
+        ],
+        [
+          306,
+          317
+        ],
+        [
+          319,
+          328
+        ],
+        [
+          334,
+          347
+        ]
+      ]
+    },
+    {
+      "item": "The AWS account, role name, and customer GUID are used when creating an IAM cross-account role that Workflow Automation uses to read DLP incidents. The AWS account is also used as the source owner when creating a standard SNS topic.",
+      "depth": 3
+    },
+    {
+      "item": "On the Create topic page in the AWS console, create a standard SNS topic.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Log in to the AWS console.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "In the AWS console, search for sns.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          31,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select Simple Notification Service. The Amazon SNS dashboard appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          30,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "On the Amazon SNS dashboard, in the left-side navigation, click Dashboard.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          64,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Dashboard page, in the left-side navigation, click Topics. The Topics page appears, listing all the topics.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          58,
+          64
+        ],
+        [
+          70,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Topics page, click Create Topic. The Create topic page appears.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          26,
+          38
+        ],
+        [
+          44,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "On the Create topic page, in the Details section:",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          33,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Type: Select Standard.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the topic—for example, ZscalerDLPIncidentMetadata.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Display name: (Optional) Enter a display name for the topic—for example, ZscalerDLPIncidentMetadata.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Access policy section:",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Choose method: Select Advanced.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "JSON editor: Add the following access policy for the SNS. The policy of the SNS topic allows only the metadata S3 bucket to publish to it and the Zscaler AWS account to subscribe to it. Your AWS account has all other permissions on the topic.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Id\": \"ZScalerDLPIncidentMetadataTopicPolicy\", \"Statement\": [ { \"Sid\": \"AccountOwnerAccess\", \"Effect\": \"Allow\", \"Principal\": { \"AWS\": \"*\" }, \"Action\": [ \"SNS:RemovePermission\", \"SNS:SetTopicAttributes\", \"SNS:DeleteTopic\", \"SNS:ListSubscriptionsByTopic\", \"SNS:GetTopicAttributes\", \"SNS:AddPermission\", \"SNS:Subscribe\", \"SNS:Publish\" ], \"Resource\": \"arn:aws:sns:<AWS::Region>:<AWS::AccountId>:<snsTopicName>\", \"Condition\": { \"StringEquals\": { \"AWS:SourceOwner\": \"<zwaAccountID>\" } } }, { \"Sid\": \"S3MetadataBucketPublish\", \"Effect\": \"Allow\", \"Principal\": { \"Service\": \"s3.amazonaws.com\" }, \"Action\": \"SNS:Publish\", \"Resource\": \"arn:aws:sns:<AWS::Region>:<AWS::AccountId>:<snsTopicName>\", \"Condition\": { \"StringEquals\": { \"AWS:SourceAccount\": \"<AWS::AccountId>\" }, \"ArnLike\": { \"AWS:SourceArn\": \"arn:aws:s3:::<bucketNamePrefix>-metadata\" } } } ] }",
+      "depth": 5
+    },
+    {
+      "item": "Replace the following variables in the policy with the values for your organization:",
+      "depth": 5
+    },
+    {
+      "item": "<AWS::Region>: AWS region used in your account",
+      "depth": 6
+    },
+    {
+      "item": "<AWS::AccountId>: Your AWS Account ID",
+      "depth": 6
+    },
+    {
+      "item": "<snsTopicName>: SNS topic name",
+      "depth": 6
+    },
+    {
+      "item": "<zwaAccountID>: Workflow Automation AWS Account ID. Copy the AWS Account displayed on the Account Settings page in the Zscaler Admin Console.",
+      "depth": 6,
+      "strong": [
+        [
+          61,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "At the bottom of the page, click Create topic. The Topics page reappears, listing all the topics.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          33,
+          45
+        ],
+        [
+          51,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "On the Topics page, in the list of topics, select the topic name you just created. The topic overview page appears.",
+      "depth": 4,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "On the topic overview page, in the Details section, copy the ARN field value for the SNS topic. You use SNS Topic ARN as a property when adding a DLP Application Integration in Workflow Automation.",
+      "depth": 4,
+      "number": 11,
+      "strong": [
+        [
+          35,
+          42
+        ],
+        [
+          61,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Create bucket page in the AWS console, create an S3 bucket for the data bucket.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the AWS console, search for S3.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select S3. The Amazon S3 dashboard appears, displaying all the existing buckets.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          32
+        ],
+        [
+          38,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Create bucket. The Create bucket page appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          25,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "On the Create bucket page:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the General configuration section:",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Bucket type: Select General Purpose.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Bucket name: Enter the name of the bucket as <bucketNamePrefix>-data—for example, zscaler-dlp-data.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "In the Object Ownership section, select ACLs disabled (recommended).",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          40,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "In the Block Public Access settings for this bucket section, select the Block all public access checkbox.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          51
+        ],
+        [
+          72,
+          77
+        ],
+        [
+          78,
+          81
+        ],
+        [
+          82,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "In the Bucket Versioning section, select Disable.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          41,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "In the Default encryption section, leave the default settings.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Create bucket. The Buckets page appears, listing the bucket you have just created.",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          25,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "On the Create bucket page in the AWS console, create an S3 bucket for the metadata bucket.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "On the Buckets page, click Create bucket. The Create bucket page appears.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          27,
+          40
+        ],
+        [
+          46,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "On the Create bucket page:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the General configuration section:",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Bucket type: Select General Purpose.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Bucket name: Enter the name of the bucket as <bucketNamePrefix>-metadata—for example, zscaler-dlp-metadata.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "In the Object Ownership section, select ACLs disabled (recommended).",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          40,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "In the Block Public Access settings for this bucket section, select Block all public access.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          51
+        ],
+        [
+          68,
+          73
+        ],
+        [
+          74,
+          77
+        ],
+        [
+          78,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "In the Bucket Versioning section, select Disable.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          41,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "In the Default encryption section, leave the default settings.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Create bucket. The Buckets page reappears, listing the bucket you have just created.",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          25,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Edit the properties for the metadata bucket by creating an event notification for the bucket:",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "On the Amazon S3 dashboard page, in the Buckets section, click the metadata bucket you just created. The bucket overview page appears.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          40,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the bucket overview page, click the Properties tab for the metadata bucket.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          39,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Properties tab, in the Event Notifications section, click Create event notification. The Create event notification page appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          30,
+          49
+        ],
+        [
+          65,
+          90
+        ],
+        [
+          96,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Create event notification page, in the General configuration section:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          46,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Event Name: Enter the name for the event.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Prefix: Leave the default value.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Suffix: Leave the default value.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "In the Event Types section, under Object creation, select the Put and Post checkboxes.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          34,
+          49
+        ],
+        [
+          62,
+          65
+        ],
+        [
+          70,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "In the Destination section:",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Destination: Select SNS topic.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Specify SNS topic: Select Choose from your SNS topics.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "SNS topic: From the drop-down menu, select the SNS topic that you created previously.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save changes.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "From the AWS console, create an IAM cross-account role with custom policies.",
+      "depth": 3,
+      "number": 7
+    },
+    {
+      "item": "In the AWS console, search for IAM.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select IAM. The IAM dashboard appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the IAM dashboard, in the left-side navigation, click Roles. The Roles page appears, listing all the existing roles.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          57,
+          62
+        ],
+        [
+          68,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Roles page, click Create role. The Create role page appears.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          25,
+          36
+        ],
+        [
+          42,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Create an IAM role with a custom trust policy.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "On the Create role page, in the Trusted entity type section, select Custom trust policy.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          32,
+          51
+        ],
+        [
+          68,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "In the Custom trust policy section, add the following custom trust policy. This policy allows the Zscaler AWS account to assume the role.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Effect\": \"Allow\", \"Principal\": { \"AWS\": \"arn:aws:iam::<zwaAccountID>:role/<zwaRole>\" }, \"Action\": \"sts:AssumeRole\", \"Condition\": { \"StringEquals\": { \"sts:ExternalId\": \"<GUID>\" } } } ] }",
+      "depth": 5
+    },
+    {
+      "item": "Replace the following variables in the policy with the values for your organization displayed on the Account Settings page in the Zscaler Admin Console:",
+      "depth": 5
+    },
+    {
+      "item": "<zwaAccountID>: Workflow Automation AWS Account ID. Copy the AWS Account displayed on the Account Settings page.",
+      "depth": 6,
+      "strong": [
+        [
+          61,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "<zwaRole>: Workflow Automation role name. Copy the Role Name displayed on the Account Settings page.",
+      "depth": 6,
+      "strong": [
+        [
+          51,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "<GUID>: Customer GUID. Copy the Customer GUID displayed on the Account Settings page.",
+      "depth": 6,
+      "strong": [
+        [
+          32,
+          40
+        ],
+        [
+          41,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Next. The Add permissions page appears.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          16,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Add permissions page, click Create policy. The Specify permissions page appears.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          35,
+          48
+        ],
+        [
+          54,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Specify permissions page, in the Policy editor section, add the following policies:",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          40,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "(Required) Metadata S3 bucket read access policy. This policy allows Workflow Automation to read the metadata JSON in the S3 bucket.",
+      "depth": 6
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Action\": [ \"s3:GetObject\", \"s3:GetObjectAttributes\", \"s3:GetBucketLocation\" ], \"Resource\": [ \"arn:aws:s3:::<bucketNamePrefix>-metadata\", \"arn:aws:s3:::<bucketNamePrefix>-metadata/*\" ], \"Effect\": \"Allow\" } ] }",
+      "depth": 6
+    },
+    {
+      "item": "(Required) SNS topic subscribe or unsubscribe policy. This policy allows Workflow Automation to subscribe or unsubscribe on SNS via the cross-account role.",
+      "depth": 6
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Action\": [ \"SNS:Subscribe\", \"SNS:Unsubscribe\", \"SNS:ConfirmSubscription\" ], \"Resource\": \"arn:aws:sns:<AWS::Region>:<AWS::AccountId>:<snsTopicName>\", \"Effect\": \"Allow\", \"Sid\": \"ZScalerSQSSubscribe\" } ] }",
+      "depth": 6
+    },
+    {
+      "item": "Replace the following variables in the policy with the values for your organization:",
+      "depth": 6
+    },
+    {
+      "item": "<AWS::Region>: AWS region used in your account",
+      "depth": 7
+    },
+    {
+      "item": "<AWS::AccountId>: Your AWS Account ID",
+      "depth": 7
+    },
+    {
+      "item": "<snsTopicName>: SNS topic name",
+      "depth": 7
+    },
+    {
+      "item": "(Optional) Data S3 bucket read access policy. This policy allows Workflow Automation to display the data files using a presigned URL. If you want to hide the data files in the Zscaler Admin Console, you can skip this policy.",
+      "depth": 6
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Action\": [ \"s3:GetObject\", \"s3:GetObjectAttributes\", \"s3:GetBucketLocation\" ], \"Resource\": [ \"arn:aws:s3:::<bucketNamePrefix>-data\", \"arn:aws:s3:::<bucketNamePrefix>-data/*\" ], \"Effect\": \"Allow\" } ] }",
+      "depth": 6
+    },
+    {
+      "item": "Click Next. The Review and create page appears.",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "On the Review and create page, in the Policy details section, enter a name for the policy in the Policy Name field.",
+      "depth": 5,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          38,
+          52
+        ],
+        [
+          97,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "At the bottom of the page, click Create Policy. The Policies page appears, listing all the policies.",
+      "depth": 5,
+      "number": 8,
+      "strong": [
+        [
+          33,
+          46
+        ],
+        [
+          52,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "On the Policies page, in the left-side navigation, click Roles. The Roles page appears, listing all the roles.",
+      "depth": 5,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          57,
+          62
+        ],
+        [
+          68,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "On the Roles page, in the list of roles, select the IAM role name you just created. The role overview page appears.",
+      "depth": 5,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "On the role overview page, in the Summary section, copy the ARN field value for the IAM role. This IAM cross-account role ARN is used as a property when adding a DLP Application Integration in Workflow Automation.",
+      "depth": 5,
+      "number": 11,
+      "strong": [
+        [
+          34,
+          41
+        ],
+        [
+          60,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Update the KMS Key policy:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "On the AWS console, search for Key.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select Key Management Service. The Key Management Service (KMS) dashboard appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          52
+        ],
+        [
+          58,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "On the Key Management Service (KMS) dashboard, in the left-side navigation, click Customer managed keys. The Customer managed keys page appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          35
+        ],
+        [
+          82,
+          103
+        ],
+        [
+          109,
+          130
+        ]
+      ]
+    },
+    {
+      "item": "On the Customer managed keys page, in the list of keys, select your CMK key. The customer managed key overview page appears.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the customer managed key overview page, on the Key Policy tab, click Edit.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          50,
+          60
+        ],
+        [
+          72,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Update the key policy with the following policy:",
+      "depth": 4,
+      "number": 6
+    },
+    {
+      "item": "{ \"Sid\": \"SimpleKeyPolicyAllowAccountUsage\", \"Effect\": \"Allow\", \"Principal\": { \"AWS\": \"arn:aws:iam::<AWS Account Id>:role/<cross Account Role>\" }, \"Action\": [ \"kms:Decrypt\", \"kms:Encrypt\", \"kms:GenerateDataKey*\", \"kms:DescribeKey\" ], \"Resource\": \"*\" } { \"Sid\": \"SimpleKeyPolicyAllowS3Bucket\", \"Effect\": \"Allow\", \"Principal\": { \"Service\": \"s3.amazonaws.com\" }, \"Action\": [ \"kms:Decrypt\", \"kms:GenerateDataKey*\" ], \"Resource\": \"*\" }",
+      "depth": 4
+    },
+    {
+      "item": "Click Save Changes.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Attach the key to both of the S3 buckets (data and metadata):",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "On the AWS console, search for S3.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select S3. The Amazon S3 dashboard appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          32
+        ],
+        [
+          38,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Amazon S3 dashboard, in the left-side navigation, click Buckets. The Buckets page appears.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          63,
+          70
+        ],
+        [
+          76,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "On the Buckets page, click the name of your bucket. The bucket overview page appears.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "On the bucket overview page, click the Properties tab.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          39,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "On the Properties tab, in the Default encryption section, click Edit. The Edit default encryption page appears.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          30,
+          48
+        ],
+        [
+          64,
+          68
+        ],
+        [
+          74,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Edit default encryption page:",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Encryption type: Select Server-side encryption with AWS Key Management Service keys (SSE-KMS).",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "AWS KMS Key: Select Choose from your AWS KMS keys.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Available AWS KMS Keys: From the drop-down menu, select your key.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save changes.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Attach the key to the SNS topic:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "On the AWS console, search for sns.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select Simple Notification Service. The Dashboard page appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          57
+        ],
+        [
+          63,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "On the Dashboard page, in the left-side navigation, click Topics. The Topics page appears, listing all the topics.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          58,
+          64
+        ],
+        [
+          70,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "On the Topics page, in the list of topics, select your topic name. The topic overview page appears.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the topic overview page, on the top right of the page, click Edit. The Edit topic page appears.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          64,
+          68
+        ],
+        [
+          74,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit topic page, in the Encryption section:",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          31,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Encryption: Enable encryption.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "AWS KMS Key: From the drop-down menu, select the AWS KMS key you created.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save changes.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Attach a policy to the IAM cross-account role to give access to the key attached to S3 and SNS:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "Copy the Customer Managed Key ARN:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "​​​​​On the AWS console, search for Key.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select Key Management Service. The Key Management Service (KMS) dashboard appears.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          52
+        ],
+        [
+          58,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "On the Key Management Service (KMS) dashboard, in the left-side navigation, click Customer managed keys. The Customer managed keys page appears.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          35
+        ],
+        [
+          82,
+          103
+        ],
+        [
+          109,
+          130
+        ]
+      ]
+    },
+    {
+      "item": "On the Customer managed keys page, in the list of keys, select your CMK key. The customer managed key overview page appears.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "On the customer managed key overview page, in the General configuration section, copy the ARN value that appears. The ARN value is required when attaching the policy to the IAM cross-account role in the next step.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          50,
+          71
+        ],
+        [
+          90,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See Image.",
+      "depth": 5
+    },
+    {
+      "item": "Create a policy on the IAM dashboard:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "On the AWS console, search for IAM.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select IAM. The IAM dashboard appears.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "On the IAM dashboard, in the left-side navigation, click Policies. The Policies page appears, listing all the existing policies.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          57,
+          65
+        ],
+        [
+          71,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Policies page, click Create Policy. The Specify permissions page appears.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          28,
+          41
+        ],
+        [
+          47,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify permissions page, in the Policy editor, add the following JSON file. In the policy JSON, update the Resource value with the Customer Managed Key ARN.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          40,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"KMSAccess\", \"Effect\": \"Allow\", \"Action\": \"kms:Decrypt\", \"Resource\": \"arn:aws:kms:<AWS Region - CMK>:<AWS Account ID>:key/<CMK Id>\" } ] }",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Next. The Review and create page appears.",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "On the Review and create page, in the Policy Details section, enter a name for the policy in the Policy name field.",
+      "depth": 5,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          38,
+          52
+        ],
+        [
+          97,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Create Policy.",
+      "depth": 5,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Attach the policy to the IAM cross-account role:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "On the IAM dashboard, in the left-side navigation, click Roles. The Roles page appears, listing all the existing roles.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          57,
+          62
+        ],
+        [
+          68,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "On the Roles page, in the list of roles, select the IAM cross-account role. The IAM cross-account role overview page appears.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "On the IAM cross-account role overview page, in the Permissions policies section, from the Add permissions drop-down menu, select Attach policies. The Add Permissions page appears, listing all the permission policies.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          52,
+          72
+        ],
+        [
+          91,
+          106
+        ],
+        [
+          130,
+          145
+        ],
+        [
+          151,
+          166
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Add Permissions page, select the KMS policy that you just created.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Permissions.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Attach the following policy to the Cloud-to-Cloud role for uploading data to S3 buckets:",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "Create a policy on the IAM dashboard:",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "On the AWS console, search for IAM.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select IAM. The IAM dashboard appears.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "On the IAM dashboard, in the left-side navigation, click Policies. The Policies page appears, listing all the existing policies.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          57,
+          65
+        ],
+        [
+          71,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "On the Policies page, click Create Policy. The Specify permissions page appears.",
+      "depth": 6,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          28,
+          41
+        ],
+        [
+          47,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify permissions page, in the Policy editor, add the following JSON file. In the policy JSON, update the Resource value to be the Customer Managed Key ARN. You copied the Customer Managed Key ARN in a previous step.",
+      "depth": 6,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          40,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"KMSAccess\", \"Effect\": \"Allow\", \"Action\": \"kms:GenerateDataKey\", \"Resource\": \"arn:aws:kms:<AWS Region - CMK>:<AWS Account ID>:key/<CMK Id>\" } ] }",
+      "depth": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Next. The Review and create page appears.",
+      "depth": 6,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "On the Review and create page, in the Policy Details section, enter a name for the policy in the Policy name field.",
+      "depth": 6,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          38,
+          52
+        ],
+        [
+          97,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "Click Create Policy.",
+      "depth": 6,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Attach the policy to the Cloud-to-Cloud role:",
+      "depth": 5,
+      "number": 2
+    },
+    {
+      "item": "On the IAM dashboard, in the left-side navigation, click Roles. The Roles page appears, listing all the existing roles.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          57,
+          62
+        ],
+        [
+          68,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "On the Roles page, in the list of roles, select the Cloud-to-Cloud role. The Zscaler Cloud-to-Cloud role overview page appears.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          77,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "On the Zscaler Cloud-to-Cloud role overview page, in the Permissions policies section, from the Add permissions drop-down menu, select Attach policies. The Add Permissions page appears, listing all the permission policies.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          43
+        ],
+        [
+          57,
+          77
+        ],
+        [
+          96,
+          111
+        ],
+        [
+          135,
+          150
+        ],
+        [
+          156,
+          171
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "On the Add Permissions page, select the KMS policy that you just created.",
+      "depth": 6,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Permissions.",
+      "depth": 6,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Creating AWS Resources Manually Using the AWS Console",
+      "depth": 1
+    },
+    {
+      "item": "2. Add a DLP AWS application integration in Workflow Automation using the output from the CloudFormation stack or the manually created resources.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Workflow Automation > Integrations. The Integrations dashboard appears, displaying a DLP AWS application tile. The Tile View icon is selected by default.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          83
+        ],
+        [
+          89,
+          101
+        ],
+        [
+          134,
+          137
+        ],
+        [
+          164,
+          173
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) On the Integrations dashboard, change the format for the dashboard. Click the List View icon to view the integrations in a list.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          18,
+          30
+        ],
+        [
+          89,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After you select a view option, perform one of the following procedures:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "In the tile view:",
+      "depth": 2
+    },
+    {
+      "item": "In the DLP AWS application tile, click the Add icon. The add Zscaler DLP Integration page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          43,
+          46
+        ],
+        [
+          61,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "In the list view:",
+      "depth": 2
+    },
+    {
+      "item": "Click Connect next to the DLP AWS application integration. The Zscaler DLP Integration details page appears, displaying a Configuration Steps tab and a Configuration tab.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          63,
+          86
+        ],
+        [
+          122,
+          141
+        ],
+        [
+          152,
+          165
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Configuration Steps tab provides the instructions for configuring a DLP AWS application integration and a link to download the Zscaler template file.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "On the Configuration tab, click Add New. The add Zscaler DLP integration page appears.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          32,
+          39
+        ],
+        [
+          49,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "On the add Zscaler DLP integration page, in the Zscaler DLP Integration section, enter an Integration Name.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          11,
+          34
+        ],
+        [
+          48,
+          71
+        ],
+        [
+          90,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "In the Account Credentials section:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "IAM Cross-Account Role ARN: Copy the IAM cross-account role ARN output of the CloudFormation stack and enter it here or enter the IAM cross-account role ARN that you manually created.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "IAM Cross-Account Role External ID: The IAM cross-account role external ID is automatically populated for you, and you cannot change it.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "This same ID also appears as the Customer GUID on the Account Settings page in the Zscaler Admin Console. To learn more, see Managing Account Settings.",
+      "depth": 2,
+      "strong": [
+        [
+          33,
+          46
+        ],
+        [
+          54,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Support User Role ARN: (Optional) If you created the support role using the CloudFormation stack or you manually created the support role, copy the support role ARN output of the CloudFormation stack and enter it here or enter the support role ARN that you manually created. Zscaler Support can assume this role and assist you with troubleshooting any integration configuration issues that you might have in your AWS account. This role is restricted and cannot access any of the incidents or the data associated with those incidents in your account.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "In the Zscaler DLP Integration section:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "S3 Bucket Name Prefix: Copy the S3 Bucket Name Prefix output of the CloudFormation stack and enter it here or enter the S3 Bucket Name Prefix that you manually created.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "SNS Topic ARN: Copy the SNS Topic ARN output of the CloudFormation stack and enter it here or enter the SNS Topic ARN that you manually created.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Privacy Settings section:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Hide Evidence Data - Admin: Select if you do not want admins to be able to generate presigned evidence links for an incident on the Violation Content tab of the Incident Details drawer. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          132,
+          149
+        ],
+        [
+          161,
+          177
+        ]
+      ]
+    },
+    {
+      "item": "Hide Trigger Data - Admin: Select if you do not want admins to be able to see the trigger data for an incident on the Violation Content tab of the Incident Details drawer. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          118,
+          135
+        ],
+        [
+          147,
+          163
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details - Admin: Select if you do not want the admins to be able to view any of the policy details for the incident on the Violation Details tab of the Incident Details drawer. Otherwise, they can view the policy details for the incident. This checkbox is not selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ],
+        [
+          135,
+          152
+        ],
+        [
+          164,
+          180
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details for Non-Triggered Matches - Admin: Select if you do not want the admins to be able to view the Non-Triggered Engines and Dictionaries section and the Other Matched Rules section of the policy details for the incident on the Violation Details tab of the Incident Details drawer. Otherwise, they can view these sections of the policy details for the incident. This checkbox is only available if you do not select the Hide Policy Details - Admin checkbox. This checkbox is not selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          53
+        ],
+        [
+          115,
+          153
+        ],
+        [
+          170,
+          189
+        ],
+        [
+          244,
+          261
+        ],
+        [
+          273,
+          289
+        ],
+        [
+          435,
+          462
+        ]
+      ]
+    },
+    {
+      "item": "Hide Evidence Data - End User: Select if you do not want the end users responding to an incident notification to be able to generate presigned evidence links for an incident. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Hide Trigger Data - End User: Select if you do not want the end users responding to an incident notification to be able to see the trigger data for an incident. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details - End User: Select if you do not want the end users responding to an incident notification to be able to view any of the policy details for the incident. Otherwise, they can view the policy details for the incident. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details for Non-Triggered Matches - End User: Select if you do not want the end users responding to an incident notification to be able to view the Non-Triggered Engines and Dictionaries section and the Other Matched Rules section of the policy details for the incident. Otherwise, they can view these sections of the policy details for the incident. This checkbox is only available if you do not select the Hide Policy Details - End User checkbox.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          56
+        ],
+        [
+          160,
+          198
+        ],
+        [
+          215,
+          234
+        ],
+        [
+          420,
+          450
+        ]
+      ]
+    },
+    {
+      "item": "Hide Evidence Data - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to generate presigned evidence links for the incident. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Hide Trigger Data - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to see the trigger data for the incident. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to view any of the policy details for the incident. Otherwise, they can view the policy details for the incident. This checkbox is selected by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Hide Policy Details for Non-Triggered Matches - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to view the Non-Triggered Engines and Dictionaries section and the Other Matched Rules section of the policy details for the incident. Otherwise, they can view these sections of the policy details for the incident. This checkbox is only available if you do not select the Hide Policy Details - Manager/Approver checkbox.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          64
+        ],
+        [
+          191,
+          229
+        ],
+        [
+          246,
+          265
+        ],
+        [
+          451,
+          489
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If you disable Hide Evidence Data or Hide Trigger Data in the integration, but you did not enable read access to the S3 bucket when creating the CloudFormation stack, no one can generate evidence links or view trigger data in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "Click Validate. The system validates the account credentials that are entered with the AWS integration. It verifies that the IAM cross-account role ARN entry is valid, and it also checks whether the format is correct for the SNS topic ARN. You can only add the integration if it passes validation.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "If the validation fails for any reason, or if the configuration has been created or updated with the wrong values, you must disable and enable the integration after you correct the values for the integration.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add. The Zscaler DLP Integration details page appears, displaying the DLP AWS integration under Connected Accounts with an Enabled status.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          15,
+          38
+        ],
+        [
+          102,
+          120
+        ],
+        [
+          129,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see Managing DLP AWS Application Integrations in Workflow Automation.",
+      "depth": 0
+    },
+    {
+      "item": "3. Set Up the DLP Cloud-to-Cloud Incident Forwarding.",
+      "depth": 0
+    },
+    {
+      "item": "Configure the DLP Cloud-to-Cloud Incident Forwarding on an AWS EC2 instance for Workflow Automation. Zscaler recommends that you use the AWS S3 storage bucket when configuring Cloud-to-Cloud Incident Forwarding in AWS.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see Configuring DLP Cloud-to-Cloud Incident Forwarding for AWS.",
+      "depth": 0
+    }
+  ]
+}

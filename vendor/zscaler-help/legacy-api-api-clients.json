@@ -1,0 +1,951 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "API Clients",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/api-clients",
+    "node": "1530800",
+    "revision": "3211060",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/ZIdentity%20Service%20API%20Clients_14.json?VersionId=IlnI3Px32pkN2bEDvLg9TY45x95zWQnh",
+    "updated": "2026-06-26",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Authentication Service APIs",
+      "version": "v1"
+    },
+    "servers": [
+      {
+        "url": "https://api.zsapi.net/ziam/admin/api/v1",
+        "description": "Authentication Service Endpoint",
+        "variables": {}
+      }
+    ],
+    "tags": [
+      {
+        "name": "API Clients"
+      }
+    ],
+    "paths": {
+      "/api-clients": {
+        "get": {
+          "description": "Retrieves a paginated list of API clients, providing details such as total records, current page offset, and links for pagination navigation.\n To learn more, see <a href=\"/zidentity/about-api-clients\">About API Clients</a>.",
+          "operationId": "ApiclientOps_list",
+          "parameters": [
+            {
+              "name": "offset",
+              "description": "The starting point for pagination, with the number of records that can be skipped before fetching results.",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0
+              },
+              "explode": false
+            },
+            {
+              "name": "limit",
+              "description": "The maximum number of records to return per request. Minimum: <code>0</code>, Maximum: <code>1000</code>",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0,
+                "maximum": 1000
+              },
+              "explode": false
+            },
+            {
+              "$ref": "#/components/parameters/ApiclientsQueryParameter"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and a paginated list of API clients is returned.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "results_total",
+                        "pageOffset",
+                        "pageSize",
+                        "next_link",
+                        "prev_link",
+                        "records"
+                      ],
+                      "properties": {
+                        "results_total": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The total number of API client records available."
+                        },
+                        "pageOffset": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The starting point of the current page in pagination. Helps determine which set of records is being displayed."
+                        },
+                        "pageSize": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The number of records included in a single response page."
+                        },
+                        "next_link": {
+                          "type": "string",
+                          "description": "URL link to the next page of API client records, if available. Helps to navigate through paginated results."
+                        },
+                        "prev_link": {
+                          "type": "string",
+                          "description": "URL link to the previous page of API client records, if available."
+                        },
+                        "records": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Oauth2ClientPubRespDto"
+                          },
+                          "description": "List of API client and the details of each individual API clients."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "API Clients"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "post": {
+          "description": "Creates a new API client with authentication settings and assigned roles.",
+          "operationId": "ApiclientOps_add",
+          "parameters": [],
+          "responses": {
+            "201": {
+              "description": "The request has succeeded and a new resource has been created as a result.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Oauth2ClientPubRespDto"
+                  }
+                }
+              }
+            },
+            "202": {
+              "description": "The request has been accepted for processing, but processing has not yet completed.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Oauth2ClientPubRespDto"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The server could not understand the request due to invalid syntax.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.ValidationError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "API Clients"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "accessTokenLifeTime",
+                    "clientAuthentication",
+                    "clientResources"
+                  ],
+                  "properties": {
+                    "name": {
+                      "description": "A descriptive name for the API client.",
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "description": {
+                      "description": "A brief description of the API client.",
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "status": {
+                      "description": "Whether the API client needs to be active <code>true</code> or disabled <code>false</code>.",
+                      "type": "boolean"
+                    },
+                    "accessTokenLifeTime": {
+                      "description": "The lifetime (in seconds) of the access token issued to this API client. Example: <code>60</code> for 60 minutes.",
+                      "type": "integer",
+                      "format": "int32",
+                      "minimum": 60,
+                      "maximum": 86400
+                    },
+                    "clientAuthentication": {
+                      "$ref": "#/components/schemas/ClientAuthenticationReqDto"
+                    },
+                    "clientResources": {
+                      "description": "A list of resources that the client can access, along with the scopes associated with each resource.",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "selectedScopes"
+                        ],
+                        "properties": {
+                          "id": {
+                            "description": "Unique identifier for the resource.",
+                            "type": "string"
+                          },
+                          "selectedScopes": {
+                            "description": "The scope details for the resource.",
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/ScopeReqDto"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/api-clients/{id}": {
+        "put": {
+          "operationId": "ApiclientOps_update",
+          "description": "Updates the existing API client details based on the provided <code>ID</code>. This allows modification of attributes such as name, authentication settings, and assigned roles.",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the API client to be updated.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and the API client details are updated.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Oauth2ClientPubRespDto"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Unexpected server issue occurred while processing the request.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.InternalServerError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "API Clients"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "accessTokenLifeTime",
+                    "clientAuthentication",
+                    "clientResources"
+                  ],
+                  "properties": {
+                    "name": {
+                      "description": "A descriptive name for the API client.",
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "description": {
+                      "description": "A brief description of the API client.",
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "status": {
+                      "description": "Whether the API client needs to be active (true) or disabled (false).",
+                      "type": "boolean"
+                    },
+                    "accessTokenLifeTime": {
+                      "description": "Update the lifetime (in minutes) of the access token issued to this API client.\nExample: <code>60</code> for 60 minutes.",
+                      "type": "integer",
+                      "format": "int32",
+                      "minimum": 60,
+                      "maximum": 86400
+                    },
+                    "clientAuthentication": {
+                      "$ref": "#/components/schemas/ClientAuthenticationReqDto"
+                    },
+                    "clientResources": {
+                      "description": "List of associated resources and their scopes.",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "selectedScopes"
+                        ],
+                        "properties": {
+                          "id": {
+                            "description": "Unique identifier of the resource.",
+                            "type": "string"
+                          },
+                          "selectedScopes": {
+                            "description": "A list of scopes assigned to the resource. Each scope is defined by the <code>ScopeReqDto</code> schema.",
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/ScopeReqDto"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "delete": {
+          "description": "Removes an existing API client from the system. After deletion, the API client cannot be recovered.",
+          "operationId": "ApiclientOps_remove",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the API client to be deleted.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "The API client was successfully deleted.\n\nNo content is returned in the response, but headers may be useful for validation purposes. "
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "API Clients"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "get": {
+          "description": "Retrieves detailed information about a specific API client using its <code>ID</code>.",
+          "operationId": "ApiclientOps_get",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the API client to be retrieved.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and the API client details are returned.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Oauth2ClientPubRespDto"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\n The request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "API Clients"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/api-clients/{id}/secrets": {
+        "get": {
+          "description": "<p>Retrieves a list of secrets associated with a specific API client using its <code>ID</code>.</p><p><strong>NOTE:</strong></p><ul><li>Secret values in the response are masked to prevent exposure of sensitive information.</li><li>This API is applicable only when the authentication type is <strong>SECRET</strong>.</li></ul>",
+          "operationId": "ApiclientOps_getSecrets",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The API client <code>ID</code> to retrieve the client secrets.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and a list of secrets is returned.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ClientSecretRespDto"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\n The request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "API Clients"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "post": {
+          "description": "<p>Creates and associates a new secret with a specified API client <code>ID</code>. This secret can be used for authentication with Authentication Service.</p><p><strong>NOTE:</strong> This API is applicable only when the authentication type is <strong>SECRET</strong>.</p>",
+          "operationId": "ApiclientOps_addSecret",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the API client to which the secret is added.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "The request was successful, and a new secret has been created and associated with the API client.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ClientSecretRespDto"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\n The request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "API Clients"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientSecretReqDto"
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/api-clients/{id}/secrets/{secretsId}": {
+        "delete": {
+          "description": "Removes a specific secret associated with an API client using the Client ID and secret ID. After deletion, the secret cannot be recovered.",
+          "operationId": "ApiclientOps_deleteSecret",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the API client.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "secretsId",
+              "description": "Unique identifier of the secret to be deleted.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "The secret was successfully deleted.\n\n No content is returned in the response, but may be useful for validation purposes."
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\n The request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "API Clients"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      }
+    },
+    "components": {
+      "parameters": {
+        "ApiclientsQueryParameter": {
+          "name": "name[like]",
+          "in": "query",
+          "required": false,
+          "description": "Filters results by name using a partial match.",
+          "schema": {
+            "type": "string"
+          },
+          "explode": false
+        }
+      },
+      "schemas": {
+        "Oauth2ClientPubRespDto": {
+          "description": "OAuth2 client profile in the API response.",
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique identifier of the OAuth2 client."
+            }
+          },
+          "allOf": [
+            {
+              "type": "object",
+              "required": [
+                "name",
+                "accessTokenLifeTime",
+                "clientAuthentication",
+                "clientResources"
+              ],
+              "properties": {
+                "name": {
+                  "description": "The name of the OAuth2 client.",
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "description": {
+                  "description": "A description of the client.",
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "status": {
+                  "description": "Whether the client is active (<code>true</code>) or inactive (<code>false</code>).",
+                  "type": "boolean"
+                },
+                "accessTokenLifeTime": {
+                  "description": "Specifies how long (in seconds) the access token remains valid.",
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 60,
+                  "maximum": 86400
+                },
+                "clientAuthentication": {
+                  "$ref": "#/components/schemas/ClientAuthenticationReqDto"
+                },
+                "clientResources": {
+                  "description": "A list of resources associated with the client, along with scopes selected for each resource.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "defaultApi"
+                    ],
+                    "properties": {
+                      "name": {
+                        "description": "The name of the resource.",
+                        "type": "string"
+                      },
+                      "defaultApi": {
+                        "description": "Whether this resource is the default API for the client.",
+                        "type": "boolean"
+                      }
+                    },
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "selectedScopes"
+                        ],
+                        "properties": {
+                          "id": {
+                            "description": "Unique identifier for the resource.",
+                            "type": "string"
+                          },
+                          "selectedScopes": {
+                            "description": "A list of scopes that are selected or enabled for this resource.",
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/ScopeRespDto"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "Zscaler.Core.UnauthorizedError": {
+          "description": "The structure of a <code>unauthorized</code> error response, indicating that the request lacks valid authorization credentials or the provided credentials do not grant sufficient permissions for the requested operation.",
+          "type": "object",
+          "required": [
+            "type",
+            "title",
+            "status",
+            "detail"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "format": "uri",
+              "description": "A URI reference that identifies the problem type. See the following for common problem types. Additional types might be defined by subsystems."
+            },
+            "title": {
+              "type": "string",
+              "description": "A short message that the request is unauthorized."
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The HTTP status code (e.g., 401)."
+            },
+            "detail": {
+              "type": "string",
+              "description": "A descriptive message explaining that the request is unauthorized."
+            }
+          }
+        },
+        "ClientAuthenticationReqDto": {
+          "description": "Configuration details for the client authentication.",
+          "type": "object",
+          "required": [
+            "authType"
+          ],
+          "properties": {
+            "clientJWKsUrl": {
+              "description": "URL for the JSON Web Keys used for authentication.",
+              "type": "string"
+            },
+            "publicKeys": {
+              "description": "A list of public key information objects.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PublicKeyInfoReqDto"
+              }
+            },
+            "clientCertificates": {
+              "description": "Certificate information for the client.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ClientCeritficateInfoReqDto"
+              }
+            },
+            "authType": {
+              "description": "The method of client authentication.",
+              "$ref": "#/components/schemas/AuthType"
+            }
+          }
+        },
+        "ScopeReqDto": {
+          "description": "The structure for requesting a scope by its unique identifier.",
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "description": "Unique identifier for the scope.",
+              "type": "string"
+            }
+          }
+        },
+        "Zscaler.Core.ValidationError": {
+          "description": "The structure for a validation error response used when a request fails due to incorrect or missing input.",
+          "type": "object",
+          "required": [
+            "type",
+            "title",
+            "status",
+            "detail"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "format": "uri",
+              "description": "A URI identifier that categorizes the error type."
+            },
+            "title": {
+              "type": "string",
+              "description": "A short message that the validation is not successful."
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The HTTP status code (e.g., 400)."
+            },
+            "detail": {
+              "type": "string",
+              "description": "A descriptive message explaining the nature of the validation error."
+            }
+          }
+        },
+        "Zscaler.Core.InternalServerError": {
+          "description": "The structure of an internal server error response, including standardized fields used to convey detailed error information when an unexpected server-side error occurs.",
+          "type": "object",
+          "required": [
+            "type",
+            "title",
+            "status",
+            "detail"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "format": "uri",
+              "description": "A URI reference that identifies the problem type. See the following for common problem types. Additional types might be defined by subsystems."
+            },
+            "title": {
+              "type": "string",
+              "description": "A short message about the internal server error."
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The HTTP status code (e.g., 500)."
+            },
+            "detail": {
+              "type": "string",
+              "description": "A detailed explanation  providing details about the internal server error."
+            }
+          }
+        },
+        "ClientSecretRespDto": {
+          "type": "object",
+          "required": [
+            "id",
+            "createdAt",
+            "value"
+          ],
+          "properties": {
+            "id": {
+              "description": "Unique identifier for the client secret.",
+              "type": "string"
+            },
+            "createdAt": {
+              "description": "Timestamp when the secret was created.",
+              "type": "integer",
+              "format": "int64"
+            },
+            "value": {
+              "description": "The secret value.",
+              "type": "string"
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/ClientSecretReqDto"
+            }
+          ]
+        },
+        "ClientSecretReqDto": {
+          "description": "Client secret setting with an expiration time.",
+          "type": "object",
+          "required": [
+            "expiresAt"
+          ],
+          "properties": {
+            "expiresAt": {
+              "description": "The expiration time of the client secret, represented as a UNIX epoch timestamp (in seconds).",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "ScopeRespDto": {
+          "description": "Details of the scopes associated with the service.",
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "description": "Unique name for the scope.",
+              "type": "string"
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/ScopeReqDto"
+            }
+          ]
+        },
+        "PublicKeyInfoReqDto": {
+          "description": "The structure for public key information for authentication configurations.",
+          "type": "object",
+          "required": [
+            "keyName",
+            "keyValue"
+          ],
+          "properties": {
+            "keyName": {
+              "description": "The name of the public key.",
+              "type": "string"
+            },
+            "keyValue": {
+              "description": "The value of the public key.",
+              "type": "string"
+            }
+          }
+        },
+        "ClientCeritficateInfoReqDto": {
+          "description": "The content of the certificate information.",
+          "type": "object",
+          "required": [
+            "certContent"
+          ],
+          "properties": {
+            "certContent": {
+              "description": "The content of the certificate in a string format.",
+              "type": "string"
+            }
+          }
+        },
+        "AuthType": {
+          "description": "The authentication method for the API client.\n\nThe following options are supported:<li><strong>SECRET</strong>: Use a client secret.</li><li><strong>PUBKEYCERT</strong>: Upload either a public key or a certificate.</li><li><strong>JWKS</strong>: Use a JSON Web Key Set (JWKS)endpoint.",
+          "type": "string",
+          "enum": [
+            "SECRET",
+            "PUBKEYCERT",
+            "JWKS"
+          ]
+        }
+      }
+    }
+  }
+}

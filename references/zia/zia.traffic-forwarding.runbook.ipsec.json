@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.runbook.ipsec",
+  "title": "Runbook: IPSec tunnel hard down, Tunnel Insights status and event values, flapping and up-but-no-traffic",
+  "aliases": [
+    "IPSec Tunnel is Hard Down",
+    "IPSec Tunnel Flapping",
+    "IPSec Tunnel is UP, but Traffic is Not Working"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook.tunnel-path" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.ipsec" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.vpn-credentials" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook.gre" }
+  ],
+  "prose": [
+    {
+      "label": "Hard down.",
+      "text": "{{ikev1-new-tenants}} {{hard-down-reachability}} {{vpn-credentials}} {{gateway-parameters}}"
+    },
+    {
+      "label": "Tunnel Insights.",
+      "text": "{{tunnel-insights-filters}} {{divergence:tunnel-insights-path}} {{tunnel-status-values}} {{event-reason-values}} What each phase failure means for each reason is open {{gap:localized-names-only}}."
+    },
+    {
+      "label": "Additional checks.",
+      "text": "{{nat-t-and-credential-type}} {{sa-limit}} How the 8 per direction limit relates to the Cisco ASA guide's 8 Phase 2 SAs is open {{gap:sa-limit-units}}. {{phase2-null-and-modes}} Which IKE version the aggressive and main mode lines apply to is open {{gap:modes-ike-version}}."
+    },
+    {
+      "label": "Flapping and no traffic.",
+      "text": "{{flapping}} {{maintenance-and-loss}} {{up-no-traffic}} MTR and latency checks are in [[zia.traffic-forwarding.runbook.tunnel-path]]."
+    }
+  ],
+  "claims": {
+    "ikev1-new-tenants": {
+      "statement": "New tenants of an organization can no longer establish IKEv1 IPSec tunnels; when setting up an IPSec tunnel for the first time, a device that only supports IKEv1 needs a Zscaler support case to enable IKEv1 for the organization, otherwise use IKEv2 (recommended for all new deployments).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "New tenants of an organization can no longer establish IKEv1 IPSec tunnels.",
+            "If you are trying to set up an IPSec tunnel for the first time and your device only supports IKEv1, you must raise a support case with Zscaler to enable IKEv1 for your organization.",
+            "Otherwise, configure the tunnel using IKEv2, which is recommended for all new deployments."
+          ]
+        }
+      ]
+    },
+    "hard-down-reachability": {
+      "statement": "In the runbook's section on troubleshooting Zscaler public DC issues, for an IPSec tunnel that will not come up, the runbook says to ping the Zscaler IPSec VIP from the customer gateway; if unreachable, check firewalls and ACLs, capture packets on the edge device and engage the ISP about IPSec restrictions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The following sections describe how to troubleshoot Zscaler public DC issues."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Ping the Zscaler DC IPSec VIP from the customer gateway:",
+            "Check the network infrastructure for potential firewalls, access control lists, or any other rules restricting access.",
+            "Engage with the ISP to ensure there are no restrictions on IPSec traffic.",
+            "Perform a packet capture on the edge device to verify that traffic is leaving the customer network."
+          ],
+          "after": "IPSec Tunnel is Hard Down"
+        }
+      ]
+    },
+    "vpn-credentials": {
+      "statement": "The runbook says VPN credentials must be configured in the Admin Console and mapped to the location: IP-based credentials for a static IP and FQDN-based credentials for a dynamic IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "ensure VPN credentials are correctly configured in the Zscaler Admin Console and mapped to the appropriate location.",
+            "In the case of static IP, create VPN credentials based on IP.",
+            "In the case of dynamic IP, create VPN credentials based on FQDN."
+          ]
+        }
+      ]
+    },
+    "gateway-parameters": {
+      "statement": "The gateway device must be configured with parameters compatible with Zscaler's requirements, including encryption algorithms, hash settings, phase settings and NAT-T compatibility.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Validate that the gateway device is configured with parameters compatible with Zscaler's requirements. These include encryption algorithms, hash settings, phase settings, and NAT traversal (NAT-T) compatibility."
+          ]
+        }
+      ]
+    },
+    "tunnel-insights-filters": {
+      "statement": "To find why an IPSec tunnel is down, the runbook says to open Analytics > Insights > Tunnel Insights and filter on Metrics Received Bytes, the IPSec source IP as Tunnel Source IP and Tunnel Type IPSec.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Use Tunnel Insights on the Zscaler Admin Console to understand the root cause of the tunnel-down issue.",
+            "Log in to the Zscaler Admin Console by going to Analytics > Insights > Tunnel Insights.",
+            "Metrics: Received Bytes",
+            "Tunnel Source IP: <IPSec Source IP>",
+            "Tunnel Type: IPSec"
+          ]
+        }
+      ]
+    },
+    "tunnel-status-values": {
+      "statement": "In Tunnel Insights for IPSec tunnels the listed Tunnel Status enum values are UP (localized name 'IPSec tunnel up'), DOWN ('IPSec tunnel down'), REKEY ('IPSec tunnel renogiated'), PHASE1_DOWN ('Phase1 is down'), PHASE2_DOWN ('Phase2 is down'), PHASE1_ERROR ('Error While Establishing Phase 1') and PHASE2_ERROR ('Error While Establishing Phase 2').",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Enum Name Localizedname(English) UP IPSec tunnel up DOWN IPSec tunnel down REKEY IPSec tunnel renogiated PHASE1_DOWN Phase1 is down PHASE2_DOWN Phase2 is down PHASE1_ERROR Error While Establishing Phase 1 PHASE2_ERROR Error While Establishing Phase 2",
+            "Tunnel Status"
+          ]
+        }
+      ]
+    },
+    "event-reason-values": {
+      "statement": "The Event Reason column in Tunnel Insights takes the enum values EXPIRED ('LIfetime EXPIRED'), PSKEY_NOTFOUND ('Preshared Key NOTFOUND'), PSKEY_MISMATCH ('Preshared Key MISMATCH'), INVALID_PROPOSAL ('INVALID PROPOSAL'), DPD_TIMEOUT ('DPD TIMEOUT') and TIMEOUT ('TIMEOUT'); in its sample an Event Reason indicating a Phase 2 proposal mismatch means validating the customer's IPSec parameters against Zscaler proposals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Enum Name Localizedname(English) EXPIRED LIfetime EXPIRED PSKEY_NOTFOUND Preshared Key NOTFOUND PSKEY_MISMATCH Preshared Key MISMATCH INVALID_PROPOSAL INVALID PROPOSAL DPD_TIMEOUT DPD TIMEOUT TIMEOUT TIMEOUT",
+            "As the earlier Event Reason indicates that there is a proposal mismatch for Phase2. In this case, you must validate the IPSec parameters configured by the customer and validate it against Zscaler proposals."
+          ]
+        }
+      ]
+    },
+    "nat-t-and-credential-type": {
+      "statement": "If the customer gateway is behind NAT, the runbook says NAT-T must be invoked (UDP port 4500 in packet captures and logs) and FQDN-based VPN credentials used instead of IP-based, with the FQDN configured as the IKE ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Verify NAT-T: If the customer gateway is behind NAT, ensure NAT-T is being invoked. Check packet captures and logs to confirm UDP port 4500 is being used.",
+            "Verify VPN credentials type: For gateways behind NAT, ensure FQDN-based VPN credentials are used instead of IP-based credentials. The FQDN must be configured as the IKE ID."
+          ]
+        }
+      ]
+    },
+    "sa-limit": {
+      "statement": "Zscaler supports a maximum of 8 child security associations (Security Protection Data entries) per direction; if exceeded, traffic subnets should be consolidated into fewer policies, and entries beyond the limit are not added, which can leave traffic unrouted over the tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler supports a maximum of 8 child security associations (i.e., Security Protection Data entries) per direction. If this limit is exceeded, consolidate traffic subnets into fewer policies.",
+            "any additional Security Protection Data is not added. This can lead to the traffic not being routed over the IPSec tunnel."
+          ]
+        }
+      ]
+    },
+    "phase2-null-and-modes": {
+      "statement": "In its additional IPSec checks the runbook says Phase-II should be configured with NULL encryption unless encrypted VPN traffic is required (additional subscription needed); aggressive mode uses PSK plus FQDN and main mode uses PSK plus IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Ensure NULL encryption is configured for Phase-II unless encrypted VPN traffic is required (additional subscription needed).",
+            "For aggressive mode, use PSK (Pre-shared Key) + FQDN.",
+            "For main mode, use PSK + IP."
+          ]
+        }
+      ]
+    },
+    "flapping": {
+      "statement": "For a flapping IPSec tunnel, the runbook recommends an Active/Standby pair with automatic failover based on application-layer health monitoring and HTTP probes for health (ICMP probes if the gateway does not support HTTP probes); it also says to confirm the health probes are targeting gateway.<cloudname>.net/vpntest and to enter show ip sla summary on a Cisco gateway to confirm the status of IP SLA probes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler recommends customers configure an Active/Standby pair of IPSec tunnels with automatic failover based on application-layer health monitoring.",
+            "Zscaler recommends configuring HTTP probes for IPSec tunnels to monitor health.",
+            "You can use ICMP probes if HTTP probes are not supported by the gateway device.",
+            "Confirm that the health probes are targeting gateway.<cloudname>.net/vpntest.",
+            "Enter show ip sla summary on a Cisco gateway to confirm the status of IP SLA probes."
+          ],
+          "after": "IPSec Tunnel Flapping"
+        }
+      ]
+    },
+    "maintenance-and-loss": {
+      "statement": "Scheduled maintenance on the Zscaler data center might temporarily affect IPSec tunnels, and observable packet loss can cause Layer 7 health monitoring to fail and the IPSec tunnel to flap.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Scheduled maintenance or events on the Zscaler DC might temporarily affect IPSec tunnels.",
+            "An observable packet loss can cause Layer 7 health monitoring to fail, which would make the IPSec tunnel flap."
+          ]
+        }
+      ]
+    },
+    "up-no-traffic": {
+      "statement": "For an IPSec tunnel that is up but passes no traffic, the runbook says to verify static routes or policy-based routing send traffic over the tunnel, run a packet capture on the gateway, and check that encapsulated/decapsulated packets increment (show crypto isakmp sa, show crypto ipsec sa).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Verify that the IPSec gateway is correctly configured with static routes or Policy-Based Routing (PBR) to send traffic over the IPSec tunnel.",
+            "Run a packet capture or similar utilities based on the Gateway device to validate that the traffic is indeed routing over the IPSec tunnel",
+            "Check the tunnel status and ensure encapsulated/decapsulated packets are incrementing",
+            "show crypto isakmp sa",
+            "show crypto ipsec sa interface: GigabitEthernet1/0/1"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "tunnel-insights-path": {
+      "summary": "The runbook locates Tunnel Insights at Analytics > Insights > Tunnel Insights, while the GRE tunnel configuration article locates it at Data Explorer > Internet & SaaS > Tunnel Insights.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Log in to the Zscaler Admin Console by going to Analytics > Insights > Tunnel Insights."
+            ]
+          },
+          "says": "Tunnel Insights is under Analytics > Insights > Tunnel Insights."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-gre-tunnels.json",
+            "quotes": [
+              "Go to Data Explorer > Internet & SaaS > Tunnel Insights to see data, as well as monitor the health and status of your configured GRE tunnels."
+            ]
+          },
+          "says": "Tunnel Insights is under Data Explorer > Internet & SaaS > Tunnel Insights."
+        }
+      ],
+      "impact": "The two pages give different console paths to the same Tunnel Insights view. Do not give an admin one path as the only one; check which menu the tenant's Admin Console shows."
+    }
+  },
+  "gaps": {
+    "modes-ike-version": {
+      "kind": "semantic",
+      "title": "Whether the runbook's aggressive and main mode lines apply only to IKEv1 with a pre-shared key",
+      "status": "open",
+      "detail": "The runbook says aggressive mode uses PSK plus FQDN and main mode uses PSK plus IP without naming an IKE version. zia.traffic-forwarding.ipsec ties those modes to IKEv1 with a pre-shared key.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "localized-names-only": {
+      "kind": "semantic",
+      "title": "Which Phase fails for which Tunnel Insights Event Reason",
+      "status": "open",
+      "detail": "The Tunnel Status and Event Reason tables give localized names only (for example EXPIRED is 'LIfetime EXPIRED'); the runbook does not state which Phase fails for which reason.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "sa-limit-units": {
+      "kind": "semantic",
+      "title": "Whether the runbook's 8 child SAs per direction and the Cisco ASA guide's 8 Phase 2 SAs count the same thing",
+      "status": "open",
+      "detail": "The runbook counts 8 child security associations (Security Protection Data entries) per direction. The Cisco ASA guide cited in zia.traffic-forwarding.ipsec says up to 8 Phase 2 SAs, one used for the connection between the ASA public IP and the Public Service Edges, leaving seven for subnets. Neither page says whether the units are the same.",
+      "resolves_with": ["source-read", "support-ticket"]
+    }
+  }
+}

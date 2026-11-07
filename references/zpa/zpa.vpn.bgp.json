@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "id": "zpa.vpn.bgp",
+  "title": "BGP for VPN Service Edges and Network Connectors: AS numbers, failure detection, external routers",
+  "related": [
+    { "rel": "see-also", "to": "zpa.vpn" },
+    { "rel": "see-also", "to": "zpa.vpn.redundancy" },
+    { "rel": "see-also", "to": "zpa.vpn.network-connectors" }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{vse-ecmp}}"
+    },
+    {
+      "label": "AS numbers.",
+      "text": "{{local-as}}"
+    },
+    {
+      "label": "Failure detection.",
+      "text": "{{failure-detection}} The pages give no timer or BFD values {{gap:timer-values}}."
+    },
+    {
+      "label": "Network Connector BGP.",
+      "text": "{{connector-bgp-availability}}"
+    },
+    {
+      "label": "External routers.",
+      "text": "{{external-routers}} {{router-fields}} Which Network Connector group option turns BGP on is named and described differently across the pages {{divergence:lan-segments-setting}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before telling an operator which Network Connector group setting enables BGP, give both the name and the purpose each page states.",
+      "uses": ["lan-segments-setting"]
+    },
+    {
+      "do": "Before advising on session failure detection, check VPN Service Edges and Network Connectors use the same method.",
+      "uses": ["failure-detection"]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "Border Gateway Protocol provides alternate paths to reach applications during Network Connector node failures and Network Connector to VPN Service Edge path or link failures. If a failure occurs in a Network Connector, VPN Service Edges use BGP to reroute traffic to another Network Connector within the same Network Connector group for the specific IP address subnet or FQDN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-border-gateway-protocol-vpn-service-edges.json",
+          "quotes": [
+            "Border Gateway Protocol (BGP) ensures high availability and fault tolerance by providing alternate paths to reach applications during Network Connector node failures and Network Connector to VPN Service Edge path or link failures.",
+            "If a failure occurs in a Network Connector, VPN Service Edges use BGP to automatically reroute traffic to another Network Connector within the same Network Connector group for the specific IP address subnet or FQDN"
+          ]
+        }
+      ]
+    },
+    "vse-ecmp": {
+      "statement": "VPN Service Edges have the maximum path set to 256 and ECMP enabled to support BGP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-border-gateway-protocol-vpn-service-edges.json",
+          "quotes": [
+            "VPN Service Edges have the maximum path set to 256 and ECMP enabled to support BGP."
+          ]
+        }
+      ]
+    },
+    "local-as": {
+      "statement": "BGP is configured in separate pages for VPN Service Edges and for Network Connectors, each with a Local AS Number, described as the local autonomous system number used by the router for bidirectional traffic. The VPN Service Edges page says the value of the Local AS Number must be different for VPN Service Edges and Network Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-border-gateway-protocol-vpn-service-edges.json",
+          "quotes": [
+            "Local AS Number: Enter the local autonomous system number used by the router for bidirectional traffic for VPN Service Edges.",
+            "The value of the Local AS Number must be different for VPN Service Edges and Network Connectors."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-border-gateway-protocol-network-connectors.json",
+          "quotes": [
+            "Local AS Number: Enter the local autonomous system number used by the router for bidirectional traffic for Network Connectors."
+          ]
+        }
+      ]
+    },
+    "failure-detection": {
+      "statement": "Session failure detection uses either BGP timers or BFD. BGP sends empty keepalive messages over the TCP connection between two peers, with settings for how frequently keepalive messages are sent (keepalive) and the number of seconds to wait for them before determining the peer is down (holdtimer). BFD sends packets between peers in milliseconds, with settings for the RX interval, TX interval and how many consecutive BFD packets can be dropped before the peer is declared down (detect multiplier). The page says the same session failure detection method must be used for VPN Service Edges and Network Connectors for proper routing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-border-gateway-protocol-vpn-service-edges.json",
+          "quotes": [
+            "BGP sends empty BGP keepalive messages over the TCP connection between two peers to ensure that the TCP session remains active.",
+            "select how frequently keepalive messages are sent to peers (keepalive) and the number of seconds to wait for the keepalive messages to be received by peers before determining that the peer is down (holdtimer).",
+            "BFD sends the packets between peers in milliseconds compared to the seconds or minutes needed for BGP to exchange keepalive messages.",
+            "select the number of milliseconds that should elapse before receiving a packet (RX interval), transmitting a packet (TX interval), and how many consecutive BFD packets can be dropped before determining that the peer is down (detect multiplier).",
+            "You must use the same session failure detection method for VPN Service Edges and Network Connectors for proper routing."
+          ]
+        }
+      ]
+    },
+    "connector-bgp-availability": {
+      "statement": "The Configuring BGP for Network Connectors page says the feature is in limited availability and to contact Zscaler Support. BGP can be configured at a global level, or the global BGP can be overridden when adding or editing individual Network Connector groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-border-gateway-protocol-network-connectors.json",
+          "quotes": [
+            "This feature is in limited availability. To learn more, contact Zscaler Support.",
+            "You can configure a BGP at a global level, or you can override the global BGP when adding or editing individual Network Connector groups."
+          ]
+        }
+      ]
+    },
+    "external-routers": {
+      "statement": "BGP relies on external routers called BGP peers, and peering occurs when BGP peers form connections with other BGP peers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-external-routers.json",
+          "quotes": [
+            "Border Gateway Protocol (BGP) relies on external routers called BGP peers. Peering occurs when BGP peers form connections with other BGP peers."
+          ]
+        }
+      ]
+    },
+    "router-fields": {
+      "statement": "Up to 64 external routers can be added. Each takes a Router AS Number (the ASN of the external router), a Router IP Address (the internal router the Network Connector peers with) and an optional MD5 BGP authentication password, which must be configured with the same value on both BGP peers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-external-routers.json",
+          "quotes": [
+            "You can add up to 64 routers.",
+            "Router AS Number: Enter the autonomous system number (ASN) for the external router.",
+            "Router IP Address: Enter the IP address of the internal router you want the Network Connector to peer with.",
+            "MD5 (Optional): Enter the BGP MD5 authentication password. The same value must be configured on both BGP peers."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "lan-segments-setting": {
+      "summary": "The help pages name the Network Connector group option that enables BGP differently, and the replace article presents the same settings as being for a static route.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-external-routers.json",
+            "quotes": [
+              "BGP is enabled when the Advertise LAN Segments Locally option is disabled for a Network Connector group."
+            ]
+          },
+          "says": "About External Routers: the option is Advertise LAN Segments Locally, and BGP is enabled when it is disabled."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-vpn-redundancy-deployment-guide.json",
+            "quotes": [
+              "Advertise LAN Segments: Select Disabled to use BGP."
+            ]
+          },
+          "says": "VPN Redundancy Deployment Guide: the option is Advertise LAN Segments, and Disabled is selected to use BGP."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-replacing-or-migrating-network-connectors-support-redundancy.json",
+            "quotes": [
+              "If you want to use a static route, make sure that the following options are set:",
+              "Advertise LAN Segments Locally: Set this option to Disabled."
+            ]
+          },
+          "says": "Replacing or Migrating Network Connectors: the same list of options, with Advertise LAN Segments Locally set to Disabled, is introduced as what to set to use a static route."
+        }
+      ],
+      "impact": "The option appears as Advertise LAN Segments in one article and Advertise LAN Segments Locally in the other two. Two pages say disabling it enables BGP, while the third frames the disabled settings as being for a static route, so the pages conflict on what disabling it is for."
+    }
+  },
+  "gaps": {
+    "timer-values": {
+      "kind": "semantic",
+      "title": "BGP timer and BFD values, and the BGP Override file format",
+      "status": "open",
+      "detail": "The pages give no drop-down values or defaults for Keepalive and HoldTimer, or for RX interval, TX interval and detect multiplier. They also do not describe the format or upload of the BGP Override file.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    }
+  }
+}

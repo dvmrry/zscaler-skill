@@ -1,0 +1,711 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Privileged Portals Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-privileged-portals-using-api",
+    "node": "1485921",
+    "revision": "3164277",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) privileged portals using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting and About Privileged Portals."
+    },
+    {
+      "heading": "Creating a New Privileged Portal",
+      "level": 1
+    },
+    {
+      "text": "To create a new privileged portal for a given customer using an existing certificate:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/praPortal.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/289370814522851328/praPortal"
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following in the request body:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The name of the privileged portal",
+      "depth": 0
+    },
+    {
+      "item": "The unique identifier of the certificate",
+      "depth": 0
+    },
+    {
+      "item": "The domain of the privileged portal",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"certificateId\":0, \"domain\":\"string\", \"enabled\":true, \"name\":\"string\", \"userNotificationEnabled\":false }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"name\":\"testPortal12\", \"domain\":\"testPortal12\", \"userNotificationEnabled\":false, \"certificateId\":\"289370814522851367\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"289370814523661112\", \"modifiedTime\":\"1684403355\", \"creationTime\":\"1684403355\", \"modifiedBy\":\"145256180497777000\", \"name\":\"testPortal12\", \"enabled\":true, \"certificateId\":\"289370814522851367\", \"domain\":\"testportal12\", \"userNotificationEnabled\":false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "To create a new privileged portal for a given customer using a portal certificate that is managed by Zscaler:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/praPortal.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "For example: mgmtconfig/v1/admin/customers/289370814522851328/praPortal",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following in the request body:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the privileged portal.",
+      "depth": 1
+    },
+    {
+      "item": "userPortalGid: The unique identifier of the user portal. The userPortalGid is only required if you publish links from a user portal in a Privileged Remote Access (PRA) privileged portal to provide a unified end user experience. For managed Browser Access and DNS, the userPortalGid value can be empty. To learn more, see Configuring User Portals Using API.",
+      "depth": 1
+    },
+    {
+      "item": "userPortalName: The name of the user portal.",
+      "depth": 1
+    },
+    {
+      "item": "extLabel: The authentication domain name prefix used for the portal URL. The supported string can include integers, lowercase characters, and hyphens (-). This field supports integers between 3 and 31 (e.g., server-2). This field is only required when configuring a portal that uses a certificate managed by Zscaler.",
+      "depth": 1
+    },
+    {
+      "item": "extDomain: The authentication domain name prefix used for Zscaler-managed certificates when creating a privileged portal. This field is returned when making GET requests to retrieve application segment details. If you are using Zscaler-managed certificates and pass the external domain name prefix, the certificateId field becomes null. Periods (.) are not supported since the FQDN includes a period as part of the suffix or top-level domain.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\": true, \"name\": \"<name>\", \"description\": \"<description>\", \"userNotificationEnabled\": false, \"userNotification\": \"<string>\", \"isSRAPortal\": true, \"userPortalGid\": \"<user portal ID>\", \"userPortalName\": \"<user portal name>\", \"extLabel\": \"<external authentication domain name prefix>\", \"extDomain\": \"<external authentication domain name prefix>\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"name\":\"Example Portal\", \"certManagedByZsRadio\":\"managed\", \"description\":\"Example description\", \"userNotificationEnabled\":false, \"userNotification\":\"\", \"isSRAPortal\":true, \"userPortalGid\":\"73223709871674468\", \"userPortalName\":\"sampleUserPortalConfig\", \"extLabel\":\"server-2\", \"extDomain\":\"mynewauto.com\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"73223709871674470\", \"modifiedTime\":\"1744826831\", \"creationTime\":\"1744826831\", \"modifiedBy\":\"72057594038040687\", \"name\":\"Example Portal\", \"enabled\":true, \"description\":\"Example description\", \"domain\":\"server-2-mynewauto-com.pra.d.zscalerportal.net\", \"userNotificationEnabled\":false, \"userPortalGid\":\"73223709871674468\", \"extLabel\":\"server-2\", \"extDomainTranslation\":\"mynewauto.com\", \"extDomain\":\"mynewauto.com\", \"userPortalName\":\"sampleUserPortalConfig\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Microtenant Support",
+      "level": 2
+    },
+    {
+      "text": "To create a privileged portal in a Microtenant:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/praPortal?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/praPortal?microtenantId=145260601092866314"
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following in the request body:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The name of the privileged portal",
+      "depth": 0
+    },
+    {
+      "item": "The unique identifier of the certificate",
+      "depth": 0
+    },
+    {
+      "item": "The domain of the privileged portal",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"certificateId\":0, \"domain\":\"string\", \"enabled\":true, \"name\":\"string\", \"userNotificationEnabled\":false }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"name\":\"testPortal12\", \"domain\":\"testPortal12\", \"userNotificationEnabled\":false, \"certificateId\":\"289370814522851367\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"145260601092866514\", \"modifiedTime\":\"1704924637\", \"creationTime\":\"1704924637\", \"modifiedBy\":\"145260601092866482\", \"name\":\"public-api\", \"enabled\":true, \"certificateId\":\"145260601092866074\", \"domain\":\"public-api.com\", \"userNotificationEnabled\":false, \"microtenantId\":\"145260601092866314\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All Privileged Portals",
+      "level": 1
+    },
+    {
+      "text": "To get all privileged portals that are configured for a customer:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/praPortal.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/217246660302995456/praPortal"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\":\"1\", \"totalCount\": \"2\", \"list\":[ { \"id\":\"217246660303026030\", \"creationTime\":\"1642122047\", \"modifiedBy\":\"72057594038008981\", \"name\":\"TestPriviledgePortal\", \"enabled\":true, \"description\":\"Priviledge Portal\", \"certificateId\":\"217246660303022046\", \"certificateName\":\"CN=*.mockcompany.com,O=Zscaler,ST=California,C=US\", \"cName\":\"217246660303026030.217246660302995456.pra.d.zpa-app.net\", \"domain\":\"Testpriviledgeportal.com\", \"userNotificationEnabled\":false }, { \"id\":\"217246660303026391\", \"modifiedTime\":\"1652836201\", \"creationTime\":\"1652836184\", \"modifiedBy\":\"72057594038071293\", \"name\":\"TestPRAExporter1\", \"enabled\":true, \"certificateId\":\"217246660303022046\", \"certificateName\":\"CN=*.mockcompany.com,O=Zscaler,ST=California,C=US\", \"cName\":\"217246660303026391.217246660302995456.pra.d.zpa-app.net\", \"domain\":\"Testpraexp1.com\", \"userNotificationEnabled\":false }, { \"id\":\"217246660303026335\", \"modifiedTime\":\"1652836155\", \"creationTime\":\"1650420269\", \"modifiedBy\":\"72057594038071293\", \"name\":\"TestPRAExporter2\", \"enabled\":true, \"certificateId\":\"217246660303022046\", \"certificateName\":\"CN=*.mockcompany.com,O=Zscaler,ST=California,C=US\", \"cName\":\"217246660303026335.217246660302995456.pra.d.zpa-app.net\", \"domain\":\"Testpraexp2.com\", \"userNotificationEnabled\":false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/praPortal?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/praPortal?page=1&pagesize=2"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\":\"2\", \"totalCount\": \"4\", \"list\":[ { \"id\":\"217246660303026030\", \"creationTime\":\"1642122047\", \"modifiedBy\":\"72057594038008981\", \"name\":\"TestPriviledgePortal\", \"enabled\":true, \"description\":\"Priviledge Portal\", \"certificateId\":\"217246660303022046\", \"certificateName\":\"CN=*.mockcompany.com,O=Zscaler,ST=California,C=US\", \"cName\":\"217246660303026030.217246660302995456.pra.d.zpa-app.net\", \"domain\":\"Testpriviledgeportal.com\", \"userNotificationEnabled\":false }, { \"id\":\"217246660303026391\", \"modifiedTime\":\"1652836201\", \"creationTime\":\"1652836184\", \"modifiedBy\":\"72057594038071293\", \"name\":\"TestPRAExporter1\", \"enabled\":true, \"certificateId\":\"217246660303022046\", \"certificateName\":\"CN=*.mockcompany.com,O=Zscaler,ST=California,C=US\", \"cName\":\"217246660303026391.217246660302995456.pra.d.zpa-app.net\", \"domain\":\"Testpraexp1.com\", \"userNotificationEnabled\":false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports Microtenants. To get details of all privileged portals within a Microtenant:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/praPortal?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/145260601092866048/praPortal?microtenantId=145260601092866314"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\":\"1\", \"totalCount\":\"2\", \"list\":[ { \"id\":\"145260601092866113\", \"modifiedTime\":\"1702537630\", \"creationTime\":\"1693202870\", \"modifiedBy\":\"72057594038073668\", \"name\":\"OT Example Default Portal\", \"enabled\":true, \"description\":\"Hello!\", \"certificateId\":\"145260601092866074\", \"certificateName\":\"pra-portal-example.com\", \"cName\":\"145260601092866113.145260601092866048.pra.d.zpa-app.net\", \"domain\":\"pra-portal-otdev.com\", \"userNotification\":\"TEST\", \"userNotificationEnabled\":true, \"microtenantName\":\"Default\" }, { \"id\":\"145260601092866325\", \"modifiedTime\":\"1698124586\", \"creationTime\":\"1698124586\", \"modifiedBy\":\"72057594038068982\", \"name\":\"Scope C Portal\", \"enabled\":true, \"certificateId\":\"145260601092866074\", \"certificateName\":\"pra-portal-example.com\", \"cName\":\"145260601092866325.145260601092866048.pra.d.zpa-app.net\", \"domain\":\"pra-portal-sample-scope-c.com\", \"userNotificationEnabled\":false, \"microtenantId\":\"145260601092866314\", \"microtenantName\":\"Scope C\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of a Particular Privileged Portal",
+      "level": 1
+    },
+    {
+      "text": "To get the details of a particular privileged portal for a given customer:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/praPortal/{id}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "id: The unique identifier of the privileged portal. To learn more, see Getting Details of All Privileged Portals.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/praPortal/289370814522851328"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"289370814522851641\", \"creationTime\":\"1668688130\", \"modifiedBy\":\"72057594038624153\", \"name\":\"kritest\", \"enabled\":true, \"description\":\"Sample portal\", \"certificateId\":\"289370814522851367\", \"certificateName\":\"portaltest\", \"cName\":\"289370814522851641.289370814522851328.h.d.zpa-app.net\", \"domain\":\"kritest.com\", \"userNotificationEnabled\":false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports Microtenants. To get details of a particular privileged portal within a Microtenant:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/praPortal/{id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/145260601092866048/praPortal/145260601092866514?microtenantId=145260601092866314"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"145260601092866514\", \"modifiedTime\":\"1704924637\", \"creationTime\":\"1704924637\", \"modifiedBy\":\"145260601092866482\", \"name\":\"public-api\", \"enabled\":true, \"certificateId\":\"145260601092866074\", \"certificateName\":\"pra-portal-sample.com\", \"cName\":\"145260601092866514.145260601092866048.pra.d.zpa-app.net\", \"domain\":\"public-api.com\", \"userNotificationEnabled\":false, \"microtenantId\":\"145260601092866314\", \"microtenantName\":\"Scope C\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Privileged Portal",
+      "level": 1
+    },
+    {
+      "text": "To update a privileged portal:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/praPortal/{id}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "id: The unique identifier of the privileged portal.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/praPortal/289370814523661112"
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following in the request body:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The name of the privileged portal",
+      "depth": 0
+    },
+    {
+      "item": "The unique identifier of the certificate",
+      "depth": 0
+    },
+    {
+      "item": "The domain of the privileged portal",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"certificateId\":0, \"domain\":\"string\", \"enabled\":true, \"name\":\"string\", \"userNotificationEnabled\":true }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"testPortal123\", \"enabled\":true, \"certificateId\":\"289370814522851367\", \"domain\":\"testportal12\", \"userNotificationEnabled\":false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the update was successful. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports Microtenants. To update a privileged portal within a Microtenant:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint within the Privileged Portal Controller: /mgmtconfig/v1/admin/customers/{customerId}/praPortal/{id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/praPortal/289370814523661112?microtenantId=145260601092866314"
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following in the request body:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The name of the privileged portal",
+      "depth": 0
+    },
+    {
+      "item": "The unique identifier of the certificate",
+      "depth": 0
+    },
+    {
+      "item": "The domain of the privileged portal",
+      "depth": 0
+    },
+    {
+      "item": "View the minimum criteria JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"certificateId\":0, \"domain\":\"string\", \"enabled\":true, \"name\":\"string\", \"userNotificationEnabled\":true }",
+      "depth": 0
+    },
+    {
+      "item": "View the sample payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"name\":\"public-api-edit\", \"domain\":\"public-api.com\", \"userNotificationEnabled\":false, \"certificateId\":\"145260601092866074\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the update was successful. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Privileged Portal",
+      "level": 1
+    },
+    {
+      "text": "To delete a privileged portal:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/praPortal/{id}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "id: The unique identifier of the privileged portal.",
+      "depth": 0
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/289370814522851328/praPortal/289370814523661112"
+    },
+    {
+      "text": "A successful response returns code 204, meaning the privileged portal was deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports Microtenants. To delete a privileged portal within a Microtenant:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/praPortal/{id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/289370814522851328/praPortal/289370814522851641?microtenantId=145260601092866314"
+    },
+    {
+      "text": "A successful response returns code 204, meaning the privileged portal was deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the privileged portal use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "customerId",
+          "The unique identifier of the ZPA tenant",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "page",
+          "Specifies the page number",
+          "No",
+          "Integer"
+        ],
+        [
+          "pageSize",
+          "Specifies the page size",
+          "No",
+          "Integer"
+        ],
+        [
+          "search",
+          "Indicates the search string used to support search by features or fields",
+          "No",
+          "String"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ],
+        [
+          "userPortalGid",
+          "The unique identifier of the user portal. This field is only required if you publish links from a user portal in a PRA privileged portal to provide a unified end user experience. For managed Browser Access and DNS, the value for this field can be empty. To learn more, see Configuring User Portals Using API.",
+          "No",
+          "Integer"
+        ],
+        [
+          "userPortalName",
+          "The name of the user portal",
+          "No",
+          "String"
+        ],
+        [
+          "extLabel",
+          "The authentication domain name prefix used for the privileged portal URL. This field is only required when configuring a portal that uses a certificate managed by Zscaler.",
+          "No",
+          "String and integer The supported string can include integers, lowercase characters, and hyphens (-). This field supports integers between 3 and 31 (e.g., server-2)."
+        ],
+        [
+          "extDomain",
+          "The authentication domain name prefix used for a Zscaler-managed certificate when creating a privileged portal. This field is returned when making GET requests to retrieve application segment details. If you are using Zscaler-managed certificates and pass the external domain name prefix, the certificateId field becomes null.",
+          "No",
+          "String and integer Periods (.) are not supported since the FQDN includes a period as part of the suffix or top-level domain."
+        ]
+      ]
+    }
+  ]
+}

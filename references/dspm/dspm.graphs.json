@@ -1,0 +1,417 @@
+{
+  "schema_version": 1,
+  "id": "dspm.graphs",
+  "title": "DSPM Risk Explorer graphs: supported data stores, attack paths, public exposure and user access paths",
+  "aliases": [
+    "dspm risk explorer",
+    "dspm resource inventory graph",
+    "dspm public exposure path",
+    "dspm user access path",
+    "dspm attack path"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "dspm.overview" },
+    { "rel": "see-also", "to": "dspm.inventory" },
+    { "rel": "see-also", "to": "dspm.scanning" }
+  ],
+  "prose": [
+    {
+      "text": "{{graph-scope}} {{graph-attack-paths}} {{graph-nodes-vary}} {{graph-public-internet-node}} The Risk Explorer tab of a resource is in [[dspm.inventory:resource-details-tabs]]."
+    },
+    {
+      "label": "Data stores with graphs.",
+      "text": "{{graph-aws-stores}} {{graph-gcp-stores}} {{graph-ai-services}} {{graph-db-types}} {{graph-onprem-db}} {{graph-external-definition}} The Access Levels page defines External differently {{divergence:external-entity-definition}}."
+    },
+    {
+      "label": "Public exposure path.",
+      "text": "{{public-exposure-scope}} Its scope against the storage options is open {{gap:public-exposure-scope-vs-storage}}. {{public-exposure-bucket-actions}} {{exposure-aws}} {{exposure-azure}} {{exposure-gcp}}"
+    },
+    {
+      "label": "User access path.",
+      "text": "{{access-path-aws}} {{access-path-sensitive}}"
+    },
+    {
+      "label": "Triggers.",
+      "text": "{{triggers-aws-graph}} {{triggers-azure-graph}} What Triggers counts on a graph primary resource is open {{gap:graph-triggers-meaning}}. Label slips on the GCP pages are noted {{gap:graph-doc-label-slips}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which graph page the Triggers definition comes from: the AWS data-store graph says alerts raised, the Azure data-store graph says sensitive records, and the Databases graph page gives both by example.",
+      "uses": ["triggers-aws-graph", "triggers-azure-graph", "graph-triggers-meaning"]
+    },
+    {
+      "do": "Which page defines External: the graph pages say a different cloud account not onboarded, the Access Levels page says outside the AWS organization.",
+      "uses": ["graph-external-definition", "external-entity-definition"]
+    }
+  ],
+  "claims": {
+    "graph-scope": {
+      "statement": "After DSPM completes the data scan of the resources, the Resource Inventory graph shows data stores containing sensitive records, matching DLP engines and dictionaries, public internet exposure paths and entities with access permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-databases.json",
+          "quotes": [
+            "The graph illustrates data stores containing sensitive records, matching DLP engines and dictionaries, public internet exposure paths, and the entities (users, roles, and services) with access permissions.",
+            "After DSPM completes the data scan of the resources, scan results are displayed in the Resource Inventory graph."
+          ]
+        }
+      ]
+    },
+    "graph-attack-paths": {
+      "statement": "The Resource Inventory graph shows attack paths: Public Exposure, Access, Known Vulnerabilities (CVEs), Sensitive Data, Associated Resources and Malware.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-resource-inventory-graph.json",
+          "quotes": [
+            "Public Exposure Path: Represents the misconfigurations in the primary and associated resources that could allow adversaries to gain initial access or perform lateral movement.",
+            "Known Vulnerabilities Path: Represents the common vulnerabilities and exposures (CVEs) found in the resource.",
+            "Sensitive Data Path: Represents the files that contain sensitive data.",
+            "Associated Resources Path: Represents all the resources associated with the primary resource",
+            "Malware Path: Represents the malware found in the resource.",
+            "Access Path: Represents the mapping of identity and access management (IAM) roles, users, external entities, federated identities, and services that have permissions to access the resource."
+          ]
+        }
+      ]
+    },
+    "graph-nodes-vary": {
+      "statement": "The nodes and access paths on the graph vary with the primary resource and its associated resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-resource-inventory-graph.json",
+          "quotes": [
+            "The nodes and access paths vary depending on the primary resource and its associated resources."
+          ]
+        }
+      ]
+    },
+    "graph-public-internet-node": {
+      "statement": "The Public Internet node appears when DSPM detects that a resource containing sensitive data is publicly exposed and accessed by unauthorized users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-resource-inventory-graph.json",
+          "quotes": [
+            "This node is shown when DSPM detects that a resource containing sensitive data is publicly exposed and is accessed by unauthorized users."
+          ]
+        }
+      ]
+    },
+    "graph-aws-stores": {
+      "statement": "AWS graphs are available for S3, EC2 instances, RDS instances and clusters (MySQL, PostgreSQL, Aurora MySQL, Aurora PostgreSQL), DynamoDB tables, unmanaged PostgreSQL/MySQL/MS SQL/Oracle databases, Bedrock Knowledge Base and AWS Databricks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-aws-data-stores.json",
+          "quotes": [
+            "Simple Storage Service (S3)",
+            "RDS instance and clusters (MySQL, PostgreSQL, Aurora MySQL, Aurora PostgreSQL)",
+            "Unmanaged PostgreSQL, MySQL server, MS SQL servers and databases, Oracle Instance, and Oracle PDB",
+            "AWS Bedrock Knowledge Base",
+            "AWS Dynamo DB tables",
+            "AWS EC2 instances",
+            "AWS Databricks"
+          ]
+        }
+      ]
+    },
+    "graph-gcp-stores": {
+      "statement": "GCP graphs are available for BigQuery, Compute Instance, Cloud SQL Instance and Storage Bucket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-gcp-data-stores.json",
+          "quotes": [
+            "- GCP BigQuery",
+            "- GCP Compute Instance",
+            "- GCP Cloud SQL Instance",
+            "- GCP Storage Bucket"
+          ]
+        }
+      ]
+    },
+    "graph-ai-services": {
+      "statement": "AI service graphs include AWS Bedrock Custom Model, AWS Bedrock Imported Model, AWS Bedrock Agent and Azure OpenAI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-ai-services.json",
+          "quotes": [
+            "AWS Bedrock Custom Model",
+            "AWS Bedrock Imported Model",
+            "AWS Bedrock Agent",
+            "Azure OpenAI"
+          ]
+        }
+      ]
+    },
+    "graph-external-definition": {
+      "statement": "In the AWS and Azure data-store graphs, External entities are part of a different cloud account that is not onboarded to the DSPM Admin Portal; the GCP graph says they are users, services or roles of a different cloud account not onboarded to DSPM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-azure-data-stores.json",
+          "quotes": [
+            "View the external entities that can access the resource. These entities are part of a different cloud account that is not onboarded to the DSPM Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-aws-data-stores.json",
+          "quotes": [
+            "View the external entities that can access the resource. These entities are part of a different cloud account that is not onboarded to the DSPM Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-gcp-data-stores.json",
+          "quotes": [
+            "External entities are users, services, or roles that are part of a different cloud account that is not onboarded to DSPM."
+          ]
+        }
+      ]
+    },
+    "graph-db-types": {
+      "statement": "Database graphs are available for managed databases (e.g. AWS RDS, Azure SQL, Snowflake, Databricks), unmanaged cloud and on-premises databases, unmanaged AWS and Azure MongoDB servers, on-premises file servers and on-premises MongoDB servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-databases.json",
+          "quotes": [
+            "Managed Database (e.g., AWS RDS, Azure SQL)",
+            "Unmanaged AWS and Azure MongoDB Servers",
+            "On-Premises File Servers",
+            "On-Premises MongoDB Servers",
+            "Snowflake Databases",
+            "Databricks",
+            "Unmanaged Database (Cloud & On-Premises)"
+          ]
+        }
+      ]
+    },
+    "public-exposure-scope": {
+      "statement": "The public exposure path is enabled only for EC2 instances, virtual machines and DB cluster resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-public-exposure-path.json",
+          "quotes": [
+            "The public exposure path is enabled only for the EC2 instances, virtual machines, and DB cluster resources."
+          ]
+        }
+      ]
+    },
+    "public-exposure-bucket-actions": {
+      "statement": "For cloud storage buckets and Azure containers the public exposure path offers View Metadata, Verify Exposed Files (anonymously accessible files, exportable as CSV) and Verify Static Website.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-public-exposure-path.json",
+          "quotes": [
+            "For cloud storage buckets and Azure containers, the reason for exposure is displayed with the following options:",
+            "Verify Exposed Files: View the list of publicly exposed files that can be accessed anonymously.",
+            "export the files in CSV format to investigate the issue.",
+            "Verify Static Website: View the static website hosted in the storage bucket or container.",
+            "View Metadata: View the JSON file, copy or download the metadata, or go to the cloud service provider (CSP) portal to view the specific resource details."
+          ]
+        }
+      ]
+    },
+    "exposure-aws": {
+      "statement": "AWS exposure types: S3 Block Public Access (account-level protection needs IgnorePublicAcls and RestrictPublicBuckets set to true), bucket ACLs granting AllUsers or AuthenticatedUsers, bucket policies granting principal *, and hosted static websites.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-public-exposure-path.json",
+          "quotes": [
+            "Exposure via Amazon S3 Block Public Access Misconfigurations:",
+            "To block the S3’s public exposure at the account level, ensure IgnorePublicAcls and RestrictPublicBuckets settings are set to true.",
+            "Exposure via AWS S3 Bucket ACLs:",
+            "http://acs.amazonaws.com/groups/global/AllUsers or http://acs.amazonaws.com/groups/global/AuthenticatedUsers",
+            "Exposure via AWS S3 Bucket Policies:",
+            "granting access to the principal \"*\"",
+            "Exposure via Hosted Website:"
+          ]
+        }
+      ]
+    },
+    "exposure-azure": {
+      "statement": "Azure exposure types: a SQL firewall rule allowing 0.0.0.0 - 255.255.255.255, the Allow Azure services exception (reaching every Azure tenant), static websites (the $web container is exposed anonymously regardless of firewall or container ACL) and containers with Anonymous Container Read Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-public-exposure-path.json",
+          "quotes": [
+            "a firewall rule that permits traffic from 0.0.0.0 - 255.255.255.255 allows traffic to reach the SQL server from any source over the public internet.",
+            "every Azure tenant including subscriptions that do not belong to the customer.",
+            "an option to create an exception to \"Allow Azure services and resources to access this server\"",
+            "Any object stored within this $web container gets instantly exposed anonymously (irrespective of firewall or container ACL)",
+            "Storage containers with an access list configured with \"Anonymous Container Read Access\" allow anyone to access data (blobs) stored within the container.",
+            "Static Websites: This Azure storage account supports hosting static websites.",
+            "Exposed to All Azure Tenants:"
+          ]
+        }
+      ]
+    },
+    "exposure-gcp": {
+      "statement": "GCP exposure fixes: delete the allUsers principal or the allAuthenticatedUsers principal from the bucket's IAM policy bindings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-public-exposure-path.json",
+          "quotes": [
+            "To remove public exposure, delete the allUsers principal from the storage bucket's IAM policy bindings.",
+            "To remove public exposure, delete the allAuthenticatedUsers principal from the storage bucket's IAM policy bindings."
+          ]
+        }
+      ]
+    },
+    "graph-onprem-db": {
+      "statement": "The on-premises database graph shows Table with Sensitive Data, Databases and Admin Principals nodes, and its primary resource shows Data Center ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-databases.json",
+          "quotes": [
+            "Data Center ID: The unique identifier of the data center.",
+            "View the details of the table within the impacted database that contains sensitive data.",
+            "View all the databases, including those that do not contain any sensitive data and the ones that are not scanned.",
+            "View the list of all admin principals that can access the resource."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-databases.json",
+          "after": "- The following graph is for an on-premises database:",
+          "quotes": [
+            "3. Table with Sensitive Data",
+            "5. Databases",
+            "7. Admin Principals"
+          ]
+        }
+      ]
+    },
+    "access-path-aws": {
+      "statement": "In the AWS user access path graph, clicking an IAM node shows the ARN and Account ID, among other fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-user-access-path.json",
+          "quotes": [
+            "ARN: The Amazon Resource Name (ARN) assigned to the user.",
+            "Account ID: The account ID of the entity."
+          ]
+        }
+      ]
+    },
+    "access-path-sensitive": {
+      "statement": "For AWS, the user access path page says the Resource Inventory graph displays the sensitive records found in the primary resource along with external, federated, roles, services and users that have access to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-user-access-path.json",
+          "after": "- You can view the user access path for the following cloud environments:",
+          "quotes": [
+            "The Resource Inventory graph displays the sensitive records found in the primary resource along with external, federated, roles, services, and users that have access to this primary resource."
+          ]
+        }
+      ]
+    },
+    "triggers-aws-graph": {
+      "statement": "In the AWS data-store graph, the primary resource's Triggers field is the number of alerts raised for the resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-aws-data-stores.json",
+          "quotes": [
+            "Triggers: The number of alerts raised for this resource."
+          ]
+        }
+      ]
+    },
+    "triggers-azure-graph": {
+      "statement": "In the Azure data-store graph, the primary resource's Triggers field is the number of sensitive records in the resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-graph-azure-data-stores.json",
+          "quotes": [
+            "Triggers: The number of sensitive records in the resource."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "external-entity-definition": {
+      "summary": "The graph pages define External entities as part of a different cloud account that is not onboarded to DSPM; the Access Levels page defines an External Account as outside the AWS organization and puts same-organization accounts not onboarded to DSPM under Unmanaged.",
+      "positions": [
+        {
+          "says": "External entities are part of a different cloud account that is not onboarded to the DSPM Admin Portal.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-viewing-graph-aws-data-stores.json",
+            "quotes": ["View the external entities that can access the resource. These entities are part of a different cloud account that is not onboarded to the DSPM Admin Portal."]
+          }
+        },
+        {
+          "says": "An external account is outside the current AWS organization; a same-organization account that is not onboarded is Unmanaged.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-viewing-access-levels.json",
+            "quotes": [
+              "IAM External Account: An account outside your current AWS organization that can access resources.",
+              "IAM Unmanaged Role: An entity that can access resources through a role from another AWS account within the same organization that is not managed or onboarded to DSPM."
+            ]
+          }
+        }
+      ],
+      "impact": "An entity in another account of the same AWS organization that is not onboarded is External by the graph wording and Unmanaged by the Access Levels wording."
+    }
+  },
+  "gaps": {
+    "public-exposure-scope-vs-storage": {
+      "kind": "semantic",
+      "title": "Whether the public exposure path covers storage buckets",
+      "status": "open",
+      "detail": "The public exposure path page says it is enabled only for EC2 instances, virtual machines and DB cluster resources, and the same page describes options for cloud storage buckets and Azure containers; the AWS graph page (EC2 instance example) and the Azure graph page (virtual machine example) link Show Public Exposure Path, which is inside that stated scope. The GCP storage-bucket graph shows a Public Exposure Path node that points to Viewing the Public Exposure Path with no Show Public Exposure Path link. The captures do not say whether storage buckets get the Show link or the path graph.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "graph-triggers-meaning": {
+      "kind": "semantic",
+      "title": "What Triggers means on a graph primary resource",
+      "status": "open",
+      "detail": "The AWS and GCP data-store graph pages and the Snowflake and on-premises examples on the Databases graph page define Triggers as the number of alerts raised for the resource; the Azure data-store page and the unmanaged Azure PostgreSQL example on the Databases page define it as the number of sensitive records in the resource; the Sensitive Data tab defines it as the total number of records that matched the DLP engines (dspm.inventory:sensitive-data-tab). Whether one is a copy slip is not stated.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "graph-doc-label-slips": {
+      "kind": "semantic",
+      "title": "Label slips on the GCP graph page and the GCP section of the user access path page",
+      "status": "open",
+      "detail": "The GCP graph page says \"Matched Tables: The number of files that matched the DLP engines.\" and the GCP section of the single User Access Path page says \"Entity Name: The name of the Azure entity.\"; no claim is drawn from either.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

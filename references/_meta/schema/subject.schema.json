@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "subject.schema.json",
+  "title": "Subject file: a subject and all of its items",
+  "description": "One file per subject at references/<scope>/<subject-id>.json, prose included. Items are objects keyed by local ID so JSON Patch paths stay stable.",
+  "type": "object",
+  "required": ["schema_version", "id", "title"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "$ref": "common.schema.json#/$defs/subject-id" },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["active", "split"] },
+    "into": { "type": "array", "minItems": 2, "items": { "$ref": "common.schema.json#/$defs/subject-id" } },
+    "aliases": { "$ref": "common.schema.json#/$defs/aliases" },
+    "former_ids": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "binds": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/bind-target" }, "uniqueItems": true },
+    "related": {
+      "description": "Typed edges from this subject (A) to another subject or a type (B); `read` walks them. decided-by: B holds the order, matching, criteria or precedence that settle A's outcome. scoped-by: B decides which traffic, users or devices A applies to (locations, authentication, posture, forwarding profiles, segments). reached-via: B is a path traffic takes to reach A. interacts-with: B's outcome can preempt or change A's (another policy in the same path). depends-on: A needs B to work (a prerequisite setting, subscription, certificate or component). logged-in: B records A's decisions (a log subject or log type). configured-via: B is A's API, SDK or Terraform surface (a subject or type). see-also: none of these. `because` is the claim that establishes the edge.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rel", "to"],
+        "properties": {
+          "rel": { "enum": ["decided-by", "scoped-by", "reached-via", "interacts-with", "depends-on", "logged-in", "configured-via", "see-also"] },
+          "to": { "anyOf": [{ "$ref": "common.schema.json#/$defs/subject-id" }, { "$ref": "common.schema.json#/$defs/type-id" }] },
+          "because": { "$ref": "common.schema.json#/$defs/item-id" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "prose": {
+      "description": "The subject's reading order: ordered blocks whose text carries only kb markers ({{claim}}, {{claim|ref}}, {{gap:id}}, {{divergence:id}}, [[kb-id]], [[doc:repo-path#anchor]] for a doc not yet converted) and backticked literals. No Markdown: a run-in label is `label`, a list is `steps` or `items`.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/prose-block" }
+    },
+    "checks": {
+      "description": "What to check when an answer rests on this subject: ordered steps, each naming the claims, gaps or divergences it relies on (local IDs, or qualified kb IDs). Rendered as the subject's What-to-check list; the prose carries no What-to-check paragraph.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["do", "uses"],
+        "properties": {
+          "do": { "type": "string", "minLength": 1 },
+          "uses": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "claims": { "$ref": "#/$defs/keyed", "additionalProperties": { "$ref": "#/$defs/claim" } },
+    "cases": { "$ref": "#/$defs/keyed", "additionalProperties": { "$ref": "#/$defs/case" } },
+    "divergences": { "$ref": "#/$defs/keyed", "additionalProperties": { "$ref": "#/$defs/divergence" } },
+    "gaps": { "$ref": "#/$defs/keyed", "additionalProperties": { "$ref": "#/$defs/gap" } }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "prose-text": { "type": "string", "minLength": 1 },
+    "prose-entry": {
+      "type": "object",
+      "required": ["text"],
+      "properties": { "label": { "$ref": "#/$defs/prose-text" }, "text": { "$ref": "#/$defs/prose-text" } },
+      "additionalProperties": false
+    },
+    "prose-block": {
+      "description": "One of: a paragraph (text, with an optional run-in label), a heading, ordered steps or unordered items (each with an optional label introducing the list), or a table whose cells carry the markers.",
+      "oneOf": [
+        { "$ref": "#/$defs/prose-entry" },
+        { "type": "object", "required": ["heading"], "properties": { "heading": { "$ref": "#/$defs/prose-text" } }, "additionalProperties": false },
+        { "type": "object", "required": ["steps"], "properties": { "label": { "$ref": "#/$defs/prose-text" }, "steps": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/prose-entry" } } }, "additionalProperties": false },
+        { "type": "object", "required": ["items"], "properties": { "label": { "$ref": "#/$defs/prose-text" }, "items": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/prose-entry" } } }, "additionalProperties": false },
+        {
+          "type": "object",
+          "required": ["table"],
+          "properties": {
+            "table": {
+              "type": "object",
+              "required": ["columns", "rows"],
+              "properties": {
+                "columns": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+                "rows": { "type": "array", "minItems": 1, "items": { "type": "array", "items": { "type": "string" } } }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "keyed": {
+      "type": "object",
+      "propertyNames": { "$ref": "common.schema.json#/$defs/segment" }
+    },
+    "claim": {
+      "type": "object",
+      "required": ["statement", "tier"],
+      "anyOf": [{ "required": ["evidence"] }, { "required": ["derived_from"] }],
+      "properties": {
+        "statement": { "type": "string", "minLength": 1 },
+        "tier": { "enum": ["A", "B", "C", "D"] },
+        "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/evidence" } },
+        "derived_from": {
+          "description": "Chain of evidence: the claims this one follows from. Each link is listed explicitly, per the verification protocol.",
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "$ref": "common.schema.json#/$defs/item-ref" }
+        },
+        "binds": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/bind-target" }, "uniqueItems": true },
+        "conditions": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["active", "superseded", "retracted"] },
+        "superseded_by": { "$ref": "common.schema.json#/$defs/item-ref" },
+        "gaps": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/item-ref" }, "uniqueItems": true },
+        "upstream": {
+          "description": "Vendor issue or filing for a tool-behavior claim (SDK or provider defect).",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["status"],
+            "properties": {
+              "url": { "type": "string", "pattern": "^https://" },
+              "status": { "enum": ["unfiled", "filed", "acknowledged", "fixed", "wontfix", "do-not-file"] },
+              "note": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "confidence_override": {
+          "type": "object",
+          "required": ["value", "reason"],
+          "properties": {
+            "value": { "enum": ["high", "medium", "low"] },
+            "reason": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "case": {
+      "description": "Synthetic input plus expected outcome, tied to the claims it exercises.",
+      "type": "object",
+      "required": ["kind", "claims", "config", "request", "expect"],
+      "properties": {
+        "kind": { "enum": ["rule-evaluation", "url-match"] },
+        "claims": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/item-ref" } },
+        "config": { "type": "object" },
+        "request": { "type": "object", "minProperties": 1 },
+        "expect": {
+          "type": "object",
+          "minProperties": 1,
+          "properties": {
+            "verdict": { "enum": ["allow", "block", "ambiguous", "no-match"] },
+            "rule": { "type": "integer" },
+            "at_rule": { "type": "integer" },
+            "category": { "type": "string" },
+            "matches": { "type": "boolean" },
+            "gap": { "$ref": "common.schema.json#/$defs/item-ref" }
+          },
+          "additionalProperties": false
+        },
+        "note": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "divergence": {
+      "type": "object",
+      "required": ["summary", "positions", "impact"],
+      "properties": {
+        "summary": { "type": "string", "minLength": 1 },
+        "positions": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["evidence", "says"],
+            "properties": {
+              "evidence": { "$ref": "common.schema.json#/$defs/evidence" },
+              "says": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "impact": { "type": "string", "minLength": 1 },
+        "resolution": {
+          "description": "How the disagreement is settled. Observed behavior (a Tier-B claim) supersedes documentation and SDK-derived inference in the same scope.",
+          "type": "object",
+          "required": ["by", "rule"],
+          "properties": {
+            "by": { "$ref": "common.schema.json#/$defs/item-ref" },
+            "rule": {"description": "fixed-upstream: the sources disagreed up to a release and a later release of one of them agrees; `by` names the version-scoped claim stating the change, and the outdated position is pinned to its release with `at`.", "enum": ["observed-supersedes-documentation", "observed-supersedes-sdk-inference", "source-rank", "fixed-upstream"]},
+            "note": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "gap": {
+      "type": "object",
+      "required": ["kind", "title", "status"],
+      "properties": {
+        "kind": { "enum": ["semantic", "data"] },
+        "title": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["open", "investigating", "partial", "resolved", "wontfix"] },
+        "former_ids": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "about": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/node-id" }, "uniqueItems": true },
+        "detail": { "type": "string", "minLength": 1 },
+        "blocks": { "type": "string", "minLength": 1 },
+        "resolves_with": {
+          "type": "array",
+          "items": { "enum": ["lab-test", "tenant-data", "support-ticket", "source-read", "operator-experience", "code-read", "design-decision"] },
+          "uniqueItems": true
+        },
+        "resolvable_by": { "type": "array", "items": { "enum": ["iac", "live", "operator", "none"] }, "uniqueItems": true },
+        "live_command": { "type": "string", "pattern": "^zscalerctl " },
+        "resolution": { "type": "string", "minLength": 1 },
+        "evidence": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/evidence" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

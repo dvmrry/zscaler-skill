@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# splunk-query.sh — run a named SPL pattern from references/shared/splunk-queries.md.
+# splunk-query.sh — run a named validation search from the shared.splunk* subjects
+# (references/shared/shared.splunk*.json), by subject ID or the pattern name a subject
+# keeps as an alias (url-coverage-check, segment-match-observed). The subjects hold the
+# fields and what each search checks, not SPL text; the SPL is written from them.
 #
 # Status: STUB. Implement for your SIEM per the notes below.
 # Real implementation: use the vendored splunk-sdk-python
@@ -12,10 +15,10 @@
 #   SPLUNK_USERNAME          (legacy: user+pass)
 #   SPLUNK_PASSWORD
 #
-# Index naming — tenant-portable via env vars, defaults match the Zscaler
-# Splunk Technology Add-on out of the box. Set to override on non-default
-# naming. See references/shared/splunk-queries.md § "Tenant-portable index
-# naming" and clarification shared-01.
+# Index naming — tenant-portable via env vars; set them to override the
+# defaults below. Index and source type names are tenant plumbing that the
+# graph does not hold (shared.splunk); what vendor sources say about them is
+# in shared.siem-mapping.
 #   SPLUNK_INDEX_ZIA_WEB     (default: zscaler_web)
 #   SPLUNK_INDEX_ZIA_FW      (default: zscaler_firewall)
 #   SPLUNK_INDEX_ZIA_DNS     (default: zscaler_dns)
@@ -30,7 +33,7 @@ set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
   echo "usage: $0 <pattern-name> [key=value ...]" >&2
-  echo "  pattern-name: section in references/shared/splunk-queries.md" >&2
+  echo "  pattern-name: a shared.splunk* subject ID or the pattern name it keeps as an alias" >&2
   exit 2
 fi
 
@@ -41,7 +44,7 @@ echo "  pattern: ${PATTERN}" >&2
 echo "  args: $*" >&2
 echo "  would use: vendor/splunk-sdk-python via uv run (TODO)" >&2
 
-# TODO: read the named pattern from references/shared/splunk-queries.md
+# TODO: resolve the pattern name to its shared.splunk* subject and build the SPL from its fields and checks
 # TODO: substitute $VARS from args and env
 # TODO: submit via splunk-sdk-python, stream JSON to stdout
 # TODO: cache to _data/schemas/<pattern-name>-<timestamp>.json for reproducibility

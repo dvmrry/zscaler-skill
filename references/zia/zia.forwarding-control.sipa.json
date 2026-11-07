@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control.sipa",
+  "title": "Source IP Anchoring: what it needs on each side",
+  "aliases": [
+    "source ip anchoring",
+    "sipa",
+    "app connector source ip",
+    "source ip anchor option",
+    "sipa client forwarding policy",
+    "sipa access policy"
+  ],
+  "binds": [
+    "zia/forwarding-rules",
+    "zia/zpa-gateways"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zpa.policy",
+      "because": "zia.forwarding-control.sipa:access-policy"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zpa.app-segments.settings",
+      "because": "zia.forwarding-control.sipa:segment-settings"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.bypass",
+      "because": "zia.forwarding-control.sipa:client-forwarding-policy"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall.traffic-path",
+      "because": "zia.forwarding-control.sipa:ztunnel1-option"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.forwarding-control.zpa-gateway",
+      "because": "zia.forwarding-control.zpa-gateway:rule-needs-common-gateway"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.dns-control.predefined-rules",
+      "because": "zia.dns-control.predefined-rules:dns-must-reach-zscaler"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/forwarding-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/zpa-gateways"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.sipa-direct"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.source-ip-anchoring"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Source IP Anchoring sends selected ZIA traffic out through a Private Access App Connector. {{purpose}} {{inspected-first}} {{licensing}} {{pa-solely}} {{protocol-limits}}"
+    },
+    {
+      "steps": [
+        {
+          "label": "ZIA.",
+          "text": "A forwarding rule with the ZPA method and a gateway: [[zia.forwarding-control.methods]], [[zia.forwarding-control.zpa-gateway]]. {{ztunnel1-option}} Rule scope for remote users: [[zia.forwarding-control.rules]]."
+        },
+        {
+          "label": "Private Access.",
+          "text": "{{segment-settings}} {{client-forwarding-policy}} {{access-policy}} {{no-user-criteria}}"
+        },
+        {
+          "label": "DNS.",
+          "text": "The ZPA resolver rules for Road Warrior and Locations, their order and enablement: [[zia.dns-control.predefined-rules]]."
+        }
+      ]
+    },
+    {
+      "text": "If the ZIA tenant is in disaster recovery, the Private Access side changes: [[zia.forwarding-control.sipa-direct]]. What happens when the gateway's server group has no healthy connectors is open {{gap:unhealthy-connectors}}. Why anchoring is wanted is partly answered by [[shared.source-ip-anchoring.egress-options]]; the rest, and where the connector may sit, is open {{gap:anchor-rationale}}, and what a segment without the Source IP Anchor option does is open {{gap:missing-anchor-flag}}. Customer-owned addresses are a different feature: [[zia.forwarding-control.byoip]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When anchored traffic leaves from the wrong address or fails, check the three layers in order: the ZIA forwarding rule, the Private Access segment and client forwarding and access policy, then DNS.",
+      "uses": [
+        "segment-settings",
+        "client-forwarding-policy",
+        "access-policy"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "With Source IP Anchoring the destination sees the IP address of the Private Access App Connector deployed for it as the source. Traffic goes through the intranet to internal destination servers and through the internet to external ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-source-ip-anchoring.json",
+          "quotes": [
+            "The source IP address of the traffic reaching the destination is the IP address of the Private Access (ZPA) App Connector deployed as part of Source IP Anchoring.",
+            "The application traffic is forwarded through the intranet to the internal destination servers and through the internet to the external destination servers."
+          ]
+        }
+      ]
+    },
+    "inspected-first": {
+      "statement": "Anchored traffic is forwarded to Private Access through the ZIA threat and data protection engines, and Source IP Anchored traffic can also be governed by DLP (with and without content inspection), File Type Control, Firewall Filtering, IPS Control, Sandbox and SSL/TLS Inspection policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-source-ip-anchoring.json",
+          "quotes": [
+            "forward the selected traffic to Private Access through Internet & SaaS threat and data protection engines."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.json",
+          "quotes": [
+            "You can also configure rules for Source IP Anchored traffic in these Internet & SaaS policies.",
+            "DLP Policy with Content Inspection",
+            "DLP Policy without Content Inspection",
+            "File Type Control - Firewall Filtering - IPS Control - Sandbox - SSL/TLS Inspection"
+          ]
+        }
+      ]
+    },
+    "licensing": {
+      "statement": "Source IP Anchoring does not need a Private Access license, but a Source IP Anchoring subscription is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-source-ip-anchoring.json",
+          "quotes": [
+            "You don't need a Private Access license to access the Source IP Anchoring feature. However, a Source IP Anchoring subscription is required."
+          ]
+        }
+      ]
+    },
+    "pa-solely": {
+      "statement": "When Private Access is used solely for Source IP Anchoring, the initial setup still needs company and administrator information, App Connector enrollment certificates (only those are sufficient) and configured App Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.json",
+          "quotes": [
+            "Complete the following steps to do the initial setup in the Zscaler Admin Console if you are using Private Access solely for Source IP Anchoring.",
+            "Update your company and administrator information.",
+            "For Source IP Anchoring, it is sufficient if you configure the enrollment certificates only for the App Connectors.",
+            "Configure your App Connectors."
+          ]
+        }
+      ]
+    },
+    "protocol-limits": {
+      "statement": "Source IP Anchoring does not support RTSP. It supports ICMP only on ICMP-enabled Private Access application segments, only echo requests or responses, not traceroute, with a maximum ICMP payload of 990 bytes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-source-ip-anchoring.json",
+          "quotes": [
+            "Source IP Anchoring does not support the Real Time Streaming Protocol (RTSP).",
+            "Source IP Anchoring supports ICMP requests for ICMP-enabled Private Access application segments.",
+            "Only ICMP echo requests or responses are supported.",
+            "The ICMP protocol traceroute functionality is not supported.",
+            "The maximum payload size for the ICMP traffic is restricted to 990 bytes."
+          ]
+        }
+      ]
+    },
+    "segment-settings": {
+      "statement": "On the Private Access application segment, the Source IP Anchor option must be enabled and Use Client Forwarding Policy selected under Bypass.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.json",
+          "quotes": [
+            "Ensure that you enable the Source IP Anchor option and select Use Client Forwarding Policy under the Bypass field while configuring the application segment."
+          ]
+        }
+      ]
+    },
+    "client-forwarding-policy": {
+      "statement": "The client forwarding policy needs separate rules for IP-based and domain-based segments. IP-based: the Only Forward Allowed Applications action. Domain-based: Rule 1 Bypass ZPA for all client types except ZIA Service Edge, and Rule 2 Forward to ZPA for only the ZIA Service Edge client type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.json",
+          "quotes": [
+            "For IP address-based applications, select the Only Forward Allowed Applications rule action for Source IP Anchoring application segments.",
+            "Rule 1: Select the Bypass ZPA rule action for Source IP Anchoring Segment Groups and add all client types, except ZIA Service Edge client type.",
+            "Rule 2: Select the Forward to ZPA rule action for Source IP Anchoring Segment Groups and add only the ZIA Service Edge client type."
+          ]
+        }
+      ]
+    },
+    "access-policy": {
+      "statement": "The access policy needs separate rules for IP-based and domain-based segments. IP-based: Rule 1 blocks all client types except ZIA Service Edge (preventing application download on Client Connector), and Rule 2 allows only ZIA Service Edge. Domain-based: allow the ZIA Service Edge client type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.json",
+          "quotes": [
+            "Rule 1: Select the Block Access rule action and add all the client types, except the ZIA Service Edge client type for the application segments. This rule prevents application download on the Zscaler Client Connector.",
+            "Rule 2: Select the Allow Access rule action and add only the ZIA Service Edge client type for the application segments.",
+            "For domain-based applications, ensure that you allow the Source IP Anchoring client (ZIA Service Edge client type) to access the applications."
+          ]
+        }
+      ]
+    },
+    "no-user-criteria": {
+      "statement": "If Source IP Anchoring traffic is restricted to certain users in the Zscaler Admin Console, do not add user-based SAML/SCIM criteria to the access policy for the Source IP Anchoring application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.json",
+          "quotes": [
+            "Create and configure an application segment for which you need Source IP Anchoring.",
+            "Create and configure an access policy for the application segment.",
+            "If Source IP Anchoring traffic is restricted to certain users in the Zscaler Admin Console, do not add user-based SAML/SCIM criteria when configuring the access policy in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "ztunnel1-option": {
+      "statement": "To support Source IP Anchoring for Z-Tunnel 1.0 traffic, Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors must be on in Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.json",
+          "quotes": [
+            "To support Source IP Anchoring for Zscaler Tunnel (Z-Tunnel) 1.0 traffic, you must enable the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option under Policies > Common Configuration > Advanced > Advanced Settings."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "anchor-rationale": {
+      "kind": "semantic",
+      "title": "Why anchoring is needed and where the connector can sit",
+      "status": "partial",
+      "about": [
+        "zia/zpa-gateways"
+      ],
+      "detail": "Answered by the reference architecture (shared.source-ip-anchoring.egress-options:ip-requirements and :three-methods): ZIA changes the source address to the processing Service Edge's, some applications accept only a preset list of source addresses or restrict by geography, and the App Connector can sit in a public cloud (AWS, Azure, GCP) or the on-premises data center. Microsoft 365 Conditional Access is in zia.saas-apps.conditional-access. Still open, unverified legacy statement: that anchoring is needed for other \"conditional-access policies keyed to 'internal network' IPs\" beyond Microsoft 365. Resolve with a vendor article on other SaaS or a lab test.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "explaining why a destination rejects ZIA egress and where connectors may be placed",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "some applications and vendors that require the source IP address for traffic comes from a preset list of IP addresses. Any traffic from a non-registered IP address is automatically dropped.",
+            "By using ZPA App Connectors in a public cloud such as Amazon AWS, Microsoft Azure, Google GCP, or your on-premises data center, your traffic is routed through that App Connector which then becomes the source IP address for the traffic."
+          ]
+        }
+      ]
+    },
+    "missing-anchor-flag": {
+      "kind": "semantic",
+      "title": "Effect of a missing Source IP Anchor setting on the segment",
+      "status": "open",
+      "about": [
+        "zia/zpa-gateways"
+      ],
+      "detail": "Unverified legacy statement: \"If the ZPA-side config is missing, ZIA will forward traffic to ZPA but the connector won't anchor the source IP as expected.\" The help says to enable the option but not what happens if it is off. Resolve with a lab test on a segment without the option.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "predicting symptoms when the segment setting is missing"
+    },
+    "unhealthy-connectors": {
+      "kind": "semantic",
+      "title": "Behavior when the gateway's server group has no healthy connectors",
+      "status": "open",
+      "about": [
+        "zia/zpa-gateways"
+      ],
+      "detail": "Unverified legacy statement: \"If the ZPA Server Group referenced by the gateway has no healthy connectors, traffic matching the ZPA forwarding rule has nowhere to go ... the `Fallback mode of ZPA Forwarding` predefined rule exists to catch this case, but its exact action is not source-confirmed\" (the legacy doc tagged this Tier D). No captured source describes the failure path or that rule's action. Resolve with a lab test that takes the connectors offline, or a vendor article.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "predicting what users see when every connector in the gateway's server group is down"
+    }
+  }
+}

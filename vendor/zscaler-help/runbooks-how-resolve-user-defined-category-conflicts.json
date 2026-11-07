@@ -1,0 +1,474 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "How to Resolve User-Defined Category Conflicts",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/how-resolve-user-defined-category-conflicts",
+    "node": "1539100",
+    "revision": "3224138",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Sometimes you might see that you have configured a URL or a keyword under a specific category, but the expected category does not show up in the Web Insights logs for the URL even though the URL matches."
+    },
+    {
+      "text": "To resolve such conflicts:"
+    },
+    {
+      "item": "Review the Categorization Method and URL Category columns in the web logs of the concerned transactions. The Categorization Method column shows how the category was determined for the URL shown in the web log entry:",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          32
+        ],
+        [
+          37,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Database A: Indicates that the URL was categorized as per Zscaler's proprietary URL database.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Database B: Implies categorization based on a third-party vendor’s URL database.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "AI/ML-based content categorization: Refers to the content classification of uncategorized pages using artificial intelligence (AI) or machine learning (ML).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "User-Defined: Indicates that an administrator explicitly defined the category.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "None: Indicates that the category of the URL is unavailable using any of the above methods.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "If Categorization Method does not show User-Defined, review the URL Category to determine why the URL is not categorized under a user-defined category.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          3,
+          24
+        ],
+        [
+          39,
+          51
+        ],
+        [
+          64,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Go to https://sitereview.zscaler.com while your system is connected to Internet & SaaS (ZIA), and review all the predefined categories to which this URL or domain belongs.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Search for this domain in the URL Categories defined under Policies> Access Control > Internet & SaaS > URL Control > URL Categories.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          59,
+          67
+        ],
+        [
+          69,
+          83
+        ],
+        [
+          86,
+          101
+        ],
+        [
+          104,
+          115
+        ],
+        [
+          118,
+          132
+        ]
+      ]
+    },
+    {
+      "item": "To find the categories containing the domain:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Approach 1: Edit one of the concerned URL categories and click the Review Matches drop-down menu. This option lets you view the matches and do the following:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          67,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Add any overlapping domains from this category to any other matching category so that all these categories have the same URL entry.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Add any overlapping domains from a matching URL category to the category that you're currently editing.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Approach 2: Use the search bar at the top right of this page. For example, if you have added the URL abc.def.xyz.com/query?path_value, then you should search for the keyword xyz.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Is this domain present in a user-defined category?",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "No. If you wish to add it to a custom category, follow the steps in Configuring Custom URL Categories.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "Yes. If the domain belongs to multiple categories, the effective URL categories are determined based on the following two factors:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Whether the URL is added to the Custom URLs field or the URLs retaining Parent Category field",
+      "depth": 2,
+      "strong": [
+        [
+          32,
+          43
+        ],
+        [
+          72,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "If you add drive.google.com to the Custom URLs field in the category CAT1, then this domain no longer belongs to the predefined category FileHost for this customer. Any policy (not just URL Filtering but any other policy that uses URL category in the rule criteria) for the FileHost category doesn't apply on the transactions to this domain. This impact not only policy evaluation, but also reporting. For instance, if you add .office365.com to the Custom URLs field of a category CAT1, the O365 traffic might not show up in an Office365 report, and it could also lead to undesirable SSL Inspection policy enforcement.",
+      "depth": 3,
+      "strong": [
+        [
+          35,
+          46
+        ],
+        [
+          69,
+          73
+        ],
+        [
+          137,
+          145
+        ],
+        [
+          186,
+          199
+        ],
+        [
+          274,
+          282
+        ],
+        [
+          449,
+          460
+        ],
+        [
+          481,
+          485
+        ],
+        [
+          584,
+          598
+        ]
+      ]
+    },
+    {
+      "item": "It's recommended to add these URLs to the Parent Category field because this ensures that all the access control policy rules are enforced for the user-defined and the predefined categories based on Zscaler's URL categorization. It has no impact on any predefined reports and dashboards.",
+      "depth": 3,
+      "strong": [
+        [
+          42,
+          57
+        ],
+        [
+          209,
+          212
+        ]
+      ]
+    },
+    {
+      "item": "The most specific match:",
+      "depth": 2
+    },
+    {
+      "item": "In the following example, CAT1 contains only .google.com in the Custom URLs field and CAT2 contains only drive.google.com in the Custom URLs field.",
+      "depth": 3,
+      "strong": [
+        [
+          26,
+          30
+        ],
+        [
+          64,
+          75
+        ],
+        [
+          86,
+          90
+        ],
+        [
+          129,
+          140
+        ]
+      ]
+    },
+    {
+      "item": "If the user tries to access Google Drive (drive.google.com), only the policy for CAT2 is enforced.",
+      "depth": 4,
+      "strong": [
+        [
+          81,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Even if no policy matches for the CAT2 category, the policy for CAT1 or the parent predefined category FileHost is not evaluated.",
+      "depth": 4,
+      "strong": [
+        [
+          34,
+          38
+        ],
+        [
+          64,
+          68
+        ],
+        [
+          103,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "So, this transaction is implicitly allowed unless there's an explicit block or any rule at the bottom.",
+      "depth": 4
+    },
+    {
+      "item": "Taking a second example, CAT3 contains drive.google.com and .google.com and CAT4 contains mail.google.com and .google.com. All these URLs are added in the URLs retaining the Parent Category field.",
+      "depth": 3,
+      "strong": [
+        [
+          25,
+          29
+        ],
+        [
+          76,
+          80
+        ],
+        [
+          174,
+          189
+        ]
+      ]
+    },
+    {
+      "item": "If the user tries accessing Google Drive (drive.google.com), then only the policy for CAT3 and FileHost match. Similarly for Gmail (mail.google.com), CAT4 and Webmail are used for policy evaluation.",
+      "depth": 4,
+      "strong": [
+        [
+          86,
+          90
+        ],
+        [
+          95,
+          103
+        ],
+        [
+          150,
+          154
+        ],
+        [
+          159,
+          166
+        ]
+      ]
+    },
+    {
+      "item": "If the user tries accessing www.google.com, then the most specific match becomes .google.com, which is present in both CAT3 and CAT4. So, all the rules for the CAT3, CAT4, and WebSearch are selected, and the topmost rule is enforced.",
+      "depth": 4,
+      "strong": [
+        [
+          119,
+          123
+        ],
+        [
+          128,
+          132
+        ],
+        [
+          160,
+          164
+        ],
+        [
+          166,
+          170
+        ],
+        [
+          176,
+          185
+        ]
+      ]
+    },
+    {
+      "item": "Using a third example, if you add drive.google.com directly to authentication exemptions and CAT5 contains .google.com in the URLs retaining Parent Category field:",
+      "depth": 3,
+      "strong": [
+        [
+          93,
+          97
+        ],
+        [
+          141,
+          156
+        ]
+      ]
+    },
+    {
+      "item": "If the user tries accessing Google Drive (drive.google.com), only the policy for FileHost is matched, because the authentication exemption and the predefined category is the most specific match.",
+      "depth": 4,
+      "strong": [
+        [
+          81,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "For all the other subdomains of .google.com, the policy for CAT5 and the applicable predefined categories is evaluated.",
+      "depth": 4,
+      "strong": [
+        [
+          60,
+          64
+        ]
+      ]
+    },
+    {
+      "heading": "Solution",
+      "level": 3
+    },
+    {
+      "text": "When adding a specific subdomain to a Custom Category, add it to all the existing user-defined categories that contain the top-level domain unless you want to enforce the policy only on the most specific match. To learn more, see this Zenith Community post."
+    },
+    {
+      "text": "Sometimes, the correct category gets selected for policy enforcement, but a different category still gets logged in the web logs based on how the policy is configured for all the matching categories."
+    },
+    {
+      "item": "The Block action is configured according to the same rule for all the categories. The access is blocked, and no other rules are evaluated for this traffic.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "The Block action is configured for at least one category and an Allow action for others. If the Block rule is above the Allow rule, access is blocked. Otherwise, access is allowed only by the URL Filtering policy, but the effective policy action will depend on the verdict of the remaining modules as shown in the following diagram.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If you see an unexpected URL category value in the Web Insights logs, submit a case to Zscaler Support with the following information:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "If you have enabled Remote Assistance, provide the complete URL and the timestamp when the user tried accessing it via the Zscaler service. Otherwise, include Web Insights logs showing all the columns for the relevant transactions.",
+      "depth": 1
+    },
+    {
+      "item": "A screenshot of the policy rule(s) that should have applied to these transactions.",
+      "depth": 1
+    }
+  ]
+}

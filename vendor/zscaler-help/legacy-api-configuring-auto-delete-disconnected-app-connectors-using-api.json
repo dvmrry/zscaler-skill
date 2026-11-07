@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Auto Delete for Disconnected App Connectors Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-auto-delete-disconnected-app-connectors-using-api",
+    "node": "1485801",
+    "revision": "3160726",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on configuring Auto Delete for disconnected App Connectors using the ZPA cloud service API. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Configuring Auto Delete for Disconnected App Connectors",
+      "level": 1
+    },
+    {
+      "text": "To configure auto deletion for disconnected App Connectors:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint in the connector-controller: /mgmtconfig/v1/customer/{customerId}/connectorSchedule.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/customer/145259576743165952/connectorSchedule."
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following details to schedule a frequency for the auto deletion:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "frequency: The scheduled frequency at which the disconnected App Connectors are eligible for deletion. The supported value is days.",
+      "depth": 0
+    },
+    {
+      "item": "frequencyInterval: The number of days after an App Connector disconnects for it to become eligible for deletion. The minimum supported value is 5.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"customerId\": 0, \"deleteDisabled\": true, \"enabled\": true, \"frequency\": \"string\", \"frequencyInterval\": integer, }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"customerId\": 145259576743165952, \"deleteDisabled\": true, \"enabled\": true, \"frequency\": \"days\", \"frequencyInterval\": 5, }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns Code 204 No Content, meaning Auto Delete frequency in the App Connector settings is successfully enabled. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting the Auto Delete Frequency for Disconnected App Connectors",
+      "level": 1
+    },
+    {
+      "text": "To get the auto deletion frequency for the disconnected App Connectors:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the connector-controller: /mgmtconfig/v1/customer/{customerId}/connectorSchedule.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/customer/145259576743165952/connectorSchedule."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": 9, \"frequencyInterval\": 5, \"frequency\": \"days\", \"enabled\": true, \"customerId\": 145259576743165952, \"deleteDisabled\": true, }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating the Auto Delete Frequency for Disconnected App Connectors",
+      "level": 1
+    },
+    {
+      "text": "To update the Auto Delete frequency for the disconnected App Connectors:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the connector-controller: /mgmtconfig/v1/customer/{customerId}/connectorSchedule/{id}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0
+    },
+    {
+      "item": "id: The unique identifier for the App Connector auto deletion configuration for a customer captured in Getting the Auto Delete Frequency for Disconnected App Connectors.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/customer/145259576743165952/connectorSchedule/9."
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following details to schedule a frequency for the auto deletion:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "frequency: The scheduled frequency at which the disconnected App Connectors are deleted. The supported value is days.",
+      "depth": 0
+    },
+    {
+      "item": "frequencyInterval: The interval at which the auto deletion frequency is triggered. The minimum supported value is 5.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"customerId\": 0, \"deleteDisabled\": true, \"enabled\": true, \"frequency\": \"string\", \"frequencyInterval\": integer, }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"customerId\": 145259576743165952, \"deleteDisabled\": true, \"enabled\": true, \"frequency\": \"days\", \"frequencyInterval\": 5, }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns Code 204 No Content, meaning Auto Delete frequency in the App Connector settings is successfully updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "id",
+          "The unique identifier for the App Connector auto deletion configuration for a customer. This field is only required for the PUT request to update the frequency of the App Connector Settings.",
+          "No",
+          "Integer The minimum supported value is 5."
+        ],
+        [
+          "frequency",
+          "The scheduled frequency at which the disconnected App Connectors are deleted",
+          "Yes",
+          "String Supported value: days"
+        ],
+        [
+          "frequencyInterval",
+          "The interval for the configured frequency value. The minimum supported value is 5.",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "deleteDisabled",
+          "Indicates if the App Connectors are included for deletion if they are in a disconnected state based on frequencyInterval and frequency values",
+          "Yes",
+          "Boolean: true, false"
+        ],
+        [
+          "enabled",
+          "Indicates if the setting for deleting App Connectors is enabled or disabled",
+          "Yes",
+          "Boolean: true, false"
+        ]
+      ]
+    }
+  ]
+}

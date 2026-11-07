@@ -154,79 +154,37 @@ test("strict MCP analysis blocks on paths outside the review classifier", () => 
   assert.match(report.lines.join("\n"), /Unclassified paths/);
 });
 
-test("strict drift analysis blocks high-priority findings but not unverified-only coverage", () => {
-  const changes = [{
-    path: "vendor/zscaler-mcp-server",
-    oldSha: OLD_SHA,
-    newSha: NEW_SHA,
-    status: "M",
-  }];
-  const runner = () => ({
-    status: 1,
-    stderr: "",
-    stdout: JSON.stringify({
-      drifted_high_priority: [{
-        ref: "references/shared/mcp-server.md",
-        submodule: "vendor/zscaler-mcp-server",
-        touched_files: ["src/zscaler_mcp/server.py"],
-      }],
-      drifted_low_priority: [],
-      unverified: [{
-        ref: "references/zia/example.md",
-        submodule: "vendor/zscaler-mcp-server",
-      }],
-    }),
+test("pin drift lists broken and in-change evidence and blocks only on broken", () => {
+  const changes = [{ path: "vendor/zscaler-sdk-go", oldSha: OLD_SHA, newSha: NEW_SHA, status: "M" }];
+  const review = () => ({
+    pages: [{
+      file: "vendor/zscaler-sdk-go/zscaler/zia/client.go",
+      status: "drift",
+      evidence: [
+        { subject: "shared.sdk-go.request-handling", where: "shared.sdk-go.request-handling:retry evidence[0]", state: "broken", errors: ["quote not found"] },
+        { subject: "shared.sdk-go.request-handling", where: "shared.sdk-go.request-handling:timeout evidence[0]", state: "in-change" },
+        { subject: "shared.sdk-go.request-handling", where: "shared.sdk-go.request-handling:paging evidence[0]", state: "untouched" },
+      ],
+    }],
+    unregistered: ["vendor/new-repo"],
   });
 
-  const report = driftReport(changes, { root: "/tmp/example", runner });
-  assert.deepEqual(report.blockingReasons, [
-    "1 high-priority cited-file drift finding(s) remain",
-  ]);
-  assert.match(report.lines.join("\n"), /Unverified.*\*\*1\*\*/);
+  const report = driftReport(changes, { review });
+  assert.deepEqual(report.blockingReasons, ["1 broken evidence entry remain"]);
+  const lines = report.lines.join("\n");
+  assert.match(lines, /Broken.*\*\*1\*\*/);
+  assert.match(lines, /In changed text.*\*\*1\*\*/);
+  assert.match(lines, /Untouched.*\*\*1\*\*/);
+  assert.match(lines, /`shared.sdk-go.request-handling:retry evidence\[0\]` — `vendor\/zscaler-sdk-go\/zscaler\/zia\/client.go`: quote not found/);
+  assert.doesNotMatch(lines, /paging/);
+  assert.match(lines, /`vendor\/new-repo`/);
 });
 
-test("propagates indeterminate vendor comparisons, including global inventory errors", () => {
-  const changes = [{
-    path: "vendor/zscaler-sdk-go",
-    oldSha: OLD_SHA,
-    newSha: NEW_SHA,
-    status: "M",
-  }];
-  const runner = () => ({
-    status: 1,
-    stderr: "",
-    stdout: JSON.stringify({
-      drifted_high_priority: [],
-      drifted_low_priority: [],
-      unverified: [],
-      indeterminate: [
-        {
-          ref: null,
-          submodule: "(git submodule status)",
-          captured_sha: null,
-          current_sha: null,
-          reason: "git submodule status failed",
-        },
-        {
-          ref: "references/shared/example.md",
-          submodule: "vendor/zscaler-sdk-go",
-          captured_sha: OLD_SHA,
-          current_sha: NEW_SHA,
-          reason: "missing commit object",
-        },
-      ],
-    }),
-  });
-
-  const report = driftReport(changes, { root: "/tmp/example", runner });
-  assert.deepEqual(report.blockingReasons, [
-    "2 indeterminate vendor source comparison(s) remain",
-  ]);
-  const lines = report.lines.join("\n");
-  assert.match(lines, /Indeterminate\/unavailable.*\*\*2\*\*/);
-  assert.match(lines, /git submodule status failed/);
-  assert.match(lines, /missing commit object/);
-  assert.match(lines, new RegExp(`${OLD_SHA.slice(0, 7)}\\.\\.${NEW_SHA.slice(0, 7)}`));
+test("a pin review that cannot run is a blocking reason, not an empty report", () => {
+  const changes = [{ path: "vendor/zscaler-sdk-go", oldSha: OLD_SHA, newSha: NEW_SHA, status: "M" }];
+  const review = () => { throw new Error("fatal: bad object 1111111\nmore"); };
+  const report = driftReport(changes, { review });
+  assert.deepEqual(report.blockingReasons, ["pin drift review failed: fatal: bad object 1111111"]);
 });
 
 test("argument parser keeps committed and worktree modes mutually exclusive", () => {

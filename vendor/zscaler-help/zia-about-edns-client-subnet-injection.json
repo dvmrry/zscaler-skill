@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "About EDNS Client Subnet Injection",
+  "source": {
+    "url": "https://help.zscaler.com/zia/about-edns-client-subnet-injection",
+    "node": "1449941",
+    "revision": "3243494",
+    "updated": "2026-09-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Internet & SaaS (ZIA) supports EDNS Client Subnet (ECS) in DNS queries to obtain geolocated responses from DNS resolvers. Client Subnet is an option in Extension Mechanisms for DNS (EDNS(0)) that allows the IP address or subnet information of the requesting client device to be passed in DNS requests. An authoritative or intermediate DNS nameserver resolves the domain name to an IP address that is geographically closer to the client’s (query originator) subnet passed in the DNS request. The client then establishes a connection with the application or service using the resolved IP address."
+    },
+    {
+      "text": "When DNS queries are forwarded through the Zscaler service to an external DNS service, the DNS resolution is geo-optimized based on the Service Edge for Internet & SaaS (Public, Private, or Virtual) since the external DNS service receives the DNS query from the Service Edge's public IP address. However, this resolution using the Service Edge location might not always be optimal as organizations sometimes require DNS resolution based on the geolocation of the requesting clients or a specific subnet that represents the customer and not Zscaler."
+    },
+    {
+      "text": "For example, when clients in Ireland connect to Zscaler's data center in the UK due to the non-availability of Zscaler data centers in Ireland, the DNS responses are geolocated for the data center in the UK. This might prevent the clients in Ireland from accessing cloud applications and services specific to their geographic location. To inform third-party DNS services of the original requesting client and customers and allow these clients to access geographic-specific content, you can use the ECS option to pass the client's masked IP address in the DNS queries as they transit the Zscaler service. An authoritative or intermediate DNS nameserver with ECS support can provide geolocated responses for clients using the ECS value."
+    },
+    {
+      "text": "ECS provides the following benefits and enables you to:"
+    },
+    {
+      "item": "Obtain geolocated DNS responses for clients by including the client's IP subnet information in DNS requests.",
+      "depth": 0
+    },
+    {
+      "item": "Access cloud applications and services hosted on Content Delivery Networks (CDNs) in the preferred geographic location and ensure compliance with regulatory requirements or geographical restrictions.",
+      "depth": 0
+    },
+    {
+      "item": "Leverage external DNS resolvers' ability to examine ECS value for identifying clients and enforcing policies.",
+      "depth": 0
+    },
+    {
+      "text": "The ECS value is typically a prefix obtained from the requesting client's public IP address by masking a specific sequence of bits. For example, if the client's public IP address is 2.2.2.2 and the ECS value is configured to mask the bits following the 24th bit, then 2.2.2.0/24 is the prefix sent as the ECS value to the DNS resolver on behalf of the client. The Zscaler service allows you to configure the prefix length ranging from /20 to /24 (the full IP address), depending on your requirements. Zscaler also provides a default prefix of length /24, which is part of the IP address commonly used as the ECS value. Based on your configuration, Zscaler obtains the ECS prefix value from the requesting client's IP address and embeds it into the DNS queries. Alternatively, you can configure a synthetic ECS prefix to be added to DNS requests instead of deriving the prefix from the requesting client's IP address."
+    },
+    {
+      "text": "Optionally, you can also choose to retain the already-present ECS prefix in client DNS queries. Using the appropriate configuration in the Zscaler Admin Console, you can either choose to insert the configured prefix or retain the already-present ECS prefix in DNS queries. If the ECS prefix is inserted by Zscaler, then the corresponding ECS option in the DNS response might be removed before the response is sent back to the client."
+    },
+    {
+      "text": "Zscaler supports the ECS option irrespective of the traffic forwarding method used by the client to send the DNS queries to the Service Edge. The DNS resolver that performs the name lookup must support the ECS option to return geolocated responses. If the DNS resolver does not support ECS, it ignores the extension when performing domain resolution and provides a regular DNS response. The ECS option is supported for the following DNS record types: A, AAAA, CNAME, MX, NS, and PTR records."
+    },
+    {
+      "item": "Exercise caution when configuring the ECS option to safeguard the privacy and security of clients by preventing the unnecessary exposure of the client’s IP network information.",
+      "depth": 0
+    },
+    {
+      "item": "Due to the differences in the support for the ECS functionality, some DNS resolvers might not honor the ECS value in DNS requests (essentially, ignore the value), and others might return a REFUSED error code. Zscaler recommends validating with the third-party DNS service provider to confirm their handling of ECS before configuring ECS injection.",
+      "depth": 0
+    },
+    {
+      "text": "After configuring the ECS prefixes, you must enable the ECS option and designate an ECS prefix to be embedded into DNS queries using the Advanced Settings."
+    },
+    {
+      "text": "DNS Insights Logs provides visibility into the logs recorded for DNS traffic that contains the ECS prefix. You can also track this data using interactive charts in the DNS Overview dashboard. Using Nanolog Streaming Service, you can stream your logs in real time from the Zscaler Nanolog to your security information and event management (SIEM) system."
+    },
+    {
+      "item": "ECS support requires a subscription that includes advanced functionalities of DNS Control.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler supports ECS prefixes corresponding to the IPv4 family only. ECS prefixes corresponding to the IPv6 family in client DNS queries are not processed by Zscaler.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler Trusted Resolver does not currently support the ECS option.",
+      "depth": 0
+    },
+    {
+      "heading": "About the EDNS Client Subnet Prefix Objects Page",
+      "level": 1
+    },
+    {
+      "text": "On the EDNS Client Subnet Prefix Objects page (Internet Access > Resources > EDNS Client Subnet), you can do the following:"
+    },
+    {
+      "item": "Add an ECS prefix.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Search for an ECS prefix.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View the list of configured ECS prefixes. By default, the table displays the following information:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Name: The name of the ECS prefix.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Prefix Length: The length of the ECS prefix.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Static Prefix: The static ECS prefix with the subnet mask.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Description: Additional information about the ECS prefix.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Modify the table and its columns.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "View the default ECS prefix created by the Zscaler service.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Edit an existing ECS prefix. You can also delete an ECS prefix from the Edit ECS Prefix window.",
+      "depth": 0,
+      "number": 6
+    }
+  ]
+}

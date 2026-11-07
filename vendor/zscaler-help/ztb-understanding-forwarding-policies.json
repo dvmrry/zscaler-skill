@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Forwarding Policies",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/understanding-forwarding-policies",
+    "node": "1532641",
+    "revision": "3251266",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zero Trust Branch allows you to create forwarding policies and control traffic from branch sites to specific destinations based on defined criteria, ensuring secure and optimized routing. These policies allow granular control over how traffic flows to Internet & SaaS (ZIA), Private Access (ZPA), or directly to the internet."
+    },
+    {
+      "text": "Zero Trust Branch provides a comprehensive set of capabilities to enable secure and efficient routing:"
+    },
+    {
+      "item": "Policy-Based Routing: Dynamically route traffic based on defined criteria such as source, destination, port, device, user, etc. to ensure optimal traffic flow.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Granular Segmentation: Apply forwarding policies at the network, device, domain, application, or user level for precise control and visibility.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "High Availability: Use redundant gateways and interfaces to maintain continuous traffic flow and prevent service disruption.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Integrated Security: Seamlessly integrate with Internet & SaaS and Private Access to enforce zero trust principles across all traffic paths.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Simplified Management: Provide centralized configuration and monitoring via the Zscaler Admin Console.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Performance Optimization: Direct critical traffic along optimal paths to minimize latency and enhance user experience.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "text": "When a new site is created, Zero Trust Branch automatically generates the following default forwarding policies:"
+    },
+    {
+      "item": "Default-ZPA-PBR: Ensures all traffic originating from the Airgap network and destined for any Zscaler application segment is routed through Private Access. This rule provides branches secure, zero trust access to internal applications based on the source.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Default ZIA Rule: Ensures all internet-bound or Software as a Service (SaaS) traffic originating from the Airgap network is routed to Internet & SaaS via IPSec. This rule ensures secure access to the internet and SaaS applications for branch sites. It uses auto-established IPSec tunnels for secure branch-to-Internet & SaaS connectivity.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Default-App-Segment-PBR: Ensures traffic originating directly from Zero Trust Branch destined for Zscaler app segments is routed to Private Access.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Default Zscaler Rule: A catch-all forwarding rule that ensures any traffic from any IPv4 network destined for Zscaler IP addresses is sent through the LAN/WAN interfaces. It routes traffic to the nearest Zscaler data center and uses primary and secondary interfaces for redundancy.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "text": "By leveraging default policies, you can immediately enforce zero trust principles while maintaining seamless connectivity to internal applications, cloud services, and the internet."
+    },
+    {
+      "heading": "Policy-Based Routing",
+      "level": 1
+    },
+    {
+      "text": "Zero Trust Branch makes routing decisions based on defined criteria in the forwarding policies, allowing traffic to be steered dynamically between WAN interfaces. Zero Trust Branch can load-balance, fail over, or programmatically optimize distribution. For example, you can configure a forwarding policy that connects a source (e.g., virtual machine (VM), endpoints, or users) to the internet via two WAN links, using the primary interface for active traffic and the secondary interface for failover or redundancy. The following image illustrates the topology for policy-based routing:"
+    },
+    {
+      "text": "With these policies, IT teams can define forwarding rules to optimize performance, maintain compliance, and adapt to evolving business needs, ensuring that every connection and device is protected at all times."
+    },
+    {
+      "text": "To learn more, see Configuring Forwarding Policies and Managing Forwarding Policies."
+    },
+    {
+      "heading": "Application-Based Routing",
+      "level": 1
+    },
+    {
+      "text": "You can configure application-based routing policies that allow the Zero Trust Branch appliance to route traffic only to specific applications. You can define a SaaS Apps object with specific applications based on your requirements. Zscaler provides a list of SaaS apps (e.g., 1Password, Adobe, etc.) that you can use to create a SaaS Apps object. Then, you can define a forwarding policy with the SaaS Apps object as the destination. For example, you can create a SaaS Apps object (e.g., Corp Apps) for corporate applications (e.g., ServiceNow, Atlassian, etc.), and then create a forwarding policy with the SaaS Apps object (Corp Apps) as the destination criteria. This ensures that only traffic to the specific applications defined in the Corp Apps object is allowed, and all other traffic is blocked."
+    },
+    {
+      "text": "To learn more, see Adding Objects and Configuring Forwarding Policies."
+    },
+    {
+      "text": "Zero Trust Branch Management handles and maintains the IP addresses of the SaaS apps, reducing manual maintenance."
+    },
+    {
+      "text": "Verify IP addresses associated with a forwarding policy"
+    },
+    {
+      "item": "In the console, run the following command to find the destination IP address match set:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "iptables -nvL PBR-RULES -t mangle",
+      "depth": 0
+    },
+    {
+      "item": "From the output, note the destination match set value and use it in the following command:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "ipset list <destination-match-set-no>",
+      "depth": 0
+    },
+    {
+      "text": "The list of IP addresses associated with the routing policy displays."
+    }
+  ]
+}

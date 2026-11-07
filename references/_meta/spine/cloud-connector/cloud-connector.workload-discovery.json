@@ -1,0 +1,14 @@
+{
+  "area": "cloud-connector.workload-discovery",
+  "title": "AWS workload discovery for Cloud Connector: what it is and how the pieces fit",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"cloud-connector.workload-discovery","title":"AWS workload discovery for Cloud Connector: what it is and how the pieces fit","lead":"The workload discovery service is a Zscaler-managed service that discovers workloads in an AWS account and fetches their user-defined tags and cloud-provider...","edges":{"interacts-with":["zia.locations.workload-scopes"],"depends-on":["zia.workload-groups","cloud-connector.aws.iam"]}},
+    {"id":"cloud-connector.workload-discovery.account-groups","title":"AWS account groups: which Cloud Connector groups receive an account's tags","lead":"AWS account groups make Cloud Connector aware of other accounts it can get workload tags from, so a Cloud Connector is not tied to the account where it is de...","edges":{"scoped-by":["cloud-connector.overview.groups"],"interacts-with":["cloud-connector.overview.zero-trust-gateways"],"depends-on":["cloud-connector.workload-discovery.aws-accounts"]}},
+    {"id":"cloud-connector.workload-discovery.aws-accounts","title":"Onboarding an AWS account for discovery: role, external ID and trust","lead":"An account records the AWS account ID where workloads are deployed, the name of the AWS trusting role in that account, an external ID, the name of the event ..."},
+    {"id":"cloud-connector.workload-discovery.namespaces","title":"Namespaces and the zs:namespace VPC tag: overlapping IPs in workload discovery","lead":"The Zscaler service maps user-defined tags and cloud-provider attributes to the workload IP address, and the mapping is decentralized at the Cloud Connector ...","edges":{"interacts-with":["zia.locations.workload-scopes"]}},
+    {"id":"cloud-connector.workload-discovery.permission-status","title":"AWS account permission status: Pending, Allowed, Denied, and refreshing it","lead":"An account's permission status is Pending, Allowed or Denied.","edges":{"depends-on":["cloud-connector.workload-discovery.aws-accounts"]}},
+    {"id":"cloud-connector.workload-discovery.regions","title":"Workload discovery regions, per-region status, and turning data collection off","lead":"Regions where workloads are deployed are selected when the account is added; if a region where workloads run is not selected, the discovery service does not ...","edges":{"depends-on":["cloud-connector.workload-discovery.aws-accounts"]}},
+    {"id":"cloud-connector.workload-discovery.update-path","title":"How tag changes reach Cloud Connector: polling, EventBridge, SNS and SQS","lead":"The default polling time of the workload discovery service is 5 minutes, so changes can take up to 5 minutes to be distributed for policy enforcement.","edges":{"depends-on":["cloud-connector.aws.iam"]}}
+  ]
+}

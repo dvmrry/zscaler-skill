@@ -1,0 +1,845 @@
+{
+  "schema_version": 1,
+  "id": "dspm.inventory",
+  "title": "What the DSPM Resource, Data and Identity Inventory pages show, and how posture states and risk are defined",
+  "aliases": [
+    "dspm resource inventory",
+    "dspm data inventory",
+    "dspm identity inventory",
+    "dspm data duplications",
+    "dspm posture states",
+    "dspm risk score",
+    "dspm page views",
+    "dspm report management"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "dspm.overview" },
+    { "rel": "see-also", "to": "dspm.scanning" },
+    { "rel": "see-also", "to": "dspm.graphs" },
+    { "rel": "see-also", "to": "dspm.investigation" },
+    { "rel": "see-also", "to": "dspm.classification" },
+    { "rel": "see-also", "to": "zia.dlp.mip-labels" }
+  ],
+  "prose": [
+    {
+      "text": "{{resource-inventory-columns}} {{resource-inventory-engine-counts}}"
+    },
+    {
+      "label": "Scan status and export.",
+      "text": "{{resource-scan-status-error}} The status values are held in [[dspm.scan-rules:scan-statuses]] and the pages differ on them {{divergence:scan-status-labels}} {{gap:scan-status-values}}. {{resource-export}}"
+    },
+    {
+      "label": "Resource details tabs.",
+      "text": "{{resource-details-tabs}} The Risk Explorer graph is covered in [[dspm.graphs]]. {{timeline-limit}} {{timeline-fields}} {{vulnerability-tab}} {{sensitive-data-tab}} {{malware-tab}}"
+    },
+    {
+      "label": "Access tab.",
+      "text": "{{access-tab-levels}} {{access-level-values}} {{access-tab-aws-keys}} {{entity-types-groups}} {{entity-types-external}} The entity-type lists are only sampled {{gap:entity-type-lists}}."
+    },
+    {
+      "label": "Data Inventory.",
+      "text": "{{data-inventory-scope}} {{data-inventory-columns}} {{data-inventory-detail-tabs}} {{dynamodb-column-scan}}"
+    },
+    {
+      "label": "MIP labels.",
+      "text": "{{mip-label-list-page}} {{mip-label-details-page}} The two pages state different file-share scopes {{gap:mip-label-scope}}. {{mip-label-tenants}} {{mip-label-status}} The label feature itself is in [[zia.dlp.mip-labels]]. The permission and tenant-sync pages are only partly held {{gap:referenced-pages-not-captured}}."
+    },
+    {
+      "label": "Identity Inventory.",
+      "text": "{{identity-inventory-scope}} {{identity-entity-categories}} {{identity-columns}}"
+    },
+    {
+      "label": "Data Duplications.",
+      "text": "{{duplicates-detection}} {{duplicates-by-hash}} {{duplicates-columns}} {{duplicates-export}}"
+    },
+    {
+      "label": "Page views and reports.",
+      "text": "{{page-views}} {{page-views-delete}} {{report-management}}"
+    },
+    {
+      "label": "Posture states.",
+      "text": "{{posture-icons}} {{posture-resource-states}} {{posture-guardrails}} {{posture-identity-90-days}} Investigation words the dormant check differently {{gap:dormant-wording}}. {{posture-mfa}} {{posture-scp}} The scan-time posture check categories are in [[dspm.scanning]]."
+    },
+    {
+      "label": "Risk.",
+      "text": "{{risk-definition}} {{risk-true-impact}} {{risk-score-inputs}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which page states a MIP label scope: the Data Inventory list icon says on-premises files only, the file details page also names Azure file shares.",
+      "uses": ["mip-label-list-page", "mip-label-details-page", "mip-label-scope"]
+    },
+    {
+      "do": "Whether a posture or risk answer rests on the stated 90-day identity thresholds or on the rule that impact is calculated on the portion of data at risk.",
+      "uses": ["posture-identity-90-days", "risk-true-impact", "risk-score-inputs"]
+    }
+  ],
+  "claims": {
+    "resource-inventory-columns": {
+      "statement": "The Resource Inventory page (Data Security > DSPM > Resource Inventory) lists scanned resources with columns including Risk Level (Critical, High, Medium or Low), Posture, Open Alerts, Total Scanned, Data Scanned and Last Completed Scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-resource-inventory.json",
+          "quotes": [
+            "On the Resource Inventory page (Data Security > DSPM > Resource Inventory), you can do the following:",
+            "Risk Level: The severity of the risk (Critical, High, Medium, or Low) associated with the resource.",
+            "Posture: The security posture (publicly exposed, no logging, etc.) of the resource.",
+            "Open Alerts: The number of alerts in Open state.",
+            "Total Scanned: The total number of files or tables scanned for the resource.",
+            "Data Scanned: The size of the scanned data.",
+            "Last Completed Scan: The date and time the resource was last scanned."
+          ]
+        }
+      ]
+    },
+    "resource-inventory-engine-counts": {
+      "statement": "On the Resource Inventory page, the DLP Engines and DLP Dictionaries columns give the number of sensitive records matching the engine or dictionaries, and Document Types are those detected by machine-learning-based DLP dictionaries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-resource-inventory.json",
+          "quotes": [
+            "DLP Engines: The number of sensitive records that match the DLP engine.",
+            "DLP Dictionaries: The number of sensitive records that match the dictionaries.",
+            "Document Types: The different types of documents detected by machine learning (ML)-based DLP dictionaries."
+          ]
+        }
+      ]
+    },
+    "resource-scan-status-error": {
+      "statement": "On the Resource Inventory page, hovering over a Failed or Unsupported Latest Scan Status label shows an error message containing the error timestamp, resource ID and error reason.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-resource-inventory.json",
+          "quotes": [
+            "Latest Scan Status: The latest scan status indicates the state of the scanning process.",
+            "For failed or unsupported scans, hover over the Failed or Unsupported labels to see the error message.",
+            "The error message contains the timestamp to indicate when the error occurred, resource ID, and error reason."
+          ]
+        }
+      ]
+    },
+    "resource-export": {
+      "statement": "Resource Inventory results export as an Excel file; Zscaler recommends applying filters before exporting if not all records appear in the downloaded report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-resource-inventory.json",
+          "quotes": [
+            "Export the results and download the report as an Excel file. If you are unable to view all the records in the downloaded report, Zscaler recommends you apply relevant filters before exporting."
+          ]
+        }
+      ]
+    },
+    "resource-details-tabs": {
+      "statement": "Clicking a Resource Name on the Resource Inventory page opens tabs: Risk Explorer (scan results on a graph), Sensitive Data, Alerts, Access, Vulnerabilities, Malware and Timeline.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-resource-details.json",
+          "quotes": [
+            "Click any Resource Name to view the following tabs:",
+            "Risk Explorer",
+            "The scan results are displayed on a graph.",
+            "Sensitive Data",
+            "View the sensitive data details.",
+            "Vulnerabilities",
+            "View the vulnerabilities detected in the EC2 instances.",
+            "Timeline",
+            "View the timeline details."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-resource-details.json",
+          "after": "- Alerts",
+          "quotes": ["View the alert details."]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-resource-details.json",
+          "after": "- Access",
+          "quotes": ["View the access level details."]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-resource-details.json",
+          "after": "- Malware",
+          "quotes": ["View the malware details."]
+        }
+      ]
+    },
+    "timeline-limit": {
+      "statement": "The Timeline tab of a resource shows events related to configuration changes, and the resource timeline is limited to a maximum of 30 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-timeline-details-resources.json",
+          "quotes": [
+            "The Timeline tab on the Resource Inventory page provides a consolidated view of events related to configuration changes made to a resource for a given period of time.",
+            "The resource timeline is limited to a maximum of 30 days."
+          ]
+        }
+      ]
+    },
+    "timeline-fields": {
+      "statement": "The Timeline tab shows an Events Over Time chart and an Events Found list with Event Time, Principal, Principal Type, Event Name and IP Address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-timeline-details-resources.json",
+          "quotes": [
+            "Events Over Time: A timeline chart that shows events for the selected time range.",
+            "Events Found: A list of all the events that occurred in the selected time range with the following details:",
+            "Event Time: The date and time when the event occurred.",
+            "Principal: The identity that accessed the resource.",
+            "Principal Type: The principal type (application, managed identity, etc.) that accessed the resource.",
+            "Event Name: The name of the event that occurred.",
+            "IP Address: The IP address of the entity that accessed the resource."
+          ]
+        }
+      ]
+    },
+    "vulnerability-tab": {
+      "statement": "DSPM detects vulnerabilities in Amazon EC2 instances and virtual machines; the Vulnerabilities tab lists, per package, name, version, file path, whether vulnerabilities are present and a severity count (Critical, High, Medium, Low), with a CVE tab for CVE details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-vulnerability-details.json",
+          "quotes": [
+            "DSPM detects vulnerabilities in the Amazon EC2 instances and virtual machines and displays the details on the Resource Inventory page.",
+            "In the resource's details page, select the Vulnerabilities tab.",
+            "Package Name: The name of the package.",
+            "Package Version: The version number of the package.",
+            "File Path: The path where the file is stored in the resource.",
+            "Vulnerabilities: Whether vulnerabilities are present or not in the package.",
+            "Severity Count: The number of vulnerabilities detected in the package along with the severity level (Critical, High, Medium, Low).",
+            "Click the CVE tab to view the CVE details."
+          ]
+        }
+      ]
+    },
+    "sensitive-data-tab": {
+      "statement": "The Sensitive Data tab shows Matched Files/Matched Tables (files or tables that matched the DLP engines) and Triggers (records that matched); for files a Hash is identical for identical files, and for tables it shows the Column containing sensitive data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-sensitive-data-details.json",
+          "quotes": [
+            "On the resource's details page, select the Sensitive Data tab to view the following details:",
+            "Matched Files/Matched Tables: The total number of files or tables that matched the DLP engines.",
+            "Triggers: The total number of records that matched the DLP engines.",
+            "Hash: The hash value that uniquely identifies the file. Identical files have the same hash value.",
+            "Column: The name of the database table column containing sensitive data."
+          ]
+        }
+      ]
+    },
+    "malware-tab": {
+      "statement": "The Malware tab shows Total Malware Files, malware types with counts (e.g., Virus, Exploit) and, per file, malware name and type, with a Malware Type filter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-malware-details.json",
+          "quotes": [
+            "On the resource's details page, select the Malware tab.",
+            "Total Malware Files: The total number of malware files.",
+            "Malware: The type of malware (e.g., Virus, Exploit) with their respective numbers.",
+            "Malware Name: The malware file name.",
+            "Click the Malware Type filter to view the data for a specific malware type.",
+            "Malware Type: The malware type."
+          ]
+        }
+      ]
+    },
+    "access-tab-levels": {
+      "statement": "The Access tab lists entities with IAM permissions to the resource, with fields such as Policy ARN (AWS) and Target Entity (Snowflake).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-access-levels.json",
+          "quotes": [
+            "In the resource's details page, select the Access tab.",
+            "Access level refers to the identity and access management (IAM) permissions granted to the entities (user, application, service, etc.) that are associated with the cloud resources."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-access-levels.json",
+          "after": "- AWS resource",
+          "quotes": ["Policy ARN: The policy that defines the access level and grants permission to access the resource."]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-access-levels.json",
+          "after": "Principal Name: The identity that has access to the Snowflake account.",
+          "quotes": ["Target Entity: The target database that is being accessed."]
+        }
+      ]
+    },
+    "access-level-values": {
+      "statement": "For AWS, Azure, GCP, unmanaged database and Snowflake resources the Access tab Access Level is Read, Edit or Full Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-access-levels.json",
+          "after": "- AWS resource",
+          "quotes": ["Access Level: The permissions (Read, Edit, or Full Access) assigned to the entity."]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-access-levels.json",
+          "after": "- Azure resource",
+          "quotes": ["Access Level: The permissions (Read, Edit, or Full Access) assigned to the entity."]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-access-levels.json",
+          "after": "- GCP resource",
+          "quotes": ["Access Level: The permissions (Read, Edit, or Full Access) assigned to the entity."]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-access-levels.json",
+          "after": "- Entity Type: The type of entity (User) that has access to the database.",
+          "quotes": ["Access Level: The permissions (Read, Edit, or Full Access) assigned to the entity."]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-access-levels.json",
+          "after": "Principal Type: The type of entity (user or service) that has access to the resource.",
+          "quotes": ["Access Level: The permissions (Read, Edit, or Full Access) assigned to the entity."]
+        }
+      ]
+    },
+    "access-tab-aws-keys": {
+      "statement": "For AWS resources the Access tab shows Has Access Keys, where access keys are long-term credentials for an IAM user or the AWS account root user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-access-levels.json",
+          "after": "- AWS resource",
+          "quotes": ["Has Access Keys: Whether the entity is assigned an access key. Access keys are long-term credentials for an IAM user or the AWS account root user."]
+        }
+      ]
+    },
+    "entity-types-groups": {
+      "statement": "During data scanning DSPM discovers entity types, such as Onprem Unmanaged MySQL Server User and Snowflake User.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-access-levels.json",
+          "quotes": [
+            "DSPM discovers the following entity types during data scanning:",
+            "Onprem Unmanaged MySQL Server User: A user that can access the database resources by logging in to MySQL Server.",
+            "Snowflake User: Individual users or entities with access to a Snowflake account."
+          ]
+        }
+      ]
+    },
+    "entity-types-external": {
+      "statement": "IAM External Account is an account outside the current AWS organization, while IAM Unmanaged Role and IAM Unmanaged User are in another account of the same organization that is not managed or onboarded to DSPM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-access-levels.json",
+          "quotes": [
+            "IAM External Account: An account outside your current AWS organization that can access resources.",
+            "IAM Unmanaged Role: An entity that can access resources through a role from another AWS account within the same organization that is not managed or onboarded to DSPM.",
+            "IAM Unmanaged User: An IAM user that can access resources through a user from another AWS account within the same organization that is not managed or not onboarded to DSPM."
+          ]
+        }
+      ]
+    },
+    "data-inventory-scope": {
+      "statement": "The Data Inventory page reports on files and tables across cloud, on-premises and SaaS environments and is updated continuously as new cloud accounts are onboarded and data stores, files and tables are updated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-the-data-inventory.json",
+          "quotes": [
+            "comprehensive report that provides in-depth details of the data assets across your cloud, on-premises, and Software-as-a-Service (SaaS) environments.",
+            "Continuously updates the data inventory as and when new cloud accounts are onboarded, data stores, files, and tables are updated."
+          ]
+        }
+      ]
+    },
+    "data-inventory-columns": {
+      "statement": "The Data Inventory lists each file or table with columns including Severity of Last Incident, File MD5, Collaboration Scope, Public URL and the number of external collaborators.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-the-data-inventory.json",
+          "quotes": [
+            "Severity of Last Incident: The severity level of the most recent incident associated with the file or table.",
+            "File MD5: The MD5 hash value of the file.",
+            "Collaboration Scope: The sharing scope of the file.",
+            "Public URL: The publicly accessible URL for the file.",
+            "Number of External Collaborators: The number of users outside your organization who have access to the file."
+          ]
+        }
+      ]
+    },
+    "data-inventory-detail-tabs": {
+      "statement": "The file or table details view has tabs: Entitlements (files only; extra detail only for on-premises SMB file shares), Evidence (only if evidence collection was enabled and configured before the scan), File Activity (files only) and Data (tables only).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-and-managing-data-inventory-details.json",
+          "quotes": [
+            "Entitlements",
+            "Review the collected evidence to confirm that sensitive data exists.",
+            "This tab is displayed only if evidence collection is enabled and configured prior to the scan.",
+            "View activities related to file labeling, the entity performing the action (e.g., Zscaler), and the timestamp.",
+            "View database columns that contain sensitive data, precisely matching the data type with the specific column in the table."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-and-managing-data-inventory-details.json",
+          "after": "- Entitlements",
+          "quotes": ["This tab is available only for files, and additional details are shown only for on-premises SMB file shares."]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-and-managing-data-inventory-details.json",
+          "after": "- File Activity",
+          "quotes": ["This tab is available only for files."]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-and-managing-data-inventory-details.json",
+          "after": "and the timestamp.",
+          "quotes": ["This tab is available only for tables and is currently supported for managed and unmanaged SQL databases, data warehouses such as Databricks and Snowflake, and NoSQL databases such as DynamoDB and CosmosDB."]
+        }
+      ]
+    },
+    "dynamodb-column-scan": {
+      "statement": "AWS DynamoDB tables do not support column-level scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-and-managing-data-inventory-details.json",
+          "quotes": ["AWS DynamoDB tables do not support column-level scanning."]
+        }
+      ]
+    },
+    "mip-label-list-page": {
+      "statement": "On the Data Inventory page, the icon for applying a MIP label to individual files is enabled only for on-premises files and for users assigned the Apply Label permission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-the-data-inventory.json",
+          "quotes": ["Apply the Microsoft Information Purview (MIP) label for individual files.", "This icon is enabled only for on-premises files and for users that are assigned with Apply Label permission."]
+        }
+      ]
+    },
+    "mip-label-details-page": {
+      "statement": "MIP labels can be applied manually to files in on-premises file shares on file servers and in Azure file shares, which requires the permission to apply MIP labels, and for Azure file shares M365 tenant sync must be enabled first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-and-managing-data-inventory-details.json",
+          "quotes": [
+            "You can manually apply a MIP label to a single file or to multiple files stored in on-premises file shares created on file servers, or in Azure file shares. You must have the required permission to apply MIP labels.",
+            "Before you apply a MIP label to a file in an Azure file share, make sure M365 tenant sync is enabled."
+          ]
+        }
+      ]
+    },
+    "mip-label-tenants": {
+      "statement": "With multiple M365 tenants, Azure file shares offer labels from the corresponding tenant while on-premises file shares offer labels from all available M365 tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-and-managing-data-inventory-details.json",
+          "quotes": ["For multiple M365 tenants, Azure file shares use labels associated with the corresponding tenant, while on-premises file shares use labels from all available M365 tenants."]
+        }
+      ]
+    },
+    "mip-label-status": {
+      "statement": "For a MIP label action, the status shown on the file details page's File Activity tab is Completed (applied), Failed (not applied) or Requested Action (in progress).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-and-managing-data-inventory-details.json",
+          "quotes": [
+            "On the file details page, select the File Activity tab.",
+            "Check the status of the label action.",
+            "Completed: Indicates that the label is applied successfully",
+            "Failed: Indicates that the label is not applied.",
+            "Requested Action: Indicates that the label application is in progress."
+          ]
+        }
+      ]
+    },
+    "identity-inventory-scope": {
+      "statement": "The Identity Inventory page lists identities detected in all onboarded AWS, Azure and GCP accounts, including managed and unmanaged databases and Snowflake.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-identity-inventory.json",
+          "quotes": ["DSPM detects identities in all the onboarded cloud accounts (AWS, Azure, and GCP), including managed and unmanaged databases, and Snowflake."]
+        }
+      ]
+    },
+    "identity-entity-categories": {
+      "statement": "The Identity Inventory Entity Category values are AI Agent Identity, Domain, External, Federated, Internal Application, Microsoft Application, Role, Service, Service Account, System-Assigned Managed Identity, Third-Party Application, Unknown and User-Assigned Managed Identity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-identity-inventory.json",
+          "quotes": ["Entity Category: The identity type (i.e. AI Agent Identity, Domain, External, Federated, Internal Application, Microsoft Application, Role, Service, Service Account, System-Assigned Managed Identity, Third-Party Application, Unknown, User-Assigned Managed Identity)."]
+        }
+      ]
+    },
+    "identity-columns": {
+      "statement": "Identity Inventory columns include Entity Source (the identity repository, e.g. Entra ID), Target Environments, Sensitive Data Stores and Files & Tables.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-identity-inventory.json",
+          "quotes": [
+            "Entity Source: The identity repository (e.g., Entra ID) where the identity is stored.",
+            "Target Environments: The cloud service providers (e.g., GCP, Azure) to which the identity has access.",
+            "Sensitive Data Stores: The number of data stores containing sensitive data.",
+            "Files & Tables: The number of files and tables the identity has access to."
+          ]
+        }
+      ]
+    },
+    "duplicates-detection": {
+      "statement": "DSPM detects duplicate files across cloud, SaaS and on-premises environments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-data-duplications.json",
+          "quotes": ["DSPM scans the data stores and detects duplicate files across cloud, SaaS, and on-premises environments."]
+        }
+      ]
+    },
+    "duplicates-by-hash": {
+      "statement": "A file or table's details view in the Data Inventory shows duplicate copies based on matching hash values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-and-managing-data-inventory-details.json",
+          "quotes": ["View duplicate copies of the file or table based on matching hash values."]
+        }
+      ]
+    },
+    "duplicates-columns": {
+      "statement": "The Data Duplications page's Copies column counts all copies including the original, File Size is in kilobytes, and a file's File access tab lists users who accessed it in the last 7 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-data-duplications.json",
+          "quotes": [
+            "Copies: The total number of file copies detected, including the original file.",
+            "File access: The users that accessed the file in the last 7 days.",
+            "File Size: The size of the file in kilobytes (KB)."
+          ]
+        }
+      ]
+    },
+    "duplicates-export": {
+      "statement": "Data Duplications can export a Summary View (current page view with filters and visible columns) or a Full View (every duplicate instance), and the Full View is a ZIP of up to 10 files of at most 50,000 rows each, within a 500,000-row limit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-data-duplications.json",
+          "quotes": [
+            "Summary View: This report is based on the current page view, including applied filters and visible columns.",
+            "Full View: This report lists all duplicate file instances and their attributes.",
+            "The Full View report is generated as a ZIP file, which can contain up to 10 files with a maximum of 50,000 rows each.",
+            "stay within the 500,000-row limit."
+          ]
+        }
+      ]
+    },
+    "page-views": {
+      "statement": "Saved page views (filters, visible columns, sorting) are available on the Resource Inventory, Data Inventory, Data Duplications and Alerts pages, are per user and invisible to others, and the default view cannot be changed or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-customizing-page-settings.json",
+          "quotes": [
+            "You can customize page settings on the Resource Inventory, Data Inventory, Data Duplications, and Alerts pages",
+            "The customized page views are applicable for each individual user and other users cannot see them. The default page view cannot be changed or deleted.",
+            "Apply the filters, show or hide the columns, and sort the data on the page as required."
+          ]
+        }
+      ]
+    },
+    "page-views-delete": {
+      "statement": "Deleting a saved page view requires typing CONFIRM in the Delete View window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-customizing-page-settings.json",
+          "quotes": ["In the Delete View window, enter CONFIRM in the text box, then click Delete."]
+        }
+      ]
+    },
+    "report-management": {
+      "statement": "Report Management holds reports on alerts, data inventory and policies; reports are available as Excel files only, with status In Progress or Download.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-downloading-reports.json",
+          "quotes": [
+            "From the navigation menu, go to Data Security > DSPM > Report Management.",
+            "You can download reports related to alerts, data inventory, and policies",
+            "Report Type: The file format. Reports are available as Excel files only.",
+            "In Progress: When the report is being generated.",
+            "Download: When the report is ready for download."
+          ]
+        }
+      ]
+    },
+    "posture-icons": {
+      "statement": "Posture icons: Bad Posture means data is not encrypted; Partially Good means partly encrypted, for example with platform-managed keys (PMK), which is more secure than no encryption but less than customer-managed keys (CMK); no icon is good.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-security-posture-state.json",
+          "quotes": [
+            "Bad Posture icon (): Bad state. The data is not encrypted.",
+            "Partially Good Posture icon (): Intermediate state. The data is partially encrypted. For example, data is encrypted with platform-managed keys (PMK). This is secure than no encryption at all, but encrypting with customer-managed keys (CMK) is more secure.",
+            "No icon: Good state. The resource is secure and there are no issues."
+          ]
+        }
+      ]
+    },
+    "posture-resource-states": {
+      "statement": "Resource posture states cover Encryption (including Encrypted, CMK Encrypted, PMK Encrypted and Partial Encryption), Public Exposure, Logging (including Partial Logging), Backup, Data Retention and Exposure to AI Services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-security-posture-state.json",
+          "quotes": [
+            "| Encryption | Encrypted | Data is encrypted. |",
+            "|  | Partial Encryption | Encryption is partially enabled for this data store. |",
+            "| Public Exposure | Publicly Exposed |",
+            "| Logging | Logging Enabled | All relevant data and management logs are enabled for this data store, which is best practice. |",
+            "|  | Partial Logging | Logging is partially enabled for this data store, blocking visibility into some data or management activities. |",
+            "| Backup | Backup Enabled | Data backup policy is implemented, which is best practice. |",
+            "|  | No Backup | Data backup policy is not implemented.",
+            "| Data Retention | Data Retention Enabled | Data retention policy is implemented, which is best practice. |",
+            "|  | No Data Retention Policy |",
+            "| Exposure to AI Services | Exposed to AI Service | The sensitive data in data stores is exposed to an AI service. |",
+            "|  | CMK Encrypted | Data is encrypted with CMK, which is best practice. |",
+            "|  | PMK Encrypted | Data is encrypted with platform-managed keys (PMK), which is less secure than encryption with CMK. |"
+          ]
+        }
+      ]
+    },
+    "posture-guardrails": {
+      "statement": "The Guardrails posture (Enabled or Disabled) is stated for AWS Bedrock Agent or Azure AI Foundry.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-security-posture-state.json",
+          "quotes": [
+            "| Guardrails | Enabled | Guardrails are configured. (AWS Bedrock Agent or Azure AI Foundry) |",
+            "|  | Disabled | Guardrails are not configured. (AWS Bedrock Agent or Azure AI Foundry) |"
+          ]
+        }
+      ]
+    },
+    "posture-identity-90-days": {
+      "statement": "Identity posture thresholds: Stale Password is a password not valid and not changed for more than 90 days, Dormant Identity is inactive for more than 90 days, and Stale Access Key is an access key not rotated for more than 90 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-security-posture-state.json",
+          "quotes": [
+            "| Password Status | Stale Password | The password is not valid and has not been changed for more than 90 days. |",
+            "| Dormant Identity |  | The identity is inactive for more than 90 days. |",
+            "| Access Key | Stale Access Key | The access key for the identity has not been rotated for more than 90 days. |"
+          ]
+        }
+      ]
+    },
+    "posture-mfa": {
+      "statement": "Identity MFA posture covers MFA Status (MFA Enabled, MFA Disabled) and MFA Method (Weak MFA, Strong MFA, MFA Not Registered).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-security-posture-state.json",
+          "quotes": [
+            "| MFA Status | MFA Enabled | MFA is enabled for the identity. |",
+            "| MFA Method | Weak MFA | The MFA is not secure. |",
+            "|  | MFA Not Registered | MFA is not set up for the identity. |",
+            "|  | Strong MFA | The MFA is secure and compliant. |",
+            "|  | MFA Disabled | MFA is disabled for the identity. |"
+          ]
+        }
+      ]
+    },
+    "posture-scp": {
+      "statement": "SCP Status posture is SCP Applied or No SCP Applied, meaning a Service Control Policy is or is not applied to the AWS account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-security-posture-state.json",
+          "quotes": [
+            "| SCP Status | SCP Applied | Service Control Policy is applied to the AWS account. |",
+            "|  | No SCP Applied | Service Control Policy is not applied to the AWS account. |"
+          ]
+        }
+      ]
+    },
+    "risk-definition": {
+      "statement": "DSPM security risk combines likelihood (derived from policies matching attack vectors in the data store) and impact (based on sensitivity level of the data found and its volume).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-security-risk.json",
+          "quotes": [
+            "In the context of DSPM, likelihood refers to the derivative of policies that match the attack vectors in the data store, with a possibility of a data breach.",
+            "The severity of the impact is based on the sensitivity level of the data found and volume of data.",
+            "Zscaler takes into account both likelihood and impact when calculating the security risk."
+          ]
+        }
+      ]
+    },
+    "risk-true-impact": {
+      "statement": "DSPM scans the entire data in a store but calculates impact only on the portion of data at risk; in the documented example an encrypted EBS volume with 100 sensitive records contributes nothing to the EC2 risk score while an unencrypted one with 50 represents most of it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-security-risk.json",
+          "quotes": [
+            "DSPM scans the entire data in the data stores but calculates the impact based on that portion of data that is at risk and not the entire data",
+            "the first EBS volume does not contribute anything to the EC2 risk score and the second EBS volume represents most of the risk score.",
+            "The first EBS volume has 100 sensitive records that are encrypted and secure, and the second EBS volume has 50 sensitive records that are not encrypted."
+          ]
+        }
+      ]
+    },
+    "risk-score-inputs": {
+      "statement": "The risk score's likelihood follows matched policies, so modifying policy severity changes it, and impact follows sensitive data, so running the sensitive data configuration affects it; there is currently no other way to override the risk score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-security-risk.json",
+          "quotes": [
+            "Likelihood is a derivative of the matched policies. Modifying the policy severity impacts the likelihood score.",
+            "Impact is a derivative of sensitive data. Running the sensitive data configuration has an effect on impact.",
+            "Currently, there is no other way to override the risk score."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "scan-status-values": {
+      "kind": "semantic",
+      "title": "Whether Failed and Unsupported are Latest Scan Status values",
+      "status": "partial",
+      "about": ["dspm.scan-rules:scan-statuses"],
+      "detail": "The Resource Inventory page refers to \"Understanding Scan Status\" for Latest Scan Status. That article is captured and its four statuses are held in dspm.scan-rules:scan-statuses; its list does not include the Failed and Unsupported labels the Resource Inventory page names (see the divergence). Whether the list is partial is not stated.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "entity-type-lists": {
+      "kind": "semantic",
+      "title": "The full entity-type lists on the Access Levels page",
+      "status": "open",
+      "detail": "The Access Levels page lists many entity types per cloud and only a sample is claimed here.",
+      "resolves_with": ["source-read"]
+    },
+    "mip-label-scope": {
+      "kind": "semantic",
+      "title": "Which file shares the Data Inventory MIP label action covers",
+      "status": "open",
+      "about": ["dspm.action-rules:saas-purpose"],
+      "detail": "The Onboarding a Microsoft 365 Tenant page (held in dspm.action-rules:saas-purpose) says M365 tenants give access to MIP labels \"for Azure or on-premises Azure file shares\". The Data Inventory page says the icon is enabled only for on-premises files and users with Apply Label permission; the file details page says labels can be applied to files in on-premises file shares on file servers or in Azure file shares. The captures do not say whether the list-page icon excludes Azure file shares or the two pages describe different surfaces.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "referenced-pages-not-captured": {
+      "kind": "semantic",
+      "title": "What the pages cited by the inventory articles say about Apply Label and M365 tenant sync",
+      "status": "partial",
+      "about": ["dspm.on-premises:evidence-definition", "dspm.action-rules:saas-purpose", "dspm.policies:custom-policy-purpose"],
+      "detail": "About Evidence Settings, Onboarding a Microsoft 365 Tenant and Creating Custom Policies are captured and held by the linked claims. Predefined DSPM Roles and Permissions is captured and its Data Inventory rows list Apply Label, but dspm.roles holds no claim for that row (only a permission-matrix gap), so what Apply Label permits is not claimed. What M365 tenant sync enables is only stated in the M365 page's MIP-label sentence.",
+      "resolves_with": ["source-read"]
+    },
+    "dormant-wording": {
+      "kind": "semantic",
+      "title": "What Is Dormant means against the Dormant Identity posture state",
+      "status": "open",
+      "detail": "The posture state says \"The identity is inactive for more than 90 days\" while the investigation predicate says \"Check if the user has logged in over the last 90 days\" (dspm.investigation:posture-predicates-dormant). What true means for Is Dormant is not defined, and the same question applies to the Stale Access Keys predicate (\"Check if the access keys have been rotated in the last 90 days\").",
+      "resolves_with": ["source-read", "lab-test"]
+    }
+  },
+  "divergences": {
+    "scan-status-labels": {
+      "summary": "The Resource Inventory page names Failed and Unsupported as Latest Scan Status labels; the Understanding Scan Status page lists only Disabled, Scheduled, On-Demand and In Progress as supported statuses.",
+      "positions": [
+        {
+          "says": "Latest Scan Status shows Failed and Unsupported labels for failed or unsupported scans.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-about-resource-inventory.json",
+            "quotes": ["For failed or unsupported scans, hover over the Failed or Unsupported labels to see the error message."]
+          }
+        },
+        {
+          "says": "The supported statuses are Disabled, Scheduled, On-Demand and In Progress.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-understanding-scan-status.json",
+            "quotes": ["The following statuses are supported:", "In Progress: The scan is actively in progress for both full scans and incremental scans."]
+          }
+        }
+      ],
+      "impact": "A scan status answer cannot treat the four-status list as complete for what Latest Scan Status displays."
+    }
+  }
+}

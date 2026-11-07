@@ -1,0 +1,1044 @@
+{
+  "schema_version": 1,
+  "id": "zcc.terraform.field-fidelity",
+  "title": "ZCC Terraform provider fields that are not sent, not read back, or collapsed",
+  "aliases": [
+    "zcc forwarding profile ignored field",
+    "zcc terraform perpetual diff",
+    "zcc trusted_networks not applied",
+    "zcc data source false",
+    "zcc fail open policy removed from state",
+    "zcc terraform drift hidden",
+    "evaluate_trusted_network false",
+    "IntOrString truncates"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-go.legacy-routing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZCC provider is a Plugin Framework provider whose forwarding profile resource round-trips a large nested object through a hand-written expand function (plan to request) and flatten function (response to state). Most defects here come from the two halves disagreeing: a setting that can be read but not written, or one that is written but never read."
+    },
+    {
+      "label": "Accepted but never sent.",
+      "text": "{{action-fields-exposed-and-read}} {{tunnel-fields-exposed-and-read}} {{action-fields-never-sent}} {{tunnel-fields-never-sent}} {{trusted-network-lists-read-only}} {{configured-values-silently-ignored}} What the API does with a setting it never receives is open {{gap:ignored-field-server-effect}}. Zero-value clears on the fields that are sent are in [[shared.sdk-go.zero-value-writes]]."
+    },
+    {
+      "label": "Settings hidden from drift.",
+      "text": "{{zpa-latency-overlay-masks-drift}} {{unified-tunnel-overlay-covers-every-attribute}} {{prior-state-overlays-elsewhere}} A recorded forwarding-profile listing does return `evaluateTrustedNetwork` {{divergence:evaluate-trusted-network-echo}}. Whether the list and GET responses really omit the other fields the provider restores from state is open {{gap:api-field-drop-claims}}."
+    },
+    {
+      "label": "Data sources.",
+      "text": "{{data-sources-report-false-for-dropped-fields}} {{strict-versus-lenient-boolean-strings}}"
+    },
+    {
+      "label": "Failed reads and creates.",
+      "text": "{{failopen-read-error-removes-state}} {{create-ignores-success-flag}} {{create-can-adopt-same-name-profile}} Whether the edit endpoint returns HTTP 200 with `success` false is open {{gap:success-false-response}}. Reads removed because an ID is outside the first page of a list are in [[shared.sdk-go.list-pagination]]."
+    },
+    {
+      "label": "Blocks that collapse.",
+      "text": "{{duplicate-network-type-collapses}} {{duplicate-network-type-not-rejected}}"
+    },
+    {
+      "label": "Defects on the SDK side.",
+      "text": "{{intorstring-truncates-fractions}} {{trusted-network-create-sleeps-blindly}} [[zpa.emergency-access.api-surface:sdk-go-create-clears-activate-now]] {{sdk-defects-reach}} {{v1-backend-serves-tenants-without-v2}} Which probe failures select the v1 backend is [[zcc.terraform.trusted-network-backend:probe-unavailable-statuses]]. Legacy-client routing for the same package is in [[zcc.sdk-go.legacy-routing]]; ZIA's equivalent field-fidelity mechanisms are in [[zia.terraform.field-fidelity]]."
+    },
+    {
+      "text": "Whether the ZCC v2 create and update responses carry every field is open {{gap:partial-create-update-response}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When an attribute shows a perpetual diff, or a configured setting has no effect on the client, check the request type first.",
+      "uses": [
+        "action-fields-never-sent",
+        "tunnel-fields-never-sent",
+        "trusted-network-lists-read-only",
+        "configured-values-silently-ignored"
+      ]
+    },
+    {
+      "do": "Before using a ZCC data source's boolean as a policy input for the fields named above, confirm it against the resource or a raw API read.",
+      "uses": [
+        "data-sources-report-false-for-dropped-fields",
+        "strict-versus-lenient-boolean-strings"
+      ]
+    },
+    {
+      "do": "After a failed refresh of the fail-open policy, confirm in the console that the policy still exists before trusting a plan that proposes to create it.",
+      "uses": [
+        "failopen-read-error-removes-state"
+      ]
+    },
+    {
+      "do": "Whether any block list has two blocks with the same network_type, which the schema does not reject.",
+      "uses": [
+        "duplicate-network-type-collapses",
+        "duplicate-network-type-not-rejected"
+      ]
+    }
+  ],
+  "claims": {
+    "action-fields-exposed-and-read": {
+      "statement": "The forwarding-profile resource declares four ZIA action attributes as Optional and Computed, `system_proxy`, `send_all_dns_to_trusted_server`, `drop_ipv6_traffic_in_ipv6_network` and `optimise_for_unstable_connections`, and its flatten function fills them from the API response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "\"forwarding_profile_actions\": schema.ListNestedBlock{",
+          "quotes": [
+            "\"system_proxy\": schema.BoolAttribute{Optional: true, Computed: true},",
+            "\"send_all_dns_to_trusted_server\": schema.BoolAttribute{Optional: true, Computed: true},",
+            "\"drop_ipv6_traffic_in_ipv6_network\": schema.BoolAttribute{Optional: true, Computed: true},",
+            "\"optimise_for_unstable_connections\": schema.BoolAttribute{Optional: true, Computed: true},"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenProfileActions(",
+          "quotes": [
+            "\"system_proxy\": intToBool(a.SystemProxy),",
+            "\"send_all_dns_to_trusted_server\": intToBool(a.SendAllDNSToTrustedServer),",
+            "\"optimise_for_unstable_connections\": intToBool(a.OptimiseForUnstableConnections),",
+            "\"drop_ipv6_traffic_in_ipv6_network\":       intToBool(int(a.DropIpv6TrafficInIpv6Network)),"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "docs/resources/zcc_forwarding_profile.md",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "`forwarding_profile_actions` ([Block, repeatable](#forwarding_profile_actions)) — Per-network forwarding actions applied to ZIA traffic."
+          ]
+        }
+      ]
+    },
+    "tunnel-fields-exposed-and-read": {
+      "statement": "The unified-tunnel block declares `optimise_for_unstable_connections`, `drop_ipv6_traffic_in_ipv6_network` and `send_all_dns_to_trusted_server` as Optional and Computed, and its flatten function fills them from the API response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "\"unified_tunnel\": schema.ListNestedBlock{",
+          "quotes": [
+            "\"optimise_for_unstable_connections\": schema.BoolAttribute{Optional: true, Computed: true},",
+            "\"drop_ipv6_traffic_in_ipv6_network\": schema.BoolAttribute{Optional: true, Computed: true},",
+            "\"send_all_dns_to_trusted_server\": schema.BoolAttribute{Optional: true, Computed: true},"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenUnifiedTunnels(",
+          "quotes": [
+            "\"optimise_for_unstable_connections\": intToBool(t.OptimiseForUnstableConnections),",
+            "\"drop_ipv6_traffic_in_ipv6_network\": intToBool(t.DropIpv6TrafficInIpv6Network),",
+            "\"send_all_dns_to_trusted_server\": intToBool(t.SendAllDNSToTrustedServer),"
+          ]
+        }
+      ]
+    },
+    "action-fields-never-sent": {
+      "statement": "The four ZIA action attributes are never sent. The action request type the SDK posts has no field for them, and the provider's expand function for actions does not set them, so a value written in configuration does not reach the request body.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "type ForwardingProfileActionRequest struct {"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func expandProfileActionRequests(",
+          "quotes": [
+            "SystemProxyData: expandSystemProxyDataRequest(ctx, a.SystemProxyData),"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. Searched with `git -C vendor/zscaler-sdk-go grep -n -i 'SendAllDNS\\|DropIpv6TrafficInIpv6\\|OptimiseForUnstable\\|SystemProxy ' v3.8.37 -- zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go` (also at HEAD, which is unchanged from v3.8.37 for that file; no match), and read the whole expand function at v0.1.0-beta.1; the file is unchanged at HEAD. The response type (`forwarding_profile.go` in the same package) does have all four fields.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "tunnel-fields-never-sent": {
+      "statement": "The three unified-tunnel attributes are never sent either. The tunnel request type has no field for them and the provider's expand function for tunnels does not set them.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "type UnifiedTunnelRequest struct {"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func expandUnifiedTunnelRequests(",
+          "quotes": [
+            "SameAsOnTrusted: boolToInt(t.SameAsOnTrusted),"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. Same search as for the action fields (no match for `SendAllDNS`, `DropIpv6TrafficInIpv6` or `OptimiseForUnstable` in the request file at v3.8.37 or HEAD), and the tunnel expand function read in full at v0.1.0-beta.1, unchanged at HEAD.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "trusted-network-lists-read-only": {
+      "statement": "Of the three trusted-network lists on a forwarding profile, only `trusted_network_ids` is ever sent. `trusted_networks` and `trusted_network_ids_selected` are declared Optional and Computed, but the request type has no field for them, the expand function builds only `TrustedNetworkIds`, and flatten overwrites both from the API response. An unset `trusted_network_ids` is sent as an empty list.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ForwardingProfileResource) Schema(",
+          "quotes": [
+            "\"trusted_networks\": schema.ListAttribute{",
+            "\"trusted_network_ids_selected\": schema.ListAttribute{"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "type ForwardingProfileRequest struct {",
+          "quotes": [
+            "TrustedNetworkIds []int `json:\"trustedNetworkIds\"`"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "req.TrustedNetworkIds = append(req.TrustedNetworkIds, int(v.ValueInt64()))",
+            "model.TrustedNetworks, _ = types.ListValue(types.StringType, trustedNetworkVals)",
+            "model.TrustedNetworkIdsSelected, _ = types.ListValue(types.Int64Type, trustedNetworkIdSelectedVals)"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. `git -C vendor/zscaler-sdk-go grep -n 'TrustedNetworks\\|TrustedNetworkIdsSelected' v3.8.37 -- zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go` finds nothing (the file is unchanged at HEAD); in the provider, `git -C vendor/terraform-provider-zcc grep -n 'TrustedNetworkIdsSelected\\|\\.TrustedNetworks\\b' v0.1.0-beta.1 -- internal/framework/resources/forwarding_profile.go` finds only the model declaration and the flatten code, no expand.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "configured-values-silently-ignored": {
+      "statement": "For these nine attributes the provider accepts a configured value, sends nothing, and then writes whatever the API returns into state. Terraform plans one value, the API holds another, and the plan can show perpetual drift or the apply can fail with an inconsistent-result error, while the setting itself is not managed.",
+      "tier": "C",
+      "derived_from": [
+        "action-fields-exposed-and-read",
+        "tunnel-fields-exposed-and-read",
+        "action-fields-never-sent",
+        "tunnel-fields-never-sent",
+        "trusted-network-lists-read-only"
+      ],
+      "conditions": "Depends on what the API does when these keys are absent from the POST (keeps the prior value, applies a default, or derives them: gap ignored-field-server-effect), and on the framework's post-apply consistency check for a configured Optional+Computed value (whether it raises an error or a later plan shows the difference depends on the value the API returns).",
+      "gaps": [
+        "ignored-field-server-effect"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zpa-latency-overlay-masks-drift": {
+      "statement": "On every read, the four ZPA latency settings (`latency_based_server_enablement`, `lbs_probe_interval`, `lbs_probe_sample_size`, `lbs_threshold_limit`) are replaced with the value already in state whenever that is known, so out-of-band changes to them do not appear. The workaround exists because it assumes the SDK response type has differently named tags; in SDK v3.8.37 and v3.8.47, the releases the provider's go.mod pins, the tags are the plain names the API returns. The same overlay applies to `is_same_as_on_trusted_network` (see the next claim's places).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenZpaActions(",
+          "quotes": [
+            "The SDK's ForwardingProfileZpaAction struct currently declares the // JSON tags latencyBasedZpaServerEnablement, lbsZpaProbeInterval, // lbsZpaProbeSampleSize, and lbsZpaThresholdLimit, but the API // actually returns the un-prefixed forms (latencyBasedServerEnablement,",
+            "lbsProbeInterval, etc.). The SDK therefore leaves those fields at // zero after unmarshal. Until the SDK is corrected we preserve the // plan values here.",
+            "The same trick handles isSameAsOnTrustedNetwork,",
+            "lbsEnablement = pm.LatencyBasedServerEnablement",
+            "lbsProbeInterval = pm.LbsProbeInterval",
+            "lbsThresholdLimit = pm.LbsThresholdLimit",
+            "lbsProbeSampleSize = pm.LbsProbeSampleSize",
+            "if !pm.LbsProbeSampleSize.IsNull() && !pm.LbsProbeSampleSize.IsUnknown() {",
+            "isSame = pm.IsSameAsOnTrustedNetwork",
+            "\"lbs_probe_interval\": lbsProbeInterval,",
+            "\"lbs_probe_sample_size\": lbsProbeSampleSize,",
+            "\"lbs_threshold_limit\": lbsThresholdLimit,",
+            "\"latency_based_server_enablement\": lbsEnablement,",
+            "\"is_same_as_on_trusted_network\": isSame,"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ForwardingProfileResource) Read(",
+          "quotes": [
+            "flattenForwardingProfile(ctx, profile, &state)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenForwardingProfile(",
+          "quotes": [
+            "model.ForwardingProfileZpaActions = flattenZpaActions(p.ForwardingProfileZpaActions, planZpaModels, planZpaOrder)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.47",
+            "HEAD"
+          ],
+          "after": "type ForwardingProfileZpaAction struct {",
+          "quotes": [
+            "LatencyBasedServerEnablement int `json:\"latencyBasedServerEnablement\"`",
+            "LbsProbeInterval int `json:\"lbsProbeInterval\"`",
+            "LbsThresholdLimit int `json:\"lbsThresholdLimit\"`",
+            "LbsProbeSampleSize int `json:\"lbsProbeSampleSize\"`"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "go.mod",
+          "at": [
+            "v0.1.0-beta.1"
+          ],
+          "quotes": [
+            "github.com/zscaler/zscaler-sdk-go/v3 v3.8.37"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "go.mod",
+          "quotes": [
+            "github.com/zscaler/zscaler-sdk-go/v3 v3.8.47"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "unified-tunnel-overlay-covers-every-attribute": {
+      "statement": "The unified-tunnel `system_proxy_data` overlay is not limited to `proxy_action`. Every attribute that is known in the prior plan or state replaces the API value, so a changed PAC URL, proxy address or any other proxy field made outside Terraform is hidden on refresh. The code comment says the API resets nested systemProxyData fields and names only `proxyAction`, as the most notable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "When actionTypeZIA and actionTypeZPA are both 0 the API silently // resets nested systemProxyData fields (most notably proxyAction) to // zero on the GET response",
+            "spdObj := flattenSystemProxyDataObject(t.SystemProxyData) if pm, ok := planModels[t.NetworkType]; ok { spdObj = overlayKnownPlanAttributes(spdObj, pm.SystemProxyData, systemProxyDataAttrTypes()) }",
+            "\"system_proxy_data\": spdObj,",
+            "for name := range attrTypes { if pv, ok := planAttrs[name]; ok && pv != nil && !pv.IsNull() && !pv.IsUnknown() { merged[name] = pv",
+            "\"proxy_action\": types.Int64Type,",
+            "\"pac_url\": types.StringType,",
+            "\"proxy_server_address\": types.StringType,",
+            "model.UnifiedTunnel.ElementsAs(ctx, &existingTunnels, false)",
+            "model.UnifiedTunnel = flattenUnifiedTunnels(p.UnifiedTunnel, planTunnelModels, planTunnelOrder)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ForwardingProfileResource) Read(",
+          "quotes": [
+            "flattenForwardingProfile(ctx, profile, &state)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "prior-state-overlays-elsewhere": {
+      "statement": "The same pattern, a field the provider believes the API drops being filled from prior state instead of the response, appears in more places: `evaluate_trusted_network` and `is_same_as_on_trusted_network` on forwarding profiles, and `enforce_secure_pac_urls` and `enable_fqdn_match_for_vpn_bypasses` on web privacy. While the belief holds this avoids spurious diffs; if the API starts returning the field, or the belief is wrong, drift on it is never shown. In the web privacy resource the fields are sent; only their read-back is replaced.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "priorEvaluateTrustedNetwork := model.EvaluateTrustedNetwork",
+            "model.EvaluateTrustedNetwork = priorEvaluateTrustedNetwork"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenProfileActions(",
+          "quotes": [
+            "// The API omits isSameAsOnTrustedNetwork from the GET response,"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/web_privacy.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "// API GET omits these fields; preserve existing plan/state value to avoid drift.",
+            "if m.EnforceSecurePacUrls.IsNull() || m.EnforceSecurePacUrls.IsUnknown() {"
+          ]
+        }
+      ],
+      "conditions": "Counts a search. Read the flatten functions for forwarding profiles and web privacy at v0.1.0-beta.1 (unchanged at HEAD) and searched `git -C vendor/terraform-provider-zcc grep -n -i 'omits\\|does not echo\\|silently drop\\|avoid drift\\|plan value' v0.1.0-beta.1 -- internal/framework/resources`. That the API really omits these fields is the provider's own statement, not observed here (gap api-field-drop-claims).",
+      "gaps": [
+        "api-field-drop-claims"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "data-sources-report-false-for-dropped-fields": {
+      "statement": "The forwarding-profile and web-privacy data sources map the raw response with no fallback, while the matching resources say the response does not carry `evaluateTrustedNetwork`, `enforce_secure_pac_urls` and `enable_fqdn_match_for_vpn_bypasses`. A missing key decodes as zero or empty, so the data source reports false for those fields even when the profile or setting is true.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/datasources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "EvaluateTrustedNetwork: types.BoolValue(profile.EvaluateTrustedNetwork != 0),"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/datasources/web_privacy.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "EnforceSecurePacUrls: types.BoolValue(info.EnforceSecurePacUrls == \"1\"),",
+            "EnableFQDNMatchForVpnBypasses: types.BoolValue(info.EnableFQDNMatchForVpnBypasses == \"1\"),"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "// The webForwardingProfile/listByCompany GET response does not echo",
+            "// `evaluateTrustedNetwork`, so the SDK always unmarshals it as 0 (false)."
+          ]
+        }
+      ],
+      "conditions": "Depends on the API omitting these keys, which is the resource code's own note and is not observed here (gap api-field-drop-claims). The data source and resource files are unchanged at HEAD.",
+      "gaps": [
+        "api-field-drop-claims"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "failopen-read-error-removes-state": {
+      "statement": "If the fail-open policy cannot be read, the resource is removed from state. Read calls the by-ID lookup, and on any error calls the list again; if that list also errors, or is empty, it removes the resource without looking at what the error was, so a not-found and any other failure are treated alike. The by-ID lookup itself returns the list error unchanged. When the by-ID lookup errors and the list then returns policies, as when it has no policy with the stored ID, Read silently adopts the first policy in the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/failopen_policy.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *FailOpenPolicyResource) Read(",
+          "quotes": [
+            "policy, err := failopen_policy.GetFailOpenPolicyByID(ctx, service, id) if err != nil {",
+            "policies, listErr := failopen_policy.GetFailOpenPolicy(ctx, service, 1000)",
+            "// For a singleton, if not found, try fetching the first available",
+            "policy = &policies[0] } r.flattenFailOpenPolicy(policy, &state)",
+            "if listErr != nil || len(policies) == 0 { tflog.Info(ctx, \"Removing fail open policy from state - no longer exists\", map[string]any{\"id\": id}) resp.State.RemoveResource(ctx) return }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/failopen_policy/failopen_policy.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func GetFailOpenPolicyByID(",
+          "quotes": [
+            "policies, err := GetFailOpenPolicy(ctx, service, 1000)",
+            "return nil, err",
+            "return nil, fmt.Errorf(\"fail open policy with ID %q not found\", id)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "duplicate-network-type-collapses": {
+      "statement": "Flatten keys the prior plan or state by `network_type` for actions, ZPA actions and unified tunnels, so if two blocks share a `network_type`, the later one overwrites the earlier in the map, and every API entry with that type is then filled from that single entry (the `is_same_as_on_trusted_network` value, the four ZPA latency values, the tunnel proxy overlay).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenForwardingProfile(",
+          "quotes": [
+            "planActionModels[nt] = e",
+            "planZpaModels[nt] = e",
+            "planTunnelModels[nt] = e",
+            "orderIndex[nt] = i",
+            "nt := int(e.NetworkType.ValueInt64()) planActionOrder = append(planActionOrder, nt) planActionModels[nt] = e"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenProfileActions(",
+          "quotes": [
+            "if pm, ok := planModels[a.NetworkType]; ok {",
+            "isSame = pm.IsSameAsOnTrustedNetwork"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenZpaActions(",
+          "quotes": [
+            "if pm, ok := planModels[a.NetworkType]; ok {",
+            "lbsEnablement = pm.LatencyBasedServerEnablement",
+            "lbsProbeInterval = pm.LbsProbeInterval",
+            "lbsProbeSampleSize = pm.LbsProbeSampleSize",
+            "lbsThresholdLimit = pm.LbsThresholdLimit",
+            "isSame = pm.IsSameAsOnTrustedNetwork",
+            "\"is_same_as_on_trusted_network\": isSame,"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenUnifiedTunnels(",
+          "quotes": [
+            "if pm, ok := planModels[t.NetworkType]; ok { spdObj = overlayKnownPlanAttributes(spdObj, pm.SystemProxyData, systemProxyDataAttrTypes())",
+            "\"network_type\": types.Int64Value(int64(t.NetworkType)),"
+          ]
+        }
+      ]
+    },
+    "duplicate-network-type-not-rejected": {
+      "statement": "Nothing in the schema rejects two blocks with the same `network_type`, so a configuration with duplicates plans, sends all of them, and cannot represent them independently after refresh.",
+      "tier": "B",
+      "derived_from": [
+        "duplicate-network-type-collapses"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ForwardingProfileResource) Schema(",
+          "quotes": [
+            "\"forwarding_profile_actions\": schema.ListNestedBlock{"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence: `git -C vendor/terraform-provider-zcc grep -n -i 'validator\\|UniqueValues' v0.1.0-beta.1 -- internal/framework/resources/forwarding_profile.go` finds no validator on these blocks (unchanged at HEAD). Whether the API accepts two entries of one network type is not established.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "create-ignores-success-flag": {
+      "statement": "Forwarding-profile create does not check the `success` field the API returns. After a nil error the SDK logs the response object and returns it; the provider logs `success` and goes straight on to look the profile up by the returned ID and, if that fails, by name.",
+      "tier": "A",
+      "conditions": "Absence claim (no `success` check): in sdk-go at v3.8.58, `grep -rn -i success zscaler/zcc/services/forwarding_profile/` returns only the struct field `Success` (JSON tag `success`) in forwarding_profile_request.go, `grep -c -i success zscaler/zccrequests.go` returns 0, and `grep -rn '\\.Success\\b' zscaler/*.go zscaler/zcc/` finds `Success` read only in the fail-open policy, web policy, trusted network and company services. In tf-zcc at v0.1.2-beta.3-1-g11d461c, `grep -n '\\.Success' internal/framework/resources/forwarding_profile.go` returns only the `tflog.Info` line.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func CreateForwardingProfile(",
+          "quotes": [
+            "service.Client.GetLogger().Printf(\"[DEBUG] forwarding profile create/update response: %+v\", response)",
+            "return &response, nil",
+            "if err != nil { return nil, fmt.Errorf(\"failed to create/update forwarding profile: %w\", err) } service.Client.GetLogger().Printf(\"[DEBUG] forwarding profile create/update response: %+v\", response) return &response, nil }"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ForwardingProfileResource) Create(",
+          "quotes": [
+            "tflog.Info(ctx, \"Forwarding profile POST response\", map[string]any{\"id\": createResp.ID, \"success\": createResp.Success})",
+            "profile, err = findProfileByName(ctx, service, payload.Name)",
+            "createResp, err := forwarding_profile.CreateForwardingProfile(ctx, service, payload) if err != nil { resp.Diagnostics.AddError(\"Client Error\", fmt.Sprintf(\"Failed to create forwarding profile: %v\", err)) return }",
+            "profile, err := findProfileByID(ctx, service, createResp.ID) if err != nil { profile, err = findProfileByName(ctx, service, payload.Name)",
+            "tflog.Info(ctx, \"Forwarding profile POST response\", map[string]any{\"id\": createResp.ID, \"success\": createResp.Success}) profile, err := findProfileByID(ctx, service, createResp.ID) if err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "create-can-adopt-same-name-profile": {
+      "statement": "If the API answers a rejected write with HTTP 200 and `success` false with ID 0, create waits through the ID lookups, then adopts the first profile that has the same name, which can be an unrelated existing one, and records it in state as the new resource.",
+      "tier": "C",
+      "derived_from": [
+        "create-ignores-success-flag"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/helpers/helpers.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "The API rejects \"true\" / \"false\" with a silent",
+            "{\"success\":\"false\",\"id\":0} response"
+          ]
+        }
+      ],
+      "conditions": "Depends on the API returning HTTP 200 with a false `success` for some rejected writes (the provider's helper comment says it does for string-boolean values; not observed here: gap success-false-response) and on a same-named profile existing. The name lookup takes the first match by exact name.",
+      "gaps": [
+        "success-false-response"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "strict-versus-lenient-boolean-strings": {
+      "statement": "The forwarding-profile resource reads `active` and `enableLWFDriver` through a helper that accepts both \"1\" and \"true\" (any case), while the data source tests only for \"1\". If the API returns \"true\", the resource reports true and the data source reports false for the same profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/helpers/helpers.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func String01ToBool(",
+          "quotes": [
+            "return types.BoolValue(s == \"1\" || strings.EqualFold(s, \"true\"))"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/datasources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "Active: types.BoolValue(profile.Active == \"1\"),",
+            "EnableLWFDriver: types.BoolValue(profile.EnableLWFDriver == \"1\"),"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "string01ToBool = helpers.String01ToBool",
+            "model.Active = string01ToBool(p.Active)",
+            "model.EnableLWFDriver = string01ToBool(p.EnableLWFDriver)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "intorstring-truncates-fractions": {
+      "statement": "The shared ZCC `IntOrString` type accepts a fractional JSON number or quoted number and truncates it to an integer with `int(f)` or `int(parsed)`, dropping the fraction. The code comment says the intent was values like `1.0`, but there is no check that the value is whole.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func (i *IntOrString) UnmarshalJSON(",
+          "quotes": [
+            "*i = IntOrString(int(f))",
+            "*i = IntOrString(int(parsed))",
+            "Some ZCC endpoints serialize integer values as JSON floats with a",
+            "trailing .0 (e.g. `1.0`, `-1.0`); Go's json package refuses to",
+            "decode those into int, so retry through float64 and truncate.",
+            "if err := json.Unmarshal(trimmed, &f); err == nil { *i = IntOrString(int(f))",
+            "if parsed, err := strconv.ParseFloat(str, 64); err == nil { *i = IntOrString(int(parsed))"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "trusted-network-create-sleeps-blindly": {
+      "statement": "Creating a v1 trusted network resolves the new ID by name, six attempts, and sleeps two seconds after every failed attempt, including the last. The loop passes the request context to each lookup but never checks it itself, and waits with `time.Sleep`. A cancelled create keeps sleeping, and a lookup error is returned only after all six attempts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func CreateTrustedNetwork(",
+          "quotes": [
+            "url := fmt.Sprintf(\"%s/create\", trustedNetworkEndpoint)",
+            "POST does not return the new id; resolve by networkName via listByCompany.",
+            "for attempt := 1; attempt <= 6; attempt++ { createdNetwork, _, lookupErr = GetTrustedNetworkByName(ctx, service, network.NetworkName) if lookupErr == nil && createdNetwork != nil { break }",
+            "service.Client.GetLogger().Printf(\"[DEBUG] trusted network name lookup attempt %d failed, retrying in 2s: %v\", attempt, lookupErr) time.Sleep(2 * time.Second) } if createdNetwork == nil {",
+            "if createdNetwork == nil { return nil, resp, fmt.Errorf(\"trusted network created, but failed to retrieve by name '%s': %w\", network.NetworkName, lookupErr)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "trustedNetworkEndpoint = \"/zcc/papi/public/v1/webTrustedNetwork\""
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "sdk-defects-reach": {
+      "statement": "These three SDK defects reach providers unevenly. The ZCC provider uses the shared `IntOrString` only through web-policy code it does not register, and reaches the v1 trusted-network create only through the backend added after v0.1.0-beta.1. The ZPA provider has an emergency-access resource that calls `Create` but sets no activation field, so for Terraform users `ActivateNow` is not an input.",
+      "tier": "B",
+      "derived_from": [
+        "intorstring-truncates-fractions",
+        "trusted-network-create-sleeps-blindly",
+        "zpa.emergency-access.api-surface:sdk-go-create-clears-activate-now"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v1.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "created, _, err := tnv1.CreateTrustedNetwork(ctx, b.svc, payload)"
+          ]
+        }
+      ],
+      "conditions": "Counts searches. `git -C vendor/zscaler-sdk-go grep -ln 'common.IntOrString' v3.8.37 -- zscaler/zcc` lists only the web_policy files and the common package; `git -C vendor/terraform-provider-zcc grep -n -i 'web_policy' v0.1.0-beta.1 -- internal/framework/provider.go` finds nothing. `git -C vendor/terraform-provider-zcc grep -n 'services/trusted_network\"' v0.1.0-beta.1 -- internal` finds no importer (only trusted_network_v2); at HEAD only the tnbackend files import it. `git -C vendor/terraform-provider-zpa grep -n -i 'activatenow\\|activate_now' v4.4.10` finds no match; the resource calls `emergencyaccess.Create`. The three SDK files are identical at v3.8.37, v3.8.42 and HEAD (emergency access and ZCC IntOrString checked by diff).",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "v1-backend-serves-tenants-without-v2": {
+      "statement": "The ZCC provider's trusted-network resource calls the SDK's v1 create (`CreateTrustedNetwork`) only from its v1 backend, which serves tenants where the v2 trusted-networks endpoints are not enabled: the first trusted-network operation probes the v2 list endpoint once and caches the verdict for the provider's SDK service handle.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/tnbackend.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "resource and data source keep working on tenants where the newer",
+            "trusted-network operation probes the v2 list endpoint once and caches",
+            "/zcc/papi/public/v2/trusted-networks endpoints are not yet enabled.",
+            "the verdict for the lifetime of the provider's SDK service handle, so a",
+            "if available { backend = &v2Backend{svc: svc} } else { backend = &v1Backend{svc: svc} }",
+            "var autoCache sync.Map // *zscaler.Service -> Backend"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v1.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "created, _, err := tnv1.CreateTrustedNetwork(ctx, b.svc, payload)",
+            "func (b *v1Backend) Create(ctx context.Context, net *trusted_network_v2.TrustedNetworkV2) (*trusted_network_v2.TrustedNetworkV2, error) {"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v2.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "created, _, err := trusted_network_v2.Create(ctx, b.svc, net)"
+          ]
+        }
+      ],
+      "conditions": "The \"only\" is an absence: \\`grep -rn \"CreateTrustedNetwork\" . --include='*.go'\\` over the provider at commit 11d461c (v0.1.2-beta.3 plus one commit) finds one non-test call, in \\`internal/framework/tnbackend/backend_v1.go\\`, and no test-file calls."
+    }
+  },
+  "gaps": {
+    "ignored-field-server-effect": {
+      "kind": "semantic",
+      "title": "What the ZCC forwarding-profile API does with settings it never receives",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating whether an unsent setting stays at its prior value, resets to a default, or is derived",
+      "detail": "The provider sends no value for the nine attributes. Create a profile through the API with the fields set, update it through the provider without them, and re-read; then repeat on a new profile and compare against the defaults."
+    },
+    "api-field-drop-claims": {
+      "kind": "semantic",
+      "title": "Whether the ZCC list and GET responses really omit the fields the provider restores from state",
+      "status": "partial",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying which prior-state overlays hide real drift and which data-source values are wrong",
+      "detail": "The provider's comments say the forwarding-profile list does not echo `evaluateTrustedNetwork` and `isSameAsOnTrustedNetwork`, the web-privacy GET omits two fields, and the unified-tunnel GET resets `proxyAction` when both action types are 0. Capture the raw response for a profile and a web-privacy setting with those fields set, and for a unified tunnel with other proxy fields set. Partly answered for one test tenant (Python SDK cassette, recorded with SDK 1.9.13): the forwarding-profile listing returns `evaluateTrustedNetwork` (divergence evaluate-trusted-network-echo), and `isSameAsOnTrustedNetwork` does not appear anywhere in the recording. The web-privacy and unified-tunnel claims remain unchecked.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestForwardingProfile.yaml",
+          "after": "webForwardingProfile/listByCompany response:",
+          "quotes": [
+            "\\\"evaluateTrustedNetwork\\\" : 1,"
+          ]
+        }
+      ]
+    },
+    "success-false-response": {
+      "kind": "semantic",
+      "title": "When the ZCC edit endpoint returns HTTP 200 with success false",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating which rejected forwarding-profile writes the provider would treat as success",
+      "detail": "The provider's helper comment says the API answers some invalid bodies with `{\"success\":\"false\",\"id\":0}`. Send a body with a string boolean and a duplicate name and record the status, body and whether the client raises an error."
+    },
+    "partial-create-update-response": {
+      "kind": "semantic",
+      "title": "Whether ZCC v2 create and update responses carry every field",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether trusted network, ZIA posture and notification template state can be short of fields until the next refresh",
+      "detail": "The trusted-network resource builds state from the POST or PUT response without a follow-up read (create and update call `flattenTrustedNetwork` on the returned object). Compare the response body with a GET of the same object after a write that sets every field. The ZIA posture and notification template resources were not read for this."
+    }
+  },
+  "divergences": {
+    "evaluate-trusted-network-echo": {
+      "summary": "Whether the forwarding-profile list returns `evaluateTrustedNetwork`: the provider says it does not and restores the value from prior state, while a recorded listing returns it.",
+      "positions": [
+        {
+          "says": "The provider's forwarding-profile resource says the `listByCompany` GET response does not echo `evaluateTrustedNetwork`, so it keeps the plan or state value instead.",
+          "evidence": {
+            "source": "tf-zcc",
+            "path": "internal/framework/resources/forwarding_profile.go",
+            "quotes": [
+              "// The webForwardingProfile/listByCompany GET response does not echo"
+            ]
+          }
+        },
+        {
+          "says": "A recorded `listByCompany` response returns `evaluateTrustedNetwork` on every profile: 1 on profile SGIO-Tunnel2.0 and 0 on Default (one test tenant, recorded with SDK 1.9.13, Python SDK cassette).",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestForwardingProfile.yaml",
+            "after": "webForwardingProfile/listByCompany response:",
+            "quotes": [
+              "\\\"evaluateTrustedNetwork\\\" : 1,",
+              "\\\"evaluateTrustedNetwork\\\" : 0,"
+            ]
+          }
+        }
+      ],
+      "impact": "If the field is returned, as on the recorded tenant, the provider's overlay (prior-state-overlays-elsewhere) hides real drift on `evaluate_trusted_network`: a console change never shows in a plan, and the state keeps the configured value. One recording does not show whether every tenant or API version returns it."
+    }
+  }
+}

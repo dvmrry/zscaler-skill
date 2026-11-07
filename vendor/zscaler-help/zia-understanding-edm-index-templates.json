@@ -1,0 +1,1085 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Exact Data Match Index Templates",
+  "source": {
+    "url": "https://help.zscaler.com/zia/understanding-edm-index-templates",
+    "node": "1468391",
+    "revision": "3205721",
+    "updated": "2026-05-16",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "When creating an Exact Data Match (EDM) index template, you must define your tokens (i.e., criteria) for your data records, and specify at least one primary field. The primary field is a unique key that your DLP policy rules are based on. It is a required field that must be unique based on your data records."
+    },
+    {
+      "text": "You can configure EDM to function without primary or secondary fields. To learn more, see Configuring DLP Advanced Settings."
+    },
+    {
+      "text": "The primary field can include any recognized standard format with variable lengths (e.g., credit card numbers) or any custom formats with fixed lengths (e.g., alphabetical values). To learn more, see Creating an Exact Data Match Template."
+    },
+    {
+      "text": "To learn more about creating and using EDM templates, see:"
+    },
+    {
+      "item": "Evaluating Your Data and DLP Policies",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends considering the following before creating an EDM index template:",
+      "depth": 0
+    },
+    {
+      "item": "Review the DLP policy you want to create and the data you want to protect.",
+      "depth": 1
+    },
+    {
+      "item": "As you review the DLP policy, consider the data that must be included in your EDM index template.",
+      "depth": 1
+    },
+    {
+      "item": "Try to create a template where your data records need to be indexed once, and avoid the need to re-index whenever possible.",
+      "depth": 1
+    },
+    {
+      "item": "Review your data records to avoid potential duplication.",
+      "depth": 1
+    },
+    {
+      "item": "Let's use the following example:",
+      "depth": 0
+    },
+    {
+      "item": "You're a bank with an employee database and you want to protect your employees' personally identifiable information (PII), as well as their company credit card information.",
+      "depth": 0
+    },
+    {
+      "item": "Your database records contain the following data fields: First Name (FName), Last Name (LName), Social Security Number (SSN), Credit Card Number (CCN), Mobile Phone Number, Postal Code, Street Address, and so on.",
+      "depth": 0
+    },
+    {
+      "item": "The DLP dictionaries or engines you need to create within the Zscaler Admin Console, which can then be used in your DLP policies, must cover a series of field combinations to adequately protect your employees' information. So, based on your records in this example, any of the following data field combinations could be used to create a DLP dictionary:",
+      "depth": 0
+    },
+    {
+      "item": "SSN, FName, LName",
+      "depth": 1
+    },
+    {
+      "item": "CCN, FName, LName",
+      "depth": 1
+    },
+    {
+      "item": "SSN, CCN, LName",
+      "depth": 1
+    },
+    {
+      "item": "SSN, CCN, FName, LName",
+      "depth": 1
+    },
+    {
+      "item": "However, the EDM index template you create using the Index Tool must allow the dictionary to cover the field combination you require. You can do this by selecting a primary field based on the data field combination you need.",
+      "depth": 0
+    },
+    {
+      "item": "Identifying Primary Fields Within Your EDM Index Template",
+      "depth": 0
+    },
+    {
+      "item": "Using the example described in the previous section, specifying a primary field allows you to create a single EDM index template to protect your employees' information, where:",
+      "depth": 0
+    },
+    {
+      "item": "All of the data field combinations you require for an employee PII DLP dictionary and associated policies are covered.",
+      "depth": 1
+    },
+    {
+      "item": "All of the data field combinations you require for a credit card DLP dictionary and associated policies are covered whenever a company credit card is issued to an employee.",
+      "depth": 1
+    },
+    {
+      "item": "Your employee data records only need to be indexed once.",
+      "depth": 1
+    },
+    {
+      "item": "So, using the Index Tool, you would create an EDM index template that includes the following fields:",
+      "depth": 0
+    },
+    {
+      "item": "SSN",
+      "depth": 1
+    },
+    {
+      "item": "CCN",
+      "depth": 1
+    },
+    {
+      "item": "FName",
+      "depth": 1
+    },
+    {
+      "item": "LName",
+      "depth": 1
+    },
+    {
+      "item": "To create the employee PII DLP dictionary you require, you'd select SSN as a primary field. However, in order to create the company-issued employee credit card DLP dictionary using the same template, you also need to select CCN as a secondary primary field. The other included fields (i.e., FName, LName) are applied as Secondary Fields for both dictionaries.",
+      "depth": 0
+    },
+    {
+      "item": "Finally, in this example, BankNum is not a required data field for the DLP policies we want to create later, so it is not included within the template.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "When you create the PII-specific DLP dictionary within the Zscaler Admin Console, it needs to cover a data field combination that includes: SSN with FName and LName. So you would select Exact Data Match as your Dictionary Type, and add the following definition based on the EDM index template you created:",
+      "depth": 0,
+      "strong": [
+        [
+          186,
+          202
+        ],
+        [
+          211,
+          226
+        ]
+      ]
+    },
+    {
+      "item": "Employee PII Definition",
+      "depth": 1
+    },
+    {
+      "item": "SSN selected as the Primary Field",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "FName and LName selected as the Secondary Fields",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          10,
+          15
+        ],
+        [
+          32,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "All Fields selected for Secondary Match On",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          24,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service assumes an AND Boolean operation between the Primary Field and the Secondary Fields. Also, for Secondary Match On, \"Any\" (i.e., Match at Least 1 from Secondary Fields, Match at Least 2 from Secondary Fields) assumes an OR operation, while \"All\" (i.e., All Fields) assumes an AND operation.",
+      "depth": 0,
+      "strong": [
+        [
+          65,
+          78
+        ],
+        [
+          87,
+          103
+        ],
+        [
+          115,
+          133
+        ],
+        [
+          148,
+          186
+        ],
+        [
+          188,
+          226
+        ],
+        [
+          272,
+          282
+        ]
+      ]
+    },
+    {
+      "item": "In other words, the definition above is evaluated by the Zscaler service as: \"SSN AND (FName AND LName).\"",
+      "depth": 0
+    },
+    {
+      "item": "Because CCN is included as your secondary primary field within the EDM index template, you can use the same template for your company credit card-specific DLP dictionary. In this example, it needs to cover the data field combination that includes: CCN with FName or LName. So, you can add the following definition without having to re-index your employees' data records:",
+      "depth": 0
+    },
+    {
+      "item": "Company-Issued Employee CCN Definition",
+      "depth": 1
+    },
+    {
+      "item": "CCN selected as the Primary Field",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "FName and LName selected as the Secondary Fields",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          10,
+          15
+        ],
+        [
+          32,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Match at Least 1 from Secondary Fields selected for Secondary Match On",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          38
+        ],
+        [
+          52,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In other words, the definition above is evaluated by the Zscaler service as: \"CCN AND (FName OR LName).\"",
+      "depth": 0
+    },
+    {
+      "item": "Using these two DLP dictionaries, the service can then evaluate the following data field combinations when they are added to a DLP engine, which is used to create your DLP policy rules:",
+      "depth": 0
+    },
+    {
+      "item": "SSN AND (FName AND LName)",
+      "depth": 1
+    },
+    {
+      "item": "CCN AND (FName OR LName)",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see About DLP Engines.",
+      "depth": 0
+    },
+    {
+      "item": "Evaluating Your Data Records With Your EDM Index Template",
+      "depth": 0
+    },
+    {
+      "item": "When the Zscaler service evaluates your data records, it only evaluates strings with three characters or more. The service ignores any blank cells (i.e., the service does not consider blank cells to be implicit matches).",
+      "depth": 0
+    },
+    {
+      "item": "For example, you need a PII-specific DLP dictionary that includes SSN with First Name, Last Name, and Date of Birth (DD MM YYYY). First, you create an EDM index template with the following CSV file:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "SSN",
+          "First Name",
+          "Last Name",
+          "Date of Birth"
+        ],
+        [
+          "123-45-6789",
+          "John",
+          "Smith",
+          ""
+        ],
+        [
+          "234-56-7891",
+          "Mary",
+          "",
+          "01 01 1990"
+        ],
+        [
+          "354-67-8912",
+          "",
+          "Brown",
+          "02 02 1985"
+        ]
+      ]
+    },
+    {
+      "item": "You then create a dictionary with the following definition based on your EDM index template:",
+      "depth": 0
+    },
+    {
+      "item": "Employee PII Definition",
+      "depth": 1
+    },
+    {
+      "item": "SSN selected as the Primary Field",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "First Name and Last Name selected as the Secondary Fields",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          15,
+          24
+        ],
+        [
+          41,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Match at Least 1 from Secondary Fields selected for Secondary Match On",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          38
+        ],
+        [
+          52,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "With this definition, the match occurs when the primary field and at least one secondary field are present. However, if the secondary field is blank, then the match doesn't occur.",
+      "depth": 0
+    },
+    {
+      "item": "If an employee uploads a file containing the SSN \"123456789\" and First Name \"John,\" the match occurs. If the employee uploads a file containing the SSN \"345678912\" instead, the match doesn't occur because no secondary fields were matched. In this example, the only available secondary field was \"Brown\" and it was not present in the document.",
+      "depth": 0
+    },
+    {
+      "item": "You decide to increase the number of secondary fields for your definition:",
+      "depth": 0
+    },
+    {
+      "item": "Employee PII Definition",
+      "depth": 1
+    },
+    {
+      "item": "SSN selected as the Primary Field",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "First Name, Last Name, and Date of Birth selected as the Secondary Fields",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          12,
+          21
+        ],
+        [
+          27,
+          40
+        ],
+        [
+          57,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Match at Least 2 from Secondary Fields selected for Secondary Match On",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          38
+        ],
+        [
+          52,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "With this definition, the match occurs when the primary field and at least two secondary fields are present. However, if at least one of the secondary fields is blank, then the match doesn't occur.",
+      "depth": 0
+    },
+    {
+      "item": "If an employee uploads a file containing the SSN “234567891,” the First Name “Mary,” and the Date of Birth “01 01 1990,” then the match occurs. If the employee uploads a file containing the SSN “123456789” and the First Name “John” instead, the match doesn’t occur, because the Last Name isn’t present and the Date of Birth is blank.",
+      "depth": 0
+    },
+    {
+      "item": "Understanding EDM Template Processing",
+      "depth": 0
+    },
+    {
+      "item": "When you click the Submit button during the creation of an EDM template in the Index Tool, the Zscaler service processes the EDM template to ensure that the template was created properly. The processing by the Zscaler service checks for any issues related to the EDM template such as data errors, primary field duplication errors, and communication errors. If the Zscaler service does not find any issues, then a status of Completed is displayed for the EDM template in the Index Tool and the template is available for use in the Zscaler Admin Console. If the Zscaler service does find issues, then an error status is displayed for the EDM template in the Index Tool.",
+      "depth": 0,
+      "strong": [
+        [
+          423,
+          432
+        ]
+      ]
+    },
+    {
+      "item": "You can view the process details for an EDM template on the Template Details page. This page is accessed by selecting an EDM template row in the Index Tool. The Template Details page displays different information depending on whether the EDM Template process was completed successfully or if there were errors during the process. For completed EDM templates, the following information is displayed on the page:",
+      "depth": 0
+    },
+    {
+      "item": "Template Detail",
+      "depth": 1
+    },
+    {
+      "item": "Template Definition",
+      "depth": 1
+    },
+    {
+      "item": "For EDM templates in error, some or all of the following information is displayed on the page:",
+      "depth": 0
+    },
+    {
+      "item": "Type",
+      "depth": 1
+    },
+    {
+      "item": "Cause",
+      "depth": 1
+    },
+    {
+      "item": "Recommended Action",
+      "depth": 1
+    },
+    {
+      "item": "Log Detail",
+      "depth": 1
+    },
+    {
+      "item": "Template Detail",
+      "depth": 1
+    },
+    {
+      "item": "Template Definition",
+      "depth": 1
+    },
+    {
+      "item": "This information provides insight on how to correct an EDM template that is in error.",
+      "depth": 0
+    },
+    {
+      "heading": "Examples of Primary Duplicate Keys Being Exceeded for EDM Templates",
+      "level": 3
+    },
+    {
+      "item": "The following examples illustrate how primary duplicate keys can be exceeded across one or multiple EDM templates. All of the examples use the 512 duplicate key limit for an individual EDM template and the 2,048 duplicate key limit across multiple EDM templates.",
+      "depth": 0
+    },
+    {
+      "item": "Example of Duplicate Primary Keys Being Exceeded with One EDM Template",
+      "depth": 1
+    },
+    {
+      "item": "Example of Duplicate Primary Keys Being Exceeded Across Multiple EDM Templates Using a Single Field",
+      "depth": 1
+    },
+    {
+      "item": "Example of Duplicate Primary Keys Being Exceeded Across Multiple EDM Templates Using More Than One Field",
+      "depth": 1
+    },
+    {
+      "item": "In this example, the duplicates occur within one EDM template.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Template Name",
+          "Fields in Template",
+          "",
+          "",
+          ""
+        ],
+        [
+          "EDM Template 1",
+          "SSN (Primary Key) 600 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ]
+      ]
+    },
+    {
+      "item": "For this example, after EDM Template 1 is processed it receives an error status in the Index Tool with Too many primary key duplicates as the error type. This template contains 600 duplicates, which exceeds the 512 duplicate limit for an individual EDM template.",
+      "depth": 0
+    },
+    {
+      "item": "In this example, the duplicates are the same for one type of field across multiple EDM templates. The same SSN is duplicated across all of the EDM templates.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Template Name",
+          "Fields in Template",
+          "",
+          "",
+          ""
+        ],
+        [
+          "EDM Template 1",
+          "SSN (Primary Key) 400 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ],
+        [
+          "EDM Template 2",
+          "SSN (Primary Key) 300 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ],
+        [
+          "EDM Template 3",
+          "SSN (Primary Key) 400 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ],
+        [
+          "EDM Template 4",
+          "SSN (Primary Key) 300 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ],
+        [
+          "EDM Template 5",
+          "SSN (Primary Key) 400 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ],
+        [
+          "EDM Template 6",
+          "SSN (Primary Key) 300 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ]
+      ]
+    },
+    {
+      "item": "For this example, after the EDM templates are processed, EDM Template 1 through EDM Template 5 receive a completed status in the Index Tool. Each of these templates does not exceed the 512 primary duplicate limit for an individual EDM template and the combined number of primary duplicates across your organization is 1,800, which is below the 2,048 duplicate key limit across multiple EDM templates.",
+      "depth": 0
+    },
+    {
+      "item": "EDM Template 6 receives an error status in the Index Tool with a primary key limit error type and an EDM Indexing Failed Schemas notification is displayed on the Notification pane of the Zscaler Admin Console listing this template name. This template does not exceed the 512 primary duplicate limit for an individual template, but with the addition of this template, the 2,048 primary duplicate key limit across multiple EDM templates has been exceeded for your organization. There were 1,800 duplicates after EDM Template 5 was processed, but now with the addition of EDM Template 6 of 300, that would make 2,100 duplicates.",
+      "depth": 0
+    },
+    {
+      "item": "To correct the primary duplicate error that occurred in EDM Template 6, you need to analyze not only that template but all of the other templates that preceded it to identify how to correct and rectify the primary duplicate error.",
+      "depth": 0
+    },
+    {
+      "item": "In this example, the duplicates are the same for different types of fields across multiple EDM templates. The same number is duplicated across SSN, Account Number, Gambler Number, and Patient ID.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Template Name",
+          "Fields in Template",
+          "",
+          "",
+          ""
+        ],
+        [
+          "EDM Template 1",
+          "SSN (Primary Key) 400 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ],
+        [
+          "EDM Template 2",
+          "Account Number (Primary Key) 300 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ],
+        [
+          "EDM Template 3",
+          "SSN (Primary Key) 400 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ],
+        [
+          "EDM Template 4",
+          "Gambler Number (Primary Key) 300 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ],
+        [
+          "EDM Template 5",
+          "SSN (Primary Key) 400 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ],
+        [
+          "EDM Template 6",
+          "Patient ID (Primary Key) 300 Duplicates",
+          "CCN (Primary Key) No Duplicates",
+          "FName No Duplicates",
+          "LName No Duplicates"
+        ]
+      ]
+    },
+    {
+      "item": "For this example, after the EDM templates are processed, EDM Template 1 through EDM Template 5 receive a completed status in the Index Tool. Each of these templates does not exceed the 512 primary duplicate limit for an individual EDM template and the combined number of primary duplicates across your organization is 1,800, which is below the 2,048 duplicate key limit across multiple EDM templates.",
+      "depth": 0
+    },
+    {
+      "item": "EDM Template 6 receives an error status in the Index Tool with a primary key limit error type and an EDM Indexing Failed Schemas notification is displayed on the Notification pane of the Zscaler Admin Console listing this template name. This template does not exceed the 512 primary duplicate limit for an individual template, but with the addition of this template, the 2,048 primary duplicate key limit across multiple EDM templates has been exceeded for your organization. There were 1,800 duplicates after EDM Template 5 was processed, but now with the addition of EDM Template 6 of 300, that would make 2,100 duplicates.",
+      "depth": 0
+    },
+    {
+      "item": "To correct the primary duplicate error that occurred in EDM Template 6, you would need to analyze not only that template but all of the other templates that preceded it to identify how to correct and rectify the primary duplicate error.",
+      "depth": 0
+    },
+    {
+      "item": "Understanding EDM Reporting",
+      "depth": 0
+    },
+    {
+      "item": "For reporting purposes, the Zscaler service provides a total matchCount, as well as the triggers that help determine that count. Total matchCount logic is based on the number of unique sets of matches found in the content. The logic also applies to multiple templates used in the same dictionary.",
+      "depth": 0
+    },
+    {
+      "item": "Example 1",
+      "depth": 1
+    },
+    {
+      "item": "Use the following CSV file for the following example:",
+      "depth": 1
+    },
+    {
+      "item": "AlphaNum1, AlphaNum2, AlphaNum3 aaa, 111, abc bbb, 222, cde aaa, 444, 111",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary logic:",
+      "depth": 1
+    },
+    {
+      "item": "AlphaNum1: The primary field.",
+      "depth": 2
+    },
+    {
+      "item": "AlphaNum2 and AlphaNum3: The secondary field.",
+      "depth": 2
+    },
+    {
+      "item": "Primary field AND any 1 out of 2 secondary field matches needed.",
+      "depth": 2
+    },
+    {
+      "item": "Upload Text:",
+      "depth": 1
+    },
+    {
+      "item": "aaa, 111",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary matches rows:",
+      "depth": 1
+    },
+    {
+      "item": "aaa, 111, abc aaa, 444, 111",
+      "depth": 1
+    },
+    {
+      "item": "matchCount is 1 because the upload text has 1 unique match (aaa, 111).",
+      "depth": 1
+    },
+    {
+      "item": "Example 2",
+      "depth": 1
+    },
+    {
+      "item": "Using the same CSV file, index, and dictionary as the previous example:",
+      "depth": 1
+    },
+    {
+      "item": "AlphaNum1, AlphaNum2, AlphaNum3 aaa, 111, abc bbb, 222, cde aaa, 444, 111",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary logic:",
+      "depth": 1
+    },
+    {
+      "item": "AlphaNum1: The primary field.",
+      "depth": 2
+    },
+    {
+      "item": "AlphaNum2 and AlphaNum3: The secondary fields.",
+      "depth": 2
+    },
+    {
+      "item": "Primary field AND any 1 out of 2 secondary field matches needed.",
+      "depth": 2
+    },
+    {
+      "item": "Upload Text:",
+      "depth": 1
+    },
+    {
+      "item": "aaa, 111, abc",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary matches rows:",
+      "depth": 1
+    },
+    {
+      "item": "aaa, 111, abc aaa, 444, 111",
+      "depth": 1
+    },
+    {
+      "item": "matchCount = 1 because the upload text has 1 unique match (aaa, 111, abc).",
+      "depth": 1
+    },
+    {
+      "item": "Example 3",
+      "depth": 1
+    },
+    {
+      "item": "Use the following CSV file for the following example:",
+      "depth": 1
+    },
+    {
+      "item": "LASTNAME, SSN, ACCOUNT NUMBER, ZIP CODE DOE,111222333,123456789000, 95132 DOE,111222444,123456789000, 95134 DOE,111222555,123456789000, 95135",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary logic:",
+      "depth": 1
+    },
+    {
+      "item": "2 out of 4 field matches needed.",
+      "depth": 2
+    },
+    {
+      "item": "Upload text:",
+      "depth": 1
+    },
+    {
+      "item": "DOE 123456789000",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary matches rows:",
+      "depth": 1
+    },
+    {
+      "item": "DOE,111222333,123456789000, 95132 DOE,111222444,123456789000, 95134 DOE,111222555,123456789000, 95135",
+      "depth": 1
+    },
+    {
+      "item": "MatchCount = 1 because the upload text has 1 unique match (DOE,123456789000).",
+      "depth": 1
+    },
+    {
+      "item": "Example 4",
+      "depth": 1
+    },
+    {
+      "item": "Use the following CSV file for the following example:",
+      "depth": 1
+    },
+    {
+      "item": "ssn, FirstName, LastName 123, abc, xyz 123, xyz, abc",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary logic:",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary A: Match primary AND match all secondary fields.",
+      "depth": 2
+    },
+    {
+      "item": "Dictionary B: Match primary AND match any one secondary field.",
+      "depth": 2
+    },
+    {
+      "item": "Upload Text 1:",
+      "depth": 1
+    },
+    {
+      "item": "123, abc",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary matches:",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary B, matchCount = 1.",
+      "depth": 1
+    },
+    {
+      "item": "Upload Text 2:",
+      "depth": 1
+    },
+    {
+      "item": "123, xyz",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary matches:",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary B, matchCount = 1.",
+      "depth": 1
+    },
+    {
+      "item": "Upload Text 3:",
+      "depth": 1
+    },
+    {
+      "item": "123, abc, xyz",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary matches:",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary A, matchCount = 1 AND dictionary B, matchCount = 1.",
+      "depth": 1
+    },
+    {
+      "item": "Upload Text 4:",
+      "depth": 1
+    },
+    {
+      "item": "123, abc, xyz 123, abc 123, xyz",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary matches rows:",
+      "depth": 1
+    },
+    {
+      "item": "ssn, FirstName, LastName 123, abc, xyz 123, xyz, abc",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary A, matchCount = 1 AND dictionary B, matchCount = 1.",
+      "depth": 1
+    },
+    {
+      "item": "Example 5",
+      "depth": 1
+    },
+    {
+      "item": "For the following example, see how the logic applies to multiple templates in the same dictionary.",
+      "depth": 1
+    },
+    {
+      "item": "CSV1 file to index:",
+      "depth": 1
+    },
+    {
+      "item": "AlphaNum1, AlphaNum2, AlphaNum3 aaa, 111, abc bbb, 222, cde aaa, 444, 111",
+      "depth": 1
+    },
+    {
+      "item": "CSV2 file to index:",
+      "depth": 1
+    },
+    {
+      "item": "AlphaNum1, AlphaNum2 111, abc bbb, 222",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary logic:",
+      "depth": 1
+    },
+    {
+      "item": "Template 1",
+      "depth": 2
+    },
+    {
+      "item": "AlphaNum1: The primary field.",
+      "depth": 3
+    },
+    {
+      "item": "AlphaNum2 and AlphaNum3: The secondary fields.",
+      "depth": 3
+    },
+    {
+      "item": "Template 2:",
+      "depth": 2
+    },
+    {
+      "item": "AlphaNum1: The primary field.",
+      "depth": 3
+    },
+    {
+      "item": "AlphaNum2: The secondary field.",
+      "depth": 3
+    },
+    {
+      "item": "Dictionary:",
+      "depth": 1
+    },
+    {
+      "item": "Template 1",
+      "depth": 2
+    },
+    {
+      "item": "AlphaNum1: The primary field.",
+      "depth": 3
+    },
+    {
+      "item": "AlphaNum2 and AlphaNum3: The secondary fields.",
+      "depth": 3
+    },
+    {
+      "item": "1 out of 2 matches needed.",
+      "depth": 3
+    },
+    {
+      "item": "Template 2",
+      "depth": 2
+    },
+    {
+      "item": "AlphaNum1: The primary field.",
+      "depth": 3
+    },
+    {
+      "item": "AlphaNum2: The secondary field.",
+      "depth": 3
+    },
+    {
+      "item": "All matches needed.",
+      "depth": 3
+    },
+    {
+      "item": "Upload Text:",
+      "depth": 1
+    },
+    {
+      "item": "aaa, 111, abc",
+      "depth": 1
+    },
+    {
+      "item": "Dictionary 1 matches rows:",
+      "depth": 1
+    },
+    {
+      "item": "aaa, 111, abc aaa, <444>, 111",
+      "depth": 1
+    },
+    {
+      "item": "Template A, matchCount = 1 because the upload text has 1 unique match (aaa, 111, abc),",
+      "depth": 2
+    },
+    {
+      "item": "Template B, matchCount = 1 because the upload text has 1 unique match (111, abc).",
+      "depth": 2
+    }
+  ]
+}

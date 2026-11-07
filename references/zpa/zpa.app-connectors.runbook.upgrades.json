@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.runbook.upgrades",
+  "title": "What the App Connector runbook checks for upgrade problems: the healthy status block, clean restart, update servers, revert to default version and rebuild",
+  "aliases": [
+    "Recognizing a Healthy App Connector"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zpa.app-connectors.runbook" },
+    { "rel": "see-also", "to": "zpa.app-connectors.upgrades" },
+    { "rel": "see-also", "to": "zpa.app-connectors.enrollment" },
+    { "rel": "see-also", "to": "zpa.app-connectors.health" },
+    { "rel": "see-also", "to": "zpa.app-connectors.runbook.enrollment" }
+  ],
+  "prose": [
+    {
+      "label": "Upgrade process.",
+      "text": "{{upgrade-process}} {{divergence:failure-handling}} {{failure-visibility}}"
+    },
+    {
+      "label": "Healthy connector.",
+      "text": "{{healthy-status-block}} {{divergence:console-state-label}} {{healthy-status-fields}} {{gap:status-field-meanings}}"
+    },
+    {
+      "label": "Remediation.",
+      "text": "{{clean-restart}} {{update-server-connectivity}} {{revert-default-version}}"
+    },
+    {
+      "label": "Rebuild.",
+      "text": "{{rebuild-same-group}} {{identify-connector}} {{key-enrollment-capacity}} {{wipe-and-rebuild}}"
+    }
+  ],
+  "claims": {
+    "upgrade-process": {
+      "statement": "The Upgrade Manager selects an App Connector and instructs it to download the latest software, moves on to the next App Connector in the group after the connector confirms the upgrade, and pauses the process for the group if an upgrade fails for any App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The Upgrade Manager selects an App Connector and instructs it to download the latest software.",
+            "After the App Connector confirms the upgrade, the Upgrade Manager moves on to the next App Connector in the group.",
+            "If an upgrade fails for any App Connector, the Upgrade Manager pauses the process for the group to avoid potential issues with network traffic."
+          ]
+        }
+      ]
+    },
+    "failure-visibility": {
+      "statement": "Upgrade failures are shown as failure notices in the Admin Console under Infrastructure > Private Access > Component > App Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Failures are visible as failure notices in the Zscaler Admin Console under Infrastructure > Private Access > Component > App Connectors."
+          ]
+        }
+      ]
+    },
+    "healthy-status-block": {
+      "statement": "The runbook's healthy-connector example is a status block that the connector writes to the zpa-connector journal once per minute (followed with sudo journalctl -u zpa-connector -f); the block's Control connection state of fohh_connection_connected shows the connector has its control connection to the Private Access cloud, and the console entry shows Authenticated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "sudo journalctl -u zpa-connector -f",
+            "The system logs look like the following status message. This block repeats once per minute.",
+            "The Control connection state: fohh_connection_connected shows that the App Connector has its control connection to the Private Access cloud",
+            "Recognizing a Healthy App Connector",
+            "In the Zscaler Admin Console, under Infrastructure > Private Access > Component > App Connectors, the App Connector entry is Authenticated."
+          ]
+        }
+      ]
+    },
+    "healthy-status-fields": {
+      "statement": "The runbook's connector status block example includes the connector ID, name and version, a certificate expiry countdown, RPC message counters, the broker data connection count with backed_off connections, mtunnel totals, registered-app and target counts, and the time skew.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Connector Status:ID=72060411536474191:Name=z-sjc6-corp-1:Ver=18.87.1",
+            "RPC Messages: BrkRq = 2447339, BrkRqAck = 954, BindReq = 2446446, BindReqAck = 2446346",
+            "Certificate will expire in 227 days, 21 hours, 26 minutes, 13 seconds",
+            "Broker data connection count = 55, backed_off connections = 0",
+            "Mtunnels: Total Created = 2447339, Total Freed = 2447203, Current Active = 136",
+            "Registered apps count = 33, alive app = 33, passive_health = 33, service_count = 85, target_count = 104, alive_target = 74, aged_target = 0",
+            "Time skew: - 0.012783s"
+          ]
+        }
+      ]
+    },
+    "identify-connector": {
+      "statement": "To determine the App Connector Group the connector belongs to, the runbook locates the connector by the App Connector Name repeated once per minute in the status block under sudo journalctl -u zpa-connector, or by its private IP address, visible under the expanded view.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Each App Connector belongs to an App Connector Group. Determine the App Connector Group that your App Connector belongs to.",
+            "The App Connector Name is repeated once per minute as part of the status block under sudo journalctl -u zpa-connector.",
+            "locate the App Connector by its private IP address, which is visible under the expanded view"
+          ]
+        }
+      ]
+    },
+    "clean-restart": {
+      "statement": "The first remediation for an upgrade problem is a clean service restart: stop zpa-connector, verify with ps wU zscaler that no processes remain under the Zscaler user account (ending any by process ID), then start it again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The first step is to cleanly restart the service.",
+            "Verify that no processes are running under the Zscaler user account, which is installed as part of the zpa-connector RPM.",
+            "sudo ps wU zscaler",
+            "If they do exist, end them by process ID."
+          ]
+        }
+      ]
+    },
+    "update-server-connectivity": {
+      "statement": "For software update problems the runbook checks connectivity to the upstream Public Service Edge for Private Access (dig +short co2br.prod.zpath.net, and an openssl TLS test), then ICMP and telnet TCP connectivity to dist.private.zscaler.com and yum.private.zscaler.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Test connectivity to the upstream Public Service Edge for Private Access by querying the DNS address co2br.prod.zpath.net from the server that is running the App Connector software.",
+            "dig +short co2br.prod.zpath.net",
+            "Check if the App Connector can start a TLS connection using the openssl command.",
+            "Next, check TCP and TLS connectivity with dist.private.zscaler.com and yum.private.zscaler.com:",
+            "ping dist.private.zscaler.com ping yum.private.zscaler.com",
+            "Run Telnet to Telnet TCP connection with the server."
+          ],
+          "after": "The following sections describe checking the logs and network connectivity."
+        }
+      ]
+    },
+    "revert-default-version": {
+      "statement": "An App Connector that cannot reach the Private Access cloud receives no upgrade instructions from the Upgrade Manager; to force a fallback to the default version, stop the service, remove /opt/zscaler/var/image.bin, version and metadata, and start the service, after which the connector re-downloads a default version from the CDN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If an App Connector is unable to communicate with the Private Access cloud, it won't receive upgrade instructions from the Upgrade Manager.",
+            "To trigger the fallback mechanism, first stop the App Connector service.",
+            "sudo rm /opt/zscaler/var/image.bin",
+            "sudo rm /opt/zscaler/var/version",
+            "sudo rm /opt/zscaler/var/metadata",
+            "3. Bring the App Connector service back online.",
+            "the App Connector reaches out to the CDN and re-downloads a default App Connector software version."
+          ]
+        }
+      ]
+    },
+    "rebuild-same-group": {
+      "statement": "When rebuilding an App Connector it must be redeployed into the same group it was in before, because with a different group some internal applications might not be reachable depending on the policies configured; the group is assigned from the provisioning key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "When rebuilding an App Connector, be certain that the App Connector is redeployed into the same group that it was in before.",
+            "If the group is different, some of the internal applications might not be reachable (depending on the policies configured).",
+            "When an App Connector initializes, it is assigned to an App Connector Group based on its Provisioning Key."
+          ]
+        }
+      ]
+    },
+    "key-enrollment-capacity": {
+      "statement": "Each provisioning key has a Maximum # of App Connectors and a Provisioning Key Utilization Count that increments each time a connector enrolls with the key; the maximum must be at least 1 greater than the enrolled count for a rebuild, and the runbook's example of 16 enrolled out of 16 allocated has Private Access reject a rebuild.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Each Provisioning Key is assigned a number of enrollments. This field appears under Maximum # of App Connectors.",
+            "The corresponding counter is Provisioning Key Utilization Count.",
+            "The counter increments each time an App Connector initializes itself and enrolls itself with the Private Access service using this key.",
+            "make sure Maximum # of App Connectors is at least 1 greater than the number of enrolled App Connectors",
+            "16 App Connectors have enrolled out of 16 allocated uses of the provisioning key. If you try to rebuild one of these App Connectors, Private Access rejects the enrollment."
+          ]
+        }
+      ]
+    },
+    "wipe-and-rebuild": {
+      "statement": "The wipe-and-rebuild procedure stops the service, runs sudo rm /opt/zscaler/var/*, creates the provision_key file with 644 permissions so the zpa-connector service can modify it when provisioning completes, pastes in the key, and restarts the service, which re-enrolls itself under the appropriate App Connector group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "1. First, stop the App Connector service:",
+            "sudo rm /opt/zscaler/var/*",
+            "Create a provisioning key file with 644 permissions. This ensures that the zpa-connector service can modify the file when provisioning is complete.",
+            "sudo touch /opt/zscaler/var/provision_key",
+            "Copy the provisioning key from the Zscaler Admin Console. Use an editor to paste it into the file, and then click Save.",
+            "Bring the service back online.",
+            "re-enrolls itself under the appropriate App Connector group"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "failure-handling": {
+      "summary": "What happens to the rest of a group after one App Connector's software update fails: the runbook pauses the process for the group, while the connector software update page retries the update at every periodic update.",
+      "positions": [
+        {
+          "says": "The runbook says the Upgrade Manager pauses the upgrade process for the group when an upgrade fails for any App Connector.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+            "quotes": [
+              "If an upgrade fails for any App Connector, the Upgrade Manager pauses the process for the group to avoid potential issues with network traffic."
+            ]
+          }
+        },
+        {
+          "says": "The connector software update page says an unsuccessful update is retried in every periodic software update until all components are upgraded, and mentions no pause.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-connector-software-updates.json",
+            "quotes": [
+              "If a software update is unsuccessful, the update process is retried in every periodic software update until all software components are upgraded."
+            ],
+            "after": "Software components refer to App Connectors, Private Service Edges for Private Access (ZPA), and Private Cloud Controllers."
+          }
+        }
+      ],
+      "impact": "Whether a failed connector holds back the other connectors in its group until someone intervenes, or the group is retried at the next periodic update, is not settled by the captured pages."
+    },
+    "console-state-label": {
+      "summary": "What the Admin Console shows for an App Connector whose control connection is established: the runbook says the entry is Authenticated, while the App Connectors page lists Connection Health as Connected or Disconnected.",
+      "positions": [
+        {
+          "says": "The runbook says a healthy App Connector's entry is Authenticated.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+            "quotes": [
+              "In the Zscaler Admin Console, under Infrastructure > Private Access > Component > App Connectors, the App Connector entry is Authenticated."
+            ]
+          }
+        },
+        {
+          "says": "The App Connectors page lists Connection Health as Connected or Disconnected.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-app-connectors.json",
+            "quotes": [
+              "Connection Health: The health of the App Connector connection (Connected or Disconnected)."
+            ]
+          }
+        }
+      ],
+      "impact": "A search of the console for Connected will not match the runbook's Authenticated label; which column or state the runbook means is not shown."
+    }
+  },
+  "gaps": {
+    "status-field-meanings": {
+      "kind": "semantic",
+      "title": "What the status block fields mean and what healthy values are",
+      "status": "open",
+      "detail": "The status block example shows fields such as BrkRq, BrkRqAck, BindReq, AppRtDisc, DsnAstChk, passive_health, aged_target and backed_off connections, but the captured runbook gives no value or meaning for them beyond the control connection state, and no healthy versus unhealthy value.",
+      "resolves_with": ["source-read", "support-ticket"]
+    }
+  }
+}

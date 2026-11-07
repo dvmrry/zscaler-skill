@@ -113,6 +113,19 @@ test("resolveSource rejects private operational-knowledge records", () => {
   assert.match(result.error, /must not cite private operational-knowledge records/);
 });
 
+test("resolveSource rejects private company overlay records", () => {
+  const root = tempRepo();
+  const recordPath = path.join(root, "_data", "overlay", "knowledge", "zpa", "company.zpa.claim.json");
+  fs.mkdirSync(path.dirname(recordPath), { recursive: true });
+  fs.writeFileSync(recordPath, "{}\n", "utf8");
+
+  const result = resolveSource(root, path.join(root, "_data", "audits", "test", "checks"),
+    "_data/overlay/knowledge/zpa/company.zpa.claim.json:1");
+
+  assert.equal(result.resolves, false);
+  assert.match(result.error, /must not cite private operational-knowledge records/);
+});
+
 test("resolveSource rejects a symlink alias to a private operational-knowledge record", () => {
   const root = tempRepo();
   const recordPath = path.join(root, "_data", "knowledge", "zpa", "claim.md");

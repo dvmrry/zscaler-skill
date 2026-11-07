@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "id": "shared.deployments.zia.network-and-logging",
+  "title": "What the ZIA local breakouts and SIEM integration deployment guides say about data center choice, tunnels and NSS log delivery",
+  "aliases": [
+    "zia siem integration guide",
+    "zia local breakouts guide"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.deployments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.reliability"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feeds"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Local breakouts.",
+      "text": "{{lb-surcharge-dcs}} {{lb-tunnel-troubleshooting}} See [[zia.traffic-forwarding]]."
+    },
+    {
+      "label": "SIEM integration.",
+      "text": "{{siem-two-methods-and-subscriptions}} {{siem-separate-web-firewall}} {{siem-cloud-to-cloud-condition}} See [[shared.nss]]."
+    },
+    {
+      "label": "NSS availability and feeds.",
+      "text": "{{siem-ha}} {{siem-feeds-and-buffer}} The active-active disagreement is {{divergence:nss-active-active}}, the feed count is {{divergence:siem-feed-count}} and the buffer duration is {{divergence:siem-buffer-duration}}. See [[shared.nss.reliability]] and [[shared.nss.feeds]]."
+    }
+  ],
+  "claims": {
+    "lb-surcharge-dcs": {
+      "statement": "Data centers with a regional surcharge, or not marked Auto Geo Proximity Enabled, are not chosen as preferred data centers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-local-breakouts-deployment-and-operations-guide.json",
+          "quotes": [
+            "Data centers that have a regional surcharge or are not marked with Auto Geo Proximity Enabled won’t be chosen as the preferred data centers.",
+            "Some data centers have a regional surcharge applied to them.",
+            "Verify the cloud enforcement node status before choosing a suitable data center"
+          ]
+        }
+      ]
+    },
+    "lb-tunnel-troubleshooting": {
+      "statement": "For flapping tunnels the guide says to review the GRE and IPSec configuration guidelines and check Zscaler Trust for an associated outage; performance can be analyzed with the Zscaler Cloud Performance Test Tool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-local-breakouts-deployment-and-operations-guide.json",
+          "quotes": [
+            "Tunnel Flaps: If your tunnels start flapping, review the GRE and IPSec configuration guidelines and ensure that you've properly provisioned the tunnel for your organization. Check Zscaler Trust to see if there is an associated outage with respect to the detected flapping behavior.",
+            "you can analyze infrastructure performance using the Zscaler Cloud Performance Test Tool."
+          ]
+        }
+      ]
+    },
+    "siem-two-methods-and-subscriptions": {
+      "statement": "ZIA logs reach a SIEM through NSS (a virtual device between the Zscaler Cloud Nanolog cluster and the SIEM that decrypts, uncompresses and de-tokenizes logs received from the cloud, then converts them into a format the SIEM can process) or through cloud-to-cloud log streaming over HTTPS API; NSS appliances are included with ZIA Essentials Edition or later, with optional additions: for cloud NSS, ZIA Transformational Edition and later plus a Cloud NSS subscription; for one-hour log recovery capability, ZIA Transformational Edition and later plus an NSS Log Recovery subscription.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-siem-zia-integration-deployment-and-operations-guide.json",
+          "quotes": [
+            "NSS receives encrypted, compressed, and tokenized logs from the cloud and decrypts, uncompresses, and de-tokenizes them.",
+            "Using cloud-to-cloud log streaming. For customers with a SIEM deployed in the cloud (e.g., Splunk Cloud), Zscaler can send the logs to the cloud provider via HTTPS API.",
+            "NSS appliances are included with the ZIA Essentials Edition or later.",
+            "You can optionally add the following:",
+            "For cloud NSS:",
+            "Cloud NSS subscription.",
+            "For one-hour log recovery capability:",
+            "NSS Log Recovery subscription.",
+            "Then NSS converts the logs into a format that the SIEM can process and sends it to the SIEM.",
+            "The NSS is a virtual device that sits between the Zscaler Cloud Nanolog cluster and the SIEM."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-siem-zia-integration-deployment-and-operations-guide.json",
+          "quotes": [
+            "ZIA Transformational Edition and later."
+          ],
+          "after": "- For cloud NSS:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-siem-zia-integration-deployment-and-operations-guide.json",
+          "quotes": [
+            "ZIA Transformational Edition and later."
+          ],
+          "after": "- For one-hour log recovery capability:"
+        }
+      ]
+    },
+    "siem-separate-web-firewall": {
+      "statement": "Separate NSS appliances are required for web and firewall logging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-siem-zia-integration-deployment-and-operations-guide.json",
+          "quotes": [
+            "Separate NSS appliances are required for web and firewall logging."
+          ]
+        }
+      ]
+    },
+    "siem-ha": {
+      "statement": "The guide says NSS VMs cannot be deployed active-active (only one NSS server connects to the cloud at a time) and a fault-tolerant deployment uses active-standby, where the standby stays disconnected until the other NSS is completely disconnected; two VMs using the same certificate can give inconsistent logging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-siem-zia-integration-deployment-and-operations-guide.json",
+          "quotes": [
+            "You cannot deploy NSS VMs in active-active mode, which means only one NSS server can connect to the cloud at a time.",
+            "In active-standby mode, the standby VM remains disconnected from the cloud and becomes active only when the other NSS is completely disconnected from the cloud.",
+            "Two VMs using the same certificate to connect to the cloud can result in an inconsistent logging experience.",
+            "If you want fault-tolerant NSS deployment, deploy NSS in active-standby mode."
+          ]
+        }
+      ]
+    },
+    "siem-feeds-and-buffer": {
+      "statement": "The SIEM integration guide says NSS buffers logs for up to one hour if the NSS-to-SIEM link is interrupted, and that each NSS server supports a maximum of 8 configured NSS feeds in different formats to different SIEM IP addresses on different ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-siem-zia-integration-deployment-and-operations-guide.json",
+          "quotes": [
+            "Zscaler NSS buffers logs for up to one hour.",
+            "Each NSS server can support a maximum of 8 configured NSS feeds in different formats to different SIEM IP addresses on different ports.",
+            "If there is an interruption between the NSS and SIEM (e.g., if the SIEM is unavailable due to maintenance), NSS can buffer the logs for one hour."
+          ]
+        }
+      ]
+    },
+    "siem-cloud-to-cloud-condition": {
+      "statement": "Cloud-to-cloud logging is supported only if the SIEM infrastructure is in the cloud, and only if the SIEM vendor supports API-based feeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-siem-zia-integration-deployment-and-operations-guide.json",
+          "quotes": [
+            "Cloud-to-cloud logging is supported only if the SIEM infrastructure is in the cloud. Zscaler supports cloud-to-cloud logging only if the SIEM vendor supports API-based feeds."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "siem-feed-count": {
+      "summary": "How many feeds one NSS server takes: the SIEM and ZIA guide gives a flat maximum of 8, the NSS feeds article gives 16 in total with Web and Firewall each limited to 8.",
+      "positions": [
+        {
+          "says": "Each NSS server supports a maximum of 8 configured NSS feeds.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-siem-zia-integration-deployment-and-operations-guide.json",
+            "quotes": [
+              "Each NSS server can support a maximum of 8 configured NSS feeds in different formats to different SIEM IP addresses on different ports."
+            ]
+          }
+        },
+        {
+          "says": "An NSS server takes as many as 16 feeds, with Web and Firewall each limited to 8 per server.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-nss-feeds.json",
+            "quotes": [
+              "You can add as many as 16 feeds per NSS server for a TCP NSS and HTTP NSS together.",
+              "To ensure optimal performance, Web and Firewall log types are each limited to 8 feeds per server and the HTTP logs are restricted to 2 feeds within the total."
+            ]
+          }
+        }
+      ],
+      "impact": "Sizing feeds per NSS server from the SIEM guide alone undercounts what the feeds article allows; see shared.nss.feeds for the per-type limits."
+    },
+    "siem-buffer-duration": {
+      "summary": "How long NSS buffers logs when the SIEM is unreachable: the SIEM and ZIA guide says up to one hour, the NSS deployment articles say at least one hour.",
+      "positions": [
+        {
+          "says": "NSS buffers logs for up to one hour.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-siem-zia-integration-deployment-and-operations-guide.json",
+            "quotes": [
+              "Zscaler NSS buffers logs for up to one hour."
+            ]
+          }
+        },
+        {
+          "says": "The NSS buffers the logs for at least one hour.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-nss-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "The NSS buffers the logs for at least one hour."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether one hour is a floor or a ceiling decides how long a SIEM outage can last before logs are lost; the vendor text does not settle it."
+    },
+    "nss-active-active": {
+      "summary": "Whether NSS runs active-active: the NSS deployment guide recommends two NSS servers per NSS type as an active-active pair, and the SIEM and ZIA guide says NSS VMs cannot be active-active yet in its next bullet recommends two NSS services, one VM for web and one for firewall, for a fault-tolerant active-active solution.",
+      "positions": [
+        {
+          "says": "Zscaler recommends two NSS servers per NSS type deployed as an active-active pair.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-nss-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "Zscaler recommends leveraging two NSS servers per NSS type (i.e., NSS for Web and NSS for Firewall) and deploying each pair in an active-active configuration."
+            ]
+          }
+        },
+        {
+          "says": "NSS VMs cannot be deployed in active-active mode; only one NSS server can connect to the cloud at a time.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-siem-zia-integration-deployment-and-operations-guide.json",
+            "quotes": [
+              "You cannot deploy NSS VMs in active-active mode, which means only one NSS server can connect to the cloud at a time."
+            ]
+          }
+        },
+        {
+          "says": "For a fault-tolerant active-active solution, subscribe to two NSS services for web and firewall and run one VM for web and one VM for firewall logs.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-siem-zia-integration-deployment-and-operations-guide.json",
+            "quotes": [
+              "For a fault-tolerant active-active solution, Zscaler recommends subscribing to two NSS services for web and firewall, and running one VM for web and one VM for firewall logs."
+            ]
+          }
+        }
+      ],
+      "impact": "A high-availability design for NSS depends on which page applies; confirm against the deployment guide in use before choosing active-active or active-standby."
+    }
+  },
+  "gaps": {}
+}

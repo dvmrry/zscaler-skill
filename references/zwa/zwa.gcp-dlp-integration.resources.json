@@ -1,0 +1,275 @@
+{
+  "schema_version": 1,
+  "id": "zwa.gcp-dlp-integration.resources",
+  "title": "GCP resources for the DLP integration: Deployment Manager end of support, permissions, prefix, KMS, retention, buckets, Pub/Sub and service account roles",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.gcp-dlp-integration"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Deployment.",
+      "text": "{{deployment-manager-eol}} {{deployment-permissions}} The replacement process is open {{gap:deployment-replacement}}."
+    },
+    {
+      "label": "Names and encryption.",
+      "text": "{{prefix-and-names}} {{kms-key}} {{kms-binding-command-incomplete}} {{manual-kms-key}}"
+    },
+    {
+      "label": "Buckets and notifications.",
+      "text": "{{data-bucket-settings}} {{retention-period}} {{pubsub-notification}}"
+    },
+    {
+      "label": "Service account.",
+      "text": "{{service-account-roles}} {{service-account-key}} The expiry of the JSON key is open {{gap:key-expiry}}."
+    },
+    {
+      "text": "The integration object is in [[zwa.gcp-dlp-integration]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the cloud resources are created manually, given the Deployment Manager end of support.",
+      "uses": [
+        "deployment-manager-eol",
+        "deployment-replacement"
+      ]
+    },
+    {
+      "do": "Which path created the resources: on the Deployment Manager stack path with a customer-managed KMS key, whether the kms keys add-iam-policy-binding command was run before the deployment; on the manual path, whether --default-kms-key was set on each bucket.",
+      "uses": [
+        "kms-key",
+        "manual-kms-key",
+        "kms-binding-command-incomplete"
+      ]
+    },
+    {
+      "do": "On the manual path, whether the service account holds both Storage Object Viewer and Storage Legacy Bucket Reader on each of the data and metadata buckets.",
+      "uses": [
+        "service-account-roles"
+      ]
+    }
+  ],
+  "claims": {
+    "deployment-manager-eol": {
+      "statement": "The page says Google is discontinuing support for Google Cloud Deployment Manager on March 31, 2026, after which the cloud resources must be created manually, and that Zscaler is in the process of defining a replacement process.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "Google is discontinuing support for the Google Cloud Deployment Manager on March 31, 2026. After that date, create the resources manually. Zscaler is in the process of defining a replacement process."
+          ]
+        }
+      ]
+    },
+    "deployment-permissions": {
+      "statement": "On the Deployment Manager stack path only (the page's section on creating cloud resources with a DLP GCP integration cloud resource stack), the deployment needs editor, resource manager and pubsub admin permissions on the storage accounts used; editor is held by default, and the missing resource manager and pubsub admin permissions are granted to <PROJECT_NUMBER>@cloudservices.gserviceaccount.com as roles/resourcemanager.projectIamAdmin and roles/pubsub.admin.",
+      "tier": "A",
+      "conditions": "Stack path only: this step is in the page's Deployment Manager section, which the page says ends on March 31, 2026; the manual procedure (Manually Creating and Configuring GCP Resources) is a separate section.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "Creating Cloud Resources Using a DLP GCP Integration Cloud Resource Stack in GCP",
+            "You need editor, resource manager, and pubsub admin permissions for the storage accounts used for the deployment:",
+            "By default, you have editor permissions for the storage accounts.",
+            "If you do not have the required permissions for the storage accounts, run the following commands:",
+            "--member=\"serviceAccount:<PROJECT_NUMBER>@cloudservices.gserviceaccount.com\" --role=\"roles/resourcemanager.projectIamAdmin\"",
+            "--member=\"serviceAccount:<PROJECT_NUMBER>@cloudservices.gserviceaccount.com\" --role=\"roles/pubsub.admin\""
+          ]
+        }
+      ]
+    },
+    "prefix-and-names": {
+      "statement": "The prefix identifies the created resources and cannot contain dots; the derived variables (marked 'no need to change these') give the service account zscaler-sa-${PREFIX}, buckets ${PREFIX}-data and ${PREFIX}-metadata, and the Pub/Sub topic ${PREFIX}-file-events-topic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "<PREFIX>: A unique prefix to identify the cloud resources being created. Add this value before topic, data, and metadata buckets. You cannot use dots (.) in the prefix.",
+            "# --- Derived Variables (no need to change these) ---",
+            "export ZSCALER_SA=\"zscaler-sa-${PREFIX}@${PROJECT_ID}.iam.gserviceaccount.com\"",
+            "export DATA_BUCKET_NAME=\"${PREFIX}-data\" export METADATA_BUCKET_NAME=\"${PREFIX}-metadata\" export PUBSUB_TOPIC_NAME=\"${PREFIX}-file-events-topic\""
+          ]
+        }
+      ]
+    },
+    "kms-key": {
+      "statement": "On the Deployment Manager stack path, buckets use Google-managed encryption by default; a customer-managed KMS key can be supplied as kms_key in the format projects/my-project/locations/us-central1/keyRings/my-key-ring/cryptoKeys/my-key, and with your own KMS key the kms keys add-iam-policy-binding command must be run before creating the deployment or the deployment fails.",
+      "tier": "A",
+      "conditions": "Stack path only: the binding command is a step of the Deployment Manager section (deployment fails without it); the manual path applies the key per bucket, see manual-kms-key.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "Creating Cloud Resources Using a DLP GCP Integration Cloud Resource Stack in GCP",
+            "To create storage buckets with default Google-managed encryption keys, run the following command:",
+            "The kms_key should follow the format: projects/my-project/locations/us-central1/keyRings/my-key-ring/cryptoKeys/my-key.",
+            "gcloud kms keys add-iam-policy-binding <KEY_NAME> --location <LOCATION>",
+            "If you have access to your own KMS key, run the following command before creating the cloud resource deployment. If you don't run this command, the deployment fails."
+          ]
+        }
+      ]
+    },
+    "manual-kms-key": {
+      "statement": "In the manual procedure the optional customer-managed KMS key is applied to each bucket with gcloud storage buckets update and --default-kms-key=\"${KMS_KEY}\", with KMS_KEY the full key resource name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "# (Optional) The full resource name of the KMS key for encryption.",
+            "gcloud storage buckets update \"gs://${DATA_BUCKET_NAME}\" \\ --default-kms-key=\"${KMS_KEY}\"",
+            "gcloud storage buckets update \"gs://${METADATA_BUCKET_NAME}\" \\ --default-kms-key=\"${KMS_KEY}\""
+          ]
+        }
+      ]
+    },
+    "kms-binding-command-incomplete": {
+      "statement": "The page's Deployment Manager KMS binding command is printed as gcloud kms keys add-iam-policy-binding <KEY_NAME> --location <LOCATION> --keyring --member ... with no value after --keyring and no --role, and its own example (--keyring zwa-key-ring) also gives no --role; a command copied as printed is incomplete.",
+      "tier": "A",
+      "conditions": "Stack path only. A vendor documentation defect, not a tool behavior; not filed.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "gcloud kms keys add-iam-policy-binding <KEY_NAME> --location <LOCATION> --keyring --member \"serviceAccount:<PROJECT_NUMBER>@cloudservices.gserviceaccount.com\"",
+            "gcloud kms keys add-iam-policy-binding zwa-key --location us-central1 --keyring zwa-key-ring --member \"serviceAccount:23456710100@cloudservices.gserviceaccount.com\"."
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "help.zscaler.com Configuring the DLP Application Integration Using Google Cloud Platform: KMS binding command lacks a --keyring value and a --role."
+        }
+      ]
+    },
+    "retention-period": {
+      "statement": "The deployment command can optionally take retention_period_data and retention_period_metadata (in days) to manage the lifecycle of the data and metadata buckets; for the data bucket in the console this is a lifecycle rule with the action Delete and an Age condition in days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "Optionally, you can include the retention period (days) for the data and metadata buckets in the deployment command to manage their lifecycle.",
+            "retention_period_data:30,retention_period_metadata:30",
+            "Under Select object conditions, select Age and enter the desired retention period in days. This value corresponds to the RETENTION_PERIOD_DATA environment variable"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "Under Select an action, select Delete."
+          ],
+          "after": "Create the Google Cloud Storage (GCS) bucket to store data files."
+        }
+      ]
+    },
+    "data-bucket-settings": {
+      "statement": "In the manual procedure the data bucket is configured with versioning, uniform access control, and optional retention policies and KMS encryption; the page's intro line for the metadata bucket names only its own optional retention policy, but the metadata bucket's steps also set versioning and the optional KMS key, as for the data bucket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "The data bucket includes configurations for versioning, uniform access control, and optional retention policies and Key Management Service (KMS) encryption.",
+            "You can configure the metadata bucket with its own optional retention policy.",
+            "gcloud storage buckets update \"gs://${METADATA_BUCKET_NAME}\" --versioning",
+            "gcloud storage buckets update \"gs://${METADATA_BUCKET_NAME}\" \\ --default-kms-key=\"${KMS_KEY}\""
+          ]
+        }
+      ]
+    },
+    "pubsub-notification": {
+      "statement": "In the manual procedure the Pub/Sub topic receives notifications when new objects are uploaded to the metadata bucket; the GCS service account is granted roles/pubsub.publisher on the topic, and the metadata bucket notification uses event type Object finalization (OBJECT_FINALIZE) with payload format JSON API v1.",
+      "tier": "A",
+      "conditions": "Manual path only: these steps are in the page's Manually Creating and Configuring GCP Resources section, not in the Deployment Manager stack section.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "This topic receives notifications when new objects are uploaded to the metadata bucket.",
+            "--role=\"roles/pubsub.publisher\"",
+            "Under Select event types, select Object finalization.",
+            "--event-types=\"OBJECT_FINALIZE\"",
+            "Leave the Payload format as JSON API v1, which appears by default."
+          ]
+        }
+      ]
+    },
+    "service-account-roles": {
+      "statement": "In the manual procedure the Zscaler service account is granted Storage Object Viewer and Storage Legacy Bucket Reader on both the data and metadata buckets (both roles on each bucket), Pub/Sub Editor on the project, and Service Account User on itself.",
+      "tier": "A",
+      "conditions": "Manual path only: these steps are in the page's Manually Creating and Configuring GCP Resources section, not in the Deployment Manager stack section.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "Storage Object Viewer: Grants access to view objects and their metadata, excluding Access Control Lists (ACLs).",
+            "Storage Legacy Bucket Reader: Grants permission to list a bucket's contents and read bucket metadata, excluding Identity and Access Management (IAM) policies.",
+            "You must select both of these roles for each bucket.",
+            "Grant bucket access to both the <PREFIX>-data bucket and the <PREFIX>-metadata bucket:",
+            "select Pub/Sub Editor. This role can modify topics and subscriptions, and publish and consume messages.",
+            "select Service Account User. This role runs operations as the service account.",
+            "Grant Pub/Sub Editor role on the project",
+            "Grant Service Account User role to impersonate the service account itself."
+          ]
+        }
+      ]
+    },
+    "service-account-key": {
+      "statement": "A private key is created for the newly created service account as a JSON key, and a file with the key values is downloaded; those values are required when creating the DLP GCP integration in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "filter to find the newly created service account and select it.",
+            "In the Create private key window, select JSON as the Key type and click Create.",
+            "A file containing the service account key values is downloaded to your local system. These values are required when creating the DLP GCP Integration in the Zscaler Admin Console."
+          ],
+          "after": "c. Create the service account private key."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "deployment-replacement": {
+      "kind": "semantic",
+      "title": "What replaces Google Cloud Deployment Manager for creating the DLP integration resources?",
+      "status": "open",
+      "detail": "The page says Zscaler is in the process of defining a replacement process, names no replacement, and gives the manual console and CLI procedure as the only path after March 31, 2026, a date that has passed (captured 2026-11-04), so the Deployment Manager stack steps no longer apply.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "key-expiry": {
+      "kind": "semantic",
+      "title": "Does the service account JSON key expire, and how is it rotated?",
+      "status": "open",
+      "detail": "The page covers creating the JSON key but states neither an expiry nor a rotation procedure.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

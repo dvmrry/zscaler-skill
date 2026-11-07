@@ -1,0 +1,1142 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Admin & Role Management",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/admin-role-management",
+    "node": "1402446",
+    "revision": "3208090",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Admin%20%26%20Role%20Management_15.json?VersionId=s02IASkbeNTreDoioIgsZ8iGg9XaWWWO",
+    "updated": "2026-06-15",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Admin & Role Management"
+      }
+    ],
+    "paths": {
+      "/passwordExpiry/settings": {
+        "get": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "Retrieves the password expiration information for all the admins",
+          "operationId": "PasswordExpiryResource_getPasswordExpirySettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/PasswordExpirySettings"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "Updates the password expiration information for all the admins",
+          "operationId": "PasswordExpiryResource_updatePasswordExpirySettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/PasswordExpirySettings"
+              }
+            }
+          }
+        }
+      },
+      "/adminRoles": {
+        "get": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "<p>Retrieves a list of all admin roles. To learn more, see <a href=\"/zia/about-role-management\" target=\"_blank\">About Role Management</a>.</p>\n",
+          "operationId": "AdminRoleResource_getRoles",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "includeAuditorRole",
+              "in": "query",
+              "description": "Includes or excludes the auditor role information in the list",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "includePartnerRole",
+              "in": "query",
+              "description": "Includes or excludes the partner admin role information in the list",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "includeApiRole",
+              "in": "query",
+              "description": "Includes or excludes the API role information in the list",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "id",
+              "in": "query",
+              "description": "Specifies the admin role login ID",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "collectionFormat": "multi"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdminRole"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "<p>Adds an admin role. To learn more, see <a href=\"/zia/adding-admin-roles\" target=\"_blank\">Adding Admin Roles</a>.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"/oneapi/understanding-oneapi\" target=\"_blank\">Zscaler OneAPI</a> only.</p>",
+          "operationId": "AdminRoleResource_addRole",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Admin role information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/AdminRole"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdminRole"
+              }
+            },
+            "201": {
+              "description": "Created",
+              "schema": {
+                "$ref": "#/definitions/AdminRole"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      },
+      "/adminRoles/{roleId}": {
+        "get": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "Retrieves the admin role based on the specified ID",
+          "operationId": "AdminRoleResource_getRole",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "roleId",
+              "in": "path",
+              "description": "Specifies the role ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdminRole"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Not Found"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "<p>Updates the admin role based on the specified ID.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"/oneapi/understanding-oneapi\" target=\"_blank\">Zscaler OneAPI</a> only.</p>",
+          "operationId": "AdminRoleResource_updateRole",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "roleId",
+              "in": "path",
+              "description": "Specifies the role ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Admin role information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/AdminRole"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdminRole"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Not Found"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "<p>Deletes the admin role based on the specified ID.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"/oneapi/understanding-oneapi\" target=\"_blank\">Zscaler OneAPI</a> only.</p>",
+          "operationId": "AdminRoleResource_deleteRole",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "roleId",
+              "in": "path",
+              "description": "Specifies the role ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No Content"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Not Found"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      },
+      "/adminRoles/lite": {
+        "get": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "<p>Retrieves a name and ID dictionary of all admin roles. The list only includes the name and ID for all admin roles. To learn more, see <a href=\"/zia/about-role-management\" target=\"_blank\">About Role Management</a>.</p>\n",
+          "operationId": "getRoleSummary",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "includeAuditorRole",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "description": "<p>Includes or excludes the auditor role information in the list</p>\n"
+            },
+            {
+              "name": "includePartnerRole",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "default": true,
+              "description": "<p>Includes or excludes the partner admin role information in the list</p>\n"
+            },
+            {
+              "name": "includeApiRole",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "default": true,
+              "description": "<p>Includes or excludes the API role information in the list</p>\n"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdminRole"
+              }
+            }
+          }
+        }
+      },
+      "/adminUsers": {
+        "get": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "<p>Gets a list of admin users. By default, auditor user information is not included. To learn more, see <a href=\"/zia/about-administrators\" target=\"_blank\">About Administrators</a> and <a href=\"/zia/about-auditors\" target=\"_blank\">About Auditors</a>.</p>\n",
+          "operationId": "getAdminUsers",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "includeAuditorUsers",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "description": "<p>Include or exclude auditor user information in the list.</p>\n"
+            },
+            {
+              "name": "includeAdminUsers",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "default": true,
+              "description": "<p>Include or exclude admin user information in the list.</p>\n"
+            },
+            {
+              "name": "search",
+              "in": "query",
+              "description": "<p>The search string used to partially match against an admin/auditor user's Login ID or Name.</p>",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "<p>Specifies the page offset.</p>",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "<p>Specifies the page size. The default size is 100, but the maximum size is 1000.</p>",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdminUser"
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "<p>Creates an admin or auditor user. To learn more, see <a href=\"/zia/adding-admins\" target=\"_blank\">Adding Admins</a> and <a href=\"/zia/adding-auditors\" target=\"_blank\">Adding Auditors</a>.</p>\n",
+          "operationId": "addAdminUser",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/AdminUser"
+              }
+            },
+            {
+              "name": "associateWithExistingAdmin",
+              "in": "query",
+              "description": "This field is set to true to update an admin user that already exists in other Zscaler services but does not exist in ZIA. For example, this field must be set to true when creating an admin user in ZIA who's already a user in Zscaler Digital Experience (ZDX). To learn more, see <a href=\"/zia/adding-zia-admins\" target=\"_blank\">Adding ZIA Admins</a>.",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdminUser"
+              }
+            }
+          }
+        }
+      },
+      "/adminUsers/{userId}": {
+        "put": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "<p>Updates admin or auditor user for the specified ID. You can only disable/enable the <a href=\"/zia/about-administrators\" target=\"_blank\">default admin account</a> using this endpoint, all other updates within the request are ignored for this admin account.</p>\n",
+          "operationId": "updateAdminUser",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": "<p>The unique identifier for the admin/auditor user.</p>\n"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdminUser"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "<p>Deletes an admin or auditor user using the specified ID</p><p><b>Note</b>: This request deletes an admin and removes them as a user from the ZIA Admin Portal. To delete the admin privileges for a user while retaining them as a regular user of your organization in the ZIA Admin Portal, use the <code>POST /adminUsers/{userId}/convertToUser</code> request.</p><br/><b>Sample Request (Python)</b><pre>import&nbsp;http.client<br/>import&nbsp;json<br/><br/>conn&nbsp;=&nbsp;http.client.HTTPSConnection(&quot;HOSTNAME&quot;)<br/><br/>headers&nbsp;=&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;'content-type':&nbsp;&quot;application/json&quot;,<br/>&nbsp;&nbsp;&nbsp;&nbsp;'cache-control':&nbsp;&quot;no-cache&quot;,<br/>&nbsp;&nbsp;&nbsp;&nbsp;'cookie':&nbsp;&quot;JSESSIONID=xxxxxxx&quot;<br/>}<br/><br/>conn.request(&quot;DELETE&quot;,&nbsp;&quot;/api/v1/adminUsers/6794036&quot;,&nbsp;headers=headers)<br/><br/>res&nbsp;=&nbsp;conn.getresponse()<br/>data&nbsp;=&nbsp;res.read()<br/><br/>print(data.decode(&quot;utf-8&quot;))</pre><br/><b>Sample Response</b><pre>204 No Content</pre>\n",
+          "operationId": "deleteAdminUser",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": "<p>The unique identifier for the admin/auditor user.</p>\n"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/adminUsers/me": {
+        "get": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "Retrieves information about the current administrator or auditor user, or both",
+          "operationId": "AdminUserZResource_getCurrentUser",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdminUser"
+              }
+            }
+          }
+        }
+      },
+      "/adminUsers/{userId}/convertToUser": {
+        "post": {
+          "tags": [
+            "Admin & Role Management"
+          ],
+          "description": "<p>Removes admin privileges for a user while retaining them as a regular user of your organization in the ZIA Admin Portal. This can be used as an alternative to the <code>DELETE /adminUsers/{userId}</code> request, which deletes an admin and removes them as a user from the ZIA Admin Portal. To learn more, see <a href=\"/zia/deleting-zia-admins\" target=\"_blank\">Deleting ZIA Admins</a>.</p><p>Before you can delete the admin privileges for a user, you need to obtain the admin user's ID and other information by using the <code>GET /users</code> request and then send the admin user details in the <code>POST /adminUsers/{userId}/convertToUser</code> request.</p>",
+          "operationId": "AdminUserResource_convertAdminToEndUser",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the admin user",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "description": "Information about the user for whom the admin privileges must be removed. Group information is mandatory in the request Body. Optionally, you can include other field information to modify the values.",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "PasswordExpirySettings": {
+        "type": "object",
+        "description": "Password expiration information",
+        "properties": {
+          "passwordExpirationEnabled": {
+            "type": "boolean",
+            "description": "Specifies whether password expiration is enabled for the admin"
+          },
+          "passwordExpiryDays": {
+            "type": "integer",
+            "description": "Password expiration duration, calculated in days",
+            "format": "int32"
+          }
+        }
+      },
+      "AdminRole": {
+        "type": "object",
+        "description": "<p>Specifies an admin's level of access to the ZIA Admin Portal</p>",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Admin role ID"
+          },
+          "rank": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Admin rank of this admin role. This is applicable only when the admin rank is enabled in the advanced settings. Default value is 7 (the lowest rank). The assigned admin rank determines the roles or admin users this user can manage and the rule orders the admin can access."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the admin role"
+          },
+          "policyAccess": {
+            "type": "string",
+            "description": "Policy access permission",
+            "enum": [
+              "NONE|READ_ONLY|READ_WRITE"
+            ]
+          },
+          "alertingAccess": {
+            "type": "string",
+            "description": "Alerting access permission",
+            "enum": [
+              "NONE|READ_ONLY|READ_WRITE"
+            ]
+          },
+          "dashboardAccess": {
+            "type": "string",
+            "description": "Dashboard access permission",
+            "enum": [
+              "NONE|READ_ONLY"
+            ]
+          },
+          "reportAccess": {
+            "type": "string",
+            "description": "Report access permission",
+            "enum": [
+              "NONE|READ_ONLY|READ_WRITE"
+            ]
+          },
+          "analysisAccess": {
+            "type": "string",
+            "description": "Insights Logs access permission",
+            "enum": [
+              "NONE|READ_ONLY"
+            ]
+          },
+          "usernameAccess": {
+            "type": "string",
+            "description": "Username access permission. When set to NONE, the username is obfuscated.",
+            "enum": [
+              "NONE|READ_ONLY"
+            ]
+          },
+          "deviceInfoAccess": {
+            "type": "string",
+            "description": "Device information access permission. When set to NONE, device information is obfuscated.",
+            "enum": [
+              "NONE|READ_ONLY"
+            ]
+          },
+          "adminAcctAccess": {
+            "type": "string",
+            "description": "Admin and role management access permission",
+            "enum": [
+              "NONE|READ_WRITE"
+            ]
+          },
+          "isAuditor": {
+            "type": "boolean",
+            "description": "Indicates whether this is an auditor role",
+            "default": false
+          },
+          "permissions": {
+            "type": "array",
+            "description": "List of functional areas to which this role has access. This attribute is subject to change.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "USER_ACCESS",
+                "SECURE",
+                "MANAGE",
+                "COMPLY",
+                "SSL_POLICY",
+                "ADVANCED_SETTINGS",
+                "TRAFFIC_FORWARDING",
+                "AUTHENTICATION_CONFIGURATION",
+                "FIREWALL_DNS",
+                "NSS_CONFIGURATION",
+                "VZEN_CONFIGURATION",
+                "LOCATIONS",
+                "HOSTED_PAC_FILES",
+                "EZ_AGENT_CONFIGURATIONS",
+                "SECURE_AGENT_NOTIFICATIONS",
+                "VPN_CREDENTIALS",
+                "PROXY_GATEWAY",
+                "AUTHENTICATION_SETTINGS",
+                "IDENTITY_PROXY_SETTINGS",
+                "USER_MANAGEMENT",
+                "APIKEY_MANAGEMENT",
+                "PARTNER_INTEGRATION",
+                "POLICY_RESOURCE_MANAGEMENT",
+                "CUSTOM_URL_CAT",
+                "OVERRIDE_EXISTING_CAT",
+                "CUSTOMER_ACCT_INFO",
+                "CUSTOMER_SUBSCRIPTION",
+                "CUSTOMER_ORG_SETTINGS",
+                "REMOTE_ASSISTANCE_MANAGEMENT",
+                "ZS_BUSINESS_CONTINUITY"
+              ]
+            }
+          },
+          "featurePermissions": {
+            "type": "object",
+            "description": "Feature access permission. Indicates which features an admin role can access and if the admin has both read and write access, or read-only access.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "READ_ONLY",
+                "READ_WRITE"
+              ]
+            }
+          },
+          "extFeaturePermissions": {
+            "type": "object",
+            "description": "External feature access permission. Indicates whether an admin role has full or restricted access to external features. When set to NONE, the admin role does not have permission to access any external features.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "FULL",
+                "RESTRICTED",
+                "ZDX_FULL",
+                "ZDX_RESTRICTED",
+                "BI_FULL",
+                "BI_RESTRICTED"
+              ]
+            }
+          },
+          "isNonEditable": {
+            "type": "boolean",
+            "description": "Indicates whether or not this admin user is editable",
+            "default": false
+          },
+          "logsLimit": {
+            "type": "string",
+            "description": "Enter the number of days an admin with this role can view logs. Admins can view real-time logs of every transaction performed by your users regardless of where they are in the world.",
+            "enum": [
+              "UNRESTRICTED",
+              "MONTH_1",
+              "MONTH_2",
+              "MONTH_3",
+              "MONTH_4",
+              "MONTH_5",
+              "MONTH_6"
+            ]
+          },
+          "roleType": {
+            "type": "string",
+            "description": "The admin role type. This attribute is subject to change.",
+            "enum": [
+              "ORG_ADMIN|EXEC_INSIGHT|EXEC_INSIGHT_AND_ORG_ADMIN|SDWAN"
+            ]
+          },
+          "reportTimeDuration": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Time duration allocated to the report dashboard. The default value of -1 indicates that no time restriction is applied to the\n report dashboard. Time Unit is in hours."
+          }
+        }
+      },
+      "AdminUser": {
+        "type": "object",
+        "description": "Admin and auditor information",
+        "required": [
+          "loginName",
+          "userName",
+          "email"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Admin or auditor's user ID"
+          },
+          "loginName": {
+            "type": "string",
+            "description": "<p>Admin or auditor's login name. The login name is in email format and uses the domain name associated with the Zscaler account.</p>"
+          },
+          "userName": {
+            "type": "string",
+            "description": "Admin or auditor's username"
+          },
+          "email": {
+            "type": "string",
+            "description": "Admin or auditor's email address"
+          },
+          "role": {
+            "description": "Role of the admin. This is not required for an auditor.",
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ]
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about the admin or auditor"
+          },
+          "adminScope": {
+            "description": "The admin's scope. A scope is required for the admins, but not applicable to auditors. This attribute is subject to change.",
+            "allOf": [
+              {
+                "$ref": "#/definitions/AdminScope"
+              }
+            ]
+          },
+          "isNonEditable": {
+            "type": "boolean",
+            "description": "Indicates whether or not the admin can be edited or deleted",
+            "default": false
+          },
+          "disabled": {
+            "type": "boolean",
+            "description": "Indicates whether or not the admin account is disabled"
+          },
+          "isAuditor": {
+            "type": "boolean",
+            "description": "Indicates whether the user is an auditor. This attribute is subject to change.",
+            "default": false
+          },
+          "password": {
+            "type": "string",
+            "description": "The admin's password. If the single sign-on (SSO) for the admin is disabled, then this field is mandatory for POST requests. This information is not provided in a GET response."
+          },
+          "isPasswordLoginAllowed": {
+            "type": "boolean",
+            "description": "The default value is true when SAML Authentication is disabled. When SAML Authentication is enabled, this can be set to false to force the admin to log in via SSO only.",
+            "default": false
+          },
+          "isSecurityReportCommEnabled": {
+            "type": "boolean",
+            "description": "Enables or disables communication regarding security updates. Enable this to receive the latest information on vulnerabilities and threats that might affect your organization.",
+            "default": false
+          },
+          "isServiceUpdateCommEnabled": {
+            "type": "boolean",
+            "description": "Enables or disables communication regarding service updates. Enable this to receive new Zscaler service and product enhancements, including new data center notification and cloud release information.",
+            "default": false
+          },
+          "isProductUpdateCommEnabled": {
+            "type": "boolean",
+            "description": "Enables or disables communication regarding product updates. Enable if you want the admin to receive communication regarding important changes and updates for the Zscaler service.",
+            "default": false
+          },
+          "isPasswordExpired": {
+            "type": "boolean",
+            "description": "Indicates whether or not an admin's password has expired",
+            "default": false
+          },
+          "isExecMobileAppEnabled": {
+            "type": "boolean",
+            "description": "Indicates whether or not the Executive Insights App access is enabled for the admin",
+            "default": false
+          },
+          "execMobileAppTokens": {
+            "type": "array",
+            "description": "Read-only information about the Executive Insights App token, if it exists.",
+            "items": {
+              "$ref": "#/definitions/MobileAppTokenInfo"
+            }
+          },
+          "newLocationCreateAllowed": {
+            "type": "boolean",
+            "description": "Determines if the user is allowed to create a new location"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "department",
+          "email",
+          "groups",
+          "name",
+          "password"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "User ID",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "<p>User name. This appears when choosing users for policies.</p><p><b>Note</b>: The name field allows values containing UTF-8 characters up to a maximum of 127 characters.</p>"
+          },
+          "email": {
+            "type": "string",
+            "description": "<p>User email consists of a user name and domain name. It does not have to be a valid email address, but it must be unique and its domain must belong to the organization.</p><p><b>Note</b>: The email field allows values of alphanumeric characters and certain special characters up to a maximum of 127 characters. The use of the <code>@</code> symbol is mandatory. This field corresponds to the User ID (also referred to as Login ID) field in the UI. However, the data validation in the UI uses different constraints.</p>"
+          },
+          "groups": {
+            "type": "array",
+            "description": "List of Groups a user belongs to. Groups are used in policies.",
+            "items": {
+              "$ref": "#/definitions/Group"
+            }
+          },
+          "department": {
+            "description": "Department a user belongs to",
+            "allOf": [
+              {
+                "$ref": "#/definitions/Department"
+              }
+            ]
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about this user."
+          },
+          "tempAuthEmail": {
+            "type": "string",
+            "description": "Temporary Authentication Email. If you enabled one-time tokens or links, enter the email address to which the Zscaler service sends the tokens or links. If this is empty, the service sends the email to the User email."
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password. Applicable only when authentication type is Hosted DB. Password strength must follow what is defined in the auth settings."
+          },
+          "adminUser": {
+            "type": "boolean",
+            "description": "True if this user is an Admin user",
+            "readOnly": true,
+            "default": false
+          },
+          "type": {
+            "type": "string",
+            "description": "User type. Provided only if this user is not an end user.",
+            "readOnly": true,
+            "enum": [
+              "SUPERADMIN",
+              "ADMIN",
+              "AUDITOR",
+              "GUEST",
+              "REPORT_USER",
+              "UNAUTH_TRAFFIC_DEFAULT"
+            ]
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of an ID and name"
+      },
+      "AdminScope": {
+        "type": "object",
+        "properties": {
+          "scopeGroupMemberEntities": {
+            "type": "array",
+            "description": "Only applicable for the LOCATION_GROUP admin scope type, in which case this attribute gives the list of ID/name pairs of locations within the location group. The attribute name is subject to change.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "Type": {
+            "type": "string",
+            "description": "The admin scope type. The attribute name is subject to change.",
+            "enum": [
+              "ORGANIZATION",
+              "DEPARTMENT",
+              "LOCATION",
+              "LOCATION_GROUP"
+            ]
+          },
+          "ScopeEntities": {
+            "type": "array",
+            "description": "Based on the admin scope type, the entities can be the ID/name pair of departments, locations, or location groups. The attribute name is subject to change.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          }
+        },
+        "description": "An admin's scope can be limited to certain resources, policies, or reports. An admin's scope can be limited by LOCATION, LOCATION GROUP, or DEPARTMENT. If this is not specified, then the admin has an ORGANIZATION scope by default. "
+      },
+      "MobileAppTokenInfo": {
+        "type": "object",
+        "properties": {
+          "cloud": {
+            "type": "string"
+          },
+          "orgId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tokenId": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "tokenExpiry": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createTime": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "deviceId": {
+            "type": "string"
+          },
+          "deviceName": {
+            "type": "string"
+          }
+        },
+        "description": "Executive Insights App device token information."
+      },
+      "Group": {
+        "type": "object",
+        "required": [
+          "name",
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier for the group"
+          },
+          "name": {
+            "type": "string",
+            "description": "Group name"
+          },
+          "idpId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unique identifier for the identity provider (IdP)"
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about the  group"
+          },
+          "isSystemDefined": {
+            "type": "boolean",
+            "description": "System-defined group"
+          }
+        }
+      },
+      "Department": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Department ID",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Department name"
+          },
+          "idpId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Identity provider (IdP) ID. This field is not applicable to the Lite API."
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about this department. This field is not applicable to the Lite API."
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "List of deleted departments",
+            "default": false
+          }
+        }
+      }
+    }
+  }
+}

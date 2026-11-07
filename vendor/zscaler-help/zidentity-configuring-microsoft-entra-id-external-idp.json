@@ -1,0 +1,5344 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Microsoft Entra ID as an External IdP",
+  "source": {
+    "url": "https://help.zscaler.com/authentication-service/configuring-microsoft-entra-id-external-idp",
+    "node": "1499421",
+    "revision": "3251069",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This guide provides information on how to configure Microsoft Entra ID as an external identity provider (IdP) for Authentication Service to facilitate single sign-on (SSO) to various Zscaler services for admin access management. You can configure Entra ID as an external IdP to enable SSO to Authentication Service using OpenID Connect (OIDC) or Security Assertion Markup Language (SAML) authentication protocols."
+    },
+    {
+      "text": "Zscaler and Microsoft are technology partners. To learn more about integrating Zscaler and Microsoft Entra ID, see the Zscaler and Microsoft Entra ID Passwordless Deployment Guide."
+    },
+    {
+      "text": "Depending on the authentication protocol, you can provision users to Authentication Service from Entra ID using Just-in-Time (JIT) provisoning or System for Cross-domain Identity Management (SCIM) provisioning."
+    },
+    {
+      "text": "If you want to leverage step-up authentication, it is recommended to use OIDC-based integrations as most IdPs only support step-up authentication with the OIDC protocol."
+    },
+    {
+      "item": "OIDC-Based Authentication via Microsoft Entra Gallery App Integration",
+      "depth": 0
+    },
+    {
+      "item": "This section explains how to configure Microsoft Entra ID as the OpenID Provider (OP) for the Authentication Service via prebuilt app integration to facilitate SSO to various Zscaler services for admin access management.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "item": "Ensure that you have:",
+      "depth": 0
+    },
+    {
+      "item": "A subscription to Entra ID.",
+      "depth": 1
+    },
+    {
+      "item": "An existing user directory in Entra ID.",
+      "depth": 1
+    },
+    {
+      "item": "An Authentication Service account with an admin role that allows you to add an IdP configuration.",
+      "depth": 1
+    },
+    {
+      "item": "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 1
+    },
+    {
+      "item": "A preferred choice of provisioning mode (JIT or SCIM) as this determines the number of apps you need to configure in Entra ID — one app for JIT and two apps for SCIM.",
+      "depth": 1
+    },
+    {
+      "item": "Implementation Differences Between JIT and SCIM Provisioning Modes",
+      "depth": 1
+    },
+    {
+      "item": "Entra ID only supports JIT provisioning for OIDC apps via the Microsoft Entra App Gallery. If you prefer SCIM provisioning with OIDC, you need to create a custom Entra ID app for SCIM, in addition to using the Gallery App for authentication. The following table summarizes the implementation differences for JIT and SCIM:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Provisioning Mode",
+          "Authentication via Gallery App",
+          "Provisioning Support",
+          "Additional Requirements"
+        ],
+        [
+          "JIT Provisioning",
+          "Yes",
+          "Supported by default",
+          "None"
+        ],
+        [
+          "SCIM Provisioning",
+          "Yes",
+          "Not supported in the Gallery Application",
+          "Create a custom Entra ID app for SCIM provisioning in addition to using the Gallery App for authentication."
+        ]
+      ]
+    },
+    {
+      "heading": "Configuring Microsoft Entra ID as OP for Authentication Service",
+      "level": 1
+    },
+    {
+      "item": "To set up Microsoft Entra ID as an OP for Authentication Service:",
+      "depth": 0
+    },
+    {
+      "item": "1. Configure app integration using the Zscaler app in the Entra ID gallery.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Entra Admin Center.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Identity > Applications > Enterprise applications.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          43
+        ],
+        [
+          46,
+          58
+        ],
+        [
+          61,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "Click New application.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Microsoft Entra Gallery window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Microsoft Entra Gallery window, search for zscaler.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Click the Zscaler tile in the search results.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Zscaler app window appears.",
+      "depth": 2
+    },
+    {
+      "item": "In the Zscaler app window, customize the app name if needed, and click Create.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          71,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The application details page appears.",
+      "depth": 2
+    },
+    {
+      "item": "On the application details page, click Single sign-on and click Go to application.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          39,
+          53
+        ],
+        [
+          64,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The app registration page for Zscaler app appears.",
+      "depth": 2
+    },
+    {
+      "item": "On the app registration page:",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "Copy the Application (Client) ID and save it for future use.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Endpoints.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Endpoints window appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Endpoints window, locate the OpenID Connect metadata document field, and copy and save the URL for future use.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          36,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the left-side navigation, go to Manage > Branding & properties.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          35,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "In the Home page URL field, enter the Authentication Service Admin Portal URL along with the idp_id URL parameter. This step is required for enabling the IdP-initiated SSO option for Authentication Service Portal.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "The value for the idp_id URL parameter is default if you are configuring Entra ID as your primary IdP in the Zscaler Admin Console. If you are configuring Entra ID as a secondary IdP, the value for idp_id must be sourced from the final segment of the Redirect URI.",
+      "depth": 3,
+      "strong": [
+        [
+          251,
+          263
+        ]
+      ]
+    },
+    {
+      "item": "Home page URL if Entra ID is configured as your primary IdP in the Zscaler Admin Console: https://<your_domain>.zslogin.net/?idp_id=default",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Home page URL if Entra ID is configured as your secondary IdP in the Zscaler Admin Console: https://<your_domain>.zslogin.net/?idp_id=<final_segment_from_redirect_URI>",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "If you are configuring Entra ID as your secondary IdP, update this field with the appropriate idp_id value after setting up Entra ID as the IdP in the Zscaler Admin Console in the subsequent steps.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The configuration is saved, and it takes a few hours for the changes to take effect.",
+      "depth": 3
+    },
+    {
+      "item": "In the left-side navigation, click Certificates & secrets.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          35,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "The Certificates & secrets window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Certificates & secrets window:",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Click New client secret.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Add a client secret window appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the Add a client secret window, enter a description, and click Add.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          66,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The client secret is added and is shown in the Client secrets table.",
+      "depth": 3,
+      "strong": [
+        [
+          47,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Copy the client secret value from the Value column and save it for future use.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          38,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The client secret value cannot be accessed or viewed after you leave the page.",
+      "depth": 3
+    },
+    {
+      "item": "In the left-side navigation, click API permissions.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          35,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "The API permissions window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "In the API permissions window:",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Grant admin consent for <entra_ID_tenant_name>.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "To ensure only administrators can accept grants, this configuration is required as it prevents the end users from getting the prompt to accept the grant while logging in to the application.",
+      "depth": 3
+    },
+    {
+      "item": "Click Yes in the Grant admin consent confirmation window.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          17,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Make sure the Status column shows the green checkmark.",
+      "depth": 3,
+      "strong": [
+        [
+          14,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the left-side navigation, click Token configuration.",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          35,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "The Token configuration window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the Token configuration window:",
+      "depth": 2,
+      "number": 14,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click Add optional claim.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Add optional claim window appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the Add optional claim window:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Select ID as the token type, and from the list of claims, select email and preferred_username.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Add.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The selected claims are added.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Add groups claim.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Edit groups claim window appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit groups claim window:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "In the Select group types to include in Access, ID, and SAML tokens section, select the Groups assigned to the application option.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          26,
+          36
+        ],
+        [
+          37,
+          67
+        ],
+        [
+          88,
+          122
+        ]
+      ]
+    },
+    {
+      "item": "In the Customize token properties by type section, click ID to expand the ID subsection, and select the Group ID option.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          41
+        ],
+        [
+          57,
+          59
+        ],
+        [
+          74,
+          76
+        ],
+        [
+          104,
+          112
+        ]
+      ]
+    },
+    {
+      "item": "The Group ID must be selected as Entra ID does not support sending group names with OIDC protocol when groups are created in the Entra cloud.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "If the group names are received via the Entra ID sync, select the sAMAccountName option instead of the Group ID option to pass on the group names.",
+      "depth": 4,
+      "strong": [
+        [
+          66,
+          80
+        ],
+        [
+          103,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Add.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The group claims are added.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the left-side navigation, go to Manage > Manifest.",
+      "depth": 2,
+      "number": 15,
+      "strong": [
+        [
+          35,
+          41
+        ],
+        [
+          44,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "The Manifest window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the Manifest window, update the required attributes in the graph manifest:",
+      "depth": 2,
+      "number": 16,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Updating Microsoft Graph App Manifest",
+      "depth": 3
+    },
+    {
+      "item": "Locate the groups entry in optionalClaims,idToken, and modify the additionalProperties array to include cloud_displayname. To learn more, refer to the Microsoft documentation.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "{ \"additionalProperties\": [\"cloud_displayname\"], \"essential\": false, \"name\": \"groups\", \"source\": null }",
+      "depth": 4
+    },
+    {
+      "item": "This configuration is required to send group names instead of group IDs. Authentication Service uses this to display group memberships, map users to roles, and evalute policies in JIT mode.",
+      "depth": 4
+    },
+    {
+      "item": "Change the value of the acceptMappedClaims attribute to true. This is required to enable Entra ID to accept custom claims (e.g., department, title) for issuing tokens.",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "Change the value of the requestedAccessTokenVersion attribute to 2.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "These changes are required if you are adding any optional claims in a future step.",
+      "depth": 2
+    },
+    {
+      "item": "In the left-side navigation, click Overview and click the link in the Managed application in local directory field.",
+      "depth": 2,
+      "number": 17,
+      "strong": [
+        [
+          35,
+          43
+        ],
+        [
+          70,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the left-side navigation, click Users and groups.",
+      "depth": 2,
+      "number": 18,
+      "strong": [
+        [
+          35,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "The Users and groups window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the Users and groups window, select the users and groups that you want to have access to the application.",
+      "depth": 2,
+      "number": 19,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If you want to pass group memberships as claims, make sure that the groups are assigned instead of individual users in the Users and groups window.",
+      "depth": 2,
+      "strong": [
+        [
+          123,
+          139
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click Single sign-on.",
+      "depth": 2,
+      "number": 20,
+      "strong": [
+        [
+          35,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "The Single sign-on window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the Single sign-on window, locate Attributes & Claims, and click the Edit icon.",
+      "depth": 2,
+      "number": 21,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          56
+        ],
+        [
+          72,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Attributes & Claims window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes & Claims window:",
+      "depth": 2,
+      "number": 22,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes & Claims window, click Add new claim.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          41,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Manage claim window appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the Manage claim window:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter Department.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Source: Select Attribute.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Source attribute: Select user.department.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          25,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The Department claim is added. Repeat the preceding steps to add other claims if needed.",
+      "depth": 3
+    },
+    {
+      "item": "2. Set up Entra ID as an OP for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "Adding an IdP in the Zscaler Admin Console",
+      "depth": 2
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          63
+        ],
+        [
+          66,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Click Add in the Primary Identity Provider or Secondary Identity Providers section.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          17,
+          42
+        ],
+        [
+          46,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "The Add External Identity page appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "In the Add External Identity page, go the Basic Configurations tab, and configure the following:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          42,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IdP.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Enable the toggle.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Identity Vendor: Select Microsoft Entra ID from the drop-down menu.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Domains: Select the domain for which the IdP is responsible for authenticating the users. This allows the Zscaler service to display the correct IdP to authenticate an incoming user.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Enforce Zscaler MFA for Admins: Enable this option to ensure that admins using an external IdP authenticate with the multi-factor authentication (MFA) process in Authentication Service, irrespective of whether MFA is configured on the external IdP.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "An email is sent to all super admins in Authentication Service when the Enforce Zscaler MFA for Admins option is disabled.",
+      "depth": 4,
+      "strong": [
+        [
+          72,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Protocol: Select OIDC.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Login ID Attribute: Enter an attribute whose value must be used as the login ID. This attribute must exist in the tokens received from the IdP. By default, the preferred_username attribute is populated in this field when the OIDC option is selected in the Protocol field. You can use any attribute that is present in the ID token or the response of the UserInfo endpoint, provided its value is in the email address format (e.g., <user_name>@domain.com>).",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          225,
+          229
+        ],
+        [
+          256,
+          264
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the domain part of the email addresses received in the ID tokens match with one of the domains configured in Authentication Service.",
+      "depth": 5
+    },
+    {
+      "item": "Ensure that the attribute you enter matches exactly with the attribute received in the ID token or the UserInfo endpoint.",
+      "depth": 5
+    },
+    {
+      "item": "Input Method: Select Metadata URL and paste the OpenID Connect metadata document value copied from the Entra Admin Center and click Fetch.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          33
+        ],
+        [
+          48,
+          80
+        ],
+        [
+          132,
+          137
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URI: Copy the value. This value is used in the client application in the Entra Admin Center in the subsequent steps.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "If you are configuring Entra ID as the secondary IdP in the Zscaler Admin Console, the final segment of the Redirect URI is required for configuring IdP-initiated SSO. Use this value as idp_id as part of the Home page URL in the Entra Admin Center.",
+      "depth": 4,
+      "strong": [
+        [
+          108,
+          120
+        ],
+        [
+          208,
+          221
+        ]
+      ]
+    },
+    {
+      "item": "Token Endpoint Authentication Method: Select Client Secret Basic and paste the Client ID and Client Secret values copied from the Entra Admin Center to the respective fields.",
+      "depth": 4,
+      "number": 10,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          15,
+          36
+        ],
+        [
+          45,
+          64
+        ],
+        [
+          79,
+          88
+        ],
+        [
+          93,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "In the Entra Admin Center, the value copied from the Application (Client) ID field must be used for the Client ID field, and the value copied from the Value column on the Client secrets tab must be used for the Client Secret field.",
+      "depth": 4,
+      "strong": [
+        [
+          53,
+          76
+        ],
+        [
+          104,
+          113
+        ],
+        [
+          151,
+          156
+        ],
+        [
+          171,
+          185
+        ],
+        [
+          211,
+          224
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Requested Scopes: Add required scopes. By default, when the OIDC protocol is selected, the openid, email, and profile scopes are added.",
+      "depth": 4,
+      "number": 11,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Go to the Provisioning Details tab and click Save.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          30
+        ],
+        [
+          45,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Configuring the Platform Settings in the Entra Admin Center",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Entra Admin Center and go to the client application created for Authentication Service.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Go to Manage > Authentication.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          15,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "In the Authentication section, you can choose to configure platform settings in the legacy UI or the current UI.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Legacy UI",
+      "depth": 4
+    },
+    {
+      "item": "In the Platform configurations section, click Add a platform.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          46,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "The Configure platforms drawer appears.",
+      "depth": 5,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the Configure platforms drawer:",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click Web.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Paste the Redirect URI you copied earlier.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Configure.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Current UI",
+      "depth": 4
+    },
+    {
+      "item": "In the Redirect UI configuration tab, click Add Redirect URI.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          44,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "The Select a platform to add redirect URI drawer appears.",
+      "depth": 5,
+      "strong": [
+        [
+          4,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "In the Select a platform to add redirect URI drawer:",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Click Select on the Web tile.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          20,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "In the Add Redirect URI drawer, paste the Redirect URI you copied earlier, and click Configure.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          42,
+          54
+        ],
+        [
+          85,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "3. Provision users for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "Provisioning via JIT",
+      "depth": 2
+    },
+    {
+      "item": "Users created in Authentication Service via SCIM cannot be updated via JIT provisioning. These records must be updated via SCIM provisioning only.",
+      "depth": 3
+    },
+    {
+      "item": "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups (e.g., Zscaler Global Administrators).",
+      "depth": 3
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Entra ID in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          49,
+          74
+        ],
+        [
+          79,
+          107
+        ],
+        [
+          131,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Go to the Provisioning Details tab, enable JIT Provisioning.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          30
+        ],
+        [
+          43,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Enter groups as the Just-in-time User Group Attribute and map the Primary Email User Attribute with the email JIT User Attribute.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          20,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "The mapping of the Primary Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication.",
+      "depth": 4
+    },
+    {
+      "item": "Map the required Authentication Service user attributes with the appropriate Entra ID attributes as necessary.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "table": [
+        [
+          "Default Authentication Service User Attributes",
+          "OIDC Attribute in ID Tokens",
+          "Description"
+        ],
+        [
+          "First Name",
+          "given_name",
+          "First name of the user (e.g., John). This attribute is mapped by default."
+        ],
+        [
+          "Last Name",
+          "family_name",
+          "Last name of the user (e.g., Doe). This attribute is mapped by default."
+        ],
+        [
+          "Display Name",
+          "name",
+          "Display name of the user (e.g. John Doe). This attribute is mapped by default."
+        ],
+        [
+          "Nick Name",
+          "nickname",
+          "Nickname of the user (e.g., Jo)"
+        ],
+        [
+          "Mobile Phone",
+          "phone_number",
+          "Mobile number of the user (e.g., +1 1234567890)"
+        ],
+        [
+          "Primary Email",
+          "email",
+          "Primary email address of the user (e.g. johndoe@company.com)"
+        ],
+        [
+          "Language",
+          "locale",
+          "Language preference of the user (e.g., English (US))"
+        ],
+        [
+          "Timezone",
+          "zoneinfo",
+          "Time zone of the user (e.g., UTC+3.00)"
+        ],
+        [
+          "Department",
+          "Needs a custom claim",
+          "The department name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Organization",
+          "Needs a custom claim",
+          "The organization name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Title",
+          "Needs a custom claim",
+          "The job title of the user (e.g., Manager)"
+        ],
+        [
+          "Division",
+          "Needs a custom claim",
+          "The division of the organization to which the user belongs (e.g., Research)"
+        ],
+        [
+          "Cost Center",
+          "Needs a custom claim",
+          "The cost center of the organization to which the user belongs (e.g., IT)"
+        ],
+        [
+          "User Type",
+          "Needs a custom claim",
+          "The type of user in the organization (e.g., Regular)"
+        ],
+        [
+          "Formatted Name",
+          "Needs a custom claim",
+          "The name of the user in a specific format (e.g., Mr. John Doe)"
+        ],
+        [
+          "Manager",
+          "Needs a custom claim",
+          "The manager's login name (manager@company.com). This must be in the email address format."
+        ]
+      ]
+    },
+    {
+      "item": "If the external IdP is configured to send different attributes for First Name, Last Name, or Display Name, then you must map those attributes. For example, if the ID token from the external IdP includes Surname instead of family_name, then you must map it with the Last Name user attribute in Authentication Service.",
+      "depth": 5
+    },
+    {
+      "item": "While mapping attributes, ensure that the attributes that you enter in the Just-in-time Attribute field match exactly with the attributes that are received in the ID Tokens.",
+      "depth": 5,
+      "strong": [
+        [
+          75,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "The Addresses attribute in Authentication Service is supported only with SCIM provisioning.",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Provisioning via SCIM",
+      "depth": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Entra ID in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          49,
+          74
+        ],
+        [
+          79,
+          107
+        ],
+        [
+          131,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "The Edit External Identity page appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "On the Provisioning Details tab, and in the SCIM Provisioning section:",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          44,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Migrating from an existing custom app-based SCIM configuration",
+      "depth": 4
+    },
+    {
+      "item": "Authentication Method: Select OAuth2 Client Credentials. This triggers a warning indicating that the configuring would be overwritten.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Confirm. The existing SCIM configurations are discarded, including the current bearer token. This interrupts synchronization with Entra ID temporarily.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Copy the SCIM Endpoint URL. This value is used in a subsequent step.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "The SCIM Endpoint URL field appears only if the configurations for the IdP in the Basic tab are completed and saved.",
+      "depth": 5,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          82,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Copy Client ID. This value is used in a subsequent step.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          5,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: Click Add to generate a client secret, select a time period for expiration from the Expires On drop-down menu, and copy the value. This value is used in a subsequent step.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          21,
+          24
+        ],
+        [
+          99,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "New SCIM configuration",
+      "depth": 4
+    },
+    {
+      "item": "Enable SCIM Provisioning.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Copy the SCIM Endpoint URL. This value is used in a subsequent step.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "The SCIM Endpoint URL field appears only if the configurations for the IdP in the Basic tab are completed and saved.",
+      "depth": 5,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          82,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Authentication Method: Select OAuth2 Client Credentials.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Copy Client ID. This value is used in a subsequent step.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          5,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: Click Add to generate a client secret, select a time period for expiration from the Expires On drop-down menu, and copy the value. This value is used in a subsequent step.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          21,
+          24
+        ],
+        [
+          99,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Entra ID in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          49,
+          74
+        ],
+        [
+          79,
+          107
+        ],
+        [
+          131,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "The Edit External Identity page.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "On the Provisioning Details tab and in the SCIM Provisioning section:",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          43,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Token Endpoint: Copy the token endpoint URL. This value is used in a subsequent step.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The Token Endpoint field is visible only after saving the configuration after generating the client secret.",
+      "depth": 5
+    },
+    {
+      "item": "(Optional) Map the SCIM attributes (e.g., addresses) with the corresponding Authentication Service user attribute. This mapping is required only for attributes that need to be mapped to a custom user attribute in Authentication Service. To learn more about the SCIM attributes that require custom attribute mapping, see Understanding SCIM.",
+      "depth": 5,
+      "number": 2
+    },
+    {
+      "item": "The mapping of the Primary Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication.",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Entra Admin Center, go to Identity > Applications > Enterprise applications.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          33,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Locate and click the application that you created for Authentication Service.",
+      "depth": 3,
+      "number": 9
+    },
+    {
+      "item": "The application overview page appears.",
+      "depth": 3
+    },
+    {
+      "item": "In the left-side navigation, click Users and groups.",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          35,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "The Users and groups window appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the Users and groups window, select the users and groups that you want to have access to the application.",
+      "depth": 3,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "If you want to pass group memberships as claims, make sure that the groups are assigned instead of individual users in the Users and groups window.",
+      "depth": 3,
+      "strong": [
+        [
+          123,
+          139
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click Provisioning.",
+      "depth": 3,
+      "number": 12,
+      "strong": [
+        [
+          35,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "The Provisioning window appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the Provisioning window:",
+      "depth": 3,
+      "number": 13,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click New Configuration.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the New provisioning configuration page:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Tenant URL: Paste the SCIM endpoint URL copied from the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Token endpoint: Paste the token endpoint URL copied from the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Client identifier: Paste the client ID copied from the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Client secret: Paste the client secret copied from the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Click Test connection. When the connection is successful, a verification message appears. If the attempt fails, error information is displayed, and you must resolve those errors before moving forward.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Create.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The provisioning overview page appears.",
+      "depth": 4
+    },
+    {
+      "item": "On the provisioning overview page, click Start Provisioning.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          41,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Zscaler recommends scheduling provisioning during a maintenance window. Depending on the tenant size and user count, the initial synchronization might take several hours and could cause service disruption.",
+      "depth": 4
+    },
+    {
+      "item": "Do not make any changes to users in Entra ID as these would result in duplication of users in Authentication Service.",
+      "depth": 4
+    },
+    {
+      "item": "If you are migrating from an existing custom app-based SCIM configuration:",
+      "depth": 4
+    },
+    {
+      "item": "Ensure the users and groups are assigned app-based roles. You can either manually assign roles or use a script to assign roles to all users and groups assigned to this application. To learn more, refer to the Microsoft documentation.",
+      "depth": 5
+    },
+    {
+      "item": "Any customizations (e.g. SCIM transformations) performed in the existing custom application must be replicated in the new application.",
+      "depth": 5
+    },
+    {
+      "item": "In the left-side navigation, Manage > Attribute Mapping.",
+      "depth": 3,
+      "number": 14,
+      "strong": [
+        [
+          29,
+          35
+        ],
+        [
+          38,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "In the Users tab:",
+      "depth": 3,
+      "number": 15,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Review the attributes that are synchronized from Microsoft Entra ID to your application.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Verify the users attribute mappings as listed in the following table and change as needed by clicking Edit on an existing attribute or by clicking Add New Mapping.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          147,
+          162
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Zscaler Attribute (Target Attribute)",
+          "Microsoft Entra Attribute (Source Attribute)",
+          "Match Objects Using this Attribute"
+        ],
+        [
+          "userName",
+          "userPrincipalName",
+          "Yes"
+        ],
+        [
+          "active",
+          "Switch([IsSoftDeleted], , \"False\", \"True\", \"True\", \"False\")",
+          ""
+        ],
+        [
+          "displayName",
+          "displayName",
+          ""
+        ],
+        [
+          "emails[type eq \"work\"].value",
+          "mail",
+          ""
+        ],
+        [
+          "name.givenName",
+          "givenName",
+          ""
+        ],
+        [
+          "name.familyName",
+          "surname",
+          ""
+        ],
+        [
+          "externalid",
+          "objectId",
+          ""
+        ],
+        [
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:department",
+          "department",
+          ""
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save to save the attribute mapping changes.",
+      "depth": 3,
+      "number": 16,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Groups tab:",
+      "depth": 3,
+      "number": 17
+    },
+    {
+      "item": "Review the attributes that are synchronized from Microsoft Entra ID to your application.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Verify the group attribute mappings as listed in the following table and change as needed by clicking Edit on an existing attribute or by clicking Add New Mapping.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          147,
+          162
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Zscaler Attribute (Target Attribute)",
+          "Microsoft Entra Attribute (Source Attribute)",
+          "Match Objects Using this Attribute"
+        ],
+        [
+          "displayName",
+          "displayName",
+          "Yes"
+        ],
+        [
+          "externalId",
+          "objectId",
+          ""
+        ],
+        [
+          "members",
+          "members",
+          ""
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save to save the attribute mapping changes.",
+      "depth": 3,
+      "number": 18,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "4. (Optional) Enable step-up authentication.",
+      "depth": 1
+    },
+    {
+      "item": "You can configure step-up authentication to extend the existing authentication process by requiring multi-factor authentication (MFA) when needed, ensuring that access to high-risk or sensitive data is protected.",
+      "depth": 1
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "item": "Before configuring step-up authentication, ensure that:",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler Client Connector version 4.7 or later is deployed for the users in your organization.",
+      "depth": 2
+    },
+    {
+      "item": "Authentication Service is enabled for both admins and users.",
+      "depth": 2
+    },
+    {
+      "item": "Step-up authentication is enabled for Authentication Service, Internet & SaaS (ZIA), and Private Access (ZPA).",
+      "depth": 2
+    },
+    {
+      "item": "To enable step-up authentication:",
+      "depth": 1
+    },
+    {
+      "item": "a. Configure the necessary authentication levels in the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "b. Configure ACR values and authentication policies in the Entra Admin Center.",
+      "depth": 2
+    },
+    {
+      "item": "In the Entra Admin Center, go to Entra ID > Conditional Access.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          44,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Conditional Access window, click Authentication contexts.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          40,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Click New authentication context.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Add authentication context drawer:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the authentication context.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description for the authentication context.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Publish to apps: Ensure that this option is enabled.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "ID: Select an ID for the authentication context from the drop-down menu. You can select a value from C1 to C99.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "Each authentication context corresponds to an ACR value in the Zscaler Admin Console.",
+      "depth": 4
+    },
+    {
+      "item": "Repeat the steps to create multiple authentication contexts as required for your organization.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The authentication context is created.",
+      "depth": 3
+    },
+    {
+      "item": "In the left-side navigation, go to Policies, and click New policy.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          35,
+          43
+        ],
+        [
+          55,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the New policy window:",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Under Assignments:",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the policy.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Users: Click the link to configure users and groups, and select the users and groups to which the policy must apply.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Target resources: Click the link to configure target resources, select the Authentication context from the Select what this policy applies to drop-down menu, and select the authentication context created previously to which the policy must apply.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          107,
+          141
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Under Access controls:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Grant: Click the link to configure grant controls, select Grant access, and select Require multifactor authentication.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          58,
+          70
+        ],
+        [
+          83,
+          117
+        ]
+      ]
+    },
+    {
+      "item": "Click Select.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Microsoft Entra ID provides you with various controls for MFA using a combination of authentication strength and authentication methods.",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Create.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The authentication policy mapped with the necessary authentication context is created.",
+      "depth": 3
+    },
+    {
+      "item": "c. Map authentication contexts and ACR values in the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          63
+        ],
+        [
+          66,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Entra ID in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          49,
+          74
+        ],
+        [
+          79,
+          107
+        ],
+        [
+          131,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "On the Advanced Configurations tab, in the Levels to Authentication context mapping section, enter the Authentication Context ID for each authentication level. To learn more about the supported authentication contexts in Entra ID, refer to the Microsoft documentation.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          83
+        ],
+        [
+          103,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that you map the proper Authentication context ID for each level depending on the hierarchy. The highest level of authentication must be mapped to the Authentication Context ID for the strongest context.",
+      "depth": 4,
+      "strong": [
+        [
+          31,
+          56
+        ],
+        [
+          158,
+          183
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "d. Configure policies in supported Zscaler services.",
+      "depth": 2
+    },
+    {
+      "item": "After configuring step-up authentication in Authentication Service and Entra ID, you can configure the necessary policies in the following Zscaler services as required:",
+      "depth": 2
+    },
+    {
+      "item": "Private Access: Configure Access Policies for the target application or app segment with the Conditional Access as the Rule Action. Ensure that the necessary authentication level is selected using the Step-up Authentication",
+      "depth": 3,
+      "strong": [
+        [
+          93,
+          111
+        ],
+        [
+          119,
+          130
+        ],
+        [
+          201,
+          223
+        ]
+      ]
+    },
+    {
+      "item": "Level field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Internet & SaaS: Configure the URL Filtering Policy and Cloud App Control Policies with the Conditional Access as the Action. Ensure that the necessary authentication level is selected using the Authentication",
+      "depth": 3,
+      "strong": [
+        [
+          92,
+          110
+        ],
+        [
+          118,
+          124
+        ],
+        [
+          195,
+          209
+        ]
+      ]
+    },
+    {
+      "item": "Level field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "heading": "Setting Up IdP-Initiated SSO",
+      "level": 1
+    },
+    {
+      "item": "You can log in to Authentication Service Portal via the IdP-initiated flow.",
+      "depth": 0
+    },
+    {
+      "item": "To log in to Authentication Service from the Entra ID's My Apps portal:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Entra ID's My Apps portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Locate and click the Zscaler app.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Authentication Service Portal URL is opened in a new tab or window, and you are logged in.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "SAML-Based Authentication",
+      "depth": 0
+    },
+    {
+      "item": "This section provides information on how to configure Microsoft Entra ID as the SAML Identity Provider (IdP) for Authentication Service to facilitate single sign-on (SSO) to various Zscaler services for admin access management.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "item": "Ensure that you have:",
+      "depth": 0
+    },
+    {
+      "item": "A subscription to Microsoft Entra ID.",
+      "depth": 1
+    },
+    {
+      "item": "An existing directory in Microsoft Entra ID.",
+      "depth": 1
+    },
+    {
+      "item": "An Authentication Service account with an admin role that allows you to add an IdP configuration.",
+      "depth": 1
+    },
+    {
+      "item": "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 1
+    },
+    {
+      "heading": "Configuring Microsoft Entra ID as IdP for Authentication Service",
+      "level": 1
+    },
+    {
+      "item": "To set up Microsoft Entra ID as an IdP for Authentication Service:",
+      "depth": 0
+    },
+    {
+      "item": "1. Set up Microsoft Entra ID as an IdP for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Click Add in the Primary Identity Provider or Secondary Identity Providers section.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          17,
+          42
+        ],
+        [
+          46,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "The Add External Identity page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the Add External Identity page, go to the Basic Configurations tab, and cofigure the following:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          45,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IdP.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Enable the toggle.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Identity Vendor: Select Microsoft Entra ID from the drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Domains: Select the domain for which the IdP is responsible for authenticating the users. This allows the Zscaler service to display the correct IdP to authenticate an incoming user.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Enforce Zscaler MFA for Admins: Enable this option to ensure that admins using an external IdP authenticate with the multi-factor authentication (MFA) process in Authentication Service, irrespective of whether MFA is configured on the external IdP.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "An email is sent to all super admins in Authentication Service when the Enforce Zscaler MFA for Admins option is disabled.",
+      "depth": 3,
+      "strong": [
+        [
+          72,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Protocol: Select SAML.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Login ID Attribute: Enter an attribute whose value must be used as the login ID. This attribute must exist in the token received from the IdP. By default, the NameID attribute is populated in this field when the SAML option is selected in the Protocol field. You can use any attribute that is present in the SAML assertion, provided its value is in the email address format (e.g., <user_name>@domain.com>).",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          212,
+          216
+        ],
+        [
+          243,
+          251
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the domain part of the email addresses received in the SAML assertion matches with one of the domains configured in Authentication Service.",
+      "depth": 3
+    },
+    {
+      "item": "Ensure that the attribute you enter matches exactly with the attribute received in the SAML assertion.",
+      "depth": 3
+    },
+    {
+      "item": "Copy the SP Entity ID and SP URL values.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          9,
+          21
+        ],
+        [
+          26,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Do not close the drawer as the SP Entity ID is going to be refreshed.",
+      "depth": 2
+    },
+    {
+      "item": "2. Configure Entra ID as an IdP for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Entra Admin Center.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Identity > Applications > Enterprise applications.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          43
+        ],
+        [
+          46,
+          58
+        ],
+        [
+          61,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "Click New application.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Microsoft Entra Gallery window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Microsoft Entra Gallery window, click Create your own application.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          45,
+          60
+        ],
+        [
+          61,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the application configuration drawer:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "What's the name of your app?: Enter a name for the application.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Select Integrate any other application you don't find in the gallery (Non-gallery).",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The application details page appears.",
+      "depth": 2
+    },
+    {
+      "item": "On the application details page, go to Manage > Single sign-on, and click SAML.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          39,
+          45
+        ],
+        [
+          48,
+          62
+        ],
+        [
+          74,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Set up Single Sign-On with SAML page:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit option for the Basic SAML Configurations section.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          30,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "In the Basic SAML Configuration drawer:",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Identifier (Entra ID): Enter the SP Entity ID copied from the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          33,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Reply URL (Assertion Consumer Service URL): Enter the SP URL copied from the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          42
+        ],
+        [
+          54,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "After saving, you are prompted to test the configuration. Do not test the configuration at this time.",
+      "depth": 4
+    },
+    {
+      "item": "Click the Edit option for the Attributes & Claims section.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          30,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes & Claims window:",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Delete all existing additional claims.",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "Click Add new claim to create a new attribute mapping for required attributes as described below. Ensure that the Namespace field is left empty for all additional attributes.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          114,
+          123
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "table": [
+        [
+          "Name",
+          "Source Attribute"
+        ],
+        [
+          "Department",
+          "user.department"
+        ],
+        [
+          "emailaddress",
+          "user.mail"
+        ],
+        [
+          "givenname",
+          "user.givenname"
+        ],
+        [
+          "name",
+          "user.userprincipalname"
+        ],
+        [
+          "surname",
+          "user.surname"
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Add a group claim.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "In the Group Claims drawer, configure a group claim. For example, you can configure the following:",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Which groups associated with the user should be returned in the claim?: Select Groups assigned to the application.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          70
+        ],
+        [
+          79,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "Source attribute: Select Cloud-only group display names.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Configure the Advanced options if you need to filter groups based on conditions. For example, select Customize the name of the group claim, enter Groups in the Name field.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          14,
+          30
+        ],
+        [
+          101,
+          138
+        ],
+        [
+          160,
+          164
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "In the SAML Certificates section, click Download for Certificate (Base64). The certificate is downloaded to your system. Rename the file with the .pem extension.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          40,
+          48
+        ],
+        [
+          53,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Set up <app-name> section, copy the Login URL and Microsoft Entra Identifier values.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          43,
+          52
+        ],
+        [
+          57,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Zscaler Admin Console where the Add External Identity page is still open:",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          39,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Input Method: Select Enter manually.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "IdP Entity URI: Enter the Microsoft Entra Identitifier copied from the Entra Admin Center.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "IdP Single Sign-On URL: Enter the Login URL copied from the Entra Admin Center.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "IdP Certificates: Click Upload Certificate and upload the certificate downloaded from the Entra Admin Center.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          24,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Go to the Provisioning Details tab and click Save.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          10,
+          30
+        ],
+        [
+          45,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "The IdP is added to the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "Locate the IdP created for Entra ID and click the Edit icon.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          50,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) In the Edit External Identity page, go to the Advanced Configurations tab and configure the following:",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          18,
+          40
+        ],
+        [
+          57,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Enable SAML Request Signing.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Login Hint: (Optional) Enable to pass login hint in SAML requests.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Signing Algorithm: Select SHA-256.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Enable Encrypted SAML Assertion.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Download the Request Signing and Decryption Certificate. The SP certificate is downloaded to your system. Rename the file with the .cer extension.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          13,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) In the Entra Admin Center where the Set up Single Sign-On with SAML page is still open:",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          47,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "In the Verification certificates (optional) section, click Edit.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          43
+        ],
+        [
+          59,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Verification certificates drawer:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Select Require verification ceritifcates.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "If the Require verification certificates option is enabled, the SAML Request Signature Verification works only for SP-initiated authentication requests. The IdP-initiated authentication requests are not validated as the IdP would not possess the same private keys as the registered application. To learn more, refer to the Microsoft documentation.",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Click Upload certificate and upload the SP SAML certificate downloaded from the Zscaler Admin Console.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to Security > Token encryption.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          35,
+          43
+        ],
+        [
+          46,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Click Import Certificate and upload the SAML Encryption Certificate file downloaded from the Zscaler Admin Console.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the left-side navigation, go to Manage > Single Sign-on, and click the Edit icon for the SAML Certificates section.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          35,
+          41
+        ],
+        [
+          44,
+          58
+        ],
+        [
+          74,
+          78
+        ],
+        [
+          92,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the SAML Signing Certificate window:",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Signing Option: Select Sign SAML response and assertion from the drop-down menu.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Signing Algorithm: Select SHA-256 from the drop-down menu.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Entra Admin Center, go to Identity > Applications > Enterprise applications from the left-side navigation.",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          44,
+          56
+        ],
+        [
+          59,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Search and open the Authentication Service application.",
+      "depth": 2,
+      "number": 14
+    },
+    {
+      "item": "From the left-side navigation, click Users and groups, then Add user/group.",
+      "depth": 2,
+      "number": 15,
+      "strong": [
+        [
+          37,
+          53
+        ],
+        [
+          60,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Users and groups window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Search for the user or group you want to assign to Authentication Service.",
+      "depth": 2,
+      "number": 16
+    },
+    {
+      "item": "Select the checkbox next to the user or group names you want to assign to Authentication Service, then click Select.",
+      "depth": 2,
+      "number": 17,
+      "strong": [
+        [
+          109,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If you want to pass group memberships as claims, make sure that the groups are assigned instead of individual users in the Users and groups window.",
+      "depth": 2,
+      "strong": [
+        [
+          123,
+          139
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Assignment panel, click Assign.",
+      "depth": 2,
+      "number": 18,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          35,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "You are redirected to the Users and groups page where you can see the users are successfully assigned to Authentication Service.",
+      "depth": 2,
+      "strong": [
+        [
+          26,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "3. Provision users for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "You can provision Entra ID users for Authentication Service using Just-in-time (JIT) provisioning or System for Cross-domain Identity Management (SCIM) provisioning.",
+      "depth": 1
+    },
+    {
+      "item": "Provisioning via JIT",
+      "depth": 2
+    },
+    {
+      "item": "Users created in Authentication Service via SCIM cannot be updated via JIT provisioning. These records must be updated via SCIM provisioning only.",
+      "depth": 3
+    },
+    {
+      "item": "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups (e.g., Zscaler Global Administrators).",
+      "depth": 3
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Entra ID in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          49,
+          74
+        ],
+        [
+          79,
+          107
+        ],
+        [
+          131,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Provisioning Details tab.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Enable JIT Provisioning.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Map the Authentication Service user and group attributes with the appropriate Entra ID attributes as necessary. The mapping of the Primary Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication. By default, the following attributes in SAML assertions are mapped with the corresponding user attributes in Authentication Service:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "table": [
+        [
+          "Default Authentication Service User Attributes",
+          "Attribute in SAML Assertions",
+          "Description"
+        ],
+        [
+          "First Name",
+          "firstName",
+          "First name of the user (e.g., John). This attribute is mapped by default."
+        ],
+        [
+          "Last Name",
+          "lastName",
+          "Last name of the user (e.g., Doe). This attribute is mapped by default."
+        ],
+        [
+          "Display Name",
+          "displayName",
+          "Display name of the user (e.g. John Doe). This attribute is mapped by default."
+        ],
+        [
+          "Nick Name",
+          "nickname",
+          "Nickname of the user (e.g., Jo)"
+        ],
+        [
+          "Mobile Phone",
+          "mobile or telephoneNumber",
+          "Mobile number of the user (e.g., +1 1234567890)"
+        ],
+        [
+          "Primary Email",
+          "email or mail",
+          "Primary email address of the user (e.g. johndoe@company.com)"
+        ],
+        [
+          "Language",
+          "locale or preferredLanguage",
+          "Language preference of the user (e.g., English (US))"
+        ],
+        [
+          "Timezone",
+          "timezone",
+          "Time zone of the user (e.g., UTC+3.00)"
+        ],
+        [
+          "Department",
+          "department",
+          "The department name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Organization",
+          "organization or company",
+          "The organization name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Title",
+          "title",
+          "The job title of the user (e.g., Manager)"
+        ],
+        [
+          "Division",
+          "division",
+          "The division of the organization to which the user belongs (e.g., Research)"
+        ],
+        [
+          "Cost Center",
+          "costCenter",
+          "The cost center of the organization to which the user belongs (e.g., IT)"
+        ],
+        [
+          "User Type",
+          "userType or employeeType",
+          "The type of user in the organization (e.g., Regular)"
+        ],
+        [
+          "Formatted Name",
+          "formattedName",
+          "The name of the user in a specific format (e.g., Mr. John Doe)"
+        ],
+        [
+          "Manager",
+          "manager",
+          "The manager's login name (manager@company.com). This must be in the email address format."
+        ]
+      ]
+    },
+    {
+      "item": "If the external IdP is configured to send different attributes for First Name, Last Name, or Display Name, then you must map those attributes. For example, if the SAML assertion from the external IdP includes Surname instead of lastName, then you must map it with the Last Name user attribute in Authentication Service.",
+      "depth": 5
+    },
+    {
+      "item": "While mapping attributes, ensure that the attributes you enter in the Just-in-time Attribute field match exactly with the attributes that are received in the SAML assertions.",
+      "depth": 5,
+      "strong": [
+        [
+          70,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "The Addresses attribute in Authentication Service is supported only with SCIM provisioning.",
+      "depth": 5
+    },
+    {
+      "item": "Click Update.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Provisioning via SCIM",
+      "depth": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Entra ID in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          49,
+          74
+        ],
+        [
+          79,
+          107
+        ],
+        [
+          131,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Provisioning Details tab.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Enable SCIM Provisioning.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Copy the SCIM Endpoint URL. This value is used in a subsequent step.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "The SCIM Endpoint URL field appears only if the configurations for the IdP in the Basic tab are completed and saved.",
+      "depth": 4,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          82,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Authentication Method: Select Bearer Token.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Click Generate Token and copy the Bearer Token.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          34,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "The bearer token is visible only to admins with Full permission enabled for external identities. To learn more, see Adding Authentication Service Admin Roles.",
+      "depth": 4
+    },
+    {
+      "item": "(Optional) Map the SCIM attributes (e.g., addresses) with the corresponding Authentication Service user attribute. This mapping is required only for attributes that need to be mapped to a custom user attribute in Authentication Service. To learn more about the SCIM attributes that require custom attribute mapping, see Understanding SCIM.",
+      "depth": 4,
+      "number": 6
+    },
+    {
+      "item": "The mapping of the Primary Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the Entra Admin Center and go to Identity > Applications > Enterprise applications.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          43,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Locate and click the application created for Authentication Service.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "The application overview page appears.",
+      "depth": 3
+    },
+    {
+      "item": "In the left-side navigation, click Provisioning.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          35,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "The Provisioning window appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the Provisioning window:",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Provisioning Mode: Select Automatic from the Provisioning Mode drop-down menu.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          35
+        ],
+        [
+          45,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "In the Admin Credentials section:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Tenant URL: Enter the endpoint displayed in the SCIM Endpoint URL field while configuring the primary or secondary IdP in the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          48,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "The SCIM Endpoint URL field appears only if the configurations for the IdP in the Basic tab are completed and saved.",
+      "depth": 5,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          82,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Secret Token: Enter the bearer token that you generated and copied from the Bearer Token field while configuring the primary or secondary IdP in the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          76,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Click Test Connection. The Microsoft Entra ID attempts to connect to the SCIM endpoint. When the connection is successful, a verification message appears. If the attempt fails, error information is displayed, and you must resolve those errors before moving forward.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Save after a successful connection.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The provisioning configuration is saved and the Mappings section appears within the Provisioning window.",
+      "depth": 4,
+      "strong": [
+        [
+          48,
+          56
+        ],
+        [
+          84,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "In the Mappings section:",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click the groups attributes mapping.",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "The Attribute Mapping window appears.",
+      "depth": 5,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes Mapping window:",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Review the attributes that are synchronized from Microsoft Entra ID to your application.",
+      "depth": 6,
+      "number": 1
+    },
+    {
+      "item": "Verify the group attribute mappings as listed in the following table and change as needed by clicking Edit on an existing attribute or by clicking Add New Mapping.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          147,
+          162
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Zscaler Attribute (Target Attribute)",
+          "Microsoft Entra Attribute (Source Attribute)",
+          "Match Objects Using this Attribute"
+        ],
+        [
+          "displayName",
+          "displayName",
+          "Yes"
+        ],
+        [
+          "externalId",
+          "objectId",
+          ""
+        ],
+        [
+          "members",
+          "members",
+          ""
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Save to save the attribute mapping changes.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Return to the Provisioning screen.",
+      "depth": 6,
+      "number": 4,
+      "strong": [
+        [
+          14,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click the users attribute mapping.",
+      "depth": 5,
+      "number": 3
+    },
+    {
+      "item": "The Attribute Mapping window appears.",
+      "depth": 5,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes Mapping window:",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Review the attributes that are synchronized from Microsoft Entra ID to your application.",
+      "depth": 6,
+      "number": 1
+    },
+    {
+      "item": "Verify the users attribute mappings as listed in the following table and change as needed by clicking Edit on an existing attribute or by clicking Add New Mapping.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          147,
+          162
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Zscaler Attribute (Target Attribute)",
+          "Microsoft Entra Attribute (Source Attribute)",
+          "Match Objects Using this Attribute"
+        ],
+        [
+          "userName",
+          "userPrincipalName",
+          "Yes"
+        ],
+        [
+          "active",
+          "Switch([IsSoftDeleted], , \"False\", \"True\", \"True\", \"False\")",
+          ""
+        ],
+        [
+          "displayName",
+          "displayName",
+          ""
+        ],
+        [
+          "emails[type eq \"work\"].value",
+          "mail",
+          ""
+        ],
+        [
+          "name.givenName",
+          "givenName",
+          ""
+        ],
+        [
+          "name.familyName",
+          "surname",
+          ""
+        ],
+        [
+          "externalid",
+          "objectId",
+          ""
+        ],
+        [
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:department",
+          "department",
+          ""
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Save to save the attribute mapping changes.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Return to the Provisioning screen.",
+      "depth": 6,
+      "number": 4,
+      "strong": [
+        [
+          14,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Settings section:",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Send an email notification when a failure occurs: (Optional) Select this and provide an email to receive a notification when there is a provisioning failure.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Prevent accidental deletion: (Optional) Selecting this option allows you to set an Accidental deletion threshold. When the option is enabled, deleting a number of groups and users over the threshold requires approval from an admin.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Scope: (Optional) Choose Sync only assigned users and groups. Zscaler recommends using this setting.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          25,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Set the Provisioning Status to On.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          8,
+          27
+        ],
+        [
+          31,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save to start the Microsoft Entra ID provisioning service.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "IdP-Initiated SSO for Authentication Service Tenants Enabled with Experience Center",
+      "depth": 0
+    },
+    {
+      "item": "All admins authenticating using the SAML protocol for Authentication Service and IdP integrations are redirected to Experience Center. However, if the zidServiceId attribute is configured in the IdP within the Authentication Service tenant, then the admins are redirected to the Authentication Service Admin Portal instead of Experience Center.",
+      "depth": 0
+    },
+    {
+      "item": "To configure IdP-initiated SSO, the Require verification certificates option must be disabled while configuring the Verification Certifications for the Authentication Service application in Entra ID. If the Require verification certificates option is enabled, the SAML Request Signature Verification works only for SP-initiated authentication requests. The IdP-initiated authentication requests are not validated as the IdP would not possess the same private keys as the registered application. To learn more, refer to the Microsoft documentation.",
+      "depth": 0,
+      "strong": [
+        [
+          36,
+          69
+        ],
+        [
+          207,
+          240
+        ]
+      ]
+    },
+    {
+      "heading": "Configuring Attribute in Entra ID",
+      "level": 1
+    },
+    {
+      "item": "To configure the zidServiceId attribute in Entra ID for SAML protocol:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Entra Admin Center.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Identity > Applications > Enterprise applications.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          29
+        ],
+        [
+          32,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Locate the application created for Authentication Service and open it.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Go to Manage > Single sign-on.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          15,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Attributes & Claims section, and click Edit.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          11,
+          30
+        ],
+        [
+          50,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Attributes & Claims page, click Add new claim.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          39,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Manage Claim page:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Enter zidServiceId as the attribute name.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Under Claim conditions, configure administrator groups for which you want to send the claim:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select Members from the User type drop-down menu.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Select groups under the Scoped Groups column, and select the administrator groups for which you want to send the claim.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          30,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Select Attribute from the Source drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          26,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Enter 800000000103 as the Value. This value is the same for all tenants.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          26,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "To change the default redirection, contact Zscaler Support.",
+      "depth": 0
+    }
+  ]
+}

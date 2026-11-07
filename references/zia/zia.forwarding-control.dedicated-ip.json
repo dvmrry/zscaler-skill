@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control.dedicated-ip",
+  "title": "Zscaler-managed Dedicated IP: provisioning, IP addresses, gateways and migration from Source IP Anchoring",
+  "aliases": [
+    "dedicated ip",
+    "zscaler-managed dedicated ip",
+    "dedicated source ip",
+    "dedicated ip gateway",
+    "dedicated ip forwarding rule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.byoip"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.geoip"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.source-ip-anchoring.egress-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.predefined-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{common-pool-nat}} {{solutions}}"
+    },
+    {
+      "label": "Provisioning.",
+      "text": "{{provisioning}} {{two-data-centers}} {{ip-addresses-page}}"
+    },
+    {
+      "label": "Gateways.",
+      "text": "{{gateway-config}} The number of gateways per tenant is open {{gap:gateway-limit}}, and so is how Auto relates to the primary and secondary data centers {{gap:auto-vs-primary}}. The forwarding method that uses a gateway is in [[zia.forwarding-control.methods]]."
+    },
+    {
+      "label": "Migrating from Source IP Anchoring.",
+      "text": "{{migration-steps}} Whether the resolver rules the article names are the predefined ones is open {{gap:resolver-rule-names}}."
+    }
+  ],
+  "claims": {
+    "common-pool-nat": {
+      "statement": "Traffic through Zscaler has the client device IP address translated by NAT into a Zscaler-managed IP address from a common pool before it is forwarded to the destination, because of Zscaler's proxy architecture. Where the source IP must be fixed and unique for an organization, dedicated IP addresses can be self-managed or provisioned by Zscaler, and Zscaler recommends them only for applications that mandate IP-based authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-dedicated-ip.json",
+          "quotes": [
+            "the IP address of the client devices is automatically translated (via Network Address Translation) into a Zscaler-managed IP address from a common pool due to Zscaler's proxy architecture, before the traffic is forwarded to the destination.",
+            "In scenarios where the IP address of the source must be fixed and unique for an organization, you can use dedicated IP addresses.",
+            "These dedicated source IP addresses can either be self-managed or provisioned by Zscaler for your organization.",
+            "Zscaler recommends using dedicated IP addresses only for applications that mandate IP-based authentication."
+          ]
+        }
+      ]
+    },
+    "solutions": {
+      "statement": "Zscaler offers four solutions for dedicated source IP addresses: Zscaler-Managed Dedicated IP, Customer-Managed Dedicated IP (or Source IP Anchoring), Private Service Edge for Internet & SaaS (ZIA) and Virtual Service Edge for Internet & SaaS (ZIA).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-dedicated-ip.json",
+          "quotes": [
+            "Zscaler offers the following solutions for organizations to use dedicated source IP addresses:",
+            "- Zscaler-Managed Dedicated IP",
+            "- Customer-Managed Dedicated IP (or Source IP Anchoring)",
+            "- Private Service Edge for Internet & SaaS (ZIA)",
+            "- Virtual Service Edge for Internet & SaaS (ZIA)"
+          ]
+        }
+      ]
+    },
+    "provisioning": {
+      "statement": "The Zscaler Account team enables the Dedicated IP feature for an Internet & SaaS tenant, given a list of Zscaler data centers where dedicated IP addresses are needed. An organization is assigned two IP addresses for each subscribed data center, which can be increased based on entitlement, and dedicated IP gateways are configured after provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-zscaler-managed-dedicated-ip.json",
+          "quotes": [
+            "Contact your Zscaler Account team to enable the Dedicated IP feature for your Internet & SaaS (ZIA) tenant.",
+            "Provide a list of Zscaler data centers where dedicated IP addresses are needed.",
+            "An organization is assigned two IP addresses for each data center they are subscribed to. It is possible to increase the number of IP addresses to be allocated at each data center based on your entitlement.",
+            "After provisioning, you can configure dedicated IP gateways."
+          ]
+        }
+      ]
+    },
+    "two-data-centers": {
+      "statement": "Zscaler recommends subscribing to the Dedicated IP service at a minimum of two Zscaler data centers for redundancy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-zscaler-managed-dedicated-ip.json",
+          "quotes": [
+            "Zscaler recommends subscribing to the Dedicated IP service at a minimum of two Zscaler data centers for redundancy."
+          ]
+        }
+      ]
+    },
+    "ip-addresses-page": {
+      "statement": "The IP Addresses page shows and downloads the IP addresses dedicated to the organization at the Zscaler data centers it chooses, can download all available data center details to a CSV file, and lists the IPv4 address of the data center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dedicated-ip-addresses.json",
+          "quotes": [
+            "View and download the IP addresses that are dedicated to your organization at the Zscaler data centers that you choose.",
+            "Download all available data center details to a CSV file.",
+            "IPv4: The IPv4 address of the data center."
+          ]
+        }
+      ]
+    },
+    "gateway-config": {
+      "statement": "Only data centers available on the IP Addresses page, those with a dedicated IP address assigned to the organization, can be selected as a dedicated IP gateway's primary and secondary data centers. By default the primary data center forwards all traffic and the secondary acts as a backup. Selecting Auto lets the Zscaler service assign a data center based on geographical proximity to the Public Service Edge servicing the traffic, and a default gateway is created automatically when dedicated IP addresses are allocated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dedicated-ip-gateways.json",
+          "quotes": [
+            "Only the data centers available on the IP Addresses page (i.e., the data centers that have a dedicated IP address assigned to your organization) can be selected as the primary and secondary data centers.",
+            "By default, the primary data center is used to forward all traffic to the destination and the secondary data center acts as a backup.",
+            "Select Auto to allow the Zscaler service to automatically assign a data center based on geographical proximity to the Public Service Edge for Internet & SaaS (ZIA) servicing the traffic.",
+            "When dedicated IP addresses are allocated to your organization, the Zscaler service automatically creates a default gateway."
+          ]
+        }
+      ]
+    },
+    "migration-steps": {
+      "statement": "Zscaler recommends starting a migration from Source IP Anchoring with a small controlled group of users. A DNS Control rule that allows DNS traffic for the target applications must be placed above the Forward to ZPA Resolver rules, and is optional if the applications are resolved within the organizational infrastructure. The dedicated IP forwarding rules get a higher rule order (a lower rule number) than the existing Source IP Anchoring forwarding rule, so they are evaluated first. To revert, the DNS rule and the dedicated IP forwarding rule are disabled, and after all users have moved and traffic is stable the Private Access (Source IP Anchoring) forwarding rules are disabled and the associated App Connectors deprovisioned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-migrating-applications-customer-managed-zscaler-managed-dedicated-ip.json",
+          "quotes": [
+            "Before you start migrating applications, Zscaler recommends that you select a small controlled group of users who are using Source IP Anchoring for initial deployment.",
+            "You must configure a DNS Control policy rule that allows DNS traffic for the target applications to migrate to Zscaler-managed dedicated IP addresses.",
+            "If the applications are resolved within the organizational infrastructure, this configuration is optional.",
+            "You must place this DNS Control policy rule above the Forward to ZPA Resolver rules.",
+            "Assign a higher rule order (i.e., a lower rule number) to these rules than your existing Source IP Anchoring forwarding rule. This ensures the dedicated IP rules are evaluated first.",
+            "If issues occur during the transition, you can revert the users to the original Source IP Anchoring settings by disabling the DNS policy rule and dedicated IP forwarding rule created in the previous steps.",
+            "After successfully transitioning all users to the dedicated IP addresses and verifying that the traffic flow is stable, disable the Private Access (Source IP Anchoring) forwarding rules and deprovision the associated App Connectors."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "gateway-limit": {
+      "kind": "semantic",
+      "title": "How many dedicated IP gateways a tenant can have",
+      "status": "open",
+      "detail": "The captured Dedicated IP pages give no limit on gateways per tenant. The OpenAPI /dedicatedIPGateways path, the Terraform zia_dedicated_ip_proxy data source and SDK coverage were not checked in this pass.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "auto-vs-primary": {
+      "kind": "semantic",
+      "title": "How Auto relates to the primary and secondary data centers of a dedicated IP gateway",
+      "status": "open",
+      "detail": "The gateway configuration page lists Auto at the same level as the primary and secondary data center fields and does not say how Auto interacts with them.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "resolver-rule-names": {
+      "kind": "semantic",
+      "title": "Whether the migration article's Forward to ZPA Resolver rules are the predefined DNS Control resolver rules",
+      "status": "open",
+      "detail": "The migration article names Forward to ZPA Resolver rules, while zia.dns-control.predefined-rules names ZPA Resolver for Locations and ZPA Resolver for the Road Warrior. The captured articles do not say whether these are the same rules.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

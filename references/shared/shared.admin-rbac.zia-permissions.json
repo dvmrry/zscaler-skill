@@ -1,0 +1,533 @@
+{
+  "schema_version": 1,
+  "id": "shared.admin-rbac.zia-permissions",
+  "title": "ZIA admin role permissions: logs limit, dashboard, reporting, insights and alerts access, and the feature categories",
+  "aliases": [
+    "zia admin role permissions",
+    "adding internet and saas admin roles",
+    "reporting access full view only none",
+    "insights access permission",
+    "executive insights app permission",
+    "role management permissions zia"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-obfuscation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-api-roles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An Internet & SaaS admin role sets, feature by feature, what the admins who hold it can do in the Admin Console; the role model itself (rank, scope) is in [[shared.admin-rbac.zia]]. {{permission-levels}}"
+    },
+    {
+      "label": "Adding a role.",
+      "text": "{{role-limit}} {{prerequisites}}"
+    },
+    {
+      "label": "Logs, dashboards, reports and insights.",
+      "text": "{{logs-limit}} {{dashboard-access}} {{reporting-access}} {{insights-access}} {{functional-scope-gate}} Which functional scope that is open {{gap:functional-scope-which}}."
+    },
+    {
+      "label": "Alerts.",
+      "text": "{{alerts-access}}"
+    },
+    {
+      "label": "Executive Insights App.",
+      "text": "{{executive-insights-switch}} {{executive-insights-default-role}} What the Policy and Resource Management option is, is open {{gap:policy-resource-management}}."
+    },
+    {
+      "label": "Feature categories.",
+      "text": "{{permission-sections}} {{security-features}} {{access-control-features}} {{data-protection-features}} {{decryption-features}} {{url-category-permissions}} {{shared-policy-components}}"
+    },
+    {
+      "label": "Integrations, cloud configuration, forwarding, administration and reporting data.",
+      "text": "{{integrations}} {{cloud-configuration}} {{traffic-forwarding}} {{administration-controls}} {{reporting-data}}"
+    },
+    {
+      "label": "What this does not cover.",
+      "text": "Who sees real user names, device information and Gen AI prompts is in [[shared.admin-rbac.zia-obfuscation]]. The role an API client holds is in [[shared.admin-rbac.zia-api-roles]]. How the role's limits on the logs period are set is open {{gap:logs-limit-values}}. Sources beyond the help pages are unchecked {{gap:other-source-classes}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an admin who cannot see detailed transaction logs in Insights, whether the role's Reporting Access is Full, since Insights Access alone does not give them.",
+      "uses": [
+        "reporting-access",
+        "insights-access"
+      ]
+    },
+    {
+      "do": "For an admin missing the Analytics menu, the Insights page or a reporting option, the role's Reporting Access, Insights Access and Reporting Data permissions.",
+      "uses": [
+        "reporting-access",
+        "insights-access",
+        "reporting-data",
+        "permission-levels"
+      ]
+    },
+    {
+      "do": "For an admin who sees a View Restricted message on the Alerts page, the role's Alerts Access.",
+      "uses": [
+        "alerts-access"
+      ]
+    },
+    {
+      "do": "Before turning on Executive Insights App access for a role, which scopes and options the setting enables on its own.",
+      "uses": [
+        "executive-insights-switch"
+      ]
+    }
+  ],
+  "claims": {
+    "role-limit": {
+      "statement": "An organization can add up to 64 admin roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "You can add up to 64 admin roles."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Configuring admin roles needs permission to the Role Management feature and organizational admin scope; admin rank and scope do not apply to SD-WAN partner API clients.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "You must have permissions to the Role Management feature to configure roles.",
+            "You must be assigned organizational admin scope.",
+            "Admin rank and scope don't apply to SD-WAN partner API clients."
+          ]
+        }
+      ]
+    },
+    "executive-insights-switch": {
+      "statement": "Enable Permissions for Executive Insights App is disabled by default. Enabling it gives the role access to the Executive Insights App and turns on the Data Loss Prevention, Security, and Firewall, DNAT, DNS & IPS scopes regardless of the rest of the configuration, plus the Policy and Resource Management option for Access Control (Web and Mobile). If it is enabled with Reporting Access set to None, Reporting Access becomes View Only on save.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "Enable Permissions for Executive Insights App: Enable to give the admin assigned this role the permissions and scope required to access the Executive Insights App.",
+            "This setting is disabled by default. If you enable this setting, the Zscaler service enables the following scopes regardless of your configuration: Data Loss Prevention, Security, and Firewall, DNAT, DNS & IPS.",
+            "Enabling this setting also enables the Policy and Resource Management option for Access Control (Web and Mobile).",
+            "If you select Enable Permissions for Executive Insights App with the Reporting Access selection as None, then the Reporting Access selection defaults to View Only after saving."
+          ]
+        }
+      ]
+    },
+    "executive-insights-default-role": {
+      "statement": "The Executive Insights App role is one of Zscaler's default roles: it grants the permissions and scope for the Executive Insights App but not the Admin Console, and its Executive Insights permission setting cannot be modified. An admin who needs both gets a new admin role with Executive Insights App Access enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-default-executive-insights-app-role.json",
+          "quotes": [
+            "The Executive Insights App admin role is one of the default roles Zscaler provides. It gives the admin the permissions and scope required to access the Executive Insights App, but not the Zscaler Admin Console.",
+            "If you want to give an admin other permissions and functional scopes in the Zscaler Admin Console along with access to the Executive Insights App, you can create an admin role with Executive Insights App Access enabled, and then assign the new role to the admin.",
+            "Enable Permissions for Executive Insights App: Gives the admin assigned this role the permissions and scope required to access the Executive Insights App. You can't modify this field."
+          ]
+        }
+      ]
+    },
+    "logs-limit": {
+      "statement": "Logs Limit (Days) sets how many days of logs an admin in the role can view; by default admins can view logs for an unrestricted amount of time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "Enter the number of days an admin in this role can view logs.",
+            "By default, admins can view logs for an unrestricted amount of time."
+          ]
+        }
+      ]
+    },
+    "dashboard-access": {
+      "statement": "Dashboard Access is Full (view, edit and delete dashboards) or View Only (view all dashboards).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "Full: Allows admins to view, edit, and delete dashboards",
+            "View Only: Allows admins to only view all dashboards"
+          ]
+        }
+      ]
+    },
+    "reporting-access": {
+      "statement": "Reporting Access Full gives all features of Interactive Reports and Scheduled Reports and is required to get detailed transaction logs from View Logs in Insights; only admins with the super admin role can schedule executive reports or delete any custom report, and other admins delete only their own. The View Only entry lists viewing standard reports and other admins' custom reports in Interactive Reports and full access to Scheduled Reports. None removes access to Reporting and Insights: the Analytics menu and the Insights Access permission option disappear.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "Full: Allows admins access to all features in Interactive Reports and Scheduled Reports. Admins must have full permission here to obtain detailed transaction logs from the View Logs field in Insights.",
+            "In addition, only admins with the super admin role can schedule executive reports and delete any custom reports; otherwise, admins can delete their own custom reports only.",
+            "Interactive Reports: Allows admins to view standard reports and custom reports created by other admins",
+            "Scheduled Reports: Allows admins full access to features",
+            "None: Doesn't allow admins access to Reporting and Insights. The Analytics menu disappears from the Zscaler Admin Console. The Insights Access permission option also disappears."
+          ]
+        }
+      ]
+    },
+    "insights-access": {
+      "statement": "Insights Access View Only gives full access to Insights, but detailed transaction logs still need Full Reporting Access; None removes the Insights page from the Analytics menu. The option appears only when the role has Full or View Only Reporting Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "View Only: Allows admins full access to Insights. However, the role must be given Full permission to Reporting Access to obtain detailed transaction logs.",
+            "None: Doesn't allow admins access to Insights. The Insights page disappears from the Analytics menu.",
+            "This category appears only if the role has been given Full or View Only permissions for Reporting Access."
+          ]
+        }
+      ]
+    },
+    "alerts-access": {
+      "statement": "Alerts Access controls an admin's access to the Alerts dashboard, Alerts Rules and Webhooks as Full (view and edit), View Only or None; for features disabled for the role, the Alerts page displays a View Restricted message.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "In Alerts, you can control admins' access to the Alerts dashboard, Alerts Rules, and Webhooks. For the features that are disabled for your role, the Alerts page displays a View Restricted message.",
+            "Full: Admins can both view and edit.",
+            "View Only: Admins can only view and cannot edit.",
+            "None: Admins have no access to alerts."
+          ]
+        }
+      ]
+    },
+    "permission-levels": {
+      "statement": "Each feature permission is Full (edit), View Only, None or Custom (Full, View Only or None per Internet & SaaS feature); a feature set to None does not show up in the Admin Console for that admin role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "Full: This permission provides admins with full (i.e., edit) access to the feature.",
+            "View Only: This permission only allows admins to view the feature. Admins cannot edit any data within the feature.",
+            "None: This permission does not allow admins to access the feature.",
+            "Custom: Assign granular permissions (Full, View Only, and None) for each Internet & SaaS feature.",
+            "When you select None for a feature, that feature does not show up in the Zscaler Admin Console for that admin role."
+          ]
+        }
+      ]
+    },
+    "permission-sections": {
+      "statement": "The role form groups permissions into a Policy & Components section, a Cloud Configuration & Integration section, a Traffic Forwarding section (Traffic Forwarding, Traffic Forwarding Methods and Traffic Forwarding Components) and an Administration Controls section (Administration Controls and Backup Controls). Within Policy & Components the categories are the security, access control, data-protection, decryption, URL category and shared-policy components features; choosing Full, View Only or None for each of them applies the permission to all its features.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "The Policy & Components section includes the following categories:",
+            "The Cloud Configuration & Integration section includes the following categories:",
+            "The Traffic Forwarding section includes Traffic Forwarding, Traffic Forwarding Methods, and Traffic Forwarding Components.",
+            "The Administration Controls section includes Administration Controls and Backup Controls.",
+            "You can assign Full, View Only, None, or Custom permissions to the admin to access the security features.",
+            "You can assign Full, View Only, None, or Custom permissions to the admin to access the access control features.",
+            "You can assign Full, View Only, None, or Custom permissions to the admin to access the data-protection features.",
+            "You can assign Full, View Only, None, or Custom permissions to the admin to access the decryption features.",
+            "You can assign Full, View Only, None, or Custom permissions to the admin to access the URL category features.",
+            "You can assign Full, View Only, None, or Custom permissions to the admin to access the shared-policy components features."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "after": "You can assign Full, View Only, None, or Custom permissions to the admin to access the security features.",
+          "quotes": [
+            "If you select Full, View Only, or None permissions, the selected permission applies to all the features."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "after": "You can assign Full, View Only, None, or Custom permissions to the admin to access the access control features.",
+          "quotes": [
+            "If you select Full, View Only, or None permissions, the selected permission applies to all the features."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "after": "You can assign Full, View Only, None, or Custom permissions to the admin to access the data-protection features.",
+          "quotes": [
+            "If you select Full, View Only, or None permissions, the selected permission applies to all the features."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "after": "You can assign Full, View Only, None, or Custom permissions to the admin to access the decryption features.",
+          "quotes": [
+            "If you select Full, View Only, or None permissions, the selected permission applies to all the features."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "after": "You can assign Full, View Only, None, or Custom permissions to the admin to access the URL category features.",
+          "quotes": [
+            "If you select Full, View Only, or None permissions, the selected permission applies to all the features."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "after": "You can assign Full, View Only, None, or Custom permissions to the admin to access the shared-policy components features.",
+          "quotes": [
+            "If you select Full, View Only, or None permissions, the selected permission applies to all the features."
+          ]
+        }
+      ]
+    },
+    "security-features": {
+      "statement": "Custom Security permissions cover Malware Protection, Advanced Threat Protection, Sandbox, IPS Control, Mobile Malware Protection, Secure Browsing and Endpoint Context.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "Malware Protection - Advanced Threat Protection - Sandbox - IPS Control - Mobile Malware Protection - Secure Browsing - Endpoint Context"
+          ]
+        }
+      ]
+    },
+    "access-control-features": {
+      "statement": "Custom Access Control permissions cover URL Filtering Policy, Cloud App Control, Firewall Control, DNS Control, NAT Control, File Type Control, Mobile App Store Control, Bandwidth Control and FTP Control, with Tenant Profiles and Bandwidth Classes as Policy Components.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "URL Filtering Policy - Cloud App Control - Firewall Control - DNS Control - NAT Control - File Type Control - Mobile App Store Control - Bandwidth Control - FTP Control - Policy Components: - Tenant Profiles - Bandwidth Classes"
+          ]
+        }
+      ]
+    },
+    "data-protection-features": {
+      "statement": "Custom Data Protection permissions cover Data Loss Prevention, Endpoint DLP, Data At Rest Scanning and SaaS Security Posture Management, with DLP Dictionaries & Engines, Notification Templates, SaaS Application Tenants and DLP Incident Receiver as Policy Components.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "Data Loss Prevention - Endpoint DLP - Data At Rest Scanning - SaaS Security Posture Management - Policy Components: - DLP Dictionaries & Engines - Notification Templates - SaaS Application Tenants - DLP Incident Receiver"
+          ]
+        }
+      ]
+    },
+    "decryption-features": {
+      "statement": "Custom Decryption permissions cover SSL/TLS Inspection, with Intermediate CA Certificates and Root Certificates as Policy Components.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "SSL/TLS Inspection - Policy Components: - Intermediate CA Certificates - Root Certificates"
+          ]
+        }
+      ]
+    },
+    "url-category-permissions": {
+      "statement": "One URL category option lets an admin edit predefined URL categories through the Custom URLs, URLs Retaining Parent Category, Keywords Retaining Parent Category and Review Matches fields, with Custom URLs, Custom Keywords and all fields in custom categories view-only. Another lets an admin create and edit custom categories through the URLs Retaining Parent Category and Keywords Retaining Parent Category fields. The Override Existing Categories field can be assigned only if the Custom URL Category Management field has Full access, and gives full access to custom categories including Custom URLs and Custom Keywords, with predefined categories view-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "This option allows admins to edit predefined URL categories (e.g., Entertainment, Music, etc.), using Custom URLs, URLs Retaining Parent Category, Keywords Retaining Parent Category, and Review Matches fields.",
+            "The Custom URLs and Custom Keywords fields have view-only access along with all fields in custom categories.",
+            "This option allows admins to create and edit custom categories using the URLs Retaining Parent Category and Keywords Retaining Parent Category fields.",
+            "You can only assign access to the Override Existing Categories field if you have assigned Full access in the Custom URL Category Management field to an admin.",
+            "This option allows admins full access to create and edit custom categories using the Custom URLs, URLs Retaining Parent Category, Keywords Retaining Parent Category, and Custom Keywords fields. Predefined categories have view-only access."
+          ]
+        }
+      ]
+    },
+    "shared-policy-components": {
+      "statement": "Custom Shared Policy Components permissions cover IP & FQDN Groups, Browser Isolation, Device Management and Time Intervals; permission to Zero Trust Browser (formerly Isolation) also includes access to Zscaler integrated Votiro CDR services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "IP & FQDN Groups - Browser Isolation",
+            "Providing admins permissions access Zero Trust Browser (formerly Isolation) also includes access to Zscaler integrated Votiro CDR services."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "after": "IP & FQDN Groups - Browser Isolation",
+          "quotes": [
+            "Device Management - Time Intervals"
+          ]
+        }
+      ]
+    },
+    "integrations": {
+      "statement": "Integrations permissions cover Microsoft Cloud App Security, SD-WAN, Azure Virtual WAN, CrowdStrike, Microsoft Defender for Endpoint and Workflow Automation; an application appears only if the organization has access to or a subscription for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "Microsoft Cloud App Security - SD-WAN - Azure Virtual WAN - CrowdStrike - Microsoft Defender for Endpoint - Workflow Automation",
+            "The applications appear only if your organization has access to or subscriptions to those applications."
+          ]
+        }
+      ]
+    },
+    "cloud-configuration": {
+      "statement": "Cloud Configuration permissions cover Nanolog Streaming Service, Virtual Service Edges and API Key Management; Business Continuity has its own Full, View Only, None or Custom permission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "Nanolog Streaming Service - Virtual Service Edges - API Key Management",
+            "You can assign Full, View Only, None, or Custom permissions to the admin to access Business Continuity."
+          ]
+        }
+      ]
+    },
+    "traffic-forwarding": {
+      "statement": "Traffic Forwarding permissions cover Forwarding Control; Traffic Forwarding Methods (Static IPs, GRE Tunnels, Locations, VPN Credentials Management, Hosted PAC Files); and Traffic Forwarding Components (Proxies & Gateways, Zscaler Client Connector Portal, Subclouds & DC Exclusion, Traffic Capture). The Custom permission is available for the methods and the components.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "The Custom permission is available for traffic forwarding methods and traffic forwarding components. Select Custom to assign field-wise permissions to those features.",
+            "Forwarding Control - Traffic Forwarding Methods: - Static IPs - GRE Tunnels - Locations - VPN Credentials Management - Hosted PAC Files - Traffic Forwarding Components: - Proxies & Gateways - Zscaler Client Connector Portal - Subclouds & DC Exclusion - Traffic Capture"
+          ]
+        }
+      ]
+    },
+    "administration-controls": {
+      "statement": "Administration Controls permissions cover Advanced Settings, Administrator Management, Audit Logs, User Management, Remote Assistance Management, Alerts, Authentication Settings, Identity Proxy Settings and Role Management; Backup Controls cover Backup and Restore.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "Advanced Settings - Administrator Management - Audit Logs - User Management - Remote Assistance Management - Alerts - Authentication Settings - Identity Proxy Settings - Role Management - Backup Controls: - Backup - Restore"
+          ]
+        }
+      ]
+    },
+    "reporting-data": {
+      "statement": "Reporting Data takes View Only, None or Custom over Security, Web Data, DLP, Firewall, URL Categories, IoT Discovery and Sandbox. For example, View Only on Web Data gives Web Insights and Web Logs on the Analytics page, and None on Web Data hides the Web Insights option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "You can assign View Only, None, or Custom permissions to the admin to access the reporting features.",
+            "Security - Web Data - DLP - Firewall - URL Categories - IoT Discovery - Sandbox",
+            "For example, providing View Only permissions to Web Data allows you to view and access the Web Insights and Web Logs on the Analytics page. If you provide None permissions to Web Data, you can not view the Web Insights option on the Analytics page."
+          ]
+        }
+      ]
+    },
+    "functional-scope-gate": {
+      "statement": "Admins with Full or View Only permissions for the Dashboard, Reporting Access and Insights Access can only view those features if the corresponding functional scope is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-role-based-administration-configuration-examples.json",
+          "quotes": [
+            "Admins with Full or View Only permissions for the Dashboard, Reporting Access, and Insights Access can only view the features if the corresponding functional scope is enabled."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "logs-limit-values": {
+      "kind": "semantic",
+      "title": "Allowed values and maximum for Logs Limit (Days)",
+      "status": "open",
+      "detail": "The Adding Admin Roles page says an admin in the role can view logs for the number of days entered and that by default the period is unrestricted, but gives no allowed range or maximum. The role examples page uses Unrestricted and 30.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "policy-resource-management": {
+      "kind": "semantic",
+      "title": "What the Policy and Resource Management option for Access Control (Web and Mobile) is",
+      "status": "open",
+      "detail": "The Executive Insights setting enables this option, but no page in the captured admin-role area defines it.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "functional-scope-which": {
+      "kind": "semantic",
+      "title": "Which functional scope gates Dashboard, Reporting and Insights",
+      "status": "open",
+      "detail": "The examples page says admins with Full or View Only access can view the features only if the corresponding functional scope is enabled, and does not name which functional scope that is.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "other-source-classes": {
+      "kind": "semantic",
+      "title": "Role permissions in the API reference, provider and SDK models",
+      "status": "open",
+      "detail": "Not checked: the Admin and Role Management API reference that the API role page names, the provider's zia_admin_roles schema (only rank is covered, in zia.terraform.admin-identity) and the SDK role models.",
+      "resolves_with": [
+        "source-read",
+        "code-read"
+      ]
+    }
+  }
+}

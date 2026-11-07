@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "id": "aem.ticket-grouping-rules",
+  "title": "AEM grouping rule sets: how policy violations are aggregated into violation tickets",
+  "aliases": [
+    "aem grouping rules",
+    "grouping rule set",
+    "default fallback rule",
+    "smart text ticket title"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "aem.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.violation-tickets"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.policy-violations"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.tickets"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{default-and-active}}"
+    },
+    {
+      "label": "Rules.",
+      "text": "{{fallback-rule}} {{rule-conditions}} {{group-by}} {{title-smart-text}} {{rule-order}} Rule and rule set limits are open {{gap:rule-limits}}."
+    },
+    {
+      "label": "Saving and testing.",
+      "text": "{{save-activate-run}} When Save & Activate takes effect is disputed {{divergence:activate-timing}}. {{preview}}"
+    },
+    {
+      "label": "Managing.",
+      "text": "{{managing-actions}} The tickets these rules produce are in [[aem.violation-tickets]]."
+    }
+  ],
+  "claims": {
+    "default-and-active": {
+      "statement": "A default grouping rule set based on policy name and policy assignee is created during initial setup; an account can hold several rule sets but only one is active at a time, and activating a new one deactivates the existing one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-grouping-rules-aem.json",
+          "quotes": [
+            "During the initial setup, a default rule set based on best practices is created based on the policy name and policy assignee.",
+            "While you can create multiple rule sets within an account, only one rule set can be active at a time.",
+            "Activating the new rule set deactivates the existing rule set."
+          ]
+        }
+      ]
+    },
+    "fallback-rule": {
+      "statement": "Every grouping rule set has a default fallback rule for policy violations that match no condition; it can be edited but not removed or deleted, and every new rule set must include at least one rule besides it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-grouping-rules-aem.json",
+          "quotes": [
+            "Every rule set includes a default fallback rule, which provides a default aggregation method for policy violations that don't match any conditions.",
+            "The fallback rule can be edited, but can't be removed or deleted.",
+            "Every new rule set must include at least one rule in addition to the default fallback rule."
+          ]
+        }
+      ]
+    },
+    "rule-conditions": {
+      "statement": "A rule condition picks a field, an operator (Contains, Is Not Empty, Is Empty or Equals, varying by field type) and a value, and AND/OR can combine conditions: AND aggregates only violations meeting all conditions, OR those meeting any.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-grouping-rules-aem.json",
+          "quotes": [
+            "Select a field on which the condition should be based.",
+            "Select an operator (Contains, Is Not Empty, Is Empty, Equals).",
+            "Enter the value to which the rule should apply.",
+            "The available operators vary depending on the field type.",
+            "AND aggregates policy violations only if they meet all conditions.",
+            "OR aggregates policy violations if they meet any of the conditions."
+          ]
+        }
+      ]
+    },
+    "group-by": {
+      "statement": "A grouping rule needs at least one Group By field, and all policy violations that meet the conditions with the same value in the selected fields are merged into a single violation ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-grouping-rules-aem.json",
+          "quotes": [
+            "Then: Select at least one field from the Group By drop-down menu",
+            "Select at least one field from the Group By drop-down menu according to which the policy violations that meet the conditions should be aggregated.",
+            "All policy violations with the same value are merged into a single violation ticket."
+          ]
+        }
+      ]
+    },
+    "title-smart-text": {
+      "statement": "A rule's violation ticket title can be set with Smart Text (free text plus field names as tokens in double curly brackets, with the display name translating to the system name, e.g. Application Name to application.name) or with an Expression applying custom value transformations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-grouping-rules-aem.json",
+          "after": "Define Ticket Title By: Select a method to set the violation ticket title.",
+          "quotes": [
+            "Smart Text: Use a combination of free text and field names as tokens to set the violation ticket title.",
+            "To add fields as tokens, enter the field name within double curly brackets.",
+            "The field's display name automatically translates to the field's system name (e.g., Application Name → application.name).",
+            "Expression: Set a violation ticket title using an expression to apply custom value transformations and standardize formats."
+          ]
+        }
+      ]
+    },
+    "rule-order": {
+      "statement": "Rules in a grouping rule set run sequentially in order of appearance; a policy violation is aggregated by the first rule that applies, otherwise by the default fallback rule, and order is changed by dragging then clicking Save.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-grouping-rules-aem.json",
+          "quotes": [
+            "The rules within a grouping rule set are run sequentially by their order of appearance.",
+            "A policy violation is aggregated into a violation ticket according to the first rule that applies to it.",
+            "If no rule applies to the policy violation, it's aggregated by the default fallback rule.",
+            "You can adjust the order of rules by dragging the rules to your desired order. After rearranging the rule order, click Save to apply your changes."
+          ]
+        }
+      ]
+    },
+    "save-activate-run": {
+      "statement": "Clicking Save on a grouping rule set does not reaggregate violation tickets; an active rule set takes effect on Run or at the next data processing in the account, and an inactive one changes nothing until activated and run.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-grouping-rules-aem.json",
+          "quotes": [
+            "This saves the rule but doesn't aggregate violation tickets based on the rule set's rules.",
+            "If the rule set is active, the new rule set will take effect either when you click Run or the next time data is processed in the account (e.g., when a data source runs).",
+            "If the rule set is inactive, no changes will apply to the grouping of policy violations in the account until the rule set is activated and runs."
+          ]
+        }
+      ]
+    },
+    "preview": {
+      "statement": "The rule Preview lists policy violations that match the rule; if none match, the rule's filters may need adjusting or an earlier rule may already apply, since grouping depends on rule order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-grouping-rules-aem.json",
+          "quotes": [
+            "The preview displays policy violations that match the rule and their relevant fields according to the fields specified in the rule.",
+            "If no policy violations match the filter condition displayed in the preview, you might need to adjust the rule's configured filters. Alternatively, a previous rule might be applicable to the relevant policy violations, as grouping is dependent on rule order."
+          ]
+        }
+      ]
+    },
+    "managing-actions": {
+      "statement": "Grouping rule sets can be activated, cloned, edited and deleted, and individual rules can be cloned, edited and deleted; the management page describes the grouped items as findings, with the default fallback rule as the standard grouping method for unmatched findings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-managing-grouping-rules-aem.json",
+          "quotes": [
+            "Manage grouping rules to control how findings are grouped into tickets within a rule set.",
+            "default fallback rule, which provides a standard grouping method for unmatched findings and cannot be removed.",
+            "Activate a Grouping Rule Set",
+            "Clone a Grouping Rule Set",
+            "Edit a Grouping Rule Set",
+            "Delete a Grouping Rule Set",
+            "Clone Grouping Rules",
+            "Edit Grouping Rules",
+            "Delete Grouping Rules"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rule-limits": {
+      "kind": "semantic",
+      "title": "How many rules a grouping rule set can hold, and how many rule sets an account can hold",
+      "status": "open",
+      "detail": "The pages do not state a maximum number of rules per rule set or of rule sets per account; the configuring page says only that you can \"add as many grouping rules as required\", without a cap, and the same question is open for UVM tickets.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  },
+  "divergences": {
+    "activate-timing": {
+      "summary": "The grouping rule configuring page says Save & Activate immediately applies the rules, and also that a rule set that is only activated, not run, runs on the next data ingestion.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "aem-configuring-grouping-rules-aem.json",
+            "quotes": [
+              "From the Save drop-down menu, click Save & Activate to save the rule set and immediately apply the rules to the data in your account."
+            ]
+          },
+          "says": "Save & Activate saves the rule set and immediately applies the rules to the account's data."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "aem-configuring-grouping-rules-aem.json",
+            "quotes": [
+              "If you only activate but don't run the new rule set, it will run on the next data ingestion in your account."
+            ]
+          },
+          "says": "Activating without running does not apply the rules until the next data ingestion; the page does not say whether Save & Activate counts as running."
+        }
+      ],
+      "impact": "Whether an account's tickets regroup at once after Save & Activate, or only at the next data ingestion, is not settled by the page; UVM's grouping page carries the same line, so uvm.tickets should be checked."
+    }
+  }
+}

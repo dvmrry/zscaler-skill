@@ -1,0 +1,1219 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.terraform.rule-order",
+  "title": "How the ZTC (Cloud Connector) Terraform provider applies rule order",
+  "aliases": [
+    "ztc terraform reorder",
+    "ztc rule order wrong",
+    "cloud connector terraform rule order",
+    "ztc apply reordered rules",
+    "ztc_traffic_forwarding_rule order",
+    "rank 7"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.forwarding.rule-order",
+      "because": "cloud-connector.forwarding.rule-order:ascending"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZTC provider does not write a rule's order directly. For updates it moves the rule to the end first and puts it back later, in the background; for creates it stages the rule at one cached order. {{update-parks-every-update}} {{list-error-then-panic}} {{list-reads-all-pages}} {{create-list-error-seeds-order-1}} {{staging-order-cached-per-process}}"
+    },
+    {
+      "label": "Putting it back.",
+      "text": "{{background-worker}} {{registry-keyed-by-type-only}} {{worker-reads-only-a-count}} {{worker-cannot-report-failure}} {{count-error-ignored}} {{write-error-logged-only}} {{completes-on-quiet-ticks}} {{write-effect-unknown}} {{same-size-reregistration-ignored}} {{writes-registered-rules-only}} {{wrong-order-reported-success}}"
+    },
+    {
+      "label": "The shared registry.",
+      "text": "{{deleted-ids-stay-registered}} {{new-cycle-rewrites-whole-registry}} {{two-configurations-share-registry}} {{worker-lock-held-across-network-calls}}"
+    },
+    {
+      "label": "Rules the apply did not touch.",
+      "text": "{{terminal-rule-can-be-displaced}}"
+    },
+    {
+      "label": "Differences from the ZIA provider.",
+      "text": "The ZIA provider ([[zia.terraform.rule-order]]) follows the same park-then-reorder design. The ZTC worker never reads positions back {{worker-reads-only-a-count|ref}}, and its write pass is gated on the registry size {{completes-on-quiet-ticks|ref}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the terminal default rule is still last after an apply that edited ZTC forwarding, DNS forwarding or log forwarding rules, by re-reading the whole policy's order and rank rather than only the edited rules.",
+      "uses": [
+        "terminal-rule-can-be-displaced",
+        "writes-registered-rules-only"
+      ]
+    },
+    {
+      "do": "Whether a later plan shows rules out of their declared order after an apply that reported success.",
+      "uses": [
+        "wrong-order-reported-success"
+      ]
+    }
+  ],
+  "claims": {
+    "update-parks-every-update": {
+      "statement": "Every update of a ZTC traffic forwarding, DNS forwarding, or log forwarding rule, whatever field changed, is first sent with rank 7 and with the order of the last rule when the existing rules are sorted by rank, then order. The declared order and rank are held back and only applied afterwards by the reorder worker. Create differs: it forces rank 7 only when the declared rank is below 7.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "sort.Slice(existingRules, func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) })",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order // always start rank 7 rules at the next available order after all ranked rules req.Rank = 7 req.Order = nextAvailableOrder _, err = traffic_dns_rules.Update(ctx, service, id, &req)",
+            "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID,"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "sort.Slice(existingRules, func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) })",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order // always start rank 7 rules at the next available order after all ranked rules req.Rank = 7 req.Order = nextAvailableOrder _, err = forwarding_rules.Update(ctx, service, id, &req)",
+            "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID,"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "sort.Slice(existingRules, func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) })",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order // always start rank 7 rules at the next available order after all ranked rules req.Rank = 7 req.Order = nextAvailableOrder _, err = traffic_log_rules.Update(ctx, service, id, &req)",
+            "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID,"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if intendedRank < 7 { // always start rank 7 rules at the next available order after all ranked rules req.Rank = 7 }"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if intendedRank < 7 { // always start rank 7 rules at the next available order after all ranked rules req.Rank = 7 }"
+          ],
+          "after": "func resourceTrafficForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if intendedRank < 7 { // always start rank 7 rules at the next available order after all ranked rules req.Rank = 7 }"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "list-error-then-panic": {
+      "statement": "If listing the existing rules fails during an update, the error is only logged and the code indexes the last element of whatever came back, with no length check. When the first page fails the list is empty and the index panics; an empty successful list does the same. When a later page fails, the SDK returns the pages read so far together with the error, and the rule is parked using that partial list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "existingRules, err := traffic_dns_rules.GetAll(ctx, service) if err != nil { log.Printf(\"[ERROR] error getting all traffic dns forwarding rules: %v\", err) } sort.Slice(existingRules, func(i, j int) bool {",
+            "func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) }) intendedOrder := req.Order intendedRank := req.Rank nextAvailableOrder := existingRules[len(existingRules)-1].Order",
+            "req.Rank = 7 req.Order = nextAvailableOrder _, err = traffic_dns_rules.Update(ctx, service, id, &req)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "existingRules, err := forwarding_rules.GetAll(ctx, service) if err != nil { log.Printf(\"[ERROR] error getting all traffic forwarding rules: %v\", err) } sort.Slice(existingRules, func(i, j int) bool {",
+            "func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) }) intendedOrder := req.Order intendedRank := req.Rank nextAvailableOrder := existingRules[len(existingRules)-1].Order",
+            "req.Rank = 7 req.Order = nextAvailableOrder _, err = forwarding_rules.Update(ctx, service, id, &req)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "existingRules, err := traffic_log_rules.GetAll(ctx, service) if err != nil { log.Printf(\"[ERROR] error getting all traffic log forwarding rules: %v\", err) } sort.Slice(existingRules, func(i, j int) bool {",
+            "func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) }) intendedOrder := req.Order intendedRank := req.Rank nextAvailableOrder := existingRules[len(existingRules)-1].Order",
+            "req.Rank = 7 req.Order = nextAvailableOrder _, err = traffic_log_rules.Update(ctx, service, id, &req)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/common/common.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, list *[]T) error {",
+          "quotes": [
+            "if err != nil { return err } *list = append(*list, pageItems...)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, dnsRulesEndpoint, &rules) return rules, err"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, endpoint, &rules) return rules, err"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, logRulesEndpoint, &rules) return rules, err"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit. Part of the audit's panic class (unchecked list, then index of the last element)."
+        }
+      ]
+    },
+    "list-reads-all-pages": {
+      "statement": "The ZTC GetAll functions for DNS forwarding, traffic forwarding and log forwarding rules page through the endpoint until a page comes back shorter than the page size, so the parking order and the rule count are computed from the full list unless a page errors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/common/common.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, list *[]T) error {",
+          "quotes": [
+            "err := client.ReadResource(ctx, fmt.Sprintf(\"%s&pageSize=%d&page=%d\", endpoint, pageSize, page), &pageItems) if err != nil { return err }",
+            "if len(pageItems) < pageSize { break } page++"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service) ([]ECDNSRules, error) {",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, dnsRulesEndpoint, &rules)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, endpoint, &rules)"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service, params ...ForwardingRulesQuery) ([]ForwardingRules, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, logRulesEndpoint, &rules)"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service) ([]ECTrafficLogRules, error) {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "existingRules, err := traffic_dns_rules.GetAll(ctx, service)",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
+            "allRules, err := traffic_dns_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "existingRules, err := forwarding_rules.GetAll(ctx, service)",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
+            "allRules, err := forwarding_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil"
+          ],
+          "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "existingRules, err := traffic_log_rules.GetAll(ctx, service)",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
+            "allRules, err := traffic_log_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ]
+    },
+    "create-list-error-seeds-order-1": {
+      "statement": "On create, the error from listing existing rules is discarded. After scanning that list for its highest order, the staging order is set to 1 if it is still 0, and the rule is submitted with `req.Order` set to the staging order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "list, _ := traffic_dns_rules.GetAll(ctx, service) for _, r := range list { if r.Order > trafficForwardingDNSStartingOrder { trafficForwardingDNSStartingOrder = r.Order } } if trafficForwardingDNSStartingOrder == 0 { trafficForwardingDNSStartingOrder = 1 }",
+            "req.Order = trafficForwardingDNSStartingOrder resp, err := traffic_dns_rules.Create(ctx, service, &req)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "list, _ := forwarding_rules.GetAll(ctx, service) for _, r := range list { if r.Order > forwardingControlStartingOrder { forwardingControlStartingOrder = r.Order } } if forwardingControlStartingOrder == 0 { forwardingControlStartingOrder = 1 }",
+            "req.Order = forwardingControlStartingOrder resp, err := forwarding_rules.Create(ctx, service, &req)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "list, _ := traffic_log_rules.GetAll(ctx, service) for _, r := range list { if r.Order > trafficForwardingLogStartingOrder { trafficForwardingLogStartingOrder = r.Order } } if trafficForwardingLogStartingOrder == 0 { trafficForwardingLogStartingOrder = 1 }",
+            "req.Order = trafficForwardingLogStartingOrder resp, err := traffic_log_rules.Create(ctx, service, &req)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "staging-order-cached-per-process": {
+      "statement": "The staging order for creates is a package-level variable computed from the list only while it is zero, then reused unchanged for every later create in the same provider process. Creates are therefore staged at the same order as each other, and at the order of the last existing rule rather than after it, and, if one process ever served several tenants, a value computed against one would be reused against the others (ordinary provider aliases each run their own process).",
+      "tier": "B",
+      "conditions": "Chain of evidence: the guard is `== 0`, and the create path assigns the variable only inside that guard. The absence of any other write is a search result: at v0.2.0 and HEAD, each variable is assigned only at the guard block in its own file (git grep for the variable name across ztc/). Whether the API accepts duplicate orders, and where such a rule lands, is not shown by this code (gap api-order-shift).",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if trafficForwardingDNSStartingOrder == 0 {",
+            "trafficForwardingDNSStartingOrder = r.Order",
+            "req.Order = trafficForwardingDNSStartingOrder"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if forwardingControlStartingOrder == 0 {",
+            "forwardingControlStartingOrder = r.Order",
+            "req.Order = forwardingControlStartingOrder"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if trafficForwardingLogStartingOrder == 0 {",
+            "trafficForwardingLogStartingOrder = r.Order",
+            "req.Order = trafficForwardingLogStartingOrder"
+          ]
+        }
+      ],
+      "gaps": [
+        "api-order-shift"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "registry-keyed-by-type-only": {
+      "statement": "All reorder state is one package-level registry keyed by resource type and rule ID, with no client, tenant or service in the key. The first registration for a resource type starts the worker, which keeps that registrant's callbacks; a registration made while that worker is still running only adds its ID and desired order to the shared map.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "type listrules struct { orders map[string]map[int]orderWithState orderer map[string]int reorderDone map[string]chan struct{} sync.Mutex }",
+            "var rules = listrules{"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, ok := rules.orderer[resourceType]; ok {",
+            "default: // Reorder goroutine still running — just register, don't start another shouldCallReorder = false",
+            "} else { rules.orderer[resourceType] = id shouldCallReorder = true rules.reorderDone[resourceType] = make(chan struct{}) }",
+            "rules.orders[resourceType][id] = orderWithState{order, false}",
+            "doneCh := rules.reorderDone[resourceType] go func() { reorderAll(resourceType, getCount, updateOrder, beforeReorder) close(doneCh) }()"
+          ],
+          "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "background-worker": {
+      "statement": "Declared orders are applied by one background worker per resource type, started by the first registration (or by the first registration after the previous worker finished). It wakes on a 30-second ticker and sleeps for half the interval between checks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "var reorderTickInterval = 30 * time.Second",
+            "time.Sleep(reorderTickInterval / 2)",
+            "Start a new reorder cycle for late-arriving rules.",
+            "rules.orderer[resourceType] = id"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, ok := rules.orderer[resourceType]; ok {",
+            "case <-rules.reorderDone[resourceType]:",
+            "rules.reorderDone[resourceType] = make(chan struct{}) shouldCallReorder = true",
+            "default: // Reorder goroutine still running — just register, don't start another shouldCallReorder = false",
+            "} else { rules.orderer[resourceType] = id shouldCallReorder = true rules.reorderDone[resourceType] = make(chan struct{}) }",
+            "doneCh := rules.reorderDone[resourceType] go func() { reorderAll(resourceType, getCount, updateOrder, beforeReorder) close(doneCh) }()"
+          ],
+          "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "ticker := time.NewTicker(reorderTickInterval)",
+            "case <-ticker.C:"
+          ],
+          "after": "func reorderAll(resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        }
+      ]
+    },
+    "worker-reads-only-a-count": {
+      "statement": "The worker is given a callback returning a rule count, a callback writing a rule's order, and an optional before-reorder hook that all three resources pass as nil; it has no callback that reads current positions. Each callback pair in the three resources reads the count as the length of the full rule list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "func reorderAll(resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "// Count all rules including predefined ones for proper ordering",
+            "return len(allRules), nil",
+            "nil, // Remove beforeReorder function to avoid adding too many rules to the map"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "// Count all rules including predefined ones for proper ordering",
+            "return len(allRules), nil",
+            "nil, // Remove beforeReorder function to avoid adding too many rules to the map"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "// Count all rules including predefined ones for proper ordering",
+            "return len(allRules), nil",
+            "nil, // Remove beforeReorder function to avoid adding too many rules to the map"
+          ]
+        }
+      ]
+    },
+    "worker-cannot-report-failure": {
+      "statement": "The worker cannot pass a failure to the resources waiting on it: `reorderAll` returns no value, and waiting resources are released by closing a channel that carries no result. The channel is closed whenever `reorderAll` returns, so a waiter then proceeds whatever the worker did.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "func reorderAll(resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "type listrules struct { orders map[string]map[int]orderWithState orderer map[string]int reorderDone map[string]chan struct{} sync.Mutex }",
+            "go func() { reorderAll(resourceType, getCount, updateOrder, beforeReorder) close(doneCh) }()",
+            "func waitForReorder(resourceType string) { rules.Lock() ch := rules.reorderDone[resourceType] rules.Unlock() if ch != nil { <-ch } }"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "markOrderRuleAsDone(req.ID, \"traffic_forwarding_dns_rule\") waitForReorder(\"traffic_forwarding_dns_rule\")"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "markOrderRuleAsDone(req.ID, \"forwarding_control_rule\") waitForReorder(\"forwarding_control_rule\")"
+          ],
+          "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "markOrderRuleAsDone(req.ID, \"traffic_forwarding_log_rule\") waitForReorder(\"traffic_forwarding_log_rule\")"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "count-error-ignored": {
+      "statement": "The error from the count callback is discarded. On error the callback returns 0, and a registered rule is only written when its declared order is at most the count, so every rule with a declared order above zero is skipped without a log line and the pass still records the registry size as handled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "count, _ := getCount()",
+            "for _, v := range sorted { if v.Order.Order <= count { if err := updateOrder(v.ID, v.Order); err != nil { log.Printf(\"[ERROR] couldn't reorder the rule after tick, the order may not have taken place: %v\\n\", err) } } } lastReorderedSize = size stableAfterReorder = 0"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "allRules, err := traffic_dns_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "allRules, err := forwarding_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil"
+          ],
+          "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "allRules, err := traffic_log_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "write-error-logged-only": {
+      "statement": "A failed order write is logged and the loop moves on; the pass then records the registry size as handled whatever the writes did, so within that worker the failed rule is written again only if a later registration changes the registry size and triggers a new pass.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "for _, v := range sorted { if v.Order.Order <= count { if err := updateOrder(v.ID, v.Order); err != nil { log.Printf(\"[ERROR] couldn't reorder the rule after tick, the order may not have taken place: %v\\n\", err) } } } lastReorderedSize = size stableAfterReorder = 0",
+            "if allDone && size > 0 { if size != lastReorderedSize {",
+            "} else { // Same size as last reorder — count towards stability stableAfterReorder++"
+          ],
+          "after": "func reorderAll(resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "completes-on-quiet-ticks": {
+      "statement": "A write pass runs only once every registered rule is marked done and the number of registered rules differs from the number at the last pass. Each later tick that sees the same number counts toward stability, and when that count reaches 3 the worker logs the reorder as complete and returns, even if the pass skipped some writes or some writes failed. Each order-write callback ends by calling Update, discarding the returned rule, and returning only the error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "size := len(rules.orders[resourceType])",
+            "for _, v := range rules.orders[resourceType] { if !v.done { allDone = false break } }",
+            "if allDone && size > 0 { if size != lastReorderedSize {",
+            "for _, v := range sorted { if v.Order.Order <= count { if err := updateOrder(v.ID, v.Order); err != nil { log.Printf(\"[ERROR] couldn't reorder the rule after tick, the order may not have taken place: %v\\n\", err) } } } lastReorderedSize = size stableAfterReorder = 0",
+            "} else { // Same size as last reorder — count towards stability stableAfterReorder++",
+            "if stableAfterReorder >= 3 { log.Printf(\"[INFO] reorder complete for %s: %d rules, stable for 3 ticks\", resourceType, size) rules.Unlock() return }"
+          ],
+          "after": "func reorderAll(resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "func reorderAll(resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err = traffic_dns_rules.Update(ctx, service, id, rule) return err"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err = forwarding_rules.Update(ctx, service, id, rule) return err"
+          ],
+          "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err = traffic_log_rules.Update(ctx, service, id, rule) return err"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "same-size-reregistration-ignored": {
+      "statement": "Registering a rule that is already in the registry overwrites its desired order but does not change the registry size, so while a cycle is open an order change for an already-registered rule triggers no further write pass.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "rules.orders[resourceType][id] = orderWithState{order, false}"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "size := len(rules.orders[resourceType])",
+            "if allDone && size > 0 { if size != lastReorderedSize {",
+            "} else { // Same size as last reorder — count towards stability stableAfterReorder++"
+          ],
+          "after": "func reorderAll(resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "default: // Reorder goroutine still running — just register, don't start another shouldCallReorder = false",
+            "rules.orders[resourceType][id] = orderWithState{order, false} rules.Unlock() if shouldCallReorder {"
+          ],
+          "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "writes-registered-rules-only": {
+      "statement": "A pass sorts and writes only the rules in the registry. Rules the apply did not register are never written by the worker, and it only counts them, so the worker's notion of done says nothing about them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "for _, v := range rules.orders[resourceType] { if !v.done { allDone = false break } }",
+            "sorted := sortOrders(rules.orders[resourceType])",
+            "for _, v := range sorted { if v.Order.Order <= count { if err := updateOrder(v.ID, v.Order); err != nil { log.Printf(\"[ERROR] couldn't reorder the rule after tick, the order may not have taken place: %v\\n\", err) } } } lastReorderedSize = size stableAfterReorder = 0"
+          ],
+          "after": "func reorderAll(resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "allRules, err := traffic_dns_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil",
+            "nil, // Remove beforeReorder function to avoid adding too many rules to the map"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "allRules, err := forwarding_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil",
+            "nil, // Remove beforeReorder function to avoid adding too many rules to the map"
+          ],
+          "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "allRules, err := traffic_log_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil",
+            "nil, // Remove beforeReorder function to avoid adding too many rules to the map"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "worker-lock-held-across-network-calls": {
+      "statement": "The worker takes the global registry lock at the start of each tick and releases it only at the end of the tick, so the count read, the optional before-reorder hook and every order write run with the lock held (in the three resources the count callback calls the SDK's GetAll; the DNS and log rule order-write callbacks call Get and then Update, and the traffic forwarding rule's calls `getRule`, which lists every rule with GetAll, and then Update). Registration, marking a rule done and the waiters' channel lookup take the same lock, so a slow API call blocks them, for every resource type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "reorderDone map[string]chan struct{} sync.Mutex }",
+            "var rules = listrules{",
+            "case <-ticker.C: rules.Lock() size := len(rules.orders[resourceType])",
+            "count, _ := getCount()",
+            "if beforeReorder != nil { beforeReorder() } for _, v := range sorted { if v.Order.Order <= count { if err := updateOrder(v.ID, v.Order); err != nil {",
+            "rules.Unlock() default: time.Sleep(reorderTickInterval / 2)",
+            "func markOrderRuleAsDone(id int, resourceType string) { rules.Lock()",
+            "func waitForReorder(resourceType string) { rules.Lock()"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "rules.Lock() shouldCallReorder := false",
+            "rules.orders[resourceType][id] = orderWithState{order, false} rules.Unlock()"
+          ],
+          "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "allRules, err := traffic_dns_rules.GetAll(ctx, service)",
+            "rule, err := traffic_dns_rules.Get(ctx, service, id)",
+            "_, err = traffic_dns_rules.Update(ctx, service, id, rule)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "allRules, err := forwarding_rules.GetAll(ctx, service)",
+            "rule, err := getRule(ctx, service, id)",
+            "_, err = forwarding_rules.Update(ctx, service, id, rule)"
+          ],
+          "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "allRules, err := traffic_log_rules.GetAll(ctx, service)",
+            "rule, err := traffic_log_rules.Get(ctx, service, id)",
+            "_, err = traffic_log_rules.Update(ctx, service, id, rule)"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "allRules, err := forwarding_rules.GetAll(ctx, service)"
+          ],
+          "after": "func getRule(ctx context.Context, service *zscaler.Service, id int) (*forwarding_rules.ForwardingRules, error) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ],
+      "conditions": "Search: `grep -n 'rules.Unlock()' ztc/common.go` at v0.2.0 returns five lines: two in reorderAll, the unlock before the stable-tick return and the end-of-tick unlock, both after the order writes; and one each in markOrderRuleAsDone, reorderWithBeforeReorder and waitForReorder."
+    },
+    "deleted-ids-stay-registered": {
+      "statement": "Deleting a ZTC traffic rule removes the remote rule and the Terraform state but not the rule's entry in the reorder registry. The entry stays for the life of the provider process and counts toward the registry size.",
+      "tier": "B",
+      "conditions": "Absence claim from a search: at v0.2.0 and HEAD, `git grep` for `rules.orders` and `delete(` across non-test files under ztc/ finds registry writes only in ztc/common.go (registration and marking done), and no function removes an entry. The three delete functions are quoted to show they call only the SDK delete and clear the state ID.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "traffic_dns_rules.Delete(ctx, service, id)",
+            "d.SetId(\"\")"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "forwarding_rules.Delete(ctx, service, id)",
+            "d.SetId(\"\")"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "traffic_log_rules.Delete(ctx, service, id)",
+            "d.SetId(\"\")"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "write-effect-unknown": {
+      "statement": "Beyond the Update error, the worker has no signal that an order write took effect: it never reads a rule's position back after writing it.",
+      "tier": "B",
+      "derived_from": [
+        "completes-on-quiet-ticks",
+        "worker-reads-only-a-count"
+      ],
+      "conditions": "Rests on the three order-write callbacks ending at the Update call and the worker having only a count callback; no source says what the API does with a write it accepts (gap api-order-shift).",
+      "gaps": [
+        "api-order-shift"
+      ]
+    },
+    "new-cycle-rewrites-whole-registry": {
+      "statement": "A worker started for a later registration begins with a zero processed size, so its first pass sorts and writes every entry in the registry for that resource type (those with order within the count), including entries from earlier in the same provider process whose rules were since deleted. The write for a deleted rule fails on its read and is logged only. Rules that still exist are also rewritten with the desired order and rank recorded at their earlier registration.",
+      "tier": "B",
+      "derived_from": [
+        "registry-keyed-by-type-only",
+        "deleted-ids-stay-registered",
+        "write-error-logged-only",
+        "completes-on-quiet-ticks"
+      ],
+      "conditions": "Depends on a delete and a later registration of the same resource type occurring in one provider process (for example a destroy and an update in one apply, or a long-lived process), and on the API returning an error for a deleted rule ID (not shown by this code).",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "lastReorderedSize := 0",
+            "rules.reorderDone[resourceType] = make(chan struct{}) shouldCallReorder = true"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "two-configurations-share-registry": {
+      "statement": "If a single provider process serves two configurations (for example a reattached or development-override provider; ordinary aliases each get their own process) and update the same resource type together, they share the registry and the first registrant's callbacks. The worker then reads and writes through the first client only, treats the other configuration's rule IDs as unknown or skipped, and releases the other configuration's waiters.",
+      "tier": "C",
+      "derived_from": [
+        "registry-keyed-by-type-only",
+        "count-error-ignored",
+        "write-error-logged-only",
+        "worker-cannot-report-failure"
+      ],
+      "conditions": "Terraform normally starts a separate provider process per provider configuration, so this needs a non-default setup such as a reattached provider (gap provider-process-model); and the two configurations updating the same resource type while a cycle is open.",
+      "gaps": [
+        "provider-process-model"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "wrong-order-reported-success": {
+      "statement": "So a ZTC apply can finish successfully with rules out of their declared order and no diagnostic: when the count read fails, when writes fail, when a write is accepted but changes nothing, or when an order change arrives for an already-registered rule. Only a later plan's drift shows it.",
+      "tier": "B",
+      "derived_from": [
+        "worker-cannot-report-failure",
+        "count-error-ignored",
+        "write-error-logged-only",
+        "completes-on-quiet-ticks",
+        "same-size-reregistration-ignored",
+        "writes-registered-rules-only"
+      ],
+      "conditions": "The accepted-but-unchanged case depends on the API honoring a write at the requested order (gap api-order-shift); the others follow from the code alone.",
+      "gaps": [
+        "api-order-shift"
+      ]
+    },
+    "terminal-rule-can-be-displaced": {
+      "statement": "Editing any field of a rule placed above a terminal default rule can leave that rule no longer last: the edit parks the rule at the last rule's order, and if moving it back fails or is skipped, the apply still reports success.",
+      "tier": "C",
+      "derived_from": [
+        "update-parks-every-update",
+        "writes-registered-rules-only",
+        "wrong-order-reported-success"
+      ],
+      "conditions": "Depends on how the API renumbers the other rules when one is written at a given order, and on the API accepting a write at the last rule's order even when that is a predefined default rule (gap api-order-shift); on the edited rule not already being last; and on the move back failing or being skipped.",
+      "gaps": [
+        "api-order-shift"
+      ]
+    }
+  },
+  "gaps": {
+    "api-order-shift": {
+      "kind": "semantic",
+      "title": "How the ZTC API renumbers other rules when a rule is written at a given order",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating exactly where a parked rule lands and which neighbors move",
+      "detail": "The provider assumes ordered-list behavior (the written rule takes the position and the rest shift) and writes at the last rule's order. No captured source states the API's renumbering rule, whether it accepts duplicate orders, or whether it rejects a write at a predefined default rule's order. Test in a scratch tenant by writing a rule at a lower order, and at the default rule's order, and re-reading every rule's order and rank."
+    },
+    "provider-process-model": {
+      "kind": "semantic",
+      "title": "Whether provider aliases share one plugin process",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "deciding whether the shared registry is reachable across two tenants in one run",
+      "detail": "The registry is a package-level variable, so it is shared by everything in one plugin process. Whether Terraform runs several configurations of the same provider in one process is a property of Terraform, not of this code. Test with two aliases applying the same resource type and compare process identity or log interleaving."
+    }
+  }
+}

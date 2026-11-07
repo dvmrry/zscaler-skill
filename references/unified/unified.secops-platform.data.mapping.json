@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "id": "unified.secops-platform.data.mapping",
+  "title": "Source mapping in the Agentic SecOps Platform: workspace, value methods, explode, minimum fields, keys, parser types and Explore",
+  "aliases": [
+    "mapping data sources",
+    "source mapping",
+    "explode field",
+    "file parser types",
+    "system managed mapping"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.mapping-copilot"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.unification"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.anysource"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{map-per-source-only-mapped}} {{map-prereq}}"
+    },
+    {
+      "label": "The workspace.",
+      "text": "{{map-workspace}} {{map-labels}} {{map-system-managed}} Which sources use system-managed or default mappings is not stated {{gap:map-which-sources}}."
+    },
+    {
+      "label": "Reverting and copying.",
+      "text": "{{map-revert-copy}} {{map-apply-timing}}"
+    },
+    {
+      "label": "Setting a value.",
+      "text": "{{map-value-methods}} {{map-composite-separator}} {{map-nested-depth}}"
+    },
+    {
+      "label": "Scripts.",
+      "text": "{{map-script-row}} {{map-script-validate-test}} {{map-date-format}} {{map-date-edge-cases}} The Python modules a script may import are not stated {{gap:map-script-modules}}."
+    },
+    {
+      "label": "Exploding arrays.",
+      "text": "{{map-explode-cases}} {{map-explode-limits}}"
+    },
+    {
+      "label": "Minimum fields and keys.",
+      "text": "{{map-min-fields}} {{map-entity-key}} {{map-custom-entities}}"
+    },
+    {
+      "label": "Parsing and exploring.",
+      "text": "{{parser-types}} {{explore-window}} {{explore-stats}}"
+    }
+  ],
+  "claims": {
+    "map-prereq": {
+      "statement": "Mapping requires that the source has run successfully at least once and a role with Read and Edit permissions under the Platform - Data Source Mapping resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "Set up the data source and run it at least once so there is ingested source data available to explore, preview, and map.",
+            "Check that the run was completed successfully in source runs.",
+            "your assigned role must include the Read and Edit permissions under the Platform - Data Source Mapping resource"
+          ]
+        }
+      ]
+    },
+    "map-per-source-only-mapped": {
+      "statement": "Mapping is configured per source, and only mapped fields are available for unification and consumption.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "Mapping is configured per source.",
+            "Only mapped fields are available for unification and consumption."
+          ]
+        }
+      ]
+    },
+    "map-workspace": {
+      "statement": "The mapping page has three workspace sections: Ingested Data (source fields from the most recent successful ingestion run), Entities (the data model fields to map to) and Create New Connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "Ingested Data: The source fields (left) detected from the most recent successful data ingestion run.",
+            "Entities: The Agentic SecOps Platform data model entities and fields (right) that you can select from to map data source fields for normalization and unification.",
+            "Create New Connection: The section (center) where you add mappings"
+          ]
+        }
+      ]
+    },
+    "map-labels": {
+      "statement": "A source's mapping page shows a status label: Default Mapping for a Zscaler-provided preconfigured mapping, Custom Mapping once any part of a default is modified (including adding connections, editing logic or pasting connections), and System Managed Mapping for a read-only mapping that cannot be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-source-mapping.json",
+          "quotes": [
+            "Default Mapping: The source is using a preconfigured mapping provided by Zscaler based on industry best practices.",
+            "Custom Mapping: Appears automatically when you modify any part of a default mapping. This includes adding connections, editing logic, or pasting connections from another source.",
+            "System Managed Mapping: The source is using a read-only mapping maintained by Zscaler. These mappings cannot be modified or edited."
+          ]
+        }
+      ]
+    },
+    "map-system-managed": {
+      "statement": "Some sources use system-managed mappings that Zscaler maintains and that cannot be edited or customized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "Some sources use system-managed mappings. These sources are maintained by Zscaler and can't be edited or customized."
+          ]
+        }
+      ]
+    },
+    "map-revert-copy": {
+      "statement": "Apply Default Mapping, when supported, overwrites custom logic and returns the label to Default Mapping; Paste Connections replaces the source's current mapping; Unmap All Fields removes all mapped connections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-source-mapping.json",
+          "quotes": [
+            "When you revert the mapping, the source label changes from Custom Mapping to Default Mapping.",
+            "This replaces the current mapping of the source.",
+            "This removes all currently mapped connections from the mapping section."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-source-mapping.json",
+          "quotes": [
+            "This overwrites any custom logic you created for that source."
+          ],
+          "after": "4. Click the More icon, and select Apply Default Mapping."
+        }
+      ]
+    },
+    "map-value-methods": {
+      "statement": "A mapped field's value is set by Script (Python), Value (a fixed constant for every record from the source), Field (a direct one-to-one pass-through with no transformation) or Composite (several source fields combined into one).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "Use Python scripts when you need more granular control over how a value is mapped",
+            "Use the Value method when you want to populate an Agentic SecOps Platform field with a fixed (constant) value that you provide.",
+            "Every record ingested from that source receives the same value for that field.",
+            "Use the Field method to create a direct, one-to-one mapping between a source field and an Agentic SecOps Platform target field.",
+            "This passes the source value through exactly as it is received, without transformations, formatting changes, or conditional logic.",
+            "Use the Composite method to combine multiple source fields into a single Agentic SecOps Platform field."
+          ]
+        }
+      ]
+    },
+    "map-composite-separator": {
+      "statement": "A Composite mapping concatenates the selected source fields in the order selected and automatically inserts an underscore as the separator; it is primarily used to build a unique key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "When building a composite mapping, select the source fields in the order you want them to appear in the concatenated value.",
+            "The platform automatically inserts an underscore (_) as the separator between the values in the final string.",
+            "This is primarily used to generate a unique identifier (key) when a single source field is insufficient to distinguish individual records."
+          ]
+        }
+      ]
+    },
+    "map-script-row": {
+      "statement": "A mapping script runs against a source row passed in as a dictionary named row; the returned value must match the type of the target field, and source fields referenced inside a script show no connection lines in the workspace and are absent from the Mapped filter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "The script runs against a source row passed in as a dictionary (row).",
+            "ensure the value you return matches the type of the target field you're mapping to.",
+            "Source fields referenced within a script do not display visual connection lines in the mapping workspace.",
+            "they do not appear in the source fields list when applying the Mapped filter."
+          ]
+        }
+      ]
+    },
+    "map-script-validate-test": {
+      "statement": "Validate checks a mapping script's syntax; Test Script runs it against example input without affecting live data, using the full dataset of the last successful run if that run was within 90 days and otherwise a 50-record preview.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "Click Validate to verify that the mapping script is syntactically valid.",
+            "In the Script Editor, click Test Script.",
+            "You can run your mapping script against example input values and preview the mapped value that the script returns",
+            "without affecting live data",
+            "If the source has had a successful run in the last 90 days, the panel includes the full dataset from that run; otherwise, it displays a 50-record preview."
+          ]
+        }
+      ]
+    },
+    "map-date-format": {
+      "statement": "The platform's required timestamp format is %Y-%m-%dT%H:%M:%SZ; because sources provide timestamps in various formats, the page's example uses a simple script to normalize the Asset First Seen date to it. The same page says to always map the First Seen date when mapping assets and findings, and to map lifecycle fields such as first_seen and last_seen when available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "When mapping entities like assets and findings, you should always map the First Seen date.",
+            "Because sources provide timestamps in various formats (e.g., epoch, various ISO-8601 strings, or non-standard date patterns), you can use a simple script to normalize them to the platform's required format: %Y-%m-%dT%H:%M:%SZ.",
+            "For example, when mapping the Asset First Seen date, you can replace",
+            "If your source provides timestamps, also map lifecycle fields (e.g., first_seen and last_seen) when available."
+          ]
+        }
+      ]
+    },
+    "map-date-edge-cases": {
+      "statement": "The platform returns None when a date script fails to produce a valid result, and the page lists None as the result for an empty string, a null, the number 12345 and a pre-epoch date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "By default, the platform handles edge cases and invalid inputs by returning None if the script fails to produce a valid result.",
+            "| Missing Data (field exists but is empty) | \"\" (Empty String) | None |",
+            "| Null Value (field is missing from the source) | null | None |",
+            "| Invalid Numeric (number is too short for a valid date) | 12345 | None |",
+            "| Pre-Epoch (dates before 1970-01-01) | Jan 1, 1960 | None |"
+          ]
+        }
+      ]
+    },
+    "map-nested-depth": {
+      "statement": "Nested source fields are referenced with dot notation; the mapping UI supports nesting only up to the third level, and deeper paths are entered manually in the Field method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "you reference it by its path using dot notation.",
+            "The platform supports nested fields in the UI only up to the third level.",
+            "If the field you need is deeper, enter the full path manually using dot notation in the Field method"
+          ]
+        }
+      ]
+    },
+    "map-explode-limits": {
+      "statement": "Only one field can be exploded per mapping, and the exploded value must be mapped to a key field of the entity (typically via Composite with a parent identifier); otherwise every record generated from the array shares one ID and each overwrites the previous one until only the final value remains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "Only one field can be exploded per mapping.",
+            "you must map the exploded value to a key field for that entity to ensure each resulting record is unique.",
+            "If the exploded value is not part of the key, every record generated from the array shares the same ID, causing each record to overwrite the previous one until only the final value remains.",
+            "This is typically achieved using a Composite mapping to combine the exploded value with a parent identifier (e.g., asset_id + cve_id)."
+          ]
+        }
+      ]
+    },
+    "map-explode-cases": {
+      "statement": "Exploding supports a standard array of strings, an array nested inside a JSON object, and an array of objects, and can be applied through the Explode Field icon or the Explode Values checkbox in the script editor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "Click the Explode Field icon that appears when hovering over the data source field.",
+            "Select the Explode Values checkbox in the script editor when configuring the field.",
+            "Standard array: Explode a field containing an array of strings to create a single record per string.",
+            "Array within a JSON object: Expand a field to reveal its nested fields, then explode a nested array field to create a single record per array element.",
+            "Array of objects: Explode a field containing an array of objects to create a single record per object."
+          ]
+        }
+      ]
+    },
+    "map-min-fields": {
+      "statement": "At minimum, an Asset mapping must include source_key, type and name, and a Finding mapping must include source_key, type, title, description, original_severity_score and original_severity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "| Asset | source_key, type, name |",
+            "| Finding | source_key, type, title, description, original_severity_score, original_severity |",
+            "Map the following fields at minimum to ensure records can be created and used downstream:"
+          ]
+        }
+      ]
+    },
+    "map-entity-key": {
+      "statement": "Entity keys should be unique and stable source-provided IDs rather than values that commonly change such as display names or IP addresses; where no single field is unique, a composite key should be built.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "Use source-provided IDs that are unique and stable over time (e.g., UUIDs or instance/device IDs) instead of values that commonly change (e.g., display names or IP addresses).",
+            "If no single field is unique or when exploding arrays, build a composite key that preserves uniqueness (e.g., asset_id + cve)."
+          ]
+        }
+      ]
+    },
+    "map-apply-timing": {
+      "statement": "Saved mapping changes apply to future scheduled runs of the source; to apply them to existing data immediately, the source is processed from the Sources page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "After saving, mapping changes apply to future runs scheduled on the data source setup page.",
+            "To apply the new mapping to the data immediately, process the data source on the Sources page."
+          ]
+        }
+      ]
+    },
+    "map-custom-entities": {
+      "statement": "Custom entities and fields can be added from the mapping page, but the help says they typically need advanced downstream configuration such as relationships and aliases and should be applied cautiously.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "Click Add Entity to create a custom entity.",
+            "these additions typically require advanced downstream configuration (e.g., defining entity relationships and aliases) to deliver significant value.",
+            "Apply customizations cautiously to ensure consistent normalization and reliable data correlation."
+          ]
+        }
+      ]
+    },
+    "parser-types": {
+      "statement": "File parsing defaults to Auto for all sources; the selectable parser types are JSONL, JSON, CSV, Excel, XML and PYTHON_STREAM, and selecting one matters most for AnySource ingestion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-mapping-data-sources.json",
+          "quotes": [
+            "File parsing defaults to Auto for all sources and is recommended for most use cases."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-source-file-parser-types.json",
+          "quotes": [
+            "Selecting a parser type is most relevant when you ingest data using AnySource",
+            "The following parser types are available:\n- JSONL\n- JSON\n- CSV\n- Excel\n- XML\n- PYTHON_STREAM"
+          ]
+        }
+      ]
+    },
+    "explore-window": {
+      "statement": "The Explore window shows the full dataset of the last successful run if it was within 90 days, and otherwise a 50-record preview.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-exploring-source-data-mapping.json",
+          "quotes": [
+            "If the source has had a successful run within the last 90 days, the Explore window includes the full dataset from that run.",
+            "Otherwise, the Agentic SecOps Platform displays a 50-record preview for exploration."
+          ]
+        }
+      ]
+    },
+    "explore-stats": {
+      "statement": "Field statistics in Explore, available when the source has run successfully within 90 days, show Record Count, Distinct Value, Value Coverage (null, empty or populated) and a Value Distribution histogram of the top 20, 50, 100 or 200 values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-exploring-source-data-mapping.json",
+          "quotes": [
+            "If the source has had a successful run within the last 90 days, you can use Explore to view field-level analytics across the full run.",
+            "Record Count: The total number of records analyzed from the run.",
+            "Distinct Value: The number of unique entries found in the selected field.",
+            "Value Coverage: Null, empty, or populated coverage",
+            "You can view the top 20, 50, 100, or 200 values.",
+            "Value Distribution: A common values histogram (ordered from most to least common)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "map-which-sources": {
+      "kind": "semantic",
+      "title": "Which sources use system-managed mappings or a Default Mapping",
+      "status": "open",
+      "detail": "The mapping articles say some sources use system-managed mappings and that Default Mapping is a Zscaler-provided preconfigured mapping, but name no source for either.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "map-script-modules": {
+      "kind": "semantic",
+      "title": "Which Python modules a mapping script may import",
+      "status": "open",
+      "detail": "The mapping article's script examples use datetime and ipaddress; no captured article lists the modules a script may import.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

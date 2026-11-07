@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "id": "zdx.devices.health-and-events",
+  "title": "ZDX device health metrics and device events",
+  "aliases": [
+    "zdx health metrics",
+    "device health metrics",
+    "zdx cpu memory metrics",
+    "zdx wifi metrics",
+    "zdx device events",
+    "zdx events",
+    "device event categories",
+    "zdx network change event"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.reports"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Health metrics show what the device itself was doing; events show what changed on it. {{health-metrics}} The complete category list is not published {{gap:health-category-list}}."
+    },
+    {
+      "label": "Events.",
+      "text": "{{events}} {{event-categories}} {{event-values}} The Go SDK's comment describes the same four categories, [[shared.audit-logs:zdx-device-events]]."
+    },
+    {
+      "label": "In the console.",
+      "text": "{{event-severity}} Whether the API's events carry a severity is open {{gap:severity-in-api}}. {{user-details-health}} {{report-metric-examples}}"
+    },
+    {
+      "label": "Device Events reports.",
+      "text": "{{events-reports}} {{system-crashes-report}} {{software-crashes-report}} The Device Health Score and profiles are in [[zdx.devices.health-score]]."
+    },
+    {
+      "label": "Time ranges.",
+      "text": "Unlike most report reads, the device events read does not require a time range, [[shared.log-export.zdx:two-hour-window]]."
+    },
+    {
+      "label": "Response key.",
+      "text": "The contract puts the events list under `events`, while the Go SDK reads `instances`, [[zdx.sdk-go.service-defects:events-key]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a device change (Client Connector, hardware, software or network) coincides with the score drop, from the device's events.",
+      "uses": [
+        "events",
+        "event-values"
+      ]
+    },
+    {
+      "do": "Whether CPU, memory, disk or Wi-Fi health on the device explains the drop before blaming the network.",
+      "uses": [
+        "health-metrics"
+      ]
+    }
+  ],
+  "claims": {
+    "event-severity": {
+      "statement": "On the console's user details page each device event is categorized by severity as Informational (non-critical details, like a notification), Warning (a component or application not in an ideal state that could lead to a critical error), Error (problems without needing immediate attention) or Critical (needs immediate attention, often system-wide, indicating failures or unresponsive applications). A side panel gives timestamps, category and attribute changes, and the category filter offers Zscaler, Hardware, Software and Network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "Each event is categorized in terms of severity, as represented at the bottom of the timeline: Informational, Warning, Error, and Critical.",
+            "| Informational | Events that display non-critical details, like a notification. |",
+            "| Warning | Events that warn of potential issues, indicating a component or application is not in an ideal state and could lead to a critical error. |",
+            "| Error | Events that indicate problems without requiring immediate attention. |",
+            "| Critical | Events that require immediate attention, often at the system-wide level, indicate failures or unresponsive applications. |",
+            "The side panel reveals a granular breakdown that includes timestamps, category, and attribute changes related to the event.",
+            "The Category drop-down menu provides the option to filter the event categories for Zscaler, Hardware, Software, and Network:"
+          ]
+        }
+      ]
+    },
+    "user-details-health": {
+      "statement": "On the user details page the Network and Disk options of Device Health are preselected by default. For users with an Advanced Plus subscription, the most impacted processes are also displayed for applicable CPU, Memory, Disk I/O and Network I/O, regardless of which graph is selected, with a maximum of 5 processes for each element within a given 5-minute interval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "The Network and Disk options are preselected by default, and you can choose the elements you want to review.",
+            "For users with an Advanced Plus subscription, the most impacted processes are also displayed for applicable CPU, Memory, Disk I/O, and Network I/O, regardless of which graph is selected.",
+            "A maximum of 5 processes is shown for each element within a given 5-minute interval."
+          ]
+        }
+      ]
+    },
+    "report-metric-examples": {
+      "statement": "The crash reports name the user detail metrics available to analyze as examples: Applications, CPU Utilization, Memory, Battery Level, Disk, Network Bandwidth and User Device Events.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-device-events-reports.json",
+          "quotes": [
+            "Under Time, you can evaluate user details at the selected time, and then you can analyze granular information (e.g., Applications, CPU Utilization, Memory, Battery Level, Disk, Network Bandwidth, User Device Events)."
+          ],
+          "after": "# System Crashes Report"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-device-events-reports.json",
+          "quotes": [
+            "Under Time, you can evaluate user details at the selected time, and then you can analyze granular information (e.g., Applications, CPU Utilization, Memory, Battery Level, Disk, Network Bandwidth, User Device Events)."
+          ],
+          "after": "# Software Crashes Report"
+        }
+      ]
+    },
+    "events-reports": {
+      "statement": "Device events are captured in the Zscaler Admin Console to provide aggregated insights into common system and software crashes that impact users and their devices; the System Crashes and Software Crashes reports are shown for the previous 30 days by default, and the System Crashes report's time range selection is 2 Hours to 30 Days. They need an Advanced subscription level, the required minimum or later versions of Client Connector and ZDX Module and an admin role configured to view them; the subscription table lists Device Events Reports as not supported on Standard and Microsoft 365 and supported on Advanced and Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-device-events-reports.json",
+          "quotes": [
+            "Device events are captured in the Zscaler Admin Console to provide aggregated insights into common system and software crashes that impact users and their devices.",
+            "The System Crashes and Software Crashes reports are shown for the previous 30 days by default.",
+            "You have an Advanced subscription level for the Device Events reports.",
+            "Time range selection (2 Hours to 30 Days)",
+            "The required minimum or later versions of Zscaler Client Connector and ZDX Module",
+            "Your admin role is configured to view the Device Events reports."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Device Events Reports | Not supported | Not supported | Supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "system-crashes-report": {
+      "statement": "The System Crashes report displays impacted Windows devices that experience system crashes: Blue Screens (system reboots due to a stop code or bug check code) and Unexpected Shutdown/Reboots (system reboots without a stop code, such as a long power button press), listed by impacted operating system, geolocation, vendor and model with total devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-device-events-reports.json",
+          "quotes": [
+            "The System Crashes report displays impacted Windows devices that experience system crashes.",
+            "Blue Screens, commonly referred to as Blue Screen of Death (BSOD): System events that occur when the system reboots due to a stop code or bug check code.",
+            "Unexpected Shutdown/Reboots: System events that occur when the system reboots without a stop code (e.g., long power button press).",
+            "Impacted Operating Systems: Displays Impacted OS, Blue Screen, Unexpected Shutdowns/Reboots, and Total Devices.",
+            "Impacted Geolocations: Displays Impacted Geolocation, Blue Screen, Unexpected Shutdowns/Reboots, and Total Devices.",
+            "Impacted Vendors: Displays Impacted Vendors, Blue Screen, Unexpected Shutdowns/Reboots, and Total Devices.",
+            "Impacted Models: Displays Impacted Model, Blue Screen, Unexpected Shutdowns/Reboots, and Total Devices."
+          ]
+        }
+      ]
+    },
+    "software-crashes-report": {
+      "statement": "The Software Crashes report shows software crashes for both Windows and macOS devices, while software hangs are shown for Windows devices only, with each software's publisher, whether a UI is impacted, total crashes, total hangs and impacted devices. The user details page can be accessed from the previous 14 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-device-events-reports.json",
+          "quotes": [
+            "You can view software crashes for both Windows and macOS devices, while software hangs are shown for Windows devices only.",
+            "Publisher: The publisher of the software.",
+            "User Interface: Whether there is a UI impacted.",
+            "Total Crashes: The total number of software crashes.",
+            "Total Hangs: The total number of hangs.",
+            "Impacted Devices: The number of impacted devices."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-device-events-reports.json",
+          "quotes": [
+            "You can access the user details page from the previous 14 days."
+          ],
+          "after": "# System Crashes Report"
+        }
+      ]
+    },
+    "health-metrics": {
+      "statement": "The device health-metrics read returns a device's health metrics trend, including CPU, Memory, Disk I/O, Network I/O, Wi-Fi and Network Bandwidth among others, for the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1health-metrics/get",
+          "expect": {
+            "description": "Gets the health metrics trend for a device. If the time range is not specified, the endpoint defaults to the last 2 hours. The health metrics include CPU, Memory, Disk I/O, Network I/O, Wi-Fi, Network Bandwidth, etc."
+          }
+        }
+      ]
+    },
+    "events": {
+      "statement": "The device events read returns a device's events trend, covering Zscaler, Hardware, Software and Network event changes, and defaults to the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get",
+          "expect": {
+            "description": "Gets the Events metrics trend for a device. If the time range is not specified, the endpoint defaults to the last 2 hours. The event metrics include Zscaler, Hardware, Software and Network event changes."
+          }
+        }
+      ]
+    },
+    "event-categories": {
+      "statement": "Each event's category is one of Zscaler, Network, Software or Hardware.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get/responses/200/content/application~1json/schema/properties/events/items/properties/category",
+          "expect": {
+            "description": "The Event category - Zscaler, Network, Software, or Hardware."
+          }
+        }
+      ]
+    },
+    "event-values": {
+      "statement": "Each event gives the name of the attribute, the event that occurred, and the attribute's previous and current values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get/responses/200/content/application~1json/schema/properties/events/items/properties/name",
+          "expect": {
+            "description": "The name of the attribute."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get/responses/200/content/application~1json/schema/properties/events/items/properties/display_name",
+          "expect": {
+            "description": "The event that occurred."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get/responses/200/content/application~1json/schema/properties/events/items/properties/prev",
+          "expect": {
+            "description": "The previous value."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get/responses/200/content/application~1json/schema/properties/events/items/properties/curr",
+          "expect": {
+            "description": "The current value."
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "severity-in-api": {
+      "kind": "semantic",
+      "title": "Whether the console's event severities appear in the API's events",
+      "status": "open",
+      "detail": "The console classifies each device event by severity (Informational, Warning, Error, Critical); the contract's event has a category, name, display name and previous and current values, and no source says whether the API's events carry a severity.",
+      "blocks": "mapping console event severities to API reads",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "health-category-list": {
+      "kind": "semantic",
+      "title": "The complete list of device health-metric categories",
+      "status": "open",
+      "former_ids": [
+        "zdx-24"
+      ],
+      "detail": "The contract lists CPU, Memory, Disk I/O, Network I/O, Wi-Fi and Network Bandwidth followed by \"etc.\", and the Go SDK comment repeats the list. No source enumerates every category the read returns.",
+      "blocks": "complete device-health answers",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

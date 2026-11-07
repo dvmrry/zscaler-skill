@@ -16,7 +16,7 @@ author-status: draft
 
 Grounding cards are lightweight symptom-to-context profiles. They are not
 diagnostics and they are not runbooks. Use a grounding card when a symptom needs
-a non-obvious cluster of reference docs, snapshot files, or evidence sources
+a non-obvious cluster of reference docs, tenant config (IaC or live reads), or evidence sources
 before the investigator can form good hypotheses.
 
 Do not create a grounding card for every topic. If normal product references and
@@ -34,7 +34,7 @@ last-verified: "YYYY-MM-DD"
 confidence: medium
 source-tier: practice
 sources:
-  - "references/<product>/<source>.md"
+  - "kb:<subject-id>"
 author-status: draft
 ---
 
@@ -46,19 +46,21 @@ author-status: draft
 
 ## Expected behavior anchors
 
-- `references/<product>/<source>.md` section `<heading>` — <why this anchor matters before reasoning>
+- `kb:<subject-id>` — <the topic that subject holds; why this anchor matters before reasoning>
 
 ## Load docs
 
-- `references/<product>/<source>.md`
+- `kb:<subject-id>`
 
-## Inspect snapshot
+## Inspect tenant config
 
-- `_data/snapshot/<cloud>/<product>/<file>.json`
+- The overlay's IaC for `<product>/<type-id>` (when `overlay.json` declares `iac`)
+- `zscalerctl <product> <type-id> list` (live, read-only; only when IaC cannot answer or for drift)
+- `node scripts/kb.mjs read <product>/<type-id>` for field shapes
 
 ## Use runtime logs only when
 
-- <condition where snapshot/reference evidence is insufficient>
+- <condition where tenant-config/reference evidence is insufficient>
 ```
 
 ## When To Add One

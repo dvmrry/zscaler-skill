@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.authentication",
+  "title": "How a client authenticates to the ZPA API: OneAPI, legacy and government clouds",
+  "aliases": [
+    "LegacyZPAClient",
+    "ZPA_CLOUD required",
+    "ZPA_CUSTOMER_ID",
+    "zpa customerId OneAPI",
+    "x-partner-id header",
+    "zpa gov govus oneapi",
+    "zpa legacy credentials",
+    "Zidentity ZPA tenant"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.api.base-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.api-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZPA is reached through the unified OneAPI gateway or through the older ZPA-specific legacy API, and the two take different credentials. The OAuth flow itself is described for ZIA in [[zia.api]]."
+    },
+    {
+      "label": "OneAPI.",
+      "text": "{{oneapi-server}} The extra IDs the Python client needs are [[zpa.sdk-python.client-configuration:oneapi-extra-ids]], and the path prefix is [[zpa.api.base-paths:oneapi-prefix]]."
+    },
+    {
+      "label": "Legacy.",
+      "text": "The legacy client's credentials are [[zpa.sdk-python.client-configuration:legacy-client]] and its environment variables [[zpa.sdk-python.client-configuration:legacy-client-env]]. The README names a cloud variable the SDK does not read [[zpa.sdk-python.client-configuration:cloud-required]]."
+    },
+    {
+      "label": "Government clouds.",
+      "text": "The provider's statement is [[zpa.terraform.provider-config:fedramp-oneapi-4-4-6]], the Python OneAPI routing is [[zia.sdk-python.authentication:gov-cloud-routing]], and the legacy hosts are [[zpa.api.base-paths:legacy-hosts]]."
+    },
+    {
+      "label": "Headers.",
+      "text": "[[zpa.sdk-python.client-configuration:partner-header]]"
+    },
+    {
+      "label": "Python SDK generations.",
+      "text": "[[zpa.sdk-python.client-configuration:python-v2-no-legacy]]"
+    },
+    {
+      "label": "API keys in the Admin Console.",
+      "text": "{{api-key-parts}} {{oneapi-credentials-elsewhere}} {{key-fields}} {{key-roles-rbac}} {{customer-and-microtenant-ids}} {{read-only-keys}} What the pages leave open is listed in {{gap:api-key-details}}."
+    },
+    {
+      "text": "{{legacy-signin}}"
+    },
+    {
+      "text": "{{legacy-key-role}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a government tenant, whether the client in use routes cloud=gov or cloud=govus through OneAPI rather than assuming legacy-only.",
+      "uses": [
+        "zpa.terraform.provider-config:fedramp-oneapi-4-4-6",
+        "zpa.api.base-paths:legacy-hosts"
+      ]
+    }
+  ],
+  "claims": {
+    "oneapi-server": {
+      "statement": "The ZPA OpenAPI document declares the server https://api.zsapi.net/zpa, described as \"ZPA Endpoints\", and an HTTP bearer security scheme.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/servers/[description=ZPA Endpoints]",
+          "expect": {
+            "url": "https://api.zsapi.net/zpa",
+            "description": "ZPA Endpoints"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/components/securitySchemes/Bearer",
+          "expect": {
+            "scheme": "bearer",
+            "type": "http"
+          }
+        }
+      ]
+    },
+    "legacy-signin": {
+      "statement": "The legacy ZPA API signs in with a form-encoded POST of `client_id` and `client_secret` to `/signin` on the tenant's config host (config.private.zscaler.com in the article, which differs by cloud) and returns a Bearer token with `expires_in` 3600; the token is sent as `Authorization: Bearer` and `/signout` ends it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zpa-api.json",
+          "quotes": [
+            "import requests url = \"https://config.private.zscaler.com/signin\" payload={'client_id':{client_id},'client_secret':{client_secret}} headers = { 'Content-Type': 'application/x-www-form-urlencoded' }",
+            "- \"expires_in\" : \"3600\"",
+            "- url = \"https://config.private.zscaler.com/signout\"",
+            "The request URLs and references to config.private.zscaler.com within this article differ depending on your organization’s assigned cloud.",
+            "- Authorization: Bearer <access_token>"
+          ]
+        }
+      ]
+    },
+    "legacy-key-role": {
+      "statement": "Only admins with full access to the API Key Management role can create legacy ZPA API keys, and Zscaler does not officially provide a Postman collection for the legacy ZPA API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zpa-api.json",
+          "quotes": [
+            "Only admins with full access to the API Key Management role can create keys.",
+            "If you choose to use the API management tool Postman, Zscaler does not officially provide a Postman collection."
+          ]
+        }
+      ]
+    },
+    "api-key-parts": {
+      "statement": "A ZPA API key consists of a client ID and a client secret, both required for authentication before accessing the publicly available set of ZPA APIs; the page says generating an API key only occurs in the Admin Console from the API Keys page (Administration > API > Private Access API). Client IDs are always accessible from the page, while client secrets are displayed only when the key is first created and are not available in the saved configuration or after the drawer is closed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-api-key-management.json",
+          "quotes": [
+            "An API key consists of a client ID and a client secret. Both are required for authentication prior to accessing the publicly available set of ZPA APIs.",
+            "Generating an API key only occurs in the Zscaler Admin Console from the API Keys page.",
+            "Client IDs are always accessible from the page. Client secrets are only displayed when the key is first created, and they are not available in the saved configuration.",
+            "On the API Keys page (Administration > API > Private Access API), you can do the following:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-api-keys.json",
+          "quotes": [
+            "The client secret is only available to copy when creating an API key. It is not available to access in the Zscaler Admin Console after you close the drawer, so store it in a secure location."
+          ]
+        }
+      ]
+    },
+    "oneapi-credentials-elsewhere": {
+      "statement": "The Adding API Keys page points to API Client Authentication in Authentication Service for the API keys or secrets needed to access Zscaler OneAPI endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-api-keys.json",
+          "quotes": [
+            "If you need to obtain API keys or secrets to access Zscaler OneAPI endpoints, see API Client Authentication in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "key-fields": {
+      "statement": "An API key has a Name, a Status (enabled by default; a disabled key is unavailable to use), a Session Validity Interval in seconds (the time the key remains active before expiring, at most 3,600 seconds) and a Role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-api-keys.json",
+          "quotes": [
+            "Name: Enter a name for the key.",
+            "Status: Enable the key. If Disabled, the key will be unavailable to use. By default, this is enabled.",
+            "Session Validity Interval (In Seconds): The amount of time the key is available to use. The maximum amount of time is 3,600 seconds.",
+            "Role: The predefined role or a custom role of the API key (e.g., API Read Only, API Full Access)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-api-key-management.json",
+          "quotes": [
+            "Session Validity Interval (In Seconds): The amount of time in seconds that the key remains active before expiring."
+          ]
+        }
+      ]
+    },
+    "key-roles-rbac": {
+      "statement": "Roles for API keys enforce granular role-based access control (RBAC) on all publicly available ZPA API operations, and the API Full Access predefined role gives full access to the Private Access API. The RBAC page's own steps for enforcing RBAC on ZPA API operations are to create a predefined or custom role and then an API client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-api-keys.json",
+          "quotes": [
+            "Roles for API keys enforce granular role-based access control (RBAC) on all publicly available ZPA API operations.",
+            "For each API key, you can select the API Full Access predefined role to provide full access to the Private Access API."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-role-based-access-control-zpa-api.json",
+          "quotes": [
+            "Role-based access control (RBAC) for all ZPA API operations ensures that access to API endpoints is restricted or granted based on user roles and permissions.",
+            "Create a predefined or custom role.",
+            "Create an API client."
+          ]
+        }
+      ]
+    },
+    "customer-and-microtenant-ids": {
+      "statement": "The API Keys page can copy the customer ID, needed for making API calls (the page writes \"AP calls\"), and, only when within a Microtenant, the Microtenant ID, which is needed for API calls and must be passed as microtenantId; the client ID is needed to access the ZPA API Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-api-key-management.json",
+          "quotes": [
+            "Copy your customer ID. The customer ID is needed for making AP calls.",
+            "Copy your Microtenant ID. The Microtenant ID is the unique identifier of the Microtenant, and is needed for making API calls if you're within a Microtenant.",
+            "The Copy Microtenant ID action is only visible if you are within a Microtenant. If you are within a Microtenant, then you must pass the microtenantId when making an API call.",
+            "Client ID: The ID for the key. It is needed to access the ZPA API Portal."
+          ]
+        }
+      ]
+    },
+    "read-only-keys": {
+      "statement": "If a tenant is subscribed to Authentication Service and has it enabled, API keys created in Authentication Service appear on the API Keys page and are read only; if an API key is configured using Zscaler Deception, the edit and delete options are unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-api-key-management.json",
+          "quotes": [
+            "If you are subscribed to Authentication Service and have it enabled for your tenant, API keys created in Authentication Service appear on the API Keys page in the Zscaler Admin Console and are read only.",
+            "If an API key is configured using Zscaler Deception, then the edit and delete options are unavailable."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-key-details": {
+      "kind": "semantic",
+      "title": "What the API key pages leave unstated",
+      "status": "open",
+      "detail": "Only two predefined role names appear, both as examples (API Full Access and API Read Only). The pages do not state the custom-role permission model, a minimum Session Validity Interval, a cap on the number of keys, or how the RBAC page's API client relates to these API keys (it may be the Authentication Service API client).",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "id": "zdx.applications.uc-tenants",
+  "title": "Onboarding Microsoft Teams, Webex and Zoom Call Quality tenants: prerequisites, authentication and monitoring criteria",
+  "aliases": [
+    "call quality tenant",
+    "ucaas tenant",
+    "onboard teams call quality",
+    "onboard webex call quality",
+    "onboard zoom call quality",
+    "zoom qss",
+    "zdx autosense prerequisites"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.call-quality"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.configuration"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A unified communication application needs its tenant onboarded before its probes can be configured ([[zdx.applications:uc-tenant-onboarding]]); this is what the onboarding of a Microsoft Teams, Webex or Zoom tenant asks for. {{prerequisites}}"
+    },
+    {
+      "label": "Authentication.",
+      "text": "{{authentication}}"
+    },
+    {
+      "label": "Probes it creates.",
+      "text": "{{autosense-auto-probe}} Whether onboarding a Webex tenant does the same is not stated {{gap:webex-autosense}}. The Autosense probe type is in [[zdx.probes.configuration:cqm-autosense]]."
+    },
+    {
+      "label": "Per platform.",
+      "text": "{{teams-requirements}} {{zoom-tenant-types}}"
+    },
+    {
+      "label": "Monitoring criteria.",
+      "text": "{{monitoring-criteria}} The Zoom exclusion semantics are in [[zdx.devices.call-quality]]."
+    },
+    {
+      "label": "Checking the setup.",
+      "text": "{{validate}}"
+    }
+  ],
+  "claims": {
+    "prerequisites": {
+      "statement": "Each of the Webex, Microsoft Teams and Zoom Call Quality configuration articles requires, before onboarding a tenant, the required versions of Zscaler Client Connector and ZDX Module to configure a ZDX Autosense probe, a ZDX subscription level that supports ZDX Autosense, the Windows Filtering Platform (WFP) driver installation setting for ZDX Autosense enabled in the Zscaler Admin Console, and the setting to collect device hostname information enabled in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-webex-call-quality-zdx.json",
+          "quotes": [
+            "You're running the required versions of Zscaler Client Connector and ZDX Module to configure a ZDX Autosense probe.",
+            "Your ZDX subscription level supports ZDX Autosense.",
+            "You enable the Windows Filtering Platform (WFP) driver installation setting for ZDX Autosense in the Zscaler Admin Console.",
+            "You enable the setting to collect device hostname information in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "You're running the required versions of Zscaler Client Connector and ZDX Module to configure a ZDX Autosense probe.",
+            "Your ZDX subscription level supports ZDX Autosense.",
+            "You've enabled the Windows Filtering Platform (WFP) driver installation setting for ZDX Autosense in the Zscaler Admin Console.",
+            "You've enabled the setting to collect device hostname information in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zoom-call-quality-zdx.json",
+          "quotes": [
+            "You're running the required versions of Zscaler Client Connector and ZDX Module to configure a ZDX Autosense probe.",
+            "Your ZDX subscription level supports ZDX Autosense.",
+            "You enable the Windows Filtering Platform (WFP) driver installation setting for ZDX Autosense in the Zscaler Admin Console.",
+            "You enable the setting to collect device hostname information in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "autosense-auto-probe": {
+      "statement": "When a Microsoft Teams Call Quality tenant or a Zoom Call Quality tenant is onboarded for the first time, a ZDX Autosense Cloud Path probe that detects the destination IP address is generated automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "When onboarding a Microsoft Teams Call Quality tenant for the first time, a ZDX Autosense Cloud Path probe is automatically generated that detects the destination IP address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zoom-call-quality-zdx.json",
+          "quotes": [
+            "When onboarding a Zoom Call Quality tenant for the first time, a ZDX Autosense Cloud Path probe is automatically generated that detects the destination IP address."
+          ]
+        }
+      ]
+    },
+    "authentication": {
+      "statement": "A new Webex tenant must be authenticated with Webex before it can be saved, and the Webex, Microsoft Teams and Zoom tenants must each be reauthenticated if their criteria settings are configured or updated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-webex-call-quality-zdx.json",
+          "quotes": [
+            "You must authenticate with Webex before you can save the new tenant. You must also reauthenticate whenever you update the Monitoring Criteria settings.",
+            "You must reauthenticate with Webex if you configure or update the criteria settings."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "You must reauthenticate with Microsoft Teams if you configure or update the criteria settings."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zoom-call-quality-zdx.json",
+          "quotes": [
+            "You must reauthenticate with Zoom if you configure or update the criteria settings."
+          ]
+        }
+      ]
+    },
+    "teams-requirements": {
+      "statement": "To authenticate M365 for the Microsoft Teams application integration the admin must be a Global Administrator in Azure Active Directory; a Microsoft Teams Web App is automatically added under the Predefined Apps Collection; and if the organization does not use an email ID to access Microsoft Teams Call Quality, the admin should log in with the Zscaler Client Connector Login ID to ensure successful alignment between Microsoft and the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "To authenticate M365 for application integration, you must be a Global Administrator in the Azure Active Directory (AD).",
+            "A Microsoft Teams Web App is automatically added under Predefined Apps Collection.",
+            "If your organization does not use an email ID to access Microsoft Teams Call Quality, log in with your Zscaler Client Connector Login ID to ensure successful alignment between Microsoft and the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "zoom-tenant-types": {
+      "statement": "A Zoom tenant is onboarded as either a Zoom API tenant or a Zoom Quality of Service Subscription (QSS) tenant for Zoom's data streaming service, chosen as the Tenant type (Zoom API, Zoom QSS); both cannot be onboarded at the same time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zoom-call-quality-zdx.json",
+          "quotes": [
+            "You can either onboard the Zoom API tenant or onboard a Zoom Quality of Service Subscription (QSS) tenant for Zoom's data streaming service.",
+            "You cannot onboard both a Zoom API tenant and a Zoom QSS tenant at the same time.",
+            "Tenant type: Choose a Zoom tenant (Zoom API, Zoom QSS)."
+          ]
+        }
+      ]
+    },
+    "monitoring-criteria": {
+      "statement": "The Microsoft Teams and Webex articles configure Inclusion Criteria for User Groups, Users and Departments, and the Zoom article configures Inclusion and Exclusion Criteria for them; in the Teams article meetings are monitored and displayed only for the selected ZDX users in the Inclusion Criteria, with selections among the filters cumulative and selections within a single filter not cumulative, and in the Zoom article Exclusion Criteria exclude selected users from monitoring.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "Monitoring Criteria: Configure the Inclusion Criteria for User Groups, Users, and Departments.",
+            "Meetings are monitored and displayed only for your selected ZDX users in the Inclusion Criteria of the Monitoring Criteria. Selections among the filters are cumulative, whereas selections within a single filter are not cumulative."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-webex-call-quality-zdx.json",
+          "quotes": [
+            "Monitoring Criteria: Configure the Inclusion Criteria for User Groups, Users, and Departments."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zoom-call-quality-zdx.json",
+          "quotes": [
+            "Monitoring Criteria: Configure the Inclusion and Exclusion Criteria for User Groups, Users, and Departments.",
+            "Exclusion Criteria: Meetings exclude selected users from monitoring."
+          ]
+        }
+      ]
+    },
+    "validate": {
+      "statement": "After onboarding, Validate verifies that the setup with the platform was successful: optional for Zoom, and clicked within the dialog window for Webex.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zoom-call-quality-zdx.json",
+          "quotes": [
+            "(Optional) Click Validate to verify your setup with Zoom was successful."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-webex-call-quality-zdx.json",
+          "quotes": [
+            "Click Validate within the dialog window to verify your Webex setup was successful."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "webex-autosense": {
+      "kind": "semantic",
+      "title": "Whether onboarding a Webex Call Quality tenant generates a ZDX Autosense Cloud Path probe",
+      "status": "open",
+      "detail": "The Teams and Zoom articles say a ZDX Autosense Cloud Path probe is generated automatically when a tenant is onboarded for the first time; the Webex article, as extracted, has no such sentence. Configuring a Probe says Autosense is configured automatically when a CQM application is first onboarded, without naming platforms.",
+      "blocks": "answers about whether a Webex tenant gets an automatic Cloud Path probe",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

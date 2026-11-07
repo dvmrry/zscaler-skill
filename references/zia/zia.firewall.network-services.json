@@ -1,0 +1,841 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.network-services",
+  "title": "Network services (port criteria)",
+  "aliases": [
+    "network service",
+    "networkServices",
+    "nw_services",
+    "service type",
+    "srcTcpPorts",
+    "destTcpPorts",
+    "service tag",
+    "port tuple",
+    "uppercase service names"
+  ],
+  "binds": [
+    "zia/network-services",
+    "zia/network-services#type",
+    "zia/network-services#protocol",
+    "zia/network-services#tag",
+    "zia/network-services#srcTcpPorts",
+    "zia/network-services#destTcpPorts",
+    "zia/network-services#srcUdpPorts",
+    "zia/network-services#destUdpPorts",
+    "zia/network-services#name"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/network-services"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A network service is the port criterion that Firewall Filtering and IPS rules reference. {{object-shape}} {{type-values}} What STANDARD, PREDEFINED and CUSTOM mean is open {{gap:type-meanings}}. {{tag-values}}"
+    },
+    {
+      "label": "Looking one up.",
+      "text": "{{name-lookup-case}} {{protocol-filter-values}} {{endpoint}} {{lookup-single-request}}"
+    },
+    {
+      "label": "Writing one.",
+      "text": "{{port-tuples}} {{wire-key-built-from-tuple}} {{single-port-encoding}} The two SDKs model the object's fields differently {{divergence:sdk-field-sets}}. {{update-replaces-ports}}"
+    },
+    {
+      "label": "Size.",
+      "text": "{{service-count-cap}} The per-rule cap on services is in [[zia.firewall.limits]]. The description length differs between the help pages {{divergence:description-length}}. {{custom-description-cap}}"
+    },
+    {
+      "label": "Predefined services.",
+      "text": "{{predefined-set}} {{predefined-editability}} {{predefined-ports}} {{zscaler-proxy-service}}"
+    },
+    {
+      "label": "How the help says they match.",
+      "text": "{{services-uses}} {{first-packet}} {{custom-match-logic}} {{custom-match-example}} {{port-entry-format}} {{definition-label}} [[zia.firewall:custom-port-services]] Whether the eight-entry cap is per field is open {{gap:port-array-precedence}}."
+    },
+    {
+      "label": "Network service groups.",
+      "text": "{{service-groups}} {{service-group-sizes}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a service type is treated as an enum, since the Go SDK holds it as a free-form string.",
+      "uses": [
+        "type-values"
+      ]
+    },
+    {
+      "do": "Whether a service is custom from its type, rather than from its name.",
+      "uses": [
+        "type-values"
+      ]
+    },
+    {
+      "do": "Whether the name is searched in uppercase, since the server-side search is case-sensitive.",
+      "uses": [
+        "name-lookup-case"
+      ]
+    },
+    {
+      "do": "Whether the complete port list is sent on an update, since supplying ports overwrites the existing ones.",
+      "uses": [
+        "update-replaces-ports"
+      ]
+    }
+  ],
+  "claims": {
+    "type-values": {
+      "statement": "The API returns a network service's `type` as STANDARD, PREDEFINED or CUSTOM. The Go SDK model holds it as a free-form string.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#type"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/responses/200/content/application~1json/schema/items/properties/type",
+          "expect": {
+            "enum": [
+              "STANDARD",
+              "PREDEFINED",
+              "CUSTOM"
+            ]
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
+          "quotes": [
+            "Type string `json:\"type,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "tag-values": {
+      "statement": "The API's `tag` field is an enumeration of network service identifiers, such as HTTP, HTTPS, DNS, FTP, SSH, plus ICMP_ANY, UDP_ANY, TCP_ANY and OTHER_NETWORK_SERVICE.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#tag"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/responses/200/content/application~1json/schema/items/properties/tag",
+          "expect": {
+            "enum": [
+              "ICMP_ANY",
+              "UDP_ANY",
+              "TCP_ANY",
+              "OTHER_NETWORK_SERVICE",
+              "DNS",
+              "NETBIOS",
+              "FTP",
+              "GNUTELLA",
+              "H_323",
+              "HTTP",
+              "HTTPS",
+              "IKE",
+              "IMAP",
+              "ILS",
+              "IKE_NAT",
+              "IRC",
+              "LDAP",
+              "QUIC",
+              "TDS",
+              "NETMEETING",
+              "NFS",
+              "NTP",
+              "SIP",
+              "SNMP",
+              "SMB",
+              "SMTP",
+              "SSH",
+              "SYSLOG",
+              "TELNET",
+              "TRACEROUTE",
+              "POP3",
+              "PPTP",
+              "RADIUS",
+              "REAL_MEDIA",
+              "RTSP",
+              "VNC",
+              "WHOIS",
+              "KERBEROS_SEC",
+              "TACACS",
+              "SNMPTRAP",
+              "NMAP",
+              "RSYNC",
+              "L2TP",
+              "HTTP_PROXY",
+              "PC_ANYWHERE",
+              "MSN",
+              "ECHO",
+              "AIM",
+              "IDENT",
+              "YMSG",
+              "SCCP",
+              "MGCP_UA",
+              "MGCP_CA",
+              "VDO_LIVE",
+              "OPENVPN",
+              "TFTP",
+              "FTPS_IMPLICIT",
+              "ZSCALER_PROXY_NW_SERVICES",
+              "GRE_PROTOCOL",
+              "ESP_PROTOCOL",
+              "DHCP"
+            ]
+          }
+        }
+      ]
+    },
+    "protocol-filter-values": {
+      "statement": "The list filter `protocol` accepts ICMP, TCP, UDP, GRE, ESP or OTHER. The MCP tool describes the values, uppercases the supplied value and forwards it without validating membership.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#protocol"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/parameters/[name=protocol]/schema",
+          "expect": {
+            "enum": [
+              "ICMP",
+              "TCP",
+              "UDP",
+              "GRE",
+              "ESP",
+              "OTHER"
+            ]
+          }
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/network_services.py",
+          "quotes": [
+            "Filter by protocol: ICMP, TCP, UDP, GRE, ESP, OTHER.",
+            "qp[\"protocol\"] = args.protocol.upper()",
+            "protocol: Annotated[ Optional[str],",
+            "if args.protocol:",
+            "services, _, err = client.zia.cloud_firewall.list_network_services(query_params=qp)"
+          ]
+        }
+      ],
+      "conditions": "Absence claim: `grep -n 'Literal\\|validator\\|ICMP' src/zscaler_mcp/tools/zia/network_services.py` at v0.15.4 returns only the Field description; `grep -n protocol` on the file returns the field declaration `protocol: Annotated[` (typed `Optional[str]`), its description and the `if args.protocol:` branch that uppercases it into `qp`."
+    },
+    "port-tuples": {
+      "statement": "The SDK and MCP accept ports as tuples of direction (src or dest), protocol (tcp or udp), start port and optionally end port; the end port is omitted for a single port.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#srcTcpPorts",
+        "zia/network-services#destTcpPorts",
+        "zia/network-services#srcUdpPorts",
+        "zia/network-services#destUdpPorts"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "quotes": [
+            "A list of port protocol tuples. Tuples must follow the convention `src/dest`, `protocol`, `start port`, `end port`. If this is a single port and not a port range then `end port` can be omitted."
+          ],
+          "after": "def add_network_service("
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/network_services.py",
+          "quotes": [
+            "Port tuples: [[\"src\"|\"dest\", \"tcp\"|\"udp\", start, end?]]."
+          ]
+        }
+      ]
+    },
+    "wire-key-built-from-tuple": {
+      "statement": "The Python SDK builds the request key from the tuple as direction plus the title-cased protocol plus `Ports`, so ('dest','tcp',...) becomes `destTcpPorts`. It does not validate direction or protocol before building the key.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#srcTcpPorts",
+        "zia/network-services#destTcpPorts",
+        "zia/network-services#srcUdpPorts",
+        "zia/network-services#destUdpPorts"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "quotes": [
+            "if ports is not None:",
+            "for items in ports:",
+            "port_dict = {\"start\": int(items[2])}",
+            "body.setdefault(f\"{items[0]}{items[1].title()}Ports\", []).append(port_dict)"
+          ],
+          "after": "def add_network_service("
+        }
+      ],
+      "conditions": "Absence claim: `grep -n 'items\\[0\\]\\|items\\[1\\]' zscaler/zia/cloud_firewall.py` at v1.11.3-1-g4f8f54df returns only the two `body.setdefault(f\"{items[0]}{items[1].title()}Ports\", ...)` lines, one in `add_network_service` and one in `update_network_service`; each loop body sets `port_dict` start, adds the end when `len(items) == 4`, then calls `setdefault`, with no check on direction or protocol."
+    },
+    "single-port-encoding": {
+      "statement": "A port entry with no `end` value is encoded differently by the two SDKs: the Python `PortRange` always emits both `start` and `end`, while the Go `NetworkPorts` tags both `omitempty`, so a zero `end` is left out and the entry is sent as `start` alone.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#srcTcpPorts"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/cloud_firewall_nw_service.py",
+          "quotes": [
+            "return {\"start\": self.start, \"end\": self.end}"
+          ],
+          "after": "class PortRange(ZscalerObject):"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
+          "quotes": [
+            "End   int `json:\"end,omitempty\"`",
+            "Start int `json:\"start,omitempty\"`"
+          ],
+          "after": "type NetworkPorts struct {"
+        }
+      ]
+    },
+    "update-replaces-ports": {
+      "statement": "Updating a network service without ports leaves the existing ports unchanged; supplying ports overwrites the existing ports entirely.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "quotes": [
+            "If ports aren't provided then no changes will be made to the ports already defined.",
+            "the existing ports will be overwritten."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/network_services.py",
+          "quotes": [
+            "Port tuples; if provided REPLACES existing ports."
+          ]
+        }
+      ]
+    },
+    "name-lookup-case": {
+      "statement": "The MCP tool documents server-side `search` as case-sensitive and `name` as a client-side case-insensitive substring filter. Its lookup workflow says predefined service names are uppercase (HTTP, FTP, DNS) and that `search=\"http\"` does not match `HTTP`.",
+      "tier": "A",
+      "conditions": "This is the MCP layer's own documentation; no SDK or API capture states the server-side case behavior.",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/network_services.py",
+          "quotes": [
+            "Server-side query (case-sensitive).",
+            "Case-insensitive substring match on the service name."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/look-up-rule-targets/SKILL.md",
+          "quotes": [
+            "server-side `search=\"http\"` does NOT match `HTTP`.",
+            "ZIA's canonical network-service names are uppercase enums (`HTTP`, `FTP`, `DNS`)",
+            "The tool's `name=` normalises casing client-side."
+          ]
+        }
+      ]
+    },
+    "endpoint": {
+      "statement": "Network services are served at `/networkServices`, with a `/networkServices/lite` variant, in the API capture; the Go client uses the same path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get",
+          "expect": {
+            "description": "<p>Gets a list of all network services. The search parameters find matching values within the <code>name</code> or <code>description</code> attributes.</p> \n",
+            "operationId": "Network Service Resource Get Network Services"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices~1lite/get",
+          "expect": {
+            "description": "<p>Gets a name and ID dictionary of all network services.</p>\n",
+            "operationId": "Network Service Resource Get Network Services Lite"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
+          "quotes": [
+            "networkServicesEndpoint = \"/zia/api/v1/networkServices\""
+          ]
+        }
+      ]
+    },
+    "lookup-single-request": {
+      "statement": "From Go SDK v3.8.57, `GetAllNetworkServices` and `GetByName` read `/networkServices` in a single request without `page` or `pageSize`, because the endpoint is not paginated and accepts only `search`, `protocol` and `locale`; some clouds rejected the page size with `INVALID_INPUT_ARGUMENT` `Invalid Page Size 1,000`. The Terraform data source lookup by `name`, `protocol` or `locale` had failed the same way, and provider v4.8.16 retrieves all network services in one request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "ZIA `networkservices`: `GetAllNetworkServices` and `GetByName` now read `/networkServices` in a single request without `page` or `pageSize`.",
+            "The endpoint is not paginated and accepts only `search`, `protocol` and `locale`.",
+            "Some clouds reject the page size with `INVALID_INPUT_ARGUMENT` `Invalid Page Size 1,000`"
+          ],
+          "after": "# 3.8.57 (October 29, 2026)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
+          "quotes": [
+            "// Single read: the endpoint is not paginated, so no page or pageSize is sent."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "the data source no longer fails with `INVALID_INPUT_ARGUMENT` `Invalid Page Size` when looking up a network service by `name`, `protocol` or `locale` on clouds that reject a page size for network services.",
+            "The lookup now retrieves all network services in a single request."
+          ],
+          "after": "## 4.8.16 (October 29, 2026)"
+        }
+      ]
+    },
+    "service-count-cap": {
+      "statement": "The limits table lists 832 firewall network services per organization, and the About Network Services page says an organization can add up to 832 custom network services in addition to the predefined ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "All values are per organization unless noted otherwise.",
+            "| Firewall Network Services | 832 services |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "In addition to the predefined services, you can add up to 832 custom network services and control them using policies."
+          ]
+        }
+      ]
+    },
+    "predefined-set": {
+      "statement": "Zscaler provides over 50 predefined network services along with the TCP and UDP ports (source and destination) over which they typically operate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "Zscaler provides over 50 predefined network services along with the TCP and UDP ports (for source and destination) over which these services typically operate."
+          ]
+        }
+      ]
+    },
+    "predefined-editability": {
+      "statement": "The ports assigned to predefined network services can be customized by adding new ports and modifying or deleting existing ones, except for six view-only predefined services (ESP, GRE, ICMP, TCP, UDP and Zscaler Proxy Network Services). Predefined services cannot be deleted. Editing a service offers Description, TCP Ports and UDP Ports, and custom services can be edited the same way.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "Additionally, you can customize the ports assigned to the predefined network services by adding new ports and modifying and deleting existing ones.",
+            "The following predefined network services are view-only and cannot be modified: ESP, GRE, ICMP, TCP, UDP, and Zscaler Proxy Network Services",
+            "Predefined network services cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-modifying-predefined-network-services.json",
+          "quotes": [
+            "In the Edit Network Service drawer, you can modify:",
+            "Description: Additional notes or information about the network service.",
+            "TCP Ports: TCP source and destination ports used by the network service.",
+            "UDP Ports: UDP source and destination ports used by the network service.",
+            "Similarly, you can edit custom network services and modify their port assignments."
+          ]
+        }
+      ]
+    },
+    "predefined-ports": {
+      "statement": "The About Network Services table gives TCP and UDP destination ports per predefined service, for example DNS on 53 for both, HTTP on TCP 80, HTTPS on TCP 443, HTTP Proxy on TCP 3128 and 8080, QUIC on UDP 443, FTP on TCP 21, SSH on TCP 22, NTP on UDP 123 and Traceroute on UDP 33400-34000; ICMP is listed N/A for both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "| Name | TCP Destination Ports | UDP Destination Ports | Description |",
+            "| DNS | 53 | 53 |",
+            "| HTTP | 80 | N/A |",
+            "| HTTPS | 443 | N/A |",
+            "| HTTP Proxy | 3128, 8080 | N/A |",
+            "| QUIC | N/A | 443 |",
+            "| FTP | 21 | N/A |",
+            "| SSH | 22 | N/A |",
+            "| NTP | N/A | 123 |",
+            "| Traceroute | N/A | 33400-34000 |",
+            "| ICMP | N/A | N/A |"
+          ]
+        }
+      ]
+    },
+    "zscaler-proxy-service": {
+      "statement": "The predefined Zscaler Proxy Network Services entry lists TCP ports 21, 443, 80, 8080, 8800, 9400, 9443 and 9480, and includes all Zscaler-specific web proxy ports including customer-specific Dedicated Proxy Ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "| Zscaler Proxy Network Services | 21, 443, 80, 8080, 8800, 9400, 9443, 9480 | N/A |",
+            "This network service includes all Zscaler-specific web proxy ports including customer-specific Dedicated Proxy Ports."
+          ]
+        }
+      ]
+    },
+    "services-uses": {
+      "statement": "Network services with specific source or destination ports and protocols can be used to configure 5-tuple Firewall Filtering, NAT, IPS Control and Forwarding rules with allow, block or redirect actions, and custom network services let Firewall, DNS and NAT policies apply to non-standard traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "Configure 5-tuple Firewall Filtering rules, NAT rules, IPS Control rules, and Forwarding rules based on network services that include specific source or destination ports and protocols and enforce condition-based actions to allow, block, or redirect your network traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-services.json",
+          "quotes": [
+            "Custom network services allow you to define your own protocol and port combinations so you can apply precise Firewall, DNS, and NAT policies to non-standard or specialized traffic that is not covered by predefined services."
+          ]
+        }
+      ]
+    },
+    "first-packet": {
+      "statement": "Network services are identified at the first packet, leading to immediate policy action, whereas deep packet inspection typically needs multiple packets to identify network applications. Zscaler recommends ranking Firewall Filtering rules for network services, and for network service groups, higher than rules for network applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "Network services configured in Zscaler are identified at the first packet, leading to immediate policy action.",
+            "multiple packets are typically required by deep packet inspection to identify network applications before a policy action can take place",
+            "Zscaler recommends that you rank Firewall Filtering rules for network services higher than rules for network applications"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-service-groups.json",
+          "quotes": [
+            "Zscaler recommends that you rank Firewall Filtering rules for network service groups higher than rules for network applications"
+          ]
+        }
+      ]
+    },
+    "custom-match-logic": {
+      "statement": "A custom network service combines protocols and ports at the source and destination: entries within the source, or within the destination, have an OR relationship, and source and destination combine with AND, that is (TCP Source Ports OR UDP Source Ports) AND (TCP Destination Ports OR UDP Destination Ports).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-services.json",
+          "quotes": [
+            "A custom network service is defined as a combination of protocols and ports used at the source and destination.",
+            "(TCP Source Ports OR UDP Source Ports) AND (TCP Destination Ports OR UDP Destination Ports)",
+            "Within the source or destination, all entities have an OR relationship. Between source and destination, the relationship is AND.",
+            "traffic matches this network service only if it originates from TCP port 111 and is destined to either TCP port 444 or UDP port 333."
+          ]
+        }
+      ]
+    },
+    "port-entry-format": {
+      "statement": "The TCP Source Ports field takes a port number (for example 50) or a range (for example 1000–1050), and the page says a maximum of 8 entries is allowed for each port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-services.json",
+          "quotes": [
+            "TCP Source Ports: Enter the port number (e.g., 50) or range (e.g., 1000–1050) used by the network service.",
+            "A maximum of 8 entries is allowed for each port."
+          ]
+        }
+      ]
+    },
+    "definition-label": {
+      "statement": "The console populates Definition as Custom automatically for admin-defined services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-services.json",
+          "quotes": [
+            "Definition: Custom is automatically populated for admin-defined services."
+          ]
+        }
+      ]
+    },
+    "custom-description-cap": {
+      "statement": "The Configuring Custom Ports page says a custom network service's description cannot exceed 10,240 characters, and Definition is automatically populated as Custom for admin-defined services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-ports.json",
+          "quotes": [
+            "Description: Optionally, enter additional notes or information. The description cannot exceed 10,240 characters.",
+            "Definition: Custom is automatically populated for admin-defined services."
+          ]
+        }
+      ]
+    },
+    "custom-match-example": {
+      "statement": "The Configuring Custom Ports page gives the same example as the Configuring Network Services page: traffic matches the network service only if it originates from TCP port 111 and is destined to either TCP port 444 or UDP port 333.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-ports.json",
+          "quotes": [
+            "In this case, traffic matches this network service only if it originates from TCP port 111 and is destined to either TCP port 444 or UDP port 333."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-services.json",
+          "quotes": [
+            "traffic matches this network service only if it originates from TCP port 111 and is destined to either TCP port 444 or UDP port 333."
+          ]
+        }
+      ]
+    },
+    "service-groups": {
+      "statement": "Predefined and custom network services can be grouped and reused across policies, and network service groups can be used to configure 5-tuple Firewall Filtering, NAT, IPS Control and Forwarding rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-service-groups.json",
+          "quotes": [
+            "You can group predefined and custom network services together and reuse them across policies.",
+            "Configure 5-tuple Firewall Filtering rules, NAT rules, IPS Control policies, and Forwarding rules based on network service groups"
+          ]
+        }
+      ]
+    },
+    "service-group-sizes": {
+      "statement": "An organization can create up to 121 network service groups, each holding up to 8,000 network services; the add form lets any number of custom and predefined services be selected, and a group's description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-service-groups.json",
+          "quotes": [
+            "You can create a maximum of 121 network service groups and add up to 8,000 network services to a group.",
+            "You can select any number of custom and predefined services.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Network Service Groups | 121 groups |",
+            "| Network Services per Group | 8,000 network services |"
+          ]
+        }
+      ]
+    },
+    "object-shape": {
+      "statement": "A network service in the API carries, among other members, `name`, `type`, `tag` and four port arrays: `srcTcpPorts`, `destTcpPorts`, `srcUdpPorts` and `destUdpPorts`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/responses/200/content/application~1json/schema/items/properties/name",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/responses/200/content/application~1json/schema/items/properties/type",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/responses/200/content/application~1json/schema/items/properties/tag",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/responses/200/content/application~1json/schema/items/properties/srcTcpPorts",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/responses/200/content/application~1json/schema/items/properties/destTcpPorts",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/responses/200/content/application~1json/schema/items/properties/srcUdpPorts",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/responses/200/content/application~1json/schema/items/properties/destUdpPorts",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "description-length": {
+      "summary": "The Configuring Network Services page limits a service description to 10,240 characters; the limits table gives 1,024 bytes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-network-services.json",
+            "quotes": [
+              "The description cannot exceed 10,240 characters."
+            ]
+          },
+          "says": "The description cannot exceed 10,240 characters."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Network Service Description | 1,024 bytes |"
+            ]
+          },
+          "says": "Network Service Description is limited to 1,024 bytes."
+        }
+      ],
+      "impact": "A description between 1,024 bytes and 10,240 characters is allowed by one page and over the limit by the other; the pages do not say which governs."
+    },
+    "sdk-field-sets": {
+      "summary": "The Python and Go SDKs model different fields on a network service.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/models/cloud_firewall_nw_service.py",
+            "quotes": [
+              "\"creatorContext\": self.creator_context,"
+            ]
+          },
+          "says": "Python carries `creatorContext` and no top-level `protocol` attribute."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
+            "quotes": [
+              "Protocol      string         `json:\"protocol,omitempty\"`"
+            ]
+          },
+          "says": "Go carries `protocol` and no `creatorContext`."
+        }
+      ],
+      "impact": "A read-modify-write through one SDK silently drops the field the other SDK models, and Python has no way to read `protocol` as an object attribute."
+    }
+  },
+  "gaps": {
+    "type-meanings": {
+      "kind": "semantic",
+      "title": "What the network service types mean",
+      "status": "open",
+      "detail": "The API capture lists STANDARD, PREDEFINED and CUSTOM for `type`. No source says whether STANDARD and PREDEFINED differ, which can be edited, or which one the predefined HTTP-style services carry. The old reference called this an open question about the vocabulary; the capture now settles the vocabulary but not the meaning.",
+      "former_ids": [
+        "zia-60"
+      ],
+      "about": [
+        "zia/network-services#type"
+      ],
+      "blocks": "telling an operator which services are editable",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "tag-and-creator-context": {
+      "kind": "semantic",
+      "title": "What `tag` and `creatorContext` mean",
+      "status": "open",
+      "detail": "Both fields exist on the Python model (`tag` also on Go and in the API capture) with no description or allowed-values text beyond the tag enumeration. `creatorContext` is not in Go.",
+      "about": [
+        "zia/network-services#tag"
+      ],
+      "resolves_with": [
+        "tenant-data",
+        "code-read"
+      ]
+    },
+    "port-array-precedence": {
+      "kind": "semantic",
+      "title": "Whether the eight-entry port cap is per port field",
+      "status": "partial",
+      "detail": "The match logic among the four port arrays is now stated (custom-match-logic). The Configuring page says a maximum of 8 entries is allowed for each port, under the four port fields, without saying whether each port means each field.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

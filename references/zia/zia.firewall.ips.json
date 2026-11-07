@@ -1,0 +1,819 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.ips",
+  "title": "IPS Control",
+  "aliases": [
+    "ips",
+    "ips control",
+    "intrusion prevention",
+    "default ips rule",
+    "custom ips signature",
+    "snort",
+    "firewallIpsRules",
+    "ipsSignatureRules",
+    "atp vs ips"
+  ],
+  "binds": [
+    "zia/ips-policies",
+    "zia/ips-signature-rules",
+    "zia/ips-policies#defaultRule"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.firewall.rule-order",
+      "because": "zia.firewall.rule-order:ips-ascending-order"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.firewall.actions",
+      "because": "zia.firewall.actions:ips-action-values"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.atp",
+      "because": "zia.firewall.ips:atp-first"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall.licensing",
+      "because": "zia.firewall.licensing:ips-needs-advanced"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.firewall-records",
+      "because": "zia.firewall.ips:logging"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia/firewall-log",
+      "because": "zia.firewall.ips:logging"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/ips-policies"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/ips-signature-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.traffic-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips-signatures"
+    }
+  ],
+  "prose": [
+    {
+      "text": "IPS Control is the signature half of Firewall Control. {{signature-detection}} {{protocol-coverage}} IPS Control requires Advanced Firewall ([[zia.firewall.licensing:ips-needs-advanced]]). {{per-location}} Forwarding through Z-Tunnel 1.0 or PAC needs the firewall option enabled first: see [[zia.firewall.traffic-path]]."
+    },
+    {
+      "label": "The default rule.",
+      "text": "{{default-blocks-all}} {{recommended-policy-view}} Rule order is in [[zia.firewall.rule-order]]."
+    },
+    {
+      "label": "ATP and IPS.",
+      "text": "{{atp-first}} Whether an ATP block appears in the IPS logs is open {{gap:atp-preempt-in-ips-logs}}."
+    },
+    {
+      "label": "Custom signatures.",
+      "text": "{{custom-signatures}} {{signature-needs-sid}} {{mcp-signature-tools}} {{create-validates-update-does-not}} The relevant caps are in [[zia.firewall.limits]]. {{two-resources}} The actions an IPS rule can take are in [[zia.firewall.actions]]. The help's signature lifecycle, supported syntax and limits, CSV import and custom threat categories are in [[zia.firewall.ips-signatures]]."
+    },
+    {
+      "label": "Logs.",
+      "text": "{{logging}}"
+    },
+    {
+      "label": "The rule form: scope.",
+      "text": "{{criteria-expression}} The expression omits the Applications category that the form offers {{gap:criteria-applications}}. {{who-where-when-caps}} The page and the limit for all policy rule types disagree on time intervals per rule, a divergence recorded with the other policy pages in [[zia.time-intervals.rule-usage:time-intervals-per-rule]]. {{road-warrior}} {{enable-for-locations-and-remote-users}} {{services-and-applications}} {{source-destination-ip}}"
+    },
+    {
+      "label": "The rule form: actions and logging.",
+      "text": "{{action-semantics}} The console names are not tied to the API tokens in these pages {{gap:action-tokens}}. {{traffic-capture}} The Traffic Capture Essentials page names a different place to enable it [[zia.traffic-capture:capture-enablement]]. What the Capture option stores is described two ways {{divergence:capture-scope}}. {{logging-modes}} {{eun}}"
+    },
+    {
+      "label": "The rule form: name, rank and status.",
+      "text": "{{rule-details}} {{default-rule-details}} {{recommended-rule}} The help pages use two meanings for a rule of higher precedence than the default rule {{divergence:higher-precedence-meaning}}."
+    },
+    {
+      "label": "Threat categories.",
+      "text": "{{predefined-threat-categories}} {{risky-behaviors-and-suspicious-destinations}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether rules that allow ordinary business traffic sit above the default block, and the rank of each.",
+      "uses": [
+        "default-blocks-all",
+        "higher-precedence-meaning"
+      ]
+    },
+    {
+      "do": "Whether a rule needs more than two time intervals, which the help and the firewall limits give differently.",
+      "uses": [
+        "zia.time-intervals.rule-usage:time-intervals-per-rule"
+      ]
+    },
+    {
+      "do": "Whether the recommended IPS Control policy has been compared with the tenant's policy before enabling.",
+      "uses": [
+        "recommended-policy-view"
+      ]
+    },
+    {
+      "do": "Whether the tenant also has ATP, since its rules are evaluated first.",
+      "uses": [
+        "atp-first"
+      ]
+    },
+    {
+      "do": "Whether a custom signature is accepted by the parser, since its Snort compatibility is open.",
+      "uses": [
+        "snort-subset"
+      ]
+    },
+    {
+      "do": "Whether the firewall log shows the IPS rule name for a blocked flow.",
+      "uses": [
+        "logging"
+      ]
+    }
+  ],
+  "claims": {
+    "signature-detection": {
+      "statement": "IPS Control uses signature-based detection over all ports and protocols, with signatures built and updated by Zscaler's security research team plus signatures from industry-leading vendors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.json",
+          "quotes": [
+            "uses signature-based detection to monitor and protect your network traffic from intrusion over all ports and protocols",
+            "Zscaler's IPS Control uses IPS signature rules built and updated by Zscaler's security research team, as well as signatures from industry-leading vendors."
+          ]
+        }
+      ]
+    },
+    "protocol-coverage": {
+      "statement": "IPS Control covers web and non-web traffic: HTTP, HTTPS, FTP, DNS, TCP, UDP and IP-based ports and protocols.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.json",
+          "quotes": [
+            "IPS Control enables you to defend your organization against threats from both web and non-web traffic. This includes protection for HTTP, HTTPS, FTP, DNS, TCP, UDP, and IP-based ports and protocols."
+          ]
+        }
+      ]
+    },
+    "default-blocks-all": {
+      "statement": "Zscaler provides a default IPS rule that blocks all traffic. Rules of higher precedence allow specific traffic past it, for example the IT Security group's traffic matching threats.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-policies#defaultRule",
+        "zia/ips-policies#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.json",
+          "quotes": [
+            "default IPS rule that blocks all traffic",
+            "(e.g., IT Security group traffic matching threats)",
+            "You can create granular policies of higher precedence (i.e., higher admin rank) than the default rule to explicitly allow specific traffic"
+          ]
+        }
+      ]
+    },
+    "atp-first": {
+      "statement": "If a tenant has both IPS Control and Advanced Threat Protection, the rules created for ATP are evaluated first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.json",
+          "quotes": [
+            "If you have IPS Control as well as Advanced Threat Protection, rules created for Advanced Threat Protection are evaluated first."
+          ]
+        }
+      ]
+    },
+    "per-location": {
+      "statement": "IPS Control policies are enabled per location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.json",
+          "quotes": [
+            "You can enable IPS Control policies for specific locations by configuring the appropriate option for the location."
+          ]
+        }
+      ]
+    },
+    "custom-signatures": {
+      "statement": "Customers can create custom IPS signatures in Snort-like syntax, and the signatures take effect through threat categories referenced by the IPS Control policy.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-signature-rules",
+        "zia/ips-policies#threatCategories"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.json",
+          "quotes": [
+            "industry-standard Snort-like syntax",
+            "These signatures should be part of the IPS Control policy using threat categories to be enforced on traffic."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ips_signature_rules.md",
+          "quotes": [
+            "picked up by IPS Control rules that reference the same category."
+          ]
+        }
+      ]
+    },
+    "two-resources": {
+      "statement": "Custom signature definitions and IPS policy rules are separate API resources: definitions at `/ipsSignatureRules` and rules at `/firewallIpsRules`. A rule carries the action and criteria; a definition carries its text, category and enabled state.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-signature-rules",
+        "zia/ips-policies"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "ipsSignaturesEndpoint         = \"/zia/api/v1/ipsSignatureRules\"",
+            "RuleText string `json:\"ruleText,omitempty\"`",
+            "Category *IPSSignatureCategory `json:\"category,omitempty\"`",
+            "Enabled bool `json:\"enabled\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go",
+          "quotes": [
+            "firewallIpsRulesEndpoint = \"/zia/api/v1/firewallIpsRules\"",
+            "Action string `json:\"action,omitempty\"`",
+            "NwServices []common.IDNameExtensions `json:\"nwServices,omitempty\"`",
+            "ThreatCategories []common.IDNameExtensions `json:\"threatCategories,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "signature-needs-sid": {
+      "statement": "The MCP tool describes a custom signature body as Snort/Suricata syntax that must include a unique `sid:` and `rev:`.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-signature-rules"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/ips_signature_rules.py",
+          "quotes": [
+            "Snort/Suricata signature body; must include a unique sid: and rev:."
+          ]
+        }
+      ]
+    },
+    "create-validates-update-does-not": {
+      "statement": "The Python SDK validates `rule_text` against the dynamic-validation endpoint before creating a signature, but does not do so on update, because the check would flag the rule's own `sid` as a duplicate. The Terraform provider validates on every create and update.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-signature-rules"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ips_signature_rules.py",
+          "quotes": [
+            "is validated against the ZIA dynamic-validation",
+            "this method does **not** call",
+            "endpoint (``validate_ips_signature_rule``) *before* the create request is",
+            "flags any signature carrying a ``sid``",
+            "a duplicate — which on an update is the rule being modified",
+            "itself, so a pre-flight check would reject every legitimate update."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ips_signature_rules.md",
+          "quotes": [
+            "The provider validates `rule_text` against the Zscaler validation endpoint on every create and update."
+          ]
+        }
+      ]
+    },
+    "mcp-signature-tools": {
+      "statement": "The MCP tools create a custom IPS signature from `name`, `rule_text` and an optional `description`. Update is a PUT-replace: when the caller omits `name` or `rule_text`, the tool fetches the existing signature and backfills both before sending.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-signature-rules"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/ips_signature_rules.py",
+          "quotes": [
+            "PUT-replace; backfills name/rule_text",
+            "payload.setdefault(\"name\", ed.get(\"name\"))",
+            "payload.setdefault(\"rule_text\", ed.get(\"rule_text\") or ed.get(\"ruleText\"))",
+            "payload: dict[str, Any] = {\"name\": args.name, \"rule_text\": args.rule_text}",
+            "description: Annotated[Optional[str], Field(default=None, description=\"Admin note.\")] = None",
+            "if \"name\" not in payload or \"rule_text\" not in payload:",
+            "existing, _, ferr = client.zia.ips_signature_rules.get_ips_signature_rule(args.rule_id)"
+          ]
+        }
+      ]
+    },
+    "recommended-policy-view": {
+      "statement": "The IPS Control page lets an admin view the recommended IPS Control policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.json",
+          "quotes": [
+            "Click Recommended Policy to view the policy Zscaler recommends."
+          ]
+        }
+      ]
+    },
+    "default-rule-details": {
+      "statement": "The default IPS rule blocks all traffic and logs sessions with aggregate logging. It always keeps the lowest precedence, cannot be deleted, and can be modified only with the super admin role; traffic is allowed through by modifying it or by a higher-order rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "The Zscaler service provides a default rule that blocks all traffic and log sessions using aggregate logging.",
+            "You need to modify this rule or create a higher-order rule to allow traffic through the Zscaler service.",
+            "The default rule always maintains the lowest precedence, and it cannot be deleted. The default IPS rule can be modified only with the super admin role."
+          ]
+        }
+      ]
+    },
+    "enable-for-locations-and-remote-users": {
+      "statement": "After IPS rules are configured, IPS Control has to be enabled for location traffic and for remote user traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "After configuring the IPS rules, you need to enable IPS Control for location traffic and remote user traffic."
+          ]
+        }
+      ]
+    },
+    "criteria-expression": {
+      "statement": "IPS Control criteria categories are ANDed together, each with its own operators: [(Users OR Groups OR Departments) AND (Locations OR Location Groups) AND Time]; [(Network Service Groups OR Network Services) AND Advanced Threat Category]; (Source IP Groups OR IP Addresses); (Destination Groups OR IP Address/FQDN OR Countries OR URL Categories).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:",
+            "Who, Where, & When: [ (Users OR Groups OR Departments) AND (Locations OR Location Groups) AND Time ]",
+            "Services & Threat Categories: [ (Network Service Groups OR Network Services) AND Advanced Threat Category ]",
+            "Source IP: (Source IP Groups OR IP Addresses)",
+            "Destination IP: (Destination Groups OR IP Address/FQDN OR Countries OR URL Categories)"
+          ]
+        }
+      ],
+      "gaps": [
+        "criteria-applications"
+      ]
+    },
+    "who-where-when-caps": {
+      "statement": "An IPS rule takes up to 32 users, groups, departments, locations and location groups; unset identity and location fields are Any and the criterion is ignored in evaluation. Zscaler Support can raise the user, group, department and location limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "Users: Select up to 32 organization users to which the rule applies.",
+            "Groups: Select up to 32 user groups to which the rule applies.",
+            "Departments: Select up to 32 departments to which the rule applies.",
+            "Contact Zscaler Support to increase the limit of Users, Groups, Departments, or Locations.",
+            "Locations: Select up to 32 locations to which the rule applies.",
+            "Location Groups: Select up to 32 location groups to which the rule applies."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "after": "Departments: Select up to 32 departments to which the rule applies.",
+          "quotes": [
+            "By default, the fields are set to Any. If you don't make specific selections, the field remains set to Any, and the criterion is ignored during policy evaluation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "after": "Location Groups: Select up to 32 location groups to which the rule applies.",
+          "quotes": [
+            "By default, the fields are set to Any. If you don't make specific selections, the field remains set to Any, and the criterion is ignored during policy evaluation."
+          ]
+        }
+      ]
+    },
+    "road-warrior": {
+      "statement": "Selecting Road Warrior for Locations limits an IPS rule to remote user traffic, which also needs Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors in Advanced Settings; rules for other locations also apply to remote user traffic from those locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "To apply this rule only to remote user traffic, select Road Warrior for Locations.",
+            "You must also ensure that you have enabled the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option in Advanced Settings for policies configured for remote users to take effect.",
+            "Rules configured for locations other than Road Warrior also apply to remote user traffic from those locations."
+          ]
+        }
+      ]
+    },
+    "services-and-applications": {
+      "statement": "Network Service Groups default to None and Network Services to Any. The ZPA Application Segment criterion is Any or up to 255 Private Access application segments with Source IP Anchor enabled; Inspect App Segments applies the rule to every segment paired to the Internet & SaaS (ZIA) tenant and is available only if SIPA App Segments is enabled. Application Service Groups take predefined and custom groups. An unset Advanced Threat Category is Any and the criterion is ignored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "Network Service Groups: Select the network service groups to which the rule applies. By default, this field is set to None.",
+            "Network Services: Select the network services to which the rule applies. By default, this field is set to Any.",
+            "ZPA Application Segment: Select Any to apply the rule to all Private Access (ZPA) application segments, or select up to 255 Private Access application segments.",
+            "The list displays only those Private Access application segments that have the Source IP Anchor option enabled.",
+            "If you select the Inspect App Segments option from the list, then the configured rule applies to all the Private Access application segments paired to your Internet & SaaS (ZIA) tenant.",
+            "This option is only available if SIPA App Segments is enabled for your organization.",
+            "Application Service Groups: Select predefined and custom application service groups to which the rule applies.",
+            "Advanced Threat Category: Select the threat categories to which the rule applies. Selecting no value leaves the field set to Any and the criterion is ignored during policy evaluation."
+          ]
+        }
+      ]
+    },
+    "source-destination-ip": {
+      "statement": "Source and destination IP address criteria are IPv4 only: individual, subnet or range IPv6 addresses cannot be specified, source IPv6 addresses are controlled with the All IPv6 group, and custom source and destination IPv6 groups are not supported. Source IPv4 and IPv6 groups and Destination IPv4 groups default to None. FQDN entries are available with Advanced Firewall, wildcard FQDNs are also supported with an asterisk, and rules based on wildcard FQDNs need client DNS requests forwarded to the Zscaler service. Countries identify a destination by server location and default to Any.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "Source IPv6 Groups: To control source IPv6 addresses with this rule, select the All IPv6 group, which is the default source IPv6 group for all IPv6 addresses.",
+            "Custom source IPv6 groups are currently not supported.",
+            "IP Addresses: Enter IP addresses (IPv4 only) in any of the following formats:",
+            "By default, Source IPv4 Groups and Source IPv6 Groups are set to None.",
+            "Custom destination IPv6 groups are not currently supported.",
+            "IP Address or Wildcard FQDN: (FQDN is available with Advanced Firewall) Enter IP addresses (IPv4 only) in any of the following formats:",
+            "Wildcard FQDNs are also supported with an asterisk (*) as the wildcard character.",
+            "IPS Control rules based on Wildcard FQDNs require DNS requests from clients to be forwarded to the Zscaler service to evaluate criteria match.",
+            "Countries: Select the countries to which the rule applies. You can identify destinations based on the location of a server. By default, this field is set to Any.",
+            "Destination IPv4 Groups: Select the destination IPv4 groups to which the rule applies. By default, this field is set to None."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "after": "IP Addresses: Enter IP addresses (IPv4 only) in any of the following formats:",
+          "quotes": [
+            "Specifying individual, subnet, or range of IPv6 addresses is not currently supported."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "after": "IP Address or Wildcard FQDN:",
+          "quotes": [
+            "Specifying individual, subnet, or range of IPv6 addresses is not currently supported."
+          ]
+        }
+      ]
+    },
+    "action-semantics": {
+      "statement": "IPS Network Traffic actions: Allow passes the packets through the IPS; Block/Drop silently blocks matching packets; Block/Reset drops matching TCP packets and sends the client a TCP reset, and for non-TCP traffic is the same as Block/Drop; Bypass IPS allows the packets without scanning and cannot be combined with an Advanced Threat Category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "Allow: Allow the packets to pass through the IPS.",
+            "Block/Drop: Silently block packets that match the rule.",
+            "Block/Reset: For TCP traffic, the Zscaler service drops all packets that match the rule and sends the client a TCP reset.",
+            "For non-TCP traffic, same as Block/Drop.",
+            "Bypass IPS: Allow the packets without scanning. If you select this option, you cannot select any Advanced Threat Category for the rule."
+          ]
+        }
+      ],
+      "gaps": [
+        "action-tokens"
+      ]
+    },
+    "traffic-capture": {
+      "statement": "The IPS rule's Capture action requires Traffic Capture to be enabled in Advanced Settings and appears only when Allow or Block actions are selected for Network Traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "The Capture action requires Traffic Capture to be enabled in Advanced Settings. It appears only when you select Allow or Block actions for Network Traffic."
+          ]
+        }
+      ]
+    },
+    "logging-modes": {
+      "statement": "An IPS rule logs either Aggregate (sessions grouped by user, rule and network service and recorded periodically, about every 15 minutes) or Full (every session of the rule individually, except HTTP(S)). In Standard Firewall, full logging is supported only for Block rules; full logging for all other rules requires Full Logging or Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "Aggregate: The service groups together individual sessions based on user, rule, and network service and records them periodically. Log aggregation happens approximately every 15 minutes.",
+            "Full: The service logs all sessions of the rule individually, except HTTP(S).",
+            "In Standard Firewall, full logging is supported only for Block rules. Full logging for all other rules requires Full Logging or Advanced Firewall."
+          ]
+        }
+      ]
+    },
+    "eun": {
+      "statement": "An IPS rule can show a Client Connector end user notification, with a default or custom message, for traffic it allows or blocks. EUN is supported only for Allow and Block, not Bypass IPS. The page says EUN is supported on Windows devices running Client Connector 4.8 or later over Z-Tunnel 2.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "End user notification (EUN) is supported only for Allow and Block actions and is not supported for Bypass/IPS.",
+            "The EUN is supported on Windows devices running Zscaler Client Connector version 4.8 or later over Z-Tunnel 2.0.",
+            "Client Connector EUN: Enable this option to display a notification to end users through Zscaler Client Connector when users access traffic that is allowed or blocked by this rule.",
+            "You can select from default and custom notification messages to display for users."
+          ]
+        }
+      ]
+    },
+    "rule-details": {
+      "statement": "An IPS rule's name is system-generated and editable, up to 63 characters; its description is up to 10,240 characters. Admin rank runs 0 to 7 (0 highest), appears only with Admin Ranking enabled, and the rule's admin rank determines the rule order value that can be selected. A new rule's status is Disabled by default; a disabled rule keeps its place in the order and is skipped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "A system-generated rule name is automatically populated, and the name can be edited. The name cannot exceed 63 characters.",
+            "The description cannot exceed 10,240 characters.",
+            "Admin Rank: Click Edit and select an admin rank 0 to 7 (0 is the highest rank) from the drop-down menu.",
+            "This option appears if you enable Admin Ranking on the Advanced Settings page.",
+            "The rule's admin rank determines the value you can select for rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank.",
+            "Rule Status: By default, the status is Disabled. You need to enable the rule to activate and enforce it on your traffic.",
+            "A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."
+          ]
+        }
+      ]
+    },
+    "recommended-rule": {
+      "statement": "Zscaler's recommended IPS rule has a Rule Order of 1 (evaluated first), is enabled, selects Any or specific threat categories, and uses the Block/Drop action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-ips-control-policy.json",
+          "quotes": [
+            "Rule Order: Create this rule with a Rule Order of 1. Since rules are evaluated in ascending numerical order, this rule is evaluated first.",
+            "Rule Status: Select Enabled. Enabled rules are actively enforced.",
+            "Threat Categories: Select Any to apply this rule to all threat categories, or select specific threat categories based on your organization's needs.",
+            "Action: Select Block/Drop. This silently blocks packets that match the rule."
+          ]
+        }
+      ]
+    },
+    "predefined-threat-categories": {
+      "statement": "IPS threat categories group common threats; Zscaler provides predefined categories, each associated with a collection of custom IPS signature rules: Advanced Security (threats in no other category), Adware/Spyware Sites, Anonymizer, Application Detection (TOR, Ultrasurf, VPN apps etc), Reconnaissance Attempts, Botnet Callback, Browser Exploit, Brute Force Attack, Cross-site Scripting, Crypto Mining, Denial of Service Attack, Domain Generation Algorithm (DGA) Domains, Exploit (known non-web vulnerabilities), Malicious Content, Malware, Peer-to-Peer, Phishing, Policy Violation, Ransomware, Risky Behaviors, Suspected Spyware or Adware, Suspicious Destinations, Unauthorized Communication and Webspam.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-threat-categories.json",
+          "quotes": [
+            "Threat categories group common threats (e.g., viruses, botnets, exploits) together.",
+            "Zscaler provides a number of predefined threat categories, each associated with a collection of custom IPS signature rules, which are like fingerprints of known network attack patterns.",
+            "| Advanced Security | Threats not included in the other threat categories. |",
+            "| Adware/Spyware Sites |",
+            "| Anonymizer |",
+            "| Application Detection (TOR, Ultrasurf, VPN apps etc) |",
+            "| Reconnaissance Attempts |",
+            "| Botnet Callback |",
+            "| Browser Exploit |",
+            "| Brute Force Attack |",
+            "| Cross-site Scripting |",
+            "| Crypto Mining |",
+            "| Denial of Service Attack |",
+            "| Domain Generation Algorithm (DGA) Domains |",
+            "| Exploit | An exploit is an attack where known non-web (non-HTTP) vulnerabilities are exploited. |",
+            "| Malicious Content |",
+            "| Malware |",
+            "| Peer-to-Peer |",
+            "| Phishing |",
+            "| Policy Violation |",
+            "| Ransomware |",
+            "| Risky Behaviors |",
+            "| Suspected Spyware or Adware |",
+            "| Suspicious Destinations |",
+            "| Unauthorized Communication |",
+            "| Webspam |"
+          ]
+        }
+      ]
+    },
+    "risky-behaviors-and-suspicious-destinations": {
+      "statement": "Risky Behaviors holds signatures considered risky that might have legitimate use (for example websockets-to-SSH detection as with Chisel) and can match legitimate traffic, so an organization might exclude it from blocking with a higher-order IPS rule on that category set to Allow or Bypass IPS. The Suspicious Destinations category is the URL categories Nudity, Pornography, Anonymizer, FileHost, Shareware Download, Web Host, Miscellaneous or Unknown and Other Miscellaneous.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-threat-categories.json",
+          "quotes": [
+            "Includes IPS signatures that are considered risky but might have some legitimate usage (e.g., signatures for websockets-to-SSH detections as in the case of Chisel usage).",
+            "Signatures in this threat category can cover a wide range of detections and might include legitimate traffic, as well.",
+            "Therefore, organizations might want to exclude this threat category from being blocked for users by creating a higher order IPS rule with the Risky Behaviors threat category as a condition and the action set to Allow or Bypass IPS.",
+            "Suspicious destinations include the following URL categories: Nudity Pornography Anonymizer FileHost Shareware Download Web Host Miscellaneous or Unknown Other Miscellaneous"
+          ]
+        }
+      ]
+    },
+    "logging": {
+      "statement": "Threats detected in network traffic are shown under Firewall Insights > Logs, and threats detected in web-only traffic also appear on the Security dashboard. The firewall log records the IPS rule name and whether a custom signature applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.json",
+          "quotes": [
+            "Threats detected in your network traffic are displayed under Firewall Insights > Logs.",
+            "Threats detected in web-only traffic also appear on the Security dashboard."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-firewall-logs.json",
+          "quotes": [
+            "| The name of the IPS policy that was applied to the Firewall session",
+            "| Indicates if a custom IPS signature rule was applied.",
+            "| Default IPS Rule | IPS Rule Name |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "atp-preempt-in-ips-logs": {
+      "kind": "data",
+      "title": "Whether an ATP block pre-empting IPS appears in the IPS logs",
+      "status": "open",
+      "detail": "The old reference said an ATP block that pre-empts an IPS rule never shows in IPS logs and named a log field as the discriminator. No captured source states either. Only the evaluation order is documented.",
+      "about": [
+        "zia/ips-policies"
+      ],
+      "blocks": "debugging a block that matches no IPS rule",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "continuous-signature-updates": {
+      "kind": "semantic",
+      "title": "How often Zscaler updates IPS signatures and whether operators must act",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Updated continuously by Zscaler; no operator action needed.' The help capture says Zscaler builds and updates the signatures but gives no cadence or statement about operator action. Resolves with a vendor answer.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "snort-subset": {
+      "kind": "semantic",
+      "title": "How much of Snort and Suricata syntax the custom signature parser accepts",
+      "status": "partial",
+      "detail": "Unverified legacy statement: 'Zscaler's parser is a Snort-subset' and arbitrary public Snort rules should be tested first. The vendor now documents what its parser accepts (supported options, HTTP keywords, PCRE flags and limits, static-validation criteria), recorded in zia.firewall.ips-signatures. Still open: which PCRE constructs beyond the listed ones are unsupported, since the page says only limited PCRE flags and constructs are supported, and whether arbitrary public rule sets pass dynamic validation.",
+      "blocks": "advising on importing public rule sets",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "quotes": [
+            "Only limited PCRE flags and constructs are supported."
+          ]
+        }
+      ]
+    },
+    "criteria-applications": {
+      "kind": "semantic",
+      "title": "How the Applications criteria combine with the rest of an IPS rule's expression",
+      "status": "open",
+      "detail": "The help's criteria expression omits the Applications category (ZPA Application Segment and Application Service Groups) that the rule form offers, so how those combine with the other categories is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ips-control-policy.json",
+          "quotes": [
+            "The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:"
+          ]
+        }
+      ]
+    },
+    "action-tokens": {
+      "kind": "semantic",
+      "title": "Which API tokens the console's IPS action names correspond to",
+      "status": "open",
+      "detail": "The help names the actions Allow, Block/Drop, Block/Reset and Bypass IPS. The API tokens are in zia.firewall.actions:ips-action-values, and no capture here ties the console names to them.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  },
+  "divergences": {
+    "capture-scope": {
+      "summary": "One IPS Control help page says Capture stores traffic allowed or blocked by the policy, and then describes the Capture option as storing traffic captured during a block action.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-ips-control-policy.json",
+            "quotes": [
+              "You can capture and store traffic allowed or blocked by this policy as PCAP files."
+            ]
+          },
+          "says": "Traffic allowed or blocked by the policy can be stored as PCAP files."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-ips-control-policy.json",
+            "quotes": [
+              "Capture: Enable this option to store the traffic captured during a block action in PCAP files for later analysis."
+            ]
+          },
+          "says": "The Capture option stores traffic captured during a block action."
+        }
+      ],
+      "impact": "Whether a Capture-enabled Allow rule stores traffic is not settled by the page, although the Capture option is described as appearing for Allow or Block actions."
+    },
+    "higher-precedence-meaning": {
+      "summary": "The recommended-policy page says a rule of higher precedence than the default rule means a higher rule order, while the IPS Control overview says it means a higher admin rank.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-recommended-ips-control-policy.json",
+            "quotes": [
+              "You can create granular policies of higher precedence (i.e., higher rule order) than the default rule to explicitly allow specific traffic"
+            ]
+          },
+          "says": "Higher precedence means higher rule order."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-ips-control.json",
+            "quotes": [
+              "You can create granular policies of higher precedence (i.e., higher admin rank) than the default rule to explicitly allow specific traffic"
+            ]
+          },
+          "says": "Higher precedence means higher admin rank (the wording zia.firewall.ips:default-blocks-all and zia.firewall.rule-order:ips-allow-rules-need-precedence rest on)."
+        }
+      ],
+      "impact": "Which of rule order or admin rank must place an allow rule above the default rule depends on which page is used."
+    }
+  }
+}

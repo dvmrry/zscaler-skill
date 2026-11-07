@@ -1,0 +1,2115 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "SaaS Security API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/saas-security-api",
+    "node": "1529817",
+    "revision": "3225031",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/SaaS%20Security%20API_9.json?VersionId=apIS7711TW_E5hoda4hvWsq7Go0MSCK8",
+    "updated": "2026-08-14",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "SaaS Security API"
+      }
+    ],
+    "paths": {
+      "/casbDlpRules": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves the SaaS Security Data at Rest Scanning Data Loss Prevention (DLP) rules based on the specified rule type. To learn more, see <a href=\"/zia/about-data-rest-scanning-dlp\" target=\"_blank\">About Data at Rest Scanning DLP</a>.",
+          "operationId": "CASBDlpRuleResource_getRules",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleType",
+              "in": "query",
+              "description": "Specifies the DLP rule type",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "OFLCASB_DLP_FILE",
+                "OFLCASB_DLP_EMAIL",
+                "OFLCASB_DLP_CRM",
+                "OFLCASB_DLP_ITSM",
+                "OFLCASB_DLP_COLLAB",
+                "OFLCASB_DLP_REPO",
+                "OFLCASB_DLP_STORAGE",
+                "OFLCASB_DLP_GENAI"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/CASBDlpRule"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Adds a new SaaS Security Data at Rest Scanning DLP rule. To learn more, see <a href=\"/zia/configuring-data-rest-scanning-dlp-policy\" target=\"_blank\">Configuring the Data at Rest Scanning DLP Policy</a>.",
+          "operationId": "CASBDlpRuleResource_addRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the SaaS Security Data at Rest Scanning DLP rule",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/CASBDlpRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CASBDlpRule"
+              }
+            }
+          }
+        }
+      },
+      "/casbDlpRules/all": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves all the SaaS Security Data at Rest Scanning DLP rules",
+          "operationId": "CASBDlpRuleResource_getAllDlpRules",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/CASBDlpRule"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/casbDlpRules/{ruleId}": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves the SaaS Security Data at Rest Scanning DLP rule based on the specified ID",
+          "operationId": "CASBDlpRuleResource_getRuleById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "Rule ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "ruleType",
+              "in": "query",
+              "description": "Rule type",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "OFLCASB_DLP_FILE",
+                "OFLCASB_DLP_EMAIL",
+                "OFLCASB_DLP_CRM",
+                "OFLCASB_DLP_ITSM",
+                "OFLCASB_DLP_COLLAB",
+                "OFLCASB_DLP_REPO",
+                "OFLCASB_DLP_STORAGE",
+                "OFLCASB_DLP_GENAI"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CASBDlpRule"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Updates the SaaS Security Data at Rest Scanning DLP rule based on the specified ID",
+          "operationId": "CASBDlpRuleResource_updateRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "Rule ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the SaaS Security Data at Rest Scanning DLP rule",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/CASBDlpRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CASBDlpRule"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Deletes the SaaS Security Data at Rest Scanning DLP rule based on the specified ID",
+          "operationId": "CASBDlpRuleResource_deleteRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "Rule ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "ruleType",
+              "in": "query",
+              "description": "Rule type",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "OFLCASB_DLP_FILE",
+                "OFLCASB_DLP_EMAIL",
+                "OFLCASB_DLP_CRM",
+                "OFLCASB_DLP_ITSM",
+                "OFLCASB_DLP_COLLAB",
+                "OFLCASB_DLP_REPO",
+                "OFLCASB_DLP_STORAGE",
+                "OFLCASB_DLP_GENAI"
+              ]
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/casbMalwareRules": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves the SaaS Security Data at Rest Scanning Malware Detection rules based on the specified rule type. To learn more, see <a href=\"/zia/about-data-rest-scanning-malware-detection\" target=\"_blank\">About Data at Rest Scanning Malware Detection</a>.",
+          "operationId": "CASBMalwareRuleResource_getRules",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleType",
+              "in": "query",
+              "description": "Rule type",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "OFLCASB_AVP_FILE",
+                "OFLCASB_AVP_EMAIL",
+                "OFLCASB_AVP_CRM",
+                "OFLCASB_AVP_ITSM",
+                "OFLCASB_AVP_COLLAB",
+                "OFLCASB_AVP_REPO",
+                "OFLCASB_AVP_STORAGE",
+                "OFLCASB_AVP_GENAI"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/CASBMalwareRule"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Adds a new SaaS Security Data at Rest Scanning Malware Detection rule. To learn more, see <a href=\"/zia/configuring-data-rest-scanning-malware-detection-policy\" target=\"_blank\">Configuring the Data at Rest Scanning Malware Detection Policy</a>.",
+          "operationId": "CASBMalwareRuleResource_addRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the SaaS Security Data at Rest Scanning Malware Detection rule",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/CASBMalwareRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CASBMalwareRule"
+              }
+            }
+          }
+        }
+      },
+      "/casbMalwareRules/all": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves all the SaaS Security Data at Rest Scanning Malware Detection rules",
+          "operationId": "CASBMalwareRuleResource_getAllMalwareRules",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/CASBMalwareRule"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/casbMalwareRules/{ruleId}": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves the SaaS Security Data at Rest Scanning Malware Detection rule based on the specified ID",
+          "operationId": "CASBMalwareRuleResource_getRuleById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "Rule ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "ruleType",
+              "in": "query",
+              "description": "Rule type",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "OFLCASB_AVP_FILE",
+                "OFLCASB_AVP_EMAIL",
+                "OFLCASB_AVP_CRM",
+                "OFLCASB_AVP_ITSM",
+                "OFLCASB_AVP_COLLAB",
+                "OFLCASB_AVP_REPO",
+                "OFLCASB_AVP_STORAGE",
+                "OFLCASB_AVP_GENAI"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CASBMalwareRule"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Updates the SaaS Security Data at Rest Scanning Malware Detection rule based on the specified ID",
+          "operationId": "CASBMalwareRuleResource_updateRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "Rule ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the SaaS Security Data at Rest Scanning Malware Detection rule",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/CASBMalwareRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CASBMalwareRule"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Deletes the SaaS Security Data at Rest Scanning Malware Detection rule based on the specified ID",
+          "operationId": "CASBMalwareRuleResource_deleteRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "Rule ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "ruleType",
+              "in": "query",
+              "description": "Rule type",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "OFLCASB_AVP_FILE",
+                "OFLCASB_AVP_EMAIL",
+                "OFLCASB_AVP_CRM",
+                "OFLCASB_AVP_ITSM",
+                "OFLCASB_AVP_COLLAB",
+                "OFLCASB_AVP_REPO",
+                "OFLCASB_AVP_STORAGE",
+                "OFLCASB_AVP_GENAI"
+              ]
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/domainProfiles/lite": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves the domain profile summary. To learn more about domain profiles, navigate to the 'Domain Profiles' section from <a href=\"/zia/about-email-profiles\" target=\"_blank\">About Email Profiles</a>.",
+          "operationId": "DomainProfileResource_getDomainProfilesLite",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/DomainProfile"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/quarantineTombstoneTemplate/lite": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves the templates for the tombstone file created when a file is quarantined. To learn more, see <a href=\"/zia/about-quarantine-tombstone-file-templates\" target=\"_blank\">About Quarantine Tombstone File Templates</a>.",
+          "operationId": "QuarantineTombstoneFileTemplateResource_getQtnTombstoneFileTemplates",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/QuarantineTombstoneTemplate"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/casbEmailLabel/lite": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves the email labels generated for the SaaS Security policies in a user's email account. To learn more, see <a href=\"/zia/about-email-labels\" target=\"_blank\">About Email Labels</a>.",
+          "operationId": "CasbEmailLabelResource_getCasbEmailLabels",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/CasbEmailLabel"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/casbTenant/{tenantId}/tags/policy": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves the tags used in the policy rules associated with a tenant, based on the tenant ID.",
+          "operationId": "CloudApplicationTenantResource_getTagsForRuleAssociation",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "tenantId",
+              "in": "path",
+              "description": "SaaS application tenant ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 500,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/CASBTenantTags"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/casbTenant/lite": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves information about the SaaS application tenant. To learn more, see <a href=\"/zia/about-saas-application-tenants\" target=\"_blank\">About SaaS Application Tenants</a>.",
+          "operationId": "CloudApplicationTenantResource_getOrgCloudAppTenantsWithoutPolicyInfo",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "activeOnly",
+              "in": "query",
+              "description": "Indicates that the tenant is in use. Policies are enforced for this SaaS application.",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "includeDeleted",
+              "in": "query",
+              "description": "",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "appType",
+              "in": "query",
+              "description": "Specifies the SaaS application type",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "ANY",
+                "FILE",
+                "EMAIL",
+                "CRM",
+                "ITSM",
+                "COLLAB",
+                "REPO",
+                "STORAGE",
+                "TP_APP",
+                "MISC",
+                "GENAI"
+              ]
+            },
+            {
+              "name": "app",
+              "in": "query",
+              "description": "Specifies the sanctioned SaaS application",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "SLACK",
+                "MSTEAM",
+                "WEBEX",
+                "MSTEAM_GCC_HIGH",
+                "MSTEAM_DOD",
+                "MSTEAM_GCC_MOD",
+                "ZOOM",
+                "TRELLO",
+                "SALESFORCE",
+                "MSFT_DYNAMICS365",
+                "TWILIO",
+                "EXCHANGE",
+                "GMAIL",
+                "EXCHANGE_GCC_HIGH",
+                "EXCHANGE_DOD",
+                "EXCHANGE_GCC_MOD",
+                "BOX",
+                "ONEDRIVE",
+                "SHAREPOINT",
+                "DROPBOX",
+                "GOOGLEDRIVE",
+                "SHAREFILE",
+                "CONFLUENCE",
+                "ONEDRIVE_GCC_HIGH",
+                "ONEDRIVE_DOD",
+                "SHAREPOINT_GCC_HIGH",
+                "SHAREPOINT_DOD",
+                "ONEDRIVE_GCC_MOD",
+                "SHAREPOINT_GCC_MOD",
+                "SMARTSHEET",
+                "CHATGPT",
+                "MSFTCOPILOT",
+                "SERVICENOW",
+                "JIRA",
+                "JUMPCLOUD",
+                "MS_ATP_DEFENDER",
+                "GSUITE",
+                "OFFICE365",
+                "MIP",
+                "OKTA",
+                "OFFICE365_GCC_HIGH",
+                "OFFICE365_DOD",
+                "OFFICE365_GCC_MOD",
+                "APPTOTAL",
+                "WORKDAY",
+                "GITHUB",
+                "BITBUCKET",
+                "GITLAB",
+                "AWSS3",
+                "AZUREBLOB",
+                "GCPSTORAGE",
+                "GSUITE_MARKETPLACE",
+                "MSOFFICE365_MARKETPLACE",
+                "SLACK_MARKETPLACE",
+                "SALESFORCE_MARKETPLACE"
+              ]
+            },
+            {
+              "name": "scanConfigTenantsOnly",
+              "in": "query",
+              "description": "Specifies the tenant for which the scan is already configured",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "includeBucketReadyS3Tenants",
+              "in": "query",
+              "description": "For the AWS S3 SaaS application, this parameter indicates that the buckets have been read and are ready for use in policies and scan configurations.",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "filterByFeature",
+              "in": "query",
+              "description": "Filters the SaaS application tenant by feature",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "CASB",
+                  "WORKFLOW_AUTOMATION",
+                  "SSPM",
+                  "ACTIVITY_REPORT",
+                  "TP_APP_REPORT",
+                  "RT_DLP",
+                  "APP_GOVERNANCE",
+                  "REDACTION",
+                  "CASB_ENTITY_GROUP"
+                ]
+              },
+              "collectionFormat": "multi"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/casbTenant/scanInfo": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves the SaaS Security Scan Configuration information. To learn more, see <a href=\"/zia/about-saas-security-scan-configuration\" target=\"_blank\">About SaaS Security Scan Configuration</a>.",
+          "operationId": "CloudApplicationTenantResource_getScanInfo",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 500,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/CasbTenantScanInfo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/casbTenant/validate/status/{tenantId}": {
+        "get": {
+          "tags": [
+            "SaaS Security API"
+          ],
+          "description": "Retrieves the validation status of the SaaS application tenant based on the tenant ID",
+          "operationId": "CloudApplicationTenantResource_validateTenantCredStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "tenantId",
+              "in": "path",
+              "description": "SaaS application tenant ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CasbTenantValidationResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "CASBDlpRule": {
+        "type": "object",
+        "required": [
+          "name",
+          "order"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type of SaaS Security Data at Rest Scanning DLP rule",
+            "enum": [
+              "ANY",
+              "NONE",
+              "OFLCASB_DLP_FILE",
+              "OFLCASB_DLP_EMAIL",
+              "OFLCASB_DLP_CRM",
+              "OFLCASB_DLP_ITSM",
+              "OFLCASB_DLP_COLLAB",
+              "OFLCASB_DLP_REPO",
+              "OFLCASB_DLP_STORAGE",
+              "OFLCASB_DLP_GENAI"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier for the SaaS Security Data at Rest Scanning DLP rule"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Order of rule execution with respect to other SaaS Security Data at Rest Scanning DLP rules"
+          },
+          "rank": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Admin rank that is assigned to this rule. Mandatory when admin rank-based access restriction is enabled."
+          },
+          "name": {
+            "type": "string",
+            "description": "Rule name"
+          },
+          "state": {
+            "type": "string",
+            "description": "Administrative state of the rule",
+            "enum": [
+              "DISABLED",
+              "ENABLED"
+            ]
+          },
+          "cloudAppTenants": {
+            "type": "array",
+            "description": "Name-ID pairs of the cloud application tenants for which the rule is applied. If the name-ID pairs of the cloud application tenants are not specified, the rule is applied to all tenants.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "Name-ID pairs of users for which rule is applied. If not set, the rule is applied to all users.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "description": "Name-ID pairs of groups for which the rule is applied. If not set, the rule is applied for all groups.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "departments": {
+            "type": "array",
+            "description": "Name-ID pairs of departments for which the rule is applied. If not set, the rule is applied to all departments.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "dlpEngines": {
+            "type": "array",
+            "description": "DLP engines whose violation is checked by this rule",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "action": {
+            "type": "string",
+            "description": "The configured action for the policy rule",
+            "enum": [
+              "OFLCASB_DLP_REPORT_INCIDENT",
+              "OFLCASB_DLP_SHARE_READ_ONLY",
+              "OFLCASB_DLP_EXTERNAL_SHARE_READ_ONLY",
+              "OFLCASB_DLP_INTERNAL_SHARE_READ_ONLY",
+              "OFLCASB_DLP_REMOVE_PUBLIC_LINK_SHARE",
+              "OFLCASB_DLP_REVOKE_SHARE",
+              "OFLCASB_DLP_REMOVE_EXTERNAL_SHARE",
+              "OFLCASB_DLP_REMOVE_INTERNAL_SHARE",
+              "OFLCASB_DLP_REMOVE_COLLABORATORS",
+              "OFLCASB_DLP_REMOVE_INTERNAL_LINK_SHARE",
+              "OFLCASB_DLP_REMOVE_DISCOVERABLE",
+              "OFLCASB_DLP_NOTIFY_END_USER",
+              "OFLCASB_DLP_APPLY_MIP_TAG",
+              "OFLCASB_DLP_APPLY_BOX_TAG",
+              "OFLCASB_DLP_MOVE_TO_RESTRICTED_FOLDER",
+              "OFLCASB_DLP_REMOVE",
+              "OFLCASB_DLP_QUARANTINE",
+              "OFLCASB_DLP_APPLY_EMAIL_TAG",
+              "OFLCASB_DLP_APPLY_GOOGLEDRIVE_LABEL",
+              "OFLCASB_DLP_REMOVE_EXT_COLLABORATORS",
+              "OFLCASB_DLP_QUARANTINE_TO_USER_ROOT_FOLDER",
+              "OFLCASB_DLP_APPLY_WATERMARK",
+              "OFLCASB_DLP_REMOVE_WATERMARK",
+              "OFLCASB_DLP_APPLY_HEADER",
+              "OFLCASB_DLP_APPLY_FOOTER",
+              "OFLCASB_DLP_APPLY_HEADER_FOOTER",
+              "OFLCASB_DLP_REMOVE_HEADER",
+              "OFLCASB_DLP_REMOVE_FOOTER",
+              "OFLCASB_DLP_REMOVE_HEADER_FOOTER",
+              "OFLCASB_DLP_BLOCK",
+              "OFLCASB_DLP_APPLY_ATLASSIAN_CLASSIFICATION_LABEL",
+              "OFLCASB_DLP_ALLOW",
+              "OFLCASB_DLP_REDACT",
+              "OFLCASB_DLP_REMOVE_INTERNAL_LINK_SHARE_EXPIRY",
+              "OFLCASB_DLP_REMOVE_EXTERNAL_LINK_SHARE_EXPIRY",
+              "OFLCASB_DLP_REMOVE_COLLABORATORS_EXPIRY",
+              "OFLCASB_DLP_REMOVE_SHARING_EXPIRY"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "description": "The severity level of the incidents that match the policy rule",
+            "enum": [
+              "RULE_SEVERITY_HIGH",
+              "RULE_SEVERITY_MEDIUM",
+              "RULE_SEVERITY_LOW",
+              "RULE_SEVERITY_INFO"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "An admin editable text-based description of the rule"
+          },
+          "fileTypes": {
+            "type": "array",
+            "description": "File types for which the rule is applied. If not set, the rule is applied across all file types.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "FTCATEGORY_JAVASCRIPT",
+                "FTCATEGORY_FLASH",
+                "FTCATEGORY_JAVA_APPLET",
+                "FTCATEGORY_ZIP",
+                "FTCATEGORY_GZIP",
+                "FTCATEGORY_TAR",
+                "FTCATEGORY_BZIP2",
+                "FTCATEGORY_RAR",
+                "FTCATEGORY_STUFFIT",
+                "FTCATEGORY_ISO",
+                "FTCATEGORY_CAB",
+                "FTCATEGORY_P7Z",
+                "FTCATEGORY_ADE",
+                "FTCATEGORY_DB2",
+                "FTCATEGORY_SQL",
+                "FTCATEGORY_DBF",
+                "FTCATEGORY_DB",
+                "FTCATEGORY_PYTHON",
+                "FTCATEGORY_POWERSHELL",
+                "FTCATEGORY_VISUAL_BASIC_SCRIPT",
+                "FTCATEGORY_BASH_SCRIPTS",
+                "FTCATEGORY_SHELL_SCRAP",
+                "FTCATEGORY_APPX",
+                "FTCATEGORY_MSC",
+                "FTCATEGORY_BITMAP",
+                "FTCATEGORY_PHOTOSHOP",
+                "FTCATEGORY_WINDOWS_META_FORMAT",
+                "FTCATEGORY_GIF",
+                "FTCATEGORY_JPEG",
+                "FTCATEGORY_PNG",
+                "FTCATEGORY_TIFF",
+                "FTCATEGORY_WINDOWS_SCRIPT_FILES",
+                "FTCATEGORY_ONENOTE",
+                "FTCATEGORY_MS_POWERPOINT",
+                "FTCATEGORY_MS_WORD",
+                "FTCATEGORY_MS_EXCEL",
+                "FTCATEGORY_MS_RTF",
+                "FTCATEGORY_MS_MDB",
+                "FTCATEGORY_MS_MSG",
+                "FTCATEGORY_MS_PST",
+                "FTCATEGORY_VSDX",
+                "FTCATEGORY_OAB",
+                "FTCATEGORY_ENCRYPT",
+                "FTCATEGORY_PDF_DOCUMENT",
+                "FTCATEGORY_POSTSCRIPT",
+                "FTCATEGORY_COMPILED_HTML_HELP",
+                "FTCATEGORY_TXT",
+                "FTCATEGORY_CSV",
+                "FTCATEGORY_STL",
+                "FTCATEGORY_CERT",
+                "FTCATEGORY_PCAP",
+                "FTCATEGORY_CER",
+                "FTCATEGORY_DER",
+                "FTCATEGORY_P7B",
+                "FTCATEGORY_PEM",
+                "FTCATEGORY_JKS",
+                "FTCATEGORY_KEY",
+                "FTCATEGORY_P12",
+                "FTCATEGORY_CHEMDRAW_FILES",
+                "FTCATEGORY_CML",
+                "FTCATEGORY_CP",
+                "FTCATEGORY_MM",
+                "FTCATEGORY_INF",
+                "FTCATEGORY_APPLE_DOCUMENTS",
+                "FTCATEGORY_AUTOCAD",
+                "FTCATEGORY_INTEGRATED_CIRCUIT_FILES",
+                "FTCATEGORY_LOG_FILES",
+                "FTCATEGORY_EML_FILES",
+                "FTCATEGORY_DAT",
+                "FTCATEGORY_INI",
+                "FTCATEGORY_UNK_TXT",
+                "FTCATEGORY_GO_FILES",
+                "FTCATEGORY_RUBY_FILES",
+                "FTCATEGORY_PERL_FILES",
+                "FTCATEGORY_MATLAB_FILES",
+                "FTCATEGORY_INCLUDE_FILES",
+                "FTCATEGORY_JAVA_FILES",
+                "FTCATEGORY_MAKE_FILES",
+                "FTCATEGORY_YAML_FILES",
+                "FTCATEGORY_VISUAL_BASIC_FILES",
+                "FTCATEGORY_C_FILES",
+                "FTCATEGORY_XAML",
+                "FTCATEGORY_BASIC_SOURCE_CODE",
+                "FTCATEGORY_SCT",
+                "FTCATEGORY_MS_CPP_FILES",
+                "FTCATEGORY_ASM",
+                "FTCATEGORY_BORLAND_CPP_FILES",
+                "FTCATEGORY_COBOL",
+                "FTCATEGORY_CSX",
+                "FTCATEGORY_DELPHI",
+                "FTCATEGORY_DMD",
+                "FTCATEGORY_DSP",
+                "FTCATEGORY_F_FILES",
+                "FTCATEGORY_NATVIS",
+                "FTCATEGORY_POD",
+                "FTCATEGORY_QLIKVIEW_FILES",
+                "FTCATEGORY_RES_FILES",
+                "FTCATEGORY_RPY",
+                "FTCATEGORY_RSP",
+                "FTCATEGORY_SAS",
+                "FTCATEGORY_SC",
+                "FTCATEGORY_SCALA",
+                "FTCATEGORY_TLH",
+                "FTCATEGORY_TLI",
+                "FTCATEGORY_VISUAL_CPP_FILES",
+                "FTCATEGORY_X1B",
+                "FTCATEGORY_IFC",
+                "FTCATEGORY_BCP",
+                "FTCATEGORY_FOR",
+                "FTCATEGORY_AU3",
+                "FTCATEGORY_MANIFEST"
+              ]
+            }
+          },
+          "collaborationScope": {
+            "type": "array",
+            "description": "Collaboration scope for the rule",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "COLLABORATION_SCOPE_EXTERNAL_COLLAB_VIEW",
+                "COLLABORATION_SCOPE_EXTERNAL_COLLAB_EDIT",
+                "COLLABORATION_SCOPE_EXTERNAL_LINK_VIEW",
+                "COLLABORATION_SCOPE_EXTERNAL_LINK_EDIT",
+                "COLLABORATION_SCOPE_INTERNAL_COLLAB_VIEW",
+                "COLLABORATION_SCOPE_INTERNAL_COLLAB_EDIT",
+                "COLLABORATION_SCOPE_INTERNAL_LINK_VIEW",
+                "COLLABORATION_SCOPE_INTERNAL_LINK_EDIT",
+                "COLLABORATION_SCOPE_PRIVATE_EDIT",
+                "COLLABORATION_SCOPE_PRIVATE",
+                "COLLABORATION_SCOPE_PUBLIC"
+              ]
+            }
+          },
+          "contentLocation": {
+            "type": "string",
+            "description": "The location for the content that the Zscaler service inspects for sensitive data",
+            "enum": [
+              "ANY",
+              "CONTENT_LOCATION_PRIVATE_CHANNEL",
+              "CONTENT_LOCATION_PUBLIC_CHANNEL",
+              "CONTENT_LOCATION_SHARED_CHANNEL",
+              "CONTENT_LOCATION_DIRECT_MESSAGE",
+              "CONTENT_LOCATION_MULTI_PERSON_DIRECT_MESSAGE"
+            ]
+          },
+          "domains": {
+            "type": "array",
+            "description": "The domain for the external organization sharing the channel. This field is applicable only when you select CONTENT_LOCATION_SHARED_CHANNEL in the 'contentLocation' field.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "objectTypes": {
+            "type": "array",
+            "description": "List of object types for which the rule is applied",
+            "items": {
+              "$ref": "#/definitions/CasbDlpObjectType"
+            }
+          },
+          "components": {
+            "type": "array",
+            "description": "List of components for which the rule is applied. Zscaler service inspects these components for sensitive data.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "COMPONENT_EMAIL_BODY",
+                "COMPONENT_EMAIL_ATTACHMENT",
+                "COMPONENT_EMAIL_SUBJECT",
+                "COMPONENT_ITSM_OBJECTS",
+                "COMPONENT_ITSM_ATTACHMENTS",
+                "COMPONENT_CRM_CHATTER_MESSAGES",
+                "COMPONENT_CRM_ATTACHMENTS_IN_OBJECTS",
+                "COMPONENT_COLLAB_MESSAGES",
+                "COMPONENT_COLLAB_ATTACHMENTS",
+                "COMPONENT_CRM_CASES",
+                "COMPONENT_GENAI_MESSAGES",
+                "COMPONENT_GENAI_ATTACHMENTS",
+                "COMPONENT_FILE_ATTACHMENTS"
+              ]
+            }
+          },
+          "buckets": {
+            "type": "array",
+            "description": "The buckets for the Zscaler service to inspect for sensitive data",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "bucketOwner": {
+            "type": "string",
+            "description": "A user who inspect their buckets for sensitive data. When you choose a user, their buckets are available in the Buckets field."
+          },
+          "zscalerIncidentReceiver": {
+            "description": "The Zscaler Incident Receiver details. To learn more, see <a href=\"/zia/about-zscaler-incident-receiver\" target=\"_blank\">About Zscaler Incident Receiver</a>.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "externalAuditorEmail": {
+            "type": "string",
+            "description": "Email address of the external auditor to whom the DLP email alerts are sent"
+          },
+          "auditor": {
+            "description": "Selects an auditor for the rule. If you do not select an auditor, notifications are not sent for this rule.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "auditorNotification": {
+            "description": "Notification template used for DLP email alerts sent to the auditor",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "tag": {
+            "description": "Tag applied to the rule",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "watermarkProfile": {
+            "description": "Watermark profile applied to the rule. To learn more, see <a href=\"/zia/adding-editing-watermark-profiles\" target=\"_blank\">Adding & Editing Watermark Profiles</a>.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "watermarkDeleteOldVersion": {
+            "type": "boolean",
+            "description": "A Boolean value that specifies whether to delete an old version of the watermarked file"
+          },
+          "numberOfInternalCollaborators": {
+            "type": "string",
+            "description": "Selects the number of internal collaborators for files that are shared with specific collaborators or are discoverable within an organization",
+            "enum": [
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_1_TO_10",
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_11_TO_100",
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_101_TO_1000",
+              "CASB_FILE_TYPE_COLLAB_RANGE_1001_PLUS"
+            ]
+          },
+          "numberOfExternalCollaborators": {
+            "type": "string",
+            "description": "Selects the number of external collaborators for files that are shared with specific collaborators outside of an organization",
+            "enum": [
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_1_TO_10",
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_11_TO_100",
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_101_TO_1000",
+              "CASB_FILE_TYPE_COLLAB_RANGE_1001_PLUS"
+            ]
+          },
+          "fileSharingExpiryTimeType": {
+            "type": "string",
+            "description": "Selects the file sharing expiration period",
+            "enum": [
+              "OFLCASB_LINK_EXPIRY_TIME_PERIOD_7_DAYS",
+              "OFLCASB_LINK_EXPIRY_TIME_PERIOD_30_DAYS",
+              "OFLCASB_LINK_EXPIRY_TIME_PERIOD_90_DAYS",
+              "OFLCASB_LINK_EXPIRY_TIME_PERIOD_CUSTOM_DATE"
+            ]
+          },
+          "fileSharingExpiryTime": {
+            "type": "integer",
+            "description": "Specifies the custom expiration period, in epoch format. This field is applicable when you select <b>OFLCASB_LINK_EXPIRY_TIME_PERIOD_CUSTOM_DATE</b> in the <b>fileSharingExpiryTimeType</b> field.",
+            "format": "int32"
+          },
+          "recipient": {
+            "type": "string",
+            "description": "Specifies if the email recipient is internal or external",
+            "enum": [
+              "EMAIL_RECIPIENT_INTERNAL",
+              "EMAIL_RECIPIENT_EXTERNAL"
+            ]
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the rule was last modified"
+          },
+          "lastModifiedBy": {
+            "description": "Admin user that last modified the rule",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "quarantineLocation": {
+            "type": "string",
+            "description": "Location where all the quarantined files are moved and necessary actions are taken by either deleting or restoring the data"
+          },
+          "accessControl": {
+            "type": "string",
+            "description": "Access privilege of this rule based on the admin's Role Based Authorization (RBA) state",
+            "enum": [
+              "NONE",
+              "READ_ONLY",
+              "READ_WRITE"
+            ]
+          },
+          "redactionProfile": {
+            "description": "Name-ID of the redaction profile in the criteria",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "labels": {
+            "type": "array",
+            "description": "Name-ID pairs of rule labels associated with the rule",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "casbEmailLabel": {
+            "description": "Name-ID of the email label associated with the rule",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "casbTombstoneTemplate": {
+            "description": "Name-ID of the quarantine tombstone template associated with the rule",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "includedDomainProfiles": {
+            "type": "array",
+            "description": "Name-ID pairs of domain profiles included in the criteria for the rule",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "excludedDomainProfiles": {
+            "type": "array",
+            "description": "Name-ID pairs of domain profiles excluded in the criteria for the rule",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "criteriaDomainProfiles": {
+            "type": "array",
+            "description": "Name-ID pairs of domain profiles that are mandatory in the criteria for the rule",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "emailRecipientProfiles": {
+            "type": "array",
+            "description": "Name-ID pairs of recipient profiles for which the rule is applied. The rule is applied only when there is at least one email recipient from outside an organization, and that recipient is not an external trusted user or is not using an external trusted domain.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "includeCriteriaDomainProfile": {
+            "type": "boolean",
+            "description": "If true, criteriaDomainProfiles is included as part of the criteria, else they are excluded from the criteria."
+          },
+          "includeEmailRecipientProfile": {
+            "type": "boolean",
+            "description": "If true, emailRecipientProfiles is included as part of the criteria, else they are excluded from the criteria."
+          },
+          "devices": {
+            "type": "array",
+            "description": "Name-ID pairs of devices for which rule must be applied. Specifies devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of device groups for which the rule must be applied. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceTrustLevels": {
+            "type": "array",
+            "description": "List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "UNKNOWN_DEVICETRUSTLEVEL",
+                "LOW_TRUST",
+                "MEDIUM_TRUST",
+                "HIGH_TRUST"
+              ]
+            }
+          },
+          "withoutContentInspection": {
+            "type": "boolean",
+            "description": "If true, Content Matching is set to None"
+          },
+          "entityGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of entity groups that are part of the rule criteria",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "includeEntityGroups": {
+            "type": "boolean",
+            "description": "If true, entityGroups is included as part of the criteria, else are excluded from the criteria."
+          }
+        }
+      },
+      "CASBMalwareRule": {
+        "type": "object",
+        "required": [
+          "name",
+          "order"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type of SaaS Security Data at Rest Scanning Malware rule",
+            "enum": [
+              "ANY",
+              "NONE",
+              "OFLCASB_AVP_FILE",
+              "OFLCASB_AVP_EMAIL",
+              "OFLCASB_AVP_CRM",
+              "OFLCASB_AVP_ITSM",
+              "OFLCASB_AVP_COLLAB",
+              "OFLCASB_AVP_REPO",
+              "OFLCASB_AVP_STORAGE",
+              "OFLCASB_AVP_GENAI"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier for a SaaS Security Data at Rest Scanning Malware rule"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Order of rule execution with respect to other SaaS Security Data at Rest Scanning Malware rules"
+          },
+          "name": {
+            "type": "string",
+            "description": "Rule name"
+          },
+          "cloudAppTenants": {
+            "type": "array",
+            "description": "Name-ID pairs of the cloud application tenants for which the rule is applied. If the name-ID pairs of the cloud application tenants are not specified, the rule is applied to all tenants.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "state": {
+            "type": "string",
+            "description": "Administrative state of the rule",
+            "enum": [
+              "DISABLED",
+              "ENABLED"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "description": "The configured action for the policy rule",
+            "enum": [
+              "OFLCASB_AVP_QUARANTINE",
+              "OFLCASB_AVP_REMOVE",
+              "OFLCASB_AVP_REPORT_MALWARE",
+              "OFLCASB_AVP_APPLY_EMAIL_TAG",
+              "OFLCASB_AVP_BLOCK",
+              "OFLCASB_AVP_ALLOW"
+            ]
+          },
+          "quarantineLocation": {
+            "type": "string",
+            "description": "Location where all the quarantined files are moved and necessary actions are taken by either deleting or restoring the data"
+          },
+          "scanInboundEmailLink": {
+            "type": "string",
+            "description": "Enables or disables the scan inbound email link",
+            "enum": [
+              "SCAN_EMAIL_LINK_ENABLE",
+              "SCAN_EMAIL_LINK_DISABLE"
+            ]
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the rule was last modified"
+          },
+          "lastModifiedBy": {
+            "description": "Admin user that last modified the rule",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "accessControl": {
+            "type": "string",
+            "description": "Access privilege of this rule based on the admin's Role Based Authorization (RBA) state",
+            "enum": [
+              "NONE",
+              "READ_ONLY",
+              "READ_WRITE"
+            ]
+          },
+          "casbEmailLabel": {
+            "description": "Name-ID of the email label associated with the rule",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "buckets": {
+            "type": "array",
+            "description": "The buckets for the Zscaler service to inspect for sensitive data",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "labels": {
+            "type": "array",
+            "description": "Name-ID pairs of rule labels associated with the rule",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "casbTombstoneTemplate": {
+            "description": "Name-ID of the quarantine tombstone template associated with the rule",
+            "$ref": "#/definitions/EntityReference"
+          }
+        }
+      },
+      "DomainProfile": {
+        "type": "object",
+        "properties": {
+          "profileId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Domain profile ID"
+          },
+          "profileName": {
+            "type": "string",
+            "description": "Domain profile name"
+          },
+          "includeCompanyDomains": {
+            "type": "boolean",
+            "description": "A Boolean flag to determine if the organizational domains have to be included in the domain profile"
+          },
+          "includeSubdomains": {
+            "type": "boolean",
+            "description": "A Boolean flag to determine whether or not to include subdomains"
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional notes or information about the domain profile"
+          },
+          "customDomains": {
+            "type": "array",
+            "description": "List of custom domains for the domain profile. There can be one or more custom domains.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "predefinedEmailDomains": {
+            "type": "array",
+            "description": "List of predefined email service provider domains for the domain profile",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "AOL",
+                "COMCAST",
+                "HOTMAIL",
+                "GMAIL",
+                "ICLOUD",
+                "INBOX",
+                "GMX",
+                "MSN",
+                "MICROSOFT_O365",
+                "OUTLOOK",
+                "PROTONMAIL",
+                "REDIFFMAIL",
+                "TRASHMAIL",
+                "TUTANOTA",
+                "YAHOO",
+                "YANDEX",
+                "ZOHO"
+              ]
+            }
+          }
+        }
+      },
+      "QuarantineTombstoneTemplate": {
+        "type": "object",
+        "required": [
+          "description",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Tombstone file template ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Tombstone file template name"
+          },
+          "description": {
+            "type": "string",
+            "description": "The text that is included in the tombstone file"
+          }
+        }
+      },
+      "CasbEmailLabel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "SaaS Security email label ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "SaaS Security email label name"
+          },
+          "labelDesc": {
+            "type": "string",
+            "description": "Description of the email label"
+          },
+          "labelColor": {
+            "type": "string",
+            "description": "Color to apply to the email label",
+            "enum": [
+              "CASB_EMAIL_LABEL_COLOR_RED",
+              "CASB_EMAIL_LABEL_COLOR_YELLOW",
+              "CASB_EMAIL_LABEL_COLOR_GREEN",
+              "CASB_EMAIL_LABEL_COLOR_ORANGE",
+              "CASB_EMAIL_LABEL_COLOR_BLUE",
+              "CASB_EMAIL_LABEL_COLOR_PURPLE"
+            ]
+          },
+          "labelDeleted": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether or not the email label is deleted"
+          }
+        }
+      },
+      "CASBTenantTags": {
+        "type": "object",
+        "properties": {
+          "tagId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated tag ID"
+          },
+          "tenantId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Tenant ID to which the tag belongs"
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether or not a tag is deleted"
+          },
+          "tagUUID": {
+            "type": "string",
+            "description": "Universally Unique Identifier (UUID) of the tag"
+          },
+          "tagName": {
+            "type": "string",
+            "description": "Tag name"
+          }
+        }
+      },
+      "CasbTenantScanInfo": {
+        "type": "object",
+        "properties": {
+          "tenantName": {
+            "type": "string",
+            "description": "The SaaS application tenant name"
+          },
+          "tenantId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The SaaS application tenant ID"
+          },
+          "saasApplication": {
+            "type": "string",
+            "description": "The sanctioned SaaS application type",
+            "enum": [
+              "SLACK",
+              "MSTEAM",
+              "WEBEX",
+              "MSTEAM_GCC_HIGH",
+              "MSTEAM_DOD",
+              "MSTEAM_GCC_MOD",
+              "ZOOM",
+              "TRELLO",
+              "SALESFORCE",
+              "MSFT_DYNAMICS365",
+              "TWILIO",
+              "EXCHANGE",
+              "GMAIL",
+              "EXCHANGE_GCC_HIGH",
+              "EXCHANGE_DOD",
+              "EXCHANGE_GCC_MOD",
+              "BOX",
+              "ONEDRIVE",
+              "SHAREPOINT",
+              "DROPBOX",
+              "GOOGLEDRIVE",
+              "SHAREFILE",
+              "CONFLUENCE",
+              "EGNYTE",
+              "ONEDRIVE_GCC_HIGH",
+              "ONEDRIVE_DOD",
+              "SHAREPOINT_GCC_HIGH",
+              "SHAREPOINT_DOD",
+              "ONEDRIVE_GCC_MOD",
+              "SHAREPOINT_GCC_MOD",
+              "SMARTSHEET",
+              "CHATGPT",
+              "MSFTCOPILOT",
+              "SERVICENOW",
+              "JIRA",
+              "JUMPCLOUD",
+              "MS_ATP_DEFENDER",
+              "GSUITE",
+              "OFFICE365",
+              "MIP",
+              "OKTA",
+              "OFFICE365_GCC_HIGH",
+              "OFFICE365_DOD",
+              "OFFICE365_GCC_MOD",
+              "APPTOTAL",
+              "WORKDAY",
+              "DOCUSIGN",
+              "GITHUB",
+              "BITBUCKET",
+              "GITLAB",
+              "AWSS3",
+              "AZUREBLOB",
+              "GCPSTORAGE",
+              "AWSS3_SMIR",
+              "AZUREBLOB_SMIR",
+              "GCPSTORAGE_SMIR",
+              "GSUITE_MARKETPLACE",
+              "MSOFFICE365_MARKETPLACE",
+              "SLACK_MARKETPLACE",
+              "SALESFORCE_MARKETPLACE"
+            ]
+          },
+          "scanInfo": {
+            "description": "The scan configuration information",
+            "$ref": "#/definitions/CasbScanInfo"
+          },
+          "scanAction": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CasbTenantValidationResponse": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The SaaS application tenant ID"
+          },
+          "tenantName": {
+            "type": "string",
+            "description": "The SaaS application tenant name"
+          },
+          "tenantDeleted": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "array",
+            "description": "Status of the scan",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CASB_TENANT_ACTIVE",
+                "CASB_TENANT_INACTIVE",
+                "CASB_TENANT_VALIDATING",
+                "CASB_TENANT_VALIDATION_SUCCESS",
+                "CASB_TENANT_VALIDATION_FAIL",
+                "CASB_TENANT_NORMAL_RETHORIZATION",
+                "CASB_TENANT_CONNECTOR_RETHORIZATION"
+              ]
+            }
+          },
+          "lastValidationMsg": {
+            "description": "The validation error message information",
+            "$ref": "#/definitions/CasbTenantValidationJsonMsg"
+          },
+          "lastTenantValidationTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the scan was last validated"
+          },
+          "tenantAuthorizationInfo": {
+            "$ref": "#/definitions/TenantAuthorizationInfo"
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of an ID and name"
+      },
+      "CasbDlpObjectType": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The DLP object type ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the DLP rule object type defined in the criteria"
+          }
+        }
+      },
+      "CasbScanInfo": {
+        "type": "object",
+        "properties": {
+          "cur_scan_start_time": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The SaaS Security scan start time. A scan starts running when the initialization is completed successfully."
+          },
+          "prev_scan_end_time": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Timestamp of when the SaaS Security Data at Rest Scanning policies for a tenant were last scanned"
+          },
+          "scan_reset_num": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CasbTenantValidationJsonMsg": {
+        "type": "object",
+        "properties": {
+          "errorMsg": {
+            "type": "string",
+            "description": "The validation error message"
+          },
+          "errorCode": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The validation error code"
+          }
+        }
+      },
+      "TenantAuthorizationInfo": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "The access token issued to the SaaS tenant application by the authorization serverfor tenant authorization"
+          },
+          "botToken": {
+            "type": "string"
+          },
+          "redirectUrl": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SLACK_BOT",
+              "SLACK_USER",
+              "SALESFORCE_PRODUCTION",
+              "SALESFORCE_SANDBOX",
+              "USER",
+              "BOT",
+              "CLIENT_CONNECTOR",
+              "ZSCALER_CONNECTOR",
+              "WEBHOOK_VALIDATION"
+            ]
+          },
+          "env": {
+            "type": "string",
+            "description": "Specifies the SaaS tenant environment",
+            "enum": [
+              "SALESFORCE_PRODUCTION",
+              "SALESFORCE_SANDBOX"
+            ]
+          },
+          "tempAuthCode": {
+            "type": "string"
+          },
+          "subdomain": {
+            "type": "string"
+          },
+          "apicp": {
+            "type": "string"
+          },
+          "clientId": {
+            "type": "string"
+          },
+          "clientSecret": {
+            "type": "string"
+          },
+          "secretToken": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "userPwd": {
+            "type": "string"
+          },
+          "instanceUrl": {
+            "type": "string"
+          },
+          "roleArn": {
+            "type": "string"
+          },
+          "quarantineBucketName": {
+            "type": "string"
+          },
+          "cloudTrailBucketName": {
+            "type": "string"
+          },
+          "botId": {
+            "type": "string"
+          },
+          "orgApiKey": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "enterpriseId": {
+            "type": "string"
+          },
+          "credJson": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "READ",
+              "READWRITE"
+            ]
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "workspaceName": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "featuresSupported": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CASB",
+                "WORKFLOW_AUTOMATION",
+                "SSPM",
+                "ACTIVITY_REPORT",
+                "TP_APP_REPORT",
+                "RT_DLP",
+                "APP_GOVERNANCE",
+                "REDACTION",
+                "CASB_ENTITY_GROUP"
+              ]
+            }
+          },
+          "malQtnLibName": {
+            "type": "string"
+          },
+          "dlpQtnLibName": {
+            "type": "string"
+          },
+          "credentials": {
+            "type": "string"
+          },
+          "tokenEndpoint": {
+            "type": "string"
+          },
+          "restApiEndpoint": {
+            "type": "string"
+          },
+          "smirBucketConfig": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ICAPServer"
+            }
+          },
+          "qtnInfo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/DlpQuarantineInfo"
+            }
+          },
+          "qtnInfoCleared": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ICAPServer": {
+        "type": "object",
+        "required": [
+          "name",
+          "status",
+          "url"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The unique identifier for a DLP server."
+          },
+          "name": {
+            "type": "string",
+            "description": "The DLP server name."
+          },
+          "url": {
+            "type": "string",
+            "description": "The DLP server URL."
+          },
+          "status": {
+            "type": "string",
+            "description": "The DLP server status",
+            "enum": [
+              "ENABLED",
+              "DISABLED"
+            ]
+          }
+        },
+        "description": "DLP server (i.e., servers using ICAP) information."
+      },
+      "DlpQuarantineInfo": {
+        "type": "object",
+        "properties": {
+          "adminId": {
+            "type": "string"
+          },
+          "qtnFolderPath": {
+            "type": "string"
+          },
+          "modTime": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    }
+  }
+}

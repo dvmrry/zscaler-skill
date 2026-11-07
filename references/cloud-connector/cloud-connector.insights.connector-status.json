@@ -1,0 +1,559 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.insights.connector-status",
+  "title": "Cloud Connector status: what Active, Inactive and Disabled mean, and the per-VM API record",
+  "aliases": [
+    "cloud connector inactive",
+    "cloud connector status active",
+    "cloud connector disabled",
+    "operationalStatus",
+    "ecVMs status",
+    "cloud connector vm size",
+    "formFactor",
+    "cloud connector nat ip",
+    "status active but load balancer unhealthy"
+  ],
+  "binds": [
+    "ztw/ec-groups#ecVMs",
+    "ztw/ec-groups#status"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.overview.load-balancing",
+      "because": "cloud-connector.insights.connector-status:status-not-lb-health"
+    },
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.forwarding.log-and-control",
+      "because": "cloud-connector.forwarding.log-and-control:gateways"
+    },
+    {
+      "rel": "logged-in",
+      "to": "cloud-connector.logs.event-records",
+      "because": "cloud-connector.logs.event-records:when-generated"
+    },
+    {
+      "rel": "logged-in",
+      "to": "ztw/event-log",
+      "because": "cloud-connector.logs.event-records:when-generated"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.insights"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades.monitoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.nss-va.log-control-path"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The console status of a connector reports its management-plane contact, not whether it forwards traffic. The API's per-VM record carries more state, with value spaces only partly documented."
+    },
+    {
+      "label": "Console status.",
+      "text": "{{status-values}} The same three values on the group page are in [[cloud-connector.overview.groups:operational-status]]. {{inactive-meaning}} {{disabled-by-admin}} Disabling stops traffic without deleting the connector: [[cloud-connector.overview.groups:disable-not-delete]]. {{geoview-reason}}"
+    },
+    {
+      "label": "Against load-balancer health.",
+      "text": "{{status-not-lb-health}} The probe and failover model itself is in [[cloud-connector.overview.load-balancing]]."
+    },
+    {
+      "label": "Per-VM API record.",
+      "text": "{{vm-status-enum}} {{operational-status-free}} What the status flags and the integer upgrade status mean, alone and together, is open {{gap:vm-status-codes}}. The upgrade fields of the same record are in [[cloud-connector.upgrades.monitoring]]."
+    },
+    {
+      "label": "Size and HA.",
+      "text": "{{vm-size-column}} {{large-size}} {{details-vm-size}} The pages list different supported sizes {{divergence:vm-sizes}}. {{ha-status}}"
+    },
+    {
+      "label": "NAT IP.",
+      "text": "{{nat-ip}} Which address a Cloud Connector's traffic carries in ZIA records is open {{gap:nat-ip-in-zia}}."
+    },
+    {
+      "label": "Details page.",
+      "text": "{{details-general}} {{details-gateways}} {{details-cloud}} {{details-forwarding-mgmt}} The edit window defines Management IP Address differently {{divergence:management-ip-address}}. The captured page lists no CPU, memory or session fields, and Host ID is not defined {{gap:details-page-fields}}; CPU and memory are streamed as [[cloud-connector.logs.metrics-records]]."
+    },
+    {
+      "label": "Edit window.",
+      "text": "{{heartbeat}} {{connector-edit-fields}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an Inactive connector is still forwarding, from the load balancer's health view or Tunnel Insights, before treating Inactive as an outage.",
+      "uses": [
+        "inactive-meaning",
+        "status-not-lb-health"
+      ]
+    },
+    {
+      "do": "Whether a Disabled connector was disabled by an admin, since disabling stops traffic processing.",
+      "uses": [
+        "disabled-by-admin",
+        "cloud-connector.overview.groups:disable-not-delete"
+      ]
+    },
+    {
+      "do": "The connector's own VM record (status list and operationalStatus) when the console view is not enough, without reading meaning into undocumented flag combinations.",
+      "uses": [
+        "vm-status-enum",
+        "vm-status-codes"
+      ]
+    }
+  ],
+  "claims": {
+    "status-values": {
+      "statement": "Cloud and Branch Connectors can be filtered by status Active, Inactive or Disabled, while the monitoring table's Status column shows Active or Inactive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-accessing-cloud-branch-connector-monitoring.json",
+          "quotes": [
+            "You can filter Cloud Connectors by the following criteria:",
+            "Status: The status of the Cloud Connector (i.e., Active, Inactive, or Disabled)",
+            "You can filter Branch Connectors by the following criteria:",
+            "Status: The status of the Branch Connector (i.e., Active, Inactive, or Disabled)",
+            "Status: The status of the Cloud Connector (i.e., Active or Inactive)"
+          ]
+        }
+      ]
+    },
+    "inactive-meaning": {
+      "statement": "A Cloud Connector is Inactive when it cannot contact its management plane; with a healthy data plane this has no service impact and the connector still processes data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-accessing-cloud-branch-connector-monitoring.json",
+          "quotes": [
+            "When a Cloud Connector is inactive, it cannot contact the management plane of the Cloud Connector.",
+            "In cases where the data plane is healthy, but the management plane is unhealthy, the Cloud Connector status is inactive.",
+            "This status has no service impact, and the Cloud Connector still processes the data"
+          ]
+        }
+      ]
+    },
+    "geoview-reason": {
+      "statement": "In the Geoview, an inactive connector shows the reason for its inactive status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-accessing-cloud-branch-connector-monitoring.json",
+          "quotes": [
+            "The Geoview provides the geographic locations of all Cloud and Branch Connectors deployed on your cloud or branch accounts.",
+            "If a Cloud or Branch Connector is inactive, the reason for the connector's inactive status is displayed."
+          ]
+        }
+      ]
+    },
+    "status-not-lb-health": {
+      "statement": "The console status and load-balancer health are different signals: the status follows management-plane contact, while the cloud load balancer keeps or removes a connector by its HTTP health probe answer. The console status therefore does not show whether the load balancer keeps the connector in rotation.",
+      "tier": "B",
+      "derived_from": [
+        "inactive-meaning",
+        "cloud-connector.overview.load-balancing:cchealth-path",
+        "cloud-connector.overview.load-balancing:health-codes"
+      ],
+      "conditions": "Chain of evidence: Inactive is defined by management-plane contact, and health is defined by the load balancer's HTTP probe. No source describes an Active connector that the load balancer marks unhealthy; that combination is inferred."
+    },
+    "vm-status-enum": {
+      "statement": "In the API's VM record, `status` is a list whose values are drawn from DISABLED, REGISTERED, RESERVED1, PKG_REPO_REGISTERED, ENABLING, DISABLING, DELETING, DELETING_LAST and DELETED.",
+      "tier": "A",
+      "binds": [
+        "ztw/ec-groups#ecVMs"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVM/properties/status",
+          "expect": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "DISABLED",
+                "REGISTERED",
+                "RESERVED1",
+                "PKG_REPO_REGISTERED",
+                "ENABLING",
+                "DISABLING",
+                "DELETING",
+                "DELETING_LAST",
+                "DELETED"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "operational-status-free": {
+      "statement": "The VM record's `operationalStatus` is a string with no enum in the API reference.",
+      "tier": "A",
+      "binds": [
+        "ztw/ec-groups#ecVMs"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVM/properties/operationalStatus",
+          "expect": {
+            "type": "string",
+            "description": "Indicates the operational status of the VM."
+          },
+          "expect_absent": [
+            "enum"
+          ]
+        }
+      ]
+    },
+    "vm-size-column": {
+      "statement": "The monitoring table's VM Size column shows Small or Medium, and the Branch Connector details page says Small and Medium VM sizes are supported, Small by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-accessing-cloud-branch-connector-monitoring.json",
+          "quotes": [
+            "VM Size: The size of the virtual machine (i.e., Small or Medium)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-branch-connector-details.json",
+          "quotes": [
+            "VM Size: The size of the VM, which is set to Small by default. Small and Medium VM sizes are supported"
+          ]
+        }
+      ]
+    },
+    "ha-status": {
+      "statement": "The monitoring table's HA Status column applies only to Branch Connector; the API's VM record has an `haStatus` of INIT, ACTIVE, STANDBY or DISABLED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-accessing-cloud-branch-connector-monitoring.json",
+          "quotes": [
+            "HA Status: The high availability (HA) status of the Branch Connector. This column only applies to Branch Connector"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVM/properties/haStatus",
+          "expect": {
+            "enum": [
+              "INIT",
+              "ACTIVE",
+              "STANDBY",
+              "DISABLED"
+            ]
+          }
+        }
+      ]
+    },
+    "nat-ip": {
+      "statement": "The VM record's `natIp` is described as the NAT IP of the VM; on the Branch Connector details page the NAT IP Address is the public IP address of the management interface when it is behind a NAT device.",
+      "tier": "A",
+      "binds": [
+        "ztw/ec-groups#ecVMs"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVM/properties/natIp",
+          "expect": {
+            "description": "The NAT IP of the VM."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-branch-connector-details.json",
+          "after": "The management interface is set based on the hardware device selected and cannot be changed.",
+          "quotes": [
+            "NAT IP Address: The public IP address of the management interface if it is behind a NAT device"
+          ]
+        }
+      ]
+    },
+    "disabled-by-admin": {
+      "statement": "The monitoring page says Cloud Connectors are Disabled only when an admin has disabled them in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-accessing-cloud-branch-connector-monitoring.json",
+          "quotes": [
+            "Cloud Connectors are only disabled when they have been administratively disabled in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "details-vm-size": {
+      "statement": "On the Cloud Connector details page, VM Size is set to Small by default and is the only size currently supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+          "quotes": [
+            "VM Size: The size of the VM, which is set to Small by default and is the only size currently supported."
+          ]
+        }
+      ]
+    },
+    "details-general": {
+      "statement": "The Cloud Connector details page has tabs; its fields include the Deployment Type (AWS, Azure or GCP), the Status (Active or Inactive), the Last Seen Time and the First Deployed Time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+          "quotes": [
+            "On the Cloud Connector details page, select a tab to view more details.",
+            "Deployment Type: The cloud service provider used to deploy the selected Cloud account. The cloud service provider is either Amazon Web Services (AWS), Microsoft Azure, or Google Cloud Platform (GCP).",
+            "Status: The operational status of the deployed Cloud Connector displayed as Active or Inactive",
+            "Last Seen Time: The date and time when the Cloud Connector was last seen",
+            "First Deployed Time: The date and time when the Cloud Connector was first deployed"
+          ]
+        }
+      ]
+    },
+    "details-gateways": {
+      "statement": "The details page includes the ZIA Gateway (the Internet & SaaS (ZIA) proxy gateway IP address) and the ZPA Broker (the default Private Access (ZPA) IP address).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+          "quotes": [
+            "ZIA Gateway: The Internet & SaaS (ZIA) proxy gateway IP address",
+            "ZPA Broker: The default Private Access (ZPA) IP address"
+          ]
+        }
+      ]
+    },
+    "details-cloud": {
+      "statement": "The details page includes the Virtual Network (the VPC or VNet of the Cloud Connector), the GWLB Service Name, the Account ID (the AWS account ID, the Azure subscription ID or the GCP project name) and Roles Assigned to CC (the IAM or access roles and permissions associated with the Cloud Connector).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+          "quotes": [
+            "Virtual Network: The virtual private cloud (VPC) or VNet of the Cloud Connector",
+            "GWLB Service Name: The service name of the gateway load balancer",
+            "Account ID: The AWS account ID, the Azure subscription ID, or the GCP project name",
+            "Roles Assigned to CC: The IAM or access roles and permissions associated with the Cloud Connector"
+          ]
+        }
+      ]
+    },
+    "details-forwarding-mgmt": {
+      "statement": "The details page includes DNS Server 2 (the secondary DNS server IP address), Service IP Address 1 (the primary service IP address) and a Management IP Address described as the management gateway IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+          "quotes": [
+            "DNS Server 2: The secondary DNS server IP address",
+            "Service IP Address 1: The primary service IP address",
+            "Management IP Address: The management gateway IP address"
+          ]
+        }
+      ]
+    },
+    "heartbeat": {
+      "statement": "In the edit window an individual Cloud Connector can be enabled or disabled with Status, and Last Heartbeat Received On shows the date and time the Zscaler service last received a heartbeat, or keepalive communication, from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "Last Heartbeat Received On: View the date and time when the Zscaler service last received a heartbeat, or keepalive communication, from the Cloud Connector.",
+            "Status: Select Enable or Disable to activate or disable the Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "connector-edit-fields": {
+      "statement": "The edit window also shows the Configuration Template Name (the name of the Cloud Connector provisioning template), the Connector VM Size, the Management Outgoing Gateway IP Address (the default gateway IP address), the Internal Gateway IP Address and the Service IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "Configuration Template Name: The name of the Cloud Connector provisioning template.",
+            "Connector VM Size: The size of the Cloud Connector virtual machine (VM).",
+            "Management Outgoing Gateway IP Address: The default gateway IP address.",
+            "Internal Gateway IP Address: The gateway IP address.",
+            "Service IP: The service IP address."
+          ]
+        }
+      ]
+    },
+    "large-size": {
+      "statement": "A Large size exists: the cloud provisioning template offers Small, Medium or Large on Amazon Web Services, the AWS deployment article lists Medium and Large VMs as deprecated, and the API's `formFactor` takes SMALL, MEDIUM or LARGE.",
+      "tier": "A",
+      "binds": [
+        "ztw/ec-groups#ecVMs"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-cloud-provisioning-template.json",
+          "quotes": [
+            "Amazon Web Services: Select from Small, Medium, or Large. Small is set by default when autoscaling is enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Medium VM (deprecated): Requires one of the following EC2 instances",
+            "Large VM (deprecated): Requires one of the following EC2 instances"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVM/properties/formFactor",
+          "expect": {
+            "enum": [
+              "SMALL",
+              "MEDIUM",
+              "LARGE"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "management-ip-address": {
+      "summary": "The Cloud Connector details page defines Management IP Address as the management gateway IP address (details-forwarding-mgmt), while the edit window defines the same label as the IP address of the Cloud Connector.",
+      "positions": [
+        {
+          "says": "Management IP Address is the management gateway IP address.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+            "quotes": [
+              "Management IP Address: The management gateway IP address"
+            ]
+          }
+        },
+        {
+          "says": "Management IP Address is the IP address of the Cloud Connector.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-editing-cloud-connectors.json",
+            "quotes": [
+              "Management IP Address: The IP address of the Cloud Connector."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether the field is the connector's own management address or its management gateway is not settled by the pages, so an answer that uses a Management IP Address from either screen needs to say which page it read."
+    },
+    "vm-sizes": {
+      "summary": "The Cloud Connector details page says Small is the only size currently supported, while the provisioning template offers Small, Medium or Large on AWS and the monitoring page lists Small or Medium.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+            "quotes": [
+              "VM Size: The size of the VM, which is set to Small by default and is the only size currently supported."
+            ]
+          },
+          "says": "Small is set by default and is the only size currently supported."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-configuring-cloud-provisioning-template.json",
+            "quotes": [
+              "Amazon Web Services: Select from Small, Medium, or Large. Small is set by default when autoscaling is enabled."
+            ]
+          },
+          "says": "On AWS the template offers Small, Medium or Large, with Small the default when autoscaling is enabled."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-accessing-cloud-branch-connector-monitoring.json",
+            "quotes": [
+              "VM Size: The size of the virtual machine (i.e., Small or Medium)"
+            ]
+          },
+          "says": "The monitoring table's VM Size column is Small or Medium."
+        }
+      ],
+      "impact": "Which sizes a Cloud Connector can run is not settled by the pages. The AWS deployment article lists Medium and Large VMs as deprecated (large-size), which may explain the details page, but no page says so."
+    }
+  },
+  "gaps": {
+    "vm-status-codes": {
+      "kind": "semantic",
+      "title": "Meaning of the per-VM status flags and integer upgrade status",
+      "status": "partial",
+      "former_ids": [
+        "log-22"
+      ],
+      "about": [
+        "ztw/ec-groups#ecVMs"
+      ],
+      "blocks": "alerting on per-VM state read from the API",
+      "detail": "The status list's values are documented (claim vm-status-enum), but not what each means, which combinations occur, or how they relate to operationalStatus (Active, Inactive, Disabled). The VM record's upgradeStatus is an int32 with no enum (cloud-connector.upgrades.monitoring:vm-upgrade-fields), while the upgrade-metrics read names string states SCHEDULED, NO_PENDING_UPGRADE, FAILED_OTHER, BOOTSTRAPPING and BLOCKED (cloud-connector.upgrades.monitoring:upgrade-metrics); the mapping from integer to state is not stated. Unverified legacy statement: \"0 = current; non-zero = in-progress or failed\".",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "nat-ip-in-zia": {
+      "kind": "semantic",
+      "title": "Which IP address Cloud Connector traffic carries in ZIA records",
+      "status": "open",
+      "blocks": "matching a connector in the console to its traffic in ZIA logs by IP",
+      "detail": "Unverified legacy statement: connectors behind cloud NAT \"show their private service IP in the management console and their public NAT IP in ZIA tunnel logs. The two do not match\", so the group and location should be the correlation key. The API's natIp is described only as the VM's NAT IP, and the Cloud Connector details page lists a NAT IP Address on both its Forwarding and Management tabs without saying whether they differ.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "details-page-fields": {
+      "kind": "semantic",
+      "title": "Field set of the Cloud Connector Details page",
+      "status": "partial",
+      "blocks": "knowing which per-VM health data the console shows without a feed",
+      "detail": "The Cloud Connector details page is now captured (claims details-general, details-gateways, details-cloud, details-forwarding-mgmt) and lists no CPU, memory or session fields, an absence read from the page; they are available as Metrics logs. Host ID is not defined, and a NAT IP Address appears on both the Forwarding and Management tabs without saying whether the two differ, which bears on gap nat-ip-in-zia. The Cloud Connector edit window and details page also word Management IP Address differently in the captures.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-accessing-cloud-branch-connector-monitoring.json",
+          "quotes": [
+            "where the general, management, and traffic forwarding information for the selected Cloud or Branch Connector is available."
+          ]
+        }
+      ]
+    }
+  }
+}

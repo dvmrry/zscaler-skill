@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Test LLM Providers in AI Guard DAS/API Mode",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-apps-infra/test-llm-providers-ai-guard-dasapi-mode",
+    "node": "1541883",
+    "revision": "3219277",
+    "updated": "2026-07-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "In DAS/API mode, AI Guard is not inline from a network-routing perspective. The application still talks to the Large Language Model (LLM) directly, but the application code should be updated so that it calls AI Guard before sending the prompt to the model, and then calls AI Guard again on the model response before returning that response to the end user."
+    },
+    {
+      "text": "When configuring a proxy for Zscaler, use the following base URL endpoint: https://proxy.zseclipse.net"
+    },
+    {
+      "text": "In other words, DAS/API mode depends on application logic:"
+    },
+    {
+      "item": "Application sends prompt content to AI Guard.",
+      "depth": 0
+    },
+    {
+      "item": "If allowed, the application sends the prompt to the LLM.",
+      "depth": 0
+    },
+    {
+      "item": "The application receives the LLM response.",
+      "depth": 0
+    },
+    {
+      "item": "The application sends the response content to AI Guard.",
+      "depth": 0
+    },
+    {
+      "item": "If allowed, the application returns the response to the user.",
+      "depth": 0
+    },
+    {
+      "text": "This is different from proxy mode:"
+    },
+    {
+      "item": "Proxy mode routes traffic through AI Guard inline.",
+      "depth": 0
+    },
+    {
+      "item": "DAS/API mode adds explicit API calls in the application code.",
+      "depth": 0
+    },
+    {
+      "text": "The approach is agnostic across LLMs. The application still uses its normal model or provider, but the prompt and response are inspected by AI Guard using API calls."
+    },
+    {
+      "heading": "App Flow Example",
+      "level": 1
+    },
+    {
+      "text": "The following diagram shows that applications configured with AI Guard in DAS/API Mode will continue to have the prompt and responses sent from the application to the LLM directly, but the application code logic will include steps to send the prompts and responses to the AI Guard cloud service API endpoints:"
+    },
+    {
+      "heading": "DAS/API Endpoints",
+      "level": 1
+    },
+    {
+      "text": "There are two primary endpoints for DAS/API mode:"
+    },
+    {
+      "item": "Option 1: Execute a specific policy",
+      "depth": 0
+    },
+    {
+      "item": "Use this when:",
+      "depth": 0
+    },
+    {
+      "item": "You want to explicitly reference a specific AI Guard policy.",
+      "depth": 1
+    },
+    {
+      "item": "The application should always be checked against one known policy ID.",
+      "depth": 1
+    },
+    {
+      "item": "Endpoint:",
+      "depth": 0
+    },
+    {
+      "item": "https://api.zseclipse.net/v1/detection/execute-policy",
+      "depth": 0
+    },
+    {
+      "item": "Request shape:",
+      "depth": 0
+    },
+    {
+      "item": "self.zag_key = \"<insert-api-key-generated-in-aiguard>\" ZAG_POLICY_ID = <insert-policy-id-number> headers = { \"Authorization\": f\"Bearer {self.zag_key}\", \"Content-Type\": \"application/json\", } payload = { \"policyId\": ZAG_POLICY_ID, \"direction\": direction, \"content\": content or \"\", }",
+      "depth": 0
+    },
+    {
+      "item": "Notes:",
+      "depth": 0
+    },
+    {
+      "item": "policyId is required.",
+      "depth": 1
+    },
+    {
+      "item": "direction should indicate whether this is the outbound prompt or inbound response.",
+      "depth": 1
+    },
+    {
+      "item": "content is the text being evaluated.",
+      "depth": 1
+    },
+    {
+      "item": "Option 2: Resolve and execute policy",
+      "depth": 0
+    },
+    {
+      "item": "Use this when:",
+      "depth": 0
+    },
+    {
+      "item": "You want AI Guard to resolve which policy should match.",
+      "depth": 1
+    },
+    {
+      "item": "The application should not hard-code a single policy ID.",
+      "depth": 1
+    },
+    {
+      "item": "Requirements:",
+      "depth": 0
+    },
+    {
+      "item": "DAS/API policies must exist in AI Guard.",
+      "depth": 1
+    },
+    {
+      "item": "AI Guard evaluates those policies and determines the matching policy.",
+      "depth": 1
+    },
+    {
+      "item": "Endpoint:",
+      "depth": 0
+    },
+    {
+      "item": "https://api.zseclipse.net/v1/detection/resolve-and-execute-policy",
+      "depth": 0
+    },
+    {
+      "item": "Request shape:",
+      "depth": 0
+    },
+    {
+      "item": "self.zag_key = \"<insert-api-key-generated-in-aiguard>\" headers = { \"Authorization\": f\"Bearer {self.zag_key}\", \"Content-Type\": \"application/json\", } payload = { \"direction\": direction, \"content\": content or \"\", }",
+      "depth": 0
+    },
+    {
+      "item": "Notes:",
+      "depth": 0
+    },
+    {
+      "item": "policyId is not sent.",
+      "depth": 1
+    },
+    {
+      "item": "AI Guard resolves and applies the appropriate policy.",
+      "depth": 1
+    },
+    {
+      "heading": "Direction Handling",
+      "level": 1
+    },
+    {
+      "text": "The application should inspect both sides of the interaction:"
+    },
+    {
+      "item": "The prompt before it is sent to the model.",
+      "depth": 0
+    },
+    {
+      "item": "The response before it is shown back to the user.",
+      "depth": 0
+    },
+    {
+      "text": "For example:"
+    },
+    {
+      "text": "def inspect_with_ai_guard(content: str, direction: str): headers = { \"Authorization\": f\"Bearer {self.zag_key}\", \"Content-Type\": \"application/json\", } payload = { \"direction\": direction, \"content\": content or \"\", } return requests.post( \"https://api.zseclipse.net/v1/detection/resolve-and-execute-policy\", json=payload, headers=headers, timeout=30, )"
+    },
+    {
+      "text": "Common usage pattern:"
+    },
+    {
+      "item": "Call once with prompt content and outbound direction.",
+      "depth": 0
+    },
+    {
+      "item": "Call again with model output and inbound direction.",
+      "depth": 0
+    },
+    {
+      "heading": "Suggested Integration Pattern",
+      "level": 1
+    },
+    {
+      "text": "At a high level, the application code should look like this:"
+    },
+    {
+      "text": "prompt_result = inspect_prompt_with_ai_guard(user_prompt) if prompt_result_is_blocked(prompt_result): return blocked_message() llm_response = call_llm(user_prompt) response_result = inspect_response_with_ai_guard(llm_response) if response_result_is_blocked(response_result): return blocked_message() return llm_response"
+    },
+    {
+      "text": "For explicit policy binding:"
+    },
+    {
+      "text": "prompt_result = execute_specific_policy(user_prompt, \"request\", ZAG_POLICY_ID) ... response_result = execute_specific_policy(llm_response, \"response\", ZAG_POLICY_ID)"
+    },
+    {
+      "text": "For policy resolution:"
+    },
+    {
+      "text": "prompt_result = resolve_and_execute_policy(user_prompt, \"request\") ... response_result = resolve_and_execute_policy(llm_response, \"response\")"
+    },
+    {
+      "heading": "When to Use Each Endpoint",
+      "level": 1
+    },
+    {
+      "text": "Use execute-policy when:"
+    },
+    {
+      "item": "You want deterministic use of one exact policy.",
+      "depth": 0
+    },
+    {
+      "item": "The application owner knows which policy should always apply.",
+      "depth": 0
+    },
+    {
+      "item": "The policy routing should be controlled in the application code.",
+      "depth": 0
+    },
+    {
+      "text": "Use resolve-and-execute-policy when:"
+    },
+    {
+      "item": "The policy selection is handled by AI Guard.",
+      "depth": 0
+    },
+    {
+      "item": "Multiple DAS/API policies may apply.",
+      "depth": 0
+    },
+    {
+      "item": "The application should stay light and avoid hard-coded policy IDs.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuration Requirements",
+      "level": 1
+    },
+    {
+      "text": "For DAS/API mode, customers should expect to configure:"
+    },
+    {
+      "item": "AI Guard API key.",
+      "depth": 0
+    },
+    {
+      "item": "DAS/API policy or policies.",
+      "depth": 0
+    },
+    {
+      "item": "Fixed policy ID if using execute-policy.",
+      "depth": 0
+    },
+    {
+      "text": "The application team should be prepared to add:"
+    },
+    {
+      "item": "AI Guard API call before the prompt is sent to the model.",
+      "depth": 0
+    },
+    {
+      "item": "AI Guard API call before the response is returned to the user.",
+      "depth": 0
+    },
+    {
+      "item": "Error handling for failed inspections.",
+      "depth": 0
+    },
+    {
+      "item": "Return message verbiage for blocked inspections.",
+      "depth": 0
+    },
+    {
+      "heading": "Implementation Considerations",
+      "level": 1
+    },
+    {
+      "item": "Use a short request timeout for AI Guard inspection.",
+      "depth": 0
+    },
+    {
+      "item": "Handle AI Guard failures explicitly.",
+      "depth": 0
+    },
+    {
+      "item": "Log blocked events safely without exposing sensitive content broadly.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure both prompt and response paths are instrumented.",
+      "depth": 0
+    },
+    {
+      "item": "Do not bypass the response-side call if output enforcement is required.",
+      "depth": 0
+    }
+  ]
+}

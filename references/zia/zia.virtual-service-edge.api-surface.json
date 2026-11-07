@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.api-surface",
+  "title": "The vZEN API: Virtual Service Edge clusters and nodes",
+  "aliases": [
+    "virtualZenClusters",
+    "virtualZenNodes",
+    "vzen api",
+    "vzen_clusters",
+    "vzen_nodes",
+    "vse api",
+    "zia_vzen_cluster terraform",
+    "vse deploymentMode"
+  ],
+  "binds": [
+    "zia/vzen-clusters",
+    "zia/vzen-nodes"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/vzen-clusters"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/vzen-nodes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.clusters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{endpoints}} {{vzen-is-vse}} The \"vZEN\" in field and endpoint names is the Virtual Service Edge; ZPA's Service Edge Group API is a different product."
+    },
+    {
+      "label": "Cluster.",
+      "text": "{{cluster-model}} The product behavior behind these fields is in [[zia.virtual-service-edge.clusters]]."
+    },
+    {
+      "label": "Node.",
+      "text": "{{node-model}} The Terraform documentation both limits the load balancer IP to cluster mode and shows it on a standalone node {{divergence:tf-lb-ip-doc-example-standalone}}. Platform rules behind the deployment mode are in [[zia.virtual-service-edge.platforms]]; the SKU wording is not reconciled with the single-size VM description ([[zia.virtual-service-edge.sizing:sku-type-vs-single-size]])."
+    },
+    {
+      "label": "Deleting a cluster",
+      "text": "is not a single request: the SDK first detaches all nodes with an update, and the detach may not reach the wire, as [[zia.terraform.multi-step-writes]] documents."
+    },
+    {
+      "label": "Hardware equivalent.",
+      "text": "Whether the hardware Private Service Edge can be provisioned by API is not established: [[zia.private-service-edge.what-it-is:hardware-pse-api]]."
+    }
+  ],
+  "claims": {
+    "endpoints": {
+      "statement": "The Go SDK manages Virtual Service Edge clusters at /zia/api/v1/virtualZenClusters and Virtual Service Edge nodes at /zia/api/v1/virtualZenNodes.",
+      "tier": "A",
+      "binds": [
+        "zia/vzen-clusters",
+        "zia/vzen-nodes"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_clusters/vzen_clusters.go",
+          "quotes": [
+            "vzenClusterEndpoint = \"/zia/api/v1/virtualZenClusters\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_nodes/vzen_nodes.go",
+          "quotes": [
+            "vzenNodeEndpoint = \"/zia/api/v1/virtualZenNodes\""
+          ]
+        }
+      ]
+    },
+    "vzen-is-vse": {
+      "statement": "The SDK's vZEN types are the Virtual Service Edge: the cluster type documents itself as the Virtual Service Edge cluster, and the node type as the Virtual Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_clusters/vzen_clusters.go",
+          "quotes": [
+            "// Name of the Virtual Service Edge cluster"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_nodes/vzen_nodes.go",
+          "quotes": [
+            "// The Virtual Service Edge name"
+          ]
+        }
+      ]
+    },
+    "cluster-model": {
+      "statement": "The cluster model carries a status (ENABLED, DISABLED, DISABLED_BY_SERVICE_PROVIDER or NOT_PROVISIONED_IN_SERVICE_PROVIDER), the cluster IP, subnet mask and default gateway, an ipSecEnabled flag, and a virtualZenNodes member list that the SDK documents as needing at least two instances.",
+      "tier": "A",
+      "binds": [
+        "zia/vzen-clusters#status",
+        "zia/vzen-clusters#ipSecEnabled",
+        "zia/vzen-clusters#virtualZenNodes"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_clusters/vzen_clusters.go",
+          "quotes": [
+            "// Supported Values: ENABLED, DISABLED, DISABLED_BY_SERVICE_PROVIDER, NOT_PROVISIONED_IN_SERVICE_PROVIDER",
+            "Status string `json:\"status,omitempty\"`",
+            "// The Virtual Service Edge instances you want to include in the cluster.",
+            "// A Virtual Service Edge cluster must contain at least two Virtual Service Edge instances.",
+            "// A Boolean value that specifies whether to terminate IPSec traffic from the client at selected Virtual Service Edge instances for the Virtual Service Edge cluster",
+            "IpSecEnabled bool `json:\"ipSecEnabled,omitempty\"`",
+            "// The Virtual Service Edge cluster IP address.",
+            "IpAddress string `json:\"ipAddress,omitempty\"`",
+            "// The Virtual Service Edge cluster subnet mask",
+            "SubnetMask string `json:\"subnetMask,omitempty\"`",
+            "// The IP address of the default gateway to the internet",
+            "DefaultGateway string `json:\"defaultGateway,omitempty\"`",
+            "VirtualZenNodes []common.IDNameExternalID `json:\"virtualZenNodes,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "node-model": {
+      "statement": "The node model carries a deploymentMode of STANDALONE or CLUSTER (CLUSTER only on VMware ESXi), a loadBalancerIpAddress that applies only when the deployment mode is CLUSTER, an inProduction flag, a status that can also be IN_TRIAL, and a vzenSkuType of SMALL, MEDIUM or LARGE.",
+      "tier": "A",
+      "binds": [
+        "zia/vzen-nodes#deploymentMode",
+        "zia/vzen-nodes#loadBalancerIpAddress",
+        "zia/vzen-nodes#inProduction",
+        "zia/vzen-nodes#status",
+        "zia/vzen-nodes#vzenSkuType"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_nodes/vzen_nodes.go",
+          "quotes": [
+            "// Specifies the deployment mode. Select either STANDALONE or CLUSTER if you have the VMware ESXi platform. Otherwise, select only STANDALONE. // Supporteed Values: STANDALONE, CLUSTER DeploymentMode string `json:\"deploymentMode,omitempty\"`",
+            "// The IP address of the load balancer. This field is applicable only when the 'deploymentMode' field is set to CLUSTER. LoadBalancerIPAddress string `json:\"loadBalancerIpAddress,omitempty\"`",
+            "// Represents the Virtual Service Edge instances deployed for production purposes InProduction bool `json:\"inProduction,omitempty\"`",
+            "NOT_PROVISIONED_IN_SERVICE_PROVIDER, IN_TRIAL Status string `json:\"status,omitempty\"`",
+            "// The Virtual Service Edge SKU type // Supported Values: SMALL, MEDIUM, LARGE VzenSkuType string `json:\"vzenSkuType,omitempty\"`"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "tf-lb-ip-doc-example-standalone": {
+      "summary": "Whether `load_balancer_ip_address` is meaningful on a STANDALONE Virtual Service Edge node in Terraform.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_virtual_service_edge_node.md",
+            "quotes": [
+              "This field is applicable only when the 'deploymentMode' field is set to `CLUSTER`."
+            ]
+          },
+          "says": "The argument documentation says the load balancer IP applies only when the deployment mode is CLUSTER."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_virtual_service_edge_node.md",
+            "quotes": [
+              "deployment_mode                   = \"STANDALONE\""
+            ]
+          },
+          "says": "The first example sets load_balancer_ip_address together with deployment_mode STANDALONE."
+        }
+      ],
+      "impact": "The provider schema marks the attribute optional and the example sets it for a standalone node, so the provider does not reject the combination. Do not read a set load balancer IP on a standalone node as proof the platform uses it."
+    }
+  }
+}

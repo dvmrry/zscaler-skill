@@ -72,7 +72,7 @@ def emit_eval(eval_entry: dict) -> str:
     lines.append("")
     lines.append(f"**Tenant data required**: {eval_entry.get('tenant_data_required', False)}")
     lines.append(f"**Expected confidence**: {eval_entry.get('expected_confidence', 'unspecified')}")
-    cites = eval_entry.get("must_cite_files", [])
+    cites = eval_entry.get("must_cite_files", []) + eval_entry.get("must_cite", [])
     if cites:
         lines.append(f"**Must cite**: {', '.join(cites)}")
     lines.append("")
@@ -151,6 +151,14 @@ def validate_one(eval_entry: dict, response: str) -> dict:
         cite_path = cite.lower()
         cite_name = Path(cite).name.lower()
         if cite_path in response_lc or cite_name in response_lc:
+            result["citations_passed"].append(cite)
+        else:
+            result["citations_failed"].append(cite)
+            result["passed"] = False
+
+    for cite in eval_entry.get("must_cite", []):
+        # A graph ID counts as cited when it, or any of its items (<id>:...), appears.
+        if cite.lower() in response_lc:
             result["citations_passed"].append(cite)
         else:
             result["citations_failed"].append(cite)

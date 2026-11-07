@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "id": "zia.reports.interactive",
+  "title": "Interactive Reports: standard, custom and scheduled reports, export, import and printing",
+  "aliases": [
+    "interactive reports",
+    "custom report",
+    "standard report",
+    "scheduled report",
+    "schedule a report",
+    "report favorites",
+    "print view",
+    "exclude location"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.insights-logs"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Interactive Reports is the console area that holds standard reports, custom reports and their schedules. {{custom-limit-500}} {{standard-not-editable}} {{owner-or-super-admin}} {{delete-cascades}} {{favorites-50}}"
+    },
+    {
+      "label": "Building a report.",
+      "text": "{{title-75}} {{data-classes}} {{per-widget-time}} {{custom-time-frame}} {{filter-narrowing}} {{top-five-other}} {{top-threat-names-excluded}} {{view-logs-not-for-samples}}"
+    },
+    {
+      "label": "Excluding locations.",
+      "text": "{{exclude-location}}"
+    },
+    {
+      "label": "Export, import and print.",
+      "text": "{{export-import-json}} {{duplicate-by-editing-json}} {{print-view}} What the exported JSON contains beyond report definitions is open {{gap:export-schema}}."
+    },
+    {
+      "label": "Scheduling.",
+      "text": "{{schedule-limit-500}} {{schedule-uses-current-parameters}} {{schedule-ownership}} {{recipients-32}} {{frequency-semantics}} Weekly delivery is described two ways {{divergence:weekly-delivery-time}}. {{daily-link-fixed-interval}} {{schedule-links}} Who can open the link is described two ways {{divergence:link-access}}. {{recipients-view-only}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a change to a standard report was made on a copy, since standard reports cannot be edited.",
+      "uses": [
+        "standard-not-editable"
+      ]
+    },
+    {
+      "do": "Whether deleting a custom report also removed a schedule or a favorite that someone depends on, since deleted reports cannot be restored.",
+      "uses": [
+        "delete-cascades"
+      ]
+    },
+    {
+      "do": "When a scheduled report is sent and who can open its link, which the pages describe two ways.",
+      "uses": [
+        "weekly-delivery-time",
+        "link-access"
+      ]
+    },
+    {
+      "do": "Whether a filter change after scheduling is what changed the content recipients receive.",
+      "uses": [
+        "schedule-uses-current-parameters"
+      ]
+    }
+  ],
+  "claims": {
+    "custom-limit-500": {
+      "statement": "An organization can create up to 500 custom reports, shared across all administrators, and each report can display up to 20 widgets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-copying-report.json",
+          "quotes": [
+            "An organization can create up to 500 custom reports shared across all administrators.",
+            "Each report can display up to 20 widgets."
+          ]
+        }
+      ]
+    },
+    "standard-not-editable": {
+      "statement": "Standard reports cannot be deleted or edited; to change one, copy it, which creates a new custom report, and edit the copy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-interactive-reports.json",
+          "quotes": [
+            "Standard reports cannot be deleted.",
+            "Admins can only edit custom reports. Standard reports cannot be edited.",
+            "To edit a standard report, you can copy it, and then edit it.",
+            "Copying a standard report allows you to create a new custom report."
+          ]
+        }
+      ]
+    },
+    "owner-or-super-admin": {
+      "statement": "Admins with the default super admin role can edit or delete any custom report; all other admins can edit or delete only their own.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-interactive-reports.json",
+          "quotes": [
+            "Admins with the default super admin role can delete any report; all other admins can only delete their own reports.",
+            "Admins with the default super admin role can edit any custom report; all other admins can only edit their own reports."
+          ]
+        }
+      ]
+    },
+    "delete-cascades": {
+      "statement": "Deleting a custom report also removes it from Favorites, and deletes its schedule if it was scheduled; deleted reports cannot be restored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-interactive-reports.json",
+          "quotes": [
+            "If the report was in the Favorites tab, it is deleted from there as well. Additionally, if it was a scheduled report, its schedule is deleted as well.",
+            "Deleted reports cannot be restored."
+          ]
+        }
+      ]
+    },
+    "favorites-50": {
+      "statement": "Each admin can favorite up to 50 reports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-interactive-reports.json",
+          "quotes": [
+            "you have starred as your favorites. Each admin can favorite up to 50 reports."
+          ]
+        }
+      ]
+    },
+    "custom-time-frame": {
+      "statement": "A custom report time frame cannot start before January 1, 2012 and spans at most 90 days; selecting multiple days shows the sum of bytes or transactions per day in charts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-interactive-reports.json",
+          "quotes": [
+            "The start date cannot be earlier than January 1, 2012.",
+            "The maximum time range is 90 days.",
+            "Selecting multiple days results in seeing the sum of bytes/transactions per day in charts."
+          ]
+        }
+      ]
+    },
+    "per-widget-time": {
+      "statement": "When creating a report, the time frame can be set for all widgets or for each widget separately, and this option can be changed at any time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-copying-report.json",
+          "quotes": [
+            "You can set the time frame for all widgets in your report or select Allow time to be set for each widget to set a different time frame for each widget. You can change this option at any time."
+          ],
+          "after": "# Creating a New Report"
+        }
+      ]
+    },
+    "title-75": {
+      "statement": "A report title must be unique and can contain up to 75 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-copying-report.json",
+          "quotes": [
+            "The report title must be unique, and it can contain up to 75 characters."
+          ],
+          "after": "# Creating a New Report"
+        }
+      ]
+    },
+    "data-classes": {
+      "statement": "A new report is created under a report data class; the page lists Firewall, Endpoint DLP (EDLP), Email DLP and Combined among the classes, and says reports can cover web traffic, mobile traffic or a combination of both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-copying-report.json",
+          "quotes": [
+            "choose the report data class you want your report to fall under, and click OK:",
+            "you can create reports that provide information about web, mobile traffic, or a combination of both.",
+            "- Firewall",
+            "- Endpoint DLP (EDLP)",
+            "- Email DLP",
+            "- Combined"
+          ]
+        }
+      ]
+    },
+    "filter-narrowing": {
+      "statement": "Some data types are mutually exclusive between report-level and widget-level filters; for example, a Department filter at the report level removes Location at the widget level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-copying-report.json",
+          "quotes": [
+            "Some data types are mutually exclusive, so you can't see all the data types all the time.",
+            "For example, if you set the Department filter at the report level, Location is no longer available at the widget level."
+          ]
+        }
+      ]
+    },
+    "top-threat-names-excluded": {
+      "statement": "The widgets for the Top Threat Names report cannot be used in custom reports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-interactive-reports.json",
+          "quotes": [
+            "The widgets for the report Top Threat Names cannot be used in custom reports."
+          ]
+        }
+      ]
+    },
+    "top-five-other": {
+      "statement": "A widget displays the top five items and groups everything else under Other.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-interactive-reports.json",
+          "quotes": [
+            "A widget displays the top five items and groups everything else under Other."
+          ]
+        }
+      ]
+    },
+    "view-logs-not-for-samples": {
+      "statement": "The View Logs option is not available for charts that display secure browsing class, data or status, because those charts only use samples as their data units.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-interactive-reports.json",
+          "quotes": [
+            "Click the View Logs option to view the chart’s logs in the Insights Logs page.",
+            "This option is not available for charts that display secure browsing class, data or status, because they only use samples as their data units."
+          ]
+        }
+      ]
+    },
+    "export-import-json": {
+      "statement": "Only custom reports can be exported, to a plain-text JSON file that includes the report definitions (to export a standard report, copy it first). Only JSON files exported from the Zscaler Admin Console can be imported, and with more than one organization a report exported from one can be imported into another.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-exporting-importing-reports.json",
+          "quotes": [
+            "You can export custom reports to a plain-text JSON file that includes the report definitions.",
+            "The reports use a custom data structure, so you can only import JSON files that were exported from the Zscaler Admin Console.",
+            "You can export custom reports only. To export a standard report, you can copy it, and then export it.",
+            "if you have more than one organization, you can export a report from one organization and import it into another."
+          ]
+        }
+      ]
+    },
+    "duplicate-by-editing-json": {
+      "statement": "The page's procedure for duplicating a report edits the exported JSON file in a text editor and changes the report's user name and title.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-exporting-importing-reports.json",
+          "quotes": [
+            "Using a text editor, such as Notepad, edit the JSON file.",
+            "Change the user name and title of the report."
+          ]
+        }
+      ]
+    },
+    "print-view": {
+      "statement": "Any standard or custom report can be printed from Print View; some settings, such as printing to PDF, depend on the OS and browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-printing-reports.json",
+          "quotes": [
+            "You can print any standard or custom report. The service provides a Print View mode where you can view a report and then print it.",
+            "Some settings, such as the ability to print to PDF, depend on your OS and browser."
+          ]
+        }
+      ]
+    },
+    "exclude-location": {
+      "statement": "User-related widgets include locations and users by default. The Exclude Location filter applies to all user-related widgets except those in the default Security dashboard, and also to the Executive Report and all standard, user-related reports in Interactive Reports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-excluding-locations-user-related-reports.json",
+          "quotes": [
+            "By default, user-related widgets include locations and users.",
+            "This filter applies to all user-related widgets except for widgets in the default Security dashboard.",
+            "Excluding locations also applies to the Executive Report and all standard, user-related reports in Interactive Reports."
+          ]
+        }
+      ]
+    },
+    "schedule-limit-500": {
+      "statement": "An organization can schedule up to 500 reports, and a report can be associated with many schedules, for example when a super admin schedules the same reports for department managers in different time zones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-scheduled-reports.json",
+          "quotes": [
+            "An organization can schedule up to 500 reports. A report can be associated with many schedules.",
+            "This is useful, for example, when a super admin wants to schedule the same reports for various department managers in different time zones."
+          ]
+        }
+      ]
+    },
+    "schedule-uses-current-parameters": {
+      "statement": "A scheduled report always reflects the current parameters of the report that is scheduled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-scheduled-reports.json",
+          "quotes": [
+            "The scheduled report always reflects the current parameters of the report that is scheduled."
+          ]
+        }
+      ]
+    },
+    "schedule-links": {
+      "statement": "Scheduled reports are emailed to the recipients as links; when a recipient clicks the link, the report appears in Print View. The link is valid for 15 days only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-scheduled-reports.json",
+          "quotes": [
+            "The scheduled reports are emailed as links to the recipients. When the recipients click the link, they see the report in Print View.",
+            "The link is valid for 15 days only."
+          ]
+        }
+      ]
+    },
+    "schedule-ownership": {
+      "statement": "A super admin can view and edit all scheduled reports; other administrators can view and manage only their own scheduled reports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-scheduled-reports.json",
+          "quotes": [
+            "A super admin can view and edit all scheduled reports. Other administrators can view and manage their own scheduled reports only."
+          ]
+        }
+      ]
+    },
+    "recipients-32": {
+      "statement": "A schedule sends the report to up to 32 email addresses, each on a separate line.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-scheduling-reports.json",
+          "quotes": [
+            "Each email address must be on a separate line. You can send the report to up to 32 email addresses."
+          ]
+        }
+      ]
+    },
+    "frequency-semantics": {
+      "statement": "Daily gives the report for the previous day from 12:00:00 AM to 11:59:00 PM; Monthly delivers it on the first day of every month; the schedule's Time Zone is the one the service uses when it generates the report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-scheduling-reports.json",
+          "quotes": [
+            "Select Daily if you want the report for the previous day from 12:00:00 AM to 11:59:00 PM.",
+            "Select Monthly if you want the report delivered to the specified recipients on the first day of every month.",
+            "Time Zone: Choose the time zone that the service uses when it generates the report."
+          ]
+        }
+      ]
+    },
+    "daily-link-fixed-interval": {
+      "statement": "For a daily report, the link displays the report for the time interval for which the report was scheduled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-scheduling-reports.json",
+          "quotes": [
+            "For a daily report, the link displays the report for the time interval for which the report was scheduled."
+          ]
+        }
+      ]
+    },
+    "recipients-view-only": {
+      "statement": "Recipients can only view the report; they cannot edit it or navigate to any other area of the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-scheduling-reports.json",
+          "quotes": [
+            "Recipients can only view the report; they cannot edit it or navigate to any other area of the Zscaler Admin Console."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "weekly-delivery-time": {
+      "summary": "The Scheduling Reports page says Weekly delivery is every Monday at 9:00 AM, and the same page lists a Sent at field for the time the report is sent.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-scheduling-reports.json",
+            "quotes": [
+              "Select Weekly if you want the report delivered to the specified recipients every Monday at 9:00 AM."
+            ]
+          },
+          "says": "A Weekly schedule delivers the report every Monday at 9:00 AM."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-scheduling-reports.json",
+            "quotes": [
+              "Sent at: The time at which the report is to be sent."
+            ]
+          },
+          "says": "Sent at is the time at which the report is to be sent, without saying it does not apply to Weekly."
+        }
+      ],
+      "impact": "Whether an administrator can choose the time of a Weekly schedule, or it always goes Monday at 9:00 AM, is not settled by the page. The Sandbox weekly-email pages are a different report type."
+    },
+    "link-access": {
+      "summary": "The Scheduling Reports page says anyone with a scheduled report's link can access the report, and also that a recipient who pastes the URL must log in to the Admin Console.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-scheduling-reports.json",
+            "quotes": [
+              "Anyone who has the link can access the report. The link is valid for 15 days only."
+            ]
+          },
+          "says": "Anyone who has the link can access the report; the link is valid for 15 days only."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-scheduling-reports.json",
+            "quotes": [
+              "If a recipient copies and pastes the report URL, the Zscaler Admin Console login page appears and the recipient is required to enter a valid user name and password to log in."
+            ]
+          },
+          "says": "A recipient who copies and pastes the report URL gets the Admin Console login page and must enter a valid user name and password."
+        }
+      ],
+      "impact": "Whether a scheduled-report link is usable by a person with no Admin Console account is not settled by the page."
+    }
+  },
+  "gaps": {
+    "export-schema": {
+      "kind": "semantic",
+      "title": "What the exported report JSON contains",
+      "status": "open",
+      "detail": "The Exporting and Importing page says the file includes the report definitions and uses a custom data structure. The schema is not documented in the captured pages.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "widget-types": {
+      "kind": "semantic",
+      "title": "Widget types, data types and per-widget limits",
+      "status": "open",
+      "detail": "The pages refer to About Widgets and Analyzing Traffic Using Insights, which are not captured in this area, so widget types, data types and per-widget limits beyond the 20-widget cap are undefined here.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "schedule-status-values": {
+      "kind": "semantic",
+      "title": "Scheduled-report Status values and data retention",
+      "status": "open",
+      "detail": "The captured pages do not list the Status values of a scheduled report or say how far back report data exists beyond the January 1, 2012 start-date floor.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "data-class-short-items": {
+      "kind": "semantic",
+      "title": "The Web, Mobile and DNS data classes",
+      "status": "open",
+      "detail": "The Creating or Copying a Report list has Web, Mobile and DNS items that are too short to quote alone, so the data-classes claim quotes the other items and the opening sentence about web and mobile traffic.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "id": "zia.bandwidth-control.default-rule",
+  "title": "The default rule and unreferenced classes",
+  "aliases": [
+    "default bandwidth rule",
+    "orphan bandwidth class",
+    "new bandwidth class capped",
+    "unreferenced bandwidth class"
+  ],
+  "binds": [
+    "zia/bandwidth-control-rules#defaultRule",
+    "zia/bandwidth-classes"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.bandwidth-control.rules",
+      "because": "zia.bandwidth-control.default-rule:always-last"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.bandwidth-control.classes",
+      "because": "zia.bandwidth-control.default-rule:orphan-takes-default-terms"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/bandwidth-control-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.allocation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Every location's policy ends with a default rule. {{editable-not-deletable}} {{always-last}} {{default-terms}} {{two-predefined-rules}} The article does not name those two rules {{gap:predefined-rules-unnamed}}."
+    },
+    {
+      "label": "Unreferenced classes.",
+      "text": "{{orphan-class}} {{orphan-takes-default-terms}} Whether an unreferenced predefined class is treated the same way is open {{gap:predefined-unreferenced}}. Whether the API lists unreferenced custom classes on the default rule is open {{gap:orphan-api-visibility}}."
+    },
+    {
+      "text": "How rules and classes otherwise combine: [[zia.bandwidth-control.rules]], [[zia.bandwidth-control.classes]]. What the default rule's minimum and maximum mean under load: [[zia.bandwidth-control.allocation]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the location's default rule minimum and maximum are the terms the traffic is expected to get, since a class with no explicit rule is held by them.",
+      "uses": [
+        "default-terms",
+        "orphan-takes-default-terms"
+      ]
+    },
+    {
+      "do": "Whether the class appears in any explicit rule, since an unreferenced custom class falls into the default rule.",
+      "uses": [
+        "orphan-class"
+      ]
+    }
+  ],
+  "claims": {
+    "editable-not-deletable": {
+      "statement": "The Bandwidth Control policy contains a default rule that can be edited but not deleted.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#defaultRule"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-bandwidth-control-policy.json",
+          "quotes": [
+            "It contains a default rule, which you can edit, but not delete."
+          ]
+        }
+      ]
+    },
+    "always-last": {
+      "statement": "The default rule's priority cannot be changed; the service always applies it last. Its minimum and maximum bandwidth limits can be edited.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#defaultRule",
+        "zia/bandwidth-control-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "bandwidth-control-policy-example.json",
+          "quotes": [
+            "You cannot change the priority of the default rule.",
+            "The service always applies this rule last.",
+            "However, you can edit its minimum and maximum bandwidth limits."
+          ],
+          "after": "The default rule, which includes all other internet traffic, is not guaranteed any bandwidth, but it can consume up to 100% of the bandwidth, when available."
+        }
+      ]
+    },
+    "default-terms": {
+      "statement": "The default rule includes all internet traffic not covered by other rules. By default it is not guaranteed any bandwidth but can consume up to 100% when available.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#minBandwidth",
+        "zia/bandwidth-control-rules#maxBandwidth"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-bandwidth-classes.json",
+          "quotes": [
+            "The default rule includes all internet traffic not covered by other rules.",
+            "By default, it's not guaranteed any bandwidth, but it can consume up to 100% of the bandwidth when available."
+          ]
+        }
+      ]
+    },
+    "orphan-class": {
+      "statement": "A custom bandwidth class that is not used in any policy for a location is added to that location's default Bandwidth Control rule.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-classes",
+        "zia/bandwidth-control-rules#bandwidthClasses"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-bandwidth-classes.json",
+          "quotes": [
+            "If you have created a custom bandwidth class that isn't being used in any policies for a location",
+            "then the custom class is added to the location’s default Bandwidth Control rule."
+          ]
+        }
+      ]
+    },
+    "two-predefined-rules": {
+      "statement": "Besides the default rule, which can be edited but not deleted, the Bandwidth Control policy has two predefined rules that can be edited or deleted; administrator-defined rules can also be edited or deleted.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#defaultRule"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-rules-bandwidth-control-policy.json",
+          "quotes": [
+            "The Bandwidth Control policy has two predefined rules that you can edit or delete, and a default rule that you can edit but not delete. You can also edit or delete any administrator-defined rule."
+          ]
+        }
+      ]
+    },
+    "orphan-takes-default-terms": {
+      "statement": "An unreferenced custom class therefore gets whatever minimum and maximum the location's default rule carries; if an administrator has tightened the default rule, the new class is capped by it, and if the default rule is generous the class is not capped at all.",
+      "tier": "B",
+      "derived_from": [
+        "orphan-class",
+        "default-terms"
+      ],
+      "conditions": "Derived: the class joins the default rule and the default rule covers traffic outside other rules. No source shows a tightened default rule applied to an orphan class."
+    }
+  },
+  "gaps": {
+    "predefined-rules-unnamed": {
+      "kind": "semantic",
+      "title": "Which two rules are the predefined Bandwidth Control rules",
+      "status": "open",
+      "detail": "The Adding Rules article says the policy has two predefined rules that can be edited or deleted, and does not name them or say what they match.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "about": [
+        "zia/bandwidth-control-rules#defaultRule"
+      ]
+    },
+    "predefined-unreferenced": {
+      "kind": "semantic",
+      "title": "Unreferenced predefined classes",
+      "status": "open",
+      "detail": "The source says a custom class that no rule uses joins the default rule. It does not say whether an unreferenced predefined class is treated the same way.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "about": [
+        "zia/bandwidth-classes"
+      ]
+    },
+    "orphan-api-visibility": {
+      "kind": "data",
+      "title": "How an unreferenced class shows in the rule API",
+      "status": "open",
+      "detail": "Whether the default rule's bandwidthClasses array in the API lists the unreferenced custom classes, or whether the placement is implicit, is not shown by any captured source.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia bandwidth-control-rules list",
+      "about": [
+        "zia/bandwidth-control-rules#bandwidthClasses"
+      ]
+    }
+  }
+}

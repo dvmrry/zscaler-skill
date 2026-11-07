@@ -1,0 +1,997 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring OneLogin as an External IdP",
+  "source": {
+    "url": "https://help.zscaler.com/authentication-service/configuring-onelogin-external-idp",
+    "node": "1499336",
+    "revision": "3251073",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This guide provides information on how to configure OneLogin as the OpenID Provider (OP) for Authentication Service to facilitate single sign-on (SSO) to various Zscaler services for admin access management."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you have:"
+    },
+    {
+      "item": "A subscription to OneLogin",
+      "depth": 0
+    },
+    {
+      "item": "An existing user directory in OneLogin",
+      "depth": 0
+    },
+    {
+      "item": "An Authentication Service account with an admin role that allows you to add an IdP configuration",
+      "depth": 0
+    },
+    {
+      "item": "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 0
+    },
+    {
+      "heading": "IdP-Initiated SSO for Authentication Service Tenants Enabled with Experience Center",
+      "level": 1
+    },
+    {
+      "text": "All admins authenticating using the SAML protocol for Authentication Service and IdP integrations are redirected to Experience Center. However, if the zidServiceId attribute is configured in the IdP within the Authentication Service tenant, then the admins are redirected to the [[authentication-service]] Admin Portal instead of Experience Center."
+    },
+    {
+      "heading": "Configuring OneLogin as OP for Authentication Service",
+      "level": 1
+    },
+    {
+      "text": "Complete the following steps to set up OneLogin as an OP for Authentication Service:"
+    },
+    {
+      "item": "1. Configure a custom OIDC application in OneLogin.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the OneLogin Portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Applications.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Click Add App.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Find Applications window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "In the Find Applications window, search for oidc, and click the OpenID Connect (OIDC) option from the search results.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          64,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Add OpenId Connect (OIDC) page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "On the Add OpenId Connect (OIDC) page:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Display Name: Enter a name for the application.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description for the application.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Upload an icon for the application.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The OIDC application is created.",
+      "depth": 1
+    },
+    {
+      "item": "Select the SSO tab and copy the Client ID, Client Secret, and Issuer URL values.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          11,
+          14
+        ],
+        [
+          32,
+          41
+        ],
+        [
+          43,
+          56
+        ],
+        [
+          62,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "To copy the Issuer URL value, right-click the Well-known configuration link, and select Copy Link Address (or an equivalent option in your browser).",
+      "depth": 1,
+      "strong": [
+        [
+          12,
+          22
+        ],
+        [
+          46,
+          70
+        ],
+        [
+          88,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Assign users to the application either manually or roles and mapping in OneLogin. To learn more, refer to the OneLogin documentation.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "2. Set up OneLogin as an OP for Authentication Service.",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Click Add in the Primary Identity Provider or Secondary Identity Providers section.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          17,
+          42
+        ],
+        [
+          46,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "The Add External Identity page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the Add External Identity page, go to the Basic Configurations tab, and configure the following:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          45,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IdP.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Enable the toggle.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Identity Vendor: Select OneLogin from the drop-down menu.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Domains: Select the domains for which the IdP is responsible for authenticating the users. This allows the Zscaler service to display the correct IdP to authenticate an incoming user.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Enforce Zscaler MFA for Admins: Enable this option to ensure that admins using an external IdP authenticate with the multi-factor authentication (MFA) process in Authentication Service, irrespective of whether MFA is configured on the external IdP.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "An email is sent to all super admins in Authentication Service when theEnforce Zscaler MFA for Admins option is disabled.",
+      "depth": 2,
+      "strong": [
+        [
+          71,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Protocol: Select OIDC.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Login ID Attribute: Enter an attribute whose value must be used as the login ID. This attribute must exist in the tokens received from the IdP. By default, the preferred_username attribute is populated in this field when the OIDC option is selected in the Protocol field. You can use any attribute that is present in the ID token or the response of the UserInfo endpoint, provided its value is in the email address format (e.g., <user_name>@domain.com>).",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          225,
+          229
+        ],
+        [
+          256,
+          264
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the domain part of the email addresses received in the ID tokens match with one of the domains configured in Authentication Service.",
+      "depth": 3
+    },
+    {
+      "item": "Ensure that the attribute you enter matches exactly with the attribute received in the ID token or the UserInfo endpoint.",
+      "depth": 3
+    },
+    {
+      "item": "Input Method: Select Metadata URL and paste the Issuer URL value copied from the OneLogin Portal in a previous step to the Metadata URL field and click Fetch.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          33
+        ],
+        [
+          48,
+          58
+        ],
+        [
+          123,
+          135
+        ],
+        [
+          152,
+          157
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URI: Copy the value. This value will be used in the OIDC application in the OneLogin Portal in the subsequent steps.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "If you are configuring OneLogin as a secondary IdP in the Zscaler Admin Console, the final segment in the Redirect URI is required for configuring Login URL in the OneLogin Portal.",
+      "depth": 2,
+      "strong": [
+        [
+          106,
+          118
+        ],
+        [
+          147,
+          156
+        ]
+      ]
+    },
+    {
+      "item": "Token Endpoint Authentication Method: Select Client Secret Basic and paste the Client ID and Client Secret values copied from the OneLogin Portal in a previous step to the respective fields.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          0,
+          36
+        ],
+        [
+          45,
+          64
+        ],
+        [
+          79,
+          88
+        ],
+        [
+          93,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "Requested Scopes: Add the required scopes. By default, when the OIDC protocol is selected, the openid, email, and profile scopes are added.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Navigate to the Provisioning Details tab and click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          16,
+          36
+        ],
+        [
+          51,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "In the OneLogin Portal, go to Applications, click the newly created OIDC application, and do the following:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          30,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "On the Configuration tab:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Enter the following value for the Login URL field:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          34,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "If you are configuring OneLogin as your primary IdP in the Zscaler Admin Console:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "https://<your_domain>.zslogin.net/?idp_id=default",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "If you are configuring OneLogin as your secondary IdP in the Zscaler Admin Console]:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "https://<your_domain>.zslogin.net/?idp_id=<final_segment_from_redirect_URI>",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Paste the Redirect URI value copied from the Zscaler Admin Console to the Redirect URI's field.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          22
+        ],
+        [
+          74,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "3. Provision users for Authentication Service.",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP created for OneLogin in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          43,
+          68
+        ],
+        [
+          73,
+          101
+        ],
+        [
+          125,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the Provisioning Details tab, and enable JIT Provisioning.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          31
+        ],
+        [
+          48,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups (e.g., Zscaler Global Administrators).",
+      "depth": 2
+    },
+    {
+      "item": "Map the Authentication Service user attributes with the appropriate OneLogin attributes as necessary. The mapping of the Primary Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication. By default, the following attributes in ID tokens are mapped with the corresponding user attributes in Authentication Service:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "table": [
+        [
+          "Default Authentication Service User Attributes",
+          "OIDC Attribute in ID Tokens",
+          "Description"
+        ],
+        [
+          "First Name",
+          "given_name",
+          "First name of the user (e.g., John). This attribute is mapped by default."
+        ],
+        [
+          "Last Name",
+          "family_name",
+          "Last name of the user (e.g., Doe). This attribute is mapped by default."
+        ],
+        [
+          "Display Name",
+          "name",
+          "Display name of the user (e.g. John Doe). This attribute is mapped by default."
+        ],
+        [
+          "Nick Name",
+          "nickname",
+          "Nickname of the user (e.g., Jo)"
+        ],
+        [
+          "Mobile Phone",
+          "phone_number",
+          "Mobile number of the user (e.g., +1 1234567890)"
+        ],
+        [
+          "Primary Email",
+          "email",
+          "Primary email address of the user (e.g. johndoe@company.com)"
+        ],
+        [
+          "Language",
+          "locale",
+          "Language preference of the user (e.g., English (US))"
+        ],
+        [
+          "Timezone",
+          "zoneinfo",
+          "Time zone of the user (e.g., UTC+3.00)"
+        ],
+        [
+          "Department",
+          "Needs a custom claim",
+          "The department name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Organization",
+          "Needs a custom claim",
+          "The organization name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Title",
+          "Needs a custom claim",
+          "The job title of the user (e.g., Manager)"
+        ],
+        [
+          "Division",
+          "Needs a custom claim",
+          "The division of the organization to which the user belongs (e.g., Research)"
+        ],
+        [
+          "Cost Center",
+          "Needs a custom claim",
+          "The cost center of the organization to which the user belongs (e.g., IT)"
+        ],
+        [
+          "User Type",
+          "Needs a custom claim",
+          "The type of user in the organization (e.g., Regular)"
+        ],
+        [
+          "Formatted Name",
+          "Needs a custom claim",
+          "The name of the user in a specific format (e.g., Mr. John Doe)"
+        ],
+        [
+          "Manager",
+          "Needs a custom claim",
+          "The manager's login name (manager@company.com). This must be in the email address format."
+        ]
+      ]
+    },
+    {
+      "item": "If the external IdP is configured to send different attributes for First Name, Last Name, or Display Name, then you must map those attributes. For example, if the ID token from the external IdP includes Surname token instead of family_name, then you must map it with the Last Name user attribute in Authentication Service. See image.",
+      "depth": 3
+    },
+    {
+      "item": "While mapping attributes, ensure that the attributes you enter in the Just-in-time Attribute field match exactly with the attributes that are received in the ID tokens.",
+      "depth": 3,
+      "strong": [
+        [
+          70,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "The Addresses attribute in Authentication Service is supported only with SCIM provisioning.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "4. (Optional) Enable step-up authentication.",
+      "depth": 0
+    },
+    {
+      "item": "You can configure step-up authentication to extend the existing authentication process by requiring multi-factor authentication (MFA) when needed, ensuring that access to high-risk or sensitive data is protected.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "item": "Before configuring step-up authentication, ensure that:",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler Client Connector version 4.7 or later is deployed for the users in your organization.",
+      "depth": 1
+    },
+    {
+      "item": "Authentication Service is enabled for both admins and users.",
+      "depth": 1
+    },
+    {
+      "item": "Step-up authentication is enabled for Authentication Service, Internet & SaaS (ZIA), and Private Access (ZPA) tenants.",
+      "depth": 1
+    },
+    {
+      "item": "To enable step-up authentication:",
+      "depth": 0
+    },
+    {
+      "item": "a. Configure authentication levels in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "b. Enable ACR values and configure the necessary policies in the external IdPs.",
+      "depth": 1
+    },
+    {
+      "item": "c. Map authentication levels and ACR values in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "d. Configure access policies in supported Zscaler services.",
+      "depth": 1
+    },
+    {
+      "item": "In the external IdP integrated with Authentication Service, configure the necessary ACR values and authentication policies. To learn more about the configuration, refer to the respective product documentation.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          63
+        ],
+        [
+          66,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          22,
+          47
+        ],
+        [
+          52,
+          80
+        ],
+        [
+          104,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the Advanced Configurations tab.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          19
+        ],
+        [
+          20,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the Levels to Authentication Context Mapping section, enter the ACR claim value for each authentication level. To learn more about the supported ACR claims in external IdP, refer to the respective product documentation.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that you map proper ACR claims for each level depending on the hierarchy. The highest level of authentication must be mapped to the ACR claim value for the strongest context.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "You can configure the necessary policies in the following Zscaler services as required:",
+      "depth": 0
+    },
+    {
+      "item": "Private Access: Configure Access Policies for the target application or app segment with the Conditional Access as the Rule Action. Ensure that the necessary authentication level is selected using the Step-up Authentication Level field.",
+      "depth": 1,
+      "strong": [
+        [
+          93,
+          111
+        ],
+        [
+          119,
+          130
+        ],
+        [
+          201,
+          229
+        ]
+      ]
+    },
+    {
+      "item": "Internet & SaaS: Configure the URL Filtering Policy and Cloud App Control Policies with the Conditional Access as the Action. Ensure that the necessary authentication level is selected using the Authentication Level field.",
+      "depth": 1,
+      "strong": [
+        [
+          92,
+          110
+        ],
+        [
+          118,
+          124
+        ],
+        [
+          195,
+          215
+        ]
+      ]
+    }
+  ]
+}

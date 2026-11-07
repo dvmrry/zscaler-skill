@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.nss-runbook.mcas",
+  "title": "NSS runbook: validating an MCAS feed and its curl checks",
+  "aliases": [
+    "MCAS Feed",
+    "Microsoft Cloud App Security feed troubleshooting"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.logs.nss-runbook" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.diagnostics" }
+  ],
+  "prose": [
+    {
+      "label": "Validating the feed.",
+      "text": "{{portal-test-and-config}} {{config-change-support}} {{zbridge-service}}"
+    },
+    {
+      "label": "Curl checks.",
+      "text": "{{token-curl}} {{oauth-curl}} {{curl-expected-and-causes}}"
+    },
+    {
+      "label": "Capture and escalation.",
+      "text": "{{capture-and-escalate}}"
+    }
+  ],
+  "claims": {
+    "portal-test-and-config": {
+      "statement": "To validate an MCAS feed, the Admin Console Test under Partner Integrations > Microsoft Cloud App Security checks that URLs sync (admin needs write access), cat /sc/conf/zbridge-mcas.properties shows the config, and getsminfo=nss_feed_info_all shows the feed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "On the Zscaler Admin Console, go to Administration > Partner Integrations > Microsoft Cloud App Security.",
+            "(Note, the test can be run only when the logged-in admin has write access.)",
+            "On the NSS server, run cat /sc/conf/zbridge-mcas.properties to see if the config is reflecting.",
+            "Run sudo /sc/bin/smmgr -ys getsminfo=nss_feed_info_all to make sure the MCAS Feed configured on the portal is reflecting as is.",
+            "Click Test and see if the URLs are successfully synced."
+          ]
+        }
+      ]
+    },
+    "config-change-support": {
+      "statement": "Admins might need to update MCAS configurations after changes on the Microsoft side; if a change errors or does not reach zbridge-mcas.properties, the runbook says to contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Users might need to update MCAS configurations due to changes on the MS side.",
+            "If you encounter any errors while attempting to change the config or if it is not reflecting in the /sc/conf/zbridge-mcas.properties file, contact Zscaler Support for further investigation."
+          ]
+        }
+      ]
+    },
+    "zbridge-service": {
+      "statement": "The runbook checks that the zbridge service is running with /sc/bin/smctl.sh on the NSS server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "From NSS server run /sc/bin/smctl.sh to see if the zbridge service is running."
+          ]
+        }
+      ]
+    },
+    "token-curl": {
+      "statement": "For token-based MCAS authentication, the runbook has the admin copy the MCAS domain and Authorization token from zbridge-mcas.properties and run a curl against /api/discovery_block_scripts/ expecting 200 OK with the list of MCAS applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For Token based auth: Copy the MCAS domain and Authorization token from the zbridge-mcas.properties file, and run the following curl command to see if the endpoint is returning 200 OK response with the list of MCAS applications.",
+            "curl -v \"https://<Customer_MCAS_Domain>/api/discovery_block_scripts/?format=120&type=banned\" -H \"Authorization: Token <Customer_MCAS_Token>\""
+          ]
+        }
+      ]
+    },
+    "oauth-curl": {
+      "statement": "For OAuth MCAS authentication, the runbook has the admin copy the configuration values from zbridge-mcas.properties and POST to the MCAS authorization URL with scope, client_id, client_secret and grant_type=client_credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For OAuth: Copy the configuration values from the zbridge-mcas.properties file and run the curl command.",
+            "curl -X POST \"<MCAS_authorization_URL>\" -d \"scope=<Scope>\" -d \"client_id=<Client ID>\" -d \"client_secret=<Client Secret Value>\" -d \"grant_type=client_credentials\" -H \"Content-Type: application/x-www-form-urlencoded\""
+          ]
+        }
+      ]
+    },
+    "curl-expected-and-causes": {
+      "statement": "The MCAS curl should return 200 OK (or the Bearer Token for OAuth); any other response indicates an issue, with common causes a configuration issue, URLs blocked by an intermediate device, or the MCAS server dropping the connection due to an unexpected cert or header value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Ideally, the curl command in the previous step should return a 200 OK response, or the Bearer Token in case of Oauth, and any other response indicates an issue.",
+            "Configuration issue (URL, Token, Client_id, etc.).",
+            "MCAS URLs being blocked by an intermediate device.",
+            "MCAS server dropping connection due to unexpected cert or header value."
+          ]
+        }
+      ]
+    },
+    "capture-and-escalate": {
+      "statement": "The runbook says to take a packet capture on the tap interface (service interface) to see the conversation between NSS and MCAS, to contact Zscaler Support if there are no anomalies but the MCAS logs continue to be missing, and that /sc/log/zbridge.log contains event logs related to the MCAS feed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Take a packet capture on the tap interface (service interface) to see the conversation between NSS and MCAS.",
+            "If there are no anomalies, but the MCAS logs continue to be missing, contact Zscaler Support for further troubleshooting.",
+            "Contains event logs related to MCAS feed."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

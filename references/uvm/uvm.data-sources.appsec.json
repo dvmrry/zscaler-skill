@@ -1,0 +1,954 @@
+{
+  "schema_version": 1,
+  "id": "uvm.data-sources.appsec",
+  "title": "UVM application-security, code and cloud-security data sources: Apiiro, Black Duck, Burp Suite, Endor Labs, GitHub, Invicti, JFrog Xray, Legit Security, Prisma Cloud, Wiz, Snyk, Veracode, Quokka, SentinelOne and Tanium connectors",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "uvm.data-sources"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "See [[uvm.data-sources]] and [[uvm.overview]]."
+    },
+    {
+      "label": "Apiiro.",
+      "text": "{{apiiro-streams}} {{apiiro-risk}}"
+    },
+    {
+      "label": "AttackForge.",
+      "text": "{{attackforge}}"
+    },
+    {
+      "label": "Black Duck SCA.",
+      "text": "{{black-duck-token}} {{black-duck-versions}}"
+    },
+    {
+      "label": "Burp Suite Issues.",
+      "text": "{{burp}} {{burp-url}}"
+    },
+    {
+      "label": "Endor Labs.",
+      "text": "{{endor-api}} {{endor-key}} {{endor-namespace}}"
+    },
+    {
+      "label": "Invicti.",
+      "text": "{{invicti}} {{invicti-auth}}"
+    },
+    {
+      "label": "JFrog Xray.",
+      "text": "{{jfrog}} {{jfrog-least-priv}}"
+    },
+    {
+      "label": "Legit Security.",
+      "text": "{{legit-streams}} {{legit-filters}}"
+    },
+    {
+      "label": "GitHub Advanced Security.",
+      "text": "{{ghas-streams}} {{ghas-role}} {{ghas-fine-grained}} {{ghas-classic}} {{ghas-state}} {{ghas-severity-resolution}} {{ghas-secret-types}}"
+    },
+    {
+      "label": "GitHub Repositories.",
+      "text": "{{repos-scope}} {{repos-auth}} {{repos-app}} {{repos-filters}}"
+    },
+    {
+      "label": "Prisma Cloud.",
+      "text": "{{prisma-streams}} {{prisma-scan-types}} {{prisma-keys}} {{prisma-key-expiry}} {{prisma-server-url}}"
+    },
+    {
+      "label": "Prisma Cloud CSPM.",
+      "text": "{{prisma-cspm}}"
+    },
+    {
+      "label": "Wiz.",
+      "text": "{{wiz-streams}} The stream count the page states and the streams its Asset Type filter names differ {{divergence:wiz-stream-count}}. {{wiz-permissions}} Permissions for the other Wiz streams are open {{gap:wiz-other-stream-permissions}}. {{wiz-project}} {{wiz-issue-filters}} {{wiz-config-filters}} {{wiz-asset-type}} {{wiz-row-limit}} {{wiz-network-exposure}}"
+    },
+    {
+      "label": "Snyk.",
+      "text": "{{snyk-auth}}"
+    },
+    {
+      "label": "Veracode.",
+      "text": "{{veracode-streams}} {{veracode-account}} {{veracode-creds}} {{veracode-filters}}"
+    },
+    {
+      "label": "Quokka.",
+      "text": "{{quokka}}"
+    },
+    {
+      "label": "SentinelOne.",
+      "text": "{{s1-streams}} {{s1-alert-type}} {{s1-asset-type}} {{s1-cns}}"
+    },
+    {
+      "label": "Tanium.",
+      "text": "{{tanium}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which streams the Wiz connector has, since the page states three streams and its Asset Type filter names a Wiz Vulnerability Findings stream.",
+      "uses": [
+        "wiz-streams",
+        "wiz-asset-type",
+        "wiz-stream-count"
+      ]
+    }
+  ],
+  "claims": {
+    "apiiro-streams": {
+      "statement": "Apiiro has three streams: SCA (open-source and third-party component vulnerabilities), Secrets, and Terraform Misconfiguration; the Apiiro token needs Read or Full Control scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-apiiro-connector.json",
+          "quotes": [
+            "- Apiiro SCA: Retrieves vulnerabilities related to open-source and third-party components in the application code.",
+            "- Apiiro Secrets: Retrieves vulnerabilities that expose access to sensitive application data.",
+            "- Apiiro Terraform Misconfiguration: Retrieves vulnerabilities specifically related to misconfigurations in Terraform Infrastructure as Code (IaC) deployments.",
+            "Under Define scopes and permissions, select either Read or Full Control."
+          ]
+        }
+      ]
+    },
+    "apiiro-risk": {
+      "statement": "The Apiiro Risk Level filter (SCA and Terraform Misconfiguration streams) has Low, Medium, High, Critical, Ignored, Accepted and AutoIgnored, selected by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-apiiro-connector.json",
+          "quotes": [
+            "The available risk levels are are selected by default and include Low, Medium, High, Critical, Ignored, Accepted, and AutoIgnored."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-apiiro-connector.json",
+          "quotes": [
+            "- Apiiro Terraform Misconfiguration",
+            "- Apiiro SCA"
+          ],
+          "after": "The Risk Level drop-down menu is applicable in the following streams:"
+        }
+      ]
+    },
+    "attackforge": {
+      "statement": "The AttackForge connector retrieves vulnerability data accessible to the API key's user; an administrator must grant that user access to RESTful API methods, and the instance domain name is entered without http:// or https://.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-attackforge-connector.json",
+          "quotes": [
+            "The AttackForge connector retrieves vulnerability data accessible to the user associated with the API key.",
+            "an administrator must grant the user access to RESTful API methods.",
+            "Enter the complete domain name without including http:// or https://."
+          ]
+        }
+      ]
+    },
+    "black-duck-token": {
+      "statement": "Black Duck token generation requires an admin user; the API user should have the Global Code Scanner role, membership of the relevant project and the Project Code Scanner project role, and Read Access Only scope is sufficient.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-black-duck-sca-connector.json",
+          "quotes": [
+            "You must be an admin user to generate an access token in the Black Duck portal.",
+            "The user should have the Global Code Scanner role and be a member of the relevant project.",
+            "In the project, the user should have the Project Code Scanner project role.",
+            "Select an access option (Read Access Only is sufficient)."
+          ]
+        }
+      ]
+    },
+    "black-duck-versions": {
+      "statement": "On the Black Duck source, data is fetched only for the versions listed using the {version_link}/vulnerable-bom-components endpoint; the page also says the connector retrieves data from the canonical version of each project, the default version defined in Black Duck.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-black-duck-sca-connector.json",
+          "quotes": [
+            "Data is fetched only for the versions listed using the {version_link}/vulnerable-bom-components endpoint.",
+            "the connector retrieves data from the canonical version of each project, which is the default version defined in Black Duck."
+          ]
+        }
+      ]
+    },
+    "burp": {
+      "statement": "The Burp Suite Issues connector retrieves sites, scans and issues; the API user must be created by an Enterprise Edition administrator with the API key login type, be in the Scan viewer group or a group using the Scan viewer role, and hold a role with View sites and View site details permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-burp-suite-issues-connector.json",
+          "quotes": [
+            "The Burp Suite Issues connector retrieves Burp Suite sites, scans, and issues data.",
+            "From the Choose a login type drop-down menu, select API key.",
+            "To create a Burp Suite API user, you must be a Burp Suite Enterprise Edition administrator.",
+            "The API user must be a member of the Scan viewer group or a group that uses the Scan viewer role.",
+            "- View sites",
+            "- View site details"
+          ]
+        }
+      ]
+    },
+    "burp-url": {
+      "statement": "The Burp Suite URL has the format https://<Server IP>:<Port>, and the path after the port number must be removed if Copy API link is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-burp-suite-issues-connector.json",
+          "quotes": [
+            "The expected format is https://<Server IP>:<Port>.",
+            "If you click Copy API link, remove the URL path after the port number."
+          ]
+        }
+      ]
+    },
+    "endor-api": {
+      "statement": "On the Endor Labs source, the Query API serves the Containers, SAST, SCA Findings and Secrets streams (optimized for large volumes and namespace traversal) while the REST API serves the Vulnerabilities stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-endor-labs-connector.json",
+          "quotes": [
+            "The Query API is used for the Containers, SAST, SCA Findings, and Secrets streams, as it is optimized for handling large data volumes and supports namespace traversal",
+            "the REST API is used for the Vulnerabilities stream which is optimal for smaller datasets that don't require namespace traversal"
+          ]
+        }
+      ]
+    },
+    "endor-key": {
+      "statement": "An Endor Labs API key needs the Read-only role or higher, the user selects an expiration date of 30 to 90 days, and by default is scoped to the current namespace and its child namespaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-endor-labs-connector.json",
+          "quotes": [
+            "The API key and API secret must carry the Read-only role or higher.",
+            "Select an expiration date for the API key, ranging from 30 to 90 days.",
+            "By default, API keys are scoped to the current namespace and its child namespaces."
+          ]
+        }
+      ]
+    },
+    "endor-namespace": {
+      "statement": "The Endor Labs Use Zscaler namespace traversal checkbox (Containers, SAST, SCA Findings and Secrets streams) retrieves from child namespaces when selected and only the listed namespaces when unselected; Namespace takes comma-separated parent or child namespaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-endor-labs-connector.json",
+          "quotes": [
+            "When selected, data is retrieved from the specified namespaces and all their child namespaces.",
+            "When unselected, data is only retrieved from the specified namespaces, excluding their child namespaces.",
+            "You can enter multiple namespaces, separated by commas.",
+            "Enter the Endor Labs parent namespaces (e.g., acme) or the specific child namespaces (e.g., acme.dev.app)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-endor-labs-connector.json",
+          "quotes": [
+            "- Endor Labs - Secrets",
+            "- Endor Labs - Containers",
+            "- Endor Labs - SAST",
+            "- Endor Labs - SCA Findings"
+          ],
+          "after": "This checkbox is available in the following streams:"
+        }
+      ]
+    },
+    "invicti": {
+      "statement": "On the Invicti source, the connector ingests raw HTML content by default and, when an option is selected, parses and cleans HTML tags to provide plain-text responses; by default it ingests only basic issue details, and the page describes the specific technical request sent by the Invicti scanner and the response received.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-invicti-connector.json",
+          "quotes": [
+            "By default, the connector ingests raw HTML content.",
+            "When selected, the connector parses and cleans HTML tags to provide plain-text responses.",
+            "By default, the connector ingests only basic issue details.",
+            "including the specific technical request sent by the Invicti scanner and the response received."
+          ]
+        }
+      ]
+    },
+    "invicti-auth": {
+      "statement": "Invicti authentication requires a user ID and an API token; the page adds that this does not apply if you use single sign-on (SSO).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-invicti-connector.json",
+          "quotes": [
+            "The Invicti source authentication configuration requires a user ID and an API token.",
+            "This does not apply if you use single sign-on (SSO)."
+          ]
+        }
+      ]
+    },
+    "jfrog": {
+      "statement": "The JFrog Xray connector authenticates with the username and password (or API key) of a JFrog service account (v3.80 or later) assigned the Manage Watches and Manage Reports roles, and the URL has no trailing slashes or subpages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-jfrog-xray-connector.json",
+          "quotes": [
+            "The username and password (or API key)",
+            "for a JFrog service account (v3.80 or later). The account must be assigned the Manage Watches and Manage Reports roles.",
+            "without any trailing slashes or subpages."
+          ]
+        }
+      ]
+    },
+    "jfrog-least-priv": {
+      "statement": "The page says the UI Access and Can Update Profile options can be disabled for the JFrog service account user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-jfrog-xray-connector.json",
+          "quotes": [
+            "The username and password (or API key) for a JFrog service account (v3.80 or later). The account must be assigned the Manage Watches and Manage Reports roles.",
+            "you can disable the UI Access and Can Update Profile options for this user."
+          ]
+        }
+      ]
+    },
+    "legit-streams": {
+      "statement": "The Legit Security connector has two streams: Legit (all issue types except incidents) and Legit Incidents; the Tenant ID is the subdomain in the Legit Security URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-legit-security-connector.json",
+          "quotes": [
+            "- Legit: Retrieves all issue types except incidents",
+            "- Legit Incidents: Retrieves security incidents",
+            "Enter your Legit Security tenant name (the subdomain used to access Legit Security)",
+            "located in your Legit Security URL"
+          ]
+        }
+      ]
+    },
+    "legit-filters": {
+      "statement": "On the Legit Security source, the connector filters out issues with the type SnykIssue or ScaIssue, and when Specific is selected the Legit and Checkov sources are selected by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-legit-security-connector.json",
+          "quotes": [
+            "the connector filters out issues with the type SnykIssue or ScaIssue",
+            "When you select Specific, a drop-down menu appears. By default, the Legit and Checkov sources are selected."
+          ]
+        }
+      ]
+    },
+    "ghas-streams": {
+      "statement": "The GitHub Advanced Security connector has two streams, Code Scanning and Secret Scanning, and retrieves alerts at the organization level for the specified organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-advanced-security-connector.json",
+          "quotes": [
+            "- GitHub Advanced Security - Code Scanning: Retrieves code scanning data from GitHub repositories",
+            "- GitHub Advanced Security - Secret Scanning: Retrieves secret scanning data from GitHub repositories",
+            "The connector retrieves alerts at the organization level for the organization you specify."
+          ]
+        }
+      ]
+    },
+    "ghas-role": {
+      "statement": "For GitHub Advanced Security the authenticated user must be an owner or security manager for the GitHub organization, and the PAT must belong to an Organization Owner or Security Manager.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-advanced-security-connector.json",
+          "quotes": [
+            "The authenticated user must be an owner or security manager for the GitHub organization.",
+            "the Personal Access Token (PAT) must belong to a user who is an Organization Owner or assigned as a Security Manager in that organization."
+          ]
+        }
+      ]
+    },
+    "ghas-fine-grained": {
+      "statement": "A fine-grained PAT is the recommended GHAS token; it needs the Code scanning alerts, Secret scanning alerts and Security events permissions at Read-only minimum.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-advanced-security-connector.json",
+          "quotes": [
+            "## Fine-Grained PAT (Recommended)",
+            "- Code scanning alerts",
+            "- Secret scanning alerts",
+            "- Security events",
+            "The minimum required access level setting is Read-only"
+          ]
+        }
+      ]
+    },
+    "ghas-classic": {
+      "statement": "A classic GHAS token needs the security_events checkbox under repo and the read:org checkbox under admin:org.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-advanced-security-connector.json",
+          "quotes": [
+            "Under repo, select the security_events checkbox.",
+            "Under admin:org, select the read:org checkbox."
+          ]
+        }
+      ]
+    },
+    "ghas-state": {
+      "statement": "The State filter limits the scope of the ingested data to specific alert states: the page lists Open, Closed, Dismissed or Fixed in one place and Open or Resolved in another; if no filter is applied, all data is retrieved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-advanced-security-connector.json",
+          "quotes": [
+            "Available states to filter by include Open, Closed, Dismissed, or Fixed.",
+            "Available states to filter by include Open or Resolved.",
+            "Use the State filter to limit the scope of the ingested data to specific alert states. If no filter is applied, all data is retrieved."
+          ]
+        }
+      ]
+    },
+    "ghas-severity-resolution": {
+      "statement": "One GitHub Advanced Security filter offers Critical, High, Medium, Low, Warning, Note or Error and, if no filter is applied, alerts of all severities are retrieved; another offers False Positive, Won't Fix, Revoked, Pattern Edited, Pattern Deleted or Used In Tests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-advanced-security-connector.json",
+          "quotes": [
+            "you can select Critical, High, Medium, Low, Warning, Note, or Error. If no filter is applied, alerts of all severities are retrieved.",
+            "you can select False Positive, Won’t Fix, Revoked, Pattern Edited, Pattern Deleted, or Used In Tests."
+          ]
+        }
+      ]
+    },
+    "ghas-secret-types": {
+      "statement": "The secret types options are Generic (for example ec_private_key, mysql_connection_string) only, or both default and generic; if no option is selected, the connector only retrieves alerts for Default secret types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-advanced-security-connector.json",
+          "quotes": [
+            "- Generic: Includes only generic secret types (e.g., ec_private_key, mysql_connection_string).",
+            "- Both default and generic: Includes both default and generic secret types.",
+            "If no option is selected, the connector only retrieves alerts for Default secret types."
+          ]
+        }
+      ]
+    },
+    "repos-scope": {
+      "statement": "The GitHub Repositories connector retrieves repository metadata (name, owner and organization, visibility, URL and timestamps) for the specified repositories and organizations, optionally enriched with custom properties.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-repositories-connector.json",
+          "quotes": [
+            "The GitHub Repositories connector retrieves repository metadata (e.g., name, owner and organization, visibility, URL, and timestamps) for the specified repositories and organizations.",
+            "It can also enrich each repository record with custom properties when enabled."
+          ]
+        }
+      ]
+    },
+    "repos-auth": {
+      "statement": "The GitHub Repositories connector offers a fine-grained PAT tied to a user (quick to start, rotated on expiry, needing Metadata Read-only); a second option is described as recommended for organization-managed access and better control than user PATs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-repositories-connector.json",
+          "quotes": [
+            "This is a quick way to get started, but access is tied to the user account and the token must be rotated when it expires.",
+            "Permissions: Click Add permissions, and select Metadata.",
+            "The minimum required access level setting is Read-only",
+            "(recommended for organization-managed access and better control than user PATs)"
+          ]
+        }
+      ]
+    },
+    "repos-app": {
+      "statement": "GitHub App authentication needs the App ID, Installation ID, private key (PEM) and organization; the app needs Repository permissions > Metadata > Read-only, and OAuth-based user authorization is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-repositories-connector.json",
+          "quotes": [
+            "creating a GitHub app to retrieve the App ID, Installation ID, private key (PEM), and organization you want to ingest data for."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-repositories-connector.json",
+          "quotes": [
+            "Select at least Repository permissions > Metadata > Read-only.",
+            "This is only needed for OAuth-based user authorization, which is not supported."
+          ],
+          "after": "Callback URL"
+        }
+      ]
+    },
+    "repos-filters": {
+      "statement": "On the GitHub Repositories source, only repository records with updated_at on or after a configured time are synced; a space-delimited list of repository selectors (e.g., org/repo1 org/repo2) syncs repositories, org/* syncs all repositories in an organization, and the Fetch Custom Properties checkbox includes repository custom properties configured in the GitHub organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-github-repositories-connector.json",
+          "quotes": [
+            "Only repository records with updated_at on or after this time are synced.",
+            "Enter a space-delimited list of repository selectors to sync (e.g., org/repo1 org/repo2). To sync all repositories in an organization, use org/*.",
+            "Select the Fetch Custom Properties checkbox to include repository custom properties configured in your GitHub organization"
+          ]
+        }
+      ]
+    },
+    "prisma-streams": {
+      "statement": "The Prisma Cloud connector has 2 streams: Container Issues (container scan compliance reports) and All Findings (deployed scan vulnerability reports).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-prisma-cloud-connector.json",
+          "quotes": [
+            "There are two Prisma Cloud streams.",
+            "Container Issues: Retrieves container scan compliance reports.",
+            "All Findings: Retrieves deployed scan vulnerability reports."
+          ]
+        }
+      ]
+    },
+    "prisma-scan-types": {
+      "statement": "The Prisma Cloud All Findings stream has a Scan Types filter with Images, CI Images, Registry, Host and Serverless Function.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-prisma-cloud-connector.json",
+          "quotes": [
+            "Set the Scan Types filters and specifications (i.e., Images, CI Images, Registry, Host, and Serverless Function).",
+            "This menu is available in the Prisma Cloud All Findings stream."
+          ]
+        }
+      ]
+    },
+    "prisma-keys": {
+      "statement": "By default only Prisma Cloud system admins can create access and secret keys; a reader role with Account Group Read Only permission group and the Allow user to create API Access Keys option lets another user do so.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-prisma-cloud-connector.json",
+          "quotes": [
+            "By default, only system admins can create access keys and secret keys.",
+            "Permission Group: Select Account Group Read Only.",
+            "select the Allow user to create API Access Keys checkbox."
+          ]
+        }
+      ]
+    },
+    "prisma-key-expiry": {
+      "statement": "A Prisma Cloud access key never expires unless Enable Expiration is selected, and if Enable Expiration is selected with no date the key expires within a month; the key is not accessible after the window closes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-prisma-cloud-connector.json",
+          "quotes": [
+            "If you do not select Enable Expiration, the key never expires. If Enable Expiration is selected, but no expiration date is specified, the key expires within a month.",
+            "You do not have access to the key after you close the window."
+          ]
+        }
+      ]
+    },
+    "prisma-server-url": {
+      "statement": "The Prisma Cloud server URL appears in the Path to Console section on the Utilities tab, is entered as https://<region>.cloud.twistlock.com/<customer>, and if authentication fails /api/v1 is appended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-prisma-cloud-connector.json",
+          "quotes": [
+            "use the following format: https://<region>.cloud.twistlock.com/<customer>.",
+            "If authentication with the copied URL fails, append /api/v1 to the end of the URL and try again.",
+            "Select the Utilities tab.",
+            "The Server URL appears in the Path to Console section."
+          ]
+        }
+      ]
+    },
+    "prisma-cspm": {
+      "statement": "The Prisma Cloud CSPM connector retrieves vulnerabilities and asset data on cloud resources, and the admin console URL, which varies by cluster and is in the Prisma Cloud CSPM fulfillment email, is converted to the matching API URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-prisma-cloud-cspm-connector.json",
+          "quotes": [
+            "The Prisma Cloud CSPM connector retrieves vulnerabilities and asset data on cloud resources.",
+            "Your Prisma Cloud CSPM admin console URL varies according to the cluster in which your tenant is deployed. The correct URL is in your fulfillment email from Prisma Cloud CSPM.",
+            "After you retrieve your admin console URL, convert it to the matching API URL."
+          ]
+        }
+      ]
+    },
+    "wiz-streams": {
+      "statement": "The Wiz connector lists Wiz Assets (cloud resources, optionally enriched with exposed resources data), Wiz Issues (active threats with severity, affected resources and remediation recommendations) and Wiz Configuration Findings streams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-wiz-connector.json",
+          "quotes": [
+            "Wiz Assets: Retrieves detailed information about cloud resources, with optional enrichment for exposed resources data.",
+            "Wiz Configuration Findings: Retrieves details on configurations by identifying misconfigurations, compliance status, and potential vulnerabilities across various cloud resources.",
+            "Wiz Issues: Retrieves details on active security threats (e.g., vulnerabilities, misconfigurations, or exposed secrets) including severity, affected resources, and remediation recommendations for each identified threat."
+          ]
+        }
+      ]
+    },
+    "wiz-permissions": {
+      "statement": "For the Wiz Assets stream, the Client ID must carry read:resources, plus read:network_exposure if Include Network Exposure Info is selected; permissions for the other streams are in the deployment guide.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-wiz-connector.json",
+          "quotes": [
+            "the value supplied in the Client ID field must carry at least the following permissions:",
+            "- read:resources",
+            "- read:network_exposure (if the Network Exposure Info checkbox is selected)",
+            "To learn more about permissions for the other Wiz streams, see Zscaler UVM and Wiz Deployment Guide."
+          ]
+        }
+      ]
+    },
+    "wiz-project": {
+      "statement": "In the Wiz source, retrieving all projects requires global permissions in Wiz; otherwise report generation fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-wiz-connector.json",
+          "quotes": [
+            "To retrieve all projects, you must have global permissions granted in Wiz; otherwise, the report generation fails."
+          ]
+        }
+      ]
+    },
+    "wiz-issue-filters": {
+      "statement": "The Wiz page lists the values Toxic Combination, Threat Detection and Cloud Configuration; Critical, High, Medium, Low and Informational; and Open, In Progress, Resolved, Rejected or All Statuses, and a checkbox that retrieves additional metadata for each Wiz issue, resulting in large data ingestion volumes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-wiz-connector.json",
+          "quotes": [
+            "(i.e., Toxic Combination, Threat Detection, Cloud Configuration)",
+            "(i.e., Critical, High, Medium, Low, Informational)",
+            "(i.e., Open, In Progress, Resolved, Rejected, or All Statuses)",
+            "Select the checkbox to retrieve additional metadata for each Wiz issue, resulting in large data ingestion volumes."
+          ]
+        }
+      ]
+    },
+    "wiz-config-filters": {
+      "statement": "The Wiz page has a field for the number of days to retrieve configuration findings that were first analyzed within that timeframe, and lists the values Open, In Progress, Resolved, Rejected and Critical, Low, Severe, Informational, None, Moderate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-wiz-connector.json",
+          "quotes": [
+            "Enter the number of days to retrieve configuration findings that were first analyzed within that timeframe.",
+            "(i.e., Open, In Progress, Resolved, Rejected).",
+            "(i.e., Critical, Low, Severe, Informational, None, Moderate)"
+          ]
+        }
+      ]
+    },
+    "wiz-asset-type": {
+      "statement": "The Wiz Asset Type filter applies to the Wiz Vulnerability Findings stream (e.g., Virtual Machine, Container, Container Image, Serverless) and filters cloud resources by Entity Types normalized by Wiz; with no filter applied, all available asset types are included.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-wiz-connector.json",
+          "quotes": [
+            "Filters cloud resources based on Entity Types normalized by Wiz (e.g., Virtual Machine, Database, Container, Load Balancer).",
+            "If no filter is applied, all available asset types are included.",
+            "Wiz Vulnerability Findings: Filters findings by asset type (e.g., Virtual Machine, Container, Container Image, Serverless)."
+          ]
+        }
+      ]
+    },
+    "wiz-row-limit": {
+      "statement": "Wiz enforces a 50,000 row limit on full report runs, so the Wiz Issues stream can return fewer results than expected; incremental exports support up to 500,000 rows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-wiz-connector.json",
+          "quotes": [
+            "due to a 50,000 row limit on full report runs enforced by Wiz.",
+            "For larger datasets, use incremental exports, which support up to 500,000 rows to ensure full data coverage.",
+            "The Wiz Issues stream might return fewer results than expected, or miss data"
+          ]
+        }
+      ]
+    },
+    "wiz-network-exposure": {
+      "statement": "A Wiz checkbox adds enrichment for exposed resources data and is available in the Wiz Assets stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-wiz-connector.json",
+          "quotes": [
+            "Select the checkbox to add enrichment for exposed resources data.",
+            "This checkbox is available in the Wiz Assets stream."
+          ]
+        }
+      ]
+    },
+    "snyk-auth": {
+      "statement": "The Snyk connector has two streams and needs an API Token and Org ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-snyk-connector.json",
+          "quotes": [
+            "There are two available Snyk streams.",
+            "- API Token",
+            "- Org ID"
+          ]
+        }
+      ]
+    },
+    "veracode-streams": {
+      "statement": "The Veracode connector has 3 streams: Veracode (Static Analysis, Dynamic Analysis, Manual Penetration Testing and SCA findings), Veracode SCA (SCA findings only, not combined with other types) and Veracode Applications (limited availability).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-veracode-connector.json",
+          "quotes": [
+            "Veracode: Retrieves Static Analysis, Dynamic Analysis, Manual Penetration Testing, and Software Composition Analysis (SCA) findings.",
+            "Veracode SCA: Retrieves SCA findings. This stream does not combine SCA findings with other finding types.",
+            "The Veracode Applications stream is in limited availability."
+          ]
+        }
+      ]
+    },
+    "veracode-account": {
+      "statement": "Veracode setup needs an API service account with the Results API role or a user with the Reviewer or Security Lead role; an API service account must be a newly created Non-Human User, since an existing user cannot be changed into one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-veracode-connector.json",
+          "quotes": [
+            "you must have an API service account with the Results API role or a user account with the Reviewer or Security Lead role.",
+            "You cannot change an existing user account to an API service account.",
+            "Select the Non-Human User checkbox.",
+            "You must select the Results API role."
+          ]
+        }
+      ]
+    },
+    "veracode-creds": {
+      "statement": "Veracode API credentials are an API ID and secret key that are shown once, and HMAC authentication is performed in the SecOps platform with no action needed in Veracode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-veracode-connector.json",
+          "quotes": [
+            "Save the ID and secret key securely. They are not displayed again after you exit the window.",
+            "Veracode also requires HMAC authentication, which is performed in the Zscaler Security Operations (SecOps) platform. It does not require any actions in the Veracode platform."
+          ]
+        }
+      ]
+    },
+    "veracode-filters": {
+      "statement": "The Veracode page selects one or more severity levels, a lifecycle status (Open or Closed) and scan types (Static Analysis (SAST), Dynamic Analysis (DAST), Manual Analysis, Software Composition Analysis (SCA)).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-veracode-connector.json",
+          "quotes": [
+            "Select the lifecycle status of the vulnerabilities you want to retrieve from Veracode (i.e., Open or Closed).",
+            "Static Analysis (SAST): The findings identified by analyzing application source code for security vulnerabilities without running the code.",
+            "Dynamic Analysis (DAST): The findings identified by analyzing an application to detect vulnerabilities that appear while it is running.",
+            "Manual Analysis: The findings identified through penetration testing or other manual security assessments.",
+            "Select one or more severity levels to choose which vulnerabilities you want to ingest.",
+            "Software Composition Analysis (SCA): The findings related to vulnerabilities found in third-party and open-source components used within your applications."
+          ]
+        }
+      ]
+    },
+    "quokka": {
+      "statement": "The Quokka source uses an API key for a user with the permissions View Analyzed Apps, View Reports, View Shared Apps, Change API Key, Android Analysis, iOS Analysis, GDPR Report, OWASP Report, NIAP Report and SBOM Report; the stream retrieves findings data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-quokka-connector.json",
+          "quotes": [
+            "The Quokka stream retrieves findings data.",
+            "- View Analyzed Apps",
+            "- Change API Key",
+            "- Android Analysis",
+            "- GDPR Report",
+            "- NIAP Report",
+            "- SBOM Report",
+            "- View Reports",
+            "- View Shared Apps",
+            "- iOS Analysis",
+            "- OWASP Report"
+          ]
+        }
+      ]
+    },
+    "s1-streams": {
+      "statement": "On the SentinelOne connector page, the SentinelOne Assets, Alerts and CNS Findings streams are in limited availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-sentinelone-connector.json",
+          "quotes": [
+            "The SentinelOne Assets, SentinelOne Alerts, and SentinelOne CNS Findings streams are in limited availability."
+          ]
+        }
+      ]
+    },
+    "s1-alert-type": {
+      "statement": "On the SentinelOne page, EDR alerts originate from managed endpoints and XDR alerts extend beyond the endpoint; if neither are selected, both types are ingested.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-sentinelone-connector.json",
+          "quotes": [
+            "EDR alerts originate from managed endpoints.",
+            "XDR alerts extend beyond the endpoint, including detections from cloud workloads, identity providers, and other integrated security tools. If neither are selected, both types are ingested."
+          ]
+        }
+      ]
+    },
+    "s1-asset-type": {
+      "statement": "On the SentinelOne page, Endpoint (managed devices) is included by default, and Network Discovery (unmanaged network assets) and Cloud require active SentinelOne module subscriptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-sentinelone-connector.json",
+          "quotes": [
+            "Endpoint (managed devices) is included by default. Network Discovery (unmanaged network assets) and Cloud require active SentinelOne module subscriptions."
+          ]
+        }
+      ]
+    },
+    "s1-cns": {
+      "statement": "On the SentinelOne page, if none are selected both vulnerabilities and misconfigurations are ingested, and a severity selection applies only to misconfiguration findings, with all severities ingested if none are selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-sentinelone-connector.json",
+          "quotes": [
+            "If none are selected, both vulnerabilities and misconfigurations are ingested.",
+            "This information is only applicable to misconfiguration findings. If none are selected, all severities are ingested."
+          ]
+        }
+      ]
+    },
+    "tanium": {
+      "statement": "The Tanium source needs an API Key, Domain and roles and permissions, and has an optional Sensors field for sensor names, where a sensor is a script that runs on endpoints to gather data in response to a Tanium question.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tanium-connector.json",
+          "quotes": [
+            "- API Key",
+            "- Domain",
+            "- Roles and Permissions",
+            "A sensor is a script that runs on endpoints to gather specific data in response to a Tanium question.",
+            "In the field, optionally enter the sensor names."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "wiz-stream-count": {
+      "summary": "The Configuring the Wiz Connector page states three Wiz streams; its Asset Type filter names a Wiz Vulnerability Findings stream next to Wiz Assets.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-wiz-connector.json",
+            "quotes": [
+              "There are three Wiz streams. Select those that are based on your Wiz feature plan and use cases."
+            ]
+          },
+          "says": "There are three Wiz streams; the page lists Wiz Assets, Wiz Issues and Wiz Configuration Findings."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-wiz-connector.json",
+            "quotes": [
+              "Wiz Vulnerability Findings: Filters findings by asset type (e.g., Virtual Machine, Container, Container Image, Serverless)."
+            ]
+          },
+          "says": "The Asset Type filter applies to a Wiz Vulnerability Findings stream, which is not among the three listed."
+        }
+      ],
+      "impact": "The page's stream count and the streams its Asset Type filter names do not agree; the page does not say whether Wiz Vulnerability Findings is a fourth stream or another name for a listed one."
+    }
+  },
+  "gaps": {
+    "wiz-other-stream-permissions": {
+      "kind": "semantic",
+      "title": "Permissions for the Wiz Issues and Configuration Findings streams",
+      "status": "open",
+      "detail": "The Wiz connector page gives the Client ID permissions for the Wiz Assets stream and refers to the Zscaler UVM and Wiz Deployment Guide for the other streams. That guide is not captured.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

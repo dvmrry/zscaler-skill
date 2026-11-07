@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.disaster-recovery.dns-records",
+  "title": "Disaster recovery activation TXT records and the Zscaler DNS Record Generator",
+  "aliases": [
+    "dns record generator",
+    "disaster recovery txt record",
+    "dr txt record",
+    "signed dns txt record",
+    "unsigned dns txt record",
+    "dr_privatekey.pem"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.failover"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{generator-role}}"
+    },
+    {
+      "label": "The generator.",
+      "text": "{{windows-only}} {{generator-files}} {{manual-records}}"
+    },
+    {
+      "label": "Record format.",
+      "text": "{{tags}} {{activation-types}} {{optional-tags}} {{invalid-tags}} Some tags used in the formats are not defined {{gap:tag-definitions}}."
+    },
+    {
+      "label": "Signed and unsigned.",
+      "text": "{{signed-two-parts}} The pages differ on how many records a domain needs {{divergence:record-count}}. {{unsigned-format}} The unsigned format and its examples differ {{divergence:unsigned-format-examples}}."
+    },
+    {
+      "label": "Activation.",
+      "text": "{{activation-window}}"
+    },
+    {
+      "text": "Disaster recovery mode itself, its settings and its snapshots are in [[zpa.private-service-edges.disaster-recovery]]; the Client Connector profile that carries the public key is in [[zcc.app-profiles.failover]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the record is signed, which needs two TXT records with matching v, b, t, x and n tags, or unsigned.",
+      "uses": [
+        "signed-two-parts",
+        "record-count"
+      ]
+    },
+    {
+      "do": "Whether the current epoch time falls between the record's t and x values, inclusive, and whether the domain's TXT record is unique.",
+      "uses": [
+        "activation-window"
+      ]
+    },
+    {
+      "do": "Which m value a record uses: the page lists fo and fc as supported, and one of its examples gives m=wf.",
+      "uses": [
+        "tags",
+        "unsigned-format-examples"
+      ]
+    }
+  ],
+  "claims": {
+    "generator-role": {
+      "statement": "The Zscaler DNS Record Generator creates the DNS TXT records and the public and private keys for disaster recovery. The private key signs the DNS TXT record; the public key verifies the activation of Disaster Recovery Mode, is uploaded on the Disaster Recovery Settings page and when configuring Client Connector App Profiles, and a record used this way is a signed disaster recovery activation. For an unsigned activation the public key does not need to be uploaded, and for improved security Zscaler recommends signed DNS TXT records.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+          "quotes": [
+            "The Zscaler DNS Record Generator creates the DNS TXT records and the public and private keys for disaster recovery.",
+            "The public key is used to verify the activation of Disaster Recovery Mode. The private key is used to sign the DNS TXT record.",
+            "The public key is uploaded on the Disaster Recovery Settings page and when configuring Zscaler Client Connector App Profiles, and is used to trigger Disaster Recovery Mode. This is considered a signed disaster recovery activation.",
+            "In the case of an unsigned disaster recovery activation, the public key does not need to be uploaded.",
+            "For improved security, Zscaler recommends that the signed DNS TXT records are used with the Zscaler DNS Record Generator."
+          ]
+        }
+      ]
+    },
+    "manual-records": {
+      "statement": "DNS TXT records can be created manually without the Zscaler DNS Record Generator, using a record format similar to the Domain Key Identified Mail (DKIM) record format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+          "quotes": [
+            "However, you can create the DNS TXT records manually without the Zscaler DNS Record Generator.",
+            "use a record format similar to the Domain Key Identified Mail (DKIM) record format"
+          ]
+        }
+      ]
+    },
+    "tags": {
+      "statement": "The record tags are v, the version of the DNS record; b, which indicates whether Disaster Recovery Mode is enabled (on) or disabled (off), or Test Mode is enabled (test); m, the Internet & SaaS forwarding profile action, where the traffic is sent directly (fo) or internet access is disabled (fc); and t and x, the optional start and end times in UTC seconds. The activation type tag k supports zia, zpa and all. The tags n (total number of records for a multiple-part activation), p (which part) and bh (signed hash of tag values in RSA-SHA256 and Base64 formats) are only present for signed records.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+          "quotes": [
+            "v=<1>: The version of the DNS record.",
+            "b=<...>: The body indicates if Disaster Recovery Mode is enabled (on) or disabled (off), or if Disaster Recovery Test Mode is enabled (test).",
+            "m=<...>: The Internet & SaaS (ZIA) forwarding profile actions indicate if the traffic is sent directly (fo) or if the internet access is disabled (fc).",
+            "t=<...>: The start time of disaster recovery in Coordinated Universal Time (UTC) seconds. This tag is optional",
+            "x=<...>: The end time of disaster recovery in UTC seconds. This tag is optional",
+            "The following values are supported for the activation types (k): zia: Internet & SaaS zpa: Private Access (ZPA) all: Both Internet & SaaS and Private Access",
+            "n=<...>: The total number of DNS TXT records required for a multiple-part disaster recovery activation (e.g., n=2). This is only present for signed DNS TXT records.",
+            "p=<...>: The first or second part of the DNS TXT record activation (e.g., p=2). This is only present for signed DNS TXT records.",
+            "bh=<...>: The body hash indicates the signed hash of tag values (v, d, b, m , t, and x) in RSA-SHA256 and Base64 formats. This is only present for signed DNS TXT records."
+          ]
+        }
+      ]
+    },
+    "activation-types": {
+      "statement": "The activation type (k) supports zia (Internet & SaaS), zpa (Private Access) and all (both Internet & SaaS and Private Access).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+          "quotes": [
+            "The following values are supported for the activation types (k): zia: Internet & SaaS zpa: Private Access (ZPA) all: Both Internet & SaaS and Private Access"
+          ]
+        }
+      ]
+    },
+    "signed-two-parts": {
+      "statement": "Signed activation requires two parts of the disaster recovery activation TXT records. The body hash (bh) value is in Base64 format (2,048-bit keys signed with the RSA-SHA256 algorithm) and is obtained by concatenating the hash subparts in order; the v, b, t, x and n tags must match across the different DNS TXT records for their bh values to be combined.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+          "quotes": [
+            "Signed activation requires two parts of the disaster recovery activation TXT records.",
+            "The body hash (bh) value is in Base64 format (2,048-bit keys signed with the RSA-SHA256 algorithm) and is obtained by concatenating the hash subparts in order.",
+            "The v, b, t, x, and n tags must match across different DNS TXT records for their bh tag values to be combined or concatenated for a valid disaster recovery activation."
+          ]
+        }
+      ]
+    },
+    "optional-tags": {
+      "statement": "The Internet & SaaS forwarding profile actions (m) can be skipped if the Admin Console configuration should not be overwritten, and t and x can be skipped for both signed and unsigned activations if specific start and end times are not needed. A given tag is not shown if it does not have a value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+          "quotes": [
+            "The Internet & SaaS forwarding profile actions (m) can be skipped if you do not want to overwrite the Zscaler Admin Console configuration.",
+            "can be skipped for both signed and unsigned disaster recovery activations if the specific start and end times for activation are not needed"
+          ],
+          "after": "| DNS TXT Record Format | Example DNS TXT Record | Supported Values |"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+          "quotes": [
+            "A given tag is not shown if it does not have a value."
+          ]
+        }
+      ]
+    },
+    "invalid-tags": {
+      "statement": "Invalid t, x, n, p and bh tags can cause disaster recovery activation to fail.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+          "quotes": [
+            "Invalid t, x, n, p, and bh tags can result in disaster recovery activation to fail."
+          ]
+        }
+      ]
+    },
+    "unsigned-format": {
+      "statement": "Unsigned DNS TXT records are given in the format v=1;b=on|off|test;t=<start time>;x=<end time>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+          "quotes": [
+            "Unsigned DNS TXT records are in the following format: v=1;b=on\\|off\\|test;t=<start time>;x=<end time>"
+          ]
+        }
+      ]
+    },
+    "activation-window": {
+      "statement": "If the current epoch time configured in the DNS TXT record is between the start (t) and end (x) times, both values inclusive, disaster recovery is activated. If the record has no designated start and end times, disaster recovery is triggered as soon as the DNS TXT records are uploaded, and the DNS TXT record assigned to the disaster recovery domain name must be unique.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-creating-dns-txt-records.json",
+          "quotes": [
+            "If your current epoch time that is configured in the DNS TXT record is between the start (t) and end (x) times, and has both values inclusive, then disaster recovery is activated",
+            "If your disaster recovery record does not have designated start and end times, then disaster recovery is triggered as soon as you upload the DNS TXT records",
+            "The DNS TXT record assigned to the disaster recovery domain name must be unique."
+          ]
+        }
+      ]
+    },
+    "windows-only": {
+      "statement": "The Zscaler DNS Record Generator is only supported for Windows OS devices and must be run as an administrator.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+          "quotes": [
+            "The Zscaler DNS Record Generator is only supported for Windows OS devices."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-creating-dns-txt-records.json",
+          "quotes": [
+            "The Zscaler DNS TXT Record Generator is only supported for Windows OS devices, and must be run as an administrator."
+          ]
+        }
+      ]
+    },
+    "generator-files": {
+      "statement": "In the signed flow the generator writes the private key to Files/dr_privatekey.pem and the public key to Files/dr_publickey.pem; the DNS TXT records, keys and signatures are stored in the Files folder in the folder where the generator is downloaded. Its prompts offer Failopen (the traffic is sent directly) or Failclose (the internet access is disabled), Test to enable Disaster Recovery Test Mode, and Ignore to confirm no end time for disaster recovery.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-creating-dns-txt-records.json",
+          "quotes": [
+            "The disaster recovery private key is successfully read and written into Files/dr_privatekey.pem. The disaster recovery public key is written into Files/dr_publickey.pem.",
+            "The DNS TXT records, private and public keys, and signatures are stored in the Files folder.",
+            "The Files folder is located in the folder where the Zscaler DNS Record Generator is downloaded.",
+            "Ignore: Confirms no end time for disaster recovery."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-creating-dns-txt-records.json",
+          "quotes": [
+            "Failopen: The traffic is sent directly.",
+            "Failclose: The internet access is disabled.",
+            "Test: Enables Disaster Recovery Test Mode."
+          ],
+          "after": "Generate the Signed DNS TXT Records and the Disaster Recovery Key Pairs"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "record-count": {
+      "summary": "One page says only one DNS TXT record is necessary per unique disaster recovery domain name; the generator page says signed activation requires two parts.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-creating-dns-txt-records.json",
+            "quotes": [
+              "Only one DNS TXT record is necessary per unique disaster recovery domain name."
+            ]
+          },
+          "says": "Only one DNS TXT record is necessary per unique disaster recovery domain name."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+            "quotes": [
+              "Signed activation requires two parts of the disaster recovery activation TXT records."
+            ]
+          },
+          "says": "Signed activation requires two parts of the disaster recovery activation TXT records."
+        }
+      ],
+      "impact": "A signed activation can be read as one record or as two (n=2, p=1 and p=2); the pages do not say whether the one-record statement applies to unsigned records only."
+    },
+    "unsigned-format-examples": {
+      "summary": "The generator page's unsigned format string has no k or m tag while its examples carry both, and one example gives m=wf while the supported m values listed are fo and fc.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+            "quotes": [
+              "Unsigned DNS TXT records are in the following format: v=1;b=on\\|off\\|test;t=<start time>;x=<end time>"
+            ]
+          },
+          "says": "Unsigned records are in the format v=1;b=on|off|test;t=<start time>;x=<end time>, with no k or m tag."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+            "quotes": [
+              "| v=1;k=zpa;b=on;m=fo |"
+            ]
+          },
+          "says": "The table's example unsigned record is v=1;k=zpa;b=on;m=fo, which carries k and m."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+            "quotes": [
+              "a simple unsigned DNS TXT record is v=1;k=zpa;b=on;m=wf"
+            ]
+          },
+          "says": "A second example gives m=wf."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-and-installing-zscaler-dns-record-generator.json",
+            "quotes": [
+              "fo: Fail-open, meaning the traffic is sent directly. fc: Fail-close, meaning the internet access is disabled."
+            ],
+            "after": "| DNS TXT Record Format | Example DNS TXT Record | Supported Values |"
+          },
+          "says": "The supported m values are fo and fc."
+        }
+      ],
+      "impact": "The format string has no k or m tag and the examples carry both; one example's m=wf is not among the listed supported values. The page does not say which form a record takes."
+    }
+  },
+  "gaps": {
+    "tag-definitions": {
+      "kind": "semantic",
+      "title": "Tags used in the TXT record formats but not defined",
+      "status": "open",
+      "detail": "The bh tag hashes the tag values (v, d, b, m, t and x), but no d tag is defined, and the k tag used in the formats is described only by its activation types. Whether n may exceed 2 is not stated: the page says n is the total number of records for a multiple-part activation, and also that signed activation requires two parts.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

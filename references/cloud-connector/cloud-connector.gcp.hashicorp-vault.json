@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.gcp.hashicorp-vault",
+  "title": "GCP Cloud Connector credentials in HashiCorp Vault: KV secret, service accounts, IAM auth role, VM metadata and troubleshooting",
+  "aliases": [
+    "hashicorp vault cloud connector gcp",
+    "hcp vault cloud connector",
+    "hcp_vault_addr",
+    "hcp_vault_secret_path",
+    "hcp_vault_role_name",
+    "bound_service_accounts cloud connector",
+    "vault gcp auth method cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.terraform-modules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{new-deployments-only}} {{dedicated-vs-self-managed}} The Secret Manager alternative is in [[cloud-connector.gcp:credential-storage]]."
+    },
+    {
+      "label": "The secret.",
+      "text": "{{kv-secret}}"
+    },
+    {
+      "label": "Service accounts.",
+      "text": "{{vault-sa}} Which account holds the five permissions, and how one of them is spelled, differ between pages {{divergence:vault-permissions-account}}. {{two-service-accounts}}"
+    },
+    {
+      "label": "Policy and role.",
+      "text": "{{acl-policy}} {{iam-role}} {{wizard-inputs}}"
+    },
+    {
+      "label": "On the VM.",
+      "text": "{{vm-metadata}} {{port-8200}}"
+    },
+    {
+      "label": "Troubleshooting table.",
+      "text": "{{symptom-auth-fails}} {{symptom-unreachable}} {{symptom-secret-denied}}"
+    },
+    {
+      "label": "Not settled.",
+      "text": "Self-managed Vault steps are not given {{gap:self-managed-steps}}, and the storing article does not name the VM service account's Token Creator role {{gap:token-creator-in-storing}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the connector is new: an existing connector cannot be moved from Secret Manager to Vault.",
+      "uses": [
+        "new-deployments-only"
+      ]
+    },
+    {
+      "do": "Whether the VM's ZSCALER custom metadata keys match the Vault address, secret path and IAM auth role.",
+      "uses": [
+        "vm-metadata",
+        "iam-role",
+        "wizard-inputs"
+      ]
+    },
+    {
+      "do": "Which service account holds Service Account Key Admin and which holds Service Account Token Creator, and where the five permissions were granted, since the pages place them differently.",
+      "uses": [
+        "two-service-accounts",
+        "vault-permissions-account"
+      ]
+    },
+    {
+      "do": "Whether the VM can reach the Vault on port 8200 and the secret path grants read and list to the role's policy.",
+      "uses": [
+        "port-8200",
+        "acl-policy",
+        "symptom-unreachable",
+        "symptom-secret-denied"
+      ]
+    }
+  ],
+  "claims": {
+    "new-deployments-only": {
+      "statement": "HashiCorp IAM authentication integrates a HashiCorp Vault with a new GCP Cloud Connector only: an existing Cloud Connector cannot be migrated from GCP Secret Manager to HashiCorp Vault, and a new one must be deployed using the Terraform wizard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-storing-your-secret-credentials-hashicorp-vault.json",
+          "quotes": [
+            "This article describes how to use HashiCorp IAM authentication to integrate a HashiCorp Vault with a new Cloud Connector based on the Google Cloud Platform (GCP).",
+            "You cannot migrate an existing Cloud Connector from GCP Secret Manager to HashiCorp Vault. You must deploy a new Cloud Connector using the Terrarform wizard."
+          ]
+        }
+      ]
+    },
+    "dedicated-vs-self-managed": {
+      "statement": "The article describes configuring a dedicated public HashiCorp Vault, and says the procedures may differ for self-managed Vault deployments; a Vault and Vault cluster must already exist and the Vault CLI must be downloaded to the local machine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-storing-your-secret-credentials-hashicorp-vault.json",
+          "quotes": [
+            "This article describes how to configure a dedicated public HashiCorp Vault. The procedures may differ for self-managed Vault deployments.",
+            "A HashiCorp Vault and Vault cluster have already been created.",
+            "The Vault CLI is downloaded to your local machine."
+          ]
+        }
+      ]
+    },
+    "kv-secret": {
+      "statement": "The credentials are stored in a KV secrets engine, with admin set as the current namespace, as three keys: username and password (the dedicated Cloud Connector deployment username and password) and api_key (the value copied from the API Key Management page in the Zscaler Admin Console).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-storing-your-secret-credentials-hashicorp-vault.json",
+          "quotes": [
+            "At the bottom of the left-side navigation, set admin as the current namespace.",
+            "In the Generic section, click KV.",
+            "Enter username. For the corresponding value, enter your dedicated Cloud Connector deployment username. Click Add.",
+            "Enter password. For the corresponding value, enter your dedicated Cloud Connector deployment password. Click Add.",
+            "Enter api_key. For the corresponding value, enter the value you copied from the API Key Management page in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "vault-sa": {
+      "statement": "On the storing page, the service account used for Vault is given the Service Account Key Admin role, or a custom role with 5 required permissions listed as compute.instanceGroups.list, compute.instances.get, iam.serviceAccountKeys.get, iam.serviceAccounts.get and iamService.signJwt; its private key is created as JSON and the key file is selected when the Vault GCP auth method is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-storing-your-secret-credentials-hashicorp-vault.json",
+          "quotes": [
+            "On the Grant this service account access to project page, from the Role drop-down menu, select Service Account Key Admin.",
+            "you can create a custom role and assign the following 5 required permissions: compute.instanceGroups.list, compute.instances.get, iam.serviceAccountKeys.get, iam.serviceAccounts.get, and iamService.signJwt.",
+            "Select JSON as the Key type, then click Create. The private key downloads to your computer.",
+            "Navigate to and select the VaultServiceAccountKey.json file you created in the previous section."
+          ]
+        }
+      ]
+    },
+    "two-service-accounts": {
+      "statement": "The Vault troubleshooting page names two service accounts: the Vault/GCP sync service account, whose secrets JSON file is exported from GCP and uploaded to HashiCorp with the Service Account Key Admin GCP role, and the Cloud Connector VM service account, assigned to the VM at deployment and referenced in HashiCorp as bound_service_accounts with the Service Account Token Creator GCP role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-hashicorp-vault-google-cloud-platform.json",
+          "quotes": [
+            "Vault/GCP sync service account: A service account with the secrets JSON file exported from GCP and uploaded to HashiCorp with the Service Account Key Admin GCP role.",
+            "Cloud Connector virtual machine (VM) service account: A service account assigned to the VM at deployment and referenced in HashiCorp as bound_service_accounts with the Service Account Token Creator GCP role."
+          ]
+        }
+      ]
+    },
+    "acl-policy": {
+      "statement": "A Vault policy must be created that grants read and list capabilities to access the secrets path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-storing-your-secret-credentials-hashicorp-vault.json",
+          "quotes": [
+            "You must create a policy that grants read and list capabilities to access your secrets path."
+          ]
+        }
+      ]
+    },
+    "iam-role": {
+      "statement": "The GCP auth role is created with the Vault CLI as type iam, with the created policy, bound_service_accounts set to the email address of the Cloud Connector VM service account, and max_jwt_exp of 60m.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-storing-your-secret-credentials-hashicorp-vault.json",
+          "quotes": [
+            "You must use the Vault CLI to create this role.",
+            "vault write auth/gcp/role/\"<Name of Role>\" \\ type=\"iam\" \\ policies=\"<Name of Policy You Created>\" \\ bound_service_accounts=\"<GCP Service Email for Cloud Connector Service Account>\" max_jwt_exp=\"60m\"",
+            "where bound_service_accounts is the email address associated with the VM service account you created previously."
+          ]
+        }
+      ]
+    },
+    "wizard-inputs": {
+      "statement": "The Terraform wizard asks for the Vault cluster public URL, the full API path of the secret, the name of the access role created for an IAM service account and, if one already exists, the Service Account email from the Vault service account details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-storing-your-secret-credentials-hashicorp-vault.json",
+          "quotes": [
+            "Cluster Public URL. Navigate to your Vault cluster page, and in the Cluster URLs section, click Public.",
+            "Full API path for the secret. Navigate to your secret page. The API path is displayed in the Paths section.",
+            "Name of the access role you created for an IAM service account.",
+            "Service Account email from Vault service account details."
+          ]
+        }
+      ]
+    },
+    "vm-metadata": {
+      "statement": "The metadata keys for Vault address, secret path and IAM auth role must match the Vault configuration; the page's example, headed ZSCALER, shows hcp_vault_addr, hcp_vault_secret_path and hcp_vault_role_name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-hashicorp-vault-google-cloud-platform.json",
+          "quotes": [
+            "Verify that the metadata keys for Vault Address, Secret Path, and IAM Auth Role are correctly set per your Vault configuration.",
+            "ZSCALER hcp_vault_addr: \"https://vault-cluster-public-vault-example.z1.hashicorp.cloud:8200\" hcp_vault_secret_path: \"admin/secret/data/example-zscaler-secret\" hcp_vault_role_name: \"example-iam-auth-role\""
+          ]
+        }
+      ]
+    },
+    "port-8200": {
+      "statement": "The Vault address, protocol and port number (8200) must be correct and outbound traffic to the Vault address on port 8200 permitted in the firewall policies; reachability is tested with nc and with curl of <vault-address>:8200/v1/sys/health, which should return a JSON health response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-hashicorp-vault-google-cloud-platform.json",
+          "quotes": [
+            "Ensure that the Vault address, protocol, and port number (i.e., 8200) are correct.",
+            "On the Firewall policies page, ensure that your outbound traffic to the Vault address on port 8200 is permitted.",
+            "curl -v <vault-address>:8200/v1/sys/health A JSON response indicating Vault's health should be returned.",
+            "sudo bash nc -zv"
+          ]
+        }
+      ]
+    },
+    "symptom-auth-fails": {
+      "statement": "When permission is denied or authentication fails, the troubleshooting table says to verify that the service account assigned to the Cloud Connector VMs has the Service Account Token Creator role, that it is included in the Vault's bound_service_accounts, and that max_jwt_exp is correctly set in the Vault.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-hashicorp-vault-google-cloud-platform.json",
+          "quotes": [
+            "| Permission is denied or authentication fails. | Verify the following: The service account assigned to the Cloud Connector VMs has the Service Account Token Creator role. The service account is included in the Vault's bound_service_accounts. max_jwt_exp is correctly set in the Vault."
+          ]
+        }
+      ]
+    },
+    "symptom-unreachable": {
+      "statement": "When the Vault is unreachable from the VM, the troubleshooting table says to verify that firewall rules allow outbound traffic to the Vault on port 8200 and that the Vault address and DNS resolution are correct from the Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-hashicorp-vault-google-cloud-platform.json",
+          "quotes": [
+            "| The Vault is unreachable from the VM, causing network connectivity issues. | Verify the following: Firewall rules allow outbound traffic to the Vault on port 8200. The Vault address and DNS resolution are correct from the Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "symptom-secret-denied": {
+      "statement": "When access to the secret path is denied after authentication succeeds, the troubleshooting table says to verify that the policies attached to the IAM authentication role include read and list permissions for the secret path and that the secret exists at the specified path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-troubleshooting-cloud-connector-hashicorp-vault-google-cloud-platform.json",
+          "quotes": [
+            "| Your access is denied to the secret path after authentication succeeds. | Verify the following: The policies attached to the IAM authentication role include \"read and list\" permissions for the secret path. The secret exists at the specified path."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "vault-permissions-account": {
+      "summary": "Help gives the same five permissions (compute.instanceGroups.list, compute.instances.get, iam.serviceAccountKeys.get, iam.serviceAccounts.get and a signJwt permission) as a custom-role alternative for two different service accounts, and spells the last one two ways.",
+      "positions": [
+        {
+          "says": "The five permissions are a custom-role alternative to Service Account Key Admin for the service account used for Vault, and the last is spelled iamService.signJwt.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-storing-your-secret-credentials-hashicorp-vault.json",
+            "quotes": [
+              "you can create a custom role and assign the following 5 required permissions: compute.instanceGroups.list, compute.instances.get, iam.serviceAccountKeys.get, iam.serviceAccounts.get, and iamService.signJwt.",
+              "On the Grant this service account access to project page, from the Role drop-down menu, select Service Account Key Admin."
+            ]
+          }
+        },
+        {
+          "says": "The same permissions sit on the Cloud Connector VM service account under Service Account Token Creator (for HashiCorp Vault), and the last is spelled iam.serviceAccounts.signJwt.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+            "after": "- Cloud Connector VM Service Account",
+            "quotes": [
+              "- Secret Manager Secret Accessor (for GCP Secret Manager) - Service Account Token Creator (for HashiCorp Vault) with the following permissions assigned to it:",
+              "- compute.instanceGroups.list - compute.instances.get - iam.serviceAccounts.get - iam.serviceAccountKeys.get, - iam.serviceAccounts.signJwt"
+            ]
+          }
+        }
+      ],
+      "impact": "A custom role built from one page's list may be granted to the wrong account, and whether a role created with the iamService.signJwt spelling works is untested; the Vault troubleshooting page puts Service Account Key Admin on the sync account and Service Account Token Creator on the VM account."
+    }
+  },
+  "gaps": {
+    "self-managed-steps": {
+      "kind": "semantic",
+      "title": "Procedures for a self-managed HashiCorp Vault",
+      "status": "open",
+      "detail": "The article says its procedures may differ for self-managed Vault deployments but gives no self-managed steps.",
+      "blocks": "advising a customer who runs their own Vault",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "token-creator-in-storing": {
+      "kind": "semantic",
+      "title": "Where the VM service account's Token Creator role is configured for Vault",
+      "status": "open",
+      "detail": "The storing article never names the Cloud Connector VM service account's Service Account Token Creator role, which only the troubleshooting page and the GCP deployment page state. Absence found by reading the storing article, not a vendor statement that the role is optional.",
+      "blocks": "following the storing article alone to a working Vault integration",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

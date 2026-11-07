@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.forwarding",
+  "title": "Cloud Connector traffic forwarding",
+  "aliases": [
+    "cloud connector traffic forwarding",
+    "cloud connector forwarding rules",
+    "ecRdr",
+    "ztc_traffic_forwarding_rule",
+    "where does cloud connector send this traffic",
+    "cloud connector workload cannot reach internet",
+    "workload going direct instead of through zscaler"
+  ],
+  "binds": [
+    "ztw/forwarding-rules"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "cloud-connector.forwarding.rule-order",
+      "because": "cloud-connector.forwarding.rule-order:ascending"
+    },
+    {
+      "rel": "decided-by",
+      "to": "cloud-connector.forwarding.criteria",
+      "because": "cloud-connector.forwarding.criteria:location-or-groups"
+    },
+    {
+      "rel": "decided-by",
+      "to": "cloud-connector.forwarding.methods",
+      "because": "cloud-connector.forwarding.methods:console-methods"
+    },
+    {
+      "rel": "decided-by",
+      "to": "cloud-connector.forwarding.predefined-rules",
+      "because": "cloud-connector.forwarding.predefined-rules:default-zia"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "cloud-connector.overview.groups",
+      "because": "cloud-connector.forwarding.criteria:groups-32"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.workload-groups.rule-scoping",
+      "because": "zia.workload-groups.rule-scoping:cloud-connector-source-dest"
+    },
+    {
+      "rel": "reached-via",
+      "to": "cloud-connector.aws.traffic-steering",
+      "because": "cloud-connector.aws.traffic-steering:route-targets"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.dns",
+      "because": "cloud-connector.forwarding.criteria:dns-required"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.overview.gateway-failover",
+      "because": "cloud-connector.overview.gateway-failover:fail-close-default"
+    },
+    {
+      "rel": "logged-in",
+      "to": "cloud-connector.logs.session-records",
+      "because": "cloud-connector.logs.session-records:rule-fields"
+    },
+    {
+      "rel": "logged-in",
+      "to": "ztw/session-log",
+      "because": "cloud-connector.logs.session-records:rule-fields"
+    },
+    {
+      "rel": "configured-via",
+      "to": "ztw/forwarding-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "cloud-connector.terraform.forwarding-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.log-and-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.gateways"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} \"Where did Cloud Connector send this flow?\" is answered in the order below."
+    },
+    {
+      "steps": [
+        {
+          "label": "Which rules apply to this Connector and flow?",
+          "text": "Scope by location or Connector group, then services, sources and destinations; FQDN criteria need the workloads' DNS to pass through the Connector: [[cloud-connector.forwarding.criteria]]."
+        },
+        {
+          "label": "In what order are rules evaluated?",
+          "text": "Ascending rule order with disabled rules holding their slot; whether the first match ends evaluation is open: [[cloud-connector.forwarding.rule-order]], [[cloud-connector.forwarding.rule-order:first-match]]."
+        },
+        {
+          "label": "What does its method do?",
+          "text": "ZIA, ZPA, Direct, Drop or Local, and how they appear in the API: [[cloud-connector.forwarding.methods]]."
+        },
+        {
+          "label": "Did a predefined rule handle it?",
+          "text": "The default Internet & SaaS rule, the Private Access rules and the gateway-mode Direct rules: [[cloud-connector.forwarding.predefined-rules]]."
+        }
+      ]
+    },
+    {
+      "text": "For ZIA-method traffic, the tunnels to the Service Edges and what happens when they fail: [[cloud-connector.overview.gateway-failover]]. The default Internet Access and Log and Control gateways, and the Internet Access gateway's Fail Close setting: [[cloud-connector.forwarding.gateways]]."
+    },
+    {
+      "text": "Once traffic reaches the Zero Trust Exchange, the admin can apply Internet & SaaS or Private Access policy to it, depending on its destination: [[cloud-connector.sdwan:traffic-to-zte]]. A workload that cannot reach an internet destination can therefore be a forwarding question (a Direct or Drop rule matched) or a ZIA policy question after the forward, where Connector traffic arrives at a workload location: [[zia.locations.workload-scopes]], [[zia.url-filtering]], [[zia.ssl-inspection]]. A Private Access flow continues on the ZPA side: [[zpa.app-segments]]."
+    },
+    {
+      "text": "Two other policies run beside traffic forwarding: DNS policies and gateways ([[cloud-connector.dns]]), and Log and Control Forwarding for the Connector's own logs and control traffic ([[cloud-connector.forwarding.log-and-control]])."
+    },
+    {
+      "text": "ZIA's Forwarding Control is a separate policy in a different product: [[zia.forwarding-control]]. Terraform behavior of these rules: [[cloud-connector.terraform.forwarding-rules]], [[cloud-connector.terraform.rule-order]], [[cloud-connector.terraform.delete-detach]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a workload that cannot reach an internet or SaaS destination, which rule matched the flow and its method: a Direct or Drop match is a forwarding-rule problem; a ZIA match moves the question to ZIA policy (URL Filtering, SSL Inspection) for the workload's location.",
+      "uses": [
+        "cloud-connector.forwarding.methods:zia-method",
+        "cloud-connector.forwarding.methods:direct-method",
+        "cloud-connector.forwarding.methods:drop-method",
+        "cloud-connector.sdwan:traffic-to-zte"
+      ]
+    },
+    {
+      "do": "For traffic going direct that should go to ZIA, the enabled Direct or Drop rules ordered ahead of the predefined default Internet & SaaS rule; where that rule sits and whether the first match ends evaluation are not stated.",
+      "uses": [
+        "cloud-connector.forwarding.predefined-rules:default-zia",
+        "cloud-connector.forwarding.rule-order:ascending",
+        "cloud-connector.forwarding.rule-order:first-match",
+        "cloud-connector.forwarding.rule-order:default-position"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "Traffic Forwarding forwards selected traffic to specific destinations: through Internet & SaaS or Private Access, bypassing them for a portion of workload traffic, or dropping selected workload traffic, configured as rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-traffic-forwarding.json",
+          "quotes": [
+            "Traffic Forwarding enables you to forward select traffic to specific destinations based on your needs.",
+            "Give granular control of traffic forwarding from cloud locations to Internet & SaaS or Private Access.",
+            "Grant the user the ability to bypass Internet & SaaS or Private Access for a portion of workload traffic.",
+            "Allow the user to prevent traffic forwarding and drop selected workload traffic.",
+            "use the traffic forwarding method by configuring appropriate rules."
+          ]
+        }
+      ]
+    }
+  }
+}

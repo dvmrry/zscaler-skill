@@ -1,0 +1,421 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.rule-criteria",
+  "title": "What a Cloud App Control rule matches on",
+  "aliases": [
+    "cac rule criteria",
+    "cloud applications or risk profile",
+    "how does cac identify the app",
+    "url to cloud app mapping",
+    "cloud app lookup"
+  ],
+  "binds": [
+    "zia/cloud-app-control#applications",
+    "zia/cloud-app-control#cloudAppRiskProfile"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zia.cloud-app-control.risk-profiles",
+      "because": "zia.cloud-app-control.rule-criteria:apps-or-risk-profile"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.rule-scoping",
+      "because": "zia.cloud-app-control.rule-criteria:criteria-expression"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.authentication.unauthenticated-traffic",
+      "because": "zia.authentication.unauthenticated-traffic:logged-in-user-misses-user-rule"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.time-intervals.rule-usage",
+      "because": "zia.time-intervals.rule-usage:rule-types"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.ssl-visibility",
+      "because": "zia.cloud-app-control.ssl-visibility:domain-level-only-when-not-decrypted"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/cloud-app-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{criteria-expression}} Compare this with URL Filtering, where the criteria are URL categories rather than applications: [[zia.url-filtering.criteria]]."
+    },
+    {
+      "label": "Naming applications.",
+      "text": "{{apps-or-risk-profile}} {{risk-profile-covers-all}} When a rule names a Risk Profile, the question \"why did this rule catch that app\" becomes a question about the app's attributes: [[zia.cloud-app-control.risk-profiles]]."
+    },
+    {
+      "label": "Mapping a URL to an application.",
+      "text": "{{url-lookup-tool}} {{urllookup-returns-categories}} How CAC maps a request to an application on a shared hostname is open {{gap:app-identity}}. Whether CAC can see enough to identify the app depends on decryption: [[zia.cloud-app-control.ssl-visibility]]."
+    },
+    {
+      "label": "Selection limits.",
+      "text": "{{criteria-selection-caps}} {{cloud-apps-field}} {{unauthenticated-traffic}}"
+    },
+    {
+      "label": "Device and user criteria.",
+      "text": "{{device-criteria}} {{device-trust-and-user-risk}} {{iot-devices}} {{adaptive-access-not-functional}} What subscribing to Experience Center changes is open {{gap:adaptive-access-experience-center}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which cloud application a URL belongs to, looked up with the console URL Lookup tool rather than guessed from the hostname.",
+      "uses": [
+        "url-lookup-tool",
+        "urllookup-returns-categories"
+      ]
+    },
+    {
+      "do": "Whether a predicted CAC rule for a URL is confirmed by a test, since the mapping on a shared hostname is open.",
+      "uses": [
+        "app-identity"
+      ]
+    }
+  ],
+  "claims": {
+    "criteria-expression": {
+      "statement": "A Cloud App Control rule matches on the logical expression: [Cloud Applications OR Cloud Application Instances OR Cloud Application Risk Profile] AND [Groups OR Users OR Departments] AND [Location Groups OR Locations] AND Time AND [Devices OR Device Groups OR Device Trust Level OR CONNECT User-Agent OR User Risk Profile].",
+      "tier": "A",
+      "conditions": "Corrected on recapture (2026-10-18): previously \"A Cloud App Control rule matches on the logical expression: [Cloud Applications OR Cloud Application Risk Profile] AND [Users OR Groups OR Departments] AND [Location Groups OR Locations] AND Time AND [Device Groups OR Devices] AND Device Trust Level AND User Agent AND User Risk Profile.\" The recaptured page adds Cloud Application Instances to the application group and places the device and agent criteria in one OR group.",
+      "binds": [
+        "zia/cloud-app-control#applications",
+        "zia/cloud-app-control#cloudAppRiskProfile"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-rules-cloud-app-control-policy.json",
+          "quotes": [
+            "The logical relationship between the categories is AND",
+            "Applications: [ Cloud Applications OR Cloud Application Instances OR Cloud Application Risk Profile ]",
+            "Who, Where, & When: [ (Groups OR Users OR Departments) AND (Location Groups OR Locations) AND Time ]",
+            "Devices & Agents: [ Devices OR Device Groups OR Device Trust Level OR CONNECT User-Agent OR User Risk Profile ]"
+          ]
+        }
+      ]
+    },
+    "apps-or-risk-profile": {
+      "statement": "A rule names its applications either through the Cloud Applications field or through a Cloud Application Risk Profile, not both.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#applications",
+        "zia/cloud-app-control#cloudAppRiskProfile"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "You can select the Cloud Application Risk Profile or the Cloud Applications field for the rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-instant-messaging-rule-cloud-app-control.json",
+          "quotes": [
+            "You can either select the Cloud Application Risk Profile or the Cloud Applications field for the rule."
+          ]
+        }
+      ]
+    },
+    "risk-profile-covers-all": {
+      "statement": "A rule that selects a Risk Profile applies to every cloud application whose attributes satisfy the profile, so one such rule can cover many applications at once.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#cloudAppRiskProfile"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "The Cloud App Control policy rule applies to all specified cloud applications if you select the cloud application risk profile criterion."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-cloud-application-risk-profile.json",
+          "quotes": [
+            "The policy applies to cloud applications with attributes that match the risk profile criteria."
+          ]
+        }
+      ]
+    },
+    "url-lookup-tool": {
+      "statement": "Zscaler documents the Admin Console URL Lookup tool and the urlLookup API as the way to look up the cloud application for a URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-app-categories.json",
+          "quotes": [
+            "You can look up a cloud application for a URL using the URL Lookup tool or the urlLookup API."
+          ]
+        }
+      ]
+    },
+    "urllookup-returns-categories": {
+      "statement": "The Help article on configuring URL categories through the API describes the /urlLookup endpoint as returning the URL categories a URL belongs to, with custom URL classification not returned and URLs not under a predefined URL category returned as MISCELLANEOUS_OR_UNKNOWN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-categories-using-api.json",
+          "quotes": [
+            "To determine the categories to which a URL belongs, send a POST request to /urlLookup",
+            "Custom URL classification is not returned by this request.",
+            "Any URLs that are not categorized under a predefined URL category returns a value of MISCELLANEOUS_OR_UNKNOWN."
+          ]
+        }
+      ]
+    },
+    "criteria-selection-caps": {
+      "statement": "On the Consumer, Instant Messaging and AI & ML rule pages, Users, Groups, Departments, Locations and Location Groups each take Any or up to 32 selections, and Time takes Always or up to two time intervals; the pages say to contact Zscaler Support to increase the limit of Users, Groups, or Departments and of Locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Select Any to apply the rule to all users, or select up to 32 users under General Users.",
+            "Groups: Select Any to apply the rule to all groups, or select up to 32 groups.",
+            "Departments: Select Any to apply the rule to all departments, or select up to 32 departments.",
+            "Locations: Select Any to apply the rule to all locations, or select up to 32 locations.",
+            "Location Groups: Select Any to apply the rule to all location groups, or select up to 32 location groups.",
+            "Time: Select Always to apply this rule to all time intervals, or select up to two time intervals.",
+            "Contact Zscaler Support to increase the limit of Users, Groups, or Departments.",
+            "Contact Zscaler Support to increase the limit of Locations."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-instant-messaging-rule-cloud-app-control.json",
+          "quotes": [
+            "Select Any to apply the rule to all users, or select up to 32 users under General Users.",
+            "Groups: Select Any to apply the rule to all groups, or select up to 32 groups.",
+            "Departments: Select Any to apply the rule to all departments, or select up to 32 departments.",
+            "Locations: Select Any to apply the rule to all locations, or select up to 32 locations.",
+            "Location Groups: Select Any to apply the rule to all location groups, or select up to 32 location groups.",
+            "Time: Select Always to apply this rule to all time intervals, or select up to two time intervals.",
+            "Contact Zscaler Support to increase the limit of Users, Groups, or Departments.",
+            "Contact Zscaler Support to increase the limit of Locations."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.json",
+          "quotes": [
+            "Select Any to apply the rule to all users, or select up to 32 users under General Users.",
+            "Groups: Select Any to apply the rule to all groups, or select up to 32 groups.",
+            "Departments: Select Any to apply the rule to all departments, or select up to 32 departments.",
+            "Locations: Select Any to apply the rule to all locations, or select up to 32 locations.",
+            "Location Groups: Select Any to apply the rule to all location groups, or select up to 32 location groups.",
+            "Time: Select Always to apply this rule to all time intervals, or select up to two time intervals.",
+            "Contact Zscaler Support to increase the limit of Users, Groups, or Departments.",
+            "Contact Zscaler Support to increase the limit of Locations."
+          ]
+        }
+      ]
+    },
+    "cloud-apps-field": {
+      "statement": "On the Consumer, Instant Messaging and AI & ML rule pages, Cloud Applications takes Any (all cloud applications in the rule's category) or any number of cloud applications, and by default the field displays the first 100 cloud applications. Cloud Application Instances allows a maximum of 8 instances per rule and appears only if the instance's parent application is selected as the cloud application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Cloud Applications: Select Any to apply the rule to all cloud applications in this category, or select any number of cloud applications.",
+            "By default, this field displays the first 100 cloud applications.",
+            "You can select a maximum of 8 instances per rule.",
+            "The cloud application instance appears only if its parent application is selected as the cloud application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-instant-messaging-rule-cloud-app-control.json",
+          "quotes": [
+            "Cloud Applications: Select Any to apply the rule to all cloud applications in this category, or select any number of cloud applications.",
+            "By default, this field displays the first 100 cloud applications.",
+            "You can select a maximum of 8 instances per rule.",
+            "The cloud application instance appears only if its parent application is selected as the cloud application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.json",
+          "quotes": [
+            "Cloud Applications: Select Any to apply the rule to all cloud applications in this category, or select any number of cloud applications.",
+            "By default, this field displays the first 100 cloud applications.",
+            "You can select a maximum of 8 instances per rule.",
+            "The cloud application instance appears only if its parent application is selected as the cloud application."
+          ]
+        }
+      ]
+    },
+    "adaptive-access-not-functional": {
+      "statement": "On the Consumer rule page the rule form shows an Adaptive Access Profile field that the page says is currently not functional in the Zscaler Admin Console; the page says to contact the Zscaler Account team to subscribe to Experience Center to use this feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Adaptive Access Profile: This field shows the adaptive access profile that you want to enforce for the policy.",
+            "This option is currently not functional in the Zscaler Admin Console.",
+            "However, you can contact your Zscaler Account team to subscribe to Experience Center to use this feature."
+          ]
+        }
+      ]
+    },
+    "unauthenticated-traffic": {
+      "statement": "On the Consumer, Instant Messaging and AI & ML rule pages, with the Policy for Unauthenticated Traffic enabled, Special Users can be selected for all unauthenticated users or specific types of them, and Special Departments for all unauthenticated transactions; any rule that applies to unauthenticated traffic must apply to all groups and departments, by selecting Any for Groups and Departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "If you've enabled the Policy for Unauthenticated Traffic, you can select Special Users to apply this rule to all unauthenticated users, or select specific types of unauthenticated users.",
+            "If you've enabled the Policy for Unauthenticated Traffic, you can select Special Departments to apply this rule to all unauthenticated transactions.",
+            "Any rule that applies to unauthenticated traffic must apply to all groups and departments.",
+            "select Any from the drop-down menus for Groups and Departments."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-instant-messaging-rule-cloud-app-control.json",
+          "quotes": [
+            "If you've enabled the Policy for Unauthenticated Traffic, you can select Special Users to apply this rule to all unauthenticated users, or select specific types of unauthenticated users.",
+            "If you've enabled the Policy for Unauthenticated Traffic, you can select Special Departments to apply this rule to all unauthenticated transactions.",
+            "Any rule that applies to unauthenticated traffic must apply to all groups and departments.",
+            "select Any from the drop-down menus for Groups and Departments."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.json",
+          "quotes": [
+            "If you've enabled the Policy for Unauthenticated Traffic, you can select Special Users to apply this rule to all unauthenticated users, or select specific types of unauthenticated users.",
+            "If you've enabled the Policy for Unauthenticated Traffic, you can select Special Departments to apply this rule to all unauthenticated transactions.",
+            "Any rule that applies to unauthenticated traffic must apply to all groups and departments.",
+            "select Any from the drop-down menus for Groups and Departments."
+          ]
+        }
+      ]
+    },
+    "device-criteria": {
+      "statement": "On the Consumer rule page, Device Groups selects the group for Zscaler Client Connector traffic by device platform, or Cloud Browser Isolation, IoT or No Client Connector for isolation traffic, IoT traffic or traffic not tunneled through Client Connector; the Cloud Browser Isolation and IoT groups are available only if Zero Trust Browser (formerly Isolation) and IoT discovery are enabled for the organization, respectively. For Devices and for Device Groups, selecting no value ignores the criterion in the policy evaluation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "For Zscaler Client Connector traffic, select the appropriate group based on the device platform.",
+            "Select Cloud Browser Isolation, IoT, or No Client Connector to apply the rule to isolation traffic, IoT traffic, or to traffic that is not tunneled through Zscaler Client Connector, respectively.",
+            "The Cloud Browser Isolation and IoT groups are available only if Zero Trust Browser (formerly Isolation) and IoT discovery are enabled for your organization, respectively.",
+            "Devices: Select the devices to which the rule applies. You can also search for a device. Selecting no value ignores this criterion in the policy evaluation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "You can also search for a device group.",
+          "quotes": [
+            "Selecting no value ignores this criterion in the policy evaluation."
+          ]
+        }
+      ]
+    },
+    "device-trust-and-user-risk": {
+      "statement": "On the Consumer rule page, Device Trust Level High Trust, Medium Trust and Low Trust evaluation applies only to Zscaler Client Connector traffic while Unknown evaluation applies to all traffic, and the trust levels come from the organization's posture configurations. Users are assigned a risk score from their browsing activities, and by default the User Risk Profile levels are Low (0 to 29), Medium (30 to 59), High (60 to 79) and Critical (80 to 100).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic.",
+            "The trust levels assigned to the devices are based on your posture configurations in the Zscaler Admin Console.",
+            "Users are assigned a risk score based on their browsing activities.",
+            "By default, the following user risk score levels are available:",
+            "Low: Level with user risk scores ranging from 0 to 29",
+            "Medium: Level with user risk scores ranging from 30 to 59",
+            "High: Level with user risk scores ranging from 60 to 79",
+            "Critical: Level with user risk scores ranging from 80 to 100"
+          ]
+        }
+      ]
+    },
+    "iot-devices": {
+      "statement": "Cloud App Control policy rules can also be applied to IoT devices from a location or sublocation that has the Enforce IoT Policy Control option enabled, including devices identified and classified by Zscaler AI/ML under the IoT group in the Device Groups criterion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-app-control.json",
+          "quotes": [
+            "The Cloud App Control policy rules can also be applied to Internet of Things (IoT) devices from a location or a sublocation that has the Enforce IoT Policy Control option enabled.",
+            "You can apply the rules to IoT devices that are identified and classified (e.g., printers, sensors, etc.) by the Zscaler AI/ML under the IoT group in the Device Groups criterion."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "adaptive-access-experience-center": {
+      "kind": "semantic",
+      "title": "What the Adaptive Access Profile field does, and what subscribing to Experience Center changes",
+      "status": "open",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "saying whether an adaptive access profile can be enforced by a Cloud App Control rule",
+      "detail": "The Consumer rule page says the field is currently not functional and that the Account team can subscribe the tenant to Experience Center to use it. The criteria expression in claim criteria-expression does not include the field, and no captured page says what the subscription changes."
+    },
+    "app-identity": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-09"
+      ],
+      "title": "How CAC picks the cloud application for a URL on a shared hostname",
+      "status": "partial",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "deterministic answers to which CAC category and rule apply to a given URL",
+      "detail": "No registered source describes the mapping from a request to a cloud application. The Help page says the URL Lookup tool or the urlLookup API gives the cloud application for a URL, while the API reference describes /urlLookup as returning URL categories only; the two are not reconciled. The earlier ledger guessed at an app-to-URL-pattern database and post-decrypt header or path inspection; neither is sourced. What is visible before decryption is covered in zia.cloud-app-control.ssl-visibility.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-app-categories.json",
+          "quotes": [
+            "You can look up a cloud application for a URL using the URL Lookup tool or the urlLookup API."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-categories-using-api.json",
+          "quotes": [
+            "To determine the categories to which a URL belongs, send a POST request to /urlLookup"
+          ]
+        }
+      ]
+    }
+  }
+}

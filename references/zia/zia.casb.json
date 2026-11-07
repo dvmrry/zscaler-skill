@@ -1,0 +1,334 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb",
+  "title": "ZIA CASB (SaaS Security API): scanning data at rest in sanctioned SaaS applications",
+  "aliases": [
+    "casb",
+    "api casb",
+    "saas security api",
+    "out-of-band casb",
+    "data at rest scanning",
+    "saas security",
+    "is this saas file scanned",
+    "casb quarantine"
+  ],
+  "binds": [
+    "zia/casb-dlp-rules",
+    "zia/casb-malware-rules",
+    "zia/casb-tenants",
+    "zia/casb-email-labels"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.casb.rule-types",
+      "because": "zia.casb.rule-types:order-separate-lists"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.casb.dlp-rules",
+      "because": "zia.casb.dlp-rules:rule-order-ascending"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.casb.tenants",
+      "because": "zia.casb.tenants:tenant-authorizes-app"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.casb.scans",
+      "because": "zia.casb:no-scan-no-inspection"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.casb.insights-logs",
+      "because": "zia.casb.insights-logs:retention-180"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/casb-dlp-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/casb-malware-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/casb-tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "portfolio.casb"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.mip-labels"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.malware-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.quarantine"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.rights-management"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.app-capabilities"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.custom-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Is this SaaS content being scanned, and what does the rule do to it?\" needs these questions answered in order."
+    },
+    {
+      "steps": [
+        {
+          "label": "What is scanned?",
+          "text": "{{scans-saas-data-at-rest}} Whether scanning needs user traffic or SSL Inspection is open {{gap:traffic-path-and-ssl}}."
+        },
+        {
+          "label": "Is anything scanning?",
+          "text": "{{no-scan-no-inspection}} Schedules, states and restarts: [[zia.casb.scans]]."
+        },
+        {
+          "label": "Is the application connected?",
+          "text": "Tenant states, reauthorization and limits: [[zia.casb.tenants]]. Credentials and permissions for custom connectors: [[zia.casb.custom-connectors]]. What each application supports: [[zia.casb.app-capabilities]]."
+        },
+        {
+          "label": "Which rule applies?",
+          "text": "Categories and separate lists: [[zia.casb.rule-types]]. Where the rule sits in the order: [[zia.casb.rule-types:order-separate-lists]]. DLP rules: [[zia.casb.dlp-rules]]; malware rules: [[zia.casb.malware-rules]]. Watermark and redaction profiles a DLP rule can use: [[zia.casb.rights-management]]."
+        },
+        {
+          "label": "What happened to the file?",
+          "text": "Quarantine and tombstones: [[zia.casb.quarantine]]. What the records mean: [[zia.casb.insights-logs]]."
+        }
+      ]
+    },
+    {
+      "label": "Email labels.",
+      "text": "{{email-labels-what}} {{email-labels-data-at-rest}} {{email-labels-not-policy-bound}} {{email-labels-fields}} What the Label Color choices are and whether labels can be created through the API is open {{gap:email-label-details}}."
+    },
+    {
+      "label": "Reference.",
+      "text": "Calls, SDKs and Terraform: [[zia.casb.api-surface]]. Numeric limits: [[zia.casb.limits]]."
+    },
+    {
+      "label": "Related areas.",
+      "text": "Inline controls on live traffic are a different feature: [[zia.cloud-app-control]], [[zia.dlp]] and [[zia.ssl-inspection]]. Tenant restriction is [[zia.tenant-profiles]]. Third-party apps connected to SaaS platforms: [[zia.app-governance]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a scan schedule exists and runs for the tenant; without one no rule inspects anything.",
+      "uses": [
+        "no-scan-no-inspection",
+        "zia.casb.scans:schedule-needs-policy"
+      ]
+    },
+    {
+      "do": "Whether the tenant is Active and the rule category and tenant scope match the application.",
+      "uses": [
+        "zia.casb.tenants:tenant-states",
+        "zia.casb.rule-types:dlp-type-tokens"
+      ]
+    },
+    {
+      "do": "Whether the question assumes CASB is independent of inline inspection, which no source states.",
+      "uses": [
+        "traffic-path-and-ssl"
+      ]
+    }
+  ],
+  "claims": {
+    "email-labels-what": {
+      "statement": "Email labels add response actions to Gmail and Microsoft Exchange clients based on email content: applying them creates categories in users' mail accounts automatically, and they tell users the type and sensitivity of the content.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-email-labels"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-email-labels.json",
+          "quotes": [
+            "Email labels provide the option of adding response actions to Gmail and Microsoft Exchange clients based on the email content.",
+            "Applying email labels creates categories in the users' email accounts automatically.",
+            "These labels serve as indications to the users about the type of email content and the level of sensitivity."
+          ]
+        }
+      ]
+    },
+    "email-labels-data-at-rest": {
+      "statement": "Under the Data at Rest Scanning policy, email labels (tags) can be applied by DLP policies, for content categorized as sensitive, or by Malware policies, for unsafe attachments, based on the DLP and Malware scans.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-email-labels.json",
+          "quotes": [
+            "With the Data at Rest Scanning policy, email tags can be applied to DLP or Malware policies where the email content is categorized as sensitive or unsafe attachments, respectively.",
+            "Add labels to the emails based on the DLP and Malware scans to indicate the sensitivity and safety of the email content."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-label.json",
+          "quotes": [
+            "The Zscaler service allows you to create email labels to group Gmail and Microsoft Exchange clients under the Data at Rest Scanning policy into categories based on the sensitivity of the email data."
+          ]
+        }
+      ]
+    },
+    "email-labels-not-policy-bound": {
+      "statement": "The Add Email Label page says email labels serve as indications to users about the email content and do not relate to any policy directly. The service creates a label in users' accounts if it does not already exist, and a deleted label can be created again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-label.json",
+          "quotes": [
+            "The email labels serve as indications to the users about the email content and do not relate to any policy directly.",
+            "The Zscaler service automatically creates an email label in the users' accounts if it hasn't already been created.",
+            "If the label gets deleted for some reason, you can create the label again."
+          ]
+        }
+      ]
+    },
+    "email-labels-fields": {
+      "statement": "An email label has a name, a description and a color chosen from a drop-down, and can be edited or deleted at any time; the Email Labels page lists label name and description.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-email-labels#name",
+        "zia/casb-email-labels#labelDesc",
+        "zia/casb-email-labels#labelColor"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-label.json",
+          "quotes": [
+            "Label Name: Enter a name for the email label.",
+            "Label Description: Enter a description for the email label.",
+            "Label Color: From the drop-down menu, choose a color to apply to the email label.",
+            "You can edit or delete an email label at any time."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-email-labels.json",
+          "quotes": [
+            "Label Name: The name of the email label.",
+            "Label Description: The description of the email label."
+          ]
+        }
+      ],
+      "gaps": [
+        "email-label-details"
+      ]
+    },
+    "scans-saas-data-at-rest": {
+      "statement": "The Data at Rest Scanning DLP policy discovers and protects sensitive data at rest in sanctioned SaaS applications, and the Malware Detection policy discovers threats to data at rest in them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.json",
+          "quotes": [
+            "The SaaS Security Data at Rest Scanning Data Loss Prevention (DLP) policy allows you to create rules to discover and protect sensitive data at rest in sanctioned SaaS applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-malware-detection-policy.json",
+          "quotes": [
+            "The SaaS Security Data at Rest Scanning Malware Detection policy allows you to create rules to discover threats to data at rest in sanctioned SaaS applications."
+          ]
+        }
+      ]
+    },
+    "no-scan-no-inspection": {
+      "statement": "A configured rule inspects nothing until it is added to a scan schedule: the Zscaler service does not inspect content until a scan is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.json",
+          "quotes": [
+            "To inspect content based on a configured policy rule's specifications, you must add it to a scan schedule. The Zscaler service does not inspect content until you configure a scan."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-malware-detection-policy.json",
+          "quotes": [
+            "The Zscaler service does not inspect content until you configure a scan."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "email-label-details": {
+      "kind": "semantic",
+      "title": "The Label Color choices and whether email labels can be created through the API",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "code-read"
+      ],
+      "about": [
+        "zia/casb-email-labels"
+      ],
+      "blocks": "listing label colors or saying how to create a label as code",
+      "detail": "The Add Email Label page offers a Label Color drop-down without listing the choices, and the type's labelDeleted field has no help counterpart. The endpoint inventory known to zia.casb.api-surface has only a read (lite) endpoint for labels, which suggests but does not establish that labels are not creatable through the API."
+    },
+    "traffic-path-and-ssl": {
+      "kind": "semantic",
+      "title": "Whether CASB scanning sees user traffic or depends on SSL Inspection",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The scan is out-of-band: no user traffic passes through the ZIA proxy path\", and \"API CASB does not require SSL Inspection ... works for SaaS applications that are SSL-pinned or whose traffic is excluded from ZIA inspection.\" None of the captured tenant, scan, DLP policy, malware policy or onboarding articles mention SSL, decryption, inline traffic or a proxy path.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "stating that CASB scanning is independent of inline inspection"
+    }
+  }
+}

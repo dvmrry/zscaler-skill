@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.nss-runbook",
+  "title": "How the Internet & SaaS NSS support troubleshooting runbook triages a case and routes it to its pages",
+  "aliases": [
+    "Nanolog Streaming Service (NSS) Support Troubleshooting Runbook",
+    "NSS troubleshooting runbook",
+    "NSS runbook"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.vm-health" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.connectivity" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.log-loss" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.log-integrity" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.mcas" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.cloud-nss" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.diagnostics" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.corner-cases" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.security" },
+    { "rel": "see-also", "to": "zia.logs.nss-feed-format" },
+    { "rel": "see-also", "to": "zia.api.cloud-nss-feeds" },
+    { "rel": "see-also", "to": "shared.nss.servers" },
+    { "rel": "see-also", "to": "shared.nss.reliability" },
+    { "rel": "see-also", "to": "shared.nss.vm-operations" },
+    { "rel": "see-also", "to": "shared.nss.alerts" }
+  ],
+  "prose": [
+    {
+      "text": "{{three-stage}} {{confirm-server-type}} {{cloud-first-question}} {{vm-scope-includes-mcas}}"
+    },
+    {
+      "label": "Routing by symptom.",
+      "text": "Unhealthy server, alerts and build upgrades: [[zia.logs.nss-runbook.vm-health]]. Failed connections: [[zia.logs.nss-runbook.connectivity]]. Missing or delayed logs: [[zia.logs.nss-runbook.log-loss]] and [[zia.logs.nss-runbook.cloud-nss]]. Duplicate logs and missing fields: [[zia.logs.nss-runbook.log-integrity]]. MCAS feeds: [[zia.logs.nss-runbook.mcas]]. Cloud NSS provisioning, SIEM test and parsing checks: [[zia.logs.nss-runbook.cloud-nss]]."
+    },
+    {
+      "label": "Commands and special cases.",
+      "text": "Health and network commands, packet captures and NSS log files are in [[zia.logs.nss-runbook.diagnostics]]. Private and multi-cluster Nanolog, SIEM rate, explicit proxy, log replay, password reset and third-party software are in [[zia.logs.nss-runbook.corner-cases]]. Vulnerability and hardening answers are in [[zia.logs.nss-runbook.security]]."
+    },
+    {
+      "label": "Before escalating.",
+      "text": "{{escalation-info}}"
+    }
+  ],
+  "claims": {
+    "three-stage": {
+      "statement": "The runbook follows a three-stage diagnosis rule: localize where the issue occurs, isolate the affected component or service path, then diagnose the root cause from the available data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "This runbook is designed to support troubleshooting NSS following the general three-stage diagnosis rule:",
+            "Localize the issue to determine where it's occurring.",
+            "Isolate the affected component or service path.",
+            "Diagnose the root cause by analyzing the available data to determine an efficient resolution."
+          ]
+        }
+      ]
+    },
+    "confirm-server-type": {
+      "statement": "The NSS server type (VM-based or Cloud NSS) is confirmed in the Admin Console either from the configured feed type under Nanolog Streaming Service or from the listed subscriptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Go to Logs > Log Streaming > Cloud and Edge Log Streaming > Nanolog Streaming Service and confirm the configured feed type.",
+            "Go to Administration > Account Management > Subscriptions and check to see if Cloud to Cloud Streaming FW/Web for Cloud NSS and NSS Log Feed for Web/Firewall for virtual machine (VM)-based NSS are listed."
+          ]
+        }
+      ]
+    },
+    "cloud-first-question": {
+      "statement": "In the runbook's Cloud NSS troubleshooting section, the first step is determining whether the issue affects a newly deployed (provisioned) Cloud NSS or an already working setup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The following sections describe troubleshooting Cloud NSS.",
+            "The first step is to determine if the issue affects a newly deployed (provisioned) Cloud NSS, or an already working setup."
+          ]
+        }
+      ]
+    },
+    "vm-scope-includes-mcas": {
+      "statement": "The VM-based NSS section of the runbook also covers Microsoft Cloud App Security (MCAS) issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "VM-Based NSS (Includes Microsoft Cloud App Security Issues)"
+          ]
+        }
+      ]
+    },
+    "escalation-info": {
+      "statement": "Before escalating a VM-based NSS issue to Zscaler Support the runbook asks for a detailed description of the nature and impact, scope, deployment environment details (platform OS, SIEM vendor, special deployment cases), health and connectivity screenshots and the zscaler.log and smmonitor.log files for the time of the issue.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Scope of impact (e.g., feed(s) name, NSS hostname, location/group).",
+            "Platform OS (e.g., Azure/AWS/VMware).",
+            "Special deployment case like Explicit Proxy Mode, Private Nanolog, or Multi-cluster nanolog.",
+            "Screenshot of Health Checks and Network Connectivity Checks.",
+            "NSS log files for the time of issue - zscaler.log, smmonitor.log.",
+            "Detailed description of nature and impact of issue."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "SIEM vendor."
+          ],
+          "after": "Deployment environment details including:"
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

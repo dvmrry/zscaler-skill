@@ -1,289 +1,194 @@
 ---
 name: zscaler
 description: >
-  Answer questions about the Zscaler portfolio — full operational depth
-  (T1, with SDK / TF / OneAPI exposure) on ZIA, ZPA (including
-  AppProtection inline WAF/IPS sub-component and Browser Access), ZCC
-  (Client Connector), ZDX (Digital Experience — T1 borderline,
-  observability layer per 2026-05-04 verification gate), ZIdentity
-  (unified identity + OneAPI authentication + step-up auth), and
-  Cloud & Branch Connector (ZTW/ZTC — VM-based traffic forwarding for
-  cloud workloads and branch offices); programmable-but-shallow (T2)
-  on ZBI (Zero Trust Browser / Cloud Browser Isolation), ZWA
-  (Workflow Automation — DLP incident lifecycle), AI Guard (Python
-  OneAPI configuration plus legacy policy detection), ZMS and EASM
-  (read-only/query-only Python surfaces), Zscaler Cellular / ZCell,
-  and Business Insights (Python custom-app/report APIs; distinct from
-  Zero Trust Browser); plus extended awareness with reasoning docs
-  (T3, without a verified SDK/TF management surface) on Deception
-  (decoys/honeypots for post-perimeter detection), Risk360 (cyber risk
-  quantification / Monte Carlo / CISO board reporting), the AI Security
-  family beyond AI Guard (AI Red Teaming / AI Guardrails / four-pillar
-  governance), ZSDK, AEM, DSPM, ITDR, UVM, Experience Center, Breach
-  Predictor, SOC Workbench, and Zero Trust Branch; plus paragraph-level
-  awareness (T4) of Resilience, BCC, CTEM, Cloud Protection, Posture
-  Control, M365 Copilot, Red Canary MDR, MTH, B2B, ZINS (shadow-IT
-  NSS Collector), and Federal Cloud variants. Covers URL category
-  coverage, URL filtering rule precedence, wildcard matching semantics,
-  SSL inspection ordering, cloud app control interaction with URL
-  filtering, DLP three-layer model, sandbox / malware / ATP, firewall
-  filtering, ZPA app-segment matching and policy evaluation order,
-  AppProtection profiles / paranoia levels, Browser Access wildcard
-  certificate rules, ZCC forwarding-profile / trusted-network decisions
-  (which decide whether traffic reaches ZIA or ZPA in the first place),
-  ZDX score / probe / diagnostic-session questions about user experience,
-  browser isolation (Isolate action, Smart Browser Isolation, isolation
-  profiles), Cloud Connector provisioning and activation, and Zscaler
-  portfolio breadth ("what is X?", "does Zscaler do Y?"). Use whenever
-  the user mentions Zscaler, ZIA, ZPA, ZCC, ZDX, ZBI, ZWA, ZTW, ZTC,
-  CBC, Zero Trust Browser, Cloud Browser Isolation, Client Connector,
-  AppProtection, Browser Access, Deception, Risk360, AI Guard,
-  AI Guardrails, AI Red Teaming, AI Security, ZMS, microsegmentation,
-  east-west traffic, ZCell, Business Insights, ZINS, EASM, URL categories, URL filtering, cloud
-  app control, SSL inspection, DLP, sandbox, app segments, forwarding
-  profiles, trusted networks, ZDX score, probes, diagnostic sessions /
-  deeptraces, isolation profiles, prompt injection, jailbreak detection,
-  LLM guardrails, or asks "is $URL covered / blocked / allowed".
-  Also use for "why does this rule win", "what happens when these
-  policies overlap", "why is this user's app slow", "what happens when
-  traffic gets isolated", "what is $product", or "does Zscaler have
-  something for $use-case" questions, even if the user does not
-  explicitly name Zscaler.
+  Answer questions about the Zscaler portfolio from a citation-backed knowledge graph: ZIA (URL filtering and
+  categories, SSL inspection, Cloud App Control, DLP, sandbox, malware and ATP, firewall, forwarding), ZPA (app
+  segments, policy order, App Connectors, Browser Access, PRA), Client Connector (forwarding profiles, trusted
+  networks, Z-Tunnel), ZDX, ZIdentity and OneAPI, Cloud & Branch Connector (ZTW), Cloud Browser Isolation,
+  Workflow Automation, AI Guard and AI Security, microsegmentation, EASM, Cellular, Business Insights and the
+  SecOps family (Risk360, Deception, UVM, AEM, DSPM, ITDR, Agentic SOC, Zero Trust Branch); plus their APIs,
+  SDKs, Terraform providers and log formats. Use whenever the user mentions Zscaler or any of these products,
+  asks "is $URL covered / blocked / allowed", "why does this rule win", "what happens when these policies
+  overlap", "why is this user's app slow", "what is $product", or "does Zscaler have something for $use-case",
+  even without naming Zscaler.
 ---
 
 # Zscaler
 
-A skill for reasoning about Zscaler ZIA and ZPA configuration — what gets matched, what wins, and why.
+This skill answers how Zscaler behaves (rule precedence, matching semantics, evaluation order, API and SDK
+behavior) from a knowledge graph of sourced claims, and, with a company overlay, how *your* tenant is set up.
+Those are exactly the places where real behavior diverges from intuition: do not answer them from memory or first
+principles.
 
-## What this skill knows
+Structured troubleshooting with a symptom, an affected scope and a timeframe belongs to the
+`zscaler-investigator` skill (`/z-investigator`); this entry point is for questions and lookups.
 
-This skill encodes **how Zscaler actually behaves** — rule precedence, wildcard semantics, SSL inspection ordering, and policy evaluation across ZIA and ZPA. That knowledge is the product; live API access alone will give confidently wrong answers about precedence.
+## Answer tiers
 
-Two kinds of question this skill handles:
+| Tier | Source | Use it for |
+|---|---|---|
+| Knowledge | the public graph plus the company overlay's records | how Zscaler behaves; how *we* do things |
+| IaC | the overlay's IaC repos | what our configuration is, as of the repo's last commit |
+| Live | read-only `zscalerctl`, when the overlay declares it | what is true now, and drift from IaC |
 
-- **General behavior** — "how do wildcards match?", "what happens when URL filtering and cloud app control both apply?". Answerable anywhere, sourced from `references/`.
-- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires observed tenant state: either a configured runtime-data snapshot (`_data/snapshot/` by default), explicit user-provided command output, or — when available — read-only `zscalerctl` output. Public upstream does not track runtime data; tenant snapshots live only in private runtime-data mounts or forks.
+`read` finds the overlay itself (`$ZSCALER_KB_OVERLAY`, else `<runtime-data mount>/overlay/`): with one it prints the
+IaC repos and their paths, without one it says so, so there is nothing to locate first. IaC reads go only to the
+repos the overlay lists.
 
-Structured troubleshooting with a symptom, affected scope, and timeframe should
-use the portable `zscaler-investigator` skill or the `/z-investigator` runtime
-adapter. This broad `zscaler` entrypoint is for ad-hoc Q&A and lightweight
-lookups, not discovery-journal investigations.
+- **IaC before live.** Company records carry the values or file locations their IaC pointers resolve to; read
+  the located files when the answer depends on our configuration, and state the `committed` date of what you used.
+- **Live only** when IaC does not cover the type, field or value, is too stale, or the question is about drift.
+  Run or draft a read-only `zscalerctl` command; keep the result in this session (a case may save it
+  under its `evidence/`), never as a standing tenant cache. Until `zscalerctl` is adopted where you are, say "if
+  installed" and offer to draft the command.
+- **No overlay:** never invent tenant truth. Answer the general case, say which tenant fact is missing, and name
+  the command that would answer it.
 
-## Check tenant observation first
+Vendored provider and SDK source say what a tool can express, never what *we* deployed.
 
-Before answering tenant-specific questions, resolve the configured mount and
-check whether its `snapshot/` directory has any runtime data:
+## Using the knowledge graph
+
+Retrieval is a file read and one command: the spine, then one `read`. Many runtimes stop for a person to approve
+every shell command, so keep to that one (a second `read` only when the first points at something the answer
+needs).
+
+1. **Spine.** With your file tool, read `references/_meta/spine/<product>.json` for each product the question
+   involves (`zia`, `zpa`, `zcc`, `cloud-connector`, `zdx`, `zidentity`, `shared` for cross-product material and log
+   correlation; the smaller products by their ID prefix). "Connector" alone names four products: Cloud Connector
+   (VMs that forward cloud workloads' traffic in AWS, Azure or GCP) and Branch Connector are `cloud-connector`, App
+   Connector (beside the private apps ZPA reaches) is `zpa`, and Client Connector (on endpoints) is `zcc`; decide by
+   where it runs and whose traffic it carries. One line per area: its summary and the areas it connects to by typed
+   edges (decided-by, scoped-by, interacts-with, depends-on, reached-via, logged-in). Then open
+   `references/_meta/spine/<product>/<area id>.json` (for example `references/_meta/spine/zia/zia.url-filtering.json`)
+   for the 3 to 6 areas that bear on the question, following the edges: one line per subject with its title, its
+   opening fact and its typed edges. File reads need no approval.
+2. **Decide what the answer needs.** Before reading, work out what decides the outcome the question is about:
+   which policies run and in what order, how their rules match and what scopes them, how the traffic is
+   forwarded, what sits in the path. Then work out what evidence would show the cause: which log and which
+   fields. Pick from the spine the areas and subjects that hold those mechanisms, not only the ones that share
+   the question's words; the edges show where each mechanism lives. Your own Zscaler knowledge chooses what to
+   read; it is never a source for the answer.
+3. **Read.** `node scripts/kb.mjs read <area | subject | type | field> ...` in one call, usually 3 to 6 arguments:
+   for example `read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel`. An area reads every
+   subject under it; take whole areas for the mechanisms the question turns on, and single subjects from areas over
+   about 10k tokens (each area's `tokens` in the product spine). An area over about 20k tokens reads as its hub and
+   an index of its subjects with their sizes: read the ones the question needs by ID next. For log evidence, name the fields
+   (`zia/web-log#ssldecrypted`) or the log type; each product's spine file lists its log types. A ZPA LSS status code
+   from a log (`AST_MT_SETUP_ERR_NO_DNS_TO_SERVER`) reads by name. Claims arrive inline
+   with their citable ID in brackets (`[zia.url-filtering.rule-order:first-match]`), then further facts, inferred
+   (Tier B) claims with their conditions, sources that disagree with each side, and open gaps with what would fill
+   them. `read` then walks the graph one hop: the subjects the ones you named link to follow under "Linked
+   subjects", the most-linked first, and every other link prints as one line with the claim that establishes it;
+   read one of those by ID only if the answer needs it. With a company overlay, each subject, type or field is
+   followed by the company records about it and the types it binds: scope, confidence, validated date, field map and
+   IaC locations.
+4. **Tenant configuration (overlay only).** When the answer depends on how *our* tenant is set up, open the IaC
+   files the company records locate, with your file tools, and search them for the objects the question names
+   (the app, rule, location or category). Give the file's `committed` date.
+
+Run each command bare, from the repo root, exactly as written (`node scripts/kb.mjs read ...`): no `cd`, no pipe,
+no redirect, no absolute path. Permission checks approve a bare command; a compound one is refused or prompts again. Read spine files with your file tool, not `ls`, `cat` or
+`node -e`. A refused command says only that its form was wrong, not that the shell is off: run `node scripts/kb.mjs
+read ...` bare next, and never answer from the spine alone. When a command's output is long and the runtime saves
+it to a file, open that file with your file tool, never with `cat`, `grep` or another shell command.
 
 ```bash
-RUNTIME_DATA="$(node scripts/runtime-data-path.mjs)"
-find "$RUNTIME_DATA/snapshot" -mindepth 1 -type f -print -quit
+node scripts/kb.mjs map <product> ...                     # the spine as text, when a file read is not available
+node scripts/kb.mjs read <area | subject | type> ...       # reading text with claim IDs; company records with an overlay
+node scripts/kb.mjs resolve <id>                          # one subject or old ledger ID as a JSON bundle, with citations
+node scripts/kb.mjs surface <name | API path | SDK package or method | product>   # endpoints, SDK calls, Terraform arguments
+node scripts/kb.mjs releases <product> [--since <date>] [--grep <text>]   # the vendor's release notes, newest first
 ```
 
-If populated, read the relevant JSON (`<mount>/snapshot/<cloud>/zia/url-categories.json`, `<mount>/snapshot/<cloud>/zia/url-filtering-rules.json`, `<mount>/snapshot/<cloud>/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used. If the overlay records that the snapshot or diff was produced by `zscalerctl`, treat it as the fast local cache of read-only tenant observation.
+- **Claims.** Tier A claims quote their source. Tier B claims are inferences with stated `conditions`: say so
+  when an answer rests on one. Cite claim IDs (`zia.url-filtering.rule-order:first-match`).
+- **Gaps** are what is not known. A data gap says which tier can fill it (`iac`, `live`, `operator`); an earlier
+  rule that depends on an unfilled data gap is undecidable offline and shields every rule below it: say so rather
+  than skipping to a later rule. Old ledger IDs such as `zia-02` resolve to their gap.
+- **Divergences** are sources that disagree. Do not pick one silently: name both, and answer at medium confidence
+  at most.
+- **Checks** are what to verify before relying on an answer; follow the ones the subject names.
+- **Company records** follow [`docs/data-contract/knowledge.md`](docs/data-contract/knowledge.md):
+  attribute them as company knowledge, give scope, confidence and `validated` date, and emit `do_not_infer`
+  verbatim.
 
-If `<mount>/snapshot/` is empty or stale and the question is tenant-specific, do **not** invent tenant truth. When the optional `@zscalerctl` companion is available, hand off or draft a bounded read-only command (`zscalerctl --format json ...`) for the operator to run, then apply this skill's policy semantics to the returned JSON. Until `zscalerctl` is officially adopted, use soft language: "if installed", "when available", or "I can draft the read-only command." See [`references/_meta/tooling.md`](references/_meta/tooling.md).
+## Traps
 
-`<mount>/schemas/` is a separate cache for log-schema decompositions, query skeletons, and script-generated reports (gitignored in the default public layout; populated by scripts such as `splunk-query.sh`, `issue-watch.py`, and `find-asymmetries.py`). Raw logs are a validation layer, not a primary source — see **When to consult logs** below.
+Read the named subject before answering; these are the points answers most often get wrong.
 
-## Vendor source vs production IaC
+- **Wildcards:** asterisks are not a valid Zscaler wildcard; `.example.com` is (bare domain plus subdomains, up to
+  5 levels). Translate `*.` to the leading-period form and say so: `zia.url-categories.entry-matching`.
+- **SSL inspection:** URL Filtering evaluates twice on inspected HTTPS, with the SSL decision between the passes:
+  `zia.ssl-inspection.pipeline`.
+- **Cloud App Control vs URL Filtering:** a CAC allow skips URL Filtering unless cascading is on; a CAC block is
+  final: `zia.cloud-app-control.precedence`.
+- **Rule order:** the category is decided before rules run; a disabled rule keeps its slot; admin rank bounds
+  reordering: `zia.url-categories.membership`, `zia.url-filtering.rule-order`.
+- **Malware and ATP:** the settings have API and SDK coverage, but which engine blocked one transaction comes only
+  from Web Insights or equivalent logs: `zia.sandbox.verdicts`, `zia.atp.block-diagnosis`.
+- **DLP:** rules reference engines, not dictionaries: `zia.dlp`.
+- **ZPA segments:** two segments with identical specificity have an undocumented tiebreak; answer at medium
+  confidence: `zpa.app-segments.matching:same-specificity-tie`.
+- **ZPA `TRUSTED_NETWORK` not firing:** the Client Connector forwarding profile's Send Trusted Network Result to
+  ZPA setting (`sendTrustedNetworkResultToZpa`) is the documented link; how the result reaches ZPA and what ZPA
+  does with it are open gaps, so do not name it the cause: `zpa.trusted-networks.zcc-relationship`.
+- **ZCC forwarding-profile enums** are partly inferred, not documented; answer at medium confidence and cite the
+  open gaps in `zcc.api.forwarding-profile-wire`.
+- **Cross-product questions** (ZIA plus ZPA, ZCC plus a server product) are silently-wrong-answer territory: start
+  at `shared.integrations`.
+- **Secrets on read:** which GETs return provisioning keys, API keys, passwords or PSKs: `shared.secret-surfaces`.
+- **ZDX:** the SDK's "deeptrace" is the console's Diagnostics Session; the contract's `/v1/config` configuration
+  API exists but no SDK calls it: `zdx.applications:config-no-sdk`.
+- **Naming collisions:** Python `client.zbi` is **Business Insights** (`business-insights.api`), not Zero Trust
+  Browser (`zbi.*`), and "ZTB" can mean Zero Trust Browser or Zero Trust Branch (`zbi.cloud-browser`). Cloud & Branch Connector is ZTW
+  in the API and SDKs and ZTC in Terraform.
+- **Cloud Connector SDK:** Python reaches it as `client.ztw` on the v1.x line;
+  the `2.0.0bN` beta does **not** include ZTW: `cloud-connector.sdk-python`, `cloud-connector.api.client-coverage`.
+- **ZIdentity API clients:** the first client comes from the console; after that Python `client.zid.api_client`
+  (singular) and Go `api_clients` manage clients and secrets; resource servers are read-only:
+  `zidentity.api-clients`, `zidentity.resource-servers`.
+- **Step-up:** a parent authentication level is the stronger one (its validity must be shorter than its
+  sub-levels'); whether step-up is OIDC-only is a divergence: `zidentity.step-up`.
+- **Python accessors for the smaller products:** AI Guard `client.aiguard`, ZMS `client.zms` (read-only GraphQL),
+  EASM `client.zeasm`, Cellular `client.zcell`: `zms.api`, `easm.api`, `zscaler-cellular.api`; Zscaler's AI Guard
+  integration examples are `ai-security.ai-guard.integrations`.
 
-The skill ships with Zscaler Terraform provider source under `vendor/terraform-provider-{zia,zpa,zcc,ztc}/`. Those repositories are useful for resource schemas, validation rules, provider coverage, and field-level shapes. Deployment examples or modules, when vendored, live separately under `vendor/terraform-*-modules/`. Provider source and example modules are reference material, not production truth.
-
-If a fork has populated `<mount>/iac/` (empty in upstream), treat that as **production truth** for "how is X actually deployed in our environment" questions. The source under `vendor/` remains useful for "what's possible" / "what fields exist" / "what defaults Zscaler ships." Where the two diverge for a specific deployment, prefer the configured runtime IaC for env-specific answers and cite the reference for context.
-
-```bash
-RUNTIME_DATA="$(node scripts/runtime-data-path.mjs)"
-find "$RUNTIME_DATA/iac" -mindepth 1 -type f -print -quit
-```
-
-See [`docs/data-contract/iac.md`](docs/data-contract/iac.md) for the precedence rules and structure.
-
-## Question routing
-
-Go straight to the reference file that covers the question shape. Treat this
-table as a resolver, not a preload list: select one row, read the named file,
-then stop unless the question genuinely spans multiple products or policies.
-
-| Question shape | Start with |
-|---|---|
-| Is URL X in a category? Is it blocked/allowed? (no CAC mentioned) | `references/zia/url-filtering.md` |
-| Question mentions a Cloud App Control rule (CAC) — e.g. "CAC allows Facebook but URL filter blocks it, what happens?" | **`references/zia/cloud-app-control.md` first**, then `url-filtering.md` for the non-CAC layer. CAC is evaluated before URL Filtering at both the SNI and full-URL passes; start at the layer that fires first. |
-| Why does rule A beat rule B? Why didn't a disabled/higher-order rule fire? | `references/zia/url-filtering.md` — see §Rule order and first-match semantics for disabled-rule-holds-its-slot and admin-rank gates; §The specificity rule for the wildcard-vs-exact gotcha. Check `cloud-app-control.md` if either rule is a CAC rule. |
-| How do wildcards match (`*.foo.com` vs `.foo.com` vs `foo.com`)? | `references/zia/wildcard-semantics.md`. **Asterisks are not a valid Zscaler wildcard** — see §Asterisk is not a valid wildcard character and [clarification `zia-15`](references/_meta/clarifications.md#zia-15-console-accepts-asterisk-despite-docs-marking-it-invalid) for the operator-vs-doc divergence. |
-| Does SSL inspection happen before or after X? | `references/zia/ssl-inspection.md` — URL Filtering evaluates **twice** on inspected HTTPS (pre-decrypt SNI pass and post-decrypt full-URL pass); cite the two-pass model, not a flat "SSL before URL filtering" summary. |
-| Cloud app control vs URL filtering interaction | `references/zia/cloud-app-control.md` |
-| Why wasn't this file sandboxed / caught by Sandbox? | `references/zia/sandbox.md` — tier scope, SSL-bypass prerequisite, static-analysis fast-path, and the settings-vs-transaction boundary: Malware Protection and ATP settings have SDK/API coverage, while identifying which engine blocked one transaction still requires Web Insights or equivalent logs. |
-| "Why was this blocked?" and it's NOT URL Filter / CAC / SSL / Firewall — suspect Malware Protection or ATP | `references/zia/malware-and-atp.md` — category shape, Page Risk score, C2/botnet/phishing/XSS/country detections, Blocked Malicious URLs (25K capacity), and the settings APIs. Use `client.zia.atp_policy` / `client.zia.malware_protection_policy` to read or change policy settings; use Security Dashboard + Web Insights `Blocked Policy Type` for **per-transaction** diagnosis because those endpoints do not return transaction verdicts. |
-| DLP / data loss prevention / "why didn't DLP catch this?" / DLP dictionaries / DLP engines / EDM / ICAP / MIP labels / GenAI prompt scanning | `references/zia/dlp.md` — three-layer model (dictionaries → engines → rules; rules reference engines not dictionaries), 400MB/100MB/5-level inspection limits, Evaluate-All-Rules mode, ICAP-is-one-way, Cloud-to-Cloud Incident Forwarding feeds ZWA, HTTP GET query parameter inspection for GenAI URL categories. |
-| ZPA app-segment matching — esp. two overlapping wildcard segments | `references/zpa/app-segments.md`. For two segments with identical specificity, the tiebreaker hits [clarification `zpa-04`](references/_meta/clarifications.md#zpa-04-same-specificity-segment-collision) — answer at **Confidence: medium** until lab-verified. |
-| ZPA App Connector — "our App Connectors won't enroll" / provisioning keys / scheduled upgrades / VM cloning fingerprint / connector health | `references/zpa/app-connector.md` — VM model, provisioning-key key-utilization footgun (#1 enrollment failure), 4-hour rolling upgrade window, cert enrollment, Cloud-Connector-vs-App-Connector distinction, cross-product SIPA hook. |
-| SCIM provisioning / automated user-group lifecycle / "why isn't my IdP sync working" | `references/shared/scim-provisioning.md` — SCIM 2.0 cross-product (ZIA + ZPA + ZIdentity), ZPA-vs-ZIA attribute-name differences (`names.givenName` vs `name.givenName`, `active=false` deletes in ZPA / disables in ZIA), domain pre-registration, 128-group-per-user cap, Python SDK gap (Go SDK has full CRUD Python doesn't). |
-| ZPA policy precedence | `references/zpa/policy-precedence.md` |
-| "Why didn't ZIA see this traffic?" / "Why did traffic go direct?" / ZCC forwarding-profile questions | `references/zcc/forwarding-profile.md` — per-network-type action branches (TRUSTED/UNTRUSTED), Z-Tunnel vs PAC vs NONE, fail-open, captive portal grace. **Several enum values are inferred, not documented** — answer at `Confidence: medium` and cite clarifications `zcc-01` through `zcc-05` where relevant. |
-| Trusted-network detection / "Why is my user classified as untrusted at the office?" | `references/zcc/trusted-networks.md` — DNS, SSID, DHCP, subnet, egress-IP criteria and their combination. |
-| ZPA `TRUSTED_NETWORK` access-policy condition not firing | Start at `references/zcc/forwarding-profile.md § ForwardingProfileZpaActions` — the `sendTrustedNetworkResultToZpa` toggle is usually the cause. Then `references/zpa/policy-precedence.md`. |
-| Which forwarding profile / web policy does this user get? ZCC password / uninstall-protection / SSL-cert-install questions | `references/zcc/web-policy.md` — scope (user/group/device-group), `forwarding_profile_id` link, per-platform sub-policies (Windows/macOS/Linux/iOS/Android), disaster recovery. |
-| ZCC telemetry / log-collection / packet-capture policy | `references/zcc/web-privacy.md` — `collect_user_info`, `collect_machine_hostname`, packet-capture toggles; note `collect_zdx_location` ANDs with entitlements. |
-| ZCC device inventory / force-remove / VM-cloning fingerprint issues / "when did this device last check in?" | `references/zcc/devices.md` — Device fields, states, remove vs force-remove, device cleanup, CSV downloads. |
-| "User can't reach ZPA" / "ZDX has no data for this user" — entitlement first | `references/zcc/entitlements.md` — `zpa_enable_for_all` trump card, ZPA vs ZDX group lists, Machine Tunnel toggle, ZDX location dual-source dependency. |
-| Z-Tunnel 1.0 vs 2.0 / "why isn't this non-web traffic tunneling" / bypass-list behavior / GRE-and-ZCC-2.0 | `references/zcc/z-tunnel.md` — CONNECT-proxy vs DTLS packet-tunnel, single-IP-NAT-or-fallback-to-1.0, 4-layer bypass architecture (VPN Gateway → Destination Exclusions/Inclusions with specificity-wins → Port-based → Domain-based PAC), 3.8+ Windows redirect-web-traffic truth table. |
-| Cross-product mental model ("how does policy evaluation work in general?") | `references/shared/policy-evaluation.md` |
-| Activation — "I changed a ZIA rule; why isn't it taking effect?" / activation API endpoints / ZIA-vs-ZPA activation-model differences | `references/shared/activation.md` — the staged-vs-live gate (ZIA only; ZPA propagates on write), EUSA acceptance, status enum. |
-| Source IP Anchoring (SIPA) — "we need our source IP to show up as customer-controlled for Office 365 / Conditional Access / legacy IP-allowlist apps" / "SIPA traffic is egressing with wrong IP" / SIPA Direct / ZIA DR fallback | `references/shared/source-ip-anchoring.md` — cross-product feature (ZIA forwards → ZPA App Connector delivers), two variants (standard + Direct-for-ZIA-DR), ZPA+ZIA dual-side config, domain-vs-IP-based rule asymmetry, DNS Resolver rule ordering, mutual-exclusion with Browser Access / Double Encryption / Multimatch. |
-| Terminology translation — "what's a ZEN?" / "PSEN" / "Z-App" / "App Profile vs Web Policy" / "ZTW vs ZTC" — any Zscaler naming disambiguation | `references/shared/terminology.md` — legacy/current/log-field alias table across all products. |
-| "What does Zscaler actually run?" / Central Authority / Service Edge types / Business Continuity Cloud / Z-Tunnel vs M-Tunnel / PKI and cert trust | `references/shared/cloud-architecture.md` — component-level picture. Covers ZIA CA (active-passive) vs ZPA CA (active-active) split, BC Cloud constraints (Z-Tunnel 1.0 / PAC / GRE only — **not 2.0**), the three Service Edge form factors, and the tunnel model. |
-| PAC files — `${GATEWAY}` / `${SECONDARY_GATEWAY}` / `${GATEWAY_HOST}` substitution / Kerberos-PAC / subcloud-variable form / custom PAC upload / "why is my PAC change not taking effect" | `references/shared/pac-files.md` — four default Zscaler-hosted PACs (recommended / proxy / mobile / kerberos), server-side variable substitution (only when Zscaler-hosted), 256-KB / 256-files / 10-versions limits, immediate-activation semantics (no staging gate), Kerberos port 8800 + KDC bypass, subcloud-qualified variables, OR-heavy performance footguns. |
-| ZIA Locations, sublocations, Location Groups — "which rules apply at this location?" / sublocation IP-overlap rules / `other` sublocation / predefined Corporate/Guest/IoT/Server/Workload groups / Dynamic vs Manual groups / XFF | `references/zia/locations.md` — three-tier model, 256-group cap, 32K-members-per-manual-group cap, dynamic-group AND semantics, auto-created `other` and `other6` catch-alls, Workload group populated by Cloud Connector. |
-| Device Posture — posture profiles / "why did this user's ZPA access break?" / posture types (CrowdStrike/SentinelOne/Defender/Disk-Encryption/Registry/File-Path/OS-Version) / evaluation cadence / Machine Tunnel / existing-connection immunity | `references/shared/device-posture.md` — 23 posture types with per-platform coverage matrix, 15-minute default eval (2-min min on ZCC 4.4+/4.5+), five immediate-on-change types (Process / Carbon Black / CrowdStrike / SentinelOne / Defender), 7 trigger events, existing-connections-not-affected rule (bound via reauth), Machine Tunnel subset per-platform, partner-tenant integration. |
-| ZIA Firewall Control — "why was this blocked and it's not a URL Filter rule?" / Firewall Filtering / NAT / DNS / IPS / FTP Control / signature-based IPS / custom Snort-like signatures / Basic vs Advanced licensing | `references/zia/firewall.md` — four sub-policies (Filtering / NAT / DNS / IPS), pipeline position before web-module, 5 actions including `EVAL_NWAPP` for network-app identification, Advanced-licensing-required for user-group-department-IPS criteria, IPS default rule BLOCK-ALL, ATP rules evaluate BEFORE IPS when both licensed, Z-Tunnel-1.0/PAC requires Advanced Settings toggle to engage firewall. |
-| ZPA Browser Access — "how do I give a contractor / partner access to an internal web app without installing ZCC" / wildcard certificate rules / CNAME / TLS 1.2 cipher requirement | `references/zpa/browser-access.md` — clientless browser path, dual-access model (enabling BA auto-adds ZCC), TLS 1.2 cipher `ECDHE-RSA-AES128-GCM-SHA256`, wildcard cert matches one level only (`*.example.com` does NOT cover `app.local.example.com`), same vs different hostname cert mechanics, mutual-exclusions with SIPA / Double Encryption / Multimatch, TCP-only constraint. |
-| ZPA Privileged Remote Access (PRA) — RDP / SSH / VNC / jump host / bastion / session recording / approval workflow / credential pooling / break-glass access | `references/zpa/privileged-remote-access.md` — clientless protocol relay, 6 config objects (Portal / Console / Credentials / Credential Pool / Approvals / Capabilities Policy / Privileged Policy), 3 credential types (immutable protocol), time-bounded approval windows (not floating), 6-status session recording lifecycle, prioritized transcoding, permalinks. Capabilities page under maintenance at capture time. |
-| Subclouds — "why is my traffic going to the wrong region" / GDPR-only PSE pool / private-DC-only routing / subcloud-qualified PAC variables (`${GATEWAY.<Subcloud>.<Cloud>}`) / CONUS / propagation lag | `references/shared/subclouds.md` — three subcloud types (public / private / mixed), ≥2-datacenter minimum, tenant sets up via Support ticket (not self-service), Zscaler-managed `CONUS` subcloud for US-only, 5m/15m/10-20m propagation cascade, BC Cloud bypasses subclouds on outage. |
-| NSS / Cloud NSS / log streaming / "why did my SIEM miss logs" / Nanolog / NSS Collector (Shadow IT) | `references/shared/nss-architecture.md` — two delivery modes (VM-based raw-TCP vs Cloud NSS HTTPS), 5-step pipeline (decompress → detokenize → filter → format → stream), **one-hour recovery is opt-in** (Support ticket required), feed caps (16 per NSS server / 1 per log-type per Cloud NSS instance), NSS Collector is the inverse direction (10K eps rate limit, 4-max per org), **LSS is not NSS** (separate streaming layer for ZPA). |
-| ZIA Bandwidth Control — "how do I guarantee business-critical bandwidth during contention?" / Bandwidth Classes / contention-only enforcement / per-location scope | `references/zia/bandwidth-control.md` — two-object model (Class + Rule), contention-driven (no enforcement when pipe has headroom), 245-class / 8-with-domains / 25K-domain limits, orphan classes fall into location's default rule, sublocation shares (not isolates) bandwidth back to parent, location `Enforce Bandwidth Control` toggle is master switch. |
-| FTP / File Type / SSH — "why is FTP-over-HTTP blocked?" / "can I block .mp4 downloads?" / "how do we audit SSH?" / any narrow inspection question beyond URL / CAC / DLP / SSL / Sandbox / Malware | `references/zia/content-inspection-extras.md` — FTP Control (Firewall module, passive-only, FTP-over-HTTP default-deny, URL-Filter-precedes-FTP-Control), File Type Control (Web module, extension + MIME + archive + active-content, 400MB scan cap, ALLOW/CAUTION/BLOCK actions per direction), **SSH has no content inspection in ZIA — firewall L4 only; PRA is the answer** for SSH audit. |
-| Admin RBAC / admin users / roles / scopes / audit / "why can this admin do X here but not Y there?" / "how do I create an API client?" | `references/shared/admin-rbac.md` — three separate systems (ZIA rank+permissions+scope / ZPA feature-flags across 23 modules / ZIdentity 25-module matrix + 4 predefined roles), federation via ZIdentity **Administrative Entitlements** module, **ZIA and ZPA admins NOT auto-synced**, ZIA scope is single-dimension-only (Org OR Dept OR Location OR LocGroup — not combinable), API Clients ≠ admin users (OAuth lifecycle in Python at `client.zid.api_client`), 6-month audit-log retention, 5-failures-in-1-min → 5-min lockout. |
-| OneAPI / "how do I authenticate to Zscaler APIs?" / token endpoint / rate limits / "why is my token rejected" / OAuth flow / JWT auth / API base URLs / activation gate / EDIT_LOCK_NOT_AVAILABLE / 409 / 429 | `references/shared/oneapi.md` — unified gateway at `api.zsapi.net`, **three coexisting auth flows** (OneAPI OAuth via ZIdentity for ZIA/ZPA/ZIdentity/ZCC/ZTW/BI; ZDX-legacy SHA256-signed-timestamp; ZCC-legacy apiKey+secretKey), **`audience=https://api.zscaler.com` is REQUIRED** (most common cause of 401 with valid creds), per-product rate-limit math + response-header naming (all different — `x-ratelimit-*` ZIA / `RateLimit-*` ZDX / `X-Rate-Limit-*` ZCC), ZIA+CBC require activation (others don't), `409 EDIT_LOCK_NOT_AVAILABLE` = concurrent writes (not auth), read-only mode (`x-zscaler-mode: read-only`, `STATE_READONLY`), Postman collection at `vendor/zscaler-api-specs/oneapi-postman-collection.json` is the only machine-readable surface (**no public OpenAPI/Swagger spec** — confirmed via thorough sweep), ZPA web docs absent from automate.zscaler.com (Postman is sole ZPA reference). |
-| Secrets over the API / "can a read-only API client see secrets?" / scoping a least-privilege API client / "does GET return the provisioning key / connector API key / device uninstall password / VPN PSK?" / which resource families leak credentials on read | `references/shared/secret-bearing-api-surfaces.md` — **read-only API access is not secret-free access**. Cleartext-on-GET (exclude from read scopes): ZPA provisioning keys, ZTW `/apiKeys` + `/provUrl`, ZCC `getOtp`/`getPasswords` device secrets; contract-documented-but-unverified: ZPA PRA creds / enrollment-cert private keys, ZIA VPN `preSharedKey`. Withheld/masked on GET: ZIA admin password (absent), ZIA sandbox token (no read surface), ZIdentity OAuth client secret (masked; full only on create), ZPA Browser-Access cert (no private key). Note `Sensitive:true` in Terraform still writes the secret to state. |
-| Question spans ZIA + ZPA, or ZCC + a server product — silently-wrong-answer territory | **Start at `references/shared/cross-product-integrations.md`** — catalogues every cross-product hook (ZIA→ZPA `zpa_app_segments`, ZPA→ZIA `inspect_traffic_with_zia`, ZCC→ZPA TRUSTED_NETWORK, ZCC→ZIA install_ssl_certs, shared ZIdentity conditional-access, SSL bypass as cross-policy gate, AI/ML recategorization, activation-model difference, BC-Cloud-is-ZIA-only) with failure-mode hints and a question-shape routing table. |
-| "Why is this user's app slow?" / "Is it the network or the app?" / ZDX Score / probes / diagnostic sessions (deeptraces) / alerts | `references/zdx/overview.md` for the Score model; `references/zdx/probes.md` for Web vs Cloud Path measurement; `references/zdx/diagnostics-and-alerts.md` for 1-min-resolution investigation workflow and alert lifecycle. **Terminology: SDK says "deeptrace", admin portal says "Diagnostics Session" — same thing.** |
-| ZDX API / SDK methods | `references/zdx/api.md` — `client.zdx.*` surface summary (apps, devices, alerts, troubleshooting, inventory). Mostly read-only; probe/alert configuration is portal-only. |
-| Cloud Browser Isolation / Zero Trust Browser / ZBI / URL Filter `Isolate` action / "what happens when isolation fires" | `references/zbi/overview.md` for architecture + rendering (pixel streaming vs Turbo Mode) + session lifecycle; `references/zbi/policy-integration.md` for isolation profiles, Smart Browser Isolation, ZPA Isolation Policy, and the "Miscellaneous & Unknown" limited subscription tier's locked-profile settings. Note: **the product has three names** — Zero Trust Browser (current), Cloud Browser Isolation (URL/SDK path), Zscaler Isolation (legacy) — all the same thing. |
-| ZIdentity / "what is ZIdentity?" / SAML vs OIDC / MFA / single sign-on across Zscaler products | `references/zidentity/overview.md` — unified identity service, SAML JIT vs SCIM provisioning, MFA defaults, admin IP restriction. |
-| OneAPI authentication / API client creation / client secret vs JWT / ZSCALER_CLIENT_ID setup | `references/zidentity/api-clients.md` — OAuth 2.0 client-credentials flow, role/scope model, token TTL, and secret-shown-once pattern. The **first** client is a portal bootstrap; after that, a sufficiently scoped client can manage API clients and secrets through Python `client.zid.api_client` or raw REST. |
-| Step-up authentication / Conditional Access / "why isn't the MFA prompt appearing?" / Authentication Levels | `references/zidentity/step-up-authentication.md` — hierarchical level tree (32 max / depth 4), **OIDC-only** constraint (SAML IdPs don't work), **validity-inversion** gotcha (parent validity MUST be less than child validity), OIDC `acr`-value mapping, ZCC-required prompt delivery. |
-| ZIdentity API / `client.zid.*` methods / SCIM-like user provisioning | `references/zidentity/api.md` — Users / Groups / Resource Servers / User Entitlement / API Clients. Resource Servers are read-only in **both** Python and Go. Python `client.zid.api_client` has full API-client and secret CRUD; Go has no API-client service, although raw REST endpoints are documented. |
-| Cloud Connector / Branch Connector / "why isn't my AWS/Azure/GCP workload reaching Zscaler?" / ZTW / ZTC / CBC | `references/cloud-connector/overview.md` — Cloud Connector Group model, primary/secondary/tertiary gateway failover, **fail-close-by-default** (workloads lose internet on outage) vs fail-open. **Product has 5 names**: Cloud Connector / Branch Connector / Zero Trust Gateway / ZTW (Go SDK) / ZTC (TF provider) / CBC (help URL path). |
-| Cloud Connector traffic forwarding rules / "why is my workload going direct instead of to ZIA?" / forwarding methods | `references/cloud-connector/forwarding.md` — five methods (ZIA / ZPA / Direct / Drop / Local), rule-order first-match-wins (same as ZIA URL Filter), Application Service Groups (auto-updated by Zscaler), DNS-required-for-wildcard-non-web. |
-| Cloud Connector API / SDK / Terraform | `references/cloud-connector/api.md` and `references/cloud-connector/sdk.md` — Python **v1.x GA** and Go both expose the ZTW surface (`client.ztw.*` in Python), TF uses `ztc_*` resources, and activation is ZIA-style rather than ZPA-style. The Python `2.0.0bN` beta does **not** include ZTW; keep Cloud Connector automation on v1.x. |
-| "What happens to DLP incidents after detection?" / Workflow Automation / ZWA / auto-notify / auto-escalate / auto-create-ticket | `references/zwa/overview.md` — 9 predefined workflow templates (auto-close / auto-notify / auto-escalate / auto-create-tickets + variants), custom workflows, workflow mappings, notification channels (email / Slack / Teams), ticketing integration (ServiceNow, Jira). Incident triage runs downstream of ZIA DLP — SSL-must-decrypt dependency applies. |
-| ZWA API / incident search / evidence retrieval | `references/zwa/api.md` — ~14 methods across `client.zwa.dlp_incidents` + `client.zwa.audit_logs`. **Workflow configuration is portal-only** — SDKs cover incident lifecycle (search, retrieve, assign labels/notes, close) only. Evidence retrieval returns the actual DLP-matched payload content — treat as sensitive. |
-| Zscaler Deception / decoys / honeypots / "what is Deception?" / "why are there ZPA access rules I can't edit?" / lateral-movement detection / APT / post-breach detection | `references/deception/overview.md` — separate Zscaler product, active-defense detection via 5 decoy types (Network / TI / AD / Endpoint / Cloud), low-FP guarantee (no legitimate traffic should touch decoys), ZPA integration via Zero Trust Network decoys requires Deception-managed access rules ordered ahead of regular ZPA rules ([`zpa-07`](references/_meta/clarifications.md#zpa-07-deception-policy-order-interaction)). Distinct admin RBAC (not federated via ZIdentity at capture time). For perimeter detection use Sandbox/ATP/IPS instead — Deception is post-perimeter only. |
-| ZPA AppProtection / ZPA Inspection / WAF for private apps / OWASP / Kerberos+SMB+LDAP inspection / "is AppProtection part of ZPA?" / `zpn_inspection_profile_id` | `references/zpa/appprotection.md` — inline WAF/IPS for ZPA-protected apps (formerly called "Inspection"). 6 control categories (OWASP CRS 4.8 / ThreatLabZ / **Active Directory protocols Kerberos+SMB+LDAP** / API / WebSocket / custom). Three-tier policy model (Controls → Profiles → Rules). Paranoia Levels 1-4. Default profile `OWASP Top-10 for Visibility` is read-only. **Multimatch mutually exclusive on same segment.** TLS 1.2 cipher `ECDHE-RSA-AES128-GCM-SHA256` for inline decryption (same as Browser Access). Logs flow through ZPA LSS, **not ZIA NSS** — SIEM teams must add LSS receiver. Browser Protection appears tier-gated within AppProtection subscription. |
-| Risk360 / cyber risk quantification / "what's our risk score?" / Monte Carlo / financial loss estimation / SEC compliance / CISO board reporting / NIST CSF / MITRE ATT&CK alignment | `references/risk360/overview.md` — paid add-on under Security Operations tier (NOT bundled with ZIA/ZPA). Quantifies risk in dollar-denominated expected-loss terms. **Monte Carlo simulation 1000x/day** under 4 scenarios (inherent / residual / 30-day / peer) → yearly avg loss + loss exceedance curves. 115-140+ factors (count growing) across 4 attack stages (External Attack Surface / Compromise / Lateral Propagation / Data Loss) × 4 entities (Workforce / 3rd Parties / Applications / Assets). Risk score 0-100 (Low/Medium/High/Critical tiers). Asset-level scoring uses 65+ indicators in 3 behavior categories. Dashboard + Insights + Financial Risk + Factors + Asset-Level pages plus **CISO Board Slides PowerPoint export**. CrowdStrike + UEBA integrations. **Distinct RBAC** with PII obfuscation toggles — separate from ZIA/ZPA/ZIdentity admin systems. Logs are duplicates of ZIA/ZPA configuration + transaction logs, retained ≤1 year, US or EU storage only. |
-| AI Security family / AI Guard / AI Guardrails / AI Red Teaming / "how does Zscaler protect AI prompts?" / prompt injection / jailbreak detection / LLM guardrails / sensitive data leakage to LLM / DaaS sidecar / Proxy mode for LLMs | Start with `references/ai-security/overview.md` for product boundaries and deployment modes; use `references/ai-security/ai-guard-coverage.md` for exact client coverage. **AI Guard is Tier 2:** Python `client.aiguard` exposes OneAPI configuration resources, while `LegacyAIGuardClient` exposes the separate policy-detection path; no verified Go, Terraform, or MCP AI Guard admin wrapper was found. The broader AI Security family beyond AI Guard remains thinner and must stay source-bounded. |
-| ZMS / Zscaler Microsegmentation / east-west traffic / workload-to-workload policy / "how does ZMS differ from ZPA?" / lateral movement prevention / host-agent firewall / WFP / nftables | `references/zms/overview.md` for behavior and `references/zms/api.md` for the API — **ZPA segments user→app traffic; ZMS segments app→app traffic.** Python `client.zms.*` exposes a read-only GraphQL surface; configuration writes remain portal-only, and no Go SDK or Terraform surface is captured. |
-| EASM / External Attack Surface Management / organizations / findings / lookalike domains | `references/easm/overview.md` for the organization-scoped Python `client.zeasm.*` read surface and Postman-only asset reads; use `references/easm/findings.md` or `references/easm/lookalike-domains.md` for those result families. EASM is Tier 2 read-only/query-only, not Tier 4. |
-| Zscaler Cellular / ZCell / SIM inventory / cellular anomaly policy / SIM analytics | `references/zscaler-cellular/index.md` and `references/zscaler-cellular/api.md` — Automate contract plus Python `client.zcell.*`; MCP coverage is read-only and does not imply every Python mutation is wrapped. |
-| Business Insights / SaaS Application Management / workplace utilization / `client.zbi` reports or custom apps | `references/business-insights/overview.md` — Python `client.zbi` manages custom apps and report configurations and lists/downloads reports. Here `client.zbi` means **Business Insights**, not Zero Trust Browser; broader product API coverage remains unresolved. |
-| ZIA API endpoint or response shape | `references/zia/api.md` |
-| ZPA API endpoint or response shape | `references/zpa/api.md` |
-| ZCC API endpoint or response shape | `references/zcc/api.md` |
-| Terraform provider resource or schema | `references/terraform.md` |
-| ZIA web log fields / what NSS reports | `references/zia/logs/web-log-schema.md` |
-| ZIA firewall log fields | `references/zia/logs/firewall-log-schema.md` |
-| ZIA DNS log fields | `references/zia/logs/dns-log-schema.md` |
-| ZPA LSS access log fields | `references/zpa/logs/access-log-schema.md` |
-| SPL patterns / "how do I query for X?" | `references/shared/splunk-queries.md` |
-| "should I check logs here?" / validation guidance | `references/shared/log-correlation.md` |
-
-If the question shape isn't here, start with `references/shared/policy-evaluation.md` and follow its cross-links.
-
-**For breadth questions** ("does Zscaler have a product for X?", "what is Risk360?", "is AppProtection part of ZPA?", "what's the difference between Cloud Connector and Posture Control?"), start with [`references/_meta/portfolio-map.md`](references/_meta/portfolio-map.md) — single-page index of every Zscaler product with deep-dive / awareness / out-of-scope tier. Tells the skill what coverage depth to claim before answering.
-
-**For prerequisite-knowledge questions** ("what's a proxy?", "what's the difference between SAML and OIDC?", "what does zero trust actually mean?", "how does NAT work?"), start with [`references/_meta/primer/`](references/_meta/primer/) — five primer docs covering generic networking, forwarding paradigms, zero-trust philosophy, identity protocols, and the Zscaler platform shape. Use this when the asker is non-networking-background or when you need to set up conceptual scaffolding before diving into a product-specific answer.
-
-**For meta-questions about the skill itself** ("where does general Zscaler knowledge end and tenant-specific data begin?", "how should this skill combine doc knowledge with what we know operationally?"), see [`references/_meta/layering-model.md`](references/_meta/layering-model.md) — the three-layer framing (general / tenant / SME tribal) with anti-patterns and operational implications for fine-tune training. For the pre-release `zscalerctl` companion boundary, see [`references/_meta/tooling.md`](references/_meta/tooling.md): `zscalerctl` observes tenant state; this skill reasons over it.
-
-**If you are an AI agent**, prefer [`references/_meta/agent-patterns.md`](references/_meta/agent-patterns.md) over the prose runbooks below. It contains pure typed Python functions for cloud classification, auth-framework detection, and error interpretation: `detect_cloud()`, `is_gov_cloud()`, `detect_auth_framework()`, and `interpret_error()`. The canonical implementation lives at `scripts/agent_patterns.py`. It performs no tenant or SDK calls; use snapshots, supplied command output, or the read-only `zscalerctl` companion for observation.
-
-**For actionable / procedural questions** — "which auth path should I use?", "how do I detect if this is a gov cloud?", "I'm getting 401 / rule isn't applying / 429 rate-limited / EDIT_LOCK / activation stuck — what do I do?", "how do I rotate credentials safely?", "how do I round-trip a config without hitting the read/write asymmetry?" — start at [`references/_meta/runbooks.md`](references/_meta/runbooks.md). The runbook contains: (1) authentication selection decision tree with concrete diagnostic checks, (2) diagnostic procedures for cloud detection / OneAPI-vs-legacy detection / migration status, (3) troubleshooting flows for the six most common failure modes, (4) credential lifecycle patterns including rotation, fallback, OneAPI ↔ legacy coexistence, gov-cloud forced-legacy. **This is the home for "what should I DO?" questions** — the rest of the skill is reference (how things work); the runbook is procedural (what steps to take). Each product `api.md` cross-links here, and each api.md also has a "Common SDK patterns" subsection with inline code so you don't have to switch docs to find the call signature you need.
-
-**For verifying a finding before threading it into the skill** — i.e., any time a user reports behavior that's not yet documented — apply [`references/_meta/verification-protocol.md`](references/_meta/verification-protocol.md). The four-tier model (source-verified / behavior-verified / operator-reported / inferred) governs what language is permitted, where the finding can land, and how user assertions get treated when they conflict with sources. **This is binding for assistant behavior:** treat user-reported behavior as a tier-C candidate by default, run the source-check sequence before threading, never use "verified" language for unverified content, and hold the line on tier C/D when users push for tier-A treatment without producing evidence.
-
-**Before quoting any reference summary, do a targeted clarification lookup** —
-search `references/_meta/clarifications.md` by the selected product prefix,
-cited clarification ID, or the specific field/behavior in question. Do not load
-the entire clarification ledger for routine answers. When a matching entry
-applies, cite the clarification ID and adjust confidence accordingly.
+For a portfolio-level entry (Resilience, BCC, CTEM, Posture Control, Red Canary MDR, CASB as a term, B2B, the
+federal clouds), read its `portfolio.*` subject; `portfolio.overview` maps each need to its product. Most of
+their API and rule details are open gaps: give the conceptual answer and do not invent API details or rule behavior.
 
 ## Answer format
-
-Return every non-trivial answer in this shape. It keeps answers grounded, makes uncertainty visible, and gives a future trainer a consistent structure to learn from.
 
 ```markdown
 ## Answer
 <direct answer in 1–3 sentences; lead with the conclusion>
 
 ## Reasoning
-<why, citing the specific mechanics — rule order, match type, evaluation stage>
+<why, citing the mechanics: rule order, match type, evaluation stage; name any Tier B claim, gap or divergence the answer rests on>
 
 ## Sources
-- references/zia/url-filtering.md (§ section you used)
-- _data/snapshot/<cloud>/zia/url-filtering-rules.json (rule IDs 42, 47 — only if snapshot was consulted)
+- zia.url-filtering.rule-order:first-match (claim IDs from what you read)
+- company.zia.<record> (company knowledge, validated <date>), an IaC repo path and commit date, or the zscalerctl command run
 
 ## Confidence
-high | medium | low — <one-line reason; e.g. "stub reference, inferred from Zscaler KB">
+high | medium | low — <one-line reason>
 ```
 
-For trivial factual questions ("what's a URL category?") you can drop Reasoning and Confidence, but keep Sources.
-
-### Confidence rule when sources disagree
-
-When two vendored sources describe the same behavior in different — even subtly different — ways:
-
-1. **Do not silently pick one.** Report `Confidence: medium` at most, sometimes `low` depending on severity.
-2. **Cite both sources** in the `## Sources` section.
-3. **Name the divergence explicitly** in `## Reasoning` — one sentence identifying what the two sources say and why it matters for the answer.
-4. If the divergence overlaps an open clarification in [`references/_meta/clarifications.md`](references/_meta/clarifications.md), cite the clarification ID.
-
-Concrete example: *Understanding Application Access* p.1 describes the port-mismatch outcome two ways ("bypasses ZPA and sends traffic directly" vs "client connection request is dropped by ZPA"). Those are two perspectives on the same event — reconciled in `references/zpa/app-segments.md § Worked example`. An answer using this material should cite the reconciled section, not either single quote, and report `Confidence: medium` if the user's question hinges on what happens to the traffic after the bypass.
-
-A claim derived by **inference** — extrapolating a stated rule beyond its documented scope — gets `Confidence: low` and an explicit note in Reasoning calling out that it's an extrapolation. Do not dress inferences as quoted fact.
+For trivial factual questions you may drop Reasoning and Confidence, but keep Sources. Confidence follows the
+claims: high on Tier A claims that answer the question directly; medium when the answer rests on a Tier B claim, a
+divergence or an extrapolation (say it is one); low when it rests on a gap.
 
 ## When to consult logs
 
-Default: answer from config (`_data/snapshot/`) and reference docs. Logs are the **validation layer**, not the first stop — they add latency and cost.
-
-Consult logs when **any** of:
-
-- The user pushes back on a config-derived answer.
-- Config is ambiguous (multiple rules could match, wildcard could go either way, segments overlap).
-- The question is inherently observational ("when did this start breaking?", "how often does Y happen?").
-- You suspect config/reality drift — rules recently changed, or the answer smells wrong.
-
-Do not consult logs for pure semantic questions ("how do wildcards match?") — reasoning docs handle those. See [`references/shared/log-correlation.md`](references/shared/log-correlation.md) for the full decision rule.
-
-When you do query, cite the SPL pattern by name from [`references/shared/splunk-queries.md`](references/shared/splunk-queries.md) rather than inlining it. If logs contradict config, call that drift out explicitly in the Answer — it's the high-signal finding.
+Logs are the validation layer, not the first stop. Consult them when the user pushes back on a config-derived
+answer, the configuration is ambiguous, the question is observational ("when did this start?"), or you suspect
+drift. Follow a named check from `shared.splunk` and its children rather than inventing a search, and say which
+claims the search relies on (`shared.log-correlation` has the decision rule). If logs contradict configuration,
+lead with that drift: it is the finding.
 
 ## When to decline
 
-- **Tenant state needed, no observation available** — say so directly, and still answer the general case if there is one. If `@zscalerctl` is available, offer or draft a bounded read-only command; otherwise ask for a snapshot or sanitized command output.
-- **Relevant reference is still a stub** (`author-status: stub`, no body yet) — say the skill hasn't written this down yet, describe what you know from the file's TODO headings, and mark **Confidence: low**.
-- **Question maps to a known open clarification** — if a reference doc cross-links an entry in [`references/_meta/clarifications.md`](references/_meta/clarifications.md) that covers the user's question, cite the clarification ID (e.g. "this hits `zia-03` — wildcard tokenization is unresolved in our public material"), answer what you can, and flag the gap rather than hallucinating the rest.
-- **T1 — operational deep-dive (SDK / TF / API + multi-component coverage)** — ZIA, ZPA (including AppProtection inline WAF/IPS sub-component and Browser Access), ZCC (forwarding profiles, trusted networks, fail-open), ZIdentity (unified identity, OneAPI auth, step-up authentication), Cloud & Branch Connector (ZTW/ZTC — Cloud Connector VM architecture, traffic forwarding rules, SDK/TF surface), and ZDX (score, probes, diagnostic sessions, alerts — **T1 borderline: observability layer rather than enforcement, per 2026-05-04 verification gate**). Answer with full confidence and cite specific reference sections including API endpoints, rule semantics, and policy evaluation order.
-- **T2 — programmable but shallow (SDK / API exposure, narrow surface)** — ZBI (Cloud Browser Isolation / Zero Trust Browser), ZWA (Workflow Automation), AI Guard, ZMS, EASM, Zscaler Cellular / ZCell, and Business Insights. The surface is not uniformly writable: ZMS and the Python EASM client are read-only/query-only, while AI Guard, ZCell, and the Business Insights custom-app/report-config families include writes. Answer at confidence: medium-to-high for the documented surface; flag the precise client/parity gap when the question pushes beyond it.
-- **T3 — extended reasoning, no verified SDK / TF management surface** — Deception, Risk360, AI Security family surfaces beyond AI Guard, ZSDK, AEM, DSPM, ITDR, UVM, Experience Center, Breach Predictor, SOC Workbench, and Zero Trust Branch. Route to the product reasoning doc or portfolio entry, answer at confidence: medium, and state the exact captured coverage boundary instead of applying a blanket portal-only claim to a neighboring Tier 2 product. Do NOT fabricate field names, API endpoints, or programmatic config patterns.
-- **T4 — paragraph-only routing (one-paragraph framing in portfolio map)** — Resilience, BCC, CTEM, Cloud Protection, Posture Control, M365 Copilot, Red Canary MDR, MTH, B2B, ZINS (shadow-IT NSS Collector), Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS), or any other Zscaler-marketed product not in the T1 / T2 / T3 lists. Start at [`references/_meta/portfolio-map.md`](references/_meta/portfolio-map.md) for the one-paragraph framing. Give the conceptual answer and point to the Zscaler help site / TAM for operational depth — do NOT fabricate API details or rule behaviors. Confidence: medium at most.
-- **T5 — truly out of scope** — currently empty. Reserved for deprecated / internal / unshipped products. If a user question lands here, decline outright.
-- **Partial scope within T1** — ZCC device-posture rules and on-device web policy are partially in scope (see [`references/zcc/index.md`](references/zcc/index.md) for gaps). ZDX's application-specific call-quality integrations (Microsoft Teams, Zoom deep-dives) are partially in scope — [`references/zdx/index.md`](references/zdx/index.md) lists the gaps. ZIdentity's IdP-specific configurations (Entra, AD FS, Okta) and MFA method configs are partially in scope — [`references/zidentity/index.md`](references/zidentity/index.md) lists the gaps. (Note: ZBI moved to T2; see [`references/zbi/index.md`](references/zbi/index.md) for that product's documented gaps including Votiro CDR integration, Sandbox+Isolation, Local Browser Rendering, and end-user UX features.)
-
-Do not guess precedence, matching semantics, or evaluation order from first principles. These are exactly the places Zscaler's real behavior diverges from intuition — wrong confident answers here are the failure mode this skill exists to prevent.
-
-## Recognizing a deferred topic from frontmatter
-
-Before answering with high confidence, check the relevant reference doc's frontmatter:
-
-| Frontmatter signal | What it means | What to do |
-|---|---|---|
-| `confidence: low` or `medium` | Doc author flagged uncertainty | Lead the answer with the same confidence; cite what's solid, flag what's not |
-| `source-tier: code` | Sourced from SDK / TF only (help-portal page broken or non-existent) | Answer to the SDK shape; note that runtime behavior may differ; recommend tenant verification |
-| `author-status: stub` | TODO headings only, no body | Don't answer from the doc; use the headings to describe what would be covered and decline the substantive answer |
-| Doc cross-links a clarification ID (`zia-03`, `zpa-04`, etc.) | Known unresolved gap | Cite the ID and answer within the gap's bounds |
-| Doc opens with a "tenant access required" note | Lab test or live-API verification needed | Answer general case; refuse tenant-specific without `_data/snapshot/` |
-
-**Topics this skill cannot answer without tenant access** (load-bearing list — when asked about these without `_data/snapshot/` populated, decline with a pointer rather than guess):
-
-- The `tz` / `country` write-side current behavior on ZIA Location Management (read returns unprefixed; write accepted-form is unverified post-API change)
-- Whether VMSS upgrade window behavior on Cloud Connector matches the documented Sunday-midnight-local pattern in *your* deployment
-- Whether the Python SDK Server Group `servers[]` model gap affects you (TF works fine; Python explicit-server-mode does not)
-- Default zsroot password for new Cloud Connector / Branch Connector deployments
-- Whether the ZIA `showEunatp` wire-casing asymmetry (mixed-case on read, uppercase on write) is current API behavior
-- Specific cipher / TLS-version posture Zscaler presents at the SSL inspection edge
-- Anything labeled `confidence: medium` + `source-tier: code` where the SDK is the only source — runtime divergence is possible
-
-This list expands as the skill grows; `references/_meta/clarifications.md` is the canonical index. When in doubt, prefer "I don't know without your tenant" over a confident guess.
-
-## Known open questions
-
-[`references/_meta/clarifications.md`](references/_meta/clarifications.md) is the canonical index of unresolved questions across the skill — each with a stable ID (`zia-03`, `shared-02`, etc.), what resolves it, and which reference doc raised it. When a user's question overlaps a known gap, cite the ID and be explicit that the answer is bounded by that gap.
+- **Tenant state needed and no overlay or observation:** say so, answer the general case, and name the read-only
+  command that would answer it.
+- **The graph has a gap for it:** answer what the claims support, cite the gap, and say what would resolve it.
+- **Nothing in the spine covers it:** say the skill does not cover it rather than answering from memory.

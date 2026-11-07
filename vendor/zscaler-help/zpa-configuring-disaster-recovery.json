@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Disaster Recovery",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/configuring-disaster-recovery",
+    "node": "1485406",
+    "revision": "3206757",
+    "updated": "2026-06-09",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Within the Zscaler Admin Console, you can enable disaster recovery for critical application segments, App Connector groups, or Private Service Edge groups for Private Access to ensure business continuity in the event of a disaster scenario that impacts the global cloud infrastructure. To learn more, see Understanding Disaster Recovery."
+    },
+    {
+      "text": "Zscaler recommends you are aware of the following when configuring disaster recovery:"
+    },
+    {
+      "item": "If you are using a Microtenant, activating disaster recovery provides access to all applications designated for disaster recovery.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure a separate DNS domain name is created for disaster recovery.",
+      "depth": 0
+    },
+    {
+      "text": "In Disaster Recovery Mode, all App Connectors in an App Connector group that are designated for disaster recovery restart their zpa-connector services, and all Private Service Edges in a Private Service Edge group that are designated for disaster recovery restart their zpa-service-edge services. When the services restart, existing user connections to the test App Connectors and Private Service Edges that are designated for disaster recovery are dropped."
+    },
+    {
+      "text": "To configure Disaster Recovery for Private Access:"
+    },
+    {
+      "item": "Ensure the prerequisites are met.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Configure disaster recovery for an application segment, App Connector group, and Private Service Edge group. Disaster Recovery must be enabled in the application segment, App Connector group, and Private Service Edge group for disaster recovery to work.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "An application segment with disaster recovery enabled must be associated with a server group. This server group must be associated with at least one App Connector group designated for disaster recovery. Additionally, ensure that the Zscaler Admin Console is designated for disaster recovery and can reach App Connectors for application segments designated for disaster recovery."
+    },
+    {
+      "item": "Configure the disaster recovery settings.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Capture all the public IP addresses of the Private Service Edges designated for disaster recovery into the A record for the disaster recovery domain name you have created. The public IP of the Private Service Edge is found on the Private Service Edges page.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Configure the disaster recovery settings for an App Profile in the Zscaler Admin Console. To learn more, see Configuring Zscaler Client Connector App Profiles.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "text": "Steps 2, 3, and 4 are interchangeable and can be completed in any order."
+    },
+    {
+      "text": "To disable disaster recovery entirely:"
+    },
+    {
+      "item": "If disaster recovery is currently active, deactivate disaster recovery.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Disable Disaster Recovery when configuring an application segment, App Connector group, and Private Service Edge group.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Disable disaster recovery when configuring an App Profile in the Zscaler Admin Console. To learn more, see Configuring Zscaler Client Connector App Profiles.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Configuring Disaster Recovery Test Mode",
+      "level": 1
+    },
+    {
+      "text": "The option to test disaster recovery is supported via Disaster Recovery Test Mode. When Disaster Recovery Test Mode is enabled, the Zscaler Admin Console is accessible. However, any changes made to the cloud via the Zscaler Admin Console do not take effect until Disaster Recovery Test Mode is disabled via the DNS records, or the activation record expires. During active Disaster Recovery Mode, App Connectors and Private Service Edges are disconnected from the Zscaler cloud. In contrast, the Zscaler Admin Console is not supported during Disaster Recovery Mode."
+    },
+    {
+      "text": "In Disaster Recovery Test Mode, all App Connectors in an App Connector group that are designated for disaster recovery restart their zpa-connector services, and all Private Service Edges in a Private Service Edge group that are designated for disaster recovery restart their zpa-service-edge services. When the services restart, existing user connections to the test App Connectors and Private Service Edges that are designated for disaster recovery are dropped. New connections for regular users that are not part of the disaster recovery test group are routed through either Public Service Edges for Private Access or regular Private Service Edges and App Connectors that are not designated for disaster recovery. Users participating in disaster recovery testing that are part of the disaster recovery test group also form new connections to the Private Service Edges and App Connectors that are part of the test mode."
+    },
+    {
+      "text": "To handle both disaster recovery and non-disaster-recovery-related traffic, Zscaler recommends you analyze the patterns of application access for both normal cloud usage and disaster recovery usage to size and partition systems appropriately. Zscaler recommends you review the following:"
+    },
+    {
+      "item": "During non-disaster recovery conditions, both Private Service Edges and App Connectors designated for disaster recovery are used for application access. After disaster recovery is activated, only the App Connectors and Private Service Edges designated for disaster recovery are used for application access during active Disaster Recovery Mode. This means the App Connectors and Private Service Edges designated for disaster recovery are no longer available for cloud application access.",
+      "depth": 0
+    },
+    {
+      "item": "During active Disaster Recovery Test Mode, normal cloud application access and application access via disaster recovery happens concurrently. This depends on the user assignment via App Profiles in the Zscaler Admin Console. Systems must be sized and partitioned appropriately for both normal cloud application access and application access via disaster recovery.",
+      "depth": 0
+    },
+    {
+      "item": "To support both users accessing applications via the cloud and users accessing applications via disaster recovery, a sufficient number of Private Service Edges designated for disaster recovery and Private Service Edges designated for regular use are required for both disaster-recovery-related and non-disaster-recovery-related traffic. You must configure and upload a DNS A record to the disaster recovery domain name using the IP addresses of the Private Service Edges designated for disaster recovery. To learn more, see Activating Disaster Recovery.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure all application segments designated for disaster recovery are assigned a sufficient number of App Connectors for use with the cloud, and assigned a sufficient number of App Connectors at a group level that are designated for disaster recovery to allow continued application access.",
+      "depth": 0
+    },
+    {
+      "item": "Normal App Connector and Private Service Edge resource specifications apply to App Connectors and Private Service Edges that are designated for disaster recovery. To learn more, see App Connector Deployment Prerequisites and Private Service Edge Deployment Prerequisites.",
+      "depth": 0
+    },
+    {
+      "text": "To configure Disaster Recovery Test Mode:"
+    },
+    {
+      "item": "Ensure the prerequisites are met.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Configure disaster recovery for an application segment, App Connector group, and Private Service Edge group. Disaster Recovery must be enabled in the application segment, App Connector group, and Private Service Edge group for Disaster Recovery Test Mode to work.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "An application segment designated for disaster recovery must be associated with a server group. This server group must be associated with at least one App Connector group designated for disaster recovery."
+    },
+    {
+      "item": "Configure the disaster recovery settings.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Configure the disaster recovery settings for an App Profile in the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "Create a separate App Profile for Disaster Recovery Test Mode and designate specific users for testing. This is to ensure the test is isolated and does not impact users or traffic in production. To learn more, see Configuring Zscaler Client Connector App Profiles."
+    },
+    {
+      "text": "Steps 2, 3, and 4 are interchangeable and can be completed in any order."
+    },
+    {
+      "heading": "Activating Disaster Recovery",
+      "level": 1
+    },
+    {
+      "text": "Disaster recovery is activated by uploading the DNS TXT records to the DNS Server for the Disaster Recovery Domain Name configured in the Disaster Recovery Settings. Both signed and unsigned DNS TXT records are supported for disaster recovery activation."
+    },
+    {
+      "text": "To enable Disaster Recovery Mode:"
+    },
+    {
+      "item": "Create a DNS TXT record with On as the disaster recovery status when using the Zscaler DNS Record Generator.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Upload the DNS TXT record to the DNS server for the disaster recovery domain name. To learn more, see Disaster Recovery Settings.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "Disaster Recovery Mode is activated when you upload the DNS TXT records to the DNS server for the disaster recovery domain name."
+    },
+    {
+      "text": "To enable Disaster Recovery Test Mode:"
+    },
+    {
+      "item": "Create a DNS TXT record with Test as the disaster recovery status when using the Zscaler DNS Record Generator.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Upload the DNS TXT record to the DNS server for the disaster recovery domain name. To learn more, see Disaster Recovery Settings.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "Disaster Recovery Test Mode is activated when you upload the DNS TXT records to the DNS server for the disaster recovery domain name."
+    },
+    {
+      "heading": "Deactivating Disaster Recovery",
+      "level": 1
+    },
+    {
+      "text": "To disable Disaster Recovery Mode and Disaster Recovery Test Mode for Private Access:"
+    },
+    {
+      "item": "Create a DNS TXT record with Off as the disaster recovery status when using the Zscaler DNS Record Generator.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Upload the DNS TXT record to the DNS server for the disaster recovery domain name. To learn more, see Disaster Recovery Settings.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "Disaster Recovery Mode is disabled when you upload the DNS TXT records to the DNS server for the disaster recovery domain name."
+    },
+    {
+      "text": "Disaster Recovery Mode is turned off when the DNS time to live (TTL) expires. Zscaler recommends that you use a DNS TTL that is suitable for your environment and disaster recovery needs. Zscaler does not recommend choosing very high or very low DNS TTL values (e.g., values greater than 15 minutes or less than 30 seconds)."
+    }
+  ]
+}

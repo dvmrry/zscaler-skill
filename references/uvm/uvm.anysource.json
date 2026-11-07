@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "id": "uvm.anysource",
+  "title": "Feeding UVM with AnySource: retrieval methods, file structure and the fields to include",
+  "aliases": [
+    "anysource",
+    "anysource connector",
+    "upload file api",
+    "uvm ingestion",
+    "uvm connectors",
+    "anytarget",
+    "uvm file upload"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "portfolio.secops-platform",
+      "because": "portfolio.secops-platform:anysource"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "AnySource is the generic connector for tools that have no dedicated vendor connector. {{connector-choice}}"
+    },
+    {
+      "label": "Retrieval.",
+      "text": "{{retrieval-methods}} The Upload File API's endpoint and format are not documented in any capture {{gap:upload-file-api}}. Creating the source otherwise follows [[portfolio.secops-platform:data-sources]]."
+    },
+    {
+      "label": "File structure.",
+      "text": "{{consistent-structure}} {{no-preprocessing}}"
+    },
+    {
+      "label": "AWS S3.",
+      "text": "{{s3-mechanism}} {{s3-role-stack}} {{s3-stack-permissions}} {{s3-sqs-queue}} {{s3-kms}} {{s3-bucket-notification}} {{s3-source-details}} {{s3-external-id}} {{s3-path-pattern}}"
+    },
+    {
+      "label": "Fields.",
+      "text": "{{explicit-fields}} {{asset-fields}} {{finding-fields}}"
+    },
+    {
+      "label": "Other integrations.",
+      "text": "{{integration-count}} The connector list itself is not captured: [[portfolio.secops-platform:connector-catalog]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether every file uploaded to one AnySource source has the same structure (headers, file type) as the first; a different layout needs its own source.",
+      "uses": [
+        "consistent-structure"
+      ]
+    },
+    {
+      "do": "Whether the file carries core identifiers (ID, name, first and last seen) so records correlate with other sources.",
+      "uses": [
+        "explicit-fields",
+        "asset-fields",
+        "finding-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "connector-choice": {
+      "statement": "A data source uses either a dedicated vendor connector or the AnySource connector; AnySource uploads files directly to the platform, stores them in their original format, and maps them to the platform's data model.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-anysource-connector.json",
+          "quotes": [
+            "When creating a data source to ingest data into the platform, you can either use a dedicated vendor connector, or you can use the AnySource connector.",
+            "The AnySource connector allows you to upload files directly to the platform. Uploaded files are stored in their original format and can be mapped to the platform's data model."
+          ]
+        }
+      ]
+    },
+    "retrieval-methods": {
+      "statement": "AnySource's file upload methods are Upload File, AWS S3, GCP, Webhook and Upload File API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-anysource-connector.json",
+          "quotes": [
+            "On the Create AnySource Source page, in the Retrieval section, select a file upload method:",
+            "- Upload File - AWS S3 - GCP - Webhook - Upload File API"
+          ]
+        }
+      ]
+    },
+    "consistent-structure": {
+      "statement": "Each source keeps a consistent field mapping, so all files uploaded to a source should match the structure of its original file, such as headers and file type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-anysource-connector.json",
+          "quotes": [
+            "Each source maintains a consistent field mapping, so all files uploaded to a given source should match the structure of the original file (e.g., headers, file type)."
+          ]
+        }
+      ]
+    },
+    "no-preprocessing": {
+      "statement": "The ingestion layer accepts a wide variety of file formats and structures, so preprocessing is generally not required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-anysource-connector.json",
+          "quotes": [
+            "The ingestion layer is designed to support a wide variety of file formats and structural variations, so preprocessing (e.g., data cleaning, reformatting) is generally not required"
+          ]
+        }
+      ]
+    },
+    "explicit-fields": {
+      "statement": "Unlike vendor connectors such as CrowdStrike Managed Hosts or ServiceNow Assets, AnySource needs the fields chosen explicitly: for a manual upload you can include them directly in the file, and field selection is typically handled through the parsing logic you define for the Upload File API; core identifiers (ID, name, first and last seen) support correlation across sources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-anysource-connector.json",
+          "quotes": [
+            "Unlike vendor-specific API connectors (e.g., CrowdStrike Managed Hosts, ServiceNow Assets), which automatically extract the necessary fields based on predefined integration logic, the AnySource connector requires you to explicitly determine which fields to include.",
+            "For example, when uploading a data file manually, you can choose to include the appropriate fields directly in the file.",
+            "In other cases, such as using the Upload File API, field selection is typically handled through the parsing logic you define.",
+            "Include core identifiers: Always export key attributes for each entity to support correlation across data sources (e.g., ID or unique key, name or title, and timestamps like first seen and last seen)."
+          ]
+        }
+      ]
+    },
+    "asset-fields": {
+      "statement": "Recommended asset fields are name or hostname, type, IP addresses, operating system, owner, location, status, tags, installed software and criticality.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-anysource-connector.json",
+          "quotes": [
+            "| Asset Name/Hostname | The name or hostname of the asset |",
+            "| Asset Type | The type of asset (e.g., server, workstation) |",
+            "| External or Internal IP Address | The IP addresses associated with the asset |",
+            "| Operating System | The operating system running on the asset |",
+            "| Asset Owner | The individual or department responsible for the asset |",
+            "| Location | The physical or logical location of the asset |",
+            "| Asset Status | The status of the asset (e.g., active, decommissioned) |",
+            "| Asset Tags | The asset tags, if available.",
+            "| Software Installed | A list of installed software and software versions |",
+            "| Asset Criticality | The importance of the asset to the organization"
+          ]
+        }
+      ]
+    },
+    "finding-fields": {
+      "statement": "Recommended finding fields are vulnerability name or ID, severity (score and category), description, affected asset, CVE, threat intel, tags, first and last seen timestamps, recommendations, and affected component.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-anysource-connector.json",
+          "quotes": [
+            "| Vulnerability Name/ID | The name or unique identifier for the vulnerability |",
+            "| Severity Score/CVSS/Scanner Score | The severity score assigned to the vulnerability, including the numerical score (8.1) and the category (High) |",
+            "| Description | A detailed description of the vulnerability and impact |",
+            "| Affected Asset | Information about the asset or system with the vulnerability |",
+            "| CVE | The CVE identifier, if available |",
+            "| Threat Intel Information | Threat intel parameters provided by the vendor |",
+            "| Tags | Vulnerability tags, if available.",
+            "| Timestamps | The First Seen and Last Seen fields",
+            "| Recommendations/Fix | Recommended actions for vulnerability remediation |",
+            "| Affected Component | Information about the affected component"
+          ]
+        }
+      ]
+    },
+    "s3-mechanism": {
+      "statement": "When a new file is added to the bucket, an alert is triggered and the file is retrieved; configuring an integration with S3 data is a three-step process.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "When a new file is added to the bucket, an alert is triggered and the file is retrieved.",
+            "Configuring an integration with your S3 data is a three-step process."
+          ]
+        }
+      ]
+    },
+    "s3-role-stack": {
+      "statement": "Step one creates a role Zscaler can use: generate a unique identifier that Zscaler's service uses to assume the role, then run the Cloud Formation Role Stack; the RoleARNID value appears under the stack's Output tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "Generate a unique identifier that will be used by Zscaler's service to assume the role.",
+            "Run the SecOps platform's Cloud Formation Role Stack.",
+            "the RoleARNID value appears under the stack's Output tab."
+          ]
+        }
+      ]
+    },
+    "s3-stack-permissions": {
+      "statement": "The CloudFormation template provides permissions for AWS, and a deployment connecting to AnySource only can edit the script to modify or remove unnecessary permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "The template-url script provides permissions for AWS. If you're connecting to AnySource only, you can edit the script to modify or remove unnecessary permissions."
+          ]
+        }
+      ]
+    },
+    "s3-sqs-queue": {
+      "statement": "Step two creates an SQS queue named avalor-s3-event-forwarder, whose Queue ARN is saved for the next step and whose Queue URL is sent to the Zscaler Account team to complete configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "Name the queue avalor-s3-event-forwarder.",
+            "Copy and save the Queue ARN, to be used in the next step.",
+            "Make sure to send the Queue URL to your Zscaler Account team representative to complete the configuration process."
+          ]
+        }
+      ]
+    },
+    "s3-kms": {
+      "statement": "If the organization uses KMS encryption, the key policy must allow the role to use the key with kms:Decrypt and kms:GenerateDataKey* actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "If your organization uses KMS encryption, add the following to the key policy:",
+            "Allow Role to use the key Effect: Allow Principal: AWS: !GetAtt AvalorRole.Arn Action: - \"kms:Decrypt\" - \"kms:GenerateDataKey*\" Resource: \"*\""
+          ]
+        }
+      ]
+    },
+    "s3-bucket-notification": {
+      "statement": "In the bucket notification steps, All object create events is selected under Event Type and SQS Queue as the Destination with the SQS queue ARN; the steps are repeated for every bucket to ingest data from.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "In step 6, select All object create events under Event Type.",
+            "In step 7, select SQS Queue as the Destination, then enter SQS queue ARN.",
+            "Repeat these steps for every bucket that you want to ingest data from."
+          ]
+        }
+      ]
+    },
+    "s3-source-details": {
+      "statement": "To create the data source, the customer sends the Zscaler Account team the AWS account ID, Region, Bucket and Role ARN, plus optional Path, External ID and File pattern (regex).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "- AWS account ID",
+            "- Region",
+            "- Bucket",
+            "- Role ARN",
+            "send the following details to your Zscaler Account team representative to use in setting up the data source.",
+            "- (Optional) Path",
+            "- (Optional) External ID: The external ID is the unique identifier you create",
+            "- (Optional) File pattern (regex)"
+          ]
+        }
+      ]
+    },
+    "s3-external-id": {
+      "statement": "The External ID is optional: it is the unique identifier created when creating the role for Zscaler, an additional security measure; using one is considered best practice but is not mandatory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "The external ID is the unique identifier you create when creating a role for Zscaler. It is an additional security measure that can be used when accessing your account.",
+            "While using an External ID is considered best practice, it is not mandatory."
+          ]
+        }
+      ]
+    },
+    "s3-path-pattern": {
+      "statement": "The Path and File pattern fields can be used separately or together, and the file pattern is entered in regex format (for example, a *.jsonl pattern retrieves only files with a .jsonl extension in that source).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "The Path and File pattern fields can be used separately or together to fit your use case.",
+            "by entering a *.jsonl pattern, the platform will only retrieve files with a .jsonl extension in that particular source.",
+            "The file pattern should be entered in a regex format."
+          ]
+        }
+      ]
+    },
+    "integration-count": {
+      "statement": "Zscaler's UVM product page lists 150+ prebuilt integrations, native connectors to 150+ data sources spanning CVEs, threat intel feeds, identity, applications, cloud services and user behavior; an AnySource connector for integrating new data sources, even flat files or webhooks; and an AnyTarget connector that pushes workflows, tickets or other outputs to any downstream system.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-unified-vulnerability-management-marketing.json",
+          "quotes": [
+            "150+ Prebuilt Integrations Leverage native connectors to 150+ data sources, spanning CVEs, threat intel feeds, identity, applications, cloud services, and user behavior.",
+            "AnySource Connector Easily integrate new data sources—even flat files or webhooks—with AnySource Connector.",
+            "Push workflows, tickets, or other outputs to any downstream system of choice with AnyTarget Connector."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "upload-file-api": {
+      "kind": "semantic",
+      "title": "The AnySource Upload File API's endpoint, authentication and accepted formats",
+      "status": "open",
+      "former_ids": [
+        "uvm-01"
+      ],
+      "detail": "Unverified legacy statement: the only source-backed API phrase is \"Upload File API\" as an AnySource ingestion method; no endpoint path, schema, auth scope or broader UVM administration API is captured or implemented in any vendored SDK, provider, MCP server or Postman collection.",
+      "blocks": "scripting uploads of scanner exports into UVM",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

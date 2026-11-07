@@ -1,0 +1,1020 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Alerts",
+  "source": {
+    "url": "https://help.zscaler.com/zpc/alerts-api",
+    "node": "1456281",
+    "revision": "2508331",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Alerts_13.json?VersionId=rBaGkOXFGn_wsUMNiVvadxZBuMXydRIe",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.3",
+    "info": {
+      "description": "To access detailed ZPC API documentation, including references and use cases, refer to the [Zscaler Help Portal](https://help.zscaler.com/zpc/understanding-zpc-api).",
+      "title": "ZPC API",
+      "version": "2.10.0"
+    },
+    "servers": [
+      {
+        "description": "ZPC API US",
+        "url": "https://api.zpccloud.net/v1"
+      },
+      {
+        "description": "ZPC API EU",
+        "url": "https://api.eu.zpccloud.net/v1"
+      }
+    ],
+    "tags": [
+      {
+        "name": "Alerts"
+      }
+    ],
+    "paths": {
+      "/alerts/cloud": {
+        "get": {
+          "description": "Gets a list of cloud alerts for the specified criteria.",
+          "parameters": [
+            {
+              "description": "Indicates the page size. If not provided, the default page size is 100. The maximum limit for page size is 100.",
+              "explode": false,
+              "in": "query",
+              "name": "limit",
+              "required": false,
+              "schema": {
+                "format": "int64",
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Specifies the page number.",
+              "explode": false,
+              "in": "query",
+              "name": "offset",
+              "required": false,
+              "schema": {
+                "format": "int64",
+                "maximum": 2000,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "The created starting date for the alert in epoch seconds. Zscaler recommends you are aware of the following:<p><ul><li>If start and end times are not specified, then alerts are retreived for the last 48 hours by default.</li><li>If only the start time is specified, then alerts are retrieved for up to 48 hours from start time.</li><li>If only the end time is specified, then alerts are retrieved from end time to 48 hours before.</li><li>If both the created and updated start and end times are specified, then only the alerts within the specified time range are retrieved.",
+              "explode": true,
+              "in": "query",
+              "name": "created[start]",
+              "required": false,
+              "schema": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "The created ending date for the alert in epoch seconds. Zscaler recommends you are aware of the following:<p><ul><li>If start and end times are not specified, then alerts are retreived for the last 48 hours by default.</li><li>If only the start time is specified, then alerts are retrieved for up to 48 hours from start time.</li><li>If only the end time is specified, then alerts are retrieved from end time to 48 hours before.</li><li>If both the created and updated start and end times are specified, then only the alerts within the specified time range are retrieved.",
+              "explode": true,
+              "in": "query",
+              "name": "created[end]",
+              "required": false,
+              "schema": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "The updated starting date for the alert in epoch seconds. Zscaler recommends you are aware of the following:<p><ul><li>If neither start or end times are specified, then alerts are retreived for the next 48 hours by default.</li><li>If only the start time is specified, then alerts are retrieved for the next 48 hours.</li><li>If only the end time is specified, then only the alerts from the previous 48 hours are retrieved.</li><li>If both the created and updated start and end times are specified, then only the alerts within the specified time range are retrieved.",
+              "explode": true,
+              "in": "query",
+              "name": "updated[start]",
+              "required": false,
+              "schema": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "The updated ending date for the alert in epoch seconds. Zscaler recommends you are aware of the following:<p><ul><li>If neither start or end times are specified, then alerts are retreived for the next 48 hours by default.</li><li>If only the start time is specified, then alerts are retrieved for the next 48 hours.</li><li>If only the end time is specified, then only the alerts from the previous 48 hours are retrieved.</li><li>If both the created and updated start and end times are specified, then only the alerts within the specified time range are retrieved.",
+              "explode": true,
+              "in": "query",
+              "name": "updated[end]",
+              "required": false,
+              "schema": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Indicates the cloud account type of the alert based on the specified filter.",
+              "explode": true,
+              "in": "query",
+              "name": "cloud_account_type",
+              "required": false,
+              "schema": {
+                "items": {
+                  "enum": [
+                    "AWS",
+                    "GCP",
+                    "AZURE",
+                    "KUBERNETES"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Filters the alert by business unit name based on the specified filter.",
+              "explode": true,
+              "in": "query",
+              "name": "business_units",
+              "required": false,
+              "schema": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Filters the alerts based on the specified regions.",
+              "explode": true,
+              "in": "query",
+              "name": "regions",
+              "required": false,
+              "schema": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Filters alerts by the specified <code>AlertStatus</code> value.",
+              "explode": true,
+              "in": "query",
+              "name": "alert_status",
+              "required": false,
+              "schema": {
+                "items": {
+                  "enum": [
+                    "OPEN",
+                    "CLOSED",
+                    "RESOLVED",
+                    "IGNORED"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Filters alerts by the specified <code>RiskLevel</code> value.",
+              "explode": true,
+              "in": "query",
+              "name": "risk_level",
+              "required": false,
+              "schema": {
+                "items": {
+                  "enum": [
+                    "LOW",
+                    "MEDIUM",
+                    "HIGH",
+                    "CRITICAL"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Orders the alerts by the specified <code>order_by</code> value.",
+              "explode": true,
+              "in": "query",
+              "name": "order_by",
+              "required": false,
+              "schema": {
+                "enum": [
+                  "severity",
+                  "severity:asc",
+                  "severity:desc",
+                  "created",
+                  "created:asc",
+                  "created:desc",
+                  "updated",
+                  "updated:asc",
+                  "updated:desc",
+                  "alert_status",
+                  "alert_status:asc",
+                  "alert_status:desc"
+                ],
+                "type": "string"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Filters the alerts by the specified <code>fields</code> value.",
+              "explode": true,
+              "in": "query",
+              "name": "fields",
+              "required": false,
+              "schema": {
+                "items": {
+                  "enum": [
+                    "alert_id",
+                    "alert_type",
+                    "alert_desc",
+                    "alert_status",
+                    "alert_status_desc",
+                    "alert_url",
+                    "csp",
+                    "severity",
+                    "risk_level",
+                    "risk_score",
+                    "threat_category",
+                    "mitre_attack",
+                    "theme",
+                    "asset_category",
+                    "asset_type",
+                    "audit_procedure",
+                    "recommendations",
+                    "remediation_procedure",
+                    "alert_focus",
+                    "reason",
+                    "updated_by",
+                    "policy",
+                    "cloud_resource",
+                    "business_unit",
+                    "cloud_account",
+                    "identity",
+                    "compliance",
+                    "kubernetes",
+                    "created",
+                    "updated"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "style": "form"
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CloudAlertsResult"
+                  }
+                }
+              },
+              "description": "OK"
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "429": {
+              "description": "Rate Limit Fail"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          },
+          "tags": [
+            "Alerts"
+          ]
+        }
+      },
+      "/alerts/iac": {
+        "get": {
+          "description": "Gets a list of IaC alerts for the specified criteria.",
+          "parameters": [
+            {
+              "description": "Indicates the page size. If not provided, the default page size is 100. The maximum limit for page size is 100.",
+              "explode": false,
+              "in": "query",
+              "name": "limit",
+              "required": false,
+              "schema": {
+                "format": "int64",
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Specifies the page number.",
+              "explode": false,
+              "in": "query",
+              "name": "offset",
+              "required": false,
+              "schema": {
+                "format": "int64",
+                "maximum": 1000,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "The created starting date for the alert in epoch seconds. Zscaler recommends you are aware of the following:<p><ul><li>If neither start or end times are specified, then alerts are retreived for the next 48 hours by default.</li><li>If only the start time is specified, then alerts are retrieved for the next 48 hours.</li><li>If only the end time is specified, then only the alerts from the previous 48 hours are retrieved.</li><li>If both the created and updated start and end times are specified, then only the alerts within the specified time range are retrieved.",
+              "explode": true,
+              "in": "query",
+              "name": "created[start]",
+              "required": false,
+              "schema": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "The created ending date for the alert in epoch seconds. Zscaler recommends you are aware of the following:<p><ul><li>If neither start or end times are specified, then alerts are retreived for the next 48 hours by default.</li><li>If only the start time is specified, then alerts are retrieved for the next 48 hours.</li><li>If only the end time is specified, then only the alerts from the previous 48 hours are retrieved.</li><li>If both the created and updated start and end times are specified, then only the alerts within the specified time range are retrieved.",
+              "explode": true,
+              "in": "query",
+              "name": "created[end]",
+              "required": false,
+              "schema": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "The updated starting date for the alert in epoch seconds. Zscaler recommends you are aware of the following:<p><ul><li>If neither start or end times are specified, then alerts are retreived for the next 48 hours by default.</li><li>If only the start time is specified, then alerts are retrieved for the next 48 hours.</li><li>If only the end time is specified, then only the alerts from the previous 48 hours are retrieved.</li><li>If both the created and updated start and end times are specified, then only the alerts within the specified time range are retrieved.",
+              "explode": true,
+              "in": "query",
+              "name": "updated[start]",
+              "required": false,
+              "schema": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "The updated ending date for the alert in epoch seconds. Zscaler recommends you are aware of the following:<p><ul><li>If neither start or end times are specified, then alerts are retreived for the next 48 hours by default.</li><li>If only the start time is specified, then alerts are retrieved for the next 48 hours.</li><li>If only the end time is specified, then only the alerts from the previous 48 hours are retrieved.</li><li>If both the created and updated start and end times are specified, then only the alerts within the specified time range are retrieved.",
+              "explode": true,
+              "in": "query",
+              "name": "updated[end]",
+              "required": false,
+              "schema": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Orders the alerts by the specified <code>order_by</code> value.",
+              "explode": true,
+              "in": "query",
+              "name": "order_by",
+              "required": false,
+              "schema": {
+                "enum": [
+                  "severity",
+                  "severity:asc",
+                  "severity:desc",
+                  "created",
+                  "created:asc",
+                  "created:desc",
+                  "updated",
+                  "updated:asc",
+                  "updated:desc",
+                  "alert_status",
+                  "alert_status:asc",
+                  "alert_status:desc"
+                ],
+                "type": "string"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Indicates the cloud account type of the alert based on the specified filter.",
+              "explode": true,
+              "in": "query",
+              "name": "cloud_account_type",
+              "required": false,
+              "schema": {
+                "items": {
+                  "enum": [
+                    "AWS",
+                    "GCP",
+                    "AZURE",
+                    "KUBERNETES"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Filters alerts by the specified <code>alert_status</code> value.",
+              "explode": true,
+              "in": "query",
+              "name": "alert_status",
+              "required": false,
+              "schema": {
+                "items": {
+                  "enum": [
+                    "OPEN",
+                    "CLOSED",
+                    "RESOLVED",
+                    "IGNORED"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Filter alerts by the specified <code>risk_Level</code> value.",
+              "explode": true,
+              "in": "query",
+              "name": "risk_level",
+              "required": false,
+              "schema": {
+                "items": {
+                  "enum": [
+                    "LOW",
+                    "MEDIUM",
+                    "HIGH",
+                    "CRITICAL"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "style": "form"
+            },
+            {
+              "description": "Filters the alerts by the specified <code>fields</code> value.",
+              "explode": true,
+              "in": "query",
+              "name": "fields",
+              "required": false,
+              "schema": {
+                "items": {
+                  "enum": [
+                    "alert_id",
+                    "alert_type",
+                    "alert_description",
+                    "alert_status",
+                    "alert_status_description",
+                    "alert_url",
+                    "policy",
+                    "severity",
+                    "risk_level",
+                    "age",
+                    "asset_category",
+                    "asset_type",
+                    "compliance",
+                    "recommendations",
+                    "remediation_procedure",
+                    "theme",
+                    "iac_scan",
+                    "csp",
+                    "repository",
+                    "created_date",
+                    "updated_date"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "style": "form"
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CloudAlertsResult"
+                  }
+                }
+              },
+              "description": "OK"
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "429": {
+              "description": "Rate Limit Fail"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          },
+          "tags": [
+            "Alerts"
+          ]
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "CloudAlertsResult": {
+          "example": {
+            "alerts": [
+              {
+                "kind": "CloudAlert",
+                "alert_id": "123456",
+                "alert_type": "Security Group",
+                "alert_description": "The security group SG-12345678 allows inbound traffic from any IP address.",
+                "alert_status": "open",
+                "alert_status_description": "The alert is still open and has not yet been resolved.",
+                "alert_url": "https://example.com/alerts/",
+                "csp": "AWS",
+                "severity": "High",
+                "risk_level": "High",
+                "risk_score": "8.5",
+                "threat_category": "Network Security",
+                "mitre_attack": "T1071 - Application Layer Protocol",
+                "theme": "Network Security",
+                "asset_category": "Compute",
+                "asset_type": "EC2 Instance",
+                "age": 86400,
+                "audit_procedure": "The security group rules should be reviewed and the unnecessary rules should be removed.",
+                "recommendations": "Restrict the inbound traffic to the required IP addresses only.",
+                "remediation_procedure": "The security group rules should be modified to restrict the inbound traffic to the required IP addresses only.",
+                "alert_focus": "Network Security",
+                "reason": "The security group was created without proper restrictions on inbound traffic.",
+                "updated_by": "John Doe",
+                "created": 123234536456,
+                "updated": 123234537689,
+                "policy": {
+                  "policy_id": "5678",
+                  "policy_source": "example source",
+                  "policy_name": "Example Policy",
+                  "policy_description": "A description of the policy"
+                },
+                "cloud_resource": {
+                  "resource_id": "abcd",
+                  "resource_name": "Example Resource",
+                  "resource_type": "EC2 Instance",
+                  "resource_region": "us-east-1"
+                },
+                "identity": {
+                  "identity_id": "xyz-789",
+                  "identity_name": "Example User",
+                  "identity_type": "User",
+                  "identity_source": "Example Source"
+                },
+                "compliance": {
+                  "name": "Example Compliance",
+                  "version": "1.0",
+                  "number": "xyz-75666",
+                  "type": "Regulation",
+                  "domains": "Finance, Healthcare"
+                },
+                "business_unit": {
+                  "business_unit_name": "Example Business Unit"
+                },
+                "cloud_account": {
+                  "account_id": "1234",
+                  "account_name": "Example Account",
+                  "organization": "Example Org",
+                  "organization_id": "abc-123"
+                },
+                "kubernetes": {
+                  "cluster_type": "GKE",
+                  "cluster_name": "Example Cluster"
+                }
+              }
+            ],
+            "total_count": 1,
+            "prev_link": "https://example.com/alerts/cloud/offset=1",
+            "next_link": "https://example.com/alerts/cloud/offset=3"
+          },
+          "properties": {
+            "alerts": {
+              "items": {
+                "$ref": "#/components/schemas/CloudAlert"
+              },
+              "type": "array",
+              "x-go-custom-tag": "includeEmpty"
+            },
+            "total_count": {
+              "description": "The total count of all cloud alerts.",
+              "format": "int64",
+              "type": "integer",
+              "x-go-custom-tag": "includeEmpty"
+            },
+            "prev_link": {
+              "description": "The previous page of cloud alert results.",
+              "type": "string",
+              "x-go-custom-tag": "includeEmpty"
+            },
+            "next_link": {
+              "description": "The next page of cloud alert results.",
+              "type": "string",
+              "x-go-custom-tag": "includeEmpty"
+            }
+          },
+          "type": "object"
+        },
+        "CloudAlert": {
+          "example": {
+            "kind": "CloudAlert",
+            "alert_id": "123456",
+            "alert_type": "Security Group",
+            "alert_description": "The security group SG-12345678 allows inbound traffic from any IP address.",
+            "alert_status": "open",
+            "alert_status_description": "The alert is still open and has not yet been resolved.",
+            "alert_url": "https://example.com/alerts/",
+            "csp": "AWS",
+            "severity": "High",
+            "risk_level": "High",
+            "risk_score": "8.5",
+            "threat_category": "Network Security",
+            "mitre_attack": "T1071 - Application Layer Protocol",
+            "theme": "Network Security",
+            "asset_category": "Compute",
+            "asset_type": "EC2 Instance",
+            "age": 86400,
+            "audit_procedure": "The security group rules should be reviewed and the unnecessary rules should be removed.",
+            "recommendations": "Restrict the inbound traffic to the required IP addresses only.",
+            "remediation_procedure": "The security group rules should be modified to restrict the inbound traffic to the required IP addresses only.",
+            "alert_focus": "Network Security",
+            "reason": "The security group was created without proper restrictions on inbound traffic.",
+            "updated_by": "John Doe",
+            "created": 123234536456,
+            "updated": 123234537689,
+            "policy": {
+              "policy_id": "5678",
+              "policy_source": "example source",
+              "policy_name": "Example Policy",
+              "policy_description": "A description of the policy"
+            },
+            "cloud_resource": {
+              "resource_id": "abcd",
+              "resource_name": "Example Resource",
+              "resource_type": "EC2 Instance",
+              "resource_region": "us-east-1"
+            },
+            "identity": {
+              "identity_id": "xyz-789",
+              "identity_name": "Example User",
+              "identity_type": "User",
+              "identity_source": "Example Source"
+            },
+            "compliance": {
+              "name": "Example Compliance",
+              "version": "1.0",
+              "number": "xyz-75666",
+              "type": "Regulation",
+              "domains": "Finance, Healthcare"
+            },
+            "business_unit": {
+              "business_unit_name": "Example Business Unit"
+            },
+            "cloud_account": {
+              "account_id": "1234",
+              "account_name": "Example Account",
+              "organization": "Example Org",
+              "organization_id": "abc-123"
+            },
+            "kubernetes": {
+              "cluster_type": "GKE",
+              "cluster_name": "Example Cluster"
+            }
+          },
+          "properties": {
+            "kind": {
+              "description": "The type of alert (i.e., cloud alert or IaC alert). Supported values:<p><ul><li><code>CloudAlert</code></li><li><code>IacAlert</code></li></ui>",
+              "type": "string"
+            },
+            "alert_id": {
+              "description": "The unique identifier of the cloud alert.",
+              "type": "string"
+            },
+            "alert_type": {
+              "description": "The entity type of the cloud alert.",
+              "type": "string"
+            },
+            "alert_description": {
+              "description": "The description of the cloud alert.",
+              "type": "string"
+            },
+            "alert_status": {
+              "description": "The status of the cloud alert (Open, Closed, Resolved, Reopened). Supported values:<p><ul><li><code>Open</code></li><li><code>Closed</code></li><li><code>Resolved</code></li><li><code>Ignored</code></li></ul>",
+              "type": "string"
+            },
+            "alert_status_description": {
+              "description": "The description of the cloud alert status.",
+              "type": "string"
+            },
+            "alert_url": {
+              "description": "The URL of the alert.",
+              "type": "string"
+            },
+            "csp": {
+              "description": "The Cloud Service Providers for the alert. Supported values:<p><ul><li><code>AWS</code></li><li><code>GCP</code></li><li><code>AZURE</code></li><li><code>KUBERNETES</code></li><li><code>OCI</code></li></ul>",
+              "type": "string"
+            },
+            "severity": {
+              "description": "The severity level (Critical, High, Medium, or Low) of the cloud alert. Supported values:<p><ul><li><code>Critical</code></li><li><code>High</code></li><li><code>Medium</code></li><li><code>Low</code></li></ul>",
+              "type": "string"
+            },
+            "risk_level": {
+              "description": "The risk level (Critical, High, Medium, or Low) of the policy violation. The severity of the alert indicates the impact the issue can have on your assets. The higher the severity, the bigger the impact. Supported values:<p><ul><li><code>Critical</code></li><li><code>High</code></li><li><code>Medium</code></li><li><code>Low</code></li></ul>",
+              "type": "string"
+            },
+            "risk_score": {
+              "description": "The numeric representation of the risk.",
+              "type": "string"
+            },
+            "threat_category": {
+              "description": "The threat category the policy belongs to.",
+              "type": "string"
+            },
+            "mitre_attack": {
+              "description": "The link to the technique on the MITRE ATT&CK website.",
+              "type": "string"
+            },
+            "theme": {
+              "description": "The theme for the alert (Compliance, Security Events, or Security Exposure).",
+              "type": "string"
+            },
+            "asset_category": {
+              "description": "The top-level grouping of assets.",
+              "type": "string"
+            },
+            "asset_type": {
+              "description": "The type of the asset.",
+              "type": "string"
+            },
+            "age": {
+              "description": "The age of the alert (in days) from the last time the Alert Status was set to Open.",
+              "format": "int64",
+              "type": "integer"
+            },
+            "audit_procedure": {
+              "description": "The steps to audit.",
+              "type": "string"
+            },
+            "recommendations": {
+              "description": "The recommended action to resolve the alert.",
+              "type": "string"
+            },
+            "remediation_procedure": {
+              "description": "The steps to resolve the alert.",
+              "type": "string"
+            },
+            "alert_focus": {
+              "description": "The focus of the alert (Asset, Identity).",
+              "type": "string"
+            },
+            "reason": {
+              "description": "The text description of the manually resolved alerts.",
+              "type": "string"
+            },
+            "updated_by": {
+              "description": "The user who modified the alert.",
+              "type": "string"
+            },
+            "created": {
+              "description": "The timestamp for when the alert was created.",
+              "format": "int64",
+              "type": "integer"
+            },
+            "updated": {
+              "description": "The timestamp for when the alert was last modified.",
+              "format": "int64",
+              "type": "integer"
+            },
+            "policy": {
+              "$ref": "#/components/schemas/Policy"
+            },
+            "cloud_resource": {
+              "$ref": "#/components/schemas/CloudResource"
+            },
+            "identity": {
+              "$ref": "#/components/schemas/Identity"
+            },
+            "compliance": {
+              "$ref": "#/components/schemas/Compliance"
+            },
+            "business_unit": {
+              "$ref": "#/components/schemas/BusinessUnit"
+            },
+            "cloud_account": {
+              "$ref": "#/components/schemas/CloudAccount"
+            },
+            "kubernetes": {
+              "$ref": "#/components/schemas/Kubernetes"
+            }
+          },
+          "type": "object"
+        },
+        "Policy": {
+          "example": {
+            "policy_id": "5678",
+            "policy_source": "example source",
+            "policy_name": "Example Policy",
+            "policy_description": "A description of the policy"
+          },
+          "nullable": true,
+          "properties": {
+            "policy_id": {
+              "description": "The unique identifier of the security policy.",
+              "type": "string"
+            },
+            "policy_source": {
+              "description": "The source of the security policy.",
+              "type": "string"
+            },
+            "policy_name": {
+              "description": "The name of the security policy.",
+              "type": "string"
+            },
+            "policy_description": {
+              "description": "The description of the security policy.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "CloudResource": {
+          "example": {
+            "resource_id": "abcd",
+            "resource_name": "Example Resource",
+            "resource_type": "EC2 Instance",
+            "resource_region": "us-east-1"
+          },
+          "nullable": true,
+          "properties": {
+            "resource_id": {
+              "description": "The unique identifier of the cloud resource.",
+              "type": "string"
+            },
+            "resource_name": {
+              "description": "The name of the cloud resource.",
+              "type": "string"
+            },
+            "resource_type": {
+              "description": "The type of the cloud resource.",
+              "type": "string"
+            },
+            "resource_region": {
+              "description": "The region of the cloud resource.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "Identity": {
+          "example": {
+            "identity_id": "xyz-789",
+            "identity_name": "Example User",
+            "identity_type": "User",
+            "identity_source": "Example Source"
+          },
+          "nullable": true,
+          "properties": {
+            "identity_id": {
+              "description": "The unique identifier of the identity.",
+              "type": "string"
+            },
+            "identity_name": {
+              "description": "The name of the identity.",
+              "type": "string"
+            },
+            "identity_type": {
+              "description": "The type of identity.",
+              "type": "string"
+            },
+            "identity_source": {
+              "description": "The source of the identity.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "Compliance": {
+          "example": {
+            "name": "Example Compliance",
+            "version": "1.0",
+            "number": "xyz-75666",
+            "type": "Regulation",
+            "domains": "Finance, Healthcare"
+          },
+          "nullable": true,
+          "properties": {
+            "name": {
+              "description": "The name of the compliance benchmark associated with the policy.",
+              "type": "string"
+            },
+            "version": {
+              "description": "The version of the compliance benchmark associated with the policy.",
+              "type": "string"
+            },
+            "number": {
+              "description": "The compliance control number.",
+              "type": "string"
+            },
+            "type": {
+              "description": "The type of compliance benchmark.",
+              "type": "string"
+            },
+            "domains": {
+              "description": "The domains of the compliance benchmark.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "BusinessUnit": {
+          "example": {
+            "business_unit_name": "Example Business Unit"
+          },
+          "nullable": true,
+          "properties": {
+            "business_unit_name": {
+              "description": "The name of the business unit.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "CloudAccount": {
+          "example": {
+            "account_id": "1234",
+            "account_name": "Example Account",
+            "organization": "Example Org",
+            "organization_id": "abc-123"
+          },
+          "nullable": true,
+          "properties": {
+            "account_id": {
+              "description": "The unique identifier of the cloud account.",
+              "type": "string"
+            },
+            "account_name": {
+              "description": "The name of the cloud account.",
+              "type": "string"
+            },
+            "organization": {
+              "description": "The organization of the cloud account.",
+              "type": "string"
+            },
+            "organization_id": {
+              "description": "The unique identifier of the cloud account.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "Kubernetes": {
+          "example": {
+            "cluster_type": "GKE",
+            "cluster_name": "Example Cluster"
+          },
+          "nullable": true,
+          "properties": {
+            "cluster_type": {
+              "description": "The cluster type (EKS, AKS, GKE).",
+              "type": "string"
+            },
+            "cluster_name": {
+              "description": "The name of the cluster.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      }
+    }
+  }
+}

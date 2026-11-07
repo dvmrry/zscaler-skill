@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "id": "deception.service-connectors",
+  "title": "Deception and ITDR Service Connectors: built-in and external connectors, API tokens, command line and deletion",
+  "aliases": [
+    "itdr service connectors",
+    "deception service connectors",
+    "service connector",
+    "siem connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.api-tokens"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers the Deception and Identity Protection (ITDR) Service Connector pages ([[deception.overview]], [[identity-protection.overview]]). {{connector-definition}}"
+    },
+    {
+      "label": "Built-in and external connectors.",
+      "text": "{{builtin-connectors}} {{connector-list-columns}} {{connector-external-prereqs}}"
+    },
+    {
+      "label": "Token and command line.",
+      "text": "{{connector-token-and-command}} {{qradar-syslog-receiver}}"
+    },
+    {
+      "label": "Deleting.",
+      "text": "{{connector-delete-cascade}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before deleting a Service Connector, that the SIEM integrations using it are deleted with it.",
+      "uses": [
+        "connector-delete-cascade"
+      ]
+    },
+    {
+      "do": "For an external Service Connector that does not start sending, the reachability prerequisites to the admin portal and to the SIEM.",
+      "uses": [
+        "connector-external-prereqs"
+      ]
+    }
+  ],
+  "claims": {
+    "connector-definition": {
+      "statement": "A Service Connector is an application that communicates with the admin portal and sends events and audit logs to SIEM solutions, and one Service Connector can feed one or multiple SIEMs; the Deception page adds that a Service Connector must be configured before integrating with a SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-service-connectors.json",
+          "quotes": [
+            "A Service Connector is an application that communicates with the Zscaler Deception Admin Portal and sends events and audit logs to the SIEM solution. You can integrate a Service Connector with one or multiple SIEM solutions.",
+            "Before integrating Zscaler Deception with a Security Information and Event Management (SIEM) solution, a Service Connector must be configured."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-service-connectors.json",
+          "quotes": [
+            "Service Connector is an application that communicates with the Zscaler ITDR Admin Portal and sends events and audit logs to the Security Information and Event Management (SIEM) solution. You can integrate a Service Connector with one or multiple SIEM solutions."
+          ]
+        }
+      ]
+    },
+    "builtin-connectors": {
+      "statement": "By default Service Connectors are configured automatically in the Deception Admin Portal and in each Decoy Connector, always run and cannot be deleted; external ones can be configured from Windows or Linux executables downloaded from the portal. The ITDR page says the automatically configured ones (in the ITDR Admin Portal) cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-service-connectors.json",
+          "quotes": [
+            "By default, Service Connectors are automatically configured in the Deception Admin Portal and each Decoy Connector. These Service Connectors are always running and cannot be deleted.",
+            "You can configure a Service Connector externally within your organization by downloading the executables (Windows or Linux) from the Deception Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-service-connectors.json",
+          "quotes": [
+            "By default, Service Connectors are automatically configured in the ITDR Admin Portal. These Service Connectors are always running and cannot be edited or deleted."
+          ]
+        }
+      ]
+    },
+    "connector-list-columns": {
+      "statement": "The Service Connectors page lists each connector's Name, Version, Syslog Receiver Source (the configured syslog receiver type) and Syslog Receiver Allowed IPs (addresses allowed inbound from a configured syslog receiver).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-service-connectors.json",
+          "quotes": [
+            "Name: The name of the Service Connector.",
+            "Version: The current version of the Service Connector.",
+            "Syslog Receiver Source: The name of the syslog receiver type that is configured.",
+            "Syslog Receiver Allowed IPs: The IP addresses to allow inbound connections from a configured syslog receiver."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-service-connectors.json",
+          "quotes": [
+            "Name: The name of the Service Connector.",
+            "Version: The current version of the Service Connector.",
+            "Syslog Receiver Source: The name of the syslog receiver type that is configured.",
+            "Syslog Receiver Allowed IPs: The IP addresses to allow inbound connections from a configured syslog receiver."
+          ]
+        }
+      ]
+    },
+    "connector-external-prereqs": {
+      "statement": "Configuring a Service Connector on a Windows or Linux system by running the executables from the portal needs an always-on system or endpoint to run the executable, network reachability from it to the admin portal, and network reachability from it to the SIEM (Deception page).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-service-connector.json",
+          "quotes": [
+            "You can configure a Service Connector on your Windows or Linux system by downloading and running the Service Connector executables from the Zscaler Deception Admin Portal.",
+            "An always-on system or endpoint that can run the Service Connector executable.",
+            "Network reachability from the server or endpoint to the Deception Admin Portal.",
+            "Network reachability from the system running the Service Connector or endpoint to the SIEM solution."
+          ]
+        }
+      ]
+    },
+    "connector-token-and-command": {
+      "statement": "A new Service Connector's API token is copied from the Windows or Linux tab of the API Token generated window and is not displayed again after closing it; the Windows and Linux executables are run with --host=<Deception Admin Portal instance> and --api=<API Token> options, a --proxy=http://<username:password@proxy-server:proxy-port> option is shown for proxy use, and a service or daemon can be configured to start the connector at boot (Deception page).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-service-connector.json",
+          "quotes": [
+            "In the API Token generated window, click the Windows or Linux tab, and copy the API token.",
+            "For security purposes, the token is not displayed again after closing the window.",
+            "SiemConnector-windows.exe --host=<Deception Admin Portal instance> --api=<API Token> -v",
+            "SiemConnector-linux --host=<Deception Admin Portal instance> --api=<API Token> -v",
+            "./SiemConnector-linux --host=<Deception Admin Portal instance> --api=<API Token> --proxy=http://<username:password@proxy-server:proxy-port>",
+            "You can configure a service or daemon to start the Service Connector at boot and keep the Service Connector running."
+          ]
+        }
+      ]
+    },
+    "qradar-syslog-receiver": {
+      "statement": "When forwarding events from an IBM QRadar SIEM server to the Deception Service Connector, a syslog Source Type is selected and the SIEM servers' IP addresses are added to the Source Allowed IPs list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-service-connector.json",
+          "quotes": [
+            "Select a syslog Source Type from the drop-down menu.",
+            "If you plan to forward events from an IBM QRadar SIEM server to the Deception Service Connector, under Syslog Receiver:",
+            "Add the IP addresses of SIEM servers to the Source Allowed IPs list."
+          ]
+        }
+      ]
+    },
+    "connector-delete-cascade": {
+      "statement": "Deleting a Service Connector deletes all SIEM integrations that use it (Deception page).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-service-connectors.json",
+          "quotes": [
+            "When you delete a Service Connector, all SIEM integrations with the Service Connector are deleted."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

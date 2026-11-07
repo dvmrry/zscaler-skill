@@ -1,0 +1,729 @@
+{
+  "schema_version": 1,
+  "id": "uvm.tickets",
+  "title": "How UVM tickets work: the Tickets page, manual split and merge, automatic grouping rules, status buckets and ticket workflows",
+  "aliases": [
+    "uvm ticket",
+    "ticket drawer",
+    "grouping rules",
+    "ticket workflows",
+    "status bucket",
+    "locked ticket",
+    "resurface finding",
+    "split into a new ticket"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.exceptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.remediation-copilot"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.easm-discovery"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{ticket-definition}} {{ticket-severity-risk-mass}} {{ticket-remediation-pct}}"
+    },
+    {
+      "label": "Tickets page and drawer.",
+      "text": "{{ticket-bulk-actions}} {{ticket-drawer}} {{drawer-edits}} {{comment-purpose}}"
+    },
+    {
+      "heading": "Manual grouping"
+    },
+    {
+      "text": "{{manual-grouping-permission}} {{split-merge-blocked-by-exception}}"
+    },
+    {
+      "label": "Split.",
+      "text": "{{split-findings}} {{split-external-link}}"
+    },
+    {
+      "label": "Merge.",
+      "text": "{{merge-external-link}}"
+    },
+    {
+      "label": "Result.",
+      "text": "{{locked-scope}} {{manual-attributes}} {{manual-activity-log}}"
+    },
+    {
+      "heading": "Automatic grouping rules"
+    },
+    {
+      "text": "{{default-ruleset}} {{fallback-rule}} {{ruleset-actions}}"
+    },
+    {
+      "label": "Rule parts.",
+      "text": "{{rule-components}} {{group-by-combination}} {{title-methods}}"
+    },
+    {
+      "label": "Order and activation.",
+      "text": "{{rule-order}} {{save-activate-run}} {{preview-empty}}"
+    },
+    {
+      "label": "Limits.",
+      "text": "{{gap:rule-limits}}"
+    },
+    {
+      "heading": "Ticket statuses and states"
+    },
+    {
+      "text": "{{status-bucket}} {{status-edit-limits}}"
+    },
+    {
+      "label": "State.",
+      "text": "{{states}} {{status-vs-state}}"
+    },
+    {
+      "heading": "Ticket workflows"
+    },
+    {
+      "text": "{{workflow-categories}} {{automation-precedence}} {{rule-evaluation}} {{workflow-save}}"
+    },
+    {
+      "label": "Status management.",
+      "text": "{{default-status}} {{auto-close}} {{gap:undetected-definition}}"
+    },
+    {
+      "label": "Resurfaced findings.",
+      "text": "{{resurface-new-ticket}} {{resurface-trigger}} {{resurface-reopen}} {{status-exclusivity}}"
+    },
+    {
+      "label": "Lock and dispatch.",
+      "text": "{{lock-scope}} {{auto-dispatch}}"
+    },
+    {
+      "label": "Related.",
+      "text": "[[uvm.overview]] [[uvm.exceptions]] [[uvm.remediation-copilot]] [[uvm.easm-discovery]]"
+    }
+  ],
+  "claims": {
+    "ruleset-actions": {
+      "statement": "A grouping ruleset can be activated, cloned, edited or deleted, and the rules in it can be cloned, edited or deleted, except that the default fallback rule cannot be removed; changes to the grouping apply to the account once the updated ruleset is activated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-grouping-rules.json",
+          "quotes": [
+            "To apply changes to the grouping in your account, activate the updated ruleset.",
+            "When managing grouping rulesets, you can perform the following actions: - Activate a Grouping Ruleset - Clone a Grouping Ruleset - Edit a Grouping Ruleset - Delete a Grouping Ruleset",
+            "When managing grouping rules, you can perform the following actions: - Clone Grouping Rules - Edit Grouping Rules - Delete Grouping Rules",
+            "which provides a standard grouping method for unmatched findings and cannot be removed."
+          ]
+        }
+      ]
+    },
+    "comment-purpose": {
+      "statement": "Ticket comments can be used to update the team on changes to a ticket, such as splitting findings from it, a change of assignee or a change of severity score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-tickets.json",
+          "quotes": [
+            "You can use comments to update your team on changes made to a ticket, details on splitting findings from tickets, change of assignee, change of severity score, etc."
+          ]
+        }
+      ]
+    },
+    "drawer-edits": {
+      "statement": "In the ticket details drawer the owner is set from the Owner drop-down on the Details tab, comments are added on the Comments tab, and status is changed with the arrow next to the status progress bar.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-tickets.json",
+          "quotes": [
+            "On the Details tab, click the Owner drop-down menu and select an option.",
+            "Click the Comments tab and add a comment.",
+            "Click the arrow next to the status progress bar at the top of the drawer."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-tickets.json",
+          "quotes": [
+            "Click Apply Changes."
+          ],
+          "after": "Click the arrow next to the status progress bar at the top of the drawer."
+        }
+      ]
+    },
+    "ticket-definition": {
+      "statement": "A UVM ticket aggregates related findings into a single work item that can be fixed as one task, and can be dispatched to external work management platforms such as Jira or ServiceNow.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-about-tickets.json",
+          "quotes": [
+            "Each ticket in the table aggregates related findings into a single work item that can be fixed as one task.",
+            "initiate ticket remediation by dispatching tasks to external work management platforms (e.g., Jira, ServiceNow)."
+          ]
+        }
+      ]
+    },
+    "ticket-severity-risk-mass": {
+      "statement": "A ticket's Severity Score is calculated from the severity scores of its findings (for example the highest or the average), and its Risk Mass is the sum of the findings' severity scores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-about-tickets.json",
+          "quotes": [
+            "The severity score assigned to the ticket, calculated based on the severity scores of the findings within the ticket (e.g., using the highest score or the average score).",
+            "Risk Mass: The sum of severity scores of findings in the ticket."
+          ]
+        }
+      ]
+    },
+    "ticket-remediation-pct": {
+      "statement": "A ticket's Remediation is the percentage of findings resolved within the ticket, based on those that are no longer detected by the sources; First Seen reflects the earliest detected finding in the ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-about-tickets.json",
+          "quotes": [
+            "Remediation: The percentage of findings resolved within the ticket, based on those that are no longer detected by your sources.",
+            "First Seen: The ticket's first seen date, which reflects the earliest detected finding included in the ticket."
+          ]
+        }
+      ]
+    },
+    "ticket-bulk-actions": {
+      "statement": "The Tickets page offers bulk actions on selected tickets: Update, Merge, Comment and Create 3rd party Issue; the list can be exported as CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-about-tickets.json",
+          "quotes": [
+            "Update: Update the details of a group of selected tickets.",
+            "Merge: Merge multiple selected tickets into one ticket.",
+            "Comment: Add comments to a group of selected tickets.",
+            "Create 3rd party Issue: Dispatch a group of selected tickets to external work management systems.",
+            "Export the list of tickets and their associated details as a CSV file."
+          ]
+        }
+      ]
+    },
+    "ticket-drawer": {
+      "statement": "The actions available in the ticket drawer depend on the user's UVM role, and admins can configure the drawer, so it might look different in an account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-viewing-managing-tickets-uvm.json",
+          "quotes": [
+            "The actions you can perform in the ticket drawer depend on your user role in the UVM app.",
+            "The ticket drawer can be configured by admins and might look different in your account."
+          ]
+        }
+      ]
+    },
+    "manual-grouping-permission": {
+      "statement": "Manual ticket grouping requires a role with Read, Create and Edit permissions under the Vulnerabilities App - Ticket Operational View resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-manual-ticket-grouping.json",
+          "quotes": [
+            "your assigned role must include the Read, Create, and Edit permissions under the Vulnerabilities App - Ticket Operational View resource."
+          ]
+        }
+      ]
+    },
+    "split-merge-blocked-by-exception": {
+      "statement": "Manual split and merge are unavailable for tickets that have exception requests and become available again when all the ticket's exception requests are closed or in a Closed status bucket; users with the Exceptions - Audit permission can still split and merge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-manual-ticket-grouping.json",
+          "quotes": [
+            "Manual split and merge actions are unavailable for tickets that have exception requests.",
+            "If all exceptions requests for a ticket are closed or in a Closed status bucket, these actions become available again.",
+            "Users with Exceptions - Audit permission can still split and merge findings and tickets."
+          ]
+        }
+      ]
+    },
+    "split-findings": {
+      "statement": "Splitting findings creates one new ticket or a separate ticket per finding, titled with a sequential number suffix when several are created; the original ticket is listed on the new ticket's Related Tickets tab, and selecting more than 20 findings uses Select all <#> rows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-manual-ticket-grouping.json",
+          "quotes": [
+            "To select more than 20 findings, click Select all <#> rows.",
+            "select Split Into a New Ticket to split all findings into one ticket, or select Split Into <#> New Tickets to create separate tickets for each finding.",
+            "Titles for multiple tickets are numbered sequentially (e.g., Apache vulnerabilities 1, Apache vulnerabilities 2, etc.).",
+            "You can view the original ticket from which your findings were split in the Related Tickets tab of your newly created ticket."
+          ]
+        }
+      ]
+    },
+    "merge-external-link": {
+      "statement": "Tickets cannot be merged if more than one of them is linked to an external case management issue (such as a Jira issue); when at most one is linked, the other tickets are merged into the linked ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-manual-ticket-grouping.json",
+          "quotes": [
+            "You can't merge tickets if more than one of them is linked to an external case management system (e.g., Jira issue) to ensure the dispatched task scope remains unchanged.",
+            "Ticket merging is only available if no more than one of the merged tickets is linked to an external case management issue. When this is the case, all other selected tickets are merged to the linked ticket."
+          ]
+        }
+      ]
+    },
+    "locked-scope": {
+      "statement": "A ticket created by manual grouping is locked: it is not updated with new findings and its findings are not automatically grouped with other tickets, though manual grouping actions can still be performed on it; locked tickets show a Lock icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-manual-ticket-grouping.json",
+          "quotes": [
+            "Your newly created ticket is locked and won't be affected by automatic grouping rules.",
+            "This means that the new ticket won't be updated with new findings, and the findings it contains won't be automatically grouped with other tickets.",
+            "Manual ticket grouping actions can be performed on locked tickets.",
+            "Locked tickets display the Lock icon at the top of the ticket pane."
+          ]
+        }
+      ]
+    },
+    "manual-attributes": {
+      "statement": "A manually grouped ticket's assignment, scoring, SLA and other attributes follow the same logic as automatically grouped tickets in the account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-manual-ticket-grouping.json",
+          "quotes": [
+            "The new ticket's assignment, scoring, service level agreement (SLA), and all other attributes are determined according to the same logic that applies to automatically grouped tickets in your account."
+          ]
+        }
+      ]
+    },
+    "split-external-link": {
+      "statement": "When findings are split from a ticket linked to an external case management issue, the original ticket's link is not affected and the new ticket is not linked; splitting is only possible if at least one finding remains in the linked ticket or the link is detached, and updating the external issue on manual grouping requires configuration by Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-manual-ticket-grouping.json",
+          "quotes": [
+            "the original ticket's link is not affected, but the new ticket isn't linked to the external issue.",
+            "Splitting findings from such tickets is only possible if at least one finding remains in the linked ticket, or if the ticket link is detached from the external issue.",
+            "Manual ticket grouping updates can be configured to trigger external issue refresh and update. Contact Zscaler Support to configure this in your account."
+          ]
+        }
+      ]
+    },
+    "manual-activity-log": {
+      "statement": "All manual adjustments made to tickets are saved in the ticket's activity log on the Activity tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-manual-ticket-grouping.json",
+          "quotes": [
+            "All manual adjustments made to tickets are saved in the ticket's activity log on the Activity tab."
+          ]
+        }
+      ]
+    },
+    "default-ruleset": {
+      "statement": "On initial account setup grouping rules include a default active ruleset; only one ruleset can be active, and activating a new ruleset deactivates the active one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-grouping-rules.json",
+          "quotes": [
+            "On initial account setup, grouping rules include a default active ruleset that implements grouping best practices.",
+            "You can have multiple rulesets in the account, but only one ruleset can be active.",
+            "Activating your new ruleset deactivates the currently active ruleset."
+          ]
+        }
+      ]
+    },
+    "fallback-rule": {
+      "statement": "Every grouping ruleset includes a default fallback rule for findings that match no conditions; it can be edited but not removed or deleted, and a new ruleset needs at least one rule in addition to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-grouping-rules.json",
+          "quotes": [
+            "Every ruleset includes a default fallback rule, which provides a default aggregation method for findings that don't match any conditions. The fallback rule can be edited, but can't be removed or deleted.",
+            "Every new ruleset must include at least one rule in addition to the default fallback rule."
+          ]
+        }
+      ]
+    },
+    "rule-components": {
+      "statement": "A grouping rule has an If condition (a filter selecting findings), a Then action that aggregates findings into a single ticket if they have matching values in all selected fields, and a Define Ticket Title By setting; conditions can be combined with AND (all) or OR (any).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-grouping-rules.json",
+          "quotes": [
+            "If condition: Defines a filter that determines which findings the rule applies to.",
+            "Then action: Specifies that findings should be aggregated into a single ticket if they have matching values in all selected fields.",
+            "Define Ticket Title By: Defines the title format for tickets that are created based on the rule.",
+            "AND aggregates findings only if they meet all conditions in the rule.",
+            "OR aggregates findings if they meet any of the conditions in the rule."
+          ]
+        }
+      ]
+    },
+    "group-by-combination": {
+      "statement": "One ticket is created per unique combination of the Group By field values; for example grouping by Asset Type with two findings on Server assets and three on Workstation assets yields two tickets, and adding Asset OS creates a ticket per unique Asset Type and Asset OS combination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-grouping-rules.json",
+          "quotes": [
+            "if you group findings by the Asset Type field and there are two findings on Server assets and three findings on Workstation assets, then two tickets are created, one for each asset type.",
+            "a ticket is created for each unique combination of Asset Type and Asset OS values."
+          ]
+        }
+      ]
+    },
+    "title-methods": {
+      "statement": "Ticket titles are set by Smart Text (free text plus field names as tokens in double curly brackets) or by an Expression that applies custom value transformations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-grouping-rules.json",
+          "quotes": [
+            "Smart Text: Use a combination of free text and field names as tokens to set the ticket title.",
+            "To add fields as tokens, enter the field name within double curly brackets.",
+            "Expression: Set a ticket title using an expression to apply custom value transformations and standardize formats."
+          ]
+        }
+      ]
+    },
+    "rule-order": {
+      "statement": "Rules in a grouping ruleset run sequentially in order of appearance: a finding is aggregated by the first rule that applies, otherwise by the default fallback rule; order is changed by dragging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-grouping-rules.json",
+          "quotes": [
+            "The rules within a grouping ruleset are executed sequentially by their order of appearance. A finding is aggregated into a ticket according to the first rule that applies to it. If no rule applies to the finding, it's aggregated by the default fallback rule.",
+            "You can adjust the order of rules by dragging the rules to your desired order."
+          ]
+        }
+      ]
+    },
+    "save-activate-run": {
+      "statement": "Saving a ruleset does not reaggregate tickets; an active ruleset takes effect on Run or the next data processing in the account, an inactive one changes nothing until activated and run, and Save & Activate applies it immediately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-grouping-rules.json",
+          "quotes": [
+            "This saves the rules to the ruleset but doesn't reaggregate into tickets based on the ruleset's rules.",
+            "If the ruleset is active, the new ruleset will take effect either when you click Run or the next time data is processed in the account (e.g., when a data source runs).",
+            "If the ruleset is inactive, no changes will apply to the grouping of findings in the account until the ruleset is activated and runs.",
+            "In the Save drop-down menu, click Save & Activate to save the ruleset and immediately apply the rules to the data in your account."
+          ]
+        }
+      ]
+    },
+    "preview-empty": {
+      "statement": "The rule Preview showing No findings match filter condition can mean the filters need adjusting or that a previous rule already applies to the findings, since grouping depends on rule order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-grouping-rules.json",
+          "quotes": [
+            "If No findings match filter condition is displayed in the preview, you might need to adjust the rule's configured filters. Alternatively, a previous rule might be applicable to the relevant findings, as grouping is dependent on rule order."
+          ]
+        }
+      ]
+    },
+    "status-bucket": {
+      "statement": "A ticket status bucket is a high-level container grouping tickets with similar states; buckets can carry Closed and Remediated labels that provide insight for metrics and calculations and allow viewing all closed tickets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-ticket-status.json",
+          "quotes": [
+            "A status bucket is a high-level container that logically groups tickets with similar states",
+            "Closed: Indicates that the ticket is closed.",
+            "Remediated: Indicates that the ticket is resolved.",
+            "These labels provide insights for metrics and calculations and allow you to view all closed tickets."
+          ]
+        }
+      ]
+    },
+    "status-edit-limits": {
+      "statement": "Only the most recently added status bucket or ticket status can be deleted, and a ticket status can be edited only when no ticket currently uses it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-managing-ticket-status.json",
+          "quotes": [
+            "You can delete only the most recently added bucket.",
+            "You can only edit a ticket status that is not currently being used for a ticket.",
+            "You can delete only the most recently added ticket status."
+          ]
+        }
+      ]
+    },
+    "states": {
+      "statement": "Ticket states are Active (at least one active finding), Inactive (all findings undetected, waiting to be confirmed as closed) and Archived (the ticket no longer contains any findings, for example after a grouping change or a merge).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-understanding-uvm-measurement-terminology.json",
+          "quotes": [
+            "Active: The ticket has at least one active finding.",
+            "Inactive: All findings under the ticket are undetected. The ticket is waiting to be confirmed as closed.",
+            "Archived: A ticket no longer contains any findings (e.g., due to a change in grouping settings or the merging of tickets)."
+          ]
+        }
+      ]
+    },
+    "status-vs-state": {
+      "statement": "Ticket status is set manually by the assignee or synced from an external case management system, whereas ticket state reflects whether the ticket has active findings detected in a recent scan, so a ticket can be Closed yet remain Active.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-viewing-remediation-history-dashboard.json",
+          "quotes": [
+            "A ticket's status is set either manually by the ticket assignee or synced from an external case management system",
+            "reflects whether the ticket contains active findings detected in a recent scan",
+            "The ticket state can remain active as long as it has active findings that need to be addressed, regardless of its actively set status.",
+            "useful for identifying tickets that are Closed yet remain Active"
+          ]
+        }
+      ]
+    },
+    "workflow-categories": {
+      "statement": "Ticket Workflows has three primary categories (Ticket Status Management, Lock Ticket Scope Triggers and Auto-Dispatch to External Systems), shows default system logic on initial account setup, and requires Read, Create, Edit and Delete under the Vulnerabilities App - Ticket Settings resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "On initial setup of your Agentic Security Operations Platform (SecOps Platform) account, the Ticket Workflows page displays default system logic.",
+            "You can customize these rules to align with your organization's remediation policies across three primary categories:",
+            "Ticket Status Management: Automate transitions based on finding activity",
+            "Lock Ticket Scope Triggers: Define conditions to automatically lock a ticket's scope",
+            "Auto-Dispatch to External Systems: Synchronize workflows by automatically creating work items",
+            "your assigned role must include the Read, Create, Edit, and Delete permissions under the Vulnerabilities App - Ticket Settings resource."
+          ]
+        }
+      ]
+    },
+    "automation-precedence": {
+      "statement": "Automated ticket status workflows take precedence over manual status updates, so the system sets the workflow-defined status even if a user previously changed the status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "Automated ticket status workflows take precedence over manual status updates to ensure tickets remain aligned with your organization's remediation policies.",
+            "the system updates the status to reflect the workflow-defined value, even if the status was previously modified by a user."
+          ]
+        }
+      ]
+    },
+    "auto-close": {
+      "statement": "The Automatic Ticket Closure category closes tickets whose findings have all been undetected for a number of days, an optional condition (0 closes immediately), with a Ticket status is not condition that selects from the statuses in the Remediated or Closed buckets; findings count as Undetected per the source's Remediation Detection settings and, if enabled, Asset Aging settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "Ticket status is not: Select the ticket statuses for which this rule should be applied. Available statuses are those configured in the Remediated or Closed buckets under Ticket Statuses settings.",
+            "All findings are undetected for: (Optional) Select the checkbox and enter the number of days that findings must remain undetected (not seen in a recent scan) before the ticket closes.",
+            "If set to 0, the ticket is closed immediately when all findings are undetected.",
+            "Findings are marked as Undetected based on the finding aging logic configured in the Remediation Detection settings of a source and, if enabled, in the Asset Aging settings."
+          ]
+        }
+      ]
+    },
+    "resurface-new-ticket": {
+      "statement": "The Resurface Finding - Create New Ticket category creates a new ticket that includes the resurfaced finding(s) when they remain active for the specified number of days; it starts a new remediation cycle so historical and MTTX measurements are tracked separately, and it can create a ticket even if the original ticket has an exception request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "and it remains active for the specified number of days, the system creates a new ticket that includes the resurfaced finding(s) so the recurrence can be tracked separately.",
+            "This starts a new remediation cycle ensuring historical and MTTX measurements are tracked separately.",
+            "This rule is automated and can create a new ticket even if the original ticket has an exception request. Exception requests only restrict manual split and merge actions."
+          ]
+        }
+      ]
+    },
+    "resurface-reopen": {
+      "statement": "The Resurface Finding - Reopen Ticket category moves a closed ticket to a selected status when a finding becomes active again for the configured days, tracking it on the original ticket with the original assignment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "and it remains active for the specified number of days, the system reopens the ticket (i.e., moves it to the selected status) so remediation can be tracked in the same ticket.",
+            "ensuring the resurfaced findings are tracked on their original ticket with the original assignment."
+          ]
+        }
+      ]
+    },
+    "resurface-trigger": {
+      "statement": "The Resurface Finding - Create New Ticket rule is triggered even if only one finding is active for the specified number of days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "The rule is triggered even if one finding is active for the specified period."
+          ],
+          "after": "so resurfaced findings trigger new ticket creation only if the original ticket has been closed."
+        }
+      ]
+    },
+    "status-exclusivity": {
+      "statement": "The same ticket status cannot be the input condition of both a Resurface Finding - Create New Ticket rule and any status-transition rule (Automatic Ticket Closure, Resurface Finding - Reopen Ticket or Custom Status Transition), so a trigger event has one outcome.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "You can't use the same ticket status as the input condition for both a Resurface Finding - Create New Ticket rule and any rule that performs a status transition (i.e., Automatic Ticket Closure, Resurface Finding - Reopen Ticket, or Custom Status Transition).",
+            "guaranteeing that a single trigger event results in one unambiguous outcome"
+          ]
+        }
+      ]
+    },
+    "default-status": {
+      "statement": "The Ticket Default Status applies to new tickets that meet no configured rule, and only statuses from non-closed and non-remediated buckets can be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "New tickets that don't meet any of the configured rules default to this status. Only statuses from non-closed and non-remediated buckets are available for selection."
+          ]
+        }
+      ]
+    },
+    "lock-scope": {
+      "statement": "By default, manually splitting or merging a ticket locks its scope; that Lock Ticket Scope Triggers condition is selected by default and cannot be changed, and the THEN of locking the ticket also cannot be changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "This checkbox is selected by default and cannot be changed.",
+            "when a user splits or merges tickets, the SecOps Platform locks the scope of the resulting tickets",
+            "The ticket is locked. This setting is displayed by default and cannot be changed."
+          ]
+        }
+      ]
+    },
+    "auto-dispatch": {
+      "statement": "Auto-Dispatch to External Systems rules optionally select tickets by severity and assignee, and create an item through a configured outegration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "Ticket severity is: (Optional) Select this checkbox to add the severity levels that trigger this rule. Only tickets with the selected severities are dispatched.",
+            "Ticket assignee is: (Optional) Select this checkbox and enter the assignees",
+            "Create a third-party item on: Select the outegration for the system you want to trigger."
+          ]
+        }
+      ]
+    },
+    "rule-evaluation": {
+      "statement": "Ticket Status Management and Lock Ticket Scope Triggers rules are processed sequentially and only the first matching rule applies, whereas Auto-Dispatch to External Systems evaluates all rules, so one ticket can dispatch to multiple destinations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "For each of the Ticket Status Management and Lock Ticket Scope Triggers categories, rules are processed sequentially.",
+            "When a ticket meets the criteria for multiple rules within the same category, the system applies only the first matching rule based on the list order.",
+            "For the Auto-Dispatch to External Systems category, the system evaluates all rules. Every rule that matches the ticket's criteria is triggered, allowing a single ticket to trigger dispatches to multiple destinations"
+          ]
+        }
+      ]
+    },
+    "workflow-save": {
+      "statement": "When workflows are currently managed through data unification, Unlink & Override enables local rule configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ticket-workflows.json",
+          "quotes": [
+            "If workflows are currently managed through data unification, click Unlink & Override to enable local rule configuration."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rule-limits": {
+      "kind": "semantic",
+      "title": "Maximum number of grouping rules, status buckets, ticket statuses or workflow rules",
+      "status": "open",
+      "detail": "The captured grouping rules, Managing Ticket Statuses and Ticket Workflows articles give no maximum number of rules, buckets or statuses.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "undetected-definition": {
+      "kind": "semantic",
+      "title": "What the Remediation Detection and Asset Aging settings that mark findings Undetected contain",
+      "status": "open",
+      "detail": "The Ticket Workflows article refers to the Remediation Detection settings of a source and the Asset Aging settings for marking findings Undetected, and to data unification for Unlink & Override; the captured articles in this set do not define them.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

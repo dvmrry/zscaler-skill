@@ -1,0 +1,520 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Browser Access Application Segments Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-browser-access-application-segments-using-api",
+    "node": "1484776",
+    "revision": "3164272",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) browser access application segments using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Calls",
+      "level": 1
+    },
+    {
+      "text": "Before you create a new browser access application segment, you must get the following required details:"
+    },
+    {
+      "item": "Segment group ID. To learn more, see Configuring Segment Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Server group ID. To learn more, see Configuring Server Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Certificate ID. To learn more, see Configuring Certificates Using API.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating a New Browser Access Application Segment",
+      "level": 1
+    },
+    {
+      "text": "To add a new browser access application segment:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/application",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload to create browser access application segments and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The name of the application segment",
+      "depth": 0
+    },
+    {
+      "item": "The domains of the application",
+      "depth": 0
+    },
+    {
+      "item": "The TCP and UDP ports. You can provide multiple port ranges using the format in the JSON payload. To learn more, see the Adding Field Descriptions section.",
+      "depth": 0
+    },
+    {
+      "item": "Protocol",
+      "depth": 0
+    },
+    {
+      "item": "Certificate",
+      "depth": 0
+    },
+    {
+      "item": "Other details like segment group and server group IDs",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"string\", \"description\":\"string\", \"enabled\":false, \"healthReporting\":\"ON_ACCESS\", \"ipAnchored\":false, \"doubleEncrypt\":false, \"bypassType\":\"NEVER\", \"isCnameEnabled\":\"true\", \"tcpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" }, { \"from\":\"fromPort2\", \"to\":\"toPort2\" ], \"udpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" }, { \"from\":\"fromPort2\", \"to\":\"toPort2\" ], \"domainNames\":[ \"domainName or IpAddress\" ], \"segmentGroupId\":\"<segmentGroupId>\", \"serverGroups\":[ { \"id\":\"<serverGroupId>\" } ], \"clientlessApps\":[ { \"domain\":\"domainName or IP address\", \"name\":\"string\", \"applicationProtocol\":\"HTTPS\", \"applicationPort\":\"443\", \"trustUntrustedCert\":true, \"certificateId\":\"<signingCertId>\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"modifiedTime\": \"0\", \"creationTime\": \"0\", \"modifiedBy\": \"string\", \"id\": \"217246660303024813\", \"domainNames\": [ \"testapp.com\" ], \"name\": \"string\", \"description\": \"string\", \"defaultIdleTimeout\": \"0\", \"defaultMaxAge\": \"0\", \"serverGroups\": [ { \"id\": \"217246660303020476\", \"modifiedTime\": \"0\", \"creationTime\": \"0\", \"modifiedBy\": \"0\", \"name\": \"Test Server Group\", \"enabled\": true, \"description\": \"string\", \"configSpace\": \"DEFAULT\", \"dynamicDiscovery\": true } ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRange\": [{ \"from\": \"90\", \"to\": \"90\" }], \"doubleEncrypt\": false, \"configSpace\": \"DEFAULT\", \"bypassType\": \"NEVER\", \"healthCheckType\": \"NONE\", \"isCnameEnabled\": \"true\", \"clientlessApps\": [ { \"id\": \"0\", \"modifiedTime\": \"0\", \"creationTime\": \"0\", \"modifiedBy\": \"0\", \"name\": \"batestapp.com\", \"enabled\": true, \"description\": \"string\", \"certificateId\": \"217246660303022046\", \"certificateName\": \"string\", \"applicationPort\": \"90\", \"applicationProtocol\": \"HTTPS\", \"domain\": \"Example ba test app\", \"path\": \"string\", \"hidden\": true, \"appId\": \"217246660303024813\", \"trustUntrustedCert\": true, \"allowOptions\": true, \"cname\": \"string\", \"localDomain\": \"string\" } ], \"ipAnchored\": true, \"healthReporting\": \"NONE\", \"segmentGroupId\": \"217246660303022382\", \"segmentGroupName\": \"Example BA Test Application\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "You choose the application segment criteria you want to include in the JSON payload. Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the browser access application segment use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "Name of the application",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "Description of the application",
+          "No",
+          "String"
+        ],
+        [
+          "enabled",
+          "Whether this application is enabled or not",
+          "No",
+          "Default: false Boolean values: true, false"
+        ],
+        [
+          "domainNames",
+          "List of domains and IP addresses",
+          "Yes",
+          "List of string values"
+        ],
+        [
+          "configSpace",
+          "Whether the configuration is created as part of the SIEM or application resource",
+          "No",
+          "Default: DEFAULT Supported values: DEFAULT, SIEM"
+        ],
+        [
+          "healthReporting",
+          "Whether health reporting for the application is Continuous or On Access. If matchStyle is set to INCLUSIVE, then healthReporting must be set to either NONE or ON ACCESS. To learn more, see Understanding Health Reporting.",
+          "No",
+          "Supported values: NONE ON_ACCESS CONTINUOUS"
+        ],
+        [
+          "ipAnchored",
+          "If Source IP Anchoring for use with ZIA, is enabled or disabled for the application. If ipAnchored is set to true, then matchStyle must be set to EXCLUSIVE.",
+          "No",
+          "Default: false Boolean values: true, false"
+        ],
+        [
+          "doubleEncrypt",
+          "Whether Double Encryption is enabled or disabled for the application. If doubleEncrypt is true, then the field matchStyle must be set to EXCLUSIVE.",
+          "No",
+          "Default: false Boolean values: true, false"
+        ],
+        [
+          "isCnameEnabled",
+          "Indicates if Zscaler Client Connector receives CNAME DNS records from the App Connectors",
+          "No",
+          "Default: true Boolean values: true, false"
+        ],
+        [
+          "icmpAccessType",
+          "Indicates the ICMP access type",
+          "No",
+          "Default: NONE Supported values: NONE PING_TRACEROUTING PING"
+        ],
+        [
+          "bypassType",
+          "Indicates whether users can bypass ZPA to access applications",
+          "No",
+          "Default: NEVER Supported values: ALWAYS NEVER ON_NET The value NEVER indicates the use of the client forwarding policy."
+        ],
+        [
+          "tcpPortRange",
+          "TCP port ranges used to access the application",
+          "No",
+          "List of valid TCP ports. The port ranges are in the format: \"tcpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" } ] For providing multiple ports, use the following format: \"tcpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" }, { \"from\":\"fromPort2\", \"to\":\"toPort2\" } ]"
+        ],
+        [
+          "udpPortRange",
+          "UDP port ranges used to access the application",
+          "No",
+          "List of valid UDP ports. The port ranges are in the format: \"udpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" } ] For providing multiple ports, use the following format: \"udpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" }, { \"from\":\"fromPort2\", \"to\":\"toPort2\" } ]"
+        ],
+        [
+          "segmentGroupId",
+          "ID of the segment group",
+          "Yes",
+          "Valid segment group ID"
+        ],
+        [
+          "serverGroups:id",
+          "ID of the server group",
+          "Yes",
+          "Valid server group ID"
+        ],
+        [
+          "selectConnectorCloseToApp",
+          "Whether the App Connector is closest to the application (true) or closest to the user (false). To learn more, see Configuring Defined Application Segments.",
+          "No",
+          "Default: false Boolean: true, false"
+        ],
+        [
+          "clientlessApps",
+          "List of clientless or browser access applications. If a list of Browser Access applications are provided, then the field matchStyle must be set to EXCLUSIVE.",
+          "",
+          ""
+        ],
+        [
+          "clientlessApps:name",
+          "Name of the browser access application",
+          "Yes",
+          "String"
+        ],
+        [
+          "clientlessApps:domain",
+          "Domain name or IP address of the browser access applications",
+          "Yes",
+          "String"
+        ],
+        [
+          "clientlessApps:applicationProtocol",
+          "Protocol for the browser access application",
+          "Yes",
+          "Supported values: HTTP, HTTPS"
+        ],
+        [
+          "clientlessApps:applicationPort",
+          "Port for the browser access application",
+          "Yes",
+          "String"
+        ],
+        [
+          "clientlessApps:trustUntrustedCert",
+          "Indicates whether Use Untrusted Certificates is enabled or disabled for a browser access application",
+          "No",
+          "Default: false Supported values: true, false"
+        ],
+        [
+          "clientlessApps:certficateId",
+          "ID of the Browser Access certificate",
+          "Yes",
+          "BA certificate ID"
+        ],
+        [
+          "clientlessApps:allowOptions",
+          "If you want ZPA to forward unauthenticated HTTP preflight OPTIONS requests from the browser to the app",
+          "No",
+          "Default: false Supported values: true, false"
+        ],
+        [
+          "matchStyle",
+          "Indicates if Multimatch is enabled for the application segment. If enabled (INCLUSIVE), the request allows traffic to match multiple applications. If disabled (EXCLUSIVE), the request allows traffic to match a single application. A domain can only be INCLUSIVE or EXCLUSIVE, and any application segment can only contain inclusive or exclusive domains. To learn more, see Configuring Defined Application Segments.",
+          "No",
+          "Default: EXCLUSIVE Supported values: INCLUSIVE: All matched applications marked as INCLUSIVE, including their domains, protocols, and ports, are selected for application access. This includes the application segments and segment groups marked as INCLUSIVE that are selected for the policy evaluation. EXCLUSIVE: The first matched application marked as EXCLUSIVE is selected for application access."
+        ],
+        [
+          "extLabel",
+          "The domain prefix for the managed application URL",
+          "No",
+          "String and integer The supported string can include integers, lowercase characters, and hyphens (-). This field supports integers between 3 and 31 (e.g., server-2)."
+        ],
+        [
+          "extDomain",
+          "The external domain name prefix of the Browser Access application that is used for Zscaler-managed certificates when creating a managed application. This field is returned when making GET requests to retreive application segment details. If you are using Zscaler-managed certificates and pass the external domain name prefix, the certificateId field becomes null.",
+          "No",
+          "String and integer Periods (.) are not supported since the FQDN includes a period as part of the suffix or top-level domain."
+        ]
+      ],
+      "strong": [
+        [
+          6,
+          1,
+          48,
+          58
+        ],
+        [
+          6,
+          1,
+          62,
+          71
+        ]
+      ]
+    },
+    {
+      "heading": "Getting Details for a Particular Application Segment",
+      "level": 1
+    },
+    {
+      "text": "To get application segment details:"
+    },
+    {
+      "item": "Send a GET request to the endpoint /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "applicationId: The particular application segment ID you want to get details for.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application/217246660302996821"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"modifiedTime\": \"1560983316\", \"creationTime\": \"1560983270\", \"modifiedBy\": \"72057615512764447\", \"id\": \"72057615512764474\", \"domainNames\": [ \"www.oneone.com\" ], \"name\": \"app1\", \"serverGroups\": [ { \"id\": \"72057615512764473\", \"creationTime\": \"1560983270\", \"modifiedBy\": \"72057615512764447\", \"name\": \"srvgrp1\", \"enabled\": true, \"dynamicDiscovery\": false, \"configSpace\": \"DEFAULT\" } ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRange\": [{ \"from\": \"80\", \"to\": \"80\" }], \"doubleEncrypt\": false, \"segmentGroupId\": \"72057615512764420\", \"segmentGroupName\": \"Internal Application Group\", \"configSpace\": \"DEFAULT\", \"bypassType\": \"NEVER\", \"healthCheckType\": \"DEFAULT\", \"isCnameEnabled\": \"true\", \"clientlessApps\": [ { \"id\": \"72057615512764475\", \"modifiedTime\": \"1560983316\", \"creationTime\": \"1560983270\", \"modifiedBy\": \"72057615512764447\", \"name\": \"www.oneone.com\", \"enabled\": true, \"certificateId\": \"72057615512764448\", \"certificateName\": \"Wild Card Cert\", \"applicationPort\": \"80\", \"applicationProtocol\": \"HTTP\", \"domain\": \"www.oneone.com\", \"path\": \"/\", \"hidden\": false, \"appId\": \"72057615512764474\", \"trustUntrustedCert\": false, \"allowOptions\": false, \"cname\": \"67.72057615512764416.h.b.zpa-app.net\" } ], \"ipAnchored\": false, \"healthReporting\": \"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All Application Segments",
+      "level": 1
+    },
+    {
+      "text": "To get details of all application segments:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint /mgmtconfig/v1/admin/customers/{customerId}/application.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/application",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"totalCount\": \"6\", \"list\": [ { \"modifiedTime\": \"1560983316\", \"creationTime\": \"1560983270\", \"modifiedBy\": \"72057615512764447\", \"id\": \"72057615512764474\", \"domainNames\": [ \"www.oneone.com\" ], \"name\": \"app1\", \"serverGroups\": [ { \"id\": \"72057615512764473\", \"creationTime\": \"1560983270\", \"modifiedBy\": \"72057615512764447\", \"name\": \"srvgrp1\", \"enabled\": true, \"dynamicDiscovery\": false, \"configSpace\": \"DEFAULT\" } ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRange\": [{ \"from\": \"80\", \"to\": \"80\" }], \"doubleEncrypt\": false, \"segmentGroupId\": \"72057615512764420\", \"segmentGroupName\": \"Internal Application Group\", \"configSpace\": \"DEFAULT\", \"bypassType\": \"NEVER\", \"healthCheckType\": \"DEFAULT\", \"isCnameEnabled\": \"true\", \"clientlessApps\": [ { \"id\": \"72057615512764475\", \"modifiedTime\": \"1560983316\", \"creationTime\": \"1560983270\", \"modifiedBy\": \"72057615512764447\", \"name\": \"www.oneone.com\", \"enabled\": true, \"certificateId\": \"72057615512764448\", \"certificateName\": \"Wild Card Cert\", \"applicationPort\": \"80\", \"applicationProtocol\": \"HTTP\", \"domain\": \"www.oneone.com\", \"path\": \"/\", \"hidden\": false, \"appId\": \"72057615512764474\", \"trustUntrustedCert\": false, \"allowOptions\": false, \"cname\": \"67.72057615512764416.h.b.zpa-app.net\" } ], \"ipAnchored\": false, \"healthReporting\": \"ON_ACCESS\" }, { \"modifiedTime\": \"1560990371\", \"creationTime\": \"1560983656\", \"modifiedBy\": \"72057615512764447\", \"id\": \"72057615512764478\", \"domainNames\": [ \"www.onetwo.com\" ], \"name\": \"app2\", \"serverGroups\": [ { \"id\": \"72057615512764473\", \"creationTime\": \"1560983270\", \"modifiedBy\": \"72057615512764447\", \"name\": \"srvgrp1\", \"enabled\": true, \"dynamicDiscovery\": false, \"configSpace\": \"DEFAULT\" } ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRange\": [{ \"from\": \"80\", \"to\": \"90\" }], \"doubleEncrypt\": false, \"segmentGroupId\": \"72057615512764420\", \"segmentGroupName\": \"Internal Application Group\", \"configSpace\": \"DEFAULT\", \"bypassType\": \"NEVER\", \"healthCheckType\": \"DEFAULT\", \"isCnameEnabled\": \"true\", \"clientlessApps\": [ { \"id\": \"72057615512764479\", \"creationTime\": \"1560983656\", \"modifiedBy\": \"72057615512764447\", \"name\": \"www.onetwo.com\", \"enabled\": true, \"certificateId\": \"72057615512764448\", \"certificateName\": \"Wild Card Cert\", \"applicationPort\": \"80\", \"applicationProtocol\": \"HTTP\", \"domain\": \"www.onetwo.com\", \"path\": \"/\", \"hidden\": false, \"appId\": \"72057615512764478\", \"trustUntrustedCert\": false, \"allowOptions\": false, \"cname\": \"68.72057615512764416.h.b.zpa-app.net\" } ], \"ipAnchored\": false, \"healthReporting\": \"ON_ACCESS\" }, { \"modifiedTime\": \"1564600894\", \"creationTime\": \"1551291935\", \"modifiedBy\": \"72057615512764423\", \"id\": \"72057615512764419\", \"domainNames\": [ \"crm.lanuk.ca\", \"test.lanuk.ca\" ], \"name\": \"Internal Application\", \"serverGroups\": [ { \"id\": \"72057615512764418\", \"modifiedTime\": \"1560279822\", \"creationTime\": \"1551291935\", \"modifiedBy\": \"72057615512764417\", \"name\": \"Server Group\", \"enabled\": true, \"dynamicDiscovery\": true, \"configSpace\": \"DEFAULT\" } ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRange\": [{ \"from\": \"1\", \"to\": \"65535\" }], \"udpPortRange\": [{ \"from\": \"1\", \"to\": \"65535\" }], \"doubleEncrypt\": false, \"segmentGroupId\": \"72057615512764420\", \"segmentGroupName\": \"Internal Application Group\", \"configSpace\": \"DEFAULT\", \"bypassType\": \"NEVER\", \"healthCheckType\": \"DEFAULT\", \"isCnameEnabled\": \"true\", \"clientlessApps\": [ { \"id\": \"72057615512764451\", \"modifiedTime\": \"1560286271\", \"creationTime\": \"1560279796\", \"modifiedBy\": \"72057615512764417\", \"name\": \"crm.lanuk.ca\", \"enabled\": true, \"certificateId\": \"72057615512764448\", \"certificateName\": \"Wild Card Cert\", \"applicationPort\": \"80\", \"applicationProtocol\": \"HTTP\", \"domain\": \"crm.lanuk.ca\", \"path\": \"/\", \"hidden\": false, \"appId\": \"72057615512764419\", \"trustUntrustedCert\": false, \"allowOptions\": false, \"cname\": \"61.72057615512764416.h.b.zpa-app.net\" } ], \"ipAnchored\": false, \"healthReporting\": \"ON_ACCESS\" }, { \"modifiedTime\": \"1581028834\", \"creationTime\": \"1574113633\", \"modifiedBy\": \"72057615512764423\", \"id\": \"72057615512764533\", \"domainNames\": [ \"10.0.0.190\", \"*.pb.ca\" ], \"name\": \"PB App\", \"serverGroups\": [ { \"id\": \"72057615512764545\", \"creationTime\": \"1579729263\", \"modifiedBy\": \"72057615512764417\", \"name\": \"PB App\", \"enabled\": true, \"dynamicDiscovery\": false, \"configSpace\": \"DEFAULT\" } ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRange\": [{ \"from\": \"1\", \"to\": \"65535\" }], \"doubleEncrypt\": false, \"segmentGroupId\": \"72057615512764420\", \"segmentGroupName\": \"Internal Application Group\", \"configSpace\": \"DEFAULT\", \"bypassType\": \"NEVER\", \"healthCheckType\": \"DEFAULT\", \"isCnameEnabled\": \"true\", \"ipAnchored\": false, \"healthReporting\": \"ON_ACCESS\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0
+    },
+    {
+      "item": "Provide valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application?page=1&pageSize=2"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"totalCount\": \"6\", \"list\": [ { \"modifiedTime\": \"1648481104\", \"creationTime\": \"1489571905\", \"modifiedBy\": \"144118148382065486\", \"id\": \"144118148382064803\", \"domainNames\": [ \"crm.lanukcorp.com\" ], \"name\": \"CRM AWS\", \"description\": \"Test text\", \"serverGroups\": [ { \"id\": \"144118148382064657\", \"modifiedTime\": \"1591165070\", \"creationTime\": \"1452154381\", \"modifiedBy\": \"144118148382064642\", \"name\": \"Do not delete Apps AWS\", \"enabled\": true, \"configSpace\": \"DEFAULT\", \"dynamicDiscovery\": true } ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"80\", \"80\" ], \"tcpPortRange\": [ { \"from\": \"80\", \"to\": \"80\" } ], \"doubleEncrypt\": false, \"configSpace\": \"DEFAULT\", \"bypassType\": \"NEVER\", \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"isCnameEnabled\": true, \"ipAnchored\": false, \"healthReporting\": \"ON_ACCESS\", \"segmentGroupId\": \"144118148382064801\", \"segmentGroupName\": \"Do not delete\" }, { \"creationTime\": \"1616227608\", \"modifiedBy\": \"144118148382064667\", \"id\": \"144118148382065459\", \"domainNames\": [ \"api.github.com\" ], \"name\": \"test\", \"serverGroups\": [ { \"id\": \"144118148382064657\", \"modifiedTime\": \"1591165070\", \"creationTime\": \"1452154381\", \"modifiedBy\": \"144118148382064642\", \"name\": \"Do not delete Apps AWS\", \"enabled\": true, \"configSpace\": \"DEFAULT\", \"dynamicDiscovery\": true } ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"1\", \"52\", \"54\", \"65535\" ], \"udpPortRanges\": [ \"1\", \"52\", \"54\", \"65535\" ], \"tcpPortRange\": [ { \"from\": \"1\", \"to\": \"52\" }, { \"from\": \"54\", \"to\": \"65535\" } ], \"udpPortRange\": [ { \"from\": \"1\", \"to\": \"52\" }, { \"from\": \"54\", \"to\": \"65535\" } ], \"doubleEncrypt\": false, \"configSpace\": \"DEFAULT\", \"bypassType\": \"NEVER\", \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"isCnameEnabled\": true, \"ipAnchored\": false, \"healthReporting\": \"ON_ACCESS\", \"segmentGroupId\": \"144118148382064801\", \"segmentGroupName\": \"Do not delete\",",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating an Application Segment",
+      "level": 1
+    },
+    {
+      "text": "To update an application segment:"
+    },
+    {
+      "item": "Use the updated JSON payload and send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "applicationId: The application segment ID for the application segment you want to update.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application/217246660302996821"
+    },
+    {
+      "item": "View the entire JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{{ \"segmentGroupId\":\"string\", \"bypassType\":\"ALWAYS\", \"clientlessApps\":[ { \"allowOptions\":true, \"appId\":0, \"applicationPort\":0, \"applicationProtocol\":\"HTTP\", \"certificateId\":0, \"certificateName\":\"string\", \"cname\":\"string\", \"creationTime\":0, \"description\":\"string\", \"domain\":\"string\", \"enabled\":true, \"hidden\":true, \"id\":0, \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"path\":\"string\", \"trustUntrustedCert\":true } ], \"isCnameEnabled\":\"true\", \"configSpace\":\"DEFAULT\", \"creationTime\":0, \"defaultIdleTimeout\":0, \"defaultMaxAge\":0, \"description\":\"string\", \"domainNames\":[ \"string\" ], \"doubleEncrypt\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\":\"EXCLUSIVE\", \"enabled\":true, \"healthCheckType\":\"DEFAULT\", \"healthReporting\":\"NONE\", \"id\":\"string\", \"ipAnchored\":true, \"modifiedBy\":\"string\", \"modifiedTime\":0, \"name\":\"string\", \"passiveHealthEnabled\":true, \"serverGroups\":[ { \"id\":\"<serverGroupId>\" } ]\"tcpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" }, { \"from\":\"fromPort2\", \"to\":\"toPort2\" } ], \"udpPortRange\":[ { \"from\":\"fromPort1\", \"to\":\"toPort1\" }, { \"from\":\"fromPort2\", \"to\":\"toPort2\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the application segment is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting an Application Segment",
+      "level": 1
+    },
+    {
+      "text": "To delete an application segment:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "applicationId: The particular application segment ID you want to get details for.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application/217246660302996821"
+    },
+    {
+      "text": "An object that is referenced in another object cannot be deleted. Error code 400 is returned in this situation."
+    },
+    {
+      "item": "View error code 400",
+      "depth": 0
+    },
+    {
+      "item": "{ \"params\": [ \"Application\", \"app 3 created on postman feb 5_edited\" ], \"id\": \"resource.referenced\", \"reason\": \"Resource is being referenced in Application : app 3 created on postman feb 5_edited.\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the application segment is deleted. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

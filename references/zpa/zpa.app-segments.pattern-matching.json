@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.pattern-matching",
+  "title": "What pattern matching in FQDN application segments is, its characters, limit and prerequisites, and how it picks App Connectors",
+  "aliases": [
+    "pattern matching",
+    "application segment patterns",
+    "asterisk and question mark in FQDN",
+    "pattern matching application segments"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.multimatch"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.multimatch-requirements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{characters-and-forms}} {{limit}}"
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{prerequisites}} The Private Service Edge floor is open {{gap:service-edge-floor}}. The same version set is in [[zpa.app-segments.multimatch-requirements]]."
+    },
+    {
+      "label": "App Connector selection.",
+      "text": "{{connector-selection}} {{selection-example}} How specificity ranks among patterns and what pattern matching does to policy matching is open {{gap:specificity-and-policy}}."
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Pattern matching is in limited availability; Private Access supports patterns within FQDN-based application segments, which also future proofs the configuration when new servers come online and match the existing patterns, so no configuration changes are required in the application segment definition.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-pattern-matching-application-segments.json",
+          "quotes": [
+            "This feature is in limited availability. To learn more, contact Zscaler Support.",
+            "Private Access (ZPA) supports patterns within FQDN-based application segments.",
+            "It also future proofs the configuration in the case where new servers are brought online and match the existing patterns for applications. This means no configuration changes are required in the application segment definition."
+          ]
+        }
+      ]
+    },
+    "characters-and-forms": {
+      "statement": "The asterisk (*) and question mark (?) are the supported characters for pattern configuration in application segments. The page's examples put a pattern in the initial part of the FQDN (*.acme.com, *nonprod.acme.com) or in the middle part (psl*.ms.acme.com, www.jira*.acme.com, *w*.acme.com), and use ? as in w?w.jira.acme.com and w??.jira.acme.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-pattern-matching-application-segments.json",
+          "quotes": [
+            "The asterisk (*) and question mark (?) symbols are the supported characters for pattern configuration in application segments.",
+            "| Pattern matching in the initial part of the FQDN | *.acme.com *nonprod.acme.com |",
+            "| Pattern matching in the middle part of the application | psl*.ms.acme.com www.jira*.acme.com *w*.acme.com |",
+            "w?w.jira.acme.com w??.jira.acme.com"
+          ]
+        }
+      ]
+    },
+    "limit": {
+      "statement": "The maximum number of patterns an admin can configure is 500.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-pattern-matching-application-segments.json",
+          "quotes": [
+            "The maximum number of patterns an admin can configure is 500."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Multimatch must be enabled on the tenant and the specific application segment, and App Connectors must be upgraded to version 24.298.1 or later. Client Connector must be at Windows 4.7.0.88 or 4.6.0.282 or later, macOS 4.5.2.98, iOS 4.4.1, Android 3.10 or Linux 4.2 or later, and for iOS applications the Use Tunnel SDK Version 4.3 or above setting must be enabled in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-pattern-matching-application-segments.json",
+          "quotes": [
+            "Multimatch must be enabled on the tenant and the specific application segment.",
+            "App Connectors are upgraded to version 24.298.1 or later.",
+            "4.7.0.88 or later",
+            "4.6.0.282 or later",
+            "macOS version: 4.5.2.98 or later",
+            "iOS version: 4.4.1 or later",
+            "To use the Private Access pattern matching feature for iOS applications, you must enable the Use Tunnel SDK Version 4.3 or above setting in the Zscaler Admin Console.",
+            "Android version: 3.10 or later",
+            "Linux version: 4.2 or later"
+          ]
+        }
+      ]
+    },
+    "connector-selection": {
+      "statement": "Pattern matching does not select the most specific application for App Connector selection, so at least one App Connector group should be available for similar applications; when application access matches multiple application segments for pattern matching, the App Connector selection is based on the most specific application segments that are pattern matching, regardless of the segment that matches the access policy rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-pattern-matching-application-segments.json",
+          "quotes": [
+            "Pattern matching does not select the most specific application for App Connector selection. Therefore, ensure you have at least one App Connector group available for similar applications.",
+            "When application access matches multiple application segments for pattern matching, the App Connector selection is based on the most specific application segments that are pattern matching, regardless of the application segment that matches the access policy rule."
+          ]
+        }
+      ]
+    },
+    "selection-example": {
+      "statement": "In the page's example, a request for important-server1.eu.example.com on TCP port 22 matches AS1, AS2, AS3 and AS4 because these are the most specific application segments with pattern matching, but since AS4 is the wildcard application segment and AS5 does not have Multimatch enabled, App Connector selection applies only to SG1, SG2 and SG3.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-pattern-matching-application-segments.json",
+          "quotes": [
+            "| AS1 | important-server*.eu.example.com | TCP/22 | Yes | Yes | SG1 |",
+            "| AS2 | important-server?.eu.example.com | TCP/22 | Yes | Yes | SG2 |",
+            "| AS3 | important-*.eu.example.com | TCP/22 | Yes | Yes | SG3 |",
+            "| AS4 | *.eu.example.com | All | Yes | Yes | SG4 |",
+            "| AS5 | *.example.com | All | No | No | SG5 |",
+            "When a user accesses important-server1.eu.example.com on the TCP protocol for port 22, it matches AS1, AS2, AS3, and AS4 because these are the most specific application segments with pattern matching.",
+            "However, since AS4 is the wildcard application segment and AS5 does not have Multimatch enabled, the App Connector selection only applies to SG1, SG2, and SG3."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "service-edge-floor": {
+      "kind": "semantic",
+      "title": "The Private Service Edge version floor for pattern matching",
+      "status": "open",
+      "detail": "The pattern matching page names App Connectors at 24.298.1 or later and does not name Private Service Edges, while the Application Scaling and Multimatch pages say App Connectors or Private Service Edges. This comes from comparing pages, so it is not a claim.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "specificity-and-policy": {
+      "kind": "semantic",
+      "title": "How specificity ranks among patterns, how policy matching is affected, and the scope of the 500 limit",
+      "status": "open",
+      "detail": "The pattern matching page does not explain how specificity ranks among patterns (its example uses SG1 to SG3 together), does not describe the effect on policy matching, and does not state whether the 500 limit is per tenant, per segment or per admin. Whether the matchStyle field applies to this feature was not checked.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

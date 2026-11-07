@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-python.authentication",
+  "title": "How the Python SDK authenticates to ZIA: OneAPI, government clouds and legacy",
+  "aliases": [
+    "zia api authentication",
+    "oneapi credentials python",
+    "ZSCALER_CLIENT_ID",
+    "ZSCALER_VANITY_DOMAIN",
+    "zscalergov fedramp oneapi",
+    "legacy zia api key python",
+    "x-partner-id"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.oneapi.authentication",
+      "because": "shared.oneapi.authentication:client-credentials-flow"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.response-shape"
+    }
+  ],
+  "prose": [
+    {
+      "text": "OneAPI is the unified Zidentity OAuth client; the older ZIA-specific key framework is the fallback for tenants not yet on Zidentity. The product-level OneAPI notes are in [[shared.oneapi]] and the legacy framework in [[shared.legacy-api.auth-models]]."
+    },
+    {
+      "label": "Credentials.",
+      "text": "{{oneapi-env-vars}} {{vanity-domain-token-url}} {{oauth-audience}} {{cloud-optional}} {{partner-id-header}}"
+    },
+    {
+      "label": "Government clouds.",
+      "text": "{{gov-cloud-routing}} {{gov-since-1-9-32}} {{older-sdk-gov-unsupported}}"
+    },
+    {
+      "label": "Legacy.",
+      "text": "{{legacy-framework}} {{v2-oneapi-only}} {{legacy-zia-env}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant is on Zidentity (OneAPI) or still on the legacy ZIA framework, and which SDK major version is in use.",
+      "uses": [
+        "legacy-framework",
+        "v2-oneapi-only"
+      ]
+    },
+    {
+      "do": "Whether the tenant is a government (FedRAMP) cloud, and whether the client version routes `gov` and `govus` at all.",
+      "uses": [
+        "gov-cloud-routing",
+        "gov-since-1-9-32",
+        "older-sdk-gov-unsupported"
+      ]
+    }
+  ],
+  "claims": {
+    "oneapi-env-vars": {
+      "statement": "The Python SDK reads OneAPI credentials from the environment variables ZSCALER_CLIENT_ID, ZSCALER_CLIENT_SECRET, ZSCALER_VANITY_DOMAIN, ZSCALER_CLOUD and ZSCALER_PARTNER_ID, and a private key from ZSCALER_PRIVATE_KEY.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "You can provide credentials via the `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET`, `ZSCALER_VANITY_DOMAIN`, `ZSCALER_CLOUD`, `ZSCALER_PARTNER_ID` environment variables"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "`ZSCALER_PRIVATE_KEY`"
+          ],
+          "after": "You can provide credentials via the `ZSCALER_CLIENT_ID`"
+        }
+      ]
+    },
+    "vanity-domain-token-url": {
+      "statement": "The vanity domain is the organization's Zidentity domain, and for the production cloud the OAuth token endpoint is built from it as https://<vanity_domain>.zslogin.net/oauth2/v1/token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "Refers to the domain name used by your organization `https://<vanity_domain>.zslogin.net/oauth2/v1/token`",
+            "representing your Zidentity OneAPI credentials `clientId`, `clientSecret`, `vanityDomain`"
+          ],
+          "after": "You can provide credentials via the `ZSCALER_CLIENT_ID`"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_oauth_client.py",
+          "quotes": [
+            "if cloud == \"production\": return f\"https://{vanity_domain}.zslogin.net/oauth2/v1/token\"",
+            "rather than the commercial ``zslogin{cloud}.net`` family."
+          ]
+        }
+      ]
+    },
+    "oauth-audience": {
+      "statement": "The Python OAuth client always sends `audience=https://api.zscaler.com` in the client-credentials and JWT-assertion token requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_oauth_client.py",
+          "after": "\"client_secret\": client_secret,",
+          "quotes": [
+            "\"audience\": \"https://api.zscaler.com\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_oauth_client.py",
+          "after": "\"client_assertion_type\": \"urn:ietf:params:oauth:client-assertion-type:jwt-bearer\",",
+          "quotes": [
+            "\"audience\": \"https://api.zscaler.com\","
+          ]
+        }
+      ]
+    },
+    "cloud-optional": {
+      "statement": "The cloud attribute (ZSCALER_CLOUD) is optional and only required when authenticating to an alternative Zidentity cloud environment; without it the SDK uses the default base URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "The attribute `cloud` or environment variable `ZSCALER_CLOUD` is optional and only required when authenticating to an alternative Zidentity cloud environment.",
+            "By default this SDK will send the authentication request and subsequent API calls to the default base URL."
+          ]
+        }
+      ]
+    },
+    "partner-id-header": {
+      "statement": "When a partner ID is supplied through configuration or ZSCALER_PARTNER_ID the SDK adds an x-partner-id header to every request, on both the OneAPI and the legacy clients; without one the header is not sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "the SDK automatically adds `x-partner-id: <partnerId>` to all request headers",
+            "If `partnerId` is not provided, the header is not included",
+            "When `partnerId` is provided via config dictionary or `ZSCALER_PARTNER_ID` environment variable",
+            "This feature works seamlessly across all services (ZIA, ZPA, ZTW, ZCC, ZDX, ZWA) and both OneAPI and Legacy clients."
+          ]
+        }
+      ]
+    },
+    "gov-cloud-routing": {
+      "statement": "With cloud set to `gov` or `govus` the Python SDK sends OAuth to a zidentitygov.net or zidentitygov.us identity provider and API calls to api.zscalergov.net or api.zscalergov.us, instead of the commercial gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/constants.py",
+          "quotes": [
+            "\"gov\": \"zidentitygov.net\"",
+            "\"govus\": \"zidentitygov.us\"",
+            "\"gov\": \"https://api.zscalergov.net\"",
+            "\"govus\": \"https://api.zscalergov.us\"",
+            "identity provider and API gateway than the commercial clouds."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "OneAPI supports the Zscaler government (FedRAMP) clouds."
+          ]
+        }
+      ]
+    },
+    "gov-since-1-9-32": {
+      "statement": "The changelog records OneAPI support for the government clouds in release 1.9.32 (PR #534), and the same entry also appears under 1.9.31 (Issue #526); it notes that before the change these clouds produced non-resolvable hostnames and failed on every call.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added OneAPI (Zidentity) support for the government (FedRAMP) clouds.",
+            "Previously these clouds produced non-resolvable hostnames and failed on every call.",
+            "[PR #534](https://github.com/zscaler/zscaler-sdk-python/issues/534) - Added OneAPI (Zidentity) support for the government (FedRAMP) clouds."
+          ],
+          "after": "## 1.9.32 (June 23, 2026)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "after": "## 1.9.31 (May 29, 2026)",
+          "quotes": [
+            "[Issue #526](https://github.com/zscaler/zscaler-sdk-python/issues/526) - Added OneAPI (Zidentity) support for the government (FedRAMP) clouds."
+          ]
+        }
+      ]
+    },
+    "older-sdk-gov-unsupported": {
+      "statement": "The 1.0.0, 1.0.2 and 1.0.3 release notes of the Python SDK warn that OneAPI and Zidentity are not supported for the zscalergov and zscalerten ZIA clouds or the ZPA GOV and GOVUS clouds, and point government customers to the legacy framework.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "OneAPI and Zidentity is not currently supported for the following ZIA clouds: `zscalergov` and `zscalerten`",
+            "or ZPA `GOV`, and `GOVUS`. Please refer to the Zscaler Legacy API Framework section in the [README]"
+          ],
+          "after": "## 1.0.3 (April, 28 2025) - BREAKING CHANGES"
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "OneAPI and Zidentity is not currently supported for the following ZIA clouds: `zscalergov` and `zscalerten`",
+            "or ZPA `GOV`, and `GOVUS`. Please refer to the Zscaler Legacy API Framework section in the [README]"
+          ],
+          "after": "## 1.0.2 (April, 22 2025) - BREAKING CHANGES"
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "OneAPI and Zidentity is not currently supported for the following ZIA clouds: `zscalergov` and `zscalerten`",
+            "or ZPA `GOV`, and `GOVUS`. Please refer to the Zscaler Legacy API Framework section in the [README]"
+          ],
+          "after": "## 1.0.0 (April, 22 2025) - BREAKING CHANGES"
+        }
+      ]
+    },
+    "legacy-framework": {
+      "statement": "A tenant that has not migrated to Zidentity must use the SDK's legacy API client, which uses the product's own credentials; for ZIA the legacy credentials are username, password and an API key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "you must use the respective Legacy API client described in the following section",
+            "Legacy per-product authentication (ZIA `username`/`password`/`api_key`",
+            "If your Zscaler tenant has not been migrated to the new Zscaler [Zidentity platform](https://help.zscaler.com/zidentity/what-zidentity), you must use the respective Legacy API client"
+          ]
+        }
+      ]
+    },
+    "v2-oneapi-only": {
+      "statement": "Python SDK v2.x is a public-preview line that supports OneAPI only and does not provide the legacy clients such as LegacyZIAClient, while v1.x remains the GA release.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "**v2.x is OneAPI-only.**",
+            "Legacy per-product authentication helpers (`LegacyZIAClient`, `LegacyZPAClient`",
+            "Zscaler Python SDK **v2.x is now in Public Preview / Beta**",
+            "**v1.x (this README) is the current GA release**",
+            "`LegacyZTWClient`, etc.) are **not** available in v2.x and will **not** be added."
+          ]
+        }
+      ]
+    },
+    "legacy-zia-env": {
+      "statement": "The Python SDK's LegacyZIAClient reads its username, password, API key and cloud from the environment variables ZIA_USERNAME, ZIA_PASSWORD, ZIA_API_KEY and ZIA_CLOUD.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "class LegacyZIAClient(Client):",
+            "username = config.get(\"username\", os.getenv(\"ZIA_USERNAME\"))",
+            "password = config.get(\"password\", os.getenv(\"ZIA_PASSWORD\"))",
+            "api_key = config.get(\"api_key\", os.getenv(\"ZIA_API_KEY\"))",
+            "cloud = config.get(\"cloud\", os.getenv(\"ZIA_CLOUD\"))"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,331 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Defining a Browser Access Application within an Existing Application Segment",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/defining-browser-access-application-within-existing-application-segment",
+    "node": "1484091",
+    "revision": "3243345",
+    "updated": "2026-10-03",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "You can define applications for Browser Access when configuring a new application segment. You can also modify existing application segments to enable Browser Access for an application. To learn more, see About Browser Access."
+    },
+    {
+      "text": "If you intend to use a different external and internal hostname for a defined application that is Browser Access-enabled within an application segment, be aware of the following scenarios:"
+    },
+    {
+      "item": "Internal hostnames are not exposed, so there is no record of internal hostnames on the public DNS.",
+      "depth": 0
+    },
+    {
+      "item": "Backend SSL cannot be verified, so a web server certificate error is displayed to your end users because the hostname of the application doesn't match the hostname of the certificate.",
+      "depth": 0
+    },
+    {
+      "text": "If you intend to use the same external and internal hostname for a defined application that is Browser Access-enabled within an application segment, be aware of the following scenarios:"
+    },
+    {
+      "item": "Internal hostnames are exposed on the public DNS.",
+      "depth": 0
+    },
+    {
+      "item": "Backend SSL can be verified, so your end users will not receive a web server certificate error.",
+      "depth": 0
+    },
+    {
+      "text": "To define applications for Browser Access within an existing application segment:"
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Browser > Web Access > Browser Access.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          50
+        ],
+        [
+          53,
+          63
+        ],
+        [
+          66,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Locate the application segment you want to modify, then click the Edit icon.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          66,
+          70
+        ]
+      ]
+    },
+    {
+      "text": "The Edit Application Segment window appears.",
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Application Segment window:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "For Applications:",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Select the Browser Access checkbox, then complete the following steps:",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Enter the fully qualified domain name (FQDN) associated with the application in the Domain for Browser Isolation field.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          84,
+          112
+        ]
+      ]
+    },
+    {
+      "item": "From the Internal URL drop-down menu, select the protocol you want Private Access (ZPA) to use when a request is made to access the application. If your web server supports HTTPS, select this protocol. Otherwise, select HTTP.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          21
+        ],
+        [
+          173,
+          178
+        ],
+        [
+          220,
+          224
+        ]
+      ]
+    },
+    {
+      "text": "Private Access inserts a Via header in HTTP requests made using Browser Access."
+    },
+    {
+      "item": "Enter the port number. By default, port 80 is entered for HTTP and 443 is entered for HTTPS.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          40,
+          42
+        ],
+        [
+          58,
+          62
+        ],
+        [
+          67,
+          70
+        ],
+        [
+          86,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Select a Browser Access (i.e., web server) certificate from the drop-down menu. To learn more, see About (Web Server) Certificates.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "If you selected HTTPS in step ii above, the Use Untrusted Certificates checkbox is selected by default. If this setting is not selected, requests to access the application using untrusted web server certificates will not succeed.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          16,
+          21
+        ],
+        [
+          44,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Select the Allow Unauthenticated OPTIONS Request checkbox to allow Private Access to forward an unauthenticated HTTP preflight OPTIONS request from the browser to the application.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          22,
+          59
+        ]
+      ]
+    },
+    {
+      "text": "Private Access only accepts valid OPTIONS requests that include the headers Access-Control-Request-Headers, Access-Control-Request-Method, and Origin in the HTTP request. If these are not present, Private Access does not forward the OPTIONS request to the application."
+    },
+    {
+      "text": "Private Access accepts CORS requests if the requests are issued by one valid Browser Access domain to another Browser Access domain. The application server requires with credentials mode be added to the JavaScript. This allows the browser to pass cookies to the front end of JavaScript. The application server must also allow requests where the Origin header is set to null or to a valid Browser Access application."
+    },
+    {
+      "text": "b. Click Add More to add more domains for each application you want to define.",
+      "strong": [
+        [
+          9,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "For Client Connector Access, enter the TCP Port Ranges that can be used to access the application. The port range must include the port specified previously. Also, you must use TCP port ranges.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          27
+        ],
+        [
+          39,
+          54
+        ]
+      ]
+    },
+    {
+      "text": "For example, if you want to specify the port range 80 to 90, for From... enter 80, and for To..., enter 90. If you only want to specify one port, you can enter the same number (e.g., 80) for From... and To.... Click Add More to add more TCP port ranges.",
+      "strong": [
+        [
+          65,
+          72
+        ],
+        [
+          91,
+          96
+        ],
+        [
+          191,
+          198
+        ],
+        [
+          203,
+          208
+        ],
+        [
+          216,
+          224
+        ]
+      ]
+    },
+    {
+      "text": "Zscaler recommends excluding DNS traffic (port 53) from TCP and UDP port ranges."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "You can't enable Double Encryption for applications where Browser Access is enabled. To learn more, see Understanding Double Encryption."
+    },
+    {
+      "item": "Make sure that the rest of the configuration is correct, then click Save. To learn more, see Configuring Application Segments.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          68,
+          72
+        ]
+      ]
+    },
+    {
+      "text": "After saving, you are returned to the Browser Access page.",
+      "strong": [
+        [
+          38,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Locate the application segment you just modified, and click the Expand icon next to it.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          64,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Click the Copy icon next to the Canonical Name (CNAME). You will need this CNAME record for your public DNS.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          32,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Add the CNAME information you just copied to your public DNS, and verify that the FQDN for the Browser Access-enabled application resolves to the record.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "text": "To properly resolve Browser Access-enabled applications, the App Connector must use an internal DNS. If an internal DNS is not used, the App Connector will result in a DNS loop."
+    },
+    {
+      "text": "For example, for a CNAME of:"
+    },
+    {
+      "text": "marketing.mockcompany.com. CNAME 3077.217246660302995456.h.d.zpa-app.net."
+    },
+    {
+      "text": "You would need to verify that marketing.mockcompany.com. resolves to 3077.217246660302995456.h.d.zpa-app.net.."
+    }
+  ]
+}

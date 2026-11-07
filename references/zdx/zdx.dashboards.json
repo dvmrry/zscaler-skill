@@ -1,0 +1,738 @@
+{
+  "schema_version": 1,
+  "id": "zdx.dashboards",
+  "title": "ZDX console dashboards and overviews: time ranges, filters, VIP tagging, Private Service Edge Health and Self Service",
+  "aliases": [
+    "digital experience dashboard",
+    "performance dashboard",
+    "applications overview",
+    "users overview",
+    "user details page",
+    "vip users",
+    "very important person",
+    "private service edge health",
+    "self service dashboard",
+    "self service notifications",
+    "zdx time range"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.reports.console"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.dashboards.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.dashboards.network-intelligence"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.dashboards.wifi"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.health-score"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.geolocation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.score"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.call-quality"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZDX console shows experience data in dashboards and overviews; the API's report reads are in [[zdx.reports]]. This subject covers the Digital Experience dashboard, the Performance Dashboard, the Applications and Users Overviews, the user details page, VIP tagging, the ZIA Private Service Edge Health dashboard and Self Service."
+    },
+    {
+      "heading": "Digital Experience dashboard"
+    },
+    {
+      "text": "{{de-overview}} {{de-time-range}} {{de-widgets}}"
+    },
+    {
+      "heading": "Time ranges and their limits"
+    },
+    {
+      "text": "{{time-ranges-other}} {{time-range-limits-by-tier}}"
+    },
+    {
+      "heading": "Performance Dashboard"
+    },
+    {
+      "text": "{{perf-filters}} {{perf-app-selection}} {{perf-page-fetch-time}} {{perf-regions-map}} ZDX locates users as described in [[zdx.devices.geolocation]]."
+    },
+    {
+      "heading": "Applications Overview and application details"
+    },
+    {
+      "text": "{{apps-overview}} {{app-details}}"
+    },
+    {
+      "heading": "Users Overview and user details"
+    },
+    {
+      "text": "{{users-overview-list}} {{users-overview-score}} The score article defines a user's score differently, [[zdx.score.calculation:user-score-vs-overview]], and the console gives the scale as 1 to 100 where the score article gives 0 to 100, [[zdx.score:scale-range]]."
+    },
+    {
+      "label": "User details.",
+      "text": "{{user-details-selection}} {{user-details-incidents}}"
+    },
+    {
+      "heading": "VIP users"
+    },
+    {
+      "text": "{{vip-tagging}} {{vip-tier}} Whether User Priority is the VIP tag is open {{gap:vip-vs-user-priority}}."
+    },
+    {
+      "heading": "ZIA Private Service Edge Health"
+    },
+    {
+      "text": "{{pse-health}} {{pse-tiles}} {{pse-traffic}} {{pse-datacenter}} {{pse-instance}}"
+    },
+    {
+      "heading": "Self Service"
+    },
+    {
+      "text": "{{self-service-overview}} {{self-service-dashboard}} {{self-service-table}} {{self-service-notifications}} The values that raise each notification are open {{gap:self-service-triggers}}."
+    },
+    {
+      "label": "Self Service settings.",
+      "text": "{{self-service-settings-prerequisites}} {{self-service-settings}} How its include and exclude criteria combine is open {{gap:self-service-criteria-logic}}. Changing Self Service settings needs Organization scope: [[shared.admin-rbac.zdx:organization-scope-only]]."
+    },
+    {
+      "label": "Other views.",
+      "text": "Incidents are in [[zdx.dashboards.incidents]], Network Intelligence in [[zdx.dashboards.network-intelligence]], the Wi-Fi Dashboard in [[zdx.dashboards.wifi]], the Devices Overview in [[zdx.devices.health-score]] and the Meetings dashboard in [[zdx.devices.call-quality]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the time range asked about is within the subscription's data retention and selection range before treating older data as missing.",
+      "uses": [
+        "time-range-limits-by-tier",
+        "de-time-range",
+        "time-ranges-other"
+      ]
+    },
+    {
+      "do": "Whether the tenant's subscription supports VIP users and Self Service, both Advanced Plus only in the subscription table, before looking for them.",
+      "uses": [
+        "vip-tier",
+        "self-service-overview"
+      ]
+    }
+  ],
+  "claims": {
+    "de-overview": {
+      "statement": "The Digital Experience dashboard gives an overview of the organization's digital experience in terms of user, devices, applications and unified communication experience, as well as overall network activity and latency. Depending on role and limitations, an admin might not see all of its widgets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-digital-experience-dashboard.json",
+          "quotes": [
+            "The Digital Experience dashboard provides an overview of your organization's Digital Experience in terms of user, devices, applications, and unified communication experience, as well as overall network activity and latency.",
+            "Depending on your role and limitations, you might not see all of these widgets."
+          ]
+        }
+      ]
+    },
+    "de-time-range": {
+      "statement": "The Digital Experience dashboard's Time Range filter chooses a range between 2 hours and 48 hours; a custom range must start within the last 14 days, be at least 15 minutes long and be set in 5-minute increments. The selected period applies to all data within the dashboard, and the default is 48 hours. In the subscription table the Query Limit Time Span Selection Range is 2 to 24 hours on Standard and 2 to 48 hours on the other tiers, and Query Limit Data Retention is 2 days on Standard and 14 days on the others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Query Limit Data Retention | 2 days | 14 days | 14 days | 14 days |",
+            "| Query Limit Time Span Selection Range | 2 to 24 hours | 2 to 48 hours | 2 to 48 hours | 2 to 48 hours |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Integrations and Data Retention"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-digital-experience-dashboard.json",
+          "quotes": [
+            "Use the Time Range filter in the upper right to choose a specific time range between 2 hours and 48 hours in which to view data.",
+            "The start date must be within the last 14 days, and the minimum time range is 15 minutes. You can set any time range greater than 15 minutes in 5-minute increments.",
+            "The selected period applies to all data within the dashboard. The default time range is 48 Hours."
+          ]
+        }
+      ]
+    },
+    "de-widgets": {
+      "statement": "The Digital Experience dashboard has an overview of the total incidents, impacted users and total active users based on device performance, and widgets providing network anomalies from Last Mile ISPs to the Zero Trust Exchange to applications. It lists score bands Poor (0-33, Red), Okay (34-65, Orange) and Good (66-100, Green), and a Hardware Usage Analysis of impacted devices and their hardware usage from the previous 14 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-digital-experience-dashboard.json",
+          "quotes": [
+            "This overview displays the total incidents, impacted users, and total active users based on device performance.",
+            "These widgets provide network anomalies from Last Mile Internet Service Providers (ISPs) to Zero Trust Exchange (ZTE) to applications.",
+            "Poor (0-33, Red)",
+            "Okay (34-65, Orange)",
+            "Good (66-100, Green)",
+            "Hardware Usage Analysis: View impacted devices and their hardware usage from the previous 14 days."
+          ]
+        }
+      ]
+    },
+    "time-ranges-other": {
+      "statement": "The Performance Dashboard, the Applications Overview and the Users Overview each default to a 2-hour time range and offer Current, which views the most current ZDX Score captured within the previous 30 minutes. The Performance Dashboard's custom range must start within the last 14 days, be at least 15 minutes long and be set in 5-minute increments. The subscription table limits Standard to a 2 to 24 hour selection range and 2 days of data retention.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Query Limit Data Retention | 2 days | 14 days | 14 days | 14 days |",
+            "| Query Limit Time Span Selection Range | 2 to 24 hours | 2 to 48 hours | 2 to 48 hours | 2 to 48 hours |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Integrations and Data Retention"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "The selected period applies to all data within the dashboard. The default time range is 2 Hours.",
+            "Current: View the most current ZDX Score captured within the previous 30 minutes.",
+            "Custom: Specify a custom time range. The start date must be within the last 14 days, and the minimum time range is 15 minutes. You can set any time range greater than 15 minutes in 5-minute increments."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-applications-overview.json",
+          "quotes": [
+            "The selected period applies to all data within the overview. The default time range is 2 Hours.",
+            "Current: View the most current ZDX Score captured within the previous 30 minutes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-users-overview.json",
+          "quotes": [
+            "The selected period applies to all data within the overview. The default time range is 2 Hours.",
+            "Current: View the most current ZDX Score captured within the previous 30 minutes."
+          ]
+        }
+      ]
+    },
+    "time-range-limits-by-tier": {
+      "statement": "In the subscription table, Query Limit Data Retention is 2 days on Standard and 14 days on Microsoft 365, Advanced and Advanced Plus, and Query Limit Time Span Selection Range is 2 to 24 hours on Standard and 2 to 48 hours on Microsoft 365, Advanced and Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Query Limit Data Retention | 2 days | 14 days | 14 days | 14 days |",
+            "| Query Limit Time Span Selection Range | 2 to 24 hours | 2 to 48 hours | 2 to 48 hours | 2 to 48 hours |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Integrations and Data Retention"
+        }
+      ]
+    },
+    "perf-filters": {
+      "statement": "The Performance Dashboard filters by Departments, Zscaler Locations, User Groups, Geolocations, Location Groups, Last Mile ISPs and Operating System, and each filter allows including or excluding individual options.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "Filter data: Click the filters to select options for Departments, Zscaler Locations, User Groups, Geolocations, Location Groups, Last Mile ISPs, and Operating System. Each filter allows you to include or exclude individual options."
+          ]
+        }
+      ]
+    },
+    "perf-app-selection": {
+      "statement": "The Performance Dashboard preselects the application with the lowest score, and the rest of the page tracks information based on that application. Its ZDX Score graph also tracks the score of the most impacted application, as determined by the applied filters, up to four additional applications can be added for comparison, and the selection is also reflected in the Page Fetch Time graph.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "The dashboard preselects the application with the lowest score, and the rest of the page automatically tracks information based on that application.",
+            "The graph also tracks the score of the most impacted application, as determined by the applied filters, for comparison.",
+            "Selections made in the application selector for the ZDX Score are also reflected in the Page Fetch Time graph."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "For comparison, you can select up to four additional applications by clicking Add Another Application in the application selector below the graph."
+          ],
+          "after": "- ZDX Score"
+        }
+      ]
+    },
+    "perf-page-fetch-time": {
+      "statement": "The Performance Dashboard's Page Fetch Time graph tracks, in milliseconds, how long the selected application takes to transfer the fetched page to the user during the selected period, with a line for the 95th percentile (P95) indicating that 95 percent of the fetch time is below that amount.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "The Page Fetch Time graph tracks how long it takes the selected application to transfer the fetched page to the user during the selected time period. The time is tracked in milliseconds.",
+            "A line runs across the graph that indicates the 95th percentile, as identified by P95. It indicates that 95 percent of the fetch time is below this amount."
+          ]
+        }
+      ]
+    },
+    "perf-regions-map": {
+      "statement": "The Regions by ZDX Score map takes the geographic locations of all users accessing the selected application and organizes the data for the score down to the city level for major cities around the world; hovering over a marked location shows the city name, the ZDX Score and the number of users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "The Regions by ZDX Score map takes the geographic locations of all users accessing the selected application and organizes the data for the score down to the city level for major cities around the world.",
+            "For each marked location on the map, you can see the name of the city, the ZDX Score, and the number of users while hovering the mouse over the marked spot."
+          ]
+        }
+      ]
+    },
+    "apps-overview": {
+      "statement": "The Applications Overview filters by User Priority, Departments, Zscaler Locations, User Groups, Geolocations, Location Groups, Last Mile ISPs, Operating System, Monitoring Type and Zscaler Data Centers. Disabled applications are shown in gray and deleted applications with a strikethrough on the name, and each application lists its ZDX Score (from 1 to 100, with 1 the lowest), active users, RUM users, and the geolocation, Zscaler location and department most impacted by the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-applications-overview.json",
+          "quotes": [
+            "Filter data: Click the filters to select options for User Priority, Departments, Zscaler Locations, User Groups, Geolocations, Location Groups, Last Mile ISPs, Operating System, Monitoring Type, and Zscaler Data Centers.",
+            "Any disabled applications are shown in gray, and deleted applications are indicated with a strikethrough on the application name.",
+            "ZDX Score: The application's ZDX Score from 1 to 100, with 1 being the lowest and 100 being the highest.",
+            "Active Users: The number of active users accessing the application.",
+            "RUM Users: The number of RUM users accessing the RUM-enabled application.",
+            "Impacted Geolocations: The geolocation most impacted by the application.",
+            "Impacted Zscaler Locations: The Zscaler location most impacted by the application.",
+            "Impacted Departments: The department most impacted by the application."
+          ]
+        }
+      ]
+    },
+    "app-details": {
+      "statement": "Filters selected on the Applications Overview remain in place after selecting an application. The application's probe status gives the minimum, average and maximum of Page Fetch Time, Server Response Time, DNS Time and Availability for the Web probe, and of End-to-End, Packet Loss, Total Hops and Packet Count for the network probe, and the Web Probe Performance tab lists up to the 5 most impacted departments, regions and locations with their Synthetic Probe Score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-application-details.json",
+          "quotes": [
+            "Any filters you select on the Applications Overview page remain in place after selecting an application.",
+            "Application Probe Status: The overall probe status of the configured application and its URL. Each metric includes the minimum, average, and maximum for the following:",
+            "Application Probe Status: View the overall probe status of the configured application and its URL. Each metric includes the minimum, average, and maximum for the following:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-application-details.json",
+          "after": "Application Probe Status: The overall probe status of the configured application and its URL.",
+          "quotes": [
+            "Page Fetch Time",
+            "Server Response Time",
+            "DNS Time",
+            "Availability"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-application-details.json",
+          "after": "Application Probe Status: View the overall probe status of the configured application and its URL.",
+          "quotes": [
+            "End-to-End",
+            "Packet Loss",
+            "Total Hops",
+            "Packet Count"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-application-details.json",
+          "quotes": [
+            "Impacted Departments: Up to the 5 most impacted departments and their Synthetic Probe Score.",
+            "Impacted Regions: Up to the 5 most impacted regions and their Synthetic Probe Score.",
+            "Impacted Locations: Up to the 5 most impacted locations and their Synthetic Probe Score."
+          ],
+          "after": "# Web Probe Performance"
+        }
+      ]
+    },
+    "users-overview-list": {
+      "statement": "By default, no information is displayed in the Users Overview's ZDX Score User Distribution and Users list until an application is selected. The list displays up to 100 users in the Poor, Okay or Good category for the selected period under tabs and loads on the Poor tab, can be downloaded in CSV format for each category, shows names that come from the identity providers configured in Internet & SaaS, and its filters apply only to this page, not to the Probes configuration page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-users-overview.json",
+          "quotes": [
+            "By default, no information is displayed in the ZDX Score User Distribution and the Users list until an application is selected.",
+            "The Users list displays up to 100 users in the Poor, Okay, or Good ZDX Score category for the selected time period.",
+            "By default, users with Poor, Okay, or Good scores are displayed under their respective tabs within the table and the page displays the Poor tab on loading.",
+            "The Download icon () allows you to download the current table view of listed users in CSV format for each ZDX Score category.",
+            "These names come from your identity providers configured in Internet & SaaS.",
+            "These filters apply to only this page and do not apply to the Probes configuration page."
+          ]
+        }
+      ]
+    },
+    "users-overview-score": {
+      "statement": "The Users Overview's ZDX Score column shows the user's ZDX Score from 1 to 100, with 1 the lowest and 100 the highest, and says it is an average score for the selected time period. The Device Count column lists the total number of devices associated with the user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-users-overview.json",
+          "quotes": [
+            "The ZDX Score column shows the user's ZDX Score from 1–100, with 1 being the lowest and 100 being the highest. It is an average score for the selected time period.",
+            "The Device Count column lists the total number of devices associated with the user."
+          ]
+        }
+      ]
+    },
+    "user-details-selection": {
+      "statement": "On the user details page, if there is more than one device the first device is automatically selected and stays selected through time range and other filter changes, and the application with the lowest ZDX Score is selected by default. The ZDX Score Over Time graph is not populated if a device is not selected, and the time limit to zoom in is 5 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "If there is more than one device, the first device is automatically selected.",
+            "The device remains selected even with time range and other filter changes.",
+            "By default, the application with the lowest ZDX Score is selected.",
+            "The ZDX Score Over Time graph shows how the ZDX Score trends over the selected time period for this user by device. If a device is not selected, this graph is not populated.",
+            "The time limit to zoom in is 5 minutes."
+          ]
+        }
+      ]
+    },
+    "user-details-incidents": {
+      "statement": "The user details page can display incident data from the Incidents Dashboard in the ZDX Score Over Time graph, based on the timeline of a particular incident, with icons for the incident types Wi-Fi, Last Mile ISP, Zscaler and Application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "You can also enable and display incident data in the ZDX Score Over Time graph that's reflected on the Incidents Dashboard, based on the timeline of a particular incident.",
+            "Hover over an icon that represents one of the incident types: Wi-Fi, Last Mile ISP, Zscaler, or Application."
+          ]
+        }
+      ]
+    },
+    "vip-tagging": {
+      "statement": "A user can be tagged as a Very Important Person (VIP) user to categorize them as a high-impact user, and up to 100 users or 100 user groups can be tagged. On the dashboards and overviews filters menu, VIP can be enabled to filter data for VIP users only, including on the Performance Dashboard, Devices Overview, Incidents Dashboard and Users Overview, and a VIP user is tagged with a star icon in user details. The subscription table lists VIP users as not supported on Standard, Microsoft 365 and Advanced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Very Important Person (VIP) Users | Not supported | Not supported | Not supported | 100 VIP users 100 VIP user groups |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-tagging-users-vip-users.json",
+          "quotes": [
+            "Tag a user as a Very Important Person (VIP) user to categorize them as high-impact users.",
+            "Add up to 100 users or 100 user groups to tag as VIP Users.",
+            "On the dashboards and overviews filters menu, you can enable VIP to filter data for VIP users only.",
+            "- Performance Dashboard",
+            "- Devices Overview",
+            "- Incidents Dashboard",
+            "- Users Overview",
+            "If a user is tagged as VIP, they are tagged with a star icon in user details."
+          ]
+        }
+      ]
+    },
+    "vip-tier": {
+      "statement": "In the subscription table, Very Important Person (VIP) Users are not supported on Standard, Microsoft 365 and Advanced, and supported on Advanced Plus at 100 VIP users and 100 VIP user groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Very Important Person (VIP) Users | Not supported | Not supported | Not supported | 100 VIP users 100 VIP user groups |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "pse-health": {
+      "statement": "Internet & SaaS (ZIA) Private Service Edge Health provides a statistical overview of Zscaler Private Service Edges deployed in the organization's data centers, with details of overall traffic, internal latency and transactions within the previous 24 hours to 14 days, as allowed per the ZDX subscription level. It needs an admin role with view permission and is reached under Private Access > Dashboards > Health; the subscription table lists Internet & SaaS PSE Health as supported on Standard, Microsoft 365, Advanced and Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-zia-private-service-edge-dashboard.json",
+          "quotes": [
+            "Internet & SaaS (ZIA) Private Service Edge Health provides a statistical overview of Zscaler Private Service Edges deployed in your data centers.",
+            "View details of overall traffic, internal latency, and transactions within the previous 24 hours to 14 days, as allowed per your ZDX subscription level.",
+            "Your admin role has view permission.",
+            "To access the ZIA Private Service Edge Health dashboard, go to Private Access > Dashboards > Health."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Internet & SaaS PSE Health | Supported | Supported | Supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "pse-tiles": {
+      "statement": "The Private Service Edge Health tiles give metrics from the previous 24-hour period to the current time: the total number of data centers with Private Service Edges, the average amount of data (in bits) processed in the data centers, and the aggregate number of transactions processed per second.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-zia-private-service-edge-dashboard.json",
+          "quotes": [
+            "The tiles provide metrics from the previous 24-hour period to the current time.",
+            "Total PSE Data Centers: The total number of data centers with Private Service Edges within your organization.",
+            "Total Throughput: The average amount of data (in bits) processed in your data centers within the previous 24 hours.",
+            "Transactions/Sec: The aggregate number of transactions processed per second in your data centers within the previous 24 hours."
+          ]
+        }
+      ]
+    },
+    "pse-traffic": {
+      "statement": "The Overall Traffic chart displays traffic in 5-minute intervals when 24 Hours or 48 Hours is selected and in 1-hour intervals for 7 Days or 14 Days, and Export CSV captures total throughput for the data centers by date and time. The data center table gives the number of Private Service Edge proxy instances, the average data processed per second, the aggregate transactions per second and the average latency in milliseconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-zia-private-service-edge-dashboard.json",
+          "quotes": [
+            "If you select 24 Hours or 48 Hours, traffic displays in 5-minute intervals. If you select 7 Days or 14 Days, traffic displays in 1-hour intervals.",
+            "Optionally, click Export CSV to capture total throughput for the data centers, designated by date and time.",
+            "Instances: The number of Private Service Edge proxy instances.",
+            "Throughput: The average amount of data processed per second for the date and time within your selected time range.",
+            "Transactions/Sec: The aggregate number of transactions processed per second within your selected time range.",
+            "Latency: The average time (in milliseconds) to send data from the beginning to the end of your selected time range."
+          ]
+        }
+      ]
+    },
+    "pse-datacenter": {
+      "statement": "A data center's page carries over the time range selected for Overall Traffic, downloads each chart's metrics in CSV format and offers Report Issue to submit a help ticket. It gives the VIP address, the cluster names for the VIP address, and PSE Internal Latency, the P95 latency in milliseconds calculated for the data point within the selected range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-zia-private-service-edge-dashboard.json",
+          "quotes": [
+            "The time range selected for Overall Traffic from the dashboard is carried over to the data center page by default.",
+            "You can download metrics for each data center chart in CSV format.",
+            "You also have the option to click Report Issue and submit a help ticket if you experience issues that require administrator support.",
+            "VIP Address: The Virtual IP address.",
+            "Cluster: The individual names for the VIP address.",
+            "PSE Internal Latency: The P95 latency (in milliseconds) calculated for the data point within the selected time range."
+          ]
+        }
+      ]
+    },
+    "pse-instance": {
+      "statement": "A Private Service Edge instance is identified by a node name extension (for example pchi1-1a1-sme) and belongs to a node cluster grouped by a physical node name (for example 1a). Its row gives the node name of the physical server, the service IP address, the asset tag (a physical ID label) and the Zscaler server model number, and each instance charts its processed traffic, its average P95 latency in milliseconds and its memory usage in gigabytes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-zia-private-service-edge-dashboard.json",
+          "quotes": [
+            "Node Name: The name of the physical server on which the instance resides.",
+            "Instance: A Private Service Edge identified by node name extension (e.g., pchi1-1a1-sme, pchi1-1a2-sme, pchi1-1a3-sme, etc). Each Private Service Edge instance belongs to a node cluster that is grouped by a physical node name (e.g., 1a, 1b, 1c, etc).",
+            "Service IP Address: The IP address for the corresponding Private Service Edge instance.",
+            "Asset Tag: A physical ID label for the Private Service Edge.",
+            "Model Number: The provided Zscaler server model number.",
+            "Traffic: The traffic processed by the Private Service Edge instance.",
+            "Latency: Includes the average P95 latency (in milliseconds) for the Private Service Edge.",
+            "Memory Usage: Indicates usage (in gigabytes) for the selected time range."
+          ]
+        }
+      ]
+    },
+    "self-service-overview": {
+      "statement": "Self Service can help users identify the root cause of issues related to CPU usage and Wi-Fi access, so they can investigate potential solutions without contacting customer support, and each notification contains a brief diagnosis and recommendation. It needs the required Client Connector and ZDX Module versions, a subscription level that supports Self Service and an admin role configured for it; the subscription table lists Self Service as not supported on Standard, Microsoft 365 and Advanced and supported on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-self-service-dashboard.json",
+          "quotes": [
+            "Self Service can help users identify the root cause of issues related to CPU usage and Wi-Fi access, allowing users to investigate potential solutions without the need to contact customer support.",
+            "Each notification contains a brief diagnosis and recommendation that might help resolve the CPU or Wi-Fi issue.",
+            "You're running the required versions of Zscaler Client Connector and ZDX Module.",
+            "Your subscription level supports Self Service.",
+            "Your admin role is configured for Self Service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Self Service | Not supported | Not supported | Not supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "self-service-dashboard": {
+      "statement": "The Self Service Dashboard's time range runs from the previous 2 hours to 14 days and its notification types are Wi-Fi, CPU or Other. User Priority is described as the priority level assigned to users. It counts total notifications sent and notifications by type, users notified, users who found notifications helpful, active users with Self Service enabled and users who disabled their notifications, each with a percentage increase or decrease where stated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-self-service-dashboard.json",
+          "quotes": [
+            "Time range options are available in increments from the previous 2 Hours to 14 Days.",
+            "Notification Types: Identified as Wi-Fi, CPU, or Other.",
+            "User Priority: The priority level assigned to users.",
+            "Total Notifications Sent: The number of notifications sent, including a percentage increase or decrease.",
+            "Notifications By Types: The number of notifications related to Wi-Fi, CPU, or Other.",
+            "Total Users Notified: The number of users who received notifications, including a percentage increase or decrease.",
+            "Users Found Notifications Helpful: The number of users who provided feedback and indicated their notifications were helpful, including a percentage increase or decrease.",
+            "Active Users with Self Service Enabled: The number of active users who have Self Service enabled, including a percentage increase or decrease.",
+            "Users Who Disabled Notifications: The number of users who disabled their notifications, including a percentage increase or decrease."
+          ]
+        }
+      ]
+    },
+    "self-service-table": {
+      "statement": "A notification's table entry gives the user's device that launched the notification and Found It Helpful?, which is Yes or No if the user provided feedback and Not available if not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-self-service-dashboard.json",
+          "quotes": [
+            "Device: The user's device that launched the notification.",
+            "Found It Helpful?: Indicates Yes or No if feedback was provided by the user. Not available indicates feedback was not provided."
+          ]
+        }
+      ]
+    },
+    "self-service-notifications": {
+      "statement": "The user notifications are High CPU (the CPU running at a value for a sustained period of time, listing the top processes affecting performance, with advice to close applications contributing to high CPU usage), Degraded Wi-Fi (caused by a suboptimal band or an access point far from the user's location), Suboptimal Wi-Fi Access Point (advice to connect to a better access point in the SSID network) and Suboptimal Wi-Fi Band (physical mode 802.11n, with advice to connect to the SSID on the 5 GHz band).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-self-service-user-notifications.json",
+          "quotes": [
+            "| High CPU | CPU is running around <value> and might reduce performance. | CPU is running at <value> for a sustained period of time and might affect the performance of your applications. | Top processes affecting performance: <list of processes> |",
+            "Close applications contributing to high CPU usage. Alternatively, go to the Activity Monitor or Task Manager to end the processes.",
+            "| Degraded Wi-Fi | Caused by suboptimal band or the Wi-Fi access point is far from your location. | The current Wi-Fi network <home Wi-Fi> signal is weak. |",
+            "| Suboptimal Wi-Fi Access Point | Weak signal detected for the connected Wi-Fi access point with SSID <value>. |",
+            "Connect to a better access point in your SSID network.",
+            "| Suboptimal Wi-Fi Band | Connecting to 802.11ac provides better performance. |",
+            "Physical mode is 802.11n.",
+            "Connect to the SSID on the 5 GHz band."
+          ]
+        }
+      ]
+    },
+    "self-service-settings-prerequisites": {
+      "statement": "Configuring Self Service settings needs full permission level for Self Service on ZDX and the Zscaler Client Connector Notification Framework enabled on the Notifications page in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-self-service-settings.json",
+          "quotes": [
+            "Have full permission level for Self Service on ZDX.",
+            "Enable Zscaler Client Connector Notification Framework on the Notifications page in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "self-service-settings": {
+      "statement": "The General Settings of Self Service include and exclude specific users, user groups, locations, location groups, departments and devices, deleted or unknown users cannot be selected for the include and exclude criteria, and the Notification Settings send push notifications via Zscaler Client Connector or enable users to configure notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-self-service-settings.json",
+          "quotes": [
+            "General Settings: Admins can configure the General Settings of Self Service to include and exclude specific users, user groups, locations, location groups, departments, and devices.",
+            "You cannot select deleted or unknown users for the include and exclude criteria.",
+            "Notification Settings: Admins can configure the Notification Settings of Self Service to send push notifications via Zscaler Client Connector or enable users the ability to configure notifications."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "self-service-criteria-logic": {
+      "kind": "semantic",
+      "title": "How Self Service's include and exclude criteria combine",
+      "status": "open",
+      "detail": "The Configuring Self Service Settings article lists the users, user groups, locations, location groups, departments and devices that can be included and excluded; it does not say how the criteria combine or whether the probing criteria's AND/OR logic applies.",
+      "blocks": "predicting which users receive Self Service notifications",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "vip-vs-user-priority": {
+      "kind": "semantic",
+      "title": "Whether User Priority is the VIP tag",
+      "status": "open",
+      "detail": "Several pages filter by User Priority, described as the priority level assigned to users, and the VIP article says dashboards can filter to VIP users; no article says whether User Priority is the VIP tag.",
+      "blocks": "telling an operator which filter selects VIP users",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "self-service-triggers": {
+      "kind": "semantic",
+      "title": "The values that raise a Self Service notification",
+      "status": "open",
+      "detail": "The notification table gives a CPU value and sustained period as placeholders, and the Wi-Fi notifications as weak signal or a suboptimal band; the CPU value and duration and the signal or latency levels behind them are not given.",
+      "blocks": "explaining why a user did or did not get a Self Service notification",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,652 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Migrating to a New IdP Configuration",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/migrating-new-idp-configuration",
+    "node": "1507641",
+    "revision": "3243230",
+    "updated": "2026-09-18",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide contains information on how to migrate from one identity provider (IdP) to another in the Zscaler Admin Console. Zscaler recommends editing the existing IdP to migrate to a new IdP. Adding a new IdP for migration can duplicate groups and departments, and your existing policies might no longer apply."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you migrate an IdP, ensure that the following prerequisites are met:"
+    },
+    {
+      "item": "Ensure that the same user data (Groups, Users, Departments) are present in both IdPs.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that the SAML and SCIM mapping attributes match in both IdPs.",
+      "depth": 0
+    },
+    {
+      "item": "For SAML, ensure that the NameID mapping is defined the same way in both IdPs. If you define NameID with the email or UPN attribute, ensure that the expression is the same in both IdPs. For example, see the following SAML assertion:",
+      "depth": 1
+    },
+    {
+      "item": "<saml:Attribute Name=\"NameID\" Format=\"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress\"> <saml:AttributeValue>user@example.com</saml:AttributeValue> </saml:Attribute>",
+      "depth": 1
+    },
+    {
+      "item": "For SCIM, ensure that the userName mapping is defined the same way in both IdPs. If you define userName with the email or UPN attribute, ensure that the expression is the same in both IdPs. For example, see the following payload:",
+      "depth": 1
+    },
+    {
+      "item": "json { \"schemas\": [\"urn:ietf:params:scim:schemas:core:2.0:User\"], \"userName\": \"user@example.com\", ... }",
+      "depth": 1
+    },
+    {
+      "heading": "Migrating to a New IdP",
+      "level": 1
+    },
+    {
+      "text": "The following methods are supported for migrating to a new SAML or SCIM IdP configuration:"
+    },
+    {
+      "item": "Editing an Existing IdP and Migrating to a New IdP",
+      "depth": 0
+    },
+    {
+      "item": "Edit the existing IdP to avoid recreating policies that reference the SAML or SCIM attributes. This minimizes disruption to existing access policies and configurations.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends this method to migrate to a new SAML or SCIM IdP configuration.",
+      "depth": 0
+    },
+    {
+      "item": "To edit an existing IdP configuration and migrate to a new IdP configuration:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Private Access Authentication > IdP Configuration.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          78
+        ],
+        [
+          81,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "Expand the IdP you want to modify in the table and click Download Metadata.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          57,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If the IdP doesn't support the option to download the service provider metadata, you can copy the Service Provider URL and Service Provider Entity ID, and download the Service Provider Certificate (if the SAML request is enabled) to be used for IdP configurations.",
+      "depth": 1,
+      "strong": [
+        [
+          98,
+          118
+        ],
+        [
+          123,
+          149
+        ],
+        [
+          168,
+          196
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon for the IdP.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The Edit IdP Configuration window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit IdP Configuration window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Copy the SCIM Service Provider Endpoint.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Copy the token. If the token wasn't saved, click Generate New Token to generate a new token.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          49,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Configure a new IdP using the metadata captured. Verify that values for users, groups, and departments are the same in both IdPs to avoid any effects on policies based on users, groups, or departments.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "After the new IdP is configured, update the IdP configuration with the metadata from the new IdP. If the IdP doesn't have the option to download the metadata, then manually update the Single Sign-On URL, IdP Entity ID, and IdP Certificate.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          184,
+          202
+        ],
+        [
+          204,
+          217
+        ],
+        [
+          223,
+          238
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "A Warning window appears asking if you want to continue.",
+      "depth": 1,
+      "strong": [
+        [
+          2,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Continue Anyway.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon for the new IdP configuration.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The Edit IdP Configuration window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit IdP Configuration window, enable SCIM Sync to update the user data in the Zscaler Admin Console.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          45,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Copy the list of attributes from the new IdP.",
+      "depth": 1,
+      "number": 11
+    },
+    {
+      "item": "Go to Administration > Identity > Private Access > Session Attributes.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          31
+        ],
+        [
+          34,
+          48
+        ],
+        [
+          51,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Edit and replace the SAML attributes within the table so that they correspond to the attributes from the new IdP.",
+      "depth": 1,
+      "number": 13
+    },
+    {
+      "item": "The following is an example of the SAML attributes before switching to the new IdP configuration.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The following is an example of the SAML attributes after copying the list of attributes to the new IdP configuration.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler recommends updating all SAML Attribute names from the new IdP, including the attributes that are used in the policies, to ensure that existing policies continue to work without disruption. If the attribute name coming from both IdPs is the same, then this step is not required.",
+      "depth": 1
+    },
+    {
+      "heading": "Validating Migration",
+      "level": 2
+    },
+    {
+      "item": "To validate that the IdP migration is successful:",
+      "depth": 0
+    },
+    {
+      "item": "Reauthenticate against the new IdP to get the updated SAML assertion. Verify that users can authenticate by having them log out and log back in to Zscaler Client Connector.",
+      "depth": 1
+    },
+    {
+      "item": "Reauthentication does not happen automatically post-IdP migration until Zscaler Client Connector reconnects to the Public Service Edge for Private Access, or until the user triggers a timeout policy that requires them to reauthenticate. This happens when the user performs one of the following actions:",
+      "depth": 1
+    },
+    {
+      "item": "On the Private Access tab within Zscaler Client Connector, click Off and then click On.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          65,
+          68
+        ],
+        [
+          84,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Exit and relaunch Zscaler Client Connector from the taskbar.",
+      "depth": 2
+    },
+    {
+      "item": "Restart services in Zscaler Client Connector.",
+      "depth": 2
+    },
+    {
+      "item": "On the Private Access tab within Zscaler Client Connector, click Authenticate Early.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          65,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Create a timeout policy to authenticate early (e.g., trigger the reauthentication by creating a timeout policy rule with the rule order set to 1, and with the reauthentication value set to less than 1 hour).",
+      "depth": 2
+    },
+    {
+      "item": "Verify that all existing policies with SAML or SCIM attributes are working as expected.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure users can access all applications and get correct policies.",
+      "depth": 1
+    },
+    {
+      "heading": "Fallback Steps",
+      "level": 2
+    },
+    {
+      "item": "To revert the configuration changes in the Zscaler Admin Console for fallback:",
+      "depth": 0
+    },
+    {
+      "item": "Add the IdP configuration from the previous IdP that was used before migration.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enable SCIM Sync for the previous IdP configuration that was used before migration.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Ensure users can log in and that policies are working as expected.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Migrating to a New IdP",
+      "depth": 0
+    },
+    {
+      "item": "Prior to migrating to a new IdP configuration, you must create two IdP configurations to perform the migration. The two additional IdP configurations are considered dummy domains that are separate from the domain that is configured with the existing IdP, and separate from the IdP configuration that is planned to be migrated to the new IdP. The steps in this procedure use the following example IdP configurations:",
+      "depth": 0
+    },
+    {
+      "item": "IdP 1: Includes a dummy domain (domain1.com) and a domain (domain2.com) to authenticate users.",
+      "depth": 1
+    },
+    {
+      "item": "IdP 2: Includes a dummy domain (domain3.com) and is used post-migration for the IdP configuration.",
+      "depth": 1
+    },
+    {
+      "item": "After you create the two IdP configurations with the dummy domains, proceed to migrate to a new IdP configuration. Zscaler recommends using this migration method when editing an existing IdP and migrating to a new IdP does not work (e.g., when an existing IdP is being used for both admins and users).",
+      "depth": 0
+    },
+    {
+      "item": "To migrate to a new IdP configuration:",
+      "depth": 0
+    },
+    {
+      "item": "Configure a new IdP.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Set up your IdP and specify Private Access as the service provider.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Enable SCIM Sync and SCIM Attributes for policy to configure the SCIM integration between the Zscaler service and the new IdP configuration.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Ensure the new IdP is configured with all the SAML and SCIM attributes that are referenced in the Private Access policies to avoid any issues with policies. For example, Groups, Departments, Email, and Name attributes must be the same for both Private Access and for the new IdP for both SAML and SCIM.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Import the SAML attributes.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Save the configuration in the Zscaler Admin Console.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Start the SCIM sync from the IdP to update the user data in the Zscaler Admin Console.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Wait for the IdP to finish the provisioning.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "Edit the access policies, timeout policies, and client forwarding policies and add the same SCIM and SAML attributes from IdP 2 so that they have the same attributes from IdP 1.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "An error message appears in Zscaler Client Connector if an admin accesses the application while this step is in progress.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Remove domain2.com from IdP 1.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "Add domain2.com to the newly created IdP configuration (IdP 2).",
+      "depth": 1,
+      "number": 11
+    },
+    {
+      "item": "Ensure the existing IdP configuration is enabled and not modified in Private Access or on the IdP for a few days. The existing IdP can be decommissioned after you have validated that there aren't any observable issues post-migration.",
+      "depth": 0
+    },
+    {
+      "heading": "Validating Migration",
+      "level": 2
+    },
+    {
+      "item": "To validate that the IdP migration is successful:",
+      "depth": 0
+    },
+    {
+      "item": "Verify that users can authenticate by using one of the following actions:",
+      "depth": 1
+    },
+    {
+      "item": "On the Private Access tab within Zscaler Client Connector, click Off and then click On.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          65,
+          68
+        ],
+        [
+          84,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Exit and relaunch Zscaler Client Connector from the taskbar.",
+      "depth": 2
+    },
+    {
+      "item": "Restart services in Zscaler Client Connector.",
+      "depth": 2
+    },
+    {
+      "item": "On the Private Access tab within Zscaler Client Connector, click Authenticate Early.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          65,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Create a timeout policy to authenticate early (e.g., trigger the reauthentication by creating a timeout policy rule with the rule order set to 1, and with the reauthentication value set to less than 1 hour).",
+      "depth": 2
+    },
+    {
+      "item": "Ensure users can access all applications and get correct policies.",
+      "depth": 1
+    },
+    {
+      "item": "Verify that all existing policies with SAML or SCIM attributes are working as expected.",
+      "depth": 1
+    },
+    {
+      "heading": "Fallback Steps",
+      "level": 2
+    },
+    {
+      "item": "To revert the configuration changes in the Zscaler Admin Console for fallback:",
+      "depth": 0
+    },
+    {
+      "item": "Remove the domain2.com dummy domain from IdP 2.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Add the domain2.com dummy domain to IdP 1.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Reauthenticate again to authenticate against IdP 1.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Ensure the correct policies are being evaluated by Private Access using one of the following actions:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Restart services in Zscaler Client Connector.",
+      "depth": 2
+    },
+    {
+      "item": "Turn off and then turn on Private Access in Zscaler Client Connector.",
+      "depth": 2
+    },
+    {
+      "item": "Log out and then log in to Zscaler Client Connector.",
+      "depth": 2
+    },
+    {
+      "item": "Enable SCIM Sync for the previous IdP configuration that was used before migration.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Ensure users can log in and that policies are working as expected.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "text": "Zscaler recommends you are aware of the following:"
+    },
+    {
+      "item": "Users logged in to the Private Access service during the migration see an authentication error message in Zscaler Client Connector and must reauthenticate to regain access. To ensure that this happens, configure a timeout policy for users to authenticate after the IdP configuration changes. Reauthentication is required to apply the new SAML attributes.",
+      "depth": 0
+    },
+    {
+      "item": "If SCIM Attributes for Policy is enabled and users are not provisioning to the Zscaler Admin Console via SCIM, then the users cannot log in to the Private Access service using Zscaler Client Connector. Add the users to the Zscaler Admin Console via SCIM.",
+      "depth": 0,
+      "strong": [
+        [
+          3,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Privileged Remote Access (PRA)- and browser-based authenticated sessions still require users to reauthenticate. Zscaler recommends creating a timeout policy to authenticate early (e.g., trigger the reauthentication by creating a timeout policy rule with the rule order set to 1, and with the reauthentication value set to less than 1 hour).",
+      "depth": 0
+    }
+  ]
+}

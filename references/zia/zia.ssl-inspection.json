@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection",
+  "title": "ZIA SSL/TLS inspection",
+  "aliases": [
+    "ssl inspection",
+    "tls inspection",
+    "ssl/tls inspection policy",
+    "zia ssl policy",
+    "is this traffic inspected",
+    "ssl inspection overview",
+    "ssl inspection broke a site",
+    "https site fails behind zscaler"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.ssl-inspection.rules",
+      "because": "zia.ssl-inspection.rules:ascending-order"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.ssl-inspection.criteria",
+      "because": "zia.ssl-inspection.criteria:operator-expression"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.rule-scoping",
+      "because": "zia.locations.rule-scoping:rules-take-both"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.authentication.surrogate-ip",
+      "because": "zia.ssl-inspection.criteria:identity-needs-zcc-or-surrogate-ip"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering",
+      "because": "zia.ssl-inspection.pipeline:url-filtering-twice"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control",
+      "because": "zia.cloud-app-control.ssl-visibility:domain-level-only-when-not-decrypted"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dlp",
+      "because": "zia.ssl-inspection.bypass-impact:dependent-features"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.sandbox",
+      "because": "zia.ssl-inspection.bypass-impact:dependent-features"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.atp",
+      "because": "zia.ssl-inspection.bypass-impact:dependent-features"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.certificates",
+      "because": "zia.ssl-inspection.certificates:root-must-be-trusted"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.field-enablement",
+      "because": "zia.logs.field-enablement:df-tls"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/ssl-inspection-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.ssl-inspection.api-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.uninspectable"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.intermediate-ca"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.cipher-suites"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.app-trust-stores"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.traffic-sources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.exemptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.bypass-impact"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Is this traffic inspected, and what does that change?\" needs several questions answered in order. Skipping one is how SSL answers go wrong."
+    },
+    {
+      "steps": [
+        {
+          "label": "Where does the SSL decision sit?",
+          "text": "Between two passes of URL Filtering and Cloud App Control, and what survives without decryption depends on Evaluate versus Bypass Other Policies: [[zia.ssl-inspection.pipeline]]. How it applies by traffic source and forwarding port (known locations, Client Connector, dedicated port, 9443, 8800): [[zia.ssl-inspection.traffic-sources]]."
+        },
+        {
+          "label": "Which rule matches?",
+          "text": "First match by ascending order, with predefined and default rules you did not write: [[zia.ssl-inspection.rules]]. Whether its criteria can match this traffic at all (destination groups with SNI, user agents, identity, platform): [[zia.ssl-inspection.criteria]]."
+        },
+        {
+          "label": "What does the rule do?",
+          "text": "Certificates, OCSP, SNI, TLS floors, HTTP/2 and notifications: [[zia.ssl-inspection.actions]]. The same settings as a nested wire object, with tokens, casing and validators: [[zia.ssl-inspection.api-shape]]."
+        },
+        {
+          "label": "Could it be inspected at all?",
+          "text": "Who signs the certificate and where the root must be trusted: [[zia.ssl-inspection.certificates]]. The intermediate CA object itself: [[zia.ssl-inspection.intermediate-ca]]. Installing the root in tools with their own trust store: [[zia.ssl-inspection.app-trust-stores]]. Supported TLS versions and cipher suites: [[zia.ssl-inspection.cipher-suites]]. Pinned apps, client certificates, QUIC, BYOD and IoT: [[zia.ssl-inspection.uninspectable]]."
+        },
+        {
+          "label": "What does an exemption cost?",
+          "text": "How to write one safely: [[zia.ssl-inspection.exemptions]]. What stops working behind it: [[zia.ssl-inspection.bypass-impact]]."
+        }
+      ]
+    },
+    {
+      "text": "Terraform and SDK defects for SSL rules are not repeated here; the validator and plan-time checks are in [[zia.sdk-go.service-defects]]."
+    },
+    {
+      "text": "{{recommend-inspect-all}} The exemption side is in [[zia.ssl-inspection.exemptions:bypass-only-controlled]]."
+    }
+  ],
+  "claims": {
+    "recommend-inspect-all": {
+      "statement": "The SSL/TLS Inspection reference architecture says Zscaler recommends inspecting 100% of traffic to protect against threats hiding in encrypted channels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ssltls-inspection-zscaler-internet-access.json",
+          "quotes": [
+            "SSL/TLS Inspection with ZIA: Reference Architecture Guide Download PDF",
+            "Zscaler recommends inspecting 100% of traffic to protect your users and your organization from threats hiding in encrypted channels."
+          ]
+        }
+      ]
+    }
+  }
+}

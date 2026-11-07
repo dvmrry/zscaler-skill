@@ -1,0 +1,290 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring and Managing AWS Accounts",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-and-managing-aws-accounts",
+    "node": "1542868",
+    "revision": "3232909",
+    "updated": "2026-08-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on configuring and managing Amazon Web Services (AWS) accounts using APIs. All APIs are rate limited. To learn more, see API Rate Limit Summary."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before configuring and managing AWS accounts, make sure you've identified the access token required for authorization."
+    },
+    {
+      "heading": "Creating an AWS Account",
+      "level": 1
+    },
+    {
+      "text": "To create an AWS account:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "/publicCloudInfo",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Content Type: application/json",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Use the following JSON payload to create an AWS account and provide the following information:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "publicCloudInfo:",
+      "depth": 0
+    },
+    {
+      "item": "(Required) name (String): The name of the AWS account.",
+      "depth": 1
+    },
+    {
+      "item": "accountDetails:",
+      "depth": 1
+    },
+    {
+      "item": "(Required) awsAccountId (String): The AWS account ID where workloads are deployed. The ID must be non-null, non-empty, and unique, and contain 12 digits.",
+      "depth": 2
+    },
+    {
+      "item": "(Required) awsRoleName (String): The AWS trusting role in your account. The name must be non-null, non-empty, and 64 characters or fewer in length.",
+      "depth": 2
+    },
+    {
+      "item": "accountGroups:",
+      "depth": 1
+    },
+    {
+      "item": "id (Integer): An ID that uniquely identifies an entity.",
+      "depth": 2
+    },
+    {
+      "item": "cloudType (String): The cloud type. The default value is AWS.",
+      "depth": 1
+    },
+    {
+      "item": "externalId (String): A unique external ID for the AWS account.",
+      "depth": 1
+    },
+    {
+      "item": "(Required) supportedRegions: Regions supported by the Zscaler Tag Discovery Service.",
+      "depth": 1
+    },
+    {
+      "item": "id (Integer): The unique ID of the supported region.",
+      "depth": 2
+    },
+    {
+      "text": "View a sample JSON payload:"
+    },
+    {
+      "item": "Creating an AWS Account",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"aws-account-1\", \"cloudType\": \"AWS\", // optional \"externalId\": \"daba767765f2670722c4d68e8f81bf90\", // optional \"accountDetails\": { \"awsAccountId\": \"674109010822\", \"awsRoleName\": \"role1\" }, \"supportedRegions\": [ { \"id\": 456414 } ], // optional \"accountGroups\": [ { \"id\": 1090178 } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201, meaning the AWS account is created. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for All AWS Accounts",
+      "level": 1
+    },
+    {
+      "item": "To get details for all AWS accounts, send a GET request to the following endpoint:",
+      "depth": 0
+    },
+    {
+      "item": "/publicCloudInfo",
+      "depth": 0
+    },
+    {
+      "item": "This API supports pagination. To get a paginated response, send a GET request to the following endpoint:",
+      "depth": 0
+    },
+    {
+      "item": "/publicCloudInfo?page=1&pagesize=2",
+      "depth": 0
+    },
+    {
+      "text": "View an example response:"
+    },
+    {
+      "item": "Getting details for all AWS accounts",
+      "depth": 0
+    },
+    {
+      "item": "[ { \"id\": 2883305, \"name\": \"Dev-account\", \"cloudType\": \"AWS\", \"externalId\": \"daba767765f2670722c4d68e8f81bf90\", \"accountDetails\": { \"awsAccountId\": \"22333332123\", \"awsRoleName\": \"role1\", \"externalId\": \"daba767765f2670722c4d68e8f81bf90\", \"eventBusName\": \"zscaler-bus-2212-zscaler.net\", \"trustedAccountId\": \"275777770888\", \"trustedRole\": \"arn:aws:iam::275777770888:role/ZscalerTagDiscoveryRole\", \"troubleShootingLogging\": true, \"cloudWatchGroupArn\": \"DISABLED\" }, \"permissionStatus\": { \"status\": { \"assumeRole\": \"Allowed\", \"describeVpcs\": \"Allowed\", \"describeSubnets\": \"Allowed\", \"describesInstances\": \"Allowed\", \"describeVpcEndpoints\": \"Allowed\", \"describeNetworkInterfaces\": \"Allowed\", \"describeIamInstanceProfile\": \"Allowed\" }, \"permission\": { \"status\": \"Allowed\", \"account\": \"22333332123\", \"externalId\": \"daba767765f2670722c4d68e8f81bf90\", \"discoveryRoleName\": \"role1\" } }, \"lastSyncTime\": 1761777570, \"supportedRegions\": [ { \"id\": 228553, \"cloudType\": \"AWS\", \"name\": \"US_WEST_1\", \"regionName\": \"us-west-1\" }, { \"id\": 228554, \"cloudType\": \"AWS\", \"name\": \"US_EAST_1\", \"regionName\": \"us-east-1\" } ], \"lastModUser\": { \"id\": 61209299, \"name\": \"bac-admin@2212.zscaler.net\" }, \"lastModTime\": 1761777570, \"accountGroups\": [], \"regionStatus\": [ { \"id\": 228553, \"cloudType\": \"AWS\", \"name\": \"US_WEST_1\", \"status\": true }, { \"id\": 228554, \"cloudType\": \"AWS\", \"name\": \"US_EAST_1\", \"status\": true } ] }, { \"id\": 5138887, \"name\": \"Prod-account\", \"cloudType\": \"AWS\", \"externalId\": \"cb5da6706cfd671223c4e68e8d51afc77\", \"accountDetails\": { \"awsAccountId\": \"877428091333\", \"awsRoleName\": \"role101\", \"externalId\": \"cb5da6706cfd671223c4e68e8d51afc77\", \"eventBusName\": \"zscaler-bus-2212-zscaler.net\", \"trustedAccountId\": \"275777770888\", \"trustedRole\": \"arn:aws:iam::275777770888:role/ZscalerTagDiscoveryRole\", \"troubleShootingLogging\": true, \"cloudWatchGroupArn\": \"DISABLED\" }, \"permissionStatus\": { \"status\": { \"reason\": \"An error occurred (AccessDenied) when calling the AssumeRole operation\", \"assumeRole\": \"Denied\" }, \"permission\": { \"status\": \"Denied\", \"account\": \"877428091333\", \"externalId\": \"cb5da6706cfd671223c4e68e8d51afc77\", \"discoveryRoleName\": \"role101\" } }, \"lastSyncTime\": 1782954717, \"supportedRegions\": [ { \"id\": 228553, \"cloudType\": \"AWS\", \"name\": \"US_WEST_1\", \"regionName\": \"us-west-1\" } ], \"lastModUser\": { \"id\": 61209299, \"name\": \"bac-admin@2212.zscaler.net\" }, \"lastModTime\": 1782954717, \"accountGroups\": [], \"regionStatus\": [ { \"id\": 228553, \"cloudType\": \"AWS\", \"name\": \"US_WEST_1\", \"status\": true } ] } ]",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of a Specific AWS Account",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular AWS Account:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "/publicCloudInfo/{id}",
+      "depth": 0
+    },
+    {
+      "item": "Provide the unique ID of the AWS account in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "For example:",
+      "depth": 0
+    },
+    {
+      "item": "/publicCloudInfo/100",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Specific AWS Account",
+      "level": 1
+    },
+    {
+      "text": "To update a specific AWS account:"
+    },
+    {
+      "item": "Provide the updated JSON payload from the Creating an AWS Account section and send a PUT request to the following endpoint:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "/publicCloudInfo/{id}",
+      "depth": 0
+    },
+    {
+      "item": "Provide the unique ID of the AWS account, account groups, and region in the request payload.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Specific AWS Account",
+      "level": 1
+    },
+    {
+      "text": "To delete an AWS account:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "/publicCloudInfo/{id}",
+      "depth": 0
+    },
+    {
+      "item": "Provide the unique ID of the AWS account in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "For example:",
+      "depth": 0
+    },
+    {
+      "item": "/publicCloudInfo/100",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Additional APIs",
+      "level": 1
+    },
+    {
+      "text": "The following table provides details of additional AWS APIs that you can use to perform various operations:"
+    },
+    {
+      "table": [
+        [
+          "Operation",
+          "API Endpoint"
+        ],
+        [
+          "Retrieve a list of AWS supported regions",
+          "Send a GET request to /publicCloudInfo/supportedRegions. The GET request retrieves details such as cloud type, region ID, and region name."
+        ],
+        [
+          "Retrieve the total number of AWS accounts.",
+          "Send a GET request to /publicCloudInfo/count."
+        ],
+        [
+          "Create an external ID for an AWS account.",
+          "Send a POST request to /publicCloudInfo/generateExternalId."
+        ],
+        [
+          "Retrieve basic information about the AWS cloud accounts.",
+          "Send a GET request to /publicCloudInfo/lite."
+        ],
+        [
+          "Enable or disable a specific AWS account in all regions based on the provided ID.",
+          "Send a PUT request to /publicCloudInfo/{id}/changeState. Provide AWS account ID and enable (True) or disable (False) in the request payload."
+        ],
+        [
+          "Retrieve the CloudFormation template URL",
+          "Send a GET request to publicCloudInfo/cloudFormationTemplate."
+        ]
+      ]
+    }
+  ]
+}

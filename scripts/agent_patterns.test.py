@@ -91,6 +91,20 @@ class AgentPatternsBoundaryTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(first.action, "retry")
 
+    def test_read_only_maintenance_is_a_403_wait(self) -> None:
+        # shared.oneapi.response-codes:read-only-mode: maintenance writes return 403, not 503.
+        r = ap.interpret_error(403, {"code": "STATE_READONLY"})
+        self.assertEqual((r.code, r.label, r.action), (403, "STATE_READONLY", "wait"))
+        self.assertEqual(ap.interpret_error(403).action, "fix-creds")
+        self.assertNotEqual(ap.interpret_error(503, {"code": "STATE_READONLY"}).label, "STATE_READONLY")
+
+    def test_legacy_switch_uses_the_vendor_variable_name(self) -> None:
+        # Go SDK and the ZIA/ZPA Terraform providers read ZSCALER_USE_LEGACY_CLIENT; nothing reads ZSCALER_USE_LEGACY.
+        both = {"ZSCALER_CLIENT_ID": "x", "ZSCALER_VANITY_DOMAIN": "y", "ZSCALER_CLIENT_SECRET": "z",
+                "ZIA_USERNAME": "a", "ZIA_PASSWORD": "b", "ZIA_API_KEY": "c"}
+        self.assertEqual(ap.detect_auth_framework({**both, "ZSCALER_USE_LEGACY_CLIENT": "true"}), "zia-legacy")
+        self.assertEqual(ap.detect_auth_framework({**both, "ZSCALER_USE_LEGACY": "true"}), "oneapi")
+
 
 if __name__ == "__main__":
     unittest.main()

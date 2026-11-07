@@ -1,0 +1,842 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Onboarding an AWS Organization",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/onboarding-aws-organization",
+    "node": "1474896",
+    "revision": "3247699",
+    "updated": "2026-10-20",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can onboard an AWS organization and its associated accounts. DSPM monitors and scans the data stores (e.g., S3, EC2 instances, RDS instances and clusters) in the onboarded accounts to identify sensitive data and vulnerabilities."
+    },
+    {
+      "heading": "Onboarding Workflow",
+      "level": 1
+    },
+    {
+      "text": "The onboarding process is illustrated in the following image:"
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before onboarding an AWS organization, ensure you have completed the following:"
+    },
+    {
+      "item": "Identify an AWS account as the orchestrator account. The DSPM template is deployed in this account to scan the data in the target accounts.",
+      "depth": 0
+    },
+    {
+      "item": "Identify the target AWS accounts that need to be monitored and protected. DSPM defines these target accounts as monitoring scope.",
+      "depth": 0
+    },
+    {
+      "item": "You must be assigned either an Administrator role or any role with Add Accounts permissions in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Configure CloudTrail for management and data events for DSPM to perform incremental data scans on S3 buckets. This is an optional step if you want to configure CloudTrail while onboarding. To enable data event for S3 buckets:",
+      "depth": 0
+    },
+    {
+      "item": "Sign in to the AWS Management Console and go to CloudTrail.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          48,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Under Trails, click the name of the CloudTrail that must be used to store data events.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Under Data events, click Edit.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          25,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For All current and future S3 buckets, select the Write checkbox.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          4,
+          37
+        ],
+        [
+          50,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save changes.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Identify the template type you want to use:",
+      "depth": 0
+    },
+    {
+      "item": "CloudFormation Template",
+      "depth": 1
+    },
+    {
+      "item": "To use the CloudFormation template:",
+      "depth": 1
+    },
+    {
+      "item": "Understand the following AWS concepts:",
+      "depth": 2
+    },
+    {
+      "item": "Stacks: A collection of AWS resources that can be managed as a single unit. They are required to run the DSPM templates. To learn more, refer to the AWS documentation.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "StackSets: An entity that allows you to create, update, or delete stacks across multiple AWS accounts and regions using a CloudFormation template. StackSets are required to run the DSPM templates. It also allows you to add a new region to an existing StackSet (e.g., add secondary regions for orchestrator setup). To learn more, refer to the AWS documentation.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Identity and Access Management (IAM) Roles: IAM roles are entities that assign specific permissions to allow trusted identities to perform actions in AWS. To learn more, refer to the AWS documentation.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Subnet: A subnet is a range of IP addresses in your VPC that can be connected to the internet, other VPCs, or data centers. To learn more, refer to the AWS documentation.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Create the following IAM roles in the orchestrator account to establish a trust relationship between the orchestrator account and target accounts. The IAM roles are required to create stacks and StackSets that are used to deploy the DSPM template in the AWS organization.",
+      "depth": 2
+    },
+    {
+      "item": "AWSCloudFormationStackSetAdministrationRole",
+      "depth": 3
+    },
+    {
+      "item": "This IAM role with admin permissions creates a trust relationship with the CloudFormation service.",
+      "depth": 3
+    },
+    {
+      "item": "To create the AWSCloudFormationStackSetAdministrationRole role:",
+      "depth": 3
+    },
+    {
+      "item": "Sign in to the AWS Management Console and go to IAM.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          48,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Roles.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Click Create Role.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the Select trusted entity page:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Trusted entity type: Select the AWS account tile.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          32,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "An AWS account: Select This account (<root account ID>).",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Add permissions page, select the AdministratorAccess policy from the table and click Next.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          40,
+          59
+        ],
+        [
+          92,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "In the Name, review, and create page, under Role name, enter the role name as AWSCloudFormationStackSetAdministrationRole.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          44,
+          53
+        ],
+        [
+          78,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "Click Create role.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "On the Permissions tab, click Add permissions and then select Create inline policy from the drop-down menu.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          30,
+          45
+        ],
+        [
+          62,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify permissions page, under Policy editor, select JSON.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          39,
+          52
+        ],
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Copy the following JSON text and paste it in the Policy editor text box.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          49,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Action\": [ \"sts:AssumeRole\" ], \"Resource\": [ \"arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole\" ], \"Effect\": \"Allow\" } ] }",
+      "depth": 5
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Review and create page, under Policy name, enter AWSCloudFormationStackSetAdministrationPolicy.",
+      "depth": 4,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Click Create policy.",
+      "depth": 4,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "AWSCloudFormationStackSetExecutionRole",
+      "depth": 3
+    },
+    {
+      "item": "This IAM role creates a trust relationship with the administrator account and the AWSCloudFormationStackSetAdministrationRole IAM role.",
+      "depth": 3
+    },
+    {
+      "item": "To create the AWSCloudFormationStackSetExecutionRole role:",
+      "depth": 3
+    },
+    {
+      "item": "Sign in to the AWS Management Console and go to IAM.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          48,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Roles.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Click Create Role.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the Select trusted entity page:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Trusted entity type: Select the AWS account tile.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          32,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "An AWS account: Select This account (<root account ID>).",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Add permissions page, select AdministratorAccess and SystemAdministrator policy from the table and click Next.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          36,
+          55
+        ],
+        [
+          60,
+          79
+        ],
+        [
+          112,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "In the Name, review, and create page, under Role name, enter the role name as AWSCloudFormationStackSetExecutionRole.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          44,
+          53
+        ],
+        [
+          78,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "Click Create role.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "On the Permissions tab, click Add permissions and then select Create inline policy to provide additional permissions from the drop-down menu.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          30,
+          45
+        ],
+        [
+          62,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify permissions page, under Policy editor, select JSON.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          39,
+          52
+        ],
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Copy the following JSON text and paste it in the Policy editor text box.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          49,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Effect\": \"Allow\", \"Action\": [ \"cloudformation:*\" ], \"Resource\": \"*\" } ] }",
+      "depth": 5
+    },
+    {
+      "item": "Click Next.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Review and create page, under Policy name, enter ScannerCFT.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Click Create policy.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Create the AWSCloudFormationStackSetExecutionRole IAM role on all the target accounts with a trust relationship with the root account and the AWSCloudFormationStackSetAdministrationRole role. This is required to deploy the DSPM templates on the target accounts via the root account.",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that each AWS region has at least two default subnets in the default virtual private clouds (VPC). DSPM creates subnets to launch AWS cloud resources (e.g., EC2 instances, S3 buckets) in specific subnets.",
+      "depth": 2
+    },
+    {
+      "item": "Terraform Template",
+      "depth": 1
+    },
+    {
+      "item": "To use the Terraform template:",
+      "depth": 1
+    },
+    {
+      "item": "Install the following on your local system:",
+      "depth": 2
+    },
+    {
+      "item": "Terraform CLI to run the Terraform templates.",
+      "depth": 3
+    },
+    {
+      "item": "AWS CLI 2.22 version or later to connect to the AWS organization.",
+      "depth": 3
+    },
+    {
+      "item": "For instructions on installing or updating AWS CLI, refer to the AWS documentation.",
+      "depth": 3
+    },
+    {
+      "item": "Identify the storage services in the primary region of the orchestrator account to store the Terraform state files. You can use an existing storage service or create a new one. For example:",
+      "depth": 2
+    },
+    {
+      "item": "AWS S3 Bucket",
+      "depth": 3
+    },
+    {
+      "item": "To create an AWS S3 bucket:",
+      "depth": 3
+    },
+    {
+      "item": "Sign in to the AWS Management Console and go to S3.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          48,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Click Create bucket.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Under Bucket name, enter a unique name to the S3 bucket.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Create bucket.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "DynamoDB Table",
+      "depth": 3
+    },
+    {
+      "item": "To create a DynamoDB table:",
+      "depth": 3
+    },
+    {
+      "item": "Sign in to the AWS Management Console and go to DynamoDB.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Click Create table.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Table details page:",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Table name: Enter a unique name to the table.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Partition key: Enter LockID.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          21,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Click Create table.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "heading": "Onboarding an AWS Organization",
+      "level": 1
+    },
+    {
+      "text": "To onboard an AWS organization:"
+    },
+    {
+      "item": "Provide AWS organization details.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Deploy the tree discovery template.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Select the orchestrator account, monitoring scope, and business unit.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Deploy the orchestrator and monitoring scope templates.",
+      "depth": 0,
+      "number": 4
+    }
+  ]
+}

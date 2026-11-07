@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.limits",
+  "title": "What a Virtual Service Edge does not support",
+  "aliases": [
+    "vse source ip anchoring",
+    "vse sipa",
+    "vse not supported",
+    "vse limitations"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.forwarding-control.sipa",
+      "because": "zia.virtual-service-edge.limits:no-sipa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.platforms"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{no-sipa}} So a tenant whose use case is Source IP Anchoring cannot get it from a Virtual Service Edge, and how Source IP Anchoring works and what it needs is [[zia.forwarding-control.sipa]]. The legacy advice that the hardware Private Service Edge supports it instead is not backed by any captured page ([[zia.virtual-service-edge.limits:pse-sipa-support]])."
+    },
+    {
+      "text": "Other limits are tied to the platform and are covered where they arise: native clustering unambiguously only on ESXi (Hyper-V is an open divergence, [[zia.virtual-service-edge.platforms]]), the SSL card only on ESXi and the memory floor ([[zia.virtual-service-edge.sizing]]), and no standalone in production ([[zia.virtual-service-edge.clusters]])."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the hardware Private Service Edge supports Source IP Anchoring, before recommending hardware for that reason.",
+      "uses": [
+        "zia.virtual-service-edge.limits:pse-sipa-support"
+      ]
+    }
+  ],
+  "claims": {
+    "no-sipa": {
+      "statement": "The Source IP Anchoring feature is not supported with Virtual Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "The Source IP Anchoring feature is not supported with Virtual Service Edges."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "pse-sipa-support": {
+      "kind": "semantic",
+      "title": "Whether Source IP Anchoring is supported on the hardware Private Service Edge",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Source IP Anchoring ... works with physical PSE' and, in the comparison table, 'Source IP Anchoring: Supported' for the PSE hardware cluster, so customers needing it 'must use physical PSE hardware'. The captured Source IP Anchoring pages and the Private Service Edge pages do not mention the other. Only the Virtual Service Edge exclusion is sourced.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

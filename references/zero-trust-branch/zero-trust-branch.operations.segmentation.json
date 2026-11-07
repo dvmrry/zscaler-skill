@@ -1,0 +1,464 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.operations.segmentation",
+  "title": "How Zero Trust Branch segments devices: Airgap, Airgap-Lite and Airgap+ protection, /32 incompatibilities, assets, tags, the NAC MAC list and the Ransomware Kill Switch",
+  "aliases": [
+    "ztb airgap",
+    "ztb airgap-lite",
+    "ztb airgap plus",
+    "ztb /32 incompatible devices",
+    "ztb ransomware kill switch",
+    "ztb asset quarantine",
+    "ztb tags",
+    "ztb nac mac list"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.micro-subnets"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{protection-solutions}} {{protection-airgap-use}} {{protection-alternatives-no-32}} {{protection-tradeoffs}} The wider operations area is in [[zero-trust-branch.operations]]."
+    },
+    {
+      "label": "Airgap-Lite.",
+      "text": "{{airgap-lite-device}} {{airgap-lite-vlan}} {{airgap-lite-vlan-renew}} {{airgap-lite-indicator}}"
+    },
+    {
+      "label": "Airgap+.",
+      "text": "{{airgap-plus-requirements}} The micro-subnet layout is in [[zero-trust-branch.operations.micro-subnets]]."
+    },
+    {
+      "label": "Devices that do not work with /32.",
+      "text": "{{ip32-incompatible-devices}} {{ip32-printers}} {{ip32-plcs}} {{ip32-purdue-l2}} {{ip32-workaround-micro-subnets}} {{ip32-workaround-dhcp-mask}}"
+    },
+    {
+      "label": "Assets and tags.",
+      "text": "{{asset-discovery-tags}} {{asset-edit}} {{asset-quarantine}} {{nac-mac-upload}} {{tag-sources}} {{tag-example}} Third-party discovery integrations are in [[zero-trust-branch.operations.integrations]]."
+    },
+    {
+      "label": "Ransomware Kill Switch.",
+      "text": "{{rks-levels}} {{rks-confirm-notify}} {{rks-policy-evaluation}} {{rks-hit-count}} {{rks-api-mqtt}} The interfaces and per-tier behavior are not in the captured pages {{gap:rks-interfaces-and-tiers}}."
+    }
+  ],
+  "claims": {
+    "protection-solutions": {
+      "statement": "Zero Trust Branch offers three protection solutions: Airgap assigns a /32 network mask to endpoints, Airgap-Lite uses the same subnet mask the DHCP server provides, and Airgap+ implements micro-subnets with subnet masks between /27 and /30.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-protection-solutions.json",
+          "quotes": [
+            "Zero Trust Branch offers several solutions tailored to meet the unique security and isolation requirements of highly sensitive or regulated organizations. The three solutions, Airgap, Airgap-Lite, and Airgap+",
+            "Behavior: Assigns a /32 network mask to endpoints, giving each device its own unique IP address",
+            "Behavior: Uses the same subnet mask as the one the DHCP server provides",
+            "Behavior: Implements micro-subnets by supporting subnet masks between /27 and /30."
+          ]
+        }
+      ]
+    },
+    "airgap-plus-requirements": {
+      "statement": "Airgap+ requires the appliance to operate in server mode for the associated VLAN(s) and is available starting with Airgap OS 7.7.6.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-protection-solutions.json",
+          "quotes": [
+            "The Zero Trust Branch appliance must operate in server mode for the associated VLAN(s).",
+            "Available starting with Airgap OS 7.7.6."
+          ]
+        }
+      ]
+    },
+    "airgap-lite-indicator": {
+      "statement": "A device running in Airgap-Lite mode shows no check mark in its Airgapped column.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-network-mode-assets.json",
+          "quotes": [
+            "Confirm that the Airgapped column for the device does not show a check mark. The absence of a check mark indicates that the device is running in Airgap-Lite mode."
+          ]
+        }
+      ]
+    },
+    "ip32-incompatible-devices": {
+      "statement": "Field testing identified Amazon Blink cameras, Apple AirPort Time Capsules, Cisco devices, the LaMetric Connected Clock, legacy HVAC controllers and devices, network printers, Siemens S7 and Rockwell/Allen-Bradley PLCs and EtherNet/IP adapters, and Sonos devices as incompatible with /32 IP configurations; others not listed may behave similarly. The page qualifies several entries: some older versions of Blink cameras might have connectivity and functionality issues, some Cisco devices (such as routers, switches, access points, wireless LAN controllers and IP phones) might not handle /32 segmentation correctly, and certain firmware versions of the LaMetric clock have connectivity problems with /32 addresses, and most printers accept subnet mask configuration in the user interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-32-ip-device-compatibility-limitations-and-workarounds.json",
+          "quotes": [
+            "The following are several devices that have been identified as incompatible with /32 IP configurations based on field testing. There might be others not listed that have the potential for showing similar behavior",
+            "Amazon Blink Cameras",
+            "Apple AirPort Time Capsules",
+            "Cisco Devices",
+            "LaMetric Connected Clock",
+            "Legacy HVAC Controllers and Devices",
+            "Network Printers",
+            "Siemens S7 and Rockwell/Allen-Bradley PLCs and EtherNet/IP Adapters",
+            "Sonos Sound System Devices",
+            "Some older versions of Amazon Blink cameras might have connectivity and functionality issues with /32 IP addressing.",
+            "Some Cisco devices, such as routers, switches, access points, wireless LAN controllers, and IP phones, might not handle /32 segmentation correctly.",
+            "Certain firmware versions of this device have a limited network stack and experience connectivity problems when assigned /32 IP addresses.",
+            "Most printers accept subnet mask configurations in the user interface"
+          ]
+        }
+      ]
+    },
+    "asset-discovery-tags": {
+      "statement": "Zero Trust Branch identifies assets automatically using techniques such as DHCP options, HTTP User-Agent, SSL fingerprint and mDNS, and integration with Armis improves accuracy; discovered assets are tagged automatically and integrated vendors add tags.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-your-assets.json",
+          "quotes": [
+            "leverages multiple techniques (e.g., DHCP options, HTTP User-Agent, SSL fingerprint, mDNS) to help automatically identify assets",
+            "the application integrates with third-party vendors such as Armis to further enhance the accuracy of the device discovery",
+            "After an asset has been discovered, Zero Trust Branch tags the asset automatically. If you have integrated Zero Trust Branch with third-party vendors (e.g., Armis), then additional tags are created."
+          ]
+        }
+      ]
+    },
+    "asset-edit": {
+      "statement": "Several devices can be edited at once with changes applying to all of them, and the Protection menu offers Airgap, Airgap-Lite and Airgap+.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-your-assets.json",
+          "quotes": [
+            "If you are editing multiple devices, your changes affect all devices.",
+            "The Protection drop-down menu allows you to select among three different solutions: Airgap, Airgap-Lite, and Airgap+."
+          ]
+        }
+      ]
+    },
+    "asset-quarantine": {
+      "statement": "A quarantined device can access the internet but not the private networks, and inbound connectivity is allowed so an admin can connect to it remotely.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-your-assets.json",
+          "quotes": [
+            "A device placed into quarantine can access the internet but not the private networks. Inbound connectivity is also allowed so that an admin could remotely connect to the quarantined device."
+          ]
+        }
+      ]
+    },
+    "tag-sources": {
+      "statement": "Tags let policies be written without IP addresses; they come from auto tagging on auto-discovery, third-party integration (for example Armis) and manual tagging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-working-with-tags.json",
+          "quotes": [
+            "Tagging provides additional information about an asset, allowing you to create policies that are not based on IP addresses.",
+            "Auto tagging when devices are detected via auto-discovery",
+            "Third-party integration (e.g., Armis)",
+            "Manual tagging"
+          ]
+        }
+      ]
+    },
+    "tag-example": {
+      "statement": "In the page's example, a tag called microsoft windows kernel 6.1 is applied to Windows 7/Server 2008 machines and used as the source of a policy, so IP address changes need no policy change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-working-with-tags.json",
+          "quotes": [
+            "With Zero Trust Branch, you can create a tag called microsoft windows kernel 6.1 and apply it to all Windows 7/Server 2008 machines. You can then create a policy based on this tag as the source.",
+            "Any changes in IP addresses do not require the admin to adjust the policy."
+          ]
+        }
+      ]
+    },
+    "nac-mac-upload": {
+      "statement": "Rather than scanning and discovery, a CSV list of MAC addresses can be uploaded and is used to verify and authenticate devices during NAC; the template has two fields, MAC address and a description, Validate previews the data and Submit adds the devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-uploading-nac-mac-authentication-list.json",
+          "quotes": [
+            "Rather than allowing Zero Trust Branch to scan and discover your devices, for greater network security, you can upload a comma-separated values (CSV) list of MAC addresses that you want to include in your installation",
+            "Zero Trust Branch uses this list to verify devices and authenticate them during network access control (NAC).",
+            "The template consists of two fields: MAC address and a corresponding description for each device.",
+            "Click Validate to view a preview of the information you are uploading.",
+            "Verify that the information is correct, and click Submit to add the devices to Zero Trust Branch."
+          ]
+        }
+      ]
+    },
+    "rks-levels": {
+      "statement": "The Ransomware Kill Switch sets a site's threat level to one of four preset severities: Green (lowest threat level), Yellow (moderate risk), Orange (high risk) and Red (critical risk).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ransomware-kill-switch-site.json",
+          "quotes": [
+            "Green: Lowest threat level",
+            "Yellow: Moderate risk",
+            "Orange: High risk",
+            "Red: Critical risk",
+            "change a site's threat level color code to one of four preset severities with a single click"
+          ]
+        }
+      ]
+    },
+    "rks-confirm-notify": {
+      "statement": "A threat level change is confirmed by typing the new level's name and takes effect immediately, and Notification Settings customizes an email template sent on a change to one or more addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ransomware-kill-switch-site.json",
+          "quotes": [
+            "Confirm the change by entering the name of the new threat level (e.g., yellow) in the pop-up window. Click Confirm to change the threat level immediately.",
+            "Click Notification Settings to optionally customize an email notification template that will be sent when the threat level is changed. Add one or more email addresses to receive the notification and edit the email text as needed."
+          ]
+        }
+      ]
+    },
+    "rks-policy-evaluation": {
+      "statement": "When creating a site-level firewall policy for device segmentation you must assign one or more Ransomware Kill Switch threat level color codes, and during an incident only the firewall policies associated with the selected threat level color code are evaluated top-down, stopping at the first matching policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-ransomware-kill-switch.json",
+          "quotes": [
+            "When creating a site-level firewall policy for device segmentation, you must assign one or more Ransomware Kill Switch threat level color codes.",
+            "During an incident, only the firewall policies associated with the selected threat level color code are evaluated in a top-down sequence. The evaluation stops at the first matching policy"
+          ]
+        }
+      ]
+    },
+    "rks-api-mqtt": {
+      "statement": "The Ransomware Kill Switch configuration can be fully controlled via APIs for integration with SIEM, SOAR, EDR and XDR systems, and MQTT is used to publish policy updates, configuration changes and Kill Switch changes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-ransomware-kill-switch.json",
+          "quotes": [
+            "Fully control your configuration via APIs to allow seamless integration with security information and event management (SIEM); security orchestration, automation, and response (SOAR); endpoint detection and response (EDR); and extended detection and response (XDR) systems",
+            "Use Message Queuing Telemetry Transport (MQTT) to publish policy updates, configuration changes, and Ransomware Kill Switch changes."
+          ]
+        }
+      ]
+    },
+    "rks-hit-count": {
+      "statement": "The Hit Count column on the Site Policies tab indicates the number of times a policy was accessed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-ransomware-kill-switch.json",
+          "quotes": [
+            "The Hit Count column on the Site Policies tab indicates the number of times the policy was accessed."
+          ]
+        }
+      ]
+    },
+    "protection-airgap-use": {
+      "statement": "Airgap is ideal for environments that require complete isolation between endpoints with all traffic routed through the appliance, and some systems might not support /32 masks because of hardware or software limitations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-protection-solutions.json",
+          "quotes": [
+            "Ideal for environments that require complete isolation between endpoints, ensuring all traffic routes through the Zero Trust Branch appliance for inspection and enforcement.",
+            "Some systems might not support /32 masks due to hardware or software limitations."
+          ]
+        }
+      ]
+    },
+    "protection-alternatives-no-32": {
+      "statement": "Where the /32 subnet mask is not supported, admins can choose Airgap+ or Airgap-Lite (if full isolation is not a strict requirement).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-protection-solutions.json",
+          "quotes": [
+            "In such environments where the /32 subnet mask is not supported, the admins can choose Airgap+ or Airgap-Lite (if full isolation is not a strict requirement) mode."
+          ]
+        }
+      ]
+    },
+    "protection-tradeoffs": {
+      "statement": "The listed trade-offs are that Airgap-Lite reduces isolation as compared to Airgap and that Airgap+ adds configuration and maintenance complexity as multiple subnets are managed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-protection-solutions.json",
+          "quotes": [
+            "Trade-Off: Reduces isolation as compared to Airgap.",
+            "Trade-Off: Adds configuration and maintenance complexity as multiple subnets are managed."
+          ]
+        }
+      ]
+    },
+    "airgap-lite-device": {
+      "statement": "Device-level Airgap-Lite is set in the Security section of the asset's Properties tab, with the Protection field set to Airgap-Lite, and then the device releases and renews its DHCP lease; the micro-subnets page says to select Network from the Segmentation Granularity drop-down menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-network-mode-assets.json",
+          "quotes": [
+            "The device level configuration allows you to enable Airgap-Lite mode for each device independently.",
+            "go to the Security section on the Properties tab.",
+            "Locate the Protection field and select Airgap-Lite from the drop-down menu.",
+            "In the device terminal, run the following command for the DHCP lease release:",
+            "In the device terminal, run the following command to request a new IP address from the DHCP server:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ztb-creating-micro-subnets.json",
+          "quotes": [
+            "Select Network from the Segmentation Granularity drop-down menu."
+          ]
+        }
+      ]
+    },
+    "airgap-lite-vlan": {
+      "statement": "VLAN-level Airgap-Lite enables the mode for multiple devices simultaneously and is set in the Network section of the Edit Airgap VLAN drawer by selecting ON (Airgap-Lite) for DHCP Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-network-mode-assets.json",
+          "quotes": [
+            "The VLAN level configuration allows you to enable Airgap-Lite mode for multiple devices simultaneously.",
+            "In the Edit Airgap VLAN drawer, go to the Network section, and select ON (Airgap-Lite) from the DHCP Service drop-down menu."
+          ]
+        }
+      ]
+    },
+    "airgap-lite-vlan-renew": {
+      "statement": "After a VLAN-level change, each device in the VLAN runs a DHCP lease release command and then a command to request a new IP address from the DHCP server; the device-level steps also end with a lease release and a request for a new IP address in the device terminal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-network-mode-assets.json",
+          "quotes": [
+            "In the device terminal, run the following command for the DHCP lease release:",
+            "In the device terminal, run the following command to request a new IP address from the DHCP server:",
+            "For each device in the VLAN, go to the device terminal and run the following command for the DHCP lease release:",
+            "For each device in the VLAN, go to the device terminal and run the following command to request a new IP address from the DHCP server:"
+          ]
+        }
+      ]
+    },
+    "ip32-printers": {
+      "statement": "For network printers, services such as Bonjour, Line Printer Daemon (LPD) and Server Message Block discovery might break if they cannot communicate with gateway or multicast neighboring endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-32-ip-device-compatibility-limitations-and-workarounds.json",
+          "quotes": [
+            "Network Printers",
+            "Services, such as Bonjour, Line Printer Daemon (LPD), and Server Message Block (SMD) discovery, might break if they cannot communicate with gateway or multicast neighboring endpoints."
+          ]
+        }
+      ]
+    },
+    "ip32-plcs": {
+      "statement": "Siemens S7 family and Rockwell/Allen-Bradley EtherNet/IP modules expect devices and programming tools to be on the same subnet using conventional subnet masks such as /24.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-32-ip-device-compatibility-limitations-and-workarounds.json",
+          "quotes": [
+            "Siemens S7 family and Rockwell/Allen-Bradely EtherNet/IP modules expect devices and programming tools to be on the same subnet using conventional subnet masks such as /24."
+          ]
+        }
+      ]
+    },
+    "ip32-purdue-l2": {
+      "statement": "Some endpoints that are Purdue Level 2 and below require direct Layer 2 connectivity to function correctly, such as communication between Programmable Logic Controllers (PLCs).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-32-ip-device-compatibility-limitations-and-workarounds.json",
+          "quotes": [
+            "There are some endpoints that are Purdue Level 2 and below that require direct Layer 2 (L2) connectivity to function correctly, such as communication between Programmable Logic Controllers (PLCs)."
+          ]
+        }
+      ]
+    },
+    "ip32-workaround-micro-subnets": {
+      "statement": "For devices that cannot operate reliably with /32 addressing, the page recommends deploying them under micro-subnet segmentation with subnet masks in the range of /27 to /30.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-32-ip-device-compatibility-limitations-and-workarounds.json",
+          "quotes": [
+            "For devices that cannot operate reliably with /32 addressing",
+            "Deploy these devices under micro-subnet segmentation to enforce strict network segmentation and policy control. Configure these devices with subnet masks in the range of /27 to /30"
+          ]
+        }
+      ]
+    },
+    "ip32-workaround-dhcp-mask": {
+      "statement": "For devices that don't support /32 addressing where full isolation is not required, the page recommends configuring them with the same subnet mask that the DHCP server provides.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-32-ip-device-compatibility-limitations-and-workarounds.json",
+          "quotes": [
+            "For devices that don't support /32 addressing and full isolation is not required",
+            "Use network segmentation to configure these devices with the same subnet mask that the DHCP server provides."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rks-interfaces-and-tiers": {
+      "kind": "semantic",
+      "title": "Which API endpoints and MQTT topics drive the Ransomware Kill Switch, and what each threat level blocks",
+      "status": "open",
+      "detail": "The captured pages say the configuration can be controlled via APIs and that MQTT publishes Kill Switch changes, but name no endpoint, topic or SDK method. They call the four tiers DEFCON levels without a per-tier list of blocked protocols, and say a policy carries \"one or more\" threat level color codes without listing which combinations are allowed.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

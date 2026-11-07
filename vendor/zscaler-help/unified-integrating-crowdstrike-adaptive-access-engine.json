@@ -1,0 +1,727 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Integrating CrowdStrike with Adaptive Access Engine",
+  "source": {
+    "url": "https://help.zscaler.com/unified/integrating-crowdstrike-adaptive-access-engine",
+    "node": "1544668",
+    "revision": "3232812",
+    "updated": "2026-09-10",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Adaptive Access Engine receives user and device context signals from CrowdStrike, which are required to control user and device access to applications via Zscaler. You can integrate CrowdStrike with Adaptive Access Engine to establish a connection and automate the event response workflows using webhooks and API client configurations. CrowdStrike shares the following context signals with the Adaptive Access Engine: CrowdStrike Operating System (OS) Score, Zero Trust Assessment (ZTA) Score, ZTA Sensor Score, and Overall Score."
+    },
+    {
+      "text": "This integration is in limited availability. Contact Zscaler Support for assistance."
+    },
+    {
+      "text": "CrowdStrike has deprecated the Incidents functionality, so the Adaptive Access integration to ingest CrowdStrike Incidents is defunct. Make sure to remove the Incidents configuration."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you have:"
+    },
+    {
+      "item": "A CrowdStrike account with admin privileges.",
+      "depth": 0
+    },
+    {
+      "item": "An admin role in Experience Center that allows you to integrate CrowdStrike with Adaptive Access Engine.",
+      "depth": 0
+    },
+    {
+      "text": "To integrate CrowdStrike with Adaptive Access Engine:"
+    },
+    {
+      "item": "1. Create an API client.",
+      "depth": 0
+    },
+    {
+      "item": "The CrowdStrike API client acts as a unique identifier and authentication mechanism, allowing the Adaptive Access Engine to securely access and interact with the CrowdStrike Falcon platform.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the CrowdStrike Falcon console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Support and resources > API Clients and Keys > Create API client.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          27
+        ],
+        [
+          30,
+          50
+        ],
+        [
+          53,
+          59
+        ],
+        [
+          60,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Create API Client window, enter the Client Name and Description.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          43,
+          54
+        ],
+        [
+          59,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Select the following API scopes with Read permissions: Workflows, API integration scope, Hosts, and Zero Trust Assessment (ZTA). API scope defines the level of access granted to Adaptive Access Engine to access specific data when interacting with the CrowdStrike API.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          21,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The API client is created.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Copy and save the Client ID, Client Secret, and Base URL.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          18,
+          27
+        ],
+        [
+          29,
+          42
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Make sure to copy the values because this information is not shown again. In case you don't copy the values, you need to create another API client.",
+      "depth": 1
+    },
+    {
+      "item": "2. Configure the webhook.",
+      "depth": 0
+    },
+    {
+      "item": "A webhook is required to send context signals from the CrowdStrike Falcon platform to Adaptive Access Engine.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the CrowdStrike Falcon console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to CrowdStrike store > All apps > CrowdStrike Webhook.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          34
+        ],
+        [
+          37,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Click Configure.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the next window that appears, click Add Configuration.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          39,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure CrowdStrike Webhook page:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the webhook.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Webhook URL: Add the webhook URL you copied while integrating CrowdStrike in the Experience Center.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "HMAC Secret key: Use any Hash-based Message Authentication Code (HMAC) generator tool to obtain a key and enter that value. The secret key is used to verify the authenticity and integrity of data exchanged between CrowdStrike and Adaptive Access Engine using the HMAC algorithm.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Enter the same value in the Experience Center while integrating CrowdStrike.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save Configuration.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "3. Integrate CrowdStrike in Experience Center.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Policies > Common Configuration > Adaptive Access > Integrations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          37
+        ],
+        [
+          40,
+          55
+        ],
+        [
+          58,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon for CrowdStrike.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Integrations page, enter the following details:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Base URL: Enter the URL that was generated when the API client was created on the CrowdStrike Falcon console. This URL is required for Adaptive Access Engine to connect to the CrowdStrike account.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Webhook URL: The Webhook URL is generated after you enter the Base URL. Copy the Webhook URL, as you need to add this value while configuring the webhook on the CrowdStrike Falcon console. The webhook URL is the designated address where CrowdStrike can automatically send real-time context signals.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Customer ID: The customer ID is available on the Profile page on the CrowdStrike Falcon console:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          49,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "On the CrowdStrike home page, click the Profile icon in the top-right corner.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          40,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Copy the Customer ID that is displayed on the User profile page.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          20
+        ],
+        [
+          46,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Client ID: Enter the client ID you copied after the API client was created on the CrowdStrike Falcon console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: Enter the client secret you copied after the API client was created on the CrowdStrike Falcon console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Shared Secret: Enter the secret key you added while configuring the webhook.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Status: By default, the connection status is disabled. Click the toggle to enable the status.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Click Test Integration to verify if the connection is successful.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "A message appears indicating the connection between CrowdStrike and Adaptive Access Engine is successful.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "4. Configure the workflow.",
+      "depth": 0
+    },
+    {
+      "item": "A workflow is an automated action that is initiated by a predefined trigger (security event). The events can be defined in the workflow and these signals are sent to Adaptive Access Engine via the webhook plugin. You can create a Score Changed workflow.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the CrowdStrike Falcon console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Search for Workflows | Fusin SOAR and select it.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Create workflow > Create workflow from scratch, then click Next.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          24,
+          52
+        ],
+        [
+          65,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "On the Add trigger page:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Pick a Trigger: Search for and select the required event (e.g., Zero Trust Assessment > Host assessment change) that must initiate the workflow.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Type: Select Overall assessment from the drop-down menu.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Under Event triggers, choose the relevant event category based on your organization's requirements.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "To define the workflow, click the arrow on the trigger.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Next, click the Action icon.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          16,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Add action page:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Search for and select Call webhook.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          22,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Webhook name: Select the webhook you created earlier. This webhook is used to send the context signals to Adaptive Access Engine.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Data format: Select Default from the drop-down menu.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Data to include: Select the required data that must be included in the action based on your organization's requirement.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The webhook is added as an action and displayed on the page.",
+      "depth": 1
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add workflow name and description window, enter the Name and Description.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          40
+        ],
+        [
+          59,
+          63
+        ],
+        [
+          68,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "Select On for the Workflow status.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          9
+        ],
+        [
+          18,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save workflow.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Whenever there is a change in the trigger, the workflow calls the webhook and signals are sent to the Adaptive Access Engine.",
+      "depth": 1
+    },
+    {
+      "text": "After completing the integration, you can proceed to add the Adaptive Access profiles."
+    }
+  ]
+}

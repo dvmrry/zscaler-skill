@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the NFS Client",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/configuring-nfs-client",
+    "node": "1533792",
+    "revision": "3243036",
+    "updated": "2026-09-17",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "DSPM supports Network File System (NFS) shares hosted on Linux and Windows servers to discover and classify sensitive data. NFS uses Kerberos for authentication, and you must configure the Key Distribution Center (KDC) that allows the DSPM scanner to scan files for sensitive data."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Select the Network Security Group (NSG) with default rules, or enable the following ports to allow communication between the KDC or AD server, NFS server, and DSPM scanner."
+    },
+    {
+      "text": "The following network topology diagram illustrates the directional traffic flows and port requirements between your administrator IP, and the target NFS server."
+    },
+    {
+      "text": "Ensure your firewalls and network security groups are configured to allow communication across these channels as defined in the ports table below."
+    },
+    {
+      "table": [
+        [
+          "Ports",
+          "Protocol",
+          "Source",
+          "Destination",
+          "Purpose"
+        ],
+        [
+          "22",
+          "TCP",
+          "Your IP address",
+          "Ubuntu VM",
+          "SSH access"
+        ],
+        [
+          "53",
+          "TCP/UDP",
+          "VNet",
+          "AD domain controller",
+          "DNS"
+        ],
+        [
+          "88",
+          "TCP/UDP",
+          "VNet",
+          "AD domain controller",
+          "Kerberos"
+        ],
+        [
+          "111, 2049",
+          "TCP/UDP",
+          "VNet",
+          "NFS SERVER",
+          "NFS Portmapper & Mount"
+        ],
+        [
+          "135",
+          "TCP",
+          "VNet",
+          "AD domain controller",
+          "RPC"
+        ],
+        [
+          "3389",
+          "TCP",
+          "Your IP address",
+          "Windows VMs",
+          "RDP access"
+        ]
+      ]
+    },
+    {
+      "heading": "Configuring the NFS Client",
+      "level": 1
+    },
+    {
+      "text": "To configure a Linux KDC or a Windows Active Directory (AD) server acting as the KDC to allow access to the target NFS shares:"
+    },
+    {
+      "item": "Linux KDC Server Using Kerberos",
+      "depth": 0
+    },
+    {
+      "item": "Open the kadmin.local session and run the prompts in the Kerberos Admin Shell:",
+      "depth": 0
+    },
+    {
+      "item": "Create a Kerberos principal to allow the DSPM scanner to authenticate with your KDC to mount the NFS shares:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "kadmin.local: addprinc -randkey nfs/zscaler_scanner_hostname",
+      "depth": 1
+    },
+    {
+      "item": "Create a read-only principal for the DSPM scanner to scan the contents of the mounted NFS shares.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "kadmin.local: addprinc zscalerreadonlyuser",
+      "depth": 1
+    },
+    {
+      "item": "Note the read-only username and password, and provide these details while registering the file server.",
+      "depth": 1
+    },
+    {
+      "item": "Windows Server Using Kerberos",
+      "depth": 0
+    },
+    {
+      "item": "Create a read-only user account to allow DSPM to scan the contents of the NFS shares:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Open Active Directory Users and Computers.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          5,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Create a new Organizational Unit (OU) for the NFS-related objects.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Inside the OU, create a new user named nfsuser.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Set a strong password and deselect the User must change password at next logon checkbox.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          39,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "On the Properties page, select the Attribute Editor tab, and configure the following attributes:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          35,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "msDS-SupportedEncryptionTypes: 28",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "uidNumber: 1000",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "gidNumber: 1000",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Make sure that the nfsuser has read-only permissions for all NFS shares. Securely record the username and password, and provide these details while registering the file server.",
+      "depth": 2
+    },
+    {
+      "item": "Create a computer account for the DSPM scanner VM:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Open Active Directory Users and Computers.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          5,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Create a new computer account named lp-nfs-client.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "On the Properties page, select the Attribute Editor tab, and configure the following attributes:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          35,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "msDS-SupportedEncryptionTypes: 28",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "uidNumber: 0",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "gidNumber: 0",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Enable DSPM scanner to authenticate as the computer account:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "On the domain controller, open PowerShell as an administrator.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "To verify the Service Principal Name (SPN) for the computer account, run the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "PS C:\\Users\\zdspmuser> setspn -L <scanner_hostname>",
+      "depth": 2
+    },
+    {
+      "item": "Example:",
+      "depth": 2
+    },
+    {
+      "item": "PS C:\\Users\\zdspmuser> setspn -L lp-nfs-client",
+      "depth": 2
+    },
+    {
+      "text": "The DSPM scanner is now configured to scan the Kerberos-protected NFS shares."
+    }
+  ]
+}

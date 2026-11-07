@@ -6,7 +6,15 @@ import test from "node:test";
 
 import lib from "../docs/docs-lib.js";
 
-const { safeHref, escapeHtml, prettify, encodePath, isFreshCacheEntry } = lib;
+const { safeHref, kbHref, escapeHtml, prettify, encodePath, isFreshCacheEntry, VIEW } = lib;
+
+test("kbHref opens a subject's JSON file and neutralizes anything else", () => {
+  assert.equal(kbHref("kb:shared.pac-files"), `${VIEW}/references/shared/shared.pac-files.json`);
+  assert.equal(kbHref("kb:cloud-connector.overview"), `${VIEW}/references/cloud-connector/cloud-connector.overview.json`);
+  for (const href of ["kb:", "kb:shared", "kb:../x.y", "kb:a.b/../../c", "kb:javascript:alert(1)"]) {
+    assert.equal(kbHref(href), "#");
+  }
+});
 
 test("safeHref passes ordinary safe links through unchanged", () => {
   for (const href of [

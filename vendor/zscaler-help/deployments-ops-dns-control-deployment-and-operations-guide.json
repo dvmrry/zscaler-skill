@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "DNS Control Deployment and Operations Guide",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-deployments-operations/dns-control-deployment-and-operations-guide",
+    "node": "1417401",
+    "revision": "3036781",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide describes the benefits of using DNS Control and the steps necessary for configuring Zscaler Internet Access (ZIA) to add DNS Control to your security posture."
+    },
+    {
+      "text": "DNS Control mitigates the risk of malware transmission, identifies infected endpoints using DNS tunnels, and restricts domains visited to comply with organizational standards and acceptable use."
+    },
+    {
+      "text": "The Zscaler service also detects and controls DNS tunneling occurring in your networks. The service operates as a DNS proxy. You can use this proxy as a firewall for DNS traffic. The service logs all traffic that goes through this proxy."
+    },
+    {
+      "text": "To learn more, see About DNS Control."
+    },
+    {
+      "heading": "Value of Deploying DNS",
+      "level": 1
+    },
+    {
+      "item": "Implements DNS security.",
+      "depth": 0
+    },
+    {
+      "item": "Detects and controls DNS tunneling.",
+      "depth": 0
+    },
+    {
+      "item": "Redirects requests to your organization’s trusted public DNS resolver.",
+      "depth": 0
+    },
+    {
+      "item": "Improves DNS performance.",
+      "depth": 0
+    },
+    {
+      "item": "Gives visibility into every DNS request and response.",
+      "depth": 0
+    },
+    {
+      "item": "Controls DNS traffic regardless of the DNS resolver selected by the end user.",
+      "depth": 0
+    },
+    {
+      "item": "Protections from evasive behavior even for TLS-encrypted traffic.",
+      "depth": 0
+    },
+    {
+      "item": "Logs every transaction in a forensically complete and enriched format.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Phase",
+      "level": 1
+    },
+    {
+      "text": "The deployment phase includes initially setting up and integrating Zscaler solutions into an existing network infrastructure. During the deployment phase, you configure DNS Control to meet the needs of your infrastructure. The following sections discuss steps to deploy DNS Control."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "DNS Control might require an additional license for your organization. Check with your Zscaler Account team to verify the necessary licensing requirements."
+    },
+    {
+      "heading": "Deployment Steps",
+      "level": 2
+    },
+    {
+      "text": "The following steps explain how to deploy DNS Control:"
+    },
+    {
+      "item": "Choose between the following scenarios:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Your organization wants to send all traffic to Zscaler (office and remote users).",
+      "depth": 1
+    },
+    {
+      "item": "Your organization wants to forward DNS traffic to the internal DNS server and then redirect it to Zscaler.",
+      "depth": 1
+    },
+    {
+      "item": "Modify the Firewall Filtering policies so that DNS traffic passes through the cloud firewall.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Configure the DNS Control policy.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "(Optional) Configure DNS tunneling detection.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "After adding rules to the DNS Control policy, you might also need to do the following before enabling the firewall for your locations.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Modify the rules for the NAT Control policy and Firewall Filtering policy to allow traffic to pass.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Configure custom ports as applicable.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "(Optional) Define application groups.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "heading": "Considerations",
+      "level": 2
+    },
+    {
+      "item": "The DNS proxy model of DNS Control allows the DNS to be intercepted and resolved as soon as the request reaches the ZIA Public Service Edge. The DNS is configurable by endpoint and many other conditions in the destination NAT policy and essentially amounts to two modes:",
+      "depth": 0
+    },
+    {
+      "item": "Transit Option: This mode passes DNS requests through the proxy. A proxy safely hides the customer's IP address from third parties, including the external resolver (DNS security policy is still applied). Hiding the IP address is good for iterative requests that Zscaler can’t resolve, but DNS Control can secure.",
+      "depth": 1
+    },
+    {
+      "item": "Resolver Option: This option sees and intercepts the DNS request at the Public Service Edge and resolves the request pending DNS Control policy. This option provides all the security and performance benefits of quickly resolving DNS requests with a geographic context where users get the closest Microsoft or Amazon Web Services (AWS) point of presence.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler recommends using the Resolver option. You can enable traffic to reach Zscaler's Trusted DNS Resolver in two ways:",
+      "depth": 0
+    },
+    {
+      "item": "Enable a NAT control rule.",
+      "depth": 1
+    },
+    {
+      "item": "Use a Z-Tunnel 2.0 with specified DNS exclusions and inclusions.",
+      "depth": 1
+    },
+    {
+      "heading": "Operations Phase",
+      "level": 1
+    },
+    {
+      "text": "This section describes common practices used to operate Zscaler solutions when integrated with your environment. You can monitor and tune DNS Control during operations to meet your infrastructure needs."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "For DNS Control operation, verify the following prerequisites:"
+    },
+    {
+      "item": "Document the methodology for deploying DNS Control (either the Transit or Resolver option).",
+      "depth": 0
+    },
+    {
+      "item": "Consider destination NAT for selective queries and its performance impact.",
+      "depth": 0
+    },
+    {
+      "item": "Give the support team access to the DNS dashboard. This provides visibility into the most blocked domain categories and users, providing insights into incidents raised due to malicious domains getting blocked.",
+      "depth": 0
+    },
+    {
+      "heading": "Common Troubleshooting Items",
+      "level": 2
+    },
+    {
+      "text": "The following list describes common issues related to DNS Control operation:"
+    },
+    {
+      "item": "Internal domains are blocked or not accessible: Check if the internal domains are part of DNS exclusions.",
+      "depth": 0
+    },
+    {
+      "item": "Iterative queries are not getting resolved: Iterative DNS requests require additional policy configurations to transit the traffic through the Zscaler service (depending on your methodology). Disable the default rule in NAT Control or create a higher precedence rule to support iterative queries transiting the ZIA service. To learn more, see About NAT Control.",
+      "depth": 0
+    },
+    {
+      "item": "New DNS domains are getting blocked: Domains that fall under malicious domains might get blocked per your policy. Verify whether these domains are getting blocked under blocked domains in the DNS Overview dashboard.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Checklist",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends downloading the DNS Control Deployment and Operations Checklist to help plan and implement DNS Control: Download PDF"
+    },
+    {
+      "heading": "Additional Information",
+      "level": 1
+    },
+    {
+      "text": "For more SaaS Security information and troubleshooting instructions, see the Zscaler Support Portal and the Zscaler Zenith Community."
+    }
+  ]
+}

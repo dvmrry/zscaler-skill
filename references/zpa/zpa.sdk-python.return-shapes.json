@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.return-shapes",
+  "title": "What Python SDK ZPA calls return: model objects, snake_case dictionaries, bare values and raised errors",
+  "aliases": [
+    "as_dict snake_case",
+    "zpa result is not a dict",
+    "get_policy ValueError",
+    "returns None on error python zpa",
+    "ZscalerObject item access",
+    "unsupported policy type python"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.lss-helpers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.error-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.response-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.client-errors-and-accessors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the shape of what a ZPA call hands back. The three-element tuple and the error slot are in [[zia.sdk-python.response-shape]]."
+    },
+    {
+      "label": "Results are model objects.",
+      "text": "{{result-models-subclass}} {{result-model-objects}} [[shared.sdk-python.response-handling:as-dict]] An update that the API answers with 204 returns a placeholder object, not the updated resource: {{update-placeholder-intended}}"
+    },
+    {
+      "label": "Where errors are raised instead of returned.",
+      "text": "[[zpa.api.app-segments-wire:application-type-validation]] The other raises (unknown policy type, provisioning key type, App Protection rule) are in [[zpa.sdk-python.error-handling]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the code treats a result as a dictionary, because it is a model object that offers item access and get but is not a dict.",
+      "uses": [
+        "result-model-objects"
+      ]
+    },
+    {
+      "do": "Whether the keys read from as_dict are snake_case, which is what the SDK emits, and not the API's camelCase.",
+      "uses": [
+        "shared.sdk-python.response-handling:as-dict"
+      ]
+    },
+    {
+      "do": "Whether the caller wraps calls that can raise ValueError (empty application type, among others) as well as testing the error slot.",
+      "uses": [
+        "zpa.api.app-segments-wire:application-type-validation"
+      ]
+    }
+  ],
+  "claims": {
+    "result-models-subclass": {
+      "statement": "The Python ZPA result models, for example ApplicationSegments, subclass the SDK's ZscalerObject base class, which defines `__getitem__` and `get` by attribute name, so a result is not a plain dictionary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "class ApplicationSegments(ZscalerObject):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "quotes": [
+            "class ZscalerObject:",
+            "def get(self, key: str, default: Optional[Any] = None) -> Any:",
+            "key (str): The attribute name to get default: The default value to return if the attribute doesn't exist",
+            "if hasattr(self, key): return getattr(self, key) return default",
+            "Base object for all Zscaler datatypes.",
+            "def __getitem__(self, key: str) -> Any: if hasattr(self, key): return getattr(self, key)"
+          ]
+        }
+      ],
+      "conditions": "Every member: `grep -h '^class ' zscaler/zpa/models/*.py | grep -vc '(ZscalerObject)'` in vendor/zscaler-sdk-python at v1.11.3-1-g4f8f54df returns 0 of 190 class lines, so every ZPA model class subclasses ZscalerObject directly; ZscalerObject itself is declared with no base class."
+    },
+    "result-model-objects": {
+      "statement": "A ZPA call returns model objects, not plain dictionaries; callers can use item access and get on them but dictionary methods are not guaranteed, and as_dict is the way to a dictionary.",
+      "tier": "B",
+      "derived_from": [
+        "result-models-subclass"
+      ],
+      "conditions": "Holds for the models that subclass ZscalerObject; calls that return a bare dict, such as the LSS helpers, are the exception (zpa.sdk-python.lss-helpers)."
+    },
+    "update-placeholder-intended": {
+      "statement": "Python SDK issue #582 asked about the object a ZPA update returns when the API answers 204 No Content, which carries model defaults such as `enabled=True`; it was closed as completed on 2026-10-06 with a reply from a member of the repository's organization, signed Zscaler DevRel, that the placeholder is intentional, that its other attributes are model defaults and not API data, and that callers use `response.get_status()` to detect the 204 and a matching get call to read the updated resource; v1.11.1 documents this in the README.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-582.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-10-06) The placeholder is intentional: ZPA returns 204 No Content on updates, and since #437 the SDK returns an object carrying the id so callers don't get id=None. Its other attributes are model defaults, not API data.",
+            "Use response.get_status() to detect the 204 and call the matching get_* method to read the updated resource.",
+            "We are not changing the return value, since that would break callers that read .id from it. Zscaler DevRel",
+            "`ApplicationSegments({\"id\": segment_id})` reports `enabled=True`, because"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 1.11.1 (October 6 2026)",
+            "Documented the ZPA `204 No Content` update response behavior in the README."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-582.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-10-06"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

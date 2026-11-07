@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.private-cloud-controller.troubleshooting",
+  "title": "Private Cloud Controller console commands and backup restore",
+  "aliases": [
+    "private cloud controller console",
+    "private cloud controller troubleshooting",
+    "zpa-pcc-restore",
+    "pcc show status",
+    "restore private cloud controller backup"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.business-continuity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{console-help}}"
+    },
+    {
+      "label": "Show commands.",
+      "text": "{{show-commands}} {{show-status}} {{redirect-stats}} {{connections}} {{config-backups-logs}} What the Business Continuity status output looks like in Business Continuity mode is open {{gap:bc-mode-output}}."
+    },
+    {
+      "label": "Check commands.",
+      "text": "{{check-commands}}"
+    },
+    {
+      "label": "Restoring a backup.",
+      "text": "{{restore}} {{restore-verify}} Whether the service starts again after a restore is open {{gap:restore-restart}}."
+    },
+    {
+      "text": "The Business Continuity settings that create the backups are in [[zpa.private-service-edges.business-continuity]]; the controller itself is in [[zpa.private-service-edges.private-cloud-controller]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a restore was run knowing it overwrites all current configuration of the controller.",
+      "uses": [
+        "restore"
+      ]
+    },
+    {
+      "do": "Whether the restore label identifies a single snapshot, which the restore command requires.",
+      "uses": [
+        "restore"
+      ]
+    },
+    {
+      "do": "Whether the redirect counters are increasing after a restore, which is how the help verifies the controller is redirecting users.",
+      "uses": [
+        "restore-verify",
+        "redirect-stats"
+      ]
+    }
+  ],
+  "claims": {
+    "console-help": {
+      "statement": "The Troubleshooting Private Cloud Controllers article provides debugging commands in the Private Cloud Controller console, run from /opt/zscaler/var/pcc/image/bin at a pcc> prompt whose help lists show, check, run-all or tech-support (execute all important commands in one shot), help, usage, version and exit or quit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-private-cloud-controllers.json",
+          "quotes": [
+            "This article provides debugging commands in the Private Cloud Controller console to help with troubleshooting.",
+            "cd /opt/zscaler/var/pcc/image/bin",
+            "pcc> help Suggestions: show show command check perform check run-all | tech-support execute all important commands in one shot help | ? print this help usage print usage version print version exit | quit exit the program"
+          ]
+        }
+      ]
+    },
+    "show-commands": {
+      "statement": "The show commands cover journal logs from the last 1 hours, status of a specified object, statistics, connections, current configuration and backups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-private-cloud-controllers.json",
+          "quotes": [
+            "logs show journal logs from last 1 hours status show status of specified object statistics | stats show statistics connection show connections config show current configuration backups show backups"
+          ]
+        }
+      ]
+    },
+    "show-status": {
+      "statement": "show status takes pcc for the status of the Private Cloud Controller, system for the system status, cert for the status of the certificate, db or database, and bcp for the status of Business Continuity; the page's output example for bcp includes Running in Normal Mode (Non-BC Mode).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-private-cloud-controllers.json",
+          "quotes": [
+            "To show the status of the Private Cloud Controller, enter the following command:",
+            "To show the system status, enter the following command:",
+            "To show the status of the certificate, enter the following command:",
+            "pcc> show status {db|database}",
+            "To show the status of Business Continuity, enter the following command:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-private-cloud-controllers.json",
+          "quotes": [
+            "pcc> show status pcc"
+          ],
+          "after": "To show the status of the Private Cloud Controller, enter the following command:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-private-cloud-controllers.json",
+          "quotes": [
+            "pcc> show status system"
+          ],
+          "after": "To show the system status, enter the following command:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-private-cloud-controllers.json",
+          "quotes": [
+            "pcc> show status cert"
+          ],
+          "after": "To show the status of the certificate, enter the following command:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-private-cloud-controllers.json",
+          "quotes": [
+            "pcc> show status bcp",
+            "Running in Normal Mode (Non-BC Mode)"
+          ],
+          "after": "To show the status of Business Continuity, enter the following command:"
+        }
+      ]
+    },
+    "redirect-stats": {
+      "statement": "show stats redirect reports Redirect to PSE - Failed, Redirect to IDP and Redirect to PSE - Successful counts in 1, 5, 15, 30 and 60 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-private-cloud-controllers.json",
+          "quotes": [
+            "pcc> show {stats|statistics} redirect",
+            "pcc> show stats redirect In 1 Minute In 5 Minutes In 15 Minutes In 30 Minutes In 60 Minutes Redirect to PSE - Failed 0 0 0 0 0 Redirect to IDP 0 0 0 0 0 Redirect to PSE - Successful 0 0 0 0 0"
+          ]
+        }
+      ]
+    },
+    "connections": {
+      "statement": "The help shows a command for outgoing connections to clients and a command for incoming connections to the server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-private-cloud-controllers.json",
+          "quotes": [
+            "To show outgoing connections to clients, enter the following command:",
+            "To show incoming connections to the server, enter the following command:"
+          ]
+        }
+      ]
+    },
+    "config-backups-logs": {
+      "statement": "The help has commands to view current configuration information for Business Continuity, to show backups for the Private Cloud Controller, and to view logs for the last hour or, with a period such as 3h or 90m, for that period.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-private-cloud-controllers.json",
+          "quotes": [
+            "To view current configuration information for Business Continuity, enter the following command:",
+            "To show backups for the Private Cloud Controller, enter the following command:",
+            "To view logs for the last hour, enter the following command:",
+            "pcc> show logs <e.g. 3h, 90m>"
+          ]
+        }
+      ]
+    },
+    "check-commands": {
+      "statement": "The check commands include check redirect ip <IP-Address> for the IP addresses targeted by the redirect, one for the names of the trusted networks targeted by the redirect, check connection with a period such as 3h or 90m and match sni, ip or user <KEYWORD>, and a command to run all commands needed by Zscaler Support at one time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-private-cloud-controllers.json",
+          "quotes": [
+            "pcc> check redirect ip <IP-Address>",
+            "To check the IP addresses targeted by the redirect, enter the following command:",
+            "To check the names of the trusted networks targeted by the redirect, enter the following command:",
+            "pcc> check connection <e.g. 3h, 90m> match {sni|ip|user} <KEYWORD>",
+            "To run all commands needed by Zscaler Support at one time, enter the following command:"
+          ]
+        }
+      ]
+    },
+    "restore": {
+      "statement": "Restoring configuration settings from a Private Cloud Controller backup overwrites all the controller's current configurations. The restore runs zpa-pcc-restore.py restore <label>, where the label is the prefix of the snapshot in the zpa-pcc-restore.py show command (for example 2025-09-30) as long as it uniquely identifies the snapshot; otherwise an error appears and more information must be added. The help's example output shows the backup directory /opt/zscaler/backup/pcc_backup and that the zpa-pcc service will be stopped before restore.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-private-cloud-controller-backups.json",
+          "quotes": [
+            "When you restore configuration settings from a Private Cloud Controller backup, it overwrites all your current configurations for the Private Cloud Controller.",
+            "[admin@pcc ~]$ sudo /opt/zscaler/var/pcc/image/bin/zpa-pcc-restore.py restore <label>",
+            "The <label> is the prefix of the snapshot in the zpa-pcc-restore.py show command (e.g., 2025-09-30, 2025-09-30-00-00) as long it can be uniquely identified as the snapshot",
+            "If the label isn't unique enough to determine which snapshot to use, an error similar to the following appears when you try to restore, and you must add more information to make it unique:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-private-cloud-controller-backups.json",
+          "quotes": [
+            "Set backup directory as \"/opt/zscaler/backup/pcc_backup\""
+          ],
+          "after": "Enter the following command to locate the snapshot for the backup you want to restore:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-private-cloud-controller-backups.json",
+          "quotes": [
+            "Service \"zpa-pcc\" will be stopped before restore"
+          ],
+          "after": "Restore the backup by entering the following command:"
+        }
+      ]
+    },
+    "restore-verify": {
+      "statement": "After a restore the help has the reader check the integrity of the database files, verify that Private Service Edges and App Connectors are actively connected to the Private Cloud Controller, and view redirection statistics to ensure that the counters are increasing to verify that the controller is redirecting users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-restoring-private-cloud-controller-backups.json",
+          "quotes": [
+            "Check the integrity of the database files:",
+            "Verify that Private Service Edges and App Connectors are actively connected to the Private Cloud Controller by entering the following command:",
+            "View redirection statistics to ensure that the counters are increasing to verify that the Private Cloud Controller is redirecting users:"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "bc-mode-output": {
+      "kind": "semantic",
+      "title": "What show status bcp prints in Business Continuity mode",
+      "status": "open",
+      "detail": "The page's show status bcp example shows only Running in Normal Mode (Non-BC Mode); the output while in Business Continuity mode is not shown.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "restore-restart": {
+      "kind": "semantic",
+      "title": "Whether the zpa-pcc service restarts after a restore",
+      "status": "open",
+      "detail": "The restore example shows the zpa-pcc service being stopped before restore, but the captured page does not show whether it is started again.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

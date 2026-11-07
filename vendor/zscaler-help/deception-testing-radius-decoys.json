@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Testing RADIUS Decoys",
+  "source": {
+    "url": "https://help.zscaler.com/deception/testing-radius-decoys",
+    "node": "1542580",
+    "revision": "3221537",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can deploy RADIUS decoys on internal networks to enumerate authentication services. When attackers interact with these decoys, the interaction is considered an attack, and an event is generated. RADIUS decoys respond to authentication attempts, and the events they produce depend on whether the attempt succeeds or fails. Every attempt produces a distinct response. You can test and verify if configured RADIUS decoys are properly deployed and working."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before testing a RADIUS decoy, make sure the following prerequisites are met:"
+    },
+    {
+      "item": "You have a Zscaler Deception account with the RADIUS decoy service enabled.",
+      "depth": 0
+    },
+    {
+      "item": "FreeRADIUS service is available (the decoy automatically starts this service when enabled).",
+      "depth": 0
+    },
+    {
+      "item": "UDP ports 1812 and 1813 are open and not blocked by firewalls.",
+      "depth": 0
+    },
+    {
+      "item": "You have the necessary tools for testing, such as:",
+      "depth": 0
+    },
+    {
+      "item": "Network Mapper (Nmap) for UDP port scanning and service discovery.",
+      "depth": 1
+    },
+    {
+      "item": "radtest (or similar RADIUS client utilities) for authentication attempts.",
+      "depth": 1
+    },
+    {
+      "heading": "Testing a RADIUS Decoy",
+      "level": 1
+    },
+    {
+      "text": "To test a RADIUS decoy:"
+    },
+    {
+      "item": "Open a terminal and run a Nmap UDP port scan to detect RADIUS services.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Use the radtest utility to send authentication requests with the following credentials:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Username: admin",
+      "depth": 1
+    },
+    {
+      "item": "Password: radius",
+      "depth": 1
+    },
+    {
+      "item": "Shared secret: testing123",
+      "depth": 1
+    },
+    {
+      "item": "Port: 1812 or 0",
+      "depth": 1
+    },
+    {
+      "item": "Server IP address: RADIUS server internal decoy IP address",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Observe the distinct responses for each attempt:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Correct username, password, and secret: Response: Access-Accept (successful authentication)",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Wrong password: Response: Access-Reject (failed authentication)",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Wrong server secret: Response: No reply (server does not respond)",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Verifying Events",
+      "level": 1
+    },
+    {
+      "text": "To verify events:"
+    },
+    {
+      "item": "Log in to the Zscaler Deception Admin Portal.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, click Investigate.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Select a time frame from the drop-down menu. For example, select Last 10 Minutes to see the most recent decoy logs.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          65,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click the decoy icon to open the details pane, then click View Extended Details.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          58,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Select the Event Logs tab, and verify that all authentication attempts are recorded.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          11,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image,",
+      "depth": 0
+    },
+    {
+      "item": "On the ThreatParse tab, view the rule scores based on the outcome of the authentication attempt.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    }
+  ]
+}

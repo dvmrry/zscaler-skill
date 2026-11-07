@@ -1,0 +1,1559 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Blocking LAN Access and Configuring Zscaler Client Connector Firewall on Windows and macOS",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-client-connector/blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos",
+    "node": "1443386",
+    "revision": "3247379",
+    "updated": "2026-10-26",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "To prevent users from accessing other endpoints on local area networks, admins can configure Zscaler Client Connector to block traffic."
+    },
+    {
+      "text": "On Windows devices, you can block traffic based on the version of Zscaler Client Connector:"
+    },
+    {
+      "item": "Zscaler Client Connector versions 4.7 and earlier: Block outbound traffic in Zscaler Tunnel (Z-Tunnel) 2.0 using destination exclusions.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler Client Connector versions 4.8 and later: Block inbound and outbound traffic in Z-Tunnel 1.0, Z-Tunnel 2.0, and Tunnel with Local Proxy using the Endpoint Firewall Management feature.",
+      "depth": 0
+    },
+    {
+      "text": "On macOS devices, admins must create a system extension profile via a mobile device management (MDM), configure firewall rules, and also enable firewall settings in the Zscaler Admin Console."
+    },
+    {
+      "item": "Windows",
+      "depth": 0
+    },
+    {
+      "item": "To block LAN access for Windows devices using Zscaler Client Connector version 4.7 and earlier:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Client Connector > Windows.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          65
+        ],
+        [
+          68,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "On the App Profiles tab, click Add Windows Policy. The Add Windows Policy window appears.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          31,
+          49
+        ],
+        [
+          55,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Under Traffic Steering, on the App and IP Bypass tab:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          22
+        ],
+        [
+          31,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "IPv4 Exclusion and IPv6 Exclusion: Enter the specific subnets of the traffic you want to exclude from Z-Tunnel 2.0.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          19,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "By default, the Zscaler service includes the RFC 1918 networks (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) in the IPv4 exclusions list. See RFC 1918 Address Allocation for Private Internets. Zscaler also includes the multicast range 224.0.0.0/4. Zscaler recommends that you keep these networks in the list, unless explicitly needed, because deleting them causes private network traffic (e.g., DHCP) to be tunneled through the cloud.",
+      "depth": 0
+    },
+    {
+      "item": "If you use Zscaler Client Connector version 4.8 and later for Windows, you can use the Endpoint Firewall Management feature to block LAN access. To learn more, see About Location-Based Policies.",
+      "depth": 0
+    },
+    {
+      "item": "macOS",
+      "depth": 0
+    },
+    {
+      "item": "To block LAN access or control firewall rules using Zscaler Client Connector for macOS devices, configure these steps based on the MDM you are using.",
+      "depth": 0
+    },
+    {
+      "item": "In the content filter section, you can configure parameters and edit the keys and values in the general, inbound, and outbound sections. The following information applies to both Microsoft Intune and Jamf Pro.",
+      "depth": 0
+    },
+    {
+      "item": "See configuration parameters.",
+      "depth": 1
+    },
+    {
+      "item": "You can edit the following general and firewall parameters in the copied content based on your needs:",
+      "depth": 0
+    },
+    {
+      "heading": "General Parameters",
+      "level": 1
+    },
+    {
+      "item": "enforceTrafficViaTunnel: If true, when the tunnel is inactive, prevents circumvention of security by restricting network traffic when the Z-Tunnel is not running.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "allowTrafficToDefaultGateway: If set to false, traffic to the default gateway is blocked. Use this parameter with caution as it can prevent the device from interacting with captive portals and other services that the default gateway device provides.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Persistent: If true, the firewall remains on even when the user logs out of Zscaler Client Connector. If the persistent key is false, firewall rules are no longer applied when the user logs out of Zscaler Client Connector.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "This parameter does not affect Zscaler Firewall behavior when the user is logged in to Zscaler Client Connector. To enable persistent firewall filtering while the user is logged in, enable the Persistent Zscaler Firewall option on the user’s app profile.",
+      "depth": 1
+    },
+    {
+      "item": "detectAltInterfaceTraffic: When set to true, Zscaler Client Connector detects traffic that attempts to bypass the routing table. This parameter is not supported on Zscaler Client Connector version 4.5.2 and later for macOS.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "alwaysAllowed: Inbound and outbound traffic defined using this parameter is always allowed even when enforceTrafficViaTunnel is set to true.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "This parameter applies to Z-Tunnel 1.0 and Z-Tunnel 2.0 and is supported on Zscaler Client Connector version 4.5.2 and later for macOS.",
+      "depth": 0
+    },
+    {
+      "heading": "Firewall Parameters",
+      "level": 1
+    },
+    {
+      "item": "action: Defines what action is taken if the rule matches. Use allow or block.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "apps: Specifies a flow's association with a particular application. This value must exactly match the teamid.bundleid, unless the app has no Team ID, in which case the app must exactly match the bundleid.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "protos: Specifies the IP protocol that the flow must match. For example, tcp and/or udp or icmp.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "System extension does not filter incoming ICMP.",
+      "depth": 0
+    },
+    {
+      "item": "ips: Specifies the set of remote IP addresses that the flow must match. Add a space or a comma to the delimited list of IP addresses and/or IP subnets. Mixed IPv4, IPv6 addresses, and lanlocal are allowed.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "ports: Specifies what UDP or TCP ports cause the rule to match the flow. Add a space or comma to the delimited list of port numbers and/or port ranges. If protos is configured and is set to icmp, the ports attribute is ignored.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "The VendorConfig section of the ZscalerSample.mobileconfig has several dictionaries that determine the logic for the traffic.",
+      "depth": 0
+    },
+    {
+      "item": "The top-level dictionaries are general, inbound, and outbound. Within each dictionary are dictionaries for untrusted or trusted networks. Each trusted and untrusted key contains an optional array of rule dictionaries. Within each rule dictionary, you can define specific actions.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuration Parameters Examples",
+      "level": 2
+    },
+    {
+      "item": "The following is an example of the structure for general:",
+      "depth": 0
+    },
+    {
+      "item": "General example",
+      "depth": 1
+    },
+    {
+      "item": "<key>general</key> <dict> <key>allowTrafficToDefaultGateway</key> <true/> <!--- The detectAltInterfaceTraffic is deprecated in Zscaler Client Connector 4.5.2 and later for macOS --> <key>detectAltInterfaceTraffic</key> <true/> <key>enforceTrafficViaTunnel</key> <true/> <key>persistent</key> <false/> <key>alwaysAllowed</key> <array> <dict> <key>ips</key> <string>1.2.3.4</string> <key>ports</key> <string>80,443</string> <key>action</key> <string>allow</string> </dict> </array> </dict>",
+      "depth": 0
+    },
+    {
+      "item": "The following is an example of this structure for inbound:",
+      "depth": 0
+    },
+    {
+      "item": "Inbound example",
+      "depth": 1
+    },
+    {
+      "item": "<key>inbound</key> <dict> <key>trustednet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> <key>trustedsplitvpnnet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> <key>trustedvpnnet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> <key>untrustednet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> </dict>",
+      "depth": 0
+    },
+    {
+      "item": "Actions include allow and block. Possible network specifications include applications (apps), IP addresses (ips), and ports (ports).",
+      "depth": 0
+    },
+    {
+      "item": "To block the browser Opera from communicating outbound, block traffic to 1.2.3.4 and any local network traffic, and port 5432 traffic on an untrusted network, see the following example:",
+      "depth": 0
+    },
+    {
+      "item": "Outbound example",
+      "depth": 1
+    },
+    {
+      "item": "<key>outbound</key> <dict> <key>trustednet</key> <array> <dict> <key>action</key> <string>allow</string> </dict> </array> <key>untrustednet</key> <array> <dict> <key>apps</key> <string>A2P9LX4JPN.com.operasoftware.Opera</string> <key>ips</key> <string>1:2:3:4:: 192.168.0.0/16 lanlocal</string> <key>ports</key> <string>5900-5901 2222</string> <key>action</key> <string>block</string> </dict> <dict> <key>ips</key> <string>1:2:3:4:: 1.2.3.4 lanlocal</string> <key>action</key> <string>block</string> </dict> <dict> <key>ports</key> <string>5432</string> <key>action</key> <string>block</string> </dict> </array> <key>trustedvpnnet</key> <array> <dict> <key>apps</key> <string>A2P9LX4JPN.com.operasoftware.Opera</string> <key>action</key> <string>block</string> </dict> <dict> <key>ips</key> <string>1:2:3:4:: 1.2.3.4 lanlocal</string> <key>action</key> <string>block</string> </dict> <dict> <key>ports</key> <string>5432</string> <key>action</key> <string>block</string> </dict> </array> <key>trustedsplitvpnnet</key> <array> <dict> <key>apps</key> <string>A2P9LX4JPN.com.operasoftware.Opera</string> <key>action</key> <string>block</string> </dict> <dict> <key>ips</key> <string>1:2:3:4:: 1.2.3.4 lanlocal</string> <key>action</key> <string>block</string> </dict> <dict> <key>ports</key> <string>5432</string> <key>action</key> <string>block</string> </dict> </array> </dict>",
+      "depth": 0
+    },
+    {
+      "item": "How are Rules Evaluated?",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "The above untrustednet array has three separate rules (apps, ips, ports). Each rule is independent of the other two. For example, if traffic from Opera is detected, it matches only the first rule (apps), where the second rule (ips) and third rule (ports) are not evaluated. Similarly, if the second rule is matched because the traffic is not from Opera, but the remote address is 1.2.3.4, then the third rule is not evaluated. Only if the traffic is not from Opera, and is also not destined for 1:2:3:4::, 1.2.3.4, or lanlocal, then the third rule is evaluated.",
+      "depth": 0
+    },
+    {
+      "item": "You can combine key types for more specific rules, such as disallowing Opera traffic only if the destination is 1.2.3.4:5432:. For example:",
+      "depth": 0
+    },
+    {
+      "item": "Combined rules example",
+      "depth": 1
+    },
+    {
+      "item": "<dict> <key>apps</key> <string>A2P9LX4JPN.com.operasoftware.Opera</string> <key>ips</key> <string>1:2:3:4:: 1.2.3.4 lanlocal</string> <key>ports</key> <string>5432</string> <key>action</key> <string>block</string> </dict>",
+      "depth": 0
+    },
+    {
+      "item": "The following is a complete property list (PLIST) example for both general and firewall parameters.",
+      "depth": 0
+    },
+    {
+      "item": "All general and firewall parameters",
+      "depth": 1
+    },
+    {
+      "item": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"> <plist version=\"1.0\"> <dict> <key>VendorConfig</key> <dict> <key>general</key> <dict> <key>allowTrafficToDefaultGateway</key> <true/> <!--- The detectAltInterfaceTraffic is deprecated in Zscaler Client Connector 4.5.2 and later for macOS --> <key>detectAltInterfaceTraffic</key> <true/> <key>enforceTrafficViaTunnel</key> <true/> <key>persistent</key> <false/> <key>alwaysAllowed</key> <array> <dict> <key>ips</key> <string>1.2.3.4</string> <key>ports</key> <string>80,443</string> <key>action</key> <string>allow</string> </dict> </array> </dict> <key>inbound</key> <dict> <key>trustednet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> <key>trustedsplitvpnnet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> <key>trustedvpnnet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> <key>untrustednet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> </dict> <key>outbound</key> <dict> <key>trustednet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> <key>trustedsplitvpnnet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> <key>trustedvpnnet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> <key>untrustednet</key> <array> <dict> <key>action</key> <string>block</string> <key>ips</key> <string>lanlocal</string> </dict> </array> </dict> </dict> </dict> </plist>",
+      "depth": 0
+    },
+    {
+      "heading": "Microsoft Intune",
+      "level": 1
+    },
+    {
+      "item": "In the Microsoft Intune Company Portal, you can deploy the Zscaler System Extension, configure general firewall behavior, and configure inbound and outbound rules:",
+      "depth": 0
+    },
+    {
+      "item": "Step 1: Configure a System Extension Profile in the Microsoft Intune Company Portal",
+      "depth": 1
+    },
+    {
+      "item": "Step 2: Configure Firewall Rules in the Microsoft Intune Company Portal",
+      "depth": 1
+    },
+    {
+      "item": "Step 3: Configure a Property List File in the Microsoft Intune Company Portal",
+      "depth": 1
+    },
+    {
+      "item": "Step 4: Enable Firewall Settings in the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "heading": "Jamf Pro",
+      "level": 1
+    },
+    {
+      "item": "The Jamf Pro configuration for Zscaler Firewall has changed. Follow the directions outlined in Remove the Firewall Rules from Application and Custom Settings to reconfigure your existing configuration profiles to ensure the firewall rule updates are enforced without any disruption.",
+      "depth": 0
+    },
+    {
+      "item": "Step 1: Create a Configuration Profile for Auto Approval of Zscaler System Extension",
+      "depth": 1
+    },
+    {
+      "item": "Step 2: Configure the Firewall Rules in Jamf Pro",
+      "depth": 1
+    },
+    {
+      "item": "Step 3: Enable Firewall Settings in the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "Step 4: (For legacy/pre-existing configurations) Remove the Firewall Rules from Application and Custom Settings",
+      "depth": 1
+    },
+    {
+      "item": "In the Microsoft Intune Company Portal, go to Devices.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          46,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "From the options, click Configuration profiles.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          24,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Create profile.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Create a profile section:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Platform: Select macOS.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Profile type: Select Templates.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Template name: Choose Extensions.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the Basics section:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the preference file. For example, Zscaler System Extension.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Configuration settings section, expand the System extensions section:",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          50,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Block user overrides: Select Yes if you want to block the users from making any changes to the file. The default setting is Not configured.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          32
+        ],
+        [
+          124,
+          138
+        ]
+      ]
+    },
+    {
+      "item": "Team identifier: Enter the team identifier PCBCQZJ7S7.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The team identifier allows the System Extension Profile to be installed on the user's system silently.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Assignments section, choose the users, groups, and devices for the profile.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Review + create section, review the summary, and click Create.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          62,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "If the system extension feature is activated using a command line, you must deactivate it manually. Uninstallation of Zscaler Client Connector does not remove the system extension feature.",
+      "depth": 0
+    },
+    {
+      "item": "In the Microsoft Intune Company Portal, go to Devices.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          46,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "From the options, click Configuration profiles.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          24,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Click Create profile.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a profile section:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Platform: Select macOS.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Profile type: Select Templates.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Template name: Choose Custom.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the Basics section:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the preference file. For example, Zscaler firewall rules.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Use a mobileconfig file. You can download the following ZscalerSample.mobileconfig file:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "Download the ZscalerSample.mobileconfig file",
+      "depth": 0
+    },
+    {
+      "item": "In the Configuration settings section, upload the ZscalerSample.mobileconfig file and configure the Zscaler Client Connector firewall for macOS configuration parameters.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Assignments section, choose the users, groups, and devices for the profile.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Review + create section, review the summary, and click Create.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          62,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "To create a property list file, see Configuring a Custom Settings Profile.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Client Connector > macOS.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          65
+        ],
+        [
+          68,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "On the App Profiles tab, click Add macOS Policy. The Add macOS Policy window appears.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          31,
+          47
+        ],
+        [
+          53,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Enable Zscaler Firewall to determine which network traffic is allowed and blocked. This setting is disabled by default.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) If firewall persistence while the user is logged in to Zscaler Client Connector is required, enable the Persistent Zscaler Firewall setting. This setting is disabled by default.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          115,
+          142
+        ]
+      ]
+    },
+    {
+      "item": "Although Zscaler system extension is built into Zscaler Client Connector, you must configure it in Jamf to activate it. To add a configuration profile for system extension:",
+      "depth": 0
+    },
+    {
+      "item": "In Jamf Pro, go to the Computers tab.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          23,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Configuration Profiles.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click New to create a new configuration profile.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "In the General section:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name. For example, Zscaler Socket Filter System Extension Deployment.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Category: (Optional) Choose a category based on the Jamf categories you configured.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Level: Choose a level per your requirements.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Distribution Method: Choose a distribution method per your requirements.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "From the left-side navigation, click System Extensions and select Configure.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          37,
+          54
+        ],
+        [
+          66,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Under System Extensions:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Display Name: Enter a display name. For example, Zscaler Filter Socket Filter System Extension.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "System Extension Types: Select Allowed Team Identifiers from the drop-down menu.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          31,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Team Identifier: Enter PCBCQZJ7S7.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "To bind the Configuration Profile to particular computers, select the necessary information for Targets, Limitations, and Exclusions under the Scope tab.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          96,
+          103
+        ],
+        [
+          105,
+          116
+        ],
+        [
+          122,
+          132
+        ],
+        [
+          143,
+          148
+        ]
+      ]
+    },
+    {
+      "item": "Create a Content Filter Configuration Profile to configure firewall rules. To add a Content Filter:",
+      "depth": 0
+    },
+    {
+      "item": "In Jamf Pro, go to the Computers tab.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          23,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Configuration Profiles and click New.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          58
+        ],
+        [
+          69,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "In the General section:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name. For example, Zscaler Firewall Rules.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Category: (Optional) Choose a category based on the Jamf categories you configured.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Level: Choose a level per your requirements.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Distribution Method: Choose a distribution method per your requirements.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "From the left-side navigation, select Content Filter.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          38,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "In the Content Filter section:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Filter Name: Enter a name for your filter. For example, Zscaler Socket Filter System Extension.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Identifier: Enter com.zscaler.zscaler.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Service Address: Enter zscaler.com.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Organization: Enter Zscaler.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "User Name: (Optional) Enter a username.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Password: (Optional) Enter a password.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Socket Filter: Click Enable.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          21,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Socket Filter Bundle Identifier: Enter com.zscaler.zscaler.pktfilter",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Socket filter Designated Requirement: Enter identifier \"com.zscaler.zscaler.pktfilter\" and anchor apple generic",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Custom Data section, define the Zscaler Client Connector firewall configuration parameters for general, outbound and inbound rules.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "To disable a feature, set the value to False.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Client Connector > macOS.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          65
+        ],
+        [
+          68,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "On the App Profiles tab, click Add macOS Policy. The Add macOS Policy window appears.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          31,
+          47
+        ],
+        [
+          53,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Enable Zscaler Firewall to determine which network traffic is allowed and blocked. This setting is disabled by default.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) If firewall persistence while the user is logged in to Zscaler Client Connector is required, enable the Persistent Zscaler Firewall setting. This setting is disabled by default.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          115,
+          142
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "When Zscaler Client Connector performs a policy update, the Zscaler Firewall feature is enabled and the firewall rules are enforced.",
+      "depth": 0
+    },
+    {
+      "item": "If you want to change firewall parameters or rules, edit the Configuration Profile and redeploy it to macOS devices using Jamf Pro. No change is required to the App Profiles in the Zscaler Admin Console when changing existing firewall rules.",
+      "depth": 0
+    },
+    {
+      "item": "If you have existing legacy configuration profiles in Jamf Pro, you must remove Application and Custom Settings and add general, inbound, and outbound firewall rules to the Content Filter payload. Following these steps ensures that firewall rule changes are enforced without any disruption. This applies to Zscaler Client Connector for macOS versions 4.5.0.211, 4.3.1.102, and later.",
+      "depth": 0,
+      "strong": [
+        [
+          80,
+          111
+        ],
+        [
+          173,
+          187
+        ]
+      ]
+    },
+    {
+      "item": "In Jamf Pro, go to the Computers tab.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          23,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Configuration Profiles and open the existing Configuration Profile.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          58
+        ],
+        [
+          81,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Select Application and Custom Settings and save a copy of the property list (PLIST) configuration.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          30,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Remove All to remove the payload from the Configuration Profile.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          16
+        ],
+        [
+          48,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Add the general, inbound and outbound firewall rules to the Content Filter payload as shown in Configure the Firewall Rules in Jamf Pro.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          60,
+          74
+        ]
+      ]
+    }
+  ]
+}

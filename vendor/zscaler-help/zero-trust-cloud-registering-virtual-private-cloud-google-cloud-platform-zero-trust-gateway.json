@@ -1,0 +1,1638 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Registering a Virtual Private Cloud with the Google Cloud Platform Zero Trust Gateway",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-cloud/registering-virtual-private-cloud-google-cloud-platform-zero-trust-gateway",
+    "node": "1542803",
+    "revision": "3242708",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article instructs you on how to route traffic from your Google Cloud virtual private cloud (VPC) through the Zscaler Google Cloud Platform (GCP) Zero Trust Gateway using Network Security Integration (NSI) in-band integration in the GCP console."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you begin configuring your VPC to route traffic through GCP gateways, ensure that you have:"
+    },
+    {
+      "item": "Your consumer project details, such as where the endpoint group is deployed.",
+      "depth": 0
+    },
+    {
+      "item": "Project information which is used to create the security profile. If the security profile is created at the organization level, organization details are required.",
+      "depth": 0
+    },
+    {
+      "item": "An existing VPC network to protect. NSI does not create a VPC network.",
+      "depth": 0
+    },
+    {
+      "item": "Ingress source and egress destination CIDR ranges to inspect.",
+      "depth": 0
+    },
+    {
+      "item": "IAM roles to manage compute firewall policies and Network Security resources. The Security Profile Admin role is needed for security profiles and groups. If you are using organization scope, ensure that you have organization-level roles.",
+      "depth": 0
+    },
+    {
+      "item": "The Compute Engine and Network Security APIs enabled.",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) Trusted source ranges that bypass inspection.",
+      "depth": 0
+    },
+    {
+      "text": "Zscaler provides:"
+    },
+    {
+      "item": "The intercept deployment group.",
+      "depth": 0
+    },
+    {
+      "item": "Any location guidance (i.e., NSI consumer resources use global) and recommended traffic match ranges.",
+      "depth": 0
+    },
+    {
+      "heading": "Registering a VPC",
+      "level": 1
+    },
+    {
+      "text": "To register a VPC with the GCP gateway:"
+    },
+    {
+      "item": "Step 1: Create the Intercept Endpoint Group",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the GCP console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the Search (/) for resources, docs, products, and more field, enter Endpoint groups.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Select Endpoint groups. The Endpoint groups page appears.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          28,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "On the Endpoints groups page, click Create endpoint group. The Create an endpoint group page appears.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          36,
+          57
+        ],
+        [
+          63,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "On the Create an endpoint group page:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "On the Basic configuration tab, configure the following:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name (e.g. customer-nsi-intercept-endpoint-group).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Purpose: Select NSI In-Band.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Type: By default, this field is set to Intercept.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          39,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Deployment Group: Select one of the following options to determine how to point to the Zscaler-provided group:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Select project: Select the project that hosts the group.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Select current project: If the deployment group is in this project, select its name.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Enter manually: Enter the project ID and name where the group is located in a different project. This is the most common case for a Zscaler producer project.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Continue.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "On the Associations tab, under Associations, click Add endpoint group association. The New endpoint group association section appears.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          31,
+          43
+        ],
+        [
+          51,
+          81
+        ],
+        [
+          87,
+          117
+        ]
+      ]
+    },
+    {
+      "item": "In the New endpoint group association section:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Project: Select the project to protect.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Network: From the drop-down menu, select the VPC network to protect.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Done.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The endpoint group is created.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Create the Custom Intercept Security Profile",
+      "depth": 0
+    },
+    {
+      "item": "In the GCP console, in the Search (/) for resources, docs, products, and more field, enter Security profiles.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          27,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Select Security profiles. The Security profiles page appears.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          30,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Security profiles page, on the Security profiles tab, click Create profile. The Create security profile page appears.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          38,
+          55
+        ],
+        [
+          67,
+          81
+        ],
+        [
+          87,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "On the Create security profile page:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name (e.g. customer-nsi-custom-intercept-profile).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Purpose: Select NSI In-Band.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Type: By default, this field is set to Custom.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          39,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Traffic directed to: Select the deployment group you selected in Step 1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Step 3: Create the Security Profile Group",
+      "depth": 0
+    },
+    {
+      "item": "In the GCP console, in the Search (/) for resources, docs, products, and more field, enter Security profiles.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          27,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Select Security profiles. The Security profiles page appears.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          30,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Security profiles page, on the Security profile groups tab, click Create profile group. The Create security profile group page appears.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          38,
+          61
+        ],
+        [
+          73,
+          93
+        ],
+        [
+          99,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "On the Create security profile group page:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name (e.g. customer-nsi-security-profile-group).",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Purpose: Select NSI In-Band.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Custom intercept profile: Select the profile you created in Step 2.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The security profile group is created. The firewall rules reference this group, not the profile directly.",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Create the Firewall Policy and Attach It to Your VPC",
+      "depth": 0
+    },
+    {
+      "item": "In the GCP console, in the Search (/) for resources, docs, products, and more field, enter Firewall policies.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          27,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Select Firewall policies. The Firewall policies page appears.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          30,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Firewall policies page, click Create firewall policy. The Create a network firewall policy page appears.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          59
+        ],
+        [
+          65,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "On the Create a network firewall policy page:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "In the Configure policy section:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Policy name: Enter a name (e.g., customer-nsi-consumer-policy).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Policy type: From the drop-down menu, select VPC policy.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          45,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Deployment scope: Select Global.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Continue.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the Add rules section:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Click Create firewall rule. The Create a firewall rule window appears.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a firewall rule window:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter 90. Lower priority numbers are evaluated first.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description for the rule. This is the allow rule for trusted sources to bypass inspection.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Target type: Select Instances.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Target: Select Apply to all, Service accounts, or Secure tags depending on your requirements.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          27
+        ],
+        [
+          29,
+          45
+        ],
+        [
+          50,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Direction of traffic: Select Ingress.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Action on match: Select Allow.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Logs: Select Enabled.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "IP type: From the drop-down menu, select IPv4.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          41,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "IP ranges: Enter your trusted CIDRs.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Configure the Source network context, Secure tags, FQDNs, Geolocations, Address group, Google Cloud Threat Intelligence, IP type, Protocols and ports, and Enforcement fields per your requirements.",
+      "depth": 4,
+      "strong": [
+        [
+          14,
+          36
+        ],
+        [
+          38,
+          49
+        ],
+        [
+          51,
+          56
+        ],
+        [
+          58,
+          70
+        ],
+        [
+          72,
+          85
+        ],
+        [
+          87,
+          119
+        ],
+        [
+          121,
+          128
+        ],
+        [
+          130,
+          149
+        ],
+        [
+          155,
+          166
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Create. You are returned to the Add rules section.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          38,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Click Create firewall rule. The Create a firewall rule window appears.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a firewall rule window:",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter 100.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description for the rule. This is the ingress intercept rule.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Target type: Select Instances.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Target: Select Apply to all, Service accounts, or Secure tags depending on your requirements.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          27
+        ],
+        [
+          29,
+          45
+        ],
+        [
+          50,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Direction of traffic: Select Ingress.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Action on match: Select Apply security group profile.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Purpose: Select NSI In-Band.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Security group profile: Select the security group profile you created in Step 3.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Logs: Select Enabled.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "IP type: From the drop-down menu, select IPv4.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          41,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "IP ranges: Enter the inbound CIDRs to inspect (e.g., 10.1.0.0/16)",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Protocols and ports: Select All.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Configure the Source network context, Secure tags, FQDNs, Geolocations, Address group, Google Cloud Threat Intelligence, IP type, and Enforcement fields per your requirements.",
+      "depth": 4,
+      "strong": [
+        [
+          14,
+          36
+        ],
+        [
+          38,
+          49
+        ],
+        [
+          51,
+          56
+        ],
+        [
+          58,
+          70
+        ],
+        [
+          72,
+          85
+        ],
+        [
+          87,
+          119
+        ],
+        [
+          121,
+          128
+        ],
+        [
+          134,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Create. You are returned to the Add rules section.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          38,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Click Create firewall rule. The Create a firewall rule window appears.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          26
+        ],
+        [
+          32,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a firewall rule window:",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter 101.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description for the rule. This is the egress intercept rule.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Target type: Select Instances.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Target: Select Apply to all, Service accounts, or Secure tags depending on your requirements.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          27
+        ],
+        [
+          29,
+          45
+        ],
+        [
+          50,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Direction of traffic:",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Action on match: Select Apply security group profile.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Purpose: Select NSI In-Band.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Security group profile: Select the security group profile you created in Step 3.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Logs: Select Enabled.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "IP type: From the drop-down menu, select IPv4.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "IP ranges: Enter the outbound CIDRs to inspect (e.g., 0.0.0.0/0 is all egress).",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Protocols and ports: Select All.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Configure the Source network context, Secure tags, FQDNs, Geolocations, Address group, Google Cloud Threat Intelligence, IP type, and Enforcement fields per your requirements.",
+      "depth": 4,
+      "strong": [
+        [
+          14,
+          36
+        ],
+        [
+          38,
+          49
+        ],
+        [
+          51,
+          56
+        ],
+        [
+          58,
+          70
+        ],
+        [
+          72,
+          85
+        ],
+        [
+          87,
+          119
+        ],
+        [
+          121,
+          128
+        ],
+        [
+          134,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Continue.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the Add mirroring rules section, click Continue.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          42,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "In the Associate policy with networks (optional) section, click Associate. The Associate policy with VPC networks window appears.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          48
+        ],
+        [
+          64,
+          73
+        ],
+        [
+          79,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "In the Associate policy with VPC networks window, select your consumer VPC. Then, click Associate.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          41
+        ],
+        [
+          88,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Continue.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The firewall policy is created.",
+      "depth": 0
+    },
+    {
+      "item": "Step 5: Verify the Registration",
+      "depth": 0
+    },
+    {
+      "item": "To verify that the registration was successful, ensure the following:",
+      "depth": 0
+    },
+    {
+      "item": "On the Endpoint groups page:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the Status column, the group is Active.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          35,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "In the Associations column, the VPC association is listed.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "On the Security profile groups page, in the Purpose column, the group references your custom intercept profile.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          44,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "On the Firewall policies page, select the Name of your policy and confirm that the ingress/egress rules show the correct Action on match and match ranges.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          42,
+          46
+        ],
+        [
+          121,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "Generate traffic that matches your ranges and confirm that it appears in the Zscaler inspection logs.",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "table": [
+        [
+          "Issue Encountered",
+          "Potential Cause",
+          "Troubleshooting Action"
+        ],
+        [
+          "You cannot select the deployment group.",
+          "It is the wrong project, or it is in the Zscaler producer project.",
+          "In the Enter manually field, enter the Zscaler project ID and name."
+        ],
+        [
+          "\"Permission denied\" appears on the security profile.",
+          "The Network Security IAM is missing at the chosen scope.",
+          "Grant the Security Profile Admin IAM role (organization-level if you are using the organization scope)."
+        ],
+        [
+          "The rule does not offer the profile group.",
+          "The profile group is not created yet, or has the wrong purpose.",
+          "Create the profile group with NSI in-band."
+        ],
+        [
+          "The traffic is not inspected.",
+          "The match ranges are wrong, or an allow rule shadows the intercept rule.",
+          "Check the rules ranges and confirm that the allow rule's priority is intentional."
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          17
+        ],
+        [
+          0,
+          1,
+          0,
+          15
+        ],
+        [
+          0,
+          2,
+          0,
+          22
+        ],
+        [
+          1,
+          2,
+          7,
+          21
+        ]
+      ]
+    }
+  ]
+}

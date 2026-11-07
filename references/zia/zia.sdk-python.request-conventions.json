@@ -1,0 +1,605 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-python.request-conventions",
+  "title": "How the Python SDK builds, pages and retries ZIA requests",
+  "aliases": [
+    "python sdk search missing object",
+    "python sdk page size",
+    "enabled state python sdk",
+    "python sdk retry 429",
+    "edit lock not available retry",
+    "enableMistralAIPrompt python",
+    "bulk delete 100 python",
+    "url lookup chunk"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.list-pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This describes the Python SDK client, not ZIA: what it sends, how it pages and when it retries. Server behavior behind these calls is separate."
+    },
+    {
+      "heading": "Paging"
+    },
+    {
+      "label": "One page per call.",
+      "text": "A list call returns the first page, held in [[zia.sdk-python.pagination]]. {{flat-list-complete}}"
+    },
+    {
+      "label": "Next page.",
+      "text": "{{has-next-zia}} {{page-size-validation}} What each endpoint accepts is open {{gap:page-size-caps}}."
+    },
+    {
+      "heading": "Request shaping"
+    },
+    {
+      "label": "Search.",
+      "text": "{{client-side-search}} {{client-search-more-modules}} {{client-search-page-only}}"
+    },
+    {
+      "label": "Rule state and ID lists.",
+      "text": "{{enabled-to-state}} {{enabled-to-state-more-modules}} {{id-list-reshape}}"
+    },
+    {
+      "label": "Key casing.",
+      "text": "{{camel-case-body}} Which services leave or convert bodies differently is in [[shared.sdk-python.request-handling:body-camel-case]]. {{zia-body-camel-cased}} {{url-settings-model-eight-flags}} {{mistral-key-casing}} The Go side of the same settings write is in [[zia.url-filtering.advanced-settings]]."
+    },
+    {
+      "label": "Batches.",
+      "text": "{{bulk-delete-limit}} {{url-lookup-chunks}} The Go helpers behave differently; see [[shared.sdk-go.request-handling]]."
+    },
+    {
+      "heading": "Retries"
+    },
+    {
+      "label": "What is retried.",
+      "text": "[[shared.sdk-python.retries:retryable-statuses]] [[shared.sdk-python.retries:method-not-consulted]] The wait, the retry count and the edit-lock backoff are in [[zia.api.rate-limits]]."
+    },
+    {
+      "label": "Sessions.",
+      "text": "[[shared.sdk-python.retries:reauth-on-401]] The Go retry policy is in [[shared.sdk-go.retries]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a list call returned one page or all of them, and whether the page was full.",
+      "uses": [
+        "zia.sdk-python.pagination:first-page-only",
+        "has-next-zia",
+        "flat-list-complete",
+        "page-size-validation"
+      ]
+    },
+    {
+      "do": "Whether a `search` argument could have missed an object that sits on a later page.",
+      "uses": [
+        "client-side-search",
+        "client-search-page-only"
+      ]
+    },
+    {
+      "do": "Whether a write was replayed after a retryable status, and whether retries were exhausted.",
+      "uses": [
+        "shared.sdk-python.retries:retryable-statuses",
+        "shared.sdk-python.retries:method-not-consulted",
+        "shared.sdk-python.retries:wait-from-headers",
+        "shared.sdk-python.retries:max-retries",
+        "zia.api.rate-limits:zia-edit-lock-retry"
+      ]
+    },
+    {
+      "do": "Whether a setting that failed to change was sent under a key the API does not know.",
+      "uses": [
+        "camel-case-body",
+        "mistral-key-casing"
+      ]
+    }
+  ],
+  "claims": {
+    "page-size-validation": {
+      "statement": "The Python response object keeps a per-service page-size table in which ZIA has a maximum of 10000, and it clamps a caller-supplied page size between the service minimum and maximum to set its internal limit. When the caller gives no page size it returns None and lets the API use its own default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "\"zia\": {\"default\": 500, \"max\": 10000},",
+            "validated_size = min(max(int(page_size), min_page_size), max_page_size)",
+            "No page size provided - letting API use its default",
+            "logger.debug(\"No page size provided - letting API use its default\") return None",
+            "self._limit = self.validate_page_size(raw_page_size, service_type)"
+          ]
+        }
+      ]
+    },
+    "has-next-zia": {
+      "statement": "For ZIA responses shaped as a paged object, `has_next()` is true after the first page whenever that page returned any results. On later pages it is true only when the last page filled the page-size limit, or, with no explicit limit, whenever the last page returned any results, which the code says can cost one extra empty request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "First page - continue if we got any results",
+            "If user provided limit, only continue if last page was \"full\"",
+            "This may result in one extra empty API call, but respects API defaults",
+            "# For ZIA/ZCC with paginated responses (dict with \"list\" field):",
+            "has_next = len(self._list) >= self._limit",
+            "# No explicit limit set - assume more pages exist if we got results"
+          ]
+        }
+      ]
+    },
+    "flat-list-complete": {
+      "statement": "A ZIA response that is a flat list with no paging metadata is treated as complete: `has_next()` returns False for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "def has_next(self) -> bool:",
+            "return self._has_next()",
+            "def _has_next(self) -> bool:",
+            "This handles ZIA endpoints that return all results in a single response",
+            "if self._is_flat_list_response:",
+            "if self._is_flat_list_response: logger.debug(\"Has next page: False (flat list response - all results returned in single response)\") return False"
+          ]
+        }
+      ]
+    },
+    "client-side-search": {
+      "statement": "In list calls such as sandbox rules and URL categories the Python SDK removes `search` from the query parameters before the request, then filters the returned objects by a case-insensitive substring match on `name` (`configured_name` for URL categories).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox_rules.py",
+          "quotes": [
+            "local_search = query_params.pop(\"search\", None)",
+            "results = [r for r in results if lower_search in (r.name.lower() if r.name else \"\")]",
+            "lower_search = local_search.lower()"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_categories.py",
+          "quotes": [
+            "local_search = query_params.pop(\"search\", None)",
+            "lower_search = local_search.lower() results = [r for r in results if lower_search in (r.configured_name.lower() if r.configured_name else \"\")]"
+          ]
+        }
+      ]
+    },
+    "client-search-page-only": {
+      "statement": "A `search` through these list calls matches only the objects on the page the API returned, so an object on a later page is not found by it.",
+      "tier": "B",
+      "derived_from": [
+        "client-side-search",
+        "zia.sdk-python.pagination:first-page-only"
+      ],
+      "conditions": "Applies when the endpoint pages its results and the named object is not on the requested page; endpoints that return a flat list are unaffected."
+    },
+    "enabled-to-state": {
+      "statement": "The Python rule modules for sandbox, URL filtering and SSL inspection rules convert an `enabled` keyword on create and update into `state`, ENABLED for true and DISABLED for false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox_rules.py",
+          "quotes": [
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ],
+          "after": "def add_rule("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ],
+          "after": "def add_rule(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ssl_inspection_rules.py",
+          "quotes": [
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ],
+          "after": "def add_rule("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox_rules.py",
+          "quotes": [
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ],
+          "after": "def update_rule(self, rule_id: int, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ],
+          "after": "def update_rule(self, rule_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ssl_inspection_rules.py",
+          "quotes": [
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ],
+          "after": "def update_rule(self, rule_id: int, **kwargs)"
+        }
+      ]
+    },
+    "id-list-reshape": {
+      "statement": "`transform_common_id_fields` pops each listed snake_case key from the request body and rewrites its list of IDs as a list of `{\"id\": ...}` objects under the wire key, by default coercing numeric strings to integers. The shared list `reformat_params` names keys such as `users`, `groups` and `labels`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "def transform_common_id_fields(id_groups: list, source_dict: dict, target_dict: dict, coerce_ids: bool = True):",
+            "id_groups: List of ``(snake_case_key, wire_key)`` tuples to remap.",
+            "convert that list/dict to the final ``{\"id\": ...}`` structure,",
+            "store the result in ``target_dict[payload_key]``.",
+            "coerce_ids: If ``True`` (default), numeric-looking string IDs are coerced to ``int`` to match ZIA/ZTW APIs that strictly require",
+            "final_list.append({\"id\": _maybe_coerce(item)})",
+            "for key, payload_key in id_groups: if key in source_dict: value = source_dict.pop(key)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "reformat_params = [",
+          "quotes": [
+            "(\"users\", \"users\"),",
+            "(\"groups\", \"groups\"),",
+            "(\"labels\", \"labels\"),"
+          ]
+        }
+      ]
+    },
+    "bulk-delete-limit": {
+      "statement": "The Python `bulk_delete_locations` and `bulk_delete_vpn_credentials` calls refuse a list of more than 100 IDs by returning a ValueError in the error slot instead of sending part of it. Up to v1.11.2 that slot was the second element of a 2-tuple; from v1.11.3 it is the third element of the (result, response, error) tuple.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/locations.py",
+          "quotes": [
+            "def bulk_delete_locations(",
+            "Maximum 100 location IDs allowed per bulk delete request",
+            "if len(location_ids) > 100: return (None, ValueError(\"Maximum 100 location IDs allowed per bulk delete request\"))"
+          ],
+          "at": [
+            "v1.0.0",
+            "v1.11.2"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/traffic_vpn_credentials.py",
+          "quotes": [
+            "def bulk_delete_vpn_credentials(",
+            "Maximum 100 credential IDs allowed per bulk delete request",
+            "if len(credential_ids) > 100: return (None, ValueError(\"Maximum 100 credential IDs allowed per bulk delete request\"))"
+          ],
+          "at": [
+            "v1.0.0",
+            "v1.11.2"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/locations.py",
+          "quotes": [
+            "def bulk_delete_locations(self, location_ids: List[int]) -> APIResult[None]:",
+            "Maximum 100 location IDs allowed per bulk delete request",
+            "if len(location_ids) > 100: return (None, None, ValueError(\"Maximum 100 location IDs allowed per bulk delete request\"))"
+          ],
+          "at": [
+            "v1.11.3"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/traffic_vpn_credentials.py",
+          "quotes": [
+            "def bulk_delete_vpn_credentials(self, credential_ids: list) -> APIResult[dict]:",
+            "Maximum 100 credential IDs allowed per bulk delete request",
+            "if len(credential_ids) > 100: return (None, None, ValueError(\"Maximum 100 credential IDs allowed per bulk delete request\"))"
+          ],
+          "at": [
+            "v1.11.3"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZIA `bulk_delete_locations`, `bulk_delete_vpn_credentials`, `outbound_email_dlp_rules.get_actions`, `policy_export` and ZPA `get_microtenant_summary` plus seven ZPA `delete_*` functions to always return the documented `(result, response, error)` tuple."
+          ],
+          "after": "## 1.11.3 (October 13 2026)",
+          "at": [
+            "v1.11.3"
+          ]
+        }
+      ],
+      "conditions": "Every release in the range, not only its ends: for each of the 93 v1 tags from v1.0.0 through v1.11.2, `git show <tag>:zscaler/zia/locations.py` and `git show <tag>:zscaler/zia/traffic_vpn_credentials.py` each contain the 2-tuple `return (None, ValueError(\"Maximum 100 ... allowed per bulk delete request\"))` once; at v1.11.3 neither does.",
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in Python SDK v1.11.3 (PR 602, issue 598): the function returns the documented (result, response, error) tuple."
+        }
+      ]
+    },
+    "url-lookup-chunks": {
+      "statement": "`url_categories.lookup` sends the URLs to `/urlLookup` in chunks of 100, sleeps one second after each chunk, and returns a (results, error) pair rather than the usual three-element tuple.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_categories.py",
+          "quotes": [
+            ">>> results, error = client.zia.url_categories.lookup(",
+            "/urlLookup",
+            "for chunk in chunker(urls, 100):",
+            "results.extend(response.get_results()) time.sleep(1)",
+            "return results, None"
+          ],
+          "after": "def lookup(self, urls: list) -> list:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/types.py",
+          "quotes": [
+            "APIResult = Tuple[T, ZscalerAPIResponse, Optional[Exception]]"
+          ]
+        }
+      ]
+    },
+    "camel-case-body": {
+      "statement": "In the executor's `_prepare_body`, a dictionary request body for an endpoint that is not a ZDX, ZEASM, ZTB or ZCC one takes the generic path: its keys are camel-cased, except that keys inside `featurePermissions` are left as they are. The conversion maps keys listed in an exceptions table and otherwise lower-cases the first segment of a snake_case key and capitalizes each later segment; a key with no underscore is returned unchanged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "def _prepare_body(self, endpoint, body): if not isinstance(body, dict): return body",
+            "# Preserve existing logic for other services if body: body = convert_keys_to_camel_case(body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "if not string or \"_\" not in string: return string",
+            "converted.append(comp.capitalize())",
+            "\"enable_poe_prompt\": \"enablePOEPrompt\",",
+            "if k == \"featurePermissions\" and isinstance(v, dict): result[k] = v # Don't convert the keys inside featurePermissions",
+            "if string in FIELD_EXCEPTIONS: return FIELD_EXCEPTIONS[string] if not string or \"_\" not in string:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "# Special handling for ZDX endpoints - keep snake_case format",
+            "# Special handling for ZEASM endpoints - keep snake_case format",
+            "# Special handling for ZTB endpoints - keep snake_case format",
+            "# Special handling for ZCC service - use selective conversion"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def to_lower_camel_case(string):",
+          "quotes": [
+            "lower = comp.lower() if i == 0: converted.append(lower)"
+          ]
+        }
+      ]
+    },
+    "zia-body-camel-cased": {
+      "statement": "A ZIA request body takes that default branch, so its keys are camel-cased before sending.",
+      "tier": "B",
+      "derived_from": [
+        "camel-case-body"
+      ],
+      "conditions": "ZIA endpoints contain none of the four path markers and the legacy-client exceptions name only ZDX and ZTB; the SDK does not name ZIA in this branch."
+    },
+    "url-settings-model-eight-flags": {
+      "statement": "The Python typed model for the advanced URL filtering and cloud app settings reads and emits eight Gen AI prompt flags: ChatGPT, Microsoft Copilot, Gemini, Poe, Meta, Perplexity, Google AI and QuillBot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/url_filter_cloud_app_settings.py",
+          "quotes": [
+            "class AdvancedUrlFilterAndCloudAppSettings(ZscalerObject):",
+            "\"enableChatGptPrompt\": self.enable_chat_gpt_prompt,",
+            "\"enableMicrosoftCoPilotPrompt\": self.enable_microsoft_copilot_prompt,",
+            "\"enableGeminiPrompt\": self.enable_gemini_prompt,",
+            "\"enablePOEPrompt\": self.enable_poe_prompt,",
+            "\"enableMetaPrompt\": self.enable_meta_prompt,",
+            "\"enablePerPlexityPrompt\": self.enable_perplexity_prompt,",
+            "\"enableGoogleAIPrompt\": self.enable_google_ai_prompt,",
+            "\"enableQuillbotAIPrompt\": self.enable_quillbot_ai_prompt,",
+            "self.enable_chat_gpt_prompt = config[\"enableChatGptPrompt\"] if \"enableChatGptPrompt\" in config else False",
+            "self.enable_microsoft_copilot_prompt = ( config[\"enableMicrosoftCoPilotPrompt\"] if \"enableMicrosoftCoPilotPrompt\" in config else False",
+            "self.enable_gemini_prompt = config[\"enableGeminiPrompt\"] if \"enableGeminiPrompt\" in config else False",
+            "self.enable_poe_prompt = config[\"enablePOEPrompt\"] if \"enablePOEPrompt\" in config else False",
+            "self.enable_meta_prompt = config[\"enableMetaPrompt\"] if \"enableMetaPrompt\" in config else False",
+            "self.enable_perplexity_prompt = config[\"enablePerPlexityPrompt\"] if \"enablePerPlexityPrompt\" in config else False",
+            "self.enable_google_ai_prompt = config[\"enableGoogleAIPrompt\"] if \"enableGoogleAIPrompt\" in config else False",
+            "self.enable_quillbot_ai_prompt = config[\"enableQuillbotAIPrompt\"] if \"enableQuillbotAIPrompt\" in config else False"
+          ]
+        }
+      ],
+      "conditions": "Absence claim (no other prompt flag): `grep -o '\"enable[A-Za-z]*Prompt\"' zscaler/zia/models/url_filter_cloud_app_settings.py | sort -u` at v1.11.3-1-g4f8f54df returns exactly the eight keys quoted (enableChatGptPrompt, enableMicrosoftCoPilotPrompt, enableGeminiPrompt, enablePOEPrompt, enableMetaPrompt, enablePerPlexityPrompt, enableGoogleAIPrompt, enableQuillbotAIPrompt), and a case-insensitive grep for any quoted key containing `prompt` returns the same eight."
+    },
+    "mistral-key-casing": {
+      "statement": "A snake_case keyword `enable_mistral_ai_prompt` passed to the Python settings update becomes `enableMistralAiPrompt`, not the Go SDK's wire name `enableMistralAIPrompt`; the exact key `enableMistralAIPrompt` passes through unchanged.",
+      "tier": "B",
+      "derived_from": [
+        "camel-case-body",
+        "zia-body-camel-cased"
+      ],
+      "conditions": "Holds because the Python exceptions table has no Mistral entry (a search of helpers.py at the pin finds none) and the generic branch capitalizes each later segment; the Go field tag is the evidence for the wire name.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "EnableMistralAIPrompt bool `json:\"enableMistralAIPrompt\"`"
+          ]
+        }
+      ]
+    },
+    "enabled-to-state-more-modules": {
+      "statement": "The same `enabled` to `state` conversion on create is also in the Python bandwidth control, cloud firewall filtering, firewall DNS, firewall IPS, forwarding control, file type control, web DLP rule and CASB DLP rule modules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/bandwidth_control_rules.py",
+          "after": "def add_rule(",
+          "quotes": [
+            "if \"enabled\" in body:",
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall_rules.py",
+          "after": "def add_rule(",
+          "quotes": [
+            "if \"enabled\" in body:",
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall_dns.py",
+          "after": "def add_rule(",
+          "quotes": [
+            "if \"enabled\" in body:",
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall_ips.py",
+          "after": "def add_rule(",
+          "quotes": [
+            "if \"enabled\" in body:",
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/forwarding_control.py",
+          "after": "def add_rule(",
+          "quotes": [
+            "if \"enabled\" in body:",
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/file_type_control_rule.py",
+          "after": "def add_rule(",
+          "quotes": [
+            "if \"enabled\" in body:",
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_web_rules.py",
+          "after": "def add_rule(",
+          "quotes": [
+            "if \"enabled\" in body:",
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/casb_dlp_rules.py",
+          "quotes": [
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ],
+          "after": "def add_rule(self, **kwargs) -> APIResult[dict]:"
+        }
+      ]
+    },
+    "client-search-more-modules": {
+      "statement": "The admin role, bandwidth class and bandwidth control rule list calls also remove `search` from the query parameters before the request and then keep only the returned objects whose lower-cased name contains the lower-cased search string.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_roles.py",
+          "after": "def list_roles(",
+          "quotes": [
+            "local_search = query_params.pop(\"search\", None)",
+            "results = [role for role in results if lower_search in (role.name.lower() if role.name else \"\")]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/bandwidth_classes.py",
+          "after": "def list_classes(",
+          "quotes": [
+            "local_search = query_params.pop(\"search\", None)",
+            "results = [r for r in results if lower_search in (r.name.lower() if r.name else \"\")]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/bandwidth_control_rules.py",
+          "after": "def list_rules(",
+          "quotes": [
+            "local_search = query_params.pop(\"search\", None)",
+            "lower_search = local_search.lower()",
+            "results = [r for r in results if lower_search in (r.name.lower() if r.name else \"\")]"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "page-size-caps": {
+      "kind": "data",
+      "title": "Maximum page size each ZIA list endpoint accepts",
+      "status": "open",
+      "blocks": "choosing a page size for a complete read through the Python SDK",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ],
+      "detail": "Unverified legacy statement: the default page size is 100 for most endpoints and the maximum is 1000 for locations, GRE tunnels and VPN credentials and 10000 for users. The SDK only clamps to 10000 (claim page-size-validation); what each endpoint accepts is server behavior, and the legacy catalog also says many endpoints take no page or page_size at all."
+    }
+  }
+}

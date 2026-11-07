@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.ipv6-prefixes",
+  "title": "NAT64 and DNS64 prefixes: custom prefixes, selection order and limits",
+  "aliases": [
+    "NAT64 prefix",
+    "DNS64 prefix",
+    "well-known prefix",
+    "NAT64 Prefixes"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipv6"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.dns-resolution"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{nat64-prefix}} {{dns64-prefix}} How the service uses them when it connects to the destination is in [[zia.traffic-forwarding.ipv6]]."
+    },
+    {
+      "label": "When they apply.",
+      "text": "{{transparent-only}} {{when-to-configure}}"
+    },
+    {
+      "label": "Writing a prefix.",
+      "text": "{{nat64-fields}} The well-known prefix is written two ways in the pages {{divergence:well-known-prefix-spelling}}."
+    },
+    {
+      "label": "Limits and overrides.",
+      "text": "{{limits}} {{location-override}} {{delete-and-view-only}}"
+    },
+    {
+      "label": "Which DNS64 prefix is used.",
+      "text": "{{selection-order}} What the Client Connector-shared prefix is, and the default prefix per cloud, are open {{gap:default-prefix-values}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a prefix copied from the Configuring IPv6 Settings or About the DNS64 Prefix introductory sentence is the well-known prefix, since those sentences spell it differently from the field description.",
+      "uses": [
+        "well-known-prefix-spelling"
+      ]
+    },
+    {
+      "do": "Whether DNS traffic is forwarded to Zscaler, which decides whether both NAT64 and DNS64 prefixes must be configured.",
+      "uses": [
+        "when-to-configure"
+      ]
+    }
+  ],
+  "claims": {
+    "nat64-prefix": {
+      "statement": "A NAT64 prefix is used in the algorithmic translation of a synthetic IPv6 address to an IPv4 address: the service matches the prefixes against the destination address prefix in inbound IPv6 packets and derives the IPv4 address of the destination server. The service provides a default NAT64 prefix, supports the well-known prefix, and allows network-specific prefixes to be added in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-nat64-prefixes.json",
+          "quotes": [
+            "A NAT64 prefix is used in the algorithmic translation of a synthetic IPv6 address to an IPv4 address.",
+            "The Zscaler service provides a default NAT64 prefix, supports the well-known prefix (64:ff9b::/96), and also allows you to add your network-specific prefixes to the Zscaler Admin Console.",
+            "During the NAT64 mechanism, these prefixes are used to match against the destination address prefix in the inbound IPv6 packets and derive an IPv4 address for the destination server."
+          ]
+        }
+      ]
+    },
+    "dns64-prefix": {
+      "statement": "The DNS64 prefix is an IPv6 address prefix that Zscaler's DNS64 mechanism uses to synthesize AAAA records from A records returned to servers reachable over IPv4. One of the configured NAT64 prefixes can be designated as the organization's DNS64 prefix, and individual locations can have their own DNS64 prefix that overrides the global one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns64-prefix.json",
+          "quotes": [
+            "The DNS64 prefix is an IPv6 address prefix used by Zscaler's purpose-built DNS64 mechanism to synthesize AAAA records from A records returned to servers that can be reached via IPv4.",
+            "You can designate one of the configured NAT64 prefixes as the DNS64 prefix for your organization. You can also configure a DNS64 prefix for individual locations and override the global DNS64 prefix for those locations."
+          ]
+        }
+      ]
+    },
+    "transparent-only": {
+      "statement": "Traffic forwarded in transparent proxy mode, through GRE or IPSec tunnels or Client Connector Tunnel 2.0, can use Zscaler's DNS64/NAT64 mechanism to connect IPv6 clients to IPv4 destinations. The mechanism uses the well-known prefix and Zscaler's default NAT64 and DNS64 prefixes without any additional configuration by the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "If you are forwarding your organization's traffic using transparent proxy mode (via GRE/IPSec tunnels or using Zscaler Client Connector Tunnel 2.0), you can leverage Zscaler’s customized DNS64/NAT64 mechanisms to establish connections between IPv6 clients and IPv4 destinations."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "The Zscaler service uses the well-known prefix and its default NAT64 and DNS64 prefixes for the DNS64/NAT64 mechanism and organizations do not require any additional configuration."
+          ]
+        }
+      ]
+    },
+    "when-to-configure": {
+      "statement": "If DNS traffic is forwarded to the Zscaler service, custom NAT64 and DNS64 prefixes can be configured globally or per location, and both must be configured because they are interdependent. If DNS traffic is not forwarded and an external service performs DNS64, no DNS64 prefix is needed, globally or per location, though NAT64 prefixes can still be configured to match inbound traffic for translation by the service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "If you are forwarding your organization's DNS traffic to the Zscaler service, you can configure custom NAT64 and DNS64 prefixes either globally or per location. In this case, you must configure both DNS64 and NAT64 prefixes as they are interdependent.",
+            "If you are not forwarding your DNS traffic to the Zscaler service and are using an external service to perform DNS64, you do not need to configure a DNS64 prefix (globally or per location).",
+            "However, you can still configure NAT64 prefixes to match the inbound traffic and perform the appropriate network address translation using the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "An organization can have at most 128 NAT64 prefixes and only one global DNS64 prefix. Global and location-specific DNS64 prefixes are both selected from the list of NAT64 prefixes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "Both global and location-specific DNS64 prefixes are selected from the list of NAT64 prefixes (maximum limit of 128)",
+            "You can add a maximum of 128 NAT64 prefixes for your organization.",
+            "Only one global DNS64 prefix is allowed per organization."
+          ]
+        }
+      ]
+    },
+    "location-override": {
+      "statement": "A location-specific DNS64 prefix overrides the global prefix for that location; if no prefix is selected, the global prefix is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "When configured, the location-specific prefix overrides the global prefix for a given location.",
+            "If no prefix is selected, the global prefix is used."
+          ]
+        }
+      ]
+    },
+    "delete-and-view-only": {
+      "statement": "A NAT64 prefix designated as the DNS64 prefix cannot be deleted, and the DNS64 prefix itself cannot be deleted, only changed by designating a different NAT64 prefix. When IPv6 support is disabled, both the NAT64 prefixes and the DNS64 prefix are view-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "A NAT64 prefix that is designated as the DNS64 prefix cannot be deleted.",
+            "The DNS64 prefix cannot be deleted. However, you can modify it by designating a different NAT64 prefix as the DNS64 prefix.",
+            "When IPv6 support is disabled, the NAT64 prefixes are in view-only mode and no action can be performed.",
+            "When IPv6 support is disabled, the DNS64 prefix is in view-only mode and no action can be performed."
+          ]
+        }
+      ]
+    },
+    "nat64-fields": {
+      "statement": "A NAT64 prefix is entered as the well-known NAT64 prefix or a network-specific prefix, with a subnet mask selected for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "NAT Prefix: Enter the well-known prefix for NAT64 (64:ff9b::/96) or a network-specific prefix.",
+            "Mask: Select a subnet mask for the NAT64 prefix."
+          ]
+        }
+      ]
+    },
+    "selection-order": {
+      "statement": "The service selects the DNS64 prefix in this order: the Client Connector-shared prefix, the prefix configured for the location in the Admin Console, the prefix configured for the organization, Zscaler's default prefix for the cloud the organization is provisioned on, then the well-known NAT64 prefix.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns64-prefix.json",
+          "quotes": [
+            "DNS64 prefix selection by Zscaler from the prefixes available at different sources follows a specific order, as explained in the following list:",
+            "Zscaler Client Connector-Shared Prefix",
+            "Customer-configured prefix for a location in the Zscaler Admin Console",
+            "Customer-configured prefix for an organization in the Zscaler Admin Console",
+            "Zscaler's default prefix for the cloud on which your organization is provisioned",
+            "Well-known prefix for NAT64 (64:ff9b::/96)"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "well-known-prefix-spelling": {
+      "summary": "The well-known NAT64 prefix is written 64:ff:9b::/96 in the introductory sentences of two pages and 64:ff9b::/96 in their field descriptions and in the About NAT64 Prefixes page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-ipv6-settings.json",
+            "quotes": [
+              "Zscaler facilitates this mechanism with its own default IPv6 prefixes and the well-known prefix (64:ff:9b::/96)"
+            ]
+          },
+          "says": "The Configuring IPv6 Settings introduction writes the well-known prefix as 64:ff:9b::/96."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-dns64-prefix.json",
+            "quotes": [
+              "Zscaler facilitates the DNS64 mechanism with its own default IPv6 prefix and the well-known prefix (64:ff:9b::/96)"
+            ]
+          },
+          "says": "The About the DNS64 Prefix introduction writes the well-known prefix as 64:ff:9b::/96."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-ipv6-settings.json",
+            "quotes": [
+              "NAT Prefix: Enter the well-known prefix for NAT64 (64:ff9b::/96) or a network-specific prefix."
+            ]
+          },
+          "says": "The same page's NAT Prefix field writes it as 64:ff9b::/96."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-nat64-prefixes.json",
+            "quotes": [
+              "The Zscaler service provides a default NAT64 prefix, supports the well-known prefix (64:ff9b::/96), and also allows you to add your network-specific prefixes to the Zscaler Admin Console."
+            ]
+          },
+          "says": "The About NAT64 Prefixes page writes it as 64:ff9b::/96."
+        }
+      ],
+      "impact": "64:ff:9b::/96 is a different address from 64:ff9b::/96, so a prefix copied from the introductory sentences would not match the well-known prefix; the pages do not say which spelling is intended."
+    }
+  },
+  "gaps": {
+    "default-prefix-values": {
+      "kind": "semantic",
+      "title": "The Client Connector-shared prefix, Zscaler's default prefix per cloud and the mask choices",
+      "status": "open",
+      "detail": "The selection order lists a Zscaler Client Connector-Shared Prefix and Zscaler's default prefix for the cloud, and the NAT64 form has a Mask drop-down. The captured pages do not say what the shared prefix is, what the default prefix is for a cloud, or which subnet masks can be chosen. The OpenAPI /ipv6config/nat64prefix and /ipv6config/dns64prefix paths were not read for this subject.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

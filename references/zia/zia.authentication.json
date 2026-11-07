@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication",
+  "title": "ZIA authentication: how a request gets a user identity",
+  "aliases": [
+    "authentication policy",
+    "zia authentication",
+    "authentication settings",
+    "who is this user",
+    "unauthenticated user",
+    "login flow",
+    "authentication gate"
+  ],
+  "binds": [
+    "zia/auth-settings"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.rule-scoping",
+      "because": "zia.locations.rule-scoping:authentication-is-a-location-setting"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering",
+      "because": "zia.authentication.unauthenticated-traffic:logged-in-user-misses-user-rule"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ad-integration.provisioning-methods",
+      "because": "zia.ad-integration.provisioning-methods:auth-pairing"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/auth-settings"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.ad-integration.terraform"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.terraform.multi-step-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.frequency"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.location-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.unauthenticated-traffic"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.surrogate-ip"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.exemptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.step-up"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.error-codes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.kerberos"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.identity-providers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.idp-integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.saml-troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.identity-proxy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Why did a user rule not match?\" and \"why is this traffic attributed to the wrong user?\" both come down to whether the request carried an identity, and how. Walk it in order."
+    },
+    {
+      "steps": [
+        {
+          "label": "Is authentication required where the traffic arrives?",
+          "text": "It is a per-location, per-sublocation switch, with the per-location methods hanging off it: [[zia.authentication.location-enforcement]]."
+        },
+        {
+          "label": "How does the request prove who it is?",
+          "text": "Cookie after a SAML login, a Kerberos ticket, or a mapping from the source IP: [[zia.authentication.methods]], [[zia.authentication.surrogate-ip]]. Kerberos deployment and trust: [[zia.authentication.kerberos]]. The SAML IdP object and per-vendor guides: [[zia.authentication.identity-providers]], [[zia.authentication.idp-integrations]]; SAML login failures: [[zia.authentication.saml-troubleshooting]]; the Identity Proxy: [[zia.authentication.identity-proxy]]."
+        },
+        {
+          "label": "How long does that proof last?",
+          "text": "[[zia.authentication.frequency]], with the organization-wide object that holds it in [[zia.authentication.settings]]."
+        },
+        {
+          "label": "What happens to traffic with no identity?",
+          "text": "It is judged as the location, and some traffic can never carry a cookie: [[zia.authentication.unauthenticated-traffic]]. Destinations that skip the challenge entirely are in [[zia.authentication.exemptions]]."
+        },
+        {
+          "label": "Does a resource need a stronger login than the session has?",
+          "text": "That is step-up authentication, owned by ZIdentity: [[zia.authentication.step-up]]."
+        }
+      ]
+    },
+    {
+      "text": "Policy rules scoped by user, group or department are evaluated against whatever identity the steps above produced, so a rule that \"should\" match but does not is usually an identity problem upstream of the rule: see [[zia.url-filtering]] for how rules are then evaluated. Location and sublocation definitions themselves are in [[zia.locations]]; where the authentication gate sits relative to other modules is in `references/shared/policy-evaluation.md`."
+    },
+    {
+      "text": "A code shown on a failed login is looked up by kind: generic, directory and Kerberos codes in [[zia.authentication.error-codes]], SAML codes in [[zia.authentication.saml-troubleshooting]], and Identity Proxy codes in [[zia.authentication.identity-proxy]]. Writing these settings through Terraform has traps of its own, including the exempted-URL list and user enrollment: [[zia.terraform.multi-step-writes]]."
+    }
+  ]
+}

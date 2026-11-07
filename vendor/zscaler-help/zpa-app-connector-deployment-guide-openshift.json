@@ -1,0 +1,938 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "App Connector Deployment Guide for OpenShift",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/app-connector-deployment-guide-openshift",
+    "node": "1485886",
+    "revision": "3247264",
+    "updated": "2026-09-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy an App Connector on OpenShift, and post-deployment verification checks. For general information regarding App Connector deployment for Private Access, see About Deploying App Connectors."
+    },
+    {
+      "item": "Step 1: Make Sure You Have Met All App Connector Deployment Prerequisites",
+      "depth": 0
+    },
+    {
+      "item": "Before deploying an App Connector on any supported platform, Zscaler highly recommends reading the following information and making the necessary changes to your organization's environment, where applicable.",
+      "depth": 0
+    },
+    {
+      "item": "App Connector Specifications and Sizing Requirements",
+      "depth": 1
+    },
+    {
+      "item": "App Connector Platform Prerequisites",
+      "depth": 1
+    },
+    {
+      "item": "App Connector Security Guidance and Firewall Requirements",
+      "depth": 1
+    },
+    {
+      "item": "After you have met all the prerequisites, you can deploy the App Connector on a supported platform.",
+      "depth": 0
+    },
+    {
+      "item": "The following specifications are recommended by Zscaler for each App Connector:",
+      "depth": 0
+    },
+    {
+      "item": "Memory: 4 GB RAM",
+      "depth": 1
+    },
+    {
+      "item": "For Digital Experience (ZDX) deployments, Zscaler recommends App Connectors to have 8 GB of RAM. If the ZDX probes exceed a count of 2,000 at an interval of 5 minutes, further scaling should be considered. If alerts are observed that exceed a configured bandwidth of 250 Mbps on each App Connector, further scaling of 32 GB of RAM should be considered.",
+      "depth": 0
+    },
+    {
+      "item": "CPU:",
+      "depth": 1
+    },
+    {
+      "item": "2 CPU cores (Xeon E5 class) for physical machines without hyperthreading",
+      "depth": 2
+    },
+    {
+      "item": "4 CPU cores (Xeon E5 class) for virtual machines (VMs) with hyperthreading",
+      "depth": 2
+    },
+    {
+      "item": "Both Amazon Web Services (AWS) and Google Cloud Platform (GCP) require a minimum of 4 CPU cores due to hyperthreading.",
+      "depth": 3
+    },
+    {
+      "item": "To deploy an App Connector on AWS, Zscaler recommends using t3.xlarge (for non-production or low traffic App Connectors) or m5a.xlarge (for production or high traffic App Connectors).",
+      "depth": 4
+    },
+    {
+      "item": "To deploy an App Connector on GCP, Zscaler recommends using a Linux RPM on n2-standard-4 or n2-highcpu-4.",
+      "depth": 4
+    },
+    {
+      "item": "Azure VMs older than V3 require 2 CPU cores, while VMs V3 and later require 4 CPU cores due to hyperthreading.",
+      "depth": 3
+    },
+    {
+      "item": "To deploy an App Connector on Azure, Zscaler recommends using Standard_D4s_v4 or Standard_D4s_v5 or later.",
+      "depth": 4
+    },
+    {
+      "item": "To enable AppProtection using the default AppProtection profile provided by Zscaler, we recommend that your App Connectors have at least 8 CPU cores and 8 GB of memory. Ensure that your App Connectors are less than 40% for peak memory utilization and peak CPU utilization. If your CPU or memory utilization is above the suggested maximum, you need to add App Connectors to reach the maximum peak of 40% CPU and memory without AppProtection enabled. This rule also applies if you are using a smaller VM (4 CPUs, 4 GB). Your App Connector throughput might be 100 to 200 Mbps depending on App Connector sizing when using AppProtection. Monitor your App Connectors by going to the App Connector dashboard.",
+      "depth": 0
+    },
+    {
+      "item": "The AppProtection recommendations are based on a mix of web traffic, 85% GET requests, and 15% POST and payload and response sizes of 32 KB. Smaller payload and response sizes might require less App Connector resources and result in higher throughput.",
+      "depth": 0
+    },
+    {
+      "item": "For ZDX deployments, Zscaler recommends App Connectors to have 4 CPU cores.",
+      "depth": 0
+    },
+    {
+      "item": "Using the PassMark Software Pty Ltd benchmark to verify the CPU Mark score, Zscaler recommends using a minimum CPU benchmark score of 2640 when choosing a CPU processor. The Intel Advanced Encryption Standard New Instructions (AES-NI) instruction set must also be enabled on the CPU processor.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see the App Connector Deployment Guide for your platform.",
+      "depth": 0
+    },
+    {
+      "item": "Disk Space: 64 GB (thin provisioned) for all deployment platforms",
+      "depth": 1
+    },
+    {
+      "item": "Network Card: 1 NIC (minimum)",
+      "depth": 1
+    },
+    {
+      "item": "For VMware platform deployment, the default configuration to allow the host to dynamically allocate VM resources is not recommended. Configure the VM setting to reserve the following memory and CPU allocations:",
+      "depth": 0
+    },
+    {
+      "item": "Memory: 8 GB RAM",
+      "depth": 1
+    },
+    {
+      "item": "CPU: total CPU GHz (the number of cores (2 or 4 cores) multiplied by the GHz per core)",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, refer to the VMware documentation.",
+      "depth": 0
+    },
+    {
+      "item": "For Microsoft Hyper-V deployment, ensure that you have the following:",
+      "depth": 0
+    },
+    {
+      "item": "Physical server with Windows Server 2025 Standard or Datacenter Edition OS virtualization support",
+      "depth": 1
+    },
+    {
+      "item": "Intel VT-x or AMD-V hardware virtualization support",
+      "depth": 1
+    },
+    {
+      "item": "Second Level Address Translation (SLAT) support",
+      "depth": 1
+    },
+    {
+      "item": "Minimum 16 GB RAM (recommended based on VM workload requirements)",
+      "depth": 1
+    },
+    {
+      "item": "Sufficient local storage for Host OS and VM VHDX files",
+      "depth": 1
+    },
+    {
+      "item": "Using these specifications, each App Connector supports up to 500 Mbps of throughput. To learn more, see Understanding App Connector Throughput in this article. Based on Zscaler's recommendations, determine the App Connector sizing requirements for your deployment. If disk space fills up in the App Connector, Zscaler recommends archiving files and creating more log space. To learn more, see Monitoring App Connector Performance.",
+      "depth": 0
+    },
+    {
+      "item": "500 Mbps of throughput is an aggregate of multiple streams of traffic.",
+      "depth": 0
+    },
+    {
+      "item": "After an App Connector is enrolled, an outbound TLS tunnel over port 443 is established to the Private Access (ZPA) cloud infrastructure. This communication channel provides various functionality and utilizes minimal bandwidth, which includes the following traffic:",
+      "depth": 0
+    },
+    {
+      "item": "Periodic keepalives to Public Service Edges or Private Service Edges for Private Access",
+      "depth": 1
+    },
+    {
+      "item": "Application learning",
+      "depth": 1
+    },
+    {
+      "item": "Application health reporting",
+      "depth": 1
+    },
+    {
+      "item": "App Connector software upgrades (upgrades are completed based on a weekly schedule)",
+      "depth": 1
+    },
+    {
+      "item": "You can deploy additional App Connectors at any time, using the same provisioning key to add them to the existing App Connector Group, while ensuring network and internet connectivity. App Connectors are designed to scale elastically. You can deploy additional App Connectors in the same App Connector group to increase the total throughput as required by your deployment. Zscaler recommends you have a minimum of two healthy App Connectors to always ensure an available path. To learn more, see About Deploying App Connectors and Supported Platforms for App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "After deployment, ensure that the App Connector meets your sizing requirements.",
+      "depth": 0
+    },
+    {
+      "heading": "Understanding App Connector Throughput",
+      "level": 1
+    },
+    {
+      "item": "Throughput numbers are aggregate (i.e., total inbound and outbound). The following best practices apply regarding App Connector throughput sizing:",
+      "depth": 0
+    },
+    {
+      "item": "Check your existing VPN solution's average and peak throughput. Be sure to only account for user/client VPN traffic and not any site-to-site tunnel traffic.",
+      "depth": 1
+    },
+    {
+      "item": "App Connectors communicate over the provided (default) gateway, which is most likely your ISP WAN broadband connection.",
+      "depth": 1
+    },
+    {
+      "item": "Using double encryption affects throughput. However, the effect varies based on the number of applications that are enabled for double encryption.",
+      "depth": 1
+    },
+    {
+      "item": "If you have a 1 Gbps connection (aggregate) in your data center, you can use the throughput guidelines in the following table to make sure that you have enough App Connectors to support the connection and room for failover (N+1). For example, with a 1 Gbps connection, you would need to deploy 2 to 3 App Connectors if your applications are not using double encryption, but 4 to 6 App Connectors if they are. To learn more, see Understanding Double Encryption.",
+      "depth": 0
+    },
+    {
+      "item": "The following throughput guidelines apply based upon the recommended App Connector specifications:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "% of Applications with Double Encryption",
+          "Per App Connector Throughput"
+        ],
+        [
+          "0%",
+          "500 Mbps"
+        ],
+        [
+          "25%",
+          "437.5 Mbps"
+        ],
+        [
+          "50%",
+          "375 Mbps"
+        ],
+        [
+          "75%",
+          "312.5 Mbps"
+        ],
+        [
+          "100%",
+          "250 Mbps"
+        ]
+      ]
+    },
+    {
+      "item": "It is possible to increase App Connector throughput up to 1 Gbps per App Connector by running the App Connector on hardware with more memory and CPUs along with increased network link speed. If you have a 10 Gbps connection (aggregate) in your data center, and you want to increase the App Connector throughput up to 1 Gbps per App Connector, you can increase the underlying VM spec as follows:",
+      "depth": 0
+    },
+    {
+      "item": "8 vCPU cores for virtual machines or 4 CPU cores for physical machines",
+      "depth": 1
+    },
+    {
+      "item": "8 GB RAM",
+      "depth": 1
+    },
+    {
+      "item": "The exact throughput can vary and depends on other network factors such as your internal network setup, latency, and whether you have double encryption, App Protection, or ZDX enabled. Make sure that you have enough App Connectors to support the connection and room for failover (N+1).",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you have more App Connectors with lower specifications rather than fewer App Connectors with higher specifications to horizontally scale your deployment. For example, if you have fewer App Connectors with higher specifications and one fails, you could adversely affect more user application traffic or sessions than a smaller App Connector that fails.",
+      "depth": 0
+    },
+    {
+      "item": "Before you begin any procedures within the App Connector Deployment Guide for your platform, make sure that you have the following:",
+      "depth": 0
+    },
+    {
+      "item": "Intel x86_64/AMD64-based architecture",
+      "depth": 1
+    },
+    {
+      "item": "systemd",
+      "depth": 1
+    },
+    {
+      "item": "Root or sudo access to the system to configure a new package repository and install packages",
+      "depth": 1
+    },
+    {
+      "item": "DNS resolution and network access",
+      "depth": 1
+    },
+    {
+      "item": "For OAuth 2.0 enrollment, Manager software and App Connector version 25.46.3 or later",
+      "depth": 1
+    },
+    {
+      "item": "An OAuth 2.0 enrollment token obtained from a hyperscaler marketplace, virtual image, or RPM installer provided by Zscaler, or an App Connector provisioning key obtained from the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "The OAuth server only supports IPv4-based communication. If an App Connector only has an IPv6 address, it cannot access the OAuth server.",
+      "depth": 1
+    },
+    {
+      "item": "A static MAC address",
+      "depth": 1
+    },
+    {
+      "item": "The following table shows the recommended minimum disk space for directories:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Directory",
+          "Recommended Minimum Disk Space"
+        ],
+        [
+          "/",
+          "10 GB"
+        ],
+        [
+          "/tmp",
+          "10 GB"
+        ],
+        [
+          "/home",
+          "10 GB"
+        ],
+        [
+          "/var",
+          "5 GB"
+        ],
+        [
+          "/var/tmp",
+          "5 GB"
+        ],
+        [
+          "var/log",
+          "10 GB"
+        ],
+        [
+          "var/log/audit",
+          "10 GB"
+        ],
+        [
+          "/var/log partition",
+          "10 GB Disk Space Exceeded Limit notifications only consider the partition where the App Connector's binary file (image.bin) is located."
+        ]
+      ]
+    },
+    {
+      "item": "App Connectors can be deployed in different ways (as private cloud VMs, public cloud VMs, or OS packages), so the security features for each deployment type are slightly different.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends treating access to App Connectors as privileged, so only authorized personnel can access an App Connector's console. By limiting access, there is the added benefit of shielding inter-process communication within the App Connector from attack.",
+      "depth": 0
+    },
+    {
+      "heading": "Operating System Security",
+      "level": 1
+    },
+    {
+      "item": "The App Connector VMs distributed by Zscaler for use in private clouds are configured without any remotely accessible services running. Swap partitions are disabled on the App Connector VMs to ensure that memory growth does not have an impact on App Connector performance. For enhanced security, you must use the passwd command to change the credentials on the default admin account. To learn more, see the App Connector Deployment Guide for the platform you're using.",
+      "depth": 0
+    },
+    {
+      "item": "Private Access provides Security Technical Implementation Guide (STIG) VM images for AWS, GCP, Microsoft Azure, Nutanix, and VMware by default. To learn more, see App Connector Software by Platform. The remaining private and public cloud VM images provided by Zscaler are configured with minimal listening services to reduce the remotely exploitable attack surface. Because these are essentially unmodified operating systems (currently based on RHEL 9.x), you can patch these systems when necessary by using the standard yum OS update mechanism. Zscaler recommends that you harden the operating system, including the sshd-config file, on the VM images in accordance with your organization's security standards after initial deployment. To learn more, see Managing Deployed Software Components.",
+      "depth": 0
+    },
+    {
+      "item": "Because vulnerabilities are regularly found in core open-source components such as DNS resolvers and the Linux Kernel, Zscaler recommends either patching or using new Zscaler-distributed VM images on a regular basis, or protecting App Connectors using firewall policies. Additionally, if you've installed the App Connector as a package, Zscaler recommends that you take similar precautions.",
+      "depth": 0
+    },
+    {
+      "item": "Some organizations choose to firewall or otherwise restrict outbound traffic to the internet from the data center. It is possible to deploy an App Connector in such an environment as long as the App Connector is able to reach all Zscaler data centers containing Public Service Edges for Private Access. For firewall configuration information for your deployment, see config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "heading": "Firewall Requirements and Interoperability Guidelines",
+      "level": 1
+    },
+    {
+      "item": "All Zscaler data centers containing Public Service Edges for Private Access must be allowed. A partial firewall configuration can result in connectivity problems for end users. Zscaler’s policy is to provide a 90-day notice for activating additional IP CIDR ranges to provide organizations with sufficient opportunity for changing control policies.",
+      "depth": 0
+    },
+    {
+      "item": "Because the service enforces TLS certificate pinning for both client and server certificates, all forms of inline or man-in-the-middle TLS interception or inspection must be disabled. App Connectors do not function if the TLS certificates presented by the Public Service Edges or Private Service Edges do not cryptographically verify against Zscaler-trusted public keys.",
+      "depth": 0
+    },
+    {
+      "item": "By design, certificate verification is not configurable to maintain the integrity of the service. Ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the App Connector. This is necessary for allowing the App Connector to resolve and reach Public Service Edges or Private Service Edges. If you are using OAuth 2.0, ensure that the OAuth server FQDN zpa-oauth.private.zscaler.com is in the allowlist, and user devices are allowed to make an outbound connection to the zpa-oauth.private.zscaler.com server. If you need to allowlist additional Zscaler IP addresses, see config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "item": "For Private Access integration with ZDX, App Connector firewall requirements must align with the respective ZDX configuration. You must configure the firewall to allow egress traffic on the TCP, UDP, and ICMP protocols. App Connectors must be able to egress traffic to port 443 for Zscaler Service Edge connections and the ports of all configured applications (i.e., ports that are configured in all application segments that are registered on the App Connector).",
+      "depth": 0
+    },
+    {
+      "item": "Platform-Specific Prerequisites to Deploy an App Connector on OpenShift",
+      "depth": 1
+    },
+    {
+      "item": "The following are the platform-specific prerequisites to deploy an App Connector on OpenShift:",
+      "depth": 1
+    },
+    {
+      "item": "Helm 3",
+      "depth": 2
+    },
+    {
+      "item": "OpenShift 4.11 and later",
+      "depth": 2
+    },
+    {
+      "item": "Metrics Server",
+      "depth": 2
+    },
+    {
+      "item": "DNS resolution and network access",
+      "depth": 2
+    },
+    {
+      "item": "An App Connector provisioning key obtained from the Zscaler Admin Console",
+      "depth": 2
+    },
+    {
+      "item": "Kubeadmin access on default namespace",
+      "depth": 2
+    },
+    {
+      "item": "Intel x86_64-based architecture",
+      "depth": 2
+    },
+    {
+      "item": "The Docker image is only supported for x86 systems. The Docker image is not supported for arm64 systems. This process assumes you have full network access during the Helm installation to the Docker images hosted on https://hub.docker.com/u/zscaler. To learn more about the different Docker images available, refer to Docker Hub.",
+      "depth": 1
+    },
+    {
+      "item": "Resources and Limits for App Connector Deployment for OpenShift",
+      "depth": 1
+    },
+    {
+      "item": "Because vulnerabilities are regularly found in open-source core components such as DNS resolvers and the Linux kernel, Zscaler recommends:",
+      "depth": 1
+    },
+    {
+      "item": "Pointing the Helm Chart to the latest Docker tag and upgrading regularly.",
+      "depth": 2
+    },
+    {
+      "item": "Protecting App Connectors using firewall policies.",
+      "depth": 2
+    },
+    {
+      "item": "Some organizations choose to firewall or otherwise restrict outbound traffic to the internet from the data center. It is possible to deploy an App Connector in such an environment as long as the App Connector is able to reach all Zscaler data centers containing Public Service Edges for Private Access. To learn more, see firewall configuration information for your deployment and App Connector Security Guidance and Firewall Requirements.",
+      "depth": 1
+    },
+    {
+      "item": "To set custom resources for your deployments, refer to OpenShift Online Life Cycle - Red Hat Customer Portal and Resource Management for Pods and Containers.",
+      "depth": 1
+    },
+    {
+      "item": "CPU and Memory",
+      "depth": 2
+    },
+    {
+      "item": "A minimum of 2 cores and 4 GB RAM is recommended for each pod. CPU and memory are the only resources you can change. You typically only need to make these resource changes if the hosts don’t meet the minimum requirements and the pods fail to run.",
+      "depth": 2
+    },
+    {
+      "item": "The unit \"m\" is a fractional CPU unit that represents milliCPU in CPU measurement for Horizontal Pod Autoscaling in Kubernetes. A milliCPU is used to express CPU resources in thousandths of a CPU core. For example, 1000m is equivalent to one CPU core. When configuring resource requests and limits for containers in Kubernetes, CPU requests and limits can be specified using the \"m\" unit. For example, if a container requires 0.5 CPU cores, the CPU request would be 500m. Memory resources are defined in bytes. Normally you use Mebibyte (Mi) or Gibibyte (Gi) units.",
+      "depth": 2
+    },
+    {
+      "item": "The resources and limits are currently set as follows:",
+      "depth": 2
+    },
+    {
+      "item": "## @param zsglobal.resources section resources resources: ## @param zsglobal.resources.limits When you specify a resource limit for a container, it uses this to enforce limit on the running container. limits: memory: \"8000Mi\" cpu: \"8000m\" ## @param zsglobal.resources.requests When you specify a resource request for a container, it uses this to enforce where to schedule a pod with the minimum requirements. requests: memory: \"4000Mi\" cpu: \"2000m\"",
+      "depth": 2
+    },
+    {
+      "item": "Horizontal Pod Autoscaler",
+      "depth": 2
+    },
+    {
+      "item": "Horizontal Pod Autoscaler is supported per deployment based on CPU and memory metrics. The minimum recommended replicas for the App Connector is 2. The average utilization of 80% is used as a threshold for CPU/Memory usage in a Horizontal Pod Autoscaler deployment.",
+      "depth": 2
+    },
+    {
+      "item": "Limits on File Descriptors",
+      "depth": 2
+    },
+    {
+      "item": "The recommended resource limit (rlimit) on open files in the file descriptor for the App Connector application is 512K. OpenShift, by default, has a limit of 1,048,576. So you can run 2 pods on each node without changes to any settings. To deploy more pods, you need to change the ulimit configuration for the number of open files. Refer to the official Red Hat documentation for changing the ulimit configuration for the number of open files.",
+      "depth": 2
+    },
+    {
+      "item": "Step 2: Deploy the App Connector on OpenShift",
+      "depth": 0
+    },
+    {
+      "item": "You must install the App Connector Helm Chart in order to deploy an App Connector on OpenShift.",
+      "depth": 0
+    },
+    {
+      "item": "Get the Helm Chart",
+      "depth": 1
+    },
+    {
+      "item": "You can install a Helm Chart by adding the Helm Repository.",
+      "depth": 1
+    },
+    {
+      "item": "To add the zpa-app-connector Helm repository, use the following command:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "helm repo add zpa-helm-repo https://dist.private.zscaler.com/helm-charts \"zpa-helm-repo\" has been added to your repositories",
+      "depth": 1
+    },
+    {
+      "item": "To verify the Helm repository, use the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "helm repo list NAME URL zpa-helm-repo https://dist.private.zscaler.com/helm-charts",
+      "depth": 1
+    },
+    {
+      "item": "To list the available zpa-app-connector Helm Charts, use the following command:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "helm search repo zpa-helm-repo NAME CHART VERSION APP VERSION DESCRIPTION zpa-helm-repo/zpa-app-connector 0.1.0 25.50.4 A helm chart for deploying ZPA App Connector on...",
+      "depth": 1
+    },
+    {
+      "item": "Install the Helm Chart",
+      "depth": 1
+    },
+    {
+      "item": "After you have added the Helm repository, you can install the Helm Chart. To install the Helm Chart:",
+      "depth": 1
+    },
+    {
+      "item": "You can retrieve the provisioning key from the Zscaler Admin Console. To learn more, see About App Connector Provisioning Keys.",
+      "depth": 1
+    },
+    {
+      "item": "Go to the folder containing the Helm package and log in as kubeadmin.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "You should be on the default project when you log in as kubeadmin unless there was a change in settings. If you are not on the default project, use the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "oc project default",
+      "depth": 1
+    },
+    {
+      "item": "From the default namespace, install the Helm Chart by using the following commands:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "The domain (e.g., api.private.com) in the echo statement depends on what Private Access cloud you are on.",
+      "depth": 1
+    },
+    {
+      "item": "helm install [NAME] [CHART] [flags] helm install [NAME] --set zsglobal.provisionkey.value=\"<provision_key>\" repo_name/chart_name",
+      "depth": 1
+    },
+    {
+      "item": "The following example shows a successful Helm Chart installation:",
+      "depth": 1
+    },
+    {
+      "item": "helm install zpa-connector --set zsglobal.provisionkey.value=\"1|api.private.zscaler.com|68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2 A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0 AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdb orq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpS ztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ==\" zpa-helm-repo/zpa-app-connector NAME: zpa-connector LAST DEPLOYED: Wed Jan 14 16:21:02 2026 NAMESPACE: default STATUS: deployed REVISION: 1 TEST SUITE: None NOTES: Thank you for installing zpa-app-connector. To learn more about the release, try: $ helm status zpa-connector $ helm get all zpa-connector",
+      "depth": 1
+    },
+    {
+      "item": "If you downloaded the Helm chart from the GitHub repository (https://github.com/zscaler/zpa-openshift), you need to provide the path to the folder containing Chart.yaml. For example:",
+      "depth": 1
+    },
+    {
+      "item": "helm install zpa-connector --set zsglobal.provisionkey.value=\"1|api.private.zscaler.com|68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2 A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0 AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdb orq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpS ztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ==\" zpa-app-connector/",
+      "depth": 1
+    },
+    {
+      "item": "Verify the Helm Chart Installation",
+      "depth": 1
+    },
+    {
+      "item": "To verify the Helm Chart installation, use the following command:",
+      "depth": 1
+    },
+    {
+      "item": "helm status zpa-connector NAME: zpa-connector LAST DEPLOYED: Wed JDec 15 16:18:43 2025 NAMESPACE: default STATUS: deployed REVISION: 1",
+      "depth": 1
+    },
+    {
+      "item": "To verify if the pods are running, use the following command:",
+      "depth": 1
+    },
+    {
+      "item": "zscaler-zpa is the namespace that is added when this Helm Chart is installed.",
+      "depth": 1
+    },
+    {
+      "item": "oc get pods -n zscaler-zpa NAME READY STATUS RESTARTS AGE zpa-connector-zpa-app-connector -f6f865fb8-qg2nx 1/1 Running 0 64s zpa-connector-zpa-app-connector -f6f865fb8-spjtx 1/1 Running 0 19s",
+      "depth": 1
+    },
+    {
+      "item": "Only one Helm installation can be done with the default Helm Chart. If you need to install a new Helm Chart, delete or upgrade the current Helm Chart. You can also use the multiple App Connector groups deployment option if you want to deploy new App Connectors with new provisioning keys. To learn more, see Deployment of Multiple App Connector Groups.",
+      "depth": 0
+    },
+    {
+      "item": "Step 3: Verify the App Connector Deployment",
+      "depth": 0
+    },
+    {
+      "item": "To verify the App Connector deployment, you can:",
+      "depth": 0
+    },
+    {
+      "item": "Verify that the deployed App Connector is running and healthy.",
+      "depth": 1
+    },
+    {
+      "item": "Check that the deployment meets your sizing requirements.",
+      "depth": 1
+    },
+    {
+      "item": "Step 4: Manage Deployed App Connectors on OpenShift",
+      "depth": 0
+    },
+    {
+      "item": "After App Connectors are Deployed",
+      "depth": 1
+    },
+    {
+      "item": "After App Connectors are deployed, you can:",
+      "depth": 1
+    },
+    {
+      "item": "Create application segments and access policy rules to pass application traffic through.",
+      "depth": 2
+    },
+    {
+      "item": "Configure a log receiver for your App Connectors to receive information about the App Connectors or users via the Log Streaming Service (LSS).",
+      "depth": 2
+    },
+    {
+      "item": "Update App Connector Manager Software",
+      "depth": 1
+    },
+    {
+      "item": "Starting with Manager software version 25.46.3, the Helm Chart for OpenShift and Kubernetes has been combined into a single unified chart for both platforms. The unified chart has been renamed to zpa-app-connector. The following directory has also been deprecated: zscaler-et-dist/helm-charts/openshift/ and all chart information is stored in the following directory: zscaler-et-dist/helm-charts/.",
+      "depth": 1
+    },
+    {
+      "item": "To update the App Connector Manager Software:",
+      "depth": 1
+    },
+    {
+      "item": "Update the image version in the Helm Chart to the corresponding Docker tag.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Upgrade the Helm Chart.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "View App Connector Logs",
+      "depth": 1
+    },
+    {
+      "item": "To view App Connector logs, run the following command:",
+      "depth": 1
+    },
+    {
+      "item": "oc logs -f <Pod Name> -n zscaler-zpa",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "oc logs -f zpa-app-connector-f6f865fb8-78rlg -n zscaler-zpa",
+      "depth": 1
+    },
+    {
+      "item": "Configure Auto Deletion of Disconnected App Connectors",
+      "depth": 1
+    },
+    {
+      "item": "The threshold for App Connectors using the provisioning keys in an App Connector group is 100. The pods are ephemeral and consume a provisioning key utilization count each time they run. To avoid exceeding the App Connector threshold, Zscaler recommends configuring Auto Delete in your App Connector settings to remove App Connectors with a disconnected status after a set number of days. To learn more, see Configuring App Connectors Page Settings.",
+      "depth": 1
+    },
+    {
+      "item": "Helm Customization",
+      "depth": 1
+    },
+    {
+      "item": "Change Helm Values During Initial Installation",
+      "depth": 2
+    },
+    {
+      "item": "To change Helm values during the initial installation:",
+      "depth": 2
+    },
+    {
+      "item": "These Helm Chart values only need to be changed if you need to customize the Helm Chart. The domain (e.g., api.private.com) in the echo statement will depend on what Private Access cloud you are on.",
+      "depth": 2
+    },
+    {
+      "item": "Open values.yaml.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "You can change the following values:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Provision Key",
+      "depth": 4
+    },
+    {
+      "item": "Image Version",
+      "depth": 4
+    },
+    {
+      "item": "Resources and Limits",
+      "depth": 4
+    },
+    {
+      "item": "Custom Labels",
+      "depth": 4
+    },
+    {
+      "item": "Use the Helm install command when you change any values:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "helm install <release-name> zpa-app-connector/ -f zpa-app-connector/values.yaml",
+      "depth": 2
+    },
+    {
+      "item": "Helm Upgrade",
+      "depth": 2
+    },
+    {
+      "item": "To upgrade the Helm repository zpa-app-connector, use the following command:",
+      "depth": 2
+    },
+    {
+      "item": "helm upgrade <release-name> zpa-app-connector/ -f zpa-app-connector/values.yaml",
+      "depth": 2
+    },
+    {
+      "item": "helm upgrade zpa-connector zpa-app-connector/ -f zpa-app-connector/values.yaml Release \"zpa-connector\" has been upgraded. Happy Helming! NAME: zpa-connector LAST DEPLOYED: Wed Jan 14 22:51:10 2026 NAMESPACE: default STATUS: deployed REVISION: 2 NOTES: Thank you for installing zpa-app-connector. To learn more about the release, try: $ helm status zpa-connector $ helm get all zpa-connector",
+      "depth": 2
+    },
+    {
+      "item": "Helm List",
+      "depth": 2
+    },
+    {
+      "item": "To list the Helm releases associated with zpa-app-connector, use the following command:",
+      "depth": 2
+    },
+    {
+      "item": "helm list NAME NAMESPACE REVISION UPDATED STATUS CHART APP VERSION zpa-connector default 1 2026-01-14 14:15:25.681803 -0700 PDT deployed zpa-app-connector-25.50.4 2026-01-08.amd64",
+      "depth": 2
+    },
+    {
+      "item": "Helm Rollback",
+      "depth": 2
+    },
+    {
+      "item": "To roll back the Helm deployment, use the following command:",
+      "depth": 2
+    },
+    {
+      "item": "This is not applicable to the first version.",
+      "depth": 2
+    },
+    {
+      "item": "helm rollback <release-name>",
+      "depth": 2
+    },
+    {
+      "item": "Helm Delete",
+      "depth": 2
+    },
+    {
+      "item": "To delete the Helm deployment, use the following command:",
+      "depth": 2
+    },
+    {
+      "item": "helm delete <release-name>",
+      "depth": 2
+    },
+    {
+      "item": "Node Affinity",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler does not explicitly add node affinity for the App Connector Helm Chart. To define nodes to be chosen for the App Connector pods to be scheduled on:",
+      "depth": 1
+    },
+    {
+      "item": "Use the following commands to label the nodes:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "oc get nodes -A oc label nodes <Node-name> type=zpa-app-connector",
+      "depth": 1
+    },
+    {
+      "item": "Use the following commands to add the namespace based on your nodes and match it with the label you added:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "kind: Namespace metadata: name: {{ .Values.zsglobal.namespace }} + annotations: + openshift.io/node-selector: \"type=zpa-app-connector\"",
+      "depth": 1
+    },
+    {
+      "item": "With node affinity configured, the pods are only scheduled on the chosen nodes. To learn more, refer to the OpenShift documentation.",
+      "depth": 1
+    },
+    {
+      "item": "Deployment of Multiple App Connector Groups",
+      "depth": 1
+    },
+    {
+      "item": "To support deployment of multiple App Connector groups:",
+      "depth": 1
+    },
+    {
+      "item": "Make the following changes to values.yaml:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Provide a meaningful identifier to identify the new provision key under secretIdentifier, for example, an identifier matching the one in the Zscaler Admin Console. The domain (e.g., api.private.com) in the echo statement depends on what Private Access cloud you are on.",
+      "depth": 1
+    },
+    {
+      "item": "## @param zsglobal.multiConnector [object] Configuration for multiple connectors multiConnector: ## @param zsglobal.multiConnector.disable Deploy multiple connectors enabled: true ## @param zsglobal.multiConnector.secretIdentifier App Connector Secret Identifier for storing provision key secretIdentifier: app-connector-multi-demo-secret Give the new provision key under provisionkey: ## @param provisionkey.value The app-connector provision Key. Replace this with the user's actual provision key. value: \"1|api.private.zscaler.com|68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2 A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0 AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdb orq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpS ztJ/68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ==\"",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "helm install <release-name>",
+      "depth": 2
+    },
+    {
+      "item": "Use a name for the release that does not conflict with release names for other App Connector deployments. The same namespace is used for all App Connectors when deployed using this method. Horizontal Pod Autoscaling occurs in each App Connector group per deployment.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "helm install app-connector-multi-demo",
+      "depth": 2
+    },
+    {
+      "item": "OpenShift App Connector Linux Capabilities",
+      "depth": 1
+    },
+    {
+      "item": "The following table provides a list of OpenShift App Connector Linux capabilities that the container uses:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Linux Capability",
+          "Behavior or Operation",
+          "Description"
+        ],
+        [
+          "CAP_NET_ADMIN",
+          "Performs the following network-related operations: Interfaces configuration. Administration of the IP firewall, masquerading, and accounting. Modifies the routing tables. Binds to any address for transparent proxying. Sets the type-of-service (ToS). Clears the driver statistics. Sets in promiscuous mode. Enables multicasting.",
+          "Fundamental to Private Access networking."
+        ],
+        [
+          "CAP_NET_BIND_SERVICE",
+          "Binds a socket to the internet domain privileged ports (port numbers less than 1024).",
+          "This capability is required to bind to a port below 1024. If you are running a service that listens to a port above 1024, remove this capability."
+        ],
+        [
+          "CAP_NET_RAW",
+          "Performs the following network-related operations: Binds to any address for transparent proxying and uses RAW and PACKET sockets. Includes fine-grained capability control options capabilityMode: minimal: Retains only CAP_NET_RAW. Requires Manager software 25.46.3 or later. capabilityMode: full: Retains all previously existing capabilities. capabilityMode: custom: Allows users to define their own list of capabilities. Requires Manager software 25.46.3 or later. If CAP_NET_RAW is omitted in custom mode, a failsafe mechanism automatically injects it to ensure functionality. OpenShift deployments default to capabilityMode: full to maintain compatibility with platform restrictions.",
+          "Fundamental to Private Access networking."
+        ],
+        [
+          "CAP_SETFCAP",
+          "Set arbitrary capabilities on a file.",
+          "Set file capabilities."
+        ],
+        [
+          "CAP_SYS_NICE",
+          "Performs the following network-related operations: Lowers the processed nice value (i.e., nice(2) and setpriority(2)) and changes the nice value for arbitrary processes. Sets scheduling policies in real-time for the calling process and sets scheduling policies and priorities for arbitrary processes (i.e., sched_setscheduler(2), sched_setparam(2), and sched_attr(2)). Sets CPU affinity for arbitrary processes (i.e., sched_setaffinity(2)). Sets the input or output (I/O) scheduling class and priority for arbitrary processes (i.e., ioprio_set(2)). Applies migrate_pages(2) to arbitrary processes and allows the processes to migrate to arbitrary nodes. Applies move_pages(2) to arbitrary processes. Uses the MPOL_MF_MOVE_ALL flag with mbind(2) and move_pages(2).",
+          "Private Access forks new processes and assigns the CPU affinity."
+        ],
+        [
+          "CAP_SYS_TIME",
+          "Sets the system clock (i.e., settimeofday(2), time(2), adjtimex(2)) and the real-time (hardware) clock.",
+          "N/A"
+        ],
+        [
+          "CAP_SYS_RESOURCE",
+          "Increases resource limits.",
+          "Increases resource limits for SYS_RESOURCE."
+        ]
+      ]
+    }
+  ]
+}

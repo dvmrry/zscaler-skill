@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "id": "zia.time-intervals.limits",
+  "title": "Time interval limits: object cap, per-rule cap and name characters",
+  "aliases": [
+    "how many time intervals",
+    "time interval limit",
+    "64 intervals",
+    "times per rule",
+    "time interval name rules",
+    "time interval name digits"
+  ],
+  "binds": [
+    "zia/time-intervals#name"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/time-intervals"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.rule-usage"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.schema"
+    }
+  ],
+  "prose": [
+    {
+      "label": "How many intervals.",
+      "text": "{{object-cap}}"
+    },
+    {
+      "label": "How many per rule.",
+      "text": "{{times-per-rule-table}} The rule pages and the Terraform schema cap it lower {{divergence:per-rule-cap}}. The other limits for firewall rules are in [[zia.firewall.limits]]."
+    },
+    {
+      "label": "What characters a name may contain.",
+      "text": "{{string-inputs}} The sources disagree {{divergence:name-characters}}. {{mcp-name-check-absent}} The server-side rule is open {{gap:name-server-rule}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a URL Filtering or Firewall Filtering rule carries more than two time intervals, since the rule pages and Terraform schema cap it at two.",
+      "uses": [
+        "per-rule-cap",
+        "times-per-rule-table"
+      ]
+    },
+    {
+      "do": "Whether the name is limited to letters and spaces, such as `Business Hours`, which the sources accept under every reading.",
+      "uses": [
+        "name-characters",
+        "string-inputs"
+      ]
+    }
+  ],
+  "claims": {
+    "object-cap": {
+      "statement": "The limits table allows 64 time intervals per organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Time Intervals | 64 intervals |",
+            "All values are per organization unless noted otherwise."
+          ]
+        }
+      ]
+    },
+    "times-per-rule-table": {
+      "statement": "The same table lists \"Times per Rule\" as 8 times, in its \"All Policy Rule Types\" group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "All Policy Rule Types:",
+            "| Times per Rule | 8 times |"
+          ]
+        }
+      ]
+    },
+    "string-inputs": {
+      "statement": "For all features, string inputs accept letters, digits, underscores, hyphens, periods and spaces, must begin with a letter, digit, underscore, hyphen or period, and reject characters such as #, @ and $.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "Accepted characters: Letters (both uppercase A–Z and lowercase a–z), numbers (0–9), underscores (_), hyphens(-), periods(.), and spaces.",
+            "| String Inputs (All features) |",
+            "Inputs must begin with at least one letter, number, underscore, hyphen, or period, and can optionally include spaces or additional valid characters afterward.",
+            "Characters not accepted: Special characters such as #, @, or $."
+          ]
+        }
+      ]
+    },
+    "mcp-name-check-absent": {
+      "statement": "The MCP workflow skill says the create tool validates the interval name client-side and raises ValueError before the API call; the tool's create function passes the name to the SDK as given (`name=args.name`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/manage-time-interval/SKILL.md",
+          "quotes": [
+            "tool validates this client-side and raises `ValueError` before the API call"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/time_intervals.py",
+          "after": "def zia_create_time_interval(args: CreateInput) -> dict[str, Any]:",
+          "quotes": [
+            "client = get_zscaler_client(service=\"zia\") interval, _, err = client.zia.time_intervals.add_time_intervals( name=args.name,"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/time_intervals.py",
+          "quotes": [
+            "class CreateInput(BaseModel): name: Annotated[str, Field(description=\"Interval name (ASCII letters/spaces only).\")]"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "per-rule-cap": {
+      "summary": "How many time intervals one rule may carry: the limits table says 8, the URL Filtering, Bandwidth Control and Mobile App Store Control Help pages say up to two, and the Terraform firewall schema caps the list at 2.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Times per Rule | 8 times |"
+            ]
+          },
+          "says": "Eight times per rule, on any policy."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-url-filtering-policy.json",
+            "quotes": [
+              "Time: Select Always to apply this rule to all time intervals, or select up to two time intervals."
+            ]
+          },
+          "says": "URL Filtering takes up to two intervals."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-rules-bandwidth-control-policy.json",
+            "quotes": [
+              "Time: Select up to two time intervals during which the rule applies. By default, the field is set to Always."
+            ]
+          },
+          "says": "Bandwidth Control takes up to two time intervals."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-mobile-app-store-control-policy.json",
+            "quotes": [
+              "Time Windows: Select Always to apply the rule to all time windows, or select up to two time windows."
+            ]
+          },
+          "says": "Mobile App Store Control takes up to two time windows."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_firewall_filtering_rules.go",
+            "quotes": [
+              "\"time_windows\": setIDsSchemaTypeCustom(intPtr(2),"
+            ]
+          },
+          "says": "The Terraform firewall filtering schema allows two."
+        }
+      ],
+      "impact": "Planning more than two schedule windows on one rule may be refused by the console or by Terraform even though the table allows eight; the per-rule cap may differ by rule type."
+    },
+    "name-characters": {
+      "summary": "Which characters a time interval name may contain: the MCP server describes ASCII letters and spaces only, the limits table allows digits, underscores, hyphens and periods, and the Python SDK's own example name contains digits and an underscore.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/time_intervals.py",
+            "quotes": [
+              "Interval name (ASCII letters/spaces only)."
+            ]
+          },
+          "says": "Names are ASCII letters and spaces only (a field description; the create function forwards the name unvalidated)."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zia/manage-time-interval/SKILL.md",
+            "quotes": [
+              "ZIA rejects Time Interval names that contain **digits or special characters**."
+            ]
+          },
+          "says": "ZIA rejects digits and special characters, and the tool validates client-side and raises ValueError before the API call."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "Accepted characters: Letters (both uppercase A–Z and lowercase a–z), numbers (0–9), underscores (_), hyphens(-), periods(.), and spaces."
+            ]
+          },
+          "says": "String inputs for all features accept digits, underscores, hyphens, periods and spaces."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/time_intervals.py",
+            "quotes": [
+              "name=f\"NewTimeInterval01_{random.randint(1000, 10000)}\",",
+              "name=f\"UpdateTimeInterval01_{random.randint(1000, 10000)}\","
+            ]
+          },
+          "says": "The SDK examples create and update intervals with names containing digits and an underscore."
+        }
+      ],
+      "impact": "A name such as `Q1 Maintenance` may be accepted or rejected; the safe choice is letters and spaces only until observed. The skill's claim of client-side validation does not match the tool code, which sends the name as given."
+    }
+  },
+  "gaps": {
+    "name-server-rule": {
+      "kind": "semantic",
+      "title": "The server-side rule for time interval names",
+      "status": "open",
+      "detail": "Whether digits are rejected, which punctuation is allowed, the maximum length, leading and trailing space handling, and uniqueness are not observed for time intervals. Unverified legacy statement: the literal error `Name is not valid`. Resolve by creating intervals with each variant on a scratch tenant.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "about": [
+        "zia.time-intervals.limits:name-characters"
+      ]
+    }
+  }
+}

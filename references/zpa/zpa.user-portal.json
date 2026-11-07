@@ -1,0 +1,619 @@
+{
+  "schema_version": 1,
+  "id": "zpa.user-portal",
+  "title": "Private Access user portals and portal links: what they are, how users reach them, certificates and DNS, links, download links and the acceptable use policy",
+  "aliases": [
+    "user portal",
+    "user portals",
+    "clientless portal",
+    "portal links",
+    "user portal links",
+    "portal CNAME",
+    "Client Connector download links",
+    "user portal acceptable use policy"
+  ],
+  "binds": [
+    "zpa/user-portals",
+    "zpa/user-portal-links",
+    "zpa/user-portal-aups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.timeout-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.saml-attributes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.acceptable-use.other-surfaces"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.posture-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.backup-restore.restore-semantics"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}}"
+    },
+    {
+      "label": "How users reach it.",
+      "text": "{{access-flow}} {{saml-attribute-required}} {{session-timeout}}"
+    },
+    {
+      "label": "Configuring a portal.",
+      "text": "{{portal-fields}} {{certificate-type}} {{dns}} The CNAME publication step is worded differently between the articles {{divergence:cname-publication}}. {{fqdn-not-in-segment}} {{portals-page}} Which domain suffixes a Managed certificate offers is open {{gap:managed-suffixes}}."
+    },
+    {
+      "label": "What the end user sees.",
+      "text": "{{end-user-view}} {{inactive-links}} {{client-connector-download-links}}"
+    },
+    {
+      "label": "Portal links.",
+      "text": "{{link-limits}} {{web-and-display-links}} {{private-and-public-links}} {{no-private-app-as-public-link}} {{link-protocol}} {{link-defaults}} {{links-across-devices}} {{portal-links-page}} How the Web and Display types map to the Private and Public App Types is open {{gap:link-type-mapping}}."
+    },
+    {
+      "label": "Company profile branding.",
+      "text": "{{company-profile-branding}} {{company-profile-fields}} Whether the branding applies per Microtenant is open {{gap:company-profile-microtenant}}."
+    },
+    {
+      "label": "Acceptable use policy.",
+      "text": "{{acceptable-use-policy}} Whether a tenant can hold more than one is open {{gap:aup-count}}."
+    },
+    {
+      "text": "A restore that finds a portal's certificate deleted or its domain in conflict is in [[zpa.backup-restore.restore-semantics]]; the certificate side of Browser Access is in [[zpa.browser-access.certificates]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the portal's FQDN is also defined as an application in an application segment, since that is not allowed.",
+      "uses": [
+        "fqdn-not-in-segment"
+      ]
+    },
+    {
+      "do": "Whether the portal uses a Managed or Custom certificate before asking who publishes the public DNS record.",
+      "uses": [
+        "certificate-type",
+        "dns",
+        "cname-publication",
+        "zpa.browser-access.certificates:cname-in-dns"
+      ]
+    },
+    {
+      "do": "Whether a user who cannot reach the portal has at least one SAML attribute configured for the IdP in Private Access.",
+      "uses": [
+        "saml-attribute-required"
+      ]
+    },
+    {
+      "do": "Whether a grayed-out link needs a native client and an enrolled Client Connector.",
+      "uses": [
+        "inactive-links"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "User portals provide visibility to authorized applications for an organization's employees and partners. From a portal users can launch web applications (Browser Access-enabled applications, web applications set up for Client Connector access, and public SaaS websites) and download Client Connector.",
+      "tier": "A",
+      "binds": [
+        "zpa/user-portals"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-user-portals.json",
+          "quotes": [
+            "User portals provide visibility to authorized applications for your organization's employees and partners.",
+            "Launch web applications directly from the portal. This includes Browser Access-enabled applications, web applications set up for Zscaler Client Connector access, and public Software as a Service (SaaS) websites.",
+            "Download Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "access-flow": {
+      "statement": "When a user tries to access the user portal, their browser resolves the portal's domain name to an IP address for Private Access. Before accessing the portal the user is prompted to authenticate against the IdP configured for their organization, then Private Access serves the portal and its portal links; the user can only view links to applications they are allowed to access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-user-portals.json",
+          "quotes": [
+            "When a user tries to access the user portal, their browser resolves the portal's domain name to an IP address for Private Access.",
+            "Prior to accessing the portal, the user is prompted to authenticate against the identity provider (IdP) configured for their organization.",
+            "After the user authenticates successfully, Private Access serves the user portal and its associated portal links.",
+            "The user can only view portal links to applications that they are allowed to access."
+          ]
+        }
+      ]
+    },
+    "saml-attribute-required": {
+      "statement": "For an end user to access a user portal, at least one SAML attribute needs to be configured for the IdP in Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portals.json",
+          "quotes": [
+            "For an end user to access a user portal, at least one SAML attribute needs to be configured for your IdP in Private Access."
+          ]
+        }
+      ]
+    },
+    "session-timeout": {
+      "statement": "The authentication timeout for a user portal session is based on the default timeout policy rule. Editing the rule does not immediately affect currently authenticated portal sessions, and when a session expires the portal might become unresponsive until the user reauthenticates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portals.json",
+          "quotes": [
+            "The authentication timeout for a user portal session is based on the default timeout policy rule.",
+            "If you edit the rule, the change does not immediately impact any currently authenticated user portal sessions.",
+            "When an end user's session expires, the user portal might become unresponsive. If this occurs, they need to reauthenticate into the portal to continue accessing applications."
+          ]
+        }
+      ]
+    },
+    "portal-fields": {
+      "statement": "A user portal takes a name (which cannot contain special characters other than periods, hyphens and underscores), a Status (a disabled portal is inaccessible to users), an optional description, and an optional notification banner (Status Enabled plus message text) that end users can dismiss from the top of the page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portals.json",
+          "quotes": [
+            "Name: Enter a name for the portal. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ ).",
+            "Status: Make sure Enabled is selected. If disabled, the portal is inaccessible to users.",
+            "Description: (Optional) Enter a description for the portal.",
+            "Status: Select Enabled to display a banner.",
+            "Message Text: Enter the notification text that you want displayed in the portal's banner."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-portal.json",
+          "quotes": [
+            "Any messages from an admin are displayed at the top of the page, and can be dismissed by an end user if they click the Close icon."
+          ]
+        }
+      ]
+    },
+    "certificate-type": {
+      "statement": "The portal Certificate Type is Managed or Custom. With Managed, the certificate is managed by Zscaler and the portal URL is a domain prefix plus a domain suffix chosen from a drop-down. With Custom, an existing certificate is selected, it must support the portal FQDN, and the full portal URL must use HTTPS and be an FQDN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portals.json",
+          "quotes": [
+            "Certificate Type: Select either Managed or Custom.",
+            "If you select Managed, the portal certificate is managed by Zscaler.",
+            "In the Portal URL field, enter the domain prefix.",
+            "Select the domain suffix from the drop-down menu.",
+            "If you select Custom, you can select an existing certificate.",
+            "In the URL field, enter the full URL for the portal that users will access. The URL must use the HTTPS protocol and be a fully qualified domain name (FQDN).",
+            "The certificate must support the FQDN specified for the portal."
+          ]
+        }
+      ]
+    },
+    "dns": {
+      "statement": "For user portals with a custom certificate, the admin adds the copied CNAME information to public DNS and verifies that the portal FQDN resolves to the record. Zscaler automatically manages the public DNS for the FQDN of user portals with a Zscaler-managed certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portals.json",
+          "quotes": [
+            "For user portals with a custom certificate, complete the following steps:",
+            "Add the CNAME information you copied to your public DNS, and verify that the FQDN for the user portal resolves to the record.",
+            "Zscaler automatically manages the public DNS for the FQDN of user portals with a Zscaler-managed certificate."
+          ]
+        }
+      ]
+    },
+    "fqdn-not-in-segment": {
+      "statement": "A user portal's FQDN cannot be configured as an application within an application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portals.json",
+          "quotes": [
+            "A user portal's FQDN cannot be configured as an application within an application segment."
+          ]
+        }
+      ]
+    },
+    "portals-page": {
+      "statement": "The User Portals page lists each portal with its Status (Enabled or Disabled), the URL users access and the Notification Banner status, and shows the Browser Access (web server) certificate associated with the portal and its canonical name (CNAME).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-user-portals.json",
+          "quotes": [
+            "Portal Server Certificate: The Browser Access (web server) certificate associated with the portal.",
+            "Canonical Name (CNAME): The canonical name associated to the user portal.",
+            "Status: The status of the user portal (Enabled or Disabled).",
+            "URL: The URL that users access to view the portal.",
+            "Notification Banner: The notification banner status of the user portal (Enabled or Disabled)."
+          ]
+        }
+      ]
+    },
+    "end-user-view": {
+      "statement": "After login, a list of the applications available to the user, based on the access policies for the application segments, is displayed; applications with a policy rule set to Deny are not visible. Link icons mark private applications reachable only through Client Connector, private web applications reachable through Browser Access, and public SaaS or other public websites; all link types are shown by default and the user can filter the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-portal.json",
+          "quotes": [
+            "A list of all applications available to them is displayed based on the access policies for the application segments, which can be launched directly from the portal.",
+            "Any applications with a policy rule set to Deny are not visible to the end user.",
+            "Denotes private (i.e., internal) applications that can only be accessed via Zscaler Client Connector.",
+            "Denotes private web applications that can be accessed via your web browser (i.e., Browser Access).",
+            "Denotes public (i.e., SaaS) web applications or other public websites.",
+            "By default, all link types are displayed but an end user can filter the list using the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "inactive-links": {
+      "statement": "A link that is displayed but inactive (grayed out) cannot be launched directly from the portal, and the user might require a native client for that application (for example SSH or RDP). The user also needs Client Connector installed and enrolled on the device, and the admin can let them download it from the portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-portal.json",
+          "quotes": [
+            "If a link is displayed but is inactive (i.e., grayed out), then an end user cannot launch it directly from the portal and might require a native client for that specific application (e.g., SSH, RDP, etc.).",
+            "In addition to the native client, the end user also needs to have Zscaler Client Connector installed and enrolled on that device.",
+            "If they do not have Zscaler Client Connector installed, you can give them the ability to download Zscaler Client Connector from the portal."
+          ]
+        }
+      ]
+    },
+    "client-connector-download-links": {
+      "statement": "The Client Connector Download Links page takes a link to the proper installer for Google Android, Apple iOS, Linux, Apple macOS and Microsoft Windows, copied from the Client Connector App Store or any other valid download URL. The organization determines which installer versions are approved and is responsible for keeping the links current as newer versions become available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-and-managing-zscaler-client-connector-download-links.json",
+          "quotes": [
+            "You can add a download link from the Client Connector Download Links page to the proper installer for the following PC and mobile operating systems:",
+            "Google Android",
+            "Apple iOS - Linux",
+            "Apple macOS",
+            "Microsoft Windows",
+            "You can copy or paste the Download Link from the Zscaler Client Connector App Store, or use any other valid download URL for your organization.",
+            "You must determine which versions of the Zscaler Client Connector installer are approved for your organization.",
+            "You are also responsible for maintaining these Zscaler Client Connector download links on the portal as newer versions become available."
+          ]
+        }
+      ]
+    },
+    "link-limits": {
+      "statement": "Within the Admin Console a user portal can hold up to 500 links, and during configuration only up to 150 links can be added at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portal-links.json",
+          "quotes": [
+            "Within the Zscaler Admin Console, you can add up to 500 links per user portal.",
+            "During configuration, you can only add up to 150 links at a time."
+          ]
+        }
+      ]
+    },
+    "web-and-display-links": {
+      "statement": "A portal link of type Web can be viewed and clicked by users to launch an application (Browser Access-enabled applications, web applications set up for Client Connector access, and public SaaS websites); a Display link can be viewed but not clicked to launch the application in a browser, and is associated with internal applications that can only be accessed using Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-user-portal-links.json",
+          "quotes": [
+            "Web: Users can view and click these links to launch an application.",
+            "This includes Browser Access-enabled applications, web applications set up for Zscaler Client Connector access, and public Software as a Service (SaaS) websites.",
+            "Display: Users can view these links, but they cannot click them to launch the application in a browser. These links are associated with internal applications that can only be accessed using Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "private-and-public-links": {
+      "statement": "A link's App Type is Private Applications, for applications configured in Private Access and chosen by user portal, application segments and applications, or Public Applications, for applications accessible to users but not configured in Private Access, given as a protocol (HTTP or HTTPS) and an FQDN. For Public Applications links, more than one user portal can be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portal-links.json",
+          "quotes": [
+            "Private Applications: Select if links in the user portal point to private applications configured in Private Access (ZPA).",
+            "Public Applications: Select if links in the user portal point to public applications that are accessible to users but not configured in Private Access.",
+            "Application Segments: Select the application segments you want to associate to the user portals from the drop-down menu.",
+            "Applications: Select the applications that you want to include within the application segments you selected previously.",
+            "Select a protocol for the link (i.e., HTTP or HTTPS).",
+            "Enter a fully qualified domain name (FQDN) for the application (e.g., www.example.com).",
+            "You can select more than one user portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portal-links.json",
+          "quotes": [
+            "User Portal: Select the user portal that can display these links."
+          ],
+          "after": "If you selected Private Applications in the previous step:"
+        }
+      ]
+    },
+    "no-private-app-as-public-link": {
+      "statement": "To avoid incorrect or inconsistent policy evaluation, a private application should not be used to create a Public Applications link; the page's remedy is to delete the public applications link, enter the application when configuring an application segment, and create a private applications link with the application configured in the segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portal-links.json",
+          "quotes": [
+            "To avoid incorrect or inconsistent policy evaluation, a private application should not be used to",
+            "Public Applications link type.",
+            "Delete the public applications user portal link.",
+            "Enter the application when configuring an application segment.",
+            "Create the private applications user portal link with the application configured in the application segment."
+          ]
+        }
+      ]
+    },
+    "link-protocol": {
+      "statement": "For private applications where Browser Access is not enabled the link protocol can be HTTP or HTTPS; where Browser Access is enabled it defaults to the protocol configured in the application segment and cannot be changed; for a Public Applications link HTTP or HTTPS must be specified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portal-links.json",
+          "quotes": [
+            "For private applications where Browser Access is not enabled, you can specify HTTP or HTTPS.",
+            "For private applications where Browser Access is enabled, this field defaults to the protocol that was configured in the application segment, and it cannot be changed.",
+            "If you selected Public Applications in the App Type step, you must specify HTTP or HTTPS."
+          ]
+        }
+      ]
+    },
+    "link-defaults": {
+      "statement": "For a private application the link name and domain default to those in the application segment (the FQDN for a Browser Access-enabled application, the IP address or FQDN for an application reached only with Client Connector) and can be changed; Path defaults to forward slash (/); Display on Portal set to Disabled does not display the link; an uploaded image may be a .ico, .jpg or .png of 32x32 pixels or smaller.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portal-links.json",
+          "quotes": [
+            "If you selected Private Applications in the App Type step, the link name as specified in the application segment is displayed by default.",
+            "To change this name, click the link and enter the new name in the Name field.",
+            "To change this name, click the link and enter the new domain in the Domain field.",
+            "If this is a Browser Access-enabled application, the FQDN as specified in the application segment is displayed by default.",
+            "If this is an application that can only be accessed with Zscaler Client Connector, the IP address or FQDN as specified in the application segment is displayed by default.",
+            "Path: (Optional) By default this is set to forward slash (/), but you can edit this field to use a specific path for the URL.",
+            "Display on Portal: Select Enabled to display the link in the user portal. If Disabled is selected, the link is not displayed on the user portal.",
+            "You can upload any valid .ico, .jpg, or .png image file type that is 32x32 pixels or smaller."
+          ]
+        }
+      ]
+    },
+    "links-across-devices": {
+      "statement": "A user connecting to Private Access through Client Connector on at least one device sees links for applications they can access across all devices, while an access policy can restrict access to an application, for example based on the Client Connector Posture Profile criteria. In the documented example the user sees the HR and sales application links but can access an application only when using the proper device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portal-links.json",
+          "quotes": [
+            "If a user is connecting to Private Access via Zscaler Client Connector on at least one device, they see links for applications they can access across all devices.",
+            "However, an access policy restricts access to an application based on the Zscaler Client Connector Posture Profile criteria."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-user-portal-links.json",
+          "quotes": [
+            "However, an access policy can restrict access to an application based upon rule criteria.",
+            "In this example, the user sees links for the HR application and sales application on the user portal, but they can only access an application if they are using the proper device."
+          ]
+        }
+      ]
+    },
+    "portal-links-page": {
+      "statement": "The Portal Links page can be filtered to show links for a specific user portal (all available links by default), shows whether each link is enabled and displayed on a user portal, and can copy a link configuration to create a new link; editing a link offers Preview Link to see how it will appear in the portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-user-portal-links.json",
+          "quotes": [
+            "Filter the table to show links for a specific user portal. By default, all available links are displayed.",
+            "Display on Portal: Whether the portal link is enabled and displayed on a user portal.",
+            "Copy a portal link configuration to create a new link."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-user-portal-links.json",
+          "quotes": [
+            "(Optional) Click Preview Link to see how the link will appear in the user portal."
+          ]
+        }
+      ]
+    },
+    "company-profile-branding": {
+      "statement": "On the Private Access tenant's Company page (Administration > Private Access Tenant), an organization logo of any valid image file type 300x150 pixels or smaller is shown in the user portal and the Privileged Remote Access (PRA) Portal, and a favicon of a valid image file type 32x32 pixels or smaller appears as the icon on a user portal browser tab, the PRA Portal browser tab and privileged console browser tabs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-company-profile.json",
+          "quotes": [
+            "From the navigation menu, go to Administration > Private Access Tenant.",
+            "You can upload any valid image file type that is 300x150 pixels or smaller.",
+            "Your organization's logo is shown in the user portal and Privileged Remote Access (PRA) Portal.",
+            "You can upload an image with a valid image file type that is 32x32 pixels or smaller.",
+            "The favicon appears as the icon on a user portal browser tab, the PRA Portal browser tab, and privileged console browser tabs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-private-access-tenant.json",
+          "quotes": [
+            "You can upload any valid image file type that is 300x150 pixels or smaller.",
+            "The favicon appears as the icon on a user portal browser tab, the PRA Portal browser tab, and privileged console browser tabs."
+          ]
+        }
+      ]
+    },
+    "company-profile-fields": {
+      "statement": "The Company page takes the organization's name, which cannot contain special characters other than periods, hyphens and underscores, and shows the ZPA tenant ID of the organization's Private Access tenant, which cannot be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-company-profile.json",
+          "quotes": [
+            "Name: Enter the name of your organization. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ ).",
+            "ZPA tenant ID: The ID for your organization’s Private Access tenant. This field cannot be edited."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-private-access-tenant.json",
+          "quotes": [
+            "Name: Enter the name of your organization. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ ).",
+            "Tenant ID: The ID of your organization’s Private Applications (ZPA) tenant. This field cannot be edited."
+          ]
+        }
+      ]
+    },
+    "acceptable-use-policy": {
+      "statement": "An acceptable use policy (AUP) can be created that users must accept before they connect to a user portal and a Privileged Remote Access Portal: its Frequency, how often the portals display it, is Once or Never, and it carries the AUP display text and the support team's email address and phone number. After a user logs in and authenticates through SSO an AUP can be displayed, and if it is, the user must read and accept the terms.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-user-portal-acceptable-use-policy.json",
+          "quotes": [
+            "You can create an acceptable use policy (AUP) that your users must accept before they connect to a user portal and a Privileged Remote Access (PRA) Portal.",
+            "Frequency: Select how often the user portal and PRA Portal display the AUP (i.e., Once or Never).",
+            "Display Text: Enter or copy and paste your organization's AUP into the field.",
+            "Email: Enter the email address for your organization's support team.",
+            "Phone Number: Enter the phone number for your organization's support team."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-portal.json",
+          "quotes": [
+            "After an end user logs in to a user portal and is authenticated via single sign-on (SSO), an acceptable use policy (AUP) can be displayed before they can access the policy.",
+            "If an AUP is displayed, your end users must read and accept the policy terms."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "cname-publication": {
+      "summary": "About User Portals says Private Access generates a CNAME that must be published to public DNS without a condition; Configuring User Portals scopes manual publication to custom certificates and says Zscaler manages the public DNS for Zscaler-managed certificates.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-user-portals.json",
+            "quotes": [
+              "Private Access (ZPA) generates a CNAME (e.g., pcname.corp.com) that must be published to your public DNS."
+            ]
+          },
+          "says": "A generated CNAME must be published to the organization's public DNS, with no certificate condition."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-user-portals.json",
+            "quotes": [
+              "After you configure a user portal, Private Access (ZPA) generates a canonical name (CNAME) that must be published in your public DNS.",
+              "Zscaler automatically manages the public DNS for the FQDN of user portals with a Zscaler-managed certificate."
+            ]
+          },
+          "says": "The configuring article's introduction also says the generated CNAME must be published in the public DNS without a condition, while its steps say Zscaler manages the public DNS for portals with a Zscaler-managed certificate and the manual CNAME steps are given for custom certificates."
+        }
+      ],
+      "impact": "Both articles state the unconditional publication sentence, and the configuring article's own steps scope manual publication to custom certificates, so whether an admin publishes the CNAME for a Zscaler-managed certificate is unsettled. The Browser Access side of the CNAME is the claim zpa.browser-access.certificates:cname-in-dns, which may bear on portals since the portal certificate is a Browser Access web server certificate; the pages do not say it does."
+    }
+  },
+  "gaps": {
+    "company-profile-microtenant": {
+      "kind": "semantic",
+      "title": "Whether the Company profile logo and favicon apply per Microtenant",
+      "status": "open",
+      "detail": "The Configuring the Company Profile page does not say whether the logo and favicon apply per Microtenant.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "managed-suffixes": {
+      "kind": "semantic",
+      "title": "Which domain suffixes a Managed portal certificate offers, and whether the Browser Access managed-certificate prerequisites apply",
+      "status": "open",
+      "detail": "The Managed option takes a domain prefix and a suffix chosen from a drop-down; the captured pages do not list the suffixes. Whether the managed-certificate prerequisites of Browser Access (see zpa.browser-access.certificates) apply to portals is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "link-type-mapping": {
+      "kind": "semantic",
+      "title": "How Web and Display link types map to the Private and Public App Types",
+      "status": "open",
+      "detail": "The About page distinguishes Web and Display links; the Configuring page uses a Private or Public App Type, and its Display on Portal toggle is a visibility switch rather than the Display type. Neither page maps one axis to the other. The Portal Links page also describes its User Portals and URL columns in a way that looks swapped (the User Portals column as a URL and the URL column as the portal name); this is not claimed.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "aup-count": {
+      "kind": "semantic",
+      "title": "Whether a tenant can hold more than one portal acceptable use policy",
+      "status": "open",
+      "detail": "The articles describe one Acceptable Use Policy page shared by user portals and PRA Portals, not a per-portal setting; whether more than one AUP can exist is not stated. The SDK and Terraform side is the claim zcc.acceptable-use.other-surfaces:zpa-portal-aup, which this gap does not reconcile with the help articles.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

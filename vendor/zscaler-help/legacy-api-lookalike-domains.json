@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Lookalike Domains",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/lookalike-domains",
+    "node": "1532903",
+    "revision": "3149750",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Lookalike%20Domains_0.json?VersionId=oHTyX0PH03wtcAKaKjrawkDQYcVIW5Ov",
+    "updated": "2025-11-06",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "description": "API Reference Guide for the Zscaler EASM API",
+      "title": "Zscaler External Attack Surface Management (EASM) Public API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/easm-ui/v1",
+    "securityDefinitions": {
+      "BearerAuth": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    },
+    "tags": [
+      {
+        "name": "Lookalike Domains"
+      }
+    ],
+    "paths": {
+      "/organizations/:orgId/lookalike-domains": {
+        "get": {
+          "tags": [
+            "Lookalike Domains"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "description": "Retrieves the list of lookalike domains for an organization based on the specified ID",
+          "parameters": [
+            {
+              "type": "string",
+              "default": "Bearer your-token",
+              "description": "API authentication token",
+              "name": "Authorization",
+              "in": "header",
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/lookalikeDomains.GetLookalikeDomainsResponse"
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      },
+      "/organizations/:orgId/lookalike-domains/:lookalikeRaw/details": {
+        "get": {
+          "tags": [
+            "Lookalike Domains"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "description": "Retrieves details for a lookalike domain based on the specified ID",
+          "parameters": [
+            {
+              "type": "string",
+              "default": "Bearer your-token",
+              "description": "API authentication token",
+              "name": "Authorization",
+              "in": "header",
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/lookalikeDomains.GetLookalikeDomainsResponse"
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "lookalikeDomains.GetLookalikeDomainsResponse": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "description": "The list of lookalike domains identified for the seed domains configured for an organization",
+            "items": {
+              "$ref": "#/definitions/lookalikeDomains.LookalikeDomainDetails"
+            }
+          },
+          "total_results": {
+            "type": "integer",
+            "description": "The total number of lookalike domains present in the response"
+          }
+        }
+      },
+      "lookalikeDomains.LookalikeDomainDetails": {
+        "type": "object",
+        "description": "Information about lookalike domains",
+        "properties": {
+          "created_date": {
+            "type": "string",
+            "description": "The timestamp when the lookalike domain was detected in a scan and added to EASM"
+          },
+          "deception_method": {
+            "type": "array",
+            "description": "One or more deception methods used in the lookalike domain name to impersonate a legitimate domain",
+            "items": {
+              "$ref": "#/definitions/lookalikeDomains.DeceptionMethod"
+            }
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the lookalike domain, why it is suspicious, and the deception tactics used."
+          },
+          "expiration_date": {
+            "type": "string",
+            "description": "The domain registration expiration date, if available."
+          },
+          "is_registered": {
+            "type": "boolean",
+            "description": "Indicates whether the domain is registered with a registrar or not"
+          },
+          "lookalike_raw": {
+            "type": "string",
+            "description": "The lookalike domain URL"
+          },
+          "original_domain": {
+            "type": "string",
+            "description": "The legitimate domain mimicked by the lookalike domain"
+          },
+          "registered_by": {
+            "type": "string",
+            "description": "An individual or entity that owns the registered domain, if available."
+          },
+          "registrar": {
+            "type": "string",
+            "description": "The internet company that was used to register the domain, if available."
+          },
+          "remediation": {
+            "type": "string",
+            "description": "Risk remediation recommendations for the lookalike domain"
+          },
+          "risk_category": {
+            "description": "The risk categorization of the lookalike domain",
+            "$ref": "#/definitions/lookalikeDomain.LookalikeDomainRiskCategory"
+          },
+          "risk_score": {
+            "type": "integer",
+            "description": "A risk score assigned to the lookalike domain"
+          },
+          "status": {
+            "description": "The status assigned to the lookalike domain entry",
+            "$ref": "#/definitions/lookalikeDomain.LookalikeDomainStatus"
+          },
+          "updated_date": {
+            "type": "string",
+            "description": "The timestamp when the lookalike domain's status was last updated"
+          }
+        }
+      },
+      "lookalikeDomains.DeceptionMethod": {
+        "type": "string",
+        "description": "The list of deception methods used by lookalike domain names for impersonating legitimate domains",
+        "enum": [
+          "EdgeInsertion",
+          "Extension",
+          "Homograph",
+          "Hyphenation",
+          "KeyboardTypos",
+          "MidInsertion",
+          "Omission",
+          "PhoneticReplacement",
+          "Repetition",
+          "TldSwap",
+          "Typoglycemia",
+          "VowelReplacement",
+          "Typos"
+        ],
+        "x-enum-varnames": [
+          "DeceptionMethodEdgeInsertion",
+          "DeceptionMethodExtension",
+          "DeceptionMethodHomograph",
+          "DeceptionMethodHyphenation",
+          "DeceptionMethodKeyboardTypos",
+          "DeceptionMethodMidInsertion",
+          "DeceptionMethodMidOmission",
+          "DeceptionMethodPhoneticReplacement",
+          "DeceptionMethodRepetition",
+          "DeceptionMethodTldSwap",
+          "DeceptionMethodTypoglycemia",
+          "DeceptionMethodVowelReplacement",
+          "DeceptionMethodTypos"
+        ]
+      },
+      "lookalikeDomain.LookalikeDomainRiskCategory": {
+        "type": "string",
+        "description": "The list of lookalike domain categories available",
+        "enum": [
+          "Phishing Lookalike",
+          "Registered Lookalike",
+          "Preventative Lookalike",
+          "Watchlist Lookalike"
+        ],
+        "x-enum-varnames": [
+          "PhishingLookalike",
+          "RegisteredLookalike",
+          "PreventativeLookalike",
+          "WatchlistLookalike"
+        ]
+      },
+      "lookalikeDomain.LookalikeDomainStatus": {
+        "type": "string",
+        "description": "The list of available statuses for lookalike domains",
+        "enum": [
+          "NOT_VERIFIED",
+          "VERIFIED",
+          "RISK_ACCEPTED",
+          "RESOLVED",
+          "DISPUTED"
+        ],
+        "x-enum-varnames": [
+          "NotVerified",
+          "Verified",
+          "RiskAccepted",
+          "Resolved",
+          "Disputed"
+        ]
+      }
+    }
+  }
+}

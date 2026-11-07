@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-python.audit-logs-client",
+  "title": "How the Python SDK audit log report calls return results and fail",
+  "aliases": [
+    "audit log cancel python",
+    "auditlogEntryReport cancel",
+    "audit_logs.cancel attributeerror",
+    "python sdk audit log returns none",
+    "auditlogEntryReport%22",
+    "audit log create stray quote"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.report-api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The audit log report calls in the Python SDK follow their own return convention and carry defects in `create` and `cancel`. The report itself is described in [[zia.audit-logs.report-api]]."
+    },
+    {
+      "label": "Return values.",
+      "text": "{{raw-return-values}} {{errors-return-none}}"
+    },
+    {
+      "label": "Stray quote in the path.",
+      "text": "{{create-cancel-url-stray-quote}} Whether the service accepts the quoted path is open {{gap:quoted-path-accepted}}."
+    },
+    {
+      "label": "Cancel.",
+      "text": "[[shared.sdk-python.response-handling:status-accessor]] {{cancel-attribute-error}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a cancel call raised or returned None, and whether the report request was in fact cancelled, before trusting the return value.",
+      "uses": [
+        "cancel-attribute-error",
+        "create-cancel-url-stray-quote",
+        "errors-return-none",
+        "quoted-path-accepted"
+      ]
+    },
+    {
+      "do": "That the status code returned by create is an integer HTTP status, not a result object.",
+      "uses": [
+        "raw-return-values"
+      ]
+    }
+  ],
+  "claims": {
+    "raw-return-values": {
+      "statement": "The Python `AuditLogsAPI` methods do not return the usual (result, response, error) tuple: `create` returns the HTTP status from `get_status()` and `cancel` returns `response.status_code`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "quotes": [
+            "class AuditLogsAPI(APIClient):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def create(self, start_time: str, end_time: str)",
+          "quotes": [
+            "time.sleep(2) return response.get_status()"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def cancel(self)",
+          "quotes": [
+            "return response.status_code"
+          ]
+        }
+      ]
+    },
+    "errors-return-none": {
+      "statement": "Each `AuditLogsAPI` method (`get_status`, `create`, `cancel`, `get_report`) returns a bare None, not the error, when the request cannot be built or fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "quotes": [
+            "class AuditLogsAPI(APIClient):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "quotes": [
+            "if error: return None",
+            "http_method = \"get\".upper()",
+            "request, error = self._request_executor.create_request(http_method, api_url, {}, {}, {}) if error: return None response, error = self._request_executor.execute(request) if error: return None"
+          ],
+          "after": "def get_status(self)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def create(self, start_time: str, end_time: str)",
+          "quotes": [
+            "request, error = self._request_executor.create_request(",
+            "if error: return None response, error = self._request_executor.execute(request, None) if error: return None",
+            "request, error = self._request_executor.create_request(http_method, api_url, payload, {}, {}) if error: return None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def cancel(self)",
+          "quotes": [
+            "request, error = self._request_executor.create_request(http_method, api_url, {}, {}, {}) if error: return None",
+            "if error: return None response, error = self._request_executor.execute(request, None) if error: return None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def get_report(self)",
+          "quotes": [
+            "request, error = self._request_executor.create_request(http_method, api_url, {}, {}, {}) if error: return None",
+            "if error: return None response, error = self._request_executor.execute(request, None) if error: return None"
+          ]
+        }
+      ]
+    },
+    "cancel-attribute-error": {
+      "statement": "`AuditLogsAPI.cancel` raises AttributeError when the DELETE request succeeds, because it reads `response.status_code` from a `ZscalerAPIResponse`.",
+      "tier": "B",
+      "derived_from": [
+        "raw-return-values",
+        "shared.sdk-python.response-handling:status-accessor"
+      ],
+      "conditions": "Holds if the executor returns a `ZscalerAPIResponse` for this call, as it does by default; derived from reading the code, not from running the call."
+    },
+    "create-cancel-url-stray-quote": {
+      "statement": "The Python audit log client builds the `create` and `cancel` URLs from a multi-line string whose path line is `/auditlogEntryReport\"`, with a stray closing double quote, and `format_url` only strips whitespace from each line. The recorded integration cassette shows the POST and the DELETE sent to `/auditlogEntryReport%22`, while the status GET and the download GET use the clean path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def create(",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "/auditlogEntryReport\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def cancel(",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "/auditlogEntryReport\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "def format_url(base_string):",
+            "return \"\".join([line.strip() for line in base_string.splitlines()])"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zia/cassettes/TestAuditLogs.yaml",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "method: POST uri: https://easm.test.zscaler.com/zia/api/v1/auditlogEntryReport%22",
+            "method: DELETE uri: https://easm.test.zscaler.com/zia/api/v1/auditlogEntryReport%22"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zia/cassettes/TestAuditLogs.yaml",
+          "after": "interactions:",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "method: GET uri: https://easm.test.zscaler.com/zia/api/v1/auditlogEntryReport response:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zia/cassettes/TestAuditLogs.yaml",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "method: GET uri: https://easm.test.zscaler.com/zia/api/v1/auditlogEntryReport/download"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Python SDK: AuditLogsAPI.create and cancel build /auditlogEntryReport\" with a stray double quote (sent as %22)."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "quoted-path-accepted": {
+      "kind": "semantic",
+      "title": "Whether ZIA accepts the audit report POST and DELETE sent to a path ending in %22",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "knowing whether the Python audit log create and cancel calls can work at all, or fail with 404",
+      "detail": "The Python client's create and cancel URLs end in a stray double quote. In the recorded cassette the status GET (no quote) returned 404 twice, the POST and the DELETE sent to the quoted path each returned 404, and the download GET returned 406 Not Acceptable, so it does not show whether the quote is the cause. A live call to the clean path and the quoted path would settle it."
+    }
+  }
+}

@@ -1,0 +1,872 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-management.cloud-accounts",
+  "title": "How are onboarded AWS, Azure and GCP accounts managed in AI Security: the Cloud Accounts page, validation, status, issues, deletion, orchestrator changes and the orchestrator itself?",
+  "aliases": [
+    "Cloud Accounts page ai security",
+    "Account Onboarding",
+    "ai security orchestrator",
+    "scanner instances",
+    "local scanner platform",
+    "delete onboarded account",
+    "change orchestrator account"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management.onboarding-aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management.onboarding-azure"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management.onboarding-gcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.cloud-accounts"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.orchestrator"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{providers-and-monitoring}} The per-provider onboarding is in [[ai-security.asset-management.onboarding-aws]], [[ai-security.asset-management.onboarding-azure]] and [[ai-security.asset-management.onboarding-gcp]], and the hub is [[ai-security.asset-management]]."
+    },
+    {
+      "label": "Cloud Accounts page.",
+      "text": "{{provider-specific-manage-actions}} {{orchestrator-network-custom}} {{account-detail-tabs}} {{account-list}} {{account-cloudtrail}}"
+    },
+    {
+      "label": "Validation and status.",
+      "text": "{{validation}} {{overview-status}} {{overview-orchestrator}} {{overview-cloudtrail}} {{overview-evidence}} {{manage-services}}"
+    },
+    {
+      "label": "Issues.",
+      "text": "{{issue-types}} {{issue-list}}"
+    },
+    {
+      "label": "Roles and templates.",
+      "text": "{{templates-aws}} {{templates-azure}} {{templates-gcp}} {{new-template-banner}} {{template-acknowledge}} {{redeploy}}"
+    },
+    {
+      "label": "Deleting an account.",
+      "text": "{{delete-effects}} {{delete-module-impact}} {{delete-permission-and-confirmation}} {{delete-single-no-csp-impact}} {{gap:delete-resources-wording}}"
+    },
+    {
+      "label": "Changing the orchestrator.",
+      "text": "{{change-orchestrator-permission}} {{orchestrator-change-effects}} {{orchestrator-change-success-state}}"
+    },
+    {
+      "label": "The orchestrator and scanner instances.",
+      "text": "{{orch-architecture}} {{orch-account}} {{orch-scan-regions}} {{orch-egress}} {{orch-sizes}} {{orch-scanner-max}} {{orch-scanner-security}} {{orch-scanner-tags}} {{gap:scanner-size-figures}}"
+    },
+    {
+      "label": "Default scanner instance types.",
+      "text": "{{orch-scanner-default-aws}} {{orch-scanner-default-azure}} {{orch-scanner-default-gcp}}"
+    },
+    {
+      "label": "Orchestrator network and status.",
+      "text": "{{orch-network-change}} {{orch-network-fields}} {{orch-connection-status}} {{orch-config-status}} {{gap:orch-other-clusters}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether deletion removes the account only from the AI Security Admin Portal and what it leaves behind on the cloud side.",
+      "uses": [
+        "delete-single-no-csp-impact",
+        "delete-effects",
+        "delete-module-impact"
+      ]
+    },
+    {
+      "do": "The orchestrator AI Security Connection Status and Configuration Status values against what each one says.",
+      "uses": [
+        "orch-connection-status",
+        "orch-config-status"
+      ]
+    }
+  ],
+  "claims": {
+    "providers-and-monitoring": {
+      "statement": "AI Security supports onboarding AWS accounts, Microsoft Azure subscriptions and GCP projects; it continuously monitors and scans onboarded cloud accounts for sensitive data and vulnerabilities and generates issues from data security policy violations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-about-cloud-accounts.json",
+          "quotes": [
+            "AI Security supports the onboarding of Amazon Web Services (AWS) accounts, Microsoft Azure subscriptions, and Google Cloud Platform (GCP) projects.",
+            "AI Security continuously monitors and scans the onboarded cloud accounts for sensitive data and vulnerabilities, and generates issues based on data security policy violations."
+          ]
+        }
+      ]
+    },
+    "provider-specific-manage-actions": {
+      "statement": "On the Cloud Accounts page (Administration > Account Onboarding) each provider has its own extra management actions: AWS has Manage CloudTrail, Manage Services, Manage Evidence and Manage Data Events; Azure has Change Application Details, Manage Private Endpoint, Manage Services and Manage Evidence; GCP has Update Service Account and Update Private Key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-about-cloud-accounts.json",
+          "quotes": [
+            "On the Cloud Accounts page (Administration> Account Onboarding), you can do the following:",
+            "AWS: Manage CloudTrail, Manage Services, Manage Evidence, Manage Data Events.",
+            "Azure: Change Application Details, Manage Private Endpoint, Manage Services, Manage Evidence.",
+            "GCP: Update Service Account and Update Private Key."
+          ]
+        }
+      ]
+    },
+    "orchestrator-network-custom": {
+      "statement": "The Managing Orchestrator Network (Custom) action configures the orchestrator network and is applicable only if the AI Security Connection Status is failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-about-cloud-accounts.json",
+          "quotes": [
+            "Managing Orchestrator Network (Custom): Configure the orchestrator network (applicable only if the AI Security Connection Status is failed)."
+          ]
+        }
+      ]
+    },
+    "account-detail-tabs": {
+      "statement": "After onboarding completes successfully, a selected cloud account shows an Overview tab (onboarding status and orchestrator details), an Issues tab (issues encountered while onboarding) and a Roles and Templates tab (roles created while onboarding and templates generated by AI Security).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-about-cloud-accounts.json",
+          "quotes": [
+            "When the onboarding process is completed successfully, you can view the following tabs:",
+            "Overview: The onboarding status and the orchestrator details.",
+            "Issues: The issues encountered while onboarding.",
+            "Roles and Templates: The roles created while onboarding and templates generated by AI Security."
+          ]
+        }
+      ]
+    },
+    "delete-effects": {
+      "statement": "Deleting an onboarded account cannot be reverted, so the account must be onboarded again to be scanned; it does not delete resources created while deploying templates, which must be deleted manually (the page names the terraform destroy command).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deleting-onboarded-account.json",
+          "quotes": [
+            "The delete action cannot be reverted. You must onboard the cloud account again if it must be scanned.",
+            "Deleting the account does not delete resources created while deploying templates. You must manually delete these resources. To delete the resources, run the terraform destroy command."
+          ]
+        }
+      ]
+    },
+    "delete-module-impact": {
+      "statement": "Deleting an account closes all issues generated for it, disables an alert rule or ignore alert filter whose scope was only that account (marked invalid), disables a scan configuration whose only selected account it was, and marks existing custom policies created for it as invalid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deleting-onboarded-account.json",
+          "quotes": [
+            "All issues generated for the deleted account are closed.",
+            "then the alert rule or ignore alert filter is disabled with an exclamation mark indicating that it is invalid.",
+            "If the deleted account was the only account selected for scanning, then the scan configuration is disabled.",
+            "Any existing custom policy created for the deleted account is marked as invalid."
+          ]
+        }
+      ]
+    },
+    "delete-permission-and-confirmation": {
+      "statement": "Deleting needs the Administrator role or any role with Delete Account permissions; deleting an organization or tenant deletes it and all associated accounts from the AI Security Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deleting-onboarded-account.json",
+          "quotes": [
+            "You must be assigned either an Administrator role or any role with Delete Account permissions.",
+            "The organization or tenant and all associated accounts are deleted from the AI Security Admin Portal."
+          ]
+        }
+      ]
+    },
+    "delete-single-no-csp-impact": {
+      "statement": "Deleting a single account or multiple accounts removes them only from the AI Security Admin Portal, with no impact on those accounts at the cloud service provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deleting-onboarded-account.json",
+          "quotes": [
+            "it is only deleted from the [[variable: ai-security-admin-portal]] and there is no impact on these accounts on the cloud service provider."
+          ]
+        }
+      ]
+    },
+    "orchestrator-change-effects": {
+      "statement": "Until a new orchestrator is validated after a change, the existing orchestrator is disabled, the AI Security connection status is Waiting for Connection and Configuration status is Pending, data scans stop, and the target accounts (AWS), subscriptions (Azure) or projects (GCP) move to Needs Attention; this is stated on the AWS, Azure and GCP change-orchestrator pages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-aws-orchestrator-account.json",
+          "quotes": [
+            "The existing orchestrator is disabled.",
+            "The AI Security connection status moves to the Waiting for Connection state and Configuration status moves to the Pending state.",
+            "The data scans are stopped.",
+            "The target accounts move to the Needs Attention state."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-azure-orchestrator-subscription.json",
+          "quotes": [
+            "The existing orchestrator is disabled.",
+            "The AI Security connection status moves to the Waiting for Connection state and Configuration status moves to the Pending state.",
+            "The data scans are stopped.",
+            "The target subscriptions move to the Needs Attention state."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-gcp-orchestrator-account.json",
+          "quotes": [
+            "The existing orchestrator is disabled.",
+            "The AI Security connection status moves to the Waiting for Connection state and Configuration status moves to the Pending state.",
+            "The data scans are stopped.",
+            "The target projects move to the Needs Attention state."
+          ]
+        }
+      ]
+    },
+    "orchestrator-change-success-state": {
+      "statement": "After the new orchestrator template is validated, AWS target accounts (and Azure onboarded subscriptions) move to Successfully Configured, AI Security begins the data scan, and on the AWS page the orchestrator AI Security Connection and Configuration Status move to Successful; the AWS, Azure and GCP change pages each say AI Security validates the template deployment every hour.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-aws-orchestrator-account.json",
+          "quotes": [
+            "AI Security validates the template deployment every hour by checking the roles created and permissions granted.",
+            "the target accounts move to the Successfully Configured state, and AI Security begins the data scan.",
+            "The orchestrator status (AI Security Connection and Configuration Status) moves to the Successful state."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-azure-orchestrator-subscription.json",
+          "quotes": [
+            "AI Security validates the template deployment every hour by checking the roles that are created and permissions granted.",
+            "the onboarded subscriptions move to the Successfully Configured state and AI Security begins the data scan."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-gcp-orchestrator-account.json",
+          "quotes": [
+            "AI Security validates the template deployment every hour by checking the roles that are created and permissions granted."
+          ]
+        }
+      ]
+    },
+    "change-orchestrator-permission": {
+      "statement": "Changing the orchestrator requires an administrator role or a role with the Configure New Orchestrator permission (AWS and GCP: in the AI Security Admin Portal; Azure: in the Zscaler Admin Console).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-aws-orchestrator-account.json",
+          "quotes": [
+            "You must be assigned either an administrator role or a custom role with the Configure New Orchestrator permission in the AI Security Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-azure-orchestrator-subscription.json",
+          "quotes": [
+            "Be assigned either an administrator role or any role with the Configure New Orchestrator permission in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-gcp-orchestrator-account.json",
+          "quotes": [
+            "Be assigned either an administrator role or a custom role with the Configure New Orchestrator permission in the AI Security Admin Portal."
+          ]
+        }
+      ]
+    },
+    "orch-architecture": {
+      "statement": "The local scanner platform is an orchestrator instance plus scanner instances; the orchestrator is an EC2 instance, virtual machine or cloud storage that organizes scanning across the selected AWS, Azure and GCP regions, and it creates the scanner instances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-orchestrator.json",
+          "quotes": [
+            "The local scanner platform architecture consists of an orchestrator instance and scanner instances.",
+            "An orchestrator instance is an EC2 instance, virtual machine, or a cloud storage that organizes the data scanning across the selected regions of AWS, Azure, and GCP.",
+            "The scanner instances are created by the orchestrator instance and are launched in the respective regions where AI Security performs data scanning of the resources."
+          ]
+        }
+      ]
+    },
+    "orch-account": {
+      "statement": "The orchestrator account is the account and primary region where Zscaler's AI Security orchestrator template is deployed; AI Security uses that template to scan target accounts' data stores, and an autoscaler keeps at least one orchestrator running.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-orchestrator.json",
+          "quotes": [
+            "This account is referred to as the orchestrator account.",
+            "AI Security leverages the template deployed in the orchestrator account to scan the data stores (S3 bucket, EC2 workloads, etc.) of the target accounts.",
+            "The orchestrator instance is backed by an autoscaler that ensures at least one orchestrator is running.",
+            "You need to choose an account in your environment and the primary region in which Zscaler's AI Security orchestrator template is deployed."
+          ]
+        }
+      ]
+    },
+    "orch-scan-regions": {
+      "statement": "Scanner instances launch in the orchestrator account in the regions where the target account's data stores are, are terminated after the scan, and keep scanning inside the customer's cloud, which avoids interregional data transfer costs; scanning of all global regions of AWS, Azure and GCP is supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-orchestrator.json",
+          "quotes": [
+            "The scanner instances are launched with a unique identity in the corresponding regions of the orchestrator account where the target data stores are available.",
+            "After the scan is complete, the scanner instances are terminated.",
+            "This ensures data scanning within your public cloud environment and avoids interregional data transfer costs.",
+            "AI Security supports scanning of data stores present in all global regions of AWS, Azure, and GCP."
+          ]
+        }
+      ]
+    },
+    "orch-egress": {
+      "statement": "The orchestrator instance needs only outbound internet access to AI Security; for the US Cluster its outbound connections are limited to six listed service IPs and two FQDNs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-orchestrator.json",
+          "quotes": [
+            "The orchestrator instance requires only outbound internet access to communicate with AI Security.",
+            "limited to the following specific service IPs for US Cluster",
+            "35.164.218.12",
+            "34.208.206.171",
+            "52.42.215.70",
+            "35.84.226.159",
+            "52.40.209.233",
+            "54.191.175.18",
+            "api.aisecurity.zscaler.com",
+            "gateway-us.ops.aisecurity.zscaler.com"
+          ]
+        }
+      ]
+    },
+    "orch-sizes": {
+      "statement": "Supported orchestrator instance types: AWS t3.large, Azure Standard_D2s_V3 and GCP e2-standard-2, each 2 vCPUs and 8 GiB, with the listed root and data disks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-orchestrator.json",
+          "quotes": [
+            "| AWS | t3.large | 2 core vCPUs and 8 GiB Memory | Root Disk: 20 GB GP3 Data Disk: 16 GB GP3 |",
+            "| Azure | Standard_D2s_V3 | 2 core vCPUs and 8 GiB Memory | Root Disk: 30 GB Standard HDD LRS Data Disk: 10 GB Standard HDD LRS |",
+            "| GCP | e2-standard-2 | 2 core vCPUs and 8 GiB Memory | Root Disk: 20 GB Standard persistent disk Data Disk: 10 GB Standard persistent disk |"
+          ]
+        }
+      ]
+    },
+    "orch-scanner-max": {
+      "statement": "The scanner instances page says that for each data store AI Security creates up to 10 scanner instances of 16 vCPU and 32 GiB, depending on how many data stores need scanning, and that the orchestrator account needs sufficient vCPU quotas.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-scanner-instances.json",
+          "quotes": [
+            "For each data store, AI Security creates up to a maximum of 10 scanner instances each with a configuration of 16 vCPU and 32 GiB memory, depending upon the number of data stores that must be scanned.",
+            "You need to ensure that sufficient vCPU quotas are enabled in the orchestrator account."
+          ]
+        }
+      ]
+    },
+    "orch-scanner-security": {
+      "statement": "Scanner instances are transitory and use a Zscaler-owned image shared with the customer's orchestrator account; inbound access to them is restricted to the orchestrator instance, and their tags must not be deleted or tampered with.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-scanner-instances.json",
+          "quotes": [
+            "AI Security creates transitory scanner instances in the respective regions",
+            "The image required to launch the scanner instance is property of Zscaler and it is shared with the customer’s orchestrator account for data scanning purposes.",
+            "Inbound access to scanner instances is restricted only from the orchestrator instance.",
+            "All scanner instances are created with tags and the tags must not be deleted or tampered with."
+          ]
+        }
+      ]
+    },
+    "orch-scanner-tags": {
+      "statement": "Scanner instances carry five tags (z-ais-resource, z-ais-scanner-resource, z-ais-tenant-id, z-ais-tenant-name, z-ais-scan-id) that can be enabled in AWS to track cost allocation for AI Security.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-scanner-instances.json",
+          "quotes": [
+            "You can enable these tags in AWS to track the cost allocation for AI Security.",
+            "z-ais-resource = true",
+            "z-ais-scanner-resource= true",
+            "z-ais-tenant-id = <tenant_id>",
+            "z-ais-tenant-name = <tenant_name>",
+            "z-ais-scan-id = <scan_id>"
+          ]
+        }
+      ]
+    },
+    "orch-scanner-default-aws": {
+      "statement": "Default AWS scanner instance types by data store and scan type: S3 full c5a.4xlarge, S3 incremental t3.xlarge, EC2 full c6in.4xlarge, RDS full c5a.4xlarge db.r6g.large, RDS sampling t3.medium db.r6g.large, DynamoDB full and sampling t3.xlarge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-scanner-instances.json",
+          "quotes": [
+            "| S3 | Full | c5a.4xlarge | 16 core vCPUs and 32 GiB Memory | Root Disk: 20 GB GP3 |",
+            "| S3 | Incremental | t3.xlarge | 4 core vCPUs and 16 GiB Memory | Root Disk: 20 GB GP3 |",
+            "| EC2 | Full | c6in.4xlarge | 16 core vCPUs and 32 GiB Memory | Root Disk: 20 GB GP3 |",
+            "| RDS | Full | c5a.4xlarge db.r6g.large |",
+            "| RDS | Sampling | t3.medium db.r6g.large |",
+            "| DynamoDB | Full | t3.xlarge | 4 core vCPUs and 16 GiB Memory | Root Disk: 20 GB GP3 |",
+            "| DynamoDB | Sampling | t3.xlarge | 4 core vCPUs and 16 GiB Memory | Root Disk: 20 GB GP3 |"
+          ]
+        }
+      ]
+    },
+    "orch-scanner-default-azure": {
+      "statement": "Default Azure scanner instance types: Blob Container, Virtual Machine and File Share full scans Standard_F16s_v2; Blob Container and File Share incremental Standard_D4s_v3; SQL Server PostgreSQL-Flexible Server full Standard_F16s_v2; SQL Server PostgreSQL-Flexible Server and Azure Cosmos DB for NoSQL sampling Standard_B2ls_v2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-scanner-instances.json",
+          "quotes": [
+            "| Blob Container | Full | Standard_F16s_v2 |",
+            "| Blob Container | Incremental | Standard_D4s_v3 |",
+            "| Virtual Machine | Full | Standard_F16s_v2 |",
+            "| File Share | Full | Standard_F16s_v2 |",
+            "| File Share | Incremental | Standard_D4s_v3 |",
+            "| SQL Server PostgreSQL-Flexible Server | Full | Standard_F16s_v2 |",
+            "| SQL Server PostgreSQL-Flexible Server | Sampling | Standard_B2ls_v2 |",
+            "| Azure Cosmos DB for NoSQL | Sampling | Standard_B2ls_v2 |"
+          ]
+        }
+      ]
+    },
+    "orch-scanner-default-gcp": {
+      "statement": "Default GCP scanner instance types: Cloud Storage Bucket full e2-standard-16 and incremental e2-standard-8; Compute and Cloud SQL full e2-standard-16; Cloud SQL and BigQuery sampling e2-standard-2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-scanner-instances.json",
+          "quotes": [
+            "| Cloud Storage Bucket | Full | e2-standard-16 |",
+            "| Cloud Storage Bucket | Incremental | e2-standard-8 |",
+            "| Cloud Platform Compute | Full | e2-standard-16 |",
+            "| Cloud Platform Cloud SQL | Full | e2-standard-16 |",
+            "| Cloud Platform Cloud SQL | Sampling | e2-standard-2 |",
+            "| Cloud Platform BigQuery | Sampling | e2-standard-2 |"
+          ]
+        }
+      ]
+    },
+    "orch-network-change": {
+      "statement": "The orchestrator network can be modified when the existing network is being decommissioned or deleted or the wrong network was selected, only when the AI Security Connection Status is failed for the custom network configuration type; the orchestrator template must then be rerun. It needs an Administrator role or a custom role with the Configure Monitoring Scope permission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-managing-orchestrator-network.json",
+          "quotes": [
+            "You can modify the orchestrator network details when an existing orchestrator network is being decommissioned, deleted, or if an incorrect network was selected during onboarding.",
+            "This option is available only when the AI Security Connection Status is failed for the custom network configuration type.",
+            "After changing the orchestrator network, you must rerun the orchestrator template to update the deployment.",
+            "You must be assigned either an Administrator role or a custom role with the Configure Monitoring Scope permission in the AI Security Admin Portal."
+          ]
+        }
+      ]
+    },
+    "orch-network-fields": {
+      "statement": "When modifying the orchestrator network, AWS asks for a Subnet ARN; Azure asks for Subnet ID, Network Security Group ID and a Storage Account Name of at most 16 characters, and with a new subnet from a different VNet the scale-set terraform destroy command must run before deploying the new template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-managing-orchestrator-network.json",
+          "quotes": [
+            "Subnet ARN: Enter the subnet where the scanner instances must be launched.",
+            "Subnet ID: Enter the subnet where the scanner instances must be launched.",
+            "Network Security Group ID: Enter the identifier (ID) of the security group that controls network traffic to and from the instances.",
+            "The storage account name must not exceed 16 characters.",
+            "If you are using a new subnet from a different VNet, run the following command before deploying the new template:",
+            "terraform destroy -target module.scale_set.azurerm_linux_virtual_machine_scale_set.orchestrator_scale_set"
+          ]
+        }
+      ]
+    },
+    "orch-connection-status": {
+      "statement": "The orchestrator status page lists the orchestrator's AI Security Connection Status as Successful, Failed (cannot establish a connection) or Waiting for connection (orchestrator template not yet deployed in the cloud service provider).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-orchestrator-status.json",
+          "quotes": [
+            "Successful: The orchestrator instance is connected to AI Security successfully.",
+            "Failed: The orchestrator instance is unable to establish a connection with AI Security.",
+            "Waiting for connection: The orchestrator template is not yet deployed in the cloud service provider (CSP)."
+          ]
+        }
+      ]
+    },
+    "orch-config-status": {
+      "statement": "The orchestrator Configuration Status is Successful, Warning, Failed or Pending: Warning means some resources or permissions are unavailable, tampered with or not visible; Failed means scanner instances cannot be launched or roles and permissions are missing; Pending means the orchestrator account changed or the template is yet to be deployed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-orchestrator-status.json",
+          "quotes": [
+            "Successful: All resources are successfully deployed and permissions are configured in the orchestrator account.",
+            "Warning: Some resources or permissions are unavailable, tampered with, or not visible.",
+            "Failed: The orchestrator instance cannot launch scanner instances, or some roles and permissions are missing in the orchestrator account.",
+            "Pending: The orchestrator account has changed or the template is yet to be deployed in the CSP."
+          ]
+        }
+      ]
+    },
+    "validation": {
+      "statement": "AI Security validates cloud accounts every hour to check the onboarding templates are deployed and roles and permissions configured, and an on-demand validation can be run for a single account or for all accounts in the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-validating-cloud-accounts.json",
+          "quotes": [
+            "AI Security validates the cloud accounts every hour to check if the onboarding templates are deployed successfully and roles and permissions are configured for each account.",
+            "You can also run an on-demand validation without waiting for AI Security's hourly validations.",
+            "To validate a single account:",
+            "To validate all accounts in the organization:"
+          ]
+        }
+      ]
+    },
+    "manage-services": {
+      "statement": "After onboarding, the services to scan can be selected for a cloud account (Manage Services is listed in the account actions for AWS and Azure), and AI Security permissions are restricted to monitoring and scanning data only in the selected services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-about-cloud-accounts.json",
+          "quotes": [
+            "AWS: Manage CloudTrail, Manage Services, Manage Evidence, Manage Data Events.",
+            "Azure: Change Application Details, Manage Private Endpoint, Manage Services, Manage Evidence."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-managing-services.json",
+          "quotes": [
+            "After onboarding a cloud account, you can select the services that must be scanned by AI Security.",
+            "AI Security permissions are restricted to monitor and scan the data only in the selected services."
+          ]
+        }
+      ]
+    },
+    "account-list": {
+      "statement": "The accounts list is on the Accounts tab for AWS, Subscriptions tab for Azure and Projects tab for GCP; its columns include name, ID, business unit, status (Successfully Configured, Pending Configuration, Needs Attention) and Last Validated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-onboarded-account-details.json",
+          "quotes": [
+            "Select the Accounts tab for AWS, Subscriptions tab for Azure, and Projects tab for GCP.",
+            "Status: The status of the scan configuration (Successfully Configured, Pending Configuration, Needs Attention).",
+            "Last Validated: The date and time when the account is validated to check all configurations.",
+            "Subscription Name: The name of the subscription.",
+            "Subscription ID: The unique identifier of the subscription.",
+            "Business Unit: The business unit assigned to the account."
+          ]
+        }
+      ]
+    },
+    "account-cloudtrail": {
+      "statement": "An account's detail page shows CloudTrail Bucket Name, Prefix and Bucket Account ID only for AWS accounts; its Issues view lists onboarding configuration issues with resolution steps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-onboarded-account-details.json",
+          "quotes": [
+            "Cloud Trail details are displayed only for AWS accounts.",
+            "Bucket Account ID: The AWS account ID where the CloudTrail S3 bucket is present.",
+            "View the configuration issues that occurred while onboarding the account along with the resolution steps.",
+            "Bucket Name: The name of the S3 bucket associated with CloudTrail.",
+            "Prefix: The prefix specified in the CloudTrail bucket path."
+          ]
+        }
+      ]
+    },
+    "issue-types": {
+      "statement": "AI Security lists onboarding issues for an AWS organization, GCP organization or Azure tenant on an Issues tab with resolution steps; unaddressed issues might affect scanning, and affected target accounts or projects move to Needs Attention until resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-onboarding-issues.json",
+          "quotes": [
+            "AI Security detects issues in the onboarded AWS organization, GCP organization, or Azure tenant and lists them on the Issues tab.",
+            "If the issues are not addressed, they might impact the scanning of the data stores.",
+            "If an issue is detected in the target accounts, or projects, the status of the target accounts or projects moves to the Needs Attention state until the issue is resolved.",
+            "Select the Issues tab to view the list of issues along with the resolution steps."
+          ]
+        }
+      ]
+    },
+    "issue-list": {
+      "statement": "The onboarding issues table has AWS, Microsoft Azure and GCP columns. Role or permission issues are listed in all three; Orchestrator validation is pending and Orchestrator unable to communicate with AI Security are in the AWS and GCP columns (the Azure column in those rows gives a role issue in the orchestrator subscription and a suspended account); Onboarded account is deleted is in the Azure and GCP columns (AWS gives Resources missing in the orchestrator account).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-onboarding-issues.json",
+          "quotes": [
+            "| Role not found in the orchestrator or target accounts | Role not present or misconfigured in the Microsoft Entra tenant | Missing permissions in the target project |",
+            "| Orchestrator validation is pending | Role not found or misconfigured in the orchestrator subscription. | Orchestrator validation is pending |",
+            "| Orchestrator unable to communicate with AI Security | Onboarded account is currently suspended. | Orchestrator is unable to communicate with the AI Security |",
+            "| Resources missing in the orchestrator account | Onboarded account is deleted | Onboarded account is deleted |",
+            "| Admin consent not granted | Missing permissions in the Orchestrator project |",
+            "| Client Secret is invalid | Missing permissions in the service account |"
+          ]
+        }
+      ]
+    },
+    "overview-status": {
+      "statement": "The Overview tab donut chart counts accounts as Successfully Configured, Needs Attention (misconfigurations or permission issues) or Pending Configuration (roles and permissions not yet configured and validated); a health validation service checks template deployment and roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-onboarding-status.json",
+          "quotes": [
+            "AI Security runs a health validation service to check if the onboarding templates are deployed successfully and roles and permissions are configured for each account.",
+            "Successfully Configured: The number of accounts that are configured and validated successfully.",
+            "Needs Attention: The number of accounts that have misconfigurations or permission issues.",
+            "Pending Configuration: The number of accounts for which the roles and permissions are yet to be configured and validated."
+          ]
+        }
+      ]
+    },
+    "overview-orchestrator": {
+      "statement": "On the onboarding status page, which shows an AWS account as its example and says field names vary by cloud account, the Overview tab's Orchestrator Details show Account Name, Account ID, Custom Tags count, primary Region, Network Type, AI Security Connection Status (Successful or Failed), Configuration Status (Successful, Warning, Failed or Pending Validation) and Last Connected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-onboarding-status.json",
+          "quotes": [
+            "In this article, an AWS account's status is shown as an example.",
+            "The field names vary depending on the cloud account: Account for AWS, Subscription for Azure, and Project for GCP.",
+            "Region: The primary region selected while onboarding.",
+            "Network Type: The network configuration used for onboarding the account or organization.",
+            "AI Security Connection Status: The connection status (Successful or Failed) of the orchestrator instance with AI Security.",
+            "Configuration Status: The configuration status (Successful, Warning, Failed, or Pending Validation)",
+            "Last Connected: The last time the orchestrator instance was successfully connected with AI Security.",
+            "Account Name: The account name.",
+            "Account ID: The account ID.",
+            "Custom Tags: The number of custom tags added."
+          ]
+        }
+      ]
+    },
+    "overview-cloudtrail": {
+      "statement": "The Overview tab's CloudTrail section is available only for AWS organizations and shows bucket name, prefix, bucket account ID and a status of Enabled or Failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-onboarding-status.json",
+          "quotes": [
+            "This field is available only for AWS organizations.",
+            "CloudTrail Bucket Name: The name of the S3 bucket where the CloudTrail events are logged.",
+            "Status: The status (Enabled or Failed) of the CloudTrail configuration.",
+            "Prefix: The prefix specified in the CloudTrail bucket path.",
+            "Bucket Account ID: The AWS account ID where the CloudTrail S3 bucket is present."
+          ],
+          "after": "4. CloudTrail: The details of the organization CloudTrail provided while onboarding. You can see:"
+        }
+      ]
+    },
+    "overview-evidence": {
+      "statement": "On the onboarding status page, which shows an AWS account as its example and says field names vary by cloud account, the Overview tab's Evidence section shows S3 bucket name, storage type (Zscaler or Custom) and S3 bucket account ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-onboarding-status.json",
+          "quotes": [
+            "In this article, an AWS account's status is shown as an example.",
+            "The field names vary depending on the cloud account: Account for AWS, Subscription for Azure, and Project for GCP.",
+            "S3 Bucket Name: The S3 bucket name.",
+            "Storage Type: The storage type (Zscaler or Custom).",
+            "S3 Bucket Account ID: The S3 bucket account ID."
+          ]
+        }
+      ]
+    },
+    "new-template-banner": {
+      "statement": "A banner on the Overview tab announces a new template when one is available; closing it removes it only for the current session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-onboarding-status.json",
+          "quotes": [
+            "A notification banner is displayed if a new template (e.g., Tree Discovery, Onboarding) is available for deployment.",
+            "If you close the notification banner, it is removed only for the current session."
+          ]
+        }
+      ]
+    },
+    "templates-aws": {
+      "statement": "For AWS the Roles and Templates tab offers a CloudFormation or Terraform template for Tree Discovery, Orchestrator, Monitoring Scope and Evidence, and shows the role's external ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-roles-and-templates.json",
+          "quotes": [
+            "Download either the CloudFormation or Terraform template to your local system, extract the ZIP file, and run it on the AWS organization.",
+            "Tree Discovery",
+            "Orchestrator",
+            "Monitoring Scope",
+            "Evidence",
+            "You can view and copy the external ID, an optional identifier that is attached to the role."
+          ],
+          "after": "3. Select the Roles and Templates tab."
+        }
+      ]
+    },
+    "templates-azure": {
+      "statement": "For Microsoft Azure the Roles and Templates tab offers the Tree Discovery, Azure Onboarding and Evidence templates to run on the Azure tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-roles-and-templates.json",
+          "quotes": [
+            "Download the following templates to your local system, extract the ZIP file, and run it on the Azure tenant.",
+            "Tree Discovery",
+            "Azure Onboarding",
+            "Evidence"
+          ],
+          "after": "You can view and copy the external ID, an optional identifier that is attached to the role."
+        }
+      ]
+    },
+    "templates-gcp": {
+      "statement": "For GCP the Roles and Templates tab offers the Tree Discovery and GCP Onboarding templates to run on the GCP organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-roles-and-templates.json",
+          "quotes": [
+            "Download the following templates to your local system, extract the ZIP file, and run it on the GCP organization.",
+            "Tree Discovery",
+            "GCP Onboarding"
+          ],
+          "after": "Azure Onboarding"
+        }
+      ]
+    },
+    "template-acknowledge": {
+      "statement": "Clicking Acknowledge makes a new template override the existing one; only an Administrator role can acknowledge, a role with View Cloud Accounts permission can only view or download, and acknowledging for one organization or tenant updates all.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-roles-and-templates.json",
+          "quotes": [
+            "If you click Acknowledge, the new template overrides the existing template",
+            "You can acknowledge the template only if you are assigned an Administrator role.",
+            "If you have a role with the View Cloud Accounts permission, you can only view or download the templates, but you cannot acknowledge them.",
+            "If you acknowledge the new template for one organization or tenant, it is updated for all the onboarded organizations or tenants."
+          ]
+        }
+      ]
+    },
+    "redeploy": {
+      "statement": "Templates can be redeployed to upgrade to a new template, when custom roles created during onboarding have issues, or to modify or delete a role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-viewing-roles-and-templates.json",
+          "quotes": [
+            "Upgrade to a new template",
+            "Experience issues with custom roles that are created during onboarding",
+            "Modify or delete a role"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "delete-resources-wording": {
+      "kind": "semantic",
+      "title": "Which resources does the account-deletion page mean by its opening statement that all resources within the account are deleted?",
+      "status": "open",
+      "detail": "The deleting-an-onboarded-account page opens with a list that includes the deletion of all the resources within the account, while its single and multiple account procedure says there is no impact on those accounts at the cloud service provider. The page does not say whether the resources are in the AI Security Admin Portal or at the provider; this subject records only the quoted statements about the Admin Portal and the template-deployed resources.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "scanner-size-figures": {
+      "kind": "semantic",
+      "title": "Which memory and disk figures are right for scanner instances, given the page's prose and tables differ?",
+      "status": "open",
+      "detail": "The scanner instances page says up to 10 scanner instances each with 16 vCPU and 32 GiB, while its tables list smaller defaults (for example incremental scans on 4 vCPU instances) and give e2-standard-16 as 64 GiB in one row and 32 GiB in another; the disk labels GP4 and GP6 are not named elsewhere. The default-type claims here record instance types only.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "orch-other-clusters": {
+      "kind": "semantic",
+      "title": "Which orchestrator egress addresses apply to AI Security clusters other than the US Cluster?",
+      "status": "open",
+      "detail": "The orchestrator page lists service IPs and FQDNs for the US Cluster only.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

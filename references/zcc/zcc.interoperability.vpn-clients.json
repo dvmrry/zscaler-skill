@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "id": "zcc.interoperability.vpn-clients",
+  "title": "Running Client Connector with a corporate VPN client: forwarding action per platform and VPN mode, detection, DNS behavior",
+  "aliases": [
+    "vpn client interoperability",
+    "corporate vpn client",
+    "vpn gateway bypass",
+    "full-tunnel vpn",
+    "split-tunnel vpn"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.interoperability"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.network-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.internet-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.bypasses"
+    }
+  ],
+  "prose": [
+    {
+      "text": "With a corporate VPN client, the forwarding profile action decides whether Client Connector competes with the VPN. {{layer-matters}}"
+    },
+    {
+      "label": "What the page recommends per platform.",
+      "text": "{{windows-macos-recommendations}} The existing Windows recommendation for VPN coexistence differs {{divergence:windows-full-tunnel-action}}. {{ios}} {{android}}"
+    },
+    {
+      "label": "Linux.",
+      "text": "{{linux-full-tunnel}} Which option set belongs to Internet & SaaS and which to Private Access is open {{gap:linux-zia-zpa-pairing}}."
+    },
+    {
+      "label": "How a VPN is detected.",
+      "text": "{{full-tunnel-detection}} The keyword list differs from the one in [[zcc.forwarding-profiles.network-types:vpn-trusted-exclusions]] {{divergence:check-point-keyword}}. {{split-tunnel}}"
+    },
+    {
+      "label": "VPN configuration the page requires.",
+      "text": "{{vpn-proxy-tampering}} {{split-search-domains}} {{vpn-firewall-and-criteria}}"
+    },
+    {
+      "label": "Tunnel (Route-Based) with a VPN.",
+      "text": "{{route-based-split}} {{route-based-dns}} {{launch-instability}}"
+    },
+    {
+      "text": "The page names the gateway bypass field two ways {{gap:gateway-field-name}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a VPN user shown as Off-Trusted: whether the VPN installs a default route and whether the default interface description contains one of the listed words; the sources disagree on whether Check Point is one of them.",
+      "uses": [
+        "full-tunnel-detection",
+        "check-point-keyword"
+      ]
+    },
+    {
+      "do": "Which forwarding action the profile uses on Windows with a full-tunnel VPN; the two vendor pages recommend different actions.",
+      "uses": [
+        "windows-macos-recommendations",
+        "windows-full-tunnel-action"
+      ]
+    },
+    {
+      "do": "Whether the VPN client is configured to change proxy settings, and whether its firewall is disabled or allowlists Client Connector.",
+      "uses": [
+        "vpn-proxy-tampering",
+        "vpn-firewall-and-criteria"
+      ]
+    },
+    {
+      "do": "With Tunnel (Route-Based) and a split-tunnel VPN: that every VPN hostname or all IP addresses it resolves to are in the VPN gateway bypass field and that the VPN's DNS resolves internal and external domains.",
+      "uses": [
+        "route-based-split",
+        "route-based-dns"
+      ]
+    }
+  ],
+  "claims": {
+    "layer-matters": {
+      "statement": "With a corporate VPN client, the forwarding profile action decides whether Client Connector works at the network (IP) layer or the application layer. For Tunnel with Local Proxy and Tunnel (Packet Filter-Based) the app works at the application layer and does not compete with the VPN client at the IP layer, so users do not experience interoperability issues: the app allows the VPN to take traffic as needed but sets proxy settings or packet filters so that Zscaler still protects all user traffic. Tunnel mode works at the same IP layer as VPN clients and might cause interoperability problems.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "you must select the appropriate forwarding profile action that determines if Zscaler Client Connector works at the network (IP) layer or the application layer to tunnel traffic",
+            "Since Zscaler Client Connector works at the application layer for Tunnel with Local Proxy and Tunnel (Packet Filter-Based) and doesn’t compete with the VPN client at the IP layer, users don’t experience interoperability issues.",
+            "Instead, the app allows the VPN to take traffic as needed but sets proxy settings or packet filters to ensure that all user traffic is still protected by Zscaler.",
+            "Because Zscaler Client Connector works at the same IP layer as VPN clients for Tunnel mode, it might cause interoperability problems."
+          ]
+        }
+      ]
+    },
+    "windows-macos-recommendations": {
+      "statement": "For Windows and macOS, the page recommends, for Windows, only Tunnel with Local Proxy with a full-tunnel VPN and either Tunnel with Local Proxy or Tunnel (Packet Filter-Based) with a split-tunnel VPN, and, for macOS, only Tunnel with Local Proxy. It highly recommends not selecting Tunnel (Route-Based) as the forwarding profile for VPN-Trusted Network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "For Windows and macOS, Zscaler recommends you use the following settings:",
+            "Full-Tunnel Mode: Select only Tunnel with Local Proxy.",
+            "Split-Tunnel Mode: Select either Tunnel with Local Proxy or Tunnel (Packet Filter-Based).",
+            "macOS: Select only Tunnel with Local Proxy.",
+            "Zscaler highly recommends that you don't select Tunnel (Route-Based) as the forwarding profile for VPN-Trusted Network."
+          ]
+        }
+      ]
+    },
+    "ios": {
+      "statement": "For iOS, Zscaler recommends the Tunnel forwarding profile action; Client Connector for iOS does not support Tunnel with Local Proxy. iOS allows multiple VPNs to run simultaneously as long as each is of a different type (personal, per-app or enterprise); Client Connector runs as an enterprise VPN, so another personal or per-app VPN can run alongside it, but not an enterprise VPN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "For iOS, Zscaler recommends you use Tunnel for the forwarding profile action.",
+            "The iOS platform allows multiple VPNs to run simultaneously, as long as each VPN is of a different type; personal, per-app, or enterprise.",
+            "For example, Zscaler Client Connector runs as an enterprise VPN.",
+            "So you can simultaneously run another personal or per-app VPN, but not an enterprise VPN.",
+            "Zscaler Client Connector for iOS does not support Tunnel with Local Proxy."
+          ]
+        }
+      ]
+    },
+    "android": {
+      "statement": "On Android, Client Connector and any third-party VPN cannot run simultaneously because Android allows only one concurrent VPN at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "For Android, you cannot run Zscaler Client Connector and any third-party VPN simultaneously because the Android OS only allows one concurrent VPN at a time."
+          ]
+        }
+      ]
+    },
+    "linux-full-tunnel": {
+      "statement": "For Linux with a VPN in full-tunnel mode, the page lists the headings Forwarding Profile Action for ZIA and Forwarding Profile Action for ZPA followed by two option sets. One: On-Trusted Network Tunnel with Local Proxy, VPN-Trusted Network Same as On-Trusted Network, Off-Trusted Network Same as On-Trusted Network. The other: On-Trusted Network Tunnel, VPN-Trusted Network None. The capture does not show which set goes with which heading. The page also says to disable the VPN client's route monitoring option (for example Cisco AnyConnect VPN) and, if Internet & SaaS loses connection when the VPN starts because the VPN client might have failed to install the bypass route for the Public Service Edge IP, to add that IP to the VPN Gateway Bypass field in App Profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "after": "For Linux, Zscaler recommends using the following settings if your VPN runs in full-tunnel mode:",
+          "quotes": [
+            "Forwarding Profile Action for ZIA",
+            "Forwarding Profile Action for ZPA",
+            "On-Trusted Network: Select Tunnel with Local Proxy.",
+            "VPN-Trusted Network: Select Same as On-Trusted Network.",
+            "Off-Trusted Network: Select Same as On-Trusted Network.",
+            "If Internet & SaaS (ZIA) experiences connection loss upon VPN startup, the VPN client might have failed to install the VPN bypass route for the Zscaler Client Connector administration site (e.g., the Public Service Edge for Internet & SaaS IP).",
+            "If this occurs, add the Public Service Edge for Internet & SaaS IP to the VPN Gateway Bypass field in App Profiles.",
+            "On-Trusted Network: Select Tunnel.",
+            "VPN-Trusted Network: Select None.",
+            "Disable the VPN client's route monitoring option (e.g., Cisco AnyConnect VPN)."
+          ]
+        }
+      ]
+    },
+    "vpn-proxy-tampering": {
+      "statement": "The VPN client must not be configured to change proxy settings on users' devices, even if Tunnel with Local Proxy is selected as the forwarding profile action for VPN-Trusted Network; if VPN clients tamper with proxy settings in any way, Client Connector does not forward traffic properly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "You must ensure that the VPN client is not configured to change proxy settings on users’ devices (even if you select Tunnel with Local Proxy as the forwarding profile action for VPN-Trusted Network).",
+            "If VPN clients tamper with proxy settings in any way, Zscaler Client Connector does not forward traffic properly."
+          ]
+        }
+      ]
+    },
+    "full-tunnel-detection": {
+      "statement": "Client Connector detects a full-tunnel VPN by looking for a default route in the routing table. If the VPN does not set a default route and captures all traffic another way, the app does not consider it full-tunnel and treats the user as Off-Trusted Network. The page says the app looks for these words in the default interface description to detect a VPN-Trusted Network: Cisco, Juniper, Fortinet, PanGP, Check Point and VPN, and treats the user as Off-Trusted Network if they are missing. For a VPN that does not set a default route the page says to select Tunnel with Local Proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "Zscaler Client Connector detects a full tunnel VPN by looking for a default route in the routing table.",
+            "If the VPN doesn’t set a default route and uses a different mechanism to capture all traffic, Zscaler Client Connector won't consider the VPN a full-tunnel VPN.",
+            "Instead, the app treats the user as Off-Trusted Network and applies the corresponding forwarding profile action.",
+            "Zscaler Client Connector looks for the following words in the default interface description to detect a VPN-Trusted Network: Cisco, Juniper, Fortinet, PanGP, Check Point, and VPN.",
+            "If these words are missing, the app treats the user as Off-Trusted Network.",
+            "If your VPN doesn't set a default route, select Tunnel with Local Proxy."
+          ]
+        }
+      ]
+    },
+    "split-tunnel": {
+      "statement": "When the VPN runs in split-tunnel mode, only some of the users' traffic is routed to the VPN client (for example the VPN can set routes only for specific subnets such as 10/8 or 192.168/16); Client Connector treats the device as Off-Trusted Network and applies the forwarding profile action chosen for that network. For a simpler configuration the page recommends Tunnel with Local Proxy or Tunnel (Packet Filter Based) in this scenario.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "When your VPN runs split-tunnel mode, only some of your users’ traffic is routed to the VPN client.",
+            "For example, the VPN can set routes only for specific subnets, such as 10/8 or 192.168/16.",
+            "Zscaler Client Connector treats the device as Off-Trusted Network and applies the forwarding profile action you chose for that network.",
+            "For a simpler configuration, Zscaler recommends selecting Tunnel with Local Proxy or Tunnel (Packet Filter Based) in this scenario."
+          ]
+        }
+      ]
+    },
+    "route-based-split": {
+      "statement": "With a full-tunnel VPN, Zscaler strongly recommends against Tunnel (Route-Based). With Tunnel (Route-Based) and a split-tunnel VPN, Client Connector can forward traffic properly only if traffic to the VPN gateway bypasses it: the app sets the routing table to exclude that traffic, which requires the hostnames and IP addresses of all VPN gateways in the Hostname or IP Address Bypass for VPN Gateway field of the app profile, including all VPN hostnames or all IP addresses they can resolve to; any DNS the VPN uses must resolve both internal and external domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "If your VPN runs in full-tunnel mode, Zscaler strongly recommends against selecting Tunnel (Route-Based) for the forwarding profile action.",
+            "When you select Tunnel (Route-Based) and your VPN runs split-tunnel mode, Zscaler Client Connector can only forward traffic properly if you allow traffic destined for the VPN gateway to bypass Zscaler Client Connector.",
+            "Zscaler Client Connector sets the routing table to exclude all traffic destined for the VPN gateway, ensuring that this traffic is allowed to bypass the app tunnel and properly go to the VPN.",
+            "To configure this, you must specify the hostnames and IP addresses for all your VPN gateways in the Hostname or IP Address Bypass for VPN Gateway field when you configure the app profile.",
+            "To ensure against connectivity issues, it's critical that you include all VPN hostnames or all IP addresses to which these hostnames can be resolved.",
+            "Ensure that any DNS used by the VPN can resolve both internal and external domains."
+          ]
+        }
+      ]
+    },
+    "route-based-dns": {
+      "statement": "The Forwarding Profiles page says Client Connector 4.8 and later for Windows does not use the route-based driver and always uses the packet filter-based driver, so the Windows Route-Based behavior here concerns earlier versions. On Windows in Tunnel (Route-Based) mode, the app sets the interface DNS to 100.64.0.3, 100.64.0.4 and 100.64.0.5; when a VPN changes it, the app detects and reverts the change so 100.64.0.3 is again the prioritized DNS, and redirects any query that reaches 100.64.0.3 to the original prioritized DNS (the VPN client DNS). Some Windows programs do not redirect DNS queries to the next DNS in the priority list, so the page says all VPN clients should set DNS that can resolve both internal and external domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "On Windows devices, when Zscaler Client Connector runs in Tunnel (Route-Based) mode, the app sets the DNS on the interface to point to 100.64.0.3, 100.64.0.4, and 100.64.0.5.",
+            "Zscaler Client Connector detects this change and reverts it, so that 100.64.0.3 (Zscaler's DNS) is again the prioritized DNS for the user device.",
+            "However, the app redirects any DNS query that comes to 100.64.0.3 to the original prioritized DNS (i.e., the VPN client DNS).",
+            "However, some Windows programs do not redirect DNS queries to the next DNS in the priority list.",
+            "To prevent this, ensure that all VPN clients set the DNS so that they can resolve both internal and external domains."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Zscaler Client Connector version 4.8 and later for Windows does not use the route-based driver. If a Windows device has Zscaler Client Connector version 4.8 or later installed, the app always uses the packet filter-based driver, regardless of this setting."
+          ]
+        }
+      ]
+    },
+    "split-search-domains": {
+      "statement": "If a third-party VPN operates in split-tunnel mode, DNS search domains must be configured in the VPN connection profile; otherwise Client Connector intercepts the VPN connection's DNS requests and forwards them to the system DNS server, which might be unable to resolve the VPN domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "If a third-party VPN operates in split-tunnel mode, you must configure DNS search domains in the VPN connection profile.",
+            "Otherwise, Zscaler Client Connector intercepts the VPN connection's DNS requests and forwards them to the system DNS server, which might be unable to resolve the VPN domains."
+          ]
+        }
+      ]
+    },
+    "vpn-firewall-and-criteria": {
+      "statement": "If the VPN has any firewall functionality, it must be disabled or Client Connector allowlisted in it, because otherwise the VPN firewall can interfere with app tunnel processes. For the forwarding profile's Trusted Network Criteria, Zscaler recommends selecting DNS Server and DNS Search Domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "If your VPN has any firewall functionality, you must disable it or allowlist Zscaler Client Connector in the firewall.",
+            "Otherwise, the VPN firewall can interfere with app tunnel processes.",
+            "When configuring the Trusted Network Criteria for your forwarding profile, Zscaler recommends that you select DNS Server and DNS Search Domain."
+          ]
+        }
+      ]
+    },
+    "launch-instability": {
+      "statement": "The Forwarding Profiles page says Client Connector 4.8 and later for Windows always uses the packet filter-based driver, so the Windows Route-Based behavior here concerns earlier versions. Users can see momentary network instability when a VPN client launches while Client Connector is running: in Tunnel (Route-Based) on Windows the app removes all its own DNS settings if the VPN client runs in full-tunnel mode, or reconfigures them for Off-Trusted Network if it runs in split-tunnel mode; the VPN client detects the removal as a network change and can disconnect and try to reconnect, so the user can see connectivity issues until the app and VPN client reach equilibrium.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+          "quotes": [
+            "Keep in mind that users can see some momentary network instability when a VPN client initially launches while Zscaler Client Connector is running.",
+            "On Windows devices, when Zscaler Client Connector runs in Tunnel (Route-Based), the app sets the DNS on the interface to point to 100.64.0.3, 100.64.0.4, and 100.64.0.5.",
+            "If the VPN client runs in full-tunnel mode, the app removes all of its own DNS settings to allow all traffic to properly go to the VPN.",
+            "If the VPN client runs in split-tunnel mode, the app reconfigures DNS settings so it can properly apply the forwarding profile action for Off-Trusted Network.",
+            "When the app removes its own DNS settings, this is detected as a network change by the VPN client.",
+            "In response, the VPN client can disconnect and attempt to reestablish the connection.",
+            "The user can experience some connectivity issues until this process is complete and the app and VPN client reach equilibrium."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Zscaler Client Connector version 4.8 and later for Windows does not use the route-based driver. If a Windows device has Zscaler Client Connector version 4.8 or later installed, the app always uses the packet filter-based driver, regardless of this setting."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "check-point-keyword": {
+      "summary": "The VPN interoperability page lists six words Client Connector looks for in the default interface description, including Check Point; the Forwarding Profiles page, cited by zcc.forwarding-profiles.network-types:vpn-trusted-exclusions and :split-vpn-trusted, lists five.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+            "quotes": [
+              "Zscaler Client Connector looks for the following words in the default interface description to detect a VPN-Trusted Network: Cisco, Juniper, Fortinet, PanGP, Check Point, and VPN."
+            ]
+          },
+          "says": "The words are Cisco, Juniper, Fortinet, PanGP, Check Point and VPN."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-forwarding-profiles.json",
+            "quotes": [
+              "The default interface description does not contain the words Cisco, Juniper, Fortinet, PanGP, or VPN."
+            ]
+          },
+          "says": "The words are Cisco, Juniper, Fortinet, PanGP and VPN; Check Point is not listed."
+        }
+      ],
+      "impact": "For a Check Point VPN whose adapter description contains none of the other words, one page says the user is detected as VPN-Trusted and the other implies Off-Trusted; the pages do not say which governs."
+    },
+    "windows-full-tunnel-action": {
+      "summary": "For a full-tunnel VPN on Windows, the VPN interoperability page allows only Tunnel with Local Proxy and the deployment best practices recommend Tunnel with Local Proxy beside VPN clients, while the Forwarding Profiles page, cited by zcc.forwarding-profiles.internet-actions:recommended-modes, recommends Tunnel (Packet Filter-Based) for Windows so that users do not encounter interoperability issues with VPN clients.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-best-practices-zscaler-client-connector-and-vpn-client-interoperability.json",
+            "quotes": [
+              "Full-Tunnel Mode: Select only Tunnel with Local Proxy."
+            ]
+          },
+          "says": "For Windows with a full-tunnel VPN, select only Tunnel with Local Proxy."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+            "quotes": [
+              "Zscaler recommends using Tunnel (Packet Filter-Based) as your forwarding profile action for Windows and using Tunnel with Local Proxy for macOS. With these modes, users don’t encounter interoperability issues if they have VPN clients running alongside Zscaler Client Connector.",
+              "Zscaler Client Connector version 4.8 and later for Windows does not use the route-based driver. If a Windows device has Zscaler Client Connector version 4.8 or later installed, the app always uses the packet filter-based driver, regardless of this setting."
+            ]
+          },
+          "says": "Use Tunnel (Packet Filter-Based) for Windows; with it, users do not encounter interoperability issues with VPN clients running alongside the app."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+            "quotes": [
+              "Zscaler recommends selecting Tunnel with Local Proxy as the forwarding profile action in your forwarding profiles."
+            ]
+          },
+          "says": "For users running Client Connector with VPN clients or applications that function like VPNs, the deployment best practices recommend selecting Tunnel with Local Proxy as the forwarding profile action in forwarding profiles."
+        }
+      ],
+      "impact": "The Forwarding Profiles page also says Client Connector 4.8 and later for Windows does not use the route-based driver and always uses the packet filter-based driver regardless of the profile setting, so on those versions the Windows Tunnel choice is always packet filter-based and the Route-Based facts on the VPN page concern earlier versions. For a Windows device with a full-tunnel VPN, one page excludes Packet Filter-Based and the other recommends it for VPN coexistence; the Forwarding Profiles page does not mention VPN mode, so the two may differ only in scope, but the pages do not say. The deployment best practices recommend Tunnel with Local Proxy beside VPN clients or VPN-like applications without naming an OS or a VPN mode, so they agree with the interoperability page on the action and differ from the Forwarding Profiles page for Windows, if their scope includes it."
+    }
+  },
+  "gaps": {
+    "linux-zia-zpa-pairing": {
+      "kind": "semantic",
+      "title": "Which Linux option set is for Internet & SaaS and which is for Private Access",
+      "status": "open",
+      "detail": "The capture lists the Forwarding Profile Action for ZIA and for ZPA headings together ahead of both option sets, so pairing the first set with ZIA and the second with ZPA is by order only.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "gateway-field-name": {
+      "kind": "semantic",
+      "title": "Whether VPN Gateway Bypass and Hostname or IP Address Bypass for VPN Gateway are the same field",
+      "status": "open",
+      "detail": "The page calls the app profile field VPN Gateway Bypass in the Linux section and Hostname or IP Address Bypass for VPN Gateway in the Route-Based section without saying they are one setting.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

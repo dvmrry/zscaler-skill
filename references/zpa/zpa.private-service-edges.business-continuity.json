@@ -1,0 +1,533 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.business-continuity",
+  "title": "Business Continuity for Private Access: prerequisites, domain names, settings, entering and exiting, limitations",
+  "aliases": [
+    "business continuity settings",
+    "business continuity domain",
+    "entering business continuity",
+    "exiting business continuity",
+    "business continuity sni",
+    "business continuity fqdn"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.business-continuity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}}"
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{prereq-version}} {{prereq-network}} {{prereq-config}} {{client-connector-portal-steps}}"
+    },
+    {
+      "label": "Names it uses.",
+      "text": "{{dns-and-managed-domain}} {{fqdns-client-connector}} {{fqdns-components}} {{snis}} {{domain-change-reenrolls}}"
+    },
+    {
+      "label": "Settings.",
+      "text": "{{new-user-enrollment}} {{configuration-backup}} {{backup-path}} {{backup-schedule}} {{max-wait-to-enter}} {{switch-users-to-public-cloud}} {{idp-configuration}}"
+    },
+    {
+      "label": "Entering.",
+      "text": "{{enter-components}} {{enter-new-users}} {{enter-enrolled-users}} {{enter-connected-users}}"
+    },
+    {
+      "label": "Exiting.",
+      "text": "{{exit-components}} {{exit-users}}"
+    },
+    {
+      "label": "Limitations.",
+      "text": "{{limits-new-users}} {{limits-no-config-changes}} {{limits-certificates-upgrades}} Whether client platforms other than Windows and macOS are supported is open {{gap:bc-platform-support}}. What several of the settings mean in practice is open {{gap:bc-semantics}}."
+    },
+    {
+      "text": "The controller and the Private Cloud objects are in [[zpa.private-service-edges.private-cloud-controller]], its sizing and network requirements in [[zpa.private-service-edges.private-cloud-controller.deployment]] and its console commands in [[zpa.private-service-edges.private-cloud-controller.troubleshooting]]. Client Connector's side is in [[zcc.install.business-continuity]]. Disaster recovery is a separate mode: [[zpa.private-service-edges.disaster-recovery]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether every application and access policy was configured before Business Continuity started, since configuration changes are not supported while it is active.",
+      "uses": [
+        "prereq-config",
+        "limits-no-config-changes"
+      ]
+    },
+    {
+      "do": "Whether the name a component or client fails to resolve is one of the Business Continuity FQDNs, and whether it resolves from DNS servers the organization hosts.",
+      "uses": [
+        "dns-and-managed-domain",
+        "fqdns-client-connector",
+        "fqdns-components"
+      ]
+    },
+    {
+      "do": "Whether a user who enrolled during active Business Continuity relies on SCIM attributes or mutual TLS, which are not supported for them.",
+      "uses": [
+        "limits-new-users",
+        "new-user-enrollment"
+      ]
+    },
+    {
+      "do": "Whether on-premises components were due a certificate renewal, which cannot happen while Business Continuity is active.",
+      "uses": [
+        "limits-certificates-upgrades"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "Business Continuity for Private Access lets users keep accessing applications during Private Access-related cloud outages or Internet Service Provider outages, without any manual intervention.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-continuity.json",
+          "quotes": [
+            "allows users to continue to access applications during Private Access-related cloud outages or Internet Service Provider (ISP) outages",
+            "Business Continuity helps organizations achieve uninterrupted access to applications without any manual intervention."
+          ]
+        }
+      ]
+    },
+    "prereq-version": {
+      "statement": "To ensure that Business Continuity functions properly, Private Cloud Controllers must run on the same or a later software version as the App Connectors and Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-cloud-controllers.json",
+          "quotes": [
+            "to ensure that Business Continuity functions properly, Private Cloud Controllers must run on the same or a later software version as the App Connectors and Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "prereq-network": {
+      "statement": "The Understanding Business Continuity page expects that end users' machines run Client Connector 4.6 or later for Windows; that Private Cloud Controllers receive inbound connections from end users, App Connectors and Private Service Edges on port 443; that end users resolve the Business Continuity FQDNs and reach the Private Cloud Controllers and Private Service Edges using the Business Continuity SNIs on port 443; that App Connectors and Private Service Edges resolve the FQDNs and connect outbound to the Private Cloud Controllers on port 443; and that the Private Service Edge receives inbound connections from end users and all App Connectors on port 443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-continuity.json",
+          "quotes": [
+            "End users' machines are running Zscaler Client Connector versions 4.6 and later for Windows.",
+            "Private Cloud Controllers can receive inbound connections from end users, App Connectors, and Private Service Edges for Zscaler Private Access (ZPA) on port 443.",
+            "End users are able to resolve the Business Continuity FQDNs and can connect to the Private Cloud Controllers and Private Service Edges using the Business Continuity SNIs on port 443.",
+            "App Connectors and Private Service Edges can resolve the Business Continuity FQDNs, and can connect to the Private Cloud Controllers outbound connections on port 443.",
+            "The Private Service Edge can receive inbound connections from end users and all App Connectors on port 443."
+          ]
+        }
+      ]
+    },
+    "prereq-config": {
+      "statement": "All applications and all access policies must be configured before entering Business Continuity. Customers must provide DNS servers and a per-tenant identity provider to be used during Business Continuity; a SIEM for visibility or logging, and GPO or Mobile Device Management installation of Client Connector with customer-specific configurations for new user enrollment, are optional infrastructure changes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-continuity.json",
+          "quotes": [
+            "All applications must be configured before entering Business Continuity.",
+            "All access policies must be configured before entering Business Continuity.",
+            "Customers must provide the following infrastructure:",
+            "DNS servers",
+            "Per-tenant identity provider (IdP) to be used during Business Continuity",
+            "The following infrastructure changes are optional:",
+            "SIEM for visibility or logging during Business Continuity.",
+            "Group Policy Object (GPO) or Mobile Device Management functionalities to install Zscaler Client Connector with customer-specific configurations for new user enrollment."
+          ]
+        }
+      ]
+    },
+    "client-connector-portal-steps": {
+      "statement": "The page's Client Connector Portal steps are to enable Business Continuity per app profile, to sync, download and copy the thumbprint of the Business Continuity configuration, and to deploy Client Connector with the Business Continuity installation parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-continuity.json",
+          "quotes": [
+            "Enable Business Continuity per app profile.",
+            "sync, download, and copy the thumbprint of the Business Continuity configuration",
+            "Deploy Zscaler Client Connector with the Business Continuity installation parameters."
+          ]
+        }
+      ]
+    },
+    "limits-new-users": {
+      "statement": "For new users who enrolled during active Business Continuity, mutual TLS authentication between users and Private Service Edges is not supported, and SCIM attributes are not supported: only SAML attributes are supported for access policies, timeout policies and client forwarding policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-continuity.json",
+          "quotes": [
+            "For new users who enrolled during active Business Continuity:",
+            "Mutual TLS authentication between users and Private Service Edges is not supported.",
+            "SCIM attributes are not supported. Only SAML attributes are supported for access policies, timeout policies, and client forwarding policies."
+          ]
+        }
+      ]
+    },
+    "limits-no-config-changes": {
+      "statement": "While in active Business Continuity, configuration changes, including deployment of Private Service Edges and App Connectors, are not supported. The Browser Access, Source IP Anchoring, Cloud Connector and Branch Connector client types are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-continuity.json",
+          "quotes": [
+            "While in active Business Continuity, configuration changes (including deployment of Private Service Edges and App Connectors) are not supported.",
+            "Browser Access, Source IP Anchoring, Cloud Connector, and Branch Connector client types are not supported."
+          ]
+        }
+      ]
+    },
+    "limits-certificates-upgrades": {
+      "statement": "Certificates for App Connectors, Private Service Edges and Private Cloud Controllers cannot be renewed while in active Business Continuity. These components maintain certificate validity for one year and can be renewed earlier by specifying the Certificate Renewal Threshold when configuring a Private Cloud. They do not automatically upgrade to Business Continuity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-continuity.json",
+          "quotes": [
+            "You cannot renew certificates for on-premises server components (i.e., App Connectors, Private Service Edges, and Private Cloud Controllers) while in active Business Continuity.",
+            "These components maintain certificate validity for one year, but can be renewed earlier by specifying the Certificate Renewal Threshold when configuring a Private Cloud.",
+            "App Connectors, Private Service Edges, and Private Cloud Controllers do not automatically upgrade to Business Continuity."
+          ]
+        }
+      ]
+    },
+    "dns-and-managed-domain": {
+      "statement": "Business Continuity requires DNS servers hosted in the organization's infrastructure to resolve the FQDNs. Zscaler provides a Business Continuity domain (for example tenant_name.zpa.zsbcs.net).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "Business Continuity requires DNS servers hosted in your organization's infrastructure to resolve the FQDNs.",
+            "Zscaler provides a Business Continuity domain (e.g., tenant_name.zpa.zsbcs.net)"
+          ]
+        }
+      ]
+    },
+    "fqdns-client-connector": {
+      "statement": "The settings page gives example names for the initial DNS request to get the Private Cloud Controller IP addresses (any2bcp.<business_continuity_domain>), for the TLS connection to the Private Cloud Controller for identity provider redirection (bcpsp.<business_continuity_domain>) and for the TLS connection for the SAML request (bcpsp-<pcc gid>.<business_continuity_domain>).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "The initial DNS request to get the Private Cloud Controller IP addresses (e.g., any2bcp.<business_continuity_domain>)",
+            "The TLS connection to the Private Cloud Controller for identity provider (IdP) redirection (e.g., bcpsp.<business_continuity_domain>)",
+            "The TLS connection to the Private Cloud Controller for the SAML request (e.g., bcpsp-<pcc gid>.<business_continuity_domain>)"
+          ]
+        }
+      ]
+    },
+    "fqdns-components": {
+      "statement": "The DNS request to get the Private Cloud Controller's IP address is co2bcp.<business_continuity_domain> for App Connectors and pb2bcp.<business_continuity_domain> for Private Service Edges for Private Access; based on the DNS resolution, the Private Service Edge or App Connectors establish a TLS connection to the Private Cloud Controller.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "The DNS request to get the Private Cloud Controller's IP address is co2bcp.<business_continuity_domain> for App Connectors and pb2bcp.<business_continuity_domain> for Private Service Edges for Private Access.",
+            "Based on the DNS resolution, the Private Service Edge or App Connectors establish a TLS connection to the Private Cloud Controller."
+          ]
+        }
+      ]
+    },
+    "snis": {
+      "statement": "Client Connector's TLS connections to the Private Cloud Controller and to the Private Service Edge both use the SNI c2.<business_continuity_domain> for enrolled users and c2site.<business_continuity_domain> for new users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "| Zscaler Client Connector TLS connections to the Private Cloud Controller | Enrolled users' SNI is c2.<business_continuity_domain> New users' SNI is c2site.<business_continuity_domain> |",
+            "| Zscaler Client Connector TLS connections to the Private Service Edge | Enrolled users' SNI is c2.<business_continuity_domain> New users' SNI is c2site.<business_continuity_domain> |"
+          ]
+        }
+      ]
+    },
+    "domain-change-reenrolls": {
+      "statement": "A Business Continuity SP FQDN is generated per Private Cloud Controller for the authentication of users in Business Continuity (for example bcpsp-<pccgid>.<business_continuity_domain>). Changing the Business Continuity Domain initiates a new enrollment process for Private Cloud Controllers and updates the SP Assertion Consumer Service URL and Entity ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "A Business Continuity SP FQDN is generated per Private Cloud Controller for the authentication of users in Business Continuity (e.g., bcpsp-<pccgid>.<business_continuity_domain>)",
+            "Changing the Business Continuity Domain initiates a new enrollment process for Private Cloud Controllers, and updates the SP Assertion Consumer Service URL and Entity ID."
+          ]
+        }
+      ]
+    },
+    "new-user-enrollment": {
+      "statement": "The New User Enrollment setting is enabled to enroll new users during Business Continuity; mutual TLS authentication between users and Private Service Edges is not supported for new user enrollment during Business Continuity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "New User Enrollment: Enable to enroll new users during Business Continuity.",
+            "Mutual TLS authentication between users and Private Service Edges is not supported for new user enrollment during Business Continuity."
+          ]
+        }
+      ]
+    },
+    "configuration-backup": {
+      "statement": "Configuration Backup is enabled to back up configuration data used by App Connectors and Private Service Edges to an SQLite database, configuration files (image snapshots, metadata and version number) and configuration snapshots (cryptographic and configuration files) used by the Private Cloud Controller; by default it is disabled. The default is 15 backups, and a maximum of 100 backups can be created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "Enable to back up configuration data used by App Connectors and Private Service Edges to an SQLite database, configuration files (image snapshots, metadata, and version number), and configuration snapshots (cryptographic and configuration files) used by the Private Cloud Controller. By default, this is disabled.",
+            "The default is 15 backups, and a maximum of 100 backups can be created."
+          ]
+        }
+      ]
+    },
+    "backup-path": {
+      "statement": "The Backup Path is where the Private Cloud Controller stores backups of database and configuration files. A new drive must be mounted, or an NFS/SMB must be shared for the backup path, and if the backup path is changed it must be owned by zscaler:zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "Backup Path: Enter the path to store backups of database and configuration files for the Private Cloud Controller.",
+            "A new drive must be mounted, or an NFS/SMB must be shared for the backup path.",
+            "If you change the backup path, ensure that the path is owned by zscaler:zscaler."
+          ]
+        }
+      ]
+    },
+    "backup-schedule": {
+      "statement": "Backup Frequency is Hourly, Daily or Weekly, Daily by default. For Hourly the choices are 4, 8, 12 and 24 hours (8 by default), which the Private Cloud Controller calculates from the time backups are enabled; for Daily a time in 15-minute intervals (12 AM by default); for Weekly a day and time (Monday at 12 AM by default). The schedule is based on the time zone of the Private Cloud Controller.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "Backup Frequency: Select how frequently a backup occurs (Hourly, Daily, or Weekly). By default, Daily is selected.",
+            "For Hourly, select a range between 4, 8, 12, and 24 hours. By default, 8 Hours is selected.",
+            "The Private Cloud Controller calculates the hours based on the time backups are enabled.",
+            "For Daily, select a time based on a 15-minute interval. By default, 12 AM is selected.",
+            "For Weekly, select a day and time. By default, Monday at 12 AM is selected.",
+            "The backup schedule is based on the time zone of the Private Cloud Controller."
+          ]
+        }
+      ]
+    },
+    "max-wait-to-enter": {
+      "statement": "The wait before App Connectors and Private Service Edges switch to Business Continuity is an integer of minutes or hours; by default 2 minutes is selected, the minimum is 1 minute and the maximum is 2 hours, or 120 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "Enter an integer to specify the duration (in minutes or hours) that App Connectors and Private Service Edges must wait before switching to Business Continuity.",
+            "By default, 2 Minute(s) is selected. The minimum limit for this field is 1 minute. The maximum limit for this field is 2 hours, or 120 minutes."
+          ]
+        }
+      ]
+    },
+    "switch-users-to-public-cloud": {
+      "statement": "Users are switched back to the public cloud either Automatic (the default), when there are no active connections, or Time-Based, after the maximum wait time to exit Business Continuity. That time is how long Private Service Edges wait before sending Client Connector a message to try to re-establish the control and data channel to the Zero Trust Exchange; by default 24 hours is selected, the minimum is 10 minutes and the maximum is 7 days, 168 hours or 10,080 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "Automatic: Select to switch users to the public cloud when there are no active connections. By default, Automatic is selected.",
+            "Time-Based: Select to switch users to the public cloud after the maximum wait time to exit Business Continuity.",
+            "Enter an integer to specify the duration that Private Service Edges must wait before sending a message to Zscaler Client Connector to try and re-establish the control and data channel to the Zero Trust Exchange (ZTE).",
+            "By default, 24 Hour(s) is selected. The minimum supported value is 10 minutes. The maximum limit for this field is 7 days, 168 hours, or 10,080 minutes."
+          ]
+        }
+      ]
+    },
+    "idp-configuration": {
+      "statement": "Business Continuity authenticates users with either the existing IdP, the same configuration used for user authentication in normal operations, or a new IdP configured by uploading its metadata file; the service provider URL, certificate and entity ID to give a new IdP are based on the entered Business Continuity Domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-continuity-settings.json",
+          "quotes": [
+            "Existing IdP for Authentication: Select to use the same IdP configuration that is configured for user authentication for normal operations",
+            "New IdP for Authentication: Select to configure a new IdP for authenticating users in Business Continuity.",
+            "Click Upload File to upload the IdP metadata file used to authenticate users for Business Continuity.",
+            "Click the Copy icon to copy the service provider URL based on the entered Business Continuity Domain.",
+            "Click Download Certificate to download the service provider certificate based on the entered Business Continuity Domain.",
+            "Click the Copy icon to copy the service provider entity ID based on the entered Business Continuity Domain."
+          ]
+        }
+      ]
+    },
+    "enter-components": {
+      "statement": "When connectivity to the Zero Trust Exchange is lost, a timer starts based on the Max Time to Wait to Enter Business Continuity setting. App Connectors and Private Service Edges retry connections to the ZTE until it expires, then connect to a Private Cloud Controller using the Business Continuity FQDNs, and after connecting continue to reestablish the control channel to the Private Access cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-entering-and-exiting-business-continuity.json",
+          "quotes": [
+            "When connectivity to the Zero Trust Exchange (ZTE) is lost, a timer is triggered based on the Max Time to Wait to Enter Business Continuity specified in the Business Continuity settings.",
+            "App Connectors and Private Service Edges attempt to retry connections to the ZTE until the timer expires.",
+            "After the timer expires, the App Connectors and Private Service Edges connect to a Private Cloud Controller using the Business Continuity FQDNs.",
+            "After successful connection to a Private Cloud Controller, App Connectors and Private Service Edges continue to reestablish the control channel to the Private Access cloud."
+          ]
+        }
+      ]
+    },
+    "enter-new-users": {
+      "statement": "For a new user enrolling in Business Continuity after launching Client Connector, Client Connector first attempts to reach the cloud authentication endpoint (samlsp.private.zscaler.com); if it is not reachable, Client Connector contacts the local authentication endpoint and, after successful authentication, enters Business Continuity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-entering-and-exiting-business-continuity.json",
+          "quotes": [
+            "Zscaler Client Connector attempts to reach the cloud authentication endpoint (samlsp.private.zscaler.com).",
+            "If the authentication endpoint is not reachable, then Zscaler Client Connector contacts the local authentication endpoint and, after successful authentication, enters Business Continuity."
+          ],
+          "after": "The following workflow applies to new users enrolling in Business Continuity after launching Zscaler Client Connector:"
+        }
+      ]
+    },
+    "enter-enrolled-users": {
+      "statement": "For an enrolled user, if the cloud authentication endpoint is not reachable Client Connector attempts the local authentication endpoint hosted on the Private Cloud Controller, and if that is reachable the user is redirected to the IdP and authenticates with the Business Continuity IdP. Client Connector then contacts the ZTE for a list of Public Service Edges or Private Service Edges; if the initial connection to the ZTE fails or no control and data channel can be established with any of them, it contacts the Business Continuity FQDN and the user is redirected to the Business Continuity Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-entering-and-exiting-business-continuity.json",
+          "after": "The following workflow applies to enrolled users who need to authenticate:",
+          "quotes": [
+            "Zscaler Client Connector attempts to reach the cloud authentication endpoint (samlsp.private.zscaler.com).",
+            "If this is not reachable, then Zscaler Client Connector attempts to reach the local authentication endpoint hosted on the Private Cloud Controller.",
+            "If the local authentication endpoint is reachable, then the user is redirected to the identity provider (IdP) and authenticates with the Business Continuity IdP.",
+            "Zscaler Client Connector contacts the ZTE to get a list of Public Service Edges for Private Access or Private Service Edges to connect to.",
+            "If the initial connection to the ZTE fails or Zscaler Client Connector cannot establish control and data channel with any Public Service Edge or Private Service Edge, then Zscaler Client Connector contacts the Business Continuity FQDN and the user gets redirected to the Business Continuity Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "enter-connected-users": {
+      "statement": "If the connection of an authenticated user is idle for 60 seconds, Client Connector attempts to reconnect to the current Public Service Edge that the ZTE redirected the user to. If it cannot reach any of the Public Service Edges or Private Service Edge after two retries, it contacts the Private Cloud Controller using the Business Continuity FQDN, and the Private Cloud Controller redirects users to the Business Continuity Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-entering-and-exiting-business-continuity.json",
+          "quotes": [
+            "If the connection is idle for 60 seconds, Zscaler Client Connector attempts to reconnect to the current Public Service Edge that the ZTE redirected the user to establish control and data channel.",
+            "If Zscaler Client Connector cannot reach any of the Public Service Edges or Private Service Edge after two retries, then Zscaler Client Connector contacts the Private Cloud Controller using the Business Continuity FQDN.",
+            "The Private Cloud Controller redirects users to the Business Continuity Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "exit-components": {
+      "statement": "App Connectors and Private Service Edges exit Business Continuity and switch their control channels to the Private Access cloud immediately after connectivity to the Private Access cloud is restored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-entering-and-exiting-business-continuity.json",
+          "quotes": [
+            "App Connectors and Private Service Edges exit Business Continuity and switch their control channels to the Private Access cloud immediately after connectivity to the Private Access cloud is restored."
+          ]
+        }
+      ]
+    },
+    "exit-users": {
+      "statement": "The Private Service Edge sends a Remote Procedure Call to move users back to the ZTE. After the initial connection it waits for 10 minutes and probes every minute for active M-Tunnels, and sends the RPC when there are no active M-Tunnels for a given user or when the Max Time to Exit Business Continuity Mode expires; the timers are unique to each user connection. If the ZTE is reachable Client Connector connects to it, otherwise it stays connected to the Private Service Edges and waits for the next RPC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-entering-and-exiting-business-continuity.json",
+          "quotes": [
+            "A Remote Procedure Call (RPC) is sent by the Private Service Edge to move the users back to the ZTE.",
+            "After the initial connection, the Private Service Edge waits for 10 minutes and starts to probe every minute to check if Zscaler Client Connector has active Microtunnels (M-Tunnels).",
+            "There are no active M-Tunnels for a given user with the Private Service Edge.",
+            "The duration specified by the Max Time to Exit Business Continuity Mode expires.",
+            "The timers for the duration specified in the Business Continuity settings are unique to each user connection.",
+            "If the ZTE is reachable, then Zscaler Client Connector ends the connection with the Private Service Edge and connects to the ZTE.",
+            "If the ZTE is not reachable, Zscaler Client Connector continues to stay connected to the Private Service Edges and waits for the next RPC."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "bc-platform-support": {
+      "kind": "semantic",
+      "title": "Which client platforms Business Continuity supports",
+      "status": "partial",
+      "detail": "The Understanding Business Continuity page names only Client Connector 4.6 and later for Windows. The Client Connector pages state macOS from 4.7 as well (zcc.install.business-continuity:availability). Whether operating systems other than Windows and macOS are supported is not stated in these captures.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-business-continuity.json",
+          "quotes": [
+            "Business Continuity is available only for Zscaler Client Connector version 4.6 and later for Windows and for Zscaler Client Connector version 4.7 and later for macOS."
+          ]
+        }
+      ],
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "bc-semantics": {
+      "kind": "semantic",
+      "title": "What several Business Continuity statements mean in practice",
+      "status": "open",
+      "detail": "The page says App Connectors, Private Service Edges and Private Cloud Controllers do not automatically upgrade to Business Continuity without explaining it. Where Configuration Backup copies are kept (on the Private Cloud Controller's Backup Path only, or also on App Connectors and Private Service Edges) is not explicit. See zpa.private-service-edges.private-cloud-controller.troubleshooting for the console output examples, which do not show Business Continuity mode.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

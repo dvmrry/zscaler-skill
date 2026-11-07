@@ -1,0 +1,420 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.rollout",
+  "title": "Rolling out Client Connector: App Store downloads, deployment phases, pilot tests and update test groups",
+  "aliases": [
+    "zcc deployment best practices",
+    "zcc phased deployment",
+    "zcc pilot",
+    "zcc app store downloads",
+    "early adopter group zcc",
+    "zcc update best practices"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.macos-deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.revert"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.android-deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.ios-deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.interoperability.vpn-clients"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.interoperability.no-default-route"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.no-default-route"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{downloads}} The iOS exception is in [[zcc.install.ios-deployment]]; update settings per user group are in [[zcc.install.macos-deployment:app-store-updates]]."
+    },
+    {
+      "label": "The App Store tabs.",
+      "text": "{{app-store-tabs}} The Android download is described differently by the MDM guides: [[zcc.install.android-deployment]]."
+    },
+    {
+      "label": "What the App Store page controls.",
+      "text": "{{app-store-control}} {{availability-sections}} The relation of those sections to the New Releases tab is open {{gap:availability-vs-new-releases}}. {{enable-before-install}}"
+    },
+    {
+      "label": "The version list.",
+      "text": "{{version-list}} {{device-count-basis}}"
+    },
+    {
+      "label": "Before deploying.",
+      "text": "{{platform-inventory}}"
+    },
+    {
+      "label": "Phases.",
+      "text": "{{phases}} The pages give no per-phase duration or rollback criteria {{gap:phase-details}}."
+    },
+    {
+      "label": "What to test.",
+      "text": "{{phase-1-tests}} Other pages recommend a different forwarding action beside a VPN client: [[zcc.interoperability.vpn-clients]]. {{ssl-inspection-tests}}"
+    },
+    {
+      "label": "App profile recommendations.",
+      "text": "{{app-profile-recommendations}} The WPAD options are described differently for no-default-route environments {{divergence:override-wpad-direction}}; those environments are in [[zcc.interoperability.no-default-route]] and [[zia.traffic-forwarding.no-default-route]]."
+    },
+    {
+      "label": "Updating to a new version.",
+      "text": "{{update-test-group}} {{update-disrupts-connections}} Reverting after an unsuccessful upgrade is in [[zcc.install.revert]]. What preventing auto-updates means for the test group is open {{gap:prevent-auto-updates}}."
+    }
+  ],
+  "claims": {
+    "app-store-control": {
+      "statement": "The Client Connector App Store page controls which version, if any, is available when end users update the app manually or when automatic app updates are configured; it can deploy the latest version to a user group for testing, upgrade selected groups gradually with a phased rollout, and delay the base ZDX Module rollout so a selected group can test it. An admin without access to the page contacts the organization's support team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "In the Zscaler Admin Console on the Zscaler Client Connector App Store page, you can control which version (if any) of Zscaler Client Connector is available when end users manually update the app or when you configure automatic app updates.",
+            "Automatically deploy the latest version of Zscaler Client Connector to a specific user group for testing purposes.",
+            "Gradually upgrade devices for selected groups using a phased rollout.",
+            "Delay a rollout of the base ZDX Module used with Digital Experience (ZDX) to allow for testing by a selected group.",
+            "If you don't have access to the Zscaler Client Connector App Store, contact your organization's support team."
+          ]
+        }
+      ]
+    },
+    "availability-sections": {
+      "statement": "The App Store page shows the latest released versions in the General Availability section and versions that are not yet fully qualified in the Limited Availability section; Zscaler Support enables versions in the Limited Availability section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "View the latest released versions in the General Availability section and versions that are not yet fully qualified in the Limited Availability section.",
+            "Contact Zscaler Support to enable versions in the Limited Availability section."
+          ]
+        }
+      ]
+    },
+    "enable-before-install": {
+      "statement": "Even when the latest version is selected to install on the Update Settings tab, the build must first be enabled on the New Releases tab; disabling a version on New Releases only disables it on the list and does not uninstall it from the system.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "Even if you select to install the latest version in the Update Settings tab, you must first enable the build in the New Releases tab. If you disable a version from the New Releases tab, the version is only disabled on the list and is not uninstalled from your system."
+          ]
+        }
+      ]
+    },
+    "version-list": {
+      "statement": "The App Store lists the available Client Connector versions for Windows, macOS, Linux and Android with the latest version always at the top, and its Registered Devices column shows the number of devices currently enrolled in the Zscaler service with each app version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "View the list of available Zscaler Client Connector versions for Windows, macOS, Linux, and Android. The latest version is always listed at the top.",
+            "In the Registered Devices column, view the number of devices currently enrolled in the Zscaler service with this app version."
+          ]
+        }
+      ]
+    },
+    "device-count-basis": {
+      "statement": "The Registered Devices count is calculated on the Unique-ID and can instead be based on the Hardware Fingerprint, which Zscaler Support changes: with 5 users sharing one laptop the count shows 5 on the Unique-ID and 1 on the Hardware Fingerprint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "In the Registered Devices column, view the number of devices currently enrolled in the Zscaler service with this app version.",
+            "The device count is calculated based on the Unique-ID. You can change this calculation to base the count on the Hardware Fingerprint.",
+            "For example, if you have 5 users sharing a single laptop, the device count shows 5 when based on the Unique-ID but shows 1 when based on the Hardware Fingerprint.",
+            "To change the calculation basis, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "downloads": {
+      "statement": "IT admins can download Client Connector for Windows, macOS, Linux or Android from the Client Connector App Store in the Admin Console (Infrastructure > Client Connector > App Store), either the latest version or one of the older versions still available. App updates can also be configured to update Client Connector automatically on end users' Windows, Linux or macOS devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-understanding-zscaler-client-connector-app-downloads.json",
+          "quotes": [
+            "If you are an IT Admin, you can download Zscaler Client Connector for Windows, macOS, Linux, or Android from the Zscaler Client Connector App Store in the Zscaler Admin Console.",
+            "You can download either the latest version or one of the older versions still available for download.",
+            "From the navigation menu, go to Infrastructure > Client Connector > App Store.",
+            "You can also configure app updates to automatically update Zscaler Client Connector for end users with Windows, Linux, or macOS devices."
+          ]
+        }
+      ]
+    },
+    "app-store-tabs": {
+      "statement": "The New Releases tab shows and enables the latest Client Connector versions for Windows, macOS and Linux; an enabled build is then listed under the Registered Devices tab, which shows released versions for Windows, macOS, Linux and Android (SDK file only), with the most recent release at the top of each table and versions that are not grayed out still available to download. Windows has EXE URL and MSI URL columns, macOS Download APP or Download PKG columns, and Linux a Download Link column.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-understanding-zscaler-client-connector-app-downloads.json",
+          "quotes": [
+            "On the New Releases tab, you can view and enable the latest Zscaler Client Connector versions for Windows, macOS, and Linux.",
+            "After you enable a particular build, it is listed under the Registered Devices tab.",
+            "On the Registered Devices tab, you can view the released versions of Zscaler Client Connector versions for Windows, macOS, Linux, and Android (SDK file only).",
+            "The most recent release is listed at the top of each table. Versions that are not grayed out are still available to download.",
+            "In the EXE URL and MSI URL columns for Windows, the Download APP or Download PKG columns for macOS, or the Download Link column for Linux, click the Download icon for the version you want to download."
+          ]
+        }
+      ]
+    },
+    "platform-inventory": {
+      "statement": "Before deployment, Zscaler recommends gathering, for the Windows and macOS computers users will be on, the OS versions, browsers, VPN clients, antivirus solutions, firewalls, computer management mechanisms, key applications and how application packages are distributed, and testing Client Connector on as many different computers as possible in each phase.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+          "quotes": [
+            "Zscaler recommends you test Zscaler Client Connector on as many different computers as possible in each phase.",
+            "For the Windows and macOS computers users will be on, gather the following information:",
+            "Versions: What OS versions are being used?",
+            "Browsers: What browsers are being used?",
+            "VPN: What VPN clients are being used?",
+            "Antivirus: What antivirus solutions are being used?",
+            "Firewall: What firewalls are being used?",
+            "Management: What computer management mechanisms are being used?",
+            "Key Applications: What key applications are being used?",
+            "Application Distribution: How are application packages distributed?"
+          ]
+        }
+      ]
+    },
+    "phases": {
+      "statement": "Zscaler recommends a 4-phase deployment: Phase 1 IT Test with 25-50 users, Phase 2 Expanded IT Test with another 100 to 150 users, Phase 3 End User Group with another 200 to 300 users, and Phase 4 Remaining Users in groups of 1,000 users each. The success criterion for phases 1 to 3 is that no blockers exist for moving to the next phase, and for phase 4 that no blockers exist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+          "quotes": [
+            "Zscaler recommends the following 4-phase approach for deployment:",
+            "Phase 1: IT Test - 25-50 users",
+            "Phase 2: Expanded IT Test - Another 100 to 150 users",
+            "Phase 3: End User Group - Another 200 to 300 users",
+            "Phase 4: Remaining Users - All remaining users, in groups of 1,000 users each"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+          "after": "Phase 1: IT Test - 25-50 users",
+          "quotes": [
+            "Success Criteria: No blockers exist for moving to the next phase."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+          "after": "Phase 2: Expanded IT Test - Another 100 to 150 users",
+          "quotes": [
+            "Success Criteria: No blockers exist for moving to the next phase."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+          "after": "Phase 3: End User Group - Another 200 to 300 users",
+          "quotes": [
+            "Success Criteria: No blockers exist for moving to the next phase."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+          "after": "Phase 4: Remaining Users - All remaining users, in groups of 1,000 users each",
+          "quotes": [
+            "Success Criteria: No blockers exist."
+          ]
+        }
+      ]
+    },
+    "phase-1-tests": {
+      "statement": "The best-practices page's test items include VPN interoperability: for users running Client Connector with VPN clients or applications that function like VPNs (for example Microsoft Always ON VPN), it says Zscaler recommends selecting Tunnel with Local Proxy as the forwarding profile action. It also suggests forwarding profiles that disable the app on trusted networks that have GRE or IPSec tunnels forwarding traffic to Zscaler, PAC files to exempt some user traffic, and tests of functionality on and off trusted networks, SSL inspection and custom app profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+          "quotes": [
+            "If your users will be running Zscaler Client Connector in conjunction with VPN clients or applications that function like VPNs (for example, Microsoft Always ON VPN), take steps to ensure users don't face interoperability issues.",
+            "Zscaler recommends selecting Tunnel with Local Proxy as the forwarding profile action in your forwarding profiles.",
+            "Try configuring your forwarding profiles so that the app disables its services when users are on trusted networks that have GRE or IPSec tunnels forwarding traffic to Zscaler.",
+            "If so, create PAC files so you can exempt some user traffic from being forwarded with the app.",
+            "Test Functionality On- and Off-Trusted Networks",
+            "Test SSL Inspection",
+            "Test Custom App Profiles"
+          ]
+        }
+      ]
+    },
+    "ssl-inspection-tests": {
+      "statement": "For SSL inspection of Client Connector traffic the page says to turn on Install Zscaler SSL Certificate in app profiles, which is not supported on devices running macOS Big Sur (11) and later; to enable SSL inspection for Client Connector users on each relevant platform in the Policy for Zscaler Client Connector section of the SSL Inspection page; and to specify applications that perform certificate pinning under Do Not Inspect these Applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+          "quotes": [
+            "Turn on the Install Zscaler SSL Certificate option when configuring app profiles.",
+            "For Internet & SaaS, in the Policy for Zscaler Client Connector section of the SSL Inspection page in the Zscaler Admin Console, enable to perform SSL inspection for Zscaler Client Connector users on each relevant platform.",
+            "Ensure all applications that perform certificate pinning are specified under Do Not Inspect these Applications on the SSL Inspection page in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+          "after": "Test SSL Inspection",
+          "quotes": [
+            "The Install Zscaler SSL Certificate feature is not supported on devices running macOS Big Sur (11) and later."
+          ]
+        }
+      ]
+    },
+    "app-profile-recommendations": {
+      "statement": "For app profiles the page says to select Debug as the Log Mode in Phase 1 and Error in Phase 4. For Windows users whose app runs in Tunnel with Local Proxy mode, it says Disable Loopback Restriction is required for that mode, Zscaler recommends Override WPAD for fresh installations where WPAD is still present or received by DHCP unless the devices must utilize WPAD, and Zscaler recommends Restart WinHTTP Service to delete any cached WPAD settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+          "quotes": [
+            "For Log Mode, select Debug in Phase 1 and Error in Phase 4.",
+            "If configuring app profiles for Windows users and if the app is running in Tunnel with Local Proxy mode:",
+            "Disable Loopback Restriction: Required for Tunnel with Local Proxy mode",
+            "Override WPAD: Unless the devices must utilize WPAD, Zscaler recommends selecting this option for fresh installations where WPAD is still present or received by DHCP.",
+            "Restart WinHTTP Service: Zscaler recommends selecting this option to delete any cached WPAD settings."
+          ]
+        }
+      ]
+    },
+    "update-test-group": {
+      "statement": "Before deploying the latest Client Connector version to all user groups, Zscaler recommends first testing it on specific groups (for example an Early Adopter user group), which the page says prevents auto-updates and controls deployment to the organization's user groups. The steps are to create a user group for the latest version, sync the directory groups between Internet & SaaS and Client Connector, and set the version to install to Latest for the test group and to a specific version for the other groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-updating-latest-version-zscaler-client-connector-application.json",
+          "quotes": [
+            "Before deploying the latest version of Zscaler Client Connector to all the user groups in your organization, Zscaler recommends you first test the latest versions of the app on specific user groups (e.g., Early Adopter user group), before deploying it to all your user groups.",
+            "By doing this, you can prevent auto-updates and control deployment of the app to your organization's user groups.",
+            "Create a user group for which you want to deploy the latest version of Zscaler Client Connector.",
+            "Sync the directory groups between Internet & SaaS and Zscaler Client Connector.",
+            "Ensure that the version to install is set to Latest for the user group that you created for testing. For the other user groups in your organization, set a specific Zscaler Client Connector version based on your requirements."
+          ]
+        }
+      ]
+    },
+    "update-disrupts-connections": {
+      "statement": "During the update of Client Connector, established client connections might be affected, and clients might need to re-establish their connections after the update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-updating-latest-version-zscaler-client-connector-application.json",
+          "quotes": [
+            "Be advised during the update of Zscaler Client Connector, established client connections might be affected. Clients might need to re-establish their connections after the update."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "override-wpad-direction": {
+      "summary": "The deployment best practices recommend Override WPAD unless devices must use WPAD, and Restart WinHTTP Service to delete cached WPAD settings; the no-default-route page's Scenario 1 makes both options optional and enabled if WPAD is in use.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-best-practices-zscaler-client-connector-deployment.json",
+            "quotes": [
+              "Override WPAD: Unless the devices must utilize WPAD, Zscaler recommends selecting this option for fresh installations where WPAD is still present or received by DHCP.",
+              "Restart WinHTTP Service: Zscaler recommends selecting this option to delete any cached WPAD settings."
+            ]
+          },
+          "says": "Select Override WPAD unless the devices must utilize WPAD, for fresh installations where WPAD is present or received by DHCP, and select Restart WinHTTP Service to delete cached WPAD settings."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+            "after": "Scenario 1 - Forwarding Internet & SaaS HTTP/HTTPS",
+            "quotes": [
+              "Override WPAD: (Optional) Enable this option if WPAD is in use.",
+              "Restart WinHTTP Service: (Optional) Enable this option if WPAD is in use."
+            ]
+          },
+          "says": "In Scenario 1, both options are optional and enabled if WPAD is in use."
+        }
+      ],
+      "impact": "The pages give opposite conditions for the same Windows app profile options: one recommends Override WPAD unless devices must use WPAD, the other enables it if WPAD is in use. The contexts differ (a general Tunnel with Local Proxy rollout against a no-default-route Scenario 1), which the pages do not reconcile."
+    }
+  },
+  "gaps": {
+    "availability-vs-new-releases": {
+      "kind": "semantic",
+      "title": "How the General and Limited Availability sections relate to the New Releases tab",
+      "status": "open",
+      "detail": "The About the App Store page names General Availability and Limited Availability sections and the downloads page names the New Releases tab; neither says how a version in a section is enabled or listed on that tab.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "phase-details": {
+      "kind": "semantic",
+      "title": "How long each rollout phase lasts and what triggers a rollback",
+      "status": "open",
+      "detail": "The deployment best practices give user counts and a no-blockers success criterion per phase but no duration and no rollback criteria.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "prevent-auto-updates": {
+      "kind": "semantic",
+      "title": "What preventing auto-updates means for the update test group",
+      "status": "open",
+      "detail": "The update best-practices page says testing on specific groups prevents auto-updates and controls deployment, without explaining the mechanism beyond setting versions per user group.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

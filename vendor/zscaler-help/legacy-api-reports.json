@@ -1,0 +1,2562 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Reports",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/reports",
+    "node": "1409631",
+    "revision": "3211218",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Reports_44.json?VersionId=elGa6HTHzcQmGCnDE1ojY2R8_F1yx1J9",
+    "updated": "2026-06-26",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.3",
+    "info": {
+      "title": "ZDX API",
+      "version": "0.1.0",
+      "description": "APIs for Zscaler Digital Experience (ZDX).\n"
+    },
+    "servers": [
+      {
+        "url": "https://api.zdxcloud.net/v1",
+        "description": "production"
+      },
+      {
+        "url": "https://dev.zdxapi.zscaler.net/v1",
+        "description": "dev"
+      },
+      {
+        "url": "http://localhost:8080/v1",
+        "description": "local"
+      }
+    ],
+    "security": [
+      {
+        "BearerAuth": []
+      }
+    ],
+    "tags": [
+      {
+        "name": "Reports"
+      }
+    ],
+    "paths": {
+      "/apps": {
+        "get": {
+          "description": "Lists all active applications configured for a tenant. The endpoint gets each application’s ZDX Score (default for the previous 2 hours), most impacted location, and the total number of users impacted. To learn more, see <a\n    href=\"/zdx/monitoring-performance-dashboard\" target=\"_blank\">Monitoring the Performance Dashboard</a>.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation. The response contains the ZDX Score, most impacted location details, and total users impacted for each application.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "description": "The application ID."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "The application name (for example, Salesforce, Sharepoint, etc.)."
+                        },
+                        "score": {
+                          "type": "number"
+                        },
+                        "most_impacted_geo": {
+                          "$ref": "#/components/schemas/UserLocation"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/apps/{appid}": {
+        "get": {
+          "description": "Gets the application’s ZDX Score (for the previous 2 hours), most impacted locations, and the total number of users impacted. To learn more, see <a\n    href=\"/zdx/about-zdx-score#user\" target=\"_blank\">About the ZDX Score</a>.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Application"
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/apps/{appid}/score": {
+        "get": {
+          "description": "Gets the application’s ZDX Score trend. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Series"
+                  },
+                  "examples": {
+                    "scoreSeries": {
+                      "$ref": "#/components/examples/scoreSeries"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/apps/{appid}/metrics": {
+        "get": {
+          "description": "Gets the application’s metric trend. <p>For Web Probes, you can access Page Fetch Time, Server Response Time, DNS Time or Availability. If metrics are not specified, it defaults to Page Fetch Time (PFT). </p><p>For Cloud Path probes, you can access latency metrics for End to End, Client - Egress, Egress - Application, Service Edge for Internet & Access - Egress, and Service Edge for Internet & Access - Application. If latency metric is not specified, it defaults to End to End latency. If the time range is not specified, the endpoint defaults to the previous 2 hours.</p>",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            },
+            {
+              "name": "metric_name",
+              "in": "query",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "pft",
+                  "dns",
+                  "availability"
+                ]
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Series"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/apps/{appid}/users": {
+        "get": {
+          "description": "Gets the list of all users and their devices that were used to access an application. The endpoint allows to get the list of users based on the score category (i.e., Poor, Okay, or Good), location, department, or geoloaction. If the time range is not specified, the endpoint defaults to the previouss 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "$ref": "#/components/parameters/score_bucket"
+            },
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_locations"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_departments"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/offset"
+            },
+            {
+              "$ref": "#/components/parameters/limit"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "users": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "description": "The user ID."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "The name of the user."
+                            },
+                            "email": {
+                              "type": "string",
+                              "description": "The email address of the user."
+                            },
+                            "score": {
+                              "type": "number",
+                              "description": "The ZDX Score for the user."
+                            }
+                          }
+                        }
+                      },
+                      "next_offset": {
+                        "type": "string",
+                        "description": "This value must be entered in the next request to get the next batch from the list."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/apps/{appid}/users/{userid}": {
+        "get": {
+          "description": "Gets user details including the device information, active geolocations, and Zscaler locations. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "name": "userid",
+              "in": "path",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "The unique user ID assigned to the user."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserDetail"
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/users": {
+        "get": {
+          "description": "Gets the list of all active users, their devices, active geolocations, and Zscaler locations. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_locations"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_departments"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/offset"
+            },
+            {
+              "$ref": "#/components/parameters/limit"
+            },
+            {
+              "in": "query",
+              "name": "q",
+              "schema": {
+                "type": "string"
+              },
+              "required": false,
+              "description": "Search is performed against name / email. Checks for active users in the first 1000 matches."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "users": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "description": "The user ID."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "The name of the user."
+                            },
+                            "email": {
+                              "type": "string",
+                              "description": "The email address of the user."
+                            }
+                          }
+                        }
+                      },
+                      "next_offset": {
+                        "type": "string",
+                        "description": "This value must be entered in the next request to get the next batch from the list."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/users/{userid}": {
+        "get": {
+          "description": "Gets user details including the device information, active geolocations, and Zscaler locations. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "name": "userid",
+              "in": "path",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "The unique user ID assigned to the user."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "The user ID."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the user."
+                      },
+                      "email": {
+                        "type": "string",
+                        "description": "The email address of the user."
+                      },
+                      "devices": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "geo_loc": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/DeviceLocation"
+                              }
+                            },
+                            "zs_loc": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ZSLocation"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/users_location": {
+        "get": {
+          "description": "Gets the list of active users along with their devices, active geolocations, and Zscaler locations, filtered by the configured geolocation provider. If the time range is not specified, the endpoint defaults to the previous 2 hours. The limit is 1000.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_locations"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_departments"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/geo_provider"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_geo_provider"
+            },
+            {
+              "$ref": "#/components/parameters/offset"
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "default": 1000,
+                "minimum": 1,
+                "maximum": 1000
+              },
+              "description": "The number of items returned per request from the list. The maximum allowed value for this endpoint is 1000."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "users": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "description": "The user ID."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "The name of the user."
+                            },
+                            "email": {
+                              "type": "string",
+                              "description": "The email address of the user."
+                            }
+                          }
+                        }
+                      },
+                      "next_offset": {
+                        "type": "string",
+                        "description": "This value must be entered in the next request to get the next batch from the list."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request. For example, the limit exceeds the maximum allowed value of 1000."
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/users_location/{userid}": {
+        "get": {
+          "description": "Get the location details for a specific user (e.g., device information, active geolocations, associated Zscaler location). If the time range is not specified, the default time range is the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/userid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "The user ID."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the user."
+                      },
+                      "email": {
+                        "type": "string",
+                        "description": "The email address of the user."
+                      },
+                      "devices": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "description": "The device ID."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "The name of the device."
+                            },
+                            "geo_loc": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/DeviceLocation"
+                              }
+                            },
+                            "zs_loc": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ZSLocation"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            },
+            "404": {
+              "description": "The user ID provided in the request is invalid."
+            }
+          }
+        }
+      },
+      "/devices": {
+        "get": {
+          "description": "Gets the list of all active devices and its basic details. The JSON must contain the user’s ID and email address to associate the device to the user. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "$ref": "#/components/parameters/userids"
+            },
+            {
+              "$ref": "#/components/parameters/emails"
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_locations"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_departments"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/exclude_active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/offset"
+            },
+            {
+              "$ref": "#/components/parameters/limit"
+            },
+            {
+              "$ref": "#/components/parameters/private_ipv4"
+            },
+            {
+              "$ref": "#/components/parameters/mac_address"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "devices": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Device"
+                        }
+                      },
+                      "next_offset": {
+                        "type": "string",
+                        "description": "This value must be entered in the next request to get the next batch from the list."
+                      }
+                    }
+                  },
+                  "example": {
+                    "devices": [
+                      {
+                        "id": 40176154,
+                        "name": "LAPTOP-DQG97O6G (LENOVO 20WNS1HM01 Microsoft Windows 10 Pro;64 bit)",
+                        "userid": 76676623
+                      }
+                    ],
+                    "next_offset": "67677666"
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}": {
+        "get": {
+          "description": "Gets the device details including the device model information, tunnel type, network, and software details. The JSON must contain the user ID and email address to associate the device to a user. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeviceDetail"
+                  },
+                  "examples": {
+                    "deviceDetail": {
+                      "$ref": "#/components/examples/deviceDetail"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/apps": {
+        "get": {
+          "description": "Gets the list all active applications for a device. The endpoint gets the ZDX Score each application. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "description": "The application ID."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "The name of the application."
+                        },
+                        "score": {
+                          "type": "integer",
+                          "description": "The ZDX Score of the application."
+                        }
+                      }
+                    }
+                  },
+                  "example": [
+                    {
+                      "id": 1,
+                      "name": "Sharepoint",
+                      "score": 81
+                    },
+                    {
+                      "id": 4,
+                      "name": "Salesforce",
+                      "score": 90
+                    }
+                  ]
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/apps/{appid}": {
+        "get": {
+          "description": "Gets the application’s ZDX Score trend for a device. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "The web probe ID."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the application."
+                      },
+                      "score": {
+                        "type": "integer",
+                        "description": "The ZDX Score."
+                      },
+                      "trend": {
+                        "$ref": "#/components/schemas/Series"
+                      }
+                    }
+                  },
+                  "examples": {
+                    "scoreSeries": {
+                      "$ref": "#/components/examples/scoreSeries"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/apps/{appid}/web-probes": {
+        "get": {
+          "description": "Gets the list of all active web probes on a device. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "description": "The web probe ID."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "The web probe name."
+                        },
+                        "num_probes": {
+                          "type": "integer",
+                          "description": "The number of probes."
+                        },
+                        "avg_score": {
+                          "type": "integer",
+                          "description": "The average score."
+                        },
+                        "avg_pft": {
+                          "type": "integer",
+                          "description": "The average page fetch time in milliseconds."
+                        }
+                      }
+                    }
+                  },
+                  "example": [
+                    {
+                      "id": 4,
+                      "name": "Outlook Online Login Page Probe",
+                      "num_probes": 24,
+                      "avg_score": 85,
+                      "avg_pft": 2340
+                    }
+                  ]
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/apps/{appid}/cloudpath-probes": {
+        "get": {
+          "description": "Gets the list of all active Cloud Path probes on a device. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "description": "The cloud path probe ID."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "The cloudpath probe name."
+                        },
+                        "num_probes": {
+                          "type": "integer",
+                          "description": "The number of probes."
+                        },
+                        "avg_latencies": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "leg_src": {
+                                "type": "string",
+                                "description": "The leg source (client, egress, zen, connector, etc.)."
+                              },
+                              "leg_dst": {
+                                "type": "string",
+                                "description": "The leg destination (egress, zen, destination, etc.)"
+                              },
+                              "latency": {
+                                "type": "integer",
+                                "description": "The latency in milliseconds."
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": [
+                    {
+                      "id": 4,
+                      "name": "Outlook Online CloudPath Probe",
+                      "num_probes": 12,
+                      "avg_latencies": [
+                        {
+                          "leg_src": "client",
+                          "leg_dst": "egress",
+                          "latency": 15
+                        },
+                        {
+                          "leg_src": "egress",
+                          "leg_dst": "zen",
+                          "latency": 34
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/apps/{appid}/web-probes/{probeid}": {
+        "get": {
+          "description": "Gets the Web probe metrics trend on a device for an application. For Web probes, you can access Page Fetch Time, Server Response Time, DNS Time, or Availability. If metrics are not specified, it defaults to Page Fetch Time (PFT). If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "$ref": "#/components/parameters/probeid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Series"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/apps/{appid}/cloudpath-probes/{probeid}": {
+        "get": {
+          "description": "Gets the Cloud Path probe metric trend on a device for an application. For Cloud Path probes, you can access latency metrics for End to End, Client - Egress, Egress - Application, Service Edge for Internet & Access - Egress, and Service Edge for Internet & Access - Application. If metrics are not specified, it defaults to End to End latency. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "$ref": "#/components/parameters/probeid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/NetworkStats"
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/apps/{appid}/cloudpath-probes/{probeid}/cloudpath": {
+        "get": {
+          "description": "Gets the Cloud Path hop data for an application on a specific device. Includes the summary data for the entire path like the total number of hops, packet loss, latency, and tunnel type (if available). It also includes a similar summary of data for each individual hop. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "$ref": "#/components/parameters/probeid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": {
+                          "type": "integer"
+                        },
+                        "cloudpath": {
+                          "$ref": "#/components/schemas/Cloudpath"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/apps/{appid}/call-quality-metrics": {
+        "get": {
+          "description": "Gets the Call Quality metric trend for a device for a CQM application. If the time range is not specified, the endpoint defaults to the previous 2 hours.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "$ref": "#/components/parameters/appid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "meet_id": {
+                          "type": "string",
+                          "description": "The meeting ID."
+                        },
+                        "meet_session_id": {
+                          "type": "string",
+                          "description": "The meeting session ID."
+                        },
+                        "meet_subject": {
+                          "type": "string",
+                          "description": "The subject of the meeting."
+                        },
+                        "metrics": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Series"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/health-metrics": {
+        "get": {
+          "description": "Gets the health metrics trend for a device. If the time range is not specified, the endpoint defaults to the previous 2 hours. The health metrics include CPU, Memory, Disk I/O, Network I/O, Wi-Fi, Network Bandwidth, etc.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "category": {
+                          "type": "string",
+                          "description": "The category of the metrics."
+                        },
+                        "instances": {
+                          "type": "array",
+                          "description": "The instance of the category.",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "The name of the metric."
+                              },
+                              "metrics": {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "#/components/schemas/Series"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/events": {
+        "get": {
+          "description": "Gets the Events metrics trend for a device. If the time range is not specified, the endpoint defaults to the previous 2 hours. The event metrics include Zscaler, Hardware, Software and Network event changes.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeviceEvents"
+                  },
+                  "example": [
+                    {
+                      "timestamp": 1643525900,
+                      "events": [
+                        {
+                          "category": "Zscaler",
+                          "name": "tunType",
+                          "display_name": "Tunnel Change",
+                          "prev": "0",
+                          "curr": "3"
+                        },
+                        {
+                          "category": "Zscaler",
+                          "name": "ziaState",
+                          "display_name": "Client Connector State Change",
+                          "prev": "5",
+                          "curr": "20"
+                        }
+                      ]
+                    },
+                    {
+                      "timestamp": 1643526200,
+                      "events": [
+                        {
+                          "category": "Zscaler",
+                          "name": "tunType",
+                          "display_name": "Tunnel Change",
+                          "prev": "3",
+                          "curr": "0"
+                        },
+                        {
+                          "category": "Zscaler",
+                          "name": "ziaState",
+                          "display_name": "Client Connector State Change",
+                          "prev": "20",
+                          "curr": "5"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/active_geo": {
+        "get": {
+          "description": "Gets the list of all active geolocations for the time range specified. If time range is not specified, the endpoint defaults to the previous 2 hours. The state and city data is retrieved only for the US.",
+          "tags": [
+            "Reports"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "in": "query",
+              "name": "parent geo id",
+              "schema": {
+                "type": "string"
+              },
+              "required": false,
+              "description": "The parent geo ID."
+            },
+            {
+              "in": "query",
+              "name": "q",
+              "schema": {
+                "type": "string"
+              },
+              "required": false,
+              "description": "The search string used to support search by name."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "The geolocation ID."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "The name of the parent geolocation."
+                        },
+                        "geo_type": {
+                          "type": "string",
+                          "description": "The geolocation type."
+                        },
+                        "children": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "The geolocation ID."
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Description for the geolocation."
+                              },
+                              "geo_type": {
+                                "type": "string",
+                                "description": "the geolocation type."
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "parameters": {
+        "from": {
+          "in": "query",
+          "name": "from",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "The start time (in seconds) for the query. The value is entered in Unix Epoch. If start time is not entered, returns the data for the previous 2 hours."
+        },
+        "to": {
+          "in": "query",
+          "name": "to",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "The end time (in seconds) for the query. The value is entered in Unix Epoch. If end time not entered, returns the data for the previous 2 hours."
+        },
+        "locations": {
+          "in": "query",
+          "name": "loc",
+          "description": "The Zscaler location ID. You can add multiple location IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "departments": {
+          "in": "query",
+          "name": "dept",
+          "description": "The department ID. You can add multiple department IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "active_geo": {
+          "in": "query",
+          "name": "geo",
+          "description": "The active geolocation ID. You can add multiple active geolocation IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "appid": {
+          "in": "path",
+          "name": "appid",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true,
+          "description": "The application ID assigned by ZDX. For example, 12 for Microsoft Teams Call Quality.",
+          "example": 12
+        },
+        "score_bucket": {
+          "in": "query",
+          "name": "score_bucket",
+          "description": "The ZDX Score category (i.e., Poor, Okay, or Good).",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "poor",
+              "okay",
+              "good"
+            ]
+          }
+        },
+        "exclude_locations": {
+          "in": "query",
+          "name": "exclude_loc",
+          "description": "The Zscaler location ID to exclude. You can exclude multiple location IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "exclude_departments": {
+          "in": "query",
+          "name": "exclude_dept",
+          "description": "The department ID to exclude. You can exclude multiple department IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "exclude_active_geo": {
+          "in": "query",
+          "name": "exclude_geo",
+          "description": "The active geolocation ID to exclude. You can exclude multiple active geolocation IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "offset": {
+          "in": "query",
+          "name": "offset",
+          "required": false,
+          "schema": {
+            "type": "string"
+          },
+          "description": "<p>The <code>next_offset</code> value from the last request. You must enter this value to get the next batch from the list. When the <code>next_offset</code> value becomes null, the list is complete.</p>"
+        },
+        "limit": {
+          "in": "query",
+          "name": "limit",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 1000,
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "description": "The number of items that must be returned per request from the list."
+        },
+        "geo_provider": {
+          "in": "query",
+          "name": "geo_provider",
+          "description": "The geolocation provider used to resolve device geolocations. You can add multiple providers. When it is not specified, the default is \"GOOGLE_API\". The allowed values are: \"GOOGLE_API\", \"MAXMIND\", and \"SYSTEM\".",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "GOOGLE_API",
+                "MAXMIND",
+                "SYSTEM"
+              ]
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "exclude_geo_provider": {
+          "in": "query",
+          "name": "exclude_geo_provider",
+          "description": "The geolocation providers to exclude when resolving device geolocations. You can exclude multiple providers. The allowed values are: \"GOOGLE_API\", \"MAXMIND\", and \"SYSTEM\".",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "GOOGLE_API",
+                "MAXMIND",
+                "SYSTEM"
+              ]
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "userid": {
+          "in": "path",
+          "name": "userid",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true,
+          "description": "The user ID."
+        },
+        "userids": {
+          "in": "query",
+          "name": "userids",
+          "description": "The user IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "emails": {
+          "in": "query",
+          "name": "emails",
+          "description": "Emails",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "private_ipv4": {
+          "in": "query",
+          "name": "private_ipv4",
+          "description": "IPv4 Address Filter. It has to be limited to ten IPv4 addresses. Also, IPv4 should be used in conjunction with other filter(s). Conjunction filter(s) include userids, emails, loc, exclude_loc, dept, exclude_dept, geo, exclude_geo, mac_addresses",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "mac_address": {
+          "in": "query",
+          "name": "mac_address",
+          "description": "MAC Address Filter. Multiple MAC Addresses can be provided.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "deviceid": {
+          "in": "path",
+          "name": "deviceid",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true,
+          "description": "The device ID."
+        },
+        "probeid": {
+          "in": "path",
+          "name": "probeid",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true,
+          "description": "The probe ID.",
+          "example": 12
+        }
+      },
+      "schemas": {
+        "UserLocation": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The location ID."
+            },
+            "city": {
+              "type": "string",
+              "description": "The name of the city."
+            },
+            "region": {
+              "type": "string",
+              "description": "The region information."
+            },
+            "country": {
+              "type": "string",
+              "description": "The country of the location."
+            },
+            "geo_type": {
+              "type": "string",
+              "description": "The type of location."
+            }
+          }
+        },
+        "Application": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The application ID."
+            },
+            "name": {
+              "type": "string",
+              "description": "The application name (for example, Salesforce, Sharepoint, etc.)."
+            },
+            "score": {
+              "type": "number"
+            },
+            "most_impacted_geo": {
+              "$ref": "#/components/schemas/UserLocation"
+            },
+            "stats": {
+              "type": "object",
+              "properties": {
+                "active_users": {
+                  "type": "integer",
+                  "description": "The number of active users."
+                },
+                "active_devices": {
+                  "type": "integer",
+                  "description": "The number number of active devices."
+                },
+                "num_poor": {
+                  "type": "integer",
+                  "description": "The number of users with poor scores."
+                },
+                "num_okay": {
+                  "type": "integer",
+                  "description": "The number of users with okay scores."
+                },
+                "num_good": {
+                  "type": "integer",
+                  "description": "The number of users with good scores."
+                }
+              }
+            }
+          },
+          "example": {
+            "id": 12,
+            "name": "Microsoft Teams Call Quality",
+            "score": 85,
+            "most_impacted_geo": {
+              "id": "0.5332921.US",
+              "state": "California",
+              "country": "United States",
+              "geo_type": "Region"
+            },
+            "stats": {
+              "active_users": 1345,
+              "active_devices": 1503,
+              "num_poor": 134,
+              "num_okay": 234,
+              "num_good": 334
+            }
+          }
+        },
+        "Series": {
+          "type": "object",
+          "properties": {
+            "metric": {
+              "type": "string",
+              "description": "The name of the metric (for example, PFT)."
+            },
+            "unit": {
+              "type": "string",
+              "description": "The unit of the metric."
+            },
+            "datapoints": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "timestamp": {
+                    "type": "integer",
+                    "description": "Epoch seconds"
+                  },
+                  "value": {
+                    "type": "number",
+                    "description": "The value of the element."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "UserDetail": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The user ID."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the user."
+            },
+            "email": {
+              "type": "string",
+              "description": "The email address of the user."
+            },
+            "score": {
+              "type": "integer",
+              "description": "The ZDX Score for the user."
+            },
+            "devices": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "geo_loc": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/DeviceLocation"
+                    }
+                  },
+                  "zs_loc": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ZSLocation"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "DeviceLocation": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The location ID."
+            },
+            "city": {
+              "type": "string",
+              "description": "The name of the city."
+            },
+            "state": {
+              "type": "string",
+              "description": "The state information."
+            },
+            "country": {
+              "type": "string",
+              "description": "The country of the location."
+            },
+            "geo_type": {
+              "type": "string",
+              "description": "The type of location."
+            },
+            "geo_lat": {
+              "type": "string"
+            },
+            "geo_long": {
+              "type": "string"
+            },
+            "geo_detection": {
+              "type": "string",
+              "description": "ip_geo_lookup or device_geo_lookup"
+            }
+          }
+        },
+        "ZSLocation": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The location ID."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the location."
+            }
+          }
+        },
+        "DeviceDetail": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The device ID."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the device."
+            },
+            "hardware": {
+              "type": "object",
+              "properties": {
+                "hw_model": {
+                  "type": "string",
+                  "description": "The device hardware model."
+                },
+                "hw_mfg": {
+                  "type": "string",
+                  "description": "The hardware manufacturer's name."
+                },
+                "hw_type": {
+                  "type": "string",
+                  "description": "The type of hardware (for example, PC, MAC, etc.)"
+                },
+                "hw_serial": {
+                  "type": "string",
+                  "description": "The hardware's serial number."
+                },
+                "tot_mem": {
+                  "type": "string",
+                  "description": "The total installed memory (in GB)."
+                },
+                "gpu": {
+                  "type": "string",
+                  "description": "The graphics processing unit (GPU) in the hardware."
+                },
+                "disk_size": {
+                  "type": "string",
+                  "description": "The disk size."
+                },
+                "disk_model": {
+                  "type": "string",
+                  "description": "The disk model."
+                },
+                "disk_type": {
+                  "type": "string",
+                  "description": "The disk type."
+                },
+                "cpu_mfg": {
+                  "type": "string",
+                  "description": "The CPU manufacturer's name."
+                },
+                "cpu_model": {
+                  "type": "string",
+                  "description": "The CPU model."
+                },
+                "speed_ghz": {
+                  "type": "number",
+                  "description": "The CPU speed in GHz."
+                },
+                "logical_proc": {
+                  "type": "integer",
+                  "description": "The number of logical processor in the CPU."
+                },
+                "num_cores": {
+                  "type": "integer",
+                  "description": "The number of cores in the CPU."
+                }
+              }
+            },
+            "network": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "net_type": {
+                    "type": "string",
+                    "description": "The type of network connection."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "The network connection status."
+                  },
+                  "ipv4": {
+                    "type": "string",
+                    "description": "IPv4 information."
+                  },
+                  "ipv6": {
+                    "type": "string",
+                    "description": "The IPv6 information."
+                  },
+                  "dns_srvs": {
+                    "type": "string",
+                    "description": "The DNS servers information."
+                  },
+                  "dns_suffix": {
+                    "type": "string",
+                    "description": "The DNS suffix."
+                  },
+                  "gateway": {
+                    "type": "string",
+                    "description": "The gateway information."
+                  },
+                  "mac": {
+                    "type": "string",
+                    "description": "The MAC address."
+                  },
+                  "guid": {
+                    "type": "string",
+                    "description": "The GUID of the network."
+                  },
+                  "wifi_adapter": {
+                    "type": "string",
+                    "description": "The Wifi adapter."
+                  },
+                  "wifi_type": {
+                    "type": "string",
+                    "description": "The type of Wifi."
+                  },
+                  "ssid": {
+                    "type": "string",
+                    "description": "The SSID of the Wifi network."
+                  },
+                  "channel": {
+                    "type": "string",
+                    "description": "The channel information."
+                  },
+                  "bssid": {
+                    "type": "string",
+                    "description": "The BSSID of the Wifi network."
+                  }
+                }
+              }
+            },
+            "software": {
+              "type": "object",
+              "properties": {
+                "os_name": {
+                  "type": "string",
+                  "description": "The OS name on the device."
+                },
+                "os_ver": {
+                  "type": "string",
+                  "description": "The OS version on the device."
+                },
+                "os_build": {
+                  "type": "string",
+                  "description": "The OS build version on the device."
+                },
+                "hostname": {
+                  "type": "string",
+                  "description": "Hostname"
+                },
+                "netbios": {
+                  "type": "string",
+                  "description": "Netbios name"
+                },
+                "user": {
+                  "type": "string",
+                  "description": "The current logged in user."
+                },
+                "client_conn_ver": {
+                  "type": "string",
+                  "description": "The client connector version on the device."
+                },
+                "zdx_ver": {
+                  "type": "string",
+                  "description": "The ZDX version on the device."
+                }
+              }
+            }
+          }
+        },
+        "NetworkStats": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "leg_src": {
+                "type": "string",
+                "description": "The leg source (client, egress, zen, connector, etc.)."
+              },
+              "leg_dst": {
+                "type": "string",
+                "description": "The leg destination (egress, zen, destination, etc.)."
+              },
+              "stats": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Series"
+                }
+              }
+            }
+          }
+        },
+        "Cloudpath": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/CloudPathLeg"
+          }
+        },
+        "DeviceEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "type": "integer"
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          }
+        },
+        "CloudPathLeg": {
+          "type": "object",
+          "properties": {
+            "src": {
+              "type": "string",
+              "description": "Source IP"
+            },
+            "dst": {
+              "type": "string",
+              "description": "Destination IP"
+            },
+            "num_hops": {
+              "type": "integer",
+              "description": "The number of hops."
+            },
+            "latency": {
+              "type": "integer",
+              "description": "Total Latency"
+            },
+            "loss": {
+              "type": "integer",
+              "description": "Loss of packets."
+            },
+            "num_unresp_hops": {
+              "type": "integer",
+              "description": "The number of unresponsive hops."
+            },
+            "tunnel_type": {
+              "type": "integer",
+              "description": "Tunnel type"
+            },
+            "hops": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "ip": {
+                    "type": "string",
+                    "description": "The IP address of the hop."
+                  },
+                  "gw_mac": {
+                    "type": "string",
+                    "description": "The gateway MAC."
+                  },
+                  "gw_mac_vendor": {
+                    "type": "string",
+                    "description": "The gateway MAC vendor."
+                  },
+                  "pkt_sent": {
+                    "type": "integer",
+                    "description": "The number of packets sent."
+                  },
+                  "pkt_rcvd": {
+                    "type": "integer",
+                    "description": "The number of packets received."
+                  },
+                  "latency_min": {
+                    "type": "integer",
+                    "description": "minimum latency value experienced."
+                  },
+                  "latency_max": {
+                    "type": "integer",
+                    "description": "The maximum latency experienced."
+                  },
+                  "latency_avg": {
+                    "type": "integer",
+                    "description": "Average latency"
+                  },
+                  "latency_diff": {
+                    "type": "integer",
+                    "description": "Differential latency"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Event": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "description": "The Event category - Zscaler, Network, Software, or Hardware."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the attribute."
+            },
+            "display_name": {
+              "type": "string",
+              "description": "The event that occurred."
+            },
+            "prev": {
+              "type": "string",
+              "description": "The previous value."
+            },
+            "curr": {
+              "type": "string",
+              "description": "The current value."
+            }
+          }
+        }
+      },
+      "responses": {
+        "UnauthorizedError": {
+          "description": "Unauthorized"
+        },
+        "Forbidden": {
+          "description": "Forbidden"
+        }
+      },
+      "examples": {
+        "scoreSeries": {
+          "value": {
+            "metric": "score",
+            "datapoints": [
+              {
+                "timestamp": 1644163200,
+                "value": 80
+              },
+              {
+                "timestamp": 1644163500,
+                "value": 75
+              },
+              {
+                "timestamp": 1644163800,
+                "value": 78
+              },
+              {
+                "timestamp": 1644164100,
+                "value": 79
+              },
+              {
+                "timestamp": 1644164400,
+                "value": -1
+              },
+              {
+                "timestamp": 1644164700,
+                "value": -1
+              },
+              {
+                "timestamp": 1644165000,
+                "value": -1
+              },
+              {
+                "timestamp": 1644165300,
+                "value": 60
+              },
+              {
+                "timestamp": 1644165600,
+                "value": 65
+              },
+              {
+                "timestamp": 1644165900,
+                "value": 70
+              },
+              {
+                "timestamp": 1644166200,
+                "value": 85
+              },
+              {
+                "timestamp": 1644166500,
+                "value": 67
+              }
+            ]
+          }
+        },
+        "deviceDetail": {
+          "value": {
+            "id": 30989301,
+            "name": "LAPTOP-S1IN4SIH (LENOVO 20T1S0Q303 Microsoft Windows 10 Pro;64 bit)",
+            "hardware": {
+              "hw_model": "20T3SC5U00",
+              "hw_mfg": "LENOVO",
+              "hw_type": "PC",
+              "hw_serial": "PC1Y3GMH",
+              "tot_mem": "16 GB",
+              "gpu": "MirrorOp Virtual Graphics Adaptor,Citrix Indirect Display Adapter,Intel(R) UHD Graphics",
+              "disk_size": "238.47 GB",
+              "disk_model": "KXG6AZNV256G TOSHIBA",
+              "disk_type": "SSD",
+              "cpu_mfg": "GenuineIntel",
+              "cpu_model": "Intel(R) Core(TM) i5-10310U CPU @ 1.70GHz",
+              "speed_ghz": 1.71,
+              "logical_proc": 8,
+              "num_cores": 4
+            },
+            "network": [
+              {
+                "net_type": "Ethernet",
+                "status": "Media Disconnected",
+                "ipv4": "NA",
+                "ipv6": "NA",
+                "dns_srvs": "NA",
+                "dns_suffix": "NA",
+                "gateway": "NA",
+                "mac": "EC-63-37-BC-D7-93",
+                "guid": "605729f6-c544-44ee-90f9-adf497155f75"
+              },
+              {
+                "net_type": "Wireless",
+                "status": "connected",
+                "ipv4": "192.168.1.13",
+                "ipv6": "fe80::7d23:cbc5:786b:4db0%27",
+                "dns_srvs": "192.168.1.1",
+                "dns_suffix": "home",
+                "gateway": "192.168.1.1",
+                "mac": "EC-63-37-BC-D7-93",
+                "guid": "fa57456f-6e0c-4ee6-b652-903196e4d7f1"
+              }
+            ],
+            "software": {
+              "os_name": "Microsoft Windows 10 Entreprise",
+              "os_ver": "10.0 1909",
+              "os_build": 19005,
+              "hostname": "EEAZbxev5m1xS8",
+              "netbios": "EEAZBXEV5M1XS8",
+              "user": "ENGG\\I0233737",
+              "client_conn_ver": "3.6.1.23",
+              "zdx_ver": "3.0.0.57"
+            }
+          }
+        }
+      }
+    }
+  }
+}

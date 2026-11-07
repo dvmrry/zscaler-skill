@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-go.write-encoding",
+  "title": "How the Go SDK encodes ZIA writes (omitted zero values, empty responses)",
+  "aliases": [
+    "omitempty",
+    "cannot set false",
+    "cannot clear a field terraform",
+    "sdk drops false values",
+    "204 no content nil",
+    "update panics nil pointer"
+  ],
+  "binds": [
+    "zia/url-filtering-rules#blockOverride",
+    "zia/url-filtering-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.list-pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the Go SDK, the client, not about ZIA. The distinction matters: SDK code proves what the client sends and how it reacts; what ZIA does with that is server behavior that code alone cannot settle."
+    },
+    {
+      "label": "Updates and rule booleans.",
+      "text": "{{marshals-caller-struct}} {{rule-bools-omitted-when-false}} Whether that makes a field impossible to clear is open {{gap:rule-omission-semantics}}."
+    },
+    {
+      "label": "Settings booleans.",
+      "text": "{{settings-bools-fixed-3-8-45}} The advanced-settings writes are full-state writes; see [[zia.url-filtering.advanced-settings]]."
+    },
+    {
+      "label": "Empty replies.",
+      "text": "{{empty-body-nil-nil}} {{rule-update-panics-on-empty-body}} {{rule-update-empty-body-panics}} Whether the rule update endpoint ever answers with an empty body is open {{gap:rule-update-empty-body}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before calling a rule update panic an observed failure, whether the server answers an update with an empty body. Until then it is a certain consequence of an empty body, not an observed failure.",
+      "uses": [
+        "rule-update-panics-on-empty-body",
+        "rule-update-empty-body-panics",
+        "rule-update-empty-body"
+      ]
+    }
+  ],
+  "claims": {
+    "marshals-caller-struct": {
+      "statement": "ZIA updates go through an `updateGeneric`, the OneAPI client's in `ziarequests.go` or, when the legacy client is configured, its own copy in `zia/v2_client.go`. Both serialize the caller's struct directly with `json.Marshal`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.44",
+            "v3.8.45",
+            "HEAD"
+          ],
+          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {",
+          "quotes": [
+            "data, err := json.Marshal(o)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "at": [
+            "v3.8.44",
+            "v3.8.45",
+            "HEAD"
+          ],
+          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {",
+          "quotes": [
+            "data, err := json.Marshal(o)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.44",
+            "v3.8.45",
+            "HEAD"
+          ],
+          "after": "func (c *Client) UpdateWithPut(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
+          "quotes": [
+            "if c.oauth2Credentials.UseLegacyClient {",
+            "return c.oauth2Credentials.LegacyClient.ZiaClient.UpdateWithPut(ctx, removeOneApiEndpointPrefix(endpoint), o) } return c.updateGeneric(ctx, endpoint, o, \"PUT\", contentTypeJSON)",
+            "return c.oauth2Credentials.LegacyClient.ZiaClient.Update(ctx, removeOneApiEndpointPrefix(endpoint), o) } return c.updateGeneric(ctx, endpoint, o, \"PATCH\", \"application/merge-patch+json\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "at": [
+            "v3.8.44",
+            "v3.8.45",
+            "HEAD"
+          ],
+          "after": "func (c *Client) UpdateWithPut(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
+          "quotes": [
+            "return c.updateGeneric(ctx, endpoint, o, \"PUT\", \"application/json\")",
+            "return c.updateGeneric(ctx, endpoint, o, \"PATCH\", \"application/merge-patch+json\")"
+          ]
+        }
+      ]
+    },
+    "rule-bools-omitted-when-false": {
+      "statement": "The URL Filtering rule struct tags its boolean fields `omitempty` (`blockOverride`, `enforceTimeValidity`, `ciparule`), so a false value is never sent on create or update.",
+      "tier": "B",
+      "binds": [
+        "zia/url-filtering-rules#blockOverride",
+        "zia/url-filtering-rules#enforceTimeValidity",
+        "zia/url-filtering-rules#ciparule"
+      ],
+      "conditions": "Chain of evidence: the fields are tagged omitempty, no custom marshaller exists on the rule type, and Go's encoding/json omits a false bool so tagged. Other rule structs are not yet checked.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "at": [
+            "v3.8.44",
+            "v3.8.45",
+            "HEAD"
+          ],
+          "quotes": [
+            "BlockOverride bool `json:\"blockOverride,omitempty\"`",
+            "EnforceTimeValidity bool `json:\"enforceTimeValidity,omitempty\"`",
+            "Ciparule bool `json:\"ciparule,omitempty\"`"
+          ]
+        }
+      ],
+      "gaps": [
+        "rule-omission-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK serialization contract) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "settings-bools-fixed-3-8-45": {
+      "statement": "The advanced URL and cloud-app settings booleans were tagged `omitempty` from v3.0.0 through v3.8.44. From v3.8.45 they are always sent, except `blockSkype` (and the `safeSearchApps` list), because, in the SDK maintainers' words, dropping a false from the body would leave the setting enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "at": [
+            "v3.0.0",
+            "v3.8.44"
+          ],
+          "quotes": [
+            "EnableDynamicContentCat bool `json:\"enableDynamicContentCat,omitempty\"`",
+            "EnableChatGptPrompt bool `json:\"enableChatGptPrompt,omitempty\"`",
+            "EnableCIPACompliance bool `json:\"enableCIPACompliance,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "at": [
+            "v3.8.44"
+          ],
+          "quotes": [
+            "ZveloDbLookupDisabled bool `json:\"zveloDbLookupDisabled,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "at": [
+            "v3.8.45",
+            "HEAD"
+          ],
+          "quotes": [
+            "// URLAdvancedPolicySettings is the full set of advanced URL filtering and cloud",
+            "// The booleans deliberately omit omitempty: a caller disabling a setting sends",
+            "// false, and dropping that false from the body would leave the setting enabled.",
+            "EnableDynamicContentCat bool `json:\"enableDynamicContentCat\"`",
+            "// The two exceptions are BlockSkype and SafeSearchApps, which the service"
+          ]
+        }
+      ],
+      "conditions": "Every boolean, not only the quoted ones: for each of the 91 v3 release tags from v3.0.0 through v3.8.44, `git show <tag>:zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go`, cut to the `URLAdvancedPolicySettings` struct and filtered with `grep ' bool ' | grep -v omitempty`, returns nothing (the struct has 20 bool fields at v3.0.0 and 28 at v3.8.44).",
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in zscaler-sdk-go v3.8.45 for the settings struct only; rule structs keep omitempty."
+        }
+      ]
+    },
+    "empty-body-nil-nil": {
+      "statement": "When an update returns an empty body (for example 204 No Content), `updateGeneric` returns a nil result and a nil error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.44",
+            "v3.8.45",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Check for an empty response body (e.g., 204 No Content)",
+            "if len(resp) == 0 {",
+            "return nil, nil // Return nil for responseObject and no error"
+          ],
+          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {"
+        }
+      ]
+    },
+    "rule-update-panics-on-empty-body": {
+      "statement": "URL Filtering `Update` ignores the result of its type assertion and then reads the rule's ID from the asserted value.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules"
+      ],
+      "gaps": [
+        "rule-update-empty-body"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "at": [
+            "v3.8.44",
+            "v3.8.45",
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, ruleID int, rules *URLFilteringRule) (*URLFilteringRule, error) {",
+          "quotes": [
+            "updatedRules, _ := resp.(*URLFilteringRule)",
+            "updatedRules.ID"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK response contract) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "rule-update-empty-body-panics": {
+      "statement": "If the server answers a URL Filtering rule update with an empty body, `Update` panics with a nil pointer dereference instead of returning an error.",
+      "tier": "B",
+      "binds": [
+        "zia/url-filtering-rules"
+      ],
+      "gaps": [
+        "rule-update-empty-body"
+      ],
+      "derived_from": [
+        "zia.sdk-go.write-encoding:empty-body-nil-nil",
+        "zia.sdk-go.write-encoding:rule-update-panics-on-empty-body"
+      ],
+      "conditions": "Rests on Go semantics no source states: `updateGeneric` returns a nil result for an empty body, the unchecked assertion `resp.(*URLFilteringRule)` on a nil interface yields a nil pointer, and reading `.ID` through it panics. Whether the endpoint ever answers an update with an empty body is not stated (gap rule-update-empty-body)."
+    }
+  },
+  "gaps": {
+    "rule-omission-semantics": {
+      "kind": "semantic",
+      "title": "Whether ZIA rule updates treat an omitted field as unchanged or as reset",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia/url-filtering-rules#blockOverride",
+        "zia/url-filtering-rules"
+      ],
+      "blocks": "saying whether a boolean or numeric rule field can be cleared (set false or 0) through the Go SDK or Terraform",
+      "detail": "If omission keeps the stored value, the omitted false means a rule field set true can never be cleared through the SDK. The 2026-08 provider audit inferred exactly that for every omitempty field in every provider; that inference is not verified for rule endpoints. The maintainers state the keep-value behavior only for the settings endpoint (claim settings-bools-fixed-3-8-45). Resolve with a scratch-tenant test: set a rule's blockOverride true, update with it false through the SDK, re-read."
+    },
+    "rule-update-empty-body": {
+      "kind": "semantic",
+      "title": "Whether ZIA rule update endpoints ever return an empty body",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the update panic happens in practice",
+      "detail": "The panic is certain if the body is empty (claims empty-body-nil-nil, rule-update-panics-on-empty-body and rule-update-empty-body-panics). Whether the URL Filtering rules endpoint ever answers an update that way is server behavior that code cannot show."
+    }
+  }
+}

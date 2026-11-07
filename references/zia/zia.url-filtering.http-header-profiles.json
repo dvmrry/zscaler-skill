@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-filtering.http-header-profiles",
+  "title": "HTTP Header Control: header profiles (criteria) and header insertion profiles, their logic, limits and disallowed keys",
+  "aliases": [
+    "HTTP Header Control",
+    "HTTP header profile",
+    "HTTP header insertion profile",
+    "request header insertion",
+    "tenant restrictions header",
+    "disallowed header keys"
+  ],
+  "binds": [
+    "zia/http-header-profiles"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/http-header-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.url-filtering-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.sdk-coverage"
+    }
+  ],
+  "prose": [
+    {
+      "text": "HTTP Header Control has two kinds of profile, both associated with URL Filtering rules. {{enablement}}"
+    },
+    {
+      "label": "Header profiles (criteria).",
+      "text": "{{header-profile-what}} {{criteria-logic}} {{user-agent-criterion}} The Browser choices are not listed {{gap:user-agent-browser-choices}}. {{origin-referer-criteria}} {{header-profile-limits}}"
+    },
+    {
+      "label": "Header insertion profiles.",
+      "text": "{{insertion-profile-what}} {{insertion-key-value-limits}} {{insertion-disallowed-keys}} Whether this object is the registered action profile type is open {{gap:action-profile-identity}}."
+    },
+    {
+      "text": "Where the profiles enter a rule's criteria and actions is in [[zia.url-filtering.criteria]] and [[zia.url-filtering.actions]]; the provider's fields are in [[zia.terraform.url-filtering-rules]]. How many profiles an organization can hold, whether other rule types can use them and what modifying request headers means for a criteria-only profile are open {{gap:profile-counts}} {{gap:other-rule-types}} {{gap:modify-meaning}}. Whether inserting into HTTPS needs the request decrypted is open {{gap:insertion-decryption}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a header insertion profile uses a key from the disallowed list, since those keys are not allowed.",
+      "uses": [
+        "insertion-disallowed-keys"
+      ]
+    },
+    {
+      "do": "Whether a header profile has more than 16 criteria or an insertion profile more than 16 headers.",
+      "uses": [
+        "header-profile-limits",
+        "insertion-key-value-limits"
+      ]
+    }
+  ],
+  "claims": {
+    "enablement": {
+      "statement": "To enable the HTTP Header Control feature, contact Zscaler Support, as both the About HTTP Header Profile and the About HTTP Header Insertion Profile pages say.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-http-header-profile.json",
+          "quotes": [
+            "To enable the HTTP Header Control feature, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-http-header-insertion-profile.json",
+          "quotes": [
+            "To enable the HTTP Header Control feature, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "header-profile-what": {
+      "statement": "The HTTP header profile lets an admin create criteria for various HTTP request headers, and consists of adding HTTP header profiles and associating them to a URL Filtering policy rule. The About page lists as benefits creating policies based on client request headers and modifying request headers in the egress traffic for tenant control. The list's Criteria column shows the criteria (Origin, Referer and User Agent), and the profile name is displayed when configuring the URL Filtering policy rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-http-header-profile.json",
+          "quotes": [
+            "The HTTP header profile allows you to create criteria for various HTTP request headers. It consists of adding HTTP header profiles and associating them to a URL Filtering policy rule.",
+            "- Create policies based on client request headers.",
+            "- Modify request headers in the egress traffic for tenant control.",
+            "Criteria: The criteria (i.e., Origin, Referer, and User Agent) of the HTTP header profile."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-header-profile.json",
+          "quotes": [
+            "Name: Enter the name of the HTTP header profile. This is displayed when configuring the URL Filtering policy rules."
+          ]
+        }
+      ]
+    },
+    "criteria-logic": {
+      "statement": "Within a header profile the criteria combine as Origin AND Referer AND User Agent: if multiple HTTP header criteria are added, OR is applied between the same header types and AND between different header types. The page's example evaluates as [Origin 1 OR Origin 2] AND Referer AND [User Agent 1 OR User Agent 2].",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-header-profile.json",
+          "quotes": [
+            "Origin (AND) Referer (AND) User Agent",
+            "If multiple HTTP header criteria are added to a profile, then the logical operator OR is added between the same header types and the logical operator AND is added between different header types.",
+            "[Origin 1 (OR) Origin 2] (AND) Referer (AND) [User Agent 1 (OR) User Agent 2]"
+          ]
+        }
+      ]
+    },
+    "user-agent-criterion": {
+      "statement": "The User Agent header criterion controls access to browsers and has a Browser (a custom browser can be entered by selecting Other), an Operator (>, <, =, ≠, or Any, where Any implies all the versions for the browser) and a Version, which does not appear when the Operator is Any.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-header-profile.json",
+          "quotes": [
+            "Select this header to control access to browsers. The following fields appear when you select this header:",
+            "Browser: Choose a browser for which you want to control access. You can enter a custom browser by selecting the Other option.",
+            "Operator: Choose an operator (i.e., >, <, =, or ≠) or Any to create an expression between the browser and its versions. Any implies all the versions for the browser.",
+            "Version: Choose a version for the selected browser.",
+            "This field doesn't appear when you select Any for the Operator field."
+          ]
+        }
+      ]
+    },
+    "origin-referer-criteria": {
+      "statement": "The Origin header criterion adds the cloud applications or URL categories from which the request originates, and the Referer criterion the cloud applications or URL categories that refer to other applications (the page's example is allowing www.youtube.com when the referer is Google Classroom); Cloud Applications selects cloud applications or cloud application categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-header-profile.json",
+          "quotes": [
+            "Select this header to add the cloud applications or URL categories from which the request originates.",
+            "Select this header to add the cloud applications or URL categories that refer to other applications (e.g., if the referer is Google Classroom (learning management system (LMS)), then allow www.youtube.com).",
+            "Cloud Applications: Select the cloud applications or cloud application categories that apply to the HTTP header profile."
+          ],
+          "after": "- Origin"
+        }
+      ]
+    },
+    "header-profile-limits": {
+      "statement": "A header profile takes up to 16 HTTP header criteria and a description of at most 10,240 characters; the Ranges & Limitations page lists 16 HTTP headers per HTTP Header Profile and 16 HTTP header profiles per rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-header-profile.json",
+          "quotes": [
+            "You can add up to 16 HTTP header criteria by clicking the Add button.",
+            "Description (optional): Enter any additional comments or information. The description cannot exceed 10,240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| HTTP headers per HTTP Header Profile | 16 HTTP headers |",
+            "| HTTP header profiles per Rule | 16 HTTP header profiles |"
+          ]
+        }
+      ]
+    },
+    "insertion-profile-what": {
+      "statement": "The HTTP header insertion profile lets an admin add custom HTTP request headers and modify existing ones, and consists of adding HTTP header insertion profiles and associating them to a URL Filtering policy rule. The About page lists adding custom request headers to egressing traffic with the allow action configured, and the list's HTTP Headers column shows the headers as key-value pairs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-http-header-insertion-profile.json",
+          "quotes": [
+            "The HTTP header insertion profile allows you to add custom HTTP request headers and modify existing HTTP request headers. This feature consists of adding HTTP header insertion profiles and associating them to a URL Filtering policy rule.",
+            "- Add custom HTTP request headers to the egressing traffic with the allow action configured.",
+            "HTTP Headers: The HTTP headers (i.e., key-value pairs) that are added to the profile."
+          ]
+        }
+      ]
+    },
+    "insertion-key-value-limits": {
+      "statement": "In a header insertion profile each header key is limited to 128 characters and only request headers are to be entered, each value is limited to 1,024 characters, up to 16 HTTP headers can be added, and the description cannot exceed 10,240 characters. The Ranges & Limitations page lists 16 HTTP headers per insertion profile, 16 insertion profiles per rule, and the same 128 and 1,024 character limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-header-insertion-profile.json",
+          "quotes": [
+            "HTTP Header: Enter the key for the HTTP header. It has a limit of 128 characters.",
+            "- Ensure to enter only request headers.",
+            "Value: Enter the value for the HTTP header. It has a limit of 1,024 characters.",
+            "You can add up to 16 HTTP headers by clicking the Add button.",
+            "Description (optional): Enter any additional comments or information. The description cannot exceed 10,240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| HTTP headers per HTTP Header Insertion Profile | 16 HTTP headers |",
+            "| HTTP header insertion profiles per Rule | 16 HTTP header insertion profiles |",
+            "| HTTP header (Key) | Up to a maximum of 128 characters. |",
+            "| Value | Up to a maximum of 1,024 characters. |"
+          ]
+        }
+      ]
+    },
+    "insertion-disallowed-keys": {
+      "statement": "Sixteen HTTP header keys are not allowed in a header insertion profile: content-security-policy, etag, expires, last-modified, location, proxy-authenticate, public-key-pins, retry-after, server, set-cookie, strict-transport-security, timing-allow-origin, vary, www-authenticate, x-content-type-options and x-frame-options.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-header-insertion-profile.json",
+          "quotes": [
+            "A list of HTTP header keys that are not allowed.",
+            "- content-security-policy - etag - expires - last-modified - location - proxy-authenticate - public-key-pins - retry-after - server - set-cookie - strict-transport-security - timing-allow-origin - vary - www-authenticate - x-content-type-options - x-frame-options"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "action-profile-identity": {
+      "kind": "semantic",
+      "title": "Whether the console's insertion profile is the registered HTTP header action profile type",
+      "status": "open",
+      "detail": "The Terraform resource and the registered type are named for an action profile (zia_http_header_action_profile, zia/http-header-action-profiles); the Help pages call the object an HTTP header insertion profile and never say action profile, so the two are not tied here.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "profile-counts": {
+      "kind": "semantic",
+      "title": "How many header profiles and insertion profiles an organization can hold",
+      "status": "open",
+      "detail": "The Ranges & Limitations rows read give per-profile and per-rule limits only; no organization-wide count of either profile kind was found.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "other-rule-types": {
+      "kind": "semantic",
+      "title": "Whether either profile is usable in rules other than URL Filtering",
+      "status": "open",
+      "detail": "The About and Adding pages attach both profile kinds to URL Filtering policy rules and do not say whether other rule types can use them.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "modify-meaning": {
+      "kind": "semantic",
+      "title": "What modifying request headers means for a criteria-only header profile",
+      "status": "open",
+      "detail": "The header profile About page lists modifying request headers in the egress traffic for tenant control as a benefit, while the profile holds only Origin, Referer and User Agent criteria; the pages do not connect the two.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "insertion-decryption": {
+      "kind": "semantic",
+      "title": "Whether inserting a header into HTTPS requires the request to be decrypted",
+      "status": "open",
+      "detail": "The insertion pages do not say. zia.tenant-profiles.wire-mechanic:needs-decrypted-traffic is an inference for tenant profiles only.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "user-agent-browser-choices": {
+      "kind": "semantic",
+      "title": "The Browser choices of the User Agent criterion",
+      "status": "open",
+      "detail": "The Adding page says to choose a browser or enter a custom one with Other and does not list the choices.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

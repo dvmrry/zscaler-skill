@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb.insights-logs",
+  "title": "CASB SaaS Security Insights logs: what the records mean, filtering, export and streaming",
+  "aliases": [
+    "saas security insights logs",
+    "casb logs",
+    "saas security report",
+    "shadow it report",
+    "insights log columns",
+    "run id",
+    "scan id",
+    "dlp identifier",
+    "cloud nss saas security",
+    "export 100K",
+    "180 days"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.casb.scans"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.malware-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.streaming"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Insights logs are the record of what each scan did. {{retention-180}}"
+    },
+    {
+      "label": "Columns and filters.",
+      "text": "{{columns-per-category}} {{category-filter-omits-storage}} {{saas-insights-units}} {{saas-insights-data-types}} {{saas-insights-clouds}} The SaaS Security 100K export figure is one of three on different pages [[zia.insights.logs:export-ceiling]]."
+    },
+    {
+      "label": "Reading a record.",
+      "text": "{{user-shows-location}} {{non-provisioned-owner}} {{logged-time}} {{run-scan-file-ids}} {{dlp-identifier}} {{email-owner-name}} {{genai-columns}} The scan identifiers matter when restarting a scan: [[zia.casb.scans]]. When the SaaS application detects malware itself, no rule action is logged: [[zia.casb.malware-rules:saas-detection-skips-action]]."
+    },
+    {
+      "label": "Filtering and export.",
+      "text": "{{filters-200-values}} {{custom-range-92}} {{csv-export}} Whether a Sub-URL field exists here is open [[zia.casb.limits:sub-url-in-saas-logs]], with the length limit."
+    },
+    {
+      "label": "Streaming.",
+      "text": "{{cloud-nss-feed}} {{nss-vm-described-as-web}} Whether a VM-based feed can carry SaaS Security is open {{gap:nss-vm-saas-security}}. [[shared.nss.feeds:cbc-nss-limits]] The feed's field names are open {{gap:nss-feed-fields}}, and a licensing requirement is open {{gap:cloud-nss-licensing}}. Audit-log streaming is in [[zia.audit-logs.streaming]]."
+    },
+    {
+      "text": "A SaaS Security feed over Cloud NSS follows the feed delivery rules: [[shared.nss.reliability:cloud-nss-http-codes]]"
+    },
+    {
+      "text": "The feed is configured in the admin portal: {{cloud-nss-config-location}}"
+    },
+    {
+      "text": "{{shadow-it-report-csv}} Whether Shadow IT discovery events also appear in the Insights logs or the feed is open {{gap:shadow-it-in-insights-logs}}."
+    },
+    {
+      "text": "Inline cloud app traffic is in the web feed instead: {{web-nss-cloud-app-fields}}"
+    },
+    {
+      "text": "The web feed appclass vocabulary differs from the SaaS Security categories: {{web-appclass-vocabulary}}"
+    },
+    {
+      "text": "The field that discriminates a record's category is open {{gap:record-category-discriminator}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a finding is older than the 180-day retention, and whether the time frame stays within 92 days of its start.",
+      "uses": [
+        "retention-180",
+        "custom-range-92"
+      ]
+    },
+    {
+      "do": "Whether the Run ID and Scan ID place a record in the scan run being investigated.",
+      "uses": [
+        "run-scan-file-ids",
+        "logged-time"
+      ]
+    },
+    {
+      "do": "Whether an empty User or Department column reflects a gateway location or a non-provisioned owner.",
+      "uses": [
+        "user-shows-location",
+        "non-provisioned-owner"
+      ]
+    },
+    {
+      "do": "Whether the question needs the SaaS Security feed fields or licensing, which no source states.",
+      "uses": [
+        "nss-feed-fields",
+        "cloud-nss-licensing",
+        "nss-vm-saas-security"
+      ]
+    }
+  ],
+  "claims": {
+    "saas-insights-units": {
+      "statement": "SaaS Security Insights charts each file scanned; its unit is the number of scans, message scans or file scans depending on the application category, and the category filter offers All, Collaboration, CRM, Email, File, Gen AI, ITSM, Public Cloud Storage or Repository; as an example, selecting the application category Email limits the Application filter to email apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-saas-security-insights.json",
+          "quotes": [
+            "View SaaS Security insights for each file scanned by Zscaler on any chart type of your choice.",
+            "Depending on the application category you select, the unit is the number of scans, message scans, or file scans.",
+            "You can filter by All, Collaboration, CRM, Email, File, Gen AI, ITSM, Public Cloud Storage, or Repository.",
+            "For example, if you select the application category Email, the Application filter only shows you email apps."
+          ]
+        }
+      ]
+    },
+    "saas-insights-clouds": {
+      "statement": "Amazon S3, Google Cloud Platform and Microsoft Azure are enabled for SaaS Security Insights by contacting the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-saas-security-insights.json",
+          "quotes": [
+            "To enable Amazon S3, Google Cloud Platform, and Microsoft Azure for your organization, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "saas-insights-data-types": {
+      "statement": "SaaS Security Insights data types include one for the incident type (DLP or Malware); one that automatically changes the application category to Email when selected; one that defaults the category to File but also works with Collaboration, CRM, Gen AI, ITSM, Public Cloud Storage and Repository; and the application category type, whose own description lists CRM, file, email, Gen AI, ITSM and repository.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-saas-security-insights.json",
+          "quotes": [
+            "Displays data about the incident type (DLP or Malware).",
+            "When you select this data type, the Application Category section automatically changes to Email.",
+            "When you select this data type, the Application Category section automatically defaults to File, but the data type also works with Collaboration, CRM, Gen AI, ITSM, Public Cloud Storage, and Repository.",
+            "Displays data about the application category (CRM, file, email, Gen AI, ITSM, or repository)."
+          ]
+        }
+      ]
+    },
+    "retention-180": {
+      "statement": "SaaS Security Insights logs show every scan performed by the Zscaler SaaS Connector for a SaaS application tenant and are stored for 180 days on the Nanolog servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "you can view every scan performed by the Zscaler SaaS Connector of data based on your SaaS application tenant.",
+            "Logs are stored for 180 days in the Zscaler Nanolog servers."
+          ]
+        }
+      ]
+    },
+    "columns-per-category": {
+      "statement": "Each application category has its own set of columns and its own set of filters, with column sections for Collaboration, CRM, Email, File, Gen AI, ITSM, Public Cloud Storage and Repository.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "Each application category has its own set of columns.",
+            "Each application category has its own set of log filters.",
+            "Collaboration Columns",
+            "CRM Columns",
+            "Email Columns",
+            "File Columns",
+            "Gen AI Columns",
+            "ITSM Columns",
+            "Public Cloud Storage Columns",
+            "Repository Columns"
+          ]
+        }
+      ]
+    },
+    "category-filter-omits-storage": {
+      "statement": "The category filter sentence lists Collaboration, CRM, Email, File, Gen AI, ITSM and Repository, without Public Cloud Storage, although the article has Public Cloud Storage columns and filters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "You can filter by Collaboration, CRM, Email, File, Gen AI, ITSM, or Repository.",
+            "Public Cloud Storage Log Filters",
+            "Public Cloud Storage Columns"
+          ]
+        }
+      ]
+    },
+    "user-shows-location": {
+      "statement": "The User column shows the name of the gateway location when an internet gateway location is specified and authentication is not required; the Department column shows it when authentication is not required and the traffic comes from a location specified in the service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "User: The email address of the user who performed the record. If an internet gateway location is specified and authentication is not required, this field displays the name of the gateway location.",
+            "Department: The department to which the user belongs. As with the User field, if authentication is not required and the traffic comes from a location specified in the service, this field displays the name of the gateway location."
+          ],
+          "after": "Each application category has its own set of columns."
+        }
+      ]
+    },
+    "non-provisioned-owner": {
+      "statement": "File owners not provisioned to the Internet & SaaS service appear under Non-Provisioned Owner, and once such an owner inside the organization is provisioned the service logs them under User.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "Non-Provisioned Owner: The file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service.",
+            "When a non-provisioned file owner within your organization is later provisioned to the Internet & SaaS service, the service begins to log the file owner under the User column."
+          ],
+          "after": "Each application category has its own set of columns."
+        }
+      ]
+    },
+    "logged-time": {
+      "statement": "Logged Time is when the service performs a scan, evaluates policies and logs the result; Scan Time is the milliseconds the policy took to scan content within the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "The incident logged time, which is when we perform a scan and evaluate policies and log results.",
+            "Scan Time: The amount of time, in milliseconds, the Data at Rest Scanning policy took to scan content within the tenant."
+          ],
+          "after": "Each application category has its own set of columns."
+        }
+      ]
+    },
+    "run-scan-file-ids": {
+      "statement": "A Run ID identifies each run, where a run is a scan being stopped and started; a Scan ID identifies each scan defined in the Historic Scan Configuration; and a File ID lets an administrator follow the scan trail of a file scanned more than once.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.",
+            "Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.",
+            "if a file was scanned multiple times, an admin can use the file ID to view the scan trail."
+          ],
+          "after": "Each application category has its own set of columns."
+        }
+      ]
+    },
+    "dlp-identifier": {
+      "statement": "The DLP Identifier is sent in the alert email to auditors whenever a DLP rule is hit and the alert is configured, and works as a filter to find the exact record.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "Whenever a DLP rule is hit, and the appropriate alert is configured, an email containing this ID is sent to your auditors. Use it as a filter to locate the exact record."
+          ],
+          "after": "Each application category has its own set of columns."
+        }
+      ]
+    },
+    "email-owner-name": {
+      "statement": "For email records the Owner Name is the owner of the mailbox holding the questionable email, which is the sender for a DLP finding and the recipient for a malware finding.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "The owner of the mailbox where the questionable email is located. It can be a sender (DLP) or a recipient (Malware)."
+          ]
+        }
+      ]
+    },
+    "genai-columns": {
+      "statement": "Gen AI records add a Bot Name (the bot that responded to the DLP), a Sender Type (bot, system or user) and a Transaction Message that gives the reason a transaction failed and shows N/A for successful ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "Gen AI Columns"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "Bot Name: The name of the bot that has responded to the DLP.",
+            "Sender Type: The type of sender, i.e., bot, system, or user.",
+            "Transaction Message: The reason explaining why the transaction failed. Shows N/A for successful transactions."
+          ],
+          "after": "Gen AI Columns"
+        }
+      ]
+    },
+    "filters-200-values": {
+      "statement": "Filters such as Users, Departments and Locations take up to 200 values and can include or exclude them, and string-match filters such as Threat Super Category also accept Does Not Contain, Does Not Start With, Does Not End With, Is Null and Is Not Null.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "Certain filters, like Users, Departments, Locations, and others, support the selection of multiple values. For these, you can select up to 200 values in a single filter. You can also choose to include or exclude the selected values.",
+            "certain filters support additional operators (i.e., Does Not Contain, Does Not Start With, Does Not End With, Is Null, Is Not Null) for filters that perform string match, like Threat Super Category and others."
+          ]
+        }
+      ]
+    },
+    "custom-range-92": {
+      "statement": "A custom time frame can end up to 92 days after its start date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "In Custom, the end date can be up to 92 days after start date."
+          ]
+        }
+      ]
+    },
+    "csv-export": {
+      "statement": "A CSV download exports only the visible columns, up to 100K lines at a time, and at most 20 export requests are allowed per hour.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "You can either download the list of transactions as a CSV file or keep it displayed on your screen. When you download the list, the Zscaler service only exports visible columns. It exports up to 100K lines of data at a time.",
+            "The limit for the number of times you can export is 20 requests/hour."
+          ]
+        }
+      ]
+    },
+    "cloud-nss-feed": {
+      "statement": "Cloud NSS allows one feed per log type per Cloud NSS instance, with SaaS Security given as a log type, and streams logs from the Zscaler cloud to a SIEM without the need to deploy an NSS virtual machine for Web or Firewall; the feed output format (for example JSON) is selected per feed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-cloud-nss-feeds.json",
+          "quotes": [
+            "You can configure one Cloud NSS feed per log type (e.g., SaaS Security) per Cloud NSS instance.",
+            "without the need to deploy an NSS virtual machine (VM) for Web or Firewall.",
+            "select your preferred feed output format (e.g., JSON) for actionable reports.",
+            "instantly stream logs from the Zscaler cloud directly into a compatible cloud-based security information and event management (SIEM) system"
+          ]
+        }
+      ]
+    },
+    "nss-vm-described-as-web": {
+      "statement": "The Insights logs article describes the NSS virtual machine as streaming web traffic logs in real time from the Nanolog to a SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "Zscaler also offers the Nanolog Streaming Service (NSS), a virtual machine (VM) that can stream web traffic logs in real time from the Zscaler Nanolog to your security information and event management (SIEM) system"
+          ]
+        }
+      ]
+    },
+    "cloud-nss-config-location": {
+      "statement": "Cloud NSS feeds are configured on the Cloud NSS Feeds page under Data Explorer > Log Streaming > Internet Log Streaming - Nanolog Streaming Service > NSS Collector Feeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-cloud-nss-feeds.json",
+          "quotes": [
+            "On the Cloud NSS Feeds page (Data Explorer > Log Streaming > Internet Log Streaming - Nanolog Streaming Service > NSS Collector Feeds)"
+          ]
+        }
+      ]
+    },
+    "shadow-it-report-csv": {
+      "statement": "The Shadow IT Report can be scheduled daily, weekly or monthly and downloaded as CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-report.json",
+          "quotes": [
+            "Schedule a daily, weekly, or monthly Shadow IT Report.",
+            "Download the report as a CSV file."
+          ]
+        }
+      ]
+    },
+    "web-nss-cloud-app-fields": {
+      "statement": "The web NSS feed output format includes the cloud application fields appname, appclass and app_risk_score, and prompt_req, the prompt entered by the user in a generative AI application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{appname} | The name of the cloud application",
+            "| %s{appclass} | The cloud application category of the application that was accessed",
+            "| %s{app_risk_score} | The computed or assigned risk index for the cloud application",
+            "| %s{prompt_req} | The prompt entered by the user in the generative AI application"
+          ]
+        }
+      ]
+    },
+    "web-appclass-vocabulary": {
+      "statement": "The Web NSS appclass examples are Administration, Collaboration and Web Mail, drawn from the Cloud App Control Policy page; Administration and Web Mail are not among the eight SaaS Security log categories (Collaboration, CRM, Email, File, Gen AI, ITSM, Public Cloud Storage and Repository).",
+      "tier": "A",
+      "conditions": "Tally over the capture: `jq -r '.blocks[] | (.heading // .item // .text // \"\") | select(test(\"Columns$\"))' about-saas-security-insights-logs.json` returns exactly the eight quoted headings.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "Administration, Collaboration, Web Mail",
+            "The full list is on the Cloud App Control Policy page"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "Each application category has its own set of columns.",
+            "Collaboration Columns",
+            "CRM Columns",
+            "Email Columns",
+            "File Columns",
+            "Gen AI Columns",
+            "ITSM Columns",
+            "Public Cloud Storage Columns",
+            "Repository Columns"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "nss-feed-fields": {
+      "kind": "data",
+      "title": "The field names of the SaaS Security NSS feed",
+      "status": "open",
+      "detail": "Unverified legacy statement: the Insights log page \"does not publish a machine-readable field manifest equivalent to the NSS feed CSV\". The console column names are captured, but the captured NSS references (nss-web-logs.csv, nss-firewall-logs.csv, nss-dns-logs.csv, About Cloud NSS Feeds) carry no SaaS Security feed field list, so the feed's field names and types are not confirmed.",
+      "resolvable_by": [
+        "operator"
+      ],
+      "former_ids": [
+        "api-casb-01"
+      ]
+    },
+    "nss-vm-saas-security": {
+      "kind": "semantic",
+      "title": "Whether an NSS virtual machine can carry the SaaS Security log type",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"NSS VM: Use an NSS Feed for the SaaS Security log type.\" The Insights article describes the NSS VM as streaming web traffic logs and the Cloud NSS article names SaaS Security as a log type; no captured source puts SaaS Security on a VM-based NSS feed.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "cloud-nss-licensing": {
+      "kind": "semantic",
+      "title": "Whether streaming SaaS Security logs through Cloud NSS needs a separate license",
+      "status": "open",
+      "detail": "The Cloud NSS article lists SaaS Security as a log type without a licensing note; whether it, or the SaaS Security API itself, needs a separate CASB license is not stated in any captured source.",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "former_ids": [
+        "api-casb-02"
+      ]
+    },
+    "record-category-discriminator": {
+      "kind": "data",
+      "title": "Which field tells a SaaS Security feed record its application category",
+      "status": "open",
+      "blocks": "parsing a SaaS Security feed record into its category schema",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: appclass is the likely discriminator for the eight categories, but unconfirmed; the Web NSS appclass examples use a different vocabulary. Also unstated: whether out-of-category fields are absent or null, whether multi-category apps such as Microsoft 365 produce one record per category aspect, and whether the discriminator is stable across cloud generations (legacy clarification log-17).",
+      "resolvable_by": [
+        "operator"
+      ],
+      "former_ids": [
+        "log-17"
+      ]
+    },
+    "shadow-it-in-insights-logs": {
+      "kind": "semantic",
+      "title": "Whether Shadow IT discovery events appear in the SaaS Security Insights logs or the feed",
+      "status": "open",
+      "blocks": "choosing where to look for Shadow IT discovery events",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: Shadow IT discovery is one of the event types a SaaS Security record represents, alongside file scans, sharing actions and DLP triggers. The Insights logs article describes scans by the SaaS Connector and the Shadow IT Report is a separate report; no captured source says whether discovery events are logged."
+    }
+  }
+}

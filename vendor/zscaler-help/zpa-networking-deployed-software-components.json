@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Networking Deployed Software Components",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/networking-deployed-software-components",
+    "node": "1541000",
+    "revision": "3249079",
+    "updated": "2026-10-14",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "After you have deployed a software component on a supported platform, you can complete the following networking configurations. Software components refer to App Connectors, Private Service Edges, Private Cloud Controllers, and Network Connectors."
+    },
+    {
+      "text": "You can configure a Domain Name System (DNS) Resolver, Network Time Protocol (NTP) servers, static routing, and other features from the Zscaler Admin Console. To learn more, see Editing Network Settings."
+    },
+    {
+      "item": "Configure DHCP IP Addressing (App Connector, Private Service Edge, or Private Cloud Controller)",
+      "depth": 0
+    },
+    {
+      "item": "By default, virtual machine-based App Connectors, Private Service Edges, or Private Cloud Controllers are configured to use DHCP networking on their primary interface. If necessary, you can configure a static IP address for the software component.",
+      "depth": 0
+    },
+    {
+      "item": "Configure Static IP Addressing (all software components)",
+      "depth": 0
+    },
+    {
+      "item": "If DHCP is not available, you can configure a static IP address on a VM-based App Connector, Private Service Edge, Private Cloud Controller, or Network Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "View the IP address.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 1
+    },
+    {
+      "item": "View the current connection profile.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Modify the connection profile using the following format: <profile name> connection.id <new connection name>. For example:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" connection.id LAN autoconnect yes",
+      "depth": 0
+    },
+    {
+      "item": "Review the current connection profile.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Edit the profile using a static IP and a default gateway with the following format: <connection ID> ipv4.method manual ipv4.addresses <IP addresses> ipv4.gateway <gateway IP> ipv4.dns <DNS IP> ipv4.dns-search <domain name>. For example:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ sudo nmcli connection modify LAN ipv4.method manual ipv4.addresses 172.30.1.88/24 ipv4.gateway 172.30.1.1 ipv4.dns 172.30.1.254 ipv4.dns-search company.com",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, bring the connection ID back up. For example:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ sudo nmcli connection up LAN",
+      "depth": 0
+    },
+    {
+      "item": "Verify the IP address.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "Verify the default gateway.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "$ ip route show default",
+      "depth": 0
+    },
+    {
+      "item": "Verify the DNS settings.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "$ sudo cat /etc/resolv.conf",
+      "depth": 0
+    },
+    {
+      "item": "Configure Additional Interfaces (App Connector or Private Service Edge)",
+      "depth": 0
+    },
+    {
+      "item": "If necessary, additional changes can be made to interfaces by configuring new ones using nmcli connection add con-name or by renaming existing ones using nmcli connection modify.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "View the IP address.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "View the current connection profiles.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Configure the interface's IP network using either a dynamic or static Ethernet configuration.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "For dynamic, modify the connection profile. For example:",
+      "depth": 0
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" ipv4.method auto autoconnect yes",
+      "depth": 0
+    },
+    {
+      "item": "For static, modify the connection profile and identify the IP addresses and gateway using the following format: <profile name> ipv4.method manual ipv4.addresses <address> ipv4.gateway <gateway IP>. For example:",
+      "depth": 0
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" ipv4.method manual ipv4.addresses 192.168.2.241/24 ipv4.gateway 192.168.2.254",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, bring the connection profile back up. For example:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "$ sudo nmcli connection up \"Profile 1\"",
+      "depth": 0
+    },
+    {
+      "item": "Verify the IP address.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "Verify the new connection.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Configure a Proxy Bypass (App Connector)",
+      "depth": 0
+    },
+    {
+      "item": "If an App Connector is configured to send traffic to a proxy, you can set up a proxy bypass on it for the traffic that needs to be exempted from the proxy (i.e., traffic between the App Connector and the Public or Private Service Edges for Private Access). To use a proxy bypass for an App Connector, a proxy bypass file needs to be added to the App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the App Connector to do a proxy bypass:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the App Connector console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Create a file named opt/zscaler/var/proxy-bypass. Use an editor, such as vi. For example:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$sudo vi /opt/zscaler/var/proxy-bypass",
+      "depth": 0
+    },
+    {
+      "item": "Enter the necessary bypass entries using IP addresses, subnets, domains, or domains with a prefix wildcard. For example:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "1.2.3.4 111.222.33.0/24 myexampledomain.com *.internal.local",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, restart the App Connector using the following command:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-connector",
+      "depth": 0
+    },
+    {
+      "item": "Configure yum to Use an HTTP Proxy Server (App Connector or Private Service Edge)",
+      "depth": 0
+    },
+    {
+      "item": "If you want to configure yum to communicate through an HTTP proxy server, refer to the Red Hat documentation.",
+      "depth": 0
+    }
+  ]
+}

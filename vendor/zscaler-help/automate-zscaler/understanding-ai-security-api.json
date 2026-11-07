@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "Understanding the AI Security API",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/understanding-ai-security-api",
+    "revision": "f916c6d3.4793c1d9.js",
+    "updated": "2026-10-18",
+    "updated_basis": "first-seen"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "The AI Infrastructure endpoints within the AI Security API expose AI asset inventory, resource metadata, and governance data collected by Zscaler scanning and discovery engines. This data is available to external consumers such as security information and event management systems (SIEMs), security orchestration, automation, and response systems (SOARs), Information Technology Service Management (ITSM) platforms, dashboards, and partners."
+    },
+    {
+      "text": "All endpoints require a bearer token issued by Authentication Service. To learn more about authentication, see Getting Started. To learn about the rate limits applicable to these endpoints, see AI Security API Rate Limits."
+    },
+    {
+      "text": "The following sections describe the request handling features supported for this API, including pagination, sorting, filtering, and query parameter validation."
+    },
+    {
+      "heading": "Pagination",
+      "level": 2
+    },
+    {
+      "text": "All collection endpoints use cursor-based pagination, which enables large result sets to be returned in manageable chunks by using a cursor token instead of page numbers. Each paginated request supports the following parameters:"
+    },
+    {
+      "item": "cursor: An opaque string returned in the previous response's next_cursor field that indicates where to resume in the dataset on the subsequent request.",
+      "depth": 0
+    },
+    {
+      "item": "page_size: The number of records to return per page. The default value is 25, and the maximum value is 200.",
+      "depth": 0
+    },
+    {
+      "text": "Cursors are opaque and must be passed back exactly as received; clients should not attempt to interpret or modify them. Additionally, when using a cursor, clients must not change filter, sort, or page size parameters between successive requests in the same pagination sequence. Changing these parameters while reusing a cursor can lead to inconsistent results, such as skipped or duplicated records."
+    },
+    {
+      "text": "To adjust filters, sort order, or page size, start a new pagination sequence by omitting the cursor parameter and issuing a fresh request with the desired parameters."
+    },
+    {
+      "text": "If the server cannot decode a cursor (for example, if the cursor was tampered with or corrupted), it automatically restarts pagination from the first page without returning an error."
+    },
+    {
+      "heading": "Filtering",
+      "level": 2
+    },
+    {
+      "text": "Use the field=value syntax in the query string to filter results. Multiple filters are combined with logical AND."
+    },
+    {
+      "text": "Example: ?environment=AWS&risk_level=high Returns items where environment is AWS and risk_level is high."
+    },
+    {
+      "heading": "Sorting",
+      "level": 2
+    },
+    {
+      "text": "Use the sort query parameter to control sort order:"
+    },
+    {
+      "item": "sort=field: Sort in ascending order by field",
+      "depth": 0
+    },
+    {
+      "item": "sort=-field: Sort in descending order by field",
+      "depth": 0
+    },
+    {
+      "text": "Example: ?sort=-last_scanned_at Returns items sorted by last_scanned_at in descending order (most recently scanned first)."
+    },
+    {
+      "heading": "Query Parameter Validation",
+      "level": 2
+    },
+    {
+      "text": "The following rules apply to all query parameters across every endpoint:"
+    },
+    {
+      "table": [
+        [
+          "Behavior",
+          "Rule"
+        ],
+        [
+          "Parameter names",
+          "Parameter names are case sensitive. For example, page_size is valid; Page_Size is not."
+        ],
+        [
+          "Unrecognized parameters",
+          "Any query parameter that is not documented for an endpoint is rejected with 400 Bad Request."
+        ],
+        [
+          "Filter and enum values",
+          "Filter and enum values are case insensitive. For example, AWS, aws, and Aws are treated as equivalent."
+        ],
+        [
+          "Sort field names",
+          "Sort field names are case sensitive and must exactly match one of the supported values documented for the endpoint."
+        ],
+        [
+          "Comma-separated values",
+          "Whitespace around commas in comma-separated values is ignored. For example, high,critical and high, critical are accepted and treated as equivalent."
+        ],
+        [
+          "Repeated parameters",
+          "If the same parameter appears more than once (e.g., severity=high&severity=critical), only the first value is used. To specify multiple values, use a comma-separated list instead (e.g., severity=high,critical)."
+        ],
+        [
+          "Empty values",
+          "A parameter with an empty value (e.g., environment=) is treated as if the parameter were not provided. No filter is applied for that parameter."
+        ],
+        [
+          "Boolean parameters",
+          "Boolean parameters accept the following values (case-insensitive): true, false, 1, 0, t, f, T, and F. Variants of these values such as TRUE or False are also accepted. Unrecognized boolean values (e.g., yes or no) are ignored and treated as if the parameter were not provided."
+        ],
+        [
+          "Invalid filter values",
+          "The risk_level and sort parameters are strictly validated. Invalid values for these parameters are rejected with 400 Bad Request. Other filter parameters are normalized and forwarded; values that do not match any known records result in empty result sets rather than an error."
+        ]
+      ]
+    }
+  ]
+}

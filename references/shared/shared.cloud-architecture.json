@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "shared.cloud-architecture",
+  "title": "Zscaler cloud architecture",
+  "aliases": [
+    "cloud architecture",
+    "zscaler architecture",
+    "zero trust exchange architecture",
+    "how is a zscaler cloud built",
+    "control plane data plane",
+    "zia vs zpa infrastructure"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.cloud-names"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.central-authority"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.logging-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.support-systems"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.tunnels"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.trust-model"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.failure-domains"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terminology"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.activation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "What Zscaler runs on a tenant's behalf, component by component, and where the two main services part ways. {{three-components}}"
+    },
+    {
+      "steps": [
+        {
+          "label": "Which cloud?",
+          "text": "A tenant lives on one named cloud: [[shared.cloud-architecture.cloud-names]]."
+        },
+        {
+          "label": "Control plane.",
+          "text": "The Central Authority holds policy and configuration, built differently per service: [[shared.cloud-architecture.central-authority]]."
+        },
+        {
+          "label": "Data plane.",
+          "text": "Service Edges inspect traffic and enforce policy, in public, private and virtual forms: [[shared.cloud-architecture.service-edges]]. A subcloud narrows which edges a tenant uses: [[shared.subclouds]]."
+        },
+        {
+          "label": "Logs.",
+          "text": "Log Routers, Nanolog clusters, NSS and LSS: [[shared.cloud-architecture.logging-path]]."
+        },
+        {
+          "label": "Supporting systems and feeds.",
+          "text": "Sandbox and PAC servers, the Admin Console, and Feed Central: [[shared.cloud-architecture.support-systems]]."
+        },
+        {
+          "label": "Private Access tunnels and trust.",
+          "text": "Z-Tunnels and Microtunnels in [[shared.cloud-architecture.tunnels]], certificates in [[shared.cloud-architecture.trust-model]]."
+        },
+        {
+          "label": "When something fails.",
+          "text": "Per component, including the Business Continuity Cloud and client fail-open: [[shared.cloud-architecture.failure-domains]]."
+        }
+      ]
+    },
+    {
+      "heading": "Two services, two infrastructures"
+    },
+    {
+      "text": "{{zpa-separate}} {{zpa-without-zia}} [[zpa.troubleshooting.no-access:other-traffic-elsewhere]] {{separate-stacks}} What, if anything, links the two stacks for one tenant is open {{gap:cross-product-linkage}}."
+    },
+    {
+      "label": "Making changes live.",
+      "text": "A ZIA change is saved but not live until activated: [[zia.api.activation:saved-not-live]]. Which products stage changes behind an activation at all is in [[shared.activation]]; whether a ZPA write needs any such step is open: [[zpa.api.activation:write-takes-effect]]."
+    },
+    {
+      "label": "Names.",
+      "text": "Older names for these components (ZEN, broker, Z-App) are mapped in [[shared.terminology]]."
+    }
+  ],
+  "claims": {
+    "three-components": {
+      "statement": "Zscaler describes its Internet & SaaS cloud infrastructure as three key components: the Central Authority, the Public Service Edges for Internet & SaaS, and Nanolog clusters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "The highly scalable, global, multi-cloud infrastructure features three key components: the Zscaler Central Authority (CA), Public Service Edges for Internet & SaaS (ZIA), and Nanolog clusters."
+          ]
+        }
+      ]
+    },
+    "zpa-separate": {
+      "statement": "Private Access was built from the ground up for secure remote access and runs on its own multi-tenant infrastructure, separate from Internet & SaaS; the separation ensures that when one organization uses both services, public and internal traffic never mix on the same device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Private Access (ZPA) was built from the ground up to provide secure remote access.",
+            "Private Access runs on a unique multi-tenant infrastructure, separate from that of Internet & SaaS, to make the service highly available.",
+            "This separation ensures that when the same organization is using both services, public and internal traffic never mix on the same device."
+          ]
+        }
+      ]
+    },
+    "zpa-without-zia": {
+      "statement": "An organization does not need Internet & SaaS to use Private Access. When it uses both, Client Connector inherits some functionality from Internet & SaaS, such as enrollment, user profiles and traffic management.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Zscaler Client Connector inherits some functionality from Internet & SaaS, including enrollment, user profiles, traffic management, etc.",
+            "However, organizations do not need access to Internet & SaaS to use Private Access."
+          ]
+        }
+      ]
+    },
+    "separate-stacks": {
+      "statement": "A tenant using both services therefore deals with two sets of components: the Internet & SaaS Central Authority, Public Service Edges and Nanolog with NSS, and the Private Access Central Authority, Service Edges and Log Streaming Service.",
+      "tier": "B",
+      "derived_from": [
+        "zpa-separate",
+        "three-components",
+        "shared.cloud-architecture.central-authority:zpa-ca-active-active",
+        "zpa.log-receivers.architecture:not-nss",
+        "shared.cloud-architecture.logging-path:nss",
+        "zpa.troubleshooting.access-path:edges-enforce-policy"
+      ],
+      "conditions": "Composed from the two architecture articles and the LSS article; no source lists the per-service components side by side."
+    }
+  },
+  "gaps": {
+    "cross-product-linkage": {
+      "kind": "semantic",
+      "title": "What links a tenant's Internet & SaaS and Private Access infrastructure",
+      "status": "open",
+      "detail": "Unverified legacy statement: a tenant using both services has separate CA, Service Edge and LSS/Nanolog instances per product, \"linked via the shared Zscaler PKI and Zscaler Identity layer\". The architecture articles describe each service's PKI on its own and do not describe a shared identity or PKI layer between them.",
+      "blocks": "reasoning about whether an identity or certificate change in one service affects the other",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

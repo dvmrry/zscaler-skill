@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Using an External Load Balancer with Virtual Service Edge Clusters for Internet & SaaS",
+  "source": {
+    "url": "https://help.zscaler.com/zia/using-external-load-balancer-virtual-service-edge-clusters-internet-saas",
+    "node": "1420291",
+    "revision": "3203736",
+    "updated": "2026-05-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler recommends deploying Virtual Service Edge for Internet & SaaS (ZIA) in cluster mode with a minimum of two Virtual Service Edges to ensure redundancy. The virtual machine (VM) images include a load balancer (LB) along with the Virtual Service Edge. Zscaler recommends using the built-in LB. The benefits of using the Zscaler built-in LB are:"
+    },
+    {
+      "item": "Distributing the traffic to Virtual Service Edges on a per-session basis.",
+      "depth": 0
+    },
+    {
+      "item": "Monitoring the health of the Virtual Service Edges and pruning those that fail health checks, automatically adding them to the LB when they report good health.",
+      "depth": 0
+    },
+    {
+      "item": "Updating Virtual Service Edges in a cluster consecutively, resulting in zero downtime during updates.",
+      "depth": 0
+    },
+    {
+      "text": "Using the built-in LB requires enabling Promiscuous mode on the virtualization platform."
+    },
+    {
+      "text": "Promiscuous mode can instead be restricted to a dedicated port group, which contains just the Zscaler VMs."
+    },
+    {
+      "text": "If your organization's compliance requirements do not allow you to make the required changes to the virtual switches to use the built-in LB, an external LB can be used instead. There are two options for configuring Virtual Service Edges to use an external LB:"
+    },
+    {
+      "item": "Clustered Virtual Service Edges Without the Required Switches (Recommended)",
+      "depth": 0
+    },
+    {
+      "item": "You can configure Virtual Service Edges in cluster mode without enabling the required switches. In this mode, because the Virtual Service Edge cannot talk to each other, each one assumes that it is the only member of the cluster and becomes the primary member of the cluster. As a result, all Virtual Service Edges in the cluster declare themselves as primary members of the cluster and own the cluster IP.",
+      "depth": 0
+    },
+    {
+      "item": "To configure an external LB for clustered Virtual Service Edges:",
+      "depth": 0
+    },
+    {
+      "item": "Configure your external LB to forward traffic directly to the Virtual Service Edge IP (not the cluster IP).",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Set the load balancing method to per session basis.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "(Optional) Enable Client IP based persistence.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Configure the external LB to use one of the monitoring methods listed in the Monitoring section of this article.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Monitor the Virtual Service Edge IP address (not the cluster IP).",
+      "depth": 1
+    },
+    {
+      "heading": "Updates",
+      "level": 2
+    },
+    {
+      "item": "Though all members of the cluster declare themselves as primary members of the cluster, from the cloud point of view, they are considered individual members of the same cluster. Therefore, updates occur to the Virtual Service Edges consecutively, resulting in zero downtime when the cluster is updated. Updates can also be scheduled at your convenience. To learn more, see Configuring Virtual Service Edge Clusters for Internet & SaaS.",
+      "depth": 0
+    },
+    {
+      "item": "Standalone Virtual Service Edges",
+      "depth": 0
+    },
+    {
+      "item": "You can deploy the Virtual Service Edges in standalone mode and use an external LB to distribute the load.",
+      "depth": 0
+    },
+    {
+      "item": "To configure an external LB for standalone Virtual Service Edges:",
+      "depth": 0
+    },
+    {
+      "item": "Set the load balancing method to per session basis.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "(Optional) Enable Client IP based persistence.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Configure the external LB to use one of the monitoring methods listed in the Monitoring section of this article.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "heading": "Updates",
+      "level": 2
+    },
+    {
+      "item": "Updates for Virtual Service Edges in standalone mode using an external LB should be scheduled to avoid downtime. To learn more, see Configuring Virtual Service Edge Clusters for Internet & SaaS.",
+      "depth": 0
+    },
+    {
+      "heading": "Monitoring",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends using one of the following methods to monitor Virtual Service Edges using an external LB:"
+    },
+    {
+      "item": "ICMP ping to the service IP. This will ensure services are up and running",
+      "depth": 0
+    },
+    {
+      "item": "TCP portcheck to the proxy ports",
+      "depth": 0
+    },
+    {
+      "item": "HTTP probes to an external hosted web server via proxy can also be used. This method will need a suitable policy on the Virtual Service Edge to allow the probes.",
+      "depth": 0
+    }
+  ]
+}

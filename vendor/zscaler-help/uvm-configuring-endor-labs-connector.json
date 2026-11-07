@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Endor Labs Connector",
+  "source": {
+    "url": "https://help.zscaler.com/uvm/configuring-endor-labs-connector",
+    "node": "1534051",
+    "revision": "3164995",
+    "updated": "2026-04-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Endor Labs connector is in limited availability. To learn more, contact Zscaler Support."
+    },
+    {
+      "text": "Endor Labs provides solutions for managing software security challenges in open-source and AI-generated code, and offers tools to identify and resolve vulnerabilities effectively."
+    },
+    {
+      "text": "There are 5 Endor Labs streams. Select those that are based on your Endor Labs feature plan and use cases:"
+    },
+    {
+      "item": "Endor Labs - Containers: Retrieves container-related findings, including vulnerabilities in container images, dependency metadata, namespace details, and associated project information.",
+      "depth": 0
+    },
+    {
+      "item": "Endor Labs - SAST: Retrieves Static Application Security Testing (SAST) findings, including unique IDs, impacted code components, vulnerability metadata, and namespace associations.",
+      "depth": 0
+    },
+    {
+      "item": "Endor Labs - SCA Findings: Retrieves Software Composition Analysis (SCA) findings, including vulnerable dependencies, their associated projects, and metadata for impacted components.",
+      "depth": 0
+    },
+    {
+      "item": "Endor Labs - Secrets: Retrieves findings related to exposed secrets, including unique IDs, secret types (e.g., API keys, tokens), metadata for impacted resources, and associated project details.",
+      "depth": 0
+    },
+    {
+      "item": "Endor Labs - Vulnerabilities: Retrieves all vulnerability types, and includes detailed metadata like unique IDs, updated timestamps, severity levels, impacted components, and remediation suggestions.",
+      "depth": 0
+    },
+    {
+      "text": "The Query API is used for the Containers, SAST, SCA Findings, and Secrets streams, as it is optimized for handling large data volumes and supports namespace traversal, allowing data retrieval from parent namespaces and their child namespaces in a single operation. In contrast, the REST API is used for the Vulnerabilities stream which is optimal for smaller datasets that don't require namespace traversal, making it suitable for direct and efficient retrieval of vulnerability information."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "The source authentication configuration requires the API key and API secret parameters."
+    },
+    {
+      "text": "To generate the Endor Labs API key and API secret from the Endor Labs portal:"
+    },
+    {
+      "item": "In the left-side navigation, go to Access Control.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          35,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Select API Keys.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Generate API Key.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "By default, API keys are scoped to the current namespace and its child namespaces. You can modify this scope after creation if needed. To learn more, refer to the Endor Labs documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following details:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Name: Enter a name for the API key, identifying its purpose or user.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Permission Level: Select the Read-only role or higher. The Read-only role grants view access, without the permissions to modify or create resources. To learn more, refer to the Endor Labs documentation.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          29,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "The API key and API secret must carry the Read-only role or higher.",
+      "depth": 1
+    },
+    {
+      "item": "Select an expiration date for the API key, ranging from 30 to 90 days.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Click Generate API Key.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Copy API Key & Secret.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Save the API key and API secret. They are not available again after you leave this page.",
+      "depth": 0
+    },
+    {
+      "text": "You can also generate the API key and API secret through an API. If you don't have permissions to create API credentials, contact your Endor Labs admin. To learn more, refer to the Endor Labs documentation."
+    },
+    {
+      "heading": "Configuring the Connector",
+      "level": 1
+    },
+    {
+      "text": "To create the Endor Labs data source in the Zscaler Security Operations (SecOps) platform:"
+    },
+    {
+      "item": "Go to Configure > Sources.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          18,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Search for and select the connector tile from the available data sources.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Retrieval Filters and Specifications",
+      "level": 2
+    },
+    {
+      "text": "After you create the Endor Labs data source, enter the following information in the source setup Retrieval section:"
+    },
+    {
+      "item": "Authentication",
+      "depth": 0
+    },
+    {
+      "item": "To configure authentication:",
+      "depth": 0
+    },
+    {
+      "item": "In the Authentication section, click Create New.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "The Endor Labs Authentication window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "In the Endor Labs Authentication window, enter the information from the Prerequisites section.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see Configuring Authentications and Managing Authentications.",
+      "depth": 0
+    },
+    {
+      "item": "Namespace field",
+      "depth": 0
+    },
+    {
+      "item": "Enter the Endor Labs parent namespaces (e.g., acme) or the specific child namespaces (e.g., acme.dev.app) to retrieve findings from. You can enter multiple namespaces, separated by commas.",
+      "depth": 0
+    },
+    {
+      "item": "Use Zscaler namespace traversal checkbox",
+      "depth": 0
+    },
+    {
+      "item": "The Use Zscaler namespace traversal checkbox controls whether Zscaler retrieves data from child namespaces of the specified namespaces during data retrieval.",
+      "depth": 0
+    },
+    {
+      "item": "When selected, data is retrieved from the specified namespaces and all their child namespaces.",
+      "depth": 1
+    },
+    {
+      "item": "When unselected, data is only retrieved from the specified namespaces, excluding their child namespaces.",
+      "depth": 1
+    },
+    {
+      "item": "To retrieve data from your tenant namespace and all its child namespaces, specify the tenant namespace in the Namespace field and select the Use Zscaler namespace traversal checkbox.",
+      "depth": 0,
+      "strong": [
+        [
+          110,
+          119
+        ],
+        [
+          141,
+          172
+        ]
+      ]
+    },
+    {
+      "item": "This checkbox is available in the following streams:",
+      "depth": 0
+    },
+    {
+      "item": "Endor Labs - Containers",
+      "depth": 1
+    },
+    {
+      "item": "Endor Labs - SAST",
+      "depth": 1
+    },
+    {
+      "item": "Endor Labs - SCA Findings",
+      "depth": 1
+    },
+    {
+      "item": "Endor Labs - Secrets",
+      "depth": 1
+    },
+    {
+      "text": "For complete configuration instructions, see Creating Data Sources."
+    }
+  ]
+}

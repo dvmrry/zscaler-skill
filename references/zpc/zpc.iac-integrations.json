@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "id": "zpc.iac-integrations",
+  "title": "How each ZPC IaC Scan version control and CI/CD integration is set up and behaves",
+  "aliases": ["Version Control & CI/CD Systems", "Fail Check Criteria", "Scan on Push", "Zscaler IaC Scan plugin"],
+  "related": [
+    { "rel": "see-also", "to": "zpc.overview" },
+    { "rel": "see-also", "to": "zpc.iac-scanning" },
+    { "rel": "see-also", "to": "zpc.iac-workstations" }
+  ],
+  "prose": [
+    { "text": "{{integration-list-fields}} {{repository-detail-fields}} {{supported-platforms}} The scan itself is in [[zpc.iac-scanning]]; the hub is [[zpc.overview]]. Whether the service is still available is open {{gap:service-status}}." },
+    { "label": "GitHub.", "text": "{{github-prereq}} {{github-scan-triggers}} {{github-fail-check}} {{github-include-paths}} {{github-all-repos}}" },
+    { "label": "GitLab.", "text": "{{gitlab-single-integration}} {{gitlab-templates-and-fail-check}} {{gitlab-reauthorize}} {{gitlab-webhooks}}" },
+    { "label": "Azure Repos.", "text": "{{azure-repos-prereq}} {{azure-repos-one-org}} {{azure-repos-fail-check}} {{azure-repos-branch-protection}} {{azure-repos-failed}}" },
+    { "label": "Bitbucket.", "text": "{{bitbucket-scope}} Whether regular expressions apply on Bitbucket is open {{gap:bitbucket-regex}}." },
+    { "label": "GitHub Actions.", "text": "{{github-actions-credentials}} {{github-actions-parameters}} {{github-actions-output}} {{github-actions-templates}}" },
+    { "label": "Jenkins.", "text": "{{jenkins-prereq}} {{jenkins-status-pending}} {{jenkins-environment}} {{jenkins-fail-build}} {{jenkins-pipeline-scope}} The pipeline failBuild default is open {{gap:jenkins-pipeline-failbuild-default}}." },
+    { "label": "Jenkins report.", "text": "{{jenkins-report}} {{jenkins-report-fields}}" },
+    { "label": "Azure Pipelines.", "text": "{{azure-pipelines-config}} {{azure-pipelines-keyvault}} {{azure-pipelines-templates}}" },
+    { "label": "Terraform Cloud.", "text": "{{terraform-cloud-run-task}} {{terraform-cloud-enforcement}} {{terraform-cloud-token}} {{terraform-cloud-one-org}} {{terraform-cloud-runtasks}}" },
+    { "label": "Other CI/CD tools.", "text": "{{other-cicd-script}} {{other-cicd-parameters}} {{other-cicd-output}}" },
+    { "text": "The template lists differ between the pages {{gap:template-lists-differ}}." }
+  ],
+  "checks": [
+    {
+      "do": "Fail Check Criteria on GitHub and Azure Repos applies only to pull requests, and on GitLab only to merge requests.",
+      "uses": ["github-fail-check", "azure-repos-fail-check", "gitlab-templates-and-fail-check"]
+    },
+    {
+      "do": "For a failed integration, after tenant offboarding or unsubscribing from the IaC entitlement, the webhooks stay in the GitLab and Azure repositories and the runtasks stay in the Terraform workspace, to be deleted manually.",
+      "uses": ["gitlab-webhooks", "azure-repos-failed", "terraform-cloud-runtasks"]
+    }
+  ],
+  "claims": {
+    "integration-list-fields": {
+      "statement": "The About IaC Integrations article describes the Version Control & CI/CD Systems list as showing each integration's name, type, selected repository count, integration status (given there as Success or Pending) and the email of the user who created it.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-about-iac-integrations.json", "quotes": ["Integration Name: The name of the integration.", "Integration Type: The type of integration.", "Selected Repository Count: The number of repositories in the account or organization.", "Integration Status: The status (Success or Pending) of the integration.", "Created By: The email address of the user who added the integration."] }]
+    },
+    "repository-detail-fields": {
+      "statement": "The repository details show repository name, status (Private or Public), default branch, whether Scan on Push is On or Off, whether Fail Check Criteria is applied to all repositories, and an action to delete the repository.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-about-iac-integrations.json", "quotes": ["Repository Name: The name of the repository.", "Status: The status (Private of Public) of the repository.", "Scan on Push: Whether scan on push option is enabled or not (On of Off).", "Fail Check Criteria: Whether the criteria is applied to all the repositories.", "Actions: Delete the repository.", "Default Branch: The branch of the repository."] }]
+    },
+    "supported-platforms": {
+      "statement": "TeamCity and Circle CI are covered as other CI/CD tools.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-other-cicd-tools.json", "quotes": ["CI/CD) tools such as TeamCity and Circle CI."] }]
+    },
+    "github-prereq": {
+      "statement": "On GitHub, organization administrators must install and authorize the Zscaler IaC Scan app; after that any user with the required permissions can enable specific repositories for scanning in the ZPC Admin Portal.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-github.json", "quotes": ["The organization administrators must install and authorize the Zscaler IaC Scan app to access the IaC source code repositories on GitHub.", "any user with the required permissions can enable the specific repositories for scanning in the Zscaler Posture Control (ZPC) Admin Portal."] }]
+    },
+    "github-scan-triggers": {
+      "statement": "For GitHub, the app scans Terraform, Kubernetes, Helm, ARM and CloudFormation templates, and Scan on Push scans the default (main/master) branch.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-github.json", "quotes": ["scans and identifies security misconfigurations in the IaC Terraform, Kubernetes, Helm, ARM, and CloudFormation templates in the GitHub repositories.", "Scan on Push: Click the toggle to scan the IaC files in the default (main/master) branch."] }]
+    },
+    "github-fail-check": {
+      "statement": "On GitHub, Fail Check Criteria applies only to pull requests, takes a Critical, High, Medium or Low threshold per repository, and the alert notification is generated in both scenarios of the page example.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-github.json", "quotes": ["Fail check criteria is applicable to only pull requests based on policy severity.", "Select the security threshold (Critical, High, Medium, or Low) for the policy from the drop-down list.", "You can apply a security threshold to each repository.", "However, the alert notification is generated in both scenarios."] }]
+    },
+    "github-include-paths": {
+      "statement": "Include Paths restricts scanning to the given file or folder paths (a single-file path scans only that file) and accepts regular expressions; the regex table on the GitHub page includes ! to exclude matches, at the start of a pattern only.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-github.json", "quotes": ["if you define an include path for a single file, then only that file is scanned and all other files and folders within the repository are ignored.", "You can also use regular expressions (regex) to search for and include multiple files or folders that must be scanned:", "Excludes all matches from the result set, start of pattern only"] }]
+    },
+    "github-all-repos": {
+      "statement": "Zscaler recommends selecting All repositories so subsequent repositories are automatically added to the list in the ZPC Admin Portal, but specific repositories still have to be chosen for scanning.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-github.json", "quotes": ["Zscaler recommends that you select All repositories so subsequent repositories are automatically added to the list of repositories displayed in the ZPC Admin Portal.", "However, you still need to choose specific repositories that must be included for scanning."] }]
+    },
+    "gitlab-single-integration": {
+      "statement": "Only one GitLab integration can be configured per tenant, and an administrator with an owner role onboards GitLab accounts and authorizes the IaC Scan app.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-gitlab.json", "quotes": ["You can configure only one GitLab integration per tenant.", "The administrator with an owner role can onboard the GitLab accounts and authorize the IaC Scan app to scan the IaC repositories."] }]
+    },
+    "gitlab-templates-and-fail-check": {
+      "statement": "For GitLab, scans cover Terraform, Helm, Kubernetes and CloudFormation templates, and Fail Check Criteria applies only to merge requests.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-gitlab.json", "quotes": ["scans and identifies security misconfigurations in the IaC Terraform, Helm, Kubernetes, and CloudFormation templates within GitLab.", "Fail check criteria is applicable to only merge requests based on policy severity."] }]
+    },
+    "gitlab-reauthorize": {
+      "statement": "A GitLab integration that stops working (for example, the app was unauthorized in GitLab or the token is corrupted in the ZPC Admin Portal) shows Integration Status Failed and can be reauthorized instead of deleted; a successful reauthorization sets the status to Success.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-gitlab.json", "quotes": ["When an integration fails, the Integration Status is displayed as “Failed” in the ZPC Admin Portal.", "Instead of deleting the GitLab account and repeating the configuration steps again, you can reauthorize the existing integration.", "The Integration Status is displayed as \"Success\" for that integration.", "When a user accidentally unauthorizes the Zscaler IaC Scan in GitLab or if the authorization token is corrupted in the ZPC Admin Portal"] }]
+    },
+    "gitlab-webhooks": {
+      "statement": "For a failed GitLab integration, if you offboard the tenant or unsubscribe from the IaC entitlement, the integration is deleted from ZPC but the webhooks stay in the GitLab repository and must be deleted manually; otherwise you might not be able to integrate the account when you subscribe again.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-gitlab.json", "quotes": ["If you don't delete the webhooks, then you might not be able to integrate the GitLab account whenever you subscribe for the IaC entitlement again.", "For failed integrations, the Integration Status is displayed as Failed in the ZPC Admin Portal. In this case, if you offboard the tenant or unsubscribe from the IaC service entitlement, then the integration is deleted from ZPC but the webhooks are not deleted from the GitLab repository."] }]
+    },
+    "azure-repos-prereq": {
+      "statement": "For Azure Repos, only the Azure DevOps organization owner can onboard the organization and accounts, and third-party application access via OAuth must be enabled under Application connection policies first.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-azure-repos.json", "quotes": ["Only the Azure DevOps organization owner can onboard the Azure organization and accounts.", "Under Application connection policies, enable the third-party application access via OAuth."] }]
+    },
+    "azure-repos-one-org": {
+      "statement": "Azure Repos organizations are added one at a time; already-onboarded organizations cannot be selected, and several organizations in the same Azure account need the integration steps repeated.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-azure-repos.json", "quotes": ["You can only add one organization at a time and you cannot select organizations that are already onboarded.", "Repeat the integration steps to add multiple organizations, even if they are within the same Azure account."] }]
+    },
+    "azure-repos-fail-check": {
+      "statement": "On Azure Repos, Fail Check Criteria applies only to pull requests; with criteria Critical and High and only Medium or Low violations, the pull request is not failed.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-azure-repos.json", "quotes": ["Fail check criteria is applicable to only pull requests based on policy severity.", "if the fail check criteria is set as Critical and High and there are only violations with Medium or Low severity, then the Zscaler IaC Scan does not fail the pull request."] }]
+    },
+    "azure-repos-branch-protection": {
+      "statement": "Branch protection with the Zscaler IaC Scan status check on Azure DevOps becomes available after the IaC scan has run once on a pull request.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-azure-repos.json", "quotes": ["The option to enable branch protection is available after you run the Zscaler IaC scan once on any one pull request.", "Select Zscaler IaC Scan from the Satus to check drop-down menu."] }]
+    },
+    "azure-repos-failed": {
+      "statement": "A failed Azure Repos integration (for example unauthorized in Azure DevOps or a corrupted token) shows Failed and can be reauthorized; for a failed integration, after tenant offboarding or unsubscribing, webhooks stay in the Azure repository and must be deleted manually.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-azure-repos.json", "quotes": ["When an integration fails, the Integration Status is displayed as Failed in the ZPC Admin Portal.", "Instead of deleting the integration and repeating the configuration steps again, you can reauthorize the existing integration.", "For failed integrations, the Integration Status is displayed as Failed in the ZPC Admin Portal. In this case, if you offboard the tenant or unsubscribe from the IaC service entitlement, then the integration is deleted from ZPC but the webhooks are not deleted from the Azure repository.", "when a user accidentally unauthorizes the Zscaler IaC Scan in Azure DevOps or if the authorization token is corrupted in the ZPC Admin Portal", "You need to manually delete the webhooks."] }]
+    },
+    "bitbucket-scope": {
+      "statement": "Bitbucket integration scans IaC templates for both pull and push requests, can scan the entire repository of a branch or newly added templates, and only an administrator can install and authorize it.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-bitbucket.json", "quotes": ["scan your IaC templates in Bitbucket repositories for both pull and push requests.", "You can perform an IaC scan on the entire repository of a branch or templates that were newly added to the branch.", "Only an administrator can install and authorize the IaC Scan."] }]
+    },
+    "github-actions-credentials": {
+      "statement": "For GitHub Actions the ZPC Admin Portal generates a Client ID and Client Secret Key shown only once, and Regenerate issues another secret; the repository secret names must also be given in the YAML configuration file.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-github-actions.json", "quotes": ["Copy and save the Client ID and Client Secret Key that is autogenerated as this value is shown only once on the page.", "Click Regenerate if you want another client secret key.", "Make sure you provide these names in the YAML configuration file also."] }]
+    },
+    "github-actions-parameters": {
+      "statement": "On the GitHub Actions page, the parameters are: region, given there as US or EU (case sensitive); iac_dir optional, with the whole repository scanned if not specified; fail_build set to true or false.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-github-actions.json", "quotes": ["region: The region (US or EU) where you use ZPC. The value is case sensitive.", "iac_dir (optional): Directory path from the root on which you want to trigger the IaC scan. If you don't specify the directory, ZPC scans the entire repository.", "fail_build: Set this value to 'true' or 'false'."] }]
+    },
+    "github-actions-output": {
+      "statement": "The GitHub Actions output_format parameter supports json, yaml, sarif, human, json+github-sarif and human+github-sarif, and the action exposes sarif_file_path and scan_status (passed or failed).",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-github-actions.json", "quotes": ["output_format: The IaC scan results are written to the desired file format", "The supported formats are 'json', 'yaml', 'sarif', 'human', 'json+github-sarif', and 'human+github-sarif'.", "sarif_file_path: The path to the generated sarif file in the workspace.", "scan_status : The final status (passed or failed) of the IaC scan."] }]
+    },
+    "github-actions-templates": {
+      "statement": "The GitHub Actions action scans Terraform, Kubernetes, CloudFormation and ARM templates.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-github-actions.json", "quotes": ["scans and identifies security misconfigurations in the IaC Terraform, Kubernetes, and CloudFormation, and ARM templates within the code repositories."] }]
+    },
+    "jenkins-prereq": {
+      "statement": "Jenkins needs Jenkins version 2.319.1 and an administrator to install and authorize the Zscaler IaC Scan plugin; it supports freestyle and pipeline jobs.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-jenkins.json", "quotes": ["Jenkins version 2.319.1 is required for this installation.", "The administrator must install and authorize the Zscaler IaC Scan plugin on Jenkins to access the code repositories.", "for both freestyle and pipeline jobs in Jenkins"] }]
+    },
+    "jenkins-status-pending": {
+      "statement": "A Jenkins integration account shows as Pending until configuration is completed on the Jenkins UI, after which the status changes to Success and the Jenkins URL is displayed; the generated Client ID and Client Secret Key are displayed only once.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-jenkins.json", "quotes": ["The Jenkins account is displayed on the Version Control & CI/CD Systems page, but the status of this account is shown as Pending.", "After you complete the configuration, the status changes to Success and the Jenkins URL is displayed for the account.", "Copy the Client ID and Client Secret Key that are generated. Make sure to copy and save these values as they are displayed only once.", "Complete the configuration on the Jenkins user interface (UI)."] }]
+    },
+    "jenkins-environment": {
+      "statement": "In the Jenkins plugin configuration the environment is EU or US, and Validate confirms the connection between the Jenkins server and the ZPC Admin Portal.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-jenkins.json", "quotes": ["Choose Environment: Select the environment (EU or US) where your tenant resides.", "A message is displayed indicating that the connection between the Jenkins server and the ZPC Admin Portal is established.", "Click Validate."] }]
+    },
+    "jenkins-fail-build": {
+      "statement": "For Jenkins freestyle jobs, Fail Build is enabled by default and fails the job on high severity violations; if disabled, the plugin still identifies misconfigurations but does not fail the job.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-jenkins.json", "quotes": ["This option is enabled by default and the IaC Scan plugin fails the job if it identifies high severity violations in the IaC template.", "If you disable this option, the IaC Scan plugin continues to identify security misconfigurations in the template, but it will not fail the job.", "Make sure that Fail Build is selected.", "You can configure the Zscaler IaC Scan plugin to scan a freestyle job or a pipeline job in Jenkins.", "Configure a Jenkins freestyle job."] }]
+    },
+    "jenkins-pipeline-scope": {
+      "statement": "In a Jenkins pipeline script the plugin scans the entire repository by default; to scan a specific file or directory give a file path or a directory path, but not both; failBuild true fails the build on violations and false does not.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-jenkins.json", "quotes": ["By default, Zscaler IaC scan plugin performs a scan of the entire Jenkins repository.", "provide either the file path or directory path, but not both at the same time.", "When you set the failBuild value to 'true', then IaC scan will fail the build if there are policy violations.", "if you set the failBuild value to 'false', then IaC scan will not fail the build even if there are policy violations."] }]
+    },
+    "jenkins-report": {
+      "statement": "The Jenkins report is available for single and multibranch pipeline jobs and can be downloaded as CSV or PDF; an error message in it can be due to IaC resources not available, a parsing error, a scan not initiated, or a scan that failed to complete.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-viewing-iac-scan-results-jenkins-ui.json", "quotes": ["You can see the report for both single and multibranch pipeline jobs in the Jenkins UI and also download the report as a CSV or PDF file.", "IaC resources are not available", "Parsing error", "IaC scan is not initiated", "IaC scan failed to complete"] }]
+    },
+    "jenkins-report-fields": {
+      "statement": "The Jenkins report shows project details, scan status (Passed, Failed, Skipped), the overall severity level (Critical, High, Medium, or Low), and for each policy its name, scan status, policy ID and severity.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-viewing-iac-scan-results-jenkins-ui.json", "quotes": ["Project Details: The project name, build number, build status, and the date and time when the build was scanned.", "Scan Status: The total number of scans and status (Passed, Failed, Skipped).", "Policy Name: The policy title.", "Policy ID: The unique identification number for the security policy.", "Severity: The overall severity level of the policy violations (Critical, High, Medium, or Low).", "Scan Status: The status of the scan (Failed, Skipped, or Passed).", "Severity: The severity level of the policy violation (Critical, High, Medium, or Low)."] }]
+    },
+    "azure-pipelines-config": {
+      "statement": "For Azure Pipelines the region is EU, US or Custom; if no IaC directory is given the entire repository is scanned; output format is JSON, YAML, SARIF or human; the account shows Pending until configuration completes in Azure DevOps.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-azure-pipelines.json", "quotes": ["Region: Select the region (EU, US, or Custom) where your tenant resides.", "If you don’t add a directory, then the entire repository is scanned.", "Output format: Enter the format (JSON, YAML, SARIF, or human) for displaying the scan results.", "However, the status of this account is displayed as Pending.", "When you complete the configuration steps explained above, the status changes to Success and the Azure DevOps URL is displayed for the account."] }]
+    },
+    "azure-pipelines-keyvault": {
+      "statement": "For Azure Pipelines the Client ID and Client Secret can be added to Azure Key Vault and referenced in the YAML pipeline; the plugin is downloaded from the Visual Studio Marketplace.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-azure-pipelines.json", "quotes": ["you can add the values to the Azure Key Vault and specify the parameters in the YAML pipeline.", "Make sure you've downloaded the Zscaler IaC Scan plugin from the Visual Studio Marketplace and installed in the required Azure organization.", "If you want to secure the Client ID and Client Secret"] }]
+    },
+    "azure-pipelines-templates": {
+      "statement": "The Azure Pipelines plugin scans Terraform, Kubernetes, Helm, ARM and CloudFormation templates for Azure pipeline jobs.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-azure-pipelines.json", "quotes": ["scans and identifies security misconfigurations and policy violations in the IaC Terraform, Kubernetes, Helm, ARM, and CloudFormation templates for Azure pipeline jobs"] }]
+    },
+    "terraform-cloud-run-task": {
+      "statement": "Terraform Cloud scans the Terraform plan template each time a run task triggers; the post-plan task is enabled by default and pre-plan can be enabled instead.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-terraform-cloud.json", "quotes": ["The IaC Scan performs a scan on the Terraform plan template every time a run task is triggered", "By default, the post-plan task is enabled for scanning.", "If you select pre-plan, then the IaC scan occurs in the pre-plan phase instead of the post-plan phase."] }]
+    },
+    "terraform-cloud-enforcement": {
+      "statement": "On Terraform Cloud, a mandatory Run task fails on violations matching the selected thresholds, while an advisory Run task does not fail even with violations.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-terraform-cloud.json", "quotes": ["If the Run task is mandatory, then IaC scan will fail the task if it has policy violations that match any of the security thresholds selected in step b.", "If the Run task is in advisory mode, then IaC scan will not fail the task even if there are policy violations."] }]
+    },
+    "terraform-cloud-token": {
+      "statement": "Terraform Cloud integration requires a user API token, without which you cannot proceed; the token can be replaced later for reauthorization.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-terraform-cloud.json", "quotes": ["You must use only the user API token, otherwise, you cannot proceed with the integration.", "click the Key icon for the specific Terraform Cloud account and update the API token.", "If you want to use another API token for reauthorization at a later point in time"] }]
+    },
+    "terraform-cloud-one-org": {
+      "statement": "Terraform Cloud organizations are added one at a time; already-onboarded organizations cannot be selected.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-terraform-cloud.json", "quotes": ["You can only add one organization at a time and you cannot select organizations that are already onboarded."] }]
+    },
+    "terraform-cloud-runtasks": {
+      "statement": "For a failed Terraform Cloud integration, after tenant offboarding or unsubscribing from the IaC entitlement, the integration is deleted from ZPC but the runtasks stay in the Terraform workspace and must be deleted manually, or the organization may not be integrable on resubscribing.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-terraform-cloud.json", "quotes": ["If you don't delete the runtasks, then you might not be able to integrate the organization whenever you subscribe for the IaC service entitlement again.", "For failed integrations, the Integration Status is displayed as Failed in the ZPC Admin Portal. In this case, if you offboard the tenant or unsubscribe from the IaC service entitlement, then the integration is deleted from ZPC but the runtasks are not deleted from the Terraform workspace."] }]
+    },
+    "other-cicd-script": {
+      "statement": "For TeamCity and Circle CI, a binary script (zscaler-iac-scan.sh) is downloaded as a ZIP file and must be decompressed before use; it covers Terraform, Helm, Kubernetes and CloudFormation templates.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-other-cicd-tools.json", "quotes": ["You can download and configure a binary script (zscaler-iac-scan.sh) on the CI/CD tools.", "The downloaded file is in ZIP format, so you need to decompress the file and then use the .sh script.", "scans and identifies security misconfigurations in the IaC Terraform, Helm, Kubernetes, and CloudFormation templates.", "with other continuous integration and continuous delivery (CI/CD) tools such as TeamCity and Circle CI."] }]
+    },
+    "other-cicd-parameters": {
+      "statement": "For TeamCity, the build step parameters must be given in the same sequence; if the sequence is changed, the script does not execute and shows an error.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-other-cicd-tools.json", "quotes": ["Make sure to specify the parameters in the same sequence that is provided below.", "If you change the sequence of the parameters, then the script does not execute and shows an error.", "Log in to TeamCity."] }]
+    },
+    "other-cicd-output": {
+      "statement": "For the TeamCity script, the output format is human (default), JSON, YAML or GitHub-Sarif; entering true for Fail Build means code changes cannot be committed to the build until the errors are fixed.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-other-cicd-tools.json", "quotes": ["The scan results can be displayed in human (default), JSON, YAML, or GitHub-Sarif format.", "Fail Build: Enter true or false. If you enter true, then you cannot commit the code changes to the build until you fix the errors in the code.", "Log in to TeamCity."] }]
+    }
+  },
+  "gaps": {
+    "service-status": {
+      "kind": "semantic",
+      "title": "Whether the ZPC IaC integrations these pages describe are still available",
+      "status": "open",
+      "detail": "portfolio.cloud-protection records ZPC end of life as planned for March 15, 2026. None of the captured IaC integration pages says whether it describes a service still available, so none of these facts is claimed as current.",
+      "resolves_with": ["source-read"]
+    },
+    "bitbucket-regex": {
+      "kind": "semantic",
+      "title": "Whether Bitbucket supports Include Paths regular expressions or branch protection",
+      "status": "open",
+      "detail": "The GitHub, GitLab and Azure Repos pages carry a regex table; the Bitbucket page has no regex table, no mention of regex and no branch protection section. Whether regex is unsupported there is not stated.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "jenkins-pipeline-failbuild-default": {
+      "kind": "semantic",
+      "title": "Default of failBuild in a Jenkins pipeline script",
+      "status": "open",
+      "detail": "The Fail Build default is stated for freestyle jobs only; the page does not state a default for the pipeline failBuild value.",
+      "resolves_with": ["lab-test", "source-read"]
+    },
+    "template-lists-differ": {
+      "kind": "semantic",
+      "title": "Whether differing per-integration template lists reflect real coverage",
+      "status": "open",
+      "detail": "The template lists differ across pages: GitLab and Other CI/CD tools omit ARM, GitHub Actions omits Helm. Found by comparing the pages; the pages do not state whether the difference reflects real coverage.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    }
+  }
+}

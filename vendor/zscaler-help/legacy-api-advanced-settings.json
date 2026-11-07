@@ -1,0 +1,563 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Advanced Settings",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/advanced-settings",
+    "node": "1510456",
+    "revision": "3187056",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Advanced%20Settings_3.json?VersionId=oGdghlDi6QRssdxak8BBpYMQ9MR.G7AO",
+    "updated": "2026-03-31",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Advanced Settings"
+      }
+    ],
+    "paths": {
+      "/advancedSettings": {
+        "get": {
+          "tags": [
+            "Advanced Settings"
+          ],
+          "description": "Retrieves information about the advanced settings configured in the ZIA Admin Portal",
+          "operationId": "AdvancedSettingsResource_getAdvancedSettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdvancedSettings"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Advanced Settings"
+          ],
+          "description": "Updates the advanced settings configuration in the ZIA Admin Portal. To learn more, see <a href=\"/zia/configuring-advanced-settings\" target=\"_blank\">Configuring Advanced Settings</a>.",
+          "operationId": "AdvancedSettingsResource_updateAdvancedSettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Advanced settings in the ZIA Admin Portal",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/AdvancedSettings"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdvancedSettings"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "AdvancedSettings": {
+        "type": "object",
+        "description": "Advanced settings available for configuration in the ZIA Admin Portal. To learn more, see <a href=\"/zia/configuring-advanced-settings\" target=\"_blank\">Configuring Advanced Settings</a>.",
+        "properties": {
+          "authBypassUrlCategories": {
+            "type": "array",
+            "description": "URL categories that are exempted from cookie authentication",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          },
+          "domainFrontingBypassUrlCategories": {
+            "type": "array",
+            "description": "URL categories that are exempted from domain fronting",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          },
+          "authBypassUrls": {
+            "type": "array",
+            "description": "Custom URLs that are exempted from cookie authentication for users",
+            "items": {
+              "type": "string"
+            }
+          },
+          "authBypassApps": {
+            "type": "array",
+            "description": "Cloud applications that are exempted from cookie authenticatio",
+            "items": {
+              "$ref": "#/definitions/PolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          },
+          "kerberosBypassUrlCategories": {
+            "type": "array",
+            "description": "URL categories that are exempted from Kerberos authentication",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          },
+          "kerberosBypassUrls": {
+            "type": "array",
+            "description": "Custom URLs that are exempted from Kerberos authentication",
+            "items": {
+              "type": "string"
+            }
+          },
+          "kerberosBypassApps": {
+            "type": "array",
+            "description": "Cloud applications that are exempted from Kerberos authentication",
+            "items": {
+              "$ref": "#/definitions/PolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          },
+          "basicBypassUrlCategories": {
+            "type": "array",
+            "description": "URL categories that are exempted from Basic authentication",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          },
+          "basicBypassApps": {
+            "type": "array",
+            "description": "Cloud applications that are exempted from Basic authentication",
+            "items": {
+              "$ref": "#/definitions/PolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          },
+          "httpRangeHeaderRemoveUrlCategories": {
+            "type": "array",
+            "description": "URL categories for which HTTP range headers must be removed",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          },
+          "digestAuthBypassUrlCategories": {
+            "type": "array",
+            "description": "URL categories that are exempted from Digest authentication",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          },
+          "digestAuthBypassUrls": {
+            "type": "array",
+            "description": "Custom URLs that are exempted from Digest authentication",
+            "items": {
+              "type": "string"
+            }
+          },
+          "digestAuthBypassApps": {
+            "type": "array",
+            "description": "Cloud applications that are exempted from Digest authentication",
+            "items": {
+              "$ref": "#/definitions/PolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          },
+          "enableDnsResolutionOnTransparentProxy": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether DNS optimization is enabled or disabled for Z-Tunnel 2.0 and <a href=\"/zia/what-proxy-mode#transparent-mode\" target=\"_blank\">transparent proxy</a> mode traffic (e.g., traffic via GRE or IPSec tunnels without a PAC file). This setting allows Zscaler to perform a DNS lookup and override the externally resolved IP addresses in the outbound HTTP and HTTPS connections to establish a connection to the destination server that is geographically closer to the ZIA Service Edge (Public, Private, or Virtual)."
+          },
+          "enableIPv6DnsResolutionOnTransparentProxy": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether DNS optimization is enabled or disabled for IPv6 traffic sent via Z-Tunnel 2.0 and <a href=\"/zia/what-proxy-mode#transparent-mode\" target=\"_blank\">transparent proxy</a> mode traffic (e.g., traffic via GRE or IPSec tunnels without a PAC file)."
+          },
+          "enableIPv6DnsOptimizationOnAllTransparentProxy": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether DNS optimization is enabled or disabled for all IPv6 transparent proxy traffic"
+          },
+          "enableEvaluatePolicyOnGlobalSSLBypass": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether policy evaluation for global SSL bypass traffic is enabled or not"
+          },
+          "dnsResolutionOnTransparentProxyExemptUrlCategories": {
+            "type": "array",
+            "description": "URL categories that are excluded from DNS optimization on transparent proxy mode",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          },
+          "dnsResolutionOnTransparentProxyIPv6ExemptUrlCategories": {
+            "type": "array",
+            "description": "IPv6 URL categories that are excluded from DNS optimization on transparent proxy mode",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          },
+          "dnsResolutionOnTransparentProxyExemptUrls": {
+            "type": "array",
+            "description": "URLs that are excluded from DNS optimization on transparent proxy mode",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dnsResolutionOnTransparentProxyExemptApps": {
+            "type": "array",
+            "description": "Cloud applications that are excluded from DNS optimization on transparent proxy mode",
+            "items": {
+              "$ref": "#/definitions/PolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          },
+          "dnsResolutionOnTransparentProxyIPv6ExemptApps": {
+            "type": "array",
+            "description": "Cloud applications that are excluded from DNS optimization for IPv6 addresses on transparent proxy mode",
+            "items": {
+              "$ref": "#/definitions/PolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          },
+          "dnsResolutionOnTransparentProxyUrlCategories": {
+            "type": "array",
+            "description": "URL categories to which DNS optimization on transparent proxy mode applies",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          },
+          "dnsResolutionOnTransparentProxyIPv6UrlCategories": {
+            "type": "array",
+            "description": "IPv6 URL categories to which DNS optimization on transparent proxy mode applies",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          },
+          "dnsResolutionOnTransparentProxyUrls": {
+            "type": "array",
+            "description": "URLs to which DNS optimization on transparent proxy mode applies",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dnsResolutionOnTransparentProxyApps": {
+            "type": "array",
+            "description": "Cloud applications to which DNS optimization on transparent proxy mode applies",
+            "items": {
+              "$ref": "#/definitions/PolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          },
+          "dnsResolutionOnTransparentProxyIPv6Apps": {
+            "type": "array",
+            "description": "Cloud applications to which DNS optimization for IPv6 addresses on transparent proxy mode applies",
+            "items": {
+              "$ref": "#/definitions/PolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          },
+          "blockDomainFrontingApps": {
+            "type": "array",
+            "description": "Applications that are exempted from domain fronting",
+            "items": {
+              "$ref": "#/definitions/PolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          },
+          "preferSniOverConnHostApps": {
+            "type": "array",
+            "description": "Applications that are exempted from the <b>preferSniOverConnHost</b> setting",
+            "items": {
+              "$ref": "#/definitions/PolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          },
+          "enableOffice365": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether Microsoft Office 365 One Click Configuration is enabled or not"
+          },
+          "logInternalIp": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether to log internal IP address present in X-Forwarded-For (XFF) proxy header or not"
+          },
+          "enforceSurrogateIpForWindowsApp": {
+            "type": "boolean",
+            "description": "Enforce Surrogate IP authentication for Windows app traffic"
+          },
+          "trackHttpTunnelOnHttpPorts": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether to apply configured policies on tunneled HTTP traffic sent via a CONNECT method request on port 80"
+          },
+          "blockHttpTunnelOnNonHttpPorts": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether HTTP CONNECT method requests to non-standard ports are allowed or not (i.e., requests directed to ports other than the standard HTTP and HTTPS ports, 80 and 443)"
+          },
+          "blockDomainFrontingOnHostHeader": {
+            "type": "boolean",
+            "description": "<p>A Boolean value indicating whether to block HTTP and HTTPS transactions that have an FQDN mismatch between:</p><ul><li>The request URL and the request's host header. The service doesn't consider it a mismatch if either of the fields, host header, or FQDN URL is empty.</li><li>The SNI and the inner request's host header. The service doesn't consider it a mismatch if either of the fields, host header, or SNI is empty.</li></ul>"
+          },
+          "zscalerClientConnector1AndPacRoadWarriorInFirewall": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether to apply the Firewall rules configured without a specified location criteria (or with the Road Warrior location) to remote user traffic forwarded via Z-Tunnel 1.0 or PAC files"
+          },
+          "cascadeUrlFiltering": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether to apply the URL Filtering policy even when the Cloud App Control policy already allows a transaction explicitly"
+          },
+          "enablePolicyForUnauthenticatedTraffic": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether policies that include user and department criteria can be configured and applied for unauthenticated traffic"
+          },
+          "blockNonCompliantHttpRequestOnHttpPorts": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether to allow or block traffic that is not compliant with RFC HTTP protocol standards"
+          },
+          "enableAdminRankAccess": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether ranks are enabled for admins to allow admin ranks in policy configuration and management"
+          },
+          "uiSessionTimeout": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Specifies the login session timeout for admins accessing the ZIA Admin Portal"
+          },
+          "apiSessionTimeout": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Specifies the idle timeout duration for public API-initiated sessions. You can configure this field to any value ranging from 5 minutes to 20 minutes. The default value is 5 minutes."
+          },
+          "http2NonbrowserTrafficEnabled": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether or not HTTP/2 should be the default web protocol for accessing various applications at your organizational level"
+          },
+          "ecsForAllEnabled": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether or not to include the ECS option in all DNS queries, originating from all locations and remote users."
+          },
+          "ecsObject": {
+            "description": "The ECS prefix that must be used in DNS queries when the ECS option is enabled",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "dynamicUserRiskEnabled": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether to dynamically update user risk score by tracking risky user activities in real time"
+          },
+          "blockConnectHostSniMismatch": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether CONNECT host and SNI mismatch (i.e., CONNECT host doesn't match the SSL/TLS client hello SNI) is blocked or not"
+          },
+          "preferSniOverConnHost": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether or not to use the SSL/TLS client hello Server Name Indication (SNI) for DNS resolution instead of the CONNECT host for forward proxy connections"
+          },
+          "sipaXffHeaderEnabled": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether or not to insert XFF header to all traffic forwarded from ZIA to ZPA, including source IP-anchored and ZIA-inspected ZPA application traffic."
+          },
+          "blockNonHttpOnHttpPortEnabled": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether non-HTTP Traffic on HTTP and HTTPS ports are allowed or blocked"
+          },
+          "sniDnsOptimizationBypassUrlCategories": {
+            "type": "array",
+            "description": "URL categories that are excluded from the preferSniOverConnHost setting (i.e., prefer SSL/TLS client hello SNI for DNS resolution instead of the CONNECT host for forward proxy connections)",
+            "items": {
+              "$ref": "#/definitions/WebFilteringUrlCategory"
+            }
+          }
+        }
+      },
+      "WebFilteringUrlCategory": {
+        "type": "object",
+        "properties": {
+          "urlSupercategory": {
+            "type": "string",
+            "description": "Super category of the URL category. This field is required when creating custom URL categories.",
+            "enum": [
+              "ANY",
+              "NONE",
+              "ADVANCED_SECURITY",
+              "ENTERTAINMENT_AND_RECREATION",
+              "NEWS_AND_MEDIA",
+              "USER_DEFINED",
+              "EDUCATION",
+              "BUSINESS_AND_ECONOMY",
+              "JOB_SEARCH",
+              "INFORMATION_TECHNOLOGY",
+              "INTERNET_COMMUNICATION",
+              "OFFICE_365",
+              "CUSTOM_SUPERCATEGORY",
+              "CUSTOM_BP",
+              "CUSTOM_BW",
+              "MISCELLANEOUS",
+              "TRAVEL",
+              "VEHICLES",
+              "GOVERNMENT_AND_POLITICS",
+              "GLOBAL_INT",
+              "GLOBAL_INT_BP",
+              "GLOBAL_INT_BW",
+              "GLOBAL_INT_OFC365",
+              "ADULT_MATERIAL",
+              "DRUGS",
+              "GAMBLING",
+              "VIOLENCE",
+              "WEAPONS_AND_BOMBS",
+              "TASTELESS",
+              "MILITANCY_HATE_AND_EXTREMISM",
+              "ILLEGAL_OR_QUESTIONABLE",
+              "SOCIETY_AND_LIFESTYLE",
+              "HEALTH",
+              "SPORTS",
+              "SPECIAL_INTERESTS_SOCIAL_ORGANIZATIONS",
+              "GAMES",
+              "SHOPPING_AND_AUCTIONS",
+              "SOCIAL_AND_FAMILY_ISSUES",
+              "RELIGION",
+              "SECURITY"
+            ]
+          },
+          "deprecated": {
+            "type": "boolean",
+            "description": "List of deprecated URL categories"
+          },
+          "backendName": {
+            "type": "string",
+            "description": "URL category backend name"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the URL category listed under the respective super category"
+          },
+          "userConfiguredName": {
+            "type": "string",
+            "description": "User-configured URL category name"
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about the URL category"
+          }
+        }
+      },
+      "PolicyWebApplication": {
+        "type": "object",
+        "properties": {
+          "val": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "webApplicationClass": {
+            "type": "string",
+            "description": "<p>The cloud application class selected from the available options</p>",
+            "enum": [
+              "ANY",
+              "NONE",
+              "WEB_MAIL",
+              "SOCIAL_NETWORKING",
+              "STREAMING",
+              "P2P",
+              "INSTANT_MESSAGING",
+              "WEB_SEARCH",
+              "GENERAL_BROWSING",
+              "ADMINISTRATION",
+              "ENTERPRISE_COLLABORATION",
+              "BUSINESS_PRODUCTIVITY",
+              "SALES_AND_MARKETING",
+              "SYSTEM_AND_DEVELOPMENT",
+              "CONSUMER",
+              "FILE_SHARE",
+              "HOSTING_PROVIDER",
+              "IT_SERVICES",
+              "DNS_OVER_HTTPS",
+              "HUMAN_RESOURCES",
+              "LEGAL",
+              "HEALTH_CARE",
+              "FINANCE",
+              "CUSTOM_CAPP",
+              "AI_ML"
+            ]
+          },
+          "backendName": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "deprecated": {
+            "type": "boolean"
+          },
+          "misc": {
+            "type": "boolean"
+          },
+          "appNotReady": {
+            "type": "boolean"
+          },
+          "underMigration": {
+            "type": "boolean"
+          },
+          "appCatModified": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of an ID and name"
+      }
+    }
+  }
+}

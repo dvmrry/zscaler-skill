@@ -16,12 +16,12 @@ sources:
   - "https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html"
   - "https://cloud.google.com/architecture/framework/security/security-principles"
   - "agents/soc/grounding/security-taxonomy.md"
-  - "references/shared/admin-rbac.md"
-  - "references/shared/audit-logs.md"
-  - "references/shared/siem-log-mapping.md"
-  - "references/zidentity/admin-rbac.md"
-  - "references/zia/ssl-inspection.md"
-  - "references/zia/cloud-app-control.md"
+  - "kb:shared.admin-rbac"
+  - "kb:shared.audit-logs"
+  - "kb:shared.siem-mapping"
+  - "kb:zidentity.admin-rbac"
+  - "kb:zia.ssl-inspection"
+  - "kb:zia.cloud-app-control"
 dependencies: []
 author-status: draft
 ---
@@ -70,40 +70,40 @@ When instructions are ambiguous, bias toward:
 
 ## Always load for SOC review
 
-- [`references/shared/admin-rbac.md`](../../../references/shared/admin-rbac.md) - cross-product admin role posture
-- [`references/shared/audit-logs.md`](../../../references/shared/audit-logs.md) - audit-log availability and limits
-- [`references/shared/siem-log-mapping.md`](../../../references/shared/siem-log-mapping.md) - telemetry source mapping
+- [`shared.admin-rbac`](kb:shared.admin-rbac) - cross-product admin role posture
+- [`shared.audit-logs`](kb:shared.audit-logs) - audit-log availability and limits
+- [`shared.siem-mapping`](kb:shared.siem-mapping) - telemetry source mapping
 
 ## Load by subtype
 
 ### `access`
 
-- [`references/zidentity/admin-rbac.md`](../../../references/zidentity/admin-rbac.md)
-- [`references/zidentity/api-clients.md`](../../../references/zidentity/api-clients.md)
-- [`references/zidentity/user-entitlements.md`](../../../references/zidentity/user-entitlements.md)
-- [`references/zidentity/step-up-authentication.md`](../../../references/zidentity/step-up-authentication.md)
+- [`zidentity.admin-rbac`](kb:zidentity.admin-rbac)
+- [`zidentity.api-clients`](kb:zidentity.api-clients)
+- [`zidentity.entitlements`](kb:zidentity.entitlements)
+- [`zidentity.step-up`](kb:zidentity.step-up)
 
 ### `policy`
 
-- [`references/zia/url-filtering.md`](../../../references/zia/url-filtering.md)
-- [`references/zia/ssl-inspection.md`](../../../references/zia/ssl-inspection.md)
-- [`references/zia/cloud-app-control.md`](../../../references/zia/cloud-app-control.md)
-- [`references/zpa/app-segments.md`](../../../references/zpa/app-segments.md)
-- [`references/zpa/policy-precedence.md`](../../../references/zpa/policy-precedence.md)
+- [`zia.url-filtering`](kb:zia.url-filtering)
+- [`zia.ssl-inspection`](kb:zia.ssl-inspection)
+- [`zia.cloud-app-control`](kb:zia.cloud-app-control)
+- [`zpa.app-segments`](kb:zpa.app-segments)
+- [`zpa.policy`](kb:zpa.policy)
 
 ### `coverage` or `activity`
 
-- [`references/shared/siem-log-mapping.md`](../../../references/shared/siem-log-mapping.md)
-- [`references/zia/audit-logs.md`](../../../references/zia/audit-logs.md)
-- [`references/zpa/audit-logs.md`](../../../references/zpa/audit-logs.md)
-- [`references/zwa/audit-logs.md`](../../../references/zwa/audit-logs.md)
+- [`shared.siem-mapping`](kb:shared.siem-mapping)
+- [`zia.audit-logs`](kb:zia.audit-logs)
+- [`zpa.audit-logs`](kb:zpa.audit-logs)
+- [`zwa.audit-logs`](kb:zwa.audit-logs)
 
 ## Discipline
 
 - A posture exposure is not proof of exploitation.
 - Severity is based on blast radius, control family, and visibility, not on how ugly the config looks.
 - Missing telemetry is a finding only when the relevant event class should be observable for the stated threat model.
-- Use standards language to classify risk, but cite Zscaler references, snapshots, logs, or user evidence for the actual finding.
+- Use standards language to classify risk, but cite Zscaler references, IaC, logs, or user evidence for the actual finding.
 - Do not use OWASP, NIST, MITRE, CISA, or CWE as a substitute for tenant
   evidence. If a framework is the only source, record a threat-model note rather
   than a finding.

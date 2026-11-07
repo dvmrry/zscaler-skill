@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control.predefined-rules",
+  "title": "Predefined Forwarding Control rules",
+  "aliases": [
+    "ZIA Inspected ZPA Apps",
+    "Fallback mode of ZPA Forwarding",
+    "Client Connector Traffic Direct",
+    "ZPA Pool For Stray Traffic",
+    "zpaBrokerRule",
+    "predefined forwarding rule cannot be deleted"
+  ],
+  "binds": [
+    "zia/forwarding-rules#zpaBrokerRule"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zpa.app-segments.settings",
+      "because": "zia.forwarding-control.predefined-rules:inspected-zpa-apps"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/forwarding-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.forwarding-control.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Some Forwarding Control rules exist before anyone writes one. {{inspected-zpa-apps}} {{broker-rule-flag}}"
+    },
+    {
+      "text": "{{provider-names}} The documentation's guidance is looser than the code {{divergence:terraform-management}}. {{tf-docs-handling}}"
+    },
+    {
+      "text": "{{zpa-predefined-three}} {{predefined-help-statement}} Whether those rules are enabled by default {{divergence:enabled-by-default}} and what on them can be changed {{divergence:predefined-rule-editability}} differ between the sources. {{extranet-rules}}"
+    },
+    {
+      "text": "What Client Connector Traffic Direct does is open {{gap:other-purposes}}. Ordering and enablement of any rule: [[zia.forwarding-control.rules]]."
+    }
+  ],
+  "claims": {
+    "inspected-zpa-apps": {
+      "statement": "ZIA Inspected ZPA Apps is a predefined Forwarding rule, enabled by default, that sends Private Access application segment traffic whose Inspect Traffic with ZIA field is enabled to ZIA for inspection. It cannot be edited, and exists only with Private Access App Inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "Zscaler provides a predefined Forwarding rule, ZIA Inspected ZPA Apps, which is enabled by default. This rule forwards all Private Access application segment traffic for Internet & SaaS inspection that has the Inspect Traffic with ZIA field enabled. You cannot edit this rule.",
+            "The predefined rule is only available if you have Private Access App Inspection."
+          ],
+          "after": "Configuring Forwarding Rules for Private Access"
+        }
+      ]
+    },
+    "zpa-predefined-three": {
+      "statement": "The About Forwarding Control page names three predefined rules for forwarding to Private Access. Fallback mode of ZPA Forwarding forwards source-IP-anchored traffic that matches the fallback Private Access IP pools to Private Access, and is only enabled during Internet & SaaS control plane maintenance. ZIA Inspected ZPA Apps forwards Private Access application segment traffic for Internet & SaaS inspection that has the Inspect Traffic with Internet & SaaS field enabled. ZPA Pool For Stray Traffic drops Private Access traffic that does not match any IP address range from the Private Access IP pool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-forwarding-policies.json",
+          "quotes": [
+            "Fallback mode of ZPA Forwarding: Forwards all source IP anchored traffic that matches the fallback Private Access IP pools to Private Access. This rule is disabled by default and cannot be deleted. It is only enabled during Internet & SaaS control plane maintenance.",
+            "ZIA Inspected ZPA Apps: Forwards all Private Access application segment traffic for Internet & SaaS inspection that has the Inspect Traffic with Internet & SaaS field enabled in the Zscaler Admin Console.",
+            "ZPA Pool For Stray Traffic: Drops all Private Access traffic that does not match any IP address range from the Private Access IP pool."
+          ]
+        }
+      ]
+    },
+    "predefined-help-statement": {
+      "statement": "The About Forwarding Control page says the predefined rules are enabled by default and cannot be deleted, and that only the Rule Label can be modified, not other attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-forwarding-policies.json",
+          "quotes": [
+            "The predefined rules are enabled by default and cannot be deleted. You can only modify the Rule Label for these rules and cannot edit other attributes."
+          ]
+        }
+      ],
+      "conditions": "The same page says Fallback mode of ZPA Forwarding is disabled by default: see the enabled-by-default divergence. The editability statement differs from two other sources: see the predefined-rule-editability divergence."
+    },
+    "extranet-rules": {
+      "statement": "With Extranet Application Support enabled, three default rules are added: Allow Extranet DNS Traffic, which allows DNS traffic from extranet locations; Extranet Traffic to ZPA, which forwards all extranet traffic to Private Access; and Stray Extranet Traffic from ZPA, which drops all extranet traffic that does not match any IP address range from any extranet IP pool. A default IP pool is created for extranet traffic and custom pools can be configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-forwarding-policies.json",
+          "quotes": [
+            "If your organization has Extranet Application Support enabled, the following default rules are added:",
+            "Allow Extranet DNS Traffic: Allows DNS traffic from extranet locations.",
+            "Extranet Traffic to ZPA: Forwards all extranet traffic to Private Access.",
+            "Stray Extranet Traffic from ZPA: Drops all extranet traffic that does not match any IP address range from any extranet IP pool.",
+            "A default IP pool is created for extranet traffic, and you can configure custom IP pools for extranet traffic as well."
+          ]
+        }
+      ]
+    },
+    "broker-rule-flag": {
+      "statement": "The API's `zpaBrokerRule` member is a read-only boolean described as the predefined ZPA Broker Rule generated by Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1forwardingRules/post/requestBody/content/application~1json/schema/properties/zpaBrokerRule",
+          "expect": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "The predefined ZPA Broker Rule generated by Zscaler"
+          }
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#zpaBrokerRule"
+      ]
+    },
+    "provider-names": {
+      "statement": "The Terraform provider recognises four rule names as predefined: Client Connector Traffic Direct, ZPA Pool For Stray Traffic, ZIA Inspected ZPA Apps and Fallback mode of ZPA Forwarding. It checks the name on create, update and delete and returns an error saying the rule cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "if req.Name == \"Client Connector Traffic Direct\" || req.Name == \"ZPA Pool For Stray Traffic\" { return fmt.Errorf(\"predefined rule '%s' cannot be deleted\", req.Name)",
+            "if req.Name == \"ZIA Inspected ZPA Apps\" || req.Name == \"Fallback mode of ZPA Forwarding\" { return fmt.Errorf(\"predefined rule '%s' cannot be deleted\", req.Name)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "if err := validatePredefinedRules(req); err != nil {"
+          ],
+          "after": "func resourceForwardingControlRuleCreate("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "if err := validatePredefinedRules(req); err != nil {"
+          ],
+          "after": "func resourceForwardingControlRuleUpdate("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "if err := validatePredefinedRules(*rule); err != nil {"
+          ],
+          "after": "func resourceForwardingControlRuleDelete("
+        }
+      ],
+      "conditions": "The names are matched literally; a renamed predefined rule would not be recognised."
+    },
+    "tf-docs-handling": {
+      "statement": "The provider documentation says predefined rules can be managed for reordering but not destroyed, and not all attributes apply to them; it also says not to import or manage default rules because the API does not support managing them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_rule.md",
+          "quotes": [
+            "Predefined rules can be managed via the Terraform provider for reordering purposes; however, `destroy` operations are not supported for predefined rules, and not all attributes available on custom rules apply to them.",
+            "DO NOT import or manage Default Rules. Management of default rules are not supported via the API."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "enabled-by-default": {
+      "summary": "Whether the predefined Forwarding Control rules are enabled by default: the About Forwarding Control page says Fallback mode of ZPA Forwarding is disabled by default and, separately, that the predefined rules are enabled by default.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-forwarding-policies.json",
+            "quotes": [
+              "This rule is disabled by default and cannot be deleted. It is only enabled during Internet & SaaS control plane maintenance."
+            ]
+          },
+          "says": "Fallback mode of ZPA Forwarding is disabled by default and is only enabled during Internet & SaaS control plane maintenance."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-forwarding-policies.json",
+            "quotes": [
+              "The predefined rules are enabled by default and cannot be deleted."
+            ]
+          },
+          "says": "The predefined rules are enabled by default."
+        }
+      ],
+      "impact": "Do not state that every predefined Forwarding rule is enabled; the page itself names one that is disabled by default. Whether the general sentence excludes that rule is not stated."
+    },
+    "predefined-rule-editability": {
+      "summary": "What can be changed on a predefined Forwarding rule: the About Forwarding Control page allows only the Rule Label, the Forwarding rule configuration page says of ZIA Inspected ZPA Apps that it cannot be edited, and the Terraform documentation says predefined rules can be managed for reordering.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-forwarding-policies.json",
+            "quotes": [
+              "You can only modify the Rule Label for these rules and cannot edit other attributes."
+            ]
+          },
+          "says": "Only the Rule Label can be modified on the predefined rules."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-forwarding-policy.json",
+            "quotes": [
+              "Zscaler provides a predefined Forwarding rule, ZIA Inspected ZPA Apps, which is enabled by default. This rule forwards all Private Access application segment traffic for Internet & SaaS inspection that has the Inspect Traffic with ZIA field enabled. You cannot edit this rule."
+            ],
+            "after": "Configuring Forwarding Rules for Private Access"
+          },
+          "says": "ZIA Inspected ZPA Apps, the one rule this page describes, cannot be edited."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_forwarding_control_rule.md",
+            "quotes": [
+              "Predefined rules can be managed via the Terraform provider for reordering purposes; however, `destroy` operations are not supported for predefined rules, and not all attributes available on custom rules apply to them."
+            ]
+          },
+          "says": "Predefined rules can be managed through the provider for reordering; destroy is unsupported and not all attributes apply."
+        }
+      ],
+      "impact": "An answer about editing or reordering a predefined rule depends on the source: give all three and say that the provider code rejects updates by name (see terraform-management)."
+    },
+    "terraform-management": {
+      "summary": "Whether Terraform can manage predefined Forwarding Control rules",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_forwarding_control_rule.md",
+            "quotes": [
+              "Predefined rules can be managed via the Terraform provider for reordering purposes; however, `destroy` operations are not supported for predefined rules"
+            ]
+          },
+          "says": "Predefined rules can be managed for reordering; only destroy is unsupported."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_forwarding_control_rule.go",
+            "quotes": [
+              "if err := validatePredefinedRules(req); err != nil {"
+            ],
+            "after": "func resourceForwardingControlRuleUpdate("
+          },
+          "says": "The update function rejects any request whose name is one of the four predefined names, with an error that says the rule cannot be deleted."
+        }
+      ],
+      "impact": "A plan that updates or reorders a predefined rule through the resource may fail instead of reordering. Treat reordering predefined rules through this resource as untested and read the error, not the documentation."
+    }
+  },
+  "gaps": {
+    "other-purposes": {
+      "kind": "semantic",
+      "title": "Purpose of Client Connector Traffic Direct (and the legacy descriptions of the other three predefined rules)",
+      "status": "partial",
+      "about": [
+        "zia/forwarding-rules"
+      ],
+      "detail": "The About Forwarding Control page now describes Fallback mode of ZPA Forwarding, ZIA Inspected ZPA Apps and ZPA Pool For Stray Traffic (zpa-predefined-three); Client Connector Traffic Direct is not on that page, so its purpose stays open. The legacy statement below, whose wording on the other two rules is superseded by the help page, remains unverified for Client Connector Traffic Direct. Unverified legacy statement: Fallback mode of ZPA Forwarding is \"Fallback handling when the primary ZPA forwarding path is unavailable\"; Client Connector Traffic Direct \"Applies direct forwarding for ZCC-originated traffic matching defined criteria\"; ZPA Pool For Stray Traffic \"Catches ZPA-destined traffic that doesn't match any configured forwarding rule\"; and that \"Four predefined forwarding rules ship with every ZIA tenant\" (the help says ZIA Inspected ZPA Apps exists only with Private Access App Inspection). The only source for these names is the provider's list of undeletable rules. Resolve by reading the predefined rules from a tenant, or a vendor article that describes them.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "blocks": "explaining what a predefined rule does when it shows up in a flow"
+    }
+  }
+}

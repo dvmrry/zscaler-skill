@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.gateways",
+  "title": "ZIA DNS gateways: protocol translation, primary/secondary failover, failure behavior, DoH path",
+  "aliases": [
+    "DNS Gateway",
+    "DNS Protocol Translation",
+    "dns high availability",
+    "Zscaler Trusted DNS Resolver gateway"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.dns-gateway-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.dns.gateways"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{doh-purpose}} {{translation-licensing}} {{visibility}}"
+    },
+    {
+      "label": "Protocol translation.",
+      "text": "{{protocol-translation}}"
+    },
+    {
+      "label": "Health and failover.",
+      "text": "{{health-signals}} {{failover-sequence}} The probe interval and response timeout are open {{gap:probe-timing}}."
+    },
+    {
+      "label": "Failure behavior.",
+      "text": "{{failure-behaviors}} How the three behaviors appear in dnsgw_flags is open {{gap:flags-mapping}}. {{trusted-resolver-paths}} Whether the default Trusted Resolver gateway is the predefined gateway object is open {{gap:predefined-gateway}}."
+    },
+    {
+      "label": "Writing one.",
+      "text": "{{count-and-name}} {{servers-ports}} {{doh-custom-path}} The help disagrees on the path with TCP or UDP selected {{divergence:doh-path-with-tcp-udp}}."
+    },
+    {
+      "text": "Cloud & Branch Connector has its own gateways with different limits: [[cloud-connector.dns.gateways]]. The log fields are in [[zia.logs.dns-gateway-fields]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which product a DNS gateway answer is for, since Cloud & Branch Connector gateways have a limit of 255 and two failure behaviors.",
+      "uses": [
+        "count-and-name",
+        "failure-behaviors"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "DNS Gateway extends DNS Control with DNS high availability and protocol translation for lookups by external DNS services. An admin selects the protocols (DoH, UDP or TCP) the external service supports, and DNS filtering rules redirect traffic to the external DNS services over the specified protocol.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns-gateways.json",
+          "quotes": [
+            "DNS Gateway extends the capabilities of DNS Control by including support for DNS high availability and protocol translation to perform DNS lookup by external DNS services.",
+            "You can also select specific protocols (DoH, UDP, or TCP) that are supported by the external DNS service and configure policies to ensure that your organization's DNS traffic is sent to the external DNS service from the Zscaler service only using those protocols.",
+            "After configuring DNS Gateway, you can create DNS filtering rules to redirect traffic to the external DNS services over the specified protocol."
+          ]
+        }
+      ]
+    },
+    "doh-purpose": {
+      "statement": "Translation to DoH lets an organization encrypt its users' unencrypted DNS queries and route them to any third-party DNS service using DoH, and the page lists compliance with requirements such as employing Protective DNS as a use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns-gateways.json",
+          "quotes": [
+            "Translation to DoH allows you to encrypt your users' unencrypted DNS queries and send them to an external DNS service.",
+            "By using DNS Gateway, you can encrypt your users' unencrypted DNS queries and route them to any third-party DNS service using DoH.",
+            "Ensure compliance with regulatory and contractual requirements, such as employing Protective DNS."
+          ]
+        }
+      ]
+    },
+    "translation-licensing": {
+      "statement": "The DNS Protocol Translation feature of DNS Gateway is available with Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns-gateways.json",
+          "quotes": [
+            "The DNS Protocol Translation feature of DNS Gateway is available with Advanced Firewall."
+          ]
+        }
+      ]
+    },
+    "visibility": {
+      "statement": "DNS Insights Logs show the DNS traffic redirected to external resolvers via DNS Gateways, and the same data can be tracked in charts in the DNS Overview dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns-gateways.json",
+          "quotes": [
+            "DNS Insights Logs provide visibility into the logs recorded for DNS traffic that is redirected to external resolvers via DNS Gateways.",
+            "You can also track this data using interactive charts in the DNS Overview dashboard."
+          ]
+        }
+      ]
+    },
+    "protocol-translation": {
+      "statement": "If an incoming DNS request uses a protocol different from the configured server-side protocol, the service translates it, sends it to the external DNS service, applies configured policies to the response and returns it over the inbound protocol. A UDP client request can go to a UDP or DoH server, a TCP request to a TCP or DoH server, and a DoH request to a UDP, TCP or DoH server; UDP to TCP and TCP to UDP are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns-gateways.json",
+          "quotes": [
+            "If the incoming DNS request uses a protocol that is different from the configured server-side protocol, the Zscaler service performs the necessary protocol translation and sends the DNS request to the external DNS service.",
+            "Then, the Zscaler service extracts the response from the DNS server, applies any configured policies, and forwards the response to the client using the inbound query protocol.",
+            "| Protocol Translation | UDP to Server | TCP to Server | DoH to Server |",
+            "| UDP from Client | Supported | Not Supported | Supported |",
+            "| TCP from Client | Not Supported | Supported | Supported |",
+            "| DoH from Client | Supported | Supported | Supported |"
+          ]
+        }
+      ]
+    },
+    "health-signals": {
+      "statement": "With primary and secondary resolvers configured, the service checks the DNS server's responses to judge its health and fails over to the secondary when the primary is unavailable. The help's signals include an unreachable or timing-out server, an unresolvable server FQDN, a DoH server that gives no DNS response, SERVFAIL or other response codes, and a response timeout.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns-gateways.json",
+          "quotes": [
+            "the Zscaler service can maintain DNS high availability by actively checking responses from the DNS server to determine the health and availability status of the server and by allowing failover to the secondary server if the primary server is unavailable.",
+            "The server is not reachable and the connection to the server times out or fails.",
+            "The FQDN configured for the server is unresolvable.",
+            "The DoH server does not provide a DNS response (e.g., a web server that does not provide DoH service).",
+            "The DNS server sends SERVFAIL or other response codes.",
+            "Response timeout occurs."
+          ]
+        }
+      ]
+    },
+    "failover-sequence": {
+      "statement": "Requests go to the primary resolver and move to the secondary when the primary returns no response to a query; once the secondary responds, later requests go to it, and if it becomes unavailable they return to the primary. Switching halts when both fail to respond, the gateway is marked down and its configured failure behavior is triggered, while periodic probe queries resume forwarding when either server recovers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns-gateways.json",
+          "quotes": [
+            "When both primary and secondary DNS resolvers are configured in DNS Gateway, the DNS requests are forwarded to the primary resolver.",
+            "If the primary resolver does not return a response to a DNS query, then the primary resolver is considered unavailable, and the request is forwarded to the secondary resolver.",
+            "If a response is received from the secondary resolver, all subsequent requests are forwarded to the secondary resolver.",
+            "If the secondary resolver also becomes unavailable, then the requests are forwarded to the primary resolver.",
+            "This process of switching between primary and secondary resolvers comes to a halt when both resolvers fail to respond to a DNS query.",
+            "Consequently, DNS Gateway is marked as down, and the failover behavior configured in the gateway is triggered.",
+            "The Zscaler service continues to probe the health of the DNS servers by sending inbound DNS queries periodically and resumes forwarding DNS queries to the server if one of the servers becomes available again."
+          ]
+        }
+      ]
+    },
+    "failure-behaviors": {
+      "statement": "The Failure Behavior of a ZIA DNS gateway is an action for when the configured DNS service is unavailable or unhealthy, with three choices. Return Error Response returns SERVFAIL to the client (with both services configured, only when both are unavailable); Allow and Ignore DNAT Rules sends the request to the originally requested resolver over the original protocol without the configured DNAT rules; Forward to Zscaler Trusted Resolver sends it to the Zscaler Trusted DNS Resolver, usable as failover for DNS over UDP, TCP and DoH.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-dns-gateways.json",
+          "quotes": [
+            "Failure Behavior: Select an action that must be performed if the configured DNS service is unavailable or unhealthy:",
+            "Return Error Response: Return an appropriate error code (SERVFAIL) to the client.",
+            "If both primary and secondary DNS services are configured, the error code is sent only when both services are unavailable to serve the requests.",
+            "Allow and Ignore DNAT Rules: The DNS request is sent to the originally requested DNS resolver (not specified in the DNS Gateway) using the same protocol as the original user request without applying the configured DNAT rules.",
+            "Forward to Zscaler Trusted Resolver: Send the DNS requests to the Zscaler Trusted DNS Resolver.",
+            "You can use the Zscaler Trusted DNS Resolver for failover for DNS over UDP, TCP, and DoH."
+          ]
+        }
+      ]
+    },
+    "trusted-resolver-paths": {
+      "statement": "All DNS traffic can also be resolved with the Zscaler Trusted DNS Resolver. Standard DNS (destination port 53) can use the predefined Zscaler Trusted DNS Resolver NAT Control rule, and DoH can use a DNS filtering rule associated with the default Zscaler Trusted DNS Resolver gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-dns-gateways.json",
+          "quotes": [
+            "you can also resolve all your DNS traffic using the Zscaler Trusted DNS Resolver.",
+            "To forward your standard DNS traffic (destination port: 53), you can use the predefined Zscaler Trusted DNS Resolver NAT Control rule.",
+            "To forward your DoH traffic, you can configure a DNS filtering rule with a matching rule criterion, select an appropriate rule action, and associate the default Zscaler Trusted DNS Resolver gateway."
+          ]
+        }
+      ]
+    },
+    "count-and-name": {
+      "statement": "An organization can have up to 254 DNS gateways. A gateway name must be unique, may contain only alphanumeric characters and cannot exceed 255 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-dns-gateways.json",
+          "quotes": [
+            "A maximum of 254 DNS Gateways are supported for an organization.",
+            "Name: Enter a unique name for the DNS Gateway. Only alphanumeric characters are allowed, and the name cannot exceed 255 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| DNS Gateways | 254 DNS Gateways |"
+          ]
+        }
+      ]
+    },
+    "servers-ports": {
+      "statement": "A gateway's protocols are chosen from DNS over HTTP (DoH), UDP and TCP. The primary server is an IP address or FQDN, the secondary is optional but recommended for failover, and the port fields for the selected protocols are optional, defaulting to 53 for UDP and TCP and 443 for DoH.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-dns-gateways.json",
+          "quotes": [
+            "Protocol: Select the protocols to be used to connect to the DNS service. You can select from DNS over HTTP (DoH), UDP, and TCP.",
+            "Primary DNS Server: Enter the IP address or the FQDN of the primary DNS service provided by your third-party DNS service provider.",
+            "Secondary DNS Server: (Optional) Enter the IP address or the FQDN of the secondary DNS service provided by your third-party DNS service provider.",
+            "Although a secondary DNS service is optional, it is recommended to ensure high availability for DNS to manage failover scenarios.",
+            "UDP Port: Specify the port number for UDP if the primary DNS service uses a non-default port. The default port is 53.",
+            "TCP Port: Specify the port number for TCP if the primary DNS service uses a non-default port. The default port is 53.",
+            "DoH Port: Specify the port number for DoH if the primary DNS service uses a non-default port. The default port is 443."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-dns-gateways.json",
+          "quotes": [
+            "Depending on the protocols selected for the gateway, the following fields for corresponding ports appear, which are optional configurations:"
+          ],
+          "after": "Primary DNS Server: Enter the IP address or the FQDN of the primary DNS service provided by your third-party DNS service provider."
+        }
+      ]
+    },
+    "doh-custom-path": {
+      "statement": "A DoH server's FQDN or IP address may carry a custom URL path that must end with the dns-query string (for example doh.dnsserver.com/path/to/destination/dns-query). A custom path is supported only for DoH queries, its length including dns-query cannot exceed 1,024 characters, and the DoH JSON API form (.../resolve?) is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-dns-gateways.json",
+          "quotes": [
+            "When using a custom path, you must append the dns-query string to the URL path.",
+            "For example, doh.dnsserver.com/path/to/destination/dns-query or 192.0.2.1/path/to/destination/dns-query."
+          ],
+          "after": "Primary DNS Server: Enter the IP address or the FQDN of the primary DNS service provided by your third-party DNS service provider."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-dns-gateways.json",
+          "quotes": [
+            "A custom URL path in the FQDN or IP address of DNS servers is supported only for DoH queries and the following conditions apply:",
+            "The custom path length (including the dns-query string) cannot exceed 1,024 characters.",
+            "The JSON API for DoH queries https://doh.dnsserver.com/path/to/destination/resolve? is not supported."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Custom Path URL Length for DNS Gateway Server | 1,024 characters |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "doh-path-with-tcp-udp": {
+      "summary": "The Adding DNS Gateways page says both that a custom DoH path cannot be specified while TCP or UDP is selected and that it can be specified when all three protocols are selected.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-dns-gateways.json",
+            "quotes": [
+              "The custom path is not applicable to TCP and UDP queries and cannot be specified while either of these protocols is selected."
+            ]
+          },
+          "says": "A custom path cannot be specified while TCP or UDP is selected."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-dns-gateways.json",
+            "quotes": [
+              "If you are selecting all three protocols, a custom path can be specified and would be applicable only to DoH queries."
+            ]
+          },
+          "says": "With all three protocols selected, a custom path can be specified and applies only to DoH queries."
+        }
+      ],
+      "impact": "A gateway that selects DoH together with TCP or UDP may or may not accept a custom path; the page does not say which sentence governs."
+    }
+  },
+  "gaps": {
+    "probe-timing": {
+      "kind": "semantic",
+      "title": "Health-probe interval and response timeout",
+      "status": "open",
+      "detail": "The page says the service probes server health periodically and lists a response timeout as a health signal, but gives no interval and no timeout value.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "flags-mapping": {
+      "kind": "semantic",
+      "title": "How the three failure behaviors appear in dnsgw_flags",
+      "status": "open",
+      "detail": "The failover order is stated here but no source maps the failure behaviors to the dnsgw_flags values; see zia.logs.dns-gateway-fields. The API values of the ZIA failureBehavior field are also not given in the captured help.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "predefined-gateway": {
+      "kind": "semantic",
+      "title": "Whether the default Zscaler Trusted DNS Resolver gateway is the predefined gateway object",
+      "status": "open",
+      "detail": "The Adding page names a default Zscaler Trusted DNS Resolver gateway and the About page lets an admin view a predefined gateway object; no source says they are the same object. Also open: whether gateways without protocol translation need Advanced Firewall.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,472 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Architecture of AI Guard for Apps in Proxy and DAS/API Modes",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-apps-infra/architecture-ai-guard-apps-proxy-das-api-mode",
+    "node": "1542640",
+    "revision": "3233024",
+    "updated": "2026-08-12",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "Zscaler AI Guard for Apps provides comprehensive runtime protection for AI applications by enforcing enterprise policies on prompts and responses between end users and Large Language Models (LLMs). It is designed to mitigate risks such as prompt injection, data leakage, and toxic content."
+    },
+    {
+      "text": "The platform supports two primary deployment modes: Proxy Mode and Detection-as-a-Service (DAS/API) Mode."
+    },
+    {
+      "heading": "Proxy Mode (Inline Reverse Proxy)",
+      "level": 1
+    },
+    {
+      "text": "In Proxy Mode, AI Guard acts as an inline reverse proxy situated between the AI application and the LLM provider."
+    },
+    {
+      "item": "How it Works",
+      "depth": 0
+    },
+    {
+      "item": "Endpoint Redirect: The application developer modifies the application configuration to point to the Zscaler proxy URL (https://proxy.zseclipse.net) instead of the native LLM provider’s API endpoint.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "The following are endpoint redirect examples for Claude (Anthropic):",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Type",
+          "Endpoint URL"
+        ],
+        [
+          "Native Anthropic API",
+          "https://api.anthropic.com/v1/messages"
+        ],
+        [
+          "AI Guard Proxy API",
+          "https://proxy.zseclipse.net/v1/messages"
+        ]
+      ]
+    },
+    {
+      "item": "Credential Management: The application uses a Zscaler-specific API key to authenticate with AI Guard. AI Guard then uses the stored upstream LLM provider credentials to forward the request to the actual model.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Synchronous Inspection: All traffic flows through AI Guard in real-time. Prompts and responses are inspected, and based on configured policies, traffic can be allowed, blocked, or redacted.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Best Use Cases",
+      "depth": 0
+    },
+    {
+      "item": "Public LLMs: Ideal for providers like OpenAI, Anthropic, or Google Gemini that are reachable via the internet.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Minimal Code Changes: Best when the application framework or SDK allows for simple overrides of the base URL and headers.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Fast Rollout: Simplifies integration by following a common proxy pattern.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Step-by-Step Diagram",
+      "depth": 0
+    },
+    {
+      "item": "The following is a visual representation and a step-by-step explanation of an example Proxy mode setup for AI Guard:",
+      "depth": 0
+    },
+    {
+      "item": "App Prompt: A prompt is sent in the application. This can be public or private.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Backend Connection: The application's front-end connects to the backend server.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Proxy Invocation: The message route triggers code to send the prompt to AI Guard, acting as a proxy rather than connecting directly to the LLM.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Prompt Inspection: AI Guard evaluates the prompt. If allowed, it forwards the request to the public AI endpoint, such as OpenAI (https://api.openai.com).",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "LLM Processing: The public GenAI/LLM analyzes the prompt and returns the output to AI Guard.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Response Inspection: AI Guard inspects the GenAI/LLM output. If allowed, it forwards the response to the backend server.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Server Routing: The backend server receives the processed message and returns it to the AI application front-end.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Final Delivery: The front-end delivers the final response back to the user, client, browser, or workload.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "heading": "Detection-as-a-Service (DAS/API) Mode",
+      "level": 1
+    },
+    {
+      "text": "DAS Mode, also referred to as API or DAS/API Mode, operates out-of-band relative to the primary network path between the application and the LLM."
+    },
+    {
+      "item": "How it Works",
+      "depth": 0
+    },
+    {
+      "item": "Direct LLM Connection: The application maintains its direct connection and native credentials with the LLM provider.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Sidecar API Calls: The application code is updated to make explicit, separate API calls to AI Guard (https://api.zseclipse.net) for every interaction.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Policy Evaluation: The application sends both prompt and response content to AI Guard, which responds with a \"block\" or \"allow\" message. The application then enforces this decision before proceeding with the LLM call or returning the response to the user.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Best Use Cases",
+      "depth": 0
+    },
+    {
+      "item": "Private LLMs: Required for models that are not internet-reachable or are hosted on-premises where a proxy cannot be easily inserted.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Complex Routing: Suitable for advanced agentic workflows where the application needs to maintain full control over the model connection.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Universal Compatibility: Works in almost all cases, regardless of whether the provider is public or private.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Step-by-Step Diagram",
+      "depth": 0
+    },
+    {
+      "item": "The following is a visual representation and a step-by-step explanation of an example DAS/API mode setup for AI Guard:",
+      "depth": 0
+    },
+    {
+      "item": "Request Initiation: A prompt is made in an AI application. This can be public or private.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "System Connectivity: The frontend interface establishes a connection with the backend API server, where core logic and routing are managed.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Inbound Security Inspection: The chat route triggers a validation process, forwarding the input prompt to the AI Guard Detection API for authorization.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Inbound Policy Enforcement: AI Guard evaluates the prompt. Unauthorized content is blocked immediately, preventing the request from reaching the LLM or agent.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Prompt Processing: Upon authorization, the backend API forwards the approved prompt to the private LLM for analysis.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Knowledge Retrieval: The LLM analyzes the prompt, utilizing Retrieval-Augmented Generation (RAG) to query the internal knowledge base.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Data Integration: The knowledge base returns the relevant data to the agent or LLM for response formulation.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Response Generation: The agent or LLM transmits the generated output to the backend API server.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Outbound Security Inspection: The backend API sends the generated response to the AI Guard Detection API for a final safety validation.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Outbound Policy Enforcement: AI Guard evaluates the response. If blocked, the system prevents the transmission of the response to the user.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Transmission to Frontend: The backend API server relays the authorized response to the frontend application.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Final Delivery: The frontend interface completes the process by delivering the response to the user.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "heading": "Technical Comparison",
+      "level": 1
+    },
+    {
+      "table": [
+        [
+          "Feature",
+          "Proxy Mode",
+          "DAS/API Mode"
+        ],
+        [
+          "Enforcement Type",
+          "Inline/Synchronous",
+          "Out-of-band"
+        ],
+        [
+          "Endpoint URL",
+          "https://proxy.zseclipse.net",
+          "https://api.zseclipse.net"
+        ],
+        [
+          "Credential Handling",
+          "AI Guard manages LLM credentials",
+          "App keeps direct LLM credentials"
+        ],
+        [
+          "Connectivity",
+          "Only support public LLM providers",
+          "Supports any provider (public/private)"
+        ],
+        [
+          "Integration Style",
+          "URL/Header override",
+          "API integration"
+        ]
+      ]
+    },
+    {
+      "heading": "Multi-Mode Support",
+      "level": 1
+    },
+    {
+      "text": "Organizations do not have to choose a single mode for their entire environment. An AI Guard tenant can support multiple applications simultaneously, with some utilizing Proxy mode and others utilizing DAS mode based on their specific technical requirements."
+    }
+  ]
+}

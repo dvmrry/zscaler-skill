@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk.browser-access",
+  "title": "ZSDK Browser Access: availability, prerequisites, unsupported features and DNS",
+  "aliases": [
+    "zsdk browser access",
+    "zsdk web browser client type",
+    "zsdk browser access cname",
+    "zsdk browser access certificate"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.configuration"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-provides}} {{availability}}"
+    },
+    {
+      "heading": "Setup"
+    },
+    {
+      "text": "{{token-validator-required}} {{web-browser-client-type}}"
+    },
+    {
+      "heading": "Application prerequisites"
+    },
+    {
+      "text": "{{prerequisites-with-certificate}} {{certificate-file-requirement}} {{unsupported-with-certificate}}"
+    },
+    {
+      "heading": "Application segment settings and DNS"
+    },
+    {
+      "text": "{{internal-url-defaults}} {{unauthenticated-options}} {{public-dns-cname}}"
+    },
+    {
+      "text": "Certificate and token validator details, including whether a certificate is required, are in [[shared.zsdk.authentication]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Browser Access application uses a certificate and meets the FQDN, relative URL and Content-Security-Policy prerequisites.",
+      "uses": [
+        "prerequisites-with-certificate",
+        "unsupported-with-certificate"
+      ]
+    },
+    {
+      "do": "Whether the App Connector resolves Browser Access applications through an internal DNS.",
+      "uses": [
+        "public-dns-cname"
+      ]
+    }
+  ],
+  "claims": {
+    "availability": {
+      "statement": "Browser Access is in Limited Availability and Zscaler Support must be contacted to enable it; the release notes list it as a feature in limited availability on October 31, 2025.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-browser-access.json",
+          "quotes": [
+            "This feature is in Limited Availability. Contact Zscaler Support to enable this feature."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-release-upgrade-summary-2025.json",
+          "quotes": [
+            "Leverage Browser Access to enforce strict user authentication by using your identity provider"
+          ],
+          "after": "#### October 31, 2025"
+        }
+      ]
+    },
+    "what-it-provides": {
+      "statement": "Browser Access gives browser-based applications zero trust protection without an SDK or software agent, providing identity verification, Transport Layer Security and back-end cloaking, and routes back-end traffic through the Zscaler cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-browser-access.json",
+          "quotes": [
+            "Browser Access extends zero trust protection to browser-based applications without the use of a software development kit (SDK) or software agent.",
+            "This provides identity verification, Transport Layer Security, and back-end cloaking from public web applications.",
+            "To enforce its policies, Browser Access routes back-end traffic through the Zscaler cloud."
+          ]
+        }
+      ]
+    },
+    "token-validator-required": {
+      "statement": "After an application segment is defined and enabled for Browser Access, a browser token validator must be added for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-browser-access.json",
+          "quotes": [
+            "After the application segment is defined and enabled for Browser Access, you must add a browser token validator to the application segment."
+          ]
+        }
+      ]
+    },
+    "prerequisites-with-certificate": {
+      "statement": "When a Browser Access application uses a certificate, its FQDN must be properly named and resolvable by App Connectors through internal DNS and owned by the tenant; web servers must serve relative URLs; and an application that uses the HTTP header Content-Security-Policy must accept an external FQDN in the host/origin header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-prerequisites-browser-access-applications.json",
+          "quotes": [
+            "Your FQDN for the application must be properly named (e.g., web.example1.com), and your App Connectors must resolve to that hostname via your internal DNS. The tenant must own the domain.",
+            "Web servers must serve pages with objects linked as relative URLs",
+            "If an application uses the HTTP header Content-Security-Policy, then the application must accept an external FQDN in the host/origin header."
+          ]
+        }
+      ]
+    },
+    "certificate-file-requirement": {
+      "statement": "The prerequisites article says that when a Browser Access application uses a certificate, an uploaded combined PEM file is needed containing the full certificate chain, the private key and RSA formatting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-prerequisites-browser-access-applications.json",
+          "quotes": [
+            "When using a certificate, the following prerequisites apply:",
+            "You must upload a combined PEM file containing the following:",
+            "Full certificate chain",
+            "Private key",
+            "RSA formatting"
+          ]
+        }
+      ]
+    },
+    "unsupported-with-certificate": {
+      "statement": "With a certificate, Browser Access does not support absolute URLs, wildcard cookies, wildcard Browser Access applications, applications with IP addresses, domains unregistered in the account, or applications sending CORS requests to Browser Access applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-prerequisites-browser-access-applications.json",
+          "quotes": [
+            "When using a certificate, the following items aren't supported:",
+            "Absolute URLs",
+            "Wildcard cookies and wildcard Browser Access applications (e.g., *.example1.com)",
+            "Applications with IP addresses",
+            "Unregistered domains in your account (e.g., testing.com)",
+            "Applications sending Cross-Origin Resource Sharing (CORS) requests to Browser Access applications"
+          ]
+        }
+      ]
+    },
+    "internal-url-defaults": {
+      "statement": "The Browser Access Internal URL takes a protocol (HTTP or HTTPS), a domain or IP address, a port (default 80 for HTTP and 443 for HTTPS) and a certificate; the Use Untrusted Certificates checkbox is selected by default when HTTPS is the protocol.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "Internal URL: Enter the following URL details:",
+            "Port: Enter the port number. By default, port 80 is entered for HTTP and 443 is entered for HTTPS.",
+            "Protocol: Select the protocol (HTTP or HTTPS) you want Zscaler to use when a request is made to access the application.",
+            "Domain or IP Address: Enter the domain or IP address for monitoring.",
+            "Certificate: Select the certificate for authentication.",
+            "Use Untrusted Certificates: Select to allow access to the defined application segment that uses untrusted web server certificates. If HTTPS is selected as the protocol, this checkbox is selected by default."
+          ]
+        }
+      ]
+    },
+    "unauthenticated-options": {
+      "statement": "Allow Unauthenticated OPTIONS Request forwards the browser's unauthenticated HTTP pre-flight OPTIONS request to the application, and the article says this is required to enable Browser Access on the application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "Allow Unauthenticated OPTIONS Request: Select to allow Zscaler to forward an unauthenticated HTTP pre-flight OPTIONS request from the browser to the application.",
+            "This is required to enable Browser Access on the application segment for ZSDK."
+          ]
+        }
+      ]
+    },
+    "public-dns-cname": {
+      "statement": "For a Browser Access application with a custom certificate the CNAME from the Browser Access page is added to public DNS; with a Zscaler-managed certificate Zscaler manages the public DNS entries; and the App Connector must use an internal DNS or a DNS loop results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "If you selected a custom certificate, go to the Browser Access page and copy the CNAME for your public DNS.",
+            "If you selected a Zscaler-managed certificate, Zscaler manages the public DNS entries and verifies the FQDN.",
+            "To properly resolve Browser Access-enabled applications, the App Connector must use an internal DNS. If an internal DNS is not used, it results in a DNS loop."
+          ]
+        }
+      ]
+    },
+    "web-browser-client-type": {
+      "statement": "Web Browser is a client type in access policy rules, for applications that require access over a web browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-access-policies.json",
+          "quotes": [
+            "Web Browser: Applications that require access over a web browser."
+          ]
+        }
+      ]
+    }
+  }
+}

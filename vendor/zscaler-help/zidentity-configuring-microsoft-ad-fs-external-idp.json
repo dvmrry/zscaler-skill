@@ -1,0 +1,2770 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Microsoft AD FS as an External IdP",
+  "source": {
+    "url": "https://help.zscaler.com/authentication-service/configuring-microsoft-ad-fs-external-idp",
+    "node": "1499366",
+    "revision": "3251070",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This guide provides information on how to configure Microsoft Active Directory Federated Services (AD FS) as the Identity Provider (IdP) for Authentication Service to facilitate single sign-on (SSO) to various Zscaler services for admin access management."
+    },
+    {
+      "text": "If you want to leverage step-up authentication, it is recommended to use OIDC-based integrations as most IdPs only support step-up authentication with the OIDC protocol."
+    },
+    {
+      "item": "OIDC-Based Authentication",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "item": "Before you configure AD FS as an external IdP, ensure that you have:",
+      "depth": 0
+    },
+    {
+      "item": "A Microsoft Windows Server with the following components installed and connected:",
+      "depth": 1
+    },
+    {
+      "item": "Active Directory",
+      "depth": 2
+    },
+    {
+      "item": "AD FS",
+      "depth": 2
+    },
+    {
+      "item": "An administrator account for the Windows Server",
+      "depth": 1
+    },
+    {
+      "item": "An Authentication Service account with an admin role that allows you to add an IdP configuration",
+      "depth": 1
+    },
+    {
+      "item": "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 1
+    },
+    {
+      "heading": "Configuring Microsoft AD FS as OP for Authentication Service",
+      "level": 1
+    },
+    {
+      "item": "To set up AD FS as an OP for Authentication Service:",
+      "depth": 0
+    },
+    {
+      "item": "1. Set up AD FS as an OP in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          63
+        ],
+        [
+          66,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Click Add in the Primary Identity Provider or Secondary Identity Providers section.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          17,
+          42
+        ],
+        [
+          46,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "The Add External Identity page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the External Identity page, go to the Basic Configurations tab, and configure the following:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          41,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IdP.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Enable the toggle.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Identity Vendor: Select Active Directory Federation Service from the drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Domains: Select the domain for which the IdP is responsible for authenticating the users. This allows the Zscaler service to display the correct IdP to authenticate an incoming user.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Enforce Zscaler MFA for Admins: Enable this option to ensure that admins using an external IdP authenticate with the multi-factor authentication (MFA) process in Authentication Service, irrespective of whether MFA is configured on the external IdP.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "An email is sent to all super admins in Authentication Service when the Enforce Zscaler MFA for Admins option is disabled.",
+      "depth": 3,
+      "strong": [
+        [
+          72,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Protocol: Select OIDC.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Login ID Attribute: Enter an attribute whose value must be used as the login ID. This attribute must exist in the tokens received from the IdP. By default, the preferred_username attribute is populated in this field when the OIDC option is selected in the Protocol field. You can use any attribute that is present in the ID token or the response of the UserInfo endpoint, provided its value is in the email address format (e.g., <user_name>@domain.com>).",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          256,
+          264
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the domain part of the email addresses received in the ID tokens match with one of the domains configured in Authentication Service.",
+      "depth": 4
+    },
+    {
+      "item": "Ensure that the attribute you enter matches exactly with the attribute received in the ID token or the UserInfo endpoint.",
+      "depth": 4
+    },
+    {
+      "item": "Input Method: Select Metadata URL and enter the AD FS server's OIDC well-known URL and click Fetch.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          33
+        ],
+        [
+          93,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "The format for the OIDC well-known URL is https://<host>/adfs/.well-known/openid-configuration. An example URL is https://myadfs.example.com/adfs/.well-known/openid-configuration.",
+      "depth": 4
+    },
+    {
+      "item": "Obtain the metadata path from the AD FS Management Console: In the Server Manager, go to AD FS > Tools > AD FS Management, then Service > Endpoints, and locate the OpenID Connect metadata URL path.",
+      "depth": 4,
+      "strong": [
+        [
+          67,
+          81
+        ],
+        [
+          89,
+          94
+        ],
+        [
+          97,
+          102
+        ],
+        [
+          105,
+          121
+        ],
+        [
+          128,
+          135
+        ],
+        [
+          138,
+          147
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Redirect URI: Copy this value because it is used in a subsequent step.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "If you are configuring AD FS as your secondary IDP, the final segment in the Redirect URI is required for configuring Initiate Login URI in the AD FS Management Console.",
+      "depth": 3,
+      "strong": [
+        [
+          77,
+          89
+        ],
+        [
+          118,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "Token Endpoint Authentication Method: Select Client Secret Basic and configure the following:",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          0,
+          36
+        ],
+        [
+          45,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Client ID: Enter a random value. The actual client ID is generated while configuring an application for Authentication Service in the AD FS Management Console in a subsequent step. This random value entered in the field is replaced later with the actual client ID.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: Enter a random value. This value is manually overridden in a subsequent step. The actual client secret is generated while configuring a client for Authentication Service in the AD FS Management Console in a subsequent step. This random value entered in the field is replaced later with the actual client secret.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Requested Scopes: Add the required scopes. By default, when the OIDC protocol is selected, the openid, email, and profile scopes are added.",
+      "depth": 3,
+      "number": 11,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Provisioning Details tab and click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          30
+        ],
+        [
+          45,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "2. Configure OIDC-based integration in the AD FS Management Console.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Windows Server as an administrator.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Open Server Manager and go to AD FS > Tools > AD FS Management.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          5,
+          19
+        ],
+        [
+          30,
+          32
+        ],
+        [
+          33,
+          35
+        ],
+        [
+          38,
+          43
+        ],
+        [
+          46,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "In the AD FS window, go to AD FS > Application Groups, and click Add Application Group...",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          27,
+          32
+        ],
+        [
+          35,
+          53
+        ],
+        [
+          65,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Add Application Group Wizard window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Application Group Wizard window:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the application.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description for the application.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Template: Select Server application.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Server application step:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Client Identifier: Copy this value because it is used in a subsequent step.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URI: Enter the Redirect URI copied from the Zscaler Admin Console in a previous step, and click Add.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          24,
+          36
+        ],
+        [
+          105,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Configure Application Credentials step:",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Generate a shared secret: Select this option to generate a secret and copy the value as it is used in a subsequent step.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          11,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Summary step, verify the configuration details, and click Next.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          65,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Complete step, click Close to complete the application registration.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          28,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Open the created application group.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "In the <application group_name> Properties window, click Add application...",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          42
+        ],
+        [
+          57,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Add a new application to <application_group_name> window:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Template section, select Web API and click Next.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          18
+        ],
+        [
+          35,
+          42
+        ],
+        [
+          53,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Configure Web API step:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the web API.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "A default value is populated for the Name field. You can override the default value with a custom value.",
+      "depth": 4,
+      "strong": [
+        [
+          37,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Identifier: Enter the client identifier copied previously from the Server application step and click Add.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          67,
+          85
+        ],
+        [
+          101,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Apply Access Control Policy step, select Permit everyone, and click Next.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          34
+        ],
+        [
+          48,
+          63
+        ],
+        [
+          75,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Configure Application Permissions step:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          17,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Client application (caller): Ensure that the server application created for Authentication Service is selected.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Permitted scopes: Select allatclaims, email, openid, and profile.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Summary step, verify the details, and click Next.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          51,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Complete step, click Close to complete Web API configuration.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          28,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the <application group_name> Properties window, select the Web API created for Authentication Service, and click Edit.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          42
+        ],
+        [
+          116,
+          120
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the <web_API_name> Properties window, go to Issuance Transform Rules and click Add Rule.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          47,
+          71
+        ],
+        [
+          82,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Add Transform Claim Rule Wizard window:",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Claim rule template: Select LDAP Attributes as Claims.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          28,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Configure Claim Rule step:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Claim rule name: Enter a name for the rule.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          11,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Attribute store: Select Active Directory from the drop-down menu.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Mapping of LDAP attributes to outgoing claim types: Map the required attributes.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the <application group_name> Properties window, click OK.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          42
+        ],
+        [
+          57,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to AD FS > Service > Relying Party Trusts, click Add Replying Party Trust...",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          14,
+          21
+        ],
+        [
+          24,
+          44
+        ],
+        [
+          52,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Add Relying Party Trust Wizard window:",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          7,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Select Claims aware and click Start.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          30,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Select Data Source step, select Enter the data about the relying party manually.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          39,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Specify Display Name step:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Display Name: Enter a name for the relying party trust.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Configure Identifiers step:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Relying party trust identifier: Enter https://<adfs_endpoint>/adfs/services/trust",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Replace <adfs_endpoint> with your AD FS endpoint which is publicly resolvable and has a valid certificate signed by a trusted CA.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Choose Access Control Policy step:",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Choose an access control policy: Select Permit everyone.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          7,
+          31
+        ],
+        [
+          40,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Complete the subsequent steps.",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 14,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP created for Authentication Service on the Primary Identity Provider (or Secondary Identity Providers) section, and click the Edit icon.",
+      "depth": 2,
+      "number": 15,
+      "strong": [
+        [
+          57,
+          82
+        ],
+        [
+          87,
+          115
+        ],
+        [
+          140,
+          144
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 2,
+      "number": 16,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "On the Basic Configurations tab:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Client ID: Override the previously configured random value with the actual client ID of the application created in the AD FS Management Console.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: Override the previously configured random value with the actual client secret of the application created in the AD FS Management Console.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "3. Provision users for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP created for AD FS in the Primary Identity Provider (or Secondary Identity Providers) section, and click the Edit icon.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          40,
+          65
+        ],
+        [
+          70,
+          98
+        ],
+        [
+          123,
+          127
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Provisioning Details tab and enable JIT Provisioning.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          30
+        ],
+        [
+          46,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups (e.g., Zscaler Global Administrators).",
+      "depth": 3
+    },
+    {
+      "item": "Just-in-time User Group Attribute: Enter the claim name created for group information retrieval (i.e., Groups). This retrieves the group membership information of the users from AD FS.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Map the Primary Email User Attribute with the email Just-in-time User Attribute.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "The mapping of the Primary Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication.",
+      "depth": 3
+    },
+    {
+      "item": "Map other Authentication Service user attributes with the appropriate AD FS attributes as necessary. By default, the following attributes in ID tokens are mapped with the corresponding user attributes in Authentication Service:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "table": [
+        [
+          "Default Authentication Service User Attributes",
+          "OIDC Attribute in ID Tokens",
+          "Description"
+        ],
+        [
+          "First Name",
+          "given_name",
+          "First name of the user (e.g., John). This attribute is mapped by default."
+        ],
+        [
+          "Last Name",
+          "family_name",
+          "Last name of the user (e.g., Doe). This attribute is mapped by default."
+        ],
+        [
+          "Display Name",
+          "name",
+          "Display name of the user (e.g. John Doe). This attribute is mapped by default."
+        ],
+        [
+          "Nick Name",
+          "nickname",
+          "Nickname of the user (e.g., Jo)"
+        ],
+        [
+          "Mobile Phone",
+          "phone_number",
+          "Mobile number of the user (e.g., +1 1234567890)"
+        ],
+        [
+          "Primary Email",
+          "email",
+          "Primary email address of the user (e.g. johndoe@company.com)"
+        ],
+        [
+          "Language",
+          "locale",
+          "Language preference of the user (e.g., English (US))"
+        ],
+        [
+          "Timezone",
+          "zoneinfo",
+          "Time zone of the user (e.g., UTC+3.00)"
+        ],
+        [
+          "Department",
+          "Needs a custom claim",
+          "The department name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Organization",
+          "Needs a custom claim",
+          "The organization name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Title",
+          "Needs a custom claim",
+          "The job title of the user (e.g., Manager)"
+        ],
+        [
+          "Division",
+          "Needs a custom claim",
+          "The division of the organization to which the user belongs (e.g., Research)"
+        ],
+        [
+          "Cost Center",
+          "Needs a custom claim",
+          "The cost center of the organization to which the user belongs (e.g., IT)"
+        ],
+        [
+          "User Type",
+          "Needs a custom claim",
+          "The type of user in the organization (e.g., Regular)"
+        ],
+        [
+          "Formatted Name",
+          "Needs a custom claim",
+          "The name of the user in a specific format (e.g., Mr. John Doe)"
+        ],
+        [
+          "Manager",
+          "Needs a custom claim",
+          "The manager's login name (manager@company.com). This must be in the email address format."
+        ]
+      ]
+    },
+    {
+      "item": "If the external IdP is configured to send different attributes for First Name, Last Name, or Display Name, then you must map those attributes. For example, if the ID token from the external IdP includes Surname instead of family_name, then you must map it with the Last Name user attribute in Authentication Service. See image.",
+      "depth": 4
+    },
+    {
+      "item": "While mapping attributes, ensure that the attributes that you enter in the Just-in-time Attribute field match exactly with the attributes that are received in the ID tokens.",
+      "depth": 4,
+      "strong": [
+        [
+          75,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "The Addresses attribute in Authentication Service is supported only with SCIM provisioning.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "4. (Optional) Enable step-up authentication.",
+      "depth": 1
+    },
+    {
+      "item": "You can configure step-up authentication to extend the existing authentication process by requiring multi-factor authentication (MFA) when needed, ensuring that access to high-risk or sensitive data is protected.",
+      "depth": 1
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "item": "Before configuring step-up authentication, ensure that:",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler Client Connector version 4.7 or later is deployed for the users in your organization.",
+      "depth": 2
+    },
+    {
+      "item": "Authentication Service is enabled for both admins and users.",
+      "depth": 2
+    },
+    {
+      "item": "Step-up authentication is enabled for Authentication Service, Internet & SaaS (ZIA), and Private Access (ZPA) tenants.",
+      "depth": 2
+    },
+    {
+      "item": "To enable step-up authentication:",
+      "depth": 1
+    },
+    {
+      "item": "a. Configure authentication levels in the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "b. Enable ACR values and configure the necessary policies in the external IdPs.",
+      "depth": 2
+    },
+    {
+      "item": "c. Map authentication levels and ACR values in the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "d. Configure access policies in supported Zscaler services.",
+      "depth": 2
+    },
+    {
+      "item": "In the external IdP integrated with Authentication Service, configure the necessary ACR values and authentication policies. To learn more about the configuration, refer to the respective product documentation.",
+      "depth": 1
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          63
+        ],
+        [
+          66,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          22,
+          47
+        ],
+        [
+          52,
+          80
+        ],
+        [
+          104,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the Advanced Configurations tab.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          19
+        ],
+        [
+          20,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the Levels to Authentication Context Mapping section, enter the ACR claim value for each authentication level. To learn more about the supported ACR claims in external IdP, refer to the respective product documentation.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that you map proper ACR claims for each level depending on the hierarchy. The highest level of authentication must be mapped to the ACR claim value for the strongest context.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "You can configure the necessary policies in the following Zscaler services as required:",
+      "depth": 1
+    },
+    {
+      "item": "Private Access: Configure Access Policies for the target application or app segment with the Conditional Access as the Rule Action. Ensure that the necessary authentication level is selected using the Step-up Authentication Level field.",
+      "depth": 2,
+      "strong": [
+        [
+          93,
+          111
+        ],
+        [
+          119,
+          130
+        ],
+        [
+          201,
+          229
+        ]
+      ]
+    },
+    {
+      "item": "Internet & SaaS: Configure the URL Filtering Policy and Cloud App Control Policies with the Conditional Access as the Action. Ensure that the necessary authentication level is selected using the Authentication Level field.",
+      "depth": 2,
+      "strong": [
+        [
+          92,
+          110
+        ],
+        [
+          118,
+          124
+        ],
+        [
+          195,
+          215
+        ]
+      ]
+    },
+    {
+      "item": "SAML-Based Authentication",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "item": "A Microsoft Windows Server with the following components installed and connected:",
+      "depth": 1
+    },
+    {
+      "item": "Active Directory",
+      "depth": 2
+    },
+    {
+      "item": "AD FS",
+      "depth": 2
+    },
+    {
+      "item": "An administrator account for the Windows Server",
+      "depth": 1
+    },
+    {
+      "item": "An Authentication Service account with an admin role that allows you to add an IdP configuration",
+      "depth": 1
+    },
+    {
+      "item": "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 1
+    },
+    {
+      "heading": "Configuring Microsoft AD FS as IdP for Authentication Service",
+      "level": 1
+    },
+    {
+      "item": "1. Set up AD FS as an IdP for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "a. Obtain Federation Metadata from AD FS.",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the Windows Server as an administrator.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Open the Server Manager and go to AD FS > Tools > AD FS Management.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          23
+        ],
+        [
+          34,
+          39
+        ],
+        [
+          42,
+          47
+        ],
+        [
+          50,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Go to Services > Endpoints and locate the Metadata URL Path. The typical URL path is /FederationMetadata/2007-06/FederationMetadata.xml.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          26
+        ],
+        [
+          42,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "To download the metadata, enter the following URL in the browser:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "https://<computer-name.domain><metadata_URL_path>",
+      "depth": 3
+    },
+    {
+      "item": "For example, if the computer name is zsad and the domain name is zsidentity, the URL to download the metadata is https://zsad.zsidentity.com/FederationMetadata/2007-06/FederationMetadata.xml.",
+      "depth": 3
+    },
+    {
+      "item": "The federation metadata is downloaded as an XML file.",
+      "depth": 3
+    },
+    {
+      "item": "b. Configure AD FS as an IdP in the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          63
+        ],
+        [
+          66,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Click Add in the Primary Identity Provider or Secondary Identity Providers section.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          17,
+          42
+        ],
+        [
+          46,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "The Add External Identity page appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the Add External Identity page, go to the Basic Configurations tab, and configure the following:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          45,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IdP.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Enable the toggle.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Identity Vendor: Select Active Directory Federated Service from the drop-down menu.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Domains: Select the domain for which the IdP is responsible for authenticating the users. This allows the Zscaler service to display the correct IdP to authenticate an incoming user.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Enforce Zscaler MFA for Admins: Enable this option to ensure that admins using an external IdP authenticate with the multi-factor authentication (MFA) process in Authentication Service, irrespective of whether MFA is configured on the external IdP.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "An email is sent to all super admins in Authentication Service when the Enforce Zscaler MFA for Admins option is disabled.",
+      "depth": 4,
+      "strong": [
+        [
+          72,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Select SAML.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Login ID Attribute: Enter an attribute whose value must be used as the login ID. This attribute must exist in the token received from the IdP. By default, the NameID attribute is populated in this field when the SAML option is selected in the Protocol field. You can use any attribute that is present in the SAML assertion, provided its value is in the email address format (e.g., <user_name>@domain.com>).",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          212,
+          216
+        ],
+        [
+          243,
+          251
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the domain part of the email addresses received in the SAML assertion matches with one of the domains configured in Authentication Service.",
+      "depth": 5
+    },
+    {
+      "item": "Ensure that the attribute you enter matches exactly with the attribute received in the SAML assertion.",
+      "depth": 5
+    },
+    {
+      "item": "Input Method: Select Upload Metadata and click the IdP Metadata drop zone to upload the AD FS federation metadata file downloaded in the previous step.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          36
+        ],
+        [
+          51,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Go to the Provisioning Details tab and click Save.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          10,
+          30
+        ],
+        [
+          45,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Locate the IdP configuration created for AD FS and click the Edit icon.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "On the Basic Configurations tab, click Download SP Metadata.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          39,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The SP Metadata file is downloaded as an XML file.",
+      "depth": 3
+    },
+    {
+      "item": "Go to the Advanced Configurations tab and enable SAML Request Signing.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          33
+        ],
+        [
+          49,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "2. Configure Relying Party Trust in AD FS.",
+      "depth": 1
+    },
+    {
+      "item": "On the Windows Server, open the Server Manager.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Go to AD FS > Tools > AD FS Management.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          14,
+          19
+        ],
+        [
+          22,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Under AD FS > Relying Party Trusts, click Add Relying Party Trust....",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          34
+        ],
+        [
+          42,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Add Relying Party Trust Wizard window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Relying Party Trust Wizard window:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          37
+        ],
+        [
+          44,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Select Claims aware and click Start.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          30,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Select Data Source step, select the Import data about the relying party from a file option, and enter the location of the SP Metadata XML file downloaded from the Zscaler Admin Console in the previous step.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          43,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Specify Display Name step, enter a name for the relying party (i.e., Authentication Service).",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Finish step and click Close.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          16
+        ],
+        [
+          32,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Authentication Service is added as a Relying Party Trust in AD FS.",
+      "depth": 2
+    },
+    {
+      "item": "3. Provision users for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP created for AD FS in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          40,
+          65
+        ],
+        [
+          70,
+          98
+        ],
+        [
+          122,
+          126
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the Provisioning Details tab, and enable JIT Provisioning.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          31
+        ],
+        [
+          48,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups (e.g., Zscaler Global Administrators).",
+      "depth": 3
+    },
+    {
+      "item": "Just-in-time User Group Attribute: Enter the claim name created for group information retrieval (i.e., Groups). This retrieves the group membership information of the users from AD FS.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Map the Authentication Service user attributes including the custom attributes with the appropriate AD FS attributes as necessary. The mapping of the Primary Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication. By default, the following attributes in SAML assertions are mapped with the corresponding user attributes in Authentication Service:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "table": [
+        [
+          "Default Authentication Service User Attributes",
+          "Attribute in SAML Assertions",
+          "Description"
+        ],
+        [
+          "First Name",
+          "firstName",
+          "First name of the user (e.g., John). This attribute is mapped by default."
+        ],
+        [
+          "Last Name",
+          "lastName",
+          "Last name of the user (e.g., Doe). This attribute is mapped by default."
+        ],
+        [
+          "Display Name",
+          "displayName",
+          "Display name of the user (e.g. John Doe). This attribute is mapped by default."
+        ],
+        [
+          "Nick Name",
+          "nickname",
+          "Nickname of the user (e.g., Jo)"
+        ],
+        [
+          "Mobile Phone",
+          "mobile or telephoneNumber",
+          "Mobile number of the user (e.g., +1 1234567890)"
+        ],
+        [
+          "Primary Email",
+          "email or mail",
+          "Primary email address of the user (e.g. johndoe@company.com)"
+        ],
+        [
+          "Language",
+          "locale or preferredLanguage",
+          "Language preference of the user (e.g., English (US))"
+        ],
+        [
+          "Timezone",
+          "timezone",
+          "Time zone of the user (e.g., UTC+3.00)"
+        ],
+        [
+          "Department",
+          "department",
+          "The department name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Organization",
+          "organization or company",
+          "The organization name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Title",
+          "title",
+          "The job title of the user (e.g., Manager)"
+        ],
+        [
+          "Division",
+          "division",
+          "The division of the organization to which the user belongs (e.g., Research)"
+        ],
+        [
+          "Cost Center",
+          "costCenter",
+          "The cost center of the organization to which the user belongs (e.g., IT)"
+        ],
+        [
+          "User Type",
+          "userType or employeeType",
+          "The type of user in the organization (e.g., Regular)"
+        ],
+        [
+          "Formatted Name",
+          "formattedName",
+          "The name of the user in a specific format (e.g., Mr. John Doe)"
+        ],
+        [
+          "Manager",
+          "manager",
+          "The manager's login name (manager@company.com). This must be in the email address format."
+        ]
+      ]
+    },
+    {
+      "item": "If the external IdP is configured to send different attributes for First Name, Last Name, or Display Name, then you must map those attributes. For example, if the SAML assertion from the external IdP includes Surname instead of lastName, then you must map it with the Last Name user attribute in Authentication Service.",
+      "depth": 4
+    },
+    {
+      "item": "If you want to map custom user attributes (e.g., Department), make sure they are already configured in the Zscaler Admin Console. To learn more about configuring custom user attributes, see Adding User Attributes.",
+      "depth": 4
+    },
+    {
+      "item": "While mapping attributes, ensure that the attributes that you enter in the Just-in-time Attribute field match exactly with the attributes that are received in the SAML assertions.",
+      "depth": 4,
+      "strong": [
+        [
+          75,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The Addresses attribute in Authentication Service is supported only with SCIM provisioning.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Windows Server, open Server Manager.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          28,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Go to AD FS > Tools > AD FS Management.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          14,
+          19
+        ],
+        [
+          22,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Under AD FS, click Relying Party Trusts and locate the relying party trust created for Authentication Service.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          19,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Right-click the Authentication Service relying party trust and select Edit Claim Issuance Policy.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          70,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "The Edit Claim Issuance Policy window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Claim Issuance Policy window:",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Rule....",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Add Transform Claim Rule Wizard window appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Transform Claim Rule Wizard window:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "In the Choose Rule Type step, select the Send LDAP Attributes as Claims option from the Claim rule template drop-down menu.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          41,
+          71
+        ],
+        [
+          88,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The Edit Rule window appears.",
+      "depth": 4,
+      "strong": [
+        [
+          4,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Rule window:",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Claim rule name: Enter a name for the claim rule.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Map the Authentication Service user attributes including the custom attributes with the appropriate AD FS attributes as configured in the Zscaler Admin Console in the previous step.",
+      "depth": 5,
+      "number": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The claim rule is added.",
+      "depth": 4
+    },
+    {
+      "item": "Click OK.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "The AD FS users are provisioned for Authentication Service.",
+      "depth": 2
+    },
+    {
+      "item": "IdP-Initiated SSO for Authentication Service Tenants Enabled with Experience Center",
+      "depth": 0
+    },
+    {
+      "item": "All admins authenticating using the SAML protocol for Authentication Service and IdP integrations are redirected to Experience Center. However, if the zidServiceId attribute is configured in the IdP within the Authentication Service tenant, then the admins are redirected to the Authentication Service Admin Portal instead of Experience Center.",
+      "depth": 0
+    }
+  ]
+}

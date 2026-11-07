@@ -1,0 +1,1786 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Private Cloud Controller Deployment Guide for Amazon Web Services",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/private-cloud-controller-deployment-guide-amazon-web-services",
+    "node": "1545500",
+    "revision": "3242681",
+    "updated": "2026-09-15",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy a Private Cloud Controller on Amazon Web Services (AWS), and post-deployment verification checks."
+    },
+    {
+      "item": "Step 1: Make Sure That You Have Met All of the Private Cloud Controller Deployment Prerequisites",
+      "depth": 0
+    },
+    {
+      "item": "Before deploying a Private Cloud Controller on any supported platform, Zscaler highly recommends reading the following information and making the necessary changes to your organization's environment, where applicable.",
+      "depth": 0
+    },
+    {
+      "item": "Each Private Cloud Controller supports between 100 to 250 Mbps of SIEM throughput. Use the information on this page to determine the Private Cloud Controller sizing requirements for your deployment. Private Cloud Controller sizing must be based on the number of users that need to be redirected and the expected SIEM throughput.",
+      "depth": 0
+    },
+    {
+      "item": "Private Cloud Controller Specifications and Sizing Requirements",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controller Platform Prerequisites",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controller Security Guidance and Firewall Requirements",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controller Zscaler Client Connector Requirements",
+      "depth": 1
+    },
+    {
+      "item": "After you have met all of the prerequisites, you can deploy the Private Cloud Controller on a supported platform.",
+      "depth": 0
+    },
+    {
+      "item": "The following specifications are recommended by Zscaler for up to 250 Mbps SIEM throughput based on the sizing. Refer to the following table for the sizing and relevant SIEM data throughput.",
+      "depth": 0
+    },
+    {
+      "item": "Memory (RAM), vCPU (for virtual machines), SIEM throughput, or CPU (for physical machines) cores:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Active Users",
+          "Memory",
+          "SIEM Throughput",
+          "vCPU or CPU Cores"
+        ],
+        [
+          "Up to 2,000",
+          "16 GB",
+          "100 Mbps",
+          "4 vCPUs or 4 CPUs"
+        ],
+        [
+          "Up to 4,000",
+          "32 GB",
+          "150 Mbps",
+          "8 vCPUs or 8 CPUs"
+        ],
+        [
+          "Up to 10,000",
+          "64 GB",
+          "250 Mbps",
+          "16 vCPUs or 16 CPUs"
+        ]
+      ]
+    },
+    {
+      "item": "Disk Space: 64 GB (thin provisioned) for all deployment platforms",
+      "depth": 1
+    },
+    {
+      "item": "Network Card: 1 NIC (minimum)",
+      "depth": 1
+    },
+    {
+      "item": "Depending on your deployment use case, each Private Cloud Controller must be able to accept incoming connections from either internal or external sources or both internal and external sources on TCP port 443. For example, if you enable Private Access (ZPA) for both remote and office users, each Private Cloud Controller needs to accept incoming connections from both internal and external endpoints running Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Private Cloud Controllers are reachable over the internet for remote users in Business Continuity.",
+      "depth": 0
+    },
+    {
+      "item": "In the scenario where a Private Cloud Controller is deployed behind a firewall, the firewall performs destination network address translation (DNAT) for the Private Cloud Controller's private IP address. In this case, the flow of traffic is from Zscaler Client Connector to the Private Cloud Controller. The firewall then translates the destination public IP address that Zscaler Client Connector connects to the private IP address of the Private Cloud Controller. The firewall advertises a public IP address on the internet. It is necessary to configure the public IP address advertised by the firewall as a publish IP address of the respective Private Cloud Controller. In the case of disaster recovery, you must add this IP address as the A record for that Private Cloud Controller.",
+      "depth": 0
+    },
+    {
+      "item": "Your firewalls must be configured to let the Private Cloud Controller establish outbound connections to the IP addresses of the Public Service Edge for Private Access, and establish inbound connections from App Connectors, Private Service Edges, and Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "The following conditions apply to each Private Cloud Controller that is placed behind a firewall:",
+      "depth": 0
+    },
+    {
+      "item": "They must accept incoming connections from internal sources, remote users, and on-premises users (as applicable and dependent on your use case) on TCP port 443.",
+      "depth": 1
+    },
+    {
+      "item": "They must have a unique private IP address that can be reached over the internal network.",
+      "depth": 1
+    },
+    {
+      "item": "After a Private Cloud Controller is enrolled, an outbound TLS tunnel over TCP port 443 is established to the Private Access cloud infrastructure. This communication channel provides various functionality and includes the following traffic:",
+      "depth": 0
+    },
+    {
+      "item": "Periodic keepalives to the Public Service Edge",
+      "depth": 1
+    },
+    {
+      "item": "Tenant-specific configuration and policy download",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controller software upgrades (upgrades are completed based on a weekly schedule)",
+      "depth": 1
+    },
+    {
+      "item": "You can deploy additional Private Cloud Controllers at any time using the same provisioning key to add them to the existing Private Cloud Controller group, while ensuring network and internet connectivity. Private Cloud Controllers are designed to scale elastically. You can deploy additional Private Cloud Controllers in the same Private Cloud Controller group to increase the total throughput as required by your deployment. Zscaler recommends that you deploy Private Cloud Controllers in pairs (N+1), where N is the number of Private Cloud Controllers as per the sizing requirements. To learn more, see Deploying Private Cloud Controllers and Private Cloud Controller Deployment Guides for Supported Platforms.",
+      "depth": 0
+    },
+    {
+      "item": "After deployment, ensure that the Private Cloud Controller meets your sizing requirements. If disk space fills up in the Private Cloud Controller, Zscaler recommends archiving files and creating more log space.",
+      "depth": 0
+    },
+    {
+      "heading": "Understanding Private Cloud Controller Throughput",
+      "level": 1
+    },
+    {
+      "item": "Throughput numbers are aggregate (i.e., total inbound and outbound). Each Private Cloud Controller supports up to 250 Mbps SIEM throughput. Private Cloud Controllers communicate over the provided (default) gateway, which is most likely your ISP WAN broadband connection.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you check your existing VPN solution's average and peak throughput and the number of users when determining your sizing requirements. Be sure to only account for user or client VPN traffic and not any site-to-site tunnel traffic.",
+      "depth": 0
+    },
+    {
+      "item": "Private Cloud Controller sizing must be based on the number of users that need to be redirected and the expected SIEM throughput. The exact throughput can vary and depends on other network factors such as your internal network setup and latency. Make sure that you have enough Private Cloud Controllers to support the connection and room for failover (N+1).",
+      "depth": 0
+    },
+    {
+      "item": "To horizontally scale your deployment, Zscaler recommends that you have more Private Cloud Controllers with lower specifications rather than fewer Private Cloud Controllers with higher specifications. For example, if you have fewer Private Cloud Controllers with higher specifications and one fails, you could adversely affect more user application traffic or sessions than a smaller Private Cloud Controller that fails.",
+      "depth": 0
+    },
+    {
+      "item": "Before you begin any procedures within the Private Cloud Controller Deployment Guide for Linux, make sure that you have all of the following prerequisites:",
+      "depth": 0
+    },
+    {
+      "item": "Intel x86_64/AMD 64-based architecture",
+      "depth": 1
+    },
+    {
+      "item": "systemd",
+      "depth": 1
+    },
+    {
+      "item": "Root or sudo access to the system to configure a new package repository and install packages",
+      "depth": 1
+    },
+    {
+      "item": "DNS resolution and network access",
+      "depth": 1
+    },
+    {
+      "item": "For OAuth 2.0 enrollment, Manager software and Private Cloud Controller version 25.47.3 or later",
+      "depth": 1
+    },
+    {
+      "item": "An OAuth 2.0 enrollment token obtained from a hyperscaler marketplace, virtual image, or RPM installer provided by Zscaler, or a Private Cloud Controller provisioning key obtained from the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "The OAuth server only supports IPv4-based communication. If a Private Cloud Controller only has an IPv6 address, it cannot access the OAuth server.",
+      "depth": 1
+    },
+    {
+      "item": "A static MAC address",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controllers can be deployed in different ways, so the security features for each deployment type are slightly different.",
+      "depth": 0
+    },
+    {
+      "heading": "Operating System Security",
+      "level": 1
+    },
+    {
+      "item": "Some organizations choose to firewall or otherwise restrict outbound traffic to the internet from the data center. It is possible to deploy a Private Cloud Controller in such an environment as long as the Private Cloud Controller can reach all Zscaler data centers containing Public Service Edges. For firewall configuration information for your deployment, see config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "heading": "Firewall Requirements and Interoperability Guidelines",
+      "level": 1
+    },
+    {
+      "item": "All of the Zscaler data centers containing Public Service Edges must be allowed. A partial firewall configuration will result in connectivity problems for end users. Zscaler's policy is to provide a 90-day notice for activating additional IP CIDR ranges to provide organizations with sufficient opportunity for changing control policies.",
+      "depth": 0
+    },
+    {
+      "item": "Because the service enforces TLS certificate pinning for both client and server certificates, all forms of inline or man-in-the-middle TLS interception or inspection must be disabled. Private Cloud Controllers do not function if the TLS certificates presented by the Public Service Edges do not cryptographically verify against Zscaler-trusted public keys.",
+      "depth": 0
+    },
+    {
+      "item": "By design, certificate verification is not configurable to maintain the integrity of the service, so ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the Private Cloud Controller. This is necessary to allow the Private Cloud Controller to resolve and reach Public Service Edges. Private Cloud Controller requires your firewall configuration to accept incoming connections from users. Also, if you need to allowlist additional Zscaler IP addresses, refer to config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names. It might be possible to allowlist based on Zscaler cloud hostnames instead of IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "Private Cloud Controllers require that the Zscaler Client Connector is at least on version 4.6 or later for Windows.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Deploy the Private Cloud Controller on AWS",
+      "depth": 0
+    },
+    {
+      "item": "For AWS, you must deploy Private Cloud Controllers in your Virtual Private Clouds (VPCs). For each VPC, there should be a pair of Private Cloud Controllers deployed for resilience and scalability. The Private Cloud Controllers should be deployed across availability zones to ensure continuity of service in the event of an incident. Zscaler automatically load balances across the Private Cloud Controllers. Additional capacity can be handled by adding additional Private Cloud Controllers into each availability zone.",
+      "depth": 0
+    },
+    {
+      "item": "Private Cloud Controllers should be in appropriate security groups to accept incoming connections from Zscaler Client Connector and Public Service Edges for Private Access (ZPA). The Private Cloud Controllers' security group should permit inbound and outbound access on port 443. The security group should allow inbound SSH to the AWS EC2 instance.",
+      "depth": 0
+    },
+    {
+      "item": "Deploying a Private Cloud Controller",
+      "depth": 1
+    },
+    {
+      "item": "This procedure describes how you can deploy Private Access in AWS. If you require a more scalable solution, Zscaler recommends deploying the Private Cloud Controller using a launch template with auto scaling.",
+      "depth": 1
+    },
+    {
+      "item": "This procedure assumes that you have an Amazon Virtual Private Cloud (VPC) created and that you also have full access to create EC2 instances. It is also assumed that you already have a security group created and have edit access to it.",
+      "depth": 1
+    },
+    {
+      "item": "To deploy a Private Cloud Controller on AWS:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the AWS Management Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the navigation menu, select All Services.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          31,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Click EC2.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "On the EC2 Dashboard page, click Launch Instance.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          33,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "The Launch an Instance page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Launch an Instance page:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Name and tags: Enter a name for the instance.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Application and OS Images (Amazon Machine Image): Search for zscaler private cloud controller and select the following options:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "On the Choose an Amazon Machine Image (AMI) page, click AWS Marketplace AMIs.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          43
+        ],
+        [
+          56,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "When the Zscaler Private Cloud Controller AMI appears, click Select.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          41
+        ],
+        [
+          61,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The Launch an Instance page reappears with a message stating that your AWS Marketplace subscription was successful at the top of the page.",
+      "depth": 4,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Instance Type: Select an instance type that supports the Private Cloud Controller's sizing requirements.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Key pair (login): Click Create new key pair and configure a new key pair for your instance.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          24,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Network Settings: Click Edit and select the following options:",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          24,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "VPC: Verify that the values for your VPC are suitable.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Auto-assign Public IP: Choose Disable to assign a private IP address (recommended) to the Private Cloud Controller. If you want to assign a public IP address, leave this option set to Enable.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          37
+        ],
+        [
+          184,
+          190
+        ]
+      ]
+    },
+    {
+      "item": "Firewall (security groups): Choose Select existing security group.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          35,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Select a security group from the Common security groups drop-down menu.",
+      "depth": 4,
+      "strong": [
+        [
+          33,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Click Preview code to verify the planned instance code.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Click Launch Instance to power on the instance.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Verify that the instance launched successfully and that the Instance State is running.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          60,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Select the instance.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "On the Instance Summary page that appears, take note of the private key name (i.e., a .pem file) and public hostname or IP address for your instance. You will need this information for the next step.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "If the proper columns are shown, you can also see this information within the table on the Instances page.",
+      "depth": 1,
+      "strong": [
+        [
+          91,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "Update the security group associated with the Private Cloud Controller to temporarily allow inbound access on port 22, then complete the following steps to connect to the instance. SSH access is required to configure the provisioning key for the Private Cloud Controller.",
+      "depth": 2,
+      "number": 10
+    },
+    {
+      "item": "See instructions.",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the Private Cloud Controller console using your AWS private key.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "After the initial boot of a Private Cloud Controller instance, it might take up to 15 minutes for the admin credentials to apply. If you receive an invalid credentials error after the initial boot, wait a few minutes and try again.",
+      "depth": 2
+    },
+    {
+      "item": "Using a standard SSH client, enter the following command to connect to the AWS instance:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "ssh -i admin@",
+      "depth": 3
+    },
+    {
+      "item": "In the following example, the private key for the AWS instance is AWS.pem and the Private Cloud Controller IP address is 172.16.255.255:",
+      "depth": 3
+    },
+    {
+      "item": "ssh -i AWS.pem admin@172.16.255.255",
+      "depth": 3
+    },
+    {
+      "item": "When asked if you want to continue connecting, enter yes.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Enroll the Private Cloud Controller using one of the following methods:",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "The image attempts to use OAuth enrollment tokens by default but applies a provisioning key first if one is available.",
+      "depth": 2
+    },
+    {
+      "item": "OAuth 2.0 enrollment token",
+      "depth": 3
+    },
+    {
+      "item": "See instructions.",
+      "depth": 3
+    },
+    {
+      "item": "In the software component's virtual serial console, a login prompt appears followed by an OAuth Token value, similar to the following example:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "$ OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T",
+      "depth": 4
+    },
+    {
+      "item": "Copy the OAuth token that appears. Tokens are valid for 2 hours.",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, add the enrollment token for your software component:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "App Connector",
+      "depth": 5
+    },
+    {
+      "item": "Private Service Edge",
+      "depth": 5
+    },
+    {
+      "item": "Private Cloud Controller",
+      "depth": 5
+    },
+    {
+      "item": "Network Connector",
+      "depth": 5
+    },
+    {
+      "item": "Add an App Connector and enter the OAuth enrollment token on the Add App Connectors page. To learn more, see Configuring App Connectors.",
+      "depth": 3,
+      "strong": [
+        [
+          65,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Add a Private Service Edge and enter the OAuth enrollment token on the Add Private Service Edge page. To learn more, see Configuring Private Service Edges.",
+      "depth": 3,
+      "strong": [
+        [
+          71,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Add a Private Cloud Controller and enter the OAuth enrollment token on the Add Private Cloud Controller page. To learn more, see Configuring Private Cloud Controllers.",
+      "depth": 3,
+      "strong": [
+        [
+          75,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "Add a Network Connector and enter the OAuth enrollment token on the Add Network Connector page. To learn more, see Configuring Network Connectors.",
+      "depth": 3,
+      "strong": [
+        [
+          68,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Private Cloud Controller provisioning key",
+      "depth": 3
+    },
+    {
+      "item": "See instructions.",
+      "depth": 3
+    },
+    {
+      "item": "Stop running the zpa-pcc service. If the provisioning key is not detected when the Private Cloud Controller first starts, the Private Cloud Controller is in a sleep cycle and looks for the key again every 24 hours.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "$ sudo systemctl stop zpa-pcc",
+      "depth": 3
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions at /opt/zscaler/var/pcc/provision_key. For example:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "$ sudo touch /opt/zscaler/var/pcc/provision_key $ sudo chmod 644 /opt/zscaler/var/pcc/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save it. Use an editor, such as vi.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "$ sudo vi /opt/zscaler/var/pcc/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "If you are using vi, make sure it is in insert mode before you paste the key into the file.",
+      "depth": 3
+    },
+    {
+      "item": "If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key:",
+      "depth": 3
+    },
+    {
+      "item": "echo \"<Private Cloud Controller Provisioning Key>\" | sudo tee /opt/zscaler/var/pcc/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "Make sure that the key is within double quotes (\").",
+      "depth": 3
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "$ sudo cat /opt/zscaler/var/pcc/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 3
+    },
+    {
+      "item": "Start the zpa-pcc service.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "start zpa-pcc",
+      "depth": 3
+    },
+    {
+      "item": "In AWS, make sure you disable inbound access on port 22 for the security group associated with the Private Cloud Controller.",
+      "depth": 3
+    },
+    {
+      "item": "After the Private Cloud Controller is enrolled, verify that the deployed Private Cloud Controller is running and healthy.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler highly recommends updating the Private Cloud Controller system software before proceeding.",
+      "depth": 2,
+      "number": 12
+    },
+    {
+      "item": "Deploying a Private Cloud Controller using a Launch Template with Auto Scaling (Advanced Deployment)",
+      "depth": 1
+    },
+    {
+      "item": "This procedure describes how you can deploy Private Access in AWS through launch templates and auto scaling configurations to create a scalable and supportable infrastructure.",
+      "depth": 1
+    },
+    {
+      "item": "This procedure assumes that you have an Amazon Virtual Private Cloud (VPC) created and that you also have full access to create EC2 instances.",
+      "depth": 1
+    },
+    {
+      "item": "OAuth 2.0 enrollment is unavailable with auto scaling.",
+      "depth": 1
+    },
+    {
+      "item": "To deploy a Private Cloud Controller on AWS using a launch template with auto scaling:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the AWS Management Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the navigation menu, select All Services.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          31,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Click EC2.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, under Network & Security, click Security Groups.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          35,
+          53
+        ],
+        [
+          61,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Click Create security group.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "The Create security group page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Create security group page:",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Security group name: Enter a name for the security group.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description of the security group.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "VPC: Select the virtual private cloud you want to associate with the security group from the drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Inbound rules: Click Add rule and allow access to the public IP address on port 443.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          21,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Outbound rules: Allow access to 0.0.0.0/0 on all ports.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "If necessary, outbound access can be restricted to Private Access hosts and ports. For details regarding required IP addresses, see config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud).",
+      "depth": 3
+    },
+    {
+      "item": "Click Create security group.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "The new group appears on the Security Groups page.",
+      "depth": 3,
+      "strong": [
+        [
+          29,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, under Instances, click Launch Templates.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          35,
+          44
+        ],
+        [
+          52,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Click Create launch template.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Within the EC2 Management Console, the Create launch template page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          39,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Create a launch template on the Create launch template page.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          32,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See instructions.",
+      "depth": 2
+    },
+    {
+      "item": "On the Create launch template page:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Launch template name: Enter a name for the template.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Template version description: Enter a description of the template.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Auto Scaling guidance: Select the Provide guidance to help me set up a template that I can use with EC2 Auto Scaling checkbox.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          34,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "In the Launch template contents section, search for zscaler private cloud controller.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "On the Choose an Amazon Machine Image (AMI) page, click AWS Marketplace AMIs.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          43
+        ],
+        [
+          56,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "When the Zscaler Private Cloud Controller AMI appears, click Select.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          41
+        ],
+        [
+          61,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Click Create template with AMI in the pane that appears on the right. The Create launch template page reappears with a message stating that your AWS Marketplace subscription was successful at the top of the page.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          30
+        ],
+        [
+          74,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "Instance type: Select a type that supports the Private Cloud Controller's sizing requirements.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Key pair name: Select the proper SSH key pair to deploy.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Network settings section:",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Firewall (security groups): Choose Select existing security group.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          35,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Select the group you created previously from the Common security groups drop-down menu.",
+      "depth": 5,
+      "strong": [
+        [
+          49,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Advanced network configuration: (Optional) Expand this section and click Add network interface to customize your network interfaces, if necessary. However, the default settings are adequate for deployment.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          73,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "Resource tags: (Optional) Expand this section and click Add new tag to add resource tags to the launch template, if necessary. To learn more, refer to the AWS documentation.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          56,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Expand the Advanced details section.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          11,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the User data field, enter the following script:",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "#!/bin/bash #Stop the Private Cloud Controller service which was auto-started at boot time systemctl stop zpa-pcc #Create a file from the Private Cloud Controller provisioning key created in the Zscaler Admin Console #Make sure that the provisioning key is between double quotes echo \"<Private Cloud Controller Provisioning Key>\"> /opt/zscaler/var/pcc/provision_key #Run a yum update to apply the latest patches yum update -y #Start the Private Cloud Controller service to enroll it in the Private Access (ZPA) cloud systemctl start zpa-pcc #Wait for the Private Cloud Controller to download the latest build sleep 60 #Stop and then start the Private Cloud Controller for the latest build systemctl stop zpa-pcc systemctl start zpa-pcc",
+      "depth": 4
+    },
+    {
+      "item": "The domain (e.g., api.private.com) in the echo statement will depend on which Private Access cloud you are on.",
+      "depth": 2
+    },
+    {
+      "item": "In the echo statement above, make sure that you have included the Private Cloud Controller provisioning key you copied from the Zscaler Admin Console, for example:",
+      "depth": 2
+    },
+    {
+      "item": "echo \"1|api.private.zscaler.com|IhQ9C+gJG+x1AFcO3XGlrMW1SDkIuuyRsNwfB4B+cDc2RNNPePNGuI26N/zZJ08ZjaGW5EKiIQ28rfE9TobevoQAt192+CcUgiKUCtGO7w5+2MeOmhiOTjB+Ox/PlWEoJSqqZFKR5EdNDZr+zd2/gYXTNAn8oG+BDT7NMV7YocvcnvBZG6DfOImAwtSlOSY45tJprEtoCSpT+SCsijyPCuv61QdqObIJcnA5Cs8jo6LjSqqlVYkBYgTEJgZdNKHlMkV5lxk/Ayh43A4hGLCnY+InMTj0sF7US8/NZlR/2mdAbAbmf+1ujDr/k1YgC9QQX3alr7qpHIFO/HxvyutzIu9+QXqkdCA6tL8o+RQiFrDJ7YTiQ/HxlVPlN0tKyw2K\" > /opt/zscaler/var/pcc/provision_key For all other fields within this section, the default settings are adequate for deployment.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create launch template.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "On the confirmation page that appears, click Create Auto Scaling Group.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          45,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Within the EC2 Management Console, the Create Auto Scaling Group wizard appears.",
+      "depth": 2,
+      "strong": [
+        [
+          39,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "In Step 1: Choose launch template or configuration, the launch template you created previously is automatically selected:",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          3,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Auto Scaling group name: Enter a name for the auto scaling group.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In Step 2: Choose instance launch options,",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          3,
+          7
+        ],
+        [
+          8,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Availability Zones and subnet: Select two subnets from the drop-down menu. This is where your Private Cloud Controllers are deployed. For each VPC, there should be a pair of Private Cloud Controllers deployed for resilience and scalability.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In Step 3: Integrate with other services, click Next.",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          3,
+          40
+        ],
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "In Step 4: Configure group size and scaling:",
+      "depth": 2,
+      "number": 14,
+      "strong": [
+        [
+          0,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Desired capacity: Enter 2 for the initial number of instances to launch.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Scaling limits: Enter the minimum and maximum size for the scale between instances.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Choose whether to use a target tracking policy: Select Target tracking scaling policy, then set the following options:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          46
+        ],
+        [
+          55,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Scaling policy name: Modify the name of the scaling policy, if needed.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Metric type: Select Average CPU Utilization from the drop-down menu.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Target value: Enter 50.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Each Private Cloud Controller is capable of passing 400 to 500 Mbps traffic. An additional Private Cloud Controller can be added when this limit is reached, which occurs when the Private Cloud Controller runs at about 50% CPU utilization. To learn more about Private Cloud Controller throughput, see Private Cloud Controller Specifications and Sizing Requirements.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In Step 5: Add notifications, set up your notifications as needed and click Next. To learn more, refer to the AWS documentation.",
+      "depth": 2,
+      "number": 15,
+      "strong": [
+        [
+          3,
+          28
+        ],
+        [
+          76,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In Step 6: Add tags, set up your tags as needed and click Review. To learn more, refer to the AWS documentation.",
+      "depth": 2,
+      "number": 16,
+      "strong": [
+        [
+          3,
+          19
+        ],
+        [
+          58,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In Step 7: Review, verify your configuration settings and click Create Auto Scaling group.",
+      "depth": 2,
+      "number": 17,
+      "strong": [
+        [
+          3,
+          17
+        ],
+        [
+          64,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "After the Private Cloud Controllers are initialized, they'll be provisioned into the Private Cloud Controller group you specified in the Zscaler Admin Console. The provisioning is based on the provisioning key included in the script you entered in the User data field for the launch template.",
+      "depth": 2,
+      "strong": [
+        [
+          252,
+          261
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Step 3: Configure the Networking for the Deployed Private Cloud Controller",
+      "depth": 0
+    },
+    {
+      "item": "After you have deployed a software component on a supported platform, you can complete the following networking configurations. Software components refer to App Connectors, Private Service Edges, Private Cloud Controllers, and Network Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "You can configure a Domain Name System (DNS) Resolver, Network Time Protocol (NTP) servers, static routing, and other features from the Zscaler Admin Console. To learn more, see Editing Network Settings.",
+      "depth": 0
+    },
+    {
+      "item": "Configure DHCP IP Addressing (App Connector, Private Service Edge, or Private Cloud Controller)",
+      "depth": 1
+    },
+    {
+      "item": "Configure Static IP Addressing (all software components)",
+      "depth": 1
+    },
+    {
+      "item": "Configure Additional Interfaces (App Connector or Private Service Edge)",
+      "depth": 1
+    },
+    {
+      "item": "Configure a Proxy Bypass (App Connector)",
+      "depth": 1
+    },
+    {
+      "item": "Configure yum to Use an HTTP Proxy Server (App Connector or Private Service Edge)",
+      "depth": 1
+    },
+    {
+      "item": "By default, virtual machine-based App Connectors, Private Service Edges, or Private Cloud Controllers are configured to use DHCP networking on their primary interface. If necessary, you can configure a static IP address for the software component.",
+      "depth": 0
+    },
+    {
+      "item": "If DHCP is not available, you can configure a static IP address on a VM-based App Connector, Private Service Edge, Private Cloud Controller, or Network Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "View the IP address.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 1
+    },
+    {
+      "item": "View the current connection profile.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Modify the connection profile using the following format: <profile name> connection.id <new connection name>. For example:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" connection.id LAN autoconnect yes",
+      "depth": 0
+    },
+    {
+      "item": "Review the current connection profile.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Edit the profile using a static IP and a default gateway with the following format: <connection ID> ipv4.method manual ipv4.addresses <IP addresses> ipv4.gateway <gateway IP> ipv4.dns <DNS IP> ipv4.dns-search <domain name>. For example:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ sudo nmcli connection modify LAN ipv4.method manual ipv4.addresses 172.30.1.88/24 ipv4.gateway 172.30.1.1 ipv4.dns 172.30.1.254 ipv4.dns-search company.com",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, bring the connection ID back up. For example:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ sudo nmcli connection up LAN",
+      "depth": 0
+    },
+    {
+      "item": "Verify the IP address.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "Verify the default gateway.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "$ ip route show default",
+      "depth": 0
+    },
+    {
+      "item": "Verify the DNS settings.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "$ sudo cat /etc/resolv.conf",
+      "depth": 0
+    },
+    {
+      "item": "If necessary, additional changes can be made to interfaces by configuring new ones using nmcli connection add con-name or by renaming existing ones using nmcli connection modify.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "View the IP address.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "View the current connection profiles.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Configure the interface's IP network using either a dynamic or static Ethernet configuration.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "For dynamic, modify the connection profile. For example:",
+      "depth": 0
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" ipv4.method auto autoconnect yes",
+      "depth": 0
+    },
+    {
+      "item": "For static, modify the connection profile and identify the IP addresses and gateway using the following format: <profile name> ipv4.method manual ipv4.addresses <address> ipv4.gateway <gateway IP>. For example:",
+      "depth": 0
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" ipv4.method manual ipv4.addresses 192.168.2.241/24 ipv4.gateway 192.168.2.254",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, bring the connection profile back up. For example:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "$ sudo nmcli connection up \"Profile 1\"",
+      "depth": 0
+    },
+    {
+      "item": "Verify the IP address.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "Verify the new connection.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "If you want to configure yum to communicate through an HTTP proxy server, refer to the Red Hat documentation.",
+      "depth": 0
+    },
+    {
+      "item": "If an App Connector is configured to send traffic to a proxy, you can set up a proxy bypass on it for the traffic that needs to be exempted from the proxy (i.e., traffic between the App Connector and the Public or Private Service Edges for Private Access). To use a proxy bypass for an App Connector, a proxy bypass file needs to be added to the App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the App Connector to do a proxy bypass:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the App Connector console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Create a file named opt/zscaler/var/proxy-bypass. Use an editor, such as vi. For example:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$sudo vi /opt/zscaler/var/proxy-bypass",
+      "depth": 0
+    },
+    {
+      "item": "Enter the necessary bypass entries using IP addresses, subnets, domains, or domains with a prefix wildcard. For example:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "1.2.3.4 111.222.33.0/24 myexampledomain.com *.internal.local",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, restart the App Connector using the following command:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-connector",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Verify the Status of the Deployed Private Cloud Controller",
+      "depth": 0
+    },
+    {
+      "item": "Verify that the deployed App Connector is running and healthy. Also, check that it meets your sizing requirements.",
+      "depth": 0
+    },
+    {
+      "text": "After you have verified your deployment, you can perform additional tasks to maintain the system (i.e., changing your Private Cloud Controller console admin credentials or performing system software updates). To learn more, see Managing Deployed Software Components."
+    }
+  ]
+}

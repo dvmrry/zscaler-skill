@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "About DNS Gateways",
+  "source": {
+    "url": "https://help.zscaler.com/zia/about-dns-gateways",
+    "node": "1451566",
+    "revision": "3243489",
+    "updated": "2026-09-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "DNS Gateway extends the capabilities of DNS Control by including support for DNS high availability and protocol translation to perform DNS lookup by external DNS services. You can ensure the high availability of your DNS service by configuring primary and secondary DNS services provided by third-party DNS services. You can also select specific protocols (DoH, UDP, or TCP) that are supported by the external DNS service and configure policies to ensure that your organization's DNS traffic is sent to the external DNS service from the Zscaler service only using those protocols. If the incoming DNS request uses a protocol that is different from the configured server-side protocol, the Zscaler service performs the necessary protocol translation and sends the DNS request to the external DNS service. Then, the Zscaler service extracts the response from the DNS server, applies any configured policies, and forwards the response to the client using the inbound query protocol."
+    },
+    {
+      "text": "DNS Gateway provides the following benefits and enables you to:"
+    },
+    {
+      "item": "Ensure the high availability of the DNS service used by your organization by configuring primary and secondary DNS services.",
+      "depth": 0
+    },
+    {
+      "item": "Perform DNS protocol translation to forward DNS queries to the external DNS service over DoH, UDP, or TCP, depending on requirements. With this protocol translation, the Zscaler service can encrypt users' unencrypted DNS queries and send them to the external DNS service using DoH. In addition, protocol translation allows you to meet DNS compatibility requirements with the external DNS service.",
+      "depth": 0
+    },
+    {
+      "item": "Define DNS filtering and NAT control policies to leverage and extend existing functionalities into comprehensive DNS Control.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure compliance with regulatory and contractual requirements, such as employing Protective DNS.",
+      "depth": 0
+    },
+    {
+      "heading": "DNS High Availability",
+      "level": 1
+    },
+    {
+      "text": "When both primary and secondary DNS resolvers are configured, the Zscaler service can maintain DNS high availability by actively checking responses from the DNS server to determine the health and availability status of the server and by allowing failover to the secondary server if the primary server is unavailable. The service determines the server's health status using various parameters including:"
+    },
+    {
+      "item": "The server is not reachable and the connection to the server times out or fails.",
+      "depth": 0
+    },
+    {
+      "item": "The FQDN configured for the server is unresolvable.",
+      "depth": 0
+    },
+    {
+      "item": "The DoH server does not provide a DNS response (e.g., a web server that does not provide DoH service).",
+      "depth": 0
+    },
+    {
+      "item": "The DNS server sends SERVFAIL or other response codes.",
+      "depth": 0
+    },
+    {
+      "item": "Response timeout occurs.",
+      "depth": 0
+    },
+    {
+      "text": "When both primary and secondary DNS resolvers are configured in DNS Gateway, the DNS requests are forwarded to the primary resolver. If the primary resolver does not return a response to a DNS query, then the primary resolver is considered unavailable, and the request is forwarded to the secondary resolver. If a response is received from the secondary resolver, all subsequent requests are forwarded to the secondary resolver."
+    },
+    {
+      "text": "If the secondary resolver also becomes unavailable, then the requests are forwarded to the primary resolver. This process of switching between primary and secondary resolvers comes to a halt when both resolvers fail to respond to a DNS query. Consequently, DNS Gateway is marked as down, and the failover behavior configured in the gateway is triggered. The Zscaler service continues to probe the health of the DNS servers by sending inbound DNS queries periodically and resumes forwarding DNS queries to the server if one of the servers becomes available again."
+    },
+    {
+      "heading": "DNS Protocol Translation",
+      "level": 1
+    },
+    {
+      "text": "Translation to DoH allows you to encrypt your users' unencrypted DNS queries and send them to an external DNS service. The protocol translation functionality of the DNS Gateway extends beyond DNS encryption (using DoH) and enables organizations to comply with regulatory requirements, like safeguarding DNS with a Protective DNS service. Protective DNS is designed to shield organizations and users from DNS exploitation by preventing access to known malicious or suspicious sites using threat intelligence gathered from commercial providers, open sources, and governmental sources. By using DNS Gateway, you can encrypt your users' unencrypted DNS queries and route them to any third-party DNS service using DoH."
+    },
+    {
+      "text": "The following table provides information on the supported DNS protocol translations:"
+    },
+    {
+      "table": [
+        [
+          "Protocol Translation",
+          "UDP to Server",
+          "TCP to Server",
+          "DoH to Server"
+        ],
+        [
+          "UDP from Client",
+          "Supported",
+          "Not Supported",
+          "Supported"
+        ],
+        [
+          "TCP from Client",
+          "Not Supported",
+          "Supported",
+          "Supported"
+        ],
+        [
+          "DoH from Client",
+          "Supported",
+          "Supported",
+          "Supported"
+        ]
+      ]
+    },
+    {
+      "heading": "DNS Gateway Configuration",
+      "level": 1
+    },
+    {
+      "text": "In the Zscaler Admin Console, you can configure a list of DNS Gateways with primary and secondary DNS services offered by your third-party DNS providers. Within the DNS Gateway object, you can configure the protocols over which DNS traffic can reach the configured services. After configuring DNS Gateway, you can create DNS filtering rules to redirect traffic to the external DNS services over the specified protocol."
+    },
+    {
+      "text": "DNS Insights Logs provide visibility into the logs recorded for DNS traffic that is redirected to external resolvers via DNS Gateways. You can also track this data using interactive charts in the DNS Overview dashboard."
+    },
+    {
+      "text": "The DNS Protocol Translation feature of DNS Gateway is available with Advanced Firewall."
+    },
+    {
+      "heading": "About the DNS Gateways Page",
+      "level": 1
+    },
+    {
+      "text": "On the DNS Gateways page (Internet Access > Resources > Proxies and Gateways > DNS Gateways), you can do the following:"
+    },
+    {
+      "item": "Search for a specific DNS Gateway using keywords.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Add a DNS Gateway.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Modify the table and its columns.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "View the list of configured DNS Gateways. The default view displays:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Name: The name of the DNS Gateway. You can sort this column.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Primary DNS Server: Details of the primary DNS service, including IP address or FQDN.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Primary Ports: Details of the primary ports.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Secondary DNS Server: Details of the secondary DNS service, including IP address or FQDN.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Secondary Ports: Details of the secondary ports.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Failure Behavior: The action configured to be performed when both primary and secondary resolvers are unavailable to serve the requests. You can sort this column.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Edit or delete a DNS Gateway.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "View a predefined gateway object.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "The DNS gateway objects are paginated with up to 500 objects displayed per page.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "Go to the Proxies page.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "Go to the Proxy Gateways page.",
+      "depth": 0,
+      "number": 9
+    }
+  ]
+}

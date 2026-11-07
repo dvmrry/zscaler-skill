@@ -1,0 +1,466 @@
+{
+  "schema_version": 1,
+  "id": "zcc.interoperability.no-default-route",
+  "title": "Deploying Client Connector where the only egress is a proxy: the System PAC, spoofed DNS records and the four scenarios",
+  "aliases": [
+    "no-default route environments",
+    "no default route",
+    "system pac",
+    "spoofed zscaler dns records",
+    "zscaler gvip"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.interoperability"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.pac-files"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.advanced-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A no-default-route environment is one where the only way out is an edge proxy. {{definition}} {{platforms}}"
+    },
+    {
+      "label": "What the app contacts.",
+      "text": "{{typical-endpoints}}"
+    },
+    {
+      "label": "What the deployment needs.",
+      "text": "{{requirements}} {{scenarios}} The scenario table's footnotes are not fully recoverable {{gap:scenario-footnote}}."
+    },
+    {
+      "label": "Common setup.",
+      "text": "{{location-and-gvip}} {{spoofed-dns}}"
+    },
+    {
+      "label": "The System PAC.",
+      "text": "{{system-pac}} {{system-pac-logic}}"
+    },
+    {
+      "label": "Authentication.",
+      "text": "{{auth-exemptions}}"
+    },
+    {
+      "label": "Scenario 1.",
+      "text": "{{scenario-1-local-proxy}} {{app-profile-settings}}"
+    },
+    {
+      "label": "Scenario 2.",
+      "text": "{{scenario-2-tunnel-1}}"
+    },
+    {
+      "label": "Scenarios 3 and 4.",
+      "text": "{{scenario-3-private-service-edge}} {{scenario-4-third-party-proxy}}"
+    },
+    {
+      "label": "Enrolling through a proxy (legacy).",
+      "text": "{{proxy-aware-enrollment}}"
+    },
+    {
+      "label": "Open.",
+      "text": "Whether macOS, Linux and iOS need different app profile settings from the Windows steps is open {{gap:other-platform-settings}}; the vendor example values are not the tenant's {{gap:example-values}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which of the four scenarios the deployment is, by the Internet & SaaS traffic type and the forwarding method in the scenario table.",
+      "uses": [
+        "scenarios"
+      ]
+    },
+    {
+      "do": "That the IdP's URLs are in the Internet & SaaS Authentication Exemptions list, since enrollment and policy download need IdP authentication.",
+      "uses": [
+        "auth-exemptions"
+      ]
+    },
+    {
+      "do": "That the spoofed records resolve to the GVIP, or to an internal address that is destination-NATted to it where public prefixes cannot be injected.",
+      "uses": [
+        "spoofed-dns"
+      ]
+    },
+    {
+      "do": "For a third-party proxy: that it does not authenticate requests to Zscaler or the IdP, does not re-resolve DNS by SNI and has TLS inspection disabled.",
+      "uses": [
+        "requirements",
+        "scenario-4-third-party-proxy"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "In a no-default-route environment a default route is not propagated through the network and the only way to egress is via an edge proxy server; browser traffic is explicitly sent to a proxy using a PAC file served through a local web server, through the proxy itself or through Web Proxy Automatic Discovery (WPAD), and DNS resolution of public DNS records is restricted for all devices except the proxy server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "In such an environment, a default route isn't propagated through the network and the only way to egress is via an edge proxy server.",
+            "In a no-default route environment, browser traffic is explicitly sent to a proxy using a PAC file that is either served through a local web server, through the proxy itself, or through the use of Web Proxy Automatic Discovery (WPAD).",
+            "DNS resolution of public DNS records is restricted for all devices except the proxy server."
+          ]
+        }
+      ]
+    },
+    "platforms": {
+      "statement": "Client Connector supports operation in a no-default environment on Windows, macOS, Linux and iOS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "Zscaler Client Connector supports operation in a no-default environment on the following platforms: - Windows - macOS - Linux - iOS"
+          ]
+        }
+      ]
+    },
+    "typical-endpoints": {
+      "statement": "In the article's table of a typical environment, Client Connector probes gateway.zscaler.net and gateway.<cloudname>.net for captive portal detection, makes an API call to login.<cloudname>.net to start login, makes an API call to mobile.<cloudname>.net and downloads the app profile PAC from pac.<cloudname>.net for policy, makes API calls to gateway.<cloudname>.net and mobile.<cloudname>.net for service discovery and enrollment, probes mobile.zscaler.net for tenant cloud discovery, and forwards Private Access traffic using a microtunnel (M-Tunnel) to the Broker or Public or Private Service Edge for Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "Captive Portal Detection | Zscaler Admin Console | Probe to gateway.zscaler.net Probe to gateway.<cloudname>.net",
+            "Login Start | Zscaler Admin Console | API call to login.<cloudname>.net",
+            "Policy Download | Zscaler Admin Console Zscaler PAC Server | API call to mobile.<cloudname>.net Download App Profile PAC from pac.<cloudname>.net",
+            "Service Discovery & Enrollment | Zscaler Admin Console | API call to gateway.<cloudname>.net API call to mobile.<cloudname>.net",
+            "Tenant Cloud Discovery | Zscaler Admin Console | Probe to mobile.zscaler.net",
+            "Private Access Traffic Forwarding | Broker/Public/Private Service Edge for Private Access | Forwarding using Microtunnel (M-Tunnel)"
+          ]
+        }
+      ]
+    },
+    "requirements": {
+      "statement": "The requirements the article lists: a System PAC for initial service discovery, enrollment, authentication and policy and PAC download using an explicit proxy IP address; spoofed Zscaler records pointing to the Zscaler global virtual IP (GVIP) or an internal NAT address so the app can resolve Zscaler cloud addresses; a GRE/IPSec tunnel for connectivity during initial configuration and for traffic forwarding for Internet & SaaS and Private Access, which is not used for forwarding if a Private Service Edge is present; a Private Service Edge for Internet & SaaS, highly recommended if Z-Tunnel 2.0 forwarding is required from on-premises; app and forwarding profiles configured with Tunnel Internal Client Connector Traffic and other features; and explicit proxies configured to bypass authentication to the IdP and Zscaler cloud, not to re-resolve DNS based on SNI, and to have SSL inspection disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "For initial Service Discovery, Enrollment, Authentication and Policy and PAC Download using an Explicit Proxy IP address",
+            "Spoofed Zscaler records pointing to Zscaler global virtual IP (GVIP) or an internal NAT address so Zscaler Client Connector can resolve Zscaler cloud addresses",
+            "To provide connectivity to the Zscaler cloud during initial configuration of Zscaler Client Connector and traffic forwarding for Internet & SaaS and Private Access. Tunnel isn't used for traffic forwarding if a Private Service Edge is present",
+            "If Zscaler Tunnel (Z-Tunnel) 2.0 forwarding is required from on-premises, then a Private Service Edge for Internet & SaaS is highly recommended",
+            "You must configure App and Forwarding Profiles to support the environment with the use of Tunnel Internal Client Connector Traffic and other features",
+            "You must configure explicit proxies to bypass authentication to the IdP and Zscaler cloud, must not attempt to re-resolve DNS based on Server Name Indication (SNI) and disable SSL inspection"
+          ]
+        }
+      ]
+    },
+    "scenarios": {
+      "statement": "The article's scenario table: scenario 1 is HTTP/HTTPS with Tunnel with Local Proxy, and scenario 2 is TCP 80 and 443 with Z-Tunnel 1.0, each needing the System PAC file, DNS records and a GRE/IPSec tunnel, with a third-party proxy, a Private or Virtual Service Edge and Private Access supported; scenario 3 is all ports and protocols with Z-Tunnel 2.0, with a Private or Virtual Service Edge required and a third-party proxy N/A; scenario 4 is all ports and protocols with Z-Tunnel 2.0, with a third-party proxy required and a Service Edge N/A. Private Access is supported in all four.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "| Scenario | Internet & SaaS Traffic Type | Zscaler Client Connector Forwarding Method | System PAC File | DNS Records | GRE/IPSec Tunnel | Third-Party Proxy | Zscaler Private/ Virtual Service Edge | Private Access |",
+            "| 1 | HTTP/ HTTPS | Tunnel w/ Local Proxy | Required | Required | Required | Supported | Supported | Supported |",
+            "| 2 | TCP 80, 443 | Z-Tunnel 1.0 | Required | Required | Required | Supported | Supported | Supported |",
+            "| 3 | All ports/ protocols | Z-Tunnel 2.0 | Required | Required | Required* | N/A | Required | Supported |",
+            "| 4 | All ports/ protocols | Z-Tunnel 2.0 | Required | Required | Required | Required | N/A | Supported |",
+            "* GRE/IPSec tunnels used for all traffic except for Internet & SaaS traffic forwarding"
+          ]
+        }
+      ]
+    },
+    "location-and-gvip": {
+      "statement": "The common setup: GRE/IPSec tunnel configurations in Internet & SaaS with tunnels from a router or firewall to the closest Zscaler data centers; Enforce Authentication Disabled for the newly created location; a Zscaler GVIP chosen from the bottom of https://config.zscaler.com/<cloudname>.net/cenr (the article uses 185.46.212.88 except when forwarding to a Private Service Edge for Internet & SaaS); and a route forwarding traffic to the GVIP via the GRE/IPSec tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "Create GRE/IPSec tunnel configurations in Internet & SaaS and set up the tunnels from a router or firewall to the closest Zscaler data centers.",
+            "The Enforce Authentication option must be Disabled for the newly created location.",
+            "Determine the Zscaler GVIP address Zscaler Client Connector connects to by selecting one from the bottom of the page at https://config.zscaler.com/<cloudname>.net/cenr.",
+            "This article uses 185.46.212.88 for all configurations except when forwarding traffic to a Private Service Edge for Internet & SaaS.",
+            "Create a route to forward traffic to the Zscaler GVIP via the GRE/IPSec tunnels."
+          ]
+        }
+      ]
+    },
+    "spoofed-dns": {
+      "statement": "The article's spoofed DNS records are type A records to the GVIP for gateway.<cloudname>.net, gateway.zscaler.net, login.<cloudname>.net, mobile.<cloudname>.net, mobile.zscaler.net and pac.<cloudname>.net. In networks where an internal IP address can be used instead of the GVIP, with an upstream router or firewall performing Destination NAT to the GVIP, the spoofed records must reference the internal IP instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "| gateway.<cloudname>.net | A | 185.46.212.88 | gateway.zscalertwo.net |",
+            "| gateway.zscaler.net | A | 185.46.212.88 | gateway.zscaler.net |",
+            "| login.<cloudname>.net | A | 185.46.212.88 | login.zscalertwo.net |",
+            "| mobile.<cloudname>.net | A | 185.46.212.88 | mobile.zscalertwo.net |",
+            "| mobile.zscaler.net | A | 185.46.212.88 | mobile.zscaler.net |",
+            "| pac.<cloudname>.net | A | 185.46.212.88 | pac.zscalertwo.net |",
+            "In these networks, an internal IP address can be used instead of the Zscaler GVIP with an upstream router/firewall performing Destination NAT and translating the internal address to the Zscaler GVIP.",
+            "In these environments, the spoofed Zscaler DNS records must reference the internal IP instead of the Zscaler GVIP."
+          ]
+        }
+      ]
+    },
+    "system-pac": {
+      "statement": "A System PAC file is created in the Admin Console and its PAC URL is assigned to internal devices using GPO or WPAD; it is required for initial discovery, enrollment, authentication, and app and forwarding profile policy and PAC file downloads, and lets the app communicate with the Zscaler cloud in an explicit proxy mode. After enrollment the app no longer uses it, and restores it upon exit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "Create a System PAC file in Zscaler Admin Console and assign the PAC URL to internal devices using GPO or WPAD.",
+            "A System PAC file is required for initial discovery, enrollment, authentication, app and forwarding profile policy and PAC file downloads.",
+            "The System PAC enables Zscaler Client Connector to communicate with the Zscaler cloud in an explicit proxy mode.",
+            "After enrollment, the System PAC is no longer used by Zscaler Client Connector. Zscaler Client Connector restores the System PAC upon exit."
+          ]
+        }
+      ]
+    },
+    "system-pac-logic": {
+      "statement": "The vendor's System PAC detects the device location with the ${SRCIP} macro, available only when the PAC file is hosted in the Zscaler cloud: a device at a location with a GRE/IPSec tunnel uses the Zscaler GVIP as the explicit proxy IP address, and a device on an Off-Trusted Network communicates directly with the closest Zscaler data center. It lists Zscaler public IP addresses to detect a GRE/IPSec tunnel, the special URL the app checks to enroll using an explicit proxy, and domains for support access, ZDX and certificate validation (mobilesupport.zscaler.com, *.zdxcloud.net, *.digicert.com), for Private Access (*.prod.zpath.net, *.private.zscaler.com), for software and module updates (a CloudFront host), and for authentication during enrollment (the example shows domains required by Entra; domains required for the organization's IdP are used).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "The PAC file logic detects the device location using the ${SRCIP} macro.",
+            "If the device is at a location with an existing GRE/IPSec tunnel, it uses the Zscaler GVIP as the Explicit Proxy IP address in order to connect to Zscaler and if the device is on an Off-Trusted Network, it communicates directly with the closest Zscaler data center."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "after": "The following table shows the System PAC file code details:",
+          "quotes": [
+            "Determines the client's public IP address using the ${SRCIP} macro which is only available when the PAC file is hosted in the Zscaler cloud.",
+            "List of Zscaler public IP addresses to detect whether Zscaler Client Connector is accessing the Zscaler cloud using a GRE/IPSec tunnel.",
+            "Special URL checked by Zscaler Client Connector to enroll using an explicit proxy, in this case the Zscaler GVIP (185.46.212.88).",
+            "Required for support access, Digital Experience (ZDX) and certificate validation during discovery and enrollment.",
+            "Required for Private Access discovery and enrollment.",
+            "Required for Zscaler Client Connector software and module updates during discovery and enrollment.",
+            "Required for authentication during enrollment. The example shows domains required by Entra. Use domains required for your IdP."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "after": "The following hosted System PAC file references the Zscaler GVIP",
+          "quotes": [
+            "(shExpMatch(host, \"mobilesupport.zscaler.com\")) || //Support (shExpMatch(host, \"*.zdxcloud.net\")) || //ZDX (shExpMatch(host, \"*.digicert.com\")) || //Cert validation",
+            "(shExpMatch(host, \"*.prod.zpath.net\")) || (shExpMatch(host, \"*.private.zscaler.com\"))",
+            "(localHostOrDomainIs(host, \"d32a6ru7mhaq0c.cloudfront.net\"))"
+          ]
+        }
+      ]
+    },
+    "auth-exemptions": {
+      "statement": "Client Connector must be able to authenticate with the IdP for enrollment and policy downloads to succeed, so the IdP URLs must be added to the Authentication Exemptions list in Internet & SaaS. The vendor's examples: for Entra ID login.microsoftonline.com, *.windowsazure.com, device.login.microsoftonline.com, login.microsoft.com, autologon.microsoftazuread-sso.com and login.windows.net; for Okta *.okta.com, *.oktacdn.com and *.oktapreview.com; for Private Access *.zpath.net and *.private.zscaler.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "Zscaler Client Connectormust be able to authenticate with the IdP in order for enrollment and policy downloads to succeed.",
+            "you must add the IdP URLs to the Authentication Exemptions list in Internet & SaaS.",
+            "| Entra ID | login.microsoftonline.com |",
+            "|  | *.windowsazure.com |",
+            "|  | device.login.microsoftonline.com |",
+            "|  | login.microsoft.com |",
+            "|  | autologon.microsoftazuread-sso.com |",
+            "|  | login.windows.net |",
+            "|  | *.oktacdn.com |",
+            "|  | *.oktapreview.com |",
+            "|  | *.private.zscaler.com |",
+            "| Okta | *.okta.com |",
+            "| Private Access | *.zpath.net |"
+          ]
+        }
+      ]
+    },
+    "scenario-1-local-proxy": {
+      "statement": "Scenario 1: after enrollment, the app forwards Internet & SaaS HTTP/HTTPS using Tunnel with Local Proxy (TWLP/Z-Tunnel 1.0) and Private Access traffic using M-Tunnels to the Zscaler GVIP. The vendor's forwarding profile PAC sends 1.2.3.4 and *.prod.zpath.net to the GVIP at port 80 and everything else to ${ZAPP_LOCAL_PROXY}. The forwarding profile uses a Predefined Trusted Networks condition, which cannot be added with any other conditions, to detect the no-default-route environment; On-Trusted is Tunnel with Local Proxy, with Proxy Action Type Enforce and the PAC URL Location set to the forwarding profile's PAC URL. In the vendor's example Off-Trusted is Tunnel with Z-Tunnel 2.0 and Redirect Web Traffic to Zscaler Client Connector Listening Proxy enabled, and no PAC URL is required for an Off-Trusted Network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "after": "Scenario 1 - Forwarding Internet & SaaS HTTP/HTTPS",
+          "quotes": [
+            "In this scenario, after enrollment has completed, Zscaler Client Connector forwards Internet & SaaS HTTP/HTTPS using TWLP/Z-Tunnel 1.0 and Private Access traffic using M-Tunnels to the Zscaler GVIP.",
+            "function FindProxyForURL(url, host) { if ((dnsDomainIs(host, \"1.2.3.4\")) || (shExpMatch(host, \"*.prod.zpath.net\"))) return \"PROXY 185.46.212.88:80\"; return \"PROXY ${ZAPP_LOCAL_PROXY}\"; }",
+            "The Predefined Trusted Networks condition cannot be added with any other conditions.",
+            "This allows Zscaler Client Connector to detect when it is in a no-default-route environment.",
+            "For On-Trusted Network, select Tunnel with Local Proxy.",
+            "Under Configure System Proxy Settings, for Proxy Action Type, select Enforce.",
+            "Select PAC URL Location and choose PAC URL.",
+            "For Custom PAC URL, enter the PAC URL for the forwarding profile.",
+            "For Off-Trusted Network, choose Tunnel.",
+            "For Tunnel version selection, select Z-Tunnel 2.0.",
+            "Zscaler supports all forwarding mechanism for off-trusted network users. The following example uses Z-Tunnel 2.0.",
+            "Under Advanced Z-Tunnel 2.0 Configuration, enable Redirect Web Traffic to Zscaler Client Connector Listening Proxy.",
+            "A PAC URL is not required for an Off-Trusted Network."
+          ]
+        }
+      ]
+    },
+    "app-profile-settings": {
+      "statement": "In Scenario 1, the app profile has Disable Loopback Restriction enabled in the Proxy Configuration section, Cache System Proxy on Startup enabled (which restores the System PAC after the user exits the app), Override WPAD and Restart WinHTTP Service enabled if WPAD is in use (both optional), and Tunnel Internal Client Connector Traffic enabled on the Advanced tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "after": "Scenario 1 - Forwarding Internet & SaaS HTTP/HTTPS",
+          "quotes": [
+            "In Proxy Configuration section, enable Disable Loopback Restriction.",
+            "Enable the Cache System Proxy on Startup. When enabled, this option restores the System PAC after the user exits Zscaler Client Connector.",
+            "Override WPAD: (Optional) Enable this option if WPAD is in use.",
+            "Restart WinHTTP Service: (Optional) Enable this option if WPAD is in use.",
+            "On the Advanced tab, enable Tunnel Internal Client Connector Traffic."
+          ]
+        }
+      ]
+    },
+    "scenario-2-tunnel-1": {
+      "statement": "Scenario 2: the app forwards Internet & SaaS TCP 80/443 traffic using Z-Tunnel 1.0 and Private Access traffic using M-Tunnels to the Zscaler GVIP. The article's directions do not cover a third-party proxy because third-party proxies are not required and can be deprecated in this scenario. For On-Trusted Network the forwarding profile selects Tunnel with Z-Tunnel 1.0, Proxy Action Type Enforce and the forwarding profile's PAC URL as the Custom PAC URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "In this scenario, Zscaler Client Connector forwards Internet & SaaS TCP 80/443 traffic using Z-Tunnel 1.0 and Private Access traffic using M-Tunnels to the Zscaler GVIP.",
+            "The following directions don't cover configuration using a third-party proxy because third-party proxies aren't required and can be deprecated in this scenario.",
+            "For Tunnel version selection, select Z-Tunnel 1.0.",
+            "Under Configure System Proxy Settings, for Proxy Action Type, select Enforce from the dropdown menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "after": "Create a hosted Z-Tunnel 1.0 Forwarding Profile PAC file",
+          "quotes": [
+            "For On-Trusted Network, select Tunnel.",
+            "For Custom PAC URL, enter the PAC URL for the forwarding profile."
+          ]
+        }
+      ]
+    },
+    "scenario-3-private-service-edge": {
+      "statement": "Scenario 3: the app forwards Internet & SaaS traffic across all ports and protocols using Z-Tunnel 2.0 via the Private Service Edge for Internet & SaaS, and Private Access M-Tunnels and authentication traffic via the GVIP. The Internet & SaaS location associated with the Private Service Edge cluster has Force Authentication enabled so the Service Edge does not operate as an open proxy. On-Trusted is Tunnel with Z-Tunnel 2.0, Redirect Web Traffic to Zscaler Client Connector Listening Proxy disabled, All Proxied Web Traffic unselected under Use Z-Tunnel 2.0 for Proxied Web Traffic, and Proxy Action Type Apply on Trusted Network Type Change. In the app profile all internal IP subnets are added to IPv4 Exclusion, 0.0.0.0/0 is in IPv4 Inclusion, all internal domains are added to Domain Exclusion (DNS requests go to internal DNS servers) and * is added to Domain Inclusion (all external DNS requests are tunneled via Internet & SaaS).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "after": "In this scenario, Zscaler Client Connector forwards Internet & SaaS TCP 80/443 traffic using Z-Tunnel 1.0",
+          "quotes": [
+            "In this scenario, Zscaler Client Connector forwards Internet & SaaS traffic across all ports and protocols using Z-Tunnel 2.0 via the Private Service Edge for Internet & SaaS.",
+            "Private Access M-Tunnels and authentication traffic are forwarded using the Zscaler GVIP.",
+            "In this scenario, the Internet & SaaS location associated with the Private Service Edge for Internet & SaaS cluster has Force Authentication enabled to ensure that the Private Service Edge doesn't operate as an open proxy.",
+            "Under Advanced Z-Tunnel 2.0 Configuration, disable Redirect Web Traffic to Zscaler Client Connector Listening Proxy.",
+            "For Use Z-Tunnel 2.0 for Proxied Web Traffic, unselect All Proxied Web Traffic.",
+            "For Proxy Action Type, select Apply on Trusted Network Type Change.",
+            "for IPv4 Exclusion, ensure that all internal IP subnets are added to ensure the internal traffic is not tunneled to Internet & SaaS.",
+            "For IPv4 Inclusion, ensure that 0.0.0.0/0 is present in the dropdown list.",
+            "For Domain Exclusion, add a list of all internal domains in the Domain Exclusion field for which DNS requests are sent to internal DNS servers and not Internet & SaaS.",
+            "For Domain Inclusion, ensure * is added to the Domain Inclusion field, so all external DNS requests are tunneled via Internet & SaaS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "after": "Deploy a Private Service Edge for Internet & SaaS Cluster and Associate with a New Internet & SaaS Location with Force Authentication Enabled",
+          "quotes": [
+            "For On-Trusted Network, select Tunnel.",
+            "For Tunnel version selection, select Z-Tunnel 2.0."
+          ]
+        }
+      ]
+    },
+    "scenario-4-third-party-proxy": {
+      "statement": "Scenario 4: the app forwards Internet & SaaS traffic across all ports and protocols using Z-Tunnel 2.0 via a third-party proxy. When on-premises the Z-Tunnel 2.0 forwarding profile should use only TLS (instead of DTLS). The proxy must not attempt to authenticate requests destined for Zscaler IP addresses or for the IdP, must not attempt to re-resolve DNS based on SNI, and must have TLS inspection disabled and tunnel all Zscaler and IdP bound requests; a separate Internet & SaaS location is not required. For fallback to Z-Tunnel 1.0 at locations with a large number of users, the vendor suggests a Source-NAT IP address pool with multiple IP addresses whose load balancing uses sticky connections based on client IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-implementing-zscaler-client-connector-no-default-route-environments.json",
+          "quotes": [
+            "In this scenario, Zscaler Client Connector forwards Internet & SaaS traffic across all ports and protocols using Z-Tunnel 2.0 via a third-party proxy.",
+            "The Forwarding Profile for Z-Tunnel 2.0, when on-premises, should only use TLS (instead of DTLS).",
+            "The proxy must not attempt to authenticate requests destined for Zscaler IP addresses.",
+            "The proxy must not attempt to authenticate requests destined for the IdP.",
+            "The proxy must not attempt to re-resolve DNS based on SNI.",
+            "The proxy must have TLS inspection disabled and tunnel all Zscaler and IdP bound requests.",
+            "A separate Internet & SaaS Location (used for the Private Service Edge for Internet & SaaS cluster in the previous step) isn't required.",
+            "To account for situations where Zscaler Client Connector falls back to Z-Tunnel 1.0 at locations with a large number of users, consider using a Source-NAT IP address pool with multiple IP addresses and ensure that the load-balancing used with the pool uses sticky connections based on client IP addresses."
+          ]
+        }
+      ]
+    },
+    "proxy-aware-enrollment": {
+      "statement": "If the device cannot connect to the Zscaler cloud directly, the app looks for a configured system proxy and attempts to connect through it. Proxy awareness is supported only for enrollment, not for user traffic after enrollment via a proxy; the proxy must not perform SSL inspection or authentication on Client Connector traffic. The article says proxy awareness is supported in 1.2.4 for Windows and macOS deployments and that mobile devices do not support it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enrolling-zscaler-client-connector-users-when-using-proxy.json",
+          "quotes": [
+            "If either of these tests fail, this means the device cannot connect to the Zscaler cloud directly.",
+            "In this case, Zscaler Client Connector looks for a configured system proxy and attempts connection through that.",
+            "Zscaler Client Connector only supports proxy awareness for enrollment. User traffic is not supported after enrollment via a proxy.",
+            "Ensure that the proxy server you use on your network does not perform SSL inspection or authentication on Zscaler Client Connector traffic so that the connectivity does not fail.",
+            "Currently, proxy awareness is supported in Zscaler Client Connector 1.2.4 for Windows and macOS deployments. Mobile devices do not support this functionality."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "scenario-footnote": {
+      "kind": "semantic",
+      "title": "Which scenario row the second footnote of the scenario table belongs to",
+      "status": "open",
+      "detail": "The capture keeps an asterisk on the scenario 3 GRE/IPSec cell and its footnote (tunnels used for all traffic except Internet & SaaS forwarding) and also contains a second footnote, tunnels used for Service Discovery, Enrollment and initial authentication only, without a marker, so the row it belongs to is not recoverable.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "other-platform-settings": {
+      "kind": "semantic",
+      "title": "Whether macOS, Linux and iOS need different app profile settings in a no-default-route deployment",
+      "status": "open",
+      "detail": "The article lists four supported platforms but its steps are written for Windows; it does not say whether the other platforms need different app profile settings. The app profile option is also called Cache System Proxy on Startup in scenarios 1 and 3 and Cache System Proxy in scenario 2, and the scenario 3 hosted app profile PAC is described by its table only, not its code.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "example-values": {
+      "kind": "semantic",
+      "title": "Which values in the article are examples only",
+      "status": "open",
+      "detail": "The GVIP 185.46.212.88 and the zscalertwo record targets are the article's example values; the article tells the reader to choose a GVIP from the cenr page of the cloud.",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    }
+  }
+}

@@ -1,0 +1,416 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Traffic Capture Settings",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/traffic-capture-settings",
+    "node": "1546949",
+    "revision": "3248644",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Traffic%20Capture%20Settings_0.json?VersionId=VkzfJkkGXb6GSDeuD3UNh71wpvWUMUhT",
+    "updated": "2026-10-23",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Traffic Capture Settings"
+      }
+    ],
+    "paths": {
+      "/pcapSettings": {
+        "get": {
+          "tags": [
+            "Traffic Capture Settings"
+          ],
+          "description": "Retrieves the Traffic Capture settings configured for an organization. This is applicable when you capture traffic as PCAP files. These settings define the configuration for storing captured traffic, including the cloud storage destination, file limits, and data obfuscation options. To learn more, see <a href=\"/zia/about-traffic-capture-settings\" target=\"_blank\">About Traffic Capture Settings</a>.",
+          "operationId": "PacketCaptureSettingsResource_getPacketCaptureSettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/PacketCaptureSettings"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Traffic Capture Settings"
+          ],
+          "description": "Creates Traffic Capture settings for an organization. To learn more, see <a href=\"/zia/configuring-traffic-capture-settings\" target=\"_blank\">Configuring Traffic Capture Settings</a>.",
+          "operationId": "PacketCaptureSettingsResource_createPacketCaptureSettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the Traffic Capture settings",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/PacketCaptureSettings"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/PacketCaptureSettings"
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        }
+      },
+      "/pcapSettings/testConnection": {
+        "post": {
+          "tags": [
+            "Traffic Capture Settings"
+          ],
+          "description": "Validates connectivity to a cloud storage provider using a given set of credentials and configuration settings. You can use this endpoint to test and verify the storage settings before creating or updating your organization's Traffic Capture settings.",
+          "operationId": "PacketCaptureSettingsResource_testConnection",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the settings to validate. These settings are used only for this one-time connection test and are not saved to your organization's configuration.",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/PacketCaptureSettings"
+              }
+            },
+            {
+              "name": "cloudProvider",
+              "in": "query",
+              "description": "Cloud provider against which credentials are validated",
+              "required": false,
+              "type": "string",
+              "default": "S3",
+              "enum": [
+                "S3",
+                "AZURE",
+                "GCS"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/PcapTestConnectionResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/pcapSettings/{id}": {
+        "put": {
+          "tags": [
+            "Traffic Capture Settings"
+          ],
+          "description": "Updates the Traffic Capture settings for an organization",
+          "operationId": "PacketCaptureSettingsResource_updatePacketCaptureSettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Unique identifier for the Traffic Capture setting",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the Traffic Capture setting",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/PacketCaptureSettings"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/PacketCaptureSettings"
+              }
+            },
+            "400": {
+              "description": "Invalid Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Not Found"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "PacketCaptureSettings": {
+        "type": "object",
+        "required": [
+          "masterKnob",
+          "storageLocation"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the Traffic Capture setting record",
+            "readOnly": true
+          },
+          "orgId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Organization ID",
+            "readOnly": true
+          },
+          "masterKnob": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether the master knob for Traffic Capture is enabled"
+          },
+          "createdTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Timestamp of when this record was created (in epoch seconds)",
+            "readOnly": true
+          },
+          "createdBy": {
+            "description": "Admin that created this record",
+            "readOnly": true,
+            "$ref": "#/definitions/EntityReference"
+          },
+          "modifiedTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Timestamp of when the record was last modified (in epoch seconds)",
+            "readOnly": true
+          },
+          "modifiedBy": {
+            "description": "User that last modified this record",
+            "readOnly": true,
+            "$ref": "#/definitions/EntityReference"
+          },
+          "storageLocation": {
+            "type": "string",
+            "description": "Cloud storage location for the produced PCAP files",
+            "enum": [
+              "NONE",
+              "ZSCALER",
+              "AWS_S3",
+              "AZURE",
+              "GCP"
+            ]
+          },
+          "aggTimeLimit": {
+            "type": "string",
+            "description": "Aggregation time window for the produced PCAP files",
+            "enum": [
+              "NONE",
+              "SEVEN_DAYS",
+              "FIFTEEN_DAYS",
+              "THIRTY_DAYS",
+              "FOURTY_FIVE_DAYS",
+              "SIXTY_DAYS"
+            ]
+          },
+          "aggSizeLimit": {
+            "type": "string",
+            "description": "Maximum aggregated PCAP file size",
+            "enum": [
+              "NONE",
+              "TWO_FIFTY_SIX_GB",
+              "FIVE_TWELVE_GB",
+              "ONE_TB",
+              "TWO_TB",
+              "FIVE_TB"
+            ]
+          },
+          "txnSizeLimit": {
+            "type": "string",
+            "description": "Maximum size captured per transaction",
+            "enum": [
+              "NONE",
+              "FOUR_KB",
+              "EIGHT_KB",
+              "SIXTEEN_KB",
+              "THIRTY_TWO_KB",
+              "SIXTY_FOUR_KB",
+              "ONE_TWENTY_EIGHT_KB",
+              "TWO_FIFTY_SIX_KB"
+            ]
+          },
+          "txnSampling": {
+            "type": "string",
+            "description": "Transaction sampling ratio",
+            "enum": [
+              "NONE",
+              "ONE_PERCENT",
+              "TWO_PERCENT",
+              "FIVE_PERCENT",
+              "TEN_PERCENT",
+              "TWENTY_FIVE_PERCENT",
+              "HUNDRED_PERCENT"
+            ]
+          },
+          "accessId": {
+            "type": "string",
+            "description": "Access key or ID for the cloud bucket. This is a write-only field and is not returned in responses."
+          },
+          "secretKey": {
+            "type": "string",
+            "description": "Secret key for the cloud bucket. This is a write-only field and is not returned in responses."
+          },
+          "folderUrl": {
+            "type": "string",
+            "description": "The folder URL inside the bucket where PCAP files are written"
+          },
+          "userObfuscated": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether the end-user identity in captured packets is obfuscated"
+          },
+          "deviceObfuscated": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether the device identity in captured packets is obfuscated"
+          },
+          "httpHeaders": {
+            "type": "object",
+            "description": "Custom HTTP headers attached to the upload requests",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "secretKeyPresent": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether a secret key is currently present and stored",
+            "readOnly": true
+          },
+          "accountName": {
+            "type": "string",
+            "description": "Azure storage account name. This field is required when <b>storageLocation</b> is </b>AZURE</b>."
+          },
+          "containerName": {
+            "type": "string",
+            "description": "Azure storage container name. This field is required when <b>storageLocation</b> is </b>AZURE</b>."
+          },
+          "tenantId": {
+            "type": "string",
+            "description": "Azure tenant ID. This field is required when <b>storageLocation</b> is </b>AZURE</b>."
+          },
+          "gcpClientEmail": {
+            "type": "string",
+            "description": "Service account client email"
+          },
+          "bucketName": {
+            "type": "string",
+            "description": "Storage bucket name"
+          }
+        },
+        "description": "Basic Traffic Capture settings configuration. There is at most one per organization."
+      },
+      "PcapTestConnectionResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "The test connection status (e.g., SUCCESS, FAILURE)"
+          },
+          "message": {
+            "type": "string",
+            "description": "A brief message summarizing the result"
+          },
+          "details": {
+            "type": "string",
+            "description": "Detailed information about the result, especially in case of failure."
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of an ID and name"
+      }
+    }
+  }
+}

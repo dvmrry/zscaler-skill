@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssh-control",
+  "title": "SSH traffic in ZIA: what is and is not inspected",
+  "aliases": [
+    "ssh inspection",
+    "scan ssh traffic",
+    "ssh tunneling",
+    "ssh port 22 firewall",
+    "audit ssh sessions",
+    "ssh dlp",
+    "log ssh commands"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.atp.categories",
+      "because": "zia.ssh-control:atp-ssh-tunneling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.network-services"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control"
+    }
+  ],
+  "prose": [
+    {
+      "steps": [
+        {
+          "label": "SSH payload inspection.",
+          "text": "{{no-ssh-inspection-article}} Why ZIA does not decrypt SSH is open {{gap:ssh-decryption-reason}}. File Type Control acts on files in HTTP, HTTPS and FTP flows ([[zia.file-type-control.criteria]]), not on SSH sessions."
+        },
+        {
+          "label": "Gating.",
+          "text": "{{atp-ssh-tunneling}} A Firewall Filtering rule can match SSH as a network service ([[zia.firewall.network-services]], [[zia.firewall.criteria]]). How the service detects SSH and handles a CONNECT to port 22 is open {{gap:firewall-ssh-gating}}."
+        },
+        {
+          "label": "Oversight.",
+          "text": "{{pra-ssh-consoles}} {{pra-session-recording}} For the product overview see the [[zpa.pra]]."
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether SSH payload inspection is expected from ZIA, since no ZIA help page documents it.",
+      "uses": [
+        "no-ssh-inspection-article"
+      ]
+    },
+    {
+      "do": "Whether a question about who ran what over SSH is answered by Privileged Remote Access session recording.",
+      "uses": [
+        "pra-session-recording"
+      ]
+    }
+  ],
+  "claims": {
+    "no-ssh-inspection-article": {
+      "statement": "No captured ZIA help page describes inspecting SSH payload. The only ZIA setting the captures tie to SSH is Advanced Threat Protection's SSH Tunneling option.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "SSH Tunneling: Choose to Allow or Block. This refers to SSH traffic being tunneled over HTTP/S."
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. Search: `grep -rn -i -w ssh vendor/zscaler-help/*.md` returns SSH mentions only in ZPA, Privileged Remote Access, decoy, App Connector and appliance pages and in the ATP line cited; none in the ZIA Firewall, IPS Control, SSL Inspection, DLP or File Type Control pages. Other hits are the DNS Control record-type table (an SSHFP row, 'DNS type not mapped by ZS firewall') and the Zero Trust Browser, Zero Trust Branch (`ztb-`) and Cloud Connector (`cbc-`) pages, none of which describe ZIA SSH inspection. The captures are a subset of the help site."
+    },
+    "atp-ssh-tunneling": {
+      "statement": "Advanced Threat Protection has an SSH Tunneling setting, Allow or Block, which applies to SSH traffic tunneled over HTTP/S. It is under Unauthorized Communication Protection, next to IRC Tunneling and Anonymizers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "SSH Tunneling: Choose to Allow or Block. This refers to SSH traffic being tunneled over HTTP/S.",
+            "IRC Tunneling: Choose to Allow or Block IRC traffic being tunneled over HTTP/S."
+          ]
+        }
+      ]
+    },
+    "pra-ssh-consoles": {
+      "statement": "Privileged Remote Access reaches servers over RDP, SSH or VNC from a browser without Client Connector. A console is assigned a protocol, domain and port number, and the Application Segment's privileged console protocol defaults to port 22 for SSH.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "using Remote Desktop Protocol (RDP), Secure Shell (SSH), Virtual Network Computing (VNC), and RealVNC from the end user's modern browser without installing Zscaler Client Connector or any browser plugins.",
+            "Privileged consoles are each assigned a protocol, domain, and port number."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "By default, port 5900 is entered for VNC and RealVNC, port 3389 is entered for RDP, and port 22 is entered for SSH."
+          ]
+        }
+      ],
+      "conditions": "Corrected on recapture (2026-10-18): previously \"Privileged Remote Access reaches servers over RDP, SSH or VNC from a browser without Client Connector. A console is defined with a protocol and target host, and the Application Segment's privileged console protocol defaults to port 22 for SSH.\" The verbatim article assigns a console a protocol, domain and port number, not a target host."
+    },
+    "pra-session-recording": {
+      "statement": "Privileged Remote Access records sessions; recordings are managed under Data Explorer > Privileged Remote Access > Recordings, and downloading a recording requires Session Recordings to be set to Full Access in the admin role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "accessing-privileged-sessions.json",
+          "quotes": [
+            "you can record the screen output of a privileged console session.",
+            "Recordings for privileged sessions are displayed on the Recordings page (Data Explorer > Privileged Remote Access > Recordings).",
+            "Download: Click the Download icon to download the recording to your local system. This option is available when Session Recordings is set to Full Access when configuring an admin role."
+          ]
+        }
+      ],
+      "conditions": "Corrected on recapture (2026-10-18): previously \"Privileged Remote Access records sessions; recordings are managed under Analytics > Privileged Sessions > Recordings and are gated by the Session Recording Full Access admin role permission.\" The verbatim article names the Data Explorer path and gates the Download action, and viewing of recordings an admin does not have access to, rather than all recording access."
+    }
+  },
+  "gaps": {
+    "firewall-ssh-gating": {
+      "kind": "semantic",
+      "title": "How Firewall Filtering gates SSH",
+      "status": "open",
+      "detail": "Unverified legacy statements: 'L4 firewall gating only. Firewall Filtering rules can allow/block SSH via network service (port 22) or custom ports', 'Zscaler identifies SSH by handshake signature in the first packet', and 'A proxy client making a CONNECT target:22 request can be allowed or blocked via Firewall Filtering rules.' SSH is one of the API's network service identifiers (zia.firewall.network-services:tag-values), so a rule can name it; no source says how the service is detected (port or signature), or how a CONNECT to port 22 is treated. Resolves with a lab test and the Firewall service-detection documentation.",
+      "blocks": "advising how to allow or block SSH with Firewall Filtering",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "ssh-decryption-reason": {
+      "kind": "semantic",
+      "title": "Why ZIA does not decrypt SSH",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'MITM'ing SSH would require control of both endpoints' keys ... ZIA doesn't implement SSH decryption.' The captures neither describe an SSH decryption feature nor explain its absence; the claim `no-ssh-inspection-article` records only that no inspection page was found. Resolves with a vendor statement.",
+      "blocks": "stating confidently that SSH decryption is impossible rather than undocumented",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

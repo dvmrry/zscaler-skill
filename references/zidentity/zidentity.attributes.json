@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.attributes",
+  "title": "User and session attributes in Authentication Service: system-defined sets, custom attributes, device-attribute values and where each is used",
+  "aliases": [
+    "user attributes",
+    "session attributes",
+    "custom attributes",
+    "system-defined attributes",
+    "is_device_managed",
+    "is_device_compliant",
+    "is_device_domain_joined"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview.external-idps.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.saml-attributes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Authentication Service has two attribute sets, user attributes and session attributes. {{two-kinds}}"
+    },
+    {
+      "label": "System-defined sets.",
+      "text": "{{system-defined}} How many user attributes count as system-defined differs between pages {{divergence:system-defined-count}}. {{attribute-columns}}"
+    },
+    {
+      "label": "Where they are used.",
+      "text": "{{uses}} SCIM's attribute table is in [[zidentity.users.provisioning.scim]] and the IdP-side mapping in [[zidentity.overview.external-idps.configuration]]. How user attributes reach ZIA policy is open {{gap:zia-policy-use}}."
+    },
+    {
+      "label": "Adding user attributes.",
+      "text": "{{user-attribute-limit}} {{user-attribute-fields}} {{user-attribute-csv-override}} The CSV format and the attribute-name syntax are open {{gap:csv-and-name-syntax}}."
+    },
+    {
+      "label": "Session attributes.",
+      "text": "{{session-needs-idp}} {{session-values-from-idp}} {{session-zpa-zia-use}} {{device-attribute-values}} {{identity-proxy-mapping}} {{session-attribute-fields}} Whether session attributes share the user attribute limit is open {{gap:session-attribute-limit}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a session attribute is selected in the IdP configuration and the user was authenticated by an IdP, since it is passed only then.",
+      "uses": [
+        "session-needs-idp"
+      ]
+    },
+    {
+      "do": "Which list of system-defined user attributes an answer relies on, since About Attributes and the SCIM table differ.",
+      "uses": [
+        "system-defined",
+        "system-defined-count"
+      ]
+    }
+  ],
+  "claims": {
+    "two-kinds": {
+      "statement": "Authentication Service supports user attributes and session attributes, needed to configure SAML-based SSO access for users; for both, custom attributes can be defined beside the system-defined ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-attributes.json",
+          "quotes": [
+            "supports user attributes and session attributes that are necessary to configure SAML-based single sign-on (SSO) access for users.",
+            "For both these attributes, Authentication Service allows you to define custom attributes in addition to the default system-defined attributes."
+          ]
+        }
+      ]
+    },
+    "system-defined": {
+      "statement": "The About Attributes page says there are by default 14 system-defined user attributes (displayname, firstname, lastname, nickname, primaryemail, department, organization, title, division, costcenter, usertype, formattedname, manager, addresses) and 6 session attributes (created_at, last_authenticated_at, identity_provider, is_device_managed, is_device_compliant, is_device_domain_joined).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-attributes.json",
+          "quotes": [
+            "By default, Authentication Service provides 14 system-defined user attributes for user identities and 6 session attributes for user sessions.",
+            "| User | displayname firstname lastname nickname primaryemail department organization title division costcenter usertype formattedname manager addresses |",
+            "| Session | created_at last_authenticated_at identity_provider is_device_managed is_device_compliant is_device_domain_joined |"
+          ]
+        }
+      ]
+    },
+    "uses": {
+      "statement": "User attributes are used in ZIA and ZPA policies and, with an external IdP, for JIT and SCIM provisioning; session attributes are used in Internet & SaaS Identity Proxy and Private Access policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-attributes.json",
+          "quotes": [
+            "Use the user attributes in Zscaler services (e.g., Internet & SaaS (ZIA), Private Access) for policies.",
+            "Use the attributes for Just-in-Time Provisioning (JIT) and System for Cross-domain Identity Management (SCIM) provisioning through an external identity provider (IdP).",
+            "Use the session attributes in Internet & SaaS Identity Proxy and Private Access service policies."
+          ]
+        }
+      ]
+    },
+    "attribute-columns": {
+      "statement": "Each user attribute shows its data type, whether it is required, and its origin (system-defined or user-defined); system-defined attributes cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-attributes.json",
+          "quotes": [
+            "Data Type: The data type (String, Integer, Boolean, etc.) of the attribute.",
+            "Required: Whether the user attribute is a mandatory requirement.",
+            "Origin: Whether the attribute is system-defined or user-defined. You cannot edit or delete a system-defined attribute."
+          ]
+        }
+      ]
+    },
+    "session-needs-idp": {
+      "statement": "A session attribute can be used only when the user is authenticated by an IdP, and it must be selected in the IdP configuration to be passed to Zscaler services during authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-attributes.json",
+          "quotes": [
+            "Session attribute can only be used when the user is authenticated by an IdP.",
+            "Select the required session attribute in the IdP configuration to make sure that they are passed to Zscaler services (e.g., Internet & SaaS, Private Access) during authentication."
+          ]
+        }
+      ]
+    },
+    "user-attribute-limit": {
+      "statement": "Up to 128 user attributes can be added, singly or by CSV import.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-user-attributes.json",
+          "quotes": [
+            "You can add user attributes or import them using a CSV file. You can add up to 128 attributes."
+          ]
+        }
+      ]
+    },
+    "user-attribute-fields": {
+      "statement": "A user attribute has an attribute name (the name to be mapped to an external IdP, such as Manager or Organization), a data type (String, Integer, Boolean, Date or Decimal) and an Attribute Required option that makes the value mandatory when adding a user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-user-attributes.json",
+          "quotes": [
+            "Attribute Name: Enter the name of the attribute that is required to be mapped to an external IdP (e.g., Manager or Organization).",
+            "Data Type: Select the type of data (String, Integer, Boolean, Date, or Decimal) the user needs to enter for this attribute.",
+            "Attribute Required: Select to mandate the attribute information when adding a user."
+          ]
+        }
+      ]
+    },
+    "user-attribute-csv-override": {
+      "statement": "On a user attribute CSV import, Override Existing Entries replaces the existing list of user attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-user-attributes.json",
+          "quotes": [
+            "If you want to replace the existing list of user attributes, select the Override Existing Entries checkbox."
+          ]
+        }
+      ]
+    },
+    "session-values-from-idp": {
+      "statement": "Session attributes, system-defined or custom, that are mapped to IdP attributes are sent to Zscaler services such as ZIA and ZPA with the values received from the external IdP in SAML assertions or OIDC tokens.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-session-attributes.json",
+          "quotes": [
+            "Session attributes (system-defined or custom) that are mapped with identity provider (IdP) attributes are sent to Zscaler services (e.g., Internet & SaaS (ZIA), Private Access (ZPA)) with the values received from the external IdP as part of SAML assertions or OIDC tokens."
+          ]
+        }
+      ]
+    },
+    "session-zpa-zia-use": {
+      "statement": "Session attributes are equivalent to the SAML attributes Private Access supports when a Private Access tenant is linked with Authentication Service for admins and users; session attributes created in Authentication Service are used in Private Access access policies, and the system-defined device attributes (is_device_managed, is_device_compliant, is_device_domain_joined) in Internet & SaaS Identity Proxies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-session-attributes.json",
+          "quotes": [
+            "Session attributes are equivalent to SAML attributes supported in Private Access when a Private Access tenant is linked with Authentication Service for admins and users.",
+            "The session attributes created in Authentication Service] are used in Private Access access policies and system-defined device attributes (is_device_managed, is_device_compliant, and is_device_domain_joined) are used in Internet & SaaS Identity Proxies."
+          ]
+        }
+      ]
+    },
+    "device-attribute-values": {
+      "statement": "For the system-defined device attributes, Authentication Service accepts True, true, TRUE, 1, Trusted, trusted and TRUSTED from the external IdP, sending true to Zscaler services when the received value matches and false otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-session-attributes.json",
+          "quotes": [
+            "For system-defined device attributes, Authentication Service accepts the following values from the external IdP, and sends true to Zscaler services if the received values match, otherwise sends false.",
+            "- True - true - TRUE - 1 - Trusted - trusted - TRUSTED"
+          ]
+        }
+      ]
+    },
+    "identity-proxy-mapping": {
+      "statement": "Configuring an identity proxy for cloud apps requires mapping is_device_managed to an IdP attribute and then configuring the managed devices settings in Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-session-attributes.json",
+          "quotes": [
+            "If you are configuring an identity proxy for cloud apps, you must map the is_device_managed attribute to an IdP attribute, and then configure the managed devices settings in Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "session-attribute-fields": {
+      "statement": "A session attribute has a data type (String, Integer, Boolean, Date or Decimal); a CSV import of session attributes adds them to the existing list and shows them on the Attributes page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-session-attributes.json",
+          "quotes": [
+            "Data Type: Select the type of data (String, Integer, Boolean, Date, or Decimal) that must be entered for this attribute.",
+            "You can add multiple session attributes to Authentication Service by importing a CSV file.",
+            "The attributes are added to the existing list and displayed on the Attributes page."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "system-defined-count": {
+      "summary": "How many user attributes are system-defined: About Attributes says 14 and lists them, while the Understanding SCIM table of system-defined user attributes has rows that are not among the 14.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-about-attributes.json",
+            "quotes": [
+              "By default, Authentication Service provides 14 system-defined user attributes for user identities and 6 session attributes for user sessions."
+            ]
+          },
+          "says": "There are 14 system-defined user attributes, listed on the page."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-understanding-scim.json",
+            "quotes": [
+              "The following table provides information on the association between system-defined user attributes and the corresponding UI label name in Authentication Service.",
+              "| Middle Name | name.middleName | String | The middle name of the user |",
+              "| Mobile Phone | phoneNumbers[type eq \"mobile\"].value | String | The user's mobile phone number |",
+              "| TIME ZONE | timezone | String | The timezone to which the user belongs |"
+            ]
+          },
+          "says": "The SCIM table of system-defined user attributes includes Middle Name, Mobile Phone and TIME ZONE, which are not among About Attributes' 14."
+        }
+      ],
+      "impact": "An answer that quotes 14 leaves out attributes the SCIM page treats as system-defined; which list a tenant's Attributes page shows is not stated."
+    }
+  },
+  "gaps": {
+    "csv-and-name-syntax": {
+      "kind": "semantic",
+      "title": "The attribute CSV format and the attribute-name syntax",
+      "status": "open",
+      "detail": "The user and session attribute pages do not give the CSV format, and the 'proper syntax' for an attribute name is not defined.",
+      "blocks": "building an attribute import file",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "session-attribute-limit": {
+      "kind": "semantic",
+      "title": "Whether session attributes share the 128-attribute limit",
+      "status": "open",
+      "detail": "The 128 limit appears on the user attribute page only; the session attribute page states no limit.",
+      "blocks": "planning a large set of session attributes",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "zia-policy-use": {
+      "kind": "semantic",
+      "title": "How user attributes reach ZIA policy",
+      "status": "open",
+      "detail": "The attributes pages say user attributes are used in Zscaler services such as ZIA and ZPA 'for policies' and do not describe how.",
+      "blocks": "writing a ZIA rule on a custom user attribute",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

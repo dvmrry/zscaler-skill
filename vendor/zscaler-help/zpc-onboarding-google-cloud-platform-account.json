@@ -1,0 +1,381 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Onboarding a Google Cloud Platform Account",
+  "source": {
+    "url": "https://help.zscaler.com/zpc/onboarding-google-cloud-platform-account",
+    "node": "1394166",
+    "revision": "2443101",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler Posture Control (ZPC) supports onboarding Google Cloud Platform (GCP) cloud accounts. When onboarded, ZPC provides insight into your account's security posture. ZPC provides two automation bash scripts, initial script and onboarding script, that you can run on your Google Cloud Console."
+    },
+    {
+      "item": "Initial script",
+      "depth": 0
+    },
+    {
+      "item": "Onboarding script",
+      "depth": 0
+    },
+    {
+      "text": "To onboard a GCP cloud account:"
+    },
+    {
+      "item": "1. Ensure all prerequisites are met.",
+      "depth": 0
+    },
+    {
+      "item": "2. Onboard a GCP cloud account.",
+      "depth": 0
+    },
+    {
+      "text": "When you onboard a cloud account, you can verify whether the cloud account is onboarded successfully and configuration metadata is being collected. To learn more, see About Cloud Accounts."
+    },
+    {
+      "text": "In addition to onboarding your GCP cloud accounts on ZPC, you can configure ZPC to collect additional configuration metadata:"
+    },
+    {
+      "item": "Set up vulnerability scanning for your GCP cloud workloads and cloud container registries. To learn more, see Configuring Vulnerability Scanning for Cloud Accounts.",
+      "depth": 0
+    },
+    {
+      "item": "Connect your Google Kubernetes Engine (GKE) clusters with ZPC to gain visibility into your cluster security posture. To learn more, see Onboarding a Google Kubernetes Engine Cluster.",
+      "depth": 0
+    },
+    {
+      "text": "The inital script:"
+    },
+    {
+      "item": "Recognizes the GCP organization. You can choose which projects in the organization you want to onboard to ZPC.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Enables the following API services for ZPC on each selected project:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "admin",
+      "depth": 1
+    },
+    {
+      "item": "apikeys",
+      "depth": 1
+    },
+    {
+      "item": "cloudasset",
+      "depth": 1
+    },
+    {
+      "item": "cloudresourcemanager",
+      "depth": 1
+    },
+    {
+      "item": "iam",
+      "depth": 1
+    },
+    {
+      "item": "monitoring",
+      "depth": 1
+    },
+    {
+      "item": "orgpolicy",
+      "depth": 1
+    },
+    {
+      "item": "Creates a service account with the name ZPC-${TENANT_HASH} in the GCP project where the script is run on the GCP Cloud Shell.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Binds IAM policies to the service account for the following roles on the organization level:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "roles/browser",
+      "depth": 1
+    },
+    {
+      "item": "roles/iam.organizationRoleViewer",
+      "depth": 1
+    },
+    {
+      "item": "roles/resourcemanager.folderViewer",
+      "depth": 1
+    },
+    {
+      "item": "Binds IAM policies to the service account for the following roles on the ZPC service account:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "roles/iam.serviceAccountTokenCreator",
+      "depth": 1
+    },
+    {
+      "item": "roles/iam.securityReviewer",
+      "depth": 1
+    },
+    {
+      "text": "The onboarding script:"
+    },
+    {
+      "item": "Updates the following permissions for the service account for the entire organization, folders, or projects:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "roles/viewer",
+      "depth": 1
+    },
+    {
+      "item": "roles/cloudasset.viewer",
+      "depth": 1
+    },
+    {
+      "item": "roles/bigquery.dataViewer",
+      "depth": 1
+    },
+    {
+      "item": "roles/actions.Viewer",
+      "depth": 1
+    },
+    {
+      "item": "Creates a custom role with the name ZPC_${TENANT_HASH} and assigns it the storage.buckets.get permission.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Assigns the following additional roles to the service account, if you have vulnerability scanning enabled:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "roles/containerregistry.ServiceAgent",
+      "depth": 1
+    },
+    {
+      "item": "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+      "depth": 1
+    },
+    {
+      "text": "You need to meet the following prerequisites before onboarding a GCP cloud account:"
+    },
+    {
+      "item": "Be an administrator. To learn more, see About Administrators.",
+      "depth": 0
+    },
+    {
+      "item": "Have the GCP owner role.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure all GCP projects have the Cloud Assets API enabled.",
+      "depth": 0
+    },
+    {
+      "text": "To onboard a GCP cloud account:"
+    },
+    {
+      "item": "Go to Administration > Cloud Accounts.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Account.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Under Select Cloud Type, click the GCP tile.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          35,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "On the Configuration page, you can:",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "View the prerequisites for running the configuration script. The configuration bash script lists all the GCP accounts.",
+      "depth": 1
+    },
+    {
+      "item": "Copy the configuration bash script.",
+      "depth": 1
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Access the GCP Cloud Console, and use the project drop-down menu to select a project or organization where you want the ZPC service account to be created.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Click the Activate Cloud Shell icon.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Verify that you are in the intended project by running the following command:",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "text": "gcloud projects describe $(gcloud config get-value project) --format=\"value(name)\""
+    },
+    {
+      "item": "Paste and run the script command you copied earlier.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "In the Authorize Cloud Shell pop-up window, click Authorize.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          50,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "After the script successfully runs, click Grant Consent to Service Account. This allows the service account to collect configuration and identity metadata.",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          42,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Select your Google account, then click Allow.",
+      "depth": 0,
+      "number": 11,
+      "strong": [
+        [
+          39,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "After the script is deployed, in the ZPC Admin Portal, click Next.",
+      "depth": 0,
+      "number": 12,
+      "strong": [
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "If you onboarded a GCP organization, you can select the projects you want to onboard to ZPC.",
+      "depth": 0,
+      "number": 13
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Select your business unit from the drop-down menu.",
+      "depth": 0,
+      "number": 14
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Deploy Template page, you can:",
+      "depth": 0,
+      "number": 15,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "View the prerequisites for running the deploy template bash script. The deploy template script onboards all selected GCP accounts on to ZPC.",
+      "depth": 1
+    },
+    {
+      "item": "Copy the deploy template bash script.",
+      "depth": 1
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Access the GCP Cloud Console, and run the script command you copied eariler.",
+      "depth": 0,
+      "number": 16
+    },
+    {
+      "item": "After the script is deployed, in the ZPC Admin Portal, click Finish.",
+      "depth": 0,
+      "number": 17,
+      "strong": [
+        [
+          61,
+          67
+        ]
+      ]
+    }
+  ]
+}

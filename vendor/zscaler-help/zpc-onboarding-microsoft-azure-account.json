@@ -1,0 +1,579 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Onboarding a Microsoft Azure Account",
+  "source": {
+    "url": "https://help.zscaler.com/zpc/onboarding-microsoft-azure-account",
+    "node": "1394161",
+    "revision": "2520951",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler Posture Control (ZPC) supports onboarding a Microsoft Azure cloud account. When onboarded, ZPC provides insight into your account's security posture. ZPC provides two automation bash scripts, the initial script and the onboarding script, that you can run on your Microsoft Azure Cloud Shell to onboard your cloud accounts."
+    },
+    {
+      "item": "Initial script",
+      "depth": 0
+    },
+    {
+      "item": "Onboarding script",
+      "depth": 0
+    },
+    {
+      "text": "To onboard a Microsoft Azure account to ZPC:"
+    },
+    {
+      "item": "1. Ensure all prerequisites are met.",
+      "depth": 0
+    },
+    {
+      "item": "2. Onboard a Microsoft Azure account.",
+      "depth": 0
+    },
+    {
+      "text": "After you onboard a cloud account, verify that the status is displayed as \"Success\" on the Cloud Accounts page, indicating that the onboarding is successful and configuration metadata is collected. If there are any issues or if no resources are found in the Azure account while onboarding, the status is displayed as \"Role/Resource not Found.\" To learn more, see About Cloud Accounts."
+    },
+    {
+      "text": "In addition to onboarding your Microsoft Azure accounts to ZPC, you can configure ZPC to collect additional configuration metadata:"
+    },
+    {
+      "item": "Set up vulnerability scanning for your Microsoft Azure cloud workloads and container registries. To learn more, see Configuring Vulnerability Scanning for Cloud Accounts.",
+      "depth": 0
+    },
+    {
+      "item": "Connect your Azure Kubernetes Service (AKS) clusters with ZPC to gain visibility into your cluster security posture. To learn more, see Onboarding an Azure Kubernetes Service Cluster.",
+      "depth": 0
+    },
+    {
+      "heading": "Updating Microsoft Azure Credentials",
+      "level": 1
+    },
+    {
+      "text": "The onboarding script creates a service principal that ZPC uses to collect Microsoft Azure configuration metadata. The service principal credentials expire in one year. When these credentials expire, you need to create new credentials and provide them on the ZPC Admin Portal. ZPC can continue metadata collection and offer security posture for your Azure cloud accounts only after you update the credentials."
+    },
+    {
+      "text": "To update Microsoft Azure Credentials on ZPC:"
+    },
+    {
+      "item": "1. Create new service principal credentials on Microsoft Azure.",
+      "depth": 0
+    },
+    {
+      "item": "2. Update the ZPC Admin Portal with the new credentials.",
+      "depth": 0
+    },
+    {
+      "item": "Access the Microsoft Azure Portal and select the subscription where the service principal was created.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Launch the Cloud Shell on the Azure portal.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command to reset the credentials for the service principal:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "az ad sp credential reset --id \"<Service Principal ID>\" --query=[appId,password] --years=2 --out json"
+    },
+    {
+      "text": "To find the service principal ID on Azure, run the following command:"
+    },
+    {
+      "text": "az ad sp list --display-name \"ZscalerCollector-\" --query \"[0].appId\" --out tsv"
+    },
+    {
+      "text": "If you have onboarded your cloud account after January 2023, run the following command to find the service principal ID:"
+    },
+    {
+      "text": "az ad sp list --display-name \"ZPC_\" --query \"[0].appId\" --out tsv"
+    },
+    {
+      "item": "On the ZPC Admin Portal, go to Administration > Organizations.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          45
+        ],
+        [
+          48,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Click the Actions icon, then click Update Azure Credentials.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          35,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Enter the newly created password for the service principal, then click Save.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          71,
+          75
+        ]
+      ]
+    },
+    {
+      "text": "The initial script assigns predefined and custom roles to a dedicated service principal. ZPC uses the service principal to read your Microsoft Azure deployment's subscriptions, management groups, and organization structure. This information is displayed on the ZPC Admin Portal. The initial script does the following:"
+    },
+    {
+      "item": "Creates a custom role with the name CSP_READ_ORG in the subscription where the script is run.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Assigns the Microsoft.Management/managementGroups/descendants/read permission to the newly created custom role.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Creates a new service principal with the name ZPC_${TENANT_HASH} and assigns the following roles:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Management Group Reader",
+      "depth": 1
+    },
+    {
+      "item": "Key Vault Reader",
+      "depth": 1
+    },
+    {
+      "item": "CSP_READ_ORG",
+      "depth": 1
+    },
+    {
+      "item": "Assign the following predefined Microsoft Azure read-only roles to the Service Principal:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "See roles.",
+      "depth": 0
+    },
+    {
+      "text": "The onboarding script creates a new custom role and assigns necessary permissions to th role. This custom role is assigned to the previously created service principal in the selected subscriptions and management groups scope. The onboarding script does the following:"
+    },
+    {
+      "item": "Creates a new custom role with the name ZPC-${TENANT_HASH} in the same subscription that the initial script was run on.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Assigns the following definitions to the custom role:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Actions:",
+      "depth": 1
+    },
+    {
+      "item": "*/read",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft.Compute/disks/read",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft.Compute/virtualMachines/read",
+      "depth": 2
+    },
+    {
+      "item": "NotActions:",
+      "depth": 1
+    },
+    {
+      "item": "Microsoft.Storage/storageAccounts/blobServices/*/read",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft.Storage/storageAccounts/fileServices/*/read",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft.Storage/storageAccounts/queueServices/*/read",
+      "depth": 2
+    },
+    {
+      "item": "If you have granted vulnerability scanning permissions, the following actions are added to the role definition:",
+      "depth": 0
+    },
+    {
+      "item": "Microsoft.Compute/snapshots/beginGetAccess/action",
+      "depth": 1
+    },
+    {
+      "item": "Microsoft.Compute/snapshots/endGetAccess/action",
+      "depth": 1
+    },
+    {
+      "item": "Microsoft.Compute/snapshots/read",
+      "depth": 1
+    },
+    {
+      "item": "Microsoft.Compute/snapshots/write",
+      "depth": 1
+    },
+    {
+      "item": "Microsoft.Compute/snapshots/delete",
+      "depth": 1
+    },
+    {
+      "item": "Assigns the custom role to the ZPC_${TENANT_HASH} service principal with the selected subscriptions and management group scope.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "You need to meet the following prerequisites before onboarding a Microsoft Azure account:"
+    },
+    {
+      "text": "To view identity information on ZPC, make sure you have an Azure Active Directory premium (P1) license."
+    },
+    {
+      "item": "You need to be a ZPC Administrator. To learn more, see About Administrators.",
+      "depth": 0
+    },
+    {
+      "item": "You need to be Microsoft Azure Global Administrator.",
+      "depth": 0
+    },
+    {
+      "text": "The Microsoft Azure Global Administrator role is only required to onboard the cloud account. You can revoke this role after you are done onboarding."
+    },
+    {
+      "item": "Make sure you have access to a Root Management Group (the default name is Tenant Root Group). To learn more, see the Microsoft documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure all Azure subscriptions are accessible:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Azure Active Directory.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Properties.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Under Access management for Azure resources, toggle to Yes.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          43
+        ],
+        [
+          55,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click the Save icon.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Sign out and sign back in to Azure to refresh access.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "text": "To onboard a Microsoft Azure account:"
+    },
+    {
+      "item": "Go to Administration > Cloud Accounts.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Account.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Under Select Cloud Type, click the Azure tile.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          35,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "On the Configuration page, you can:",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "View the prerequisites for running the configuration script. The configuration bash script lists all the Azure accounts.",
+      "depth": 1
+    },
+    {
+      "item": "Copy the configuration bash script.",
+      "depth": 1
+    },
+    {
+      "item": "Access the Microsoft Azure Portal and select the subscription where the roles can be created.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Click the Cloud Shell icon and select Bash.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          21
+        ],
+        [
+          38,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Paste and run the script command you copied earlier.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "After the script is deployed, in the ZPC Admin Portal, click Next.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Select the Microsoft Azure accounts you want to onboard to ZPC.",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Select your business unit from the drop-down menu.",
+      "depth": 0,
+      "number": 10
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Deploy Template page, you can:",
+      "depth": 0,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "View the prerequisites for running the deploy template bash script. The deploy template script onboards all selected Azure accounts to ZPC.",
+      "depth": 1
+    },
+    {
+      "item": "Copy the deploy template bash script.",
+      "depth": 1
+    },
+    {
+      "item": "Access the Microsoft Azure Portal and run the script command you copied eariler.",
+      "depth": 0,
+      "number": 12
+    },
+    {
+      "item": "After the script is deployed, in the ZPC Admin Portal, click Finish.",
+      "depth": 0,
+      "number": 13,
+      "strong": [
+        [
+          61,
+          67
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Azure Active Directory Graph roles:"
+    },
+    {
+      "table": [
+        [
+          "Predefined Role Name",
+          "Role ID"
+        ],
+        [
+          "Azure Active Directory Graph",
+          "00000002-0000-0000-c000-000000000000"
+        ],
+        [
+          "Directory.Read.All",
+          "5778995a-e1bf-45b8-affa-663a9f3f4d04"
+        ],
+        [
+          "Policy.Read.All",
+          "6c2d1b1d-a490-4178-ba6b-7efceda9129b"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          20
+        ],
+        [
+          0,
+          1,
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "text": "Microsoft Graph roles:"
+    },
+    {
+      "table": [
+        [
+          "Predefined Role Name",
+          "Role ID"
+        ],
+        [
+          "Application.Read.All",
+          "9a5d68dd-52b0-4cc2-bd40-abcf44ac3a30"
+        ],
+        [
+          "AuditLog.Read.All",
+          "b0afded3-3588-46d8-8b3d-9842eff778da"
+        ],
+        [
+          "Directory.Read.All",
+          "7ab1d382-f21e-4acd-a863-ba3e13f7da61"
+        ],
+        [
+          "Reports.Read.All",
+          "230c1aed-a721-4c5d-9cb4-a90514e508ef"
+        ],
+        [
+          "UserAuthenticationMethod.Read.All",
+          "38d9df27-64da-44fd-b7c5-a6fbac20248f"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          20
+        ],
+        [
+          0,
+          1,
+          0,
+          7
+        ]
+      ]
+    }
+  ]
+}

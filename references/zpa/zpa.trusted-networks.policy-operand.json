@@ -1,0 +1,598 @@
+{
+  "schema_version": 1,
+  "id": "zpa.trusted-networks.policy-operand",
+  "title": "The TRUSTED_NETWORK operand in ZPA policy rules",
+  "aliases": [
+    "TRUSTED_NETWORK operand",
+    "trusted network policy condition",
+    "trusted network rhs false",
+    "lhs network_id",
+    "trusted network rule never matches",
+    "client connector trusted networks criterion"
+  ],
+  "binds": [
+    "zpa/trusted-networks#networkId"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zpa.trusted-networks.zcc-relationship",
+      "because": "zpa.trusted-networks.zcc-relationship:policy-menu-source"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.trusted-networks.object",
+      "because": "zpa.trusted-networks.object:data-source-targets"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.terraform.policy-rule-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers the TRUSTED_NETWORK policy operand."
+    },
+    {
+      "label": "In the console.",
+      "text": "{{console-criterion}} {{client-connector-only}}"
+    },
+    {
+      "label": "In Terraform.",
+      "text": "{{operand-v1}} {{operand-v2}} {{rule-resources}} The trusted network data source doc still lists the isolation policy {{divergence:data-source-doc-lists-isolation}}."
+    },
+    {
+      "label": "What the provider checks.",
+      "text": "{{validator-by-generation}} {{v1-lookup}} {{v2-no-lookup}} The two validators disagree on `rhs` {{divergence:rhs-false-accepted}}. What a false condition means is open {{gap:rhs-false-semantics}}. What a wrong identifier does is open {{gap:wrong-id-effect}}."
+    },
+    {
+      "text": "How the provider writes these rules and what it loses: [[zpa.terraform.policy-rule-writes]]. The identifiers: [[zpa.trusted-networks.object]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the operand's lhs is the trusted network's networkId and not its id.",
+      "uses": [
+        "operand-v1",
+        "operand-v2",
+        "v1-lookup",
+        "wrong-id-effect"
+      ]
+    },
+    {
+      "do": "Which rule resource generation is in use, which decides which rhs values pass validation.",
+      "uses": [
+        "validator-by-generation",
+        "rhs-false-accepted"
+      ]
+    },
+    {
+      "do": "Whether a false condition is being relied on to target off-network users, which no source settles.",
+      "uses": [
+        "rhs-false-semantics"
+      ]
+    },
+    {
+      "do": "Whether the rule's client type is Client Connector, since the criterion works only there.",
+      "uses": [
+        "client-connector-only"
+      ]
+    }
+  ],
+  "claims": {
+    "console-criterion": {
+      "statement": "In an access policy rule, Client Connector Trusted Networks is a criterion naming the type of network the user is connected to that Zscaler Client Connector can trust. Selecting several trusted networks combines them with OR.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "Client Connector Trusted Networks: The type of network the user is connected to that Zscaler Client Connector can trust."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "If you added multiple trusted networks to the policy rule, Private Access uses an OR Boolean operator between them."
+          ]
+        }
+      ]
+    },
+    "client-connector-only": {
+      "statement": "Rules that use the Web Browser or Internet & SaaS Service Edge client types cannot also use posture profile or trusted network criteria; those criteria work only with Client Connector.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks",
+        "zpa/client-types"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "Rules using the Web Browser or Internet & SaaS Service Edge client types can not also use posture profiles or trusted networks criteria. The posture profiles or trusted networks criteria only work with Client Connector."
+          ]
+        }
+      ]
+    },
+    "operand-v1": {
+      "statement": "In the v1 access, forwarding and inspection rule resources (`zpa_policy_access_rule`, `zpa_policy_forwarding_rule`, `zpa_policy_inspection_rule`), a trusted network condition is an operand with `object_type = \"TRUSTED_NETWORK\"`, `lhs` set to the trusted network's `network_id` and `rhs = \"true\"`. Up to v4.4.15 the `zpa_policy_isolation_rule` doc described it the same way; at v4.4.16 that doc no longer lists it.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks#networkId"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule.md",
+          "quotes": [
+            "- `lhs` (String, Required) The key of the criterion: the string ``id`` or the attribute ID of the resource being associated with the rule.",
+            "| Object Type | LHS | RHS |",
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_forwarding_rule.md",
+          "quotes": [
+            "- `lhs` (String) LHS must always carry the string value ``id`` or the attribute ID of the resource being associated with the rule.",
+            "| Object Type | LHS| RHS",
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_inspection_rule.md",
+          "quotes": [
+            "- `lhs` (String) LHS must always carry the string value ``id`` or the attribute ID of the resource being associated with the rule.",
+            "| Object Type | LHS| RHS",
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule.md",
+          "at": [
+            "v4.4.15"
+          ],
+          "quotes": [
+            "- `lhs` (String) LHS must always carry the string value ``id`` or the attribute ID of the resource being associated with the rule.",
+            "| Object Type | LHS| RHS",
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule.md",
+          "quotes": [
+            "Supported values: `APP`, `APP_GROUP`, `CLIENT_TYPE`, `EDGE_CONNECTOR_GROUP`, `PLATFORM`, `IDP`, `SAML`, `SCIM`, `SCIM_GROUP`, `CHROME_ENTERPRISE`, `CHROME_POSTURE_PROFILE`. The same object types are supported by `zpa_policy_isolation_rule_v2`."
+          ],
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_isolation_rule.go",
+          "quotes": [
+            "\"conditions\": GetPolicyConditionsSchema([]string{ \"APP\", \"APP_GROUP\", \"CLIENT_TYPE\", \"EDGE_CONNECTOR_GROUP\", \"PLATFORM\", \"IDP\", \"SAML\", \"SCIM\", \"SCIM_GROUP\", \"CHROME_ENTERPRISE\", \"CHROME_POSTURE_PROFILE\", }),"
+          ],
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "after": "ResourcesMap: map[string]*schema.Resource{",
+          "quotes": [
+            "\"zpa_policy_access_rule\": resourcePolicyAccessRule(),",
+            "\"zpa_policy_access_rule_v2\": resourcePolicyAccessRuleV2(),",
+            "\"zpa_policy_forwarding_rule\": resourcePolicyForwardingRule(),",
+            "\"zpa_policy_forwarding_rule_v2\": resourcePolicyForwardingRuleV2(),",
+            "\"zpa_policy_inspection_rule\": resourcePolicyInspectionRule(),",
+            "\"zpa_policy_isolation_rule\": resourcePolicyIsolationRule(),",
+            "\"zpa_policy_isolation_rule_v2\": resourcePolicyIsolationRuleV2(), \"zpa_policy_inspection_rule_v2\": resourcePolicyInspectionRuleV2(),"
+          ]
+        }
+      ],
+      "conditions": "Release search: for each tag of vendor/terraform-provider-zpa, `git show <tag>:docs/resources/zpa_policy_isolation_rule.md | grep -c -F '[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``'` returns 1 at all 93 tags from v3.2.0 (the doc's first release) through v4.4.15 and 0 at v4.4.16."
+    },
+    "operand-v2": {
+      "statement": "In the v2 access, forwarding and inspection rule docs (`zpa_policy_access_rule_v2`, `zpa_policy_forwarding_rule_v2`, `zpa_policy_inspection_rule_v2`) the trusted network operand has `entry_values` whose `lhs` is the trusted network's `network_id` and whose `rhs` is documented as `\"true\"` or `\"false\"`.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks#networkId"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "- `entry_values` (Block Set)",
+            "`lhs` (String) -  The Trusted Network `network_id` value.",
+            "- `rhs` (String) - Supported values: `\"true\"` or `\"false\"`"
+          ],
+          "after": "`object_type` (String) This is for specifying the policy criteria. Supported values: `TRUSTED_NETWORK`"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_forwarding_rule_v2.md",
+          "quotes": [
+            "- `entry_values` (Block Set)",
+            "`lhs` (String) -  The Trusted Network `network_id` value.",
+            "- `rhs` (String) - Supported values: `\"true\"` or `\"false\"`"
+          ],
+          "after": "`object_type` (String) This is for specifying the policy criteria. Supported values: `TRUSTED_NETWORK`"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_inspection_rule_v2.md",
+          "quotes": [
+            "- `entry_values` (Block Set)",
+            "`lhs` (String) -  The Trusted Network `network_id` value.",
+            "- `rhs` (String) - Supported values: `\"true\"` or `\"false\"`"
+          ],
+          "after": "`object_type` (String) This is for specifying the policy criteria. Supported values: `TRUSTED_NETWORK`"
+        }
+      ]
+    },
+    "rule-resources": {
+      "statement": "At v4.4.16 the provider documents `TRUSTED_NETWORK` as an operand for the access, forwarding and inspection policy rules in their v1 and v2 forms and for the browser protection rule, and no longer for the isolation rule, v1 or v2; up to v4.4.15 it documented it for the isolation rule in both forms as well.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule.md",
+          "quotes": [
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_forwarding_rule.md",
+          "quotes": [
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_inspection_rule.md",
+          "quotes": [
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule.md",
+          "at": [
+            "v4.4.15"
+          ],
+          "quotes": [
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_browser_protection_rule.md",
+          "quotes": [
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "Supported values: `TRUSTED_NETWORK`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_forwarding_rule_v2.md",
+          "quotes": [
+            "Supported values: `TRUSTED_NETWORK`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_inspection_rule_v2.md",
+          "quotes": [
+            "Supported values: `TRUSTED_NETWORK`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule_v2.md",
+          "at": [
+            "v4.4.15"
+          ],
+          "quotes": [
+            "Supported values: `TRUSTED_NETWORK`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule_v2.md",
+          "quotes": [
+            "Supported values: `APP`, `APP_GROUP`, `CLIENT_TYPE`, `EDGE_CONNECTOR_GROUP`, `IDP`. The same object types are supported by `zpa_policy_isolation_rule`."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "after": "## 4.4.16 (October 26, 2026)",
+          "quotes": [
+            "Policy rule resources: the supported `object_type` values and the LHS/RHS tables now match the resource schemas, and each v1 page lists the same object types as its v2 counterpart."
+          ]
+        }
+      ],
+      "conditions": "Release search: in vendor/terraform-provider-zpa, per-tag `git show <tag>:<file> | grep -c -F` finds the TRUSTED_NETWORK row (`[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``') in docs/resources/zpa_policy_isolation_rule.md and 'Supported values: `TRUSTED_NETWORK`' in docs/resources/zpa_policy_isolation_rule_v2.md at all 93 tags from v3.2.0 through v4.4.15, and neither at v4.4.16, the release at which the quotes without `at` are anchored."
+    },
+    "v1-lookup": {
+      "statement": "For the v1 policy rule resources that accept the operand (access, forwarding and inspection), the provider looks the `lhs` up by `networkId` through the SDK's GetByNetID, so a value that is not a known `networkId` fails validation, and it requires `rhs` to be exactly `\"true\"`.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks#networkId"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func validateOperand(",
+          "quotes": [
+            "case \"TRUSTED_NETWORK\": if operand.LHS == \"\" { return lhsWarn(operand.ObjectType, \"valid trusted network ID\", operand.LHS, nil) } _, _, err := trustednetwork.GetByNetID(ctx, zClient.Service, operand.LHS)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "return lhsWarn(operand.ObjectType, \"valid trusted network ID\", operand.LHS, err)"
+          ],
+          "after": "_, _, err := trustednetwork.GetByNetID(ctx, zClient.Service, operand.LHS)"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "if operand.RHS != \"true\" {"
+          ],
+          "after": "_, _, err := trustednetwork.GetByNetID(ctx, zClient.Service, operand.LHS)"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "func ValidateConditions(ctx context.Context, conditions []policysetcontroller.Conditions, zClient *Client, microtenantID string) error {",
+            "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "after": "\"conditions\": GetPolicyConditionsSchema([]string{",
+          "quotes": [
+            "\"TRUSTED_NETWORK\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "after": "func resourcePolicyAccessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule.go",
+          "after": "\"conditions\": GetPolicyConditionsSchema([]string{",
+          "quotes": [
+            "\"TRUSTED_NETWORK\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule.go",
+          "after": "func resourcePolicyForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, GetString(d.Get(\"microtenant_id\"))); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_inspection_rule.go",
+          "after": "\"conditions\": GetPolicyConditionsSchema([]string{",
+          "quotes": [
+            "\"TRUSTED_NETWORK\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_inspection_rule.go",
+          "after": "func resourcePolicyInspectionRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, GetString(d.Get(\"microtenant_id\"))); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "return fmt.Errorf(\"[WARN] when operand object type is %v LHS must be %#v value is \\\"%v\\\", %v\", objType, expected, lhs, err)"
+          ]
+        }
+      ],
+      "conditions": "Absence search for the list: `git grep -l '\"TRUSTED_NETWORK\"' v4.4.16 -- 'zpa/resource_zpa_policy_*.go'` in the provider returns, among the v1 resources, only `resource_zpa_policy_access_rule.go`, `resource_zpa_policy_access_forwarding_rule.go` and `resource_zpa_policy_access_inspection_rule.go`; the other matches are their `_v2` resources and two unit tests, and the isolation and timeout rule resources do not name the operand."
+    },
+    "v2-no-lookup": {
+      "statement": "For v2 policy rule resources the provider requires a non-empty `lhs` and an `rhs` of `\"true\"` or `\"false\"`, and does not look the `lhs` up.",
+      "tier": "B",
+      "binds": [
+        "zpa/trusted-networks#networkId"
+      ],
+      "conditions": "Rests on absence: the TRUSTED_NETWORK case of ValidatePolicyRuleConditions was read in full and makes no SDK call.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "LHS must be a valid Network ID and cannot be empty for TRUSTED_NETWORK object_type",
+            "rhs value must be 'true' or 'false' for TRUSTED_NETWORK object_type"
+          ]
+        }
+      ]
+    },
+    "validator-by-generation": {
+      "statement": "The v1 access rule resource calls ValidateConditions, which applies the lookup validator, and the v2 access rule resource calls ValidatePolicyRuleConditions, which applies the v2 validator.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "quotes": [
+            "if err := ValidatePolicyRuleConditions(d); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "func ValidateConditions(ctx context.Context, conditions []policysetcontroller.Conditions, zClient *Client, microtenantID string) error { for _, condition := range conditions { if err := validateOperands(ctx, condition.Operands, zClient, microtenantID); err != nil {",
+            "if err := validateOperand(ctx, operand, zClient, microtenantID); err != nil {",
+            "_, _, err := trustednetwork.GetByNetID(ctx, zClient.Service, operand.LHS)",
+            "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {",
+            "return fmt.Errorf(\"rhs value must be 'true' or 'false' for TRUSTED_NETWORK object_type\")"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "rhs-false-accepted": {
+      "summary": "Whether `rhs = \"false\"` is a legal trusted network condition depends on the rule resource generation: the v1 validator accepts only \"true\", the v2 validator and the v2 document accept \"false\".",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/common.go",
+            "quotes": [
+              "if operand.RHS != \"true\" {"
+            ],
+            "after": "_, _, err := trustednetwork.GetByNetID(ctx, zClient.Service, operand.LHS)"
+          },
+          "says": "The v1 validator rejects any `rhs` other than \"true\"."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/common.go",
+            "quotes": [
+              "rhs value must be 'true' or 'false' for TRUSTED_NETWORK object_type"
+            ]
+          },
+          "says": "The v2 validator accepts \"true\" or \"false\"."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_policy_access_rule_v2.md",
+            "quotes": [
+              "`lhs` (String) -  The Trusted Network `network_id` value."
+            ],
+            "after": "`object_type` (String) This is for specifying the policy criteria. Supported values: `TRUSTED_NETWORK`"
+          },
+          "says": "The v2 document lists `\"true\"` or `\"false\"` for `rhs`, while its own value table lists `\"true\"`."
+        }
+      ],
+      "impact": "The same condition passes plan in a v2 rule and fails in a v1 rule. Neither validator says what the server does with \"false\"."
+    },
+    "data-source-doc-lists-isolation": {
+      "summary": "Whether a trusted network can be a condition of an isolation rule: the trusted network data source doc lists the isolation policy, while the v1 isolation resource schema does not list TRUSTED_NETWORK.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/data-sources/zpa_trusted_network.md",
+            "quotes": [
+              "4. Isolation Policy"
+            ]
+          },
+          "says": "The trusted network data source doc lists the isolation policy among the policies it can be referenced in."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_policy_access_isolation_rule.go",
+            "quotes": [
+              "\"conditions\": GetPolicyConditionsSchema([]string{ \"APP\", \"APP_GROUP\", \"CLIENT_TYPE\", \"EDGE_CONNECTOR_GROUP\", \"PLATFORM\", \"IDP\", \"SAML\", \"SCIM\", \"SCIM_GROUP\", \"CHROME_ENTERPRISE\", \"CHROME_POSTURE_PROFILE\", }),"
+            ]
+          },
+          "says": "The v1 isolation rule schema accepts no TRUSTED_NETWORK condition."
+        }
+      ],
+      "impact": "A configuration that follows the data source doc into an isolation rule uses an object type the rule schema does not list."
+    }
+  },
+  "gaps": {
+    "rhs-false-semantics": {
+      "kind": "semantic",
+      "title": "What ZPA does with a TRUSTED_NETWORK condition whose rhs is false",
+      "status": "open",
+      "former_ids": [
+        "zpa-78"
+      ],
+      "about": [
+        "zpa/trusted-networks#networkId"
+      ],
+      "detail": "The v2 validator and document allow `rhs = \"false\"`, but no source states whether the server evaluates it as \"the user is not on this trusted network\". Build a rule with `rhs = \"false\"` and observe matching on and off the network.",
+      "blocks": "using a false condition to target off-network users",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "wrong-id-effect": {
+      "kind": "semantic",
+      "title": "What a rule does when the lhs is the object id instead of the networkId",
+      "status": "open",
+      "about": [
+        "zpa/trusted-networks#id",
+        "zpa/trusted-networks#networkId"
+      ],
+      "detail": "Unverified legacy statement: \"If you set lhs to the object id instead of network_id, the condition silently never matches.\" The v1 provider validation rejects an `lhs` that is not a known `networkId`, and the v2 validation does not check it; no source says what the server does with a value that is not a `networkId`. Create a v2 rule with the object id and test matching from a device on the network.",
+      "blocks": "explaining a never-matching trusted network rule by the identifier",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

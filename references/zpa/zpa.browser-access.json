@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "id": "zpa.browser-access",
+  "title": "Browser Access: clientless ZPA access to web applications",
+  "aliases": [
+    "browser access",
+    "clientless access",
+    "clientless zpa web app",
+    "give contractor access without zcc",
+    "byod zpa web app",
+    "browser access overview",
+    "ba app segment",
+    "browser access vs zcc vs pra"
+  ],
+  "binds": [
+    "zpa/browser-access"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zpa.browser-access.policy",
+      "because": "zpa.browser-access.policy:web-browser-client-type"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.pra",
+      "because": "zpa.browser-access.requirements:non-http-use-pra"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.browser-access.certificates",
+      "because": "zpa.browser-access.certificates:certificate-type"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zpa.logs.browser-access",
+      "because": "zpa.browser-access.logs:http-log-and-nameid"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.browser-access.tooling"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.app-segments.ansible-children"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.hostnames"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.backend-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.segment-constraints"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.user-portal"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Browser Access is ZPA's clientless path for web applications. A question about it usually falls into one of the areas below, and each is answered in its own subject."
+    },
+    {
+      "steps": [
+        {
+          "label": "Is Browser Access the right path?",
+          "text": "What it carries, what the browser and server must support, and how sessions and reauthentication work: [[zpa.browser-access.requirements]]. RDP, SSH and VNC go to [[zpa.pra]]."
+        },
+        {
+          "label": "Why does the user see a certificate error?",
+          "text": "External versus internal hostname: [[zpa.browser-access.hostnames]], with the untrusted-certificate setting in [[zpa.browser-access.backend-options]]."
+        },
+        {
+          "label": "Which certificate covers which name?",
+          "text": "Wildcards, managed and custom certificates and the CNAME: [[zpa.browser-access.certificates]]."
+        },
+        {
+          "label": "What can the hosting segment not use?",
+          "text": "Double Encryption, ports and CNAME resolution, whether Multimatch applies (an earlier version of the article said so; the current one does not), and the per-application keys: [[zpa.browser-access.segment-constraints]]."
+        },
+        {
+          "label": "How do access rules treat browser sessions?",
+          "text": "Client type and the criteria that do not apply: [[zpa.browser-access.policy]]."
+        },
+        {
+          "label": "Where do users find their applications?",
+          "text": "User portals, their certificates, links and acceptable use policy: [[zpa.user-portal]]."
+        },
+        {
+          "label": "Where are the logs?",
+          "text": "[[zpa.browser-access.logs]]."
+        },
+        {
+          "label": "How do tools write the segment?",
+          "text": "[[zpa.browser-access.tooling]], with Ansible child handling in [[zpa.app-segments.ansible-children]]. Terraform lifecycle defects are in [[zpa.terraform.app-segment-lifecycle]]."
+        }
+      ]
+    }
+  ]
+}

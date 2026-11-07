@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Azure Blob Connector",
+  "source": {
+    "url": "https://help.zscaler.com/uvm/configuring-azure-blob-connector",
+    "node": "1530972",
+    "revision": "3225648",
+    "updated": "2026-08-18",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Azure Blob Storage is a cloud-based object storage solution provided by Microsoft Azure, allowing users to store and serve large amounts of unstructured data."
+    },
+    {
+      "text": "The Azure Blob connector is used for uploading files from your Azure storage to the Zscaler Security Operations (SecOps) platform, such as scan results, compliance reports, or any other security-related data stored in your Azure Blob containers. Files in unsupported formats are not processed by the Azure Blob connector."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "To configure the Azure Blob connector, you need to configure the appropriate roles and permissions. You also need the source authentication configuration, which is your storage account connection string. The following parameters are required:"
+    },
+    {
+      "item": "Retrieving the Storage Account Connection String",
+      "depth": 0
+    },
+    {
+      "item": "To retrieve the storage account connection string, see Zscaler UVM and Microsoft Services Deployment Guide.",
+      "depth": 0
+    },
+    {
+      "item": "Assigning Permissions",
+      "depth": 0
+    },
+    {
+      "item": "To assign the required permissions to the user associated with the connection string:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Microsoft Azure portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the home page, in the Search resources, services, and docs (G+/) field, enter Storage accounts. From the drop-down menu, select Storage accounts.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          25,
+          67
+        ],
+        [
+          131,
+          147
+        ]
+      ]
+    },
+    {
+      "item": "On the Storage accounts page, select the name of your storage account from the table.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "From the left-side navigation, select Access Control (IAM).",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          38,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Click Add > Add role assignment.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          12,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "From the drop-down role menu, select a role with the required permissions (i.e., the built-in Storage Blob Data Reader role). The Storage Blob Data Reader role is a built-in Azure Blob role that covers the necessary permissions to access and read data from a storage account.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          94,
+          118
+        ],
+        [
+          130,
+          154
+        ]
+      ]
+    },
+    {
+      "item": "In the Assign access to section, choose the relevant entity type (i.e., User, group, or service principal) and select the desired entity.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          72,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The user or service principal associated with the connection string must have the following Azure RBAC permissions:",
+      "depth": 0
+    },
+    {
+      "item": "Blob service operation - List Containers: Microsoft.Storage/storageAccounts/blobServices/containers/read. Ensure that the role is scoped to the storage account or above. To learn more, refer to the Microsoft documentation.",
+      "depth": 1
+    },
+    {
+      "item": "Blob service operation - List Blobs: Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read. To learn more, refer to the Microsoft documentation.",
+      "depth": 1
+    },
+    {
+      "item": "Enabling Network Access",
+      "depth": 0
+    },
+    {
+      "item": "To ensure successful connectivity, enable network access to your Azure Blob Storage account. You can allow access from all networks or restrict it to specific IP addresses. To enable network access:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Microsoft Azure portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the home page, in the Search resources, services, and docs (G+/) field, enter Storage accounts. From the drop-down menu, select Storage accounts.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          25,
+          67
+        ],
+        [
+          131,
+          147
+        ]
+      ]
+    },
+    {
+      "item": "On the Storage accounts page, select the name of your storage account from the table.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "From the left-side navigation, select Security + networking > Networking.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          38,
+          59
+        ],
+        [
+          62,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "On the Firewalls and virtual networks tab, in the Public network access section, configure your preferred access:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          37
+        ],
+        [
+          50,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "If Enabled from all networks is selected, no further action is required.",
+      "depth": 2,
+      "strong": [
+        [
+          3,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "To restrict access to specific IP addresses, select Enabled from selected virtual networks and IP addresses. Add the following IP addresses to the allowed range:",
+      "depth": 2,
+      "strong": [
+        [
+          52,
+          107
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Region",
+          "IP Addresses"
+        ],
+        [
+          "US",
+          "3.137.47.190/32 3.15.110.62/32 3.129.232.141/32"
+        ],
+        [
+          "EU",
+          "Refer to the Zscaler Config."
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "These IP addresses must be added to allow the Zscaler service to connect to your Azure Blob Storage account.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring the Connector",
+      "level": 1
+    },
+    {
+      "text": "To create the Azure Blob data source in the Zscaler Security Operations (SecOps) platform:"
+    },
+    {
+      "item": "Go to Configure > Sources.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          18,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Search for and select the connector tile from the available data sources.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Retrieval Filters and Specifications",
+      "level": 2
+    },
+    {
+      "text": "After you create the Azure Blob data source, enter the following information in the source setup Retrieval section:"
+    },
+    {
+      "item": "Authentication",
+      "depth": 0
+    },
+    {
+      "item": "To configure authentication:",
+      "depth": 0
+    },
+    {
+      "item": "In the Authentication section, click Create New.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "The Azure Blob Authentication window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "In the Azure Blob Authentication window, enter the information from the Prerequisites section.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see Configuring Authentications and Managing Authentications.",
+      "depth": 0
+    },
+    {
+      "item": "Requested Containers List",
+      "depth": 0
+    },
+    {
+      "item": "The requested containers list is a list of containers in the Azure Blob Storage account. You can specify a list of containers in this account from which you want to retrieve data, which limits the scope of data retrieval. If the containers are specified, only blobs from the mentioned containers are retrieved. If no containers are specified, data is retrieved from all containers in the storage account.",
+      "depth": 0
+    },
+    {
+      "item": "Requested Tags",
+      "depth": 0
+    },
+    {
+      "item": "The requested tags are a list of user-defined tags in the format key : value. You can specify a list of user-defined tags to filter the blobs retrieved from Azure Blob Storage account containers. To limit the scope of data to those including specified tags, add tags in the format key : value, where the value can be empty. If the tags are specified, only blobs that include at least one of the listed tags are retrieved.",
+      "depth": 0
+    },
+    {
+      "text": "For complete configuration instructions, see Creating Data Sources."
+    }
+  ]
+}

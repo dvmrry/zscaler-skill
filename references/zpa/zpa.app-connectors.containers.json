@@ -1,0 +1,382 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.containers",
+  "title": "App Connectors on Docker, Kubernetes and OpenShift",
+  "aliases": [
+    "app connector deployment guide for docker",
+    "app connector deployment guide for kubernetes",
+    "app connector deployment guide for openshift",
+    "app connector helm chart"
+  ],
+  "binds": [
+    "zpa/app-connectors"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.provisioning-keys"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Docker, Kubernetes and OpenShift guides give App Connector container deployments their own prerequisites, resource limits, Helm charts and capability rules; VM and cloud platforms are in [[zpa.app-connectors.platforms]]."
+    },
+    {
+      "label": "Docker.",
+      "text": "{{docker-images}} {{docker-prereqs}} {{docker-capabilities}} {{docker-log-rotation}} The Docker page's statement about Kubernetes and the Kubernetes guide's use of the Docker image differ {{divergence:docker-for-kubernetes}}."
+    },
+    {
+      "label": "Kubernetes.",
+      "text": "{{kubernetes-prereqs}} {{kubernetes-resources}} {{hpa}} {{helm-install}} {{scale-down-drops-sessions}} {{image-tags-and-updates}} {{node-affinity}}"
+    },
+    {
+      "label": "OpenShift.",
+      "text": "{{openshift-prereqs}} {{openshift-file-descriptors}} {{unified-chart}} {{capability-mode}}"
+    },
+    {
+      "label": "Provisioning keys and ephemeral pods.",
+      "text": "{{key-threshold-auto-delete}} Whether that threshold of 100 is a per-group maximum or the tenant limit is open in [[zpa.app-connectors.deployment]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the pod or container meets the minimum cores and memory and whether the Docker run command includes --init.",
+      "uses": [
+        "docker-prereqs",
+        "kubernetes-resources"
+      ]
+    },
+    {
+      "do": "Whether ephemeral pods have used up the provisioning key's utilization count, and whether Auto Delete removes disconnected connectors.",
+      "uses": [
+        "key-threshold-auto-delete"
+      ]
+    },
+    {
+      "do": "Whether the container host is x86_64 and which guide's architecture statement applies to it.",
+      "uses": [
+        "docker-images",
+        "kubernetes-prereqs",
+        "openshift-prereqs",
+        "docker-for-kubernetes"
+      ]
+    },
+    {
+      "do": "Whether Docker logs are rotated so they do not fill the root partition.",
+      "uses": [
+        "docker-log-rotation"
+      ]
+    }
+  ],
+  "claims": {
+    "docker-images": {
+      "statement": "The App Connector Docker image is available on Docker Hub for both the ARM64 and AMD64 platforms, pulled as zscaler/zpa-connector:latest.arm64 or zscaler/zpa-connector:latest.amd64.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-docker.json",
+          "quotes": [
+            "The App Connector Docker image is available on Docker Hub for both the ARM64 and AMD64 platforms:",
+            "docker pull zscaler/zpa-connector:latest.arm64",
+            "docker pull zscaler/zpa-connector:latest.amd64"
+          ]
+        }
+      ]
+    },
+    "docker-prereqs": {
+      "statement": "The App Connector Docker guide requires an environment variable named ZPA_PROVISION_KEY; only one container per host is allowed, deployed in a Docker Community Edition (CE) environment rather than an orchestration tool like Docker Swarm or Kubernetes; x86-64 and ARM64 systems each need a minimum of 2 cores and 4 GB RAM; and --init must be included in the run command.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-docker.json",
+          "quotes": [
+            "An environment variable named ZPA_PROVISION_KEY is required to run this image.",
+            "Only one container per host is allowed. The container is deployed in a Docker Community Edition (CE) environment and is not an orchestration tool like Docker Swarm or Kubernetes.",
+            "A minimum of 2 cores and 4 GB RAM is required for x86-64 systems.",
+            "A minimum of 2 cores and 4 GB RAM is required for ARM64 systems.",
+            "To deploy the Docker container, ensure --init is included in the run command."
+          ]
+        }
+      ]
+    },
+    "docker-capabilities": {
+      "statement": "The App Connector Docker guide's capability table describes CAP_NET_RAW as fundamental to Private Access networking, says CAP_NET_BIND_SERVICE is required to bind to a port below 1024 and should be removed for a service on a port above 1024, says CAP_SYS_BOOT is optional and can be turned off in the container, says Private Access forks new processes and assigns the CPU affinity under CAP_SYS_NICE, and also lists CAP_SYS_TIME and CAP_SYS_RESOURCE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-docker.json",
+          "quotes": [
+            "| CAP_NET_RAW | Binds to any address for transparent proxying and uses RAW and PACKET sockets. | Fundamental to Private Access networking. |",
+            "| CAP_NET_BIND_SERVICE | Binds a socket to the Internet domain privileged ports (port numbers less than 1024). | This capability is required to bind to a port below 1024. If you are running a service that listens to a port above 1024, remove this capability. |",
+            "| CAP_SYS_BOOT* | Reboots or loads a new kernel for future execution. | This capability is optional and can be turned off in the container. |",
+            "| CAP_SYS_NICE | Performs the following network-related operations:",
+            "Private Access forks new processes and assigns the CPU affinity.",
+            "| CAP_SYS_TIME | Sets the system clock (i.e., settimeofday(2), time(2), adjtimex(2)) and the real-time (hardware) clock. | N/A |",
+            "| CAP_SYS_RESOURCE | Increases resource limits. | Increases resource limits for SYS_RESOURCE. |"
+          ]
+        }
+      ]
+    },
+    "docker-log-rotation": {
+      "statement": "The App Connector Docker guide says Docker logs do not rotate by default and can keep growing until the root partition is full, which can cause servers to power down; its rotation example runs the container with the json-file log driver and a max-size, and sets a maximum of 10 log files of 500 MB each.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-docker.json",
+          "quotes": [
+            "By default, Docker logs do not rotate and can continue to grow until the root partition reaches full capacity, which can cause servers to power down.",
+            "sudo docker run -d \\ --log-driver=json-file \\ --log-opt max-size=<number>m",
+            "In the following example, there is a maximum of 10 log files with a maximum size for each log file of 500 MB."
+          ]
+        }
+      ]
+    },
+    "kubernetes-prereqs": {
+      "statement": "The App Connector Kubernetes guide lists a metrics server, says Kubernetes version 1.30 is the minimum recommended version, says that for Kubernetes deployment only the Docker image is supported on x86_64 systems and arm64 systems are not supported, and says RISE with SAP App Connector deployments are supported on SAP-managed Kubernetes clusters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-kubernetes.json",
+          "quotes": [
+            "Metrics server",
+            "Kubernetes version 1.30 is the minimum recommended version",
+            "For Kubernetes deployment only, the Docker image is supported on x86_64 systems; arm64 systems are not supported.",
+            "RISE with SAP App Connector deployments are supported on SAP-managed Kubernetes clusters."
+          ]
+        }
+      ]
+    },
+    "kubernetes-resources": {
+      "statement": "The App Connector Kubernetes guide recommends a minimum of 2 cores and 4 GB RAM for each pod, says CPU and memory are the only resources that can be changed, and shows limits of memory 8000Mi and cpu 8000m with requests of memory 4000Mi and cpu 2000m.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-kubernetes.json",
+          "quotes": [
+            "A minimum of 2 cores and 4 GB RAM is recommended for each pod. CPU and memory are the only resources you can change."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-kubernetes.json",
+          "quotes": [
+            "limits: memory: \"8000Mi\" cpu: \"8000m\"",
+            "requests: memory: \"4000Mi\" cpu: \"2000m\""
+          ],
+          "after": "Resources and Limits for App Connector Deployment for Kubernetes"
+        }
+      ]
+    },
+    "hpa": {
+      "statement": "The Kubernetes and OpenShift guides both say the Horizontal Pod Autoscaler is supported per deployment based on CPU and memory metrics, with 2 as the minimum recommended replicas for the App Connector and an average utilization of 80% as the threshold.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-kubernetes.json",
+          "quotes": [
+            "Horizontal Pod Autoscaler is supported per deployment based on CPU and memory metrics. The minimum recommended replicas for the App Connector is 2. The average utilization of 80% is used as a threshold for CPU/Memory usage in a Horizontal Pod Autoscaler deployment."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-openshift.json",
+          "quotes": [
+            "Horizontal Pod Autoscaler is supported per deployment based on CPU and memory metrics. The minimum recommended replicas for the App Connector is 2. The average utilization of 80% is used as a threshold for CPU/Memory usage in a Horizontal Pod Autoscaler deployment."
+          ]
+        }
+      ]
+    },
+    "helm-install": {
+      "statement": "The App Connector Kubernetes guide adds the Helm repository https://dist.private.zscaler.com/helm-charts/k8s/ and installs with zsglobal.provisionkey.value set to the provisioning key; zscaler-zpa is the namespace added when the chart is installed, only one Helm installation can be performed with the default chart, multiple connectors use the multiConnector values with enabled: true, and Horizontal Pod Autoscaling occurs in each App Connector group per deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-kubernetes.json",
+          "quotes": [
+            "helm repo add zpa-helm-repo https://dist.private.zscaler.com/helm-charts/k8s/",
+            "helm install [NAME] --set zsglobal.provisionkey.value=\"<provision_key>\" repo_name/chart_name",
+            "multiConnector: ## @param zsglobal.multiConnector.enabled Deploy multiple connectors. enabled: true",
+            "zscaler-zpa is the namespace that is added when this Helm Chart is installed.",
+            "Only one Helm installation can be performed with the default Helm chart.",
+            "Horizontal Pod Autoscaling occurs in each App Connector group per deployment."
+          ]
+        }
+      ]
+    },
+    "scale-down-drops-sessions": {
+      "statement": "The App Connector Kubernetes guide says active sessions with applications are terminated when its scale-down command is run.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-kubernetes.json",
+          "quotes": [
+            "Active sessions with applications are terminated when this command is run."
+          ]
+        }
+      ],
+      "conditions": "The quote says 'this command'; the command is the manual scaling command preceding the sentence in the guide, which the quote does not name."
+    },
+    "key-threshold-auto-delete": {
+      "statement": "The Kubernetes and OpenShift guides both say the threshold for App Connectors using the provisioning keys in an App Connector group is 100 and that the pods are ephemeral and consume a provisioning key utilization count each time they run; the Kubernetes guide adds that Zscaler recommends configuring Auto Delete in the App Connector settings to remove App Connectors with a disconnected status after a set number of days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-kubernetes.json",
+          "quotes": [
+            "The threshold for App Connectors using the provisioning keys in an App Connector group is 100.",
+            "The pods are ephemeral and consume a provisioning key utilization count each time they run.",
+            "Zscaler recommends configuring Auto Delete in your App Connector settings to remove App Connectors with a disconnected status after a set number of days."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-openshift.json",
+          "quotes": [
+            "The threshold for App Connectors using the provisioning keys in an App Connector group is 100.",
+            "The pods are ephemeral and consume a provisioning key utilization count each time they run."
+          ]
+        }
+      ]
+    },
+    "image-tags-and-updates": {
+      "statement": "The App Connector Kubernetes guide says to use a tag with a dated version rather than latest.amd64 so the tag is a recent version, and to update the image version in the Helm chart to the corresponding Docker tag; a sentence beside the rollback instruction says it is not applicable to the initial version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-kubernetes.json",
+          "quotes": [
+            "You should use a tag with a dated version rather than latest.amd64 to ensure that the tag is a recent version.",
+            "Update the image version in the Helm chart to the corresponding Docker tag.",
+            "This is not applicable to the initial version."
+          ]
+        }
+      ],
+      "conditions": "The 'not applicable to the initial version' sentence is quoted without its subject; the guide's surrounding text is about Helm rollback, which the quote does not name."
+    },
+    "node-affinity": {
+      "statement": "The App Connector Kubernetes guide says Zscaler does not explicitly add node affinity for the App Connector Helm chart; its example labels nodes with kubectl label nodes <Node-name> type=zpa-app-connector and sets kubernetes.io/node-selector: \"type=zpa-app-connector\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-kubernetes.json",
+          "quotes": [
+            "Zscaler does not explicitly add node affinity for the App Connector Helm chart.",
+            "kubectl label nodes <Node-name> type=zpa-app-connector",
+            "kubernetes.io/node-selector: \"type=zpa-app-connector\""
+          ]
+        }
+      ]
+    },
+    "openshift-prereqs": {
+      "statement": "The App Connector OpenShift guide lists OpenShift 4.11 and later and Kubeadmin access on the default namespace, and says the Docker image is only supported for x86 systems and not for arm64 systems.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-openshift.json",
+          "quotes": [
+            "OpenShift 4.11 and later",
+            "Kubeadmin access on default namespace",
+            "The Docker image is only supported for x86 systems. The Docker image is not supported for arm64 systems."
+          ]
+        }
+      ]
+    },
+    "openshift-file-descriptors": {
+      "statement": "The App Connector OpenShift guide says the recommended resource limit (rlimit) on open files for the App Connector application is 512K and that OpenShift's default limit of 1,048,576 allows 2 pods on each node without changes to any settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-openshift.json",
+          "quotes": [
+            "The recommended resource limit (rlimit) on open files in the file descriptor for the App Connector application is 512K. OpenShift, by default, has a limit of 1,048,576. So you can run 2 pods on each node without changes to any settings."
+          ]
+        }
+      ]
+    },
+    "unified-chart": {
+      "statement": "The App Connector OpenShift guide says that starting with Manager software version 25.46.3 the Helm Chart for OpenShift and Kubernetes is combined into a single unified chart renamed zpa-app-connector, and that the directory zscaler-et-dist/helm-charts/openshift/ is deprecated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-openshift.json",
+          "quotes": [
+            "Starting with Manager software version 25.46.3, the Helm Chart for OpenShift and Kubernetes has been combined into a single unified chart for both platforms. The unified chart has been renamed to zpa-app-connector.",
+            "The following directory has also been deprecated: zscaler-et-dist/helm-charts/openshift/"
+          ]
+        }
+      ]
+    },
+    "capability-mode": {
+      "statement": "The App Connector OpenShift guide's capabilityMode is minimal (retains only CAP_NET_RAW, requires Manager software 25.46.3 or later), full (retains all previously existing capabilities) or custom (user-defined list, requires Manager software 25.46.3 or later, with CAP_NET_RAW injected automatically if omitted); OpenShift deployments default to full to maintain compatibility with platform restrictions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-openshift.json",
+          "quotes": [
+            "capabilityMode: minimal: Retains only CAP_NET_RAW. Requires Manager software 25.46.3 or later.",
+            "capabilityMode: full: Retains all previously existing capabilities.",
+            "capabilityMode: custom: Allows users to define their own list of capabilities. Requires Manager software 25.46.3 or later.",
+            "If CAP_NET_RAW is omitted in custom mode, a failsafe mechanism automatically injects it to ensure functionality.",
+            "OpenShift deployments default to capabilityMode: full to maintain compatibility with platform restrictions."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "docker-for-kubernetes": {
+      "summary": "The App Connector Docker guide says Docker support is not available for Kubernetes, while the Kubernetes guide deploys the App Connector Docker image.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-app-connector-deployment-guide-docker.json",
+            "quotes": [
+              "Docker support is not available for Kubernetes."
+            ]
+          },
+          "says": "Docker support is not available for Kubernetes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-app-connector-deployment-guide-kubernetes.json",
+            "quotes": [
+              "For Kubernetes deployment only, the Docker image is supported on x86_64 systems; arm64 systems are not supported."
+            ]
+          },
+          "says": "For Kubernetes deployment only, the Docker image is supported on x86_64 systems; arm64 systems are not supported."
+        }
+      ],
+      "impact": "Read together, the Docker page's sentence cannot mean the Docker image is unusable on Kubernetes; the pages do not say whether it refers to the standalone Docker CE deployment. The architecture limits also differ: the Docker page offers ARM64, the Kubernetes guide does not."
+    }
+  }
+}

@@ -1,0 +1,604 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Branch Connector & App Connector with Linux KVM",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-cloud/deploying-branch-connector-app-connector-linux-kvm",
+    "node": "1447021",
+    "revision": "3219002",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy Zscaler Branch Connector & App Connector as a virtual machine (VM) on Linux KVM, and post-deployment configurations."
+    },
+    {
+      "text": "This procedure describes the steps for deploying Zscaler Branch Connector & App Connector on Linux KVM. To learn more about deploying Branch Connector & App Connector using a Terraform script, see Deployment Templates for Zscaler Branch Connector & App Connector."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "The role that admins are assigned dictates the level of access they have to the Zscaler Admin Console. Zscaler provides a default admin account that provides full access to the portal and scope over the entire organization. Admins must have full access to Branch Connector Provisioning permissions. To learn more, see About Role Management and Adding Admin Roles."
+    },
+    {
+      "text": "Make sure the following prerequisites are met:"
+    },
+    {
+      "item": "Create a dedicated username for the Branch Connector & App Connector deployment in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Create a dedicated password for the Branch Connector & App Connectordeployment in the Zscaler Admin Console. The password must be at least 8 characters in length and include at least one uppercase letter, one number, and one special character. The password must not contain a $, &, >, <, ;, ', or \". Otherwise, the deployment fails.",
+      "depth": 0
+    },
+    {
+      "item": "Configure a Branch Configuration Template and copy the Branch Configuration URL.",
+      "depth": 0
+    },
+    {
+      "item": "Download the combined Branch Connector & App Connector image from the Branch Connector Images page for Linux KVM.",
+      "depth": 0
+    },
+    {
+      "item": "Branch Connector uses an API key to authenticate and register the VM with the Zscaler service. If you do not already have an API key, generate a new key. Then copy the API key from the API Key Management page.",
+      "depth": 0
+    },
+    {
+      "item": "Review the following Branch Connector & App Connector specifications and sizing requirements:",
+      "depth": 0
+    },
+    {
+      "item": "Small VM: requires 4 GB of memory, 2 CPU cores, 128 GB data disk size, and 2 network interface cards (NIC)",
+      "depth": 1
+    },
+    {
+      "item": "Medium VM: requires 8 GB of memory, 4 CPU cores, 128 GB data disk size, and 4 NICs",
+      "depth": 1
+    },
+    {
+      "heading": "Creating and Applying User Data",
+      "level": 1
+    },
+    {
+      "text": "You must create a text file containing user data information for your Branch Connector & App Connector VM. You apply this information to the KVM VM with an International Organization for Standardization (ISO) file that is mounted via a virtual CD-ROM drive."
+    },
+    {
+      "text": "List of network drivers to specify in the user data information"
+    },
+    {
+      "text": "The following lists Ethernet devices and the drivers that support them. In the template, replace <Driver> with the value associated with the device you will select during deployment. (The values used in the examples are for illustration only, and are not necessarily typical for the hypervisor type.)"
+    },
+    {
+      "item": "Windows VirtIO: vtnet",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Intel e1000: em",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Intel Gigabit: igb",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Intel 10 Gigabit: ix",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "VMware Vxnet3: vmx",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Hyper-V: hn",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Create your user data in a text file named userdata.cfg using one of the following templates, formatted in YAML:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Branch Connector with Management DHCP Template",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: <CC_URL> http_probe_port: 50035 #Optional to change the port for load balancer status checks from the default value 50001 to 50035. api_key: <API Key> password: <Admin Password> username: <Admin Username> network: config: - name: <Driver> type: physical subnets: - type: dhcp version: '1' #ssh keys are optional ssh_authorized_keys: - ssh-rsa <Key>",
+      "depth": 1
+    },
+    {
+      "item": "Example user data with default HTTP probe port and no SSH key",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: connector.zscaler.net/api/v1/provUrl?name=DemoBC api_key: adfads2sd password: demopass username: bac-demoadmin@12345689.zscaler.net network: config: - name: vmx type: physical subnets: - type: dhcp version: '1'",
+      "depth": 1
+    },
+    {
+      "item": "Example user data with non-default HTTP probe port and SSH key",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: connector.zscaler.net/api/v1/provUrl?name=DemoBC http_probe_port: 50035 api_key: adfads2sd password: demopass username: bac-demoadmin@12345689.zscaler.net network: config: - name: vmx type: physical subnets: - type: dhcp version: '1' ssh_authorized_keys: - ssh-rsa <Key> AAAAB3NzaC1yc2EAAAADAQABAAABgQCh3ru9CCnEow69WlQyJuxvZJGHcjhcgJzp8XnoKTJk6o1bit+rq4BNyjS0orauMF6fNMHAyGZqDWw6RICvoeh386xNqnD7+AGE9VGz4cPv0CjoV2HvkKnA2Dj8KZFFJ/bBV0BndNdGATsbDnhq0wkJ+WXFmamb9kx4dSDL5ZD15SybFop0b/3JoqXoU+9pxFc0bQ/cediaifCztliI9i7NAmvIUinLy2OlDW/uPEcB8nBgXhAAc9ALe6+Q4wZt8JUdrcF04bgoAHYsNuzyEk4dNvov97JyExCAwzSLomiHFtdzhGw7/o6KhfhxxBRodKy4wQBwDzPbD6EbN9iCqoK8DY4HZ2L7HyQKRjhnnY/Y0uldO0tleogElbk+4LsoyAPjPAbogu89xSOa6D7sl2G+dPpqTlFBmO/3m/2JhBnGU= admin@branchpc",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: <CC_URL> http_probe_port: 50035 #Optional to change the port for load balancer status checks from the default value 50001 to 50035. api_key: <API Key> password: <Admin Password> username: <Admin Username> network: config: - name: <Driver> type: physical subnets: - address: <IP Address/Netmask> gateway: <Gateway> type: static - type: nameserver address: - <IP Address> - <IP Address> search: - zscaler.net version: '1' #ssh keys are optional ssh_authorized_keys: - ssh-rsa <Key>",
+      "depth": 1
+    },
+    {
+      "item": "Example user data with default HTTP probe port and no SSH key",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: connector.zscaler.net/api/v1/provUrl?name=DemoBC api_key: adfads2sd password: demopass username: bac-demoadmin@12345689.zscaler.net network: config: - name: vtnet type: physical subnets: - address: 10.66.118.71/24 gateway: 10.66.118.254",
+      "depth": 1
+    },
+    {
+      "item": "type: static - type: nameserver address: - 8.8.8.8 - 8.8.4.4 search: - zscaler.net version: '1'",
+      "depth": 1
+    },
+    {
+      "item": "Example user data with non-default HTTP probe port and SSH key",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: connector.zscaler.net/api/v1/provUrl?name=DemoBC http_probe_port: 50035 api_key: adfads2sd password: demopass username: bac-demoadmin@12345689.zscaler.net network: config: - name: vtnet type: physical subnets: - address: 10.66.118.71/24 gateway: 10.66.118.254 type: static - type: nameserver address: - 8.8.8.8 - 8.8.4.4 search: - zscaler.net version: '1' ssh_authorized_keys: - ssh-rsa <Key> AAAAB3NzaC1yc2EAAAADAQABAAABgQCh3ru9CCnEow69WlQyJuxvZJGHcjhcgJzp8XnoKTJk6o1bit+rq4BNyjS0orauMF6fNMHAyGZqDWw6RICvoeh386xNqnD7+AGE9VGz4cPv0CjoV2HvkKnA2Dj8KZFFJ/bBV0BndNdGATsbDnhq0wkJ+WXFmamb9kx4dSDL5ZD15SybFop0b/3JoqXoU+9pxFc0bQ/cediaifCztliI9i7NAmvIUinLy2OlDW/uPEcB8nBgXhAAc9ALe6+Q4wZt8JUdrcF04bgoAHYsNuzyEk4dNvov97JyExCAwzSLomiHFtdzhGw7/o6KhfhxxBRodKy4wQBwDzPbD6EbN9iCqoK8DY4HZ2L7HyQKRjhnnY/Y0uldO0tleogElbk+4LsoyAPjPAbogu89xSOa6D7sl2G+dPpqTlFBmO/3m/2JhBnGU= admin@branchpc",
+      "depth": 1
+    },
+    {
+      "item": "Branch Connector with Static Management IP Template",
+      "depth": 1
+    },
+    {
+      "item": "Apply your user data to the VM as an ISO image using one of the following procedures:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Windows",
+      "depth": 1
+    },
+    {
+      "item": "Install the Development Tools component from the Windows ADK.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Add oscdimg.exe to your PATH Windows environment variable.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Use PowerShell or Command Prompt (CMD) to generate the ISO.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "> mkdir isodir",
+      "depth": 2
+    },
+    {
+      "item": "Edit isodir\\user-data and insert the contents of your userdata.cfg file. The user data file must be named user-data.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "> oscdimg.exe -j1 -u1 -lcidata .\\isodir\\user-data",
+      "depth": 2
+    },
+    {
+      "item": "macOS",
+      "depth": 1
+    },
+    {
+      "item": "Install cdrtools using a method such as Homebrew. (This procedure uses Homebrew.)",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "$ brew install cdrtools",
+      "depth": 2
+    },
+    {
+      "item": "Use Terminal to generate the ISO.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "> mkdir isodir",
+      "depth": 2
+    },
+    {
+      "item": "Edit isodir/user-data and insert the contents of your userdata.cfg file. The user data file must be named user-data.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "> mkisofs -output user-data.iso -volid cidata -joliet -rock isodir/user-data",
+      "depth": 2
+    },
+    {
+      "item": "Linux",
+      "depth": 1
+    },
+    {
+      "item": "Install genisoimage.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "On Centos, RedHat, or Rocky Linux:",
+      "depth": 3
+    },
+    {
+      "item": "sudo yum install genisoimage",
+      "depth": 3
+    },
+    {
+      "item": "On Ubuntu or Debian Linux:",
+      "depth": 3
+    },
+    {
+      "item": "sudo apt install genisoimage",
+      "depth": 3
+    },
+    {
+      "item": "Generate the ISO.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "> mkdir isodir",
+      "depth": 2
+    },
+    {
+      "item": "Edit isodir/user-data and insert the contents of your userdata.cfg file. The user data file must be named user-data.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "> geniosimage -o user-data.iso -volid cidata -joliet -rational-rock isodir/user-data",
+      "depth": 2
+    },
+    {
+      "heading": "Deploying the Branch Connector & App Connector",
+      "level": 1
+    },
+    {
+      "text": "After you have met all the prerequisites, created user data, and applied user data to the VM, perform the following procedure to deploy your Branch Connector & App Connector on Linux KVM."
+    },
+    {
+      "text": "Deployment Procedure"
+    },
+    {
+      "item": "Log in to Virtual Machine Manager.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Go to File > New Virtual Machine.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          13,
+          32
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "In the New VM window, select Import existing disk image. Then, click Forward.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          29,
+          55
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Browse to upload the Linux KVM image downloaded from the Branch Connector Images page.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "For Choose the operating system you are installing, select Free BSD 11.4. Then, click Forward.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          4,
+          50
+        ],
+        [
+          59,
+          72
+        ],
+        [
+          86,
+          93
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "For Choose Memory and CPU settings, configure the memory and CPU settings based on the VM specifications. Then, click Forward.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          4,
+          34
+        ],
+        [
+          118,
+          125
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Enter a Name for the Branch Connector, select a network under Network selection, and enable Customize configuration before install. Then, click Finish.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          8,
+          12
+        ],
+        [
+          62,
+          79
+        ],
+        [
+          92,
+          130
+        ],
+        [
+          144,
+          150
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "The Branch Connector configuration window appears displaying an overview of your Branch Connector and hypervisor details. Click Add Hardware.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          128,
+          140
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "In the Locate or create storage volume window, select the user-data.iso file you created earlier. Then, click Choose Volume.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          38
+        ],
+        [
+          58,
+          71
+        ],
+        [
+          110,
+          123
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "In the Add New Virtual Hardware window, select Storage from the left-side navigation, and ensure Select or create custom storage is selected.",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          47,
+          54
+        ],
+        [
+          97,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "For Device type, select CDROM device from the drop-down menu, then click Finish.",
+      "depth": 0,
+      "number": 11,
+      "strong": [
+        [
+          4,
+          15
+        ],
+        [
+          24,
+          36
+        ],
+        [
+          73,
+          79
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Select Network from the left-side navigation to add another network:",
+      "depth": 0,
+      "number": 12,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "a. For Network source, select a network from the drop-down menu.",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "b. Enable and enter the MAC address.",
+      "depth": 0,
+      "strong": [
+        [
+          24,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "c. For Device model, select the device model.",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 0,
+      "number": 13,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the Branch Connector configuration window, click Begin Installation.",
+      "depth": 0,
+      "number": 14,
+      "strong": [
+        [
+          52,
+          70
+        ]
+      ]
+    },
+    {
+      "heading": "Managing the Branch Connector & App Connector",
+      "level": 1
+    },
+    {
+      "text": "After your VM is fully deployed, you can manage the Branch Connector VM from the Zscaler Admin Console. A deployed VM is displayed in the dashboard. The Branch Connector Monitoring page provides information on the name, group, location, geolocation, and status of your VMs deployed in your branch account."
+    },
+    {
+      "text": "After verifying deployment, you can configure the following policies:"
+    },
+    {
+      "item": "Traffic Forwarding",
+      "depth": 0
+    },
+    {
+      "item": "Log and Control Forwarding",
+      "depth": 0
+    },
+    {
+      "item": "DNS Filtering",
+      "depth": 0
+    }
+  ]
+}

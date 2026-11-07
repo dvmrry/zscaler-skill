@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Testing Landmine Decoys",
+  "source": {
+    "url": "https://help.zscaler.com/deception/testing-landmine-decoys",
+    "node": "1542556",
+    "revision": "3221553",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can test if configured landmine decoys are properly deployed and working in the Zscaler Deception Admin Portal. Landmine decoys are deployed on endpoints via different methods (Agents, Agentless, and Zscaler Client Connector). Landmine decoys deploy a number of different types of lures configured in the landmine policies that are applied to endpoints based on the configured criterion. When users interact with these decoys, the interaction is considered an attack and an event is generated on the Zscaler Deception dashboard. The deployment of decoys and the subsequent event-generating interaction depend on the type of lures configured, so the steps required to test a landmine decoy depend on the specific type of lure configured."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before testing a landmine decoy, ensure that you have:"
+    },
+    {
+      "item": "Endpoints with Landmine Agent, Landmine Agentless, or Zscaler Client Connector installed, depending on your preferred method for deploying endpoint deception.",
+      "depth": 0
+    },
+    {
+      "item": "A landmine policy configured with the necessary modules. The landmine policy must have a selection criterion that matches at least one endpoint. For the purposes of testing, you can select Catch All as the selection criterion for the landmine policy.",
+      "depth": 0
+    },
+    {
+      "item": "Selecting Catch All as the selection criterion applies policies to all endpoints. Exercise caution when using this option.",
+      "depth": 0
+    },
+    {
+      "heading": "Testing a Landmine Decoy",
+      "level": 1
+    },
+    {
+      "text": "To test a landmine decoy configured with the different lures:"
+    },
+    {
+      "item": "Go to Settings > Endpoint Settings > Agents.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          34
+        ],
+        [
+          37,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Locate an active agent with at least one matched policy in the Matched Policy column, and click the View icon under the Actions column.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          63,
+          77
+        ],
+        [
+          100,
+          104
+        ],
+        [
+          120,
+          127
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Details pane that appears, ensure that the policy module that you want to test is available. For example, if you want to test File Decoys, ensure that the details of File Decoys configured in the landmine policy appear.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          133,
+          144
+        ],
+        [
+          173,
+          184
+        ]
+      ]
+    },
+    {
+      "item": "Depending on the policy configuration, test the decoys:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Defense Evasion",
+      "depth": 1
+    },
+    {
+      "item": "To test defense evasion, note the name of the fake security processes displayed in the Details pane.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          87,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "Open the task manager in Windows and terminate the process.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "An event is recorded in the Investigate dashboard.",
+      "depth": 2
+    },
+    {
+      "item": "Verify the corresponding event by filtering the Investigate dashboard using the following parameters in the query filter:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "type=endpoint and sub_type=fake_process",
+      "depth": 2
+    },
+    {
+      "item": "Privilege Escalation",
+      "depth": 1
+    },
+    {
+      "item": "You can verify the following attacks via events generated in the Investigate dashboard:",
+      "depth": 1
+    },
+    {
+      "item": "To test Man-in-the-Middle (MITM) attacks, use tools such as Responder or Inveigh for resolution of hostnames configured in the policy.",
+      "depth": 2
+    },
+    {
+      "item": "To test brute force detection attacks, simulate repeated failed logins exceeding the configured threshold in the policy against the decoy accounts or local admin accounts (depending on the configuration).",
+      "depth": 2
+    },
+    {
+      "item": "To test in-memory credential exploits, simulate logins using the credentials configured in the policy.",
+      "depth": 2
+    },
+    {
+      "item": "Cloud Lures",
+      "depth": 1
+    },
+    {
+      "item": "You can verify the following lures via events generated in the Investigate dashboard:",
+      "depth": 1
+    },
+    {
+      "item": "To test AWS IAM lures, locate the .aws folder in the endpoint (C:\\Users\\<username>\\ on Windows or /users/<username/ on Linux) and use the credentials to simulate login attempts.",
+      "depth": 2
+    },
+    {
+      "item": "To test Azure File Share lures, access the decoy file share mounted on the endpoint.",
+      "depth": 2
+    },
+    {
+      "item": "To test Azure Service Principal lures, locate the .azure folder in the endpoint (C:\\Users\\<username>\\ on Windows only) and use it to attempt an authentication.",
+      "depth": 2
+    },
+    {
+      "item": "To test Azure User lures, locate the .azure folder in the endpoint (C:\\Users\\<username>\\ on Windows only) and use the credentials to simulate login attempts.",
+      "depth": 2
+    },
+    {
+      "item": "To test Azure Storage Explorer lures, use the Azure Storage Explorer app from the endpoint to access Storage Account Container decoys.",
+      "depth": 2
+    },
+    {
+      "item": "Browser Lures",
+      "depth": 1
+    },
+    {
+      "item": "To test browser lures, depending on the browser, locate the profiles and obtain the necessary data for the lures:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Chrome:",
+      "depth": 3
+    },
+    {
+      "item": "C:\\Users\\<username>\\AppData\\Local\\Google\\Chrome\\User Data\\<Random profile name>\\",
+      "depth": 3
+    },
+    {
+      "item": "Edge:",
+      "depth": 3
+    },
+    {
+      "item": "C:\\Users\\<username>\\AppData\\Local\\Microsoft\\Edge\\User Data\\<Random profile name>\\",
+      "depth": 3
+    },
+    {
+      "item": "Firefox:",
+      "depth": 3
+    },
+    {
+      "item": "C:\\Users\\admin\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles",
+      "depth": 3
+    },
+    {
+      "item": "Enumerate the passwords, cookies, or favorites as required. Password recovery tools can be used to obtain stored decoy browser credentials.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Verify the corresponding event in the Investigate dashboard.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Session Lures",
+      "depth": 1
+    },
+    {
+      "item": "You can verify the following lures via events generated in the Investigate dashboard:",
+      "depth": 1
+    },
+    {
+      "item": "To test DbVisualizer lures, open the DbVisualizer client and access the configured decoys.",
+      "depth": 2
+    },
+    {
+      "item": "To test FileZilla lures, open the FileZilla client and access the configured decoys.",
+      "depth": 2
+    },
+    {
+      "item": "To test Network Drive lures, obtain the decoy credentials from Windows Credentials Manager and access the decoy network drives using those credentials.",
+      "depth": 2
+    },
+    {
+      "item": "To test PuTTY lures, open the PuTTY client and access the configured decoys.",
+      "depth": 2
+    },
+    {
+      "item": "To test RDP lures, go to %userprofile%\\Documents and locate and access the file to initiate an RDP connection to the Windows VM decoy.",
+      "depth": 2
+    },
+    {
+      "item": "File Decoys",
+      "depth": 1
+    },
+    {
+      "item": "To test a file decoy, note the file path displayed in the Details pane.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          58,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Open Windows PowerShell on the endpoint in which you want to test the decoy.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "The landmine policy must have been deployed to the endpoint based on the selection criterion.",
+      "depth": 2
+    },
+    {
+      "item": "Go to the path where the file decoy is deployed using the following command:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "cd <file_path>",
+      "depth": 2
+    },
+    {
+      "item": "Open the file using the following command:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Get-Content .\\<file_name>",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The file is opened, and an event is generated in Zscaler Deception Admin Portal.",
+      "depth": 2
+    },
+    {
+      "item": "Verify the event on the Deception dashboard.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "A file decoy can be configured as a custom file decoy (PPT, EXCEL, WORD, or HTML), credential file decoy, or preconfigured file dataset decoy. You can use the same command to test any of these different types of file decoys. To learn more about configuring file decoys, see Configuring the File Decoys Module.",
+      "depth": 1
+    }
+  ]
+}

@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Using WebView2 Authentication",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-client-connector/using-webview2-authentication",
+    "node": "1477906",
+    "revision": "3248888",
+    "updated": "2026-10-23",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "If your organization uses advanced multi-factor authentication (MFA) for SAML or FIDO2 (Fast Identity Online 2), your users can authenticate using WebView2 in their embedded browser. Zscaler Client Connector still manages traffic for Internet & SaaS and provides access to applications through Private Access."
+    },
+    {
+      "text": "This article describes how to configure and enable WebView2."
+    },
+    {
+      "text": "Users can also authenticate using their browser. To learn more, see Enabling Browser-Based Authentication."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "To use WebView2 authentication, your system must meet the following minimum versions:"
+    },
+    {
+      "item": "Zscaler Client Connector version 4.2 or later for Windows",
+      "depth": 0
+    },
+    {
+      "item": ".Net Framework 4.5+",
+      "depth": 0
+    },
+    {
+      "item": "WebView2 103.0.1264.42+",
+      "depth": 0
+    },
+    {
+      "text": "If an existing version of WebView2 is earlier than the minimum version, Zscaler Client Connector pulls the latest version from Microsoft's content delivery network (CDN), using the bootstrap installer included in the Zscaler Client Connector install package."
+    },
+    {
+      "heading": "Configuring WebView2",
+      "level": 1
+    },
+    {
+      "text": "To avoid encountering issues with the automated download and install of WebView2 by the Evergreen WebView2 bootstrap installer included in the Zscaler Client Connector package, do the following:"
+    },
+    {
+      "item": "Bypass the following Microsoft CDN domains in strict enforcement mode or for any other security policies, so that the bootstrapper can download and install WebView2.",
+      "depth": 0
+    },
+    {
+      "item": ".delivery.mp.microsoft.com",
+      "depth": 1
+    },
+    {
+      "item": ".cdp.microsoft.com",
+      "depth": 1
+    },
+    {
+      "text": "The WebView2 installation is shared by other apps which use the WebView2 runtime."
+    },
+    {
+      "item": "Allowlist the file MicrosoftEdgeWebview2Setup.exe in antivirus and other security policies on client machines. To learn more, see Zscaler Client Connector Processes to Allowlist.",
+      "depth": 0
+    },
+    {
+      "text": "WebView2 launches its own set of processes, so Zscaler Client Connector must bypass them in the strict enforcement mode. The full path of the exe is: %ProgramFiles%\\Zscaler\\ThirdParty\\WebView2\\MicrosoftEdgeWebview2Setup.exe."
+    },
+    {
+      "heading": "Enabling WebView2 Authentication",
+      "level": 1
+    },
+    {
+      "text": "To enable WebView2 authentication in the Zscaler Admin Console:"
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Client Connector > Windows.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          65
+        ],
+        [
+          68,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "On the Platform Settings tab, click Edit.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          36,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Platform Settings window, under Authentication Settings:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          44,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "WebView2: Select this option to enable WebView2 authentication.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "SSO using Windows Primary Account: (Optional) Select this option to automatically log in users in an Azure AD environment using Windows as an IdP. If this option is disabled, users must enter their credentials separately to log in to Zscaler Client Connector. This option is available only for Zscaler Client Connector version 4.4 and later for Windows.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Ignore Client Cert errors for Webview2: (Optional) Select this option to have Zscaler Client Connector continue authenticating if the IdP requires a client certificate for mutual authentication but the client device does not have a client certificate or if the client certificate is invalid. This option is available only for Zscaler Client Connector version 4.4 and later for Windows.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Allow WebView2 to follow System Proxy: (Optional) Deselect this option to connect directly to the internet. This option is available only for Zscaler Client Connector version 4.5 and later for Windows.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Additional IdP Domains: (Optional) Enter additional domains if the user login domain is different from the IdP domain. These domains are added to the Auth Server allowlist in the embedded WebView2 browser along with the user login domain added by default. This option is available only for Zscaler Client Connector version 4.6 and later for Windows and you must integrate with Imprivata to use it with a version earlier than 4.8.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Display certificate selection popup on desktop: (Optional) Select this option to display a list of certificates for the user to select from in a pop-up window if multiple authentication certificates for the IdP are available. If disabled, the selection window displays only when users are viewing the app. Available only with Zscaler Client Connector version 4.7 and later for Windows.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "If you select this option, you can enable app profile options to control what displays when users reauthenticate to Private Access.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

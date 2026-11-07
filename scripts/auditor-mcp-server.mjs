@@ -21,6 +21,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 import {
   makeResponse,
   makeError,
@@ -106,7 +107,7 @@ function resolveResourceContent(uri) {
   // design. Operators running the server from a different repo will get -32002 for any
   // audit that does not exist under that repo's runtime-data audits dir. See workflow.md or
   // runtime-adapters.md for deployment notes.
-  const root = path.resolve(new URL("..", import.meta.url).pathname);
+  const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 
   if (kind === "report") {
     // Throws if audit does not exist — caught by caller -> -32002.
@@ -563,7 +564,7 @@ function handleRequest(raw) {
 
   // ── resources/list ────────────────────────────────────────────────────────
   if (method === "resources/list") {
-    const root = path.resolve(new URL("..", import.meta.url).pathname);
+    const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
     const auditsDir = runtimeDataPath(root, "audits");
     const resources = [];
     try {
@@ -670,7 +671,7 @@ function handleRequest(raw) {
 
 // Log the resource root at startup so operators can confirm which repo the
 // server resolves audit resource URIs against (see resolveResourceContent).
-const _RESOURCE_ROOT = path.resolve(new URL("..", import.meta.url).pathname);
+const _RESOURCE_ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 process.stderr.write(`[auditor-mcp-server] resource root: ${_RESOURCE_ROOT}\n`);
 
 let buffer = "";

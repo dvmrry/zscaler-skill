@@ -175,5 +175,5 @@ Document it explicitly. Silent assumptions cause incorrect recommendations.
 - [`architect/prompt.md`](../prompt.md) — `/z-architect` playbook
 - [`architect/methodology.md`](../methodology.md) — recommendation register, risk scale, confidence calibration, status lifecycle
 - [`siem-emission-discipline.md`](../../siem-emission-discipline.md) — execution modes, placeholder plumbing, public/private boundary
-- [`splunk-queries.md`](../../../references/shared/splunk-queries.md) — named SPL patterns to reference from inside diagnostics
+- [`shared.splunk`](kb:shared.splunk) — named SPL patterns to reference from inside diagnostics
 - [`investigator/diagnostics/template.md`](../../investigator/diagnostics/template.md) — parallel template for `/z-investigator` diagnostics

@@ -1,0 +1,696 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.users",
+  "title": "Authentication Service users: where they come from, status, bulk actions and admin-side actions",
+  "aliases": [
+    "ZIdentity users",
+    "Authentication Service users",
+    "user source",
+    "SCIM user",
+    "JIT user",
+    "deactivate user",
+    "disable user ZIdentity",
+    "skip MFA for user",
+    "reset user password ZIdentity",
+    "bulk delete users"
+  ],
+  "binds": [
+    "zidentity/users",
+    "zidentity/users#source",
+    "zidentity/users#status"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.security-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.attributes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.migration.end-users"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Authentication Service user directory is shared by every subscribed service. {{created-locally-or-idp}}"
+    },
+    {
+      "label": "Where a user came from.",
+      "text": "{{source-values}} Whether the idp field and the source track each other, and whether a source can change, is open {{gap:source-and-idp}}. Provisioning by JIT and SCIM, and what IdP removals do to users, is in [[zidentity.users.provisioning]]. Whether a SCIM-provisioned user can be edited here without the IdP undoing it is open {{gap:scim-user-mutation}}; the group question is [[zidentity.groups:scim-group-mutation]]."
+    },
+    {
+      "label": "What a user can be given.",
+      "text": "Admin and service entitlements: [[zidentity.entitlements:two-kinds]]. {{assign-services}} Group membership, and the per-user group limit on which help pages differ: [[zidentity.groups:membership-limit]]."
+    },
+    {
+      "label": "Adding one in the console.",
+      "text": "{{login-id-format}} {{guest-domain-user}} {{profile-fields}} Super admin privileges come from group membership: [[zidentity.groups:global-admins-super-admin]]. The password option and skipping second-factor authentication are in [[zidentity.users.security-settings]]."
+    },
+    {
+      "label": "Active or inactive.",
+      "text": "{{status}}"
+    },
+    {
+      "label": "Attributes and SCIM.",
+      "text": "The user attributes a profile can carry are in [[zidentity.attributes]], and the SCIM server that provisions them is in [[zidentity.users.provisioning.scim]]."
+    },
+    {
+      "label": "The dashboard.",
+      "text": "{{dashboard}} {{dashboard-user-counts}} {{dashboard-service-entitlements}} {{dashboard-auth-status}} {{dashboard-user-management}} Retention beyond 90 days and any export are open {{gap:dashboard-retention}}."
+    },
+    {
+      "label": "Guest domains.",
+      "text": "{{guest-domains}} {{arbitrary-guest-domains}} {{guest-domains-next}} How many guest domains can be listed is open {{gap:guest-domain-limit}}."
+    },
+    {
+      "label": "Departments.",
+      "text": "{{departments-admin-scope}} {{departments}} {{departments-csv}} Which product's admin scope a department applies to, and how it relates to ZIA departments, is open {{gap:department-scope}}."
+    },
+    {
+      "label": "Bulk work in the console.",
+      "text": "{{console-bulk}} {{csv-import-format}} {{csv-email-and-password}} {{csv-override}} {{onboarding-csv-header}} Whether the Import User drawer's CSV can assign groups, and its full column set, are open {{gap:csv-columns}}."
+    },
+    {
+      "label": "Creating one through the API.",
+      "text": "{{create-fields}} {{id-assigned}} What the service does with a caller-supplied ID is open {{gap:caller-id}}."
+    },
+    {
+      "label": "Admin-side actions.",
+      "text": "{{user-actions}} Which clients wrap these actions is in [[zidentity.api.client-coverage]]."
+    },
+    {
+      "text": "Endpoint, filter and SDK details are in the generated surface (`node scripts/kb.mjs surface zid`) and in [[zidentity.api.client-coverage]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user's source is SCIM or JIT, in which case the IdP may change the record again.",
+      "uses": [
+        "source-values",
+        "zidentity.users.provisioning:jit-reactive"
+      ]
+    },
+    {
+      "do": "Whether the user is inactive rather than deleted.",
+      "uses": [
+        "status"
+      ]
+    },
+    {
+      "do": "Whether MFA was skipped for the user by an admin action.",
+      "uses": [
+        "user-actions"
+      ]
+    }
+  ],
+  "claims": {
+    "created-locally-or-idp": {
+      "statement": "Users are added to Authentication Service either by creating them locally in it or through an external identity provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-users.json",
+          "quotes": [
+            "You can add users to Authentication Service by creating them locally within Authentication Service or via an external identity provider (IdP) provider."
+          ]
+        }
+      ]
+    },
+    "source-values": {
+      "statement": "A user record's source says how it was created: UI (created or managed via a user interface), API (created or managed through API calls), SCIM (provisioned via SCIM) or JIT (created or updated via Just-in-Time).",
+      "tier": "A",
+      "binds": [
+        "zidentity/users#source"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/responses/202/content/application~1json/schema/properties/source/allOf/[title=SourceType]",
+          "expect": {
+            "enum": [
+              "UI",
+              "API",
+              "SCIM",
+              "JIT"
+            ],
+            "description": "The various sources from which an entity can originate.<li> <strong>UI</strong>: Resource was created or managed via a user interface. <li> <strong>API</strong>: Resource was created or managed through API calls.<li><strong>SCIM</strong>:  Resource was provisioned via System for Cross-domain Identity Management (SCIM). <li><strong>JIT</strong>: Resource was created or updated via Just-in-Time (JIT)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/responses/202/content/application~1json/schema/properties/source",
+          "expect": {
+            "description": "The source type where the user was created."
+          }
+        }
+      ]
+    },
+    "assign-services": {
+      "statement": "A user can be assigned to one or several Zscaler services, and managing users in Authentication Service replaces keeping a separate user database in each subscribed service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-users.json",
+          "quotes": [
+            "Assign users to a single or multiple Zscaler services.",
+            "Manage all users in Authentication Service instead of maintaining individual user databases in each of the subscribed Zscaler services."
+          ]
+        }
+      ]
+    },
+    "status": {
+      "statement": "A user is Active or Inactive and is activated or deactivated from the console; in the API the status is a boolean, true for active and false for disabled.",
+      "tier": "A",
+      "binds": [
+        "zidentity/users#status"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-users.json",
+          "quotes": [
+            "Status: The status of the user (Active or Inactive).",
+            "Click the icon and activate or deactivate the user."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/requestBody/content/application~1json/schema/properties/status",
+          "expect": {
+            "type": "boolean",
+            "description": "Whether the API user needs to be active <code>true</code> or disabled <code>false</code>."
+          }
+        }
+      ]
+    },
+    "console-bulk": {
+      "statement": "The Users page imports new users or modifies existing ones from a CSV file, resets the password of several selected users at once, and activates, deactivates or deletes several selected users in one bulk action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-users.json",
+          "quotes": [
+            "Import new users, or modify existing users, using a CSV file.",
+            "Reset the password for multiple users. This option is visible only when you select more than one user.",
+            "Perform a bulk action on the users, like activate, deactivate, or delete them."
+          ]
+        }
+      ]
+    },
+    "create-fields": {
+      "statement": "Creating a user through the API requires `loginName`, `displayName`, `primaryEmail` and `status`; the create request has no `id` field, which appears in the response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "loginName",
+              "displayName",
+              "primaryEmail",
+              "status"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "id"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/responses/202/content/application~1json/schema/properties/id",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "login-id-format": {
+      "statement": "A user's login ID consists of a username and a domain name in email format, where the username must be unique and its domain must belong to the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-users.json",
+          "quotes": [
+            "Login ID: Enter a user ID. The user ID consists of a username and domain name in email format (e.g., username@domain.com). The username must be unique, and its domain must belong to the organization."
+          ]
+        }
+      ]
+    },
+    "guest-domain-user": {
+      "statement": "If a user's login ID has a guest domain, authentication for that user is not managed by Zscaler, and the password option remains disabled on the Security Settings tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-users.json",
+          "quotes": [
+            "If you add the login ID with a guest domain, authentication for that user is not managed by Zscaler, and the password option remains disabled on the Security Settings tab."
+          ]
+        }
+      ]
+    },
+    "profile-fields": {
+      "statement": "Adding a user in the console takes a status (enable or disable), primary and secondary email addresses, first and last names (from which the Display Name is built), a Department (a system-defined attribute), a manager and additional attributes already created in Authentication Service by admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-users.json",
+          "quotes": [
+            "Status: Enable or disable the user.",
+            "Primary Email: Enter the primary email address of the user.",
+            "Secondary Email: Enter the secondary email address of the user.",
+            "The user's full name is created based on what you enter in the First Name and Last Name fields and is displayed in the Display Name field.",
+            "Department is a system-defined attribute.",
+            "Manager: Select the manager of the user.",
+            "Additional Attributes: Select the user attributes that are already created in Authentication Service by admins."
+          ]
+        }
+      ]
+    },
+    "csv-import-format": {
+      "statement": "The help says up to 1,000 users can be imported at one time by CSV file, from a template downloaded with Download Sample in the Import User drawer; the header row is retained, the file name has a .csv extension, each user is on a separate line with an email domain defined in the portal, and in the Action column + adds a user (Primary Email, Login Name, First Name and Last Name filled in) and - deletes one (Login Name filled in).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-importing-user-details-csv-file.json",
+          "quotes": [
+            "You can import up to 1,000 users into Authentication Service at one time by using CSV files.",
+            "In the Import User drawer, click Download Sample to download the template.",
+            "Retain the first line of the file, which is the header row.",
+            "The file name must have a .csv extension.",
+            "+ (plus sign): To add a user, fill in the Primary Email, Login Name, First Name, Last Name columns.",
+            "- (minus sign): To delete a user, fill in the Login Name column.",
+            "Each user must be on a separate line. Each user's email address must have a domain name that was defined in the portal."
+          ]
+        }
+      ]
+    },
+    "csv-email-and-password": {
+      "statement": "In the CSV the Secondary Email can specify any domain but must be a valid email address; if the authentication method is a one-time token or one-time link the Primary Email must be a valid email address; and a Password Reset value of True emails the user to set their password while False does not send the email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-importing-user-details-csv-file.json",
+          "quotes": [
+            "The Secondary Email can specify any domain, but it must be a valid email address.",
+            "If the authentication method is a one-time token or one-time link, then this Primary Email field must contain a valid email address.",
+            "You can set the Password Reset column to either True or False. Enter True to email the user to set their password or False to not send the email."
+          ]
+        }
+      ]
+    },
+    "csv-override": {
+      "statement": "Override Existing Entries is selected to update existing user details, delete users or add new users, and is not selected to only add new users; without it, adding a user who already exists shows an error message stating that identical users cannot be imported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-importing-user-details-csv-file.json",
+          "quotes": [
+            "Select Override Existing Entries if you want to update the existing user details, delete users, or add new users.",
+            "Do not select this option if you only want to add new users.",
+            "If you attempt to add a user that already exists and this option is not selected, an error message is displayed, stating that identical users cannot be imported."
+          ]
+        }
+      ]
+    },
+    "onboarding-csv-header": {
+      "statement": "The Experience Center onboarding Upload CSV template's header row is Action, Login Name, Display Name, First Name, Last Name, Primary Email, Secondary Email, Language, Department, Timezone, Password Reset and Group Names; a - row needs only the Login Name of the user being deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-onboarding-users-experience-center.json",
+          "quotes": [
+            "Action,Login Name,Display Name,First Name,Last Name,Primary Email,Secondary Email,Language,Department,Timezone,Password Reset,Group Names",
+            "- (minus sign) to delete a user, you need only enter the Login Name of the user you are deleting."
+          ]
+        }
+      ]
+    },
+    "id-assigned": {
+      "statement": "So the service assigns the user's ID when the user is created.",
+      "tier": "B",
+      "derived_from": [
+        "create-fields"
+      ],
+      "conditions": "Inferred from the API reference: the create request has no ID and the response carries one. No source states it, and the Python SDK's create example still passes an ID."
+    },
+    "user-actions": {
+      "statement": "Besides create, read, update and delete, the API can initiate a password reset for a user, set a flag to skip MFA for a user (the request carries a timestamp of when the skip was set), and set a user's password, optionally requiring the user to reset it at the next login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}:resetpassword/post",
+          "expect": {
+            "description": "Initiates a password reset for a specific user <code>ID</code>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}:setskipmfa/post",
+          "expect": {
+            "description": "Sets a flag to skip Multi-Factor Authentication (MFA) for a specified user <code>ID</code>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}:setskipmfa/post/requestBody/content/application~1json/schema/properties/timestamp",
+          "expect": {
+            "description": "The timestamp indicating when the MFA skip action was set, usually represented in epoch time."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}:updatepassword/put",
+          "expect": {
+            "description": "Updates the password for a specific user <code>ID</code>. Optionally, a boolean flag can be set to require the user to reset their password during next login."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post",
+          "expect": {
+            "description": "Creates a new user using the provided details."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get",
+          "expect": {
+            "description": "Retrieves a list of users with optional query parameters for pagination and filtering.\n\n To learn more, see <a href=\"https://help.zscaler.com/authentication-service/about-users\">About Users</a>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}/get",
+          "expect": {
+            "description": "Retrieves detailed information about a specific user using the provided user <code>ID</code>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}/put",
+          "expect": {
+            "description": "Updates the details of an existing user based on the provided user <code>ID</code>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}/delete",
+          "expect": {
+            "description": "Deletes an existing user from the system by the provided user <code>ID</code>."
+          }
+        }
+      ]
+    },
+    "dashboard": {
+      "statement": "The user dashboard (Administration > Authentication > Overview) gives a view of all users managed from Authentication Service, their authentication status and user management activities, over a selected duration of 1 to 90 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-authentication-service-user-dashboard.json",
+          "quotes": [
+            "The Authentication Service user dashboard provides a comprehensive view of all users managed from Authentication Service, their authentication status, and user management activities in the Zscaler Admin Console.",
+            "On the Dashboard page (Administration > Authentication > Overview), you can do the following:",
+            "Select the duration between 1 and 90 days for which you want to view the data."
+          ]
+        }
+      ]
+    },
+    "dashboard-user-counts": {
+      "statement": "The dashboard counts Total Users (managed from Authentication Service), IdP Users (registered and guest users accessing a Zscaler service through Authentication Service) and Hosted Users (registered and guest users hosted on Authentication Service), split into registered domain users, whose login IDs use the organization's registered domain, and guest domain users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-authentication-service-user-dashboard.json",
+          "quotes": [
+            "Total Users: The total number of users that are managed from Authentication Service.",
+            "IdP Users: The number of registered and guest users accessing Zscaler service through Authentication Service.",
+            "Hosted Users: The number of registered and guest users hosted on Authentication Service.",
+            "Registered domain users: Users whose login IDs is created using the registered organization's domain (e.g., acme.zslogin.net).",
+            "Guest domain users: Users whose login IDs is created using guest domains."
+          ]
+        }
+      ]
+    },
+    "dashboard-service-entitlements": {
+      "statement": "The Service Entitlements widget counts users assigned to each Zscaler service and is visible only when service entitlement is enabled for the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-authentication-service-user-dashboard.json",
+          "quotes": [
+            "Service Entitlements: The number of users assigned to different Zscaler services.",
+            "The Service Entitlements widget is visible only when the service entitlement is enabled for your tenant."
+          ]
+        }
+      ]
+    },
+    "dashboard-auth-status": {
+      "statement": "The dashboard shows the authentication status (Success or Failure) of hosted and external IdP users, graphing the users who logged in to the Admin Console with each authentication method with the date and time of the attempt; External IdP applies only to Zscaler services not migrated to Experience Center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-authentication-service-user-dashboard.json",
+          "quotes": [
+            "View the authentication status (Success or Failure) of hosted users and external IdP users.",
+            "The graph depicts the total number of users that logged in to Zscaler Admin Console using a specific authentication method along with the date and time of authentication attempt.",
+            "External IdP is applicable only to Zscaler services that are not migrated to Experience Center."
+          ]
+        }
+      ]
+    },
+    "dashboard-user-management": {
+      "statement": "The dashboard shows statistics for successful and for failed user management activities (Created, Updated and Deleted) by date and time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-authentication-service-user-dashboard.json",
+          "quotes": [
+            "View the statistics for successful user management activities (Created, Updated, and Deleted) on a specific date and time.",
+            "View the statistics for failed user management activities (Created, Updated, and Deleted) on a specific date and time."
+          ]
+        }
+      ]
+    },
+    "guest-domains": {
+      "statement": "Guest domains let third-party (guest) users access the Zscaler service; they can be assigned only to guest users who do not use Client Connector for authentication, and those guest users cannot be given administrative entitlements.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-guest-domains.json",
+          "quotes": [
+            "You can add a list of guest domains to allow third-party users (guest users) to access the Zscaler service.",
+            "You can assign guest domains to only those guest users who do not have Zscaler Client Connector for authentication. These guest users cannot be assigned administrative entitlements."
+          ]
+        }
+      ]
+    },
+    "arbitrary-guest-domains": {
+      "statement": "Arbitrary Guest Domains, optional, lets third-party users authenticate with any domain even if it is not in the guest domain list, and is supported only with Privileged Remote Access (PRA).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-guest-domains.json",
+          "quotes": [
+            "Arbitrary Guest Domains: (optional) Enable to allow third-party users to authenticate using any domain even if it is not added to the list of guest domains.",
+            "Arbitrary Guest Domains are supported only with Privileged Remote Access (PRA)."
+          ]
+        }
+      ]
+    },
+    "guest-domains-next": {
+      "statement": "After adding guest domains, the third-party users are added to the Admin Console and the guest domains are added to the required IdP so those users can authenticate with SSO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-guest-domains.json",
+          "quotes": [
+            "Add the third-party users to the Zscaler Admin Console.",
+            "Add these guest domains to the required identity provider (IdP), so the third-party users can authenticate using single sign-on (SSO) and access the guest domains."
+          ]
+        }
+      ]
+    },
+    "departments-admin-scope": {
+      "statement": "Departments can define an administrator's scope, giving the admin control over a set of users in a department; an administrator can belong to only one department.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-departments.json",
+          "quotes": [
+            "When you add administrators, you can define their scope by department. Administrators can have control over a set of users in a department. An administrator can belong to only one department."
+          ]
+        }
+      ]
+    },
+    "departments": {
+      "statement": "A department has a name and an optional description of up to 10,240 characters, and a user can belong to only one department.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-departments.json",
+          "quotes": [
+            "You can add departments in the Zscaler Admin Console and assign the specific department to users. A user can belong to only one department.",
+            "Department Name: Enter a department name.",
+            "Description: Optionally, enter additional notes or information. The content cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "departments-csv": {
+      "statement": "Up to 1,000 departments can be imported by CSV, and the sample template is also used to add many users to an existing department or change the department of many users; Override Existing Entries replaces the existing department list with the file's.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-departments.json",
+          "quotes": [
+            "You can import up to 1,000 departments using a CSV file.",
+            "If you want to add multiple users to an existing department or change the department for multiple users, use the sample CSV file template.",
+            "Click Override Existing Entries if you want to replace the existing list of departments with those specified in the CSV file."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dashboard-retention": {
+      "kind": "semantic",
+      "title": "How long the dashboard keeps data and whether it can be exported",
+      "status": "open",
+      "detail": "The dashboard shows 1 to 90 days; retention beyond that and any export are not stated. Whether device-token users count as hosted or IdP users is also not stated (see zidentity.users.provisioning).",
+      "blocks": "answering how far back user activity can be viewed",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "guest-domain-limit": {
+      "kind": "semantic",
+      "title": "How many guest domains can be added",
+      "status": "open",
+      "detail": "The Adding Guest Domains page gives no limit for the guest domain list.",
+      "blocks": "planning many guest domains",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "department-scope": {
+      "kind": "semantic",
+      "title": "Which product's admin scope a department applies to, and how it relates to ZIA departments",
+      "status": "open",
+      "detail": "The department pages do not say which product's admin scope a department defines or how Authentication Service departments relate to ZIA departments; the add step says to save and activate the change without describing the activation.",
+      "blocks": "scoping an admin by department across products",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "csv-columns": {
+      "kind": "semantic",
+      "title": "The CSV template's full column set, group assignment and delete rows",
+      "status": "partial",
+      "detail": "The import page names only the Action, Primary Email, Login Name, First Name, Last Name, Password Reset and Secondary Email columns and does not list the template's full column set. The Experience Center onboarding template gives a header line, including Group Names (onboarding-csv-header), but it is downloaded from the onboarding Users page (Download CSV Template), not the Import User drawer (Download Sample) that csv-import-format cites, and the pages do not say whether they are the same file. Whether the Authentication Service CSV can assign groups is not stated, which leaves the page's line that a user can belong to up to 128 groups unexplained (see the group-count divergence in zidentity.groups), and how - rows interact with Override Existing Entries is not stated.",
+      "blocks": "building an import file that sets groups or deletes users",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "caller-id": {
+      "kind": "semantic",
+      "title": "What happens when a user create carries an ID",
+      "status": "partial",
+      "former_ids": [
+        "zid-32"
+      ],
+      "detail": "Unverified legacy statement: the Python SDK's add_user example passes id explicitly, and whether omitting it makes the server generate one or returns an error was unverified. The API reference answers the omission side (the create request has no id and the response has one); whether a supplied id is ignored, honored or rejected is not stated.",
+      "blocks": "reproducing user IDs across tenants or re-creating a deleted user with its old ID",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "source-and-idp": {
+      "kind": "semantic",
+      "title": "When a user's IdP is filled in, and whether its source can change",
+      "status": "open",
+      "detail": "Unverified legacy statement: the idp field is populated for SCIM- and JIT-provisioned users and may be null for users created in the console or through the API; the source field is readable but not changeable after creation. The API reference describes idp only as identity provider information and source as where the user was created; neither rule is stated.",
+      "blocks": "telling IdP-owned users from local ones by the idp field, and repairing a user's recorded source",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "scim-user-mutation": {
+      "kind": "semantic",
+      "title": "Whether SCIM-provisioned users can be changed in Authentication Service",
+      "status": "open",
+      "detail": "Unverified legacy statement: whether updating or deleting a user whose source is SCIM in Authentication Service is rejected by the server, on the principle that the IdP owns the record, is undocumented, as is whether an accepted change is overwritten at the next SCIM push. Searched: the user update and delete operations of the zid contract, which state no source-based rule, and the provisioning help, which covers what IdP-side SCIM requests do, not edits made in Authentication Service.",
+      "blocks": "deciding whether to change a SCIM-provisioned user in Authentication Service or in the IdP",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

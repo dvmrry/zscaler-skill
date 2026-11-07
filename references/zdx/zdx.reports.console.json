@@ -1,0 +1,477 @@
+{
+  "schema_version": 1,
+  "id": "zdx.reports.console",
+  "title": "Console reports: predefined reports, Data Explorer views and Quarterly Business Review reports",
+  "aliases": [
+    "predefined reports",
+    "system generated reports",
+    "data explorer",
+    "data explorer views",
+    "quarterly business review",
+    "qbr",
+    "probe assignments report",
+    "user location report",
+    "top users with poor zdx scores"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.dashboards"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts.snapshot"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZDX console has three kinds of reports besides its dashboards: predefined reports, Data Explorer views and Quarterly Business Review reports; the API's report reads are in [[zdx.reports]]."
+    },
+    {
+      "label": "Predefined reports.",
+      "text": "{{predefined-basics}} {{latency-reports}} {{score-reports}} {{active-users-report}} {{poor-users-report}} {{probe-assignments}} {{user-location}}"
+    },
+    {
+      "label": "Data Explorer.",
+      "text": "{{data-explorer}} The two articles give different aggregation types {{divergence:aggregation-types}} and different metric limits {{divergence:managed-metric-count}}."
+    },
+    {
+      "label": "Configuring a view.",
+      "text": "{{de-prerequisites}} {{de-apps-metrics}} {{de-aggregation}} {{de-granularity}} {{de-group-by}} {{de-end-user-output}} {{de-managed}} {{de-multipath}} {{de-edit-delete}}"
+    },
+    {
+      "label": "Quarterly Business Review.",
+      "text": "{{qbr-availability}} {{qbr-contents}} What the QBR shows about threats is open {{gap:qbr-threats}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant's subscription supports the report type and the admin role has its permission before treating a missing report as absent data.",
+      "uses": [
+        "predefined-basics",
+        "data-explorer",
+        "qbr-availability"
+      ]
+    }
+  ],
+  "claims": {
+    "predefined-basics": {
+      "statement": "Details for each predefined report are aggregated day to day and most reports are captured in a rolling 14-day cycle. They need the System Generated Reports permission and a supporting subscription (the subscription table lists System-Generated Reports as not supported on Standard and Microsoft 365 and supported on Advanced and Advanced Plus), and each report's Data Source specifies which data is captured: All Cloud Path, All Web Probes or All Devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-predefined-reports.json",
+          "quotes": [
+            "Details for each report are aggregated day-to-day and most reports are captured in a rolling 14-day cycle.",
+            "Your admin role is configured to view predefined reports using the System Generated Reports permission.",
+            "Data Source: Specifies which data is captured (All Cloud Path, All Web Probes, All Devices)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| System-Generated Reports | Not supported | Not supported | Supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "latency-reports": {
+      "statement": "The Cloud Path: End-to-End report captures the average latency in the Cloud Path within a 14-day time range, with a P95 line calculated from the selected locations and up to 20 device locations in its legend. The DNS Performance report captures the average DNS latency within a 14-day time range, and the Last Mile ISP Performance report captures ISP latency within a 14-day time range, displaying up to 20 ISPs at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-predefined-reports.json",
+          "quotes": [
+            "The Cloud Path: End-to-End report captures the average latency in the Cloud Path within a 14-day time range.",
+            "The P95 line is calculated based on the latency of the selected locations.",
+            "The DNS Performance report captures the average DNS latency within a 14-day time range.",
+            "The Last Mile ISP Performance report captures ISP latency within a 14-day time range.",
+            "Up to 20 ISPs are displayed at a time within the legend on the right side of the graph, based on the ISPs to which your users are connecting."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-predefined-reports.json",
+          "quotes": [
+            "Up to 20 device locations are displayed at a time within the legend on the right side of the graph, based on user device information."
+          ],
+          "after": "- Cloud Path: End-to-End"
+        }
+      ]
+    },
+    "score-reports": {
+      "statement": "The Application Performance report captures the daily distribution of ZDX Scores within a 14-day time range, and the ZDX Score by Application report captures the average ZDX Score per application within a 14-day time range, displaying up to 20 applications at one time. On hover the Wi-Fi Distribution graph shows the device count per Wi-Fi band and its percentage from the total number of user devices across the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-predefined-reports.json",
+          "quotes": [
+            "The Application Performance report captures the daily distribution of ZDX Scores within a 14-day time range.",
+            "The ZDX Score by Application report captures the average ZDX Score per application within a 14-day time range.",
+            "Up to 20 applications are displayed at one time on the right side of the graph, based on available applications.",
+            "The Wi-Fi Distribution report captures the daily distribution of ZDX Scores within a 14-day time range.",
+            "On hover, the graph shows the device count per Wi-Fi band and its percentage from the total number of user devices across your organization."
+          ]
+        }
+      ]
+    },
+    "active-users-report": {
+      "statement": "The Active Users by Zscaler Destination report captures the current distribution of active users and devices per Zscaler destination; on hover the graph shows the user and device counts within a 2-hour time range, and up to 100 destinations can be viewed within the table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-predefined-reports.json",
+          "quotes": [
+            "The Active Users by Zscaler Destination report captures the current distribution of active users and devices per Zscaler destination.",
+            "On hover, the graph shows the user and device counts within a 2-hour time range.",
+            "You can view up to 100 destinations within the table."
+          ]
+        }
+      ]
+    },
+    "poor-users-report": {
+      "statement": "The Top Users with Poor ZDX Scores report captures the top 100 users within a 14-day time range who have the lowest Poor ZDX Scores, based on the selected application, and counts the number of times probes were run for that application within the 14-day timeline.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-predefined-reports.json",
+          "quotes": [
+            "The Top Users with Poor ZDX Scores report captures the top 100 users within a 14-day time range who have the lowest Poor ZDX Scores, based on the selected application.",
+            "# Probe Runs: The number of times probes were run for the selected application within the 14-day timeline."
+          ]
+        }
+      ]
+    },
+    "probe-assignments": {
+      "statement": "The Probe Assignments report captures the number of enabled probes assigned to a given user in a 24-hour time range based on probe usage, and needs the appropriate permission. The probe ranges are 0-10, 11-20, 21-25 or >25 with a default filter of >25, and if the query finds more than 1,000 impacted users the report displays the first 1,000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-predefined-reports.json",
+          "quotes": [
+            "The Probe Assignments report captures the number of enabled probes assigned to a given user in a 24-hour time range based on probe usage.",
+            "To access Probe Assignments, ensure you have the appropriate permission.",
+            "Total Probes across All Users: The total number of enabled probes with an active application.",
+            "The probe ranges are 0-10, 11-20, 21-25, or >25. The default filter is >25.",
+            "If the report query finds more than 1,000 impacted users, then the report displays the first 1,000 users. Use filters to narrow your results or download a CSV file to view all impacted users."
+          ]
+        }
+      ]
+    },
+    "user-location": {
+      "statement": "The User Location report gives an overview of user devices' geolocations and granular information in Location History, including each geolocation's latitude and longitude and its source information. A geolocation must be selected before data is displayed, and the report displays up to 5,000 devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-predefined-reports.json",
+          "quotes": [
+            "The User Location report provides an overview of your user devices' geolocations and granular information about the user device's geolocation in Location History.",
+            "You must select a geolocation before data is displayed on the report.",
+            "Latitude / Longitude: The latitude and longitude of the geolocation.",
+            "Source: The geolocation's source information.",
+            "The report displays up to 5,000 devices."
+          ]
+        }
+      ]
+    },
+    "data-explorer": {
+      "statement": "Data Explorer lets admins build and organize their own customized views of applications and metrics; a view's data source is End User Monitoring or Managed Monitoring and its aggregation type across all users is Average, Minimum or Maximum. Only the Super Admin or the admin who created a view can edit or delete it, and the subscription table gives Data Explorer Views, Applications and Metrics as not supported on Standard and Microsoft 365, 30, 1 and 1 on Advanced, and 100, 4 and 4 on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-data-explorer-views.json",
+          "quotes": [
+            "Data Explorer offers the flexibility to build and organize your own customized views of applications and metrics.",
+            "Data Source: Indicates the view is for End User Monitoring or Managed Monitoring.",
+            "Aggregation: The Aggregation type across all users, designated as Average, Minimum, or Maximum.",
+            "Only the Super Admin, or the admin who created the view, can edit or delete a configured Data Explorer view."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Data Explorer Views | Not supported | Not supported | 30 | 100 |",
+            "| Data Explorer Applications | Not supported | Not supported | 1 | 4 |",
+            "| Data Explorer Metrics | Not supported | Not supported | 1 | 4 |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "de-prerequisites": {
+      "statement": "Configuring a Data Explorer view needs a ZDX subscription level that supports Data Explorer and a ZDX role with the proper permission level, and a view can be created from either End User or Managed Monitoring data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-data-explorer-views.json",
+          "quotes": [
+            "Your ZDX subscription level supports Data Explorer.",
+            "Your ZDX role has the proper permission level.",
+            "You have the option to create a view from either End User or Managed Monitoring data."
+          ]
+        }
+      ]
+    },
+    "de-granularity": {
+      "statement": "For an End User view, data is displayed in 5-minute intervals if the time range is 24 hours or less, and in 1-hour intervals if it is greater than 24 hours but less than or equal to 14 days; some filters are unavailable if the selected time range is greater than 48 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-data-explorer-views.json",
+          "quotes": [
+            "Some filters are unavailable if your selected time range is greater than 48 hours.",
+            "If 24 Hours or less, data is displayed in 5-minute intervals.",
+            "If greater than 24 Hours but less than (or equal to) 14 Days, data is displayed in 1-hour intervals."
+          ]
+        }
+      ]
+    },
+    "de-apps-metrics": {
+      "statement": "In an End User view, selecting a UCaaS application allows adding other UCaaS applications and selecting a non-UCaaS application allows adding other non-UCaaS applications; the applications selected determine the metrics available, and the metrics-based filters specify conditions or thresholds on the chosen metrics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-data-explorer-views.json",
+          "after": "Create a View for End User Monitoring",
+          "quotes": [
+            "If you select a United Communications as a Service (UCaaS) application, you can add other UCaaS applications for your view.",
+            "If you select a non-UCaaS application, you can add other non-UCaaS applications for your view.",
+            "The applications you select determine the particular metrics that are available.",
+            "These filters allow you to specify conditions or thresholds based on the metrics you've chosen."
+          ]
+        }
+      ]
+    },
+    "de-group-by": {
+      "statement": "An End User view groups data by Zscaler Locations, Geolocations, Departments, Applications, Last Mile ISPs or Zscaler Data Center; grouping by Applications renders views for each metric and other options render views for each application and metric, and with more than one metric in chart format the Group By option is limited to Applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-data-explorer-views.json",
+          "quotes": [
+            "Select an option to group data by Zscaler Locations, Geolocations, Departments, Applications, Last Mile ISPs, or Zscaler Data Center.",
+            "If you group by Applications, views are rendered for each metric. If you group by other options in the drop-down menu, views are rendered for each application and metric.",
+            "If you've selected more than one metric for your view in chart format, your Group By option is limited to Applications."
+          ]
+        }
+      ]
+    },
+    "de-aggregation": {
+      "statement": "The Configuring Data Explorer Views article selects the Average, Minimum, Maximum or Median method for data aggregation across all users, with Average as the default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-data-explorer-views.json",
+          "after": "Create a View for End User Monitoring",
+          "quotes": [
+            "Select the Average, Minimum, Maximum, or Median method for data aggregation across all users. The default setting is Average."
+          ]
+        }
+      ]
+    },
+    "de-end-user-output": {
+      "statement": "An End User view can be displayed in chart or tabular format, the configured table information can be captured in a CSV file with Export and then the Download icon, and the total number of views that can be saved depends on the ZDX subscription level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-data-explorer-views.json",
+          "after": "Create a View for End User Monitoring",
+          "quotes": [
+            "Select a View Type icon to display views in a chart or tabular format.",
+            "To capture your configured table information in a CSV file, click Export, then click the Download icon.",
+            "The total number of views you can save depends on your ZDX subscription level."
+          ]
+        }
+      ]
+    },
+    "de-managed": {
+      "statement": "A Managed Monitoring view has a default time range of 24 Hours, filters by Zscaler Managed Locations, takes up to 10 probes and up to 10 metrics, automatically selects Page Fetch Time and End-to-End Latency if a Web probe is configured with a Cloud Path companion probe, and can be displayed as chart, scatter, range, tabular or multipath. A Percentile Threshold such as P99 or P95 can be selected, the Show Errors toggle (disabled by default) displays red markers for probe errors, and in the tabular format only the top 1,000 rows are displayed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-data-explorer-views.json",
+          "quotes": [
+            "The default time range is 24 Hours.",
+            "Under Filters, select the Zscaler Managed Locations filter to select the Zscaler data centers to run your probes.",
+            "You can add up to 10 probes for Managed Monitoring.",
+            "You can add up to 10 metrics for Managed Monitoring.",
+            "If a Web probe is configured with a Cloud Path probe as a companion probe, Page Fetch Time and End-to-End Latency metrics are automatically selected by default.",
+            "Select a View Type icon to display your view in a chart, scatter, range, tabular, or multipath visualization format.",
+            "Select a Percentile Threshold, such as the 99th (P99) or 95th (P95) percentile, to display statistical measures that highlight worst-case and typical performance scenarios.",
+            "The Show Errors toggle, disabled by default, displays red markers on charts to indicate probe errors.",
+            "The tabular format provides the flexibility to filter your selected applications and metrics for an instant view of the data. Only the top 1,000 rows are displayed."
+          ]
+        }
+      ]
+    },
+    "de-multipath": {
+      "statement": "The range format is unavailable when multiple probes or metrics are selected. The multipath (Cloud Path) visualization is unavailable if multiple probes are selected, allows a time range only between 2 hours and 7 days, has Zscaler Managed Locations set by default for Group By with no other option, has latency metrics selected by default without a way to change them, and by default shows data from the last 24 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-data-explorer-views.json",
+          "quotes": [
+            "The range format displays your selected applications and metrics as dispersed data points across a continuous range of values, helping you analyze distribution patterns. Note: This format is unavailable when multiple probes or metrics are selected.",
+            "The multipath visualization format displays Cloud Path visualization data corresponding to the selected timestamp in the chart view.",
+            "This view is unavailable if you select multiple probes.",
+            "You can select a time range only between 2 hours and 7 days.",
+            "You cannot choose an option from the Group By drop-down menu; Zscaler Managed Locations is set by default.",
+            "You cannot change the selection under Metrics, latency metrics are selected by default.",
+            "By default, the Cloud Path visualization shows data from the last 24 hours."
+          ]
+        }
+      ]
+    },
+    "de-edit-delete": {
+      "statement": "Only the ZDX Super Admin or the admin who created the view can edit a configured Data Explorer view, and likewise only they can delete one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-data-explorer-views.json",
+          "quotes": [
+            "Only the ZDX Super Admin or the admin who created the view can edit a configured Data Explorer view.",
+            "Only the ZDX Super Admin or the admin who created the view can delete a configured Data Explorer view."
+          ]
+        }
+      ]
+    },
+    "qbr-availability": {
+      "statement": "A new Quarterly Business Review report is generated on the first weekend of every month and stored as a PowerPoint file in the Zscaler cloud. The reports are available to users of all ZDX subscription levels, support can enable them if they are not visible, and generating and viewing them needs a minimum of 100 active devices for 30 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-downloading-quarterly-business-review-reports.json",
+          "quotes": [
+            "A new QBR report is generated on the first weekend of every month, and each report is securely stored as a PowerPoint file in the Zscaler cloud.",
+            "These reports are available to ZDX users of all ZDX subscription levels.",
+            "If you don't see the reports, contact your support team or open a Zscaler Support ticket to have it enabled.",
+            "You must have a minimum of 100 active devices for 30 days to generate and view QBR reports."
+          ]
+        }
+      ]
+    },
+    "qbr-contents": {
+      "statement": "A QBR report shows a quarterly snapshot of Application ZDX Score, Network Average Latency and Users Monitored, where an application's score is the average of the lowest value each user experienced over the calendar quarter, plus monthly overviews compared to the previous 6 months of incidents, network incidents, application incidents, application ZDX Scores, DNS resolution time and average latency from the source network to Zscaler. It also shows the top ISPs by users (performance being the average time for the egress router at the user's location to reach the ISP, with any metric under 100 ms considered acceptable), alerts triggered with average remediation time, Wi-Fi versus wired device counts, device counts per operating system, event name and model, and a matrix of ZDX feature support for Standard, M365, Advanced and Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-quarterly-business-review-reports.json",
+          "quotes": [
+            "Shows a quarterly snapshot of your Application ZDX Score, Network Average Latency, and Users Monitored.",
+            "To determine the score for an application, Zscaler identifies all the users that accessed the application for the calendar quarter, and then finds the lowest value each user experienced for the application. The average value is used to determine the application's ZDX Score for the quarterly snapshot.",
+            "Shows a monthly overview of your incidents compared to the previous 6 months.",
+            "Shows a monthly overview of your network incidents by network type and Internet Service Provider (ISP), compared to the previous 6 months.",
+            "Shows a monthly overview of your application incidents by application type, compared to the previous 6 months.",
+            "Shows a monthly overview of your application-specific ZDX Scores compared to the previous 6 months.",
+            "Shows a monthly overview and your average DNS resolution time by location, compared to the previous 6 months.",
+            "Shows a monthly overview of the average latency from your source network to Zscaler, by geolocation and user distribution, compared to the previous 6 months.",
+            "Shows a monthly performance overview of your top ISPs by your users.",
+            "Performance is calculated by the average time taken by the Egress router at the user’s location to reach the ISP.",
+            "Any metric under 100ms is considered acceptable.",
+            "Shows a monthly overview and trend of alerts triggered, along with the average remediation time for an alert.",
+            "Shows device counts for the quarter that reflect Wi-Fi connectivity versus wired connectivity.",
+            "Shows monthly device counts per operating systems, event names, and models across the organization.",
+            "Shows a matrix that delineates ZDX feature support for Standard, M365, Advanced, and Advanced Plus subscriptions."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "aggregation-types": {
+      "summary": "The Data Explorer aggregation types: the Monitoring Data Explorer Views article lists Average, Minimum or Maximum, while the Configuring Data Explorer Views article adds Median and gives Average as the default.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-monitoring-data-explorer-views.json",
+            "quotes": [
+              "Aggregation: The Aggregation type across all users, designated as Average, Minimum, or Maximum."
+            ]
+          },
+          "says": "The aggregation type is Average, Minimum or Maximum."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-configuring-data-explorer-views.json",
+            "after": "Create a View for End User Monitoring",
+            "quotes": [
+              "Select the Average, Minimum, Maximum, or Median method for data aggregation across all users. The default setting is Average."
+            ]
+          },
+          "says": "The method is Average, Minimum, Maximum or Median, with Average the default."
+        }
+      ],
+      "impact": "Whether Median is offered for every view or only for End User views, or is a newer option, is not stated."
+    },
+    "managed-metric-count": {
+      "summary": "The Data Explorer metric limit: the configuration article allows up to 10 metrics for Managed Monitoring, while the subscription table's Data Explorer Metrics row gives 1 on Advanced and 4 on Advanced Plus without naming a data source.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-configuring-data-explorer-views.json",
+            "quotes": [
+              "You can add up to 10 metrics for Managed Monitoring."
+            ]
+          },
+          "says": "A Managed Monitoring view can have up to 10 metrics."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "after": "## Analytics",
+            "quotes": [
+              "| Data Explorer Metrics | Not supported | Not supported | 1 | 4 |"
+            ]
+          },
+          "says": "The subscription table's Data Explorer Metrics is 1 on Advanced and 4 on Advanced Plus."
+        }
+      ],
+      "impact": "Whether the table's row covers only End User views and the 10 applies to Managed Monitoring, or one of them is out of date, is not stated; the limit for a given view and tier is unsettled."
+    }
+  },
+  "gaps": {
+    "qbr-threats": {
+      "kind": "semantic",
+      "title": "Whether a QBR report shows the types of threats Zscaler is blocking",
+      "status": "open",
+      "detail": "Both QBR articles say the reports show the types of threats that Zscaler is blocking, but none of the sections the articles list covers threats; no source shows which section does.",
+      "blocks": "telling an operator what a QBR report contains about blocked threats",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

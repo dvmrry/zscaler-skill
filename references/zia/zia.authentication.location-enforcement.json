@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.location-enforcement",
+  "title": "Requiring authentication per location and sublocation",
+  "aliases": [
+    "auth_required",
+    "Enforce Authentication",
+    "basic_auth_enabled",
+    "digest_auth_enabled",
+    "kerberos_auth",
+    "location authentication",
+    "guest sublocation no auth",
+    "enforce authentication"
+  ],
+  "binds": [
+    "zia/locations",
+    "zia/sublocations"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.sublocations",
+      "because": "zia.authentication.location-enforcement:sublocation-split"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.inheritance",
+      "because": "zia.locations.inheritance:sublocation-auth-per-sublocation"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.unauthenticated-traffic",
+      "because": "zia.authentication.location-enforcement:unauth-options"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication.methods",
+      "because": "zia.authentication.methods:kerberos-explicit-only"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/locations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.surrogate-ip"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Authentication is demanded where the traffic enters, not tenant-wide. {{enforce-authentication}}"
+    },
+    {
+      "label": "Sublocations.",
+      "text": "{{sublocation-split}} Whether an unset sublocation inherits the parent's value is open {{gap:sublocation-inheritance}}; one setting that is explicitly not inherited is IP Surrogate, in [[zia.authentication.surrogate-ip]]."
+    },
+    {
+      "label": "Extra methods at the location.",
+      "text": "{{method-switches}} {{basic-auth-caveats}} Enrolling users for Basic has its own provider defects, covered in [[zia.terraform.multi-step-writes]] rather than here."
+    },
+    {
+      "label": "Without enforcement.",
+      "text": "{{unauth-options}} What such traffic is judged as is in [[zia.authentication.unauthenticated-traffic]]."
+    },
+    {
+      "text": "Location definitions are in [[zia.locations]] and [[zia.locations.sublocations]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The effective Enforce Authentication value on the sublocation the traffic maps to, not only the parent.",
+      "uses": [
+        "enforce-authentication",
+        "sublocation-split"
+      ]
+    },
+    {
+      "do": "Whether the traffic is explicitly forwarded, since the per-method switches apply to explicitly forwarded traffic.",
+      "uses": [
+        "method-switches"
+      ]
+    }
+  ],
+  "claims": {
+    "enforce-authentication": {
+      "statement": "Enforce Authentication (auth_required in Terraform) makes users from that location authenticate. The provider describes it as required when ports are enabled, IP Surrogate is enabled, or Kerberos authentication is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.json",
+          "quotes": [
+            "Enforce Authentication: Enable to require users from this location to authenticate to the service."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "Enforce Authentication. Required when ports are enabled, IP Surrogate is enabled, or Kerberos Authentication is enabled."
+          ]
+        }
+      ]
+    },
+    "sublocation-split": {
+      "statement": "Sublocations let authentication be enforced on one network and disabled on another: for example, one sublocation for the internal corporate network enforces it and another for the guest network disables it, even when both go through the same tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-sublocations.json",
+          "quotes": [
+            "For example, an organization can define one sublocation for its corporate network and another sublocation for its guest network, even if their traffic goes through the same GRE or IPSec tunnel.",
+            "Enforce authentication on the internal corporate network, while disabling it for the guest network."
+          ]
+        }
+      ],
+      "gaps": [
+        "sublocation-inheritance"
+      ]
+    },
+    "method-switches": {
+      "statement": "With Enforce Authentication on, a location can additionally enforce Digest, Basic or Kerberos authentication on all web traffic explicitly forwarded from the location and its dedicated ports, or Proxy JWT authentication on all workload traffic explicitly forwarded from them. The provider's switches are basic_auth_enabled, digest_auth_enabled and kerberos_auth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.json",
+          "quotes": [
+            "Enable Digest Authentication: If you enabled Enforce Authentication, select this option to enforce digest authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports.",
+            "Enable Basic Authentication: If you enabled Enforce Authentication, select this option to enforce basic authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports.",
+            "Enable Kerberos Authentication: If you enabled Enforce Authentication, you can enable this feature to enforce Kerberos authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports.",
+            "Enable Proxy JWT Authentication: If you enabled Enforce Authentication, select this option to enforce JSON Web Token (JWT) authentication on all workload traffic explicitly forwarded from the location and its associated dedicated ports.",
+            "JWT authentication is not supported for the Extranet and IoT Traffic location types."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "\"basic_auth_enabled\": {",
+            "Enable Basic Authentication at the location",
+            "\"digest_auth_enabled\": {",
+            "Enable Digest Authentication at the location",
+            "\"kerberos_auth\": {",
+            "Enable Kerberos Authentication at the location"
+          ]
+        }
+      ]
+    },
+    "basic-auth-caveats": {
+      "statement": "Basic authentication needs the Cloud Service API Security feature, the Hosted DB user repository with form-based authentication, hosted users created or imported from CSV, and users enrolled through the authenticatedSession and users/<userid>/enroll APIs. Credentials travel in clear text, so forward over an IPSec or encrypted tunnel on the public internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.json",
+          "quotes": [
+            "The Cloud Service API Security feature must be enabled for your organization.",
+            "The Hosted DB user repository type with the Form-Based authentication type is supported.",
+            "The hosted users/passwords must be created or imported using a CSV file.",
+            "The users must be enrolled for basic authentication using the following APIs:",
+            "https://zsapi.<cloud>.net/api/v1/authenticatedSession",
+            "https://zsapi.<cloud>.net/api/v1/users/<userid>/enroll",
+            "The user credentials are transferred in clear text when using basic authentication.",
+            "So, you must use an IPSec tunnel from a router or firewall or an encrypted tunnel from cloud or branch connectors if you are forwarding the authenticated traffic over the public internet."
+          ]
+        }
+      ]
+    },
+    "unauth-options": {
+      "statement": "When Enforce Authentication is off, a location can instead show unauthenticated users a caution notification or require acceptance of an Acceptable Use Policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.json",
+          "quotes": [
+            "If you disabled Enforce Authentication, you can enable this feature and set the Caution Interval to be greater than one minute to display a caution notification to unauthenticated users.",
+            "If you disabled Enforce Authentication, you can enable this feature to display an Acceptable Use Policy (AUP) for unauthenticated traffic and require users to accept it."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "sublocation-inheritance": {
+      "kind": "semantic",
+      "title": "Whether a sublocation inherits the parent's authentication setting and which value wins",
+      "status": "open",
+      "detail": "Unverified legacy statement: Sublocations independently inherit or override the parent location's auth setting; a parent can require authentication while a guest sublocation does not, and the sublocation's value wins for traffic that maps to it. No registered source states this. The help article confirms the sublocation can differ but does not say whether an unset sublocation inherits. It does say IP Surrogate is not inherited. A lab sublocation created without setting auth_required, then a read, would settle it. The general question for every sublocation setting is zia.locations.inheritance:inherit-everything; that subject also holds the schema's parent-versus-shared field split.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "predicting auth behavior for a sublocation whose auth_required was never set"
+    },
+    "http-redirect-behavior": {
+      "kind": "semantic",
+      "title": "What an unauthenticated browser sees at an auth-required location",
+      "status": "open",
+      "detail": "Unverified legacy statement: When a location has auth_required true but a browser user has not authenticated yet, ZIA redirects HTTP traffic to the captive-portal or login page, while HTTPS that cannot be redirected (pre-auth, no SSL inspection) is typically blocked or shows an error. No registered source states this. A lab request from a clean browser, with and without SSL inspection, would settle it. The Kerberos article documents a 407 Negotiate challenge, not a redirect.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "explaining a login loop or error page on HTTPS"
+    }
+  }
+}

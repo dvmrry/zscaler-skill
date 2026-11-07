@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.admin-console",
+  "title": "The Defined Application Segments page: delete and edit locks, status, configuration warnings and filters",
+  "aliases": [
+    "Defined Application Segments page",
+    "why can't I delete an application segment",
+    "application segment delete unavailable",
+    "configuration warnings",
+    "Caution icon application segment",
+    "disable application segment"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.segment-groups.scope"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.multiple-on-segment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The segments themselves are covered in [[zpa.app-segments]]."
+    },
+    {
+      "label": "Why delete is unavailable.",
+      "text": "{{delete-locked-by-policy}} {{delete-locked-by-sipa}} {{deception-locked}} Source IP Anchoring on a segment is in [[zpa.app-segments.settings]]; the matching lock on segment groups is in [[zpa.segment-groups.scope]]."
+    },
+    {
+      "label": "Disabling.",
+      "text": "{{status-disabled}}"
+    },
+    {
+      "label": "Icons and warnings.",
+      "text": "{{caution-icon}} {{configuration-warnings}} Which warnings exist and what counts as a missing required setting is open {{gap:warnings-and-required-settings}}."
+    },
+    {
+      "label": "Filters and download.",
+      "text": "{{csv-follows-filters}} {{microtenant-filter}}"
+    },
+    {
+      "label": "Server groups on edit.",
+      "text": "What the editing page says about saving several server groups, and how that fits the load balancing page, is in [[zpa.server-groups.multiple-on-segment]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the segment is referenced in a segment group with a policy configured, by Internet & SaaS for Source IP Anchoring, or configured using Zscaler Deception, which make the delete action unavailable.",
+      "uses": [
+        "delete-locked-by-policy",
+        "delete-locked-by-sipa",
+        "deception-locked"
+      ]
+    },
+    {
+      "do": "Whether the segment's Status is Disabled before treating its applications as reachable.",
+      "uses": [
+        "status-disabled"
+      ]
+    },
+    {
+      "do": "Whether configuration warnings are disabled, in which case no messaging about an error or issue appears for segments.",
+      "uses": [
+        "configuration-warnings"
+      ]
+    }
+  ],
+  "claims": {
+    "delete-locked-by-policy": {
+      "statement": "If an application segment is referenced in a segment group and has a policy configured, the delete action is unavailable. An admin must manually review and remove the link to the policy to delete the segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-applications.json",
+          "quotes": [
+            "If an application segment is referenced in a segment group and has a policy configured, the delete action is unavailable.",
+            "An admin must manually review and remove the link to the policy to successfully delete the application segment."
+          ]
+        }
+      ]
+    },
+    "delete-locked-by-sipa": {
+      "statement": "If an application segment is referenced by Internet & SaaS for Source IP Anchoring, the delete action is unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-applications.json",
+          "quotes": [
+            "If an application segment is referenced by Internet & SaaS for Source IP Anchoring, the delete action is unavailable."
+          ]
+        }
+      ]
+    },
+    "deception-locked": {
+      "statement": "If an application segment is configured using Zscaler Deception, the copy, edit and delete options are unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-applications.json",
+          "quotes": [
+            "If an application segment is configured using Zscaler Deception, then the copy, edit, and delete options are unavailable."
+          ]
+        }
+      ]
+    },
+    "status-disabled": {
+      "statement": "If an application segment's Status is Disabled, the applications defined within it, whether explicitly defined or dynamically discovered, are inaccessible to users until it is re-enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-disabling-access-applications.json",
+          "quotes": [
+            "To disable access to an application that was explicitly defined or dynamically discovered:",
+            "Users will not be able to access the applications within the application segment until it is re-enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-ai-powered-recommendations.json",
+          "quotes": [
+            "Status: Enable the application segment. If Disabled, the defined applications within the application segment are inaccessible to users."
+          ]
+        }
+      ]
+    },
+    "caution-icon": {
+      "statement": "A segment that is missing required settings shows the yellow Caution icon, and editing the segment resolves the configuration issues. A Source IP Anchoring-enabled segment shows the Information icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-applications.json",
+          "quotes": [
+            "If an application segment is missing required settings, the yellow Caution icon",
+            "Edit the application segment to resolve the configuration issues.",
+            "If an application segment is Source IP Anchoring-enabled, the Information icon"
+          ]
+        }
+      ]
+    },
+    "configuration-warnings": {
+      "statement": "By default, configuration warnings appear for application segments to notify of an error or existing issue, and the setting is enabled by default. If configuration warnings are disabled, no messaging about an error or issue appears for segments. The page's example is a warning when a more specific segment, www.example.com, is added next to an existing wildcard segment, .example.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-setting-application-segment-configuration-warnings.json",
+          "quotes": [
+            "By default, configuration warnings appear for application segments to notify you of an error or existing issue.",
+            "If you disable configuration warnings, you will not receive messaging about an error or issue for application segments.",
+            "For example, if you have an existing wildcard application segment .example.com and you add an application segment that is more specified www.example.com, then you would receive the following warning if warnings are enabled.",
+            "The setting is enabled by default."
+          ]
+        }
+      ]
+    },
+    "csv-follows-filters": {
+      "statement": "The configuration file that can be downloaded from the page lists the application segments based on the selected table filters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-applications.json",
+          "quotes": [
+            "Download the configuration information for the application segments to a CSV file. The file lists the application segments based on the selected table filters."
+          ]
+        }
+      ]
+    },
+    "microtenant-filter": {
+      "statement": "Within a Microtenant the Configured within Microtenant filter option is applied by default, with options by access type of Global, Configured within Microtenant, Shared to this Microtenant and Shared from this Microtenant. Within the Default Microtenant, the Configured within Microtenant and Shared to this Microtenant options are supported. Separately, the Federated By filter option is set to My Tenant by default and applied to the application segments federated by the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-applications.json",
+          "quotes": [
+            "By default, the Configured within Microtenant filter option is applied to show the application segments configured within that specific Microtenant.",
+            "The options for the filter are based on access type (Global, Configured within Microtenant, Shared to this Microtenant, and Shared from this Microtenant).",
+            "If you are within the Default Microtenant, the Configured within Microtenant and Shared to this Microtenant filter options are supported.",
+            "By default, the Federated By filter option is set to My Tenant and applied to the application segments that are federated by your tenant."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "warnings-and-required-settings": {
+      "kind": "semantic",
+      "title": "Which configuration warnings exist and what counts as a missing required setting",
+      "status": "open",
+      "detail": "The warnings page gives one example and shows its text as an image. The About Applications page does not define missing required settings, which show the Caution icon.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

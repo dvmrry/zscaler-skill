@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding the ThreatLabz Data Source",
+  "source": {
+    "url": "https://help.zscaler.com/unified/understanding-threatlabz-data-source",
+    "node": "1545248",
+    "revision": "3249368",
+    "updated": "2026-10-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "ThreatLabz is a research organization within Zscaler that focuses on identifying and analyzing emerging threats, vulnerabilities, and attack techniques. As part of their effort, the ThreatLabz team maintains a database of CVEs with information on how they're mitigated by different Zscaler services. The ThreatLabz data source retrieves this data, which is then correlated with your deduplicated asset records and Zscaler service coverage. This information is used to calculate contextualized risk scores based on the level of protection provided by your Zscaler services."
+    },
+    {
+      "text": "The ThreatLabz data source is provisioned in every new account created within the Agentic Security Operations Platform (Agentic SecOps Platform). To access the ThreatLabz data source in the Agentic SecOps Platform Admin Portal, go to Configure > Sources. To learn more, see Creating Data Sources."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "ThreatLabz and the Zscaler Client Connector Data Source",
+      "level": 1
+    },
+    {
+      "text": "The ThreatLabz data source retrieves data on which CVEs are mitigated by which Zscaler services, including Internet & SaaS (ZIA) and Private Access (ZPA). The Zscaler Client Connector Devices data source retrieves data on assets in your organization, including which Zscaler services are installed on which assets. By cross-referencing ThreatLabz data with Zscaler Client Connector data, you can determine which of your Zscaler services are protecting against specific CVEs in your security environment. This insight can be used as a mitigating risk factor to inform finding scoring. To learn more, see Configuring the Zscaler Client Connector Devices Connector and Configuring the ZIA Devices and Users Connector."
+    },
+    {
+      "heading": "Finding Is Mitigated Field",
+      "level": 2
+    },
+    {
+      "text": "The Finding Is Mitigated field is populated based on the overlap between data from the two data sources, returning TRUE when a match is found (i.e., when a CVE found on your asset is mitigated by a Zscaler service installed on it) or FALSE otherwise. The unification rule checks if any of the services that can mitigate the vulnerability (as reported by the ThreatLabz data source) are actually installed on the asset where the vulnerability was detected (as reported by the Zscaler Client Connector Devices data source). If the service is installed on the asset, it sets the Finding Is Mitigated field to TRUE. Otherwise, it sets the value to FALSE. To learn more, see Configuring Field Unification."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Score Settings",
+      "level": 2
+    },
+    {
+      "text": "The Finding Is Mitigated field is used in the score settings for Unified Vulnerability Management (UVM) findings to create the CVE Mitigated By factor, which refines your risk assessment and scoring practices. You can adjust this setting to align with your organization's specific requirements. To learn more, see Configuring Severity Score Formulas."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Use Case Example",
+      "level": 2
+    },
+    {
+      "text": "Consider the following example of a CVE finding:"
+    },
+    {
+      "item": "The ThreatLabz data source reports that CVE-2017-3044 is mitigated by Internet & SaaS (i.e., the value of the Vulnerability Mitigation Products field is ZIA).",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler Client Connector Devices data source reports that Asset A has Internet & SaaS installed and contains the CVE-2017-3044 finding (i.e., the Asset Mitigation Products field value is ZIA).",
+      "depth": 0
+    },
+    {
+      "item": "CVE-2017-3044 is mitigated by Internet & SaaS, and Asset A has Internet & SaaS installed on it.",
+      "depth": 0
+    },
+    {
+      "text": "These points indicate an overlap between the vulnerability mitigation services (i.e., Internet & SaaS) and the asset mitigation services (i.e., Internet & SaaS). This sets the Finding Is Mitigated field on Asset A for CVE-2017-3044 to TRUE, indicating that the vulnerability is no longer a significant threat to the asset. This information is then used to reduce the severity score of the finding."
+    },
+    {
+      "text": "The Internet & SaaS service is displayed as ZIA in the Agentic SecOps Platform."
+    }
+  ]
+}

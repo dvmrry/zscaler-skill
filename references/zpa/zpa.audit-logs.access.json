@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "id": "zpa.audit-logs.access",
+  "title": "Who can read and download ZPA audit logs",
+  "aliases": [
+    "zpa admin roles audit",
+    "who can download zpa audit logs",
+    "zpa read only administrator",
+    "log streaming permission"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "shared.admin-rbac.zpa",
+      "because": "zpa.audit-logs.access:predefined-roles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.audit-logs.what-is-recorded"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.admin-console"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Reading the audit log depends on the admin's Private Access role."
+    },
+    {
+      "label": "Roles.",
+      "text": "{{predefined-roles}} {{custom-roles}}"
+    },
+    {
+      "label": "Download.",
+      "text": "{{csv-role}} {{csv-contents}}"
+    },
+    {
+      "text": "What a custom role needs to manage log streaming, and how fast a role change applies, are not sourced {{gap:log-streaming-permission}} {{gap:role-change-delay}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the admin holds the Private Access Administrator role when the Download option is missing.",
+      "uses": [
+        "csv-role",
+        "predefined-roles"
+      ]
+    },
+    {
+      "do": "Whether a custom role exists and was created by an admin with equal or greater privileges.",
+      "uses": [
+        "custom-roles"
+      ]
+    },
+    {
+      "do": "What the role's Log Streaming permission is before assuming it governs receiver access.",
+      "uses": [
+        "log-streaming-permission",
+        "role-change-delay"
+      ]
+    }
+  ],
+  "claims": {
+    "predefined-roles": {
+      "statement": "Private Access has two predefined admin roles: ZPA Administrator, with read, add, edit and delete privileges, and ZPA Read Only Administrator, with read privileges only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-access-roles.json",
+          "quotes": [
+            "For each admin, you can choose from one of the following predefined roles:",
+            "ZPA Administrator: An admin with this role has read, add, edit, and delete privileges in the Zscaler Admin Console.",
+            "ZPA Read Only Administrator: An admin with this role only has read privileges in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "custom-roles": {
+      "statement": "An admin with ZPA Administrator privileges can create custom admin roles for specific Private Access features, and can manage and add only custom roles with equal or lower privileges than their own.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-access-roles.json",
+          "quotes": [
+            "If you are an admin that has ZPA Administrator privileges, you can also create a custom admin role for your organization.",
+            "You can only manage and add custom admin roles with an equal or lower level of privileges than your own.",
+            "custom roles (i.e., roles with access to specific Private Access features)"
+          ]
+        }
+      ]
+    },
+    "csv-role": {
+      "statement": "Only admins with the Private Access Administrator role can download audit logs from the Audit Logs page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-audit-logs.json",
+          "quotes": [
+            "Only admins with the Private Access Administrator role can download audit logs."
+          ]
+        }
+      ]
+    },
+    "csv-contents": {
+      "statement": "The downloaded CSV holds only the records for the selected time range and filters, lists timestamps in UTC whatever the account time setting is, and separates the content of the Post-Configuration Change Value column with a dollar sign.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-audit-logs.json",
+          "quotes": [
+            "The CSV file only includes audit log records for the time range and filters specified.",
+            "The time displayed is based on the time you choose for your account setting in the Zscaler Admin Console, but the exported CSV file (audit.csv) always lists the timestamp in UTC.",
+            "Also, the Post-Configuration Change Value column within the CSV file uses a dollar sign ($) to separate the content within a cell."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "log-streaming-permission": {
+      "kind": "semantic",
+      "title": "Log Streaming feature permission",
+      "status": "resolved",
+      "detail": "Unverified legacy statement: \"The **Log Streaming** feature permission controls access to the LSS configuration UI and API. Admins without Log Streaming permission cannot create or modify LSS receivers.\"",
+      "resolution": "Answered in part by shared.admin-rbac.zpa:feature-list: Log Streaming is a role feature granting Full or Read Only access to Log Streaming functionality (App Connector Groups and Log Receivers under Data Explorer > Log Streaming, among others). Its effect on the API is not stated.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
+    },
+    "role-change-delay": {
+      "kind": "semantic",
+      "title": "How long a role change takes to apply",
+      "status": "resolved",
+      "detail": "Unverified legacy statement: \"Role changes in ZPA take up to **2 minutes** to take effect.\"",
+      "resolution": "Answered by shared.admin-rbac.zpa:two-minute-delay: the Configuring Administrator Roles page (captured as configuring-administrator-roles.json) says updates to the permissions of existing roles can take up to two minutes to take effect.",
+      "resolves_with": [
+        "support-ticket",
+        "operator-experience"
+      ]
+    }
+  }
+}

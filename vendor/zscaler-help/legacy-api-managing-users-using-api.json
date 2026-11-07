@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Users Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/managing-users-using-api",
+    "node": "1400426",
+    "revision": "2611071",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "Typically, organizations synchronize users from Microsoft Active Directory (AD) or some other identity provider (IdP). However, if you create a user by sending a POST request to /users, the user's information is stored in Zscaler's hosted user database, and is not synchronized back to the IdP (e.g., AD). So, sending a GET request to /users returns non-hosted users (e.g., users synchronized from AD) but you cannot perform an action (i.e., updating or deleting) on those user IDs. To learn more, see About the Hosted User Database. For detailed information about the API endpoints involved in managing users, see User Management in the API Reference."
+    },
+    {
+      "text": "Zscaler recommends adopting the following best practices when managing users:"
+    },
+    {
+      "item": "Periodically iterate through the list of users, resetting passwords to random values.",
+      "depth": 0
+    },
+    {
+      "item": "Reassign inactive user accounts to new users via password reset to avoid continually creating new users. Constantly creating new users can degrade performance over time.",
+      "depth": 0
+    },
+    {
+      "text": "To learn more, see Managing Users, Groups, and Departments."
+    },
+    {
+      "text": "Admins who have permission to manage other admins can only create, edit, or view admins that have an equal or lower rank. To learn more, see About Admin Rank. So when you retrieve, create, update, or delete admin credentials via the API, it's only for admins of an equal or lower rank to yours."
+    },
+    {
+      "heading": "Getting a List of Users",
+      "level": 1
+    },
+    {
+      "text": "To get a list of users, send a GET request to /users. You can use the following parameters to:"
+    },
+    {
+      "item": "Specify a page offset (page).",
+      "depth": 0
+    },
+    {
+      "item": "Specify the page length (pageSize), up to a limit of 10,000.",
+      "depth": 0
+    },
+    {
+      "item": "Sort users alphabetically by name.",
+      "depth": 0
+    },
+    {
+      "item": "Request users that belong to a specific group.",
+      "depth": 0
+    },
+    {
+      "item": "Request users that belong to a specific dept.",
+      "depth": 0
+    },
+    {
+      "text": "For example, in Python:"
+    },
+    {
+      "text": "conn.request(\"GET\", \"/api/v1/users?page=1&pageSize=100\", headers=headers) conn.request(\"GET\", \"/api/v1/users?name=auto\", headers=headers) conn.request(\"GET\", \"/api/v1/users?group=guest-wifi\", headers=headers) conn.request(\"GET\", \"/api/v1/users?dept=testdept\", headers=headers)"
+    },
+    {
+      "heading": "Adding a User",
+      "level": 1
+    },
+    {
+      "text": "To add a user:"
+    },
+    {
+      "item": "Send a POST request to /users and use the following key-value pairs in the Body:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "name: A string (e.g., \"guest1234\").",
+      "depth": 1
+    },
+    {
+      "item": "The name field allows values containing UTF-8 characters up to a maximum of 127 characters.",
+      "depth": 1
+    },
+    {
+      "item": "email: A string (e.g., \"guest1234@antest.com\").",
+      "depth": 1
+    },
+    {
+      "item": "The email field allows values of alphanumeric characters and certain special characters up to a maximum of 127 characters. The use of the @ symbol is mandatory. This field corresponds to the User ID (also referred to as Login ID) field in the UI. However, the data validation in the UI uses different constraints.",
+      "depth": 1
+    },
+    {
+      "item": "groups: An array of key-value pairs containing the id and name of one or more groups to which the user belongs. For example:",
+      "depth": 1
+    },
+    {
+      "text": "\"groups\": [ { \"id\": 75457, \"name\": \"guest-wifi\" } ],"
+    },
+    {
+      "item": "department: An array of name value pairs containing id and name of the unique department to which the user belongs.",
+      "depth": 0
+    },
+    {
+      "item": "comments: A string (e.g., \"guest wi-fi user\").",
+      "depth": 0
+    },
+    {
+      "item": "adminUser: A Boolean that enables (true) or disables (false) administrative privileges for the user.",
+      "depth": 0
+    },
+    {
+      "item": "Activate the changes to your configuration.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Updating Information for a Specific User",
+      "level": 1
+    },
+    {
+      "text": "To update information for a specific user:"
+    },
+    {
+      "item": "Get information for a specific user by sending a GET request to /users/{userId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Modify the user's information by sending a PUT request to /users/{userId} along with all of the required key-value pairs in the Body.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Activate the changes to your configuration.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Modifying Group Association for a User",
+      "level": 2
+    },
+    {
+      "text": "You can modify group association for individual users by sending a PUT request to /users/{userId} and specifying the groups that must be associated with the user. However, you cannot change a group directly to modify the users that are associated with the group."
+    },
+    {
+      "text": "User group information sent in a PUT request to /users/{userId} essentially replaces the current group associations for the user. So when using this request to add or remove groups associated with a user, make sure to include all other existing group associations that you want to preserve. Consider a user associated with two groups, namely IT Security and Operations. A GET request to /users/{userId} would return the following information along with the user’s group association:"
+    },
+    {
+      "text": "{ \"id\": 17073377, \"name\": \"guest user\", \"email\": \"guestuser@safemarch.com\", \"groups\": [ { \"id\": 3830452, \"name\": \"IT Security\" }, { \"id\": 3830440, \"name\": \"Operations\" } ], \"department\": { \"id\": 7390365, \"name\": \"Engineering\" }, \"adminUser\": false, \"deleted\": false }"
+    },
+    {
+      "text": "Let's say you want to add this user to one more group, Support. To do this, you need to send a PUT request to /users/{userId} by specifying all of the group associations that must be preserved for the user in the request Body, including Support, IT Security, and Operations. This request would be:"
+    },
+    {
+      "text": "{ \"name\": \"guest user\", \"email\": \"guestuser@safemarch.com\", \"groups\": [ { \"id\": 3830448, \"name\": \"Support\" }, { \"id\": 3830452, \"name\": \"IT Security\" }, { \"id\": 3830440, \"name\": \"Operations\" } ], \"department\": { \"id\": 7390365, \"name\": \"Engineering\" } }"
+    },
+    {
+      "text": "In another scenario, if you want to associate only the Support group with the user and remove the existing groups associated, you can send a request with the following payload:"
+    },
+    {
+      "text": "{ \"name\": \"guest user\", \"email\": \"guestuser@safemarch.com\", \"groups\": [ { \"id\": 3830448, \"name\": \"Support\" } ], \"department\": { \"id\": 7390365, \"name\": \"Engineering\" } }"
+    },
+    {
+      "text": "This request would associate the user with the Support group and remove the user's existing association with the IT Security and Operations groups."
+    },
+    {
+      "heading": "Deleting a Specific User",
+      "level": 1
+    },
+    {
+      "text": "To delete a specific user:"
+    },
+    {
+      "item": "Send a DELETE request to /users/{userId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "Although you can retrieve all admins using the /users endpoint, you can only delete regular users (i.e., non-admins) when sending a DELETE request to /users/{userId}."
+    },
+    {
+      "item": "Activate the changes to your configuration.",
+      "depth": 0,
+      "number": 2
+    }
+  ]
+}

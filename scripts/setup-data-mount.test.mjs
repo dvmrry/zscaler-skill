@@ -29,9 +29,9 @@ function makeOverlaySource() {
   for (const dir of DATA_REQUIRED_DIRS) {
     fs.mkdirSync(path.join(source, dir), { recursive: true });
   }
-  fs.mkdirSync(path.join(source, "snapshot", "zs1"), { recursive: true });
+  fs.mkdirSync(path.join(source, "overlay", "knowledge"), { recursive: true });
   fs.writeFileSync(path.join(source, "schemas", "fields.json"), "{}\n", "utf8");
-  fs.writeFileSync(path.join(source, "snapshot", "zs1", "_manifest.json"), "{}\n", "utf8");
+  fs.writeFileSync(path.join(source, "overlay", "knowledge", "_manifest.json"), "{}\n", "utf8");
   return source;
 }
 
@@ -177,8 +177,8 @@ test("setupDataMount copies a local data source and runs the contract check", ()
   assert.equal(result.plan.mode, "copy");
   assert.deepEqual(result.report.errors, []);
   assert.equal(fs.existsSync(path.join(root, "_data", "schemas", "fields.json")), true);
-  assert.equal(fs.existsSync(path.join(root, "_data", "snapshot", "zs1", "_manifest.json")), true);
-  assert.ok(!result.report.warnings.some((warning) => warning.includes("snapshot-backed reasoning unavailable")));
+  assert.equal(fs.existsSync(path.join(root, "_data", "overlay", "knowledge", "_manifest.json")), true);
+  assert.ok(result.report.warnings.some((warning) => warning.includes("overlay/overlay.json")));
 });
 
 test("setupDataMount copies a local source into a configured runtime mount", () => {
@@ -285,7 +285,7 @@ test("setupDataMount dry-run reports the plan without replacing files", () => {
   assert.equal(result.plan.mode, "copy");
   assert.equal(result.plan.dataRef, "main");
   assert.equal(result.report, null);
-  assert.equal(fs.existsSync(path.join(root, "_data", "snapshot", "zs1", "_manifest.json")), false);
+  assert.equal(fs.existsSync(path.join(root, "_data", "overlay", "knowledge", "_manifest.json")), false);
 });
 
 test("setupDataMount can force a local source to submodule mode", () => {
@@ -424,7 +424,7 @@ test("setup-data-mount CLI installs a local data source in auto mode", () => {
   assert.match(output, /Mode: copy/);
   assert.match(output, /Errors: 0/);
   assert.equal(fs.existsSync(path.join(root, "_data", "schemas", "fields.json")), true);
-  assert.equal(fs.existsSync(path.join(root, "_data", "snapshot", "zs1", "_manifest.json")), true);
+  assert.equal(fs.existsSync(path.join(root, "_data", "overlay", "knowledge", "_manifest.json")), true);
 });
 
 test("setup-data-mount CLI can load defaults from root setup config", () => {

@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "id": "zcc.troubleshooting.registry-keys",
+  "title": "Client Connector state in the Windows registry: ZNW_State, ZPA_State, ZWS_State and ZPA_AuthState values",
+  "aliases": [
+    "ZNW_State",
+    "ZPA_State",
+    "ZWS_State",
+    "ZPA_AuthState",
+    "zcc registry keys",
+    "HKEY_CURRENT_USER Software Zscaler App"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.trusted-networks.detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.internet-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.strict-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.failover"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Client Connector records its network, service and Private Access authentication state in registry keys that can be read on the device. {{location}}"
+    },
+    {
+      "label": "Network state.",
+      "text": "{{znw-state}}"
+    },
+    {
+      "label": "Service state.",
+      "text": "{{service-state-values}} {{failover-values}}"
+    },
+    {
+      "label": "Error values.",
+      "text": "{{reachability-errors}} {{local-errors}} {{auth-errors}}"
+    },
+    {
+      "label": "Private Access authentication.",
+      "text": "{{zpa-auth-state}}"
+    },
+    {
+      "label": "What is not defined.",
+      "text": "The keys are described for Windows only {{gap:windows-only}}. How NONE_FORWARDING differs from TUNNEL_FORWARDING is undefined {{gap:none-vs-tunnel-forwarding}}. Whether the values update live, and how ZNW_State maps onto the forwarding profile network types, is not stated {{gap:live-update-and-network-mapping}}."
+    }
+  ],
+  "claims": {
+    "location": {
+      "statement": "Client Connector's state values ZNW_State, ZPA_State, ZWS_State and ZPA_AuthState are registry keys under HKEY_CURRENT_USER\\Software\\Zscaler\\App. The vendor's list is not exhaustive, and the registry entries are removed when the user logs out of Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-app-registry-keys.json",
+          "quotes": [
+            "This article defines the values for the ZNW_State, ZPA_State, ZWS_State, and ZPA_AuthState registry keys.",
+            "You can navigate to Zscaler Client Connector registry keys by using the following path: HKEY_CURRENT_USER\\Software\\Zscaler\\App.",
+            "This article is not an exhaustive list of all registry entries created by Zscaler Client Connector.",
+            "When a user logs out of Zscaler Client Connector, registry entries are removed."
+          ]
+        }
+      ]
+    },
+    "znw-state": {
+      "statement": "ZNW_State is the device's Client Connector network state: TRUSTED (a trusted network), NON_TRUSTED (an off-trusted network), TRUSTED_VPN (a trusted full-tunnel VPN) or TRUSTED_SPLIT_VPN (a split VPN-trusted network).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-app-registry-keys.json",
+          "quotes": [
+            "Use the ZNW_State registry key to determine a device’s Zscaler Client Connector network state.",
+            "| TRUSTED | Connected to a trusted network. |",
+            "| NON_TRUSTED | Connected to an off-trusted network. |",
+            "| TRUSTED_VPN | Connected to a trusted full-tunnel VPN. |",
+            "| TRUSTED_SPLIT_VPN | Connected to a split VPN-trusted network. |"
+          ]
+        }
+      ]
+    },
+    "service-state-values": {
+      "statement": "ZPA_State is the Private Access service state and ZWS_State the Internet & SaaS service state. The table lists OFF, ON, CONNECTING, NONE_FORWARDING and TUNNEL_FORWARDING for both, and defines the last two alike (traffic intercepted by network drivers). LOCAL_PROXY_FORWARDING (traffic intercepted through a PAC file, the local proxy) and ENFORCE_PROXY_FORWARDING (a PAC file enforced on the system) are listed under ZWS_State only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-app-registry-keys.json",
+          "quotes": [
+            "for the registry keys ZPA_State and ZWS_State, which represent the Private Access service state and the Internet & SaaS service state, respectively.",
+            "| ZPA_State ZWS_State | OFF | Service is turned off. |",
+            "| ZPA_State ZWS_State | ON | Service is turned on. |",
+            "| ZPA_State ZWS_State | CONNECTING | Service is connecting. |",
+            "| ZPA_State ZWS_State | NONE_FORWARDING | Traffic is intercepted by network drivers. |",
+            "| ZPA_State ZWS_State | TUNNEL_FORWARDING | Traffic is intercepted by network drivers. |",
+            "| ZWS_State | LOCAL_PROXY_FORWARDING | Traffic is intercepted through a PAC file (local proxy). |",
+            "| ZWS_State | ENFORCE_PROXY_FORWARDING | A PAC file is enforced on the system. |"
+          ]
+        }
+      ]
+    },
+    "failover-values": {
+      "statement": "Both service keys list DR_ON (Disaster Recovery, safe mode, is active and traffic follows the app profile settings), CAPTIVE_PORTAL_DETECTED, CAPTIVE_PORTAL_ERROR (a captive portal was detected and the open timeout expired) and SAFEMODE_FAILOPEN (interception stops temporarily to allow authentication). PRE_ENROLMENT_PROXY_ENFORCEMENT is listed under ZWS_State only: strict enforcement is blocking network access until the user logs in to Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-app-registry-keys.json",
+          "quotes": [
+            "| ZPA_State ZWS_State | DR_ON | Disaster Recovery (safe mode) is active. Traffic handling follows the settings configured in App Profiles. |",
+            "| ZPA_State ZWS_State | CAPTIVE_PORTAL_DETECTED | A captive portal is detected. |",
+            "| ZPA_State ZWS_State | CAPTIVE_PORTAL_ERROR | A captive portal is detected, and the open timeout expires. |",
+            "| ZPA_State ZWS_State | SAFEMODE_FAILOPEN | Interception stops temporarily to allow authentication. |",
+            "| ZWS_State | PRE_ENROLMENT_PROXY_ENFORCEMENT | Strict enforcement is blocking network access until the user logs in to Zscaler Client Connector. |"
+          ]
+        }
+      ]
+    },
+    "reachability-errors": {
+      "statement": "SERVER_DOWN_ERROR (both keys) means the Public Service Edge for Private Access or Internet & SaaS cannot be reached; INTERNET_UNREACHABLE_ERROR (ZPA_State) that the network is connected but Private Access cannot resolve the broker name; ADAPTER_DOWN_ERROR (ZWS_State) that no adapter with a default route is found, which might occur during DHCP renewal. The vendor says to run the ipconfig /all command and verify the lease-obtained timestamp coincides with the exact moment the issue occurs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-app-registry-keys.json",
+          "quotes": [
+            "| ZPA_State ZWS_State | SERVER_DOWN_ERROR | Cannot reach the Public Service Edge for Private Access or Internet & SaaS. |",
+            "| ZPA_State | INTERNET_UNREACHABLE_ERROR | The network is connected but Private Access cannot resolve the broker name. |",
+            "| ZWS_State | ADAPTER_DOWN_ERROR | No adapter with a default route is found (might occur during DHCP renewal).",
+            "Note: Run the ipconfig /all command and verify the lease-obtained timestamp coincides with the exact moment the issue occurs"
+          ]
+        }
+      ]
+    },
+    "local-errors": {
+      "statement": "DRIVER_ERROR (both keys) means a network driver (TAP, TUN or LWF) fails to load; FIREWALL_BLOCK_ERROR (both) that the outbound or inbound connection to itself fails; SYSTEM_SOCKETS_EXHAUSTED_ERROR (ZWS_State) that the system is at the maximum socket limit; SERVICE_DOWN_ERROR (ZPA_State) that a required microservice is not operational.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-app-registry-keys.json",
+          "quotes": [
+            "| ZPA_State ZWS_State | DRIVER_ERROR | A network driver (TAP/TUN/LWF) fails to load. |",
+            "| ZPA_State ZWS_State | FIREWALL_BLOCK_ERROR | The outbound/inbound connection to itself fails. |",
+            "| ZWS_State | SYSTEM_SOCKETS_EXHAUSTED_ERROR | The system is at the maximum socket limit. |",
+            "| ZPA_State | SERVICE_DOWN_ERROR | A required microservice is not operational. |"
+          ]
+        }
+      ]
+    },
+    "auth-errors": {
+      "statement": "SERVER_AUTH_ERROR (both keys) means the Public Service Edge does not accept the authentication credentials; SERVER_AUTH_TERMINATED_AT_UNKNOWN (both) that the user domain does not match the service's authentication domain; ZPA_UNTRUSTED_SERVER_CERT_ERROR (ZPA_State, applicable only for Private Access) that the Private Access connection receives an SSL exception while connecting; ZIA_REGISTRATION_REQUIRED (ZWS_State) that the device is not registered with Internet & SaaS and the user must register to proceed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-app-registry-keys.json",
+          "quotes": [
+            "| ZPA_State ZWS_State | SERVER_AUTH_ERROR | The Public Service Edge does not accept the authentication credentials. |",
+            "| ZPA_State ZWS_State | SERVER_AUTH_TERMINATED_AT_UNKNOWN | The user domain doesn’t match the service’s authentication domain. |",
+            "| ZPA_State | ZPA_UNTRUSTED_SERVER_CERT_ERROR | The service is in a Private Access Untrusted Server Error state. The Private Access connection receives an SSL exception while connecting. This registry key value is applicable only for Private Access. |",
+            "| ZWS_State | ZIA_REGISTRATION_REQUIRED | The device is not registered with Internet & SaaS and the user must register to proceed. |"
+          ]
+        }
+      ]
+    },
+    "zpa-auth-state": {
+      "statement": "ZPA_AuthState is the device's Private Access authentication status: AUTHENTICATED (a valid Private Access session; access proceeds per policy), AUTHENTICATION_REQUIRED (no valid session; the user must sign in or reauthenticate), REGISTRATION_REQUIRED (the device or user must complete registration or enrollment before authentication) or ZPN_DISABLED (Client Connector does not initiate Private Access).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-app-registry-keys.json",
+          "quotes": [
+            "Use the ZPA_AuthState registry key to determine a device’s Private Access authentication status.",
+            "| AUTHENTICATED | The user has a valid Private Access session. Access proceeds per policy. |",
+            "| AUTHENTICATION_REQUIRED | There is no valid Private Access session. The user must sign in or reauthenticate. |",
+            "| REGISTRATION_REQUIRED | The device or user is not registered for Private Access and must complete registration or enrollment before authentication. |",
+            "| ZPN_DISABLED | Zscaler Client Connector does not initiate Private Access. |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "windows-only": {
+      "kind": "semantic",
+      "title": "Whether other platforms have an equivalent of these registry keys",
+      "status": "open",
+      "detail": "The page names only the HKEY_CURRENT_USER registry path and describes no macOS, Linux or mobile equivalent. Another capture shows the same values in Client Connector log lines (getCurrentNetworkType, getSmeProxyState, getZpnProxyState, getZpnAuthState) but it was not quoted in this pass.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "none-vs-tunnel-forwarding": {
+      "kind": "semantic",
+      "title": "How NONE_FORWARDING differs from TUNNEL_FORWARDING",
+      "status": "open",
+      "detail": "The table gives NONE_FORWARDING and TUNNEL_FORWARDING the identical definition, traffic intercepted by network drivers. What distinguishes them is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "live-update-and-network-mapping": {
+      "kind": "semantic",
+      "title": "Whether the registry values update live, and how ZNW_State maps onto forwarding profile network types",
+      "status": "open",
+      "detail": "The page does not say whether the values change as the state changes, nor how TRUSTED, NON_TRUSTED, TRUSTED_VPN and TRUSTED_SPLIT_VPN correspond to the network types a forwarding profile matches.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

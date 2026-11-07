@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting.security-policies-runbook.sandbox",
+  "title": "Security policies runbook: Sandbox symptoms (licensing, no active content, quarantine, Patient 0, MD5 report)",
+  "aliases": [
+    "Sandbox Licensing Restrictions",
+    "No Active Content",
+    "Patient 0 alert",
+    "Sandbox Patient 0 Events"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting.security-policies-runbook" },
+    { "rel": "see-also", "to": "zia.sandbox" },
+    { "rel": "see-also", "to": "zia.sandbox.coverage" },
+    { "rel": "see-also", "to": "zia.sandbox.quarantine" },
+    { "rel": "see-also", "to": "zia.sandbox.rules" },
+    { "rel": "see-also", "to": "zia.sandbox.report" },
+    { "rel": "see-also", "to": "zia.sandbox.verdicts" },
+    { "rel": "see-also", "to": "zia.ssl-inspection" },
+    { "rel": "see-also", "to": "zia.logs.web-field-semantics" }
+  ],
+  "prose": [
+    {
+      "label": "Before troubleshooting.",
+      "text": "{{prerequisite-and-scope}}"
+    },
+    {
+      "label": "Web Insights values.",
+      "text": "{{log-rows}}"
+    },
+    {
+      "label": "File blocked by Sandbox.",
+      "text": "{{blocked-by-sandbox}}"
+    },
+    {
+      "label": "File not sent to Sandbox.",
+      "text": "{{not-sent-md5-check}} {{basic-vs-advanced-coverage}} {{basic-vs-advanced-features}} {{gap:basic-advanced-icon-rows}} {{no-active-content}}"
+    },
+    {
+      "label": "File stays in quarantine.",
+      "text": "{{quarantine-not-releasing}} {{quarantine-solution}}"
+    },
+    {
+      "label": "Patient 0 alerts.",
+      "text": "{{patient-0-alerts}} {{patient-0-setup}}"
+    },
+    {
+      "label": "Quarantine page for a file analyzed as benign.",
+      "text": "{{md5-after-benign}}"
+    },
+    {
+      "label": "MD5 is not a link.",
+      "text": "{{md5-not-hyperlink}}"
+    }
+  ],
+  "claims": {
+    "prerequisite-and-scope": {
+      "statement": "The runbook says to confirm that Sandbox is responsible for the block or unexpected behavior before troubleshooting, notes that Malware Protection, File Type Control or other upstream security solutions can also impact file downloads, and states that SSL Inspection is a prerequisite for Sandbox policies to apply: if traffic isn't getting SSL inspected, Sandbox policies do not apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Before troubleshooting a reported issue, confirm that the Sandbox is responsible for the block or unexpected behavior.",
+            "SSL Inspection is a prerequisite for Sandbox policies to apply. If traffic isn't getting SSL inspected, Sandbox policies do not apply.",
+            "Various Internet & SaaS policies, such as Malware Protection, File Type Control, or other upstream security solutions, can also impact file downloads."
+          ]
+        }
+      ]
+    },
+    "log-rows": {
+      "statement": "In the runbook's Sandbox Web Insights examples, an Allowed Benign or Allowed Sent for Analysis transaction has Threat Super Category Sandbox and Blocked Policy Type None; Quarantined, ML Quarantined and Isolate and Scan actions show Threat Category Sent for Analysis and Blocked Policy Type Sandbox; Sandbox Block Inbound Response and ML Block show Sandbox Malware, Sandbox Adware, Sandbox Anonimyzer, Sandbox Offensive Security Tools or Sandbox Ransomware as Threat Category. The runbook says to use its Sandbox troubleshooting steps if the Threat Super Category value matches Sandbox.",
+      "tier": "A",
+      "conditions": "A search of references/zia/types/web-log.json for ML Block and ML Quarantined returned no enum entry; Quarantined and Isolate and Scan are enum entries. The runbook's table is the only source here for those two action values.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "| Policy Action | Threat Category | Threat Super Category | Blocked Policy Type |",
+            "| Allowed | Benign | Sandbox | None |",
+            "| Allowed | Sent for Analysis | Sandbox | None |",
+            "| Quarantined ML Quarantined Isolate and Scan | Sent for Analysis | Sandbox | Sandbox |",
+            "| Sandbox Block Inbound Response ML Block | Sandbox Malware Sandbox Adware Sandbox Anonimyzer Sandbox Offensive Security Tools Sandbox Ransomware | Sandbox | Sandbox |",
+            "If Threat Super Category value matches Sandbox, use the following troubleshooting steps according to the symptoms."
+          ]
+        }
+      ]
+    },
+    "blocked-by-sandbox": {
+      "statement": "For a file blocked by Sandbox, the runbook says to examine the Blocked Policy Type field in Web Insights to identify the Blocked Policy Name (examples: Quarantine Malicious and Catch_All, both Blocked Policy Type Sandbox), open the MD5 hash link to the Sandbox report, and treat the block as expected when the report classifies the file as malicious (Class Type).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "| Blocked Policy Name | Blocked Policy Type |",
+            "| Quarantine Malicious | Sandbox |",
+            "| Catch_All | Sandbox |",
+            "Filter Web Insights logs for the affected traffic, and click the MD5 hash link to open the Sandbox report.",
+            "If the report classifies the file as malicious (Class Type), then the block is expected according to the security verdict.",
+            "Using the Web Insights Logs, examine the Blocked Policy Type field to identify the specific Blocked Policy Name responsible for blocking the file."
+          ]
+        }
+      ]
+    },
+    "not-sent-md5-check": {
+      "statement": "For a file not sent to Sandbox, the runbook says to check the MD5 field in Web Insights for a Sandbox report: a report means the file was already analyzed (with date and time of analysis), while no report means it was possibly excluded from Sandbox analysis due to licensing, policy settings, or file characteristics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Verify that a Sandbox report is available for the file’s MD5 hash. In Web Insights logs, find the transaction for the affected file and check in the MD5 field.",
+            "If a Sandbox report is available, this means the file was already analyzed by Zscaler Sandbox. The report includes the date and time of analysis, helping determine when the file was scanned.",
+            "If a Sandbox report is not available, this means the file was possibly excluded from Sandbox analysis due to licensing, policy settings, or file characteristics."
+          ]
+        }
+      ]
+    },
+    "basic-vs-advanced-coverage": {
+      "statement": "The runbook's In-line Sandbox table lists the Basic File Types as Windows Executable (.exe, .exe64, .scr), Windows Library (.dll64, .dll, .ocx, .sys) and .zip with a File Size of 2 MB or less, and the Advanced File Size as 'Up to 20 MB, 2 MB SWF, and 50 MB APK Archive and .exe are supported for 50 MB'; with a Basic Sandbox subscription only files that match the Basic Sandbox criteria are analyzed.",
+      "tier": "A",
+      "conditions": "The runbook states the Advanced ceiling as 20 MB, with 2 MB for SWF and 50 MB for APK Archive and .exe; zia.sandbox.coverage records the 20 MB figure for other types as stated only by the MCP skill, so this table is the help-page statement of it.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "| In-line Sandbox | Basic | Advanced |",
+            "Windows Executable (.exe, .exe64, .scr), Windows Library (.dll64, .dll, .ocx, .sys), .zip",
+            "2 MB or less",
+            "Up to 20 MB, 2 MB SWF, and 50 MB APK Archive and .exe are supported for 50 MB.",
+            "If your current subscription is Basic Sandbox, then only files that match the Basic Sandbox criteria are analyzed."
+          ]
+        }
+      ]
+    },
+    "basic-vs-advanced-features": {
+      "statement": "The runbook's In-line Sandbox table marks Basic as not offering AI-Driven Quarantine, File Quarantine, Reporting, URL Categories, API or Patient 0 and as having a Single default rule for Policy Control, with In-Line Blocking limited to URLs in specific Suspicious Destinations categories; Advanced has granular quarantine-based policies, holds files until confirmed Sandbox clean, and blocks in All URL Categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "| In-line Sandbox | Basic | Advanced |",
+            "| AI-Driven Quarantine | ❌ | ✅ |",
+            "| File Quarantine | Not available | Yes - Hold file until confirmed Sandbox clean |",
+            "| Policy Control | Single default rule | Granular quarantine-based policies |",
+            "| Patient 0 | ❌ | ✅ |",
+            "URLs in Suspicious Destinations: Nudity Pornography Anonymizer FileHost Shareware Download Web Host Miscellaneous or Unknown Other Miscellaneous",
+            "All URL Categories",
+            "| Reporting | ❌ | ✅ |",
+            "| URL Categories | ❌ | ✅ |",
+            "| API | ❌ | ✅ |"
+          ]
+        }
+      ]
+    },
+    "no-active-content": {
+      "statement": "For Microsoft Office documents and PDFs, Sandbox performs an initial static analysis on the Public Service Edge; a file new to the Zscaler cloud is checked for active content (e.g., macros, embedded scripts, suspicious objects), and if none is found it is classified as benign, isn't sent to the Sandbox, and Web Insights shows Allowed - No Active Content as the Policy Action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For Microsoft Office documents (e.g., .docx, .xlsx, .pptx, etc.) and PDFs, Zscaler Sandbox performs an initial static analysis on the Public Service Edge for Internet & SaaS",
+            "If the file is new to Zscaler cloud, then Public Service Edge for Internet & SaaS checks for active content (e.g., macros, embedded scripts, suspicious objects).",
+            "If no active content is found, the file is classified as benign and isn't sent to the Zscaler Sandbox.",
+            "The Web Insights Logs indicate Allowed - No Active Content as the Policy Action."
+          ]
+        }
+      ]
+    },
+    "quarantine-not-releasing": {
+      "statement": "The runbook says a file that remains in quarantine indefinitely can be due to one-time download links or dynamically generated files; for expired or one-time download links its log checks are Sent for Analysis in the Threat Category field on the first download transaction, later Allowed transactions for the same URL, and a Response Code of 404 - File not found or 403 - Forbidden from the destination server; for dynamic file generation (changing hashes) its check is multiple Sent for Analysis entries in the Threat Category field for the same URL with different MD5 hashes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If a file remains in quarantine indefinitely and the user is not able to get the file, it could be due to one-time download links or dynamically generated files.",
+            "For expired or one-time download links, some files are hosted on one-time download links",
+            "For Dynamic file generation (changing hashes), certain websites generate a new file with each request, causing the MD5 hash to change continuously.",
+            "Confirm that the first URL download transaction is showing Sent for Analysis in the Threat Category field.",
+            "Check to see if subsequent transactions for the same URL download show Allowed, even though the user can't download the file.",
+            "See if the Response Code field in the Web Insights logs show 404 - File not found or 403 - Forbidden from the destination server, indicating the file is no longer accessible.",
+            "Check if there are multiple Sent for Analysis in the Threat Category field for the same URL but with different MD5 hashes."
+          ]
+        }
+      ]
+    },
+    "quarantine-solution": {
+      "statement": "The runbook's solution for a file that stays in quarantine is a Sandbox rule for the affected domain that allows and scans files instead of holding them in quarantine; if the file is later classified as malicious the customer receives a Patient 0 alert, and exceptions should be created only for necessary domains, not broad categories of files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Create a Sandbox rule for the affected domain to Allow and scan files instead of holding them in quarantine.",
+            "If the file is later classified as malicious, the customer receives a Patient 0 alert.",
+            "Ensure that exceptions are created only for necessary domains, not for broad categories of files."
+          ]
+        }
+      ]
+    },
+    "patient-0-alerts": {
+      "statement": "An Advanced Sandbox subscription is required to configure and receive patient 0 alerts; when the first-time action of a Sandbox rule is configured to allow and scan unknown files, the service allows users to download files that match the rule criteria and sends the files to the Sandbox for behavioral analysis, and a patient 0 event occurs when a user downloads an unknown file that is scanned and found to be malicious, with alert emails within approximately two hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "An Advanced Sandbox subscription is required to configure and receive patient 0 alerts.",
+            "A patient 0 event occurs when a user downloads an unknown file that is scanned and found to be malicious.",
+            "you can add the patient 0 alert and receive emails about these events within approximately two hours.",
+            "If you've configured the first-time action of a Sandbox rule to allow and scan unknown files, the Zscaler service completes the following tasks:",
+            "Allows users to download files that match the rule criteria.",
+            "Sends the files to the Sandbox for behavioral analysis."
+          ]
+        }
+      ]
+    },
+    "patient-0-setup": {
+      "statement": "To receive patient 0 alerts the runbook says to go to Administration > Account Management > Alerts > Add Alert Definition > Alert Name > Patient 0, then add an alert subscription under Publish Alerts enabling Critical Patient 0 alerts; the Sandbox Patient 0 Events widget displays the patient 0 events in the organization, including Alert Time, Threat and Allowed Transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Go to Administration > Account Management > Alerts > Add Alert Definition > Alert Name > Patient 0.",
+            "Send the alert notification to a security email distribution group on the Zscaler Admin Console by going to Publish Alerts > Add Alert Subscription and enabling Critical Patient 0 alerts.",
+            "The Sandbox Patient 0 Events widget displays the patient 0 events that occurred in your organization.",
+            "Allowed Transactions: The total number of allowed transactions that occurred with the malicious file.",
+            "Alert Time: Displays the time the patient 0 alert is sent.",
+            "Threat: The threat name of the malicious file."
+          ]
+        }
+      ]
+    },
+    "md5-after-benign": {
+      "statement": "When the Quarantine page is displayed even though the same file was previously analyzed and classified as benign, the runbook says this could happen when the file analysis result is not present in the Public Service Edge at the time of download; it says this behavior is by design (each Public Service Edge updates independently based on geographic location, and after the initial download in each location the file is fast-pathed for subsequent users), that a different MD5 for the same file means a reanalysis is expected, and that the user might have to wait and retry the download.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If the symptom is that the Quarantine page is displayed even though the same file was previously analyzed and classified as benign",
+            "this could happen when the file analysis result is not present in the Public Service Edge for Internet & SaaS at the time of download.",
+            "If the MD5 is different for the same file, then a reanalysis of the file is expected.",
+            "This behavior is by design. This ensures each Public Service Edge for Internet & SaaS updates independently based on geographic location.",
+            "After the initial download in each location, the file is fast-pathed for subsequent users.",
+            "In this case, the user might have to wait and retry the file download again."
+          ]
+        }
+      ]
+    },
+    "md5-not-hyperlink": {
+      "statement": "An Advanced Sandbox subscription is required to access Sandbox reports, and the MD5 hash is only a clickable hyperlink when the Threat Super Category value is Sandbox; for any other Threat Super Category the MD5 is displayed as plain text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Advanced Sandbox subscription is required to access Sandbox reports.",
+            "The MD5 hash is only a clickable hyperlink when the Threat Super Category value is Sandbox.",
+            "If the Threat Super Category is a different value than Sandbox, then the MD5 is displayed as plain text instead of a hyperlink."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "basic-advanced-icon-rows": {
+      "kind": "semantic",
+      "title": "What the Reporting and API rows of the Basic and Advanced Sandbox table cover",
+      "status": "open",
+      "detail": "The runbook's In-line Sandbox table gives Reporting and API only as icons (not offered for Basic, offered for Advanced) without stating what each covers.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

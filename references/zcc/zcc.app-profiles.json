@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "id": "zcc.app-profiles",
+  "title": "ZCC app profiles (web policies)",
+  "aliases": [
+    "app profile",
+    "zcc app profile",
+    "web policy",
+    "zcc web policy",
+    "WebPolicy",
+    "client connector profile",
+    "app profile rule",
+    "application profile",
+    "app profiles",
+    "application profiles"
+  ],
+  "binds": [
+    "zcc/application-profiles"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zcc.app-profiles.selection",
+      "because": "zcc.app-profiles.selection:ascending-precedence"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.entitlements",
+      "because": "zcc.entitlements:services-gated"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zcc/application-profiles"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zcc.api.web-policy-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.propagation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.assignment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.ssl-certificate"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.passwords-and-otp.app-profile-passwords"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.application-bypass"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.web-privacy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An app profile is the policy object Client Connector downloads to govern the app itself, as distinct from the cloud policy that inspects traffic. This page walks the area and links the subject for each question. {{controls}}"
+    },
+    {
+      "label": "Per platform, and its API name.",
+      "text": "{{per-platform}} {{api-name}}"
+    },
+    {
+      "label": "Questions, in the order they usually come up.",
+      "steps": [
+        {
+          "label": "Which profile does this device get?",
+          "text": "Rule order, user and device groups, and the longest-match exception: [[zcc.app-profiles.selection]]."
+        },
+        {
+          "label": "Has the change reached the device?",
+          "text": "[[zcc.app-profiles.propagation]]."
+        },
+        {
+          "label": "Where does its traffic go?",
+          "text": "The rule names one forwarding profile: [[zcc.forwarding-profiles.assignment]]."
+        },
+        {
+          "label": "Why do users see certificate errors?",
+          "text": "[[zcc.app-profiles.ssl-certificate]]."
+        },
+        {
+          "label": "Can users disable, exit or remove the app?",
+          "text": "[[zcc.passwords-and-otp.app-profile-passwords]]."
+        },
+        {
+          "label": "How much does it log?",
+          "text": "[[zcc.app-profiles.logging]]."
+        },
+        {
+          "label": "What happens when the cloud or the tunnel is unreachable?",
+          "text": "[[zcc.app-profiles.failover]]."
+        },
+        {
+          "label": "Which applications bypass the tunnel?",
+          "text": "The predefined, custom IP-based and process-based applications an app profile can bypass: [[zcc.app-profiles.application-bypass]]."
+        },
+        {
+          "label": "What do the remaining settings do?",
+          "text": "[[zcc.app-profiles.advanced-settings]]."
+        },
+        {
+          "label": "How do I change one through the API?",
+          "text": "[[zcc.api.web-policy-wire]], with Python's key handling in [[zcc.sdk-python.wire-keys]]."
+        }
+      ]
+    },
+    {
+      "label": "Configured elsewhere.",
+      "text": "Privacy collection is the User Privacy object, [[zcc.web-privacy]]; which users get Private Access and ZDX is service entitlement, [[zcc.entitlements]]; the acceptable use prompt is [[zcc.acceptable-use]]. What a forwarding profile does per network type is in [[zcc.forwarding-profiles]]."
+    },
+    {
+      "label": "Finding and copying a profile.",
+      "text": "{{search}} {{copy}} What the copy limit counts is open {{gap:copy-limit}}."
+    },
+    {
+      "text": "{{custom-pac-url}} {{dr-pac-block}} The disaster recovery options themselves are in [[zcc.app-profiles.failover]]."
+    }
+  ],
+  "claims": {
+    "controls": {
+      "statement": "App profiles control whether users must enter an admin-provided password to log out of, disable, exit or uninstall the app; select the forwarding profile for Internet & SaaS and Private Access; and control how the app generates logs and the maximum size of its log files for the Internet & SaaS service.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Control whether users must enter an admin-provided password to log out of, disable, exit, or uninstall the app.",
+            "Select the forwarding profile for Internet & SaaS and Private Access services.",
+            "Control how the app generates logs and the maximum size of its log files for the Internet & SaaS service."
+          ]
+        }
+      ]
+    },
+    "per-platform": {
+      "statement": "A profile policy rule is added per device platform: Windows, macOS, Linux, iOS and Android each have their own rules.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#deviceType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "You can add a Zscaler Client Connector profile policy rule for each of the following device platforms:",
+            "for each of the following device platforms: - Windows",
+            "- macOS - Linux - iOS - Android"
+          ]
+        }
+      ]
+    },
+    "api-name": {
+      "statement": "In the API the object is a web policy: the `/web/policy` operations add or update, enable or disable, and delete \"a policy or app profile for the company by platform\".",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put",
+          "expect": {
+            "description": "Adds or updates a policy or app profile for the company by platform (iOS, Android, Windows, macOS, and Linux)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1activate/put",
+          "expect": {
+            "description": "Enables or disables a policy or app profile for the company by platform (iOS, Android, Windows, macOS, and Linux)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1{policyId}~1delete/delete",
+          "expect": {
+            "description": "Deletes a policy or app profile for the company by platform (iOS, Android, Windows, macOS, and Linux)."
+          }
+        }
+      ]
+    },
+    "search": {
+      "statement": "The App Profiles tab's Search field can find an app profile by selecting criteria: Policy Name, Group Name, Policy Token or Location Ruleset.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-searching-app-profile.json",
+          "quotes": [
+            "You can quickly find a specific Zscaler Client Connector App Profile using the Search field by selecting different criteria to narrow down your search results.",
+            "You can search using the following criteria:",
+            "Policy Name",
+            "Group Name",
+            "Policy Token",
+            "Location Ruleset"
+          ]
+        }
+      ]
+    },
+    "copy": {
+      "statement": "An app profile can be copied by duplicating an existing profile, so a profile can be tested before it is deployed. The default profile cannot be copied, the copy appears under the profile that was copied, and a maximum of 10 profiles can be copied at the same time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-copying-app-profile.json",
+          "quotes": [
+            "By duplicating an existing profile, you can test a profile before deploying it to reduce mistakes.",
+            "You cannot copy the default profile.",
+            "Your copied profile appears under the profile you copied.",
+            "You can copy a maximum of 10 profiles at the same time."
+          ]
+        }
+      ]
+    },
+    "custom-pac-url": {
+      "statement": "On the Windows, macOS and Linux app profiles, a Custom PAC URL is entered when Client Connector should forward internet traffic to the Zscaler service with exceptions for certain types of traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Enter a valid PAC URL in the Custom PAC URL field if you want Zscaler Client Connector to forward internet traffic to the Zscaler service and want to specify exceptions for certain types of traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add macOS Policy window appears.",
+          "quotes": [
+            "Enter a valid PAC URL in the Custom PAC URL field if you want Zscaler Client Connector to forward all internet traffic to the Zscaler service and want to specify exceptions for certain types of traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Linux Policy window appears.",
+          "quotes": [
+            "Enter a valid PAC URL in the Custom PAC URL field if you want Zscaler Client Connector to forward all internet traffic to the Zscaler service and want to specify exceptions for certain types of traffic."
+          ]
+        }
+      ]
+    },
+    "dr-pac-block": {
+      "statement": "In the custom PAC file of the Windows app profile's Internet & SaaS disaster recovery options (Policy Based Access, Web only and All Ports), DIRECT allows a destination and BLOCK, or any return value other than DIRECT, blocks it; Zscaler's sample files set var drop = \"BLOCK\" and allow listed hosts matched with localHostOrDomainIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Policy Based Access (Web only): You can either block or allow access to specific URLs using a custom PAC file.",
+            "var drop = \"BLOCK\"; /* Return DIRECT to Allow access */ if ((localHostOrDomainIs(host, \"google.com\"))",
+            "Return BLOCK (or any other return statement other than DIRECT) to block destination access."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "3. Policy Based Access (All Ports): You can either block or allow access",
+          "quotes": [
+            "Return BLOCK (or any other return statement other than DIRECT) to block destination access."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "copy-limit": {
+      "kind": "semantic",
+      "title": "What the limit of 10 profiles copied at the same time counts",
+      "status": "open",
+      "detail": "The copy page says a maximum of 10 profiles can be copied at the same time; it does not say whether that is per action, per platform or a cap on total copies.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "id": "zpa.software-components.oauth-enrollment",
+  "title": "OAuth 2.0 enrollment for ZPA software components and its troubleshooting",
+  "aliases": [
+    "oauth enrollment",
+    "oauth enrollment token",
+    "oauth_enroll_disable",
+    "oauth_enrollment_stats",
+    "zpa-oauth.private.zscaler.com",
+    "no oauth token on vm"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.software-components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.network-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.software-components.manager"
+    }
+  ],
+  "prose": [
+    {
+      "text": "OAuth enrollment is one of two ways to enroll a software component on a Private Access VM image."
+    },
+    {
+      "label": "Choosing it.",
+      "text": "{{recommended}} {{image-defaults}} {{no-count-limit}}"
+    },
+    {
+      "label": "Network needs.",
+      "text": "{{network}}"
+    },
+    {
+      "label": "When a component does not enroll.",
+      "text": "{{no-token}} {{key-blocks-oauth}} The Private Cloud Controller service is named differently from the Manager article's {{divergence:pcc-service-name}}. {{config-override}} The flag and the restart command are not described {{gap:override-flag-and-restart}}. {{upgrade-keeps-key}} {{retry-limits}}"
+    },
+    {
+      "text": "Per-component enrollment is in [[zpa.app-connectors.enrollment]], [[zpa.private-service-edges.enrollment]] and [[zpa.vpn.network-connectors.enrollment]]; the Manager software is in [[zpa.software-components.manager]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a provisioning key exists on the VM, since a detected key keeps OAuth enrollment from activating.",
+      "uses": [
+        "key-blocks-oauth",
+        "image-defaults"
+      ]
+    },
+    {
+      "do": "Whether the component can reach the OAuth server over IPv4 and the FQDN is allowlisted.",
+      "uses": [
+        "network",
+        "no-token"
+      ]
+    },
+    {
+      "do": "Whether the enrollment is in the 5-attempt wait or the 500-failure stop, and whether the component was upgraded from a version that keeps its key.",
+      "uses": [
+        "retry-limits",
+        "upgrade-keeps-key"
+      ]
+    },
+    {
+      "do": "Which service name is meant for a Private Cloud Controller, since the pages differ.",
+      "uses": [
+        "pcc-service-name"
+      ]
+    }
+  ],
+  "claims": {
+    "recommended": {
+      "statement": "Software components on Private Access VM images can be enrolled using either OAuth 2.0 tokens or provisioning keys. Zscaler recommends OAuth because it provides better security, with enrollment tokens that expire after two hours and cannot be reused, and ease of deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-oauth-enrollment.json",
+          "quotes": [
+            "You can enroll software components using either OAuth 2.0 tokens or provisioning keys on Private Access (ZPA) virtual machine (VM) images.",
+            "Zscaler recommends using OAuth to enroll software components because it provides better security with enrollment tokens that expire after two hours and can't be reused, and ease of deployment."
+          ]
+        }
+      ]
+    },
+    "image-defaults": {
+      "statement": "Private Access VM images automatically have OAuth 2.0 enabled, with the exception of Kubernetes, OpenShift and Docker on supported software component platforms. When started, the image attempts to use OAuth enrollment tokens by default but applies a provisioning key first if one is available, and an updated software component uses a provisioning key if one exists. For existing components that use provisioning keys and should use OAuth, the page says to deploy new Private Access VM images.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-oauth-enrollment.json",
+          "quotes": [
+            "Private Access VM images automatically have OAuth 2.0 enabled, with the exception of Kubernetes, OpenShift, and Docker on supported software component platforms.",
+            "When started, the VM image attempts to use OAuth enrollment tokens by default, but applies a provisioning key first if one is available. When a software component is updated, it uses a provisioning key if one exists.",
+            "If you have existing software components that use provisioning keys and want to use OAuth tokens for enrollment, you should deploy new Private Access VM images."
+          ]
+        }
+      ]
+    },
+    "network": {
+      "statement": "The OAuth server only supports IPv4-based communication, so a software component with only an IPv6 address cannot access it. To use OAuth 2.0 the OAuth server FQDN zpa-oauth.private.zscaler.com must be allowlisted and user devices must be allowed to make an outbound connection to it; the IP addresses to allowlist are at config.zscaler.com/private.zscaler.com/zpa for the private.zscaler.com cloud or config.zscaler.com/zpatwo.net/zpa for the zpatwo.net cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-oauth-enrollment.json",
+          "quotes": [
+            "The OAuth server only supports IPv4-based communication. If a software component only has an IPv6 address, it cannot access the OAuth server.",
+            "To use OAuth 2.0, the OAuth server FQDN zpa-oauth.private.zscaler.com must be allowlisted, and user devices must be allowed to make an outbound connection to the zpa-oauth.private.zscaler.com server.",
+            "Refer to config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud) for the IP address to add to the allowlist."
+          ]
+        }
+      ]
+    },
+    "no-token": {
+      "statement": "In the OAuth enrollment troubleshooting article, a VM that gets no token is resolved by adding an outbound rule to reach the OAuth service at zpa-oauth.private.zscaler.com. An App Connector or Private Service Edge with only an IPv6 address cannot access the OAuth server and needs an IPv4 address. For a response without a token, the article says requests are most likely timing out and to check whether the request to fetch the OAuth token is blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-oauth-enrollment-private-access-images.json",
+          "quotes": [
+            "The VM isn't getting an OAuth token.",
+            "The VM might not be able to reach the OAuth service.",
+            "To resolve this issue, add an outbound rule to reach OAuth Service at zpa-oauth.private.zscaler.com.",
+            "If the App Connector or Private Service Edge for Private Access (ZPA) only has an IPV6 address, it cannot access the OAuth server.",
+            "To resolve this issue, make sure the software component (i.e., App Connector) has an IPV4 address.",
+            "The VM receives a response from the OAuth service, but cannot get a token.",
+            "Most likely, requests are timing out. Check whether the request to fetch the OAuth token is blocked."
+          ]
+        }
+      ]
+    },
+    "key-blocks-oauth": {
+      "statement": "OAuth enrollment is not activated if a provisioning key is detected on the VM; the article's fix is to remove the provisioning key and restart the zpa-connector, zpa-service-edge, pcc-controller or np-connector service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-oauth-enrollment-private-access-images.json",
+          "quotes": [
+            "A provisioning key might exist on the VM and OAuth enrollment is not activated if a provisioning key is detected.",
+            "To resolve this issue, remove the provisioning key, and restart the zpa-connector, zpa-service-edge, pcc-controller, or np-connector service."
+          ]
+        }
+      ]
+    },
+    "config-override": {
+      "statement": "When the Manager software shows that provisioning details were retrieved successfully but the App Connector is still looking for a provisioning key, the article's fix is to enable the config override flag and remove .oauth_enroll_disable from /opt/zscaler/var.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-oauth-enrollment-private-access-images.json",
+          "quotes": [
+            "The Manager software shows that provisioning details were retrieved successfully, but the App Connector is still looking for a provisioning key",
+            "To resolve this issue, enable the config override flag and remove .oauth_enroll_disable from /opt/zscaler/var."
+          ]
+        }
+      ]
+    },
+    "upgrade-keeps-key": {
+      "statement": "OAuth enrollment is not initiated for App Connectors upgrading from version 25.46 and earlier, or Private Service Edge 25.47 or earlier. The article says this is by design, because previous versions of software components are already enrolled and bring their provisioning keys with them when upgrading.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-oauth-enrollment-private-access-images.json",
+          "quotes": [
+            "OAuth enrollment is not initiated for App Connectors when upgrading from version 25.46 and earlier or Private Service Edge 25.47 or earlier.",
+            "This is by design. Previous versions of software components are already enrolled and bring the provisioning keys with them when upgrading."
+          ]
+        }
+      ]
+    },
+    "retry-limits": {
+      "statement": "After 5 unsuccessful enrollment attempts using the OAuth service, the Manager software process waits for 6 hours before trying again, and the article's fix is to manually restart the OAuth service. OAuth enrollment is permanently stopped after 500 consecutive failures, and the article's fix is to delete the oauth_enrollment_stats file from the /opt/zscaler/var directory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-oauth-enrollment-private-access-images.json",
+          "quotes": [
+            "After 5 unsuccessful enrollment attempts using the OAuth service, the Manager software process waits for 6 hours before attempting to try again.",
+            "To resolve this issue, manually restart the OAuth service.",
+            "OAuth enrollment is permanently stopped after 500 consecutive failures.",
+            "To resolve this issue, delete the oauth_enrollment_stats file from the /opt/zscaler/var directory."
+          ]
+        }
+      ]
+    },
+    "no-count-limit": {
+      "statement": "Unlike provisioning keys, there is no restriction on adding software components to a software component group when OAuth is used for enrollment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-oauth-enrollment-private-access-images.json",
+          "quotes": [
+            "Unlike provisioning keys, there isn't a restriction for adding software components to a software component group."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "pcc-service-name": {
+      "summary": "The Manager software article names the Private Cloud Controller service zpa-pcc, while the OAuth enrollment troubleshooting article lists pcc-controller among the services to restart.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-manager-software.json",
+            "quotes": [
+              "The VMs run a service called zpa-connector for App Connectors, zpa-service-edge for Private Service Edges, zpa-pcc for Private Cloud Controllers, and np-connector for Network Connectors."
+            ]
+          },
+          "says": "The Private Cloud Controller service is zpa-pcc."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-troubleshooting-oauth-enrollment-private-access-images.json",
+            "quotes": [
+              "To resolve this issue, remove the provisioning key, and restart the zpa-connector, zpa-service-edge, pcc-controller, or np-connector service."
+            ]
+          },
+          "says": "The services to restart are zpa-connector, zpa-service-edge, pcc-controller or np-connector."
+        }
+      ],
+      "impact": "The pages do not say whether pcc-controller is the same service as zpa-pcc, so the service to restart on a Private Cloud Controller is not settled."
+    }
+  },
+  "gaps": {
+    "override-flag-and-restart": {
+      "kind": "semantic",
+      "title": "The config override flag and the command that restarts the OAuth service",
+      "status": "open",
+      "detail": "The troubleshooting article says to enable the config override flag and to manually restart the OAuth service. It does not say where the flag is set or what command restarts the OAuth service.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

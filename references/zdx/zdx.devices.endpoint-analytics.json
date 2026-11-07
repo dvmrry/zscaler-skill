@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "zdx.devices.endpoint-analytics",
+  "title": "Microsoft Endpoint Analytics (Intune) scores in ZDX",
+  "aliases": [
+    "endpoint analytics",
+    "microsoft endpoint analytics",
+    "intune endpoint analytics",
+    "startup performance",
+    "software reliability",
+    "core boot score",
+    "core sign-in score"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.health-score"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Endpoint Analytics scores in ZDX are built from Microsoft Intune data.{{source}} {{freshness}}"
+    },
+    {
+      "label": "Setting up the integration.",
+      "text": "{{intune-integration}} {{intune-auth}} {{data-collection-page}}"
+    },
+    {
+      "label": "Scores.",
+      "text": "{{score-scale}} {{startup-performance}} {{software-reliability}} How the weighted averages are weighted is open {{gap:score-weights}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Intune application integration is configured and enough time has passed since the event before treating missing Endpoint Analytics data as absent.",
+      "uses": [
+        "source",
+        "freshness"
+      ]
+    }
+  ],
+  "claims": {
+    "source": {
+      "statement": "After Microsoft Intune is integrated with ZDX, metrics are garnered from the Microsoft Intune API and mapped to individual ZDX users and devices to provide Endpoint Analytics scores and metrics. The Intune application integration should be configured first, and the user details page provides Endpoint Analytics information for a specified user device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-endpoint-analytics-zdx.json",
+          "quotes": [
+            "After you integrate Microsoft Intune with Digital Experience (ZDX), metrics are garnered from the Microsoft Intune API and mapped to individual ZDX users and devices to provide Endpoint Analytics scores and metrics.",
+            "To view Endpoint Analytics data, you should first configure the Intune application integration.",
+            "The user details page provides the following Endpoint Analytics information for a specified user device:"
+          ]
+        }
+      ]
+    },
+    "intune-integration": {
+      "statement": "The integration of Microsoft Intune with ZDX provides access to Endpoint Analytics for user and device insights; its Monitoring Criteria filters identify the users from whom data can be collected for Endpoint Analytics, with selections among the filters cumulative and selections within a single filter not cumulative.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-microsoft-intune-zdx.json",
+          "quotes": [
+            "The integration of Microsoft Intune with Digital Experience (ZDX) provides access to Endpoint Analytics for user and device insights.",
+            "Monitoring Criteria: Use the filters to help identify the users from whom data can be collected for Endpoint Analytics. Selections among the filters are cumulative, whereas selections within a single filter are not cumulative."
+          ]
+        }
+      ]
+    },
+    "intune-auth": {
+      "statement": "The Intune integration must be authenticated with Microsoft before it can be saved and reauthenticated whenever the Monitoring Criteria settings are updated; Zscaler uses sign-in and read permissions for it, and Validate verifies that the setup with Microsoft was successful.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-microsoft-intune-zdx.json",
+          "quotes": [
+            "You must authenticate with Microsoft before you can save the Intune integration. You must also reauthenticate whenever you update the Monitoring Criteria settings.",
+            "Zscaler uses sign-in and read permissions for the Microsoft Intune integration.",
+            "Click Validate to verify your setup with Microsoft was successful."
+          ]
+        }
+      ]
+    },
+    "data-collection-page": {
+      "statement": "On the Data Collection page integrations (for example Microsoft Intune) are configured for data collection to access Endpoint Analytics, each showing the date it was configured (Onboarded On), and a webhook for alerting can be configured there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-data-collection.json",
+          "quotes": [
+            "Configure integrations (e.g., Microsoft Intune) for data collection to access Endpoint Analytics.",
+            "Onboarded On: The date the integration was configured.",
+            "Configure a webhook for alerting."
+          ]
+        }
+      ]
+    },
+    "score-scale": {
+      "statement": "The Endpoint Analytics Score reflects the weighted average of the Startup Performance score and the Software Reliability score, and its scores are calculated on a scale from 0 (poor) to 100 (exceptional). The device's Health Status shows its most recent status, designated Unknown, Insufficient Data, Needs Attention or Meeting Goals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-endpoint-analytics-zdx.json",
+          "quotes": [
+            "Endpoint Analytics Score: Reflects the weighted average of the Startup Performance score and Software Reliability score.",
+            "Health Status: Shows the most recent status of the device, designated as Unknown, has Insufficient Data, Needs Attention, or is Meeting Goals.",
+            "The Endpoint Analytics scores are calculated on a scale from 0 (poor) to 100 (exceptional):"
+          ]
+        }
+      ]
+    },
+    "freshness": {
+      "statement": "Data is collected from the Intune API every 3 hours, although metrics might not repopulate every 3 hours within the UI. Some Startup Performance events might take up to 24 hours to be displayed, and some Software Reliability events up to 3 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-endpoint-analytics-zdx.json",
+          "quotes": [
+            "Although data is collected from the API every 3 hours, metrics might not repopulate every 3 hours within the UI.",
+            "Some Startup Performance events might take up to 24 hours to be displayed, and some Software Reliability events might take up to 3 days to be displayed."
+          ]
+        }
+      ]
+    },
+    "startup-performance": {
+      "statement": "Startup Performance reflects the weighted average time from system power-on to completion of a user's successful sign-in. The Startup Score is a weighted average of the Core Boot Score (an average based on the time from power-on to sign-in) and the Core Sign-in Score (an average based on the time from credentials being entered to a rendered desktop with CPU usage below 50% for at least 2 seconds), and the page lists the top ten processes impacting startup, those whose CPU usage might be running above 50%.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-endpoint-analytics-zdx.json",
+          "quotes": [
+            "Startup Performance: Reflects the weighted average time from system power-on to completion of a user's successful sign in.",
+            "Startup Score: A weighted average of both Core Sign-in Score and Core Boot Score.",
+            "Core Sign-in Score: An average based on the time when a user enters credentials to when the user accesses a rendered desktop, and CPU usage has fallen below 50% for at least 2 seconds.",
+            "Core Boot Score: An average based on the time from system power-on to sign in.",
+            "Top Ten Processes Impacting Startup",
+            "View the top processes in which CPU usage might be running above 50% and impacting users:"
+          ]
+        }
+      ]
+    },
+    "software-reliability": {
+      "statement": "Software Reliability reflects the reliability of all installed applications and software, based on crash frequency and duration of usage, and the page shows details of software events within the past 14 days, including each event's publisher, the company that licenses the software.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-endpoint-analytics-zdx.json",
+          "quotes": [
+            "Software Reliability: Reflects the reliability of all installed applications and software, based on crash frequency and duration of usage.",
+            "View details of software events that occurred within the past 14 days:",
+            "Publisher: The company that licenses the service, application, or software."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "score-weights": {
+      "kind": "semantic",
+      "title": "The weights in the Endpoint Analytics and Startup scores",
+      "status": "open",
+      "detail": "The Endpoint Analytics Score and the Startup Score are described as weighted averages, with no weights given in the article.",
+      "blocks": "explaining why an Endpoint Analytics score is low",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

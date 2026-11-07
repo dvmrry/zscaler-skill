@@ -1,23 +1,21 @@
 #!/usr/bin/env node
 import { spawn, spawnSync } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { checkNodeVersion } from "./doctor.mjs";
+import { runTempRoot } from "./lib.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const referenceFreshnessBase = process.env.REFERENCE_FRESHNESS_BASE || "origin/main";
-const PYTEST_FILES = [
-  "scripts/test_check_hygiene.py",
-  "scripts/test_check_vendor_drift.py",
-  "scripts/test_issue_watch.py",
-  "scripts/test_maintenance_digest.py",
-  "scripts/automate-capture/test_extract_docusaurus_blobs.py",
-  "scripts/automate-capture/test_build_openapi_from_blobs.py",
-  "scripts/automate-capture/test_reconcile_contract.py",
-  "scripts/automate-capture/test_rosetta.py",
-  "scripts/automate-capture/test_reference_anchors.py",
-];
+// Set by main: the run's temporary root, handed to every check as TMPDIR and removed when the gate exits.
+let runTemp = { env: {} };
+// Every scripts/**/test_*.py, discovered as check-fast discovers the node tests, so a new suite cannot be left out.
+const PYTEST_FILES = fs
+  .readdirSync(path.join(repoRoot, "scripts"), { recursive: true })
+  .filter((name) => /(^|[\\/])test_[^\\/]*\.py$/.test(name) && !name.includes("__pycache__"))
+  .sort()
+  .map((name) => `scripts/${name.split(path.sep).join("/")}`);
 
 const FULL_CHECKS = [
   {
@@ -37,26 +35,12 @@ const FULL_CHECKS = [
     env: { MCP_CONFORMANCE_OFFLINE: "1" },
   },
   { name: "documentation hygiene", command: "./scripts/check-hygiene.py", args: [] },
-  {
-    name: "changed reference source-pin paths",
-    command: "./scripts/check-verified-against.py",
-    args: ["--base", referenceFreshnessBase],
-  },
+  { name: "knowledge graph (citations anchored)", command: "node", args: ["scripts/kb.mjs", "validate"] },
+  { name: "Tier A evidence lint", command: "node", args: ["scripts/kb.mjs", "lint", "--strict"] },
   {
     name: "pure agent-pattern regression tests",
     command: "uv",
     args: ["run", "python", "scripts/agent_patterns.test.py"],
-  },
-  {
-    name: "reference freshness semantics",
-    command: process.execPath,
-    args: [
-      "scripts/check-reference-freshness.mjs",
-      "--base",
-      referenceFreshnessBase,
-      "--strict",
-    ],
-    advisory: true,
   },
   {
     name: "automate-capture regression tests",
@@ -75,52 +59,30 @@ const FULL_CHECKS = [
       ...PYTEST_FILES,
     ],
   },
+  { name: "generated spines are current", command: "node", args: ["scripts/gen-spine.mjs", "--check"] },
+  { name: "verified.json is current", command: "node", args: ["scripts/kb.mjs", "verified", "--check"] },
+  { name: "generated surface layer is current (ZIA)", command: "node", args: ["scripts/gen-surfaces.mjs", "zia", "--check"] },
+  { name: "generated surface layer is current (ZPA)", command: "node", args: ["scripts/gen-surfaces.mjs", "zpa", "--check"] },
+  { name: "generated surface layer is current (ZCC)", command: "node", args: ["scripts/gen-surfaces.mjs", "zcc", "--check"] },
+  { name: "generated surface layer is current (Cloud Connector)", command: "node", args: ["scripts/gen-surfaces.mjs", "ztw", "--check"] },
+  { name: "generated surface layer is current (ZDX)", command: "node", args: ["scripts/gen-surfaces.mjs", "zdx", "--check"] },
+  { name: "generated surface layer is current (ZIdentity)", command: "node", args: ["scripts/gen-surfaces.mjs", "zid", "--check"] },
+  { name: "generated surface layer is current (AI Guard)", command: "node", args: ["scripts/gen-surfaces.mjs", "aiguard", "--check"] },
+  { name: "generated surface layer is current (AI Security)", command: "node", args: ["scripts/gen-surfaces.mjs", "aisec", "--check"] },
+  { name: "generated surface layer is current (Business Insights)", command: "node", args: ["scripts/gen-surfaces.mjs", "bi", "--check"] },
+  { name: "generated surface layer is current (EASM)", command: "node", args: ["scripts/gen-surfaces.mjs", "easm", "--check"] },
+  { name: "generated surface layer is current (Cellular)", command: "node", args: ["scripts/gen-surfaces.mjs", "zcell", "--check"] },
+  { name: "generated surface layer is current (Workflow Automation)", command: "node", args: ["scripts/gen-surfaces.mjs", "zwa", "--check"] },
+  { name: "generated surface layer is current (Microsegmentation)", command: "node", args: ["scripts/gen-surfaces.mjs", "zms", "--check"] },
+  { name: "generated surface layer is current (Zero Trust Branch)", command: "node", args: ["scripts/gen-surfaces.mjs", "ztb", "--check"] },
+  { name: "generated surface layer is current (Z-Insights)", command: "node", args: ["scripts/gen-surfaces.mjs", "zins", "--check"] },
+  { name: "generated log types are current", command: "node", args: ["scripts/gen-log-types.mjs", "--check"] },
+  { name: "generated release history is current", command: "node", args: ["scripts/gen-releases.mjs", "--check"] },
   { name: "documentation links", command: "./scripts/check-doc-links.py", args: [] },
-  {
-    name: "citation-density regression tests",
-    command: "./scripts/check-citation-density.test.py",
-    args: [],
-  },
-  {
-    name: "citation source audit",
-    command: "./scripts/check-citation-density.py",
-    args: ["--audit-source-quality", "--include-source-style", "--strict-sources", "--top", "25"],
-  },
-  {
-    name: "semantic citation evidence coverage",
-    command: "./scripts/check-citation-density.py",
-    args: [
-      "--audit-source-quality",
-      "--include-semantic",
-      "--strict-sources",
-      "--top",
-      "10",
-    ],
-    advisory: true,
-  },
-  {
-    name: "citation inventory",
-    command: "./scripts/check-citation-density.py",
-    args: [
-      "--compare-citation-inventory",
-      "references/_meta/citation-inventory.json",
-      "--strict-inventory",
-      "--top",
-      "25",
-    ],
-  },
-  { name: "orphan references", command: "./scripts/check-orphans.py", args: [] },
   {
     name: "vendor family coverage",
     command: "./scripts/check-family-coverage.py",
     args: [],
-    advisory: true,
-  },
-  {
-    name: "vendor-source drift",
-    command: "./scripts/check-vendor-drift.py",
-    args: [],
-    advisory: true,
   },
   { name: "help-article scrape freshness", command: "./scripts/check-scrape-freshness.py", args: [] },
 ];
@@ -194,7 +156,7 @@ function runCheck(check, root = repoRoot) {
   return new Promise((resolve) => {
     const child = spawn(check.command, check.args, {
       cwd: root,
-      env: { ...process.env, ...check.env },
+      env: { ...process.env, ...runTemp.env, ...check.env },
       stdio: ["ignore", "pipe", "pipe"],
     });
     let stdout = "";
@@ -234,6 +196,7 @@ function printResult(result) {
 }
 
 async function main() {
+  runTemp = runTempRoot("zscaler-skill-gate-");
   const nodeCheck = checkNodeVersion();
   if (nodeCheck.status === "FAIL") {
     console.error(`check-full: ${nodeCheck.detail}`);

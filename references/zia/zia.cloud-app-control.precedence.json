@@ -1,0 +1,637 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.precedence",
+  "title": "Cloud App Control versus URL Filtering: which applies",
+  "aliases": [
+    "cac vs url filtering",
+    "cloud app control precedence",
+    "allow cascading to url filtering",
+    "cascading",
+    "cac allows url filter blocks",
+    "why does cac allow override a url block"
+  ],
+  "binds": [
+    "zia/cloud-app-control"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.url-filtering.advanced-settings",
+      "because": "zia.cloud-app-control.precedence:cascading-allow-path"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering",
+      "because": "zia.cloud-app-control.precedence:cac-allow-skips-url-filtering"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.web-rule-attribution",
+      "because": "zia.logs.web-rule-attribution:separate-layer-labels"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/cloud-app-control"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings.m365-one-click"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Neither \"Cloud App Control always wins\" nor \"the stricter policy wins\" holds. The rule that matters is about the allow path."
+    },
+    {
+      "text": "{{cac-first}} {{cac-allow-skips-url-filtering}}"
+    },
+    {
+      "text": "{{cascading-allow-path}} {{cac-block-final}}"
+    },
+    {
+      "text": "{{no-cac-rule-url-filtering-runs}} {{scoped-allow-leaves-others-to-url-filtering}}"
+    },
+    {
+      "text": "{{per-rule-cascade}} {{global-cascade-overrides}} {{cac-rule-order}} {{mcp-order-surface}} {{mcp-skill-first-match-shadowing}} {{document-cascading}} {{prefer-cac-for-predefined-apps}} Each pass of the pipeline evaluates CAC before URL Filtering: see [[zia.ssl-inspection.pipeline]]."
+    },
+    {
+      "label": "Cascade per action.",
+      "text": "{{cascade-per-action}} Whether a Conditional allow offers it is open {{gap:cascade-conditional}}."
+    },
+    {
+      "label": "Rank, view and expiry.",
+      "text": "{{admin-rank}} {{rules-view-predefined-first}} {{rule-expiration}} What the organization's default rules are is open {{gap:expiry-default-rules}}."
+    },
+    {
+      "label": "Microsoft 365 One Click rules.",
+      "text": "{{one-click-predefined-rules}} The options that create them are in [[zia.advanced-settings.m365-one-click]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant-wide Allow Cascading to URL Filtering option is on, before reading any rule.",
+      "uses": [
+        "cascading-allow-path",
+        "cac-allow-skips-url-filtering"
+      ]
+    },
+    {
+      "do": "Whether an individual rule cascades on its own Cascade to URL Filtering option, not only through the Allow Cascading to URL Filtering option in Advanced Settings.",
+      "uses": [
+        "per-rule-cascade"
+      ]
+    }
+  ],
+  "claims": {
+    "cac-first": {
+      "statement": "By default, Cloud App Control takes precedence over URL Filtering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "By default, the Cloud App Control policy takes precedence over the URL Filtering policy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "By default, the Cloud App Control policy takes precedence over the URL Filtering policy."
+          ]
+        }
+      ]
+    },
+    "cac-allow-skips-url-filtering": {
+      "statement": "By default, when a Cloud App Control rule explicitly allows the transaction, URL Filtering is not applied at all, so a URL Filtering block on the same site does not fire.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "If a user requests a cloud app that you explicitly allow with Cloud App Control policy, the service only applies the Cloud App Control policy and not the URL Filtering policy.",
+            "This is because, by default, the service does not apply the URL Filtering policy if a Cloud App Control policy rule allows the transaction."
+          ]
+        }
+      ]
+    },
+    "cascading-allow-path": {
+      "statement": "Enabling Allow Cascading to URL Filtering in Advanced Settings makes the service apply the URL Filtering policy even when a Cloud App Control rule allows the transaction, so a URL Filtering block then applies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "However, this behavior changes if you enable Allow Cascading to URL Filtering in Advanced Settings.",
+            "If you do, the service applies the URL Filtering policy even if it applies a Cloud App Control policy rule allowing the transaction.",
+            "with cascading enabled, the service applies the URL Filtering policy and blocks the user from Facebook."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "To change this setting and have the service apply the URL Filtering policy even if it has already applied a Cloud App Control policy, go to Advanced Settings and enable Allow Cascading to URL Filtering."
+          ]
+        }
+      ]
+    },
+    "cac-block-final": {
+      "statement": "In the help's example, with Allow Cascading to URL Filtering enabled, Facebook blocked by a Cloud App Control rule stays blocked even though URL Filtering allows it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "If the example changed so that you had a Cloud App Control policy rule that blocked Facebook, while URL Filtering allowed it, Facebook is blocked even if Allow Cascading to URL Filtering was enabled."
+          ]
+        }
+      ]
+    },
+    "no-cac-rule-url-filtering-runs": {
+      "statement": "When the user requests a cloud app that no Cloud App Control rule covers, the service still evaluates and applies URL Filtering, although the Cloud App Control default policy behavior is Allow All.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "If a user requests a Cloud App for which you have not configured a Cloud App Control policy rule (for example, the user requests ebay.com, and you don't have a Cloud App Control rule for ebay.com), the service still evaluates and applies the URL Filtering policy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "The default policy behavior is Allow All."
+          ]
+        }
+      ]
+    },
+    "cac-rule-order": {
+      "statement": "Within Cloud App Control, rules evaluate top-down in ascending order, and a disabled rule is skipped while keeping its place, the same as URL Filtering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "Rules evaluation proceeds in order from top to bottom."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-instant-messaging-rule-cloud-app-control.json",
+          "quotes": [
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)",
+            "A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)",
+            "A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."
+          ]
+        }
+      ]
+    },
+    "per-rule-cascade": {
+      "statement": "Each Cloud App Control rule has its own Cascade to URL Filtering option (`cascadingEnabled`). It appears only when the Allow Cascading to URL Filtering option on the Advanced Settings page is disabled, and when enabled it enforces the URL Filtering policy on a transaction even after that rule explicitly allows it. URL Filtering does not apply if the rule blocks.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#cascadingEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "This field appears only when the Allow Cascading to URL Filtering option is disabled on the Advanced Settings page (Internet Access > Setting > Advanced Settings).",
+            "Cascade to URL Filtering: Enable this option to enforce the URL Filtering policy on a transaction, even after it's explicitly allowed by the Cloud App Control policy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-instant-messaging-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to chat and transfer files on the selected applications.",
+          "quotes": [
+            "However, the URL Filtering policy doesn't apply if the Cloud App Control policy blocks the transaction."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "after": "type WebApplicationRules struct {",
+          "quotes": [
+            "CascadingEnabled     bool     `json:\"cascadingEnabled,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "global-cascade-overrides": {
+      "statement": "Enabling the cascading option in Advanced Settings allows cascading to URL filtering globally for all Cloud App Control policies, irrespective of the cascading settings at the policy level. It does not apply to the Microsoft 365 One Click predefined Cloud App Control rules within the Collaboration & Online Meetings, Productivity and CRM Tools, File Sharing, Hosting Providers, IT Services and Webmail cloud app categories; to cascade there the page says to create a rule above the predefined rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "If you enable this option, the system globally allows cascading to URL filtering for all the Cloud App Control policies, irrespective of the cascading settings at the policy level.",
+            "However, cascading to URL filtering does not apply to Microsoft 365 One Click predefined Cloud App Control policy rules within Collaboration & Online Meetings, Productivity and CRM Tools, File Sharing, Hosting Providers, IT Services, and Webmail cloud app categories.",
+            "If you want to perform URL cascading, you can create a rule above the predefined rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-predefined-firewall-filtering-rules.json",
+          "quotes": [
+            "Cascading to URL filtering does not apply to the preceding predefined Cloud App Control policy rules when you enable the Allow Cascading to URL Filtering option on the Advanced Settings page.",
+            "To perform URL cascading for Office 365 One Click, create a new rule with a higher rank than the existing predefined rule and use the cascading feature in that new rule."
+          ]
+        }
+      ]
+    },
+    "one-click-predefined-rules": {
+      "statement": "The page says a predefined rule is created under each of these cloud app categories on the Cloud App Control Policy page, allowing Cloud App Control traffic destined to the listed Microsoft 365 applications: Collaboration & Online Meetings (Yammer, SharePoint Online, Microsoft Teams, Microsoft Sway), Productivity and CRM Tools (Common Microsoft 365 Applications, Microsoft Dynamics 365, Microsoft Delve, Microsoft Power BI, Microsoft Planner), File Sharing (OneDrive), Hosting Providers (Microsoft Azure), IT Services (Microsoft Azure AD, Microsoft Intune) and Webmail (Outlook). The rules are not configurable and cannot be deleted, but their rule orders can be changed if necessary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-predefined-firewall-filtering-rules.json",
+          "quotes": [
+            "A predefined rule is created under each of the following cloud app categories on the Cloud App Control Policy page:",
+            "Collaboration & Online Meetings: The predefined rule in this category allows the Cloud App Control traffic destined to the following Microsoft 365 cloud applications:",
+            "- Yammer",
+            "- SharePoint Online",
+            "- Microsoft Teams",
+            "- Microsoft Sway",
+            "Productivity and CRM Tools: The predefined rule in this category allows the Cloud App Control traffic destined to the following Microsoft 365 cloud applications:",
+            "- Common Microsoft 365 Applications",
+            "- Microsoft Dynamics 365",
+            "- Microsoft Delve",
+            "- Microsoft Power BI",
+            "- Microsoft Planner",
+            "File Sharing: The predefined rule in this category allows the Cloud App Control traffic destined to the OneDrive cloud application.",
+            "Hosting Providers: The predefined rule in this category allows the Cloud App Control traffic destined to the Microsoft Azure cloud application.",
+            "IT Services: The predefined rule in this category allows the Cloud App Control traffic destined to the following Microsoft 365 cloud applications:",
+            "- Microsoft Azure AD",
+            "- Microsoft Intune",
+            "Webmail: The predefined rule in this category allows the Cloud App Control traffic destined to the Outlook cloud application.",
+            "The rules aren't configurable and can't be deleted, but their rule orders can be changed, if necessary."
+          ]
+        }
+      ]
+    },
+    "prefer-cac-for-predefined-apps": {
+      "statement": "As an operations prerequisite Zscaler says to generally allow Cloud App Control policies over URL Filtering rules to use the predefined cloud applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "Generally, allow Cloud App Control policies over URL filtering rules to use the predefined Cloud"
+          ]
+        }
+      ]
+    },
+    "document-cascading": {
+      "statement": "Zscaler advises documenting the Allow Cascading to URL Filtering settings, to understand the flow of the evaluated rules and help internal personnel and Zscaler Support troubleshoot issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "Document the Allow Cascading to URL Filtering settings to understand the flow of the evaluated rules to help internal personnel and Zscaler Support troubleshoot issues."
+          ]
+        }
+      ]
+    },
+    "scoped-allow-leaves-others-to-url-filtering": {
+      "statement": "A Cloud App Control allow rule scoped to one department matches only that department's users, so for everyone else no Cloud App Control rule matches and URL Filtering evaluates normally.",
+      "tier": "B",
+      "derived_from": [
+        "no-cac-rule-url-filtering-runs",
+        "zia.cloud-app-control.rule-criteria:criteria-expression"
+      ],
+      "conditions": "Assumes no other Cloud App Control rule matches the users outside the department; a rule that does match them decides first."
+    },
+    "mcp-order-surface": {
+      "statement": "The MCP rule helpers define `order` as a positive 1-based integer where lower values are evaluated first, default it to 1 on create when omitted, and send it on update only when the caller provides it. The cloud app control create input describes it as \"Evaluation order (lower=first).\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/common/zia_helpers.py",
+          "quotes": [
+            "lower = evaluated first. Required by the ZIA API on create — defaults to",
+            "DEFAULT_RULE_ORDER: int = 1",
+            "Positive integer (1-based) for the rule's position in the policy table;",
+            "1 (top) when omitted; on update, only changed when explicitly provided."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
+          "quotes": [
+            "Field(default=None, description=\"Evaluation order (lower=first).\""
+          ]
+        }
+      ]
+    },
+    "mcp-skill-first-match-shadowing": {
+      "statement": "The MCP create workflow skill states that Cloud App Control rules sit in one top-to-bottom table per rule type where the first match wins, and that a more general rule above a more specific one shadows it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+          "quotes": [
+            "Cloud App Control rules sit in a single top-to-bottom evaluation table per `rule_type`",
+            "**first match wins**",
+            "A more general rule placed above a more specific rule will **shadow** the specific one."
+          ]
+        }
+      ]
+    },
+    "cascade-per-action": {
+      "statement": "On the Consumer rule page, the Cascade to URL Filtering option is offered under the Allow, Caution and Isolate actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Cascade to URL Filtering: Enable this option to enforce the URL Filtering policy on a transaction"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Choose to display an EUN that cautions users before allowing them access to the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "You can select this action for only one of the following request methods: CONNECT, GET, or HEAD.",
+          "quotes": [
+            "Cascade to URL Filtering: Enable this option to enforce the URL Filtering policy on a transaction"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Ensure to create isolation profiles for your organization.",
+          "quotes": [
+            "Cascade to URL Filtering: Enable this option to enforce the URL Filtering policy on a transaction"
+          ]
+        }
+      ]
+    },
+    "admin-rank": {
+      "statement": "On the Consumer rule page, with Admin Rank enabled the rule's admin rank is a value from 0 to 7 (0 is the highest), the admin cannot select a rank higher than their own, the admin's assigned rank determines the rule order values they can select, and a rule with a higher admin rank always precedes a rule with a lower admin rank. The About page says the Admin Rank column is visible only if Admin Rank is enabled in Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "You can change the value, but if you’ve enabled Admin Rank, your assigned admin rank determines the rule order values you can select.",
+            "Edit Admin Rank: Enter a value from 0 to 7 (0 is the highest rank).",
+            "You cannot select a rank that is higher than your own.",
+            "so that a rule with a higher admin rank always precedes a rule with a lower admin rank."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-app-control.json",
+          "quotes": [
+            "Admin Rank: The Admin Rank for this rule. This is only visible if you have enabled it in the Advanced Settings."
+          ]
+        }
+      ]
+    },
+    "rules-view-predefined-first": {
+      "statement": "The Cloud App Control policy page can display rules by the selected application category, which is selected by default, or in a view that lists all Cloud App Control rules with the predefined rules first, followed by configured rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-app-control.json",
+          "quotes": [
+            "Displays the rules based on the selected application category. By default, this option is selected.",
+            "Displays all the Cloud App Control rules with the predefined rules listed first, followed by configured rules."
+          ]
+        }
+      ]
+    },
+    "rule-expiration": {
+      "statement": "On the Consumer rule page, Enable Rule Expiration sets a validity period for the rule with a start date and time, an end date and time and a time zone. The page says the feature can temporarily allow or block access to an application if configured rules block or allow it, respectively; after the rule expires, Zscaler either blocks or allows the traffic based on the default rules configured for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Enable Rule Expiration: Enable this option to set a validity period for the rule.",
+            "Start Date and Time: Select a start date and time. The rule is valid starting on this date and time.",
+            "End Date and Time: Select an end date and time. The rule ceases to be valid on this date and time.",
+            "Time Zone: Select the time zone in which the rule is valid.",
+            "You can use the rule expiration feature to temporarily allow or block access for a set period of time to an application if any configured rules block or allow access to it, respectively.",
+            "After the rule expires, Zscaler either blocks or allows the traffic based on the default rules configured for your organization."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cascade-conditional": {
+      "kind": "semantic",
+      "title": "Whether a Conditional allow can cascade to URL Filtering",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying which actions cascade to URL Filtering",
+      "detail": "Claim cascade-per-action lists Allow, Caution and Isolate on the Consumer rule page. The Conditional section of the Consumer page shows no Cascade to URL Filtering option in the captured text, and no page says whether cascading applies to a Conditional allow."
+    },
+    "expiry-default-rules": {
+      "kind": "semantic",
+      "title": "What 'the default rules configured for your organization' are for an expired rule",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "saying what traffic does after a rule expires",
+      "detail": "The Consumer rule page says that after expiry Zscaler blocks or allows the traffic based on the organization's default rules, without defining them. Claim no-cac-rule-url-filtering-runs gives the Cloud App Control default as Allow All, but no page ties expiry to it."
+    },
+    "default-allow-vs-explicit": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-10"
+      ],
+      "title": "Whether CAC's default Allow All counts as an allow for cascading",
+      "status": "resolved",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "It does not: with no matching CAC rule, URL Filtering evaluates normally (claim no-cac-rule-url-filtering-runs)."
+    },
+    "cac-disabled-rules": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-06"
+      ],
+      "title": "Disabled Cloud App Control rule semantics",
+      "status": "resolved",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "Same as URL Filtering: skipped, place kept (claim cac-rule-order)."
+    }
+  },
+  "cases": {
+    "cac-allow-beats-url-block": {
+      "kind": "rule-evaluation",
+      "claims": [
+        "cac-allow-skips-url-filtering"
+      ],
+      "config": {
+        "cascading": false,
+        "cac": [
+          {
+            "app": "FACEBOOK",
+            "action": "ALLOW"
+          }
+        ],
+        "url_filtering": [
+          {
+            "category": "SOCIAL_NETWORKING",
+            "action": "BLOCK"
+          }
+        ]
+      },
+      "request": {
+        "app": "FACEBOOK",
+        "url": "https://www.facebook.com/"
+      },
+      "expect": {
+        "verdict": "allow"
+      }
+    },
+    "cascading-lets-url-block-win": {
+      "kind": "rule-evaluation",
+      "claims": [
+        "cascading-allow-path"
+      ],
+      "config": {
+        "cascading": true,
+        "cac": [
+          {
+            "app": "FACEBOOK",
+            "action": "ALLOW"
+          }
+        ],
+        "url_filtering": [
+          {
+            "category": "SOCIAL_NETWORKING",
+            "action": "BLOCK"
+          }
+        ]
+      },
+      "request": {
+        "app": "FACEBOOK",
+        "url": "https://www.facebook.com/"
+      },
+      "expect": {
+        "verdict": "block"
+      }
+    },
+    "cac-block-ignores-url-allow": {
+      "kind": "rule-evaluation",
+      "claims": [
+        "cac-block-final"
+      ],
+      "config": {
+        "cascading": true,
+        "cac": [
+          {
+            "app": "FACEBOOK",
+            "action": "BLOCK"
+          }
+        ],
+        "url_filtering": [
+          {
+            "category": "SOCIAL_NETWORKING",
+            "action": "ALLOW"
+          }
+        ]
+      },
+      "request": {
+        "app": "FACEBOOK",
+        "url": "https://www.facebook.com/"
+      },
+      "expect": {
+        "verdict": "block"
+      }
+    },
+    "no-cac-match-url-filtering-decides": {
+      "kind": "rule-evaluation",
+      "claims": [
+        "no-cac-rule-url-filtering-runs"
+      ],
+      "config": {
+        "cascading": false,
+        "cac": [
+          {
+            "app": "FACEBOOK",
+            "action": "ALLOW",
+            "departments": [
+              "Marketing"
+            ]
+          }
+        ],
+        "url_filtering": [
+          {
+            "category": "SOCIAL_NETWORKING",
+            "action": "BLOCK"
+          }
+        ]
+      },
+      "request": {
+        "app": "FACEBOOK",
+        "url": "https://www.facebook.com/",
+        "department": "Engineering"
+      },
+      "expect": {
+        "verdict": "block"
+      },
+      "note": "The CAC allow is scoped to Marketing, so no CAC rule matches and URL Filtering's block applies."
+    }
+  }
+}

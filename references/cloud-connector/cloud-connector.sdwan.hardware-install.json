@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.sdwan.hardware-install",
+  "title": "Installing ZT400, ZT600 and ZT800 devices: mounting, console, cabling, port maps and reset",
+  "aliases": [
+    "zt400 install",
+    "zt600 install",
+    "zt800 install",
+    "zero trust sd-wan device rack mount",
+    "zero trust sd-wan device console settings",
+    "zt800 wall mount"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.device-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.configuration-templates"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{mounting}} {{package-brackets}} {{console-serial}}"
+    },
+    {
+      "label": "Cabling.",
+      "text": "{{cables}} {{one-arm-ports-zt400}} {{one-arm-ports-zt600}} {{one-arm-ports-zt800}} The ZT800 service ports are labeled with a different speed from the other ports {{gap:zt800-port-labels}}."
+    },
+    {
+      "label": "Gateway mode ports.",
+      "text": "{{gateway-ports}} How the ZT800 resolves its overlapping WAN alternates and LAN ports is not stated {{gap:zt800-wan-lan-overlap}}. The modes are described in [[cloud-connector.sdwan.device-modes]] and the template side of the management interface in [[cloud-connector.sdwan.configuration-templates:hw-mgmt-interface]]."
+    },
+    {
+      "label": "Power and reset.",
+      "text": "{{power-and-reset}} What the reset sequence resets is not stated {{gap:reset-scope}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which port on the model the management, Zscaler service, load balancer, App Connector or WAN cable goes to, by model and mode.",
+      "uses": [
+        "one-arm-ports-zt400",
+        "one-arm-ports-zt600",
+        "one-arm-ports-zt800",
+        "gateway-ports"
+      ]
+    }
+  ],
+  "claims": {
+    "mounting": {
+      "statement": "The Zero Trust SD-WAN Device 400 and 600 mount on rack posts using the rack mount kit; the 800 can be mounted on the wall using the wall mount kit, which is available only by request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-zero-trust-sd-wan-devices-wall-and-rack-mount-instruction-manual.json",
+          "quotes": [
+            "The Zero Trust SD-WAN Device 400: Rack posts using the rack mount kit.",
+            "The Zero Trust SD-WAN Device 600: Rack posts using the rack mount kit.",
+            "The Zero Trust SD-WAN Device 800:",
+            "The wall, using the wall mount kit. Only available upon request.",
+            "The wall mount kit is available only by request."
+          ]
+        }
+      ]
+    },
+    "console-serial": {
+      "statement": "The Zero Trust SD-WAN Device requires an RJ45 interface for the console, and a DB9 serial connection might also need a serial adapter; the serial connection is configured with baud rate 115200, 8 data bits, 1 stop bit, no parity and XON/XOFF flow control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "The Zero Trust SD-WAN Device requires an RJ45 interface. To use a DB9 serial connection, you might also need a serial adapter.",
+            "Baud Rate: 115200",
+            "Data Bits: 8",
+            "Stop Bits: 1",
+            "Parity: None",
+            "Flow Control: XON/XOFF"
+          ]
+        }
+      ]
+    },
+    "cables": {
+      "statement": "The installation page lists CAT6 Ethernet cables among items not included but required. For non-gateway (one-arm) installation the ZT400 and ZT600 sections each list a minimum of 2 (3 when deploying with App Connector) and the ZT800 section a minimum of 4 (5 when deploying with App Connector). For gateway installation the ZT400 section lists a maximum of 4, the ZT600 section a maximum of 6, and the ZT800 section a minimum of 3 and a maximum of 6. In gateway mode App Connector does not require its own cable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "The following items are not included, but are required for non-gateway (one-arm) installation:",
+            "Minimum of 2 CAT6 Ethernet cables",
+            "Minimum of 3 CAT6 Ethernet cables when deploying with App Connector",
+            "The following items are not included, but are required for gateway installation:"
+          ],
+          "after": "Zero Trust SD-WAN Device 400 Installation Guide"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "Maximum of 4 CAT6 Ethernet cables",
+            "When deploying in gateway mode, App Connector does not require its own cable."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "The following items are not included, but are required for non-gateway (one-arm) installation:",
+            "Minimum of 2 CAT6 Ethernet cables",
+            "Minimum of 3 CAT6 Ethernet cables when deploying with App Connector",
+            "The following items are not included, but are required for gateway installation:",
+            "Maximum of 6 CAT6 Ethernet cables"
+          ],
+          "after": "Zero Trust SD-WAN Device 600 Installation Guide"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "The following items are not included, but are required for non-gateway (one-arm) installation:",
+            "Minimum of 4 CAT6 Ethernet cables",
+            "Minimum of 5 CAT6 Ethernet cables when deploying with App Connector"
+          ],
+          "after": "Zero Trust SD-WAN Device 800 Installation Guide"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "The following items are not included, but are required for gateway installation:",
+            "Minimum of 3 CAT6 Ethernet cables",
+            "Maximum of 6 CAT6 Ethernet cables"
+          ],
+          "after": "Minimum of 5 CAT6 Ethernet cables when deploying with App Connector"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "App Connector does not require its own cable when deploying in gateway mode."
+          ],
+          "after": "Zero Trust SD-WAN Device 600 Installation Guide"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "App Connector does not require its own cable when deploying in gateway mode."
+          ],
+          "after": "Zero Trust SD-WAN Device 800 Installation Guide"
+        }
+      ]
+    },
+    "package-brackets": {
+      "statement": "The package contents lists for the Zero Trust SD-WAN Device 400, 600 and 800 each include 19-inch mounting brackets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "19-inch mounting brackets"
+          ],
+          "after": "1 Zero Trust SD-WAN Device 400"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "19-inch mounting brackets"
+          ],
+          "after": "1 Zero Trust SD-WAN Device 600"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "19-inch mounting brackets"
+          ],
+          "after": "1 Zero Trust SD-WAN Device 800"
+        }
+      ]
+    },
+    "one-arm-ports-zt600": {
+      "statement": "In non-gateway (one-arm) installation of the ZT600 the OS/Management Port is the port labeled 1 (also on the ZT600 with App Connector); the Zscaler Service Port, which hosts the IP address of a Zero Trust SD-WAN Device, is the port labeled 2 on the ZT600 and 3 on the ZT600 with App Connector; and the optional App Connector Port is the port labeled 2 on the ZT600 with App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "1 Gbps OS/Management Port: Used for device management. On the ZT600 and ZT600 with App Connector devices, connect this cable to the port labeled 1.",
+            "1 Gbps Zscaler Service Port: Used by the Zscaler service for both incoming and outgoing data traffic. It hosts the IP address of a Zero Trust SD-WAN Device. On the ZT600 device, connect this cable to the port labeled 2. On the ZT600 with App Connector device, connect this cable to the port labeled 3.",
+            "1 Gbps App Connector Port: (Optional) Used by App Connector for both incoming and outgoing data traffic. On the ZT600 with App Connector device, connect this cable to the port labeled 2."
+          ]
+        }
+      ]
+    },
+    "one-arm-ports-zt400": {
+      "statement": "In non-gateway (one-arm) installation of the ZT400 the OS/Management Port is the port labeled 1 (also on the ZT400 with App Connector); the Zscaler Service Port, which hosts the IP address of a Zero Trust SD-WAN Device, is the port labeled 2 on the ZT400 and 3 on the ZT400 with App Connector; and the optional App Connector Port is the port labeled 2 on the ZT400 with App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "1 Gbps OS/Management Port: Used for device management. On the ZT400 and ZT400 with App Connector devices, connect this cable to the port labeled 1.",
+            "1 Gbps Zscaler Service Port: Used by the Zscaler service for both incoming and outgoing data traffic. It hosts the IP address of a Zero Trust SD-WAN Device. On the ZT400 device, connect this cable to the port labeled 2. On the ZT400 with App Connector device, connect this cable to the port labeled 3.",
+            "1 Gbps App Connector Port: (Optional) Used by App Connector for both incoming and outgoing data traffic. On the ZT400 with App Connector device, connect this cable to the port labeled 2."
+          ]
+        }
+      ]
+    },
+    "one-arm-ports-zt800": {
+      "statement": "In non-gateway (one-arm) installation of the ZT800 the OS/Management Port is the port labeled 3; the Zscaler service ports are the ports labeled 5 and 6 on the ZT800 and 6 and 7 on the ZT800 with App Connector; the Load Balancer Port, used to load balance traffic across multiple Branch Connectors, is the port labeled 4 on the ZT800 and 5 on the ZT800 with App Connector; and the optional App Connector Port is the port labeled 4 on the ZT800 with App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "1 Gbps OS/Management Port: Used for device management. On the ZT800 and ZT800 with App Connector devices, connect this cable to the port labeled 3.",
+            "Used by the Zscaler service for both incoming and outgoing data traffic. It hosts the IP address of a Zero Trust SD-WAN Device. On the ZT800 device, connect these cables to the ports labeled 5 and 6. On the ZT800 with App Connector device, connect these cables to the ports labeled 6 and 7.",
+            "1 Gbps Load Balancer Port: Used to load balance traffic across multiple Branch Connectors. On the ZT800 device, connect this cable to the port labeled 4. On the ZT800 with App Connector device, connect this cable to the port labeled 5.",
+            "1 Gbps App Connector Port: (Optional) Used by App Connector for both incoming and outgoing data traffic. On the ZT800 with App Connector device, connect this cable to the port labeled 4."
+          ]
+        }
+      ]
+    },
+    "gateway-ports": {
+      "statement": "In gateway installation the ZT400 uses GE1 OS/Management Port 1 for device management and port 4 as the default WAN port (ports 2-3 can also be used as a WAN port); the ZT600 uses port 6 as the default WAN port (ports 2-5 can also be used); and the ZT800 uses GE3 OS/Management Port 3 for management, port 8 as the default WAN port (ports 4-7 can also be used) and LAN Ports 5, 6 and 7. On the ZT400 the WAN port 4 receives its IP address from the DHCP client by default to support Zero Touch Provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "Gateway Installation",
+            "GE1 OS/Management Port 1: Used for device management.",
+            "GE4 WAN Port 4: Used by the Zscaler service for both incoming and outgoing data traffic. By default, it receives the IP address from the DHCP client to support Zero Touch Provisioning. Port 4 is the default WAN port. Ports 2-3 can also be used as a WAN port."
+          ],
+          "after": "Zero Trust SD-WAN Device 400 Installation Guide"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "Port 6 is the default WAN port. Ports 2-5 can be also be used as a WAN port."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "GE3 OS/Management Port 3: Used for device management.",
+            "Port 8 is the default WAN port. Ports 4-7 can be also be used as a WAN port.",
+            "LAN Ports 5, 6, and 7:"
+          ]
+        }
+      ]
+    },
+    "power-and-reset": {
+      "statement": "When the power button is pressed the LED light on the power button turns red and then turns green; if the device does not turn on, check the adapter connection, and if the unit still does not power on, contact Zscaler Support. Pressing the reset button for 10 seconds turns the system LED green and initiates the reset sequence.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "The LED light on the power button turns red and then turns green.",
+            "If the device does not turn on, check the adapter connection.",
+            "If the unit still does not power on, contact Zscaler Support."
+          ],
+          "after": "# Console Settings"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-installing-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "When you press the reset button for 10 seconds, the system LED turns green, and the reset sequence is initiated."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zt800-port-labels": {
+      "kind": "semantic",
+      "title": "ZT800 one-arm service port speed label",
+      "status": "open",
+      "detail": "The ZT800 one-arm section labels the Zscaler service ports as 3 Gbps while every other port on the page is labeled 1 Gbps; the capture does not say whether this is a typo, so no speed is stated.",
+      "blocks": "Planning switch port speeds for a ZT800.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "zt800-wan-lan-overlap": {
+      "kind": "semantic",
+      "title": "ZT800 alternate WAN ports versus LAN ports",
+      "status": "open",
+      "detail": "The ZT800 gateway section lists ports 4-7 as alternate WAN ports and ports 5, 6 and 7 as LAN ports; how the overlap is resolved is not stated.",
+      "blocks": "Assigning ZT800 ports in gateway mode.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "reset-scope": {
+      "kind": "semantic",
+      "title": "What the reset sequence resets",
+      "status": "open",
+      "detail": "The page says pressing the reset button for 10 seconds initiates the reset sequence but not whether configuration, zero touch provisioning state or the factory image is reset.",
+      "blocks": "Deciding whether to use the reset button on a deployed device.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

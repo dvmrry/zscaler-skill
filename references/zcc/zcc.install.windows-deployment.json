@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.windows-deployment",
+  "title": "Deploying Client Connector on Windows: the MSI and MST, the EXE, command lines and Active Directory GPO",
+  "aliases": [
+    "zcc msi install",
+    "zcc mst transform",
+    "orca mst zcc",
+    "zcc exe install options",
+    "zcc gpo deployment",
+    "deploy zcc active directory"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.windows-unattended"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.precedence"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.citrix-vdi"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.enrollment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{msi}} {{exe}}"
+    },
+    {
+      "label": "The MST.",
+      "text": "{{mst}}"
+    },
+    {
+      "label": "The MSI from a command line.",
+      "text": "{{msi-cli}}"
+    },
+    {
+      "label": "Naming the EXE for a domain.",
+      "text": "{{exe-domain-prefix}} The matching install option is described in [[zcc.install.enrollment]]. Whether the MSI has an equivalent other than the user domain parameter is open {{gap:msi-domain-prefix}}."
+    },
+    {
+      "label": "Active Directory.",
+      "text": "{{ad-msi}} {{ad-exe}}"
+    },
+    {
+      "label": "Changing a parameter later.",
+      "text": "Changing an install parameter after installation means reinstalling: [[zcc.install.precedence:reinstall-to-change]]. Silent install, upgrade and uninstall parameters are in [[zcc.install.windows-unattended]]; non-persistent Citrix VDIs in [[zcc.install.citrix-vdi]]."
+    }
+  ],
+  "claims": {
+    "msi": {
+      "statement": "The MSI file is for installing Client Connector manually on a device or deploying it through GPO, SCCM or other device management methods that support MSI files. To add install options (for example to enable strict enforcement) to the MSI, an MST file must first be created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "You can use the MSI file to manually install Zscaler Client Connector on a device or if you're deploying the app to your users using GPO, SCCM, or other device management methods that support MSI files.",
+            "If you want to customize the MSI file and add install options (for example, to enable strict enforcement), you must first create an MST file."
+          ]
+        }
+      ]
+    },
+    "exe": {
+      "statement": "The EXE file is for installing Client Connector manually on a device or through device management methods that do not support MSI files; options follow the EXE's absolute path in the --<install option> format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-exe.json",
+          "quotes": [
+            "You can use the EXE file to manually install Zscaler Client Connector on a device, or if you're deploying the app to your users through device management methods that do not support MSI files.",
+            "Enter the absolute path to the EXE file using one or more of the Zscaler configuration parameters in the --<install option> format."
+          ]
+        }
+      ]
+    },
+    "mst": {
+      "statement": "Windows installers use an MST file to customize an original MSI package during installation. It is made with Orca, which is in the Microsoft Windows SDK, by choosing Transform > New Transform and adding Zscaler parameters and values in the Property table; it can be deployed through a Group Policy Object or a compatible device management tool such as Microsoft Intune or Jamf Pro.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "Orca.exe is available in the Microsoft Windows Software Development Kit (SDK).",
+            "Windows installers use an MST file to enable customized installations of an original MSI package during installation.",
+            "You can create an MST file and then deploy it to users using a Group Policy Object (GPO) or a compatible device management tool such as Microsoft Intune or Jamf Pro.",
+            "Go to Transform > New Transform.",
+            "In the Tables column, click Property.",
+            "Add Zscaler configuration parameters and their corresponding values per your organization's needs."
+          ]
+        }
+      ]
+    },
+    "msi-cli": {
+      "statement": "Zscaler recommends the MST file for installing with custom options. For a device management tool that does not support MST (the page gives SCCM or PSEXEC as examples) or a manual MSI installation, the MSI can be run from the command line as msiexec /i \"<complete path>\" /quiet <install options>, where /quiet installs in silent mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "Zscaler recommends using the MST file to install Zscaler Client Connector with custom options.",
+            "However, if you have a device management tool that does not support MST (e.g., SCCM or PSEXEC) or you are manually installing the MSI file, you can run the MSI file using the CLI and add the options needed.",
+            "msiexec /i \"<complete path>\" /quiet <install options>",
+            "Use the /quiet switch to install the app in silent mode."
+          ]
+        }
+      ]
+    },
+    "exe-domain-prefix": {
+      "statement": "Prefixing the EXE file name with the organization's domain name (for example safemarch.com-Zscaler-windows-1.1.0.000213-installer) achieves the same function as the --userDomain install option. The page says to use it only if the organization's domain is registered on a single cloud, and SSO must be enabled; if SSO is integrated with Client Connector using a mechanism like Integrated Windows Authentication (IWA), users can also skip the SSO login page and are automatically enrolled and logged in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-exe.json",
+          "quotes": [
+            "Prefix the file name with your organization's domain name.",
+            "you would rename the file to safemarch.com-Zscaler-windows-1.1.0.000213-installer",
+            "You can use this configuration only if your organization's domain is registered on a single cloud.",
+            "This configuration achieves the same function as the --userDomain install option.",
+            "SSO must be enabled for your organization.",
+            "If you've integrated your SSO with Zscaler Client Connector using a mechanism like Integrated Windows Authentication (IWA), users can also skip the SSO login page and are automatically enrolled in the Zscaler service and logged in."
+          ]
+        }
+      ]
+    },
+    "ad-msi": {
+      "statement": "In Active Directory, either the MSI or the EXE can be used, but Zscaler recommends the MSI because it integrates well with GPO. For the MSI, a GPO created and linked on the OU installs it from User Configuration > Policies > Software Settings > Software installation, with deployment type Assigned, deployment option Install this application at logon and installation user interface Basic; Client Connector is then deployed the next time users log in to their computers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-active-directory-windows.json",
+          "quotes": [
+            "You can use either the MSI or EXE file, but Zscaler recommends using the MSI file because it integrates well with GPO.",
+            "Select your OU, then right-click and select Create a GPO in this domain, and Link it here.",
+            "Go to User Configuration > Policies > Software Settings > Software installation.",
+            "For Deployment type, select Assigned.",
+            "For Deployment options, select Install this application at logon.",
+            "For Installation user interface option, select Basic.",
+            "Zscaler Client Connector is automatically deployed the next time users' log into to their computers."
+          ]
+        }
+      ]
+    },
+    "ad-exe": {
+      "statement": "For the EXE in Active Directory, the GPO runs a script under Computer Configuration > Policies > Windows Settings > Scripts > Startup whose Script Name is the EXE's absolute path and whose Script Parameters field is left blank for no install options or holds them; gpupdate.exe /force is then run and the OU's computers are remotely rebooted. The installer must be on a network share on the Domain Controller that the relevant domain Administrators and Authenticated Users can access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-active-directory-windows.json",
+          "quotes": [
+            "Select the GPO Policy and go to Computer Configuration > Policies > Windows Settings > Scripts > Startup.",
+            "In the Script Name field, specify the absolute path to the EXE file.",
+            "If you want to deploy the EXE file without any install options, leave the Script Parameters field blank.",
+            "add the options to the Script Parameters field as described in Running the EXE File with Command-Line Options",
+            "gpupdate.exe /force",
+            "Remotely reboot the OU computers on which you want to install the app using the following command:",
+            "You must ensure that Zscaler Client Connector installer is accessible to all relevant computers by creating a network share on the drive in the Domain Controller.",
+            "provide the relevant domain Administrators and Authenticated Users with access permissions"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "msi-domain-prefix": {
+      "kind": "semantic",
+      "title": "Whether the EXE domain-prefix rename has an MSI equivalent",
+      "status": "open",
+      "detail": "The EXE page describes renaming the installer with the organization's domain as the same function as --userDomain. The MSI page is not quoted for a file-name equivalent, and neither page says whether the MSI has one other than the USERDOMAIN property.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

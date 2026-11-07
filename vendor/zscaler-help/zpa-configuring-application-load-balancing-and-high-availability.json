@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Application Load Balancing and High Availability",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/configuring-application-load-balancing-and-high-availability",
+    "node": "1532560",
+    "revision": "3246999",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "When you bring new application environments online, you need to validate them at a reduced scale and capacity until a certain confidence level is achieved. When proven, you can gradually redirect traffic to the new environments without large architectural shifts or cutovers. This allows a non-conflicting way to mitigate any issues that arise during a migration in a controlled way. Using load balance to rank your server groups by weight is a way to ensure application access requests are sent to the App Connectors with server groups that can support their traffic."
+    },
+    {
+      "text": "This feature is only available for Public Service Edges for Private Access (ZPA). Any configuration done for application load balancing will not be honored for the transactions originating from Private Service Edges."
+    },
+    {
+      "text": "After the route selection for a load balancing transaction is made, the same App Connector is served for the next 15 minutes to maintain the user session. Each time the same user accesses the same application again, the expiration time is reset. This stickiness is invalidated before the expiration time in the following cases:"
+    },
+    {
+      "item": "Disabling load balancing.",
+      "depth": 0
+    },
+    {
+      "item": "Removal of a server group from the application segment containing the sticky connector.",
+      "depth": 0
+    },
+    {
+      "item": "The weight of the server group has the sticky connector set to zero.",
+      "depth": 0
+    },
+    {
+      "item": "Disabling a server group that has the sticky connector.",
+      "depth": 0
+    },
+    {
+      "item": "The sticky connector is inactive (i.e., disconnected, disabled, or in an App Connector group that is disabled).",
+      "depth": 0
+    },
+    {
+      "text": "Transactions routed via load balancing do not consider application health. For on-access health monitoring applications routed via load balancing, application health is not generated, and those applications are not shown in the Health dashboard. To learn more, see Viewing the Health Dashboard."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you configure application load balancing, make sure the following prerequisites are met:"
+    },
+    {
+      "item": "When used for passive failover: Less than 50% of active group connectors are healthy, and more than 50% of passive group connectors are healthy.",
+      "depth": 0
+    },
+    {
+      "item": "When used for switching back to an active group: Less than 50% of passive group connectors are healthy, and more than 50% of active group connectors are healthy.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Load Balance",
+      "level": 1
+    },
+    {
+      "text": "Application access requests should be routed to the App Connectors based on the weights defined for the server groups for an application segment. All other geo-IP and health-based path selection modes are ignored for the application segment configured with this option. Path selection using Closer to User and Closer to App are not applicable."
+    },
+    {
+      "text": "Ensure that App Connector groups do not overlap within the server groups. If they do overlap, the same App Connector can be selected as active and passive groups per weights and mode of selection."
+    },
+    {
+      "text": "To configure load balance for your server groups:"
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Applications > Defined Application Segments.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          69
+        ],
+        [
+          72,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "Locate the application segment you want to configure, and click the Load Balance icon.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          68,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Load Balance Server Groups window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "In the Load Balance Server Groups window:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Load Balancing Server Groups: Select Enabled.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          28
+        ],
+        [
+          37,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Server Groups: Select server groups from the drop-down menu that host the application segments you want ranked.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Weight: Enter a value for the numeric weight to rank each server group, with 0 being the lightest and 1,000 being the heaviest.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Passive: Select the checkbox for each server group that you want to be passive. This means that traffic requests are routed to the App Connectors in the passive group when the active group has failed to pass the health monitoring threshold (i.e., 50% unhealthy connectors in the active group). Additionally, passive connectors should have greater than 50% of healthy connectors along with 50% of unhealthy connectors in the active group.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "text": "If you move a server group to a new Microtenant, you must reassign the load balancing weight for those server groups. To learn more, see About Microtenants."
+    }
+  ]
+}

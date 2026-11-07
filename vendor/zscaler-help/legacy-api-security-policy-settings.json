@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Security Policy Settings",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/security-policy-settings",
+    "node": "1402491",
+    "revision": "2761056",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Security%20Policy%20Settings_0.json?VersionId=tzpqwvW_ivzHXEwko9eJP8B82XcfHhTb",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Security Policy Settings"
+      }
+    ],
+    "paths": {
+      "/security": {
+        "get": {
+          "tags": [
+            "Security Policy Settings"
+          ],
+          "description": "<p>Gets a list of URLs that are on the allowlist.</p>\n",
+          "operationId": "getConfig",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/SecurityPolicy"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Security Policy Settings"
+          ],
+          "description": "<p>Updates the list of URLs on the allowlist. This overwrites a previously-generated allowlist. If you need to completely erase the allowlist, submit an empty list.</p>\n",
+          "operationId": "createWhitelist",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "policy",
+              "description": "Updates the security policy.",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/SecurityPolicy"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/SecurityPolicy"
+              }
+            }
+          }
+        }
+      },
+      "/security/advanced": {
+        "get": {
+          "tags": [
+            "Security Policy Settings"
+          ],
+          "description": "<p>Gets a list of URLs that are on the denylist.</p>\n",
+          "operationId": "getAdvancedPolicy",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdvancedSecurityPolicy"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Security Policy Settings"
+          ],
+          "description": "<p>Updates the list of URLs that are on the denylist. This overwrites a previously-generated denylist. If you need to completely erase the denylist, submit an empty list.</p>\n",
+          "operationId": "manageBlacklist",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "advSettings",
+              "description": "Updates the Advanced Threat Protection policy's denylist.",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/AdvancedSecurityPolicy"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdvancedSecurityPolicy"
+              }
+            }
+          }
+        }
+      },
+      "/security/advanced/blacklistUrls": {
+        "post": {
+          "tags": [
+            "Security Policy Settings"
+          ],
+          "description": "<p>Adds a URL to or removes a URL from the denylist. To add a URL to the denylist, set the action parameter to <code>ADD_TO_LIST</code>. To remove a URL, set action to <code>REMOVE_FROM_LIST</code>.</p>\n",
+          "operationId": "updateBlacklistURLs",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "action",
+              "in": "query",
+              "description": "The action applied to the Advanced Threat Protection policy’s denylist (i.e., adding a URL or removing a URL).",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "ADD_TO_LIST",
+                "REMOVE_FROM_LIST"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AdvancedSecurityPolicy"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "SecurityPolicy": {
+        "type": "object",
+        "properties": {
+          "whitelistUrls": {
+            "type": "array",
+            "description": "Allowlist URLs whose contents are not scanned. Allows up to 255 URLs. There may be trusted websites the content of which might be blocked due to anti-virus, anti-spyware, or anti-malware policies. Enter the URLs of sites you do not want scanned. The service allows users to download content from these URLs without inspecting the traffic. The allowlist applies to the Malware Protection, Advanced Threats Protection, and Sandbox policies.",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Security Policy"
+      },
+      "AdvancedSecurityPolicy": {
+        "type": "object",
+        "properties": {
+          "blacklistUrls": {
+            "type": "array",
+            "description": "URLs on the denylist for your organization. Allow up to 25000 URLs.",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Advanced Security Policy"
+      }
+    }
+  }
+}

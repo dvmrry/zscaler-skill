@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-management.roles",
+  "title": "How AI Asset Management business units and custom roles control access",
+  "aliases": [
+    "ai security business units",
+    "ai security custom roles",
+    "ai asset management rbac",
+    "business unit management"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "ai-security.asset-management" },
+    { "rel": "see-also", "to": "ai-security.asset-management.cloud-accounts" },
+    { "rel": "see-also", "to": "ai-security.asset-management.scan-rules" },
+    { "rel": "see-also", "to": "ai-security.asset-management.integrations" }
+  ],
+  "prose": [
+    {
+      "text": "{{business-unit-definition}} {{business-unit-restriction}} The hub is [[ai-security.asset-management]] and the accounts are in [[ai-security.asset-management.cloud-accounts]]."
+    },
+    {
+      "label": "Business Unit Management.",
+      "text": "{{business-unit-page}}"
+    },
+    {
+      "label": "Custom roles.",
+      "text": "{{custom-role-name-permissions}} {{scan-settings-permissions}} {{predefined-immutable}} {{gap:predefined-roles-and-limits}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a role gives Access, View Only or None for the module; for the Scan Settings module, Cloud Accounts permissions and the permissions to start or stop the scan or edit the scan settings must be assigned.",
+      "uses": ["custom-role-name-permissions", "scan-settings-permissions"]
+    }
+  ],
+  "claims": {
+    "business-unit-definition": {
+      "statement": "Business units are logical containers for cloud accounts that govern AI Security from an RBAC perspective; users or user groups must be assigned to them.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-business-units.json", "quotes": ["Business units are logical containers for cloud accounts in the AI Security Admin Portal.", "Business units govern AI Security from a role-based access control (RBAC) perspective.", "You must assign users or user groups to the business units."]}]
+    },
+    "business-unit-restriction": {
+      "statement": "Cloud accounts are onboarded and mapped to business units, and user access can be restricted to specific business units.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-business-units.json", "quotes": ["You can onboard your cloud accounts and map them to business units. You can also restrict user access to specific business units."]}]
+    },
+    "business-unit-page": {
+      "statement": "The Business Unit Management page lists each business unit's name, account count and created-on date; a unique name is entered to add one, and the default business unit cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-business-units.json", "quotes": ["On the Business Unit Management page (Administration > Business Unit Management), you can do the following:", "Business Unit Name: The name of the business unit.", "Account Count: The number of cloud accounts assigned to the business unit.", "Created On: The date and time the business unit was created.", "enter a unique name for the business unit", "You cannot edit or delete the default business unit."]}]
+    },
+    "custom-role-name-permissions": {
+      "statement": "A custom role has a unique name of letters, numbers, hyphens or underscores, and each module or global module gets Access, View Only or None.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-adding-and-managing-custom-roles.json", "quotes": ["Role Name: Enter a unique name for the custom role.", "The role name can include letters, numbers, or special characters (hyphen (-) or underscore (_)).", "Access: Select the checkbox for tasks that users can perform in each module or global module.", "View Only: Select to provide view only access to specific modules or global modules.", "None: Select to restrict users from accessing or viewing specific modules or global modules."]}]
+    },
+    "scan-settings-permissions": {
+      "statement": "For the Scan Settings module, Access or View Only must be assigned for Cloud Accounts, together with permissions to start or stop the scan or edit the scan settings.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-adding-and-managing-custom-roles.json", "quotes": ["For the Scan Settings module, you need to assign Access or View Only permissions for Cloud Accounts and permissions to start or stop the scan, or edit the scan settings."]}]
+    },
+    "predefined-immutable": {
+      "statement": "Predefined roles cannot be edited or deleted; custom roles can be edited and deleted (a deleted role is removed from the Admin Portal) and assigned to users for specific or global modules.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-adding-and-managing-custom-roles.json", "quotes": ["You cannot edit or delete predefined roles.", "The role is deleted from the AI Security Admin Portal.", "You can add or edit custom roles and assign them to users to manage tasks in specific modules or global modules."]}]
+    }
+  },
+  "gaps": {
+    "predefined-roles-and-limits": {
+      "kind": "semantic",
+      "title": "Which predefined roles exist, what do they permit, and are there limits on business unit names or counts?",
+      "status": "open",
+      "detail": "The predefined role names and their permissions are not in the captured business unit and custom role articles, and limits on business unit names or counts are not stated.",
+      "resolves_with": ["source-read", "tenant-data"]
+    }
+  }
+}

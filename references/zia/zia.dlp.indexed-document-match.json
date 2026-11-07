@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.indexed-document-match",
+  "title": "Indexed Document Match: IDM templates, limits, scheduling and match accuracy",
+  "aliases": [
+    "IDM",
+    "indexed document match",
+    "IDM index template",
+    "IDM template",
+    "document fingerprinting"
+  ],
+  "binds": [
+    "zia/dlp-idm-profiles"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-idm-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.dictionaries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.index-tool"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.exact-data-match"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-sensitive-information"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{limits}} The VM that hosts template creation is in [[zia.dlp.index-tool]], the dictionary kinds that use templates are in [[zia.dlp.dictionaries]], and Endpoint DLP's use of IDM is in [[zia.dlp.endpoint-sensitive-information]]."
+    },
+    {
+      "label": "The Indexed Document Match page.",
+      "text": "{{idm-page}}"
+    },
+    {
+      "label": "Creating a template.",
+      "text": "{{manual-and-scheduled}} {{status-and-immutability}}"
+    },
+    {
+      "label": "Match accuracy in a dictionary.",
+      "text": "{{match-accuracy}} {{exclude-exact-match}}"
+    },
+    {
+      "label": "Not described.",
+      "text": "The supported non-text file types are open {{gap:binary-file-types}}, whether the 100 GB total includes scheduled templates is open {{gap:total-includes-scheduled}}, how Exclude 100% Match interacts with the accuracy levels is open {{gap:exclude-vs-accuracy}}, and what happens when a scheduled template's SSH access later fails is open {{gap:ssh-failure}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which match accuracy level the dictionary uses and whether Exclude 100% Match is set, before explaining why a document did or did not trigger an IDM dictionary.",
+      "uses": [
+        "match-accuracy",
+        "exclude-exact-match",
+        "exclude-vs-accuracy"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "By fingerprinting and indexing documents, IDM templates make it possible to create a document repository the service can use to identify completely or partially matching documents when evaluating outbound traffic with the DLP policy. Text-based and non-text-based documents (for example binary files) can be uploaded. An IDM-defined rule searches for matching documents as a whole, not for keywords and phrases; in the vendor's example, an employee's completed form is caught as a partial match for the indexed form.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-indexed-document-match.json",
+          "quotes": [
+            "By fingerprinting and indexing your documents, you can create a document repository that the Zscaler service can use to identify completely or partially matching documents when evaluating outbound traffic with the Data Loss Prevention (DLP) policy.",
+            "You can upload text-based files and non-text-based documents (e.g., binary files).",
+            "When the Zscaler service evaluates your outbound traffic with an IDM-defined DLP rule, it searches for matching documents as a whole, and doesn’t search for keywords and phrases.",
+            "An employee uploads a completed form, and the Zscaler service catches the form as a partial match for the indexed form."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "An organization can create up to 512 IDM templates. The largest file that can be uploaded to an IDM template is 100 MB, and up to 100 GB of files can be indexed for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-indexed-document-match-template.json",
+          "quotes": [
+            "You can create up to 512 IDM templates for your organization. The largest file you can upload to an IDM template is 100 MB. You can index up to 100 GB of files for your organization."
+          ]
+        }
+      ]
+    },
+    "idm-page": {
+      "statement": "The Indexed Document Match page lists each template's Template Name (as specified in the Index Tool), VM Name (the VM ID as specified in the Index Tool Configuration), the Number of Documents currently indexed by the template, Last Modified and Modified By, and lets an admin delete a template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-indexed-document-match.json",
+          "quotes": [
+            "Template Name: The name of the template, as specified in the Index Tool. You can sort this column.",
+            "VM Name: The virtual machine (VM) ID, as specified in the Index Tool Configuration. You can sort this column.",
+            "Number of Documents: The total number of documents currently indexed by the template.",
+            "Last Modified: The date and time the template was last modified. You can sort this column.",
+            "Modified By: The last admin user to modify the template. You can sort this column.",
+            "Delete an IDM index template."
+          ]
+        }
+      ]
+    },
+    "manual-and-scheduled": {
+      "statement": "A manual IDM template is one where an admin uploads the organization's critical documents by hand; a first-time manual template accepts only one file, and more are added by editing the template after saving. A scheduled IDM template sets up an SSH connection and scheduled updates between the template and the organization's storage server: the template takes the document server's Host and Port and the File Path of the directory holding the documents, the admin downloads the SSH key, creates a user with the username copied from the Index Tool, adds the key to that user's trusted keys and gives the user read access to the directory, and the schedule has a Repeat of Monthly, Weekly or Daily, a time, a time zone and an Update Now option. The template cannot be saved until the setup is configured properly and verified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-indexed-document-match-template.json",
+          "quotes": [
+            "Manual IDM Templates: A manual IDM template allows you to manually upload your organization’s critical documents.",
+            "Scheduled IDM Templates: A scheduled IDM template allows you to set up an SSH connection and schedule updates between the template and your organization’s storage server for the critical documents.",
+            "When you first create a new manual IDM template, you can only upload one file. When you save the template, you can edit the template to add more files.",
+            "For Host, enter the IP address or domain for the document server.",
+            "Specify the Port for the document server.",
+            "Specify the File Path for the directory where the documents are located in the document server.",
+            "Click Download to download the SSH key.",
+            "Create a user with the username you copied from the Index Tool.",
+            "Add the downloaded SSH key to the user’s trusted keys.",
+            "Ensure that the user has read access to the directory in the specified file path.",
+            "You cannot save the template until the setup is configured properly and verified.",
+            "Repeat: Choose if the update will repeat Monthly, Weekly, or Daily.",
+            "Time: Select what time the schedule update will happen on.",
+            "Time Zone: Select the time zone your update will happen in.",
+            "Update Now: Select to immediately update the template."
+          ]
+        }
+      ]
+    },
+    "status-and-immutability": {
+      "statement": "After a template is saved, its Status column shows Completed if it was created properly, Created if it was created but the documents are not indexed yet, or Error if it was not created properly. The template name cannot be changed after creation; a new template is needed to change it. Documents in a manual template are submitted or deleted in the Index Tool; for a scheduled template the changes are made on the document server, and the template updates at the scheduled time or on an immediate update scheduled in the Index Tool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-indexed-document-match-template.json",
+          "quotes": [
+            "If the template was created properly, Completed is shown in the Status column. If the template was created, but the documents are not indexed yet, then Created is shown. If the template was not created properly, then Error is shown.",
+            "You cannot change the template name after creation. To change the name, you must create a new template.",
+            "You can submit new documents or delete indexed documents for manual IDM templates in the Index Tool.",
+            "To submit new documents or delete indexed documents for scheduled IDM templates, you must make the changes in the document server.",
+            "The template updates at the scheduled time, or you can schedule an immediate update for the template in the Index Tool."
+          ]
+        }
+      ]
+    },
+    "match-accuracy": {
+      "statement": "Adding an IDM template to a custom dictionary requires choosing a match accuracy level: the percentage of similarity a user-uploaded document must meet to count as a match for an indexed document. Low is detected when one of two conditions occurs: a user-uploaded document matches at least 25% of an indexed document, or an indexed document matches at least 50% of the user-uploaded document. Medium is the same pair at 50% and 75%. High is detected when a user-uploaded document matches at least 75% of an indexed document.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-idm-match-accuracy-custom-dlp-dictionaries.json",
+          "quotes": [
+            "When adding an IDM template, you must also choose the match accuracy level for the template in the dictionary.",
+            "This is the level of accuracy (i.e., the percentage of similarity) that a user-uploaded document must meet to count as a match for an indexed document.",
+            "Low: Zscaler detects a low-accuracy match when one of the following occurs:",
+            "A user-uploaded document matches at least 25% of an indexed document.",
+            "An indexed document matches at least 50% of a user-uploaded document.",
+            "Medium: Zscaler detects a medium-accuracy match when one of the following occurs:",
+            "A user-uploaded document matches at least 50% of an indexed document.",
+            "An indexed document matches at least 75% of a user-uploaded document.",
+            "High: Zscaler detects a high-accuracy match when a user-uploaded document matches at least 75% of an indexed document."
+          ]
+        }
+      ]
+    },
+    "exclude-exact-match": {
+      "statement": "An IDM dictionary has an Exclude 100% Match option; selecting Yes stops Zscaler triggering the dictionary for documents that are a 100% match of already-indexed documents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-idm-match-accuracy-custom-dlp-dictionaries.json",
+          "quotes": [
+            "Select Yes for the Exclude 100% Match option if you do not want Zscaler to trigger the dictionary for documents that are a 100% match of already-indexed documents."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "binary-file-types": {
+      "kind": "semantic",
+      "title": "Which non-text file types an IDM template supports",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "saying a given binary file type can be indexed",
+      "detail": "The About page says non-text-based documents such as binary files can be uploaded but does not list the supported types."
+    },
+    "total-includes-scheduled": {
+      "kind": "semantic",
+      "title": "Whether the 100 GB indexed-file total includes scheduled templates",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "sizing scheduled templates against the organization total",
+      "detail": "The template page gives up to 100 GB of indexed files for the organization without saying whether files pulled by a scheduled template count toward it."
+    },
+    "exclude-vs-accuracy": {
+      "kind": "semantic",
+      "title": "How Exclude 100% Match interacts with the match accuracy levels",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "predicting whether an identical copy of an indexed document triggers the dictionary",
+      "detail": "The accuracy page describes the option and the three levels separately and does not say how they combine."
+    },
+    "ssh-failure": {
+      "kind": "semantic",
+      "title": "What happens when a scheduled template's SSH access fails after setup",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "saying what a failed scheduled update does to indexed documents",
+      "detail": "The template page requires the setup to be verified before saving and does not describe a later failure of the SSH connection or the user's read access."
+    }
+  }
+}

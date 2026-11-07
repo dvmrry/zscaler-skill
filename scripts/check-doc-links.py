@@ -80,10 +80,14 @@ def resolve_p_slug(slug: str) -> Path | None:
     """
     if not slug:
         return REFS_ROOT  # ?p= alone renders the references root
-    md = REFS_ROOT / f"{slug}.md"
+    base = REFS_ROOT
+    # The primer moved to docs/primer/; source.html still serves its _meta/primer slugs from there.
+    if slug.startswith("_meta/primer"):
+        base, slug = REFS_ROOT.parent / "docs", slug[len("_meta/"):]
+    md = base / f"{slug}.md"
     if md.exists():
         return md
-    dir_path = REFS_ROOT / slug
+    dir_path = base / slug
     if dir_path.is_dir():
         return dir_path
     return None

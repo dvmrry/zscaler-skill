@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "Add Traffic Forwarding Rules Labels",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-ztc/issues/46",
+    "repo": "zscaler/terraform-provider-ztc",
+    "number": 46,
+    "state": "closed",
+    "created_at": "2026-07-03",
+    "updated_at": "2026-09-07",
+    "labels": [
+      "enhancement",
+      "stale"
+    ],
+    "state_reason": "not_planned",
+    "closed_at": "2026-09-07",
+    "updated": "2026-09-07",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "Add Traffic Forwarding Rules Labels",
+      "level": 1
+    },
+    {
+      "heading": "Community Note",
+      "level": 3
+    },
+    {
+      "item": "Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request",
+      "depth": 0
+    },
+    {
+      "item": "Please do not leave \"+1\" or other comments that do not add relevant new information or questions, they generate extra noise for issue followers and do not help prioritize the request",
+      "depth": 0
+    },
+    {
+      "item": "If you are interested in working on this issue or have submitted a pull request, please leave a comment",
+      "depth": 0
+    },
+    {
+      "heading": "Description",
+      "level": 3
+    },
+    {
+      "text": "Add rule label support for traffic forwarding rules as per GUI"
+    },
+    {
+      "heading": "New or Affected Resource(s)",
+      "level": 3
+    },
+    {
+      "text": "resource \"ztc_traffic_forwarding_rule\""
+    },
+    {
+      "heading": "Potential Terraform Configuration",
+      "level": 3
+    },
+    {
+      "code": "resource \"ztc_traffic_forwarding_rule\" \"this\" {\n  name                = substr(var.name,0,31)                         #Only uses first 32character - limitation by ZIA API\n  description         = join(\"---\",[var.name,var.description])        # Consistent with SIPA firewall_rule module\n  order               = 1\n  state               = \"ENABLED\"\n  type                = \"EC_RDR\"\n  forward_method      = \"DIRECT\"\n  rule_label               = var.rule_label_sipa  # not supported by ZTC Terraform Provider\n\n  nw_services {\n    id = [data.ztc_network_services.this.id]\n  }\n\n  dest_ip_groups {\n    id = [data.ztc_network_dest_groups.this.id]\n  }\n\n\n  lifecycle {\n    ignore_changes = [ order, rank ]\n  }\n\n}"
+    },
+    {
+      "heading": "References",
+      "level": 3
+    },
+    {
+      "item": "#0000",
+      "depth": 0
+    },
+    {
+      "heading": "Comment (NONE, 2026-09-01)",
+      "level": 2
+    },
+    {
+      "text": "'This issue is stale because it has been open 60 days with no activity. Remove stale label or comment or this will be closed in 5 days'"
+    },
+    {
+      "text": "If this issue was automatically closed and you feel this issue should be reopened, we encourage creating a new issue linking back to this one for added context. Thank you!"
+    }
+  ]
+}

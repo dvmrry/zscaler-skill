@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Initializing the On-Premises Scanner VM",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/initializing-premises-scanner-vm",
+    "node": "1533968",
+    "revision": "3243028",
+    "updated": "2026-09-17",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "After deploying the OVA (VMware) or VHD (Hyper‑V) file and powering on the virtual machine (VM), configure the scanner from the VM console and register it with DSPM."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before configuring the scanner VM, make sure the following prerequisites are met:"
+    },
+    {
+      "item": "Generate an API key in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure the scanner VM has outbound internet connectivity to the DSPM services.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring the Scanner VM",
+      "level": 1
+    },
+    {
+      "text": "The following flowchart illustrates the step-by-step workflow for configuring and initializing the DSPM on-premises scanner VM, including the conditional proxy server configuration and automatic restart path."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "To configure the scanner VM:"
+    },
+    {
+      "item": "Log in to the scanner VM with the default credentials:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Username: zdspmuser",
+      "depth": 1
+    },
+    {
+      "item": "Password: zscaler@scanner",
+      "depth": 1
+    },
+    {
+      "item": "Upon your first login, the system prompts to set a new password for the zdspmuser account. Follow the instructions to change the password.",
+      "depth": 0
+    },
+    {
+      "item": "Assign a static IP address, gateway, DNS servers, and an optional HTTPS proxy to the scanner VM. To set a static IP, run the following command:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "sudo zds preconfigure",
+      "depth": 0
+    },
+    {
+      "item": "Enter the details for the following command prompts:",
+      "depth": 0
+    },
+    {
+      "item": "Enter IP CIDR to assign to VM (e.g., 10.25.32.12/24): Enter the static IP address and CIDR for the VM.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Enter Gateway IP: Enter the IP address for the default gateway.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Enter Primary DNS Server: Enter the IP address for the primary DNS server.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Enter Secondary DNS Server (Optional): Enter the IP address for the secondary DNS server, or press Enter to skip.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Configure HTTPS Proxy Server.(Requires VM Restart): Enter y to configure a proxy or n to skip. If you enter y:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Enter HTTPS Proxy Server: Enter the full URL of the proxy (e.g., https://test.server).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "If you configure a proxy server, the VM restarts automatically to apply the changes. If you do not configure a proxy, the network settings are applied without a restart.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Verify that the IP address is assigned correctly:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "ip addr",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to initialize the on-premises scanner VM. Replace <API_KEY> with the API key you generated in the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "sudo zds init <API_KEY>",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) After the initialization is complete, run a health check to verify that all services are running correctly:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "sudo zds healthcheck",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure the scanner VM has outbound connectivity to DSPM services. To learn more about the required IPs, see Understanding Orchestrator.",
+      "depth": 0
+    },
+    {
+      "text": "After the initialization completes, the scanner VM registers with the DSPM tenant, and the status changes to Operational in the Zscaler Admin Console. To learn more, see About On-Premises Scanner Integrations.",
+      "strong": [
+        [
+          109,
+          120
+        ]
+      ]
+    }
+  ]
+}

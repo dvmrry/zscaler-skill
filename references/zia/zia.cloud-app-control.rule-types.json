@@ -1,0 +1,748 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.rule-types",
+  "title": "Cloud App Control categories (rule types), limits and predefined rules",
+  "aliases": [
+    "cloud app categories",
+    "cac rule type",
+    "cac rule limit",
+    "127 rules per category",
+    "iot classification rules",
+    "allow unauthenticated traffic for iot classifications",
+    "granular controls categories"
+  ],
+  "binds": [
+    "zia/cloud-app-control#type",
+    "zia/cloud-app-control#predefined"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.iot.policy-use",
+      "because": "zia.iot.policy-use:cac-iot-needs-enforce"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/cloud-app-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.ai-ml-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order.registry"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud App Control is organised by category, and the category is a rule's type. {{nineteen-categories}} {{category-names}}"
+    },
+    {
+      "label": "Granular controls.",
+      "text": "{{granular-categories}} The AI & ML category has its own rule flow and its own granular action list: [[zia.cloud-app-control.ai-ml-rules]]. How granular actions appear in the API: [[zia.cloud-app-control.actions]]."
+    },
+    {
+      "label": "Limits.",
+      "text": "{{rule-cap-per-category}} Order is also kept per rule type: the provider scopes lists by rule type and registers reorders per type from v4.8.7, see [[zia.terraform.rule-order.registry]]."
+    },
+    {
+      "label": "Predefined rules.",
+      "text": "{{iot-predefined-rules}} Rule order and disabled-rule semantics are in [[zia.cloud-app-control.precedence]]."
+    },
+    {
+      "label": "What the category pages name.",
+      "text": "{{action-labels-by-category}} System & Development's label says only Allow or Block is available, while its own page goes on to describe other actions {{divergence:system-development-allow-block-only}}. {{custom-applications-category}} {{category-examples}}"
+    },
+    {
+      "label": "Granular actions on the category pages.",
+      "text": "{{granular-collab}} {{granular-file-sharing}} {{granular-social}} {{granular-sysdev}} {{granular-it-services}} {{granular-productivity}} Which categories and applications have granular controls differs between the categories page and the category pages {{divergence:granular-controls-outside-granular-categories}} {{divergence:granular-app-lists-by-category}}. Which granular actions every application in File Sharing, Social Networking, Streaming Media and System & Development has is open {{gap:granular-all-apps-not-enumerated}}. {{slack-calls-need-chime}}"
+    },
+    {
+      "label": "Tenant Profile and YouTube.",
+      "text": "{{tenant-profile-field-by-category}} {{tenant-profile-multi-profile-limits}} {{tenant-profile-ssl-exemption}} {{youtube-tenant-profile-caveats}} {{youtube-for-schools}}"
+    },
+    {
+      "label": "Rule fields shared by the category pages.",
+      "text": "{{description-length}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the IoT predefined rules are enabled and where they sit in the order, when IoT traffic is allowed or blocked unexpectedly.",
+      "uses": [
+        "iot-predefined-rules"
+      ]
+    }
+  ],
+  "claims": {
+    "nineteen-categories": {
+      "statement": "Cloud applications are organised into 19 categories; 8 of them also support granular controls (the specific actions a user can take within the application), and the other 11 support allow or block per category.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#type"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-app-categories.json",
+          "quotes": [
+            "The service organizes cloud applications into 19 categories.",
+            "For the other 8 categories, in addition to creating rules to allow or block applications per category, you can also apply granular controls (i.e., the specific actions a user can take within the application)",
+            "For 11 of the categories, you can create rules to allow or block applications per category."
+          ]
+        }
+      ]
+    },
+    "category-names": {
+      "statement": "The category names are AI & ML Applications, Collaboration & Online Meetings, Consumer, Custom Applications, DNS Over HTTPS Services, File Sharing, Finance, Health Care, Hosting Providers, Human Resources, Instant Messaging, IT Services, Legal, Productivity & CRM Tools, Sales & Marketing, Social Networking, Streaming Media, System & Development and Webmail.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#type"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "AI & ML Applications Collaboration & Online Meetings Consumer Custom Applications DNS Over HTTPS Services File Sharing Finance Health Care",
+            "Hosting Providers Human Resources Instant Messaging IT Services Legal Productivity & CRM Tools Sales & Marketing Social Networking Streaming Media System & Development Webmail"
+          ]
+        }
+      ]
+    },
+    "granular-categories": {
+      "statement": "The eight categories with granular controls, and what makes the controls appear, are: AI & ML Applications (ChatGPT or Microsoft Copilot with Application Access Allow), Collaboration & Online Meetings (Microsoft Teams, SharePoint Online, Slack or Webex Meetings with Application Access Allow), File Sharing (all apps; more controls for Box, Dropbox, OneDrive, OneDrive for Business or Google Drive with Viewing Allow), Instant Messaging (all apps with Chatting Allow), Social Networking (all apps; more for LinkedIn with Viewing Allow), Streaming Media (all apps with Viewing/Listening Allow), System & Development (all apps; more for GitHub with Viewing Allow), and Webmail (all apps with Viewing Mail Allow).",
+      "tier": "A",
+      "conditions": "Stated on the categories page. The AI/ML rule page lists granular actions for more applications than this page names: see divergence granular-app-coverage in zia.cloud-app-control.ai-ml-rules.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-app-categories.json",
+          "quotes": [
+            "AI & ML Applications: Granular controls appear when ChatGPT or Microsoft Copilot are chosen with Application Access set to Allow",
+            "Collaboration & Online Meetings: Granular controls appear when Microsoft Teams, SharePoint Online, Slack, or Webex Meetings are chosen with Application Access set to Allow",
+            "File Sharing: Granular controls appear for all the applications and additional granular controls appear when Box, Dropbox, OneDrive, OneDrive for Business, or Google Drive are chosen with Viewing set to Allow.",
+            "Instant Messaging: Granular controls appear for all the applications with Chatting set to Allow",
+            "Social Networking: Granular controls appear for all the applications and additional granular controls appear when LinkedIn is chosen with Viewing set to Allow.",
+            "Streaming Media: Granular controls appear for all the applications with Viewing/Listening set to Allow",
+            "System & Development: Granular controls appear for all the applications and additional granular controls appear when GitHub is chosen with Viewing set to Allow.",
+            "Webmail: Granular controls appear for all the applications with Viewing Mail set to Allow"
+          ]
+        }
+      ]
+    },
+    "rule-cap-per-category": {
+      "statement": "The Cloud App Control rule limit is 127 rules per cloud app category (raisable to 2,048 through Zscaler support), not a tenant-wide cap.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "Cloud App Control Policy Rules per Cloud App Category | 127 rules | Contact Zscaler Support for a possible increase in the limit of Cloud App Control policy rules per cloud app category from 127 to 2,048."
+          ]
+        }
+      ]
+    },
+    "iot-predefined-rules": {
+      "statement": "Zscaler ships Allow Unauthenticated Traffic for IoT Classifications predefined rules for each cloud application category. They are disabled by default and cannot be deleted; only Rule Order, Rule Status, Rule Label and Description can be edited. Their purpose is to temporarily allow unauthenticated traffic that other rules could block, so that Zscaler AI/ML can classify devices.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#predefined"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-rules-cloud-app-control-policy.json",
+          "quotes": [
+            "Zscaler provides the Allow Unauthenticated Traffic for IoT Classifications predefined rules for the preceding cloud application categories.",
+            "You can enable these rules to temporarily allow unauthenticated traffic that could be blocked by other rules, so that the Zscaler AI/ML can classify devices.",
+            "These rules are disabled by default and cannot be deleted",
+            "You can modify the Rule Order, Rule Status, Rule Label, and Description for these rules and cannot edit other attributes."
+          ]
+        }
+      ]
+    },
+    "action-labels-by-category": {
+      "statement": "Four category rule pages name the activities the action applies to: Webmail (Viewing Mail, Sending Mail, and Sending Attachment; Allow or Block for Sending Mail and Sending Attachment), Social Networking (Viewing and Posting; Allow or Block for Posting), Streaming Media (Viewing/Listening and Uploading) and System & Development (Viewing and Uploading, with the label \"You can only choose Allow or Block\").",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-webmail-rule-cloud-app-control.json",
+          "quotes": [
+            "In the Actions section, for Viewing Mail, Sending Mail, and Sending Attachment, select one of the following actions to apply when the rule conditions are met:",
+            "You can choose either Allow or Block for Sending Mail and Sending Attachment."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-social-networking-rule-cloud-app-control.json",
+          "quotes": [
+            "In the Actions section, for Viewing and Posting, select one of the following actions to apply when the rule conditions are met:",
+            "You can choose either Allow or Block for Posting."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-streaming-media-rule-cloud-app-control.json",
+          "quotes": [
+            "In the Actions section, for Viewing/Listening and Uploading, select one of the following actions to apply when the rule conditions are met:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-system-development-rule-cloud-app-control.json",
+          "quotes": [
+            "In the Actions section, for Viewing and Uploading (You can only choose Allow or Block), select one of the following actions to apply when the rule conditions are met:"
+          ]
+        }
+      ]
+    },
+    "granular-collab": {
+      "statement": "The Collaboration & Online Meetings rule page lists granular actions for Webex Meetings (Sharing, Editing, Creating, Downloading, Chatting, Uploading, Inviting, Meeting), Slack (Chatting, Creating, Deleting, Downloading, Editing, Huddle, Inviting, Login, Uploading), Nulab (Login), SharePoint Online (Sharing, Editing, Renaming, Creating, Downloading, Deleting, Uploading) and Microsoft Teams (Chatting, Screen Sharing). A Domain Profiles field for the Login granular action takes up to 8 domain profiles, and selecting no profiles applies the granular action to all the profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-collaboration-online-meetings-rule-for-cloud-app-control.json",
+          "quotes": [
+            "For Webex Meetings, the granular actions include Sharing, Editing, Creating, Downloading, Chatting, Uploading, Inviting, and Meeting.",
+            "For Slack, the granular actions include Chatting, Creating, Deleting, Downloading, Editing, Huddle, Inviting, Login, and Uploading.",
+            "Domain Profiles: Choose Allow or Block for the Login granular action to permit or restrict logins to the domains in the selected domain profiles, respectively. You can select up to 8 domain profiles, and you can search for domain profiles. Selecting no profiles applies the granular action to all the profiles.",
+            "For Nulab, the granular action includes Login.",
+            "For SharePoint Online, the granular actions include Sharing, Editing, Renaming, Creating, Downloading, Deleting, and Uploading.",
+            "For Microsoft Teams, the granular actions include Chatting and Screen Sharing."
+          ]
+        }
+      ]
+    },
+    "granular-file-sharing": {
+      "statement": "The File Sharing rule page lists granular actions for Box (Creating, Deleting, Downloading, Editing, Inviting, Login, Renaming, Sharing), Dropbox (Creating, Deleting, Downloading, Editing, Inviting, Renaming, Sharing), OneDrive (Creating, Deleting, Downloading, Editing, Renaming, Sharing), OneDrive (Personal) (Creating, Deleting, Downloading, Editing, Renaming) and Google Drive (Creating, Deleting, Downloading, Editing, Form Sharing, Renaming, Sharing). It also says selecting no form applies the granular action to all the forms, and selecting no file applies it to all the files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-file-sharing-rule-cloud-app-control.json",
+          "quotes": [
+            "For Box, the granular actions include Creating, Deleting, Downloading, Editing, Inviting, Login, Renaming and, Sharing.",
+            "For Dropbox, the granular actions include Creating, Deleting, Downloading, Editing, Inviting, Renaming and, Sharing.",
+            "For OneDrive, the granular actions include Creating, Deleting, Downloading, Editing, Renaming and, Sharing.",
+            "For OneDrive (Personal), the granular actions include Creating, Deleting, Downloading, Editing and, Renaming.",
+            "For Google Drive, the granular actions include Creating, Deleting, Downloading, Editing, Form Sharing, Renaming and, Sharing.",
+            "Selecting no form applies the granular action to all the forms.",
+            "Selecting no file applies the granular action to all the files."
+          ]
+        }
+      ]
+    },
+    "granular-social": {
+      "statement": "The Social Networking rule page lists granular actions for LinkedIn (Chatting, Commenting, Creating, Editing, Posting, Sharing, Uploading), X (formerly Twitter) (Login) and Facebook (Login).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-social-networking-rule-cloud-app-control.json",
+          "quotes": [
+            "For LinkedIn, the granular actions include Chatting, Commenting, Creating, Editing, Posting, Sharing and, Uploading.",
+            "For X (Formerly Twitter), the granular action includes Login.",
+            "For Facebook, the granular action includes Login."
+          ]
+        }
+      ]
+    },
+    "granular-sysdev": {
+      "statement": "On the System & Development rule page, the GitHub application supports the additional granular actions Commenting, Creating, Editing, Login, Reaction and Sharing, which can be allowed or blocked; for granular actions to work as expected, SSL/TLS Inspection must be enabled for the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-system-development-rule-cloud-app-control.json",
+          "quotes": [
+            "The GitHub application supports additional granular actions that include Commenting, Creating, Editing, Login, Reaction, and Sharing, which you can Allow or Block. For the granular actions to work as expected for an application, ensure to enable SSL/TLS Inspection for the application."
+          ]
+        }
+      ]
+    },
+    "granular-it-services": {
+      "statement": "On the IT Services rule page, Google Login Services has a Login granular action that applies to Gmail, Google Drive, Google Gemini and YouTube, and the page says up to 8 domain profiles can be selected; Yahoo Login Services has a Login granular action that applies to Yahoo! Mail. If these applications are selected together, only the common granular actions among them appear, and SSL/TLS Inspection must be enabled for the application for granular actions to work as expected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-it-services-rule-cloud-app-control.json",
+          "quotes": [
+            "For Google Login Services, the granular action includes Login. This granular action applies to the following applications: Gmail, Google Drive, Google Gemini, and YouTube, which are part of the Google Login Services application.",
+            "You can select up to 8 domain profiles, and you can search for domain profiles.",
+            "For Yahoo Login Services, the granular action includes Login. This granular action applies to Yahoo! Mail, which is part of the Yahoo Login Services application.",
+            "If these applications are selected together, only the common granular actions among them appear. For the granular actions to work as expected for an application, enable SSL/TLS Inspection for the application."
+          ]
+        }
+      ]
+    },
+    "granular-productivity": {
+      "statement": "On the Productivity & CRM Tools rule page, the Zendesk application supports a Login granular action, which can be allowed or blocked; for the granular action to work as expected, SSL/TLS Inspection must be enabled for the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-productivity-crm-tools-rule-cloud-app-control.json",
+          "quotes": [
+            "The Zendesk application supports additional granular action that includes Login, which you can Allow or Block. For the granular action to work as expected for an application, ensure to enable SSL/TLS Inspection for the application."
+          ]
+        }
+      ]
+    },
+    "tenant-profile-field-by-category": {
+      "statement": "Under the Allow action, a rule's Tenant Profile field appears only when specific applications are selected as the cloud application: Hosting Providers (Amazon Web Services, Google App Engine, Google Cloud Compute, Google Cloud Platform, IBM SmartCloud), Productivity & CRM Tools (Docusign, Google Analytics), IT Services (Google, Microsoft, Webex and Zoho Login Services), File Sharing (Dropbox, Google Drive, Google Photos), Webmail (Gmail), Social Networking (Google+, Google Groups), System & Development (GitHub, Google App Maker, Google Developers), Streaming Media (Google Video, YouTube) and Collaboration & Online Meetings (Google Calendar, Google Keep, Google Meet, Google Sites, Slack, Webex Teams, Webex Meetings, Zoom).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-hosting-providers-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Tenant Profile: Appears only when Amazon Web Services, Google App Engine, Google Cloud Compute, Google Cloud Platform, or IBM SmartCloud is selected as the cloud application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-productivity-crm-tools-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Tenant Profile: Appears only when Docusign or Google Analytics is selected as the cloud application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-it-services-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Tenant Profile: Appears only when Google Login Services, Microsoft Login Services, Webex Login Services, or Zoho Login Services is selected as the cloud application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-file-sharing-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Tenant Profile: Appears only when Dropbox, Google Drive, or Google Photos is selected as the cloud application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-webmail-rule-cloud-app-control.json",
+          "after": "In the Actions section, for Viewing Mail",
+          "quotes": [
+            "Tenant Profile: Appears only when Gmail is selected as the cloud application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-social-networking-rule-cloud-app-control.json",
+          "after": "In the Actions section, for Viewing and Posting",
+          "quotes": [
+            "Tenant Profile: Appears only when Google+ or Google Groups is selected as the cloud application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-system-development-rule-cloud-app-control.json",
+          "after": "In the Actions section, for Viewing and Uploading",
+          "quotes": [
+            "Tenant Profile: Appears only when GitHub, Google App Maker, or Google Developers is selected as the cloud application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-streaming-media-rule-cloud-app-control.json",
+          "after": "In the Actions section, for Viewing/Listening and Uploading",
+          "quotes": [
+            "Tenant Profile: Appears only when Google Video or YouTube is selected as the cloud application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-collaboration-online-meetings-rule-for-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Tenant Profile: Appears only when Google Calendar, Google Keep, Google Meet, Google Sites, Slack, Webex Teams, Webex Meetings, or Zoom is selected as the cloud application."
+          ]
+        }
+      ]
+    },
+    "tenant-profile-multi-profile-limits": {
+      "statement": "How many tenant profiles one rule can take depends on the application. Hosting Providers page: multiple profiles per rule for Google Cloud Platform only if the Allow Cloud Storage Resources field selection is the same for the profiles. IT Services page: under Version 1, multiple profiles per rule only if the tenant directory ID and the Allow Personal Office 365 Domains field selection are the same for the profiles; under Version 2, only one profile per rule. System & Development page: for GitHub, only one tenant profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-hosting-providers-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "You can select multiple profiles per rule for Google Cloud Platform only if the Allow Cloud Storage Resources field selection is the same for the profiles."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-it-services-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Version 1: You can select multiple profiles per rule only if the tenant directory ID and the Allow Personal Office 365 Domains field selection are the same for the profiles.",
+            "Version 2: You can select only one profile per rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-system-development-rule-cloud-app-control.json",
+          "after": "In the Actions section, for Viewing and Uploading",
+          "quotes": [
+            "For GitHub, you can select only one tenant profile."
+          ]
+        }
+      ]
+    },
+    "tenant-profile-ssl-exemption": {
+      "statement": "On the Hosting Providers page the applications selected under the tenant profiles must not be exempted from SSL Inspection, and on the Productivity & CRM Tools page Docusign and Google Analytics must not be exempted from SSL/TLS Inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-hosting-providers-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Ensure that the applications selected under the tenant profiles are not exempted from SSL Inspection."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-productivity-crm-tools-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Ensure that Docusign and Google Analytics are not exempted from SSL/TLS Inspection."
+          ]
+        }
+      ]
+    },
+    "youtube-tenant-profile-caveats": {
+      "statement": "On the Streaming Media rule page, a rule allowing specific YouTube channels, categories or both through tenant profiles does not mean other YouTube channels and categories are blocked; blocking them takes a separate rule that blocks YouTube. Access to certain content might be blocked even though it seems to belong to an allowed YouTube category, because YouTube might categorize that content under other categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-streaming-media-rule-cloud-app-control.json",
+          "after": "In the Actions section, for Viewing/Listening and Uploading",
+          "quotes": [
+            "The rule to allow specific YouTube channels, categories, or both using the relevant tenant profiles does not mean that other YouTube channels and categories are blocked. To block other YouTube channels and categories, create a separate rule to block YouTube.",
+            "Access to certain content on YouTube might be blocked even though it seems to belong to a YouTube category that is allowed access, because YouTube might suitably categorize that content under other categories."
+          ]
+        }
+      ]
+    },
+    "youtube-for-schools": {
+      "statement": "Zscaler supports YouTube for Schools, which lets schools access educational videos on YouTube EDU and specify which videos students may access. For example, a Streaming Media rule can allow YouTube access to students and associate a tenant profile with the YouTube School ID; when a student makes an HTTP request to YouTube, the cloud inserts a custom header with the school's ID. Internet & SaaS (ZIA) logs YouTube for Schools transactions separately from YouTube transactions, and the transactions log shows YouTube EDU in the Application field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-streaming-media-rule-cloud-app-control.json",
+          "quotes": [
+            "Additionally, Zscaler provides support for YouTube for Schools, which enables schools to access educational videos on YouTube EDU and specify which videos students are allowed to access.",
+            "For example, you can create a Streaming Media Policy rule that allows YouTube access to students and associates a tenant profile with the YouTube School ID.",
+            "When a student makes an HTTP request to YouTube, the cloud inserts a custom header with the school’s ID, so YouTube can identify the school and display the videos selected by the school administration.",
+            "Internet & SaaS (ZIA) logs YouTube for Schools transactions separately from YouTube transactions.",
+            "When you view the transactions log on the Analyze tab, the YouTube for Schools transactions displays YouTube EDU in the Application field."
+          ]
+        }
+      ]
+    },
+    "slack-calls-need-chime": {
+      "statement": "On the Collaboration & Online Meetings rule page, to allow Slack audio and video calls the allow rule must include both Amazon Chime and Slack under Cloud Applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-collaboration-online-meetings-rule-for-cloud-app-control.json",
+          "quotes": [
+            "To allow Slack audio and video calls, you must include both Amazon Chime and Slack under Cloud Applications in the allow rule."
+          ]
+        }
+      ]
+    },
+    "custom-applications-category": {
+      "statement": "The Custom Applications rule page says cloud applications that do not belong to any of the predefined categories can be added to the Custom Applications category, in two parts: adding the application to Zscaler for discovery and usage metrics if it is not already present, and associating it with the Custom Applications for Cloud App Control rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-applications-rule-cloud-app-control.json",
+          "quotes": [
+            "Adding an application if it's not already present in Zscaler for discovery and usage metrics (e.g., number of users, bytes uploaded or downloaded, etc.).",
+            "Associating the application with the Custom Applications for Cloud App Control rule.",
+            "Cloud applications that do not belong to any of the predefined categories can be added to the Custom Applications category"
+          ]
+        }
+      ]
+    },
+    "category-examples": {
+      "statement": "The category rule pages name example applications: Consumer (eBay, Groupon, PayPal), Finance (American Express at Work, Blockchain, J.P. Morgan), Health Care (American Medical, eClinicalWorks, WonderDoc), Human Resources (BambooHR, Jobvite, Workday), Legal (Amicus Attorney, DirectLaw, Eclipse Legal Systems), Sales & Marketing (Marketo, SuccessFactors), Hosting Providers (AWS, IBM SmartCloud), Productivity & CRM Tools (Salesforce, Evernote, Microsoft 365), IT Services (identity and device management tools such as Okta or AirWatch), DNS Over HTTPS Services (Cloudflare DNS, Google DNS, Quad9) and Collaboration & Online Meetings (Webex, GoTo Meeting, Yammer). These are examples, not category membership lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "This category includes applications such as eBay, Groupon, and PayPal"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-finance-rule-cloud-app-control.json",
+          "quotes": [
+            "This cloud app category includes applications such as American Express at Work, Blockchain, J.P. Morgan, etc. that provide financial solutions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-health-care-rule-cloud-app-control.json",
+          "quotes": [
+            "This cloud app category includes applications such as American Medical, eClinicalWorks, WonderDoc, etc. that provide health care solutions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-human-resources-rule-cloud-app-control.json",
+          "quotes": [
+            "This cloud app category includes applications such as BambooHR, Jobvite, and Workday that provide human resources solutions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-legal-rule-cloud-app-control.json",
+          "quotes": [
+            "This cloud app category includes applications such as Amicus Attorney, DirectLaw, Eclipse Legal Systems, etc. that provide legal solutions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-sales-marketing-rule-cloud-app-control.json",
+          "quotes": [
+            "This category includes applications such as Marketo and SuccessFactors"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-hosting-providers-rule-cloud-app-control.json",
+          "quotes": [
+            "Hosting providers such as AWS and IBM SmartCloud are widely used"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-productivity-crm-tools-rule-cloud-app-control.json",
+          "quotes": [
+            "This category includes applications such as Salesforce, Evernote, and Microsoft 365"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-it-services-rule-cloud-app-control.json",
+          "quotes": [
+            "Many companies make use of identity and device management tools, such as Okta or AirWatch. This category allows you to create rules specifically for these and other similar services."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-dns-over-https-services-rule-cloud-app-control.json",
+          "quotes": [
+            "This cloud app category includes DNS server applications such as Cloudflare DNS, Google DNS, and Quad9 which support DNS resolution using the HTTPS protocol."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-collaboration-online-meetings-rule-for-cloud-app-control.json",
+          "quotes": [
+            "They're using applications, such as Webex and GoTo Meeting, to meet online and share information; and they're using enterprise social network applications, such as Yammer"
+          ]
+        }
+      ]
+    },
+    "description-length": {
+      "statement": "On the Consumer, Instant Messaging and AI & ML rule pages, a rule's name must be unique or the default name, and its optional description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Rule Name: Enter a unique name for the rule or use the default name.",
+            "Add Description: (Optional) Enter additional notes or information. The description cannot exceed 10,240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-instant-messaging-rule-cloud-app-control.json",
+          "quotes": [
+            "Rule Name: Enter a unique name for the rule or use the default name.",
+            "Add Description: (Optional) Enter additional notes or information. The description cannot exceed 10,240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.json",
+          "quotes": [
+            "Rule Name: Enter a unique name for the rule or use the default name.",
+            "Add Description: (Optional) Enter additional notes or information. The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "granular-all-apps-not-enumerated": {
+      "kind": "semantic",
+      "title": "Which granular actions every application has in File Sharing, Social Networking, Streaming Media and System & Development",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying which actions an application in those categories can be restricted on",
+      "detail": "The categories page says granular controls appear for all the applications in File Sharing, Social Networking, Streaming Media and System & Development. The category pages list per-application granular actions for only some applications, plus the Uploading, Posting and Sending activity labels, so the actions of the other applications are not enumerated."
+    }
+  },
+  "divergences": {
+    "granular-controls-outside-granular-categories": {
+      "summary": "Whether IT Services and Productivity & CRM Tools have granular controls",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-cloud-app-categories.json",
+            "quotes": [
+              "Following are the cloud application categories with the allow or block options.",
+              "IT Services",
+              "Productivity & CRM Tools"
+            ]
+          },
+          "says": "The categories page lists IT Services and Productivity & CRM Tools under the categories with the allow or block options, not under those with granular controls (capture 2026-10-18)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-it-services-rule-cloud-app-control.json",
+            "quotes": [
+              "For Google Login Services, the granular action includes Login. This granular action applies to the following applications: Gmail, Google Drive, Google Gemini, and YouTube, which are part of the Google Login Services application."
+            ]
+          },
+          "says": "The IT Services rule page gives Google Login Services and Yahoo Login Services a Login granular action."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-productivity-crm-tools-rule-cloud-app-control.json",
+            "quotes": [
+              "The Zendesk application supports additional granular action that includes Login, which you can Allow or Block."
+            ]
+          },
+          "says": "The Productivity & CRM Tools rule page gives Zendesk a Login granular action that can be allowed or blocked."
+        }
+      ],
+      "impact": "An answer about which categories can be controlled per action should not rely on the categories page alone; it counts 8 categories with granular controls (claim nineteen-categories), while these two pages describe a Login granular action for IT Services and Productivity & CRM Tools.",
+      "resolution": {
+        "by": "zia.cloud-app-control.rule-types:granular-it-services",
+        "rule": "source-rank",
+        "note": "The category rule pages are the more specific pages and were updated after the categories page; the categories page may be stale. Whether Zscaler counts Login as a granular control is not stated."
+      }
+    },
+    "granular-app-lists-by-category": {
+      "summary": "Which applications in Collaboration & Online Meetings, Social Networking and File Sharing have granular controls",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-cloud-app-categories.json",
+            "quotes": [
+              "Collaboration & Online Meetings: Granular controls appear when Microsoft Teams, SharePoint Online, Slack, or Webex Meetings are chosen with Application Access set to Allow",
+              "Social Networking: Granular controls appear for all the applications and additional granular controls appear when LinkedIn is chosen with Viewing set to Allow.",
+              "File Sharing: Granular controls appear for all the applications and additional granular controls appear when Box, Dropbox, OneDrive, OneDrive for Business, or Google Drive are chosen with Viewing set to Allow."
+            ]
+          },
+          "says": "The categories page names Microsoft Teams, SharePoint Online, Slack and Webex Meetings for Collaboration & Online Meetings; LinkedIn for extra controls in Social Networking; and Box, Dropbox, OneDrive, OneDrive for Business and Google Drive for extra controls in File Sharing, with Viewing set to Allow (capture 2026-10-18)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-collaboration-online-meetings-rule-for-cloud-app-control.json",
+            "quotes": [
+              "For Nulab, the granular action includes Login."
+            ]
+          },
+          "says": "The Collaboration & Online Meetings rule page also lists a Login granular action for Nulab."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-social-networking-rule-cloud-app-control.json",
+            "quotes": [
+              "For X (Formerly Twitter), the granular action includes Login.",
+              "For Facebook, the granular action includes Login."
+            ]
+          },
+          "says": "The Social Networking rule page also lists a Login granular action for X (formerly Twitter) and for Facebook."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-file-sharing-rule-cloud-app-control.json",
+            "quotes": [
+              "For OneDrive, the granular actions include Creating, Deleting, Downloading, Editing, Renaming and, Sharing.",
+              "For OneDrive (Personal), the granular actions include Creating, Deleting, Downloading, Editing and, Renaming.",
+              "In the Actions section, for Application Access, select one of the following actions to apply when the rule conditions are met:"
+            ]
+          },
+          "says": "The File Sharing rule page names OneDrive and OneDrive (Personal), not OneDrive for Business, and labels the action Application Access where the categories page says Viewing."
+        }
+      ],
+      "impact": "An answer about which applications in these categories have granular controls, or which activity the action's Allow gates, should not rely on one page alone.",
+      "resolution": {
+        "by": "zia.cloud-app-control.rule-types:granular-collab",
+        "rule": "source-rank",
+        "note": "The category rule pages are the more specific pages, so their application lists are preferred for those applications; the categories page's list of conditions for granular controls remains stated in claim granular-categories."
+      }
+    },
+    "system-development-allow-block-only": {
+      "summary": "Which actions a System & Development rule offers",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-system-development-rule-cloud-app-control.json",
+            "quotes": [
+              "In the Actions section, for Viewing and Uploading (You can only choose Allow or Block), select one of the following actions to apply when the rule conditions are met:"
+            ]
+          },
+          "says": "The System & Development page's Actions label says only Allow or Block can be chosen for Viewing and Uploading."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-system-development-rule-cloud-app-control.json",
+            "quotes": [
+              "Choose to display an EUN that cautions users before allowing them access to the selected applications.",
+              "Choose to conditionally allow the users to access the selected applications.",
+              "Choose to isolate all the traffic that matches the cloud app control rule through a remote browser."
+            ]
+          },
+          "says": "The same Actions section then describes Caution, Conditional and Isolate."
+        }
+      ],
+      "impact": "The page does not say whether the Allow or Block restriction covers Viewing, Uploading or both; Social Networking and Webmail scope the same wording to one activity (claim action-labels-by-category). An answer about System & Development actions should not state one side as settled."
+    }
+  }
+}

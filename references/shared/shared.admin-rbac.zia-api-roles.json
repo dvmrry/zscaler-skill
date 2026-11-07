@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "id": "shared.admin-rbac.zia-api-roles",
+  "title": "ZIA API roles, SD-WAN partner API roles and SD-WAN partner API clients",
+  "aliases": [
+    "zia api role",
+    "adding api roles",
+    "sd-wan partner api role",
+    "sd-wan partner api client",
+    "internal api user oauth-rolename",
+    "api role limit 16"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-permissions"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.zia-oauth"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An API role defines what a client application can reach in the ZIA cloud service API, and is distinct from an admin role. {{api-role}} The OAuth flow that carries it is in [[shared.legacy-api.zia-oauth]], and the one existing summary claim is [[shared.admin-rbac.zia:api-role-oauth]]."
+    },
+    {
+      "label": "Adding an API role.",
+      "text": "{{api-role-limit}} {{api-role-prerequisite}} {{api-role-rank}} The rank claim on the role page is [[shared.admin-rbac.zia:rank-visibility]]."
+    },
+    {
+      "label": "Permissions.",
+      "text": "{{api-role-permissions}} {{api-role-categories}} What the form lacks, compared with the admin role form, is open {{gap:form-differences}}."
+    },
+    {
+      "label": "After the role is created.",
+      "text": "{{internal-api-user}} {{scope-on-server}}"
+    },
+    {
+      "label": "SD-WAN partner API roles.",
+      "text": "{{sdwan-role}} {{sdwan-role-limits}} {{sdwan-role-permissions}}"
+    },
+    {
+      "label": "SD-WAN partner API clients.",
+      "text": "{{sdwan-client}} Limits on roles and clients, and how a client authenticates to the API, are open {{gap:sdwan-limits-auth}}."
+    },
+    {
+      "label": "SD-WAN partner keys.",
+      "text": "{{sdwan-partner-key-scope}} {{sdwan-partner-key-prereqs}} {{sdwan-partner-key-rules}} {{sdwan-partner-key-list}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an OAuth call that fails on role, whether the API role exists in the Admin Console and the authorization server's scope names it in the cloud::org ID::role form.",
+      "uses": [
+        "api-role",
+        "scope-on-server"
+      ]
+    },
+    {
+      "do": "To find the user an OAuth API change is recorded against, the internal API user created with the role.",
+      "uses": [
+        "internal-api-user"
+      ]
+    },
+    {
+      "do": "For an SD-WAN partner that cannot call an endpoint, whether its role has Full, View Only or Custom access to that endpoint.",
+      "uses": [
+        "sdwan-role-permissions"
+      ]
+    }
+  ],
+  "claims": {
+    "api-role": {
+      "statement": "An API role defines a client application's permission and access to the API categories of the Zscaler cloud service API. It is not assigned to an admin; it is used when configuring an external OAuth 2.0 authentication server, where the role in the JWT issued by the server defines the role of the API application client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-api-roles.json",
+          "quotes": [
+            "An API role defines a client application's permission and access to the different API categories in the Zscaler cloud service API. An API role is not assigned to an admin. Instead, it is used during the configuration of an external OAuth 2.0 authentication server for API authentication."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-role-based-administration.json",
+          "quotes": [
+            "Admins can add API roles but these roles are never associated with an admin.",
+            "The API role is used in the JWT token issued by the authorization server to define the role of the API application client."
+          ]
+        }
+      ]
+    },
+    "api-role-limit": {
+      "statement": "An organization can add up to 16 API roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-api-roles.json",
+          "quotes": [
+            "You can add up to 16 API roles."
+          ]
+        }
+      ]
+    },
+    "api-role-prerequisite": {
+      "statement": "Configuring API roles needs an admin role with full permission to Administration > API > Internet & SaaS API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-api-roles.json",
+          "quotes": [
+            "To configure API roles, the admin must be assigned to a role that has full permission to Administration > API > Internet & SaaS API in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "api-role-rank": {
+      "statement": "Admin rank cannot be specified for an API role because its admin rank is always 7, and API roles cannot modify any admin users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-api-roles.json",
+          "quotes": [
+            "Admin rank cannot be specified for API roles because the admin rank for API roles is always 7. API roles cannot make modifications to any admin users."
+          ]
+        }
+      ]
+    },
+    "api-role-permissions": {
+      "statement": "An API role has Reporting Access and Alerts Access, each Full, View Only or None. The API categories take Full, View Only, None or Custom, where Custom assigns field-wise Full, View Only or None; Custom is available for Traffic Forwarding Methods and Traffic Forwarding Components, and the reporting features take View Only, None or Custom.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-api-roles.json",
+          "quotes": [
+            "Reporting Access: Select Full, View Only, or None to give the API role the corresponding access to reports.",
+            "Alerts Access: Select Full, View Only, or None to give the API role the corresponding access to alerts.",
+            "Custom: This permission allows you to assign field-wise permissions (Full, View Only, and None) to the API categories, providing further granular access to them.",
+            "Custom permission is available for Traffic Forwarding Methods and Traffic Forwarding Components. Select Custom to assign field-wise permissions to those categories.",
+            "You can assign View Only, None, or Custom permissions to the API role to access the reporting features."
+          ]
+        }
+      ]
+    },
+    "api-role-categories": {
+      "statement": "The API role form's field-wise lists are, in the page's order: Malware Protection, Advanced Threat Protection, Sandbox, IPS Control, Mobile Malware Protection, Secure Browsing; URL & Cloud App Control, Firewall Control, DNS Control, NAT Control, File Type Control, Mobile App Store Control, Bandwidth Control, FTP Control with Bandwidth Classes and Tenant Profiles as Policy Components; Nanolog Streaming Service, Virtual Service Edges; Proxies & Gateways, Subclouds & DC Exclusion, Traffic Capture; Advanced Settings, Administrator Management, Audit Logs, User Management, Remote Assistance Management, Authentication Settings, Identity Proxy Settings, Role Management; and Backup Controls with Backup and Restore.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-api-roles.json",
+          "quotes": [
+            "Malware Protection - Advanced Threat Protection - Sandbox - IPS Control - Mobile Malware Protection - Secure Browsing",
+            "URL & Cloud App Control - Firewall Control - DNS Control - NAT Control - File Type Control - Mobile App Store Control - Bandwidth Control - FTP Control - Policy Components: - Bandwidth Classes - Tenant Profiles",
+            "Nanolog Streaming Service - Virtual Service Edges",
+            "Proxies & Gateways - Subclouds & DC Exclusion - Traffic Capture",
+            "Advanced Settings - Administrator Management - Audit Logs - User Management - Remote Assistance Management - Authentication Settings - Identity Proxy Settings - Role Management",
+            "Backup Controls - Backup - Restore"
+          ]
+        }
+      ]
+    },
+    "internal-api-user": {
+      "statement": "Creating an API role automatically creates an internal API user in the format oauth-<rolename>$@<orgid>.<cloud_domain> (for example oauth-apirole1$@64444.zscaler.net), used as the User context in any API operation. It is displayed in the audit log for API operations authenticated by an external OAuth 2.0 authentication server, but not on the Administrator Management or User Management pages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-api-roles.json",
+          "quotes": [
+            "The API role is created, and an internal API user is automatically created for the role in the format of oauth-<rolename>$@<orgid>.<cloud_domain>.",
+            "For example, oauth-apirole1$@64444.zscaler.net is used as the User context in any API operation.",
+            "It is also displayed in the audit log for any API operation that is authenticated by an external OAuth 2.0 authentication server. However, this internal user is not displayed on the Administrator Management or User Management pages in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "scope-on-server": {
+      "statement": "After the API role is created, it is defined as a Scope on the authorization server in the <Zscaler Cloud Name>::<Org ID>::<API Role> format, where the Org ID is the Company ID from the company profile under Administration > Administration > Organization > General Information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-api-roles.json",
+          "quotes": [
+            "After the API role is created, define that role as a Scope on the authorization server. You must configure the Scope value in the <Zscaler Cloud Name>::<Org ID>::<API Role> format, where:",
+            "Org ID represents your Company ID obtained from your company profile in the Zscaler Admin Console (Administration > Administration > Organization > General Information)."
+          ]
+        }
+      ]
+    },
+    "sdwan-role": {
+      "statement": "An SD-WAN partner API role is a specific role for API access to the Internet & SaaS (ZIA) cloud service APIs. SD-WAN partner APIs cannot be users; only admins can be assigned to the role. They make API calls to endpoints that involve building tunnels and mapping tunnels to locations, have no interactive Admin Console login, perform only calls related to SD-WAN partners, and are assigned full or view-only permissions to the API endpoints group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-sd-wan-partner-api-roles.json",
+          "quotes": [
+            "A Software-Defined Wide Area Network (SD-WAN) partner API role is a specific role for API access to the Internet & SaaS (ZIA) cloud service APIs. SD-WAN partner APIs cannot be users; only admins can be assigned to an SD-WAN partner API role.",
+            "Make API calls to endpoints that involve building tunnels and mapping tunnels to locations.",
+            "Only access API endpoints (no Zscaler Admin Console interactive login allowed).",
+            "Only perform API calls as they relate to SD-WAN partners, depending on the use case.",
+            "Be assigned full or view-only permissions to the API endpoints group given in the following procedure."
+          ]
+        }
+      ]
+    },
+    "sdwan-role-limits": {
+      "statement": "SD-WAN partner APIs cannot update policy configurations, create or delete users or grant users access to the Admin Console, or change properties or settings within the Admin Console; an SD-WAN partner API is not the same as a System Integration partner.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-sd-wan-partner-api-roles.json",
+          "quotes": [
+            "Update policy configurations.",
+            "Create or delete users or grant users access to the Zscaler Admin Console.",
+            "Change properties or settings within the Zscaler Admin Console.",
+            "An SD-WAN partner API is not the same as a System Integration partner."
+          ]
+        }
+      ]
+    },
+    "sdwan-role-permissions": {
+      "statement": "An SD-WAN partner API role's traffic-forwarding permission is Full (view and edit the traffic-forwarding API resources), View Only, or Custom, which sets Full or View Only per endpoint: Locations, VPN Credentials, Static IPs and GRE Tunnels. Full or View Only applies to all the traffic-forwarding resources, and if a role has no access to an endpoint, the option to get or update its resources via the API is not available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-sd-wan-partner-api-roles.json",
+          "quotes": [
+            "Full: This permission allows SD-WAN partner APIs to view and edit the traffic-forwarding API resources.",
+            "View Only: This permission allows SD-WAN partner APIs to only view the traffic-forwarding API resources.",
+            "Custom: This permission allows you to assign field-wise permissions (Full or View Only) to the API endpoints, providing further granular access to those API resources.",
+            "Selecting Full or View Only permissions applies to all the traffic-forwarding resources.",
+            "Locations - VPN Credentials - Static IPs - GRE Tunnels",
+            "If an SD-WAN partner API role does not have access to an API endpoint, the option to get or update resources via the API is not available."
+          ]
+        }
+      ]
+    },
+    "sdwan-client": {
+      "statement": "An SD-WAN partner API client has a login ID and an email, each with a selected domain name, and a Partner Role chosen from the SD-WAN partner API roles. Disabling the client clears its password, so a new one is needed on re-enabling, and with SAML enabled setting a password is optional; a password is 8 to 100 characters with at least 1 number, 1 special character and 1 uppercase letter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-sd-wan-partner-api-clients.json",
+          "quotes": [
+            "Login ID: Enter the login ID the SD-WAN partner API client uses to log in, and select the appropriate domain name.",
+            "Email: Enter an email address for the SD-WAN partner API client and select the appropriate domain name.",
+            "Partner Role: Choose an SD-WAN partner API role to specify the SD-WAN partner API client's level of access to the Zscaler Admin Console.",
+            "If you disable the admin, the password is automatically cleared. So, when you re-enable the status of the disabled admin, you must set a new password. If SAML is enabled, then setting a password is optional.",
+            "It can be 8 to 100 characters and must contain at least 1 number, 1 special character, and 1 uppercase letter."
+          ]
+        }
+      ]
+    }
+    ,
+    "sdwan-partner-key-scope": {
+      "statement": "An SD-WAN partner key enables partner access to the following resources within the cloud service API: Locations, where the partner can export all attributes of a service-defined location and make requests to add, update and delete locations, and VPN Credentials, where the partner can configure IPSec tunnel parameters including pre-shared keys, FQDNs and their associated location names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-partner-integrations.json",
+          "quotes": [
+            "An SD-WAN partner key enables partner access to the following resources within the cloud service API:",
+            "Locations: Allows an SD-WAN partner to export all attributes of a Zscaler service-defined location as a request.",
+            "Partners can also make resource requests to add, update, and delete locations instead of manually adding them or importing them via CSV file to the Zscaler Admin Console.",
+            "VPN Credentials: Allows an SD-WAN partner to configure IPSec tunnel parameters including pre-shared keys, FQDNs, and their associated location names as a request."
+          ]
+        }
+      ]
+    },
+    "sdwan-partner-key-prereqs": {
+      "statement": "Before adding a partner key an SD-WAN partner API role with SD-WAN partner access enabled is configured, an SD-WAN partner API client with the proper partner role is configured, and the configured locations and VPN credentials are assigned to the proper partner, whose name then shows in the Managed By column. The partner is then given its SD-WAN partner API client credentials and the partner key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sd-wan-partner-keys.json",
+          "quotes": [
+            "Configure a SD-WAN partner API role with SD-WAN partner access enabled.",
+            "Configure a SD-WAN partner API client for the SD-WAN partner, and make sure to apply the proper partner role.",
+            "Review your configured locations and VPN credentials and assign the proper partner to manage them.",
+            "The partner's name should be displayed in the Managed By column for the location or VPN credential."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sd-wan-partner-keys.json",
+          "quotes": [
+            "Their SD-WAN partner API client credentials",
+            "The partner key"
+          ],
+          "after": "make sure that you provide the following information to your SD-WAN partner:"
+        }
+      ]
+    },
+    "sdwan-partner-key-rules": {
+      "statement": "An organization can only have one partner key per SD-WAN partner, and the existing key must be deleted before a new one is added; the partners in the Add Partner Key list are Cisco Viptela, VMware SD-WAN, Citrix SD-WAN, CloudGenix, HPE Aruba, ngena, Riverbed SteelConnect, Silver Peak, VMware VeloCloud and Nile Secure, and for VMware SD-WAN an SSO URL must also be entered. A new key is immediately valid; an edited key must be alphanumeric (A-Z, a-z, 0-9), exactly 12 characters and different from the Current Partner Key, and after confirmation the old key is immediately invalidated. Regenerating gives a random key string and invalidates the old one, and deleting immediately removes and invalidates the key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sd-wan-partner-keys.json",
+          "quotes": [
+            "Your organization can only have one partner key per SD-WAN partner.",
+            "You must delete the existing key before you can add a new key.",
+            "- Cisco Viptela - VMware SD-WAN - Citrix SD-WAN - CloudGenix - HPE Aruba - ngena - Riverbed SteelConnect - Silver Peak - VMware VeloCloud - Nile Secure",
+            "For VMware SD-WAN, you must also enter an SSO URL.",
+            "The new partner key is immediately valid and displayed on the Partner Integrations page.",
+            "The new key must be alphanumeric (A-Z, a-z, 0-9) and exactly 12 characters in length.",
+            "The new key cannot be the same as the Current Partner Key.",
+            "After confirmation, the old partner key is immediately invalidated.",
+            "After confirmation, a random partner key string is immediately generated and the old string is invalidated.",
+            "After confirmation, the partner key is immediately removed and invalidated."
+          ]
+        }
+      ]
+    },
+    "sdwan-partner-key-list": {
+      "statement": "The partner key list shows the Partner Name, the Key string, Last Modified By (the admin that last modified the key) and Last Modified On (the date and time it was last modified).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sd-wan-partner-keys.json",
+          "quotes": [
+            "Partner Name: The name of the partner.",
+            "Key: The partner key string.",
+            "Last Modified By: Admin that last modified the partner key",
+            "Last Modified On: The date and time the partner key was last modified."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "form-differences": {
+      "kind": "semantic",
+      "title": "How the API role form differs from the admin role form",
+      "status": "open",
+      "detail": "Found by diffing the Adding API Roles lists against Adding Admin Roles, not stated by a page: the API role lists do not include Endpoint Context (Security), API Key Management (Cloud Configuration), Alerts (Administration Controls) or Zscaler Client Connector Portal (Traffic Forwarding Components), and give URL & Cloud App Control as one item where the admin role has URL Filtering Policy and Cloud App Control. For Traffic Forwarding the API role page offers Full, View Only or None where the admin role page also offers Custom. The form shows no Logs Limit, Dashboard, Insights or obfuscation settings.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "sdwan-limits-auth": {
+      "kind": "semantic",
+      "title": "Limits on SD-WAN partner API roles and clients, and client authentication",
+      "status": "partial",
+      "detail": "No limit on SD-WAN partner API roles or clients is stated in the captured pages. The partner key page says the partner is given its API client credentials and the partner key (sdwan-partner-key-prereqs), but not how a client presents them to the API.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

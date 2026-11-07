@@ -1,0 +1,370 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk.authentication",
+  "title": "ZSDK token validators, browser token validators and web server certificates",
+  "aliases": [
+    "zsdk token validator",
+    "zsdk jwt validation",
+    "zsdk jwks url",
+    "zsdk browser token validator",
+    "zsdk web server certificate",
+    "zsdk certificate management"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.browser-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.error-codes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{token-validator-checks}}"
+    },
+    {
+      "heading": "Token validators"
+    },
+    {
+      "text": "{{token-validator-required-claims}} {{token-validator-enforced-claims}} {{token-validator-access-type}}"
+    },
+    {
+      "text": "{{token-validator-signature-validation}} {{token-validator-pem-format}} {{token-validator-pem-extract-verify}}"
+    },
+    {
+      "heading": "Browser token validators"
+    },
+    {
+      "text": "{{browser-token-validator-claims}} {{browser-token-validator-page}} Whether this and the Browser Access type of token validator are one object is open {{gap:validator-routes}}."
+    },
+    {
+      "heading": "Web server certificates"
+    },
+    {
+      "text": "{{web-server-certificate-purpose}} Whether a certificate is required for Browser Access is in dispute {{divergence:browser-access-certificate-requirement}}. {{certificate-upload-format}} {{certificate-csr}} {{certificate-expiry-icons}}"
+    },
+    {
+      "text": "{{certificate-protocol-rule}} How that rule interacts with the Use Untrusted Certificates default is open {{gap:untrusted-certificates-interaction}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the IdP's JWT carries the sub, aud and iss claims the token validator requires.",
+      "uses": [
+        "token-validator-required-claims",
+        "token-validator-enforced-claims"
+      ]
+    },
+    {
+      "do": "Whether a public key given to a token validator has the BEGIN and END PUBLIC KEY headers and the RSA format.",
+      "uses": [
+        "token-validator-pem-format",
+        "token-validator-pem-extract-verify"
+      ]
+    },
+    {
+      "do": "Which protocol an application segment with Browser Access enabled uses for its certificate: HTTPS for a public CA signature, HTTP for a self-signed certificate or one whose chain of trust ZSDK cannot verify.",
+      "uses": [
+        "certificate-protocol-rule"
+      ]
+    }
+  ],
+  "claims": {
+    "token-validator-checks": {
+      "statement": "ZSDK token validators inspect and validate the JSON Web Tokens issued by the IdP, checking token validity, signing certificate authenticity and the required claims.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-token-validators.json",
+          "quotes": [
+            "ZSDK uses token validators to inspect and validate JSON Web Tokens (JWTs) issued by your identity provider (IdP).",
+            "ZSDK verifies token validity, signing certificate authenticity, and required token claims (e.g., subject, issuer, and audience)."
+          ]
+        }
+      ]
+    },
+    "token-validator-required-claims": {
+      "statement": "The IdP's JWT must contain the subject (sub), audience (aud) and issuer (iss) claims when a token validator is configured; more claims can be added depending on the IdP's JWT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-token-validators.json",
+          "quotes": [
+            "Your IdP's JWT must contain the following claims when configuring a token validator:",
+            "Subject (sub): Identifies the principal that is the subject of the JWT.",
+            "Audience (aud): Specifies the intended recipients of the JWT.",
+            "Issuer (iss): Identifies the issuer of the JWT.",
+            "You can add more claims depending on your IdP's JWT."
+          ]
+        }
+      ]
+    },
+    "token-validator-enforced-claims": {
+      "statement": "In the Add Token Validator drawer the exp, sub and iat claims are shown as enforced and cannot be configured; for aud and iss only the Value is entered, not the Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-token-validators.json",
+          "quotes": [
+            "exp: This field displays to show the field is enforced. You cannot configure this field.",
+            "iat: This field displays to show the field is enforced. You cannot configure this field.",
+            "aud: Enter the Value listed from the JWT's aud. You cannot configure the Name.",
+            "iss: Enter the Value listed from the JWT's iss. You cannot configure the Name.",
+            "sub: This field displays to show the field is enforced. You cannot configure this field."
+          ]
+        }
+      ]
+    },
+    "token-validator-access-type": {
+      "statement": "A token validator has an Access Type of Mobile Apps or Browser Access, and a Validation Type of Client JWKS URL or Certificates and Public Keys; a Browser Access token validator needs an app that has Browser Access enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-token-validators.json",
+          "quotes": [
+            "Access Type: The type of apps (Mobile Apps or Browser Access).",
+            "Validation Type: The validation type (Client JWKS URL or Certificates and Public Keys)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-token-validators.json",
+          "quotes": [
+            "If you select Browser Access, the app must have Browser Access enabled."
+          ]
+        }
+      ]
+    },
+    "token-validator-signature-validation": {
+      "statement": "Signature validation for a token validator is either a JWKS URL from the app's IdP (Client JWKS URL) or an uploaded certificate used by the IdP to sign JWTs (Certificates and Public Keys); the target is the app key registered earlier.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-token-validators.json",
+          "quotes": [
+            "Target Applications: Select the name of the app key you previously registered.",
+            "Client JWKS URL: Enter your JSON Web Key Set (JWKS) URL from your app's IdP.",
+            "Certificates and Public Keys: Upload the certificate used by your app's IdP to sign JWTs."
+          ]
+        }
+      ]
+    },
+    "token-validator-pem-format": {
+      "statement": "A public key supplied to a token validator in PEM format has the standard BEGIN and END PUBLIC KEY headers and follows the RSA algorithm for a PEM format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-token-validators.json",
+          "quotes": [
+            "Contains the standard BEGIN and END PUBLIC KEY PEM headers",
+            "Follows the standard Rivest–Shamir–Adleman (RSA) algorithm for a PEM format"
+          ]
+        }
+      ]
+    },
+    "token-validator-pem-extract-verify": {
+      "statement": "A public key can be extracted from an existing certificate with openssl x509 and checked with openssl pkey; the output for a properly formatted public key is similar to the documented Public-Key (2048 bit) modulus and exponent example, and if it is not Zscaler recommends checking why the PEM format is incorrect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-token-validators.json",
+          "quotes": [
+            "openssl x509 -in cert.pem -noout -pubkey > public.pem",
+            "openssl pkey -in public.pem -pubin -text -noout",
+            "Public-Key: (2048 bit) Modulus: 00:c1:95:f5:5e:61:fb:87:da:44:48:f7:49:7f:4a: ... Exponent: 65537 (0x10001)",
+            "If the output is not similar, Zscaler recommends checking your public key to understand why the PEM format is incorrect.",
+            "Ensure that the output for a properly formatted public key is similar to:"
+          ]
+        }
+      ]
+    },
+    "browser-token-validator-claims": {
+      "statement": "A browser token validator is added for an application segment with Browser Access enabled and takes aud, iss and sub claim values from the IdP's JWT; its validation type is a Client JWKs URL or an uploaded certificate or public key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-browser-token-validators.json",
+          "quotes": [
+            "Application Segments: Select the name of the application segment with Browser Access enabled.",
+            "aud: Add the value listed from the JWT's aud.",
+            "iss: Add the value listed from the JWT's iss.",
+            "sub: Add the value listed from the JWT's sub.",
+            "Client JWKs URL: Enter your JSON Web Key's (JWK's) URL from your application's IdP.",
+            "Certificates and Public Keys: Upload the certificate used by your application's IdP to sign JWTs."
+          ],
+          "after": "Add a Browser Token Validator"
+        }
+      ]
+    },
+    "browser-token-validator-page": {
+      "statement": "The Browser Token Validator page lists the browser token validators for Browser Access-enabled application segments, showing each one's Name and Type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-browser-token-validators.json",
+          "quotes": [
+            "The Browser Token Validator page lists browser token validators for Browser Access-enabled application segments.",
+            "Name: The name of the browser token validator.",
+            "Type: The type of the browser token validator."
+          ]
+        }
+      ]
+    },
+    "web-server-certificate-purpose": {
+      "statement": "The About Certificates article says ZSDK web server certificates are typically used for Browser Access and are selected when defining an application in an application segment; enrollment certificates cannot be used with a CA for Browser Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-certificates.json",
+          "quotes": [
+            "ZSDK uses certificates for web servers in order to provide access to web applications.",
+            "These certificates are typically used for Browser Access and are selected when defining an application within an application segment.",
+            "You cannot use enrollment certificates with CA for Browser Access."
+          ]
+        }
+      ]
+    },
+    "certificate-expiry-icons": {
+      "statement": "On the Certificates page an expired certificate shows a red Warning icon, one with fewer than 7 days before expiration a yellow Caution icon, and one with fewer than 30 days an orange Info icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-certificates.json",
+          "quotes": [
+            "If the certificate has expired, a red Warning icon () appears.",
+            "If the certificate has fewer than 7 days before expiration, a yellow Caution icon () appears.",
+            "If the certificate has fewer than 30 days before expiration, an orange Info icon () appears."
+          ]
+        }
+      ]
+    },
+    "certificate-upload-format": {
+      "statement": "An uploaded, signed web server certificate must be a PEM file containing both the certificate and the unencrypted private key, in RSA format only, with a certificate chain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-certificates.json",
+          "quotes": [
+            "A PEM file containing both the certificate and unencrypted private key",
+            "RSA format only",
+            "A certificate chain"
+          ]
+        }
+      ]
+    },
+    "certificate-csr": {
+      "statement": "A CSR for a web server certificate takes the subject's distinguished name, which does not need a wildcard common name, and a subject alternate name that lets the certificate cover multiple hostnames (domains only).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-certificates.json",
+          "quotes": [
+            "Subject: Enter the subject's distinguished name for the certificate.",
+            "The common name does not need to be a wildcard domain.",
+            "This allows the certificate to cover multiple hostnames (domains only).",
+            "Subject Alternate Name: Enter the subject's alternate name for the CSR."
+          ]
+        }
+      ]
+    },
+    "certificate-protocol-rule": {
+      "statement": "For an application segment with Browser Access enabled, a certificate signed by a public CA requires HTTPS as the protocol; the same article says that when an application's certificate is self-signed, or ZSDK cannot verify the chain of trust to the public CA, HTTP must be selected, without repeating the Browser Access condition.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-certificates.json",
+          "quotes": [
+            "If you define an application segment with Browser Access enabled and the certificate is signed by a public certificate authority (CA), then you must select HTTPS as the protocol.",
+            "If you define an application and the certificate is self-signed, then you must select HTTP as the protocol.",
+            "If ZSDK is unable to verify the chain of trust to the public CA, then you must select HTTP as the protocol."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "browser-access-certificate-requirement": {
+      "summary": "Whether a web server certificate is required for Browser Access.",
+      "positions": [
+        {
+          "says": "The About Certificates article says web server certificates are typically used for Browser Access.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-about-certificates.json",
+            "quotes": [
+              "These certificates are typically used for Browser Access and are selected when defining an application within an application segment."
+            ]
+          }
+        },
+        {
+          "says": "The Managing Certificates article says web server certificates are required to use Browser Access.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-managing-certificates.json",
+            "quotes": [
+              "They are required to use Browser Access."
+            ]
+          }
+        },
+        {
+          "says": "The Browser Access prerequisites article lists its requirements as applying only when using a certificate.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-prerequisites-browser-access-applications.json",
+            "quotes": [
+              "When using a certificate, the following prerequisites apply:"
+            ]
+          }
+        }
+      ],
+      "impact": "A Browser Access design cannot tell from one page whether a certificate is optional, typical or mandatory."
+    }
+  },
+  "gaps": {
+    "validator-routes": {
+      "kind": "semantic",
+      "title": "Whether the Token Validator with Access Type Browser Access and the Browser Token Validator are the same object",
+      "status": "open",
+      "detail": "The Token Validator article offers Access Type Browser Access and says the app must have Browser Access enabled, targeting an app key. The Browser Token Validator article targets an application segment with Browser Access enabled. No captured page says whether these are two routes to one object or two objects.",
+      "blocks": "answering where to configure a Browser Access token validator",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "untrusted-certificates-interaction": {
+      "kind": "semantic",
+      "title": "How the HTTP rule for self-signed certificates interacts with Use Untrusted Certificates",
+      "status": "open",
+      "detail": "The certificate article says a self-signed certificate requires HTTP as the protocol, while the application segment article says the Use Untrusted Certificates checkbox is selected by default when HTTPS is the protocol. Neither captured page says how the two combine.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

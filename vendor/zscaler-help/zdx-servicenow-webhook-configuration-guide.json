@@ -1,0 +1,908 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "ServiceNow Webhook Configuration Guide",
+  "source": {
+    "url": "https://help.zscaler.com/zdx/servicenow-webhook-configuration-guide",
+    "node": "1414521",
+    "revision": "3249934",
+    "updated": "2026-10-17",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Digital Experience (ZDX) supports the integration of IT Service Management (ITSM) via Incident Management (IM) and IT Operations Management (ITOM) via Event Management (EM). You can configure webhooks to deliver alerts about an application, device, or network performance. You can also use webhooks in an alert rule and configure multiple alert rules for the webhook. To learn more, see Configuring an Alert Rule."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure the following steps are completed prior to integrating with ServiceNow Event Management:"
+    },
+    {
+      "item": "Enable ITOM. To learn more, refer to ServiceNow IT Operations Management.",
+      "depth": 0
+    },
+    {
+      "item": "Request the EM plugin and install it from the store when it is available. To learn more, refer to ServiceNow's Zscaler Digital Experience: Event Management.",
+      "depth": 0
+    },
+    {
+      "text": "To configure a webhook for ServiceNow, you must:"
+    },
+    {
+      "item": "1. Create Service users and an OAuth 2.0 API endpoint in ServiceNow.",
+      "depth": 0
+    },
+    {
+      "item": "Prior to creating a webhook, you must create users in ServiceNow and admins in the Zscaler Admin Console. Creating an OAuth 2.0 API endpoint is optional based on your authentication requirements.",
+      "depth": 0
+    },
+    {
+      "item": "In your ServiceNow Console:",
+      "depth": 0
+    },
+    {
+      "item": "Create the required service user.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) Create an OAuth 2.0 API endpoint.",
+      "depth": 1
+    },
+    {
+      "item": "Go to All > User Administration > Users.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          12,
+          31
+        ],
+        [
+          34,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Click New.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Enter your User ID. You can enter an email address as your User ID.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler recommends using an email address in lieu of a user ID.",
+      "depth": 1
+    },
+    {
+      "item": "Select the Web Services Access only checkbox.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          11,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Reopen the user's record and click Set Password.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          35,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "In the Set Password window:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click Generate.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Copy the generated password. Save the user ID and password information.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save Password.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click Set Password on the User Record to save the password.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the Roles related list, click Edit.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          33,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Based on your service user's access needs, assign the respective role to the service user:",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "Incident Management",
+      "depth": 2
+    },
+    {
+      "item": "If your service user requires access to IM:",
+      "depth": 2
+    },
+    {
+      "item": "For web service users that require access to IM, add the x_zsca2_zdx_manage.zdx_management role.",
+      "depth": 3,
+      "strong": [
+        [
+          57,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "For users working with the Deep Tracing feature, add the x_zsca2_zdx_manage.zdx_dt_management role.",
+      "depth": 3,
+      "strong": [
+        [
+          57,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "Event Management",
+      "depth": 2
+    },
+    {
+      "item": "If your service user requires access to EM:",
+      "depth": 2
+    },
+    {
+      "item": "For web service users that require access to EM, add the evt_mgmt_integration role.",
+      "depth": 3,
+      "strong": [
+        [
+          57,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "For active users that require managing the application, add the x_zsca2_zdx_manage.zdx_em_admin and evt_mgmt_user roles.",
+      "depth": 3,
+      "strong": [
+        [
+          64,
+          95
+        ],
+        [
+          100,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Update on the user's record.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Search for oauth and go to Application Registry > New > Create an OAuthAPI endpoint for external clients.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          27,
+          47
+        ],
+        [
+          50,
+          53
+        ],
+        [
+          56,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Application Registries page:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the OAuth support.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Client ID: This is not configurable. Save the Client ID for later use.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: If this field is left empty, it auto-generates a Client Secret code. Save this Client Secret for later use.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URL: Enter your URL based on the cloud name of the ZDX tenant.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "The format must be:",
+      "depth": 2
+    },
+    {
+      "item": "https://admin.<cloud name>/zdx/admin/webhooks",
+      "depth": 2
+    },
+    {
+      "item": "Replace <cloud name> with your designated cloud name. To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 2
+    },
+    {
+      "item": "Refresh Token Lifespan: Enter your refresh token lifespan. Zscaler recommends a lifespan of 5 years from the current date.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Access Token Lifespan: Enter your access token lifespan. Zscaler recommends a lifespan of 1 hour to maximize reuse.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Submit to save your settings.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "2. Create a ZDX Role in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Add a ZDX Role to have the following permissions:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Diagnostics: Full",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Webhooks: Full",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "User & Device Names: Visible",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Configuration Access: Full",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Alerts: Full",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "UCaaS Monitoring: View Only",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Assign the ServiceNow Role from the previous step to an existing ZDX Admin or by adding a ZDX Admin.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Activate the changes.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "3. Configure a webhook in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Digital Experience > Settings & Configurations > Webhooks.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          50
+        ],
+        [
+          53,
+          78
+        ],
+        [
+          81,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Webhook.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Webhook window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the webhook.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Select Enabled to enable the webhook.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "URL: Enter one of the following URLs based on the integration:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Incident Management",
+      "depth": 3
+    },
+    {
+      "item": "https://<your-instance-ID>.service-now.com/api/x_zsca2_zdx_manage/incident_management_api",
+      "depth": 3
+    },
+    {
+      "item": "To learn more about installation and configuration details for ServiceNow Incident Management for ZDX, refer to the ServiceNow Store.",
+      "depth": 3
+    },
+    {
+      "item": "Event Management",
+      "depth": 3
+    },
+    {
+      "item": "https://<your-instance-ID>.service-now.com/api/global/em/jsonv2",
+      "depth": 3
+    },
+    {
+      "item": "To learn more about installation and configuration details for ServiceNow Event Management for ZDX, refer to the ServiceNow Store.",
+      "depth": 3
+    },
+    {
+      "item": "Authentication Type: Select your authentication type.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Basic",
+      "depth": 3
+    },
+    {
+      "item": "For Basic Authentication:",
+      "depth": 3
+    },
+    {
+      "item": "Username: Enter the username of the previously created service user.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Password: Enter the password of the previously created service user.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Save to save your webhook configuration.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "OAuth",
+      "depth": 3
+    },
+    {
+      "item": "For OAuth Authentication:",
+      "depth": 3
+    },
+    {
+      "item": "Application: Select ServiceNow.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Client ID: Enter the Client ID of the previously created OAuth 2.0 API endpoint.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: Enter the Client Secret of the previously created OAuth 2.0 API endpoint.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Refresh Token Expiration: Select the date of when the refresh token expires from the previously created OAuth API 2.0 endpoint.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Click Authenticate Tenant.",
+      "depth": 4,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Save to save your webhook configuration.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Test Webhook to see if it functions correctly.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Test Webhook for OAuth does not post a test message on ServiceNow. Instead, it acquires the OAuth token.",
+      "depth": 1
+    },
+    {
+      "item": "If the test is successful, a message indicating success appears.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Activate the changes.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "If the test is unsuccessful, an error message appears.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "To troubleshoot the error, check for issues in the URL or the Authentication Type fields.",
+      "depth": 2,
+      "strong": [
+        [
+          51,
+          54
+        ],
+        [
+          62,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "If the error persists, record to provide details of your error (e.g., screenshots or small video). Click Cancel so that the webhook configuration containing errors is not saved, and contact Zscaler Support with the error information.",
+      "depth": 2,
+      "strong": [
+        [
+          105,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "4. Confirm the webhook test result and Deep Tracing connection on ServiceNow.",
+      "depth": 0
+    },
+    {
+      "item": "To confirm if the webhook test result is on ServiceNow:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the ServiceNow Service Portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the Filter Navigator search bar, enter Zscaler Digital Experience.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "From the menu, select ServiceNow Incidents or ServiceNow Events module to see if the test webhook is recorded.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          22,
+          42
+        ],
+        [
+          46,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To confirm the Deep Tracing connection is on ServiceNow for IM:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the ServiceNow portal.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the Filter Navigator search bar, enter Zscaler Digital Experience.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "From the menu, select the ServiceNow Incidents module.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          26,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Open your targeted incident record.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Go to the Deep Tracing section and see if one of the following occurs to confirm the Deep Tracing connection:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "The information message, There are no related Deep Tracing Sessions, indicates there are no existing deep tracing sessions related to the current incident.",
+      "depth": 2
+    },
+    {
+      "item": "A table of Deep Tracing sessions.",
+      "depth": 2
+    },
+    {
+      "text": "Deep Tracing is a type of Diagnostics session. In ServiceNow, you can only configure for Deep Tracing."
+    },
+    {
+      "text": "After the webhook configuration is complete and the ServiceNow users are assigned the Incident Management role, x_zsca2_zdx_manage.zdx_management, you can configure the Settings and Mapping modules in the ZDX application on ServiceNow to meet your alerting requirements. To learn more, see Understanding the ZDX Application Fields on ServiceNow.",
+      "strong": [
+        [
+          169,
+          177
+        ],
+        [
+          182,
+          189
+        ]
+      ]
+    }
+  ]
+}

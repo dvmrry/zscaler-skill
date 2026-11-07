@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.log-fields",
+  "title": "What the ZPA User Activity log fields say when diagnosing access: outcome and status codes, timing phases, bytes",
+  "aliases": [
+    "user activity log fields",
+    "ConnectionStatus",
+    "InternalReason",
+    "ConnectionSetupTime",
+    "AppLearnTime",
+    "CAProcessingTime",
+    "ConnectorZENSetupTime",
+    "ServerSetupTime",
+    "zpn_trans_log fields",
+    "lss policy field",
+    "lss status codes",
+    "internal status code"
+  ],
+  "related": [
+    {
+      "rel": "logged-in",
+      "to": "zpa.logs.user-activity",
+      "because": "zpa.troubleshooting.log-fields:policy-field"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.no-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.slow"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.selection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The User Activity log is the per-connection record that the diagnostic subjects read."
+    },
+    {
+      "label": "Outcome and policy.",
+      "text": "{{policy-field}} {{connection-status-values}} {{internal-reason}} {{connector-fields}} The meanings of the ConnectionStatus values are not sourced {{gap:status-meanings}}. {{status-codes-endpoint}} {{internal-status-code-example}} How that example fits the code's documented scope is recorded in [[zpa.troubleshooting.session-status-codes]]. {{internal-reason-status-codes}} That InternalReason carries these codes is inferred, not stated {{gap:internal-reason-values}}."
+    },
+    {
+      "label": "Destination.",
+      "text": "{{server-fields}}"
+    },
+    {
+      "label": "Timing phases.",
+      "text": "{{timing-fields}} What a high value in each phase means is not sourced {{gap:timing-readings}} {{gap:app-learn-health-reporting}}."
+    },
+    {
+      "label": "Bytes and encryption.",
+      "text": "{{byte-counters}} {{double-encryption-field}} What byte counters indicate with a slow setup is not sourced {{gap:byte-counter-reading}}."
+    },
+    {
+      "label": "Multimatch.",
+      "text": "Whether the Application and AppGroup fields list all matched segments is tracked with the log schema: [[zpa.logs.user-activity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which access policy rule fired, from the Policy field, and whether the field is empty.",
+      "uses": [
+        "policy-field",
+        "status-meanings"
+      ]
+    },
+    {
+      "do": "Whether a connector name is present on a Close record, before reading connector-side causes.",
+      "uses": [
+        "connector-fields",
+        "zpa.app-connectors.selection:connector-id-zero"
+      ]
+    },
+    {
+      "do": "Which timing phase is high, comparing AppLearnTime, CAProcessingTime, ConnectorZENSetupTime, ConnectionSetupTime and ServerSetupTime.",
+      "uses": [
+        "timing-fields",
+        "timing-readings"
+      ]
+    },
+    {
+      "do": "Whether the byte counters are per-interval or totals before comparing them.",
+      "uses": [
+        "byte-counters"
+      ]
+    },
+    {
+      "do": "Whether the InternalReason value is listed in the LSS status-codes response and, if it is, the fields its entry gives.",
+      "uses": [
+        "internal-reason-status-codes",
+        "internal-reason-values"
+      ]
+    }
+  ],
+  "claims": {
+    "policy-field": {
+      "statement": "The Policy field of a User Activity record is the access policy rule name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| Policy | The access policy rule name |"
+          ]
+        }
+      ]
+    },
+    "connection-status-values": {
+      "statement": "ConnectionStatus is the status of the connection, with expected values Open, Close and Active.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| ConnectionStatus | The status of the connection. The expected values for this field are: Open Close Active |"
+          ]
+        }
+      ]
+    },
+    "internal-reason": {
+      "statement": "InternalReason is described as the internal reason for the status of the transaction.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| InternalReason | The internal reason for the status of the transaction |"
+          ]
+        }
+      ]
+    },
+    "connector-fields": {
+      "statement": "Connector is the App Connector name, ConnectorZEN is the Public Service Edge that sent the request from the App Connector, and ClientZEN is the Public Service Edge for Private Access that received the request from Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| Connector | The App Connector name |",
+            "The Public Service Edge that sent the request from the App Connector",
+            "The Public Service Edge for Private Access that received the request from the Zscaler Client Connector",
+            "| ConnectorZEN | The Public Service Edge that sent the request from the App Connector |",
+            "| ClientZEN | The Public Service Edge for Private Access that received the request from the Zscaler Client Connector |"
+          ]
+        }
+      ]
+    },
+    "server-fields": {
+      "statement": "Host is the destination host domain or IP address, and ServerIP and ServerPort are the destination IP address and port of the server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "The destination host domain or IP address",
+            "The destination IP address of the server",
+            "The destination port of the server",
+            "| Host | The destination host domain or IP address |",
+            "| ServerIP | The destination IP address of the server |",
+            "| ServerPort | The destination port of the server |"
+          ]
+        }
+      ]
+    },
+    "timing-fields": {
+      "statement": "The User Activity log's timing fields include AppLearnTime (App Connectors learning about the application and reporting to the central authority), CAProcessingTime (processing in the central authority), ConnectorZENSetupTime (setting up the connection between the App Connector and Public Service Edge), ConnectionSetupTime (the App Connector processing a notification from the App Connector selection microservice and setting up the connection to the application server) and ServerSetupTime (setting up the connection at the server).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "By default, the User Activity log type includes the fields listed in the following table",
+            "| AppLearnTime | The time in microseconds taken for App Connectors to learn about the requested application and report the learned information to the central authority |",
+            "| CAProcessingTime | The time in microseconds taken for processing in the central authority |",
+            "| ConnectorZENSetupTime | The time in microseconds taken for setting up the connection between the App Connector and Public Service Edge |",
+            "| ConnectionSetupTime | The time taken by the App Connector to process a notification from the App Connector selection microservice and set up the connection to the application server |",
+            "| ServerSetupTime | The time in microseconds taken to set up the connection at the server |"
+          ]
+        }
+      ]
+    },
+    "byte-counters": {
+      "statement": "The ZENBytes fields hold the additional bytes since the last transaction log, while the ZENTotalBytes fields hold the totals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| ZENBytesRxClient | The additional bytes received from Zscaler Client Connector since the last transaction log |",
+            "| ZENBytesTxClient | The additional bytes transmitted to Zscaler Client Connector since the last transaction log |",
+            "| ZENBytesRxConnector | The additional bytes received from the App Connector since the last transaction log |",
+            "| ZENBytesTxConnector | The additional bytes transmitted by the App Connector since the last transaction log |",
+            "| ZENTotalBytesRxClient | The total bytes received from Zscaler Client Connector by the Public Service Edge |",
+            "| ZENTotalBytesTxClient | The total bytes transmitted to Zscaler Client Connector from the Public Service Edge |",
+            "| ZENTotalBytesRxConnector | The total bytes received from the App Connector by the Public Service Edge |",
+            "| ZENTotalBytesTxConnector | The total bytes transmitted to the App Connector from the Public Service Edge |"
+          ]
+        }
+      ]
+    },
+    "double-encryption-field": {
+      "statement": "DoubleEncryption is the double encryption status of the connection, with expected values On and Off.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| DoubleEncryption | The double encryption status. The expected values for this field are: On Off |"
+          ]
+        }
+      ]
+    },
+    "status-codes-endpoint": {
+      "statement": "The LSS API returns the LSS status codes from GET /mgmtconfig/v2/admin/lssConfig/statusCodes. Its example response groups the codes under the log types zpn_auth_log, zpn_ast_auth_log, zpn_trans_log (the User Activity log type) and zpn_sys_auth_log. Under zpn_trans_log it lists codes such as BRK_MT_TERMINATED, and an entry carries an errorType, a name, an adminAction and a status: AST_MT_SETUP_ERR_NO_DNS_TO_SERVER is an ActionableError named \"AC: DNS resolution failed for unmonitored app\", with status Error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "To get details of all LSS status codes, send a GET request to the following endpoint: /mgmtconfig/v2/admin/lssConfig/statusCodes.",
+            "\"zpn_auth_log\": {",
+            "\"zpn_ast_auth_log\": {",
+            "\"zpn_trans_log\": {",
+            "\"zpn_sys_auth_log\": {",
+            "Supported log type values: zpn_trans_log: Denotes the User Activity log type."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "after": "\"AST_MT_SETUP_ERR_NO_DNS_TO_SERVER\": {",
+          "quotes": [
+            "\"errorType\": \"ActionableError\",",
+            "\"name\": \"AC: DNS resolution failed for unmonitored app\",",
+            "\"adminAction\": \"User requested application access is not available due to the connector not able to resolve DNS.",
+            "\"status\": \"Error\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "after": "\"zpn_trans_log\": {",
+          "quotes": [
+            "\"BRK_MT_TERMINATED\": {"
+          ]
+        }
+      ]
+    },
+    "internal-status-code-example": {
+      "statement": "The User Activity Diagnostics page shows an Internal Status Code. The application segment help says that for ICMP access it can show as successful (e.g., BRK_MT_TERMINATED) after the App Connector is selected \"even though it is unreachable\", which can occur when the App Connector has on-access or no health reporting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "ICMP Access: Enable for various Private Access clients",
+            "the Internal Status Code on the User Activity Diagnostics page shows as successful (e.g., BRK_MT_TERMINATED) after the App Connector is selected, even though it is unreachable",
+            "This can occur if the App Connector is set up to provide on access or no health reporting, as health reporting does not work well with ICMP"
+          ]
+        }
+      ]
+    },
+    "internal-reason-status-codes": {
+      "statement": "InternalReason values appear to be the zpn_trans_log codes of the LSS status-codes response.",
+      "tier": "B",
+      "binds": [
+        "zpa/user-activity-log#InternalReason"
+      ],
+      "derived_from": [
+        "internal-reason",
+        "status-codes-endpoint",
+        "internal-status-code-example"
+      ],
+      "conditions": "No source states that the InternalReason field carries these codes, or that the Internal Status Code on the User Activity Diagnostics page is the InternalReason value; both are assumed. The inference rests on the field's description (the internal reason for the status of the transaction), on the status-codes response listing codes under zpn_trans_log, the User Activity log type, and on the application segment help giving BRK_MT_TERMINATED, a zpn_trans_log code, as an example of the Internal Status Code the User Activity Diagnostics page shows. That every InternalReason value is in the response is not shown."
+    }
+  },
+  "gaps": {
+    "status-meanings": {
+      "kind": "semantic",
+      "title": "What Open, Close and Active mean, and the Policy field when empty",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"`ConnectionStatus` | `Open` = established; `Close` = ended; `Active` = in-progress at log time. `Policy` | Name of the access policy rule that matched - empty if no rule matched (default block).\" The field description lists the three ConnectionStatus values without defining them, and gives Policy only as the rule name; no source defines Close or says that an empty Policy means no rule matched.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "internal-reason-values": {
+      "kind": "semantic",
+      "title": "InternalReason values",
+      "status": "partial",
+      "detail": "The LSS status-codes response lists codes under zpn_trans_log, the User Activity log type (status-codes-endpoint). That InternalReason carries these codes is inferred (internal-reason-status-codes): no source says so directly, nor that the Diagnostics page's Internal Status Code is the InternalReason value. Still unsourced: that every value seen in InternalReason appears in the response, and what a code means beyond the fields its entry lists.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    },
+    "timing-readings": {
+      "kind": "semantic",
+      "title": "Reading a high value in each timing phase",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"High `ConnectionSetupTime`: the App Connector is taking a long time to establish its connection to the application server. Likely network latency or the application server is under load. High `ConnectorZENSetupTime`: latency between the App Connector and the ZPA Service Edge. May indicate the App Connector is connecting to a Service Edge that is geographically distant. High `CAProcessingTime`: Central Authority processing time. Intermittently elevated CA times are a ZPA platform issue; sustained elevation should be escalated to Zscaler Support.\" The field descriptions say what each phase measures (timing-fields) and nothing about causes or thresholds.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "app-learn-health-reporting": {
+      "kind": "semantic",
+      "title": "High AppLearnTime and Health Reporting",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"High `AppLearnTime`: the App Connectors have not recently received a reachability probe result for the application. Check `health_reporting` on the segment - if `NONE`, connectors only learn at access time. Switch to `ON_ACCESS` or `CONTINUOUS` for production segments.\" AppLearnTime is described as the time App Connectors take to learn about the requested application; no source ties it to the health_reporting setting or to probe results. The probe cadence per value is itself open in the connector health subject.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "byte-counter-reading": {
+      "kind": "semantic",
+      "title": "Low byte counters with a high setup time",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Sustained low values combined with high `ConnectionSetupTime` indicate a slow or stalled application-side connection rather than a ZPA policy or routing issue.\" The byte-counter fields are defined (byte-counters); no source gives this reading.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

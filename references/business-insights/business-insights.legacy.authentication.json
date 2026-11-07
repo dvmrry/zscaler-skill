@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "id": "business-insights.legacy.authentication",
+  "title": "Legacy Business Insights admin authentication: password expiration, SCIM, SAML, IdP guides and sign-in OTP timeouts",
+  "aliases": [
+    "business insights saml",
+    "business insights scim",
+    "business insights admin password expiration",
+    "business insights okta saml",
+    "business insights entra id saml"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "business-insights.legacy"
+    },
+    {
+      "rel": "see-also",
+      "to": "business-insights.legacy.admin"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Password expiration.",
+      "text": "{{password-expiration}} {{password-expiration-saml}} {{password-expiration-rules}}"
+    },
+    {
+      "label": "SCIM.",
+      "text": "{{scim-delete-action}} {{scim-scope}}"
+    },
+    {
+      "label": "SAML.",
+      "text": "{{saml-support}} {{saml-prerequisites}} {{saml-certificate-format}}"
+    },
+    {
+      "label": "Okta.",
+      "text": "{{saml-okta-urls}} {{saml-okta-certificate}} The SP entity ID differs from the Entra ID guide {{divergence:sp-entity-id}}."
+    },
+    {
+      "label": "Microsoft Entra ID.",
+      "text": "{{saml-entra-urls}} {{saml-entra-app}}"
+    },
+    {
+      "label": "Sign-in OTP.",
+      "text": "{{auth-service-otp-flow-a}} {{auth-service-otp-flow-b}} The OTP lifetimes differ {{divergence:otp-expiry}}, and so do the reset link lifetimes {{divergence:reset-link-expiry}}."
+    },
+    {
+      "text": "{{cloud-name-location}} Admin accounts, roles and scope are in [[business-insights.legacy.admin]]; the area hub is [[business-insights.legacy]]."
+    }
+  ],
+  "claims": {
+    "cloud-name-location": {
+      "statement": "In the legacy Business Insights help, the Account item in the Admin Portal navigation shows the username, cloud name and organization ID and points to Managing Your Admin Account, whose My Profile page displays the cloud name; the Okta guide places the cloud name on the My Profile page and the Entra ID guide on the Account page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-accessing-and-navigating-business-insights-admin-portal.json",
+          "quotes": [
+            "Click Account to view your username, cloud name, and organization ID. You can also change your password on this page. To learn more, see Managing Your Admin Account."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-managing-your-admin-account.json",
+          "quotes": [
+            "The My Profile page displays your basic account information (i.e., username, organization ID, and cloud name)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-saml-configuration-guide-okta.json",
+          "quotes": [
+            "You can view the cloud from the My Profile page in the Business Insights Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-saml-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "You can view the cloud from the Account page in the Business Insights Admin Portal."
+          ]
+        }
+      ]
+    },
+    "password-expiration": {
+      "statement": "In the legacy Business Insights help, Password expiration for admins is optional, and when enabled the validity defaults to 180 days (range 15 to 365 days) with a reminder when 15 days remain; for an account subscribed to Authentication Service, the Administrator Management page links to the Authentication Service Admin Portal, from which admins can be managed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-configuring-password-expiration-business-insights.json",
+          "quotes": [
+            "If you are subscribed to the Authentication Service service, the Administrator Management page shows a link to the Authentication Service Admin Portal. You can manage your admins from the Authentication Service Admin Portal.",
+            "The default is 180 days. The days can range from 15 to 365.",
+            "When there are 15 days left, the Zscaler service reminds admins to change their password",
+            "To provide additional security, you can enable password expiration for all admins logging in to the Business Insights Admin Portal."
+          ]
+        }
+      ]
+    },
+    "password-expiration-saml": {
+      "statement": "In the legacy Business Insights help, Password expiration is not enforced for SAML-based admins, and admin passwords never expire when the setting is not enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-configuring-password-expiration-business-insights.json",
+          "quotes": [
+            "If you don't enable this setting, the admins' passwords never expire. The service doesn't enforce password expiration for SAML-based admins."
+          ]
+        }
+      ]
+    },
+    "password-expiration-rules": {
+      "statement": "In the legacy Business Insights help, After a password expires an admin must register a new password that differs from the previous one and has at least 8 characters with an uppercase letter, a number and a special character.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-configuring-password-expiration-business-insights.json",
+          "quotes": [
+            "The new password can't be the same as the previous one.",
+            "Also, the password used must be at least 8 characters in length and include at least one uppercase letter, one number, and one special character.",
+            "if their password expires, admins must register a new password to access the Business Insights Admin Portal."
+          ]
+        }
+      ]
+    },
+    "scim-delete-action": {
+      "statement": "In the legacy Business Insights help, The Admin Account Action When SCIM Deletes Linked User Account is Delete (SCIM deletes the admin and its linked user account) or Do Nothing, which is the default and makes SCIM return error 409 (Admin user cannot be deleted); for an account subscribed to Authentication Service, the Administrator Management page links to the Authentication Service Admin Portal, from which admins can be managed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-configuring-advanced-configuration-admins.json",
+          "quotes": [
+            "If you are subscribed to the Authentication Service service, the Administrator Management page shows a link to the Authentication Service Admin Portal. You can manage your admins from the Authentication Service Admin Portal.",
+            "Select Delete if you want to allow SCIM to delete the admin and its linked user account.",
+            "SCIM will return error 409 (Admin user cannot be deleted). Do Nothing is the default."
+          ]
+        }
+      ]
+    },
+    "scim-scope": {
+      "statement": "In the legacy Business Insights help, Disabling an admin's user account through SCIM disables both the admin and its linked user account, and the delete-action setting affects only deleted users, not disabled users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-configuring-advanced-configuration-admins.json",
+          "quotes": [
+            "disabling an admin's user account through SCIM disables both the admin and its linked user account in the Business Insights Admin Portal.",
+            "Configuring the action for deleted users only affects deleted users, and does not affect disabled users."
+          ]
+        }
+      ]
+    },
+    "saml-support": {
+      "statement": "In the legacy Business Insights help, Admin SAML is IdP-initiated and supports SAML 2.0 and later, admins are not added through auto-provisioning, and Zscaler recommends at least one super admin with password authentication enabled in case external SAML servers are unreachable; for an account subscribed to Authentication Service, the Administrator Management page links to the Authentication Service Admin Portal, from which admins can be managed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-configuring-saml-admins-business-insights.json",
+          "quotes": [
+            "If you are subscribed to the Authentication Service service, the Administrator Management page shows a link to the Authentication Service Admin Portal. You can manage your admins from the Authentication Service Admin Portal.",
+            "The Zscaler service supports identity provider (IdP)-initiated SAML to authenticate admins.",
+            "Admins are not added through auto-provisioning.",
+            "Zscaler also recommends that you have at least one super admin with password authentication enabled",
+            "The Zscaler service supports SAML 2.0 and later.",
+            "to ensure an admin can still access the Business Insights Admin Portal if SAML servers external to the Zscaler service become unreachable."
+          ]
+        }
+      ]
+    },
+    "saml-prerequisites": {
+      "statement": "In the legacy Business Insights help, Before configuring admin SAML, create the admin accounts, configure an IdP with the relay state field specified, and obtain the IdP's SAML certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-configuring-saml-admins-business-insights.json",
+          "quotes": [
+            "Create admin accounts for your organization's admins.",
+            "Ensure that you specify the relay state field when configuring the IdP.",
+            "Obtain the SAML certificate of the IdP."
+          ]
+        }
+      ]
+    },
+    "saml-certificate-format": {
+      "statement": "In the legacy Business Insights help, The IdP SAML certificate is the base-64 encoded PEM format, and its file name must be alphanumeric without spaces and have a .pem or .cer extension without other periods.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-configuring-saml-admins-business-insights.json",
+          "quotes": [
+            "This is the base-64 encoded PEM format that you downloaded from the IdP.",
+            "The file name must be alphanumeric without any spaces, and have a file extension of .pem or .cer without other periods"
+          ]
+        }
+      ]
+    },
+    "saml-okta-urls": {
+      "statement": "In the legacy Business Insights help, In the Okta SAML guide, the Single sign-on URL and Audience URI (SP Entity ID) are both https://admin.zscaleranalytics.net/idp-auth and the Default RelayState is the Business Insights cloud name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-saml-configuration-guide-okta.json",
+          "quotes": [
+            "Single sign-on URL: Enter https://admin.zscaleranalytics.net/idp-auth",
+            "Audience URI (SP Entity ID): Enter https://admin.zscaleranalytics.net/idp-auth",
+            "Default RelayState: Enter your Business Insights cloud name."
+          ]
+        }
+      ]
+    },
+    "saml-okta-certificate": {
+      "statement": "In the legacy Business Insights help, In the Okta SAML guide, the certificate to upload is the SHA-2 type SAML signing certificate downloaded with Actions > Download certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-saml-configuration-guide-okta.json",
+          "quotes": [
+            "download the SHA-2 type certificate by clicking Actions > Download certificate",
+            "Upload the certificate as part of Step 4 in the IdP SAML Certificate field."
+          ]
+        }
+      ]
+    },
+    "saml-entra-urls": {
+      "statement": "In the legacy Business Insights help, In the Microsoft Entra ID SAML guide, the Identifier (Entity ID) is https://admin.zscaleranalytics.net, the Reply URL is https://admin.zscaleranalytics.net/idp-auth, and the Relay State is the Business Insights cloud name and is mandatory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-saml-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "Identifier (Entity ID): Enter https://admin.zscaleranalytics.net.",
+            "Reply URL (Assertion Customer Service URL): Enter https://admin.zscaleranalytics.net/idp-auth.",
+            "Relay State: Enter your Business Insights cloud name. You can view the cloud from the Account page in the Business Insights Admin Portal. This field is mandatory."
+          ]
+        }
+      ]
+    },
+    "saml-entra-app": {
+      "statement": "In the legacy Business Insights help, The Microsoft Entra ID guide creates the application from the Zscaler Internet Access Administrator tile and requires the Unique User Identifier (Name ID) source attribute to be user.mail, and the certificate is the Base64 certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-saml-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "Click New application, then search for Zscaler Internet Access Administrator.",
+            "Ensure that the Source attribute value is set to user.mail.",
+            "click the download link next to the Certificate (Base64) field to obtain the Base64 certificate.",
+            "Click the Unique User Identifier (Name ID) claim."
+          ]
+        }
+      ]
+    },
+    "auth-service-otp-flow-a": {
+      "statement": "In the legacy Business Insights help, In the first sign-in flow described for an Authentication Service-enabled account configured with MFA, an email OTP expires after two minutes and Resend is available after 60 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-accessing-and-navigating-business-insights-admin-portal.json",
+          "quotes": [
+            "If your account is configured with MFA, you can sign in using a email OTP as well:",
+            "Enter the OTP received to your email address and click Sign In. The OTP expires after two minutes. If the OTP expires or you don't receive an OTP, click Resend to receive another OTP after 60 seconds."
+          ]
+        }
+      ]
+    },
+    "auth-service-otp-flow-b": {
+      "statement": "In the legacy Business Insights help, In the section for an Authentication Service subscription, for an account configured with MFA the OTP sent to the admin's email address expires after 15 minutes and Resend is available after 60 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-zbi-accessing-and-navigating-business-insights-admin-portal.json",
+          "quotes": [
+            "If your account is configured with MFA, you can sign in using an email OTP:",
+            "Enter the OTP sent to your email address and click Sign In. The OTP expires after 15 minutes. If the OTP expires or you don't receive an OTP, click Resend to receive another OTP after 60 seconds.",
+            "If you're subscribed to Authentication Service:"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "otp-expiry": {
+      "summary": "The two sign-in flows for an Authentication Service account configured with MFA give different email OTP lifetimes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-zbi-accessing-and-navigating-business-insights-admin-portal.json",
+            "quotes": [
+              "Enter the OTP received to your email address and click Sign In. The OTP expires after two minutes."
+            ]
+          },
+          "says": "In the flow for an Authentication Service-enabled account, the email OTP expires after two minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-zbi-accessing-and-navigating-business-insights-admin-portal.json",
+            "quotes": [
+              "Enter the OTP sent to your email address and click Sign In. The OTP expires after 15 minutes."
+            ]
+          },
+          "says": "In the section for an Authentication Service subscription, the email OTP expires after 15 minutes."
+        }
+      ],
+      "impact": "The email OTP lifetime for an Authentication Service account is two minutes in one flow and 15 minutes in the other; the page does not say which applies."
+    },
+    "reset-link-expiry": {
+      "summary": "The two sign-in flows for an Authentication Service account give different password and second-factor reset link lifetimes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-zbi-accessing-and-navigating-business-insights-admin-portal.json",
+            "quotes": [
+              "click Having trouble signing in? > Reset Password or Reset Second Factor, and a reset email is sent to your email ID. The reset link within the email expires after 5 minutes."
+            ]
+          },
+          "says": "In the flow for an Authentication Service-enabled account, the reset link in the email expires after 5 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-zbi-accessing-and-navigating-business-insights-admin-portal.json",
+            "quotes": [
+              "click Having trouble signing in? > Reset Password or Reset Second Factor, and a reset link is sent to your email ID. The reset link expires after 15 minutes."
+            ]
+          },
+          "says": "In the section for an Authentication Service subscription, the reset link expires after 15 minutes."
+        }
+      ],
+      "impact": "The reset link lifetime for an Authentication Service account is 5 minutes in one flow and 15 minutes in the other; the page does not say which applies."
+    },
+    "sp-entity-id": {
+      "summary": "The Okta and Microsoft Entra ID guides give different values for the Business Insights SAML service provider entity ID.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-zbi-saml-configuration-guide-okta.json",
+            "quotes": [
+              "Audience URI (SP Entity ID): Enter https://admin.zscaleranalytics.net/idp-auth"
+            ]
+          },
+          "says": "The Okta guide sets the SP Entity ID to https://admin.zscaleranalytics.net/idp-auth."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-zbi-saml-configuration-guide-microsoft-entra-id.json",
+            "quotes": [
+              "Identifier (Entity ID): Enter https://admin.zscaleranalytics.net."
+            ]
+          },
+          "says": "The Microsoft Entra ID guide sets the Identifier (Entity ID) to https://admin.zscaleranalytics.net, with no path."
+        }
+      ],
+      "impact": "Whether the entity ID carries the /idp-auth path differs between the two IdP guides; the single sign-on and reply URLs both use /idp-auth."
+    }
+  }
+}

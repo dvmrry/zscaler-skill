@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb.app-capabilities",
+  "title": "SaaS Security per-application capabilities: onboarding privileges, webhooks, historical scan, licensing, scanned content, actions and activities",
+  "aliases": [
+    "supported capabilities",
+    "saas security supported capabilities",
+    "historical scan",
+    "onboarding privileges",
+    "which saas apps support webhooks"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.casb"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.scans"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.custom-connectors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Understanding SaaS Security Supported Capabilities article is a per-application matrix. {{matrix-columns}}"
+    },
+    {
+      "label": "Collaboration.",
+      "text": "{{collaboration}}"
+    },
+    {
+      "label": "File share.",
+      "text": "{{file-share}}"
+    },
+    {
+      "label": "Public cloud storage and source code repositories.",
+      "text": "{{cloud-storage-and-repos}}"
+    },
+    {
+      "label": "Email, CRM, ITSM and Gen AI.",
+      "text": "{{email-crm-itsm-genai}}"
+    },
+    {
+      "label": "What the matrix leaves open.",
+      "text": "What the Historical Scan values mean is open {{gap:historical-scan-meaning}}. The Smartsheet and ChatGPT cells are open {{gap:matrix-cell-oddities}}. How far back a scan may reach is also in [[zia.casb.scans]]."
+    },
+    {
+      "label": "Scanned content.",
+      "text": "{{scan-content}}"
+    },
+    {
+      "label": "Actions.",
+      "text": "{{remediation-examples}} {{labels}} The Dropbox row's Apply Box Classification Label action disagrees with the DLP actions table {{divergence:dropbox-box-label}}, which resolves {{gap:dropbox-label}}."
+    },
+    {
+      "label": "DLP actions by application.",
+      "text": "{{dlp-actions-by-app}} Smartsheet's place under Admin Quarantine disagrees with the capability matrix {{divergence:smartsheet-admin-quarantine}}."
+    },
+    {
+      "label": "Activities.",
+      "text": "{{activities}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application's licensing and onboarding privilege in the matrix are met before concluding a tenant cannot be onboarded.",
+      "uses": [
+        "collaboration",
+        "file-share",
+        "cloud-storage-and-repos",
+        "email-crm-itsm-genai"
+      ]
+    },
+    {
+      "do": "Whether the application's Actions row offers the action a rule needs, since remediation differs by application.",
+      "uses": [
+        "remediation-examples",
+        "labels",
+        "dlp-actions-by-app",
+        "dropbox-box-label",
+        "smartsheet-admin-quarantine"
+      ]
+    }
+  ],
+  "claims": {
+    "dlp-actions-by-app": {
+      "statement": "The About Data at Rest Scanning DLP page's Supported DLP Actions table maps actions to applications, for example: Admin Quarantine to Box, Citrix ShareFile, Confluence, Dropbox, Google Drive, OneDrive, SharePoint and Smartsheet; Apply MIP Label to OneDrive and SharePoint; Apply Box Classification Label to Box; Notify Users Only to Microsoft Teams, Slack and Webex Teams; Quarantine to Jira, Dynamics 365, Salesforce, ServiceNow, Slack and Webex Teams; Move to Restricted Folder to Confluence; Remove All Collaborators to Dropbox and Google Cloud Platform; Remove External Collaborators to Smartsheet; and Update to Not Discoverable for All to Google Drive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-rest-scanning-dlp.json",
+          "quotes": [
+            "| Admin Quarantine | Box Citrix ShareFile Confluence Dropbox Google Drive Microsoft OneDrive Microsoft SharePoint Smartsheet |",
+            "| Apply MIP Label | Microsoft OneDrive Microsoft SharePoint |",
+            "| Apply Box Classification Label | Box |",
+            "| Notify Users Only | Microsoft Teams Slack Webex Teams |",
+            "| Quarantine | Atlassian Jira Dynamics 365 Salesforce ServiceNow Slack Webex Teams |",
+            "| Move to Restricted Folder | Atlassian Confluence |",
+            "| Remove All Collaborators | Dropbox Google Cloud Platform |",
+            "| Remove External Collaborators | Smartsheet |",
+            "| Update to Not Discoverable for All | Google Drive |"
+          ]
+        }
+      ]
+    },
+    "matrix-columns": {
+      "statement": "The article lists the supported administrative capabilities and actions for all SaaS Security applications; its capability table has per-application columns Onboarding Privileges, Webhooks, Historical Scan, Malware Support, Incident Management (Workflow Automation), Activity Alerts and Monitoring and Licensing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-saas-security-supported-capabilities.json",
+          "quotes": [
+            "This article lists the supported administrative capabilities and actions for all SaaS Security applications:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-saas-security-supported-capabilities.json",
+          "quotes": [
+            "| Application | Onboarding Privileges | Webhooks | Historical Scan | Malware Support | Incident Management (Workflow Automation) | Activity Alerts and Monitoring | Licensing"
+          ],
+          "after": "# Administrative Capabilities"
+        }
+      ]
+    },
+    "collaboration": {
+      "statement": "In the capability table Zoom needs Owner, supports webhooks, scans 1 month and needs Zoom Pro or above; MS Teams needs Admin, Teams, and SharePoint Admin, supports webhooks, scans 6 months and lists a minimum of Microsoft 365 Business Standard with Teams Activity Report if Audit (Standard) is bundled, also working with E3 and E5; Slack needs Org Admin, does not support webhooks, scans 6 years and needs Slack Enterprise Grid; Cisco Webex needs Admin, supports webhooks, scans 15 days and lists a Webex calling License, with a Webex Pro License for real time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-saas-security-supported-capabilities.json",
+          "quotes": [
+            "Zoom | Owner | Supported | 1 month | Supported | Supported | Supported | Zoom Pro or above",
+            "MS Teams | Admin, Teams, and SharePoint Admin | Supported | 6 months | Supported | Supported | Supported | Min - Microsoft 365 Business Standard with Teams Activity Report would work if Audit (Standard) is bundled Works with E3 and E5 also",
+            "Slack | Org Admin | Not Supported | 6 years | Supported | Supported | Supported | Slack Enterprise Grid",
+            "Cisco Webex | Admin | Supported | 15 days | Supported | Supported | Supported | Webex calling License, Webex Real Time Support : Webex Pro License"
+          ]
+        }
+      ]
+    },
+    "file-share": {
+      "statement": "In the capability table OneDrive and SharePoint need Global Admin, SharePoint Admin, support webhooks, scan 6 years and list Min - Microsoft 365 Business Standard with Teams Activity Report would work if Audit (Standard) is bundled, Works with E3 and E5 also; Google Drive needs Super Admin or Custom Role Admin (the row says to check the custom connector), supports webhooks, scans 6 years and needs Google Enterprise or above; Box (1 year, Box Enterprise License) and ShareFile (4 years, ShareFile Enterprise Industry License) need Admin and do not support webhooks; Smartsheet needs Admin, does not support webhooks, scans 30 days, and its activity cell reads Supported (Alerts and Monitoring only) with Smartsheet Enterprise with event reporting plugin; Confluence and Dropbox need Admin, support webhooks, scan 5 years and need their Enterprise licenses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-saas-security-supported-capabilities.json",
+          "quotes": [
+            "OneDrive | Global Admin, SharePoint Admin | Supported | 6 years | Supported | Supported | Supported | Min - Microsoft 365 Business Standard with Teams Activity Report would work if Audit (Standard) is bundled Works with E3 and E5 also",
+            "SharePoint | Global Admin, SharePoint Admin | Supported | 6 years | Supported | Supported | Supported | Min - Microsoft 365 Business Standard with Teams Activity Report would work if Audit (Standard) is bundled Works with E3 and E5 also",
+            "Google Drive | Super Admin, Custom Role Admin (check custom connector) | Supported | 6 years | Supported | Supported | Supported | Google Enterprise or above",
+            "Box | Admin | Not Supported | 1 year | Supported | Supported | Supported | Box Enterprise License",
+            "ShareFile | Admin | Not Supported | 4 years | Supported | Supported | Supported | ShareFile Enterprise Industry License",
+            "Smartsheet | Admin | Not Supported | 30 days | Supported | Supported | Supported (Alerts and Monitoring only) | Smartsheet Enterprise with event reporting plugin",
+            "Confluence | Admin | Supported | 5 years | Supported | Supported | Supported | Confluence Enterprise",
+            "Dropbox | Admin | Supported | 5 years | Supported | Supported | Supported | Dropbox Enterprise"
+          ]
+        }
+      ]
+    },
+    "cloud-storage-and-repos": {
+      "statement": "In the capability table Amazon S3 Bucket needs Admin, supports webhooks, scans 1 year and lists Free Tier and above; Azure Storage Account needs Storage Account Contributions, does not support webhooks, scans 1 year and lists Pay as you go; GCP needs Org Admin, supports webhooks, scans 1 year and lists Free Tier and above; GitHub needs Admin, does not support webhooks, scans 5 years and needs GitHub Enterprise Cloud; GitLab and Bitbucket need Admin, support webhooks, scan 5 years and need Premium licenses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-saas-security-supported-capabilities.json",
+          "quotes": [
+            "Amazon S3 Bucket | Admin | Supported | 1 year | Supported | Supported | Supported | Free Tier and above",
+            "Azure Storage Account | Storage Account Contributions | Not Supported | 1 year | Supported | Supported | Supported | Pay as you go",
+            "GCP | Org Admin | Supported | 1 year | Supported | Supported | Supported | Free Tier and above",
+            "GitHub | Admin | Not Supported | 5 years | Supported | Supported | Supported | GitHub Enterprise Cloud",
+            "GitLab | Admin | Supported | 5 years | Supported | Supported | Supported | GitLab Premium License",
+            "Bitbucket | Admin | Supported | 5 years | Supported | Supported | Supported | Bitbucket Premium License"
+          ]
+        }
+      ]
+    },
+    "email-crm-itsm-genai": {
+      "statement": "In the capability table Exchange (Admin, Exchange Admin) and Gmail (Super Admin, Custom Role) support webhooks and scan 6 years; Salesforce (Admin) and Dynamics 365 CRM (Admin) do not support webhooks and scan 6 years, with Salesforce working with the Enterprise, Unlimited, Performance, Developer and SandBox editions and needing the Event Monitoring add-on for the Activity Report; Jira needs Admin, supports webhooks, scans 1 year and needs Jira Enterprise; ServiceNow needs Not Necessary, does not support webhooks, scans 6 years and works with all licenses; ChatGPT needs Admin, does not support webhooks, scans 6 years, and its activity cell and licensing cell read Not Supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-saas-security-supported-capabilities.json",
+          "quotes": [
+            "Exchange | Admin, Exchange Admin | Supported | 6 years | Supported | Supported | Supported | Min - Microsoft 365 Business Standard with Exchange Works with E3 and E5",
+            "Gmail | Super Admin, Custom Role | Supported | 6 years | Supported | Supported | Supported | Google Enterprise or Above",
+            "Salesforce | Admin | Not Supported | 6 years | Supported | Supported | Supported | Works with Enterprise, Unlimited, Performance, Developer, and SandBox Editions For Activity Report, Event Monitoring add-on",
+            "Dynamics 365 CRM | Admin | Not Supported | 6 years | Supported | Supported | Supported | Microsoft 365 E3 and above",
+            "Jira | Admin | Supported | 1 year | Supported | Supported | Supported | Jira Enterprise",
+            "ServiceNow | Not Necessary | Not Supported | 6 years | Supported | Supported | Supported | Works with All Licenses",
+            "ChatGPT | Admin | Not Supported | 6 years | Supported | Supported | Not Supported | Not Supported"
+          ]
+        }
+      ]
+    },
+    "scan-content": {
+      "statement": "The Actions table gives each application's scanned content, for example Slack channels (messages and attachments) and 1:1 chats, Amazon S3 buckets and files, GitHub commit files within those repos with repositories only with organizations, Salesforce files, cases and Chatter body, ServiceNow tables (tasks, incident, change, problem, etc.) and attachments, and ChatGPT messages, files uploaded and files generated by ChatGPT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-saas-security-supported-capabilities.json",
+          "quotes": [
+            "Slack | Channels: Messages and Attachments 1:1 Chats",
+            "Amazon S3 Bucket | Buckets Files",
+            "GitHub | Commit Files Within Those Repos Repositories Only with Organizations",
+            "Salesforce | Files Cases Chatter Body",
+            "ServiceNow | Tables (Tasks, Incident, Change, Problem, etc.) Attachments",
+            "ChatGPT | Messages, Files Uploaded, and Files Generated by ChatGPT"
+          ],
+          "after": "# Actions"
+        }
+      ]
+    },
+    "remediation-examples": {
+      "statement": "Actions differ by application in the Actions table: the MS Teams row lists Notify Users and Report Incident, then None, then Quarantine Malware (Files), Remove Malware and Report Malware; Amazon S3 Bucket lists Remove Public Shareable Link and Report Incident, then None; Azure Storage Account lists Report Incident, then None; GitHub lists Report Incident twice and Report Malware; ChatGPT lists Report Incident, then None, then Report Malware.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-saas-security-supported-capabilities.json",
+          "quotes": [
+            "MS Teams | Channels: Messages and Attachments | Notify Users Report Incident | None | Quarantine Malware (Files) Remove Malware Report Malware",
+            "Amazon S3 Bucket | Buckets Files | Remove Public Shareable Link Report Incident | None | Quarantine Malware Remove Malware Report Malware",
+            "Azure Storage Account | Storage Accounts Containers Files (blobs) | Report Incident | None | Quarantine Malware Remove Malware Report Malware",
+            "GitHub | Commit Files Within Those Repos Repositories Only with Organizations | Report Incident | Report Incident | Report Malware",
+            "ChatGPT | Messages, Files Uploaded, and Files Generated by ChatGPT | Report Incident | None | Report Malware"
+          ],
+          "after": "# Actions"
+        }
+      ]
+    },
+    "labels": {
+      "statement": "Labeling actions are application specific in the Actions table, which lists Apply MIP Labels, Apply Google Drive Label and Apply Box Classification Label as actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-saas-security-supported-capabilities.json",
+          "quotes": [
+            "Admin Quarantine Apply MIP Labels",
+            "Admin Quarantine Apply Google Drive Label",
+            "Admin Quarantine Apply Box Classification Label"
+          ],
+          "after": "# Actions"
+        }
+      ]
+    },
+    "activities": {
+      "statement": "The article says Activities is currently not supported for the Smartsheet application; its Activities table lists, for example, Slack user activities Create, Delete, Download, Login Fail, Login Pass, Move, Upload and Share Link and GitHub user activities Create, Fork, Pull Request and Share with NA for admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-saas-security-supported-capabilities.json",
+          "quotes": [
+            "Activities is currently not supported for the Smartsheet application.",
+            "Slack | Create Delete Download Login Fail Login Pass Move Upload Share Link | Accept Add Approve Assign Create Delete Disable Edit Join Logout Compromised Move Session Reset Transfer Reactivate Reset Resource Grant Restrict Unverify Verify",
+            "GitHub | Create Fork Pull Request Share | NA"
+          ],
+          "after": "# Activities"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "smartsheet-admin-quarantine": {
+      "summary": "The About Data at Rest Scanning DLP table lists Smartsheet under Admin Quarantine; the Supported Capabilities matrix's Smartsheet row has no Admin Quarantine action.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-data-rest-scanning-dlp.json",
+            "quotes": [
+              "| Admin Quarantine | Box Citrix ShareFile Confluence Dropbox Google Drive Microsoft OneDrive Microsoft SharePoint Smartsheet |"
+            ]
+          },
+          "says": "Admin Quarantine is available for Box, Citrix ShareFile, Confluence, Dropbox, Google Drive, OneDrive, SharePoint and Smartsheet."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-saas-security-supported-capabilities.json",
+            "quotes": [
+              "| Smartsheet | Files and Folders | Remove Remove External Collaborators Remove Internal Collaborators and Shareable Link Remove Sharing Report Incident | Remove | Remove Malware Report Malware | Supported |"
+            ]
+          },
+          "says": "Smartsheet's actions are Remove, Remove External Collaborators, Remove Internal Collaborators and Shareable Link, Remove Sharing and Report Incident, with no Admin Quarantine."
+        }
+      ],
+      "impact": "Whether a Smartsheet DLP rule can use Admin Quarantine is not settled by the documentation. A related page says remediation actions are not supported for Smartsheet on the Assets with Incidents page (zia.reports.saas-security:awi-file-sharing-actions)."
+    },
+    "dropbox-box-label": {
+      "summary": "The Supported Capabilities Actions row for Dropbox lists Apply Box Classification Label; the About Data at Rest Scanning DLP table lists that action for Box only.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-saas-security-supported-capabilities.json",
+            "quotes": [
+              "| Dropbox | Files and Folders | Admin Quarantine Apply Box Classification Label Change to Read Only"
+            ]
+          },
+          "says": "The Dropbox row lists Admin Quarantine, Apply Box Classification Label and Change to Read Only among its actions."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-data-rest-scanning-dlp.json",
+            "quotes": [
+              "| Apply Box Classification Label | Box |"
+            ]
+          },
+          "says": "Apply Box Classification Label is listed for Box."
+        }
+      ],
+      "impact": "Whether Dropbox offers a Box classification label action is not settled; the matrix row may carry the Box action over, but neither page says which is intended."
+    }
+  },
+  "gaps": {
+    "historical-scan-meaning": {
+      "kind": "semantic",
+      "title": "What the Historical Scan values mean",
+      "status": "open",
+      "detail": "The matrix gives values from 15 days to 6 years per application. The article does not say whether a value is a maximum look-back or a default.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "matrix-cell-oddities": {
+      "kind": "semantic",
+      "title": "Smartsheet activity support and ChatGPT licensing in the matrix",
+      "status": "open",
+      "detail": "The Smartsheet row marks activity alerts as Supported (Alerts and Monitoring only) while the article says Activities is currently not supported for Smartsheet, and the ChatGPT licensing cell reads Not Supported. The article does not explain either.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "dropbox-label": {
+      "kind": "semantic",
+      "title": "Whether the Dropbox row's Apply Box Classification Label is intended",
+      "status": "resolved",
+      "resolution": "Settled into the divergence dropbox-box-label: the Supported DLP Actions table lists Apply Box Classification Label for Box only, while the capability matrix lists it on the Dropbox row.",
+      "detail": "The Dropbox actions row lists a Box classification label action, possibly carried over from the Box row; the article does not say.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

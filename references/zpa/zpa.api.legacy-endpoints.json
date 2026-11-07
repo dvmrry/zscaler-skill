@@ -1,0 +1,399 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.legacy-endpoints",
+  "title": "ZPA legacy endpoint wiring: shared paths, schedules, user codes and step-up levels",
+  "aliases": [
+    "usercodes path",
+    "associationType usercodes",
+    "connectorSchedule",
+    "assistantSchedule",
+    "stepupauthlevel",
+    "application endpoint shared by segment types",
+    "zpa-37",
+    "zpa-38",
+    "zpa-39"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.api.base-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.policy-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZPA endpoint inventory is generated; this subject keeps only the places where a route is shared, renamed or wired differently by the sources. The base paths are in [[zpa.api.base-paths]]."
+    },
+    {
+      "label": "One application route.",
+      "text": "{{application-shared-path}} {{ansible-by-type-400-fixed-2-2-0}}"
+    },
+    {
+      "label": "Schedules.",
+      "text": "{{connector-schedule-wired}} {{schedule-openapi}} The retired-alias question is open {{gap:assistant-schedule-served}}."
+    },
+    {
+      "label": "User codes.",
+      "text": "{{usercodes-go-path}} The two SDKs build the path differently {{divergence:usercodes-path}}."
+    },
+    {
+      "label": "Step-up levels.",
+      "text": "The response shape differs by SDK [[zpa.api.policy-wire:step-up-auth-shape]]. {{stepup-no-writes}} {{stepup-sdk-read-only}} Whether the API has write verbs is open {{gap:stepup-write-verbs}}."
+    },
+    {
+      "label": "Provisioning key types.",
+      "text": "The key association types are broader than the two the old inventory listed: [[zpa.sdk-go.service-defects:provider-provisioning-key-schema-and-importer]] and [[zpa.app-connectors.provisioning-key-tooling:python-key-types]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which SDK built a user-code request, since the Go and Python paths differ by an associationType segment.",
+      "uses": [
+        "usercodes-go-path",
+        "usercodes-path"
+      ]
+    },
+    {
+      "do": "Whether a schedule call used /connectorSchedule, the only path the Go service wires and the one the OpenAPI document shows.",
+      "uses": [
+        "connector-schedule-wired",
+        "schedule-openapi"
+      ]
+    }
+  ],
+  "claims": {
+    "application-shared-path": {
+      "statement": "The Go SDK's standard, Browser Access, Inspection and PRA application segment services, and its by-type service, all use the same /application endpoint, with getAppsByType as a sub-route.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "appSegmentEndpoint = \"/application\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "quotes": [
+            "browserAccessEndpoint   = \"/application\"",
+            "applicationTypeEndpoint = \"/application/getAppsByType\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "appSegmentPraEndpoint   = \"/application\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "appSegmentInspectionEndpoint = \"/application\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbytype/applicationsegmentbytype.go",
+          "quotes": [
+            "applicationEndpoint = \"/application\"",
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + applicationEndpoint + \"/getAppsByType\""
+          ]
+        }
+      ]
+    },
+    "connector-schedule-wired": {
+      "statement": "The Go App Connector schedule service builds its path from /connectorSchedule, and the Python module uses /connectorSchedule too; the appconnectorcontroller package declares an /assistantSchedule constant that the schedule service does not use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+          "quotes": [
+            "import ( \"context\" \"fmt\" \"net/http\" \"github.com/zscaler/zscaler-sdk-go/v3/zscaler\" ) const ( mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\" scheduleEndpoint = \"/connectorSchedule\" )"
+          ],
+          "note": "the schedule package declares its own scheduleEndpoint and does not import appconnectorcontroller"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go",
+          "quotes": [
+            "scheduleEndpoint     = \"/assistantSchedule\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_schedule.py",
+          "quotes": [
+            "/connectorSchedule/{scheduler_id}"
+          ]
+        }
+      ]
+    },
+    "schedule-openapi": {
+      "statement": "The OpenAPI document has GET and POST on /connectorSchedule and on /serviceEdgeSchedule, and a PUT only on /serviceEdgeSchedule/{id}.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule/get",
+          "expect": {
+            "operationId": "Get a Configured App Connector schedule frequency."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule/post/parameters/[name=customerId]",
+          "expect": {
+            "in": "path"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule",
+          "expect_absent": [
+            "put",
+            "delete",
+            "patch"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/get",
+          "expect": {
+            "operationId": "Get Private Broker Schedule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/post",
+          "expect": {
+            "operationId": "Save Private Broker Schedule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule",
+          "expect_absent": [
+            "put",
+            "delete",
+            "patch"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule~1{id}/put/parameters/[name=customerId]",
+          "expect": {
+            "in": "path"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule~1{id}/put",
+          "expect": {
+            "operationId": "Update Private Broker Schedule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule~1{id}",
+          "expect_absent": [
+            "get",
+            "post",
+            "delete",
+            "patch"
+          ],
+          "note": "PUT is the only operation on serviceEdgeSchedule/{id}"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/mgmtconfig/v1/admin/customers/{customerId}/connectorSchedule/{id}"
+          ]
+        }
+      ]
+    },
+    "usercodes-go-path": {
+      "statement": "The Go SDK posts user codes to {customerId}/{associationType}/usercodes and {customerId}/{associationType}/usercodes/status with the association type as a bare path segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/oauth2_user/oauth2_user.go",
+          "quotes": [
+            "relativeURL := fmt.Sprintf(\"%s%s/%s/usercodes\", mgmtConfig, service.Client.GetCustomerID(), associationType)",
+            "relativeURL := fmt.Sprintf(\"%s%s/%s/usercodes/status\", mgmtConfig, service.Client.GetCustomerID(), associationType)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, request, &v)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, requestBody, &v)"
+          ]
+        }
+      ]
+    },
+    "stepup-sdk-read-only": {
+      "statement": "Neither SDK has a create, update or delete call for step-up auth levels.",
+      "tier": "B",
+      "derived_from": [
+        "stepup-no-writes"
+      ],
+      "conditions": "Rests on reading the whole of each at the pin: step_up_auth.go is the Go package's only file and GetStepupAuthLevel its only func; the Python module defines only __init__ and get_step_up_auth_levels. A quote cannot pin the absence."
+    },
+    "stepup-no-writes": {
+      "statement": "The Go step_up_auth service's `GetStepupAuthLevel` and the Python stepup_auth_level module's `get_step_up_auth_levels` read the /stepupauthlevel path, and the OpenAPI document has no route at that path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/step_up_auth/step_up_auth.go",
+          "quotes": [
+            "func GetStepupAuthLevel(ctx context.Context, service *zscaler.Service) ([]string, *http.Response, error)",
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + \"/stepupauthlevel\""
+          ],
+          "note": "step_up_auth.go is the package's only file and GetStepupAuthLevel its only func"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/stepup_auth_level.py",
+          "quotes": [
+            "def __init__(self, request_executor, config):",
+            "def get_step_up_auth_levels(self, query_params: Optional[dict] = None)",
+            "/stepupauthlevel"
+          ],
+          "note": "the module's complete method list: __init__ and one read"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/mgmtconfig/v1/admin/customers/{customerId}/stepupauthlevel"
+          ]
+        }
+      ]
+    },
+    "ansible-by-type-400-fixed-2-2-0": {
+      "statement": "Ansible collection issue #85 reported that `zpa_application_segment_by_type_info` on collection 2.1.0 failed permanently with a `read.message.failed` error from the by-type application request; it was closed as completed on 2026-05-30 with a reply from a member of the repository's organization, signed Zscaler DevRel, to upgrade to v2.2.0, whose changelog lists a fix for the module's failure when retrieving application segments by type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zpacloud-ansible-85.json",
+          "quotes": [
+            "Module zpa_application_segment_by_type_info did not work",
+            "Tried to request application segments by type with collection version 2.1.0. It ends permanently in this error message:",
+            "\"code\": \"read.message.failed\",",
+            "\"url\": \"https://api.zsapi.net/zpa/mgmtconfig/v1/admin/customers/********/application/getAppsByType\""
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zpacloud-ansible-85.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-05-30) Upgrade to v2.2.0 Zscaler DevRel"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zpacloud-ansible-85.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-05-30"
+          }
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed `zpa_application_segment_by_type_info` failure when retrieving application segments by type."
+          ],
+          "after": "## 2.2.0 (May, 29 2026)"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "usercodes-path": {
+      "summary": "The Go SDK and the Python SDK build the user-code verification path differently.",
+      "positions": [
+        {
+          "says": "Go puts the association type directly after the customer ID.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/oauth2_user/oauth2_user.go",
+            "quotes": [
+              "relativeURL := fmt.Sprintf(\"%s%s/%s/usercodes\", mgmtConfig, service.Client.GetCustomerID(), associationType)"
+            ]
+          }
+        },
+        {
+          "says": "Python puts a literal associationType segment before the type.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/oauth2_user_code.py",
+            "quotes": [
+              "/associationType/{simplify_key_type(key_type)}/usercodes"
+            ],
+            "after": "def verify_oauth2_user_code(self, key_type: str, **kwargs)"
+          }
+        }
+      ],
+      "impact": "One of the two paths is wrong or the API accepts both; the OpenAPI document has neither route, so user-code enrollment through a raw call needs a tenant test."
+    }
+  },
+  "gaps": {
+    "assistant-schedule-served": {
+      "kind": "semantic",
+      "title": "Whether the legacy API still serves /assistantSchedule",
+      "status": "open",
+      "former_ids": [
+        "zpa-39"
+      ],
+      "detail": "Unverified legacy statement: whether the legacy API still serves /assistantSchedule or it is a retired alias of /connectorSchedule. The Go appconnectorcontroller package declares the constant without using it, and the Python module and the OpenAPI document use /connectorSchedule.",
+      "blocks": "choosing the connector schedule path in raw calls",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "stepup-write-verbs": {
+      "kind": "semantic",
+      "title": "Whether the step-up authentication levels route accepts writes",
+      "status": "open",
+      "former_ids": [
+        "zpa-37"
+      ],
+      "detail": "Unverified legacy statement: whether the API supports create, update or delete on /stepupauthlevel. Both SDKs expose only the read, and the OpenAPI document lacks the route.",
+      "blocks": "managing step-up levels programmatically",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

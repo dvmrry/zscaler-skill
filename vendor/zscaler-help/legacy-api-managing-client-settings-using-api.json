@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Client Settings Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/managing-client-settings-using-api",
+    "node": "1529290",
+    "revision": "3160730",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information for managing Zscaler Private Access (ZPA) client settings using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Getting Details of Client Settings",
+      "level": 1
+    },
+    {
+      "text": "To get details of client settings for a given customer:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/clientSetting.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/145256180497776640/clientSetting.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "[ { \"id\": \"6025\", \"creationTime\": \"1635186837\", \"modifiedBy\": \"72057594038006701\", \"clientCertificateType\": \"ZAPP_CLIENT\", \"signingCertExpiryInEpochSec\": \"2108226836\", \"name\": \"Client\", \"enrollmentCertId\": \"13965\", \"enrollmentCertName\": \"Client\" } ]",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Prerequisite API Calls",
+      "level": 1
+    },
+    {
+      "text": "Before you can create or update client settings, you must get the enrollment certificate details. To learn more, see Obtaining Enrollment Certificate Details Using API."
+    },
+    {
+      "heading": "Creating or Updating Client Settings",
+      "level": 1
+    },
+    {
+      "text": "To create client settings:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/clientSetting.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/145256180497776640/clientSetting.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Use the following JSON payload provide the following information:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "enrollmentCertId: The unique identifier of the generated enrollment certificate. To learn more, see Obtaining Enrollment Certificate Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "clientCertificateType: The client certificate type. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "APP_PROTECTION: This enrollment (CA) certificate enrolls AppProtection-enabled application segments.",
+      "depth": 2
+    },
+    {
+      "item": "ISOLATION_CLIENT: This enrollment (CA) certificate enrolls Isolation clients.",
+      "depth": 2
+    },
+    {
+      "item": "NONE: This enrollment (CA) certificate enrolls App Connectors, ZPA Private Service Edges, or Private Cloud Controllers.",
+      "depth": 2
+    },
+    {
+      "item": "ZAPP_CLIENT: This enrollment (CA) certificate enrolls Zscaler Client Connector.",
+      "depth": 2
+    },
+    {
+      "item": "enrollmentCertName: The name of the generated enrollment certificate.",
+      "depth": 1
+    },
+    {
+      "item": "name: The name of the client settings.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"modifiedTime\": 0, \"creationTime\": 0, \"modifiedBy\": 0, \"microtenantId\": <Microtenant ID>, \"enrollmentCertId\": <enrollment certificate ID>, \"clientCertificateType\": \"ZAPP_CLIENT\", \"enrollmentCertName\": \"string\", \"signingCertExpiryInEpochSec\": 0, \"name\": <Name of the client settings> }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"signingCertId: \"227050\", \"clientCertificateType: \"APP_PROTECTION\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "[ { \"id\":\"150207\", \"modifiedTime\":\"1746657505\", \"creationTime\":\"1743663009\", \"modifiedBy\":\"72057594038040687\", \"signingCertId\":\"227050\", \"clientCertificateType\":\"APP_PROTECTION\", \"signingCertName\":\"Example Cert Test\", \"signingCertExpiryInEpochSec\":\"2692737505\", \"name\":\"Example Cert Test\" } ]",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the client settings are created or updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting Client Settings",
+      "level": 1
+    },
+    {
+      "text": "To delete client settings:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/clientSetting.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/145256180497776640/clientSetting.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Provide the type (i.e., the client certificate type), as a query-string parameter. The supported values are:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "APP_PROTECTION: This enrollment (CA) certificate enrolls AppProtection-enabled application segments.",
+      "depth": 1
+    },
+    {
+      "item": "ISOLATION_CLIENT: This enrollment (CA) certificate enrolls Isolation clients.",
+      "depth": 1
+    },
+    {
+      "item": "NONE: This enrollment (CA) certificate enrolls App Connectors, ZPA Private Service Edges, or Private Cloud Controllers.",
+      "depth": 1
+    },
+    {
+      "item": "ZAPP_CLIENT: This enrollment (CA) certificate enrolls Zscaler Client Connector.",
+      "depth": 1
+    },
+    {
+      "text": "A successful response returns code 204, meaning the client settings are deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All Client Settings",
+      "level": 1
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/clientSetting/all.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/145256180497776640/clientSetting/all.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "[ { \"id\": \"13370\", \"modifiedTime\": \"1692635903\", \"creationTime\": \"1692635903\", \"modifiedBy\": \"72057594038006701\", \"clientCertificateType\": \"ISOLATION_CLIENT\", \"name\": \"Isolation Client\", \"enrollmentCertId\": \"26781\", \"enrollmentCertName\": \"Isolation Client\" }, { \"id\": \"16239\", \"modifiedTime\": \"1728667950\", \"creationTime\": \"1728667884\", \"modifiedBy\": \"72057594038006517\", \"clientCertificateType\": \"APP_PROTECTION\", \"name\": \"test 123\", \"enrollmentCertId\": \"33645\", \"enrollmentCertName\": \"test 123\" } ]",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes available fields you can use for the client settings API use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "clientCertificateType",
+          "The client certificate type",
+          "Yes",
+          "String The supported values are: APP_PROTECTION: This enrollment (CA) certificate enrolls AppProtection-enabled application segments. ISOLATION_CLIENT: This enrollment (CA) certificate enrolls Isolation clients. NONE: This enrollment (CA) certificate enrolls App Connectors, ZPA Private Service Edges, or Private Cloud Controllers. ZAPP_CLIENT: This enrollment (CA) certificate enrolls Zscaler Client Connector."
+        ],
+        [
+          "enrollmentCertId",
+          "The unique identifier of the enrollment certificate. To learn more, see Obtaining Enrollment Certificate Details Using API.",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "enrollmentCertName",
+          "The name of the enrollment certificate",
+          "Yes",
+          "String"
+        ]
+      ]
+    }
+  ]
+}

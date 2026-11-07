@@ -1,0 +1,993 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring DLP Cloud-to-Cloud Incident Forwarding for AWS",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-dlp-cloud-cloud-incident-forwarding-aws",
+    "node": "1542619",
+    "revision": "3246787",
+    "updated": "2026-09-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler Cloud-to-Cloud Incident Forwarding allows you to send evidence data and metadata from Data Loss Prevention (DLP) violations directly to your public cloud storage without deploying appliances."
+    },
+    {
+      "text": "Cloud-to-Cloud Incident Forwarding does not support using the same public cloud account to onboard multiple tenants that are hosted on the same Zscaler cloud. For example, suppose your pre-production and production tenants are hosted on the same Zscaler cloud. In that case, you cannot use the same Azure account to onboard both tenants. To use the same Azure account, you must ensure that each tenant is hosted on a separate Zscaler cloud."
+    },
+    {
+      "text": "To configure Cloud-to-Cloud Incident Forwarding onboarding, you must first configure storage accounts on your cloud provider and onboard your public cloud account:"
+    },
+    {
+      "item": "On the Create bucket page in the AWS Management console, create one bucket for evidence data and one bucket for metadata.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "If you are configuring your AWS storage account with Workflow Automation, two separate S3 buckets are created for you during the creation of the CloudFormation stack in AWS. You do not need to create additional resources at this time. If you are not using your Incident Receiver with Workflow Automation, you can use a single S3 bucket for data and JSON files, or you can use separate buckets. The following example uses separate S3 buckets. To learn more, see Configuring the Amazon Web Services DLP Application Integration Using Cloud-to-Cloud Incident Forwarding.",
+      "depth": 0
+    },
+    {
+      "item": "In the AWS Management console, search for S3.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          42,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "In the search results, select S3. The Amazon S3 dashboard appears, displaying all the existing buckets.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create bucket. The Create bucket page appears.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          25,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "On the Create bucket page:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the General configuration section:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Bucket type: Select General Purpose.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Bucket name: Enter the name of the bucket as <bucketNamePrefix>-data (e.g., zscaler-dlp-data). No periods can be used in the name.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "In the Object Ownership section, select ACLs disabled (recommended).",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          40,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "In the Block Public Access settings for this bucket section, select the Block all public access checkbox.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          51
+        ],
+        [
+          72,
+          77
+        ],
+        [
+          78,
+          81
+        ],
+        [
+          82,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "In the Bucket Versioning section, select Disable.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          41,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "In the Default encryption section, leave the default settings.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Create bucket. The Buckets page appears, listing the bucket you have just created.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          25,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Create bucket page in the AWS console, create an S3 bucket for the metadata bucket.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "On the Buckets page, click Create bucket. The Create bucket page appears.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          27,
+          40
+        ],
+        [
+          46,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "On the Create bucket page:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the General configuration section:",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Bucket type: Select General Purpose.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Bucket name: Enter the name of the bucket as <bucketNamePrefix>-metadata (e.g., zscaler-dlp-metadata). No periods can be used in the name.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "In the Object Ownership section, select ACLs disabled (recommended).",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          40,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "In the Block Public Access settings for this bucket section, select Block all public access.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          51
+        ],
+        [
+          68,
+          73
+        ],
+        [
+          74,
+          77
+        ],
+        [
+          78,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "In the Bucket Versioning section, select Disable.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          41,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "In the Default encryption section, leave the default settings.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Create bucket. The Buckets page reappears, listing the bucket you have just created.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          25,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Data Security > Common Resources > DLP Incident Receiver and select the Cloud-to-Cloud Incident Forwarding tab.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          62,
+          75
+        ],
+        [
+          78,
+          94
+        ],
+        [
+          97,
+          118
+        ],
+        [
+          134,
+          168
+        ]
+      ]
+    },
+    {
+      "item": "Choose Amazon S3 for the SaaS Application Provider and click Next.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          25,
+          50
+        ],
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Enter a Tenant Name for the SaaS application tenant and click Next.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          8,
+          19
+        ],
+        [
+          62,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Authorize the SaaS application:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "You need your Zscaler Connector Account Number, Zscaler Connector User ARN, and External ID to authorize the SaaS Application in the AWS Management console. Remember these account numbers.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "a. Create an IAM role for AWS.",
+      "depth": 1
+    },
+    {
+      "item": "You must create roles in AWS to ensure that the Zscaler service can properly access the application:",
+      "depth": 1
+    },
+    {
+      "item": "Click Go to AWS to give Zscaler access to Amazon S3 and configure roles and permissions.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Log into the AWS console.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          13,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Go to Services > IAM.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to Access management > Roles.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          35,
+          52
+        ],
+        [
+          55,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Click Create role.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "On the Select Trusted entity page, in the Trusted entity type section, select AWS account.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          42,
+          61
+        ],
+        [
+          78,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "In the An AWS account section, select Another AWS account and check Require external ID.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          38,
+          57
+        ],
+        [
+          68,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Enter the Account Number and the External ID from the Zscaler instance that you copied from the Zscaler Admin Console.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          10,
+          24
+        ],
+        [
+          33,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "In Attach permissions policies, do not select permissions. Click Next.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          3,
+          30
+        ],
+        [
+          65,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "On the Name, review and create page add:",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Role name: Enter a role name.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter additional notes or information.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Click Create role.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "b. Specify IAM role permissions.",
+      "depth": 1
+    },
+    {
+      "item": "In the AWS Management console, click the Role Name of the IAM role you previously created (Identity and Access Management > Access Management > Roles).",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          41,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "You are redirected to the Role page.",
+      "depth": 2,
+      "strong": [
+        [
+          26,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "On the Permissions tab, click Add permissions > Create inline policy.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          30,
+          45
+        ],
+        [
+          48,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Policy editor, click JSON in the policy editor.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          28,
+          32
+        ],
+        [
+          40,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following JSON string into the policy editor with the bucket names you created in step 1.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"Statement1\", \"Effect\": \"Allow\", \"Action\": [ \"s3:ListBucket\" ], \"Resource\": [ \"arn:aws:s3:::<metadata-bucket-name>\", \"arn:aws:s3:::<evidence-data-bucket-name>\" ] }, { \"Sid\": \"AllowPutObject\", \"Effect\": \"Allow\", \"Action\": [ \"s3:PutObject\" ], \"Resource\": [ \"arn:aws:s3:::<metadata-bucket-name>/*\", \"arn:aws:s3:::<evidence-data-bucket-name>/*\" ] } ] }",
+      "depth": 2
+    },
+    {
+      "item": "Alternatively, if you are using Workflow Automation and KMS keys, enter the following JSON string:",
+      "depth": 2
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"Statement1\", \"Effect\": \"Allow\", \"Action\": [ \"s3:ListBucket\" ], \"Action\": [ \"kms:Decrypt\", \"kms:GenerateDataKey*\" ], \"Resource\": [ \"<bucket kms key arn>\" ], \"Effect\": \"Allow\", \"Sid\": \"S3KMSPermissions\" } ] }",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Enter a Policy name for your policy.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          8,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click Create policy.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "You can see the policy you just created attached to the role on the Role Summary page in the AWS console (IAM > Access Management > Roles > your role).",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "c. Edit trust policy.",
+      "depth": 1
+    },
+    {
+      "item": "Edit the Trust relationships for the role you created for the Zscaler service:",
+      "depth": 1
+    },
+    {
+      "item": "In the AWS Management console, on the page for the IAM role you just created, go to the Trust Relationships tab.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          88,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Edit trust policy. In the Edit trust policy window:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          32,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "In the Principal AWS field, delete the existing AWS value, and enter the Zscaler Connector User ARN (the number you copied from the Zscaler Admin Console).",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          73,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the External ID field, enter the External ID (copied from the Zscaler Admin Console).",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Effect\": \"Allow\", \"Principal\": { \"AWS\": \"arn:aws:iam::0112847471234:user/Zscaler_SaaS_Connector\" }, \"Action\": \"sts:AssumeRole\", \"Condition\": { \"StringEquals\": { \"sts:ExternalId\": \"l9UktUQAEPZ7VJVz\" } } } ] }",
+      "depth": 2
+    },
+    {
+      "item": "Click Update Policy.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "The Summary page appears for the role you just created appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "On the Summary page, copy the Role ARN. You must enter it into the Zscaler Admin Console when you register the SaaS application.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          30,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "d. Register the SaaS application.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, complete the register the SaaS Application process by adding the account using the IAM roles you configured in AWS to register the SaaS application:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "To find the following information, click your account name on the top right-hand corner of your AWS page.",
+      "depth": 2
+    },
+    {
+      "item": "AWS Account ID: Enter your AWS Account ID.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "IAM Role ARN: Enter the role you just created (Role ARN) in step 1.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Configuration Name: Enter a configuration name.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select a region. Your region must match the region your bucket created is in. To find your region, go to the AWS console and look at your Bucket Summary page.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Name for Evidence: Enter the name of the evidence data bucket (e.g., <bucketNamePrefix>-data) that you created in AWS.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Name for Metadata JSON: Enter the name of the metadata bucket (e.g., <bucketNamePrefix>-metadata) that you created in AWS.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "If you are configuring with Workflow Automation, two different buckets were created. One of the buckets is for evidence data and the other bucket is for metadata.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "text": "After onboarding is complete, you can configure your DLP policy rules to use Cloud-to-Cloud Incident Forwarding. To learn more, see:"
+    },
+    {
+      "item": "Configuring DLP Policy Rules with Content Inspection",
+      "depth": 0
+    },
+    {
+      "item": "Configuring DLP Policy Rules without Content Inspection",
+      "depth": 0
+    },
+    {
+      "item": "Configuring DLP Policy Rules with Evaluate All Rules Mode Enabled",
+      "depth": 0
+    },
+    {
+      "item": "Configuring Endpoint DLP Policy Rules",
+      "depth": 0
+    },
+    {
+      "item": "Configuring Outbound Email Policy Rules",
+      "depth": 0
+    },
+    {
+      "item": "Configuring the Data at Rest Scanning DLP Policy with Content Inspection",
+      "depth": 0
+    },
+    {
+      "item": "Configuring the Data at Rest Scanning DLP Policy without Content Inspection",
+      "depth": 0
+    },
+    {
+      "item": "Configuring the Data at Rest Scanning Malware Detection Policy",
+      "depth": 0
+    }
+  ]
+}

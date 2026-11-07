@@ -1,0 +1,378 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Tags and Tag Groups with Policy Rules Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-tags-and-tag-groups-policy-rules-using-api",
+    "node": "1541752",
+    "revision": "3227790",
+    "updated": "2026-08-04",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information for managing ZPA tags and tag groups for poicy rules using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Calls",
+      "level": 1
+    },
+    {
+      "text": "Before you manage tags and tag groups within policy rules, you must get the following required details:"
+    },
+    {
+      "item": "Tag key IDs and tag value IDs. To learn more, see Configuring Tag Key-Value Pairs Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Tag group IDs. To learn more, see Configuring Tag Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Policy set ID. To learn more, see Configuring Access Policies Using API.",
+      "depth": 0
+    },
+    {
+      "heading": "Adding a Policy Rule with Tags and Tag Groups",
+      "level": 1
+    },
+    {
+      "text": "To add a policy rule with tags and tag groups for the specified customer:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained on the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the policy rule.",
+      "depth": 1
+    },
+    {
+      "item": "action: The action of the rule for the policy type. The supported enum values are:",
+      "depth": 1
+    },
+    {
+      "item": "ALLOW: Denotes the Allow Access action when configuring an access policy.",
+      "depth": 2
+    },
+    {
+      "item": "DENY: Denotes the Block Access action when configuring an access policy.",
+      "depth": 2
+    },
+    {
+      "item": "INTERCEPT: Denotes the Forward to ZPA action when configuring a client forwarding policy.",
+      "depth": 2
+    },
+    {
+      "item": "INTERCEPT_ACCESIBLE: Denotes the Only Forward Allowed Applications action when configuring a client forwarding policy.",
+      "depth": 2
+    },
+    {
+      "item": "BYPASS: Denotes the Bypass ZPA action when configuring a client forwarding policy.",
+      "depth": 2
+    },
+    {
+      "item": "RE_AUTH: Denotes the action when configuring a timeout policy.",
+      "depth": 2
+    },
+    {
+      "item": "conditions: The set of conditions for the policy rule. Each set must have an operator and a list of operands.",
+      "depth": 1
+    },
+    {
+      "item": "The entire set of conditions must be included for any add, update, or delete actions.",
+      "depth": 1
+    },
+    {
+      "item": "conditions[].operands[].objectType: The policy criteria. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "ENTITY_TAG_VAL: The unique identifier of the tag value. To learn more, see Configuring Tag Key-Value Pairs Using API.",
+      "depth": 2
+    },
+    {
+      "item": "ENTITY_TAG_GRP: The unique identifier of the tag group. To learn more, see Configuring Tag Groups Using API.",
+      "depth": 2
+    },
+    {
+      "item": "conditions[].operands[].lhs: The key for the object type.",
+      "depth": 1
+    },
+    {
+      "item": "conditions[].operands[].rhs: The value for the given object type. It's value depends on the key.",
+      "depth": 1
+    },
+    {
+      "item": "operator: The operation type. The supported values are AND or OR.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"<policy rule name>\", \"description\": \"<policy rule description>\", \"action\": \"<ALLOW or DENY>\", \"conditions\": [ { \"operator\": \"<AND or OR>\", \"operands\": [ { \"objectType\": \"<object type>\", \"lhs\": \"<LHS value>\", \"rhs\": \"<RHS value>\" }, { \"objectType\": \"<object type>\", \"rhs\": \"<RHS value>\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"tag-based-access\", \"description\": \"Allow access based on tag value and tag group\", \"action\": \"ALLOW\", \"conditions\": [ { \"operator\": \"AND\", \"operands\": [ { \"objectType\": \"ENTITY_TAG_VAL\", \"lhs\": \"145260601092866401\", \"rhs\": \"145260601092866402\" }, { \"objectType\": \"ENTITY_TAG_GRP\", \"rhs\": \"145260601092866500\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"145260601092866900\", \"modifiedTime\": \"1705617600\", \"creationTime\": \"1705617600\", \"modifiedBy\": \"145260601092866482\", \"name\": \"tag-based-access\", \"action\": \"ALLOW\", \"policySetId\": \"145256180497776773\", \"conditions\": [ { \"id\": \"145260601092866901\", \"operator\": \"AND\", \"operands\": [ { \"id\": \"145260601092866902\", \"objectType\": \"ENTITY_TAG_VAL\", \"lhs\": \"145260601092866401\", \"rhs\": \"145260601092866402\", \"name\": \"us-east-1\" }, { \"id\": \"145260601092866903\", \"objectType\": \"ENTITY_TAG_GRP\", \"rhs\": \"145260601092866500\", \"name\": \"Prod Access\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Policy Rule with Tags and Tag Groups",
+      "level": 1
+    },
+    {
+      "text": "To update a policy rule with tags and tag groups:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "policySetId: The unique identifier of the global policy set. To learn more, see Configuring Access Policies Using API.",
+      "depth": 1
+    },
+    {
+      "item": "ruleId: The unique identifier of the policy rule you want to update. To learn more, see Configuring Access Policies Using API.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained on the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/policySet/72057615512764474/rule/72057615512764645?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the policy rule.",
+      "depth": 1
+    },
+    {
+      "item": "action: The action of the rule for the policy type. The supported enum values are:",
+      "depth": 1
+    },
+    {
+      "item": "ALLOW: Denotes the Allow Access action when configuring an access policy.",
+      "depth": 2
+    },
+    {
+      "item": "DENY: Denotes the Block Access action when configuring an access policy.",
+      "depth": 2
+    },
+    {
+      "item": "INTERCEPT: Denotes the Forward to ZPA action when configuring a client forwarding policy.",
+      "depth": 2
+    },
+    {
+      "item": "INTERCEPT_ACCESIBLE: Denotes the Only Forward Allowed Applications action when configuring a client forwarding policy.",
+      "depth": 2
+    },
+    {
+      "item": "BYPASS: Denotes the Bypass ZPA action when configuring a client forwarding policy.",
+      "depth": 2
+    },
+    {
+      "item": "RE_AUTH: Denotes the action when configuring a timeout policy.",
+      "depth": 2
+    },
+    {
+      "item": "conditions: The set of conditions for the policy rule. Each set must have an operator and a list of operands.",
+      "depth": 1
+    },
+    {
+      "item": "The entire set of conditions must be included for any add, update, or delete actions.",
+      "depth": 1
+    },
+    {
+      "item": "conditions[].operands[].objectType: The policy criteria. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "ENTITY_TAG_VAL: The unique identifier of the tag value. To learn more, see Configuring Tag Key-Value Pairs Using API.",
+      "depth": 2
+    },
+    {
+      "item": "ENTITY_TAG_GRP: The unique identifier of the tag group. To learn more, see Configuring Tag Groups Using API.",
+      "depth": 2
+    },
+    {
+      "item": "conditions[].operands[].lhs: The key for the object type.",
+      "depth": 1
+    },
+    {
+      "item": "conditions[].operands[].rhs: The value for the given object type. It's value depends on the key.",
+      "depth": 1
+    },
+    {
+      "item": "operator: The operation type. The supported values are AND or OR.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"<policy rule name>\", \"description\": \"<policy rule description>\", \"action\": \"<ALLOW or DENY>\", \"conditions\": [ { \"operator\": \"<AND or OR>\", \"operands\": [ { \"objectType\": \"<object type>\", \"lhs\": \"<LHS value>\", \"rhs\": \"<RHS value>\" }, { \"objectType\": \"<object type>\", \"rhs\": \"<RHS value>\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"tag-based-access\", \"description\": \"Allow access based on tag value and tag group\", \"action\": \"ALLOW\", \"conditions\": [ { \"operator\": \"AND\", \"operands\": [ { \"objectType\": \"ENTITY_TAG_VAL\", \"lhs\": \"145260601092866401\", \"rhs\": \"145260601092866402\" }, { \"objectType\": \"ENTITY_TAG_GRP\", \"rhs\": \"145260601092866500\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the tag and tag group policy rule use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "The name of the policy rule.",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "The description of the policy rule.",
+          "No",
+          "String"
+        ],
+        [
+          "action",
+          "The rule action.",
+          "Yes",
+          "String Supported values: ALLOW: Denotes the Allow Access action when configuring an access policy. DENY: Denotes the Block Access action when configuring an access policy. INTERCEPT: Denotes the Forward to ZPA action when configuring a client forwarding policy. INTERCEPT_ACCESIBLE: Denotes the Only Forward Allowed Applications action when configuring a client forwarding policy. BYPASS: Denotes the Bypass ZPA action when configuring a client forwarding policy. RE_AUTH: Denotes the action when configuring a timeout policy."
+        ],
+        [
+          "conditions",
+          "The set of conditions for the policy rule. Each set has an operator and a list of operands.",
+          "No",
+          "Array of operands"
+        ],
+        [
+          "conditions[].operands[].objectType",
+          "The policy criteria.",
+          "Yes (per operand)",
+          "Enum Supported values: ENTITY_TAG_VAL: The unique identifier of the tag value. To learn more, see Configuring Tag Key-Value Pairs Using API. ENTITY_TAG_GRP: The unique identifier of the tag group. To learn more, see Configuring Tag Groups Using API."
+        ],
+        [
+          "conditions[].operands[].lhs",
+          "The key for the object type. To learn more, see Configuring Access Policies Using API.",
+          "Conditional",
+          "String (e.g., \"id\") For ENTITY_TAG_VAL, provide the tag key ID. For example: \"operands\": [ { \"objectType\": \"ENTITY_TAG_VAL\", \"lhs\": \"145260601092866401\", \"rhs\": \"145260601092866402\" },"
+        ],
+        [
+          "conditions[].operands[].rhs",
+          "The value for the given object type. It's value depends on the key. To learn more, see Configuring Access Policies Using API.",
+          "Yes (per operand)",
+          "String For ENTITY_TAG_VAL, provide the tag value ID. For example: \"operands\": [ { \"objectType\": \"ENTITY_TAG_VAL\", \"lhs\": \"145260601092866401\", \"rhs\": \"145260601092866402\" }, For ENTITY_TAG_GRP, provide the tag group ID. For example: \"operands\": [ { \"objectType\": \"ENTITY_TAG_VAL\", \"lhs\": \"145260601092866401\", \"rhs\": \"145260601092866402\" }, { \"objectType\": \"ENTITY_TAG_GRP\", \"rhs\": \"145260601092866500\" } ]"
+        ],
+        [
+          "operator",
+          "The operation type.",
+          "",
+          "Supported values: AND: The AND logical operator. OR: The OR logical operator."
+        ]
+      ]
+    }
+  ]
+}

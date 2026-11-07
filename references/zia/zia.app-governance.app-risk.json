@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "id": "zia.app-governance.app-risk",
+  "title": "An app's status, risk score, findings and classification in 3rd-Party App Governance (the App Panel)",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance.inventory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance.remediation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance.policies"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{app-status}} {{status-deleted-per-platform}} The threshold in that definition is not stated {{gap:deleted-threshold}}. {{status-disabled-per-platform}} The App Panel is part of the portal in [[zia.app-governance]]."
+    },
+    {
+      "label": "Risk score.",
+      "text": "{{risk-score-basis}} {{risk-score-components}} {{risk-score-override}} The scale and the way components combine are open {{gap:risk-score-scale}}. {{zscaler-verified}}"
+    },
+    {
+      "label": "Findings.",
+      "text": "{{findings}}"
+    },
+    {
+      "label": "Classification.",
+      "text": "{{classification}} The dashboard names one value differently {{divergence:classification-reviewing}}. Policies can assign it: [[zia.app-governance.policies]]."
+    },
+    {
+      "label": "The App Panel.",
+      "text": "{{app-panel-tabs}} {{consent-types}}"
+    }
+  ],
+  "claims": {
+    "app-status": {
+      "statement": "An app's status is Enabled (enabled on the SaaS platform with enabled users assigned), Deleted (differs for each platform), Disabled (differs for each platform) or Not Installed (added to the inventory but not present on the SaaS platform admin console).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-app-panel.json",
+          "quotes": [
+            "Enabled: The app is enabled on your Software as a Service (SaaS) platform and has enabled users assigned to it.",
+            "Deleted: This status differs for each platform.",
+            "Disabled: This status differs for each platform.",
+            "Not Installed: The app was added to your inventory, but does not exist on your SaaS platform admin console."
+          ]
+        }
+      ]
+    },
+    "status-deleted-per-platform": {
+      "statement": "Deleted means, per platform, Microsoft Azure: deleted from the admin console; Google Workspace: no longer on the platform and user tokens revoked; Slack: the last uninstallation date is later than the last consent date or no users use the app; Okta, GitHub and Salesforce: no entity received from the platform API after a certain threshold; Atlassian: not applicable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-app-panel.json",
+          "quotes": [
+            "Microsoft Azure: The app is deleted from the admin console.",
+            "Google Workspace: The app no longer exists on your SaaS platform and the user tokens are revoked.",
+            "Slack: The app is deleted if the last uninstallation date is later than the last consent date, or if there are no users using the app.",
+            "Okta: The app is deleted if no entity is received from the Okta API after a certain threshold.",
+            "GitHub: The app is deleted if no entity is received from the GitHub API after a certain threshold.",
+            "Salesforce: The app is deleted if no entity is received from the Salesforce API after a certain threshold."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-app-panel.json",
+          "quotes": [
+            "Atlassian: Not applicable."
+          ],
+          "after": "Salesforce: The app is deleted if no entity is received from the Salesforce API after a certain threshold."
+        }
+      ]
+    },
+    "status-disabled-per-platform": {
+      "statement": "Disabled means, per platform, Microsoft Azure: the service principal is disabled; Google Workspace: the users granted access are no longer active; Okta: the core apps are inactive; GitHub: the user account is suspended; Slack, Salesforce and Atlassian: not applicable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-app-panel.json",
+          "quotes": [
+            "Microsoft Azure: The app is disabled if the service principal is disabled.",
+            "Google Workspace: The app is disabled if the users who are granted access are no longer active users.",
+            "Okta: The core apps are disabled if they are inactive.",
+            "GitHub: The app is disabled if the user account is suspended.",
+            "Slack: Not applicable.",
+            "Salesforce: Not applicable."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-app-panel.json",
+          "quotes": [
+            "Atlassian: Not applicable."
+          ],
+          "after": "Salesforce: Not applicable."
+        }
+      ]
+    },
+    "zscaler-verified": {
+      "statement": "A Zscaler-verified app can still be malicious or pose a risk due to a compromised publisher, vulnerabilities and overprivileged permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-app-panel.json",
+          "quotes": [
+            "A Zscaler-verified app can still be malicious or pose a risk due to a compromised publisher, vulnerabilities, and overprivileged permissions."
+          ]
+        }
+      ]
+    },
+    "risk-score-basis": {
+      "statement": "The risk score is automatically calculated by the system based on the compounded risk the app poses, app attributes, findings and blast radius, and dismissing or resolving findings can influence it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-updating-app-risk-score.json",
+          "quotes": [
+            "It is automatically calculated by the system based on the compounded risk the app poses, app attributes, findings, and blast radius.",
+            "You can also influence the risk score by dismissing or resolving findings."
+          ]
+        }
+      ]
+    },
+    "risk-score-components": {
+      "statement": "The App Panel's table of components used to calculate each app's risk score gives Findings, Permissions, Non-Contextual Findings and Non-Contextual Permissions values of 0.7, 0.3, 0.75 and 0.25 for Google Workspace and Microsoft; 0.7, 0.3, 0.7 and 0.3 for GitHub, Salesforce, ServiceNow, Box, Zoom and Webex; 0.6, 0.4, 0.75 and 0.25 for Slack and Atlassian; 0.6, 0.4, 0.85 and 0.15 for Chrome Extensions; and 0.6, 0.4, 0.5 and 0.5 for Okta.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-app-panel.json",
+          "quotes": [
+            "Refer to the following table for the components used to calculate each app's risk score.",
+            "| Application | Findings | Permissions | Non-Contextual Findings | Non-Contextual Permissions |",
+            "| Google Workspace | 0.7 | 0.3 | 0.75 | 0.25 |",
+            "| GitHub | 0.7 | 0.3 | 0.7 | 0.3 |",
+            "| Microsoft | 0.7 | 0.3 | 0.75 | 0.25 |",
+            "| Slack | 0.6 | 0.4 | 0.75 | 0.25 |",
+            "| Atlassian | 0.6 | 0.4 | 0.75 | 0.25 |",
+            "| Chrome Extensions | 0.6 | 0.4 | 0.85 | 0.15 |",
+            "| Okta | 0.6 | 0.4 | 0.5 | 0.5 |",
+            "| Salesforce | 0.7 | 0.3 | 0.7 | 0.3 |",
+            "| ServiceNow | 0.7 | 0.3 | 0.7 | 0.3 |",
+            "| Box | 0.7 | 0.3 | 0.7 | 0.3 |",
+            "| Zoom | 0.7 | 0.3 | 0.7 | 0.3 |",
+            "| Webex | 0.7 | 0.3 | 0.7 | 0.3 |"
+          ]
+        }
+      ]
+    },
+    "risk-score-override": {
+      "statement": "A risk score defined by an admin overrides any future system recalculations, and the admin can revert to the default score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-updating-app-risk-score.json",
+          "quotes": [
+            "The defined risk score will override any future system recalculations. You can revert to the default score."
+          ]
+        }
+      ]
+    },
+    "findings": {
+      "statement": "Each finding has a short background, recommendation, MITRE mappings and a severity level that impacts the app risk score. A finding's status is Unattended (the default for any new finding), Dismissed or Resolved. Updating the status recalculates the app risk score and is recorded as an activity on the Activities tab and in the audit log, and setting the status back to Unattended reverts it to the default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-updating-app-finding-status.json",
+          "quotes": [
+            "Each finding has a short background, recommendation, MITRE mappings, and a severity level that impacts the app risk score.",
+            "Unattended: The finding has yet to be dismissed or resolved. This is the default status of any new finding.",
+            "Dismissed: The finding has been dismissed.",
+            "Resolved: The recommended action is taken on the app and the finding has been resolved.",
+            "The finding status is updated successfully, and the app risk score is recalculated and updated.",
+            "The update of the app finding status is recorded as an activity on the Activities tab and the audit log.",
+            "You can revert the finding to its default status by setting the status back to Unattended."
+          ]
+        }
+      ]
+    },
+    "classification": {
+      "statement": "The Classifying Apps page lists Unclassified (the default state of any new application), Sanctioned, Reviewing (under investigation) and Unsanctioned. The classification stays assigned through the app's lifecycle, for example if the app is revoked and a user reinstalls it, and stays the same unless an administrator changes it, which is recorded as an activity. Policies can automatically assign a classification to apps that meet their criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-classifying-apps.json",
+          "quotes": [
+            "Unclassified: The app does not have a specific classification. This is the default state of any new application.",
+            "Sanctioned: The app is sanctioned for use.",
+            "Reviewing: The app is under investigation.",
+            "Unsanctioned: The app is not sanctioned for use.",
+            "The classification remains assigned to the app throughout its lifecycle (e.g., if you revoke the app, and then a user re-installs it.) The classification remains the same unless an administrator changes it, which is recorded as an activity.",
+            "You can also automatically assign a classification to apps that meet the criteria of a policy."
+          ]
+        }
+      ]
+    },
+    "consent-types": {
+      "statement": "The App Panel's Details tab describes consent types: Domain wide (granted tenant-wide by the admin) and Individual (granted per user), both supported on Google, and Delegated (the app acts on behalf of the user) and Application (the app acts on its own behalf), both supported on Microsoft.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-app-panel.json",
+          "quotes": [
+            "Domain wide: Application permissions are granted tenant-wide by the admin, allowing all users to access the application unless otherwise restricted. This is supported on Google.",
+            "Individual: Application permissions are granted per user (by the user). This is supported on Google.",
+            "Delegated: Application permissions are an intersection between what the user is allowed to do and what the application is allowed to do. The app acts on behalf of the user. This is supported on Microsoft.",
+            "Application: Application permissions are not limited by what a particular user can do. The app acts on its own behalf. This is supported on Microsoft."
+          ]
+        }
+      ]
+    },
+    "app-panel-tabs": {
+      "statement": "The App Panel shows a blast radius (users with access, accessible services such as Gmail, and the access type such as Broad Data Access), usage details (who first authorized the app and who performed the last activity), a breakdown of the API calls the app generates, a VirusTotal link, activities filterable by User Activity, Security Event, Findings and Threat Insights, and forensics information (seen IP addresses, redirect and login URLs, and an image of the consent screen). Adding notes needs user or admin permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-app-panel.json",
+          "quotes": [
+            "View a blast radius, showing the users who have access to the app, the services (e.g., Gmail) accessible by the app, and the access type (e.g., Broad Data Access).",
+            "View Usage details, including who first authorized the app and who performed the last activity in the app.",
+            "View a breakdown of the API calls generated by the app.",
+            "Click the VirusTotal link for further security analysis.",
+            "Filter your search by the following activity types: User Activity, Security Event, Findings, and Threat Insights.",
+            "View forensics information, including seen IP addresses, redirect and login URLs, and an image of the app's consent screen.",
+            "You must have user or admin permissions to add notes to the app."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "classification-reviewing": {
+      "summary": "The Classifying Apps page names the value Reviewing, and the dashboard page describes the classification breakdown with the word reviewed.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-classifying-apps.json",
+            "quotes": [
+              "Reviewing: The app is under investigation."
+            ]
+          },
+          "says": "The classification value is Reviewing."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-3rd-party-app-governance-dashboard.json",
+            "quotes": [
+              "Apps by Classification: Shows a breakdown of apps by whether they are unclassified, reviewed, sanctioned, or unsanctioned."
+            ]
+          },
+          "says": "The dashboard's Apps by Classification breakdown lists unclassified, reviewed, sanctioned or unsanctioned."
+        }
+      ],
+      "impact": "Neither page says whether Reviewing and reviewed are the same value, so a filter or policy condition on this value should be checked against the console wording."
+    }
+  },
+  "gaps": {
+    "risk-score-scale": {
+      "kind": "semantic",
+      "title": "The risk score scale, the high threshold and how the components combine",
+      "status": "open",
+      "detail": "The pages do not give the risk score range, the threshold behind the risk-score=high example view, or how the Findings, Permissions and Non-Contextual values in the component table combine.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "deleted-threshold": {
+      "kind": "semantic",
+      "title": "The threshold after which Okta, GitHub and Salesforce apps are Deleted",
+      "status": "open",
+      "detail": "The App Panel says the app is deleted if no entity is received from the platform API after a certain threshold, and does not state the threshold.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

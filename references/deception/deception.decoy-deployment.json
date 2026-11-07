@@ -1,0 +1,440 @@
+{
+  "schema_version": 1,
+  "id": "deception.decoy-deployment",
+  "title": "Deploying and stopping decoys, the Deploy Strategy wizard, and Deceive Settings (blocklists, hashed passwords, hostname resolution, decoy groups)",
+  "related": [
+    { "rel": "see-also", "to": "deception.overview" },
+    { "rel": "see-also", "to": "deception.network-decoys" },
+    { "rel": "see-also", "to": "deception.ti-decoys" },
+    { "rel": "see-also", "to": "deception.gen-ai-decoys" }
+  ],
+  "prose": [
+    {
+      "text": "{{strategy-what}} {{strategy-list-columns}}"
+    },
+    {
+      "label": "Deploy Strategy wizard.",
+      "text": "{{strategy-prereqs}} {{strategy-defaults}} {{strategy-decoy-limit}} {{strategy-create-vs-deploy}} {{strategy-real-app}} {{strategy-name-default}} {{strategy-ipv6}}"
+    },
+    {
+      "label": "Starting and stopping.",
+      "text": "{{health-status}} {{deceive-summary-page-actions}} {{stop-before-change}} {{stop-before-edit-delete}} {{deployment-logs}}"
+    },
+    {
+      "label": "Editing a deployed strategy.",
+      "text": "{{deployed-strategy-edit}}"
+    },
+    {
+      "label": "Deceive Settings.",
+      "text": "{{settings-scope}} {{blocklist-effect}} {{blocklist-fields}} {{blocklist-ti}} {{blocklist-apply}} {{blocklist-delete}} {{hash-passwords}} {{hostname-resolution}} {{decoy-groups}}"
+    },
+    {
+      "label": "Related.",
+      "text": "The decoy types are in [[deception.network-decoys]], [[deception.ti-decoys]] and [[deception.gen-ai-decoys]]; the hub is [[deception.overview]]."
+    }
+  ],
+  "claims": {
+    "deployed-strategy-edit": {
+      "statement": "Editing a deployed strategy reopens the Deploy Network Strategy window, where each tab is modified and Next is clicked, and Create Decoys or Create Decoys & Deploy is clicked; deleting one needs a confirmation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-deployed-strategy.json",
+          "quotes": [
+            "In the Deploy Network Strategy window, modify the required fields on each tab, and then click Next.",
+            "Click Create Decoys or Create Decoys & Deploy.",
+            "In the confirmation window, click OK."
+          ]
+        }
+      ]
+    },
+    "stop-before-edit-delete": {
+      "statement": "The edit and delete steps for a network decoy and for a TI decoy include Stop the decoys and Start the decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-and-deleting-network-decoy.json",
+          "quotes": [
+            "Stop the decoys."
+          ],
+          "after": "# Editing a Network Decoy"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-and-deleting-network-decoy.json",
+          "quotes": [
+            "Stop the decoys."
+          ],
+          "after": "# Deleting a Network Decoy"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-and-deleting-network-decoy.json",
+          "quotes": [
+            "Start the decoys."
+          ],
+          "after": "# Editing a Network Decoy"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-and-deleting-network-decoy.json",
+          "quotes": [
+            "Start the decoys."
+          ],
+          "after": "# Deleting a Network Decoy"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-and-deleting-threat-intelligence-decoy.json",
+          "quotes": [
+            "Stop the decoys."
+          ],
+          "after": "# Editing a Threat Intelligence Decoy"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-and-deleting-threat-intelligence-decoy.json",
+          "quotes": [
+            "Stop the decoys."
+          ],
+          "after": "# Deleting a Threat Intelligence Decoy"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-and-deleting-threat-intelligence-decoy.json",
+          "quotes": [
+            "Start the decoys."
+          ],
+          "after": "# Editing a Threat Intelligence Decoy"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-and-deleting-threat-intelligence-decoy.json",
+          "quotes": [
+            "Start the decoys."
+          ],
+          "after": "# Deleting a Threat Intelligence Decoy"
+        }
+      ]
+    },
+    "deceive-summary-page-actions": {
+      "statement": "The Deceive Summary page (Deceive > Summary) shows all decoys created and deployed in the Admin Portal, the decoy deployment status percentage and the deployment health of Decoy Connectors and service back ends, and lets an admin start or stop decoys and view deployment logs to troubleshoot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-deceive.json",
+          "quotes": [
+            "The Deceive Summary page (Deceive > Summary) displays the details of all the decoys that are deployed in the Zscaler Deception Admin Portal.",
+            "View the summary of all the decoys that are created and deployed in the Deception Admin Portal.",
+            "View the decoy deployment status percentage.",
+            "View the deployment health status of the Decoy Connectors and service back ends.",
+            "Start or stop decoys.",
+            "View and analyze deployment logs to troubleshoot deployment issues."
+          ]
+        }
+      ]
+    },
+    "health-status": {
+      "statement": "The Deceive Summary page reports deployment health as Ready for deployment (all Decoy Connectors and service back ends up and running) or Action Required (some or all down).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-and-managing-decoy-deployment.json",
+          "quotes": [
+            "Ready for deployment: All the Decoy Connectors and service back ends are up and running.",
+            "Action Required: Some or all Decoy Connectors and service back ends are down and need your attention."
+          ]
+        }
+      ]
+    },
+    "stop-before-change": {
+      "statement": "Before configuring a network (Internal or Zero Trust Network) or Threat Intelligence decoy, all active decoys must be stopped, changed, and restarted for the configuration to take effect; stopping and starting affects only network and TI decoys, not landmine or AD decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-and-managing-decoy-deployment.json",
+          "quotes": [
+            "Before you configure a network (Internal and Zero Trust Network) or Threat Intelligence (TI) decoy, you must stop all active decoys, make the required changes, and then restart the decoys for the configurations to take effect.",
+            "Starting and stopping decoys impacts network and TI decoys only. Other decoys such as landmine, AD, etc. are not impacted."
+          ]
+        }
+      ]
+    },
+    "deployment-logs": {
+      "statement": "Deployment logs show red text for deployment issues and can be filtered to failed entries only with Show Only Failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-and-managing-decoy-deployment.json",
+          "quotes": [
+            "The Deployment Logs window appears. The red text indicates deployment issues.",
+            "Click Show Only Failed to view only the failed deployment log details."
+          ]
+        }
+      ]
+    },
+    "strategy-what": {
+      "statement": "A deployed strategy (single or combined) builds an environment in one click and can be deployed using Internal or Zero Trust Network (ZTN) decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-deploy-strategy.json",
+          "quotes": [
+            "You can leverage single or combined Deception strategies to build and deploy environments with a single click. You can choose to deploy these strategies using Internal or Zero Trust Network (ZTN) decoys."
+          ]
+        }
+      ]
+    },
+    "strategy-list-columns": {
+      "statement": "The Deploy Strategy page lists each deployed strategy with its Name (the deployment name), Strategy (names of strategies deployed) and Summary (type and total number of decoys created and deployed).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-deploy-strategy.json",
+          "quotes": [
+            "Name: The deployment name.",
+            "Strategy: The name of strategies that you have deployed.",
+            "Summary: The type and total number of decoys that are created and deployed."
+          ]
+        }
+      ]
+    },
+    "strategy-prereqs": {
+      "statement": "Deploying a strategy requires free IP addresses for trunked VLANs or subnets, and, for Internal decoys only, VLANs or subnets trunked or passed through the Decoy Connector's virtual NICs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-strategy.json",
+          "quotes": [
+            "Configure VLANs or subnets for placing the decoys. The VLANs or subnets must be trunked or passed through the virtual NICs of the Decoy Connector.",
+            "This prerequisite is applicable to Internal decoys only.",
+            "Have free IP addresses for trunked VLANs or subnets."
+          ]
+        }
+      ]
+    },
+    "strategy-defaults": {
+      "statement": "In the Deploy Network Strategy wizard the Default Automatic Decoys strategy is selected by default, and the landmine policy is enabled by default when Private Access decoys are selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-strategy.json",
+          "quotes": [
+            "The Default Automatic Decoys strategy is selected by default.",
+            "Landmine policy is enabled by default if you have selected Private Access decoys."
+          ]
+        }
+      ]
+    },
+    "strategy-decoy-limit": {
+      "statement": "The Set Decoy Limit control scales the decoy counts of the selected strategy by a multiple; in the vendor's example a strategy with 1 Network, 2 TI and 2 AD decoys scaled by 2 yields 2 Network, 4 TI and 4 AD decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-strategy.json",
+          "quotes": [
+            "The Set Decoy Limit displays the total number of decoys you can create for the selected strategy.",
+            "For example, if the selected strategy has 1 Network, 2 TI, and 2 AD decoys, click the up arrow to increase the count by multiples of 2. As a result, 2 Network, 4 TI, and 4 AD decoys are created."
+          ]
+        }
+      ]
+    },
+    "strategy-create-vs-deploy": {
+      "statement": "Create Decoys & Deploy creates decoys and deploys them automatically and is for when no decoys are deployed or all active decoys are stopped; Create Decoys creates them to deploy later, and Start Decoys is then needed for the configuration to take effect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-strategy.json",
+          "quotes": [
+            "Click Create Decoys & Deploy to create decoys and automatically deploy them. Use this option if there are no decoys deployed in the Deception Admin Portal, or all the active decoys are stopped.",
+            "you can click Create Decoys to create new decoys and deploy them later.",
+            "Click Start Decoys for the configurations to take effect."
+          ]
+        }
+      ]
+    },
+    "strategy-real-app": {
+      "statement": "For Private Access decoys in a strategy, Enable Real App adds and deploys decoys on unused ports of a real or production Private Access application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-strategy.json",
+          "quotes": [
+            "Enable Real App if you want to add and deploy Private Access decoys on unused ports of a real or production Private Access application segment."
+          ]
+        }
+      ]
+    },
+    "strategy-name-default": {
+      "statement": "A deployed strategy's name is saved by default as '<Strategy name> <Date and time>'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-strategy.json",
+          "quotes": [
+            "the network strategy name is saved with the default naming convention (<Strategy name> <Date and time>)."
+          ]
+        }
+      ]
+    },
+    "strategy-ipv6": {
+      "statement": "In a strategy's Network Decoys tab, IPv6 can be configured only if an IPv6 subnet is selected in Network Segment/Subnet; the IPv6 field is applicable to Internal decoys only and does not appear for a Private Access decoy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-strategy.json",
+          "quotes": [
+            "You can only configure IPv6 if you select an IPv6 subnet in the Network Segment/Subnet field.",
+            "This field is applicable to Internal decoys only and doesn't appear if the decoy type is a Private Access decoy."
+          ],
+          "after": "IPv6: Enable the toggle"
+        }
+      ]
+    },
+    "settings-scope": {
+      "statement": "Deceive Settings covers a blocklist firewall rule, SHA256 storage of adversary passwords, resolution of adversaries' hostnames and NetBIOS names, and network decoy groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-deceive-settings.json",
+          "quotes": [
+            "The Deceive Settings page allows you to create a firewall rule to blocklist IP addresses from accessing decoys, store credentials submitted by adversaries as SHA256 hashes, resolve hostnames and NetBIOS names of the adversaries, and create decoy groups to logically organize network and threat intelligence decoys.",
+            "Create and manage network decoy groups."
+          ]
+        }
+      ]
+    },
+    "blocklist-effect": {
+      "statement": "Blocklisted source traffic to the specified decoys and ports is dropped and not processed or stored, so it appears nothing is running on the destination port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-blocklist.json",
+          "quotes": [
+            "Traffic from blocklisted IP addresses to the specified destination decoys and ports are dropped and not processed or stored in Zscaler Deception. For the blocklisted systems, it appears as if nothing is running at the destination port."
+          ]
+        }
+      ]
+    },
+    "blocklist-fields": {
+      "statement": "A blocklist rule takes source IPs or CIDR blocks, a destination decoy IP (blank applies it to all decoy IPs on the selected Decoy Connector), ports separated by commas, and a Decoy Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-blocklist.json",
+          "quotes": [
+            "Source IPs: Enter a list of source IP addresses or CIDR blocks to prevent accessing the decoys.",
+            "If the Destination IP field is blank, the blocklist rule is applied to all decoy IP addresses on the selected Decoy Connector.",
+            "You can separate the numbers with a comma.",
+            "Destination Ports: Enter a single or multiple port numbers."
+          ],
+          "after": "# Creating a Blocklist"
+        }
+      ]
+    },
+    "blocklist-ti": {
+      "statement": "A blocklist rule applied to a TI decoy uses 10.10.10.10 as the destination IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-blocklist.json",
+          "quotes": [
+            "If you are applying the blocklist rule to a Threat Intelligence (TI) decoy, enter 10.10.10.10 as the destination IP address."
+          ]
+        }
+      ]
+    },
+    "blocklist-apply": {
+      "statement": "A blocklist takes effect only after the decoys are started; bulk creation applies one rule across multiple Decoy Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-blocklist.json",
+          "quotes": [
+            "Start the decoys for the configured blocklist to take effect.",
+            "You can also create blocklists in bulk where the blocklist rule is applied to all decoy IP addresses on multiple Decoy Connectors."
+          ]
+        }
+      ]
+    },
+    "blocklist-delete": {
+      "statement": "Blocklists can be deleted individually with the Delete icon, in a selection, or all at once with Delete All.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-blocklist.json",
+          "quotes": [
+            "You can click Delete All to delete all blocklists.",
+            "In the table, locate the blocklist you want to delete, and then click the Delete icon.",
+            "To delete mutiple or all blocklists:"
+          ]
+        }
+      ]
+    },
+    "hash-passwords": {
+      "statement": "By default adversary credentials entered on decoys are usually stored in plain text; enabling Hash Passwords stores them as SHA256 hashes, which shows repeated attempts of the same password without revealing it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-storing-passwords-hashes.json",
+          "quotes": [
+            "By default, the credentials that adversaries use to log in to the decoys are usually stored in a plain text format. However, you can enable the hash password feature to store these passwords as SHA256 hashes.",
+            "This helps you to know if the same password is being attempted multiple times without revealing the actual password."
+          ]
+        }
+      ]
+    },
+    "hostname-resolution": {
+      "statement": "Hostname Resolution Settings resolve adversary hostnames by DNS and/or NetBIOS name, with a preferred method (DNS or NetBIOS) to use if both methods resolve to different results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-hostname-resolution-settings.json",
+          "quotes": [
+            "The Hostname Resolution Settings feature allows you to resolve hostnames (using DNS) and NetBIOS names of the adversaries.",
+            "select the DNS or NetBIOS option from the Preferred Method drop-down menu to resolve hostname using one of the methods.",
+            "You can select the resolution method and the preferred method to use if both methods resolve to different results."
+          ]
+        }
+      ]
+    },
+    "decoy-groups": {
+      "statement": "A network decoy group logically organizes network and TI decoys (for example by business function, geographic region or system type) and categorizes detected alerts along those boundaries; it can be created from Deceive Settings or while creating a network decoy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-network-decoy-group.json",
+          "quotes": [
+            "A network decoy group allows you to logically organize networks and threat intelligence decoys based on function, location, system type, etc. A decoy group categorizes the detected alerts along logical boundaries.",
+            "You can create a network group from the Deceive Settings page or when creating a network decoy."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "id": "zms.analytics",
+  "title": "What the Microsegmentation Data Explorer log pages list: flow logs, aggregations, connection status, telemetry and events",
+  "aliases": [
+    "zms flow logs",
+    "zms event logs",
+    "agent telemetry microsegmentation",
+    "agent connection status logs",
+    "flow log aggregations"
+  ],
+  "related": [
+    {"rel": "see-also", "to": "zms.overview"},
+    {"rel": "see-also", "to": "zms.dashboards"},
+    {"rel": "see-also", "to": "zpa.logs.microsegmentation-flow"},
+    {"rel": "see-also", "to": "zms.agents"}
+  ],
+  "prose": [
+    {"text": "{{time-range-14d}}"},
+    {"label": "Flow Logs.", "text": "{{flow-log-columns}} {{flow-log-count}}"},
+    {"label": "Flow Log Aggregations.", "text": "{{aggregation-page}}"},
+    {"label": "Agent logs.", "text": "{{connection-status-columns}} {{telemetry-columns}}"},
+    {"label": "Event Logs.", "text": "{{event-log-columns}}"},
+    {"label": "Open questions.", "text": "The aggregation interval has no stated value {{gap:aggregation-interval}}. The telemetry CPU unit is garbled in the page {{gap:telemetry-cpu-unit}}. Several field values are not enumerated {{gap:values-not-enumerated}}."},
+    {"label": "Related.", "text": "ZPA log streaming's Microsegmentation record is in [[zpa.logs.microsegmentation-flow]]."}
+  ],
+  "checks": [
+    {
+      "do": "Whether the period asked about is inside the last 14 days these pages filter to.",
+      "uses": ["time-range-14d"]
+    },
+    {
+      "do": "Whether a flow log count above one reflects events combined within the aggregation interval.",
+      "uses": ["flow-log-count", "aggregation-interval"]
+    }
+  ],
+  "claims": {
+    "time-range-14d": {
+      "statement": "The time range filter on the Flow Logs, Agent Connection Status Logs, Agent Telemetry and Event Logs pages, and on Flow Log Aggregations, goes up to the last 14 days.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "zms-about-flow-logs.json", "quotes": ["Filter the time range up to the last 14 days."]},
+        {"source": "zscaler-help", "path": "zms-about-agent-connection-status-logs.json", "quotes": ["Filter the time range up to the last 14 days."]},
+        {"source": "zscaler-help", "path": "zms-about-agent-telemetry.json", "quotes": ["Filter the time range up to the last 14 days."]},
+        {"source": "zscaler-help", "path": "zms-about-event-logs.json", "quotes": ["Filter the time range up to the last 14 days."]},
+        {"source": "zscaler-help", "path": "zms-about-flow-log-aggregations.json", "quotes": ["You can view flows within a specific time period (up to the last 14 days)"]}
+      ]
+    },
+    "flow-log-columns": {
+      "statement": "The Flow Logs page lists Timestamp, Source IP, Destination IP, Destination Port, Protocol, Action (Allow, Block or Sim Block), AppZone Name and Agent ID for each flow log; no filters are applied by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-flow-logs.json",
+          "quotes": [
+            "Timestamp: The date and time of the flow log.",
+            "Protocol: The type of communication of the flow log.",
+            "Source IP: The IP address that initiated the flow log.",
+            "Destination IP: The IP address that received the flow log.",
+            "Destination Port: The port number that received the flow log.",
+            "Action: The policy action: Allow, Block, or Sim Block.",
+            "AppZone Name: The name of the AppZone connected to the flow log.",
+            "Agent ID: The agent ID.",
+            "By default, no filters are applied."
+          ]
+        }
+      ]
+    },
+    "flow-log-count": {
+      "statement": "If two or more matching events occur within the flow log aggregation interval, they are combined into one flow log entry whose count is greater than one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-flow-logs.json",
+          "quotes": [
+            "If two or more matching events occur within the flow log aggregation interval, the system combines these events into a single log entry and shows a count greater than one."
+          ]
+        }
+      ]
+    },
+    "aggregation-page": {
+      "statement": "Flow Log Aggregations filters by AppZone and then by source and destination resource groups, and lists Source, Destination, Destination Port, Protocol (TCP or UDP), Action (Allow, Block, Sim Block), Policy and Count; no filters are applied by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-flow-log-aggregations.json",
+          "quotes": [
+            "filter the flows by AppZone and further by the source and destination resource groups within that AppZone.",
+            "Source: The hostname or IP address of the source resource.",
+            "Destination: The hostname or IP address of the destination resource.",
+            "Destination Port: The destination port.",
+            "Protocol: The protocol, either TCP or UDP.",
+            "Action: The policy action applied to the traffic (e.g., Allow, Block, Sim Block).",
+            "Policy: The name of the policy.",
+            "Count: The number of flows observed.",
+            "By default, no filters are applied."
+          ]
+        }
+      ]
+    },
+    "connection-status-columns": {
+      "statement": "The Agent Connection Status Logs page, meant to help troubleshoot connection issues, lists Date, Status (authentication status), Authentication/Disconnect Time, Agent Name, Agent Controller Name and Agent Public IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-agent-connection-status-logs.json",
+          "quotes": [
+            "The logs displayed on this page can help you troubleshoot connection issues.",
+            "Date: The date the log occurred.",
+            "Agent Name: The name of the agent.",
+            "Status: The authentication status of the log.",
+            "Authentication/Disconnect Time: The time when the agent connection was authenticated or disconnected.",
+            "Agent Controller Name: The name of the agent controller.",
+            "Agent Public IP: The IP address for the agent."
+          ]
+        }
+      ]
+    },
+    "telemetry-columns": {
+      "statement": "The Agent Telemetry page lists, per agent, Timestamp (last usage), Agent CPU Util (%), Agent Memory Util (MB) and Agent ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-agent-telemetry.json",
+          "quotes": [
+            "Timestamp: The date and time of the agent's last usage.",
+            "Agent CPU Util (%): The percentage of CPU in megabytes that the agent used.",
+            "Agent Memory Util (MB) The total memory in megabytes that the agent used.",
+            "Agent ID: The agent ID number."
+          ]
+        }
+      ]
+    },
+    "event-log-columns": {
+      "statement": "The Event Logs page counts Total, High, Medium and Low priority events and lists Timestamp, Event Name, Category, Component Name and Priority (Low, Medium or High).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-event-logs.json",
+          "quotes": [
+            "View the number of Total, High Priority, Medium Priority, and Low Priority event logs.",
+            "Timestamp: The date and time the log occurred.",
+            "Category: The action type of the log.",
+            "Event Name: The title of the log.",
+            "Component Name: The area of Microsegmentation where the log came from.",
+            "Priority: The ranked importance of the log shown in Low, Medium, and High."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "aggregation-interval": {
+      "kind": "semantic",
+      "title": "What the flow log aggregation interval is",
+      "status": "open",
+      "detail": "Flow Logs says matching events within \"the flow log aggregation interval\" are combined into one entry with a count greater than one; the captured articles never give the interval a value.",
+      "resolves_with": ["source-read"]
+    },
+    "telemetry-cpu-unit": {
+      "kind": "semantic",
+      "title": "What unit Agent CPU Util (%) is in",
+      "status": "open",
+      "detail": "The Agent Telemetry article describes \"Agent CPU Util (%)\" as \"The percentage of CPU in megabytes that the agent used\", which mixes percent and megabytes; the captured text does not settle the meaning.",
+      "resolves_with": ["source-read"]
+    },
+    "values-not-enumerated": {
+      "kind": "semantic",
+      "title": "Which values Event Logs and Agent Connection Status Logs can take",
+      "status": "open",
+      "detail": "Event Logs describe Category as \"The action type of the log\" and also have Priority and Component Name, but the captured article lists no categories, component names or event names or codes. The Agent Connection Status Logs Status is \"The authentication status of the log\" with no values listed.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

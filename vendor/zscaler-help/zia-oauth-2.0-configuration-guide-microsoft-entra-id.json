@@ -1,0 +1,1202 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "OAuth 2.0 Configuration Guide for Microsoft Entra ID",
+  "source": {
+    "url": "https://help.zscaler.com/zia/oauth-2.0-configuration-guide-microsoft-entra-id",
+    "node": "1453081",
+    "revision": "3247340",
+    "updated": "2026-09-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The following guide explains how to configure OAuth 2.0 authorization for Internet & SaaS (ZIA) API using Microsoft Entra ID (formerly Azure Active Directory)."
+    },
+    {
+      "text": "Microsoft Entra ID is an identity provider (IdP) that you can use for authentication and authorization. Using OAuth 2.0 with Client Credentials flow in Microsoft Entra ID permits a web client to use its own credentials, instead of impersonating a user. To manage authorization and consent in Microsoft Entra ID, you need to configure both the client and the resource server as applications. Based on this implementation, there is a separate application registration for each of the clients and the resource server (Internet & SaaS API)."
+    },
+    {
+      "text": "OAuth 2.0 authorization is currently supported only for cloud service API."
+    },
+    {
+      "text": "Zscaler and Microsoft are technology partners. To learn more about the Zscaler and Microsoft Entra ID integration, see the Zscaler and Microsoft Entra ID Passwordless Deployment Guide."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure that the following prerequisites are met before you start configuring Microsoft Entra ID as your OAuth 2.0 service for Internet & SaaS API:"
+    },
+    {
+      "item": "You have a subscription to Microsoft Entra ID.",
+      "depth": 0
+    },
+    {
+      "item": "You have an application (i.e., API Client) that needs to send API requests to the cloud service API API.",
+      "depth": 0
+    },
+    {
+      "item": "You have configured the necessary API Roles in the Zscaler Admin Console and assigned appropriate API permissions.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Microsoft Entra ID",
+      "level": 1
+    },
+    {
+      "text": "For each API Role configured in the Zscaler Admin Console, you need to complete the following steps to set up OAuth 2.0 authorization using Microsoft Entra ID."
+    },
+    {
+      "item": "1. Register the Internet & SaaS API client application.",
+      "depth": 0
+    },
+    {
+      "item": "This section covers how to register your Internet & SaaS API client application in Microsoft Entra ID and configure the client credentials.",
+      "depth": 0
+    },
+    {
+      "item": "a. Register the app.",
+      "depth": 1
+    },
+    {
+      "item": "To complete the client application registration process:",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to Microsoft Entra admin center.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Identity > Applications > App registrations.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          29
+        ],
+        [
+          32,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Click New Registration.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Register an application window opens.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Register an application window:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the application that is representative of the Internet & SaaS API Role used (e.g., Internet & SaaS API Client Super Admin).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Supported account types: Ensure that this option is set to the Accounts in this organizational directory only (<tenant> only - Single tenant) value.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          63,
+          119
+        ],
+        [
+          120,
+          141
+        ]
+      ]
+    },
+    {
+      "item": "Click Register.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The application is registered and the application's Overview page is displayed. Copy the Application (client) ID value from the Overview page and save it for later use.",
+      "depth": 2,
+      "strong": [
+        [
+          52,
+          60
+        ],
+        [
+          89,
+          112
+        ],
+        [
+          128,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "b. Configure client credentials.",
+      "depth": 1
+    },
+    {
+      "item": "To configure the credentials for your API client application:",
+      "depth": 1
+    },
+    {
+      "item": "Click Certificates & secrets in the left-side navigation of the app and then click New client secret on the Client secrets tab.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          28
+        ],
+        [
+          83,
+          100
+        ],
+        [
+          108,
+          122
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Add a client secret pane opens.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the Add a client secret pane:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Description: Provide information about the client's secret.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Expires: Select the appropriate expiration time from the drop-down menu.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The client secret value is generated and displayed.",
+      "depth": 2
+    },
+    {
+      "item": "Copy the secret value immediately and save it for later use.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "The client secret value is displayed only once and cannot be retrieved after you navigate away from the page.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "2. Configure the Internet & SaaS API service to expose a web API.",
+      "depth": 0
+    },
+    {
+      "item": "This section covers how to register the Internet & SaaS API service in Microsoft Entra ID and configure the app to expose a web API that is accessible by the client app.",
+      "depth": 0
+    },
+    {
+      "item": "a. Register the app.",
+      "depth": 1
+    },
+    {
+      "item": "To complete the application registration process:",
+      "depth": 1
+    },
+    {
+      "item": "In the Microsoft Entra admin center, go to Identity > Applications > App registrations.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          43,
+          51
+        ],
+        [
+          54,
+          66
+        ],
+        [
+          69,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Click New Registration.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Register an application window opens.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Register an application window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the Internet & SaaS API service, e.g., Internet & SaaS API Web Service.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Supported account types: Ensure that this option is set to the Accounts in this organizational directory only (<tenant> only - Single tenant) value.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          63,
+          119
+        ],
+        [
+          120,
+          141
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Register.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The application is registered and displayed.",
+      "depth": 2
+    },
+    {
+      "item": "b. Add a scope.",
+      "depth": 1
+    },
+    {
+      "item": "To configure the Internet & SaaS API app to expose a web API:",
+      "depth": 1
+    },
+    {
+      "item": "Click Expose an API on the left-side navigation of the app.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click Add next to the Application ID URI and then click Save with the default value that is provided. Copy the Application ID URI and save it for later use.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          22,
+          40
+        ],
+        [
+          56,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Click Add a scope under Scopes defined by this API.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          24,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Add a Scope pane opens.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "In the Add a Scope pane:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Scope name: Enter a relevant scope name (e.g., Internet & SaaS API Client <Internet & SaaS API Role>).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Who can consent?: Choose which users can consent to this scope based on your business requirements and organization policies.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "If you are configuring this for testing purposes, make sure this option is restricted to Admins only.",
+      "depth": 3,
+      "strong": [
+        [
+          89,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "Admin consent display name: Enter a consent name that must be displayed on the consent screen when admins consent to this scope.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Admin consent description: Enter a detailed description that must be displayed when tenant admins expand a scope on the consent screen.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "User consent display name: Enter a consent name that must be displayed on the consent screen when users consent to this scope.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "User consent description: Enter a detailed description that must be displayed when users expand a scope on the consent screen.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "State: Ensure that the scope is enabled.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Add scope.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "To authorize the client application, click Add a client application under Authorized client applications.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          43,
+          67
+        ],
+        [
+          74,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Client ID field, enter the Application (client) ID from when you registered the app for the Internet & SaaS API client application, and select the required scope under Authorized scopes.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          34,
+          57
+        ],
+        [
+          175,
+          192
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Add Application.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "c. Define an app role.",
+      "depth": 1
+    },
+    {
+      "item": "To declare a role for the Internet & SaaS API app (can be assigned to the client app for accessing the API):",
+      "depth": 1
+    },
+    {
+      "item": "Click App roles on the left-side navigation and then click Create app role.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          59,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Create app role pane opens.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "In the Create app role pane:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Display name: Enter a display name for the app role.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Allowed member types: Select Applications for this option.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Value: Enter a value in the format supported by the Zscaler service, <Zscaler Cloud Name>::<Org ID>::<API Role>, where:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "<Zscaler Cloud Name> represents the name of the cloud on which your organization is provisioned.",
+      "depth": 4
+    },
+    {
+      "item": "<Org ID> is an identifier assigned to your organization by Zscaler. You can obtain this value from the Company Profile page within the Zscaler Admin Console.",
+      "depth": 4
+    },
+    {
+      "item": "<API Role> represents the API Role configured on the Role Management page within the Zscaler Admin Console.",
+      "depth": 4
+    },
+    {
+      "item": "For example, zscalerbeta.net::272378::sampleRole.",
+      "depth": 3
+    },
+    {
+      "item": "Description: Enter a description of the app role.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Do you want to enable this app role?: Enable this checkbox.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Apply.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "After the app role is created, go to the Manifest page from the left-side navigation and ensure that the app role you configured appears in the appRoles field within the JSON fields.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "3. Configure the client to access the web API.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the client app's permissions to the Internet & SaaS API app:",
+      "depth": 0
+    },
+    {
+      "item": "In the Microsoft Entra admin center, go to Identity > Applications > App registrations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          43,
+          51
+        ],
+        [
+          54,
+          66
+        ],
+        [
+          69,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Select the Internet & SaaS API client app configured when you registered the Internet & SaaS API client application.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "The Overview page of the app is displayed.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click API permissions on the left-side navigation and then click Add a permission under Configured permissions.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          65,
+          81
+        ],
+        [
+          88,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "The Request API permissions pane opens.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Request API permissions pane:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Go to the My APIs tab and click the Internet & SaaS API app that you earlier registered and configured to expose a web API.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Choose the Application permissions as the type of permission required by the client application.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Under Select permissions, select the API Role that you created when you defined an app role for the Internet & SaaS API service to expose a web API.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Add permissions.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "If you are testing the configurations, enable the Grant admin consent for <tenant> option under the Configured permissions section and click Yes when prompted.",
+      "depth": 0,
+      "strong": [
+        [
+          50,
+          73
+        ],
+        [
+          74,
+          82
+        ],
+        [
+          100,
+          122
+        ],
+        [
+          141,
+          144
+        ]
+      ]
+    },
+    {
+      "item": "4. Collect information for Zscaler OAuth 2.0 server configuration.",
+      "depth": 0
+    },
+    {
+      "item": "To collect information from Microsoft Entra ID used to configure the OAuth 2.0 authorization server in the Zscaler Admin Console:",
+      "depth": 0
+    },
+    {
+      "item": "In the Microsoft Entra admin center, go to Identity > Applications > App registrations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          43,
+          51
+        ],
+        [
+          54,
+          66
+        ],
+        [
+          69,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Select the Internet & SaaS API app that you configured to expose a web API.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Click the Endpoints tab on the Overview page.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          19
+        ],
+        [
+          31,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Endpoints pane opens.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Endpoints pane:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Copy the OAuth 2.0 token endpoint (v2) URL. The typical format is https://login.microsoftonline.com/<Application ID>/oauth2/v2.0/token.",
+      "depth": 2,
+      "strong": [
+        [
+          9,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Copy the URL displayed in the OpenID Connect metadata document field and open the link in a new browser window. Locate the jwks_uri parameter in the metadata displayed and copy its value. The typical format is https://login.microsoftonline.com/<Application ID>/discovery/v2.0/keys.",
+      "depth": 2,
+      "strong": [
+        [
+          30,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "These values are required for configuring the OAuth 2.0 authorization server in the Zscaler Admin Console, as explained in the subsequent section.",
+      "depth": 1
+    },
+    {
+      "heading": "Validating Configurations and Retrieving an Access Token",
+      "level": 1
+    },
+    {
+      "text": "After completing the necessary configurations in Microsoft Entra ID, you can validate the authorization server configuration and retrieve an access token."
+    },
+    {
+      "item": "1. Validate authorization server configuration.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Administration > API > Legacy API > Internet & SaaS API > Cloud Service API Security.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          26
+        ],
+        [
+          29,
+          39
+        ],
+        [
+          42,
+          61
+        ],
+        [
+          64,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Click the OAuth 2.0 Authorization Servers tab and then click Add Authorization Server.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          41
+        ],
+        [
+          61,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "The Add Authorization Server window opens.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Authorization Server window, fill out the following information that is necessary for validating your authorization server configuration:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for your authorization server configuration (e.g., Microsoft Entra ID). The name can only contain alphanumeric characters without spaces and cannot exceed 64 characters.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "OAuth 2.0 JWKS Location: Enter the JSON Web Key Set (JWKS) endpoint value obtained through the jwks_uri parameter that you collected from the Microsoft Entra ID used to configure the OAuth 2.0 authorization server in the Zscaler Admin Console. The JWKS endpoint returns the public key set of the authorization server that is used by Zscaler to cryptographically verify the authenticity of the JWT in API requests.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Validate to verify that the JWKS endpoint is configured correctly. If validation is successful, a Save button appears.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          104,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "After successful validation, click Save.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          35,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "2. Retrieve an access token.",
+      "depth": 0
+    },
+    {
+      "item": "To retrieve an access token from the authorization server by using the credentials saved in the previous steps:",
+      "depth": 0
+    },
+    {
+      "item": "Create a JSON file with the following fields:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "grant_type = client_credentials client_id = <Application (client) ID from Step 1.a> client_secret = <Client secret value from Step 1.b> scope = <Application ID URI from Step 2.b, appended with \"/.default\". For example, api://fe2f6a75-199e-48a5-b9ef-a7357ab78c53/.default>",
+      "depth": 1
+    },
+    {
+      "item": "Send a POST request to the OAuth 2.0 token endpoint (v2) URL from when you collected information for Zscaler OAuth 2.0 server configuration, with the JSON payload in the request body.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          27,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "The API response should contain the access token (JWT). This access token must be sent in the API calls made to the Internet & SaaS API service. The access token can be presented in the request Authorization header using the bearer authentication scheme along with the token expiration time.",
+      "depth": 1
+    }
+  ]
+}

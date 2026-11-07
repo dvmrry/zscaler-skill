@@ -1,0 +1,510 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Advanced NSS Settings",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-advanced-nss-settings",
+    "node": "1399051",
+    "revision": "3243762",
+    "updated": "2026-09-19",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "When deploying the NSS, additional features that facilitate successful deployment require advanced NSS settings in cases where you have specific requirements or restrictions. It includes the following topics:"
+    },
+    {
+      "text": "The first three sections listed pertain to the NSS deployment over VMware vSphere only."
+    },
+    {
+      "item": "Configuring a Second Management Interface",
+      "depth": 0
+    },
+    {
+      "item": "Sometimes, the default management interface can't be used for SSH due to VLAN restrictions. In those cases, Zscaler recommends that you add an additional interface just for management, so the first interface is used only for control connections to the cloud.",
+      "depth": 0
+    },
+    {
+      "item": "There are two ways to add a second management interface:",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you log in to your client and configure the additional interface from the console tab. See Configuring the Additional Interfaces from the Console.",
+      "depth": 1
+    },
+    {
+      "item": "Alternatively, you can manually configure the second management interface.",
+      "depth": 1
+    },
+    {
+      "item": "To manually add a management interface:",
+      "depth": 1
+    },
+    {
+      "item": "Shut down the NSS and stop the VM.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Using your client, assign an additional interface to the VM. Map it to an appropriate network or VLAN.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Reboot the NSS.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Run the following command and ensure that the em2 interface is active:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "ifconfig",
+      "depth": 1
+    },
+    {
+      "item": "Update the system configuration file /etc/rc.conf to configure the interface automatically after each system restart. To do this, run the following command:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "sudo vi /etc/rc.conf",
+      "depth": 1
+    },
+    {
+      "item": "Add the em2 interface to the list of network interfaces. Modify the line that starts with network_interfaces and change it to:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "network_interfaces=\"em0 em1 em2 lo0\"",
+      "depth": 1
+    },
+    {
+      "item": "Add a new line at the end of the file:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "ifconfig_em2=\"<subnet-ip-address>\"",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you replace <subnet-ip-address> with the IP address of the subnet. For example:",
+      "depth": 1
+    },
+    {
+      "item": "ifconfig_em2=\"192.168.1.100/24”",
+      "depth": 1
+    },
+    {
+      "item": "The default gateway is automatically added via the em0 interface. To add a static route to a different subnet or VLAN for the newly added em2 interface, add the following lines at the end of the file:",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "static_routes=\"em2\" route_em2=\"-net <destination-subnet> <gateway-ip-address>\"",
+      "depth": 1
+    },
+    {
+      "item": "Replace <destination-subnet> with the IP address of the destination subnet, and replace <gateway-ip-address> with the appropriate gateway IP address. For example:",
+      "depth": 1
+    },
+    {
+      "item": "static_routes=\"em2\" route_em2=\"-net 198.51.100.0/24 192.168.1.3\"",
+      "depth": 1
+    },
+    {
+      "item": "Reboot the VM.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "To verify the changes, ping the newly added subnet gateway and run the following command to print the route information:",
+      "depth": 2,
+      "number": 10
+    },
+    {
+      "item": "sudo netstat -rn",
+      "depth": 1
+    },
+    {
+      "item": "Configuring a Second Service Interface",
+      "depth": 0
+    },
+    {
+      "item": "The NSS typically uses the service interface to download logs from the Nanolog in the Zscaler cloud and send them to your security information and event management (SIEM).",
+      "depth": 0
+    },
+    {
+      "item": "Some organizations might need to use one interface to connect to the Zscaler cloud and another interface to connect to the SIEM. For example, an organization might have a SIEM in a management LAN that is not routed to the internet, and it might also have a service LAN that is routed to the internet but not to the management LAN, as shown in the following diagram:",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If your organization has a similar requirement, you can configure a second service interface. You can then use one interface to connect to the Zscaler cloud to download the logs and a different interface to send the logs to the SIEM located in the management LAN.",
+      "depth": 0
+    },
+    {
+      "item": "There are two ways to add a second service interface:",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you log in to your client and configure the additional interface from the console tab. See Configuring the Additional Interfaces from the Console.",
+      "depth": 1
+    },
+    {
+      "item": "Alternatively, you can manually configure the second service interface.",
+      "depth": 1
+    },
+    {
+      "item": "To manually add a second service interface:",
+      "depth": 1
+    },
+    {
+      "item": "Shut down the NSS and stop the VM.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Using your client, assign an additional interface to the VM. Map it to an appropriate network or VLAN.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Reboot the NSS.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Run the following command and ensure that the em2 interface is active:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "ifconfig",
+      "depth": 1
+    },
+    {
+      "item": "Copy the sc.conf file.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "cp /sc/conf/sc.conf /sc/conf/sc.conf.old",
+      "depth": 1
+    },
+    {
+      "item": "Use the vi Editor to edit the sc.conf file. Run the following command:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "vi /sc/conf/sc.conf",
+      "depth": 1
+    },
+    {
+      "item": "Add the following lines to the file, replacing the sample values in red per your configuration:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "smnet_dev=em2=zs1:192.168.223.41/24 smnet_route=10.0.0.0/8/192.168.223.1",
+      "depth": 1
+    },
+    {
+      "item": "In this example, em2=zs1 is the second service interface, and 192.168.223.41/24 is the service IP address with the subnet mask. If your SIEM is in the same subnet, then the second line is not required. If your SIEM is in a different subnet, add smnet_route and define values in the second line. For example, to reach 10.0.0.0/8, use gateway 192.168.223.1.",
+      "depth": 1
+    },
+    {
+      "item": "Save the changes in the file and then restart the NSS by running the following command:",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "sudo nss restart",
+      "depth": 1
+    },
+    {
+      "item": "Verify whether the NSS is using the second service interface by running the following command:",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "sudo nss dump-config",
+      "depth": 1
+    },
+    {
+      "item": "Configuring the Additional Interfaces from the Console",
+      "depth": 0
+    },
+    {
+      "item": "Configuring a Local NTP Server",
+      "depth": 0
+    },
+    {
+      "item": "If you have a local NTP server, you can configure the NSS to synchronize time with that server:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command as root:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "crontab -e",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "PATH=/sbin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/games:/sc/update:/home/zsroot/bin:/sc/update",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "*/10 * * * * ntpdate -u <ntp-server-name>",
+      "depth": 0
+    },
+    {
+      "item": "Replace <ntp-server-name> with your local NTP server's FQDN or IP address.",
+      "depth": 0
+    },
+    {
+      "item": "Save and exit.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "The time synchronization command runs every 10 minutes. You can find logs for the NTP process in /var/log/cron.",
+      "depth": 0
+    },
+    {
+      "item": "Configuring NSS in Explicit Proxy Mode",
+      "depth": 0
+    },
+    {
+      "item": "Some customers might have a no-default route environment. This prevents the NSS from establishing connections to the Zscaler cloud. For this scenario, you can configure the NSS in explicit proxy mode, so that it tunnels all Zscaler cloud-bound connections through a proxy. These include network connections and TCP connections from the NSS to the:",
+      "depth": 0
+    },
+    {
+      "item": "Nanolog (SMSM)",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler Central Authority (CA) (SMCA)",
+      "depth": 1
+    },
+    {
+      "item": "Update server (SMCDSS) for software updates",
+      "depth": 1
+    },
+    {
+      "item": "Kafka server for audit log streaming",
+      "depth": 1
+    },
+    {
+      "item": "Connections from the NSS to the SIEM are not tunneled.",
+      "depth": 0
+    },
+    {
+      "item": "The NSS in explicit proxy mode can tunnel Zscaler cloud-bound connections. Based on your configuration, you can tunnel these connections without the need for internet-facing DNS resolution.",
+      "depth": 0
+    },
+    {
+      "item": "If you configure the dnsoverproxy flag to 1, then the NSS in explicit proxy mode makes a CONNECT request to the following domains, and the explicit proxy performs the name resolution:",
+      "depth": 0
+    },
+    {
+      "item": "msmca.<cloudname> for the connection to the Zscaler CA",
+      "depth": 1
+    },
+    {
+      "item": "zdistribute.<cloudname> for the connection to the update server",
+      "depth": 1
+    },
+    {
+      "item": "kproxy.hdeu1.zdataservices.net for the connection to the Kafka server",
+      "depth": 1
+    },
+    {
+      "item": "If you configure the dnsoverproxy flag to 0, then the NSS needs DNS resolution for the connections to the current master CA IP address, update server, and Kafka server.",
+      "depth": 0
+    },
+    {
+      "item": "NTP connections are not tunneled. The NSS needs DNS resolution for the NTP server. To learn more, see Configuring a Local NTP Server.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the NSS in explicit proxy mode:",
+      "depth": 0
+    },
+    {
+      "item": "Run the nss configure command to configure the two network interfaces.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Run the nss configure proxy command. For example:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "[root@NSS /usr/home/zsroot]# nss configure proxy proxyserver (Proxy Host ) [10.81.153.26]: proxyport (Proxy Port ) [443]: dnsoverproxy (DNS over proxy: 0/1 ) []: 1 Successfully configured proxy",
+      "depth": 0
+    },
+    {
+      "item": "To undo this configuration, you can use remove:",
+      "depth": 0
+    },
+    {
+      "item": "nss configure proxy remove",
+      "depth": 0
+    },
+    {
+      "item": "Run the sudo nss restart command to restart the NSS service.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "When the NSS starts, it tries to connect to the Zscaler CA or Nanolog using the proxy it configured.",
+      "depth": 1
+    },
+    {
+      "item": "Run the nss troubleshoot netstat command to verify the proxy (e.g., 10.81.153.26) connections for the Zscaler CA and Nanolog.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Updating an NSS VM Hostname",
+      "depth": 0
+    },
+    {
+      "item": "To update your NSS VM hostname:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to your NSS VM.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Edit the file /etc/rc.conf using the vi Editor.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "[zsroot@New_Hostname ~/$ vi /etc/rc.conf",
+      "depth": 0
+    },
+    {
+      "item": "Add the hostname entry to the file.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "hostname=<name>",
+      "depth": 0
+    },
+    {
+      "item": "Run the reboot command.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "root@New_Hostname:/usr/home/zsroot # reboot",
+      "depth": 0
+    },
+    {
+      "item": "After the NSS restarts, your new hostname appears.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "You can restrict SSH access based on IP/Subject using the following configuration in sshd_config:",
+      "depth": 0
+    },
+    {
+      "item": "AllowUsers zsroot@10.66.70.*",
+      "depth": 0
+    },
+    {
+      "item": "In this example, SSH is allowed only from the source IP address range 10.66.70.0/24. Then, run the following command to make the configuration change effective:",
+      "depth": 0
+    },
+    {
+      "item": "service sshd restart",
+      "depth": 0
+    },
+    {
+      "item": "To configure key-based authentication:",
+      "depth": 0
+    },
+    {
+      "item": "Create a .ssh directory in the home directory: /home/zsroot/ under the user root.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Upload your user public key file to the file authorized_keys under the directory /home/zsroot/.ssh.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Adjust the file /etc/ssh/sshd_config with the following updates: (Make a backup of this file before changing it.)",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "ChallengeResponseAuthentication no PasswordAuthentication no",
+      "depth": 0
+    },
+    {
+      "item": "These entries are set to yes by default. You can set them to no or comment them out.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following command to restart the sshd service:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "service sshd restart",
+      "depth": 0
+    },
+    {
+      "item": "Replace option restart with stop and start as required.",
+      "depth": 0
+    },
+    {
+      "item": "Test the new configuration on the client side using SSH (e.g., PuTTY).",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Allowing SSH Access to the NSS Only from a Specific Subnet or IP Address",
+      "depth": 0
+    },
+    {
+      "item": "Setting Up Key-Based Authentication to the NSS",
+      "depth": 0
+    }
+  ]
+}

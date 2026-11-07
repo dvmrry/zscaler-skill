@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Zero Trust Branch Software Upgrades",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/understanding-zero-trust-branch-software-upgrades",
+    "node": "1533885",
+    "revision": "3245960",
+    "updated": "2026-10-15",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zero Trust Branch appliances support in-place upgrades to ensure access to the latest security features, stability improvements, and platform capabilities. The upgrade workflow varies based on how Zero Trust Branch is deployed in the network."
+    },
+    {
+      "text": "This article provides a conceptual overview of how the upgrade behavior differs between standalone and high availability (HA) deployments."
+    },
+    {
+      "heading": "Standalone Deployments",
+      "level": 1
+    },
+    {
+      "text": "In a standalone deployment, a single Zero Trust Branch appliance manages branch networking and security. Upgrading the appliance requires temporarily taking it offline while the new version is installed and services restart."
+    },
+    {
+      "heading": "Upgrade Workflow",
+      "level": 2
+    },
+    {
+      "text": "When a single Zero Trust Branch appliance is deployed in standalone mode, the upgrade process follows this sequence:"
+    },
+    {
+      "item": "The upgrade applies directly to the single appliance.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Traffic forwarding is briefly interrupted while the appliance reboots (no failover occurs, as there is no secondary appliance).",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "After the upgrade completes, the appliance restores branch connectivity using the new software version.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "To learn more, see Upgrading Zero Trust Branch Appliances in Standalone Deployments."
+    },
+    {
+      "heading": "HA Deployments",
+      "level": 1
+    },
+    {
+      "text": "In HA deployments, the Zero Trust Branch appliances are deployed as a pair in a cluster. The upgrade process is designed to preserve operational continuity with minimal disruption. Zero Trust Branch uses a staged, in-service upgrade workflow to keep HA clusters online while new software is applied. The upgrade is performed on one appliance at a time, allowing the cluster to stay online while each appliance transitions to the new software version."
+    },
+    {
+      "heading": "Staged Upgrade Workflow",
+      "level": 2
+    },
+    {
+      "text": "When two Zero Trust Branch appliances—A (Active) and B (Standby)—are deployed in HA mode, the upgrade process follows this sequence:",
+      "strong": [
+        [
+          41,
+          47
+        ],
+        [
+          56,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Appliance B (Standby) is upgraded first.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          13,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "After the upgrade, appliance B becomes Active and starts handling traffic.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          39,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Appliance A (originally Active and now Standby) is upgraded.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          24,
+          30
+        ],
+        [
+          39,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "After both appliances are on the same new version, the appliances remain in their new Active and Standby states.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          86,
+          92
+        ],
+        [
+          97,
+          104
+        ]
+      ]
+    },
+    {
+      "text": "For versions 8.0.7 or later, appliances need not run the same version. You can upgrade one appliance first and test it for performance and stability before upgrading the other appliance. If any errors or issues occur with the appliance after upgrading to a new version, you can revert to the old version."
+    },
+    {
+      "text": "To learn more, see Upgrading Zero Trust Branch Appliances in an HA Cluster."
+    }
+  ]
+}

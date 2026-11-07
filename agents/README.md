@@ -37,7 +37,7 @@ This directory holds the agent infrastructure for the skill — playbooks, metho
 |---|---|---|
 | `agents/` | Agent infrastructure: how to operate (playbooks, methodologies, grounding cards/indexes, diagnostics templates) | AI agents executing role-specific workflows |
 | `references/` | Product knowledge: what to know (Zscaler product docs, schemas, log refs) | Both agents (as evidence) and human readers |
-| `_data/` | Evidence and state: tenant snapshots, IaC overlays, local case artifacts, and eval outputs. `_data` is the default runtime-data mount; substitute the mount configured in `zscaler-skill-runtime.json` or local setup config when present. | Agents and operators investigating current state |
+| `_data/` | Evidence and state: company overlay, IaC, local case artifacts, and eval outputs. `_data` is the default runtime-data mount; substitute the mount configured in `zscaler-skill-runtime.json` or local setup config when present. | Agents and operators investigating current state |
 | `.agents/skills/` | Portable Agent Skills: trigger metadata and thin loaders for every workflow that declares Codex support | Codex and other compatible runtimes |
 | `_meta/` | Agent-layer meta-documentation: runtime adapter policy, workflow metadata, and workflow artifact notes | Maintainers and auditing agents |
 

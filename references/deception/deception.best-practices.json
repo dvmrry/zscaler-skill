@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "id": "deception.best-practices",
+  "title": "Best-practice guides: decoy minimums, landmine policy tables, containment rule expressions per decoy type, and the use-case recipes still open",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-agents"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.endpoint-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-decoys"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.topology"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.containment-integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.orchestration-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{network-minimum-mix}} {{network-coverage}} {{network-hi-windows}} {{network-database-example}} Hub: [[deception.overview]]."
+    },
+    {
+      "label": "Threat Intelligence decoys.",
+      "text": "{{ti-minimum}} {{ti-naming}}"
+    },
+    {
+      "label": "Active Directory decoys.",
+      "text": "{{ad-minimum}} {{ad-opsec}} {{ad-attack-lures}}"
+    },
+    {
+      "label": "Landmine decoys.",
+      "text": "{{landmine-two-policies}} {{landmine-simple-policy}} {{landmine-advanced-policy}} {{landmine-rollout}} Policies are in [[deception.landmine-policies]], decoys in [[deception.landmine-decoys]] and agents in [[deception.landmine-agents]]."
+    },
+    {
+      "label": "Containment, TI and network decoys.",
+      "text": "{{ti-credential-submit}} {{ti-abuseipdb}} {{cve-exploit-rules}} {{network-database-rules}} {{network-service-rules}} {{target-discovery-rule}}"
+    },
+    {
+      "label": "Containment, Zero Trust, AD, endpoint and cloud.",
+      "text": "{{zero-trust-adds-zpa}} {{ad-rules}} {{endpoint-rules}} {{cloud-rules}} Integrations are in [[deception.containment-integrations]] and rules in [[deception.orchestration-rules]]."
+    },
+    {
+      "label": "Open.",
+      "text": "What the High-Interaction Windows Server use case configures is open {{gap:network-hi-windows-recipe}}. The per-use-case field recipes are open {{gap:use-case-recipes}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The decoy counts against the network guide's recommended minimum of 50 and the per-type mix before saying a deployment follows the guide.",
+      "uses": [
+        "network-minimum-mix"
+      ]
+    },
+    {
+      "do": "The TI, AD and landmine decoy counts and policy types against the guides' stated minimums.",
+      "uses": [
+        "ti-minimum",
+        "ad-minimum",
+        "landmine-two-policies"
+      ]
+    },
+    {
+      "do": "Whether decoy names and properties avoid the keywords decoys, Zscaler and Deception on AD decoys.",
+      "uses": [
+        "ad-opsec"
+      ]
+    },
+    {
+      "do": "Which decoy-type table a containment rule expression comes from, since the same MITRE rule appears in both the TI and network tables.",
+      "uses": [
+        "cve-exploit-rules",
+        "network-database-rules",
+        "zero-trust-adds-zpa"
+      ]
+    }
+  ],
+  "claims": {
+    "network-minimum-mix": {
+      "statement": "The network decoy guide recommends at least 50 network decoys: 10 file servers with business-critical shares, 10 web servers, 5 business-critical applications, 5 services (SSH, Telnet, FTP), 5 high-interaction Windows servers, 5 database servers, 5 dev servers, 2 IoT devices, 2 custom servers and 1 PAM server.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-network-decoys.json", "quotes": ["Zscaler recommends a minimum of 50 network decoys", "| Decoy File Servers with Business-Critical Shares | 10 |", "| Decoy Web Servers | 10 |", "| Decoys of business-critical applications (e.g., SAP, email, etc.) | 5 |", "| Decoys of services, such as SSH, Telnet, and FTP | 5 |", "| Decoy High-Interaction Windows Server | 5 |", "| Decoy Database Servers | 5 |", "| Decoy Dev Servers | 5 |", "| Decoys of commonly used IoT devices | 2 |", "| Decoys as Custom Servers | 2 |", "| Decoys as PAM Server | 1 |"]}
+      ]
+    },
+    "network-coverage": {
+      "statement": "Network decoys should cover each key zone and segment and each service, and AD can host network decoys too; hostnames can be generated from keyword datasets such as company name, location and business keywords.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-network-decoys.json", "quotes": ["Ensure that you have a decoy for each key zone and segment in your network.", "Ensure that a decoy for each service is created. In addition, consider adding network decoys to the Active Directory (AD).", "To generate realistic hostnames for your network decoys, you can use the keyword datasets functionality to add names such as company name, location name, company alias, internally used keywords, and business keywords."]}
+      ]
+    },
+    "network-hi-windows": {
+      "statement": "High-interaction Windows server decoys allow full telemetry capture, video recording and malicious program capture.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-network-decoys.json", "quotes": ["Decoy high-interaction Windows servers allow full telemetry capture, video recording, and malicious program capture when attacks are executed against these decoys."]}
+      ]
+    },
+    "network-database-example": {
+      "statement": "The database server decoy use case recommends enabling SSH, MySQL and Web, with Web set to the apache server type, the PHPmyadmin dataset and ports 80 and 8080.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-network-decoys.json", "quotes": ["Services: Enable SSH, MySQL, and Web. For the Web service, set server type to apache, select PHPmyadmin as the dataset, and set ports to 80, 8080.", "Use Case: Decoy Database Servers"]}
+      ]
+    },
+    "ti-minimum": {
+      "statement": "The TI decoy guide recommends at least 10 TI decoys across public-facing infrastructure, including at least one each of CMS, development, email, VPN and file share server decoys.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-threat-intelligence-decoys.json", "quotes": ["Deploy a minimum of 10 TI decoys for all your public-facing infrastructure, which includes a minimum of one content management system (CMS), development, email, VPN, and file share server TI decoys."]}
+      ]
+    },
+    "ti-naming": {
+      "statement": "TI decoy domain names resembling backup servers or deprecated services are recommended, because access to them indicates the attacker scraped the DNS A record.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-threat-intelligence-decoys.json", "quotes": ["It is recommended that you use domain names that resemble backup servers or deprecated services. If adversaries access these decoys, it indicates that they scrapped the DNS A record showing more intent and recon activity."]}
+      ]
+    },
+    "ad-minimum": {
+      "statement": "The AD decoy guide recommends at least 10 AD decoys, including one business-critical, Unix and well-known user account, one with a fake password description, two privileged, service and persona accounts, two with a distinct decoy share path, and two with Can Password Expire enabled.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-active-directory-decoys.json", "quotes": ["Zscaler recommends that you deploy a minimum of 10 AD decoys.", "One business-critical, Unix, and well-known user decoy AD account.", "One decoy AD account with a fake password configured as the description.", "Two decoy AD privileged accounts, service accounts, and persona accounts.", "Two decoy AD accounts with a distinct decoy share path.", "Two decoy AD accounts with the Can Password Expire field enabled."]}
+      ]
+    },
+    "ad-opsec": {
+      "statement": "AD decoys should follow internal naming conventions, sit in OUs that host high-value users, have logon workstations configured for OPSEC safety on privileged accounts, and avoid the keywords decoys, Zscaler and Deception.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-active-directory-decoys.json", "quotes": ["Configure decoy names and properties as per the internal naming conventions.", "Place decoys in different OUs that host high-value users.", "Ensure that the logon workstations are configured for operation security (OPSEC) safety for the privileged AD accounts.", "Ensure decoy user and computer objects don't have keywords containing \"decoys,\" \"Zscaler,\" or \"Deception\"."]}
+      ]
+    },
+    "ad-attack-lures": {
+      "statement": "The AD guide ties Make Account Kerberoastable to Kerberoasting, Pre-auth Not Required to AS-REP roasting, and Profile Path (File Share Discovery Lure) to a network decoy with the Shares service.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-active-directory-decoys.json", "quotes": ["Make Account Kerberoastable: Select a network decoy that represents a DB server with MySQL and PostgreSQL DB services enabled.", "Pre-auth Not Required: Enable to make the user account vulnerable to AS-REP roasting attacks.", "Profile Path (File Share Discovery Lure): Select a network decoy with Shares service from the drop-down menu to configure the profilePath attribute for the decoy user account."]}
+      ]
+    },
+    "landmine-two-policies": {
+      "statement": "The landmine guide recommends one simple-detection policy needing no customization and one advanced-detection policy needing minimal customization, plus custom per-department policies: typically a department can have up to 4 policies, and at least two must be configured for business-critical departments.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-landmine-decoys.json", "quotes": ["Zscaler recommends having two different types of policies: a policy for simple detections that requires no customization, and a policy for advanced detections that requires minimal customization to detect adversarial techniques.", "Typically, a department can have up to 4 policies tailored for them, and at least two policies must be configured for business-critical departments."]}
+      ]
+    },
+    "landmine-simple-policy": {
+      "statement": "The landmine guide's simple-detection policy table enables MITM detection with LLMNR poisoning at a 5-minute interval, a hidden credential file decoy password1.txt at %userprofile%\\Imp, and, if there is no AD password policy, a password policy requiring special characters with minimum length 8 and maximum length 12.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-landmine-decoys.json", "quotes": ["Enable Man-in-the-Middle Attack Detection with the following configurations: Enable LLMNR poisoning. Set Interval to 5 minutes.", "Create a credential file decoy with the following configurations: Name: password1.txt Path: %userprofile%\\Imp Hidden: Enabled", "If you do not have an AD password policy, then you can create a policy with the following configurations: Enable Must have special characters. Set Min Length to 8. Set Max Length to 12.", "The following table provides information on the recommended configurations of a landmine policy for simple detections."]}
+      ]
+    },
+    "landmine-advanced-policy": {
+      "statement": "The landmine guide's advanced-detection policy table enables Fake Security Processes at paths similar to, but not the same as, legitimate applications' default paths, and enables PsExec Detection, Ransomware Detection and Triage.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-landmine-decoys.json", "quotes": ["Enable Fake Security Processes and configure fake security processes resembling popular applications that are usually targeted by adversaries.", "While configuring fake process paths, ensure that you do not use the actual paths of the legitimate applications as they might cause some issues. However, Zscaler recommends using paths that look similar to the default paths of the legitimate application.", "Enable the following options: PsExec Detection Ransomware Detection Triage", "The following table provides information on the recommended configurations of a landmine policy for advanced detections."]}
+      ]
+    },
+    "landmine-rollout": {
+      "statement": "Customize the landmine installer name before configuring a landmine policy, and deploy in phases per department starting from the highest priority based on security risk; the guide's example prioritization from highest to lowest is Security and AD administrators, network infrastructure, IT or critical application administrators, senior management, marketing, others.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-landmine-decoys.json", "quotes": ["Before configuring a landmine policy, ensure that you have customized the landmine installer name.", "The deployment can be done in phases for each department, starting from the highest priority based on the department's security risk.", "Security and Active Directory (AD) Administrators - Network Infrastructure - IT or Critical Application Administrators - Senior Management - Marketing - Others", "The following list of departments is an example of prioritization (from highest to lowest) of departments for a phased deployment of landmine policies:"]}
+      ]
+    },
+    "ti-credential-submit": {
+      "statement": "For TI decoys, a credential submitted with a username in the organization's domain is matched with recon.post_data.username like /.*\\@<your_Org_Domain>\\.com.*/ and can feed Palo Alto EDLs, Fortinet threat feeds or Check Point Firewall.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-using-containment-integrations.json", "quotes": ["recon.post_data.username like /.*\\@<your_Org_Domain>\\.com.*/", "Palo Alto Networks (External Dynamic List - Attacker IPs)", "Fortinet (Threat Feeds - Attacker IPs)", "Check Point Firewall"], "after": "Containment Scenarios and Configurations for Threat Intelligence (TI) Decoys"}
+      ]
+    },
+    "ti-abuseipdb": {
+      "statement": "For TI decoys, payloads from a source denylisted on AbuseIPDB are matched with abuseip.abuseConfidenceScore greater than 74 and recon.method in [\"PUT\",\"POST\"].",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-using-containment-integrations.json", "quotes": ["When the payload is submitted by a source marked as denylisted on AbuseIPDB", "abuseip.abuseConfidenceScore greater than 74 and recon.method in [\"PUT\",\"POST\"]"], "after": "Containment Scenarios and Configurations for Threat Intelligence (TI) Decoys"}
+      ]
+    },
+    "cve-exploit-rules": {
+      "statement": "For TI and network decoys, known web application CVE exploits are matched with mitre_ids in [\"T1190\",\"T1595.002\"] and VPN CVE exploits with mitre_ids in [\"T1133\",\"T1595.002\"].",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-using-containment-integrations.json", "quotes": ["mitre_ids in [\"T1190\",\"T1595.002\"]", "mitre_ids in [\"T1133\",\"T1595.002\"]"], "after": "Containment Scenarios and Configurations for Threat Intelligence (TI) Decoys"},
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-using-containment-integrations.json", "quotes": ["mitre_ids in [\"T1190\",\"T1595.002\"]", "mitre_ids in [\"T1133\",\"T1595.002\"]"], "after": "Containment Scenarios and Configurations for Network Decoys"}
+      ]
+    },
+    "network-database-rules": {
+      "statement": "In the network decoy table, the first database scenario lists CrowdStrike (based on IP address), Microsoft Defender and VMware Carbon Black as integrations, and the database command scenarios use sub_type is \"mysql\", type is \"postgresql\" and sub_type is \"connect\", and type is \"mongodb\".",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-using-containment-integrations.json", "quotes": ["| Running commands on a MySQL database | You can use any of the following integrations: CrowdStrike (based on IP address) Microsoft Defender VMware Carbon Black | sub_type is \"mysql\" |", "type is \"postgresql\" and sub_type is \"connect\"", "type is \"mongodb\""], "after": "Containment Scenarios and Configurations for Network Decoys"}
+      ]
+    },
+    "zero-trust-adds-zpa": {
+      "statement": "In the Zero Trust decoy table, the first database scenario's integrations are CrowdStrike (based on IP address), Private Access (ZPA), Microsoft Defender and VMware Carbon Black.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-using-containment-integrations.json", "quotes": ["CrowdStrike (based on IP address) Private Access (ZPA) Microsoft Defender VMware Carbon Black"], "after": "Containment Scenarios and Configurations for Zero Trust Decoys"}
+      ]
+    },
+    "network-service-rules": {
+      "statement": "For network decoys, SSH authentication is type is \"ssh\" and sub_type is \"auth\", anonymous FTP login is ftp.command is \"USER anonymous\", SMB session enumeration is \"NetrSessionEnum\" in dce_rpc.operation, and web payloads are web.method in [\"POST\",\"PUT\"].",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-using-containment-integrations.json", "quotes": ["type is \"ssh\" and sub_type is \"auth\"", "ftp.command is \"USER anonymous\"", "\"NetrSessionEnum\" in dce_rpc.operation", "web.method in [\"POST\",\"PUT\"]"], "after": "Containment Scenarios and Configurations for Network Decoys"}
+      ]
+    },
+    "target-discovery-rule": {
+      "statement": "Target discovery on network decoys is matched with (sub_type is \"scan\" and scan.type is \"port_scan\") or (type is \"network\" and sub_type is \"scan\" and scan.type is \"ip_scan\").",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-using-containment-integrations.json", "quotes": ["(sub_type is \"scan\" and scan.type is \"port_scan\") or (type is \"network\" and sub_type is \"scan\" and scan.type is \"ip_scan\")"], "after": "Containment Scenarios and Configurations for Network Decoys"}
+      ]
+    },
+    "ad-rules": {
+      "statement": "In the AD decoy table, a login with a decoy account is type is \"credtheft\" and credtheft.event_id is not \"4769\" and sub_type is not \"honeypot-buster\", Kerberoasting is credtheft.event_id is \"4769\", and AS-REP roasting is type is \"credtheft\" and credtheft.event_id is \"4768\" and credtheft.pre_auth_type is \"0\".",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-using-containment-integrations.json", "quotes": ["type is \"credtheft\" and credtheft.event_id is not \"4769\" and sub_type is not \"honeypot-buster\"", "credtheft.event_id is \"4769\"", "type is \"credtheft\" and credtheft.event_id is \"4768\" and credtheft.pre_auth_type is \"0\""], "after": "Containment Scenarios and Configurations for Active Directory (AD) Decoys"}
+      ]
+    },
+    "endpoint-rules": {
+      "statement": "In the endpoint deception table, LSASS credential harvesting with decoy breadcrumbs is type is \"endpoint\" and sub_type is \"imc\", LLMNR poisoning is type is \"endpoint\" and sub_type is \"mitm\", and PSexec is sub_type is \"psexec\"; the first scenario lists CrowdStrike, Private Access and Internet & SaaS (ZIA) as integrations.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-using-containment-integrations.json", "quotes": ["type is \"endpoint\" and sub_type is \"imc\"", "type is \"endpoint\" and sub_type is \"mitm\"", "sub_type is \"psexec\"", "CrowdStrike Private Access Internet & SaaS (ZIA)"], "after": "Containment Scenarios and Configurations for Endpoint Deception"}
+      ]
+    },
+    "cloud-rules": {
+      "statement": "For cloud deception, Azure user and service principal decoys use threat_parse_ids in [\"azure_user\",\"azure_service_principal\"], and private S3 and ECR access use threat_parse_ids is \"aws_s3\" or \"aws_ecr\" with decoy.public is false.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-best-practice-guide-using-containment-integrations.json", "quotes": ["threat_parse_ids in [\"azure_user\",\"azure_service_principal\"]", "threat_parse_ids is \"aws_ecr\" and decoy.public is false", "threat_parse_ids is \"aws_s3\" and decoy.public is false"]}
+      ]
+    }
+  },
+  "gaps": {
+    "network-hi-windows-recipe": {
+      "kind": "semantic",
+      "title": "What the High-Interaction Windows Server use case configures",
+      "status": "open",
+      "detail": "The High-Interaction Windows Server use case in the network guide repeats the PIM/PAM recommendation text (name PIMARCRVD, Arcon PAM dataset); the intended configuration is not stated.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "use-case-recipes": {
+      "kind": "semantic",
+      "title": "The per-use-case field recipes of the network, TI and AD guides",
+      "status": "open",
+      "detail": "Only the minimums and cross-decoy rules are claims here; the per-use-case field recipes of the three guides were not extracted.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

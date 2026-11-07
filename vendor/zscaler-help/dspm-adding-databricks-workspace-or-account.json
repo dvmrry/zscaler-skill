@@ -1,0 +1,1604 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Adding a Databricks Workspace or Account",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/adding-databricks-workspace-or-account",
+    "node": "1532035",
+    "revision": "3247004",
+    "updated": "2026-09-28",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can add a Databricks workspace or account to DSPM. DSPM scans the data assets for sensitive data, vulnerabilities, misconfigurations, and reports the findings on the Resource Inventory page. After a Databricks account is onboarded, DSPM automatically discovers the associated workspaces and creates the necessary SQL warehouses and access permissions to perform scans."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before adding a Databricks workspace or account to DSPM, ensure the following prerequisites are met:"
+    },
+    {
+      "heading": "Azure or AWS Workspace",
+      "level": 2
+    },
+    {
+      "text": "Complete the following steps:"
+    },
+    {
+      "item": "1. Obtain Workspace access and permissions.",
+      "depth": 0
+    },
+    {
+      "item": "You must be a workspace admin in the Databricks workspace.",
+      "depth": 1
+    },
+    {
+      "item": "The workspace admin is granted USE CATALOG access to all catalogs in the workspace.",
+      "depth": 1,
+      "strong": [
+        [
+          31,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "2. Configure a managed identity for Azure.",
+      "depth": 0
+    },
+    {
+      "item": "Copy application IDs of orchestrator- and scanner-managed identities from the Azure portal during registration:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the Databricks workspace.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Add a new service principal to the Databricks account. To learn more, refer to the Microsoft documentation.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "In the Add service principal window, select the Microsoft Entra ID managed option, enter a name for the service principal, and paste the Application ID from the DSPM Databricks registration (see Integration Details).",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          48,
+          74
+        ],
+        [
+          137,
+          151
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Databricks workspace, select the created service principal.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Enable the following entitlements:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Databricks SQL access",
+      "depth": 2
+    },
+    {
+      "item": "Workspace access",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Update.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Repeat these steps for both the orchestrator- and scanner-managed identities.",
+      "depth": 0
+    },
+    {
+      "item": "3. Create a service principal for AWS workspaces.",
+      "depth": 0
+    },
+    {
+      "item": "Add the service principal to all relevant workspaces.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Ensure that the service principal is a member of the admin group to allow DSPM to calculate entitlements.",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Databricks workspace.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Click your username in the top bar of the Databricks workspace and select Settings.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          74,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Select the Identity and access tab.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Next to Service principals, click Manage.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          8,
+          26
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Click Add service principal.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Enter a name for the service principal.",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Assign entitlements to the service principal:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "In the Databricks workspace, select the newly created service principal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Enable the following entitlements:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Databricks SQL Access",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Workspace Access",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Click Update.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Generate the OAuth secret.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Store the secret in the orchestrator account.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "4. Set up a connection string.",
+      "depth": 0
+    },
+    {
+      "item": "Use either of these options:",
+      "depth": 0
+    },
+    {
+      "item": "If a Serverless SQL Warehouse exists in the workspace, retrieve its JDBC URL from the SQL Warehouses section.",
+      "depth": 1,
+      "strong": [
+        [
+          68,
+          76
+        ],
+        [
+          86,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If a Serverless SQL warehouse is not available, create a new compute instance using the following configuration:",
+      "depth": 1
+    },
+    {
+      "item": "Databricks Runtime: Select 17.1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Node Type:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Azure: Select Standard_D2ds_v6.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          14,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "AWS: Select m5d.large.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          12,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Single Node: Select the checkbox.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Terminate after X minutes of inactivity: Enter 20.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          16,
+          17
+        ],
+        [
+          18,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "This is a sample JSON to create the single node compute instance in Azure:",
+      "depth": 1
+    },
+    {
+      "item": "{ \"data_security_mode\": \"DATA_SECURITY_MODE_AUTO\", \"cluster_name\": \"DSPM Data Scanning Compute\", \"kind\": \"CLASSIC_PREVIEW\", \"runtime_engine\": \"STANDARD\", \"spark_version\": \"17.1.x-scala2.13\", \"node_type_id\": \"Standard_D2ds_v6\", \"autotermination_minutes\": 20, \"is_single_node\": true }",
+      "depth": 1
+    },
+    {
+      "item": "This is a sample JSON to create the single node compute instance in AWS:",
+      "depth": 1
+    },
+    {
+      "item": "{ \"data_security_mode\": \"DATA_SECURITY_MODE_AUTO\", \"cluster_name\": \"DSPM Data Scanning Compute\", \"kind\": \"CLASSIC_PREVIEW\", \"aws_attributes\": { \"zone_id\": \"auto\" }, \"runtime_engine\": \"STANDARD\", \"spark_version\": \"17.1.x-scala2.13\", \"node_type_id\": \"m5d.large\", \"autotermination_minutes\": 20, \"is_single_node\": true }",
+      "depth": 1
+    },
+    {
+      "item": "After creating the compute instance, in the Advanced section, click JDBC/ODBC to retrieve the JDBC URL. Copy the URL without the last three properties. To learn more, refer to the Databricks documentation.",
+      "depth": 1,
+      "strong": [
+        [
+          44,
+          52
+        ],
+        [
+          68,
+          77
+        ],
+        [
+          94,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "5. For AWS customer-managed VPCs, ensure the DSPM orchestrator and scanner subnets are allowed by network policies or AWS private link.",
+      "depth": 0
+    },
+    {
+      "heading": "AWS Account",
+      "level": 2
+    },
+    {
+      "text": "Complete the following steps:"
+    },
+    {
+      "item": "1. Create a service principal.",
+      "depth": 0
+    },
+    {
+      "item": "Add the service principal to all accounts.",
+      "depth": 0
+    },
+    {
+      "item": "Go to the Databricks portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, click User management.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "On the Service principals tab, click Add service principal.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          37,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Enter a name for the service principal.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Click the added service principal.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Go to Roles.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Enable the Account Admin permission.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          11,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Grant Metastore Admin permissions to the service principal for the associated workspaces. This permission:",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Grants the service principal read access to all required catalogs and schema.",
+      "depth": 2
+    },
+    {
+      "item": "Provides continued access to new catalogs that are added without the need for manual reconfiguration.",
+      "depth": 2
+    },
+    {
+      "item": "A Metastore Admin privilege is required as it has access to and manages permissions across all catalogs and schemas, while a workspace admin does not have access to all catalogs and schemas in the metastore.",
+      "depth": 1
+    },
+    {
+      "item": "2. Generate the OAuth secret in Databricks.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the AWS Databricks portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to User Management and select the Service principals tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          37,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the required service principal.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Click Credentials & secrets.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Under OAuth secrets, click Generate secret.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          27,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Generate OAuth secret window, provide the validity in days for the OAuth token and click Generate.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          96,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The client ID and secret are generated.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          13
+        ],
+        [
+          18,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Copy the secret and client ID, save them on your system, then click Done.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          68,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "3. Save the secret in AWS Secrets Manager within the DSPM orchestrator account.",
+      "depth": 0
+    },
+    {
+      "item": "Open the AWS Secrets Manager in the AWS Management Console.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Select Store a new secret.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the Choose secret type page, select Other type of secret.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          39,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Select the Plaintext tab and enter the generated secret.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          11,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure secret page:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Secret name: Enter a name for the secret.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Description (optional): Enter a description if required.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image",
+      "depth": 1
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure rotation page, click Next.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          38,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "On the Review page, review your secret details, and then click Store.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          63,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "4. Copy the secret ARN.",
+      "depth": 0
+    },
+    {
+      "item": "Open the AWS Secrets Manager in the AWS Management Console.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Click the stored secret.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "The Secret details are displayed.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Copy and save the Secret ARN on your system, and provide this value during the onboarding process.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "5. Copy the Databricks workspace account ID.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the AWS Databricks portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the top-right corner of the portal, click the user profile icon.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Locate the Account ID from the drop-down menu.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Copy and save the Account ID to provide during the onboarding.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Grant Metastore Admin permissions to the service principal for the associated workspaces.",
+      "depth": 0
+    },
+    {
+      "heading": "Adding a Databricks Workspace",
+      "level": 1
+    },
+    {
+      "text": "To add a Databricks workspace:"
+    },
+    {
+      "item": "From the navigation menu, go to Data Security > DSPM > Service Registration.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          52
+        ],
+        [
+          55,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "On the Service Registration page, select the Databricks tab, and click Add Databricks.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          45,
+          55
+        ],
+        [
+          71,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Add Databricks drawer appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Databricks drawer:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Cloud: Select the cloud service provider that hosts the Databricks.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Registration Type: Select Workspace.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Azure",
+      "depth": 2
+    },
+    {
+      "item": "Workspace Information:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Workspace Name: Select a name of the Databricks workspace.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Workspace ID: This field is autopopulated with the unique identifier for the Databricks workspace.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Account: This field is autopopulated with the cloud account that hosts the workspace.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Region: Enter the region where the workspace is deployed.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Integration Details:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "DSPM Integration Alias: Enter the DSPM alias used to identify the integration for this workspace.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Orchestrator Service Principal Application ID: This field is autopopulated with the application ID of the orchestrator service principal used for authentication.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Scanner Service Principal Application ID: This field is autopopulated with the application ID of the scanner service principal used for data scans.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Connection String: Paste the JDBC URL copied during the prerequisite step to establish a connection between DSPM and the Databricks workspace.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "A permission script is generated.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "Run the script in the Databricks workspace to grant DSPM the required access:",
+      "depth": 4
+    },
+    {
+      "item": "Copy Script: Copy the script to the clipboard, and run it manually in the Databricks workspace.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Download Script: Download the script for offline use or automation.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The Azure Databricks workspace is added and displayed on the Workspace tab on the Databricks page.",
+      "depth": 2,
+      "strong": [
+        [
+          61,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "AWS",
+      "depth": 2
+    },
+    {
+      "item": "Workspace Information:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Workspace Name: Enter the name of the Databricks workspace.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Workspace ID: Enter the unique identifier for the Databricks workspace.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Account Name: Enter the Databricks account name that hosts the workspace.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Account ID: Enter the Databricks account ID.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Account: Select the connected cloud accounts.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Region: Select the region where the workspace is deployed.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "DSPM Integration Alias: Enter the DSPM alias used to identify the integration for this workspace.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Authentication Details:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Type: Select the authentication type.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Client ID: Enter the service principal client identifier which was created as a prerequisite.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret ARN: Enter the AWS Secrets Manager ARN from orchestrator account that stores the client secret.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Connection String: Paste the JDBC URL copied during the prerequisite step to establish a connection between DSPM and the Databricks workspace.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "A permission script is generated.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "Copy Script: Copy the script to the clipboard, create a Databricks job (recommended) or run it manually in the Databricks workspace to grant DSPM the required access.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "A Databricks job automatically grants permissions to scan the newly added catalogs because of the metastore admin permissions. If a job is not created, you must manually rerun the script every time a new catalog is created in your workspace to ensure DSPM can scan it.",
+      "depth": 5
+    },
+    {
+      "item": "Download Script: Download the script for offline use or automation.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The AWS Databricks workspace is added and displayed on the Workspace tab on the Databricks page.",
+      "depth": 2,
+      "strong": [
+        [
+          59,
+          68
+        ]
+      ]
+    },
+    {
+      "text": "After saving the workspace configuration, run the obtained permission script on the Databricks DSPM compute or any environment that supports Python execution. Proceed to configure the workspace."
+    },
+    {
+      "text": "After configuring the workspace, you must verify the connection between DSPM and the Databricks by running the test connection. To learn more, see Testing Connection for Registered Services."
+    },
+    {
+      "heading": "Adding a Databricks Account",
+      "level": 1
+    },
+    {
+      "text": "The Account registration type is available only for AWS.",
+      "strong": [
+        [
+          4,
+          11
+        ],
+        [
+          52,
+          55
+        ]
+      ]
+    },
+    {
+      "text": "To add a Databricks account:"
+    },
+    {
+      "item": "Go to Data Security > DSPM > Service Registration.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          22,
+          26
+        ],
+        [
+          29,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "On the Service Registration page, select the Databricks tab, and click Add Databricks.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          45,
+          55
+        ],
+        [
+          71,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Add Databricks drawer appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Databricks drawer:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Cloud: Select the cloud service provider that hosts the Databricks.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Registration Type: Select Account.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Account Information:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Account Name: Enter a name for the Databricks account.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Account ID: Enter the Databricks Account ID.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "DSPM Integration Alias: Select the DSPM alias for this integration.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Authentication Details:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Type: Select the authentication type.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Client ID: Enter the service principal client identifier which was created as a prerequisite.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret ARN: Enter the AWS Secrets Manager ARN from orchestrator account that stores the client secret.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "The AWS Databricks account is added and displayed on the Accounts tab on the Databricks page.",
+      "strong": [
+        [
+          57,
+          65
+        ]
+      ]
+    },
+    {
+      "text": "After you add the account, DSPM begins an automated discovery and within approximately 15 minutes, it performs the following actions:"
+    },
+    {
+      "item": "Discovers all workspaces associated with the account.",
+      "depth": 0
+    },
+    {
+      "item": "Grants the service principal Workspace Admin access to each discovered workspace.",
+      "depth": 0,
+      "strong": [
+        [
+          29,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Creates a dedicated 2X-Small SQL warehouse in each workspace so that DSPM scans do not interfere with your existing queries. The JDBC connection string of this warehouse is required to perform data scans. This dedicated warehouse is configured to auto-terminate after 10 minutes of inactivity.",
+      "depth": 0
+    },
+    {
+      "item": "Grants the service principal read access to the catalogs and schemas.",
+      "depth": 0
+    },
+    {
+      "text": "After this process is complete, you can configure the scan rules for the Databricks workspace."
+    }
+  ]
+}

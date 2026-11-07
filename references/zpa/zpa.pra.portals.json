@@ -1,0 +1,446 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.portals",
+  "title": "PRA privileged portals and the PRA Portal: fields, certificates and DNS, what end users see, and console login",
+  "aliases": [
+    "privileged portal fields",
+    "pra portal notification banner",
+    "pra portal certificate type",
+    "pra portal cname",
+    "pra portal approval reviewers",
+    "pra portal my web applications",
+    "pra console login window",
+    "pra ssh key rsa dsa"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.pra"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.user-portal"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.portals-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.live-sessions"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.browser-access.certificates",
+      "because": "zpa.pra.components:portal"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A privileged portal is configured on the Privileged Portals page and is what end users open as the PRA Portal. {{portal-fields}} {{admin-messages}}"
+    },
+    {
+      "label": "Certificate and DNS.",
+      "text": "{{certificate-type}} {{fqdn-not-in-segment}} {{dns-custom}} {{dns-managed}} Managed certificate suffixes are open {{gap:managed-suffixes}}."
+    },
+    {
+      "label": "Portal settings.",
+      "text": "{{portal-links}} {{approval-reviewers}}"
+    },
+    {
+      "label": "What end users see.",
+      "text": "{{consoles-shown}} {{consoles-list}} {{microtenants-section}} {{portal-icons}} {{session-timeout}}"
+    },
+    {
+      "label": "Protocols and login.",
+      "text": "{{protocols}} {{login-rdp}} That rule is for the end-user login window; how a privileged credential holds a domain is in [[zpa.pra.credentials:domain-only-for-ad-rdp]]. {{login-ssh}} Whether that key rule matches the privileged credential's key check is open {{gap:ssh-key-algorithms}}. {{login-vnc}}"
+    },
+    {
+      "label": "Keyboard.",
+      "text": "{{virtual-keyboard}} {{virtual-keyboard-win7-8-legacy}}"
+    },
+    {
+      "text": "The same model for user portals is in [[zpa.user-portal]]; the permissions a portals policy gives in the PRA Portal are in [[zpa.pra.portals-policy]]; shared sessions listed in the PRA Portal are in [[zpa.pra.live-sessions]]; the privileged credential object is in [[zpa.pra.credentials]]; the PRA Portal's own timeout rule is in [[zpa.policy.timeout-rules]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a portal that end users cannot open is disabled, or has a custom certificate whose CNAME is not in public DNS.",
+      "uses": [
+        "portal-fields",
+        "dns-custom"
+      ]
+    },
+    {
+      "do": "Whether a console is missing from the PRA Portal because its policy rule is Deny, or because the user has no access to it.",
+      "uses": [
+        "consoles-shown"
+      ]
+    },
+    {
+      "do": "Whether a login failure with a domain account was typed into the end-user window, where the domain goes in the Domain field, or comes from a privileged credential.",
+      "uses": [
+        "login-rdp",
+        "zpa.pra.credentials:domain-only-for-ad-rdp"
+      ]
+    },
+    {
+      "do": "Whether an SSH key answer rests on the RSA or DSA rule of the login window, which is not compared to the credential's key check.",
+      "uses": [
+        "login-ssh",
+        "ssh-key-algorithms"
+      ]
+    }
+  ],
+  "claims": {
+    "portal-fields": {
+      "statement": "A privileged portal takes a name that cannot contain special characters other than periods, hyphens and underscores, a Status (if disabled, the portal is inaccessible to end users), an optional description, and a Notification Banner with message text shown at the top of the PRA portal page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-portals.json",
+          "quotes": [
+            "Name: Enter a name for the privileged portal. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ ).",
+            "Status: Enable the privileged portal. If disabled, the privileged portal is inaccessible to end users.",
+            "Description: (Optional) Enter a description for the privileged portal.",
+            "Notification Banner: To display a notification to users at the top of the PRA portal page:",
+            "Message Text: Enter the notification text that you want displayed in the banner."
+          ]
+        }
+      ]
+    },
+    "admin-messages": {
+      "statement": "The PRA Portal shows any messages from an admin at the top of the page, and an end user can dismiss them with the Close icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "Any messages from an admin are displayed at the top of the page and can be dismissed by an end user by clicking the Close icon."
+          ]
+        }
+      ]
+    },
+    "certificate-type": {
+      "statement": "A privileged portal's certificate is Managed (a certificate managed by Zscaler, with a domain prefix entered and a domain suffix chosen from a drop-down) or Custom (an existing certificate chosen from the Portal Server Certificate drop-down, which must support the portal FQDN). For a custom certificate the URL must use HTTPS and be an FQDN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-portals.json",
+          "quotes": [
+            "Managed: Select a certificate that is managed by Zscaler. This reduces the need to create and renew custom certificates.",
+            "Enter the domain prefix.",
+            "Select the domain suffix from the drop-down menu.",
+            "Custom: Select to use an existing certificate.",
+            "The URL must use the HTTPS protocol and be a fully qualified domain name (FQDN).",
+            "Select a certificate from the Portal Server Certificate drop-down menu that is associated with the privileged portal.",
+            "The certificate must support the FQDN specified for the privileged portal."
+          ]
+        }
+      ]
+    },
+    "fqdn-not-in-segment": {
+      "statement": "A privileged portal's FQDN cannot be configured as an application within an application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-portals.json",
+          "quotes": [
+            "A privileged portal's FQDN cannot be configured as an application within an application segment."
+          ]
+        }
+      ]
+    },
+    "dns-custom": {
+      "statement": "For a privileged portal with a custom certificate, the admin copies the portal's CNAME from its expanded row on the Privileged Portals page, adds it to public DNS and verifies that the portal FQDN resolves to it. The article's example record points at a name ending in pra.p.zpa-app.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-portals.json",
+          "quotes": [
+            "For privileged portals with a custom certificate, complete the following steps:",
+            "On the Privileged Portals page, expand the row to view the privileged portal details within the table, then click the Copy icon next to the Canonical Name (CNAME). You need this CNAME record for your public DNS.",
+            "Add the CNAME information you copied to your public DNS, and verify that the FQDN for the privileged portal resolves to the record.",
+            "la-portal.com. CNAME 72057594038060561.72057594037927936.pra.p.zpa-app.net"
+          ]
+        }
+      ],
+      "conditions": "The pra.p.zpa-app.net suffix is the article's example record only; the article does not state it as a fixed value for every portal."
+    },
+    "dns-managed": {
+      "statement": "The same article says Zscaler automatically manages the public DNS for the FQDN of user portals with a Zscaler-managed certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-portals.json",
+          "quotes": [
+            "Zscaler automatically manages the public DNS for the FQDN of user portals with a Zscaler-managed certificate."
+          ]
+        }
+      ],
+      "conditions": "The sentence says user portals although it sits in the privileged portal article; it is kept as the page words it, and the page does not say it also covers privileged portals."
+    },
+    "portal-links": {
+      "statement": "A privileged portal's User Portal for Portal Links setting selects a user portal whose Browser Access applications are then found on the My Web Applications tab in the PRA Portal. The My Web Applications icon is enabled if User Portal for Portal Links has been configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-portals.json",
+          "quotes": [
+            "User Portal for Portal Links: Select a portal link if you want to access the related user portal Browser Access applications in the PRA Portal.",
+            "The Browser Access applications are found on the My Web Applications tab in the PRA Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "Browser Access: Click the My Web Applications icon to go to the My Web Applications page. This icon is enabled if User Portal for Portal Links has been configured in the PRA Portal."
+          ]
+        }
+      ]
+    },
+    "approval-reviewers": {
+      "statement": "A privileged portal's Approval Reviewers are administrator email addresses that get email notifications when a privileged approval request has been created, approved and rejected. To use this feature the admin must have a portals policy with Review Approvals enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-portals.json",
+          "quotes": [
+            "Approval Reviewers: Select or enter email addresses of administrators that you want to set up email notifications for when a privileged approval request has been created, approved, and rejected.",
+            "To use this feature, you must have a portals policy with Review Approvals enabled."
+          ]
+        }
+      ]
+    },
+    "consoles-shown": {
+      "statement": "The privileged consoles an end user can see in the PRA Portal are based on the access policies for the application segments assigned to those consoles, and consoles whose policy rule is set to Deny are not visible.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "The privileged consoles an end user can see are based on access policies for the application segments that are assigned to the privileged consoles.",
+            "Any privileged consoles with the policy rule set to Deny are not visible to the end user."
+          ]
+        }
+      ]
+    },
+    "session-timeout": {
+      "statement": "The PRA Portal is dependent on the default timeout policy rule's authentication timeout.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "The PRA Portal is dependent on the default timeout policy rule's authentication timeout."
+          ]
+        }
+      ]
+    },
+    "portal-icons": {
+      "statement": "In the PRA Portal the Home icon is displayed, and the My Files icon is interactive, only if the PRA File Transfer System feature is enabled. The Settings icon chooses a keyboard language, display resolution and high quality option for the privileged console, and the logo and favicon can be updated on the Company Profile page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "Home: Click the Home icon to return to the PRA Portal landing page. This icon is only displayed if you have the PRA File Transfer System feature enabled.",
+            "PRA File Transfer System: Click the My Files icon to go to the My Files and Uninspected Files pages. This icon is only interactive if you have the PRA File Transfer System feature enabled.",
+            "Click the Settings icon to choose a keyboard language, display resolution, and high quality option for the privileged console.",
+            "You can update the logo and favicon on the Company Profile page."
+          ]
+        }
+      ]
+    },
+    "microtenants-section": {
+      "statement": "The PRA Portal's Microtenant list shows a Microtenant only if the end user can access a privileged console in it, through privileged approvals or PRA-enabled application segments. The characters & and + cannot be used in the PRA Portal search field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "If a user has access to a privileged console in a Microtenant, then the Microtenant is displayed in this section.",
+            "If there aren't any privileged consoles that the end user can access either using privileged approvals or including PRA-enabled application segments, then the Microtenant doesn't appear in this section.",
+            "You can search within the Microtenant list using the search bar to locate a specific Microtenant. The characters & and + cannot be used in the PRA Portal search field."
+          ]
+        }
+      ]
+    },
+    "consoles-list": {
+      "statement": "The PRA Portal lists the active, expired and future privileged consoles of the portal, including consoles shared by shared application segments at the Microtenant level. An active console shows its end date, a future console its start date, and an active console without a checkmark can be accessed at any time; a console linked to multiple privileged approvals shows only one, in the order Active then Future then Expired.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "The total list of active, expired, and future privileged consoles associated with the PRA Portal you are using are displayed.",
+            "Consoles shared by shared application segments at the Microtenant level are also displayed.",
+            "The end date for an active privileged console is displayed in the privileged console.",
+            "The start date for a future privileged console is displayed in the privileged console.",
+            "If a privileged console is active and does not include a checkmark, this means that the user can access the privileged console at any time.",
+            "When a privileged console is linked to multiple privileged approvals, it only displays one in the following hierarchical order: Active then Future then Expired."
+          ]
+        }
+      ]
+    },
+    "protocols": {
+      "statement": "The PRA Portal marks each console's protocol: SSH is used to remotely access Linux/Unix-based systems, RDP Windows-based systems, and VNC Windows-based systems and Mac-based systems (Mac Screen Sharing). Zscaler supports VNC-enabled privileged consoles that are Remote Frame Buffer (RFB) Protocol compliant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "Secure Shell Protocol (SSH) is used to remotely access Linux/Unix-based systems.",
+            "Remote Desktop Protocol (RDP) is used to remotely access Windows-based systems.",
+            "Virtual Network Computing (VNC) is used to remotely access Windows-based systems and Mac-based systems (Mac Screen Sharing).",
+            "Zscaler supports VNC-enabled privileged consoles that are Remote Frame Buffer (RFB) Protocol compliant."
+          ]
+        }
+      ]
+    },
+    "login-rdp": {
+      "statement": "In the User Account for RDP Access window the end user enters an optional Domain, a Username and a Password. A domain must be entered in the Domain field and cannot be combined with the username, and an Azure username needs .\\AzureAD\\ before it for the login to succeed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "In the User Account for RDP Access window:",
+            "Domain (Optional): Enter the domain name you are attempting to access linked to that specific privileged console.",
+            "If you are including a domain, you need to enter it in the Domain field. You cannot combine it with the username in the Username field.",
+            "If you are entering an Azure username, you need to include .\\AzureAD\\ before the username for the login to be successful (e.g., .\\AzureAD\\user@test.com)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "Username: Enter your username associated with that specific privileged console.",
+            "Password: Enter the password you have set for that specific privileged console."
+          ],
+          "after": "In the User Account for RDP Access window:"
+        }
+      ]
+    },
+    "login-ssh": {
+      "statement": "In the User Account for SSH Access window the end user enters a username and chooses Password or SSH Key; an SSH key is pasted as a private key with an optional passphrase. When authenticating in SSH-enabled privileged consoles only SSH private keys generated with an RSA or DSA encryption algorithm can be used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "In the User Account for SSH Access window:",
+            "Password or SSH Key: Select an option.",
+            "Private Key: Paste the private key into the text field.",
+            "Passphrase (Optional): Enter the passphrase associated with that specific privileged console.",
+            "When authenticating in SSH-enabled privileged consoles, you can only use SSH private keys that are generated with an RSA or DSA encryption algorithm."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "Username: Enter your username associated with that specific privileged console."
+          ],
+          "after": "In the User Account for SSH Access window:"
+        }
+      ]
+    },
+    "login-vnc": {
+      "statement": "In the User Account for VNC Access window the end user enters a username and password. If the VNC display is not working correctly, the end user needs to change the display settings on the machine the VNC is accessing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "In the User Account for VNC Access window:",
+            "If the VNC display is not working correctly, the end user needs to change the display settings on the machine that the VNC is accessing."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "Username: Enter your username associated with that specific privileged console.",
+            "Password: Enter the password you have set for that specific privileged console."
+          ],
+          "after": "In the User Account for VNC Access window:"
+        }
+      ]
+    },
+    "virtual-keyboard": {
+      "statement": "When an end user uses the virtual keyboard in an SSH-privileged console, any entered text is not initially visible; turning the keyboard off and on again, or using the scroll bar to scroll down to the typing display screen, addresses it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "When you are using an SSH-privileged console and you are using the virtual keyboard, any entered text is not initially visible.",
+            "Turn off the keyboard and then turn it back on.",
+            "Use the scroll bar to scroll down to the typing display screen."
+          ]
+        }
+      ]
+    },
+    "virtual-keyboard-win7-8-legacy": {
+      "statement": "Legacy: with the virtual keyboard on Windows 7 or 8, locking the screen with the keyboard prevents entering the password, and clearing the already selected key fixes it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "If you are using the virtual keyboard with Windows 7 or 8 and you lock the screen with the keyboard, you cannot enter the password. Clear the already selected key to fix it."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "managed-suffixes": {
+      "kind": "semantic",
+      "title": "Which domain suffixes a Managed certificate offers",
+      "status": "open",
+      "detail": "The Configuring Privileged Portals article says the admin selects the domain suffix from a drop-down menu but does not list the suffixes. This is the same open question as the managed-suffixes gap of zpa.user-portal. A tenant check of the drop-down or a Zscaler statement would resolve it.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "ssh-key-algorithms": {
+      "kind": "semantic",
+      "title": "Whether the RSA or DSA key rule of the login window and the privileged credential's key check describe the same constraint",
+      "status": "open",
+      "detail": "The User Account for SSH Access window page says only SSH private keys generated with an RSA or DSA algorithm can be used. The privileged credential object has its own rule on the Configuring Privileged Credentials page: \"You can only use SSH private keys that are 2048-bit length or smaller.\" (zpa.pra.credentials:ssh-key-size). The Python SDK checks a credential against several private-key header patterns, one of which is an EC private key header (zpa.api.pra-wire:credential-type-values), and no DSA pattern is quoted there. The objects differ (a login window against a stored credential) and no source ties the rules together, so this is not recorded as a divergence. A lab test of an EC key in each place would resolve it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

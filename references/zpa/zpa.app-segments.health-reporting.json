@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.health-reporting",
+  "title": "How App Connectors check and report application health, and what Continuous, On Access and None mean",
+  "aliases": [
+    "health reporting",
+    "application health check",
+    "on access health reporting",
+    "none health reporting",
+    "health dashboard application"
+  ],
+  "binds": [
+    "zpa/application-segments#healthReporting"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.multimatch-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.selection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{check-method}} {{check-example}}"
+    },
+    {
+      "label": "Reporting the result.",
+      "text": "{{up-reported-to-ca}} {{random-selection-in-group}} Whether that selection is the same step as the proximity selection is open {{gap:selection-step}}."
+    },
+    {
+      "label": "Rate.",
+      "text": "{{check-rate}} How often Continuous repeats its checks is open {{gap:continuous-interval}}."
+    },
+    {
+      "label": "Modes.",
+      "text": "{{continuous-mode}} The Defined Application Segments page names a different set of excluded segments, so the exclusions are not settled: see the divergence in [[zpa.app-segments.settings]]. {{on-access}} {{none-mode}} Whether None is allowed on discovery segments is open {{gap:none-on-discovery}}."
+    },
+    {
+      "label": "Extranet.",
+      "text": "{{extranet-health-score}}"
+    },
+    {
+      "label": "Restrictions from other features.",
+      "text": "{{multimatch-and-c2c}} The Multimatch limits are also in [[zpa.app-segments.multimatch-requirements]]."
+    }
+  ],
+  "claims": {
+    "check-method": {
+      "statement": "With Health Reporting enabled, the App Connector checks application reachability to the server on each TCP and UDP port in the application segment: for an FQDN it checks all the IP addresses returned by DNS resolution, for an IP address it checks only that address, for TCP access it uses a TCP 3-way handshake, and for UDP access it first performs ICMP-based checks and follows with a TCP-based check if the ICMP check is unsuccessful.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#healthReporting"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-health-reporting.json",
+          "quotes": [
+            "If you enable Health Reporting, the App Connector checks the application reachability to the server on each TCP and UDP port specified in the application segment configuration.",
+            "FQDN: The App Connector checks reachability to all the IP addresses that are returned as part of the DNS resolution.",
+            "IP address: The App Connector only checks reachability to the IP address.",
+            "TCP access: The App Connector performs a check using TCP 3-way handshake to determine application reachability.",
+            "UDP access: The App Connector first performs ICMP-based checks to determine application reachability. It follows with a TCP-based check if the ICMP check is unsuccessful."
+          ]
+        }
+      ]
+    },
+    "check-example": {
+      "statement": "In the documented example, with IP address 10.1.1.1, TCP port 80 and UDP port 3389, if jira.lanukcorp.com resolves to 10.1.2.1 and 10.1.2.2, the App Connectors for the application perform reachability checks to 10.1.2.1:80, 10.1.2.2:80, 10.1.1.1:80, 10.1.2.1:3389, 10.1.2.2:3389 and 10.1.1.1:3389.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-health-reporting.json",
+          "quotes": [
+            "IP address: 10.1.1.1",
+            "TCP ports: 80",
+            "UDP ports: 3389",
+            "If jira.lanukcorp.com resolves to 10.1.2.1 and 10.1.2.2, the App Connectors for this application perform reachability checks to 10.1.2.1:80, 10.1.2.2:80, 10.1.1.1:80, 10.1.2.1:3389, 10.1.2.2:3389, and 10.1.1.1:3389."
+          ]
+        }
+      ]
+    },
+    "up-reported-to-ca": {
+      "statement": "If the application reachability check is successful, the App Connector reports the application's health status as Up to the Private Access Central Authority, which uses that information to decide whether an App Connector should be used for accessing a requested application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-health-reporting.json",
+          "quotes": [
+            "If the application reachability check is successful, the App Connector reports the application's health status as Up to the Private Access (ZPA) Central Authority (CA).",
+            "When the App Connector identifies the health status of the application, it reports this information to the Private Access Central Authority (CA).",
+            "Private Access then uses this information to decide if an App Connector should be used for accessing a requested application."
+          ]
+        }
+      ]
+    },
+    "random-selection-in-group": {
+      "statement": "Private Access can randomly select any App Connector in an App Connector group if at least one App Connector in the group has successfully reported reachability to the requested application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-health-reporting.json",
+          "quotes": [
+            "Private Access can randomly select any App Connector in an App Connector group if at least one App Connector in the group has successfully reported reachability to the requested application."
+          ]
+        }
+      ]
+    },
+    "check-rate": {
+      "statement": "App Connectors limit the number of checks to 20 checks per second, so 6,000 checks take 300 seconds, and Zscaler recommends configuring applications so that an App Connector does not have to perform more than 6,000 checks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-health-reporting.json",
+          "quotes": [
+            "App Connectors limit the number of checks to 20 checks per second.",
+            "However if the App Connector has to perform 6,000 checks, it takes 300 seconds to perform these checks.",
+            "Zscaler recommends configuring applications so that an App Connector does not have to perform more than 6,000 checks."
+          ]
+        }
+      ]
+    },
+    "continuous-mode": {
+      "statement": "With Continuous, the App Connector continuously performs checks and reports the reachability status of the application. The Health Reporting page says Continuous cannot be configured for application segments configured with more than 10 ports, or for application segments configured for application discovery (domain names in wildcard format or IP subnets such as *.safemarch.com or 10.122.0.0/16).",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#healthReporting"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-health-reporting.json",
+          "quotes": [
+            "The App Connector continuously performs checks and reports the reachability status of the application.",
+            "Application segments configured with more than 10 ports.",
+            "Applications segments configured for application discovery (i.e., applications with domain names in wildcard format or IP subnets, such as *.safemarch.com or 10.122.0.0/16)."
+          ]
+        }
+      ]
+    },
+    "on-access": {
+      "statement": "With On Access, the App Connector attempts to report the reachability status of the application when a user attempts to access it and continues to check and report for up to 30 minutes after the last user accesses it; while it reports, the status shows Up or Down, and when it stops reporting the status is displayed as Unknown with a question mark icon.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#healthReporting"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-health-reporting.json",
+          "after": "- On Access",
+          "quotes": [
+            "The App Connector attempts to report the reachability status of the application when a user attempts to access the application.",
+            "The App Connector continues to check and report the application's reachability status for up to 30 minutes after the last user accesses it.",
+            "When the App Connector reports the health of the application, it displays the health status as Up or Down depending on whether the application is accessible or not.",
+            "When the App Connector stops reporting the health of the application, its health status is displayed as Unknown with a question mark icon."
+          ]
+        }
+      ]
+    },
+    "none-mode": {
+      "statement": "With None, the App Connector does not check and report reachability to the application, and Private Access assumes the application is always reachable through that App Connector and can select it; the page lists as reasons to use None reducing the number of checks, an application expected to always be reachable, and connecting to an extranet application.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#healthReporting"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-health-reporting.json",
+          "after": "Validating a Client Hostname.\n- None",
+          "quotes": [
+            "The App Connector does not check and report reachability to the application.",
+            "Private Access assumes the application is always reachable through the App Connector, and it can select this App Connector to provide access to the requested application.",
+            "You want to reduce the number of checks performed by an App Connector.",
+            "An application is expected to always be reachable.",
+            "You are connecting to an extranet application."
+          ]
+        }
+      ]
+    },
+    "extranet-health-score": {
+      "statement": "For Extranet, the health score represents the health of an IPSec connection between the extranet resource's (partner) data center and the Zscaler cloud; it is a cumulative score of all the components and functions for that connection, and the health of the application itself is not evaluated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-health-reporting.json",
+          "quotes": [
+            "For Extranet, the health score represents the health of an IPSec connection between the extranet resource's (partner) data center and the Zscaler cloud.",
+            "It is a cumulative score of all the components and functions for that connection.",
+            "The health of the application itself is not evaluated."
+          ]
+        }
+      ]
+    },
+    "multimatch-and-c2c": {
+      "statement": "If Multimatch is enabled, Health Reporting on an application segment can only be set to On Access or None, and an application with client hostname validation enabled to facilitate client-to-client remote assistance is not shown on the Health dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-health-reporting.json",
+          "quotes": [
+            "If Multimatch is enabled, Health Reporting on an application segment can only be set to On Access or None.",
+            "If an application has client hostname validation enabled to facilitate client-to-client remote assistance, then the application is not shown on the Health dashboard."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "continuous-interval": {
+      "kind": "semantic",
+      "title": "How often Continuous health reporting repeats its checks",
+      "status": "open",
+      "detail": "The Understanding Health Reporting page gives a rate limit of 20 checks per second and a 6,000-check recommendation, but no check interval for Continuous. How the 6,000-check recommendation relates to the 6,000-target limit on the Defined Application Segments page is not said.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "none-on-discovery": {
+      "kind": "semantic",
+      "title": "Whether None is allowed on application discovery segments",
+      "status": "open",
+      "detail": "The Application Discovery page says only On Access health reporting can be chosen for discovered applications, while the Health Reporting page excludes only Continuous for discovery segments.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "selection-step": {
+      "kind": "semantic",
+      "title": "Whether random selection among healthy connectors is the same step as selecting the closest App Connector",
+      "status": "open",
+      "detail": "The Health Reporting page says Private Access can randomly select any App Connector in a group once at least one has reported reachability. The About App Connectors page says Private Access selects the closest App Connector given the location of the user and the App Connector-to-application latency. Neither page says whether they describe the same selection step, so they are not recorded as a divergence.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

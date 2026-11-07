@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "id": "zpa.scim.setup",
+  "title": "Enabling SCIM for Private Access: endpoint, token, policy setting and IdP guides",
+  "aliases": [
+    "enable SCIM ZPA",
+    "SCIM Sync",
+    "SCIM Service Provider Endpoint",
+    "bearer token",
+    "Generate New Token",
+    "SCIM Attributes for Policy"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication.idp-configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.policy-criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.provisioning-timing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.server-operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.setup"
+    }
+  ],
+  "prose": [
+    {
+      "text": "SCIM is enabled per IdP in the Admin Console. {{prerequisites}} {{enable-endpoint-token}} {{disable-scim}}"
+    },
+    {
+      "label": "Policy setting.",
+      "text": "{{policy-setting-reauth}} The setting is named differently on the IdP configuration and access policy pages; the divergence is in [[zpa.authentication.idp-configuration]]. {{sync-before-policy}} The wait is also in [[zpa.policy.scim-sync:scim-wait-48-hours]]."
+    },
+    {
+      "label": "IdP guides.",
+      "text": "{{idp-guides}}"
+    },
+    {
+      "label": "Azure AD.",
+      "text": "{{azure-ad}}"
+    },
+    {
+      "label": "Okta.",
+      "text": "{{okta-api-integration}} {{okta-sync-readiness}} {{okta-groups-and-attributes}}"
+    },
+    {
+      "text": "What is synced is in [[zpa.scim.attributes-and-groups]], timing in [[zpa.scim.provisioning-timing]], policy use in [[zpa.scim.policy-criteria]], and the server API in [[zpa.scim.server-operations]]. The PingFederate guide the enabling page links is not captured {{gap:pingfederate-guide}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether SCIM Sync is enabled on the IdP and whether the bearer token was copied before saving, since it is not shown again.",
+      "uses": [
+        "enable-endpoint-token"
+      ]
+    },
+    {
+      "do": "Whether SCIM Sync was enabled well before SCIM Attributes for Policy, and whether the Admin Console's user and group counts match the IdP's.",
+      "uses": [
+        "sync-before-policy",
+        "okta-sync-readiness"
+      ]
+    },
+    {
+      "do": "For an existing user, whether Client Connector has reauthenticated since SCIM Attributes for Policy was first enabled.",
+      "uses": [
+        "policy-setting-reauth"
+      ]
+    }
+  ],
+  "claims": {
+    "prerequisites": {
+      "statement": "An IdP for SAML authentication should be configured for single sign-on before SCIM is enabled, and Zscaler supports only SCIM version 2.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-enabling-scim-identity-management.json",
+          "quotes": [
+            "Prior to enabling SCIM, you should configure an IdP for SAML authentication to use for single sign-on.",
+            "Zscaler only supports SCIM version 2.0."
+          ]
+        }
+      ]
+    },
+    "enable-endpoint-token": {
+      "statement": "SCIM is enabled by selecting Enabled for SCIM Sync in the Edit IdP Configuration window. The SCIM Service Provider Endpoint is used when configuring SCIM in the IdP, and Generate New Token creates the bearer token, a unique alphanumeric string that authenticates SCIM requests; the token does not display again after saving.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-enabling-scim-identity-management.json",
+          "quotes": [
+            "In the Edit IdP Configuration window, select Enabled for SCIM Sync.",
+            "Copy the SCIM Service Provider Endpoint. This is used when configuring SCIM in the IdP.",
+            "Click Generate New Token to create a bearer token. The bearer token is a unique alphanumeric string that is used to authenticate SCIM requests.",
+            "The token does not display again after saving. Copy the token to your clipboard before saving."
+          ]
+        }
+      ]
+    },
+    "disable-scim": {
+      "statement": "To disable SCIM for identity management, Disabled must be selected for SCIM Sync.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-idp-configuration.json",
+          "quotes": [
+            "To disable SCIM for identity management, you must select Disabled for SCIM Sync."
+          ]
+        }
+      ]
+    },
+    "policy-setting-reauth": {
+      "statement": "When SCIM Attributes for Policy is first enabled, an existing user's Client Connector connection also needs to be enabled for SCIM, and only policies with SCIM criteria are evaluated for that user after the user successfully reauthenticates. Reauthentication does not impact ongoing connections to applications or the ability to use SAML as a criteria in Private Access policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-enabling-scim-identity-management.json",
+          "quotes": [
+            "When you first enable SCIM Attributes for Policy, an existing user's Zscaler Client Connector connection also needs to be enabled for SCIM.",
+            "Only policies with SCIM criteria are evaluated for this user after the user successfully reauthenticates.",
+            "The reauthentication process does not impact ongoing connections to applications or the ability to use SAML as a criteria in Private Access policies."
+          ]
+        }
+      ]
+    },
+    "sync-before-policy": {
+      "statement": "Zscaler recommends enabling SCIM Sync in advance of SCIM Attributes for Policy, and waiting a minimum of 48 hours, or up to a week, after SCIM Sync is enabled before enabling SCIM policies; the Azure AD SCIM guide says the same wait. After SCIM is enabled Zscaler checks whether a user is present in the SCIM database and, based on this, decides whether the user is allowed or blocked access to Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-enabling-scim-identity-management.json",
+          "quotes": [
+            "Zscaler recommends that SCIM Sync be enabled in advance, prior to enabling SCIM Attributes for Policy.",
+            "After SCIM Sync is enabled, Zscaler recommends waiting a minimum of 48 hours, or up to a week, before enabling SCIM policies.",
+            "After SCIM is enabled, Zscaler checks if a user is present in the SCIM database. Based on this information, Zscaler decides if the user is allowed or blocked access to Private Access."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-configuration-guide-microsoft-azure-ad.json",
+          "quotes": [
+            "After SCIM Sync is enabled, Zscaler recommends waiting a minimum of 48 hours, or up to a week, before enabling SCIM policies."
+          ]
+        }
+      ]
+    },
+    "idp-guides": {
+      "statement": "The enabling page links SCIM guides for Microsoft Azure AD, PingFederate and Okta, and says Okta does not sync users to Private Access before SCIM is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-enabling-scim-identity-management.json",
+          "quotes": [
+            "SCIM Configuration Guide for Microsoft Azure AD",
+            "PingFederate integration with Private Access",
+            "SCIM Configuration Guide for Okta",
+            "Okta does not sync users to Private Access in the Okta IdP before you enable SCIM."
+          ]
+        }
+      ]
+    },
+    "azure-ad": {
+      "statement": "Azure AD SCIM needs a premium Azure AD subscription and is configured on the Zscaler Private Access (ZPA) application added as part of configuring Azure as an IdP, with a configuration separate from the IdP setup. Provisioning Mode is Automatic, Tenant URL is the SCIM Service Provider Endpoint, Secret Token is the Bearer Token, and Scope is set to Sync only assigned users and groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-configuration-guide-microsoft-azure-ad.json",
+          "quotes": [
+            "This configuration information is different from setting up Azure AD as an IdP for Private Access.",
+            "A premium Azure AD subscription",
+            "click the Zscaler Private Access (ZPA) application you added (in steps 1 to 4) as part of configuring Azure as an IdP.",
+            "Select Automatic from the Provisioning Mode drop-down menu.",
+            "In the Tenant URL field, enter the SCIM Service Provider Endpoint that is provided when enabling SCIM in the Zscaler Admin Console.",
+            "In the Secret Token field, enter the Bearer Token that is provided when enabling SCIM in the Zscaler Admin Console.",
+            "Set the Scope to Sync only assigned users and groups."
+          ]
+        }
+      ]
+    },
+    "okta-api-integration": {
+      "statement": "Okta SCIM uses Zscaler Private Access 2.0, which lets SAML be the authentication method and SCIM the provisioning method, and needs a SCIM provisioning subscription for Okta. Base URL is the SCIM Service Provider Endpoint and API Token is the Bearer Token; if the connection test fails the guide says to save the IdP configuration in the Admin Console and try again. The Create Users, Update User Attributes and Deactivate Users Enable checkboxes are selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-configuration-guide-okta.json",
+          "quotes": [
+            "Zscaler Private Access 2.0 enables you to use SAML as your method of authentication and SCIM as your method of provisioning.",
+            "A SCIM provisioning subscription for Okta.",
+            "In the Base URL field, enter the SCIM Service Provider Endpoint that is provided when enabling SCIM in the Zscaler Admin Console.",
+            "In the API Token field, enter the Bearer Token that is provided when enabling SCIM in the Zscaler Admin Console.",
+            "If the attempt fails, make sure you save your IdP configuration in the Zscaler Admin Console when enabling SCIM, and then try again.",
+            "For Create Users, select the Enable checkbox.",
+            "For Update User Attributes, select the Enable checkbox.",
+            "For Deactivate Users, select the Enable checkbox."
+          ]
+        }
+      ]
+    },
+    "okta-sync-readiness": {
+      "statement": "Before enabling SCIM for policies with Okta, Zscaler recommends monitoring the Admin Console's user and group count until it equals Okta's. The sync duration depends on the number of users and groups synced and can take up to a week in certain scenarios.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-configuration-guide-okta.json",
+          "quotes": [
+            "Before enabling SCIM for policies, Zscaler recommends monitoring the user and group count in the Zscaler Admin Console until it is equal to the user and group count in Okta.",
+            "The duration of the SCIM sync is dependent on the number of users and groups that are being synced. This can take up to a week in certain scenarios."
+          ]
+        }
+      ]
+    },
+    "okta-groups-and-attributes": {
+      "statement": "For Okta, Zscaler recommends one assignment group with all Okta users and then pushing the groups to sync. Additional attributes (the examples are user.department and user.jobtitle) are added with data type string and external namespace urn:ietf:params:scim:schemas:extension:enterprise:2.0:User, and the SCIM user can be confirmed with the View icon next to an internal user ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-configuration-guide-okta.json",
+          "quotes": [
+            "Zscaler recommends creating one assignment group with all Okta users to leverage assignments and define policies in the Zscaler Admin Console.",
+            "After the assignments are complete, push the groups you want to sync with Zscaler Private Access 2.0.",
+            "Data type: Select string.",
+            "External namespace: Enter the url urn:ietf:params:scim:schemas:extension:enterprise:2.0:User",
+            "In the left field, next to the attribute name enter user. with the attribute (e.g. user.department, user.jobtitle).",
+            "click the View icon next to an internal user ID to confirm that the SCIM user is reflected in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "pingfederate-guide": {
+      "kind": "semantic",
+      "title": "PingFederate SCIM guide",
+      "status": "open",
+      "detail": "The enabling page lists PingFederate integration with Private Access among the SCIM guides; that guide is not captured, so nothing here says how to configure it.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

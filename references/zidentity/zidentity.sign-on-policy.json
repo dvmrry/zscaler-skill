@@ -1,0 +1,369 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.sign-on-policy",
+  "title": "Admin sign-on policy: allow/deny rules, exemptions, limits, and the trusted IP locations and location groups they match on",
+  "aliases": [
+    "Admin Sign-On Policy",
+    "sign-on rules",
+    "sign-on policy",
+    "Trusted IP Locations",
+    "Trusted IP Location Groups",
+    "IP location groups",
+    "IP locations",
+    "restrict admin login by IP",
+    "limit administrator access by source IP"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac.permissions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Admin Sign-On Policy is where sign-on rules are set for access to the Zscaler Admin Console. {{what-it-is}}"
+    },
+    {
+      "label": "Who it does not cover.",
+      "text": "{{exemptions}}"
+    },
+    {
+      "label": "Evaluation.",
+      "text": "{{evaluation-order}} {{rule-order-auto}} {{implicit-allow}}"
+    },
+    {
+      "label": "Rules.",
+      "text": "{{rule-columns}} {{rule-limits}} The criteria types beyond the examples are open {{gap:criteria-types}}, whether rules reach end-user service logins or only Admin Console access is open {{gap:rule-scope}}, and whether the 256 policies are the rules is open {{gap:policy-limit-meaning}}."
+    },
+    {
+      "label": "IP locations.",
+      "text": "{{ip-location-what}} {{ip-location-limits}} The values of Source are open {{gap:location-source}}."
+    },
+    {
+      "label": "IP location CSV.",
+      "text": "{{ip-location-csv}} {{ip-location-csv-override}} How columns D, E and F combine is open {{gap:csv-columns}}, and whether the single-add form takes IPv6 is open {{gap:ipv6-single-add}}."
+    },
+    {
+      "label": "IP location groups.",
+      "text": "{{ip-location-groups}} {{ip-location-group-limits}} {{ip-location-group-csv}}"
+    },
+    {
+      "label": "Permission.",
+      "text": "Managing or viewing the sign-on policy also needs IP Locations Full or View Only: [[zidentity.admin-rbac.permissions:signon-needs-ip-locations]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the account is the super admin or an API caller, to which the sign-on policy does not apply, before reasoning from a rule.",
+      "uses": [
+        "exemptions"
+      ]
+    },
+    {
+      "do": "Whether a Deny rule has been created, since the page says that without one everything is implicitly allowed, and the rules' order numbers, since they are evaluated in ascending order.",
+      "uses": [
+        "implicit-allow",
+        "evaluation-order"
+      ]
+    },
+    {
+      "do": "For a CSV import that errors, whether Override Existing Entries is selected when the location or group already exists.",
+      "uses": [
+        "ip-location-csv-override",
+        "ip-location-group-csv"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "The Admin Sign-On Policy holds sign-on rules that allow or deny a user access to the Zscaler service; rules are built from attributes and control which users can access the Zscaler Admin Console, with conditions such as trusted IP locations and trusted IP location groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-sign-on-policies.json",
+          "quotes": [
+            "The sign-on rules determine whether to allow or deny a user from accessing the Zscaler service.",
+            "You can use different attributes to configure rules and apply them to the users.",
+            "Configure policies to control which users within your organization can access the Zscaler Admin Console.",
+            "Enforce condition-based access control for the users, such as trusted IP location, trusted IP location groups, etc."
+          ]
+        }
+      ]
+    },
+    "exemptions": {
+      "statement": "The sign-on policy does not apply to the super admin (admin@<vanityurl>.zslogin.net), the primary account created when the tenant was onboarded, or to API requests initiated through the OneAPI platform or legacy API workflows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-sign-on-policies.json",
+          "quotes": [
+            "The sign-on policy is not applicable to:",
+            "The super admin (admin@<vanityurl>.zslogin.net), as they are the primary user account that was created when onboarding your tenant.",
+            "API requests that are initiated via the OneAPI platform or legacy API workflows."
+          ]
+        }
+      ]
+    },
+    "evaluation-order": {
+      "statement": "Sign-on rules are evaluated in ascending numerical order of their rule order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-sign-on-policies.json",
+          "quotes": [
+            "Sign-on rules are evaluated in ascending numerical order."
+          ]
+        }
+      ]
+    },
+    "implicit-allow": {
+      "statement": "Authentication Service follows the Allow rule by default: unless a Deny rule is created, it implicitly allows everything.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-sign-on-policies.json",
+          "quotes": [
+            "Authentication Service follows the Allow rule by default, so unless a Deny rule is created, it implicitly allows everything."
+          ]
+        }
+      ]
+    },
+    "rule-columns": {
+      "statement": "Each rule shows the criteria that trigger it, its action (Allow or Deny) and its status (Enabled or Disabled), and a rule can be enabled or disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-sign-on-policies.json",
+          "quotes": [
+            "Rule Action: The action (Allow or Deny) taken when a rule is triggered.",
+            "Rule Status: The status (Enabled or Disabled) of the rule.",
+            "Criteria: The criteria that triggers the rule.",
+            "Enable or disable a sign-on rule."
+          ]
+        }
+      ]
+    },
+    "rule-limits": {
+      "statement": "Up to 256 policies can be added; a rule's name is at most 31 characters, its description at most 10,240 characters, and it can hold up to 256 criteria, with an action of Allow or Deny for the matching rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-admin-sign-on-policy.json",
+          "quotes": [
+            "You can add up to 256 policies.",
+            "Name: Enter a name for the rule. The maximum length is 31 characters.",
+            "Description: Enter additional notes or information. The description cannot exceed 10,240 characters.",
+            "To add multiple criteria to the rule, click Add More. You can add up to 256 criteria.",
+            "Action: Select whether you want to Allow or Deny the access request for the matching rule."
+          ]
+        }
+      ]
+    },
+    "rule-order-auto": {
+      "statement": "When a rule is added, the sign-on policy assigns its Rule Order number automatically; rules are evaluated in ascending numerical order (Rule 1 before Rule 2).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-admin-sign-on-policy.json",
+          "quotes": [
+            "The sign-on policy automatically assigns the Rule Order number.",
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule's place in the order."
+          ]
+        }
+      ]
+    },
+    "ip-location-what": {
+      "statement": "An IP location is the geographical location associated with an IP address; IP locations are used in sign-on policies and to categorize the organization's egress points that access Authentication Service. Each shows a country, an IP address and the source it was added from.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-ip-locations.json",
+          "quotes": [
+            "An IP location refers to the geographical location associated with an IP address. These IP locations can be used to define and apply various sign-on policies.",
+            "Categorize multiple traffic egress points within your organization that access the Authentication Service.",
+            "Country: The country in which this IP location exists.",
+            "IP Address: The IP address of the location.",
+            "Source: The source from where the IP location is added."
+          ]
+        }
+      ]
+    },
+    "ip-location-limits": {
+      "statement": "Up to 65,536 IP locations can be added, and a location's IP Address field takes up to 2,048 IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-ip-locations.json",
+          "quotes": [
+            "You can add up to 65,536 IP locations.",
+            "IP Address: Enter the IP address. You can add up to 2,048 IP addresses in this field."
+          ]
+        }
+      ]
+    },
+    "ip-location-csv": {
+      "statement": "The IP location CSV has a header row and one location per row, with columns A action (+ adds, - deletes), B name shown in the Admin Console, C country, D a range of IP addresses (IPv4 or IPv6), E IP address and F IP subnet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-importing-ip-locations-csv-file.json",
+          "quotes": [
+            "The first row in the file is the header row.",
+            "A: Define the action:",
+            "+ (plus sign) to add a new IP location.",
+            "- (minus sign) to delete an IP location.",
+            "B: Enter the name of the IP location that must be displayed in the Zscaler Admin Console.",
+            "C: Enter the country for this particular IP location.",
+            "D: Enter the range of IP addresses. They can be IPv4 or IPv6 ranges.",
+            "E: Enter the IP address.",
+            "F: Enter the IP subnet for the location.",
+            "Each IP location must be in a separate row."
+          ]
+        }
+      ]
+    },
+    "ip-location-csv-override": {
+      "statement": "Override Existing Entries is needed to update existing location information (such as country) or delete locations; without it, importing a location that already exists shows an error that identical IP locations cannot be imported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-importing-ip-locations-csv-file.json",
+          "quotes": [
+            "If you want to update your existing location information (e.g., country), including deleting IP locations, as well as add new locations, select Override Existing Entries.",
+            "If you attempt to add an IP location that already exists and this option is not selected, Authentication Service displays an error message stating that identical IP locations cannot be imported."
+          ]
+        }
+      ]
+    },
+    "ip-location-groups": {
+      "statement": "IP location groups group several IP locations to organize source IP address ranges, and can be used to configure sign-on policies; each shows the locations associated with the group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-ip-location-groups.json",
+          "quotes": [
+            "IP location groups are multiple IP locations that are grouped together to organize source IP address ranges.",
+            "These location groups can be used to configure various sign-on policies for the users.",
+            "Locations: The locations associated with the group."
+          ]
+        }
+      ]
+    },
+    "ip-location-group-limits": {
+      "statement": "Up to 4,096 IP location groups can be added, and the page gives a limit of 2,048 locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-ip-location-groups.json",
+          "quotes": [
+            "You can add up to 4,096 IP location groups.",
+            "You can add up to 2,048 locations."
+          ]
+        }
+      ]
+    },
+    "ip-location-group-csv": {
+      "statement": "The IP location group CSV has a header row and one group per line, with + to add and - to delete a group; when the group already exists and the override option is not selected, importing it shows an error that identical IP location groups cannot be imported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-importing-ip-location-groups-csv-file.json",
+          "quotes": [
+            "The first line of the file is the header row.",
+            "+ (plus sign) to add a new IP location group.",
+            "- (minus sign) to delete an IP location group.",
+            "Each IP Location group must be on a separate line.",
+            "(Optional) If you want to update an existing location group, including deleting IP locations, as well as add new locations, select Override Existing Entries.",
+            "If you attempt to add an IP location group that already exists and this option is not selected, Authentication Service displays an error message stating that identical IP location groups cannot be imported."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "criteria-types": {
+      "kind": "semantic",
+      "title": "Which criteria a sign-on rule can use",
+      "status": "open",
+      "detail": "The pages say different attributes can be used and give trusted IP location and trusted IP location group as examples; the full list of criteria types is not given.",
+      "blocks": "knowing what a rule can match beyond source IP",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "rule-scope": {
+      "kind": "semantic",
+      "title": "Whether sign-on rules apply to end-user service logins or only to Admin Console access",
+      "status": "open",
+      "detail": "The overview page says rules are configured for the users and also that they control which users can access the Zscaler Admin Console; which logins a rule is evaluated for is not stated.",
+      "blocks": "telling whether a rule can block an end user's service login",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "policy-limit-meaning": {
+      "kind": "semantic",
+      "title": "Whether the limit of 256 policies counts rules",
+      "status": "open",
+      "detail": "The configuration page says up to 256 policies can be added while the drawer adds rules; it does not say the two are the same count.",
+      "blocks": "planning how many rules a tenant can hold",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "location-source": {
+      "kind": "semantic",
+      "title": "The values of an IP location's Source",
+      "status": "open",
+      "detail": "The page says Source is where the location was added from and does not list its values.",
+      "blocks": "telling how a location came to exist",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "csv-columns": {
+      "kind": "semantic",
+      "title": "How the range, address and subnet columns of the IP location CSV combine",
+      "status": "open",
+      "detail": "The CSV has separate columns for a range of IP addresses (D), an IP address (E) and an IP subnet (F); how they combine in one location is not explained.",
+      "blocks": "preparing an IP location import",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "ipv6-single-add": {
+      "kind": "semantic",
+      "title": "Whether the single-add IP location form accepts IPv6",
+      "status": "open",
+      "detail": "Only the CSV page says IPv6 ranges are accepted; the Adding IP Locations page does not say.",
+      "blocks": "adding an IPv6 location in the console",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

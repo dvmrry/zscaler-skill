@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "id": "zpa.vpn.user-enablement",
+  "title": "VPN user enablement rules: who may open a VPN tunnel",
+  "aliases": [
+    "user enablement",
+    "vpn user enablement",
+    "vpn entitlement",
+    "vpn connected user entitlement"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.access-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{criteria-types}}"
+    },
+    {
+      "label": "Matching and order.",
+      "text": "{{match-and-order}} The ZPA access policy rule order is in [[zpa.policy.access-rule-order]]."
+    },
+    {
+      "label": "Writing a rule.",
+      "text": "{{actions-and-message}} {{condition-sets}} {{posture-values}} {{identity-criteria}}"
+    },
+    {
+      "label": "When an IdP setting is disabled.",
+      "text": "{{idp-policy-setting-disabled}} The access policy states the same rule in [[zpa.policy.criteria:idp-policy-setting-disabled]]. {{multi-idp-and}}"
+    },
+    {
+      "label": "Open.",
+      "text": "What happens when no rule matches, and whether the first match wins, is open {{gap:no-match-behavior}}."
+    },
+    {
+      "text": "The step in the configuration order is in [[zpa.vpn.setup]], the traffic rules in [[zpa.vpn.access-policy]] and the hub is [[zpa.vpn]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a user is entitled for VPN (for Legacy Apps), since a user who is not cannot connect to the VPN Service Edge.",
+      "uses": [
+        "what-it-is"
+      ]
+    },
+    {
+      "do": "Whether the IdP's SAML or SCIM setting for policy is disabled while the rule has criteria for it, and which operator joins the criteria.",
+      "uses": [
+        "idp-policy-setting-disabled"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "User enablement rules define which users gain access to VPN tunnels. A VPN connected user can't connect to the VPN Service Edge if they aren't entitled for VPN (for Legacy Apps).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-user-enablement.json",
+          "quotes": [
+            "User enablement rules define which users gain access to VPN tunnels.",
+            "A VPN connected user can't connect to the VPN Service Edge if they aren't entitled for VPN (for Legacy Apps)."
+          ]
+        }
+      ]
+    },
+    "criteria-types": {
+      "statement": "The criteria types that can be configured with user enablement are posture profiles, SAML attributes and SCIM attributes. If the device's posture changes and no longer meets the requirements set by the posture profile rule, the VPN (for Legacy Apps) session is deactivated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-user-enablement.json",
+          "quotes": [
+            "You can configure the following criteria types with user enablement: posture profiles, SAML attributes, and SCIM attributes.",
+            "If the device's posture changes and no longer meets the defined requirements set by the posture profile rule, then the VPN (for Legacy Apps) session is deactivated."
+          ]
+        }
+      ]
+    },
+    "match-and-order": {
+      "statement": "A VPN tunnel request must match all the conditions within a user enablement rule, and user enablement rules use AND and OR operators. Private Access applies rules based on the order they are listed, and a rule's place in the Rule Order can be changed by manually entering a new value on the User Enablement page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-user-enablement.json",
+          "quotes": [
+            "A VPN tunnel request must match all the conditions within a user enablement rule.",
+            "User enablement rules use AND and OR operators.",
+            "Private Access (ZPA) applies rules based on the order they are listed here."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-vpn-user-enablement-rules.json",
+          "quotes": [
+            "If you only want to change a user enablement rule's place in the Rule Order, you can manually enter a new value on the User Enablement page."
+          ]
+        }
+      ]
+    },
+    "actions-and-message": {
+      "statement": "A rule's action is Allow Access or Block Access to VPN tunnels. An optional Message to User is displayed to users when the rule's action and criteria are met. The rule name cannot contain special characters except periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-user-enablement-rules.json",
+          "quotes": [
+            "Allow Access: Allows access to VPN tunnels.",
+            "Block Access: Blocks access to VPN tunnels.",
+            "Message to User: (Optional) Enter the message you want to display to users when the user enablement rule's action and criteria are met.",
+            "The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    },
+    "condition-sets": {
+      "statement": "A rule can have up to 10 condition sets. If multiple attributes or groups are added to the rule, Private Access uses an OR operator between them by default, which can be toggled to AND by clicking it. If multiple IdPs are selected, Private Access also uses OR between them by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-user-enablement-rules.json",
+          "quotes": [
+            "You can add up to 10 condition sets.",
+            "If you add multiple attributes or groups to the user enablement rule, Private Access (ZPA) uses an OR Boolean operator between them by default.",
+            "If you selected multiple IdPs for the user enablement rule, Private Access uses an OR Boolean operator between them by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-user-enablement-rules.json",
+          "quotes": [
+            "However, you can toggle this to an AND operator by clicking it."
+          ],
+          "after": "Click Add More to add more criteria within a condition set."
+        }
+      ]
+    },
+    "posture-values": {
+      "statement": "For a posture profile in a condition set, the choices are VERIFIED, meaning Client Connector verified the VPN connected user's device against the criteria in the posture profile, or VERIFICATION FAILED, meaning Client Connector was unable to verify it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-user-enablement-rules.json",
+          "quotes": [
+            "VERIFIED: Zscaler Client Connector verified the VPN connected user's device against the criteria specified in the posture profile.",
+            "VERIFICATION FAILED: Zscaler Client Connector was unable to verify the VPN connected user's device against the criteria specified in the posture profile."
+          ]
+        }
+      ]
+    },
+    "identity-criteria": {
+      "statement": "By default, the user enablement rule for SAML Attributes is set to Any SAML attribute. SCIM criteria are chosen from the drop-down menu as a specific SCIM attribute, such as departments, display name or title, or a specific SCIM group name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-user-enablement-rules.json",
+          "quotes": [
+            "By default, the user enablement rule for SAML Attributes is set to Any SAML attribute.",
+            "Choose a specific SCIM attribute (e.g., departments, display name, title, etc.) from the drop-down menu to apply the rule action to:",
+            "Choose a specific SCIM group name from the drop-down menu to apply the rule action to:"
+          ]
+        }
+      ]
+    },
+    "idp-policy-setting-disabled": {
+      "statement": "If the IdP's SAML Attributes for Policy setting is disabled but the user enablement rule has criteria for SAML attributes, an OR operator makes Private Access skip the SAML criteria and continue with the SCIM attributes and groups, while an AND operator makes Private Access not evaluate the rule until the SAML criteria are removed. The mirror case holds for the SCIM Attributes and Groups for Policy setting with SCIM criteria: OR skips the SCIM criteria and continues with SAML, and AND leaves the rule unevaluated until the SCIM criteria are removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-user-enablement-rules.json",
+          "quotes": [
+            "If the corresponding IdP setting (SAML Attributes for Policy) is disabled for SAML, but the user enablement rule has criteria for SAML attributes, Private Access evaluates the rule differently depending on the Boolean operator between the criteria:",
+            "OR: Private Access skips evaluating the criteria for SAML attributes, but continues to evaluate the criteria for SCIM attributes and SCIM groups.",
+            "AND: Private Access does not evaluate this user enablement rule. You must remove the criteria under SAML Attributes for Private Access to process the user enablement rule.",
+            "If the corresponding IdP setting (SCIM Attributes and Groups for Policy) is disabled for SCIM, but the user enablement rule has criteria for SCIM attributes or SCIM groups",
+            "OR: Private Access skips evaluating the criteria for SCIM attributes and SCIM groups, but continues to evaluate the criteria for SAML attributes.",
+            "AND: Private Access does not evaluate this user enablement rule. You must remove the criteria for SCIM attributes and SCIM groups for Private Access to process the user enablement rule."
+          ]
+        }
+      ]
+    },
+    "multi-idp-and": {
+      "statement": "If the IdP configuration for SSO includes SAML attributes or SCIM attributes from multiple IdPs, Zscaler recommends not using the AND Boolean operator between user enablement rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-user-enablement-rules.json",
+          "quotes": [
+            "If your IdP configuration for SSO includes SAML attributes or SCIM attributes from multiple IdPs, Zscaler recommends that you do not use the AND Boolean operator between user enablement rules."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "no-match-behavior": {
+      "kind": "semantic",
+      "title": "What happens when no user enablement rule matches, and whether the first match wins",
+      "status": "open",
+      "detail": "The pages say rules apply in their listed order and a request must match all conditions within a rule, but none of the captured pages says what happens when no rule matches or whether evaluation stops at the first matching rule. The number of user enablement rules allowed is on a Ranges & Limitations page that is not captured.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "shared.terraform.plan-diffs",
+  "title": "Why a Zscaler Terraform plan shows no diff, or a replacement: diff suppression, ForceNew and code-only checks",
+  "aliases": [
+    "DiffSuppressFunc",
+    "noChangeInMultiLineText",
+    "normalizeMultiLineString",
+    "DiffSuppressFuncCoordinate",
+    "terraform description not cleared",
+    "terraform plan no diff zscaler",
+    "terraform forcenew zscaler",
+    "terraform destroy recreate zscaler",
+    "terraform latitude longitude diff"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.resource-constraints"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Which arguments force replacement (ForceNew), conflict with each other, or are validated against a fixed list is generated per resource by `node scripts/kb.mjs surface <resource name>`. This collects the behavior the schema listing does not show."
+    },
+    {
+      "heading": "Multi-line text in the ZIA provider"
+    },
+    {
+      "text": "{{zia-multiline-functions}} {{zia-multiline-scope}} {{zia-multiline-cannot-clear}} The URL Filtering case is [[zia.api.url-filtering-wire:tf-description-diff-suppression]], and the ZTC provider carries the same pair of helpers ([[cloud-connector.terraform.provider-behavior:multiline-diff-suppress-ignores-clears]]). Whether the ZIA API itself normalizes whitespace in these fields is open {{gap:api-whitespace-normalization}}."
+    },
+    {
+      "heading": "Other suppressed diffs in the ZPA provider"
+    },
+    {
+      "text": "{{zpa-coordinates}} The connector group case is [[zpa.app-connectors.connector-groups:tf-coordinates-six-decimals]]. Service Edge group membership is ignored unless configured: [[zpa.private-service-edges.terraform:service-edges-diff-suppressed-when-unset]]."
+    },
+    {
+      "heading": "Replacement"
+    },
+    {
+      "text": "VPN credential identity fields force a new credential ([[zia.traffic-forwarding.vpn-credentials:immutable]], [[zia.traffic-forwarding.vpn-credentials:psk-required]]). Provider v4.4.6 removed ForceNew from `select_connector_close_to_app` ([[zpa.app-segments.settings:forcenew-removed]], [[zpa.browser-access.tooling:tf-select-connector-not-forcenew]]). The Cloud App Control rule type is not ForceNew in the schema ([[zia.terraform.cloud-app-control-rule:tf-rule-type-optional]]). What a replaced policy rule does to rule order is open {{gap:replaced-rule-order}}."
+    },
+    {
+      "heading": "Checks that live in code, not the schema"
+    },
+    {
+      "text": "A Browser Access app that sets `certificate_id` with `ext_label` or `ext_domain` is rejected in the resource code ([[zpa.browser-access.tooling:tf-certificate-conflicts-ext-fields]]); server groups check servers against dynamic discovery on create and update ([[zpa.server-groups.discovery-mode:tf-dsd-off-needs-servers]]); a credential rule needs exactly one of credential or pool ([[zpa.terraform.policy-rule-writes:credential-update-restores-remote-association]]); Service Edge grace distance fields go together ([[zpa.private-service-edges.terraform:zpa-terraform-grace]]). A provider validator shows what the provider accepts, which can differ from the API, as with BRAVE ([[zia.terraform.url-filtering-rules:validator-omits-brave]])."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When a ZIA description or notes change does not plan, whether the new value is empty, which the diff suppression always treats as no change.",
+      "uses": [
+        "zia-multiline-functions",
+        "zia-multiline-cannot-clear"
+      ]
+    },
+    {
+      "do": "Whether the argument being changed is marked force_new in the generated surface for that resource, before applying a change to a rule or credential.",
+      "uses": [
+        "replaced-rule-order"
+      ]
+    }
+  ],
+  "claims": {
+    "zia-multiline-functions": {
+      "statement": "The ZIA provider's `normalizeMultiLineString` trims the text and each line, doubles every `$` (`$` becomes `$$`) and appends a newline; `noChangeInMultiLineText` returns true (no difference) whenever the new text is empty, and otherwise compares the two normalized values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/validator.go",
+          "quotes": [
+            "// Escape Terraform variable interpolation (`$` → `$$`)",
+            "escapedStr = strings.ReplaceAll(escapedStr, \"$\", \"$$\")",
+            "return escapedStr + \"\\n\"",
+            "str = strings.TrimSpace(str)",
+            "lines[i] = strings.TrimSpace(lines[i])",
+            "func noChangeInMultiLineText(k, oldText, newText string, d *schema.ResourceData) bool { if newText == \"\" { return true }",
+            "return oldTextNormalized == newTextNormalized"
+          ],
+          "after": "func normalizeMultiLineString(val interface{}) string {"
+        }
+      ]
+    },
+    "zia-multiline-scope": {
+      "statement": "In the ZIA provider, 39 resource files attach `noChangeInMultiLineText` as a DiffSuppressFunc, on `description` in 37 attachments and also on notification text fields such as `html_message`, `plain_text_message`, `subject` and `rule_text`; the URL Filtering rule pairs it with `normalizeMultiLineString` as its StateFunc.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "StateFunc:        normalizeMultiLineString, // Ensures correct format before storing in Terraform state",
+            "DiffSuppressFunc: noChangeInMultiLineText,  // Prevents unnecessary Terraform diffs"
+          ]
+        }
+      ],
+      "conditions": "Counted at the pin with a search for \"DiffSuppressFunc: noChangeInMultiLineText\" across non-test files under zia/, which matched 39 resource files; the attribute names come from the schema keys above each match. The quoted URL Filtering lines are one instance."
+    },
+    "zia-multiline-cannot-clear": {
+      "statement": "On those ZIA attributes a value cannot be cleared by removing it or setting it to an empty string: the empty new value is suppressed as no difference, so no update is planned.",
+      "tier": "B",
+      "derived_from": [
+        "zia-multiline-functions",
+        "zia-multiline-scope"
+      ],
+      "conditions": "Follows from the diff-suppress function returning true for empty new text; not shown by a provider test."
+    },
+    "zpa-coordinates": {
+      "statement": "The ZPA provider's `DiffSuppressFuncCoordinate` treats two coordinates as equal when they match after rounding to six decimal places, and it is attached to `latitude` and `longitude` on the App Connector group, Service Edge group and Private Cloud group resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "return math.Round(o*1000000)/1000000 == math.Round(n*1000000)/1000000"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "ValidateFunc:     ValidateLatitude, DiffSuppressFunc: DiffSuppressFuncCoordinate,",
+            "ValidateFunc:     ValidateLongitude, DiffSuppressFunc: DiffSuppressFuncCoordinate,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_private_cloud_group.go",
+          "quotes": [
+            "ValidateFunc:     ValidateLatitude, DiffSuppressFunc: DiffSuppressFuncCoordinate,",
+            "ValidateFunc:     ValidateLongitude, DiffSuppressFunc: DiffSuppressFuncCoordinate,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "DiffSuppressFunc: DiffSuppressFuncCoordinate,"
+          ],
+          "after": "\"latitude\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "DiffSuppressFunc: DiffSuppressFuncCoordinate,"
+          ],
+          "after": "\"longitude\": {"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-whitespace-normalization": {
+      "kind": "semantic",
+      "title": "Whether ZIA normalizes whitespace in description and notes fields",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The API normalizes whitespace and line endings server-side; Terraform suppresses spurious diffs.\" The provider code shows only that the provider normalizes and suppresses; no source shows what the API stores.",
+      "blocks": "explaining a drift between configured and stored text",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "replaced-rule-order": {
+      "kind": "semantic",
+      "title": "What replacing a policy rule through ForceNew does to rule order",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Policy Access rules - reauth_timeout and reauth_idle_timeout are both ForceNew. Changing a session/idle timeout on an existing rule requires destroy-recreate - the API refuses in-place updates. This can renumber nearby rules.\" The generated surface shows the two arguments as force_new on the v1 timeout rule resource; no source shows that the API refuses an in-place update or how the recreated rule is ordered.",
+      "blocks": "planning a timeout change on a v1 rule in a tenant where rule order matters",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ]
+    }
+  }
+}

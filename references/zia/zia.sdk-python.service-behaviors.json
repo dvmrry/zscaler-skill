@@ -1,0 +1,570 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-python.service-behaviors",
+  "title": "Python SDK service-specific behavior for ZIA: admin, AppTotal, browser control, smart isolation and GRE tunnel VIPs",
+  "aliases": [
+    "smart_isolation_users_ids ignored",
+    "update_smart_isolation",
+    "convert_to_user",
+    "browser control endpoint python",
+    "dedicated ip gateways python",
+    "apptotal get_app",
+    "feature_permissions",
+    "admin user role_id python sdk",
+    "add_gre_tunnel"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.request-conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.client-errors-and-accessors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.activation-and-session"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the Python SDK's service helpers, not about ZIA. Each covers one behavior a reader would otherwise have to infer from the method signature."
+    },
+    {
+      "label": "Admin roles and users.",
+      "text": "{{admin-role-permissions-key}} {{admin-user-role-id}} {{convert-to-user-spec}} Password-expiry support is in [[zia.sdk-python.activation-and-session]]."
+    },
+    {
+      "label": "Update helpers.",
+      "text": "{{update-injects-id}}"
+    },
+    {
+      "label": "AppTotal.",
+      "text": "{{apptotal-submit-on-miss}} {{apptotal-result-cap}}"
+    },
+    {
+      "label": "Browser control and Smart Browser Isolation.",
+      "text": "{{browser-control-shared-endpoint}} {{smart-isolation-id-keys}} {{smart-isolation-doc-keys}} The names disagree {{divergence:smart-isolation-kwarg-names}}. The provider's two-step write is in [[zia.terraform.multi-step-writes]]."
+    },
+    {
+      "label": "Scope of the web DLP client.",
+      "text": "{{dlp-web-rule-excludes-saas}}"
+    },
+    {
+      "label": "Dedicated IP gateways.",
+      "text": "{{dedicated-ip-lite-only}} {{dedicated-ip-no-crud}}"
+    },
+    {
+      "label": "GRE tunnels.",
+      "text": "{{gre-vip-auto-select-tests-camel-keys}} {{gre-documented-vips-replaced}} {{ansible-gre-reaches-vip-replacement}} The tunnel fields and VIP selection are in [[zia.traffic-forwarding.gre]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether smart isolation user and group scoping was sent, by reading the PUT body back, because the keyword names the docstring gives are not the keys the ID remapper handles.",
+      "uses": [
+        "smart-isolation-id-keys",
+        "smart-isolation-doc-keys"
+      ]
+    },
+    {
+      "do": "Which Python client a browser control call goes through, since two accessors reach the same endpoint.",
+      "uses": [
+        "browser-control-shared-endpoint"
+      ]
+    }
+  ],
+  "claims": {
+    "admin-role-permissions-key": {
+      "statement": "In the admin role create and update helpers a `feature_permissions` dict is renamed to the wire key `featurePermissions` before the request is built; the rename happens only when the value is a dict.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_roles.py",
+          "after": "def add_role(",
+          "quotes": [
+            "if \"feature_permissions\" in body and isinstance(body[\"feature_permissions\"], dict):",
+            "body[\"featurePermissions\"] = body.pop(\"feature_permissions\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_roles.py",
+          "after": "def update_role(",
+          "quotes": [
+            "if \"feature_permissions\" in body and isinstance(body[\"feature_permissions\"], dict):",
+            "body[\"featurePermissions\"] = body.pop(\"feature_permissions\")"
+          ]
+        }
+      ]
+    },
+    "admin-user-role-id": {
+      "statement": "The admin user create and update helpers turn a `role_id` keyword into `{\"role\": {\"id\": ...}}`. The docstring says `scope_entity_ids` need not be given when the admin scope is ORGANIZATION.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_users.py",
+          "after": "def add_admin_user(",
+          "quotes": [
+            "body[\"role\"] = {\"id\": body.pop(\"role_id\")}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_users.py",
+          "after": "def add_admin_user(",
+          "quotes": [
+            "be provided if the admin user's scope is set to ``ORGANIZATION``.",
+            "scope_entity_ids (list):",
+            "**NOTE**: This param doesn't need to"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_users.py",
+          "after": "def update_admin_user(",
+          "quotes": [
+            "if \"role_id\" in body: body[\"role\"] = {\"id\": body.pop(\"role_id\")}",
+            "**NOTE**: This param doesn't need to be provided if the admin user's scope is set to ``ORGANIZATION``."
+          ]
+        }
+      ]
+    },
+    "convert-to-user-spec": {
+      "statement": "The API specification describes `POST /adminUsers/{userId}/convertToUser` as removing a user's admin privileges while keeping them as a regular user, as an alternative to DELETE, which removes the admin and also removes them as a user. It says the admin user's details are first obtained with `GET /users` and then sent in the convert request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1adminUsers~1{userId}~1convertToUser/post",
+          "expect": {
+            "description": "<p>Removes admin privileges for a user while retaining them as a regular user of your organization in the ZIA Admin Portal. This can be used as an alternative to the <code>DELETE /adminUsers/{userId}</code> request, which deletes an admin and removes them as a user from the ZIA Admin Portal. To learn more, see <a href=\"https://help.zscaler.com/zia/deleting-zia-admins\" target=\"_blank\">Deleting ZIA Admins</a>.</p><p>Before you can delete the admin privileges for a user, you need to obtain the admin user's ID and other information by using the <code>GET /users</code> request and then send the admin user details in the <code>POST /adminUsers/{userId}/convertToUser</code> request.</p>"
+          }
+        }
+      ]
+    },
+    "update-injects-id": {
+      "statement": "The alert subscription and bandwidth control rule update helpers write the path ID into the request body (`body[\"id\"]`) before sending the PUT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/alert_subscriptions.py",
+          "quotes": [
+            "body[\"id\"] = subscription_id"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/bandwidth_control_rules.py",
+          "quotes": [
+            "body[\"id\"] = rule_id"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/alert_subscriptions.py",
+          "after": "def update_alert_subscription(",
+          "quotes": [
+            "http_method = \"put\".upper()",
+            "body = kwargs body[\"id\"] = subscription_id request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/bandwidth_control_rules.py",
+          "after": "def update_rule(",
+          "quotes": [
+            "http_method = \"put\".upper()",
+            "body = kwargs body[\"id\"] = rule_id",
+            "request, error = self._request_executor.create_request( method=http_method, endpoint=api_url, body=body,"
+          ]
+        }
+      ]
+    },
+    "apptotal-submit-on-miss": {
+      "statement": "`get_app` on the AppTotal client searches the catalog by app ID; if the app is absent the call submits it for analysis, and a later call is needed to read the result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/apptotal.py",
+          "quotes": [
+            "Searches the AppTotal App Catalog by app ID. If the app exists in the catalog, the app's information is returned. If not, the app is submitted for analysis. After analysis is complete, a subsequent GET request is required to fetch the app's information."
+          ],
+          "after": "def get_app(self, app_id: str, verbose: bool = False)"
+        }
+      ]
+    },
+    "apptotal-result-cap": {
+      "statement": "The `search_app` and `app_views` docstrings state that at most 200 results are returned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/apptotal.py",
+          "after": "def search_app(",
+          "quotes": [
+            "Note: The maximum number of results that are returned is 200."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/apptotal.py",
+          "after": "def app_views(",
+          "quotes": [
+            "Note: The maximum number of results that are returned is 200."
+          ]
+        }
+      ]
+    },
+    "browser-control-shared-endpoint": {
+      "statement": "The older `browser_control_settings` client and the newer `secure_browsing` client both read and write the same path `/browserControlSettings`; the Go `browser_control_settings` and `secure_browsing` packages each set their endpoint constant to `/zia/api/v1/browserControlSettings`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/browser_control_settings.py",
+          "after": "def get_browser_control_settings(",
+          "quotes": [
+            "/browserControlSettings"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/secure_browsing.py",
+          "after": "def get_browser_control_settings(",
+          "quotes": [
+            "/browserControlSettings"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/browser_control_settings/browser_control_settings.go",
+          "quotes": [
+            "browserControlSettingsEndpoint = \"/zia/api/v1/browserControlSettings\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/secure_browsing/secure_browsing.go",
+          "quotes": [
+            "const browserControlSettingsEndpoint = \"/zia/api/v1/browserControlSettings\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/browser_control_settings.py",
+          "after": "def update_browser_control_settings(",
+          "quotes": [
+            "http_method = \"put\".upper()",
+            "/browserControlSettings"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/secure_browsing.py",
+          "after": "def update_browser_control_settings(",
+          "quotes": [
+            "http_method = \"put\".upper()",
+            "/browserControlSettings"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "after": "## 1.5.0 (June 18, 2025)",
+          "quotes": [
+            "### New ZIA Endpoint - Browser Control Policy"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "after": "## 1.9.30 (May 21, 2026)",
+          "quotes": [
+            "Added the following new ZIA Secure Browsing V2 Endpoints"
+          ]
+        }
+      ]
+    },
+    "smart-isolation-id-keys": {
+      "statement": "`update_smart_isolation` remaps ID lists with `transform_common_id_fields(reformat_params, ...)`, and `reformat_params` lists the keys `smart_isolation_user_ids` and `smart_isolation_group_ids` for that.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/secure_browsing.py",
+          "quotes": [
+            "def update_smart_isolation(self, **kwargs) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/secure_browsing.py",
+          "after": "/browserControlSettings/smartIsolation",
+          "quotes": [
+            "transform_common_id_fields(reformat_params, body, body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "(\"smart_isolation_user_ids\", \"smartIsolationUsers\"),",
+            "(\"smart_isolation_group_ids\", \"smartIsolationGroups\"),"
+          ]
+        }
+      ]
+    },
+    "smart-isolation-doc-keys": {
+      "statement": "The `update_smart_isolation` docstring and its example name the keyword arguments `smart_isolation_users_ids` and `smart_isolation_groups_ids`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/secure_browsing.py",
+          "quotes": [
+            "smart_isolation_users_ids (list[str]): IDs of users for which the rule is applied.",
+            "smart_isolation_groups_ids (list[str]): IDs of groups for which the rule is applied.",
+            "...     smart_isolation_users_ids=[12345, 67890],",
+            "...     smart_isolation_groups_ids=[24680, 24681],"
+          ],
+          "after": "def update_smart_isolation(self, **kwargs) -> APIResult[dict]:"
+        }
+      ]
+    },
+    "dlp-web-rule-excludes-saas": {
+      "statement": "The web DLP rule client's docstrings say its get and list-lite calls exclude SaaS Security API DLP policy rules, and that its update is not applicable to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_web_rules.py",
+          "quotes": [
+            "Returns a DLP policy rule, excluding SaaS Security API DLP policy rules.",
+            "Updates an existing DLP policy rule. Not applicable to SaaS Security API DLP policy rules.",
+            "Lists name and ID for all DLP policy rules, excluding SaaS Security API DLP policy rules"
+          ]
+        }
+      ]
+    },
+    "dedicated-ip-lite-only": {
+      "statement": "The Python dedicated IP gateway client defines `list_dedicated_ip_gw_lite`, which reads `/dedicatedIPGateways/lite`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dedicated_ip_gateways.py",
+          "quotes": [
+            "def list_dedicated_ip_gw_lite(",
+            "/dedicatedIPGateways/lite",
+            "class DedicatedIPGatewaysAPI(APIClient):",
+            "http_method = \"get\".upper()"
+          ]
+        }
+      ]
+    },
+    "dedicated-ip-no-crud": {
+      "statement": "The Python dedicated IP gateway client has no get, add, update or delete method.",
+      "tier": "B",
+      "conditions": "The client file at the pinned SDK defines only the constructor and `list_dedicated_ip_gw_lite`; a quote cannot pin the absence of further methods in code, so this rests on reading the whole file.",
+      "derived_from": [
+        "zia.sdk-python.service-behaviors:dedicated-ip-lite-only"
+      ]
+    },
+    "gre-vip-auto-select-tests-camel-keys": {
+      "statement": "`add_gre_tunnel` and `update_gre_tunnel` document the VIPs as `primary_dest_vip` and `secondary_dest_vip` (the add docstring's example passes `primary_dest_vip` as a dict), use their keyword arguments as the body, and decide whether to pick VIPs by testing for the camelCase keys `primaryDestVip` and `secondaryDestVip`. When either camelCase key is absent they call `get_closest_diverse_vip_ids` with the source IP, which lists the recommended VIPs and raises ValueError when none is returned or none is in a second city, and they write the IDs it returns under `primaryDestVip` and `secondaryDestVip`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/gre_tunnel.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "Note: If the `primary_dest_vip` and `secondary_dest_vip` aren't specified then the closest recommended VIPs will be automatically chosen.",
+            "primary_dest_vip (str):",
+            "secondary_dest_vip (str):",
+            "primary_dest_vip={",
+            "body = kwargs",
+            "if \"primaryDestVip\" not in body or \"secondaryDestVip\" not in body:",
+            "recommended_vips = self.get_closest_diverse_vip_ids(body[\"sourceIp\"])",
+            "body[\"primaryDestVip\"] = {\"id\": recommended_vips[0]}",
+            "body[\"secondaryDestVip\"] = {\"id\": recommended_vips[1]}"
+          ],
+          "after": "def add_gre_tunnel("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/gre_tunnel.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "primary_dest_vip (str):",
+            "secondary_dest_vip (str):",
+            "body = kwargs",
+            "if \"primaryDestVip\" not in body or \"secondaryDestVip\" not in body:",
+            "recommended_vips = self.get_closest_diverse_vip_ids(body[\"sourceIp\"])",
+            "body[\"primaryDestVip\"] = {\"id\": recommended_vips[0]}",
+            "body[\"secondaryDestVip\"] = {\"id\": recommended_vips[1]}"
+          ],
+          "after": "def update_gre_tunnel(self, tunnel_id: str, **kwargs) -> APIResult[dict]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/gre_tunnel.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "vips_list, _, err = self.list_vips_recommended(query_params={\"source_ip\": ip_address})",
+            "raise ValueError(\"No VIPs found for the given source IP.\")",
+            "raise ValueError(\"No diverse VIPs found in different cities.\")",
+            "recommended_vips = (preferred_vip.id, secondary_vip.id)"
+          ],
+          "after": "def get_closest_diverse_vip_ids(self, ip_address: str) -> APIResult[dict]:"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Python SDK: add_gre_tunnel/update_gre_tunnel test camelCase primaryDestVip/secondaryDestVip while documenting snake_case primary_dest_vip/secondary_dest_vip."
+        }
+      ]
+    },
+    "gre-documented-vips-replaced": {
+      "statement": "So a call that passes both VIPs under the documented snake_case names still runs the VIP lookup, and fails with its ValueError when the lookup finds no diverse pair; otherwise the body holds both the caller's `primary_dest_vip` and the added `primaryDestVip`, both become the wire key `primaryDestVip` when the executor camel-cases the body, and the added key, written later, replaces the caller's value. The secondary VIP is replaced the same way, so the tunnel is sent with the recommended VIPs, not the ones passed.",
+      "tier": "B",
+      "derived_from": [
+        "gre-vip-auto-select-tests-camel-keys",
+        "zia.sdk-python.request-conventions:zia-body-camel-cased",
+        "shared.sdk-python.request-handling:camel-rule"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "for k, v in data.items():",
+            "result[to_lower_camel_case(k)] = convert_keys_to_camel_case(v)"
+          ],
+          "after": "def convert_keys_to_camel_case(data):"
+        }
+      ],
+      "conditions": "Rests on Python dict insertion order: the caller's keyword arguments are in the body before the function adds the camelCase keys, and `convert_keys_to_camel_case` assigns `result[to_lower_camel_case(k)]` in iteration order, so the later key's value is the one kept. FIELD_EXCEPTIONS has no entry for these keys: `git -C vendor/zscaler-sdk-python show <ref>:zscaler/helpers.py | sed -n '/^def to_lower_camel_case/,/^def convert_keys_to_snake_case/p' | grep -c -E '\"(primary_dest_vip|secondary_dest_vip)\"'` returns 0 at v1.11.3 and HEAD. Read from the code, not run against a tenant.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Python SDK: explicit snake_case VIPs passed to add_gre_tunnel/update_gre_tunnel are overwritten by the auto-selected VIPs."
+        }
+      ]
+    },
+    "ansible-gre-reaches-vip-replacement": {
+      "statement": "The ZIA Ansible collection at v2.2.4 passes a configured tunnel's VIPs to `add_gre_tunnel` and `update_gre_tunnel` as `primary_dest_vip` and `secondary_dest_vip`, so VIPs set in a playbook are subject to that replacement.",
+      "tier": "B",
+      "derived_from": [
+        "gre-documented-vips-replaced"
+      ],
+      "evidence": [
+        {
+          "source": "ansible-zia",
+          "path": "plugins/modules/zia_traffic_forwarding_gre_tunnels.py",
+          "at": [
+            "v2.2.4",
+            "HEAD"
+          ],
+          "after": "create_tunnel = deleteNone(",
+          "quotes": [
+            "\"primary_dest_vip\": gre_tunnel.get(\"primary_dest_vip\"),",
+            "\"secondary_dest_vip\": gre_tunnel.get(\"secondary_dest_vip\"),",
+            "result, _unused, error = client.gre_tunnel.add_gre_tunnel(**create_tunnel)"
+          ]
+        },
+        {
+          "source": "ansible-zia",
+          "path": "plugins/modules/zia_traffic_forwarding_gre_tunnels.py",
+          "at": [
+            "v2.2.4",
+            "HEAD"
+          ],
+          "after": "update_gre = deleteNone(",
+          "quotes": [
+            "\"primary_dest_vip\": gre_tunnel.get(\"primary_dest_vip\"),",
+            "\"secondary_dest_vip\": gre_tunnel.get(\"secondary_dest_vip\"),",
+            "result, _unused, error = client.gre_tunnel.update_gre_tunnel(**update_gre)"
+          ]
+        },
+        {
+          "source": "ansible-zia",
+          "path": "requirements.txt",
+          "at": [
+            "v2.2.4"
+          ],
+          "quotes": [
+            "zscaler-sdk-python>=1.9.30"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/gre_tunnel.py",
+          "at": [
+            "v1.9.30"
+          ],
+          "quotes": [
+            "if \"primaryDestVip\" not in body or \"secondaryDestVip\" not in body:"
+          ],
+          "after": "def add_gre_tunnel("
+        }
+      ],
+      "conditions": "Read from plugins/modules/zia_traffic_forwarding_gre_tunnels.py at v2.2.4 (HEAD); the module was not run. The SDK range: the collection's requirements.txt at v2.2.4 requires `zscaler-sdk-python>=1.9.30` with no upper bound (pyproject.toml carries the same requirement), and the camelCase auto-select guard quoted in gre-vip-auto-select-tests-camel-keys is present in add_gre_tunnel at v1.9.30 (evidence below), v1.11.3 and HEAD, so every allowed SDK release from 1.9.30 on is affected."
+    }
+  },
+  "divergences": {
+    "smart-isolation-kwarg-names": {
+      "summary": "Keyword names for Smart Browser Isolation user and group scoping in the Python SDK",
+      "positions": [
+        {
+          "says": "The docstring and example for update_smart_isolation name the keywords smart_isolation_users_ids and smart_isolation_groups_ids.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/secure_browsing.py",
+            "quotes": [
+              "smart_isolation_users_ids (list[str]): IDs of users for which the rule is applied."
+            ]
+          }
+        },
+        {
+          "says": "The shared ID-remapping list names smart_isolation_user_ids and smart_isolation_group_ids, so the documented spellings are not in it.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/utils.py",
+            "quotes": [
+              "(\"smart_isolation_user_ids\", \"smartIsolationUsers\"),"
+            ]
+          }
+        }
+      ],
+      "impact": "A caller who follows the docstring may leave the user and group ID lists unwrapped, not in the {id: ...} shape the API takes; what the API does with the unwrapped keys is not shown. Read the rule back after the call instead of trusting the call result."
+    }
+  },
+  "gaps": {}
+}

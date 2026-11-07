@@ -1,0 +1,943 @@
+{
+  "schema_version": 1,
+  "id": "deception.sso",
+  "title": "Deception and ITDR single sign-on and authentication settings: Authentication Service, SAML and OpenID identity providers, password login, OTP and support access",
+  "aliases": [
+    "ITDR SSO",
+    "ITDR SAML",
+    "ITDR OpenID",
+    "ITDR identity providers",
+    "ITDR authentication settings",
+    "Deception SSO",
+    "Deception SAML",
+    "Deception identity providers",
+    "IdP Providers",
+    "Authentication Service",
+    "Disable password login",
+    "Support Access Settings"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.plans"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The product hubs are [[deception.overview]] and [[identity-protection.overview]]. {{auth-service-recommended}} {{auth-service-locks-portal-idps}}"
+    },
+    {
+      "label": "Identity providers page.",
+      "text": "{{idp-page-columns}} The Okta SAML page names a different path to the SSO page than the other pages {{divergence:okta-sso-path}}."
+    },
+    {
+      "label": "SAML.",
+      "text": "{{saml-provider-toggles}} {{saml-lets-encrypt-90-day}} {{saml-setup-instructions}} {{itdr-saml-supported-idps}}"
+    },
+    {
+      "label": "Group-based SAML login.",
+      "text": "{{saml-group-mapping-cumulative}} {{saml-group-fields}} {{saml-group-lockout}} {{saml-group-user-lifecycle}}"
+    },
+    {
+      "label": "Okta SAML.",
+      "text": "{{okta-saml-app-values}} {{okta-saml-assertion-encryption}} {{okta-saml-group-attributes}} {{okta-saml-group-lockout}}"
+    },
+    {
+      "label": "Azure AD and Microsoft Entra ID SAML.",
+      "text": "{{azure-saml-prereqs}} {{azure-saml-provider-settings}} {{azure-saml-upn-email}} {{azure-saml-group-claims}}"
+    },
+    {
+      "label": "ADFS SAML.",
+      "text": "{{adfs-saml-trust}} {{adfs-saml-claim-rules}} {{adfs-saml-group-rules}}"
+    },
+    {
+      "label": "OpenID.",
+      "text": "{{openid-provider-fields}} {{openid-proxy-setting}} {{openid-okta}} {{openid-google}} {{itdr-google-oauth-prereq}}"
+    },
+    {
+      "label": "Authentication settings.",
+      "text": "{{disable-password-login}} {{password-expiration}} {{otp-window}} {{otp-window-tuning}} {{support-access}} Whether the ITDR wording differences are behavior differences is open {{gap:itdr-copy-drift}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Authentication Service is enabled, since then third-party IdPs are configured in the Zscaler Admin Console (Deception page) or the Authentication Service Admin Portal (ITDR page), not in the admin portal.",
+      "uses": [
+        "auth-service-locks-portal-idps"
+      ]
+    },
+    {
+      "do": "Whether at least one SSO feature has been configured and tested before Disable password login is selected.",
+      "uses": [
+        "disable-password-login"
+      ]
+    },
+    {
+      "do": "Whether a second super-admin account with username and password exists before group-based SAML login is tested.",
+      "uses": [
+        "saml-group-lockout"
+      ]
+    },
+    {
+      "do": "Which path to the SSO page the answer cites, since the Okta SAML page and the IdP Providers page differ.",
+      "uses": [
+        "okta-sso-path"
+      ]
+    }
+  ],
+  "claims": {
+    "auth-service-recommended": {
+      "statement": "Zscaler recommends using Authentication Service to configure primary and secondary external identity providers; Authentication Service supports SAML and OpenID configurations, and a subscription is arranged through Zscaler Support. The Deception and ITDR IdP pages say this alike (ITDR names it the Authentication Service Admin Portal).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-identity-providers.json",
+          "quotes": [
+            "Zscaler recommends using Authentication Service to configure primary and secondary external identity providers (IdPs).",
+            "Authentication Service supports both SAML and OpenID configurations. Contact Zscaler Support to subscribe to Authentication Service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-identity-providers.json",
+          "quotes": [
+            "Zscaler recommends that you use the Authentication Service Admin Portal to configure primary and secondary external identity providers (IdPs).",
+            "Authentication Service supports both SAML and OpenID configurations. Contact Zscaler Support to subscribe to Authentication Service."
+          ]
+        }
+      ]
+    },
+    "auth-service-locks-portal-idps": {
+      "statement": "When Authentication Service is enabled, SSO with third-party IdPs cannot be configured in the Deception (or ITDR) admin portal and must be configured in the Zscaler Admin Console (Deception page) or the Authentication Service Admin Portal (ITDR page); the existing SSO third-party IdPs are disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-identity-providers.json",
+          "quotes": [
+            "If Authentication Service is enabled in Deception, you can't configure SSO using third-party IdPs in the Deception Admin Portal. You must configure IdPs in the Zscaler Admin Console.",
+            "The existing SSO third-party IdPs are disabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-identity-providers.json",
+          "quotes": [
+            "If Authentication Service is enabled, you can't configure SSO using third-party IdPs in the ITDR Admin Portal. You must configure IdPs in the Authentication Service Admin Portal.",
+            "The existing SSO third-party IdPs are disabled."
+          ]
+        }
+      ]
+    },
+    "idp-page-columns": {
+      "statement": "The IdP Providers page lists each configured IdP with its Name, Type, Issuer (the URL of the IdP issuer) and Enabled status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-identity-providers.json",
+          "quotes": [
+            "On the IdP Providers page (Settings > Users & Roles > IdP Providers), you can do the following:",
+            "Name: The name of the IdP configuration.",
+            "Type: The type of IdP.",
+            "Issuer: The URL of the IdP issuer.",
+            "Enabled: The status of the IdP configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-identity-providers.json",
+          "quotes": [
+            "Name: The name of the IdP configuration.",
+            "Type: The type of IdP.",
+            "Issuer: The URL of the IdP issuer.",
+            "Enabled: The status of the IdP configuration."
+          ]
+        }
+      ]
+    },
+    "saml-provider-toggles": {
+      "statement": "In the SAML Provider Details window, Encryption lets the IdP send the SAML assertion encrypted and is to be enabled only if the IdP supports encryption; Sign GET Request lets the portal send a signed SAML request and is to be enabled only if the IdP supports signed requests; Use Dedicated Certificate has the portal create a long-lived self-signed certificate for the SAML provider instead of the portal's certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-single-sign.json",
+          "quotes": [
+            "Encryption: Enable to allow the IdP to send the SAML assertion in an encrypted format. Enable only if the IdP supports encryption.",
+            "Sign GET Request: Enable to allow the Deception Admin Portal to send a signed SAML request to the IdP. Enable only if the IdP supports signed requests.",
+            "Use Dedicated Certificate: Enable to allow the Deception Admin Portal to create a long-lived self-signed certificate and use it for the SAML provider instead of the admin portal's certificate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-single-sign-on.json",
+          "quotes": [
+            "In the SAML Provider Details window:",
+            "Encryption: Enable to allow the IdP to send the SAML assertion in an encrypted format. Enable only if the IdP supports encryption.",
+            "Sign GET Request: Enable to allow the ITDR Admin Portal to send a signed SAML request to the IdP. Enable only if the IdP supports signed requests.",
+            "Use Dedicated Certificate: Enable to allow the ITDR Admin Portal to create a long-lived self-signed certificate and use it for the SAML provider instead of the portal's certificate."
+          ]
+        }
+      ]
+    },
+    "saml-lets-encrypt-90-day": {
+      "statement": "The admin portal uses a Let's Encrypt certificate with a 90-day expiration period, and Zscaler recommends enabling Use Dedicated Certificate to generate a long-lived certificate dedicated to SAML authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-single-sign.json",
+          "quotes": [
+            "The Deception Admin Portal uses a Let's Encrypt certificate, which has a 90-day expiration period. Zscaler recommends that you enable Use Dedicated Certificate to generate a long-lived certificate that is dedicated to SAML authentication."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-single-sign-on.json",
+          "quotes": [
+            "The ITDR Admin Portal uses a Let's Encrypt certificate, which has a 90-day expiration period. Zscaler recommends that you enable Use Dedicated Certificate to generate a long-lived certificate that is dedicated to SAML authentication."
+          ]
+        }
+      ]
+    },
+    "saml-setup-instructions": {
+      "statement": "In the SAML Provider Details window, the Setup Instructions section shows the Service Provider Entity ID and Service Provider Assertion URL and offers the encryption certificate and an XML file for download (the ITDR page says Copy for the first two).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-single-sign.json",
+          "quotes": [
+            "scroll down to the Setup Instructions section to:",
+            "View the Service Provider Entity ID.",
+            "View the Service Provider Assertion URL.",
+            "Download the encryption certificate.",
+            "Download the XML file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-single-sign-on.json",
+          "quotes": [
+            "In the SAML Provider Details window, scroll down to the Setup Instructions section to:",
+            "Copy the Service Provider Entity ID.",
+            "Copy the Service Provider Assertion URL.",
+            "Download the encryption certificate.",
+            "Download the XML file."
+          ]
+        }
+      ]
+    },
+    "itdr-saml-supported-idps": {
+      "statement": "The ITDR SAML page says the ITDR Admin Portal supports configuring SAML for Okta and Microsoft Entra ID, and the ITDR OpenID page says it supports configuring SAML for Okta and Google.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-single-sign-on.json",
+          "quotes": [
+            "The ITDR Admin Portal supports configuring SAML for Okta and Microsoft Entra ID."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-openid-single-sign.json",
+          "quotes": [
+            "The ITDR Admin Portal supports configuring SAML for Okta and Google."
+          ]
+        }
+      ],
+      "conditions": "These are the lists on those two ITDR pages. An ITDR guide for ADFS SAML exists as well (adfs-saml-trust cites it), so the ITDR SAML page's list is shorter than the ITDR guides, not a statement that ADFS is unsupported."
+    },
+    "saml-group-mapping-cumulative": {
+      "statement": "With group-based SAML login, Deception and ITDR create new users and assign them a role if their SAML responses contain one or more predefined group attributes; group mapping is cumulative, so a user in several groups gets the roles of each matching group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-single-sign.json",
+          "quotes": [
+            "Zscaler Deception allows you to create new users and assign them a role if their SAML responses contain one or more predefined group attributes. Group mapping is cumulative. If a user belongs to multiple groups, then the user is assigned roles that match each one of the groups."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-single-sign-on.json",
+          "quotes": [
+            "ITDR allows you to create new users and assign them a role if their SAML responses contain one or more predefined group attributes. Group mapping is cumulative. If a user belongs to multiple groups, then the user is assigned roles that match each one of the groups."
+          ]
+        }
+      ]
+    },
+    "saml-group-fields": {
+      "statement": "The Group-Based SAML Login section has Auto Create User (automatically creates users in the specified groups), SAML Response Group Attribute and SAML Response Name Attribute (attribute names that depend on the identity provider), plus a list of group names each mapped to one or more roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-single-sign.json",
+          "quotes": [
+            "Auto Create User: Enable to make sure the users in the specified groups are automatically created in the Deception Admin Portal.",
+            "SAML Response Group Attribute: Enter the name of the attribute that is used for the group name in the SAML response (this value depends on your identity provider).",
+            "SAML Response Name Attribute: Enter the name of the attribute used for the user name in the SAML response (this value depends on your identity provider).",
+            "Select one or more Roles to assign to a user who has the corresponding group in the SAML response."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-single-sign-on.json",
+          "quotes": [
+            "under the Group-Based SAML Login section:",
+            "Auto Create User: Enable to make sure the users in the specified groups are automatically created in the ITDR Admin Portal.",
+            "SAML Response Group Attribute: Enter the name of the attribute that is used for the group name in the SAML response (this value depends on your identity provider).",
+            "SAML Response Name Attribute: Enter the name of the attribute used for the user name in the SAML response (this value depends on your identity provider).",
+            "Select one or more Roles to assign to a user who has the corresponding group in the SAML response."
+          ]
+        }
+      ]
+    },
+    "saml-group-lockout": {
+      "statement": "While configuring group-based SAML login, a user who is not in any group has their roles revoked and can be locked out during authentication; the page says to keep a second super-admin account that uses a username and password and not to use SAML on it until testing is done.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-single-sign.json",
+          "quotes": [
+            "if you are not a part of any group, then your roles are revoked, and you can lock yourself out during authentication.",
+            "Make sure that you have a second account with super admin privileges via a username and password, and don't use SAML to log in to that account until you are done testing the integration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-single-sign-on.json",
+          "quotes": [
+            "if you are not a part of any group, then your roles are revoked and you can lock yourself out during authentication.",
+            "Make sure that you have a second account with super admin privileges via a username and password, and don't use SAML to log in to that account until you are done testing the integration."
+          ]
+        }
+      ]
+    },
+    "saml-group-user-lifecycle": {
+      "statement": "A user created through SAML group-based login has username-and-password login disabled by default; a user with no matching group has no roles and cannot log in; roles are updated on every SAML sign-in, whether the user was created manually or by group-based login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-single-sign.json",
+          "quotes": [
+            "If a user is created using the SAML group-based login feature, the ability to log in with a username and password is disabled by default.",
+            "If a user does not have a matching group, then the user does not have any roles and cannot log in.",
+            "Every time a user signs in using SAML, the role is updated regardless of if the user was created manually or automatically using the group-based SAML login."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-single-sign-on.json",
+          "quotes": [
+            "If a user is created using the SAML group-based login feature, the ability to log in with a username and password is disabled by default.",
+            "If a user does not have a matching group, then the user does not have any roles and cannot log in.",
+            "Every time a user signs in using SAML, the role is updated regardless of if the user was created manually or automatically using the group-based SAML login."
+          ]
+        }
+      ]
+    },
+    "okta-saml-app-values": {
+      "statement": "In the Okta SAML app, Name ID format is EmailAddress; the Single sign on URL entered at creation is https://<instance name>/saml/id/1/assert (the ITDR page labels it Single sign-on URL), and it and the Audience URI are placeholder values that must be changed later to the service provider assertion URL and entity ID obtained from the portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-okta-single-sign.json",
+          "quotes": [
+            "Name ID format: Select EmailAddress from the drop-down menu.",
+            "Single sign on URL: Enter https://<Zscaler Deception Admin Portal instance name>/saml/id/1/assert.",
+            "The Single sign on URL and Audience URI are placeholder values, which must be changed later.",
+            "Single sign on URL: Enter the service provider assertion URL that you obtained.",
+            "Audience URI (SP Entity ID): Enter the service provider entity ID that you obtained from the Deception Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-okta.json",
+          "quotes": [
+            "Name ID format: Select EmailAddress from the drop-down menu.",
+            "Single sign-on URL: Enter https://<ITDR Admin Portal instance name>/saml/id/1/assert.",
+            "The Single sign-on URL and Audience URI (SP Entity ID) are placeholder values, which must be changed later.",
+            "Single sign-on URL: Enter the service provider assertion URL that you obtained from Step 3.",
+            "Audience URI (SP Entity ID): Enter the service provider entity ID that you obtained from the ITDR Admin Portal in Step 3."
+          ]
+        }
+      ]
+    },
+    "okta-saml-assertion-encryption": {
+      "statement": "For Okta SAML, Assertion Encryption is set to Encrypted and the encryption certificate downloaded from the admin portal is uploaded to Okta.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-okta-single-sign.json",
+          "quotes": [
+            "Assertion Encryption: Select Encrypted from the drop-down menu.",
+            "Encryption Certificate: Upload the encryption certificate that you downloaded from the Deception Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-okta.json",
+          "quotes": [
+            "Assertion Encryption: Select Encrypted from the drop-down menu.",
+            "Encryption Certificate: Upload the encryption certificate that you downloaded from the ITDR Admin Portal in Step 3."
+          ]
+        }
+      ]
+    },
+    "okta-saml-group-attributes": {
+      "statement": "For Okta SAML group provisioning, the Okta attribute statement FullName uses the value String.join(\" \", user.firstName, user.lastName) and the group attribute statement Group uses the filter Matches regex .*; in the portal, SAML Response Group Attribute is entered as Group and SAML Response Name Attribute as FullName.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-okta-single-sign.json",
+          "quotes": [
+            "Name: Enter FullName.",
+            "Value: Enter String.join(\" \", user.firstName, user.lastName).",
+            "Name: Enter Group.",
+            "Filter: Select Matches regex from the drop-down menu, and then enter .* as the filter value.",
+            "SAML Response Group Attribute: Enter Group.",
+            "SAML Response Name Attribute: Enter FullName."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-okta.json",
+          "quotes": [
+            "Name: Enter FullName.",
+            "Value: Enter String.join(\" \", user.firstName, user.lastName).",
+            "Name: Enter Group.",
+            "Filter: Select Matches regex from the drop-down menu, and then enter .* as the filter value.",
+            "SAML Response Group Attribute: Enter Group.",
+            "SAML Response Name Attribute: Enter FullName."
+          ]
+        }
+      ]
+    },
+    "okta-saml-group-lockout": {
+      "statement": "On the Okta SAML page, if the group attribute is not part of the SAML assertion or does not match a group configured in the portal, all roles mapped to the user are removed, which can lock the user out; the page advises testing with a separate user and contacting Zscaler Support if locked out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-okta-single-sign.json",
+          "quotes": [
+            "If the group attribute specified is not part of the SAML assertion when logging in or doesn't match one of the groups specified in the Deception Admin Portal, then all roles mapped to the users who attempt to log in are removed.",
+            "Therefore, test the SAML user provisioning and role mapping with a separate user so that you don't lock out your main account.",
+            "Contact the Zscaler Support if you are locked out of your account."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-okta.json",
+          "quotes": [
+            "If the group attribute specified is not part of the SAML assertion when logging in or doesn't match one of the groups specified in the ITDR Admin Portal, then all roles mapped to the users who attempt to log in are removed.",
+            "Therefore, test the SAML user provisioning and role mapping with a separate user so that you don't lock out your main account.",
+            "Contact Zscaler Support if you are locked out of your account."
+          ]
+        }
+      ]
+    },
+    "azure-saml-prereqs": {
+      "statement": "Azure AD SAML (Microsoft Entra ID in the ITDR page) needs access to the Azure service with a privileged role, preferably Global Administrator; the guide lists *.azure.com and *.illusionblack.com and says to remove any proxy restrictions on these URLs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-azure-active-directory-single-sign.json",
+          "quotes": [
+            "You have access to the Azure AD service with a privileged user role, preferably the Global Administrator role.",
+            "*.azure.com",
+            "*.illusionblack.com",
+            "Remove any proxy restrictions on these URLs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-microsoft-entra-id.json",
+          "quotes": [
+            "You have access to the Microsoft Entra ID service with a privileged user role, preferably the Global Administrator role.",
+            "*.azure.com",
+            "*.illusionblack.com",
+            "Remove any proxy restrictions on these URLs."
+          ]
+        }
+      ]
+    },
+    "azure-saml-provider-settings": {
+      "statement": "For an Azure AD SAML provider (Microsoft Entra ID in the ITDR page), the guide says to unselect Encryption and Sign Get Request and select Use Dedicated Certificate; the Azure metadata XML file is downloaded from the URL in App Federation Metadata Url.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-azure-active-directory-single-sign.json",
+          "quotes": [
+            "make sure you unselect Encryption and Sign Get Request, and select Use Dedicated Certificate.",
+            "copy the URL in App Federation Metadata Url and paste it into your browser to download the metadata XML file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-microsoft-entra-id.json",
+          "quotes": [
+            "make sure you unselect Encryption and Sign Get Request, and select Use Dedicated Certificate.",
+            "copy the URL in App Federation Metadata Url and paste it into your browser to download the metadata XML file."
+          ]
+        }
+      ]
+    },
+    "azure-saml-upn-email": {
+      "statement": "The User Principal Name of the user in the Azure portal must match the Email field of the user created in the admin portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-azure-active-directory-single-sign.json",
+          "quotes": [
+            "The User Principal Name of the user in the Azure portal must match the Email field of the user created in the Deception Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-microsoft-entra-id.json",
+          "quotes": [
+            "The User Principal Name of the user in the Azure portal must match the Email field of the user created in the ITDR Admin Portal."
+          ]
+        }
+      ]
+    },
+    "azure-saml-group-claims": {
+      "statement": "For Azure SAML group provisioning, the group claim returns Groups assigned to the application with Group ID as the source attribute; the portal's SAML Response Group Attribute is the claim name of user.groups [All], the Name Attribute is the claim name of user.givenname, and each group name is the group's Object Id.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-azure-active-directory-single-sign.json",
+          "quotes": [
+            "select Groups assigned to the application.",
+            "For Source attribute, select Group ID from the drop-down menu.",
+            "For SAML Response Group Attribute, enter the Claim name you copied for the user.groups [All] attribute.",
+            "For SAML Response Name Attribute, enter the Claim name you copied for the user.givenname attribute.",
+            "For Group Name, enter the Object Id for a group you copied."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-microsoft-entra-id.json",
+          "quotes": [
+            "select Groups assigned to the application.",
+            "For Source attribute, select Group ID from the drop-down menu.",
+            "For SAML Response Group Attribute, enter the Claim name you copied for the user.groups [All] attribute.",
+            "For SAML Response Name Attribute, enter the Claim name you copied for the user.givenname attribute.",
+            "For Group Name, enter the Object Id for a group you copied."
+          ]
+        }
+      ]
+    },
+    "adfs-saml-trust": {
+      "statement": "For ADFS SAML, the Federation Metadata XML file is downloaded from https://<ADFS hostname>/FederationMetadata/2007-06/FederationMetadata.xml on the ADFS server; the Relying Party Trust is added as Claims aware, importing a Metadata XML file downloaded from the portal, and Permit everyone is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-active-directory-federation-services.json",
+          "quotes": [
+            "Download the Federation Metadata XML file. To download the Federation Metadata XML file on the ADFS server, enter the following URL in your browser and save the file:",
+            "https://<ADFS Sever Hostname>/FederationMetadata/2007-06/FederationMetadata.xml",
+            "select Claims aware, and click Start.",
+            "Select Import data about the relying party from a file.",
+            "Browse to upload the Metadata XML file that you downloaded from the Deception Admin Portal.",
+            "select Permit everyone, and click Next."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-active-directory-federation-services.json",
+          "quotes": [
+            "Download the Federation Metadata XML file. To download the Federation Metadata XML file on the ADFS server, enter the following URL in your browser and save the file:",
+            "https://<ADFS Sever Hostname>/FederationMetadata/2007-06/FederationMetadata.xml",
+            "select Claims aware, and click Start.",
+            "Select Import data about the relying party from a file.",
+            "Browse to upload the Metadata XML file that you downloaded from the ITDR Admin Portal, and click Next.",
+            "select Permit everyone, and click Next."
+          ]
+        }
+      ]
+    },
+    "adfs-saml-claim-rules": {
+      "statement": "The ADFS claim rules include a rule named User Principal Name mapping the LDAP attribute User-Principal-Name to the E-Mail Address outgoing claim type, and a rule named Email that takes incoming claim type E-Mail Address and outputs outgoing claim type Name ID with outgoing name ID format Email, passing through all claim values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-active-directory-federation-services.json",
+          "quotes": [
+            "Claim rule name: Enter User Principal Name.",
+            "Under LDAP Attribute, select User-Principal-Name from the drop-down menu.",
+            "Under Outgoing Claim Type, select E-Mail Address from the drop-down menu.",
+            "Claim rule name: Enter Email.",
+            "Incoming claim type: Select E-Mail Address from the drop-down menu.",
+            "Outgoing claim type: Select Name ID from the drop-down menu.",
+            "Outgoing name ID format: Select Email from the drop-down menu.",
+            "Select Pass through all claim values."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-active-directory-federation-services.json",
+          "quotes": [
+            "Claim rule name: Enter User Principal Name.",
+            "Under LDAP Attribute, select User-Principal-Name from the drop-down menu.",
+            "Under Outgoing Claim Type, select E-Mail Address from the drop-down menu.",
+            "Claim rule name: Enter Email.",
+            "Incoming claim type: Select E-Mail Address from the drop-down menu.",
+            "Outgoing claim type: Select Name ID from the drop-down menu.",
+            "Outgoing name ID format: Select Email from the drop-down menu.",
+            "Select Pass through all claim values."
+          ]
+        }
+      ]
+    },
+    "adfs-saml-group-rules": {
+      "statement": "For optional ADFS group provisioning, a Send Group Membership as Claim rule uses outgoing claim type Group, and a further rule maps the LDAP attribute Given-Name to the Name outgoing claim type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-saml-active-directory-federation-services.json",
+          "quotes": [
+            "select Send Group Membership as Claim from the drop-down menu, and click Next.",
+            "Outgoing claim type: Select Group from the drop-down menu.",
+            "LDAP Attribute: Select Given-Name from the drop-down menu.",
+            "Outgoing Claim Type: Select Name from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-saml-active-directory-federation-services.json",
+          "quotes": [
+            "select Send Group Membership as Claim from the drop-down menu, and click Next.",
+            "Outgoing claim type: Select Group from the drop-down menu.",
+            "LDAP Attribute: Select Given-Name from the drop-down menu.",
+            "Outgoing Claim Type: Select Name from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "openid-provider-fields": {
+      "statement": "An OpenID provider needs the IdP's Client ID, Client Secret, Issuer, Authorization Endpoint, Token Endpoint and JWKS URI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-openid-single-sign.json",
+          "quotes": [
+            "Client ID: Enter the client ID you obtained from your IdP.",
+            "Client Secret: Enter the client secret you obtained from your IdP.",
+            "Issuer: Enter the issuer URL obtained from your IdP.",
+            "Authorization Endpoint: Enter the authorization endpoint URL obtained from your IdP.",
+            "Token Endpoint: Enter the token endpoint URL obtained from your IdP.",
+            "JWKS URI: Enter the JWKS URI obtained from your IdP."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-openid-single-sign.json",
+          "quotes": [
+            "Client ID: Enter the client ID you obtained from your IdP.",
+            "Client Secret: Enter the client secret you obtained from your IdP.",
+            "Issuer: Enter the issuer URL obtained from your IdP.",
+            "Authorization Endpoint: Enter the authorization endpoint URL obtained from your IdP.",
+            "Token Endpoint: Enter the token endpoint URL obtained from your IdP.",
+            "JWKS URI: Enter the JWKS URI obtained from your IdP."
+          ]
+        }
+      ]
+    },
+    "openid-proxy-setting": {
+      "statement": "Use Proxy Settings is enabled if the admin portal requires a proxy to reach the OpenID SSO servers, and is optional for a SaaS-hosted deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-openid-single-sign.json",
+          "quotes": [
+            "Use Proxy Settings: Enable if the Deception Admin Portal requires a proxy to connect to the OpenID SSO servers. This toggle is optional if you are using a SaaS-hosted version of Zscaler Deception."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-openid-single-sign.json",
+          "quotes": [
+            "Use Proxy Settings: Enable if the ITDR Admin Portal requires a proxy to connect to the OpenID SSO servers. This toggle is optional if you are using a SaaS-hosted version of ITDR."
+          ]
+        }
+      ]
+    },
+    "openid-okta": {
+      "statement": "For OpenID with Okta, the Okta application type is Web Application with sign-in redirect URI https://<instance>/oauth; after entering https://<Okta instance>.okta.com/.well-known/openid-configuration in the browser, the authorization_endpoint, token_endpoint and jwks_uri values are copied from the configuration file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-openid-single-sign-using-okta.json",
+          "quotes": [
+            "Select Web Application as the application type.",
+            "Use https://<Zscaler Deception Instance Name>/oauth as the sign-in redirect URI.",
+            "Enter the following URL in the browser:",
+            "https://<Okta Instance>.okta.com/.well-known/openid-configuration",
+            "When the configuration file opens, copy the following information:",
+            "authorization_endpoint",
+            "token_endpoint",
+            "jwks_uri"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-openid-okta.json",
+          "quotes": [
+            "Select Web Application as the application type.",
+            "Use https://<Zscaler ITDR Instance Name>/oauth as the sign-in redirect URI.",
+            "Enter the following URL in the browser:",
+            "https://<Okta Instance>.okta.com/.well-known/openid-configuration",
+            "When the configuration file opens, copy the following information:",
+            "authorization_endpoint",
+            "token_endpoint",
+            "jwks_uri"
+          ]
+        }
+      ]
+    },
+    "openid-google": {
+      "statement": "For OpenID with Google, after entering https://accounts.google.com/.well-known/openid-configuration in the browser, the authorization_endpoint, token_endpoint and jwks_uri values are copied from the configuration file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-openid-single-sign-using-google.json",
+          "quotes": [
+            "Enter the following URL in the browser:",
+            "https://accounts.google.com/.well-known/openid-configuration",
+            "When the configuration file opens, copy the following information:",
+            "authorization_endpoint",
+            "token_endpoint",
+            "jwks_uri"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-openid-google.json",
+          "quotes": [
+            "Enter the following URL in the browser:",
+            "https://accounts.google.com/.well-known/openid-configuration",
+            "When the configuration file opens, copy the following information:",
+            "authorization_endpoint",
+            "token_endpoint",
+            "jwks_uri"
+          ]
+        }
+      ]
+    },
+    "itdr-google-oauth-prereq": {
+      "statement": "The ITDR page for OpenID for Google says to make sure to configure Google OAuth 2.0 before configuring OpenID for Google.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-openid-google.json",
+          "quotes": [
+            "Before you configure OpenID for Google, make sure to configure Google OAuth 2.0."
+          ]
+        }
+      ]
+    },
+    "disable-password-login": {
+      "statement": "With SSO enabled, local-credential login to the admin portal can be turned off by selecting Disable password login; at least one SSO feature should be configured and tested first, and afterwards local username and password cannot be used to log in. Changes to these settings apply to all users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-user-authentication-settings.json",
+          "quotes": [
+            "Select Disable password login.",
+            "If you have enabled SSO for users, then you can disable authentication to the Zscaler Deception Admin Portal via local credentials",
+            "Make sure that you have configured at least one SSO feature and tested it before disabling password-based authentication.",
+            "After you disable the password-based authentication, you cannot log in to the portal using your local username and password.",
+            "Any changes made to these settings are applied to all users."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-user-authentication-settings.json",
+          "quotes": [
+            "Select Disable password login.",
+            "If you have enabled SSO for users, then you can disable authentication to the Zscaler ITDR Admin Portal via local credentials",
+            "Make sure that you have configured at least one SSO feature and tested it before disabling password-based authentication.",
+            "After you disable the password-based authentication, you cannot log in to the portal using your local username and password.",
+            "Any changes made to these settings are applied to all users."
+          ]
+        }
+      ]
+    },
+    "password-expiration": {
+      "statement": "The password expiration period is 90 days by default and can be changed for all users; it counts from the day each account was created, and users older than the period are prompted to reset their passwords.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-user-authentication-settings.json",
+          "quotes": [
+            "By default, the password expiration period is 90 days.",
+            "it is applied to all users from the day their account was created. Users older than the password expiration period are prompted to reset their passwords."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-user-authentication-settings.json",
+          "quotes": [
+            "By default, the password expiration period is 90 days.",
+            "it is applied to all users from the day their account was created. Users older than the password expiration period are prompted to reset their passwords."
+          ]
+        }
+      ]
+    },
+    "otp-window": {
+      "statement": "Each user must configure 2FA with an authenticator app when signing in for the first time; each OTP is valid for a 30-second window, and by default OTPs from the previous and next two windows are accepted to accommodate possible clock skew.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-user-authentication-settings.json",
+          "quotes": [
+            "When signing into the Deception Admin Portal for the first time, each user must configure 2FA using an authenticator app. Each OTP is valid for a time window of 30 seconds.",
+            "To accommodate possible clock skew between the Deception Admin Portal and the authenticator app, OTPs submitted from the previous and next two windows are accepted, by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-user-authentication-settings.json",
+          "quotes": [
+            "When signing into the ITDR Admin Portal for the first time, each user must configure 2FA using an authenticator app. Each OTP is valid for a time window of 30 seconds.",
+            "To accommodate possible clock skew between the ITDR Admin Portal and the authenticator app, OTPs submitted from the previous and next two windows are accepted, by default."
+          ]
+        }
+      ]
+    },
+    "otp-window-tuning": {
+      "statement": "When OTP errors occur because of clock skew, the number of windows can be increased; Zscaler recommends not modifying the default OTP duration, and if needed increasing the window number by 1 until the clock skew problem is resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-user-authentication-settings.json",
+          "quotes": [
+            "If you encounter OTP errors due to clock skew, you can increase the number of windows.",
+            "Zscaler recommends not modifying the default OTP duration. However, you can increase the window number by 1 until the clock skew problem is resolved."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-user-authentication-settings.json",
+          "quotes": [
+            "If you encounter OTP errors due to clock skew, you can increase the number of windows.",
+            "Zscaler recommends not modifying the default OTP duration. However, you can increase the window number by 1 until the clock skew problem is resolved."
+          ]
+        }
+      ]
+    },
+    "support-access": {
+      "statement": "Support users can be blocked from the admin portal with Disable Support Access under Support Access Settings; this might delay assistance, and Zscaler Support might ask for access to be re-enabled when a help ticket is submitted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-disabling-support-user-access.json",
+          "quotes": [
+            "You can disable support users from accessing the Zscaler Deception Admin Portal.",
+            "Disabling access to support users might cause delayed assistance from the Zscaler Support team.",
+            "Under Support Access Settings, select Disable Support Access.",
+            "The Zscaler Support team might request you to enable access when you submit a help ticket for troubleshooting issues."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-disabling-support-user-access.json",
+          "quotes": [
+            "You can disable support users from accessing the Zscaler ITDR Admin Portal.",
+            "Disabling access to support users might cause delayed assistance from the Zscaler Support team.",
+            "Under Support Access Settings, select Disable Support Access.",
+            "Zscaler Support might request you to enable access when you submit a help ticket for troubleshooting issues."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "okta-sso-path": {
+      "summary": "The Deception Okta SAML page sends the reader to Settings > User & Roles > SSO; the Deception IdP page names the IdP Providers page at Settings > Users & Roles > IdP Providers.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-configuring-saml-okta-single-sign.json",
+            "quotes": [
+              "Go to Settings > User & Roles > SSO."
+            ]
+          },
+          "says": "Group provisioning for Okta SAML starts at Settings > User & Roles > SSO."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-about-identity-providers.json",
+            "quotes": [
+              "On the IdP Providers page (Settings > Users & Roles > IdP Providers), you can do the following:"
+            ]
+          },
+          "says": "The IdP Providers page, where SAML and OpenID IdPs are managed, is at Settings > Users & Roles > IdP Providers."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-configuring-saml-single-sign.json",
+            "quotes": [
+              "Go to Settings > User & Roles > IdP Providers."
+            ]
+          },
+          "says": "The SAML single sign-on configuration page starts at Settings > User & Roles > IdP Providers."
+        }
+      ],
+      "impact": "An answer giving the console path to a SAML configuration cites one path or the other; the Deception pages do not say whether SSO is a separate page or an older name for IdP Providers. The ITDR release note dated August 18, 2025 records Settings > User & Roles > SSO being renamed IdP Providers in ITDR ([[identity-protection.release-notes:2025-08-18-tab-renames]]); no captured Deception page records the rename, though the Deception SAML configuration page already uses IdP Providers."
+    }
+  },
+  "gaps": {
+    "itdr-copy-drift": {
+      "kind": "semantic",
+      "title": "Whether the ITDR-only wording differences in these pages change behavior",
+      "status": "open",
+      "detail": "The ITDR page names the Authentication Service Admin Portal where the Deception page names the Zscaler Admin Console, the ITDR SAML page lists Okta and Microsoft Entra ID while an ITDR ADFS guide exists, and the ITDR Okta SAML page labels the URL field Single sign-on URL where the Deception page says Single sign on URL. No capture says whether any of these reflects different behavior.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

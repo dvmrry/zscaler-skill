@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Application Discovery Deployment and Operations Guide",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-deployments-operations/application-discovery-deployment-and-operations-guide",
+    "node": "1420091",
+    "revision": "3180717",
+    "updated": "2026-02-25",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide describes the benefits of using Application Discovery and the steps necessary for configuring Zscaler Private Access (ZPA) to add Application Discovery to your security posture."
+    },
+    {
+      "text": "Two ways to access applications are through an explicit application definition or application discovery. When users request applications, Application Discovery lets ZPA discover them using specific domain names and IP subnets."
+    },
+    {
+      "text": "Configuring an application segment to allow for application discovery is useful when you want to learn about the applications used in your organization and the users accessing them. Application discovery works efficiently when the TCP and UDP port range specified for the domain or IP subnet is wide, and when the application policy allows access to a broad set of users. After discovering an application, you can define granular policies for your discovered applications to control access."
+    },
+    {
+      "text": "To learn more, see Understanding Application Discovery."
+    },
+    {
+      "heading": "Value of Deploying Application Discovery",
+      "level": 1
+    },
+    {
+      "text": "Enabling Application Discovery for ZPA provides the following benefits:"
+    },
+    {
+      "item": "Helps to scope out the network and frequently accessed applications to implement least-privilege access policies early in the ZPA deployment stage.",
+      "depth": 0
+    },
+    {
+      "item": "Ascertains if there are hidden applications so that you can restrict access if necessary.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Phase",
+      "level": 1
+    },
+    {
+      "text": "The deployment phase initially sets up and integrates ZPA solutions into an existing network infrastructure. During the deployment phase, you configure Application Discovery to meet the needs of your infrastructure. The following sections discuss steps to deploy Application Discovery."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "For Application Discovery deployment, ZPA discovers an application only when a user requests access to it."
+    },
+    {
+      "heading": "Deployment Steps",
+      "level": 2
+    },
+    {
+      "text": "The following steps explain how to deploy Application Discovery:"
+    },
+    {
+      "item": "Create an application segment with a wider domain or subnet:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Fully Qualified Domain Names (FQDNs) or Domain Names: Enter FQDNs and domain names in wildcard format (e.g., *.<FQDN or Domain Name> or .<FQDN or Domain Name>).",
+      "depth": 1
+    },
+    {
+      "item": "IP Subnets: Enter IP subnets using the Classless Inter-Domain Routing (CIDR) notation (e.g., 10.0.0.0/24).",
+      "depth": 1
+    },
+    {
+      "item": "Define wider TCP/UDP port ranges for applications excluding TCP and UDP 53 (DNS).",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "(Optional) Add DNS search domains.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Configure access policies that reference applications as a set rather than configuring policies for each application.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Define the discovered applications from the Discovered Application widget in the Applications dashboard.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Use the bypass settings to bypass selected applications from ZPA.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "After applications are discovered, define granular application segments and access policies to restrict access on a least-privilege access principle.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "heading": "Considerations",
+      "level": 2
+    },
+    {
+      "text": "Review the following considerations:"
+    },
+    {
+      "item": "Applications defined with only a wildcard, i.e., an asterisk (*), are not available for application discovery.",
+      "depth": 0
+    },
+    {
+      "item": "On Access health reporting is available for only discovered applications.",
+      "depth": 0
+    },
+    {
+      "item": "App Connector reports the application's health as soon as a user accesses it and for up to 30 minutes after the user has completed using it.",
+      "depth": 0
+    },
+    {
+      "item": "ZPA does not apply the ports specified in the app segments that contain IP subnets or wildcards towards app segments that contain more specific IPs or FQDNs. You must specify the ports in the app segment that contain the IPs or FQDNs.",
+      "depth": 0
+    },
+    {
+      "item": "When defining a new application segment, Zscaler recommends taking note of the following interaction between a wildcard domain and a specific host domain, where wildcard no longer means wildcard:",
+      "depth": 0
+    },
+    {
+      "item": "You have an app segment defined by a wildcard (*.exapp.company.com).",
+      "depth": 1
+    },
+    {
+      "item": "You add the app segment to an access policy.",
+      "depth": 1
+    },
+    {
+      "item": "You create a new app segment (file.exapp.company.com).",
+      "depth": 1
+    },
+    {
+      "text": "The access policy does not cover the app segment in the third bullet. By defining the app segment (file.exapp.company.com) separately, you must add a new access policy because the application matches the specific app segment. ZPA always matches an application to the most specific app segment, even if that application could potentially match a wildcard app segment. For policy, ZPA evaluates the policy with the most specific app segment."
+    },
+    {
+      "item": "For applications that users access using only the hostname; e.g., distributed file system (DFS), ensure that you configure DNS search domains so that ZPA automatically adds the search domain to the hostname. This ensures that ZPA users accessing applications as non-FQDNs (i.e., host short names) have the domain suffixes appended, which causes an FQDN to be sent through for application discovery.",
+      "depth": 0
+    },
+    {
+      "item": "If your identity provider (IdP) is defined as an application within an application segment, the Authentication Timeout for the IdP application must be set to Never. If an IdP domain overlaps with a domain configured for application discovery, you must bypass the IdP domain in ZPA to avoid user reauthentication failure.",
+      "depth": 0
+    },
+    {
+      "item": "After 14 days, discovered application data is no longer listed in the User Activity Diagnostics.",
+      "depth": 0
+    },
+    {
+      "heading": "Operations Phase",
+      "level": 1
+    },
+    {
+      "text": "This section describes standard practices used to operate Zscaler solutions when integrated with your environment. You can monitor and tune Application Discovery in ZPA during operations to meet your infrastructure needs."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "For Application Discovery operation, complete the following prerequisites:"
+    },
+    {
+      "item": "Prepare an up-to-date list of domains, IP subnets, and ports currently enabled for application discovery.",
+      "depth": 0
+    },
+    {
+      "item": "Define a deadline after which application discovery is turned off to enforce the least-privilege access principle for all discovered applications. Request new applications through an established internal process.",
+      "depth": 0
+    },
+    {
+      "heading": "Common Troubleshooting Items",
+      "level": 2
+    },
+    {
+      "text": "The following list describes common issues related to Application Discovery operation:"
+    },
+    {
+      "item": "Application is not being discovered or accessed:",
+      "depth": 0
+    },
+    {
+      "item": "If not discovered, check if the following preconditions are met:",
+      "depth": 1
+    },
+    {
+      "item": "The application was accessed within the last 14 days.",
+      "depth": 2
+    },
+    {
+      "item": "The application discovery segment covers the ports used by the application in question.",
+      "depth": 2
+    },
+    {
+      "item": "The specified application discovery criteria cover the destination URL or IP address.",
+      "depth": 2
+    },
+    {
+      "item": "If discovered but not accessed, check for the following:",
+      "depth": 1
+    },
+    {
+      "item": "Is there a more specific application segment that overrides policies set for the application discovery segment.",
+      "depth": 2
+    },
+    {
+      "item": "Is there an access policy for the application segment that prevents the user from accessing the application.",
+      "depth": 2
+    },
+    {
+      "item": "Does the User Activity Diagnostics and the bypass settings of the application segment show the application is forwarded to ZPA.",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler Client Connector requests reauthentication, but the reauthentication fails: If your identity provider (IdP) is defined as an application within an application segment, the Authentication Timeout for the IdP application must be set to Never. If an IdP domain overlaps with a domain configured for application discovery, you must bypass the IdP domain in ZPA to avoid user reauthentication failure.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Checklist",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends downloading the Application Discovery Deployment and Operations Checklist to help plan and implement Application Discovery: Download PDF"
+    },
+    {
+      "heading": "Additional Information",
+      "level": 1
+    },
+    {
+      "text": "For more application discovery information and troubleshooting instructions, see the Zscaler Support Portal and the Zscaler Zenith Community."
+    }
+  ]
+}

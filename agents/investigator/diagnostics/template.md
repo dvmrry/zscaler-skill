@@ -122,8 +122,8 @@ If you cannot cite verification, the diagnostic is not ready to ship.
 Each query follows the SIEM emission discipline:
 
 - Placeholder plumbing (`$INDEX_X`, `<your_*>`)
-- Zscaler-published field names only (cited per `references/{zia,zpa,zcc}/logs/`)
-- Cite a named pattern from `splunk-queries.md` when one exists rather than freelancing SPL
+- Zscaler-published field names only (cited per log type field, e.g. `kb:zia/web-log#urlcat`)
+- Cite a validation search from the `shared.splunk*` subjects by subject ID or pattern name (`url-coverage-check`) when one exists, and write the SPL from the fields and checks it names rather than freelancing
 
 ### Decision logic
 
@@ -163,6 +163,6 @@ Document it explicitly. Silent dependencies cause confused investigations when t
 - [`investigator/prompt.md`](../prompt.md) — `/z-investigator` playbook
 - [`investigator/methodology.md`](../methodology.md) — discovery journal, claim status, severity scale
 - [`siem-emission-discipline.md`](../../siem-emission-discipline.md) — execution modes, placeholder plumbing, public/private boundary
-- [`splunk-queries.md`](../../../references/shared/splunk-queries.md) — named SPL patterns to reference from inside diagnostics
-- [`siem-log-mapping.md`](../../../references/shared/siem-log-mapping.md) — log type catalog for picking the right Zscaler stream
+- [`shared.splunk`](kb:shared.splunk) — named SPL patterns to reference from inside diagnostics
+- [`shared.siem-mapping`](kb:shared.siem-mapping) — log type catalog for picking the right Zscaler stream
 - [`architect/diagnostics/template.md`](../../architect/diagnostics/template.md) — parallel template for `/z-architect` recommendation diagnostics

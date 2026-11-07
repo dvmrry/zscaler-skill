@@ -1,0 +1,561 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.vdi.install",
+  "title": "Installing Client Connector for VDI: download, MSI options, golden images, OnboardOnStart, Intune and processes to allowlist",
+  "aliases": [
+    "zccvdiinstaller",
+    "zccvdiinstaller.msi",
+    "vdi golden image",
+    "onboard=0",
+    "onboardonstart",
+    "configreadtimeout",
+    "hideapponuilaunch",
+    "app store for vdi"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.windows-unattended"
+    },
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.vdi.groups-and-templates",
+      "because": "cloud-connector.vdi.install:provurl-token"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{download}} {{msi-deployment-methods}} Whether AWS is supported is recorded in [[cloud-connector.vdi]]."
+    },
+    {
+      "heading": "MSI options"
+    },
+    {
+      "text": "{{msi-options}} {{provurl-token}} The template side is in [[cloud-connector.vdi.groups-and-templates]]."
+    },
+    {
+      "items": [
+        {
+          "label": "MODE.",
+          "text": "{{mode}} The Intune section words it differently {{divergence:mode-values}}. What MODE defaults to when omitted is open {{gap:mode-default}}."
+        },
+        {
+          "label": "SERVERIP.",
+          "text": "{{serverip}}"
+        },
+        {
+          "label": "ONBOARD.",
+          "text": "{{onboard}}"
+        },
+        {
+          "label": "CONFIGREADTIMEOUT.",
+          "text": "{{configreadtimeout}} The Intune section words it differently {{divergence:configreadtimeout-meaning}}."
+        },
+        {
+          "label": "HIDEAPPONUILAUNCH.",
+          "text": "{{hideapponuilaunch}}"
+        },
+        {
+          "label": "USEEMBEDDEDBROWSER.",
+          "text": "{{useembeddedbrowser}}"
+        },
+        {
+          "label": "SHOWREAUTHNOTIFICATION.",
+          "text": "{{showreauthnotification}}"
+        }
+      ]
+    },
+    {
+      "text": "The standard Client Connector's silent-install parameters are a different set with different names: [[zcc.install.windows-unattended]]. The command-line example image is not captured {{gap:command-line-image}}."
+    },
+    {
+      "heading": "Golden images"
+    },
+    {
+      "text": "{{golden-image-onboard-0}} {{golden-image-no-boot}} {{golden-image-reboot}} Whether the steps the Citrix section omits apply to Citrix is open {{gap:golden-image-citrix}}."
+    },
+    {
+      "text": "{{onboardonstart}} The hive and the screenshot are open {{gap:onboardonstart-details}}."
+    },
+    {
+      "heading": "Intune and Citrix"
+    },
+    {
+      "text": "{{intune}} {{citrix-practices}}"
+    },
+    {
+      "heading": "Processes to allowlist"
+    },
+    {
+      "text": "{{allowlist-paths}} {{process-roles}} {{gpo-firewall}}"
+    }
+  ],
+  "claims": {
+    "download": {
+      "statement": "On the App Store for VDI page (Infrastructure > Client Connector > App Store for VDI) Client Connector for VDI for Windows can be downloaded, in the latest version or one of the older versions still available. The General Availability tab shows the latest released versions, the Limited Availability tab versions not yet fully qualified, and the download icon is in the MSI URL (64 bit) column.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-downloading-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "go to Infrastructure > Client Connector > App Store for VDI.",
+            "on the VDI App Store page, you can download Zscaler Client Connector for Virtual Desktop Infrastructure (VDI) for Windows.",
+            "You can download the latest version or one of the older versions still available for download.",
+            "On the General Availability tab, view the latest released versions. On the Limited Availability tab, view versions that are not yet fully qualified.",
+            "Click the Download icon for the version you want in the MSI URL (64 bit) column."
+          ]
+        }
+      ]
+    },
+    "msi-deployment-methods": {
+      "statement": "When deploying Client Connector for VDI using Microsoft Azure, AWS, Citrix XenCenter or other device management methods that support MSI files, the downloaded MSI can be used as is; alternatively the MSI can manually install it on a device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "using Microsoft Azure, Amazon Web Services (AWS), Citrix XenCenter, or other device management methods that support Microsoft Software Installer (MSI) files, you can download and use the MSI file.",
+            "After downloading and configuring Zscaler Client Connector for VDI, you can deploy the file as is using your device management method.",
+            "Alternatively, you can use the MSI file to manually install Zscaler Client Connector for VDI on a device."
+          ]
+        }
+      ]
+    },
+    "msi-options": {
+      "statement": "From a command prompt started as an administrator, the msiexec command for the MSI takes the options PROVURL, TOKEN, MODE, SERVERIP, ONBOARD, CONFIGREADTIMEOUT, HIDEAPPONUILAUNCH, USEEMBEDDEDBROWSER and SHOWREAUTHNOTIFICATION.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "Start a command prompt as an administrator:",
+            "msiexec /i ZCCVDIInstaller_1.0.0.XX.msi PROVURL=\"AAA\" TOKEN=\"BBB\" MODE=\"CCC\" SERVERIP=\"DDD\" ONBOARD=\"EEE\" CONFIGREADTIMEOUT=\"FFF\" HIDEAPPONUILAUNCH=\"GGG\" USEEMBEDDEDBROWSER=\"HHH\" SHOWREAUTHNOTIFICATION=\"III\""
+          ]
+        }
+      ]
+    },
+    "provurl-token": {
+      "statement": "PROVURL takes the provisioning URL from the VDI Template and TOKEN the token value from the VDI Template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "PROVURL=\"AAA\": Replace \"AAA\" with the provisioning URL from the VDI Template.",
+            "TOKEN=\"BBB\": Replace \"BBB\" with the token value from the VDI Template."
+          ]
+        }
+      ]
+    },
+    "mode": {
+      "statement": "In the command-line section, MODE takes the tunneling mode as 1 or 0: Point-to-Point (P2P) is Mode 1 and Any-to-Any (A2A) is Mode 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "MODE=\"CCC\": Replace \"CCC\" with the tunneling mode (1 or 0).",
+            "Point-to-Point (P2P) Tunneling Mode (Mode is 1)",
+            "Any-to-Any (A2A) Tunneling Mode (Mode is 0)"
+          ]
+        }
+      ]
+    },
+    "serverip": {
+      "statement": "SERVERIP takes the IP address of the load balancer hosting the Cloud Connector or Branch Connector, or the service interface IP address of either; alternatively a fully qualified domain name or the global VIP 185.46.212.80 can be used. The parameter is optional if the default route or 185.46.212.80 is routed to the Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "SERVERIP=\"DDD\": Replace \"DDD\" with the IP address of the load balancer hosting the Cloud Connector or Branch Connector, or the service interface IP address of either the Cloud Connector or the Branch Connector.",
+            "Alternatively, you can use a fully qualified domain name (FQDN) or the the global VIP address, 185.46.212.80.",
+            "This parameter is optional if the default route or 185.46.212.80 is routed to the Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "onboard": {
+      "statement": "ONBOARD takes 0 or 1 and its default is 1: immediately after installation, Client Connector for VDI onboards itself to the Workload Communications (WLC) tenant. With the flag set to 0 it does not onboard until the VM or OS is restarted, and in a golden image clone process not until the child VMs are booted for the first time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "ONBOARD=\"EEE\": Replace \"EEE\" with the default onboarding behavior (0 or 1).",
+            "When you install Zscaler Client Connector for VDI, the default behavior for the CLI onboard flag is 1.",
+            "immediately after installation, Zscaler Client Connector for VDI automatically onboards itself to the Workload Communications (WLC) tenant.",
+            "With the flag set to 0, Zscaler Client Connector for VDI does not onboard itself until you restart the VM or OS.",
+            "In the case of a golden image clone process, Zscaler Client Connector for VDI does not onboard itself until you boot the child VMs for the first time."
+          ]
+        }
+      ]
+    },
+    "configreadtimeout": {
+      "statement": "In the command-line section, CONFIGREADTIMEOUT takes a value between 0 and 300 seconds (default 0): the Zscaler service stores the user configuration file in the roaming folder and asks Client Connector for VDI to wait a minimum of 0 and a maximum of 300 seconds for profiles to restore, after which onboarding times out and requires intervention. It is only supported on Client Connector for VDI version 1.1.0.8 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "CONFIGREADTIMEOUT=\"FFF\": Replace \"FFF\" with a value between 0 and 300 seconds. The default value is 0 seconds.",
+            "The Zscaler service stores the user configuration file in the roaming folder and asks Zscaler Client Connector for VDI to wait a minimum of 0 and a maximum of 300 seconds for profiles to restore.",
+            "After that time elapses, Zscaler Client Connector for VDI onboarding times out and requires intervention.",
+            "CONFIGREADTIMEOUT is only supported on Zscaler Client Connector for VDI version 1.1.0.8 and later."
+          ]
+        }
+      ]
+    },
+    "hideapponuilaunch": {
+      "statement": "HIDEAPPONUILAUNCH takes 0 or 1 (default 0) for the application minimization behavior: 0 deactivates the minimization feature and 1 enables it, which minimizes the application when launching.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "Replace \"GGG\" with the application minimization behavior (0 or 1). The default value is 0.",
+            "Entering 0 deactivates the minimization feature for Zscaler Client Connector for VDI. Entering 1 enables the minimization feature for Zscaler Client Connector for VDI, which minimizes the application when launching."
+          ]
+        }
+      ]
+    },
+    "useembeddedbrowser": {
+      "statement": "USEEMBEDDEDBROWSER takes 0 or 1 (default 1) for the embedded browser behavior: 0 disables the embedded browser feature and 1 enables it, which avoids an external browser appearing during authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "Replace \"HHH\" with the embedded browser behavior (0 or 1). The default value is 1.",
+            "Entering 0 disables the embedded browser feature for Zscaler Client Connector for VDI. Entering 1 enables the embedded browser feature for Zscaler Client Connector for VDI, which avoids an external browser appearing during authentication."
+          ]
+        }
+      ]
+    },
+    "showreauthnotification": {
+      "statement": "SHOWREAUTHNOTIFICATION takes 0 or 1 (default 1) for the reauthentication notification behavior: 0 disables it, which prevents it from appearing, and 1 allows it to appear. It is only supported on Client Connector for VDI version 1.7.0.4 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "Replace \"III\" with the reauthentication notification behavior (0 or 1). The default value is 1.",
+            "Entering 0 disables the reauthentication notification, which prevents it from appearing. Entering 1 enables the reauthentication notification, which allows it to appear.",
+            "SHOWREAUTHNOTIFICATION is only supported on Zscaler Client Connector for VDI version 1.7.0.4 and later."
+          ]
+        }
+      ]
+    },
+    "golden-image-onboard-0": {
+      "statement": "The Azure Virtual Desktop, AWS and Citrix XenDesktop golden-image sections of the MSI article each say the ONBOARD=0 flag must be used for golden image deployments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "You must use the ONBOARD=0 flag for golden image deployments."
+          ],
+          "after": "Implementing Zscaler Client Connector for VDI Golden Image in Microsoft Azure Virtual Desktop"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "You must use the ONBOARD=0 flag for golden image deployments."
+          ],
+          "after": "Implementing Zscaler Client Connector for VDI Golden Image in Amazon Web Services Virtual Desktop"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "You must use the ONBOARD=0 flag for golden image deployments."
+          ],
+          "after": "Implementing Zscaler Client Connector for VDI Golden Image in Citrix XenDesktop Virtual Desktop Agent"
+        }
+      ]
+    },
+    "golden-image-no-boot": {
+      "statement": "In the Azure Virtual Desktop and AWS golden-image sections, the prepared VM or image is not booted until after it is cloned to the host pool instances, and Client Connector for VDI is not started or rebooted when creating a golden image.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "Do not boot the prepared VM or image until after you clone it to the host pool instances, and do not start or reboot Zscaler Client Connector for VDI when creating a golden image."
+          ],
+          "after": "Implementing Zscaler Client Connector for VDI Golden Image in Microsoft Azure Virtual Desktop"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "Do not boot the prepared VM or image until after you clone it to the host pool instances, and do not start or reboot Zscaler Client Connector for VDI when creating a golden image."
+          ],
+          "after": "Implementing Zscaler Client Connector for VDI Golden Image in Amazon Web Services Virtual Desktop"
+        }
+      ]
+    },
+    "golden-image-reboot": {
+      "statement": "The Azure Virtual Desktop, AWS and Citrix XenDesktop sections each say that when updating a golden image VM installed with ONBOARD=0, if the VM must be rebooted for any reason, Client Connector for VDI is uninstalled and reinstalled with ONBOARD=0 prior to the Sysprep, shutdown and clone process. The Azure Virtual Desktop and AWS sections add that onboarding while rebooting can also be prevented.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "if the VM must be rebooted for any reason, you must uninstall Zscaler Client Connector for VDI and then reinstall Zscaler Client Connector for VDI using the ONBOARD=0 flag prior to the Sysprep, shutdown, and clone process.",
+            "When updating a golden image VM where Zscaler Client Connector for VDI has been installed using the ONBOARD=0 flag"
+          ],
+          "after": "Implementing Zscaler Client Connector for VDI Golden Image in Microsoft Azure Virtual Desktop"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "if the VM must be rebooted for any reason, you must uninstall Zscaler Client Connector for VDI and then reinstall Zscaler Client Connector for VDI using the ONBOARD=0 flag prior to the Sysprep, shutdown, and clone process.",
+            "When updating a golden image VM where Zscaler Client Connector for VDI has been installed using the ONBOARD=0 flag"
+          ],
+          "after": "Implementing Zscaler Client Connector for VDI Golden Image in Amazon Web Services Virtual Desktop"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "if the VM must be rebooted for any reason, you must uninstall Zscaler Client Connector for VDI and then reinstall Zscaler Client Connector for VDI using the ONBOARD=0 flag prior to the Sysprep, shutdown, and clone process.",
+            "When updating a golden image VM where Zscaler Client Connector for VDI has been installed using the ONBOARD=0 flag"
+          ],
+          "after": "Implementing Zscaler Client Connector for VDI Golden Image in Citrix XenDesktop Virtual Desktop Agent"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "You can also prevent Zscaler Client Connector for VDI from onboarding while rebooting."
+          ],
+          "after": "Implementing Zscaler Client Connector for VDI Golden Image in Microsoft Azure Virtual Desktop"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "You can also prevent Zscaler Client Connector for VDI from onboarding while rebooting."
+          ],
+          "after": "Implementing Zscaler Client Connector for VDI Golden Image in Amazon Web Services Virtual Desktop"
+        }
+      ]
+    },
+    "onboardonstart": {
+      "statement": "If the hKey is manually created in the Windows registry path L\"SOFTWARE\\\\Zscaler Inc.\\\\ZScaler VDI\", the OnboardOnStart registry option overrides the ONBOARD installation parameter. With dwValue=0 Client Connector for VDI does not onboard, even on system reboot; with dwValue=1 it onboards for all conditions. When deploying a child image, Zscaler recommends removing the registry key so that the installation parameter can take precedence.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "If you manually create the hKey in the Windows registry path L\"SOFTWARE\\\\Zscaler Inc.\\\\ZScaler VDI\", you can use the OnboardOnStart registry option to override the ONBOARD installation parameter value",
+            "If you add the registry key dwValue=0, Zscaler Client Connector for VDI does not onboard, even on system reboot.",
+            "If you add the registry key dwValue=1, Zscaler Client Connector for VDI onboards for all conditions.",
+            "When you deploy a child image, Zscaler recommends removing the registry key so that the installation parameter can take precedence."
+          ]
+        }
+      ]
+    },
+    "intune": {
+      "statement": "Deploying through Microsoft Intune, the MSI is added with App Type Line-of-business app, publisher set as Zscaler and Ignore app version set to Yes; the install options go in Command Line Arguments, and groups are added under the Required category on the Assignments tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+          "quotes": [
+            "For App Type, select Line-of-business app.",
+            "Publisher: Set the publisher as Zscaler.",
+            "Ignore app version: Select Yes.",
+            "Command Line Arguments: Enter PROVURL=\"AAA\" TOKEN=\"BBB\" mode=\"CCC\" SERVERIP=\"DDD\" ONBOARD=\"EEE\"",
+            "On the Assignments tab, under the Required category, click Add group"
+          ]
+        }
+      ]
+    },
+    "citrix-practices": {
+      "statement": "The guide's best practices for Citrix say that to prevent bootup during MCS creation the Zscaler service and ZCCVDIService must not be running, that onboarding parameter 0 is used when installing on a Citrix image VM, and that with XenApp Zscaler recommends always using an embedded browser and SSO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The following best practices apply to Citrix:",
+            "To prevent bootup during MCS creation, ensure that the Zscaler service and ZCCVDIService are not running.",
+            "When installing Zscaler on a Citrix image VM, ensure that you are using the onboarding parameter 0.",
+            "If you are using XenApp, Zscaler recommends always using an embedded browser and SSO."
+          ]
+        }
+      ]
+    },
+    "allowlist-paths": {
+      "statement": "Zscaler recommends allowlisting Client Connector for VDI processes, and the article says allowlisting is possible only in Windows: %ProgramFiles%\\ZCCVDI\\ZCCVDIHelper.exe, %ProgramFiles%\\ZCCVDI\\ZCCVDIService.exe, %ProgramFiles%\\ZCCVDI\\ZCCVDIUI\\ZCCVDIUI.exe, %ProgramFiles%\\ZCCVDI\\ThirdParty\\WebView2\\MicrosoftEdgeWebview2Setup.exe and the %ProgramData%\\ZCCVDI directory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-zscaler-client-connector-vdi-processes-allowlist.json",
+          "quotes": [
+            "Zscaler recommends that you allowlist Zscaler Client Connector for VDI processes that permit Virtual Desktop Infrastructure (VDI) binaries and processes.",
+            "You can only allowlist in Windows.",
+            "%ProgramFiles%\\ZCCVDI\\ZCCVDIHelper.exe",
+            "%ProgramFiles%\\ZCCVDI\\ZCCVDIService.exe",
+            "%ProgramFiles%\\ZCCVDI\\ZCCVDIUI\\ZCCVDIUI.exe",
+            "%ProgramFiles%\\ZCCVDI\\ThirdParty\\WebView2\\MicrosoftEdgeWebview2Setup.exe",
+            "%ProgramData%\\ZCCVDI"
+          ]
+        }
+      ]
+    },
+    "gpo-firewall": {
+      "statement": "The allowlist article says that if there is a firewall managed by group policy object (GPO), firewall rules can be configured on the endpoint protection product for the ZCCVDI processes for all ports, protocols, network interfaces and network addresses, with ZCCVDIUI.exe and ZCCVDIService.exe both Outbound.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-zscaler-client-connector-vdi-processes-allowlist.json",
+          "quotes": [
+            "If you have a firewall managed by group policy object (GPO), you can configure firewall rules on your endpoint protection product for ZCCVDI.exe processes for all ports, protocols, network interfaces, and network addresses (e.g., 0.0.0.0/0).",
+            "ZCCVDIUI.exe: Outbound",
+            "ZCCVDIService.exe: Outbound"
+          ]
+        }
+      ]
+    },
+    "process-roles": {
+      "statement": "ZCCVDIHelper is an internal process used by other Client Connector for VDI processes, ZCCVDIUI is the user interface, ZCCVDIService is the main service that manages all other internal services, and ProgramData\\ZCCVDI is the directory that stores logs and configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-zscaler-client-connector-vdi-processes-allowlist.json",
+          "quotes": [
+            "ZCCVDIHelper: An internal process used by other Zscaler Client Connector for VDI processes.",
+            "ZCCVDIUI: The user interface of the application.",
+            "ZCCVDIService: The main service that manages all other internal services.",
+            "ProgramData\\ZCCVDI: The directory that stores logs and configuration for Zscaler Client Connector for VDI."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "mode-values": {
+      "summary": "The command-line section gives MODE as 1 or 0; the Intune section of the same article gives the tunneling mode as A2A or P2P.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+            "quotes": [
+              "MODE=\"CCC\": Replace \"CCC\" with the tunneling mode (1 or 0).",
+              "Point-to-Point (P2P) Tunneling Mode (Mode is 1)"
+            ]
+          },
+          "says": "MODE takes 1 (P2P) or 0 (A2A)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+            "quotes": [
+              "\"CCC\" is the tunneling mode (A2A or P2P)"
+            ]
+          },
+          "says": "In the Intune Command Line Arguments, \"CCC\" is the tunneling mode (A2A or P2P)."
+        }
+      ],
+      "impact": "The article does not say whether Intune takes the strings A2A and P2P or the integers 1 and 0."
+    },
+    "configreadtimeout-meaning": {
+      "summary": "The command-line section describes CONFIGREADTIMEOUT as how long Client Connector for VDI waits for profiles to restore; the Intune section describes it as how long the Zscaler service stores the user configuration file in the roaming folder.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+            "quotes": [
+              "asks Zscaler Client Connector for VDI to wait a minimum of 0 and a maximum of 300 seconds for profiles to restore."
+            ]
+          },
+          "says": "Client Connector for VDI waits 0 to 300 seconds for profiles to restore."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-customizing-zscaler-client-connector-vdi-install-options-msi.json",
+            "quotes": [
+              "\"FFF\" is how long the Zscaler service stores the user configuration file in the roaming folder"
+            ]
+          },
+          "says": "In the Intune Command Line Arguments, \"FFF\" is how long the Zscaler service stores the user configuration file in the roaming folder."
+        }
+      ],
+      "impact": "A wait for profile restore and a storage duration are different meanings for one parameter; the article does not say which governs."
+    }
+  },
+  "gaps": {
+    "mode-default": {
+      "kind": "semantic",
+      "title": "What MODE defaults to when omitted",
+      "status": "open",
+      "detail": "P2P is described as the default mode of operation, but the MSI article does not say what MODE defaults to when the option is omitted, so MODE=1 is not written as the parameter default.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "golden-image-citrix": {
+      "kind": "semantic",
+      "title": "Whether the golden-image steps the Citrix section omits apply to Citrix",
+      "status": "open",
+      "detail": "The Citrix XenDesktop golden-image section has no Minimize-and-continue-Sysprep step, no warning not to boot the prepared VM or image, and no sentence that onboarding while rebooting can also be prevented; the Azure Virtual Desktop and AWS sections have all three.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "onboardonstart-details": {
+      "kind": "semantic",
+      "title": "Which registry hive holds OnboardOnStart",
+      "status": "open",
+      "detail": "The registry path is printed as a C string literal and the article does not name the hive (HKLM or HKCU); the screenshot that follows the instruction (See image.) is not captured.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "command-line-image": {
+      "kind": "semantic",
+      "title": "The example command line using all the install options",
+      "status": "open",
+      "detail": "The article says an image is an example of a command line that uses all the available install options; the image is not in the capture.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

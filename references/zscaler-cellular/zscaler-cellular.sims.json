@@ -1,0 +1,478 @@
+{
+  "schema_version": 1,
+  "id": "zscaler-cellular.sims",
+  "title": "Zscaler SIMs and eSIMs: inventory fields, status versus connection, and the Inventory state",
+  "aliases": [
+    "zscaler sim status",
+    "sim connection inventory",
+    "esim inventory state",
+    "sim offline online",
+    "iccid imei imsi msisdn",
+    "sim stale connection"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.dashboard"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.api.wire-notes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The SIMs page is the inventory of every Zscaler SIM provisioned to the organization; the dashboard widgets that link to it are in [[zscaler-cellular.dashboard]]."
+    },
+    {
+      "label": "Inventory.",
+      "text": "{{sim-kinds}} {{inventory-columns}}"
+    },
+    {
+      "label": "Status and connection.",
+      "text": "{{status-vs-connection}} {{inventory-state}} {{stale-connection}} The details page's connection description disagrees with this list {{divergence:connection-values}}."
+    },
+    {
+      "label": "Actions.",
+      "text": "{{bulk-actions}} {{per-sim-edits}} {{status-change}} The API equivalents (SIM search, lock and status update) are in [[zscaler-cellular.api.wire-notes]]."
+    },
+    {
+      "label": "SIM details.",
+      "text": "{{details-sim-info}} {{details-device-info}} {{details-usage-chart}} {{details-location-history}} {{location-feature-flag}}"
+    },
+    {
+      "label": "IMEI association.",
+      "text": "{{imei-lock-input}} {{imei-lock-delay}} {{imei-lock-status-only}} The limits and what the locked state enforces are open {{gap:imei-lock-limits}}."
+    },
+    {
+      "label": "eSIMs.",
+      "text": "{{esim-info-widget}} {{esim-limited-availability}} {{esim-assign}} {{esim-activate}} What happens when the previous eSIM is not uninstalled is open {{gap:esim-reassign-not-uninstalled}}."
+    },
+    {
+      "label": "Tags.",
+      "text": "{{tags}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the SIM is Inactive (status) or Offline (connection): they are separate fields.",
+      "uses": [
+        "status-vs-connection"
+      ]
+    },
+    {
+      "do": "For an eSIM showing an unexpected connection state after being returned to inventory, whether its details were opened to refresh it.",
+      "uses": [
+        "stale-connection",
+        "inventory-state"
+      ]
+    }
+  ],
+  "claims": {
+    "sim-kinds": {
+      "statement": "Zscaler SIMs include physical SIMs and eSIMs, and are viewed and managed in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "A Zscaler SIM—both physical SIMs and eSIMs—serves as the gateway for a cellular-connected device to access the Zero Trust Exchange (ZTE).",
+            "You can view details and statuses, and manage Zscaler SIMs provisioned to your organization, in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "inventory-columns": {
+      "statement": "The SIMs page lists, per SIM, ICCID, EID (for eSIMs), IMEI, IMSI, MSISDN, IP address, form factor, device manufacturer, model and type, operating system, usage, status, country, tags and connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "ICCID: The Integrated Circuit Card Identifier is a globally unique identifier assigned to each SIM.",
+            "EID: The Embedded Identity Document for the eSIM.",
+            "IMEI: The International Mobile Equipment Identity is a unique identifier for the mobile device associated with the SIM, used to identify and manage the devices in the network.",
+            "IMSI: The International Mobile Subscriber Identity is a unique number assigned to each mobile subscriber, to identify the user on the mobile network.",
+            "MSISDN: The Mobile Station International Subscriber Directory Number is the associated mobile number of the SIM, if applicable.",
+            "IP Address: The IP address assigned to the device using the SIM",
+            "Form Factor: The type of SIM, indicating whether it is a physical SIM or an eSIM.",
+            "Device Manufacturer: The name of the company that produces the device associated with the SIM.",
+            "Device Model: The full official identifier of the type of device associated with the SIM.",
+            "Device Type: The category of the device associated with the SIM (e.g., router, modem, and IoT gateway).",
+            "Operating System: The operating system running on the device associated with the SIM.",
+            "Usage: The amount of data consumed during the session (the duration between the start of the network connection and its termination), displayed in MB or GB.",
+            "Status: The operational state of the SIM, either Active (available for use) or Inactive (not in use).",
+            "Country: The country where the SIM is located.",
+            "Tags: The tags associated with the SIM.",
+            "Connection: The connectivity state of the SIM."
+          ]
+        }
+      ]
+    },
+    "status-vs-connection": {
+      "statement": "Status and connection are separate: status is Active (available for use) or Inactive (not in use), while connection is Online, Offline or Inventory (ready for assignment or awaiting profile registration; eSIMs only).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "Status: The operational state of the SIM, either Active (available for use) or Inactive (not in use).",
+            "Online: The SIM is connected to the network.",
+            "Offline: The SIM is disconnected from the network.",
+            "Inventory: The SIM is ready for assignment, or if already assigned, awaiting profile registration on a device. This option applies only to eSIMs."
+          ]
+        }
+      ]
+    },
+    "inventory-state": {
+      "statement": "Inventory applies only to eSIMs and means the eSIM is ready for assignment, or assigned and awaiting profile registration on a device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "Inventory: The SIM is ready for assignment, or if already assigned, awaiting profile registration on a device. This option applies only to eSIMs."
+          ]
+        }
+      ]
+    },
+    "stale-connection": {
+      "statement": "When an eSIM assigned to a user is released back to inventory, its connection state may not update on the SIMs page; viewing the eSIM's details refreshes it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "If an eSIM was originally assigned to a user and then released back to the inventory, the connection state might not be updated on the SIMs page. You can refresh the connection state by viewing the eSIM details."
+          ]
+        }
+      ]
+    },
+    "bulk-actions": {
+      "statement": "Status or IMEI can be updated for several selected SIMs at once, and the current view (with its filters) can be downloaded as CSV; the Total Usage figure covers only SIMs matching the applied filters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "Update the SIM Status or IMEI for multiple SIMs. This option is displayed only when a SIM is selected.",
+            "Download the SIM details as a CSV file for the current view.",
+            "If filters are applied, the CSV file contains the SIM details shown for the selected filters.",
+            "If filters are applied, the Total Usage field shows only the data across the SIMs that match the applied filters."
+          ]
+        }
+      ]
+    },
+    "per-sim-edits": {
+      "statement": "A single SIM's status, IMEI and tags can be edited, and its detailed information viewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "Edit status, update the IMEI, or update tags for a particular SIM.",
+            "View detailed information for each SIM."
+          ]
+        }
+      ]
+    },
+    "details-sim-info": {
+      "statement": "The SIM Details page's SIM Info section shows ICCID, Connection (described there as online or offline), APN, MSISDN (the SIM's mobile number, if applicable), Country, EID (for eSIMs), Operator, IP Address, IMEI, IMSI, Tags, Activation Date and Last Usage Updated; clicking a tag filters the SIMs page to SIMs with that tag.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-sim-details.json",
+          "quotes": [
+            "ICCID: The Integrated Circuit Card Identifier associated with the SIM card.",
+            "Connection: Indicates whether the SIM is online or offline.",
+            "APN: The Access Point Name used for the SIM's network connectivity.",
+            "MSISDN: The Mobile Station International Subscriber Directory Number is the associated mobile number of the SIM, if applicable.",
+            "Country: The location where the SIM card is located.",
+            "EID: The Embedded Identity Document for eSIMs.",
+            "Operator: The telecom operator providing the network service.",
+            "IP Address: The IP address currently assigned to the SIM.",
+            "IMEI: The International Mobile Equipment Identity, the unique identifier for the device using the SIM.",
+            "IMSI: The International Mobile Subscriber Identity associated with the SIM.",
+            "Tags: The tags associated with the SIM card. You can click a specific tag to filter the SIMs page to display only the SIMs that have the tag associated with them.",
+            "Activation Date: The date and time the SIM was activated.",
+            "Last Usage Updated: The time when the last change was recorded."
+          ]
+        }
+      ]
+    },
+    "details-device-info": {
+      "statement": "The SIM Details page's Device Info section shows the device's manufacturer, type (for example router, modem, IoT gateway), operating system, model and model name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-sim-details.json",
+          "quotes": [
+            "Device Manufacturer: The name of the company that produces the device associated with the SIM card.",
+            "Device Type: The category of the device associated with the SIM card (e.g., router, modem, and IoT gateway).",
+            "Operating System: The operating system running on the device associated with the SIM card.",
+            "Device Model: The full official identifier of the type of device associated with the SIM card.",
+            "Model Name: The specific code of the type of device associated with the SIM card."
+          ]
+        }
+      ]
+    },
+    "esim-info-widget": {
+      "statement": "The eSIM Info widget on the SIM Details page appears only for eSIMs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-sim-details.json",
+          "quotes": [
+            "eSIM Info: A widget showing to whom an eSIM must be assigned.",
+            "This widget appears only for eSIMs."
+          ]
+        }
+      ]
+    },
+    "details-usage-chart": {
+      "statement": "The SIM Details page's Current Data Usage widget shows cumulative data usage for the date range selected in the Usage Chart, and the date range is a default (Today, Yesterday, Last 7 Days, Last 30 Days, This Month, Last Month) or a custom range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-sim-details.json",
+          "quotes": [
+            "Date Range: You can customize the chart by",
+            "Current Data Usage: A dynamic widget showing the cumulative data usage for the date range selected in the Usage Chart.",
+            "selecting a default date range (Today, Yesterday, Last 7 Days, Last 30 Days, This Month, or Last Month) or choosing Custom Range"
+          ]
+        }
+      ]
+    },
+    "details-location-history": {
+      "statement": "The SIM Details Location History widget shows blue map pins for SIM activity, and hovering over a pin shows the event's date and time, type, operator, MCC, MNC and Cell ID; a separate timeline bar shows the total number of location events and moves from oldest to newest.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-sim-details.json",
+          "quotes": [
+            "Map Indicators: Blue pins on the map represent SIM activity and movements.",
+            "Hovering over a pin shows detailed information",
+            "including the event's date and time, type of event, operator, Mobile Country Code (MCC), Mobile Network Code (MNC), and Cell ID",
+            "The timeline bar displays the total number of SIM location events and allows you to move through them from the oldest to the newest."
+          ]
+        }
+      ]
+    },
+    "location-feature-flag": {
+      "statement": "A backend feature flag decides the map content: when enabled it shows the SIM's location history over the selected timeframe, and when disabled only the current location; changing it needs Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-sim-details.json",
+          "quotes": [
+            "A backend feature flag controls how map content is displayed:",
+            "Enabled: Shows the SIM's location history over the selected timeframe.",
+            "Disabled: Displays the SIM's current location only.",
+            "To update or change this feature flag, please contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "status-change": {
+      "statement": "The status of physical SIMs and eSIMs can be changed from the SIMs page, and SIMs selected for a bulk status update must be of the same status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-changing-status-zscaler-sims.json",
+          "quotes": [
+            "You can modify the status of the Zscaler SIMs—both physical SIMs and eSIMs—provisioned to your organization from the SIMs page.",
+            "The SIM cards you select must be of the same status."
+          ]
+        }
+      ]
+    },
+    "imei-lock-input": {
+      "statement": "In the Update IMEI Lock/Unlock drawer, for a single SIM or for several selected SIMs, IMEI values go in the IMEI Lock Value field separated by commas; enabling Lock locks the SIM to the IMEI and disabling Lock unlocks it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-changing-imei-association-zscaler-sims.json",
+          "quotes": [
+            "enter the new IMEI values separated by commas in the IMEI Lock Value (comma separated) field.",
+            "You can lock a SIM card to a particular IMEI. To do this, enable Lock while creating or updating an IMEI association.",
+            "If you want to unlock an IMEI from a SIM card, disable Lock."
+          ],
+          "after": "Modify the IMEI association for a single SIM"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cellular-changing-imei-association-zscaler-sims.json",
+          "quotes": [
+            "enter the new IMEI values separated by commas in the IMEI Lock Value (comma separated) field.",
+            "You can lock a SIM card to a particular IMEI. To do this, enable Lock while creating or updating IMEI associations.",
+            "If you want to unlock IMEIs from SIM cards, disable Lock."
+          ],
+          "after": "Modify the IMEI association for multiple SIMs"
+        }
+      ]
+    },
+    "imei-lock-delay": {
+      "statement": "After an IMEI lock is saved for a single SIM or for several selected SIMs, the lock is not immediate: the SIM enters a pending lock state and might take approximately 15 to 30 minutes to reach the locked state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-changing-imei-association-zscaler-sims.json",
+          "quotes": [
+            "The lock is not immediate. After initiation, the SIM enters a pending lock state and might take approximately 15 to 30 minutes to transition into the locked state."
+          ],
+          "after": "Modify the IMEI association for a single SIM"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cellular-changing-imei-association-zscaler-sims.json",
+          "quotes": [
+            "The lock is not immediate. After initiation, the SIM enters a pending lock state and might take approximately 15 to 30 minutes to transition into the locked state."
+          ],
+          "after": "Modify the IMEI association for multiple SIMs"
+        }
+      ]
+    },
+    "imei-lock-status-only": {
+      "statement": "The lock status of an existing IMEI association can be updated without changing the IMEI value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-changing-imei-association-zscaler-sims.json",
+          "quotes": [
+            "Updating the lock status without changing the IMEI value is allowed for existing associations."
+          ],
+          "after": "Modify the IMEI association for a single SIM"
+        }
+      ]
+    },
+    "esim-limited-availability": {
+      "statement": "Managing eSIM assignment and activation is in limited availability; access is through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-managing-assignment-and-activation-esims.json",
+          "quotes": [
+            "This feature is in limited availability. To access this feature, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "esim-assign": {
+      "statement": "An eSIM is assigned to a user from the eSIM Info widget on its SIM Details page by entering the recipient's name or email address; reassigning to a new user needs the eSIM on the previous user's device manually uninstalled first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-managing-assignment-and-activation-esims.json",
+          "quotes": [
+            "On the SIM Details page, go to the eSIM Info widget and do the following:",
+            "Assign Recipient: Enter the name or email address of the user to whom you want to assign the eSIM.",
+            "The eSIM installed on the previous user's device must be manually uninstalled before reassigning it to the new user."
+          ]
+        }
+      ]
+    },
+    "esim-activate": {
+      "statement": "An assigned eSIM must be activated by scanning the QR code shown under View QR Details in the eSIM Info widget from the device, or by entering the copied activation code manually on the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-managing-assignment-and-activation-esims.json",
+          "quotes": [
+            "After assigning an eSIM to a user, you must activate the eSIM.",
+            "go to the eSIM Info widget and click View QR Details.",
+            "scan the QR code from the device that needs the eSIM to be activated. Alternatively, copy the activation code and enter it manually into the device."
+          ]
+        }
+      ]
+    },
+    "tags": {
+      "statement": "A SIM gets an existing tag by typing part of its name in the Tags field and selecting it, or a new tag by entering a new name and clicking Add New Tag; clicking a tag on the SIMs or SIM Details page shows all SIMs with that tag.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-managing-tags-zscaler-sims.json",
+          "quotes": [
+            "enter some or all of the characters of the tag name in the Tags field and select an existing tag from the drop-down menu.",
+            "enter a new name in the Tags field, and click Add New Tag.",
+            "You can use tags to view all SIMs that have the tag associated with them by clicking that tag on the SIMs page or SIM Details page."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "connection-values": {
+      "summary": "The SIM Details page describes Connection as online or offline; the SIMs page lists Online, Offline and, for eSIMs, Inventory.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cellular-viewing-sim-details.json",
+            "quotes": [
+              "Connection: Indicates whether the SIM is online or offline."
+            ]
+          },
+          "says": "Connection on the SIM Details page indicates online or offline."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cellular-about-sims.json",
+            "quotes": [
+              "Inventory: The SIM is ready for assignment, or if already assigned, awaiting profile registration on a device. This option applies only to eSIMs."
+            ]
+          },
+          "says": "Connection can also be Inventory, for eSIMs only."
+        }
+      ],
+      "impact": "Whether an eSIM in Inventory shows that value or a blank or online/offline value on its SIM Details page is not settled; the SIMs page value is the one the status-vs-connection claim rests on."
+    }
+  },
+  "gaps": {
+    "imei-lock-limits": {
+      "kind": "semantic",
+      "title": "IMEI lock unlock delay, IMEI count limit and what the locked state enforces",
+      "status": "open",
+      "detail": "The IMEI association article gives no unlock delay, no limit on the number of IMEIs, and does not say what the locked state enforces. Its multiple-SIM drawer repeats the single-SIM text.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "esim-reassign-not-uninstalled": {
+      "kind": "semantic",
+      "title": "What happens when the previous eSIM is not uninstalled before reassignment",
+      "status": "open",
+      "detail": "The eSIM article requires manual uninstallation from the previous user's device before reassigning but does not say what happens otherwise; limited availability is the only entitlement it states.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

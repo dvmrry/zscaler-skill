@@ -1,0 +1,103 @@
+name: release
+
+# A merge to main that adds docs/releases/vX.Y.Z.md releases that version: the gate checks the version surfaces,
+# then the merge commit is tagged and the GitHub release is published with that file as its notes. Tags are made
+# only here. A failed run is repaired by re-running it: a tag already on the merge is reused, one anywhere else is
+# refused. See docs/release.md.
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  version:
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.version.outputs.release }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Determine release version
+        id: version
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          # A re-run after the tag was pushed finds that tag on this commit; release-version.sh would refuse it.
+          version="$(git tag --points-at "$GITHUB_SHA" --list 'v[0-9]*.[0-9]*.[0-9]*' | sed -n '1p')"
+          if [[ -z "$version" ]]; then
+            version="$(bash scripts/release-version.sh "$BEFORE" "$GITHUB_SHA")"
+          fi
+          if [[ "$version" == "none" ]]; then
+            echo "release=false" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "release=true" >>"$GITHUB_OUTPUT"
+          echo "version=$version" >>"$GITHUB_OUTPUT"
+
+  release:
+    needs: version
+    if: needs.version.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+
+      - name: Release gate
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ "v$(tr -d '[:space:]' < VERSION)" != "$VERSION" ]]; then
+            echo "VERSION is $(cat VERSION); the notes file releases $VERSION" >&2
+            exit 1
+          fi
+          node scripts/check-release-state.mjs
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            tagged_commit="$(git rev-list -n 1 "$VERSION")"
+            if [[ "$tagged_commit" != "$GITHUB_SHA" ]]; then
+              echo "tag $VERSION already exists at $tagged_commit, not $GITHUB_SHA" >&2
+              exit 1
+            fi
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$VERSION" -m "$VERSION"
+            git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$VERSION"
+          fi
+
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "release already exists: $VERSION" >&2
+            exit 1
+          fi
+
+          gh release create "$VERSION" --title "$VERSION" --notes-file "docs/releases/${VERSION}.md"

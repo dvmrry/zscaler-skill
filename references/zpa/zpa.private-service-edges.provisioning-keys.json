@@ -1,0 +1,399 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.provisioning-keys",
+  "title": "Private Service Edge provisioning keys: what a key is, reuse limits, naming, View or Export, signing certificate and the keys page",
+  "aliases": [
+    "private service edge provisioning key",
+    "pse provisioning key",
+    "service edge provisioning key",
+    "provisioning key utilization count private service edge",
+    "view or export provisioning key after creation private service edge"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.provisioning-keys"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{key-is-secret}} {{key-format-example}}"
+    },
+    {
+      "label": "Use limits.",
+      "text": "{{reuse-and-scaling}} {{max-reuse-field}} The recommendation on the Add page is worded for App Connectors {{gap:max-reuse-wording}}. {{exhausted-copy-disabled}}"
+    },
+    {
+      "label": "Naming.",
+      "text": "{{name-prefix}}"
+    },
+    {
+      "label": "View or Export.",
+      "text": "{{view-export}} {{key-hidden}} The pages differ on whether such a key still appears in the table {{divergence:hidden-key-in-table}}."
+    },
+    {
+      "label": "Adding to an existing group.",
+      "text": "{{add-to-existing-group}}"
+    },
+    {
+      "label": "Editing and the certificate.",
+      "text": "{{editable-fields}} {{signing-certificate}} {{zscaler-managed-read-only}}"
+    },
+    {
+      "label": "The keys page.",
+      "text": "{{keys-page}} The Terraform and API side of the keys is in [[zpa.private-service-edges.enrollment:tf-provisioning-key]]; the wire name of View or Export was not checked {{gap:view-export-wire}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The key's maximum and utilization count before blaming the Private Service Edge for a failed deployment: a key used its maximum number of times cannot deploy more Private Service Edges.",
+      "uses": [
+        "reuse-and-scaling",
+        "max-reuse-field",
+        "exhausted-copy-disabled"
+      ]
+    },
+    {
+      "do": "Whether the key's View or Export option was disabled, which hides the key and makes a new key necessary without an external vault backup.",
+      "uses": [
+        "view-export",
+        "key-hidden",
+        "hidden-key-in-table"
+      ]
+    },
+    {
+      "do": "Whether the key is Zscaler-managed before planning to edit or delete it.",
+      "uses": [
+        "zscaler-managed-read-only"
+      ]
+    }
+  ],
+  "claims": {
+    "add-to-existing-group": {
+      "statement": "To add a Private Service Edge to an existing group with a provisioning key, choose an existing provisioning key associated with the appropriate Private Service Edge group, then copy the key and enter it when deploying the Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-service-edges-existing-service-edge-group.json",
+          "quotes": [
+            "Select Choose an existing provisioning key.",
+            "Ensure that the key you select is associated with the appropriate Private Service Edge group.",
+            "Copy the Private Service Edge provisioning key. You will need to enter this key when you deploy the Private Service Edge to a platform."
+          ]
+        }
+      ],
+      "conditions": "This is the provisioning-key path; enrollment tokens (OAuth) are the preferred method per zpa.private-service-edges.enrollment:enrollment-tokens-preferred."
+    },
+    "what-it-is": {
+      "statement": "A Private Service Edge provisioning key is a text string generated when a new Private Service Edge is added and entered when the Private Service Edge is deployed. It functions like a credential: on first contact the Private Service Edge presents a key as its ID, letting the Private Access cloud verify its authenticity and identify its Private Service Edge group (each key is associated with a specific group), and Private Access then automatically completes the deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-zpa-service-edge-provisioning-keys.json",
+          "quotes": [
+            "A provisioning key is a text string that is generated when you add a new Private Service Edge for Private Access (ZPA).",
+            "When deploying a Private Service Edge, you are prompted to enter this key.",
+            "The provisioning key functions like a credential for the Private Service Edge, enabling the Private Access cloud to verify the Private Service Edge's authenticity and complete the deployment process.",
+            "Furthermore, each key is associated with a specific Private Service Edge group, so the key allows the Private Access cloud to identify the Private Service Edge group to which a Private Service Edge must be deployed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "After deployment, the Private Service Edge launches and makes initial contact with the Private Access cloud. It presents a key as its ID, allowing the Private Access cloud to verify that this is an authentic Private Service Edge and to identify which Private Service Edge group it belongs to.",
+            "Private Access then automatically completes the deployment process."
+          ]
+        }
+      ]
+    },
+    "key-is-secret": {
+      "statement": "Provisioning keys should be treated as secrets and properly protected because they can create a resource for a tenant, and must also be secured and not transmitted or stored in clear text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-zpa-service-edge-provisioning-keys.json",
+          "quotes": [
+            "Provisioning keys should be treated as secrets and properly protected because they can create a resource for a tenant.",
+            "The provisioning key must also be secured and not transmitted or stored in clear text."
+          ]
+        }
+      ]
+    },
+    "key-format-example": {
+      "statement": "The help's example key is pipe-separated and begins 1|api.private.zscaler.com| followed by a string beginning 68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ; the page says the domain in the echo statement depends on which Private Access cloud the tenant is on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-zpa-service-edge-provisioning-keys.json",
+          "quotes": [
+            "1|api.private.zscaler.com|68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ",
+            "The domain (e.g., api.private.com) in the echo statement will depend on what Private Access cloud you are on."
+          ]
+        }
+      ]
+    },
+    "reuse-and-scaling": {
+      "statement": "Provisioning keys are designed to enable auto-scaling: when a key is generated the number of times it can be used to deploy Private Service Edges can be specified, Private Access tracks the number of times a key is used and displays it on the Private Service Edge Provisioning Keys page, a key used its maximum number of times cannot deploy more Private Service Edges (though the maximum can always be edited), and multiple provisioning keys can be associated with a single Private Service Edge group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-zpa-service-edge-provisioning-keys.json",
+          "quotes": [
+            "Provisioning keys are designed to enable auto-scaling, so that you can easily deploy additional Private Service Edges and respond optimally to increases in required capacity.",
+            "When you generate a provisioning key, you can specify the number of times a key can be used to deploy Private Service Edges.",
+            "Private Access tracks the number of times a key is used to deploy a Private Service Edge and displays it on the Private Service Edge Provisioning Keys page.",
+            "When a key is used the maximum number of times, you cannot use it to deploy more Private Service Edges. However, you can always edit the maximum number of times a key can be used.",
+            "You also have the option of associating multiple provisioning keys to a single Private Service Edge group."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "Private Service Edge groups can be associated with multiple provisioning keys."
+          ]
+        }
+      ]
+    },
+    "max-reuse-field": {
+      "statement": "Maximum Reuse of Provisioning Key is the maximum number of instances where the key can be used to enroll a Private Service Edge and can be modified after the Private Service Edge is added; the Instances of Provisioning Key Reuse field cannot be modified and shows the number of Private Service Edges enrolled in the group, which helps ensure keys are not being used improperly by unknown parties.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "Maximum Reuse of Provisioning Key: Enter the maximum number of instances where this key can be used to enroll a Private Service Edge.",
+            "After adding the Private Service Edge, this number can be modified.",
+            "The Instances of Provisioning Key Reuse field cannot be modified.",
+            "Private Access tracks the number of Private Service Edges enrolled in this Private Service Edge group and automatically displays the number in this field.",
+            "This helps ensure that keys are not being used improperly by unknown parties to enroll Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "name-prefix": {
+      "statement": "A key's name cannot contain special characters except periods, hyphens and underscores, and is automatically assigned as a prefix for the name of each Private Service Edge enrolled with it, followed by an automatically added number (the page's example: AWS Oregon gives AWS Oregon-1, then AWS Oregon-2). If a Private Service Edge name is edited, the prefix followed by the number indicating that it is the nth Private Service Edge deployed with its key should be kept.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+            "This name is automatically assigned as a prefix for the name of each Private Service Edge enrolled with it.",
+            "To help distinguish between the different Private Service Edges in a group, each Private Service Edge also has a number automatically added to its name upon being enrolled.",
+            "For example, if you enter AWS Oregon as a provisioning key name in this step, the first Private Service Edge you enroll with this key is named AWS Oregon-1. The next Private Service Edge you enroll with the same key is named AWS Oregon-2, and so on."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-deployed-service-edge.json",
+          "quotes": [
+            "If you edit the Private Service Edge name, be sure to keep the prefix followed by the number that indicates that this is the nth Private Service Edge to have been deployed with its key."
+          ]
+        }
+      ]
+    },
+    "view-export": {
+      "statement": "View or Export Provisioning Key After Creation is enabled by default and, if disabled, cannot be enabled at a later time; if it is enabled it can be disabled later. When an existing provisioning key is used on the Add page, only keys that can be viewed or exported after creation appear in the drop-down menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "View or Export Provisioning Key After Creation: Select this option if you want to view, copy, or download the provisioning key after creation. This option is enabled by default. If disabled, you cannot enable this option at a later time.",
+            "If you use an existing provisioning key, only keys that can be viewed or exported after creation appear in the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-private-service-edge-provisioning-key.json",
+          "quotes": [
+            "If disabled, you cannot enable this option after creation. If this option is enabled, you can disable it at a later time. This option is enabled by default."
+          ]
+        }
+      ]
+    },
+    "key-hidden": {
+      "statement": "The keys page's key entry is blank if View or Export Provisioning Key After Creation was disabled, and its Copy icon is hidden for security purposes; if the provisioning key doesn't appear and a backup isn't securely stored in an external credential vault, a new key must be generated, and a new key can be created and attached to the same Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-zpa-service-edge-provisioning-keys.json",
+          "quotes": [
+            "This entry is blank if you disabled the View or Export Provisioning Key After Creation option when configuring Private Service Edges.",
+            "If the provisioning key doesn't appear, and a backup of the provisioning key isn't securely stored in an external credential vault, a new key must be generated. A new provisioning key can be created and attached to the same Private Service Edge."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-zpa-service-edge-provisioning-keys.json",
+          "after": "Copy the provisioning key to your clipboard.",
+          "quotes": [
+            "This icon is hidden for security purposes if you disabled the View or Export Provisioning Key After Creation option when configuring Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "exhausted-copy-disabled": {
+      "statement": "If the Provisioning Key Utilization Count is reached, the key cannot be copied; a Warning icon appears next to the disabled Copy icon, and the key can be edited to raise the limit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-zpa-service-edge-provisioning-keys.json",
+          "quotes": [
+            "If the Provisioning Key Utilization Count is reached, you cannot copy the key. A Warning icon appears next to the disabled Copy icon. You can edit the key to raise the limit."
+          ]
+        }
+      ]
+    },
+    "keys-page": {
+      "statement": "The Private Service Edge Provisioning Keys page lists each key's Name (clicking the provisioning key shows the signing certificate), the Maximum # of Private Service Edges that can be deployed using the key, the Provisioning Key Utilization Count, the associated Private Service Edge Group and the key itself, and can copy the key to the clipboard, edit its details, delete it and download it to the system in a file format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-zpa-service-edge-provisioning-keys.json",
+          "quotes": [
+            "Name: The name of the Private Service Edge provisioning key. Click the provisioning key to view the signing certificate.",
+            "Maximum # of Private Service Edges: The maximum number of Private Service Edges that can be deployed using the key.",
+            "Provisioning Key Utilization Count: The number of times the provisioning key has been used.",
+            "Private Service Edge Group: The Private Service Edge group associated with the key.",
+            "Provisioning Key: The key needed for deploying a Private Service Edge.",
+            "Copy the provisioning key to your clipboard.",
+            "Edit provisioning key details.",
+            "Delete a provisioning key.",
+            "Download the provisioning key to your system in a file format."
+          ]
+        }
+      ]
+    },
+    "zscaler-managed-read-only": {
+      "statement": "Provisioning keys that are managed by Zscaler are read only and cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-zpa-service-edge-provisioning-keys.json",
+          "quotes": [
+            "Provisioning keys that are managed by Zscaler are read only and cannot be edited or deleted."
+          ]
+        }
+      ]
+    },
+    "editable-fields": {
+      "statement": "On the Edit Private Service Edge Provisioning Key page only these fields can be modified: Maximum Reuse of Provisioning Key, Private Service Edge Group, Name and Signing Certificate, and View or Export Provisioning Key After Creation can be disabled later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-private-service-edge-provisioning-key.json",
+          "quotes": [
+            "In the Edit Private Service Edge Provisioning Key page, you can only modify the following fields:",
+            "View or Export Provisioning Key After Creation: Disable this option to hide the provisioning key in the Provisioning Key column of the table and disable copying or downloading the key after creation.",
+            "Maximum Reuse of Provisioning Key: The maximum number of instances where this key can be used to enroll a Private Service Edge.",
+            "Private Service Edge Group: The Private Service Edge group to associate with this provisioning key.",
+            "Name: The provisioning key name.",
+            "Signing Certificate: The signing certificate (i.e., enrollment (CA) certificate) for this provisioning key.",
+            "If disabled, you cannot enable this option after creation. If this option is enabled, you can disable it at a later time. This option is enabled by default."
+          ]
+        }
+      ]
+    },
+    "signing-certificate": {
+      "statement": "The signing certificate selected for a key is the one Private Access uses to sign certificates it issues to the Private Service Edge; all Private Service Edges deployed with the key have their certificates signed with it, and if any were deployed with a signing certificate that has expired and a new certificate is configured, they automatically redeploy using the new certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "select the signing certificate that Private Access uses to sign certificates it issues to the Private Service Edge."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-private-service-edge-provisioning-key.json",
+          "quotes": [
+            "All Private Service Edges deployed with this key will have their certificates signed with this signing certificate.",
+            "If any of your Private Service Edges were deployed with a signing certificate that has expired, and you have configured a new certificate, the Private Service Edges automatically redeploy using the new certificate."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "hidden-key-in-table": {
+      "summary": "Whether a key whose View or Export option was disabled still appears in the provisioning keys table",
+      "positions": [
+        {
+          "says": "About Private Service Edge Provisioning Keys describes a table entry that is blank if the option was disabled, so the row appears with a blank key.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-zpa-service-edge-provisioning-keys.json",
+            "quotes": [
+              "This entry is blank if you disabled the View or Export Provisioning Key After Creation option when configuring Private Service Edges."
+            ]
+          }
+        },
+        {
+          "says": "Editing a Private Service Edge Provisioning Key says only keys that can be viewed or exported after creation appear in the table.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-editing-private-service-edge-provisioning-key.json",
+            "quotes": [
+              "Only keys that can be viewed or exported after creation appear in the table."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a key with the option disabled is listed with a blank key or not listed at all is unsettled; the editing note may mean only exportable keys can be edited, but no page says so. The same disagreement is recorded for App Connector keys in zpa.app-connectors.provisioning-keys. Check the keys page before telling an admin where to find such a key."
+    }
+  },
+  "gaps": {
+    "max-reuse-wording": {
+      "kind": "semantic",
+      "title": "The Add page's Maximum Reuse recommendation names App Connectors",
+      "status": "open",
+      "detail": "On the Configuring Private Service Edges page the Maximum Reuse of Provisioning Key recommendation reads 'Zscaler recommends setting this option to the number of App Connectors you plan to deploy immediately', a copy of the App Connector wording on a Private Service Edge page; whether it is meant for Private Service Edges is not stated.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "view-export-wire": {
+      "kind": "semantic",
+      "title": "API and Terraform name of View or Export Provisioning Key After Creation for Private Service Edge keys",
+      "status": "open",
+      "detail": "The Terraform key resource is already in zpa.private-service-edges.enrollment; the wire name of View or Export was not checked in the API subjects.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

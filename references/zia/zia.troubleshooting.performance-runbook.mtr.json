@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting.performance-runbook.mtr",
+  "title": "Performance runbook: collecting and reading a WinMTR",
+  "aliases": [
+    "WinMTR",
+    "MTR to the proxy IP"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-runbook" }
+  ],
+  "prose": [
+    {
+      "label": "Collecting.",
+      "text": "{{winmtr-collection}} {{mtr-forwarding-method}} {{mtr-minimum-packets}}"
+    },
+    {
+      "label": "Reading.",
+      "text": "{{mtr-latency-analysis}} {{mtr-loss-analysis}} {{gap:mtr-screenshots}}"
+    }
+  ],
+  "claims": {
+    "winmtr-collection": {
+      "statement": "The runbook collects a forward MTR with WinMTR, targeting the Proxy IP address taken from the ip.zscaler.com output (first line), with Resolves name unchecked so all hop IPs show.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Use a tool called WinMTR that can be downloaded from sites such as sourceforge.net or winmtr.en.uptodown.com.",
+            "Get the Proxy IP address from the output of ip.zscaler.com.",
+            "Take note of the Proxy IP address (first line) from the output in the preceding step and enter this IP address in the Host option in the WinMTR tool.",
+            "Remember to uncheck Resolves name before collecting this data so that you can see the IP addresses of all the Hops."
+          ]
+        }
+      ]
+    },
+    "mtr-forwarding-method": {
+      "statement": "For Z-Tunnel 2.0 the runbook collects the MTR after logging out of Client Connector; for IPSec and GRE it either exempts ICMP at the edge device or exempts one system from the tunnel configuration so its traffic goes directly over the internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler Client Connector: Z-Tunnel 2.0: With this forwarding method, log out of Zscaler Client Connector and collect the MTR.",
+            "You can either exempt the ICMP traffic completely from your Edge Device (e.g., Firewall, Router, etc.) or exempt one system from the GRE or IPSec configuration on the Firewall.",
+            "As a result, the traffic from this system would go directly over the internet."
+          ]
+        }
+      ]
+    },
+    "mtr-minimum-packets": {
+      "statement": "The runbook says to keep the MTR running for at least 300 packets, 300 being the minimum, then save with Export Text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "keep it running for at least 300 packets. You can run it for more packets, however, 300 is the minimum count needed.",
+            "save the output by clicking Export Text."
+          ]
+        }
+      ]
+    },
+    "mtr-latency-analysis": {
+      "statement": "When analysing MTR latency the runbook says ICMP rate limiting can look like latency and to consider the latency to the final hop.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "ICMP rate limiting can also create the appearance of latency.",
+            "Consider the latency to the final hop when evaluating an MTR report."
+          ]
+        }
+      ]
+    },
+    "mtr-loss-analysis": {
+      "statement": "When analysing MTR packet loss the runbook says the loss reported between hops 1 and 2 is likely rate limiting on the second hop, says loss continuing over more than one hop is possibly packet loss or routing issues, says to trust later hops when loss differs, and notes return-route problems can also explain loss.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The loss reported between hops 1 and 2 is likely due to rate limiting on the second hop.",
+            "If the loss continues for more than one hop, then it is possible that there are packet loss or routing issues.",
+            "When different amounts of loss are reported, always trust the reports from later hops.",
+            "Some loss can also be explained by problems in the return route."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "mtr-screenshots": {
+      "kind": "semantic",
+      "title": "What the runbook's MTR and Cloud Performance Test output images show",
+      "status": "open",
+      "detail": "Many runbook steps rely on images (the MTR and Cloud Performance Test outputs, the Bandwidth Control checks) whose content is not in the capture.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

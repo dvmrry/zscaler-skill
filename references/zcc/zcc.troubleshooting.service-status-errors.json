@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "id": "zcc.troubleshooting.service-status-errors",
+  "title": "Error messages in Client Connector's Service Status field and the action for each",
+  "aliases": [
+    "service status errors",
+    "connection status errors",
+    "zcc service status"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.fail-open"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.support-options.restart-and-repair"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.troubleshooting.registry-keys"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{service-status-field}}"
+    },
+    {
+      "label": "Authentication.",
+      "text": "{{no-action-auth}} {{auth-errors}}"
+    },
+    {
+      "label": "Captive portal.",
+      "text": "{{captive-portal}} The captive portal window and the open question on what happens when it ends are in [[zcc.forwarding-profiles.fail-open]]. Whether the setting named in the message is the captive portal minutes setting is not stated {{gap:captive-portal-setting-name}}."
+    },
+    {
+      "label": "Driver, firewall and fail states.",
+      "text": "{{driver-and-fw-av}} {{fail-close-and-fail-open}} The platform is stated only for Driver Error and Fail Open, and Fail Close gives only examples of its reason {{gap:platform-and-reason}}."
+    },
+    {
+      "label": "Connectivity.",
+      "text": "{{connectivity}}"
+    },
+    {
+      "label": "Digital Experience.",
+      "text": "{{zdx-errors}}"
+    },
+    {
+      "label": "Safe mode and certificates.",
+      "text": "{{safe-mode}} {{untrusted-root-cert}}"
+    }
+  ],
+  "claims": {
+    "service-status-field": {
+      "statement": "Client Connector shows its error messages in the Service Status field; the vendor's table gives each message's explanation and the action users can take.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "quotes": [
+            "Zscaler Client Connector displays error messages in the Service Status field.",
+            "The following table provides a list of possible error messages, an explanation of the error, and the action users can take to resolve it."
+          ]
+        }
+      ]
+    },
+    "no-action-auth": {
+      "statement": "Intermediate Authentication Error (an intermediate proxy service intercepted the app's authentication request) and Authenticating... (the Public Service Edge for Internet & SaaS is waiting for user configuration) are tunnel authentication errors that need no action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "quotes": [
+            "| Intermediate Authentication Error | A tunnel authentication error has occurred because an intermediate proxy service has intercepted the app authentication request. | No action required. |",
+            "| Authenticating... | A tunnel authentication error has occurred because the Public Service Edge for Internet & SaaS is waiting for user configuration. | No action required. |"
+          ]
+        }
+      ]
+    },
+    "auth-errors": {
+      "statement": "Authentication Error is a tunnel authentication error, and Chaining Authentication Error one caused by proxy chaining. For both, users click Retry (next to the Status) for Internet Security or Authenticate for Private Access; if the error persists, More > Restart Service; if it continues, log out and log in again; then contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "quotes": [
+            "| Authentication Error | A tunnel authentication error has occurred. | For Internet Security: Click Retry to resolve the error. The Retry option appears next to the Status. For Private Access: Click Authenticate to resolve the error. The Authentication option appears next to the Authentication Status.",
+            "| Chaining Authentication Error | A tunnel authentication error has occurred due to proxy chaining. | For Internet Security: Click Retry to resolve the error. The Retry option appears next to the Status. For Private Access: Click Authenticate to resolve the error."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "after": "| Authentication Error |",
+          "quotes": [
+            "If the error persists, click More and click Restart Service.",
+            "If the error continues, log out of Zscaler Client Connector and log in again. If the error persists, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "after": "| Chaining Authentication Error |",
+          "quotes": [
+            "If the error persists, click More and click Restart Service.",
+            "If the error continues, log out of Zscaler Client Connector and log in again. If the error persists, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "captive-portal": {
+      "statement": "Captive Portal Detected means Client Connector is in a fail-open state because it detected a captive portal; the user clicks Open Browser (next to the Status) to reach the internet, and Retry if the portal is not resolved in time. Captive Portal Error means the user has not resolved the captive portal within the time configured in the Admin Console; the message disappears when the user reconnects, and the action is Retry and then resolving the portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "quotes": [
+            "| Captive Portal Detected | Zscaler Client Connector is in a fail-open state because Zscaler Client Connector detected a captive portal. | Click the Open Browser button to access the internet. The Open Browser button appears next to the Status.",
+            "| Captive Portal Error | The user has not resolved the captive portal within the time configured in the Zscaler Admin Console. The error message disappears when the user reconnects. | Click Retry and then resolve the captive portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "after": "| Captive Portal Detected |",
+          "quotes": [
+            "If you don't resolve the captive portal in time, click Retry to try again."
+          ]
+        }
+      ]
+    },
+    "driver-and-fw-av": {
+      "statement": "Driver Error means a Windows driver installation issue was detected and the tunnel interface cannot be started; the action is Repair App in the More window's Troubleshoot section. Endpoint FW/AV Error means a firewall or antivirus program on the device is blocking Client Connector traffic; the user contacts the administrator for configuration changes on the device. In both, Client Connector is in a fail-open state unless a fail-close app profile option is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "quotes": [
+            "| Driver Error | A Windows driver installation issue has been detected, and the tunnel interface cannot be started. Zscaler Client Connector is in a fail-open state unless you have a fail-close app profile option enabled. | In the More window, click Repair App. This option is available in the Troubleshoot section.",
+            "| Endpoint FW/AV Error | The device has a firewall or antivirus program blocking Zscaler Client Connector traffic. Zscaler Client Connector is in a fail-open state unless you have a fail-close app profile option enabled. | Contact your administrator for any required configuration changes on the device."
+          ]
+        }
+      ]
+    },
+    "fail-close-and-fail-open": {
+      "statement": "Fail Close <reason> means Client Connector is in a fail-close state because the tunnel interface cannot be started (for example a driver error or an endpoint FW/AV error); the action is Retry, then More > Restart Service if the error persists. Fail Open means it is in a fail-open state because it detected Windows safe mode activation; the action is to restart Windows without safe mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "quotes": [
+            "| Fail Close <reason> | Zscaler Client Connector is in a fail-close state because the tunnel interface cannot be started (e.g., a driver error or an endpoint FW/AV error). | Click Retry to resolve the error. The Retry option appears next to the Status. If the error persists, click More and click Restart Service.",
+            "| Fail Open | Zscaler Client Connector is in a fail-open state because Zscaler Client Connector detected Windows safe mode activation. | Restart Windows without safe mode. |"
+          ]
+        }
+      ]
+    },
+    "connectivity": {
+      "statement": "Connection Error means the Public Service Edge for Internet & SaaS cannot be reached; Network Error that no network interface is detected; Internal Error that an internal socket problem was detected. For each, the action is Retry (next to the Status), then More > Restart Service if the error persists. For Connection Error, if the error continues, contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "quotes": [
+            "| Connection Error | The Public Service Edge for Internet & SaaS cannot be reached. | Click Retry to resolve the error. The Retry option appears next to the Status. If the error persists, click More and click Restart Service.",
+            "| Network Error | No network interface is detected. | Click Retry to resolve the error. The Retry option appears next to the Status. If the error persists, click More and click Restart Service.",
+            "| Internal Error | Internal socket problem has been detected. | Click Retry to resolve the error. The Retry option appears next to the Status. If the error persists, click More and click Restart Service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "after": "| Connection Error |",
+          "quotes": [
+            "If the error continues, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "zdx-errors": {
+      "statement": "Installation Error means Client Connector experienced a network error while trying to connect to the Digital Experience (ZDX) server, and Server Error that it is unable to connect to the ZDX cloud (the action adds checking network connectivity). For both, the action is Retry, then More > Restart Service if the error persists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "quotes": [
+            "| Installation Error | Zscaler Client Connector experienced a network error while trying to connect to the Digital Experience (ZDX) server. | Click Retry to resolve the error. The Retry option appears next to the Status. If the error persists, click More and click Restart Service.",
+            "| Server Error | Zscaler Client Connector is unable to connect to the ZDX cloud. | Check network connectivity. Click Retry to resolve the error. The Retry option appears next to the Status. If the error persists, click More and click Restart Service."
+          ]
+        }
+      ]
+    },
+    "safe-mode": {
+      "statement": "Safe Mode means the Zscaler service is down and the user has access only to critical resources determined by the organization; no action is required, and the vendor points to Configuring Disaster Recovery.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "quotes": [
+            "| Safe Mode | The Zscaler service is down. You'll only have access to critical resources determined by your organization. | No action required. To learn more, see Configuring Disaster Recovery. |"
+          ]
+        }
+      ]
+    },
+    "untrusted-root-cert": {
+      "statement": "Untrusted Root Cert means Client Connector is unable to validate the Private Service Edge for Private Access root certificate; the action is to contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "quotes": [
+            "| Untrusted Root Cert | Zscaler Client Connector is unable to validate the Private Service Edge for Private Access root certificate. | Contact Zscaler Support. |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "captive-portal-setting-name": {
+      "kind": "semantic",
+      "title": "Which Admin Console setting is the time in the Captive Portal Error message",
+      "status": "open",
+      "detail": "The message says the user has not resolved the portal within the time configured in the Admin Console but does not name the setting. That it is the captive portal minutes setting is not stated by this page.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "platform-and-reason": {
+      "kind": "semantic",
+      "title": "Which platforms show each Service Status message, and what reasons Fail Close names",
+      "status": "open",
+      "detail": "The platform is stated only for Driver Error (a Windows driver) and Fail Open (Windows safe mode). Fail Close <reason> gives only examples, a driver error or an endpoint FW/AV error.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

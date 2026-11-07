@@ -1,0 +1,1189 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Virtual Service Edge for Internet & SaaS: Google Cloud Platform",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-virtual-service-edge-internet-saas-google-cloud-platform",
+    "node": "1415181",
+    "revision": "3249128",
+    "updated": "2026-10-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler supports stand-alone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on the Google Cloud Platform (GCP)."
+    },
+    {
+      "item": "1. Ensure you meet all the requirements.",
+      "depth": 0
+    },
+    {
+      "item": "You need the following to deploy Virtual Service Edge on GCP:",
+      "depth": 0
+    },
+    {
+      "item": "Virtual Service Edges only require outbound connections to the Zscaler cloud. Configure your firewall to allow the necessary outbound connections. To view the firewall requirements, go to config.zscaler.com/<Zscaler Cloud Name>/fcr.",
+      "depth": 1
+    },
+    {
+      "item": "You can find the <Zscaler Cloud Name> in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net, go to config.zscaler.com/zscalertwo.net/fcr. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names.",
+      "depth": 1
+    },
+    {
+      "item": "Verify that your license is appropriate to your needs. Go to Administration > Subscriptions > Internet & SaaS, and look for the Virtual Service Edges, noting the server count.",
+      "depth": 1,
+      "strong": [
+        [
+          61,
+          75
+        ],
+        [
+          78,
+          91
+        ],
+        [
+          94,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "Virtual machine (VM) specs for a Virtual Service Edge:",
+      "depth": 1
+    },
+    {
+      "item": "CPUs: 4 CPU cores",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Recommended Instances Type: n2-highmem-8",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "RAM: 64 GB for production",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Scanning large files without adversely impacting performance requires 64 GB memory on the Virtual Service Edge.",
+      "depth": 2
+    },
+    {
+      "item": "The system automatically inserts a section into the configuration files to enable a third antivirus (AV) process. Starting the Virtual Service Edges spawns the third AV process on each instance.",
+      "depth": 2
+    },
+    {
+      "item": "Disk: 501 GB. Zscaler recommends using SSDs.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Network Interfaces: 3 interfaces (NIC0 for Virtual Service Edge, NIC1 for Management, and (Optional) NIC2 for the Dual Arm Interface).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Required IP addresses",
+      "depth": 2
+    },
+    {
+      "table": [
+        [
+          "IP Address",
+          "Purpose",
+          "Requirements"
+        ],
+        [
+          "Management IP Address",
+          "This address is used to make an SSH connection to the Virtual Service Edge VM for management. It is also used to download Virtual Service Edge builds from the Zscaler cloud.",
+          "In the Virtual Service Edge CLI, configure the IP address to ensure the following: It is accessible via SSH by the Virtual Service Edge administrator during install. It has outbound access to the internet."
+        ],
+        [
+          "Proxy IP Address",
+          "This address is used for the following purposes: Outbound data connection (proxied traffic) Outbound control connection to the Zscaler cloud Health monitoring by the load balancer In a stand-alone Virtual Service Edge, listening for user traffic In the Zscaler Admin Console, creating a Virtual Service Edge instance",
+          ""
+        ]
+      ]
+    },
+    {
+      "item": "2. Deploy the image on GCP.",
+      "depth": 0
+    },
+    {
+      "item": "You can deploy the image on GCP using one of the following methods:",
+      "depth": 0
+    },
+    {
+      "item": "GCP Console",
+      "depth": 1
+    },
+    {
+      "item": "To deploy the image on the GCP console:",
+      "depth": 1
+    },
+    {
+      "item": "On the GCP console, go to Compute Engine > Images.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          26,
+          40
+        ],
+        [
+          43,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Choose the Zscaler OS24 Virtual Service Edge image (e.g., vzen-zs42-release-149) and click Create Instance from the Actions menu.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          91,
+          106
+        ],
+        [
+          116,
+          123
+        ]
+      ]
+    },
+    {
+      "item": "Contact Zscaler Support for the Virtual Service Edge image on GCP.",
+      "depth": 2
+    },
+    {
+      "item": "On the Create Instance page, define the following parameters:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter the name of the instance.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select a region for the instance.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Series: Select N2.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Machine Type: Select n2-highmem-8.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to Advanced options > Networking.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          22
+        ],
+        [
+          25,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Select the Enable checkbox for IP forwarding.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          11,
+          17
+        ],
+        [
+          31,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Select VirtIO for Network interface card.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          18,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Configure the service interface (NIC0):",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "Select an appropriate network from the Network field.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          39,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "The Subnetwork field is automatically populated based on the selected network.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Done.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Configure management interface (NIC1):",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "Click Add Network Interface.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Select an appropriate network from the Network field.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          39,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "The Subnetwork field is automatically populated based on the selected network.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Done.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) Configure dual arm interface (NIC2):",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "Click Add Network Interface.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Select an appropriate network from the Network field.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          39,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "The Subnetwork field is automatically populated based on the selected network.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Done.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "gcloud CLI",
+      "depth": 1
+    },
+    {
+      "item": "To deploy the image using the gcloud CLI:",
+      "depth": 1
+    },
+    {
+      "item": "Go to gcloud CLI. To learn more, see Install the gcloud CLI.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "gcloud compute instances create <INSTANCE_NAME> \\ [--image=<IMAGE> | --image-family=<IMAGE_FAMILY>] \\ --image-project=zia-gcp --machine-type=n2-highmem-8 --zone [ZONE] [--network-interface [network=<NETWORK>,subnet=<SUBNET>],[stack-type=<STACK_TYPE>],[address=<RESERVED_EXTERNAL_ADDRESS> | no-address], [private-network-ip=<INTERNAL_ADDRESS>] ...]",
+      "depth": 2
+    },
+    {
+      "item": "Replace all text in red with the appropriate values.",
+      "depth": 2
+    },
+    {
+      "item": "Contact Zscaler Support for the Virtual Service Edge image name. If you specify the image-family in this command, a VM instance is created using the latest version of the OS image.",
+      "depth": 2
+    },
+    {
+      "item": "See sample command.",
+      "depth": 3
+    },
+    {
+      "item": "gcloud compute instances create mygcpvse \\ [--image=zscaleros24-vse-rev10] \\ --image-project=zia-gcp --machine-type=n2-highmem-8 --zone=us-west2-a [--network-interface [network=proxy-vpc,subnet=service-subnet] --network-interface [network=management-vpc,subnet=management-subnet]]",
+      "depth": 3
+    },
+    {
+      "item": "To learn more about deploying the image on the GCP using gcloud CLI, see Create and start a VM instance and Create VMs with multiple network interfaces.",
+      "depth": 2
+    },
+    {
+      "item": "The newly created VM instance is available on the Compute Engine > VM Instances page of the GCP console.",
+      "depth": 0,
+      "strong": [
+        [
+          50,
+          64
+        ],
+        [
+          67,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "3. Add the Virtual Service Edge instance.",
+      "depth": 0
+    },
+    {
+      "item": "4. Download a Virtual Service Edge certificate.",
+      "depth": 0
+    },
+    {
+      "item": "The SSL certificate is unique to a Virtual Service Edge. Make sure to download the respective SSL certificate from the Zscaler Admin Console for the Virtual Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "5. Configure the Virtual Service Edge virtual machine (VM).",
+      "depth": 0
+    },
+    {
+      "item": "You must configure the Virtual Service Edge instance as a VM on the GCP console.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends using different servers for each instance to achieve fault tolerance.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Virtual Service Edge on the GCP console:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Compute Engine > VM instances.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Select the Virtual Service Edge VM.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "The Virtual Service Edge VM is started by default. However, if the selected VM is stopped or suspended, click Start / Resume.",
+      "depth": 1,
+      "strong": [
+        [
+          110,
+          124
+        ]
+      ]
+    },
+    {
+      "item": "Click the Virtual Service Edge VM.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Connect to Serial Console, and log in at the FreeBSD command prompt with the following credentials:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "After you log in with the default credentials, you are prompted to change the default password.",
+      "depth": 1
+    },
+    {
+      "item": "Change the default password:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "New Password: Enter a new password that meets your organization's password standards.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Retype New Password: Re-enter the new password.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Direct root login is not permitted. Administrators must use the sudo utility to run a command with higher privileges.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) If you want Zscaler to enforce password complexity for the password you set, run the following command:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "vzen enforce-password-complexity",
+      "depth": 1
+    },
+    {
+      "item": "The current password expires after running this command.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "A valid password contains a mix of upper- and lowercase letters, numbers, and other characters. You can use a 24-character password with characters from at least three of these categories, or a 16-character password containing characters from all the categories. Characters that form a common pattern are discarded by the check. If you use a passphrase, use at least 4 words to form a phrase that is 32 to 40 characters long and contains enough different characters.",
+      "depth": 1
+    },
+    {
+      "item": "Install the SSL certificate of the Virtual Service Edge instance. This is the certificate you downloaded from the Zscaler Admin Console. A Virtual Service Edge uses this certificate to authenticate itself to the Zscaler service.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "To install the SSL certificate of the Virtual Service Edge instance:",
+      "depth": 1
+    },
+    {
+      "item": "Navigate to the SSL certificate that you saved.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Use SCP or SFTP to upload it to the management IP address of the Virtual Service Edge.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Go to the Connect to Serial Console or use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "sudo vzen install-cert <cert-bundle.zip>",
+      "depth": 2
+    },
+    {
+      "item": "Be sure to specify the absolute path to the SSL certificates (e.g., sudo vzen install-cert /tmp/cert-bundle.zip).",
+      "depth": 2
+    },
+    {
+      "item": "Download the Virtual Service Edge build and start the Virtual Service Edge.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "On the GCP console, click the Connect to Serial Console or use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command to download the Virtual Service Edge build:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen download-build",
+      "depth": 2
+    },
+    {
+      "item": "The initial build is around 1 GB, so it may take a while depending on your internet connection. The downloaded build is automatically installed. The Virtual Service Edge automatically starts after the installation is complete.",
+      "depth": 2
+    },
+    {
+      "item": "After the build is deployed, run the following command to check the service status of the Virtual Service Edge:",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "sudo vzen status",
+      "depth": 1
+    },
+    {
+      "item": "Ensure both the SME and smcdsc are running.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following commands to check the connectivity with the Zscaler production nodes:",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "sudo ZSINSTANCE=/sc/sme/ /sc/sme/bin/smmgr -ys show=auth",
+      "depth": 2
+    },
+    {
+      "item": "Sample output of this command.",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that the authentication state is SMAUTHENG_READY_STATE.",
+      "depth": 2,
+      "strong": [
+        [
+          40,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "sockstat | grep -i smcdsc",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that there are two connections over 9442.",
+      "depth": 2
+    },
+    {
+      "item": "sudo vzen troubleshoot connection",
+      "depth": 2
+    },
+    {
+      "item": "Sample output of this command.",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that cloud-config and log-stream sessions are present.",
+      "depth": 2,
+      "strong": [
+        [
+          12,
+          24
+        ],
+        [
+          29,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) if you want to use an SNMP management system to monitor the Virtual Service Edge, enable SNMP for Virtual Service Edge and configure SNMP parameters. Virtual Service Edges support SNMPv3 only.",
+      "depth": 1,
+      "number": 11
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo vzen snmp-admin-configure",
+      "depth": 2
+    },
+    {
+      "item": "Enter a username for the SNMPv3 management system that sends queries to the Virtual Service Edge. The Virtual Service Edge accepts queries from this username only.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Enter a password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Specify which authentication protocol the Virtual Service Edge can use to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Specify the encryption method the Virtual Service Edge can use to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "sudo vzen snmp-trap-configure",
+      "depth": 2
+    },
+    {
+      "item": "When asked which traps you want to configure, enter v3 traps.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "Enter the IP address of the SNMP trap management system to which the Virtual Service Edge sends traps.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "Enter a username for the SNMP management system.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "Enter a password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 2,
+      "number": 10
+    },
+    {
+      "item": "Specify which authentication protocol the Virtual Service Edge can use to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "Specify the encryption method the Virtual Service Edge can use to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 2,
+      "number": 12
+    },
+    {
+      "item": "6. (Optional) Deploy GCP Internal Load Balancer (ILB).",
+      "depth": 0
+    },
+    {
+      "item": "To deploy GCP ILB:",
+      "depth": 0
+    },
+    {
+      "item": "Create and deploy a pair of Virtual Service Edges with NICs, as previously explained in the deploying the image on GCP step.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Create a health check to do a TCP port check for port 443 or port 80.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Create an unmanaged instance group and add these VM instances.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Create the ILB and configure the front end for all ports and the backend as the instance group.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Log in to the VMs.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "cd /sc/sme/conf",
+      "depth": 1
+    },
+    {
+      "item": "Create a new file called vzen_custom.conf.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Add the following lines:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "[SME] smnet_dev=vtnet0=nm0:<internal nic ip>/32:<ILB service ip>/32 smnet_route=<Internal nw gw ip>/32/nm0/<Internal n/w gateway MAC> smnet_route=35.191.0.0/16/<gw ip of internal n/w> [For health check probes] smnet_route=130.211.0.0/22/<gw ip of internal n/w> smnet_route=10.x.x.x/24/<gw ip of internal n/w> smnet_dev=vtnet2=nm1:<ip/mask> Second interface pvt ip for internet access smnet_dflt_gw=<gw ip> Gateway ip for internet access [-end-of-SME]",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) Add the GCP ILB configuration using the CLI.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "On the GCP console, click the Connect to Serial Console or use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "vzen gcp-ilb-setup",
+      "depth": 2
+    },
+    {
+      "item": "Enter y to continue configuring GCP ILB.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "You are prompted to add the gateway MAC address.",
+      "depth": 2
+    },
+    {
+      "item": "Enter y to add the gateway MAC address.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Enter the gateway MAC address (e.g., 00:5e:00:53:af).",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Enter the ILB Virtual IP (VIP).",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "You are prompted to enter the static routes or continue to configure GCP ILB.",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) If you want to configure the static routes (e.g., 10.1.1.0/24/10.1.1.1), enter them in the following format:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "<N/W ip range>/<Mask>/<Gateway ip of internal n/w>",
+      "depth": 2
+    },
+    {
+      "item": "Enter q to complete the GCP ILB configuration.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "See the sample output of this command.",
+      "depth": 2
+    },
+    {
+      "item": "You can remove the GCP ILB configuration using the vzen gcp-ilb-clear command.",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to stagger the upgrades on the Virtual Service Edges:",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "vzen delay-upgrade HH:MM",
+      "depth": 1
+    },
+    {
+      "item": "This avoids parallel upgrade outages as all nodes of GCP Virtual Service Edges are stand-alone.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to restart the services on the Virtual Service Edge:",
+      "depth": 1,
+      "number": 11
+    },
+    {
+      "item": "sudo vzen restart",
+      "depth": 1
+    },
+    {
+      "text": "After you configure a Virtual Service Edge, you can then forward your internet traffic to it using one of the mechanisms described in Forwarding Traffic to Virtual Service Edges."
+    },
+    {
+      "heading": "Testing and Logging Traffic",
+      "level": 1
+    },
+    {
+      "text": "To test and log the traffic:"
+    },
+    {
+      "item": "On the GCP console, go to VPC network > Firewall.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Edit the firewall rule for NIC0 to allow the following ports/IP addresses:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Egress: Select Allow All.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Ingress: Allow the following ports for Zscaler configuration:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "9443",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "443",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "80",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "9480",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "9400",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Be sure to allow ports specifically required by your organization.",
+      "depth": 1
+    },
+    {
+      "item": "Configure the browser proxy as NIC0:9443.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          31,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "In the Zscaler Admin Console, configure a URL Filtering rule and a Firewall Filtering policy rule to block/allow traffic.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "For example, configure a URL Filtering rule to block URLs belonging to the Social Networking category and a Firewall Filtering policy rule to block the San Jose location.",
+      "depth": 0,
+      "strong": [
+        [
+          75,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "Make a request to any domain and verify that the traffic is redirected to the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "From the navigation menu, go to Data Explorer > Internet & SaaS > Web Insights > Logs, and retrieve the logs for the last 15 minutes to verify logs for test traffic are present.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          63
+        ],
+        [
+          66,
+          78
+        ],
+        [
+          81,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "For example, logs blocking traffic destined for www.facebook.com belonging to the Social Networking category and traffic destined for www.domainsanjose.com, a San Jose-based domain, are present.",
+      "depth": 0,
+      "strong": [
+        [
+          82,
+          99
+        ]
+      ]
+    }
+  ]
+}

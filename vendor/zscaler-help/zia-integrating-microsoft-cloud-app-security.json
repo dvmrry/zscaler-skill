@@ -1,0 +1,995 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Integrating with Microsoft Cloud App Security",
+  "source": {
+    "url": "https://help.zscaler.com/zia/integrating-microsoft-cloud-app-security",
+    "node": "1398656",
+    "revision": "3249932",
+    "updated": "2026-10-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides configuration steps and examples for integrating Zscaler and Microsoft Cloud App Security (MCAS) (i.e., Microsoft Defender for Cloud Apps)."
+    },
+    {
+      "text": "With MCAS, you can sanction or unsanction applications for use in your organization. When you integrate MCAS and Zscaler, Zscaler syncs unsanctioned application URLs to a custom URL category called MS Defender Unsanctioned Apps. The integration enables you to discover unsanctioned applications and automatically update the custom URL category based on your organization’s web transaction logs streaming from Internet & SaaS (ZIA) through the Nanolog Streaming Service (NSS) to MCAS."
+    },
+    {
+      "text": "Zscaler and Microsoft are technology partners. To learn more about the Zscaler and MCAS integration, see the Zscaler and Microsoft Defender for Cloud Applications Deployment Guide."
+    },
+    {
+      "heading": "Integrating with MCAS using OAuth 2.0-Based Authentication",
+      "level": 1
+    },
+    {
+      "text": "The integration supports secure OAuth 2.0-based authentication. In contrast to token-based authentication, where a key is generated based on the user’s security context, the OAuth 2.0 method grants access based on the application’s context. Permissions are set at the application level and not inherited by the user, whose roles and permissions in Azure can change over time. To learn more about accessing MCAS with application context, refer to the Microsoft documentation."
+    },
+    {
+      "text": "To integrate with MCAS using OAuth 2.0-based authentication:"
+    },
+    {
+      "item": "1. Create a Microsoft Entra application.",
+      "depth": 0
+    },
+    {
+      "item": "To access MCAS with application context, create an application in Microsoft Entra ID (previously Microsoft Active Directory) and assign it with the permissions required to access MCAS. In creating the application, you generate the values of the parameters (e.g., client ID, client secret, etc.) required for OAuth 2.0-based authentication. You later provide the values when configuring the integration on the Partner Integrations page in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "To create an application:",
+      "depth": 0
+    },
+    {
+      "item": "a. Register an application.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Under Azure services, go to Microsoft Entra ID.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          28,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to App Registrations and then click New registration.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          35,
+          52
+        ],
+        [
+          68,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Register an application window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Register an application window:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the application.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Supported account types: Ensure that this option is set to Accounts in this organizational directory only (<tenant> only - Single tenant).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          59,
+          115
+        ],
+        [
+          116,
+          137
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Register.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The application is registered, and its Overview page is displayed.",
+      "depth": 2,
+      "strong": [
+        [
+          39,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the application’s Overview page, copy the Application (client) ID and Directory (tenant) ID values and save them for later use.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          21,
+          29
+        ],
+        [
+          45,
+          68
+        ],
+        [
+          73,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "b. Add a client secret.",
+      "depth": 1
+    },
+    {
+      "item": "On the left side-navigation of the application, go to Certificates & secrets and then click New client secret.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          54,
+          76
+        ],
+        [
+          92,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Add a client secret pane appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the Add a client secret pane:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Description: Add a description.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Expiration: Add an expiration.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The client secret value is generated and displayed.",
+      "depth": 2
+    },
+    {
+      "item": "Copy the generated secret value immediately and save it for later use.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "The client secret value is displayed only once and cannot be retrieved after you navigate away from the page.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "c. Add permissions.",
+      "depth": 1
+    },
+    {
+      "item": "To add the required MCAS permissions to the application:",
+      "depth": 1
+    },
+    {
+      "item": "In the left side-navigation of the application, go to API Permissions and click Add a permission.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          54,
+          69
+        ],
+        [
+          80,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Request API permissions pane appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Request API permissions pane, click the APIs my organization uses tab and then enter Microsoft Cloud App Security in the search bar.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          47,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Copy the Application (client) ID value for MCAS and save it for later use.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "This value is used for the Scope parameter when configuring the partner integration in the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          27,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select Microsoft Cloud App Security in the search results and then select Application permissions.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          35
+        ],
+        [
+          74,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the discovery.manage permission, which is required to upload data and generate block scripts.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          11,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Add permissions.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Grant admin consent for <Tenant> under the Configured permissions section and then click Yes when prompted.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          29
+        ],
+        [
+          30,
+          38
+        ],
+        [
+          49,
+          71
+        ],
+        [
+          95,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "2. Configure an MCAS partner integration.",
+      "depth": 0
+    },
+    {
+      "item": "After creating the application, use the generated values (e.g., client ID, client secret) to configure the integration on the Partner Integrations page in the Zscaler Admin Console. This step of the integration also requires:",
+      "depth": 0
+    },
+    {
+      "item": "An active NSS web log subscription or trial",
+      "depth": 1
+    },
+    {
+      "item": "A healthy NSS web server enabled",
+      "depth": 1
+    },
+    {
+      "item": "An MCAS NSS feed configured for the enabled NSS web server",
+      "depth": 1
+    },
+    {
+      "item": "After you complete and validate the configuration on the Partner Integrations page, the OAuth 2.0-based authentication parameters are pushed to the MCAS NSS feed configuration (in the backend only). The feed configuration is pushed to the Zscaler Central Authority (CA). The Zscaler CA then pushes the feed configuration to NSS.",
+      "depth": 0
+    },
+    {
+      "item": "To configure an MCAS partner integration:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Resources > Microsoft Defender SaaS App.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          59
+        ],
+        [
+          62,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "On the Microsoft Cloud App Security tab:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Under Microsoft Cloud App Security (MCAS) Authentication Setup, configure the following parameters and then click Test:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          62
+        ],
+        [
+          114,
+          118
+        ]
+      ]
+    },
+    {
+      "item": "Client ID: Enter the Application (client) ID for the application that you created in Azure (e.g., 97b9XXXX-beXX-48XX-b5XX-8792cdXXXXXX).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: Enter the application’s client secret value that you generated in Azure. Ensure that you provide the client secret value, not the client secret ID.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Scope: Enter the scope (i.e., the resource identifier) for the MCAS API, appended with the /.default suffix. Microsoft currently defines the scope for MCAS as 05a65629-4c1b-48c1-a78b-804c4abdd4af, so enter 05a65629-4c1b-48c1-a78b-804c4abdd4af/.default in this field. To ensure you have the current scope for MCAS, refer to the Microsoft documentation.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Authentication URL: Enter the authentication URL with your Directory (tenant) ID in Azure: https://login.microsoftonline.com/<Tenant ID>/oauth2/v2.0/token. For example: https://login.microsoftonline.com/9fe3XXXX-d6XX-46XX-a9XX-d8907dXXXXXX/oauth2/v2.0/token",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "API URL: Enter the API URL for your tenant (e.g., https://safemarch.us3.portal.cloudappsecurity.com). To find your API URL, refer to the Microsoft documentation.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Zscaler verifies if the configuration is valid. If the configuration is valid, the integration proceeds to the next step and Zscaler attempts to sync your unsanctioned Cloud App URLs. If the configuration is not valid, the reason for the failure appears on the page. In the following image, the API URL is not valid.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The invalid configuration and the reason for the failure is also logged in the audit logs (Administration > Admin Management > Audit Logs > Internet & SaaS).",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "To clear the existing configuration, click Clear Config and then OK when prompted.",
+      "depth": 3,
+      "strong": [
+        [
+          43,
+          55
+        ],
+        [
+          65,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Clearing the configuration stops the syncing of unsanctioned Cloud App URLs from MCAS to your MS Defender Unsanctioned Apps URL category. This existing category is not removed by this action, as it might be in use as part of your configured policies.",
+      "depth": 3,
+      "strong": [
+        [
+          94,
+          123
+        ]
+      ]
+    },
+    {
+      "item": "Under NSS Subscription, ensure that you have:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "An active NSS web log subscription or trial. If you do not have an active subscription, submit a Zscaler Support ticket.",
+      "depth": 3
+    },
+    {
+      "item": "A healthy NSS web server enabled. You must have an NSS web server configured and deployed to complete this integration. To learn more, see Deploying NSS Virtual Appliances and Adding NSS Servers. For the list of ports/domains/IP addresses you need to allow for NSS to communicate with the MCAS service, refer to the Microsoft documentation. If your enabled NSS web server is not in a healthy state, see Troubleshooting Deployed NSS Servers.",
+      "depth": 3
+    },
+    {
+      "item": "An MCAS NSS feed configured for the enabled NSS web server. To learn more, see Adding MCAS NSS Feeds.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In order for your MCAS NSS feed to perform optimally, the VM deployed for the NSS web server requires a minimum of 8 GB of RAM. To learn more, see Deploying NSS Virtual Appliances and Adding MCAS NSS Feeds.",
+      "depth": 3
+    },
+    {
+      "item": "Under Unsanctioned Cloud App URLs Sync, note that after your MCAS integration is configured, the first unsanctioned Cloud App URL sync occurs within two hours. Syncs to this custom URL category occur every two hours after the initial sync.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "After your integration is configured, this page updates automatically, showing the number of URLs that are successfully synced. If you exceed the maximum custom category limit that is set for your organization, then the sync fails. To learn more, see the Troubleshooting section of this article.",
+      "depth": 0
+    },
+    {
+      "item": "3. Enable automatic log uploads to MCAS.",
+      "depth": 0
+    },
+    {
+      "item": "After you configure the MCAS partner integration in the Zscaler Admin Console, you configure and enable automatic log uploads from NSS to MCAS. This involves adding a data source for NSS in the MCAS portal (i.e., Microsoft Defender portal), and from your NSS VM, starting the NSS service in OAuth 2.0 mode.",
+      "depth": 0
+    },
+    {
+      "item": "To configure and enable automatic log uploads:",
+      "depth": 0
+    },
+    {
+      "item": "a. Add a data source for NSS.",
+      "depth": 1
+    },
+    {
+      "item": "In the MCAS portal, go to Settings and then click Cloud Apps.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          26,
+          34
+        ],
+        [
+          50,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Under Cloud Discovery, click Automatic log upload.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          29,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Data sources tab, click Add data source.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          31,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Add Data Source page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter NSS.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Source: Select Zscaler QRadar LEEF.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Receiver type: Select Syslog - UDP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "You must configure the fields as documented in the Microsoft documentation, otherwise NSS and MCAS cannot communicate.",
+      "depth": 2
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "b. Start the NSS service in OAuth 2.0 mode.",
+      "depth": 1
+    },
+    {
+      "item": "The NSS gets the logs from the Zscaler Nanolog, converts the logs per the MCAS NSS feed output format (i.e., LEEF), and sends the logs for uploading to MCAS.",
+      "depth": 1
+    },
+    {
+      "item": "To start the NSS service in OAuth 2.0 mode:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the NSS VM for your platform (i.e., VMware vSphere, Amazon Web Services, or Azure).",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo nss configure-mcas2",
+      "depth": 2
+    },
+    {
+      "item": "The command sudo nss configure-mcas used for token-based integrations does not work for OAuth 2.0-based integrations.",
+      "depth": 2
+    },
+    {
+      "item": "Restart the NSS service by running the following command:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "sudo nss restart",
+      "depth": 2
+    },
+    {
+      "item": "Verifying Your Integration",
+      "depth": 0
+    },
+    {
+      "item": "To verify your MCAS partner integration:",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler Admin Console, go to Internet Access > Resources > URL Categories.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          51
+        ],
+        [
+          54,
+          63
+        ],
+        [
+          66,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "After the initial URL sync, verify that the User-Defined category called MS Defender Unsanctioned Apps is shown in the table on the page.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          44,
+          56
+        ],
+        [
+          73,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To verify automatic log uploads:",
+      "depth": 0
+    },
+    {
+      "item": "In the MCAS portal, go to the Automatic log upload page (Settings > Cloud Apps > Cloud Discovery).",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          50
+        ],
+        [
+          57,
+          65
+        ],
+        [
+          68,
+          78
+        ],
+        [
+          81,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "On the Data sources tab, make sure that the NSS data source you set up for Zscaler is receiving data.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To verify the connection with MCAS, run the following cURL command, replacing the authentication parameters in red with the values from your configuration:",
+      "depth": 0
+    },
+    {
+      "item": "curl -X POST \"https://login.microsoftonline.com/<Tenant ID>/oauth2/token\" -d \"scope=<Scope>\" -d \"client_id=<Client ID>\" -d \"client_secret=<Client Secret Value>\" -d \"grant_type=client_credentials\" -H \"Content-Type: application/x-www-form-urlencoded\"",
+      "depth": 0
+    },
+    {
+      "item": "The value of resource (e.g., 05a65629-4c1b-48c1-a78b-804c4abdd4af) is also used in the Scope parameter when configuring the partner integration in the Zscaler Admin Console.",
+      "depth": 0,
+      "strong": [
+        [
+          87,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "The following example of a valid connection shows the bearer token and its expiration in the output.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Troubleshooting",
+      "depth": 0
+    },
+    {
+      "item": "You must assign the MS Defender Unsanctioned Apps URL category to a URL filtering rule to block the traffic to those destinations. Zscaler recommends that SSL inspection is enabled for that category in case some sanctioned applications are uniquely identified by a full URL rather than just a domain name. To learn more, see Configuring the URL Filtering Policy and Configuring SSL Inspection Policy.",
+      "depth": 1,
+      "strong": [
+        [
+          20,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "If the unsanctioned Cloud App URL sync to your custom URL category is not occurring every two hours, contact Zscaler Support.",
+      "depth": 1
+    },
+    {
+      "item": "If you encounter an MCAS authentication validation error on a valid and verified configuration, make sure that you have at least one application categorized as unsanctioned within the MCAS portal. To learn more, refer to the Microsoft documentation.",
+      "depth": 1
+    },
+    {
+      "heading": "Support for Existing Token-Based Integrations",
+      "level": 1
+    },
+    {
+      "text": "If you have an existing MCAS partner integration using token-based authentication, your integration remains supported for backward compatibility. On the Partner Integrations page in the Zscaler Admin Console, you see the Select Authentication Method setting with the Token option enabled.",
+      "strong": [
+        [
+          221,
+          249
+        ],
+        [
+          267,
+          272
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "You cannot make any configuration changes to your existing integration or create a new token-based integration. Zscaler recommends converting your existing integration to the OAuth 2.0-based authentication method for improved security. After you convert your integration, the token method is no longer available as an option."
+    },
+    {
+      "text": "If you do not have an existing integration using token-based authentication, the token method is not available as an option in the Zscaler Admin Console at all."
+    }
+  ]
+}

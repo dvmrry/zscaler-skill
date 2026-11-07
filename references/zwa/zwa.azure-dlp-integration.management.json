@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "id": "zwa.azure-dlp-integration.management",
+  "title": "Managing DLP Azure integrations in Workflow Automation: statuses, delete, enable and disable, dashboard counts and defaults",
+  "aliases": [
+    "manage dlp azure integration",
+    "show deleted accounts",
+    "connected accounts azure"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.azure-dlp-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.aws-dlp-integration.management"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Statuses.",
+      "text": "{{status-values}} {{configuration-tab-contents}} The meaning of Failed is open {{gap:failed-status}}."
+    },
+    {
+      "label": "Changing an integration.",
+      "text": "{{enable-disable}} {{delete-rules}}"
+    },
+    {
+      "label": "Dashboard.",
+      "text": "{{dashboard-status-count}} {{dashboard-defaults}}"
+    },
+    {
+      "text": "The integration object is in [[zwa.azure-dlp-integration]]; the AWS equivalent is [[zwa.aws-dlp-integration.management]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The status of the integration before deleting it: only Enabled, Disabled or Failed accounts can be deleted.",
+      "uses": [
+        "delete-rules"
+      ]
+    },
+    {
+      "do": "Whether a missing integration is shown only under Show Deleted Accounts, and whether the dashboard count excludes Failed and Deleted accounts.",
+      "uses": [
+        "status-values",
+        "dashboard-status-count"
+      ]
+    }
+  ],
+  "claims": {
+    "delete-rules": {
+      "statement": "Only DLP Azure connected accounts with a status of Enabled, Disabled or Failed can be deleted, and Delete Integration changes the status to Deleted; for an integration with a Deleted status only the data privacy field settings can be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-azure-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Only connected accounts with a status of Enabled, Disabled, or Failed can be deleted.",
+            "click Delete Integration. The status of the integration changes to Deleted.",
+            "For integrations with a Deleted status, you can only edit the data privacy field settings."
+          ]
+        }
+      ]
+    },
+    "enable-disable": {
+      "statement": "An integration with an Enabled status can be disabled and one with a Disabled status can be enabled, from the edit page with Disable Integration or Enable Integration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-azure-application-integrations-workflow-automation.json",
+          "quotes": [
+            "click the Edit icon next to a connected account with an Enabled status that you want to disable or an account with a Disabled status that you want to enable.",
+            "click Disable Integration or Enable Integration. The status of the integration changes to Disabled or Enabled."
+          ]
+        }
+      ]
+    },
+    "status-values": {
+      "statement": "The Zscaler DLP Azure Integration details page lists the integrations with their statuses Enabled, Disabled and Failed, and deleted integrations are shown by selecting Show Deleted Accounts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-azure-application-integrations-workflow-automation.json",
+          "quotes": [
+            "The Zscaler DLP Azure Integration details page appears, displaying all the DLP Azure app integrations along with their specific statuses (Enabled, Disabled, and Failed) under the Connected Accounts section. To display the deleted application integrations, select Show Deleted Accounts"
+          ],
+          "after": "To edit a DLP Azure application integration in Workflow Automation:"
+        }
+      ]
+    },
+    "dashboard-status-count": {
+      "statement": "In both the tile and list views the status oval on the Integrations dashboard shows the number of enabled accounts with the status Connected, and that number does not include accounts with a Failed or Deleted status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-azure-application-integrations-workflow-automation.json",
+          "quotes": [
+            "An oval is displayed at the top of the tile listing the number of accounts that are enabled and the status of Connected. This number does not include accounts with a Failed or Deleted status.",
+            "A green oval is displayed in the field listing the number of accounts that are enabled and the status of Connected. This number does not include accounts with a Failed or Deleted status."
+          ]
+        }
+      ]
+    },
+    "dashboard-defaults": {
+      "statement": "On the Integrations dashboard all integrations are displayed by default (the filter can be set to Connected only), and the dashboard is displayed in the tile view by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-azure-application-integrations-workflow-automation.json",
+          "quotes": [
+            "Select All to display all the integrations or select Connected to display only those integrations that are connected. By default, all integrations are displayed.",
+            "By default, the dashboard is displayed in the tile view."
+          ]
+        }
+      ]
+    },
+    "configuration-tab-contents": {
+      "statement": "The Configuration tab of the DLP Azure integration details page lists the integration accounts with the status of each account and the date each was last modified; the Configuration Steps tab has the configuration instructions, a link to download the bash script and links to download the resource manager template files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-azure-application-integrations-workflow-automation.json",
+          "quotes": [
+            "On the Configuration tab, you can view the list of DLP Azure application integration accounts along with the status of each account, and the date when each integration account was last modified.",
+            "The Configuration Steps tab provides the instructions for configuring a DLP Azure application integration, a link to download the bash script, and links to download the Zscaler resource manager template files."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "failed-status": {
+      "kind": "semantic",
+      "title": "What causes the Failed status of a DLP Azure integration, and how does an integration leave it?",
+      "status": "open",
+      "detail": "The managing page lists the statuses Enabled, Disabled, Failed and Deleted, but none of the captured pages says what causes Failed or how an integration leaves it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

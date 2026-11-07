@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.nss-runbook.diagnostics",
+  "title": "NSS runbook data collection: health and network commands, packet capture and NSS log files",
+  "aliases": [
+    "Data Collection and Analysis",
+    "NSS health checks",
+    "NSS network connectivity checks"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.logs.nss-runbook" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.vm-health" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.connectivity" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.mcas" },
+    { "rel": "see-also", "to": "shared.nss.vm-operations" },
+    { "rel": "see-also", "to": "shared.nss.vm-network" },
+    { "rel": "see-also", "to": "shared.nss.alerts" }
+  ],
+  "prose": [
+    {
+      "label": "Health.",
+      "text": "{{health-commands}} {{feed-alert-list}}"
+    },
+    {
+      "label": "Network checks.",
+      "text": "{{connectivity-commands}} {{interface-ip-rules}} {{mac-addresses}} {{smmgr-smnet-and-connect}} What the sample outputs of these commands show {{gap:image-only-outputs}} is open."
+    },
+    {
+      "label": "Packet capture.",
+      "text": "{{pcap-interface-choice}} {{pcap-commands}} {{pcap-bridge0}}"
+    },
+    {
+      "label": "Log files.",
+      "text": "{{log-file-locations}} {{log-file-purposes}} {{log-search-tips}}"
+    }
+  ],
+  "claims": {
+    "health-commands": {
+      "statement": "The runbook's basic health commands on the NSS server are top (processes, CPU, uptime, load, memory), sudo nss status, /sc/bin/smctl.sh status (smstat, Nanolog server and smcdsc services), sudo nss checkversion and uname a for the ZscalerOS version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "top: To check running processes and their resource consumption like CPU, uptime, load average, and memory usage.",
+            "sudo nss status: To check if the NSS service is running.",
+            "/sc/bin/smctl.sh status: To check the status of smstat, Zscaler Nanolog server, and smcdsc service statuses.",
+            "sudo nss checkversion: To check the current installed build version and the lates available build version.",
+            "uname a: To check the ZscalerOS version (latest version is ZSOS42 as of June 2025)."
+          ]
+        }
+      ]
+    },
+    "feed-alert-list": {
+      "statement": "The runbook lists the NSS feed alerts to look for: SIEM connection down, Zscaler CA connection down, Nanolog connection down, memory low, disk space low, poor NSS-to-SIEM connection, CPU utilization high and memory swap high.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The connection to the SIEM is down",
+            "The connection to the Zscaler CA Server is down",
+            "The connection to Nanolog is down",
+            "Memory is low",
+            "Disk space is low",
+            "The connection between the NSS and the SIEM is poor",
+            "The CPU utilization is high",
+            "Memory swap is high"
+          ],
+          "after": "Check if NSS Feed Alerts are configured and if there were any of the following alerts received around the time of issue."
+        }
+      ]
+    },
+    "connectivity-commands": {
+      "statement": "Network connectivity checks use sudo nss troubleshoot connection, which the runbook words as checking that all three necessary connections towards CA, Zscaler Nanolog server, and NSS are stable, sudo nss troubleshoot netstat | grep tcp for established connections, and sudo nss test-firewall, which probes DNS resolution and outbound connections to narrow down DNS, NTP or TCP problems.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Run sudo NSS Troubleshoot Connection to see if all three necessary connections towards CA, Zscaler Nanolog server, and NSS are stable.",
+            "Run sudo nss troubleshoot netstat | grep tcp to see the established connections.",
+            "Run sudo nss test-firewall to probe Firewall configuration by attempting to DNS resolve and establish outbound connections, which helps to narrow down if there are any DNS / NTP / TCP connectivity issues.",
+            "Alternatively, you can run sudo nss dump-config to see the nameserver and interface configurations."
+          ]
+        }
+      ]
+    },
+    "interface-ip-rules": {
+      "statement": "The runbook wants the Service and Management IP addresses unique and in the same subnet; different subnets are accepted but not recommended, and sharing one IP between the interfaces prevents them functioning correctly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Make sure these IP addresses are unique and belong to the same subnet.",
+            "If these IPs are from different subnets it is accepted as configuration, but not recommended",
+            "sharing an IP between the management and service interfaces prevents them from functioning correctly and lead to routing confusion across the network."
+          ]
+        }
+      ]
+    },
+    "mac-addresses": {
+      "statement": "MAC addresses of the service and management interfaces should be unique, checked with ifconfig (or smmgr smnet='ifconfig') and against the VM host (Azure/AWS/VMware).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Note the MAC addresses assigned to service and management interfaces. These should be unique else it can lead to connectivity issues.",
+            "Additionally, check on the VM host (Azure/AWS/VMware) to make sure the correct MAC address is configured.",
+            "Run the ifconfig command from both management and service interface, such as sudo /sc/bin/smmgr -ys smnet='ifconfig'"
+          ]
+        }
+      ]
+    },
+    "smmgr-smnet-and-connect": {
+      "statement": "From the service interface, /sc/bin/smmgr -ys smnet='<command>' runs ping, trace and route (sudo /sc/bin/smmgr -ys smnet=help lists supported commands), and the connect script run from the service interface tests TCP or SSL connections to the CA, Nanolog server or SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Run general network troubleshooting commands such as ping, trace, and route from a service interface using /sc/bin/smmgr -ys smnet='<command>' to narrow down connectivity issues.",
+            "You can check the list of support commands using sudo /sc/bin/smmgr -ys smnet=help.",
+            "Run the connect script from the service interface to explicitly check if TCP/SSL connections to any host (CA, Zscaler Nanolog server, and SIEM IPs) is successful."
+          ]
+        }
+      ]
+    },
+    "pcap-interface-choice": {
+      "statement": "Captures go on the management interface for config download, updates, ARP and NTP issues, and on the service interface for missing or delayed logs or connectivity to CA, Nanolog server or SIEM, where the payload to the SIEM can be read in plain text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For config download, updates, ARP, and NTP-related issues, enter a pcap on management interface.",
+            "For issues related to log retrieval (missing/delayed logs) or connectivity issues with CA/Zscaler Nanolog server/SIEM, enter a pcap on the service interface.",
+            "You can also see payload (logs) in plain text in the communication towards SIEM."
+          ]
+        }
+      ]
+    },
+    "pcap-commands": {
+      "statement": "Management-interface captures use the general tcpdump command and service-interface captures use /sc/bin/smtcpdump.sh; the service interface is found with cat /sc/conf/sc.conf | grep smnet_pktdev and validated against ifconfig.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For the management interface, use the the general tcpdump command. Use the /sc/bin/smtcpdump.sh command for the service interface.",
+            "Run cat /sc/conf/sc.conf | grep smnet_pktdev to see the service interface.",
+            "sudo tcpdump -i <mgmt_interface> -nvvv -s0 -w /var/tmp/mgmt.pcap",
+            "sudo /sc/bin/smtcpdump.sh -i tap1 -nvvv -s0 -w /var/tmp/srvc.pcap",
+            "Validate against the ifconfig output."
+          ]
+        }
+      ]
+    },
+    "pcap-bridge0": {
+      "statement": "NSS hosted on Azure or other platforms which support Bridged networking shows an additional interface called bridge0; the runbook says a pcap on this interface captures all relevant communication flows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "NSS hosted on Azure or other platforms which support Bridged networking shows an additional interface called bridge0",
+            "sudo tcpdump -i bridge0 -nvvv -s0 -w /var/tmp/pcap1.pcap",
+            "You can run a pcap on this interface to capture all relevant communication flows."
+          ]
+        }
+      ]
+    },
+    "log-file-locations": {
+      "statement": "The runbook says configuration files are under /sc/conf and /etc; /sc/log has no defined retention (older files are overwritten when /sc is full) while logs in /var are rotated per newsyslog.conf.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Configuration File Paths are /sc/conf and /etc.",
+            "Logs stored under the /sc/log directory do not have a defined retention period. When the capacity of /sc is full, older files are automatically overwritten.",
+            "But logs in /var path are rotated by FreeBSD OS, depending on the configuration in newsyslog.conf."
+          ]
+        }
+      ]
+    },
+    "log-file-purposes": {
+      "statement": "The runbook assigns /sc/log/nssscripts.log (commands executed on the NSS in sequence), /sc/log/autoupgrade.log (upgrade logs), /var/log/snmpd.log (SNMP monitoring), /var/log/messages (kernel, SSH, NTP) and /etc/resolv.conf (DNS servers and manual entries).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Lists all the commands executed on the NSS in sequence.",
+            "Helps to check if there was any execution of commands to upgrade or stop NSS service.",
+            "All the upgrade related logs. The following is an example of a successful upgrade.",
+            "Contains information related to SNMP monitoring.",
+            "Contains system level details like Kernel (Link state, Boot messages, RAID messages, etec.), SSH, NTP (time synchronization).",
+            "Contains DNS server info and manual DNS entries."
+          ]
+        }
+      ]
+    },
+    "log-search-tips": {
+      "statement": "The runbook suggests find / -iname *.log to list log files, ls -ltrh for timestamps of rotated files, and grep -v to invert a search, for example excluding ntpdate from /var/log/messages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Use the command find / -iname *.log 2>/dev/null to list all the log files.",
+            "Use the command ls -ltrh to list log files along with timestamp, when files have rotation enabled.",
+            "cat /var/log/messages | grep -v ntpdate excludes lines with ntpdate from the cat output."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "image-only-outputs": {
+      "kind": "semantic",
+      "title": "What the sample outputs of nss troubleshoot connection, test-firewall, troubleshoot feeds and smstat show",
+      "status": "open",
+      "detail": "The runbook's steps for these commands show their sample output as images. The capture carries no text for them, so the field layout of the outputs is not documented here. The page also writes uname a without a hyphen, and the captured text does not say whether the command is uname -a.",
+      "resolves_with": ["lab-test", "source-read"]
+    }
+  }
+}

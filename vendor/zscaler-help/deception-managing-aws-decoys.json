@@ -1,0 +1,611 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing AWS Decoys",
+  "source": {
+    "url": "https://help.zscaler.com/deception/managing-aws-decoys",
+    "node": "1542485",
+    "revision": "3221625",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can manage your Amazon Web Services (AWS) decoys from the Zscaler Deception Admin Portal. All decoys created from the Deception Admin Portal are tabulated under their respective decoy category tabs. Each table shows the details associated with each decoy in the category and its deployment status. You can also edit or delete decoys by using the respective options from the decoys table."
+    },
+    {
+      "heading": "Checking Deployment Status",
+      "level": 1
+    },
+    {
+      "text": "At the time of integration, Zscaler Deception deploys a health check lambda function on AWS. This function periodically checks all decoy resources deployed on AWS and updates their status to the Deception Admin Portal every 15 minutes. You can check the deployment status indicated by the icon next to the name of the decoy in the decoys table. The following icons are used to show the status of the decoys:"
+    },
+    {
+      "item": "– Indicates a deployed state.",
+      "depth": 0
+    },
+    {
+      "item": "– Indicates an inactive state. This means the decoy no longer exists on AWS or one of its properties used to reference does not exist. This happens when the decoy or its resources are manipulated directly from AWS.",
+      "depth": 0
+    },
+    {
+      "item": "– Indicates a pending deployment state. This means that the decoy has been created or modified in the Deception Admin Portal, but the deployment script to propagate changes to the AWS cloud has not been initiated.",
+      "depth": 0
+    },
+    {
+      "item": "– Indicates a pending deletion state. This means that the decoy has been deleted from the Deception Admin Portal, but the deployment script to propagate changes to the AWS cloud has not been initiated.",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Editing or Deleting AWS Decoys",
+      "level": 1
+    },
+    {
+      "text": "You can edit or delete the AWS decoys that you configured in the Deception Admin Portal. Such changes made to the AWS decoys in the Deception Admin Portal are propagated to the AWS cloud only after running the deployment script on AWS CloudShell."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "Ensure that you have obtained the CloudShell command using one of the following methods:"
+    },
+    {
+      "item": "Automated Download Method",
+      "depth": 0
+    },
+    {
+      "item": "Manual Download Method",
+      "depth": 0
+    },
+    {
+      "text": "This only applies to the CloudShell-based deployment."
+    },
+    {
+      "heading": "Editing an AWS Decoy",
+      "level": 2
+    },
+    {
+      "text": "To edit an AWS decoy:"
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > AWS.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Select the relevant decoy category tab. For example, if you want to edit an IAM user decoy, select the IAM tab.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          103,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure that the decoy you want to edit isn't deployed, and then click the Edit icon for the decoy.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          77,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Modify the decoy details as per your requirements.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the changes based on the method used to configure the integration between AWS and Deception:",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "Terraform-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Locate the AWS account you added, and click the Download icon in the Actions column.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          48,
+          56
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 2
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the aws-decoys.tf.json file in a text editor.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Locate the backend block in the aws-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "The following example shows a backend block of an S3 bucket-based Terraform back end:",
+      "depth": 2
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"s3\": { \"bucket\": \"your-terraform-state-bucket\", \"key\": \"deception/terraform.tfstate\", \"region\": \"us-east-1\", \"encrypt\": true } } } }",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same AWS account.",
+      "depth": 2
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and run the following command to create a new workspace:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "terraform apply",
+      "depth": 2
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "The necessary resources are deployed, and a JSON file containing the details of the state is downloaded.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings, locate the AWS account you added, and click the Upload icon in the Actions column.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          99,
+          105
+        ],
+        [
+          118,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "CloudShell-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS Management Console as an administrator.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Launch CloudShell by clicking the CloudShell icon on the top navigation bar.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          34,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The AWS CloudShell window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the AWS CloudShell window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Run the deployment script using the command obtained via the automated download method or manual download method.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Enter the option to deploy the preferred decoy and press Enter.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Upon successful execution, the changes are propagated to the AWS cloud.",
+      "depth": 0
+    },
+    {
+      "heading": "Deleting an AWS Decoy",
+      "level": 2
+    },
+    {
+      "text": "To delete an AWS decoy:"
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > AWS.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Select the relevant decoy category tab. For example, if you want to delete an IAM user decoy, select the IAM tab.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          105,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Locate the decoy you want to delete, and click the Delete icon.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          51,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the changes based on the method used to configure the integration between AWS and Deception:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Terraform-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Locate the AWS account you added, and click the Download icon in the Actions column.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          48,
+          56
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 2
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the aws-decoys.tf.json file in a text editor.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Locate the backend block in the aws-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "The following example shows a backend block of an S3 bucket-based Terraform back end:",
+      "depth": 2
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"s3\": { \"bucket\": \"your-terraform-state-bucket\", \"key\": \"deception/terraform.tfstate\", \"region\": \"us-east-1\", \"encrypt\": true } } } }",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same AWS account.",
+      "depth": 2
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and run the following command to create a new workspace:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "terraform apply",
+      "depth": 2
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "The necessary resources are deployed, and a JSON file containing the details of the state is downloaded.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings, locate the AWS account you added, and click the Upload icon in the Actions column.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          99,
+          105
+        ],
+        [
+          118,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "CloudShell-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS Management Console as an administrator.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Launch CloudShell by clicking the CloudShell icon on the top navigation bar.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          34,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The AWS CloudShell window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the AWS CloudShell window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Run the deployment script using the command obtained via the automated download method or manual download method.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Enter the option to deploy the preferred decoy and press Enter.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Upon successful execution, the changes are propagated to the AWS cloud.",
+      "depth": 0
+    }
+  ]
+}

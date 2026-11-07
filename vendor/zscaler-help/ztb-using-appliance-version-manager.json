@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Using Appliance Version Manager",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/using-appliance-version-manager",
+    "node": "1539798",
+    "revision": "3249503",
+    "updated": "2026-10-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zero Trust Branch release 8.0.7 introduces a new upgrade mechanism called Appliance Version Manager for appliances already registered to a Zero Trust Branch tenant. With this release, the software upgrade process is transitioned to a full image–based system, including support for downgrades. Prior to release 8.0.7, Zero Trust Branch used the legacy incremental upgrade method where only selected packages were upgraded and downgrades were not supported."
+    },
+    {
+      "text": "To begin using the Appliance Version Manager, Zscaler recommends that you use the legacy method to upgrade the appliance to version 8.0.7. After upgrading to version 8.0.7, Appliance Version Manager becomes fully available for subsequent upgrades and downgrades. Zscaler recommends using Appliance Version Manager for appliances running version 8.0.7 or later."
+    },
+    {
+      "heading": "Advantages of Appliance Version Manager",
+      "level": 1
+    },
+    {
+      "text": "Appliance Version Manager provides a reliable and safer upgrade mechanism for Zero Trust Branch appliances. The full image–based approach improves upgrade predictability, reduces boot time, enables controlled rollbacks, and simplifies maintenance, including these advantages:"
+    },
+    {
+      "item": "Boot time reduction: During activation or reboot, the appliance downloads microservices from the repository, which is a major task. Appliance Version Manager (based on root file system (Root FS)) downloads the entire package to the file system and everything is preconfigured and preregistered, which significantly reduces the appliance boot time.",
+      "depth": 0
+    },
+    {
+      "item": "Full file sytem: The full file-system upgrade bundle contains the kernel, Root FS, feature file, and bootloader. The feature file specifies supported features like migration and disk encryption. Migration helps determine how existing data and configurations are transitioned during the upgrade, and disk encryption ensures data is protected during and after the upgrade.",
+      "depth": 0
+    },
+    {
+      "heading": "Upgrade an Appliance",
+      "level": 1
+    },
+    {
+      "text": "Zero Trust Branch supports both legacy and Root FS-based Appliance Version Manager methods for upgrading appliances running version 8.0.7 or later. Starting with version 8.1.1, you can upgrade using only the Root FS-based Appliance Version Manager, as the legacy method is no longer supported."
+    },
+    {
+      "text": "Image upgrade using Appliance Version Manager includes the following two stages:"
+    },
+    {
+      "item": "1. Download and install the image.",
+      "depth": 0
+    },
+    {
+      "item": "This step does not require downtime and can be performed at any time.",
+      "depth": 0
+    },
+    {
+      "item": "Appliance Version Manager allows you to download and store up to three Zero Trust Branch image versions (8.0.7 or later). The disk might not have sufficient space to store three images if older versions (e.g., 8.0.7) already exist. Zscaler recommends deleting the older images before downloading newer versions. One downloaded image (also known as the factory default image) is always marked as default, and it has the following advantages:",
+      "depth": 0
+    },
+    {
+      "item": "If any unknown issue occurs and requires a factory reset, the appliance rolls back to this image.",
+      "depth": 1
+    },
+    {
+      "item": "An unexpected power failure or network connectivity loss during the upgrade process could lead to incomplete kernel or Root FS deployment. In such cases, you can roll back to the factory default image.",
+      "depth": 1
+    },
+    {
+      "item": "The default image cannot be deleted.",
+      "depth": 1
+    },
+    {
+      "item": "During upgrade, the kernel and Root FS are downloaded to the boot partition. The active kernel extracts the Root FS to the data partition. Performing a factory reset (UI Delete Site, UI RMA, or airgap-console factory-reset) erases the data partition and restores the factory default Root FS.",
+      "depth": 1
+    },
+    {
+      "item": "You can set any of the other downloaded images as default. To learn more, see Upgrading Zero Trust Branch Appliances in Standalone Deployments and Upgrading Zero Trust Branch Appliances in an HA Cluster.",
+      "depth": 0
+    },
+    {
+      "item": "2. Activate the image.",
+      "depth": 0
+    },
+    {
+      "item": "You can activate any of the downloaded images. This step requires a system reboot, which must be performed during a scheduled downtime. The appliance will boot using this image during the next restart. To learn more, see Upgrading Zero Trust Branch Appliances in Standalone Deployments and Upgrading Zero Trust Branch Appliances in an HA Cluster.",
+      "depth": 0
+    },
+    {
+      "heading": "Downgrade an Appliance",
+      "level": 1
+    },
+    {
+      "text": "For Zero Trust Branch appliances that are in Active and Standby states, you must first downgrade the appliance in Standby state, switch over, validate the action, and then downgrade the second appliance in Active state."
+    },
+    {
+      "text": "Image downgrade is supported up to version 8.0.7."
+    },
+    {
+      "text": "To downgrade a Zero Trust Branch appliance from a later version to an earlier version:"
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          63
+        ],
+        [
+          66,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "On the Sites page, view the list of Zero Trust Branch appliances in Standby and Active states.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          68,
+          75
+        ],
+        [
+          80,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "A38-ZT800 and A39-ZT800 appliances are used as examples to explain the procedure.",
+      "depth": 0
+    },
+    {
+      "item": "Downgrade the A38-ZT800 appliance that is in Standby state. Click the Download icon for A38-ZT800.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          45,
+          52
+        ],
+        [
+          70,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Appliance Version Manager drawer, under Downloaded Versions, select 8.0.8P2, then click Activate.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          47,
+          66
+        ],
+        [
+          75,
+          82
+        ],
+        [
+          95,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Go back to the Sites page. The appliance state shows as Restarting in the State column.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          15,
+          20
+        ],
+        [
+          56,
+          66
+        ],
+        [
+          74,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "After the downgrade is completed, the appliance's state shows as Standby in the State column.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          65,
+          72
+        ],
+        [
+          80,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "To verify the A38-ZT800 appliance's health before switchover, log in to the Zero Trust Branch console, enter 7, and press Enter.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following commands:",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "ztb--Site1-ZT800--AG38-ZT800:~$ifconfig zpa0",
+      "depth": 1
+    },
+    {
+      "item": "ztb--Site1-ZT800--AG38-ZT800:~$docker ps",
+      "depth": 1
+    },
+    {
+      "item": "ztb--Site1-ZT800--AG38-ZT800:~$ls -ltr /etc/airgap/zcc",
+      "depth": 1
+    },
+    {
+      "item": "ztb--Site1-ZT800--AG38-ZT800:~$service airgap-dhcp status",
+      "depth": 1
+    },
+    {
+      "item": "ztb--Site1-ZT800--AG38-ZT800:~$service securedhcp-relay status",
+      "depth": 1
+    },
+    {
+      "item": "ztb--Site1-ZT800--AG38-ZT800:~$service agn-state-monitor status",
+      "depth": 1
+    },
+    {
+      "item": "ztb--Site1-ZT800--AG38-ZT800:~$docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show vrrp'",
+      "depth": 1
+    },
+    {
+      "item": "After confirming that the A38-ZT800 appliance is healthy, you can perform the switchover.",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "Click the Gear icon to start the switchover.",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Repeat the steps to downgrade the A39-ZT800 appliance to an earlier version.",
+      "depth": 0,
+      "number": 11
+    }
+  ]
+}

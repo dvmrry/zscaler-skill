@@ -1,0 +1,500 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-management.scan-rules",
+  "title": "How AI Asset Management scan rules, scan scopes, scan types and schedules work, and which systems support vulnerability scanning",
+  "aliases": [
+    "ai security scan rule",
+    "ai security scan settings",
+    "ai asset management scan scope",
+    "ai security on-demand scan",
+    "ai security delta scan",
+    "ai security vulnerability scanning supported systems"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "ai-security.asset-management" },
+    { "rel": "see-also", "to": "ai-security.asset-management.cloud-accounts" },
+    { "rel": "see-also", "to": "ai-security.asset-management.onboarding" },
+    { "rel": "see-also", "to": "ai-security.asset-management.roles" },
+    { "rel": "see-also", "to": "ai-security.asset-management.integrations" },
+    { "rel": "see-also", "to": "ai-security.asset-management.model-scanning" },
+    { "rel": "see-also", "to": "ai-security.asset-management.discovery" },
+    { "rel": "see-also", "to": "ai-security.asset-management.issues" }
+  ],
+  "prose": [
+    {
+      "text": "{{orchestrator}} The hub is [[ai-security.asset-management]] and the accounts a rule scans are in [[ai-security.asset-management.cloud-accounts]]."
+    },
+    {
+      "label": "Scan rules.",
+      "text": "{{rule-granularity}} {{rule-prerequisites-overlap}} {{rule-description-limit}} {{rule-list-fields}} {{rule-default-disabled}}"
+    },
+    {
+      "label": "Scan types.",
+      "text": "{{database-sampling}} {{scan-types-storage-compute}} {{scan-types-databases}} {{full-scan-priority}} {{file-scan-types-aws-storage}} {{file-scan-types-azure}} {{azure-nfs-no-incremental}} {{managed-db-scan-types}} {{gap:nosql-scan-types}}"
+    },
+    {
+      "label": "Schedules.",
+      "text": "{{schedule-default-on-demand}} {{schedule-ai-services-time}} {{github-schedule-enable}} {{rule-enable-azure-pages}}"
+    },
+    {
+      "label": "Starting, stopping and enabling.",
+      "text": "{{on-demand-databases-vms}} {{start-scan-storage}} {{divergence:on-demand-scope}} {{stop-scan}} {{delta-scan}} {{delta-s3-membership}} {{disable-effect}}"
+    },
+    {
+      "label": "Scan scopes.",
+      "text": "{{scope-purpose}} {{scope-detail-fields}} {{scope-criteria}} {{scope-ocr}} {{scope-engine-states}} {{scope-general-fields}} {{scope-specific-engines-enabled}} {{scope-applied-in-rule}} Whether editing or deleting a scope affects rules already using it is open {{gap:scope-edit-delete-effect}}."
+    },
+    {
+      "label": "AWS rules.",
+      "text": "{{aws-storage-auto-exclusions}} {{tag-or-logic}} {{s3-exclusion-formats}} {{exclusion-next-incremental}} {{deleted-files-not-detected}} {{malware-opt-in}} {{aws-managed-db-nosql-types}} {{ecr-prerequisites-pulled}}"
+    },
+    {
+      "label": "Azure and GitHub rules.",
+      "text": "{{ai-services-category}} {{azure-sql-cmk-rbac}} {{azure-db-restore-cleanup}} {{acr-prerequisites}} {{acr-private-network}} {{acr-repo-patterns}} {{github-rule}}"
+    },
+    {
+      "label": "Virtual machine rules.",
+      "text": "{{vm-os-directory-exclusion}} {{azure-vm-excluded-systems}}"
+    },
+    {
+      "label": "Vulnerability scanning.",
+      "text": "{{vuln-scope}} {{vuln-os-x86}} {{vuln-os-arm}} {{vuln-file-systems}} {{vuln-libraries}} {{vuln-aws-encryption}} {{vuln-aws-regions}} {{vuln-azure-workloads}} {{vuln-azure-regions}} {{gap:vuln-region-lists-partial}}"
+    },
+    {
+      "text": "Scan status values {{gap:scan-status-values}}, copied wording between rule pages {{gap:copied-wording}} and limits on rules, tags and scopes {{gap:no-limits-stated}} are open. Whether an API manages scan rules is open {{gap:api-not-checked}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the scan rule is enabled: a scan setting is disabled by default and must be enabled to initiate the scan.",
+      "uses": ["rule-default-disabled"]
+    },
+    {
+      "do": "Whether a running scan can be stopped: Stop Scan is visible only while a scan is In-Progress, and a Delta scan cannot be stopped, only the scan rule disabled.",
+      "uses": ["stop-scan", "delta-scan", "disable-effect"]
+    },
+    {
+      "do": "Which resources an on-demand scan runs on: the About Scan Settings page says only databases and virtual machines, while the Starting a Scan page queues a storage account.",
+      "uses": ["on-demand-scope", "on-demand-databases-vms", "start-scan-storage"]
+    }
+  ],
+  "claims": {
+    "orchestrator": {
+      "statement": "AI Security scans cloud data stores through the local scan orchestrator that is deployed in the customer account during onboarding; in a scan rule you choose the resources, the scan type and the scan frequency.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["AI Security performs the scan by leveraging the local scan orchestrator that is deployed in your AWS, Azure, Google Cloud Platform (GCP), or On-Premises Data Centers account during the onboarding process.", "In the scan rules, you can select the resources you want to scan, the scan type, and set the scan frequency."]}]
+    },
+    "rule-granularity": {
+      "statement": "A scan rule can define custom scan types and schedules for individual data stores based on account, region, tags or specific resources.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["You can define custom scan types and schedules for individual data stores based on:", "- Account\n- Region\n- Tags\n- Specific resources"]}]
+    },
+    "database-sampling": {
+      "statement": "The About Scan Settings page says that when scanning relational databases such as PostgreSQL, Oracle, SQL Server and MySQL, AI Security uses data sampling to scan a subset of the data instead of the whole database, so database operations are not impacted; the same page's Scan Types table also lists Full Scan for Managed Database.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["When scanning relational databases such as PostgreSQL, Oracle, SQL Server, and MySQL, AI Security uses the data sampling technique to scan a subset of data, instead of scanning the entire database.", "ensures the database operations are not impacted", "| Managed Database | Full Scan: Scan all the data in the selected data or object stores."]}]
+    },
+    "rule-prerequisites-overlap": {
+      "statement": "Cloud accounts must be onboarded before a scan rule is configured; overlapping scan rules are allowed but can cause duplicate scans and higher compute costs, and AI Security warns about them during rule creation. A resource deleted from the account after the schedule is set is ignored during the scan.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["You need to first onboard your cloud accounts before configuring the scan rule.", "Although overlapping scan rules are allowed, they can lead to duplicate scans and increased compute costs.", "AI Security displays warnings during rule creation to help you avoid redundant configurations.", "If a resource is deleted from the account after configuring the scan schedule, then AI Security ignores this resource during the scan."]}]
+    },
+    "scan-types-storage-compute": {
+      "statement": "In the About Scan Settings Scan Types table, Compute supports the On-Demand Scan, and Storage supports Full Scan, Scan Only New or Modified Files, and Historical Scan over a lookback of up to 365 days.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["| Compute | On-Demand Scan: Perform an on-demand scan instantly. |", "| Storage | Full Scan: Scan all the data in the selected data or object stores.", "Scan Only New or Modified Files: Scan only new or modified data or files in the accounts.", "Historical Scan: Scan data or files over a lookback period in terms of days (max of 365 days)."]}]
+    },
+    "scan-types-databases": {
+      "statement": "In the About Scan Settings Scan Types table, Managed Database supports Full Scan and Data Sampling Scan; NoSQL Datastore supports Full Scan and Scan Only Recent Data (also applicable to unmanaged databases); Unmanaged Database supports Data Sampling Scan.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["| Managed Database | Full Scan: Scan all the data in the selected data or object stores.", "Newer data scan is prioritized over historic data scan. Data Sampling Scan: Scan a subset of data. |","| NoSQL Datastore | Full Scan: Scan all the data in the selected data or object stores.", "Scan Only Recent Data: Scan only those files that are newly added or modified since the previous scan. This scan type is also applicable for unmanaged databases.", "| Unmanaged Database | Data Sampling Scan: Scan a subset of data. |"]}]
+    },
+    "full-scan-priority": {
+      "statement": "A Full Scan covers both historic and newer data, and the newer data scan is prioritized over the historic data scan.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["| Storage | Full Scan: Scan all the data in the selected data or object stores. This includes both the historic data and the newer data. Newer data scan is prioritized over historic data scan."]}]
+    },
+    "rule-list-fields": {
+      "statement": "Clicking a scan rule name on the Scan Rule tab opens the Scan Rule Details view, which shows Name, Status and Resources Scanned (the number of resources discovered and scanned by the rule); the tab's own rule columns include Scan Status (the state of the scanning process) and Scan Enable/Disable.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["On the Scan Settings page (Administration > Scan Settings), you can see the following tabs:", "On the Scan Rule tab, you can do the following:", "Click the scan rule name to view the following details.", "Scan Rule Details", "- Name: Name of the scan rule.", "- Status: The scan status indicates whether the scan is enabled or disabled.", "- Resources Scanned: The number of resources discovered and scanned by this scan rule.", "Scan Status: The scan status indicates the state of the scanning process.", "Scan Enable/Disable: The enabled or disabled state of the scan setting."]}]
+    },
+    "rule-default-disabled": {
+      "statement": "By default a scan setting is disabled; after configuring it you must enable it to start the scan, and an enabled rule runs as scheduled.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["By default, the scan setting is disabled.", "After configuring the scan setting, you must enable the scan setting to initiate the scan."]}, {"source": "zscaler-help", "path": "ai-asset-mgmt-enabling-or-disabling-scan-rule.json", "quotes": ["After you configure the scan rule for a resource, you must enable the scan rule to initiate the scan as per the schedule.", "Enabled: The scan rule is enabled and runs as scheduled."]}]
+    },
+    "scope-detail-fields": {
+      "statement": "A scan scope shows scope criteria of DLP Engines, File Type and ML Categories (enabled or disabled), plus the scan rules associated with it.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["DLP Engines: List of the DLP engines included in the scan scope.", "File Type: List of the file types included in the scan scope.", "ML Categories: Whether machine learning categories are enabled or disabled for the scan scope.", "Scan Rules: List of scan rules associated with the scan scope."]}]
+    },
+    "on-demand-databases-vms": {
+      "statement": "The About Scan Settings page says an on-demand scan can be performed only on databases and virtual machines, and the Running an On-Demand Scan page says it runs instantly on the database or virtual machine and overrides the scheduled scan.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["You can perform an on-demand scan only on databases and virtual machines."]}, {"source": "zscaler-help", "path": "ai-asset-mgmt-running-demand-scan.json", "quotes": ["You can use the On-Demand scan option to run a scan instantly on the database or virtual machine.", "The On-Demand scan overrides the scheduled scan."]}]
+    },
+    "disable-effect": {
+      "statement": "Disabling a scan rule lets full scans already in progress complete but disables subsequent incremental scans; to stop a full scan immediately, first stop it from the Actions menu on the Scan Settings page.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-enabling-or-disabling-scan-rule.json", "quotes": ["When you disable a scan rule, any full scans that are currently in progress are completed, but subsequent incremental scans are disabled.", "To stop the full scan immediately, you need to first stop the scan from the Actions menu on the Scan Settings page."]}]
+    },
+    "stop-scan": {
+      "statement": "The Stop Scan option is visible only while a scan is In-Progress, and stopping only stops the scan currently in progress; upcoming scans continue as scheduled.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-starting-or-stopping-scan.json", "quotes": ["The Stop Scan option is only visible when a scan is in In-Progress status.", "Stopping a scan only stops the scan currently in progress. Upcoming scans continue as scheduled."]}]
+    },
+    "delta-scan": {
+      "statement": "A Delta scan (Only New Files scan: only new and modified files on the selected cloud storage resource) cannot be stopped; to stop it entirely the scan rule must be disabled.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-starting-or-stopping-scan.json", "quotes": ["You cannot stop a Delta scan. To stop the scan entirely, you need to disable the scan rule.", "Delta scan or Only New Files scan refers to scanning only new and modified files on the selected cloud storage resource (data store) as part of the scan setting."]}]
+    },
+    "delta-s3-membership": {
+      "statement": "New S3 buckets added to a scan rule are included in the Delta scan automatically; the Delta scan starts for them from that point forward and they are scanned with the latest DLP engine configuration; removing an S3 bucket from the rule stops the scan for that bucket.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-starting-or-stopping-scan.json", "quotes": ["New S3 buckets that are added to the scan rule are included in the Delta scan automatically.", "Delta scan starts for the enumerated buckets from that point forward and the buckets are scanned with the latest DLP engine configuration.","If an S3 bucket is removed from the scan rule, the scan stops for that bucket."]}]
+    },
+    "start-scan-storage": {
+      "statement": "The Starting a Scan page starts a scan on a resource through the On-Demand Scan option on the Actions icon, after which the storage account is queued for scanning.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-starting-or-stopping-scan.json", "quotes": ["Click the Actions icon () for the resource you want to start scanning.", "Select the On-Demand Scan option.", "The storage account is queued for scanning."]}]
+    },
+    "scope-purpose": {
+      "statement": "A scan scope selects the DLP engines used to detect and classify sensitive data in specific file types, and AI Security uses only the specified DLP engines to scan the resources.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-scope.json", "quotes": ["Scan scope allows you to select specific DLP engines that must be used to detect and classify sensitive data in specific file types.", "AI Security uses only the specified DLP engines to scan the resources for sensitive data."]}]
+    },
+    "scope-ocr": {
+      "statement": "AI Security uses OCR to find sensitive data in image files (examples .png, .jpeg, .tiff, .bmp, .gif) and in images embedded in documents (examples .pdf, .docx, .pptx).",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-scope.json", "quotes": ["AI Security uses OCR to scan and identify sensitive data in image files (e.g., .png, .jpeg, .tiff, .bmp, .gif) and also images that are embedded within documents (e.g., .pdf, .docx, .pptx)."]}]
+    },
+    "scope-engine-states": {
+      "statement": "A DLP engine must be enabled to be selected in a scan scope; a disabled engine that is selected shows grayed out with a partial selection indicator and is not evaluated by the scanner; a deleted engine is removed from all scan scopes.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-scope.json", "quotes": ["A DLP engine must be enabled so you can select it while configuring the scan scope.", "If you disable a DLP engine that is currently selected in a scan scope, it is displayed as grayed out with a partial selection indicator.", "The scanner does not evaluate this DLP engine, even if it is still partially selected.", "When a DLP engine is deleted, it is automatically removed from all existing scan scopes."]}]
+    },
+    "scope-criteria": {
+      "statement": "The scan scope Select Criteria page offers the DLP Engine choice (all, or specific DLP engines), File Type, and a Machine Learning Document Scan option; file type filters and machine learning document scans are optimized for cloud storage and VM resources.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-scope.json", "quotes": ["On the Select Criteria page:", "DLP Engine: Choose DLP engines for the scan scope. Choose all for a comprehensive scan or specific DLP engines to focus on specific DLP engines.", "Machine Learning Document Scan: Enable if you want to use machine learning-powered document scanning.", "File type filters and machine learning document scans are optimized for cloud storage and VM resources."]}]
+    },
+    "scope-applied-in-rule": {
+      "statement": "A scan scope can be applied while configuring the scan settings; on the AWS cloud storage rule page it is chosen from a drop-down on the Scan Scope page.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-scope.json", "quotes": ["You can apply the scan scope while configuring the scan settings."]}, {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["On the Scan Scope page, choose a scan scope from the drop-down menu to set up your scan rule."]}]
+    },
+    "scope-general-fields": {
+      "statement": "A scan scope's General Information holds an Engine Scope Name (described as a concise and descriptive name for the scope) and an Engine Scope Description explaining what the scope covers.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-editing-or-deleting-scan-scopes.json", "quotes": ["Engine Scope Name: A concise and descriptive name for your scan scope.", "Engine Scope Description: Clear and detailed explanation of what your scan scope covers, allowing for a clear understanding of the scope of work."]}]
+    },
+    "scope-specific-engines-enabled": {
+      "statement": "On a scan scope's Select Criteria page, the Specific DLP Engines option is enabled only if specific DLP engines are chosen for the scan.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-editing-or-deleting-scan-scopes.json", "quotes": ["Specific DLP Engines: Choose the DLP engines you want to include in your scope. This option is enabled only if you select specific DLP engines to scan."]}]
+    },
+    "rule-description-limit": {
+      "statement": "The scan rule description is optional and limited to 500 characters (AWS cloud storage rule page).",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["Scan Rule Description (Optional): Enter a description for the scan rule (maximum is 500 characters)."]}]
+    },
+    "aws-storage-auto-exclusions": {
+      "statement": "On the AWS cloud storage rule page, AI Security automatically excludes active CloudTrail and VPC flow log buckets from sensitive data scans even if they match the scan criteria, and also excludes AWS workloads created using the AWS Marketplace.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["AI Security automatically excludes the active CloudTrail and VPC flow log buckets from sensitive data scans even if they match the scan criteria.", "AI Security also excludes AWS workloads that were created using the AWS Marketplace from scanning."]}]
+    },
+    "tag-or-logic": {
+      "statement": "On the AWS cloud storage rule page, when several key-value pairs are entered to include buckets, AI Security scans every bucket matching at least one pair (OR logic); the exclude-by-tags option works the same way.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["If multiple key-value pairs are added, AI Security scans all buckets that match at least one of the specified key-value pairs. This means the rule uses OR logic, and a bucket is included if it matches any of the key-value pairs.", "AI Security excludes any bucket that matches at least one of the specified key-value pairs."]}]
+    },
+    "malware-opt-in": {
+      "statement": "Enable Malware Scanning is an option on the AWS cloud storage, AWS virtual machine, Azure Blob Storage, Azure file shares and Azure virtual machine rule pages, and it is disabled by default.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-virtual-machines.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-blob-storage.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-file-shares.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."]}
+      ]
+    },
+    "exclusion-next-incremental": {
+      "statement": "On the exclusion step of the AWS cloud storage and AWS-managed databases rule pages, if a full scan is already initiated or completed, the excluded bucket, folder or database is excluded in the next incremental scan.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["If a full scan is already initiated or completed, the bucket or folder is excluded in the next incremental scan."]}, {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-managed-databases.json", "quotes": ["If a full scan is already initiated or completed, the databases are excluded in the next incremental scan."]}]
+    },
+    "s3-exclusion-formats": {
+      "statement": "On the AWS cloud storage rule page a folder is excluded by entering the bucket name followed by the folder and a forward slash (example my-bucket/reports/), and wildcards on bucket names (example *logs*, any bucket name containing logs) are supported, and this applies to existing and future S3 buckets.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["to exclude a folder named reports within a bucket named my-bucket, enter my-bucket/reports/.", "This is applicable to both existing S3 buckets and the ones that might be added in the future.", "For example, *logs* — excludes any bucket name that contains the word logs."]}]
+    },
+    "file-scan-types-aws-storage": {
+      "statement": "On the AWS cloud storage rule page the Scan Type page offers Full, Full + Incremental, Incremental, Historical and Historical + Incremental scans; a scan duration (1 Day, 1 Week, 1 Month, Continuous or Custom Duration, the last given in days) is selected for Full + Incremental and Incremental scans, and a lookback period of 1 to 365 days is entered for Historical and Historical + Incremental scans.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["Full Scan: Scans all objects in the S3 buckets.", "Full + Incremental Scan: Scans all objects, including those that are newly added or modified since the previous scan.", "Incremental Scan: Scans only the files that are newly added or modified since the previous scan.", "Historical Scan: Scans files based on a specified look back period.", "Historical + Incremental Scan: Scans files based on a specified lookback period and scan files that are newly added or modified since the previous scan."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["Select one of the scan durations: 1 Day, 1 Week, 1 Month, Continuous, Custom Duration.", "If you select Custom Duration, enter the number of days to define the scan window."], "after": "Full + Incremental Scan: Scans all objects, including those that are newly added or modified since the previous scan."},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["Select one of the scan durations: 1 Day, 1 Week, 1 Month, Continuous, Custom Duration."], "after": "Incremental Scan: Scans only the files that are newly added or modified since the previous scan."},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["Lookback Period: Enter the number of days (1 to 365 days) to scan historical data."], "after": "Historical Scan: Scans files based on a specified look back period."},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["Lookback Period: Enter the number of days (1 to 365 days) to scan historical data."], "after": "Historical + Incremental Scan: Scans files based on a specified lookback period and scan files that are newly added or modified since the previous scan."}
+      ]
+    },
+    "file-scan-types-azure": {
+      "statement": "The Azure Blob Storage and Azure file shares rule pages list Historical + Incremental scans with a lookback period of 1 to 365 days, and scan durations of 1 Day, 1 Week, 1 Month, Continuous or Custom Duration.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-blob-storage.json", "quotes": ["Historical + Incremental Scan: Scans files based on a specified lookback period and scan files that are newly added or modified since the previous scan."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-blob-storage.json", "quotes": ["Select one of the scan durations: 1 Day, 1 Week, 1 Month, Continuous, Custom Duration."], "after": "Full + Incremental Scan: Scans all objects, including those that are newly added or modified since the previous scan."},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-blob-storage.json", "quotes": ["Lookback Period: Enter the number of days (1 to 365 days) to scan historical data."], "after": "Historical + Incremental Scan: Scans files based on a specified lookback period and scan files that are newly added or modified since the previous scan."},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-file-shares.json", "quotes": ["Lookback Period: Enter the number of days (1 to 365 days) to scan historical data."], "after": "Historical + Incremental Scan: Scans files based on a specified lookback period and scan files that are newly added or modified since the previous scan."},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-blob-storage.json", "quotes": ["Lookback Period: Enter the number of days (1 to 365 days) to scan historical data."], "after": "Historical Scan: Scans files based on a specified look back period."},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-file-shares.json", "quotes": ["Historical + Incremental Scan: Scans files based on a specified lookback period and scan files that are newly added or modified since the previous scan."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-file-shares.json", "quotes": ["Select one of the scan durations: 1 Day, 1 Week, 1 Month, Continuous, Custom Duration."], "after": "Full + Incremental Scan: Scans all objects, including those that are newly added or modified since the previous scan."},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-file-shares.json", "quotes": ["Lookback Period: Enter the number of days (1 to 365 days) to scan historical data."], "after": "Historical Scan: Scans files based on a specified look back period."}
+      ]
+    },
+    "azure-nfs-no-incremental": {
+      "statement": "For Azure NFS file shares AI Security does not support incremental scans (Incremental, Full + Incremental, Historical + Incremental); the page says to run periodic historical scans or schedule frequent full scans instead. The Azure file shares rule scans over SMB and NFS.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-file-shares.json", "quotes": ["For Azure NFS file shares, AI Security do not support incremental scans (Incremental, Full + Incremental, Historical + Incremental), run periodic historical scans or schedule frequent full scans instead.", "AI Security scans the Azure file shares over SMB and NFS for any sensitive data."]}]
+    },
+    "managed-db-scan-types": {
+      "statement": "On the AWS-managed database, AWS NoSQL data store and Azure-managed database rule pages, the Scan Type page offers a Data Sampling Scan (a sample of recent data in the database) or a Full Scan.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-managed-databases.json", "quotes": ["Data Sampling Scan: Scan a sample of recent data in the database.", "Full Scan: A complete scan of all databases across all onboarded accounts."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-nosql-data-stores.json", "quotes": ["Data Sampling Scan: Scan a sample of recent data in the database.", "Full Scan: A complete scan of all databases across all onboarded accounts."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-managed-databases.json", "quotes": ["Data Sampling Scan: Scan a sample of recent data in the database.", "Full Scan: A complete scan of all databases across all onboarded accounts."]}
+      ]
+    },
+    "deleted-files-not-detected": {
+      "statement": "The AWS cloud storage rule page says AI Security cannot detect files that are deleted in the AWS console; the Azure Blob Storage page says the same for Azure, and the AWS NoSQL page for the resource.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["AI Security cannot detect files that are deleted in the AWS console."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-blob-storage.json", "quotes": ["AI Security cannot detect files that are deleted in Azure."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-nosql-data-stores.json", "quotes": ["AI Security cannot detect files that are deleted from the resource."]}
+      ]
+    },
+    "schedule-default-on-demand": {
+      "statement": "On the scan schedule step of the AWS ECR, AWS virtual machine, AWS-managed database, AWS NoSQL, Azure virtual machine, Azure managed database and Azure ACR rule pages, the frequencies are On Demand (Default), Daily, Weekly (day chosen from a drop-down) and Monthly.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-ecr-repositories.json", "quotes": ["On Demand (Default): Scan the data manually when needed.", "Daily: Scan the data daily.", "Weekly: Scan the data once a week. Select the day from the drop-down menu.", "Monthly: Scan the data once a month."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-virtual-machines.json", "quotes": ["On Demand (Default): Scan the data manually when needed.", "Daily: Scan the data daily.", "Weekly: Scan the data once a week. Select the day from the drop-down menu.", "Monthly: Scan the data once a month."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-managed-databases.json", "quotes": ["On Demand (Default): Scan the data manually when needed.", "Daily: Scan the data daily.", "Weekly: Scan the data once a week. Select the day from the drop-down menu.", "Monthly: Scan the data once a month."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-nosql-data-stores.json", "quotes": ["On Demand (Default): Scan the data manually when needed.", "Daily: Scan the data daily.", "Weekly: Scan the data once a week. Select the day from the drop-down menu.", "Monthly: Scan the data once a month."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["On Demand (Default): Scan the data manually when needed.", "Daily: Scan the data daily.", "Weekly: Scan the data once a week. Select the day from the drop-down menu.", "Monthly: Scan the data once a month."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-acr-repositories.json", "quotes": ["On Demand (Default): Scan the data manually when needed.", "Daily: Scan the data daily.", "Weekly: Scan the data once a week. Select the day from the drop-down menu.", "Monthly: Scan the data once a month."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-managed-databases.json", "quotes": ["On Demand (Default): Scan the data manually when needed.", "Daily: Scan the data daily.", "Weekly: Scan the data once a week. Select the day from the drop-down menu.", "Monthly: Scan the data once a month."]}
+      ]
+    },
+    "schedule-ai-services-time": {
+      "statement": "On the Microsoft Foundry and Azure OpenAI rule pages the schedule is On-Demand (Default), Daily, Weekly or Monthly, with a specified time for the recurring options (examples Tuesday at 11:59 PM, the 24th at 11:59 PM).",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-microsoft-foundry.json", "quotes": ["On-Demand (Default): The scan runs only when it is initiated manually by the user.", "Daily: Scan the data daily at the specified time (e.g., 11:59 PM).", "Weekly: Scan the data once a week. Select the day from the drop-down menu and specify the time (e.g., Tuesday at 11:59 PM).", "Monthly: Scan the data once a month. Select the day of the month from the drop-down menu and specify the time (e.g., the 24th at 11:59 PM)."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-openai.json", "quotes": ["On-Demand (Default): The scan runs only when it is initiated manually by the user.", "Daily: Scan the data daily at the specified time (e.g., 11:59 PM).", "Weekly: Scan the data once a week. Select the day from the drop-down menu and specify the time (e.g., Tuesday at 11:59 PM).", "Monthly: Scan the data once a month. Select the day of the month from the drop-down menu and specify the time (e.g., the 24th at 11:59 PM)."]}
+      ]
+    },
+    "ai-services-category": {
+      "statement": "The Microsoft Foundry and Azure OpenAI rules use Cloud Type Azure with Resource Category AI & Machine Learning; Scan All Resources covers all the subscriptions and their associated Foundry projects or OpenAI services.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-microsoft-foundry.json", "quotes": ["For Cloud Type, select Azure.", "For Resource Category, select AI & Machine Learning.", "Scan All Resources: Scans all the subscriptions and its associated Microsoft Foundry projects."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-openai.json", "quotes": ["For Cloud Type, select Azure.", "For Resource Category, select AI & Machine Learning.", "Scan All Resources: Scans all the subscriptions and its associated OpenAI services."]}
+      ]
+    },
+    "vm-os-directory-exclusion": {
+      "statement": "On the AWS virtual machine and Azure virtual machine rule pages, Exclude Operating System Directories Files from Scanning is enabled by default (disable it to scan OS directories); the excluded directories include Linux /usr/local/, /var/log/, Windows C:\\Windows\\ and the package path /opt/elasticbeanstalk/.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-virtual-machines.json", "quotes": ["Exclude Operating System Directories Files from Scanning: Disable this option if you want to scan the OS directories. This option is enabled by default.", "The following directories are excluded from the scan:"]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-virtual-machines.json", "quotes": ["/usr/local/"], "after": "    - Linux"},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-virtual-machines.json", "quotes": ["C:\\Windows\\"], "after": "    - Windows"},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-virtual-machines.json", "quotes": ["/opt/elasticbeanstalk/"], "after": "    - Packages"},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["Exclude Operating System Directories Files from Scanning: Disable this option if you want to scan the OS directories. This option is enabled by default."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["/var/log/"], "after": "    - Linux"},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["C:\\Windows\\"], "after": "    - Windows\n      - C:\\Program Files\\"},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["/opt/elasticbeanstalk/"], "after": "    - Packages"}
+      ]
+    },
+    "azure-vm-excluded-systems": {
+      "statement": "The Azure virtual machine rule page lists systems excluded from scanning: VMs encrypted using ADE, Windows 10 or 11 desktop VMs, Windows Server 2012 VMs, Azure VMs created using unmanaged disks (.vhd from storage account), and storage accounts with public network access disabled.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["The following systems are excluded from scanning:", "VMs encrypted using ADE.", "Windows desktop VMs running with Windows version 10 or 11.", "Windows Server 2012 VMs.", "Azure VMs created using unmanaged disks (.vhd from storage account).", "Storage accounts with public network access disabled."]}]
+    },
+    "azure-sql-cmk-rbac": {
+      "statement": "Azure-managed database rules require the Azure SQL database to have an RBAC policy for the Key Vault; AI Security does not support scanning Azure SQL databases encrypted with a Customer-Managed Key (CMK) without the RBAC policy. The rule covers Azure SQL databases and Azure-managed PostgreSQL Flexible servers.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-managed-databases.json", "quotes": ["Before configuring the scan, ensure your Azure SQL database has a Role-Based Access Control (RBAC) policy for the Key Vault.", "AI Security does not provide support for scanning Azure SQL databases that are encrypted with a Customer-Managed Key (CMK) without the RBAC policy.", "scan Azure SQL databases and Azure-Managed PostgreSQL Flexible servers"]}]
+    },
+    "azure-db-restore-cleanup": {
+      "statement": "After completing an Azure-managed database scan, AI Security deletes the restored servers, databases and File System (FS) Analyzer to reduce cost for customers.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-managed-databases.json", "quotes": ["After completing the scan, AI Security deletes the restored servers, databases, and File System (FS) Analyzer to reduce the cost for customers."]}]
+    },
+    "aws-managed-db-nosql-types": {
+      "statement": "The AWS-managed database rule covers databases such as MySQL, Aurora MySQL and Aurora PostgreSQL, and the AWS NoSQL rule covers NoSQL data stores and DynamoDB (tables chosen manually are entered by name, and excluded tables are entered as ARNs).",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-managed-databases.json", "quotes": ["scan Amazon Web Services (AWS) databases such as MySQL, Aurora MySQL, and Aurora PostgreSQL."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-nosql-data-stores.json", "quotes": ["scan Amazon Web Services (AWS) NoSQL data stores and DynamoDB.", "If you choose Manual, then you need to enter the names.", "On the Exclude DynamoDB Tables (Optional) page, you can specify the DynamoDB tables that must be excluded from the scan.", "Enter the DynamoDB table ARNs separated by commas."]}
+      ]
+    },
+    "ecr-prerequisites-pulled": {
+      "statement": "The AWS ECR rule needs AWS onboarding templates updated with the IAM permissions for ECR scanning, and its Scan by Last Pulled option scans only images pulled within the chosen timeframe.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-aws-ecr-repositories.json", "quotes": ["ensure you have updated your AWS onboarding templates to include the necessary IAM permissions for ECR scanning.", "In the Scan by Last Pulled option, select a timeframe to only scan images that have been pulled within that period."]}]
+    },
+    "acr-prerequisites": {
+      "statement": "The Azure ACR rule needs the Azure Container Registry service enabled in the product's Manage Services settings and the latest Azure onboarding templates executed for the ACR IAM permissions; it detects vulnerabilities, AI models, AI packages and MCP servers.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-acr-repositories.json", "quotes": ["ensure you have enabled the Azure Container Registry service within the product's Manage Services settings.", "You must also ensure you have executed the latest Azure onboarding templates that include the necessary IAM permissions for ACR scanning.", "AI Security detects vulnerabilities, AI Models, AI Packages, and MCP servers."]}]
+    },
+    "acr-private-network": {
+      "statement": "Scanning a private ACR from a scanner instance requires a bidirectional VNet peering between the scanner VNet and the ACR's VNet, and a Private DNS Zone VNet link from the scanner VNet; if the ACR has IP network rules, the scanner's outbound IPs must be whitelisted.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-acr-repositories.json", "quotes": ["To enable scanning of a private Azure Container Registry (ACR) from a scanner instance, two network-level configurations are required:", "VNet Peering (Bidirectional): The customer must establish a VNet peering between the scanner VNet and the VNet where the private ACR is deployed.", "The customer must link the scanner VNet to the Private DNS Zone where the ACR private endpoint DNS records are registered", "If the ACR has IP network rules configured, the scanner's outbound IPs must be explicitly whitelisted."]}]
+    },
+    "acr-repo-patterns": {
+      "statement": "On the Azure ACR rule page repositories are entered by name or in regex format (examples dev* or prod*), and ACR repositories can be selected by image tags with OR logic across key-value pairs.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-acr-repositories.json", "quotes": ["Specify the repositories that must be scanned. Enter the repository name manually or in the regex format, e.g., dev* or prod*.", "Select by Image Tags: Specify the tags in key-value pairs.", "This means the rule uses OR logic, and a registry is included if it matches any of the specified tags."]}]
+    },
+    "github-rule": {
+      "statement": "The GitHub rule uses Cloud Type SaaS and Service Type GitHub after the GitHub repositories are onboarded; path exclusions are set per repository as a path or glob pattern with a Regex toggle for advanced matching, Scheduled Full Scan runs a complete scan of all files across every selected repository on a recurring schedule, and without it recurring scans are not scheduled.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-github.json", "quotes": ["scan GitHub resources and repositories after onboarding the GitHub repositories.", "For Cloud Type, select SaaS.", "For Service Type, select GitHub.", "Define the path exclusion rules per repository.", "Path field: Enter the file path or pattern you want to exclude.", "Regex toggle (</> Regex): Switch to Regex mode if you need more advanced pattern matching instead of glob patterns.", "Select Scheduled Full Scan to run a complete scan of all files across every selected repository", "If you do not select this option, recurring scans are not scheduled for the selected repositories"]}]
+    },
+    "github-schedule-enable": {
+      "statement": "The GitHub rule schedule options are Daily, Weekly, Monthly or On Demand, and the rule must be enabled on the Overview page to initiate the scan.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-github.json", "quotes": ["Daily: To scan the data every day.", "Weekly: To scan the data every week.", "Monthly: To scan the data once a month.", "On Demand: To scan the data on demand.", "The scan rule must be enabled on the Overview page to initiate the scan."]}]
+    },
+    "rule-enable-azure-pages": {
+      "statement": "On the Azure Blob Storage, Azure file shares, Microsoft Foundry and Azure OpenAI rule pages, the rule is enabled on the Scan Settings page to initiate scheduled or on-demand scans.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-blob-storage.json", "quotes": ["Enable the scan rule on the Scan Settings page to initiate scheduled or on-demand scans."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-file-shares.json", "quotes": ["Enable the scan rule on the Scan Settings page to initiate scheduled or on-demand scans."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-microsoft-foundry.json", "quotes": ["Enable the scan rule on the Scan Settings page to initiate scheduled or on-demand scans."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-configuring-scan-rule-azure-openai.json", "quotes": ["Enable the scan rule on the Scan Settings page to initiate scheduled or on-demand scans."]}
+      ]
+    },
+    "vuln-scope": {
+      "statement": "AI Security can scan AWS or Azure virtual machines for vulnerabilities such as unencrypted data, publicly exposed instances and unauthorized access to sensitive data, on the operating systems, file systems and programming language libraries it supports.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-supported-systems-vulnerability-scanning.json", "quotes": ["The vulnerability scanning is supported on the following operating systems, file systems, and programming language libraries.", "AI Security can scan the AWS or Azure virtual machines (VMs) and detect vulnerabilities, such as unencrypted data, publicly exposed instances, unauthorized access to sensitive data, etc."]}]
+    },
+    "vuln-os-x86": {
+      "statement": "Under the x86 Architecture heading, vulnerability scanning supports among others Oracle Linux 7.0, 7.7, 7.9, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 9.0, 9.1, 9.2, Photon 3.0 and 4.0, and Windows Server 2016, 2019 and 2022.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-supported-systems-vulnerability-scanning.json", "quotes": ["| Oracle Linux | 7.0, 7.7, 7.9, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 9.0, 9.1, 9.2 |", "| Photon | 3.0, 4.0 |", "| Windows Server | 2016, 2019, 2022 |"], "after": "- x86 Architecture"}]
+    },
+    "vuln-os-arm": {
+      "statement": "Under the ARM Architecture heading, vulnerability scanning supports among others Photon 4.0 and 5.0, and SUSE Linux Enterprise Server 15 SP3, 15 SP4 and 15 SP5.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-supported-systems-vulnerability-scanning.json", "quotes": ["| Photon | 4.0, 5.0 |", "| SUSE Linux Enterprise Server | 15 SP3, 15 SP4, 15 SP5 |"], "after": "- ARM Architecture"}]
+    },
+    "vuln-file-systems": {
+      "statement": "Vulnerability scanning is supported on file systems including EXT (ext2, ext3, ext4), and not on OS-level encrypted root disks or volumes such as Bitlocker, crypto LUKS or DM crypt.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-supported-systems-vulnerability-scanning.json", "quotes": ["Vulnerability scanning is supported on the following file systems:", "EXT (ext2, ext3, ext4)", "AI Security does not support vulnerability scanning on OS-level encrypted root disks/volumes such as Bitlocker, crypto LUKS, DM crypt, etc."]}]
+    },
+    "vuln-libraries": {
+      "statement": "Vulnerability scanning of programming language libraries covers Java (jar, war, pom.xml), Go (gobinary, *.sum), Python (Pipfile.lock, poetry.lock, *.egg-info/PKG-INFO, *.dist-info/METADATA), .NET (packages.lock.json), Ruby (Gemfile.lock), Node.js (package-lock.json, yarn.lock), PHP (composer.lock) and Rust (Cargo.lock).",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-supported-systems-vulnerability-scanning.json", "quotes": ["| Java | jar, war, pom.xml |", "| Go | gobinary, *.sum |", "| Python | Pipfile.lock poetry.lock *.egg-info/PKG-INFO *.dist-info/METADATA |","| .NET | packages.lock.json |", "| Ruby | Gemfile.lock |", "| Node.js | package-lock.json, yarn.lock |", "| PHP | composer.lock |", "| Rust | Cargo.lock |"]}]
+    },
+    "vuln-aws-encryption": {
+      "statement": "AWS vulnerability scanning is supported for both AWS-managed and customer-managed encryption, but supporting AWS-managed encryption requires at least one customer-managed key in the region.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-managing-vulnerabilities-aws-accounts.json", "quotes": ["Vulnerability scanning is supported for both AWS-managed and customer-managed encryption.", "to support AWS-managed encryption, at least one customer-managed key should be present in the region."]}]
+    },
+    "vuln-aws-regions": {
+      "statement": "AWS vulnerability scanning supports a listed set of regions, including us-east-1, af-south-1, ap-southeast-3, eu-central-2, me-central-1 and sa-east-1.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-managing-vulnerabilities-aws-accounts.json", "quotes": ["AI Security supports the vulnerability scanning of AWS accounts located in the following regions:", "US East(N. Virginia) us-east-1", "Africa(Cape Town) af-south-1", "ap-southeast-3", "eu-central-2", "me-central-1", "South America(São Paulo) sa-east-1"]}]
+    },
+    "vuln-azure-workloads": {
+      "statement": "Azure vulnerability scanning supports workloads created from images in Azure Compute Gallery and Azure Marketplace, and does not support workloads created from unmanaged OS disks (.vhd).",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-managing-vulnerabilities-azure-accounts.json", "quotes": ["AI Security supports the scanning of workloads that are created from images present in Azure Compute Gallery and Azure Marketplace.", "AI Security does not support the vulnerability scanning of Azure workloads created from unmanaged OS disks (.vhd)."]}]
+    },
+    "vuln-azure-regions": {
+      "statement": "Azure vulnerability scanning supports a listed set of regions, including Qatar Central, South Africa North, Brazil South, UAE North and West US 3.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-managing-vulnerabilities-azure-accounts.json", "quotes": ["AI Security supports the vulnerability scanning of Azure accounts located in the following regions:", "Qatar Central", "South Africa North", "Brazil South", "UAE North", "West US 3"]}]
+    }
+  },
+  "divergences": {
+    "on-demand-scope": {
+      "summary": "Which resources an on-demand scan can be run on: the About Scan Settings page says only databases and virtual machines, while the Starting a Scan page runs the On-Demand Scan option on a resource and queues a storage account.",
+      "positions": [
+        {
+          "says": "An on-demand scan can be performed only on databases and virtual machines.",
+          "evidence": {"source": "zscaler-help", "path": "ai-asset-mgmt-about-scan-settings.json", "quotes": ["You can perform an on-demand scan only on databases and virtual machines."]}
+        },
+        {
+          "says": "The Starting a Scan steps select the On-Demand Scan option for the resource to scan, after which the storage account is queued for scanning.",
+          "evidence": {"source": "zscaler-help", "path": "ai-asset-mgmt-starting-or-stopping-scan.json", "quotes": ["Select the On-Demand Scan option.", "The storage account is queued for scanning."]}
+        }
+      ],
+      "impact": "Whether a storage resource can be scanned on demand is not settled by the AI Security pages; the same About Scan Settings Scan Types table also lists On-Demand Scan under Compute."
+    }
+  },
+  "gaps": {
+    "scope-edit-delete-effect": {
+      "kind": "semantic",
+      "title": "Does editing a scan scope change rules that already use it, and can a scope used by a rule be deleted?",
+      "status": "open",
+      "detail": "The scan scope edit and delete page does not say whether editing a scope changes rules that already use it, or whether a scope used by a rule can be deleted; the scan rule edit and delete page is click-path only.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "nosql-scan-types": {
+      "kind": "semantic",
+      "title": "Which scan types does a NoSQL data store rule offer?",
+      "status": "open",
+      "detail": "The About Scan Settings table lists Full Scan and Scan Only Recent Data for NoSQL Datastore, while the AWS NoSQL rule page offers Data Sampling Scan and Full Scan. The captured pages do not say whether the lists describe the same option set.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "scan-status-values": {
+      "kind": "semantic",
+      "title": "What values can the scan status take?",
+      "status": "open",
+      "detail": "The pages refer to Understanding Scan Status, which is not among the captured articles, so scan status values are not stated here beyond In-Progress.",
+      "resolves_with": ["source-read"]
+    },
+    "copied-wording": {
+      "kind": "semantic",
+      "title": "Which rule page lines were copied between resource types?",
+      "status": "open",
+      "detail": "The Azure Blob page describes Full Scan as scanning all objects on the on-premises file server and mentions optionally excluding specific databases; the Azure managed database page says files deleted in the AWS console. These look copied between pages and are not generalised here.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "no-limits-stated": {
+      "kind": "semantic",
+      "title": "Are there limits on scan rules, tag key-value pairs or scan scopes?",
+      "status": "open",
+      "detail": "No limit on the number of scan rules, tag key-value pairs or scan scopes is stated in the captured articles.",
+      "resolves_with": ["support-ticket", "lab-test"]
+    },
+    "vuln-region-lists-partial": {
+      "kind": "semantic",
+      "title": "What are the full AWS and Azure vulnerability scanning region lists?",
+      "status": "open",
+      "detail": "The claims quote only some regions; the full AWS and Azure region lists are in the captured managing-vulnerabilities pages, and some AWS entries there show only the region code. The x86 and ARM operating system tables were compared: the ARM table has no Windows Server or Oracle Linux row.",
+      "resolves_with": ["source-read"]
+    },
+    "api-not-checked": {
+      "kind": "semantic",
+      "title": "Is there an API for scan rules or scopes?",
+      "status": "open",
+      "detail": "Only help articles were read. The AI Security OpenAPI spec, SDKs and Terraform were not checked for scan rule or scope endpoints.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

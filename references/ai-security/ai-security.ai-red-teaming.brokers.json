@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-red-teaming.brokers",
+  "title": "The AI Red Teaming broker: outbound WSS tunnel to private apps, provisioning, run manifest, allow-lists and troubleshooting codes",
+  "aliases": [
+    "ai red teaming broker",
+    "red teaming broker",
+    "airt broker",
+    "ai security broker",
+    "register broker",
+    "broker run manifest",
+    "airt-broker diagnose",
+    "broker gateway",
+    "broker wss"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming.assets"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming.connections"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zidentity.api-clients",
+      "because": "ai-security.ai-red-teaming.brokers:provisioning"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{tunnel}}"
+    },
+    {
+      "label": "Setup.",
+      "text": "{{provisioning}} {{registration}} The pages name the Brokers page two ways {{divergence:console-path-names}}. The OAuth API client is a ZIdentity one, covered in [[zidentity.api-clients]]. Which apps a broker can serve is in [[ai-security.ai-red-teaming.assets]]."
+    },
+    {
+      "label": "Run manifest.",
+      "text": "{{run-manifest}} {{manifest-example}} The other manifests and a healthy diagnose output are not in the capture {{gap:captured-gaps}}."
+    },
+    {
+      "label": "Brokers page.",
+      "text": "{{broker-list}} {{actions}} {{audit-log}} The Pending and Revoked statuses beyond those the list names are open {{gap:status-values}}."
+    },
+    {
+      "label": "Allow-lists.",
+      "text": "{{allow-lists}} The two pages label them differently {{gap:allow-list-labels}}. {{allow-list-immediate}}"
+    },
+    {
+      "label": "Troubleshooting.",
+      "text": "{{diagnose}} {{symptom-codes}} {{symptom-traffic}} {{tls-inspection}} {{support-bundle}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which menu name an answer gives for the Brokers page: the pages disagree (Administration > AI Red Teaming > Brokers against Administration > Red Teaming > Brokers), so quote the page relied on.",
+      "uses": [
+        "console-path-names"
+      ]
+    },
+    {
+      "do": "Start a broker issue with the built-in diagnostic run inside the container, before matching the symptom to a code.",
+      "uses": [
+        "diagnose",
+        "symptom-codes"
+      ]
+    },
+    {
+      "do": "For a WSS rejection, the close code: 4403 points to the source-IP allow-list and 4401 to a BROKER_ID mismatch or a revoked or deleted broker.",
+      "uses": [
+        "symptom-codes"
+      ]
+    },
+    {
+      "do": "For tests returning 403 with the broker Online, that the target's base URL is in the broker's target allow-list or X-Target-Url is correct.",
+      "uses": [
+        "symptom-traffic",
+        "allow-lists"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "The AI Red Teaming Broker enables Zscaler's AI Red Teaming (AIRT) workers, which run in the Zscaler cloud, to reach private AI applications hosted inside a customer's network without any firewall changes to allow inbound connections originating from the Internet: the customer deploys a lightweight broker agent inside the network, which opens a single outbound connection to the Zscaler cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-ai-security-broker.json",
+          "quotes": [
+            "The AI Red Teaming Broker enables Zscaler's AI Red Teaming (AIRT) workers, which run in the Zscaler cloud, to securely reach private AI applications hosted inside a customer's network without requiring any firewall changes to allow inbound connections that originate from the Internet.",
+            "The AI Red Teaming Broker eliminates this barrier by having the customer deploy a lightweight broker agent inside their network.",
+            "The agent opens a single outbound connection to the Zscaler cloud, allowing AI Red Teaming to reach the private application through that connection."
+          ]
+        }
+      ]
+    },
+    "tunnel": {
+      "statement": "The broker opens one outbound WebSocket Secure (WSS) connection to the Broker Gateway running in the Zscaler infrastructure and keeps it open; the AI Red Teaming Worker sends commands to the Broker Agent via the gateway, the agent forwards them to the customer AI app and returns the app's responses the same way, and no service is exposed to the internet in the customer's network since the broker makes only outbound connections on port 443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-ai-security-broker.json",
+          "quotes": [
+            "The broker opens one outbound WebSocket Secure (WSS) connection to the cloud gateway and keeps it open. All test traffic travels over this tunnel to the customer’s application and back.",
+            "The Broker Agent initializes an outbound WSS connection towards the Broker Gateway that is running in the Zscaler infrastructure.",
+            "After a connection is established, the AI Red Teaming Worker sends the commands to the Broker Agent via the Broker Gateway.",
+            "The Broker Agent forwards the command to the Customer AI App.",
+            "The Customer AI App sends its response back to the Broker Agent.",
+            "The Broker Agent sends the response to the Broker Gateway.",
+            "The Broker Gateway forwards the response to the AI Red Teaming Worker.",
+            "No service is exposed to the internet in the customer’s network. The broker makes only outbound connections on port 443."
+          ]
+        }
+      ]
+    },
+    "provisioning": {
+      "statement": "Provisioning a broker creates a new broker entry in the AI Security Admin Portal to generate the credentials and configuration for deployment; the broker authenticates with an OAuth API Client created in the Authentication Service Admin Portal with the AI Red Teaming Viewer scope under AI Security and Validation Type Secret, which can be reused across multiple brokers; the run manifest is then downloaded and deployed in the private network, the broker is confirmed Online (an outbound WebSocket connection to the Zscaler cloud gateway), and the private AI application is added as a target and associated with the broker.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-ai-security-broker.json",
+          "quotes": [
+            "Create a new broker entry in the AI Security Admin Portal to generate the credentials and configuration required for deployment.",
+            "Assign AI Red Teaming Viewer scope under AI Security.",
+            "Set the Validation Type to Secret.",
+            "You can reuse the same API Client across multiple brokers.",
+            "The broker authenticates to the platform with an OAuth API Client you create in the Authentication Service Admin Portal.",
+            "Download the run manifest file that contains the broker configuration. Use this file to deploy and run the broker within your private network environment.",
+            "Confirm that the broker shows Online in the AI Security Admin Portal.",
+            "An Online status indicates that the broker has successfully established an outbound WebSocket connection to the Zscaler cloud gateway.",
+            "Add your private AI application as a target in the platform and associate it with the provisioned broker."
+          ]
+        }
+      ]
+    },
+    "registration": {
+      "statement": "A broker is registered before AI Red Teaming traffic can be routed through the AI Security Admin Portal, under Administration > AI Red Teaming > Brokers, with a Name, Business Units and a Description (what the broker connects to, where it runs, and who runs it).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-registering-broker.json",
+          "quotes": [
+            "Before you can route AI Red Teaming traffic through the AI Security Admin Portal, you must register a broker.",
+            "Go to Administration > AI Red Teaming > Brokers.",
+            "Name: The name of the broker.",
+            "Business Units: Select the business unit from the drop-down menu.",
+            "Description: Add information such as what the broker connects to, where it runs, and who runs it."
+          ]
+        }
+      ]
+    },
+    "run-manifest": {
+      "statement": "A broker's Commands/Instruction tab provides a run manifest for Docker, Docker Compose, or Kubernetes with all required variables pre-filled, where only the Authentication Service OAuth credentials are supplied by the customer: GATEWAY_URL (the WSS gateway endpoint), BROKER_ID (issued at registration) and OAUTH_TOKEN_URL (the Authentication Service OAuth token endpoint) come from the AI Security Admin Portal, and OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET come from the customer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-red-teaming-brokers.json",
+          "quotes": [
+            "7. Commands/Instruction",
+            "This tab provides a ready-to-use run manifest for Docker, Docker Compose, or Kubernetes, with all required variables pre-filled. You only need to supply your Authentication Service OAuth credentials to complete the configuration.",
+            "| GATEWAY_URL | AI Security Admin Portal | WSS gateway endpoint |",
+            "| BROKER_ID | AI Security Admin Portal | Broker identifier issued at registration |",
+            "| OAUTH_TOKEN_URL | AI Security Admin Portal | Authentication Service OAuth token endpoint |",
+            "| OAUTH_CLIENT_ID | Customer | Authentication Service client id |",
+            "| OAUTH_CLIENT_SECRET | Customer | Authentication Service client secret |"
+          ]
+        }
+      ]
+    },
+    "manifest-example": {
+      "statement": "The page's example Docker command runs the container as airt-broker with --restart unless-stopped, sets SSL_VERIFY=\"true\", LOG_LEVEL=\"INFO\" and HEALTHZ_PORT=\"8080\", gives the example gateway as wss://airt-gw.us2.zscaler.net:443/ws/broker, and names the image nexus.corp.zscaler.com:9016/airt/airt-broker:<tag>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-red-teaming-brokers.json",
+          "quotes": [
+            "docker run -d --name airt-broker --restart unless-stopped \\",
+            "-e SSL_VERIFY=\"true\" -e LOG_LEVEL=\"INFO\" -e HEALTHZ_PORT=\"8080\" \\",
+            "-e GATEWAY_URL=\"wss://airt-gw.us2.zscaler.net:443/ws/broker\" \\",
+            "nexus.corp.zscaler.com:9016/airt/airt-broker:<tag>"
+          ]
+        }
+      ]
+    },
+    "broker-list": {
+      "statement": "The Brokers page lists each broker's Broker Name, Description, Business Unit, Connected AI Apps (private AI applications currently linked), Status (Online, an active WebSocket Secure (WSS) connection to the gateway, or Offline, the connection lost or the broker stopped), Last Seen (when the broker last successfully communicated with the Broker Gateway), Version of the broker agent and Source IP (the public IP address its outbound connection originates from); the Show Revoked toggle shows revoked brokers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-red-teaming-brokers.json",
+          "quotes": [
+            "Broker Name: The unique name assigned to the broker instance at the time of registration.",
+            "Description: A brief summary of the broker's purpose or the environment it is deployed in.",
+            "Business Unit: The organizational unit or team that owns and manages this broker instance.",
+            "Connected AI Apps: The number of private AI applications currently linked to this broker.",
+            "Status: Indicates whether the broker is currently active and reachable. Possible values include Online (the broker has an active WebSocket Secure (WSS) connection to the gateway) and Offline (the connection has been lost or the broker has stopped).",
+            "Last Seen: The date and time when the broker last successfully communicated with the Broker Gateway.",
+            "Version: The version of the broker agent currently running.",
+            "Source IP: The public IP address from which the broker's outbound connection originates.",
+            "Enable the Show Revoked toggle to view the revoked brokers."
+          ]
+        }
+      ]
+    },
+    "actions": {
+      "statement": "On a selected broker, Revoke Broker temporarily disables an active broker's connection to the platform, Reinstate Broker restores a previously revoked broker and re-enables its connection, and Delete Broker permanently removes a broker and all its associated configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-red-teaming-brokers.json",
+          "after": "Actions: You can perform the following actions on the selected broker:",
+          "quotes": [
+            "Reinstate Broker: Restore a previously revoked broker and re-enable its connection to the platform.",
+            "Revoke Broker: Revoke an active broker to temporarily disable its connection to the platform.",
+            "Delete Broker: Permanently remove a broker and all its associated configuration from the platform."
+          ]
+        }
+      ]
+    },
+    "audit-log": {
+      "statement": "A broker's Audit Log tab displays a time-stamped record of all significant activities and changes made to broker instances, filterable by time range, event type and actor; an entry's actor is either a broker (an automated action triggered by the broker agent itself) or a user (a platform administrator who made a manual change).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-red-teaming-brokers.json",
+          "quotes": [
+            "This tab displays time-stamped record of all significant activities and changes made to broker instances.",
+            "Filter data by time range, event type, and actor.",
+            "Actor: Identifies the source of the event, either a broker (an automated action triggered by the broker agent itself) or a user (a platform administrator who made a manual change)."
+          ]
+        }
+      ]
+    },
+    "allow-lists": {
+      "statement": "A broker's configuration holds an Allowed Source CIDR list, the ranges the broker may connect from, and an Allowed Targets list, the only targets it may reach, where an empty list means no restriction; after a broker is attached to an AI target, all test traffic is automatically routed through it without manual URL configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-configuring-broker.json",
+          "quotes": [
+            "Allowed Source CIDR: Add the CIDR that the broker may connect from. The broker may only connect from these ranges. An empty list means no restriction.",
+            "Allowed Targets: The broker may only reach these targets. An empty list means no restriction."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-red-teaming-brokers.json",
+          "quotes": [
+            "Attach brokers to AI targets directly from the AI Security Admin Portal. After it is attached, all test traffic is automatically routed through the broker without the need for manual URL configuration."
+          ]
+        }
+      ]
+    },
+    "diagnose": {
+      "statement": "For any broker issue the first step is the built-in diagnostic tool, which checks connectivity, certificates, OAuth credentials, and DNS without disrupting a live broker, run within the container as docker exec <broker-container> python -m airt_broker diagnose.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-troubleshooting-ai-red-teaming-broker-issues.json",
+          "quotes": [
+            "Run the following command within the container:",
+            "For any broker issue, your first step is always to run the built-in diagnostic tool airt-broker diagnose. It checks connectivity, certificates, OAuth credentials, and DNS without disrupting a live broker."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-troubleshooting-ai-red-teaming-broker-issues.json",
+          "after": "## Running the Preflight Check",
+          "quotes": [
+            "docker exec <broker-container> python -m airt_broker diagnose"
+          ]
+        }
+      ]
+    },
+    "symptom-codes": {
+      "statement": "The troubleshooting table gives these causes: a broker that stays Pending or Offline with repeated opening wss and no wss connected cannot reach or authenticate to the gateway (check egress to GATEWAY_URL:443 and run the diagnose tool); an auth token returning 401 invalid_client is an incorrect OAUTH_CLIENT_ID or OAUTH_CLIENT_SECRET; WSS rejected 4403 (gateway_cidr_rejected) means the broker's egress IP is not in the source-IP allow-list; WSS rejected 4401 (gateway_broker_unregistered / _revoked) means a BROKER_ID mismatch, or the broker revoked or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-troubleshooting-ai-red-teaming-broker-issues.json",
+          "quotes": [
+            "| Broker stays Pending or Offline Logs repeat opening wss with no wss connected | Cannot reach or authenticate to gateway | Check egress to GATEWAY_URL:443 Run diagnose tool |",
+            "| Auth token returns (401 invalid_client) | Incorrect OAUTH_CLIENT_ID / OAUTH_CLIENT_SECRET | Verify that the Client ID and Client Secret match the registered broker |",
+            "| WSS rejected 4403 (gateway_cidr_rejected) | Broker’s egress IP is not in the source-IP allow-list | Add the broker’s public egress IP to the allow-list in the platform |",
+            "| WSS rejected 4401 (gateway_broker_unregistered / _revoked) | BROKER_ID mismatch, or broker revoked/deleted | Confirm BROKER_ID Ensure the broker is not revoked (reinstate if needed) |"
+          ]
+        }
+      ]
+    },
+    "symptom-traffic": {
+      "statement": "Tests returning 403 while the broker is Online mean the target base URL is not in the broker's target allow-list (add it, or correct X-Target-Url); tests timing out (504) or failing 502 mean the target is slow or unreachable from the broker's network (verify the broker can reach the target, and raise TARGET_REQUEST_TIMEOUT for slow applications); periodic idle disconnects with close_code:null come from an intermediary's idle or max-connection timeout, are benign because the broker reconnects automatically, and the intermediary's idle timeout can be raised if frequent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-troubleshooting-ai-red-teaming-broker-issues.json",
+          "quotes": [
+            "| Broker Online but tests return 403 | Target base URL not in the broker’s target allow-list | Add the target’s base URL to the broker’s allow-list, or correct X-Target-Url. |",
+            "| Tests time out (504) or fail 502 | Target slow or unreachable from the broker’s network | Verify the broker can reach the target Raise TARGET_REQUEST_TIMEOUT for slow applications |",
+            "| Broker disconnects periodically while idle (close_code:null) | An intermediary (proxy/ NAT/firewall) idle or max-connection timeout | Benign - the broker reconnects automatically Raise the intermediary’s idle timeout if frequent. |"
+          ]
+        }
+      ]
+    },
+    "tls-inspection": {
+      "statement": "TLS errors at the broker (certificate verify failed, unable to get local issuer) have the cause of a corporate TLS inspection proxy or private Certificate Authority intercepting the broker's outbound connection; the table's remedies are to set EXTRA_CA_CERTS to the PEM file path and mount it into the container, disable SSL inspection for the broker traffic, and set HTTPS_PROXY if an outbound proxy is required, and the page says not to set SSL_VERIFY to false because disabling certificate validation removes a critical security control and is not supported in production environments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-troubleshooting-ai-red-teaming-broker-issues.json",
+          "quotes": [
+            "| TLS errors (certificate verify failed, unable to get local issuer) | Corporate TLS inspection/private CA | Set EXTRA_CA_CERTS (add the corporate CA) Disable SSL inspection for the broker traffic Set HTTPS_PROXY if required |",
+            "Cause: A corporate TLS inspection proxy or a private Certificate Authority (CA) is intercepting the broker's outbound connection.",
+            "Set the EXTRA_CA_CERTS environment variable to the path of the PEM file and mount it into the container:",
+            "If an outbound proxy is required, also set:",
+            "Do not set SSL_VERIFY to false. Disabling certificate validation removes a critical security control and is not supported in production environments."
+          ]
+        }
+      ]
+    },
+    "allow-list-immediate": {
+      "statement": "The troubleshooting page adds the broker's public egress IP under Source-IP Allow-list, and allow-list changes apply immediately and no broker restart is required; a broker showing Revoked is reinstated from Administration > Red Teaming > Brokers by opening the broker and selecting Reinstate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-troubleshooting-ai-red-teaming-broker-issues.json",
+          "quotes": [
+            "Under Source-IP Allow-list, add the broker's public egress IP.",
+            "Allow-list changes apply immediately and no broker restart is required.",
+            "If the broker status shows Revoked, go to Administration > Red Teaming > Brokers, open the broker, and select Reinstate."
+          ]
+        }
+      ]
+    },
+    "support-bundle": {
+      "statement": "For a support request the page asks for the diagnostic report from diagnose --json (docker exec <broker-container> python -m airt_broker diagnose --json > diag.json), the last 500 lines of the container log, the BROKER_ID and the approximate date and time of the incident; the diag.json output is automatically redacted and does not contain OAUTH_CLIENT_SECRET.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-troubleshooting-ai-red-teaming-broker-issues.json",
+          "quotes": [
+            "docker exec <broker-container> python -m airt_broker diagnose --json > diag.json docker logs --tail 500 <broker-container> > broker.log",
+            "Your BROKER_ID",
+            "The approximate date and time of the incident",
+            "The diag.json output is automatically redacted and does not contain your OAUTH_CLIENT_SECRET."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "console-path-names": {
+      "summary": "The Brokers page is named Administration > AI Red Teaming > Brokers on the registration and About AI Red Teaming Brokers pages, and Administration > Red Teaming > Brokers on the troubleshooting page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-registering-broker.json",
+            "quotes": [
+              "Go to Administration > AI Red Teaming > Brokers."
+            ]
+          },
+          "says": "The registration page names the path Administration > AI Red Teaming > Brokers."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-about-red-teaming-brokers.json",
+            "quotes": [
+              "On the Brokers Page (Administration > AI Red Teaming > Brokers), you can do the following:"
+            ]
+          },
+          "says": "The About AI Red Teaming Brokers page names it Administration > AI Red Teaming > Brokers."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-troubleshooting-ai-red-teaming-broker-issues.json",
+            "quotes": [
+              "If the broker status shows Revoked, go to Administration > Red Teaming > Brokers, open the broker, and select Reinstate."
+            ]
+          },
+          "says": "The troubleshooting page names it Administration > Red Teaming > Brokers."
+        }
+      ],
+      "impact": "Whether Red Teaming and AI Red Teaming are the same menu entry is not stated; quote the page being relied on rather than one name."
+    }
+  },
+  "gaps": {
+    "captured-gaps": {
+      "kind": "data",
+      "title": "Docker Compose and Kubernetes manifests, and a healthy diagnose output",
+      "status": "open",
+      "resolvable_by": [
+        "operator"
+      ],
+      "detail": "The run-manifest page lists \"Docker Compose:\" and \"Kubernetes:\" with no body, and the troubleshooting page says an example of healthy output is shown and carries nothing after it, so those three are not in the captures.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "status-values": {
+      "kind": "semantic",
+      "title": "What the Pending and Revoked broker statuses mean",
+      "status": "open",
+      "detail": "The Brokers page lists Online and Offline as status values; the troubleshooting page uses a Pending status (\"The broker status does not change from Pending, or it repeatedly switches to Offline.\") and a Revoked status, and Pending is not defined.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "allow-list-labels": {
+      "kind": "semantic",
+      "title": "How the source-IP and target allow-lists are labeled across the broker pages",
+      "status": "open",
+      "detail": "The Configuring a Broker page labels them Allowed Source CIDR and Allowed Targets; the troubleshooting page uses Source-IP Allow-list, an Allow-lists tab and Target URLs. Whether these are the same fields is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

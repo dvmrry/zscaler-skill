@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "id": "zdx.api.rate-limits",
+  "title": "ZDX API rate limits: the license tiers, the headers, and how the clients pace themselves",
+  "aliases": [
+    "zdx rate limit",
+    "zdx 429",
+    "x-ratelimit-remaining-second",
+    "zdx rate limit headers",
+    "zdx api tier",
+    "zdx throttling sdk"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "shared.oneapi.rate-limits",
+      "because": "shared.oneapi.rate-limits:zdx-tiers"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.analytics.graphql-errors-and-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go.legacy-client"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-python.legacy-client"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZDX limits requests per tenant tier, and each client paces itself in its own way. The server side is documented once for all OneAPI products."
+    },
+    {
+      "label": "The server's limits.",
+      "text": "The tier table is [[shared.oneapi.rate-limits:zdx-tiers]], the windows start with the first call ([[shared.oneapi.rate-limits:window-starts-first-call]]), and rate-limited clients must back off exponentially ([[shared.oneapi.rate-limits:back-off-exponentially]]). {{graphql-tiers}} Whether the two tables number the same tiers is open {{gap:tier-numbering}}; the GraphQL limits are also in [[shared.analytics.graphql-errors-and-limits:zdx-graphql-limits]]."
+    },
+    {
+      "label": "Headers.",
+      "text": "The documented headers are [[shared.oneapi.rate-limits:zdx-headers]]. The SDKs' direct clients read differently named per-second headers {{divergence:header-names}}, and which family each host sends is open {{gap:header-family-per-host}}."
+    },
+    {
+      "label": "How the clients pace.",
+      "text": "The Go OneAPI client's ZDX limiter is [[shared.oneapi.rate-limits:go-zdx-limiter-copies-zcc]]. The Go direct client's fixed limiter paces only its sign-in ([[zdx.sdk-go.legacy-client:limiter-auth-only]]) and its backoff waits a fixed time chosen from the per-second headers and the status code ([[zdx.sdk-go.legacy-client:backoff]]). The Python executor's wait on a 429 comes from `Retry-After` or the reset header ([[shared.sdk-python.retries:wait-from-headers]]), and its legacy ZDX client reads the per-second headers only around sign-in ([[zdx.sdk-python.legacy-client:second-headers]]). {{no-tier-awareness}} The earlier question about reconciling the client limiters with the tier is closed by this reading {{gap:tier-vs-client-limiter}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which tier the tenant's license count puts it in, and which window (second, minute, hour or day) a 429 came from.",
+      "uses": [
+        "shared.oneapi.rate-limits:zdx-tiers",
+        "graphql-tiers",
+        "tier-numbering"
+      ]
+    },
+    {
+      "do": "Which header a hand-written client reads for its remaining budget, and whether that header is present on the host it calls.",
+      "uses": [
+        "header-names",
+        "header-family-per-host"
+      ]
+    }
+  ],
+  "claims": {
+    "graphql-tiers": {
+      "statement": "The ZDX GraphQL API's rate limits are based on the license tier level and have five tiers: tier 3 is 40,000 licenses at 5 per second, 120 per minute, 6,000 per hour and 30,000 per day, tier 4 is 100,000 at 12, 300, 15,000 and 75,000, and tier 5 is more than 100,000 at 12, 450, 22,500 and 150,000. The ZDX API's own table has four tiers, with 100,000 licenses at tier 3 and more than 100,000 at tier 4 ([[shared.oneapi.rate-limits:zdx-tiers]]).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-analytics-zdx-graphql-api-rate-limits.json",
+          "quotes": [
+            "Rate limits for the ZDX GraphQL API are based on the license tier level.",
+            "| 1 | 5,000 | 5 | 30 | 1,000 | 10,000 |",
+            "| 2 | 20,000 | 5 | 60 | 3,000 | 15,000 |",
+            "| 3 | 40,000 | 5 | 120 | 6,000 | 30,000 |",
+            "| 4 | 100,000 | 12 | 300 | 15,000 | 75,000 |",
+            "| 5 | More than 100,000 | 12 | 450 | 22,500 | 150,000 |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-zdx.json",
+          "quotes": [
+            "every endpoint is called from a specific IP address and the rate limit is dependent on the Tier Level.",
+            "| 1 | 5,000 | 5 | 30 | 1,000 | 10,000 |",
+            "| 2 | 20,000 | 5 | 60 | 3,000 | 15,000 |",
+            "| 3 | 100,000 | 5 | 120 | 6,000 | 30,000 |",
+            "| 4 | More than 100,000 | 5 | 180 | 9,000 | 60,000 |"
+          ]
+        }
+      ],
+      "conditions": "Absence: `python3 -I scripts/help_capture.py text vendor/zscaler-help/automate-zscaler/<page>.json | grep -c 40,000` gives 1 for rate-limiting-analytics-zdx-graphql-api-rate-limits and 0 for rate-limiting-zdx, so the 40,000 tier is on the GraphQL page only."
+    },
+    "no-tier-awareness": {
+      "statement": "Neither SDK reads the tenant's tier: the Go limiters are fixed constants (100 calls per hour on the OneAPI client, 100 per 60 seconds on the direct client's sign-in) and the other pacing reacts only to what a request gets back: response headers, a 429 or another status, or no response.",
+      "tier": "B",
+      "derived_from": [
+        "shared.oneapi.rate-limits:go-zdx-limiter-copies-zcc",
+        "zdx.sdk-go.legacy-client:global-limiter",
+        "zdx.sdk-go.legacy-client:backoff",
+        "shared.sdk-python.retries:wait-from-headers"
+      ],
+      "conditions": "A reading of the limiter and backoff code at the pin; neither SDK has a setting for the license tier."
+    }
+  },
+  "divergences": {
+    "header-names": {
+      "summary": "The rate-limit header names: the ZDX rate-limiting page documents `x-ratelimit-limit`, `x-ratelimit-remaining` and `x-ratelimit-reset`; the SDKs' direct clients read `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/rate-limiting-zdx.json",
+            "quotes": [
+              "- x-ratelimit-remaining: The number of API requests remaining for the current rate limit window."
+            ]
+          },
+          "says": "The remaining budget is in `x-ratelimit-remaining`, for the current window."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zdx/v2_client.go",
+            "quotes": [
+              "remaining := resp.Header.Get(\"X-Ratelimit-Remaining-Second\")"
+            ]
+          },
+          "says": "The Go direct client reads the remaining budget from `X-Ratelimit-Remaining-Second`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zdx/legacy.py",
+            "after": "token_url = f\"{self.url}/v1/oauth/token\"",
+            "quotes": [
+              "remaining = response.headers.get(\"X-Ratelimit-Remaining-Second\")"
+            ]
+          },
+          "says": "The Python legacy client reads `X-Ratelimit-Remaining-Second` on a sign-in 429."
+        }
+      ],
+      "impact": "If the server sends only the documented headers, the SDKs' proactive per-second backoff never engages and they fall back to their 429 handling; a hand-written client that reads the SDKs' names would see nothing."
+    }
+  },
+  "gaps": {
+    "tier-numbering": {
+      "kind": "semantic",
+      "title": "Whether the ZDX API and ZDX GraphQL API rate-limit tables number the same license tiers",
+      "status": "open",
+      "detail": "Each page scopes its table to its own API. From tier 3 the numbers differ (100,000 licenses is tier 3 on the ZDX API page and tier 4 on the GraphQL page), and neither page says whether a tier number is one scale across both or defined per API.",
+      "about": [
+        "zdx.api.rate-limits:graphql-tiers"
+      ],
+      "blocks": "saying which limits a tenant gets on the GraphQL API from its tier on the ZDX API",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "header-family-per-host": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-04"
+      ],
+      "title": "Which rate-limit header family each ZDX host sends",
+      "status": "open",
+      "detail": "The rate-limiting page names `x-ratelimit-limit`, `x-ratelimit-remaining` and `x-ratelimit-reset` without saying which host; the SDKs' direct clients read `X-Ratelimit-*-Second` headers. An earlier note that the gateway sends a `RateLimit-*` family has no source at the pin. Only a captured response from each host would settle which headers arrive where.",
+      "blocks": "writing client-side pacing that reads the right header",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "tier-vs-client-limiter": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-05"
+      ],
+      "title": "Whether the SDKs' client limiters are reconciled with the tenant's tier",
+      "status": "resolved",
+      "resolves_with": [
+        "code-read"
+      ],
+      "resolution": "They are not: the limiters are fixed constants and the direct Go client's limiter paces only sign-in (claim no-tier-awareness; zdx.sdk-go.legacy-client:limiter-auth-only)."
+    }
+  }
+}

@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the ServiceNow Outegration Webhook",
+  "source": {
+    "url": "https://help.zscaler.com/uvm/configuring-servicenow-outegration-webhook",
+    "node": "1528051",
+    "revision": "3225693",
+    "updated": "2026-08-18",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The ServiceNow outegration webhook enables automatic syncing of ServiceNow ticket updates such as Status or SLA changes to their corresponding SecOps tickets, reducing the need for manual changes. This step is required when configuring the ServiceNow to SecOps ticket mapping to keep the tickets in the two systems in sync. To learn more, see Configuring the ServiceNow Outegration."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Prerequisite",
+      "level": 1
+    },
+    {
+      "text": "To set up the ServiceNow webhook, you need Zscaler API token credentials (i.e., Client ID and Client Secret) and your account ID. To obtain these, submit a support ticket in the SecOps platform requesting the necessary credentials."
+    },
+    {
+      "heading": "Configuring the ServiceNow Webhook",
+      "level": 1
+    },
+    {
+      "text": "To set up your ServiceNow webhook:"
+    },
+    {
+      "item": "In the ServiceNow console, go to Activity Subscription > Business Rules.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          54
+        ],
+        [
+          57,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click New.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The Business Rule page appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "On the Business Rule page:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the business rule.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Table: From the drop-down menu, select one of the following ServiceNow tables to trigger the platform on update:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "For the Incidents table, select Incident [incident].",
+      "depth": 2,
+      "strong": [
+        [
+          8,
+          17
+        ],
+        [
+          32,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "For the Requests table, select Requested Item [sc_req_item].",
+      "depth": 2,
+      "strong": [
+        [
+          8,
+          16
+        ],
+        [
+          31,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "For the Exceptions table, select Policy Exception [sn_compliance_policy_exception].",
+      "depth": 2,
+      "strong": [
+        [
+          8,
+          18
+        ],
+        [
+          33,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "For any other table, select the relevant table name based on your use case.",
+      "depth": 2
+    },
+    {
+      "item": "Select the Advanced checkbox.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the When to run tab:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "From the When drop-down menu, select after.",
+      "depth": 2,
+      "strong": [
+        [
+          9,
+          13
+        ],
+        [
+          37,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Select the Update and Delete checkboxes.",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          17
+        ],
+        [
+          22,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Advanced tab, copy and paste the following script:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See script.",
+      "depth": 2
+    },
+    {
+      "item": "function getAvalorJWT(){ var url='https://auth.us01.app.avalor.io/oauth2/token'; var restMessage = new sn_ws.RESTMessageV2(); restMessage.setEndpoint(url); restMessage.setHttpMethod('POST'); restMessage.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'); restMessage.setRequestHeader('Accept', 'application/json'); var payload = \"grant_type=client_credentials&client_id=<Client ID>&client_secret=<Client Secret>\"; restMessage.setRequestBody(payload); var response = restMessage.execute(); var responseBody = response.getBody(); var statusCode = response.getStatusCode(); if (statusCode !== 200) { gs.error('Failed to get access. Status code: ' + statusCode + ', Response body: ' + responseBody); } var jsonResponse = JSON.parse(responseBody); return jsonResponse.access_token; } function sendWebhookRequest(sysId, displayKey, changedFields, isDeleted) { var jwt = getAvalorJWT(); var url = 'https://webhook.avalor.io/integration/inbound/<Account ID>/servicenow'; var restMessage = new sn_ws.RESTMessageV2(); var payload = {}; payload.sysId = sysId; payload.displayKey = displayKey; payload.changedFields = changedFields; payload.isDeleted = isDeleted; restMessage.setEndpoint(url); restMessage.setHttpMethod('POST'); restMessage.setRequestHeader('Content-Type', 'application/json'); restMessage.setRequestHeader('Authorization', 'Bearer ' + jwt); restMessage.setRequestBody(JSON.stringify(payload)); var response = restMessage.execute(); var responseBody = response.getBody(); var statusCode = response.getStatusCode(); if (statusCode !== 200) { gs.error('Failed to send webhook request. Status code: ' + statusCode + ', Response body: ' + responseBody); } } (function executeRule(current, previous /*null when async*/ ) { if (current.operation() === 'delete') { sendWebhookRequest(current.sys_id.getDisplayValue(), current.number.getDisplayValue(), {}, true); } if (current.operation() === 'update') { var changedFields = {}; var fieldNames = current.getFields().toArray().map(function(field) { return field.getName(); }); fieldNames.forEach(function(fieldName) { if (current.getValue(fieldName) != previous.getValue(fieldName)) { changedFields[fieldName] = current.getDisplayValue(fieldName); } }); sendWebhookRequest(current.getValue('sys_id'), current.getValue('number'), changedFields, false); } })(current, previous);",
+      "depth": 2
+    },
+    {
+      "item": "Make the following changes to the script:",
+      "depth": 1
+    },
+    {
+      "item": "In the getAvalorJWT() function, replace the <Client ID> and <Client Secret> variables that appear in red.",
+      "depth": 2
+    },
+    {
+      "item": "In the sendWebhookRequest() function, replace the <Account ID> variable that appears in red.",
+      "depth": 2
+    },
+    {
+      "item": "You can find your Account ID in your platform URL, or contact Zscaler Support for assistance.",
+      "depth": 2
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "text": "After your webhook is set up, configured triggers for field updates in your ServiceNow outegration mapping automatically sync changes made to ServiceNow tickets with their corresponding SecOps tickets."
+    }
+  ]
+}

@@ -1,0 +1,1661 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "SAML & SCIM Configuration Guide for PingOne",
+  "source": {
+    "url": "https://help.zscaler.com/zia/saml-scim-configuration-guide-pingone",
+    "node": "1524896",
+    "revision": "3251470",
+    "updated": "2026-10-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide illustrates how to configure SAML and SCIM with Ping Identity's PingOne server as the identity provider (IdP) for the Zscaler service."
+    },
+    {
+      "heading": "Supported Features",
+      "level": 1
+    },
+    {
+      "text": "The SAML features supported by the Zscaler and PingOne integration are:"
+    },
+    {
+      "item": "SP-initiated SSO",
+      "depth": 0
+    },
+    {
+      "item": "To perform SP-initiated SSO:",
+      "depth": 0
+    },
+    {
+      "item": "Open any site secured with the Zscaler service.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "You are redirected to https://gateway.<Zscaler cloud Name>.net and prompted for a username.",
+      "depth": 1
+    },
+    {
+      "item": "Enter your User Name and click Sign in.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          20
+        ],
+        [
+          31,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Just-in-Time (JIT) Provisioning (SAML auto-provisioning)",
+      "depth": 0
+    },
+    {
+      "text": "The following SCIM features are supported by the Zscaler and PingOne integration:"
+    },
+    {
+      "item": "Create Users",
+      "depth": 0
+    },
+    {
+      "item": "Update User Attributes",
+      "depth": 0
+    },
+    {
+      "item": "Delete Users",
+      "depth": 0
+    },
+    {
+      "item": "Group Push",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you have the following before you start configuring PingOne as your IdP:"
+    },
+    {
+      "item": "PingOne server with the Zscaler Connector add-on",
+      "depth": 0
+    },
+    {
+      "item": "PingOne admin account",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler cloud name",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring PingOne as the IdP for the Zscaler service",
+      "level": 1
+    },
+    {
+      "text": "To configure SAML Single Sign-On (SSO) and SCIM Provisioning with Zscaler and PingOne:"
+    },
+    {
+      "item": "1. Configure the Zscaler app in the PingOne admin console.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the PingOne admin console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Applications > Application Catalog.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Enter zscaler in the search bar and select the application that corresponds to your cloud name. In this example configuration, the cloud is Zscaler Two, so the Zscaler Two application is selected.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          140,
+          151
+        ],
+        [
+          160,
+          171
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Quick Setup section, confirm the Name and Entity ID of the application and click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          40,
+          44
+        ],
+        [
+          49,
+          58
+        ],
+        [
+          88,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "If you have more than one organization instance on the same Zscaler cloud, you must use an org-specific entity ID. You can see the org-specific entity ID for your instance in the Zscaler Admin Console while adding or editing an IdP.",
+      "depth": 1
+    },
+    {
+      "item": "The org-specific entity ID is formatted like the following example:",
+      "depth": 1
+    },
+    {
+      "item": "https://login.zscalertwo.net/sfc_sso/3829920",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Map Attributes section, click the Advanced Expression icon for the displayName attribute.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          41,
+          60
+        ],
+        [
+          74,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Build and Test Expression window, enter user.name.given + \" \" + user.name.family. Click Test Expression to verify that the expression is working properly.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          95,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "For the department attribute, select Department from the list and click Next.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          8,
+          18
+        ],
+        [
+          37,
+          47
+        ],
+        [
+          72,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "In the Select Groups section, choose the groups you want to assign to the application and click Next.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          96,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "In the Application instances section, click the newly configured application to view the Connection Details.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          89,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "Click Download Signing Certificate and copy the Single Signon Service URL. You need these to configure SAML in the Zscaler Admin Console.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          34
+        ],
+        [
+          48,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure the certificate file name:",
+      "depth": 1
+    },
+    {
+      "item": "Has a .pem extension (e.g., rename it to pingone.pem). The Zscaler service only accepts certificates with the .pem extension.",
+      "depth": 2
+    },
+    {
+      "item": "By default, Windows hides extensions for known file types.",
+      "depth": 2
+    },
+    {
+      "item": "Change the Windows Folder Properties to View and Edit Extensions",
+      "depth": 3
+    },
+    {
+      "item": "Start the Windows Control Panel.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Go to Appearance & Personalization > File Explorer Options.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          34
+        ],
+        [
+          37,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "When the File Explorer Options window appears, click the View tab.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          30
+        ],
+        [
+          57,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "In Advanced settings, deselect Hide extensions for known file types to view extensions.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          3,
+          20
+        ],
+        [
+          31,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Rename the certificate to change the extension.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "Contains only one dot (\".\").",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "2. Add PingOne as the IdP in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings > Identity Providers.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          82,
+          114
+        ],
+        [
+          117,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "Click Add IdP.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "If you have an existing IdP configuration, the What do you want to do? window appears. Click Add another SAML IdP for a subset of users or locations and then Next.",
+      "depth": 1,
+      "strong": [
+        [
+          47,
+          70
+        ],
+        [
+          93,
+          148
+        ],
+        [
+          158,
+          162
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add IdP window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "SAML Portal URL: Enter the Single Signon Service that you copied from the PingOne admin console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          27,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Login Name Attribute: Enter NameID (case-sensitive).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "IdP SAML Certificate: Upload the .pem certificate that you downloaded from the PingOne admin console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Org-Specific Entity ID: Enable if you have more than one organization instance on the same Zscaler cloud. For example, if you have two organization instances on the same Zscaler cloud and must authenticate both instances against the same PingOne account, you can't use the same entity ID for multiple apps in the PingOne admin console. For this situation, you must enable this setting for both instances to generate a unique org-specific entity ID.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Locations: Select the locations to map to this IdP. You can also search for a location. Any unselected locations are mapped to the default IdP. This field is set to Any for the default IdP, and you can't modify it.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          165,
+          168
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Domains: Select the domains to map to this IdP. This allows the Zscaler service to display the correct IdP to authenticate an incoming user. Any unselected domains are mapped to the default IdP. This field is set to Any for the default IdP, and you can't modify it. Apart from the default IdP, any additional IdPs must be mapped to at least one domain.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          231,
+          234
+        ]
+      ]
+    },
+    {
+      "item": "Vendor: Select PingOne.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) If you want to enable Sign SAML Request for additional security:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          33,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "After enabling Sign SAML Request:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          15,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Signature Algorithm: Zscaler recommends selecting SHA-2 (256-bit).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          50,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Request Signing SAML Certificate: Select the most recent certificate.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "SP SAML Certificate: Click Download Certificate.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          27,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the PingOne admin console, go to Applications and select your previously configured Zscaler cloud application.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "On the Overview tab, click Enable Advanced Configuration to reveal the option for uploading the SAML signing certificate.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          27,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Configuration tab.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Enable Enforce Signed AuthRequest.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the Verification Certificate section, select Import and click Choose File to upload the SP SAML Certificate that you downloaded from the Zscaler Admin Console.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          48,
+          54
+        ],
+        [
+          65,
+          76
+        ],
+        [
+          91,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Provisioning Options section:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Enable SAML Auto-Provisioning: Enable this option.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "User Display Name Attribute: Enter displayName (case-sensitive).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Group Name Attribute: Enter memberOf (case-sensitive).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Department Name Attribute: Enter department (case-sensitive).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "3. Enable SAML in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings > Default Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          82,
+          114
+        ],
+        [
+          117,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "Under Authentication Frequency, choose how often users are required to authenticate to the Zscaler service. To learn more, see About Authentication Default Settings. If you select Custom, the following field appears:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          30
+        ],
+        [
+          180,
+          186
+        ]
+      ]
+    },
+    {
+      "item": "Custom Authentication Frequency (days): Specify 1 to 180 days.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Under Authentication Type, choose SAML.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          25
+        ],
+        [
+          34,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "4. Enable SCIM in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings > Identity Providers.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          82,
+          114
+        ],
+        [
+          117,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon for your previously configured PingOne IdP.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit IdP window, click Enable SCIM Provisioning.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          30,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Copy the Base URL and Bearer Token. You need them to configure SCIM in the PingOne admin console.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          17
+        ],
+        [
+          22,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "5. Configure SCIM in the PingOne admin console.",
+      "depth": 0
+    },
+    {
+      "item": "In the PingOne admin console, go to Integrations > Provisioning > Connections.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          48
+        ],
+        [
+          51,
+          63
+        ],
+        [
+          66,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Click the Add icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Create a New Connection window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a New Connection window, click Select for Identity Store.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          45,
+          51
+        ],
+        [
+          56,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "In the search bar, enter scim.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Select SCIM Outbound and click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          31,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Provide a name for the SCIM connection and click Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          49,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "In the Configure Authentication section:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "SCIM Base URL: Enter the Base URL you copied from the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          25,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "User Resource: Enter /Users.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "SCIM Version: Select 2.0.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Group Resource: Enter /Groups.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Method: Select OAuth 2 Bearer Token.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "OAuth Access Token: Enter the Bearer Token you copied from the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          30,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Auth Type Header: Select Bearer.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Click Test Connection to verify that the integration is working. Click Next after the integration is verified.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          71,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Review the Configure Preferences section and the Actions section. Click Save when you are satisfied.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          11,
+          32
+        ],
+        [
+          49,
+          56
+        ],
+        [
+          72,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Overview tab of the newly created provisioning connection, click the toggle to enable provisioning.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Rules tab on the Provisioning page and click the Add icon.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          10,
+          15
+        ],
+        [
+          27,
+          39
+        ],
+        [
+          59,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "The Create a New Rule window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a New Rule window, provide a name for the rule and click Create Rule.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          71,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Use the search bar to find your newly created SCIM connection and select it.",
+      "depth": 1,
+      "number": 12
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the User Filter section, select the Attribute and Value to specify which users and groups are provisioned.",
+      "depth": 1,
+      "number": 14,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          39,
+          48
+        ],
+        [
+          53,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "In the following example screenshot, the selected Value is a nested group that contains multiple separate groups and users.",
+      "depth": 1,
+      "strong": [
+        [
+          50,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 15,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Attribute Mapping.",
+      "depth": 1,
+      "number": 16,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click the Edit icon for the Attribute Mapping section.",
+      "depth": 1,
+      "number": 17,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          28,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click the Advanced Expression icon for the displayName attribute.",
+      "depth": 1,
+      "number": 18,
+      "strong": [
+        [
+          10,
+          29
+        ],
+        [
+          43,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "In the Build and Test Expression window, enter user.name.given + \" \" + user.name.family. Click Test Expression to verify that the expression is working properly. Click Next after the expression is verified.",
+      "depth": 1,
+      "number": 19,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          95,
+          110
+        ],
+        [
+          168,
+          172
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Modify the rest of the attribute mappings so they match the following table:",
+      "depth": 1,
+      "number": 20
+    },
+    {
+      "table": [
+        [
+          "PingOne Attribute",
+          "Zscaler Attribute"
+        ],
+        [
+          "Enabled",
+          "active"
+        ],
+        [
+          "See step 4.v.",
+          "displayName"
+        ],
+        [
+          "Family Name",
+          "familyName"
+        ],
+        [
+          "Given Name",
+          "givenName"
+        ],
+        [
+          "Username",
+          "userName"
+        ],
+        [
+          "Email Address",
+          "workEmail"
+        ],
+        [
+          "Department",
+          "department"
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 21,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Group Provisioning.",
+      "depth": 1,
+      "number": 22,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon.",
+      "depth": 1,
+      "number": 23,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the groups you want to provision and click Save.",
+      "depth": 1,
+      "number": 24,
+      "strong": [
+        [
+          50,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Click Target to review the configuration.",
+      "depth": 1,
+      "number": 25,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click the toggle to enable the rule.",
+      "depth": 1,
+      "number": 26
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After provisioning is enabled, the provisioning details are available.",
+      "depth": 1
+    },
+    {
+      "item": "6. Configure the Zscaler Authentication Exemptions list.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the list and enable users access to PingOne:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Setting > Advanced Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          57
+        ],
+        [
+          60,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "In the Authentication Exemptions section, enter the required PingOne domains in Exempted URLs. To see the list of PingOne domains, refer to the IP address and domain reference section in the PingOne documentation.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          80,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "If you are using PAC files, enter the required PingOne domains in the PAC file exemption list. Otherwise, the authentication fails.",
+      "depth": 0
+    },
+    {
+      "item": "This option only applies to user traffic from known locations. To learn more, see Exempting URLs and Cloud Apps from Authentication.",
+      "depth": 0
+    },
+    {
+      "heading": "Testing the SAML and SCIM Configuration",
+      "level": 1
+    },
+    {
+      "text": "When your configuration is complete, you can test your work on another device."
+    },
+    {
+      "text": "Test the SAML configuration with one or both of the following methods:"
+    },
+    {
+      "item": "Test the SAML Configuration by Logging Out of the Zscaler Service",
+      "depth": 0
+    },
+    {
+      "item": "This testing method only applies if you're forwarding traffic using PAC files, Generic Routing Encapsulation (GRE) tunnels, or IPSec tunnels, and you've enabled Enforce Authentication for the location or sublocation.",
+      "depth": 0
+    },
+    {
+      "item": "On the device, browse to ip.zscaler.com.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "If you are already logged in to the Zscaler service, click Logout. Otherwise, ensure that your traffic is being forwarded to the Zscaler service.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Browse to a website. You are redirected to PingOne and prompted to log in.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Log in using your PingOne credentials, and you are automatically redirected to the original URL request.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Go to ip.zscaler.com. The status window shows the username indicating that authentication was successful.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Test the SAML Configuration with the Test URL",
+      "depth": 0
+    },
+    {
+      "item": "On the device, enter https://login.<Zscaler Cloud Name>/clstart?version=1&_domain=<Tenant Domain>&redrurl=https://mobile.<Zscaler Cloud Name>. To learn how you can find your cloud name, see Understanding Zscaler Cloud Names. The <Tenant Domain> is your organization's domain that is used to log in to the Zscaler service. For example, if you logged in to the Zscaler service with the username admin@zscaler.com, then zscaler.com is your <Tenant Domain>.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Given an organization on the zscalerbeta.net cloud with zscaler.com as the <Tenant Domain>, the completed URL would be:",
+      "depth": 1
+    },
+    {
+      "item": "https://login.zscalerbeta.net/clstart?version=1&_domain=zscaler.com&redrurl=https://mobile.zscalerbeta.net",
+      "depth": 1
+    },
+    {
+      "item": "If you are redirected to the Zscaler Admin Console, the SAML configuration is successful. You might be prompted to authenticate with your IdP.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "text": "To test the SCIM configuration, in the Zscaler Admin Console, go to Administration > Internet & SaaS Authentication > Internet & SaaS Users. You should see a complete list of the users and groups added to your user database.",
+      "strong": [
+        [
+          68,
+          82
+        ],
+        [
+          85,
+          115
+        ],
+        [
+          118,
+          139
+        ]
+      ]
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "If any errors occur, see Troubleshooting SAML to troubleshoot browser settings and SAML error codes."
+    }
+  ]
+}

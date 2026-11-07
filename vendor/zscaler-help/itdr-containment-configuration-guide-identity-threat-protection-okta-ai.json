@@ -1,0 +1,449 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Containment Configuration Guide for Identity Threat Protection with Okta AI",
+  "source": {
+    "url": "https://help.zscaler.com/itdr/containment-configuration-guide-identity-threat-protection-okta-ai",
+    "node": "1534896",
+    "revision": "3161986",
+    "updated": "2026-03-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This guide provides prerequisites and instructions on configuring a containment integration for Identity Threat Protection with Okta AI. Identity Threat Protection with Okta AI is a risk assessment and response solution from Okta that continuously analyzes the risk signals that are native to Okta, the risk signals from integrated security partner vendors, and your policy conditions to safeguard your organization against identity attacks."
+    },
+    {
+      "text": "With this integration, ITDR pushes user risk scores to Okta for Zscaler Client Connector users based on threat detection events. Based on the risk score and Okta policies, Okta can end the user’s sessions, prompt a Multi-Factor Authentication (MFA) challenge, or invoke a workflow to restore your organization's security posture. The risk score is pushed to Okta via SSF using the orchestration rules configured in the Zscaler ITDR Admin Portal."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you configure the containment integration, make sure you have:"
+    },
+    {
+      "item": "64-bit Windows 10 endpoints with a 64-bit version of Zscaler Client Connector installed. You must upgrade Zscaler Client Connector to one of the supported versions:",
+      "depth": 0
+    },
+    {
+      "item": "4.2.1.212 or later",
+      "depth": 1
+    },
+    {
+      "item": "4.3.0.202 or later",
+      "depth": 1
+    },
+    {
+      "item": "4.4.0.285 or later",
+      "depth": 1
+    },
+    {
+      "item": "For Zscaler-recommended best practices to deploy Zscaler Client Connector, see Best Practices for Zscaler Client Connector Deployment.",
+      "depth": 0
+    },
+    {
+      "item": "An Okta account with admin privileges.",
+      "depth": 0
+    },
+    {
+      "item": "An Okta tenant URL obtained from the Okta Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "To obtain the Okta tenant URL, log in to the Okta Admin Console, and click the username on the top-right corner. The tenant URL is shown in the drop-down menu. To learn more, refer to the Okta documentation.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Containment for Identity Threat Protection with Okta AI",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to configure containment for Identity Threat Protection with Okta AI:"
+    },
+    {
+      "item": "Step 1: Create a Security Events Provider in Okta",
+      "depth": 0
+    },
+    {
+      "item": "Before setting up the integration between ITDR and Okta, a Security Events Provider must be created in Okta to receive and process the security event information shared from the ITDR Admin Portal.",
+      "depth": 0
+    },
+    {
+      "item": "To create a Security Events Provider in Okta:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Okta Admin Console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Security > Device Integrations > Receive shared signals.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          36
+        ],
+        [
+          39,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Click Create stream.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the stream creation window:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Integration name: Enter a name for the integration.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Set up integration with: Select Well-known URL.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Well-known URL: Enter the following well-known URL for ITDR:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "https://zscaler.ssf.transmitter.smokescreen.io/.well-known/sse-configuration",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The Security Events Provider is created in Okta.",
+      "depth": 1
+    },
+    {
+      "item": "Step 2: Configure the Containment Integration between ITDR and Okta",
+      "depth": 0
+    },
+    {
+      "item": "To configure containment integration with Okta in the ITDR Admin Portal:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the ITDR Admin Portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Orchestrate > Containment.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          20,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Okta (SSF) entry in the table and click the Edit icon.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          21
+        ],
+        [
+          55,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Okta (SSF) window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Select Enabled.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Base URL: Enter the Okta tenant URL.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Step 3: Configure an Orchestration Rule",
+      "depth": 0
+    },
+    {
+      "item": "To push the user risk score to Okta based on events generated in ITDR, an orchestration rule must be created.",
+      "depth": 0
+    },
+    {
+      "item": "Manual containment from the ITDR Dashboard is not supported for Okta (SSF) containment.",
+      "depth": 0
+    },
+    {
+      "item": "To create an orchestration rule:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Orchestrate > Rules.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          20,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Rule.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Rule Details window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the orchestration rule.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Select Enabled.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Create a rule using queries and conditions to automate the containment of users. To learn how to write queries, see Understanding and Building Queries.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Under Respond > Okta (SSF):",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Select Enabled.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "User Risk Level: Select a risk score level (Low, Medium, or High) that you want to be updated in Okta for a user when an event matching the configured rule condition occurs. This information is shared with Okta.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          5,
+          15
+        ],
+        [
+          44,
+          47
+        ],
+        [
+          49,
+          55
+        ],
+        [
+          60,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Risk Change Reason: Enter the reason describing why the risk score is changed. This information is shared with Okta.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

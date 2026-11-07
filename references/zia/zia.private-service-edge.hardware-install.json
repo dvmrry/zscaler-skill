@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "id": "zia.private-service-edge.hardware-install",
+  "title": "Racking and cabling Private Service Edge hardware, and the Cloud Operations handoff",
+  "aliases": [
+    "pse installation guide",
+    "pse ports",
+    "pse ipmi port",
+    "pse te0",
+    "pse sfp optics",
+    "pse cabling"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.ip-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.advanced-dlp"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Installing a Private Service Edge is a physical step that ends in a handoff to Zscaler Cloud Operations. {{pair-same-location}} {{unlabeled-ports}}"
+    },
+    {
+      "label": "Private Service Edge 3.",
+      "text": "{{ports-pse3}}"
+    },
+    {
+      "label": "Private Service Edge 5.",
+      "text": "{{ports-pse5}}"
+    },
+    {
+      "label": "Dedicated Load Balancer.",
+      "text": "{{ports-dedicated-lb}} The optics count against the instance pairs is not reconciled {{gap:dedicated-lb-optics}}."
+    },
+    {
+      "label": "Private Service Edge 10.",
+      "text": "{{pse10-listed}} Nothing more is established for it {{gap:pse10-details}}."
+    },
+    {
+      "label": "After installation.",
+      "text": "{{cloud-ops-handoff}} Placement and switch settings are in [[zia.private-service-edge.deployment]]; addresses per node are in [[zia.private-service-edge.ip-requirements]]."
+    }
+  ],
+  "claims": {
+    "pair-same-location": {
+      "statement": "Both Private Service Edges of a pair must be installed in the same location. The Advanced DLP page says both servers must be installed in the same location alongside the organization's standard Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-installing-private-service-edges-internet-saas.json",
+          "quotes": [
+            "Both Private Service Edges must be installed in the same location."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-installing-advanced-dlp-private-service-edge-internet-saas.json",
+          "quotes": [
+            "Both servers must be installed in the same location alongside your standard Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "unlabeled-ports": {
+      "statement": "Zscaler uses only the ports labeled in the installation steps; any unlabeled ports on the server are unused and can be ignored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-installing-private-service-edges-internet-saas.json",
+          "quotes": [
+            "Only the ports labeled in the installation steps are used by Zscaler. Any unlabeled ports on the server are unused and can be ignored."
+          ]
+        }
+      ]
+    },
+    "ports-pse3": {
+      "statement": "On the Private Service Edge 3 the 1Gb RJ45 IPMI port is used for out-of-band management, the 1Gb or 10Gb RJ45 OS/Management port (te0) is used for server management, and the 1Gb RJ45 service ports e0 through e3 carry the service's incoming and outgoing web traffic and host the IP address of a Private Service Edge instance. The guide lists up to 7 CAT6 Ethernet cables.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-installing-private-service-edges-internet-saas.json",
+          "quotes": [
+            "1Gb (RJ45) Service Ports (e0 through e3 indicated by LB 1, 2, and 3 in the image): Used by the Zscaler service for both incoming and outgoing web traffic. These ports host the IP address of a Private Service Edge instance.",
+            "Up to 7 CAT6 Ethernet cables"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-installing-private-service-edges-internet-saas.json",
+          "quotes": [
+            "1Gb (RJ45) IPMI Port (IPMI): Used for out-of-band management.",
+            "1Gb* / 10Gb (RJ45) OS/Management Port (te0): Used for server management."
+          ],
+          "after": "Private Service Edge 3 Installation Guide"
+        }
+      ]
+    },
+    "ports-pse5": {
+      "statement": "The Private Service Edge 5 guide lists an RJ45 MTS port (te1) used for the Message Transport System and 10Gb SFP service ports te4 and te5 used for incoming and outgoing web traffic, together with 2 10G SFP+/SFP optic modules or direct attach cables. Connecting at the higher supported speed does not change any provided capacity numbers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-installing-private-service-edges-internet-saas.json",
+          "quotes": [
+            "10Gb (SFP) Service Ports (te4 and te5): Used by the Zscaler service for both incoming and outgoing web traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-installing-private-service-edges-internet-saas.json",
+          "quotes": [
+            "1Gb* / 10Gb (RJ45) MTS Port (te1): Used for Message Transport System.",
+            "2 10G SFP+ / SFP Optic Modules or Direct Attach Cables",
+            "Connecting at the higher speed does not change any provided capacity numbers."
+          ],
+          "after": "Private Service Edge 5 Installation Guide"
+        }
+      ]
+    },
+    "ports-dedicated-lb": {
+      "statement": "On the Dedicated Load Balancer the 10Gb or 25Gb SFP service ports are bundled by LACP in pairs: LB instance 1 uses twe0 and twe4, and LB instance 4 (if required) uses twe3 and twe7. The guide lists up to 6 10G SFP+/SFP optic modules or direct attach cables, and the load balancer takes 1U of space and is 17.2 inches wide.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-installing-private-service-edges-internet-saas.json",
+          "quotes": [
+            "10Gb* / 25Gb (SFP) Service Ports: Bundled via Link Aggregation Control Protocol (LACP) depending on the design below:",
+            "LB Instance 1 = twe0 + twe4",
+            "LB Instance 4 (If Required) = twe3 + twe7",
+            "Up to 6 10G SFP+ / SFP Optic Modules or Direct Attach Cables",
+            "LBs require 1U of space and are 17.2\" wide."
+          ]
+        }
+      ]
+    },
+    "pse10-listed": {
+      "statement": "The installation page has a Private Service Edge 10 Installation Guide section whose package list names 1 Private Service Edge 10.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-installing-private-service-edges-internet-saas.json",
+          "quotes": [
+            "Private Service Edge 10 Installation Guide",
+            "1 Private Service Edge 10"
+          ]
+        }
+      ]
+    },
+    "cloud-ops-handoff": {
+      "statement": "After installation the customer emails its assigned project manager on the Zscaler Cloud Operations team, including the company name and Private Service Edge location. Cloud Operations then verifies remote connectivity, installs the Zscaler software, activates the Private Service Edges in the Zscaler cloud, activates the proactive monitoring capability, and tests that they are ready for service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-installing-private-service-edges-internet-saas.json",
+          "quotes": [
+            "After installation is complete, notify Zscaler by sending an email to your assigned project manager on the Zscaler Cloud Operations team.",
+            "Your company name and Private Service Edge location must be included in the email.",
+            "Verifies remote connectivity.",
+            "Installs the Zscaler software.",
+            "Activates your Private Service Edges in the Zscaler cloud.",
+            "Activates the proactive monitoring capability.",
+            "Tests and ensures that the Private Service Edges are ready for service."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dedicated-lb-optics": {
+      "kind": "semantic",
+      "title": "How many optics a Dedicated Load Balancer needs",
+      "status": "open",
+      "detail": "The guide lists up to 6 SFP+/SFP optic modules or direct attach cables, but pairs up to 4 LB instances across 8 ports (twe0 to twe7) without reconciling the two numbers.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "pse10-details": {
+      "kind": "semantic",
+      "title": "Private Service Edge 10 installation and sizing",
+      "status": "open",
+      "detail": "The installation page lists a Private Service Edge 10 guide as a package list only, with no installation steps or port list, and no captured page gives sizing or design for it.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,1017 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.terraform.provider-behavior",
+  "title": "ZTC Terraform provider: configuration, field handling and read behavior",
+  "aliases": [
+    "ztc provider configuration",
+    "ztc terraform parallelism ignored",
+    "ztc provider builds client twice",
+    "ztc description dollar sign",
+    "ztc description cannot be cleared",
+    "zpa_ip_group ignored",
+    "ztc_traffic_forwarding_dns_rule zpa_ip_group",
+    "nw_application_groups",
+    "ztc ip destination group countries error",
+    "ztc location template panic",
+    "non_editable data source",
+    "ztc provider user agent version"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.sdk-go.auth-lifecycle",
+      "because": "cloud-connector.terraform.provider-behavior:discarded-client-keeps-renewing"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.rule-protection"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject collects the client-side behavior of the ZTC Terraform provider that is not about rule order: how it configures its SDK client, which arguments it quietly ignores, and where a read or update does something other than what its schema promises. Every claim is about what the provider and the Go SDK send and how they react; what the ZTC API does with it is stated as a gap where it matters."
+    },
+    {
+      "label": "Client construction.",
+      "text": "{{configure-builds-client-twice}} {{sdk-construction-authenticates}} {{discarded-client-keeps-renewing}} For token handling inside the SDK see [[shared.sdk-go.auth-lifecycle]]."
+    },
+    {
+      "label": "The parallelism setting.",
+      "text": "{{parallelism-not-enforced}}"
+    },
+    {
+      "label": "Text arguments.",
+      "text": "{{multiline-normalizer-doubles-dollar}} {{unescape-helper-unused}} {{multiline-diff-suppress-ignores-clears}} {{multiline-helpers-on-nine-resources}} Omitted zero values and empty lists in SDK writes are the broader mechanism behind other clears that cannot be sent; they are in [[shared.sdk-go.zero-value-writes]], not repeated here."
+    },
+    {
+      "label": "Accepted but unused arguments.",
+      "text": "{{dns-rule-zpa-ip-group-dropped}} {{forwarding-rule-no-nw-application-groups}}"
+    },
+    {
+      "label": "Reads and updates.",
+      "text": "{{forwarding-rule-read-cannot-clear-state}} {{ip-destination-update-gate-wider-than-create}} {{location-read-unguarded-response}} {{location-read-nil-response-reachability}} Update-time list panics and the parking of rules are in [[cloud-connector.terraform.rule-order]]; protection of predefined rules is in [[cloud-connector.terraform.rule-protection]]."
+    },
+    {
+      "label": "Data sources.",
+      "text": "{{location-management-non-editable-never-set}}"
+    },
+    {
+      "label": "Version reported to the API.",
+      "text": "{{version-metadata-user-agent}}"
+    },
+    {
+      "label": "Reorder coordinator synchronization.",
+      "text": "{{reorder-done-channel-read-after-unlock}} {{reorder-race-outcomes}} How the coordinator decides what to write, and what it leaves unwritten, is in [[cloud-connector.terraform.rule-order]]; for the open questions on the server side see that subject's gaps."
+    },
+    {
+      "text": "{{public-cloud-log-info-type-dropped}}"
+    },
+    {
+      "text": "{{edge-connector-group-dns-ip-panic-fixed}}"
+    },
+    {
+      "text": "The documentation describes a worker pool that the code never builds {{divergence:parallelism-doc-worker-pool}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a removed description is really removed on the server after editing one of the nine resources, since the diff is suppressed when the new text is empty.",
+      "uses": [
+        "multiline-diff-suppress-ignores-clears",
+        "multiline-helpers-on-nine-resources"
+      ]
+    },
+    {
+      "do": "Whether a plan run after applying a description containing `$` comes back clean.",
+      "uses": [
+        "multiline-normalizer-doubles-dollar",
+        "dollar-description-diff"
+      ]
+    },
+    {
+      "do": "Whether a rule created or updated through these resources matches the intent: read it back from the API and compare the ZPA IP group (DNS rules) and the network application groups (forwarding rules).",
+      "uses": [
+        "dns-rule-zpa-ip-group-dropped",
+        "forwarding-rule-no-nw-application-groups",
+        "omitted-zpa-ip-group-on-write",
+        "omitted-nw-application-groups"
+      ]
+    },
+    {
+      "do": "Which field decides whether a location can be changed, since the data source's non_editable attribute is never set.",
+      "uses": [
+        "location-management-non-editable-never-set"
+      ]
+    },
+    {
+      "do": "Whether the provider release is identified by the tag that was installed, not by the version string in a request log.",
+      "uses": [
+        "version-metadata-user-agent"
+      ]
+    }
+  ],
+  "claims": {
+    "configure-builds-client-twice": {
+      "statement": "Provider configuration builds the SDK client twice. `providerConfigure` first calls `loadClients`, which builds a client through `zscalerSDKV3Client` and stores it on the config, then calls `Client()`, which builds a second client through the same function and returns that one to Terraform. `Client()` never uses the stored client. The legacy-client branch does the same with `zscalerSDKV2Client`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/provider.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if diags := config.loadClients(); diags.HasError() {",
+            "client, err := config.Client()",
+            "apiSemaphore = make(chan struct{}, 1) } return client, nil"
+          ],
+          "after": "func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, diag.Diagnostics) {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if c.useLegacyClient { log.Println(\"[INFO] Initializing ZTC V2 (Legacy) client\")",
+            "v2Client, err := zscalerSDKV2Client(c)",
+            "c.zscalerSDKClientV3 = v2Client.Client",
+            "v3Client, err := zscalerSDKV3Client(c)",
+            "c.zscalerSDKClientV3 = v3Client"
+          ],
+          "after": "func (c *Config) loadClients() diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Legacy client logic if c.useLegacyClient {",
+            "wrappedV2Client, err := zscalerSDKV2Client(c)",
+            "Service: zscaler.NewService(wrappedV2Client.Client, nil),",
+            "// Fallback to V3 client logic",
+            "v3Client, err := zscalerSDKV3Client(c)",
+            "Service: zscaler.NewService(v3Client, nil),"
+          ],
+          "after": "func (c *Config) Client() (*Client, error) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ],
+      "conditions": "Absence claim: `grep -n 'zscalerSDKClientV3' ztc/config.go` at provider v0.2.0 finds the struct field, the two assignments in `loadClients` and one read in `SelectClient`; none is inside the body of `Client()`, which builds its client from `zscalerSDKV2Client` or `zscalerSDKV3Client` alone, and `grep -n 'SelectClient' -r ztc` finds only its definition."
+    },
+    "sdk-construction-authenticates": {
+      "statement": "Unless the legacy client is configured, constructing a OneAPI client in the Go SDK authenticates immediately, requesting a token over HTTP when the configuration holds no valid one, and starts a token-renewal ticker goroutine when the token expires more than a minute later. Construction is therefore a network call with a background effect, not a cheap object build.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "if !config.UseLegacyClient { // Authenticate and start token renewal if err := cli.authenticate(); err != nil { return nil, fmt.Errorf(\"initial authentication failed: %w\", err) } cli.startTokenRenewalTicker() }"
+          ],
+          "after": "func NewOneAPIClient(config *Configuration) (*Service, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "renewalInterval := time.Until(tokenExpiry) - (time.Minute * 1) // Renew 1 minute before expiration",
+            "if renewalInterval > 0 { ticker := time.NewTicker(renewalInterval) go func() {"
+          ],
+          "after": "func (c *Client) startTokenRenewalTicker() {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "if !c.authValid() {",
+            "authToken, err := Authenticate(c.oauth2Credentials.Context, c.oauth2Credentials, c.oauth2Credentials.Logger)"
+          ],
+          "after": "func (c *Client) authenticate() error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "req, err := http.NewRequestWithContext(ctx, \"POST\", authUrl, strings.NewReader(data.Encode()))",
+            "resp, err := cfg.HTTPClient.Do(req)"
+          ],
+          "after": "func Authenticate(ctx context.Context, cfg *Configuration, l logger.Logger) (*AuthToken, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := cfg.HTTPClient.PostForm(authUrl, formData)"
+          ],
+          "after": "func authenticateWithCert(cfg *Configuration) (*AuthToken, error) {"
+        }
+      ]
+    },
+    "discarded-client-keeps-renewing": {
+      "statement": "So every provider configuration performs two initial authentications, and the first client keeps its renewal goroutine for the life of the process: the provider never calls `Close` on any client and nothing but `SelectClient` reads the stored one. (The renewal goroutine runs when the token lifetime exceeds one minute.)",
+      "tier": "B",
+      "derived_from": [
+        "configure-builds-client-twice",
+        "sdk-construction-authenticates"
+      ],
+      "conditions": "Absence claim from a search: at v0.2.0 and HEAD, `git grep -nE '\\.Close\\(\\)|SelectClient|zscalerSDKClientV3'` over non-test files under ztc/ finds no `Close` call on an SDK client and no caller of `SelectClient`. Holds for the OneAPI (non-legacy) path with SDK v3.8.40, the SDK the v0.2.0 provider requires. Whether the extra token request matters for a tenant's authentication rate limit is server behavior and is not shown.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "c.zscalerSDKClientV3 = v3Client"
+          ],
+          "after": "func (c *Config) loadClients() diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "parallelism-not-enforced": {
+      "statement": "The provider schema advertises `parallelism` as the number of concurrent requests, and `providerConfigure` builds a package-level semaphore channel of that capacity, but no code ever sends to or receives from it. Setting `parallelism` changes a channel's size and nothing else. Terraform's own `-parallelism` flag and the SDK's rate limiting still apply.",
+      "tier": "B",
+      "conditions": "Absence claim from a search: at v0.2.0 and HEAD, `git grep -n -i 'apiSemaphore\\|semaphore\\|parallelism'` over non-test files under ztc/ finds only the declaration, the two `make(chan struct{}, ...)` calls in providerConfigure, the schema entry, and the config field that carries the value into providerConfigure. No acquire or release site exists, and the SDK config setters in `zscalerSDKV3Client` are not passed the value.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/provider.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description: \"Number of concurrent requests to make within a resource where bulk operations are not possible.",
+            "apiSemaphore = make(chan struct{}, config.parallelism)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "multiline-normalizer-doubles-dollar": {
+      "statement": "The multi-line text normalizer trims every line, doubles every `$` (`$` becomes `$$`), and appends a newline. The inverse helper `unescapeTerraformVariables`, which converts `$$` back to `$`, is defined in the same file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/validator.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "lines := strings.Split(str, \"\\n\") for i := range lines { lines[i] = strings.TrimSpace(lines[i]) }",
+            "escapedStr = strings.ReplaceAll(escapedStr, \"$\", \"$$\")",
+            "return escapedStr + \"\\n\"",
+            "func unescapeTerraformVariables(val string) string { // Convert `$$` back to `$` for the API return strings.ReplaceAll(val, \"$$\", \"$\")"
+          ],
+          "after": "func normalizeMultiLineString(val interface{}) string {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "unescape-helper-unused": {
+      "statement": "Nothing in the provider calls `unescapeTerraformVariables`, so the `$$` doubling is never reversed by the provider.",
+      "tier": "B",
+      "derived_from": [
+        "multiline-normalizer-doubles-dollar"
+      ],
+      "conditions": "Absence claim from a search: at v0.2.0 and HEAD, `git -C vendor/terraform-provider-ztc grep -n unescapeTerraformVariables` finds only the definition in ztc/validator.go.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/validator.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "func unescapeTerraformVariables(val string) string {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "multiline-diff-suppress-ignores-clears": {
+      "statement": "The matching diff-suppress function returns true whenever the new text is empty, before it looks at the old text. By its own logic a change from a non-empty value to an empty one is never a difference.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/validator.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "func noChangeInMultiLineText(k, oldText, newText string, d *schema.ResourceData) bool { if newText == \"\" { return true }"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "multiline-helpers-on-nine-resources": {
+      "statement": "Both helpers are attached to the `description` argument of nine resources as `StateFunc` and `DiffSuppressFunc`. On those resources a description cannot be cleared by removing it or setting it to an empty string, because the diff is suppressed and no update is sent. The `$$` form is computed for the plan and state; the plugin SDK keeps the configured text for apply, so the request carries `$` as written.",
+      "tier": "B",
+      "derived_from": [
+        "multiline-normalizer-doubles-dollar",
+        "multiline-diff-suppress-ignores-clears"
+      ],
+      "conditions": "Search: at v0.2.0 and HEAD, `git grep -nE 'normalizeMultiLineString|noChangeInMultiLineText' ` over non-test files under ztc/ lists account_groups, forwarding_gateway, ip_destination_groups, ip_pool_groups, ip_source_groups, network_services, network_services_groups, traffic_forwarding_dns_rule and traffic_forwarding_rule, each with both functions on `description`, which is `Optional` and not `Computed`. The suppressed clear depends on the Terraform plugin SDK honouring `DiffSuppressFunc` for an attribute removed from configuration (terraform-plugin-sdk/v2 v2.40.1, the version the provider requires, which is not a vendored source here). The plugin SDK stores the configured text alongside the StateFunc output and returns it to `d.Get` at apply (terraform-plugin-sdk/v2 v2.40.1, not vendored).",
+      "gaps": [
+        "dollar-description-diff"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_source_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "StateFunc:        normalizeMultiLineString,",
+            "DiffSuppressFunc: noChangeInMultiLineText,"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_source_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description: d.Get(\"description\").(string),"
+          ],
+          "after": "func expandFWIPSourceGroups(d *schema.ResourceData) ipsourcegroups.IPSourceGroups {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "dns-rule-zpa-ip-group-dropped": {
+      "statement": "The DNS forwarding-rule resource accepts a `zpa_ip_group` block (documented as applying to the `REDIR_ZPA` action) but never uses it. The request builder does not set the SDK's `ZPAIPGroup` field and the read path does not set `zpa_ip_group` in state, although the SDK model has the field and the matching data source does read it. A configured value is accepted by the schema and silently ignored on create and update, and a value present on the server never appears in state.",
+      "tier": "B",
+      "conditions": "Absence claim from a search: at v0.2.0 and HEAD, `git grep -n -i 'zpa_ip_group\\|ZPAIPGroup'` over non-test files under ztc/ finds the resource only at the schema line, and the data source at its schema and its `d.Set`. SDK v3.8.40 `ECDNSRules.ZPAIPGroup` is a pointer tagged `omitempty`, so an unset pointer is left out of the body. Whether the server keeps or clears an omitted `zpaIpGroup` on a full update is server behavior (gap omitted-zpa-ip-group-on-write).",
+      "gaps": [
+        "omitted-zpa-ip-group-on-write"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"zpa_ip_group\":    setIdNameSchemaCustom(1,",
+            "DNSGateway:      expandIDNameSet(d, \"dns_gateway\"),"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/data_source_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "d.Set(\"zpa_ip_group\", flattenIDNameSet(resp.ZPAIPGroup))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "ZPAIPGroup *common.CommonIDName `json:\"zpaIpGroup,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "forwarding-rule-no-nw-application-groups": {
+      "statement": "The traffic-forwarding rule resource has no `nw_application_groups` argument, yet its request builder asks for one by that key. The key is not in the schema, so the lookup yields an empty list, and the SDK tags `NwApplicationGroups` `omitempty`, so the field is left out of every create and update body. The read path never sets it either. The resource therefore cannot declare the association and does not show an association made elsewhere. The audit's reading that an empty value is sent is not what the code does: the field is omitted.",
+      "tier": "B",
+      "derived_from": [
+        "shared.sdk-go.zero-value-writes:ztw-writes-marshal-caller-struct",
+        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
+      ],
+      "conditions": "Absence claim from a search: at v0.2.0 and HEAD, `git grep -n -i 'nw_application_groups\\|NwApplicationGroups'` over non-test files under ztc/ finds this resource only on the request-builder line (the other hit is the detach callback in resource_ztc_network_services_groups.go). Whether an omitted `nwApplicationGroups` leaves the stored association untouched or clears it on a full update is server behavior (gap omitted-nw-application-groups). The SDK's forwarding rule create sends the struct through `CreateResource` (quoted) and its update through `UpdateWithPutResource`, both of which marshal the caller's struct (ztw-writes-marshal-caller-struct), and the field is a plain slice with no MarshalJSON of its own.",
+      "gaps": [
+        "omitted-nw-application-groups"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "NwApplicationGroups:         expandIDNameExtensionsSet(d, \"nw_application_groups\"),",
+            "\"nw_service_groups\":              setIDsSchemaTypeCustom("
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "setInterface, ok := d.GetOk(key)",
+            "return []common.IDNameExtensions{}"
+          ],
+          "after": "func expandIDNameExtensionsSet(d *schema.ResourceData, key string) []common.IDNameExtensions {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "NwApplicationGroups []common.IDNameExtensions `json:\"nwApplicationGroups,omitempty\"`",
+            "resp, err := service.Client.CreateResource(ctx, forwardingRulesEndpoint, *rules)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "forwarding-rule-read-cannot-clear-state": {
+      "statement": "The traffic-forwarding rule resource reads a rule by listing all rules and searching for its ID, and the lookup returns an error when the ID is absent. The read function returns that error before it reaches its own \"no longer exists\" branch, so that branch can never run. A rule deleted outside Terraform makes the refresh fail instead of removing the resource from state. The DNS and log-forwarding rule resources read by ID and clear state when the SDK reports the object as not found.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "allRules, err := forwarding_rules.GetAll(ctx, service) if err != nil { return nil, err } for i := range allRules { if allRules[i].ID == id { var rule forwarding_rules.ForwardingRules = allRules[i] return &rule, nil } } return nil, fmt.Errorf(\"rule with ID %d not found\", id)"
+          ],
+          "after": "func getRule(ctx context.Context, service *zscaler.Service, id int) (*forwarding_rules.ForwardingRules, error) {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := getRule(ctx, service, id) if err != nil { return diag.FromErr(err) } // Rule not found if resp == nil { log.Printf(\"[WARN] Removing forwarding rule %s from state because it no longer exists in ZIA\", d.Id())"
+          ],
+          "after": "func resourceTrafficForwardingRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := traffic_dns_rules.Get(ctx, service, id) if err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {",
+            "from state because it no longer exists in ZTC\", d.Id()) d.SetId(\"\") return nil"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := traffic_log_rules.Get(ctx, service, id) if err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {",
+            "from state because it no longer exists in ZTC\", d.Id()) d.SetId(\"\") return nil"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "ip-destination-update-gate-wider-than-create": {
+      "statement": "For IP destination groups, create requires at least one category or country only when the type is `DSTN_OTHER`. Update applies the same requirement when the type is `DSTN_OTHER` or when `countries` or `ip_categories` changed, and it counts only those two arguments, not `addresses`. Removing the last category or country from a group of another type is rejected by the provider before any API call, with a message that talks about `DSTN_OTHER`.",
+      "tier": "A",
+      "gaps": [
+        "ip-destination-clear-validity"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_destination_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "groupType := d.Get(\"type\").(string) if groupType == \"DSTN_OTHER\" {",
+            "ipCategories, ipCategoriesOk := d.GetOk(\"ip_categories\") countries, countriesOk := d.GetOk(\"countries\") if (!ipCategoriesOk || ipCategories.(*schema.Set).Len() == 0) && (!countriesOk || countries.(*schema.Set).Len() == 0) {",
+            "return diag.FromErr(fmt.Errorf(\"when 'type' is set to 'DSTN_OTHER', either 'ip_categories' or 'countries' must be set\")) } } zClient := meta.(*Client)"
+          ],
+          "after": "func resourceIPDestinationGroupsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_destination_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if groupType == \"DSTN_OTHER\" || d.HasChange(\"countries\") || d.HasChange(\"ip_categories\") {",
+            "ipCategories, ipCategoriesOk := d.GetOk(\"ip_categories\") countries, countriesOk := d.GetOk(\"countries\") if (!ipCategoriesOk || ipCategories.(*schema.Set).Len() == 0) && (!countriesOk || countries.(*schema.Set).Len() == 0) {",
+            "return diag.FromErr(fmt.Errorf(\"when 'type' is set to 'DSTN_OTHER', either 'ip_categories' or 'countries' must be set\")) } } zClient := meta.(*Client)"
+          ],
+          "after": "func resourceIPDestinationGroupsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_destination_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"addresses\": {",
+            "Addresses:    SetToStringList(d, \"addresses\"),"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "location-read-unguarded-response": {
+      "statement": "The location template read tests a failed read for a 404 status by dereferencing `respErr.Response.StatusCode` on the SDK error with no nil check. The SDK's own `IsObjectNotFound` helper does check `Response == nil` first, and the SDK error type allows a nil `Response`, so an error of that shape makes the read panic instead of returning a diagnostic. The location management resource has the same line.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_location_template.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.Response.StatusCode == 404 {"
+          ],
+          "after": "func resourceLocationTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_location_management.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.Response.StatusCode == 404 {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "Response *http.Response"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "if r == nil || r.Response == nil {"
+          ],
+          "after": "func (r *ErrorResponse) IsObjectNotFound() bool {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "location-read-nil-response-reachability": {
+      "statement": "Within the SDK the provider is built with, the only code that builds an error of this type always sets `Response`, so the unguarded dereference is a latent panic, not one the SDK triggers on its own. It would fire for an error of this type built without a response, for example by a different SDK version or a wrapper.",
+      "tier": "B",
+      "derived_from": [
+        "location-read-unguarded-response"
+      ],
+      "conditions": "Absence claim from a search: at v3.8.40 and HEAD, `git grep -nE 'ErrorResponse\\{|errorx\\.ErrorResponse'` over non-test files under zscaler/ finds two constructors in errorx/errors.go, `CheckErrorInResponse` (passes `Response: res`) and `NewOneAPIFallbackError` (builds a response object). Transport errors are plain errors and fail the type assertion, so they do not reach the dereference.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "Response: res,",
+            "func NewOneAPIFallbackError(respBody []byte, method, endpoint, baseURL string) *ErrorResponse {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "location-management-non-editable-never-set": {
+      "statement": "The location management data source declares a computed `non_editable` attribute that its read function never sets, and the SDK's location type has no field to take it from, so the attribute is never populated, whatever the API reports. The IP group data sources do set their `is_non_editable` from the SDK field.",
+      "tier": "B",
+      "conditions": "Absence claim from a search: at v0.2.0 and HEAD, `git grep -n -i 'non_editable'` over non-test files under ztc/ finds this data source only at the schema entry; at SDK v3.8.40, `git grep -n -i 'editable'` under zscaler/ztw/services/locationmanagement/ finds only the location template's `Editable`. Whether the API returns such a field for locations is not shown.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/data_source_ztc_location_management.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"non_editable\": {",
+            "_ = d.Set(\"exclude_from_manual_groups\", resp.ExcludeFromManualGroups)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/data_source_ztc_ip_source_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"is_non_editable\", resp.IsNonEditable)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "version-metadata-user-agent": {
+      "statement": "The User-Agent the provider sends names the provider version from a hard-coded constant that reads `0.1.9` in the v0.2.0 tree. The release build's linker flags set `main.version`, a different symbol from the constant the User-Agent reads, so a build from the tag as written reports 0.1.9 to the API. A second constant, `ProviderVersion = \"1.0.0\"` in the provider package, is not read by the configuration path.",
+      "tier": "B",
+      "conditions": "Absence claim from a search: at v0.2.0 and HEAD, `git grep -n -E 'common\\.Version|ProviderVersion|main\\.version'` finds the User-Agent reading `common.Version()`, no reader of the 1.0.0 constant, and the only linker flag in .goreleaser.yml. Whether another release step rewrites ztc/common/version.go is not shown.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common/version.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "var version = \"0.1.9\""
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "providerVersion := common.Version()"
+          ],
+          "after": "func generateUserAgent(terraformVersion string) string {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": ".goreleaser.yml",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "-X main.version={{.Version}}"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/version.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "var ProviderVersion = \"1.0.0\""
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "reorder-done-channel-read-after-unlock": {
+      "statement": "The reorder coordinator replaces the per-type completion channel in a shared map while holding the registry lock, releases the lock, and only then reads the channel back out of the map to hand to the worker goroutine that will close it. The read is outside the lock that guards the writes. The wait path, by contrast, reads the same map under the lock.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "rules.Lock() shouldCallReorder := false",
+            "rules.reorderDone[resourceType] = make(chan struct{})",
+            "rules.Unlock() if shouldCallReorder {",
+            "doneCh := rules.reorderDone[resourceType] go func() { reorderAll(resourceType, getCount, updateOrder, beforeReorder) close(doneCh) }()"
+          ],
+          "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "rules.Lock() ch := rules.reorderDone[resourceType] rules.Unlock()"
+          ],
+          "after": "func waitForReorder(resourceType string) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "reorder-race-outcomes": {
+      "statement": "Because the done-channel map is read without the lock while registrations of any resource type write to it under the lock, the Go runtime can abort the provider with a concurrent map read and map write. Replacing a still-open channel in that window is not possible, so a double close or a waiter left on an unclosed channel does not follow.",
+      "tier": "B",
+      "derived_from": [
+        "reorder-done-channel-read-after-unlock"
+      ],
+      "conditions": "Only the worker started after the unlocked read closes the newly written channel, so a second registration in the window sees it open and does not replace it. The map race is derived from the Go memory model, not observed; a `go test -race` run with concurrent registrations would confirm it.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "case <-rules.reorderDone[resourceType]:"
+          ],
+          "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "public-cloud-log-info-type-dropped": {
+      "statement": "The `ztc_public_cloud_info` resource declares `log_info_type` inside `account_details`, but neither its request builder nor its read copies that argument, so a configured value is never sent to the API and is never read back into state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_public_cloud_info.go",
+          "quotes": [
+            "\"account_details\": { Type: schema.TypeList, Optional: true,",
+            "\"log_info_type\": { Type: schema.TypeString, Optional: true, Description: \"The type of log information. Supported types are INFO and ERROR.\", },",
+            "AwsAccountID: item[\"aws_account_id\"].(string), AwsRoleName: item[\"aws_role_name\"].(string), CloudWatchGroupArn: item[\"cloud_watch_group_arn\"].(string), EventBusName: item[\"event_bus_name\"].(string), ExternalID: item[\"external_id\"].(string), TroubleShootingLogging: item[\"trouble_shooting_logging\"].(bool),",
+            "\"aws_account_id\": gp.AwsAccountID, \"aws_role_name\": gp.AwsRoleName, \"cloud_watch_group_arn\": gp.CloudWatchGroupArn, \"event_bus_name\": gp.EventBusName, \"external_id\": gp.ExternalID, \"trouble_shooting_logging\": gp.TroubleShootingLogging, \"trusted_account_id\": gp.TrustedAccountID, \"trusted_role\": gp.TrustedRole, },"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ],
+      "conditions": "Absence claim: `grep -n 'log_info_type\\|LogInfoType' ztc/resource_ztc_public_cloud_info.go` at v0.2.0 returns one line, the schema declaration inside `account_details`. The data source (ztc/data_source_ztc_public_cloud_info.go) does read `resp.AccountDetails.LogInfoType`, and the Go SDK's account details struct has `LogInfoType` (`json:\"logInfoType,omitempty\"`) at v3.8.58, so only the resource drops it."
+    },
+    "edge-connector-group-dns-ip-panic-fixed": {
+      "statement": "The provider's 0.2.0 changelog records a fix for a panic of the `ztc_edge_connector_group` data source on the attribute type of `ec_instances.0.dns_ip`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "CHANGELOG.md",
+          "after": "## 0.2.0 (June 29, 2026)",
+          "quotes": [
+            "Fixed `ztc_edge_connector_group` panic with attribute type `ec_instances.0.dns_ip`"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Data Source ``ztc_edge_connector_group`` - Retrieves Edge Connector Group information"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "omitted-zpa-ip-group-on-write": {
+      "kind": "semantic",
+      "title": "Whether the ZTC API needs `zpaIpGroup` to create a REDIR_ZPA DNS rule, and whether omitting it on update clears it",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a REDIR_ZPA rule managed by this resource loses or never gets its ZPA IP group",
+      "detail": "The client never sends the field. Create a REDIR_ZPA DNS rule with the resource, and separately set the group out of band and apply an unrelated change, then read the rule back."
+    },
+    "omitted-nw-application-groups": {
+      "kind": "semantic",
+      "title": "Whether omitting `nwApplicationGroups` on a full forwarding-rule update keeps or clears the stored association",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether applying this resource removes network application groups set elsewhere",
+      "detail": "The client leaves the field out of every body. Attach a network application group to a rule out of band, apply an unrelated change through the resource, and re-read the rule."
+    },
+    "ip-destination-clear-validity": {
+      "kind": "semantic",
+      "title": "Whether a non-DSTN_OTHER IP destination group may be saved with no categories and no countries",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the provider's update check rejects a change the API would accept",
+      "detail": "The provider enforces the rule on update for any group type whose categories or countries changed; it enforces it on create only for DSTN_OTHER. Update a DSTN_IP group directly through the API with both lists emptied and note the response."
+    },
+    "dollar-description-diff": {
+      "kind": "semantic",
+      "title": "Whether a ZTC description containing `$` shows a permanent plan difference",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying whether descriptions with a literal `$` can ever plan clean",
+      "detail": "The configured text reaches the API as written, but the diff-suppress function compares the StateFunc output of the old value with a value that may already be normalized, so for a description with `$` the two may never match. Test with a description such as `cost $5`: apply, then plan again and see whether a difference remains."
+    }
+  },
+  "divergences": {
+    "parallelism-doc-worker-pool": {
+      "summary": "The provider documentation says parallelism sizes a worker pool that serializes API calls; the code only sizes a channel that nothing uses.",
+      "positions": [
+        {
+          "says": "The provider creates a worker pool of the configured size to serialize API calls; the default is 1.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "docs/index.md",
+            "quotes": [
+              "The provider creates a worker pool of this size to serialize API calls. The default is `1`."
+            ]
+          }
+        },
+        {
+          "says": "providerConfigure only allocates a package-level channel of that capacity; no code sends to or receives from it.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "ztc/provider.go",
+            "quotes": [
+              "apiSemaphore = make(chan struct{}, config.parallelism)"
+            ]
+          }
+        }
+      ],
+      "impact": "An operator who lowers parallelism to throttle the provider, as the documentation suggests, gets no throttling.",
+      "resolution": {
+        "by": "cloud-connector.terraform.provider-behavior:parallelism-not-enforced",
+        "rule": "source-rank",
+        "note": "The code is what runs."
+      }
+    }
+  }
+}

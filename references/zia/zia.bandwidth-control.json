@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "zia.bandwidth-control",
+  "title": "ZIA Bandwidth Control",
+  "aliases": [
+    "bandwidth control",
+    "bandwidth control rule",
+    "bandwidth shaping",
+    "why is my bandwidth rule not firing",
+    "zia bandwidth policy"
+  ],
+  "binds": [
+    "zia/bandwidth-control-rules"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.bandwidth-control.rules",
+      "because": "zia.bandwidth-control.rules:ascending-order"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.bandwidth-control.allocation",
+      "because": "zia.bandwidth-control.allocation:two-pass"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.bandwidth-control.location-scope",
+      "because": "zia.bandwidth-control.location-scope:known-locations-only"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.time-intervals.rule-usage",
+      "because": "zia.time-intervals.rule-usage:rule-types"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall.traffic-path",
+      "because": "zia.bandwidth-control.pipeline-position:only-surviving-traffic"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering",
+      "because": "zia.bandwidth-control.pipeline-position:last-in-web-order"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.locations.bandwidth",
+      "because": "zia.bandwidth-control.location-scope:toggle-gates-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/bandwidth-control-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/bandwidth-classes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.classes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.default-rule"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.pipeline-position"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order.registry"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Bandwidth Control decides how much of a location's internet bandwidth each traffic class gets. It is not an allow or block policy: a request is given full or reduced bandwidth, never refused by this module."
+    },
+    {
+      "steps": [
+        {
+          "label": "Does the traffic reach Bandwidth Control at all?",
+          "text": "It is the last step of the web module, after the firewall and every earlier web policy, and only certain TCP protocols are shaped: [[zia.bandwidth-control.pipeline-position]], [[zia.bandwidth-control.allocation]]."
+        },
+        {
+          "label": "Is the location in scope?",
+          "text": "Only configured locations are shaped, the location must enforce Bandwidth Control and have upload and download limits, and sublocations can share or own a slice: [[zia.bandwidth-control.location-scope]]."
+        },
+        {
+          "label": "Which class is the traffic in?",
+          "text": "Classes group URL categories, cloud applications and domains, plus the large-file, web conferencing and VoIP classes: [[zia.bandwidth-control.classes]]."
+        },
+        {
+          "label": "Which rule references that class, and where is it in the order?",
+          "text": "Criteria, order, admin rank and disabled rules: [[zia.bandwidth-control.rules]]. Provider reorder and rank behavior is in [[zia.terraform.rule-order.registry]]."
+        },
+        {
+          "label": "What terms does the traffic get?",
+          "text": "Minimum and maximum percentages are applied differently, and the minimum only matters under contention: [[zia.bandwidth-control.allocation]]. A class no rule references lands in the default rule: [[zia.bandwidth-control.default-rule]]."
+        },
+        {
+          "label": "Is a cap in the way?",
+          "text": "Rule, class and domain limits: [[zia.bandwidth-control.limits]]."
+        }
+      ]
+    },
+    {
+      "text": "For API and Terraform work, field names, enums and provider resources are in [[zia.bandwidth-control.api-surface]]. Firewall Control is a different module that allows or blocks flows: see [[zia.firewall]]."
+    }
+  ]
+}

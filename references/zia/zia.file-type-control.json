@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "id": "zia.file-type-control",
+  "title": "ZIA File Type Control",
+  "aliases": [
+    "file type control",
+    "file type policy",
+    "block file types",
+    "upload download file type",
+    "block mp3 zip exe",
+    "ftc"
+  ],
+  "binds": [
+    "zia/file-type-rules",
+    "zia/custom-file-types"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.file-type-control.criteria",
+      "because": "zia.file-type-control.criteria:criteria-expression"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.file-type-control.actions",
+      "because": "zia.file-type-control.actions:operation"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.time-intervals.rule-usage",
+      "because": "zia.time-intervals.rule-usage:rule-types"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.rule-scoping",
+      "because": "zia.file-type-control.criteria:scope-limits"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.file-type-control.pipeline",
+      "because": "zia.file-type-control.pipeline:post-and-response-position"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dlp.evaluation",
+      "because": "zia.dlp.evaluation:dlp-after-url-and-file-type"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ftp-control",
+      "because": "zia.file-type-control.actions:ftp-via-protocol-criterion"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.bypass-impact",
+      "because": "zia.ssl-inspection.bypass-impact:dependent-features"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/file-type-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/custom-file-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control.api-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssh-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control.runbook"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Why was this file blocked, or why was it not?\" needs four questions answered in order."
+    },
+    {
+      "steps": [
+        {
+          "label": "Does a rule exist and is it enabled?",
+          "text": "With no matching rule every file type is allowed, and a new rule starts disabled: [[zia.file-type-control.actions]]."
+        },
+        {
+          "label": "Do the rule's criteria match this file?",
+          "text": "File type (including unknown and inside archives), size, active content, unscannable and password-protected conditions, protocols and scope: [[zia.file-type-control.criteria]]."
+        },
+        {
+          "label": "Did the traffic reach File Type Control, and in what order?",
+          "text": "Decryption, the position relative to Malware Protection, DLP and Sandbox, and the 400 MB scanning limit: [[zia.file-type-control.pipeline]]. For FTP flows start with [[zia.ftp-control]]."
+        },
+        {
+          "label": "What does the match do?",
+          "text": "Allow, Caution or Block, in the rule's direction: [[zia.file-type-control.actions]]."
+        }
+      ]
+    },
+    {
+      "text": "For tenant data and automation, field names, enums and the custom file type endpoints are in [[zia.file-type-control.api-shape]]. SSH is not a File Type Control or inspection topic: [[zia.ssh-control]]."
+    }
+  ]
+}

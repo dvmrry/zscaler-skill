@@ -1,0 +1,1420 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Best Practices Runbook: Topic/Off Topic Detectors",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-users/best-practices-runbook-topicoff-topic-detectors-1",
+    "node": "1541879",
+    "revision": "3227822",
+    "updated": "2026-08-24",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "AI Guard works by enforcing enterprise policies on prompts and responses between users and public AI apps, such as ChatGPT, Perplexity, Claude, etc., and between private AI apps and foundational Large Language Models (LLMs), such as OpenAI, Anthropic, etc. You set a policy by enabling one or more included detectors on prompts and responses. These detectors are activated on prompts and responses based on the policies you define in the portal."
+    },
+    {
+      "text": "The Topic detector triggers when a user's prompt matches a topic you care about: salary discussions, medical questions, weapons, legal matters, etc., even when phrased indirectly or in another language. The Off-Topic detector does the inverse: it triggers when the prompt does not match any configured topic.",
+      "strong": [
+        [
+          4,
+          9
+        ]
+      ]
+    },
+    {
+      "text": "This best practices runbook contains the following information on the Topic/Off Topic detectors:"
+    },
+    {
+      "item": "How the Topic/Off Topic detectors works.",
+      "depth": 0
+    },
+    {
+      "item": "The Topic detector (also called “On-Topic”) monitors every prompt a user sends to the LLM and flags the prompt when it's semantically related to any configured topics. The user provides a topic name and a topic definition; the detector does the rest.",
+      "depth": 0
+    },
+    {
+      "item": "The Off-Topic detector monitors the same prompt stream but triggers when the prompt does not match any configured topic. If a user defines “Customer Support” as a topic, any prompt that relates to sports, cooking, or politics will be flagged.",
+      "depth": 0
+    },
+    {
+      "item": "The Topic/Off Topic detectors catch the following:",
+      "depth": 0
+    },
+    {
+      "item": "Direct matches: “What are the side effects of insulin?” triggers a Medical topic defined as “diabetes, thyroid and cancer.”",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Indirect / semantic matches: “How much does a senior engineer make at Google?” triggers a Salary topic even though the word “salary” isn’t in the prompt.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Keyword lists: “The NBA finals were incredible this year” triggers a Leisure topic defined as “sports, religion, politics, gaming.” Each keyword is evaluated independently.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Multilingual prompts: Prompts in any of 28 supported languages are handled natively. No extra configuration needed.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Paraphrased or indirect phrasing: “Can you compare compensation packages between Amazon and Meta?” triggers a Salary topic even though it uses “compensation” not “salary.”",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "The Topic/Off Topic detectors does not do the following:",
+      "depth": 0
+    },
+    {
+      "item": "It does not perform keyword matching by exact substring. It uses semantic understanding, so “block” in “writer’s block” won’t trigger a topic about blockchain.",
+      "depth": 1
+    },
+    {
+      "item": "It does not chunk long prompts. Mentions buried deep in very long prompts may be missed.",
+      "depth": 1
+    },
+    {
+      "item": "It does not replace content filtering (toxicity, PII, jailbreak). Topic detection is about subject matter, not safety.",
+      "depth": 1
+    },
+    {
+      "heading": "When to use which detector",
+      "level": 3
+    },
+    {
+      "item": "Both detectors use the same underlying model and the same topic definitions. The only difference is when they are triggered:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "",
+          "Topic (On Topic)",
+          "Off Topic"
+        ],
+        [
+          "Triggers when...",
+          "Prompt is about a configured topic.",
+          "Prompt is not about any configured topic."
+        ],
+        [
+          "Use case",
+          "Block or log sensitive subjects (salary, medical, weapons, legal).",
+          "Keep users on task (only allow topics you’ve defined)."
+        ],
+        [
+          "Typical action",
+          "Block or Detect on match.",
+          "Block or Detect when off topic."
+        ],
+        [
+          "Example",
+          "Topic: Salary Prompt: “How much do nurses earn?” Result: Triggered",
+          "Topic: Salary Prompt: “How much do nurses earn?” Result: Triggered"
+        ],
+        [
+          "Aggregation",
+          "OR: Triggers if any topic matches",
+          "AND: Triggers only if no topic matches"
+        ]
+      ],
+      "strong": [
+        [
+          4,
+          1,
+          0,
+          5
+        ],
+        [
+          4,
+          1,
+          14,
+          20
+        ],
+        [
+          4,
+          1,
+          49,
+          55
+        ],
+        [
+          4,
+          2,
+          0,
+          5
+        ],
+        [
+          4,
+          2,
+          14,
+          20
+        ],
+        [
+          4,
+          2,
+          49,
+          55
+        ],
+        [
+          5,
+          1,
+          0,
+          2
+        ],
+        [
+          5,
+          2,
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "If you only want user to talk about X, Y, and Z, then you should use the Off-Topic detector. If you only want to block users from talking about A or B, then you should use the Topic detector.",
+      "depth": 0
+    },
+    {
+      "item": "How to configure the detector.",
+      "depth": 0
+    },
+    {
+      "heading": "Topic Name and Definition",
+      "level": 2
+    },
+    {
+      "item": "Each topic is a combination of a Topic Name and a Topic Definition. Both contribute to what the detector matches; the name provides additional semantic context to the model, so the name should be related to the definition.",
+      "depth": 0,
+      "strong": [
+        [
+          33,
+          43
+        ],
+        [
+          50,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Topic Name: Should clearly describe the category being detected. Examples: “Medical”, “Salary”, “Weapons”, “Legal Compliance”.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Topic Definition: Choose one of the following two formats:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Natural Language: Describe what you want to detect in plain language. Example: “We want to avoid discussions related to diabetes, thyroid and cancer.” Natural language descriptions work best for broad semantic matching.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Keyword List: Enter comma-separated keywords related to the topic name. Example: “diabetes, thyroid, cancer.” Each keyword is evaluated independently. Keyword lists work best for precise, specific term matching.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Definition Tips:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Use multi-word, descriptive definitions rather than short abstract phrases.",
+      "depth": 2
+    },
+    {
+      "item": "A single-word definition like “Manager” is too vague, it will match almost anything conversational. Use “Questions about management practices, team leadership, and managerial responsibilities” instead.",
+      "depth": 2
+    },
+    {
+      "item": "For common or broad terms, prefer natural language format over single keywords. Keyword lists are sensitive to ambiguous single-word terms.",
+      "depth": 2
+    },
+    {
+      "item": "Avoid parentheses or regex patterns in definitions.",
+      "depth": 2
+    },
+    {
+      "item": "Topic name and definition should be related; the name provides additional semantic context to the model.",
+      "depth": 2
+    },
+    {
+      "heading": "Configuration",
+      "level": 2
+    },
+    {
+      "item": "To configure the Topic/Off Topic detectors in an AI Guard policy:",
+      "depth": 0
+    },
+    {
+      "item": "In the AI Security Admin Portal left-side navigation, go to: AI Guard > Policy > Configurations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          61,
+          69
+        ],
+        [
+          72,
+          80
+        ],
+        [
+          81,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Click Add More to open the Add New Configuration page. To edit an existing policy, in the Action column, click Edit Configuration for a policy.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          27,
+          48
+        ],
+        [
+          90,
+          96
+        ],
+        [
+          111,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "Under Basic Information, enter:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Policy Name",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Description",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Continue to Detectors. The Prompt Detectors tab opens.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          27
+        ],
+        [
+          33,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "On the Prompt Detectors tab, click on the Topic or Off Topic tile. The Configure window appears.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          42,
+          47
+        ],
+        [
+          51,
+          60
+        ],
+        [
+          71,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "The following configuration options are the initial recommendations for the Topic/Off Topic detectors:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Enabled: Enables the prompt detector and is on by default. Leave Enabled.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          65,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Severity: Corresponds to the severity icons in the Prompt Detectors column on the Policies page. The recommended setting is LOW for initial deployments. Raise to MEDIUM/HIGH only after a user confirms the false-positive rate is acceptable.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          51,
+          67
+        ],
+        [
+          82,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Threshold: The lower the threshold setting, the more strict AI Guard is with activating the policy (i.e., allowing, blocking, or detecting the prompt). Keep the default for production. For more information, refer to the next section.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Default State: What happens by default when the detector triggers: Detect (log only), Allow (pass through), or Block (stop the prompt).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          67,
+          73
+        ],
+        [
+          86,
+          91
+        ],
+        [
+          111,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "Custom Topic (Topic) or Topic Definition (Off Topic): Up to 10 topics. Each has a Name and a Definition. Refer to the previous Topic Name and Definition section for more information.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Action: Select what you want the policy to do when activated for specific prompt detectors. Allow allows the prompt to proceed, Block blocks the prompt, and Detect flags the prompt as detected.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          92,
+          97
+        ],
+        [
+          128,
+          133
+        ],
+        [
+          157,
+          163
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After configuring the prompt detectors, click Save Changes to close the window and click Next on the Prompt Detectors tab. The Response Detectors tab opens.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          46,
+          58
+        ],
+        [
+          89,
+          93
+        ],
+        [
+          101,
+          117
+        ],
+        [
+          127,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "Configuring response detectors follows the same steps as configuring prompt detectors, so refer back to the earlier steps for more information.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "After configuring your response detectors, click Next. The Review tab opens.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          49,
+          53
+        ],
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Review tab shows you a summary of the policy configuration you created. Click Submit Policy if everything looks correct.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          4,
+          10
+        ],
+        [
+          82,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "In the AI Security Admin Portal left-side navigation, go to: AI Guard > Policy Testing.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          61,
+          69
+        ],
+        [
+          72,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Validate in Policy Testing with five to ten sample prompts to confirm your setup is working as expected. To learn more about policy testing, see AI Guard Policy Testing.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          12,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "After creating a policy and confirming it works as expected, the next step is to create a policy match. For more information on policy matching, see Managing AI Guard Policy Control.",
+      "depth": 0
+    },
+    {
+      "item": "Choosing the correct threshold.",
+      "depth": 0
+    },
+    {
+      "item": "The threshold is a number between 0.0 and 1.0 that controls how confident the model must be before it calls a prompt a match. Similar to a volume knob; turning it up will trigger only very obvious mentions. Turn it down and more borderline cases trigger.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "The default is 0.7. This was chosen based on Zscaler's internal validation set, a benchmark spanning 28 languages and roughly 9,000 labeled prompts covering both real competitor mentions and tricky false-positive cases (city block, writer's block, out of stock, Times Square, Peter Pan, etc.).",
+      "depth": 0,
+      "strong": [
+        [
+          15,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler strongly recommends that you leave the threshold at 0.7. We built and validated the detector around this default.",
+      "depth": 0,
+      "strong": [
+        [
+          60,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Refer to the following table when considering changing the threshold:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Range",
+          "What it means",
+          "When to use it"
+        ],
+        [
+          "0.80 to 1.00",
+          "Only strong, direct matches trigger. The content explicitly discusses the subject using closely related terminology.",
+          "If you are very sensitive to false positives. You would rather miss borderline cases than pay someone to review noise. Common for initial Block-mode roll-outs."
+        ],
+        [
+          "0.5 to 0.7",
+          "Semantically related content triggers, even with different phrasing or indirect discussion. Adjacent concepts within the same domain match.",
+          "Recommended range for most production deployments. Start at 0.7."
+        ],
+        [
+          "Below 0.50",
+          "Loose or tangential connections trigger. Content may mention the subject in passing or share vocabulary from the same domain without being truly about it.",
+          "Not recommended for production. Useful only for internal debugging when you want to see the full score distribution."
+        ]
+      ]
+    },
+    {
+      "heading": "What Threshold Doesn't Fix",
+      "level": 2
+    },
+    {
+      "item": "The following are situations that the threshold setting does not fix:",
+      "depth": 0
+    },
+    {
+      "item": "Too many false positives. Before raising the threshold, look at the actual false positives. If the topic definition is a single vague word (e.g., “Manager”), improve the definition first.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "It doesn’t catch indirect mentions. Lowering the threshold can help slightly, but the real fix is to write a better topic definition using natural language.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Want to block mentions of salary but not pay grade. Threshold won’t help. Refine the topic definition to be more specific about what constitutes a salary discussion.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Example customer scenarios.",
+      "depth": 0
+    },
+    {
+      "heading": "Scenario A: Enterprise Blocking Salary Discussions",
+      "level": 2
+    },
+    {
+      "heading": "Situation",
+      "level": 3
+    },
+    {
+      "item": "A large enterprise wants to prevent employees from using their internal LLM chatbot to discuss salary or compensation information.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuration (Topic Detector)",
+      "level": 3
+    },
+    {
+      "item": "Use the following policy configurations for the Topic detector:",
+      "depth": 0
+    },
+    {
+      "item": "Enabled: ON",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Severity: LOW",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Threshold: Keep Default",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Default State: Block",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Topic:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Name: “Salary”",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Definition: “A salary is a fixed, regular payment made by an employer to an employee, typically expressed as an annual sum and paid monthly or biweekly, in exchange for work performed, regardless of hours worked.”",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Action: Block",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "This works because the natural language definition gives the model rich semantic context. Prompts like “How much does a senior engineer make at Google?”, “Compare compensation packages between Amazon and Meta”, and “What is the minimum wage in California?” all trigger correctly. Meanwhile, unrelated prompts like “Good morning”, “What is 2+2?”, and “Generate a French poem” do not trigger.",
+      "depth": 0
+    },
+    {
+      "heading": "Scenario B: Healthcare Chatbot Stays On Topic",
+      "level": 2
+    },
+    {
+      "heading": "Situation",
+      "level": 3
+    },
+    {
+      "item": "A hospital’s patient-facing chatbot should only answer questions about healthcare. Any off-topic prompts (sports, politics, cooking) should be blocked.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuration (Off Topic Detector)",
+      "level": 3
+    },
+    {
+      "item": "Use the following policy configurations for the Off Topic detector:",
+      "depth": 0
+    },
+    {
+      "item": "Enabled: ON",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Severity: LOW",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Threshold: Keep Default",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Default State: Block",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Topic 1:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Name: “Healthcare”",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Definition: “We want to allow discussions related to medical conditions, treatments, medications, symptoms, diagnoses, and healthcare procedures.”",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Topic 2:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Name: “Administrative”",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Definition: “Appointment scheduling, insurance, billing, and patient intake.”",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The Off Topic detector fires when the prompt does not match any configured topic. A question about diabetes matches Healthcare, so there is no trigger (allowed). A question about the NBA finals matches neither topic, so it is triggered (blocked).",
+      "depth": 0
+    },
+    {
+      "heading": "Scenario C: Block Some Topics, Detect Others (Mixed Policy)",
+      "level": 2
+    },
+    {
+      "heading": "Situation",
+      "level": 3
+    },
+    {
+      "item": "A financial services firm wants to block salary discussions entirely but only log (detect) when users ask about management practices.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuration (Topic Detector)",
+      "level": 3
+    },
+    {
+      "item": "Use the following policy configurations for the Topic/Off Topic detectors:",
+      "depth": 0
+    },
+    {
+      "item": "Enabled: ON",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Severity: LOW",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Threshold: Keep Default",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Default State: Detect",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Topic 1:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Name: “Salary”",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Definition: “Salary, compensation, pay, wages, bonuses, and total rewards”,",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Action: Block",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Topic 2:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Name: “Management”",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Definition: “Management practices, team leadership, managerial responsibilities, and people management”",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Action: Detect",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Each topic can have its own action override, so you can mix Block and Detect within the same policy.",
+      "depth": 0
+    },
+    {
+      "heading": "Scenario D: Multilingual Deployment",
+      "level": 2
+    },
+    {
+      "heading": "Situation",
+      "level": 3
+    },
+    {
+      "item": "A global company has offices in Germany, Japan, and Brazil. They want to detect medical topics across all languages.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuration",
+      "level": 3
+    },
+    {
+      "item": "Same as any other deployment, no extra language configuration needed. Define the topic in English; the detector handles 28 languages natively. A German prompt “Was sind die Nebenwirkungen von Insulin?” (What are the side effects of insulin?) triggers the Medical topic correctly.",
+      "depth": 0
+    },
+    {
+      "item": "Troubleshooting and FAQ.",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 2
+    },
+    {
+      "item": "If the Topic/Off Topic detectors aren't triggering correctly, run through the following checklist:",
+      "depth": 0
+    },
+    {
+      "item": "Is the detector actually Enabled? Check the toggle in the UI.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Is the topic definition too short or vague? A definition of just “Manager” matches everything loosely. Use a full natural language description.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Is the topic definition too narrow? If you defined “diabetes” and the user asks about “insulin resistance,” the model should still match. If it doesn’t, broaden the definition: “diabetes, insulin, blood sugar management.”",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Is the threshold too high? Check that it’s 0.7, not 0.9.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Is the prompt very short? Prompts under ~10 characters don’t give the model enough context.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Is the policy test tool running against the correct policy? A different policy won’t use the same topic list.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "If the Topic/Off Topic detectors are triggering when they shouldn't, run through the following checklist:",
+      "depth": 0
+    },
+    {
+      "item": "Is the topic definition a single common word? “Manager,” “Sports,” or “Block” as a standalone definition will match too broadly. An example of a better definition for \"Sports\" would be \"athletes, sports teams, sports scores, and tickets.\"",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Is the content actually related to the topic? “Pay ranges for a product manager role” legitimately matches both Salary and Manager topics. That may be correct.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Is the confidence score borderline (0.70–0.75)? Raising the threshold to 0.80 will cut most borderline matches but also drop some real ones.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Gather 5–10 example false-positive prompts and file a ticket with the ML team.",
+      "depth": 2
+    },
+    {
+      "item": "Common issues:",
+      "depth": 0
+    },
+    {
+      "item": "Single-word definitions: “Manager” as a topic definition is too vague. The model treats any conversational prompt as potentially about a manager. Always use multi-word, descriptive definitions.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Conflating Topic and Off Topic: If you want to block salary discussions, use the Topic detector (triggers on match). If they want to force users to stay on topic, use Off Topic (triggers when no match).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Too many topics: More than 10 topics per policy increases noise and latency. If you need conceptual categories, use fewer broader topics rather than many narrow ones.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "heading": "FAQs",
+      "level": 2
+    },
+    {
+      "item": "How many topics can you configure?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Up to 10 per policy. Beyond that, noise and latency increase. If more are needed, use fewer broader topics.",
+      "depth": 1
+    },
+    {
+      "item": "Can the same topics be used across policies?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Yes. Each policy has its own Topic / Off-Topic configuration. Copy-paste topic names and definitions when duplicating.",
+      "depth": 1
+    },
+    {
+      "item": "Does it work on non-English prompts?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Yes. 28 languages are supported out of the box, including Arabic, Chinese, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, Thai, Turkish, Vietnamese, and more. No extra configuration needed.",
+      "depth": 1
+    },
+    {
+      "item": "What happens if a prompt is very long?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Very long prompts are not chunked. If critical content is in the tail, recommend shorter prompts.",
+      "depth": 1
+    },
+    {
+      "item": "Can I use both Topic and Off Topic on the same policy?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Yes, and this is a common pattern. For example: use Topic to block salary discussions, and Off Topic to block anything that isn’t about customer support. They evaluate independently.",
+      "depth": 1
+    },
+    {
+      "item": "What’s the difference between Topic Name and Topic Definition?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Both contribute to matching. The name gives the model semantic context (“Medical” tells the model we’re in the healthcare domain), and the definition tells it exactly what to look for (“diabetes, thyroid, cancer”). Always make them related.",
+      "depth": 1
+    },
+    {
+      "item": "Can I use regex or patterns in the definition?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "No. Avoid parentheses, regex syntax, or special characters. Use plain natural language or comma-separated keywords.",
+      "depth": 1
+    },
+    {
+      "item": "How do natural language definitions differ from keyword lists?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Natural language (“We want to avoid discussions related to diabetes, thyroid and cancer”) works best for broad semantic matching. Keyword lists (“diabetes, thyroid, cancer”) work best for precise, specific term matching. Each keyword in a list is evaluated independently.",
+      "depth": 1
+    },
+    {
+      "item": "Can I see what the model sees?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "The detection log contains the full response JSON, including confidence scores per topic. That’s the same data the policy engine uses.",
+      "depth": 1
+    },
+    {
+      "item": "How often is the model updated?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Updated periodically as new patterns surface. Updates are rolled out transparently, no action needed.",
+      "depth": 1
+    },
+    {
+      "item": "What if you want to allowlist certain prompts?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Not supported at the detector level. Use policy-level exceptions (exclude a user group, restrict to certain apps).",
+      "depth": 1
+    }
+  ]
+}

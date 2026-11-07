@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting.performance-runbook.nearest-data-center",
+  "title": "Performance runbook: why a user is not connecting to the nearest data center (MaxMind, subcloud, Auto Geo Proximity)",
+  "aliases": [
+    "getGatewayEndpoints",
+    "MaxMind geo IP",
+    "Auto Geo Proximity flag",
+    "geo IP override"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-runbook" },
+    { "rel": "see-also", "to": "shared.pac-files.variables" }
+  ],
+  "prose": [
+    {
+      "label": "Checking the nearest data center.",
+      "text": "{{get-gateway-endpoints}} {{not-nearest-causes}}"
+    },
+    {
+      "label": "MaxMind.",
+      "text": "{{maxmind-mechanism}} {{maxmind-wrong-location}} {{maxmind-customer-correction}} {{zscaler-geo-ip-override}}"
+    },
+    {
+      "label": "Subcloud and Auto Geo Proximity.",
+      "text": "{{subcloud-checks}} {{auto-geo-proximity}} {{non-proximity-dc-access}} {{agp-enabled-not-nearest}}"
+    },
+    {
+      "label": "Country Gateway Variable.",
+      "text": "{{country-gateway-variable}}"
+    }
+  ],
+  "claims": {
+    "get-gateway-endpoints": {
+      "statement": "To check whether a user is connected to the nearest data center, the runbook uses https://pac.<cloudname>.net/getGatewayEndpoints?srcip=x.x.x.x with the user's egress IP; the output shows the three nearest public data centers, excluding regional surcharge data centers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "https://pac.<cloudname>.net/getGatewayEndpoints?srcip=x.x.x.x",
+            "Replace <cloudname> with your production Zscaler cloud and x.x.x.x as Egress IP of user",
+            "The output shows the three nearest Zscaler public data centers (excluding regional surcharge data centers)."
+          ],
+          "after": "Web Only or All Traffic"
+        }
+      ]
+    },
+    "not-nearest-causes": {
+      "statement": "The runbook gives incorrect geo IP mapping in MaxMind and incorrect subcloud configuration as reasons a user may not reach the nearest data center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "There could be a few reasons why the user is not connected to the nearest Zscaler data center:",
+            "- Incorrect geo IP mapping in MaxMind.",
+            "- Incorrect subcloud configuration."
+          ]
+        }
+      ]
+    },
+    "maxmind-mechanism": {
+      "statement": "Zscaler uses MaxMind for geo IP tagging: Client Connector presents its public egress IP to the PAC server on first turn-on, and the PAC server looks the IP up in MaxMind's database and assigns the nearest data center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler uses MaxMind for geo IP tagging.",
+            "When the user turns on Zscaler Client Connector for the first time",
+            "it presents its public Egress IP to the Zscaler PAC server. The PAC server performs a lookup for the geolocation of the IP address against MaxMind's database and assigns the nearest Zscaler data center to it."
+          ]
+        }
+      ]
+    },
+    "maxmind-wrong-location": {
+      "statement": "If MaxMind maps a user's public IP to an incorrect location, Zscaler cannot return the nearest data center and Client Connector connects elsewhere with suboptimal performance; the runbook checks the egress IP at maxmind.com/en/geoip-demo.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "In such cases, Zscaler can't return the nearest Zscaler data center to the user, which results in Zscaler Client Connector connecting to a location other than the nearest Zscaler data center, thereby causing suboptimal performance.",
+            "go to https://www.maxmind.com/en/geoip-demo and search for the egress IP of the user"
+          ]
+        }
+      ]
+    },
+    "maxmind-customer-correction": {
+      "statement": "A customer can request a geo IP correction from MaxMind, which performs corrections only twice a week, so the correction may be delayed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Customers can request the correction of the geo IP mapping by raising a request with MaxMind.",
+            "MaxMind performs corrections only twice a week, so the customer's request to rectify the geo IP tagging might be delayed."
+          ]
+        }
+      ]
+    },
+    "zscaler-geo-ip-override": {
+      "statement": "On a customer's request, Zscaler can override the geo IP of an IP address; after a manual override Zscaler stops using the MaxMind geo tags to determine the nearest Zscaler data center and bases the IP mapping on the data from the local database. The request is a Zscaler Support case.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler can perform a geo IP Override of a given IP address upon the customer's request.",
+            "After Zscaler performs a manual geo IP override",
+            "Zscaler stops using the MaxMind geo tags to determine the nearest Zscaler data center, but bases the IP mapping on the data from the local database",
+            "If you would like to raise a request to perform a geo IP override, open a Zscaler Support case."
+          ]
+        }
+      ]
+    },
+    "subcloud-checks": {
+      "statement": "A subcloud is a subset of public data centers or Private Service Edges to which users can be pointed; the runbook says a misconfiguration can send users elsewhere, that if a subcloud is already provisioned in the Zscaler Admin Console the check is whether the desired data center is part of it, that the App Profile PAC file should have no special statements forwarding a country or egress IP to a specific data center, and that a missing data center or a new subcloud is requested through Zscaler Support with the subcloud name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "A subcloud is a subset of Internet & SaaS public data centers or Private Service Edges, where you can pick and choose to which data centers users should connect.",
+            "If there is a misconfiguration in the subcloud, users might connect to a location other than the nearest Zscaler data center.",
+            "If you already have a subcloud provisioned in the Zscaler Admin Console, check to see if the desired Zscaler data center is part of the subcloud.",
+        "If you would like to request that a missing data center be added to your subcloud, or request a new subcloud, contact Zscaler Support with details of your subcloud name.",
+            "Check the App Profile PAC file and confirm that users have no special PAC statements to forward the traffic (from a specific country or a specific egress IP) to a specific Zscaler data center."
+          ]
+        }
+      ]
+    },
+    "auto-geo-proximity": {
+      "statement": "A data center with Auto Geo Proximity enabled shows a green checkbox next to its Proxy Hostname on config.zscaler.com; data centers without the flag are not part of ${GATEWAY} and ${COUNTRY_GATEWAY} PAC resolution by default, which applies to a few Regional Surcharge and some newly provisioned data centers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "go to config.zscaler.com and locate the green checkbox next to the Proxy Hostname of a data center.",
+            "Data centers that do not have the Auto Geo Proximity flag enabled are not part of ${GATEWAY} and ${COUNTRY_GATEWAY} PAC resolution by default.",
+            "The Auto Geo Proximity flags are not enabled for a few Regional Surcharge data centers and some newly provisioned data centers."
+          ]
+        }
+      ]
+    },
+    "non-proximity-dc-access": {
+      "statement": "To connect to a data center without the Auto Geo Proximity flag, users must use a subcloud that includes it or add a PAC statement for that data center to the App Profile PAC file; the runbook gives Taiwan to Taipei PAC samples.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "they either must use a subcloud (and include the non-auto proximity data center in it), or must manually add a PAC statement in the App Profile PAC file to connect to that particular data center.",
+            "Here are the PAC samples if not using subcloud, where users in Taiwan would like to connect to Zscaler Taipei data center.",
+            "return \"PROXY tpe2.sme.zscloud.net:443; PROXY ${SECONDARY_GATEWAY}:443;DIRECT\"",
+            "var tunnel2 = \"${ZT2_REQUEST}\"; if ((shExpMatch(country,\"Taiwan\")) && (tunnel2 == \"true\"))"
+          ]
+        }
+      ]
+    },
+    "country-gateway-variable": {
+      "statement": "For content localization, users closer to a data center in a neighbouring country should use the Country Gateway Variable to reach an in-country data center if available; it supports auto geo proximity and the subcloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For content localization, if users are connected from a location which is closer to a Zscaler data center in the neighboring countries",
+            "users should leverage the Country Gateway Variable to connect with an in-country Zscaler data center (if available).",
+            "The Country Gateway Variable supports auto geo proximity and the subcloud."
+          ]
+        }
+      ]
+    },
+    "agp-enabled-not-nearest": {
+      "statement": "If the nearest data center has Auto Geo Proximity enabled but the user still cannot connect to it, the runbook calls MaxMind incorrectly geotagging the IP the most probable cause.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If the nearest Zscaler data center has Auto Geo Proximity enabled, but a user still can't connect to it",
+            "The most probable cause of this issue is that MaxMind has incorrectly geotagged the user's IP address."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

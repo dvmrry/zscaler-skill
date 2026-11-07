@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "ZDX Snapshots",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/zdx-snapshots",
+    "node": "1529965",
+    "revision": "3178454",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/ZDX%20Snapshots_4.json?VersionId=RJvyf2zp7dtbo.6KBVBSphxfjRTKu5u4",
+    "updated": "2026-03-02",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.3",
+    "info": {
+      "title": "ZDX API",
+      "version": "0.1.0",
+      "description": "APIs for Zscaler Digital Experience (ZDX).\n"
+    },
+    "servers": [
+      {
+        "url": "https://api.zdxcloud.net/v1",
+        "description": "production"
+      },
+      {
+        "url": "https://dev.zdxapi.zscaler.net/v1",
+        "description": "dev"
+      },
+      {
+        "url": "http://localhost:8080/v1",
+        "description": "local"
+      }
+    ],
+    "security": [
+      {
+        "BearerAuth": []
+      }
+    ],
+    "tags": [
+      {
+        "name": "ZDX Snapshots"
+      }
+    ],
+    "paths": {
+      "/snapshot/alert": {
+        "post": {
+          "description": "Share a ZDX Snapshot of alert details for a given alert ID.",
+          "tags": [
+            "ZDX Snapshots"
+          ],
+          "security": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the ZDX Snapshot."
+                    },
+                    "alert_id": {
+                      "type": "string",
+                      "description": "The alert ID to create a ZDX Snapshot for."
+                    },
+                    "expiry": {
+                      "type": "integer",
+                      "description": "The expiration time in Unix Epoch (seconds). The default is set to 2 hours. To configure, the expiration must be between 2 hours and 90 days."
+                    },
+                    "obfuscation": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "USER_NAME",
+                          "LOCATION",
+                          "DEVICE_NAME",
+                          "IP_ADDRESS",
+                          "WIFI_NAME"
+                        ]
+                      },
+                      "description": "Specifies the fields to obfuscate in ZDX snapshot. The possible values are: \"USER_NAME\", \"LOCATION\", \"DEVICE_NAME\", \"IP_ADDRESS\", \"WIFI_NAME\""
+                    }
+                  },
+                  "required": [
+                    "alert_id",
+                    "name"
+                  ],
+                  "example": {
+                    "name": "ZDX-Test-Alert-Snapshot",
+                    "alert_id": "7484640559560072887",
+                    "expiry": 1743589656,
+                    "obfuscation": [
+                      "USER_NAME"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Operation. The response contains ID, name, URL, expiration, and status of the ZDX Snapshot created.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "The ZDX Snapshot ID."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the ZDX Snapshot."
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "The URL to access the created ZDX Snapshot."
+                      },
+                      "expiry": {
+                        "type": "integer",
+                        "description": "The expiration time in seconds."
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "The status of the ZDX Snapshot."
+                      }
+                    },
+                    "example": {
+                      "id": 17622,
+                      "name": "ZDX-Test-Alert-Snapshot",
+                      "url": "https://snapshot.zdxcloud.net/zdx/snapshot/T7C8m9gvJZwBCl1B1746199954_tenka3lmMlNCIF4WoKEx1MGIc2ZY76RAdISx3mSVyHw%3D",
+                      "expiry": 1743589656,
+                      "status": "Active"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequest"
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/snapshot/user": {
+        "post": {
+          "description": "Share a ZDX Snapshot for a given user ID to monitor user details (i.e., device and application). The \"from\" timestamp must not exceed 14 days from the current time. The time duration between the \"from\" and \"to\" must be within 15 minutes to 48 hours.",
+          "tags": [
+            "ZDX Snapshots"
+          ],
+          "security": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the ZDX Snapshot."
+                    },
+                    "user_id": {
+                      "type": "integer",
+                      "description": "The ID of the user to create a ZDX Snapshot for."
+                    },
+                    "device_id": {
+                      "type": "integer",
+                      "description": "The ID of the device associated with the user."
+                    },
+                    "app_id": {
+                      "type": "integer",
+                      "description": "The ID of the application associated with the user and device."
+                    },
+                    "from": {
+                      "type": "integer",
+                      "description": "The start time (in seconds) for the query, entered in Unix Epoch. If not provided, defaults to the past 2 hours."
+                    },
+                    "to": {
+                      "type": "integer",
+                      "description": "The end time (in seconds) for the query, entered in Unix Epoch. If not provided, defaults to the past 2 hours."
+                    },
+                    "expiry": {
+                      "type": "integer",
+                      "description": "The expiration time in Unix Epoch (seconds). The default is set to 2 hours. To configure, the expiration must be between 2 hours and 90 days."
+                    },
+                    "obfuscation": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "USER_NAME",
+                          "LOCATION",
+                          "DEVICE_NAME",
+                          "IP_ADDRESS",
+                          "WIFI_NAME"
+                        ]
+                      },
+                      "description": "Specifies the fields to obfuscate in ZDX snapshot. The possible values are: \"USER_NAME\", \"LOCATION\", \"DEVICE_NAME\", \"IP_ADDRESS\", \"WIFI_NAME\""
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "user_id",
+                    "device_id",
+                    "app_id"
+                  ],
+                  "example": {
+                    "name": "ZDX-Test-User-Snapshot",
+                    "user_id": 8247055,
+                    "device_id": 8248075,
+                    "app_id": 36878,
+                    "from": 1753955700,
+                    "to": 1753948200,
+                    "expiry": 1753998200,
+                    "obfuscation": [
+                      "IP_ADDRESS"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Operation. The response contains ID, name, URL, expiration, and status of the ZDX Snapshot created.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "The ZDX Snapshot ID."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the ZDX Snapshot."
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "The URL to access the created ZDX Snapshot."
+                      },
+                      "expiry": {
+                        "type": "integer",
+                        "description": "The expiration time in seconds."
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "The status of the ZDX Snapshot."
+                      }
+                    },
+                    "example": {
+                      "id": 17623,
+                      "name": "ZDX-Test-User-Snapshot",
+                      "url": "https://snapshot.zdxcloud.net/zdx/snapshot/T7C8m9gvJZwBCl1B1746199954_tenuser3lmMlNCIF4WoKEx1MGIc2ZY76RAdISx3mSVyHw%3D",
+                      "expiry": 1753998200,
+                      "status": "Active"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "$ref": "#/components/responses/BadRequest"
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "responses": {
+        "BadRequest": {
+          "description": "Bad Request"
+        },
+        "UnauthorizedError": {
+          "description": "Unauthorized"
+        },
+        "Forbidden": {
+          "description": "Forbidden"
+        }
+      }
+    }
+  }
+}

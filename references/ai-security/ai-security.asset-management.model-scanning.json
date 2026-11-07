@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-management.model-scanning",
+  "title": "How the AI Asset Management AI model scanner works: the CLI, the integration API key and its arguments",
+  "aliases": [
+    "ai model scanner",
+    "z-ai-model-scanner",
+    "Z_AI_MODEL_SCANNER_API_KEY",
+    "model scan management",
+    "model scan integration"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "ai-security.asset-management" },
+    { "rel": "see-also", "to": "ai-security.asset-management.integrations" },
+    { "rel": "see-also", "to": "ai-security.asset-management.scan-rules" },
+    { "rel": "see-also", "to": "ai-security.asset-management.roles" },
+    { "rel": "see-also", "to": "ai-security.asset-management.issues" }
+  ],
+  "prose": [
+    {
+      "text": "{{what-scanner-is}} {{detections}} The hub is [[ai-security.asset-management]]."
+    },
+    {
+      "label": "Admin Portal pages.",
+      "text": "{{integration-registration-columns}} {{download-tab-columns}} {{api-key}} {{regenerate-key}} {{delete-integration}}"
+    },
+    {
+      "label": "Running the scanner.",
+      "text": "{{prerequisites-env-var}} {{cli-command}} {{cli-arguments-output}} {{cli-arguments-scan}} {{cli-fail-on-profile}} {{run-behaviour}} {{divergence:results-location}} {{gap:scanner-argument-details}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the API key is still held: the page says the key is not recoverable, and regenerating it invalidates the existing key so every environment or script using the old key must be updated.",
+      "uses": ["api-key", "regenerate-key"]
+    },
+    {
+      "do": "That the key reaches the scanner as the environment variable Z_AI_MODEL_SCANNER_API_KEY.",
+      "uses": ["prerequisites-env-var"]
+    }
+  ],
+  "claims": {
+    "what-scanner-is": {
+      "statement": "The AI model scanner is a command-line tool that developers and MLOps engineers run before deploying AI models to production, locally or in CI/CD pipelines, and it sends findings to the AI Security Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-about-scanning-ai-models.json", "quotes": ["The AI model scanner is a command-line tool that developers and MLOps engineers can run before deploying AI models to production.", "You can integrate the scanner into local workflows or CI/CD pipelines"]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-deploying-ai-model-scanner.json", "quotes": ["is a command-line interface (CLI) tool that you can run in your local development environment or as part of a CICD pipeline.", "and sends the findings to the AI Security Admin Portal."]}
+      ]
+    },
+    "detections": {
+      "statement": "The scanner identifies malicious code, backdoors and vulnerabilities in AI models using YARA rules and the Zscaler ThreatLabz AV engine, detects embedded credentials, API keys and sensitive information across all supported file types, and extracts embedded code from pickle files and Lambda layers.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scanning-ai-models.json", "quotes": ["Identify malicious code, backdoors, and vulnerabilities in AI models using YARA rules and the Zscaler ThreatLabz AV engine.", "Detect embedded credentials, API keys, and sensitive information across all supported file types", "Extract and analyze embedded code from pickle files and Lambda layers to detect hidden malicious logic."]}]
+    },
+    "integration-registration-columns": {
+      "statement": "The Integration Registration tab of Administration > Model Scan Management lists, per integration, Integration Name, Integration ID, Modified By, Configured On and Status (Enabled or Disabled).",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scanning-ai-models.json", "quotes": ["On the Model Scan Management Page (Administration > Model Scan Management Page), you can see the following tabs:", "On the Integration Registration tab, you can do the following:", "Integration Name: The name of the integration.", "Integration ID: The unique identifier for the integration.", "Modified By: The user who last modified the integration.", "Configured On: The date and time the integration was last configured.", "Status: The current status of the integration (Enabled or Disabled)."]}]
+    },
+    "download-tab-columns": {
+      "statement": "The Download Model Scanner tab lists scanner binaries by Scanner Name, Scanner Version, Operating System (examples Linux, macOS), Architecture (examples x64, Arm64) and Release Date.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-scanning-ai-models.json", "quotes": ["On the Download Model Scanner tab, you can view the list of available AI model scanner binaries.", "Scanner Name: The name of the scanner binary.", "Operating System: The operating system the scanner is built for (e.g., Linux, macOS).", "Architecture: The processor architecture (e.g., x64, Arm64).", "Scanner Version: The version number of the scanner.", "Release Date: The date the scanner binary was released."]}]
+    },
+    "api-key": {
+      "statement": "To use the scanner, an integration must first be added and an API key generated in the Admin Portal; the key authenticates the scanner and lets it send scan results back, and it is not recoverable, so it must be copied and stored securely.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-managing-ai-model-scan-integrations.json", "quotes": ["To use the AI model scanner, you must first add an integration and generate an API key in the AI Security Admin Portal.", "This API key authenticates the model scanner and allows it to send the scan results back to AI Security for analysis.", "This API key is required to authenticate the scanner and is not recoverable.", "Copy the API key and store it in a secure location."]}]
+    },
+    "regenerate-key": {
+      "statement": "Regenerating the API key on an integration invalidates the existing key, so every environment or script using the old key must be updated; the page gives exposed, lost or periodic credential rotation as reasons.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-managing-ai-model-scan-integrations.json", "quotes": ["To edit an integration and regenerate the API key if it has been exposed, lost, or for periodic credential rotation:", "The regenerated API key invalidates the existing API key.", "update all environments or scripts where the old API key was used"]}]
+    },
+    "delete-integration": {
+      "statement": "Deleting a model scan integration requires entering CONFIRM in the text box of the confirmation window.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-managing-ai-model-scan-integrations.json", "quotes": ["then enter CONFIRM in the text box."]}]
+    },
+    "prerequisites-env-var": {
+      "statement": "Before running the scanner you need the scanner binary for your operating system from the Model Scan Management page and an API key from the model scan integration; the key is set as the environment variable Z_AI_MODEL_SCANNER_API_KEY.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-deploying-ai-model-scanner.json", "quotes": ["Download the appropriate AI model scanner binary for your operating system from the Model Scan Management page.", "Generate an API key using the model scan integration in the AI Security Admin Portal.", "Set the API key as an environment variable named Z_AI_MODEL_SCANNER_API_KEY."]}]
+    },
+    "cli-command": {
+      "statement": "The scanner is run as ./z-ai-model-scanner scan <PATH_TO_MODEL_DIRECTORY> --timeout <timeout in seconds> --output <directory>, where PATH_TO_MODEL_DIRECTORY is the local directory containing the model to scan.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-deploying-ai-model-scanner.json", "quotes": ["- ./z-ai-model-scanner scan <PATH_TO_MODEL_DIRECTORY> --timeout <timeout in seconds> --output <directory>", "Replace <PATH_TO_MODEL_DIRECTORY> with the local file path to the directory containing the AI model you want to scan."]}]
+    },
+    "cli-arguments-output": {
+      "statement": "The scanner arguments -o/--output set the report output directory and -f/--format [json] sets the report format; both are marked not required.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-deploying-ai-model-scanner.json", "quotes": ["| -o, --output <PATH> | The output directory where the scan report will be saved. | No |", "| -f, --format [json] | The format for the generated scan report. | No |"]}]
+    },
+    "cli-arguments-scan": {
+      "statement": "--no-recursive stops the scanner scanning subdirectories (scanning is recursive by default); --max-file-bytes sets a size limit in bytes for scanned files and 0 disables the limit; --timeout is the timeout in seconds for each individual file scan and 0 disables it.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-deploying-ai-model-scanner.json", "quotes": ["If specified, the scanner will not scan subdirectories within the given path. By default, scanning is recursive.", "Optional size limit in bytes for files to be scanned. Set to 0 to disable the limit.", "Specifies the timeout in seconds for each individual file scan. Setting the value to 0 disables the timeout."]}]
+    },
+    "cli-fail-on-profile": {
+      "statement": "--fail-on [none|low|medium|high|critical] sets a severity threshold that makes the scanner exit with a non-zero status code (example --fail-on high fails on any high or critical finding); --profile [primary|primary+secondary|all] controls scan depth: primary is fastest, all most comprehensive, primary+secondary best balanced.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-deploying-ai-model-scanner.json", "quotes": ["Sets a severity threshold that makes the scanner exit with a non-zero status code.", "if any high or critical vulnerabilities are found", "Controls the depth of the scan. primary is the fastest, all is the most comprehensive, primary+secondary is the best balanced."]}]
+    },
+    "run-behaviour": {
+      "statement": "After the command runs, the scanner authenticates with AI Security, downloads the latest rules and scans the specified model files or directories; the Deploying the AI Model Scanner page says the results are available in the Admin Portal on the AI Infrastructure > Model Security page.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-deploying-ai-model-scanner.json", "quotes": ["the AI model scanner authenticates with AI Security, downloads the latest rules, and scans the specified AI model files or directories.", "the scan results are available in the AI Security Admin Portal on the AI Infrastructure > Model Security page."]}]
+    }
+  },
+  "divergences": {
+    "results-location": {
+      "summary": "Where AI model scan results are viewed in the Admin Portal: the Deploying the AI Model Scanner page names AI Infrastructure > Model Security, while the Viewing Scan Results page names AI Infrastructure > Issues > Model Scan Findings.",
+      "positions": [
+        {
+          "says": "Scan results are available in the AI Security Admin Portal on the AI Infrastructure > Model Security page.",
+          "evidence": {"source": "zscaler-help", "path": "ai-asset-mgmt-deploying-ai-model-scanner.json", "quotes": ["the scan results are available in the AI Security Admin Portal on the AI Infrastructure > Model Security page."]}
+        },
+        {
+          "says": "To view the scan details, go to AI Infrastructure > Issues > Model Scan Findings.",
+          "evidence": {"source": "zscaler-help", "path": "ai-asset-mgmt-viewing-scan-results-ai-models.json", "quotes": ["To view the scan details, go to AI Infrastructure > Issues > Model Scan Findings."]}
+        }
+      ],
+      "impact": "The captured pages do not say whether the two paths are the same view under different labels; model scan results are described under Model Scan Findings in [[ai-security.asset-management.issues]]."
+    }
+  },
+  "gaps": {
+    "scanner-argument-details": {
+      "kind": "semantic",
+      "title": "Which model file types, exit code value and argument defaults does the scanner have?",
+      "status": "open",
+      "detail": "Supported model file types are not listed (the page says all supported file types); the non-zero exit status code value for --fail-on is not given; --max-file-bytes has no stated default; OS and architecture values are examples only (Linux, macOS; x64, Arm64). The usage line shows --timeout and --output while the argument table marks -o/--output and --timeout as not required, with no defaults stated.",
+      "resolves_with": ["lab-test", "source-read"]
+    }
+  }
+}

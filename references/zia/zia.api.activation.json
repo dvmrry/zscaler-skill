@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.activation",
+  "title": "How ZIA API changes become live: saving versus activating",
+  "aliases": [
+    "zia activation api",
+    "saved but not live",
+    "POST status activate",
+    "client.zia.activate",
+    "pending configuration api",
+    "ACTIVE PENDING INPROGRESS",
+    "what does ACTIVE mean",
+    "activation status meaning",
+    "force activate"
+  ],
+  "related": [
+    {
+      "rel": "logged-in",
+      "to": "zia.audit-logs.what-is-recorded",
+      "because": "zia.audit-logs.what-is-recorded:action-values"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{saved-not-live}} The activation call is separate from the write, although ending a session can activate on its own [[zia.terraform.activation-methods:session-end-autoactivation]]. The Terraform side of this is in [[zia.terraform.activation]], and the product-level lifecycle across ZIA and Cloud and Branch Connector is in [[shared.activation]]."
+    },
+    {
+      "label": "Saved, not live.",
+      "text": "{{saved-not-live|ref}} {{status-is-a-report}} {{status-values}} {{active-means-nothing-pending}}"
+    },
+    {
+      "label": "In the Admin Portal.",
+      "text": "{{portal-activation-states}} {{force-activate}} The Terraform side of queueing is in [[zia.terraform.activation-methods]]."
+    },
+    {
+      "label": "The calls.",
+      "text": "{{sdk-activation-endpoints}} {{oneapi-sample-activate}} Which path the legacy guide names is in dispute {{divergence:activate-path-differs}}. The Python call names are in [[zia.sdk-python.client-errors-and-accessors:activation-accessor]]."
+    },
+    {
+      "text": "Whether a pending End User Subscription Agreement blocks activation is open {{gap:eusa-precondition}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the activation status reads PENDING or INPROGRESS after a write, before looking for a platform fault.",
+      "uses": [
+        "saved-not-live",
+        "status-values",
+        "active-means-nothing-pending"
+      ]
+    },
+    {
+      "do": "Which activate path the client calls: the SDK and the OneAPI sample use POST /status/activate; the legacy PDF names POST /status.",
+      "uses": [
+        "activate-path-differs",
+        "sdk-activation-endpoints"
+      ]
+    }
+  ],
+  "claims": {
+    "saved-not-live": {
+      "statement": "The vendor's URL Categories API guide says to activate configuration changes after making them, by sending a POST request to /status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-categories-using-api.json",
+          "quotes": [
+            "After making any configuration changes, ensure that you activate them by sending a POST request to /status."
+          ]
+        }
+      ]
+    },
+    "sdk-activation-endpoints": {
+      "statement": "The Python SDK's activation client reads the activation status with a GET to /status and activates configuration changes with a POST to /status/activate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/activate.py",
+          "quotes": [
+            "Returns the activation status for a configuration change.",
+            "Activates configuration changes."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/activate.py",
+          "quotes": [
+            "http_method = \"post\".upper()",
+            "/status/activate"
+          ],
+          "after": "def activate(self) -> APIResult[Activation]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/activate.py",
+          "after": "def status(self) -> APIResult[Activation]:",
+          "quotes": [
+            "http_method = \"get\".upper()",
+            "{self._zia_base_endpoint} /status \"\"\")"
+          ]
+        }
+      ]
+    },
+    "oneapi-sample-activate": {
+      "statement": "The OneAPI contract documents POST /status/activate as the call that activates saved configuration changes, and the OneAPI Getting Started guide says ZIA configuration changes must be explicitly activated with it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1status~1activate/post",
+          "expect": {
+            "description": "<p>Activates the saved configuration changes. To learn more, see <a href=\"https://help.zscaler.com/zia/saving-and-activating-changes-zia-admin-portal\" target=\"_blank\">Saving and Activating Changes in the ZIA Admin Portal</a>.</p>\n"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Activation might be required: For ZIA and Cloud & Branch Connector APIs, configuration changes must be explicitly activated with a POST to /status/activate or /ecAdminActivateStatus/activate, respectively."
+          ]
+        }
+      ],
+      "conditions": "Re-sourced on recapture (2026-10-18): the OneAPI sample-endpoints page it cited no longer exists; previously \"The OneAPI sample endpoints document POST /zia/api/v1/status/activate as the call that activates saved changes, required after any ZIA configuration change.\""
+    },
+    "status-values": {
+      "statement": "The activation call returns a status of ACTIVE, PENDING or INPROGRESS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1status~1activate/post/responses/200/content/application~1json/schema/properties/status",
+          "expect": {
+            "enum": [
+              "ACTIVE",
+              "PENDING",
+              "INPROGRESS"
+            ]
+          }
+        }
+      ],
+      "conditions": "Re-sourced on recapture (2026-10-18) from the removed sample-endpoints page to the OneAPI contract's response schema."
+    },
+    "portal-activation-states": {
+      "statement": "The Admin Portal's Activation menu shows each admin's own status: no pending changes, Editing (saved but not activated), or Activation queued (activated, but held until the other editing admins activate theirs).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "saving-and-activating-changes-zia-admin-portal.json",
+          "quotes": [
+            "No pending changes to activate: You haven't saved or activated your changes.",
+            "Editing: You saved your changes but haven't activated them.",
+            "Activation queued: Your activated changes are pending and haven't been pushed to the CA.",
+            "This status displays when you activate your changes, and there are other admins still editing. The service pushes the changes to the CA after all admins activate their changes."
+          ]
+        }
+      ]
+    },
+    "force-activate": {
+      "statement": "Force Activate immediately pushes all saved changes to the Central Authority, and only super admins and full admins can use it; a queued activation cannot be cancelled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "saving-and-activating-changes-zia-admin-portal.json",
+          "quotes": [
+            "Force Activate: Immediately pushes all saved changes to the CA. Only super admins and full admins can Force Activate changes.",
+            "A queued activation cannot be canceled."
+          ]
+        }
+      ]
+    },
+    "status-is-a-report": {
+      "statement": "GET /status reports the activation status of the saved configuration changes; activating them is the separate POST /status/activate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1status/get",
+          "expect": {
+            "description": "<p>Gets the activation status for the saved configuration changes. To learn more about activating configuration changes, see <a href=\"https://help.zscaler.com/zia/saving-and-activating-changes-zia-admin-portal\" target=\"_blank\">Saving and Activating Changes in the ZIA Admin Portal</a>.</p>\n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1status~1activate/post",
+          "expect": {
+            "description": "<p>Activates the saved configuration changes. To learn more, see <a href=\"https://help.zscaler.com/zia/saving-and-activating-changes-zia-admin-portal\" target=\"_blank\">Saving and Activating Changes in the ZIA Admin Portal</a>.</p>\n"
+          }
+        }
+      ]
+    },
+    "active-means-nothing-pending": {
+      "statement": "A status of ACTIVE means nothing saved is waiting to be activated. It is a reading, not a mode: a write made while the status reads ACTIVE is still saved but not live until the next activation.",
+      "tier": "B",
+      "conditions": "No captured source defines each status value. This reads ACTIVE, PENDING and INPROGRESS against the Admin Portal's states (no pending changes, Editing, Activation queued) and the rule that every change is saved, not live, until activated. The Terraform resource's `status = \"ACTIVE\"` is a request to activate, not this reading (zia.terraform.activation-resource).",
+      "derived_from": [
+        "zia.api.activation:status-values",
+        "zia.api.activation:status-is-a-report",
+        "zia.api.activation:portal-activation-states",
+        "zia.api.activation:saved-not-live"
+      ]
+    }
+  },
+  "divergences": {
+    "activate-path-differs": {
+      "summary": "The legacy URL Categories guide says to activate by POSTing to /status, while the SDK and the OneAPI contract use POST /status/activate.",
+      "positions": [
+        {
+          "says": "Activation is a POST request to /status.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-url-categories-using-api.json",
+            "quotes": [
+              "by sending a POST request to /status."
+            ]
+          }
+        },
+        {
+          "says": "Activation is a POST to /status/activate; GET /status only reads the status.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/activate.py",
+            "quotes": [
+              "http_method = \"post\".upper()",
+              "/status/activate"
+            ],
+            "after": "def activate(self) -> APIResult[Activation]:"
+          }
+        },
+        {
+          "says": "The OneAPI contract activates with POST /status/activate.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1status~1activate/post",
+            "expect": {
+              "description": "<p>Activates the saved configuration changes. To learn more, see <a href=\"https://help.zscaler.com/zia/saving-and-activating-changes-zia-admin-portal\" target=\"_blank\">Saving and Activating Changes in the ZIA Admin Portal</a>.</p>\n"
+            }
+          }
+        }
+      ],
+      "impact": "A client that follows the PDF literally and POSTs to /status would not call the endpoint the SDK uses; use the activate path."
+    }
+  },
+  "gaps": {
+    "eusa-precondition": {
+      "kind": "semantic",
+      "title": "Whether EUSA acceptance gates activation",
+      "status": "open",
+      "detail": "Unverified legacy statement: the EUSA status endpoints \"enforce a click-through user agreement that must be accepted before certain config changes are activatable\" and are \"a precondition for activation in some tenants\". The Activation API tag carries GET /eusaStatus/latest and PUT /eusaStatus/{eusaStatusId}, and acceptedStatus false means an 'agreement pending' state, but no source ties EUSA acceptance to activation succeeding.",
+      "blocks": "diagnosing an activation that fails on a tenant with a pending EUSA",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "activation-duration": {
+      "kind": "semantic",
+      "title": "How long a ZIA activation takes, and how often to poll it",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Activation typically completes in 1-3 minutes. Do not poll faster than every 30s.' No captured source gives a typical completion time or a polling interval.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "queue-and-invalid-states": {
+      "kind": "semantic",
+      "title": "What activation returns while changes are queued or invalid",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Status STATE_PROCESSING_QUEUE_DEPTH_NOT_ZERO (409) means other changes are queued; STATE_INVALID (409) means a pending change has a config error that blocks activation until it is fixed or reverted.' The captured status values are ACTIVE, PENDING and INPROGRESS (status-values); neither 409 code appears in a captured source.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "any-admin-activates": {
+      "kind": "semantic",
+      "title": "Whether any admin can activate another admin's pending ZIA changes",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Anyone with admin access can activate your pending changes, including a different automation script or a human admin.' Related: zia.terraform.activation:activation-scope asks whether an activation publishes only the caller's changes or every admin's; no captured source settles either question.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "no-drop-pending": {
+      "kind": "semantic",
+      "title": "Whether pending ZIA changes can be discarded without activating them",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'There is no API to drop pending changes without activating them; the only undo is to re-write the original values.' The OneAPI guide says a change cannot be reverted once activated (shared.oneapi.write-practices:activation-zia-cbc), and no captured source says whether a staged change can be discarded.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

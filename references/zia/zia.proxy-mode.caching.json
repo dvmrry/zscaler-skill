@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "id": "zia.proxy-mode.caching",
+  "title": "Web caching through a proxy and the alternatives to it that the article lists",
+  "aliases": [
+    "web caching",
+    "caching proxy",
+    "alternatives to caching web traffic",
+    "alternative solutions to caching"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.proxy-mode"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.classes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{why-less-effective}}"
+    },
+    {
+      "label": "HTTPS.",
+      "text": "{{https}}"
+    },
+    {
+      "label": "Browsers and file size.",
+      "text": "{{browser-and-size}}"
+    },
+    {
+      "label": "Streaming media.",
+      "text": "{{streaming}}"
+    },
+    {
+      "label": "Alternatives.",
+      "text": "{{alternatives}} Whether the ZIA proxy itself caches content is not stated {{gap:zia-caches}}. The Streaming Media class is in [[zia.bandwidth-control.classes]] and blocking sites is in [[zia.url-filtering]]."
+    }
+  ],
+  "claims": {
+    "why-less-effective": {
+      "statement": "The article says caching was useful when pages were mostly static, but most web traffic today includes dynamic content, created on the fly and delivered to specific users, for which caching provides no benefit; the Cache-Control header lets developers say whether and how long a page is cached, and many sites send Cache-Control: no cache or no-store.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-what-are-alternatives-caching-web-traffic.json",
+          "quotes": [
+            "In the Web 1.0 days, caching was a useful technique because most web pages were relatively static.",
+            "Most web traffic today includes dynamic content.",
+            "From news to searches and web applications, content is created on the fly and delivered to specific users.",
+            "Caching provides no benefit for such content.",
+            "The HTTP header, Cache-Control, was introduced to allow web developers to determine if and for how long a page should be cached.",
+            "You will see many sites that use Cache-Control: no cache or Cache-Control: no-store, indicating that these resources should not be cached."
+          ]
+        }
+      ]
+    },
+    "https": {
+      "statement": "A proxy that does not decrypt HTTPS cannot cache HTTPS content, because proxies cannot cache encrypted data; a proxy that decrypts HTTPS may cache it in some products, which the article says risks storing sensitive data on a multiuser machine with virtually no control over who receives it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-what-are-alternatives-caching-web-traffic.json",
+          "quotes": [
+            "If you are not decrypting HTTPS connections, you are not caching content from HTTPS connections because proxies cannot cache encrypted data.",
+            "If you are decrypting HTTPS on your proxy, then it is possible in some products to cache that data.",
+            "this can open up a potential risk that you are now storing sensitive data on a multiuser machine (with virtually no control or visibility to who receives that potentially sensitive data)."
+          ]
+        }
+      ]
+    },
+    "browser-and-size": {
+      "statement": "All modern browsers cache in memory and on disk, so a caching proxy is only a secondary cache. Proxies cache files only up to a maximum size: too small (the example is 1 MB) and most files are not cached, too large and fewer files fit, and the optimal setting can change from day to day or hour to hour.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-what-are-alternatives-caching-web-traffic.json",
+          "quotes": [
+            "All modern browsers provide caching at the client level, both in memory and on disk. A caching proxy server would only provide a secondary level of caching.",
+            "If the max file size is too small (for example, 1 MB), the gains from caching will be minimal since most files will not be cached.",
+            "If the max file size is too large, then the cache will be limited to the number of files it can cache, which will reduce the cache hits.",
+            "the optimal setting could change from day to day, or even hour to hour, based on browsing patterns."
+          ]
+        }
+      ]
+    },
+    "streaming": {
+      "statement": "Streaming media and CDNs make caching less effective: the same content is stored at multiple URLs or hosts, so one video can be cached several times, and dynamic resolution changes can cache a video at several resolutions, filling the cache and reducing hits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-what-are-alternatives-caching-web-traffic.json",
+          "quotes": [
+            "With the prevalence of Streaming Media and Content Delivery Networks (CDNs), many sites store the same content at multiple URLs or hosts.",
+            "This makes caching less effective because a single video can be cached multiple times, filling your cache and reducing cache hits.",
+            "changing resolution (which often happens dynamically) can cause a video to be cached at multiple resolutions, which will also fill your cache and reduce cache hits."
+          ]
+        }
+      ]
+    },
+    "alternatives": {
+      "statement": "As alternatives to caching for reducing bandwidth and improving user experience, the article names Streaming Media as the number one bandwidth category and lists: a policy that prioritizes business traffic over Streaming Media, large file downloads and other less-critical sites; traffic shaping; per-user network quotas on Streaming Media sites (example: 50 MB per day); URL Filtering policy to block Streaming Media or specific sites such as YouTube or Vimeo; and Direct to Net, local internet connections instead of backhauling over a WAN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-what-are-alternatives-caching-web-traffic.json",
+          "quotes": [
+            "The primary goal of caching is to reduce bandwidth usage and improve user experience.",
+            "The number one category responsible for bandwidth usage is Streaming Media.",
+            "Prioritize Traffic. Set a policy in place that will prioritize business-related traffic over Streaming Media, Large File downloads, or other high-bandwidth/less-critical sites.",
+            "Having a product that can do traffic shaping can effectively limit any impact on high-bandwidth sites/users.",
+            "Enforce network quotas on Streaming Media sites per user. For example, each user gets 50 MB of Streaming Media per day.",
+            "Use the URL Filtering policy to block access to Streaming Media or specific popular non-business streaming media sites like YouTube or Vimeo.",
+            "Direct to Net. By using local Internet connections and not backhauling traffic over a WAN, latency is considerably reduced, and user experience is improved."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zia-caches": {
+      "kind": "semantic",
+      "title": "Whether the ZIA proxy caches content",
+      "status": "open",
+      "detail": "The caching article explains why caching helps less and lists alternatives, but never says whether the ZIA proxy caches content. No source captured for this subject settles it, so no claim says ZIA does or does not cache.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

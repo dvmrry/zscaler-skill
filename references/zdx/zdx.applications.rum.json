@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "id": "zdx.applications.rum",
+  "title": "Real User Monitoring in ZDX: prerequisites, the Real User Score and the RUM views",
+  "aliases": [
+    "real user monitoring",
+    "rum",
+    "real user score",
+    "real-user performance",
+    "core web vitals",
+    "rum browser extension",
+    "rum errors tab"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.score"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Real User Monitoring is the capture of metrics on user interactions with applications through their web browsers, alongside the synthetic probes of [[zdx.probes]]; the application settings it is enabled in are in [[zdx.applications]]. {{rum-what}}"
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{rum-prerequisites}} {{rum-extension}}"
+    },
+    {
+      "label": "Score.",
+      "text": "{{rum-score}} How the Real User Score is calculated is open {{gap:real-user-score-calculation}}."
+    },
+    {
+      "label": "In the console.",
+      "text": "{{rum-tabs}} {{rum-performance}} {{rum-web-vitals}} {{rum-errors}} {{rum-where}}"
+    },
+    {
+      "label": "Open.",
+      "text": "Which browsers beyond Chrome and Edge the extension covers is not stated {{gap:rum-browsers}}."
+    }
+  ],
+  "claims": {
+    "rum-what": {
+      "statement": "Real User Monitoring captures metrics for analyzing user interactions with applications through their web browsers on Windows and macOS devices, for Single-Page Applications or Multi-Page Applications, with web page metrics such as Page Fetch Time, Page Loading Time and Core Web Vitals (Largest Contentful Paint).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-real-user-monitoring.json",
+          "quotes": [
+            "Real User Monitoring (RUM) captures metrics where you can analyze user interactions with applications through their web browsers on Windows and macOS devices.",
+            "The application can be either a Single-Page Application (SPA) or Multi-Page Application (MPA, also known as Traditional Web Application).",
+            "RUM provides web page metrics for SPAs or MPAs such as Page Fetch Time, Page Loading Time, and Core Web Vitals (i.e., Largest Contentful Paint)."
+          ]
+        }
+      ]
+    },
+    "rum-prerequisites": {
+      "statement": "RUM needs an appropriate subscription level (the subscription table supports Real User Monitoring only on Advanced Plus), the appropriate permissions for a ZDX role to configure applications and to view user information and the performance dashboard, the appropriate version compatibility for Client Connector and ZDX Module, the latest RUM browser extension on the device's browser (Chrome Web Store: Zscaler Real User Monitoring (RUM); Microsoft Edge Add-ons: RealTimeUserMonitoring), and ZUpmApplication.exe allowlisted on the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-real-user-monitoring.json",
+          "quotes": [
+            "The appropriate subscription level.",
+            "The appropriate permissions for a ZDX role where you can:",
+            "Configure applications.",
+            "View user information and the performance dashboard.",
+            "The appropriate version compatibility for Zscaler Client Connector and ZDX Module.",
+            "The device's browser has installed the latest RUM browser extension.",
+            "For Chrome browsers, refer to Chrome Web Store - Zscaler Real User Monitoring (RUM).",
+            "For Microsoft Edge browsers, refer to Microsoft Edge Add-ons - RealTimeUserMonitoring.",
+            "You must allowlist ZUpmApplication.exe on the device."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Real User Monitoring | Not supported | Not supported | Not supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "rum-extension": {
+      "statement": "RUM configuration cannot continue on a device without the RUM browser extension, which a mobile device management solution such as Microsoft Intune can install on multiple devices; Zscaler recommends creating a custom RUM collection, RUM is enabled when an application is configured, and an alert rule can be configured for RUM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-real-user-monitoring.json",
+          "quotes": [
+            "If the device does not have the Real User Monitoring browser extension, then you cannot continue configuring Real User Monitoring.",
+            "You can use a mobile device management solution (e.g., Microsoft Intune) to install the extension on multiple devices.",
+            "(Recommended) Create a custom RUM collection for end users to organize and view all enabled Real User Monitoring applications.",
+            "Enable Real User Monitoring when you configure an application.",
+            "You can configure an alert rule for RUM to receive notifications."
+          ]
+        }
+      ]
+    },
+    "rum-tabs": {
+      "statement": "An application's details page shows the Summary, Real-User Performance and Errors tabs only with Real User Monitoring enabled, while Web Probe Performance and Network Probe Performance show either way; the Browsers filter is available only for RUM applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-application-details.json",
+          "quotes": [
+            "| Application Tabs | Disabled Real User Monitoring | Enabled Real User Monitoring |",
+            "| Summary | No | Yes |",
+            "| Web Probe Performance | Yes | Yes |",
+            "| Real-User Performance | No | Yes |",
+            "| Errors | No | Yes |",
+            "| Network Probe Performance | Yes | Yes |",
+            "The Browsers filter is available only for Real User Monitoring applications."
+          ]
+        }
+      ]
+    },
+    "rum-score": {
+      "statement": "If an application has RUM enabled its score is the Real User Score, the experience of all users accessing the RUM-enabled application across all locations during the selected time period, on a scale and categories similar to the ZDX Score; the Score Trend is based on ZDX Scores for synthetic monitoring only, on Real User Scores for Real-User Monitoring only, and on both when both are used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "If the application has RUM enabled, then the score is the Real User Score.",
+            "The Real User Score represents the experience of all users accessing the RUM-enabled application across all locations during the selected time period. The Real User Score uses a similar scale and categories to the ZDX Score.",
+            "If the application is disabled for RUM and uses only Synthetic Monitoring, then the Score Trend is based on ZDX Scores.",
+            "If the application is enabled for RUM and uses only Real-User Monitoring, then the Score Trend is based on Real User Scores.",
+            "If the application is enabled for RUM and uses both Synthetic Monitoring and Real-User Monitoring, the Score Trend includes both ZDX Scores and Real User Scores."
+          ]
+        }
+      ]
+    },
+    "rum-performance": {
+      "statement": "The Real-User Performance tab evaluates page views, route changes, page load time and time to first byte; Most Viewed Pages lists each page's path URL with its average and 95th percentile page fetch time, and the Page Overview adds Total Requests, Resources, Resource Size, Uncompressed Resources, Uncached Resources, Number of Users, Total Errors, Largest Contentful Paint (LCP), Interaction to Next Paint (INP) and Cumulative Layout Shift (CLS).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-application-details.json",
+          "quotes": [
+            "The Real-User Performance tab evaluates page views, route changes, page load time, and time to first byte.",
+            "Most Viewed Pages: A list of the pages that are most frequently accessed by users with the following information:",
+            "View Path Group: The path URL to the page.",
+            "Average PFT: The average of the page fetch time (PFT).",
+            "P95 PFT: The 95th percentile of the PFT.",
+            "Page Overview: View Total Requests, Resources, Resource Size, Uncompressed Resources, Uncached Resources, Number of Users, Total Errors, Largest Contentful Paint (LCP), Interaction to Next Paint (INP), and Cumulative Layout Shift (CLS) to understand the page usage and information."
+          ]
+        }
+      ]
+    },
+    "rum-web-vitals": {
+      "statement": "RUM's Core Web Vitals metrics include First Contentful Paint, Total Blocking Time, Total Long Tasks (longest long task duration), Total Long Task Duration and users by Largest Contentful Paint, Interaction to Next Paint and Cumulative Layout Shift; the Top XHR and Fetch Analysis lists XMLHttpRequests and fetch calls with their average resource duration and average resource size.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-application-details.json",
+          "quotes": [
+            "- First Contentful Paint",
+            "- Total Blocking Time",
+            "- Total Long Tasks: Longest Long Task Duration",
+            "- Total Long Task Duration",
+            "- Users by Largest Contentful Paint (LCP)",
+            "- Users by Interaction to Next Paint (INP)",
+            "- Users by Cumulative Layout Shift (CLS)",
+            "Top XHR and Fetch Analysis: A list of XMLHttpRequests (XHR) and fetch calls with the following information:",
+            "Average Resource Duration: The average resource duration between when the XHR request is sent and when the time it ended.",
+            "Average Resource Size: The average resource size of the XHR request."
+          ]
+        }
+      ]
+    },
+    "rum-errors": {
+      "statement": "The Errors tab shows how many errors the application's page has encountered, as a graph of total errors, error rate and average error rate over time, switchable between JavaScript Errors and Network Errors views.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-application-details.json",
+          "quotes": [
+            "The Errors tab accounts for how many errors the application's page has encountered by displaying the following information:",
+            "Errors and Error Rate: A graph displaying the total errors, error rate, and average error rate over time.",
+            "Javascript Errors or Network Errors: Switch between JavaScript Errors and Network Errors views to view the number of JavaScript errors over time or the number of network errors over time."
+          ]
+        }
+      ]
+    },
+    "rum-where": {
+      "statement": "RUM data appears in the Applications Overview, Application Details, Users Overview, User Details and Performance Dashboard: for a selected RUM application the Performance Dashboard shows the Page Views and Load Time trend, with an indication that 95 percent of the page loading time is below an amount; the Users Overview shows the number of active RUM users, a distribution of Poor, Okay and Good Real-User Scores and each user's Real-User Score from 1 to 100; and the user page shows page load time, a page load and blocking time trend, and errors over time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-real-user-monitoring.json",
+          "quotes": [
+            "- Applications Overview",
+            "- Application Details",
+            "- Users Overview",
+            "- User Details",
+            "- Performance Dashboard"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "If the selected application has RUM enabled, then the Page Views and Load Time trend are displayed.",
+            "It indicates that 95 percent of the page loading time is below this amount."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-users-overview.json",
+          "quotes": [
+            "If the applications have RUM enabled, then you can view the number of active RUM users for a selected time period:",
+            "A distribution of how many users have a Poor, Okay, or Good Real-User Score in the selected time period.",
+            "The Real-User Score column shows the user's Real-User Score from 1–100, with 1 being the lowest and 100 being the highest."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "Page Load Time: The average page load time for the application.",
+            "Page Load Time and Blocking Time Trend: A comparison between the Page Load Time and Blocking Time to evaluate if there were any preventions to input responsiveness.",
+            "Errors Over Time: The total number of errors (e.g., JavaScript or Network errors) that have occurred when the user device is accessing the web application."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "real-user-score-calculation": {
+      "kind": "semantic",
+      "title": "How the Real User Score is calculated",
+      "status": "open",
+      "detail": "The help says the Real User Score uses a scale and categories similar to the ZDX Score and represents the experience of all users accessing the RUM-enabled application across all locations; it gives no calculation or weighting.",
+      "blocks": "explaining why a Real User Score differs from the synthetic ZDX Score of the same application",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "rum-browsers": {
+      "kind": "semantic",
+      "title": "Which browsers RUM supports beyond Chrome and Edge",
+      "status": "open",
+      "detail": "The help names a Chrome Web Store extension and a Microsoft Edge Add-ons extension and says RUM covers browsers on Windows and macOS devices; no other browser is mentioned.",
+      "blocks": "telling an operator whether a user on another browser gets RUM data",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

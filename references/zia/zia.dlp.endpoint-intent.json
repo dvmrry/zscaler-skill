@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.endpoint-intent",
+  "title": "Indicators of Intent: predefined risky-behaviour rules on the endpoint and their exceptions",
+  "aliases": [
+    "Indicators of Intent",
+    "intent control",
+    "intent rule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-data-scan"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-device-control"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what}} {{predefined-rules}}"
+    },
+    {
+      "label": "Prerequisites and enforcement.",
+      "text": "{{needs-continuous-classification}} {{enforcement-toggle}} Which indicators need continuous classification, and what counts as a suspicious volume, are open {{gap:intent-thresholds}}."
+    },
+    {
+      "label": "Exception rules.",
+      "text": "{{exception-rules}}"
+    },
+    {
+      "label": "Where events appear.",
+      "text": "Intent events show in a user's Overview and Timeline in [[zia.dlp.endpoint-data-scan]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Enable Indicators of Intent is on before reasoning about why an intent rule did not fire, since rules stay visible but are not enforced when it is off.",
+      "uses": [
+        "enforcement-toggle"
+      ]
+    }
+  ],
+  "claims": {
+    "what": {
+      "statement": "Indicators of Intent detect signals of risky user behavior on the endpoint, such as unusual data movement, policy bypass activity, security setting changes, or attempts to hide sensitive files. They consist of predefined policy rules whose status, severity and criteria administrators can modify, and to which they can add exceptions for specific users, user groups or departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-intent-control.json",
+          "quotes": [
+            "Indicators of Intent detect signals of risky user behavior on the endpoint, such as unusual data movement, policy bypass activity, security setting changes, or attempts to hide sensitive files.",
+            "These indicators consist of predefined policy rules that administrators can easily customize by modifying the rule status, severity, and criteria, as well as adding exceptions for specific users, user groups, or departments."
+          ]
+        }
+      ]
+    },
+    "predefined-rules": {
+      "statement": "The predefined rules are Suspicious Volume of Data Transfer to Removable Storage, to a Network Share and to Personal Cloud Storage, Suspicious Volume of Data Sent for Print, Bypass Initiated, Bypass Mode Ended, Network Settings Changed, Safe Mode Reboot, Security Audit Logs Cleared, Firewall Settings Changed, Sensitive File Extension Renamed, Password-Protected File Created and File Password Protection Enabled by User.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-intent-control.json",
+          "quotes": [
+            "Suspicious Volume of Data Transfer to Removable Storage: Triggers when a suspicious volume of data is transferred to removable storage.",
+            "Suspicious Volume of Data Transfer to a Network Share: Triggers when a suspicious volume of data is transferred to a network share.",
+            "Suspicious Volume of Data Transfer to Personal Cloud Storage: Triggers when a suspicious volume of data is transferred to personal cloud storage.",
+            "Suspicious Volume of Data Sent for Print: Triggers when a suspicious volume of data is sent for printing.",
+            "Bypass Initiated: Triggers when a user initiates a bypass.",
+            "Bypass Mode Ended: Triggers when a user ends bypass mode.",
+            "Network Settings Changed: Triggers when a user modifies network settings.",
+            "Safe Mode Reboot: Triggers when a user reboots the device in safe mode.",
+            "Security Audit Logs Cleared: Triggers when a user deletes security audit logs.",
+            "Firewall Settings Changed: Triggers when a user modifies Firewall settings.",
+            "Sensitive File Extension Renamed: Triggers when a user renames a file extension for a sensitive file.",
+            "Password-Protected File Created: Triggers when a user creates a password-protected file.",
+            "File Password Protection Enabled by User: Triggers when a user password protects an existing file."
+          ]
+        }
+      ]
+    },
+    "needs-continuous-classification": {
+      "statement": "Some indicators of intent require the continuous classification scan to be enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-intent-control.json",
+          "quotes": [
+            "Some indicators of intent require the continuous classification scan to be enabled."
+          ]
+        }
+      ]
+    },
+    "enforcement-toggle": {
+      "statement": "Enable Indicators of Intent enforces Indicator of Intent rules. When it is disabled, rules remain visible and configurable but are not enforced on the endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Enable Indicators of Intent: Enable to enforce Indicator of Intent rules. When disabled, rules remain visible and configurable, but are not enforced on the endpoints."
+          ]
+        }
+      ]
+    },
+    "exception-rules": {
+      "statement": "An intent exception rule's description cannot exceed 250 characters. Intent policy rules are evaluated in ascending numerical order and rule evaluation stops at the first match. The criteria include Users and Departments, and the rules need to be activated to be enforced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-intent-rule.json",
+          "quotes": [
+            "The description cannot exceed 250 characters.",
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule's place in the order. Rule evaluation stops at the first match.",
+            "Users: Select one or more users to apply the rule to those users.",
+            "Departments: Select one or more departments to apply the rule to those departments.",
+            "After the policy rules are set, they need to be activated for them to be enforced."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "intent-thresholds": {
+      "kind": "semantic",
+      "title": "Which indicators need continuous classification, and what a suspicious volume is",
+      "status": "open",
+      "detail": "The article says some indicators require continuous classification without listing which, and does not quantify a suspicious volume of data for the transfer and print indicators. The captured articles also state no API, SDK or Terraform surface for Indicators of Intent.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

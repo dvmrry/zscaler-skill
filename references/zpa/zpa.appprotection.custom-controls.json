@@ -1,0 +1,392 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.custom-controls",
+  "title": "AppProtection custom HTTP and WebSocket controls: parameters, operators, limits and regular expressions",
+  "aliases": [
+    "custom control regex",
+    "websocket custom control",
+    "max payload size",
+    "max fragments per message",
+    "regular expression values appprotection"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.controls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{control-type}} {{websocket-controls}} The control groups and the rule that an in-use custom control cannot be deleted are in [[zpa.appprotection.controls]]. {{edit-in-use}}"
+    },
+    {
+      "label": "Parameters and operators.",
+      "text": "{{value-operators}} {{exists-operators}} {{size-operator}} {{request-method}}"
+    },
+    {
+      "label": "Limits.",
+      "text": "{{text-limit}} The other limits are open {{gap:limits}}."
+    },
+    {
+      "label": "Severity and action.",
+      "text": "{{severity-action}}"
+    },
+    {
+      "label": "Regular expressions.",
+      "text": "{{regex-syntax}} {{regex-repeats}} {{regex-shorthand}} {{regex-base-token}} {{regex-token-start}} Whether these rules apply to WebSocket controls is open {{gap:regex-websocket}}."
+    },
+    {
+      "label": "Names.",
+      "text": "{{name-characters}} Whether PROPINFO in the Request Method list is a misspelling is open {{gap:propinfo}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a custom control's regular expression begins with a base token and avoids anchors, back-references and repeats of repeats.",
+      "uses": [
+        "regex-syntax",
+        "regex-repeats",
+        "regex-base-token",
+        "regex-token-start"
+      ]
+    },
+    {
+      "do": "Whether a control uses = , > or < more than once for Size.",
+      "uses": [
+        "size-operator"
+      ]
+    },
+    {
+      "do": "Whether the control being edited is in use by a profile, which does not stop editing.",
+      "uses": [
+        "edit-in-use"
+      ]
+    }
+  ],
+  "claims": {
+    "control-type": {
+      "statement": "A custom control is a Request control (a message from the client to the server) or a Response control (a response from the server to the client), and one or more control parameters are chosen for the selected type, including Request Uri, Request Body and Response Body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-custom-controls.json",
+          "quotes": [
+            "Request: A message from the client to the server for the request.",
+            "Response: A response from the server to the client for the request.",
+            "Choose one or more control parameters for the selected control type.",
+            "Request Uri",
+            "Request Body",
+            "Response Body"
+          ]
+        }
+      ]
+    },
+    "websocket-controls": {
+      "statement": "WebSocket custom controls act as a Request (client to server) or Response (server to client) and act on Max Payload Size or Max Fragments Per Message. Their actions are Allow and Block, where Block gives the user a 403 response code, and they take a severity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-websocket-controls.json",
+          "quotes": [
+            "Request: Select if you want the WebSocket control to act as a message from the client to the server for the request.",
+            "Response: Select if you want the WebSocket control to act as a response from the server to the client for the request.",
+            "Allow: The user is allowed to proceed with the control parameters you set.",
+            "Block: The user receives a 403 response code for the control parameters you set.",
+            "Severity: Select the severity level for the WebSocket custom control:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-websocket-controls.json",
+          "after": "Request: Select if you want the WebSocket control to act as a message from the client to the server for the request.",
+          "quotes": [
+            "Max Payload Size: The maximum payload size control parameter.",
+            "Max Fragments Per Message: The maximum fragments for each message control parameter."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-websocket-controls.json",
+          "after": "Response: Select if you want the WebSocket control to act as a response from the server to the client for the request.",
+          "quotes": [
+            "Max Payload Size: The maximum payload size control parameter.",
+            "Max Fragments Per Message: The maximum fragments for each message control parameter."
+          ]
+        }
+      ]
+    },
+    "edit-in-use": {
+      "statement": "All custom controls and all WebSocket custom controls can be edited, even ones currently in use by an AppProtection profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-custom-controls.json",
+          "quotes": [
+            "All custom controls can be edited, even ones currently in use by an AppProtection profile."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-websocket-controls.json",
+          "quotes": [
+            "All WebSocket custom controls can be edited, even ones currently in use by an AppProtection profile."
+          ]
+        }
+      ]
+    },
+    "value-operators": {
+      "statement": "The value operators include Regex, Does not match Regex, Contains, Starts with and Ends with.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-custom-controls.json",
+          "quotes": [
+            "Regex: A regular expression control parameter that matches the value specified.",
+            "Does not match Regex: A regular expression control parameter that does not match the value specified.",
+            "Contains: A control parameter that contains the value specified.",
+            "Starts with: A control parameter that starts with the value specified.",
+            "Ends with: A control parameter that ends with the value specified."
+          ]
+        }
+      ]
+    },
+    "exists-operators": {
+      "statement": "Exists checks that a control type is present and Does not exist checks that it is absent, and each is available only for Request Header, Request Cookie, Query String and Response Header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-custom-controls.json",
+          "quotes": [
+            "Exists: A control parameter to check if a control type is present. This parameter is available only for Request Header, Request Cookie, Query String, and Response Header.",
+            "Does not exist: A control parameter to check if a control type is absent. This parameter is available only for Request Header, Request Cookie, Query String, and Response Header."
+          ]
+        }
+      ]
+    },
+    "size-operator": {
+      "statement": "Size takes an operator and a value, and if =, > or < is used once when setting up a custom control, it cannot be used again in the same custom control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-custom-controls.json",
+          "quotes": [
+            "For Size, select an operator and enter a value.",
+            "If =, >, or < are used once when setting up a custom control, you can't use it again in the same custom control."
+          ]
+        }
+      ]
+    },
+    "request-method": {
+      "statement": "Request Method is chosen from a list of available options that includes negated entries such as Not PROPPATCH and Not MKACTIVITY.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-custom-controls.json",
+          "quotes": [
+            "For Request Method, select from one of the available options:",
+            "Not PROPPATCH",
+            "Not MKACTIVITY"
+          ]
+        }
+      ]
+    },
+    "text-limit": {
+      "statement": "The text field of a custom control definition is limited to 2,500 characters, and only the first 1 MB of Request and Response Headers is inspected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-custom-controls.json",
+          "quotes": [
+            "There is a limit of 2,500 characters for the text field.",
+            "There is a 1 MB inspection limit for Request and Response Headers, so only the first 1 MB will be inspected."
+          ]
+        }
+      ]
+    },
+    "severity-action": {
+      "statement": "A custom control's severity is Critical, High, Medium or Low, and in an AppProtection profile it has a paranoia level of 1. Its transaction action is Allow (the user proceeds with the current URL), Block (the user receives a 403 response code) or Redirect (the user is sent to an alternative URL that is entered).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-custom-controls.json",
+          "quotes": [
+            "Critical: The greatest level of concern.",
+            "High: The second greatest level of concern.",
+            "Medium: The third greatest level of concern.",
+            "Low: The least level of concern.",
+            "In addition to severity levels, custom controls have a paranoia level of 1 as they are used in an AppProtection profile.",
+            "Allow: The user is allowed to proceed with the current URL.",
+            "Block: The user receives a 403 response code.",
+            "Redirect: The user receives a different URL. Enter an alternative URL that the user is redirected to."
+          ]
+        }
+      ]
+    },
+    "regex-syntax": {
+      "statement": "In custom control regular expressions the single-character wildcard, bracket classes, negated bracket classes and the *, ? and + repeats are supported, as is an alternation matching either the expression before or after the operator. The start and end position anchors and back-references to a capture group are not supported, and capture groups are not supported, though parentheses can bound subexpressions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-regular-expression-values.json",
+          "quotes": [
+            "When configuring custom controls, you can define some of them with regular expressions (regex) values.",
+            "| . | Matches any single character | Supported |",
+            "| [] | Matches a single character from those given between the brackets, matches character ranges (e.g., [a-z]) | Supported |",
+            "| [^ ] | Matches a single character not from those given between ^ and ] | Supported |",
+            "| * | Repeats the preceding element 0 or more times | Supported |",
+            "| ? | Repeats the preceding element 0 or 1 times | Supported |",
+            "| + | Repeats the preceding element 1 or more times | Supported |",
+            "Matches either the expression before or the expression after the operator",
+            "| ^ | Matches the starting position within the string | Not supported |",
+            "| $ | Matches the ending position within the string | Not supported |",
+            "| \\n | References a capture group | Not supported |",
+            "Capture groups are not supported. Parentheses can be used for bounding subexpressions."
+          ]
+        }
+      ]
+    },
+    "regex-repeats": {
+      "statement": "Both bounds m and n of a bounded repeat must be between 0 and 100; n is required and m can be omitted (0 is assumed). A repeat of an expression that itself contains a repeat is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-regular-expression-values.json",
+          "quotes": [
+            "Both m and n must be between 0 and 100. A value for n is required, but m can be omitted (0 is assumed).",
+            "A repeat of an expression containing a repeat (*, +, ?, or {m,n}) is not supported."
+          ]
+        }
+      ]
+    },
+    "regex-shorthand": {
+      "statement": "The page lists shorthand character classes supported by Zscaler, among them the digit class, the non-digit class, the non-whitespace class, the word class, the non-word class and the word boundary; the whitespace class matches any single horizontal whitespace character across a single line.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-regular-expression-values.json",
+          "quotes": [
+            "Shorthand Character Classes Supported by Zscaler",
+            "| \\d | Matches any single character that is a digit (i.e., [0-9]) | Supported |",
+            "| \\D | Matches any single character that is a non-digit | Supported |",
+            "Matches any single horizontal whitespace character across a single line",
+            "| \\S | Matches any single non-whitespace character | Supported |",
+            "| \\w | Matches any single word character (i.e., ASCII characters [A-Za-z0-9_]) | Supported |",
+            "| \\W | Matches any single non-word character | Supported |",
+            "| \\b | Matches any single word boundary | Supported |"
+          ]
+        }
+      ]
+    },
+    "regex-base-token": {
+      "statement": "A regex value must begin with a base token, a non-zero-length simple sequence of alphabetic and numeric characters of a known length. The first part can include only literal alphabetic characters, literal numeric characters, special characters, classes of only alphabetic or only numeric characters, bounded repeats and 8 or fewer branches; shorthand characters can be followed by a special character, and a base token can have up to two nested shorthand characters. The initial sequence must be all alphabetic or all numeric, and the base token must end with an expression that is non-alphanumeric.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-regular-expression-values.json",
+          "quotes": [
+            "The regex value must begin with a simple sequence of alphabetic and numeric characters of a known length called the base token.",
+            "The first part can only include:",
+            "Literal alphabetic characters",
+            "Literal numeric characters",
+            "Special characters (e.g., \"@\", \"#\")",
+            "Classes of only alphabetic characters or numeric characters (e.g., \"[A-N]\", \"\\d\")",
+            "Bounded repeats",
+            "8 or fewer branches",
+            "Shorthand characters can be followed by a special character",
+            "A base token can also have up to two nested shorthand characters",
+            "The base token must end with an expression that is non-alphanumeric",
+            "The base token must be non-zero length.",
+            "The initial sequence must be all alphabetic characters or all numeric characters. It cannot be both."
+          ]
+        }
+      ]
+    },
+    "regex-token-start": {
+      "statement": "Regex values only match at the beginning of a token, at the first alphabetic or numeric character after a non-alphabetic, non-numeric character; in the page's example, [A-Za-z]\\d{7} does not match \"AA1234567\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-regular-expression-values.json",
+          "quotes": [
+            "Regex values only match at the beginning of a token, i.e., at the first alphabetic or numeric character after a non-alphabetic, non-numeric character.",
+            "Doesn't match: \"AA1234567\""
+          ]
+        }
+      ]
+    },
+    "name-characters": {
+      "statement": "A custom control name and a WebSocket control name cannot contain special characters except periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-custom-controls.json",
+          "quotes": [
+            "Name: Enter a name for the custom control. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-websocket-controls.json",
+          "quotes": [
+            "Control Name: Enter a name for the WebSocket control. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "limits": {
+      "kind": "semantic",
+      "title": "Custom control limits beyond the text field",
+      "status": "open",
+      "detail": "The custom control limits on Ranges & Limitations are not captured here, and Terraform zpa_inspection_custom_controls and the inspectionControls API were not checked (see zpa.appprotection.api-surface).",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "regex-websocket": {
+      "kind": "semantic",
+      "title": "Whether the regular expression rules apply to WebSocket controls",
+      "status": "open",
+      "detail": "The regular expression page does not say whether its rules apply to WebSocket controls, which take numeric values only.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "propinfo": {
+      "kind": "semantic",
+      "title": "Whether PROPINFO in the Request Method list is a misspelling",
+      "status": "open",
+      "detail": "The Request Method list on the configuring page includes PROPINFO; the page does not say whether that is a misspelling.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

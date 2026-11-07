@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "id": "zia.bandwidth-control.classes",
+  "title": "Bandwidth classes: what a class is and which exist",
+  "aliases": [
+    "bandwidth class",
+    "predefined bandwidth classes",
+    "general surfing class",
+    "large files bandwidth class",
+    "voip bandwidth class",
+    "web conferencing bandwidth class",
+    "custom bandwidth class"
+  ],
+  "binds": [
+    "zia/bandwidth-classes",
+    "zia/bandwidth-classes#urlCategories",
+    "zia/bandwidth-classes#urls",
+    "zia/bandwidth-classes#fileSize"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.url-categories.membership",
+      "because": "zia.bandwidth-control.classes:custom-matchers"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/bandwidth-classes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.default-rule"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A bandwidth class is the matcher that Bandwidth Control rules point at. {{purpose}} A rule never matches a URL or application directly; if traffic is not in a class that a rule references, that rule does not shape it ([[zia.bandwidth-control.rules]])."
+    },
+    {
+      "label": "Custom classes.",
+      "text": "{{custom-matchers}} Domain counts are capped: see [[zia.bandwidth-control.limits]]. The URL categories picked here resolve the usual way ([[zia.url-categories.membership]])."
+    },
+    {
+      "label": "The four tabs.",
+      "text": "{{four-tabs}}"
+    },
+    {
+      "label": "Predefined classes.",
+      "text": "{{predefined-cloud-apps}} {{general-surfing}} Which items each predefined class contains is not captured {{gap:predefined-membership}}."
+    },
+    {
+      "label": "Large Files, VoIP and Web Conferencing.",
+      "text": "{{large-files}} {{voip-webconf-apps}} In the API these plausibly correspond to typed classes of the same object, with eight predefined type values; no source states that mapping (see [[zia.bandwidth-control.api-surface]], claim types-match-predefined)."
+    },
+    {
+      "label": "Microsoft 365.",
+      "text": "{{office365-class-recommendation}}"
+    },
+    {
+      "label": "Activation.",
+      "text": "{{save-then-activate}} The staged-versus-live activation gate is described in the legacy doc [[shared.activation]], which is not yet a subject."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the class is referenced by a rule, since an unreferenced custom class falls into the location's default rule.",
+      "uses": [
+        "zia.bandwidth-control.default-rule"
+      ]
+    },
+    {
+      "do": "Whether the class sits on the tab that matches its kind, given that the Cloud Applications tab holds the custom and predefined classes.",
+      "uses": [
+        "four-tabs"
+      ]
+    },
+    {
+      "do": "Whether the change was activated, since a saved class is not necessarily live.",
+      "uses": [
+        "save-then-activate"
+      ]
+    }
+  ],
+  "claims": {
+    "office365-class-recommendation": {
+      "statement": "To define a bandwidth management policy for Microsoft 365, Zscaler recommends adding Office 365 to a bandwidth class and then defining the appropriate bandwidth rule for that class.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-microsoft-365.json",
+          "quotes": [
+            "To define a bandwidth management policy for Microsoft 365, Zscaler recommends that you add Office 365 to a bandwidth class and then define the appropriate bandwidth rule for that class."
+          ]
+        }
+      ]
+    },
+    "purpose": {
+      "statement": "A bandwidth class identifies the URL categories and cloud applications to which the service allocates bandwidth. Classes must be configured before Bandwidth Control rules can reference them.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-classes"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-bandwidth-classes-20260909.json",
+          "quotes": [
+            "Bandwidth classes identify the URL categories and cloud applications to which the service allocates bandwidth.",
+            "You must configure the bandwidth classes before you can reference them in Bandwidth Control policy rules."
+          ]
+        }
+      ]
+    },
+    "custom-matchers": {
+      "statement": "A custom class on the Cloud Applications tab is built from URL categories, cloud applications (categories or individual applications) and a Domains list of URLs.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-classes#urlCategories",
+        "zia/bandwidth-classes#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-bandwidth-classes.json",
+          "quotes": [
+            "Select the Cloud Applications tab.",
+            "URL Categories: Select URL categories to add to the bandwidth class.",
+            "You can select cloud application categories or individual cloud applications.",
+            "Domains: Enter the URLs that you want to include in the bandwidth class and click Add Items."
+          ],
+          "after": "To add a custom bandwidth class:"
+        }
+      ]
+    },
+    "four-tabs": {
+      "statement": "The Bandwidth Classes page has four tabs: Cloud Applications (custom and predefined classes, managed by adding or removing URL domains), Large Files (minimum file size), Web Conference Applications (enable or disable applications) and VoIP Applications (enable or disable applications).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-bandwidth-classes-20260909.json",
+          "quotes": [
+            "The Bandwidth Classes page has 4 tabs:",
+            "Cloud Applications: Allows you to configure both custom and predefined bandwidth classes, which you can manage by adding or removing URL domains.",
+            "Large files: Allows you to configure the minimum file size for this bandwidth class.",
+            "Web Conference Applications: Allows you to enable or disable web conferencing applications for this bandwidth class.",
+            "VoIP Applications: Allows you to enable or disable VoIP applications for this bandwidth class."
+          ]
+        }
+      ]
+    },
+    "predefined-cloud-apps": {
+      "statement": "The Cloud Applications tab lists five predefined classes: File Share, Finance, General Surfing, Sales/Support Apps and Streaming Media. A predefined class cannot be deleted, but domains can be added to it and existing domains edited or removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-bandwidth-classes.json",
+          "quotes": [
+            "The Cloud Applications tab lists predefined bandwidth classes to which you can add URL domains.",
+            "The following are the predefined bandwidth classes:",
+            "File Share: Includes URLs that represent file-sharing sites.",
+            "Finance: Includes URLs that represent business-oriented, financial web-based applications or tools",
+            "General Surfing: Includes all URL categories and cloud apps",
+            "Sales/Support Apps: Includes URLs that represent business-oriented, sales/support web-based applications or tools",
+            "Streaming Media: Includes URLs that represent streaming sites.",
+            "To manage domains to the predefined bandwidth classes:",
+            "Click the Edit or Delete icon to modify or remove an existing domain, respectively.",
+            "You cannot delete a predefined bandwidth class."
+          ]
+        }
+      ]
+    },
+    "general-surfing": {
+      "statement": "General Surfing holds all URL categories and cloud applications that do not belong to the Webmail, Instant Messaging, Streaming Media, File Share, and Social Networks/Blogging groups, and it cannot be edited.",
+      "tier": "A",
+      "conditions": "The two captures word the excluded groups slightly differently: the Configuring article reads 'Streaming Media/File Share', the About article lists Streaming Media and File Share separately.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-bandwidth-classes.json",
+          "quotes": [
+            "General Surfing: Includes all URL categories and cloud apps that do not fall into the following categories: Webmail, Instant Messaging, Streaming Media/File Share, and Social Networks/Blogging.",
+            "This class can't be edited."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-bandwidth-classes-20260909.json",
+          "quotes": [
+            "This class includes all URL categories and cloud apps that do not belong to the following categories: Webmail, Instant Messaging, Streaming Media, File Share, and Social Networks/Blogging."
+          ]
+        }
+      ]
+    },
+    "large-files": {
+      "statement": "The Large Files class takes a minimum file size chosen from a drop-down, and the service throttles bandwidth when users download or upload files at or above that size.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-classes#fileSize"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-large-files-bandwidth-class-20260909.json",
+          "quotes": [
+            "The service enforces bandwidth throttling when users attempt to download or upload files that are equal to or greater than the specified file size.",
+            "select a minimum file size from the drop-down menu"
+          ]
+        }
+      ]
+    },
+    "voip-webconf-apps": {
+      "statement": "The VoIP Applications and Web Conferencing Applications tabs each let an administrator enable or disable applications for the class; each tab displays a list of its applications that can be included in the class.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-voip-bandwidth-class-20260909.json",
+          "quotes": [
+            "it displays a list of VoIP applications that can be included in this class",
+            "enable or disable applications as necessary",
+            "Select the VoIP Applications tab."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-conferencing-bandwidth-class-20260909.json",
+          "quotes": [
+            "it displays a list of web conferencing applications that can be included in this class",
+            "Click Edit to enable or disable web conferencing applications.",
+            "for the Web Conferencing Applications section, enable or disable applications as necessary.",
+            "Select the Web Conferencing Applications tab."
+          ]
+        }
+      ]
+    },
+    "save-then-activate": {
+      "statement": "Class edits are saved and then activated from the console; the documented procedures for predefined, custom, Large Files, VoIP and Web Conferencing classes all end with a save-and-activate step, so a saved class is not necessarily live.",
+      "tier": "B",
+      "conditions": "Derived from the procedure text; no source states the staged-versus-live state of an unactivated class edit.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-bandwidth-classes.json",
+          "quotes": [
+            "Click Save and activate your changes.",
+            "Click Save and activate the change."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-large-files-bandwidth-class-20260909.json",
+          "quotes": [
+            "Click Save and activate the changes."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "console-application-lists": {
+      "kind": "data",
+      "title": "Console lists for Large Files sizes and VoIP or Web Conferencing applications",
+      "status": "open",
+      "detail": "The Help articles say the Large Files drop-down and the VoIP and Web Conferencing application lists exist but do not enumerate them. The API enumerations are in [[zia.bandwidth-control.api-surface]]; whether the console offers exactly those values is not shown.",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia bandwidth-classes list"
+    },
+    "predefined-membership": {
+      "kind": "data",
+      "title": "What the predefined classes actually contain",
+      "status": "open",
+      "detail": "Help describes the predefined classes only in words (for example Finance covers business-oriented financial tools such as Smith Barney or E*Trade). Which URL categories and cloud applications each holds is not listed in the captured pages, nor how they relate to [[zia.cloud-app-control]] application classes.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia bandwidth-classes list"
+    }
+  }
+}

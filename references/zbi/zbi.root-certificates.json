@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "id": "zbi.root-certificates",
+  "title": "Root certificates the isolation browser trusts: limits, defaults, edit and delete rules",
+  "aliases": [
+    "isolation root certificate",
+    "Zscaler Root Certificate placeholder",
+    "browser isolation certificate type",
+    "upload root certificate for isolation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.cloud-browser"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{chromium-trust-plus-uploaded}} {{default-placeholder}}"
+    },
+    {
+      "label": "Adding.",
+      "text": "{{zia-limit-ten}} {{zia-add-type-pem}}"
+    },
+    {
+      "label": "The list.",
+      "text": "{{zia-list-columns}} {{pa-delete-custom-only}}"
+    },
+    {
+      "label": "Choosing certificates in a profile.",
+      "text": "{{profile-selection}} The profile objects are in [[zbi.isolation-profiles]]."
+    },
+    {
+      "label": "Editing.",
+      "text": "{{pem-cannot-change}} {{edit-fields}} {{edit-while-associated}} {{zia-edit-only-unassociated}} These two disagree {{divergence:edit-while-associated-conflict}}."
+    },
+    {
+      "label": "Deleting.",
+      "text": "{{delete-restrictions}}"
+    },
+    {
+      "text": "Whether the certificate objects can be managed through an API, SDK or Terraform is open {{gap:automation-surfaces}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the profile has at least one root certificate selected, and whether a certificate a delete was refused for is still associated with a profile.",
+      "uses": [
+        "profile-selection",
+        "delete-restrictions"
+      ]
+    }
+  ],
+  "claims": {
+    "chromium-trust-plus-uploaded": {
+      "statement": "The isolation browser trusts the well-known certificate authorities that Chromium trusts, and admins can additionally upload root certificates for it to trust, which can be associated with Internet & SaaS isolation profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-about-root-certificates-zero-trust-browser-internet-and-saas.json",
+          "quotes": [
+            "The isolation browser trusts all the well-known certificate authorities trusted by Chromium.",
+            "upload root certificates of their choice that they want the isolated browser to trust for successful SSL communication",
+            "You can associate these uploaded certificates with the isolation profiles that are created for Internet & SaaS (ZIA)."
+          ]
+        }
+      ]
+    },
+    "zia-limit-ten": {
+      "statement": "An organization can add up to 10 root certificates for Zero Trust Browser in Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-adding-root-certificates-zero-trust-browser-internet-and-saas.json",
+          "quotes": [
+            "You can add up to 10 root certificates for your organization."
+          ]
+        }
+      ]
+    },
+    "default-placeholder": {
+      "statement": "The default Zscaler Root Certificate is deployed automatically as a placeholder root certificate for any new isolation profile, in both the Internet & SaaS and the Private Access article; admins can add their own certificates to use instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-adding-root-certificates-zero-trust-browser-internet-and-saas.json",
+          "quotes": [
+            "The default Zscaler Root Certificate is deployed automatically as a placeholder root certificate for any new isolation profile.",
+            "However, you can add your own root certificates to use for isolation profiles instead."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-adding-root-certificates-zero-trust-browser-private-access.json",
+          "quotes": [
+            "The default Zscaler Root Certificate is deployed automatically as a placeholder root certificate for any new isolation profile.",
+            "However, you can create your own root certificates to use for profiles instead."
+          ]
+        }
+      ]
+    },
+    "zia-add-type-pem": {
+      "statement": "Adding an Internet & SaaS root certificate takes a Name, a Type chosen as Browser Isolation, and the Content from a PEM file; the Private Access drawer takes a Name and an uploaded PEM file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-adding-root-certificates-zero-trust-browser-internet-and-saas.json",
+          "quotes": [
+            "For the Type of certificate, select Browser Isolation from the drop-down menu.",
+            "For Content, browse your computer to choose a PEM file.",
+            "Enter a Name."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-adding-root-certificates-zero-trust-browser-private-access.json",
+          "quotes": [
+            "Click Upload File to choose a PEM file.",
+            "Enter a Name."
+          ]
+        }
+      ]
+    },
+    "pem-cannot-change": {
+      "statement": "The PEM file of an existing root certificate cannot be changed in either product; a different PEM file needs a new root certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-editing-root-certificates-zero-trust-browser-internet-and-saas.json",
+          "quotes": [
+            "You cannot change the PEM file in a root certificate. To use a different PEM file, you must add a new root certificate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-editing-root-certificate-zero-trust-browser-private-access.json",
+          "quotes": [
+            "You cannot change the PEM file when editing a root certificate. To use a different PEM file, create a new root certificate."
+          ]
+        }
+      ]
+    },
+    "edit-fields": {
+      "statement": "In Internet & SaaS the Name and the Type of a root certificate can be edited; in Private Access the Name is edited. The default Zscaler Root Certificate is the exception (Internet & SaaS: it cannot be fully edited; Private Access: it cannot be edited).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-editing-root-certificates-zero-trust-browser-internet-and-saas.json",
+          "quotes": [
+            "Edit the Name for the root certificate.",
+            "Edit the Type of the root certificate. Use the drop-down menu to add or remove the selected type(s).",
+            "The only certificate you cannot fully edit is the default Zscaler Root Certificate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-editing-root-certificate-zero-trust-browser-private-access.json",
+          "quotes": [
+            "edit the Name for the root certificate.",
+            "The only root certificate you cannot edit is the default Zscaler Root Certificate."
+          ]
+        }
+      ]
+    },
+    "edit-while-associated": {
+      "statement": "A root certificate can be edited at any time, even while associated with an isolation profile (stated by both the Internet & SaaS and the Private Access editing articles).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-editing-root-certificates-zero-trust-browser-internet-and-saas.json",
+          "quotes": [
+            "you can edit it at any time, even while it's associated with an isolation profile."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-editing-root-certificate-zero-trust-browser-private-access.json",
+          "quotes": [
+            "you can edit it at any time, even while it's associated with an isolation profile."
+          ]
+        }
+      ]
+    },
+    "zia-edit-only-unassociated": {
+      "statement": "The Internet & SaaS adding article says a root certificate that is not the default and not associated with an isolation profile can be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-adding-root-certificates-zero-trust-browser-internet-and-saas.json",
+          "quotes": [
+            "you can edit a root certificate that is not the default and not associated with an isolation profile."
+          ]
+        }
+      ]
+    },
+    "delete-restrictions": {
+      "statement": "The default Zscaler Root Certificate cannot be deleted because at least one root certificate is required per isolation profile, and other certificates associated with an isolation profile cannot be deleted until disabled from that profile; in Private Access the delete icon is unavailable for such certificates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-deleting-root-certificate-zero-trust-browser-internet-saas.json",
+          "quotes": [
+            "You can't delete the default because at least one root certificate is required per isolation profile.",
+            "if any other root certificates are associated with an isolation profile, you cannot delete them.",
+            "You must first disable a certificate from the isolation profile before deleting it."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-deleting-root-certificate-zero-trust-browser-private-access.json",
+          "quotes": [
+            "If the certificate is the default or is associated with an isolation profile, the delete icon is not available."
+          ]
+        }
+      ]
+    },
+    "zia-list-columns": {
+      "statement": "The Internet & SaaS Root Certificates page shows for each certificate its name, upload date and time, expiration date, type and a download option; certificates other than the default can be downloaded, edited and deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-about-root-certificates-zero-trust-browser-internet-and-saas.json",
+          "quotes": [
+            "Uploaded on: The date and time the root certificate was uploaded.",
+            "Expiration Date: The expiration date of the root certificate.",
+            "Type: The type of root certificate.",
+            "Download any root certificates that are not the default root certificate.",
+            "Edit any root certificates that are not the default root certificate.",
+            "Delete any root certificates that are not the default root certificate.",
+            "Certificate Name: The name of the root certificate.",
+        "Certificate: The option to download the root certificate."
+          ]
+        }
+      ]
+    },
+    "profile-selection": {
+      "statement": "The Internet & SaaS profile wizard requires at least one root certificate, with the Zscaler Root Certificate used for SSL inspection offered by default; the Private Access wizard requires at least one certificate to deploy, with the Zscaler Root Certificate applied by default and not disableable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "File (.pem): Select at least one root certificate.",
+            "The Zscaler Root Certificate that Internet & SaaS uses for SSL inspection appears in the drop-down menu by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "Enable at least one certificate to deploy. The Zscaler Root Certificate is applied by default, and you cannot disable it."
+          ]
+        }
+      ]
+    },
+    "pa-delete-custom-only": {
+      "statement": "The Private Access Root Certificates page lets admins delete custom root certificates that are not the default and are not associated with any isolation profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-about-root-certificates-zero-trust-browser-private-access.json",
+          "quotes": [
+            "Delete any custom root certificates that are not the default and are not associated with any isolation profile."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "edit-while-associated-conflict": {
+      "summary": "The editing articles say a root certificate can be edited at any time, even while associated with an isolation profile, while the Internet & SaaS adding article says a non-default certificate not associated with an isolation profile can be edited.",
+      "positions": [
+        {
+          "says": "A root certificate can be edited at any time, even while associated with an isolation profile (Internet & SaaS and Private Access editing articles).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-editing-root-certificates-zero-trust-browser-internet-and-saas.json",
+            "quotes": [
+              "you can edit it at any time, even while it's associated with an isolation profile."
+            ]
+          }
+        },
+        {
+          "says": "A root certificate that is not the default and not associated with an isolation profile can be edited.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-adding-root-certificates-zero-trust-browser-internet-and-saas.json",
+            "quotes": [
+              "you can edit a root certificate that is not the default and not associated with an isolation profile."
+            ]
+          }
+        }
+      ],
+      "impact": "An answer on whether an associated certificate can be edited depends on which article is followed; both are quoted, neither is settled."
+    }
+  },
+  "gaps": {
+    "automation-surfaces": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether Internet & SaaS isolation root certificates can be managed through the API, SDKs or Terraform",
+      "detail": "The help articles describe the console only. For the Private Access side, certificates are CBI configuration operations ([[zbi.api]]) and the create path is in [[zpa.api.cbi-appprotection-wire:cbi-singular-create-path]]. Open is only the Internet & SaaS side: whether the Internet & SaaS root certificates can be managed through an API, SDK or Terraform; those sources were not checked.",
+      "blocks": "answering how to manage Internet & SaaS isolation root certificates as code",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

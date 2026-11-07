@@ -1,0 +1,455 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.actions",
+  "title": "What an SSL/TLS inspection action does: Inspect, Do Not Inspect, Block and their settings",
+  "aliases": [
+    "ssl inspection actions",
+    "untrusted server certificates",
+    "ocsp revocation check",
+    "block no sni",
+    "minimum tls version",
+    "enable http2 ssl",
+    "show end user notifications ssl",
+    "pass through",
+    "site blocked after enabling ssl inspection",
+    "https site fails only through zscaler",
+    "certificate error through zscaler",
+    "block page instead of the website",
+    "revoked certificate blocked",
+    "site works off network but fails on zscaler"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules#action"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline",
+      "because": "zia.ssl-inspection.pipeline:bypass-other-policies"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.certificates",
+      "because": "zia.ssl-inspection.certificates:root-must-be-trusted"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/ssl-inspection-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.ssl-inspection.api-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.uninspectable"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The action decides whether a matching connection is decrypted and, if not, how much of ZIA still evaluates it. {{variants}} The sequencing consequences of Evaluate versus Bypass (which policies still fire, what a domain block does) are in [[zia.ssl-inspection.pipeline]]. The wire names of these actions, and the validator that rejects bad combinations, are in [[zia.ssl-inspection.api-shape]]."
+    },
+    {
+      "label": "Certificates and revocation.",
+      "text": "{{untrusted-certs}} {{untrusted-certs-recommend-block}} {{ocsp}} {{ocsp-on-in-example-exemptions}}"
+    },
+    {
+      "label": "Handshake and protocol checks.",
+      "text": "{{no-sni}} {{block-undecryptable}} {{min-tls}} {{tls-floor-recommendation}} {{tls-floor-blocks-legit-site}} {{http2}}"
+    },
+    {
+      "text": "Per-rule scope matters when auditing: {{per-rule-settings}}"
+    },
+    {
+      "label": "Notifications.",
+      "text": "{{eun-needs-root-ca}} {{eun-dependent-options}}"
+    },
+    {
+      "text": "The intermediate CA a rule presents is covered in [[zia.ssl-inspection.certificates]]. Traffic that cannot be inspected at all, whatever the action, is in [[zia.ssl-inspection.uninspectable]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which option a rule uses, matched on the option's behavior rather than its label, since the rule page and the guide word them differently.",
+      "uses": [
+        "untrusted-certs-recommend-block"
+      ]
+    },
+    {
+      "do": "Whether the parent notification setting is on, before looking for a child option such as Show Notification for ATP Blocks.",
+      "uses": [
+        "eun-dependent-options"
+      ]
+    }
+  ],
+  "claims": {
+    "variants": {
+      "statement": "A rule's action is Inspect, Do Not Inspect, or Block, and Do Not Inspect has two variants: Evaluate Other Policies, which keeps URL Filtering and Cloud App Control in play and exposes certificate, SNI, OCSP, TLS-floor and notification settings, and Bypass Other Policies, which bypasses web policies for the TLS traffic; the help page lists no further settings for Bypass.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "conditions": "The help page lists no settings under Bypass Other Policies; the Terraform provider's own example sets an SNI flag on a bypass rule, so the API tolerates at least that field. `grep -o 'Bypass Other Policies' configuring-ssl-tls-inspection-policy.json` in the capture of 2026-10-25 returns two matches, both in the Do Not Inspect item; the settings that follow are introduced \"If you choose to evaluate other policies for the traffic\", and the next item is the Block action.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "you can further choose to either Evaluate Other Policies or Bypass Other Policies.",
+            "Choosing Bypass Other Policies bypasses web policies (URL Filtering and Cloud App Control) for the TLS traffic. If you choose to evaluate other policies for the traffic, you can configure the following settings:",
+            "In the Actions section, choose the appropriate action (Inspect, Do Not Inspect, or Block) for the SSL/TLS traffic that matches the defined criteria:",
+            "Show Notifications for Blocked Traffic: Enable this setting to display end user notifications to users if the traffic is blocked by other web policies.",
+            "OCSP Revocation Check: Enable this option to include a certificate revocation check in the untrusted server certificate validation.",
+            "Minimum TLS Version: Select the minimum TLS version required for your connections.",
+            "If you choose the Block action, you can choose to enable or disable end user notifications:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Untrusted Server Certificates: Select how the service handles untrusted certificates",
+            "Block No Server Name Indication (SNI): Enable this option to block any traffic that does not contain the SNI in the Client Hello message during SSL/TLS handshake."
+          ],
+          "after": "If you choose to evaluate other policies for the traffic, you can configure the following settings:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-ssltls-inspection-policy.json",
+          "quotes": [
+            "If Evaluate Other Policies is selected and a block (or similar) rule exists in the URL Filtering policy, Cloud App Control policy, or other policies, then the system allows these rules to match the SSL/TLS bypassed traffic."
+          ]
+        }
+      ]
+    },
+    "untrusted-certs": {
+      "statement": "Under an Inspect action, Untrusted Server Certificates lists three options: Allow (warnings only for expired certificates), Pass Through (certificate warnings are shown and the user can proceed) and Block. Under Do Not Inspect with Evaluate Other Policies, it lists Allow (the browser sees the invalid-certificate warning) and Block (the TCP connection is reset).",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "after": "If you choose the Inspect action, configure the following settings:",
+          "quotes": [
+            "Untrusted Server Certificates: Select how the service handles untrusted certificates",
+            "Allow: The service allows access to sites with untrusted certificates. Certificate warnings are only displayed when users access sites with expired certificates.",
+            "Pass Through: Certificate warnings are displayed to users, and they can decide to proceed to the site.",
+            "Block: The service blocks access to sites with untrusted certificates."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "after": "If you choose to evaluate other policies for the traffic, you can configure the following settings:",
+          "quotes": [
+            "Untrusted Server Certificates: Select how the service handles untrusted certificates",
+            "Allow: The service allows access to sites with untrusted certificates. While the service does not reset the TCP connection, the browser displays an Invalid Certificate warning message.",
+            "Block: The service blocks access to sites with untrusted certificates by resetting the TCP connection."
+          ]
+        }
+      ]
+    },
+    "untrusted-certs-recommend-block": {
+      "statement": "Zscaler recommends blocking on a certificate failure until the server-side issue is fixed, rather than letting the user continue; the guide words the options as Allow, Caution or Block where the rule page says Pass Through.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "If a failure occurs, you can choose to Allow, Caution, or Block the connection. Zscaler recommends blocking access until the certificate issue is addressed on the server side.",
+            "Zscaler recommends that you drop all traffic associated with bad certificates and enable OCSP for all inspection rules."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Pass Through: Certificate warnings are displayed to users, and they can decide to proceed to the site."
+          ]
+        }
+      ]
+    },
+    "ocsp": {
+      "statement": "OCSP Revocation Check treats a revoked certificate as untrusted and applies the rule's Untrusted Server Certificates action. It runs even when the certificate is otherwise correct, and on a Do Not Inspect + Evaluate rule it relies on OCSP stapling.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "It makes this check even if the certificate is correct in all other aspects.",
+            "The same action you choose for failed trust certificates applies to an OCSP failure."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "The service uses OCSP stapling to obtain the revocation status of a certificate."
+          ]
+        }
+      ]
+    },
+    "ocsp-on-in-example-exemptions": {
+      "statement": "The Leading Practices example for the Zscaler Recommended Exemptions rule (Do Not Inspect, Evaluate Other Policies) shows OCSP Revocation Check enabled.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "conditions": "Corrects the old claim that OCSP is disabled by default on exemption rules; the guide's other exemption rows also show OCSP Enabled, but that table text is too flattened to quote uniquely. Whether OCSP is off by default is gap ocsp-default-on-exemptions.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Show End User Notifications: Disabled Untrusted Server Certificates: Block ©2026 Zscaler, Inc. All rights reserved. 9 ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE Rule Name/Purpose Criteria Actions Online Certificate Status Protocol (OCSP) Revocation Check: Enabled"
+          ],
+          "after": "1 Zscaler N/A Do Not Inspect Recommended Evaluate Other Exemption Rule Policies"
+        }
+      ],
+      "gaps": [
+        "ocsp-default-on-exemptions"
+      ]
+    },
+    "no-sni": {
+      "statement": "Block No Server Name Indication (SNI) blocks any handshake whose Client Hello carries no SNI; it is off by default and is offered on both Inspect and Do Not Inspect + Evaluate.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Enable this option to block any traffic that does not contain the SNI in the Client Hello message during SSL/TLS handshake. This option is disabled by default."
+          ],
+          "after": "If you choose the Inspect action, configure the following settings:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Enable this option to block any traffic that does not contain the SNI in the Client Hello message during SSL/TLS handshake. This option is disabled by default."
+          ],
+          "after": "If you choose to evaluate other policies for the traffic, you can configure the following settings:"
+        }
+      ]
+    },
+    "block-undecryptable": {
+      "statement": "Block Undecryptable Traffic, an option listed under the Inspect action, blocks traffic from servers that use non-standard encryption or require mutual TLS authentication.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Block Undecryptable Traffic: Enable this option to block traffic from servers that use non-standard encryption methods or require mutual TLS authentication."
+          ],
+          "after": "If you choose the Inspect action, configure the following settings:"
+        }
+      ]
+    },
+    "min-tls": {
+      "statement": "An Inspect rule has separate Minimum Client TLS Version and Minimum Server TLS Version settings, each blocking connections below its threshold; a Do Not Inspect + Evaluate rule has one combined Minimum TLS Version.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "after": "If you choose the Inspect action, configure the following settings:",
+          "quotes": [
+            "Minimum Client TLS Version: Select the minimum TLS version required for your clients to establish a connection. The service blocks the connections for clients that do not meet the specified minimum TLS version requirement.",
+            "Minimum Server TLS Version: Select the minimum TLS version required for your servers to establish a connection. The service blocks the connections for servers that do not meet the specified minimum TLS version requirement."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "after": "If you choose to evaluate other policies for the traffic, you can configure the following settings:",
+          "quotes": [
+            "Minimum TLS Version: Select the minimum TLS version required for your connections. The service blocks connections that do not meet the specified minimum TLS version requirement."
+          ]
+        }
+      ]
+    },
+    "tls-floor-recommendation": {
+      "statement": "Zscaler recommends starting with all supported protocols allowed to discover what is in use, then blocking every TLS version earlier than 1.2 including legacy SSL.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Zscaler recommends initially allowing all supported protocols and ciphers to minimize user disruption.",
+            "Zscaler recommends blocking all TLS versions earlier than 1.2, including any legacy SSL services.",
+            "During this time, you can discover what is in use on your network"
+          ]
+        }
+      ]
+    },
+    "tls-floor-blocks-legit-site": {
+      "statement": "A TLS floor that is too strict is a named cause of a legitimate site being blocked; for example a partner site limited to TLS 1.0 behind an Inspect rule that requires 1.2 fails the connection.",
+      "tier": "B",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "conditions": "The guide names the cause only; the partner-site example is an instance of it. The error the user sees is not stated.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "SSL_Inspection_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "A legitimate site is blocked: Make sure you don't configure policies that are too restrictive regarding the minimum Transport Layer Security (TLS) version."
+          ]
+        }
+      ]
+    },
+    "http2": {
+      "statement": "Enable HTTP/2 (Inspect only) makes HTTP/2 the web protocol, needs the feature enabled for the organization, and falls back to HTTP/1.1 for a location where Bandwidth Control is enabled, even when the rule enables HTTP/2.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "after": "If you choose the Inspect action, configure the following settings:",
+          "quotes": [
+            "The HTTP/2 feature is only available if it is enabled for your organization and does not work for a location's traffic if Bandwidth Control is enabled on that location.",
+            "Enable HTTP/2: Enable to make HTTP/2 the web protocol used for accessing all applications.",
+            "If Bandwidth Control is enabled on that location, the Zscaler service falls back to HTTP/1.1, even if HTTP/2 is enabled in the SSL/TLS Inspection policy."
+          ]
+        }
+      ],
+      "conditions": "Absence claim (Inspect only): `grep -o 'Enable HTTP/2' configuring-ssl-tls-inspection-policy.json` in the capture of 2026-10-25 returns one match, in the settings under \"If you choose the Inspect action, configure the following settings:\"; the next step is the Do Not Inspect action, whose settings do not include it."
+    },
+    "eun-needs-root-ca": {
+      "statement": "The end-user notification page on a Block rule or a Do Not Inspect + Evaluate rule needs the Zscaler or enterprise root CA in the client trust store; without it the browser shows an invalid-certificate warning instead. With notifications off, the service resets the connection with a generic failed-connection message and no notification.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Enable this setting to display end user notifications to users if the traffic is blocked by other web policies.",
+            "Enable this setting to display end user notifications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Ensure that you install the Zscaler root CA certificate or your enterprise root CA certificate in your client's truststore, so the service can reply or redirect the user to the notification page.",
+            "If no certificate is installed, the browser displays an Invalid Certificate warning message.",
+            "If this setting is disabled, the service resets the connection with a generic failed connection message from the browser."
+          ],
+          "after": "Show End User Notifications: Enable this setting to display end user notifications."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Ensure that you install the Zscaler root CA certificate or your enterprise root CA certificate in your client's truststore, so the service can reply or redirect the user to the notification page.",
+            "If no certificate is installed, the browser displays an Invalid Certificate warning message.",
+            "If this setting is disabled, the service resets the connection with a generic failed connection message from the browser."
+          ],
+          "after": "Show Notifications for Blocked Traffic: Enable this setting to display end user notifications to users if the traffic is blocked by other web policies."
+        }
+      ]
+    },
+    "eun-dependent-options": {
+      "statement": "Show Notification for ATP Blocks, and the intermediate-CA override on a Do Not Inspect + Evaluate or Block rule, appear only when the parent notification setting is enabled, so there is no console path to them while it is off.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "conditions": "'No console path' is the consequence of 'available only when'; the page does not say it that way.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Show Notification for ATP Blocks: Enable this setting to display Advanced Threat Protection (ATP) notifications to the users if the ATP traffic is blocked. This field is only available if you have enabled Show Notifications for Blocked Traffic.",
+            "Select Yes to override the default intermediate CA certificate. This field is only available if you have enabled Show Notifications for Blocked Traffic.",
+            "Select Yes to override the default intermediate CA certificate. This field is only available if you have enabled Show End User Notifications."
+          ]
+        }
+      ]
+    },
+    "per-rule-settings": {
+      "statement": "Certificate, OCSP, SNI and TLS-floor settings belong to each rule, so an exemption rule can carry weaker TLS requirements than the catch-all Inspect rule below it; the Leading Practices rule set does this by giving the Zscaler Recommended Exemptions rule a TLS 1.0 floor against TLS 1.2 on Inspect All.",
+      "tier": "B",
+      "conditions": "Inference: each setting is part of a rule's own action in the rule-page documentation. The 'TLS 1.0' quote is the guide's example for the first rule in its table.",
+      "derived_from": [
+        "untrusted-certs",
+        "min-tls",
+        "ocsp"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Minimum TLS Version: TLS 1.0 Inspect Untrusted Server Certificates:",
+            "Minimum Server TLS Version: TLS 1.2 Do Not Inspect Default"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ocsp-default-on-exemptions": {
+      "kind": "semantic",
+      "title": "Whether OCSP revocation check is off by default on exemption rules",
+      "status": "open",
+      "about": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "detail": "Unverified legacy statement: 'OCSP revocation check ... Disabled by default on exemption rules.' The Leading Practices example rules show it enabled, which is a recommendation, not a default. The help page states no default for OCSP.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "tls-floor-handshake-error": {
+      "kind": "semantic",
+      "title": "What the user sees when a TLS floor blocks a legitimate partner site",
+      "status": "open",
+      "about": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "detail": "Unverified legacy statement: 'A legitimate partner site stuck on TLS 1.0 plus an Inspect rule requiring TLS 1.2 -> the connection fails with an SSL handshake error. User sees a block.' The guide names only the cause.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

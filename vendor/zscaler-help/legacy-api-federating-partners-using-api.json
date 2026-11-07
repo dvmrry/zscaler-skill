@@ -1,0 +1,698 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Federating Partners Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/federating-partners-using-api",
+    "node": "1540979",
+    "revision": "3226259",
+    "updated": "2026-07-20",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on Zscaler Private Access (ZPA) Business-to-Business (B2B) Partner Federation use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting and Understanding Business-to-Business (B2B) Federation."
+    },
+    {
+      "heading": "Generating a Token for a Partner Federation Request",
+      "level": 1
+    },
+    {
+      "text": "To generate a token for a B2B partner:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/tenant-federation/token?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/customers/72057595111669760/tenant-federation/token?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Provide the following JSON payload and include expiryTimeInSeconds, the time range in seconds that the access token is valid.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "View the minimum criteria JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"expiryTimeInSeconds\": 0, \"notes\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the example minimum criteria JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"expiryTimeInSeconds\": 86400, \"notes\": \"Federation request from Acme Corp to share PRA apps.\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"145260601092866811\", \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJjdXN0b21lcklkIjoxNDUyNjA2MDEwOTI4NjY...\", \"tokenExpirationEpochSeconds\": 1745265432 }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Verifying a Token for a Partner Federation Request",
+      "level": 1
+    },
+    {
+      "text": "A business partner (host or guest) can verify a token and partner information, and then send a federation request back to the initiator. This process shares information about the business partner and uses the token."
+    },
+    {
+      "text": "To verify a token received from the host partner:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/tenant-federation/token/verify?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/customers/72057595111669761/tenant-federation/token/verify?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Provide the following JSON payload and include the following details:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "token: The Federation token generated by the business partner (guest or host) who initiated the Federation request.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"token\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the example JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJjdXN0b21lcklkIjoxNDUyNjA2MDEwOTI4NjY...\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"success\": true, \"partnerInfo\": { \"partnerGid\": \"72057595111669760\", \"partnerName\": \"Acme Corp\", \"partnerScopeName\": \"Default\", \"approvalStatus\": \"PENDING\", \"federationStatus\": \"INACTIVE\" }, \"partnerNotes\": \"Federation request from Acme Corp to share PRA apps.\", \"tokenExpirationEpochSeconds\": 1745265432 }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Approving a Partner Federation Request",
+      "level": 1
+    },
+    {
+      "text": "To approve a partner federation request:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/tenant-federation/approval?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/customers/72057595111669761/tenant-federation/approval?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Provide the following JSON payload and include the following details:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "token: The Federation token generated by the business partner (guest or host) who initiated the Federation request. The provided token must match the token that was verified.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "View the minimum criteria JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"token\": \"string\", \"partnerNotes\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the example minimum criteria JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJjdXN0b21lcklkIjoxNDUyNjA2MDEwOTI4NjY...\", \"partnerNotes\": \"Approved. Looking forward to the collaboration.\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating the Provisioning Status",
+      "level": 1
+    },
+    {
+      "text": "To update the provisioning status of the partner federation request:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/provisioning-state/{status}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "federation_id: The unique identifier of the Federation you want to update the provisioning status for.",
+      "depth": 1
+    },
+    {
+      "item": "status: The provisioning status of the Federation. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "APPROVED: The provisioning status of the Federation is approved.",
+      "depth": 2
+    },
+    {
+      "item": "DENIED: The provisioning status of the Federation is denied.",
+      "depth": 2
+    },
+    {
+      "item": "TERMINATED: The provisioning status of the Federation is terminated.",
+      "depth": 2
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/customers/72057595111669761/tenant-federation/approval?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating the Federation State",
+      "level": 1
+    },
+    {
+      "text": "To update the status of an existing Federation to active or inactive when a Federation is in an approved provisioning state:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/federation-state/{status}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "federation_id: The unique identifier of the Federation you want to update the Federation status for.",
+      "depth": 1
+    },
+    {
+      "item": "status: The provisioning status of the Federation. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "ACTIVE: The status of the Federation is active.",
+      "depth": 2
+    },
+    {
+      "item": "INACTIVE: The status of the Federation is pause.",
+      "depth": 2
+    },
+    {
+      "item": "To terminate a federation, see Deleting a Federation.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: mgmtconfig/v1/customers/72057595111669760/tenant-federation/137629/federation-state/ACTIVE?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting All Partner Federations",
+      "level": 1
+    },
+    {
+      "text": "To get all partner Federations for the specified customer (both the host and guest partner):"
+    },
+    {
+      "item": "Sent a GET request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/tenant-federation?microtenantId={microtenantId}&page={page}&pagesize={pagesize}&sortBy={creationTime}&sortDir={sortDir}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "page: Specifies the page number. This field is 1 by default.",
+      "depth": 1
+    },
+    {
+      "item": "pagesize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "sortBy: Indicates the parameter that is used to sort the results (i.e., creationTimeor provisioningStatus).",
+      "depth": 1
+    },
+    {
+      "item": "sortDir: Specifies the sort direction (i.e., ascending or descending order).",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/customers/72057595111669760/tenant-federation?page=1&pagesize=20µtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"2\", \"list\": [ { \"id\": 137629, \"provisioningStatus\": \"APPROVED\", \"notes\": \"Federation request from Acme Corp to share PRA apps.\", \"isInitiator\": true, \"partnerInfo\": { \"partnerGid\": 72057595111669761, \"partnerName\": \"Globex Inc\", \"partnerScopeName\": \"Default\", \"approvalStatus\": \"APPROVED\", \"federationStatus\": \"ACTIVE\" }, \"creationTime\": 1744919532, \"modifiedTime\": 1744920000 }, { \"id\": 137630, \"provisioningStatus\": \"PENDING\", \"notes\": \"Inbound federation request from Initech\", \"isInitiator\": false, \"partnerInfo\": { \"partnerGid\": 72057595111669762, \"partnerName\": \"Initech\", \"partnerScopeName\": \"Default\", \"approvalStatus\": \"PENDING\", \"federationStatus\": \"INACTIVE\" }, \"creationTime\": 1745000000, \"modifiedTime\": 1745000000 } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Active Federated Partners",
+      "level": 1
+    },
+    {
+      "text": "To get a list of all active federated partners:"
+    },
+    {
+      "item": "Sent a GET request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/tenant-federation/partners?microtenantId={microtenantId}&page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "page: Specifies the page number. This field is 1 by default.",
+      "depth": 1
+    },
+    {
+      "item": "pagesize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/customers/72057595111669760/tenant-federation/partners?page=1&pagesize=20µtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"1\", \"list\": [ { \"partnerGid\": 72057595111669761, \"partnerName\": \"Globex Inc\", \"partnerScopeName\": \"Default\", \"approvalStatus\": \"APPROVED\", \"federationStatus\": \"ACTIVE\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Federation",
+      "level": 1
+    },
+    {
+      "text": "To delete a Federation:"
+    },
+    {
+      "item": "Sent a GET request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "federation_id: The unique identifier of the Federation you want to delete.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/customers/72057595111669760/tenant-federation/137629?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "text": "A federation cannot be reactivated after it is deleted or terminated, and a new token-based handshake is required to reestablish a federation. The status of the federation is terminated when it is deleted."
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating Federation Notes",
+      "level": 1
+    },
+    {
+      "text": "To update the Federation notes:"
+    },
+    {
+      "item": "Sent a PUT request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/notes?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "federation_id: The unique identifier of the Federation you want to update the notes for.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mmgmtconfig/v1/customers/72057595111669760/tenant-federation/137629/notes?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Provide the following JSON payload and include the updated notes string. The maximum supported characters is 1,000.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "View the minimum criteria JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"notes\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the example minimum criteria JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"notes\": \"Renegotiated terms on 2026-05-01.\" }",
+      "depth": 0
+    },
+    {
+      "text": "If the caller is the initiator of the Federation, the initiator's notes are updated. If the caller is the partner, the partner's notes are updated."
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the federating partner use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "customerId",
+          "The unique identifier of the ZPA tenant",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ],
+        [
+          "expiryTimeInSeconds",
+          "The time to live of the generated token in seconds",
+          "Yes",
+          "Integer The minimum supported value is 3,600 seconds (1 hour), and the maximum supported value is 86,400 seconds (24 hours)."
+        ],
+        [
+          "notes",
+          "The optional notes from the initiator that are visible to the partner",
+          "No",
+          "String"
+        ],
+        [
+          "partnerNotes",
+          "The optional notes from the partner used for communication between partners",
+          "No",
+          "String The maximum supported characters is 1,000."
+        ],
+        [
+          "token",
+          "The Federation token previous generated by the initiator",
+          "Yes",
+          "String"
+        ],
+        [
+          "federation_id",
+          "The unique identifier of the Federation",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "status",
+          "The provisioning status of the Federation",
+          "Yes",
+          "Enum Supported values: APPROVED DENIED TERMINATED"
+        ],
+        [
+          "status",
+          "The Federation status. To learn more, see About Federated Partners.",
+          "Yes",
+          "Enum Supported values: ACTIVE: Denotes the Active status INACTIVE: Denotes the Inactive status"
+        ],
+        [
+          "search",
+          "The search string used to support search by features and fields for the API",
+          "No",
+          "String"
+        ],
+        [
+          "page",
+          "Specifies the page number",
+          "No",
+          "Integer This field is 1 by default."
+        ],
+        [
+          "pagesize",
+          "Specifies the page size",
+          "No",
+          "Integer If not provided, the default page size is 20. The maximum page size is 500."
+        ],
+        [
+          "sortBy",
+          "Indicates the parameter that is used to sort the results",
+          "No",
+          "String Supported values: creationTime provisioningStatus id name modifiedTime"
+        ],
+        [
+          "sortDir",
+          "Specifies the sort direction (i.e., ascending or descending order)",
+          "No",
+          "Enum Supported values: ASC: Ascending DSC: Descending"
+        ]
+      ]
+    }
+  ]
+}

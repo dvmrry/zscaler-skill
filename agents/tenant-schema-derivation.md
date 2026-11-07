@@ -23,7 +23,7 @@ Two complementary log-schema artifacts that serve different purposes. The agent 
 |---|---|---|
 | **What it is** | Zscaler's published log format | Empirical view of what's in *your* SIEM after parsing / TA / aliases / customer pipeline |
 | **Source** | NSS / LSS docs, Zscaler-published CSVs | `fieldsummary` (Splunk), `getschema` (Sentinel KQL), `_field_caps` (Elastic), parser-produced UDM (Chronicle), Field Schema tool (Sumo) |
-| **Where it lives** | Public repo: `references/{zia,zpa,zcc}/logs/` | Private: user's fork, CLAUDE.md, auto-memory |
+| **Where it lives** | Public repo: log types under `references/<product>/types/` (`kb:zia/web-log`) | Private: user's fork, CLAUDE.md, auto-memory |
 | **Authoritative on** | What fields *could* exist + their semantic meaning, types, enum values | What fields are *actually* queryable in this index / sourcetype / table right now |
 | **Best use** | Picking the right field for a hypothesis; understanding meaning of values | Confirming the field is extracted, has non-zero data, has expected value distribution |
 
@@ -35,7 +35,7 @@ These are not redundant. They're complementary. The canonical answers "what *sho
 - **Tenant only** — rare; usually means you're looking at an unfamiliar index without a Zscaler reference. Resolve by identifying which canonical log type it maps to.
 - **Both** (preferred) — cross-validate. Canonical says field exists; tenant confirms it's extracted with non-zero data and the values match the canonical examples. Mismatch is a finding:
   - Field in canonical, missing in tenant → TA not installed, sourcetype misconfigured, or Zscaler Support-enablement required (e.g., `%d{clt_sport}`, `%d{srv_dport}`, `%s{dlprulename}`)
-  - Field in tenant, not in canonical → custom enrichment, local extraction, or possibly a CIM alias added by the TA (check the TA mapping table in [`splunk-queries.md`](../references/shared/splunk-queries.md))
+  - Field in tenant, not in canonical → custom enrichment, local extraction, or possibly a CIM alias added by the TA (what the add-on renames is an open gap in [`shared.splunk`](kb:shared.splunk))
   - Values in tenant don't match canonical enums → tenant has stale TA version or out-of-band data transformation
 
 ## Recipes — derive a tenant schema per SIEM
@@ -223,11 +223,11 @@ Always include the **file path + line number** for verifiable matches. `❓` row
 ```markdown
 | Field (tenant) | Type | Coverage | Sample values | Canonical match | Notes |
 |---|---|---|---|---|---|
-| url | string | 1.4M / 1.4M (100%) | mail.google.com, www.example.com, … | ✅ `%s{url}` at `references/zia/logs/web-log-schema.md`:L125 | direct |
-| urlfilterrulelabel | string | 920k / 1.4M (66%) | URL_Filtering_1, URL_Filtering_2 | ✅ `%s{urlfilterrulelabel}` at `references/zia/logs/web-log-schema.md`:L70 | Block-only field, 34% empty is expected |
-| dest_host | string | 1.4M / 1.4M (100%) | mail.google.com, … | ⚠️ `%s{host}` at `references/zia/logs/web-log-schema.md`:L124 | TA CIM alias for `host` |
-| user | string | 1.4M / 1.4M (100%) | <redacted-user>, … | 🔗 `%s{login}` (web) at `references/zia/logs/web-log-schema.md`:L57 OR `Username` (ZPA) at `references/zpa/logs/access-log-schema.md` | TA-aliased; multi-source via CIM |
-| clt_sport | int | 0 / 1.4M (0%) | <empty> | ✅ `%d{clt_sport}` at `references/zia/logs/web-log-schema.md`:L137 | requires Zscaler Support enablement |
+| url | string | 1.4M / 1.4M (100%) | mail.google.com, www.example.com, … | ✅ `%s{url}` at `kb:zia/web-log#url` | direct |
+| urlfilterrulelabel | string | 920k / 1.4M (66%) | URL_Filtering_1, URL_Filtering_2 | ✅ `%s{urlfilterrulelabel}` at `kb:zia/web-log#urlfilterrulelabel` | Block-only field, 34% empty is expected |
+| dest_host | string | 1.4M / 1.4M (100%) | mail.google.com, … | ⚠️ `%s{host}` at `kb:zia/web-log#host` | TA CIM alias for `host` |
+| user | string | 1.4M / 1.4M (100%) | <redacted-user>, … | 🔗 `%s{login}` (web) at `kb:zia/web-log#login` OR `Username` (ZPA) at `kb:zpa/user-activity-log#Username` | TA-aliased; multi-source via CIM |
+| clt_sport | int | 0 / 1.4M (0%) | <empty> | ✅ `%d{clt_sport}` at `kb:zia/web-log#clt_sport` | requires Zscaler Support enablement |
 | local_enrichment | string | 1.4M / 1.4M (100%) | <redacted> | ❌ — | local enrichment, not in canonical |
 | custom_severity | enum:closed? | 1.4M / 1.4M (100%) | LOW, MEDIUM, HIGH | ❓ — | unverified; possible local mapping of `threatseverity` |
 ```
@@ -250,7 +250,7 @@ List canonical fields with no tenant counterpart and the likely cause:
 ### Tenant fields not in canonical
 List tenant fields with no canonical counterpart and the suspected cause:
 - `local_enrichment` — local pipeline enrichment
-- `dest_host`, `src_ip` — TA CIM aliases (cross-reference `splunk-queries.md` TA mapping table)
+- `dest_host`, `src_ip` — TA CIM aliases (the add-on's renames are an open gap in `kb:shared.splunk`; confirm against the tenant's add-on)
 - `<other>` — unknown; flag for investigation
 
 ### Empty / 0% coverage fields
@@ -342,9 +342,9 @@ Redact. The tenant schema is for confirming "what's queryable in this environmen
 
 ## Cross-links
 
-- [`siem-log-mapping.md`](../references/shared/siem-log-mapping.md) — canonical log type catalog (the reference side of the canonical/tenant pair)
+- [`shared.siem-mapping`](kb:shared.siem-mapping) — canonical log type catalog (the reference side of the canonical/tenant pair)
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — public/private boundary, where user plumbing lives
-- [`splunk-queries.md`](../references/shared/splunk-queries.md) — Splunk SPL pattern catalog; includes Zscaler TA CIM mapping table
+- [`shared.splunk`](kb:shared.splunk) — Splunk field names and validation searches (fields and checks, not SPL); the TA's CIM mapping is an open gap there
 - [`investigator/prompt.md`](./investigator/prompt.md) — `/z-investigator` slash command playbook
-- ZIA log schemas (canonical) — [`../references/zia/logs/`](../references/zia/logs/)
-- ZPA log schemas (canonical) — [`../references/zpa/logs/`](../references/zpa/logs/)
+- ZIA log schemas (canonical) — [`../references/zia/types/`](../references/zia/types/)
+- ZPA log types (canonical) — [`zpa.log-receivers.log-types`](kb:zpa.log-receivers.log-types); fields per type with `node scripts/kb.mjs read zpa/<type>-log`

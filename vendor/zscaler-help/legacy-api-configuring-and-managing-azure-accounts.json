@@ -1,0 +1,385 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring and Managing Azure Accounts",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-and-managing-azure-accounts",
+    "node": "1538403",
+    "revision": "3187785",
+    "updated": "2026-03-18",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on configuring and managing Azure accounts using APIs. All APIs are rate limited. To learn more, see API Rate Limit Summary."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before configuring and managing Azure accounts, make sure you've identified the access token required for authorization."
+    },
+    {
+      "heading": "Creating an Azure Account",
+      "level": 1
+    },
+    {
+      "text": "To create an Azure account:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "/publicCloudTenant",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Content Type: application/json",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Use the following JSON payload to create an Azure account and provide the following information:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "PublicCloudTenant:",
+      "depth": 0
+    },
+    {
+      "item": "(Required) name (String): The name of the Azure account.",
+      "depth": 1
+    },
+    {
+      "item": "(Required) cloudType (String): The cloud type. The default value is AZURE.",
+      "depth": 1
+    },
+    {
+      "item": "(Required) tenantDetails:",
+      "depth": 1
+    },
+    {
+      "item": "applicationId (String): The application ID of the Azure account.",
+      "depth": 2
+    },
+    {
+      "item": "applicationSecret (String): The application secret of the Azure account.",
+      "depth": 2
+    },
+    {
+      "item": "azureDirectoryId (String): The directory ID of the Azure account.",
+      "depth": 2
+    },
+    {
+      "item": "(Required) subscriptionGroups:",
+      "depth": 1
+    },
+    {
+      "item": "name (String): The name of the subscription group. The name is automatically set to <azure_account_name>_default, overriding any value you provide.",
+      "depth": 2
+    },
+    {
+      "item": "cloudType (String): The cloud type. The default value is AZURE.",
+      "depth": 2
+    },
+    {
+      "item": "supportedRegions (List): Regions supported by the Zscaler Tag Discovery Service.",
+      "depth": 2
+    },
+    {
+      "item": "id (Integer): The unique ID of the supported region.",
+      "depth": 2
+    },
+    {
+      "item": "subscriptionList (List): The list of Azure subscriptions.",
+      "depth": 2
+    },
+    {
+      "item": "externalId (String): The ID of the Azure subscription.",
+      "depth": 3
+    },
+    {
+      "item": "name (String): The name of the Azure subscription.",
+      "depth": 3
+    },
+    {
+      "item": "(Optional) cloudConnectorGroupList (List):",
+      "depth": 2
+    },
+    {
+      "item": "ID (Integer): The ID of the Cloud & Branch Connector group.",
+      "depth": 3
+    },
+    {
+      "item": "nameSpace (String): The namespace that limits the IP addresses sent to the Cloud Connector and ensures that duplicate IP addresses map correctly. The value will be null if you don’t provide a name space.",
+      "depth": 3
+    },
+    {
+      "item": "(Optional) publicCloudTopics:",
+      "depth": 1
+    },
+    {
+      "item": "region (List):",
+      "depth": 2
+    },
+    {
+      "item": "id (Integer): The unique ID of the region.",
+      "depth": 3
+    },
+    {
+      "item": "resourceGroup (String): The resource group associated with the event grid.",
+      "depth": 2
+    },
+    {
+      "item": "subscription (String): The subscription associated with the event grid.",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) publicCloudStorageAccounts:",
+      "depth": 1
+    },
+    {
+      "item": "name (String): The name of the Azure storage account.",
+      "depth": 2
+    },
+    {
+      "item": "subscription (String): The subscription where the storage account is located.",
+      "depth": 2
+    },
+    {
+      "item": "resourceGroup (String): The resource group associated with the storage account.",
+      "depth": 2
+    },
+    {
+      "item": "region (List):",
+      "depth": 2
+    },
+    {
+      "item": "id (Integer): The unique ID of the region.",
+      "depth": 3
+    },
+    {
+      "item": "prefix (String): A prefix added to the name of the storage account, which enables you to organize the queues. The value is null if you don’t provide a prefix.",
+      "depth": 2
+    },
+    {
+      "text": "View a sample JSON payload:"
+    },
+    {
+      "item": "Creating an Azure Account",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"test-payload-4\", \"cloudType\": \"AZURE\", \"tenantDetails\": { \"applicationId\": \"98af37c3-6e3r-4f91-9149-188147ec7e61\", \"applicationSecret\": \"xvb9Q~-~rnPQ.UjyU_nbdqrd_uiqNmDMqaXCEbmW\", \"azureDirectoryId\": \"bv698f79-n76e-4j05-8330-d05k70202al1\" }, \"subscriptionGroups\": [ { \"cloudType\": \"AZURE\", \"supportedRegions\": [ { \"id\": 7637 }, { \"id\": 7630 } ], \"cloudConnectorGroupList\": [ { \"id\": 88879, \"namespace\": \"cc-1\" } ], \"subscriptionList\": [ { \"externalId\": \"c6f89608-7h48-7f33-d53e-92218ae27056\", \"name\": \"test-sub-ls\" } ] } ], \"publicCloudTopics\": [ { \"region\": { \"id\": 7637 }, \"resourceGroup\": \"test-res-grp\", \"subscription\": \"c6f89608-7h48-7f33-d53e-92218ae27056\" } ], \"publicCloudStorageAccounts\": [ { \"region\": { \"id\": 7637 }, \"name\": \"test-strg-acc\", \"subscription\": \"c6f89608-7h48-7f33-d53e-92218ae27056\", \"resourceGroup\": \"example-rg\", \"prefix\": \"\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201, meaning the Azure account is created. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for All Azure Accounts",
+      "level": 1
+    },
+    {
+      "item": "To get details for all Azure accounts, send a GET request to the following endpoint:",
+      "depth": 0
+    },
+    {
+      "item": "/publicCloudTenant",
+      "depth": 0
+    },
+    {
+      "item": "This API supports pagination. To get a paginated response, send a GET request to the following endpoint:",
+      "depth": 0
+    },
+    {
+      "item": "/publicCloudTenant?page=1&pagesize=2",
+      "depth": 0
+    },
+    {
+      "text": "View an example response:"
+    },
+    {
+      "item": "Getting details for all Azure accounts",
+      "depth": 0
+    },
+    {
+      "item": "[ { \"id\": 360482, \"name\": \"Azure-Account-1\", \"cloudType\": \"AZURE\", \"tenantDetails\": { \"azureDirectoryId\": \"cc698f79-a76e-4d05-8330-d05f70202ad1\", \"applicationId\": \"0075ff15-cdfe-48d5-9e07-8acde8502f88\", \"applicationSecret\": \"NsY9Q*\" }, \"subscriptionGroups\": [ { \"id\": 360483, \"name\": \"Azure-Account-1_default\", \"cloudType\": \"AZURE\", \"supportedRegions\": [ { \"id\": 17442, \"cloudType\": \"AZURE\", \"name\": \"EASTUS\" } ], \"subscriptionList\": [ { \"id\": 360484, \"externalId\": \"1b1582c0-555a-44fa-b37c-7d3588edbea5\", \"name\": \"subscription1\", \"cloudType\": \"AZURE\", \"permissionStatus\": { \"status\": \"ALLOWED\", \"subscription\": \"1b1582c0-555a-44fa-b37c-7d3588edbea5\", \"canDescribeVm\": true, \"canDescribeNic\": true, \"canDescribeVnet\": true, \"errorDescription\": \"\", \"subscriptionName\": \"subscription1\" }, \"lastSyncTime\": 1768211134 } ], \"cloudConnectorGroupList\": [ { \"id\": 542901, \"name\": \"cc-group-azure-1\", \"fallBackToTls\": false, \"autoScale\": false, \"platform\": \"AZURE\", \"azureRegion\": \"EASTUS\", \"namespace\": \"Orange\" } ], \"lastModUser\": { \"id\": 160360, \"name\": \"bac-admin@160323.zsqa.net\" }, \"lastModTime\": 1761148236 } ], \"publicCloudTopics\": [ { \"id\": 360485, \"region\": { \"id\": 17442, \"cloudType\": \"AZURE\", \"name\": \"EASTUS\" }, \"subscription\": \"1b1582c0-555a-44fa-b37c-7d3588edbea5\", \"resourceGroup\": \"RG-1\", \"status\": { \"isPartnerTopicCreated\": false, \"isPartnerTopicActivated\": false, \"partnerTopicMessageCount\": \"0\", \"isPartnerDestinationCreated\": false, \"isPartnerDestinationActivated\": false, \"partnerDestinationMessageCount\": \"0\" }, \"lastSyncTime\": 1761147171 } ], \"publicCloudStorageAccounts\": [ { \"id\": 360489, \"name\": \"storage-account-1\", \"region\": { \"id\": 17442, \"cloudType\": \"AZURE\", \"name\": \"EASTUS\" }, \"subscription\": \"1b1582c0-555a-44fa-b37c-7d3588edbea5\", \"resourceGroup\": \"RG-1\", \"prefix\": null } ], \"lastModUser\": { \"id\": 160360, \"name\": \"bac-admin@160323.zsqa.net\" }, \"lastModTime\": 1761148237, \"infoMsg\": null }, { \"id\": 360492, \"name\": \"Azure-Account-2\", \"cloudType\": \"AZURE\", \"tenantDetails\": { \"azureDirectoryId\": \"dd698f79-a76e-4d05-8330-d05f70202ad1\", \"applicationId\": \"0075ff15-cdfe-48d5-9e07-8acde8502f77\", \"applicationSecret\": \"NsY0Q*\" }, \"subscriptionGroups\": [ { \"id\": 360493, \"name\": \"Azure-Account-2_default\", \"cloudType\": \"AZURE\", \"supportedRegions\": [ { \"id\": 17442, \"cloudType\": \"AZURE\", \"name\": \"EASTUS\" } ], \"subscriptionList\": [ { \"id\": 360494, \"externalId\": \"2b1582c0-555a-44fa-b37c-7d3588edbcd5\", \"name\": \"subscription2\", \"cloudType\": \"AZURE\", \"permissionStatus\": { \"status\": \"ALLOWED\", \"subscription\": \"2b1582c0-555a-44fa-b37c-7d3588edbcd5\", \"canDescribeVm\": true, \"canDescribeNic\": true, \"canDescribeVnet\": true, \"errorDescription\": \"\", \"subscriptionName\": \"subscription2\" }, \"lastSyncTime\": 1768211150 } ], \"cloudConnectorGroupList\": [ { \"id\": 542902, \"name\": \"cc-group-azure-2\", \"fallBackToTls\": false, \"autoScale\": false, \"platform\": \"AZURE\", \"azureRegion\": \"EASTUS\", \"namespace\": \"Red\" } ], \"lastModUser\": { \"id\": 160360, \"name\": \"bac-admin@160323.zsqa.net\" }, \"lastModTime\": 1761148236 } ], \"publicCloudTopics\": [ { \"id\": 360495, \"region\": { \"id\": 17442, \"cloudType\": \"AZURE\", \"name\": \"EASTUS\" }, \"subscription\": \"2b1582c0-555a-44fa-b37c-7d3588edbcd5\", \"resourceGroup\": \"RG-2\", \"status\": { \"isPartnerTopicCreated\": false, \"isPartnerTopicActivated\": false, \"partnerTopicMessageCount\": \"0\", \"isPartnerDestinationCreated\": false, \"isPartnerDestinationActivated\": false, \"partnerDestinationMessageCount\": \"0\" }, \"lastSyncTime\": 1761147171 } ], \"publicCloudStorageAccounts\": [ { \"id\": 360499, \"name\": \"storage-account-2\", \"region\": { \"id\": 17442, \"cloudType\": \"AZURE\", \"name\": \"EASTUS\" }, \"subscription\": \"2b1582c0-555a-44fa-b37c-7d3588edbcd5\", \"resourceGroup\": \"RG-2\", \"prefix\": null } ], \"lastModUser\": { \"id\": 160360, \"name\": \"bac-admin@160323.zsqa.net\" }, \"lastModTime\": 1761148237, \"infoMsg\": null } ]",
+      "depth": 0,
+      "strong": [
+        [
+          230,
+          2148
+        ]
+      ]
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of a Specific Azure Account",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular Azure Account:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "/publicCloudTenant/{id}",
+      "depth": 0
+    },
+    {
+      "item": "Provide the unique ID of the Azure account in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "For example:",
+      "depth": 0
+    },
+    {
+      "item": "/publicCloudTenant/100",
+      "depth": 0
+    },
+    {
+      "text": "View an example response:"
+    },
+    {
+      "item": "Getting details of a specific azure account",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": 360482, \"name\": \"Test-Azure-Account\", \"cloudType\": \"AZURE\", \"tenantDetails\": { \"azureDirectoryId\": \"cc698f79-a76e-4d05-8330-d05f70202ad1\", \"applicationId\": \"0075ff15-cdfe-48d5-9e07-8acde8502f88\", \"applicationSecret\": \"NsY9Q*\" }, \"subscriptionGroups\": [ { \"id\": 360483, \"name\": \"Test-Azure-Account_default\", \"cloudType\": \"AZURE\", \"supportedRegions\": [ { \"id\": 17442, \"cloudType\": \"AZURE\", \"name\": \"EASTUS\" } ], \"subscriptionList\": [ { \"id\": 360484, \"externalId\": \"1b1582c0-555a-44fa-b37c-7d3588edbea5\", \"name\": \"subscription1\", \"cloudType\": \"AZURE\", \"permissionStatus\": { \"status\": \"ALLOWED\", \"subscription\": \"1b1582c0-555a-44fa-b37c-7d3588edbea5\", \"canDescribeVm\": true, \"canDescribeNic\": true, \"canDescribeVnet\": true, \"errorDescription\": \"\", \"subscriptionName\": \"subscription1\" }, \"lastSyncTime\": 1768211134 } ], \"cloudConnectorGroupList\": [ { \"id\": 542901, \"name\": \"cc-group-azure-1\", \"fallBackToTls\": false, \"autoScale\": false, \"platform\": \"AZURE\", \"azureRegion\": \"EASTUS\", \"namespace\": \"Orange\" } ], \"lastModUser\": { \"id\": 160360, \"name\": \"bac-admin@160323.zsqa.net\" }, \"lastModTime\": 1761148236 } ], \"publicCloudTopics\": [ { \"id\": 360485, \"region\": { \"id\": 17442, \"cloudType\": \"AZURE\", \"name\": \"EASTUS\" }, \"subscription\": \"1b1582c0-555a-44fa-b37c-7d3588edbea5\", \"resourceGroup\": \"RG-1\", \"status\": { \"isPartnerTopicCreated\": false, \"isPartnerTopicActivated\": false, \"partnerTopicMessageCount\": \"0\", \"isPartnerDestinationCreated\": false, \"isPartnerDestinationActivated\": false, \"partnerDestinationMessageCount\": \"0\" }, \"lastSyncTime\": 1761147171 } ], \"publicCloudStorageAccounts\": [ { \"id\": 360489, \"name\": \"storage-account-1\", \"region\": { \"id\": 17442, \"cloudType\": \"AZURE\", \"name\": \"EASTUS\" }, \"subscription\": \"1b1582c0-555a-44fa-b37c-7d3588edbea5\", \"resourceGroup\": \"RG-1\", \"prefix\": null } ], \"lastModUser\": { \"id\": 160360, \"name\": \"bac-admin@160323.zsqa.net\" }, \"lastModTime\": 1761148237, \"infoMsg\": null }",
+      "depth": 0,
+      "strong": [
+        [
+          231,
+          1922
+        ]
+      ]
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Specific Azure Account",
+      "level": 1
+    },
+    {
+      "text": "To update a specific Azure account:"
+    },
+    {
+      "item": "Provide the updated JSON payload from the Creating an Azure Account section and send a PUT request to the following endpoint:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "/publicCloudTenant/{id}",
+      "depth": 0
+    },
+    {
+      "item": "Provide the unique ID of the Azure account, subscription, topic, and storage account in the request payload.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Specific Azure Account",
+      "level": 1
+    },
+    {
+      "text": "To delete an Azure account:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "/publicCloudTenant/{id}",
+      "depth": 0
+    },
+    {
+      "item": "Provide the unique ID of the Azure account in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "For example:",
+      "depth": 0
+    },
+    {
+      "item": "/publicCloudTenant/100",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Additional APIs",
+      "level": 1
+    },
+    {
+      "text": "The following table provides details of additional Azure APIs that you can use to perform various operations:"
+    },
+    {
+      "table": [
+        [
+          "Operation",
+          "API Endpoint"
+        ],
+        [
+          "Retrieve a list of Azure supported regions",
+          "Send a GET request to /publicCloudTenant/supportedRegions. The GET request retrieves details such as cloud type, region ID, and region name."
+        ],
+        [
+          "Retrieve a list of Azure resource groups",
+          "Send a POST request to /discoveryService/azure/{region}/resourceGroups. Provide the Azure region name in the request endpoint and subscription ID and credential details ( azureDirectoryId, applicationId, and applicationSecret) in the request payload."
+        ],
+        [
+          "Retrieve the list of Azure storage accounts",
+          "Send a POST request to /discoveryService/azure/{region}/storageAccounts. Provide the Azure region name in the request endpoint and subscription ID and credential details (azureDirectoryId, applicationId, and applicationSecret) in the request payload."
+        ],
+        [
+          "Retrieve event grid details",
+          "Send a PUT request to /discoveryService/azure/{region}/topicSync?tenantId={id}. Provide the Azure region name and tenant ID in the request endpoint."
+        ],
+        [
+          "Verify whether the provided Azure credentials are valid and can scan tags for Azure subscriptions.",
+          "Send a POST request to /discoveryService/azure/tenantPermission. Provide Azure tenant ID and credential details (azureDirectoryId, applicationId, and applicationSecret) in the request payload."
+        ]
+      ]
+    }
+  ]
+}

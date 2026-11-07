@@ -1,0 +1,602 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk.sdk-integration",
+  "title": "Adding the ZSDK to an app: Android, iOS, React Native and SwiftUI packages, prerequisites and sample apps",
+  "aliases": [
+    "zsdk react native",
+    "zsdk swiftui quick start",
+    "zsdk android gradle",
+    "zsdk ios swift package",
+    "zsdk cocoapods",
+    "zscaler-sdk-android",
+    "zscaler-sdk-ios",
+    "zsdk sample app",
+    "zsdk github packages",
+    "zscalersdk-android",
+    "ZscalerSDK.xcframework",
+    "zsdk minimum ios version"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.developer-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.error-codes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The vendor publishes one public repository per platform. Each holds the install instructions and a sample app; the Android repository publishes the library as a package, and the iOS repository holds the binary itself. The API and the registration steps are in [[shared.zsdk.developer-api]] and [[shared.zsdk.configuration]]."
+    },
+    {
+      "heading": "Android"
+    },
+    {
+      "text": "{{android-package}} {{android-registry-credentials}} {{android-sample-baseline}} {{android-prerequisites}}"
+    },
+    {
+      "text": "{{android-credentials-location}} Where the credentials are set is in dispute {{divergence:android-credentials-file}}. {{android-manual-import}} {{android-network-modes}} The option names are in dispute {{divergence:android-auto-configure-names}}. {{android-webview-proxy-timing}}"
+    },
+    {
+      "heading": "iOS"
+    },
+    {
+      "text": "{{ios-install-paths}} {{ios-minimum-version}} {{ios-prebuilt-binary}} {{ios-prerequisite-and-import}} {{ios-help-manual-framework}} {{gap:ios-manual-framework-name}} The module name is in dispute {{divergence:ios-module-import-name}}."
+    },
+    {
+      "heading": "React Native"
+    },
+    {
+      "text": "{{react-native-prerequisites}} {{react-native-package-source}} {{react-native-package-name-mismatch}}"
+    },
+    {
+      "heading": "SwiftUI quick start"
+    },
+    {
+      "text": "{{swiftui-quickstart-prerequisites}} {{swiftui-sample-token-lifetime}} {{swiftui-troubleshooting-and-verification}}"
+    },
+    {
+      "heading": "Release history"
+    },
+    {
+      "text": "{{platform-2-release}}"
+    },
+    {
+      "heading": "Sample apps"
+    },
+    {
+      "text": "{{sample-app-credentials}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the build can reach the GitHub Packages repository: a GitHub username and access token present as gpr.user and gpr.key or as the environment variables.",
+      "uses": [
+        "android-registry-credentials",
+        "android-package"
+      ]
+    },
+    {
+      "do": "That the iOS deployment target is 15.0 or later before adding the package.",
+      "uses": [
+        "ios-minimum-version"
+      ]
+    },
+    {
+      "do": "Which integration route the iOS app uses (SwiftPM, CocoaPods or manual), and for manual that the framework is set to Embed & Sign.",
+      "uses": [
+        "ios-install-paths",
+        "ios-prebuilt-binary"
+      ]
+    }
+  ],
+  "claims": {
+    "android-package": {
+      "statement": "The Android SDK is a Gradle dependency, `com.zscaler.sdk:zscalersdk-android:latest.release`, resolved from the GitHub Packages Maven repository `https://maven.pkg.github.com/zscaler/zscaler-sdk-android`, and the sample app builds against the floating `latest.release` version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-android",
+          "path": "README.md",
+          "quotes": [
+            "url = uri(\"https://maven.pkg.github.com/zscaler/zscaler-sdk-android\")",
+            "implementation(\"com.zscaler.sdk:zscalersdk-android:latest.release\")"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/README.md",
+          "quotes": [
+            "The sample app uses the latest version of the Zscaler SDK (latest.release). Update manually in build.gradle if required."
+          ]
+        }
+      ]
+    },
+    "android-registry-credentials": {
+      "statement": "Fetching the Android SDK requires a GitHub username and access token: the README has gpr.user and gpr.key set in the global gradle.properties file at ~/.gradle/gradle.properties and falls back to the GITHUB_USERNAME and GITHUB_TOKEN environment variables, while the sample app reads those environment variables first and the gradle properties second.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-android",
+          "path": "README.md",
+          "quotes": [
+            "Make sure gpr.user and gpr.key are set to your github username and access token in global gradle.properties file at ~/.gradle/gradle.properties",
+            "username = settings.extra.get(\"gpr.user\") as String ?: System.getenv(\"GITHUB_USERNAME\")",
+            "password = settings.extra.get(\"gpr.key\") as String ?: System.getenv(\"GITHUB_TOKEN\")"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/settings.gradle.kts",
+          "quotes": [
+            "username = System.getenv(\"GITHUB_USERNAME\") ?: providers.gradleProperty(\"gpr.user\").getOrNull()",
+            "password = System.getenv(\"GITHUB_TOKEN\") ?: providers.gradleProperty(\"gpr.key\").getOrNull()"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/README.md",
+          "quotes": [
+            "GitHub Personal Access Token**: Required for downloading the SDK."
+          ]
+        }
+      ]
+    },
+    "android-sample-baseline": {
+      "statement": "The Android sample app is built with compileSdk 35, minSdk 28, targetSdk 35, the ABI filters armeabi-v7a and arm64-v8a (x86 and x86_64 excluded) and Gradle 8.10.2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/build.gradle.kts",
+          "quotes": [
+            "compileSdk = 35",
+            "minSdk = 28",
+            "targetSdk = 35",
+            "abiFilters += mutableSetOf<String>(\"armeabi-v7a\" , \"arm64-v8a\") // Exclude x86 and x86_64"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/gradle/wrapper/gradle-wrapper.properties",
+          "quotes": [
+            "gradle-8.10.2-bin.zip"
+          ]
+        }
+      ]
+    },
+    "ios-install-paths": {
+      "statement": "The iOS SDK supports Swift Package Manager, CocoaPods and manual integration; manual integration adds the xcframework under Frameworks, Libraries, and Embedded Content with the embed option set to Embed & Sign.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "README.md",
+          "quotes": [
+            "ZscalerSDK iOS supports Swift Package Manager, Cocoapods, and manual integration.",
+            "pod 'ZscalerSDK', :git => 'https://github.com/zscaler/zscaler-sdk-ios'",
+            "In Frameworks, Libraries, and Embedded Content add `ZscalerSDK.xcframework`.",
+            "Change the \"embed\" option to \"Embed & Sign\"."
+          ]
+        }
+      ]
+    },
+    "ios-minimum-version": {
+      "statement": "The iOS package declares iOS 15 as its minimum platform in both Package.swift and the podspec, and Package.swift needs swift-tools-version 5.9.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "Package.swift",
+          "quotes": [
+            ".iOS(.v15)",
+            "// swift-tools-version: 5.9"
+          ]
+        },
+        {
+          "source": "zsdk-ios",
+          "path": "ZscalerSDK.podspec",
+          "quotes": [
+            "s.platform            = :ios, '15.0'"
+          ]
+        }
+      ]
+    },
+    "ios-prebuilt-binary": {
+      "statement": "The iOS SDK ships as a prebuilt binary, Zscaler.xcframework, which SwiftPM wraps as a binaryTarget and the podspec lists under vendored_frameworks; the podspec is version 5.0.0 with a Commercial licence type, and the xcframework carries an ios-arm64 device slice and an ios-arm64_x86_64-simulator slice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "Package.swift",
+          "quotes": [
+            ".binaryTarget(",
+            "path: \"Zscaler.xcframework\""
+          ]
+        },
+        {
+          "source": "zsdk-ios",
+          "path": "ZscalerSDK.podspec",
+          "quotes": [
+            "s.version             = '5.0.0'",
+            "s.license             = { :type => 'Commercial' }",
+            "s.vendored_frameworks = ['Zscaler.xcframework']"
+          ]
+        },
+        {
+          "source": "zsdk-ios",
+          "path": "Zscaler.xcframework/Info.plist",
+          "quotes": [
+            "<string>ios-arm64</string>",
+            "<string>ios-arm64_x86_64-simulator</string>"
+          ]
+        }
+      ]
+    },
+    "sample-app-credentials": {
+      "statement": "Both sample apps need an App key and an Access Token entered, and the iOS sample builds through CocoaPods (platform iOS 15.0, with ZscalerSDK taken from the local repository path).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "Samples/ZscalerSDKSampleApp/README.md",
+          "quotes": [
+            "Ensure all required configurations (credentials - App key and Access Token) are added to the app while testing.",
+            "**CocoaPods**"
+          ]
+        },
+        {
+          "source": "zsdk-ios",
+          "path": "Samples/ZscalerSDKSampleApp/Podfile",
+          "quotes": [
+            "platform :ios, '15.0'",
+            "pod 'ZscalerSDK', :path => '../../'"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/README.md",
+          "quotes": [
+            "Make sure to add the App Key and Access Token."
+          ]
+        }
+      ]
+    },
+    "android-prerequisites": {
+      "statement": "The Android integration guide requires Android 9 or later (minimum API level 28) and an app that works on 32-bit and 64-bit ARM devices (armeabi-v7a or arm64-v8a); ZSDK supports Java or Kotlin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-zsdk-integration-guide-android.json",
+          "quotes": [
+            "ZSDK supports Java or Kotlin when you are importing ZSDK into an Android application.",
+            "You're running Android 9 or later (i.e., minimum API Level 28).",
+            "Your Android application works on both 32-bit and 64-bit devices that are ARM-based (i.e., armeabi-v7a or arm64-v8a)."
+          ]
+        }
+      ]
+    },
+    "android-credentials-location": {
+      "statement": "The Android integration guide has gpr.user and gpr.key set to the GitHub username and access token in local.properties, and adds a dependencyResolutionManagement repository to the GitHub repository in settings.gradle.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-zsdk-integration-guide-android.json",
+          "quotes": [
+            "Ensure gpr.user and gpr.key are set to your GitHub username and access token in the local.properties.",
+            "Add the following dependencyResolutionManagement repository to the GitHub repository in the settings.gradle:"
+          ]
+        }
+      ]
+    },
+    "android-manual-import": {
+      "statement": "The Android manual import downloads the latest ZSDK .aar file from the GitHub package assets, places it in a libs directory renamed to zscalersdk.aar, and adds implementation(files(\"libs/zscalersdk.aar\")) to build.gradle(:app).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-zsdk-integration-guide-android.json",
+          "quotes": [
+            "Download the latest ZSDK .aar file at the bottom of Assets.",
+            "Add the ZSDK .aar file into the libs directory. Rename the file to zscalersdk.aar for easier reference.",
+            "implementation(files(\"libs/zscalersdk.aar\"))",
+            "On ZSDK's GitHub, click the latest Package URL under Packages.",
+            "Open the build.gradle(:app) file to configure the implementation pathway."
+          ]
+        }
+      ]
+    },
+    "android-network-modes": {
+      "statement": "The Android integration guide says Semi-Automatic or Manual network configuration is selected by setting automaticallyConfigureRequests or automaticallyConfigureWebViews to false; in Manual mode with WebView the proxy settings must be configured after a tunnel starts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-zsdk-integration-guide-android.json",
+          "quotes": [
+            "You can manage network configurations with Semi-Automatic or Manual mode by setting automaticallyConfigureRequests or automaticallyConfigureWebViews to false.",
+            "For Manual mode, if you are using WebView and after you start a tunnel, you must configure the WebView proxy settings to route traffic over the tunnel."
+          ]
+        }
+      ]
+    },
+    "android-webview-proxy-timing": {
+      "statement": "Android WebView connections are not guaranteed to use new proxy settings immediately, so a page should be loaded only after a successful listener callback; with ProxyAuth enabled the WebViewClient must override the HTTP auth request handler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-zsdk-integration-guide-android.json",
+          "quotes": [
+            "WebView network connections are not guaranteed to use new proxy settings immediately when applied. Wait for a successful listener callback before loading a page.",
+            "If ProxyAuth is enabled, then you need to override the ReceivedHttpAuthRequest() method in your WebViewClient."
+          ]
+        }
+      ]
+    },
+    "ios-prerequisite-and-import": {
+      "statement": "The iOS integration guide requires iOS 15 or later and offers SwiftPM (zscaler-sdk-ios repository), CocoaPods (pod 'ZscalerSDK') or manual import of a downloaded xcframework with Embed & Sign.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-zsdk-integration-guide-ios.json",
+          "quotes": [
+            "Ensure your application is running on iOS 15 or later.",
+            "Enter the repository URL for ZSDK.",
+            "pod 'ZscalerSDK', :git => 'https://github.com/zscaler/zscaler-sdk-ios'",
+            "Select Embed & Sign for the Embed option.",
+            "Go to File > Swift Packages > Add Package Dependency.",
+            "http://github.com/zscaler/zscaler-sdk-ios",
+            "Download a ZIP file of the ZscalerSDK.xcframework release from GitHub."
+          ]
+        }
+      ]
+    },
+    "ios-help-manual-framework": {
+      "statement": "The iOS integration guide's manual import adds a downloaded ZscalerSDK.xcframework, and its code imports the module as Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-zsdk-integration-guide-ios.json",
+          "quotes": [
+            "Add the downloaded ZscalerSDK.xcframework.",
+            "import Zscaler"
+          ]
+        }
+      ]
+    },
+    "react-native-prerequisites": {
+      "statement": "The React Native integration guide lists Android 9 or later (API level 28) on ARM devices (armeabi-v7a or arm64-v8a) and iOS 15 or later as prerequisites.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-zsdk-integration-guide-using-react-native.json",
+          "quotes": [
+            "You're running Android 9 or later (i.e., minimum API Level 28).",
+            "Your Android application works on both 32-bit and 64-bit devices that are ARM-based (i.e., armeabi-v7a or arm64-v8a).",
+            "For iOS, your application is running on iOS 15 or later."
+          ]
+        }
+      ]
+    },
+    "react-native-package-source": {
+      "statement": "The React Native package is fetched from the npm.pkg.github.com registry with a GitHub token (manual tarball download then npm install), or installed as an NPM package with a version pinned in package.json; the Android side adds a Gradle repository named ZscalerSDKAndroid and the iOS side a Podfile helper (configure_zscalersdk_pod).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-zsdk-integration-guide-using-react-native.json",
+          "quotes": [
+            "curl -H \"Authorization: Bearer GITHUB_TOKEN\" https://npm.pkg.github.com/@zscaler%2fzscalersdk-reactnative",
+            "npm install /path/to/save/tar/gz/zscalersdk-reactnative.tar.gz",
+            "configure_zscalersdk_pod",
+            "name = \"ZscalerSDKAndroid\"",
+            "As an alternative to manually integrating ZSDK, you can opt to install an NPM package.",
+            "you can specify the version according to your requirements by entering this code in the package.json file:"
+          ]
+        }
+      ]
+    },
+    "react-native-package-name-mismatch": {
+      "statement": "The React Native page names the package zscalersdk-reactnative in the registry URL but @zscaler/zscaler-sdk-reactnative in the package.json example.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-zsdk-integration-guide-using-react-native.json",
+          "quotes": [
+            "https://npm.pkg.github.com/@zscaler%2fzscalersdk-reactnative",
+            "\"@zscaler/zscaler-sdk-reactnative\": \"1.1.0\""
+          ]
+        }
+      ]
+    },
+    "swiftui-quickstart-prerequisites": {
+      "statement": "The SwiftUI quick start asks for Xcode version 16 or later if using Xcode, iOS version 15.0 or later if using an iOS device, Auth0 client credentials and internet access to Zscaler's sample API endpoint; a call to the protected endpoint without a Zero Trust tunnel is expected to fail because DNS resolution and the connection fail.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-quick-start-guide-zsdk-integration-swiftui.json",
+          "quotes": [
+            "If you are using Xcode, Xcode version 16 or later",
+            "If you are using an iOS device, iOS version 15.0 or later",
+            "Failure is the expected response because Zscaler's ZTE hides protected endpoints from unauthorized apps.",
+            "Auth0 client credentials",
+            "Internet access to call the Zscaler-provided sample API endpoint at https://zsdksample.n4rt.com",
+            "Since you have not established a Zero Trust tunnel, the DNS resolution and connection to zsdksample.n4rt.com fails."
+          ]
+        }
+      ]
+    },
+    "swiftui-sample-token-lifetime": {
+      "statement": "The quick start's sample Auth0 IdP issues a temporary JWT that expires after 24 hours and can be refreshed by rerunning the request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-quick-start-guide-zsdk-integration-swiftui.json",
+          "quotes": [
+            "you can refresh it by rerunning the command.",
+            "Use the Zscaler-provided sample Auth0 identity provider (IdP) to get a temporary JWT that expires after 24 hours."
+          ]
+        }
+      ]
+    },
+    "swiftui-troubleshooting-and-verification": {
+      "statement": "In Step 5 (Retry the API Call) of the quick start, if the request failed, the guide says to verify and validate the access token and app key, check the Xcode console output for ZSDK error messages and check ZSDK error messages; its optional Step 6 verifies mTLS in Wireshark with the filter tls and tcp;port==443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-quick-start-guide-zsdk-integration-swiftui.json",
+          "quotes": [
+            "Step 5: Retry the API Call",
+            "If the request failed:",
+            "Verify and validate the access token and app key.",
+            "Check the Xcode console output for error messages from ZSDK.",
+            "Check ZSDK error messages.",
+            "Step 6: (Optional) Verify Mutual Transport Layer Security (mTLS) in Wireshark",
+            "Filter for tls and tcp;port==443."
+          ]
+        }
+      ]
+    },
+    "platform-2-release": {
+      "statement": "The April 15, 2025 ZSDK Platform 2.0 release notes list React Native support, merging the Prelogin tunnel and Zero Trust tunnel into a User tunnel, and updated notification naming conventions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-zsdk-platform-release-upgrade-summary-2025.json",
+          "quotes": [
+            "April 15, 2025",
+            "ZSDK Platform 2.0 Enhancements and Fixes",
+            "Support ZSDK integration with React Native.",
+            "Merge Prelogin tunnel and Zero Trust tunnel into User tunnel.",
+            "Update notifications for appropriate naming conventions."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "android-credentials-file": {
+      "summary": "Which file holds gpr.user and gpr.key for the Android SDK's GitHub Packages repository.",
+      "positions": [
+        {
+          "says": "The Android repository README says gpr.user and gpr.key are set in the global gradle.properties file at ~/.gradle/gradle.properties.",
+          "evidence": {
+            "source": "zsdk-android",
+            "path": "README.md",
+            "quotes": [
+              "Make sure gpr.user and gpr.key are set to your github username and access token in global gradle.properties file at ~/.gradle/gradle.properties"
+            ]
+          }
+        },
+        {
+          "says": "The help integration guide says gpr.user and gpr.key are set in the local.properties.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-zsdk-integration-guide-android.json",
+            "quotes": [
+              "Ensure gpr.user and gpr.key are set to your GitHub username and access token in the local.properties."
+            ]
+          }
+        }
+      ],
+      "impact": "Credentials placed in only one of the two files may not be found by the build that follows the other source; the repository's sample settings read environment variables first and gradle properties second."
+    },
+    "android-auto-configure-names": {
+      "summary": "Which option names switch ZSDK network auto-configuration on Android.",
+      "positions": [
+        {
+          "says": "The Android integration guide says Semi-Automatic or Manual mode is selected by setting automaticallyConfigureRequests or automaticallyConfigureWebViews to false.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-zsdk-integration-guide-android.json",
+            "quotes": [
+              "You can manage network configurations with Semi-Automatic or Manual mode by setting automaticallyConfigureRequests or automaticallyConfigureWebViews to false."
+            ]
+          }
+        },
+        {
+          "says": "The developer reference lists shouldAutomaticallyConfigureRequests and shouldAutomaticallyConfigureWebviews as iOS options.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-developer-reference.json",
+            "quotes": [
+              "| shouldAutomaticallyConfigureRequests | Boolean | iOS | If enabled, ZSDK auto-configures URL sessions. |",
+              "| shouldAutomaticallyConfigureWebviews | Boolean | iOS | If enabled, ZSDK auto-configures WebViews. |"
+            ]
+          }
+        }
+      ],
+      "impact": "An Android app cannot tell from either page alone which option name, if any, controls auto-configuration on Android."
+    },
+    "ios-module-import-name": {
+      "summary": "The module name an iOS app imports.",
+      "positions": [
+        {
+          "says": "The iOS integration guide's manual import code is import Zscaler.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-zsdk-integration-guide-ios.json",
+            "quotes": [
+              "import Zscaler"
+            ]
+          }
+        },
+        {
+          "says": "The SwiftUI quick start's tunnel code is import ZscalerSDK.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-quick-start-guide-zsdk-integration-swiftui.json",
+            "quotes": [
+              "import ZscalerSDK import UIKit // for UIDevice"
+            ]
+          }
+        }
+      ],
+      "impact": "Code copied from one guide may not compile against the module the other guide expects."
+    }
+  },
+  "gaps": {
+    "android-sdk-requirements": {
+      "kind": "semantic",
+      "title": "Minimum Android version and ABIs the Android SDK itself supports",
+      "status": "resolved",
+      "detail": "The Android repository ships only the README and a sample app; minSdk 28 and the armeabi-v7a and arm64-v8a ABI filters are settings of the sample app. Nothing in the repository states what the SDK library requires.",
+      "resolution": "The help integration guide lists Android 9 or later (minimum API Level 28) and armeabi-v7a or arm64-v8a devices as prerequisites (android-prerequisites).",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "ios-manual-framework-name": {
+      "kind": "semantic",
+      "title": "Which xcframework name the manual iOS integration expects",
+      "status": "open",
+      "detail": "The README's manual steps name ZscalerSDK.xcframework and a downloadable release zip, while the repository itself ships Zscaler.xcframework (referenced by Package.swift and the podspec). The repository has no release artifact to compare.",
+      "blocks": "following the manual integration steps literally",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

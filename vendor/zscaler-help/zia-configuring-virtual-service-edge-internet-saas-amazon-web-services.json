@@ -1,0 +1,1491 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Virtual Service Edge for Internet & SaaS: Amazon Web Services",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-virtual-service-edge-internet-saas-amazon-web-services",
+    "node": "1402336",
+    "revision": "3220917",
+    "updated": "2026-07-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler supports standalone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on Amazon Web Services (AWS). An organization can deploy the Virtual Service Edge instance on an EC2 Instance, on AWS."
+    },
+    {
+      "text": "Before you begin deployment, subscribe to the Virtual Service Edge AMI from the AWS Marketplace AMIs tab. The Virtual Service Edge AMI is unavailable in the China region (alternatively, you can consider China Premium Internet Access for the China region). After deployment, the Virtual Service Edge virtual machine (VM) receives automatic software updates from the Zscaler cloud."
+    },
+    {
+      "item": "1. Ensure you meet all the requirements.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy Virtual Service Edge on AWS, you need:",
+      "depth": 0
+    },
+    {
+      "item": "A subscription to Virtual Service Edge",
+      "depth": 1
+    },
+    {
+      "item": "A VM with the following:",
+      "depth": 1
+    },
+    {
+      "item": "Instance Memory: 64 GB",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Scanning large files without adversely impacting performance requires 64 GB memory on the Virtual Service Edges. For existing deployments with less than 64 GB, see Scaling up Instance Memory to 64 GB.",
+      "depth": 2
+    },
+    {
+      "item": "The system automatically inserts a section into the configuration files to enable a third antivirus (AV) process. Starting the Virtual Service Edges spawns the third AV process on each instance.",
+      "depth": 2
+    },
+    {
+      "item": "EBS Storage Volume Type: General Purpose SSD (recommended)",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Data disk size: 501 GB",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Service Edge requires an AWS EC2 instance with Elastic Network Adapter (ENA) enabled.",
+      "depth": 1
+    },
+    {
+      "item": "The recommended AWS EC2 instance specifications are as follows:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Instance Size",
+          "Memory",
+          "Cores",
+          "Network Bandwidth",
+          "Instance Storage (GB)"
+        ],
+        [
+          "r7i.2xlarge",
+          "64 GB",
+          "8",
+          "Up to 12.5 Gbps",
+          "EBS-Only"
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Service Edges also support the r8i.2xlarge instance type based on regional availability.",
+      "depth": 1
+    },
+    {
+      "item": "A key pair with a public key and a private key file. AWS stores the public key and your organization stores the private key file.",
+      "depth": 1
+    },
+    {
+      "item": "A virtual private cloud (VPC) for your AWS account",
+      "depth": 1
+    },
+    {
+      "item": "A subnet consisting of a range of IP addresses in your VPC",
+      "depth": 1
+    },
+    {
+      "item": "A network with the following specifications:",
+      "depth": 1
+    },
+    {
+      "item": "Two network interfaces",
+      "depth": 2
+    },
+    {
+      "item": "The first network interface is the management IP address. It's used to control connections to the Zscaler cloud and make an SSH connection to the Virtual Service Edge VM for configuration and management.",
+      "depth": 3
+    },
+    {
+      "item": "The second network interface is the service IP address. It's used to proxy the user traffic.",
+      "depth": 3
+    },
+    {
+      "item": "Two Elastic IP addresses to assign a public IP address with both network interfaces.",
+      "depth": 2
+    },
+    {
+      "item": "The two Elastic IP addresses are not required when using a NAT. A NAT network configuration works correctly as long as it has sufficient network bandwidth.",
+      "depth": 2
+    },
+    {
+      "item": "A firewall that meets the necessary requirements: It's mandatory to deploy the Virtual Service Edge instance behind a VM network security group. The Virtual Service Edge instance requires only outbound connections to the Zscaler cloud. It does not require any inbound connections to your network from the Zscaler cloud. To view the firewall requirements for your specific account, go to the following URL: https://config.zscaler.com/<Zscaler Cloud Name>/zia-v-sedge.",
+      "depth": 1
+    },
+    {
+      "item": "You can find the <zscaler cloud name> in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/zia-v-sedge. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names. ​​​​​​",
+      "depth": 1
+    },
+    {
+      "item": "The IP ranges are necessary to ensure that the service isn't affected by future Zscaler cloud expansion.",
+      "depth": 1
+    },
+    {
+      "item": "To create a VM instance using the Virtual Service Edge Terraform modules method, you need the following in addition to the preceding requirements:",
+      "depth": 0
+    },
+    {
+      "item": "A valid AWS account with Administrator Access to deploy required resources",
+      "depth": 1
+    },
+    {
+      "item": "An AWS access key ID",
+      "depth": 1
+    },
+    {
+      "item": "An AWS Region (e.g., us-west-2) where you want to deploy the Virtual Service Edge resources",
+      "depth": 1
+    },
+    {
+      "item": "A subscription to AWS with the acceptance of the terms for using the Zscaler Virtual Service Edge image in the AWS marketplace",
+      "depth": 1
+    },
+    {
+      "item": "Terraform CLI installed on your device",
+      "depth": 1
+    },
+    {
+      "item": "2. Add a Virtual Service Edge instance.",
+      "depth": 0
+    },
+    {
+      "item": "3. Download Virtual Service Edge certificates.",
+      "depth": 0
+    },
+    {
+      "item": "4. Create the VM instance and validate the configuration.",
+      "depth": 0
+    },
+    {
+      "item": "Create a VM instance using one of the following methods:",
+      "depth": 0
+    },
+    {
+      "item": "Virtual Service Edge using AWS Console",
+      "depth": 1
+    },
+    {
+      "item": "To launch a new EC2 instance with a Virtual Service Edge AMI using the AWS console, configure two network interfaces with Elastic IP addresses, and configure the required security group settings:",
+      "depth": 1
+    },
+    {
+      "item": "Select the instance region.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the top-right corner of the screen, select the region in which you want to launch the instance.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Create a new security group.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Network & Security > Security Groups.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          53
+        ],
+        [
+          56,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Click Create Security Group. The Create security group page appears. In the Basic details section, configure the following fields:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          27
+        ],
+        [
+          33,
+          54
+        ],
+        [
+          76,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Security group name: Enter the name of the security group. Associate this security group with the two network interfaces you create in the EC2 Instance Provisioning Wizard.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter additional notes or information up to 255 characters in length.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "VPC: Enter the VPC to which the security group belongs.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Inbound rules section, click Add rule and configure the following connection requirements:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          36,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Type: Select the type of inbound traffic.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: This field is automatically populated based on the type of inbound traffic you select.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Port range: Enter the port range for the inbound rule. To view the port range for your specific account, go to the following URL: https://config.zscaler.com/<zscaler-cloud-name>/zia-v-sedge. You can find the <zscaler cloud name> in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/zia-v-sedge. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "If you set Type to All traffic, the port range is automatically populated to All.",
+      "depth": 4,
+      "strong": [
+        [
+          11,
+          15
+        ],
+        [
+          19,
+          22
+        ],
+        [
+          23,
+          30
+        ],
+        [
+          77,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Source: Select the source type for the inbound rule and enter the source IP address.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Description - optional: Enter additional notes or information.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "To connect to your EC2 instance via SSH, you must open port 22 for inbound connections. In production, authorize only a specific IP address or range of addresses to access your instance. Do not use 0.0.0.0. To learn more, refer to the AWS documentation.",
+      "depth": 3
+    },
+    {
+      "item": "In the Outbound rules section, click Add rule and configure the following connection requirements:",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Type: Select the type of outbound traffic.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: This field is automatically populated based on the type of outbound traffic you select.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Port range: Enter the port range for the outbound rule. To view the port range for your specific account, go to the following URL: https://config.zscaler.com/<zscaler-cloud-name>/zia-v-sedge. You can find the <zscaler cloud name> in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/zia-v-sedge. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names. ​​​​​​",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "If you set Type to All traffic, the port range is automatically populated to All.",
+      "depth": 4,
+      "strong": [
+        [
+          11,
+          15
+        ],
+        [
+          19,
+          22
+        ],
+        [
+          23,
+          30
+        ],
+        [
+          77,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Destination: Select the destination type for the outbound rule and enter the destination IP address.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Description - optional: Enter additional notes or information.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Create.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "You can find more details about the outbound connection requirements on https://config.zscaler.com/<zscaler-cloud-name>/zia-v-sedge. You can find the <zscaler cloud name> in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/zia-v-sedge. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names. ​​​​​​",
+      "depth": 3
+    },
+    {
+      "item": "Launch and complete a new EC2 Instance.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Go to the Amazon EC2 Console.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Under Create Instance, click Launch Instance.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          29,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "In the right-side navigation, click the Browse more AMIs tab.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          40,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click the AWS Marketplace AMIs tab.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Search field, search for Zscaler Internet Access Virtual Service Edge.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          32,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "From the search results, click Select for the Zscaler Internet Access Virtual Service Edge AMI.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          31,
+          37
+        ],
+        [
+          46,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Zscaler Internet Access Virtual Service Edge AMI, click Subscribe now.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          51
+        ],
+        [
+          63,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Choose the EC2 instance type recommended in the Zscaler Admin Console (i.e., r7i.2xlarge).",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          77,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The EC2 instance type that Zscaler recommends is based on the expected number of transactions and users, and the most economical option for you. If you cannot select the recommended type, contact Zscaler Support for further guidance.",
+      "depth": 3
+    },
+    {
+      "item": "Select the SSH key pair for login.",
+      "depth": 3,
+      "number": 9
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "AWS Virtual Service Edges can only be accessed via SSH using the zsroot user and the private key corresponding to the selected key pair.",
+      "depth": 3
+    },
+    {
+      "item": "Click Edit next to the Network Settings. Then select the VPC and subnet in which the instance resides from the VPC - required and Subnet drop-down menus, respectively.",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          111,
+          116
+        ],
+        [
+          117,
+          125
+        ],
+        [
+          130,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Under Network interfaces, click Create network interface to add another network interface. Be sure to select the same subnet as you selected in the preceding step.",
+      "depth": 3,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          24
+        ],
+        [
+          32,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "By default, the EC2 instance has one network interface (eth0), but a Virtual Service Edge requires an additional interface (eth1) in the same subnet. The management interface (eth0) is used for control connections to the Zscaler cloud and to make an SSH connection to the Virtual Service Edge for configuration and management. The service interface (eth1) is used for proxy services.",
+      "depth": 3
+    },
+    {
+      "item": "Click Configure storage.",
+      "depth": 3,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Choose the specifications recommended in the Zscaler Admin Console.",
+      "depth": 3,
+      "number": 13
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "General Purpose 3 (GP3 SSD) is recommended as the volume type.",
+      "depth": 3
+    },
+    {
+      "item": "Click Names and tags, name the EC2 instance, and add any necessary tags.",
+      "depth": 3,
+      "number": 14,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Edit next to the Network Settings.",
+      "depth": 3,
+      "number": 15,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Select an existing security group and choose the security group you created earlier. Under Source, change 0.0.0.0 to a specific IP address from which you want to enable access.",
+      "depth": 3,
+      "number": 16,
+      "strong": [
+        [
+          6,
+          39
+        ],
+        [
+          97,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Review your information.",
+      "depth": 3,
+      "number": 17
+    },
+    {
+      "item": "Click Launch Instances. The Launch Status page shows whether the launch is successful.",
+      "depth": 3,
+      "number": 18,
+      "strong": [
+        [
+          6,
+          22
+        ],
+        [
+          28,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Create and associate two Elastic IP addresses:",
+      "depth": 3,
+      "number": 19
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Network & Security > Network Interfaces.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          53
+        ],
+        [
+          56,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Note down the network interface IDs of the network interfaces you created earlier. You need one of the IDs when associating an Elastic IP to the network interfaces.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Go to Network & Security > Elastic IPs.",
+      "depth": 3,
+      "number": 20,
+      "strong": [
+        [
+          6,
+          24
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click Allocate new address to allocate a new Elastic IP address.",
+      "depth": 3,
+      "number": 21,
+      "strong": [
+        [
+          6,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click Allocate. Repeat the preceding step and this step to have two Elastic IP addresses.",
+      "depth": 3,
+      "number": 22,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Right-click one of the Elastic IP addresses, and click Associate Address.",
+      "depth": 3,
+      "number": 23,
+      "strong": [
+        [
+          55,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "On the Associate Address page:",
+      "depth": 3,
+      "number": 24,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Resource type: Select Network interface.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Network interface: Choose one of the network interface IDs you noted earlier.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "You can choose to either fill in the Network interface section or the Private IP section.",
+      "depth": 4,
+      "strong": [
+        [
+          37,
+          54
+        ],
+        [
+          70,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Associate.",
+      "depth": 3,
+      "number": 25,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Repeat the preceding three steps for the other Elastic IP address.",
+      "depth": 2
+    },
+    {
+      "item": "Virtual Service Edge Terraform Modules",
+      "depth": 1
+    },
+    {
+      "item": "To deploy your Virtual Service Edge using Terraform modules:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the AWS on GitHub repository.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Clone the repository to your system from where you want to deploy the Virtual Service Edges.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "In your system, navigate to the examples directory by entering cd ./terraform-aws-vzen-modules/examples/.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "5. Configure and start a Virtual Service Edge on the VM instance.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following Virtual Service Edge configuration steps through an SSH terminal connection.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Virtual Service Edge on the VM:",
+      "depth": 0
+    },
+    {
+      "item": "Configure the network.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Select the Virtual Service Edge VM and click Start instance.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          45,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the SSH terminal, enter the private key of the selected SSH key pair to connect to the zsroot user of the Virtual Service Edge.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Use the SSH command in the following format to connect to the zsroot user:",
+      "depth": 2
+    },
+    {
+      "item": "ssh -i <ssh_key.pem> zsroot@<VSE_management_IP>",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Direct root login is not permitted. Administrators must use the sudo utility to run a command with higher privileges.",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "sudo vzen configure-network",
+      "depth": 2
+    },
+    {
+      "item": "Specify the following details:",
+      "depth": 2
+    },
+    {
+      "item": "Address of the DNS server that is used for name resolution of Zscaler cloud domains and also for domain names in the proxy traffic. For example: 10.84.0.100.",
+      "depth": 3
+    },
+    {
+      "item": "Hostname of the Virtual Service Edge.",
+      "depth": 3
+    },
+    {
+      "item": "The Virtual Service Edge management IP, gateway IP for management, and resolvers are obtained from DHCP.",
+      "depth": 2
+    },
+    {
+      "item": "This command does not allow you to modify the management IP and gateway IP.",
+      "depth": 2
+    },
+    {
+      "item": "Install the SSL certificate of the Virtual Service Edge instance. This is the certificate that you downloaded from the Zscaler Admin Console. A Virtual Service Edge uses this certificate to authenticate itself to the Zscaler service.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "When you configure a Virtual Service Edge, ensure that you upload the correct certificate for the Virtual Service Edge instance.",
+      "depth": 1
+    },
+    {
+      "item": "To install the SSL certificate of the Virtual Service Edge instance:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the SSL certificate that you saved.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Use SCP or SFTP to upload it to the management IP address of the Virtual Service Edge.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "On the SSH terminal, log in with the following credentials:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "sudo vzen install-cert <cert-bundle.zip>",
+      "depth": 2
+    },
+    {
+      "item": "Ensure to specify the absolute path to the SSL certificates (e.g., sudo vzen install-cert /tmp/cert-bundle.zip).",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) If you want to use an SNMP management system to monitor the Virtual Service Edge cluster, enable SNMP for Virtual Service Edge and configure SNMP parameters. Virtual Service Edges support SNMPv3 only.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1
+    },
+    {
+      "item": "sudo vzen snmp-admin-configure",
+      "depth": 1
+    },
+    {
+      "item": "Specify the following information:",
+      "depth": 1
+    },
+    {
+      "item": "The username for the SNMPv3 management system that sends queries to the Virtual Service Edge. The Virtual Service Edge accepts queries only from this username.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "The password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "An authentication protocol that the Virtual Service Edge uses to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "An encryption method that the Virtual Service Edge uses to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "sudo vzen snmp-trap-configure",
+      "depth": 2
+    },
+    {
+      "item": "When asked which traps you want to configure, specify v3 traps.",
+      "depth": 2
+    },
+    {
+      "item": "Specify the following information:",
+      "depth": 1
+    },
+    {
+      "item": "The IP address of the SNMP trap management system to which the Virtual Service Edge sends traps.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "The username for the SNMP management system.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "The password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "An authentication protocol that the Virtual Service Edge uses to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "An encryption method that the Virtual Service Edge uses to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Download the Virtual Service Edge build and start the Virtual Service Edge.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Run the following command to download the Virtual Service Edge build:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen download-build",
+      "depth": 2
+    },
+    {
+      "item": "The initial build is around 1 GB, so it might take a while depending on your internet connection. The downloaded build is automatically installed. The Virtual Service Edge automatically starts after the installation is complete.",
+      "depth": 2
+    },
+    {
+      "item": "Verify the configuration.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Use SSH to connect to the management IP address.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo vzen status",
+      "depth": 2
+    },
+    {
+      "item": "The output should display that the Virtual Service Edge service is running.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen troubleshoot connection | grep 9422",
+      "depth": 2
+    },
+    {
+      "item": "The output should display an established connection.",
+      "depth": 2
+    },
+    {
+      "heading": "AWS Deployment Templates",
+      "level": 1
+    },
+    {
+      "text": "Use the templates in the Terraform repository to create the deployment resources required to deploy and operate a Virtual Service Edge in a new or existing virtual private cloud (VPC)."
+    },
+    {
+      "item": "Virtual Service Edge Standalone Deployment Template",
+      "depth": 0
+    },
+    {
+      "item": "Use the Deployment Template (vzen_standalone) to deploy your standalone Virtual Service Edge. The template creates the following resources:",
+      "depth": 0
+    },
+    {
+      "item": "aws_vpc.vpc",
+      "depth": 1
+    },
+    {
+      "item": "aws_internet_gateway.igw",
+      "depth": 1
+    },
+    {
+      "item": "aws_subnet.vzen_subnet",
+      "depth": 1
+    },
+    {
+      "item": "aws_route_table.vzen_rt",
+      "depth": 1
+    },
+    {
+      "item": "aws_route_table_association.vzen_rt_asssociation",
+      "depth": 1
+    },
+    {
+      "item": "aws_instance.vzen_vm",
+      "depth": 1
+    },
+    {
+      "item": "null_resource.wait_for_vzens",
+      "depth": 1
+    },
+    {
+      "item": "aws_network_interface.vzen_vm_nic_index_0",
+      "depth": 1
+    },
+    {
+      "item": "null_resource.wait_for_management_nics",
+      "depth": 1
+    },
+    {
+      "item": "aws_eip.eip_management_interface",
+      "depth": 1
+    },
+    {
+      "item": "aws_network_interface.vzen_vm_nic_index_1",
+      "depth": 1
+    },
+    {
+      "item": "null_resource.wait_for_service_nics",
+      "depth": 1
+    },
+    {
+      "item": "aws_eip.eip_service_interface",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_policy_document.instance_assume_role_policy",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_policy_document.vzen_session_manager_policy_document",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_policy.vzen_session_manager_policy",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_role_policy_attachment.vzen_session_manager_attachment",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_role.vzen_node_iam_role",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_instance_profile.vzen_host_profile",
+      "depth": 1
+    },
+    {
+      "item": "aws_security_group.vzen_mgmt_sg",
+      "depth": 1
+    },
+    {
+      "item": "aws_vpc_security_group_egress_rule.egress_vzen_management",
+      "depth": 1
+    },
+    {
+      "item": "aws_security_group.ssh",
+      "depth": 1
+    },
+    {
+      "item": "aws_security_group.vzen_service_sg",
+      "depth": 1
+    },
+    {
+      "item": "aws_security_group.egress_vzen_service",
+      "depth": 1
+    },
+    {
+      "item": "aws_security_group.ingress_vzen_service_all",
+      "depth": 1
+    },
+    {
+      "item": "See resource logs",
+      "depth": 0
+    },
+    {
+      "item": "local_file.private_key tls_private_key.key module.network.aws_vpc.vpc module.network.aws_internet_gateway.igw module.network.aws_subnet.vzen_subnet module.network.aws_route_table.vzen_rt module.network.aws_route_table_association.vzen_rt_asssociation module.vzen_vm.aws_instance.vzen_vm module.vzen_vm.null_resource.wait_for_vzens module.vzen_vm.aws_network_interface.vzen_vm_nic_index_0 module.vzen_vm.null_resource.wait_for_management_nics module.vzen_vm.aws_eip.eip_management_interface module.vzen_vm.aws_network_interface.vzen_vm_nic_index_1 module.vzen_vm.null_resource.wait_for_service_nics module.vzen_vm.aws_eip.eip_service_interface module.vzen_iam.aws_iam_policy_document.instance_assume_role_policy module.vzen_iam.aws_iam_policy_document.vzen_session_manager_policy_document module.vzen_iam.aws_iam_policy.vzen_session_manager_policy module.vzen_iam.aws_iam_role_policy_attachment.vzen_session_manager_attachment module.vzen_iam.aws_iam_role.vzen_node_iam_role module.vzen_iam.aws_iam_instance_profile.vzen_host_profile module_vzen_sg.aws_security_group.ssh module_vzen_sg.aws_security_group.vzen_service_sg module_vzen_sg.aws_security_group.egress_vzen_service module_vzen_sg.aws_security_group.ingress_vzen_service_all",
+      "depth": 0
+    },
+    {
+      "text": "If you encounter any issues with your Virtual Service Edge, you can Troubleshoot Virtual Service Edges."
+    },
+    {
+      "heading": "Scaling up Instance Memory to 64 GB",
+      "level": 1
+    },
+    {
+      "text": "Scaling up instance memory impacts the traffic through Virtual Service Edges. So, you must ensure to scale the instance memory during a maintenance window."
+    },
+    {
+      "text": "To scale up the instance memory of your Virtual Service Edges:"
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Click Instances (running) and select the Virtual Service Edge instance for which you want to scale up the instance memory.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "The instance summary for the selected instance appears.",
+      "depth": 0
+    },
+    {
+      "item": "From the Instance state menu, select Stop instance.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          23
+        ],
+        [
+          37,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Stop instance window, click Stop.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          35,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Virtual Service Edge instance might take up to 5 minutes to stop. The instance state appears as Stopped after the instance is stopped.",
+      "depth": 0,
+      "strong": [
+        [
+          100,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "After the Virtual Service Edge instance is stopped, go to Actions > Instance settings > Change instance type.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          58,
+          65
+        ],
+        [
+          68,
+          85
+        ],
+        [
+          88,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Select r7i.2xlarge and click Change Instance Type.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          29,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "From the Instance state menu, select Start instance.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          9,
+          23
+        ],
+        [
+          37,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Virtual Service Edge instance might take up to 5 minutes to be SSHable again.",
+      "depth": 0
+    }
+  ]
+}

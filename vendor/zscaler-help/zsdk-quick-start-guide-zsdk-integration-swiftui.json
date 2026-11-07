@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Quick Start Guide for ZSDK Integration with SwiftUI",
+  "source": {
+    "url": "https://help.zscaler.com/zsdk/quick-start-guide-zsdk-integration-swiftui",
+    "node": "1530993",
+    "revision": "3150949",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide provides steps on how to integrate ZSDK using SwiftUI so that you can quickly test and validate the security benefits of the Zscaler Zero Trust Exchange (ZTE) without requiring your own custom back end."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before starting, make sure you have:"
+    },
+    {
+      "item": "If you are using Xcode, Xcode version 16 or later",
+      "depth": 0
+    },
+    {
+      "item": "If you are using an iOS device, iOS version 15.0 or later",
+      "depth": 0
+    },
+    {
+      "item": "Auth0 client credentials",
+      "depth": 0
+    },
+    {
+      "item": "Internet access to call the Zscaler-provided sample API endpoint at https://zsdksample.n4rt.com",
+      "depth": 0
+    },
+    {
+      "heading": "ZSDK Integration Configuration",
+      "level": 1
+    },
+    {
+      "text": "To integrate ZSDK using SwiftUI:"
+    },
+    {
+      "item": "Step 1: Test an API Call without ZSDK",
+      "depth": 0
+    },
+    {
+      "item": "Attempt to call the protected endpoint without ZSDK. This test confirms that the API is inaccessible until the Zero Trust tunnel is established.",
+      "depth": 0
+    },
+    {
+      "item": "Failure is the expected response because Zscaler's ZTE hides protected endpoints from unauthorized apps. Since you have not established a Zero Trust tunnel, the DNS resolution and connection to zsdksample.n4rt.com fails.",
+      "depth": 0
+    },
+    {
+      "item": "import SwiftUI struct ContentView: View { @State private var message: String = \"\" var body: some View { VStack(spacing: 20) { Text(\"Zscaler SDK Demo\").font(.title) Button(\"Test Connection\") { testConnection() } Text(message).foregroundColor(.gray) } .padding() } func testConnection() { guard let url = URL(string: \"https://zsdksample.n4rt.com\") else { return } // Attempt to fetch the protected URL without Zscaler SDK URLSession.shared.dataTask(with: url) { data, response, error in if let error = error { message = \"Request failed: \\(error.localizedDescription)\" print(message) } else if let httpResponse = response as? HTTPURLResponse { message = \"Response status: \\(httpResponse.statusCode)\" print(message) } }.resume() } }",
+      "depth": 0
+    },
+    {
+      "item": "After running a test connection upon the request, the expected result is that the request fails with a network error or an HTTP 4XX/5XX status.",
+      "depth": 0,
+      "strong": [
+        [
+          123,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "Step 2: Add ZSDK via Swift Package Manager",
+      "depth": 0
+    },
+    {
+      "item": "You can add ZSDK to your Swift Package Manager as a project:",
+      "depth": 0
+    },
+    {
+      "item": "In Xcode, go to File > Swift Packages > Add Packages.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          16,
+          20
+        ],
+        [
+          23,
+          37
+        ],
+        [
+          40,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Enter the repository URL: https://github.com/zscaler/zscaler-sdk-ios.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Select the latest version or main branch.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Add the package to your targeted app.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Step 3: Fetch a JSON Web Token (JWT) Access Token",
+      "depth": 0
+    },
+    {
+      "item": "Use the Zscaler-provided sample Auth0 identity provider (IdP) to get a temporary JWT that expires after 24 hours.",
+      "depth": 0
+    },
+    {
+      "item": "curl --request POST \\ --url https://zdk-test.us.auth0.com/oauth/token \\ --header 'content-type: application/json' \\ --data '{\"client_id\":\"JG0lm5eMqqegK3ZHgu3VDjjE0Cnz5p9X\",\"client_secret\":\"wdA1BWpM_e7YvQAOmRH2F0_SLGmTdqZc3shFVO4bx6gvxplZwYfSUJjzB2O--sR-\",\"audience\":\"https://zsdk-sample.app\",\"grant_type\":\"client_credentials\"}'",
+      "depth": 0
+    },
+    {
+      "item": "This request uses Zscaler's demo Auth0 tenant with client credentials. A successful call returns a JSON with a JWT `access_token`. Copy the value without quotes. The token expires after 24 hours, but you can refresh it by rerunning the command.",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Start a Zero Trust Tunnel",
+      "depth": 0
+    },
+    {
+      "item": "Start a Zero Trust tunnel using the provided app key from Zscaler, your device's universally unique identifier (UUID) from the OS, and access token.",
+      "depth": 0
+    },
+    {
+      "item": "Use the provided app key:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "eyJhcHBfaWRlbnRpZmllcl9naWQiOjcyMDU3NjE2NjAzMjgzNDYzLCJvbmVfaWRlbnRpdHlfZnFkbiI6ImRlbW8uenNka3N0YWdpbmcuenNsb2dpbmFscGhhLm5ldCIsImhtYWNfc2VjcmV0IjoiYXQrTzR6ZmhoY1d0Tk9WR2xjVXYzNjNiSTBBamxObEdnT1poendkdjdITT0ifQ==",
+      "depth": 1
+    },
+    {
+      "item": "Add the app key, UUID, and access token to start a Zero Trust tunnel as follows:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "import ZscalerSDK import UIKit // for UIDevice func connectZeroTrustTunnel(accessToken: String) { let appKey = \"eyJhcHBfaWRlbnRpZmllcl9naWQiOjcyMDU3NjE2NjAzMjgzNDYzLCJvbmVfaWRlbnRpdHlfZnFkbiI6ImRlbW8uenNka3N0YWdpbmcuenNsb2dpbmFscGhhLm5ldCIsImhtYWNfc2VjcmV0IjoiYXQrTzR6ZmhoY1d0Tk9WR2xjVXYzNjNiSTBBamxObEdnT1poendkdjdITT0ifQ==\" let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? \"UNKNOWN\" Task { do { try await ZscalerSDK.sharedInstance().startZeroTrustTunnel( appKey: appKey, deviceUdid: deviceId, accessToken: accessToken ) print(\"Zero Trust tunnel connected!\") } catch { print(\"Failed to start tunnel: \\(error)\") } } }",
+      "depth": 1
+    },
+    {
+      "item": "Use the @State variable to display the connection status in your SwiftUI.",
+      "depth": 1
+    },
+    {
+      "item": "You can set @State var status and configure it when the tunnel connects to show a Connected status in the UI. The following example is a basic approach to how you can set @State var status. Depending on your own environment, it can differ.",
+      "depth": 1,
+      "strong": [
+        [
+          82,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Basic Approach Example",
+      "depth": 2
+    },
+    {
+      "item": "import SwiftUI import Combine import Zscaler struct TunnelView: View { @State var status: String = \"\" var cancellables: [AnyCancellable] = [] init() { let notificationNames: [NSNotification.Name] = [ .ZscalerSDKTunnelDisconnected, .ZscalerSDKTunnelConnected, .ZscalerSDKTunnelResourceBlocked, .ZscalerSDKTunnelReconnecting, .ZscalerSDKTunnelAuthenticationRequired ] for name in notificationNames { NotificationCenter.default.publisher(for: name) .receive(on: DispatchQueue.main) .sink { _ in status = ZscalerSDK.sharedInstance().status().tunnelConnectionState } .store(in: &cancellables) } } var body: some View { Text(status) } }",
+      "depth": 2
+    },
+    {
+      "item": "Step 5: Retry the API Call",
+      "depth": 0
+    },
+    {
+      "item": "With the Zero Trust tunnel active, try calling the sample API again:",
+      "depth": 0
+    },
+    {
+      "item": "If the request is successful, the response is:",
+      "depth": 0
+    },
+    {
+      "item": "Hey there! Congratulations, your connection to the web server at zsdksample.n4rt.com is secured by Zscaler with end-to-end mTLS :-)",
+      "depth": 0
+    },
+    {
+      "item": "If the request failed:",
+      "depth": 0
+    },
+    {
+      "item": "Verify and validate the access token and app key.",
+      "depth": 1
+    },
+    {
+      "item": "Check the Xcode console output for error messages from ZSDK.",
+      "depth": 1
+    },
+    {
+      "item": "Check ZSDK error messages.",
+      "depth": 1
+    },
+    {
+      "item": "Step 6: (Optional) Verify Mutual Transport Layer Security (mTLS) in Wireshark",
+      "depth": 0
+    },
+    {
+      "item": "To confirm that traffic is encrypted with end-to-end mTLS:",
+      "depth": 0
+    },
+    {
+      "item": "Run the app in the iOS Simulator or on a device on the same network as your macOS device.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Start a packet capture in Wireshark.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Filter for tls and tcp;port==443.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Verify that only encrypted TLS traffic is visible. For example, ensure no plaintext hostnames (i.e., zsdksample.n4rt.com) or payload data.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "text": "You’ve completed validating ZSDK’s client-side integration and the security benefits of ZTE. You can:"
+    },
+    {
+      "item": "Replace the sample IdP with your production IdP.",
+      "depth": 0
+    },
+    {
+      "item": "Integrate real authentication flows to obtain tokens dynamically.",
+      "depth": 0
+    },
+    {
+      "item": "Handle tunnel lifecycle events (e.g., reconnects, errors).",
+      "depth": 0
+    },
+    {
+      "item": "Deploy your ZSDK integration to production environments.",
+      "depth": 0
+    },
+    {
+      "text": "To learn more, see Zscaler SDK Developer Guide."
+    }
+  ]
+}

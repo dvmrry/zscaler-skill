@@ -1,0 +1,806 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.observability",
+  "title": "AI Guard dashboards, Insights, Token Usage and log exports (ADX, CrowdStrike, S3, Splunk)",
+  "aliases": [
+    "ai guard dashboard",
+    "ai guard insights",
+    "ai guard token usage",
+    "ai guard log export",
+    "ai guard siem",
+    "ai guard splunk",
+    "ai guard crowdstrike",
+    "ai guard s3 export",
+    "ai guard adx event hub",
+    "export tools field",
+    "ai guard conversation view",
+    "reveal prompt",
+    "ai guard detection latency",
+    "crwd siem export",
+    "crwd event export",
+    "ai guard release notes"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.tenant-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "AI Guard reports on its own console and exports events to SIEMs and storage. Help documents a Users version and an Apps and Infrastructure version of each page."
+    },
+    {
+      "label": "Dashboard.",
+      "text": "{{dashboard-users}} {{dashboard-apps}} {{users-no-conversations}} Which modes the conversation view covers is open {{gap:conversation-mode-scope}}."
+    },
+    {
+      "label": "Transaction details.",
+      "text": "{{transaction-details}} {{performance-stats}} {{detection-summary-users-overview}} {{detection-summary-users-actions}} The detection summary lists the prompt and response actions as blocked, allowed or just detected, while the Users dashboard lists them as Allowed or Blocked {{divergence:action-values}}. {{detection-summary-users-stats}}"
+    },
+    {
+      "label": "Latency.",
+      "text": "{{latency}} What is still unstated about expected latency is kept in [[ai-security.ai-guard]]."
+    },
+    {
+      "label": "Insights.",
+      "text": "{{insights}} {{insights-apps}} {{security-posture}}"
+    },
+    {
+      "label": "Token Usage.",
+      "text": "{{token-usage}} {{token-usage-apps}}"
+    },
+    {
+      "label": "Topology.",
+      "text": "{{topology}} {{topology-users}} {{topology-users-search}}"
+    },
+    {
+      "label": "Audit log.",
+      "text": "{{audit-log}} {{audit-details-revert}}"
+    },
+    {
+      "label": "Log exports.",
+      "text": "{{export-targets}} {{export-filters}} {{s3-export}} The exported record format is open {{gap:export-schema}}."
+    },
+    {
+      "label": "The S3 runbook.",
+      "text": "{{s3-runbook-iam}} {{s3-runbook-assume-role}} {{s3-runbook-s3-access}} The runbook's tag setting against the export page's permission is open {{gap:s3-tagging-permission}}. Competition triggers carry a scoreByCompetitor dict in log exports: [[ai-security.ai-guard.detectors.competition:score-field]]. The Topic runbook's detection-log statement is [[ai-security.ai-guard.detectors.topic:log-scores]]."
+    },
+    {
+      "label": "Release notes.",
+      "text": "Statements the legacy page took from the 2026 release summaries are in the current release-summary captures and mostly not yet in claims {{gap:release-summary-backlog}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For missing events in a SIEM, that the export instance is enabled, its connection validates, and the allowed/detected and blocked prompt filters cover the events expected.",
+      "uses": [
+        "export-targets",
+        "export-filters"
+      ]
+    },
+    {
+      "do": "That an export which should carry tool data still has Export Tools Field enabled, the default.",
+      "uses": [
+        "export-filters"
+      ]
+    }
+  ],
+  "claims": {
+    "dashboard-users": {
+      "statement": "The dashboard's Users tab covers a date range of up to 90 days, counts users, LLMs, policy detections and transactions, can be exported to PDF, and lists each transaction with date and time, user, policy name, severity (Info, Low, Medium, High or Critical), prompt and response detections, LLM, and prompt and response actions (Allowed or Blocked); Details opens Overview, Detection Summary, Performance & Network Stats, Custom Request Headers and Prompt Details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-dashboard.json",
+          "quotes": [
+            "Select the Users tab.",
+            "Select the date range (up to 90 days) for your data.",
+            "Export a PDF copy of your dashboard for the selected date range.",
+            "Number of Users: The total number of users.",
+            "Number of LLMs: The total number of LLMs.",
+            "Number of Detections: The total number of policy detections.",
+            "Number of Transactions: The total number of transactions.",
+            "Date and Time: The date and time of the transaction.",
+            "User: The name of the user.",
+            "Policy Name: The name of the policy associated with this transaction.",
+            "Severity: The level of severity of the transaction. The severity can be Info, Low, Medium, High, and Critical.",
+            "Prompt Detections: The specific prompt detectors that the policy triggered.",
+            "Response Detections: The specific response detectors that the policy triggered.",
+            "LLM: The LLM used for this transaction.",
+            "Prompt Action: Displays whether the AI Guard policy transaction resulted in the prompt being Allowed or Blocked.",
+            "Response Action: Displays whether the AI Guard policy transaction resulted in the response being Allowed or Blocked.",
+            "Details: Clicking the Details icon opens a window showing detailed information in the following sections: Overview, Detection Summary, Performance & Network Stats, Custom Request Headers, and Prompt Details."
+          ]
+        }
+      ]
+    },
+    "dashboard-apps": {
+      "statement": "The Secure AI Apps and Infrastructure dashboard article's AI Applications tab counts applications and can show entries as individual prompt transactions or as connected multi-prompt conversation threads; a message icon gives a conversation's transaction count, Reveal Prompt shows the exchange in chat layout, and conversation grouping follows existing session boundary logic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-dashboard-20260909.json",
+          "quotes": [
+            "Select the AI Applications tab.",
+            "Number of Apps: The total number of applications.",
+            "View dashboard entries as individual prompt transactions, or view multi-prompt AI interactions as a single, connected conversation thread.",
+            "you will see a message icon next to a transaction's date, indicating the number of transactions in that conversation thread.",
+            "View prompt details by clicking Reveal Prompt, which shows a full back-and-forth, chat-style layout.",
+            "Conversation grouping respects existing session boundary logic."
+          ]
+        }
+      ]
+    },
+    "users-no-conversations": {
+      "statement": "The Users dashboard article documents no conversation view; only the Apps and Infrastructure article does.",
+      "tier": "B",
+      "derived_from": [
+        "dashboard-users",
+        "dashboard-apps"
+      ],
+      "conditions": "Rests on the Users article's step list, which goes from the counts to the transaction list without a conversation option; an absence in the article, not proof about the console."
+    },
+    "insights": {
+      "statement": "Insights reports total and blocked prompts and responses, approximate prompt and response tokens, average tokens per prompt and per response, average prompt and response detection latency in milliseconds, active users and LLMs, and graphs of trend over time, transactions by LLM, transactions by users, top detectors, PII detections by user or user group, and PII categories, plus the most common prompt categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-insights.json",
+          "quotes": [
+            "Total Prompts: Total number of prompts users have submitted.",
+            "Blocked Prompts: Total number of blocked prompts users tried to submit.",
+            "Prompt Tokens: Approximate number of input tokens consumed by users.",
+            "Average Prompt Tokens: Average number of tokens per prompt.",
+            "Average Prompt Detection Latency: Average time for prompt detection in milliseconds.",
+            "Total Responses: Total number of LLM responses.",
+            "Blocked Responses: Total number of LLM responses that AI Guard blocked.",
+            "Response Tokens: Approximate number of output tokens consumed by users.",
+            "Average Response Token: Average number of tokens per response.",
+            "Average Response Detection: Average time for response detection in milliseconds.",
+            "Active Users: Total number of active users.",
+            "Active LLMs: Total number of LLMs.",
+            "Trend Over Time: Daily transaction volume showing Blocked and Total counts.",
+            "Transactions by LLM: Displays the active LLMs",
+            "Top Detectors: Displays the detectors that have been triggered the most.",
+            "Transactions by Users: Displays the total number and percentage of transactions.",
+            "PII Detections by Users / Groups: Total number of personally identifiable information (PII) detections per user or user group.",
+            "PII Categories: Types of PII detected in AI traffic such as credit cards, emails, SSNs, and phone numbers.",
+            "View the most common prompt categories during the selected date range and the number of transactions for each category."
+          ]
+        }
+      ]
+    },
+    "security-posture": {
+      "statement": "The Security Posture chart shows the share of Allowed, Blocked and Passthrough transactions across all AI traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-insights.json",
+          "quotes": [
+            "Security Posture: Overview of transaction disposition which shows the proportion of Allowed, Blocked, and Passthrough transactions across all AI traffic."
+          ]
+        }
+      ]
+    },
+    "token-usage": {
+      "statement": "Token Usage shows prompt and response tokens across the tenant or for one user: total tokens, top user, busiest day, average per user, activity by day and hour (with hourly or 5-minute granularity), LLM provider distribution, the top 10 users, and exportable raw data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-usage.json",
+          "quotes": [
+            "Select to view token usage data across the entire tenant, or a single user",
+            "Total Tokens: All prompt and response tokens used by every user in your tenant during this period.",
+            "Top User: The user that used the most tokens.",
+            "Busiest Day: The day with the most token usage.",
+            "Avg. per User: Average tokens used by each user on the leaderboard.",
+            "LLM Provider Distribution: See LLM distribution information",
+            "Activity by day & hour: Requires Hourly or 5-min granularity to see hour-of-day patterns.",
+            "Top users by token usage: The 10 users that used the most tokens.",
+            "Raw Data: A quick total summary of prompts and responses by date. Data can be exported."
+          ]
+        }
+      ]
+    },
+    "export-targets": {
+      "statement": "Log exports go to Azure Data Explorer through Event Hubs (a metadata hub, and an optional content hub), CrowdStrike SIEM Direct Export (event metadata to the CrowdStrike HTTP Event Collector), CrowdStrike SIEM Export via S3 (metadata to the HEC, event contents to an S3 bucket), S3 (separate metadata and content buckets), and Splunk (a metadata HEC, and an optional content HEC).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Meta Event Hub Connection String: Enter the SAS connection string for the meta Event Hub (e.g. aiguard-meta).",
+            "Content Event Hub Connection String: (Optional) Enter the SAS connection string for the content Event Hub (e.g. aiguard-content).",
+            "Use the CRWD integration to direct export event metadata to CrowdStrike HTTP Event Collector (HEC).",
+            "Use the CRWD integration to export event metadata to CrowdStrike HTTP Event Collector (HEC) and event contents to AWS S3.",
+            "AWS S3 Metadata Bucket: Enter the AWS S3 bucket location where the tenant's event metadata files will be stored.",
+            "AWS S3 Content Bucket: Enter the AWS S3 bucket where the tenant's event content files will be stored.",
+            "Splunk Metadata HEC URL: Enter the URL of the Splunk HEC (raw endpoint) where the tenant's events (metadata) will be posted.",
+            "Splunk Content HEC URL: (Optional) Enter the URL of the Splunk HEC (raw endpoint) where tenant's events (content) will be posted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-users-log-exports-20260909.json",
+          "quotes": [
+            "Use the CRWD integration to direct export event metadata to CrowdStrike HTTP Event Collector (HEC)."
+          ]
+        }
+      ]
+    },
+    "export-filters": {
+      "statement": "Each of the five export types (ADX, CrowdStrike direct, CrowdStrike via S3, S3, Splunk) has Export Allowed/Detected Prompts and Export Blocked Prompts options, an Export Tools Field option that is enabled by default and, when disabled, removes the Tools field from the exported metadata, and a Validate Connection check.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Export Allowed/Detected Prompts: Select to export allowed and detected prompts.",
+            "Export Blocked Prompts: Select to export blocked prompts.",
+            "Export Tools Field: Enabled by default. Disable if you want to remove the Tools field from your event log metadata export.",
+            "Click Validate Connection to check whether the information you entered is accurate and working."
+          ],
+          "after": "# Azure Data Explorer (ADX) Event Export"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Export Allowed/Detected Prompts: Select to export allowed and detected prompts.",
+            "Export Blocked Prompts: Select to export blocked prompts.",
+            "Export Tools Field: Enabled by default. Disable if you want to remove the Tools field from your event log metadata export.",
+            "Click Validate Connection to check whether the information you entered is accurate and working."
+          ],
+          "after": "# CRWD SIEM Direct Export"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Export Allowed/Detected Prompts: Select to export allowed and detected prompts.",
+            "Export Blocked Prompts: Select to export blocked prompts.",
+            "Export Tools Field: Enabled by default. Disable if you want to remove the Tools field from your event log metadata export.",
+            "Click Validate Connection to check whether the information you entered is accurate and working."
+          ],
+          "after": "# CRWD SIEM Export (via S3)"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Export Allowed/Detected Prompts: Select to export allowed and detected prompts.",
+            "Export Blocked Prompts: Select to export blocked prompts.",
+            "Export Tools Field: Enabled by default. Disable if you want to remove the Tools field from your event log metadata export.",
+            "Click Validate Connection to check whether the information you entered is accurate and working."
+          ],
+          "after": "# S3 Event Export"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Export Allowed/Detected Prompts: Select to export allowed and detected prompts.",
+            "Export Blocked Prompts: Select to export blocked prompts.",
+            "Export Tools Field: Enabled by default. Disable if you want to remove the Tools field from your event log metadata export.",
+            "Click Validate Connection to check whether the information you entered is accurate and working."
+          ],
+          "after": "# Splunk Event Export"
+        }
+      ]
+    },
+    "s3-export": {
+      "statement": "The S3 export assumes an IAM cross-account role in the customer's AWS account (its external ID fills in automatically), object tags need the role to allow `s3:PutObjectTagging`, and the Apps and Infrastructure article points to a CloudFormation template in the AI Guard portal for the roles and policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "IAM Cross-Account Role ARN: Enter the ARN of the IAM cross-account role created in the tenant's AWS account.",
+            "IAM Cross-Account Role External ID: The external ID of the IAM cross-account role created in the tenant's AWS account. This field auto-populates.",
+            "A cloud formation template to set the right roles and policies can be found on the Zscaler AI Guard portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Tags: (Optional) Click Add Tag to enter the tag key and value to apply to the object put in the S3 bucket. To use this feature, the IAM role requires permissions for the \"s3:PutObjectTagging\" action."
+          ],
+          "after": "# S3 Event Export"
+        }
+      ]
+    },
+    "transaction-details": {
+      "statement": "In the AI Guard for Apps article a transaction's details window opens from the dashboard's Details column with View Details and shows the Transaction ID; an Overview with date, policy triggered, LLM, app, severity (Info > Low > Medium > High > Critical), LLM model and user agent; Prompt Detections and Response Detections with each prompt or response action (blocked, allowed or just detected) and prompt tags; custom request headers set up in the tenant settings; the prompt and response text; and, with the proper permissions, Add to Allowlist for a revealed blocked prompt or response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-ai-guard-detection-summary.json",
+          "quotes": [
+            "In the dashboard, find the transaction you want to view, go to the Details column, and click View Details.",
+            "View or copy the Transaction ID.",
+            "Date: Date and time of the transaction.",
+            "Policy: Name of the policy that was triggered.",
+            "LLM: Name of the LLM used for analyzing the prompt or sending the response.",
+            "Prompt Detections: Shows which detectors were triggered by the prompt.",
+            "Response Detections: Shows which detectors were triggered by the response.",
+            "Prompt and Response Details: In this section you can read the specific prompt sent by the user and the response sent by the GenAI app.",
+            "App: The app that the prompt was submitted through.",
+            "Severity: Strength of the prompt's triggering of the policy detector: Info > Low > Medium > High > Critical.",
+            "LLM Model: Specific LLM model used for this transaction (such as: claude-sonnet-4-6).",
+            "User Agent: Information about the user's agent where the prompt was written or the response was sent to.",
+            "Prompt Action: Shows whether the prompt was blocked, allowed, or just detected.",
+            "Prompt Tags: Shows an tags associated with the prompt.",
+            "Response Action:Shows whether the response was blocked, allowed, or just detected.",
+            "Custom Request Headers: This section will show any custom headers that were set up in the AI Guard tenant settings page.",
+            "Add to Allowlist: If you have the proper permissions, when you reveal a prompt or response that was blocked, you can click this option to add the prompt or response to your allowlist."
+          ]
+        }
+      ]
+    },
+    "performance-stats": {
+      "statement": "The AI Guard for Apps detection summary's Performance & Network Stats show prompt size, response size, total time taken by the LLM, the LLM provider's HTTP status code, detection time on request and on response, the region of the app's server, and the protocol used by the transaction.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-ai-guard-detection-summary.json",
+          "quotes": [
+            "Prompt Size: File size of the prompt.",
+            "Response Size: File size of the response.",
+            "Total Time Taken by LLM: Length of time the LLM took to process the prompt and send a response",
+            "LLM Provider Status Code: An HTTP status code that corresponds to the status of the request.",
+            "Detection Time On Request: Time it took to analyze the prompt.",
+            "Detection Time On Response: Time it took to analyze the response.",
+            "Region: Region of the app's server.",
+            "Protocol: Protocol used by the transaction."
+          ]
+        }
+      ]
+    },
+    "latency": {
+      "statement": "On the Latency page, a user's request is first analyzed by AI Guard to see whether it triggers any detectors; if the prompt is not blocked, the LLM provider processes it and returns a response to AI Guard for analysis, and if the response is not blocked it is sent to the user. Depending on prompt complexity, speed of analysis and internet speed this can cause latency, and AI Guard includes Total Time Taken By LLM, Detection Time on Request and Detection Time On Response in the details of every logged transaction.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-ai-guard-latency.json",
+          "quotes": [
+            "This process involves a user sending a request that is first analyzed by AI Guard to see if it triggers any detectors. If the prompt isn't blocked, the LLM provider then processes the prompt and returns a response to AI Guard for analysis.",
+            "If the response isn't blocked, it is then sent to the user.",
+            "Depending on the complexity of the prompt, speed of analysis, and internet speed, this can cause latency in the AI application interaction for the user. AI Guard tracks this information and includes it in the details of every logged transaction.",
+            "Total Time Taken By LLM: Time it took for the LLM provider to read the prompt and return a response.",
+            "Detection Time on Request: Time it took for the AI Guard policy detectors to analyze the prompt.",
+            "Detection Time On Response: Time it took for the AI Guard policy detectors to analyze the response."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-latency.json",
+          "quotes": [
+            "This process involves a user sending a request that is first analyzed by AI Guard to see if it triggers any detectors. If the prompt isn't blocked, the LLM provider then processes the prompt and returns a response to AI Guard for analysis.",
+            "If the response isn't blocked, it is then sent to the user.",
+            "Depending on the complexity of the prompt, speed of analysis, and internet speed, this can cause latency in the AI application interaction for the user. AI Guard tracks this information and includes it in the details of every logged transaction.",
+            "Total Time Taken By LLM: Time it took for the LLM provider to read the prompt and return a response.",
+            "Detection Time on Request: Time it took for the AI Guard policy detectors to analyze the prompt.",
+            "Detection Time On Response: Time it took for the AI Guard policy detectors to analyze the response."
+          ]
+        }
+      ]
+    },
+    "insights-apps": {
+      "statement": "On the AI Guard for Apps Insights page, over a selected date range and exportable to PDF, Active Apps gives the total number of active AI applications; Transactions by Application shows the total number and percentage of transactions; Top Applications ranks applications by transaction volume; PII Detections by Application gives PII detections per application; and Transactions by LLM shows the active LLMs, colored by how many are Low Risk, High Risk or Critical Risk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-ai-guard-insights.json",
+          "quotes": [
+            "Select the date range to view the corresponding data. Click Reset to set the date range back to default.",
+            "Export your Insights page to a PDF file.",
+            "Active Apps: Total number of active AI applications.",
+            "Transactions by Application: Displays the total number and percentage of transactions.",
+            "Top Applications: Top AI applications ranked by transaction volume.",
+            "PII Detections by Application: Total number of personally identifiable information (PII) detections per application.",
+            "Transactions by LLM: Displays the active LLMs and breaks down by color how many of them are Low Risk, High Risk, or Critical Risk."
+          ]
+        }
+      ]
+    },
+    "token-usage-apps": {
+      "statement": "On the AI Guard for Apps Token Usage page, usage can be viewed across the entire tenant or for a single application; Top App is the app that used the most tokens, Avg. per App is the average tokens used by each app on the leaderboard, and Top usage by app lists the 10 applications that used the most tokens, with a label at the end of each bar showing when usage peaked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-ai-guard-usage.json",
+          "quotes": [
+            "Select to view token usage data across the entire tenant, or a single application.",
+            "Top App: The app that used the most tokens.",
+            "Avg. per App: Average tokens used by each app on the leaderboard.",
+            "Top usage by app: The 10 applications that used the most tokens. The label at the end of each bar shows when usage peaked."
+          ]
+        }
+      ]
+    },
+    "topology": {
+      "statement": "The AI Guard for Apps Topology page gives a system overview of the data flow between all AI apps and the LLM providers managed by AI Guard in Proxy mode; AI apps are blue circles and LLM providers purple hexagons, nodes can be searched by AI App, LLM Providers or All Types, and clicking a node highlights the direct connections to and from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-user-groups-llm-provider-topology.json",
+          "quotes": [
+            "The AI Guard for Apps Topology page provides a system overview of the data flow between all AI apps and LLM providers managed by AI Guard in Proxy mode.",
+            "AI Apps: Formatted as blue circles.",
+            "LLM Providers: Formatted as purple hexagons.",
+            "Select whether you want to search by AI App, LLM Providers, or All Types.",
+            "Click on a node to highlight the direct connections to and from it."
+          ]
+        }
+      ]
+    },
+    "topology-users": {
+      "statement": "The AI Guard for Users Topology page gives a system overview of the data flow between all user groups and the LLM providers managed by AI Guard in Proxy mode; users or user groups are green circles, LLM providers purple hexagons, and data flow lines connecting them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-application-topology.json",
+          "quotes": [
+            "The AI Guard for Users Topology page provides a system overview of the data flow between all user groups and LLM providers managed by AI Guard in Proxy mode.",
+            "Users or User Groups: Formatted as green circles.",
+            "LLM Providers: Formatted as purple hexagons.",
+            "Data Flow: Represented as lines connecting the user groups and LLM providers."
+          ]
+        }
+      ]
+    },
+    "topology-users-search": {
+      "statement": "On the Users tab of the Topology page the view can be searched by a specific user group or LLM provider and limited to Users, LLM providers or All Types, and clicking a node highlights the direct connections to and from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-application-topology.json",
+          "quotes": [
+            "Select the Users tab.",
+            "Search by a specific User Group or LLM Provider.",
+            "Select whether you want to search by Users, LLM Providers, or All Types.",
+            "Click on a node to highlight the direct connections to and from it."
+          ]
+        }
+      ]
+    },
+    "detection-summary-users-overview": {
+      "statement": "In the AI Guard detection summary found in the transaction details window, a transaction's Transaction Details window opens from the dashboard's Details column with View Details, and its Overview shows date, user (who submitted the prompt or received the response), severity (Info > Low > Medium > High > Critical), policy, LLM, LLM model and user agent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-detection-summary.json",
+          "quotes": [
+            "you need to view the detection summary found in the transaction details window.",
+            "In the dashboard, find the transaction you want to view, go to the Details column, and click View Details.",
+            "LLM: Name of the LLM used for analyzing the prompt or sending the response.",
+            "Date: Date and time of the transaction.",
+            "User: The user who submitted the prompt or who received the response.",
+            "Severity: Strength of the prompt's triggering of the policy detector: Info > Low > Medium > High > Critical.",
+            "Policy: Name of the policy that was triggered.",
+            "LLM Model: Specific LLM model used for this transaction (such as: claude-sonnet-4-6).",
+            "User Agent: Information about the user's agent where the prompt was written or the response was sent to."
+          ]
+        }
+      ]
+    },
+    "detection-summary-users-actions": {
+      "statement": "In the AI Guard detection summary's Detection Summary section, Prompt Detections and Response Detections show which detectors were triggered, and Prompt Action and Response Action show whether the prompt or response was blocked, allowed, or just detected, alongside prompt and response tags. The same page also gives the Transaction ID, the prompt and response text and, with the proper permissions, Add to Allowlist for a revealed blocked prompt or response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-detection-summary.json",
+          "quotes": [
+            "Prompt Detections: Shows which detectors were triggered by the prompt.",
+            "Response Detections: Shows which detectors were triggered by the response.",
+            "Prompt Action: Shows whether the prompt was blocked, allowed, or just detected.",
+            "Response Action:Shows whether the response was blocked, allowed, or just detected.",
+            "Prompt Tags: Shows an tags associated with the prompt.",
+            "Response Tags: Shows an tags associated with the response.",
+            "View or copy the Transaction ID.",
+            "Prompt and Response Details: In this section you can read the specific prompt sent by the user and the response sent by the GenAI app.",
+            "Add to Allowlist: If you have the proper permissions, when you reveal a prompt or response that was blocked, you can click this option to add the prompt or response to your allowlist."
+          ]
+        }
+      ]
+    },
+    "detection-summary-users-stats": {
+      "statement": "In the AI Guard detection summary, Performance & Network Stats list prompt size, response size, total time taken by the LLM, the LLM provider's HTTP status code, detection time on request and on response, the region of the user's server, and the protocol; Custom Request Headers shows headers set up in the AI Guard tenant settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-detection-summary.json",
+          "quotes": [
+            "Prompt Size: File size of the prompt.",
+            "Response Size: File size of the response.",
+            "Total Time Taken by LLM: Length of time the LLM took to process the prompt and send a response",
+            "LLM Provider Status Code: An HTTP status code that corresponds to the status of the request.",
+            "Detection Time On Request: Time it took to analyze the prompt.",
+            "Detection Time On Response: Time it took to analyze the response.",
+            "Region: Region of the user's server.",
+            "Protocol: Protocol used by the transaction.",
+            "Custom Request Headers: This section will show any custom headers that were set up in the AI Guard tenant settings page."
+          ]
+        }
+      ]
+    },
+    "audit-log": {
+      "statement": "The Audit Log page tracks changes users make inside AI Guard, from updating a policy control to signing in; over a selected date range it lists each action's initiator (the email address of the user that triggered it), action (such as Update, View or Create) and entity type (more granular detail about the action), and Export CSV downloads the filtered audit log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-ai-guard-audit-log.json",
+          "quotes": [
+            "The Audit Log page tracks any changes users make inside AI Guard. This can range from anything from updating a policy control to signing in.",
+            "Date Range: Select the date range you want to see the logs for.",
+            "Export CSV: Download a CSV file of the filtered audit log.",
+            "Initiator: The email address of the user that triggered the action.",
+            "Action: The action performed, such as: Update, View, or Create.",
+            "Entity Type: More granular detail about the action."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-audit-log.json",
+          "quotes": [
+            "The Audit Log page tracks any changes users make inside AI Guard. This can range from anything from updating a policy control to signing in.",
+            "Date Range: Select the date range you want to see the logs for.",
+            "Export CSV: Download a CSV file of the filtered audit log.",
+            "Initiator: The email address of the user that triggered the action.",
+            "Action: The action performed, such as: Update, View, or Create.",
+            "Entity Type: More granular detail about the action."
+          ]
+        }
+      ]
+    },
+    "audit-details-revert": {
+      "statement": "An audit log entry's details show the Entity ID (the ID number associated with the action), a change table in which nested fields are a single level deep and only relevant changes are shown (noise such as id or lastUpdatedAt fields with no changes is hidden), the full JSON changes under Advanced, and Revert, which undoes Create, Update or Delete on all supported detectors after asking for confirmation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-ai-guard-audit-log.json",
+          "quotes": [
+            "Entity ID: The ID number associated with the action.",
+            "Nested fields are a single level deep, anything further is shown as an object or array placeholder.",
+            "Only relevant changes are shown, noise (such as id or lastUpdatedAt fields) that are empty of changes are hidden.",
+            "Advanced: View the full JSON code changes.",
+            "Revert: This undoes Create, Update, or Delete on all supported detectors. It will ask for confirmation before reverting the changes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-audit-log.json",
+          "quotes": [
+            "Entity ID: The ID number associated with the action.",
+            "Nested fields are a single level deep, anything further is shown as an object or array placeholder.",
+            "Only relevant changes are shown, noise (such as id or lastUpdatedAt fields) that are empty of changes are hidden.",
+            "Advanced: View the full JSON code changes.",
+            "Revert: This undoes Create, Update, or Delete on all supported detectors. It will ask for confirmation before reverting the changes."
+          ]
+        }
+      ]
+    },
+    "s3-runbook-iam": {
+      "statement": "The S3 integration runbook's prerequisites are an AI Guard subscription, AWS S3 Metadata and Content buckets in the same region, and a cross-account IAM role; its example trust policy lets the Zscaler AI Guard AWS account root call sts:AssumeRole, its example permissions policy grants s3:ListBucket and s3:GetBucketLocation on each of the content and metadata buckets and s3:GetObject, s3:PutObject and s3:DeleteObject on their objects, and it says the IAM role policy is in many cases sufficient, especially when the role and buckets are in the same AWS account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-aws-s3-integration.json",
+          "quotes": [
+            "An AI Guard subscription.",
+            "AWS S3 Metadata and Content buckets in the same region.",
+            "A cross-account IAM role.",
+            "\"Principal\": { \"AWS\": \"arn:aws:iam::<zscaler-ai-guard-account-id>:root\" }, \"Action\": \"sts:AssumeRole\"",
+            "\"Sid\": \"ListContentBucket\", \"Effect\": \"Allow\", \"Action\": [\"s3:ListBucket\", \"s3:GetBucketLocation\"]",
+            "\"Sid\": \"ReadWriteDeleteContentObjects\", \"Effect\": \"Allow\", \"Action\": [\"s3:GetObject\", \"s3:PutObject\", \"s3:DeleteObject\"]",
+            "\"Sid\": \"ListMetadataBucket\", \"Effect\": \"Allow\", \"Action\": [\"s3:ListBucket\", \"s3:GetBucketLocation\"]",
+            "\"Sid\": \"ReadWriteDeleteMetadataObjects\", \"Effect\": \"Allow\", \"Action\": [\"s3:GetObject\", \"s3:PutObject\", \"s3:DeleteObject\"]",
+            "In many cases, the IAM role policy is sufficient, especially when the role and buckets are in the same AWS account."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-aws-s3-integration.json",
+          "quotes": [
+            "An AI Guard subscription.",
+            "AWS S3 Metadata and Content buckets in the same region.",
+            "A cross-account IAM role.",
+            "\"Principal\": { \"AWS\": \"arn:aws:iam::<zscaler-ai-guard-account-id>:root\" }, \"Action\": \"sts:AssumeRole\"",
+            "\"Sid\": \"ListContentBucket\", \"Effect\": \"Allow\", \"Action\": [\"s3:ListBucket\", \"s3:GetBucketLocation\"]",
+            "\"Sid\": \"ReadWriteDeleteContentObjects\", \"Effect\": \"Allow\", \"Action\": [\"s3:GetObject\", \"s3:PutObject\", \"s3:DeleteObject\"]",
+            "\"Sid\": \"ListMetadataBucket\", \"Effect\": \"Allow\", \"Action\": [\"s3:ListBucket\", \"s3:GetBucketLocation\"]",
+            "\"Sid\": \"ReadWriteDeleteMetadataObjects\", \"Effect\": \"Allow\", \"Action\": [\"s3:GetObject\", \"s3:PutObject\", \"s3:DeleteObject\"]",
+            "In many cases, the IAM role policy is sufficient, especially when the role and buckets are in the same AWS account."
+          ]
+        }
+      ]
+    },
+    "s3-runbook-assume-role": {
+      "statement": "For an AssumeRole failure, which the S3 runbook describes as an AWS Security Token Service (STS) AssumeRole request being rejected, it lists checking that the trust policy includes the correct Zscaler AI Guard AWS account from the Add Integration window, that the role ARN entered in the UI is correct, that no AWS Organizations Service Control Policy (SCP) or permission boundary blocks sts:AssumeRole, and that no incorrect sts:ExternalId condition was added, with the IAM Cross-Account Role External ID field left at its default value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-aws-s3-integration.json",
+          "quotes": [
+            "This occurs when an AWS Security Token Service (STS) AssumeRole request is rejected.",
+            "Check that the trust policy includes the correct Zscaler AI Guard AWS account from the Add Integration window.",
+            "Check that the role ARN entered in the UI is correct.",
+            "Confirm that no AWS Organizations Service Control Policy (SCP) or permission boundary blocks sts:AssumeRole.",
+            "Confirm that you didn't add an incorrect sts:ExternalId condition.",
+            "IAM Cross-Account Role External ID: Leave the default value unchanged."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-aws-s3-integration.json",
+          "quotes": [
+            "This occurs when an AWS Security Token Service (STS) AssumeRole request is rejected.",
+            "Check that the trust policy includes the correct Zscaler AI Guard AWS account from the Add Integration window.",
+            "Check that the role ARN entered in the UI is correct.",
+            "Confirm that no AWS Organizations Service Control Policy (SCP) or permission boundary blocks sts:AssumeRole.",
+            "Confirm that you didn't add an incorrect sts:ExternalId condition.",
+            "IAM Cross-Account Role External ID: Leave the default value unchanged."
+          ]
+        }
+      ]
+    },
+    "s3-runbook-s3-access": {
+      "statement": "For S3 access errors the S3 runbook lists checking that the bucket names are entered correctly, that the IAM role policy includes both bucket-level and object-level permissions, and that there is no explicit Deny in the bucket policy or organization policy; it says a case where listing works but writing fails usually means s3:ListBucket is present but s3:PutObject is missing or incorrectly configured, and for encrypted objects it lists checking that SSE-KMS is enabled in the buckets, whether the role has KMS permissions and whether the KMS key policy allows the role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-aws-s3-integration.json",
+          "quotes": [
+            "Make sure the bucket names are entered correctly.",
+            "Check that the IAM role policy includes both the bucket-level and object-level permissions.",
+            "Check that there isn't an explicit Deny in the bucket policy or organization policy.",
+            "This usually means s3:ListBucket is present but s3:PutObject is missing or incorrectly configured.",
+            "Check that server-side encryption with AWS KMS keys (SSE-KMS) is enabled in the buckets.",
+            "Check whether the role has KMS permissions.",
+            "Check whether the KMS key policy allows the role."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-aws-s3-integration.json",
+          "quotes": [
+            "Make sure the bucket names are entered correctly.",
+            "Check that the IAM role policy includes both the bucket-level and object-level permissions.",
+            "Check that there isn't an explicit Deny in the bucket policy or organization policy.",
+            "This usually means s3:ListBucket is present but s3:PutObject is missing or incorrectly configured.",
+            "Check that server-side encryption with AWS KMS keys (SSE-KMS) is enabled in the buckets.",
+            "Check whether the role has KMS permissions.",
+            "Check whether the KMS key policy allows the role."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "action-values": {
+      "summary": "The detection summary says a prompt or response action can be blocked, allowed or just detected; the Users dashboard column gives only Allowed or Blocked.",
+      "positions": [
+        {
+          "says": "The detection summary's Prompt Action and Response Action show whether the prompt or response was blocked, allowed, or just detected.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-about-ai-guard-detection-summary.json",
+            "quotes": [
+              "Prompt Action: Shows whether the prompt was blocked, allowed, or just detected."
+            ]
+          }
+        },
+        {
+          "says": "The Users dashboard's Prompt Action column displays whether the transaction resulted in the prompt being Allowed or Blocked.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-dashboard.json",
+            "quotes": [
+              "Prompt Action: Displays whether the AI Guard policy transaction resulted in the prompt being Allowed or Blocked."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a detect-only policy appears as Allowed on the dashboard or as a third value is not established; the Apps detection summary and Apps dashboard differ the same way, so read the action from the detection summary when a policy only detects."
+    }
+  },
+  "gaps": {
+    "conversation-mode-scope": {
+      "kind": "semantic",
+      "title": "Which modes the dashboard conversation view covers",
+      "status": "open",
+      "detail": "Unverified legacy statement: an earlier (2026-08-04) capture of the Apps and Infrastructure dashboard said conversation-thread viewing was exclusive to DAS/API mode and absent in Proxy mode. The September 2, 2026 release entries, captured in ai-guard-apps-release-20260909.json and ai-guard-users-release-20260909.json, announce multi-turn conversation viewing in Proxy mode. The current Apps article states no mode, and the Users article documents no conversation view (users-no-conversations).",
+      "blocks": "whether a Proxy or Users-mode administrator can expect conversation threads",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "export-schema": {
+      "kind": "data",
+      "title": "Field-level schema of exported AI Guard events",
+      "status": "partial",
+      "detail": "The log export articles name destinations and filters but no event fields or wire keys; the legacy page noted the same. The Competition runbook names a per-competitor scoreByCompetitor dict tagged on Competition triggers in log exports (ai-security.ai-guard.detectors.competition:score-field), and the Topic runbook says the detection log holds the full response JSON with confidence scores per topic (ai-security.ai-guard.detectors.topic:log-scores); no other exported field is named. A CrowdStrike parser named zscaler-aiguard appears only in the August 26, 2026 release entries (ai-guard-apps-release-20260909.json, ai-guard-users-release-20260909.json), which name it but list no fields (release-notes).",
+      "blocks": "SIEM parsing and detection content built on AI Guard exports",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "s3-tagging-permission": {
+      "kind": "semantic",
+      "title": "Whether the S3 runbook's example IAM policy covers the export Tags option",
+      "status": "open",
+      "detail": "The S3 runbook marks the export's Tags setting optional, and its example permissions policy lists s3:ListBucket, s3:GetBucketLocation, s3:GetObject, s3:PutObject and s3:DeleteObject but not s3:PutObjectTagging, which the log export page says the IAM role requires to use tags (s3-export). Found by comparing the two pages; neither says which governs, or whether the runbook's policy suffices without tags.",
+      "blocks": "IAM policy design for S3 log export with tags",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "release-summary-backlog": {
+      "kind": "semantic",
+      "former_ids": [
+        "release-notes"
+      ],
+      "title": "2026 release-summary statements not yet drawn into claims",
+      "status": "partial",
+      "detail": "The release-summary captures now hold their entries: ai-guard-apps-release-20260909.json (Secure AI Apps & Infrastructure, June 8 to September 30, 2026) and ai-guard-users-release-20260909.json (Secure Access to AI Apps, February 27 to September 25, 2026). Between them they carry each statement the legacy page took from the summaries: on September 2, 2026, Proxy-mode multi-turn conversation viewing, an Anthropic webhook connection test from the Anthropic console, a Policy Control Name column and resizable dashboard columns; on August 7, CSV as well as PDF export of dashboard event tables and a Tools-field filter enabled by default for new and existing exports; on August 26, CrowdStrike Direct Export and a parser named zscaler-aiguard; and, in the Users summary, tenant restriction, Microsoft 365 Copilot streaming inspection, encrypted prompt allowlisting, custom RBAC, ADX and Splunk export, Codex request and response blocking, default-provider auto-provisioning, and support for applications such as GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma and Builder.io. Two entries are now in claims: default-provider auto-provisioning ([[ai-security.ai-guard]] default-providers) and the September 11 optional resolve-and-execute fields ([[ai-security.ai-guard.runtime-api]] resolve-optional-fields); the rest are not.",
+      "blocks": "dating a feature's availability, and the CrowdStrike parser name",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-release-20260909.json",
+          "quotes": [
+            "This article provides a summary of all new features and enhancements for Secure AI Apps & Infrastructure.",
+            "CrowdStrike has updated their portal to include a new parser for AI Guard under the Generic bender connection type as zscaler-aiguard."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-users-release-20260909.json",
+          "quotes": [
+            "This article provides a summary of all new features and enhancements for Secure Access to AI Apps.",
+            "CrowdStrike has updated their portal to include a new parser for AI Guard under the Generic bender connection type as zscaler-aiguard."
+          ]
+        }
+      ],
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

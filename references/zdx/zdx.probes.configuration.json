@@ -1,0 +1,552 @@
+{
+  "schema_version": 1,
+  "id": "zdx.probes.configuration",
+  "title": "Configuring end-user Web and Cloud Path probes in the console: fields, defaults, limits and protocols",
+  "aliases": [
+    "configure a probe",
+    "configuring a probe",
+    "edit a probe",
+    "zdx autosense",
+    "packet count",
+    "resilient tcp",
+    "strict tcp",
+    "conventional tcp",
+    "force reverse cloud path",
+    "follow web probe",
+    "top private apps probe"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.probes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.cloud-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.web-probe-errors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.collections"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This is how the console configures an end-user probe; what the probes measure is in [[zdx.probes]] and the Zscaler Managed probes are in [[zdx.probes.managed]]. {{predefined-defaults}} {{probe-types}}"
+    },
+    {
+      "heading": "Web probes"
+    },
+    {
+      "text": "{{probe-name}} {{web-request}}"
+    },
+    {
+      "label": "Success codes.",
+      "text": "{{web-status-codes}} The range for adding codes differs between two articles {{divergence:custom-status-code-range}}; the default list is set against the contract's and the error help's in [[zdx.probes]]."
+    },
+    {
+      "label": "Attempts, timeout and redirects.",
+      "text": "{{web-retry-timeout-redirects}} Whether the help's attempts are the contract's retries is open {{gap:attempts-vs-retries}}."
+    },
+    {
+      "heading": "Cloud Path probes"
+    },
+    {
+      "text": "{{cloud-path-frequency}} {{cqm-autosense}} {{follow-web-probe}}"
+    },
+    {
+      "label": "Protocol.",
+      "text": "{{cloud-path-protocols}} {{tcp-types}} Adaptive for Private Access applications is described two ways {{divergence:adaptive-private-access}}; what Adaptive mode does is in [[zdx.probes]]."
+    },
+    {
+      "label": "Packets, interval and timeout.",
+      "text": "{{packet-count}} {{interval}} {{timeout}}"
+    },
+    {
+      "label": "Host and reverse path.",
+      "text": "{{cloud-path-host}} Whether a host name can resolve to IPv6 is open {{gap:cloud-path-ipv6}}. {{reverse-cloud-path}}"
+    },
+    {
+      "heading": "Copying, deleting and editing"
+    },
+    {
+      "text": "{{copy-delete-scope}} Whether a probe can be deleted on its own is described two ways, see [[zdx.probes.collections]]. {{edit-probe}}"
+    },
+    {
+      "heading": "From Top Private Apps"
+    },
+    {
+      "text": "{{tpa-fixed-fields}} {{tpa-status-codes}} {{tpa-protocols}} {{tpa-private-access}} {{tpa-cloud-path-optional}} The Top Private Apps list itself is in [[zdx.applications:top-private-apps]]."
+    }
+  ],
+  "claims": {
+    "predefined-defaults": {
+      "statement": "A Web probe and a Cloud Path probe are automatically enabled by default when a predefined application is onboarded, and the Add Probe link is disabled once the maximum number of allowed applications or probes for the subscription level is reached.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "A Web probe and Cloud Path probe are automatically enabled by default when you onboard a predefined application.",
+            "The Add Probe link is disabled if you've reached the maximum number of allowed applications or probes for your subscription level."
+          ]
+        }
+      ]
+    },
+    "probe-types": {
+      "statement": "End-user probe types are End User Web and End User Cloud Path; the Probe Class (Predefined or Custom) is selected automatically from the application, and for a Network application the Cloud Path probe type is selected by default because network applications do not require Web probes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Select a Probe Type: Select which type of probes to configure for the end user (End User Web, End User Cloud Path)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Probe Class: This field is automatically selected based on the selected application (Predefined or Custom).",
+            "If you've selected a Network application, the Cloud Path probe type is selected by default. Network applications do not require Web probes."
+          ],
+          "after": "When End User Web is selected, you can configure the following for a Web probe:"
+        }
+      ]
+    },
+    "cloud-path-frequency": {
+      "statement": "Cloud Path probes are sent every 15 minutes by default for Standard ZDX subscriptions and every 5 minutes for Advanced ZDX subscriptions, and the default Run Frequency varies with the subscription plan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Cloud Path probes are sent every 15 minutes by default for Standard ZDX subscriptions, and every 5 minutes for Advanced ZDX subscriptions.",
+            "Run Frequency (minutes): Enter the number of minutes for how frequently your probe should run. The default probe frequency varies based on your subscription plan."
+          ],
+          "after": "When End User Web is selected, you can configure the following for a Web probe:"
+        }
+      ]
+    },
+    "probe-name": {
+      "statement": "A probe name is at most 64 characters, alphanumerics and a limited range of symbols such as underscore, hyphen, space, forward slash, period, pipe symbol and parentheses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Name: Enter a name for your probe. The maximum length is 64 characters. Accepted characters are alphanumerics and a limited range of symbols, such as underscore (_), hyphen (-), space ( ), forward slash (/), period (.), pipe symbol (|), and parentheses ()."
+          ],
+          "after": "When End User Web is selected, you can configure the following for a Web probe:"
+        }
+      ]
+    },
+    "web-request": {
+      "statement": "GET is the only request type applicable to Web monitoring, POST is not supported and the field is view-only; the Destination URL is an HTTP or HTTPS URL, editable if the URL requires a tenant name; request headers take a name and value, for example to pass a security token, and are disabled for predefined applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Request Type: GET is the only request type applicable to Web monitoring. POST is not supported. This field is view-only.",
+            "Destination URL: Enter the web destination, either an HTTP or HTTPS URL. This is the web address the probe requests. This is editable if the URL requires a tenant name.",
+            "Request Header: Enter the Name and Value for the request header.",
+            "For example, you can specify authorization of the header to pass a security token. These fields are disabled for predefined applications."
+          ]
+        }
+      ]
+    },
+    "web-status-codes": {
+      "statement": "A Web probe can probe for specific HTTP status codes; per Configuring a Probe, codes not in the default list can be added by entering any number from 100 to 599, the default 1xx, 2xx and 3xx codes include 100 Continue, 101 Switching Protocol, 102 Processing, 103 Early Hints, 201 Created, 202 Accepted, 203 Non-Authoritative Information, 204 No Content, 205 Reset Content, 206 Partial Content, 207 Multi-Status, 208 Already Reported, 226 IM Used, 300 Multiple Choices, 301 Moved Permanently, 302 Found, 303 See Other, 304 Not Modified, 307 Temporary Redirect and 308 Permanent Redirect, and the default codes of a predefined app cannot be changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "HTTP Response Status Codes: You can probe for specific HTTP Status Codes. You can add HTTP codes that are not in the default list by entering any number between the range of 100–599. By default, the following 1xx (Informational), 2xx (Success), and 3xx (Redirection) codes are applied:",
+            "100 Continue",
+            "101 Switching Protocol",
+            "102 Processing",
+            "103 Early Hints",
+            "201 Created",
+            "202 Accepted",
+            "203 Non-Authoritative Information",
+            "204 No Content",
+            "205 Reset Content",
+            "206 Partial Content",
+            "207 Multi-Status",
+            "208 Already Reported",
+            "226 IM Used",
+            "300 Multiple Choices",
+            "301 Moved Permanently",
+            "302 Found",
+            "303 See Other",
+            "304 Not Modified",
+            "307 Temporary Redirect",
+            "308 Permanent Redirect",
+            "However, you cannot change the default codes for a predefined app."
+          ]
+        }
+      ]
+    },
+    "web-retry-timeout-redirects": {
+      "statement": "A Web probe's default is 1 attempt before the request is considered failed (it can be increased), a 60-second timeout and 5 maximum redirects, none of which can be changed for a predefined application; Maximum Redirects is also disabled if Follow Redirect is, and for the following predefined applications Follow Redirect is disabled by default and cannot be enabled: Microsoft Teams Web App, OneDrive for Business, Outlook Online, ServiceNow and SharePoint Online.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Number of Attempts: The number of attempts before considering the monitor request failed. The default is 1 attempt, but can be increased. You cannot change the default number of attempts for a predefined application.",
+            "Timeout (seconds): The default is 60 seconds and cannot be changed for a predefined application.",
+            "Follow Redirect: To ensure accurate performance measurements for the following predefined applications, this setting is disabled by default and you cannot enable it:",
+            "Maximum Redirects: This specifies the number of times the probe attempts to follow the HTTP redirect before it is considered failed. The default is 5 redirects. You cannot change the number of redirects for a predefined application.",
+            "If Follow Redirect is disabled, Maximum Redirects is also disabled.",
+            "Microsoft Teams Web App",
+            "OneDrive for Business",
+            "Outlook Online",
+            "ServiceNow",
+            "SharePoint Online"
+          ]
+        }
+      ]
+    },
+    "cqm-autosense": {
+      "statement": "For a Call Quality Monitoring (CQM) application the Cloud Path probe type shown automatically is the ZDX Autosense feature, which discovers the Cloud Path Host associated with the application and lets the application and its meetings be monitored; it is configured automatically as part of the Cloud Path probe when a CQM application is first onboarded, and ZDX Autosense must be enabled to use it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "If you are configuring for a Call Quality Monitoring (CQM) application, this field automatically shows the probe type and is the ZDX Autosense feature.",
+            "ZDX Autosense is useful for automatically discovering the Cloud Path Host that is associated to the CQM application and allows you to monitor the CQM application and meetings.",
+            "This is automatically configured as part of the Cloud Path probe when you first onboard a CQM application. You must have ZDX Autosense enabled to use this feature."
+          ]
+        }
+      ]
+    },
+    "follow-web-probe": {
+      "statement": "A Cloud Path probe can follow an accompanying Web probe to better visualize both together; if a Web probe is followed and TCP is chosen as the protocol, the port value cannot be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Follow Web Probe: Select an accompanying Web probe to better visualize both Cloud Path probe and Web probe.",
+            "If you have chosen to follow a Web probe and then choose TCP as the protocol, you cannot edit the port value."
+          ]
+        }
+      ]
+    },
+    "cloud-path-protocols": {
+      "statement": "A Cloud Path probe's protocol is Adaptive (the best protocol for each leg in the cloud selected by auto-discovery, with TCP port 443 and UDP port 33434 shown and editable), ICMP (general connectivity using latency), UDP (real-time application pathways, port 33434, the RFC-defined port, editable) or TCP (port availability, with a TCP type and port configured).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Adaptive: Choose Adaptive for Adaptive Mode where the best protocol for each leg in the cloud is selected via an auto-discovery process. The TCP Port and UDP Port are automatically displayed and populated. The standard TCP Port for HTTPS traffic is 443 and editable. The standard UDP Port is 33434 and editable.",
+            "ICMP: Choose ICMP to find the best protocol for general connectivity using latency.",
+            "UDP: Choose UDP for applications that use UDP for real-time application pathways. The UDP Port is automatically displayed and populated with the RFC-defined port for the destination server, 33434, and is editable.",
+            "TCP: Choose TCP if you want to know about port availability to determine application availability. Select a TCP type and configure the TCP Port information."
+          ]
+        }
+      ]
+    },
+    "tcp-types": {
+      "statement": "For a TCP Cloud Path probe the Resilient TCP type (the default) retries and falls back to the Conventional type, a SYN packet traceroute, when the TCP connection fails; Strict has no fallback and shows an error with the packet loss percentage; Conventional establishes no TCP connections and relies on SYN packets, so firewalls might block it; Resilient and Strict need a minimum version compatibility and the selection defaults to Conventional when it is not met.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Resilient TCP Type: A traceroute when the TCP connection fails, it will retry and automatically falls back to the Conventional TCP type, a sync (SYN) packet traceroute. This type requires a minimum version compatibility. This is the default selection.",
+            "Strict TCP Type: A traceroute where if the TCP connection fails, then there is no fall back or handover. An error message appears to explain the details of why the traceroute is failing and displays the packet loss percentage.",
+            "Conventional TCP Type: A traceroute where no TCP connections are established, and the traceroute relies on SYN packets. Therefore, the traceroute might be blocked by firewalls.",
+            "If the minimum version compatibility is not met when you select Resilient TCP type or Strict TCP type, then the selection defaults to the Conventional TCP type."
+          ]
+        }
+      ]
+    },
+    "packet-count": {
+      "statement": "Packet Count, the number of probe packets sent per hop discovery with the same TTL value, defaults to 5 (minimum 3, maximum 20); for Private Access 3 is recommended and 6 is the maximum; a higher count gives a more accurate measurement of packet loss.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Packet Count: The number of probe packets sent per hop discovery that have the same TTL value. The default is 5 packets, the maximum is 20 packets, and the minimum is 3 packets.",
+            "For Private Access, the recommended packet count is 3 packets, and the maximum is 6 packets.",
+            "While the default packet count is 5, a higher packet count provides a more accurate measurement of packet loss."
+          ]
+        }
+      ]
+    },
+    "interval": {
+      "statement": "Interval (ms), the time between probe packets with the same TTL, within which packets of incremental TTL are paced evenly, defaults to 1000 (minimum 1000, maximum 10000); at 6000 ms and a maximum of 30 hops the packets are paced every 200 ms.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Interval (ms): The time interval between probe packets with the same TTL. Probe packets of incremental TTL are paced evenly within this time interval. The number of iterations or cycles is defined by the configured Packet Count. The default is 1000, the minimum is 1000, and the maximum is 10000.",
+            "If the Interval is configured as 6000 ms, the packets for a run are spaced over 6000 ms. For a maximum of 30 hops, packets are paced at every 200 ms"
+          ]
+        }
+      ]
+    },
+    "timeout": {
+      "statement": "Timeout (ms), the time to wait for a response to a probe packet before considering loss, defaults to 1000 (minimum 500, maximum 5000) with 500 recommended for Private Access; at 2000 ms the first probe times out at 2,000 ms, the second at 2,200 ms and the third at 2,400 ms.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Timeout (ms): The time to wait for a response to a probe packet before considering loss. The default is 1000, the minimum is 500, and the maximum is 5000. The recommended setting for Private Access is 500.",
+            "If the Timeout is configured as 2000 ms, the first probe would time out at 2,000 ms, the second at 2,200 ms, the third at 2,400 ms, and so on."
+          ]
+        }
+      ]
+    },
+    "cloud-path-host": {
+      "statement": "The Cloud Path Host is the host IP address or fully qualified domain name, given as the IPv4 address with IPv6 not supported; Zscaler partially provides the domain name if the selected application is predefined, and the field is editable if a tenant name (such as for a CQM application) is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Cloud Path Host: The host IP address or fully qualified domain name for the host (i.e., the IPv4 IP address; IPv6 is not supported). Zscaler partially provides the domain name if the selected application is predefined. This is editable if a tenant name (i.e., CQM application) is required."
+          ]
+        }
+      ]
+    },
+    "reverse-cloud-path": {
+      "statement": "Force Reverse Cloud Path in Trusted Network forces a reverse traceroute in the trusted environment when a network device blocks the forward Cloud Path, and should be enabled only if a different device configuration cannot be implemented; it calculates reverse latency from the Internet & SaaS Public Service Edge to the egress, whose IP address comes from the location API, can differ from the forward path's and is noted as a Reverse Egress.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "Force Reverse Cloud Path in Trusted Network: The option to force a reverse traceroute in the trusted environment when a network device blocks the forward Cloud Path. Enable only if you cannot implement a different device configuration.",
+            "If that isn't possible, this setting provides calculations for reverse latency from the Public Service Edge for Internet & SaaS to the Egress in the Cloud Path.",
+            "During a reverse Cloud Path, the Egress IP address is derived from the location API, and therefore, can differ from the IP address used within the forward Cloud Path. In this scenario, the Egress is noted as a Reverse Egress, along with the IP address derived from the location API."
+          ]
+        }
+      ]
+    },
+    "copy-delete-scope": {
+      "statement": "Configuring a Probe gives procedures to copy and to delete a probe for an application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "To copy a probe for an application:",
+            "To delete a probe for an application:"
+          ]
+        }
+      ]
+    },
+    "edit-probe": {
+      "statement": "Preset probe configurations cannot be reconfigured, some fields cannot be edited because of the previously selected probe configuration, and Zscaler recommends waiting at least 30 minutes after editing probe settings before expecting to see changes in the dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-editing-probe.json",
+          "quotes": [
+            "You cannot reconfigure preset probe configurations.",
+            "Some fields cannot be edited due to the nature of the previously selected probe configuration.",
+            "Zscaler recommends waiting at least 30 minutes after editing probe settings to begin seeing changes in the dashboard."
+          ]
+        }
+      ]
+    },
+    "tpa-fixed-fields": {
+      "statement": "In the Top Private Apps wizard's Web probe step, the Probe Name, Application Name and Request Type cannot be configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-top-private-applications.json",
+          "quotes": [
+            "For Web probe:",
+            "You cannot configure the Probe Name, Application Name, or Request Type."
+          ]
+        }
+      ]
+    },
+    "tpa-status-codes": {
+      "statement": "In the Top Private Apps probe wizard, HTTP codes not in the default list can be added by entering any number from 100 to 499.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-top-private-applications.json",
+          "quotes": [
+            "You can add HTTP codes that are not in the default list by entering any number between the range of 100 to 499."
+          ]
+        }
+      ]
+    },
+    "tpa-protocols": {
+      "statement": "In the Top Private Apps probe wizard the Cloud Path protocol options include Adaptive, ICMP, TCP and UDP, and choosing TCP shows the standard HTTPS TCP port 443, which can be edited; the list of Top Private Apps is created from readily available Private Access data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-top-private-applications.json",
+          "quotes": [
+            "The list of Top Private Apps is created with readily available data from Private Access to provide an overview of the top private applications and a seamless probe configuration.",
+            "Protocol: Select a protocol from the drop-down menu. Options include Adaptive, ICMP, TCP, and UDP.",
+            "TCP Port: If you choose TCP as the protocol, this field is automatically displayed and populated with the standard TCP Port for HTTPS traffic, 443, though this can be edited."
+          ]
+        }
+      ]
+    },
+    "tpa-private-access": {
+      "statement": "In the Top Private Apps probe wizard, for Private Access the recommended packet count is 3 packets with a maximum of 6, and the recommended timeout setting is 500.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-top-private-applications.json",
+          "quotes": [
+            "For Private Access, the recommended packet count is 3 packets, and the maximum is 6 packets.",
+            "Timeout (ms): The time to wait for a response to a probe packet before considering loss. The default is 1000, the minimum is 500, and the maximum is 5000. The recommended setting for Private Access is 500."
+          ]
+        }
+      ]
+    },
+    "tpa-cloud-path-optional": {
+      "statement": "If only the Web probe was selected in the Top Private Apps wizard's previous step, the option to configure a Cloud Path probe is not offered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-top-private-applications.json",
+          "quotes": [
+            "If you selected only the Web probe in previous step, then you do not have the option to configure a Cloud Path probe."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "custom-status-code-range": {
+      "summary": "The range for adding custom HTTP status codes to a Web probe: Configuring a Probe says 100-599, and the Top Private Apps probe wizard says 100 to 499.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-configuring-probe.json",
+            "quotes": [
+              "You can add HTTP codes that are not in the default list by entering any number between the range of 100–599."
+            ]
+          },
+          "says": "Codes not in the default list can be added with any number from 100 to 599."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-managing-top-private-applications.json",
+            "quotes": [
+              "You can add HTTP codes that are not in the default list by entering any number between the range of 100 to 499."
+            ]
+          },
+          "says": "Codes not in the default list can be added with any number from 100 to 499."
+        }
+      ],
+      "impact": "A 5xx code can be added to a probe in one article's range and not in the other's; the pages do not say whether the Top Private Apps wizard is narrower or the text is a slip."
+    },
+    "adaptive-private-access": {
+      "summary": "Adaptive mode for Private Access applications: Evaluating the Cloud Path says it is not supported for internal applications through Private Access, while the Top Private Apps wizard, which configures probes for Private Access applications, offers Adaptive as a Cloud Path protocol.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-evaluating-cloud-path.json",
+            "quotes": [
+              "Adaptive mode is not supported for internal applications through Private Access. Only ICMP, TCP, and UDP are supported."
+            ]
+          },
+          "says": "Adaptive mode is not supported for internal applications through Private Access; only ICMP, TCP and UDP are."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-managing-top-private-applications.json",
+            "quotes": [
+              "Protocol: Select a protocol from the drop-down menu. Options include Adaptive, ICMP, TCP, and UDP."
+            ]
+          },
+          "says": "The Top Private Apps probe wizard, whose list is built from Private Access data, offers Adaptive, ICMP, TCP and UDP."
+        }
+      ],
+      "impact": "Whether Adaptive can be used for a Private Access application's Cloud Path probe is not settled; the wizard may offer an option the Cloud Path article says is unsupported."
+    }
+  },
+  "gaps": {
+    "cloud-path-ipv6": {
+      "kind": "semantic",
+      "title": "Whether a Cloud Path host that is an FQDN can resolve to IPv6",
+      "status": "open",
+      "detail": "Configuring a Probe says the Cloud Path Host is the IPv4 address and IPv6 is not supported (the Managed probe article says the same). Evaluating the Cloud Path says ZDX traces the end-to-end path when a test target resolves to an IPv6 address, and Top Private Apps says ZDX can monitor private applications over IPv6. The host field may restrict only literal addresses while names can resolve to IPv6; no page says so, so the pages are not shown to conflict.",
+      "blocks": "answers about IPv6 Cloud Path monitoring",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-probe.json",
+          "quotes": [
+            "(i.e., the IPv4 IP address; IPv6 is not supported)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-cloud-path.json",
+          "quotes": [
+            "When a test target resolves to an IPv6 address, ZDX traces the end-to-end path, measuring latency, packet loss, and jitter across each IPv6 hop."
+          ]
+        }
+      ]
+    },
+    "attempts-vs-retries": {
+      "kind": "semantic",
+      "title": "Whether the help's Number of Attempts is the contract's retries, and the Follow Redirect default for custom applications",
+      "status": "open",
+      "detail": "The help says the default is 1 attempt; the contract's WEB monitor defaults to 1 retry (zdx.probes:web-monitor-defaults). Whether these are the same count is not stated. The help also gives no Follow Redirect default for custom applications, where the contract's default is off.",
+      "blocks": "reconciling a console-configured Web probe with the API's monitor fields",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "Event Monitoring & Notification API Codes",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/response-codes/event-monitoring-notification-api-codes",
+    "revision": "08335249.0b620d0f.js",
+    "updated": "2026-10-18",
+    "updated_basis": "first-seen"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "The Event Monitoring & Notification API uses the following response codes and error messages."
+    },
+    {
+      "table": [
+        [
+          "HTTP Code",
+          "Error",
+          "Potential Cause",
+          "Resolution"
+        ],
+        [
+          "400",
+          "BAD_REQUEST",
+          "Malformed JSON or required fields are missing in the subscription request",
+          "Validate the JSON payload and ensure that all required fields are present: name, description, scope, channels, and enabled."
+        ],
+        [
+          "401",
+          "UNAUTHORIZED",
+          "Missing or invalid bearer token",
+          "Verify that the token is valid and has not expired. Regenerate the token if needed."
+        ],
+        [
+          "403",
+          "FORBIDDEN",
+          "Valid token with insufficient scope or role",
+          "Ensure that the API client is assigned the correct role."
+        ],
+        [
+          "404",
+          "NOT_FOUND",
+          "Resource does not exist. This error could occur due to incorrect source key, subscription ID, etc.",
+          "Verify that the resource exists. Use the Catalog APIs to confirm the source, type, and event keys as needed. Use the subscription APIs to confirm that the subscription ID is valid."
+        ],
+        [
+          "429",
+          "RATE_LIMITED",
+          "Too many requests",
+          "Implement exponential backoff and reduce the request rate."
+        ],
+        [
+          "500",
+          "INTERNAL_ERROR",
+          "Unexpected server error",
+          "Check the API service logs. Report to Zscaler Support with the correlation_id information from the response."
+        ]
+      ]
+    },
+    {
+      "heading": "Event Subscriptions Using Amazon SNS",
+      "level": 2
+    },
+    {
+      "text": "The following table lists the HTTPS response codes returned when creating event subscriptions with Amazon Simple Notification Service (SNS), specifically for the step that verifies the Zscaler service's ability to publish to SNS topics (POST /subscriptions/channels/sns:verify)."
+    },
+    {
+      "table": [
+        [
+          "HTTPS Response Code",
+          "Description",
+          "Troubleshooting"
+        ],
+        [
+          "200 OK",
+          "The Zscaler service successfully validated publish access to the SNS topic. It is safe to proceed and create a subscription.",
+          "Verification succeeded. You can proceed to create the subscription that uses the SNS channel."
+        ],
+        [
+          "400 Bad Request",
+          "The request is malformed (e.g., topic_arn is missing or the ARN doesn't match the required regex format).",
+          "Fix the request payload. Common issues include a missing topic_arn in the body or a malformed ARN (missing region, incorrect 12-digit account ID, or invalid characters in topic name)."
+        ],
+        [
+          "404 Not Found",
+          "The endpoint URL is incorrect (e.g., typo in path, missing /subscriptions/channels prefix, etc.). This code is not used to indicate a missing SNS topic in AWS.",
+          "The endpoint path is wrong. Confirm that you are calling POST /subscriptions/channels/sns:verify."
+        ],
+        [
+          "422 Unprocessable Entity",
+          "The request is syntactically valid, but verification failed at AWS. For example, the Zscaler role does not have permission to call sns:GetTopicAttributes on the topic, the topic doesn't exist, or AWS returned another verification error.",
+          "The ARN format is correct, but the Zscaler service cannot actually verify the topic at AWS. Common causes include:The topic policy is missing or incorrectly configured (the Zscaler role does not have sns:Publish or sns:GetTopicAttributes).The topic does not exist in AWS.The wrong region was specified.Key Management Service (KMS) key access is missing if the topic is encrypted with a customer‑managed key."
+        ],
+        [
+          "500 Internal Server Error",
+          "Internal error in the Event Monitoring & Notification API service (not caused by the request).",
+          "Indicates a Zscaler-side issue. Wait briefly and retry with backoff. If the error continues, contact Zscaler Support."
+        ]
+      ]
+    }
+  ]
+}

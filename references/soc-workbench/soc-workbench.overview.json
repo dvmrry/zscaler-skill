@@ -1,0 +1,454 @@
+{
+  "schema_version": 1,
+  "id": "soc-workbench.overview",
+  "title": "SOC Workbench (Agentic SOC): alert unification, correlation and prioritization, and what can be automated",
+  "aliases": [
+    "soc workbench",
+    "agentic soc",
+    "zscaler agentic soc",
+    "soc workbench api",
+    "soc workbench report export",
+    "ai response agent",
+    "alert correlation zscaler"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "portfolio.secops-platform",
+      "because": "portfolio.secops-platform:four-apps"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "breach-predictor.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.incident-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.assets"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{renamed}} {{what-it-is}}"
+    },
+    {
+      "label": "What it does with alerts.",
+      "text": "{{unify-alerts}} {{data-fabric-and-zte}} {{exposure-context}}"
+    },
+    {
+      "label": "Day to day.",
+      "text": "{{workflow}} {{first-five}} {{investigation}} {{response-agent}}"
+    },
+    {
+      "label": "Console pages.",
+      "text": "Incidents, their verdicts and statuses are in [[soc-workbench.incidents]], the rules that group alerts into incidents and the dispatch workflows in [[soc-workbench.incident-rules]], alerts and severity scoring in [[soc-workbench.alerts]], and assets in [[soc-workbench.assets]]. {{dashboard}}"
+    },
+    {
+      "label": "Agentic SOC page.",
+      "text": "{{landing-page}} {{ai-agent-roles}} {{divergence:triage-input}} {{page-totals}} {{triage-sankey}} Defaults and values are open {{gap:page-defaults}}; incident grouping rules are in [[soc-workbench.incident-rules]]."
+    },
+    {
+      "label": "Agents.",
+      "text": "{{agents-page}} {{agent-categories}} {{agent-metrics}} {{agent-detail}} Per-agent details are open {{gap:agent-details}}."
+    },
+    {
+      "label": "Sources.",
+      "text": "Which third-party tools can feed it is not captured: [[portfolio.secops-platform:connector-catalog]]."
+    },
+    {
+      "heading": "Automation"
+    },
+    {
+      "text": "{{no-client-surface}} Its reports are exported through the platform's Reporting API, [[portfolio.secops-platform:reporting-api]], whose contract is open: [[portfolio.secops-platform:reporting-api-contract]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Treat SOC Workbench and Agentic SOC as one product when matching help pages, console menus (SOC Workbench > My Reports) and questions.",
+      "uses": [
+        "renamed",
+        "portfolio.secops-platform:report-schedule"
+      ]
+    },
+    {
+      "do": "For exporting incidents programmatically, use a saved report and the SecOps Reporting API; no client exposes SOC Workbench objects.",
+      "uses": [
+        "no-client-surface",
+        "portfolio.secops-platform:reporting-api"
+      ]
+    }
+  ],
+  "claims": {
+    "landing-page": {
+      "statement": "The Agentic SOC page is the starting point in the Agentic SecOps Platform Admin Portal and shows which sources produce alerts, the total alerts, the incidents created from alerts and the triaged incidents; its data range is set by a date range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-about-agentic-soc.json",
+          "quotes": [
+            "The Agentic SOC page is designed as a starting point in the Agentic SecOps Platform Admin Portal",
+            "You can instantly see which sources are responsible for alerts, the total number of alerts, the number of incidents created from alerts, and the triaged incidents.",
+            "Set the date range for the data on the page."
+          ]
+        }
+      ]
+    },
+    "ai-agent-roles": {
+      "statement": "Agentic SOC uses multiple AI agents (for example enrichment, correlation and triage agents) to enrich alerts, correlate and aggregate them into incidents, and triage the incidents to assign a verdict and criticality.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-about-agentic-soc.json",
+          "quotes": [
+            "Agentic SOC uses multiple AI agents (e.g., enrichment agents, correlation agents, triage agents) to ingest vast amounts of data to enrich alerts with extra context, correlate and aggregate alerts to create incidents, and then triage the incidents to assign a verdict and criticality."
+          ]
+        }
+      ]
+    },
+    "page-totals": {
+      "statement": "The page's alert total counts alerts from all sources enriched by the enrichment agents, its incident total counts incidents correlated by the correlation agents across factors such as users, assets, artifacts and Indicators of Compromise, and alert reduction is the alerts that became actual incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-about-agentic-soc.json",
+          "quotes": [
+            "See the total number of alerts affecting your organization from all alert sources, enriched with extra context from the Agentic SOC enrichment agents.",
+            "See the total number of incidents affecting your organization, correlated and aggregated from alerts across multiple factors (e.g., users, assets, artifacts, Indicators of Compromise, etc.) by the Agentic SOC correlation agents.",
+            "See the total amount of alert reduction (i.e., alerts that became actual incidents)."
+          ]
+        }
+      ]
+    },
+    "triage-sankey": {
+      "statement": "Incidents triaged by the Agentic SOC triage agents carry verdicts, reasoning, contradicting evidence and analysis of discrepancies, and the page's interactive Sankey chart shows how incidents affect the organization, with each area clickable for details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-about-agentic-soc.json",
+          "quotes": [
+            "See the incidents that have been triaged by the Agentic SOC triage agents, which provide verdicts, reasoning, contradicting evidence, and analysis of discrepancies.",
+            "Use an interactive Sankey chart to understand how incidents directly affect your organization.",
+            "You can click the different areas of the Sankey chart to see specific information about each finding:"
+          ]
+        }
+      ]
+    },
+    "dashboard": {
+      "statement": "The SOC Workbench Dashboard shows alert and incident information with trends for the previous 30 days, the mean time to respond for incidents, the top 5 devices affected by incidents, the top 5 high-risk incidents, the top 5 alerts generated by applications versus the number of actual incidents, and where Agentic SOC places the organization's alerts on the MITRE ATT&CK tactics; you set the date range for its data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-about-soc-workbench-dashboard.json",
+          "quotes": [
+            "View alert and incident information, along with trends for the previous 30 days.",
+            "View the mean time to respond for incidents across your organization.",
+            "See a list of the top 5 devices affected by incidents in your organization.",
+            "View a list of the top 5 high-risk incidents in your organization.",
+            "See the top 5 alerts generated by applications vs. the number of actual incidents.",
+            "View where Agentic SOC places the alerts in your organization on the list of MITRE ATT&CK tactics.",
+            "Set the date range for the data on the dashboard."
+          ]
+        }
+      ]
+    },
+    "agents-page": {
+      "statement": "The Agents page is a dashboard that tracks the activity and performance of the AI agents in Agentic SOC; its time range filter applies to the performance metrics and per-agent investigation counts and the default time range is 7 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-about-agents.json",
+          "quotes": [
+            "The Agents page is a dashboard that tracks the activity and performance of your AI agents in Agentic SOC.",
+            "The default time range is 7 days.",
+            "This filter applies to the performance metrics and per-agent investigation counts displayed on the page."
+          ]
+        }
+      ]
+    },
+    "agent-categories": {
+      "statement": "Agents are grouped into the categories Correlation, Data Processing, Email Security, Enrichment, Investigation, Remediation, Response, Security, Triage, User Behavioral Analysis and Utility.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-about-agents.json",
+          "quotes": [
+            "Correlation: Agents that link related alerts and events into unified incidents",
+            "Data Processing: Agents that apply models and scoring logic to raw event data",
+            "Email Security: Agents that evaluate email-based threats and return verdicts",
+            "Enrichment: Agents that augment alerts with additional context",
+            "Investigation: Agents that analyze threat indicators and evidence",
+            "Remediation: Agents that generate and execute response actions across integrated platforms",
+            "Response: Agents that translate detected threats into clear explanations",
+            "Security: Agents that produce structured summaries and reports",
+            "Triage: Agents that perform end-to-end pre-investigation of incoming alerts",
+            "User Behavioral Analysis: Agents that profile user and identity activity",
+            "Utility: Agents that handle data extraction, parsing, and normalization tasks"
+          ]
+        }
+      ]
+    },
+    "agent-metrics": {
+      "statement": "The Agents page reports Alerts Investigated (alerts processed in the time range), FTE Multiplier (time saved divided by the number of days times 8 hours in the range), Time Saved (hours saved on manual work) and Sub-5 Min Resolution (the percentage of alerts resolved under 5 minutes).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-about-agents.json",
+          "quotes": [
+            "Alerts Investigated: Number of alerts processed within your selected time range.",
+            "FTE Multiplier: Time saved divided by the total hours in the selected time range (number of days × 8 hours).",
+            "Time Saved: Hours saved on manual work.",
+            "Sub-5 Min Resolution: Percentage of alerts resolved under 5 minutes."
+          ]
+        }
+      ]
+    },
+    "agent-detail": {
+      "statement": "Clicking an agent card shows the agent's job description and a filtered list of all alerts it has impacted, and you can customize, download and share that Alerts table or open the list on the Alerts page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-about-agents.json",
+          "quotes": [
+            "Click an agent card to view the agent's job description and a filtered list of all alerts the agent has impacted.",
+            "Customize, download, and share the Alerts table.",
+            "Open the list of alerts on the Alerts page."
+          ]
+        }
+      ]
+    },
+    "renamed": {
+      "statement": "The help article previously at the SOC Workbench address (/soc-workbench/what-zscaler-soc-workbench) is titled What Is Zscaler Agentic SOC? and now lives under /agentic-soc with its sibling article, the old address redirecting to it; current help calls the product Agentic SOC.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "soc-what-zscaler-soc-workbench.json",
+          "pointer": "",
+          "expect": {
+            "title": "What Is Zscaler Agentic SOC?"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "soc-what-zscaler-soc-workbench.json",
+          "pointer": "/source",
+          "expect": {
+            "url": "https://help.zscaler.com/agentic-soc/what-zscaler-agentic-soc",
+            "aliases": [
+              "https://help.zscaler.com/soc-workbench/what-zscaler-soc-workbench"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-understanding-zscaler-agentic-soc.json",
+          "pointer": "/source",
+          "expect": {
+            "url": "https://help.zscaler.com/agentic-soc/understanding-zscaler-agentic-soc"
+          }
+        }
+      ],
+      "conditions": "Rests on the captured titles and URLs; no captured page states the rename in words."
+    },
+    "what-it-is": {
+      "statement": "Agentic SOC is a unified platform that uses a multi-agentic AI approach to prioritize and triage threats, with risk-based prioritization that weighs a threat's business context.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "soc-what-zscaler-soc-workbench.json",
+          "quotes": [
+            "Agentic SOC uses a multi-agentic AI approach to provide rich, context-driven data",
+            "Agentic SOC is a unified platform to prioritize and triage threats so that you can rapidly resolve business-critical incidents.",
+            "Agentic SOC provides risk-based prioritization that focuses not only on a threat but also its business context."
+          ]
+        }
+      ]
+    },
+    "unify-alerts": {
+      "statement": "It tracks Zscaler alerts and alerts from third-party applications (for example Gmail and CrowdStrike) in a single console, with visibility across assets, identities and exposures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-understanding-zscaler-agentic-soc.json",
+          "quotes": [
+            "Agentic SOC lets you track not only Zscaler alerts, but also alerts from third-party applications (e.g., Gmail, CrowdStrike) in a single console",
+            "Agentic SOC provides visibility across assets, identities, and exposures in a unified application."
+          ]
+        }
+      ]
+    },
+    "data-fabric-and-zte": {
+      "statement": "It is powered by the Zscaler Data Fabric for Security, and its integration with the Zero Trust Exchange adds threat context and initiates inline controls to mitigate risk automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-understanding-zscaler-agentic-soc.json",
+          "quotes": [
+            "Powered by the Zscaler Data Fabric for Security, Agentic SOC transforms isolated alerts from across your security stack into a prioritized, holistic view of threats.",
+            "Seamless integration with the Zero Trust Exchange (ZTE) platform provides additional threat context and initiates inline controls to automatically mitigate risk."
+          ]
+        }
+      ]
+    },
+    "exposure-context": {
+      "statement": "As part of the Agentic SecOps Platform portfolio, it connects exposure insights with threat prioritization, so vulnerable assets and identities are factored into weighted results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-understanding-zscaler-agentic-soc.json",
+          "quotes": [
+            "As part of the Agentic Security Operations Platform (Agentic SecOps Platform) portfolio, Agentic SOC also connects exposure insights with threat prioritization, ensuring that vulnerable assets and identities are factored into weighted results."
+          ]
+        }
+      ]
+    },
+    "workflow": {
+      "statement": "It pulls first-party data from Zscaler products and integrates with third-party solutions, enriches each alert with identity, asset, location and threat-intelligence metadata at the fabric layer, groups alerts into incidents, and scores incidents by risk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-understanding-zscaler-agentic-soc.json",
+          "quotes": [
+            "Agentic SOC pulls in first-party data from Zscaler products and integrates seamlessly with third-party solutions.",
+            "Each alert is enhanced with contextual metadata (like identity, asset, location, and threat intelligence) at the fabric layer.",
+            "Alerts are analyzed and intelligently grouped into incidents, representing the full attack story rather than isolated data points.",
+            "Risk-based scoring identifies high-priority incidents requiring immediate action"
+          ]
+        }
+      ]
+    },
+    "first-five": {
+      "statement": "Its AI-driven threat analysis turns raw alerts into contextualized threats and uses historical attack patterns to identify the first 5 things to address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-understanding-zscaler-agentic-soc.json",
+          "quotes": [
+            "Agentic SOC's AI-driven threat analysis transforms raw alerts into contextualized, actionable threats.",
+            "leveraging historical attack patterns to identify the first 5 things you must address in your environment."
+          ]
+        }
+      ]
+    },
+    "investigation": {
+      "statement": "It accelerates investigations by providing all threat details on a single page, along with log search from one unified location and the asset impact on the same page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-understanding-zscaler-agentic-soc.json",
+          "quotes": [
+            "accelerate investigations by providing all threat details on a single page, as well as the ability to search logs from one unified location, understand the asset impact on the same page"
+          ]
+        }
+      ]
+    },
+    "response-agent": {
+      "statement": "The AI Response Agent takes triaged incidents and provides targeted remediation recommendations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "soc-what-zscaler-soc-workbench.json",
+          "quotes": [
+            "Agentic SOC's AI Response Agent takes triaged incidents and provides targeted remediation recommendations"
+          ]
+        }
+      ]
+    },
+    "no-client-surface": {
+      "statement": "No vendored client covers SOC Workbench or Agentic SOC: the Go and Python SDKs, the Terraform providers, the Ansible collections, the MCP server, the OneAPI Postman collection and the captured Automate contract have no such service.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "used in your server-side code to interact with the Zscaler API platform across multiple products such as:"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. The Python README's product list (introduced by the quoted line) names neither, and at the pins `git grep -i -E 'soc.workbench|agentic.soc'` finds nothing in the Go or Python SDKs, the ZIA, ZPA, ZCC or ZTC providers, the Ansible collections or the MCP server; the Postman collection has no match. The MCP server's Z-Insights tools report aggregate analytics and are a separate product."
+    }
+  },
+  "divergences": {
+    "triage-input": {
+      "summary": "The Agentic SOC page says triage agents triage incidents, while the Agents article says triage agents pre-investigate incoming alerts.",
+      "positions": [
+        {
+          "says": "The triage agents triage incidents to assign a verdict and criticality.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "agentic-soc-about-agentic-soc.json",
+            "quotes": [
+              "and then triage the incidents to assign a verdict and criticality."
+            ]
+          }
+        },
+        {
+          "says": "Triage agents perform end-to-end pre-investigation of incoming alerts.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "agentic-soc-about-agents.json",
+            "quotes": [
+              "Triage: Agents that perform end-to-end pre-investigation of incoming alerts"
+            ]
+          }
+        }
+      ],
+      "impact": "Whether triage runs on each alert before correlation or on the correlated incident is not stated; the incident rules article describes rules that group alerts into incidents. Not observed."
+    }
+  },
+  "gaps": {
+    "page-defaults": {
+      "kind": "semantic",
+      "title": "Agentic SOC page default date range, Sankey chart nodes and verdict values",
+      "status": "open",
+      "detail": "The captured Agentic SOC page gives no default date range for its totals, no list of the Sankey chart's nodes or areas, and no list of the verdict values the triage agents assign.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "agent-details": {
+      "kind": "semantic",
+      "title": "Per-agent list, Time Saved formula and dashboard limits",
+      "status": "open",
+      "detail": "The captured Agents article gives no per-agent list or job descriptions (the agent detail view holds them), no formula for Time Saved and no retention for the per-agent counts; the dashboard article states no retention or maximum date range.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

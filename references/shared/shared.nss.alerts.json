@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.alerts",
+  "title": "NSS and Cloud NSS alert feeds: levels, triggers, thresholds and the Cloud NSS alert format",
+  "aliases": [
+    "nss alerts",
+    "nss alert feed",
+    "cloud nss alerts",
+    "data lag alert",
+    "data loss alert",
+    "siem health alert",
+    "nss cpu alert",
+    "nss swap alert"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feed-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.reliability"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-operations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{vm-alert-levels-format}} The vendor names the format two ways {{divergence:syslog-naming}}."
+    },
+    {
+      "label": "What a VM alert feed raises.",
+      "text": "{{vm-alert-list}} Which level the CPU and swap alerts are sent at is ambiguous {{gap:alert-table-layout}}."
+    },
+    {
+      "label": "Thresholds.",
+      "text": "{{vm-alert-thresholds}}"
+    },
+    {
+      "label": "Feed shape.",
+      "text": "{{vm-alert-feed-fields}} The settings the alert feeds lack are open {{gap:alert-feed-absent-settings}}."
+    },
+    {
+      "label": "Cloud NSS.",
+      "text": "{{cloud-alert-types}} {{cloud-alert-format}}"
+    }
+  ],
+  "claims": {
+    "vm-alert-levels-format": {
+      "statement": "A separate TCP NSS feed can carry alerts that monitor the Nanolog Streaming Service, at the level Critical, Warn, or both. The service sends the alerts in RFC 3164 The BSD syslog Protocol format to the specified IP address and port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-alerts.json",
+          "quotes": [
+            "You can configure a separate feed for alerts, so you can monitor the Nanolog Streaming Service (NSS). You can select the level at which alerts are sent: Critical, Warn, or both.",
+            "The service sends the alerts in RFC 3164 The BSD syslog Protocol format to the specified IP address and port."
+          ]
+        }
+      ]
+    },
+    "vm-alert-list": {
+      "statement": "The TCP alerts table lists the alerts that are sent for each level, in the columns Warning and Critical. Its Warning column has the connection to the SIEM, to the Zscaler Central Authority (CA) and to the Nanolog being down. Its Critical column has memory being low, disk space being low, and a poor connection between the NSS and the SIEM, where the NSS can drop some logs if connectivity doesn't improve, and its last cell also names high CPU utilization and high memory swap.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-alerts.json",
+          "quotes": [
+            "The table lists the alerts that are sent for each level.",
+            "| Warning | Critical |",
+            "| The connection to the SIEM is down | Memory is low |",
+            "| The connection to the Zscaler Central Authority (CA) is down | Disk space is low |",
+            "| The connection to the Nanolog is down | The connection between the NSS and the SIEM is poor. The NSS can drop some logs if connectivity doesn't improve. The CPU utilization is high Memory swap is high |"
+          ]
+        }
+      ]
+    },
+    "vm-alert-thresholds": {
+      "statement": "An alert is sent if the SIEM-to-NSS connection is down for 5 minutes, and then every 30 minutes. For the NSS to CA / Nanolog connection down, an alert is generated at 30 minutes and every 1 hour after. CPU utilization above 85% for 3 minutes sends a warning and above 95% for 1 minute a critical alert; swap memory utilization above 30% sends a warning and above 70% a critical alert.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-alerts.json",
+          "quotes": [
+            "An alert is sent if the SIEM-to-NSS connection is down for 5 minutes. After that, an alert is generated every 30 minutes to say the connection is down.",
+            "The alert is generated if the NSS to CA / Nanolog connection is down for 30 minutes, and an alert is generated every 1 hour after that.",
+            "If the CPU utilization is more than 85% for 3 minutes, a warning alert is sent. If the CPU utilization is more than 95% for 1 minute, then a critical alert is sent.",
+            "If the swap memory utilization is more than 30%, a warning alert is sent. If the utilization is more than 70%, a critical alert is sent."
+          ]
+        }
+      ]
+    },
+    "vm-alert-feed-fields": {
+      "statement": "Alert feeds are configured with Log Type Alert in both the TCP and the HTTP NSS feed articles, and the HTTP article lets the admin select the levels at which alerts are sent, Critical, Warn, or both, with multiple levels allowed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-alerts.json",
+          "quotes": [
+            "Log Type: Choose Alert."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-alerts.json",
+          "quotes": [
+            "Log Type: Choose Alert.",
+            "Select at which levels alerts are sent: Critical, Warn, or both. You can select multiple alert levels."
+          ]
+        }
+      ]
+    },
+    "cloud-alert-types": {
+      "statement": "A separate Cloud NSS feed can monitor Cloud NSS feeds for data lag, data loss and the connection to the SIEM. Data Lag alerts after 10 minutes of lag time and then every 30 minutes until resolved, Data Loss alerts every minute, and SIEM Health, for a connection timeout, certificate issue or request type issue such as POST or PUT not supported on the endpoint, alerts every 30 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-alerts.json",
+          "quotes": [
+            "You can configure a separate Cloud NSS feed for alerts, enabling you to monitor your Cloud NSS feeds for data lag, data loss, and the connection to your cloud-based security information and event management (SIEM) system.",
+            "| Data Lag | The Cloud NSS feed is lagging. | After 10 minutes of lag time, and then every 30 minutes until resolved |",
+            "| Data Loss | The Cloud NSS feed is losing log data. | Every minute |",
+            "| SIEM Health | The connection between the Cloud NSS feed and the SIEM is unhealthy due to a connection timeout, certificate issue, or request type issue (e.g., POST or PUT is not supported on the endpoint). | Every 30 minutes |"
+          ]
+        }
+      ]
+    },
+    "cloud-alert-format": {
+      "statement": "Cloud NSS sends alert log data in JSON format to the SIEM. The article's field table includes %d{alert_source}, which identifies the Cloud NSS node for Zscaler Support, %s{alert_title} with values Data Lag, Data Loss or SIEM Health, and %s{severity} with values Warning or Critical.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-alerts.json",
+          "quotes": [
+            "Cloud NSS sends alert log data in JSON format to your SIEM.",
+            "| %d{alert_source} | The alert source. Zscaler Support can use this information to identify from which Cloud NSS node the alert was triggered. | <Cloud NSS System ID> |",
+            "| %s{alert_title} | The alert title | Data Lag \\| Data Loss \\| SIEM Health |",
+            "| %s{severity} | The alert severity | Warning \\| Critical |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "syslog-naming": {
+      "summary": "The syslog overview and the alerts article name the BSD syslog format differently.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-syslog-overview.json",
+            "quotes": [
+              "RFC 5424 is now the standard BSD syslog format."
+            ]
+          },
+          "says": "The syslog overview calls RFC 5424 the standard BSD syslog format."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-tcp-nss-feeds-alerts.json",
+            "quotes": [
+              "The service sends the alerts in RFC 3164 The BSD syslog Protocol format to the specified IP address and port."
+            ]
+          },
+          "says": "The alerts article calls RFC 3164 The BSD syslog Protocol and says alerts are sent in that format."
+        }
+      ],
+      "impact": "Which RFC the VM alert feed follows is taken from the alerts article; the overview's naming cannot be read as saying alerts are RFC 5424."
+    }
+  },
+  "gaps": {
+    "alert-table-layout": {
+      "kind": "semantic",
+      "title": "Which level the CPU and swap alerts belong to",
+      "status": "open",
+      "detail": "The TCP alerts table puts high CPU utilization and high memory swap in the last cell of its Critical column, while the text below it gives both a warning and a critical threshold for each. Which level each of those two alerts is sent at is therefore ambiguous.",
+      "blocks": "choosing Critical or Warn for an alert feed that should carry CPU and swap alerts",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "alert-feed-absent-settings": {
+      "kind": "semantic",
+      "title": "Settings the alert feeds do not have",
+      "status": "open",
+      "detail": "A diff of the feed articles showed the TCP alert feed without an output type, escape character or output format, and the HTTP alert feed with the usual HTTP destination settings and JSON Array Notation but no output format. An absence cannot be quoted, so it is not claimed.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

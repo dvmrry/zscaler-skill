@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "id": "shared.cloud-architecture.trust-model",
+  "title": "Private Access certificate trust: tenant CAs, Zscaler PKI, pinning and key custody",
+  "aliases": [
+    "zpa pki",
+    "zpa certificate model",
+    "mutually pinned tls",
+    "tenant certificate authority",
+    "certificate pinning zpa",
+    "cross-tenant isolation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.data-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.tunnels"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Private Access authenticates both ends of every connection with certificates from two different authorities. [[zpa.private-service-edges.data-path:pki-roles]]"
+    },
+    {
+      "label": "Who accepts whom.",
+      "text": "{{mutual-acceptance}} The same rule for App Connectors: [[zpa.app-connectors.enrollment:cert-signed-by-tenant-ca]]. [[zpa.private-service-edges.data-path:no-mitm-pinning]] [[zpa.private-service-edges.data-path:identity-key-only]]"
+    },
+    {
+      "label": "Key custody.",
+      "text": "[[zpa.app-connectors.enrollment:offline-signing]] [[zpa.app-connectors.enrollment:private-keys-stay-on-device]] {{tenant-ca-keys-encrypted}}"
+    },
+    {
+      "label": "What follows.",
+      "text": "{{per-tenant-isolation}} {{chain-before-policy}}"
+    },
+    {
+      "label": "Expiry and clocks.",
+      "text": "How long a connector certificate lasts and how it renews is open: [[zpa.app-connectors.enrollment:certificate-validity-window]]. A wrong connector clock delays enrollment: [[zpa.app-connectors.enrollment:clock-skew-delays-cert]]. An SSL-intercepting device in the path breaks the pinned connection: [[zpa.private-service-edges.data-path:ssl-interception-unsupported]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When a connector or client cannot connect, check certificate trust (interception device, clock, enrollment) before access policy.",
+      "uses": [
+        "chain-before-policy",
+        "zpa.private-service-edges.data-path:ssl-interception-unsupported",
+        "zpa.app-connectors.enrollment:clock-skew-delays-cert"
+      ]
+    }
+  ],
+  "claims": {
+    "mutual-acceptance": {
+      "statement": "Private Access accepts Zscaler Client Connector connections only with a client certificate signed by a CA associated with the tenant, and Client Connector and App Connector connect only to Private Access components that present a certificate signed by the Private Access infrastructure PKI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Private Access only accepts connections from Zscaler Client Connector and the App Connector instances that present a client certificate signed by a CA associated with each tenant.",
+            "Zscaler Client Connector and App Connector will only connect to Private Access service components that present a certificate signed by the Private Access infrastructure PKI."
+          ]
+        }
+      ]
+    },
+    "tenant-ca-keys-encrypted": {
+      "statement": "The private keys for each organization's CA, which the article expands as Central Authority, are stored in encrypted format (AES256-GCM).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "The private keys for each organization's Central Authority (CA) are stored in encrypted format (i.e., AES256-GCM)."
+          ]
+        }
+      ],
+      "conditions": "The article expands CA here as Central Authority, although the surrounding paragraph is about certificates signed by each organization's CA."
+    },
+    "per-tenant-isolation": {
+      "statement": "Because client certificates are verified against a CA associated with the tenant, a Client Connector or App Connector certificate issued for one tenant is not expected to authenticate to another tenant's Private Access.",
+      "tier": "B",
+      "derived_from": [
+        "mutual-acceptance",
+        "zpa.app-connectors.enrollment:cert-signed-by-tenant-ca"
+      ],
+      "conditions": "Inference from the per-tenant signing scope; no source states the cross-tenant case."
+    },
+    "chain-before-policy": {
+      "statement": "A connection whose certificate does not verify is rejected before any request crosses it, so such a failure points to the certificate chain, an interception device or the clock rather than to access policy.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.private-service-edges.data-path:ztunnel-mutual-tls",
+        "mutual-acceptance",
+        "zpa.private-service-edges.data-path:ssl-interception-unsupported",
+        "zpa.app-connectors.enrollment:clock-skew-delays-cert"
+      ],
+      "conditions": "Inference: all component traffic runs inside the mutually verified TLS connection, so policy cannot be reached without it. No source describes the failure sequence."
+    }
+  }
+}

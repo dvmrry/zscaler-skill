@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { isKbProse } from "./kb-lib.mjs";
 
 const DEFAULT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const LINK_RE = /\[[^\]]*]\(([^)]+)\)/g;
@@ -46,7 +47,8 @@ function walk(current, files) {
     const fullPath = path.join(current, entry.name);
     if (entry.isDirectory()) {
       walk(fullPath, files);
-    } else if (entry.isFile() && entry.name.endsWith(".md")) {
+    } else if (entry.isFile() && entry.name.endsWith(".md") && !isKbProse(fullPath)) {
+      // Knowledge-graph prose is checked by `kb.mjs validate`, not here.
       files.push(fullPath);
     }
   }
@@ -124,8 +126,8 @@ async function checkLinks(root, files, checkUrls) {
         if (!(await checkUrl(target))) {
           brokenUrls.push(`${relFile} -> ${target}`);
         }
-      } else if (target.startsWith("mailto:") || target.startsWith("#")) {
-        // mailto: and in-page anchors need no resolution
+      } else if (target.startsWith("mailto:") || target.startsWith("#") || target.startsWith("kb:")) {
+        // mailto: and in-page anchors need no resolution; kb: links are checked by `kb.mjs validate`
       } else {
         totalPaths += 1;
         const relativePath = targetPath(target);

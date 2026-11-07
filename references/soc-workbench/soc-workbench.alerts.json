@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "id": "soc-workbench.alerts",
+  "title": "Alerts in Agentic SOC: the Alerts page, severity score composition, alert-score factors and severity categories",
+  "aliases": [
+    "severity score",
+    "alert score",
+    "severity settings"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.assets"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{page-columns}} {{page-actions}} Custom incidents are created from selected alerts, see [[soc-workbench.incidents]]."
+    },
+    {
+      "label": "Severity score.",
+      "text": "{{score-composition}} {{score-factors}} {{score-range-per-factor}} {{severity-range-preview}} How the two scales relate is open {{gap:score-scale-relation}}."
+    },
+    {
+      "label": "Severity categories.",
+      "text": "{{severity-categories}} {{severity-apply-timing}} The default ranges and weights are not given {{gap:score-defaults}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When a severity category change takes effect: per the Configuring Severity Categories article, Save applies at the next processing, Save & Run immediately.",
+      "uses": [
+        "severity-apply-timing"
+      ]
+    }
+  ],
+  "claims": {
+    "page-columns": {
+      "statement": "The Alerts page shows by default, for each alert, a Severity Score, the MITRE ATT&CK Tactic and Technique, a Verdict, the Original Severity (as determined by the source application) and Sources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-about-alerts.json",
+          "quotes": [
+            "For each alert, you can see the following by default:",
+            "Severity Score: The severity score of the alert.",
+            "Tactic: The MITRE ATT&CK tactic for the alert.",
+            "Technique: The MITRE ATT&CK technique for the alert.",
+            "Verdict: The verdict for the alert (e.g., Malicious, Suspicious, Benign)",
+            "Original Severity: The severity as determined by the source application.",
+            "Sources: The source of the alert (e.g., alerts sent by Zscaler use the Zscaler logo)."
+          ]
+        }
+      ]
+    },
+    "page-actions": {
+      "statement": "The Alerts page shows the number of alerts received from each integrated product, the spread of severity scores across products, and alerts received versus identified incidents, and lets you create an incident from selected alerts and export the table to a CSV file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-about-alerts.json",
+          "quotes": [
+            "See the number of alerts received from each integrated product.",
+            "View the spread of severity scores across products.",
+            "See the number of alerts received from integrated products vs. the number of identified incidents.",
+            "Create an incident based on one or more alerts selected in the table.",
+            "export table data to a CSV file"
+          ]
+        }
+      ]
+    },
+    "score-composition": {
+      "statement": "Agentic SOC adds the total score from each factor to produce the overall severity score, and you can drill down into an alert to see how the score was calculated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-understanding-severity-scores.json",
+          "quotes": [
+            "Agentic SOC then adds the total score from each factor to produce the overall severity score.",
+            "You can drill down into the details for an alert to see how Agentic SOC calculated the severity score."
+          ]
+        }
+      ]
+    },
+    "score-range-per-factor": {
+      "statement": "The Understanding Severity Scores page says individual severity scores typically range from 0 to 10, where a higher score indicates greater criticality.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-understanding-severity-scores.json",
+          "quotes": [
+            "Individual severity scores typically range from 0 to 10, where a higher score indicates greater criticality"
+          ]
+        }
+      ]
+    },
+    "severity-range-preview": {
+      "statement": "The Configuring Severity Categories page tells you to ensure the entire score range (that is, 0 to 100) is fully accounted for.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-severity-categories.json",
+          "quotes": [
+            "ensure the entire score range (i.e., 0 to 100) is fully accounted for."
+          ]
+        }
+      ]
+    },
+    "score-factors": {
+      "statement": "You can customize alert scoring at Settings > Scoring by creating or editing factors for alerts, MITRE ATT&CK classifications, users and assets; the Field options change by section, and the Factor Name must be unique and by default takes the value of the Field drop-down.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-alert-scores.json",
+          "quotes": [
+            "you can customize alert scoring by creating new factors or editing existing factors for alerts, MITRE ATT&CK classifications, users, and assets.",
+            "go to Settings > Scoring."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-alert-scores.json",
+          "after": "Update an Existing Factor",
+          "quotes": [
+            "The options in the Field change based on whether you are adding a factor for the Alert section, the MITRE ATT&CK section, the User section, or the Asset section.",
+            "Factor Name: Specify a unique name for the factor. By default, Agentic SOC uses the value from the Field drop-down menu to populate the Factor Name field."
+          ]
+        }
+      ],
+      "conditions": "The create and edit procedures repeat identical text; the anchored quotes are the first occurrence after the anchor line."
+    },
+    "severity-categories": {
+      "statement": "For each severity category (Critical, High, Medium, Low, Info), Score starts at is the minimum score, which is included in the category, and Score is less than is an optional cutoff. The settings cannot be saved if gaps between ranges are not assigned to a category, and ranges must be unique (non-overlapping) and in ascending numerical order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-severity-categories.json",
+          "quotes": [
+            "For each severity category (i.e., Critical, High, Medium, Low, Info):",
+            "Score starts at: Enter the minimum score where the severity category starts. The minimum score is included in the category.",
+            "Score is less than: Enter the maximum score as an optional cutoff.",
+            "The settings cannot be saved if there are gaps between ranges that are not assigned to a category.",
+            "severity ranges must be unique (non-overlapping) and ordered in ascending numerical value."
+          ]
+        }
+      ]
+    },
+    "severity-apply-timing": {
+      "statement": "Saving severity settings applies them the next time the finding or the ticket entity is processed, while Save & Run applies them immediately to the account; the configured categories can be used in dashboards and charts throughout the Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-severity-categories.json",
+          "quotes": [
+            "Click Save. The severity settings apply the next time the finding or the ticket entity is processed.",
+            "select Save & Run to save the settings and immediately apply them to your account.",
+            "The configured severity categories can then be used in dashboards and charts throughout the Agentic SecOps Platform Admin Portal."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "score-scale-relation": {
+      "kind": "semantic",
+      "title": "How the 0 to 10 per-factor scores relate to the 0 to 100 severity range",
+      "status": "open",
+      "detail": "One page says individual scores typically range from 0 to 10 and that the overall score is the sum of factor scores; another says the score range to cover is 0 to 100. No captured page states how many factors there are, whether factor scores are weighted or scaled, or the overall score's range.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "score-defaults": {
+      "kind": "semantic",
+      "title": "Default score ranges per category, factor weights and default factors",
+      "status": "open",
+      "detail": "No captured article gives the default score range for Critical, High, Medium, Low and Info, the factor weights or the default factors, nor the permissions that scoring and severity settings need.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

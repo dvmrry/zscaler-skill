@@ -1,0 +1,866 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Decoy Connector Deployment Guide for Microsoft Azure",
+  "source": {
+    "url": "https://help.zscaler.com/deception/decoy-connector-deployment-guide-microsoft-azure",
+    "node": "1542263",
+    "revision": "3221869",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy a Decoy Connector on Microsoft Azure, how to configure the Decoy Connector network interface, and how to connect the Decoy Connectorr to the Zscaler Deception Admin Portal."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before deploying a Decoy Connector, Zscaler strongly recommends reading the following information and making the necessary changes to your organization's environment, where applicable."
+    },
+    {
+      "item": "Ensure that you have outbound access to TCP port 443 from the Decoy Connector management IP address to the following hosts:",
+      "depth": 0
+    },
+    {
+      "item": "Deception Admin Portal",
+      "depth": 1
+    },
+    {
+      "item": "Aggregator",
+      "depth": 1
+    },
+    {
+      "item": "ib.smokescreen.io",
+      "depth": 1
+    },
+    {
+      "item": "rs.smokescreen.io",
+      "depth": 1
+    },
+    {
+      "item": "If required, you can configure proxy for a Decoy Connector and pass the network connections through the proxy server. However, you must turn off all inspection features for the hosts in the preceding list and also ensure that the proxy provides unfiltered access to TCP port 443 for these destinations.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you have:",
+      "depth": 0
+    },
+    {
+      "item": "An Azure account with admin privileges to do the following:",
+      "depth": 1
+    },
+    {
+      "item": "Upload an image to the Azure Blob storage.",
+      "depth": 2
+    },
+    {
+      "item": "Create an image from the Decoy Connector image (.vhd file) in the block storage.",
+      "depth": 2
+    },
+    {
+      "item": "Create a new virtual machine (VM) from the Decoy Connector image.",
+      "depth": 2
+    },
+    {
+      "item": "50 GB disk storage. An SSD-backed storage is recommended.",
+      "depth": 1
+    },
+    {
+      "heading": "Deploying a Decoy Connector on Azure",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to deploy a Decoy Connector on Azure:"
+    },
+    {
+      "item": "Step 1: Download the VM Image File From the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "Go to Settings > Topology > Decoy Connector.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          25
+        ],
+        [
+          28,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Click Download Image and select HyperV to download the image (.vhd.zip) file.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          32,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Extract the file to your system. You need to access the virtual hard disk (.vhd) file to complete the deployment.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Step 2: Deploy the Decoy Connector on Azure",
+      "depth": 0
+    },
+    {
+      "item": "To deploy a Decoy Connector on Azure:",
+      "depth": 0
+    },
+    {
+      "item": "a. Create a Decoy Connector VM on Azure.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure portal using your credentials.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Azure services > Storage accounts.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select a storage account.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the left-side navigation, go to Data storage > Containers.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          35,
+          47
+        ],
+        [
+          50,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select a container, and then click Upload.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          35,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Upload blob window, click the Select a file icon to find and select the image (.vhd ) file that you downloaded in Step 1, and then click Upload.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          37,
+          50
+        ],
+        [
+          144,
+          150
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to Azure services > Images.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Basics tab:",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Under Project details section, choose a Resource group.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          40,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Under Instance details section:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Enter a Name for the image.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          8,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Select a Region from the drop-down menu.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Under OS disk section:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "For OS type, select Linux.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          4,
+          11
+        ],
+        [
+          20,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "For VM generation, select Gen 1.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          4,
+          17
+        ],
+        [
+          26,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "For Storage blob, click Browse and select the image (.vhd) file that you uploaded.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          4,
+          16
+        ],
+        [
+          24,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "For Account type, select Standard SSD from the drop-down menu, and then configure the rest of the general information for the VM.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          4,
+          16
+        ],
+        [
+          25,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Click Review + create.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Review + create tab, review the image configuration, and then click Create.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          75,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Make sure that the image is deployed successfully.",
+      "depth": 2,
+      "number": 12
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to Azure services > Virtual machines.",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click the Create drop-down menu, and then click Azure virtual machine.",
+      "depth": 2,
+      "number": 14,
+      "strong": [
+        [
+          10,
+          16
+        ],
+        [
+          48,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Basics tab:",
+      "depth": 2,
+      "number": 15,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Under the Project details section, choose a Resource group from the drop-down menu.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          25
+        ],
+        [
+          44,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Under the Instance details section, enter the Virtual machine name.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          26
+        ],
+        [
+          46,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Select a Region. Ensure that you select the same region that you specified while configuring the image.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "For Image, select the image that you deployed.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          4,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "For Size, select Standard_B2s – 2vcpus, 4 GiB memory from the drop-down menu, and then configure the rest of the general information for the VM.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          4,
+          8
+        ],
+        [
+          17,
+          38
+        ],
+        [
+          40,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Zscaler Deception Decoy Connector VM does not use the administrator's credentials configured at the time of the VM creation.",
+      "depth": 2
+    },
+    {
+      "item": "On the Networking tab, under the Network interface section, select SSH (22) for the Select inbound ports drop-down menu.",
+      "depth": 2,
+      "number": 16,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          33,
+          50
+        ],
+        [
+          67,
+          75
+        ],
+        [
+          84,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Click Review + create.",
+      "depth": 2,
+      "number": 17,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Review + create tab, review the VM configuration, and then click Create.",
+      "depth": 2,
+      "number": 18,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          72,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "After connection of the Decoy Connector to the Deception Admin Portal is completed, the Public inbound ports option under the Networking tab can be set to None.",
+      "depth": 2,
+      "strong": [
+        [
+          88,
+          108
+        ],
+        [
+          126,
+          136
+        ],
+        [
+          155,
+          160
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Make sure that the VM is deployed successfully.",
+      "depth": 2,
+      "number": 19
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To add decoys, each Decoy Connector VM needs to have at least two network interfaces. Therefore, you must add another network interface.",
+      "depth": 1
+    },
+    {
+      "item": "b. Add a network interface to the Decoy Connector VM on Azure.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure portal using your credentials.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Azure services > Virtual machines.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the VM for which you want to configure an additional network interface. Make sure the VM is not running.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "For the VM, in the left-side navigation, go to Settings > Networking.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          47,
+          55
+        ],
+        [
+          58,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Networking page, click Attach network interface.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          30,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Attach network interface page, click Create and attach network interface, and then click OK.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          44,
+          79
+        ],
+        [
+          96,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Create network interface window, under Network interface section:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          46,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Enter a Name for the network interface.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          8,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Select a Subnet where you want to configure the decoys.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Select a security group that allows inbound access to the IP address.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Select either the Dynamic or Static IP address option per your requirement.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          18,
+          25
+        ],
+        [
+          29,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Make sure the network interface is created on the Attach network interface page, select the network interface, and then click OK.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          50,
+          74
+        ],
+        [
+          126,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "Start the VM.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "For a VM, each network interface can be in a different subnet. However, all of the network interfaces must be a part of the same virtual network.",
+      "depth": 2
+    },
+    {
+      "item": "The number of network interfaces that you can add to a VM depends on its image size. The recommended image size is Standard_B2s, which allows you to add three network interfaces to a VM.",
+      "depth": 2
+    },
+    {
+      "item": "You can deploy only one network decoy on each interface.",
+      "depth": 2
+    },
+    {
+      "item": "Step 3: Add and Connect the Decoy Connector to the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "You need to add the Decoy Connector and connect it to the Deception Admin Portal.",
+      "depth": 0
+    }
+  ]
+}

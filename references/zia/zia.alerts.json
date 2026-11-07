@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "id": "zia.alerts",
+  "title": "ZIA email alerts: event classes, thresholds, severities, subscriptions and the resend interval",
+  "aliases": [
+    "alerts",
+    "alert subscriptions",
+    "Define Alerts",
+    "alert class",
+    "Minimum Occurrences",
+    "Within Time Interval",
+    "resending alerts",
+    "Global Configuration alerts",
+    "Policy Violation alert"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.botnet"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.alerts.security-ueba"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.alerts.rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose-and-limit}} {{classes}}"
+    },
+    {
+      "label": "Defining an alert.",
+      "text": "{{definition}} {{policy-violation-event}} {{severity-tiers}} The page's worked example uses an occurrence count the field does not offer {{divergence:severity-example-count}}. {{disable}}"
+    },
+    {
+      "label": "Security events and logged fields.",
+      "text": "{{security-events-and-log-fields}}"
+    },
+    {
+      "label": "Who receives them.",
+      "text": "{{subscriptions}} Which subscriptions enable which classes is not mapped {{gap:subscription-class-map}}. {{resend-interval}} The default interval, and whether resending can be turned off, are not stated {{gap:resend-default}}."
+    },
+    {
+      "label": "Lists.",
+      "text": "{{pages}} Only email delivery is described on these pages; the Alerts dashboard, Alert Rules and Webhooks that the admin role page mentions are in [[zia.alerts.security-ueba]] and [[zia.alerts.rules]] {{gap:alerts-dashboard-and-webhooks}}. Whether the Policy Violation total is counted per Applies To scope is not stated {{gap:policy-violation-scope}}, and the OpenAPI, SDKs and Terraform were not checked for an alert API {{gap:api-surface}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which occurrence counts and intervals the form offers, rather than the 500 in the page's example.",
+      "uses": [
+        "definition",
+        "severity-example-count"
+      ]
+    },
+    {
+      "do": "Whether the recipient's subscription includes the alert's class at the alert's severity.",
+      "uses": [
+        "subscriptions"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose-and-limit": {
+      "statement": "ZIA alerts email chosen recipients when chosen events occur, for example malware detected in either direction or a policy violation; an organization can create up to 128 alerts, and a received alert is investigated through the event's logs in Analytics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-alerts.json",
+          "quotes": [
+            "You can configure the Zscaler service to email specific individuals when certain events occur, so your organization can take action in a timely manner.",
+            "You can create up to 128 alerts.",
+            "You can create an alert for different types of events, such as when the service detects incoming or outgoing malware or when there is a policy violation. When you receive an alert, you can investigate it by going to Analytics and viewing logs of the event."
+          ]
+        }
+      ]
+    },
+    "classes": {
+      "statement": "Events are grouped into classes, available depending on the organization's subscriptions: Security Alerts; Access Control Alerts (Chat File Transfer, Social Network Post, Streaming Upload, Streaming View/Listen, URL Filtering Blocked Sites, Webmail File Attachment); System Alerts (ADP Schedule Update Failure, Auth Bridge Down, LDAP Connection Down, LDAP Failure, LDAP Success, Traffic Decrease, Traffic Increase, Policy Violation); Data Loss Prevention Alerts (Custom Engine Violation, GLBA Violation, HIPAA Violation, IDM Schedule Update Failure, PCI Violation); and Patient 0 Alerts (Patient 0, which requires Advanced Sandbox).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-alerts.json",
+          "quotes": [
+            "Events are grouped into classes.",
+            "Depending on your organization's subscriptions, you can configure the service to send alerts for the following classes.",
+            "If configuring alerts in your SIEM via NSS, refer to the Security Alerts table below for Logged Fields and Values.",
+            "Access Control Alerts | Event | |---| | Chat File Transfer | | Social Network Post | | Streaming Upload | | Streaming View/Listen | | URL Filtering Blocked Sites | | Webmail File Attachment |",
+            "System Alerts | Event | |---| | ADP Schedule Update Failure | | Auth Bridge Down | | LDAP Connection Down | | LDAP Failure | | LDAP Success | | Traffic Decrease | | Traffic Increase | | Policy Violation |",
+            "Data Loss Prevention Alerts | Event | |---| | Custom Engine Violation | | GLBA Violation | | HIPAA Violation | | IDM Schedule Update Failure | | PCI Violation |",
+            "Patient 0 Alerts | Event | |---| | Patient 0 (Requires Advanced Sandbox) |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-alert-subscriptions.json",
+          "quotes": [
+            "Security Alerts: Lists the severity levels of the Secure Alert class information that the recipient receives."
+          ]
+        }
+      ]
+    },
+    "security-events-and-log-fields": {
+      "statement": "For building the same alerts in a SIEM fed by NSS, the page's Security Alerts table gives each event's logged field and value. Most events match a URL Category value: Advanced Security, Spyware Callback (for Adware/Spyware), Adware/Spyware Sites, Botnet Callback, Browser Exploit, Cross-site Scripting, Crypto Mining & Blockchain, Malicious Content, Peer-to-peer, Phishing, Suspicious Content, Suspicious Destination, Unauthorized Communication and Web Spam. The incoming/outgoing malware, spyware and virus events and the Sandbox Adware, Anonymizer, Malware, Offensive Security Tools and Ransomware events match Threat Category/Malware Category values, and Incoming/Outgoing Unscannable Files matches the Policy Reason 'Not allowed to upload/download unscannable file formats'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-alerts.json",
+          "quotes": [
+            "If configuring alerts in your SIEM via NSS, refer to the Security Alerts table below for Logged Fields and Values.",
+            "| Advanced Security | URL Category | Advanced Security |",
+            "| Adware/Spyware | URL Category | Spyware Callback |",
+            "| Adware/Spyware Sites | URL Category | Adware/Spyware Sites |",
+            "| Botnet Callback | URL Category | Botnet Callback |",
+            "| Browser Exploit | URL Category | Browser Exploit |",
+            "| Cross-site Scripting | URL Category | Cross-site Scripting |",
+            "| Crypto Mining | URL Category | Crypto Mining & Blockchain |",
+            "| Incoming/Outgoing Malware | Threat Category/Malware Category | Malware, Exploit, MalwareTool, ArchiveBomb, MalwareSecurityRisk, Other Malware |",
+            "| Incoming/Outgoing Spyware | Threat Category/Malware Category | Spyware, Dialer, BackDoor, Adware Proxy, PWStealer, Downloader, Other Spyware |",
+            "| Incoming/Outgoing Unscannable Files | Policy Reason | Not allowed to upload/download unscannable file formats |",
+            "| Incoming/Outgoing Viruses | Threat Category/Malware Category | Virus, Unwanted Applications, BootVirus, Macro, Worm, Trojan, MisDisinfection, Other Viruses, Ransomware, Remote Access Tool, Unrecognized Virus |",
+            "| Malicious Content | URL Category | Malicious Content |",
+            "| Peer-to-peer | URL Category | Peer-to-peer |",
+            "| Phishing | URL Category | Phishing |",
+            "| Sandbox Adware | Threat Category/Malware Category | Sandbox Adware |",
+            "| Sandbox Anonymizer | Threat Category/Malware Category | Sandbox Anonymizer |",
+            "| Sandbox Malware | Threat Category/Malware Category | Sandbox Malware |",
+            "| Sandbox Offensive Security Tools | Threat Category/Malware Category | Sandbox Offensive Security Tools |",
+            "| Sandbox Ransomware | Threat Category/Malware Category | Sandbox Ransomware |",
+            "| Suspicious Content | URL Category | Suspicious Content |",
+            "| Suspicious Destination | URL Category | Suspicious Destination |",
+            "| Unauthorized Communication | URL Category | Unauthorized Communication |",
+            "| Web Spam | URL Category | Web Spam |"
+          ]
+        }
+      ]
+    },
+    "definition": {
+      "statement": "An alert definition's Alert Class is filled in from the chosen Alert Name and cannot be edited. The alert is triggered when the event occurs Minimum Occurrences times (1, 5, 10, 100 or 1,000) within the Within Time Interval (5 minutes, 15 minutes, 30 minutes, 1 hour or 1 day). Applies To scopes it to the organization, a location, department or user, and Severity is Critical, Major, Minor, Info or Debug. Comments are limited to 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-alerts.json",
+          "quotes": [
+            "Alert Class: After you select an Alert Name, the class of the event appears in Alert Class. You cannot edit this option.",
+            "You can select 1, 5, 10, 100, or 1,000 occurrences.",
+            "An alert is triggered when the event occurs at the Minimum Occurrences value in the Within Time Interval time period.",
+            "You can choose from 5 minutes, 15 minutes, 30 minutes, 1 hour, or 1 day.",
+            "Applies To: Specify whether the alert is triggered by events in the organization, a location, department or user, then choose the specific location, department, or user.",
+            "Severity: Assign a severity level of Critical, Major, Minor, Info, or Debug to the event.",
+            "The comments cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "policy-violation-event": {
+      "statement": "The Policy Violation event sends an alert if the total number of events from all other classes and categories reaches the configured threshold.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-alerts.json",
+          "quotes": [
+            "The Policy Violation event sends an alert if the total number of events from all other classes and categories reach the configured threshold."
+          ]
+        }
+      ]
+    },
+    "severity-tiers": {
+      "statement": "The severity setting is useful for creating several alerts for the same kind of event, such as detection of outbound viruses or data leakage, with different thresholds for each.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-alerts.json",
+          "quotes": [
+            "Severity: Assign a severity level of Critical, Major, Minor, Info, or Debug to the event. This is useful if you want to create multiple alerts for the same kind of event (such as detection of outbound viruses or data leakage), but establish different thresholds for each."
+          ]
+        }
+      ]
+    },
+    "disable": {
+      "statement": "Disabling an alert stops the Admin Console sending its alert notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-alerts.json",
+          "quotes": [
+            "When you disable an alert, Zscaler Admin Console stops sending alert notifications."
+          ]
+        }
+      ]
+    },
+    "subscriptions": {
+      "statement": "Alerts are received through subscriptions: each is an email address with an optional description of up to 10,240 characters and, for each alert class (Patient 0, Security, Access Control, Data Loss Prevention, System), the severities Critical, Minor, Major, Info or Debug that the recipient receives.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-alert-subscriptions.json",
+          "quotes": [
+            "Email: Enter a valid email address.",
+            "Description: (Optional) Enter any additional comments or information. The description cannot exceed 10,240 characters.",
+            "For each alert class, select the severity level of the alerts that the recipient receives as Critical, Minor, Major, Info, or Debug."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-alert-subscriptions.json",
+          "quotes": [
+            "Patient 0 Alerts: Lists the severity levels of the Patient 0 Alert class information that the recipient receives.",
+            "Security Alerts: Lists the severity levels of the Secure Alert class information that the recipient receives.",
+            "Access Control Alerts: Lists the severity levels of the Access Control Alert class information that the recipient receives.",
+            "Data Loss Prevention Alerts: Lists the severity levels of the Data Loss Prevention Alert class information that the recipient receives.",
+            "System Alerts: Lists the severity levels of the System Alert class information that the recipient receives."
+          ]
+        }
+      ]
+    },
+    "resend-interval": {
+      "statement": "In the Edit Global Configuration drawer, the admin chooses the interval at which the service sends an alert after the first one if the event continues to occur: 30 Minutes, 1 Hour, 6 Hours, 12 Hours or 24 Hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-resending-alerts.json",
+          "quotes": [
+            "You can choose to send additional alerts every time the event's threshold is reached.",
+            "In the Edit Global Configuration drawer, select the interval at which the Zscaler service sends an alert after the first alert is sent, if the event continues to occur.",
+            "30 Minutes - 1 Hour - 6 Hours - 12 Hours - 24 Hours"
+          ]
+        }
+      ]
+    },
+    "pages": {
+      "statement": "The Define Alerts list shows, per alert, Triggered By (the number of event occurrences for a given time period) and is paginated with up to 500 alerts per page; the alert subscriptions list is also paginated with up to 500 per page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-alerts.json",
+          "quotes": [
+            "Triggered By: Displays the number of event occurrences for a given time period.",
+            "The alert definitions are paginated with up to 500 alerts per page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-alert-subscriptions.json",
+          "quotes": [
+            "The alert subscriptions are paginated with up to 500 alerts per page."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "severity-example-count": {
+      "summary": "The Managing Alerts page's severity example sets the severity of an event with 500 occurrences in 5 minutes to Critical, but the same page's Minimum Occurrences field offers only 1, 5, 10, 100 or 1,000.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-managing-alerts.json",
+            "quotes": [
+              "For example, you can set the severity level of an event with 5 occurrences in 5 minutes to Minor and set the severity level of the same event with 500 occurrences in 5 minutes to Critical."
+            ]
+          },
+          "says": "The example uses 5 occurrences for Minor and 500 occurrences for Critical, both within 5 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-managing-alerts.json",
+            "quotes": [
+              "You can select 1, 5, 10, 100, or 1,000 occurrences."
+            ]
+          },
+          "says": "The Minimum Occurrences field offers 1, 5, 10, 100 or 1,000; 500 is not among them."
+        }
+      ],
+      "impact": "The 500 in the example is not a value the form accepts, so it should not be copied as a threshold; the page does not say whether the example is illustrative or the list is incomplete."
+    }
+  },
+  "gaps": {
+    "resend-default": {
+      "kind": "semantic",
+      "title": "Default resend interval and whether resending can be turned off",
+      "status": "open",
+      "detail": "The resending page lists the five intervals but does not give a default or say whether additional alerts can be switched off.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "alerts-dashboard-and-webhooks": {
+      "kind": "semantic",
+      "title": "The Alerts dashboard, Alerts Rules and Webhooks",
+      "status": "resolved",
+      "detail": "The captured email alert pages describe only email delivery. The admin role page refers to an Alerts dashboard, Alerts Rules and Webhooks (pointing to 'About Security Alerts').",
+      "resolution": "The About Security & UEBA Alerts, Ongoing Alerts, Alert History, Alert Rules, Configuring an Alert Rule, About Webhooks and Adding a Webhook articles are captured and written up in zia.alerts.security-ueba and zia.alerts.rules. Whether those alerts share limits or subscriptions with the email alerts stays open as zia.alerts.security-ueba:shared-limits.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "subscription-class-map": {
+      "kind": "semantic",
+      "title": "Which subscriptions enable which alert classes",
+      "status": "open",
+      "detail": "The classes page says classes are available depending on the organization's subscriptions but does not map subscriptions to classes, apart from Patient 0 requiring Advanced Sandbox.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "policy-violation-scope": {
+      "kind": "semantic",
+      "title": "Whether the Policy Violation total is counted per Applies To scope",
+      "status": "open",
+      "detail": "The Policy Violation event totals events from all other classes and categories; the page does not say whether that total is taken per Applies To scope (organization, location, department or user).",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "api-surface": {
+      "kind": "semantic",
+      "title": "Whether alert definitions and subscriptions are available through an API",
+      "status": "open",
+      "detail": "The Python SDK has an alert subscription update helper (see zia.sdk-python.service-behaviors), so an API exists. The OpenAPI specification and Terraform provider were not checked for alert definitions or subscriptions.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

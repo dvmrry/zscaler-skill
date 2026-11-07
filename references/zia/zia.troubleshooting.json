@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting",
+  "title": "Troubleshooting Internet & SaaS: routes from a few common symptoms to the subjects that hold the answer, and capturing HTTP headers for Support",
+  "aliases": [
+    "zia troubleshooting",
+    "internet access not working",
+    "capture http headers",
+    "har file zscaler support",
+    "browser developer tools zscaler support",
+    "zscaler support asks for headers"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.troubleshooting.performance-testing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.verification"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.saml-troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.bypass-impact"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.citrix-workloads"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.reports.executive-insights-app"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-field-semantics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.nss-runbook"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.runbook"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.troubleshooting.performance-runbook"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.troubleshooting.security-policies-runbook"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.runbook"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control.runbook"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This hub routes the symptoms listed below to the subject that holds the evidence; a symptom not listed is not covered here."
+    },
+    {
+      "steps": [
+        {
+          "label": "Traffic may not be reaching the service, or not the nearest Public Service Edge.",
+          "text": "The check page and the vendor's causes are in [[zia.traffic-forwarding.verification]], and the forwarding methods in [[zia.traffic-forwarding]]."
+        },
+        {
+          "label": "The service feels slow, or a speed test gives a poor figure.",
+          "text": "The vendor's own test and why Speedtest, Iperf and ping mislead are in [[zia.troubleshooting.performance-testing]]."
+        },
+        {
+          "label": "Google shows a CAPTCHA or the wrong country.",
+          "text": "See [[zia.ssl-inspection.bypass-impact]]."
+        },
+        {
+          "label": "Citrix XenDesktop or XenApp workloads.",
+          "text": "Forwarding choices for those workloads are in [[zia.traffic-forwarding.citrix-workloads]]."
+        },
+        {
+          "label": "Sign-in redirects or SAML problems.",
+          "text": "See [[zia.authentication.saml-troubleshooting]]. {{headers-capture-settings|ref}}"
+        },
+        {
+          "label": "The Executive Insights mobile app (in the Reports area) will not sign in or shows stale data.",
+          "text": "See [[zia.reports.executive-insights-app]]."
+        },
+        {
+          "label": "Cloud App Control rules do not behave as expected.",
+          "text": "See [[zia.cloud-app-control.troubleshooting]]."
+        },
+        {
+          "label": "Reading what a transaction recorded.",
+          "text": "The web log's fields are in [[zia.logs.web-field-semantics]]."
+        }
+      ]
+    },
+    {
+      "label": "Capturing HTTP headers for Zscaler Support.",
+      "text": "{{headers-ask}} {{headers-versions}} {{headers-capture-settings}} {{headers-sensitive-data}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before asking a user for a HAR file, which browser and version the steps cover, and whether the sensitive-data option is needed and the user has been warned to remove passwords.",
+      "uses": [
+        "headers-versions",
+        "headers-sensitive-data",
+        "headers-capture-settings"
+      ]
+    }
+  ],
+  "claims": {
+    "headers-ask": {
+      "statement": "Zscaler Support might ask for HTTP headers when troubleshooting certain issues; the Google Chrome page says the HTTP headers identify the specific URL the browser accessed when a web page is opened. The Chrome, Microsoft Edge, Mozilla Firefox and Safari help pages each say this.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-google-chrome.json",
+          "quotes": [
+            "At times, Zscaler Support might ask you to provide HTTP headers when troubleshooting certain issues.",
+            "The HTTP headers identify the specific URL the browser accessed when you open a web page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-microsoft-edge.json",
+          "quotes": [
+            "At times, Zscaler Support might ask you to provide HTTP headers when troubleshooting certain issues."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-mozilla-firefox.json",
+          "quotes": [
+            "At times, Zscaler Support might ask you to provide HTTP headers when troubleshooting certain issues."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-safari.json",
+          "quotes": [
+            "At times, Zscaler Support might ask you to provide HTTP headers when troubleshooting certain issues."
+          ]
+        }
+      ]
+    },
+    "headers-versions": {
+      "statement": "The capture steps are written for Google Chrome version 54.0.2840.71 m and later, Microsoft Edge version 126, Mozilla Firefox version 128 (Mozilla's Inspector tool) and Safari version 17.5 (Safari's Inspector tool). Each of the four pages says that if a different browser version is running, the steps might be different. In Safari, if the Develop menu is not shown, the Advanced tab's Show features for web developers checkbox is selected to make it appear.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-google-chrome.json",
+          "quotes": [
+            "You can use the Google Chrome embedded HTTP header capture tool on Google Chrome version 54.0.2840.71 m and later.",
+            "If you are running a different browser version, the steps might be different."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-microsoft-edge.json",
+          "quotes": [
+            "You can use the Microsoft Edge embedded HTTP header capture tool on Microsoft Edge version 126.",
+            "If you are running a different browser version, the steps might be different."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-mozilla-firefox.json",
+          "quotes": [
+            "You can use Mozilla's Inspector tool to capture HTTP headers in Mozilla Firefox version 128.",
+            "If you are running a different browser version, the steps might be different."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-safari.json",
+          "quotes": [
+            "You can use Safari's Inspector tool to capture HTTP headers in Safari version 17.5.",
+            "If you are running a different browser version, the steps might be different.",
+            "If you don't see the Develop menu,",
+            "Click the Advanced tab and select the Show features for web developers checkbox."
+          ]
+        }
+      ]
+    },
+    "headers-sensitive-data": {
+      "statement": "Chrome version 130 and later does not include sensitive data by default when Export or Save is selected; the page says this includes the Cookie, Set-Cookie and Authorization headers. The Edge page says the same of the latest Microsoft Edge versions. In Chrome, including it takes Allow to generate HAR (with sensitive data) in the Network section, then Export HAR (with sensitive data) or Copy > Copy all as HAR (with sensitive data). The Chrome page warns that such files can expose personally identifiable information such as usernames and passwords, and says to delete any password data before sending the files to Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-google-chrome.json",
+          "quotes": [
+            "Chrome version 130 and later does not include sensitive data by default when the Export or Save option is selected.",
+            "This includes the Cookie, Set-Cookie, and Authorization headers.",
+            "Scroll to the Network section and check Allow to generate HAR (with sensitive data).",
+            "Click and hold the download button and select Export HAR (with sensitive data).",
+            "Select Copy > Copy all as HAR (with sensitive data).",
+            "When capturing HAR files with sensitive data (e.g., Cookie, Set-Cookie, and Authorization headers), Personal Identifiable Information (PII) like usernames and passwords might be exposed.",
+            "Delete any password data before sending these files to Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-microsoft-edge.json",
+          "quotes": [
+            "The latest versions of Microsoft Edge do not include sensitive data by default when the Export or Save option is selected."
+          ]
+        }
+      ]
+    },
+    "headers-capture-settings": {
+      "statement": "On the Chrome page the Network tab has Keep log and Disable cache checked to save data after SSO redirects, with the network log cleared before the test. The Firefox page selects Disable Cache in the Network tab, and the Safari page selects the Disable Cache checkbox and reloads the page. The Chrome and Edge pages also save the Console messages, and the Firefox page selects Save all Messages to File.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-google-chrome.json",
+          "quotes": [
+            "On the Network tab, check Keep log and Disable cache to save data after SSO redirects.",
+            "Click the Clear network log icon (circle with a diagonal cross) before starting the test.",
+            "Select the Console tab, right-click on the message, and select Save as."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-microsoft-edge.json",
+          "quotes": [
+            "Select the Console tab, right-click on the message, and select Save as."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-mozilla-firefox.json",
+          "quotes": [
+            "In the Network tab, select Disable Cache and right-click the element you want to inspect.",
+            "Select Save all Messages to File."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-capturing-http-headers-safari.json",
+          "quotes": [
+            "Select the Disable Cache checkbox and then reload the page."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "headers-firefox-safari-sensitive-data": {
+      "kind": "semantic",
+      "title": "Sensitive-data handling in Firefox and Safari header captures",
+      "status": "open",
+      "detail": "The Chrome and Edge pages describe sensitive data (Cookie, Set-Cookie, Authorization) being left out of exported HAR files by default in recent versions. The Firefox and Safari pages, compared with them, say nothing about sensitive-data handling; that absence was found by diffing the pages and is not a statement that those browsers include or omit the headers.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,849 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.engines",
+  "title": "DLP engines: the unit a rule references",
+  "aliases": [
+    "dlp engine",
+    "can a dlp rule use my custom dictionary",
+    "engine expression",
+    "dlp engine boolean operators",
+    "predefined dlp engine",
+    "validateDlpExpr",
+    "dlp engine channels",
+    "endpoint dlp channels"
+  ],
+  "binds": [
+    "zia/dlp-engines",
+    "zia/dlp-web-rules#dlpEngines"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dlp.dictionaries",
+      "because": "zia.dlp.engines:engine-definition"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-engines"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{engine-definition}} {{rules-reference-engines}} {{api-rule-has-engines-only}} The dictionaries themselves are in [[zia.dlp.dictionaries]]; the rule side is in [[zia.dlp.rules]]."
+    },
+    {
+      "text": "{{predefined-engines-exist}} {{predefined-five-understanding}} The number of predefined engines and who enables the Self-Harm & Cyberbullying engine differ between two help pages {{divergence:predefined-engine-count}} {{divergence:self-harm-contact}}. {{clone-engine}}"
+    },
+    {
+      "label": "Predefined engine contents.",
+      "text": "{{predefined-original-composition}} {{predefined-2025-engines}} {{predefined-2025-composition}} {{predefined-volume-variants}} What ML-based means for the Finance, Legal and Medical engines is open {{gap:ml-based-engines}}, and so is which engines tenants enabled before that date see by default {{gap:predefined-engine-visibility}}."
+    },
+    {
+      "label": "Composition.",
+      "text": "{{boolean-composition}} {{expression-wire-form}} {{validate-expression-endpoint}}"
+    },
+    {
+      "label": "Operators and match counts.",
+      "text": "{{operators-and-root}} {{match-count-semantics}} What the API's `.S` suffix means is open {{gap:expression-threshold-meaning}}. {{confidence-set-in-dictionary}}"
+    },
+    {
+      "label": "Builder.",
+      "text": "{{builder-limits}} {{parent-sub-in-engines}} {{api-expression-unparseable}}"
+    },
+    {
+      "text": "{{engine-channels}} {{channels-required}}"
+    },
+    {
+      "text": "{{engine-limits}} The Understanding DLP Engines page gives a different custom engine ceiling {{divergence:custom-engine-ceiling}}."
+    },
+    {
+      "text": "Terraform's handling of engines and rules has its own defects; see [[zia.terraform.field-fidelity]]. {{tf-custom-engine-writes-need-support}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the custom dictionary is in an engine, and whether that engine is on the rule, since a rule cannot reference a dictionary directly.",
+      "uses": [
+        "rules-reference-engines",
+        "api-rule-has-engines-only"
+      ]
+    },
+    {
+      "do": "Whether the D<number> terms of an engine expression are resolved to dictionary IDs, since the engine object carries only the expression string.",
+      "uses": [
+        "expression-wire-form"
+      ]
+    },
+    {
+      "do": "Whether a channel-scoped engine triggers on web traffic, which a lab test would show.",
+      "uses": [
+        "engine-channels",
+        "channel-scoping-semantics"
+      ]
+    },
+    {
+      "do": "Which of the pages that disagree on the custom engine ceiling or the predefined engine count the answer rests on, and say so rather than choosing one.",
+      "uses": [
+        "custom-engine-ceiling",
+        "predefined-engine-count"
+      ]
+    },
+    {
+      "do": "Whether an engine whose expression came through the API opens in the Engine Builder or only in a Reference Expression field, since the API reference's own SUM example has the same shape as one the help lists as unparseable.",
+      "uses": [
+        "api-expression-unparseable",
+        "boolean-composition"
+      ]
+    }
+  ],
+  "claims": {
+    "engine-definition": {
+      "statement": "A DLP engine is a collection of one or more DLP dictionaries, and any mix of cloned, predefined and custom dictionaries can be added to one.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-engines"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.json",
+          "quotes": [
+            "A Data Loss Prevention (DLP) engine is a collection of one or more DLP dictionaries."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-dictionaries.json",
+          "quotes": [
+            "Any combination of cloned, predefined, and custom dictionaries can be added to a DLP engine"
+          ]
+        }
+      ]
+    },
+    "rules-reference-engines": {
+      "statement": "DLP policy rules and Endpoint DLP policy rules must reference engines, not dictionaries. To use a custom dictionary in a rule, put it in an engine first.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#dlpEngines"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.json",
+          "quotes": [
+            "When you define your DLP policy rules and Endpoint DLP policy rules, you must reference DLP engines, rather than DLP dictionaries."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-dictionaries.json",
+          "quotes": [
+            "Any combination of cloned, predefined, and custom dictionaries can be added to a DLP engine, which is what you must reference when creating DLP policies."
+          ]
+        }
+      ]
+    },
+    "api-rule-has-engines-only": {
+      "statement": "The Web DLP rule object carries a `dlpEngines` list and no field for dictionaries, so the indirection is an API-level requirement as well as a console one.",
+      "tier": "B",
+      "binds": [
+        "zia/dlp-web-rules#dlpEngines"
+      ],
+      "conditions": "Rests on an absence in the Go SDK rule struct and the API reference's request fields for the add-rule operation: neither lists a dictionary field. Search: the field names of `request_body` for zia/data-loss-prevention/web-dlp-rule-resource-add-rule contain no name matching `dictionar`.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "quotes": [
+            "// The list of DLP engines to which the DLP policy rule must be applied."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/dlpEngines",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "predefined-engines-exist": {
+      "statement": "Zscaler provides predefined engines (the Match Only example names a PCI engine and a HIPAA engine) and supports custom ones. An admin can edit or clone a predefined engine as well as create a custom engine.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-engines#customDlpEngine",
+        "zia/dlp-engines#predefinedEngineName"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.json",
+          "quotes": [
+            "The Zscaler service provides predefined DLP engines and supports custom DLP engines.",
+            "You can edit predefined engines, create custom engines, or clone existing engines"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "For example, you create a DLP rule with the PCI engine and select the Match Only option. In this case, the rule does not trigger when a transaction triggers both the PCI and HIPAA engine."
+          ]
+        }
+      ]
+    },
+    "boolean-composition": {
+      "statement": "An engine combines dictionaries with Boolean operators into a logical expression. The API expresses this as `engineExpression`, using All (AND), Any (OR), Exclude (NOT) and Sum (the total number of content matches).",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-engines#engineExpression"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.json",
+          "quotes": [
+            "you can also combine dictionaries with Boolean operators to create logical expressions"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpEngines/post/requestBody/content/application~1json/schema/properties/engineExpression",
+          "expect": {
+            "type": "string",
+            "description": "<p>The logical expression that defines a DLP engine by combining DLP dictionaries using logical operators, namely All (AND), Any (OR), Exclude (NOT), and Sum (the total number of content matches). .</p><p>Engine expression examples:</p><ul><li><code>((D63.S> 1))</code></li><li><code>((D38.S> 1) AND (D63.S> 1))</code></li><li><code>((D38.S> 1) OR (D63.S> 1))</code></li><li><code>((D38.S> 0) AND ( NOT ( (D61.S> 0) ) )</code></li><li><code>(SUM(D63.S, D38.S)> 3)</code></li></ul><p>In the preceding examples, 63 represents the ID of the Credit Cards dictionary ID, 61 is the Financial Statements ID, and 38 is the ABA Bank Routing Numbers dictionary ID. Each dictionary ID is wrapped around by a prefix (D) and a suffix (.S).</p>"
+          }
+        }
+      ]
+    },
+    "expression-wire-form": {
+      "statement": "On the wire an expression references dictionaries by ID, each wrapped in a `D` prefix and an `.S` suffix and compared with a number, for example `((D63.S > 1) AND (D38.S > 0))`. The engine object stores the expression as one string; it has no separate list of dictionaries.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-engines#engineExpression"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_engine.py",
+          "quotes": [
+            "zia.dlp.validate_dlp_expression(\"((D63.S > 1) AND (D38.S > 0))\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_engines/dlp_engines.go",
+          "quotes": [
+            "// The boolean logical operator in which various DLP dictionaries are combined within a DLP engine's expression.",
+            "ID int `json:\"id\"`",
+            "Name string `json:\"name,omitempty\"`",
+            "Description string `json:\"description,omitempty\"`",
+            "PredefinedEngineName string `json:\"predefinedEngineName,omitempty\"`",
+            "EngineExpression string `json:\"engineExpression,omitempty\"`",
+            "CustomDlpEngine bool `json:\"customDlpEngine,omitempty\"` }"
+          ],
+          "after": "type DLPEngines struct {"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpEngines/post/requestBody/content/application~1json/schema/properties/engineExpression",
+          "expect": {
+            "type": "string",
+            "description": "<p>The logical expression that defines a DLP engine by combining DLP dictionaries using logical operators, namely All (AND), Any (OR), Exclude (NOT), and Sum (the total number of content matches). .</p><p>Engine expression examples:</p><ul><li><code>((D63.S> 1))</code></li><li><code>((D38.S> 1) AND (D63.S> 1))</code></li><li><code>((D38.S> 1) OR (D63.S> 1))</code></li><li><code>((D38.S> 0) AND ( NOT ( (D61.S> 0) ) )</code></li><li><code>(SUM(D63.S, D38.S)> 3)</code></li></ul><p>In the preceding examples, 63 represents the ID of the Credit Cards dictionary ID, 61 is the Financial Statements ID, and 38 is the ABA Bank Routing Numbers dictionary ID. Each dictionary ID is wrapped around by a prefix (D) and a suffix (.S).</p>"
+          }
+        }
+      ],
+      "gaps": [
+        "expression-threshold-meaning"
+      ],
+      "conditions": "Absence claim (no separate dictionary list): `type DLPEngines struct` in zscaler/zia/services/dlp/dlp_engines/dlp_engines.go at v3.8.58 has exactly six fields (ID, Name, Description, PredefinedEngineName, EngineExpression, CustomDlpEngine), and over automate-zscaler/openapi/zia.openapi.json in the capture of 2026-09-07, `jq '.paths[\"/dlpEngines\"].post.requestBody.content[\"application/json\"].schema.properties | keys'` returns exactly customDlpEngine, description, engineExpression, id, name and predefinedEngineName."
+    },
+    "validate-expression-endpoint": {
+      "statement": "The API has an endpoint that validates an engine expression.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_engine.py",
+          "quotes": [
+            "Validates a DLP engine expression.",
+            "/dlpEngines/validateDlpExpr"
+          ]
+        }
+      ]
+    },
+    "engine-channels": {
+      "statement": "The DLP Engines page shows, per engine, the channels associated with it; the captured row names Network Share, Personal Cloud Storage, Printing, or Removable Storage, and also Endpoint DLP, SaaS Security, DSPM, Inline Web, and Email DLP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.json",
+          "quotes": [
+            "Channels: The specific channels (Network Share, Personal Cloud Storage, Printing, or Removable Storage) associated with the DLP engine. (Endpoint DLP, SaaS Security, DSPM, Inline Web, and Email DLP) associated with the DLP engine."
+          ]
+        }
+      ],
+      "gaps": [
+        "channel-scoping-semantics"
+      ]
+    },
+    "engine-limits": {
+      "statement": "A tenant can hold 480 custom engines with DLP Engine Expansion enabled and 58 without it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Custom DLP Engines | 480 engines (with DLP Engine Expansion enabled) 58 engines (with DLP Engine Expansion disabled) |"
+          ]
+        }
+      ]
+    },
+    "predefined-five-understanding": {
+      "statement": "The Understanding DLP Engines page says the service provides 5 predefined engines (HIPAA, GLBA, PCI, Offensive Language, and Self-Harm & Cyberbullying) that contain default dictionaries, and that the Self-Harm & Cyberbullying engine is meant for K-12 educators and is enabled through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-dlp-engines.json",
+          "quotes": [
+            "Predefined DLP Engines: The Zscaler service provides 5 predefined engines (HIPAA, GLBA, PCI, Offensive Language, and Self-Harm & Cyberbullying). These engines contain default DLP dictionaries.",
+            "The Self-Harm & Cyberbullying engine is intended for use by K-12 educators. If you’re an educator, contact your Zscaler Account team to enable this feature."
+          ]
+        }
+      ]
+    },
+    "predefined-original-composition": {
+      "statement": "The Editing Predefined DLP Engines page gives the dictionaries behind the original engines: HIPAA uses Social Security Numbers (US) and Medical Information; GLBA uses Social Security Numbers (US) and Financial Statements; PCI uses Credit Cards and Social Security Numbers (US); Offensive Language uses Adult Content; Self-Harm & Cyberbullying uses the Self-Harm & Cyberbullying dictionary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "quotes": [
+            "This engine detects Health Insurance Portability and Accountability Act (HIPAA) violations, using the Social Security Numbers (US) and Medical Information dictionaries.",
+            "This engine detects violations of the Gramm-Leach-Bliley Act (GLBA), using the Social Security Numbers (US) and Financial Statements dictionaries.",
+            "This engine detects Payment Card Industry (PCI) compliance violations, using the Credit Cards and Social Security Numbers (US) dictionaries.",
+            "This engine detects offensive language, using the Adult Content dictionary.",
+            "This engine detects violations of student safety, using the Self-Harm & Cyberbullying dictionary."
+          ]
+        }
+      ]
+    },
+    "predefined-2025-engines": {
+      "statement": "The editing page also lists CCPA, Credentials and Secrets, DPDPA, Finance, FISMA, GDPR, Legal, LGPD, Medical, NIST RMF for DoD IT, PDPA, PII (US) and PIPEDA engines, each marked available by default for tenants enabled on April 4, 2025 or later, with access for other tenants requested from Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "California Consumer Privacy Act (CCPA)",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "- Credentials and Secrets",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "Digital Personal Data Protection Act (DPDPA)",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "- Finance",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "Federal Information Security Modernization Act (FISMA)",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "General Data Protection Regulation (GDPR)",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "GDPR violations at a low threshold (i.e., more than one match). - Legal",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "General Personal Data Protection Law (LGPD)",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "- Medical",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "(NIST RMF for DoD IT)",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "Personal Data Protection Act (PDPA)",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "Personally Identifiable Inforamtion (PII) (US)",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "after": "Personal Information Protection and Electronic Documents Act (PIPEDA)",
+          "quotes": [
+            "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+          ]
+        }
+      ],
+      "gaps": [
+        "predefined-engine-visibility"
+      ]
+    },
+    "predefined-volume-variants": {
+      "statement": "For CCPA, FISMA, GDPR, LGPD, NIST RMF for DoD IT, PDPA, PII (US) and PIPEDA the page lists a High Volume engine (a high threshold, more than 25 matches) and a Low Volume engine (a low threshold, more than one match). Finance, Legal and Medical are described as ML-based engines.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "quotes": [
+            "CCPA - High Volume: This engine detects CCPA violations at a high threshold (i.e., more than 25 matches).",
+            "CCPA - Low Volume: This engine detects CCPA violations at a low threshold (i.e., more than one match).",
+            "High Volume: FISMA violations at a high threshold (i.e., more than 25 matches).",
+            "Low Volume: FISMA violations at a low threshold (i.e., more than one match).",
+            "High Volume: GDPR violations at a high threshold (i.e., more than 25 matches).",
+            "Low Volume: GDPR violations at a low threshold (i.e., more than one match).",
+            "High Volume: LGPD violations at a high threshold (i.e., more than 25 matches).",
+            "Low Volume: LGPD violations at a low threshold (i.e., more than one match).",
+            "High Volume:NIST (RMF for Dod IT) violations at a high threshold (i.e., more than 25 matches).",
+            "Low Volume: NIST (RMF for Dod IT) violations at a low threshold (i.e., more than one match).",
+            "High Volume: PDPA violations at a high threshold (i.e., more than 25 matches).",
+            "Low Volume: PDPA violations at a low threshold (i.e., more than one match).",
+            "High Volume: PII (US) violations at a high threshold (i.e., more than 25 matches).",
+            "Low Volume: PII (US) violations at a low threshold (i.e., more than one match).",
+            "High Volume: PIPEDA violations at a high threshold (i.e., more than 25 matches).",
+            "Low Volume: PIPEDA violations at a low threshold (i.e., more than one match).",
+            "This ML-based engine detects financial violations",
+            "This ML-based engine detects legal violations",
+            "This ML-based engine detects medical violations"
+          ]
+        }
+      ]
+    },
+    "predefined-2025-composition": {
+      "statement": "The editing page gives these dictionaries behind the CCPA, Credentials and Secrets, DPDPA, Finance, FISMA, Legal, LGPD, Medical, NIST RMF for DoD IT, PDPA, PII (US) and PIPEDA engines: CCPA uses Social Security Numbers (US), Tax Identification Number (US), Names (US), Medical Information, Diseases Information, Drugs Information and Credit Card; Credentials and Secrets uses Credentials and Secrets; DPDPA uses Aadhaar Card Number (India); Finance uses Financial Statements, ABA Bank Routing Number, Credit Cards and International Bank Account Number (IBAN); FISMA uses Credit Cards, Diseases Information, Drugs Information and Social Security Numbers (US); Legal uses Legal Document; LGPD uses CNPJ Number (Brazil) and Individual Taxpayer Registry ID (Brazil); Medical uses Medical Information, Diseases Information, Drugs Information, National Provider Identifier Number (US), NDC Number (Package), NDC Number (Product) and Treatments Information; NIST RMF for DoD IT uses Credit Cards, Diseases Information, Drugs Information, Social Security Numbers (US), Names (US) and Medical Information; PDPA uses NRIC Numbers (Singapore) and Credit Cards; PII (US) uses Social Security Numbers (US) and Tax Identification Number (US); PIPEDA uses Names (Canada), Social Insurance Number (Canada), ABA Bank Routing Number and Credit Cards. The page also lists the dictionaries behind the GDPR engines, beginning with Unified Civil Number (Bulgaria), not enumerated here.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "quotes": [
+            "The following engines detect California Consumer Privacy Act violations, using the Social Security Numbers (US), Tax Identification Number (US), Names (US), Medical Information, Diseases Information, Drugs Information, and Credit Card dictionaries:",
+            "This engine detects credentials and secrets violations, using the Credentials and Secrets dictionary.",
+            "This engine detects Digital Personal Data Protection Act violations, using the Aadhaar Card Number (India) dictionary.",
+            "This ML-based engine detects financial violations, using the Financial Statements, ABA Bank Routing Number, Credit Cards, and International Bank Account Number (IBAN) dictionaries.",
+            "The following engines are detect Federal Information Security Modernization Act violations, using the Credit Cards, Diseases Information, Drugs Information, and Social Security Numbers (US) dictionaries:",
+            "This ML-based engine detects legal violations, using the Legal Document dictionary.",
+            "The following engines detect General Personal Data Protection Law violations, using the CNPJ Number (Brazil) and Individual Taxpayer Registry ID (Brazil) dictionaries:",
+            "This ML-based engine detects medical violations, using the Medical Information, Diseases Information, Drugs Information, National Provider Identifier Number (US), NDC Number (Package), NDC Number (Product), and Treatments Information dictionaries.",
+            "The following engines are designed to detect National Institute of Standards and Technology Risk Management Framework for Department of Defense IT violations, using the Credit Cards, Diseases Information, Drugs Information, Social Security Numbers (US), Names (US), and Medical Information dictionaries:",
+            "The following engines are designed to detect Personal Data Protection Act violations, using the NRIC Numbers (Singapore) and Credit Cards dictionaries:",
+            "The following engines are designed to detect Personally Identifiable Information violations, using the Social Security Numbers (US) and Tax Identification Number (US) dictionaries:",
+            "The following engines detect Personal Information Protection and Electronic Documents Act violations, using the Names (Canada), Social Insurance Number (Canada), ABA Bank Routing Number, and Credit Cards dictionaries:",
+            "The following engines detect General Data Protection Regulation violations, using the Unified Civil Number (Bulgaria), Citizen Service Number (Netherlands), National Economic Registry Number (Poland), National Identification Number (France), National Identification Number (Poland)"
+          ]
+        }
+      ]
+    },
+    "operators-and-root": {
+      "statement": "Engine expressions use the operators All (AND), Any (OR), Exclude (AND NOT) and Sum; Sum sets the total number of matches that triggers a group of dictionaries and is available for count-based dictionaries such as Credit Cards and Social Security Numbers. The root expression allows only All, Any and Sum, and a subexpression cannot be added to an expression or subexpression that uses Sum, though Sum can be used inside a subexpression.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-engines#engineExpression"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-dlp-engines.json",
+          "quotes": [
+            "The operators include All (AND), Any (OR), Exclude (AND NOT), and Sum. The Sum operator allows you to specify the sum total of matches that trigger a group of dictionaries specified in the DLP engine.",
+            "You can use the Sum operator as part of a subexpression; however, you cannot add a subexpression to an expression or subexpression that uses the Sum operator."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-dlp-engine.json",
+          "quotes": [
+            "The Sum operator is available for count-based DLP dictionaries (e.g., Credit Cards, Social Security Numbers.)",
+            "For the root expression, only the All (AND), Any (OR), and Sum operators are allowed."
+          ]
+        }
+      ],
+      "conditions": "Help words Exclude as AND NOT while the API reference's engineExpression description words it as Exclude (NOT); the API's own example `((D38.S> 0) AND ( NOT ( (D61.S> 0) ) )` combines AND with NOT, so this is a wording difference, not a conflict.",
+      "gaps": [
+        "count-based-dictionaries"
+      ]
+    },
+    "match-count-semantics": {
+      "statement": "The match count is the threshold that triggers a dictionary or group of dictionaries, and they trigger only when they find more matches than the number entered: with Sum over 3 dictionaries and a count of 6, the policy triggers at 7 or more matches across them. With multiple dictionaries each carrying its own count, a dictionary triggers only when its own threshold is reached. One dictionary can sit in several engines with a different count in each.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-dlp-engines.json",
+          "quotes": [
+            "The match count is the threshold that triggers a dictionary or group of dictionaries.",
+            "The dictionary or dictionaries trigger only if they find more matches than the number specified.",
+            "If you use the Sum operator in your expression with 3 dictionaries, and you enter a match count of 6, then the policy triggers only if there are 7 or more matches across the 3 dictionaries.",
+            "If you select multiple dictionaries with individual match counts, the dictionary is triggered only when the threshold is reached for an individual dictionary.",
+            "You can add a dictionary to multiple engines and specify a different match count value each time you add a dictionary to an engine."
+          ]
+        }
+      ],
+      "gaps": [
+        "expression-threshold-meaning"
+      ]
+    },
+    "confidence-set-in-dictionary": {
+      "statement": "A predefined dictionary's Confidence Score Threshold is set in the dictionary itself, not in the engine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-dlp-engines.json",
+          "quotes": [
+            "To modify the Confidence Score Threshold of a predefined dictionary, you must configure this setting in the dictionary itself."
+          ]
+        }
+      ]
+    },
+    "builder-limits": {
+      "statement": "In the engine builder, Sum needs two or more dictionaries and a match count; All, Any or Exclude need a dictionary, and certain dictionaries require a match count. A match count is any value less than 1,000. Each level allows up to 4 subexpressions, 4 operators and 16 dictionaries per operator, and an engine description cannot exceed 255 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-dlp-engine.json",
+          "quotes": [
+            "If you use the Sum operator, select two or more predefined or custom DLP dictionaries. You must set a value for the match count. You can enter any value less than 1,000.",
+            "If you use the All, Any, or Exclude operators, you must select a predefined or custom DLP dictionary. Certain dictionaries require you to set a value for the match count. You can enter any value less than 1,000.",
+            "At each level, you can create up to 4 subexpressions, use up to 4 operators, and add up to 16 dictionaries per operator.",
+            "The description cannot exceed 255 characters."
+          ]
+        }
+      ]
+    },
+    "parent-sub-in-engines": {
+      "statement": "When an engine uses a parent dictionary a sub-dictionary can also be selected, and must be when the parent has no patterns or phrases. Parent and sub-dictionaries in an engine are evaluated separately and can match independently; sub-dictionaries appear in brackets in the expression.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-dlp-engines.json",
+          "quotes": [
+            "If the parent dictionary doesn't have patterns or phrases defined (i.e., it is being used simply as a container for sub-dictionaries), then you must select a sub-dictionary from the drop-down menu.",
+            "When you use parent and sub-dictionaries as part of an engine, the Zscaler service evaluates them separately (i.e., parent and sub-dictionaries can match independently of one another).",
+            "The following expression uses sub-dictionaries, which appear in brackets within the expression:"
+          ]
+        }
+      ]
+    },
+    "channels-required": {
+      "statement": "Creating or editing an engine requires selecting a channel, and excluding a channel can reduce noise from engines used unnecessarily. Channels can also be overridden from the DLP Engines list, but a channel cannot be removed from an engine used in an active policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-dlp-engine.json",
+          "quotes": [
+            "Excluding a channel can reduce the extra noise that comes from engines being used unnecessarily.",
+            "When creating a DLP engine, you must select a channel."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-engines.json",
+          "quotes": [
+            "When editing a DLP engine, you must select a channel.",
+            "You can optionally override the channels associated with an engine directly from the DLP Engines page:",
+            "You can't remove a channel from an engine that is used in an active policy."
+          ]
+        }
+      ],
+      "gaps": [
+        "channel-scoping-semantics"
+      ]
+    },
+    "api-expression-unparseable": {
+      "statement": "If an expression sent through the API is broken or not recognized, even though it is correct in form (the page says \"synthetically correct\"), the console's engine builder cannot parse it: the Edit DLP Engine window shows it in a Reference Expression field and displays a blank Engine Builder section, and the expression must be recreated by hand. The page's examples of unparseable expressions are (D63.S > 0 AND NOT D39.S > 0), (D63.S > 0 OR NOT D39.S > 0 AND NOT D125.S > 0) and (SUM(D63.S, D246.S) > 2).",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-engines#engineExpression"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-dlp-engine.json",
+          "quotes": [
+            "If the expression sent for the DLP engine through the API is broken or not recognized, even though it is synthetically correct, the engine builder cannot parse the dictionary.",
+            "In this case, you need to manually recreate the expression in the Edit DLP Engine window in the Zscaler Admin Console.",
+            "In the Edit DLP Engine window, the expression that could not be parsed is displayed in the Reference Expression field and a blank Engine Builder section is displayed.",
+            "(D63.S > 0 AND NOT D39.S > 0)",
+            "(D63.S > 0 OR NOT D39.S > 0 AND NOT D125.S > 0)",
+            "(SUM(D63.S, D246.S) > 2)"
+          ]
+        }
+      ]
+    },
+    "clone-engine": {
+      "statement": "Any predefined or custom engine can be duplicated (cloned) to copy its functionality for a different use, with a name specified for the new engine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-cloning-dlp-engines.json",
+          "quotes": [
+            "You can duplicate a predefined or custom Data Loss Prevention (DLP) engine if you need to easily copy the functionality of an existing engine for a different use.",
+            "In the Clone DLP Engine window, specify a name for the new engine."
+          ]
+        }
+      ]
+    },
+    "tf-custom-engine-writes-need-support": {
+      "statement": "The Terraform `zia_dlp_engines` documentation says to contact Zscaler Support to have the POST, PUT and DELETE API methods enabled for the organization before using the resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_dlp_engines.md",
+          "quotes": [
+            "Before using the new ``zia_dlp_engines`` resource contact [Zscaler Support](https://help.zscaler.com/login-tickets).",
+            "request the following API methods ``POST``, ``PUT``, and ``DELETE`` to be enabled for your organization."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "custom-engine-ceiling": {
+      "summary": "Two help pages give different ceilings for custom DLP engines.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-dlp-engines.json",
+            "quotes": [
+              "You can create a maximum of 512 custom DLP engines."
+            ]
+          },
+          "says": "The Understanding DLP Engines page says a maximum of 512 custom DLP engines can be created."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Custom DLP Engines | 480 engines (with DLP Engine Expansion enabled) 58 engines (with DLP Engine Expansion disabled) |"
+            ]
+          },
+          "says": "The Ranges and Limitations page gives 480 engines with DLP Engine Expansion enabled and 58 with it disabled."
+        }
+      ],
+      "impact": "A count of custom engines near the ceiling cannot be judged against one number; which page is current and whether DLP Engine Expansion explains the difference is not stated."
+    },
+    "predefined-engine-count": {
+      "summary": "The Understanding page lists 5 predefined engines, while the Editing page lists more engines marked by tenant enablement date.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-dlp-engines.json",
+            "quotes": [
+              "The Zscaler service provides 5 predefined engines (HIPAA, GLBA, PCI, Offensive Language, and Self-Harm & Cyberbullying)."
+            ]
+          },
+          "says": "The Understanding DLP Engines page says the service provides 5 predefined engines and names them."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-editing-predefined-dlp-engines.json",
+            "after": "California Consumer Privacy Act (CCPA)",
+            "quotes": [
+              "This engine is available by default for customers with tenants enabled on April 4, 2025, or later. To request access to these engines, contact Zscaler Support."
+            ]
+          },
+          "says": "The Editing Predefined DLP Engines page lists further engines, such as CCPA, available by default for tenants enabled on April 4, 2025 or later."
+        }
+      ],
+      "impact": "How many predefined engines a tenant has depends on the page read and the tenant's enablement date; the pages do not say whether the Understanding page predates the newer engines."
+    },
+    "self-harm-contact": {
+      "summary": "The two pages name different contacts for enabling the Self-Harm & Cyberbullying engine.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-dlp-engines.json",
+            "quotes": [
+              "If you’re an educator, contact your Zscaler Account team to enable this feature."
+            ]
+          },
+          "says": "The Understanding DLP Engines page says to contact the Zscaler Account team."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-editing-predefined-dlp-engines.json",
+            "quotes": [
+              "If you’re an educator, contact Zscaler Support to enable this feature."
+            ]
+          },
+          "says": "The Editing Predefined DLP Engines page says to contact Zscaler Support."
+        }
+      ],
+      "impact": "Who enables the engine depends on the page followed."
+    }
+  },
+  "gaps": {
+    "expression-threshold-meaning": {
+      "kind": "semantic",
+      "title": "What the number in a dictionary term such as D63.S > 1 compares against",
+      "status": "partial",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "stating that the API's .S term is the console's match count",
+      "detail": "Narrowed by match-count-semantics: the Understanding DLP Engines page, now captured, says the console's number is a match count and that dictionaries trigger only when they find more matches than it. No captured page defines the API's `.S` suffix, so linking the console count to a term such as D63.S > 1 is still an inference."
+    },
+    "ml-based-engines": {
+      "kind": "semantic",
+      "title": "What ML-based means for the Finance, Legal and Medical engines",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "saying how the ML-based engines are tuned or thresholded",
+      "detail": "The editing page calls the Finance, Legal and Medical engines ML-based but does not describe tuning, thresholds or how they differ from the other predefined engines."
+    },
+    "predefined-engine-visibility": {
+      "kind": "data",
+      "title": "Which predefined engines tenants enabled before April 4, 2025 see by default",
+      "status": "open",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "resolvable_by": [
+        "operator"
+      ],
+      "blocks": "saying whether an older tenant has the newer predefined engines without asking Zscaler Support",
+      "detail": "The editing page marks the newer engines available by default for tenants enabled on April 4, 2025 or later and says to contact Zscaler Support to request access, but not what other tenants see by default."
+    },
+    "count-based-dictionaries": {
+      "kind": "semantic",
+      "title": "Which dictionaries require a match count and which are count-based for Sum",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "saying which dictionaries can be used with the Sum operator",
+      "detail": "The engine builder page says certain dictionaries require a match count and that Sum is available for count-based dictionaries, giving Credit Cards and Social Security Numbers as examples only."
+    },
+    "channel-scoping-semantics": {
+      "kind": "semantic",
+      "title": "Whether a channel association limits where an engine triggers",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying that a channel-scoped engine never fires on inline web traffic",
+      "detail": "Unverified legacy statement: \"an engine can be scoped to specific channels ... engines scoped to them only trigger on that traffic type. Inline (web) DLP engines don't need channel scoping.\" The help page lists channels as a column on the engines table; no captured source says a channel association restricts an engine to that channel, or that an engine without channels is inline-only."
+    },
+    "predefined-engine-regimes": {
+      "kind": "data",
+      "title": "Unverified legacy statement: predefined engines exist per regulation such as HIPAA, PCI and GDPR",
+      "status": "resolved",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "resolvable_by": [
+        "operator"
+      ],
+      "blocks": "naming the predefined engines",
+      "detail": "Unverified legacy statement: \"Zscaler ships predefined engines (HIPAA, PCI, GDPR, etc.) that already combine multiple dictionaries per regulation.\"",
+      "resolution": "The Editing Predefined DLP Engines page, now captured, lists HIPAA, GLBA, PCI, Offensive Language and Self-Harm & Cyberbullying plus GDPR, CCPA, PII (US) and other regulation engines with their dictionaries, the newer ones scoped to tenants enabled on April 4, 2025 or later (predefined-original-composition, predefined-2025-engines, predefined-2025-composition)."
+    },
+    "composite-example": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: example engine (CreditCards OR SSNs) AND Healthcare",
+      "status": "wontfix",
+      "resolves_with": [
+        "design-decision"
+      ],
+      "blocks": "nothing",
+      "detail": "Unverified legacy statement: \"An engine can say '(CreditCards OR SSNs) AND Healthcare'\". Illustrative only; replaced by the expression forms in the API reference (see boolean-composition)."
+    }
+  }
+}

@@ -1,0 +1,593 @@
+{
+  "schema_version": 1,
+  "id": "identity-protection.posture-scans",
+  "title": "Scan setup and results: the AD posture scan, AD Privileged Account Tracking and the endpoint credential exposure scan",
+  "aliases": [
+    "ad privileged account tracking",
+    "endpoint credential exposure scan configuration",
+    "ad scan configuration"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.ad-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.credential-exposure"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.change-detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-connection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.detection-policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.safelists"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{ad-scan-setup-inputs}} {{ad-scan-time-window}}"
+    },
+    {
+      "heading": "Active Directory posture scan"
+    },
+    {
+      "label": "Page and statuses.",
+      "text": "{{ad-agent-stale-removed}} {{ad-current-state-values}} What Error means differs between the two {{divergence:ad-error-state-meaning}}. {{ad-last-scan-status-values}}"
+    },
+    {
+      "label": "Setup and timeouts.",
+      "text": "{{ad-logon-server}} {{ad-scan-and-ldap-timeouts}} {{ad-attribute-collection}} Which defaults the pages leave out is open {{gap:ad-defaults-not-stated}}."
+    },
+    {
+      "label": "Failed checks.",
+      "text": "{{ad-failed-scan-checks}} The values the Type and Reason columns can take are open {{gap:failed-scan-values}}."
+    },
+    {
+      "label": "Stopping and deleting.",
+      "text": "{{ad-stop-scan}} {{ad-delete-scan-results}}"
+    },
+    {
+      "heading": "AD Privileged Account Tracking"
+    },
+    {
+      "text": "{{pat-page-fields}} {{pat-training-status}}"
+    },
+    {
+      "text": "{{pat-add-limits}} {{pat-identifiers}}"
+    },
+    {
+      "heading": "Endpoint credential exposure scan"
+    },
+    {
+      "label": "Module.",
+      "text": "{{cred-module-install}} {{cred-install-paths}}"
+    },
+    {
+      "label": "Configuration.",
+      "text": "{{cred-config-fields}} {{cred-password-analysis}} {{cred-scan-types-default}} Which scan types can be toggled is open {{gap:cred-scan-types-list}}."
+    },
+    {
+      "label": "Endpoint selection.",
+      "text": "{{cred-selection-criterion-default}} {{cred-selection-criterion-types}}"
+    },
+    {
+      "label": "Running and statuses.",
+      "text": "{{cred-scan-status-values}} {{cred-on-demand-scan}} {{cred-stop-scan}} {{cred-delete-scan-results}}"
+    },
+    {
+      "heading": "Related subjects"
+    },
+    {
+      "text": "[[identity-protection.overview]] [[identity-protection.ad-posture]] [[identity-protection.credential-exposure]] [[identity-protection.entra-connection]] [[identity-protection.detection-policies]] [[identity-protection.safelists]]"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which scan a quoted interval belongs to: the AD domain scan frequency of Daily, Weekly, Monthly or Quarterly, or the AD change detection scan that runs every 15 minutes.",
+      "uses": [
+        "ad-scan-setup-inputs",
+        "identity-protection.detection-policies:ad-change-notification-scope"
+      ]
+    },
+    {
+      "do": "Which meaning of Error the Active Directory Posture page gives before stating why a domain shows Error.",
+      "uses": [
+        "ad-error-state-meaning"
+      ]
+    }
+  ],
+  "claims": {
+    "ad-scan-setup-inputs": {
+      "statement": "When setting up an AD domain scan, the domain drop-down lists only domains where the endpoint agent is installed and the agent drop-down lists only active agents of that domain; the scan frequency choices are Daily, Weekly, Monthly or Quarterly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-scanning-active-directory.json",
+          "quotes": [
+            "The drop-down menu only lists the domains where the endpoint agent is installed.",
+            "The menu lists only the active agents that belong to the specified domain.",
+            "Select a scan frequency (Daily, Weekly, Monthly, or Quarterly) from the drop-down menu, and click Next."
+          ]
+        }
+      ]
+    },
+    "ad-scan-time-window": {
+      "statement": "An AD domain scan runs only at the scheduled time in the browser's time zone; it might be delayed by up to 10 minutes if the agent is available, and if the agent does not connect within an hour of the scheduled time the domain is not scanned until the next selected time period.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-scanning-active-directory.json",
+          "quotes": [
+            "The scan only happens during the scheduled time using your browser's time zone setting.",
+            "If the endpoint agent is available, the scan might be delayed by up to 10 minutes.",
+            "If the agent doesn't connect within an hour after the scheduled scan time, the AD domain is not scanned until the next selected time period."
+          ]
+        }
+      ]
+    },
+    "ad-agent-stale-removed": {
+      "statement": "On the Active Directory Posture page, an endpoint agent that has not checked in for more than 7 days is removed from the scan and its Current State is set to Error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-posture-scan.json",
+          "quotes": [
+            "On the Active Directory Posture page (ITDR > Manage > Active Directory Posture), you can do the following:",
+            "If an endpoint agent has not checked in for more than 7 days, it is removed from the scan and its Current State status is set to Error."
+          ]
+        }
+      ]
+    },
+    "ad-current-state-values": {
+      "statement": "The Active Directory Posture page's Current State column uses the statuses Active (scan enabled), Disabled (scan disabled), Waiting (waiting to connect to the endpoint agent so it can start the AD scan), Scanning (scan in progress) and Error (the endpoint agent is uninstalled or deleted).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-posture-scan.json",
+          "quotes": [
+            "On the Active Directory Posture page (ITDR > Manage > Active Directory Posture), you can do the following:",
+            "Current State: The current scan status. The statuses are as follows:",
+            "Active: The scan is enabled.",
+            "Disabled: The scan is disabled.",
+            "Waiting: Waiting to connect to the endpoint agent, so that the agent can start the AD scan.",
+            "Scanning: The scan is in progress.",
+            "Error: The endpoint agent is uninstalled or deleted."
+          ]
+        }
+      ]
+    },
+    "ad-last-scan-status-values": {
+      "statement": "The Active Directory Posture page's Last Scan Status is one of Scan Completed, Processing scan data, Unable to connect to the domain, Scan Timed Out, Scan Canceled or Scan Failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-posture-scan.json",
+          "quotes": [
+            "On the Active Directory Posture page (ITDR > Manage > Active Directory Posture), you can do the following:",
+            "Last Scan Status: The last scan status (Scan Completed, Processing scan data, Unable to connect to the domain, Scan Timed Out, Scan Canceled, or Scan Failed)."
+          ]
+        }
+      ]
+    },
+    "ad-attribute-collection": {
+      "statement": "ITDR collects AD user and computer attributes through the Windows endpoint agent assigned to the scan; attribute collection is enabled by default once the domain is configured, can be toggled off, and has a Weekly or Monthly scan frequency.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-posture-scan.json",
+          "quotes": [
+            "Zscaler ITDR collects AD object (user and computer) attributes, such as objectSid, description, pwdLastSet, department, etc.",
+            "The Windows endpoint agent assigned for scanning the AD domain collects the attributes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-managing-active-directory-attribute-collection-settings.json",
+          "quotes": [
+            "After an AD domain is configured for scanning, attribute collection is enabled by default.",
+            "Enabled: Attribute collection is enabled by default. Click the toggle to disable it.",
+            "Scan Frequency: Select a scan frequency (Weekly or Monthly) for attribute collection."
+          ]
+        }
+      ]
+    },
+    "ad-failed-scan-checks": {
+      "statement": "For a scanned AD domain whose Last Scan Status is Scan Completed but with failed checks, the fractional number (for example 18/31) opens a Failed Scans window listing each failed check's Name, Type and Reason; 18/31 means 18 of 31 scan checks failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-failed-scan-check-details.json",
+          "quotes": [
+            "For a scanned AD Domain whose Last Scan Status is Scan Completed and some of the scan checks have failed, click the fractional number.",
+            "click 18/31, which indicates that 18 scan checks out of 31 have failed.",
+            "Name: The name of the scan check that failed.",
+            "Type: The type of failure.",
+            "Reason: The reason for failure."
+          ]
+        }
+      ]
+    },
+    "ad-scan-and-ldap-timeouts": {
+      "statement": "The AD scan timeout defaults to 30 minutes and the LDAP connection timeout to 5 minutes, both set in minutes per domain; Zscaler recommends keeping the defaults.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-scan-and-ldap-connection-timeout.json",
+          "quotes": [
+            "By default, the scan timeout is 30 minutes and LDAP connection timeout is 5 minutes.",
+            "Zscaler recommends keeping the default values for better performance.",
+            "Scan Timeout: Enter the scan timeout in minutes.",
+            "Connection Timeout: Enter the LDAP connection time in minutes.",
+            "Locate the AD domain for which you want to configure the timeout, and click the Edit icon."
+          ]
+        }
+      ]
+    },
+    "ad-logon-server": {
+      "statement": "The Logon Server field in an AD domain's Scan Agents Details window specifies the domain controller or LDAP server to use for scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-specifying-domain-controller-scanning.json",
+          "quotes": [
+            "In the Scan Agents Details window, for Logon Server, specify the DC or LDAP server to use for scanning.",
+            "You can connect your AD domain to Zscaler ITDR through a DC server or an LDAP authentication."
+          ]
+        }
+      ]
+    },
+    "ad-stop-scan": {
+      "statement": "Stopping an AD scan (for example to update ITDR software or change ITDR or AD configuration) also halts scheduled scans: until the scan is started again no further scans run, even at the scheduled frequencies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-stopping-ongoing-scan-active-directory-domain.json",
+          "quotes": [
+            "When you want to update Zscaler ITDR software, or configure ITDR or your AD domain for any changes, you can temporarily stop an ongoing or scheduled scan.",
+            "Until you start the scan, no further scans run even at the scheduled frequencies.",
+            "Click the Start icon to start the scan."
+          ]
+        }
+      ]
+    },
+    "ad-delete-scan-results": {
+      "statement": "Deleting an AD scan deletes all identity vulnerability results for that AD domain on the Active Directory Posture dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-editing-or-deleting-active-directory-scan.json",
+          "quotes": [
+            "After you delete a scan, all the identity vulnerability results pertaining to that AD domain on the Active Directory Posture dashboard are deleted."
+          ]
+        }
+      ]
+    },
+    "pat-training-status": {
+      "statement": "The AD Privileged Account Tracking page shows a machine-learning Training Status per tracked account: Not Trained, Data Gathering or Evolving; the Last Successful Training Date appears only for Evolving.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-privileged-account-tracking.json",
+          "quotes": [
+            "Not Trained: The machine learning system has not yet started learning the user's behavior patterns.",
+            "Data Gathering: The machine learning system is currently collecting data to begin learning the user's behavior.",
+            "Evolving: The machine learning system has completed learning the user's behavior and is adapting to recognize new patterns.",
+            "The Last Successful Training Date details appear only for the Evolving status."
+          ]
+        }
+      ]
+    },
+    "pat-page-fields": {
+      "statement": "The AD Privileged Account Tracking page counts default privileged accounts, admin-added accounts and their total, can be filtered by AD domain, and its Object ID shows the UPN for a user or the distinguished name for a group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-privileged-account-tracking.json",
+          "quotes": [
+            "View the total number of default privileged user accounts being monitored.",
+            "View the total number of user accounts being monitored that were added by an admin.",
+            "View the total number of default and user-defined accounts being monitored.",
+            "Filter AD Privileged Account Tracking results by an AD domain.",
+            "Object ID: The unique identifier for an object.",
+            "Displays the user principal name (UPN) for a user, or the distinguished name for a group.",
+            "Is Data Collected: Indicates if the data is collected for training the machine learning system to track user behavior."
+          ]
+        }
+      ]
+    },
+    "pat-add-limits": {
+      "statement": "At most 200 user accounts can be added for tracking per AD domain; adding requires the Session Tracking setting enabled on the server agent and a user or group found in the AD domain, and when all users are fetched from a group the group name is replaced by the users in it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-users-for-privileged-account-tracking.json",
+          "quotes": [
+            "You can add a maximum of 200 user accounts to track in each AD domain.",
+            "The Session Tracking setting for a server agent must be enabled.",
+            "Users or groups that are added for tracking must be found in the AD domain.",
+            "When all users are fetched from a group, the group name is replaced by the users in the group on the AD Privileged Account Tracking page."
+          ]
+        }
+      ]
+    },
+    "pat-identifiers": {
+      "statement": "A user is added for tracking by its UPN as it appears in the AD domain and a group by its full distinguished name; the account or group cannot be tracked if the value is not found.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-users-for-privileged-account-tracking.json",
+          "quotes": [
+            "UPN: Enter the User Principal Name (UPN) of the user as it appears in the AD domain. The user cannot be tracked if the UPN is not found.",
+            "Distinguished Name: Enter the full Distinguished Name (DN) of the group as it appears in the AD domain. The group cannot be tracked if the name is not found."
+          ]
+        }
+      ]
+    },
+    "cred-module-install": {
+      "statement": "The Endpoint Credential Exposure module is installed automatically after an ITDR license is purchased; the installer is always present on endpoints but the module stays dormant until a credential exposure scan is initiated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-endpoint-credential-exposure-scan.json",
+          "quotes": [
+            "After you purchase the ITDR license, the Endpoint Credential Exposure module is automatically installed on your system.",
+            "The installer is always present on endpoints, but the module itself remains dormant until you initiate a credential exposure scan."
+          ]
+        }
+      ]
+    },
+    "cred-install-paths": {
+      "statement": "The module installs to C:\\Program Files\\Zscaler\\Identity Protection with ZSIdentityProtection.exe as the primary program file, and the installer path is C:\\Program Files\\Common Files\\Landmine\\ZSIdentityProtectionInstaller.exe.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-endpoint-credential-exposure-scan.json",
+          "quotes": [
+            "Installation Path: C:\\Program Files\\Zscaler\\Identity Protection",
+            "ZSIdentityProtection.exe is the primary program file for the ITDR module.",
+            "The path is C:\\Program Files\\Common Files\\Landmine\\ZSIdentityProtectionInstaller.exe."
+          ]
+        }
+      ]
+    },
+    "cred-scan-status-values": {
+      "statement": "The Endpoint Credential Exposure page's scan Info status is Completed, Partially Completed (only some modules scanned because of errors in others), Failed, Not Started (queued in the ITDR Admin Portal) or Processing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-endpoint-credential-exposure-scan.json",
+          "quotes": [
+            "On the Endpoint Credential Exposure page (ITDR > Manage > Endpoint Credential Exposure), you can do the following:",
+            "Info: The status of the scan:",
+            "Completed: The endpoint agent completed the scan across the modules and sent the data to the ITDR Admin Portal.",
+            "Partially Completed: The endpoint agent completed the scan across only a few modules due to errors in other modules, and sent the partial data to the ITDR Admin Portal.",
+            "Failed: The endpoint agent failed to scan the modules.",
+            "Not Started: The endpoint agent has not started the scan that is queued in the ITDR Admin Portal.",
+            "Processing: The endpoint agent is currently running the scan across the modules and will send the data to the ITDR Admin Portal after completion."
+          ]
+        }
+      ]
+    },
+    "cred-password-analysis": {
+      "statement": "Password Analysis in a credential exposure scan is enabled by default; when enabled, passwords are hashed with a custom salt locally on the endpoint and collected on the tenant, and when disabled passwords are neither processed nor collected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-endpoint-credential-exposure-scan.json",
+          "quotes": [
+            "If enabled, passwords are hashed using a custom salt locally on the endpoint and are collected on your tenant for analysis. Zscaler cannot access your credentials in plain text.",
+            "If disabled, passwords are neither processed nor collected."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-endpoint-credential-exposure-scan.json",
+          "quotes": [
+            "Password Analysis: Enable or disable password hashing using custom salt. This setting is enabled by default."
+          ]
+        }
+      ]
+    },
+    "cred-config-fields": {
+      "statement": "A credential exposure configuration takes a name, a scan frequency (Daily, Weekly, Monthly or Quarterly) and a scan time entered in UTC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-endpoint-credential-exposure-scan.json",
+          "quotes": [
+            "Configuration Name: Enter the name for the configuration.",
+            "Scan frequency: Select a scan frequency (Daily, Weekly, Monthly, or Quarterly).",
+            "Scan Time (UTC): Enter a scan time."
+          ]
+        }
+      ]
+    },
+    "cred-selection-criterion-default": {
+      "statement": "A newly created credential exposure scan defaults to the Catch All selection criterion, which applies the policy to all endpoint agents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-specifying-selection-criterion-credential-exposure-scan.json",
+          "quotes": [
+            "By default, the Catch All criterion is selected for the newly created credential exposure scan to apply the policy to all the endpoint agents."
+          ]
+        }
+      ]
+    },
+    "cred-selection-criterion-types": {
+      "statement": "Credential exposure endpoint selection offers Catch All, User, Group, Hostname (Specific), Hostname (RegEx), DNS Hostname (Specific), DNS Hostname (RegEx), User OU (RegEx) and Computer OU (RegEx), each matching as the vendor describes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-specifying-selection-criterion-credential-exposure-scan.json",
+          "quotes": [
+            "Catch All: Apply the policy to all endpoint agents.",
+            "User: Apply the policy to all the endpoints where at least one of the users specified in the User field is logged in.",
+            "Group: Apply the policy to all the endpoints that are under the Active Directory (AD) groups specified in the Group field.",
+            "Hostname (Specific): Apply the policy to all the endpoints where the hostname of the system exactly matches one of the hostnames specified in the Hostname field.",
+            "Hostname (RegEx): Apply the policy to all the endpoint agents where the hostname of the system matches the hostname pattern specified as a regular expression in the RegEx field.",
+            "DNS Hostname (Specific): Apply the policy to all endpoints whose FQDN matches with one of the FQDN values specified in the Hostname field.",
+            "DNS Hostname (RegEx): Apply the policy to all endpoints where the FQDN of the system matches the FQDN pattern specified as a regular expression in the RegEx field.",
+            "User OU (RegEx): Apply the policy to all the users present in the organization unit (OU) that matches the OU regular expression pattern in the RegEx field.",
+            "Computer OU (RegEx): Apply the policy to all the systems present in the OU that match the OU regular expression pattern in the RegEx field."
+          ]
+        }
+      ]
+    },
+    "cred-scan-types-default": {
+      "statement": "All exposure or scan types are enabled by default in a credential exposure scan, and after saving only the enabled types run on the endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-enabling-or-disabling-scan-types-credential-exposure-scan.json",
+          "quotes": [
+            "By default, all exposure or scan types are enabled.",
+            "After you save the configuration, only the enabled exposure or scan types run on the endpoints to detect credential vulnerabilities."
+          ]
+        }
+      ]
+    },
+    "cred-on-demand-scan": {
+      "statement": "An on-demand credential exposure scan can be triggered when new endpoint agents are installed or to view a report immediately, in addition to the scheduled scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-triggering-demand-credential-exposure-scan.json",
+          "quotes": [
+            "After you configure an endpoint for a credential exposure scan, the scan is triggered at the scheduled time.",
+            "When new endpoint agents are installed, or when you need to scan an endpoint for risks to view the report immediately, you can manually trigger an on-demand scan."
+          ]
+        }
+      ]
+    },
+    "cred-stop-scan": {
+      "statement": "Stopping a credential exposure scan lets scans already in progress complete but no new scheduled scans run until the scan is started again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-stopping-ongoing-scan-credential-exposure.json",
+          "quotes": [
+            "Existing scans that are in progress will be completed, but no new scheduled scans will run until you start them.",
+            "Click the Start icon to start the scan."
+          ]
+        }
+      ]
+    },
+    "cred-delete-scan-results": {
+      "statement": "Deleting a credential exposure scan deletes all identity vulnerability results for that credential exposure on the Endpoint Credential Exposure dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-editing-or-deleting-credential-exposure-scan.json",
+          "quotes": [
+            "After you delete a scan, all the identity vulnerability results pertaining to that credential exposure on the Endpoint Credential Exposure dashboard are deleted."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "ad-error-state-meaning": {
+      "summary": "The Active Directory Posture page gives two meanings for the Error Current State.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-about-active-directory-posture-scan.json",
+            "quotes": [
+              "If an endpoint agent has not checked in for more than 7 days, it is removed from the scan and its Current State status is set to Error."
+            ]
+          },
+          "says": "Error is set when an endpoint agent has not checked in for more than 7 days."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-about-active-directory-posture-scan.json",
+            "quotes": [
+              "Error: The endpoint agent is uninstalled or deleted."
+            ]
+          },
+          "says": "Error means the endpoint agent is uninstalled or deleted."
+        }
+      ],
+      "impact": "The page does not say whether the 7-day no-check-in case and the uninstalled or deleted case are the same condition, so the cause of an Error state is not settled by either statement."
+    }
+  },
+  "gaps": {
+    "ad-defaults-not-stated": {
+      "kind": "semantic",
+      "title": "Defaults the AD scan articles do not state",
+      "status": "open",
+      "detail": "The AD scan articles captured here give the scan and LDAP timeout defaults but not a default scan time or how long scan reports are retained.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "failed-scan-values": {
+      "kind": "semantic",
+      "title": "Which Type and Reason values the Failed Scans window shows",
+      "status": "open",
+      "detail": "The failed-scan article names the Name, Type and Reason columns but does not enumerate the values of Type or Reason.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "cred-scan-types-list": {
+      "kind": "semantic",
+      "title": "Which exposure or scan types a credential exposure scan can toggle",
+      "status": "open",
+      "detail": "The enable and disable article says all exposure or scan types are enabled by default and only enabled ones run, but does not list them.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

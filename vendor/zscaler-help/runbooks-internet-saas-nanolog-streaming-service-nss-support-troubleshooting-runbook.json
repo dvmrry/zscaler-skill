@@ -1,0 +1,3197 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Internet & SaaS Nanolog Streaming Service Support Troubleshooting Runbook",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook",
+    "node": "1533716",
+    "revision": "3226363",
+    "updated": "2026-07-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler's Nanolog Streaming Service (NSS) is a family of products that enable Zscaler cloud communication with third-party security solution devices for exchanging event logs."
+    },
+    {
+      "text": "This Internet & SaaS NSS Support Troubleshooting Runbook provides a structured approach for diagnosing and resolving issues related to NSS. This runbook outlines common and recurring issues, environment-specific troubleshooting guidance, escalation protocols, useful tools, and verification steps."
+    },
+    {
+      "heading": "General Troubleshooting Workflow",
+      "level": 1
+    },
+    {
+      "text": "This runbook is designed to support troubleshooting NSS following the general three-stage diagnosis rule:"
+    },
+    {
+      "item": "Localize the issue to determine where it's occurring.",
+      "depth": 0
+    },
+    {
+      "item": "Isolate the affected component or service path.",
+      "depth": 0
+    },
+    {
+      "item": "Diagnose the root cause by analyzing the available data to determine an efficient resolution.",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "How to Confirm the NSS Server Type"
+    },
+    {
+      "text": "There are two options for confirming the NSS server type. In the Zscaler Admin Console:"
+    },
+    {
+      "item": "Go to Logs > Log Streaming > Cloud and Edge Log Streaming > Nanolog Streaming Service and confirm the configured feed type.",
+      "depth": 0,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          13,
+          26
+        ],
+        [
+          29,
+          57
+        ],
+        [
+          60,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Administration > Account Management > Subscriptions and check to see if Cloud to Cloud Streaming FW/Web for Cloud NSS and NSS Log Feed for Web/Firewall for virtual machine (VM)-based NSS are listed.",
+      "depth": 0,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          41
+        ],
+        [
+          44,
+          57
+        ],
+        [
+          78,
+          109
+        ],
+        [
+          128,
+          157
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "Based on the type of NSS server used, proceed with one of the following options."
+    },
+    {
+      "text": "VM-Based NSS (Includes Microsoft Cloud App Security Issues)"
+    },
+    {
+      "text": "The following sections describe how to address VM-based NSS issues."
+    },
+    {
+      "heading": "Is There an Operational Issue with NSS VM?",
+      "level": 3
+    },
+    {
+      "text": "The following sections describe how to address operational issues, such as NSS is unhealthy, not upgrading, monitoring alerts, etc."
+    },
+    {
+      "heading": "Ongoing Issue",
+      "level": 4
+    },
+    {
+      "text": "Verify if the NSS Server is showing Unhealthy in the Zscaler Admin Console. If yes:"
+    },
+    {
+      "item": "Run sudo nss status to see if the NSS service is running.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "If the service is not running, validate the configuration using sudo nss dump-config.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Validate if the correct certificate is installed on the NSS and if there are duplicate certifications installed using the following steps:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Run the command openssl x509 -in /sc/conf/zscaler_nss_certificate.crt -noout -subject -noout -serial -noout -issuer -noout -dates.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the SSL Certificate field, select Download.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          37,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Compare the contents of installed cert and cert on the UI. Make sure all the values including serial number, CN, validity, etc., match.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Check if there are multiple certificates listed in the earlier openssl command output. Sometimes there could be duplicate certificates if accidentally installed twice.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Check the current installed build version and the latest available build version by running sudo nss checkversion. If NSS is on an older version, follow the steps in NSS Build Upgrade Issues.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Run sudo /sc/bin/smmgr -g smca_cur_nss_orgid -d stats if the orgid is not seen in the output and shows an invalid output. Try to reinstall the NSS client certificate again if the issue persists. Check if there are any Zscaler Central Authority (CA) related connectivity issues.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run /sc/bin/smctl.sh to see if all the granular NSS roles are running. If any specific service shows not running, proceed to check if that service-related connections are established or not. Make sure all the connection requirements specified here are met.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "Run Basic Health Checks to see if any of the resources are running hot.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "If there are CPU/Memory utilization issues, check and make sure NSS has the required VM and Network specifications as per our platform-specific deployment guides. You can also check CPU details using the sysctl hw | grep cpu command.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "If there are Disk Space issues, run the df -h or ls -ltrh /sc command to see disk space utilization. If disk space is overutilized, check ls -ltrh smcdsc.core* output to see if there are frequent core files generated.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "If the number of users is more than 75K, Zscaler recommends 64GB VM type. If the average daily transaction for your organization is >1 billion, you need additional Nanolog clusters for every 1 billion transaction. You can request additional Nanolog clusters (NLCs) by contacting Zscaler Support.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Check the NSS log file /sc/log/zscaler.log to see if there were any service restarts or stop. Check /sc/log/smmonitor.log for any HUNG states on NSS. If the service is frequently in hung state, capture necessary information and contact Zscaler Support.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "Run sudo nss troubleshoot netstat | grep tcp to see if all the necessary connections towards Zscaler Nanolog server, Zscaler CA Server, and SIEM are established.",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "If any of the connections are failing, follow Network Connectivity Checks to further narrow down the issue.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Take a packet capture following the steps under Taking a Packet Capture and analyze to see the communication failures.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Based on your network topology, check your network device logs to see if there are any blocks or drops.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "If the previous checks do not yield a solid root cause conclusion, capture the following information and escalate to Zscaler Support:",
+      "depth": 0,
+      "number": 10
+    },
+    {
+      "item": "Detailed description of nature and impact of issue.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Scope of impact (e.g., feed(s) name, NSS hostname, location/group).",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Deployment environment details including:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Platform OS (e.g., Azure/AWS/VMware).",
+      "depth": 2
+    },
+    {
+      "item": "SIEM vendor.",
+      "depth": 2
+    },
+    {
+      "item": "Special deployment case like Explicit Proxy Mode, Private Nanolog, or Multi-cluster nanolog.",
+      "depth": 2
+    },
+    {
+      "item": "Screenshot of Health Checks and Network Connectivity Checks.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "NSS log files for the time of issue - zscaler.log, smmonitor.log.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "heading": "Historical Issue",
+      "level": 4
+    },
+    {
+      "text": "Were NSS monitoring alerts received? If yes:"
+    },
+    {
+      "item": "Is this an alert generated by Zscaler default monitoring or a third-party monitoring (e.g., SNMP) on your end? If you have configured Zscaler monitoring Alerts for NSS, you receive Alerts on the configured IP address and port. You can also check the nss_alert_generated counter on the NSS to see the historical Alerts generated. The following is the list of Alerts and corresponding mitigation steps:",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          250,
+          269
+        ]
+      ]
+    },
+    {
+      "item": "If you are seeing connectivity down Alert for SIEM or Zscaler Nanolog or Zscaler CA, run Network Connectivity Checks and refer to Scope 2 for these Alerts.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "For Memory is low Alerts, run the top command to check memory utilization. If the memory is overutilized, check and make sure NSS has the required VM and Network specifications as per Zscaler's platform-specific deployment guides.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "For Disk space is low Alert, run the df -h or ls -ltrh /sc command to check disk space utilization. If /sc/log is overutilized, check ls -ltrh smcdsc.core* output to see if there are frequent core files generated. If yes, you can capture all the information and raise BUG for further investigation.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "The connection between the NSS and the SIEM is poor Alert indicates that network connection between NSS and SIEM is not stable. If NSS and SIEM are on different networks, make sure the average bandwidth requirements are met.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "For The CPU utilization is high Alert, run the top command to see if the CPU consumption is high. If there are CPU/Memory utilization issues, check and make sure NSS has the required VM and Network specifications as per Zscaler's platform-specific deployment guides. You can also check the processwatch_cur_cpu_use_inpercentage counter to see historical CPU utilization issues. You can use sysctl hw | grep cpu to check the CPU specifications.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          4,
+          31
+        ],
+        [
+          290,
+          327
+        ]
+      ]
+    },
+    {
+      "item": "For Memory swap is high Alert, run the swapinfo command to see if the swap memory is overutilized.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "SNMP/Third-party monitoring alert:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Use SNMP monitoring to monitor health and network connectivity on the NSS. To learn more, see Accessing Zscaler SNMP MIBS.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Check the /var/log/snmpd.log file to see if there were any SNMP Alerts generated on the NSS.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "SNMP generates Alerts similar to Zscaler monitoring whenever there is a resource or connectivity issue, and the mitigation steps are the same as discussed in Zscaler Alerts.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "text": "If no, and this is an historical issue which was noticed and there are no monitoring alerts configured, check:"
+    },
+    {
+      "item": "The nss_alert_generated counter on the NSS for the issue timestamp. If there were any Alerts, follow the previous steps for Zscaler Alerts.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Enter the command /sc/bin/smmgr -g nss_alert_generated -d stats | less.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Check /var/log/messages to see system-level details like Kernel (e.g., Link state, Boot messages, RAID messages), SSH, NTP (time synchronization).",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Check the /sc/log/zscaler.log to see if there were any runtime errors.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Check the /sc/log/smmonitor.log to see if NSS was in a HUNG state or any other runtime errors.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "NSS Build Upgrade Issues",
+      "level": 4
+    },
+    {
+      "text": "Use the following validation steps:"
+    },
+    {
+      "item": "Check the current and available build version sudo nss checkversion (an alternate command is /sc/bin/smcdsc -V).",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Try upgrading the build manually using the sudo nss update-now command.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "The following are troubleshooting steps:"
+    },
+    {
+      "item": "Check if all the services are running, especially smcdsc, which is responsible for build updates: /sc/bin/smctl.sh.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If the smcdsc service is not running, perform Basic Health Checks and Network Connectivity Checks. If the results are not conclusive, contact Zscaler Support for further troubleshooting.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Check if the zdistribute server (responsible for updates) connectivity is broken using the sudo nss test-firewall command.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Check if there are Disk space issues (build download fails when there is no disk space available) using the df -h command.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "If /sc directory is overutilized, check the /core folder (ls -ltrh /sc/core) to see if there are too many core files taking up space. Clear the files and retry the update.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "To investigate historical update failure issues, check the autoupgrade file using the cat /sc/log/autoupgrade.log command.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "Refer to the NSS Log Files autopgrade.log section for more details.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "heading": "Is There a Connectivity and Communication Problem Between NSS and Zscaler Cloud or SIEM?",
+      "level": 3
+    },
+    {
+      "text": "To ensure that NSS works correctly in your environment, make sure all connections mentioned on the NSS cloud config page are allowed on your network. If not, running Network Connectivity Checks like sudo nss troubleshoot connection or sudo nss troubleshoot netstat | grep tcp show an unstable connection towards any one of the three basic connections Zscaler Central Authority Server/Zscaler Nanolog server /SIEM. Based on the Network Connectivity Checks outcome, you can use the following paths."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "If all the connections are healthy proceed to check other scope of issues."
+    },
+    {
+      "text": "If both the Zscaler Nanolog server and SIEM connections are failing, prioritize troubleshooting the SIEM connection, as the Zscaler Nanolog server connection depends on the successful establishment of the SIEM connection."
+    },
+    {
+      "heading": "Connectivity Test is Failing Towards Zscaler Cloud (Zscaler CA Server/Zscaler Nanolog Server)",
+      "level": 4
+    },
+    {
+      "text": "To validate if the Zscaler CA Server connection is unstable or broken, run any one of the following commands to check NSS to Zscaler CA Server connection status (refer to Network Connectivity Checks section for more details and sample outputs):"
+    },
+    {
+      "item": "sudo nss troubleshoot connection",
+      "depth": 0
+    },
+    {
+      "item": "sudo nss troubleshoot netstat | grep tcp",
+      "depth": 0
+    },
+    {
+      "item": "sudo nss test-firewall",
+      "depth": 0
+    },
+    {
+      "item": "/sc/bin/smmgr -s host=<Zscaler CA(Central Authority) Servercluster.<cloud>.net> -s port=443 -ys connect=tcp",
+      "depth": 0
+    },
+    {
+      "text": "Use the following troubleshooting steps:"
+    },
+    {
+      "item": "From the sudo nss test-firewall output, check if the CA FQDN smcacluster.<cloud>.net is resolvable or not.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If the Zscaler CA Server domain is not resolvable, or if there are overall DNS issues, you see DNS errors in the test-firewall output. Check the DNS server configured in cat /etc/resolv.conf and run an nslookup with this server as compared to resolution using public DNS server (8.8.8.8).",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run /sc/bin/smmgr -s host=smcacluster.<cloud>.net> -s port=443 -ys connect=tcp to check if the DNS or Connection establishment times are unusually high. (The CA connection could be an overseas connection, so a round trip time of >200ms is expected. But if this is as high as >400ms, it needs an investigation from the NSS network perspective.)",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Although the connect=tcp output indicates a successful connection, it is still important to test using connect=ssl to determine if the issue lies with the SSL connection. An intermediate network device performing SSL inspection might be intercepting and dropping the connections. For further analysis, consider using a packet capture.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Take a packet capture on the management interface to analyze CA communication. Refer to Taking a Packet Capture section for detailed instructions.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Check if the capture indicates silent drops in the network, such as SYN packets sent to CA IP but no SYN-ACK received in response.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Check if the capture reveals connection blocks caused by intermediate network device, identified by reset packets with a TTL value differing from the other packets received from the CA IP.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "From the packet capture, if you are not seeing any requests generated to the CA, instead if there are only ARP requests without any response back, it is likely to be an issue with the interface IP configurations.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Make sure management and service interfaces can communicate with Default gateway.",
+      "depth": 2
+    },
+    {
+      "item": "Run sudo nss test-firewall, and make sure Service and Management IP addresses are unique and from same subnet.",
+      "depth": 2
+    },
+    {
+      "item": "Run ifconfig to see the MAC addresses assigned to the interfaces, make sure these are unique and compare the same on VM host Azure/AWS portal.",
+      "depth": 2
+    },
+    {
+      "item": "Test by changing service interface IP subnet. If issue persists, you might need to redeploy ova as a last resort.",
+      "depth": 2
+    },
+    {
+      "text": "If the Zscaler Nanolog server connection is unstable or has broken validation steps, run any one of the following commands to check NSS to Zscaler Nanolog server connection status (see Network Connectivity Checks section for more details and sample outputs):"
+    },
+    {
+      "item": "sudo nss troubleshoot connection",
+      "depth": 0
+    },
+    {
+      "item": "sudo nss troubleshoot netstat | grep tcp",
+      "depth": 0
+    },
+    {
+      "item": "sudo nss test-firewall",
+      "depth": 0
+    },
+    {
+      "item": "sudo /sc/bin/smmgr -s host=<Zscaler nanolog server_IP> -s port=443 -ys connect=tcp",
+      "depth": 0
+    },
+    {
+      "text": "Use the following troubleshooting steps:"
+    },
+    {
+      "item": "Run sudo nss troubleshoot netstat | grep tcp to see a stable connection to one of these Zscaler Nanolog servers.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run /sc/bin/smmgr -s smnet=\"netstat\" | grep <NSS_public_IP> to confirm connection status from the Zscaler Nanolog server.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run sudo /sc/bin/smmgr -ys smnet=netstat | less to see if the Recv-Q is overutilized. This reflects Q status between Zscaler Nanolog server and NSS. If Recv-Q is overutilized, check if the customer has Bandwidth Requirements as per the recommendation in NSS deployment guide. (11 Mbps for 10K users is an example average value).",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Take a packet capture on the Service interface to analyze Zscaler Nanolog server communication. Refer to Taking a Packet Capture section for detailed instructions.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Check if the capture indicates silent drops in the network, such as SYN packets sent to Zscaler Nanolog server IP but no SYN-ACK received in response.",
+      "depth": 1
+    },
+    {
+      "item": "Check if the capture reveals connection blocks caused by intermediate network device, identified by reset packets with a TTL value differing from the other packets received from the Zscaler Nanolog server IP.",
+      "depth": 1
+    },
+    {
+      "heading": "Connectivity Test is Failing Towards SIEM",
+      "level": 4
+    },
+    {
+      "text": "To validation steps if a connectivity test is failing toward a SIEM, run any one of the following commands to check NSS to SIEM connection status (see Network Connectivity Checks section for more details and sample outputs):"
+    },
+    {
+      "item": "sudo nss troubleshoot connection",
+      "depth": 0
+    },
+    {
+      "item": "sudo nss troubleshoot netstat | grep tcp",
+      "depth": 0
+    },
+    {
+      "item": "sudo nss troubleshoot feeds",
+      "depth": 0
+    },
+    {
+      "item": "sudo /sc/bin/smmgr -s host=<SIEM_IP> -s port=<SIEM_port> -ys connect=tcp",
+      "depth": 0
+    },
+    {
+      "text": "The following are troubleshooting steps:"
+    },
+    {
+      "item": "Run sudo /sc/bin/smmgr -ys getsminfo=nss_feed_info_all to make sure the SIEM IP, Port, and Feed filters are reflecting correctly.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run sudo /sc/bin/smmgr -s host=<SIEM_IP> -s port=<SIEM_port> -ys connect=tcp to see if there are reachability issues to SIEM IP on the configured port. Users should ensure the configured SIEM IP and port are reachable from the NSS service interface. If there are any filtering or networking devices between NSS and SIEM, allowlist the NSS IP as required.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Take a pcap on the service interface to see the communication between NSS and SIEM. Confirm whether NSS is sending logs to SIEM.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Check if the capture indicates silent drops in the network, such as SYN packets sent to Zscaler Nanolog server IP but no SYN-ACK received in response.",
+      "depth": 1
+    },
+    {
+      "item": "Check if the capture reveals connection blocks caused by intermediate network device, identified by reset packets with a TTL value differing from the other packets received from the Zscaler Nanolog server IP.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Is There an Issue Related to Log Integrity and Format?",
+      "level": 3
+    },
+    {
+      "text": "The following sections describe issues related to log integrity and format."
+    },
+    {
+      "heading": "MCAS Feed",
+      "level": 4
+    },
+    {
+      "text": "To validate an MCAS configuration:"
+    },
+    {
+      "item": "On the Zscaler Admin Console, go to Administration > Partner Integrations > Microsoft Cloud App Security.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          50
+        ],
+        [
+          53,
+          73
+        ],
+        [
+          76,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Click Test and see if the URLs are successfully synced. (Note, the test can be run only when the logged-in admin has write access.)",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "On the NSS server, run cat /sc/conf/zbridge-mcas.properties to see if the config is reflecting.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run sudo /sc/bin/smmgr -ys getsminfo=nss_feed_info_all to make sure the MCAS Feed configured on the portal is reflecting as is.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Users might need to update MCAS configurations due to changes on the MS side. If you encounter any errors while attempting to change the config or if it is not reflecting in the /sc/conf/zbridge-mcas.properties file, contact Zscaler Support for further investigation.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "heading": "Troubleshooting Steps",
+      "level": 4
+    },
+    {
+      "text": "The following sections describes troubleshooting steps."
+    },
+    {
+      "item": "From NSS server run /sc/bin/smctl.sh to see if the zbridge service is running.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run a curl command to confirm MCAS server reachability and configuration, based on MCAS Authentication method used:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "For Token based auth: Copy the MCAS domain and Authorization token from the zbridge-mcas.properties file, and run the following curl command to see if the endpoint is returning 200 OK response with the list of MCAS applications.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "curl -v \"https://<Customer_MCAS_Domain>/api/discovery_block_scripts/?format=120&type=banned\" -H \"Authorization: Token <Customer_MCAS_Token>\"",
+      "depth": 1
+    },
+    {
+      "item": "Example: curl -v \"https://mytest.eu.portal.cloudappsecurity.com/api/discovery_block_scripts/?format=120&type=banned\" -H \"Authorization: Token TkNcW0BCSF1AWl8BSloBX0BdW05DAUxDQFpLTl9fXEpMWl1GW1YBTEBCUxpMH05KGhtMHB8ZF00bSUwXTk0XSh1NTkxLHRgcHxZOHBoWFh5NSRYXHRcdHU4WGRkdSR0aGRsWTB0XS04aHhk=\"",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For OAuth: Copy the configuration values from the zbridge-mcas.properties file and run the curl command. You can fetch the MCAS authorization URL from the previous Config Validation Step.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "curl -X POST \"<MCAS_authorization_URL>\" -d \"scope=<Scope>\" -d \"client_id=<Client ID>\" -d \"client_secret=<Client Secret Value>\" -d \"grant_type=client_credentials\" -H \"Content-Type: application/x-www-form-urlencoded\"",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Ideally, the curl command in the previous step should return a 200 OK response, or the Bearer Token in case of Oauth, and any other response indicates an issue. The following are some of the common causes of failure:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Configuration issue (URL, Token, Client_id, etc.).",
+      "depth": 1
+    },
+    {
+      "item": "MCAS URLs being blocked by an intermediate device.",
+      "depth": 1
+    },
+    {
+      "item": "MCAS server dropping connection due to unexpected cert or header value.",
+      "depth": 1
+    },
+    {
+      "item": "Take a packet capture on the tap interface (service interface) to see the conversation between NSS and MCAS.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "If there are no anomalies, but the MCAS logs continue to be missing, contact Zscaler Support for further troubleshooting.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "heading": "NSS Feed",
+      "level": 4
+    },
+    {
+      "text": "If logs are missing:"
+    },
+    {
+      "item": "Is the NSS server showing unhealthy?",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Yes: Check NSS showing unhealthy.",
+      "depth": 1
+    },
+    {
+      "item": "No: Proceed.",
+      "depth": 1
+    },
+    {
+      "item": "Are there any Network Connectivity issues observed?",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Yes: Check Connectivity and Communication problems.",
+      "depth": 1
+    },
+    {
+      "item": "No: Proceed.",
+      "depth": 1
+    },
+    {
+      "text": "If the NSS server is healthy and network connectivity appears stable, proceed with the following steps:"
+    },
+    {
+      "item": "Validate and quantify the log loss:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Verify the total transactions for your organization during the specified time frame using the following steps:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Depending on the impacted log type, go to Logs > Insights and then choose either Web Insights or Firewall Insights.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          42,
+          46
+        ],
+        [
+          49,
+          57
+        ],
+        [
+          81,
+          93
+        ],
+        [
+          97,
+          105
+        ],
+        [
+          106,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "Check the Overall Traffic for the number of transactions for the issue time frame.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Check the value of the counter smsmclt_cur_transactions_count to get the number of transactions received on NSS from Zscaler Nanolog server:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "The output of this counter is generally higher than the total transactions seen on the UI report as it includes all types of logs before processing or applying the NSS filters.",
+      "depth": 1
+    },
+    {
+      "item": "/sc/bin/smstat -s stime=<start_time> -s etime=<end_time> -s interval=<seconds_in_timeframe> -k smsmclt_cur_transactions_count -d diff",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Check the value of the counter smsmclt_tot_transactions_count to get the number of transactions on NSS after processing/applying the filter:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Often, this output value is close to the total transactions on UI, but not exact as there are factors like Web Delay that contribute to the deviation. Review the delay by checking for counters smsmclt_cur_datatimestamp and smsm_cur_weblog_time together.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "/sc/bin/smstat -s stime=<start_time> -s etime=<end_time> -s interval=<interval_seconds> -k smsmclt_cur_datatimestamp -k smsm_cur_weblog_time -j <feed_name> -d diff",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "/sc/bin/smstat -s stime=<Start_time> -s etime=<End_time> -s interval=<seconds_in_timeframe> -k smsmclt_tot_transactions_count -d diff",
+      "depth": 2
+    },
+    {
+      "item": "Look for the delta column and only for the rows that have Zscaler Nanolog server IP.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Check the value of the counter smsmclt_tot_events_flushed to get the number of transactions sent from NSS to SIEM:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "/sc/bin/smstat -s stime=30jun2025:03:00:00 -s etime=30jun2025:05:00:00 -s interval=7200 -k smsmclt_tot_events_flushed -d diff",
+      "depth": 1
+    },
+    {
+      "item": "If there are multiple feeds, apply a filter for the impacted feed using -j <feedname> in the command.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Troubleshooting Steps",
+      "level": 4
+    },
+    {
+      "text": "Use the results of the Validating Log Loss to pinpoint the source of the issue.",
+      "strong": [
+        [
+          23,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "If smsmclt_cur_transactions_count shows fewer transactions than total transactions on the UI, the log loss occurs between Zscaler Nanolog server and NSS.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          3,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "If smsmclt_tot_transactions_count or smsmclt_tot_events_flushed is less than smsmclt_cur_transactions_count, the logs are dropped on the NSS.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          3,
+          33
+        ],
+        [
+          37,
+          63
+        ],
+        [
+          77,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "However, if all these counters match, but logs are still missing in the SIEM, the log loss occurs between NSS and SIEM.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "Proceed with the following scope of troubleshooting accordingly:"
+    },
+    {
+      "item": "Lost between Zscaler Nanolog server and NSS:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Run sudo nss troubleshoot netstat | grep tcp to see if the connection to Zscaler Nanolog server is established. If not, go to Zscaler Nanolog Server Connection Unstable.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If the transactions seen on Zscaler Admin Console and transactions received on NSS are matching, check smsmclt_tot_transactions_count on NSS. This gives the number of transactions after applying the NSS filter. If this shows a significant difference, then validate the NSS feed configuration to see if any feed filters are configured.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          103,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "If the NSS is not receiving all the logs, contact Zscaler Support to validate the following:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Take simultaneous capture on Zscaler Nanolog server and NSS to see the communication.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Run an MTR trace from Zscaler Nanolog server to NSS IP to see if there is real-time packet loss.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "If NSS is receiving all the transactions sent from Zscaler Nanolog server, check for counter smsmclt_tot_events_flushed to see the transactions sent to SIEM. If NSS is not sending all the logs received (smsmclt_tot_transactions_count), then check for loss on NSS.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          85,
+          119
+        ],
+        [
+          203,
+          233
+        ]
+      ]
+    },
+    {
+      "item": "Loss on the NSS:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If there is a significant difference in the transactions received on NSS (Zscaler Nanolog server clt_tot_transactions_count) and transactions sent to SIEM (Zscaler Nanolog server clt_tot_events_flushed), chances are SIEM is consuming logs at a slower causing NSS to buffer the logs and eventually leading to buffer overflow.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          97,
+          123
+        ],
+        [
+          179,
+          201
+        ]
+      ]
+    },
+    {
+      "item": "Run sudo /sc/bin/smmgr -ys smnet=netstat | less to see if the Send-Q is overutilized. This reflects Q status between NSS and SIEM. (Run this multiple times to see if the Q is consistently overutilized).",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Run sudo nss troubleshoot feeds to see if the feed is lagging. If so, you see a message indicating that Feed end point is unable to consume logs fast enough. See the following sample:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If you notice SIEM is consuming logs slowly, check if the feed config has SIEM Rate configured. See SIEM Rate Limiting for more details on how the configuration can impact the log flow.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "When SIEM is consuming logs slow, the logs are temporarily buffered on the NSS. If the delay is very huge, it can lead to buffer overflow, leading to log loss.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "If you observe SIEM consuming logs at a good speed, proceed to check for other scopes.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "If it is an historical issue, check NSS Log Files for any errors and engage Zscaler Support team to identify the root cause.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Lost between NSS and SIEM:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Run sudo nss troubleshoot connection to see if there are any connectivity issues or errors indicating Feed endpoint consuming logs at a slower rate. If yes, check for scope SIEM Connectivity Test.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Check if NSS is forwarding all the logs received from Zscaler Nanolog server to SIEM, by checking for counters smsmclt_tot_transactions_count and smsmclt_tot_events_flushed.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "If NSS is sending all the logs but SIEM is not receiving them, it could either be dropped from the SIEM due to parsing errors or by an intermediate network device.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "You can take a simultaneous packet capture on SIEM and NSS service interface to see if there are any issues on the network.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "If the packet capture does not indicate any connectivity issues, engage a SIEM expert to investigate the SIEM parsing issue. See SIEM Side Checks for more guidance.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "heading": "Case Study",
+      "level": 4
+    },
+    {
+      "text": "Scenario: You suspect web logs to be lost for 2 hours on 30th June 2025. The following are the validation and troubleshooting steps:"
+    },
+    {
+      "item": "Total transactions on UI report. In this Case the transaction is ~7.3M for the impacted time.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Output of counter smsmclt_cur_transactions_count shows ~10M, this is because this counter shows all transaction before filtering on NSS.",
+      "depth": 0,
+      "strong": [
+        [
+          18,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Output of smsmclt_tot_transactions_count shows ~7.2M, this is close to total transactions on UI but not exact.",
+      "depth": 0,
+      "strong": [
+        [
+          10,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Check if Web Delay is accounting for the minor difference in transactions observed:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "/sc/bin/smstat -s stime=<start_time> -s etime=<end_time> -s interval=<interval_seconds> -k smsmclt_cur_datatimestamp -k smsm_cur_weblog_time -j <feed_name> -d diff",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "You can see there is a Web Lag of average 15 minutes on the NSS with an average rate/second of 900. Hence, a very minor difference in the logs received is fine.",
+      "depth": 0
+    },
+    {
+      "item": "Output of smsmclt_tot_events_flushed also shows ~7.2M, which is same as total transactions received on NSS after applying filters.",
+      "depth": 0,
+      "strong": [
+        [
+          10,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If you observe logs on SIEM are less than ~7.2M, then it's not happening on SIEM (as you have confirmed, NSS is sending all the logs as expected). You can additionally take a pcap on the service interface to confirm if the NSS is sending logs to SIEM.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "You can follow the guidelines under the SIEM Side Checks section to narrow down the root cause."
+    },
+    {
+      "heading": "Logs Delayed",
+      "level": 4
+    },
+    {
+      "text": "If the logs are delayed:"
+    },
+    {
+      "item": "Check for the counters smsmclt_cur_datatimestamp and smsm_cur_weblog_time together to see if the NSS is receiving logs delayed.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          23,
+          48
+        ],
+        [
+          53,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "/sc/bin/smstat -s stime=<start_time> -s etime=<end_time> -s interval=<interval_seconds> -k smsmclt_cur_datatimestamp -k smsm_cur_weblog_time -j <feed_name> -d diff",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run /sc/bin/smmgr -s host=<Zscaler Nanolog server_ip> -s port=443 -ys connect=tcp to see if there is an unusually high latency. Run sudo nss troubleshoot netstat | grep tcp to get the IP address of Zscaler Nanolog server.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run sudo nss troubleshoot feeds to see if the feed is lagging. You see a message indicating that feed end point is unable to consume logs fast enough.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If you notice SIEM is consuming logs slowly, check if the feed config has SIEM Rate configured. See SIEM Rate Limiting for more details on how the configuration can impact the log flow.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "heading": "Duplicate Logs on SIEM",
+      "level": 4
+    },
+    {
+      "text": "For duplicate logs on SIEM:"
+    },
+    {
+      "item": "Check if you have configured %d{recordid} in the NSS feed format, which is a unique record identifier for each log. If not, include this field, which helps in identifying duplication of logs.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "On the SIEM, check the NSS server from which these duplicate logs are received. The Log Source field provides this information.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          84,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "If these duplicate logs are received from two different NSS servers, verify that all the NSS feeds are configured with these NSS servers and see if there are redundant feeds.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "If these duplicate logs are received from the same NSS server, check if the Duplicate Logs setting is configured in the feed config. When this setting is set to a specific value (1–60 minutes), whenever the connection between the NSS and the SIEM is lost, the NSS replays the logs from the buffer and sends them to the SIEM after the connection is restored.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          76,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Check counter nss_alert_generated to see if there were any alerts related to SIEM connectivity (the connection between the NSS and the SIEM is poor). If there was a SIEM connectivity lost and Duplicate Logs is configured to a large value, it is expected to see duplicate logs. For example:",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          14,
+          33
+        ],
+        [
+          192,
+          206
+        ]
+      ]
+    },
+    {
+      "item": "The SIEM goes offline at 6:29:00 PM.",
+      "depth": 1
+    },
+    {
+      "item": "The NSS detects the lost connection at 6:30:00 PM.",
+      "depth": 1
+    },
+    {
+      "item": "The connection is restored at 6:40:00 PM.",
+      "depth": 1
+    },
+    {
+      "item": "Based on the use case, the following results are possible:",
+      "depth": 0
+    },
+    {
+      "item": "If Duplicate Logs is set to 5 minutes: After the connection is restored, the NSS sends logs from 6:25:00 PM onwards. It sends 5 minutes of logs: It duplicates logs from 6:25:00 PM to 6:28:59 PM and recovers logs from 6:29:00 PM to 6:30:00 PM.",
+      "depth": 1
+    },
+    {
+      "item": "If Duplicate Logs is disabled: After the connection is restored, the NSS sends logs from 6:30:00 PM onwards. It does not recover logs from 6:29:00 PM to 6:30:00 PM.",
+      "depth": 1
+    },
+    {
+      "item": "If Duplicate Logs is set to 60 minutes: After the connection is restored, the NSS sends logs from 5:30:00 PM onwards. It sends one hour of logs: It duplicates logs from 5:30:00 PM to 6:28:59 PM and recovers logs from 6:29:00 PM to 6:30:00 PM. This setting is not recommended due to the high number of duplicates to be processed by the SIEM, introducing unnecessary delay.",
+      "depth": 1
+    },
+    {
+      "item": "If you are using data engines such as Cribl, Datadog, or similar for log collection and routing in front of their SIEM, consult vendor experts to investigate potential duplication issues.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "If you have a multi-cluster Nanolog setup (refer to the corner case of logs sprayed across the multi-cluster Nanolog section for more details), verify if a single Nanolog cluster is mapped to a single NSS by involving Zscaler Support. It can lead to duplication when multiple active NSS servers are mapped to same Nanolog cluster.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "heading": "Log Column/Field is Missing",
+      "level": 4
+    },
+    {
+      "item": "Check the corresponding feed configuration on UI and make sure the impacted field is configured with appropriate cases (field names are case-sensitive) and string format (%s, %d, %x). To learn more, see General Guidelines for NSS Feeds and Feed Formats.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure you have entered the feed escape character if the field delimiter used is something that is commonly present on the output values. For instance, if comma (,) is used as a delimiter that can be present in the output value of a URL, then it should be escaped with the feed escape character.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Make sure you are using hex-encoded fields in the feed format for the string fields like URL, user agent, etc. Zscaler uses hex-encoded fields for all non-printable ASCII characters in field values like %s{eurl}, %s{ereferer}, etc. Make sure these fields are appropriately configured in the Feed format. To learn more, see the Hex-Encoded Fields section in General Guidelines for NSS Feeds and Feed Formats.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "From the NSS server, run sudo /sc/bin/smmgr -s getsminfo=nss_feed_info_all to see if the feed configuration is reflecting correctly.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Try to simulate a sample log and simultaneously take a pcap on the service interface of NSS to confirm if the NSS is forwarding the log as expected.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Engage SIEM expert to investigate for parsing issues. See SIEM Side Checks for more guidelines.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "text": "If you have other issues related to logs, capture necessary information and contact Zscaler Support for advanced troubleshooting."
+    },
+    {
+      "heading": "Are There Concerns Related to NSS Security and Vulnerabilities?",
+      "level": 3
+    },
+    {
+      "text": "The following sections describe concerns related to NSS security and vulnerabilities."
+    },
+    {
+      "heading": "NSS Vulnerabilities",
+      "level": 4
+    },
+    {
+      "text": "Customers frequently contact the Zscaler team for assistance in addressing vulnerabilities identified through various security assessment processes, including VA scans, SAST, DAST, SCA, regular penetration tests, and other security evaluations. The NSS VM operates on Zscaler OS (ZSOS), a customized operating system built on FreeBSD."
+    },
+    {
+      "text": "Depending on whether the flagged vulnerability is related to base OS, ZSOS, or NSS, follow the guidelines provided next."
+    },
+    {
+      "text": "If the reported vulnerability is related to the base OS (FreeBSD) version, typically they are not applicable to ZSOS or NSS for the following reasons:"
+    },
+    {
+      "item": "After the NSS application is set up, it does not use libraries from the base ZSOS (or FreeBSD). All the libraries and dependencies are statically compiled and bundled into the NSS binary.",
+      "depth": 0
+    },
+    {
+      "item": "Libraries on the base operating system are not used, and vulnerabilities on them do not pose a security risk.",
+      "depth": 0
+    },
+    {
+      "item": "Fixes are pushed out to ZSOS on production and customer infrastructure regularly, in order to ensure security and compliance.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler architecture mandates that all our systems are always on the latest version, failing which the server would not be able to communicate with the Zscaler cloud. This ensures that all systems are patched and updated to the latest available ZSOS version.",
+      "depth": 0
+    },
+    {
+      "item": "Remotely exploitable vulnerabilities on the base OS via open services (e.g., SSH) are patched regularly and deployed based on criticality.",
+      "depth": 0
+    },
+    {
+      "text": "As of July 2025, ZSOS42 was updated on all customer managed Zscaler components, including NSS. ZSOS42 uses FreeBSD 13.2 and has the following key security features:"
+    },
+    {
+      "item": "OS security patches and new libraries",
+      "depth": 0
+    },
+    {
+      "item": "OpenSSL 3.0 support",
+      "depth": 0
+    },
+    {
+      "item": "ASLR support",
+      "depth": 0
+    },
+    {
+      "text": "If you have any further concerns or questions, contact Zscaler Support for assistance."
+    },
+    {
+      "text": "If the reported vulnerability is related to the ZSOS/NSS application:"
+    },
+    {
+      "item": "If your concern is regarding vulnerabilities related to specific libraries or packages on the base OS or ZSOS, contact Zscaler Support and get a confirmation if it is needed by NSS or can be removed. For any vulnerabilities against the base OS (FreeBSD version), see the previous section.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following information while contacting Zscaler Support:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Provide Essential Information: When submitting inquiries, include the Zscaler product and service being used, as well as the cloud in which you are hosted. This information greatly assists in expediting the resolution process.",
+      "depth": 1
+    },
+    {
+      "item": "Scan Reports for CVEs/Vulnerabilities: When inquiring about CVEs or vulnerabilities, provide scan reports to facilitate accurate analysis and response.",
+      "depth": 1
+    },
+    {
+      "heading": "Commonly Asked Questions",
+      "level": 5
+    },
+    {
+      "item": "What is the Operating System on which NSS runs, and what are the safeguards in place to ensure Vulnerabilities on base OS does not impact NSS? NSS runs on a customized operating system (ZSOS) based on FreeBSD. The current latest version is ZSOS42, which is based on FreeBSD 13.2. After the NSS application is initialized, it operates independently of the libraries in the base ZSOS (or FreeBSD). All required libraries and dependencies are statically compiled and integrated within the NSS binary, ensuring that vulnerabilities in the base operating system libraries do not pose any security risks.",
+      "depth": 0
+    },
+    {
+      "item": "What processes and tools are used for vulnerability management and security auditing of Zscaler applications, including NSS? Zscaler conducts thorough vulnerability management and security audits on the libraries and codebase of its applications, including NSS. These efforts include weekly vulnerability scans, SAST, DAST, SCA, regular penetration testing, and other advanced security assessment processes.",
+      "depth": 0
+    },
+    {
+      "item": "How to address vulnerabilities flagged against static cipher suites used in SSH configuration? Customers are free to modify the sshd_config settings as per their environment and security posture. Zscaler retains these cipher suites for legacy customers who still use them, but they do not affect customers who are using current browsers/clients to connect to the NSS. The server's cipher suite order prioritizes the strongest ciphers in TLS negotiations and only uses these weaker cipher suites in the rare event that a connecting client does not support stronger ones.",
+      "depth": 0
+    },
+    {
+      "item": "How to address Weak Permissions vulnerability? The NSS is a privileged system and Zscaler recommends only administrators should have access to the machines as the admins have access to the files anyway, irrespective of the permissions set.",
+      "depth": 0
+    },
+    {
+      "heading": "NSS Hardening and Other Security Concerns",
+      "level": 4
+    },
+    {
+      "text": "The following sections describe security concerns."
+    },
+    {
+      "heading": "Concerns Related to NSS Hardening",
+      "level": 5
+    },
+    {
+      "item": "Zscaler ensures that all necessary security hardening measures are applied to the nodes provided to customers for deployment within their environment. These measures are carefully implemented to maintain optimal functionality and secure operation of the nodes. It's important to note that any additional hardening performed by the customer beyond what is preconfigured by Zscaler could potentially affect the functionality and performance of the NSS, as the system is designed to operate within the scope of the provided configuration.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler's approach to hardening for both VSE and NSS remains consistent. To learn more, see the hardening section in About Virtual Service Edges.",
+      "depth": 0
+    },
+    {
+      "item": "If you have additional questions related to hardening, capture the potential risks that concerns and contact Zscaler Support for additional details.",
+      "depth": 0
+    },
+    {
+      "heading": "Other Security Concerns",
+      "level": 5
+    },
+    {
+      "text": "For any security concerns related to NSS that are outside the previously discussed scenarios, capture the following information and contact Zscaler Support."
+    },
+    {
+      "item": "Provide Essential Information: When submitting inquiries, include the Zscaler product and service being used, as well as the cloud in which they are hosted. This information greatly assists in expediting the resolution process.",
+      "depth": 0
+    },
+    {
+      "item": "Scan Reports for CVEs/Vulnerabilities: When inquiring about CVEs or vulnerabilities, insist on users providing scan reports to facilitate accurate analysis and response.",
+      "depth": 0
+    },
+    {
+      "heading": "Data Collection and Analysis",
+      "level": 3
+    },
+    {
+      "text": "The following sections describe data collection and analysis."
+    },
+    {
+      "heading": "Basic Health Checks",
+      "level": 4
+    },
+    {
+      "text": "You can verify overall health of NSS server and Feeds using the following steps:"
+    },
+    {
+      "item": "Check the server status on the Zscaler Admin Console under Logs > Log Streaming > Cloud and Edge Log Streaming > Nanolog Streaming Service > NSS Servers. The server State shows Unhealthy due to several reasons, based on the Zscaler active health monitoring. Here are some of the common causes for an NSS server to be in an Unhealthy state:",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          59,
+          63
+        ],
+        [
+          66,
+          79
+        ],
+        [
+          82,
+          110
+        ],
+        [
+          113,
+          138
+        ],
+        [
+          141,
+          152
+        ],
+        [
+          177,
+          186
+        ],
+        [
+          323,
+          332
+        ]
+      ]
+    },
+    {
+      "item": "Network Connectivity Issues: NSS server can lose connectivity with Zscaler cloud (Zscaler CA Server/Zscaler Nanolog server), causing the service to become unhealthy.",
+      "depth": 1
+    },
+    {
+      "item": "Configuration Errors: Misconfigurations in the NSS service, such as incorrect credentials, wrong SIEM IP or port, or incompatible settings, can result in an unhealthy state.",
+      "depth": 1
+    },
+    {
+      "item": "Resource Constraints: If the NSS server runs out of system resources, such as CPU, memory, or disk space, it can enter an unhealthy state.",
+      "depth": 1
+    },
+    {
+      "item": "Certificate Errors: If there is an issue with SSL/TLS certificates or if duplicate certificates status shows unhealthy.",
+      "depth": 1
+    },
+    {
+      "item": "Service Crashes: If the NSS service process crashes or is otherwise stopped, the server is in an unhealthy state.",
+      "depth": 1
+    },
+    {
+      "item": "Version Mismatch: Running an outdated version of the NSS software (which can have compatibility issues or bugs) can sometimes cause unhealthy conditions. Run the sudo nss checkversion command to verify the installed version and the latest available build version.",
+      "depth": 1
+    },
+    {
+      "item": "Make sure you have not disabled the NSS server on the UI. Doing so shows status as Unhealthy.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Check if NSS Feed Alerts are configured and if there were any of the following alerts received around the time of issue.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "The connection to the SIEM is down",
+      "depth": 1
+    },
+    {
+      "item": "The connection to the Zscaler CA Server is down",
+      "depth": 1
+    },
+    {
+      "item": "The connection to Nanolog is down",
+      "depth": 1
+    },
+    {
+      "item": "Memory is low",
+      "depth": 1
+    },
+    {
+      "item": "Disk space is low",
+      "depth": 1
+    },
+    {
+      "item": "The connection between the NSS and the SIEM is poor",
+      "depth": 1
+    },
+    {
+      "item": "The CPU utilization is high",
+      "depth": 1
+    },
+    {
+      "item": "Memory swap is high",
+      "depth": 1
+    },
+    {
+      "item": "Run the following commands on the NSS server to check overall health:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "top: To check running processes and their resource consumption like CPU, uptime, load average, and memory usage.",
+      "depth": 1
+    },
+    {
+      "item": "If there are CPU/Memory utilization issues, check and make sure the NSS has the required VM and Network specifications as per Zscaler platform-specific deployment guides.",
+      "depth": 2
+    },
+    {
+      "item": "You can use sysctl hw | grep cpu to check the CPU specifications.",
+      "depth": 2
+    },
+    {
+      "item": "If the number of users is more than 75K. Zscaler recommends 64GB VM type, and if the average daily transaction for customer is >1 billion, they need an additional Nanolog cluster for every 1B transaction. Additional Nanolog clusters (NLC) can be requested by raising a ticket with Zscaler Support.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss status: To check if the NSS service is running.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "/sc/bin/smctl.sh status: To check the status of smstat, Zscaler Nanolog server, and smcdsc service statuses.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "sudo nss checkversion: To check the current installed build version and the lates available build version.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "uname a: To check the ZscalerOS version (latest version is ZSOS42 as of June 2025).",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Network Connectivity Checks",
+      "level": 4
+    },
+    {
+      "text": "To check network connectivity:"
+    },
+    {
+      "item": "Run sudo NSS Troubleshoot Connection to see if all three necessary connections towards CA, Zscaler Nanolog server, and NSS are stable.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run sudo nss troubleshoot netstat | grep tcp to see the established connections.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run sudo nss test-firewall to probe Firewall configuration by attempting to DNS resolve and establish outbound connections, which helps to narrow down if there are any DNS / NTP / TCP connectivity issues.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Alternatively, you can run sudo nss dump-config to see the nameserver and interface configurations.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "From the output of test-firewall command, notice the detected Service and Management IP addresses and their subnet. Make sure these IP addresses are unique and belong to the same subnet.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "If these IPs are from different subnets it is accepted as configuration, but not recommended, as it can lead to network issues like routing/reachability, Default Gateway, or Access control control issues.",
+      "depth": 1
+    },
+    {
+      "item": "Also, sharing an IP between the management and service interfaces prevents them from functioning correctly and lead to routing confusion across the network.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run the ifconfig command from both management and service interface, such as sudo /sc/bin/smmgr -ys smnet='ifconfig' to see the status and configuration of interfaces, including IP address, subnet mask, and MAC address.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Note the MAC addresses assigned to service and management interfaces. These should be unique else it can lead to connectivity issues.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "Additionally, check on the VM host (Azure/AWS/VMware) to make sure the correct MAC address is configured.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run general network troubleshooting commands such as ping, trace, and route from a service interface using /sc/bin/smmgr -ys smnet='<command>' to narrow down connectivity issues.",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "You can check the list of support commands using sudo /sc/bin/smmgr -ys smnet=help.",
+      "depth": 0,
+      "number": 10
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run the connect script from the service interface to explicitly check if TCP/SSL connections to any host (CA, Zscaler Nanolog server, and SIEM IPs) is successful.",
+      "depth": 0,
+      "number": 11
+    },
+    {
+      "item": "/sc/bin/smmgr -s host=<Destination(CA/Zscaler Nanolog server/SIEM IP)> -s port=<destination_port> -ys connect=tcp",
+      "depth": 0
+    },
+    {
+      "item": "Towards SIEM IP on the configured port:",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "TCP connection towards CA on port 443:",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "SSL connection towards CA on port 443:",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If you have deployed NSS behind a proxy server, run the following command to check connectivity to any host(like CA/Zscaler Nanolog server) via proxy. To learn more, see Configuring Advanced NSS Settings.",
+      "depth": 0,
+      "number": 12
+    },
+    {
+      "item": "/sc/bin/smmgr -s proxy_host=<proxy_IP/Hostname> -s proxyport=<proxy_port> -s host=kproxy.hdeu1.zdataservices.net -s port=443 -ys connect=tcp",
+      "depth": 0
+    },
+    {
+      "heading": "Taking a Packet Capture",
+      "level": 4
+    },
+    {
+      "text": "Depending on the issue, you can take a packet capture on management or service interface."
+    },
+    {
+      "item": "For config download, updates, ARP, and NTP-related issues, enter a pcap on management interface.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "For issues related to log retrieval (missing/delayed logs) or connectivity issues with CA/Zscaler Nanolog server/SIEM, enter a pcap on the service interface. You can also see payload (logs) in plain text in the communication towards SIEM.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "For the management interface, use the the general tcpdump command. Use the /sc/bin/smtcpdump.sh command for the service interface.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "To identify the service and management interface names:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Check the output of sudo nss test-firewall and note the management IP. This also shows the management interface name, but validate it by running the ifconfig command and checking which interface has this IP assigned.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Run cat /sc/conf/sc.conf | grep smnet_pktdev to see the service interface. Validate against the ifconfig output.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "NSS hosted on Azure or other platforms which support Bridged networking shows an additional interface called bridge0, which is like a virtual switch handling all communications to external networks and maps to both service and management interface of NSS. You can run a pcap on this interface to capture all relevant communication flows.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "sudo tcpdump -i bridge0 -nvvv -s0 -w /var/tmp/pcap1.pcap",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Sample pcap on management interface:",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "sudo tcpdump -i <mgmt_interface> -nvvv -s0 -w /var/tmp/mgmt.pcap",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Sample pcap on Service interface:",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "sudo /sc/bin/smtcpdump.sh -i tap1 -nvvv -s0 -w /var/tmp/srvc.pcap",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "NSS Log Files",
+      "level": 4
+    },
+    {
+      "text": "Most of the relevant troubleshooting NSS logs are found in these directories:"
+    },
+    {
+      "item": "/sc/log",
+      "depth": 0
+    },
+    {
+      "item": "/var/log",
+      "depth": 0
+    },
+    {
+      "text": "Configuration File Paths are /sc/conf and /etc."
+    },
+    {
+      "text": "Logs stored under the /sc/log directory do not have a defined retention period. When the capacity of /sc is full, older files are automatically overwritten. But logs in /var path are rotated by FreeBSD OS, depending on the configuration in newsyslog.conf."
+    },
+    {
+      "item": "Use the command find / -iname *.log 2>/dev/null to list all the log files.",
+      "depth": 0
+    },
+    {
+      "item": "Use commands like tail, less, or grep to search for specific keywords (e.g., error, connection. etc.).",
+      "depth": 0
+    },
+    {
+      "item": "Use the -v flag with grep to invert the search. For example, cat /var/log/messages | grep -v ntpdate excludes lines with ntpdate from the cat output.",
+      "depth": 0
+    },
+    {
+      "item": "Use the command ls -ltrh to list log files along with timestamp, when files have rotation enabled.",
+      "depth": 0
+    },
+    {
+      "text": "The following are some of the critical NSS files and their uses:"
+    },
+    {
+      "heading": "/sc/log/zscaler.log",
+      "level": 5
+    },
+    {
+      "item": "Service activity, errors, and general runtime information",
+      "depth": 0
+    },
+    {
+      "item": "Historical events such as service startups, shutdowns, or restart",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "/sc/log/autoupgrade.log",
+      "level": 5
+    },
+    {
+      "text": "All the upgrade related logs. The following is an example of a successful upgrade."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The following is an example of a failed upgrade."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "/sc/log/nssscripts.log",
+      "level": 5
+    },
+    {
+      "item": "Lists all the commands executed on the NSS in sequence.",
+      "depth": 0
+    },
+    {
+      "item": "Helps to check if there was any execution of commands to upgrade or stop NSS service.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "/var/log/snmpd.log",
+      "level": 5
+    },
+    {
+      "item": "Contains information related to SNMP monitoring.",
+      "depth": 0
+    },
+    {
+      "item": "Helps in troubleshooting SNMP monitoring- or alerts-related issues.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "/var/log/messages",
+      "level": 5
+    },
+    {
+      "text": "Contains system level details like Kernel (Link state, Boot messages, RAID messages, etec.), SSH, NTP (time synchronization)."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "/etc/resolv.conf",
+      "level": 5
+    },
+    {
+      "text": "Contains DNS server info and manual DNS entries."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "/sc/conf/zbridge-mcas.properties (MCAS-Related)",
+      "level": 5
+    },
+    {
+      "text": "Contains details of MCAS feed config."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "/sc/log/zbridge.log (MCAS-Related)",
+      "level": 5
+    },
+    {
+      "text": "Contains event logs related to MCAS feed."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "SIEM Side Checks",
+      "level": 4
+    },
+    {
+      "text": "These are general guidelines outlining what to check on the SIEM. The exact commands, paths, or interfaces vary depending on the SIEM vendor. For in-depth analysis and execution of these checks, involve a SIEM expert on the customer's team for platform specific troubleshooting."
+    },
+    {
+      "item": "Verify Event Ingestion:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Check if logs are being received from the source.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Confirm timestamps and event Frequency.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Check Parsing and Normalization issues:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Ensure log formats are being parsed correctly and have feed escape characters as needed.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Zscaler recommends you use tab as field delimiters to avoid any parsing errors. When commas and spaces are used, they could be output values.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Zscaler uses hex-encoded fields for all non-printable ASCII characters in the field values like %s{eurl}, %s{ereferer} etc., make sure these fields are appropriately configured in the Feed format. To learn more, see the Hex-Encoded Fields section in the individual Feed Format Guidelines.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Look for parsing errors or unrecognized log types.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Review Correlation Rules:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Confirm that the relevant correlation rules are enabled.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Check for rule hits or recent alerts triggered.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Inspect Data Pipeline Health:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Validate that all connectors/agents are running and healthy.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Check for any dropped or delayed events (event logs).",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Review Recent Changes:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Identify any updates or configuration changes that could have affected event flow.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Search for errors or warnings.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Look through SIEM logs for any errors or anomalies during the reported time window.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "text": "Cloud NSS"
+    },
+    {
+      "text": "The following sections describe troubleshooting Cloud NSS. The first step is to determine if the issue affects a newly deployed (provisioned) Cloud NSS, or an already working setup."
+    },
+    {
+      "heading": "Newly Deployed Instance or Recently Migrated Instance",
+      "level": 3
+    },
+    {
+      "item": "Check if the Cloud NSS subscriptions are reflecting appropriately on Zscaler Admin Console under Administration > Account Management > Subscriptions.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          97,
+          111
+        ],
+        [
+          114,
+          132
+        ],
+        [
+          135,
+          148
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Sometimes the instance might be provisioned but not fully configured and enabled on the backend. Make sure you have a confirmation from the Zscaler Account team regarding the provisioning.",
+      "depth": 0
+    },
+    {
+      "item": "If the instance is enabled and ready for use, but shows unhealthy, then follow the next scope (working setup) for further troubleshooting.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "heading": "Setup that Recently Stopped Working",
+      "level": 3
+    },
+    {
+      "item": "Run the Zscaler Admin Console connectivity test towards the SIEM. To learn more, see SIEM Connectivity Test section, which provides guidance on different SIEM response codes and exceptions.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "If you are seeing anomalies, but are unable to isolate the root cause, engage Zscaler Support for further troubleshooting.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If the Zscaler Admin Console shows healthy, but no logs are received on the SIEM, then proceed with Logs are Missing.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Issues with Log Integrity or Format",
+      "level": 3
+    },
+    {
+      "text": "The following sections describe issues with log integrity or format."
+    },
+    {
+      "heading": "Logs are Missing",
+      "level": 4
+    },
+    {
+      "text": "For prechecks:"
+    },
+    {
+      "item": "Make sure the provisioned Cloud NSS instance and your SIEM are in the same Geo.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "You should allow list the Cloud NSS server IP address ranges on required ACLs, depending on the region.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "You must have configured at least one feed and make it active.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "If you are using private Nanolog cluster, make sure Cloud NSS can reach the private Nanolog.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Proper sizing of Max Batch Size is done and configured on the Cloud NSS during deployment, as per the respective deployment guide.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          17,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "If a SIEM rate (rate limiting) is configured in the feed, make sure that this has been well calculated using the log volume and EPS limitation on the user side. To learn more, see Corner Cases on how suboptimal rate limiting can lead to log loss.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "text": "To find the outcome of the SIEM connectivity test:"
+    },
+    {
+      "item": "Error code related to SIEM reachability or responsiveness:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "For errors related to reachability, such as SIEM Host not Reachable or SIEM Host Port not Reachable, make sure SIEM is listening on the configured IP and port.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          44,
+          67
+        ],
+        [
+          71,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "For generic connectivity errors such as SIEM Host down or SIEM Host unresponsive, etc., understand the SIEM network topology and validate it. If necessary, add allow list for Zscaler Cloud NSS IPs.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          40,
+          54
+        ],
+        [
+          58,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "For errors related to SIEM response such as Error in SIEM authentication or Invalid SIEM redirect response, etc., involve the SIEM team to take necessary action.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          44,
+          72
+        ],
+        [
+          76,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "If you see the error SSL certs missing for SIEM Host, contact Zscaler to add required certs.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          21,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "If you see the error Invalid SIEM URL format, validate the SIEM configuration in the Cloud NSS feed.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          21,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see the SIEM Connectivity Test section.",
+      "depth": 0
+    },
+    {
+      "item": "Error related to SIEM parsing: See SIEM Parsing Issues.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Zscaler internal errors: Raise a ticket with Zscaler Support for further investigation.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Logs are Delayed",
+      "level": 4
+    },
+    {
+      "item": "Perform all the prechecks described in previous section.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Check if you have the SIEM Rate configured in the feed, and make sure it is an optimal value depending on the log volume and SIEM EPS.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Check if the Max Batch Size is configured to the default of 16 KB. Increase the value to 512 KB for Splunk, Sumologic, and other SIEM types. For S3, the recommended maximum batch size is 8 MB. For DNS, Tunnel, and all other log types (e.g., SaaS Security), the recommended size is 1 MB. To learn more, see the Zscaler and AWS Deployment Guide.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Contact Zscaler Support for taking packet captures and investigating any network or connectivity issues.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "heading": "SIEM Parsing Issues",
+      "level": 4
+    },
+    {
+      "text": "The indicators of SIEM parsing issues are that a connectivity test returns a 400 response code when there are parsing errors on SIEM side."
+    },
+    {
+      "text": "To troubleshoot and resolve parsing issues:"
+    },
+    {
+      "item": "Check for errors/warnings in the SIEM event logs.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Check for rule hits or recent alerts triggered.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Confirm that any relevant correlation rules are enabled for the Cloud NSS feed.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Make sure the appropriate Feed Escape Character is configured in the Feed config. If JSON format is chosen, the escape character should always be ,/\" (comma, backslash, double quote).",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          26,
+          47
+        ],
+        [
+          85,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Make sure you are using hex-encoded fields in the feed format for the string fields like url, useragent, etc. (Zscaler uses hex-encoded fields for all non-printable ASCII characters in the field values like %s{eurl}, %s{ereferer}, etc.) Make sure these fields are appropriately configured in the Feed format. To learn more, see the Hex-Encoded Fields section in Feed Format Guidelines.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "If you have disabled JSON Array Notation, you can enable this for troubleshooting purposes when there are parsing errors. This setting allows the NSS to stream a batch of logs in a JSON Array format. Individual logs are ordered in a list, separated by commas, and surrounded by square brackets (e.g., [\\{JSON1},\\{JSON2}]).",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          21,
+          40
+        ]
+      ]
+    },
+    {
+      "text": "To learn more, see General Guidelines for NSS Feeds and Feed Formats."
+    },
+    {
+      "text": "These are general guidelines outlining what to check in the SIEM. The exact commands, paths, or interfaces vary depending on the SIEM vendor. For in-depth analysis and execution of these checks, consult a SIEM expert for platform-specific troubleshooting."
+    },
+    {
+      "heading": "SIEM Connectivity Test (UI)",
+      "level": 3
+    },
+    {
+      "text": "This tool offers customers a UI option to test SIEM connectivity, ensuring their configurations are correctly set up. A successful test returns a response code in 200 series."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "This UI-initiated test request flows through CA, to the NSS, to the Zscaler Authentication Bridge, to the SIEM, with the response returning along the same path. Zscaler Authentication Bridge (ZAB) performs a sample upload of logs to the SIEM and passes back the response."
+    },
+    {
+      "text": "Any response code other than 2XX indicates an issue in the connectivity between ZAB and SIEM. This is the actual error code returned by SIEM."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Sometimes there could be exceptions encountered that are not the actual response from SIEM, such as timeout exceptions while trying to connect to SIEM. The following is a list of exceptions and the corresponding UI error."
+    },
+    {
+      "table": [
+        [
+          "Exception",
+          "Error Message"
+        ],
+        [
+          "NoRouteToHostException",
+          "SIEM Host not Reachable"
+        ],
+        [
+          "PortUnreachableException",
+          "SIEM Host Port not Reachable"
+        ],
+        [
+          "UnknownHostException",
+          "Invalid SIEM Hostname - Failed to resolve the Hostname"
+        ],
+        [
+          "NoHttpResponseException",
+          "SIEM Host busy"
+        ],
+        [
+          "ConnectTimeout",
+          "Exception SIEM Host down"
+        ],
+        [
+          "HttpHostConnectException",
+          "SIEM Host down"
+        ],
+        [
+          "SSLHandshakeException",
+          "SSL certs missing for SIEM Host"
+        ],
+        [
+          "SocketTimeoutException",
+          "SIEM Host unresponsive"
+        ],
+        [
+          "SSLException",
+          "SSL Error"
+        ],
+        [
+          "ProtocolException HTTP",
+          "Error with SIEM Host"
+        ],
+        [
+          "MalformedChallengeException",
+          "Error in SIEM authentication"
+        ],
+        [
+          "RedirectException",
+          "Invalid SIEM redirect response"
+        ],
+        [
+          "URIException",
+          "Invalid SIEM URL format"
+        ],
+        [
+          "RuntimeException",
+          "Error parsing SIEM URL"
+        ],
+        [
+          "UnknownException",
+          "Zscaler Internal Error 0"
+        ],
+        [
+          "BindException",
+          "Zscaler Internal Error 1"
+        ],
+        [
+          "ConnectionPoolTimeoutException",
+          "Zscaler Internal Error 2"
+        ],
+        [
+          "SocketExceptions",
+          "Zscaler Internal Error 3"
+        ],
+        [
+          "IOExceptions",
+          "Zscaler Internal Error 4"
+        ]
+      ]
+    },
+    {
+      "heading": "Corner Cases",
+      "level": 1
+    },
+    {
+      "text": "While you can resolve most issues through standard troubleshooting steps, certain scenarios involve less common challenges, or corner cases. These require deeper investigation and specific solutions tailored to the unique circumstances. The following sections address these corner cases to effectively guide you through resolution."
+    },
+    {
+      "text": "Private Nanolog Clusters"
+    },
+    {
+      "text": "For private cluster hardware replacement requests, contact Zscaler Support and provide the details of the hostname of the cluster."
+    },
+    {
+      "text": "This is applicable if your organization is using a private cluster, also called a private Nanolog (smsm) cluster, to store your logs instead of Zscaler public Nanolog clusters. There are various General Data Protection Regulation (GDPR) / compliance reasons why a private/dedicated cluster is opted."
+    },
+    {
+      "text": "Zscaler recommends using dedicated Nanolog clusters as an alternative to the private Nanolog clusters. Dedicated Nanolog clusters are hosted and managed by Zscaler for you, reducing operational overhead."
+    },
+    {
+      "heading": "How Does This Impact NSS Troubleshooting?",
+      "level": 3
+    },
+    {
+      "text": "When NSS is used in conjunction with private Nanolog, NSS streams the logs from your on-premises hosted Nanolog server to your security information and event management (SIEM) system. The private cluster hostname must be resolvable and reachable from the NSS server. Make sure the necessary Firewall rules are in place to allow the connection."
+    },
+    {
+      "text": "All the general NSS troubleshooting steps work fine in a private Nanolog environment. However, the output of certain commands would show your private smsm server IP in the place of Zscaler's public smsm IP. The following are some of the common NSS commands to see the smsm server IP."
+    },
+    {
+      "text": "Troubleshooting commands to check the network connections like netstat or nss troubleshoot connection generally show an established connection to the Zscaler smsm IP on port 443. In the case of a private Nanolog, this IP is not a Zscaler-known IP, but a customer-managed one."
+    },
+    {
+      "text": "Sample Output",
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "text": "[zsroot@ ~]$ sudo nss troubleshoot netstat | grep tcp //+SHARED MEMORY KEY 17 (/sc/) tcp 0( 0%) 42( 0%) 10.112.17.23.5182 <CA_IP>.443 ESTABLISHED tcp 0( 0%) 0( 0%) 10.112.17.23.5782 <Private_NL_IP>.443 ESTABLISHED tcp 0( 0%) 0( 0%) 10.112.17.23.2393 <SIEM_IP>.514 ESTABLISHED"
+    },
+    {
+      "text": "NSS static counter smsm_cur_smsm_svr_ip shows the historical IP address of the smsm server IP. Use command /sc/bin/smstat -s stime=<start_time> -s etime=<end_time> -s interval=<interval_seconds> -g smsm_cur_smsm_svr_ip -d stats."
+    },
+    {
+      "text": "Sample Output",
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Most of the counters, like smsmclt_tot_databytes_rcvd, smsmclt_cur_transactions_count, etc., show an output that has column device-no with a value consisting of an smsm IP (e.g., smsmclt_cur_transactions_count SMC_9095_logs.zscalerthree.net_104.129.197.141). If you are running a command to check the counter based on the device value using -j with smsm IP, make sure you are using the correct private smsm IP.",
+      "strong": [
+        [
+          27,
+          53
+        ],
+        [
+          55,
+          85
+        ],
+        [
+          124,
+          133
+        ],
+        [
+          179,
+          256
+        ]
+      ]
+    },
+    {
+      "text": "Sample Output",
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "text": "Sample Command: /sc/bin/smstat -s stime=05Jun2025:00:00 -s etime=05Jun2025:05:00 -s interval=60 -g smsmclt_tot_databytes_rcvd -j <private_smsm_ip> -d stats"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Log Sprayed Across Multi-Cluster Nanolog"
+    },
+    {
+      "text": "For customers using multi-cluster private or dedicated Nanolog clusters, Zscaler recommends using log spraying (i.e., logs are stored across multiple clusters). Logs are sprayed (load balanced) on the basis of modulus of Zscaler user IDs. So for one particular user, logs are stored on one cluster only."
+    },
+    {
+      "heading": "How Does This Impact NSS Troubleshooting?",
+      "level": 3
+    },
+    {
+      "text": "All the general troubleshooting steps work seamlessly, except that you must run these commands on all the primary NSS servers to narrow down the issue. When you are investigating log loss issues, remember that the actual total transactions received on the SIEM is the sum of the transactions received on individual NSS servers. Ideally, one Nanolog cluster is mapped to one NSS server. This is configured by the Zscaler Operations team during deployment."
+    },
+    {
+      "text": "Sample Use Case",
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "text": "In this example, you have 4 dedicated Nanolog clusters, and you want to verify whether all the logs are received on NSS for a particular day (e.g., 29th May 2025)."
+    },
+    {
+      "item": "Check the UI for the total number of transactions for the required time period. In this example, on 29th of May, total transactions seen was 3.2B.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Zscaler recommends deploying one Nanolog cluster for every 1 billion transactions per day. For example, if you are generating three billion transactions per day, it is recommended to deploy three Nanolog clusters.",
+      "depth": 0
+    },
+    {
+      "item": "On all 4 primary NSS servers, run a command to check counter smsmclt_cur_transactions_count, which shows the total transactions received on each of these NSSs for a specified time period.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          61,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "/sc/bin/smstat -s stime=29May2025:00:00 -s etime=29May2025:23:59 -s interval=86400 -k smsmclt_cur_transactions_count -d diff",
+      "depth": 0
+    },
+    {
+      "item": "NSS server time here is in IST, but the output is in GMT; hence, the counter output shows May 29 05:29:59 2025 though the command was run for 29May2025:00:00.",
+      "depth": 0
+    },
+    {
+      "item": "Look for the value under totalcount-val for the code name with Zscaler smsm IP, which in this case is SMC_6581_logs.zscalerthree.net_104.129.203.2.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Output on NSS 1",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Output on NSS 2",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Output on NSS 3",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Output on NSS 4",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Add the value seen in the totalcount-val column for the 4 NSS outputs (which is 3,219,277,807 in this example), which is approximately 3.2 billion (or what is seen in the report).",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          26,
+          40
+        ]
+      ]
+    },
+    {
+      "text": "Password Reset Request"
+    },
+    {
+      "text": "If you have lost your NSS root password and are looking to reset it:"
+    },
+    {
+      "item": "If your current password is not lost, but you want to reset it for any other reasons, use the general Linux command passwd to change the root password.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "sudo passwd > <Enter current password> > <Enter new password> > <Retype new password>",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If you want the Zscaler Operations team to remotely access the NSS server and perform the password reset, contact Zscaler Support to engage the Zscaler Operations team to remotely reset the password. This does not necessarily require enabling remote access. However, if remote access was already enabled prior to the loss, ensure the Zscaler Operations team is informed.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If you require guidance to reset the password from your end, you can reset the root password by booting the Linux servers into single-user mode:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "As the system boots, press the space bar to interrupt the normal boot and then press 2 to boot the system in single-user mode. The prompt happens early in the boot process. If you miss the prompt, you must restart the NSS from the control menu and try again.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "When prompted, enter the full path name of the shell or press Enter for /bin/sh:'. Press Enter to boot into a single-user mode. You are immediately in a single-user mode without a root password.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "You must remount the (root) file system in read and write mode with the mount command:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The following commands fix any issues in the previous step:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "#fsck -y",
+      "depth": 1
+    },
+    {
+      "item": "# mount -u /",
+      "depth": 1
+    },
+    {
+      "item": "# mount -a",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Set up a new password for zsroot/root user.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The zsroot and root are different account names. Hence, you must reset both account passwords one at a time. Zscaler recommends that you keep the same password for both accounts.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run the exit command to boot FreeBSD into multi-user mode environment:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "exit; exit",
+      "depth": 0
+    },
+    {
+      "item": "Log in as zsroot/root with your updated password.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If this procedure fails for any reasons, you can either redeploy the NSS or contact Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "text": "Dependencies and Third-Party Integrations"
+    },
+    {
+      "text": "The following sections describe how to troubleshoot dependencies and third-party integrations."
+    },
+    {
+      "heading": "Installing Third-Party Applications or Software Solutions on NSS",
+      "level": 3
+    },
+    {
+      "text": "Zscaler often receives inquiries about installing endpoint security or threat detection applications (e.g., CrowdStrike, ManageEngine, Cortex XDR, etc.) on NSS servers. Installing third-party applications or software on a Zscaler NSS is not supported or recommended. The NSS appliance is specifically designed and optimized to collect and forward logs, and it operates within its own controlled environment. The NSS appliance operates within a preconfigured virtual or cloud-based system managed by Zscaler."
+    },
+    {
+      "text": "Installing unapproved software could interfere with its operations, disrupt functionality, or compromise security. If you must proceed with deployment of AV/EDR, you must test and ensure that the necessary NSS service-related connections documented here are allowed on the third-party solution."
+    },
+    {
+      "text": "If any issue arises on NSS due to the installation of a third-party solution, Zscaler is not responsible for troubleshooting or removing the third-party software."
+    },
+    {
+      "text": "Alternatively, if functionalities such as threat detection or data analysis are required, rely on external systems (such as SIEM solutions integrated with NSS) or use Zscaler's other security services."
+    },
+    {
+      "heading": "SIEM Rate Limit and Events Per Second",
+      "level": 4
+    },
+    {
+      "text": "While configuring NSS feeds, you can configure an unlimited SIEM rate limit by default. This is configured when you throttle or rate limit the logs streamed from NSS to SIEM. This value must be carefully chosen depending on licensing constraints on the SIEM side. A suboptimal rate limit can lead to consistent or intermittent log loss issues."
+    },
+    {
+      "text": "There are two ways to view log loss related to this configuration:"
+    },
+    {
+      "item": "When a SIEM rate is not configured in the NSS feed, but the SIEM has an events per second (EPS) limitation due to the logs being consumed at a slower rate on the SIEM. For example, your Zscaler log's daily average from 10:00 AM to 11:00 AM is around 90,000 transactions, and your SIEM is consuming logs from different sources (including Zscaler NSS with a SIEM licensing limit of 10K EPS). The required average EPS is 25K (90K / 3,600 seconds). Since NSS is streaming logs at a higher rate (assuming the SIEM rate is set to default), the SIEM is unable to consume the log, leading to intermittent log loss. The following are some of the symptoms for this issue:",
+      "depth": 0
+    },
+    {
+      "item": "Send-Q shows high utilization in the output of netstat command.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The output of sudo nss troubleshoot feeds shows a huge lag in the feed and the send-queue connection is consistently high.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Additionally, you can also request the SIEM team to verify event logs to see if there were any notifications for log drop due to an EPS limitation.",
+      "depth": 0
+    },
+    {
+      "item": "If you try to solve this issue by configuring a rate limit on NSS to 10K EPS, which is a very low value compared to their average log volume (25K EPS), it can still lead to log loss due to the following scenario.",
+      "depth": 0
+    },
+    {
+      "item": "If you configure a very low SIEM rate limit value as compared to the actual log volume (e.g., the configured SIEM rate limit is 10K, but your actual log volume is 25K), NSS must buffer the logs due to the rate limit. Because the volume is huge, it leads to an NSS buffer overflow.",
+      "depth": 0
+    },
+    {
+      "item": "An optimal solution is to increase the EPS to 25K, which is the average log volume during peak hours, and configure the same as a rate limit on NSS.",
+      "depth": 0
+    },
+    {
+      "heading": "NSS in Explicit Proxy Mode",
+      "level": 3
+    },
+    {
+      "text": "You can configure NSS to tunnel Zscaler cloud connections through an explicit proxy by running an additional command (sudo nss configure proxy) during deployment. This configuration is helpful when you have a No Default Route environment."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "The tunneled connections include SMCA, SMSM, SMCDSS, Kafka (kproxy.hdeu1.zdataservices.net).",
+      "depth": 0
+    },
+    {
+      "item": "To remove configured explicit proxy on NSS, run the command nss configure proxy remove.",
+      "depth": 0
+    },
+    {
+      "item": "While troubleshooting NSS deployed in Explicit mode, you can see all cloud connections (SMCA/SMSM) towards the proxy IP instead of the actual Zscaler IP.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to check reachability to any host through the proxy:",
+      "depth": 0
+    },
+    {
+      "item": "/sc/bin/smmgr -s proxy_host=<proxy_IP/Hostname> -s proxyport=<proxy_port> -s host=kproxy.hdeu1.zdataservices.net -s port=443 -ys connect=tcp",
+      "depth": 0
+    },
+    {
+      "text": "Logs Replay Request"
+    },
+    {
+      "text": "If you use NSS, determine if still requires logs to be replayed."
+    },
+    {
+      "item": "Yes:",
+      "depth": 0
+    },
+    {
+      "item": "Make sure the ask is genuine and has strong justification.",
+      "depth": 1
+    },
+    {
+      "item": "Make sure Duplicate Logs is configured in the NSS feed so the logs are buffered on NSS for the specified minutes and replayed automatically whenever there are SIEM connectivity issues.",
+      "depth": 1
+    },
+    {
+      "item": "Contact Zscaler Support for further information.",
+      "depth": 1
+    },
+    {
+      "item": "Enabling remote support tunnel is a prerequisite to replay logs through VM-based NSS. However, it is unnecessary for log replay through Cloud NSS.",
+      "depth": 1
+    },
+    {
+      "item": "No:",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler strongly recommends using NSS to stream historical logs. If you are ready to install NSS with SIEM, proceed with the previous scope to request log replay.",
+      "depth": 1
+    },
+    {
+      "item": "If you are unable to download bulk logs from the UI due to timeout or any other errors, Zscaler suggests the following best practices:",
+      "depth": 1
+    },
+    {
+      "item": "While running a query for specific URL/destination, use a Host with Contains filter instead of a URL match (which is a resource-intensive query and takes too long to run).",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          58,
+          62
+        ],
+        [
+          68,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "If you observe timeouts on the UI while downloading logs, it could be due to inactivity. Ensure the client does not go to sleep while downloading. In some cases, switching tabs in the browser also limits resource allocation to some particular task.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Add more filters to the URL search. For example:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "URL category = AI and ML Applications.",
+      "depth": 2
+    },
+    {
+      "item": "To learn more, see About URL Categories.",
+      "depth": 2
+    },
+    {
+      "item": "Use pre-aggregated counter searches.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "For example: Data type = User and filter by URL category = AI and ML Applications to find the top users accessing AI/ML apps.",
+      "depth": 2
+    },
+    {
+      "item": "Use DNS insights searches whenever possible (log volume is order of magnitude less) if you are sending DNS to Zscaler.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "text": "Zscaler recommends fetching transaction logs from the Zscaler Admin Console for troubleshooting/forensic purposes only."
+    },
+    {
+      "text": "Avoid fetching bulk logs and leverage SIEM (NSS) tools for bulk logs. The time taken to fetch a log report depends on the size of the logs based on the customer's request."
+    }
+  ]
+}

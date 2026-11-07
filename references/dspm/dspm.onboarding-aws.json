@@ -1,0 +1,372 @@
+{
+  "schema_version": 1,
+  "id": "dspm.onboarding-aws",
+  "title": "How to onboard an AWS organization or standalone account to DSPM: prerequisites, templates, orchestrator, monitoring scope and the IAM roles and condition keys involved",
+  "aliases": [
+    "dspm aws onboarding",
+    "dspm aws organization",
+    "dspm standalone aws account",
+    "dspm stackset",
+    "dspm aws iam roles",
+    "dspm orchestrator account aws"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "dspm.overview" },
+    { "rel": "see-also", "to": "dspm.scanning" },
+    { "rel": "see-also", "to": "dspm.onboarding-aws-cloudtrail" }
+  ],
+  "prose": [
+    { "text": "{{org-prereq-roles-accounts}} The onboarding types and the scan orchestrator are in [[dspm.scanning:onboarding-types]] and [[dspm.scanning:orchestrator]]; cross-account authentication is in [[dspm.scanning:authentication]]; the hub is [[dspm.overview]] and the scanning subject is [[dspm.scanning]]." },
+    { "label": "Prerequisites.", "text": "{{org-cft-stackset-roles}} {{org-cft-default-subnets}} {{org-terraform-prereq}}" },
+    { "label": "Organization details.", "text": "{{org-details-fields}} {{org-external-id}} The CloudTrail fields of this step are in [[dspm.onboarding-aws-cloudtrail]]. {{org-tree-discovery-templates}} {{org-tree-discovery-validation}}" },
+    { "label": "Orchestrator and monitoring scope.", "text": "{{network-config-options}} {{org-services-default-all}} {{org-s3-log-buckets-excluded}} {{org-custom-network-fields}} {{regions-scope-resources}} {{org-ou-autodetection}} {{org-business-unit-default}}" },
+    { "label": "Additional configuration.", "text": "{{additional-config-skippable}} {{evidence-storage-options}} {{standalone-evidence-kms}}" },
+    { "label": "Deploying the templates.", "text": "{{orchestrator-region-order}} {{stackset-conflict-fixes}} {{terraform-network-analysis}} {{evidence-template-conditional}} {{monitoring-scope-stackset-settings}} {{stackset-complete-condition}} {{org-template-validation-errors}} {{orchestrator-account-resources}}" },
+    { "label": "Managing the monitoring scope.", "text": "{{monitoring-scope-add-only}} {{monitoring-scope-autodetection}} {{monitoring-scope-template-contents}}" },
+    { "label": "Changing the orchestrator account.", "text": "{{change-orchestrator-scope}} {{change-orchestrator-interim-states}} {{change-orchestrator-purge-old}}" },
+    { "label": "Standalone accounts.", "text": "{{standalone-workflow}} {{standalone-prereq-roles}} Which role the pages require is in dispute {{divergence:onboarding-role-prereq}}. {{standalone-orchestrator-details}} {{standalone-db-subnet-group}} {{standalone-orchestrator-validate}} {{standalone-account-details}} {{standalone-conditional-templates}} {{standalone-validation}}" },
+    { "label": "IAM roles.", "text": "{{discovery-role-deny}} {{bedrock-kms-fix}} {{orchestrator-role-purpose}} {{orchestrator-role-custom-network-perms}} {{unmanaged-db-secret-perm}} {{kms-permissions-scope}} {{target-role-purpose}} {{evidence-roles}}" },
+    { "label": "IAM condition keys and operators.", "text": "{{condition-operators}} {{condition-keys-supported}} {{condition-keys-unsupported}} {{notprincipal-and-dynamic}}" },
+    { "label": "Open.", "text": "How an omitted DB Subnet Group ARN affects RDS scanning is open {{gap:db-subnet-group-omitted}}. Whether the 29 regions match the in-region list is open {{gap:regions-vs-in-region}}. Whether other discovery permissions are optional is open {{gap:discovery-permissions-optional}}. The status names are undefined {{gap:status-names-undefined}}. Limits are not stated {{gap:limits-not-stated}}. The templates themselves were not captured {{gap:templates-not-captured}}. Whether AWS has a default network configuration is open {{gap:network-default-aws}}." }
+  ],
+  "checks": [
+    { "do": "What each page states as the role prerequisite for onboarding an AWS account: the organization page lists an Administrator role or any role with Add Accounts permissions, and the standalone page lists both that and an Administrator role alone.", "uses": ["org-prereq-roles-accounts", "standalone-prereq-roles", "onboarding-role-prereq"] },
+    { "do": "Which network configuration the account was onboarded with, since changing the orchestrator account is available only for Zscaler network configuration mode, and the Custom configuration asks for subnet, security group and DB Subnet Group values.", "uses": ["change-orchestrator-scope", "org-custom-network-fields", "standalone-db-subnet-group"] },
+    { "do": "The states the pages give for target accounts while an orchestrator change is not yet validated: existing orchestrator disabled, Waiting for Connection, Pending, scans stopped and Needs Attention.", "uses": ["change-orchestrator-interim-states"] },
+    { "do": "Whether a monitoring scope change adds accounts (existing target accounts cannot be removed) and whether automatic deployment is activated in AWS for autodetected accounts.", "uses": ["monitoring-scope-add-only", "monitoring-scope-autodetection"] },
+    { "do": "Whether Bedrock resources are KMS-encrypted when metadata collection fails, and which permissions the page says to add.", "uses": ["bedrock-kms-fix"] }
+  ],
+  "claims": {
+    "org-prereq-roles-accounts": {
+      "statement": "Onboarding an AWS organization requires an Administrator role or any role with Add Accounts permissions, an AWS account identified as the orchestrator account (where the DSPM template is deployed to scan the target accounts), and target accounts that DSPM defines as the monitoring scope.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-aws-organization.json", "quotes": ["You must be assigned either an Administrator role or any role with Add Accounts permissions in the Zscaler Admin Console.", "Identify an AWS account as the orchestrator account. The DSPM template is deployed in this account to scan the data in the target accounts.", "DSPM defines these target accounts as monitoring scope."] }]
+    },
+    "standalone-prereq-roles": {
+      "statement": "The standalone AWS account page states two role prerequisites: an Administrator role to onboard the account, and an Administrator role or any role with Add Accounts permissions.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-standalone-aws-account.json", "quotes": ["You must be assigned an Administrator role to onboard the AWS account.", "You must be assigned either an Administrator role or any role with Add Accounts permissions in the Zscaler Admin Console."] }]
+    },
+    "standalone-workflow": {
+      "statement": "Standalone AWS onboarding has three steps: provide orchestrator details, select the network configuration and configure regions (DSPM generates a template in both CloudFormation and Terraform format); deploy the template on the orchestrator account; then add the target accounts and deploy their templates.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-standalone-aws-account.json", "quotes": ["Provide the orchestrator account details, select the network configuration, and configure the regions where you want to deploy the local scanner. DSPM uses these details to generate a template in both CloudFormation and Terraform format.", "Deploy the template on the orchestrator account. The template creates roles that provide DSPM with read-only permissions to access the account.", "Add the target accounts that must be monitored and deploy the templates."] }]
+    },
+    "org-cft-stackset-roles": {
+      "statement": "For the CloudFormation template, two IAM roles (AWSCloudFormationStackSetAdministrationRole and AWSCloudFormationStackSetExecutionRole) are created in the orchestrator account, and the execution role is also created in every target account.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-aws-organization.json", "quotes": ["Create the following IAM roles in the orchestrator account to establish a trust relationship between the orchestrator account and target accounts.", "To create the AWSCloudFormationStackSetAdministrationRole role:", "To create the AWSCloudFormationStackSetExecutionRole role:", "Create the AWSCloudFormationStackSetExecutionRole IAM role on all the target accounts with a trust relationship with the root account and the AWSCloudFormationStackSetAdministrationRole role."] }]
+    },
+    "org-cft-default-subnets": {
+      "statement": "Organization onboarding with the CloudFormation template requires each AWS region to have at least two default subnets in the default VPCs; DSPM creates subnets to launch AWS cloud resources.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-aws-organization.json", "quotes": ["Ensure that each AWS region has at least two default subnets in the default virtual private clouds (VPC).", "DSPM creates subnets to launch AWS cloud resources (e.g., EC2 instances, S3 buckets) in specific subnets."] }]
+    },
+    "org-terraform-prereq": {
+      "statement": "The Terraform template for an AWS organization needs the Terraform CLI and AWS CLI 2.22 or later locally, plus storage in the primary region of the orchestrator account for Terraform state files (an S3 bucket and a DynamoDB table whose partition key is LockID).",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-aws-organization.json", "quotes": ["Terraform CLI to run the Terraform templates.", "AWS CLI 2.22 version or later to connect to the AWS organization.", "Identify the storage services in the primary region of the orchestrator account to store the Terraform state files.", "Partition key: Enter LockID."] }]
+    },
+    "org-details-fields": {
+      "statement": "In the AWS organization details, Role Name is added as a prefix to all roles created during onboarding, Management Account ID is the 12-digit account ID, and Notification Emails (optional) takes up to 30 addresses that are notified of configuration or permissions issues.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-organization-details.json", "quotes": ["Role Name: Enter a unique role name. This role name is added as a prefix to all the roles that are created during the onboarding process.", "Management Account ID: Enter the 12-digit AWS account ID of the management account.", "You can add up to 30 email addresses of recipients.", "Notification Emails (Optional): Enter the email addresses of the recipients who must be notified of any configuration or permissions issues encountered with the onboarded organization."] }]
+    },
+    "org-external-id": {
+      "statement": "The External ID shown during AWS organization onboarding is an optional, autopopulated identifier used in an IAM role trust policy to designate a specific user to assume the IAM role.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-organization-details.json", "quotes": ["External ID: View the optional identifier that is autopopulated.", "This ID is used in an IAM role trust policy to designate a specific user to assume the IAM role to provide access to the AWS resources."] }]
+    },
+    "org-tree-discovery-templates": {
+      "statement": "For an organization, DSPM generates only the tree discovery template when the CloudTrail S3 bucket is in the management account, and both a CloudTrail template and a tree discovery template when it is in another account; the CloudTrail template is deployed first in the account holding the bucket.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-deploying-aws-tree-discovery-template.json", "quotes": ["Management account: DSPM generates only the tree discovery template. Download and deploy this template in the AWS root account.", "An account other than the management account: DSPM generates both the CloudTrail and tree discovery templates. Deploy the CloudTrail template in the AWS account where the CloudTrail S3 bucket is present, and then deploy the tree discovery template."] }]
+    },
+    "org-tree-discovery-validation": {
+      "statement": "DSPM validates the tree discovery template deployment every hour by checking the IAM roles and permissions, and the template can be validated immediately with Validate.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-deploying-aws-tree-discovery-template.json", "quotes": ["DSPM validates the template deployment every hour by checking the IAM roles and permissions.", "You can also validate the template immediately by clicking Validate."] }]
+    },
+    "network-config-options": {
+      "statement": "In organization onboarding, the optional network configuration is either Zscaler (Zscaler resources deploy the orchestrator and monitoring scope) or Custom (the organization's own resources are used).",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-selecting-aws-orchestrator-and-monitoring-scope.json", "quotes": ["(Optional) Select the network configuration.", "Zscaler: Use Zscaler resources to deploy the orchestrator and monitoring scope.", "Custom: Use your organization's resources to deploy the orchestrator and monitoring scope."] }]
+    },
+    "org-services-default-all": {
+      "statement": "In the Zscaler Network Configuration steps all services are selected by default, and DSPM permissions are restricted to monitor and scan data only in the selected services.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-selecting-aws-orchestrator-and-monitoring-scope.json", "quotes": ["By default, all the services are selected. DSPM permissions are restricted to monitor and scan the data only in the selected services."], "after": "Zscaler Network Configuration" }]
+    },
+    "org-s3-log-buckets-excluded": {
+      "statement": "In the Custom Network Configuration steps, DSPM automatically excludes Amazon S3 buckets used for storing logs.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-selecting-aws-orchestrator-and-monitoring-scope.json", "quotes": ["DSPM automatically excludes Amazon S3 buckets used for storing logs."], "after": "Custom Network Configuration" }]
+    },
+    "org-custom-network-fields": {
+      "statement": "With the Custom network configuration, the orchestrator needs a private Subnet ARN and Security Group ID, each monitored region needs scanner Subnet ARN and Security Group ID, and a DB Subnet Group ARN that DSPM requires to scan RDS databases.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-selecting-aws-orchestrator-and-monitoring-scope.json", "quotes": ["Subnet ARN: Enter the private subnet ARN for the orchestrator instance.", "Security Group ID: Enter the security group ID for the orchestrator instance.", "Subnet ARN: Enter the subnet where the scanner instances must be launched.", "Security Group ID: Enter the ID of the security group that controls network traffic to and from the scanner instances.", "DB Subnet Group ARN: Enter the ARN of the database subnet group. This is required for DSPM to scan the RDS databases."], "after": "Custom Network Configuration" }]
+    },
+    "regions-scope-resources": {
+      "statement": "In the Zscaler Network Configuration steps, DSPM creates and deploys the resources required for scanning only in the selected regions, and the primary region chosen on the Configure an Orchestrator Account page is the one to specify when creating the StackSets.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-selecting-aws-orchestrator-and-monitoring-scope.json", "quotes": ["select an account and the primary region where you want to deploy the orchestrator template and click Next.", "You need to specify this primary region while creating the StackSets.", "DSPM creates and deploys resources required for scanning only in the selected regions."], "after": "Zscaler Network Configuration" }]
+    },
+    "org-ou-autodetection": {
+      "statement": "Selecting an organizational unit scans all its accounts; Autodetection at the OU level makes DSPM include and scan accounts added to the OU later, and automatic deployment must be activated in AWS to deploy stack instances for them.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-selecting-aws-orchestrator-and-monitoring-scope.json", "quotes": ["If you want all the accounts in an organizational unit (OU) to be scanned, select the OU.", "Select Autodetection at the OU level if you want DSPM to automatically include and scan new accounts that are added to the OU in the future.", "You must activate automatic deployment in AWS to automatically deploy stack instances for newly added accounts in the future."] }]
+    },
+    "org-business-unit-default": {
+      "statement": "On an organization's Assign Business Units page, one business unit is assigned to the OU and all its accounts are mapped to it; the default business unit is assigned initially and can be changed after onboarding.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-selecting-aws-orchestrator-and-monitoring-scope.json", "quotes": ["On the Assign Business Units page, assign a business unit to the OU. All the accounts in the OU are mapped to the selected business unit.", "The default business unit is assigned to the OU. You can change the business units for the OU if required, after completing the onboarding process."] }]
+    },
+    "evidence-storage-options": {
+      "statement": "For AWS evidence storage, a Custom S3 bucket (name, 12-digit account ID and a KMS key ARN that encrypts the evidence) or a Zscaler Managed S3 bucket created in the orchestrator account can be chosen; once configured the bucket cannot be modified, only the evidence configuration enabled or disabled.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-selecting-aws-orchestrator-and-monitoring-scope.json", "quotes": ["Custom S3 bucket", "S3 Bucket Account ID: The 12-digit account ID.", "KMS Key ARN: The KMS key or CMK key ARN. This key is used to encrypt the evidence data in the S3 bucket.", "S3 Bucket Name: The name of the S3 bucket name.", "Zscaler Managed S3 bucket", "DSPM creates an S3 bucket in the orchestrator account to upload the classified data.", "When configured, the S3 bucket cannot be modified. You can only enable or disable the evidence configuration."] }]
+    },
+    "standalone-evidence-kms": {
+      "statement": "In standalone onboarding the evidence KMS Key ARN is described as a symmetric KMS key ARN used to encrypt the evidence data in the S3 bucket.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-orchestrator-details-and-configuring-regions.json", "quotes": ["The first step in onboarding a standalone AWS account is to provide the orchestrator details and configure regions.", "KMS Key ARN: The symmetric KMS key ARN. This key is used to encrypt the evidence data in the S3 bucket."] }]
+    },
+    "additional-config-skippable": {
+      "statement": "In organization onboarding, the Additional Configuration section (custom tags, evidence storage, and data events) can be skipped with Skip This Step and configured after onboarding; custom tags are attached to the resources DSPM creates.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-selecting-aws-orchestrator-and-monitoring-scope.json", "quotes": ["In the Additional Configuration section, you can configure custom tags, evidence storage, and data events. Click Skip This Step to configure the additional details after completing the onboarding process", "Custom tags are attached to the resources created by DSPM that enable you to distinguish resources in the organization."] }]
+    },
+    "orchestrator-region-order": {
+      "statement": "When creating the orchestrator StackSet, the primary region of the orchestrator is selected first, followed by other regions, and the page says DSPM supports all 29 global regions supported by AWS; Sequential region concurrency deploys one region at a time.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-deploying-orchestrator-and-monitoring-scope-templates.json", "quotes": ["Select the primary region of the orchestrator as the first region, followed by other regions. DSPM supports all the 29 global regions that are supported by AWS.", "Region concurrency: Select Sequential to deploy StackSets in one region at a time, specified by the region deployment order."] }]
+    },
+    "stackset-conflict-fixes": {
+      "statement": "Before creating a StackSet for a new orchestrator account the old orchestrator infrastructure should be deleted to avoid conflicts, and a conflicting S3 bucket error during StackSet creation is addressed by deleting the existing bucket and retrying.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-deploying-orchestrator-and-monitoring-scope-templates.json", "quotes": ["Before creating a new StackSet for the new orchestrator account, delete the existing infrastructure of the old orchestrator account to avoid conflicts.", "If you encounter a conflicting S3 bucket error during StackSet creation, try deleting the existing bucket and retry the StackSet creation."] }]
+    },
+    "terraform-network-analysis": {
+      "statement": "In organization onboarding, the orchestrator Terraform template is applied with the variable enable_test_connectivity set to true to deploy resources with network analysis enabled and set to false to deploy with it disabled.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-deploying-orchestrator-and-monitoring-scope-templates.json", "quotes": ["To run the Terraform script and deploy resources with network analysis enabled:", "terraform apply -var=‘enable_test_connectivity=true’", "To deploy resources with network analysis disabled:", "terraform apply -var=‘enable_test_connectivity=false’"] }]
+    },
+    "evidence-template-conditional": {
+      "statement": "The evidence template is available only when an S3 bucket is configured to store evidence data; it is deployed in the orchestrator account for a Zscaler Managed S3 bucket, or in the account holding the bucket for a Custom S3 bucket.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-deploying-orchestrator-and-monitoring-scope-templates.json", "quotes": ["This template is available only if you have configured an S3 bucket to store evidence data.", "If you selected Zscaler Managed S3 Bucket, sign in to the orchestrator account and if you selected Custom S3 Bucket, sign in to the account where the custom S3 bucket is available."] }]
+    },
+    "monitoring-scope-stackset-settings": {
+      "statement": "The monitoring scope StackSet uses Service managed permissions with automatic deployment Activated and account removal behavior Delete stacks, and its name must be unique and friendly because it is needed when adding target accounts after onboarding.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-deploying-orchestrator-and-monitoring-scope-templates.json", "quotes": ["Permissions: Select Service managed permissions.", "Automatic deployment: Select Activated to automatically deploy additional stack instances for any new account added to the OU in the future.", "Account removal behavior: Select Delete stacks to remove stack instances if an account is removed from the OU.", "StackSet name: Enter a unique and friendly name for the StackSet. This is required when you want to add new target accounts after onboarding."] }]
+    },
+    "stackset-complete-condition": {
+      "statement": "A monitoring scope StackSet deployment is complete only when all individual stack instances are deployed successfully.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-deploying-orchestrator-and-monitoring-scope-templates.json", "quotes": ["The StackSet deployment is completed only when all the individual stack instances are deployed successfully."] }]
+    },
+    "org-template-validation-errors": {
+      "statement": "After the orchestrator and monitoring scope templates are deployed, DSPM validates the deployment every hour by checking roles and permissions; an error message appears if there is a deployment issue and the template is rerun in the root account.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-deploying-orchestrator-and-monitoring-scope-templates.json", "quotes": ["DSPM validates the template deployment every hour by checking the roles and permissions.", "An error message appears if there is any issue deploying the template. Rerun the template in the root account."] }]
+    },
+    "orchestrator-account-resources": {
+      "statement": "Deploying the orchestrator and monitoring scope templates creates resources in the AWS orchestrator account including an SQS queue for scan requests, an EventBridge rule forwarding CloudTrail data events to the orchestrator account, a customer managed KMS key, and a NAT gateway preventing inbound public connectivity to orchestrator or scanner instances.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-deploying-orchestrator-and-monitoring-scope-templates.json", "quotes": ["SQS Queue: Simple queue service (SQS) used for sending scan requests from DSPM.", "Event bridge rule: Used for forwarding the CloudTrail data events to orchestrator account.", "KMS Key: Customer managed key for encryption.", "NAT gateway: Network address translation gateway used to prevent inbound connectivity from the public internet to orchestrator or scanner instances."] }]
+    },
+    "monitoring-scope-add-only": {
+      "statement": "New AWS accounts can be added to the monitoring scope but existing target accounts cannot be removed; managing it needs an Administrator role or a role with Configure Monitoring Scope permission.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-managing-monitoring-scope-aws.json", "quotes": ["You can add new accounts to the monitoring scope, but you cannot remove the existing target accounts.", "You must be assigned either an Administrator role or any role with the Configure Monitoring Scope permission in the Zscaler Admin Console."] }]
+    },
+    "monitoring-scope-autodetection": {
+      "statement": "Autodetection at the organization or OU level lets DSPM automatically detect and onboard accounts added in future, and automatic deployment must be activated in AWS for stack instances to be deployed for them.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-managing-monitoring-scope-aws.json", "quotes": ["The autodetection feature enables DSPM to automatically detect and onboard any new accounts added to the organization or OU in the future.", "You must activate automatic deployment in AWS to automatically deploy stack instances for newly added account in the future."] }]
+    },
+    "monitoring-scope-template-contents": {
+      "statement": "For CloudFormation, the monitoring scope template is downloaded as a ZIP file containing a CSV file listing the target accounts to scan and a YAML file with the policies and permissions DSPM needs; adding accounts means replacing the template of the existing monitoring scope StackSet.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-managing-monitoring-scope-aws.json", "quotes": ["Run the CloudFormation template", "Click Monitoring Scope to download the template as a ZIP file and extract it to your local system. The ZIP file contains two files:", "A CSV file that contains a list of target accounts that needs to be scanned.", "A YAML file that contains the policies and permissions required for DSPM to connect to the AWS organization.", "Identify the StackSet created for monitoring scope while onboarding the organization and click StackSet name.", "Prerequisite - Prepare template: Select Replace current template."] }]
+    },
+    "change-orchestrator-scope": {
+      "statement": "Changing the AWS orchestrator account is available only for AWS accounts onboarded through Zscaler network configuration mode, and requires an administrator role or a custom role with the Configure New Orchestrator permission.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-changing-aws-orchestrator-account.json", "quotes": ["This option is available only for AWS accounts onboarded through Zscaler network configuration mode.", "You must be assigned either an administrator role or a custom role with the Configure New Orchestrator permission in the Zscaler Admin Console."] }]
+    },
+    "change-orchestrator-interim-states": {
+      "statement": "Until the new AWS orchestrator account is validated, the existing orchestrator is disabled, the DSPM connection status is Waiting for Connection and Configuration status is Pending, data scans stop, and target accounts are in the Needs Attention state.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-changing-aws-orchestrator-account.json", "quotes": ["The existing orchestrator is disabled.", "The DSPM connection status moves to the Waiting for Connection state and Configuration status moves to the Pending state.", "The data scans are stopped.", "The target accounts move to the Needs Attention state."] }]
+    },
+    "change-orchestrator-purge-old": {
+      "statement": "Before running the template on the new AWS orchestrator account, the template on the existing one is purged by deleting the stackset or running terraform destroy depending on template type; after validation the target accounts become Successfully Configured and scanning resumes.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-changing-aws-orchestrator-account.json", "quotes": ["Before running the template on the new orchestrator account, purge the template that was previously deployed on the existing orchestrator account.", "You can do this by deleting the corresponding stackset or running the terraform destroy command based on the template type.", "After the template deployment is validated successfully, the target accounts move to the Successfully Configured state, and DSPM begins the data scan."] }]
+    },
+    "standalone-orchestrator-details": {
+      "statement": "In standalone AWS onboarding, Role Name is added as a prefix to all IAM roles created during onboarding, and up to 30 notification email addresses can be entered.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-orchestrator-details-and-configuring-regions.json", "quotes": ["The first step in onboarding a standalone AWS account is to provide the orchestrator details and configure regions.", "Role Name: Enter a unique role name. This role name is added as a prefix to all the IAM roles that are created during the onboarding process.", "Notification Emails (Optional): Enter the email addresses of the recipients who must be notified of any configuration or permissions issues encountered with the onboarded organization. You can add up to 30 email addresses."] }]
+    },
+    "standalone-db-subnet-group": {
+      "statement": "In standalone onboarding with the Custom network configuration, the DB Subnet Group ARN is marked optional but is required for DSPM to scan RDS databases, and the Unmanaged Database service is disabled for the Zscaler network configuration.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-adding-orchestrator-details-and-configuring-regions.json", "quotes": ["The first step in onboarding a standalone AWS account is to provide the orchestrator details and configure regions."] },
+        { "source": "zscaler-help", "path": "dspm-adding-orchestrator-details-and-configuring-regions.json", "quotes": ["DB Subnet Group ARN: (Optional) The database subnet group ARN. This is required for DSPM to scan the RDS databases."], "after": "Enter the following information for the orchestrator instance:" },
+        { "source": "zscaler-help", "path": "dspm-adding-orchestrator-details-and-configuring-regions.json", "quotes": ["The Unmanaged Database service is disabled for Zscaler network configuration."] }
+      ]
+    },
+    "standalone-orchestrator-validate": {
+      "statement": "Standalone orchestrator template deployment: the primary region goes first among the 29 global AWS regions the page says DSPM supports, and a successful deployment leads to the Overview page where target accounts are added.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-deploying-orchestrator-template.json", "quotes": ["After adding the orchestrator details, when onboarding a standalone AWS account, deploy the orchestrator template that includes policies and permissions to create IAM roles that provide DSPM with read-only access to the account.", "Select the primary region of the orchestrator as the first region, followed by other regions. DSPM supports all the 29 global regions that are supported by AWS.", "If the template is successfully deployed, you are directed to the Overview page to add the target accounts that must be monitored."] }]
+    },
+    "standalone-account-details": {
+      "statement": "Adding a standalone target account takes Account Name, a 12-digit Account ID, a business unit (a default is assigned) and Organization ID, with an optional data events setting.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-account-details-and-deploying-templates.json", "quotes": ["After deploying the orchestrator template, when onboarding a standalone AWS account, add the target accounts that must be monitored and deploy the monitoring and CloudTrail templates that include policies and permissions providing DSPM with read-only access to the target accounts.", "Account Name: Enter the AWS account name that must be monitored.", "- Account ID: Enter the 12-digit AWS account ID.", "Organization ID: Enter the AWS organization ID.", "Select Business Unit: A default business unit is assigned. Select another business unit, if required.", "Configure Data Events (Optional): Enter the S3 bucket details where the data events are stored."] }]
+    },
+    "standalone-conditional-templates": {
+      "statement": "For a standalone account the CloudTrail template is available only if CloudTrail integration is enabled and the Data Events template only if data events is configured.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-account-details-and-deploying-templates.json", "quotes": ["After deploying the orchestrator template, when onboarding a standalone AWS account, add the target accounts that must be monitored and deploy the monitoring and CloudTrail templates that include policies and permissions providing DSPM with read-only access to the target accounts.", "This template is available only if CloudTrail integration is enabled.", "This template is available only if data events is configured."] }]
+    },
+    "standalone-validation": {
+      "statement": "For standalone target accounts DSPM validates the template deployment every hour by checking the roles created and permissions assigned, and an on-demand validation is also possible.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-account-details-and-deploying-templates.json", "quotes": ["After deploying the orchestrator template, when onboarding a standalone AWS account, add the target accounts that must be monitored and deploy the monitoring and CloudTrail templates that include policies and permissions providing DSPM with read-only access to the target accounts.", "DSPM validates the template deployment every hour by checking the roles created and permissions assigned.", "You can also run an on-demand validation to check if the target accounts are onboarded successfully."] }]
+    },
+    "discovery-role-deny": {
+      "statement": "The AWS resource discovery role is needed to discover resources in onboarded accounts and collect CloudTrail logs, and its permission table (columns Permission, Effect, Scope, Purpose) lists s3:GetObject, dynamodb:BatchGetItem, dynamodb:GetItem, dynamodb:Query and dynamodb:Scan with effect Deny and scope Monitored Accounts.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-aws.json", "quotes": ["The resource discovery role is required for DSPM to discover resources within the onboarded accounts and collect CloudTrail logs.", "| Permission | Effect | Scope | Purpose |", "| s3:GetObject | Deny | Monitored Accounts |", "| dynamodb:BatchGetItem | Deny | Monitored Accounts |", "| dynamodb:GetItem | Deny | Monitored Accounts |", "| dynamodb:Query | Deny | Monitored Accounts |", "| dynamodb:Scan | Deny | Monitored Accounts |"], "after": "Mandatory Permissions" }]
+    },
+    "bedrock-kms-fix": {
+      "statement": "If AWS Bedrock resources are encrypted with KMS keys, DSPM fails to collect their metadata until kms:Decrypt and kms:GenerateDataKey are explicitly added to the resource discovery role (policy DSPM-BASIC-CUSTOM-POLICY).",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-aws.json", "quotes": ["If the AWS Bedrock resources are encrypted with KMS keys, DSPM fails to collect the metadata.", "To enable metadata collection, explicitly add the kms:Decrypt and kms:GenerateDataKey permissions to the resource discovery role.", "On the Permissions tab, click DSPM-BASIC-CUSTOM-POLICY."] }]
+    },
+    "orchestrator-role-purpose": {
+      "statement": "The orchestrator instance profile role is used by the orchestrator instance in the primary region to organize data scanning, and the scanner instance profile role is used by scanner instances to perform data scanning.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-aws.json", "quotes": ["The orchestrator instance profile role is used by the orchestrator instance present in the primary region to organize data scanning.", "The scanner instance profile role is used by the scanner instances to perform data scanning"] }]
+    },
+    "orchestrator-role-custom-network-perms": {
+      "statement": "The ec2:CreateNetworkInsightsPath and tiros:CreateQuery permissions of the orchestrator instance profile role are conditional and only required if Custom Network is used.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-aws.json", "quotes": ["| ec2:CreateNetworkInsightsPath | Allow | Orchestrator Account | To create a Network Insights path. This permission is conditional and only required if Custom Network is used. |", "| tiros:CreateQuery | Allow | Orchestrator Account | To create a VPC reachability query This permission is conditional and only required if Custom Network is used. |"], "after": "Orchestrator Instance Profile Role" }]
+    },
+    "unmanaged-db-secret-perm": {
+      "statement": "In the target role, secretsmanager:GetSecretValue for Unmanaged Database is conditional and only required if Custom Network is used with Unmanaged DB Scanning.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-aws.json", "quotes": ["| secretsmanager:GetSecretValue | Unmanaged Database | Monitored Account | To read the secret value from the secret manager This permission is conditional and only required if Custom Network is used with Unmanaged DB Scanning. |"], "after": "Target Role" }]
+    },
+    "kms-permissions-scope": {
+      "statement": "The kms:PutKeyPolicy, kms:CreateKey, kms:TagResource, kms:EnableKeyRotation and kms:ScheduleKeyDeletion permissions are scoped exclusively to KMS keys created and tagged by DSPM (z-dspm-resource: true) and do not apply to customer-managed KMS keys.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-aws.json", "quotes": ["The kms:PutKeyPolicy, kms:CreateKey, kms:TagResource, kms:EnableKeyRotation, and kms:ScheduleKeyDeletion permissions are scoped exclusively to KMS keys created and tagged by DSPM (z-dspm-resource: true).", "These permissions do not apply to customer-managed KMS keys."] }]
+    },
+    "target-role-purpose": {
+      "statement": "The target role is an IAM role created in the target accounts; its DynamoDB export permissions write to a DSPM S3 export bucket in the orchestrator account.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-aws.json", "quotes": ["The target role is an IAM role created in the target accounts containing permissions to CreateSnapshot, GetObject from S3, etc.", "| s3:PutObject | DynamoDB | DSPM S3 export bucket in orchestrator account | To upload an object to the export S3 bucket |"] }]
+    },
+    "evidence-roles": {
+      "statement": "The Put Evidence role lets DSPM store evidence snippets in the specified S3 bucket (including deleting objects in the evidence bucket), and the Get Evidence role lets DSPM retrieve them.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-aws.json", "quotes": ["The Put Evidence role is required for DSPM to store evidence data snippets in the specified S3 bucket.", "The Get Evidence role is required for DSPM to retrieve evidence data snippets from the specified S3 bucket.", "| s3:DeleteObject | Allow | Evidence Bucket only | To delete objects in the S3 bucket |"] }]
+    },
+    "condition-operators": {
+      "statement": "For IAM policy conditions DSPM supports String, ARN and Boolean operators (including StringEqualsIfExists and ArnLikeIfExists), and does not support Numeric, Date, IP Address or Binary operators.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-supported-aws-iam-condition-keys-and-operators.json", "quotes": ["The following operators are supported:", "- StringEqualsIfExists", "- ArnLikeIfExists", "- Boolean", "Numeric operators (NumericEquals, NumericNotEquals, NumericLessThan, etc.)", "Date operators (DateEquals, DateNotEquals, DateLessThan, etc.)", "IP Address operators (IpAddress, NotIpAddress)", "Binary operators (BinaryEquals)"] }]
+    },
+    "condition-keys-supported": {
+      "statement": "The supported keys include aws:PrincipalTag/tag-key, aws:PrincipalOrgID and aws:PrincipalArn under Principal-Based Keys, and aws:ResourceTag/tag-key, aws:ResourceAccount and aws:ResourceOrgID under Resource-Based Keys.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-supported-aws-iam-condition-keys-and-operators.json", "quotes": ["The following keys are supported:", "Principal-Based Keys", "- aws:PrincipalTag/tag-key", "- aws:PrincipalOrgID", "- aws:PrincipalArn", "Resource-Based Keys", "- aws:ResourceTag/tag-key", "- aws:ResourceAccount", "- aws:ResourceOrgID"] }]
+    },
+    "condition-keys-unsupported": {
+      "statement": "Unsupported condition keys include aws:PrincipalOrgPaths, network keys such as aws:SourceIp, aws:CurrentTime, aws:MultiFactorAuthPresent and aws:CalledVia; when a key is unsupported, evaluation of the condition is skipped.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-supported-aws-iam-condition-keys-and-operators.json", "quotes": ["Principal-based condition keys: aws:PrincipalOrgPaths: AWS organizations path evaluation", "aws:SourceIp: Source IP address", "aws:CurrentTime: Current date or time", "aws:MultiFactorAuthPresent: MFA authentication", "aws:CalledVia: Service call chain", "When condition keys are not supported, then evaluation of the condition is skipped (e.g., aws:PrincipalOrgPaths)."] }]
+    },
+    "notprincipal-and-dynamic": {
+      "statement": "DSPM supports the NotPrincipal element in IAM policies, and does not support dynamic conditions where a value must be deduced.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-supported-aws-iam-condition-keys-and-operators.json", "quotes": ["DSPM supports NotPrincipal element in IAM policies.", "Dynamic conditions like <pre> tag where we have to deduce a value are not supported."] }]
+    }
+  },
+  "divergences": {
+    "onboarding-role-prereq": {
+      "summary": "The standalone AWS page lists an Administrator role as the requirement to onboard the account, while the organization page (and the standalone page's second prerequisite) allows an Administrator role or any role with Add Accounts permissions.",
+      "positions": [
+        {
+          "says": "An Administrator role is required to onboard the AWS account.",
+          "evidence": { "source": "zscaler-help", "path": "dspm-onboarding-standalone-aws-account.json", "quotes": ["You must be assigned an Administrator role to onboard the AWS account."] }
+        },
+        {
+          "says": "Either an Administrator role or any role with Add Accounts permissions suffices.",
+          "evidence": { "source": "zscaler-help", "path": "dspm-onboarding-aws-organization.json", "quotes": ["You must be assigned either an Administrator role or any role with Add Accounts permissions in the Zscaler Admin Console."] }
+        }
+      ],
+      "impact": "An admin with Add Accounts permissions but not the Administrator role may or may not be able to onboard a standalone account; the pages do not settle it."
+    }
+  },
+  "gaps": {
+    "db-subnet-group-omitted": {
+      "kind": "semantic",
+      "title": "What happens to RDS scanning when the DB Subnet Group ARN is omitted",
+      "status": "open",
+      "detail": "The standalone orchestrator page marks DB Subnet Group ARN \"(Optional)\" while the organization page's Custom configuration step does not; both say it is required for DSPM to scan RDS databases. How an omitted value affects RDS scanning is not stated.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "regions-vs-in-region": {
+      "kind": "semantic",
+      "title": "Whether the 29 supported AWS regions match the in-region scanning list",
+      "status": "open",
+      "detail": "The pages say DSPM supports all the 29 global regions supported by AWS but list no regions; whether this matches dspm.scanning:in-region is not stated.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "discovery-permissions-optional": {
+      "kind": "semantic",
+      "title": "Whether other resource discovery role permissions are optional",
+      "status": "open",
+      "detail": "The Resource Discovery Role section is headed Mandatory Permissions; whether other discovery permissions are optional is not stated. Wildcard actions such as ec2:Describe* appear in the orchestrator and target role tables and are not expanded on the page (the resource discovery role table has none), and the page has typos (for example kms:GenerareDataKey in the Put Evidence role) that were not quoted.",
+      "resolves_with": ["source-read"]
+    },
+    "status-names-undefined": {
+      "kind": "semantic",
+      "title": "What the onboarding status names mean",
+      "status": "partial",
+      "detail": "Now known: Successfully Configured, Pending Configuration and Needs Attention are defined in dspm.cloud-accounts:account-status, and Waiting for connection and Pending in dspm.cloud-accounts:connection-status and dspm.cloud-accounts:configuration-status. Still open: whether the onboarding pages' use of these names matches those definitions, and the Needs Attention, Pending and Waiting for Connection states of the orchestrator change flow.",
+      "resolves_with": ["source-read", "lab-test"]
+    },
+    "limits-not-stated": {
+      "kind": "semantic",
+      "title": "Limits on validation delay, template size, accounts and regions",
+      "status": "open",
+      "detail": "How long hourly validation can delay clearing Needs Attention, template size, number of accounts per StackSet or per organization, and the maximum number of monitored regions are not stated.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "templates-not-captured": {
+      "kind": "semantic",
+      "title": "What the downloadable templates contain",
+      "status": "open",
+      "detail": "No DSPM Admin API, SDK or Terraform provider was captured for this area, and the downloadable CloudFormation, Terraform and YAML templates are not in the captures, so resources and role names are only as the help pages state them.",
+      "resolves_with": ["source-read"]
+    },
+    "network-default-aws": {
+      "kind": "semantic",
+      "title": "Whether AWS onboarding has a default network configuration or needs Zscaler Support",
+      "status": "open",
+      "detail": "The GCP organization page says the Custom configuration is the default and that Zscaler configuration needs Zscaler Support; the AWS pages captured say nothing about a default or about contacting support.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    }
+  }
+}

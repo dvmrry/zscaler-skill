@@ -1,0 +1,448 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.azure.workload-discovery",
+  "title": "Cloud Connector on Azure: workload discovery service, partner configuration, event grid and account details",
+  "aliases": [
+    "azure workload discovery",
+    "workload discovery service azure",
+    "WDS azure",
+    "azure event grid cloud connector",
+    "azure partner configuration zscaler",
+    "azure storage queue cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.workload-discovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.partner-integrations-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.workload-discovery.namespaces"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{limited-availability}} It is the Azure counterpart of [[cloud-connector.gcp.workload-discovery]]; the console account pages are described here, and the API side is in [[cloud-connector.api.partner-integrations-wire]]."
+    },
+    {
+      "label": "Before adding an account.",
+      "text": "{{prerequisites}} {{iam-app-registration}} {{iam-role}}"
+    },
+    {
+      "label": "Partner configuration.",
+      "text": "{{partner-configuration}} {{authorization-expiry}}"
+    },
+    {
+      "label": "The account.",
+      "text": "{{account-credentials}} {{subscription-groups}} {{groups-optional}} {{namespace}}"
+    },
+    {
+      "label": "Event grid and storage queues.",
+      "text": "{{event-grid}} {{storage-queue}} {{post-config}}"
+    },
+    {
+      "label": "Account details.",
+      "text": "{{supported-regions}} {{policy-attributes}} {{inventory-counts}} {{permissions}} {{event-grid-status}}"
+    },
+    {
+      "label": "Not settled.",
+      "text": "No polling interval is given {{gap:polling-interval}}. The custom role JSON is printed without a comma {{gap:role-json-comma}}, the westus region cannot be isolated in the list {{gap:westus-entry}}, and the system topic's Terraform template is not captured {{gap:system-topic-terraform}}. API, SDK and Terraform coverage of Azure accounts is tracked in [[cloud-connector.api.partner-integrations-wire]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant has Azure workload discovery enabled by Zscaler Support, since it is Limited Availability.",
+      "uses": [
+        "limited-availability"
+      ]
+    },
+    {
+      "do": "Whether the managed identity, resource group, storage account and IAM roles exist before the account is added, and whether the region is supported.",
+      "uses": [
+        "prerequisites",
+        "iam-role",
+        "supported-regions"
+      ]
+    },
+    {
+      "do": "When the event grid is used, whether Zscaler authorized the partner configuration before onboarding and whether it expired before Zscaler created the partner topic and destination.",
+      "uses": [
+        "partner-configuration",
+        "authorization-expiry"
+      ]
+    },
+    {
+      "do": "When the event grid is used, whether the partner topic and destination were activated in every region and the system topic was created, since both are mandatory post-configuration.",
+      "uses": [
+        "post-config",
+        "event-grid-status"
+      ]
+    },
+    {
+      "do": "Whether the account's Permission shows Allowed for each subscription after Refresh, and the discovery service status.",
+      "uses": [
+        "permissions",
+        "inventory-counts"
+      ]
+    }
+  ],
+  "claims": {
+    "limited-availability": {
+      "statement": "Workload discovery services for Azure are in Limited Availability; to learn more, the page says to contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "quotes": [
+            "Workload discovery services for Azure are in Limited Availability (LA). To learn more, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Before an Azure account is added, the managed identity must be updated with the Cloud Connectors to be deployed, IAM roles and permissions configured, the region verified as supported, a resource group created to host the account's event grid topic, and a storage account created in which Cloud Connector creates storage queues (the Cloud Connector requires one).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "quotes": [
+            "Ensure that the managed identity is updated with the list of Cloud Connectors you want to deploy.",
+            "Create a resource group in Azure where your event grid topic for your Azure account is hosted.",
+            "Create a storage account for Cloud Connector to create storage queues to receive messages from the event grid. The Cloud Connector requires a storage account.",
+            "Configure your IAM roles and permissions in Azure.",
+            "Verify that your region is supported."
+          ]
+        }
+      ]
+    },
+    "partner-configuration": {
+      "statement": "To distribute tags through the event grid, an Azure partner configuration must be created and Zscaler must authorize it before onboarding; Zscaler is currently added as a non-verified partner, with partner registration ID ad8a5905-16a9-48f8-9f1e-30d750625b8e.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "quotes": [
+            "If you are using the event grid to distribute tags, create a partner configuration in Azure. For security reasons, Zscaler must authorize the partner configuration prior to onboarding.",
+            "Currently, you must add Zscaler as a non-verified partner.",
+            "Partner registration ID: Enter ad8a5905-16a9-48f8-9f1e-30d750625b8e."
+          ]
+        }
+      ]
+    },
+    "authorization-expiry": {
+      "statement": "After the partner authorization expires, the Zscaler service cannot create a partner topic or partner destination in the tenant, but a partner topic or destination it already created remains operational; when the same user creates the authorization in Azure and the Azure account in the Admin Console, Zscaler recommends a 7-day expiration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "quotes": [
+            "After expiry, this authorization is invalid, and the Zscaler service cannot create a partner topic or partner destination in your tenant.",
+            "If the authorization expires after the Zscaler service has created the partner topic or partner destination in your tenant, the partner topic or partner destination remains operational.",
+            "If the same user creates the authorization in Azure and the Azure account in the Zscaler Admin Console, Zscaler recommends setting the authorization expiration to 7 days as no coordination is required."
+          ]
+        }
+      ]
+    },
+    "account-credentials": {
+      "statement": "An Azure account is added at Zero Trust Cloud > Common Resources > Azure with a service principal credential: the Directory (tenant) ID, the Client/Application ID and the Client/Application Secret.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "quotes": [
+            "From the navigation menu, go to Zero Trust Cloud > Common Resources > Azure.",
+            "Directory (tenant) ID: Enter the Directory (tenant) ID used in the service principal credential.",
+            "Client/Application ID: Enter the client/application ID used in the service principal credential.",
+            "Client/Application Secret: Enter the client/application secret used in the service principal credential."
+          ]
+        }
+      ]
+    },
+    "subscription-groups": {
+      "statement": "The Subscription Groups tab selects the regions and the subscriptions from which the Zscaler service reads the resource tag.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "quotes": [
+            "Region: Select the region(s) you want the Zscaler service to read the resource tag from.",
+            "Subscriptions: Select the subscription(s) you want the service to read the resource tag from."
+          ]
+        }
+      ]
+    },
+    "groups-optional": {
+      "statement": "Selecting a Cloud Connector group is optional; without one the workload discovery service only discovers assets and cannot use the tags in policies, and the groups selected must receive the workload traffic from the chosen subscriptions and regions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "quotes": [
+            "If you do not select a Cloud Connector group, the workload discovery service only discovers assets but cannot use the tags in policies.",
+            "Ensure that the Cloud Connector groups you select receive the workload traffic from the subscriptions and regions you choose on the Subscription Groups tab."
+          ]
+        }
+      ]
+    },
+    "namespace": {
+      "statement": "An optional namespace limits the IP addresses sent to the Cloud Connector so that duplicate IP addresses do not map incorrectly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "quotes": [
+            "Namespace (Optional): Enter a namespace to limit the IP addresses sent to the Cloud Connector. This ensures that duplicate IP addresses do not map incorrectly."
+          ]
+        }
+      ]
+    },
+    "event-grid": {
+      "statement": "The event grid is optional and depends on storage account creation in Azure; Zscaler creates event grid topics in the regions selected there to be notified of real-time tag updates, and the service can only attempt to create a partner topic and partner destination after the Resource Group and Subscription ID are provided.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "quotes": [
+            "The event grid topics are used to notify the Zscaler service of real-time tag updates to ensure that real-time tag mapping updates in the Zscaler service.",
+            "The event grid is optional and depends on storage account creation in Azure.",
+            "Regions: Select the regions where you want Zscaler to create the event grid topics."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "after": "Resource Groups: Select a resource group where Zscaler creates an instance of the partner topic and partner destination.",
+          "quotes": [
+            "The Zscaler service can only attempt to create a partner topic and a partner destination after you provide the Resource Group and Subscription ID."
+          ]
+        }
+      ]
+    },
+    "storage-queue": {
+      "statement": "For each region selected on the Event Grid tab, a subscription and storage account are chosen, in which the Cloud Connector creates a storage queue for the event grid; an optional prefix names the queue.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "quotes": [
+            "Regions: All regions selected on the Event Grid tab are listed. Select a subscription and storage account for each region.",
+            "Storage Account: Select a storage account where the Cloud Connector creates a storage queue for the event grid.",
+            "Prefix: (Optional) Enter a prefix to name and create a storage queue."
+          ]
+        }
+      ]
+    },
+    "post-config": {
+      "statement": "When the event grid is used, post-configuration is mandatory: the partner topic and/or partner destination must be activated in the resource group of every region, and a system topic must be created manually or with the Terraform template, with topic type Azure Resource Notifications - Resource Management events (only one per subscription), Cloud Event Schema v1.0, the Resource Created or Updated event type, a Partner Destination endpoint, and a Global location that is selected by default and cannot be changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-workload-discovery-service-microsoft-azure-accounts.json",
+          "quotes": [
+            "If you are using the event grid, the following post-configuration requirements are mandatory.",
+            "You must go to the resource group for every region you are activating and activate the partner topic and/or partner destination in that region.",
+            "Topic Types: From the drop-down menu, select Azure Resource Notifications - Resource Management events.",
+            "Only one system topic can be created per subscription.",
+            "Event Schema: From the drop-down menu, select Cloud Event Schema v1.0.",
+            "In the Event Types section, from the Filter to Event Types drop-down menu, select the Resource Created or Updated checkbox.",
+            "You can either manually create the system topic or use the Terraform template.",
+            "Endpoint Type: From the drop-down menu, select Partner Destination.",
+            "Location: Global is selected by default and you cannot change it."
+          ]
+        }
+      ]
+    },
+    "supported-regions": {
+      "statement": "The Azure account details page says supported Azure regions include westeurope, eastus, eastus2, uksouth, northeurope, centralindia, southeastasia, australiaeast, germanywestcentral, southcentralus, westus2 and canadacentral.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-microsoft-azure-account-details.json",
+          "quotes": [
+            "Supported regions for Azure include:",
+            "- westeurope",
+            "- eastus2",
+            "- uksouth",
+            "- northeurope",
+            "- centralindia",
+            "- southeastasia",
+            "- australiaeast",
+            "- germanywestcentral",
+            "- southcentralus",
+            "- westus2",
+            "- canadacentral"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-microsoft-azure-account-details.json",
+          "after": "Supported regions for Azure include:",
+          "quotes": [
+            "- eastus"
+          ]
+        }
+      ]
+    },
+    "policy-attributes": {
+      "statement": "The Azure account details page says only certain attributes can be used in policies and marks Image ID, Platform, Security Group ID, Security Group Name and VNet as usable; for VNet, the field in workload groups is labeled VPC but takes VNet ID values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-microsoft-azure-account-details.json",
+          "quotes": [
+            "You can only use certain attributes in policies. The following list indicates which attributes you can use:",
+            "Image ID: The virtual machine (VM) image SKU assigned to the workload. You can use this attribute in policies.",
+            "Platform: The platform (i.e., Linux/UNIX or Windows) that the workload is operating on. You can use this attribute in policies.",
+            "Security Group ID: The ID of the network security group assigned to the workload. You can use this attribute in policies.",
+            "Security Group Name: The name of the security group assigned to the workload. You can use this attribute in policies.",
+            "In policies, when creating workload groups, the drop-down field to configure this field is VPC. Although it is labeled VPC, you can enter VNet ID values. You can use this attribute in policies."
+          ]
+        }
+      ]
+    },
+    "inventory-counts": {
+      "statement": "For each subscription the region view shows the numbers of duplicate and private IP addresses discovered, the messages received over the partner destination and sent over the partner topic, and a discovery service status of Starting, Success or Error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-microsoft-azure-account-details.json",
+          "quotes": [
+            "Duplicate IP Addresses: The number of duplicate IP addresses discovered in the Azure subscription.",
+            "Private IP Addresses: The number of private IP addresses discovered in the Azure subscription.",
+            "Receive Count: The number of messages received over the partner destination.",
+            "Sent Count: The number of messages sent over the partner topic.",
+            "Discovery Service Status: The status of the discovery service (i.e., Starting, Success, or Error)."
+          ]
+        }
+      ]
+    },
+    "permissions": {
+      "statement": "The permission status of the Azure account is Pending, Allowed or Denied and updates when Refresh is clicked; Last Sync is the last time the account was refreshed and is Pending if it was never refreshed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-microsoft-azure-account-details.json",
+          "quotes": [
+            "Permission: The permission status of the Azure account (i.e., Pending, Allowed, or Denied). When you click Refresh, the state of the permission updates.",
+            "Last Sync: The last time the Azure account was refreshed. If you have never refreshed the account, it is Pending."
+          ]
+        }
+      ]
+    },
+    "event-grid-status": {
+      "statement": "The workload discovery service communicates through API calls and a publish-subscribe mechanism based on the event grid and storage queue; the event grid list shows each topic and destination status as Activated, Created or Unavailable, and the messages a partner destination has received since its creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-microsoft-azure-account-details.json",
+          "quotes": [
+            "The workload discovery service communicates through API calls and a publish-subscribe mechanism based on the event grid and storage queue.",
+            "Topic Status: The topic status of the Azure account (i.e., Activated, Created, or Unavailable).",
+            "Destination Status: The destination status of the Azure account (i.e., Activated, Created, or Unavailable).",
+            "Received Messages: The number of messages that the partner destination has received since the creation of this destination."
+          ]
+        }
+      ]
+    },
+    "iam-app-registration": {
+      "statement": "In the IAM setup the app registration selects Accounts in this organizational directory only as its supported account type, leaves the optional Redirect URI unconfigured, and the client secret's Value must be copied and saved immediately after creation because it cannot be viewed or copied after the page is refreshed or accessed later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-iam-roles-and-permissions-microsoft-azure.json",
+          "quotes": [
+            "Supported account types: Select Accounts in this organizational directory only.",
+            "Redirect URI (optional): Do not configure this field.",
+            "Immediately after creating the client secret, copy and save the Value. After you refresh the page, or when you access it later, you can no longer view or copy the Value."
+          ]
+        }
+      ]
+    },
+    "iam-role": {
+      "statement": "Permissions in Azure can come from the built-in Reader role (assigned to the subscription) or from a custom role created with baseline permissions Start from scratch, whose JSON actions read subscription resources, virtual networks, virtual network virtual machines, network interfaces, virtual machines and resource groups; the access assignment selects User, group, or service principal, and IAM roles and permissions can be configured with Terraform or in Azure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-iam-roles-and-permissions-microsoft-azure.json",
+          "quotes": [
+            "When adding permissions in Azure, you can use the built-in role of Reader or create a custom role.",
+            "Baseline permissions: Select Start from scratch.",
+            "\"actions\": [ \"Microsoft.Resources/subscriptions/resources/read\", \"Microsoft.Network/virtualNetworks/read\", \"Microsoft.Network/virtualNetworks/virtualMachines/read\", \"Microsoft.Network/networkInterfaces/read\", \"Microsoft.Compute/virtualMachines/read\" \"Microsoft.Resources/subscriptions/resourceGroups/read\" ],",
+            "Alternatively, instead of configuring settings on the JSON tab, you can assign the Reader role to your subscription.",
+            "Assign access to: Select User, group, or service principal.",
+            "When configuring IAM roles and permissions, you can use Terraform or Azure."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "polling-interval": {
+      "kind": "semantic",
+      "title": "How often Azure workload discovery polls for changes",
+      "status": "open",
+      "detail": "The Azure workload discovery pages give no polling interval; the GCP page states 5 minutes (cloud-connector.gcp.workload-discovery:polling). Whether Azure has an interval at all, or relies on the event grid for updates, is not stated.",
+      "blocks": "saying how quickly a new Azure VM's tags reach policy",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "role-json-comma": {
+      "kind": "semantic",
+      "title": "Whether the custom role JSON in the Azure IAM page is valid as printed",
+      "status": "open",
+      "detail": "The captured actions array has no comma between \"Microsoft.Compute/virtualMachines/read\" and \"Microsoft.Resources/subscriptions/resourceGroups/read\", so it is not valid JSON as printed. It is treated here as a vendor defect in the page; whether the portal accepts it is untested.",
+      "blocks": "pasting the printed role JSON into the Azure portal unchanged",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "westus-entry": {
+      "kind": "semantic",
+      "title": "Whether westus is a supported Azure region for workload discovery",
+      "status": "open",
+      "detail": "The supported-regions list in the capture has a westus entry that follows westus2 and cannot be quoted apart from it, so the supported-regions claim leaves it out. The page says the list includes the regions it names.",
+      "blocks": "stating the full set of supported Azure regions",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "system-topic-terraform": {
+      "kind": "semantic",
+      "title": "The Terraform template for the Azure system topic",
+      "status": "open",
+      "detail": "The page says the system topic can be created manually or with the Terraform template, but the template itself is not captured.",
+      "blocks": "describing what the template creates",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,473 @@
+{
+  "schema_version": 1,
+  "id": "zbi.end-user-experience",
+  "title": "What the user sees in isolation: experience modes, menus, Original URL, bookmarks, mobile, translation, read-only and extensions",
+  "aliases": [
+    "Native Browser Experience",
+    "Browser-in-Browser Experience",
+    "Zero Trust Mode menu",
+    "isolation right-click menu",
+    "Original URL isolation",
+    "read-only isolation",
+    "isolation language translation",
+    "isolation multiple sessions",
+    "isolation mobile"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.cloud-browser"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.persistent-state"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.file-handling"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Experience modes.",
+      "text": "{{two-modes}} {{native-menu-hidden}} {{native-vs-original-url}} {{bib-url-bar-editable}} {{bib-tab-affinity}} {{bib-not-with-original-url}}"
+    },
+    {
+      "label": "Menus.",
+      "text": "{{zero-trust-mode-menu}} {{right-click-menu}} {{menu-mode-right-click-article}} {{menu-mode-menu-article}} Which mode shows the Zero Trust Mode menu is in dispute {{divergence:menu-in-native-mode}}."
+    },
+    {
+      "label": "Original URL.",
+      "text": "{{original-url-behavior}} {{original-url-profile-description}} Where the setting appears is open {{gap:original-url-setting-scope}}."
+    },
+    {
+      "label": "Sessions and bookmarks.",
+      "text": "{{multiple-sessions}} {{bookmarks}} Cookies across sessions are in [[zbi.persistent-state]]."
+    },
+    {
+      "label": "Mobile.",
+      "text": "{{mobile-scope}} {{mobile-behavior}}"
+    },
+    {
+      "label": "Language.",
+      "text": "{{language-translation}} {{language-localization}}"
+    },
+    {
+      "label": "Read-only and extensions.",
+      "text": "{{read-only-mode}} {{extensions-in-isolation}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which experience mode the user's isolation profile selects, and whether Original URL is enabled, since Browser-in-Browser Experience is not available with it.",
+      "uses": [
+        "two-modes",
+        "bib-not-with-original-url"
+      ]
+    },
+    {
+      "do": "Whether the user already has 10 active isolation sessions.",
+      "uses": [
+        "multiple-sessions"
+      ]
+    },
+    {
+      "do": "Whether the Zero Trust Mode menu is expected in the mode the user is in.",
+      "uses": [
+        "menu-in-native-mode"
+      ]
+    }
+  ],
+  "claims": {
+    "two-modes": {
+      "statement": "Admins select the isolation experience per isolation profile, in both Internet & SaaS and Private Access profiles, from two options: Native Browser Experience and Browser-in-Browser Experience.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-user-experience-modes-isolation.json",
+          "quotes": [
+            "The two options are Native Browser Experience and Browser-in-Browser Experience.",
+            "Admins can choose the isolation experience for users within individual isolation profiles.",
+            "This option is available when creating and editing Internet & SaaS isolation profiles, as well as when creating and editing Private Access isolation profiles."
+          ]
+        }
+      ]
+    },
+    "native-menu-hidden": {
+      "statement": "In Native Browser Experience the Zero Trust Mode menu and other session controls are hidden by default but remain reachable through the checkmark Zero Trust Mode icon, and features such as tab affinity are disabled by default but still accessible.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-user-experience-modes-isolation.json",
+          "quotes": [
+            "Though the menu is hidden from view by default, it is still accessible by navigating to the checkmark Zero Trust Mode icon.",
+            "Other isolation features such as tab affinity are also disabled by default, but can still be accessed in this mode.",
+            "the Zero Trust Mode menu and other session controls are hidden from view when a user enters the isolated session"
+          ]
+        }
+      ]
+    },
+    "native-vs-original-url": {
+      "statement": "Zscaler distinguishes Native Browser Experience from Original URL: in Native Browser Experience the entire isolation container is hidden, not just the isolation URL, and the user does not leave isolation, whereas Original URL essentially means leaving isolation completely.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-user-experience-modes-isolation.json",
+          "quotes": [
+            "In Native Browser Experience, the entire isolation container is hidden, not just the isolation URL.",
+            "Original URL essentially means that you completely leave isolation, whereas you don't in Native Browser Experience."
+          ]
+        }
+      ]
+    },
+    "bib-url-bar-editable": {
+      "statement": "In Browser-in-Browser Experience the isolation URL can be copied, reloaded and manually edited, and the editable URL bar lets the user browse to a page of their choice if the defined policy allows it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-user-experience-modes-isolation.json",
+          "quotes": [
+            "The isolation URL can be copied, reloaded, and manually edited in this mode.",
+            "allowing the user to input the URL of their choice and browse to the desired web page if allowed by the defined policy."
+          ]
+        }
+      ]
+    },
+    "bib-tab-affinity": {
+      "statement": "In Browser-in-Browser Experience each native browser tab maps to a tab on the isolation browser, and tabs opened for one isolation session cannot be carried to a separate browser window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-user-experience-modes-isolation.json",
+          "quotes": [
+            "each tab on the native browser is mapped to a tab on the isolation browser",
+            "This means that the tabs opened for one isolation session cannot be carried over to a separate browser window, even if it is another isolated session."
+          ]
+        }
+      ]
+    },
+    "bib-not-with-original-url": {
+      "statement": "Browser-in-Browser Experience is not available if the admin selects Original URL in the Security settings during profile configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-user-experience-modes-isolation.json",
+          "quotes": [
+            "Browser-in-Browser Experience is not available if the admin selects Original URL in the Security settings during profile configuration."
+          ]
+        }
+      ]
+    },
+    "original-url-behavior": {
+      "statement": "With the Original URL feature enabled, Internet & SaaS evaluates link redirects; a link to a domain different from the one at the start of isolation renders in the user's local browser outside the isolation session, and the Back button returns the user to the ongoing isolated session. The option is enabled per Internet & SaaS isolation profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-original-url-isolation.json",
+          "quotes": [
+            "If the Original URL feature is enabled, Internet & SaaS (ZIA) evaluates link redirects for users.",
+            "If the link leads to a domain different than the one accessed at the beginning of isolation, the new page renders on the user's local browser, outside the isolation session.",
+            "by clicking the Back button on the browser, the user can return to the prior page and, in doing so, return to the ongoing isolated session",
+            "Admins can enable the Original URL option per Internet & SaaS isolation profile.",
+            "if a user in isolation clicks a link that redirects to a new page in the same tab, the tab loads the new page, and the tab is no longer part of an isolated session."
+          ]
+        }
+      ]
+    },
+    "original-url-profile-description": {
+      "statement": "The Internet & SaaS profile wizard describes Enable Original URL as showing the original URL in the browser bar.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "Enable Original URL: Enable or disable this setting. If enabled, it shows the original URL in the browser bar."
+          ]
+        }
+      ]
+    },
+    "multiple-sessions": {
+      "statement": "A user can have multiple active isolation sessions using different browsers or incognito windows; a second window of the same browser type continues the same session unless it is an incognito window, and the limit is 10 active sessions per user at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-accessing-multiple-sessions-isolation.json",
+          "quotes": [
+            "Users can access multiple active isolation sessions at a time, using multiple internet browsers or incognito windows.",
+            "To access another isolation session using the same type of browser, an incognito mode window is required.",
+            "opening a second Chrome browser window continues that same isolation session.",
+            "There is a limit of 10 active sessions per user at a time."
+          ]
+        }
+      ]
+    },
+    "bookmarks": {
+      "statement": "Bookmarks from the original browser can be used in an isolated session and show as isolation URLs there; the isolation URL can be shared inside the organization and with third parties, and a recipient sees a redirect notice and, on confirmation, goes to the original non-isolated URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-bookmarking-web-pages-isolation.json",
+          "quotes": [
+            "Users can access bookmarks from their original browser while in an isolated session.",
+            "The user can share these isolation URLs with other users in their organization as well as third parties.",
+            "If a user shares the bookmarked isolation URL with another user, the other user sees a redirect notice. Upon confirmation, they are redirected to the original URL that shows the non-isolated web page.",
+            "The URL of the bookmarked web page appears as an isolation URL in the isolated browser during the session."
+          ]
+        }
+      ]
+    },
+    "mobile-scope": {
+      "statement": "Zero Trust Browser mobile isolation is supported on iOS and Android, applies to mobile browser-based applications and not native mobile applications, and is available only for Android 13 and later and iOS 17 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-mobile-user-experience-isolation.json",
+          "quotes": [
+            "Zero Trust Browser is supported on iOS and Android mobile platforms.",
+            "Isolation is only intended to work on mobile browser-based applications, not native mobile applications.",
+            "The mobile experience in isolation is only available for Android version 13 and later, as well as iOS version 17 and later."
+          ]
+        }
+      ]
+    },
+    "mobile-behavior": {
+      "statement": "Mobile isolation is described as triggered by a Private Access Isolate policy; the isolation browser uses a mobile user agent, the same profile configuration applies to mobile and desktop, Zscaler Support is the contact if capabilities differ, and mobile users can use the Original URL feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-mobile-user-experience-isolation.json",
+          "quotes": [
+            "When traffic is generated from a mobile browser and triggers a policy on Private Access (ZPA) that has the action as Isolate, that traffic is isolated.",
+            "The isolation browser connects to the web application using a mobile user agent and retrieves the mobile version of the web page.",
+            "The same isolation profile configurations apply to both mobile and desktop isolation experiences.",
+            "If you experience different capabilities for your profile when in mobile isolation, contact Zscaler Support.",
+            "You can use the Zero Trust Mode menu, enable different user experience modes, access network latency information, and use the Original URL feature."
+          ]
+        }
+      ]
+    },
+    "language-translation": {
+      "statement": "Isolation automatically translates a web page to the user's language when a new isolated session begins, using local browser settings; users can pick another language manually, and admins enable translation per isolation profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-understanding-language-translate-isolation.json",
+          "quotes": [
+            "Isolation provides the same capability, automatically translating a web page to the user's language when they begin a new isolated session.",
+            "Depending on their local browser settings, the isolation container knows which language to render on the web page.",
+            "Zero Trust Browser also provides the option to manually select the desired language.",
+            "Admins can enable translation services for their users per isolation profile."
+          ]
+        }
+      ]
+    },
+    "language-localization": {
+      "statement": "Zscaler-generated isolation browser elements such as notifications, warnings and menu items are rendered in the language of the user's browser settings, and this is supported even when translation is disabled for the profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-understanding-language-translate-isolation.json",
+          "quotes": [
+            "In addition to translation, Zero Trust Browser supports language localization in isolation. With localization, the Zscaler-generated, isolation browser-specific elements, such as notifications, warnings, and menu items are rendered based on the user's browser language settings.",
+            "Language localization in isolation is supported even if the translation services are disabled for the isolation profile."
+          ]
+        }
+      ]
+    },
+    "read-only-mode": {
+      "statement": "Read-only isolation, enabled per profile, stops text entry anywhere on the page, pasting into text fields and virtual keyboard input, shows an error when a user tries to enter text, and still allows Enter, Escape and the arrow keys for navigation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-read-only-mode-isolation.json",
+          "quotes": [
+            "Read-only mode in isolation is a setting admins can enable per isolation profile in their organization.",
+            "Isolation profiles with this setting enabled cannot enter text anywhere on the page, paste copied text into text fields, or use virtual keyboards to insert text.",
+            "The user can still navigate within an isolated web page using other command keys (Enter, Escape, and the arrow keys).",
+            "Users attempting to enter text information with this setting enabled are shown an error message."
+          ]
+        }
+      ]
+    },
+    "zero-trust-mode-menu": {
+      "statement": "The Zero Trust Mode menu gives access to pinned and supported browser extensions, Protected Storage (file transfers for the session), a Clipboard icon for clipboard notifications and restrictions, Print, Troubleshoot (debug session, network latency and session logs, ip.zscaler.com) and Information (settings configured by the admin, with a Restricted Actions list); the default Native Browser Experience setting hides the menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-zero-trust-mode-menu-native-browser-experience.json",
+          "quotes": [
+            "Click the Protected Storage icon to view all file transfers for the isolation session.",
+            "Click the Clipboard icon to view notifications about clipboard functions and restrictions.",
+            "Access ip.zscaler.com.",
+            "To view a list of your specific restrictions and disabled tools, click Restricted Actions.",
+            "The default setting for Native Browser Experience Mode hides the menu from view.",
+            "Click the Print icon to view options and information for printing settings.",
+            "Click the Troubleshoot icon to do the following:",
+            "Start a debug session.",
+            "View network latency and export isolation session logs.",
+            "Click the icons of your pinned browser extensions to use them during the isolation session.",
+            "Click the Extensions icon to view and use supported browser extensions enabled for your isolation profile.",
+            "Click the Information icon to view the settings configured by your admin for your isolation profile."
+          ]
+        }
+      ]
+    },
+    "right-click-menu": {
+      "statement": "The isolation right-click menu is available in both experience modes; a custom right-click menu offered by the web application replaces the default isolation menu, and when printing is disabled for the profile the print option is absent and a message says it is disabled by policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-right-click-menu-isolation.json",
+          "quotes": [
+            "The right-click menu is available in both Native Browser Experience Mode and Browser-in-Browser Experience Mode.",
+            "If the web application you are accessing offers a custom right-click menu, then the application-specific right-click menu displays instead of the default isolation right-click menu.",
+            "If printing is disabled for your isolation profile, you cannot print the web page or document that is rendered in isolation.",
+            "a message appears noting it is disabled by policy.",
+            "You cannot see the print option from the right-click menu, or the print button in the isolation bar."
+          ]
+        }
+      ]
+    },
+    "extensions-in-isolation": {
+      "statement": "Browser extensions in isolation are enabled in Private Access isolation profiles, up to five per profile, selected from a predefined list; an extension's authenticated state is preserved if Persistent State is enabled and the configured extensions are restored in the new container after idle timeout.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-browser-extensions-isolation.json",
+          "quotes": [
+            "Admins can configure up to five browser extensions for a single isolation profile.",
+            "Administrators can enable browser extensions for users when configuring isolation profiles for Private Access (ZPA) in the Zscaler Admin Console.",
+            "then the authenticated state of the extension is preserved if Persistent State is enabled.",
+            "When the user is assigned a new isolated container after idle timeout, the configured browser extensions are restored."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "you are prompted to select browser extensions (e.g., Okta Browser Plugin) from the predefined list."
+          ]
+        }
+      ]
+    },
+    "menu-mode-right-click-article": {
+      "statement": "The right-click menu article says the Zero Trust Mode menu displays only in Browser-in-Browser Experience Mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-right-click-menu-isolation.json",
+          "quotes": [
+            "The right-click menu is different from Zero Trust Mode menu, which displays only in Browser-in-Browser Experience Mode."
+          ]
+        }
+      ]
+    },
+    "menu-mode-menu-article": {
+      "statement": "The Zero Trust Mode menu article says all capabilities of an isolated session in Native Browser Experience Mode are accessible via the Zero Trust Mode menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-zero-trust-mode-menu-native-browser-experience.json",
+          "quotes": [
+            "All capabilities of an isolated session are included when using Native Browser Experience Mode, and are accessible via the Zero Trust Mode menu."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "menu-in-native-mode": {
+      "summary": "The right-click menu article says the Zero Trust Mode menu displays only in Browser-in-Browser Experience Mode, while the Zero Trust Mode menu article says the capabilities of Native Browser Experience Mode are accessible via that menu.",
+      "positions": [
+        {
+          "says": "The Zero Trust Mode menu displays only in Browser-in-Browser Experience Mode.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-using-right-click-menu-isolation.json",
+            "quotes": [
+              "The right-click menu is different from Zero Trust Mode menu, which displays only in Browser-in-Browser Experience Mode."
+            ]
+          }
+        },
+        {
+          "says": "All capabilities of an isolated session in Native Browser Experience Mode are accessible via the Zero Trust Mode menu.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-using-zero-trust-mode-menu-native-browser-experience.json",
+            "quotes": [
+              "All capabilities of an isolated session are included when using Native Browser Experience Mode, and are accessible via the Zero Trust Mode menu."
+            ]
+          }
+        },
+        {
+          "says": "In Native Browser Experience the Zero Trust Mode menu is hidden by default but still accessible through the checkmark Zero Trust Mode icon.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-user-experience-modes-isolation.json",
+            "quotes": [
+              "Though the menu is hidden from view by default, it is still accessible by navigating to the checkmark Zero Trust Mode icon."
+            ]
+          }
+        },
+        {
+          "says": "The Debug Mode steps start from clicking the checkmark Zero Trust Mode icon, pointing to the Zero Trust Mode menu in Native Browser Experience.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-using-debug-mode-isolation.json",
+            "quotes": [
+              "Click the checkmark Zero Trust Mode icon. To learn more, see Using the Zero Trust Mode Menu in Native Browser Experience."
+            ]
+          }
+        },
+        {
+          "says": "The network latency steps start from clicking the checkmark Zero Trust Mode icon, pointing to the Zero Trust Mode menu in Native Browser Experience.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-accessing-network-latency-isolation.json",
+            "quotes": [
+              "Click the checkmark Zero Trust Mode icon. To learn more, see Using the Zero Trust Mode Menu in Native Browser Experience."
+            ]
+          }
+        }
+      ],
+      "impact": "An answer about whether a Native Browser Experience user has the Zero Trust Mode menu depends on which article is followed; both are quoted, neither is settled."
+    }
+  },
+  "gaps": {
+    "original-url-setting-scope": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Where the Original URL setting applies, including mobile isolation",
+      "detail": "The Original URL setting appears in the Internet & SaaS wizard text only, and the Original URL article ties it to Internet & SaaS profiles, while the mobile article describes isolation triggered by a Private Access policy; the mobile article says users can use the Original URL feature in mobile isolation ([[zbi.end-user-experience:mobile-behavior]]), so what stays open is whether the setting itself is configurable in the Private Access profile.",
+      "blocks": "saying whether the Original URL setting is configurable in Private Access profiles",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,3088 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Location Management",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/location-management",
+    "node": "1402481",
+    "revision": "3147337",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Location%20Management_30.json?VersionId=xh6lFcVsyv6fH3GH0zHEUJtAtIizQjhB",
+    "updated": "2025-10-31",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Location Management"
+      }
+    ],
+    "paths": {
+      "/locations": {
+        "get": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "<p>Gets locations only, not sub-locations. When a location matches the given search parameter criteria only its parent location is included in the result set, not its sub-locations. To learn more, see <a href=\"/zia/about-locations\" target=\"_blank\">About Locations</a>.</p>\n",
+          "operationId": "getTopLocations",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "<p>The search string used to partially match against a location's name and port attributes.</p>\n",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "sslScanEnabled",
+              "in": "query",
+              "description": "<p>This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future.</p></p>Filter based on whether the Enable SSL Scanning setting is enabled or disabled for a location.</p>\n",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "xffEnabled",
+              "in": "query",
+              "description": "<p>Filter based on whether the Enforce XFF Forwarding setting is enabled or disabled for a location.</p>\n",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "authRequired",
+              "in": "query",
+              "description": "<p>Filter based on whether the Enforce Authentication setting is enabled or disabled for a location.</p>\n",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "bwEnforced",
+              "in": "query",
+              "description": "<p>Filter based on whether Bandwith Control is being enforced for a location.</p>\n",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "enableIOT",
+              "in": "query",
+              "description": "<p>If set to true, the city field (containing IoT-enabled location IDs, names, latitudes, and longitudes) and the iotDiscoveryEnabled filter are included in the response. Otherwise, they are not included.</p>",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Location"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "<p>Adds new locations and sub-locations. When invoked with a partner API key, it automatically sets the <code>managedBy</code> attribute to the partner associated with the key.</p>\n",
+          "operationId": "addLocation",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "location",
+              "in": "body",
+              "description": "Location information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/Location"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Location"
+              }
+            }
+          }
+        }
+      },
+      "/locations/bulkDelete": {
+        "post": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "<p>Bulk delete locations up to a maximum of 100 users per request. The response returns the location IDs that were successfully deleted.</p>\n",
+          "operationId": "bulkDeleteLocations",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "LocationIds",
+              "description": "The location IDs to bulk delete.",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/IdListInteger"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Operation"
+            },
+            "404": {
+              "description": "<p>If the payload includes location IDs that are invalid a <a href=\"/zia/about-error-handling\" target=\"_blank\">'Resource does not exist' error</a> is returned, but information about the invalid IDs is not included.</p>\n"
+            }
+          }
+        }
+      },
+      "/locations/supportedCountries": {
+        "get": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "<p>Retrieves the list of countries supported in location configuration</p><p><b>Note</b>: The response shows the current list of supported values in an Enum list. However, this list might vary if new entries are added or existing values are modified and the request always returns the latest information available about the countries.</p>",
+          "operationId": "LocationResource_getCountriesForLocations",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "NONE",
+                    "AFGHANISTAN",
+                    "ALAND",
+                    "ALBANIA",
+                    "ALGERIA",
+                    "AMERICAN_SAMOA",
+                    "ANDORRA",
+                    "ANGOLA",
+                    "ANGUILLA",
+                    "ANTARCTICA",
+                    "ANTIGUA_AND_BARBUDA",
+                    "ARGENTINA",
+                    "ARMENIA",
+                    "ARUBA",
+                    "AUSTRALIA",
+                    "AUSTRIA",
+                    "AZERBAIJAN",
+                    "BAHAMAS",
+                    "BAHRAIN",
+                    "BANGLADESH",
+                    "BARBADOS",
+                    "BELARUS",
+                    "BELGIUM",
+                    "BELIZE",
+                    "BENIN",
+                    "BERMUDA",
+                    "BHUTAN",
+                    "BOLIVIA",
+                    "BOSNIA_AND_HERZEGOVINA",
+                    "BOTSWANA",
+                    "BRAZIL",
+                    "BRITISH_INDIAN_OCEAN_TERRITORY",
+                    "BRUNEI",
+                    "BULGARIA",
+                    "BURKINA_FASO",
+                    "BURUNDI",
+                    "CAMBODIA",
+                    "CAMEROON",
+                    "CANADA",
+                    "CABO_VERDE",
+                    "CAYMAN_ISLANDS",
+                    "CENTRAL_AFRICAN_REPUBLIC",
+                    "CHAD",
+                    "CHILE",
+                    "CHINA",
+                    "CHRISTMAS_ISLAND",
+                    "COCOS_KEELING_ISLANDS",
+                    "COLOMBIA",
+                    "COMOROS",
+                    "DR_CONGO",
+                    "CONGO_REPUBLIC",
+                    "COOK_ISLANDS",
+                    "COSTA_RICA",
+                    "IVORY_COAST",
+                    "CROATIA",
+                    "CUBA",
+                    "CYPRUS",
+                    "CZECHIA",
+                    "DENMARK",
+                    "DJIBOUTI",
+                    "DOMINICAN_REPUBLIC",
+                    "DOMINICA",
+                    "ECUADOR",
+                    "EGYPT",
+                    "EL_SALVADOR",
+                    "EQUATORIAL_GUINEA",
+                    "ERITREA",
+                    "ESTONIA",
+                    "ETHIOPIA",
+                    "FALKLAND_ISLANDS",
+                    "FAROE_ISLANDS",
+                    "FIJI",
+                    "FINLAND",
+                    "FRANCE",
+                    "FRENCH_GUIANA",
+                    "FRENCH_POLYNESIA",
+                    "FRENCH_SOUTHERN_TERRITORIES",
+                    "GABON",
+                    "THE_GAMBIA",
+                    "GEORGIA",
+                    "GERMANY",
+                    "GHANA",
+                    "GIBRALTAR",
+                    "GREECE",
+                    "GREENLAND",
+                    "GRENADA",
+                    "GUADELOUPE",
+                    "GUAM",
+                    "GUATEMALA",
+                    "GUERNSEY",
+                    "GUINEA_BISSAU",
+                    "GUINEA",
+                    "GUYANA",
+                    "HAITI",
+                    "HONDURAS",
+                    "HONG_KONG",
+                    "HUNGARY",
+                    "ICELAND",
+                    "INDIA",
+                    "INDONESIA",
+                    "IRAN",
+                    "IRAQ",
+                    "IRELAND",
+                    "ISLE_OF_MAN",
+                    "ISRAEL",
+                    "ITALY",
+                    "JAMAICA",
+                    "JAPAN",
+                    "JERSEY",
+                    "JORDAN",
+                    "KAZAKHSTAN",
+                    "KENYA",
+                    "KIRIBATI",
+                    "NORTH_KOREA",
+                    "SOUTH_KOREA",
+                    "KUWAIT",
+                    "KYRGYZSTAN",
+                    "LAOS",
+                    "LATVIA",
+                    "LEBANON",
+                    "LESOTHO",
+                    "LIBERIA",
+                    "LIBYA",
+                    "LIECHTENSTEIN",
+                    "LITHUANIA",
+                    "LUXEMBOURG",
+                    "MACAO",
+                    "NORTH_MACEDONIA",
+                    "MADAGASCAR",
+                    "MALAWI",
+                    "MALAYSIA",
+                    "MALDIVES",
+                    "MALI",
+                    "MALTA",
+                    "MARSHALL_ISLANDS",
+                    "MARTINIQUE",
+                    "MAURITANIA",
+                    "MAURITIUS",
+                    "MAYOTTE",
+                    "MEXICO",
+                    "MICRONESIA",
+                    "MOLDOVA",
+                    "MONACO",
+                    "MONGOLIA",
+                    "MONTENEGRO",
+                    "MONTSERRAT",
+                    "MOROCCO",
+                    "MOZAMBIQUE",
+                    "MYANMAR",
+                    "NAMIBIA",
+                    "NAURU",
+                    "NEPAL",
+                    "NETHERLANDS_ANTILLES",
+                    "THE_NETHERLANDS",
+                    "NEW_CALEDONIA",
+                    "NEW_ZEALAND",
+                    "NICARAGUA",
+                    "NIGERIA",
+                    "NIGER",
+                    "NIUE",
+                    "NORFOLK_ISLAND",
+                    "NORTHERN_MARIANA_ISLANDS",
+                    "NORWAY",
+                    "PALESTINE",
+                    "OMAN",
+                    "PAKISTAN",
+                    "PALAU",
+                    "PANAMA",
+                    "PAPUA_NEW_GUINEA",
+                    "PARAGUAY",
+                    "PERU",
+                    "PHILIPPINES",
+                    "PITCAIRN_ISLANDS",
+                    "POLAND",
+                    "PORTUGAL",
+                    "PUERTO_RICO",
+                    "QATAR",
+                    "REUNION",
+                    "ROMANIA",
+                    "RUSSIA",
+                    "RWANDA",
+                    "SAINT_BARTHELEMY",
+                    "ST_KITTS_AND_NEVIS",
+                    "SAINT_LUCIA",
+                    "SAINT_MARTIN",
+                    "ST_VINCENT_AND_THE_GRENADINES",
+                    "SAMOA",
+                    "SAN_MARINO",
+                    "SAO_TOME_AND_PRINCIPE",
+                    "SAUDI_ARABIA",
+                    "SENEGAL",
+                    "SERBIA",
+                    "SEYCHELLES",
+                    "SIERRA_LEONE",
+                    "SINGAPORE",
+                    "SLOVAKIA",
+                    "SLOVENIA",
+                    "SOLOMON_ISLANDS",
+                    "SOMALIA",
+                    "SOUTH_AFRICA",
+                    "SOUTH_GEORGIA_AND_SOUTH_SANDWICH_ISLANDS",
+                    "SPAIN",
+                    "SRI_LANKA",
+                    "SAINT_HELENA",
+                    "SAINT_PIERRE_AND_MIQUELON",
+                    "SUDAN",
+                    "SURINAME",
+                    "SVALBARD_AND_JAN_MAYEN",
+                    "SWAZILAND",
+                    "SWEDEN",
+                    "SWITZERLAND",
+                    "SYRIA",
+                    "TAIWAN",
+                    "TAJIKISTAN",
+                    "TANZANIA",
+                    "THAILAND",
+                    "TIMOR_LESTE",
+                    "TOGO",
+                    "TOKELAU",
+                    "TONGA",
+                    "TRINIDAD_AND_TOBAGO",
+                    "TUNISIA",
+                    "TURKEY",
+                    "TURKMENISTAN",
+                    "TURKS_AND_CAICOS_ISLANDS",
+                    "TUVALU",
+                    "UGANDA",
+                    "UKRAINE",
+                    "UNITED_ARAB_EMIRATES",
+                    "UNITED_KINGDOM",
+                    "US_OUTLYING_ISLANDS",
+                    "UNITED_STATES",
+                    "URUGUAY",
+                    "UZBEKISTAN",
+                    "VANUATU",
+                    "VATICAN_CITY",
+                    "VENEZUELA",
+                    "VIETNAM",
+                    "BRITISH_VIRGIN_ISLANDS",
+                    "US_VIRGIN_ISLANDS",
+                    "WALLIS_AND_FUTUNA",
+                    "WESTERN_SAHARA",
+                    "YEMEN",
+                    "ZAMBIA",
+                    "ZIMBABWE",
+                    "SOUTH_SUDAN"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "/locations/lite": {
+        "get": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "<p>Gets a name and ID dictionary of locations.</p>\n",
+          "operationId": "getLiteLocations",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "includeSubLocations",
+              "in": "query",
+              "description": "If set to true sub-locations are included in the response otherwise they are excluded",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "includeParentLocations",
+              "in": "query",
+              "description": "If set to true locations with sub locations are included in the response, otherwise only locations without sub-locations are included",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "sslScanEnabled",
+              "in": "query",
+              "description": "<p>This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future.</p><p>Filter based on whether the Enable SSL Scanning setting is enabled or disabled for a location.</p>\n",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "search",
+              "in": "query",
+              "description": "<p>The search string used to partially match against a location's name and port attributes.</p>\n",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "enableIOT",
+              "in": "query",
+              "description": "<p>If set to true, the city field (containing IoT-enabled location IDs, names, latitudes, and longitudes) and the iotDiscoveryEnabled filter are included in the response. Otherwise, they are not included.</p>",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/LocationLite"
+              }
+            }
+          }
+        }
+      },
+      "/locations/{locationId}": {
+        "get": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "<p>Gets the location information for the specified ID.</p>\n",
+          "operationId": "getLocation",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "locationId",
+              "in": "path",
+              "description": "The unique identifier for the location.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Location"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "<p>Updates the location and sub-location information for the specified ID.</p>\n",
+          "operationId": "updateLocation",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "locationId",
+              "in": "path",
+              "description": "The unique identifier for the location.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "location",
+              "description": "Location information.",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/Location"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Location"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "<p>Deletes the location or sub-location for the specified ID.</p>\n",
+          "operationId": "deleteLocation",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "locationId",
+              "in": "path",
+              "description": "The unique identifier for the location.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/locations/{locationId}/sublocations": {
+        "get": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "<p>Gets the sub-location information for the location with the specified ID. These are the sub-locations associated to the parent location.</p>",
+          "operationId": "getSubLocations",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "locationId",
+              "in": "path",
+              "description": "The unique identifier for the location. The sub-location information given is based on the parent location's ID.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to partially match against a sub-location's name and port attributes.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "sslScanEnabled",
+              "in": "query",
+              "description": "<p>This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future.</p><p>Filter based on whether the Enable SSL Scanning setting is enabled or disabled for a sub-location.</p>",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "xffEnabled",
+              "in": "query",
+              "description": "Filter based on whether the Enforce XFF Forwarding setting is enabled or disabled for a sub-location.",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "authRequired",
+              "in": "query",
+              "description": "Filter based on whether the Enforce Authentication setting is enabled or disabled for a sub-location.",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "bwEnforced",
+              "in": "query",
+              "description": "Filter based on whether Bandwith Control is being enforced for a sub-location.",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "enforceAup",
+              "in": "query",
+              "description": "Filter based on whether Enforce AUP setting is enabled or disabled for a sub-location.",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "enableFirewall",
+              "in": "query",
+              "description": "Filter based on whether Enable Firewall setting is enabled or disabled for a sub-location.",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "enableIOT",
+              "in": "query",
+              "description": "<p>If set to true, the city field (containing IoT-enabled location IDs, names, latitudes, and longitudes) and the iotDiscoveryEnabled filter are included in the response. Otherwise, they are not included.</p>",
+              "required": false,
+              "type": "boolean"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Location"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/locations/groups": {
+        "get": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "<p>Gets information on location groups. To learn more, see <a href=\"/zia/about-location-groups\" target=\"_blank\">About Location Groups</a>.</p>",
+          "operationId": "LocationsGroupResource_getGroups",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "version",
+              "in": "query",
+              "description": "The version parameter is for Zscaler internal use only. The version is used by the service for backup operations.",
+              "required": false,
+              "type": "integer",
+              "default": 0,
+              "format": "int32"
+            },
+            {
+              "name": "name",
+              "in": "query",
+              "description": "The location group's name",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "groupType",
+              "description": "The location group's type (i.e., Static or Dynamic)",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "comments",
+              "in": "query",
+              "description": "Additional comments or information about the location group",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "locationId",
+              "in": "query",
+              "description": "The unique identifier for a location within a location group",
+              "required": false,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "lastModUser",
+              "in": "query",
+              "description": "The admin that last modified the group",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "fetchLocations",
+              "in": "query",
+              "description": "Fetches locations associated with the group. Set the value to 'false' to avoid fetching associated locations, thereby optimizing the GET location groups endpoint.",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/LocationGroup"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/locations/groups/count": {
+        "get": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "Gets the list of location groups for your organization.",
+          "operationId": "LocationsGroupResource_getGroupsCount",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "lastModUser",
+              "description": "The admin who modified the location group last.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "description": "The version parameter is for Zscaler internal use only. The version is used by the service for backup operations.",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 0,
+              "format": "int32"
+            },
+            {
+              "name": "name",
+              "description": "The location group's name.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "groupType",
+              "description": "The location group's type (i.e., Static or Dynamic).",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "comments",
+              "description": "Additional comments or information about the location group.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "locationId",
+              "description": "The unique identifier for a location within a location group.",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        }
+      },
+      "/locations/groups/lite": {
+        "get": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "Gets the name and ID dictionary of location groups.",
+          "operationId": "LocationsGroupResource_getGroupsSummary",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/LocationGroup"
+              }
+            }
+          }
+        }
+      },
+      "/locations/groups/lite/{id}": {
+        "get": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "Gets the name and ID dictionary for the specified location group ID. The response only provides <code>id</code>, <code>name</code>, and <code>deleted</code> information. ",
+          "operationId": "LocationsGroupResource_getGroupSummary",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The unique identifier for the location group.",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/LocationGroup"
+              }
+            }
+          }
+        }
+      },
+      "/locations/groups/{id}": {
+        "get": {
+          "tags": [
+            "Location Management"
+          ],
+          "description": "Gets the location group for the specified ID.",
+          "operationId": "LocationsGroupResource_getGroupById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The unique identifier for the location group.",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/LocationGroup"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "Location": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Location ID.",
+            "readOnly": true,
+            "x-applicableTo": "BOTH"
+          },
+          "name": {
+            "type": "string",
+            "description": "Location Name.",
+            "x-applicableTo": "BOTH"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Parent Location ID. If this ID does not exist or is 0, it is implied that it is a parent location. Otherwise, it is a sub-location whose parent has this ID. x-applicableTo: SUB"
+          },
+          "upBandwidth": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Upload bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement.",
+            "x-applicableTo": "BOTH"
+          },
+          "dnBandwidth": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Download bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement.",
+            "x-applicableTo": "BOTH"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country",
+            "enum": [
+              "NONE",
+              "AFGHANISTAN",
+              "ALAND",
+              "ALBANIA",
+              "ALGERIA",
+              "AMERICAN_SAMOA",
+              "ANDORRA",
+              "ANGOLA",
+              "ANGUILLA",
+              "ANTARCTICA",
+              "ANTIGUA_AND_BARBUDA",
+              "ARGENTINA",
+              "ARMENIA",
+              "ARUBA",
+              "AUSTRALIA",
+              "AUSTRIA",
+              "AZERBAIJAN",
+              "BAHAMAS",
+              "BAHRAIN",
+              "BANGLADESH",
+              "BARBADOS",
+              "BELARUS",
+              "BELGIUM",
+              "BELIZE",
+              "BENIN",
+              "BERMUDA",
+              "BHUTAN",
+              "BOLIVIA",
+              "BOSNIA_AND_HERZEGOVINA",
+              "BOTSWANA",
+              "BRAZIL",
+              "BRITISH_INDIAN_OCEAN_TERRITORY",
+              "BRITISH_VIRGIN_ISLANDS",
+              "BRUNEI",
+              "BULGARIA",
+              "BURKINA_FASO",
+              "BURUNDI",
+              "CAMBODIA",
+              "CAMEROON",
+              "CANADA",
+              "CABO_VERDE",
+              "CAYMAN_ISLANDS",
+              "CENTRAL_AFRICAN_REPUBLIC",
+              "CHAD",
+              "CHILE",
+              "CHINA",
+              "CHRISTMAS_ISLAND",
+              "COCOS_KEELING_ISLANDS",
+              "COLOMBIA",
+              "COMOROS",
+              "CONGO_REPUBLIC",
+              "DR_CONGO",
+              "COOK_ISLANDS",
+              "COSTA_RICA",
+              "CROATIA",
+              "CUBA",
+              "CYPRUS",
+              "CZECHIA",
+              "DENMARK",
+              "DJIBOUTI",
+              "DOMINICAN_REPUBLIC",
+              "DOMINICA",
+              "ECUADOR",
+              "EGYPT",
+              "EL_SALVADOR",
+              "EQUATORIAL_GUINEA",
+              "ERITREA",
+              "ESTONIA",
+              "ETHIOPIA",
+              "FALKLAND_ISLANDS",
+              "FAROE_ISLANDS",
+              "FIJI",
+              "FINLAND",
+              "FRANCE",
+              "FRENCH_GUIANA",
+              "FRENCH_POLYNESIA",
+              "FRENCH_SOUTHERN_TERRITORIES",
+              "GABON",
+              "THE_GAMBIA",
+              "GEORGIA",
+              "GERMANY",
+              "GHANA",
+              "GIBRALTAR",
+              "GREECE",
+              "GREENLAND",
+              "GRENADA",
+              "GUADELOUPE",
+              "GUAM",
+              "GUATEMALA",
+              "GUERNSEY",
+              "GUINEA_BISSAU",
+              "GUINEA",
+              "GUYANA",
+              "HAITI",
+              "HONDURAS",
+              "HONG_KONG",
+              "HUNGARY",
+              "ICELAND",
+              "INDIA",
+              "INDONESIA",
+              "IRAN",
+              "IRAQ",
+              "IRELAND",
+              "ISLE_OF_MAN",
+              "ISRAEL",
+              "ITALY",
+              "IVORY_COAST",
+              "JAMAICA",
+              "JAPAN",
+              "JERSEY",
+              "JORDAN",
+              "KAZAKHSTAN",
+              "KENYA",
+              "KIRIBATI",
+              "KOREA_REPUBLIC_OF",
+              "KUWAIT",
+              "KYRGYZSTAN",
+              "LAOS",
+              "LATVIA",
+              "LEBANON",
+              "LESOTHO",
+              "LIBERIA",
+              "LIBYA",
+              "LIECHTENSTEIN",
+              "LITHUANIA",
+              "LUXEMBOURG",
+              "MACAO",
+              "MADAGASCAR",
+              "MALAWI",
+              "MALAYSIA",
+              "MALDIVES",
+              "MALI",
+              "MALTA",
+              "MARSHALL_ISLANDS",
+              "MARTINIQUE",
+              "MAURITANIA",
+              "MAURITIUS",
+              "MAYOTTE",
+              "MEXICO",
+              "MICRONESIA",
+              "MOLDOVA",
+              "MONACO",
+              "MONGOLIA",
+              "MONTENEGRO",
+              "MONTSERRAT",
+              "MOROCCO",
+              "MOZAMBIQUE",
+              "MYANMAR",
+              "NAMIBIA",
+              "NAURU",
+              "NEPAL",
+              "NETHERLANDS_ANTILLES",
+              "THE_NETHERLANDS",
+              "NEW_CALEDONIA",
+              "NEW_ZEALAND",
+              "NICARAGUA",
+              "NIGERIA",
+              "NIGER",
+              "NIUE",
+              "NORFOLK_ISLAND",
+              "NORTH_KOREA",
+              "NORTH_MACEDONIA",
+              "NORTHERN_MARIANA_ISLANDS",
+              "NORWAY",
+              "OMAN",
+              "PAKISTAN",
+              "PALAU",
+              "PALESTINE",
+              "PANAMA",
+              "PAPUA_NEW_GUINEA",
+              "PARAGUAY",
+              "PERU",
+              "PHILIPPINES",
+              "PITCAIRN_ISLANDS",
+              "POLAND",
+              "PORTUGAL",
+              "PUERTO_RICO",
+              "QATAR",
+              "REUNION",
+              "ROMANIA",
+              "RUSSIA",
+              "RWANDA",
+              "SAINT_BARTHELEMY",
+              "SAINT_HELENA",
+              "SAINT_LUCIA",
+              "SAINT_MARTIN",
+              "SAINT_PIERRE_AND_MIQUELON",
+              "SAMOA",
+              "SAN_MARINO",
+              "SAO_TOME_AND_PRINCIPE",
+              "SAUDI_ARABIA",
+              "SENEGAL",
+              "SERBIA",
+              "SEYCHELLES",
+              "SIERRA_LEONE",
+              "SINGAPORE",
+              "SLOVAKIA",
+              "SLOVENIA",
+              "SOLOMON_ISLANDS",
+              "SOMALIA",
+              "SOUTH_AFRICA",
+              "SOUTH_GEORGIA_AND_THE_SOUTH_SANDWICH_ISLANDS",
+              "SOUTH_KOREA",
+              "SPAIN",
+              "SRI_LANKA",
+              "ST_KITTS_AND_NEVIS",
+              "ST_VINCENT_AND_THE_GRENADINES",
+              "SUDAN",
+              "SURINAME",
+              "SVALBARD_AND_JAN_MAYEN",
+              "SWAZILAND",
+              "SWEDEN",
+              "SWITZERLAND",
+              "SYRIA",
+              "TAIWAN",
+              "TAJIKISTAN",
+              "TANZANIA",
+              "THAILAND",
+              "TIMOR_LESTE",
+              "TOGO",
+              "TOKELAU",
+              "TONGA",
+              "TRINIDAD_AND_TOBAGO",
+              "TUNISIA",
+              "TURKEY",
+              "TURKMENISTAN",
+              "TURKS_AND_CAICOS_ISLANDS",
+              "TUVALU",
+              "UGANDA",
+              "UKRAINE",
+              "UNITED_ARAB_EMIRATES",
+              "UNITED_KINGDOM",
+              "UNITED_STATES",
+              "URUGUAY",
+              "US_OUTLYING_ISLANDS",
+              "US_VIRGIN_ISLANDS",
+              "UZBEKISTAN",
+              "VANUATU",
+              "VATICAN_CITY",
+              "VENEZUELA",
+              "VIETNAM",
+              "WALLIS_AND_FUTUNA_ISLANDS",
+              "WESTERN_SAHARA",
+              "YEMEN",
+              "ZAMBIA",
+              "ZIMBABWE"
+            ],
+            "x-applicableTo": "BOTH"
+          },
+          "tz": {
+            "type": "string",
+            "description": "Timezone of the location. If not specified, it defaults to GMT.",
+            "enum": [
+              "NOT_SPECIFIED",
+              "GMT_12_00_DATELINE",
+              "GMT_11_00_SAMOA",
+              "GMT_10_00_US_HAWAIIAN_TIME",
+              "GMT_09_30_MARQUESAS",
+              "GMT_09_00_US_ALASKA_TIME",
+              "GMT_08_30_PITCARN",
+              "GMT_08_00_PACIFIC_TIME",
+              "GMT_07_00_US_MOUNTAIN_TIME",
+              "GMT_07_00_US_MOUNTAIN_TIME_ARIZONA",
+              "GMT_06_00_US_CENTRAL_TIME",
+              "GMT_05_00_US_EASTERN_TIME",
+              "GMT_05_00_US_EASTERN_TIME_INDIANA",
+              "GMT_04_00_ATLANTIC_TIME",
+              "GMT_03_30_NEWFOUNDLAND_CANADA",
+              "GMT_03_00_ARGENTINA",
+              "GMT_02_00_MID_ATLANTIC",
+              "GMT_01_00_AZORES",
+              "GMT",
+              "GMT_01_00_WESTERN_EUROPE_GMT_01_00",
+              "GMT_02_00_EASTERN_EUROPE_GMT_02_00",
+              "GMT_03_00_RUSSIA_GMT_03_00",
+              "GMT_03_30_IRAN_GMT_03_30",
+              "GMT_04_00_ARABIAN_GMT_04_00",
+              "GMT_04_30_AFGHANISTAN_GMT_04_30",
+              "GMT_05_00_PAKISTAN_WEST_ASIA_GMT_05_00",
+              "GMT_05_30_INDIA_GMT_05_30",
+              "GMT_06_00_BANGLADESH_CENTRAL_ASIA_GMT_06_00",
+              "GMT_06_30_BURMA_GMT_06_30",
+              "GMT_07_00_BANGKOK_HANOI_JAKARTA_GMT_07_00",
+              "GMT_08_00_CHINA_TAIWAN_GMT_08_00",
+              "GMT_08_00_SINGAPORE_GMT_08_00",
+              "GMT_09_00_JAPAN_GMT_09_00",
+              "GMT_09_30_AUSTRALIA_CT_GMT_09_30",
+              "GMT_10_00_AUSTRALIA_ET_GMT_10_00",
+              "GMT_10_30_AUSTRALIA_LORD_HOWE_GMT_10_30",
+              "GMT_11_00_CENTRAL_PACIFIC_GMT_11_00",
+              "GMT_11_30_NORFOLK_ISLANDS_GMT_11_30",
+              "GMT_12_00_FIJI_NEW_ZEALAND_GMT_12_00",
+              "AFGHANISTAN_ASIA_KABUL",
+              "ALAND_EUROPE_MARIEHAMN",
+              "ALBANIA_EUROPE_TIRANE",
+              "ALGERIA_AFRICA_ALGIERS",
+              "AMERICAN_SAMOA_PACIFIC_PAGO_PAGO",
+              "ANDORRA_EUROPE_ANDORRA",
+              "ANGOLA_AFRICA_LUANDA",
+              "ANGUILLA_AMERICA_ANGUILLA",
+              "ANTARCTICA_CASEY",
+              "ANTARCTICA_DAVIS",
+              "ANTARCTICA_DUMONTDURVILLE",
+              "ANTARCTICA_MAWSON",
+              "ANTARCTICA_MCMURDO",
+              "ANTARCTICA_PALMER",
+              "ANTARCTICA_ROTHERA",
+              "ANTARCTICA_SOUTH_POLE",
+              "ANTARCTICA_SYOWA",
+              "ANTARCTICA_VOSTOK",
+              "ANTIGUA_AND_BARBUDA_AMERICA_ANTIGUA",
+              "ARGENTINA_AMERICA_ARGENTINA_BUENOS_AIRES",
+              "ARGENTINA_AMERICA_ARGENTINA_CATAMARCA",
+              "ARGENTINA_AMERICA_ARGENTINA_CORDOBA",
+              "ARGENTINA_AMERICA_ARGENTINA_JUJUY",
+              "ARGENTINA_AMERICA_ARGENTINA_LA_RIOJA",
+              "ARGENTINA_AMERICA_ARGENTINA_MENDOZA",
+              "ARGENTINA_AMERICA_ARGENTINA_RIO_GALLEGOS",
+              "ARGENTINA_AMERICA_ARGENTINA_SAN_JUAN",
+              "ARGENTINA_AMERICA_ARGENTINA_TUCUMAN",
+              "ARGENTINA_AMERICA_ARGENTINA_USHUAIA",
+              "ARMENIA_ASIA_YEREVAN",
+              "ARUBA_AMERICA_ARUBA",
+              "AUSTRALIA_ADELAIDE",
+              "AUSTRALIA_BRISBANE",
+              "AUSTRALIA_BROKEN_HILL",
+              "AUSTRALIA_CURRIE",
+              "AUSTRALIA_DARWIN",
+              "AUSTRALIA_EUCLA",
+              "AUSTRALIA_HOBART",
+              "AUSTRALIA_LINDEMAN",
+              "AUSTRALIA_LORD_HOWE",
+              "AUSTRALIA_MELBOURNE",
+              "AUSTRALIA_PERTH",
+              "AUSTRALIA_SYDNEY",
+              "AUSTRIA_EUROPE_VIENNA",
+              "AZERBAIJAN_ASIA_BAKU",
+              "BAHAMAS_AMERICA_NASSAU",
+              "BAHRAIN_ASIA_BAHRAIN",
+              "BANGLADESH_ASIA_DHAKA",
+              "BARBADOS_AMERICA_BARBADOS",
+              "BELARUS_EUROPE_MINSK",
+              "BELGIUM_EUROPE_BRUSSELS",
+              "BELIZE_AMERICA_BELIZE",
+              "BENIN_AFRICA_PORTO_NOVO",
+              "BERMUDA_ATLANTIC_BERMUDA",
+              "BHUTAN_ASIA_THIMPHU",
+              "BOLIVIA_AMERICA_LA_PAZ",
+              "BOSNIA_AND_HERZEGOVINA_EUROPE_SARAJEVO",
+              "BOTSWANA_AFRICA_GABORONE",
+              "BRAZIL_AMERICA_ARAGUAINA",
+              "BRAZIL_AMERICA_BAHIA",
+              "BRAZIL_AMERICA_BELEM",
+              "BRAZIL_AMERICA_BOA_VISTA",
+              "BRAZIL_AMERICA_CAMPO_GRANDE",
+              "BRAZIL_AMERICA_CUIABA",
+              "BRAZIL_AMERICA_EIRUNEPE",
+              "BRAZIL_AMERICA_FORTALEZA",
+              "BRAZIL_AMERICA_MACEIO",
+              "BRAZIL_AMERICA_MANAUS",
+              "BRAZIL_AMERICA_NORONHA",
+              "BRAZIL_AMERICA_PORTO_VELHO",
+              "BRAZIL_AMERICA_RECIFE",
+              "BRAZIL_AMERICA_RIO_BRANCO",
+              "BRAZIL_AMERICA_SAO_PAULO",
+              "BRITISH_INDIAN_OCEAN_TERRITORY_INDIAN_CHAGOS",
+              "BRITISH_VIRGIN_ISLANDS_AMERICA_TORTOLA",
+              "BRUNEI_ASIA_BRUNEI",
+              "BULGARIA_EUROPE_SOFIA",
+              "BURKINA_FASO_AFRICA_OUAGADOUGOU",
+              "BURUNDI_AFRICA_BUJUMBURA",
+              "CABO_VERDE_ATLANTIC_CAPE_VERDE",
+              "CAMBODIA_ASIA_PHNOM_PENH",
+              "CAMEROON_AFRICA_DOUALA",
+              "CANADA_AMERICA_ATIKOKAN",
+              "CANADA_AMERICA_BLANC_SABLON",
+              "CANADA_AMERICA_CAMBRIDGE_BAY",
+              "CANADA_AMERICA_DAWSON_CREEK",
+              "CANADA_AMERICA_DAWSON",
+              "CANADA_AMERICA_EDMONTON",
+              "CANADA_AMERICA_GLACE_BAY",
+              "CANADA_AMERICA_GOOSE_BAY",
+              "CANADA_AMERICA_HALIFAX",
+              "CANADA_AMERICA_INUVIK",
+              "CANADA_AMERICA_IQALUIT",
+              "CANADA_AMERICA_MONCTON",
+              "CANADA_AMERICA_MONTREAL",
+              "CANADA_AMERICA_NIPIGON",
+              "CANADA_AMERICA_PANGNIRTUNG",
+              "CANADA_AMERICA_RAINY_RIVER",
+              "CANADA_AMERICA_RANKIN_INLET",
+              "CANADA_AMERICA_REGINA",
+              "CANADA_AMERICA_RESOLUTE",
+              "CANADA_AMERICA_ST_JOHNS",
+              "CANADA_AMERICA_SWIFT_CURRENT",
+              "CANADA_AMERICA_THUNDER_BAY",
+              "CANADA_AMERICA_TORONTO",
+              "CANADA_AMERICA_VANCOUVER",
+              "CANADA_AMERICA_WHITEHORSE",
+              "CANADA_AMERICA_WINNIPEG",
+              "CANADA_AMERICA_YELLOWKNIFE",
+              "CAYMAN_ISLANDS_AMERICA_CAYMAN",
+              "CENTRAL_AFRICAN_REPUBLIC_AFRICA_BANGUI",
+              "CHAD_AFRICA_NDJAMENA",
+              "CHILE_AMERICA_SANTIAGO",
+              "CHILE_PACIFIC_EASTER",
+              "CHINA_ASIA_CHONGQING",
+              "CHINA_ASIA_HARBIN",
+              "CHINA_ASIA_KASHGAR",
+              "CHINA_ASIA_SHANGHAI",
+              "CHINA_ASIA_URUMQI",
+              "CHRISTMAS_ISLAND_INDIAN_CHRISTMAS",
+              "COCOS_KEELING_ISLANDS_INDIAN_COCOS",
+              "COLOMBIA_AMERICA_BOGOTA",
+              "COMOROS_INDIAN_COMORO",
+              "CONGO_REPUBLIC_AFRICA_BRAZZAVILLE",
+              "COOK_ISLANDS_PACIFIC_RAROTONGA",
+              "COSTA_RICA_AMERICA_COSTA_RICA",
+              "CROATIA_EUROPE_ZAGREB",
+              "CUBA_AMERICA_HAVANA",
+              "CYPRUS_ASIA_NICOSIA",
+              "CZECHIA_EUROPE_PRAGUE",
+              "DENMARK_EUROPE_COPENHAGEN",
+              "DJIBOUTI_AFRICA_DJIBOUTI",
+              "DOMINICAN_REPUBLIC_AMERICA_SANTO_DOMINGO",
+              "DOMINICA_AMERICA_DOMINICA",
+              "DR_CONGO_AFRICA_KINSHASA",
+              "DR_CONGO_AFRICA_LUBUMBASHI",
+              "ECUADOR_AMERICA_GUAYAQUIL",
+              "ECUADOR_PACIFIC_GALAPAGOS",
+              "EGYPT_AFRICA_CAIRO",
+              "EL_SALVADOR_AMERICA_EL_SALVADOR",
+              "EQUATORIAL_GUINEA_AFRICA_MALABO",
+              "ERITREA_AFRICA_ASMARA",
+              "ESTONIA_EUROPE_TALLINN",
+              "ETHIOPIA_AFRICA_ADDIS_ABABA",
+              "FALKLAND_ISLANDS_ATLANTIC_STANLEY",
+              "FAROE_ISLANDS_ATLANTIC_FAROE",
+              "FIJI_PACIFIC_FIJI",
+              "FINLAND_EUROPE_HELSINKI",
+              "FRANCE_EUROPE_PARIS",
+              "FRENCH_GUIANA_AMERICA_CAYENNE",
+              "FRENCH_POLYNESIA_PACIFIC_GAMBIER",
+              "FRENCH_POLYNESIA_PACIFIC_MARQUESAS",
+              "FRENCH_POLYNESIA_PACIFIC_TAHITI",
+              "FRENCH_SOUTHERN_TERRITORIES_INDIAN_KERGUELEN",
+              "GABON_AFRICA_LIBREVILLE",
+              "THE_GAMBIA_AFRICA_BANJUL",
+              "GEORGIA_ASIA_TBILISI",
+              "GERMANY_EUROPE_BERLIN",
+              "GHANA_AFRICA_ACCRA",
+              "GIBRALTAR_EUROPE_GIBRALTAR",
+              "GREECE_EUROPE_ATHENS",
+              "GREENLAND_AMERICA_DANMARKSHAVN",
+              "GREENLAND_AMERICA_GODTHAB",
+              "GREENLAND_AMERICA_SCORESBYSUND",
+              "GREENLAND_AMERICA_THULE",
+              "GRENADA_AMERICA_GRENADA",
+              "GUADELOUPE_AMERICA_GUADELOUPE",
+              "GUAM_PACIFIC_GUAM",
+              "GUATEMALA_AMERICA_GUATEMALA",
+              "GUERNSEY_EUROPE_GUERNSEY",
+              "GUINEA_BISSAU_AFRICA_BISSAU",
+              "GUINEA_AFRICA_CONAKRY",
+              "GUYANA_AMERICA_GUYANA",
+              "HAITI_AMERICA_PORT_AU_PRINCE",
+              "HONDURAS_AMERICA_TEGUCIGALPA",
+              "HONG_KONG_ASIA_HONG_KONG",
+              "HUNGARY_EUROPE_BUDAPEST",
+              "ICELAND_ATLANTIC_REYKJAVIK",
+              "INDIA_ASIA_KOLKATA",
+              "INDONESIA_ASIA_JAKARTA",
+              "INDONESIA_ASIA_JAYAPURA",
+              "INDONESIA_ASIA_MAKASSAR",
+              "INDONESIA_ASIA_PONTIANAK",
+              "IRAN_ASIA_TEHRAN",
+              "IRAQ_ASIA_BAGHDAD",
+              "IRELAND_EUROPE_DUBLIN",
+              "ISLE_OF_MAN_EUROPE_ISLE_OF_MAN",
+              "ISRAEL_ASIA_JERUSALEM",
+              "ITALY_EUROPE_ROME",
+              "IVORY_COAST_AFRICA_ABIDJAN",
+              "JAMAICA_AMERICA_JAMAICA",
+              "JAPAN_ASIA_TOKYO",
+              "JERSEY_EUROPE_JERSEY",
+              "JORDAN_ASIA_AMMAN",
+              "KAZAKHSTAN_ASIA_ALMATY",
+              "KAZAKHSTAN_ASIA_AQTAU",
+              "KAZAKHSTAN_ASIA_AQTOBE",
+              "KAZAKHSTAN_ASIA_ORAL",
+              "KAZAKHSTAN_ASIA_QYZYLORDA",
+              "KENYA_AFRICA_NAIROBI",
+              "KIRIBATI_PACIFIC_ENDERBURY",
+              "KIRIBATI_PACIFIC_KIRITIMATI",
+              "KIRIBATI_PACIFIC_TARAWA",
+              "KUWAIT_ASIA_KUWAIT",
+              "KYRGYZSTAN_ASIA_BISHKEK",
+              "LAOS_ASIA_VIENTIANE",
+              "LATVIA_EUROPE_RIGA",
+              "LEBANON_ASIA_BEIRUT",
+              "LESOTHO_AFRICA_MASERU",
+              "LIBERIA_AFRICA_MONROVIA",
+              "LIBYA_AFRICA_TRIPOLI",
+              "LIECHTENSTEIN_EUROPE_VADUZ",
+              "LITHUANIA_EUROPE_VILNIUS",
+              "LUXEMBOURG_EUROPE_LUXEMBOURG",
+              "MACAO_ASIA_MACAU",
+              "MADAGASCAR_INDIAN_ANTANANARIVO",
+              "MALAWI_AFRICA_BLANTYRE",
+              "MALAYSIA_ASIA_KUALA_LUMPUR",
+              "MALAYSIA_ASIA_KUCHING",
+              "MALDIVES_INDIAN_MALDIVES",
+              "MALI_AFRICA_BAMAKO",
+              "MALTA_EUROPE_MALTA",
+              "MARSHALL_ISLANDS_PACIFIC_KWAJALEIN",
+              "MARSHALL_ISLANDS_PACIFIC_MAJURO",
+              "MARTINIQUE_AMERICA_MARTINIQUE",
+              "MAURITANIA_AFRICA_NOUAKCHOTT",
+              "MAURITIUS_INDIAN_MAURITIUS",
+              "MAYOTTE_INDIAN_MAYOTTE",
+              "MEXICO_AMERICA_CANCUN",
+              "MEXICO_AMERICA_CHIHUAHUA",
+              "MEXICO_AMERICA_HERMOSILLO",
+              "MEXICO_AMERICA_MAZATLAN",
+              "MEXICO_AMERICA_MERIDA",
+              "MEXICO_AMERICA_MEXICO_CITY",
+              "MEXICO_AMERICA_MONTERREY",
+              "MEXICO_AMERICA_TIJUANA",
+              "MICRONESIA_PACIFIC_KOSRAE",
+              "MICRONESIA_PACIFIC_PONAPE",
+              "MICRONESIA_PACIFIC_TRUK",
+              "MOLDOVA_EUROPE_CHISINAU",
+              "MONACO_EUROPE_MONACO",
+              "MONGOLIA_ASIA_CHOIBALSAN",
+              "MONGOLIA_ASIA_HOVD",
+              "MONGOLIA_ASIA_ULAANBAATAR",
+              "MONTENEGRO_EUROPE_PODGORICA",
+              "MONTSERRAT_AMERICA_MONTSERRAT",
+              "MOROCCO_AFRICA_CASABLANCA",
+              "MOZAMBIQUE_AFRICA_MAPUTO",
+              "MYANMAR_ASIA_RANGOON",
+              "NAMIBIA_AFRICA_WINDHOEK",
+              "NAURU_PACIFIC_NAURU",
+              "NEPAL_ASIA_KATMANDU",
+              "NETHERLANDS_ANTILLES_AMERICA_CURACAO",
+              "THE_NETHERLANDS_EUROPE_AMSTERDAM",
+              "NEW_CALEDONIA_PACIFIC_NOUMEA",
+              "NEW_ZEALAND_PACIFIC_AUCKLAND",
+              "NEW_ZEALAND_PACIFIC_CHATHAM",
+              "NICARAGUA_AMERICA_MANAGUA",
+              "NIGERIA_AFRICA_LAGOS",
+              "NIGER_AFRICA_NIAMEY",
+              "NIUE_PACIFIC_NIUE",
+              "NORFOLK_ISLAND_PACIFIC_NORFOLK",
+              "NORTH_KOREA_ASIA_PYONGYANG",
+              "NORTH_MACEDONIA_EUROPE_SKOPJE",
+              "NORTHERN_MARIANA_ISLANDS_PACIFIC_SAIPAN",
+              "NORWAY_EUROPE_OSLO",
+              "OMAN_ASIA_MUSCAT",
+              "PAKISTAN_ASIA_KARACHI",
+              "PALAU_PACIFIC_PALAU",
+              "PALESTINE_ASIA_GAZA",
+              "PANAMA_AMERICA_PANAMA",
+              "PAPUA_NEW_GUINEA_PACIFIC_PORT_MORESBY",
+              "PARAGUAY_AMERICA_ASUNCION",
+              "PERU_AMERICA_LIMA",
+              "PHILIPPINES_ASIA_MANILA",
+              "PITCAIRN_ISLANDS_PACIFIC_PITCAIRN",
+              "POLAND_EUROPE_WARSAW",
+              "PORTUGAL_ATLANTIC_AZORES",
+              "PORTUGAL_ATLANTIC_MADEIRA",
+              "PORTUGAL_EUROPE_LISBON",
+              "PUERTO_RICO_AMERICA_PUERTO_RICO",
+              "QATAR_ASIA_QATAR",
+              "REUNION_INDIAN_REUNION",
+              "ROMANIA_EUROPE_BUCHAREST",
+              "RUSSIA_ASIA_ANADYR",
+              "RUSSIA_ASIA_IRKUTSK",
+              "RUSSIA_ASIA_KAMCHATKA",
+              "RUSSIA_ASIA_KRASNOYARSK",
+              "RUSSIA_ASIA_MAGADAN",
+              "RUSSIA_ASIA_NOVOSIBIRSK",
+              "RUSSIA_ASIA_OMSK",
+              "RUSSIA_ASIA_SAKHALIN",
+              "RUSSIA_ASIA_VLADIVOSTOK",
+              "RUSSIA_ASIA_YAKUTSK",
+              "RUSSIA_ASIA_YEKATERINBURG",
+              "RUSSIA_EUROPE_KALININGRAD",
+              "RUSSIA_EUROPE_MOSCOW",
+              "RUSSIA_EUROPE_SAMARA",
+              "RUSSIA_EUROPE_VOLGOGRAD",
+              "RWANDA_AFRICA_KIGALI",
+              "SAINT_BARTHELEMY_AMERICA_ST_BARTHELEMY",
+              "SAINT_HELENA_ATLANTIC_ST_HELENA",
+              "SAINT_LUCIA_AMERICA_ST_LUCIA",
+              "SAINT_MARTIN_AMERICA_MARIGOT",
+              "SAINT_PIERRE_AND_MIQUELON_AMERICA_MIQUELON",
+              "SAMOA_PACIFIC_APIA",
+              "SAN_MARINO_EUROPE_SAN_MARINO",
+              "SAO_TOME_AND_PRINCIPE_AFRICA_SAO_TOME",
+              "SAUDI_ARABIA_ASIA_RIYADH",
+              "SENEGAL_AFRICA_DAKAR",
+              "SERBIA_EUROPE_BELGRADE",
+              "SEYCHELLES_INDIAN_MAHE",
+              "SIERRA_LEONE_AFRICA_FREETOWN",
+              "SINGAPORE_ASIA_SINGAPORE",
+              "SLOVAKIA_EUROPE_BRATISLAVA",
+              "SLOVENIA_EUROPE_LJUBLJANA",
+              "SOLOMON_ISLANDS_PACIFIC_GUADALCANAL",
+              "SOMALIA_AFRICA_MOGADISHU",
+              "SOUTH_AFRICA_AFRICA_JOHANNESBURG",
+              "SOUTH_GEORGIA_AND_SOUTH_SANDWICH_ISLANDS_ATLANTIC_SOUTH_GEORGIA",
+              "SOUTH_KOREA_ASIA_SEOUL",
+              "SPAIN_AFRICA_CEUTA",
+              "SPAIN_ATLANTIC_CANARY",
+              "SPAIN_EUROPE_MADRID",
+              "SRI_LANKA_ASIA_COLOMBO",
+              "ST_KITTS_AND_NEVIS_AMERICA_ST_KITTS",
+              "ST_VINCENT_AND_THE_GRENADINES_AMERICA_ST_VINCENT",
+              "SUDAN_AFRICA_KHARTOUM",
+              "SURINAME_AMERICA_PARAMARIBO",
+              "SVALBARD_AND_JAN_MAYEN_ARCTIC_LONGYEARBYEN",
+              "SWAZILAND_AFRICA_MBABANE",
+              "SWEDEN_EUROPE_STOCKHOLM",
+              "SWITZERLAND_EUROPE_ZURICH",
+              "SYRIA_ASIA_DAMASCUS",
+              "TAIWAN_ASIA_TAIPEI",
+              "TAJIKISTAN_ASIA_DUSHANBE",
+              "TANZANIA_AFRICA_DAR_ES_SALAAM",
+              "THAILAND_ASIA_BANGKOK",
+              "TIMOR_LESTE_ASIA_DILI",
+              "TOGO_AFRICA_LOME",
+              "TOKELAU_PACIFIC_FAKAOFO",
+              "TONGA_PACIFIC_TONGATAPU",
+              "TRINIDAD_AND_TOBAGO_AMERICA_PORT_OF_SPAIN",
+              "TUNISIA_AFRICA_TUNIS",
+              "TURKEY_EUROPE_ISTANBUL",
+              "TURKMENISTAN_ASIA_ASHGABAT",
+              "TURKS_AND_CAICOS_ISLANDS_AMERICA_GRAND_TURK",
+              "TUVALU_PACIFIC_FUNAFUTI",
+              "UGANDA_AFRICA_KAMPALA",
+              "UKRAINE_EUROPE_KIEV",
+              "UKRAINE_EUROPE_SIMFEROPOL",
+              "UKRAINE_EUROPE_UZHGOROD",
+              "UKRAINE_EUROPE_ZAPOROZHYE",
+              "UNITED_ARAB_EMIRATES_ASIA_DUBAI",
+              "UNITED_KINGDOM_EUROPE_LONDON",
+              "UNITED_STATES_AMERICA_ADAK",
+              "UNITED_STATES_AMERICA_ANCHORAGE",
+              "UNITED_STATES_AMERICA_BOISE",
+              "UNITED_STATES_AMERICA_CHICAGO",
+              "UNITED_STATES_AMERICA_DENVER",
+              "UNITED_STATES_AMERICA_DETROIT",
+              "UNITED_STATES_AMERICA_INDIANA_INDIANAPOLIS",
+              "UNITED_STATES_AMERICA_INDIANA_KNOX",
+              "UNITED_STATES_AMERICA_INDIANA_MARENGO",
+              "UNITED_STATES_AMERICA_INDIANA_PETERSBURG",
+              "UNITED_STATES_AMERICA_INDIANA_TELL_CITY",
+              "UNITED_STATES_AMERICA_INDIANA_VEVAY",
+              "UNITED_STATES_AMERICA_INDIANA_VINCENNES",
+              "UNITED_STATES_AMERICA_INDIANA_WINAMAC",
+              "UNITED_STATES_AMERICA_JUNEAU",
+              "UNITED_STATES_AMERICA_KENTUCKY_LOUISVILLE",
+              "UNITED_STATES_AMERICA_KENTUCKY_MONTICELLO",
+              "UNITED_STATES_AMERICA_LOS_ANGELES",
+              "UNITED_STATES_AMERICA_MENOMINEE",
+              "UNITED_STATES_AMERICA_NEW_YORK",
+              "UNITED_STATES_AMERICA_NOME",
+              "UNITED_STATES_AMERICA_NORTH_DAKOTA_CENTER",
+              "UNITED_STATES_AMERICA_NORTH_DAKOTA_NEW_SALEM",
+              "UNITED_STATES_AMERICA_PHOENIX",
+              "UNITED_STATES_AMERICA_SHIPROCK",
+              "UNITED_STATES_AMERICA_YAKUTAT",
+              "UNITED_STATES_PACIFIC_HONOLULU",
+              "URUGUAY_AMERICA_MONTEVIDEO",
+              "US_OUTLYING_ISLANDS_PACIFIC_JOHNSTON",
+              "US_OUTLYING_ISLANDS_PACIFIC_MIDWAY",
+              "US_OUTLYING_ISLANDS_PACIFIC_WAKE",
+              "US_VIRGIN_ISLANDS_AMERICA_ST_THOMAS",
+              "UZBEKISTAN_ASIA_SAMARKAND",
+              "UZBEKISTAN_ASIA_TASHKENT",
+              "VANUATU_PACIFIC_EFATE",
+              "VATICAN_CITY_EUROPE_VATICAN",
+              "VENEZUELA_AMERICA_CARACAS",
+              "VIETNAM_ASIA_SAIGON",
+              "WALLIS_AND_FUTUNA_PACIFIC_WALLIS",
+              "WESTERN_SAHARA_AFRICA_EL_AAIUN",
+              "YEMEN_ASIA_ADEN",
+              "ZAMBIA_AFRICA_LUSAKA",
+              "ZIMBABWE_AFRICA_HARARE"
+            ],
+            "x-applicableTo": "BOTH"
+          },
+          "city": {
+            "description": "<p>Geolocation of the IoT device. It displays the name-ID pair for the location (\"city\" : { \"id\":\"0\", \"name\":\"string\" }).</p><p>For example, \"city\" : { \"id\":\"2077963\", \"name\":\"Albany, Western Australia, Australia\"}.</p>",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "geoOverride": {
+            "type": "boolean",
+            "description": "<p>If this field is set to true, the latitude and longitude values must be provided. By default, it's set to false.</p>"
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double",
+            "description": "<p>The value of latitude must be set to 7-digit precision after decimal point, ranging between -90 and 90 degrees.</p><p><b>Note</b>: This field is mandatory if geoOverride is set to true.</p>"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double",
+            "description": "<p>The value of longitude must be set to 7-digit precision after decimal point, ranging between -180 and 180 degrees.</p><p><b>Note</b>: This field is mandatory if geoOverride is set to true.</p>"
+          },
+          "ipAddresses": {
+            "type": "array",
+            "description": "<p>For locations: IP addresses of the egress points that are provisioned in the Zscaler Cloud. Each entry is a single IP address (e.g., 238.10.33.9).</p> <p>For sub-locations: Egress, internal, or GRE tunnel IP addresses. Each entry is either a single IP address, CIDR (e.g., 10.10.33.0/24), or range (e.g., 10.10.33.1-10.10.33.10)).</p>",
+            "items": {
+              "type": "string"
+            },
+            "x-applicableTo": "BOTH"
+          },
+          "ports": {
+            "type": "array",
+            "description": "IP ports that are associated with the location.",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-applicableTo": "TOP"
+          },
+          "vpnCredentials": {
+            "type": "array",
+            "description": "VPN User Credentials that are associated with the location.",
+            "items": {
+              "$ref": "#/definitions/VPNCredential"
+            },
+            "x-applicableTo": "TOP"
+          },
+          "authRequired": {
+            "type": "boolean",
+            "description": "<p>Enforce Authentication. Required when ports are enabled, IP Surrogate is enabled, or Kerberos Authentication is enabled.</p>",
+            "default": false,
+            "x-applicableTo": "BOTH"
+          },
+          "sslScanEnabled": {
+            "type": "boolean",
+            "description": "<p>This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future.</p><p>Enable SSL Inspection. Set to true in order to apply your SSL Inspection policy to HTTPS traffic in the location and inspect HTTPS transactions for data leakage, malicious content, and viruses. To learn more, see <a href=\"/zia/deploying-ssl-inspection\" target=\"_blank\">Deploying SSL Inspection</a></p>",
+            "default": false,
+            "x-applicableTo": "BOTH"
+          },
+          "zappSSLScanEnabled": {
+            "type": "boolean",
+            "description": "<p>This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future.</p><p>Enable Zscaler App SSL Setting. When set to true, the Zscaler App SSL Scan Setting takes effect, irrespective of the SSL policy that is configured for the location. To learn more, see <a href=\"/z-app/configuring-ssl-inspection-zscaler-app#configure-SSL-Zscaler-App\" target=\"_blank\">Configuring SSL Inspection for Zscaler App</a></p>",
+            "default": false,
+            "x-applicableTo": "BOTH"
+          },
+          "xffForwardEnabled": {
+            "type": "boolean",
+            "description": "<p>Enable XFF Forwarding for a location. When set to true, traffic is passed to Zscaler Cloud via the X-Forwarded-For (XFF) header.</p><p><b>Note:</b> For sub-locations, this attribute is a read-only field as the  value is inherited from the parent location.</p>",
+            "default": false,
+            "x-applicableTo": "TOP"
+          },
+          "otherSubLocation": {
+            "type": "boolean",
+            "description": "If set to true, indicates that this is a default sub-location created  by the Zscaler service to accommodate IPv4 addresses that are not part of any user-defined sub-locations. The default sub-location is created with the name <b>Other</b> and it can be renamed, if required.",
+            "x-applicableTo": "SUB"
+          },
+          "other6SubLocation": {
+            "type": "boolean",
+            "description": "If set to true, indicates that this is a default sub-location created by the Zscaler service to accommodate IPv6 addresses that are not part of any user-defined sub-locations. The default sub-location is created with the name <b>Other6</b> and it can be renamed, if required. This field is applicable only if <code>ipv6Enabled</code> is set is <code>true</code>.",
+            "x-applicableTo": "SUB"
+          },
+          "surrogateIP": {
+            "type": "boolean",
+            "description": "<p>Enable Surrogate IP. When set to true, users are mapped to internal device IP addresses. To learn more, see <a href=\"/zia/about-surrogate-ip\" target=\"_Blank\">About Surrogate IP</a>.</p>",
+            "default": false,
+            "x-applicableTo": "BOTH"
+          },
+          "idleTimeInMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "description": "<p>Idle Time to Disassociation. The user mapping idle time (in minutes) is required if a Surrogate IP is enabled.</p>",
+            "x-applicableTo": "BOTH"
+          },
+          "displayTimeUnit": {
+            "type": "string",
+            "description": "<p>Display Time Unit. The time unit to display for IP Surrogate idle time to disassociation.</p>",
+            "enum": [
+              "MINUTE",
+              "HOUR",
+              "DAY"
+            ],
+            "x-applicableTo": "BOTH"
+          },
+          "surrogateIPEnforcedForKnownBrowsers": {
+            "type": "boolean",
+            "description": "<p>Enforce Surrogate IP for Known Browsers. When set to true, IP Surrogate is enforced for all known browsers. To learn more, see <a href=\"/zia/about-surrogate-ip\" target=\"_blank\">About Surrogate IP</a></p>",
+            "default": false,
+            "x-applicableTo": "BOTH"
+          },
+          "cookiesAndProxy": {
+            "type": "boolean",
+            "description": "If set to true, the <b>surrogateIPEnforcedForKnownBrowsers</b> option is enabled for all authentication methods including cookie-based, Kerberos, Basic, and Digest authentication to leverage the existing IP address-to-user mapping (acquired from surrogate IP) to authenticate users and prevent further authentication challenges for traffic originating from that source IP address. If set to false, surrogate IP for known browsers is only supported for cookie-based authentication and all other methods require authentication after each request.",
+            "x-applicableTo": "BOTH"
+          },
+          "surrogateRefreshTimeInMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "description": "<p>Refresh Time for re-validation of Surrogacy. The surrogate refresh time (in minutes) to re-validate the IP surrogates.</p>",
+            "x-applicableTo": "BOTH"
+          },
+          "surrogateRefreshTimeUnit": {
+            "type": "string",
+            "description": "<p>Display Refresh Time Unit. The time unit to display for refresh time for re-validation of surrogacy.</p>",
+            "enum": [
+              "MINUTE",
+              "HOUR",
+              "DAY"
+            ],
+            "x-applicableTo": "BOTH"
+          },
+          "ofwEnabled": {
+            "type": "boolean",
+            "description": "<p>Enable Firewall. When set to true, Firewall is enabled for the location.</p>",
+            "default": false,
+            "x-applicableTo": "TOP"
+          },
+          "ipsControl": {
+            "type": "boolean",
+            "description": "<p>Enable IPS Control. When set to true, IPS Control is enabled for the location if Firewall is enabled.</p>",
+            "default": false,
+            "x-applicableTo": "TOP"
+          },
+          "aupEnabled": {
+            "type": "boolean",
+            "description": "<p>Enable AUP. When set to true, AUP is enabled for the location. To learn more, see <a href=\"/zia/about-end-user-notifications\" target=\"_blank\">About End User Notifications</a></p>",
+            "default": false,
+            "x-applicableTo": "BOTH"
+          },
+          "cautionEnabled": {
+            "type": "boolean",
+            "description": "<p>Enable Caution. When set to true, a caution notifcation is enabled for the location. To learn more, see <a href=\"/zia/configuring-caution-notification#caution-interval\" target=\"_blank\">Configuring the Caution Notification</a></p>",
+            "default": false,
+            "x-applicableTo": "BOTH"
+          },
+          "aupBlockInternetUntilAccepted": {
+            "type": "boolean",
+            "description": "<p>For First Time AUP Behavior, Block Internet Access. When set, all internet access (including non-HTTP traffic) is disabled until the user accepts the AUP.</p>",
+            "default": false,
+            "x-applicableTo": "BOTH"
+          },
+          "aupForceSslInspection": {
+            "type": "boolean",
+            "description": "<p>For First Time AUP Behavior, Force SSL Inspection. When set, Zscaler forces SSL Inspection in order to enforce AUP for HTTPS traffic.</p>",
+            "default": false,
+            "x-applicableTo": "BOTH"
+          },
+          "ipv6Enabled": {
+            "type": "boolean",
+            "description": "If set to true, IPv6 is enabled for the location and IPv6 traffic from  the location can be forwarded to the Zscaler service to enforce security policies.",
+            "x-applicableTo": "TOP"
+          },
+          "ipv6Dns64Prefix": {
+            "description": "<p>(Optional) Name-ID pair of the NAT64 prefix configured as the DNS64 prefix for the location. If specified, the DNS64 prefix is used for the IP addresses that reside in this location. If not specified, a prefix is selected from the set of supported prefixes. This field is applicable only if <code>ipv6Enabled</code> is set is <code>true</code>. To learn more, see <a href=\"/zia/about-dns64-prefix\" target=\"_blank\">About the DNS64 Prefix</a>.</p><p>Before you can configure a DNS64 prefix, you must send a GET request to <code>/ipv6config/nat64prefix</code> to retrieve the IDs of NAT64 prefixes, which can be configured as the DNS64 prefix.</p>",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            },
+            "x-applicableTo": "TOP"
+          },
+          "iotDiscoveryEnabled": {
+            "type": "boolean",
+            "description": "<p>If this field  is  set to true, IoT discovery is enabled for this location.</p>",
+            "x-applicableTo": "BOTH"
+          },
+          "aupTimeoutInDays": {
+            "type": "integer",
+            "format": "int32",
+            "description": "<p>Custom AUP Frequency. Refresh time (in days) to re-validate the AUP.</p>",
+            "x-applicableTo": "BOTH"
+          },
+          "managedBy": {
+            "description": "<p>SD-WAN Partner that manages the location. If a partner does not manage the location, this is set to Self.</p>",
+            "readOnly": true,
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ],
+            "x-applicableTo": "BOTH"
+          },
+          "profile": {
+            "type": "string",
+            "description": "<p>(Optional) Profile tag that specifies the location traffic type. If not specified, this tag is automatically set to best possible value using certain criteria.</p><p>The criteria used for setting best possible value is as follows:</p>\n  <ul>\n  <li>When invoked with a partner API key, it automatically sets the profile attribute to <b>CORPORATE</b>.</li>\n  <li>When invoked using public API, it automatically sets the profile attribute based on the following criteria:\n    <ul>\n    <li>If the location has authentication enabled, then it sets profile to <b>CORPORATE</b>.</li>\n    <li>If the location has authentication disabled and name contains \"guest\", then it sets profile to <b>GUESTWIFI</b>.</li>\n    <li>For all other locations with authentication disabled, it sets profile to <b>SERVER</b>.</li></ul>\n    </li>\n    </ul>",
+            "enum": [
+              "NONE",
+              "CORPORATE",
+              "SERVER",
+              "GUESTWIFI",
+              "IOT"
+            ],
+            "x-applicableTo": "BOTH"
+          },
+          "extranet": {
+            "description": "The ID of the extranet resource that must be assigned to the location",
+            "readOnly": true,
+            "$ref": "#/definitions/EntityReference",
+            "x-applicableTo": "BOTH"
+          },
+          "extranetIpPool": {
+            "description": "The ID of the traffic selector specified in the extranet",
+            "readOnly": true,
+            "$ref": "#/definitions/EntityReference",
+            "x-applicableTo": "BOTH"
+          },
+          "extranetDns": {
+            "description": "The ID of the DNS server configuration used in the extranet",
+            "readOnly": true,
+            "$ref": "#/definitions/EntityReference",
+            "x-applicableTo": "BOTH"
+          },
+          "defaultExtranetTsPool": {
+            "type": "boolean",
+            "description": "A Boolean value indicating that the traffic selector specified in the extranet is the designated default traffic selector"
+          },
+          "defaultExtranetDns": {
+            "type": "boolean",
+            "description": "A Boolean value indicating that the DNS server configuration used in the extranet is the designated default DNS server"
+          },
+          "description": {
+            "type": "string",
+            "description": "<p>Additional notes or information regarding the location or sub-location. The description cannot exceed 1024 characters.</p>"
+          },
+          "subLocScopeEnabled": {
+            "type": "boolean",
+            "description": "<p>Indicates whether defining scopes is allowed for this sublocation. Sublocation scopes are available only for the <b>Workload</b> traffic type sublocations whose parent locations are associated with Amazon Web Services (AWS) Cloud Connector groups. This is a read-only field. To learn more, see <a href=\"/zia/configuring-sublocations\" target=\"_blank\">Configuring Sublocations</a>.</p>",
+            "x-applicableTo": "TOP"
+          },
+          "subLocScope": {
+            "type": "string",
+            "description": "<p>Defines a scope for the sublocation from the available types to segregate workload traffic from a single sublocation to apply different Cloud Connector and ZIA security policies. This field is only available for the <b>Workload</b> traffic type sublocations whose parent locations are associated with Amazon Web Services (AWS) Cloud Connector groups. To learn about the different scope types supported, see <a href=\"/zia/configuring-sublocations\" target=\"_blank\">Configuring Sublocations</a>.</p>",
+            "enum": [
+              "VPC_ENDPOINT",
+              "VPC",
+              "NAMESPACE",
+              "ACCOUNT"
+            ],
+            "x-applicableTo": "BOTH"
+          },
+          "subLocScopeValues": {
+            "type": "array",
+            "description": "Specifies values for the selected sublocation scope type",
+            "items": {
+              "type": "string"
+            },
+            "x-applicableTo": "SUB"
+          },
+          "subLocAccIds": {
+            "type": "array",
+            "description": "Specifies one or more Amazon Web Services (AWS) account IDs. These AWS accounts are associated with the parent location of this sublocation created in the Zscaler Cloud & Branch Connector Admin Portal.",
+            "items": {
+              "type": "string"
+            },
+            "x-applicableTo": "SUB"
+          }
+        },
+        "description": "Location and sub-location information."
+      },
+      "IdListInteger": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "LocationLite": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Location ID",
+            "readOnly": true,
+            "x-applicableTo": "BOTH"
+          },
+          "name": {
+            "type": "string",
+            "description": "Location Name",
+            "x-applicableTo": "BOTH"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Parent Location ID. If this ID does not exist or is 0, it is implied that it is a parent location. Otherwise, it is a sub-location whose parent has this ID. x-applicableTo: SUB"
+          },
+          "tz": {
+            "type": "string",
+            "description": "Timezone of the location. If not specified, it defaults to GMT.",
+            "enum": [
+              "NOT_SPECIFIED",
+              "GMT_12_00_DATELINE",
+              "GMT_11_00_SAMOA",
+              "GMT_10_00_US_HAWAIIAN_TIME",
+              "GMT_09_30_MARQUESAS",
+              "GMT_09_00_US_ALASKA_TIME",
+              "GMT_08_30_PITCARN",
+              "GMT_08_00_PACIFIC_TIME",
+              "GMT_07_00_US_MOUNTAIN_TIME",
+              "GMT_07_00_US_MOUNTAIN_TIME_ARIZONA",
+              "GMT_06_00_US_CENTRAL_TIME",
+              "GMT_06_00_MEXICO",
+              "GMT_05_00_US_EASTERN_TIME",
+              "GMT_05_00_US_EASTERN_TIME_INDIANA",
+              "GMT_05_00_COLUMBIA_PERU_SOUTH_AMERICA",
+              "GMT_04_00_ATLANTIC_TIME",
+              "GMT_03_30_NEWFOUNDLAND_CANADA",
+              "GMT_03_00_ARGENTINA",
+              "GMT_03_00_BRAZIL",
+              "GMT_02_00_MID_ATLANTIC",
+              "GMT_01_00_AZORES",
+              "GMT",
+              "GMT_01_00_WESTERN_EUROPE_GMT_01_00",
+              "GMT_02_00_EASTERN_EUROPE_GMT_02_00",
+              "GMT_02_00_EGYPT_GMT_02_00",
+              "GMT_02_00_ISRAEL_GMT_02_00",
+              "GMT_03_00_RUSSIA_GMT_03_00",
+              "GMT_03_00_SAUDI_ARABIA_GMT_03_00",
+              "GMT_03_30_IRAN_GMT_03_30",
+              "GMT_04_00_ARABIAN_GMT_04_00",
+              "GMT_04_30_AFGHANISTAN_GMT_04_30",
+              "GMT_05_00_PAKISTAN_WEST_ASIA_GMT_05_00",
+              "GMT_05_30_INDIA_GMT_05_30",
+              "GMT_06_00_BANGLADESH_CENTRAL_ASIA_GMT_06_00",
+              "GMT_06_30_BURMA_GMT_06_30",
+              "GMT_07_00_BANGKOK_HANOI_JAKARTA_GMT_07_00",
+              "GMT_08_00_CHINA_TAIWAN_GMT_08_00",
+              "GMT_08_00_SINGAPORE_GMT_08_00",
+              "GMT_08_00_AUSTRALIA_WT_GMT_08_00",
+              "GMT_09_00_JAPAN_GMT_09_00",
+              "GMT_09_00_KOREA_GMT_09_00",
+              "GMT_09_30_AUSTRALIA_CT_GMT_09_30",
+              "GMT_10_00_AUSTRALIA_ET_GMT_10_00",
+              "GMT_10_30_AUSTRALIA_LORD_HOWE_GMT_10_30",
+              "GMT_11_00_CENTRAL_PACIFIC_GMT_11_00",
+              "GMT_11_30_NORFOLK_ISLANDS_GMT_11_30",
+              "GMT_12_00_FIJI_NEW_ZEALAND_GMT_12_00",
+              "AFGHANISTAN_ASIA_KABUL",
+              "ALAND_ISLANDS_EUROPE_MARIEHAMN",
+              "ALBANIA_EUROPE_TIRANE",
+              "ALGERIA_AFRICA_ALGIERS",
+              "AMERICAN_SAMOA_PACIFIC_PAGO_PAGO",
+              "ANDORRA_EUROPE_ANDORRA",
+              "ANGOLA_AFRICA_LUANDA",
+              "ANGUILLA_AMERICA_ANGUILLA",
+              "ANTARCTICA_CASEY",
+              "ANTARCTICA_DAVIS",
+              "ANTARCTICA_DUMONTDURVILLE",
+              "ANTARCTICA_MAWSON",
+              "ANTARCTICA_MCMURDO",
+              "ANTARCTICA_PALMER",
+              "ANTARCTICA_ROTHERA",
+              "ANTARCTICA_SOUTH_POLE",
+              "ANTARCTICA_SYOWA",
+              "ANTARCTICA_VOSTOK",
+              "ANTIGUA_AND_BARBUDA_AMERICA_ANTIGUA",
+              "ARGENTINA_AMERICA_ARGENTINA_BUENOS_AIRES",
+              "ARGENTINA_AMERICA_ARGENTINA_CATAMARCA",
+              "ARGENTINA_AMERICA_ARGENTINA_CORDOBA",
+              "ARGENTINA_AMERICA_ARGENTINA_JUJUY",
+              "ARGENTINA_AMERICA_ARGENTINA_LA_RIOJA",
+              "ARGENTINA_AMERICA_ARGENTINA_MENDOZA",
+              "ARGENTINA_AMERICA_ARGENTINA_RIO_GALLEGOS",
+              "ARGENTINA_AMERICA_ARGENTINA_SAN_JUAN",
+              "ARGENTINA_AMERICA_ARGENTINA_TUCUMAN",
+              "ARGENTINA_AMERICA_ARGENTINA_USHUAIA",
+              "ARMENIA_ASIA_YEREVAN",
+              "ARUBA_AMERICA_ARUBA",
+              "AUSTRALIA_ADELAIDE",
+              "AUSTRALIA_BRISBANE",
+              "AUSTRALIA_BROKEN_HILL",
+              "AUSTRALIA_CURRIE",
+              "AUSTRALIA_DARWIN",
+              "AUSTRALIA_EUCLA",
+              "AUSTRALIA_HOBART",
+              "AUSTRALIA_LINDEMAN",
+              "AUSTRALIA_LORD_HOWE",
+              "AUSTRALIA_MELBOURNE",
+              "AUSTRALIA_PERTH",
+              "AUSTRALIA_SYDNEY",
+              "AUSTRIA_EUROPE_VIENNA",
+              "AZERBAIJAN_ASIA_BAKU",
+              "BAHAMAS_AMERICA_NASSAU",
+              "BAHRAIN_ASIA_BAHRAIN",
+              "BANGLADESH_ASIA_DHAKA",
+              "BARBADOS_AMERICA_BARBADOS",
+              "BELARUS_EUROPE_MINSK",
+              "BELGIUM_EUROPE_BRUSSELS",
+              "BELIZE_AMERICA_BELIZE",
+              "BENIN_AFRICA_PORTO_NOVO",
+              "BERMUDA_ATLANTIC_BERMUDA",
+              "BHUTAN_ASIA_THIMPHU",
+              "BOLIVIA_AMERICA_LA_PAZ",
+              "BOSNIA_AND_HERZEGOVINA_EUROPE_SARAJEVO",
+              "BOTSWANA_AFRICA_GABORONE",
+              "BRAZIL_AMERICA_ARAGUAINA",
+              "BRAZIL_AMERICA_BAHIA",
+              "BRAZIL_AMERICA_BELEM",
+              "BRAZIL_AMERICA_BOA_VISTA",
+              "BRAZIL_AMERICA_CAMPO_GRANDE",
+              "BRAZIL_AMERICA_CUIABA",
+              "BRAZIL_AMERICA_EIRUNEPE",
+              "BRAZIL_AMERICA_FORTALEZA",
+              "BRAZIL_AMERICA_MACEIO",
+              "BRAZIL_AMERICA_MANAUS",
+              "BRAZIL_AMERICA_NORONHA",
+              "BRAZIL_AMERICA_PORTO_VELHO",
+              "BRAZIL_AMERICA_RECIFE",
+              "BRAZIL_AMERICA_RIO_BRANCO",
+              "BRAZIL_AMERICA_SAO_PAULO",
+              "BRITISH_INDIAN_OCEAN_TERRITORY_INDIAN_CHAGOS",
+              "BRUNEI_DARUSSALAM_ASIA_BRUNEI",
+              "BULGARIA_EUROPE_SOFIA",
+              "BURKINA_FASO_AFRICA_OUAGADOUGOU",
+              "BURUNDI_AFRICA_BUJUMBURA",
+              "CAMBODIA_ASIA_PHNOM_PENH",
+              "CAMEROON_AFRICA_DOUALA",
+              "CANADA_AMERICA_ATIKOKAN",
+              "CANADA_AMERICA_BLANC_SABLON",
+              "CANADA_AMERICA_CAMBRIDGE_BAY",
+              "CANADA_AMERICA_DAWSON_CREEK",
+              "CANADA_AMERICA_DAWSON",
+              "CANADA_AMERICA_EDMONTON",
+              "CANADA_AMERICA_GLACE_BAY",
+              "CANADA_AMERICA_GOOSE_BAY",
+              "CANADA_AMERICA_HALIFAX",
+              "CANADA_AMERICA_INUVIK",
+              "CANADA_AMERICA_IQALUIT",
+              "CANADA_AMERICA_MONCTON",
+              "CANADA_AMERICA_MONTREAL",
+              "CANADA_AMERICA_NIPIGON",
+              "CANADA_AMERICA_PANGNIRTUNG",
+              "CANADA_AMERICA_RAINY_RIVER",
+              "CANADA_AMERICA_RANKIN_INLET",
+              "CANADA_AMERICA_REGINA",
+              "CANADA_AMERICA_RESOLUTE",
+              "CANADA_AMERICA_ST_JOHNS",
+              "CANADA_AMERICA_SWIFT_CURRENT",
+              "CANADA_AMERICA_THUNDER_BAY",
+              "CANADA_AMERICA_TORONTO",
+              "CANADA_AMERICA_VANCOUVER",
+              "CANADA_AMERICA_WHITEHORSE",
+              "CANADA_AMERICA_WINNIPEG",
+              "CANADA_AMERICA_YELLOWKNIFE",
+              "CAPE_VERDE_ATLANTIC_CAPE_VERDE",
+              "CAYMAN_ISLANDS_AMERICA_CAYMAN",
+              "CENTRAL_AFRICAN_REPUBLIC_AFRICA_BANGUI",
+              "CHAD_AFRICA_NDJAMENA",
+              "CHILE_AMERICA_SANTIAGO",
+              "CHILE_PACIFIC_EASTER",
+              "CHINA_ASIA_CHONGQING",
+              "CHINA_ASIA_HARBIN",
+              "CHINA_ASIA_KASHGAR",
+              "CHINA_ASIA_SHANGHAI",
+              "CHINA_ASIA_URUMQI",
+              "CHRISTMAS_ISLAND_INDIAN_CHRISTMAS",
+              "COCOS_KEELING_ISLANDS_INDIAN_COCOS",
+              "COLOMBIA_AMERICA_BOGOTA",
+              "COMOROS_INDIAN_COMORO",
+              "DEMOCRATIC_REPUBLIC_OF_CONGO_CONGO_KINSHASA_AFRICA_KINSHASA",
+              "DEMOCRATIC_REPUBLIC_OF_CONGO_CONGO_KINSHASA_AFRICA_LUBUMBASHI",
+              "CONGO_CONGO_BRAZZAVILLE_AFRICA_BRAZZAVILLE",
+              "COOK_ISLANDS_PACIFIC_RAROTONGA",
+              "COSTA_RICA_AMERICA_COSTA_RICA",
+              "COTE_DIVOIRE_AFRICA_ABIDJAN",
+              "CROATIA_EUROPE_ZAGREB",
+              "CUBA_AMERICA_HAVANA",
+              "CYPRUS_ASIA_NICOSIA",
+              "CZECH_REPUBLIC_EUROPE_PRAGUE",
+              "DENMARK_EUROPE_COPENHAGEN",
+              "DJIBOUTI_AFRICA_DJIBOUTI",
+              "DOMINICAN_REPUBLIC_AMERICA_SANTO_DOMINGO",
+              "DOMINICA_AMERICA_DOMINICA",
+              "ECUADOR_AMERICA_GUAYAQUIL",
+              "ECUADOR_PACIFIC_GALAPAGOS",
+              "EGYPT_AFRICA_CAIRO",
+              "EL_SALVADOR_AMERICA_EL_SALVADOR",
+              "EQUATORIAL_GUINEA_AFRICA_MALABO",
+              "ERITREA_AFRICA_ASMARA",
+              "ESTONIA_EUROPE_TALLINN",
+              "ETHIOPIA_AFRICA_ADDIS_ABABA",
+              "FALKLAND_ISLANDS_MALVINAS_ATLANTIC_STANLEY",
+              "FAROE_ISLANDS_ATLANTIC_FAROE",
+              "FIJI_PACIFIC_FIJI",
+              "FINLAND_EUROPE_HELSINKI",
+              "FRANCE_EUROPE_PARIS",
+              "FRENCH_GUIANA_AMERICA_CAYENNE",
+              "FRENCH_POLYNESIA_PACIFIC_GAMBIER",
+              "FRENCH_POLYNESIA_PACIFIC_MARQUESAS",
+              "FRENCH_POLYNESIA_PACIFIC_TAHITI",
+              "FRENCH_SOUTHERN_TERRITORIES_INDIAN_KERGUELEN",
+              "GABON_AFRICA_LIBREVILLE",
+              "GAMBIA_AFRICA_BANJUL",
+              "GEORGIA_ASIA_TBILISI",
+              "GERMANY_EUROPE_BERLIN",
+              "GHANA_AFRICA_ACCRA",
+              "GIBRALTAR_EUROPE_GIBRALTAR",
+              "GREECE_EUROPE_ATHENS",
+              "GREENLAND_AMERICA_DANMARKSHAVN",
+              "GREENLAND_AMERICA_GODTHAB",
+              "GREENLAND_AMERICA_SCORESBYSUND",
+              "GREENLAND_AMERICA_THULE",
+              "GRENADA_AMERICA_GRENADA",
+              "GUADELOUPE_AMERICA_GUADELOUPE",
+              "GUAM_PACIFIC_GUAM",
+              "GUATEMALA_AMERICA_GUATEMALA",
+              "GUERNSEY_EUROPE_GUERNSEY",
+              "GUINEA_BISSAU_AFRICA_BISSAU",
+              "GUINEA_AFRICA_CONAKRY",
+              "GUYANA_AMERICA_GUYANA",
+              "HAITI_AMERICA_PORT_AU_PRINCE",
+              "HONDURAS_AMERICA_TEGUCIGALPA",
+              "HONG_KONG_ASIA_HONG_KONG",
+              "HUNGARY_EUROPE_BUDAPEST",
+              "ICELAND_ATLANTIC_REYKJAVIK",
+              "INDIA_ASIA_KOLKATA",
+              "INDONESIA_ASIA_JAKARTA",
+              "INDONESIA_ASIA_JAYAPURA",
+              "INDONESIA_ASIA_MAKASSAR",
+              "INDONESIA_ASIA_PONTIANAK",
+              "IRAN_ASIA_TEHRAN",
+              "IRAQ_ASIA_BAGHDAD",
+              "IRELAND_EUROPE_DUBLIN",
+              "ISLE_OF_MAN_EUROPE_ISLE_OF_MAN",
+              "ISRAEL_ASIA_JERUSALEM",
+              "ITALY_EUROPE_ROME",
+              "JAMAICA_AMERICA_JAMAICA",
+              "JAPAN_ASIA_TOKYO",
+              "JERSEY_EUROPE_JERSEY",
+              "JORDAN_ASIA_AMMAN",
+              "KAZAKHSTAN_ASIA_ALMATY",
+              "KAZAKHSTAN_ASIA_AQTAU",
+              "KAZAKHSTAN_ASIA_AQTOBE",
+              "KAZAKHSTAN_ASIA_ORAL",
+              "KAZAKHSTAN_ASIA_QYZYLORDA",
+              "KENYA_AFRICA_NAIROBI",
+              "KIRIBATI_PACIFIC_ENDERBURY",
+              "KIRIBATI_PACIFIC_KIRITIMATI",
+              "KIRIBATI_PACIFIC_TARAWA",
+              "NORTH_KOREA_ASIA_PYONGYANG",
+              "SOUTH_KOREA_ASIA_SEOUL",
+              "KUWAIT_ASIA_KUWAIT",
+              "KYRGYZSTAN_ASIA_BISHKEK",
+              "LAOS_ASIA_VIENTIANE",
+              "LATVIA_EUROPE_RIGA",
+              "LEBANON_ASIA_BEIRUT",
+              "LESOTHO_AFRICA_MASERU",
+              "LIBERIA_AFRICA_MONROVIA",
+              "LIBYA_AFRICA_TRIPOLI",
+              "LIECHTENSTEIN_EUROPE_VADUZ",
+              "LITHUANIA_EUROPE_VILNIUS",
+              "LUXEMBOURG_EUROPE_LUXEMBOURG",
+              "MACAU_ASIA_MACAU",
+              "MACEDONIA_EUROPE_SKOPJE",
+              "MADAGASCAR_INDIAN_ANTANANARIVO",
+              "MALAWI_AFRICA_BLANTYRE",
+              "MALAYSIA_ASIA_KUALA_LUMPUR",
+              "MALAYSIA_ASIA_KUCHING",
+              "MALDIVES_INDIAN_MALDIVES",
+              "MALI_AFRICA_BAMAKO",
+              "MALTA_EUROPE_MALTA",
+              "MARSHALL_ISLANDS_PACIFIC_KWAJALEIN",
+              "MARSHALL_ISLANDS_PACIFIC_MAJURO",
+              "MARTINIQUE_AMERICA_MARTINIQUE",
+              "MAURITANIA_AFRICA_NOUAKCHOTT",
+              "MAURITIUS_INDIAN_MAURITIUS",
+              "MAYOTTE_INDIAN_MAYOTTE",
+              "MEXICO_AMERICA_CANCUN",
+              "MEXICO_AMERICA_CHIHUAHUA",
+              "MEXICO_AMERICA_HERMOSILLO",
+              "MEXICO_AMERICA_MAZATLAN",
+              "MEXICO_AMERICA_MERIDA",
+              "MEXICO_AMERICA_MEXICO_CITY",
+              "MEXICO_AMERICA_MONTERREY",
+              "MEXICO_AMERICA_TIJUANA",
+              "FEDERATED_STATES_OF_MICRONESIA_PACIFIC_KOSRAE",
+              "FEDERATED_STATES_OF_MICRONESIA_PACIFIC_PONAPE",
+              "FEDERATED_STATES_OF_MICRONESIA_PACIFIC_TRUK",
+              "MOLDOVA_EUROPE_CHISINAU",
+              "MONACO_EUROPE_MONACO",
+              "MONGOLIA_ASIA_CHOIBALSAN",
+              "MONGOLIA_ASIA_HOVD",
+              "MONGOLIA_ASIA_ULAANBAATAR",
+              "MONTENEGRO_EUROPE_PODGORICA",
+              "MONTSERRAT_AMERICA_MONTSERRAT",
+              "MOROCCO_AFRICA_CASABLANCA",
+              "MOZAMBIQUE_AFRICA_MAPUTO",
+              "MYANMAR_ASIA_RANGOON",
+              "NAMIBIA_AFRICA_WINDHOEK",
+              "NAURU_PACIFIC_NAURU",
+              "NEPAL_ASIA_KATMANDU",
+              "NETHERLANDS_ANTILLES_AMERICA_CURACAO",
+              "NETHERLANDS_EUROPE_AMSTERDAM",
+              "NEW_CALEDONIA_PACIFIC_NOUMEA",
+              "NEW_ZEALAND_PACIFIC_AUCKLAND",
+              "NEW_ZEALAND_PACIFIC_CHATHAM",
+              "NICARAGUA_AMERICA_MANAGUA",
+              "NIGERIA_AFRICA_LAGOS",
+              "NIGER_AFRICA_NIAMEY",
+              "NIUE_PACIFIC_NIUE",
+              "NORFOLK_ISLAND_PACIFIC_NORFOLK",
+              "NORTHERN_MARIANA_ISLANDS_PACIFIC_SAIPAN",
+              "NORWAY_EUROPE_OSLO",
+              "PALESTINIAN_TERRITORY_ASIA_GAZA",
+              "OMAN_ASIA_MUSCAT",
+              "PAKISTAN_ASIA_KARACHI",
+              "PALAU_PACIFIC_PALAU",
+              "PANAMA_AMERICA_PANAMA",
+              "PAPUA_NEW_GUINEA_PACIFIC_PORT_MORESBY",
+              "PARAGUAY_AMERICA_ASUNCION",
+              "PERU_AMERICA_LIMA",
+              "PHILIPPINES_ASIA_MANILA",
+              "PITCAIRN_ISLANDS_PACIFIC_PITCAIRN",
+              "POLAND_EUROPE_WARSAW",
+              "PORTUGAL_ATLANTIC_AZORES",
+              "PORTUGAL_ATLANTIC_MADEIRA",
+              "PORTUGAL_EUROPE_LISBON",
+              "PUERTO_RICO_AMERICA_PUERTO_RICO",
+              "QATAR_ASIA_QATAR",
+              "REUNION_INDIAN_REUNION",
+              "ROMANIA_EUROPE_BUCHAREST",
+              "RUSSIA_ASIA_ANADYR",
+              "RUSSIA_ASIA_IRKUTSK",
+              "RUSSIA_ASIA_KAMCHATKA",
+              "RUSSIA_ASIA_KRASNOYARSK",
+              "RUSSIA_ASIA_MAGADAN",
+              "RUSSIA_ASIA_NOVOSIBIRSK",
+              "RUSSIA_ASIA_OMSK",
+              "RUSSIA_ASIA_SAKHALIN",
+              "RUSSIA_ASIA_VLADIVOSTOK",
+              "RUSSIA_ASIA_YAKUTSK",
+              "RUSSIA_ASIA_YEKATERINBURG",
+              "RUSSIA_EUROPE_KALININGRAD",
+              "RUSSIA_EUROPE_MOSCOW",
+              "RUSSIA_EUROPE_SAMARA",
+              "RUSSIA_EUROPE_VOLGOGRAD",
+              "RWANDA_AFRICA_KIGALI",
+              "SAINT_BARTHELEMY_AMERICA_ST_BARTHELEMY",
+              "SAINT_KITTS_AND_NEVIS_AMERICA_ST_KITTS",
+              "SAINT_LUCIA_AMERICA_ST_LUCIA",
+              "SAINT_MARTIN_AMERICA_MARIGOT",
+              "SAINT_VINCENT_AND_THE_GRENADINES_AMERICA_ST_VINCENT",
+              "SAMOA_PACIFIC_APIA",
+              "SAN_MARINO_EUROPE_SAN_MARINO",
+              "SAO_TOME_AND_PRINCIPE_AFRICA_SAO_TOME",
+              "SAUDI_ARABIA_ASIA_RIYADH",
+              "SENEGAL_AFRICA_DAKAR",
+              "SERBIA_EUROPE_BELGRADE",
+              "SEYCHELLES_INDIAN_MAHE",
+              "SIERRA_LEONE_AFRICA_FREETOWN",
+              "SINGAPORE_ASIA_SINGAPORE",
+              "SLOVAKIA_EUROPE_BRATISLAVA",
+              "SLOVENIA_EUROPE_LJUBLJANA",
+              "SOLOMON_ISLANDS_PACIFIC_GUADALCANAL",
+              "SOMALIA_AFRICA_MOGADISHU",
+              "SOUTH_AFRICA_AFRICA_JOHANNESBURG",
+              "SOUTH_GEORGIA_AND_THE_SOUTH_SANDWICH_ISLANDS_ATLANTIC_SOUTH_GEORGIA",
+              "SPAIN_AFRICA_CEUTA",
+              "SPAIN_ATLANTIC_CANARY",
+              "SPAIN_EUROPE_MADRID",
+              "SRI_LANKA_ASIA_COLOMBO",
+              "SAINT_HELENA_ATLANTIC_ST_HELENA",
+              "SAINT_PIERRE_AND_MIQUELON_AMERICA_MIQUELON",
+              "SUDAN_AFRICA_KHARTOUM",
+              "SURINAME_AMERICA_PARAMARIBO",
+              "SVALBARD_AND_JAN_MAYEN_ARCTIC_LONGYEARBYEN",
+              "SWAZILAND_AFRICA_MBABANE",
+              "SWEDEN_EUROPE_STOCKHOLM",
+              "SWITZERLAND_EUROPE_ZURICH",
+              "SYRIA_ASIA_DAMASCUS",
+              "TAIWAN_ASIA_TAIPEI",
+              "TAJIKISTAN_ASIA_DUSHANBE",
+              "TANZANIA_AFRICA_DAR_ES_SALAAM",
+              "THAILAND_ASIA_BANGKOK",
+              "TIMOR_LESTE_ASIA_DILI",
+              "TOGO_AFRICA_LOME",
+              "TOKELAU_PACIFIC_FAKAOFO",
+              "TONGA_PACIFIC_TONGATAPU",
+              "TRINIDAD_AND_TOBAGO_AMERICA_PORT_OF_SPAIN",
+              "TUNISIA_AFRICA_TUNIS",
+              "TURKEY_EUROPE_ISTANBUL",
+              "TURKMENISTAN_ASIA_ASHGABAT",
+              "TURKS_AND_CAICOS_ISLANDS_AMERICA_GRAND_TURK",
+              "TUVALU_PACIFIC_FUNAFUTI",
+              "UGANDA_AFRICA_KAMPALA",
+              "UKRAINE_EUROPE_KIEV",
+              "UKRAINE_EUROPE_SIMFEROPOL",
+              "UKRAINE_EUROPE_UZHGOROD",
+              "UKRAINE_EUROPE_ZAPOROZHYE",
+              "UNITED_ARAB_EMIRATES_ASIA_DUBAI",
+              "UNITED_KINGDOM_EUROPE_LONDON",
+              "UNITED_STATES_MINOR_OUTLYING_ISLANDS_PACIFIC_JOHNSTON",
+              "UNITED_STATES_MINOR_OUTLYING_ISLANDS_PACIFIC_MIDWAY",
+              "UNITED_STATES_MINOR_OUTLYING_ISLANDS_PACIFIC_WAKE",
+              "UNITED_STATES_AMERICA_ADAK",
+              "UNITED_STATES_AMERICA_ANCHORAGE",
+              "UNITED_STATES_AMERICA_BOISE",
+              "UNITED_STATES_AMERICA_CHICAGO",
+              "UNITED_STATES_AMERICA_DENVER",
+              "UNITED_STATES_AMERICA_DETROIT",
+              "UNITED_STATES_AMERICA_INDIANA_INDIANAPOLIS",
+              "UNITED_STATES_AMERICA_INDIANA_KNOX",
+              "UNITED_STATES_AMERICA_INDIANA_MARENGO",
+              "UNITED_STATES_AMERICA_INDIANA_PETERSBURG",
+              "UNITED_STATES_AMERICA_INDIANA_TELL_CITY",
+              "UNITED_STATES_AMERICA_INDIANA_VEVAY",
+              "UNITED_STATES_AMERICA_INDIANA_VINCENNES",
+              "UNITED_STATES_AMERICA_INDIANA_WINAMAC",
+              "UNITED_STATES_AMERICA_JUNEAU",
+              "UNITED_STATES_AMERICA_KENTUCKY_LOUISVILLE",
+              "UNITED_STATES_AMERICA_KENTUCKY_MONTICELLO",
+              "UNITED_STATES_AMERICA_LOS_ANGELES",
+              "UNITED_STATES_AMERICA_MENOMINEE",
+              "UNITED_STATES_AMERICA_NEW_YORK",
+              "UNITED_STATES_AMERICA_NOME",
+              "UNITED_STATES_AMERICA_NORTH_DAKOTA_CENTER",
+              "UNITED_STATES_AMERICA_NORTH_DAKOTA_NEW_SALEM",
+              "UNITED_STATES_AMERICA_PHOENIX",
+              "UNITED_STATES_AMERICA_SHIPROCK",
+              "UNITED_STATES_AMERICA_YAKUTAT",
+              "UNITED_STATES_PACIFIC_HONOLULU",
+              "URUGUAY_AMERICA_MONTEVIDEO",
+              "UZBEKISTAN_ASIA_SAMARKAND",
+              "UZBEKISTAN_ASIA_TASHKENT",
+              "VANUATU_PACIFIC_EFATE",
+              "HOLY_SEE_VATICAN_CITY_STATE_EUROPE_VATICAN",
+              "VENEZUELA_AMERICA_CARACAS",
+              "VIETNAM_ASIA_SAIGON",
+              "VIRGIN_ISLANDS_BRITISH_AMERICA_TORTOLA",
+              "VIRGIN_ISLANDS_US_AMERICA_ST_THOMAS",
+              "WALLIS_AND_FUTUNA_PACIFIC_WALLIS",
+              "WESTERN_SAHARA_AFRICA_EL_AAIUN",
+              "YEMEN_ASIA_ADEN",
+              "ZAMBIA_AFRICA_LUSAKA",
+              "ZIMBABWE_AFRICA_HARARE"
+            ],
+            "x-applicableTo": "BOTH"
+          },
+          "xffForwardEnabled": {
+            "type": "boolean",
+            "description": "<p>Enable XFF Forwarding for a location. When set to true, traffic is passed to Zscaler Cloud via the X-Forwarded-For (XFF) header.</p><p><b>Note:</b> For sub-locations, this attribute is a read-only field as the  value is inherited from the parent location.</p>",
+            "x-applicableTo": "TOP"
+          },
+          "aupEnabled": {
+            "type": "boolean",
+            "description": "<p>Enable AUP. When set to true, AUP is enabled for the location. To learn more, see <a href=\"/zia/about-end-user-notifications\" target=\"_blank\">About End User Notifications</a></p>",
+            "x-applicableTo": "BOTH"
+          },
+          "cautionEnabled": {
+            "type": "boolean",
+            "description": "<p>Enable Caution. When set to true, a caution notifcation is enabled for the location. To learn more, see <a href=\"/zia/configuring-caution-notification#caution-interval\" target=\"_blank\">Configuring the Caution Notification</a></p>",
+            "x-applicableTo": "BOTH"
+          },
+          "aupBlockInternetUntilAccepted": {
+            "type": "boolean",
+            "description": "<p>For First Time AUP Behavior, Block Internet Access. When set, all internet access (including non-HTTP traffic) is disabled until the user accepts the AUP.</p>",
+            "x-applicableTo": "BOTH"
+          },
+          "aupForceSslInspection": {
+            "type": "boolean",
+            "description": "<p>For First Time AUP Behavior, Force SSL Inspection. When set, Zscaler forces SSL Inspection in order to enforce AUP for HTTPS traffic.</p>",
+            "x-applicableTo": "BOTH"
+          },
+          "surrogateIP": {
+            "type": "boolean",
+            "description": "<p>Enable Surrogate IP. When set to true, users are mapped to internal device IP addresses. To learn more, see <a href=\"/zia/about-surrogate-ip\" target=\"_Blank\">About Surrogate IP</a>.</p>",
+            "x-applicableTo": "BOTH"
+          },
+          "surrogateIPEnforcedForKnownBrowsers": {
+            "type": "boolean",
+            "description": "<p>Enforce Surrogate IP for Known Browsers. When set to true, IP Surrogate is enforced for all known browsers. To learn more, see <a href=\"/zia/about-surrogate-ip\" target=\"_blank\">About Surrogate IP</a></p>",
+            "x-applicableTo": "BOTH"
+          },
+          "otherSubLocation": {
+            "type": "boolean",
+            "description": "If set to true, indicates that this is a default sub-location created  by the Zscaler service to accommodate IPv4 addresses that are not part of any user-defined sub-locations. The default sub-location is created with the name <b>Other</b> and it can be renamed, if required.",
+            "x-applicableTo": "SUB"
+          },
+          "other6SubLocation": {
+            "type": "boolean",
+            "description": "If set to true, indicates that this is a default sub-location created by the Zscaler service to accommodate IPv6 addresses that are not part of any user-defined sub-locations. The default sub-location is created with the name <b>Other6</b> and it can be renamed, if required.  This field is applicable only if <code>ipv6Enabled</code> is set is  <code>true</code>.",
+            "x-applicableTo": "SUB"
+          },
+          "ofwEnabled": {
+            "type": "boolean",
+            "description": "<p>Enable Firewall. When set to true, Firewall is enabled for the location.</p>",
+            "x-applicableTo": "TOP"
+          },
+          "ipsControl": {
+            "type": "boolean",
+            "description": "<p>Enable IPS Control. When set to true, IPS Control is enabled for the location if Firewall is enabled.</p>",
+            "x-applicableTo": "TOP"
+          },
+          "zappSslScanEnabled": {
+            "type": "boolean",
+            "description": "<p>This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future.</p><p>Enable Zscaler App SSL Setting. When set to true, the Zscaler App SSL Scan Setting takes effect, irrespective of the SSL policy that is configured for the location. To learn more, see <a href=\"/z-app/configuring-ssl-inspection-zscaler-app#configure-SSL-Zscaler-App\" target=\"_blank\">Configuring SSL Inspection for Zscaler App</a></p>",
+            "x-applicableTo": "BOTH"
+          },
+          "ipv6Enabled": {
+            "type": "boolean",
+            "description": "If set to true, IPv6 is enabled for the location and IPv6 traffic from the location can be forwarded to the Zscaler service to enforce security policies.",
+            "x-applicableTo": "TOP"
+          },
+          "subLocScopeEnabled": {
+            "type": "boolean",
+            "description": "<p>Indicates whether defining scopes is allowed for this sublocation. Sublocation scopes are available only for the <b>Workload</b> traffic type sublocations whose parent locations are associated with Amazon Web Services (AWS) Cloud Connector groups. This is a read-only field. To learn more, see <a href=\"/zia/configuring-sublocations\" target=\"_blank\">Configuring Sublocations</a>.</p>",
+            "x-applicableTo": "TOP"
+          },
+          "subLocScope": {
+            "type": "string",
+            "description": "<p>Defines a scope for the sublocation from the available types to segregate workload traffic from a single sublocation to apply different Cloud Connector and ZIA security policies. This field is only available for the <b>Workload</b> traffic type sublocations whose parent locations are associated with Amazon Web Services (AWS) Cloud Connector groups. To learn about the different scope types supported, see <a href=\"/zia/configuring-sublocations\" target=\"_blank\">Configuring Sublocations</a>.</p>",
+            "enum": [
+              "VPC_ENDPOINT",
+              "VPC",
+              "NAMESPACE",
+              "ACCOUNT"
+            ],
+            "x-applicableTo": "BOTH"
+          },
+          "subLocScopeValues": {
+            "type": "array",
+            "description": "Specifies values for the selected sublocation scope type",
+            "items": {
+              "type": "string"
+            },
+            "x-applicableTo": "SUB"
+          },
+          "subLocAccIds": {
+            "type": "array",
+            "description": "Specifies one or more Amazon Web Services (AWS) account IDs. These AWS accounts are associated with the parent location of this sublocation created in the Zscaler Cloud & Branch Connector Admin Portal.",
+            "items": {
+              "type": "string"
+            },
+            "x-applicableTo": "SUB"
+          }
+        },
+        "description": "Location and sub-location information based on a limited number of fields."
+      },
+      "LocationGroup": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier for the location group",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Location group name"
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "Indicates the location group was deleted",
+            "readOnly": true
+          },
+          "groupType": {
+            "type": "string",
+            "description": "The location group's type (i.e., Static or Dynamic)",
+            "enum": [
+              "STATIC_GROUP",
+              "DYNAMIC_GROUP"
+            ]
+          },
+          "dynamicLocationGroupCriteria": {
+            "description": "A dynamic location group's criteria. This is ignored if the groupType is Static.",
+            "$ref": "#/definitions/DynamicLocationGroupCriteria",
+            "x-applicableTo": "DYNAMIC"
+          },
+          "locations": {
+            "type": "array",
+            "description": "The Name-ID pairs of the locations that are assigned to the static location group. This is ignored if the groupType is Dynamic.",
+            "items": {
+              "$ref": "#/definitions/EntityReference",
+              "x-applicableTo": "STATIC"
+            }
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about the location group"
+          },
+          "lastModUser": {
+            "description": "Automatically populated with the current ZIA admin user, after a successful POST or PUT request.",
+            "readOnly": true,
+            "$ref": "#/definitions/EntityReference"
+          },
+          "lastModTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Automatically populated with the current time, after a successful POST or PUT request.",
+            "readOnly": true
+          },
+          "predefined": {
+            "type": "boolean"
+          }
+        },
+        "description": "Location group information."
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of id and name"
+      },
+      "VPNCredential": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "VPN credential id",
+            "readOnly": true
+          },
+          "type": {
+            "type": "string",
+            "description": "<p>VPN authentication type (i.e., how the VPN credential is sent to the server). It is not modifiable after VpnCredential is created.</p><p> <b>Note:</b> Zscaler no longer supports adding a new XAUTH VPN  credential, but existing entries can be edited or deleted using the  respective endpoints.</p>",
+            "enum": [
+              "CN",
+              "IP",
+              "UFQDN",
+              "XAUTH"
+            ]
+          },
+          "fqdn": {
+            "type": "string",
+            "description": "Fully Qualified Domain Name. Applicable only to UFQDN or XAUTH (or HOSTED_MOBILE_USERS) auth type."
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "<p>Static IP address for VPN that is <a href=\"/zia/self-provisioning-static-ip-addresses\" target=\"_blank\">self-provisioned</a> or provisioned by  Zscaler. This is a required field for IP auth type and is not applicable to other auth types.</p><p><b>Note:</b> If you want Zscaler to provision static IP addresses for your organization, contact Zscaler Support.</p>"
+          },
+          "preSharedKey": {
+            "type": "string",
+            "description": "Pre-shared key. This is a required field for UFQDN and IP auth type."
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about this VPN credential."
+          },
+          "location": {
+            "description": "Location that is associated to this VPN credential. Non-existence means not associated to any location.",
+            "readOnly": true,
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ]
+          },
+          "managedBy": {
+            "description": "<p>SD-WAN Partner that manages the location. If a partner does not manage the location, this is set to Self.</p>",
+            "readOnly": true,
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ]
+          }
+        },
+        "description": "VPN is one way to route traffic from customer locations to the cloud. Site-to-site IPSec VPN credentials can be identified by the cloud through one of the following methods:\n\n  1. Common Name (CN) of IPSec Certificate\n\n  2. VPN User FQDN - requires VPN_SITE_TO_SITE subscription\n\n  3. VPN IP Address - requires VPN_SITE_TO_SITE subscription\n\n  4. Extended Authentication (XAUTH) or hosted mobile UserID - requires VPN_MOBILE subscription\n\n Notes:\n\n IPs must be created in Static IP first\n\n CN type (certificate) is created automatically, when a CN is provisioned by Zscaler.\n\n The 'psk' field is not applicable for this VPN type.\n\n The most common type is UFQDN."
+      },
+      "DynamicLocationGroupCriteria": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "A sub-string to match location name. Valid operators are contains, starts with, and ends with\",",
+            "$ref": "#/definitions/StringFilter"
+          },
+          "countries": {
+            "type": "array",
+            "description": "One or more countries from a predefined set",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "AFGHANISTAN",
+                "ALAND",
+                "ALBANIA",
+                "ALGERIA",
+                "AMERICAN_SAMOA",
+                "ANDORRA",
+                "ANGOLA",
+                "ANGUILLA",
+                "ANTARCTICA",
+                "ANTIGUA_AND_BARBUDA",
+                "ARGENTINA",
+                "ARMENIA",
+                "ARUBA",
+                "AUSTRALIA",
+                "AUSTRIA",
+                "AZERBAIJAN",
+                "BAHAMAS",
+                "BAHRAIN",
+                "BANGLADESH",
+                "BARBADOS",
+                "BELARUS",
+                "BELGIUM",
+                "BELIZE",
+                "BENIN",
+                "BERMUDA",
+                "BHUTAN",
+                "BOLIVIA",
+                "BOSNIA_AND_HERZEGOVINA",
+                "BOTSWANA",
+                "BRAZIL",
+                "BRITISH_INDIAN_OCEAN_TERRITORY",
+                "BRUNEI",
+                "BULGARIA",
+                "BURKINA_FASO",
+                "BURUNDI",
+                "CABO_VERDE",
+                "CAMBODIA",
+                "CAMEROON",
+                "CANADA",
+                "CAYMAN_ISLANDS",
+                "CENTRAL_AFRICAN_REPUBLIC",
+                "CHAD",
+                "CHILE",
+                "CHINA",
+                "CHRISTMAS_ISLAND",
+                "COCOS_KEELING_ISLANDS",
+                "COLOMBIA",
+                "COMOROS",
+                "CONGO_REPUBLIC",
+                "DR_CONGO",
+                "COOK_ISLANDS",
+                "COSTA_RICA",
+                "CROATIA",
+                "CUBA",
+                "CYPRUS",
+                "CZECHIA",
+                "DENMARK",
+                "DJIBOUTI",
+                "DOMINICAN_REPUBLIC",
+                "DOMINICA",
+                "ECUADOR",
+                "EGYPT",
+                "EL_SALVADOR",
+                "EQUATORIAL_GUINEA",
+                "ERITREA",
+                "ESTONIA",
+                "ETHIOPIA",
+                "FALKLAND_ISLANDS_MALVINAS",
+                "FAROE_ISLANDS",
+                "FIJI",
+                "FINLAND",
+                "FRANCE",
+                "FRENCH_GUIANA",
+                "FRENCH_POLYNESIA",
+                "FRENCH_SOUTHERN_TERRITORIES",
+                "GABON",
+                "THE_GAMBIA",
+                "GEORGIA",
+                "GERMANY",
+                "GHANA",
+                "GIBRALTAR",
+                "GREECE",
+                "GREENLAND",
+                "GRENADA",
+                "GUADELOUPE",
+                "GUAM",
+                "GUATEMALA",
+                "GUERNSEY",
+                "GUINEA_BISSAU",
+                "GUINEA",
+                "GUYANA",
+                "HAITI",
+                "HONDURAS",
+                "HONG_KONG",
+                "HUNGARY",
+                "ICELAND",
+                "INDIA",
+                "INDONESIA",
+                "IRAN",
+                "IRAQ",
+                "IRELAND",
+                "ISLE_OF_MAN",
+                "ISRAEL",
+                "ITALY",
+                "IVORY_COAST",
+                "JAMAICA",
+                "JAPAN",
+                "JERSEY",
+                "JORDAN",
+                "KAZAKHSTAN",
+                "KENYA",
+                "KIRIBATI",
+                "NORTH_KOREA",
+                "SOUTH_KOREA",
+                "KUWAIT",
+                "KYRGYZSTAN",
+                "LAOS",
+                "LATVIA",
+                "LEBANON",
+                "LESOTHO",
+                "LIBERIA",
+                "LIBYA",
+                "LIECHTENSTEIN",
+                "LITHUANIA",
+                "LUXEMBOURG",
+                "MACAU",
+                "MADAGASCAR",
+                "MALAWI",
+                "MALAYSIA",
+                "MALDIVES",
+                "MALI",
+                "MALTA",
+                "MARSHALL_ISLANDS",
+                "MARTINIQUE",
+                "MAURITANIA",
+                "MAURITIUS",
+                "MAYOTTE",
+                "MEXICO",
+                "MICRONESIA",
+                "MOLDOVA",
+                "MONACO",
+                "MONGOLIA",
+                "MONTENEGRO",
+                "MONTSERRAT",
+                "MOROCCO",
+                "MOZAMBIQUE",
+                "MYANMAR",
+                "NAMIBIA",
+                "NAURU",
+                "NEPAL",
+                "NETHERLANDS_ANTILLES",
+                "THE_NETHERLANDS",
+                "NEW_CALEDONIA",
+                "NEW_ZEALAND",
+                "NICARAGUA",
+                "NIGERIA",
+                "NIGER",
+                "NIUE",
+                "NORFOLK_ISLAND",
+                "NORTH_MACEDONIA",
+                "NORTHERN_MARIANA_ISLANDS",
+                "NORWAY",
+                "OMAN",
+                "PAKISTAN",
+                "PALAU",
+                "PALESTINE",
+                "PANAMA",
+                "PAPUA_NEW_GUINEA",
+                "PARAGUAY",
+                "PERU",
+                "PHILIPPINES",
+                "PITCAIRN_ISLANDS",
+                "POLAND",
+                "PORTUGAL",
+                "PUERTO_RICO",
+                "QATAR",
+                "REUNION",
+                "ROMANIA",
+                "RUSSIA",
+                "RWANDA",
+                "SAINT_BARTHELEMY",
+                "SAINT_HELENA",
+                "SAINT_LUCIA",
+                "SAINT_MARTIN",
+                "SAINT_PIERRE_AND_MIQUELON",
+                "SAMOA",
+                "SAN_MARINO",
+                "SAO_TOME_AND_PRINCIPE",
+                "SAUDI_ARABIA",
+                "SENEGAL",
+                "SERBIA",
+                "SEYCHELLES",
+                "SIERRA_LEONE",
+                "SINGAPORE",
+                "SLOVAKIA",
+                "SLOVENIA",
+                "SOLOMON_ISLANDS",
+                "SOMALIA",
+                "SOUTH_AFRICA",
+                "SOUTH_GEORGIA_AND_THE_SOUTH_SANDWICH_ISLANDS",
+                "SPAIN",
+                "SRI_LANKA",
+                "ST_KITTS_AND_NEVIS",
+                "ST_VINCENT_AND_THE_GRENADINES",
+                "SUDAN",
+                "SURINAME",
+                "SVALBARD_AND_JAN_MAYEN",
+                "SWAZILAND",
+                "SWEDEN",
+                "SWITZERLAND",
+                "SYRIA",
+                "TAIWAN",
+                "TAJIKISTAN",
+                "TANZANIA",
+                "THAILAND",
+                "TIMOR_LESTE",
+                "TOGO",
+                "TOKELAU",
+                "TONGA",
+                "TRINIDAD_AND_TOBAGO",
+                "TUNISIA",
+                "TURKEY",
+                "TURKMENISTAN",
+                "TURKS_AND_CAICOS_ISLANDS",
+                "TUVALU",
+                "UGANDA",
+                "UKRAINE",
+                "UNITED_ARAB_EMIRATES",
+                "UNITED_KINGDOM",
+                "UNITED_STATES_MINOR_OUTLYING_ISLANDS",
+                "UNITED_STATES",
+                "URUGUAY",
+                "US_VIRGIN_ISLANDS",
+                "UZBEKISTAN",
+                "VANUATU",
+                "HOLY_SEE_VATICAN_CITY_STATE",
+                "VENEZUELA",
+                "VIETNAM",
+                "VIRGIN_ISLANDS_BRITISH",
+                "WALLIS_AND_FUTUNA",
+                "WESTERN_SAHARA",
+                "YEMEN",
+                "ZAMBIA",
+                "ZIMBABWE"
+              ]
+            }
+          },
+          "city": {
+            "description": "A sub-string to match city. Valid operators are starts with, ends with, contains, and exact match operators.",
+            "$ref": "#/definitions/StringFilter"
+          },
+          "managedBy": {
+            "type": "array",
+            "description": "One or more values from a predefined set of SD-WAN partner list to display  partner names.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "enforceAuthentication": {
+            "type": "boolean",
+            "description": "Enforce Authentication. Required when ports are enabled, IP Surrogate is enabled, or Kerberos Authentication is enabled."
+          },
+          "enforceAup": {
+            "type": "boolean",
+            "description": "Enable AUP. When set to true, AUP is enabled for the location."
+          },
+          "enforceFirewallControl": {
+            "type": "boolean",
+            "description": "Enable Firewall. When set to true, Firewall is enabled for the location.\n"
+          },
+          "enableXffForwarding": {
+            "type": "boolean",
+            "description": "Enable XFF Forwarding. When set to true, traffic is passed to Zscaler Cloud via the X-Forwarded-For (XFF) header."
+          },
+          "enableCaution": {
+            "type": "boolean",
+            "description": "Enable Caution. When set to true, a caution notifcation is enabled for the location."
+          },
+          "enableBandwidthControl": {
+            "type": "boolean",
+            "description": "Enable Bandwidth Control. When set to true, Bandwidth Control is enabled for the location."
+          },
+          "profiles": {
+            "type": "array",
+            "description": "One or more location profiles from a predefined set",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "CORPORATE",
+                "SERVER",
+                "GUESTWIFI",
+                "IOT"
+              ]
+            }
+          }
+        },
+        "description": "Dynamic location group information."
+      },
+      "StringFilter": {
+        "type": "object",
+        "properties": {
+          "matchString": {
+            "type": "string",
+            "description": "String value to be matched or partially matched"
+          },
+          "matchType": {
+            "type": "string",
+            "description": "Operator that performs match action",
+            "enum": [
+              "CONTAINS",
+              "EQUALS",
+              "STARTS_WITH",
+              "ENDS_WITH"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

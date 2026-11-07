@@ -1,0 +1,795 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Troubleshooting SAML",
+  "source": {
+    "url": "https://help.zscaler.com/zia/troubleshooting-saml",
+    "node": "1399651",
+    "revision": "3218442",
+    "updated": "2026-07-14",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides some troubleshooting information and guidelines about the SAML authentication error codes. To learn more about SAML, see Understanding SAML. To configure SAML, see Configuring SAML."
+    },
+    {
+      "heading": "Troubleshooting Browser Settings",
+      "level": 1
+    },
+    {
+      "text": "The following common issues are encountered due to incorrect user browser settings:"
+    },
+    {
+      "item": "Browser Displays \"Can't display the webpage.\" Error Message",
+      "depth": 0
+    },
+    {
+      "item": "The user's browser displays the error message \"Can't display the webpage.\" This issue can occur if:",
+      "depth": 0
+    },
+    {
+      "item": "The connection is redirected to Zscaler",
+      "depth": 1
+    },
+    {
+      "item": "The user's workstation can't connect to the URL",
+      "depth": 1
+    },
+    {
+      "item": "To resolve this issue:",
+      "depth": 0
+    },
+    {
+      "item": "Ensure the following exception is present in your PAC file (usually the default PAC file) to make the connection to the server direct, essentially bypassing the Zscaler service:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "if shExpMatch(host, \"*.company.tld\") return \"DIRECT\";",
+      "depth": 1
+    },
+    {
+      "item": "Ensure the user's workstation can connect to the remote server with the following command line in a DOS shell:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "telnet <Hostname> 443",
+      "depth": 1
+    },
+    {
+      "item": "If you get a black screen, then the connection is established.",
+      "depth": 1
+    },
+    {
+      "item": "Browser Is Stuck on the Redirection Page",
+      "depth": 0
+    },
+    {
+      "item": "The user’s browser is stuck on the redirection page. If you are seeing the redirection page for more than 10 seconds, then the SAML redirection is looping. This might be due to your explicit proxy configuration. The connection to the server must be direct and not redirected to the Zscaler service",
+      "depth": 0
+    },
+    {
+      "item": "To resolve this issue, add the following exception to your PAC file (usually the default PAC file):",
+      "depth": 0
+    },
+    {
+      "item": "if shExpMatch(host, \"*.company.tld\") return \"DIRECT\";",
+      "depth": 0
+    },
+    {
+      "item": "Browser Displays Basic Pop-Up Login",
+      "depth": 0
+    },
+    {
+      "item": "The user's browser is displaying a basic pop-up login; authentication isn't transparent. This issue can occur if:",
+      "depth": 0
+    },
+    {
+      "item": "The user isn't authenticated on the organization’s Federation Identity. To resolve this issue, ensure:",
+      "depth": 1
+    },
+    {
+      "item": "The user's computer is registered in Active Directory",
+      "depth": 2
+    },
+    {
+      "item": "The user is logged in to the Windows Domain",
+      "depth": 2
+    },
+    {
+      "item": "The browser isn't configured to forward the user token to the SAML server: By default, Firefox and Chrome browsers don't relay NTLM tokens to the SAML server. To enable this, do the following:",
+      "depth": 1
+    },
+    {
+      "item": "Firefox: Enter about:config in the address bar, and add the SAML server domain name to the network.automatic-ntlm-auth.trusted-uris option. This allows Firefox to trust the proxy and use NTLM authentication with it.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          91,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "Chrome: Enter the following parameter in the command line:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "google-chrome --auth-server-whitelist=\"*.clientdomain.tld\"",
+      "depth": 2
+    },
+    {
+      "item": "By default, Chrome uses the same parameters as IE, so this settings shouldn't be required in a Windows environment. To learn more, refer to HTTP authentication.",
+      "depth": 2
+    },
+    {
+      "item": "Internet Explorer: Add the SAML server domain name to the Local intranet security zone.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "heading": "Troubleshooting SAML Error Codes",
+      "level": 1
+    },
+    {
+      "text": "When a SAML authentication request fails, SAML error codes are displayed in the browser. The following table lists the SAML error codes and troubleshooting tips. A live HTTP header dump is helpful in all cases."
+    },
+    {
+      "table": [
+        [
+          "Error Code",
+          "Description",
+          "What to Do"
+        ],
+        [
+          "0xA001",
+          "The SAML response format is incorrect.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA002",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA003",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA004",
+          "An error occurred with the login name.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA007",
+          "A malformed response.",
+          "An IdP issue, or the SAML response is corrupted."
+        ],
+        [
+          "0xA008",
+          "A malformed response.",
+          "An IdP issue, or the SAML response is corrupted."
+        ],
+        [
+          "0xA009",
+          "A malformed response.",
+          "An IdP issue, or the SAML response is corrupted."
+        ],
+        [
+          "0xA00A",
+          "A malformed response.",
+          "An IdP issue, or the SAML response is corrupted."
+        ],
+        [
+          "0xA00B",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA00C",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA00D",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA00E",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA00F",
+          "The organization doesn't exist or is disabled.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA010",
+          "The user wasn't found.",
+          "The user might have been deleted. Re-add the user."
+        ],
+        [
+          "0xA011",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA013",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA014",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA015",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA016",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA017",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA018",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA019",
+          "An error occurred with the login name.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA020",
+          "The user domain name isn't registered to the organization.",
+          "If your IdP passes a full qualified identifier with the SAML assertion, ensure that all your organization's domains are registered with your Zscaler account. This is required to allow all your users to access the service. If you prefer to pass the sAMAccountName attribute and a non-qualified identifier with the SAML assertion, ensure that only one domain name is associated with your Zscaler account."
+        ],
+        [
+          "0xA021",
+          "An invalid login name.",
+          "Check if the login name is a valid email address."
+        ],
+        [
+          "0xA022",
+          "The SAML response format is incorrect.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA023",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA024",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA025",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA026",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA027",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA028",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA029",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA02A",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA02B",
+          "The login name in the SAML response is too big.",
+          "Fix the Login-name or the Login attribute."
+        ],
+        [
+          "0xA02C",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA02D",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA02E",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xA02F",
+          "The user domain name is configured for an IdP that is different than the IdP the user is coming from.",
+          "Check if the IdP configuration for the user domain name changed during login. Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xB000",
+          "The SAML response was sent to an invalid Org-ID.",
+          "Verify if the configured endpoint URL has the correct Org-ID in the IdP server."
+        ],
+        [
+          "0xB001",
+          "IdP-initiated SAML is disabled for your organization.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xB002",
+          "An invalid SAML response was received.",
+          "An IdP issue, or the SAML response is corrupted."
+        ],
+        [
+          "0xB003",
+          "The sign verification failed.",
+          "Check if your exported certificate is valid, you've selected the correct hash algorithm, and you've configured the correct Org-ID for your IdP."
+        ],
+        [
+          "0xB004",
+          "The SAML response was delivered after a certain permissible skew time.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xB005",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xB006",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xB007",
+          "An invalid SAML response was received, or an API string is absent from the response.",
+          "An IdP issue, or the SAML response is corrupted."
+        ],
+        [
+          "0xB0010",
+          "SAML is disabled for your organization.",
+          "Enable SAML for your organization."
+        ],
+        [
+          "0xB0020",
+          "An invalid SAML response was received, or an API string is absent from the response.",
+          "An IdP issue, or the SAML response is corrupted."
+        ],
+        [
+          "0xB0030",
+          "The user domain name isn't registered to the organization.",
+          "If your IdP passes a full qualified identifier with the SAML assertion, ensure that all your organization's domains are registered with your Zscaler account. This is required to allow all your users to access the service. If you prefer to pass the sAMAccountName attribute and a non-qualified identifier with the SAML assertion, ensure that only one domain name is associated with your Zscaler account."
+        ],
+        [
+          "0xB0040",
+          "The user wasn't found, and SAML auto-provisioning is disabled.",
+          "The user doesn't exist, and SAML auto-provisioning isn't enabled. Add the user and then enable SAML auto-provisioning in the Zscaler Admin Console."
+        ],
+        [
+          "0xB0060",
+          "An invalid SAML response was received.",
+          "An IdP issue, or the SAML response is corrupted."
+        ],
+        [
+          "0xB0070",
+          "An internal error occurred.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xB0080",
+          "The client unexpectedly closed the connection.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xB0090",
+          "The Login-name attribute isn't found in the SAML response.",
+          "Change the SAML configuration in the Zscaler Admin Console."
+        ],
+        [
+          "0xB00A0",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xB00A1",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xB00A2",
+          "An invalid operation.",
+          "An IdP issue."
+        ],
+        [
+          "0xB00A4",
+          "An internal error occurred.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xB00A5",
+          "The IdP ID in the SAML endpoint is invalid, or the IdP is disabled.",
+          "Check if the IdP ID is correct in the SAML endpoint, and ensure the IdP is enabled."
+        ],
+        [
+          "0xB00E",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5501",
+          "The relay state wasn't present in the SAML response, or the relay state is invalid.",
+          "Check if the relay state is being sent in the SAML response (sometimes, this happens when REDIRECT binding is configured, instead of POST binding), or check if the response that was sent through Zscaler didn't send the request."
+        ],
+        [
+          "0xE5502",
+          "An invalid SAML response was received.",
+          "An IdP issue, or the SAML response was corrupted."
+        ],
+        [
+          "0xE5503",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5504",
+          "The SAML response contains more than 20 public certificates.",
+          "Modify the IdP configuration."
+        ],
+        [
+          "0xE5505",
+          "An invalid SAML response was received.",
+          "The IdP response must be fixed. SAML standard needs XML exc-c14n transform."
+        ],
+        [
+          "0xE5506",
+          "An invalid SAML response was received.",
+          "An IdP issue, or the SAML response was corrupted."
+        ],
+        [
+          "0xE5507",
+          "An invalid SAML response was received.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5508",
+          "An invalid SAML response was received.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5509",
+          "The SAML response was tampered with.",
+          "An IdP issue, or the SAML response was corrupted."
+        ],
+        [
+          "0xE550A",
+          "If the IdP supports passing RelayState arguments as part of the sign on URI, this error code appears when the URI that the IdP is using to obtain the SAML assertion doesn't point to the correct SAML context on the Customer Assertion Service (which is the Zscaler Central Authority (CA)).",
+          "Check that the relay state is being sent in the SAML response (sometimes, this happens when REDIRECT binding is configured, instead of POST binding). Also, check the relying party SAML 2.0 SSO service URI. Ensure that the URI points to the respective organization’s Org-ID on the sso_upd page as shown in the following example: https://login.zscalerbeta.net/sso_upd/3817660 In the example, 3817660 is the Org-ID of safemarch.net on the zscalerbeta.net cloud. To see the organization ID, log in to the Zscaler Admin Console and go to Administration > Account Management > Organization."
+        ],
+        [
+          "0xE550B",
+          "The relay state wasn't present in the SAML response, or the relay state is invalid.",
+          "Check if the relay state is being sent in the SAML response (sometimes, this happens when REDIRECT binding is configured, instead of POST binding), or check if the response that was sent through Zscaler didn't send the request."
+        ],
+        [
+          "0xE550C",
+          "The request is too old and has timed out.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE550D",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE550E",
+          "The Zscaler Central Authority received a response that might have been initiated by a different CA, so original context is missing. This usually occurs due to misconfigured exemptions where authentication starts on one CA but completion is happening on another CA in active-active FT mode.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE550F",
+          "The context is lost. The Zscaler Central Authority might have restarted.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5510",
+          "An invalid context ID was provided. An attack type response might have been sent to the Zscaler Central Authority.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5511",
+          "An internal error occurred.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5512",
+          "An internal error occurred.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5513",
+          "An internal error occurred.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5514",
+          "An internal error occurred.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5515",
+          "An internal error occurred.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5516",
+          "An internal error occurred.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5517",
+          "The user no longer exists but existed when authentication started. The user might have been deleted during the authentication process.",
+          "Create the user first."
+        ],
+        [
+          "0xE5518",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5519",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE551A",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE551B",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE551C",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE551D",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE551E",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE551F",
+          "The Zscaler Central Authority is overloaded, so the authentication request timed out.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5610",
+          "An SSL error.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5611",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5612",
+          "The SAML response is invalid.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5613",
+          "A digital signature mismatch. The certificate issued by the IdP to sign the SAML response and the one uploaded in the Zscaler Admin Console are different.",
+          "Upload the new certificate to the Zscaler Admin Console, and then save and activate the change. If you need help retrieving the SSL certificate, contact Zscaler Support and send the HTML error page that appears during SAML authentication."
+        ],
+        [
+          "0xE5614",
+          "The organization ID doesn't exist in the SAML response, or the organization is disabled.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5615",
+          "The SAML portal returned a non-success error to the Zscaler service.",
+          "The user couldn't authenticate successfully, or the SAML IdP is having problems. Check IdP logs."
+        ],
+        [
+          "0xE5616",
+          "An unknown user was sent in the SAML response.",
+          "The user doesn't exist, and SAML auto-provisioning isn't enabled. Add the user and then enable SAML auto-provisioning in the Zscaler Admin Console."
+        ],
+        [
+          "0xE5617",
+          "The login attribute is configured as \"NameID,\" but NameID isn't found in the SAML response.",
+          "Check the mapping of LDAP attribute to SAML login attribute, or change the SAML configuration in the Zscaler Admin Console."
+        ],
+        [
+          "0xE5618",
+          "The login attribute that is configured (not the \"NameID\") isn't found in the SAML response.",
+          "Check the mapping of LDAP attribute to SAML login attribute, or change the SAML configuration in the Zscaler Admin Console."
+        ],
+        [
+          "0xE5619",
+          "Out of memory or SSL internal errors.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5620",
+          "The unauthenticated user isn't synchronized via LDAP yet.",
+          "Wait for the sync to complete."
+        ],
+        [
+          "0xE5621",
+          "The user was added via the Hosted User Database, LDAP sync, or SCIM provisioning, but the activation wasn't performed. For SCIM provisioning, the activation might be pending.",
+          "Activate unactivated changes in the Zscaler Admin Console. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5623",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5624",
+          "The SAML response is too big.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5630",
+          "An error occurred with the login name. The unique name wasn't identified for the multi-domain organization.",
+          "Contact Zscaler Support."
+        ],
+        [
+          "0xE5631",
+          "SAML was disabled in the middle of the auth flow.",
+          "Company disabled SAML (maybe transiently). Re-enable SAML."
+        ],
+        [
+          "0xE5632",
+          "There was an issue reaching the Zscaler Central Authority.",
+          "Check if you have added the IP address to your firewall."
+        ],
+        [
+          "0xE5633",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5634",
+          "A transient cloud issue.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5635",
+          "An internal error occurred.",
+          "Ensure the token-signing certificate from the IdP, which is uploaded to the Zscaler Admin Console, is a base-64 encoded certificate."
+        ],
+        [
+          "0xE5636",
+          "A digital signature mismatch. The certificate issued by the IdP to sign the SAML response and the one uploaded in the Zscaler Admin Console are different.",
+          "Upload the new certificate to the Zscaler Admin Console, and then save and activate the change. If you need help retrieving the SSL certificate, contact Zscaler Support and send the HTML error page that appears during SAML authentication."
+        ],
+        [
+          "0xE5637",
+          "The token-signing certificate is missing.",
+          "Ensure the token-signing certificate from the IdP, which is uploaded to the Zscaler Admin Console, is a base-64 encoded certificate."
+        ],
+        [
+          "0xE5638",
+          "A digital signature mismatch. The certificate issued by the IdP to sign the SAML response and the one uploaded in the Zscaler Admin Console are different.",
+          "Upload the new certificate to the Zscaler Admin Console, and then save and activate the change. If you need help retrieving the SSL certificate, contact Zscaler Support and send the HTML error page that appears during SAML authentication."
+        ],
+        [
+          "0xE5639",
+          "The account status isn't active, or the EUSA wasn't accepted after changing the account status to Active.",
+          "Change account status to \"Active,\" and accept the EUSA."
+        ],
+        [
+          "0xE5640",
+          "The Zscaler Central Authority rejected the SAML response because it's being reused. You can't reuse SAML responses.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5641",
+          "The IdP configuration wasn't found.",
+          "Check if the IdP configuration exists and is enabled. For IdP-initiated SAML, check if the idp_id sent is correct."
+        ],
+        [
+          "0xE5647",
+          "An internal error occurred.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5648",
+          "SAML context fetch is temporarily disabled.",
+          "Retry after a few seconds. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "0xE5649",
+          "The relay state is invalid on this instance.",
+          "Contact Zscaler Support."
+        ],
+        [
+          "0xE5650",
+          "An internal error occurred.",
+          "Contact Zscaler Support."
+        ],
+        [
+          "0xE5656",
+          "An internal error occurred.",
+          "Contact Zscaler Support."
+        ]
+      ],
+      "strong": [
+        [
+          70,
+          2,
+          533,
+          547
+        ],
+        [
+          70,
+          2,
+          550,
+          568
+        ],
+        [
+          70,
+          2,
+          571,
+          583
+        ]
+      ]
+    }
+  ]
+}

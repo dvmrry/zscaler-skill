@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.citrix-vdi",
+  "title": "Client Connector on non-persistent Citrix VDIs: the single-user model, the VDI install parameters and the master VM",
+  "aliases": [
+    "citrix vdi zcc",
+    "non-persistent vdi zcc",
+    "citrix upm zcc",
+    "master vm zcc",
+    "citrix provisioning services zcc"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.azure-virtual-desktop"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.windows-unattended"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.windows-driver"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.windows-deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi.install"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{single-user-only}} The multi-session product is a separate one: [[cloud-connector.vdi.install]]."
+    },
+    {
+      "label": "Advice for non-persistent Citrix VDIs.",
+      "text": "{{best-practices}} The two install-option rules are also in [[zcc.install.strict-enforcement:citrix-hide-ui]] and [[zcc.install.enrollment:user-domain]]."
+    },
+    {
+      "label": "Where the configuration lives.",
+      "text": "{{vdi-flag}} What else the flag changes is open {{gap:vdi-flag-scope}}. {{config-timeout}} The parameter's unit and default are in [[zcc.install.windows-unattended:config-timeout]]."
+    },
+    {
+      "label": "The filter driver.",
+      "text": "{{install-lwf}} {{lwf-boot-start}} The driver switches themselves are in [[zcc.install.windows-driver]]."
+    },
+    {
+      "label": "The master VM.",
+      "text": "{{master-vm}}"
+    },
+    {
+      "label": "Open points.",
+      "text": "How the revert option, which is not supported for non-persistent VDI ([[zcc.install.revert:scope]]), interacts with these parameters is open {{gap:revert-interaction}}."
+    }
+  ],
+  "claims": {
+    "single-user-only": {
+      "statement": "Client Connector supports only a dedicated, single-user VDI model; for multi-session VDIs, Client Connector for VDI is required. The MSI and EXE install-options pages both say so.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "Zscaler Client Connector only supports a dedicated, single-user virtual desktop infrastructure (VDI) model. For multi-session VDIs, Zscaler Client Connector for VDI is required."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-exe.json",
+          "quotes": [
+            "Zscaler Client Connector only supports a dedicated, single-user virtual desktop infrastructure (VDI) model. For multi-session VDIs, Zscaler Client Connector for VDI is required."
+          ]
+        }
+      ]
+    },
+    "best-practices": {
+      "statement": "For non-persistent Citrix VDIs, Zscaler recommends not logging in to Client Connector on the master VM; the strict enforcement install option requires the hide-app-UI-on-launch option disabled so the app can remind users to enroll before they reach the internet; and the user domain option requires Integrated Windows Authentication (IWA). The MSI and EXE pages say the same with their own option names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "Deploying Zscaler Client Connector with Non-Persistent Citrix VDIs",
+            "Zscaler recommends that you don't log in to Zscaler Client Connector on the master VM.",
+            "To use the STRICTENFORCEMENT install option, you must have the HIDEAPPUIONLAUNCH install option disabled.",
+            "This allows Zscaler Client Connector to remind users to enroll with Zscaler Client Connector before accessing the internet.",
+            "To use the USERDOMAIN install option, you must use Integrated Windows Authentication (IWA)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-exe.json",
+          "quotes": [
+            "Deploying Zscaler Client Connector with Non-Persistent Citrix VDIs",
+            "Zscaler recommends that you don't log in to Zscaler Client Connector on the master VM.",
+            "To use the --strictEnforcement install option, you must have the --hideAppUIOnLaunch install option disabled.",
+            "This allows Zscaler Client Connector to remind users to enroll with Zscaler Client Connector before accessing the internet.",
+            "To use the --userDomain install option, you must use Integrated Windows Authentication (IWA)."
+          ]
+        }
+      ]
+    },
+    "vdi-flag": {
+      "statement": "VDI=1 (EXE --vdi 1) makes Client Connector store its configuration data in the %USERPROFILE%\\AppData\\Roaming\\Zscaler user profile store instead of the default %ProgramData%\\Zscaler, so a profile management tool such as Citrix UPM can roam and restore it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "VDI=1 : Configures the Zscaler Client Connector to store configuration data in the %USERPROFILE%\\AppData\\Roaming\\Zscaler user profile store so it is roamed using a profile management tool instead of the default %ProgramData%\\Zscaler.",
+            "This allows admins to restore Zscaler's configuration as part of users' profiles using tools such as Citrix UPM"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-exe.json",
+          "quotes": [
+            "--vdi 1 : Configures the Zscaler Client Connector to store configuration data in the %USERPROFILE%\\AppData\\Roaming\\Zscaler user profile store"
+          ]
+        }
+      ]
+    },
+    "config-timeout": {
+      "statement": "In environments with roaming profiles such as non-persistent VDIs, CONFIGTIMEOUT=300 makes the app wait the specified interval for its configuration data to be restored when it is not found, because a profile management solution might need extra time to restore it. If the VDI deployment does not use a profile management solution, the MSI and EXE pages say the parameter is not necessary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "CONFIGTIMEOUT=300 : If the Zscaler Client Connector configuration data is not found, Zscaler Client Connector waits for the specified interval for configuration data to be restored.",
+            "In environments with roaming profiles such as non-persistent VDIs, it might take additional time for the profile management solution to restore the Zscaler Client Connector configuration data to the user profile.",
+            "If the VDI deployment does not use a profile management solution, it's not necessary to apply the CONFIGTIMEOUT parameter."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-exe.json",
+          "quotes": [
+            "If the VDI deployment does not use a profile management solution, it's not necessary to apply the --configTimeout parameter."
+          ]
+        }
+      ]
+    },
+    "install-lwf": {
+      "statement": "INSTALLLWFDRIVER=1 (EXE --installLWFDriver 1) installs the lightweight filter driver used for traffic interception during installation. Without it, the MSI page says Client Connector does not install the driver until a forwarding profile configures it during policy download, which might cause network connection disruption and VDI disconnection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "INSTALLLWFDRIVER=1 : Install the lightweight filter driver used for traffic interception during installation of the Zscaler Client Connector.",
+            "Without this parameter, Zscaler Client Connector doesn't install the LWF driver until configured to do so by a forwarding profile during policy download, which might cause network connection disruption and VDI disconnection."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-exe.json",
+          "quotes": [
+            "--installLWFDriver 1 : Install the lightweight filter (LWF) driver used for traffic interception during installation of the Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "lwf-boot-start": {
+      "statement": "LWFBOOTSTART=1 configures the LWF driver to load at system boot instead of the default at system startup, which the MSI page says prevents a blue screen during OS boot where the OS is booted over the network, such as in Citrix Provisioning Services. With Citrix Provisioning Server the option is required (--LWFBootStart in the EXE).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "LWFBOOTSTART=1 : Configures the LWF driver to load at system boot instead of the default at system startup.",
+            "This prevents a blue screen during OS boot in environments where the OS is booted over the network, such as in Citrix Provisioning Services.",
+            "If you are using Citrix Provisioning Server, you must use the LWFBOOTSTART option."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-exe.json",
+          "quotes": [
+            "If you are using Citrix Provisioning Server, you must use the --LWFBootStart option."
+          ]
+        }
+      ]
+    },
+    "master-vm": {
+      "statement": "On the master VM, Citrix UPM is configured to back up and restore {UserProfileFolder}\\AppData\\Roaming\\Zscaler, and the installer runs with the sample parameters msiexec/i ZCC_installer.msi USERDOMAIN=<AD domain> CLOUDNAME=<cloudname> VDI=1 CONFIGTIMEOUT=300 INSTALLLWFDRIVER=1 LWFBOOTSTART=1, or --vdi 1 --configTimeout 300 --installLWFDriver 1 --LWFBootStart 1 for the EXE; the MSI page calls the parameters samples.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "Configure Citrix UPM to backup and restore to the following folder: {UserProfileFolder}\\AppData\\Roaming\\Zscaler",
+            "msiexec/i ZCC_installer.msi USERDOMAIN=<AD domain> CLOUDNAME=<cloudname> VDI=1 CONFIGTIMEOUT=300 INSTALLLWFDRIVER=1 LWFBOOTSTART=1",
+            "The parameters listed earlier are samples for a VDI installation Zscaler Client Connector."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-exe.json",
+          "quotes": [
+            "--vdi 1 --configTimeout 300 --installLWFDriver 1 --LWFBootStart 1"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "vdi-flag-scope": {
+      "kind": "semantic",
+      "title": "Whether VDI=1 changes anything beyond the configuration store",
+      "status": "open",
+      "detail": "The install-options pages say VDI=1 moves the configuration store to the user profile (claim vdi-flag). They do not say whether the flag changes any other Client Connector behavior.",
+      "blocks": "deciding whether a virtual desktop install needs the flag for any reason other than roaming the configuration",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "revert-interaction": {
+      "kind": "semantic",
+      "title": "How the unsupported revert option interacts with the VDI parameters",
+      "status": "open",
+      "detail": "The revert page says the revert option is not supported for non-persistent VDI. The install-options pages for VDI do not mention revert, and neither page says what happens if a revert is attempted on a VDI installed with these parameters.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

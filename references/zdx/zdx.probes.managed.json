@@ -1,0 +1,574 @@
+{
+  "schema_version": 1,
+  "id": "zdx.probes.managed",
+  "title": "Managed Monitoring and Zscaler Managed Probes: where they run, what they chart and their subscription limits",
+  "aliases": [
+    "managed monitoring",
+    "zscaler managed probes",
+    "zscaler managed locations",
+    "managed probe",
+    "managed view",
+    "companion probe",
+    "managed probe errors"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.probes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.cloud-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.collections"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.web-probe-errors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Managed Monitoring is the part of ZDX that runs probes from Zscaler's own cloud rather than from a user's device; the Managed view of the Probes page is in [[zdx.probes]]. {{managed-service}} {{managed-tiers}}"
+    },
+    {
+      "label": "Where a managed probe runs.",
+      "text": "{{managed-locations}} {{managed-locations-data-explorer}}"
+    },
+    {
+      "label": "Before configuring.",
+      "text": "{{managed-prerequisites}} The collections that hold managed applications are in [[zdx.probes.collections]]."
+    },
+    {
+      "label": "Configuring a Web probe.",
+      "text": "{{managed-web-probe}} {{managed-web-options}} {{companion-probe}}"
+    },
+    {
+      "label": "Configuring a Cloud Path probe.",
+      "text": "{{managed-cloud-path-protocol}} {{managed-pmtu-dscp}} {{managed-cloud-path-limits}} Whether the host can resolve to IPv6 is open, see [[zdx.probes.configuration:cloud-path-ipv6]]."
+    },
+    {
+      "label": "Alerts.",
+      "text": "{{managed-alerts}}"
+    },
+    {
+      "label": "Managing probes and collections.",
+      "text": "{{managed-table}} {{managed-collection-status}} Deleting a managed collection is described two ways, see [[zdx.probes.collections:managed-collection-delete]]. {{companion-lifecycle}} Whether a probe can be deleted on its own is described two ways, see [[zdx.probes.collections:probe-deletion]]."
+    },
+    {
+      "label": "Errors.",
+      "text": "The end-user Web probe errors are in [[zdx.probes.web-probe-errors]]. {{web-config-errors}} {{web-no-action}} {{web-support-errors}} {{cloud-path-destination-errors}} {{cloud-path-dns-errors}} {{cloud-path-input-errors}} {{cloud-path-no-action}} {{cloud-path-support-errors}}"
+    },
+    {
+      "label": "What it charts.",
+      "text": "{{managed-charts}} {{managed-availability}} {{managed-run-details}}"
+    },
+    {
+      "label": "Open.",
+      "text": "How Zscaler Managed Probes map to the contract's monitor types and its Zscaler Hosted Monitoring collections is not stated {{gap:managed-monitor-mapping}}."
+    }
+  ],
+  "claims": {
+    "managed-service": {
+      "statement": "Managed Monitoring operates from within the Zscaler cloud infrastructure as a multi-tenant service that groups Web and Cloud Path probes into independent collections; Zscaler Managed Probes, an extension to the probes for predefined and custom applications, monitor a specific service or application directly from a Zscaler data center to an endpoint destination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-managed-monitoring.json",
+          "quotes": [
+            "Managed Monitoring operates from within the Zscaler cloud infrastructure as a multi-tenant service.",
+            "The service allows you to logically group Web and Cloud Path probes into independent collections to set up your own tests for monitoring performance.",
+            "As an extension to ZDX probes for predefined and custom applications, Zscaler Managed Probes monitor the performance of a specific service or application directly from a Zscaler data center to an endpoint destination."
+          ]
+        }
+      ]
+    },
+    "managed-tiers": {
+      "statement": "In the subscription table Managed Monitoring is supported only as an add-on on Standard, Microsoft 365 and Advanced, with identical ranges and limitations across those add-ons, and on Advanced Plus allows 1 probe per 1,000 users for each managed location (columns in the order of the table's header row).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Managed Monitoring* | Supported only as add-on | Supported only as add-on | Supported only as add-on | 1 probe per 1,000 users for each managed location |",
+            "- *Identical ranges and limitations across add-ons for Standard, Microsoft 365, and Advanced subscriptions.",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "managed-locations": {
+      "statement": "A managed probe is run from the Zscaler Managed Locations selected (all selected by default): Zurich, Frankfurt, Amsterdam, Chicago, San Jose, Washington DC, Sydney, Delhi, Mumbai, Chennai, Tokyo, Osaka, Paris, Singapore, London, Atlanta, Dallas, Los Angeles and New York.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-managed-monitoring.json",
+          "quotes": [
+            "Select the Zscaler Managed Locations from the drop-down menu to specify the Zscaler data centers from where the probe is run. All locations are selected by default.",
+            "Zurich, CH",
+            "Frankfurt, DE",
+            "Amsterdam, NE",
+            "Chicago, IL, USA",
+            "San Jose, CA, USA",
+            "Washington, DC, USA",
+            "Sydney, AU",
+            "Delhi, IN",
+            "Mumbai, IN",
+            "Chennai, IN",
+            "Tokyo, JP",
+            "Osaka, JP",
+            "Paris, FR",
+            "Singapore, SG",
+            "London, UK",
+            "Atlanta, GA, USA",
+            "Dallas, TX, USA",
+            "Los Angeles, CA, USA",
+            "New York, NY, USA"
+          ]
+        }
+      ]
+    },
+    "managed-charts": {
+      "statement": "Managed Monitoring charts Availability and Page Fetch Time by default for Web probes and End-to-End Latency for Cloud Path probes; the first chart on the page defaults to the previous 30 days, and its time-range widget runs from 2 to 48 hours, defaulting to 24 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-managed-monitoring.json",
+          "quotes": [
+            "Depending on the probe you've selected, charts are displayed by default for Availability and Page Fetch Time for Web probes, and End-to-End Latency for Cloud Path probes.",
+            "The default time range for the initial chart on the page is the previous 30 days.",
+            "The minimum time range for the widget is 2 hours, and the maximum time range is 48 hours. The default time range of the widget is 24 hours."
+          ]
+        }
+      ]
+    },
+    "managed-availability": {
+      "statement": "Web probe availability is reported month to date (with the change from the previous month), over the past 30 days (with the change from the prior 30 days) and over the widget's time range (with the change from the prior 30 days); in the Page Fetch Time metrics section, each data point in a scatter chart is an individual probe run.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-managed-monitoring.json",
+          "quotes": [
+            "Month To Date (MTD): The average availability from the first day of the month to the current date, along with a percentage increase or decrease from the previous month.",
+            "Past 30 Days: The average availability within the past 30 days, along with a percentage increase or decrease from the prior 30 days.",
+            "Time range from widget: The average availability within your designated time range, along with a percentage increase or decrease from the prior 30 days."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-managed-monitoring.json",
+          "quotes": [
+            "Each data point within a scatter chart represents an individual probe run."
+          ],
+          "after": "## Metrics for Page Fetch Time"
+        }
+      ]
+    },
+    "managed-run-details": {
+      "statement": "A Web probe run's details give, in milliseconds, redirect time, DNS, TCP, SSL handshake, server response time (TTFB) and page fetch time, with a response code (the HTTP informational or success code) per redirected URL; a Cloud Path probe run's details give end-to-end latency, packet loss, maximum hop count and jitter, and, separately, a Cloud Path visualization consolidates all managed locations into one image.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-managed-monitoring.json",
+          "quotes": [
+            "The following key metrics are provided in milliseconds on the Run Details page:",
+            "Redirect Time: The time measurement of traffic redirects.",
+            "DNS: The resolution time for the DNS name.",
+            "TCP: The time measurement of the Transmission Control Protocol.",
+            "SSL Handshake: The communication time to the device.",
+            "Page Fetch Time: The time it takes the application to load a page for the user.",
+            "Server Response Time: The Time to First Byte (TTFB).",
+            "Server redirect information is also provided per URL:",
+            "Response Code: The HTTP informational or success code.",
+            "End-to-End Latency: The time to send a data packet from source to destination, including hops between legs in the Cloud Path.",
+            "Packet Loss: When data packets that travel across a network fail to reach their destination.",
+            "Max Hop Count: The maximum number of Cloud Path hops before reaching the destination.",
+            "Jitter: The variance in time delay between data packets over a network.",
+            "This visualization consolidates all managed locations into one image."
+          ]
+        }
+      ]
+    },
+    "managed-locations-data-explorer": {
+      "statement": "Data Explorer names the Zscaler Managed Locations with city and country codes, for example Zscaler-Amsterdam-NE, Zscaler-Frankfurt-DE, Zscaler-San Jose-CA-US and Zscaler-Zurich-CH.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-data-explorer-views.json",
+          "quotes": [
+            "Zscaler-Amsterdam-NE",
+            "Zscaler-Frankfurt-DE",
+            "Zscaler-San Jose-CA-US",
+            "Zscaler-Zurich-CH",
+            "List of Zscaler Managed Locations"
+          ]
+        }
+      ]
+    },
+    "managed-prerequisites": {
+      "statement": "Before configuring Zscaler Managed probes the ZDX subscription level must support Managed Monitoring, the ZDX role must have the proper permission level, and an application must be configured and associated with a collection; Zscaler Managed probes and companion probes count towards the Managed Monitoring probes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zscaler-managed-probes.json",
+          "quotes": [
+            "Your ZDX subscription level supports Managed Monitoring.",
+            "Zscaler Managed probes and companion probes count towards your Managed Monitoring probes.",
+            "Your ZDX role has the proper permission level.",
+            "You have configured an application and associated it to a collection."
+          ]
+        }
+      ]
+    },
+    "managed-web-probe": {
+      "statement": "A Managed Web probe's destination is an HTTP or HTTPS URL or an IP address (IPv4 or IPv6); it is enabled by default, selects Informational (100-199) and Successful (200-299) responses by default, has a default timeout of 60 seconds and a default of 5 maximum redirects (Maximum Redirects is also disabled if Follow Redirect is), and runs from the Zscaler data centers chosen as Zscaler Managed Locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zscaler-managed-probes.json",
+          "quotes": [
+            "Destination URL or IP address (IPv4 or IPv6): Enter the web destination (HTTP or HTTPS URL) or an IP address.",
+            "HTTP Response Status Code: By default, Informational responses (100–199) and Successful responses (200–299) are selected.",
+            "Timeout (seconds): The default timeout is set to 60 seconds.",
+            "Maximum Redirects: Enter the number of times the probe attempts to follow the HTTP redirect before it is considered failed. The default is 5 redirects. If Follow Redirect is disabled, Maximum Redirects is also disabled.",
+            "Zscaler Managed Locations: From the drop-down menu, select the Zscaler data centers from where the probe is running."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zscaler-managed-probes.json",
+          "quotes": [
+            "Status: Select Enable or Disable. Enable is selected by default."
+          ],
+          "after": "a. Web Probe"
+        }
+      ]
+    },
+    "managed-web-options": {
+      "statement": "A Managed Web probe's additional options include the default HTTP version, an Override DNS setting (disabled by default) that lets the DNS Server or DNS Resolution be overridden when enabled, and Cache DNS Results (disabled by default).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zscaler-managed-probes.json",
+          "quotes": [
+            "Default HTTP Version: Select the version of HTTP that is used.",
+            "Override DNS: Select Enable to alter DNS settings. Disable is the default setting.",
+            "Override: If Override DNS is set to Enable, you can select to override the DNS Server or DNS Resolution.",
+            "Cache DNS Results: Enable to cache the DNS results. Disable is the default setting."
+          ]
+        }
+      ]
+    },
+    "companion-probe": {
+      "statement": "A Managed Web probe can be paired with an optional companion Cloud Path probe, which is enabled by default; when the Web probe resolves to an IP address the Cloud Path probe runs to the same IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zscaler-managed-probes.json",
+          "quotes": [
+            "Pair the Web probe with a Cloud Path probe.",
+            "When the Web probe resolves to an IP address, then the Cloud Path probe runs to the same IP address.",
+            "Status: Enable the companion probe for use. Enable is selected by default."
+          ]
+        }
+      ]
+    },
+    "managed-cloud-path-protocol": {
+      "statement": "A Managed Web probe's companion Cloud Path probe has its protocol chosen from a drop-down menu (for example ICMP, TCP) and defaults to TCP; its end-to-end metrics probing options depend on the protocol: under For TCP Protocol they include Prefer SACK, Force SACK and Force SYN, and under For ICMP Protocol they include ICMP; with TCP selected the Probing Type defaults to SYN, the other quoted method being SACK.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zscaler-managed-probes.json",
+          "quotes": [
+            "Pair the Web probe with a Cloud Path probe. Companion probe supports Cloud Path probe configuration by entering the following fields:",
+            "Protocol: Select the protocol from the drop-down menu (e.g., ICMP, TCP). The default is TCP.",
+            "For TCP Protocol:",
+            "For ICMP Protocol:",
+            "Prefer SACK: Uses TCP Selective Acknowledgment (SACK) to measure retransmission efficiency, ideal for lossy or high-latency networks.",
+            "Force SACK: Forces SACK probing, even if the destination does not explicitly advertise support.",
+            "Force SYN: Sends SYN packets for lightweight, connectionless probing.",
+            "ICMP: Measures network performance using Internet Control Message Protocol (ICMP) probes.",
+            "Probing Type (TCP Only): Specify the method for running Cloud Path probes when TCP is selected. The default setting is SYN.",
+            "SACK: Uses TCP SACK for connection-based path discovery and network diagnostics."
+          ],
+          "after": "c. (Optional) Companion Probe"
+        }
+      ]
+    },
+    "managed-pmtu-dscp": {
+      "statement": "A Managed Web probe's companion Cloud Path probe can capture Path Maximum Transmission Unit (PMTU) discovery to detect packet size-related issues along the network path, and offers the DSCP choices Best Effort (DSCP 0, default traffic prioritization), CS1-CS7, AF11-AF43, EF PHB (DSCP 46) and Voice Admit (DSCP 44).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zscaler-managed-probes.json",
+          "quotes": [
+            "Pair the Web probe with a Cloud Path probe. Companion probe supports Cloud Path probe configuration by entering the following fields:",
+            "Capture PMTU: Enable or disable Path Maximum Transmission Unit (PMTU) discovery to detect packet size-related issues along the network path.",
+            "Best Effort (DSCP 0): Default traffic prioritization.",
+            "CS1–CS7: Levels indicating progressively higher priority.",
+            "AF11–AF43: Assured forwarding classifications to manage packet drop precedence.",
+            "EF PHB (DSCP 46): Best for expedited forwarding and high-priority traffic management.",
+            "Voice Admit (DSCP 44): Specialized configuration for voice traffic prioritization."
+          ],
+          "after": "c. (Optional) Companion Probe"
+        }
+      ]
+    },
+    "managed-cloud-path-limits": {
+      "statement": "A Managed Cloud Path probe's Hop Count defaults to 30 (minimum 10, maximum 64) and a probe run fails if the hop count exceeds it; its Packet Count defaults to 3 (minimum 1, maximum 11) and its Timeout (ms) to 500 (minimum 500, maximum 2000); the Host is the host IP address or fully qualified domain name, given as the IPv4 address with IPv6 not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zscaler-managed-probes.json",
+          "quotes": [
+            "Hop Count: Enter the maximum number of Cloud Path hops allowed before reaching the destination. If the hop count exceeds this setting, the probe run has failed. The default setting is 30 hops, the maximum setting is 64, and the minimum setting is 10.",
+            "Packet Count: Enter the number of probe packets to send per hop discovery that have the same Time to Live (TTL) value. The default setting is 3 packets, the maximum setting is 11 packets, and the minimum setting is 1 packet.",
+            "Timeout (ms): Enter the time to wait for a response to a probe packet before considering loss. The default is 500, the maximum is 2000, and the minimum is 500."
+          ],
+          "after": "a. Cloud Path Probe"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zscaler-managed-probes.json",
+          "quotes": [
+            "Host: Enter the host IP address or fully qualified domain name for the host (i.e., the IPv4 IP address, as IPv6 is not supported)."
+          ]
+        }
+      ]
+    },
+    "managed-alerts": {
+      "statement": "A managed probe can take alert templates, either a new one created with Create New Template or an existing one with predefined criteria whose High, Medium or Low severity is shown by color; templates can also be added or edited directly from the probe collection table, whose Alert Rules column is the number of alert templates associated with the probe.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-zscaler-managed-probes.json",
+          "quotes": [
+            "Click Create New Template to add a new alert template or select an existing alert with predefined criteria. Each existing template is noted with a color for High, Medium, or Low alert severity."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zscaler-managed-probes.json",
+          "quotes": [
+            "Alert Rules: The number of alert templates associated with the probe.",
+            "You can add or edit templates for alert rules directly from the probe collection table."
+          ]
+        }
+      ]
+    },
+    "managed-table": {
+      "statement": "The managed probe table gives the number of Zscaler managed locations a probe runs from (Locations), its status (Enabled or Disabled, an enabled probe being an active probe), the method for Web probes or the protocol for Cloud Path probes, and how often the probe is run (Frequency).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zscaler-managed-probes.json",
+          "quotes": [
+            "Locations: The number of Zscaler managed locations from where the probe is run.",
+            "Status: The probe is currently either Enabled or Disabled. If the probe is Enabled, then it is an active probe.",
+            "Protocol/Methods: The method for Web probes or the protocol for Cloud Path probes.",
+            "Frequency: The time interval for how often the probe is run."
+          ]
+        }
+      ]
+    },
+    "managed-collection-status": {
+      "statement": "Per Managing Zscaler Managed Probes, a collection can be enabled for active use or disabled for later use and to manage the amount of active Zscaler Managed probes, disabling a collection disables all probes within it, and deleting a collection deletes all probes and associated companion probes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zscaler-managed-probes.json",
+          "quotes": [
+            "You can enable a collection for active use or disable a collection if you want to use it later and to manage the amount of active Zscaler Managed probes.",
+            "When disabling a collection, you disable all probes within the collection.",
+            "If you delete a collection, then all probes and associated companion probes are deleted."
+          ]
+        }
+      ]
+    },
+    "companion-lifecycle": {
+      "statement": "Disabling a probe also disables its companion probe; a companion probe cannot be enabled while the parent probe is disabled, and enabling the parent does not enable the companion immediately, as its status must be enabled in the Edit Probe - Companion Probe configuration; deleting a probe with a companion probe deletes the companion too, and a companion cannot be selectively deleted but can be disabled so that it does not count towards active probes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zscaler-managed-probes.json",
+          "quotes": [
+            "When you disable a probe, then the companion probe is also disabled.",
+            "You cannot enable a companion probe while the parent probe is disabled.",
+            "When you enable the parent probe, the companion probe is not enabled immediately as you must enable its status in the Edit Probe - Companion Probe configuration.",
+            "If you delete a probe with a companion probe, then the companion probe is also deleted.",
+            "You cannot selectively delete a companion probe, but you can disable it so that it does not count towards your active probes."
+          ]
+        }
+      ]
+    },
+    "web-config-errors": {
+      "statement": "Zscaler Managed Web probe errors with a configuration fix: incorrect configuration (review and validate the configuration), invalid destination URL (check it is correct), maximum redirects reached (increase the maximum amount of redirects) and request timed out (increase the maximum allowed timeout).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zscaler-managed-probe-errors.json",
+          "quotes": [
+            "| Web probe has incorrect configuration | The Web probe contains an incorrect configuration. | Review and validate the Web probe's configuration. |",
+            "| Invalid Web probe Destination URL | The Web probe contains an invalid destination URL. | Check that your destination URL for the Web probe is correct. |",
+            "| Web probe has met the maximum redirects | The Web probe reached the maximum amount of redirects. | Increase the maximum amount of redirects. |",
+            "| Web probe request timed out | The Web probe has timed out. | Increase the maximum allowed timeout. |"
+          ]
+        }
+      ]
+    },
+    "web-no-action": {
+      "statement": "The managed error 'Not within the HTTP response code range', where the Web probe reached an error code that does not exist within the HTTP response code range, calls for no action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zscaler-managed-probe-errors.json",
+          "quotes": [
+            "| Not within the HTTP response code range | The Web probe has reached an error code that does not exist within the HTTP response code range. | No action required. |"
+          ]
+        }
+      ]
+    },
+    "web-support-errors": {
+      "statement": "These Zscaler Managed Web probe errors call for reporting to Zscaler Support: insufficient memory, invalid location, a system error while processing analytics and an unknown internal error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zscaler-managed-probe-errors.json",
+          "quotes": [
+            "The following table provides a list of possible Web probe error messages, including a description of the error and the recommended action.",
+            "| Web probe has insufficient memory | The Web probe ran out of memory. | Report the error to Zscaler Support. |",
+            "| Invalid location | The Web probe has an invalid location. | Report the error to Zscaler Support. |",
+            "| System error while processing analytics | There is a system error where data could not be gathered for analytics. | Report the error to Zscaler Support. |",
+            "| Internal error | There is an unknown internal error with the Web probe. | Report the error to Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "cloud-path-destination-errors": {
+      "statement": "Managed Cloud Path errors about the destination: cannot connect to the host (review the probe configuration for a valid DNS name or IP address, then report to Zscaler Support if it persists), probe did not reach the destination (check the destination IP or domain is valid), destination unresponsive (review the timeout), destination for the Binary Search unresponsive (review the maximum hops), cannot read socket due to timeout (review the timeout field) and TCP maximum retries reached (review the probe timeout configuration).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zscaler-managed-probe-errors.json",
+          "quotes": [
+            "The following table provides a list of possible Cloud Path probe error messages, including a description of the error and the recommended action.",
+            "| Cannot connect to the host | The probe is unable to connect to the host. | Review probe configuration for a valid DNS name or IP address. If the error persists, report the error to Zscaler Support. |",
+            "| Cloud Path probe did not reach destination. | The Cloud Path probe is unable to reach the destination. | Check if the destination IP or domain is valid. |",
+            "| Destination server of the Cloud Path probe is unresponsive. | The destination server of the probe is unresponsive causing a timeout. | Review the timeout for the destination server. |",
+            "| Destination server for the Binary Search of the Cloud Path probe is unresponsive. | The destination server of the probe is unresponsive. | Review the number of maximum hops for the probe destination. |",
+            "| Cannot read socket due to timeout | Aborted probe due to no destination response in the allotted timeout. | Review timeout field in probe configuration. |",
+            "| TCP Cloud Path probe reached maximum retries. | Reached maximum number of packet retries within the received timeout. | Review probe timeout configuration. |"
+          ]
+        }
+      ]
+    },
+    "cloud-path-dns-errors": {
+      "statement": "Managed Cloud Path DNS errors: error resolving domain and non-existent domain (verify the DNS name for the probe destination), empty DNS response (verify the domain name is valid), DNS request timed out while waiting for a reply (report to Zscaler Support) and failed DNS response, an internal error (report to Zscaler Support).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zscaler-managed-probe-errors.json",
+          "quotes": [
+            "The following table provides a list of possible Cloud Path probe error messages, including a description of the error and the recommended action.",
+            "| Error resolving domain | There was an issue resolving the domain name. | Verify the DNS name for probe destination. |",
+            "| Non-existent domain | The DNS name is not resolvable. | Verify the DNS name for probe destination. |",
+            "| Empty DNS response | There was no response from the DNS server with the provided IPs. | Verify if the domain name is valid. |",
+            "| DNS request timed out while waiting for a reply. | There was an issue with the DNS server response to the DNS request. | Report the error to Zscaler Support. |",
+            "| Failed DNS response | The Cloud Path probe aborted due to an internal error and cannot read/write DNS packets to/from the probe. | Report the error to Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "cloud-path-input-errors": {
+      "statement": "Managed Cloud Path input errors: network protocol not supported (provide a supported one), protocol not supported because one other than TCP or ICMP was provided (provide TCP or ICMP), invalid IP address (check it) and a resolved IP address type that does not match the requested type (report to Zscaler Support).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zscaler-managed-probe-errors.json",
+          "quotes": [
+            "The following table provides a list of possible Cloud Path probe error messages, including a description of the error and the recommended action.",
+            "| Network protocol not supported | Network protocol is not supported. | Provide a supported network protocol. |",
+            "| Protocol not supported | A protocol other than TCP or ICMP was provided and is not supported. | Provide a TCP or ICMP as the protocol. |",
+            "| Invalid IP address | Invalid IP address was provided. | Check your IP address for validity. |",
+            "| Resolved IP address type does not match the requested type | The provided IP address does not match the requested type (IP or IPv6). | Report the error to Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "cloud-path-no-action": {
+      "statement": "Two managed Cloud Path errors call for no action, TCP SYN packet received unexpectedly and an internal error that aborted the probe; the message Internal error on a Web probe instead calls for reporting to Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zscaler-managed-probe-errors.json",
+          "quotes": [
+            "The following table provides a list of possible Cloud Path probe error messages, including a description of the error and the recommended action.",
+            "| TCP SYN packet received unexpectedly | Unexpected SYN packet sent. | No action required. |",
+            "| Internal error | Aborted probe due to an unexpected internal error. | No action required. |",
+            "| Internal error | There is an unknown internal error with the Web probe. | Report the error to Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "cloud-path-support-errors": {
+      "statement": "These managed Cloud Path errors call for reporting to Zscaler Support: an error processing a timeout event, insufficient memory, a Cloud Path probe already in progress for the device, reaching maximum capacity for the hash table, being unable to create a socket handle, being unable to retrieve a socket address, and receiving an unexpected ICMP TIME EXCEEDED or ICMP DST UNREACHABLE message.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zscaler-managed-probe-errors.json",
+          "quotes": [
+            "| Error processing a timeout event | The Cloud Path probe timed out while waiting for a response. | Report the error to Zscaler Support. |",
+            "| Cloud Path probe has insufficient memory | The Cloud Path probe has exceeded the memory limit for the connection. | Report the error to Zscaler Support. |",
+            "| Cloud Path probe is currently in progress. | A Cloud Path probe is already in progress for the device. | Report the error to Zscaler Support. |",
+            "| Reached maximum capacity for hash table | Cannot create more as limitation has been reached. | Report the error to Zscaler Support. |",
+            "| Unable to create socket handle | Aborted Cloud Path probe due to a system error possibly related to limited system resources. | Report the error to Zscaler Support. |",
+            "| Cannot retrieve socket address | Aborted probe due to system error related to no availability of network interfaces. | Report the error to Zscaler Support. |",
+            "| Received unexpected ICMP TIME EXCEEDED message. | Aborted probe due to an unexpected packet. | Report the error to Zscaler Support. |",
+            "| Received unexpected ICMP DST UNREACHABLE message. | Aborted probe due to an unexpected packet. | Report the error to Zscaler Support. |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "managed-monitor-mapping": {
+      "kind": "semantic",
+      "title": "How Zscaler Managed Probes map to the contract's monitor types and Zscaler Hosted Monitoring collections",
+      "status": "open",
+      "detail": "The help says Managed Monitoring groups Web and Cloud Path probes into collections and runs them from Zscaler data centers. The contract has collections for Zscaler Hosted Monitoring and End User Monitoring and four monitor types (WEB, TRACERT, TRACERT_V2, HIFI_MTR); no captured source says whether a Zscaler Managed Probe is a Zscaler Hosted Monitoring collection or which monitor types it uses. The articles on configuring and managing Zscaler Managed Probes and the managed probe error table (zdx-configuring-zscaler-managed-probes.json, zdx-managing-zscaler-managed-probes.json, zdx-zscaler-managed-probe-errors.json) are now read for this subject's claims; the extraction found no statement in them that names the contract's monitor types or its Zscaler Hosted Monitoring collections.",
+      "blocks": "answers about which API monitor type or collection a managed probe is",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

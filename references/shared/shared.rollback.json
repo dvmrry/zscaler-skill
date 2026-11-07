@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "id": "shared.rollback",
+  "title": "Reverting a change, product by product: what a write does, how to undo it, and what cannot be undone",
+  "aliases": [
+    "rollback",
+    "revert a change",
+    "undo a zscaler change",
+    "reversibility",
+    "can i roll back",
+    "safe change",
+    "change reversibility"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.write-practices"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.troubleshooting"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Reversibility depends on the product. ZIA stages writes until they are activated [[zia.api.activation:saved-not-live]], and the captured specifications show no activation call for the other products [[shared.activation:no-other-gate]]."
+    },
+    {
+      "heading": "Per product"
+    },
+    {
+      "table": {
+        "columns": [
+          "Product",
+          "What a write does",
+          "How to revert"
+        ],
+        "rows": [
+          [
+            "ZIA",
+            "Staged until activated [[zia.api.activation:saved-not-live]]. A session end activates pending changes [[zia.terraform.activation-methods:session-end-autoactivation]].",
+            "Re-write the original values before the session ends. Once activated, a change cannot be reverted [[shared.oneapi.write-practices:activation-zia-cbc]]."
+          ],
+          [
+            "Cloud & Branch Connector",
+            "Staged until activated, and a forced activation route exists [[cloud-connector.api.activation-wire:python-force-flag]].",
+            "Revert staged changes as for ZIA. What forced activation does beyond a normal activation is open [[cloud-connector.api.activation-wire:force-semantics]]."
+          ],
+          [
+            "ZPA",
+            "No activation call in the captured specifications. Whether a write is live at once is open [[zpa.api.activation:write-takes-effect]].",
+            "Snapshot the resource and re-write the snapshot [[shared.oneapi.write-practices:fetch-before-update]]."
+          ],
+          [
+            "Client Connector",
+            "App profile changes download on logout or restart [[zcc.app-profiles.propagation:download-on-relogin]].",
+            "Re-write the profile. Forwarding profile and trusted network timing is open {{gap:checkin-timing}}."
+          ],
+          [
+            "ZIdentity",
+            "No activation call in the captured specifications [[shared.activation:no-other-gate]].",
+            "Snapshot first. A deleted API client cannot be recovered [[zidentity.api-clients:delete-unrecoverable]]."
+          ],
+          [
+            "Workflow Automation (ZWA)",
+            "Config changes apply to the next DLP incident. In-flight incidents keep their workflow {{gap:zwa-workflow-timing}}.",
+            "Snapshot the configuration before a change."
+          ],
+          [
+            "AI Guard",
+            "Configuration resources are reached through OneAPI [[ai-security.ai-guard.admin-api:python-oneapi]].",
+            "The captured action routes are enable, disable and referential-check [[ai-security.ai-guard.admin-api:colon-action-routes]]. Whether the live API accepts them is open [[ai-security.ai-guard.admin-api:live-acceptance]]."
+          ],
+          [
+            "Risk360, ZMS and Deception",
+            "Risk360 has no client surface [[risk360.overview:no-client-surface]], and the ZMS API is read-only [[zms.api:clients-read-only]]. Deception {{gap:deception-rollback}}.",
+            "No verified SDK or Terraform rollback path. Use the product's own reference boundary."
+          ]
+        ]
+      }
+    },
+    {
+      "text": "The Python client attribute client.zbi is Business Insights, not Zero Trust Browser [[shared.terminology.product-names:zbi-is-business-insights]]."
+    },
+    {
+      "heading": "What cannot be undone"
+    },
+    {
+      "items": [
+        {
+          "text": "A provisioning key at maximum usage cannot deploy more connectors, though its maximum can be edited [[zpa.app-connectors.provisioning-keys:exhausted-key-blocks-deploy]]."
+        },
+        {
+          "text": "Enrollment certificate validity and renewal are open [[zpa.app-connectors.enrollment:certificate-validity-window]]."
+        },
+        {
+          "text": "Whether a deleted resource can be restored is open {{gap:deleted-recreated-id}}."
+        },
+        {
+          "text": "Whether streamed LSS logs can be recovered from Zscaler is open {{gap:lss-streamed-logs}}."
+        },
+        {
+          "text": "Whether blocked DLP content is delivered when its rule is reverted is open {{gap:dlp-blocked-content}}."
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before a risky ZIA change, read the current objects and keep them: a revert is a re-write of the original values before the session ends.",
+      "uses": [
+        "zia.api.activation:saved-not-live",
+        "zia.terraform.activation-methods:session-end-autoactivation",
+        "shared.oneapi.write-practices:fetch-before-update"
+      ]
+    },
+    {
+      "do": "Start a ZIA change only when the activation status reads ACTIVE.",
+      "uses": [
+        "zia.api.activation:status-values"
+      ]
+    },
+    {
+      "do": "Re-read a staged value before activating. If it is wrong, re-write the original, because a change cannot be reverted once activated.",
+      "uses": [
+        "zia.api.activation:saved-not-live",
+        "shared.oneapi.write-practices:activation-zia-cbc"
+      ]
+    },
+    {
+      "do": "Stage related changes together and activate them as one step, because a queued activation waits on other admins' changes.",
+      "uses": [
+        "zia.terraform.activation-methods:activation-queues",
+        "shared.oneapi.write-practices:activation-zia-cbc"
+      ]
+    },
+    {
+      "do": "Assume another admin or automation can activate your staged revert. Whether activation is per admin is open.",
+      "uses": [
+        "zia.api.activation:any-admin-activates",
+        "zia.terraform.activation:activation-scope"
+      ]
+    },
+    {
+      "do": "Do not rely on discarding pending ZIA changes. Whether an API can do that without activating is open.",
+      "uses": [
+        "zia.api.activation:no-drop-pending"
+      ]
+    },
+    {
+      "do": "After activation, a counter-change can be staged and activated, but it does not undo the period in which the first change was live.",
+      "uses": [
+        "shared.oneapi.write-practices:activation-zia-cbc"
+      ]
+    },
+    {
+      "do": "For ZPA, snapshot the segment before the change and re-write the snapshot to revert. Whether a write is live at once is open, so treat the window as live.",
+      "uses": [
+        "zpa.api.activation:write-takes-effect",
+        "shared.oneapi.write-practices:fetch-before-update"
+      ]
+    },
+    {
+      "do": "When restoring a ZPA application segment, pass its port forms and omit clientless_app_ids for a standard segment. An update clears any port form not passed.",
+      "uses": [
+        "zpa.app-segments.sdk-behavior:python-update-clears-port-forms",
+        "zpa.app-segments.sdk-behavior:python-clientless-key-presence"
+      ]
+    },
+    {
+      "do": "For ZIdentity, snapshot the API client before a change. A deleted API client cannot be recovered.",
+      "uses": [
+        "zidentity.api-clients:delete-unrecoverable"
+      ]
+    },
+    {
+      "do": "For Client Connector app profiles, expect a change on the device at logout or restart. The timing for forwarding profiles and trusted networks is open.",
+      "uses": [
+        "zcc.app-profiles.propagation:download-on-relogin",
+        "checkin-timing"
+      ]
+    },
+    {
+      "do": "For AI Guard, validate the enable and disable routes on the tenant before relying on them for rollback. The live API is not captured.",
+      "uses": [
+        "ai-security.ai-guard.admin-api:colon-action-routes",
+        "ai-security.ai-guard.admin-api:live-acceptance"
+      ]
+    },
+    {
+      "do": "Do not treat Cloud & Branch Connector forced activation as a rollback: what it does beyond a normal activation is open.",
+      "uses": [
+        "cloud-connector.api.activation-wire:force-semantics"
+      ]
+    },
+    {
+      "do": "Do not assume a deleted resource can be restored. Recreating it gives a new ID, so references to the old ID need rewiring.",
+      "uses": [
+        "deleted-recreated-id"
+      ]
+    },
+    {
+      "do": "Do not expect a provisioning key at maximum usage to deploy more connectors. Its maximum can be edited.",
+      "uses": [
+        "zpa.app-connectors.provisioning-keys:exhausted-key-blocks-deploy"
+      ]
+    },
+    {
+      "do": "Plan enrollment certificate renewal from the captured validity window, which is open.",
+      "uses": [
+        "zpa.app-connectors.enrollment:certificate-validity-window"
+      ]
+    },
+    {
+      "do": "Treat streamed LSS logs and DLP-blocked content as unrecoverable until a source says otherwise.",
+      "uses": [
+        "lss-streamed-logs",
+        "dlp-blocked-content"
+      ]
+    },
+    {
+      "do": "Schedule a risky ZPA change for a maintenance window, since the write may take effect at once.",
+      "uses": [
+        "zpa.api.activation:write-takes-effect"
+      ]
+    },
+    {
+      "do": "For Risk360, ZMS and Deception, use the product's own reference boundary: there is no verified SDK or Terraform rollback path.",
+      "uses": [
+        "risk360.overview:no-client-surface",
+        "zms.api:clients-read-only",
+        "deception-rollback"
+      ]
+    }
+  ],
+  "claims": {},
+  "gaps": {
+    "checkin-timing": {
+      "kind": "semantic",
+      "title": "When Client Connector forwarding-profile and trusted-network changes reach a device",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Forwarding Profile and Trusted Network changes apply when the agent next checks in.' The captured help covers app-profile downloads on logout or restart (zcc.app-profiles.propagation:download-on-relogin) and a check-in for a modified app profile, not these two settings.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "zwa-workflow-timing": {
+      "kind": "semantic",
+      "title": "When a ZWA workflow change applies to incidents in flight",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'ZWA config changes apply to the next DLP incident; in-flight incidents continue with their original workflow.' No captured ZWA source states this.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "deleted-recreated-id": {
+      "kind": "semantic",
+      "title": "Whether a deleted resource can be restored",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'A deleted resource cannot be restored; recreating it gives a new resource ID, so references to the old ID need manual rewiring.' Only API clients and their secrets are captured as unrecoverable (zidentity.api-clients:delete-unrecoverable); no captured source covers ZPA, ZIA or ZCC deletions.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "lss-streamed-logs": {
+      "kind": "semantic",
+      "title": "Whether streamed LSS logs can be recovered from Zscaler",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Once LSS log data is streamed it is gone: the receiving SIEM has it, and Zscaler keeps no duplicate.' No captured source addresses retention of streamed log copies.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "dlp-blocked-content": {
+      "kind": "semantic",
+      "title": "Whether blocked DLP content is delivered when its rule is reverted",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'DLP-blocked content did not reach its destination, and reverting the rule does not deliver it.' No captured source states this consequence.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "deception-rollback": {
+      "kind": "semantic",
+      "title": "Whether Deception has a configuration rollback path",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Deception, Risk360, AI Security beyond AI Guard and ZMS have no verified SDK or Terraform configuration rollback path.' Risk360 is covered by risk360.overview:no-client-surface and ZMS by zms.api:clients-read-only. Deception and the rest of AI Security have no captured claim.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

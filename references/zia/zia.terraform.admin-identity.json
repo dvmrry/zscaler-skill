@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.admin-identity",
+  "title": "Terraform admin roles, admin users and local users in ZIA",
+  "aliases": [
+    "zia_admin_roles",
+    "zia_admin_users",
+    "zia_user_management",
+    "role_type PUBLIC_API",
+    "role_type cannot be changed",
+    "admin rank terraform",
+    "user management perpetual drift",
+    "admin password drift"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The provider manages ZIA administrator roles, administrator accounts and local users as separate resources, and several of their attributes are validated or refreshed in ways the schema alone does not show. Role type, rank and password handling are the places a plan most often surprises an operator."
+    },
+    {
+      "label": "Admin roles.",
+      "text": "{{role-type-values}} {{issue-572-validator-rejects-public-api}} Which release changed the validator is open {{gap:issue-572-open-though-validator-accepts}}. {{role-type-immutable}} {{sdwan-role-constraints}}"
+    },
+    {
+      "label": "Rank.",
+      "text": "{{rank-unvalidated}} The documented range and direction of rank are in [[zia.dlp.rules]]. Whether the values are the same in every tenant is open {{gap:rank-values-fixed}}."
+    },
+    {
+      "label": "Admin passwords.",
+      "text": "{{admin-password-not-returned}}"
+    },
+    {
+      "label": "Local users.",
+      "text": "{{user-read-sets-no-password}} {{user-read-from-list}} {{user-email-unique}} The enrollment of authentication methods is covered in [[zia.terraform.multi-step-writes]], and the first-role-only expansion of admin users in [[zia.terraform.field-fidelity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a plan that changes `role_type` on an existing admin role failed on the immutability check, which needs a destroy and recreate.",
+      "uses": [
+        "role-type-immutable"
+      ]
+    },
+    {
+      "do": "Whether an SDWAN role sets `policy_access` to READ_WRITE and `alerting_access` to NONE before suspecting the API.",
+      "uses": [
+        "sdwan-role-constraints"
+      ]
+    },
+    {
+      "do": "Whether an imported API-only role declares `role_type = \"PUBLIC_API\"` directly rather than ignoring the attribute.",
+      "uses": [
+        "role-type-values"
+      ]
+    },
+    {
+      "do": "Whether a user plan that shows name or email drift on a Zidentity-migrated tenant runs a provider older than v4.7.24.",
+      "uses": [
+        "user-read-from-list"
+      ]
+    },
+    {
+      "do": "Whether a password or auth-method difference is expected, since neither is refreshed from ZIA on read.",
+      "uses": [
+        "admin-password-not-returned",
+        "user-read-sets-no-password"
+      ]
+    }
+  ],
+  "claims": {
+    "role-type-values": {
+      "statement": "The `role_type` validator on `zia_admin_roles` accepts ORG_ADMIN, EXEC_INSIGHT, EXEC_INSIGHT_AND_ORG_ADMIN, SDWAN and PUBLIC_API, so a role can declare PUBLIC_API in HCL without failing validation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_admin_roles.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "\"EXEC_INSIGHT_AND_ORG_ADMIN\",",
+            "\"PUBLIC_API\",",
+            "\"role_type\": { Type: schema.TypeString, Optional: true, Description: \"The admin role type. ()This attribute is subject to change.)\", ValidateFunc: validation.StringInSlice([]string{ \"ORG_ADMIN\", \"EXEC_INSIGHT\", \"EXEC_INSIGHT_AND_ORG_ADMIN\", \"SDWAN\", \"PUBLIC_API\", }, false),"
+          ]
+        }
+      ]
+    },
+    "role-type-immutable": {
+      "statement": "A plan-time check rejects any change to `role_type` once the `zia_admin_roles` resource has an ID, with the error \"the role_type cannot be changed once the resource is created\"; so a role's type cannot be changed in place.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_admin_roles.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "CustomizeDiff: adminRolesCustomizeDiff,",
+            "// CustomizeDiff function enforces your special validations at plan-time",
+            "if d.Id() != \"\" && d.HasChange(\"role_type\") { old, new := d.GetChange(\"role_type\") if old != new { return fmt.Errorf(\"the role_type cannot be changed once the resource is created. old=%v new=%v\", old, new)"
+          ]
+        }
+      ]
+    },
+    "sdwan-role-constraints": {
+      "statement": "When `role_type` is SDWAN, the same plan-time check requires `policy_access` to be READ_WRITE and `alerting_access` to be NONE, and fails the plan otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_admin_roles.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// CustomizeDiff function enforces your special validations at plan-time",
+            "func adminRolesCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {",
+            "roleType := d.Get(\"role_type\").(string) if roleType == \"SDWAN\" { if d.Get(\"policy_access\").(string) != \"READ_WRITE\" {",
+            "for SDWAN roles, policy_access must be READ_WRITE",
+            "if d.Get(\"alerting_access\").(string) != \"NONE\" {",
+            "for SDWAN roles, alerting_access must be NONE"
+          ]
+        }
+      ]
+    },
+    "rank-unvalidated": {
+      "statement": "The `rank` attribute of `zia_admin_roles` is an optional integer with no range validator in the schema; its description gives 7 as the default and lowest rank and says it applies only when admin rank is enabled in Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_admin_roles.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "\"rank\": { Type: schema.TypeInt, Optional: true, Description: \"Admin rank of this admin role. This is applicable only when admin rank is enabled in the advanced settings. Default value is 7 (the lowest rank).",
+            "Default value is 7 (the lowest rank). The assigned admin rank determines the roles or admin users this user can manage, and which rule orders this admin can access.\", }, \"policy_access\": {"
+          ]
+        }
+      ]
+    },
+    "admin-password-not-returned": {
+      "statement": "The `zia_admin_users` password is sensitive, is mandatory for creation when admin single sign-on is disabled, and the schema says the API does not provide it in a GET response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_admin_users.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "If admin single sign-on (SSO) is disabled, then this field is mandatory for POST requests.",
+            "This information is not provided in a GET response.",
+            "\"password\": { Type: schema.TypeString, Description: \"The admin's password.",
+            "This information is not provided in a GET response.\", Optional: true, Sensitive: true,"
+          ]
+        }
+      ]
+    },
+    "user-read-sets-no-password": {
+      "statement": "The `zia_user_management` Read copies name, email, comments, temp_auth_email, groups and department from the response into state and sets neither `password` nor `auth_methods`, so the password in state is never refreshed from ZIA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_user_management_users.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "\"auth_methods\": {",
+            "\"password\": { Type: schema.TypeString, Required: true, Sensitive: true,",
+            "func resourceUserManagementRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+            "_ = d.Set(\"temp_auth_email\", resp.TempAuthEmail)",
+            "if err := d.Set(\"department\", flattenUserDepartment(resp.Department)); err != nil {",
+            "d.SetId(fmt.Sprintf(\"%d\", resp.ID)) _ = d.Set(\"user_id\", resp.ID) _ = d.Set(\"name\", resp.Name) _ = d.Set(\"email\", resp.Email) _ = d.Set(\"comments\", resp.Comments) _ = d.Set(\"temp_auth_email\", resp.TempAuthEmail) if err := d.Set(\"groups\", flattenUserGroups(resp.Groups)); err != nil {",
+            "if err := d.Set(\"department\", flattenUserDepartment(resp.Department)); err != nil { return diag.FromErr(err) } return nil }"
+          ]
+        }
+      ],
+      "conditions": "Absence claim: in zia/resource_zia_user_management_users.go at v4.8.17, `grep -c 'd.Set(\"password\"'` and `grep -c 'd.Set(\"auth_methods\"'` each return 0; `grep -n 'd.Set('` returns only `user_id` (in the importer, create and read), `name`, `email`, `comments`, `temp_auth_email`, `groups` and `department`."
+    },
+    "user-read-from-list": {
+      "statement": "Since provider v4.7.24 the `zia_user_management` Read resolves the user from the list endpoint (name-filtered first, then a full list scan) instead of the per-ID lookup, because on Zidentity-migrated tenants the per-ID lookup returns name and email in an encoded form that produced a perpetual in-place update on every plan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed the `zia_user_management` resource to read the user's `name` and `email` from the user list instead of the single-user lookup.",
+            "On tenants migrated to Zidentity the single-user lookup returned these fields in an encoded form, which produced a perpetual in-place update on every `terraform plan`."
+          ],
+          "after": "## 4.7.24 (June, 1 2026)"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_user_management_users.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// Resolve the user from the list endpoint rather than the per-ID endpoint.",
+            "the lookup falls back to an unfiltered list scan",
+            "resp, err := findUserByID(ctx, service, id, d.Get(\"name\").(string))",
+            "filtered, err := users.GetAllUsers(ctx, service, &users.GetAllUsersFilterOptions{Name: nameHint})",
+            "log.Printf(\"[DEBUG] user %d not found in name-filtered pool (name=%q); falling back to full list\", id, nameHint)",
+            "allUsers, err := users.GetAllUsers(ctx, service, nil)"
+          ]
+        }
+      ]
+    },
+    "user-email-unique": {
+      "statement": "The provider documents that a user email need not be a valid address but must be unique and its domain must belong to the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_user_management.md",
+          "quotes": [
+            "it must be unique and its domain must belong to the organization",
+            "It does not have to be a valid email address, but it must be unique and its domain must belong to the organization."
+          ]
+        }
+      ]
+    },
+    "issue-572-validator-rejects-public-api": {
+      "statement": "Provider issue #572, still open, reports against v4.7.18 that `role_type = \"PUBLIC_API\"` on `zia_admin_roles` failed validation with an enum error listing only ORG_ADMIN, EXEC_INSIGHT, EXEC_INSIGHT_AND_ORG_ADMIN and SDWAN, and that omitting `role_type` on an imported role failed with a `cannot be changed once the resource is created` error, so the reporter's four imported API roles needed `lifecycle { ignore_changes = [role_type] }`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-572.json",
+          "quotes": [
+            "+ provider registry.terraform.io/zscaler/zia v4.7.18",
+            "Error: expected role_type to be one of [\"ORG_ADMIN\" \"EXEC_INSIGHT\" \"EXEC_INSIGHT_AND_ORG_ADMIN\" \"SDWAN\"], got PUBLIC_API",
+            "Error: the role_type cannot be changed once the resource is created. old=PUBLIC_API new=",
+            "Only workaround: keep `role_type` omitted and add `lifecycle { ignore_changes = [role_type] }`.",
+            "# zia_admin_roles role_type validator rejects PUBLIC_API even though API returns it",
+            "Affected our 4 existing API roles. All four imported successfully but require the `lifecycle.ignore_changes` workaround to plan."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-572.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rank-values-fixed": {
+      "kind": "semantic",
+      "title": "Whether admin rank values are fixed ZIA system values rather than organization-specific",
+      "status": "open",
+      "detail": "Unverified legacy statement: admin rank values are fixed ZIA system values, not organization-specific. The provider schema has no range validator and the help captures describe rank only as a hierarchy, so neither settles whether a tenant can define its own rank values.",
+      "blocks": "saying whether a rank number means the same thing in every tenant",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    },
+    "issue-572-open-though-validator-accepts": {
+      "kind": "semantic",
+      "title": "Which release added PUBLIC_API to the role_type validator, and whether the omitted-role_type error remains",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying which provider versions accept PUBLIC_API, or that an imported API role plans cleanly",
+      "detail": "The vendored provider source lists PUBLIC_API in the `role_type` validator (role-type-values), yet issue 572 is still open and the changelog does not mention the addition, so the release that changed it and whether leaving `role_type` out of an imported PUBLIC_API role still fails are not shown. Import a PUBLIC_API role with the vendored provider version and plan with and without `role_type`."
+    }
+  }
+}

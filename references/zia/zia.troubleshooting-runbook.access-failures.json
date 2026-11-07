@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting-runbook.access-failures",
+  "title": "Runbook: unable to access a site or blocked for browsing a category",
+  "aliases": [
+    "Not allowed to browse this category",
+    "Unable to access specific websites or applications"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.url-category-conflicts" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.diagnostics" },
+    { "rel": "see-also", "to": "zia.url-filtering" },
+    { "rel": "see-also", "to": "zia.authentication.exemptions" },
+    { "rel": "see-also", "to": "zia.saas-apps.quic-conferencing" },
+    { "rel": "see-also", "to": "zia.firewall.best-practices" }
+  ],
+  "prose": [
+    {
+      "label": "Not allowed to browse this category.",
+      "text": "{{browse-category-filter}} {{browse-ssl-fqdn-only}} {{browse-test-user-rule}}"
+    },
+    {
+      "label": "Source IP allowlists.",
+      "text": "{{source-ip-allowlist}} {{xff-always-inserted}} The XFF insertion exceptions and the test for a site that works only with inspection off are in [[zia.troubleshooting-runbook.diagnostics]]. {{source-ip-alternatives}}"
+    },
+    {
+      "label": "DNS, IPv6 and protocol.",
+      "text": "{{dns-checks}} {{ipv6-cause}} {{http-protocol-quic-h2}} Whether QUIC gets any policy is in dispute {{divergence:quic-policy-enforcement}}; see [[zia.saas-apps.quic-conferencing]] and [[zia.firewall.best-practices]]."
+    },
+    {
+      "label": "Scope and browser.",
+      "text": "{{scope-comparison}} {{browser-control}}"
+    }
+  ],
+  "claims": {
+    "browse-category-filter": {
+      "statement": "To list transactions blocked for category browsing, set the web log filter Blocked Policy Type to URL Filtering; the Blocked Policy Name column gives the rule whose URL Categories should be noted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-not-allowed-browse-category.json",
+          "quotes": [
+            "You must set the web log filter Blocked Policy Type to URL Filtering to show all the transactions blocked because the Zscaler service is not allowed to browse this category.",
+            "The Blocked Policy Name column shows the policy name. Note down the set of URL Categories configured in this rule."
+          ]
+        }
+      ]
+    },
+    "browse-ssl-fqdn-only": {
+      "statement": "When the Protocol column shows SSL the URL column holds only the FQDN, so a URL filtering policy based on the URL path or keywords requires SSL Inspection to be configured for that traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-not-allowed-browse-category.json",
+          "quotes": [
+            "If the Protocol column shows SSL, then the URL column only shows the FQDN part of the URL.",
+            "If you wish to apply a URL filtering policy based on the URL path or keywords, you must configure SSL Inspection for this traffic."
+          ]
+        }
+      ]
+    },
+    "browse-test-user-rule": {
+      "statement": "If no URL Filtering rule should have allowed the transaction, the page suggests creating a rule just above the block rule for one test user and adding the desired criteria if it grants access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-not-allowed-browse-category.json",
+          "quotes": [
+            "If no, create a rule just above the block rule for one specific test user. If it allows access for that user, then add all the desired criteria to this policy."
+          ]
+        }
+      ]
+    },
+    "source-ip-allowlist": {
+      "statement": "If a site is inaccessible from a test system that bypasses Zscaler, the runbook says it uses source-IP access control; standard web servers check the XFF header against their allowlist if present and otherwise the IP header source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-unable-access-specific-websites-or-applications.json",
+          "quotes": [
+            "If the website isn't accessible from your own system while bypassing the Zscaler service, it implies that the website uses some sort of access control based on the source IP.",
+            "They check whether there's an XFF header in the web request. If it is present, they match this IP against the configured allowlist.",
+            "If there's no XFF header in the web request, then they match the source IP from the IP header against the configured allowlist.",
+            "When configured to allow connections for specific source IPs, standard web servers use the following process:"
+          ]
+        }
+      ]
+    },
+    "xff-always-inserted": {
+      "statement": "The page says that with SSL inspection enabled for a website the Public Service Edge always inserts the XFF header with the client's external source IP, with limits: it does not help when SSL inspection cannot be enabled, or when the server does not use XFF for allowlisting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-unable-access-specific-websites-or-applications.json",
+          "quotes": [
+            "If SSL inspection is enabled for a website, the Public Service Edge for Internet & SaaS (ZIA) always inserts the XFF header containing the client's external source IP",
+            "If you cannot enable SSL inspection for this website, it won't help.",
+            "If the web server in question doesn't already use the XFF IP for allowlist evaluation, the team managing the web server must fix this."
+          ]
+        }
+      ]
+    },
+    "source-ip-alternatives": {
+      "statement": "Other options listed are the Dedicated IP feature via the Zscaler account team, sending the traffic via a Private or Virtual Service Edge, or asking the site owner to allowlist the Service Edge subnets published for the cloud on the Config Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-unable-access-specific-websites-or-applications.json",
+          "quotes": [
+            "Contact your Zscaler Account team to enable the Dedicated IP feature for your Internet & SaaS tenant.",
+            "Send this traffic via a Private Service Edge or Virtual Service Edge, if applicable.",
+            "Request the website owner to allowlist subnets of the relevant Zscaler Service Edges as mentioned for your cloud on the Config Portal."
+          ]
+        }
+      ]
+    },
+    "dns-checks": {
+      "statement": "For DNS, check that Client Connector's app profile DNS inclusion and exclusion criteria are correct, and look in DNS Insights for failures in the DNS Error Code column such as Server Failure or a timeout, with the Server IP column naming the DNS server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-unable-access-specific-websites-or-applications.json",
+          "quotes": [
+            "If you use Zscaler Client Connector, make sure that the DNS inclusion and exclusion criteria are correctly defined in the app profile.",
+            "Typically, the DNS Error Code column has values indicating failure such as Server Failure or DNS transaction timed out as server didn't respond, and the Server IP column shows you the corresponding DNS server.",
+            "Review the DNS Insights for this transaction using the appropriate filters for the client user or client IP."
+          ]
+        }
+      ]
+    },
+    "ipv6-cause": {
+      "statement": "If client IPs are IPv6, the page says IPv6 must be enabled in the tenant and traffic correctly forwarded; IPv6 is a common cause when a site works for some users but not others with the same access level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-unable-access-specific-websites-or-applications.json",
+          "quotes": [
+            "If the IP addresses use IPv6, make sure that IPv6 is enabled in your tenant, and that you are correctly forwarding this traffic to the Zscaler service.",
+            "When a website works for some users and not for others with the same access level, IPv6 is a common cause."
+          ]
+        }
+      ]
+    },
+    "http-protocol-quic-h2": {
+      "statement": "For H3/QUIC this page says Zscaler Advanced Firewall processes it as general UDP traffic without enforcing any policy; for H2 it says Enable HTTP/2 must be selected in the relevant SSL Inspection Policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-unable-access-specific-websites-or-applications.json",
+          "quotes": [
+            "If the protocol is H3/QUIC, Zscaler Advanced Firewall processes this as general UDP traffic but won't enforce any policy on this traffic.",
+            "If the protocol is H2, make sure that the Enable HTTP/2 option is selected in the relevant SSL Inspection Policy."
+          ]
+        }
+      ]
+    },
+    "scope-comparison": {
+      "statement": "To tell whether the problem is global, the page compares user, group, location and policy action in Web Insights, for example filtering on Allowed; if only user-, group- or department-based rules fail it points to authentication settings, and it suggests testing an authentication exemption.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-unable-access-specific-websites-or-applications.json",
+          "quotes": [
+            "For example, set the policy action filter to Allowed and check whether there are any entries that show that this website is allowed for other users or locations.",
+            "If only the rules based on users, groups, or department as criteria are not working as expected, validate that user authentication and related settings are correctly configured in the location shown in the web logs.",
+            "Check whether adding the domain to authentication exemptions resolves the access issue.",
+            "you can compare the user, group, location, and policy action values in Web Insights logs for the domain."
+          ]
+        }
+      ]
+    },
+    "browser-control": {
+      "statement": "For a site that works in another browser, the page says to confirm the browser version is allowed in the Browser Control policy under Secure Browsing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-unable-access-specific-websites-or-applications.json",
+          "quotes": [
+            "Make sure the relevant browser version is configured to be allowed in the Browser Control policy under Secure Browsing."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {},
+  "divergences": {
+    "quic-policy-enforcement": {
+      "summary": "The access runbook says Zscaler Advanced Firewall does not enforce any policy on H3/QUIC traffic, while the QUIC conferencing and firewall best-practices pages block QUIC with a Firewall Filtering rule.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-unable-access-specific-websites-or-applications.json",
+            "quotes": [
+              "If the protocol is H3/QUIC, Zscaler Advanced Firewall processes this as general UDP traffic but won't enforce any policy on this traffic."
+            ]
+          },
+          "says": "Zscaler Advanced Firewall processes H3/QUIC as general UDP traffic and does not enforce any policy on it."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-best-practices-firewall-control-policy.json",
+            "quotes": [
+              "Configure rules that block ICMP and QUIC using the network service criteria and assign a high rule order."
+            ]
+          },
+          "says": "A Firewall rule using the QUIC network service criteria blocks QUIC."
+        }
+      ],
+      "impact": "Whether a QUIC flow is policy-enforced depends on which page is read; the pages do not say if the runbook means the web policies (URL Filtering, SSL Inspection) rather than Firewall Filtering rules on the QUIC network service."
+    }
+  }
+}

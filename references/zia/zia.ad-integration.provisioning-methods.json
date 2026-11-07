@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "id": "zia.ad-integration.provisioning-methods",
+  "title": "ZIA provisioning methods and which authentication each allows",
+  "aliases": [
+    "provisioning methods",
+    "SCIM vs LDAP sync",
+    "hosted user database",
+    "ZAB",
+    "authentication bridge",
+    "which provisioning method",
+    "provisioning and authentication pairing"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.methods",
+      "because": "zia.ad-integration.provisioning-methods:auth-pairing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.directory-sync"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.saml-auto-provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.hosted-user-database"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.authentication-bridge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Provisioning (getting users into the Zscaler database) and authentication (identifying traffic) are separate choices, but not independent ones. {{five-methods}} {{recommendation}}"
+    },
+    {
+      "label": "Pairing.",
+      "text": "{{auth-pairing}} {{pairing-consequences}} Other pages pair directory-synchronized users with SAML {{divergence:directory-sync-auth-pairing}}."
+    },
+    {
+      "label": "Hosted User Database and ZAB.",
+      "text": "Manual and CSV provisioning, and one-time tokens and links, are in [[zia.ad-integration.hosted-user-database]]. ZAB deployment is in [[zia.ad-integration.authentication-bridge]]."
+    },
+    {
+      "label": "Directory synchronization.",
+      "text": "{{directory-sync-needs-reach}} What it does once connected is in [[zia.ad-integration.directory-sync]]."
+    },
+    {
+      "label": "ZAB.",
+      "text": "{{zab-outbound}} {{zab-exclusions}} {{zab-to-scim-cutover}}"
+    },
+    {
+      "label": "SAML and SCIM",
+      "text": "are covered in [[zia.ad-integration.saml-auto-provisioning]] and [[zia.scim]]. The org-level migration switch from directory sync to SCIM is [[zia.authentication.settings:scim-migration-flag]], with its reversibility question open in [[zia.authentication.settings]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which method the tenant actually provisions with, in the Identity Providers and directory settings of the Admin Console.",
+      "uses": [
+        "five-methods"
+      ]
+    },
+    {
+      "do": "Whether the authentication method in use is one the pairing allows.",
+      "uses": [
+        "auth-pairing",
+        "directory-sync-auth-pairing"
+      ]
+    },
+    {
+      "do": "Whether a move from the ZAB to SCIM is planned as a cutover, since SCIM cannot be enabled while the ZAB provisions.",
+      "uses": [
+        "zab-exclusions"
+      ]
+    }
+  ],
+  "claims": {
+    "five-methods": {
+      "statement": "The service supports five provisioning methods: Identity Federation using SCIM, SAML, the Hosted User Database, synchronization with a directory server, and the Zscaler Authentication Bridge (ZAB).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-provisioning-and-authentication-methods.json",
+          "quotes": [
+            "the 5 supported provisioning methods: Identity Federation using SCIM, SAML, Hosted User Database, synchronization with a directory server, and Zscaler Authentication Bridge (ZAB)"
+          ]
+        }
+      ]
+    },
+    "recommendation": {
+      "statement": "Zscaler recommends SCIM for provisioning and SAML identity federation for authentication. Directory synchronization is recommended if SAML is not feasible and the organization has more than 100 users; the hosted user database if SAML or SCIM are not feasible and the organization has up to 100 users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-provisioning-and-authentication-methods.json",
+          "quotes": [
+            "Zscaler recommends deploying SCIM for provisioning and Identity Federation using SAML for authentication.",
+            "Passwords are never synchronized. If SAML isn't feasible, Zscaler recommends this method for organizations with more than 100 users.",
+            "Upload user information to the database manually through a CSV import or a ZAB. If SAML or SCIM aren't feasible, Zscaler recommends this method for organizations with up to 100 users."
+          ]
+        }
+      ]
+    },
+    "auth-pairing": {
+      "statement": "Each provisioning method allows only some authentication methods. SCIM: SAML only. Hosted User Database: passwords (default), Kerberos, one-time link, one-time token. Directory server synchronization: LDAP BIND, one-time link, one-time token. ZAB: Hosted User Database, SAML, LDAP BIND, one-time link, one-time token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-provisioning-and-authentication-methods.json",
+          "quotes": [
+            "Users and groups are provisioned via APIs. SAML is the only supported authentication method.",
+            "If SAML or SCIM aren't feasible, Zscaler recommends this method for organizations with up to 100 users. Following are the supported authentication methods: Passwords (Default) Kerberos One-Time Link One-Time Token",
+            "To learn more, see About LDAP User Synchronization. Following are the supported authentication methods: LDAP BIND One-Time Link One-Time Token",
+            "While the ZAB is being used for provisioning, you cannot enable SCIM on any IdP. Following are the supported authentication methods: Hosted User Database SAML LDAP BIND One-Time Link One-Time Token"
+          ]
+        }
+      ]
+    },
+    "directory-sync-needs-reach": {
+      "statement": "Directory server synchronization requires the firewall to allow the Zscaler service to reach the directory server, with read-only access to the directory. Passwords are never synchronized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-provisioning-and-authentication-methods.json",
+          "quotes": [
+            "Configure firewall to allow the Zscaler service to synchronize with directory server. The Zscaler service must have read-only access to the directory.",
+            "Passwords are never synchronized."
+          ]
+        }
+      ]
+    },
+    "zab-outbound": {
+      "statement": "The ZAB is a virtual appliance that imports users from an AD or LDAP server without requiring inbound connections to the directory server: it opens a long-living outbound tunnel to the Zscaler Central Authority, downloads the organization's authentication profile and synchronizes on demand or as scheduled. It can be used only to provision, alongside SAML or Kerberos authentication, or also to authenticate with LDAP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-authentication-bridge.json",
+          "quotes": [
+            "without requiring inbound connections to your directory server.",
+            "The ZAB can be used solely as a provisioning tool in conjunction with another authentication mechanism, such as SAML or Kerberos.",
+            "the ZAB opens a long-living secure outbound tunnel to the Zscaler Central Authority (CA).",
+            "It downloads the authentication profile configuration of your organization from the CA",
+            "It synchronizes user information from the directory server to the Zscaler cloud on demand or as scheduled.",
+            "The Zscaler Authentication Bridge (ZAB) is a virtual appliance that you can use to provision as well as authenticate users.",
+            "You can use the ZAB to automatically import user information from an Active Directory (AD) or a Lightweight Directory Access Protocol (LDAP) server to the Zscaler database,",
+            "Alternatively, it can be used for authentication using LDAP with SSL client certificates."
+          ]
+        }
+      ]
+    },
+    "zab-exclusions": {
+      "statement": "When the ZAB provisions and SAML authenticates, only the primary IdP in the Admin Console can have SAML auto-provisioning enabled, and SCIM cannot be enabled on any IdP while the ZAB is used for provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-provisioning-and-authentication-methods.json",
+          "quotes": [
+            "When you use the ZAB for provisioning and SAML for authentication, only the primary IdP in the Zscaler Admin Console can have SAML auto-provisioning enabled. While the ZAB is being used for provisioning, you cannot enable SCIM on any IdP."
+          ]
+        }
+      ]
+    },
+    "pairing-consequences": {
+      "statement": "The pairing table lists SAML as the only authentication method for SCIM, and for directory server synchronization it lists LDAP BIND, one-time link and one-time token, without SAML or Kerberos.",
+      "tier": "B",
+      "derived_from": [
+        "auth-pairing"
+      ],
+      "conditions": "Narrowed on this pass: the earlier wording concluded that directory synchronization offers neither SAML nor Kerberos, which read the table as exhaustive; three other pages pair synchronized users with SAML (see divergence directory-sync-auth-pairing), so the statement says only what the table lists."
+    },
+    "zab-to-scim-cutover": {
+      "statement": "A tenant moving from ZAB provisioning to SCIM cannot run both at once: SCIM cannot be enabled on any IdP while the ZAB is used for provisioning, so the move is a cutover rather than an overlap.",
+      "tier": "B",
+      "derived_from": [
+        "zab-exclusions"
+      ],
+      "conditions": "Assumes the ZAB is still the provisioning method until it is stopped; a ZAB used only to authenticate is not covered by the exclusion as worded."
+    }
+  },
+  "divergences": {
+    "directory-sync-auth-pairing": {
+      "summary": "The pairing table lists LDAP BIND, one-time link and one-time token for directory server synchronization, while other pages pair directory-synchronized users with SAML or another configurable method and list directory synchronization as a way to provision Kerberos users.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "choosing-provisioning-and-authentication-methods.json",
+            "quotes": [
+              "To learn more, see About LDAP User Synchronization. Following are the supported authentication methods: LDAP BIND One-Time Link One-Time Token"
+            ]
+          },
+          "says": "The supported authentication methods for directory server synchronization are LDAP BIND, one-time link and one-time token."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+            "quotes": [
+              "The default authentication method for synchronized users is LDAP Bind. If you want to use another method, you can configure one of the following:"
+            ]
+          },
+          "says": "The synchronization article names LDAP Bind as the default and says another method can be configured, which the pairing table's list does not reflect."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-active-directory-scim-ldap-provisioning-migration-guide.json",
+            "quotes": [
+              "Use SAML for authentication and AD for provisioning."
+            ]
+          },
+          "says": "The AD-to-SCIM migration guide's prerequisite is SAML for authentication with AD for provisioning."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deploying-kerberos-authentication.json",
+            "quotes": [
+              "Synchronizing user data from an Active Directory or LDAP server"
+            ]
+          },
+          "says": "The Kerberos deployment page lists synchronizing user data from an AD or LDAP server among the ways users are provisioned for Kerberos."
+        }
+      ],
+      "impact": "Do not conclude from the pairing table that directory-synchronized users cannot use SAML or Kerberos. The default settings page also lets an AD or OpenLDAP repository select SAML (zia.authentication.settings:auth-type-preconditions), so the table is not a complete list."
+    }
+  }
+}

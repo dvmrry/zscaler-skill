@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting-runbook",
+  "title": "How the Internet & SaaS Access Control Policies troubleshooting runbook triages a case and routes it to its pages",
+  "aliases": [
+    "access control policies troubleshooting runbook",
+    "Internet & SaaS Access Control Policies Support Troubleshooting Runbook",
+    "initial information set",
+    "policy action field routing"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.diagnostics" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.server-certificates" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.ssl-block-actions" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.ssl-policy-reasons" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.firewall-actions" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.url-category-conflicts" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.policy-mismatch" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.access-failures" },
+    { "rel": "see-also", "to": "zia.ssl-inspection" },
+    { "rel": "see-also", "to": "zia.ssl-inspection.uninspectable" },
+    { "rel": "see-also", "to": "zia.ssl-inspection.cipher-suites" },
+    { "rel": "see-also", "to": "zia.ssl-inspection.actions" },
+    { "rel": "see-also", "to": "zia.url-filtering" },
+    { "rel": "see-also", "to": "zia.url-filtering.advanced-settings" },
+    { "rel": "see-also", "to": "zia.url-categories.entry-matching" },
+    { "rel": "see-also", "to": "zia.cloud-app-control.troubleshooting" },
+    { "rel": "see-also", "to": "zia.firewall.network-applications" },
+    { "rel": "see-also", "to": "zia.logs.firewall-records" },
+    { "rel": "see-also", "to": "zia.logs.web-field-semantics" },
+    { "rel": "see-also", "to": "zia.advanced-settings.partial-configuration" },
+    { "rel": "see-also", "to": "zia.advanced-settings.http-tunnel-control" },
+    { "rel": "see-also", "to": "zia.advanced-settings.m365-one-click" },
+    { "rel": "see-also", "to": "zia.authentication.exemptions" }
+  ],
+  "prose": [
+    {
+      "text": "{{triage-first-two}} {{quic-definition}}"
+    },
+    {
+      "label": "Routing by log value.",
+      "text": "{{allow-but-blocked-routing}} The pages for those Policy Action values {{gap:policy-action-values-are-titles}} are grouped in [[zia.troubleshooting-runbook.ssl-block-actions]], [[zia.troubleshooting-runbook.server-certificates]] and [[zia.troubleshooting-runbook.access-failures]]. {{not-inspected-routing}} The SSL Policy Reason values are in [[zia.troubleshooting-runbook.ssl-policy-reasons]]. {{firewall-control-routing}} Those two are in [[zia.troubleshooting-runbook.firewall-actions]]."
+    },
+    {
+      "label": "Other runbook pages.",
+      "text": "Policy configured but the logs show a different outcome is in [[zia.troubleshooting-runbook.policy-mismatch]], URL category conflicts are in [[zia.troubleshooting-runbook.url-category-conflicts]], and header, QUIC, XFF and SSL configuration checks are in [[zia.troubleshooting-runbook.diagnostics]]."
+    },
+    {
+      "label": "Initial Information Set.",
+      "text": "{{initial-information-set}} {{initial-information-set-logs}}"
+    }
+  ],
+  "claims": {
+    "triage-first-two": {
+      "statement": "The Access Control runbook triage asks first whether the website loads after a delay or not at all (delay or slowness is routed to Internet & SaaS performance), then whether transactions go through Zscaler (No or Not sure is routed to traffic not going through Zscaler).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-access-control-policies-support-troubleshooting-runbook-0.json",
+          "quotes": [
+            "Does the website load after a delay or not at all?",
+            "Delay or slowness: Issues with Internet & SaaS performance.",
+            "Do transactions go through Zscaler?",
+            "No or Not sure: Traffic does not go through Zscaler."
+          ]
+        }
+      ]
+    },
+    "quic-definition": {
+      "statement": "The runbook's triage defines QUIC, also known as http/3 or h3, as a transport protocol developed by Google that operates over UDP instead of TCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-access-control-policies-support-troubleshooting-runbook-0.json",
+          "quotes": [
+            "QUIC, also known as http/3 or simply h3, is a transport protocol developed by Google",
+            "It operates over User Datagram Protocol (UDP) instead of TCP"
+          ]
+        }
+      ]
+    },
+    "allow-but-blocked-routing": {
+      "statement": "When an Allow policy is configured but the web logs show access blocked or cautioned, the runbook directs the reader to the Policy Action field value for the URL and lists these pages: Undecryptable Traffic Block, Not Allowed to Use HTTP Tunnel, Blocked Due to Server Probe Failure, Access Denied Due to Bad Server Certificate, Blocked Due to Bad SSL Record, Access Denied Due to Domain Fronting and Not Allowed to Browse this Category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-access-control-policies-support-troubleshooting-runbook-0.json",
+          "quotes": [
+            "The Allow policy is configured but access gets blocked or cautioned as confirmed by the web logs. Look at the Policy Action field's value for the concerned URL and click one of the following:",
+            "Undecryptable Traffic Block",
+            "Not Allowed to Use HTTP Tunnel",
+            "Blocked Due to Server Probe Failure",
+            "Access Denied Due to Bad Server Certificate",
+            "Blocked Due to Bad SSL Record",
+            "Access Denied Due to Domain Fronting",
+            "Not Allowed to Browse this Category"
+          ]
+        }
+      ]
+    },
+    "not-inspected-routing": {
+      "statement": "For traffic that is not inspected although the SSL Inspection policy has no exemptions, the runbook says to read the SSL Policy Reason field value for the URL and refer to the SSL Policy Reason Runbook.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-access-control-policies-support-troubleshooting-runbook-0.json",
+          "quotes": [
+            "There are no exemptions in SSL Inspection policy but traffic does not get inspected as confirmed by the web logs. Look at the SSL Policy Reason field's value for the concerned URL and refer to the SSL Policy Reason Runbook."
+          ]
+        }
+      ]
+    },
+    "firewall-control-routing": {
+      "statement": "For Firewall Control, the runbook routes two outcomes to their own pages: Allow Due to Insufficient App Data and Bypassed Due to Missing Config.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-access-control-policies-support-troubleshooting-runbook-0.json",
+          "quotes": [
+            "Firewall Control:",
+            "Allow Due to Insufficient App Data",
+            "Bypassed Due to Missing Config"
+          ]
+        }
+      ]
+    },
+    "initial-information-set": {
+      "statement": "Zscaler Support's Initial Information Set for these cases is Remote Assistance in view-only mode plus: the client IP output (ipconfig /all and route print 165.225.* on Windows; ifconfig /all and route get 165.225.0.0 on Mac), a screenshot of https://ip.zscaler.com, an error screenshot if applicable, the timestamp or period, the complete URL or destination IP, and the policy name or a screenshot of the policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-access-control-policies-support-troubleshooting-runbook-0.json",
+          "quotes": [
+            "Zscaler Support recommends that you enable Remote Assistance in view-only mode.",
+            "Client IP from the impacted end user's system (output of ipconfig /all and route print 165.225.* from a command prompt on a Windows PC and output of ifconfig /all and route get 165.225.0.0 from a terminal on a Mac system).",
+            "A screenshot of the complete page at https://ip.zscaler.com.",
+            "A screenshot of the error message seen in the web browser or the application, if applicable.",
+            "The timestamp or period during which this access was attempted.",
+            "Complete URL or Destination IP of the application.",
+            "Policy Name or a screenshot of the relevant policy."
+          ]
+        }
+      ]
+    },
+    "initial-information-set-logs": {
+      "statement": "If Remote Assistance cannot be enabled, the runbook says to download Web Insights logs with all columns for the period, using not more than 2-3 relevant filters; it names URL Search, User, Client IP and Location as useful filters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-access-control-policies-support-troubleshooting-runbook-0.json",
+          "quotes": [
+            "Alternatively, if remote assistance cannot be enabled, download the Web Insights logs containing all the columns for the corresponding period.",
+            "It's best to use not more than 2–3 relevant filters to optimize the number of logs in the exported file while still retaining a wide enough context for analysis.",
+            "Some useful filters: URL Search, User, Client IP, Location."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "policy-action-values-are-titles": {
+      "kind": "semantic",
+      "title": "Whether the runbook page titles equal the logged Policy Action strings",
+      "status": "open",
+      "detail": "The hub lists page titles such as Blocked Due to Bad SSL Record and Undecryptable Traffic Block as the Policy Action values to look for. The page bodies write Access denied due to bad server certificate, Blocked due to Server Probe failure and Not allowed to browse this category as logged strings; the Policy Reasons article (zia-policy-reasons) and zia/web-log hold others such as Blocked due to Bad SSL/TLS record, Access denied due to Domain Fronting and Undecryptable Traffic Block. What is open is whether each page title equals the stored value, since the title spellings differ from those strings.",
+      "resolves_with": ["tenant-data", "source-read"]
+    }
+  }
+}

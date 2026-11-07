@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.pac-files",
+  "title": "The zia_pac_files resource: versions, pinning and status transitions",
+  "aliases": [
+    "zia_pac_files",
+    "hosted PAC file terraform",
+    "pac_version_status",
+    "pac_version pin",
+    "PAC file new version terraform",
+    "delete_version PAC",
+    "pac_content must match"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.pac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation-methods"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The provider models one hosted PAC file as a parent with one tracked version at a time. Content is immutable per version, so most edits save a new version, and `pac_version` turns the resource from creating versions into selecting them."
+    },
+    {
+      "label": "Create.",
+      "text": "{{create-always-deployed}} {{content-validated-first}}"
+    },
+    {
+      "label": "Update.",
+      "text": "{{update-clones-version}} {{declared-version-pins}} {{delete-version-for-capacity}}"
+    },
+    {
+      "label": "Status transitions.",
+      "text": "{{status-transition-rules}} {{action-body-is-commit-message}}"
+    },
+    {
+      "label": "Import and read.",
+      "text": "{{import-adopts-deployed}} {{read-tracks-version}}"
+    },
+    {
+      "label": "Data source.",
+      "text": "{{data-source-deployed-list}} The PAC file as a forwarding method is in [[zia.traffic-forwarding.pac]]."
+    },
+    {
+      "text": "Whether a created file is live is disputed [[zia.traffic-forwarding.pac:create-vs-deploy]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether `pac_version` is declared, since a declared version pins an existing version and rejects content that does not match it exactly.",
+      "uses": [
+        "declared-version-pins",
+        "update-clones-version"
+      ]
+    },
+    {
+      "do": "Whether a failed change hit the maximum version count, which needs `delete_version` on the save.",
+      "uses": [
+        "delete-version-for-capacity"
+      ]
+    },
+    {
+      "do": "Whether a requested STAGE or UNSTAGED targets the currently deployed version, which the provider refuses.",
+      "uses": [
+        "status-transition-rules"
+      ]
+    },
+    {
+      "do": "Whether the version status was read back after a create before treating the file as live.",
+      "uses": [
+        "create-always-deployed"
+      ]
+    }
+  ],
+  "claims": {
+    "create-always-deployed": {
+      "statement": "On create the provider rejects any `pac_version_status` other than DEPLOYED, rejects a declared `pac_version`, and sends the create request with the status set to DEPLOYED; STAGE, LKG and UNSTAGED can only be applied to later versions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "pac_version_status must be DEPLOYED when creating a PAC file",
+            "pac_version cannot be declared when creating a PAC file",
+            "req.PACVersionStatus = \"DEPLOYED\"",
+            "pac_version_status must be DEPLOYED when creating a PAC file: the initial version is always deployed.",
+            "The initial version is always deployed; `STAGE`, `LKG`, and `UNSTAGED` can be applied to subsequent versions."
+          ]
+        }
+      ]
+    },
+    "content-validated-first": {
+      "statement": "The PAC content is sent to the service's validation endpoint before create and before a new version is saved; any validation error aborts the apply with the line and column messages, while warnings are only logged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// runPacContentValidation runs the PAC content through the service's // validation endpoint and returns an error carrying the validation messages",
+            "msgs = append(msgs, fmt.Sprintf(\"line %d, column %d: %s\", m.Line, m.Column, m.Message))",
+            "PAC content failed validation with %d error(s): %s",
+            "if result.WarningCount > 0 { log.Printf(\"[WARN] PAC content validated with %d warning(s): %+v\", result.WarningCount, result.Messages) } return nil",
+            "Both // callers (Create and the new-version path in Update) run the content // through the validation endpoint first and abort on errors"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "after": "func resourcePacFilesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := runPacContentValidation(ctx, zClient, d.Get(\"pac_content\").(string)); err != nil { return diag.FromErr(err) }",
+            "resp, err := pacfiles.CreatePacFile(ctx, service, req)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "after": "// Content is immutable per version: save the change as a new",
+          "quotes": [
+            "if err := runPacContentValidation(ctx, zClient, d.Get(\"pac_content\").(string)); err != nil { return diag.FromErr(err) }",
+            "cloned, err := pacfiles.CreateClonedPacFileVersion(ctx, service, id, currentVersion, deleteVersion, req)"
+          ]
+        }
+      ]
+    },
+    "update-clones-version": {
+      "statement": "When `pac_version` is not declared, changing `pac_content`, `name`, `description`, `domain` or `pac_url_obfuscated` saves a new version cloned from the currently tracked version and then applies the declared status; changing only `pac_commit_message` does not clone a version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "if v := raw.GetAttr(\"pac_version\"); !v.IsNull() { versionDeclared = true }",
+            "contentChanged := d.HasChanges(\"pac_content\", \"name\", \"description\", \"domain\", \"pac_url_obfuscated\")",
+            "// Commit message changes are intentionally NOT a clone trigger: the",
+            "if versionDeclared {",
+            "contentChanged = false",
+            "if contentChanged { // Content is immutable per version: save the change as a new",
+            "// version cloned from the currently tracked version.",
+            "cloned, err := pacfiles.CreateClonedPacFileVersion(ctx, service, id, currentVersion, deleteVersion, req)",
+            "if err := applyPacVersionAction(ctx, zClient, id, trackedVersion, desiredStatus, d.Get(\"pac_commit_message\").(string)); err != nil {"
+          ]
+        }
+      ]
+    },
+    "declared-version-pins": {
+      "statement": "When `pac_version` is declared it selects an existing version: a change that includes `name`, `description`, `domain` or `pac_url_obfuscated` counts as a content change, skips the match check, leaves `pinnedMatches` false and so returns the does-not-match error, a `pac_content` change is accepted only when it exactly matches the selected version's content and is then not cloned, and a status-only change acts on the selected version without cloning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "if versionDeclared { declaredVersion := d.Get(\"pac_version\").(int) if contentChanged {",
+            "contentChanged := d.HasChanges(\"pac_content\", \"name\", \"description\", \"domain\", \"pac_url_obfuscated\")",
+            "pinnedMatches := false if d.HasChange(\"pac_content\") && !d.HasChanges(\"name\", \"description\", \"domain\", \"pac_url_obfuscated\") {",
+            "pinnedMatches = pinned.PACContent == d.Get(\"pac_content\").(string)",
+            "if !pinnedMatches { return diag.Errorf(\"pac_version %d is declared, but the configuration does not match that version.",
+            "pac_content must match the declared version's content exactly",
+            "// A version declared in the configuration pins the status action to that",
+            "Declare pac_version only to target an existing version with a status transition.",
+            "pac_version %d is declared, but the configuration does not match that version.",
+            "contentChanged = false",
+            "trackedVersion = declaredVersion",
+            "if contentChanged { // Content is immutable per version: save the change as a new",
+            "if err := applyPacVersionAction(ctx, zClient, id, trackedVersion, desiredStatus, d.Get(\"pac_commit_message\").(string)); err != nil {"
+          ]
+        }
+      ]
+    },
+    "status-transition-rules": {
+      "statement": "Before a status transition the provider reads the version and makes no call when the status and commit message already match; it rejects moving the currently deployed version to STAGE or UNSTAGED, and maps UNSTAGED to the UNSTAGE action, or to REMOVE_LKG when the version is the last known good.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "already has status %s; no transition needed",
+            "// The service refuses to stage or unstage the currently deployed",
+            "action = \"REMOVE_LKG\"",
+            "current, err := pacfiles.GetPacVersionID(ctx, service, pacID, pacVersion, \"\")",
+            "if currentStatus == desiredStatus && commitMessage == current.PACCommitMessage {",
+            "if currentStatus == \"DEPLOYED\" && (desiredStatus == \"STAGE\" || desiredStatus == \"UNSTAGED\") {",
+            "return fmt.Errorf(\"version %d is the currently deployed version and cannot be transitioned to %s.",
+            "\"UNSTAGED\": \"UNSTAGE\",",
+            "if currentStatus == \"LKG\" && desiredStatus == \"UNSTAGED\" {"
+          ]
+        }
+      ]
+    },
+    "action-body-is-commit-message": {
+      "statement": "The provider's status action passes the commit message to the SDK version-action call, and its comment says the action endpoint stores the request body as the version's commit message.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// endpoint stores the request body as the version's commit message, so the",
+            "pacfiles.UpdatePacFile(ctx, service, pacID, pacVersion, action, commitMessage, nil)"
+          ]
+        }
+      ]
+    },
+    "delete-version-for-capacity": {
+      "statement": "`delete_version` names a version to remove when a content change would exceed the maximum number of PAC file versions, and is used only when a new version is saved; the save error suggests setting it when the maximum was reached.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "The version to remove when a content change would exceed the maximum number of PAC file versions. Only used when saving a new version.",
+            "(if the maximum number of versions was reached, set delete_version to remove one)"
+          ]
+        }
+      ]
+    },
+    "import-adopts-deployed": {
+      "statement": "Import accepts a numeric PAC file ID or a name, resolves the file through the deployed-state list or a by-name lookup, and adopts the file's deployed version as the tracked version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// Adopt the deployed version as the tracked version.",
+            "resp, err := pacfiles.GetPacFileByName(ctx, service, id)",
+            "// Read the tracked version, not the deployed list: when the tracked"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "after": "StateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {",
+          "quotes": [
+            "idInt, parseIDErr := strconv.ParseInt(id, 10, strconv.IntSize)",
+            "if parseIDErr == nil { allFiles, err := pacfiles.GetPacFiles(ctx, service, \"\")",
+            "_ = d.Set(\"pac_version\", foundFile.PACVersion)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "List of PAC files in deployed state, including default and custom PAC files.",
+            "allFiles, err := pacfiles.GetPacFiles(ctx, service, filter)"
+          ]
+        }
+      ]
+    },
+    "read-tracks-version": {
+      "statement": "Read refreshes the tracked version, and falls back to the file's deployed version only when no version is tracked or the tracked version no longer exists, removing the resource from state only when the file itself is gone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// Read the tracked version, not the deployed list: when the tracked",
+            "// version is staged, the deployed list would return another version's",
+            "resp, err = pacfiles.GetPacVersionID(ctx, service, id, version, \"\")",
+            "if err != nil && !isPacResourceNotFound(err) {",
+            "// No tracked version, or the tracked version no longer exists: re-sync",
+            "// to the file's deployed version, and remove the resource from state",
+            "// only when the file itself is gone.",
+            "log.Printf(\"[WARN] Removing PAC file %d from state because it no longer exists in ZIA\", id)",
+            "if resp == nil { allFiles, err := pacfiles.GetPacFiles(ctx, service, \"\")",
+            "if versionSet { log.Printf(\"[WARN] PAC file %d version %d no longer exists; re-syncing state to the deployed version %d\", id, version, resp.PACVersion)"
+          ]
+        }
+      ]
+    },
+    "data-source-deployed-list": {
+      "statement": "The `zia_pac_files` data source lists PAC files in deployed state, including default and custom ones; `id` or `name` narrows it to one file, and `filter = \"pac_content\"` omits the content, including on a name lookup, which returns the full object and has it blanked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "List of PAC files in deployed state, including default and custom PAC files.",
+            "When set to `pac_content`, the PAC file content is omitted from the results.",
+            "foundFile, err := pacfiles.GetPacFileByName(ctx, service, name.(string))",
+            "if filter == \"pac_content\" { // The name lookup always returns the full object; honour the // filter by omitting the content, matching the list behaviour. foundFile.PACContent = \"\"",
+            "The unique identifier of the PAC file to retrieve. When set, only the matching PAC file is returned.",
+            "The name of the PAC file to retrieve. When set, only the matching PAC file is returned."
+          ]
+        }
+      ]
+    }
+  }
+}

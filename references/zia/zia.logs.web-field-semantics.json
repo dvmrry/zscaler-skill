@@ -1,0 +1,873 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.web-field-semantics",
+  "title": "Value encodings and caveats of ZIA web log fields",
+  "aliases": [
+    "sip 0.0.0.0",
+    "respcode 403 blocked",
+    "cip vs cintip",
+    "host vs url field",
+    "domain fronting fields",
+    "riskscore threatseverity",
+    "dlprulename trig_dlprulename",
+    "byte counters web log",
+    "prompt_req",
+    "urlcat urlsupercat urlclass",
+    "reason field"
+  ],
+  "binds": [
+    "zia/web-log#sip",
+    "zia/web-log#respcode",
+    "zia/web-log#cip",
+    "zia/web-log#cintip",
+    "zia/web-log#host",
+    "zia/web-log#url",
+    "zia/web-log#df_hostname",
+    "zia/web-log#df_hosthead",
+    "zia/web-log#userlocationname",
+    "zia/web-log#riskscore",
+    "zia/web-log#threatseverity",
+    "zia/web-log#dlprulename",
+    "zia/web-log#trig_dlprulename",
+    "zia/web-log#bypassed_traffic",
+    "zia/web-log#prompt_req",
+    "zia/web-log#reason",
+    "zia/web-log#urlcat",
+    "zia/web-log#urlsupercat",
+    "zia/web-log#urlclass"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-rule-attribution"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.block-diagnosis"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.field-enablement"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Several web log fields have encodings, fallbacks and conditions that the field list alone does not show. These are the ones the vendor field CSV states."
+    },
+    {
+      "label": "Network and destination.",
+      "text": "{{sip-blocked}} {{respcode-403}} {{respcode-not-origin}} Whose response code the field holds is described two ways {{divergence:respcode-origin}}. {{cip-cintip}} {{host-fallback}} {{url-no-scheme}} {{domain-fronting}} The TLS Inspection requirement for df_hostname is in [[zia.logs.field-enablement:df-tls]]. {{isolation-location}} {{sipa-server-ip}} {{protocol-values}} {{tunnel-handoff}} {{flow-type-values}}"
+    },
+    {
+      "label": "Threat and risk.",
+      "text": "{{riskscore-factors}} {{severity-from-score}} {{malwarecat-sandbox}} Where the score comes from is open {{gap:riskscore-lineage}}. {{severity-buckets}} {{threat-engines}}"
+    },
+    {
+      "label": "Placeholders.",
+      "text": "{{none-sentinels}}"
+    },
+    {
+      "label": "Rules and DLP.",
+      "text": "{{dlp-rule-fields}} The rule-name fields for blocks are covered in [[zia.logs.web-rule-attribution]]. {{reason-pointer}} Whether the logged values are exactly the article's strings is open {{gap:reason-structure}}, and one of its rows contradicts itself {{divergence:business-site-cautioned}}."
+    },
+    {
+      "label": "Categories.",
+      "text": "The category fields' relation is open {{gap:url-category-fields}}."
+    },
+    {
+      "label": "Sizes.",
+      "text": "{{sizes}} {{byte-columns}} Their measurement point is open {{gap:byte-counters}}."
+    },
+    {
+      "label": "Insights Logs values.",
+      "text": "{{policy-action-values}} {{url-categorization-method}} {{app-status-na}} {{user-gateway-name}} {{dlp-policy-action-none}} {{ssl-policy-reason-values}} The reason wording differs between the console and the NSS page {{divergence:ssl-reason-wording}}. {{client-handshake-failure-reasons}} {{client-proposals}}"
+    },
+    {
+      "label": "Client Connector and generative AI.",
+      "text": "{{bypass-flag}} What prompt_req records is open {{gap:prompt-scope}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an empty or zero sip, or a 403 in respcode, comes from a block before reading it as an origin result.",
+      "uses": [
+        "sip-blocked",
+        "respcode-403",
+        "respcode-not-origin",
+        "respcode-origin"
+      ]
+    },
+    {
+      "do": "Which client IP field to use when the internal address matters.",
+      "uses": [
+        "cip-cintip"
+      ]
+    },
+    {
+      "do": "Whether riskscore alone supports a threat conclusion, or the threat fields must be read with it.",
+      "uses": [
+        "riskscore-factors",
+        "severity-from-score",
+        "malwarecat-sandbox",
+        "riskscore-lineage"
+      ]
+    },
+    {
+      "do": "Which DLP rule field names the rule for an allowed versus a blocked transaction.",
+      "uses": [
+        "dlp-rule-fields"
+      ]
+    },
+    {
+      "do": "Whether a byte count is safe to use for volume before relying on it.",
+      "uses": [
+        "sizes",
+        "byte-counters"
+      ]
+    }
+  ],
+  "claims": {
+    "severity-buckets": {
+      "statement": "The Web Insights Logs severity values map to the suspicious content value: Critical for 90–100, High for 75–89, Medium for 46–74, Low for 1–45 and None for 0.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#threatseverity",
+        "zia/web-log#riskscore"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Critical: If the suspicious content value is 90–100.",
+            "High: If the suspicious content value is 75–89.",
+            "Medium: If the suspicious content value is 46–74.",
+            "Low: If the suspicious content value is 1–45.",
+            "None: If the suspicious content value is 0."
+          ]
+        }
+      ]
+    },
+    "sipa-server-ip": {
+      "statement": "With Source IP Anchoring for a URL or domain, the Web Insights Logs show the IP address 0.0.0.1 for the server to indicate the internal redirection, because the client request is forwarded to Private Access and the server IP is not logged at the proxy layer.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#sip"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "When you use Source IP Anchoring for the URL or domain, Zscaler doesn't log the server IP address at the proxy layer because the client request is forwarded to Private Access (ZPA), and the proxy code is already completed.",
+            "Therefore, the IP address 0.0.0.1 is logged to indicate the internal redirection within Zscaler."
+          ]
+        }
+      ]
+    },
+    "protocol-values": {
+      "statement": "The web Insights Logs protocol values are DNS over HTTPS, FTP (native FTP servers), FTP over HTTP, HTTP, HTTP Proxy (HTTP CONNECT requests to a ZIA Public Service Edge IP), HTTPS (inspected), SSL/TLS (not inspected), Tunnel (unidentified encrypted traffic such as Telnet or SSH inside HTTP or HTTPS), Tunnel SSL/TLS (an undecodable protocol inside SSL/TLS), WebSocket and WebSocket SSL/TLS; inspection of bidirectional WebSocket text-based content is enabled by contacting Zscaler Support.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#proto"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "DNS over HTTPS: Transactions from sites that are used for DNS resolution over an encrypted and secure connection with DNS Over HTTPS Services.",
+            "FTP: Transactions from native FTP servers.",
+            "FTP over HTTP: Transactions from FTP over HTTP websites.",
+            "HTTP: Transactions from HTTP websites.",
+            "HTTP Proxy: Transactions from HTTP CONNECT requests destined to a ZIA Public Service Edge IP address.",
+            "HTTPS: HTTPS transactions that have been inspected.",
+            "SSL/TLS: Transactions from SSL/TLS connections that have not been inspected.",
+            "Tunnel: Transactions from unidentified encrypted traffic. For example, tunneling applications (e.g., Telnet or SSH) that are encapsulated in HTTP or HTTPS.",
+            "Tunnel SSL/TLS: Undecodable protocol within an SSL/TLS connection.",
+            "WebSocket: Transactions from WebSocket websites.",
+            "WebSocket SSL/TLS: Transactions from WebSocket websites encrypted by SSL/TLS.",
+            "Zscaler inspects bidirectional WebSocket traffic carrying supported text-based content across applications. Contact Zscaler Support to enable this feature."
+          ]
+        }
+      ]
+    },
+    "tunnel-handoff": {
+      "statement": "Some web protocol filter values mean control was handed to the firewall, for example Tunnel and Tunnel SSL/TLS: the firewall completes the remaining inspection and applies a policy according to the rules, and the page recommends always checking the firewall logs to confirm.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#proto"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "There are certain filter values where control is handed over to the firewall.",
+            "For example, when the filter values are set to Tunnel or Tunnel SSL/TLS, control is handed to the firewall.",
+            "The firewall completes the remaining inspection and applies a policy according to the rules.",
+            "it is recommended that you always check the firewall logs to confirm the same."
+          ]
+        }
+      ]
+    },
+    "flow-type-values": {
+      "statement": "The Web and Firewall Insights Logs filters on flow type list Direct, Intranet, Loopback, Unclassified, VPN, VPN Tunnel, ZIA and ZPA.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#flow_type",
+        "zia/firewall-log#flow_type"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "Direct - Intranet - Loopback - Unclassified - VPN - VPN Tunnel - ZIA - ZPA"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "Direct - Intranet - Loopback - Unclassified - VPN - VPN Tunnel - ZIA - ZPA"
+          ]
+        }
+      ]
+    },
+    "threat-engines": {
+      "statement": "In the web Insights Logs filters, the threat category filter lists threats detected by Malware Protection and the advanced threat category filter lists threats detected by Advanced Threat Protection; one filter lists the values Advanced Threats, Sandbox and Viruses & Spyware, and another Malware, Sandbox, Spyware and Virus.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#malwarecat",
+        "zia/web-log#malwareclass"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "Use this filter to view transactions associated with a specific threat category. These threats are detected by Malware Protection.",
+            "Use this filter to view transactions in which advanced threats were detected. These advanced threats are detected by Advanced Threat Protection.",
+            "Advanced Threats - Sandbox - Viruses & Spyware",
+            "Malware - Sandbox - Spyware - Virus"
+          ]
+        }
+      ]
+    },
+    "policy-action-values": {
+      "statement": "Besides All (the default), the web Insights Logs policy action filter values are Allow; Allowed - No Active Content (unknown PDF or Microsoft Office downloads allowed as benign by Sandbox static analysis); Allowed and No Scan (unknown files allowed but not scanned under the Sandbox policy); Allowed with caution; Block; Blocked - Tenant Restricted (Tenant Restriction policies); Blocked with caution; and Isolate (sent to Zero Trust Browser).",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "All: View all transactions. This is the default option.",
+            "Allow: View allowed transactions.",
+            "Allowed - No Active Content: View download transactions of unknown PDF or Microsoft Office files that are allowed because they are classified as benign in Sandbox static analysis.",
+            "Allowed and No Scan: View download transactions of unknown files that were allowed but not scanned due to your configured Sandbox policy.",
+            "Allowed with caution: View allowed transactions where the service displayed a caution notification.",
+            "Block: View blocked transactions.",
+            "Blocked - Tenant Restricted: View blocked transactions because of your configured Tenant Restriction policies.",
+            "Blocked with caution: View blocked transactions where the service displayed a caution notification.",
+            "Isolate: View transactions sent for isolation by Zero Trust Browser (formerly Isolation)."
+          ]
+        }
+      ]
+    },
+    "url-categorization-method": {
+      "statement": "URL Categorization Method gives the source of a URL's category: Database A (the service's proprietary URL database), Database B (a third-party vendor's database), AI/ML-based content categorization (pages in neither database classified with AI/ML tools), User-Defined (defined by an administrator) or None (in no database).",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#urlcatmethod"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Database A refers to the proprietary URL database of the service; Database B refers to a third-party vendor’s URL database; AI/ML-based content categorization refers to the content classification of pages that are not present in any of the databases using AI/ML tools.",
+            "User-Defined indicates that the category was defined by an administrator. None indicates that the category of the URL is unavailable in any of the databases."
+          ]
+        }
+      ]
+    },
+    "byte-columns": {
+      "statement": "In Web Insights Logs, Received Bytes is how many bytes the destination web server returned for each HTTP request, Sent Bytes the size of the HTTP request sent to it, and Total Bytes the sum of the two.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#respsize",
+        "zia/web-log#reqsize",
+        "zia/web-log#totalsize"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Received Bytes: Specifies how many bytes the destination web server returned for each HTTP request.",
+            "Sent Bytes: Specifies the size, in bytes, of the HTTP request that was sent to the destination web server.",
+            "Total Bytes: The sum of the values in the Received Bytes and Sent Bytes columns."
+          ]
+        }
+      ]
+    },
+    "dlp-policy-action-none": {
+      "statement": "DLP Policy Action shows None when the rule has no Auditor or Incident Receiver notification configured.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#dlp_policy_action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "DLP Policy Action: The DLP policy action that was taken on the transaction. If Auditor or Incident Receiver notifications are not configured in the rule, this field displays None."
+          ]
+        }
+      ]
+    },
+    "user-gateway-name": {
+      "statement": "When an internet gateway location is specified and authentication is not required, the web Insights Logs user and department fields show the gateway location's name.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#login",
+        "zia/web-log#dept"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Department: The department",
+            "If an internet gateway location was specified and authentication is not required, this field displays the name of the gateway location.",
+            "As with the user field, if authentication is not required and the traffic comes from a location specified in the service, this field displays the name of the gateway location."
+          ]
+        }
+      ]
+    },
+    "app-status-na": {
+      "statement": "The cloud application sanctioned or unsanctioned status filter shows N/A when the URL is unknown and no cloud application is tagged in the transaction.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#app_status"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "Use this filter to view if the cloud application is sanctioned or unsanctioned. The status is displayed as N/A if the URL is unknown and no cloud application is tagged in the transaction."
+          ]
+        }
+      ]
+    },
+    "ssl-policy-reason-values": {
+      "statement": "The filter for SSL/TLS Inspection policy actions lists Blocked, Inspected, N/A and Not inspected because of failed client SSL/TLS handshake, HSM error, mutual TLS authentication, O365 bypass, SSL/TLS policy, UCaaS bypass, undecryptable traffic, Zscaler best practices or Zscaler service domains.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#externalspr"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "The following SSL/TLS Inspection policy actions appear under this filter: - Blocked - Inspected - N/A",
+            "Not inspected because of failed client SSL/TLS handshake - Not inspected because of HSM error - Not inspected because of mutual TLS authentication - Not inspected because of O365 bypass",
+            "Not inspected because of SSL/TLS policy - Not inspected because of UCaaS bypass - Not inspected because of undecryptable traffic - Not inspected because of Zscaler best practices - Not inspected because of Zscaler service domains"
+          ]
+        }
+      ]
+    },
+    "client-handshake-failure-reasons": {
+      "statement": "The filter for client SSL/TLS handshake failure reasons lists Access Denied, Bad Cert Status Resp or Hash Value, Bad or Unsupported Certificate, Bad Record Mac, Certificate Revoked or Expired, Certificate Unknown, Certificate Unobtainable, Close Notify or Client TCP Reset, Decode Error, Decrypt Error, Handshake Failure, Illegal Parameter, Insufficient Security, Internal Error, N/A, No Application Protocol, No Renegotiation, Other Handshake Error, Protocol Version, Record Overflow, Unexpected Message, Unknown CA, Unknown PSK Identity, Unrecognized Name, Unsupported Extension and User Canceled; the page refers to RFC 2246 The TLS Protocol.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#cltsslfailreason"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "Access Denied - Bad Cert Status Resp or Hash Value - Bad or Unsupported Certificate - Bad Record Mac - Certificate Revoked or Expired - Certificate Unknown - Certificate Unobtainable - Close Notify or Client TCP Reset - Decode Error - Decrypt Error - Handshake Failure",
+            "Illegal Parameter - Insufficient Security - Internal Error - N/A - No Application Protocol - No Renegotiation - Other Handshake Error - Protocol Version - Record Overflow - Unexpected Message - Unknown CA - Unknown PSK Identity - Unrecognized Name - Unsupported Extension - User Canceled",
+            "To learn more, refer to RFC 2246 The TLS Protocol."
+          ]
+        }
+      ]
+    },
+    "client-proposals": {
+      "statement": "Client Key Exchange Proposal and Client Digital Signature Proposal give what the client proposed in the TLS handshake as Classical, Hybrid, PQC or Unknown, or None when the supported_groups or signature_algorithms extension was not present; the filters page describes None as all non-TLS related transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Client Digital Signature Proposal: The digital signature proposed by the client during the TLS handshake process in a transaction (i.e., Classical, Hybrid, PQC, Unknown or None if signature_algorithms extension was not present).",
+            "Client Key Exchange Proposal: The key exchange algorithm proposed by the client during the TLS handshake process in a transaction (i.e., Classical, Hybrid, PQC, Unknown, or None if supported_groups extension was not present)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "None: Use this filter to view all non-TLS related transactions."
+          ],
+          "after": "Use this filter to view key exchange algorithms proposed by the client in supported_groups extension"
+        }
+      ]
+    },
+    "sip-blocked": {
+      "statement": "The sip field shows 0.0.0.0 when the request was blocked.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#sip"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{sip} | The destination server IP address. This displays 0.0.0.0 if the request was blocked."
+          ]
+        }
+      ]
+    },
+    "respcode-403": {
+      "statement": "The respcode field is the response code sent to the client, and the service generates a 403 Forbidden response for blocked transactions.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#respcode"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| The HTTP response code sent to the client. The service generates a 403-Forbidden response for blocked transactions."
+          ]
+        }
+      ]
+    },
+    "respcode-not-origin": {
+      "statement": "A 403 in respcode on a blocked transaction is the service's own response and does not show that the origin server answered 403.",
+      "tier": "B",
+      "binds": [
+        "zia/web-log#respcode",
+        "zia/web-log#action"
+      ],
+      "derived_from": [
+        "respcode-403"
+      ],
+      "conditions": "Follows from the NSS description of respcode as the code sent to the client; the Web Insights Logs Response Code column describes the destination server's response instead, so this rests on one side of the divergence respcode-origin, and the source does not spell out the origin case."
+    },
+    "cip-cintip": {
+      "statement": "The cip field is the internal client IP when it is visible, for example through a GRE tunnel or an XFF header, and otherwise equals cintip; cintip is the NATed public IP and differs from cip only when the internal address is visible.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#cip",
+        "zia/web-log#cintip"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "It can be the internal IP address if it's visible (e.g., traffic sent through a GRE tunnel or an internal IP address indicated using XFF). Otherwise, it is the same as %s{cintip}.",
+            "| %s{cintip} | The client's internet (NATed Public) IP address. This is different from the %s{cip} value if the internal IP address is visible. Otherwise, it is the same as %s{cip}."
+          ]
+        }
+      ]
+    },
+    "host-fallback": {
+      "statement": "The host field takes the host value from the HTTP request line when present and the Host header otherwise.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#host"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "If present, the host value in the HTTP request line populates this field. If the host value in the HTTP request line is not present, the host header is used."
+          ]
+        }
+      ]
+    },
+    "url-no-scheme": {
+      "statement": "The url field excludes the protocol identifier, http:// or https://.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#url"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "The destination URL. It excludes the protocol identifier (e.g., http:// or https://)."
+          ]
+        }
+      ]
+    },
+    "domain-fronting": {
+      "statement": "df_hostname holds the TLS SNI when it differs from the HTTPS Host header, and df_hosthead marks an FQDN mismatch between the request URL and the Host header; each appears only when there is a mismatch.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#df_hostname",
+        "zia/web-log#df_hosthead"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{df_hostname} | An optional field that contains the TLS connection's Server Name Indication (SNI) in cases that the HTTPS request host header does not match the SNI. TLS Inspection must be enabled for this field to be populated. The field is present in the logs only if there is a mismatch.",
+            "| %s{df_hosthead} | The field contains HTTP/S transactions that indicate domain fronting due to an FQDN mismatch between the request URL and the request's host header. The field is present in the logs only if there is a mismatch."
+          ]
+        }
+      ]
+    },
+    "isolation-location": {
+      "statement": "For traffic processed through Isolation, userlocationname holds the actual origination point while location holds the Isolation Location; for other traffic userlocationname is None.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#userlocationname",
+        "zia/web-log#location"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{userlocationname} | Applicable to the web traffic processed via Zero Trust Browser (formerly Isolation).",
+            "The field shows the actual traffic origination point, whereas the %s{location} field displays the isolation location.",
+            "When the web traffic is not handled by Zero Trust Browser, the field value is None."
+          ]
+        }
+      ]
+    },
+    "none-sentinels": {
+      "statement": "app_risk_score displays None when the risk index is unavailable, and ua_token displays None when no user agent token exists.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#app_risk_score",
+        "zia/web-log#ua_token"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{app_risk_score} | The computed or assigned risk index for the cloud application, with 1 being the lowest risk and 5 being the highest. If the risk index is not available, the field displays None.",
+            "| %s{ua_token} | The user agent token. This displays None if the user agent token doesn't exist."
+          ]
+        }
+      ]
+    },
+    "riskscore-factors": {
+      "statement": "The service computes the Page Risk Index for each page by weighing page locations, destination reputation and suspicious-looking content, on a 0 to 100 scale from lowest to highest risk.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#riskscore"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %d{riskscore} | The Page Risk Index score of the destination URL. The service computes risk for each page by weighing several factors, including page locations, reputation of destination, and content that may look suspicious.",
+            "The range is 0–100, from the lowest to the highest risk."
+          ]
+        }
+      ]
+    },
+    "severity-from-score": {
+      "statement": "threatseverity relates to the riskscore bucket, so a riskscore from 90 to 100 gives Critical.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#threatseverity",
+        "zia/web-log#riskscore"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "The severity relates to the Page Risk Index score. For example, if the value of %d{riskscore} is between 90 and 100, then the value of %s{threatseverity} is Critical."
+          ]
+        }
+      ]
+    },
+    "malwarecat-sandbox": {
+      "statement": "malwarecat holds the malware category detected in the transaction and also indicates whether a file was submitted to the Sandbox engine and the analysis result.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#malwarecat"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{malwarecat} | The category of malware that was detected in the transaction, if any. Also indicates if a file was submitted to the Sandbox engine for analysis and the result of the analysis."
+          ]
+        }
+      ]
+    },
+    "dlp-rule-fields": {
+      "statement": "dlprulename applies only to Allow rules; trig_dlprulename names the DLP rule that triggered the transaction, allowed or blocked; all_dlprulenames combines other_dlprulenames and trig_dlprulename.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#dlprulename",
+        "zia/web-log#trig_dlprulename",
+        "zia/web-log#other_dlprulenames",
+        "zia/web-log#all_dlprulenames"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{dlprulename} | The name of the DLP rule applied to the transaction. Applies only to Allow rules, not Block.",
+            "| %s{trig_dlprulename} | The name of the DLP rule that triggered a transaction, which can be either allowed or blocked.",
+            "| %s{all_dlprulenames} | The names of all DLP rules whether they were triggered or not. This field is a combination of %s{other_dlprulenames} and %s{trig_dlprulename}."
+          ]
+        }
+      ]
+    },
+    "sizes": {
+      "statement": "respsize includes the response header and payload, and totalsize is the sum of the total request size and total response size.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#respsize",
+        "zia/web-log#totalsize"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "The total size of the HTTP response, including the header and payload, in bytes",
+            "The sum of the total request size and total response size."
+          ]
+        }
+      ],
+      "gaps": [
+        "byte-counters"
+      ]
+    },
+    "bypass-flag": {
+      "statement": "bypassed_traffic is a numeric flag where 1 means the traffic bypassed Zscaler Client Connector.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#bypassed_traffic"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "%d{bypassed_traffic}",
+            "| Indicates whether the traffic bypassed the Zscaler Client Connector or not",
+            "| 1 indicates that the traffic bypassed Zscaler Client Connector"
+          ]
+        }
+      ]
+    },
+    "reason-pointer": {
+      "statement": "The reason field's documentation refers readers to the Policy Reasons article for the reasons behind policy actions.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#reason"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "To learn more about the reasons for policy actions, see Policy Reasons."
+          ]
+        }
+      ],
+      "gaps": [
+        "reason-structure"
+      ]
+    }
+  },
+  "divergences": {
+    "respcode-origin": {
+      "summary": "The Web Insights Logs Response Code column is the destination server's response, while the NSS web output format describes respcode as the HTTP response code sent to the client.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-web-insights-logs-columns.json",
+            "quotes": [
+              "Response Code: The destination server’s response. For example, 200 OK means the request succeeded and 404 Not Found means the requested URL was not found."
+            ]
+          },
+          "says": "The Response Code column is the destination server's response."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "nss-feed-output-format-web-logs.json",
+            "quotes": [
+              "| %s{respcode} | The HTTP response code sent to the client. The service generates a 403-Forbidden response for blocked transactions."
+            ]
+          },
+          "says": "respcode is the HTTP response code sent to the client, and the service generates a 403-Forbidden response for blocked transactions."
+        }
+      ],
+      "impact": "Whether a 403 or another code in the feed's respcode is the origin's answer or the service's depends on which page is read; the pages do not say whether the console column and the NSS field are the same value."
+    },
+    "ssl-reason-wording": {
+      "summary": "The Web Insights Logs filters page words one SSL/TLS policy reason as Not inspected because of O365 bypass, while the NSS web output format words it as Not inspected because of Microsoft 365 bypass.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "web-insights-logs-filters.json",
+            "quotes": [
+              "Not inspected because of O365 bypass"
+            ]
+          },
+          "says": "The reason reads Not inspected because of O365 bypass."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "nss-feed-output-format-web-logs.json",
+            "quotes": [
+              "Not inspected because of Microsoft 365 bypass"
+            ]
+          },
+          "says": "The reason reads Not inspected because of Microsoft 365 bypass."
+        }
+      ],
+      "impact": "A match on the reason string needs both spellings unless one page is shown to be the feed's wording; the pages do not say which a feed carries."
+    },
+    "business-site-cautioned": {
+      "summary": "In the Policy Reasons article, the Cloud App Control reason Not allowed the use of this business site says the transaction was not allowed, while the same row's description says it was cautioned.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-policy-reasons.json",
+            "quotes": [
+              "| Not allowed the use of this business site | Cloud App Control |"
+            ]
+          },
+          "says": "The reason string says the use of the business site was not allowed."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-policy-reasons.json",
+            "quotes": [
+              "Due to a Cloud App Control policy that restricts access to business cloud apps, the transaction was cautioned."
+            ]
+          },
+          "says": "The row's description says the transaction was cautioned."
+        }
+      ],
+      "impact": "Whether a record with this reason was blocked or cautioned cannot be told from the article; the record's action field says which."
+    }
+  },
+  "gaps": {
+    "reason-structure": {
+      "kind": "data",
+      "title": "Whether reason is an enum or templated text",
+      "status": "partial",
+      "detail": "The Policy Reasons article lists the reason strings for policy actions in a table of Policy Reason, Feature and Description; the table is generated onto the web log type as policy_reasons (read one by its text). Whether the logged values are exactly these strings, whether any are assembled per incident, and whether the wording is the same across cloud generations or localized, is still not stated. A cross-tenant comparison of reason for one trigger would settle it.",
+      "blocks": "Regex-matching reason across tenants.",
+      "former_ids": [
+        "log-06"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "url-category-fields": {
+      "kind": "data",
+      "title": "How urlclass, urlsupercat and urlcat relate",
+      "status": "open",
+      "detail": "Unverified legacy statement: the three URL category fields have overlapping examples, and the CSV does not say whether urlcat is always a member of urlsupercat, whether urlclass is a higher roll-up, what a multi-category URL shows, or whether Advanced Threat categories appear in urlcat, urlsupercat or both. The CSV does say urlcat also includes Advanced Threat Category values. A tenant export of 50 or more varied URLs would show it.",
+      "blocks": "Grouping or rolling up URLs by these fields.",
+      "former_ids": [
+        "log-07"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "riskscore-lineage": {
+      "kind": "data",
+      "title": "Which subsystem produces riskscore",
+      "status": "open",
+      "detail": "Unverified legacy statement: riskscore may come from URL reputation alone, with ATP and Sandbox findings living in threatname, malwarecat and malwareclass, or it may combine them; its relation to app_risk_score on the 1 to 5 scale is not stated. A deliberate-trigger test comparing riskscore with simultaneous threat fields would show it.",
+      "blocks": "Reading a high riskscore as an ATP or Sandbox detection.",
+      "former_ids": [
+        "log-08"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "byte-counters": {
+      "kind": "data",
+      "title": "Where byte counters are measured",
+      "status": "open",
+      "detail": "Unverified legacy statement: the measurement point of reqsize, respsize, totalsize, reqdatasize and respdatasize is not stated (client wire, edge, post-decryption), nor compression handling, CONNECT handling with and without inspection, or truncation. The reqsize description also does not say it includes headers. A known-payload upload test over plain, gzipped, inspected and uninspected HTTPS would show it. The Web Insights Logs columns article says Received Bytes is how many bytes the destination web server returned for each HTTP request and Sent Bytes the size of the HTTP request sent to it (byte-columns), which does not settle the measurement point.",
+      "blocks": "Using these fields for exfiltration volume or bandwidth sizing.",
+      "former_ids": [
+        "log-09"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "prompt-scope": {
+      "kind": "data",
+      "title": "What prompt_req records",
+      "status": "open",
+      "detail": "Unverified legacy statement: whether prompt_req holds the full prompt or a truncated or sanitized one, whether it is logged for every generative AI application or only those matched by a rule, its retention, and whether the response is logged are not stated. The CSV says only that it is the prompt entered in the generative AI application. A test with a long prompt marked at start, middle and end would show truncation.",
+      "blocks": "Claiming visibility into generative AI prompts.",
+      "former_ids": [
+        "log-10"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

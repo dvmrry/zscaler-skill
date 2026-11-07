@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.authentication-options",
+  "title": "Install parameters for how users sign in to Client Connector",
+  "aliases": [
+    "externalRedirect",
+    "EXTERNALREDIRECT",
+    "enableSSO",
+    "ENABLESSO",
+    "installWebView2",
+    "INSTALLWEBVIEW2",
+    "enableImprivataIntegration",
+    "ENABLEIMPRIVATAINTEGRATION",
+    "browser-based authentication zcc",
+    "imprivata onesign zcc"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.requirements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These parameters change where and how a user authenticates when Client Connector enrolls them."
+    },
+    {
+      "label": "Browser instead of the app.",
+      "text": "{{external-redirect}}"
+    },
+    {
+      "label": "Windows primary account and WebView2.",
+      "text": "{{enable-sso}} {{install-webview2}}"
+    },
+    {
+      "label": "Imprivata.",
+      "text": "{{imprivata}} {{imprivata-msi-name}} {{imprivata-purpose}} {{imprivata-ui}} {{imprivata-practices}}"
+    },
+    {
+      "label": "Machine tunnel.",
+      "text": "Requiring IdP authentication before a machine tunnel starts is also an install parameter on Windows: [[zpa.machine-tunnels.requirements:machine-auth-install-parameter]]."
+    }
+  ],
+  "claims": {
+    "imprivata-purpose": {
+      "statement": "The Imprivata integration is available only for Client Connector 4.4 and later for Windows and is useful if users authenticate on shared devices: it silently logs Imprivata users in to and out of Client Connector, applies different security policies on the same device based on the user, and logs activity for each user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-and-imprivata-integration.json",
+          "quotes": [
+            "This feature is available only for Zscaler Client Connector version 4.4 and later for Windows.",
+            "This integration is useful if your users authenticate on shared devices and allows you to:",
+            "Silently log Imprivata users in to and out of Zscaler Client Connector.",
+            "Apply different security policies on the same device based on the user.",
+            "Log activity for each user."
+          ]
+        }
+      ]
+    },
+    "imprivata-ui": {
+      "statement": "The Client Connector system tray icon does not display when Imprivata users are logged in, and they can access Client Connector from the Start menu. Updates to Client Connector or Admin Console changes that result in temporary downtime of the app do not affect the Imprivata login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-and-imprivata-integration.json",
+          "quotes": [
+            "The Zscaler Client Connector system tray icon does not display when Imprivata users are logged in.",
+            "Imprivata users can access Zscaler Client Connector from the Start menu.",
+            "Updates to Zscaler Client Connector or changes in the Zscaler Admin Console that result in temporary downtime of the app do not affect the Imprivata login."
+          ]
+        }
+      ]
+    },
+    "imprivata-practices": {
+      "statement": "The Imprivata page's best-practice recommendations are disabling the Zscaler Notification Framework to prevent pop-up messages and setting Private Access policies to expire at the same time. Its steps to use the integration are deploying Client Connector with a customized install option and enabling Integrated Windows Authentication (IWA). (Optional): if WebView2 authentication is used, additional domains are entered when the user login domain differs from the IdP domain. The Registered Device Details page shows the type of user (Windows or Imprivata) accessing a device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-and-imprivata-integration.json",
+          "quotes": [
+            "The following recommendations are best practices for integrating Zscaler Client Connector with Imprivata:",
+            "Disable the Zscaler Notification Framework to prevent pop-up messages for users.",
+            "Set your Private Access policies to expire at the same time.",
+            "To use Zscaler Client Connector integration with Imprivata:",
+            "Deploy Zscaler Client Connector with a customized install option.",
+            "Enable Integrated Windows Authentication (IWA).",
+            "(Optional) If you use WebView2 authentication, enter additional domains if the user login domain is different from the IdP domain.",
+            "View the type of user accessing a device (Windows or Imprivata) on the Zscaler Client Connector Registered Device Details page."
+          ]
+        }
+      ]
+    },
+    "external-redirect": {
+      "statement": "externalRedirect (MSI `EXTERNALREDIRECT`) enables browser-based authentication on Windows. On macOS it redirects authentication to the organization's SAML IdP through the default browser and Safari; the first time, users must select Remember Me on the IdP login screen, after which the browser logs them in automatically. It defaults to disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: EXTERNALREDIRECT EXE: externalRedirect",
+            "Enables browser-based authentication for Zscaler Client Connector."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "after": "| externalRedirect |",
+          "quotes": [
+            "Redirects authentication to your organization’s SAML IdP through the default browser and Safari.",
+            "When redirected to the browser for the first time, your users must select Remember Me on their IdP log-in screen.",
+            "For any subsequent authentications, the browser remembers the user and automatically logs them in.",
+            "1 = Enable 0= Disable (default)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: EXTERNALREDIRECT EXE: externalRedirect",
+          "quotes": [
+            "1 = Enable 0= Disable (default)"
+          ]
+        }
+      ]
+    },
+    "enable-sso": {
+      "statement": "On Windows, enableSSO (MSI `ENABLESSO`) enables SSO with the Windows primary account in an Azure Active Directory environment: 2, the default, follows policy; 1 enables; 0 disables.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: ENABLESSO EXE: enableSSO",
+            "Enables SSO using the Windows Primary account in an Azure Active Directory environment.",
+            "2 = Based on policy (default) 1 = Enable 0= Disable",
+            "You must pass the ENABLESSO or enableSSO option if you want to test SSO with WebView2.",
+            "The parameter names are different based on whether you are using an MSI file or an EXE file."
+          ]
+        }
+      ]
+    },
+    "install-webview2": {
+      "statement": "installWebView2 (MSI `INSTALLWEBVIEW2`) installs the WebView2 framework, and is meant only for testing WebView2-based functionality on a single device; testing SSO with WebView2 also needs enableSSO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: INSTALLWEBVIEW2 EXE: installWebView2",
+            "Enables installation of the WebView2 framework",
+            "This option is used for testing WebView2-based functionality on a single device and should be used for testing only.",
+            "You must pass the ENABLESSO or enableSSO option if you want to test SSO with WebView2.",
+            "To use this option, you must pass the INSTALLWEBVIEW2 or installWebView2 option if you want to test SSO with WebView2.",
+            "The parameter names are different based on whether you are using an MSI file or an EXE file."
+          ]
+        }
+      ]
+    },
+    "imprivata": {
+      "statement": "On Windows from Client Connector 4.4, enableImprivataIntegration integrates with Imprivata OneSign: Client Connector silently logs the Imprivata OneSign user in, applies security policies and logs the user's activity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: ENABLEIMPRIVATAINTEGRATION EXE: enableImprivataIntegration",
+            "If enabled, Zscaler Client Connector silently logs in an Imprivata OneSign user to Zscaler Client Connector, applies security policies, and logs the end user activity in Zscaler Client Connector.",
+            "This option is available only in Zscaler Client Connector version 4.4 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "imprivata-msi-name": {
+      "statement": "Its MSI name is ENABLEIMPRIVATAINTEGRATION.",
+      "tier": "B",
+      "derived_from": [
+        "imprivata"
+      ],
+      "conditions": "The help capture joins the row's MSI and EXE labels into 'MSI: ENABLEIMPRIVATAINTEGRATIONEXE: enableImprivataIntegration'; this reads it as MSI name plus EXE name, as the page's prose confirms for other rows (ENABLESSO or enableSSO, INSTALLWEBVIEW2 or installWebView2) and its note that MSI and EXE names differ. No source writes this MSI name on its own.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: ENABLEIMPRIVATAINTEGRATION EXE: enableImprivataIntegration",
+            "The parameter names are different based on whether you are using an MSI file or an EXE file."
+          ]
+        }
+      ]
+    }
+  }
+}

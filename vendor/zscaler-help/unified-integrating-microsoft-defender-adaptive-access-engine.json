@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Integrating Microsoft Defender with Adaptive Access Engine",
+  "source": {
+    "url": "https://help.zscaler.com/unified/integrating-microsoft-defender-adaptive-access-engine",
+    "node": "1544962",
+    "revision": "3232779",
+    "updated": "2026-09-10",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Adaptive Access Engine receives device signals from Microsoft Defender, which might be used to control user access to applications via Zscaler. You can configure the Microsoft Defender settings in the Experience Center and establish the connection between Microsoft Defender and Adaptive Access Engine. This enables Microsoft Defender to share the user and device context signals with the Adaptive Access Engine."
+    },
+    {
+      "text": "The following signals are evaluated by Microsoft Defender for Endpoint and sent to Adaptive Access Engine:"
+    },
+    {
+      "item": "Risk Score: Values are None, Informational, Low, Medium, and High.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Exposure Level: Values are None, Low, Medium, and High.",
+      "depth": 0
+    },
+    {
+      "item": "Health Status: The machine health status and values are Active, Inactive, ImpairedCommunication, NoSensorData, NoSensorDataImpairedCommunication, and Unknown.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Device Tag (Machine Tag): Set of machine tags.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "RBAC Group: The machine group name.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "RBAC Group ID: The machine group ID.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before integrating Microsoft Defender with Adaptive Access Engine, ensure that you have the following:"
+    },
+    {
+      "item": "A Microsoft Entra user account with admin privileges.",
+      "depth": 0
+    },
+    {
+      "item": "A Microsoft Defender for Endpoint account.",
+      "depth": 0
+    },
+    {
+      "item": "A Microsoft Azure account with subscription for Event Hub and Logic App.",
+      "depth": 0
+    },
+    {
+      "item": "Register a Microsoft Entra application with the required permissions",
+      "depth": 0
+    },
+    {
+      "heading": "Service Permissions",
+      "level": 2
+    },
+    {
+      "item": "You need to manage permissions in the following services, to allow Adaptive Access Engine to communicate with Microsoft Defender:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Service",
+          "Permission",
+          "Type",
+          "Description",
+          "Admin Consent Required?"
+        ],
+        [
+          "Microsoft Graph",
+          "DeviceManagementManagedDevices.Read.All",
+          "Application",
+          "Read Microsoft Intune devices",
+          "Yes"
+        ],
+        [
+          "SecurityEvents.Read.All",
+          "Application",
+          "Read your organization’s security events",
+          "Yes",
+          ""
+        ],
+        [
+          "User.Read",
+          "Delegated",
+          "Sign in and read user profile",
+          "No",
+          ""
+        ],
+        [
+          "Microsoft Threat Protection",
+          "AdvancedHunting.Read.All",
+          "Application",
+          "Run advanced hunting queries",
+          "Yes"
+        ],
+        [
+          "CustomDetections.ReadWrite.All",
+          "Application",
+          "Read and write all custom detection rules",
+          "Yes",
+          ""
+        ],
+        [
+          "Incident.Read.All",
+          "Application",
+          "Read all incidents",
+          "Yes",
+          ""
+        ],
+        [
+          "Incident.ReadWrite.All",
+          "Application",
+          "Read and write all incidents",
+          "Yes",
+          ""
+        ],
+        [
+          "WindowsDefenderATP",
+          "Ip.Read.All",
+          "Application",
+          "Read IP address profiles",
+          "Yes"
+        ],
+        [
+          "Machine.Read.All",
+          "Application",
+          "Read all machine profiles",
+          "Yes",
+          ""
+        ],
+        [
+          "Machine.ReadWrite.All",
+          "Application",
+          "Read and write all machine information",
+          "Yes",
+          ""
+        ],
+        [
+          "Machine.Scan",
+          "Application",
+          "Scan machine",
+          "Yes",
+          ""
+        ],
+        [
+          "Alert.Read.All",
+          "Application",
+          "Read all alerts",
+          "Yes",
+          ""
+        ],
+        [
+          "Score.Read.All",
+          "Application",
+          "Read threat and vulnerability management score",
+          "Yes",
+          ""
+        ]
+      ]
+    },
+    {
+      "item": "in the Azure tenant account and create a service principal. This is required for the Zscaler integration. To learn more, refer to the Microsoft documentation.",
+      "depth": 0
+    },
+    {
+      "text": "Zscaler Client Connector Windows 4.8 version or higher is required on devices using Microsoft Defender and Zscaler Client Connector and which require Adaptive Access profiles for Zscaler Internet Access (ZIA) or Zscaler Private Access (ZPA) policy enforcement."
+    },
+    {
+      "heading": "Configure Azure Event Hub and Logic App",
+      "level": 1
+    },
+    {
+      "text": "The Azure resources are required to fetch the Microsoft Defender signals and transmit them to Adaptive Access Engine."
+    },
+    {
+      "text": "To configure the Azure resources:"
+    },
+    {
+      "item": "Log in to Microsoft Azure portal.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Create a resource group to store all resources related to the Zscaler Adaptive Access Engine application. To learn more, refer to the Microsoft documentation.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Run the Bicep script (hosted in Zscaler GitHub) to create the resources and pass the appropriate parameter values. Bicep is a declarative domain specific language (DSL) that is used to provision Azure resources. To learn more, refer to the Microsoft documentation.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Configure Microsoft Defender Integration in Adaptive Access",
+      "level": 1
+    },
+    {
+      "text": "To configure the Microsoft Defender settings in Experience Center:"
+    },
+    {
+      "item": "Go to Policies > Common Configuration > Adaptive Access > Integrations.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          37
+        ],
+        [
+          40,
+          55
+        ],
+        [
+          58,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "On the Integrations page, click the Edit icon for Microsoft Defender.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          36,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Edit Microsoft Defender window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Microsoft Defender window:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Event Hub Instance: Enter the event hub instance.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Event Hub Host: Enter the host name of the event hub.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Consumer Group: Enter the name of the consumer group that is used to read and process the Microsoft Defender events. The name should be $Default. You can also create a different consumer group on the event hub instance and use it.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Connection String: Enter the connection string corresponding to the shared access service (SAS) policy created in the event hub. This allows the Adaptive Access Engine to connect to the event hub and receive signals.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "To get the connection string:",
+      "depth": 1
+    },
+    {
+      "item": "In the Azure portal, go to All services > Analytics > Event Hubs.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          27,
+          39
+        ],
+        [
+          42,
+          51
+        ],
+        [
+          54,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Select your event hub and go to the Event Hubs Namespace page",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, under Settings, select Shared access policies.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          35,
+          43
+        ],
+        [
+          52,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Select the policy and click the Edit icon.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Select the Copy icon next to the Connection string-primary key field to copy the connection string.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          11,
+          15
+        ],
+        [
+          33,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, refer to the Microsoft documentation.",
+      "depth": 2
+    },
+    {
+      "item": "Status: Enable to make the integration active.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Signal and Value Type: The context signal type that Microsoft Defender shares with Adaptive Access Engine.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          11,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Test Integration to verify the connection between Adaptive Access Engine and Microsoft Defender.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "A message appears indicating that the connection is successful. You can proceed to create device profiles.",
+      "depth": 0
+    }
+  ]
+}

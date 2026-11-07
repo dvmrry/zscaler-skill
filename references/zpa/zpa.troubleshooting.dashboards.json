@@ -1,0 +1,428 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.dashboards",
+  "title": "Applications, Users, Health, Extranet and Source IP Anchoring dashboards",
+  "aliases": [
+    "health dashboard",
+    "applications dashboard",
+    "users dashboard",
+    "extranet dashboard",
+    "source ip anchoring dashboard"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.component-dashboards"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are the console dashboards for applications, users, application and connector health, extranet resources and Source IP Anchoring. The App Connector, Private Service Edge and Private Cloud Controller dashboards are in [[zpa.troubleshooting.component-dashboards]], and health probing itself is in [[zpa.app-connectors.health]]."
+    },
+    {
+      "label": "Applications.",
+      "text": "{{apps-range}} {{apps-counts}} {{chart-limits}} {{federated-by}} {{top-errors}} {{discovered-apps}} {{app-type-fingerprinting}} {{app-config-3-months}}"
+    },
+    {
+      "label": "Users.",
+      "text": "{{users-range}} {{current-connected}} {{users-widgets}}"
+    },
+    {
+      "label": "Health.",
+      "text": "{{health-app-states}} {{health-partial}} {{health-unknown}} The page also says an On Access segment shows no state {{divergence:health-no-state}}. {{health-hostname-validation}} {{health-components}} {{health-2000}} {{health-graph}} The probe cadence behind these states is open {{gap:probe-cadence}}."
+    },
+    {
+      "label": "Extranet and Source IP Anchoring.",
+      "text": "{{extranet-range}} {{extranet-score}} {{sipa}} The Extranet page has a copy defect {{gap:extranet-copy}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an application shown without a state sits on an On Access segment or was never accessed, using both Health dashboard statements.",
+      "uses": [
+        "health-unknown",
+        "health-no-state"
+      ]
+    },
+    {
+      "do": "Whether the time range asked about is inside the 14-day dashboard window, with LSS for older data.",
+      "uses": [
+        "apps-range",
+        "users-range"
+      ]
+    }
+  ],
+  "claims": {
+    "apps-range": {
+      "statement": "The Applications dashboard shows data over 1 Hour to 14 Days or a Custom Range whose start and end date are within the last 14 days, and by default the last hour. Its log information is limited to 14 days, and the Log Streaming Service gives longer access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-applications-dashboard.json",
+          "quotes": [
+            "Time Range Filter: View application data over a period between 1 Hour to 14 Days, or you can select Custom Range. If you use a Custom Range, the start and end date must be within the last 14 days.",
+            "By default, the dashboard displays information for events that occurred in the last hour.",
+            "Log information in the dashboard is limited to 14 days. For longer access to the logs, use the Log Streaming Service (LSS)."
+          ]
+        }
+      ]
+    },
+    "apps-counts": {
+      "statement": "One Applications dashboard count is based on the applications accessed by users and includes all successful and unsuccessful transactions, while another is based only on successful transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-applications-dashboard.json",
+          "quotes": [
+            "This number is based on the applications accessed by users, and it includes all successful and unsuccessful transactions.",
+            "This number is based only on successful transactions."
+          ]
+        }
+      ]
+    },
+    "chart-limits": {
+      "statement": "The Applications dashboard displays a minimum of 4 and a maximum of 8 selected charts, and the Users dashboard a minimum of 3 and a maximum of 6.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-applications-dashboard.json",
+          "quotes": [
+            "A minimum of 4 charts and a maximum of 8 charts can be selected."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-users-dashboard.json",
+          "quotes": [
+            "A minimum of 3 charts and a maximum of 6 charts can be selected."
+          ]
+        }
+      ]
+    },
+    "federated-by": {
+      "statement": "The Applications dashboard's Federated By filter separates applications federated by the tenant (My Tenant) from those federated by a partner (Partner), and Partner requires the Partner filter with a valid value in addition.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-applications-dashboard.json",
+          "quotes": [
+            "Federated By: Filter data in the dashboard by applications that are federated by your tenant (i.e., My Tenant), or by applications that are federated by your partner (i.e., Partner).",
+            "If the Federated By filter is set to Partner, then the Partner filter and a valid value must be applied in addition to the Federated By filter."
+          ]
+        }
+      ]
+    },
+    "top-errors": {
+      "statement": "A widget on the Applications dashboard shows the top errors users experienced per connection status code, application, App Connector and Private Service Edge over the selected time frame, and another shows the top access policy and timeout policy blocks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-applications-dashboard.json",
+          "quotes": [
+            "This widget displays the top errors experienced by users per connection status code, application, App Connector, and Private Service Edges for Private Access over the selected time frame.",
+            "This widget displays the top access policy and timeout policy blocks experienced by users over the selected time frame."
+          ]
+        }
+      ]
+    },
+    "discovered-apps": {
+      "statement": "A widget lists the applications Zscaler has discovered for the organization in the past 14 days, most recently discovered first. An application not accessed in the last 14 days has no data in Diagnostics, and the widget's CSV export of the applications discovered in the last 14 days gives the application domain name, port number, protocol and internal application ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-applications-dashboard.json",
+          "quotes": [
+            "This widget displays the applications that Zscaler has discovered for your organization in the past 14 days, with the most recently discovered application listed first.",
+            "If the application has not been accessed in the last 14 days, you will not see data for the application in Diagnostics.",
+            "to export a CSV file containing information on the applications discovered in the last 14 days (i.e., application (domain name), port number, protocol, and internal application ID)."
+          ]
+        }
+      ]
+    },
+    "app-type-fingerprinting": {
+      "statement": "Application categories such as Database, Finance, HR Management and AI/ML are identified using App Type Fingerprinting, and the AI-Powered Recommendations by Attack Surface Reduction % widget needs AI-Powered Recommendations to be activated to display and populate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-applications-dashboard.json",
+          "quotes": [
+            "Categories are identified using App Type Fingerprinting and represent the functional classification of applications, such as Database, Finance, HR Management, AI/ML, Productivity Tools, and Developer Tools.",
+            "AI-Powered Recommendations must be activated to display the AI-Powered Recommendations by Attack Surface Reduction % widget and populate it with data."
+          ]
+        }
+      ]
+    },
+    "app-config-3-months": {
+      "statement": "A widget compares Defined Application Segments with Discovered Applications in two-week increments over the past 3 months, and the page says that ideally for Zero Trust the defined count should increase while the discovered count decreases.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-applications-dashboard.json",
+          "quotes": [
+            "This widget displays the number of Defined Application Segments (orange) compared to the number of Discovered Applications (blue) in two-week increments over the past 3 months.",
+            "Ideally for Zero Trust, the number of Defined Application Segments should increase while the number of Discovered Applications should decrease."
+          ]
+        }
+      ]
+    },
+    "users-range": {
+      "statement": "The Users dashboard shows user data over 1 Hour to 14 Days or a Custom Range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-users-dashboard.json",
+          "quotes": [
+            "Time Range Filter: View user data over a period between 1 Hour to 14 Days, or you can select Custom Range."
+          ]
+        }
+      ]
+    },
+    "current-connected": {
+      "statement": "The time-range filter applies to all Users dashboard widgets except Current Connected Users, which shows users for up to the last 30 minutes and counts users who are logged in to Client Connector and authenticated and connected to Private Access. A widget for users that requested applications and successful machine tunnel connections always ends at the current time even when a custom range with another end time is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-users-dashboard.json",
+          "quotes": [
+            "This filter applies to all widgets on the dashboard except Current Connected Users, which displays users for up to the last 30 minutes.",
+            "This number is based on the users who have logged into the Zscaler Client Connector and who are authenticated and connected to Private Access.",
+            "This widget displays real-time information about the total number of users that requested applications and successful machine tunnel connections over the selected time frame.",
+            "The widget always uses the current time for its end time even if a custom time range with a different end time is selected."
+          ]
+        }
+      ]
+    },
+    "users-widgets": {
+      "statement": "Users dashboard widgets include users blocked by the organization's configured policies, the top 10 policies that blocked users, and the top users by tunnel count in the selected time frame.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-users-dashboard.json",
+          "quotes": [
+            "This widget displays users that have been blocked by your organization's configured policies in the selected time frame.",
+            "This widget displays the top 10 policies that blocked users in the selected time frame.",
+            "This widget displays the top users by tunnel count in the selected time frame."
+          ]
+        }
+      ]
+    },
+    "health-app-states": {
+      "statement": "On the Health dashboard, application health is checked and reported by the App Connectors the organization has deployed. Applications that are up are functioning as expected, and applications that are down are not accessible to users, most likely because a server that hosts the application is down or unhealthy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-health-dashboard.json",
+          "quotes": [
+            "Application health is checked and reported by the App Connectors your organization has deployed.",
+            "Up: The applications are up and functioning as expected.",
+            "Down: The applications are down and not accessible to users. This is most likely because a server that hosts the application is down or unhealthy."
+          ]
+        }
+      ]
+    },
+    "health-partial": {
+      "statement": "An application can have several hosting servers; when at least one is unhealthy or down but at least one is up, users can still access the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-health-dashboard.json",
+          "quotes": [
+            "An application can have multiple servers that host it, and at least one of those servers is unhealthy or down. But because there's at least one server for the application that is up, users can access the application."
+          ]
+        }
+      ]
+    },
+    "health-unknown": {
+      "statement": "One Health dashboard application status is shown only for applications on segments with Health Reporting set to On Access. It indicates Private Access has stopped reporting the application's health because more than 30 minutes have passed since a user accessed it, and health is reported again as soon as a user accesses the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-health-dashboard.json",
+          "quotes": [
+            "This status is shown only for applications associated with application segments configured with Health Reporting set to On Access.",
+            "It indicates that Private Access has stopped reporting the health of this application because it has been more than 30 minutes since a user accessed it.",
+            "Private Access reports the health status as soon as a user accesses the application again."
+          ]
+        }
+      ]
+    },
+    "health-hostname-validation": {
+      "statement": "An application with Client Hostname Validation enabled to facilitate client-to-client remote assistance is not shown on the Health dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-health-dashboard.json",
+          "quotes": [
+            "Additionally, if an application has Client Hostname Validation enabled to facilitate client-to-client remote assistance, then the application is not shown on the Health Dashboard."
+          ]
+        }
+      ]
+    },
+    "health-components": {
+      "statement": "App Connector health on the Health dashboard is checked and reported by the Private Access cloud, and a down connector is not functional. A Disabled label appears under a disabled App Connector not yet processed as Down, and a Disconnected label under a stopped Private Service Edge not yet processed as Down. Details include Up Time, how long the App Connector has been enrolled and running, and Active Apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-health-dashboard.json",
+          "quotes": [
+            "App Connector health is checked and reported by the Private Access cloud.",
+            "Down: The App Connector is down and not functional.",
+            "For App Connectors that are disabled but not yet processed as Down, a Disabled label appears under the App Connector.",
+            "For Private Service Edges that have been stopped but not yet processed as Down, a Disconnected label appears under the Private Service Edge.",
+            "Up Time: How long the App Connector has been enrolled and running.",
+            "Active Apps: The number of applications currently active for this App Connector."
+          ]
+        }
+      ]
+    },
+    "health-2000": {
+      "statement": "The Health Status filters are not displayed when more than 2,000 applications or more than 2,000 App Connectors are listed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-health-dashboard.json",
+          "quotes": [
+            "If there are more than 2,000 applications listed, the filters are not displayed.",
+            "If there are more than 2,000 App Connectors listed, the filters are not displayed."
+          ]
+        }
+      ]
+    },
+    "health-graph": {
+      "statement": "An application's graphical view shows the servers hosting it and the App Connectors providing access to them, to pinpoint a down or unhealthy application, and Last Updated is the last time the App Connector reported the application's health.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-health-dashboard.json",
+          "quotes": [
+            "The graphical view that appears visually depicts the servers that host that application and the App Connectors that provide access to those servers. If an application is down or unhealthy, the graphical view enables you to pinpoint the problem.",
+            "Last Updated: The timestamp showing the last time the App Connector reported the application's health status."
+          ]
+        }
+      ]
+    },
+    "extranet-range": {
+      "statement": "The Extranet dashboard shows data over 30 Minutes to 14 Days or a Custom Range, applied to all its widgets, and by default the last hour.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-extranet-dashboard.json",
+          "quotes": [
+            "over a period between 30 Minutes to 14 Days, or you can select Custom Range. This filter applies to all widgets on the dashboard. By default, the dashboard displays information about events that occurred in the last hour."
+          ]
+        }
+      ]
+    },
+    "extranet-score": {
+      "statement": "The Extranet dashboard uses information gathered from Internet & SaaS to show extranet resources and locations with the lowest health score. The score represents the health of an IPSec connection between the extranet resource's data center and the Zscaler cloud, is the minimum over all tunnels, and each of the VPN and IPSec scores runs from 0 (unhealthy) to 100 (optimal) for a maximum combined 200, with the 5 lowest shown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-extranet-dashboard.json",
+          "quotes": [
+            "The Extranet dashboard uses information gathered from Internet & SaaS (ZIA) to display extranet resources and locations with the lowest health score for overall performance and reliability in your organization.",
+            "The health score represents the health of an IPSec connection between the extranet resource's (partner) data center and the Zscaler cloud.",
+            "This score is the minimum of all the tunnels between the extranet resource and the Zscaler cloud via all possible locations. The score for both the VPN and IPSec tunnel ranges from 0 (unhealthy) to 100 (optimal health) for a maximum possible combined score of 200. The 5 lowest health scores appear in this widget."
+          ]
+        }
+      ]
+    },
+    "sipa": {
+      "statement": "The Source IP Anchoring dashboard shows data over 7 Days to 6 Months or a Custom Range, by default the last 7 days, with the number of users per day or month, total and per-user average bandwidth consumption, and the total unique Source IP Anchoring users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-source-ip-anchoring-dashboard.json",
+          "quotes": [
+            "Time Range Filter: View Source IP Anchoring data over a period between 7 Days to 6 Months, or you can select Custom Range. This filter applies to all widgets on the dashboard. By default, the dashboard displays information for events that occurred in the last 7 days.",
+            "Average Number of Users: View real-time information about the number of users per day or month for the selected time period.",
+            "The widget displays total and average per user bandwidth consumption for the selected time interval.",
+            "The widget displays the total unique Source IP Anchoring users for the selected time interval."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "health-no-state": {
+      "summary": "The Health dashboard page says one application status is shown only for On Access segments, and also that an application on an On Access segment shows no state.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-viewing-health-dashboard.json",
+            "quotes": [
+              "This status is shown only for applications associated with application segments configured with Health Reporting set to On Access."
+            ]
+          },
+          "says": "A status is shown only for applications on segments with Health Reporting set to On Access."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-viewing-health-dashboard.json",
+            "quotes": [
+              "If an application has not been accessed by a user or if an application segment was configured with Health Reporting set to On Access, then no state is displayed."
+            ]
+          },
+          "says": "If the application was not accessed, or its segment is configured with Health Reporting set to On Access, no state is displayed."
+        }
+      ],
+      "impact": "An On Access application can be read as showing a status or showing none; the page does not say which holds, or whether the no-state sentence applies only before the first access."
+    }
+  },
+  "gaps": {
+    "probe-cadence": {
+      "kind": "semantic",
+      "title": "How often Continuous and On Access health is probed",
+      "status": "open",
+      "detail": "The Health dashboard page gives the 30-minute rule for On Access applications and says App Connectors check and report application health. It does not state a probe interval for Continuous or On Access reporting. The related claim in zpa.app-connectors.health stays open for the same reason.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "extranet-copy": {
+      "kind": "semantic",
+      "title": "Extranet dashboard page copy defects",
+      "status": "open",
+      "detail": "The captured Extranet dashboard page words its time-range line as 'View Source IP Anchoring data' and its navigation path points to Dashboards > Applications. Which dashboard those lines describe is not settled by the page, so only the lines the quotes state are used.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "id": "zcc.api.conventions",
+  "title": "Conventions of the ZCC v1 API: casing, query parameters, caching, status codes",
+  "aliases": [
+    "zcc api camelcase",
+    "zcc page pageSize",
+    "zcc api caching dummy parameter",
+    "zcc getOtp stale",
+    "zcc api error codes",
+    "zcc 415 unsupported media type",
+    "zcc osType values",
+    "zcc get before put"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-policy-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject holds the rules that apply across the ZCC v1 endpoints rather than to one area. Path names and HTTP methods per endpoint are generated: run `node scripts/kb.mjs surface zcc`."
+    },
+    {
+      "label": "Key casing.",
+      "text": "{{query-params-camel}} {{python-body-casing}} Web policy bodies are the exception to camelCase: [[zcc.api.web-policy-wire]]."
+    },
+    {
+      "label": "Platform codes.",
+      "text": "{{os-type-codes}}"
+    },
+    {
+      "label": "Caching.",
+      "text": "{{dummy-argument}} {{python-otp-no-cache-buster}}"
+    },
+    {
+      "label": "Writes.",
+      "text": "{{get-before-put}} {{dedicated-key-per-script}} {{utf8}}"
+    },
+    {
+      "label": "Status codes.",
+      "text": "{{status-codes}} Rate limits are in [[zcc.api.rate-limits]]. Whether that 500 label reflects intended behavior or a documentation error is open {{gap:status-500-label}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a repeated GET such as `/getOtp` carried a random dummy query argument, when it returned a value that looks stale.",
+      "uses": [
+        "dummy-argument",
+        "python-otp-no-cache-buster"
+      ]
+    },
+    {
+      "do": "Whether a hand-built request used the camelCase names, such as `pageSize` in a list query, and gave the platform as its numeric code where the contract asks for one: `deviceType` in the web policy list query, `osType` on the soft- and force-remove endpoints.",
+      "uses": [
+        "query-params-camel",
+        "os-type-codes",
+        "zcc.api.web-policy-wire:list-device-type-numeric"
+      ]
+    },
+    {
+      "do": "Whether a 429 came from the hourly limit or from a device threshold, which the error-code table names as a second cause.",
+      "uses": [
+        "status-codes"
+      ]
+    }
+  ],
+  "claims": {
+    "query-params-camel": {
+      "statement": "The contract names list query parameters in camelCase, for example `page`, `pageSize`, `search` and `searchType` on `/webTrustedNetwork/listByCompany`, and the Python SDK camel-cases every ZCC query parameter key before sending, so `page_size` goes on the wire as `pageSize`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1listByCompany/get/parameters/[name=pageSize]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "# Normal param conversion if not ZPA",
+          "quotes": [
+            "params = convert_keys_to_camel_case(params)"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1listByCompany/get/parameters/[name=page]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1listByCompany/get/parameters/[name=search]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1listByCompany/get/parameters/[name=searchType]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def _prepare_params(self, service_type, endpoint, params, body):",
+          "quotes": [
+            "if service_type.lower() == \"zpa\":"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "Converts snake_case to camelCase with support for known edge-case field mappings.",
+            "\"internal_ip_range\" -> \"internalIpRange\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def convert_keys_to_camel_case(data):",
+          "quotes": [
+            "Recursively convert all keys in a dictionary or list to camelCase."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/admin_user.py",
+          "quotes": [
+            "``[query_params.page_size]`` {int}: Specifies the page size."
+          ],
+          "after": "def list_admin_users(self, query_params: Optional[dict] = None) -> APIResult[List[AdminUser]]:"
+        }
+      ]
+    },
+    "python-body-casing": {
+      "statement": "On the OneAPI client, the Python SDK camel-cases ZCC request body keys except those in `WebPolicy.SNAKE_CASE_KEYS`, and sends a body already serialized by the ZCC model serializer unchanged. On the legacy client a ZCC body goes through the general `convert_keys_to_camel_case`, which converts all keys recursively; a key the converter maps to itself, such as `exit_password`, keeps its form.",
+      "tier": "A",
+      "conditions": "Covers the OneAPI client and the legacy-client path; traced, not sent.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "endpoint = self.remove_oneapi_endpoint_prefix(endpoint)",
+            "if \"/zcc/\" in endpoint and body:",
+            "if isinstance(body, _ZccWireBody):",
+            "body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS)",
+            "if isinstance(body, _ZccWireBody): return dict(body)",
+            "Skip any further",
+            "conversion to preserve the model's intent verbatim."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "# Preserve existing logic for other services",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "def convert_keys_to_camel_case(data):",
+            "Recursively convert all keys in a dictionary or list to camelCase.",
+            "\"exit_password\": \"exit_password\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def create_request(",
+          "quotes": [
+            "if self.use_legacy_client: endpoint = self.remove_oneapi_endpoint_prefix(endpoint)",
+            "json_payload = self._prepare_body(endpoint, body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def remove_oneapi_endpoint_prefix(self, endpoint: str) -> str:",
+          "quotes": [
+            "\"/zpa\", \"/zcc\", \"/ztw\",",
+            "if endpoint.startswith(prefix): return endpoint[len(prefix) :]"
+          ]
+        }
+      ]
+    },
+    "os-type-codes": {
+      "statement": "The contract gives numeric platform codes for `osType` on the soft- and force-remove endpoints (`removeDevices`, `forceRemoveDevices`): 1 iOS, 2 Android, 3 Windows, 4 macOS, 5 Linux, where null means all OS types; the Go SDK defines the same device-type constants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeDevices/post",
+          "expect": {
+            "description": "<p>Soft removes the enrolled device from the portal. The soft removal marks the device state as device removal pending. At least one criterion (username, Zscaler Client Connector version, OS type, or UDID) must be specified to remove devices.</p><p>The following are the valid values for  the <code>osType</code> attribute. The default value is null, which represents ALL OS types.</p><ul><li>1 - iOS</li><li>2 - Android</li><li>3 - Windows</li><li>4 - macOS</li><li>5 - Linux</li></ul>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1forceRemoveDevices/post",
+          "expect": {
+            "description": "<p>Force removes the enrolled device from the portal. You can only remove devices that are in registered or device removal pending state. At least one criterion (username, Zscaler Client Connector version, OS type, or UDID) must be specified to remove devices.</p><p>The following are the valid values for the <code>osType</code> attribute. The default value is null, which represents ALL OS types.</p><ul><li>1 - iOS</li><li>2 - Android</li><li>3 - Windows</li><li>4 - macOS</li><li>5 - Linux</li></ul>"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "DeviceTypeIOS     = 1",
+            "DeviceTypeLinux   = 5",
+            "DeviceTypeAndroid = 2",
+            "DeviceTypeWindows = 3",
+            "DeviceTypeMacOS   = 4"
+          ]
+        }
+      ]
+    },
+    "dummy-argument": {
+      "statement": "Zscaler's guidance is to prevent API call caching by adding a dummy argument with a randomly generated number to every request URL, for example `GET /getOtp?_=123456`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-client-connector-api.json",
+          "quotes": [
+            "Prevent API call caching by adding a dummy argument with a randomly generated number to all URL request strings.",
+            "For example: GET /getOtp?_=123456"
+          ]
+        }
+      ]
+    },
+    "python-otp-no-cache-buster": {
+      "statement": "The Python SDK's `get_otp` sends the caller's query parameters, renaming `device_id` to `udid`, and adds no cache-busting argument of its own.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/secrets.py",
+          "quotes": [
+            "query_params[\"udid\"] = query_params.pop(\"device_id\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/secrets.py",
+          "after": "def get_otp(self, query_params: Optional[dict] = None) -> APIResult[dict]:",
+          "quotes": [
+            "http_method = \"get\".upper() api_url = format_url(f\"\"\" {self._zcc_base_endpoint} /getOtp \"\"\")",
+            "query_params = query_params or {} if \"device_id\" in query_params and \"udid\" not in query_params: query_params[\"udid\"] = query_params.pop(\"device_id\") body = {} headers = {} request, error = self._request_executor.create_request(http_method, api_url, body, headers, params=query_params)"
+          ]
+        }
+      ],
+      "conditions": "The absence of a cache-busting parameter was checked by reading `get_otp` and the request executor's parameter handling; neither the Python nor the Go SDK adds a random query argument to ZCC calls."
+    },
+    "get-before-put": {
+      "statement": "Zscaler recommends sending a GET before every PUT or POST that updates a resource, because the update replaces the entire resource with the values sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-client-connector-api.json",
+          "quotes": [
+            "When updating a resource, always send a GET request before the PUT or POST request.",
+            "before you update the entire resource with new values."
+          ]
+        }
+      ]
+    },
+    "dedicated-key-per-script": {
+      "statement": "Zscaler recommends a dedicated user for each script and not using the same keys in several scripts that run concurrently.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-client-connector-api.json",
+          "quotes": [
+            "Create a dedicated user for each script. Don't use the same keys in multiple scripts that are running concurrently."
+          ]
+        }
+      ]
+    },
+    "utf8": {
+      "statement": "Requests to every endpoint should be UTF-8 encoded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-client-connector-api.json",
+          "quotes": [
+            "Use UTF-8 encoding for all endpoints"
+          ]
+        }
+      ]
+    },
+    "status-codes": {
+      "statement": "The ZCC API's documented status codes are 200, 400, 401, 403, 404, 415 (Unsupported Media Type), 429 and 500. 429 means too many requests: the rate limit or a device threshold was exceeded. The table labels 500 \"Not Implemented\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-about-error-codes-zcc.json",
+          "quotes": [
+            "The following table lists the HTTP status codes returned by the Zscaler Client Connector API:",
+            "| 415 | Unsupported Media Type |",
+            "exceeded the rate limit or device threshold",
+            "| 500 | Not Implemented |",
+            "| 200 | Successful |",
+            "| 400 | Bad Request |",
+            "| 401 | Unauthorized |",
+            "| 403 | Forbidden |",
+            "| 404 | Not Found |",
+            "| 429 | Too Many Requests"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "status-500-label": {
+      "kind": "semantic",
+      "title": "HTTP 500 labeled \"Not Implemented\" in the ZCC API reference",
+      "status": "open",
+      "former_ids": [
+        "zcc-73"
+      ],
+      "detail": "The ZCC status-code table labels 500 \"Not Implemented\", the conventional reason phrase of 501. Whether ZCC uses 500 for unimplemented operations on purpose, or the label is a documentation error for Internal Server Error, is not stated.",
+      "resolves_with": [
+        "support-ticket",
+        "operator-experience"
+      ]
+    }
+  }
+}

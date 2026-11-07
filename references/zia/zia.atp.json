@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "id": "zia.atp",
+  "title": "ZIA Advanced Threat Protection",
+  "aliases": [
+    "atp",
+    "advanced threat protection",
+    "advanced threats policy",
+    "zia atp",
+    "cyberthreat protection",
+    "why is this blocked as a threat"
+  ],
+  "binds": [
+    "zia/advanced-threat-settings"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.atp.enforcement-order",
+      "because": "zia.atp.enforcement-order:first-violation-blocks"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.atp.security-exceptions",
+      "because": "zia.atp.security-exceptions:precedence-over-options"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall.ips",
+      "because": "zia.atp:before-ips"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.malware-protection",
+      "because": "zia.atp.enforcement-order:mp-after-atp-checks"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.bypass-impact",
+      "because": "zia.ssl-inspection.bypass-impact:dependent-features"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.web-records",
+      "because": "zia.atp.block-diagnosis:threat-fields"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia/web-log",
+      "because": "zia.atp.block-diagnosis:ruletype-column"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/advanced-threat-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.user-risk-score"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.categories"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.page-risk"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.botnet"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.blocked-urls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.blocked-countries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.tor"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.ai-ml-recategorization"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.block-diagnosis"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.verdicts"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.reports"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Why was this blocked as a threat?\" and \"what is ATP set to?\" are answered in a fixed order. ATP is the policy of inline URL, content and behavior detections; file scanning is [[zia.malware-protection]], and which engine produced a block is read from the log: [[zia.atp.block-diagnosis]], [[zia.sandbox.verdicts]]."
+    },
+    {
+      "text": "{{global-policy}} {{malicious-scripts-blocked}} {{no-scoping}} {{before-ips}} IPS Control itself is covered in [[zia.firewall.ips]]. The User Risk Score is in [[zia.atp.user-risk-score]]."
+    },
+    {
+      "steps": [
+        {
+          "label": "Which detection fired?",
+          "text": "The toggles and their groups: [[zia.atp.categories]], with the Page Risk threshold in [[zia.atp.page-risk]], C2 and DGA in [[zia.atp.botnet]], country blocking in [[zia.atp.blocked-countries]] and Tor in [[zia.atp.tor]]."
+        },
+        {
+          "label": "Is a list involved?",
+          "text": "The tenant denylist is [[zia.atp.blocked-urls]]; the allowlist is [[zia.atp.security-exceptions]]."
+        },
+        {
+          "label": "Did the policy change at all?",
+          "text": "A URL can start blocking with no edit: [[zia.atp.ai-ml-recategorization]]."
+        },
+        {
+          "label": "Where does it run?",
+          "text": "The order of checks, and what an exception skips: [[zia.atp.enforcement-order]]. Content detections need decryption: [[zia.ssl-inspection.bypass-impact]]."
+        },
+        {
+          "label": "What does the user see?",
+          "text": "{{client-connector-notice}}"
+        }
+      ]
+    },
+    {
+      "text": "The reference configuration: {{recommended-policy}} {{save-and-activate}}"
+    },
+    {
+      "text": "API and field-name traps are in [[zia.atp.api-surface]]; provider defects are in [[zia.terraform.multi-step-writes]], [[zia.terraform.error-handling]] and [[zia.terraform.activation]]. The console reports that grade or score ATP settings are in [[zia.reports]]."
+    }
+  ],
+  "claims": {
+    "global-policy": {
+      "statement": "Advanced Threat Protection is a global policy that applies to all users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "The Advanced Threat Protection policy is a global policy, so it applies to all users."
+          ]
+        }
+      ]
+    },
+    "no-scoping": {
+      "statement": "There is no per-user, per-group or per-location scope for ATP: each toggle is on or off for the whole tenant, and the API is one settings object plus two URL lists.",
+      "tier": "B",
+      "derived_from": [
+        "global-policy"
+      ],
+      "conditions": "Derived from the policy being global; no source describes a scoping control and none was found in the help page or the API."
+    },
+    "before-ips": {
+      "statement": "When a tenant has both Advanced Threat Protection and IPS Control, the rules created for Advanced Threat Protection are evaluated first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "If you have Advanced Threat Protection as well as IPS Control, any rules you create for Advanced Threat Protection are evaluated first."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-advanced-threat-protection.json",
+          "quotes": [
+            "If you have Advanced Threat Protection as well as IPS Control, any rules you create for Advanced Threat Protection are evaluated first."
+          ]
+        }
+      ]
+    },
+    "malicious-scripts-blocked": {
+      "statement": "The Zscaler service identifies malicious scripts and applications on both hacked and legitimate websites and prevents them from downloading to the end user's browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-advanced-threat-protection.json",
+          "quotes": [
+            "The Zscaler service identifies malicious scripts and applications on both hacked and legitimate websites and prevents them from downloading to the end user's browser"
+          ]
+        }
+      ]
+    },
+    "recommended-policy": {
+      "statement": "The recommended policy sets Page Risk to 35; in Botnet Protection it blocks Command & Control Servers, Command & Control Traffic and Domain Generation Algorithm (DGA) Domains and enables Alert for Unknown/Suspicious C2 Traffic; it blocks everything in Malicious Active Content, Fraud, Unauthorized Communication and XSS protection, and blocks BitTorrent, Tor and Google Hangouts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "recommended-advanced-threat-protection-policy.json",
+          "quotes": [
+            "Suspicious Content Protection (Page Risk): 35",
+            "Command & Control Servers: Block",
+            "Command & Control Traffic: Block",
+            "Alert for Unknown/Suspicious C2 Traffic: Enabled",
+            "Domain Generation Algorithm (DGA) Domains: Block",
+            "Malicious Active Content Protection: Block all",
+            "Fraud Protection: Block all",
+            "Unauthorized Communication Protection: Block all",
+            "Cross-Site Scripting (XSS) Protection: Block all",
+            "BitTorrent: Block",
+            "Tor: Block",
+            "Google Hangouts: Block"
+          ]
+        }
+      ]
+    },
+    "client-connector-notice": {
+      "statement": "When ATP blocks malicious activity matching a user's traffic, Zscaler Client Connector shows a notification that the activity was blocked as potentially harmful.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "Zscaler Client Connector displays a notification that the activity was blocked as potentially harmful."
+          ]
+        }
+      ]
+    },
+    "save-and-activate": {
+      "statement": "A change to the policy is saved and then activated in the console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "Click Save and activate the change."
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "zcc.troubleshooting.forwarding-runbook.network-error",
+  "title": "Runbook: Network Error (Network Connection Failed. -8.), its log strings and DNS checks",
+  "aliases": [
+    "Network Error",
+    "Network Connection Failed. -8."
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.troubleshooting.forwarding-runbook" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.service-status-errors" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.forwarding-runbook.connection-error" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.error-codes" }
+  ],
+  "prose": [
+    {
+      "label": "Symptoms.",
+      "text": "{{symptoms}} {{divergence:network-error-meaning}} Error -8 is defined in [[zcc.troubleshooting.error-codes]]; whether that table covers other ZSTray error numbers is open {{gap:error-minus-8}}. {{critical-urls}}"
+    },
+    {
+      "label": "Log strings.",
+      "text": "{{zstray-errors}} {{ssl-intercepted-errors}}"
+    },
+    {
+      "label": "Checks.",
+      "text": "{{connectivity-and-dns}} {{dns-result-checks}} {{adapter-and-conflicts}}"
+    }
+  ],
+  "claims": {
+    "symptoms": {
+      "statement": "Listed symptoms of Network Error, which appears when Client Connector is unable to connect to the Zscaler cloud due to connectivity issues: the Internet Security window shows Network Connection Failed. -8., and logs indicate DNS resolution failures, connection resets, SSL interception, or unreachable hosts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "This error appears when Zscaler Client Connector is unable to connect to the Zscaler cloud due to connectivity issues.",
+            "The Internet Security window shows Network Connection Failed. -8.",
+            "Logs indicate DNS resolution failures, connection resets, SSL interception, or unreachable hosts."
+          ]
+        }
+      ]
+    },
+    "critical-urls": {
+      "statement": "In the runbook's log examples of critical URLs (e.g., mobile.zscaler.net, login.<cloud_name>.net, mobile.<cloud_name>.net), Client Connector uses those hostnames for control communication and needs uninterrupted access to them; failed responses include Host not found, Connection reset by peer, No route to host or Timeout.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Logs show Zscaler Client Connector queries to critical URLs (e.g., mobile.zscaler.net, login.<cloud_name>.net, mobile.<cloud_name>.net).",
+            "Zscaler Client Connector uses these hostnames for control communication and needs uninterrupted access to these destinations.",
+            "Failed responses include Host not found, Connection reset by peer, No route to host, or Timeout."
+          ]
+        }
+      ]
+    },
+    "zstray-errors": {
+      "statement": "The runbook's ZSTray log samples show error -8 with errorMessage Host not found (DNS failure), Connection reset by peer (connection interrupted), Net Exception. No route to host (missing route) and Net Exception. Network is unreachable (network unreachable).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The following errors are logged in ZSTray logs.",
+            "\"error\":-8,\"errorMessage\":\"Host not found. mobile.zscloud.net\"",
+            "\"error\":-8,\"errorMessage\":\"Connection reset by peer. \"",
+            "\"error\":-8,\"errorMessage\":\"Net Exception. No route to host\"",
+            "\"error\":-8,\"errorMessage\":\"Net Exception. Network is unreachable\""
+          ]
+        }
+      ]
+    },
+    "ssl-intercepted-errors": {
+      "statement": "The runbook's samples for an intercepted SSL connection show error -8 with Certificate validation error. Unacceptable certificate from mobile.zscloud.net: application verification failure and SSL Exception. error:14090086:SSL routines:ssl3_get_server_certificate:certificate verify failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "\"error\":-8,\"errorMessage\":\"Certificate validation error. Unacceptable certificate from mobile.zscloud.net: application verification failure\"",
+            "\"error\":-8,\"errorMessage\":\"SSL Exception. error:14090086:SSL routines:ssl3_get_server_certificate:certificate verify failed\""
+          ]
+        }
+      ]
+    },
+    "connectivity-and-dns": {
+      "statement": "The runbook says to test the three Zscaler URLs with ping, nslookup or traceroute, allow outbound ports 80 and 443, and test DNS with nslookup or dig, including an alternate DNS server such as Google DNS 8.8.8.8.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Test reachability to mobile.zscaler.net, login.<cloud_name>.net, and mobile.<cloud_name>.net using ping, nslookup, or traceroute.",
+            "Ensure outbound connections to ports (80, 443) are allowed by firewalls.",
+            "Run nslookup or dig commands to ensure correct DNS resolution for Zscaler URLs.",
+            "Test alternate DNS servers to ensure proper configuration (e.g., Google DNS: 8.8.8.8)."
+          ]
+        }
+      ]
+    },
+    "dns-result-checks": {
+      "statement": "If DNS resolution shows an IPv6 address, the runbook says to test with IPv6 disabled on the network adapter; if the result is not in the Zscaler hub IP range (https://config.zscaler.com/<cloud_name>/hubs), it says to verify custom entries in the Windows hosts file and add a prefix # to comment out the custom entries if required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If the DNS resolution is showing IPv6 IP address, test by disabling IPv6 on the network adapter to rule out any conflict with IPv6.",
+            "If the DNS resolution result is not in Zscaler hub IP range (https://config.zscaler.com/<cloud_name>/hubs)",
+            "Add a prefix \"#\" to disable (comment out) the custom entries if required.",
+            "verify if there is any custom entries in the Windows hosts file"
+          ]
+        }
+      ]
+    },
+    "adapter-and-conflicts": {
+      "statement": "The runbook says the active network adapter should be configured correctly with tethering and virtual adapters avoided, and that VPN clients or endpoint security tools can be disabled temporarily to rule out conflicts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Confirm the active network adapter is configured correctly and avoid tethering or virtual adapters.",
+            "Temporarily disable VPN clients or endpoint security tools to rule out conflicts."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "network-error-meaning": {
+      "summary": "The forwarding runbook says Network Error appears when Client Connector cannot connect to the Zscaler cloud due to connectivity issues, while the connection status errors article says Network Error means no network interface is detected.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+            "quotes": [
+              "This error appears when Zscaler Client Connector is unable to connect to the Zscaler cloud due to connectivity issues."
+            ]
+          },
+          "says": "Network Error appears when Client Connector is unable to connect to the Zscaler cloud due to connectivity issues, with logs showing DNS failures, connection resets, SSL interception or unreachable hosts."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+            "quotes": [
+              "| Network Error | No network interface is detected. | Click Retry to resolve the error. The Retry option appears next to the Status. If the error persists, click More and click Restart Service."
+            ]
+          },
+          "says": "Network Error means no network interface is detected; the action is Retry, then More > Restart Service."
+        }
+      ],
+      "impact": "The two pages give different meanings for the same Service Status label, so a Network Error does not by itself tell an admin whether the device has no interface or cannot reach the cloud. Check the Client Connector logs for the -8 errorMessage before choosing between interface and cloud-reachability checks."
+    }
+  },
+  "gaps": {
+    "error-minus-8": {
+      "kind": "semantic",
+      "title": "Whether the error-code table that defines -8 covers other ZSTray error numbers",
+      "status": "open",
+      "detail": "Every ZSTray sample in the runbook shows error -8 with a different errorMessage; the runbook does not define -8 and lists no other error numbers. zcc.troubleshooting.error-codes defines -8 (Network Connection Failed) with config.zscaler.com checks, but does not say whether its table covers the numbers ZSTray logs.",
+      "resolves_with": ["source-read", "support-ticket"]
+    }
+  }
+}

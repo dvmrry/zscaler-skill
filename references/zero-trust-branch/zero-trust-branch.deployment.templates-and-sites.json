@@ -1,0 +1,397 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.deployment.templates-and-sites",
+  "title": "How Zero Trust Branch templates and sites are configured: deployment types, DNS, DHCP, routing and App Connectors",
+  "aliases": [
+    "ztb template",
+    "ztb site",
+    "ztb site bgp",
+    "ztb dhcp options"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment.vlan"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment.high-availability"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{template-defaults}} {{template-deployment-types}} The deployment hub is [[zero-trust-branch.deployment]]."
+    },
+    {
+      "label": "Templates.",
+      "text": "{{template-dhcp-service}} {{template-platform-nat}} {{template-delete-confirm}}"
+    },
+    {
+      "label": "Sites.",
+      "text": "{{site-location-options}} {{site-defaults-overrides}} {{site-activation-values}} {{site-dns-settings}}"
+    },
+    {
+      "label": "Routing.",
+      "text": "{{site-static-routes}} {{bgp-peer-fields}} {{bgp-route-filtering}}"
+    },
+    {
+      "label": "App Connectors.",
+      "text": "{{app-connector-purpose}} {{app-connector-pa-settings}} {{app-connector-ha-behavior}} {{app-segment-mappings}} {{app-segment-csv-format}}"
+    },
+    {
+      "label": "DHCP options.",
+      "text": "{{dhcp-options-supported}} {{dhcp-options-fields}} Template, site and object count limits are not stated {{gap:count-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which deployment type the template uses (standalone, standard_mode_ha or enhanced_mode_ha) before assuming how the site's gateways behave.",
+      "uses": [
+        "template-deployment-types"
+      ]
+    },
+    {
+      "do": "Whether the appliance runs 8.1.2 or later before relying on BGP route filtering.",
+      "uses": [
+        "bgp-route-filtering"
+      ]
+    }
+  ],
+  "claims": {
+    "template-defaults": {
+      "statement": "Predefined templates exist for VM and supported devices in standalone and HA configurations; default templates cannot be deleted or edited but can be cloned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-templates.json",
+          "quotes": [
+            "Zscaler provides templates for virtual machine (VM) and supported devices in both standalone and HA configurations.",
+            "You cannot delete or edit default templates, but you can clone them."
+          ]
+        }
+      ]
+    },
+    "template-dhcp-service": {
+      "statement": "A template's DHCP Service can be Internal DHCP Server, DHCP Relay, or Mixed (Per VLAN Server/Relay); Default DHCP Mode for VLAN applies only when Mixed is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-templates.json",
+          "quotes": [
+            "Internal DHCP Server: To use the appliance as an internal DHCP server.",
+            "DHCP Relay: To use the appliance as a DHCP relay. The DHCP requests are forwarded to an external server.",
+            "Mixed (Per VLAN Server/Relay): To configure DHCP services individually for each VLAN, using the appliance as either an internal DHCP server or DHCP relay."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-templates.json",
+          "quotes": [
+            "Default DHCP Mode for VLAN: Select the default DHCP mode (Internal DHCP Server or DHCP Relay) that must be used for a VLAN. This option applies only when the Mixed (Per VLAN Server/Relay) option is selected as DHCP service."
+          ],
+          "after": "Mixed (Per VLAN Server/Relay): To configure DHCP services individually"
+        }
+      ]
+    },
+    "template-deployment-types": {
+      "statement": "A template's Deployment Type is standalone (single appliance), standard_mode_ha (active-standby HA) or enhanced_mode_ha (Advanced/WAN Edge HA with active-active WAN links).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-templates.json",
+          "quotes": [
+            "standalone: For sites with a single appliance.",
+            "standard_mode_ha: For a standard HA cluster operating in active-standby mode.",
+            "enhanced_mode_ha: For an Advanced HA (WAN Edge HA) cluster that supports an active-active configuration for WAN links."
+          ]
+        }
+      ]
+    },
+    "template-platform-nat": {
+      "statement": "Platform for Appliance-1 is vm or a device type, and for an HA deployment the secondary gateway can use a different platform (e.g., VM for an appliance); NAT Enabled is set if the appliance uses NAT for traffic leaving toward the non-Zero Trust Branch network. The secondary WAN DNS is optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-templates.json",
+          "quotes": [
+            "Platform [Appliance-1]: Select the platform this template will be used for: either vm for a VM or the device type.",
+            "You can have a different platform (e.g., VM for an appliance) for the secondary gateway.",
+            "NAT Enabled: Enable if your Zero Trust Branch appliance uses NAT to route traffic leaving the branch appliance toward the non-Zero Trust Branch network.",
+            "Secondary WAN DNS: (Optional) Enter the IP address of the secondary WAN DNS server for this template.",
+            "If you select an HA deployment, select the platform for the secondary gateway."
+          ]
+        }
+      ]
+    },
+    "template-delete-confirm": {
+      "statement": "Deleting a template requires entering DELETE in the confirmation dialog.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-templates.json",
+          "quotes": [
+            "In the Delete dialog box, enter DELETE and click Confirm to delete the template."
+          ]
+        }
+      ]
+    },
+    "site-location-options": {
+      "statement": "When adding a site, the Internet & SaaS location can be an existing location, a new location (saved in the Internet & SaaS tenant with an IPSec VPN tunnel configured), or None for a site with no physical location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-sites.json",
+          "quotes": [
+            "Existing Location: Select an existing Internet & SaaS location for this site.",
+            "Zero Trust Branch saves this location in your Internet & SaaS tenant and configures an Internet Protocol Security (IPSec) virtual private network (VPN) tunnel to that location.",
+            "None: Select this option if the site does not have a physical location.",
+            "New Location: Enter a name for this location and select the country where it resides."
+          ]
+        }
+      ]
+    },
+    "site-defaults-overrides": {
+      "statement": "A site's WAN DNS servers and DHCP service are populated from the template and can be overridden for a site that uses a cloned and customized template; appliance names are by default appended with -gw-01 and -gw-02.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-sites.json",
+          "quotes": [
+            "WAN DNS Servers: Review the DNS servers used by Zero Trust Branch. The template populates this field, but you can override it for a site that uses a cloned and customized template.",
+            "DHCP Service: This field defines whether the Zero Trust Branch operates as a DHCP Server or a DHCP Relay. The template populates this field, but you can override it for a site that uses a cloned and customized template.",
+            "By default, the name is appended with -gw-01, but you can enter any name to identify the primary appliance.",
+            "By default, the name is appended with -gw-02, but you can enter any name to identify the secondary appliance."
+          ]
+        }
+      ]
+    },
+    "site-activation-values": {
+      "statement": "The Add Site drawer displays the site URL and activation code, which must be saved for activating the appliance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-sites.json",
+          "quotes": [
+            "The Add Site drawer displays the site URL and activation code. Copy both values and paste them somewhere safe. You need them when you activate the appliance."
+          ]
+        }
+      ]
+    },
+    "site-dns-settings": {
+      "statement": "Site DNS settings include WAN DNS Servers (used for site activation and local system processes), a DNS Proxy Service toggle (disabling it grays out Private DNS Servers), Dynamic DNS Support (forwards DDNS update requests from clients to private DNS servers) and Private DNS Servers (resolve private namespaces and public domains).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-sites.json",
+          "quotes": [
+            "Review and configure the WAN DNS servers used for site activation and local system processes.",
+            "Disable this option to turn off the DNS proxy service for the site and gray out Private DNS Servers options.",
+            "Enable this option to allow Dynamic DNS (DDNS) update requests from clients to be forwarded to the configured private DNS servers.",
+            "Review and configure the private DNS servers used to resolve both private namespaces and public domains."
+          ]
+        }
+      ]
+    },
+    "site-static-routes": {
+      "statement": "A static route has a name, Share Over RT toggle (advertise to other sites and the hub over site-to-site routed tunnels), Network/Mask in CIDR, Nexthop Type (IP or Interface) and a metric that sets priority among routes for the same destination; in HA, interfaces of both gateways can be selected for path redundancy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-sites.json",
+          "quotes": [
+            "Name: Enter a name for the static route.",
+            "Share Over RT: Enable this toggle to advertise the route to other sites and the hub over site-to-site routed tunnels.",
+            "Network/Mask: Enter the destination network and subnet mask in CIDR format.",
+            "Nexthop Type: Select the nexthop type:",
+            "IP: Directs traffic to a specific IP address.",
+            "Interface: Directs traffic to specific gateway interfaces.",
+            "Enter a metric value to determine routing priority if multiple routes exist for the same destination.",
+            "For HA configurations, users can select interfaces for both gateways to ensure path redundancy."
+          ]
+        }
+      ]
+    },
+    "bgp-peer-fields": {
+      "statement": "A site BGP peer takes a router ID, neighbor IP and AS, local IP and AS, a password, an EBGP multi-hop count, and a Graceful Restart Time in milliseconds (the Graceful Restart option must be enabled when it is set).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-bgp-site.json",
+          "quotes": [
+            "Router ID: Enter the router ID of the BGP router.",
+            "Neighbor AS: Enter the autonomous system (AS) number that identifies this peer router's network.",
+            "EBGP Multi-hop Count: Enter the maximum number of hops allowed to reach an external BGP neighbor.",
+            "Graceful Restart Time: Enter a time in milliseconds to allow the peer router to restart before timing out. Ensure that the Graceful Restart option is enabled when this option is configured.",
+            "Neighbor IP: Enter the IP address of the peer router for this configuration.",
+            "Local IP: Select the IP address of the local network.",
+            "Local AS: Enter the AS number that identifies the local network.",
+            "Password: Enter the password shared between the two networks."
+          ]
+        }
+      ]
+    },
+    "bgp-route-filtering": {
+      "statement": "BGP route filtering uses Include Only or Exclude route maps and IP prefix lists for import and export, and is available only on appliances running version 8.1.2 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-bgp-site.json",
+          "quotes": [
+            "If Include Only is selected, routes that match the selected route map are imported. If Exclude is selected, routes that match the selected route map are excluded.",
+            "The Filtering routes option is available only for Zero Trust Branch appliances running version 8.1.2 or later.",
+            "IP Prefix for Import: Select an IP prefix list for inbound BGP routes.",
+            "IP Prefix for Export: Select an IP prefix list for outbound BGP routes.",
+            "Import Route Map: Select an option (Include Only or Exclude) to filter inbound BGP routes from the drop-down menu.",
+            "Export Route Map: Select an option (Include Only or Exclude) to filter outbound BGP routes from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "app-connector-purpose": {
+      "statement": "Adding an App Connector to a site provides inbound access to private applications hosted at the branch, and requires the App Connector provisioning key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-app-connector-site.json",
+          "quotes": [
+            "Adding an App Connector to a Zero Trust Branch site provides inbound access to private applications hosted at the branch location, such as allowing Remote Desktop Protocol (RDP) to a server.",
+            "You need the provisioning key for the App Connector in order to add it to the site."
+          ]
+        }
+      ]
+    },
+    "app-connector-pa-settings": {
+      "statement": "Private Access Settings for a site include Use Static App Segment to IP Mappings, a Private Application TCP Idle Timeout in minutes and a Private Access synthetic IP range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-app-connector-site.json",
+          "quotes": [
+            "Use Static App Segment to IP Mappings: Enable this to use global DNS mappings for private applications on this site.",
+            "Private Application TCP Idle Timeout (minutes): Enter the maximum idle time for TCP connections to private applications and click Save.",
+            "Enter the synthetic IP address range for Private Access and click Save."
+          ]
+        }
+      ]
+    },
+    "app-connector-ha-behavior": {
+      "statement": "Embedded App Connectors are active-standby in standard HA (only one up on the active appliance) and active-active in Enhanced HA (both appliances run an active App Connector with independent connections to the Private Access cloud).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-app-connector-site.json",
+          "quotes": [
+            "Standard HA: In a standard HA deployment, the App Connectors operate in an active-standby mode. Only one App Connector is up and running on the active appliance at any given time.",
+            "Enhanced HA: In an Enhanced HA deployment, the App Connectors operate in an active-active mode",
+            "Both App Connectors establish independent connections to the Private Access cloud."
+          ]
+        }
+      ]
+    },
+    "app-segment-mappings": {
+      "statement": "Static Private Access app segment mappings make Zero Trust Branch sites resolve a specific app segment FQDN to the same synthetic IP address, on each App Connector site where Use Static App Segment to IP Mappings is enabled; they are managed on the Private Access DNS tile via CSV import and export.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-app-segment-ip-mappings.json",
+          "quotes": [
+            "By forcing every Zero Trust Branch site to resolve a specific FQDN to the same synthetic IP address",
+            "Import App Segments CSV: Create or delete mappings in bulk.",
+            "Export Static Mappings CSV: Download existing mappings as a CSV file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-app-connector-site.json",
+          "quotes": [
+            "Use Static App Segment to IP Mappings: Enable this to use global DNS mappings for private applications on this site.",
+            "ensuring that private applications consistently resolve to a predictable IP address across all sites where this option is enabled."
+          ]
+        }
+      ]
+    },
+    "app-segment-csv-format": {
+      "statement": "The import CSV template has columns fqdn, action (create, delete) and description; wildcard FQDNs are not supported for import, and modifying entries means updating the CSV and importing again. The export has columns fqdn, ip and description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-app-segment-ip-mappings.json",
+          "quotes": [
+            "    - fqdn\n    - action (create, delete)\n    - description",
+            "Wildcard FQDNs are not supported for import.",
+            "To modify existing entries, update the CSV file and import it again.",
+            "The file includes the following columns: fqdn, ip, and description."
+          ]
+        }
+      ]
+    },
+    "dhcp-options-supported": {
+      "statement": "Predefined site DHCP options include Domain Server (6), Address Time (51), Bootfile Name (67) for PXE network boot and TFTP Server (150), commonly used for VoIP phone provisioning, among others; Custom defines your own option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-dhcp-options-site.json",
+          "quotes": [
+            "| Domain Server (6) | Specifies the DNS servers that DHCP clients use to resolve domain names. |",
+            "| Address Time (51) | Specifies the duration of the DHCP lease assigned to clients. |",
+            "| Bootfile Name (67) | Specifies the name of the boot file that clients use during network boot (PXE). |",
+            "| TFTP Server (150) | Specifies the Trivial File Transfer Protocol (TFTP) server used by devices to retrieve configuration files (commonly for VoIP phone provisioning). |",
+            "select Custom to define your own option."
+          ]
+        }
+      ]
+    },
+    "dhcp-options-fields": {
+      "statement": "A DHCP option has a code and type that auto-populate for predefined options (a custom option needs a manually entered code and type); the value must match the type, and an optional filter limits the option to devices by attributes such as MAC address or DHCP client identifier.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-dhcp-options-site.json",
+          "quotes": [
+            "Custom options require you to manually enter the option code.",
+            "The value's format must match the selected type.",
+            "The filter parameter allows DHCP options to apply to specific devices in the network based on attributes such as MAC address, DHCP client identifier, etc.",
+            "Code: This field auto-populates with the numeric DHCP option code associated with the selected option.",
+            "Type: This field auto-populates with the data format for the option value associated with the selected option, such as byte, string, word, long, or IP address.",
+            "Custom options require you to manually select the data format from the drop-down menu.",
+            "Filter: (Optional) Select a filter parameter from the drop-down menu."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "count-limits": {
+      "kind": "semantic",
+      "title": "Maximum sites per template and object or policy counts",
+      "status": "open",
+      "detail": "The template, site, object and policy pages do not state a maximum number of sites per template, nor count limits for objects or policies, nor the VLAN or interface counts supported on the ZT800 and ZT8010.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

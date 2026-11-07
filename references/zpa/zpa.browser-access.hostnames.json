@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "id": "zpa.browser-access.hostnames",
+  "title": "External versus internal hostname for a Browser Access application",
+  "aliases": [
+    "browser access web server certificate error",
+    "browser access different external internal hostname",
+    "cert error browser access internal app",
+    "browser access internal hostname public dns",
+    "backend ssl cannot be verified"
+  ],
+  "binds": [
+    "zpa/browser-access"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.backend-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.certificates"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Whether the external and internal hostnames match decides what end users see and what public DNS exposes."
+    },
+    {
+      "label": "Different hostnames.",
+      "text": "{{different-hostnames}} What remedies exist is partly answered below and partly open {{gap:backend-cert-remedies}}."
+    },
+    {
+      "label": "Different external and internal domains.",
+      "text": "{{different-domains-prerequisites}} {{different-domains-web-server}} Whether that holds for Zscaler-managed certificates is open {{gap:external-fqdn-and-managed-certificates}}. {{different-domains-static-servers}} {{different-domains-a-record}} The certificate's CN and SAN are in [[zpa.browser-access.certificates:csr-subject-san]]."
+    },
+    {
+      "label": "Several ports on one host.",
+      "text": "{{ports-80-443-only}} {{unique-hostnames-method}} {{fqdns-must-match-certificate}} {{defining-applications-method}}"
+    },
+    {
+      "label": "Same hostname.",
+      "text": "{{same-hostname}}"
+    },
+    {
+      "text": "The setting that tolerates an unverifiable backend certificate is in [[zpa.browser-access.backend-options]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application's external and internal hostnames differ, which alone explains a web server certificate error.",
+      "uses": [
+        "different-hostnames",
+        "same-hostname"
+      ]
+    },
+    {
+      "do": "Whether exposing the internal hostname in public DNS is acceptable before moving to the same hostname.",
+      "uses": [
+        "same-hostname"
+      ]
+    },
+    {
+      "do": "Whether several applications on one host use unique hostnames, and whether each FQDN in the segment maps to the selected Browser Access certificate.",
+      "uses": [
+        "unique-hostnames-method",
+        "fqdns-must-match-certificate",
+        "ports-80-443-only"
+      ]
+    },
+    {
+      "do": "Which method an external versus internal domain setup uses, and whether the certificate has the external FQDN as CN and the internal FQDN as SAN.",
+      "uses": [
+        "different-domains-prerequisites",
+        "different-domains-static-servers",
+        "different-domains-a-record"
+      ]
+    },
+    {
+      "do": "Whether a proposed remedy is stated by a source or is the unverified backend-certificate option.",
+      "uses": [
+        "backend-cert-remedies"
+      ]
+    }
+  ],
+  "claims": {
+    "different-hostnames": {
+      "statement": "When a Browser Access application uses different external and internal hostnames, the internal hostname is not exposed and has no record in public DNS. Backend SSL cannot be verified, so end users see a web server certificate error because the application's hostname does not match the certificate's hostname.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "Internal hostnames are not exposed, so there is no record of internal hostnames on the public DNS.",
+            "Backend SSL cannot be verified, so a web server certificate error is displayed to your end users because the hostname of the application doesn't match the hostname of the certificate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-within-existing-application-segment.json",
+          "quotes": [
+            "Internal hostnames are not exposed, so there is no record of internal hostnames on the public DNS.",
+            "Backend SSL cannot be verified, so a web server certificate error is displayed to your end users because the hostname of the application doesn't match the hostname of the certificate."
+          ]
+        }
+      ]
+    },
+    "same-hostname": {
+      "statement": "When the external and internal hostnames are the same, the internal hostname is exposed on public DNS. Backend SSL can be verified, so end users do not get a web server certificate error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "Internal hostnames are exposed on the public DNS.",
+            "Backend SSL can be verified, so your end users will not receive a web server certificate error."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-within-existing-application-segment.json",
+          "quotes": [
+            "Internal hostnames are exposed on the public DNS.",
+            "Backend SSL can be verified, so your end users will not receive a web server certificate error."
+          ]
+        }
+      ]
+    },
+    "ports-80-443-only": {
+      "statement": "For Browser Access-enabled applications, Service Edges listen only on ports 80 and 443 for inbound connections from web browsers. A port 80 connection is redirected to port 443, and a port 443 connection does domain virtualization through the provided Server Name Indication (SNI). As a consequence, Private Access receives only one domain name and one port, so mapping that domain and port combination to multiple ports is not possible, though ports can be mapped through multiple domain names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-multiple-ports-same-domain.json",
+          "quotes": [
+            "For Browser Access-enabled applications, Service Edges only listen on ports 80 and 443 for inbound connections from web browsers.",
+            "So, a port 80 connection is automatically redirected to port 443, while a port 443 connection does domain virtualization through the provided Server Name Indication (SNI).",
+            "As a consequence, Private Access (ZPA) only receives one domain name and one port, and mapping that domain with port combination to multiple ports is not possible.",
+            "However, you can map ports through multiple domain names using one of the following methods."
+          ]
+        }
+      ]
+    },
+    "unique-hostnames-method": {
+      "statement": "Zscaler recommends the unique hostname method for several ports on one host: unique hostnames per application, using internal DNS or explicitly defined static servers, advertise a unique external hostname that matches an internal hostname and port combination. In the page's example, dynamic server discovery works for all three applications as long as an internal DNS exists for their hostnames; otherwise static servers must be defined in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-multiple-ports-same-domain.json",
+          "quotes": [
+            "You can use unique hostnames per application by using your internal DNS or by explicitly defining static servers in Private Access.",
+            "This allows the advertising of a unique external hostname that matches an internal hostname and port combination.",
+            "Using this method, as long as an internal DNS for these three hostnames is configured, then dynamic server discovery for all three applications works.",
+            "However, if an internal DNS doesn't exist for these three hostnames, then dynamic server discovery doesn't work and you must explicitly define static servers within the Zscaler Admin Console for them.",
+            "Zscaler recommends using the unique hostname method, as defining applications does not provide a satisfactory usability experience for your end users."
+          ]
+        }
+      ]
+    },
+    "fqdns-must-match-certificate": {
+      "statement": "FQDNs defined in an application segment must map to the Browser Access (web server) certificate selected for Private Access to maintain the chain of trust. In the page's example, crm.corp.com and webadmin.corp.com do not match the web server certificate, so Use Untrusted Certificates is selected for both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-multiple-ports-same-domain.json",
+          "quotes": [
+            "FQDNs that are defined in an application segment must map to the Browser Access (web server) certificate selected for Private Access to maintain the chain trust.",
+            "In this example, crm.corp.com and webadmin.corp.com don't match with the web server certificate, so select Use Untrusted Certificates for both."
+          ]
+        }
+      ]
+    },
+    "defining-applications-method": {
+      "statement": "The alternative method maps several external hostnames to one internal server, which can also be specified by IP address, and all the applications can use the same server group. This causes certificate validation problems because the hostname check fails, so users see web server certificate errors for each of the example's three applications, and web server certificates cannot be verified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-multiple-ports-same-domain.json",
+          "quotes": [
+            "You can define the applications within an application segment internally to point to a specific hostname or IP address.",
+            "The hostname web.corp.com (advertised externally), and map to linux.corp.com:80 (configured internally)",
+            "The hostname crm.corp.com (advertised externally), and map to linux.corp.com:443 (configured internally)",
+            "The hostname webadmin.corp.com (advertised externally), and map to linux.corp.com:1000 (configured internally)",
+            "However, this causes certificate validation problems because the hostname check fails. As a result, users see web server certificate errors when connecting to any of the three applications in the previous example.",
+            "However, the server can be also specified by IP address if necessary (i.e., server group linux.corp.com maps to server 172.31.23.203).",
+            "You can then have all three applications use the same server group, but you would not be able to verify web server certificates."
+          ]
+        }
+      ]
+    },
+    "different-domains-prerequisites": {
+      "statement": "For different external and internal domains, the internal FQDN must be properly named and the App Connectors must resolve it through the internal DNS. The desired external FQDN must be properly named; ideally the internal and external FQDNs use similar names, but split DNS (the domain and top-level domain are the same but the hostname varies) and separate DNS (the domain and top-level domain differ) also function. An SSL certificate must be created for the external FQDN, with CN=[external FQDN] and SAN=[internal FQDN].",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-different-external-vs-internal-domains.json",
+          "quotes": [
+            "Your internal fully qualified domain name (FQDN) for the application must be properly named (e.g., internalweb.example1.com), and your App Connectors must resolve to that hostname via your internal DNS.",
+            "Your desired external FQDN for the application must be properly named (e.g., externalweb.example2.com). Ideally, the internal and external FQDNs for the application should use similar names. However, the following also functions:",
+            "Split DNS, where the domain and top-level domain are the same but the hostname varies.",
+            "Separate DNS, where the domain and top-level domain differ.",
+            "You must create an SSL certificate for the external FQDN (e.g., webapp.external.example.com or *.external.example.com if you want to use a wildcard certificate).",
+            "CN=[external FQDN]",
+            "SAN=[internal FQDN]"
+          ]
+        }
+      ]
+    },
+    "different-domains-web-server": {
+      "statement": "Private Access does not transform the external FQDN, so a multihomed web server that expects a Host header matching the internal FQDN needs the external FQDN added as an additional header. Internal web servers must serve pages with objects linked as relative URLs, absolute URLs are not supported, and internal web servers must be single tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-different-external-vs-internal-domains.json",
+          "quotes": [
+            "If your web server is multihomed and is expecting a Host header matching the internal FQDN, Private Access (ZPA) does not transform the external FQDN.",
+            "So if your web server is configured for Host headers, you must add the external FQDN as an additional header.",
+            "Internal web servers must serve pages with objects linked as relative URLs",
+            "Absolute URLs are not supported",
+            "Internal web servers must be single tenant."
+          ]
+        }
+      ]
+    },
+    "different-domains-static-servers": {
+      "statement": "One method disables dynamic server discovery and defines the target servers manually, which supports multiple web servers with no external load balancing; with several web servers behind one application, a server is added in the Admin Console for each internal FQDN. The certificate must match the external FQDN, HTTPS is selected as the protocol, and the Use Untrusted Certificates checkbox must be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-different-external-vs-internal-domains.json",
+          "quotes": [
+            "You can disable dynamic server discovery and manually define the target servers. This method supports multiple web servers, and no external load balancing is required.",
+            "If you have multiple web servers supporting the same application (e.g., webapp1, webapp2, etc.), then you must add a server in the Zscaler Admin Console for each internal FQDN."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-different-external-vs-internal-domains.json",
+          "after": "## Disabling Dynamic Server Discovery and Manually Defining the Target Servers",
+          "quotes": [
+            "The certificate must match the external FQDN (i.e., webapp.external.example.com or *.external.example.com).",
+            "Select HTTPS for the protocol.",
+            "Make sure that the Use Untrusted Certificates checkbox is selected."
+          ]
+        }
+      ]
+    },
+    "different-domains-a-record": {
+      "statement": "The other method enables dynamic server discovery and manually defines an A record in the internal DNS for the external FQDN, pointing to the IP address or load balancer virtual IP address of the internal web server hosting the application. It supports only one web server, unless third-party load balancing places multiple web servers behind a single IP address referenced by the A record.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-browser-access-application-different-external-vs-internal-domains.json",
+          "quotes": [
+            "You can enable dynamic server discovery and manually define an A record in your internal DNS for the external FQDN. This method supports only one web server, unless third-party load balancing is used to place multiple web servers behind a single IP address referenced by the A record.",
+            "that points to the IP address or load balancer virtual IP address (VIP) of the internal web server that is hosting the application."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "external-fqdn-and-managed-certificates": {
+      "kind": "semantic",
+      "title": "Whether the external FQDN is left untransformed for Zscaler-managed certificates",
+      "status": "open",
+      "detail": "The page on different external and internal domains says Private Access does not transform the external FQDN and the external FQDN must be added as a Host header (claim different-domains-web-server). It does not say whether that applies to Zscaler-managed certificates, for which zpa.browser-access.certificates:managed-header-rewrites says the Host header is modified.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "backend-cert-remedies": {
+      "kind": "semantic",
+      "title": "Remedies for the certificate error with different hostnames",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Resolution options: (a) accept and document; (b) switch to same hostname; (c) install a cert on the backend whose CN matches the external name.\" The page on different external and internal domains now gives two methods (claims different-domains-static-servers and different-domains-a-record) with a certificate for the external FQDN carrying the internal FQDN as a SAN (claim different-domains-prerequisites), which narrows option (c) but does not state it as written. Option (a) and (b) follow from the two scenarios in claims different-hostnames and same-hostname. The use-untrusted-certificates setting is in zpa.browser-access.backend-options. A lab test of option (c) would resolve it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

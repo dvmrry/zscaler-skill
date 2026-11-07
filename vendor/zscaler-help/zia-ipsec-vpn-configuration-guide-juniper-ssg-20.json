@@ -1,0 +1,3219 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "IPSec VPN Configuration Guide for Juniper SSG 20",
+  "source": {
+    "url": "https://help.zscaler.com/zia/ipsec-vpn-configuration-guide-juniper-ssg-20",
+    "node": "1400766",
+    "revision": "3249865",
+    "updated": "2026-10-12",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article uses only sample IP addresses in the configuration steps and screenshots. For tunnel interface configuration, you must use only RFC 1918 IP addresses and not APIPA addresses."
+    },
+    {
+      "text": "This article shows how to configure two IPSec VPN tunnels from a Juniper SSG 20 firewall running ScreenOS 6.2.0r1.0 to two Public Service Edges for Internet & SaaS (ZIA) in the Zscaler cloud. To learn more about WebUI, refer to the Juniper documentation."
+    },
+    {
+      "text": "As shown in the following figure, the internal traffic of the corporate office is in the Trust zone. The WAN port Ethernet 0/0 is in the Untrust zone. It sends internet-bound traffic through the VPN tunnel to the Zscaler cloud and performs NAT on the traffic it sends to the internet."
+    },
+    {
+      "text": "Zscaler IPSec tunnels support a limit of 400 Mbps for each public source IP address. If your organization wants to forward more than 400 Mbps of traffic, Zscaler recommends using one of the following configurations:"
+    },
+    {
+      "item": "Configure multiple IPSec tunnels with different public source IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "Configure multiple IPSec VPN tunnels with the same public source IP address using NAT-T and source port randomization with IKEv2 for all the configured tunnels.",
+      "depth": 0
+    },
+    {
+      "text": "For example, if your organization forwards 800 Mbps of traffic, you can configure two primary VPN tunnels and two backup VPN tunnels."
+    },
+    {
+      "text": "Dead Peer Detection (DPD) must be enabled, so the firewall can detect if a VPN is offline. If this occurs, it routes the internet-bound traffic through the backup VPN. In this configuration example, a route-based VPN is configured, where two tunnels are created and then inserted as the default routes in the routing table."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure you have the following information for setting up the IPSec VPN tunnels:"
+    },
+    {
+      "item": "Virtual IP (VIP) addresses of the Public Service Edges",
+      "depth": 0
+    },
+    {
+      "item": "Global IP addresses of the Public Service Edges",
+      "depth": 0
+    },
+    {
+      "item": "Maximum Transmission Unit (MTU)",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring the IPSec VPN Tunnel in the Zscaler Admin Console",
+      "level": 1
+    },
+    {
+      "text": "In this example configuration, the peers are using an FQDN and a pre-shared key (PSK) for authentication."
+    },
+    {
+      "text": "To configure the IPSec VPN tunnels in the Zscaler Admin Console:"
+    },
+    {
+      "item": "Add the VPN Credentials",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "You need the FQDN and PSK when linking the VPN credentials to a location and creating the IKE gateways.",
+      "depth": 0
+    },
+    {
+      "item": "Link the VPN Credentials to a Location",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "heading": "Configuring the IPSec VPN Tunnel in the Juniper SSG 20 WebUI",
+      "level": 1
+    },
+    {
+      "text": "This article only covers the configuration details of IPSec VPN tunnels between the Juniper SSG 20 firewall and the Public Service Edges. For any other specific information about Juniper SSG 20, refer to the Juniper documentation."
+    },
+    {
+      "text": "The following image shows the interface setup in the Juniper WebUI (Network > Interfaces > List):",
+      "strong": [
+        [
+          68,
+          75
+        ],
+        [
+          78,
+          88
+        ],
+        [
+          91,
+          95
+        ]
+      ]
+    },
+    {
+      "text": "Ensure that the internet port (ethernet 0/0) is in the Untrust zone and the bgroup0 LAN and wireless ports are in the Trust zone."
+    },
+    {
+      "text": "To configure the IPSec VPN tunnels on Juniper SSG 20:"
+    },
+    {
+      "text": "Zscaler does not support Extended Sequence Number (ESN) based proposals during IPSec tunnel negotiation."
+    },
+    {
+      "item": "1. Configure the Tunnel Interfaces",
+      "depth": 0
+    },
+    {
+      "item": "Configure two IPSec tunnel interfaces using the internet port (ethernet 0/0). Ensure both tunnel interfaces are in the Untrust zone.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the primary tunnel interface:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Juniper SSG 20 WebUI.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Network > Interfaces > List.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          26
+        ],
+        [
+          29,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the upper-right corner, choose Tunnel IF.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          34,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click New.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Configuration page:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Tunnel Interface Name: Enter a number for the tunnel interface name. The name is prepended with tunnel. In this example, it's tunnel.1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          96,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Zone (VR): Choose Untrust (trust-vr).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Select Unnumbered.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Interface: Choose ethernet0/0 (trust-vr).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Maximum Transfer Unit (MTU): Enter the optimal MTU for your tunnel. In this example, it's 1400 Bytes.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Deselect DNS Proxy.",
+      "depth": 2,
+      "strong": [
+        [
+          9,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Traffic Bandwidth:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Egress Maximum Bandwidth: Enter the maximum bandwidth (Kbps) for outbound traffic. In this example, it's 50 kbps.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Egress Guaranteed Bandwidth: Enter the guaranteed bandwidth (Kbps) for outbound traffic. In this example, it's 40 kbps.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Ingress Maximum Bandwidth: Enter the maximum bandwidth (Kbps) for inbound traffic. In this example, it's 40 kbps.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Deselect NHRP Enable.",
+      "depth": 2,
+      "strong": [
+        [
+          9,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "After configuring the primary tunnel, repeat this procedure to configure the backup tunnel interface (tunnel.2).",
+      "depth": 0
+    },
+    {
+      "item": "2. Create a Phase 1 Proposal",
+      "depth": 0
+    },
+    {
+      "item": "Create a Phase 1 proposal with the following IKE parameters.",
+      "depth": 0
+    },
+    {
+      "item": "To create a Phase 1 proposal:",
+      "depth": 0
+    },
+    {
+      "item": "Go to VPNs > AutoKey Advanced > P1 Proposal.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          13,
+          29
+        ],
+        [
+          32,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click New.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the P1 proposal Edit page:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the P1 proposal. In this example, it's ZscalerP1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Method: Choose Preshare.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "DH Group: Choose Group 14.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Encryption Algorithm: Choose AES-GCM(128 Bits).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Hash Algorithm: Choose SHA-1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Lifetime: Enter a lifetime. In this example, it's 24 hours.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "3. Create a Phase 2 Proposal",
+      "depth": 0
+    },
+    {
+      "item": "Create a Phase 2 proposal with the following IKE parameters.",
+      "depth": 0
+    },
+    {
+      "item": "To create a Phase 2 proposal:",
+      "depth": 0
+    },
+    {
+      "item": "Go to VPNs > AutoKey Advanced > P2 Proposal.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          13,
+          29
+        ],
+        [
+          32,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click New.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the P2 proposal Edit page:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the P2 proposal. In this example, it's ZscalerP2.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Perfect Forward Secrecy: Choose NO-PFS.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Encapsulation: Select Encryption (ESP).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Encryption Algorithm: Choose AES-GCM based encryption.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "For Phase 2, Zscaler recommends using AES-GCM-based ciphers if you have purchased a separate subscription. If you do not have a separate subscription, Zscaler recommends using NULL encryption.",
+      "depth": 2
+    },
+    {
+      "item": "Authentication Algorithm: Choose SHA-1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          33,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Lifetime:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "In Time: Enter a lifetime. In this example, it's 8 hours.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "In Kbytes: Enter 0 bytes.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "4. Configure the IKE Gateways",
+      "depth": 0
+    },
+    {
+      "item": "Configure two IKE gateways, one for each Public Service Edge. In this example, the primary gateway created is named Primary-Gateway with the Public Service Edge VIP addresses 165.225.80.34. The backup gateway is named Backup-Gateway with the Public Service Edge VIP address 185.46.212.34.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the primary IKE gateway:",
+      "depth": 0
+    },
+    {
+      "item": "Go to VPNs > AutoKey Advanced > Gateway.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          13,
+          29
+        ],
+        [
+          32,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click New.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the gateway Edit page:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          15,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Gateway Name: Enter a name for the IKE gateway. In this example, it's Primary-Gateway.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Version: Select IKEv2.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Select Remote Gateway and then select Static IP Address under it.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          38,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "IP Address/Hostname: Enter the Public Service Edge VIP address for the primary gateway. In this example, it's 165.225.80.34.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Peer ID: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "User: Choose None.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Group: Choose None.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          14,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Advanced.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the advanced gateway Edit page:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          24,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Select IKEv2 Auth Method.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Self: Choose preshare.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Peer: Choose preshare.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Preshared Key: Enter the pre-shared key for the VPN credentials you added in the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Use As Seed: Leave deselected.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Local ID: Enter the FQDN for the VPN credentials you added in the Zscaler Admin Console. In this example, it's the FQDN example@safemarch.com.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Outgoing Interface: Choose ethernet0/0.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Security Level:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "User Defined: Choose Custom.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Phase 1 Proposal: Choose the P1 proposal you created in 2. Create a Phase 1 Proposal. In this example, it's ZscalerP1.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          108,
+          117
+        ]
+      ]
+    },
+    {
+      "item": "Mode (Initiator): You can't modify this field.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Enable NAT-Traversal: Select.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "UDP Checksum: Leave deselected.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Keepalive Frequency: Enter 5 seconds.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Select DPD under Peer Status Detection.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          10
+        ],
+        [
+          17,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Interval: Enter 5 seconds.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Retry: Enter 5 seconds.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Select Always Send.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Preferred Certificate(optional):",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Local Cert: Choose None.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Peer CA: Choose None.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Peer Type: Choose the peer type. In this example, it's X509-SIG.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          55,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Use Distinguished Name for Peer ID: Leave deselected.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Return.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Repeat the procedure to create the backup IKE gateway (Backup-Gateway) using the Public Service Edge VIP address 185.46.212.34.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "5. Configure the AutoKey IKE VPN Tunnels",
+      "depth": 0
+    },
+    {
+      "item": "Configure two AutoKey IKE VPN tunnels to two different Public Service Edges. In this example, the primary VPN tunnel is configured from the primary IKE gateway (Primary-Gateway). It uses the global Public Service Edge IP address 185.46.212.88 for VPN monitoring. The backup VPN tunnel is configured from the backup IKE gateway (Backup-Gateway). It uses the global Public Service Edge IP address 185.46.212.89 for VPN monitoring.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the primary VPN tunnel:",
+      "depth": 0
+    },
+    {
+      "item": "Go to VPNs > AutoKey IKE.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          13,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click New.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the AutoKey IKE Edit page:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "VPN Name: Enter a name for the VPN tunnel. In this example, it's Primary-Tunnel.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Select Remote Gateway.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Select Predefined and then choose the primary IKE gateway you configured in 4. Configure the IKE Gateways. In this example, it's Primary-Gateway.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          129,
+          144
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Advanced.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the advanced AutoKey IKE Edit page:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          28,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Security Level:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "User Defined: Choose Custom.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Phase 2 Proposal: Choose the P2 proposal you created in 3. Create a Phase 2 Proposal. In this example, it's ZscalerP2.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          108,
+          117
+        ]
+      ]
+    },
+    {
+      "item": "Select Replay Protection.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Transport mode: Leave deselected.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Bind to: Choose Tunnel Interface, and choose the primary tunnel interface you configured in 1. Configure the Tunnel Interfaces. In this example, it's tunnel.1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          32
+        ],
+        [
+          150,
+          158
+        ]
+      ]
+    },
+    {
+      "item": "Proxy-ID: Leave deselected.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "DSCP Marking: Select Disable.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "VPN Group: Choose None.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select VPN Monitor.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Source Interface: Choose ethernet0/0.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Destination IP: Enter the global Public Service Edge IP address for your primary tunnel. In this example, it's 185.46.212.88.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Select Optimized.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Select Rekey.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Return.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Repeat the procedure to create a backup VPN tunnel (Backup-Tunnel) using the backup tunnel interface (tunnel.2), IKE gateway (Backup-Gateway), and global Public Service Edge IP address (185.46.212.89).",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "6. Configure Policy-Based Routing",
+      "depth": 0
+    },
+    {
+      "item": "Configure policy-based routing (PBR) so your organization can send its outbound traffic from the Trust to the Untrust security zone and through the tunnel interfaces.",
+      "depth": 0
+    },
+    {
+      "item": "To configure PBR:",
+      "depth": 0
+    },
+    {
+      "item": "a. Configure an Extended Access Control List",
+      "depth": 1
+    },
+    {
+      "item": "Configure an extended Access Control List (ACL). The extended ACL defines the destination IP address, ports, and protocols.",
+      "depth": 1
+    },
+    {
+      "item": "To configure the extended ACL:",
+      "depth": 1
+    },
+    {
+      "item": "Go to Network > Routing > PBR > Extended ACL.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          23
+        ],
+        [
+          26,
+          29
+        ],
+        [
+          32,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the upper-right corner, choose trust-vr.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          34,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click New.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the extended ACL Configuration page, do the following to add an entry for TCP traffic on port 80:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Router: It's automatically named trust-vr. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Extended ACL ID: Enter 1.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Sequence No.: Enter 10.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Source IP Address / Netmask: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Source Port: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Destination IP Address / Netmask: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Destination Port: Enter 80~80.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Choose TCP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "IP-TOS (1~255): Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Seq No.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the extended ACL Configuration page, do the following to add an entry for TCP traffic on port 443:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Router: It's automatically named trust-vr. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Extended ACL ID: It's automatically set to 1. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          43,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Sequence No.: Enter 20.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Source IP Address / Netmask: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Source Port: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Destination IP Address / Netmask: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Destination Port: Enter 443~443.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Choose TCP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "IP-TOS (1~255): Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Seq. No.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the extended ACL Configuration page, do the following to add an entry for ICMP traffic:",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Router: It's automatically named trust-vr. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Extended ACL ID: It's automatically set to 1. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          43,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Sequence No.: Enter 30.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Source IP Address / Netmask: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Source Port: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Destination IP Address / Netmask: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Destination Port: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Choose ICMP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "IP-TOS (1~255): Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Seq. No.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the extended ACL Configuration page, do the following to add an entry for UDP traffic on port 53:",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Router: It's automatically named trust-vr. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Extended ACL ID: It's automatically set to 1. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          43,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Sequence No.: Enter 40.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Source IP Address / Netmask: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Source Port: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Destination IP Address / Netmask: Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Destination Port: Enter 53~53.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Choose UDP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "IP-TOS (1~255): Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 14,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Your extended ACL configuration should look similar to the following:",
+      "depth": 1
+    },
+    {
+      "item": "b. Create a Match Group",
+      "depth": 1
+    },
+    {
+      "item": "Create a match group for the extended ACL.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Network > Routing > PBR > Match Group.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          23
+        ],
+        [
+          26,
+          29
+        ],
+        [
+          32,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the upper-right corner, choose trust-vr.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          34,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click New.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the match group Configuration page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          19,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Router: It's automatically named trust-vr. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Match Group Name: Enter a name for the match group. In this example, it's Match-Group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Sequence No.: Enter 10.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Extended ACL: Choose the extended ACL you configured in a. Configure an Extended Access Control List. In this example, it's 1.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          124,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Your match group configuration should look similar to the following:",
+      "depth": 1
+    },
+    {
+      "item": "c. Create an Action Group",
+      "depth": 1
+    },
+    {
+      "item": "Create an action group and route it to the tunnel interfaces.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Network > Routing > PBR > Action Group.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          23
+        ],
+        [
+          26,
+          29
+        ],
+        [
+          32,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the upper-right corner, choose trust-vr.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          34,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click New.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the action group Configuration page, do the following to add an entry for the primary tunnel interface:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Router: It's automatically named trust-vr. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Action Group Name: Enter a name for the action group. In this example, it's Action-Group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Sequence No.: Enter 10.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Route To:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Next Hop: Leave deselected.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Select Interface and then choose the primary tunnel interface you configured in 1. Configure the Tunnel Interfaces. In this example, it's tunnel.1.",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          138,
+          146
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Seq No.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the action group Configuration page, do the following to add an entry for the backup tunnel interface:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Router: It's automatically named trust-vr. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Action Group Name: Enter the same action group name used in step d. In this example, it's Action-Group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Sequence No.: Enter 20.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Route To:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Next Hop: Leave deselected.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Select Interface and then choose the backup tunnel interface you configured in 1. Configure the Tunnel Interfaces. In this example, it's tunnel.2.",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          137,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Your action group configuration should look similar to the following:",
+      "depth": 1
+    },
+    {
+      "item": "d. Create a Policy",
+      "depth": 1
+    },
+    {
+      "item": "Create a policy for the match and action group.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Network > Routing > PBR > Policy.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          23
+        ],
+        [
+          26,
+          29
+        ],
+        [
+          32,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the upper-right corner, choose trust-vr.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          34,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click New.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the policy Configuration page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          14,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Router: It's automatically named trust-vr. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Policy Name: Enter a name for the policy. In this example, it's Zscaler-Policy.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Sequence No.: Enter 10.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Match Group: Choose the match group you created in b. Create a Match Group. In this example, it's Match-Group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          98,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "Action Group: Choose the action group you created in c. Create an Action Group. In this example, it's Action-Group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          102,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "e. Bind the Policy to the Trust Interfaces",
+      "depth": 1
+    },
+    {
+      "item": "Bind the policy to the Trust interfaces.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Network > Routing > PBR > Policy Binding.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          23
+        ],
+        [
+          26,
+          29
+        ],
+        [
+          32,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Under the Policy Name column to the right of the bgroup0 interface, click N/A.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          21
+        ],
+        [
+          49,
+          56
+        ],
+        [
+          74,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Policy Binding window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Interface: It's automatically named bgroup0. You can't modify this field.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          36,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Policy: Choose the policy you created in d. Create a Policy. In this example, it's Zscaler-Policy.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          83,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Repeat the procedure to bind the policy to the wireless0/0 interface.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          47,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "f. Create Policies for the Security Zones",
+      "depth": 1
+    },
+    {
+      "item": "Create two policies, one policy that allows traffic from the Trust to the Untrust zone and another policy that allows traffic from the Untrust to the Trust zone.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Policy > Policies.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          15,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Policies page:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "From: Choose Trust.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "To: Choose Untrust.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          2
+        ],
+        [
+          11,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click New.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Policies (From Trust to Untrust) page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Name (optional): Leave blank.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Source Address: Select Address Book Entry and then choose Any from the drop-down menu.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          41
+        ],
+        [
+          58,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Destination Address: Select Address Book Entry and then choose Any from the drop-down menu.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          46
+        ],
+        [
+          63,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Service: Choose Any.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Application: Choose None.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "WEB Filtering: Leave deselected.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Action: Choose Permit.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Tunnel:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "VPN: Choose None.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          12,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Modify matching bidirectional VPN policy: Leave deselected.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "L2TP: Choose None.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Logging: Leave deselected.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Position at Top: Leave deselected.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Session-limit: Leave deselected.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Counter: Enter 0.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Alarm without drop: Leave deselected.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Repeat the procedure to configure a second policy that allows traffic from Untrust to Trust.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          75,
+          82
+        ],
+        [
+          86,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Your policy configuration should look similar to the following:",
+      "depth": 1
+    },
+    {
+      "text": "After completing the configuration, you can go to VPNs > Monitor Status to see the status of the IPSec VPN tunnels.",
+      "strong": [
+        [
+          50,
+          54
+        ],
+        [
+          57,
+          71
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Testing the Configuration",
+      "level": 1
+    },
+    {
+      "text": "You can test the configuration by browsing from the Trust zone (through the wireless or bgroup0 LAN ports) to any website. You must log in to the Zscaler cloud before you can access the site."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "From the navigation menu, you can go to Data Explorer > Internet & SaaS > Tunnel Insights to see data as well as monitor the health and status of your configured IPSec VPN tunnels. To learn more, see About Insights and About Insights Logs."
+    },
+    {
+      "text": "On the SSG 20 device, you can use the following CLI commands to monitor and troubleshoot the IPSec VPN tunnels."
+    },
+    {
+      "item": "Viewing the SA",
+      "depth": 0
+    },
+    {
+      "item": "Use the get sa command to view SAs and to check the status of the tunnel. In the following response, the \"Sta\" section displays the status of your IPSec tunnels.",
+      "depth": 0
+    },
+    {
+      "item": "ssg5-serial-wlan-> get sa total configured sa: 2 HEX ID Gateway Port Algorithm SPI Life:sec kb Sta PID vsys 00000014< 10.10.104.71 500 esp:null/md5 00000000 expir unlim I/I -1 0 00000014> 10.10.104.71 500 esp:null/md5 00000000 expir unlim I/I -1 0 00000015< 10.10.104.235 500 esp:null/md5 33511797 2149 unlim A/U -1 0 00000015> 10.10.104.235 500 esp:null/md5 008a8a67 2149 unlim A/U -1 0",
+      "depth": 0
+    },
+    {
+      "item": "Use the get sa active command to check the active SAs:",
+      "depth": 0
+    },
+    {
+      "item": "Total active sa: 1 total configured sa: 2 HEX ID Gateway Port Algorithm SPI Life:sec kb Sta PID vsys 00000015< 10.10.104.235 500 esp:null/md5 33511797 2048 unlim A/U -1 0 00000015> 10.10.104.235 500 esp:null/md5 008a8a67 2048 unlim A/U -1 0",
+      "depth": 0
+    },
+    {
+      "item": "Use the get sa stat command to check the active SAs:",
+      "depth": 0
+    },
+    {
+      "item": "total configured sa: 2 HEX ID Gateway Fragment Auth-Fail Other Totalbytes 00000014< 10.10.104.71 0 0 0 0 00000014> 10.10.104.71 0 0 0 0 00000015< 10.10.104.235 0 0 0 345976469 00000015> 10.10.104.235 0 0 0 32472216",
+      "depth": 0
+    },
+    {
+      "item": "Use the get sa id 20 command to check the active SAs:",
+      "depth": 0
+    },
+    {
+      "item": "index 0, name VPN-71, peer gateway ip 10.10.104.71. vsys<Root> auto key. tunnel if binding node, tunnel mode, policy id in:<-1> out:<-1> vpngrp:<-1>. sa_list_nxt:<0xffffffff>. tunnel id 20, peer id 0, NSRP Local. site-to-site. Local interface is ethernet0/0 <10.10.120.41>. esp, group 2, null encryption, md5 authentication autokey, IN inactive, OUT inactive monitor<1>, latency: -1, availability: 0 DF bit: clear app_sa_flags: 0x5000a4 proxy id: local 0.0.0.0/0.0.0.0, remote 0.0.0.0/0.0.0.0, proto 0, port 0 ike activity timestamp: 1782025 nat-traversal map not available incoming: SPI 00000000, flag 00004000, tunnel info 40000014, pipeline life 0 sec, expired, 0 kb, 0 bytes remain anti-replay on, last 0x0, window 0x0, idle timeout value <0>, idled 1744 seconds next pak sequence number: 0x0 outgoing: SPI 00000000, flag 00000000, tunnel info 40000014, pipeline life 0 sec, expired, 0 kb, 0 bytes remain anti-replay on, last 0x0, window 0x0, idle timeout value <0>, idled 1744 seconds next pak sequence number: 0x0 ssg5-serial-wlan-> get sa id 21 index 1, name vpn-81, peer gateway ip 10.10.104.235. vsys<Root> auto key. tunnel if binding node, tunnel mode, policy id in:<-1> out:<-1> vpngrp:<-1>. sa_list_nxt:<0xffffffff>. tunnel id 21, peer id 1, NSRP Local. site-to-site. Local interface is ethernet0/0 <10.10.120.41>. esp, group 2, null encryption, md5 authentication autokey, IN active, OUT active monitor<1>, latency: 1, availability: 100 DF bit: clear app_sa_flags: 0x4000a7 proxy id: local 0.0.0.0/0.0.0.0, remote 0.0.0.0/0.0.0.0, proto 0, port 0 ike activity timestamp: 1732254 nat-traversal map not available incoming: SPI 33511799, flag 00004000, tunnel info 40000015, pipeline life 3600 sec, 3537 remain, 0 kb, 0 bytes remain anti-replay on, last 0x1724, window 0xffffffff, idle timeout value <0>, idled 0 seconds next pak sequence number: 0x0 outgoing: SPI 01c2e484, flag 00000000, tunnel info 40000015, pipeline life 3600 sec, 3537 remain, 0 kb, 0 bytes remain anti-replay on, last 0x0, window 0x0, idle timeout value <0>, idled 0 seconds next pak sequence number: 0xc52 ssg5-serial-wlan->",
+      "depth": 0
+    },
+    {
+      "item": "Clearing the SA",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to clear the SA:",
+      "depth": 0
+    },
+    {
+      "item": "ssg5-serial-wlan-> clear sa 21",
+      "depth": 0
+    }
+  ]
+}

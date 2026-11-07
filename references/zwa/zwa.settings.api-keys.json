@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "id": "zwa.settings.api-keys",
+  "title": "Workflow Automation API keys: the Key ID and secret, expiry, disabling, regenerating and deleting",
+  "aliases": [
+    "zwa api keys",
+    "workflow automation api key",
+    "key secret",
+    "API Management"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings.access"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{key-parts}} SDK authentication with these keys is in [[zwa.api]]; the wider settings are in [[zwa.settings]]."
+    },
+    {
+      "label": "Secret handling.",
+      "text": "{{secret-visibility}} {{secret-copy}}"
+    },
+    {
+      "label": "The API Keys page.",
+      "text": "{{list-columns}} {{access-and-purpose}}"
+    },
+    {
+      "label": "Lifecycle.",
+      "text": "{{expiration}} {{expiration-option-name}} {{disable-enable}} {{regenerate-delete}} {{delete-ends-access}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the key secret was copied when the key was created, since it is not available afterwards.",
+      "uses": [
+        "secret-visibility",
+        "secret-copy"
+      ]
+    }
+  ],
+  "claims": {
+    "key-parts": {
+      "statement": "A Workflow Automation API key consists of a Key ID and a Key Secret, both required to authenticate Workflow Automation APIs; keys can be generated only on the API Keys page in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-about-api-keys.json",
+          "quotes": [
+            "An API key consists of a Key ID and Key Secret. These two items are required for authenticating Workflow Automation APIs.",
+            "The API key can only be generated in the Zscaler Admin Console from the API Keys page."
+          ]
+        }
+      ]
+    },
+    "secret-visibility": {
+      "statement": "Key IDs are always accessible on the API Keys page, but the key secret is available only when the key is created and is not in the saved configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-about-api-keys.json",
+          "quotes": [
+            "Key IDs are always accessible from the page, but key secrets are only available when the API key is first created, and they are not available in the saved configuration."
+          ]
+        }
+      ]
+    },
+    "secret-copy": {
+      "statement": "The key secret and key ID are copied from the API Key window shown after Submit, and the secret can be copied only when creating the key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-api-keys.json",
+          "quotes": [
+            "In the API Key window, click the Copy icon to copy the Key Secret and the Key ID. You need both for authentication.",
+            "The key secret is only available to copy when creating an API key."
+          ]
+        }
+      ]
+    },
+    "list-columns": {
+      "statement": "The API Keys page lists, for each key, the Name, Created By (the creator's email address), Key ID, Last Used (a date) and Expiry (a date).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-about-api-keys.json",
+          "quotes": [
+            "Created By: The email address of the person who created the API key.",
+            "Name: The name of the API key.",
+            "Key ID: The ID of the API key.",
+            "Last Used: The date the API key was last used.",
+            "Expiry: The date the API key expires."
+          ]
+        }
+      ]
+    },
+    "expiration": {
+      "statement": "Setting an expiration time on an API key is optional; if enabled a lifetime in days is entered, and if disabled the key has no expiration time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-api-keys.json",
+          "quotes": [
+            "Expiration Time: (Optional) Enable to set an expiration time for the API key.",
+            "Lifetime (days): If you have enabled Expiration Time, enter the number of days that you want the key to be valid.",
+            "If the Expiration Time option is disabled, the API key has no expiration time."
+          ]
+        }
+      ]
+    },
+    "expiration-option-name": {
+      "statement": "The legacy getting-started page for the Workflow Automation API refers to the Expire after time option being enabled in the Workflow Automation Admin Portal, whereas the API Keys page labels its optional expiration setting Expiration Time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-workflow-automation-api.json",
+          "quotes": [
+            "if the Expire after time option is enabled in the Workflow Automation Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-api-keys.json",
+          "quotes": [
+            "Expiration Time: (Optional) Enable to set an expiration time for the API key."
+          ]
+        }
+      ]
+    },
+    "disable-enable": {
+      "statement": "An API key is enabled when created; it can be disabled with the toggle, after which it cannot be used for authentication, and the same action enables it again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-api-keys.json",
+          "quotes": [
+            "When created, the API key is enabled by default.",
+            "You can use the blue toggle corresponding to a specific API key to disable that key.",
+            "The API key is disabled and cannot be used for authentication. You can use the same action to enable the API key when needed."
+          ]
+        }
+      ]
+    },
+    "regenerate-delete": {
+      "statement": "Regenerating an API key generates a new key secret for the same admin and key ID; deleting an API key deletes it permanently.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-api-keys.json",
+          "quotes": [
+            "You can generate a new key secret for the same admin and the key ID.",
+            "The API key is deleted permanently."
+          ]
+        }
+      ]
+    },
+    "delete-ends-access": {
+      "statement": "The documented benefits of the API Keys page include regenerating a key whenever required or when vulnerabilities for an attack are suspected, and deleting a key so that no further API requests are possible after the API services have been used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-about-api-keys.json",
+          "quotes": [
+            "Prevent the misuse of API services by regenerating the API key whenever required or when you suspect vulnerabilities for an attack.",
+            "Ensure no further API requests are possible after you have utilized the API services by deleting the API key."
+          ]
+        }
+      ]
+    },
+    "access-and-purpose": {
+      "statement": "With a Workflow Automation subscription API Management is automatically accessible to an admin role; an admin can create and display the API key needed to authenticate API calls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-automation-api-keys.json",
+          "quotes": [
+            "If you have a subscription to Workflow Automation, API Management is automatically accessible to an admin role.",
+            "An admin can create and display the API key required for authenticating with the Workflow Automation API to make API calls."
+          ]
+        }
+      ]
+    }
+  }
+}

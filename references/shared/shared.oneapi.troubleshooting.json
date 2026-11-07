@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "id": "shared.oneapi.troubleshooting",
+  "title": "Troubleshooting OneAPI and ZIA calls: a 401, a change that is not live, an activation that stays 409, and a 429",
+  "aliases": [
+    "oneapi troubleshooting",
+    "401 unauthorized oneapi",
+    "zia change not taking effect",
+    "activation stuck",
+    "activation 409",
+    "429 rate limit exceeded",
+    "why is my zia change not live"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.response-codes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.auth-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.rate-limits"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A 401, a change that is not live, an activation that stays at 409, and a 429 each have a short sequence of checks below. Each check rests on the claims or gaps it names. Status codes are in [[shared.oneapi.response-codes]], and the auth mechanics are in [[shared.oneapi.authentication]]."
+    },
+    {
+      "label": "Changes not live.",
+      "text": "ZIA writes wait for activation [[zia.api.activation:saved-not-live]], and the product-level view is in [[shared.activation]]."
+    },
+    {
+      "label": "Limits.",
+      "text": "Each product has its own limit model [[shared.oneapi.rate-limits:models-differ]]."
+    },
+    {
+      "label": "Maintenance or permission.",
+      "text": "A ZIA 403 can be a maintenance window or a permission problem [[shared.oneapi.response-codes:read-only-distinguishable]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "If the token request succeeds but API calls return 401, check that the token request carries audience https://api.zscaler.com. An incorrect audience is one listed cause.",
+      "uses": [
+        "shared.oneapi.authentication:audience-required",
+        "shared.oneapi.authentication:audience-401-cause"
+      ]
+    },
+    {
+      "do": "If the token request itself fails, check the token endpoint host and the credentials. A failed token request returns 400.",
+      "uses": [
+        "shared.oneapi.authentication:token-endpoint",
+        "shared.oneapi.authentication:failure-400"
+      ]
+    },
+    {
+      "do": "For a government tenant, confirm the client routes gov or govus and the tenant has a ZIdentity API client; otherwise use the product's legacy path.",
+      "uses": [
+        "shared.oneapi.government-clouds:go-gov-routing",
+        "shared.oneapi.government-clouds:tenant-entitlement"
+      ]
+    },
+    {
+      "do": "If the tenant is not on Authentication Service, OneAPI is unavailable: use the legacy path. OneAPI needs the Authentication Service subscription.",
+      "uses": [
+        "shared.oneapi.authentication:auth-service-subscription",
+        "shared.legacy-api.zia-session:zidentity-tenants"
+      ]
+    },
+    {
+      "do": "If the client secret was rotated just now, do not conclude it is wrong yet: whether propagation takes time is open.",
+      "uses": [
+        "zidentity.api-clients.secrets:propagation-delay"
+      ]
+    },
+    {
+      "do": "Identify which path the script uses from its SDK client and variables before changing credentials.",
+      "uses": [
+        "shared.oneapi.auth-selection"
+      ]
+    },
+    {
+      "do": "If nothing above applies, rotate the API client secret in ZIdentity and update the variables. The new value is shown once.",
+      "uses": [
+        "zidentity.api-clients.secrets:two-secret-rotation",
+        "shared.oneapi.authentication:secret-shown-once"
+      ]
+    },
+    {
+      "do": "If a ZIA change was written but not activated, it is saved and not live. Check the activation status, then activate.",
+      "uses": [
+        "zia.api.activation:saved-not-live",
+        "zia.api.activation:status-values",
+        "shared.oneapi.write-practices:activation-zia-cbc"
+      ]
+    },
+    {
+      "do": "If other admins or automation may have queued changes, a queued activation waits for every editing administrator and cannot be cancelled.",
+      "uses": [
+        "zia.terraform.activation-methods:activation-queues"
+      ]
+    },
+    {
+      "do": "If a write returned EDIT_LOCK_NOT_AVAILABLE with 409, another writer holds the lock: wait, retry, and coordinate.",
+      "uses": [
+        "shared.oneapi.write-practices:edit-lock-409",
+        "zia.api.rate-limits:zia-edit-lock-retry"
+      ]
+    },
+    {
+      "do": "A disabled rule keeps its position in the order but is skipped. Check that the rule you expect to match is enabled and in the order you intend.",
+      "uses": [
+        "zia.url-filtering.rule-order:disabled-holds-slot"
+      ]
+    },
+    {
+      "do": "Check a rule's order against the Sandbox default: the provider treats order 127 as the default rule.",
+      "uses": [
+        "zia.sandbox.rules:default-rule-marker",
+        "zia.sandbox.rules:order-minus-one"
+      ]
+    },
+    {
+      "do": "Where a URL matches more than one custom category, the more specific entry decides the category whatever the rule order. Equal-specificity collisions are open.",
+      "uses": [
+        "shared.policy-evaluation:specificity-both",
+        "zia.url-categories.membership:same-specificity-collision"
+      ]
+    },
+    {
+      "do": "Check the web log's Blocked Policy Type to see which control blocked the transaction. The field applies to Block rules.",
+      "uses": [
+        "zia.sandbox.verdicts:blocked-policy-type",
+        "zia.atp.block-diagnosis:ruletype-column"
+      ]
+    },
+    {
+      "do": "If activation reports a processing queue, wait instead of stacking activations. The activation endpoint is budgeted at 10 POSTs per minute and 40 per hour.",
+      "uses": [
+        "zia.api.activation:queue-and-invalid-states",
+        "zia.terraform.activation-methods:activation-endpoint-budget"
+      ]
+    },
+    {
+      "do": "If activation reports an invalid pending change, find it in the admin console and fix or revert it. The status name is unconfirmed.",
+      "uses": [
+        "zia.api.activation:queue-and-invalid-states",
+        "shared.activation:activation-failure"
+      ]
+    },
+    {
+      "do": "Poll activation status no faster than every 30 seconds. The typical completion time is unconfirmed.",
+      "uses": [
+        "zia.api.activation:activation-duration"
+      ]
+    },
+    {
+      "do": "A read-only maintenance window is temporary: a 403 with x-zscaler-mode: read-only or STATE_READONLY is maintenance, not permission.",
+      "uses": [
+        "shared.oneapi.response-codes:read-only-mode",
+        "shared.oneapi.response-codes:read-only-distinguishable"
+      ]
+    },
+    {
+      "do": "Do not use Cloud & Branch Connector forced activation to clear a 409: the captured contract describes it only as forced activation.",
+      "uses": [
+        "cloud-connector.api.activation-wire:contract-descriptions",
+        "cloud-connector.api.activation-wire:force-semantics"
+      ]
+    },
+    {
+      "do": "Do not change settings in the admin console while scripts run, because the service may lock a configuration being edited.",
+      "uses": [
+        "shared.oneapi.write-practices:avoid-ui-edits"
+      ]
+    },
+    {
+      "do": "For ZIA and Cloud & Branch Connector, a 429 follows weight-based limits: heavy DELETE, medium POST and PUT, light GET.",
+      "uses": [
+        "zia.api.rate-limits:zia-default-weights",
+        "shared.oneapi.rate-limits:cbc-weights"
+      ]
+    },
+    {
+      "do": "For ZPA, the limit is per IP over 10-second windows, and a 429 carries a retry-after header.",
+      "uses": [
+        "zpa.api.rate-limits:limits",
+        "zpa.api.rate-limits:retry-after"
+      ]
+    },
+    {
+      "do": "For ZDX, limits depend on the tenant's tier by license count, and the rate-limit header names differ by host.",
+      "uses": [
+        "shared.oneapi.rate-limits:zdx-tiers",
+        "zdx.api.rate-limits:header-names"
+      ]
+    },
+    {
+      "do": "For Client Connector on OneAPI, the limit is 100 calls per hour at tenant level, with 3 per day for the download endpoints. Responses carry X-Rate-Limit-Remaining and X-Rate-Limit-Retry-After-Seconds.",
+      "uses": [
+        "shared.oneapi.rate-limits:zcc-oneapi-page",
+        "zcc.api.rate-limits:headers"
+      ]
+    },
+    {
+      "do": "Honor Retry-After: the Python SDK waits the header value plus one second, or the reset header plus one second, and does not retry without either.",
+      "uses": [
+        "shared.sdk-python.retries:wait-from-headers"
+      ]
+    },
+    {
+      "do": "Serialize concurrent jobs against one product where possible. Whether they share one budget is open.",
+      "uses": [
+        "shared.oneapi.rate-limits:concurrent-jobs-share-budget"
+      ]
+    },
+    {
+      "do": "Whether a persistent 429 is cleared by a rate-limit increase is open; do not assume it is.",
+      "uses": [
+        "shared.oneapi.rate-limits:rate-limit-increase"
+      ]
+    }
+  ],
+  "claims": {},
+  "gaps": {}
+}

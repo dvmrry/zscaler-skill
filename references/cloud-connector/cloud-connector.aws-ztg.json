@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws-ztg",
+  "title": "AWS Zero Trust Gateway: adding one, allowed accounts, endpoint service name, zone status, configuration, analytics, events and traffic simulation",
+  "aliases": [
+    "aws zero trust gateway",
+    "aws ztg",
+    "aws gateway zero trust cloud",
+    "zero trust gateway endpoint service name",
+    "zero trust gateway traffic simulation aws",
+    "aws gateway allowed accounts"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.zero-trust-gateways"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp-ztg"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp-ztg.operations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{limited-availability}} What an AWS gateway is, and how it differs from a Cloud Connector VM, is in [[cloud-connector.overview.zero-trust-gateways]]; the Zscaler-side registration of an endpoint is [[cloud-connector.overview.zero-trust-gateways:aws-endpoint-registration]]."
+    },
+    {
+      "label": "Adding one.",
+      "text": "{{one-region}} {{location}}"
+    },
+    {
+      "label": "Allowed accounts.",
+      "text": "{{allowed-accounts}} {{account-sources}}"
+    },
+    {
+      "label": "Details page.",
+      "text": "{{endpoint-service-name}}"
+    },
+    {
+      "label": "Operating one.",
+      "text": "{{zone-status}} {{endpoints}} {{config-rejection}} {{analytics}} {{events}} {{traffic-simulation}}"
+    },
+    {
+      "label": "Compared with GCP.",
+      "text": "The GCP gateway's operations page uses the same zone-status model, configuration-rejection rule and traffic-simulation lifecycle: [[cloud-connector.gcp-ztg.operations]]. Whether the two clouds share one operating contract is partly open in [[cloud-connector.overview.zero-trust-gateways:aws-gcp-parity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Zscaler Support has enabled AWS gateways for the tenant, since they are Limited Availability.",
+      "uses": [
+        "limited-availability"
+      ]
+    },
+    {
+      "do": "Whether the endpoint's AWS account is in the gateway's allowed accounts and the endpoint is in the gateway's region, since requests from other accounts are denied.",
+      "uses": [
+        "allowed-accounts",
+        "account-sources",
+        "one-region"
+      ]
+    },
+    {
+      "do": "Whether the gateway rejected the latest activated Internet & SaaS configuration, using the Config tab's version status.",
+      "uses": [
+        "config-rejection"
+      ]
+    },
+    {
+      "do": "The per-zone Status tab for Internet, Local Egress and Private Applications reachability before concluding where traffic is dropped.",
+      "uses": [
+        "zone-status"
+      ]
+    },
+    {
+      "do": "Whether a traffic simulation environment exists (it lasts one hour) and is in CREATE_COMPLETE before running a test.",
+      "uses": [
+        "traffic-simulation"
+      ]
+    }
+  ],
+  "claims": {
+    "limited-availability": {
+      "statement": "AWS gateways are in Limited Availability and are enabled by contacting Zscaler Support; they are added at Zero Trust Cloud > Zero Trust Gateway > AWS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-amazon-web-services-zero-trust-gateway.json",
+          "quotes": [
+            "AWS gateways are in Limited Availability. To enable this feature, contact Zscaler Support.",
+            "From the navigation menu, go to Zero Trust Cloud > Zero Trust Gateway > AWS."
+          ]
+        }
+      ]
+    },
+    "one-region": {
+      "statement": "An AWS gateway can be deployed in only one region, which cannot be modified after the gateway is created, and at least two availability zones must be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-amazon-web-services-zero-trust-gateway.json",
+          "quotes": [
+            "You can only deploy in one region, and you cannot modify it after the AWS gateway is created.",
+            "You must select a minimum of two availability zones."
+          ]
+        }
+      ]
+    },
+    "location": {
+      "statement": "The gateway's location is created from a selected location template; its location object is created and synced between Cloud Connector and Internet & SaaS policy pages, and its name is visible in all policies where the location object is available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-amazon-web-services-zero-trust-gateway.json",
+          "quotes": [
+            "Location Template: Select the location template that is used for creating the location associated with the AWS gateway.",
+            "This location object is created and synced between Cloud Connector policy pages and Internet & SaaS policy pages.",
+            "This name is visible in all the policies where the location object is available."
+          ]
+        }
+      ]
+    },
+    "allowed-accounts": {
+      "statement": "The Zscaler service denies endpoint connection requests from AWS accounts not present in the gateway's allowed accounts list; if no AWS account is configured while adding the gateway, the gateway must be edited later before connecting endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-amazon-web-services-zero-trust-gateway.json",
+          "quotes": [
+            "The Zscaler service denies endpoint connection requests from AWS accounts not present in this list.",
+            "If you do not configure an AWS account while adding an AWS gateway, you must edit the AWS gateway later before connecting endpoints:"
+          ]
+        }
+      ]
+    },
+    "account-sources": {
+      "statement": "Allowed accounts and account groups are those onboarded earlier on the Partner Integrations page, and AWS accounts not onboarded there are entered as 12-digit account IDs, up to 128; for each of Allowed Accounts, Allowed Accounts Groups and Additional AWS Accounts the page says the gateway accepts requests originated by endpoints from the same region as the gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-amazon-web-services-zero-trust-gateway.json",
+          "quotes": [
+            "The AWS accounts in this drop-down menu were previously added by onboarding them on the Partner Integrations page in the Zscaler Admin Console.",
+            "The AWS account groups in this drop-down menu were previously created on the Partner Integrations page in the Zscaler Admin Console.",
+            "Additional AWS Accounts: If your AWS account has not been onboarded on the Partner Integrations page, enter your 12-digit AWS account ID.",
+            "You can add up to 128 AWS accounts."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-amazon-web-services-zero-trust-gateway.json",
+          "after": "    - Allowed Accounts: Select the AWS accounts that are permitted to connect to the AWS gateway.",
+          "quotes": [
+            "The AWS gateway accepts the requests originated by endpoints from the same region as the AWS gateway."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-amazon-web-services-zero-trust-gateway.json",
+          "after": "    - Allowed Accounts Groups: Select the AWS account groups that are permitted to connect to the AWS gateway.",
+          "quotes": [
+            "The AWS gateway accepts the requests originated by endpoints from the same region as the AWS gateway."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-amazon-web-services-zero-trust-gateway.json",
+          "after": "    - Additional AWS Accounts: If your AWS account has not been onboarded on the Partner Integrations page, enter your 12-digit AWS account ID.",
+          "quotes": [
+            "The AWS gateway accepts the requests originated by endpoints from the same region as the AWS gateway."
+          ]
+        }
+      ]
+    },
+    "endpoint-service-name": {
+      "statement": "The gateway details page shows the Endpoint Service Name (the AWS endpoint service hosted by the Zscaler service, needed to create an endpoint in the customer's AWS account), the Zero Trust Gateway ID (the Zscaler internal ID) and the manually added accounts permitted to connect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-amazon-web-services-zero-trust-gateway-details.json",
+          "quotes": [
+            "Endpoint Service Name: The name of the AWS endpoint service hosted by the Zscaler service. You need this service address to create an endpoint in your AWS account.",
+            "Zero Trust Gateway ID: The Zscaler internal ID that identifies the resource.",
+            "Manually Added Accounts: The AWS accounts manually added in partner integrations that are permitted to connect to the AWS gateway."
+          ]
+        }
+      ]
+    },
+    "zone-status": {
+      "statement": "The Status tab reports for each availability zone the gateway's ability to reach Internet & SaaS (Internet), to forward direct traffic (Local Egress) and to reach Private Access (Private Applications), refreshed when the page is refreshed; Healthy means the backend traffic in the zone is functioning as expected, Unhealthy that traffic is dropped because no healthy backend is processing, and Degraded that traffic might have lost redundancy but is still forwarded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-amazon-web-services-zero-trust-gateway-details.json",
+          "quotes": [
+            "The Zscaler service refreshes the status when you refresh the page.",
+            "Internet: The ability of the AWS gateway to reach Internet & SaaS",
+            "Local Egress: The ability of the AWS gateway to forward direct traffic",
+            "Private Applications: The ability of the AWS gateway to reach Private Access",
+            "Healthy: The backend traffic in the availability zone is functioning as expected",
+            "Unhealthy: The traffic is being dropped because there is no healthy backend processing",
+            "Degraded: The traffic might have lost redundancy, but it is still being forwarded"
+          ]
+        }
+      ]
+    },
+    "endpoints": {
+      "statement": "The Endpoints tab lists each endpoint connected to the gateway and allowed to send it traffic, with the time the gateway accepted it; the VPC column, and a namespace based on the VPC tag with key zs:namespace, are only available if the workload discovery service and partner integrations are enabled, and the VPC endpoint's account ID must be onboarded to the partner integration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-amazon-web-services-zero-trust-gateway-details.json",
+          "quotes": [
+            "Endpoint ID: The ID of the endpoint connected to the AWS gateway. This endpoint is allowed to send traffic to the AWS gateway.",
+            "Accepted On: The date and time when the AWS gateway accepted the endpoint.",
+            "The account ID of the virtual private cloud (VPC) endpoint must be onboarded to the partner integration. The namespace is based on the VPC tag with the key (zs:namespace). This field is only available if the workload discovery service and partner integrations are enabled.",
+            "VPC: The VPC connected to the AWS gateway where the endpoint is deployed or configured. This field is only available if the workload discovery service and partner integrations are enabled."
+          ]
+        }
+      ]
+    },
+    "config-rejection": {
+      "statement": "The gateway can reject a configuration that is activated if it makes the gateway unable to function properly; on the Config tab each version's status is Active or Inactive, a latest version that is not active might have been rejected, and two versions can be compared with Compare Versions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-amazon-web-services-zero-trust-gateway-details.json",
+          "quotes": [
+            "The AWS gateway can reject a configuration that you activate if it makes the AWS gateway unable to function properly.",
+            "If the latest configuration version is not active, the AWS gateway might have rejected the configuration.",
+            "Status: The status of the version (i.e., Active or Inactive)",
+            "You can compare two configuration versions by selecting the checkboxes and clicking Compare Versions."
+          ]
+        }
+      ]
+    },
+    "analytics": {
+      "statement": "The Analytics tab displays values from CloudWatch for the gateway's gateway load balancer (GWLB) by Timeframe, Stat and Type: Processed Bytes (traffic to and from the destination, not health checks), Active Connection (concurrent client-to-destination connections) and Reset Count (the page's wording: TCP counts the GWLB sends when no backend processing is available).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-amazon-web-services-zero-trust-gateway-details.json",
+          "quotes": [
+            "On the Analytics tab, you can select Timeframe, Stat, and Type to display values from CloudWatch related to the gateway load balancer (GWLB) of your AWS gateway.",
+            "Processed Bytes: The total number of bytes that the GWLB processed. This includes traffic sent to and from the destination, but not traffic from health checks.",
+            "Active Connection: The total number of concurrent connections from client to destination.",
+            "Reset Count: The total number of TCP counts that the GWLB sends when there is no backend processing available."
+          ]
+        }
+      ]
+    },
+    "events": {
+      "statement": "The Events tab lists events (for example Accepted connection for VPC Endpoint or Removed connector for VPC Endpoint) with a category such as VpcEndpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-amazon-web-services-zero-trust-gateway-details.json",
+          "quotes": [
+            "Event: The event that occurred (e.g., Accepted connection for VPC Endpoint or Removed connector for VPC Endpoint).",
+            "Category: The category of the event (e.g., VpcEndpoint)."
+          ]
+        }
+      ]
+    },
+    "traffic-simulation": {
+      "statement": "Traffic simulation sets up a virtual environment in the Zscaler AWS account that is created after approximately 5 minutes and lasts one hour (Renew adds one more hour); the test runs once the environment is in the CREATE_COMPLETE state with HTTP or HTTPS as protocol and optional Verbose (-v) and Insecure (-k) curl options, the result appears as AWS curl output, and a test created in one gateway is available in all AWS gateways created in that Cloud Connector account in all regions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-amazon-web-services-zero-trust-gateway-details.json",
+          "quotes": [
+            "The Zscaler service sets up a virtual environment in the Zscaler AWS account and sends traffic through the endpoint to execute the test. The result of the test appears as the output of the AWS curl command.",
+            "After approximately 5 minutes, the test environment is created. The test environment lasts for one hour.",
+            "If you need more time, click Renew and the test environment lasts for one more hour. When the test environment is in the CREATE_COMPLETE state, you can run the test.",
+            "Protocol: Enter HTTP or HTTPS as the protocol for the test.",
+            "Verbose (-v): Select the checkbox to enable verbose",
+            "Insecure (-k): Select the checkbox to enable insecure, which instructs the curl command to not verify the certificate.",
+            "A test created in one AWS gateway is available in all the AWS gateways created in that Cloud Connector account in all regions."
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-filtering",
+  "title": "ZIA URL Filtering",
+  "aliases": [
+    "url filtering",
+    "is this url blocked",
+    "url filter rule",
+    "zia url policy"
+  ],
+  "binds": [
+    "zia/url-filtering-rules"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.url-filtering.rule-order",
+      "because": "zia.url-filtering.rule-order:first-match"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.url-filtering.criteria",
+      "because": "zia.url-filtering.criteria:operator-expression"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.url-categories.membership",
+      "because": "zia.url-categories.membership:resolved-before-rules"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.rule-scoping",
+      "because": "zia.locations.rule-scoping:rules-take-both"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.authentication.unauthenticated-traffic",
+      "because": "zia.authentication.unauthenticated-traffic:logged-in-user-misses-user-rule"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence",
+      "because": "zia.cloud-app-control.precedence:cac-allow-skips-url-filtering"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline",
+      "because": "zia.ssl-inspection.pipeline:url-filtering-twice"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.web-rule-attribution",
+      "because": "zia.logs.web-rule-attribution:separate-layer-labels"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/url-filtering-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.terraform.url-filtering-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.cipa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.icap-receivers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.http-header-profiles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Is this URL blocked, and by which rule?\" needs four questions answered in order. Skipping one is how precedence answers go wrong."
+    },
+    {
+      "steps": [
+        {
+          "label": "Does URL Filtering run at all?",
+          "text": "A Cloud App Control allow skips it unless cascading is on, and Bypass Other Policies skips it entirely: [[zia.cloud-app-control.precedence]], [[zia.ssl-inspection.pipeline]]."
+        },
+        {
+          "label": "Which category is the URL in?",
+          "text": "Resolved before rules, by most-specific entry across custom categories and by Retain Parent for predefined ones: [[zia.url-categories.membership]], with entry syntax in [[zia.url-categories.entry-matching]]."
+        },
+        {
+          "label": "Which rules' criteria match?",
+          "text": "The criteria expression, including the AND between two URL Categories fields and what is visible before decryption: [[zia.url-filtering.criteria]]. The HTTP header profiles that rules can use as a criterion, and the header insertion profiles for the action, are in [[zia.url-filtering.http-header-profiles]]."
+        },
+        {
+          "label": "Which matching rule is first?",
+          "text": "First match by ascending order, with disabled rules holding their slot: [[zia.url-filtering.rule-order]]."
+        }
+      ]
+    },
+    {
+      "text": "The answer is then that rule's action and its prerequisites: [[zia.url-filtering.actions]]. Tenant-wide settings can change the outcome without any rule changing: [[zia.url-filtering.advanced-settings]]."
+    },
+    {
+      "text": "Before reasoning over a tenant's rules, make sure the list is complete: [[zia.url-filtering.list-pagination]]."
+    },
+    {
+      "label": "Predefined and optional features.",
+      "text": "The predefined CIPA Compliance Rule and its option are in [[zia.url-filtering.cipa]]. Forwarding the traffic of selected categories to an ICAP server is in [[zia.url-filtering.icap-receivers]]."
+    },
+    {
+      "label": "Recommended rule.",
+      "text": "{{recommended-policy}}"
+    }
+  ],
+  "claims": {
+    "recommended-policy": {
+      "statement": "The recommended URL Filtering rule is enabled, at a rule order appropriate for the organization, with the Block action for the URL categories Adult Material, Drugs, Gambling, Illegal or Questionable, and Militancy/Hate and Extremism. It applies to All HTTP requests, Any user, group, department, location and location group, Always, the HTTP and HTTPS protocols, and the OS Type, No Client Connector and Cloud Browser isolation device groups. The page also says to select device trust levels based on posture definition.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "recommended-url-cloud-app-control-policy.json",
+          "quotes": [
+            "Rule Order: Select a Rule Order that is appropriate for your organization.",
+            "Rule Status: Select Enabled.",
+            "URL Categories: Select Adult Material, Drugs, Gambling, Illegal or Questionable, and Militancy/Hate and Extremism to apply the rule to these URL categories.",
+            "HTTP Requests: Select All so that the rule is applied to all HTTP requests.",
+            "Users: Select Any to apply the rule to all users.",
+            "Groups: Select Any to apply the rule to all groups.",
+            "Departments: Select Any to apply the rule to all departments.",
+            "Locations: Select Any to apply the rule to all locations.",
+            "Location Groups: Select Any to apply the rule to all location groups.",
+            "Time: Select Always to apply the rule to all time intervals.",
+            "Protocols: Select HTTP and HTTPS to apply the rule to these two protocols.",
+            "Action: Select Block to block access to all sites in the selected URL categories.",
+            "Device Trust Level: Select device trust levels based on posture definition.",
+            "Device Groups: Select OS Type, No Client Connector, and Cloud Browser isolation to apply the rule to these device groups."
+          ]
+        }
+      ]
+    }
+  }
+}

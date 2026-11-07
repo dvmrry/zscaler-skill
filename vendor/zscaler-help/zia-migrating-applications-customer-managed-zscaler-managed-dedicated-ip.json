@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Migrating Applications from Customer-Managed to Zscaler-Managed Dedicated IPs",
+  "source": {
+    "url": "https://help.zscaler.com/zia/migrating-applications-customer-managed-zscaler-managed-dedicated-ip",
+    "node": "1541113",
+    "revision": "3214306",
+    "updated": "2026-06-19",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article describes the steps required for migrating applications from customer-managed dedicated IPs (Source IP Anchoring) to Zscaler-managed dedicated IPs. Successful migration requires specific policy configurations to ensure that traffic is forwarded to the correct dedicated IP or Private Access (ZPA) gateways."
+    },
+    {
+      "text": "The following section outlines the best practices for migrating source IP-anchored applications to Zscaler-managed dedicated IP addresses:"
+    },
+    {
+      "item": "Select a test user group. Before you start migrating applications, Zscaler recommends that you select a small controlled group of users who are using Source IP Anchoring for initial deployment. This approach enables you to validate the configuration and performance, minimizing risk before organization-wide deployment.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Configure DNS Control policy. You must configure a DNS Control policy rule that allows DNS traffic for the target applications to migrate to Zscaler-managed dedicated IP addresses. Follow the steps in the Configuring DNS Control Policy article and ensure that you select Allow as the Network Traffic action to allow DNS requests and responses for the applications. If the applications are resolved within the organizational infrastructure, this configuration is optional.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          28
+        ],
+        [
+          271,
+          276
+        ],
+        [
+          284,
+          299
+        ]
+      ]
+    },
+    {
+      "item": "You must place this DNS Control policy rule above the Forward to ZPA Resolver rules.",
+      "depth": 0,
+      "strong": [
+        [
+          54,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Create a Dedicated IP Forwarding Control policy rule. After configuring the DNS policy, create a dedicated IP forwarding control rule for the target applications. Follow the steps in the Configuring Forwarding Control Policy article to configure the rule and ensure that you select Dedicated IP as the Forwarding Method.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          52
+        ],
+        [
+          282,
+          294
+        ],
+        [
+          302,
+          319
+        ]
+      ]
+    },
+    {
+      "item": "Assign a higher rule order (i.e., a lower rule number) to these rules than your existing Source IP Anchoring forwarding rule. This ensures the dedicated IP rules are evaluated first.",
+      "depth": 0
+    },
+    {
+      "item": "Transition test users. Enable the newly created dedicated IP forwarding rules for the selected subset of users. Monitor these users for any connectivity or application access issues. After the initial subset becomes stable, you can gradually transition more users to the dedicated IPs by updating the user and group criteria in the forwarding rule.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "If issues occur during the transition, you can revert the users to the original Source IP Anchoring settings by disabling the DNS policy rule and dedicated IP forwarding rule created in the previous steps.",
+      "depth": 0
+    },
+    {
+      "item": "Complete post-migration tasks. After successfully transitioning all users to the dedicated IP addresses and verifying that the traffic flow is stable, disable the Private Access (Source IP Anchoring) forwarding rules and deprovision the associated App Connectors.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    }
+  ]
+}

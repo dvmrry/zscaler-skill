@@ -1,0 +1,1054 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Troubleshooting",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/troubleshooting",
+    "node": "1436291",
+    "revision": "3160744",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Troubleshooting_17.json?VersionId=7Cq_pgJJ9Ws1feoQ5Cx0Ob8cVICGhAOE",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.3",
+    "info": {
+      "title": "ZDX API",
+      "version": "0.1.0",
+      "description": "APIs for Zscaler Digital Experience (ZDX).\n"
+    },
+    "servers": [
+      {
+        "url": "https://api.zdxcloud.net/v1",
+        "description": "production"
+      },
+      {
+        "url": "https://dev.zdxapi.zscaler.net/v1",
+        "description": "dev"
+      },
+      {
+        "url": "http://localhost:8080/v1",
+        "description": "local"
+      }
+    ],
+    "security": [
+      {
+        "BearerAuth": []
+      }
+    ],
+    "tags": {
+      "0": {
+        "name": "Troubleshooting"
+      }
+    },
+    "paths": {
+      "/devices/{deviceid}/deeptraces": {
+        "get": {
+          "description": "Get a list of deep traces. The response contains an ID to identify the operation and can be used in subsequent endpoints that require access to data.",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Lists the deep traces with their status.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/DeepTraceSession"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "description": "Start a deep trace on a device. Limited to 1 active session on a device at any time. There is a maximum of 15 active sessions at any point of time across all devices (includes sessions initiated from UI).",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "session_name": {
+                      "type": "string",
+                      "description": "The deep tracing session name."
+                    },
+                    "app_id": {
+                      "type": "integer",
+                      "description": "The application ID."
+                    },
+                    "web_probe_id": {
+                      "type": "integer",
+                      "description": "The Web probe ID."
+                    },
+                    "cloudpath_probe_id": {
+                      "type": "integer",
+                      "description": "The Cloud Path probe ID."
+                    },
+                    "session_length_minutes": {
+                      "type": "integer",
+                      "description": "Session length in minutes (up to 15 minutes)",
+                      "default": 300
+                    },
+                    "probe_device": {
+                      "type": "boolean",
+                      "description": "The probe device for device level stats."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Deep trace request accepted.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "trace_id": {
+                        "type": "integer"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "not_started",
+                          "in_progress",
+                          "error",
+                          "done"
+                        ]
+                      },
+                      "expected_time": {
+                        "type": "integer",
+                        "description": "The expected time of completion in EPOCH seconds."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/deeptraces/{trace_id}": {
+        "get": {
+          "description": "Get the deep trace's status.",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "in": "path",
+              "name": "trace_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "trace id"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeepTraceSession"
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        },
+        "delete": {
+          "description": "Stop the deep trace session that is currently running.",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "in": "path",
+              "name": "trace_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "trace id"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successfully deleted the deep trace request.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "trace_id": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/deeptraces/{trace_id}/webprobe-metrics": {
+        "get": {
+          "description": "Get the Web probe metrics from the deep trace session.",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "in": "path",
+              "name": "trace_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "trace id"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Series"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/deeptraces/{trace_id}/cloudpath-metrics": {
+        "get": {
+          "description": "Get the Cloud Path metrics (e.g., latency, packet drops, etc.) from the deep trace session.",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "in": "path",
+              "name": "trace_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "The deep trace ID."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/NetworkStats"
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/deeptraces/{trace_id}/cloudpath": {
+        "get": {
+          "description": "Get a list of Cloud Paths from the deep trace session.",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "in": "path",
+              "name": "trace_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "The deep trace ID."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": {
+                          "type": "integer"
+                        },
+                        "cloudpath": {
+                          "$ref": "#/components/schemas/Cloudpath"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/deeptraces/{trace_id}/health-metrics": {
+        "get": {
+          "description": "Get the device health metrics from a deep trace session.",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "in": "path",
+              "name": "trace_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "trace id"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "category": {
+                          "type": "string",
+                          "description": "Category of metrics (e.g., disk, memory, WI-FI, network)."
+                        },
+                        "instances": {
+                          "type": "array",
+                          "description": "Instances of metric categories.",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "metrics": {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "#/components/schemas/Series"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/deeptraces/{trace_id}/events": {
+        "get": {
+          "description": "Get the events metrics trend for a device. The event metrics include Zscaler, Hardware, Software and Network event changes.",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "in": "path",
+              "name": "trace_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "trace id"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeviceEvents"
+                  },
+                  "example": [
+                    {
+                      "timestamp": 1643525900,
+                      "events": [
+                        {
+                          "category": "Zscaler",
+                          "name": "tunType",
+                          "display_name": "Tunnel Change",
+                          "prev": "0",
+                          "curr": "3"
+                        },
+                        {
+                          "category": "Zscaler",
+                          "name": "ziaState",
+                          "display_name": "Client Connector State Change",
+                          "prev": "5",
+                          "curr": "20"
+                        }
+                      ]
+                    },
+                    {
+                      "timestamp": 1643526200,
+                      "events": [
+                        {
+                          "category": "Zscaler",
+                          "name": "tunType",
+                          "display_name": "Tunnel Change",
+                          "prev": "3",
+                          "curr": "0"
+                        },
+                        {
+                          "category": "Zscaler",
+                          "name": "ziaState",
+                          "display_name": "Client Connector State Change",
+                          "prev": "20",
+                          "curr": "5"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{deviceid}/deeptraces/{trace_id}/top-processes": {
+        "get": {
+          "description": "Get the top processes from the deep tracing session.",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/deviceid"
+            },
+            {
+              "in": "path",
+              "name": "trace_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "trace id"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ImpactedProcessSeries"
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/analysis": {
+        "post": {
+          "description": "Start a ZDX Score analysis on a device for a specific application. The response contains an ID to identify the operation and can be used in subsequent endpoints that require it.",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "analysis_id": {
+                        "type": "integer",
+                        "description": "The analysis ID. Use this ID for tracking purposes."
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "The analysis status.",
+                        "enum": [
+                          "not_started",
+                          "in_progress",
+                          "error",
+                          "done"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/analysis/{analysis_id}": {
+        "get": {
+          "description": "Get the status of the score analysis (e.g., progress or results).",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "analysis_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "The analysis ID."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "err_msg": {
+                        "type": "string"
+                      },
+                      "result": {
+                        "$ref": "#/components/schemas/AnalysisResult"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        },
+        "delete": {
+          "description": "Stop the score analysis that is currently running.",
+          "tags": [
+            "Troubleshooting"
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "analysis_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true,
+              "description": "The analysis ID."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "analysis_id": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "parameters": {
+        "deviceid": {
+          "in": "path",
+          "name": "deviceid",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true,
+          "description": "The device ID."
+        }
+      },
+      "schemas": {
+        "DeepTraceSession": {
+          "type": "object",
+          "properties": {
+            "trace_id": {
+              "type": "integer"
+            },
+            "trace_details": {
+              "type": "object",
+              "properties": {
+                "session_name": {
+                  "type": "string",
+                  "description": "The deep tracing session name."
+                },
+                "user_id": {
+                  "type": "integer"
+                },
+                "username": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "device_id": {
+                  "type": "integer"
+                },
+                "device_name": {
+                  "type": "string"
+                },
+                "web_probe_id": {
+                  "type": "integer",
+                  "description": "The Web probe ID."
+                },
+                "web_probe_name": {
+                  "type": "string"
+                },
+                "cloudpath_probe_id": {
+                  "type": "integer",
+                  "description": "The Cloud Path probe ID."
+                },
+                "cloud_path_nane": {
+                  "type": "string"
+                },
+                "session_length": {
+                  "type": "integer",
+                  "description": "The session length in seconds (up to 60 seconds)."
+                },
+                "probe_device": {
+                  "type": "boolean",
+                  "description": "The probe device for device level stats."
+                }
+              }
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "not_started",
+                "in_progress",
+                "error",
+                "done"
+              ]
+            },
+            "created_at": {
+              "type": "integer",
+              "description": "Deep trace created time in epoch seconds"
+            },
+            "started_at": {
+              "type": "integer",
+              "description": "Deep trace start time in epoch seconds"
+            },
+            "ended_at": {
+              "type": "integer",
+              "description": "Deep trace end time in epoch seconds"
+            }
+          }
+        },
+        "Series": {
+          "type": "object",
+          "properties": {
+            "metric": {
+              "type": "string",
+              "description": "The name of the metric (e.g., PFT)."
+            },
+            "unit": {
+              "type": "string",
+              "description": "The metric unit."
+            },
+            "datapoints": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "timestamp": {
+                    "type": "integer",
+                    "description": "Epoch seconds"
+                  },
+                  "value": {
+                    "type": "number",
+                    "description": "The value of the element."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "NetworkStats": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "leg_src": {
+                "type": "string",
+                "description": "The leg source (client, egress, zen, connector, etc.)."
+              },
+              "leg_dst": {
+                "type": "string",
+                "description": "The leg destination (egress, zen, destination, etc.)."
+              },
+              "stats": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Series"
+                }
+              }
+            }
+          }
+        },
+        "Cloudpath": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/CloudPathLeg"
+          }
+        },
+        "DeviceEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "type": "integer"
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          }
+        },
+        "ImpactedProcessSeries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "type": "integer",
+                "description": "In epoch seconds."
+              },
+              "top_processes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "category": {
+                      "type": "string",
+                      "description": "category of metrics, for example - disk, memory, wifi, network"
+                    },
+                    "processes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Process name. For example, \"Chrome\""
+                          },
+                          "id": {
+                            "type": "number",
+                            "description": "process identifier (pid)"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "AnalysisRequest": {
+          "type": "object",
+          "properties": {
+            "device_id": {
+              "type": "integer"
+            },
+            "app_id": {
+              "type": "integer"
+            },
+            "t0": {
+              "type": "integer"
+            },
+            "t1": {
+              "type": "integer"
+            }
+          }
+        },
+        "AnalysisResult": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "issue": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "string"
+              },
+              "times": {
+                "type": "array",
+                "description": "Time points where the issue is seen.",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "CloudPathLeg": {
+          "type": "object",
+          "properties": {
+            "src": {
+              "type": "string",
+              "description": "Source IP"
+            },
+            "dst": {
+              "type": "string",
+              "description": "Destination IP"
+            },
+            "num_hops": {
+              "type": "integer",
+              "description": "The number of hops."
+            },
+            "latency": {
+              "type": "integer",
+              "description": "Total Latency"
+            },
+            "loss": {
+              "type": "integer",
+              "description": "Loss of packets."
+            },
+            "num_unresp_hops": {
+              "type": "integer",
+              "description": "The number of unresponsive hops."
+            },
+            "tunnel_type": {
+              "type": "integer",
+              "description": "Tunnel type"
+            },
+            "hops": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "ip": {
+                    "type": "string",
+                    "description": "The IP address of the hop."
+                  },
+                  "gw_mac": {
+                    "type": "string",
+                    "description": "The gateway MAC."
+                  },
+                  "gw_mac_vendor": {
+                    "type": "string",
+                    "description": "The gateway MAC vendor."
+                  },
+                  "pkt_sent": {
+                    "type": "integer",
+                    "description": "The number of packets sent."
+                  },
+                  "pkt_rcvd": {
+                    "type": "integer",
+                    "description": "The number of packets received."
+                  },
+                  "latency_min": {
+                    "type": "integer",
+                    "description": "minimum latency value experienced."
+                  },
+                  "latency_max": {
+                    "type": "integer",
+                    "description": "The maximum latency experienced."
+                  },
+                  "latency_avg": {
+                    "type": "integer",
+                    "description": "Average latency"
+                  },
+                  "latency_diff": {
+                    "type": "integer",
+                    "description": "Differential latency"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Event": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "description": "The Event category - Zscaler, Network, Software, or Hardware."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the attribute."
+            },
+            "display_name": {
+              "type": "string",
+              "description": "The event that occurred."
+            },
+            "prev": {
+              "type": "string",
+              "description": "The previous value."
+            },
+            "curr": {
+              "type": "string",
+              "description": "The current value."
+            }
+          }
+        }
+      },
+      "responses": {
+        "UnauthorizedError": {
+          "description": "Unauthorized"
+        },
+        "Forbidden": {
+          "description": "Forbidden"
+        }
+      }
+    }
+  }
+}

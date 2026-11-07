@@ -1,0 +1,415 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Onboarding an Amazon Elastic Kubernetes Service Cluster",
+  "source": {
+    "url": "https://help.zscaler.com/zpc/onboarding-amazon-elastic-kubernetes-service-cluster",
+    "node": "1433796",
+    "revision": "2469286",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "ZPC offers insight into your Amazon Elastic Kubernetes Service (EKS) public and hybrid clusters. ZPC provides a script for you to download and run on your EKS clusters. The script enables ZPC APIs to access and collect EKS cluster configuration metadata. The script:"
+    },
+    {
+      "item": "Updates the publicAccessCidr property of the hybrid (public and private) clusters with ZPC IP addresses.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Creates a cluster role binding within Kubernetes.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Creates an IAM identity mapping.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you onboard EKS clusters, you need to:"
+    },
+    {
+      "item": "Make sure the AWS cloud accounts that contain the clusters are onboarded to ZPC. To learn how to onboard an AWS account, see Onboarding an Amazon Web Services Account.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure you are a Kubernetes Cluster Admin.",
+      "depth": 0
+    },
+    {
+      "item": "Have permissions to:",
+      "depth": 0
+    },
+    {
+      "item": "Update aws-auth configmap in the kube-system namespace.",
+      "depth": 1
+    },
+    {
+      "item": "Create, update, and delete the cluster role and the cluster role binding.",
+      "depth": 1
+    },
+    {
+      "item": "Have the following additional permissions for hybrid clusters:",
+      "depth": 0
+    },
+    {
+      "item": "UpdateClusterConfig",
+      "depth": 1
+    },
+    {
+      "item": "DescribeCluster",
+      "depth": 1
+    },
+    {
+      "text": "To learn more, see the AWS documentation."
+    },
+    {
+      "heading": "Onboarding EKS Clusters in a Single AWS account",
+      "level": 1
+    },
+    {
+      "text": "To onboard EKS clusters in a single AWS account on ZPC:"
+    },
+    {
+      "item": "In the ZPC Admin Portal, go to Administration > Cloud Accounts.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          45
+        ],
+        [
+          48,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Click the Accounts tab.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Click the Actions icon, then select the Add Kubernetes Cluster button for an AWS account.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          40,
+          62
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Cluster Selection page, you can view and search for the following EKS cluster details available in the selected AWS account:",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Cluster Name: Name of the EKS cluster.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Region: Region of the EKS cluster.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Kubernetes Version: Current Kubernetes version running on the cluster.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Endpoint Access: View the endpoint access type.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Status: Onboarding status of the cluster (Success, Pending, or Failure).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "ZPC cannot onboard clusters with private-only endpoint access. ZPC also needs you to allowlist your CloudShell IP address if you're onboarding a public and private cluster.",
+      "depth": 0
+    },
+    {
+      "item": "Select clusters you want to onboard, then click Next.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Cluster Access page, click Download the bash script.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          34,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Click Log in to the AWS cloud console and execute the bash script.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "After the script is deployed, in the ZPC Admin Portal, click Finish.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          61,
+          67
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Onboarding EKS clusters in an AWS organization",
+      "level": 1
+    },
+    {
+      "text": "You can choose to onboard EKS clusters from multiple accounts belonging to a single AWS organization. To onboard EKS clusters in an AWS organization on ZPC:"
+    },
+    {
+      "item": "On the ZPC Admin Portal, go to Administration > Cloud Accounts.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          45
+        ],
+        [
+          48,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Click the Organizations tab.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click the Actions icon, then select the Add Kubernetes Cluster button for an AWS organization.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          40,
+          62
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Cluster Selection page, you can view and search for the following EKS cluster details available on the selected AWS organization:",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Cluster Name: Name of the EKS cluster.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Region: Region of the EKS cluster.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Kubernetes Version: Current Kubernetes version running on the cluster.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Endpoint Access: View the endpoint access type.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Status: Onboarding status of the cluster (Success, Pending, or Failure).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "ZPC cannot onboard clusters with private-only endpoint access. ZPC also needs you to allowlist your CloudShell IP address if you're onboarding a public and private cluster.",
+      "depth": 0
+    },
+    {
+      "item": "Select clusters you want to onboard, then click Next.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Cluster Access page, click Download the bash script.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          34,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Click Log in to the AWS cloud console and execute the bash script.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "After the script is deployed, in the ZPC Admin Portal, click Finish.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          61,
+          67
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    }
+  ]
+}

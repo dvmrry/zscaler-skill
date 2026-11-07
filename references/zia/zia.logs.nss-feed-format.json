@@ -1,0 +1,489 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.nss-feed-format",
+  "title": "How NSS feeds encode and deliver ZIA log fields",
+  "aliases": [
+    "nss feed format",
+    "feed escape character",
+    "nss hex encoding",
+    "cloud nss json",
+    "nss field limit",
+    "nss time zone",
+    "eedone"
+  ],
+  "binds": [
+    "zia/web-log#eedone",
+    "zia/firewall-log#eedone",
+    "zia/web-log#tz",
+    "zia/web-log#time"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.nss.delivery-modes",
+      "because": "zia.logs.nss-feed-format:one-store"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/nss-feeds"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.api.cloud-nss-feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.firewall-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.nss-runbook"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.nss-dlp-sandbox-feeds"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Feed shape.",
+      "text": "{{field-limit}} {{case-sensitive}} {{tz-config}} What differs between formats is open {{gap:format-field-presence}}."
+    },
+    {
+      "label": "Encoding.",
+      "text": "{{url-hex-encoding}} {{escape-character}} {{escape-scope}} The two statements of what the field encodes differ in breadth {{divergence:escape-field-scope}}. {{eedone-flag}} {{cloud-json-escaping}} {{json-escaping-http-and-cloud}}"
+    },
+    {
+      "label": "VM NSS and Cloud NSS.",
+      "text": "{{one-store}} {{cloud-from-nanolog}} {{cloud-feed-limit}} {{field-content-same}} Whether conversion ever drops a field is open {{gap:vm-conversion-omits}}."
+    },
+    {
+      "label": "Time zones.",
+      "text": "{{time-zone-setting}} {{time-zone-dst}} Behavior with several feeds or regions is open {{gap:multi-feed-timezone}}."
+    },
+    {
+      "text": "Field inventories: [[zia.logs.web-records]], [[zia.logs.firewall-records]]. Cloud and HTTP feeds for Email DLP, Endpoint DLP and Sandbox Verdict logs: [[zia.logs.nss-dlp-sandbox-feeds]]."
+    },
+    {
+      "text": "{{tab-delimiters}} {{syslog-formats}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which output format the SIEM receives and whether URL and string fields need the hex-encoded variants before parsing.",
+      "uses": [
+        "url-hex-encoding",
+        "escape-character",
+        "cloud-json-escaping",
+        "eedone-flag"
+      ]
+    },
+    {
+      "do": "How many fields the feed asks for against the syslog size recommendation.",
+      "uses": [
+        "field-limit"
+      ]
+    },
+    {
+      "do": "Which time zone each feed was configured with before comparing event times across feeds.",
+      "uses": [
+        "tz-config",
+        "multi-feed-timezone"
+      ]
+    }
+  ],
+  "claims": {
+    "escape-scope": {
+      "statement": "The TCP web feed article says the service encodes characters in URLs, hostnames, and referrer URLs only, and that if custom encoding was done for a record, the %s{eedone} field is YES for that record.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#eedone"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Note that the service encodes characters in URLs, hostnames, and referrer URLs only. If custom encoding was done for a record, the %s{eedone} field is YES for that record."
+          ]
+        }
+      ]
+    },
+    "time-zone-setting": {
+      "statement": "A TCP web feed's Time Zone is by default the organization's time zone and applies to the time field in the output file; the list of time zones is derived from the IANA Time Zone database, and direct GMT offsets can also be specified.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#time"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Time Zone: By default, this is set to the organization's time zone. The time zone you set applies to the time field in the output file.",
+            "The list of time zones is derived from the IANA Time Zone database. Direct GMT offsets can also be specified."
+          ]
+        }
+      ]
+    },
+    "syslog-formats": {
+      "statement": "Zscaler supports many syslog formats, including industry standard formats and custom log strings; CEF and LEEF are two primary standards used by SIEMs, and LEEF is a customized event format created by IBM QRadar.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-syslog-overview.json",
+          "quotes": [
+            "Zscaler supports many syslog formats. This includes industry standard formats and the ability to create custom log strings.",
+            "The Common Event Format (CEF) and Log Event Extended Format (LEEF) are two primary standards used by SIEMs.",
+            "LEEF is a customized event format created by IBM QRadar."
+          ]
+        }
+      ]
+    },
+    "field-limit": {
+      "statement": "Zscaler recommends no more than 50 fields in an NSS feed, to fit syslog message size limits; a SIEM that can ingest larger messages can take more.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "It's recommended not to include more than 50 fields in the NSS feed to accommodate for syslog message size limits. However, if your SIEM is able to ingest larger message sizes, you can configure more than 50."
+          ]
+        }
+      ]
+    },
+    "url-hex-encoding": {
+      "statement": "The service hex encodes URL characters at or below 0x20 or at or above 0x7F as %HH when it sends logs to NSS, so a space in a URL arrives as %20 and a newline as %0A.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#url"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "Any URL character that is less than or equal to 0x20, or greater than or equal to 0x7F, is encoded as %HH.",
+            "a space is encoded as",
+            "The Zscaler service hex encodes all non-printable ASCII characters that are in URLs when it sends logs to the NSS.",
+            "a \\n character in a URL is encoded as %0A, and a space is encoded as %20."
+          ]
+        }
+      ]
+    },
+    "escape-character": {
+      "statement": "Characters entered in a feed's Feed Escape Character field are encoded by the service, so a comma entered there appears as %2C.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "enter those characters in the Feed Escape Character field when you define an NSS feed. The service encodes the characters that you enter in this field. For example, if you enter a comma, the service encodes it as %2C."
+          ]
+        }
+      ]
+    },
+    "eedone-flag": {
+      "statement": "The eedone field, specific to NSS, indicates whether the characters in the feed's Feed Escape Character field were hex encoded.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#eedone",
+        "zia/firewall-log#eedone"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{eedone} | Indicates if the characters specified in the Feed Escape Character field of the NSS feed configuration page were hex encoded | Yes | This field is specific to NSS"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-firewall-logs.json",
+          "quotes": [
+            "| %s{eedone} | Indicates if the characters specified in the Feed Escape Character field of the NSS feed configuration page were hex encoded | Yes | This field is specific to NSS"
+          ]
+        }
+      ]
+    },
+    "cloud-json-escaping": {
+      "statement": "For a Cloud NSS feed with JSON output, special characters such as a backslash in string fields can break the SIEM's parsing; Zscaler's workaround is a comma, backslash and quotation marks as the Feed Escape Character and the hex-encoded field variants such as elogin in place of login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "In Cloud NSS feeds, if you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM.",
+            "To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character and use hex-encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format."
+          ]
+        }
+      ]
+    },
+    "json-escaping-http-and-cloud": {
+      "statement": "The HTTP Firewall, HTTP Sandbox Verdict, Cloud DNS and Cloud Posture Management feed articles each say that if JSON is selected as the Feed Output Type, special characters such as a backslash in string fields might cause a parsing issue for the SIEM, and that the fix is a comma, backslash and quotation marks as the Feed Escape Character together with hex encoded fields such as %s{elogin} in place of %s{login} in the Feed Output Format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "If you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM.",
+            "To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character and use hex encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "If you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM.",
+            "To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character and use hex encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-dns-logs.json",
+          "quotes": [
+            "If you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM.",
+            "To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character and use hex encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-posture-management-logs.json",
+          "quotes": [
+            "If you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM.",
+            "To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character and use hex encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format."
+          ]
+        }
+      ]
+    },
+    "time-zone-dst": {
+      "statement": "The HTTP Firewall and Cloud DNS feed articles say the feed's time zone automatically adjusts to changes in daylight savings in that time zone, and the HTTP Sandbox Verdict and Cloud Posture Management articles say the same with the wording \"daylight saving\"; all four say the configured time zone can be output to the logs as a separate field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "The time zone automatically adjusts to changes in daylight savings in the specific time zone.",
+            "The configured time zone can be output to the logs as a separate field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-dns-logs.json",
+          "quotes": [
+            "The time zone automatically adjusts to changes in daylight savings in the specific time zone.",
+            "The configured time zone can be output to the logs as a separate field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "The time zone automatically adjusts to changes in daylight saving in the specific time zone.",
+            "The configured time zone can be output to the logs as a separate field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-posture-management-logs.json",
+          "quotes": [
+            "The time zone automatically adjusts to changes in daylight saving in the specific time zone.",
+            "The configured time zone can be output to the logs as a separate field."
+          ]
+        }
+      ]
+    },
+    "case-sensitive": {
+      "statement": "NSS field names are case-sensitive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "Field names are case-sensitive."
+          ]
+        }
+      ]
+    },
+    "one-store": {
+      "statement": "Web and Firewall logs are stored in the Nanolog in the Zscaler cloud; each NSS receives copies from the Nanolog, then decompresses, detokenizes, filters and converts them to the configured output format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "the web and Firewall logs are stored in the Nanolog in the Zscaler cloud.",
+            "The Nanolog then streams copies of the logs to each NSS in a highly compressed format",
+            "it decompresses and detokenizes them, applies the configured filters to exclude unwanted logs, and converts the filtered logs to the configured output format"
+          ]
+        }
+      ]
+    },
+    "cloud-from-nanolog": {
+      "statement": "Cloud NSS delivery reads from the Nanolog: after an interruption, the Cloud NSS one-hour recovery lets the Nanolog replay logs up to one hour back.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "This provision allows streaming of all logs from the Zscaler Nanolog to your security information and event management (SIEM) system with the following offerings:",
+            "Cloud NSS: Uses an HTTPS API feed to push logs to an HTTPS API-based log collector on your SIEM.",
+            "If the connection between the Nanolog cluster and the SIEM is interrupted, logs are not delivered to the SIEM. When the connection is restored, the Cloud NSS one-hour recovery, provided by a separate Zscaler capability, allows the Nanolog to replay logs up to one hour back."
+          ]
+        }
+      ]
+    },
+    "field-content-same": {
+      "statement": "Because VM-based NSS and Cloud NSS read the same Nanolog store, field content is expected to match between them; the realistic differences are transport and output format.",
+      "tier": "B",
+      "derived_from": [
+        "one-store",
+        "cloud-from-nanolog"
+      ],
+      "conditions": "Inference from the shared store; the vendor sources do not state that field content is identical."
+    },
+    "cloud-feed-limit": {
+      "statement": "A Cloud NSS instance supports one feed per Internet and SaaS log type, and the feed format is customizable, with JSON recommended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "You can create one Cloud NSS feed per Internet & SaaS log type per Cloud NSS instance.",
+            "When configuring a Cloud NSS feed, you can customize the feed format; Zscaler recommends using JSON."
+          ]
+        }
+      ]
+    },
+    "tz-config": {
+      "statement": "The tz field is the time zone specified when the NSS feed was configured, and the time field excludes the time zone.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#tz",
+        "zia/web-log#time",
+        "zia/firewall-log#tz",
+        "zia/firewall-log#time"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{tz} | The time zone. This is the same as the time zone you specified when you configured the NSS feed.",
+            "| %s{time} | The time and date of the transaction. This excludes the time zone."
+          ]
+        }
+      ]
+    },
+    "tab-delimiters": {
+      "statement": "Zscaler recommends tabs as field delimiters and avoiding commas and spaces, which can occur in output values such as department names or URLs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "Use tabs as field delimiters. Avoid using commas and spaces because they could be in some output values. For example, department names might contain spaces or URLs might contain commas."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "escape-field-scope": {
+      "summary": "The general guidelines and the TCP web feed article differ in which fields the Feed Escape Character encodes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+            "quotes": [
+              "The service encodes the characters that you enter in this field."
+            ]
+          },
+          "says": "The service encodes the characters entered in the Feed Escape Character field, with no limit on the fields stated."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+            "quotes": [
+              "Note that the service encodes characters in URLs, hostnames, and referrer URLs only."
+            ]
+          },
+          "says": "The service encodes characters in URLs, hostnames, and referrer URLs only."
+        }
+      ],
+      "impact": "Whether a custom escape character is encoded in fields other than URLs, hostnames and referrer URLs depends on which article is read; the TCP feed article is the narrower one."
+    }
+  },
+  "gaps": {
+    "format-field-presence": {
+      "kind": "data",
+      "title": "Field presence across output formats",
+      "status": "open",
+      "detail": "Unverified legacy statement: the field CSVs are assumed to apply unchanged to CSV, JSON and TSV output templates. The General Guidelines describe one specifier system for all formats but do not say that the same field is emitted in each. Only the Web, Firewall and DNS field lists are vendored of the ten feed types.",
+      "blocks": "Assuming a field exists, under the same name, in every output format.",
+      "former_ids": [
+        "log-01"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "vm-conversion-omits": {
+      "kind": "data",
+      "title": "Whether VM-side format conversion drops a field",
+      "status": "open",
+      "detail": "Unverified legacy statement: whether the VM-side conversion step ever omits a field that appears in Cloud NSS JSON output is not documented. A field-by-field diff of one feed on each variant would settle it.",
+      "blocks": "Treating Cloud NSS and VM NSS records as field-identical.",
+      "former_ids": [
+        "log-02"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "multi-feed-timezone": {
+      "kind": "data",
+      "title": "Time zone with several feeds or regions",
+      "status": "open",
+      "detail": "Unverified legacy statement: tz is the feed's configured time zone, but behavior when one tenant runs feeds configured with different time zones, or when Cloud NSS combines regions, is not stated.",
+      "blocks": "Normalizing event times across feeds that carry different tz values.",
+      "former_ids": [
+        "log-03"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

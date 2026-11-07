@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Installing a Server Agent",
+  "source": {
+    "url": "https://help.zscaler.com/itdr/installing-server-agent",
+    "node": "1535013",
+    "revision": "3161885",
+    "updated": "2026-03-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides instructions for installing a server agent on a domain controller."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before installing a server agent, ensure that your domain controllers have the following:"
+    },
+    {
+      "item": "Operating System: Windows Server 2012 R2 or later with an active Domain Controller or a Read-only Domain Controller",
+      "depth": 0
+    },
+    {
+      "item": ".NET Framework version 4.8 or later",
+      "depth": 0
+    },
+    {
+      "item": "Free memory: 4 GB",
+      "depth": 0
+    },
+    {
+      "item": "Disk space: 500 MB (5 GB for Password Analysis)",
+      "depth": 0
+    },
+    {
+      "item": "Internet bandwidth: 256 Kbps (1 Mbps for Password Analysis)",
+      "depth": 0
+    },
+    {
+      "item": "Connectivity over HTTPS (port 443) to the following domains:",
+      "depth": 0
+    },
+    {
+      "item": "ib.smokescreen.io",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler Deception Admin Portal",
+      "depth": 1
+    },
+    {
+      "heading": "Installing a Server Agent",
+      "level": 1
+    },
+    {
+      "text": "You can install a server agent on a single or multiple domain controllers."
+    },
+    {
+      "text": "To install a server agent:"
+    },
+    {
+      "item": "Download the Windows EXE installer file from the ITDR Admin Portal.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Open the Command Prompt as an administrator.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Click Start.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "In the Start Search box, enter cmd, and then press CTRL+SHIFT+ENTER.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "When the User Account Control (UAC) dialog box appears, click Yes.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          29
+        ],
+        [
+          62,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "In the command prompt, choose a command as per your installation requirements:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "To install the agent without proxies:",
+      "depth": 1
+    },
+    {
+      "item": "ZSServerAgentInstaller.exe /qn /CMC=<instance name> /REGKEY=<Registration Token>",
+      "depth": 1
+    },
+    {
+      "item": "To install the server agent with a proxy:",
+      "depth": 1
+    },
+    {
+      "item": "ZSServerAgentInstaller.exe /qn /CMC=<instance name> /REGKEY=<Registration Token> /PROXIES=<proxy list comma separated>",
+      "depth": 1
+    },
+    {
+      "item": "The server agent is a proxy-aware application. It can automatically detect and apply the proxy configurations if they are already available in the domain controller.",
+      "depth": 1
+    },
+    {
+      "text": "The following table describes the installation parameters:"
+    },
+    {
+      "table": [
+        [
+          "Parameter",
+          "Description",
+          "Required"
+        ],
+        [
+          "/qn",
+          "Enables silent mode installation",
+          "Yes"
+        ],
+        [
+          "/CMC=<instance name>",
+          "The hostname of the ITDR Admin Portal",
+          "Yes"
+        ],
+        [
+          "/REGKEY=<Registration Token>",
+          "The Server Agent Registration Token",
+          "Yes"
+        ],
+        [
+          "/PROXIES=<Proxy String>",
+          "Proxies to connect to the ITDR Admin Portal. If there is more than one proxy, separate them with a comma. Make sure that there are no white spaces in the PROXIES parameter.",
+          "No"
+        ]
+      ]
+    },
+    {
+      "text": "After you run the command, the server agent is installed on a domain controller and appears in the Agents table (Settings > Server Agents Settings > Agents)."
+    },
+    {
+      "text": "The domain you selected to install a server agent appears in the Domains table (Settings > Server Agents Settings > Domains)."
+    },
+    {
+      "heading": "Configuring Proxies",
+      "level": 2
+    },
+    {
+      "text": "The server agent is a proxy-aware application. It can automatically detect and apply the proxy configurations if they are already available in the system."
+    },
+    {
+      "text": "You can use the PROXIES parameter in the installation command to configure multiple proxies. The PROXIES parameter consists of a list of proxies separated by commas. When the server agent starts, it attempts to connect to the ITDR Admin Portal using the list of proxies in a sequence from left to right. If the proxy is not configured, the agent attempts to connect to the ITDR Admin Portal directly, or it uses a proxy configured for the SYSTEM user."
+    },
+    {
+      "text": "To configure multiple proxies, open the command prompt and enter the following command:"
+    },
+    {
+      "text": "ZSServerAgentInstaller.exe /qn /CMC=<instance name> /REGKEY=<Registration Token> /PROXIES=http://proxy-server/proxy.pac,http://user:password@proxy-server:8888,http://proxy-server:3128"
+    },
+    {
+      "text": "After you run the command, the server agent connects to the ITDR Admin Portal using one of the following methods:"
+    },
+    {
+      "item": "Downloads the PAC file from http://proxy-server/proxy.pac and uses the PAC file configuration to establish the connection.",
+      "depth": 0
+    },
+    {
+      "item": "Connects via http://user:password@proxy-server:8888/proxy.",
+      "depth": 0
+    },
+    {
+      "item": "Connects via http://proxy-server:3128/proxy.",
+      "depth": 0
+    },
+    {
+      "text": "If all of the above methods fail, the agent attempts to connect to the ITDR Admin Portal using the SYSTEM users proxy. If this also fails, the agent attempts a direct no-proxy connection."
+    },
+    {
+      "text": "You can configure proxies using the following URL format:"
+    },
+    {
+      "text": "http://[username:password]@<ip/host>:<port>"
+    },
+    {
+      "text": "If the username and password have special characters (e.g., Username = user#2211 and password = pass@123), you must URL-encode them. For example:"
+    },
+    {
+      "text": "http://user%232211:pass%40123@proxy-server-1:8888"
+    },
+    {
+      "text": "You can perform URL encoding using the following PowerShell function:"
+    },
+    {
+      "text": "Add-Type -AssemblyName System.Web; [System.Web.HttpUtility]::UrlEncode(<string>)"
+    },
+    {
+      "text": "Example proxy URLs:"
+    },
+    {
+      "item": "http://192.0.2.2:3128/: Connect to a proxy server with an IP address = 192.0.2.2 and port number = 3128.",
+      "depth": 0
+    },
+    {
+      "item": "http://proxy-server:8888/: Connect to a proxy server with the DNS name = proxy-server and port number = 8888.",
+      "depth": 0
+    },
+    {
+      "item": "http://proxyuser:proxypassword@192.0.2.18:3128/: Connect to a proxy server with an IP address = 192.0.2.18, port number = 3128, username = proxyuser, and password = proxypassword.",
+      "depth": 0
+    },
+    {
+      "item": "http://user%232211:pass%40123@proxy-server-1:8888/: Connect to a proxy server with the DNS name = proxy-server, port number = 8888, username= user#2211, and password = pass@123.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Proxies to Use a PAC File",
+      "level": 2
+    },
+    {
+      "text": "To configure a proxy to use a PAC file, you must direct the server agent to a URL where the PAC file is hosted."
+    },
+    {
+      "text": "You can configure a proxy using the following URL format:"
+    },
+    {
+      "text": "http://<ip/host>/<pacfile>.pac"
+    },
+    {
+      "text": "Example PAC file URLs:"
+    },
+    {
+      "item": "http://192.0.2.6/proxy.pac: Connect to an HTTP server with an IP address = 192.0.2.6 and download the proxy.pac file.",
+      "depth": 0
+    },
+    {
+      "item": "http://pac-server/proxies.pac: Connect to an HTTP server with the DNS name = pac-server and download the proxies.pac file.",
+      "depth": 0
+    },
+    {
+      "item": "http://pac-server:33234/proxy.pac: Connect to an HTTP server with the DNS name = pac-server, port number = 33234, and download the proxy file.",
+      "depth": 0
+    }
+  ]
+}

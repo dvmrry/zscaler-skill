@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "How to Determine Whether a Website Is Using QUIC",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/how-determine-if-website-using-quic",
+    "node": "1539099",
+    "revision": "3224137",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "heading": "Make Sure No Transaction Uses QUIC",
+      "level": 1
+    },
+    {
+      "text": "Quick UDP Internet Connections (QUIC), also known as http/3 or h3, is a transport protocol developed by Google, designed to improve the performance of connection-oriented web applications. It operates over UDP instead of TCP and integrates features such as connection migration, multiplexing without head-of-line blocking, and built-in encryption (TLS 1.3)."
+    },
+    {
+      "text": "For more information, see Managing the QUIC Protocol."
+    },
+    {
+      "text": "You can use any of the following approaches to determine whether a website is using QUIC :"
+    },
+    {
+      "heading": "Approach 1: Browser Developer Tools",
+      "level": 2
+    },
+    {
+      "text": "This approach works for any websites or applications that allow access using a standard web browser such as Chrome, Firefox, Safari, etc. This example uses Google Chrome:"
+    },
+    {
+      "item": "Open Developer tools in Google Chrome. Select the Network tab, and then right-click on one of the column titles.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          5,
+          20
+        ],
+        [
+          24,
+          37
+        ],
+        [
+          50,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In this drop-down, ensure that Protocol is selected. You can see which HTTP protocol is used for each web request. Google Chrome shows QUIC as h3.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          31,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "If you see a valid response code (such as 200) in the Status column for this h3 transaction, it implies that the concerned request was successful using QUIC.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          54,
+          60
+        ]
+      ]
+    },
+    {
+      "text": "If you want to know whether your browser and the network path are configured to allow QUIC, you can also use an external website such as https://quic.nginx.org/quic.html."
+    },
+    {
+      "heading": "Approach 2: Firewall Insights Logs",
+      "level": 2
+    },
+    {
+      "text": "To view and configure the Firewall Insights logs:"
+    },
+    {
+      "item": "Go to your Zscaler Admin Console.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Go to Firewall Insights and click the Logs tab. Verify that Add the Network Service filter with QUIC is selected. Add any additional filters such as client IP, username, location, etc.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          38,
+          42
+        ],
+        [
+          60,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The more filters you specify, the faster the query executes. But if your search query does not return any transactions, it's best to add filters gradually. For example, start with the most open filter, such as Network Service, and then if you see lots of transactions, add one more filter to get more specific search results.",
+      "depth": 0
+    },
+    {
+      "item": "If the first approach using HTTP header trace shows that the application or website used QUIC, but you don't see any entries in firewall logs for the time when the user tested this access, it indicates that the QUIC traffic did not go to the Zscaler service. To learn more, see the Internet & SaaS Traffic Forwarding Troubleshooting Runbook.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Approach 3: Client Packet Capture",
+      "level": 2
+    },
+    {
+      "text": "To use a client packet capture to verify QUIC:"
+    },
+    {
+      "item": "Close the Concerned tab in the web browser or the application.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "If the end user has Zscaler Client Connector, use it to capture packets. Alternatively, install Wireshark and start a capture on all the interfaces.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "After the capture is started, browse to the website or open the application. After browsing, stop the packet capture and open the file in Wireshark.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "In Wireshark, use the display filter quic and tls.handshake.type==1 to see all the SSL handshakes using QUIC. If there are no packets, either your capture was started after the website was already open or the website does not use QUIC.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Add a column for the SNI extension.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Now you should be able to view all the server names with which QUIC was used for web traffic.",
+      "depth": 0,
+      "number": 6
+    }
+  ]
+}

@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Policy Group Rules Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-policy-group-rules-using-api",
+    "node": "1542935",
+    "revision": "3249190",
+    "updated": "2026-10-09",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on configuring ZPA policy group rules using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "text": "After policy groups are enabled, legacy access policy API calls are not supported for managing policies. Ensure that cloud service API automation and workflows for legacy access policy API calls are updated before enabling this feature. To learn more, contact Zscaler Support."
+    },
+    {
+      "heading": "Prerequisite API Calls",
+      "level": 1
+    },
+    {
+      "text": "Before configuring or obtaining details of policy group rules, you must get the following details:"
+    },
+    {
+      "item": "Group set ID. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Group ID. To learn more, see Configuring Policy Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Rule ID. To learn more, see Configuring Access Policies Using API.",
+      "depth": 0
+    },
+    {
+      "heading": "Adding a Rule to a Policy Group",
+      "level": 1
+    },
+    {
+      "text": "To add a rule to a policy group:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the group policy set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "groupId: The unique identifier of the policy group. To learn more, see Configuring Policy Groups Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057594038606761/policyGroupSet/73255551684837495/group/145260601092866503/rule.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the policy rule.",
+      "depth": 1
+    },
+    {
+      "item": "action: The rule action. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "ALLOW",
+      "depth": 2
+    },
+    {
+      "item": "DENY",
+      "depth": 2
+    },
+    {
+      "item": "REQUIRE_APPROVAL",
+      "depth": 2
+    },
+    {
+      "item": "The policy criteria you want to include. To learn more, see Configuring Access Policies Using API.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"<name>\", \"description\": \"<optional description>\", \"action\": \"<action>\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"<objectType>\", \"values\": [\"<value>\"] }, { \"objectType\": \"<objectType>\", \"values\": [\"<value>\"] } ] }, ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"Allow-Internal-App\", \"description\": \"Allow internal app for contractors\", \"action\": \"ALLOW\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"APP\", \"values\": [\"145260601092866051\"] }, { \"objectType\": \"APP_GROUP\", \"values\": [\"145260601092866489\"] } ] }, { \"operands\": [ { \"objectType\": \"IDP\", \"values\": [\"145260601092866079\"] } ], \"operator\": \"OR\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"145260601092866511\", \"creationTime\": \"1704898052\", \"modifiedTime\": \"1704898052\", \"modifiedBy\": \"72057594038606761\", \"name\": \"Allow-Internal-App\", \"description\": \"Allow internal app for contractors\", \"groupId\": \"145260601092866503\", \"ruleOrder\": \"1\", \"priority\": \"1\", \"policyType\": \"1\", \"operator\": \"AND\", \"action\": \"ALLOW\", \"conditions\": [ { \"id\": \"25240454\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"25240455\", \"objectType\": \"APP\", \"lhs\": \"id\", \"rhs\": \"145260601092866051\", \"name\": \"Internal Application\" }, { \"id\": \"25240456\", \"objectType\": \"APP_GROUP\", \"lhs\": \"id\", \"rhs\": \"145260601092866489\", \"name\": \"test-sg\" } ] }, { \"id\": \"25240457\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"25240458\", \"objectType\": \"IDP\", \"lhs\": \"id\", \"rhs\": \"145260601092866079\", \"name\": \"Contractors SSO\" } ] } ], \"defaultRule\": false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting All Rules in a Policy Group",
+      "level": 1
+    },
+    {
+      "text": "To get a paginated list of all rules in a policy group:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule?page={page}&pageSize={pageSize}&search={search}µtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the group policy set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "groupId: The unique identifier of the policy group. To learn more, see Configuring Policy Groups Using API.",
+      "depth": 1
+    },
+    {
+      "item": "page: Specifies the page number. This field is 1 by default.",
+      "depth": 1
+    },
+    {
+      "item": "pageSize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format fieldName operator fieldValue. Only search string values that correspond to the values for valid fields and filters are supported. For example, the string name%20EQ%20client%20type%20access is supported for the Name filter, using the Equals (EQ) operator, for the Client Type Access filter value.",
+      "depth": 1,
+      "strong": [
+        [
+          282,
+          286
+        ],
+        [
+          305,
+          316
+        ]
+      ]
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73255551684837376/policyGroupSet/73255551684837495/group/73255551684837496/rule?page=1&pageSize=20&search=name%20EQ%20Client%20Type%20AccessµtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"1\", \"list\": [ { \"id\": \"73255551684837498\", \"name\": \"Client Type Access\", \"description\": \"Only Allow Access to ZCC/PRA/BA clients\", \"policyType\": \"1\", \"operator\": \"AND\", \"action\": \"DENY\", \"customMsg\": \"Application access is blocked by invalid client type access policy. Contact your organization&amp;amp;amp;#39;s administrator to learn more.\", \"disabled\": \"1\", \"ruleOrder\": \"1\", \"priority\": \"9\", \"policySetId\": \"73255551684837392\", \"groupId\": \"73255551684837496\", \"ruleType\": \"STANDARD\", \"extranetEnabled\": false, \"devicePostureFailureNotificationEnabled\": false, \"appServerGroups\": [ { \"id\": \"73255551684837438\", \"modifiedTime\": \"1772430732\", \"creationTime\": \"1772430732\", \"modifiedBy\": \"72057594038610884\", \"name\": \"PUBLIC_APPS\", \"enabled\": true, \"configSpace\": \"DEFAULT\", \"extranetEnabled\": false, \"dynamicDiscovery\": true } ], \"conditions\": [ { \"id\": \"100733422\", \"modifiedTime\": \"1778201303\", \"creationTime\": \"1778201303\", \"modifiedBy\": \"73255551684837478\", \"operator\": \"OR\", \"negated\": false, \"policySetType\": \"1\", \"operands\": [ { \"id\": \"100733423\", \"modifiedTime\": \"1778201303\", \"creationTime\": \"1778201303\", \"modifiedBy\": \"73255551684837478\", \"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_edge_connector\", \"name\": \"zpn_client_type_edge_connector\", \"referencedObjectDeleted\": false, \"policySetType\": \"1\", \"conditionId\": \"100733422\" }, { \"id\": \"100733424\", \"modifiedTime\": \"1778201303\", \"creationTime\": \"1778201303\", \"modifiedBy\": \"73255551684837478\", \"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_branch_connector\", \"name\": \"zpn_client_type_branch_connector\", \"referencedObjectDeleted\": false, \"policySetType\": \"1\", \"conditionId\": \"100733422\" }, { \"id\": \"100733425\", \"modifiedTime\": \"1778201303\", \"creationTime\": \"1778201303\", \"modifiedBy\": \"73255551684837478\", \"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_zapp\", \"name\": \"zpn_client_type_zapp\", \"referencedObjectDeleted\": false, \"policySetType\": \"1\", \"conditionId\": \"100733422\" } ], \"ruleGid\": \"73255551684837498\" } ], \"policyGroupName\": \"Global Policy Group\", \"hasNestedConditions\": false, \"creationTime\": \"1772652884\", \"modifiedTime\": \"1778201303\", \"modifiedBy\": \"73255551684837478\", \"zscalerManaged\": false, \"readOnly\": false, \"defaultRule\": false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting a Policy Rule by ID",
+      "level": 1
+    },
+    {
+      "text": "To get information for the specified policy rule within a policy group:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}µtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the group policy set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "groupId: The unique identifier of the policy group. To learn more, see Configuring Policy Groups Using API.",
+      "depth": 1
+    },
+    {
+      "item": "ruleId: The unique idenitfier of the policy rule. To learn more, see Configuring Access Policies Using API.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73255551684837376/policyGroupSet/73255551684837495/group/73255551684837496/rule/73255551684837498µtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"73255551684837498\", \"name\": \"Client Type Access\", \"description\": \"Only Allow Access to ZCC/PRA/BA clients\", \"policyType\": \"1\", \"operator\": \"AND\", \"action\": \"DENY\", \"customMsg\": \"Application access is blocked by invalid client type access policy. Contact your organization&amp;amp;amp;#39;s administrator to learn more.\", \"disabled\": \"1\", \"ruleOrder\": \"1\", \"priority\": \"9\", \"policySetId\": \"73255551684837392\", \"groupId\": \"73255551684837496\", \"ruleType\": \"STANDARD\", \"extranetEnabled\": false, \"devicePostureFailureNotificationEnabled\": false, \"appServerGroups\": [ { \"id\": \"73255551684837438\", \"modifiedTime\": \"1772430732\", \"creationTime\": \"1772430732\", \"modifiedBy\": \"72057594038610884\", \"name\": \"PUBLIC_APPS\", \"enabled\": true, \"configSpace\": \"DEFAULT\", \"extranetEnabled\": false, \"dynamicDiscovery\": true } ], \"conditions\": [ { \"id\": \"100733422\", \"modifiedTime\": \"1778201303\", \"creationTime\": \"1778201303\", \"modifiedBy\": \"73255551684837478\", \"operator\": \"OR\", \"negated\": false, \"policySetType\": \"1\", \"operands\": [ { \"id\": \"100733423\", \"modifiedTime\": \"1778201303\", \"creationTime\": \"1778201303\", \"modifiedBy\": \"73255551684837478\", \"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_edge_connector\", \"name\": \"zpn_client_type_edge_connector\", \"referencedObjectDeleted\": false, \"policySetType\": \"1\", \"conditionId\": \"100733422\" }, { \"id\": \"100733424\", \"modifiedTime\": \"1778201303\", \"creationTime\": \"1778201303\", \"modifiedBy\": \"73255551684837478\", \"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_branch_connector\", \"name\": \"zpn_client_type_branch_connector\", \"referencedObjectDeleted\": false, \"policySetType\": \"1\", \"conditionId\": \"100733422\" }, { \"id\": \"100733425\", \"modifiedTime\": \"1778201303\", \"creationTime\": \"1778201303\", \"modifiedBy\": \"73255551684837478\", \"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_zapp\", \"name\": \"zpn_client_type_zapp\", \"referencedObjectDeleted\": false, \"policySetType\": \"1\", \"conditionId\": \"100733422\" } ], \"ruleGid\": \"73255551684837498\" } ], \"hasNestedConditions\": false, \"creationTime\": \"1772652884\", \"modifiedTime\": \"1778201303\", \"modifiedBy\": \"73255551684837478\", \"zscalerManaged\": false, \"readOnly\": false, \"defaultRule\": false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Rule from a Policy Group",
+      "level": 1
+    },
+    {
+      "text": "To delete a rule from a policy group:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}µtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the group policy set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "groupId: The unique identifier of the policy group. To learn more, see Configuring Policy Groups Using API.",
+      "depth": 1
+    },
+    {
+      "item": "ruleId: The unique idenitfier of the policy rule. To learn more, see Configuring Access Policies Using API.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73255551684837376/policyGroupSet/73255551684837495/group/73255551684837496/rule/73255551684837498µtenantId=0.",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Reordering a Rule",
+      "level": 1
+    },
+    {
+      "text": "To reorder a rule within a policy group:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}/reorder/{newOrder}µtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the group policy set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "groupId: The unique identifier of the policy group. To learn more, see Configuring Policy Groups Using API.",
+      "depth": 1
+    },
+    {
+      "item": "ruleId: The unique idenitfier of the policy rule. To learn more, see Configuring Access Policies Using API.",
+      "depth": 1
+    },
+    {
+      "item": "newOrder: The new order of the policy group. The supported value is an integer (e.g., 5).",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73255551684837376/policyGroupSet/73255551684837495/group/73255551684837496/rule/73255551684837498/reorder/5µtenantId=0.",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

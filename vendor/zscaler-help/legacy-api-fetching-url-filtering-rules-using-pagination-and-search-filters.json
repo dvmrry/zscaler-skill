@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Fetching URL Filtering Rules Using Pagination and Search Filters",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/fetching-url-filtering-rules-using-pagination-and-search-filters",
+    "node": "1533825",
+    "revision": "3163791",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "The URL Filtering policy cloud service API allows you to retrieve all URL Filtering rules and use server-side search filters to refine the query results. The URL Filtering policy cloud service API supports pagination and filtering parameters, allowing users to manage large sets of URL Filtering rules."
+    },
+    {
+      "heading": "Fetching URL Filtering Rules",
+      "level": 1
+    },
+    {
+      "text": "To retrieve all URL Filtering rules, you must iterate through the paginated results returned by the API. To do this, you must first get the total rule count, then loop through the pages, making a GET request for each page:"
+    },
+    {
+      "item": "Get the total number of rules:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Before fetching the rules, make a call using the GET /urlFilteringRules/count endpoint to determine the total number of existing rules.",
+      "depth": 0
+    },
+    {
+      "item": "Loop through the pages:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "After obtaining the total rule count, calculate the total number of pages required by dividing the total count by page size.",
+      "depth": 0
+    },
+    {
+      "item": "(totalPages = ceil (total count / page size)",
+      "depth": 0
+    },
+    {
+      "item": "You must then loop from page 1 to total pages, making a GET request for each page.",
+      "depth": 0
+    },
+    {
+      "text": "Here's a pseudocode example:"
+    },
+    {
+      "text": "pageSize = 100 // Or any desired size up to a max limit totalRulesCount = GET \"/urlFilteringRules/count\" totalPages = ceil(totalRulesCount / pageSize) allRules = [] for page in 1..totalPages: rulesPage = GET \"/urlFilteringRules?page=\" + page + \"&pageSize=\" + pageSize allRules.append(rulesPage) // The 'allRules' array now contains the complete ruleset"
+    },
+    {
+      "heading": "Leveraging Server-Side Search",
+      "level": 1
+    },
+    {
+      "text": "Pagination can be combined with server-side search filters to efficiently retrieve specific sets of URL Filtering rules. Filters can be applied using query parameters such as name, location, or other supported fields."
+    },
+    {
+      "text": "For example:"
+    },
+    {
+      "item": "To retrieve all URL Filtering rules with \"Finance\" in the name field and on the second page, configure the request to GET /urlFilteringRules?name=Finance&page=2&pageSize=100.",
+      "depth": 0
+    },
+    {
+      "item": "To get the count of all rules assigned to the \"Headquarters\" location, configure the request to GET /urlFilteringRules/count?locations=Headquarters.",
+      "depth": 0
+    }
+  ]
+}

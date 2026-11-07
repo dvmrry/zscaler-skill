@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.dns",
+  "title": "Cloud & Branch Connector DNS handling: DNS policies and DNS gateways",
+  "aliases": [
+    "cloud connector dns",
+    "branch connector dns",
+    "cloud connector dns not working",
+    "cloud connector dns subsystem"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "cloud-connector.dns.policies",
+      "because": "cloud-connector.dns.policies:scope-doh"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.model",
+      "because": "cloud-connector.dns.policies:conditions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.forwarding.criteria",
+      "because": "cloud-connector.forwarding.criteria:dns-required"
+    },
+    {
+      "rel": "logged-in",
+      "to": "cloud-connector.logs",
+      "because": "cloud-connector.logs:dns-response-none"
+    },
+    {
+      "rel": "logged-in",
+      "to": "ztw/dns-log",
+      "because": "cloud-connector.logs:dns-response-none"
+    },
+    {
+      "rel": "configured-via",
+      "to": "ztw/traffic-dns-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "ztw/dns-gateways"
+    },
+    {
+      "rel": "configured-via",
+      "to": "cloud-connector.terraform.forwarding-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.dns.gateways"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    }
+  ],
+  "prose": [
+    {
+      "text": "DNS handling on a Connector is two configured objects, with a third policy that carries the Connector's own traffic. {{route-through}}"
+    },
+    {
+      "steps": [
+        {
+          "label": "DNS policies.",
+          "text": "Rules evaluated against each DNS request and response that allow, block, or redirect it: [[cloud-connector.dns.policies]]."
+        },
+        {
+          "label": "DNS gateways.",
+          "text": "The resolvers a redirecting rule sends queries to, and what happens when they do not answer: [[cloud-connector.dns.gateways]]."
+        },
+        {
+          "label": "Log and Control Forwarding.",
+          "text": "Not DNS itself: the channel for the Connector's logs, enrollment and policy updates: [[cloud-connector.forwarding.log-and-control]]."
+        }
+      ]
+    },
+    {
+      "label": "Branch Connector resolution by forwarding action.",
+      "text": "{{bc-resolution-zpa}} {{bc-resolution-zia}} {{bc-resolution-direct}} {{bc-resolution-global-vip}} Which DNS server counts as the current one in the last case is open {{gap:global-vip-current-dns}}. The pool is in [[cloud-connector.shared-objects.ip-pools]]."
+    },
+    {
+      "label": "Cloud Connector resolution by forwarding action.",
+      "text": "The Cloud Connector DNS page has the same four rows, compared by page text only {{gap:cc-same-handling}}. {{cc-resolution-zpa}} {{cc-resolution-zia}} {{cc-resolution-direct}} {{cc-global-vip}}"
+    },
+    {
+      "label": "DNS use cases.",
+      "text": "{{zpa-dns-use-case}} {{zia-dns-use-case}} {{dns-not-always-required}}"
+    },
+    {
+      "text": "DNS through the Connector also decides whether wildcard and FQDN forwarding criteria can match non-web traffic: [[cloud-connector.forwarding.criteria:dns-required]]."
+    },
+    {
+      "text": "These are Cloud & Branch Connector features, distinct from ZIA DNS Control: [[cloud-connector.dns.policies:cbc-has-dns-policies]], [[cloud-connector.dns.gateways:cbc-gateways-differ]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the workloads' DNS queries actually route through the Connector; otherwise neither DNS policies nor gateways see them.",
+      "uses": [
+        "route-through"
+      ]
+    }
+  ],
+  "claims": {
+    "bc-resolution-zpa": {
+      "statement": "On the Branch Connector DNS page, when a DNS request arrives at any destination IP address for an FQDN request that matches a Private Access application, Branch Connector intercepts it and responds with a customer-defined synthetic IP address from the customer-defined IP pool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-branch-connector.json",
+          "quotes": [
+            "The DNS request arrives at any destination IP address for an FQDN request that matches a Private Access application.",
+            "Branch Connector intercepts requests and responds with a customer-defined synthetic IP address from the customer-defined IP pool."
+          ]
+        }
+      ]
+    },
+    "bc-resolution-zia": {
+      "statement": "On the Branch Connector DNS page, Branch Connector encapsulates the request with a client source IP and destination DNS IP address (for example 8.8.8.8) and forwards it to Internet & SaaS, and the Internet & SaaS DNS control and firewall filtering policies need to allow the DNS response back to the workload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-branch-connector.json",
+          "quotes": [
+            "Branch Connector encapsulates the request with a client source IP and destination DNS IP address (e.g., 8.8.8.8) and forwards the request to Internet & SaaS.",
+            "You need to configure the Internet & SaaS DNS control and firewall filtering policies to allow the DNS response back to the workload."
+          ]
+        }
+      ]
+    },
+    "bc-resolution-direct": {
+      "statement": "On the Branch Connector DNS page, a custom traffic forwarding policy matching the client source IP, the destination IP address (for example 8.8.8.8) or the network service (UDP 53) with the forwarding action set to direct makes Branch Connector forward the request to the destination, changing the source from the client to its own service IP address (Source NAT).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-branch-connector.json",
+          "quotes": [
+            "Custom traffic forwarding policy matches the client source IP address, the destination IP address (e.g., 8.8.8.8), or network service (UDP 53) with the forwarding action set to direct.",
+            "Branch Connector forwards this request to the destination IP address, modifying the source IP from the client to its own service IP address (Source NAT)."
+          ]
+        }
+      ]
+    },
+    "bc-resolution-global-vip": {
+      "statement": "On the Branch Connector DNS page, when a request arrives from a workload configured with a custom DNS server destination that matches a Zscaler Global Public Service Edge IP (for example 185.46.212.88) and a custom traffic forwarding policy matches the client source IP, the destination IP or the network service (UDP 53) with the forwarding action set to direct, the source IP is replaced with Branch Connector's own service IP and the destination with the current DNS server configured on the Branch Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-branch-connector.json",
+          "quotes": [
+            "The DNS request arrives at Branch Connector from a workload configured with a custom DNS server destination that matches a Zscaler Global Public Service Edge IP (e.g., 185.46.212.88).",
+            "Custom traffic forwarding policy matches the client source IP address, the destination IP address, or network service (UDP 53) with the forwarding action set to direct.",
+            "The source IP is replaced with Branch Connector's own service IP address and the destination IP is replaced with the current DNS server configured on the Branch Connector."
+          ]
+        }
+      ]
+    },
+    "cc-resolution-zpa": {
+      "statement": "On the Cloud Connector DNS page, one row has Cloud Connector intercept requests and respond with a customer-defined synthetic IP address from the customer-defined IP pool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-cloud-connector.json",
+          "quotes": [
+            "Cloud Connector intercepts requests and responds with a customer-defined synthetic IP address from the customer-defined IP pool."
+          ]
+        }
+      ]
+    },
+    "cc-resolution-zia": {
+      "statement": "On the Cloud Connector DNS page, one row has Cloud Connector encapsulate the request with a client source IP and destination DNS IP address (for example 8.8.8.8) and forward it to Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-cloud-connector.json",
+          "quotes": [
+            "Cloud Connector encapsulates the request with a client source IP and destination DNS IP address (e.g., 8.8.8.8) and forwards the request to Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "cc-resolution-direct": {
+      "statement": "On the Cloud Connector DNS page, one row has Cloud Connector forward the request to the destination IP address, modifying the source IP from the client to its own service IP address (Source NAT).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-cloud-connector.json",
+          "quotes": [
+            "Cloud Connector forwards this request to the destination IP address, modifying the source IP from the client to its own service IP address (Source NAT)."
+          ]
+        }
+      ]
+    },
+    "cc-global-vip": {
+      "statement": "On the Cloud Connector DNS page, when the request arrives from a workload configured with a custom DNS server destination that matches a Zscaler Global Public Service Edge IP address (for example 185.46.212.88) and a custom traffic forwarding policy matches with the forwarding action set to direct, Cloud Connector performs both source and destination NAT: the source IP is replaced with Cloud Connector's own service IP address and the destination IP with the current DNS server configured on the Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-cloud-connector.json",
+          "quotes": [
+            "The DNS request arrives at Cloud Connector from a workload configured with a custom DNS server destination that matches a Zscaler Global Public Service Edge IP address (e.g., 185.46.212.88).",
+            "The custom traffic forwarding policy matches the client source IP address, the destination IP address, or network service (UDP 53) with the forwarding action set to direct.",
+            "Cloud Connector performs both source and destination NAT on the DNS request.",
+            "The source IP is replaced with Cloud Connector's own service IP address and the destination IP is replaced with the current DNS server configured on the Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "zpa-dns-use-case": {
+      "statement": "In the Private Access DNS use case on the networking-flows page, the Cloud Connector matches the DNS query against known Private Access app segments and on a match queries the Zscaler service for a synthetic IP address; queries that do not match can reach a direct traffic forwarding rule, and the Cloud Connector forwards them to an upstream DNS server for resolution.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "The Cloud Connector matches the DNS query against known Private Access app segments, and upon a match, the Cloud Connector queries the Zscaler service to obtain a synthetic IP address.",
+            "DNS queries that do not match with a Private Access app segment can reach a direct traffic forwarding rule. Cloud Connector forwards the DNS query to an upstream DNS server for resolution."
+          ]
+        }
+      ]
+    },
+    "zia-dns-use-case": {
+      "statement": "In the Internet & SaaS DNS use case, when the DNS matches an Internet & SaaS traffic forwarding rule the DNS query is tunneled to the Internet & SaaS gateway for DNS resolution, and the resolved IP is returned to the workload when the Internet & SaaS DNS Control allows it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "When the DNS matches a Internet & SaaS traffic forwarding rule, the DNS query is tunneled to the Internet & SaaS gateway for DNS resolution. The resolved IP is returned to the workload when the Internet & SaaS DNS Control allows it."
+          ]
+        }
+      ]
+    },
+    "dns-not-always-required": {
+      "statement": "DNS forwarding operates when workloads are configured to send DNS through Cloud Connectors, but the networking-flows page says this is not required in every instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "DNS forwarding operates when workloads are configured to send DNS through Cloud Connectors. However, this is not required in every instance."
+          ]
+        }
+      ]
+    },
+    "route-through": {
+      "statement": "To use DNS gateway and DNS policy functions, the help says to design the network so that workloads', servers' and endpoints' DNS queries route through the Cloud or Branch Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-gateways.json",
+          "quotes": [
+            "To use DNS gateway and policy functionalities, design your network where workloads, servers, and endpoints are deployed to route DNS queries through the Cloud or Branch Connector."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "global-vip-current-dns": {
+      "kind": "semantic",
+      "title": "Which DNS server the Global Public Service Edge row substitutes",
+      "status": "open",
+      "detail": "The page says the destination is replaced with the current DNS server configured on the Branch Connector without saying whether that is the management or the forwarding interface DNS.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "cc-same-handling": {
+      "kind": "semantic",
+      "title": "Whether Cloud Connector handles DNS resolution the same way as Branch Connector",
+      "status": "resolved",
+      "resolution": "The Cloud Connector page (zero-trust-cloud-handling-dns-resolutions-zscaler-cloud-connector.json) gives the same four rows; stated per page in claims cc-resolution-zpa, cc-resolution-zia, cc-resolution-direct and cc-global-vip.",
+      "detail": "The Cloud Connector page has the same four resolution rows as the Branch Connector page (claims cc-resolution-zpa, cc-resolution-zia, cc-resolution-direct and cc-global-vip); each is stated as that page's. The comparison is of page text only; whether the two products behave identically in a tenant was not tested.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

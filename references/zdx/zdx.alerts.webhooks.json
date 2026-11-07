@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "id": "zdx.alerts.webhooks",
+  "title": "ZDX alert webhooks: authentication, testing, platform guides and the payload fields the sample scripts read",
+  "aliases": [
+    "zdx webhook",
+    "alert webhook",
+    "webhook bearer token",
+    "test webhook",
+    "authenticate tenant",
+    "zdx webhook payload",
+    "zdx pagerduty",
+    "zdx slack webhook",
+    "zdx opsgenie",
+    "zdx splunk hec"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts.servicenow"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.event-monitoring.channels"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A ZDX webhook is a destination an alert rule can deliver to instead of, or as well as, email; the webhook pages are one generic page and a guide per platform, and each platform's facts below come from its own guide. {{what}} {{fields}} {{auth-types}}"
+    },
+    {
+      "label": "Testing and what arrives.",
+      "text": "{{test}} {{delivered-fields}} No article publishes the payload {{gap:payload-schema}}, and delivery behavior such as retries is not documented {{gap:delivery-behavior}}."
+    },
+    {
+      "label": "Platform guides.",
+      "text": "{{platforms}} {{no-bearer-token-platforms}} {{teams}} {{opsgenie}} {{opsgenie-rule}} {{pagerduty}} {{slack}} {{splunk}} The Splunk guide's URL step is incomplete in the capture {{gap:splunk-url-parameter}}. The ServiceNow guides are in [[zdx.alerts.servicenow]]."
+    },
+    {
+      "label": "Fields the sample scripts read.",
+      "text": "The two samples below are example scripts that read fields of the alert body, not a published schema {{gap:payload-schema}}. {{payload-pagerduty-sample}} {{payload-servicenow-sample}}"
+    },
+    {
+      "label": "Subscription and permission.",
+      "text": "{{tier-limits}} The Webhooks permission is in [[shared.admin-rbac.zdx:alerts-permission]], and changing Integration settings needs Organization scope: [[shared.admin-rbac.zdx:organization-scope-only]]. Choosing a webhook in a rule is in [[zdx.alerts.rules]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a webhook that fails Test Webhook, the URL (no spaces) and the authentication type the provider requires; for OAuth, remember the test posts no message and only acquires the token.",
+      "uses": [
+        "fields",
+        "auth-types",
+        "test"
+      ]
+    },
+    {
+      "do": "For an alert that did not reach the platform, whether the rule has Muted disabled and the webhook selected, and the platform's own guide for its URL and token rules.",
+      "uses": [
+        "opsgenie-rule",
+        "no-bearer-token-platforms",
+        "zdx.alerts.rules:delivery"
+      ]
+    },
+    {
+      "do": "Do not treat a field name in a sample script as part of a published payload schema.",
+      "uses": [
+        "payload-schema",
+        "payload-pagerduty-sample",
+        "payload-servicenow-sample"
+      ]
+    }
+  ],
+  "claims": {
+    "what": {
+      "statement": "When an event occurs the webhook sends real-time data to a specific URL or API endpoint as an HTTP callback; webhooks can be configured for ZDX to deliver alerts about application, device or network performance, and multiple alert rules can be configured to the same webhook.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-webhooks.json",
+          "quotes": [
+            "When an event occurs, the webhook sends real-time data to a specific URL or API endpoint as an HTTP callback."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-webhooks.json",
+          "quotes": [
+            "You can configure webhooks for Digital Experience (ZDX) to deliver alerts about your application, device, or network performance. You can also use webhooks in an alert rule and configure multiple alert rules to the same webhook from your third-party provider."
+          ]
+        }
+      ]
+    },
+    "fields": {
+      "statement": "A webhook has an Authentication Type (Basic, Token, OAuth) and a Status (Enabled, Disabled); its URL must not include any spaces, and the authentication type used is determined by the webhook provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-webhooks.json",
+          "quotes": [
+            "Authentication Type: The type of authentication for the webhook (Basic, Token, OAuth).",
+            "Status: The status of the webhook (Enabled, Disabled)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-webhooks.json",
+          "quotes": [
+            "Ensure your URL does not include any spaces.",
+            "Authentication Type: Choose either Basic, Token, or OAuth for authentication. The webhook provider determines the authentication type used."
+          ]
+        }
+      ]
+    },
+    "auth-types": {
+      "statement": "The generic page says Basic takes a Username and Password; Token takes the bearer token from the webhook provider, and for webhooks that do not generate one any text (for example 1234) meets the field requirement; OAuth takes an application, Client ID, Client Secret and a Refresh Token Expiration date (default the current date) and Authenticate Tenant authorizes access, and OAuth 2.0 can be configured for ServiceNow.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-webhooks.json",
+          "quotes": [
+            "Enter a Username and Password.",
+            "Enter the bearer token. A bearer token is a unique alphanumeric string used for authentication. You can obtain the bearer token from your webhook provider.",
+            "Some webhooks do not generate a bearer token if they have valid URLs. For those specific webhooks, enter any text (e.g., 1234) for the bearer token field to meet webhook configuration requirements.",
+            "Applications: Select an application.",
+            "Client ID: Enter your Client ID.",
+            "Client Secret: Enter your Client Secret.",
+            "Refresh Token Expiration: Select the date your token expires. The default is the current date.",
+            "Click Authenticate Tenant to authorize access to your application as a tenant.",
+            "You can configure OAuth 2.0 for ServiceNow when configuring a webhook."
+          ]
+        }
+      ]
+    },
+    "test": {
+      "statement": "Test Webhook checks the configuration; for OAuth it does not post a test message and instead acquires the OAuth token, and on a test error the URL and Authentication Type fields are the ones to check.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-webhooks.json",
+          "quotes": [
+            "Click Test Webhook to check the configuration.",
+            "Test Webhook for OAuth does not post a test message. Instead, it acquires the OAuth token.",
+            "To resolve the error, check for issues in the URL or the Authentication Type fields."
+          ]
+        }
+      ]
+    },
+    "delivered-fields": {
+      "statement": "After the webhook is configured on the provider's site, the alert information that can be viewed includes the alert start and end time, devices impacted, severity, rule name and alert criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-webhooks.json",
+          "quotes": [
+            "After the webhook is configured on your webhook provider site, you can view alert information such as:",
+            "Alert start and end time",
+            "Devices impacted",
+            "Severity",
+            "Rule name",
+            "Alert criteria"
+          ]
+        }
+      ]
+    },
+    "platforms": {
+      "statement": "The Configuring Webhooks article gives guidance for a supported platform in the Microsoft Teams, OpsGenie, PagerDuty, Slack, Splunk and ServiceNow (for Developers) webhook configuration guides.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-webhooks.json",
+          "quotes": [
+            "The following provides guidance for webhook configuration for a supported platform:",
+            "Microsoft Teams Webhook Configuration Guide",
+            "OpsGenie Webhook Configuration Guide",
+            "PagerDuty Webhook Configuration Guide",
+            "Slack Webhook Configuration Guide",
+            "Splunk Webhook Configuration Guide",
+            "ServiceNow Webhook Configuration Guide for Developers"
+          ]
+        }
+      ]
+    },
+    "tier-limits": {
+      "statement": "In the subscription table Webhooks are Not supported on Standard, 10 on Microsoft 365, 10 on Advanced and 50 on Advanced Plus, and Workflow Automation is Supported only on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "after": "## Integrations and Data Retention",
+          "quotes": [
+            "| Webhooks | Not supported | 10 | 10 | 50 |",
+            "| Workflow Automation | Not supported | Not supported | Not supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ]
+        }
+      ]
+    },
+    "no-bearer-token-platforms": {
+      "statement": "The Microsoft Teams and PagerDuty guides each say the platform does not generate a bearer token and to enter any text (for example 1234) to meet webhook configuration requirements, and the Slack guide says to enter any text because a bearer token is not required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-microsoft-teams-webhook-configuration-guide.json",
+          "quotes": [
+            "Bearer Token: Microsoft Teams does not generate a bearer token. To meet webhook configuration requirements, enter any text for the bearer token (e.g., 1234)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-pagerduty-webhook-configuration-guide.json",
+          "quotes": [
+            "Bearer Token: PagerDuty does not generate a bearer token. To meet webhook configuration requirements, enter any text for the bearer token (e.g., 1234)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-slack-webhook-configuration-guide.json",
+          "quotes": [
+            "Bearer Token: Enter any text as a bearer token is not required.",
+            "Bearer Token: Enter any text as Slack does not require a bearer token."
+          ]
+        }
+      ]
+    },
+    "teams": {
+      "statement": "The Microsoft Teams guide requires a Microsoft Teams account and takes the webhook from a channel under Channel > Connectors > Incoming Webhook > Configure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-microsoft-teams-webhook-configuration-guide.json",
+          "quotes": [
+            "You must have a Microsoft Teams account to configure a webhook.",
+            "On the Posts tab, where you can see the conversation, go to Channel > Connectors > Incoming Webhook > Configure."
+          ]
+        }
+      ]
+    },
+    "opsgenie": {
+      "statement": "The OpsGenie guide's API key, also called the GenieKey, needs Read Access, Create and Update Access and Delete Access; the URL is normally https://api.opsgenie.com/v2/alerts?isOpsGenie=true, ?isOpsGenie=true must be appended to the URL for ZDX Integration (including an organization-specific URL), and the bearer token is entered as GenieKey followed by the key. The Alert Title might not display all characters if it exceeds 130 characters, in which case the fields are displayed within the description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-opsgenie-webhook-configuration-guide.json",
+          "quotes": [
+            "Click Copy or save your API Key. This is also called GenieKey.",
+            "Make sure the following are selected:",
+            "Read Access",
+            "Create and Update Access",
+            "Delete Access",
+            "URL: Enter your OpsGenie URL. It is normally https://api.opsgenie.com/v2/alerts?isOpsGenie=true.",
+            "For ZDX Integration, ?isOpsGenie=true must be appended to the URL.",
+            "If there is a specific URL for your organization, you must append ?isOpsGenie=true at the end of your URL to integrate with ZDX.",
+            "Bearer Token: Enter your Bearer Token with the API Key from OpsGenie (also known as GenieKey) in the following format.",
+            "GenieKey {GenieKey from the OpsGenie API Portal}",
+            "The Alert Title might not display all the characters if the character size exceeds 130 characters. If this happens, the fields are displayed within the description."
+          ]
+        }
+      ]
+    },
+    "opsgenie-rule": {
+      "statement": "To integrate with OpsGenie the alert rule's Actions section requires Muted to be disabled and Alert Delivery Method set to Webhook, with Email optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-opsgenie-webhook-configuration-guide.json",
+          "quotes": [
+            "On the Actions tab and under the Actions section, the following fields are required to integrate with OpsGenie:",
+            "Muted: Disable this setting.",
+            "Alert Delivery Method: Select Webhook. Email is optional."
+          ]
+        }
+      ]
+    },
+    "pagerduty": {
+      "statement": "The PagerDuty guide selects the category Error Tracking, selects Yes for Event Integration and enters the event transformation script, and copies the Events API Endpoint address as the URL for the webhook in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-pagerduty-webhook-configuration-guide.json",
+          "quotes": [
+            "Category: Select Error Tracking.",
+            "Select Yes for Event Integration and enter the event transformation script.",
+            "Copy the Events API Endpoint address as the URL to use when configuring a webhook in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "slack": {
+      "statement": "The Slack guide says the incoming webhook provides a unique URL that sends a JSON payload with the message text; a paid Slack subscription is required to use Slack Workflow Builder, where Webhook - Advanced is selected and the variables dictate which fields from the webhook notification are displayed in the Slack notification, and the app route enables Activate Incoming Webhooks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-slack-webhook-configuration-guide.json",
+          "quotes": [
+            "The incoming webhook provides a unique URL that sends a JSON payload with the message text.",
+            "A paid Slack subscription is required to use the Slack Workflow Builder.",
+            "Select Webhook - Advanced.",
+            "These variables dictate which fields from the webhook notification are displayed in the Slack notification.",
+            "Enable Activate Incoming Webhooks."
+          ]
+        }
+      ]
+    },
+    "splunk": {
+      "statement": "The Splunk guide sets an HTTP Event Collector's All Tokens to Enabled, Default Source Type to _json and deselects the Enable SSL checkbox; for Basic authentication it enters any string as the username and the HEC Token Value, and for Token authentication the HEC Token Value as the Bearer Token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-splunk-webhook-configuration-guide.json",
+          "quotes": [
+            "All Tokens: Select Enabled.",
+            "Default Source Type: Select _json.",
+            "Deselect the Enable SSL checkbox.",
+            "For Basic, enter any string as the username, and enter the configured HEC Token Value from the previous step.",
+            "For Token, enter the configured HEC Token Value from the previous step as the Bearer Token."
+          ]
+        }
+      ]
+    },
+    "payload-pagerduty-sample": {
+      "statement": "The PagerDuty guide's sample transformation script reads zdxUrl, ruleName, status, geolocationCount, deptCount, impactedDeviceCount, osverCount, severity, alertId and criteriaString from the webhook body, tests the status against STARTED, and sets the event not to be emitted when the lower-cased rule name is test.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-pagerduty-webhook-configuration-guide.json",
+          "quotes": [
+            "let zdxLinkURL = body.zdxUrl;",
+            "if (ruleName.toLowerCase() == \"test\") emitEv = false;",
+            "if ( body.status == \"STARTED\" )",
+            "body.geolocationCount",
+            "body.deptCount",
+            "body.impactedDeviceCount",
+            "body.osverCount",
+            "Rule: ${body.ruleName}, Severity: ${body.severity} ${body.status}",
+            "AlertId: ${body.alertId}",
+            "Criteria: ${body.criteriaString}"
+          ]
+        }
+      ]
+    },
+    "payload-servicenow-sample": {
+      "statement": "The ServiceNow developer guide's sample script reads alertId, ruleName (returning without action when it equals test), zdxUrl, startTime and endTime (multiplied by 1000 before use as a date), a status tested against STARTED, ENDED_ON_RULE_DEL and ENDED_ON_RULE_MODIFY (anything else treated as resolved), a severity of High, Medium or Low, an alertType of Incident or ZProbe, geolocationCount, impactedDeviceCount, impactedUserCount, context with attribute and epicenter, zscaler_hosted_locations, deptCount, osverCount, and criteria with op and conditions holding conditionString, isHit and stats min, max and avg.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide-developers.json",
+          "after": "Script for Basic authentication",
+          "quotes": [
+            "var alertId = jData.alertId; var ruleName = jData.ruleName; if ( ruleName.equalsIgnoreCase(\"test\") ) { // test webhook return; }",
+            "var zdxurl = jData.zdxUrl; var startTime = jData.startTime; var endTime = jData.endTime;",
+            "if ( status == \"STARTED\") state = 2; // in progress else if ( status == \"ENDED_ON_RULE_DEL\" || status == \"ENDED_ON_RULE_MODIFY\") state = 8; // cancelled else state = 6; // resolved",
+            "if ( jData.severity == \"High\" ) impact = 1; else if ( jData.severity == \"Medium\" ) impact = 2; else if ( jData.severity == \"Low\" ) impact = 3;",
+            "if ( jData.alertType == \"Incident\") { impacted = jData.geolocationCount",
+            "jData.impactedDeviceCount",
+            "jData.impactedUserCount",
+            "context = jData.context;",
+            "epicenter.attribute",
+            "epicenter.epicenter",
+            "else if ( jData.alertType == \"ZProbe\") { impacted = \"Zscaler Hosted Locations: \" + jData.zscaler_hosted_locations",
+            "jData.deptCount",
+            "jData.osverCount",
+            "var criteria = jData.criteria; var condOp = criteria.op; var conditions = criteria.conditions;",
+            "text += conditions[i].conditionString; if ( conditions[i].isHit) text += \"*\";",
+            "conditions[i].stats.min",
+            "conditions[i].stats.max",
+            "conditions[i].stats.avg",
+            "gdt.setValue(startTime*1000);",
+            "gdt.setValue(endTime*1000);"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "payload-schema": {
+      "kind": "semantic",
+      "title": "The webhook alert body's schema",
+      "status": "open",
+      "detail": "No article publishes the body a ZDX webhook sends; only the PagerDuty and ServiceNow sample scripts read field names. The full set of status values (the samples test STARTED, ENDED_ON_RULE_DEL and ENDED_ON_RULE_MODIFY), the alertType values (Incident, ZProbe, others), the unit of the timestamps, whether criteriaString and criteria both exist, and how the payload statuses map to the console statuses in zdx.alerts:statuses are not stated.",
+      "blocks": "writing a receiver for the alert body from the documentation alone",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "delivery-behavior": {
+      "kind": "semantic",
+      "title": "Webhook retries, timeouts, ordering and request signing",
+      "status": "open",
+      "detail": "The webhook articles do not document retries on failure, timeouts, ordering of alert updates or request signing.",
+      "blocks": "explaining a missing or duplicated webhook delivery",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "splunk-url-parameter": {
+      "kind": "semantic",
+      "title": "The parameter the Splunk guide's URL step asks to include",
+      "status": "open",
+      "detail": "The Splunk guide's URL step reads 'URL: Include the following parameter in your URL:' and the capture holds no parameter after it, possibly an image or code block lost in capture.",
+      "blocks": "building the Splunk webhook URL",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

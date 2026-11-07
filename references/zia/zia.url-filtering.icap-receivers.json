@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-filtering.icap-receivers",
+  "title": "ICAP receivers for URL Filtering",
+  "aliases": [
+    "ICAP Receiver",
+    "URL Filtering ICAP",
+    "icaps"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.icap-receivers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{overview}}"
+    },
+    {
+      "label": "Where it runs.",
+      "text": "{{edge-requirement}} {{enablement}} What the enabling parameters do is open {{gap:sc-conf-parameters}}, and so is whether the step also applies to Private Service Edges {{gap:private-service-edge-step}}."
+    },
+    {
+      "label": "Defining a receiver.",
+      "text": "{{receiver-status}} {{receiver-uri}} {{mtls-certificate}}"
+    },
+    {
+      "label": "Open questions.",
+      "text": "How a receiver is bound to a rule is open {{gap:rule-binding}}. Whether the second Service Edge hop described for DLP applies is open {{gap:fcc-hop}}. How the URI scheme and port compare with the DLP pages is open {{gap:uri-port-vs-dlp}}."
+    }
+  ],
+  "claims": {
+    "overview": {
+      "statement": "Zscaler's ICAP Receiver feature forwards the inbound and outbound traffic of all the sites of the selected URL categories in the URL Filtering policy rule to an ICAP server, and consists of adding ICAP receivers and associating them to a URL Filtering policy. Secure or unencrypted ICAP servers can be configured, but Zscaler recommends sending transaction information via secure ICAP. The article is about ICAP receivers for the URL Filtering policy only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-icap-receivers-url-filtering.json",
+          "quotes": [
+            "Zscaler's ICAP Receiver feature allows you to forward the inbound and outbound traffic of all the sites of the selected URL categories in the URL Filtering policy rule to an ICAP server.",
+            "It consists of adding ICAP receivers and associating them to a URL Filtering policy.",
+            "You can configure secure or unencrypted Internet Content Adaptation Protocol (ICAP) servers. However, Zscaler recommends sending transaction information via secure ICAP.",
+            "This article is about ICAP receivers for the URL Filtering policy only."
+          ]
+        }
+      ]
+    },
+    "edge-requirement": {
+      "statement": "The ICAP Receiver feature works only with Private Service Edges and Virtual Service Edges for Internet & SaaS (ZIA), and is not enabled by default on them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-icap-receivers-url-filtering.json",
+          "quotes": [
+            "ICAP Receiver works either with Private Service Edge or Virtual Service Edge and it's not enabled by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-icap-receiver-private-service-edge-virtual-service-edge-internet-saas.json",
+          "quotes": [
+            "Zscaler's ICAP Receiver feature works only with Private Service Edges and Virtual Service Edges for Internet & SaaS (ZIA). However, this feature is not enabled by default on Service Edges."
+          ]
+        }
+      ]
+    },
+    "enablement": {
+      "statement": "The enabling steps go to the /sc/sme/conf folder, edit the sc.conf file with `vi sc.conf`, enter the following parameters in the sc.conf file and save: [SME] icap_respmod_enable=1, icap_respmod_max_request_size=10000, icap_respmod_request_max_fails=3, icap_respmod_request_max_age=60 and icap_respmod_http_max_hold_time=1. The page then says to ensure the entries are saved in the sc.conf file with `cat sc.conf`. The restart step for the Virtual Service Edge instance runs `/sc/update/vzen stop sme` and `/sc/update/vzen start sme`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-icap-receiver-private-service-edge-virtual-service-edge-internet-saas.json",
+          "quotes": [
+            "Go to the /sc/sme/conf folder:",
+            "Edit the sc.conf file:",
+            "vi sc.conf",
+            "Enter the following parameters in the sc.conf file and save:",
+            "Ensure that the entries are saved in the sc.conf file:",
+            "cat sc.conf",
+            "[SME] icap_respmod_enable=1 icap_respmod_max_request_size=10000 icap_respmod_request_max_fails=3 icap_respmod_request_max_age=60 icap_respmod_http_max_hold_time=1 [-end-of-SME-]",
+            "Restart the Virtual Service Edge instance:",
+            "/sc/update/vzen stop sme /sc/update/vzen start sme"
+          ]
+        }
+      ]
+    },
+    "receiver-status": {
+      "statement": "A receiver's Status toggle allows the service to send communications to the ICAP receiver; if it is disabled, the service does not send the information to that receiver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-icap-receiver.json",
+          "quotes": [
+            "Status: Enable the toggle to allow the service to send communications to the ICAP receiver. If you disable it, the service doesn't send the information to that receiver."
+          ]
+        }
+      ]
+    },
+    "receiver-uri": {
+      "statement": "The receiver URI must follow the format icaps://<FQDN or IP address>:<port number>/<servicepath>. The Receiver URI field is prepopulated with icaps:// because Zscaler recommends secure ICAP, and icap:// can be used to send unencrypted ICAP over plain text, for example for debugging. FQDNs or IP addresses of ICAP receivers and load balancers are accepted. A port number must be included and must match the port the network firewall accepts ICAP traffic on, and Zscaler recommends port 1344. The service path specifies whether the receiver monitors outgoing or incoming traffic, and the page's unencrypted example for Vontu is icap://metascan.corp.safemarch.com:1344/reqmod.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-icap-receiver.json",
+          "quotes": [
+            "The URI must follow the format icaps://<FQDN or IP address>:<port number>/<servicepath>.",
+            "By default, the Receiver URI field is prepopulated with icaps:// because Zscaler recommends sending transaction information via secure ICAP.",
+            "For scenarios where it is preferable to send unencrypted ICAP over plain text (e.g., for debugging purposes), you can use icap://.",
+            "The <FQDN or IP address> of ICAP receivers and load balancers are accepted.",
+            "A <port number> must be included and must match the port on which you’ve configured your network firewall to accept ICAP traffic from the service.",
+            "Zscaler recommends using port number 1344 for ICAP, per standard practice.",
+            "The <servicepath> specifies whether the ICAP receiver monitors outgoing traffic or incoming traffic.",
+            "An example of a correctly formatted unencrypted ICAP receiver URI for Vontu would be: icap://metascan.corp.safemarch.com:1344/reqmod."
+          ]
+        }
+      ]
+    },
+    "mtls-certificate": {
+      "statement": "The use of the downloadable certificate is optional and is only required if the ICAP server is using mutual authentication. After download, the certificate is installed in the ICAP server tunnel configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-icap-receivers-url-filtering.json",
+          "quotes": [
+            "The use of this certificate is optional and is only required if the ICAP server is using mutual authentication.",
+            "After you download the certificate, install the certificate in your ICAP server tunnel configuration."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rule-binding": {
+      "kind": "semantic",
+      "title": "Which URL Filtering action or field binds a receiver to a rule",
+      "status": "open",
+      "detail": "The pages do not say which action or field associates a receiver with a rule. The API's action values include ICAP_RESPONSE (see zia.url-filtering.actions:api-action-values). Not checked: OpenAPI /icapServers and the SDKs.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "sc-conf-parameters": {
+      "kind": "semantic",
+      "title": "What the icap_respmod parameters do",
+      "status": "open",
+      "detail": "The page lists the parameter values without explaining them.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "private-service-edge-step": {
+      "kind": "semantic",
+      "title": "Whether the Virtual Service Edge restart step also applies to Private Service Edges",
+      "status": "open",
+      "detail": "The restart step names only the Virtual Service Edge instance, while the page says the feature works with both edge types.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "fcc-hop": {
+      "kind": "semantic",
+      "title": "Whether the second Service Edge hop described for DLP ICAP applies to URL Filtering",
+      "status": "open",
+      "detail": "The URL Filtering pages do not say whether the hop described in zia.dlp.icap-receivers:second-service-edge applies.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "uri-port-vs-dlp": {
+      "kind": "semantic",
+      "title": "How the URL Filtering URI scheme and port relate to the DLP ICAP pages",
+      "status": "open",
+      "detail": "The URL Filtering page gives the URI as icaps:// and recommends port 1344, while the DLP pages give icap:// and 1344 or 11344 (zia.dlp.icap-receivers:secure-icap-port). They describe separate features, and no page says whether the defaults should match.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

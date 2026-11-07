@@ -1,0 +1,1687 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Provisioning",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/provisioning",
+    "node": "1450261",
+    "revision": "2562171",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Provisioning_4.json?VersionId=p9lbCeuDnVy16LjEkr.8QXLH_5eeBrfG",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Cloud & Branch Connector API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "v1.0"
+    },
+    "servers": [
+      {
+        "url": "https://{host}:{port}/wapi/v1",
+        "variables": {
+          "host": {
+            "description": "Private APIs Server IP/Domain name hosting Edge Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      },
+      {
+        "url": "https://{host}:{port}/api/v1",
+        "variables": {
+          "host": {
+            "description": "Public APIs Server IP/Domain name hosting Edge Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      }
+    ],
+    "tags": [
+      {
+        "name": "Provisioning"
+      }
+    ],
+    "paths": {
+      "/apiKeys": {
+        "get": {
+          "tags": [
+            "Provisioning"
+          ],
+          "description": "Lists available API keys.",
+          "operationId": "ApiKeyResource_getApiKeys",
+          "parameters": [
+            {
+              "name": "includePartnerKey",
+              "in": "query",
+              "schema": {
+                "type": "boolean"
+              },
+              "description": "Include or exclude partner keys from the list."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ApiKey"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        }
+      },
+      "/apiKeys/{keyId}/regenerate": {
+        "post": {
+          "tags": [
+            "Provisioning"
+          ],
+          "description": "Regenerates an API key.",
+          "operationId": "ApiKeyResource_regenerateApiKey",
+          "parameters": [
+            {
+              "name": "keyId",
+              "description": "The API key ID of the API key you want to regenerate.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ApiKey"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        }
+      },
+      "/provUrl": {
+        "get": {
+          "tags": [
+            "Provisioning"
+          ],
+          "operationId": "EcProvUrlZResource_getProvUrls",
+          "description": "Lists provisioning templates.",
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 250.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EcProvDetails"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/provUrl/{id}": {
+        "get": {
+          "tags": [
+            "Provisioning"
+          ],
+          "operationId": "EcProvUrlZResource_getProvUrlById",
+          "description": "Gets a provisioning template by ID.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of provisioning template.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcProvDetails"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/publicCloudAccountDetails": {
+        "get": {
+          "tags": [
+            "Provisioning"
+          ],
+          "operationId": "PublicAccountIdSDetailsZResource_getPublicAccountDetails",
+          "description": "Lists public cloud account information.",
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 250.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PublicCloudAccountDetails"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/publicCloudAccountDetails/{id}": {
+        "get": {
+          "tags": [
+            "Provisioning"
+          ],
+          "operationId": "PublicAccountIdSDetailsZResource_getPublicAccountDetailsById",
+          "description": "Gets the public (Cloud Connector) cloud account information for the specified ID.",
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 250.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            },
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of the public cloud account.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicCloudAccountDetails"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/publicCloudAccountDetails/lite": {
+        "get": {
+          "tags": [
+            "Provisioning"
+          ],
+          "operationId": "PublicAccountIdSDetailsZResource_getPublicAccountDetailsLite",
+          "description": "Lists a subset of public (Cloud Connector) cloud account information.",
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 250.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PublicCloudAccountDetails"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/publicCloudAccountIdStatus": {
+        "get": {
+          "tags": [
+            "Provisioning"
+          ],
+          "operationId": "PublicAccountIdStatusZResource_getPublicCloudIdInfo",
+          "description": "Lists public (Cloud Connector) cloud account status information (enabled/disabled).",
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicCloudIdStatus"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Provisioning"
+          ],
+          "operationId": "PublicAccountIdStatusZResource_updatePublicCloudIdInfo",
+          "description": "Enables/disables public (Cloud Connector) cloud account status.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCloudIdStatus"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicCloudIdStatus"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "ApiKey": {
+          "type": "object",
+          "description": "API key information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "ID of the API key. This is used to regenerate the API key."
+            },
+            "keyValue": {
+              "type": "string",
+              "description": "API key value (12 alphanumeric characters in length)."
+            },
+            "permissions": {
+              "type": "array",
+              "description": "List of functional areas to which this API key applies. This attribute is subject to change.",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "USER_ACCESS",
+                  "SECURE",
+                  "MANAGE",
+                  "COMPLY",
+                  "SSL_POLICY",
+                  "ADVANCED_SETTINGS",
+                  "TRAFFIC_FORWARDING",
+                  "AUTHENTICATION_CONFIGURATION",
+                  "FIREWALL_DNS",
+                  "NSS_CONFIGURATION",
+                  "VZEN_CONFIGURATION",
+                  "LOCATIONS",
+                  "HOSTED_PAC_FILES",
+                  "EZ_AGENT_CONFIGURATIONS",
+                  "SECURE_AGENT_NOTIFICATIONS",
+                  "VPN_CREDENTIALS",
+                  "PROXY_GATEWAY",
+                  "STATIC_IPS",
+                  "GRE_TUNNELS",
+                  "SUBCLOUDS",
+                  "AUTHENTICATION_SETTINGS",
+                  "IDENTITY_PROXY_SETTINGS",
+                  "USER_MANAGEMENT",
+                  "APIKEY_MANAGEMENT",
+                  "PARTNER_INTEGRATION",
+                  "POLICY_RESOURCE_MANAGEMENT",
+                  "CUSTOM_URL_CAT",
+                  "OVERRIDE_EXISTING_CAT",
+                  "TENANT_PROFILE_MANAGEMENT",
+                  "CLIENT_CONNECTOR_PORTAL",
+                  "CUSTOMER_ACCT_INFO",
+                  "CUSTOMER_SUBSCRIPTION",
+                  "CUSTOMER_ORG_SETTINGS",
+                  "REMOTE_ASSISTANCE_MANAGEMENT",
+                  "ZDX_CONFIGURATION",
+                  "ZDX_EXECUTIVE_INSIGHTS",
+                  "ZDX_ADMIN_MANAGEMENT",
+                  "ZDX_USER_DEVICE_NAME_ACCESS",
+                  "ZDX_DASHBOARD",
+                  "ZDX_ALERTS",
+                  "ZDX_LTSESSION",
+                  "ZDX_WEBHOOKS",
+                  "ZDX_ONBOARDING",
+                  "ZDX_INTERNAL",
+                  "ZDX_UCAAS",
+                  "ZDX_UCAAS_NAME_ACCESS",
+                  "ZDX_MA_ACCESS",
+                  "ZDX_CLIENT_APPS",
+                  "ZDX_ADMIN_SETTINGS",
+                  "ZDX_DEVICE_INVENTORY",
+                  "ZDX_YENGINE_SVC",
+                  "ZDX_DASHBOARD_PERF",
+                  "ZDX_DASHBOARD_APP_OVERVIEW",
+                  "ZDX_DASHBOARD_APP_DASHBOARD",
+                  "ZDX_DASHBOARD_USER_OVERVIEW",
+                  "ZDX_DASHBOARD_USER_DASHBOARD",
+                  "ZDX_USER_SEARCH_ACCESS",
+                  "ZDX_USER_NAME_ACCESS",
+                  "ZDX_LOCATION_ACCESS",
+                  "ZDX_DEVICE_NAME_ACCESS",
+                  "ZDX_IP_ADDRESS_ACCESS",
+                  "ZDX_UCAAS_CONFIGURATION",
+                  "ZDX_UCAAS_MEETING",
+                  "ZDX_UCAAS_APPLICATION",
+                  "ZDX_TIME_DURATION",
+                  "ZDX_EPT",
+                  "ZDX_YENGINE_ANALYSIS",
+                  "ZDX_PCAP_CAPTURE",
+                  "EDGE_CONNECTOR_DASHBOARD",
+                  "EDGE_CONNECTOR_CLOUD_PROVISIONING",
+                  "EDGE_CONNECTOR_ADMIN_MANAGEMENT",
+                  "EDGE_CONNECTOR_LOCATION_MANAGEMENT",
+                  "EDGE_CONNECTOR_FORWARDING",
+                  "EDGE_CONNECTOR_NSS_CONFIGURATION",
+                  "EDGE_CONNECTOR_TEMPLATE",
+                  "CSPM_CONFIGURATION",
+                  "DEVICE_NAME_ACCESS",
+                  "ZSCALER_DECEPTION_PORTAL"
+                ]
+              }
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Indicates whether API key is enabled."
+            },
+            "lastModifiedTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Last time API key was modified."
+            },
+            "lastModifiedBy": {
+              "description": "Last user to modify API key.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "partner": {
+              "description": "Not applicable to Cloud & Branch Connector.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "partnerUrl": {
+              "type": "string",
+              "description": "Not applicable to Cloud & Branch Connector."
+            }
+          }
+        },
+        "EcProvDetails": {
+          "type": "object",
+          "description": "Cloud & Branch Connector provisioning template details.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "ID of Cloud & Branch Connector provisioning template."
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of Cloud & Branch Connector provisioning template."
+            },
+            "desc": {
+              "type": "string",
+              "description": "Description of Cloud & Branch Connector provisioning template."
+            },
+            "provUrl": {
+              "type": "string",
+              "description": "URL of Cloud & Branch Connector provisioning template."
+            },
+            "provUrlType": {
+              "type": "string",
+              "description": "URL type of Cloud & Branch Connector provisioning template.",
+              "enum": [
+                "ONPREM",
+                "CLOUD",
+                "DISABLED",
+                "MON_DELETED",
+                "DELETING",
+                "DELETING_LAST",
+                "DELETED"
+              ]
+            },
+            "provUrlData": {
+              "$ref": "#/components/schemas/EcProvUrlContent"
+            },
+            "usedInEcGroups": {
+              "type": "array",
+              "description": "Indicates that the provisioning template is in use and lists which Cloud & Branch Connector groups are registered under it.",
+              "items": {
+                "$ref": "#/components/schemas/EntityReference"
+              }
+            },
+            "status": {
+              "type": "string",
+              "description": "Deployment status of Cloud & Branch Connector provisioning template.",
+              "enum": [
+                "DEPLOYED",
+                "NOT_DEPLOYED"
+              ]
+            },
+            "lastModUid": {
+              "description": "User ID of last time Cloud & Branch Connector provisioning template was modified.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "lastModTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Last time Cloud & Branch Connector provisioning template was modified."
+            }
+          }
+        },
+        "PublicCloudAccountDetails": {
+          "type": "object",
+          "description": "Public cloud account/subscription information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Internal ID of public cloud account/subscription."
+            },
+            "accountId": {
+              "type": "string",
+              "description": "Account or subscription ID of public cloud account."
+            },
+            "platformId": {
+              "type": "string",
+              "description": "Public cloud platform (AWS or Azure).",
+              "enum": [
+                "AWS",
+                "AZURE"
+              ]
+            }
+          }
+        },
+        "PublicCloudIdStatus": {
+          "type": "object",
+          "description": "Status of public cloud.",
+          "properties": {
+            "accountIdEnabled": {
+              "type": "boolean",
+              "description": "Indicates whether public cloud account is enabled."
+            },
+            "subIdEnabled": {
+              "type": "boolean",
+              "description": "Indicates whether public cloud subscription is enabled."
+            }
+          }
+        },
+        "EntityReference": {
+          "type": "object",
+          "description": "General-purpose object. This is an immutable reference to an entity, which mainly consists of ID and name.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int64",
+              "description": "Identifier that uniquely identifies an entity."
+            },
+            "name": {
+              "type": "string",
+              "description": "The configured name of the entity."
+            },
+            "isNameL10nTag": {
+              "type": "boolean",
+              "description": "General purpose."
+            },
+            "extensions": {
+              "type": "object",
+              "description": "General purpose.",
+              "additionalProperties": {
+                "type": "string",
+                "description": "General purpose."
+              }
+            },
+            "deleted": {
+              "type": "boolean",
+              "description": "General purpose."
+            },
+            "externalId": {
+              "type": "string",
+              "description": "General purpose."
+            },
+            "associationTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "General purpose."
+            }
+          }
+        },
+        "EcProvUrlContent": {
+          "type": "object",
+          "description": "Cloud & Branch Connector provisioning URL content.",
+          "properties": {
+            "zsCloudDomain": {
+              "type": "string",
+              "description": "Zscaler cloud domain of Cloud & Branch Connector provisioning URL."
+            },
+            "orgId": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Organization ID of Cloud & Branch Connector provisioning URL."
+            },
+            "configServer": {
+              "type": "string",
+              "description": "Configuration server of Cloud & Branch Connector provisioning URL."
+            },
+            "registrationServer": {
+              "type": "string",
+              "description": "Registration server of Cloud & Branch Connector provisioning URL."
+            },
+            "apiServer": {
+              "type": "string",
+              "description": "API server of Cloud & Branch Connector provisioning URL."
+            },
+            "pacServer": {
+              "type": "string",
+              "description": "Proxy Auto-Configuration (PAC) server from which Cloud Connector downloads gateway information."
+            },
+            "locationTemplate": {
+              "$ref": "#/components/schemas/LocationTemplate"
+            },
+            "cloudProvider": {
+              "description": "Provisioning URL associated with the provisioning template that the Cloud & Branch Connector uses to register with the portal.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "cloudProviderType": {
+              "type": "string",
+              "description": "Cloud provider type of Cloud & Branch Connector provisioning URL.",
+              "enum": [
+                "AWS",
+                "AZURE"
+              ]
+            },
+            "formFactor": {
+              "type": "string",
+              "description": "Form factor of Cloud & Branch Connector provisioning URL.",
+              "enum": [
+                "SMALL",
+                "MEDIUM",
+                "LARGE"
+              ]
+            },
+            "hyperVisors": {
+              "type": "string",
+              "description": "Hypervisor of Cloud & Branch Connector provisioning URL.",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "CENTOS",
+                "REDHAT_LINUX",
+                "VMWARE_ESXI"
+              ]
+            },
+            "location": {
+              "description": "Location of Cloud & Branch Connector provisioning URL.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "bcGroup": {
+              "$ref": "#/components/schemas/EcGroup"
+            }
+          }
+        },
+        "LocationTemplate": {
+          "type": "object",
+          "description": "Cloud & Branch Connector location template.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "ID of Cloud & Branch Connector location template."
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of Cloud & Branch Connector location template."
+            },
+            "desc": {
+              "type": "string",
+              "description": "Description of Cloud & Branch Connector location template."
+            },
+            "template": {
+              "$ref": "#/components/schemas/LocationTemplateDetails"
+            },
+            "editable": {
+              "type": "boolean",
+              "description": "Whether Cloud & Branch Connector location template is editable."
+            },
+            "lastModUid": {
+              "description": "User ID of last time Cloud & Branch Connector location template was modified.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "lastModTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Last time Cloud & Branch Connector location template was modified."
+            }
+          }
+        },
+        "LocationTemplateDetails": {
+          "type": "object",
+          "description": "Details of Cloud & Branch Connector location template.",
+          "properties": {
+            "templatePrefix": {
+              "type": "string",
+              "description": "Prefix of Cloud & Branch Connector location template."
+            },
+            "xffForwardEnabled": {
+              "description": "Enable if you want the Zscaler service to use the X-Forwarded-For (XFF) headers that your on-premises proxy server inserts in outbound HTTP requests.",
+              "type": "boolean"
+            },
+            "authRequired": {
+              "type": "boolean",
+              "description": "Indicates whether \"Authentication Required\" is enabled in the location template."
+            },
+            "cautionEnabled": {
+              "type": "boolean",
+              "description": "Enable to display an end user notification for unauthenticated traffic. If disabled, the action is treated as an allow-policy."
+            },
+            "aupEnabled": {
+              "type": "boolean",
+              "description": "Enable this feature to display an Acceptable Use Policy (AUP) for unauthenticated traffic and require users to accept it."
+            },
+            "aupTimeoutInDays": {
+              "type": "integer",
+              "format": "int32",
+              "description": "If you enabled aupEnabled, specify in days how frequently the AUP is displayed to users."
+            },
+            "ofwEnabled": {
+              "type": "boolean",
+              "description": "Enables the service's firewall controls."
+            },
+            "ipsControl": {
+              "type": "boolean",
+              "description": "If you enabled ofwEnabled, enable this for IPS controls for the location template."
+            },
+            "enforceBandwidthControl": {
+              "type": "boolean",
+              "description": "Enable to specify the maximum bandwidth limits for download (Mbps) and upload (Mbps)."
+            },
+            "upBandwidth": {
+              "type": "integer",
+              "format": "int32",
+              "description": "If you enabled enforceBandwidthControl, specify the maximum bandwidth for upload (Mbps)."
+            },
+            "dnBandwidth": {
+              "type": "integer",
+              "format": "int32",
+              "description": "If you enabled enforceBandwidthControl, specify the maximum bandwidth for download (Mbps)."
+            },
+            "displayTimeUnit": {
+              "type": "string",
+              "description": "The time unit to display for IP Surrogate idle time to disassociation.",
+              "enum": [
+                "MINUTE",
+                "HOUR",
+                "DAY"
+              ]
+            },
+            "idleTimeInMinutes": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Idle time to disassociation, in minutes. If a Surrogate IP is enabled, the user mapping idle time is required."
+            },
+            "surrogateIPEnforcedForKnownBrowsers": {
+              "type": "boolean",
+              "description": "When set to true, IP Surrogate is enforced for all known browsers."
+            },
+            "surrogateRefreshTimeUnit": {
+              "type": "string",
+              "description": "The time unit to display for refresh time for revalidation of surrogacy.",
+              "enum": [
+                "MINUTE",
+                "HOUR",
+                "DAY"
+              ]
+            },
+            "surrogateRefreshTimeInMinutes": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The surrogate refresh time (in minutes) to revalidate the IP surrogates."
+            },
+            "surrogateIP": {
+              "type": "boolean"
+            }
+          }
+        },
+        "EcGroup": {
+          "type": "object",
+          "description": "Cloud & Branch Connector group information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "ID of Cloud or Branch Connector group."
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of Cloud or Branch Connector group."
+            },
+            "desc": {
+              "type": "string",
+              "description": "Description of Cloud or Branch Connector group."
+            },
+            "deployType": {
+              "type": "string",
+              "description": "Deployment type of Cloud or Branch Connector group.",
+              "enum": [
+                "ONPREM",
+                "CLOUD",
+                "DISABLED",
+                "MON_DELETED",
+                "DELETING",
+                "DELETING_LAST",
+                "DELETED"
+              ]
+            },
+            "status": {
+              "type": "array",
+              "description": "Status of Cloud or Branch Connector group.",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "ONPREM",
+                  "CLOUD",
+                  "DISABLED",
+                  "MON_DELETED",
+                  "DELETING",
+                  "DELETING_LAST",
+                  "DELETED"
+                ]
+              }
+            },
+            "platform": {
+              "type": "string",
+              "description": "Platform of Cloud or Branch Connector group.",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "CENTOS",
+                "REDHAT_LINUX",
+                "VMWARE_ESXI"
+              ]
+            },
+            "awsAvailabilityZone": {
+              "type": "string",
+              "description": "AWS availability zone of Cloud Connector group. This attribute is subject to change.",
+              "enum": [
+                "AF_SOUTH_1A",
+                "AF_SOUTH_1B",
+                "AF_SOUTH_1C",
+                "AP_EAST_1A",
+                "AP_EAST_1B",
+                "AP_EAST_1C",
+                "AP_NORTHEAST_1A",
+                "AP_NORTHEAST_1C",
+                "AP_NORTHEAST_1D",
+                "AP_NORTHEAST_1E",
+                "AP_NORTHEAST_2A",
+                "AP_NORTHEAST_2B",
+                "AP_NORTHEAST_2C",
+                "AP_NORTHEAST_2D",
+                "AP_NORTHEAST_3A",
+                "AP_NORTHEAST_3B",
+                "AP_NORTHEAST_3C",
+                "AP_SOUTHEAST_1A",
+                "AP_SOUTHEAST_1B",
+                "AP_SOUTHEAST_1C",
+                "AP_SOUTHEAST_2A",
+                "AP_SOUTHEAST_2B",
+                "AP_SOUTHEAST_2C",
+                "AP_SOUTHEAST_3A",
+                "AP_SOUTHEAST_3B",
+                "AP_SOUTHEAST_3C",
+                "AP_SOUTH_1A",
+                "AP_SOUTH_1B",
+                "AP_SOUTH_1C",
+                "CA_CENTRAL_1A",
+                "CA_CENTRAL_1B",
+                "CA_CENTRAL_1D",
+                "CN_NORTHWEST_1A",
+                "CN_NORTHWEST_1B",
+                "CN_NORTHWEST_1C",
+                "CN_NORTH_1A",
+                "CN_NORTH_1B",
+                "EU_CENTRAL_1A",
+                "EU_CENTRAL_1B",
+                "EU_CENTRAL_1C",
+                "EU_NORTH_1A",
+                "EU_NORTH_1B",
+                "EU_NORTH_1C",
+                "EU_SOUTH_1A",
+                "EU_SOUTH_1B",
+                "EU_SOUTH_1C",
+                "EU_WEST_1A",
+                "EU_WEST_1B",
+                "EU_WEST_1C",
+                "EU_WEST_2A",
+                "EU_WEST_2B",
+                "EU_WEST_2C",
+                "EU_WEST_3A",
+                "EU_WEST_3B",
+                "EU_WEST_3C",
+                "ME_SOUTH_1A",
+                "ME_SOUTH_1B",
+                "ME_SOUTH_1C",
+                "SA_EAST_1A",
+                "SA_EAST_1B",
+                "SA_EAST_1C",
+                "US_EAST_1A",
+                "US_EAST_1B",
+                "US_EAST_1C",
+                "US_EAST_1D",
+                "US_EAST_1E",
+                "US_EAST_1F",
+                "US_EAST_2A",
+                "US_EAST_2B",
+                "US_EAST_2C",
+                "US_GOV_EAST_1A",
+                "US_GOV_EAST_1B",
+                "US_GOV_EAST_1C",
+                "US_GOV_WEST_1A",
+                "US_GOV_WEST_1B",
+                "US_GOV_WEST_1C",
+                "US_WEST_1A",
+                "US_WEST_1B",
+                "US_WEST_1C",
+                "US_WEST_2A",
+                "US_WEST_2B",
+                "US_WEST_2C",
+                "US_WEST_2D"
+              ]
+            },
+            "azureAvailabilityZone": {
+              "type": "string",
+              "description": "Azure availability zone of Cloud Connector group. This attribute is subject to change.",
+              "enum": [
+                "ASIA_0",
+                "ASIA_1",
+                "ASIA_2",
+                "ASIA_3",
+                "ASIAPACIFIC_0",
+                "ASIAPACIFIC_1",
+                "ASIAPACIFIC_2",
+                "ASIAPACIFIC_3",
+                "AUSTRALIA_0",
+                "AUSTRALIA_1",
+                "AUSTRALIA_2",
+                "AUSTRALIA_3",
+                "AUSTRALIACENTRAL_0",
+                "AUSTRALIACENTRAL_1",
+                "AUSTRALIACENTRAL_2",
+                "AUSTRALIACENTRAL_3",
+                "AUSTRALIACENTRAL2_0",
+                "AUSTRALIACENTRAL2_1",
+                "AUSTRALIACENTRAL2_2",
+                "AUSTRALIACENTRAL2_3",
+                "AUSTRALIAEAST_0",
+                "AUSTRALIAEAST_1",
+                "AUSTRALIAEAST_2",
+                "AUSTRALIAEAST_3",
+                "AUSTRALIASOUTHEAST_0",
+                "AUSTRALIASOUTHEAST_1",
+                "AUSTRALIASOUTHEAST_2",
+                "AUSTRALIASOUTHEAST_3",
+                "BRAZIL_0",
+                "BRAZIL_1",
+                "BRAZIL_2",
+                "BRAZIL_3",
+                "BRAZILSOUTH_0",
+                "BRAZILSOUTH_1",
+                "BRAZILSOUTH_2",
+                "BRAZILSOUTH_3",
+                "BRAZILSOUTHEAST_0",
+                "BRAZILSOUTHEAST_1",
+                "BRAZILSOUTHEAST_2",
+                "BRAZILSOUTHEAST_3",
+                "CANADA_0",
+                "CANADA_1",
+                "CANADA_2",
+                "CANADA_3",
+                "CANADACENTRAL_0",
+                "CANADACENTRAL_1",
+                "CANADACENTRAL_2",
+                "CANADACENTRAL_3",
+                "CANADAEAST_0",
+                "CANADAEAST_1",
+                "CANADAEAST_2",
+                "CANADAEAST_3",
+                "CENTRALINDIA_0",
+                "CENTRALINDIA_1",
+                "CENTRALINDIA_2",
+                "CENTRALINDIA_3",
+                "CENTRALUS_0",
+                "CENTRALUS_1",
+                "CENTRALUS_2",
+                "CENTRALUS_3",
+                "CENTRALUSEUAP_0",
+                "CENTRALUSEUAP_1",
+                "CENTRALUSEUAP_2",
+                "CENTRALUSEUAP_3",
+                "CENTRALUSSTAGE_0",
+                "CENTRALUSSTAGE_1",
+                "CENTRALUSSTAGE_2",
+                "CENTRALUSSTAGE_3",
+                "EASTASIA_0",
+                "EASTASIA_1",
+                "EASTASIA_2",
+                "EASTASIA_3",
+                "EASTASIASTAGE_0",
+                "EASTASIASTAGE_1",
+                "EASTASIASTAGE_2",
+                "EASTASIASTAGE_3",
+                "EASTUS_0",
+                "EASTUS_1",
+                "EASTUS_2",
+                "EASTUS_3",
+                "EASTUS2_0",
+                "EASTUS2_1",
+                "EASTUS2_2",
+                "EASTUS2_3",
+                "EASTUS2EUAP_0",
+                "EASTUS2EUAP_1",
+                "EASTUS2EUAP_2",
+                "EASTUS2EUAP_3",
+                "EASTUS2STAGE_0",
+                "EASTUS2STAGE_1",
+                "EASTUS2STAGE_2",
+                "EASTUS2STAGE_3",
+                "EASTUSSTAGE_0",
+                "EASTUSSTAGE_1",
+                "EASTUSSTAGE_2",
+                "EASTUSSTAGE_3",
+                "EUROPE_0",
+                "EUROPE_1",
+                "EUROPE_2",
+                "EUROPE_3",
+                "FRANCE_0",
+                "FRANCE_1",
+                "FRANCE_2",
+                "FRANCE_3",
+                "FRANCECENTRAL_0",
+                "FRANCECENTRAL_1",
+                "FRANCECENTRAL_2",
+                "FRANCECENTRAL_3",
+                "FRANCESOUTH_0",
+                "FRANCESOUTH_1",
+                "FRANCESOUTH_2",
+                "FRANCESOUTH_3",
+                "GERMANY_0",
+                "GERMANY_1",
+                "GERMANY_2",
+                "GERMANY_3",
+                "GERMANYNORTH_0",
+                "GERMANYNORTH_1",
+                "GERMANYNORTH_2",
+                "GERMANYNORTH_3",
+                "GERMANYWESTCENTRAL_0",
+                "GERMANYWESTCENTRAL_1",
+                "GERMANYWESTCENTRAL_2",
+                "GERMANYWESTCENTRAL_3",
+                "GLOBAL_0",
+                "GLOBAL_1",
+                "GLOBAL_2",
+                "GLOBAL_3",
+                "INDIA_0",
+                "INDIA_1",
+                "INDIA_2",
+                "INDIA_3",
+                "JAPAN_0",
+                "JAPAN_1",
+                "JAPAN_2",
+                "JAPAN_3",
+                "JAPANEAST_0",
+                "JAPANEAST_1",
+                "JAPANEAST_2",
+                "JAPANEAST_3",
+                "JAPANWEST_0",
+                "JAPANWEST_1",
+                "JAPANWEST_2",
+                "JAPANWEST_3",
+                "JIOINDIACENTRAL_0",
+                "JIOINDIACENTRAL_1",
+                "JIOINDIACENTRAL_2",
+                "JIOINDIACENTRAL_3",
+                "JIOINDIAWEST_0",
+                "JIOINDIAWEST_1",
+                "JIOINDIAWEST_2",
+                "JIOINDIAWEST_3",
+                "KOREA_0",
+                "KOREA_1",
+                "KOREA_2",
+                "KOREA_3",
+                "KOREACENTRAL_0",
+                "KOREACENTRAL_1",
+                "KOREACENTRAL_2",
+                "KOREACENTRAL_3",
+                "KOREASOUTH_0",
+                "KOREASOUTH_1",
+                "KOREASOUTH_2",
+                "KOREASOUTH_3",
+                "NORTHCENTRALUS_0",
+                "NORTHCENTRALUS_1",
+                "NORTHCENTRALUS_2",
+                "NORTHCENTRALUS_3",
+                "NORTHCENTRALUSSTAGE_0",
+                "NORTHCENTRALUSSTAGE_1",
+                "NORTHCENTRALUSSTAGE_2",
+                "NORTHCENTRALUSSTAGE_3",
+                "NORTHEUROPE_0",
+                "NORTHEUROPE_1",
+                "NORTHEUROPE_2",
+                "NORTHEUROPE_3",
+                "NORWAY_0",
+                "NORWAY_1",
+                "NORWAY_2",
+                "NORWAY_3",
+                "NORWAYEAST_0",
+                "NORWAYEAST_1",
+                "NORWAYEAST_2",
+                "NORWAYEAST_3",
+                "NORWAYWEST_0",
+                "NORWAYWEST_1",
+                "NORWAYWEST_2",
+                "NORWAYWEST_3",
+                "SOUTHAFRICA_0",
+                "SOUTHAFRICA_1",
+                "SOUTHAFRICA_2",
+                "SOUTHAFRICA_3",
+                "SOUTHAFRICANORTH_0",
+                "SOUTHAFRICANORTH_1",
+                "SOUTHAFRICANORTH_2",
+                "SOUTHAFRICANORTH_3",
+                "SOUTHAFRICAWEST_0",
+                "SOUTHAFRICAWEST_1",
+                "SOUTHAFRICAWEST_2",
+                "SOUTHAFRICAWEST_3",
+                "SOUTHCENTRALUS_0",
+                "SOUTHCENTRALUS_1",
+                "SOUTHCENTRALUS_2",
+                "SOUTHCENTRALUS_3",
+                "SOUTHCENTRALUSSTAGE_0",
+                "SOUTHCENTRALUSSTAGE_1",
+                "SOUTHCENTRALUSSTAGE_2",
+                "SOUTHCENTRALUSSTAGE_3",
+                "SOUTHEASTASIA_0",
+                "SOUTHEASTASIA_1",
+                "SOUTHEASTASIA_2",
+                "SOUTHEASTASIA_3",
+                "SOUTHEASTASIASTAGE_0",
+                "SOUTHEASTASIASTAGE_1",
+                "SOUTHEASTASIASTAGE_2",
+                "SOUTHEASTASIASTAGE_3",
+                "SOUTHINDIA_0",
+                "SOUTHINDIA_1",
+                "SOUTHINDIA_2",
+                "SOUTHINDIA_3",
+                "SWEDENCENTRAL_0",
+                "SWEDENCENTRAL_1",
+                "SWEDENCENTRAL_2",
+                "SWEDENCENTRAL_3",
+                "SWITZERLAND_0",
+                "SWITZERLAND_1",
+                "SWITZERLAND_2",
+                "SWITZERLAND_3",
+                "SWITZERLANDNORTH_0",
+                "SWITZERLANDNORTH_1",
+                "SWITZERLANDNORTH_2",
+                "SWITZERLANDNORTH_3",
+                "SWITZERLANDWEST_0",
+                "SWITZERLANDWEST_1",
+                "SWITZERLANDWEST_2",
+                "SWITZERLANDWEST_3",
+                "UAE_0",
+                "UAE_1",
+                "UAE_2",
+                "UAE_3",
+                "UAECENTRAL_0",
+                "UAECENTRAL_1",
+                "UAECENTRAL_2",
+                "UAECENTRAL_3",
+                "UAENORTH_0",
+                "UAENORTH_1",
+                "UAENORTH_2",
+                "UAENORTH_3",
+                "UK_0",
+                "UK_1",
+                "UK_2",
+                "UK_3",
+                "UKSOUTH_0",
+                "UKSOUTH_1",
+                "UKSOUTH_2",
+                "UKSOUTH_3",
+                "UKWEST_0",
+                "UKWEST_1",
+                "UKWEST_2",
+                "UKWEST_3",
+                "UNITEDSTATES_0",
+                "UNITEDSTATES_1",
+                "UNITEDSTATES_2",
+                "UNITEDSTATES_3",
+                "UNITEDSTATESEUAP_0",
+                "UNITEDSTATESEUAP_1",
+                "UNITEDSTATESEUAP_2",
+                "UNITEDSTATESEUAP_3",
+                "WESTCENTRALUS_0",
+                "WESTCENTRALUS_1",
+                "WESTCENTRALUS_2",
+                "WESTCENTRALUS_3",
+                "WESTEUROPE_0",
+                "WESTEUROPE_1",
+                "WESTEUROPE_2",
+                "WESTEUROPE_3",
+                "WESTINDIA_0",
+                "WESTINDIA_1",
+                "WESTINDIA_2",
+                "WESTINDIA_3",
+                "WESTUS_0",
+                "WESTUS_1",
+                "WESTUS_2",
+                "WESTUS_3",
+                "WESTUS2_0",
+                "WESTUS2_1",
+                "WESTUS2_2",
+                "WESTUS2_3",
+                "WESTUS2STAGE_0",
+                "WESTUS2STAGE_1",
+                "WESTUS2STAGE_2",
+                "WESTUS2STAGE_3",
+                "WESTUS3_0",
+                "WESTUS3_1",
+                "WESTUS3_2",
+                "WESTUS3_3",
+                "WESTUSSTAGE_0",
+                "WESTUSSTAGE_1",
+                "WESTUSSTAGE_2",
+                "WESTUSSTAGE_3"
+              ]
+            },
+            "location": {
+              "description": "Location of Cloud or Branch Connector group.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "maxEcCount": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Maximum VM count for Cloud & Branch Connector group."
+            },
+            "provTemplate": {
+              "description": "Provisioning template of Cloud or Branch Connector group.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "tunnelMode": {
+              "type": "string",
+              "description": "Encryption type used when forwarding traffic to ZIA.",
+              "enum": [
+                "UNENCRYPTED",
+                "DTLS"
+              ]
+            },
+            "ecVMs": {
+              "type": "array",
+              "description": "Virtual Machine (VM) information of Cloud or Branch Connector group.",
+              "items": {
+                "$ref": "#/components/schemas/EcVM"
+              }
+            }
+          }
+        },
+        "EcVM": {
+          "type": "object",
+          "description": "Virtual machine (VM) information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "ID of the VM."
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of the VM."
+            },
+            "status": {
+              "type": "array",
+              "description": "Status of the VM.",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "DISABLED",
+                  "REGISTERED",
+                  "RESERVED1",
+                  "PKG_REPO_REGISTERED",
+                  "ENABLING",
+                  "DISABLING",
+                  "DELETING",
+                  "DELETING_LAST",
+                  "DELETED"
+                ]
+              }
+            },
+            "operationalStatus": {
+              "type": "string",
+              "description": "Operational status of the VM."
+            },
+            "formFactor": {
+              "type": "string",
+              "description": "Form factor size of the VM. Small, Medium, or Large.",
+              "enum": [
+                "SMALL",
+                "MEDIUM",
+                "LARGE"
+              ]
+            },
+            "managementNw": {
+              "$ref": "#/components/schemas/EcNetwork"
+            },
+            "ecInstances": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EcInstance"
+              }
+            },
+            "cityGeoId": {
+              "type": "integer",
+              "format": "int32",
+              "description": "City Geo ID."
+            },
+            "natIp": {
+              "type": "string",
+              "description": "NAT IP of the VM."
+            },
+            "ziaGateway": {
+              "type": "string",
+              "description": "ZIA gateway of the VM."
+            },
+            "zpaBroker": {
+              "type": "string",
+              "description": "ZPA broker of the VM."
+            },
+            "buildVersion": {
+              "type": "string",
+              "description": "Build version of the VM."
+            },
+            "lastUpgradeTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Last time the VM was upgraded."
+            },
+            "upgradeStatus": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Upgrade status of the VM."
+            },
+            "upgradeStartTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Start time of the VM upgrade."
+            },
+            "upgradeEndTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "End time of the VM upgrade."
+            },
+            "upgradeDayOfWeek": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Scheduled upgrade day of the week. By default, this is Sunday."
+            }
+          }
+        },
+        "EcNetwork": {
+          "type": "object",
+          "description": "Cloud or Branch Connector network information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "ID of Cloud or Branch Connector network."
+            },
+            "ipStart": {
+              "type": "string",
+              "description": "Start IP of Cloud or Branch Connector network."
+            },
+            "ipEnd": {
+              "type": "string",
+              "description": "End IP of Cloud or Branch Connector network."
+            },
+            "netmask": {
+              "type": "string",
+              "description": "Netmask of Cloud or Branch Connector network."
+            },
+            "defaultGateway": {
+              "type": "string",
+              "description": "Default gateway of Cloud or Branch Connector network."
+            },
+            "nwType": {
+              "type": "string",
+              "description": "Network configuration type of appliance: DHCP (Automatic) or Static (Manual)\n",
+              "enum": [
+                "AUTOMATIC",
+                "MANUAL",
+                "DELETING",
+                "DELETED"
+              ]
+            },
+            "dns": {
+              "$ref": "#/components/schemas/EcDns"
+            }
+          }
+        },
+        "EcDns": {
+          "type": "object",
+          "description": "DNS of Cloud or Branch Connector network.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "DNS ID of the server that the Cloud or Branch Connector inherited."
+            },
+            "ips": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "DNS IPs of Cloud & Branch Connector."
+            },
+            "dnsType": {
+              "type": "string",
+              "description": "Type of DNS.",
+              "enum": [
+                "AUTOMATIC",
+                "MANUAL",
+                "DELETING",
+                "DELETED"
+              ]
+            }
+          }
+        },
+        "EcInstance": {
+          "type": "object",
+          "description": "Cloud or Branch Connector instance information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "ID of the Cloud or Branch Connector instance."
+            },
+            "instanceType": {
+              "type": "string",
+              "description": "Type of the Cloud or Branch Connector instance. This attribute is subject to change.",
+              "enum": [
+                "ANY",
+                "NONE",
+                "ALERTEVAL",
+                "ALERTNOTIF",
+                "SMBA",
+                "SMBAC",
+                "SMESXI",
+                "SMCA",
+                "SMDNSD",
+                "PAC",
+                "SMEZA",
+                "SMAA",
+                "H_MON",
+                "SMFCCLT",
+                "ZSCMCLT",
+                "SMCDS",
+                "SMCDSDLP",
+                "SMSCIM",
+                "ZSCMCDSSCLT",
+                "FALCONCA",
+                "LOAD_BALANCER",
+                "MADM_UI",
+                "MADM_BACKEND_WEBSVC",
+                "MADM_GROUP_SYNC_APP",
+                "MADM_ZAPP_DEVINFO_PUB",
+                "MADM_ZAPP_DEV_CLEANUP",
+                "MADM_LB",
+                "MADM_SQL",
+                "CQM",
+                "DATAKEEPER",
+                "LOCAL_MTS",
+                "SMSM",
+                "S_RELAY",
+                "M_RELAY",
+                "ZSQUERY",
+                "SMCASB",
+                "SMTP",
+                "SMQTN",
+                "SMUI",
+                "UIZ",
+                "UIAE",
+                "UISALES",
+                "SMBAUI",
+                "ZSAPI",
+                "SMFALCONUI",
+                "MOBILEAPP_REG",
+                "MOBILEAPP_NF",
+                "SMEDGEUI",
+                "SMPARTNERUI",
+                "ZSCALER_ANALYTICS_UI",
+                "VZEN",
+                "NSS",
+                "ZAB",
+                "ADP",
+                "ZIRSVR",
+                "SME",
+                "SMIKE",
+                "SMDLP",
+                "SVPN",
+                "SMRESTSVR",
+                "ZSCALER_ANALYTICS_SCHEDULER"
+              ]
+            },
+            "serviceIps": {
+              "$ref": "#/components/schemas/IP"
+            },
+            "lbIpAddr": {
+              "$ref": "#/components/schemas/IP"
+            },
+            "outGwIp": {
+              "type": "string",
+              "description": "Outgoing IP of the Cloud or Branch Connector instance."
+            },
+            "natIp": {
+              "type": "string",
+              "description": "NAT IP of the Cloud or Branch Connector instance."
+            },
+            "dnsIp": {
+              "type": "array",
+              "description": "DNS IP of the Cloud or Branch Connector instance.",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "IP": {
+          "type": "object",
+          "description": "IP start and end addresses.",
+          "properties": {
+            "ipStart": {
+              "type": "string",
+              "description": "Start IP address."
+            },
+            "ipEnd": {
+              "type": "string",
+              "description": "End IP address."
+            }
+          }
+        }
+      }
+    }
+  }
+}

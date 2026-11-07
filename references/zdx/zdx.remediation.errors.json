@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "id": "zdx.remediation.errors",
+  "title": "Remediation job error messages and their ZUPM_WORKFLOW_ECODE reasons, grouped by what they report",
+  "aliases": [
+    "remediation errors",
+    "ZUPM_WORKFLOW_ECODE",
+    "zupm workflow ecode",
+    "remediation job failed",
+    "script certificate verification failure",
+    "script execution blocked by execution policy",
+    "workflow expired before it could start"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.remediation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are the error messages a Remediation job reports, each with an internal ZUPM_WORKFLOW_ECODE reason; Remediation itself is in [[zdx.remediation]]. The reasons below drop the ZUPM_WORKFLOW_ECODE_ prefix."
+    },
+    {
+      "label": "Timing.",
+      "text": "{{timing-errors}}"
+    },
+    {
+      "label": "Aborts.",
+      "text": "{{abort-errors}}"
+    },
+    {
+      "label": "Tasks and policy configuration.",
+      "text": "{{task-errors}}"
+    },
+    {
+      "label": "Deferral.",
+      "text": "{{deferral-errors}}"
+    },
+    {
+      "label": "Download and signature.",
+      "text": "{{signature-errors}}"
+    },
+    {
+      "label": "Execution.",
+      "text": "{{execution-errors}}"
+    },
+    {
+      "label": "Log collection and notifications.",
+      "text": "{{log-notification-errors}}"
+    },
+    {
+      "label": "Table anomalies.",
+      "text": "Several rows of the published table read inconsistently {{gap:table-anomalies}}."
+    }
+  ],
+  "claims": {
+    "timing-errors": {
+      "statement": "Workflow timing errors: INTERNAL_ERR is an unexpected internal error (no action required); EXECUTION_TIMEOUT means the Remediation job reached its expiration and cannot run anymore, and EXPIRED_BEFORE_START that it expired before it could start the run (both: extend the job's expiration); EXPIRED_DURING_EXEC means the script expired during its run (extend the job's duration).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-remediation-errors.json",
+          "quotes": [
+            "| Zscaler Internal Error | ZUPM_WORKFLOW_ECODE_INTERNAL_ERR | There was an unexpected internal error. | No action required. |",
+            "| Workflow failed due to timeout during execution | ZUPM_WORKFLOW_ECODE_EXECUTION_TIMEOUT | The Remediation job reached its expiration and cannot run anymore. | Extend the Remediation job's expiration. |",
+            "| Workflow expired before it could start. | ZUPM_WORKFLOW_ECODE_EXPIRED_BEFORE_START | The Remediation job expired before it could start the run. | Extend the Remediation job's expiration. |",
+            "| Workflow expired during execution. | ZUPM_WORKFLOW_ECODE_EXPIRED_DURING_EXEC | The script expired during its run. | Extend the Remediation job's duration. |"
+          ]
+        }
+      ]
+    },
+    "abort-errors": {
+      "statement": "Workflow aborts: POLICY_ABORTED means an admin aborted the job (no action required); REM_DISABLED means the Remediation Settings were not enabled for the user or device; TASK_ABORTED means an admin aborted it or an overriding script run occurred (no action required); NOT_FOUND_ON_DEVICE is described as a failure because an admin aborted it (no action required).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-remediation-errors.json",
+          "quotes": [
+            "| Workflow is aborted due to policy rules. | ZUPM_WORKFLOW_ECODE_POLICY_ABORTED | The Remediation job was aborted by an admin. | No action required. |",
+            "| Workflow is aborted due to Remote Execution is disabled for the user/device. | ZUPM_WORKFLOW_ECODE_REM_DISABLED | The Remediation job aborted because the Remediation Settings were not enabled for the user or device. |",
+            "| Task is aborted due to policy rules. | ZUPM_WORKFLOW_ECODE_TASK_ABORTED | The Remediation job was aborted because an admin aborted it or there was an overriding script run. | No action required. |",
+            "| Workflow is skipped as it's not found on device. | ZUPM_WORKFLOW_ECODE_NOT_FOUND_ON_DEVICE | The Remediation job failed because an admin aborted it. | No action required. |"
+          ]
+        }
+      ]
+    },
+    "task-errors": {
+      "statement": "Task and policy configuration errors: ABORTED_ON_TASK_ERR means the job aborted because of a task the device does not recognize or support; UNSUPPORTED_TASK_CATEGORY means an unsupported task category was received, the supported categories being SCRIPT and LOG_COLLECTION; POLICY_CONFIG_MISSING means the script is invalid due to removal or expired certification (upload the job with a valid certification); TASK_VALIDATION_ERR means the script contains an invalid task object, a null task, or an unsupported category; TASK_MAX_RETRY_REACHED means the job failed and reached the maximum number of retries (rerun the script when the user's device is available).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-remediation-errors.json",
+          "quotes": [
+            "| Workflow is aborted due to task error. | ZUPM_WORKFLOW_ECODE_ABORTED_ON_TASK_ERR | The Remediation job aborted because there is a task that the user's device does not recognize or support. |",
+            "| Workflow failed due to unsupported task category received. | ZUPM_WORKFLOW_ECODE_UNSUPPORTED_TASK_CATEGORY |",
+            "The currently supported categories are SCRIPT and LOG_COLLECTION. |",
+            "| Workflow failed due to policy config for this workflow is not received. | ZUPM_WORKFLOW_ECODE_POLICY_CONFIG_MISSING | The Remediation job aborted because the script is invalid due to removal or expired certification. | Upload the Remediation job with a valid certification. |",
+            "| Task validation failure. | ZUPM_WORKFLOW_ECODE_TASK_VALIDATION_ERR | The script contains an invalid task object, a null task, or the category is not supported. |",
+            "| Task failed due to hitting maximum retry count limit. | ZUPM_WORKFLOW_ECODE_TASK_MAX_RETRY_REACHED | The Remediation job failed and reached the maximum number of retries. | Rerun the script when the user's device is available. |"
+          ]
+        }
+      ]
+    },
+    "deferral-errors": {
+      "statement": "Deferral errors: USER_DEFERRED means the job was rescheduled; MAX_DEFER_REACHED is described as the job exceeding the maximum number of Remediation jobs; SCRIPT_RUN_USER_DEFERRED means the user postponed the job and SCRIPT_RUN_USER_DECLINED that the user declined it (no action required for these); LOG_FETCH_MAX_DEFER_REACHED means the job did not run because the maximum number of Remediation jobs was exceeded (wait for the other jobs to complete, then re-run it).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-remediation-errors.json",
+          "quotes": [
+            "| Workflow rescheduled due to user deferral. | ZUPM_WORKFLOW_ECODE_USER_DEFERRED | The Remediation job was rescheduled. | No action required. |",
+            "| Workflow failed due to hitting maximum defer count limit. | ZUPM_WORKFLOW_ECODE_MAX_DEFER_REACHED | The Remediation job exceeded the maximum number of Remediation jobs. | No action required. |",
+            "| Script execution is deferred by user action. | ZUPM_WORKFLOW_ECODE_SCRIPT_RUN_USER_DEFERRED | The user postponed the Remediation job. | No action required. |",
+            "| Script execution is declined by user action. | ZUPM_WORKFLOW_ECODE_SCRIPT_RUN_USER_DECLINED | The user declined the Remediation job. | No action required. |",
+            "| Script execution failed due to hitting maximum defer count limit. | ZUPM_WORKFLOW_ECODE_LOG_FETCH_MAX_DEFER_REACHED | The Remediation job did not run because you have exceeded the maximum number of Remediation jobs. | Wait to complete the other Remediation jobs and then re-run the job."
+          ]
+        }
+      ]
+    },
+    "signature-errors": {
+      "statement": "Download and signature errors: SCRIPT_DOWNLOAD_FAILED means the script cannot be downloaded due to the network connection or an invalid URL (retry when the network connection is stable); SCRIPT_CERT_VALIDATION_FAILED labels both a message that the script's certification is unverified or missing (check the client's device for missing certificates) and one that the script's certificate cannot be verified (contact Zscaler Support); SCRIPT_INVALID_SIGNATURE means the digital signature is invalid (check the script's properties); SCRIPT_UNSIGNED means the script is not signed or the signature is invalid; SCRIPT_CERT_REVOKED means the certificate is revoked (check the revocation server is accessible and the OS is up to date, otherwise disable the revocation check).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-remediation-errors.json",
+          "quotes": [
+            "| Failed to download script. | ZUPM_WORKFLOW_ECODE_SCRIPT_DOWNLOAD_FAILED | The script cannot be downloaded due to the network connection or invalid URL. | Retry downloading when the network connection is stable. |",
+            "| Script certificate verification failure. | ZUPM_WORKFLOW_ECODE_SCRIPT_CERT_VALIDATION_FAILED | The script's certification is unverified or missing. | Check the client's device to see if there are missing certificates. |",
+            "| Script signature validation failure. | ZUPM_WORKFLOW_ECODE_SCRIPT_CERT_VALIDATION_FAILED | The script's certificate cannot be verified. | Contact Zscaler Support. |",
+            "| Script signature is invalid. | ZUPM_WORKFLOW_ECODE_SCRIPT_INVALID_SIGNATURE | The script's digital signature is invalid. | Check the script's properties to validate the digital signature. |",
+            "| Script is unsigned. | ZUPM_WORKFLOW_ECODE_SCRIPT_UNSIGNED | The script is not signed, or the signature is invalid. |",
+            "| Script certificate is revoked. | ZUPM_WORKFLOW_ECODE_SCRIPT_CERT_REVOKED | The script certificate is revoked. |",
+            "Check if the revocation server is accessible and the OS is up-to-date. If these actions do not work, then disable the revocation check."
+          ]
+        }
+      ]
+    },
+    "execution-errors": {
+      "statement": "Execution errors: SCRIPT_EXECUTION_POL_DISALLOWED and SCRIPT_EXECUTION_POL_SIGNED_ONLY mean the job is blocked by PowerShell's Execution Policy (both described as Restricted Mode); SCRIPT_TYPE_NOT_SUPPORTED means the job has an unsupported type; SCRIPT_UNKNOWN_RESULT means the script failed to run due to an unknown JSON response; SCRIPT_EXECUTION_ERR means runtime errors within the script (check and resolve them); SCRIPT_EXECUTION_TIMEDOUT means the defined timeout was hit (extend the job's runtime); SCRIPT_EXECUTION_ABORTED means an admin aborted the job; SCRIPT_HANDLER_INIT_FAILED means the job failed to initialize (contact Zscaler Support); SCRIPT_JOB_ID_NOT_FOUND means an invalid ID in the Client Connector Script Execution (SE) Platform; SCRIPT_ORCHESTRATOR_RPC_FAILURE means the Script Orchestrator Service is unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-remediation-errors.json",
+          "quotes": [
+            "| Script execution blocked by execution policy: disallowed. | ZUPM_WORKFLOW_ECODE_SCRIPT_EXECUTION_POL_DISALLOWED | The Remediation job is blocked due to Powershell Execution Policy's Restricted Mode. | No action required. |",
+            "| Script execution blocked by execution policy: only signed scripts are allowed. | ZUPM_WORKFLOW_ECODE_SCRIPT_EXECUTION_POL_SIGNED_ONLY | The Remediation job is blocked due to PowerShell Execution Policy's Restricted Mode. | No action required. |",
+            "| Unsupported script type. | ZUPM_WORKFLOW_ECODE_SCRIPT_TYPE_NOT_SUPPORTED | The Remediation job has an unsupported type. | No action required. |",
+            "| Script execution failed due to unknown result. | ZUPM_WORKFLOW_ECODE_SCRIPT_UNKNOWN_RESULT | The script failed to run due to an unknown JSON response. | No action required. |",
+            "| Script execution error or exception occurred. | ZUPM_WORKFLOW_ECODE_SCRIPT_EXECUTION_ERR | The script failed to run due to runtime errors within the script. | Check and resolve the runtime errors in the script. |",
+            "| Script execution failed due to timeout. | ZUPM_WORKFLOW_ECODE_SCRIPT_EXECUTION_TIMEDOUT | The script failed to run due to the defined timeout. | Extend the runtime of the Remediation job.",
+            "| Script execution aborted. | ZUPM_WORKFLOW_ECODE_SCRIPT_EXECUTION_ABORTED | The Remediation job was aborted by an admin. | No action required. |",
+            "| Script execution failed due to handler init failure. | ZUPM_WORKFLOW_ECODE_SCRIPT_HANDLER_INIT_FAILED | The Remediation job failed to initialize. | Contact Zscaler Support |",
+            "| Script job ID not found in ZCC SE Platform. | ZUPM_WORKFLOW_ECODE_SCRIPT_JOB_ID_NOT_FOUND | The Remediation job has an invalid ID in the Zscaler Client Connector Script Execution (SE) Platform. | No action required. |",
+            "| Script execution failed due to Script Orchestrator Service is not started or unavailable. | ZUPM_WORKFLOW_ECODE_SCRIPT_ORCHESTRATOR_RPC_FAILURE | The Remediation job cannot run because of the unavailable Script Orchestrator Service. | No action required. |"
+          ]
+        }
+      ]
+    },
+    "log-notification-errors": {
+      "statement": "Log collection and notification errors: LOG_FETCH_ERR means logs could not be collected due to an internal error and LOG_FETCH_TIMEDOUT that the upload process exceeded its runtime (no action required for both); NOTIFICATION_INTERNAL_ERR, NOTIFICATION_SEND_FAILURE and NOTIFICATION_HANDLER_INIT_FAILED mean an internal error during notification, a failure to send it, and an error initializing the handler (contact Zscaler Support for all three); NOTIFICATION_NO_RESPONSE means the user's response timed out and NOTIFICATION_FRAMEWORK_DISABLED that the Zscaler Notification framework is disabled (no action required for both).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-remediation-errors.json",
+          "quotes": [
+            "| Log collection error or exception occurred. | ZUPM_WORKFLOW_ECODE_LOG_FETCH_ERR | Unable to collect data logs due to an internal error. | No action required. |",
+            "| Log collection failed due to timeout. | ZUPM_WORKFLOW_ECODE_LOG_FETCH_TIMEDOUT | Unable to collect data logs because the upload process exceeds runtime. | No action required. |",
+            "| Internal error when handling notification. | ZUPM_WORKFLOW_ECODE_NOTIFICATION_INTERNAL_ERR | An internal error occurred during notification. | Contact Zscaler Support. |",
+            "| Failed to send user notification. | ZUPM_WORKFLOW_ECODE_NOTIFICATION_SEND_FAILURE | Unable to send user notification. | Contact Zscaler Support. |",
+            "| No response from the user. | ZUPM_WORKFLOW_ECODE_NOTIFICATION_NO_RESPONSE | Unable to receive the user's response due to timeout. | No action required. |",
+            "| Notification handler init failure. | ZUPM_WORKFLOW_ECODE_NOTIFICATION_HANDLER_INIT_FAILED | Unable to send notification due to error initializing. | Contact Zscaler Support. |",
+            "| Zscaler Notification Framework is disabled. | ZUPM_WORKFLOW_ECODE_NOTIFICATION_FRAMEWORK_DISABLED | Unable to send notification because Zscaler Notification framework is disabled. | No action required. |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "table-anomalies": {
+      "kind": "semantic",
+      "title": "Rows of the Remediation Errors table that read inconsistently",
+      "status": "open",
+      "detail": "As published: two messages share the reason SCRIPT_CERT_VALIDATION_FAILED; NOT_FOUND_ON_DEVICE (message: workflow skipped as not found on device) is described as failing because an admin aborted it; MAX_DEFER_REACHED and LOG_FETCH_MAX_DEFER_REACHED, named for a defer count, are described as exceeding the maximum number of Remediation jobs; both execution-policy errors are described as Restricted Mode, including the one named for signed-only scripts. No source says which wording is intended.",
+      "blocks": "reading a reason code as meaning exactly what its description says",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

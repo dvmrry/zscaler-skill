@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.authentication-methods",
+  "title": "Authentication Service authentication methods: MFA and FIDO2 setup, admin MFA registration and skip, and the password policy",
+  "aliases": [
+    "Authentication Methods page",
+    "Multi-Factor Authentication page",
+    "FIDO2 as primary authenticator",
+    "passwordless Authentication Service",
+    "Enforce Zscaler Admin MFA",
+    "Email OTP not enabled",
+    "password policy",
+    "Password Policy page",
+    "password reuse",
+    "password expiration"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.security-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview.external-idps.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac.permissions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This covers how Authentication Service authenticates people to its own console and what the password policy sets. {{mfa-default-admins}}"
+    },
+    {
+      "label": "Passwordless.",
+      "text": "{{fido2-primary}} {{fido2-disabled}}"
+    },
+    {
+      "label": "Second factors.",
+      "text": "{{factor-types}} {{email-otp-off}} Whether SMS is a factor is open {{gap:sms-factor}}."
+    },
+    {
+      "label": "Service enrollment.",
+      "text": "{{mfa-for-service-enrollment}} What it enforces when on is open {{gap:service-enrollment-mfa}}."
+    },
+    {
+      "label": "Admin registration.",
+      "text": "{{admin-setup-email}} {{external-idp-admin-verification}}"
+    },
+    {
+      "label": "Skipping.",
+      "text": "{{skip-mfa-grace}} The same option is labelled Enforce Zscaler MFA for Admins in [[zidentity.overview.external-idps.configuration:enforce-admin-mfa]]. The Skip Until limit an admin sets on a user is a separate setting, scoped to hosted admins: [[zidentity.users.security-settings:skip-duration]], [[zidentity.users.security-settings:skip-hosted-admins-only]]. Whether the 7-day grace and Skip Until share a timer is open {{gap:skip-timers}}."
+    },
+    {
+      "label": "Password policy.",
+      "text": "{{password-policy-type}} {{password-custom-composition}} Whether it governs end-user passwords too is open {{gap:policy-scope}}, and the Default values and the length and character bounds are not given {{gap:default-values}}."
+    },
+    {
+      "label": "Reuse, lockout and expiry.",
+      "text": "{{password-reuse}} {{password-lockout}} {{password-expiration}}"
+    },
+    {
+      "label": "Who sets and changes passwords.",
+      "text": "{{password-admin-and-first-login}} The per-user password options are in [[zidentity.users.security-settings:password-options]] and [[zidentity.users.security-settings:prompt-change-default]]."
+    },
+    {
+      "label": "Permission.",
+      "text": "The Authentication Methods permission module covers both the Password Policy and the Authentication Methods pages: [[zidentity.admin-rbac.permissions:module-pages]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which factor a user can choose, from the three types the page lists, and that Email OTP needs a Support ticket to be enabled.",
+      "uses": [
+        "factor-types",
+        "email-otp-off"
+      ]
+    },
+    {
+      "do": "Whether a MFA skip is the admin's own 7-day grace at registration or the Skip Until an admin set on a user, since the pages do not link them.",
+      "uses": [
+        "skip-mfa-grace",
+        "skip-timers"
+      ]
+    },
+    {
+      "do": "For a reused-password rejection, that only passwords changed after a 24-hour gap count toward the reuse limit.",
+      "uses": [
+        "password-reuse"
+      ]
+    }
+  ],
+  "claims": {
+    "mfa-default-admins": {
+      "statement": "MFA is required by default for all admins, and Zscaler strongly recommends keeping it enabled; users can be authenticated with a password and a second factor (time-based OTP (TOTP) and Fast IDentity Online (FIDO) authentication), and passwordless authentication can be configured by setting up FIDO2 as the primary authenticator.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-multi-factor-authentication.json",
+          "quotes": [
+            "supports multi-factor authentication (MFA) for enhanced security, and it is required by default for all admins.",
+            "Zscaler strongly recommends keeping MFA enabled.",
+            "You can authenticate users with a password and a second factor (i.e., time-based OTP (TOTP), and Fast IDentity Online (FIDO) authentication).",
+            "In addition, you can configure passwordless authentication by setting up FIDO2 as the primary authenticator."
+          ]
+        }
+      ]
+    },
+    "mfa-for-service-enrollment": {
+      "statement": "Enable Multi-Factor Authentication (MFA) for Service Enrollment, on the Authentication Methods page, is shown only when the user single sign-on (SSO) feature is enabled for the tenant, and can be disabled for users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-multi-factor-authentication.json",
+          "quotes": [
+            "On the Authentication Methods page:",
+            "Enable Multi-Factor Authentication (MFA) for Service Enrollment: This option is shown only when the user single sign-on (SSO) feature is enabled for your tenant.",
+            "You can choose to disable this option for your users when required."
+          ]
+        }
+      ]
+    },
+    "fido2-primary": {
+      "statement": "With Allow FIDO2 as Primary Authenticator enabled, users can skip the password and configure any FIDO2 method available on their device at their next login, for a passwordless Authentication Service account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-multi-factor-authentication.json",
+          "quotes": [
+            "Allow FIDO2 as Primary Authenticator: Enable this option to allow users to configure a passwordless authentication method for their Authentication Service account.",
+            "When you enable this option, users can skip the password and configure any of the Fast IDentity Online 2 (FIDO2) methods available on their device in the subsequent log-in attempt."
+          ]
+        }
+      ]
+    },
+    "fido2-disabled": {
+      "statement": "When FIDO2 as primary authenticator is disabled, users log in with their MFA credentials if MFA is enabled (users without MFA configured can request a password reset and set up MFA), and with only their passwords if MFA is disabled (users who forgot or never set a password use Password Reset).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-multi-factor-authentication.json",
+          "quotes": [
+            "If MFA is enabled, users are required to log in using their MFA credentials.",
+            "If not already configured, users can request the password reset option and set up MFA.",
+            "If MFA is disabled, users are required to log in using only their passwords.",
+            "If a user has forgotten the password or has never configured a password-based authentication, they can click the Password Reset option and add a new password."
+          ]
+        }
+      ]
+    },
+    "factor-types": {
+      "statement": "When an admin sets up MFA, the page lists the authentication types TOTP Authenticator, Security Key or Biometric (the FIDO2 methods available on the device; the page names Windows Hello and YubiKey as examples of services certified with FIDO2) and Email OTP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-multi-factor-authentication.json",
+          "after": "- For Authentication Service Admins",
+          "quotes": [
+            "On the Multi-Factor Authentication page, select one of the following authentication types, then click Set Up:",
+            "TOTP Authenticator",
+            "Security Key or Biometric",
+            "A list of all Fast Identity Online 2 (FIDO2) supported methods available for your device is displayed.",
+            "The services (such as Windows Hello, YubiKey, etc.) register and certify their security devices with FIDO2 for their customers.",
+            "Email OTP"
+          ]
+        }
+      ]
+    },
+    "email-otp-off": {
+      "statement": "Email OTP is not enabled by default, because it is not recommended for MFA under NIST guidelines; to enable it, you can raise a Zscaler Support ticket. Choosing it needs no email verification, since the address was verified at the start of registration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-multi-factor-authentication.json",
+          "after": "- For Authentication Service Admins",
+          "quotes": [
+            "The Email OTP option is not enabled by default as it is not recommended for MFA as per NIST guidelines. If you want to enable it, you can raise a Zscaler Support ticket.",
+            "You don't have to verify your email address because it was verified at the beginning of the registration."
+          ]
+        }
+      ]
+    },
+    "admin-setup-email": {
+      "statement": "An admin whose organization configures an Authentication Service account for them (with a Zscaler service's access and the functional scope of their role) receives an email from Zscaler Support to set up MFA; an Authentication Service admin follows its setup link to a sign-up page and enters a password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-multi-factor-authentication.json",
+          "quotes": [
+            "You will receive an email from Zscaler Support to set up MFA, when your organization configures an Authentication Service account for you with Zscaler service's access, and the functional scope of your role.",
+            "Open the email from Zscaler Support and click the setup link.",
+            "You are redirected to the sign-up page.",
+            "New Password: Enter a password."
+          ]
+        }
+      ]
+    },
+    "external-idp-admin-verification": {
+      "statement": "An external IdP admin, after authenticating at the external IdP, must verify their identity before registering for Authentication Service MFA, either by a link sent to the registered email address or by an OTP sent to the super admin email address; each is valid for 15 minutes, and Skip gives a 7-day grace period before verification is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-multi-factor-authentication.json",
+          "quotes": [
+            "After successful authentication at the external IdP, you must verify your identity before registering for Authentication Service MFA.",
+            "A verification link is sent to the registered email address that is valid for 15 minutes.",
+            "An OTP is sent to the super admin email address that is valid for 15 minutes.",
+            "You can click Skip to get a grace period of 7 days. After the grace period is over, you need to complete the verification process."
+          ]
+        }
+      ]
+    },
+    "skip-mfa-grace": {
+      "statement": "An admin can skip MFA for a grace period of 7 days, after which MFA must be configured in Authentication Service; admins using MFA through their external IdP can disable the Enforce Zscaler Admin MFA option to prevent additional authentication verification from Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-multi-factor-authentication.json",
+          "quotes": [
+            "As an admin, you can skip the MFA for a grace period of 7 days. After the grace period is over, you need to configure MFA in Authentication Service.",
+            "Admins using MFA through their external IdP can disable Enforce Zscaler Admin MFA option to prevent additional authentication verification from Authentication Service."
+          ]
+        }
+      ]
+    },
+    "password-policy-type": {
+      "statement": "The password policy is the set of rules for creating or resetting the passwords of users accessing the Zscaler Admin Console; its Configuration Type is Default or Custom, and Zscaler recommends Default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-password-policy.json",
+          "quotes": [
+            "The password policy is a set of rules that you can use to create or reset passwords for users accessing the Zscaler Admin Console.",
+            "set the Configuration Type to Default or Custom. Zscaler recommends enabling Default."
+          ]
+        }
+      ]
+    },
+    "password-custom-composition": {
+      "statement": "A Custom policy sets the minimum password length and the minimum numbers of lowercase letters, uppercase letters, numeric characters and special characters, and can forbid the company name, username, first name or last name in the password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-password-policy.json",
+          "quotes": [
+            "Password Length: Set the minimum length of the password.",
+            "Minimum No. of Lowercase Letters: Set the minimum number of lowercase letters required in the password.",
+            "Minimum No. of Uppercase Letters: Set the minimum number of uppercase letters required in the password.",
+            "Minimum No. of Numeric Characters: Set the minimum number of numeric characters required in the password.",
+            "Minimum No. of Special Characters: Set the minimum number of special characters required in the password.",
+            "Password must not include company name, username, first name, or last name: Turn on to restrict the user from including their company name, username, first name, or last name in the password."
+          ]
+        }
+      ]
+    },
+    "password-reuse": {
+      "statement": "Reject reuse of previous passwords defaults to 5 and can be set from 3 to 10; turned off, users can reuse old passwords. Passwords changed after a 24-hour gap fall under this criterion and any password changed within 24 hours is ignored; in the page's example, the second password change is ignored and can be reused.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-password-policy.json",
+          "quotes": [
+            "Reject reuse of last 5 passwords: Turn on and set the number to restrict users from reusing their previous passwords.",
+            "By default, the value is set to 5, but you can set the number between 3 and 10. If this option is turned off, users can reuse their old passwords.",
+            "Passwords that are changed after a 24-hour gap fall under this criterion. Any password changed within 24 hours is ignored by Authentication Service.",
+            "the second password change is ignored and it can be reused."
+          ]
+        }
+      ]
+    },
+    "password-lockout": {
+      "statement": "Deactivate user after unsuccessful attempts deactivates the account after that many failed logins; the default is 10, settable from 3 to 10.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-password-policy.json",
+          "quotes": [
+            "Deactivate user after 10 unsuccessful attempts: Turn on and set the number to deactivate the user account after unsuccessful login attempts. By default, the value is set to 10, but you can set the number between 3 and 10."
+          ]
+        }
+      ]
+    },
+    "password-admin-and-first-login": {
+      "statement": "The policy can allow administrators to create or change a user's password, and can force users to change their password after the initial login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-password-policy.json",
+          "quotes": [
+            "Allow administrator to create or change user's password: Turn on to allow the administrator to create or change the user's password.",
+            "Enforce password change after the initial login: Turn on to prompt users to change their password after the initial login."
+          ]
+        }
+      ]
+    },
+    "password-expiration": {
+      "statement": "The password expiration period, after which users can reset their passwords, is set in days from 15 to 365.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-password-policy.json",
+          "quotes": [
+            "Password expiration period (in days): Set the password expiration period after which users can reset their passwords. You can set the expiration period from 15 to 365 days."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "sms-factor": {
+      "kind": "semantic",
+      "title": "Whether SMS is an Authentication Service second factor",
+      "status": "open",
+      "detail": "The Multi-Factor Authentication page lists TOTP Authenticator, Security Key or Biometric and Email OTP, with Email OTP off by default. It does not mention SMS, which is an absence in one page and not a statement that SMS is unsupported.",
+      "blocks": "telling a user whether an SMS code can be a second factor",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "service-enrollment-mfa": {
+      "kind": "semantic",
+      "title": "What MFA for Service Enrollment enforces when on",
+      "status": "open",
+      "detail": "The page gives the option's visibility condition (user SSO enabled) and says it can be disabled, but not what it enforces when on.",
+      "blocks": "deciding whether to turn it off",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "skip-timers": {
+      "kind": "semantic",
+      "title": "Whether the 7-day MFA skip, the 7-day external IdP verification skip and Skip Until are one timer or several",
+      "status": "open",
+      "detail": "The Multi-Factor Authentication page gives a 7-day grace period for an admin's own MFA skip and a 7-day grace period for the external IdP admin's verification Skip. The Skip Until a hosted admin gets from an admin-set Skip Second Factor Authentication is 8 hours by default with a 5-day maximum (zidentity.users.security-settings:skip-duration). No page links these or says whether they are one mechanism, so they are recorded as scoped claims and not as a divergence.",
+      "blocks": "stating how long an admin can go without MFA",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "policy-scope": {
+      "kind": "semantic",
+      "title": "Whether the password policy governs end-user passwords too",
+      "status": "open",
+      "detail": "The page describes the policy for users accessing the Zscaler Admin Console. Whether it also applies to the passwords of end users enrolling in services is not stated.",
+      "blocks": "telling an end user which password rules apply",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "default-values": {
+      "kind": "semantic",
+      "title": "The Default password policy values and the Custom bounds",
+      "status": "open",
+      "detail": "The page recommends Default but does not give its values, nor the bounds for the minimum length and the character minimums under Custom.",
+      "blocks": "telling a user which password rules apply",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the AWS S3 Outegration",
+  "source": {
+    "url": "https://help.zscaler.com/uvm/configuring-aws-s3-outegration",
+    "node": "1546712",
+    "revision": "3251300",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The AWS S3 outegration is used to send data from Agentic Security Operations Platform (Agentic SecOps Platform) applications (e.g., Unified Vulnerability Management (UVM)) to your AWS S3 bucket."
+    },
+    {
+      "text": "This article is a step-by-step guide to setting up the AWS S3 outegration."
+    },
+    {
+      "text": "Each AWS S3 bucket requires a separate outegration configuration."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "To configure the AWS S3 outegration, you need to configure an appropriate AWS IAM role with the correct trust and permission policies. You also need the source authentication configuration. The following parameters are required:"
+    },
+    {
+      "item": "Configure AWS Role Permissions",
+      "depth": 0
+    },
+    {
+      "item": "Create an AWS role that includes the following permissions:",
+      "depth": 0
+    },
+    {
+      "item": "s3:PutObject",
+      "depth": 1
+    },
+    {
+      "item": "s3:AbortMultipartUpload",
+      "depth": 1
+    },
+    {
+      "item": "s3:ListMultipartUploadParts",
+      "depth": 1
+    },
+    {
+      "item": "View an example permissions policy.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"ListBucketForPrefix\", \"Effect\": \"Allow\", \"Action\": [ \"s3:ListBucket\" ], \"Resource\": \"arn:aws:s3:::<BUCKET_NAME>\", \"Condition\": { \"StringLike\": { \"s3:prefix\": [ \"<PREFIX>*\" ] } } }, { \"Sid\": \"WriteExports\", \"Effect\": \"Allow\", \"Action\": [ \"s3:PutObject\", \"s3:AbortMultipartUpload\", \"s3:ListMultipartUploadParts\" ], \"Resource\": \"arn:aws:s3:::<BUCKET_NAME>/<PREFIX>*\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, refer to the AWS documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Configure AWS Role Trust Policy",
+      "depth": 0
+    },
+    {
+      "item": "Update the AWS role trust policy to allow Zscaler's service principal to assume your AWS role. Contact Zscaler Support to retrieve Zscaler's service principal ARN.",
+      "depth": 0
+    },
+    {
+      "item": "View an example trust policy.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Sid\": \"AllowZscalerAssumeRole\", \"Effect\": \"Allow\", \"Principal\": { \"AWS\": \"<ZS_VENDOR_PRINCIPAL>\" }, \"Action\": \"sts:AssumeRole\", \"Condition\": { \"StringEquals\": { \"sts:ExternalId\": \"<EXTERNAL_ID>\" } } } ] }",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, refer to the AWS documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Retrieve AWS Authentication Details",
+      "depth": 0
+    },
+    {
+      "item": "To authenticate the outegration, retrieve the following details:",
+      "depth": 0
+    },
+    {
+      "item": "Account",
+      "depth": 1
+    },
+    {
+      "item": "Region",
+      "depth": 1
+    },
+    {
+      "item": "Bucket",
+      "depth": 1
+    },
+    {
+      "item": "Role ARN",
+      "depth": 1
+    },
+    {
+      "item": "External ID",
+      "depth": 1
+    },
+    {
+      "text": "To learn more, see Zscaler and AWS Deployment Guide."
+    },
+    {
+      "heading": "Creating the AWS S3 Outegration",
+      "level": 1
+    },
+    {
+      "text": "To configure the AWS S3 outegration, complete the following steps:"
+    },
+    {
+      "item": "Step 1: Authenticate the AWS S3 Connection (Connect)",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Configure the Outegration Visibility and Behavior (Settings)",
+      "depth": 0
+    },
+    {
+      "item": "Step 3: Configure Reports or Define Dispatch Criteria",
+      "depth": 0
+    },
+    {
+      "text": "When the outegration setup is complete, the Agentic SecOps Platform exports scheduled reports or dispatches items to AWS S3 when certain criteria are met."
+    }
+  ]
+}

@@ -1,0 +1,1253 @@
+{
+  "schema_version": 1,
+  "id": "zpa.terraform.policy-rule-writes",
+  "title": "What the ZPA Terraform provider sends and loses when writing policy rules",
+  "aliases": [
+    "zpa policy rule update clears fields",
+    "terraform zpa policy rule drift",
+    "operand name erased",
+    "idp condition missing after refresh",
+    "import global policy rule",
+    "import reauth policy rule",
+    "microtenant_id unsupported argument policy rule v2",
+    "credential policy rule stale reference",
+    "preflight get error ignored update"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zpa.microtenants.api-scoping",
+      "because": "zpa.terraform.policy-rule-writes:v2-access-microtenant-id-not-in-schema"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.pra.credentials",
+      "because": "zpa.terraform.policy-rule-writes:credential-delete-leaves-reference"
+    },
+    {
+      "rel": "depends-on",
+      "to": "shared.sdk-go.zero-value-writes",
+      "because": "zpa.terraform.policy-rule-writes:unmanaged-fields-same-pattern"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZPA provider builds every rule resource's create and update from Terraform state alone and sends it through SDK helpers that change it further. Ordering of rules is covered in [[zpa.terraform.rule-order]]; deleting objects that rules refer to is covered in [[zpa.terraform.delete-paths]]. This subject is about what a single rule write contains."
+    },
+    {
+      "label": "Fields Terraform does not model.",
+      "text": "{{v1-update-sends-fresh-request}} {{v2-update-reads-then-discards}} {{unmanaged-fields-same-pattern}} {{unmanaged-fields-may-be-cleared}} Whether ZPA replaces the whole rule or merges null and false fields on a PUT is open {{gap:api-put-semantics}}. The SDK's tags are the same mechanism described for ZIA in [[zia.sdk-go.write-encoding]]."
+    },
+    {
+      "label": "Operand names in the SDK.",
+      "text": "{{v1-sdk-erases-operand-names}} {{v2-sdk-clears-operand-ids-not-names}} {{operand-name-erasure-reaches-all-v1-writers}}"
+    },
+    {
+      "label": "Read-back converter.",
+      "text": "{{v2-conversion-drops-idp-and-workload-tag}} {{v2-conversion-values-list-4-4-15}} {{v2-read-state-comes-from-converter}} {{cleanup-rewrites-rule-from-converter}} {{cleanup-put-omits-converter-drops}} {{converter-callers}} {{idp-condition-lost-from-state-and-cleanup-writes}} How ZPA represents identity provider and workload tag operands on a read is open {{gap:api-idp-operand-shape}}."
+    },
+    {
+      "label": "Import and schema.",
+      "text": "{{import-accepts-types-crud-ignores-them}} {{import-type-mismatch-effect}} Whether ZPA keeps those policy types as separate policy sets is open {{gap:api-policy-set-types}}. {{v2-access-microtenant-id-not-in-schema}}"
+    },
+    {
+      "label": "Preflight reads.",
+      "text": "{{update-ignores-non-404-preflight-error}} {{ignored-preflight-error-places}}"
+    },
+    {
+      "label": "Credential rules.",
+      "text": "{{credential-delete-scans-v1-operands}} {{credential-reference-is-top-level-field}} {{credential-delete-leaves-reference}} What ZPA does when a referenced credential or pool is deleted is open {{gap:api-delete-referenced-credential}}."
+    },
+    {
+      "label": "Changing the reference.",
+      "text": "{{credential-update-restores-remote-association}} {{credential-empty-block-keeps-remote}} {{credential-swap-does-not-clear-old}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the server groups, connector groups and device-posture flag of a rule are unchanged after an apply that changed only its name or conditions, by re-reading the rule.",
+      "uses": [
+        "v1-update-sends-fresh-request",
+        "unmanaged-fields-may-be-cleared"
+      ]
+    },
+    {
+      "do": "Which provider version is in use, then whether a rule with identity provider or workload tag conditions still holds them, by comparing the stored rule with the configuration after a plan that touches it or a destroy of an object it might reference.",
+      "uses": [
+        "v2-conversion-drops-idp-and-workload-tag",
+        "idp-condition-lost-from-state-and-cleanup-writes"
+      ]
+    },
+    {
+      "do": "Which credential policy rules reference a PRA credential or pool through their `credential` and `credentialPool` fields, not their conditions, before the credential or pool is deleted.",
+      "uses": [
+        "credential-reference-is-top-level-field",
+        "credential-delete-leaves-reference"
+      ]
+    }
+  ],
+  "claims": {
+    "v1-update-sends-fresh-request": {
+      "statement": "The v1 forwarding rule update builds its request from Terraform state only and does not read the existing rule to merge: its expander sets a handful of scalar fields and the conditions, and its update calls the SDK without a preceding read. The SDK request type tags `devicePostureFailureNotificationEnabled`, `appServerGroups`, `appConnectorGroups` and `serviceEdgeGroups` without `omitempty`, so they are always serialized, including when the provider left them unset.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandCreatePolicyForwardingRule(d *schema.ResourceData, policySetID string) (*policysetcontroller.PolicyRule, error) {",
+          "quotes": [
+            "return &policysetcontroller.PolicyRule{",
+            "BypassDefaultRule: d.Get(\"bypass_default_rule\").(bool),",
+            "Conditions:        conditions,",
+            "Name:              d.Get(\"name\").(string),",
+            "Action:            d.Get(\"action\").(string),",
+            "Operator:          d.Get(\"operator\").(string),",
+            "Priority:          d.Get(\"priority\").(string),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "req, err := expandCreatePolicyForwardingRule(d, policySetID) if err != nil { return diag.FromErr(err) } if err := ValidateConditions(ctx, req.Conditions, zClient, GetString(d.Get(\"microtenant_id\"))); err != nil {",
+            "return diag.FromErr(err) } if _, err := policysetcontroller.UpdateRule(ctx, service, policySetID, ruleID, req); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "DevicePostureFailureNotificationEnabled bool `json:\"devicePostureFailureNotificationEnabled\"`",
+            "AppServerGroups []servergroup.ServerGroup `json:\"appServerGroups\"`",
+            "ServiceEdgeGroups []serviceedgegroup.ServiceEdgeGroup `json:\"serviceEdgeGroups\"`",
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`",
+            "Description string `json:\"description,omitempty\"`"
+          ],
+          "after": "type PolicyRule struct {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "ResourcesMap: map[string]*schema.Resource{",
+          "quotes": [
+            "\"zpa_policy_forwarding_rule\": resourcePolicyForwardingRule(),",
+            "\"zpa_policy_forwarding_rule_v2\": resourcePolicyForwardingRuleV2(),"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ],
+      "conditions": "At v4.4.10 and v4.4.16, `awk '/^func resourcePolicyForwardingRuleUpdate\\(/,/^}/' zpa/resource_zpa_policy_access_forwarding_rule.go | grep -n -E 'policysetcontroller\\.|Get[A-Za-z]*\\('` returns only `d.Get` and `d.GetOk` reads, `fetchPolicySetIDByType` (the policy set, when `policy_set_id` is unset), `ValidateConditions` (operand lookups) and `policysetcontroller.UpdateRule`; there is no `GetPolicyRule`. At v3.8.58, `awk '/^func UpdateRule\\(/,/^}/' zscaler/zpa/services/policysetcontroller/policysetcontroller.go | grep -n 'NewRequestDo'` returns only the PUT."
+    },
+    "v2-update-reads-then-discards": {
+      "statement": "A v2 forwarding rule update does read the rule first, but only to detect a deleted rule: the response is thrown away and the request sent is again built from Terraform state. The v2 SDK request type has the same always-serialized fields (`devicePostureFailureNotificationEnabled`, `appServerGroups`, `appConnectorGroups`, `serviceEdgeGroups`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyForwardingRuleV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "req, err := expandPolicyForwardingRuleV2(d, policySetID) // Adjusted to use the fetched policySetID",
+            "_, _, err = policysetcontrollerv2.GetPolicyRule(ctx, service, policySetID, ruleID)",
+            "// Checking the current state of the rule to handle cases where it might have been deleted outside Terraform",
+            "if errResp, ok := err.(*errorx.ErrorResponse); ok && errResp.IsObjectNotFound() {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandPolicyForwardingRuleV2(d *schema.ResourceData, policySetID string) (*policysetcontrollerv2.PolicyRule, error) {",
+          "quotes": [
+            "Conditions:    conditions,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type PolicyRule struct {",
+          "quotes": [
+            "DevicePostureFailureNotificationEnabled bool `json:\"devicePostureFailureNotificationEnabled\"`",
+            "AppServerGroups []servergroup.ServerGroup `json:\"appServerGroups\"`",
+            "ServiceEdgeGroups []serviceedgegroup.ServiceEdgeGroup `json:\"serviceEdgeGroups\"`",
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "unmanaged-fields-same-pattern": {
+      "statement": "The same fresh-request pattern, with none of the four always-serialized SDK fields populated, is in the forwarding, inspection, isolation and timeout rule resources (v1 and v2 where both exist), the v2 browser-protection, capabilities, portal and credential rule resources. The access rule (v1 and v2) populates the device-posture flag, server groups and connector groups from its own schema; the redirection rule populates only service edge groups.",
+      "tier": "B",
+      "derived_from": [
+        "v1-update-sends-fresh-request",
+        "v2-update-reads-then-discards"
+      ],
+      "conditions": "Search: `git -C vendor/terraform-provider-zpa grep -n \"AppServerGroups:\\|AppConnectorGroups:\\|ServiceEdgeGroups:\\|DevicePostureFailureNotificationEnabled:\" v4.4.10 -- 'zpa/resource_zpa_policy*.go'` returns hits only in resource_zpa_policy_access_rule.go, resource_zpa_policy_access_rule_v2.go and resource_zpa_policy_access_redirection_rule.go (redirection: ServiceEdgeGroups only). Every other policy rule resource file calling the v1 or v2 UpdateRule is therefore in the list. The search gives the same result at HEAD.4.11)."
+    },
+    "unmanaged-fields-may-be-cleared": {
+      "statement": "So an update that changes only a name, action or condition sends `null` association lists and a `false` device-posture flag. Whether ZPA then clears the remote values, keeps them, or rejects the request is not shown by the client code.",
+      "tier": "C",
+      "derived_from": [
+        "v1-update-sends-fresh-request",
+        "v2-update-reads-then-discards",
+        "unmanaged-fields-same-pattern"
+      ],
+      "conditions": "Depends on how the ZPA policy-rule PUT treats `null` for appServerGroups, appConnectorGroups and serviceEdgeGroups and `false` for the device-posture flag (gap api-put-semantics), and on the rule actually having values for those fields on the server.",
+      "gaps": [
+        "api-put-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "v1-sdk-erases-operand-names": {
+      "statement": "The pinned v1 SDK's `UpdateRule` blanks every non-empty operand name in the request just before the PUT. The provider does expose operand `name` as an optional, computed field and passes it into the request, so a configured or refreshed name never reaches ZPA on a v1 rule update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {",
+          "quotes": [
+            "for i, condtion := range policySetRule.Conditions {",
+            "for i, operand := range condtion.Operands { if operand.Name != \"\" { condtion.Operands[i].Name = \"\" } }",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, policySetRule, nil)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandOperandsList(ops interface{}) ([]policysetcontroller.Operands, error) {",
+          "quotes": [
+            "Name:       operandSet[\"name\"].(string),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "\"operands\": {",
+          "quotes": [
+            "\"name\": { Type: schema.TypeString, Optional: true, Computed: true, },"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "v2-sdk-clears-operand-ids-not-names": {
+      "statement": "The v2 SDK's `UpdateRule` clears operand IDs, not names. The v2 provider schemas model operands by object type and values rather than a writable name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {",
+          "quotes": [
+            "if operand.ID != \"\" {",
+            "condition.Operands[j].ID = \"\"",
+            "for j, operand := range condition.Operands { // Clearing the ID if present, assuming you want to ensure IDs are not sent in updates if operand.ID != \"\" { condition.Operands[j].ID = \"\" } // If there's more logic to be added for handling Operands, do so here }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "type PolicyRuleResourceOperands struct { ID string `json:\"id,omitempty\"` CreationTime string `json:\"creationTime,omitempty\"` ModifiedBy string `json:\"modifiedBy,omitempty\"` ModifiedTime string `json:\"modifiedTime,omitempty\"`",
+            "ObjectType string `json:\"objectType,omitempty\"` Values []string `json:\"values,omitempty\"` IDPID string `json:\"idpId,omitempty\"` LHS string `json:\"lhs,omitempty\"` RHS string `json:\"rhs,omitempty\"` EntryValuesLHSRHS []OperandsResourceLHSRHSValue `json:\"entryValues,omitempty\"` }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "op := policysetcontrollerv2.PolicyRuleResourceOperands{ ID: id, ObjectType: operandSet[\"object_type\"].(string), IDPID: IdpID, Values: values, EntryValuesLHSRHS: entryValues, }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "\"operands\": {",
+          "quotes": [
+            "\"values\": {",
+            "\"object_type\": {",
+            "\"entry_values\": {"
+          ]
+        }
+      ],
+      "conditions": "Search: in vendor/terraform-provider-zpa at v4.4.10 and v4.4.16, `git grep -l policysetcontrollerv2 -- 'zpa/resource_zpa_policy*.go'` lists nine resource files besides tests (the six *_v2 rules for access, browser protection, forwarding, inspection, isolation and timeout, and the capabilities, credential and portal access rules), and `grep -c '\"name\": {'` returns 1 in each, the rule's own top-level name declared above its one `\"operands\": {` block, so no operand has a name attribute."
+    },
+    "operand-name-erasure-reaches-all-v1-writers": {
+      "statement": "Every provider path that updates a v1 rule goes through that SDK function: the access, forwarding, inspection, isolation, redirection and timeout rule resources, and the cleanup code that edits rules when a segment group, application segment, server group, app connector group or PRA credential is deleted.",
+      "tier": "B",
+      "derived_from": [
+        "v1-sdk-erases-operand-names"
+      ],
+      "conditions": "Search: `git -C vendor/terraform-provider-zpa grep -n \"policysetcontroller\\.UpdateRule\" v4.4.10 -- 'zpa/*.go' ':!*_test.go'` lists resource_zpa_policy_access_rule.go, _forwarding_rule.go, _inspection_rule.go, _isolation_rule.go, _redirection_rule.go, _timeout_rule.go, and resource_zpa_app_connector_group.go, resource_zpa_application_segment.go, resource_zpa_pra_credential_controller.go, resource_zpa_segment_group.go, resource_zpa_server_group.go. The SDK function was checked at v3.8.42 and HEAD. Whether ZPA treats an omitted operand name as a change is not shown (the name may be recomputed server-side), so drift or lost metadata is not claimed.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "v2-conversion-drops-idp-and-workload-tag": {
+      "statement": "Up to v4.4.15 the converter that turns a policy rule read from the API into a v2 request keeps operands only for a fixed list of object types, and has no case for `IDP` or `WORKLOAD_TAG_GROUP`. Both types are accepted by the v2 access rule schema, so a condition built from them is accepted in configuration and then not carried through the converter. v4.4.16 adds `IDP`, `WORKLOAD_TAG_GROUP`, `ENTITY_TAG_GRP` and `ENTITY_TAG_VAL` to the converter's ID and values case, and its changelog says such operands are no longer dropped when the rule is read.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.15"
+          ],
+          "after": "func ConvertV1ResponseToV2Request(v1Response policysetcontrollerv2.PolicyRuleResource) policysetcontrollerv2.PolicyRule {",
+          "quotes": [
+            "case \"APP\", \"APP_GROUP\", \"CONSOLE\", \"CHROME_POSTURE_PROFILE\", \"MACHINE_GRP\", \"LOCATION\", \"BRANCH_CONNECTOR_GROUP\", \"EDGE_CONNECTOR_GROUP\", \"CLIENT_TYPE\", \"USER_PORTAL\", \"PRIVILEGE_PORTAL\":",
+            "case \"PLATFORM\", \"POSTURE\", \"TRUSTED_NETWORK\", \"SAML\", \"SCIM\", \"SCIM_GROUP\", \"COUNTRY_CODE\", \"RISK_FACTOR_TYPE\", \"CHROME_ENTERPRISE\":"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "after": "func ConvertV1ResponseToV2Request(v1Response policysetcontrollerv2.PolicyRuleResource) policysetcontrollerv2.PolicyRule {",
+          "quotes": [
+            "case \"APP\", \"APP_GROUP\", \"CONSOLE\", \"CHROME_POSTURE_PROFILE\", \"MACHINE_GRP\", \"LOCATION\", \"BRANCH_CONNECTOR_GROUP\", \"EDGE_CONNECTOR_GROUP\", \"CLIENT_TYPE\", \"USER_PORTAL\", \"PRIVILEGE_PORTAL\", \"IDP\", \"WORKLOAD_TAG_GROUP\", \"ENTITY_TAG_GRP\", \"ENTITY_TAG_VAL\":",
+            "case \"PLATFORM\", \"POSTURE\", \"TRUSTED_NETWORK\", \"SAML\", \"SCIM\", \"SCIM_GROUP\", \"COUNTRY_CODE\", \"RISK_FACTOR_TYPE\", \"CHROME_ENTERPRISE\":"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "after": "## 4.4.16 (October 26, 2026)",
+          "quotes": [
+            "v2 policy rule resources: operands of type `IDP`, `WORKLOAD_TAG_GROUP`, `ENTITY_TAG_GRP` and `ENTITY_TAG_VAL` are no longer dropped when the rule is read, which showed as a change in every plan."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"LOCATION\", \"IDP\", \"SAML\",",
+            "\"WORKLOAD_TAG_GROUP\","
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.16 (PR 700)."
+        }
+      ]
+    },
+    "v2-conversion-values-list-4-4-15": {
+      "statement": "In `ConvertV1ResponseToV2Request` the converter up to v4.4.14 appended only an operand's `RHS`, so an operand that carried a list of values lost them when the rule was converted; v4.4.15 appends all of the operand's `Values` when it has any and falls back to `RHS` otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.14"
+          ],
+          "quotes": [
+            "operandMap[operand.ObjectType] = append(operandMap[operand.ObjectType], operand.RHS)"
+          ],
+          "after": "func ConvertV1ResponseToV2Request("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "if len(operand.Values) > 0 {",
+            "operandMap[operand.ObjectType] = append(operandMap[operand.ObjectType], operand.Values...)",
+            "} else if operand.RHS != \"\" {"
+          ],
+          "after": "func ConvertV1ResponseToV2Request("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "v2 policy rule resources, and resources that remove objects from policy rules: operands returned with a list of values no longer lose those values when the rule is updated."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.15 (PR 698)."
+        }
+      ],
+      "conditions": "Release search: for every tag of vendor/terraform-provider-zpa whose zpa/common.go has `func ConvertV1ResponseToV2Request(` (85 tags, first at v3.3.24), `sed -n '/^func ConvertV1ResponseToV2Request(/,/^}/p' | grep -c -F 'operand.Values...'` returns 0 at all 83 tags from v3.3.24 through v4.4.14, each of which has the `append(operandMap[operand.ObjectType], operand.RHS)` line (twice at v3.33.0 and v3.33.1), and 1 at v4.4.15 and v4.4.16."
+    },
+    "v2-read-state-comes-from-converter": {
+      "statement": "The v2 access rule's read converts the API response and builds the `conditions` state from the converted rule, so a condition the converter dropped is absent from refreshed state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "v2PolicyRule := ConvertV1ResponseToV2Request(*resp)",
+            "_ = d.Set(\"conditions\", flattenConditionsV2(v2PolicyRule.Conditions))"
+          ]
+        }
+      ]
+    },
+    "cleanup-rewrites-rule-from-converter": {
+      "statement": "When a segment group is deleted, the provider reads the v2 rules of the ACCESS, TIMEOUT, SIEM, CLIENT_FORWARDING and INSPECTION policy types, removes the segment group operand, converts the whole rule with ConvertV1ResponseToV2Request and PUTs the converted rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceSegmentGroupDelete(",
+          "quotes": [
+            "if err := detachSegmentGroupFromAllPolicyRules(ctx, d.Id(), service); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachSegmentGroupFromAllPolicyRules(",
+          "quotes": [
+            "if err := detachSegmentGroupFromV2Policies(ctx, id, service); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachSegmentGroupFromV2Policies(ctx context.Context, id string, service *zscaler.Service) error {",
+          "quotes": [
+            "convertedRule := ConvertV1ResponseToV2Request(rule)",
+            "if _, err := policysetcontrollerv2.UpdateRule(ctx, service, rule.PolicySetID, rule.ID, &convertedRule); err != nil {",
+            "types := []string{\"ACCESS_POLICY\", \"TIMEOUT_POLICY\", \"SIEM_POLICY\", \"CLIENT_FORWARDING_POLICY\", \"INSPECTION_POLICY\"}",
+            "rules, _, err := policysetcontrollerv2.GetAllByType(ctx, service, t)",
+            "if strings.EqualFold(op.ObjectType, \"APP_GROUP\") {",
+            "rule.Conditions = newConditions"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, policySetRule, nil)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "cleanup-put-omits-converter-drops": {
+      "statement": "So whatever the converter drops from a rule is also missing from the PUT that rewrites it, and is lost from the stored rule if the API treats that PUT as a full replacement.",
+      "tier": "B",
+      "derived_from": [
+        "cleanup-rewrites-rule-from-converter"
+      ],
+      "conditions": "Follows from cleanup-rewrites-rule-from-converter: the PUT body is the converter's output, so nothing the converter leaves out reaches the request. That the stored rule then loses it rests on the API replacing the whole rule on a v2 rule PUT rather than merging, which no captured source states (gap api-put-semantics).",
+      "gaps": [
+        "api-put-semantics"
+      ]
+    },
+    "converter-callers": {
+      "statement": "The converter is used by the read function of the v2 access, timeout, forwarding, inspection, isolation, browser-protection, capabilities, credential and portal rule resources, and by cleanup code in the app connector group, segment group and PRA console resources, which write the converted rule back.",
+      "tier": "B",
+      "derived_from": [
+        "v2-conversion-drops-idp-and-workload-tag"
+      ],
+      "conditions": "Search: `git -C vendor/terraform-provider-zpa grep -n \"ConvertV1ResponseToV2Request\" v4.4.10 -- 'zpa/*.go' ':!*_test.go'` lists those files; in resource_zpa_app_connector_group.go, resource_zpa_pra_console_controller.go and resource_zpa_segment_group.go the result is passed to policysetcontrollerv2.UpdateRule. No other callers were found at v4.4.10. Re-run at v4.4.16 with the same search: the same files."
+    },
+    "idp-condition-lost-from-state-and-cleanup-writes": {
+      "statement": "So up to v4.4.15 a v2 rule with an `IDP` or `WORKLOAD_TAG_GROUP` condition can refresh to state without that condition, and a delete-time cleanup that touches such a rule can PUT it back without the condition; v4.4.16 adds those object types to the converter.",
+      "tier": "C",
+      "derived_from": [
+        "v2-conversion-drops-idp-and-workload-tag",
+        "v2-read-state-comes-from-converter",
+        "cleanup-rewrites-rule-from-converter",
+        "cleanup-put-omits-converter-drops"
+      ],
+      "conditions": "Depends on the ZPA v2 read response returning such conditions as operands whose object type is `IDP` or `WORKLOAD_TAG_GROUP` (gap api-idp-operand-shape), and, for the cleanup, on a rule of this shape also referencing the deleted object. That the stored rule then loses the condition further rests on the API replacing the whole rule on that PUT (gap api-put-semantics).",
+      "gaps": [
+        "api-idp-operand-shape",
+        "api-put-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "import-accepts-types-crud-ignores-them": {
+      "statement": "The access rule importers (v1 and v2) accept the policy types `ACCESS_POLICY` and `GLOBAL_POLICY`, and the timeout rule importers accept `TIMEOUT_POLICY` and `REAUTH_POLICY`. Read always resolves the policy set for `ACCESS_POLICY` or `TIMEOUT_POLICY` and writes `policy_set_id` (the resolved set's ID, except the v1 timeout rule, which writes the policy set ID from the rule it read); in the v1 resources, create, update and delete use a configured `policy_set_id` first, and the v2 resources resolve the fixed type unconditionally. A numeric import ID never consults the types; they matter only for lookup by name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "importPolicyStateContextFunc([]string{\"ACCESS_POLICY\", \"GLOBAL_POLICY\"})"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)",
+            "_ = d.Set(\"policy_set_id\", policySetID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "importPolicyStateContextFuncV2([]string{\"ACCESS_POLICY\", \"GLOBAL_POLICY\"})"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)",
+            "_ = d.Set(\"policy_set_id\", policySetID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "importPolicyStateContextFunc([]string{\"TIMEOUT_POLICY\", \"REAUTH_POLICY\"})"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)",
+            "_ = d.Set(\"policy_set_id\", resp.PolicySetID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "importPolicyStateContextFuncV2([]string{\"TIMEOUT_POLICY\", \"REAUTH_POLICY\"})"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)",
+            "_ = d.Set(\"policy_set_id\", policySetID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", GetString(d.Get(\"microtenant_id\")))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", GetString(d.Get(\"microtenant_id\")))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", GetString(d.Get(\"microtenant_id\")))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", GetString(d.Get(\"microtenant_id\")))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func importPolicyStateContextFunc(types []string) schema.StateContextFunc {",
+          "quotes": [
+            "_, parseIDErr := strconv.ParseInt(id, 10, 64)",
+            "if parseIDErr == nil { // assume if the passed value is an int _ = d.Set(\"id\", id) } else { resp, _, err := policysetcontroller.GetByNameAndTypes(ctx, service, types, id)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func importPolicyStateContextFuncV2(types []string) schema.StateContextFunc {",
+          "quotes": [
+            "if parseIDErr == nil { // assume if the passed value is an int _ = d.Set(\"id\", id) } else { resp, _, err := policysetcontrollerv2.GetByNameAndTypes(ctx, service, types, id)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "import-type-mismatch-effect": {
+      "statement": "An imported `GLOBAL_POLICY` or `REAUTH_POLICY` rule is therefore looked up, updated and deleted in the `ACCESS_POLICY` or `TIMEOUT_POLICY` policy set. If ZPA keeps those as separate policy sets, the rule is not found there and refresh fails or removes it from state; if it treats them as the same set, nothing goes wrong.",
+      "tier": "C",
+      "derived_from": [
+        "import-accepts-types-crud-ignores-them"
+      ],
+      "conditions": "Depends on whether `GLOBAL_POLICY` and `REAUTH_POLICY` are distinct policy sets from `ACCESS_POLICY` and `TIMEOUT_POLICY` on the ZPA side (gap api-policy-set-types), and on a rule of that type existing.",
+      "gaps": [
+        "api-policy-set-types"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "v2-access-microtenant-id-not-in-schema": {
+      "statement": "The v2 access rule's create, read, update and delete read `microtenant_id` from the resource data and select a microtenant with it, but the resource's schema has no `microtenant_id` attribute. A configuration cannot set it, so the microtenant it would select is never the one configured. The v2 timeout rule, by contrast, defines the attribute.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "microTenantID := GetString(d.Get(\"microtenant_id\"))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", GetString(d.Get(\"microtenant_id\")))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"microtenant_id\": {"
+          ]
+        }
+      ],
+      "conditions": "The absence is not quotable. Search: `git -C vendor/terraform-provider-zpa grep -n '\"microtenant_id\"' v4.4.10 -- zpa/resource_zpa_policy_access_rule_v2.go` returns only d.Get calls, no schema entry (the schema map in that file starts at its first `Schema: map[string]*schema.Schema{` and has no such key). The search gives the same result at HEAD. The effect on configuration (an unsupported-argument error) is Terraform core behavior for an attribute absent from a schema, not shown by this code.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "update-ignores-non-404-preflight-error": {
+      "statement": "Several update functions read the object first and treat only a not-found error as meaningful: not found clears the ID and returns success, and any other error from the read falls through to the update call. The PRA credential update and the redirection policy rule update are examples.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_credential_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePRACredentialControllerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if _, _, err := pracredential.Get(ctx, service, id); err != nil {",
+            "if _, err := pracredential.Update(ctx, service, id, &req); err != nil {",
+            "if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil } } if _, err := pracredential.Update(ctx, service, id, &req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_redirection_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyRedictionRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if _, _, err := policysetcontroller.GetPolicyRule(ctx, service, globalPolicySet.ID, ruleID); err != nil {",
+            "if _, err := policysetcontroller.UpdateRule(ctx, service, globalPolicySet.ID, ruleID, req); err != nil {",
+            "if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil } } if _, err := policysetcontroller.UpdateRule(ctx, service, globalPolicySet.ID, ruleID, req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentUpdate(",
+          "quotes": [
+            "if _, _, err := applicationsegment.Get(ctx, service, id); err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil } } if _, err := applicationsegment.Update(ctx, service, id, req); err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "ignored-preflight-error-places": {
+      "statement": "The same swallowed-preflight shape is in the update function of 22 resources: app connector assistant schedule, app connector group, application server, application segment, CBI banner, CBI certificate, CBI external profile, emergency access, inspection custom controls, inspection profile, microtenant, redirection policy rule, PRA approval, PRA console, PRA credential, PRA credential pool, PRA portal, provisioning key, segment group, server group, service edge assistant schedule and service edge group. The v2 forwarding rule update, by contrast, returns every non-404 error from its read.",
+      "tier": "B",
+      "derived_from": [
+        "update-ignores-non-404-preflight-error"
+      ],
+      "conditions": "Search: a multiline regular expression over `git -C vendor/terraform-provider-zpa show v4.4.10:<file>` for every non-test zpa/resource_zpa_*.go, matching an `if ... err != nil {` whose body is only an IsObjectNotFound check that calls d.SetId(\"\") and returns nil, inside a function whose name ends in Update, with nothing returning the other errors. That produced the 22 functions above (one function each); the audit's count differs. Not re-run at HEAD (v4.4.11).",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "credential-delete-scans-v1-operands": {
+      "statement": "Deleting a PRA credential or credential pool first runs one helper that reads the v1 `CREDENTIAL_POLICY` rules and removes only an operand with object type `APP`, `lhs` `id` and `rhs` equal to the ID. Both delete functions call that same helper.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_credential_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachPRACredentialFromPolicy(ctx context.Context, id string, policySetControllerService *zscaler.Service) error {",
+          "quotes": [
+            "types := []string{\"CREDENTIAL_POLICY\"}",
+            "if op.ObjectType == \"APP\" && op.LHS == \"id\" && op.RHS == id { changed = true continue } operands = append(operands, op)",
+            "r, _, err := policysetcontroller.GetAllByType(ctx, policySetControllerService, t)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_credential_pool.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePRACredentialPoolDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := detachPRACredentialFromPolicy(ctx, d.Id(), service); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_credential_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePRACredentialControllerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := detachPRACredentialFromPolicy(ctx, d.Id(), service); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "credential-reference-is-top-level-field": {
+      "statement": "The credential policy rule resource does not store the credential or pool as an operand. It writes them as the rule's top-level `credential` and `credentialPool` fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_credential_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandCredentialPolicyRule(d *schema.ResourceData, policySetID string) (*policysetcontrollerv2.PolicyRule, error) {",
+          "quotes": [
+            "conditions, err := ExpandPolicyConditionsV2(d)",
+            "credential = &policysetcontrollerv2.Credential{ID: id}",
+            "credentialPool = &policysetcontrollerv2.Credential{ID: id}",
+            "Conditions: conditions, Credential: credential, CredentialPool: credentialPool,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type PolicyRule struct {",
+          "quotes": [
+            "Credential *Credential `json:\"credential,omitempty\"`",
+            "CredentialPool *Credential `json:\"credentialPool,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "At v4.4.10 and v4.4.16, `awk '/^func expandCredentialPolicyRule\\(/,/^}/' zpa/resource_zpa_policy_credential_access_rule.go | grep -n -i 'credential\\|conditions'` returns, besides the signature, the `ExpandPolicyConditionsV2(d)` call, the two variable declarations, the `credential` and `credential_pool` reads and assignments, the check that only one is set, and the returned rule's `Conditions`, `Credential` and `CredentialPool` fields; `ExpandPolicyConditionsV2` in zpa/common.go reads only `d.GetOk(\"conditions\")`, so no credential or pool is placed in a condition."
+    },
+    "credential-delete-leaves-reference": {
+      "statement": "So deleting a credential or pool that a credential policy rule uses does not clear the rule's reference: the helper never looks at the top-level fields. The delete then proceeds if ZPA accepts it, or fails if ZPA rejects a delete of a referenced object.",
+      "tier": "C",
+      "derived_from": [
+        "credential-delete-scans-v1-operands",
+        "credential-reference-is-top-level-field"
+      ],
+      "conditions": "Depends on whether ZPA returns an `APP`-typed operand carrying the credential ID for such rules (the provider's own write path does not produce one), and on how ZPA handles deleting a credential that a rule still references (gap api-delete-referenced-credential).",
+      "gaps": [
+        "api-delete-referenced-credential"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "credential-empty-block-keeps-remote": {
+      "statement": "So a rule cannot be written without an association, and an update with an empty block keeps the remote credential or pool without an error.",
+      "tier": "B",
+      "derived_from": [
+        "credential-update-restores-remote-association"
+      ],
+      "conditions": "Follows from the fallback running before the final ID check and from the read returning the rule's current association; an empty block expands to no credential because the expander sets one only when the id is not empty."
+    },
+    "credential-update-restores-remote-association": {
+      "statement": "The credential rule schema requires exactly one of `credential` or `credential_pool`, and the update code, when its request has neither (a block whose `id` is empty), copies the credential or pool from the rule it just read; it then returns an error only if neither carries an ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_credential_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "\"credential\": {",
+          "quotes": [
+            "ExactlyOneOf: []string{\"credential\", \"credential_pool\"},",
+            "// If both are nil in request, check if we should fall back to API values",
+            "req.CredentialPool = resp.CredentialPool",
+            "if id, ok := m[\"id\"].(string); ok && id != \"\" {",
+            "credential = &policysetcontrollerv2.Credential{ID: id}",
+            "if req.Credential == nil && req.CredentialPool == nil {",
+            "return diag.Errorf(\"either credential or credential_pool block must be present and contain an ID during update\")",
+            "if resp != nil { if resp.Credential != nil && resp.Credential.ID != \"\" { req.Credential = resp.Credential } else if resp.CredentialPool != nil && resp.CredentialPool.ID != \"\" { req.CredentialPool = resp.CredentialPool } }",
+            "if (req.Credential == nil || req.Credential.ID == \"\") && (req.CredentialPool == nil || req.CredentialPool.ID == \"\") {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "credential-swap-does-not-clear-old": {
+      "statement": "Changing a rule from a credential to a credential pool (or the reverse) sends only the new pointer; the other field is left out of the JSON by `omitempty`, with no explicit clear. Whether ZPA drops the old association or keeps both is not shown by the client code.",
+      "tier": "C",
+      "derived_from": [
+        "credential-reference-is-top-level-field",
+        "credential-update-restores-remote-association"
+      ],
+      "conditions": "Depends on whether the ZPA PUT replaces the whole rule or merges absent fields (gap api-put-semantics).",
+      "gaps": [
+        "api-put-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-put-semantics": {
+      "kind": "semantic",
+      "title": "How the ZPA policy rule PUT treats null, omitted and false fields",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a routine policy rule update clears associations or the credential, or only changes what it names",
+      "detail": "The client sends `null` association lists and `false` flags (or omits a credential field). No captured source states whether the API replaces the whole rule or merges. Test in a scratch tenant: create a rule with server groups and a device-posture flag set, update only its description through the provider, and re-read the rule; repeat with a credential rule, switching credential to pool."
+    },
+    "api-idp-operand-shape": {
+      "kind": "semantic",
+      "title": "How the ZPA v2 policy rule response represents IDP and workload tag conditions",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that refreshed state loses these conditions (provider v4.4.15 and earlier) rather than the response already omitting them",
+      "detail": "The converter drops operands by object type. Create a v2 rule with an IDP condition and a workload tag group condition in a scratch tenant, read it back with the v2 and v1 endpoints, and compare the operand object types."
+    },
+    "api-policy-set-types": {
+      "kind": "semantic",
+      "title": "Whether GLOBAL_POLICY and REAUTH_POLICY are distinct policy sets from ACCESS_POLICY and TIMEOUT_POLICY",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether an imported rule is found by the type the provider hardcodes",
+      "detail": "Fetch the policy set for each of the four type names in a scratch tenant and compare the policy set IDs."
+    },
+    "api-delete-referenced-credential": {
+      "kind": "semantic",
+      "title": "What ZPA does when a PRA credential or pool referenced by a credential policy rule is deleted",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the destroy fails or leaves a dangling reference",
+      "detail": "In a scratch tenant, attach a credential to a credential policy rule and delete the credential through the API; record the response and the rule afterward."
+    }
+  }
+}

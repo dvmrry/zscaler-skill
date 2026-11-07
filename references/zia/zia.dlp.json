@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp",
+  "title": "ZIA Data Loss Prevention",
+  "aliases": [
+    "dlp",
+    "data loss prevention",
+    "inline dlp",
+    "web dlp",
+    "why didn't dlp fire",
+    "dlp policy",
+    "zia data protection"
+  ],
+  "binds": [
+    "zia/dlp-web-rules",
+    "zia/dlp-engines",
+    "zia/dlp-dictionaries"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.dlp.rules",
+      "because": "zia.dlp.rules:ascending-order"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.dlp.evaluation",
+      "because": "zia.dlp.evaluation:evaluate-all-default-vs-mode"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.rule-scoping",
+      "because": "zia.locations.rule-scoping:rules-take-both"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering",
+      "because": "zia.dlp.evaluation:dlp-after-url-and-file-type"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence",
+      "because": "zia.dlp.evaluation:dlp-after-url-and-file-type"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.dlp.engines",
+      "because": "zia.dlp.engines:rules-reference-engines"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.pipeline",
+      "because": "zia.dlp.evaluation:decrypt-dependency"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.web-field-semantics",
+      "because": "zia.logs.web-field-semantics:dlp-rule-fields"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia/web-log",
+      "because": "zia.logs.web-field-semantics:dlp-rule-fields"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-web-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-engines"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-dictionaries"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.terraform.dlp-resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.dictionaries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.dictionary-patterns"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.index-tool"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.exact-data-match"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.indexed-document-match"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.notification-templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.mip-labels"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.inspection-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rule-wire-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-receiver"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.icap-receivers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.cloud-to-cloud-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email-tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.email-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-data-scan"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-inventory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-sensitive-information"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-intent"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-device-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.endpoint-context"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.runbook"
+    }
+  ],
+  "prose": [
+    {
+      "text": "DLP has three layers, and a question about \"why did or didn't DLP act\" has to be asked in order."
+    },
+    {
+      "steps": [
+        {
+          "label": "What is detected?",
+          "text": "Dictionaries are the detection primitives ([[zia.dlp.dictionaries]]). They are grouped into engines with Boolean expressions ([[zia.dlp.engines]]), and a rule references engines, not dictionaries ([[zia.dlp.engines:rules-reference-engines]])."
+        },
+        {
+          "label": "Which rule applies and what does it do?",
+          "text": "Order, criteria, Match Only, Confirm and the save-time constraints are in [[zia.dlp.rules]]; the API names and enums are in [[zia.dlp.rule-wire-shape]]."
+        },
+        {
+          "label": "Was DLP reached, and in which mode?",
+          "text": "Upstream blocks, the decrypt dependency, Evaluate All Rules mode, exception rules and exemptions are in [[zia.dlp.evaluation]], with the SSL side in [[zia.ssl-inspection.pipeline]] and the URL side in [[zia.url-filtering]]. If DLP was reached but a large file was not inspected, see [[zia.dlp.inspection-limits]]."
+        }
+      ]
+    },
+    {
+      "text": "Authoring a custom Patterns & Phrases dictionary is in [[zia.dlp.dictionary-patterns]], the Index Tool that builds EDM and IDM index templates in [[zia.dlp.index-tool]], Exact Data Match templates and dictionaries in [[zia.dlp.exact-data-match]], Indexed Document Match templates in [[zia.dlp.indexed-document-match]], and Microsoft Information Protection accounts and label retrieval in [[zia.dlp.mip-labels]]."
+    },
+    {
+      "text": "After a match, notification, ICAP, Incident Receiver and Cloud-to-Cloud forwarding are in [[zia.dlp.incident-forwarding]], and the auditor email templates and their macros are in [[zia.dlp.notification-templates]]. The ICAP receivers are in [[zia.dlp.icap-receivers]], the Incident Receiver's deployment in [[zia.dlp.incident-receiver]] and Cloud-to-Cloud storage onboarding in [[zia.dlp.cloud-to-cloud-forwarding]]."
+    },
+    {
+      "text": "Endpoint DLP and Outbound Email DLP are separate API families: [[zia.dlp.endpoint-dlp]], [[zia.dlp.outbound-email]]. How Outbound Email DLP policy works is in [[zia.dlp.outbound-email-policy]], its email tenants and mail-server setup in [[zia.dlp.outbound-email-tenants]], and the domain and recipient profiles in [[zia.dlp.email-profiles]]."
+    },
+    {
+      "text": "How Endpoint DLP policy reaches endpoints and a rule is chosen is in [[zia.dlp.endpoint-enforcement]], its rules in [[zia.dlp.endpoint-rules]], its resources in [[zia.dlp.endpoint-resources]] and its settings in [[zia.dlp.endpoint-settings]]. Endpoint Data Scan reports are in [[zia.dlp.endpoint-data-scan]], the endpoint inventory in [[zia.dlp.endpoint-inventory]], Endpoint IDM, EDM and Share Files Externally in [[zia.dlp.endpoint-sensitive-information]], Indicators of Intent in [[zia.dlp.endpoint-intent]], and Device Control in [[zia.dlp.endpoint-device-control]]. Endpoint Context, the application telemetry that shares the resources page, is in [[zia.endpoint-context]]."
+    },
+    {
+      "text": "Paging pitfalls for ZIA lists are in [[shared.sdk-go.list-pagination]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the evaluation mode is known and the rule list is complete before reasoning over a tenant's inline DLP rules.",
+      "uses": [
+        "zia.dlp.evaluation:evaluate-all-default-vs-mode",
+        "zia.dlp.evaluation:evaluate-all-switch"
+      ]
+    }
+  ]
+}

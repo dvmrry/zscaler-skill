@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "id": "uvm.severity-sla",
+  "title": "How UVM calculates severity scores, maps them to severity categories and sets SLAs",
+  "aliases": [
+    "uvm severity score",
+    "uvm sla",
+    "uvm severity categories",
+    "base score risk and mitigating factors",
+    "dynamic sla updates"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{score-model}}"
+    },
+    {
+      "label": "Score calculation.",
+      "text": "{{score-calc}} {{over-100}} {{under-100-realloc}}"
+    },
+    {
+      "label": "Score settings.",
+      "text": "{{score-defaults}} {{cvss-epss-scale}} {{null-base}} {{original-fallback}} {{factor-config}} {{score-simulator}} {{score-admin}}"
+    },
+    {
+      "label": "Severity categories.",
+      "text": "{{category-ranges}} {{category-permission}} {{ticket-severity-derived}}"
+    },
+    {
+      "label": "SLA settings.",
+      "text": "{{sla-entity}} {{sla-start-date}} {{sla-active-only}} {{sla-default-rules}} {{sla-due-date}} {{sla-custom-rules}} {{sla-save-reset}}"
+    },
+    {
+      "text": "Default weights and ranges are open {{gap:score-defaults-unstated}}. Default SLA durations are open {{gap:sla-defaults-unstated}}."
+    }
+  ],
+  "claims": {
+    "score-model": {
+      "statement": "UVM severity scores are calculated per finding from a base score (the initial value from the finding's score inputs, carrying most of the weight) plus risk and mitigating factors; risks such as public access raise the severity score, while mitigating factors such as firewalls lower it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-understanding-severity-scores.json",
+          "quotes": [
+            "The total severity score is composed of the base score and the risk and mitigating factors, and is calculated per finding.",
+            "Base score: The initial numerical value derived from processing all score inputs gathered from a particular finding",
+            "The base score is the main component that carries most of the weight in determining the overall score.",
+            "risks such as public access raise the severity score, while mitigating factors such as firewalls lower the severity score."
+          ]
+        }
+      ]
+    },
+    "score-calc": {
+      "statement": "Base score factors and risk and mitigating factors are calculated separately and the two results summed; the total score must be 100% or higher to save the score setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-understanding-severity-scores.json",
+          "quotes": [
+            "The total score must be 100% or higher to save the score setting.",
+            "The score is calculated for each component (i.e., base score factors and risk and mitigating factors) separately. The two separate calculations are then summed to make up the final finding severity score."
+          ]
+        }
+      ]
+    },
+    "over-100": {
+      "statement": "If the total weight exceeds 100%, the risk and mitigating share is capped according to the base score percentage; for example raising the base score from 50% to 70% reduces the factors to 30%.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-understanding-severity-scores.json",
+          "quotes": [
+            "If the total score exceeds 100%, the calculation caps the risk and mitigating share of the total score to bring it back to 100%. This process is always according to the base score percentage.",
+            "if the base score and risk and mitigating factors are set equally at 50% and 50%, and we change the base score to 70%, the percentage of the factors is reduced to 30%."
+          ]
+        }
+      ]
+    },
+    "under-100-realloc": {
+      "statement": "If risk and mitigating factors do not use their full allocated weight (for example a factor is null or not applicable to a finding), the unused portion is proportionally reallocated to the base score factors; in the documented example 10% unused moves the base score from 60% to 70%, CVSS gaining 6.67% and EPSS 3.33%.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-understanding-severity-scores.json",
+          "quotes": [
+            "If the risk and mitigating factors don't use their full allocated weight (e.g., if a factor is null or not applicable to a specific finding), the unused portion of their allocated weight is proportionally reallocated to the individual factors of the base score.",
+            "This 10% increases the base score's total contribution from 60% to 70%, and is proportionally distributed to CVSS and EPSS based on their original shares within the base score (CVSS gains 6.67%, EPSS gains 3.33%)."
+          ]
+        }
+      ]
+    },
+    "score-defaults": {
+      "statement": "The base score defaults to the factors CVSS, EPSS and the Original Severity Score received from a scanner; Zscaler recommends 60% for the base score and 40% for the mitigating score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-severity-scores.json",
+          "quotes": [
+            "The default factors are CVSS, EPSS, and Original Severity Score received from a scanner.",
+            "Zscaler recommends keeping a balance of 60% for the base score and 40% for the mitigating score."
+          ]
+        }
+      ]
+    },
+    "cvss-epss-scale": {
+      "statement": "The severity score configuration page says the base score is most commonly configured to include the finding's CVSS and EPSS scores, typically a decimal value between zero and one, which are converted to a value on a scale from 1 to 10 by multiplying the decimal value by 10, and that the weighted base score is the sum of each base factor multiplied by its dynamically adjusted weight, on a 0 to 10 scale.",
+      "tier": "A",
+      "conditions": "The page says the conversion gives a scale from 1 to 10; multiplying a value between 0 and 1 by 10 gives 0 to 10, not 1 to 10, and the page does not say how 1 is reached.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-severity-scores.json",
+          "quotes": [
+            "The base score is most commonly configured to include a combination of the finding's CVSS and EPSS scores, which are typically a decimal value between zero and one.",
+            "To standardize these scores, they are converted to a value on a scale from 1 to 10 by multiplying the decimal value by 10.",
+            "The weighted base score is calculated as the sum of each base factor multiplied by its dynamically adjusted weight, producing a standardized score on a 0 to 10 scale."
+          ]
+        }
+      ]
+    },
+    "null-base": {
+      "statement": "If all base score factors are null, the severity score is also null.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-severity-scores.json",
+          "quotes": [
+            "If all base score factors are null, the severity score is also null."
+          ]
+        }
+      ]
+    },
+    "original-fallback": {
+      "statement": "If the Original Severity Score is included in the base score with a weight of 0%, it receives the full weight as a fallback when all other base factors are null; if it is not included, no weight is reassigned to it. Its vendor-specific calculation methods are not incorporated into the UVM score calculation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-severity-scores.json",
+          "quotes": [
+            "If the Original Severity Score is included in the base score as a factor and assigned a weight of 0%, it receives the full weight as a fallback when all other base score factors are null.",
+            "If the Original Severity Score is not included in the base score and all other factors are null, no weights are reassigned to it.",
+            "These vendor-specific methods are not detailed or incorporated into the UVM score calculation."
+          ]
+        }
+      ]
+    },
+    "factor-config": {
+      "statement": "The weight assigned to risk and mitigating factors is capped based on the percentage remaining after the base score's weight is set (for example, 40% when the base score is assigned 60%); Boolean factors take weights for True, False and Else, and string factors take a weight per expected value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-severity-scores.json",
+          "quotes": [
+            "The weight assigned to risk and mitigating factors is capped based on the percentage remaining after the base score's weight is set. For example, if the base score is assigned 60% of the total score, the combined weight of all risk and mitigating factors is capped at the remaining 40%.",
+            "For Boolean fields, enter the percentage weights for True, False, and Else.",
+            "For string fields, enter the expected field values and enter a percentage weight for each."
+          ]
+        }
+      ]
+    },
+    "score-simulator": {
+      "statement": "The score simulator takes numerical values for base factors and a drop-down value per risk factor (True, False, Else), and a risk factor with no value selected is counted as Else.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-severity-scores.json",
+          "quotes": [
+            "Base Score Factors: Enter a numerical value for all factors.",
+            "Risk Factors: Select a value for each drop-down menu (e.g., True, False, Else).",
+            "If no value is selected, the factor is counted according to the Else condition."
+          ]
+        }
+      ]
+    },
+    "score-admin": {
+      "statement": "Admins can configure UVM score settings; if score settings are configured in the Data Model, the page prompts Unlink & Override.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-severity-scores.json",
+          "quotes": [
+            "Admins can configure UVM score settings.",
+            "If score settings is configured in the Data Model",
+            "you'll be prompted to Unlink & Override to configure score settings on the Score page."
+          ]
+        }
+      ]
+    },
+    "category-ranges": {
+      "statement": "Severity categories are Critical, High, Medium, Low and Info; each has a minimum score that is included and an optional maximum that is excluded, settings cannot be saved if there are gaps between ranges that are not assigned to a category, and severity ranges must be unique (non-overlapping) and ordered in ascending numerical value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-severity-categories.json",
+          "quotes": [
+            "For each severity category (i.e., Critical, High, Medium, Low, Info):",
+            "Input the minimum score where the severity category starts. The minimum score is included in the category.",
+            "Define the maximum score as an optional cutoff. The maximum score is excluded from the category.",
+            "The settings cannot be saved if there are gaps between ranges that are not assigned to a category. Additionally, severity ranges must be unique (non-overlapping) and ordered in ascending numerical value."
+          ]
+        }
+      ]
+    },
+    "category-permission": {
+      "statement": "Severity settings require Read, Create and Edit under the Vulnerabilities App - Ticket Settings resource; severity categories apply on next processing of the finding or ticket, or immediately with Save & Run.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-severity-categories.json",
+          "quotes": [
+            "your assigned role must include the Read, Create, and Edit permissions under the Vulnerabilities App - Ticket Settings resource.",
+            "The severity settings apply the next time the finding or the ticket entity is processed.",
+            "click Save & Run to save the settings and immediately apply them in your account."
+          ]
+        }
+      ]
+    },
+    "ticket-severity-derived": {
+      "statement": "A ticket's severity is derived from the severity categories of its findings; a ticket that includes a Critical finding is categorized Critical.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-severity-categories.json",
+          "quotes": [
+            "a ticket's severity is derived from the severity categories of the findings it contains (e.g., if a ticket includes a Critical finding, it's also categorized as Critical)."
+          ]
+        }
+      ]
+    },
+    "sla-entity": {
+      "statement": "SLA settings apply to either Findings or Tickets: with Findings the ticket SLA is calculated from the findings' SLAs (for example the earliest), with Tickets individual findings are not assigned SLAs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-service-level-agreement-settings.json",
+          "quotes": [
+            "Findings: SLAs are applied to individual findings. Tickets SLA is calculated based on the SLA of the findings it contains (e.g., the earliest finding SLA date).",
+            "Tickets: SLAs are applied at the ticket level, and individual findings are not assigned SLAs."
+          ]
+        }
+      ]
+    },
+    "sla-start-date": {
+      "statement": "For Tickets the default SLA start date can be a ticket date field or Third-Party Issue Created (when the ticket is dispatched to an external system); Dynamic SLA Updates, which recalculate deadlines when attributes such as severity or asset owner change, are not available when Third-Party Issue Created is the start date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-service-level-agreement-settings.json",
+          "quotes": [
+            "Select a ticket-related date field from the drop-down menu (e.g., Ticket Last Seen).",
+            "Select Third-Party Issue Created (i.e., when the ticket is dispatched to an external system).",
+            "Select Enable Dynamic SLA Updates to allow SLA deadlines to automatically recalculate when key attributes change (e.g., severity or asset owner).",
+            "Dynamic SLA updates are not available when Third-Party Issue Created is selected as the start date."
+          ]
+        }
+      ]
+    },
+    "sla-active-only": {
+      "statement": "The optional setting to calculate ticket SLA from active findings only keeps the SLA at its most recent value when all findings are inactive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-service-level-agreement-settings.json",
+          "quotes": [
+            "Select Calculate ticket SLA based on active findings only to calculate SLA based only on the active findings in the ticket.",
+            "If all findings are inactive, the SLA remains populated with its most recent value."
+          ]
+        }
+      ]
+    },
+    "sla-default-rules": {
+      "statement": "Default SLA Rules are fixed-condition fallback rules, one per severity category, whose start dates and durations can be adjusted and which custom rules override when their conditions are met; a duration of 0 days applies no SLA and populates the SLA field with 'No SLA'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-service-level-agreement-settings.json",
+          "quotes": [
+            "This section contains a list of fallback rules for each severity category configured in Severity Settings.",
+            "While the conditions of the default rules are fixed, you can adjust the SLA start dates and durations to align with your organization's remediation requirements.",
+            "Default SLA rules act as fallback timelines based on severity, but are overridden by custom rules when their conditions are met.",
+            "If the SLA duration is set to 0 days, SLA is not applied, and the SLA field for the affected findings or tickets is populated with the value \"No SLA\"."
+          ]
+        }
+      ]
+    },
+    "sla-due-date": {
+      "statement": "In the documented example, with Ticket First Seen as the start date, a ticket first seen on October 1 with an SLA duration of 10 days has its SLA due on October 11.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-service-level-agreement-settings.json",
+          "quotes": [
+            "if you select Ticket First Seen and the ticket is first seen on October 1 with an SLA duration of 10 days, the SLA will be due on October 11."
+          ]
+        }
+      ]
+    },
+    "sla-custom-rules": {
+      "statement": "Custom SLA rules take precedence over Default SLA Rules when their conditions are met, can be reordered by drag and drop, and can apply to a chosen severity category by selecting the severity checkbox; with AND the SLA applies only if all specified conditions are met, and the page says SLA rule conditions are not case sensitive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-service-level-agreement-settings.json",
+          "quotes": [
+            "The new rule appears in the Custom SLA Rules list and takes precedence over Default SLA Rules when its conditions are met.",
+            "Adjust the order of SLA rules by dragging and dropping them to the order you want them to apply.",
+            "SLA rule conditions are not case sensitive.",
+            "Select the severity checkbox and choose the severity category that the rule should apply to",
+            "AND: The SLA applies only if all specified conditions are met."
+          ]
+        }
+      ]
+    },
+    "sla-save-reset": {
+      "statement": "SLA settings apply next time the finding or ticket is processed, or immediately with Save & Run; Reset restores all SLA configuration to the original system-defined values; SLA settings configured in the Data Model prompt unlink and override.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-service-level-agreement-settings.json",
+          "quotes": [
+            "The SLA settings apply the next time the finding or the ticket entity is processed.",
+            "In the Save drop-down menu, click Save & Run to save the settings and immediately apply them in your account.",
+            "Click Reset at the bottom of the SLA Settings page to restore all SLA configurations to their original system-defined values.",
+            "If SLA is configured in the Data Model, you'll be prompted to unlink and override to configure the settings on the SLA Settings page."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "score-defaults-unstated": {
+      "kind": "semantic",
+      "title": "What the default factor weights and severity category ranges are",
+      "status": "open",
+      "detail": "The captured articles give the default base score factor names and a recommended 60%/40% balance, but not the default weights of risk and mitigating factors, whether 60/40 is the shipped default, or the default score range per severity category.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "sla-defaults-unstated": {
+      "kind": "semantic",
+      "title": "What the default SLA durations per severity are",
+      "status": "open",
+      "detail": "The captured SLA settings article describes Default SLA Rules per severity category but gives no default durations or start dates.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,500 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing GCP Decoys",
+  "source": {
+    "url": "https://help.zscaler.com/deception/managing-gcp-decoys",
+    "node": "1542592",
+    "revision": "3221524",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can manage your Google Cloud Platform (GCP) decoys from the Zscaler Deception Admin Portal. All decoys created from the Deception Admin Portal are tabulated under their respective decoy category tabs. Each table shows the details associated with each decoy in the category and its deployment status. You can also edit or delete decoys by using the respective options from the decoys table."
+    },
+    {
+      "heading": "Checking Deployment Status",
+      "level": 1
+    },
+    {
+      "text": "At the time of integration, Zscaler Deception deploys a health check lambda function on GCP. This function periodically checks all decoy resources deployed on GCP and updates their statuses to the Deception Admin Portal every 15 minutes. You can check the deployment status indicated by the icon next to the name of the decoy in the decoys table. The following icons are used to show the status of the decoys:"
+    },
+    {
+      "item": "– Indicates a deployed state.",
+      "depth": 0
+    },
+    {
+      "item": "– Indicates an inactive state. This means the decoy no longer exists on GCP, or one of its properties used to reference does not exist. This happens when the decoy or its resources are manipulated directly from GCP.",
+      "depth": 0
+    },
+    {
+      "item": "– Indicates a pending deployment state. This means that the decoy has been created or modified in the Deception Admin Portal, but the deployment script to propagate changes to the GCP cloud has not been initiated.",
+      "depth": 0
+    },
+    {
+      "item": "– Indicates a pending deletion state. This means that the decoy has been deleted from the Deception Admin Portal, but the deployment script to propagate changes to the GCP cloud has not been initiated.",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Editing a GCP Decoy",
+      "level": 1
+    },
+    {
+      "text": "To edit a GCP decoy:"
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > GCP.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Select the relevant decoy category tab. For example, if you want to edit a service account decoy, select the Service Account tab.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          109,
+          124
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure that the decoy you want to edit isn't deployed, and then click the Edit icon for the decoy.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          77,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Modify the decoy details per your requirements.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Cloud Deception - GCP page, go to Settings.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Locate the GCP project in which the decoy was edited, and click the Download icon in the Actions column.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          68,
+          76
+        ],
+        [
+          89,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 0
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the gcp-decoys.tf.json file in a text editor.",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "Locate the backend block in the gcp-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 0,
+      "number": 10
+    },
+    {
+      "item": "The following example shows a backend block of Google Cloud Storage bucket-based Terraform back end:",
+      "depth": 0
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"gcs\": { \"bucket\": \"your-terraform-state-bucket\", \"prefix\": \"deception/terraform\" } } } }",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same GCP project.",
+      "depth": 0
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and set the user agent for Terraform:",
+      "depth": 0,
+      "number": 11
+    },
+    {
+      "item": "export TF_APPEND_USER_AGENT=\"<value_from_ui>\"",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to create a new workspace:",
+      "depth": 0,
+      "number": 12
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 0,
+      "number": 13
+    },
+    {
+      "item": "terraform apply",
+      "depth": 0
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 0,
+      "number": 14
+    },
+    {
+      "item": "The necessary resources are deployed.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to export the state file as JSON:",
+      "depth": 0,
+      "number": 15
+    },
+    {
+      "item": "terraform output -json gcp_terraform_output > deployment-output.json",
+      "depth": 0
+    },
+    {
+      "item": "The JSON file containing the details of the state is downloaded.",
+      "depth": 0
+    },
+    {
+      "item": "On the Cloud Deception - GCP page, go to Settings, locate the GCP project in which the decoy was edited, and click the Upload icon in the Actions column.",
+      "depth": 0,
+      "number": 16,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          119,
+          125
+        ],
+        [
+          138,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 0,
+      "number": 17
+    },
+    {
+      "item": "Upon successful execution, the changes are propagated to the GCP cloud.",
+      "depth": 0
+    },
+    {
+      "heading": "Deleting a GCP Decoy",
+      "level": 1
+    },
+    {
+      "text": "To delete a GCP decoy:"
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > GCP.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Select the relevant decoy category tab. For example, if you want to delete a service account decoy, select the Service Account tab.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          111,
+          118
+        ],
+        [
+          119,
+          126
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Locate the decoy you want to delete, and click the Delete icon.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          51,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "The decoy is removed from the Deception Admin Portal.",
+      "depth": 0
+    },
+    {
+      "item": "On the Cloud Deception - GCP page, go to Settings.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Locate the GCP project in which the decoy was deleted, and click the Download icon in the Actions column.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          69,
+          77
+        ],
+        [
+          90,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 0
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the gcp-decoys.tf.json file in a text editor.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "Locate the backend block in the gcp-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "The following example shows a backend block of Google Cloud Storage bucket-based Terraform back end:",
+      "depth": 0
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"gcs\": { \"bucket\": \"your-terraform-state-bucket\", \"prefix\": \"deception/terraform\" } } } }",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same GCP project.",
+      "depth": 0
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and set the user agent for Terraform:",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "export TF_APPEND_USER_AGENT=\"<value_from_ui>\"",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to create a new workspace:",
+      "depth": 0,
+      "number": 10
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 0,
+      "number": 11
+    },
+    {
+      "item": "terraform apply",
+      "depth": 0
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 0,
+      "number": 12
+    },
+    {
+      "item": "The necessary resources are deployed.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to export the state file as JSON:",
+      "depth": 0,
+      "number": 13
+    },
+    {
+      "item": "terraform output -json gcp_terraform_output > deployment-output.json",
+      "depth": 0
+    },
+    {
+      "item": "The JSON file containing the details of the state is downloaded.",
+      "depth": 0
+    },
+    {
+      "item": "On the Cloud Deception - GCP page, go to Settings, locate the GCP project in which the decoy was deleted, and click the Upload icon in the Actions column.",
+      "depth": 0,
+      "number": 14,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          120,
+          126
+        ],
+        [
+          139,
+          146
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 0,
+      "number": 15
+    },
+    {
+      "item": "Upon successful execution, the changes are propagated to the GCP cloud.",
+      "depth": 0
+    }
+  ]
+}

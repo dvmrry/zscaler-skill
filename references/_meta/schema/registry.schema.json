@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "registry.schema.json",
+  "title": "Registries: products, sources, and the capture manifest",
+  "$defs": {
+    "products": {
+      "type": "object",
+      "required": ["schema_version", "products"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "products": {
+          "type": "object",
+          "propertyNames": { "$ref": "common.schema.json#/$defs/segment" },
+          "additionalProperties": {
+            "type": "object",
+            "required": ["title"],
+            "properties": {
+              "title": { "type": "string", "minLength": 1 },
+              "aliases": { "$ref": "common.schema.json#/$defs/aliases" },
+              "type_scope": {
+                "description": "Scope used in type IDs when it differs from the product ID (zscalerctl names Cloud Connector types ztw/...).",
+                "$ref": "common.schema.json#/$defs/segment"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "object",
+      "required": ["schema_version", "sources"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "sources": {
+          "type": "object",
+          "propertyNames": { "$ref": "common.schema.json#/$defs/segment" },
+          "additionalProperties": {
+            "type": "object",
+            "required": ["kind", "root", "rank", "title"],
+            "properties": {
+              "kind": { "enum": ["submodule", "capture"] },
+              "root": { "type": "string", "pattern": "^vendor/[A-Za-z0-9._-]+$" },
+              "rank": { "type": "integer", "minimum": 1 },
+              "title": { "type": "string", "minLength": 1 },
+              "url": { "type": "string", "pattern": "^https://" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "static-captures": {
+      "description": "Every file under vendor/zscaler-help that scripts/help_capture.py did not write, with why it cannot be refreshed and a pinned hash; kb.mjs validate rejects any other file there.",
+      "type": "object",
+      "required": ["schema_version", "files"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["class", "reason", "sha256"],
+            "properties": {
+              "class": { "enum": ["pdf", "text-capture", "unavailable", "marketing", "tool-output", "note", "retiring"] },
+              "reason": { "type": "string", "minLength": 1 },
+              "url": { "type": "string" },
+              "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "updated": { "description": "When the vendor last changed the material, where the file says.", "$ref": "common.schema.json#/$defs/date" },
+              "updated_basis": { "enum": ["pdf-moddate", "issue-updated-at", "first-seen"] }
+            },
+            "additionalProperties": false
+          }
+        },
+        "retired": {
+          "description": "Files removed from vendor/zscaler-help and the capture that replaced each, so a source pin recorded before the change still names what the doc was verified against.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["replaced_by", "reason", "on"],
+            "properties": {
+              "replaced_by": { "type": "string", "minLength": 1 },
+              "reason": { "type": "string", "minLength": 1 },
+              "on": { "$ref": "common.schema.json#/$defs/date" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "capture-manifest": {
+      "type": "object",
+      "required": ["schema_version", "files"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["captured_at", "sha256"],
+            "properties": {
+              "captured_from": { "type": ["string", "null"] },
+              "captured_at": { "$ref": "common.schema.json#/$defs/date" },
+              "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "derived_from": { "type": "string" },
+              "updated": { "description": "When the vendor last changed the material (not when it was captured).", "$ref": "common.schema.json#/$defs/date" },
+              "updated_basis": { "enum": ["release-filename", "file-last-modified", "pdf-last-modified", "pdf-moddate", "issue-updated-at", "first-seen"] }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

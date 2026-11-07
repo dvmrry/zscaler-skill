@@ -1,0 +1,509 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Microsoft Azure Sentinel to Forward Active Directory Event Logs",
+  "source": {
+    "url": "https://help.zscaler.com/deception/configuring-microsoft-azure-forward-active-directory-event-logs",
+    "node": "1542449",
+    "revision": "3221664",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can configure Microsoft Azure Sentinel to filter event logs from the Active Directory (AD) domain controllers for decoy accounts or enumeration detection. You can forward these logs to the Zscaler Deception Admin Portal when adversary actions are detected."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Make sure the following prerequisites are met:"
+    },
+    {
+      "item": "Configure all AD servers to forward security logs to Azure Sentinel.",
+      "depth": 0
+    },
+    {
+      "item": "There is network connectivity from the Azure Sentinel instance to the Deception Admin Portal on TCP port 443.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Microsoft Azure Sentinel to Forward AD Event Logs",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to configure Azure Sentinel to forward logs to the Deception Admin Portal:"
+    },
+    {
+      "item": "Step 1: Configure and Download the Azure Sentinel Trigger Script",
+      "depth": 0
+    },
+    {
+      "item": "A trigger script sends logs from Azure Sentinel to the Deception Admin Portal. To download the Azure Sentinel trigger scripts, see Configuring and Downloading a Trigger Script.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Configure Azure Sentinel to Forward Logs to the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "Create a new logic app in the same resource group as the log analytics workspace. To learn more, refer to the Microsoft documentation.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the Logic Apps Designer, click Blank Logic App.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          34,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add a trigger window, go to All > Schedule > Triggers > Sliding Window.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          35,
+          38
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          52,
+          60
+        ],
+        [
+          63,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Sliding Window window, on the Parameters tab, configure the window for 1 minute.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add an action window, go to All > Azure Monitor Logs > Actions > Run query and list results.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          35,
+          38
+        ],
+        [
+          41,
+          59
+        ],
+        [
+          62,
+          69
+        ],
+        [
+          72,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Azure Monitor Logs window, under Tenant, select the tenant with your Azure log analytics workspace and sign in to create a connection to Azure monitor logs.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          40,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "In the Run query and list results window:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Select the same Subscription, Resource Group, and Resource Type as your log analytics workspace on Azure Sentinel.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          16,
+          28
+        ],
+        [
+          30,
+          44
+        ],
+        [
+          50,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Enter the Resource Name.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In Query, copy the SecurityEvent code from the trigger script you downloaded.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          3,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "The downloaded trigger script for Azure Sentinel has a different SecurityEvent code depending on the attack use case (Decoy User Accounts or Enumeration Detection) that you selected and the domain controller configuration.",
+      "depth": 2
+    },
+    {
+      "item": "For Time Range, enter \"Last hour\".",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click New Step.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Condition Control.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Condition, build your condition:",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Choose a value.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "On the Expression tab, select length(collection).",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          30,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Dynamic content tab, select value under Run query and list results.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          35,
+          40
+        ],
+        [
+          47,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "The value field is added within the length expression.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          9
+        ],
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Select is greater than from the drop-down menu, and enter 0.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Under True, click Add an action, and then select HTTP.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          18,
+          31
+        ],
+        [
+          49,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the HTTP window:",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Under Method, select POST from the drop-down menu.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          21,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Under URI, copy the URI from the trigger script you downloaded.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The downloaded trigger script for Azure Sentinel has a different URI depending on the attack use case (Decoy User Accounts or Enumeration Detection) that you selected and the domain controller configuration.",
+      "depth": 2
+    },
+    {
+      "item": "Under Body, select Body from Run query and list results.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          19,
+          23
+        ],
+        [
+          29,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To avoid data trimming, go to HTTP > Settings > Networking > Content Transfer and disable Allow chunking.",
+      "depth": 1,
+      "strong": [
+        [
+          30,
+          34
+        ],
+        [
+          37,
+          45
+        ],
+        [
+          48,
+          58
+        ],
+        [
+          61,
+          77
+        ],
+        [
+          90,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save to save the logic app.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To test AD decoys, log in to a decoy AD user account. You can see events triggered in Azure Sentinel and the Deception Admin Portal.",
+      "depth": 0
+    }
+  ]
+}

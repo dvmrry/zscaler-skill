@@ -1,0 +1,449 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Workload Groups",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/workload-groups",
+    "node": "1467836",
+    "revision": "3186010",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Workload%20Groups_6.json?VersionId=TemYHqwuOkozO7rg5P7IFquTyV.HHhwt",
+    "updated": "2026-03-27",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Workload Groups"
+      }
+    ],
+    "paths": {
+      "/workloadGroups": {
+        "get": {
+          "tags": [
+            "Workload Groups"
+          ],
+          "description": "Retrieves the list of workload groups configured in the ZIA Admin Portal. To learn more, see <a href=\"/zia/about-workload-groups\" target=\"_blank\">About Workload Groups</a>.",
+          "operationId": "WorkloadGroupResource_getWorkloadGroups",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32",
+              "description": "Specifies the page offset"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 250,
+              "format": "int32",
+              "description": "Specifies the page size. The default size is 250 and the maximum size is 1,000."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/WorkloadGroup"
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Workload Groups"
+          ],
+          "description": "Adds a workload group for an organization. To learn more, see <a href=\"/zia/configuring-workload-groups\" target=\"_blank\">Configuring Workload Groups</a>.",
+          "operationId": "WorkloadGroupResource_addWorkloadGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Workload group information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/WorkloadGroup"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/WorkloadGroup"
+              }
+            },
+            "400": {
+              "description": "Invalid"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Workload Groups"
+          ],
+          "description": "Deletes a list of workload groups for an organization",
+          "operationId": "WorkloadGroupResource_deleteWorkloadGroups",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ids",
+              "in": "query",
+              "description": "Filters the workload groups to be deleted based on the IDs",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Operation"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Not Found"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      },
+      "/workloadGroups/{workloadGroupId}": {
+        "get": {
+          "tags": [
+            "Workload Groups"
+          ],
+          "description": "Retrieves the workload group based on the specified ID",
+          "operationId": "WorkloadGroupResource_getWorkloadGroupById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "workloadGroupId",
+              "in": "path",
+              "description": "The workload group ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/WorkloadGroup"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Not Found"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Workload Groups"
+          ],
+          "description": "Updates the workload group for an organization based on the specified ID",
+          "operationId": "WorkloadGroupResource_updateWorkloadGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "workloadGroupId",
+              "in": "path",
+              "description": "The workload group ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/WorkloadGroup"
+              }
+            },
+            "400": {
+              "description": "Invalid"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Not Found"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Workload Groups"
+          ],
+          "description": "Deletes the workload group based on the specified ID",
+          "operationId": "WorkloadGroupResource_deleteWorkloadGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "workloadGroupId",
+              "in": "path",
+              "description": "The workload group ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Workload Group deleted successfully"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Not Found"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "WorkloadGroup": {
+        "type": "object",
+        "description": "Workload group information",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "A unique identifier assigned to the workload group"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the workload group"
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information of the workload group"
+          },
+          "expressionJson": {
+            "description": "The workload group expression containing tag types, tags, and their relationships represented in a JSON format.",
+            "$ref": "#/definitions/WorkloadTagExpression"
+          },
+          "expression": {
+            "type": "string",
+            "description": "The workload group expression containing tag types, tags, and their relationships."
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the workload group was last modified"
+          },
+          "lastModifiedBy": {
+            "description": "Information about the user that last modified the workload group",
+            "$ref": "#/definitions/EntityReference"
+          }
+        }
+      },
+      "WorkloadTagExpression": {
+        "type": "object",
+        "properties": {
+          "expressionContainers": {
+            "type": "array",
+            "description": "Contains one or more tag types (and associated tags) combined using logical operators within a workload group",
+            "items": {
+              "$ref": "#/definitions/ExpressionContainer"
+            }
+          }
+        }
+      },
+      "ExpressionContainer": {
+        "type": "object",
+        "description": "One or more tag types (and associated tags) combined using logical operators within a workload group",
+        "properties": {
+          "tagType": {
+            "type": "string",
+            "description": "The tag type selected from a predefined list",
+            "enum": [
+              "ANY",
+              "VPC",
+              "SUBNET",
+              "VM",
+              "ENI",
+              "ATTR"
+            ]
+          },
+          "operator": {
+            "type": "string",
+            "description": "The operator (either AND or OR) used to create logical relationships among tag types",
+            "enum": [
+              "AND",
+              "OR",
+              "OPEN_PARENTHESES",
+              "CLOSE_PARENTHESES"
+            ]
+          },
+          "tagContainer": {
+            "description": "Contains one or more tags and the logical operator used to combine the tags within a tag type",
+            "$ref": "#/definitions/TagContainer"
+          }
+        }
+      },
+      "TagContainer": {
+        "type": "object",
+        "description": "One or more tags combined using logical operators within a tag type",
+        "properties": {
+          "tags": {
+            "type": "array",
+            "description": "<p>One or more tags, each consisting of a key-value pair, selected within a tag type. If multiple tags are present within a tag type, they are combined using a logical operator.</p><p><b>Note</b>: A maximum of 8 tags can be added to a workload group, irrespective of the number of tag types present.</p>",
+            "items": {
+              "$ref": "#/definitions/Tag"
+            }
+          },
+          "operator": {
+            "type": "string",
+            "description": "The logical operator (either AND or OR) used to combine the tags within a tag type",
+            "enum": [
+              "AND",
+              "OR",
+              "OPEN_PARENTHESES",
+              "CLOSE_PARENTHESES"
+            ]
+          }
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "description": "The list of tags (key-value pairs) selected within a tag type",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The <i>key</i> component present in the key-value pair contained in a tag"
+          },
+          "value": {
+            "type": "string",
+            "description": "The <i>value</i> component present in the key-value pair contained in a tag"
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of an ID and name"
+      }
+    }
+  }
+}

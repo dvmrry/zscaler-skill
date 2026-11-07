@@ -1,0 +1,508 @@
+{
+  "schema_version": 1,
+  "id": "zcc.platform-settings",
+  "title": "Platform Settings: the per-OS console settings for sign-in, IPv6, ZDX upgrades, default UI and unattended-mode passwords",
+  "aliases": [
+    "Edit Platform Settings",
+    "platform settings zcc",
+    "WebView2 authentication",
+    "browser-based authentication",
+    "Enable IPv6 Resolution for Zscaler Domains",
+    "Allow ZDX Client Upgrade via CLI",
+    "WBC User Agent",
+    "Zscaler Client Connector Window Resizing"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.authentication-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.windows-unattended"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.log-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements.device-groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{per-os-settings}} {{global-log-mode}} The log mode itself is in [[zcc.logging.log-modes]]."
+    },
+    {
+      "label": "IPv6.",
+      "text": "{{ipv6-resolution}} {{ipv6-prerequisites}} {{ipv6-profiles}}"
+    },
+    {
+      "label": "ZDX module upgrades.",
+      "text": "{{zdx-cli-upgrade}}"
+    },
+    {
+      "label": "Default UI.",
+      "text": "{{default-ui}} Which operating systems list this setting on the Platform Settings page is open {{gap:default-ui-listing}}."
+    },
+    {
+      "label": "Unattended-mode passwords.",
+      "text": "{{unattended-passwords}} The install side of unattended mode is in [[zcc.install.windows-unattended]]."
+    },
+    {
+      "label": "Where users sign in.",
+      "text": "{{browser-based}} {{macos-browser-types}} {{windows-precedence}} The install parameters for the same choices are in [[zcc.install.authentication-options]]. What Authentication Service means is open {{gap:authentication-service}}."
+    },
+    {
+      "label": "WebView2.",
+      "text": "{{webview2-prerequisites}} {{webview2-bypasses}} {{webview2-sso-and-certs}} {{webview2-proxy-and-domains}} {{webview2-cert-popup}} Which app profile options control the reauthentication display is open {{gap:reauth-app-profile-options}}."
+    },
+    {
+      "label": "Window and user agent.",
+      "text": "{{window-resizing}} {{user-agent-suffix}} The user agent suffix leaves questions open {{gap:user-agent-suffix-details}}."
+    },
+    {
+      "label": "Device groups.",
+      "text": "The Platform Settings page lists Use Device Groups in Service Entitlement for iOS and Android without describing it; the device groups pages do: [[zcc.entitlements.device-groups:mobile-evaluation]] {{gap:device-groups-entitlement}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a Windows sign-in problem, whether both Browser-Based Authentication and WebView2 are selected, since Browser-Based Authentication then overrides WebView2.",
+      "uses": [
+        "windows-precedence"
+      ]
+    },
+    {
+      "do": "For a WebView2 sign-in failure, whether the Microsoft CDN domains are bypassed and the bootstrapper is allowlisted.",
+      "uses": [
+        "webview2-prerequisites",
+        "webview2-bypasses"
+      ]
+    },
+    {
+      "do": "For an IPv6-only device that does not connect, the IPv6 prerequisites and the forwarding profile settings before Platform Settings.",
+      "uses": [
+        "ipv6-resolution",
+        "ipv6-prerequisites",
+        "ipv6-profiles"
+      ]
+    }
+  ],
+  "claims": {
+    "per-os-settings": {
+      "statement": "The Platform Settings page lists different settings per OS. Windows: Browser-Based Authentication, WebView2 authentication, authentication window resizing, the global default log mode, IPv6 resolution for Zscaler domains, ZDX Module upgrades through the CLI, and passwords for unattended mode. macOS: the authentication browser type, the global default log mode and IPv6 resolution. Linux: Browser-Based Authentication and the global default log mode. iOS: Browser-Based Authentication, the global default log mode and Use Device Groups in Service Entitlement. Android: Browser-Based Authentication, the global default log mode, IPv6 resolution and Use Device Groups in Service Entitlement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-platform-settings.json",
+          "after": "To configure platform settings for Windows",
+          "quotes": [
+            "Enable Browser-Based Authentication.",
+            "Enable WebView2 authentication.",
+            "Enable resizing of the Zscaler Client Connector authentication window.",
+            "Set the global default log mode.",
+            "Enable IPv6 resolution for Zscaler domains.",
+            "Enable Digital Experience (ZDX) Module upgrades via the CLI.",
+            "Configure passwords for access in unattended mode."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-platform-settings.json",
+          "after": "To configure platform settings for macOS",
+          "quotes": [
+            "Choose the authentication browser type.",
+            "Set the global default log mode.",
+            "Enable IPv6 resolution for Zscaler domains."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-platform-settings.json",
+          "after": "To configure platform settings for Linux",
+          "quotes": [
+            "Enable Browser-Based Authentication.",
+            "Set the global default log mode."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-platform-settings.json",
+          "after": "To configure platform settings for iOS",
+          "quotes": [
+            "Enable Browser-Based Authentication.",
+            "Set the global default log mode.",
+            "Use Device Groups in Service Entitlement."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-platform-settings.json",
+          "after": "To configure platform settings for Android",
+          "quotes": [
+            "Enable Browser-Based Authentication.",
+            "Set the global default log mode.",
+            "Enable IPv6 resolution for Zscaler domains.",
+            "Use Device Groups in Service Entitlement."
+          ]
+        }
+      ]
+    },
+    "global-log-mode": {
+      "statement": "The page lists the simplicity of setting the global default log mode for all new policies at once, instead of having to configure the setting for each new customer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-platform-settings.json",
+          "quotes": [
+            "The simplicity of setting the global default log mode for all new policies at once instead of having to configure the setting for each new customer."
+          ]
+        }
+      ]
+    },
+    "ipv6-resolution": {
+      "statement": "Enable IPv6 Resolution for Zscaler Domains lets Client Connector connect to IPv6 Zscaler servers from an IPv6-only device. It is available only on Client Connector 4.8 and later for Windows, 4.7 and later for macOS and 4.1 and later for Android, and Zscaler Support enables it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-ipv6-resolution-zscaler-domains.json",
+          "quotes": [
+            "You can use Zscaler Client Connector to connect to IPv6 Zscaler servers from an IPv6-only device.",
+            "This feature is available only for Zscaler Client Connector version 4.8 and later for Windows, Zscaler Client Connector version 4.7 and later for macOS, and Zscaler Client Connector version 4.1 and later for Android. Contact Zscaler Support to enable this feature.",
+            "In the Edit Platform Settings window, under General Settings, select Enable IPv6 Resolution for Zscaler Domains."
+          ]
+        }
+      ]
+    },
+    "ipv6-prerequisites": {
+      "statement": "On a dual-stack network a device whose OS has an IPv4 address prefers IPv4, so using only IPv6 means removing a statically assigned IPv4 address or having the DHCP server issue only IPv6 addresses. App Connector and Private Service Edge for Private Access software must be at 24.353.5 or later, and on-premises firewalls must pass IPv6 traffic and allowlist the IPv6 addresses of the Zscaler infrastructure. When these are complete, Zscaler Support is contacted to request IPv6 support for the tenant, and the remaining prerequisites include new IdP and service provider endpoints and an updated PAC file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-ipv6-resolution-zscaler-domains.json",
+          "quotes": [
+            "If Zscaler Client Connector is running on a dual-stack network (IPv4 and IPv6 run simultaneously), a device with an OS that has an IPv4 address assigned to it prefers IPv4.",
+            "To use only IPv6, remove the IPv4 address from the OS (for statically assigned IP addresses) or configure the DHCP server to issue only IPv6 addresses (for DHCP-assigned IP addresses).",
+            "Ensure App Connector and Private Service Edge for Private Access software is upgraded to version 24.353.5 or later.",
+            "Allow IPv6 traffic to pass through on-premises firewalls and allowlist the IPv6 addresses for the Zscaler infrastructure for your on-premises firewalls:",
+            "When these prerequisites are complete, contact Zscaler Support to request IPv6 support for access for your tenant, and then make sure the remaining prerequisites for Private Access and Internet & SaaS IPv6 support are met (including configuring new IdP and service provider endpoints and updating the PAC file)."
+          ]
+        }
+      ]
+    },
+    "ipv6-profiles": {
+      "statement": "IPv6 support needs a forwarding profile with a Tunnel Driver Type of Packet Filter-Based. With Internet & SaaS, Drop IPv6 in Dual Stack Network and Drop IPv6 in IPv6 Only Network are disabled, Drop IPv6 Include Traffic When Not Supported is enabled, and an app profile has Destination Inclusion for IPv6 rules, for which Zscaler recommends [2000::/3] to cover all global routable IPv6 addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-ipv6-resolution-zscaler-domains.json",
+          "quotes": [
+            "Select a Tunnel Driver Type of Packet Filter-Based.",
+            "If you use Internet & SaaS, disable Drop IPv6 in Dual Stack Network and Drop IPv6 in IPv6 Only Network.",
+            "If you use Internet & SaaS, enable Drop IPv6 Include Traffic When Not Supported.",
+            "If you use Internet & SaaS, configure an app profile with Destination Inclusion for IPv6 rules per your network configuration.",
+            "Zscaler recommends using [2000::/3] to cover all global routable IPv6 addresses."
+          ]
+        }
+      ]
+    },
+    "zdx-cli-upgrade": {
+      "statement": "On Client Connector 4.7 and later for Windows, Allow ZDX Client Upgrade via CLI under General Settings must be enabled before a downloaded package can upgrade the ZDX Module through the CLI, which deploys a ZDX upgrade separately from a Client Connector upgrade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-zdx-module-upgrades-cli.json",
+          "quotes": [
+            "You can upgrade the Digital Experience (ZDX) Module for Windows via the CLI if you want to deploy an upgrade separately from a Zscaler Client Connector upgrade.",
+            "Before you can use a downloaded package to upgrade via the CLI, you must enable this feature.",
+            "This feature is available only for Zscaler Client Connector version 4.7 and later for Windows.",
+            "In the Edit Platform Settings window, under General Settings, enable Allow ZDX Client Upgrade via CLI."
+          ]
+        }
+      ]
+    },
+    "default-ui": {
+      "statement": "A Platform Settings setting determines which version of the app is the default for users, and its default value is enabled. It affects only users on Client Connector 5.0 and later, who see the Modern UI when it is enabled; when it is disabled all users see the Classic UI. Users on earlier versions see only the Classic UI. The default UI can also be set per app profile, which Zscaler Support enables.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-default-ui-experience.json",
+          "quotes": [
+            "You can use this setting to determine which version of the app is the default for users. The default value is enabled.",
+            "This setting affects only users with Zscaler Client Connector version 5.0 and later. Users with earlier versions can view only the Classic UI version of the app.",
+            "You can also configure the default UI experience per app profile. Contact Zscaler Support to enable this feature.",
+            "Enabled: Users with Zscaler Client Connector version 5.0 and later view the Modern UI version of the app.",
+            "Disabled: All users view the Classic UI version of the app (the same UI included with earlier versions)."
+          ]
+        }
+      ]
+    },
+    "unattended-passwords": {
+      "statement": "On Client Connector 4.2.1 and later for Windows, Platform Settings can require a generated password to uninstall, upgrade or revert Client Connector from a command line in unattended mode. Each enabled password expires after a chosen number of hours (at most 48) or days (at most 90), and Generate creates a new password for each enabled one. These passwords are not used when users uninstall, update or revert the app on their own devices; the passwords for those actions are set on the app profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-passwords-access-unattended-mode.json",
+          "quotes": [
+            "You can require a password when uninstalling, upgrading, or reverting Zscaler Client Connector in unattended mode.",
+            "This feature applies only to Zscaler Client Connector version 4.2.1 and later for Windows.",
+            "These passwords are not used when users manually update, uninstall, or revert Zscaler Client Connector from their own devices.",
+            "You can set up required passwords for those actions on the app profile.",
+            "Uninstall Password: Enable this option to require the generated password when uninstalling Zscaler Client Connector using a command line.",
+            "Upgrade Password: Enable this option to require the generated password when upgrading Zscaler Client Connector using a command line.",
+            "Revert Password: Enable this option to require the generated password when reverting Zscaler Client Connector using a command line.",
+            "Time Unit: Select whether to use hours or days for the password expiration period.",
+            "Hours: The maximum value is 48.",
+            "Days: The maximum value is 90.",
+            "Generate: Click to generate a new password for each enabled password."
+          ]
+        }
+      ]
+    },
+    "browser-based": {
+      "statement": "If an organization uses advanced multi-factor authentication for SAML, its users can authenticate in their browser instead of in Client Connector, which still manages Internet & SaaS traffic and Private Access. Zscaler must enable the feature; on Windows, Linux, iOS and Android the option is Browser-Based Authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-browser-based-authentication.json",
+          "quotes": [
+            "If your organization uses advanced multi-factor authentication (MFA) for SAML, your users can authenticate using their browser instead of authenticating in Zscaler Client Connector.",
+            "Zscaler Client Connector still manages traffic for Internet & SaaS and provides access to applications through Private Access.",
+            "Zscaler must enable this feature.",
+            "Windows, Linux, iOS, and Android: Select Browser-Based Authentication."
+          ]
+        }
+      ]
+    },
+    "macos-browser-types": {
+      "statement": "On macOS the authentication browser type offers Default, Browser Based Authentication and WebAuthn Popup Browser. Default authenticates with the default system-embedded browser that Client Connector uses. Browser Based Authentication authenticates with a web browser and uses the default web browser if enabled and Safari if disabled, for authenticating with a client certificate and a FIDO2 compliant key. WebAuthn Popup Browser authenticates with a restricted pop-up browser, for client certificates and FIDO2 compliant keys; selecting it shows the Use Default Browser field, automatically enabled, so the default web browser is used. WebAuthn Popup Browser applies to Client Connector 4.7 and later for macOS and to Authentication Service only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-browser-based-authentication.json",
+          "quotes": [
+            "macOS: In the Edit Platform Settings window, configure:",
+            "Default: Authenticate with the default system-embedded browser that Zscaler Client Connector uses.",
+            "Browser Based Authentication: Authenticate with a web browser.",
+            "If enabled, Zscaler Client Connector uses the default web browser, and if disabled, Zscaler Client Connector uses Safari.",
+            "Use this option when authenticating with a client certificate and a FIDO2 compliant key.",
+            "WebAuthn Popup Browser: Authenticate with a restricted pop-up browser.",
+            "When selected, the Use Default Browser field appears and is automatically enabled, so Zscaler Client Connector uses the default web browser.",
+            "Use this option when authenticating with client certificates and FIDO2 compliant keys.",
+            "Applies to Zscaler Client Connector version 4.7 and later for macOS and applies to Authentication Service only."
+          ]
+        }
+      ]
+    },
+    "windows-precedence": {
+      "statement": "On Windows, users authenticate either with Browser-Based Authentication, so that Client Connector opens in the device's default browser, or with WebView2 as the embedded browser; if both options are selected, Browser-Based Authentication overrides WebView2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-platform-settings.json",
+          "quotes": [
+            "Using Browser-Based Authentication so that Zscaler Client Connector opens in their device’s default browser.",
+            "Using WebView2 for the embedded browser.",
+            "If both options are selected, Browser-Based Authentication overrides WebView2."
+          ]
+        }
+      ]
+    },
+    "webview2-prerequisites": {
+      "statement": "For an organization using advanced MFA for SAML or FIDO2, users can authenticate with WebView2 in their embedded browser. It needs Client Connector 4.2 or later for Windows, .NET Framework 4.5 or later and WebView2 103.0.1264.42 or later; if an existing WebView2 is earlier than the minimum, Client Connector pulls the latest version from Microsoft's CDN using the bootstrap installer in its install package.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-webview2-authentication.json",
+          "quotes": [
+            "If your organization uses advanced multi-factor authentication (MFA) for SAML or FIDO2 (Fast Identity Online 2), your users can authenticate using WebView2 in their embedded browser.",
+            "Zscaler Client Connector version 4.2 or later for Windows",
+            ".Net Framework 4.5+",
+            "WebView2 103.0.1264.42+",
+            "If an existing version of WebView2 is earlier than the minimum version, Zscaler Client Connector pulls the latest version from Microsoft's content delivery network (CDN), using the bootstrap installer included in the Zscaler Client Connector install package."
+          ]
+        }
+      ]
+    },
+    "webview2-bypasses": {
+      "statement": "For the bootstrapper to download and install WebView2, the Microsoft CDN domains .delivery.mp.microsoft.com and .cdp.microsoft.com must be bypassed in strict enforcement mode or any other security policies, and MicrosoftEdgeWebview2Setup.exe, at %ProgramFiles%\\Zscaler\\ThirdParty\\WebView2\\, allowlisted in antivirus and other security policies. WebView2 launches its own processes, which Client Connector must bypass in strict enforcement mode, and its installation is shared by other apps that use the WebView2 runtime.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-webview2-authentication.json",
+          "quotes": [
+            "Bypass the following Microsoft CDN domains in strict enforcement mode or for any other security policies, so that the bootstrapper can download and install WebView2.",
+            ".delivery.mp.microsoft.com",
+            ".cdp.microsoft.com",
+            "The WebView2 installation is shared by other apps which use the WebView2 runtime.",
+            "Allowlist the file MicrosoftEdgeWebview2Setup.exe in antivirus and other security policies on client machines.",
+            "WebView2 launches its own set of processes, so Zscaler Client Connector must bypass them in the strict enforcement mode.",
+            "The full path of the exe is: %ProgramFiles%\\Zscaler\\ThirdParty\\WebView2\\MicrosoftEdgeWebview2Setup.exe."
+          ]
+        }
+      ]
+    },
+    "webview2-sso-and-certs": {
+      "statement": "Two optional WebView2 settings are available only on Client Connector 4.4 and later for Windows: SSO using Windows Primary Account logs users in automatically in an Azure AD environment that uses Windows as the IdP, and when it is disabled users enter their credentials separately; Ignore Client Cert errors for Webview2 has Client Connector continue authenticating when the IdP requires a client certificate for mutual authentication but the device has none or an invalid one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-webview2-authentication.json",
+          "after": "SSO using Windows Primary Account",
+          "quotes": [
+            "(Optional) Select this option to automatically log in users in an Azure AD environment using Windows as an IdP.",
+            "If this option is disabled, users must enter their credentials separately to log in to Zscaler Client Connector.",
+            "This option is available only for Zscaler Client Connector version 4.4 and later for Windows."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-webview2-authentication.json",
+          "after": "Ignore Client Cert errors for Webview2",
+          "quotes": [
+            "(Optional) Select this option to have Zscaler Client Connector continue authenticating if the IdP requires a client certificate for mutual authentication but the client device does not have a client certificate or if the client certificate is invalid.",
+            "This option is available only for Zscaler Client Connector version 4.4 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "webview2-proxy-and-domains": {
+      "statement": "Allow WebView2 to follow System Proxy is deselected to connect directly to the internet and is available only on Client Connector 4.5 and later for Windows. Additional IdP Domains, for when the user login domain differs from the IdP domain, are added to the Auth Server allowlist in the embedded WebView2 browser along with the user login domain added by default; it is available only on 4.6 and later for Windows, and before 4.8 requires the Imprivata integration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-webview2-authentication.json",
+          "quotes": [
+            "Allow WebView2 to follow System Proxy: (Optional) Deselect this option to connect directly to the internet. This option is available only for Zscaler Client Connector version 4.5 and later for Windows.",
+            "Additional IdP Domains: (Optional) Enter additional domains if the user login domain is different from the IdP domain.",
+            "These domains are added to the Auth Server allowlist in the embedded WebView2 browser along with the user login domain added by default.",
+            "This option is available only for Zscaler Client Connector version 4.6 and later for Windows and you must integrate with Imprivata to use it with a version earlier than 4.8."
+          ]
+        }
+      ]
+    },
+    "webview2-cert-popup": {
+      "statement": "Display certificate selection popup on desktop, available only on Client Connector 4.7 and later for Windows, shows a list of certificates in a pop-up window when several authentication certificates for the IdP are available; if disabled, the selection window displays only when users are viewing the app. If it is selected, app profile options can control what displays when users reauthenticate to Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-webview2-authentication.json",
+          "quotes": [
+            "Display certificate selection popup on desktop: (Optional) Select this option to display a list of certificates for the user to select from in a pop-up window if multiple authentication certificates for the IdP are available.",
+            "If disabled, the selection window displays only when users are viewing the app.",
+            "Available only with Zscaler Client Connector version 4.7 and later for Windows.",
+            "If you select this option, you can enable app profile options to control what displays when users reauthenticate to Private Access."
+          ]
+        }
+      ]
+    },
+    "window-resizing": {
+      "statement": "On Client Connector 4.6 and later for Windows, enabling Zscaler Client Connector Window Resizing under Authentication Settings makes the app resize the page as necessary to show all the configured multi-factor authentication options, then return to its original dimensions after authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-resizing-zscaler-client-connector-authentication-window.json",
+          "quotes": [
+            "This feature helps ensure users can see all the available options if you have configured a number of multi-factor authentication options.",
+            "If you enable this feature, the app resizes the page as necessary to display all the options and then returns to its original dimensions after authentication.",
+            "This feature is available only for Zscaler Client Connector version 4.6 and later for Windows.",
+            "In the Edit Platform Settings window, under Authentication Settings, enable Zscaler Client Connector Window Resizing."
+          ]
+        }
+      ]
+    },
+    "user-agent-suffix": {
+      "statement": "Client Connector can be given a user agent suffix that the IdP reads as strings it expects during authentication to identify the user agent. The suffix can be global or per domain: on the User Agent page under WBC User Agent, the Global User Agent Suffix field takes the suffix to append, and the Select Domain drop-down menu selects a domain provisioned for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-user-agent.json",
+          "quotes": [
+            "You can customize the User Agent with a suffix that the IdP reads as specific strings it expects during authentication to identify the user agent.",
+            "You can create a user agent suffix globally or for each domain.",
+            "On the User Agent page under WBC User Agent, select one of the following:",
+            "In the Global User Agent Suffix field, enter the suffix you want Zscaler Client Connector to append to user agents.",
+            "In the Select Domain drop-down menu, select a domain provisioned for your organization."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "default-ui-listing": {
+      "kind": "semantic",
+      "title": "Which operating systems carry the default-UI setting",
+      "status": "open",
+      "detail": "The default-UI article puts the setting under General Settings on the Platform Settings window, but the About Platform Settings page lists no default-UI entry for any OS. Which operating systems carry it is not stated. How the per-app-profile default UI setting works is named but not described in these pages.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "authentication-service": {
+      "kind": "semantic",
+      "title": "What Authentication Service is",
+      "status": "open",
+      "detail": "The WebAuthn Popup Browser option applies to Authentication Service only, and the captured pages do not define Authentication Service.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "reauth-app-profile-options": {
+      "kind": "semantic",
+      "title": "App profile options for the Private Access reauthentication display",
+      "status": "open",
+      "detail": "The certificate pop-up article says app profile options control what displays when users reauthenticate to Private Access, and does not name them.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "user-agent-suffix-details": {
+      "kind": "semantic",
+      "title": "How the user agent suffix is applied",
+      "status": "open",
+      "detail": "The captured page does not say what WBC stands for, whether a per-domain suffix overrides or adds to the global one, or which IdP flows read the suffix.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "device-groups-entitlement": {
+      "kind": "semantic",
+      "title": "What Use Device Groups in Service Entitlement does",
+      "status": "partial",
+      "detail": "The Platform Settings page lists Use Device Groups in Service Entitlement for iOS and Android without describing it. The Enabling Device Groups page describes the switch (zcc.entitlements.device-groups:mobile-evaluation) and gives its enable steps and version floors (:mobile-prerequisite); what it does per platform beyond that is not stated.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

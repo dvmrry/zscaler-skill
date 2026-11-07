@@ -1,0 +1,470 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.users.provisioning.scim",
+  "title": "The Authentication Service SCIM server: operations, attribute mapping, authentication and rate limits",
+  "aliases": [
+    "Authentication Service SCIM server",
+    "ZIdentity SCIM server",
+    "SCIM API Examples",
+    "scim_externalid"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.attributes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.server-operations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This is the SCIM server Authentication Service exposes to an IdP, as against the IdP-side form in [[zidentity.users.provisioning]]. {{uses}} {{domain-preregistered}}"
+    },
+    {
+      "label": "Operations.",
+      "text": "{{user-operations}} {{group-operations}} {{other-endpoints}} The filter operators, bulk limits and how PATCH is handled beyond these tables are open {{gap:filters-and-bulk}}."
+    },
+    {
+      "label": "Attributes.",
+      "text": "{{system-attribute-map}} How many user attributes count as system-defined differs between pages: [[zidentity.attributes]]. {{default-user-attributes}} {{custom-user-attributes}} {{admin-defined-attributes}} {{group-attributes}}"
+    },
+    {
+      "label": "Authentication and limits.",
+      "text": "{{auth}} {{rate-limits}} ZIA's SCIM server has its own limit, stated separately: [[zia.scim.operations:rate-limit]]. Whether PATCH counts as a write is open {{gap:patch-rate-limit}}. How the Base URL is formed is open {{gap:base-url-formation}}."
+    },
+    {
+      "label": "What the examples page shows.",
+      "text": "{{list-response}} {{create-content-type}} {{no-content-responses}} {{remote-assistance-user}} Status and error codes beyond 204 are open {{gap:status-codes}}. The group update example states PUT yet sends PATCH, and the user update example sends PUT with a PatchOp body {{divergence:update-method}}; the attribute table types active as a string while the create example sends a boolean {{divergence:active-type}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which product's SCIM server the client calls before applying a rate limit; the 50-per-IdP-per-second limits are this server's.",
+      "uses": [
+        "rate-limits",
+        "zia.scim.operations:rate-limit"
+      ]
+    },
+    {
+      "do": "Whether the call needs the Bearer Token; informational calls such as /Schemas do not.",
+      "uses": [
+        "auth"
+      ]
+    },
+    {
+      "do": "Before copying an update or create example, the page's own inconsistencies on the update method and the type of active.",
+      "uses": [
+        "update-method",
+        "active-type"
+      ]
+    }
+  ],
+  "claims": {
+    "uses": {
+      "statement": "Authentication Service SCIM provisions users and groups, updates a user's group and department to follow the user directory, and deprovisions users deleted from the directory, through one of the IdPs partnered with Zscaler (the page links the Okta, Entra ID, AD FS and PingOne guides).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-scim.json",
+          "quotes": [
+            "Provisioning users and groups onto Zscaler.",
+            "Automatically updating a user's group and department in the Zscaler user database to align with the changes in your user directory.",
+            "Deprovisioning users from Zscaler's database when users are deleted from your user directory.",
+            "You can use one of the identity providers (IdP) partnered with Zscaler to implement SCIM.",
+            "Configuring Okta as an External IdP",
+            "Configuring Microsoft Entra ID as an External IdP",
+            "Configuring Microsoft AD FS as an External IdP",
+            "Configuring PingOne as an External IdP"
+          ]
+        }
+      ]
+    },
+    "domain-preregistered": {
+      "statement": "When SCIM creates a user, the domain in the username must already be registered with Authentication Service (the page's example: test@zscalerexample.com needs zscalerexample.com registered with the tenant).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-scim.json",
+          "quotes": [
+            "When creating users, the domain included in the username must be preregistered with Authentication Service.",
+            "For example, if a user has the username \"test@zscalerexample.com\", the domain \"zscalerexample.com\" needs to be registered with your tenant on Authentication Service."
+          ]
+        }
+      ]
+    },
+    "system-attribute-map": {
+      "statement": "The Understanding SCIM page maps system-defined user attributes to SCIM as, among others: Display Name to displayName and Primary Email to emails[type eq \"work\"].value (both mandatory), Login ID to userName, STATUS to active, Secondary Email to `Emails[type eq “home”].value` (so spelled), Department to the enterprise extension's department, and Manager to the enterprise extension's manager.value (the manager's user ID).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-scim.json",
+          "quotes": [
+            "| Display Name | displayName | String | The display name of the user. This is a mandatory attribute. |",
+            "| Primary Email | emails[type eq \"work\"].value | String | The user's primary email address. This is a mandatory attribute. |",
+            "| Login ID | userName | String | The user ID used for authentication |",
+            "| STATUS | active | String | The user's status confirming whether the user is enabled or disabled |",
+            "| Secondary Email | Emails[type eq “home”].value | String | The user's secondary email address |",
+            "| Department | urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.department | String | The department to which the user belongs |",
+            "| Manager | urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.manager.value | String | The user ID of the manager |"
+          ]
+        }
+      ]
+    },
+    "default-user-attributes": {
+      "statement": "Default SCIM user attributes are id (the unique identifier assigned to the user), the client-assigned External ID stored as scim_externalid, meta.created, meta.lastModified, meta.location, meta.version (updated with every modification), meta.resourceType (User) and groupIds, the user's group memberships.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-scim.json",
+          "quotes": [
+            "| id | id | String | The unique identifier assigned to the user |",
+            "| External ID | scim_externalid | String | The client-assigned identifier for the user which is unique within the client's context |",
+            "| Version | meta.version | String | The version of the user resource. The version is updated with every modification to the user resource |",
+            "| Groups | groupIds | String | A list of group memberships of the user. These groups allow access control and association. |",
+            "| Created | meta.created | String | The timestamp indicating when the user resource was created |",
+            "| Last Modified | meta.lastModified | String | The timestamp indicating the last modification to the user resource |",
+            "| Location | meta.location | String | The URI representing the location of the user resource in the SCIM server |",
+            "| Resource Type | meta.resourceType | String | The type indicating the resource type. In this case, the resource type should be User. |"
+          ]
+        }
+      ]
+    },
+    "custom-user-attributes": {
+      "statement": "Authentication Service classes these SCIM attributes as custom user attributes: honorificPrefix, honorificSuffix, profileUrl, locale, ims, photos, entitlements, roles, x509Certificates and employeeNumber.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-scim.json",
+          "quotes": [
+            "Authentication Service classifies attributes into two types: system-defined user attributes and custom user attributes.",
+            "| honorificPrefix | name.honorificPrefix | honorificPrefix |",
+            "| honorificSuffix | name.honorificSuffix | honorificSuffix |",
+            "| PROFILE_URL | profileUrl | PROFILE_URL |",
+            "| LOCALE | locale | LOCALE |",
+            "| IMS | ims | IMS |",
+            "| PHOTOS | photos | PHOTOS |",
+            "| ENTITLEMENTS | entitlements | ENTITLEMENTS |",
+            "| ROLES | roles | ROLES |",
+            "| X509CERTIFICATES | x509Certificates | X509CERTIFICATES |",
+            "| employeeNumber | urn:ietf:params:scim:schemas:extension:enterprise:2.0.employeeNumber | employeeNumber |"
+          ]
+        }
+      ]
+    },
+    "admin-defined-attributes": {
+      "statement": "Administrators can define any custom attributes; the page's examples (Tshirtsize, Officebuilding, Keyshare) map in the IdP to urn:ietf:params:scim:schemas:extension:zscaler:1.0:User.<name> (the page writes the names as tshirtsize, officebuilding and Keyshare).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-scim.json",
+          "quotes": [
+            "The following table provides example custom attributes for reference. Administrators can define any attributes as needed.",
+            "| Tshirtsize | Tshirtsize | urn:ietf:params:scim:schemas:extension:zscaler:1.0:User.tshirtsize | A custom attribute indicating the T-shirt size of the user |",
+            "| Officebuilding | Officebuilding | urn:ietf:params:scim:schemas:extension:zscaler:1.0:User.officebuilding | A custom attribute indicating the office premises to which the user belongs |",
+            "| Keyshare | Keyshare | urn:ietf:params:scim:schemas:extension:zscaler:1.0:User.Keyshare | A custom attribute for the keyshare belonging to the user |"
+          ]
+        }
+      ]
+    },
+    "group-attributes": {
+      "statement": "SCIM group attributes: ID is a unique ID generated by Zscaler, EXTERNALID is the client's external ID stored as scim_externalid, the resource type is Group, DISPLAYNAME is displayName and Members the users or resources in the group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-scim.json",
+          "quotes": [
+            "| ID | <unique_id> | The unique ID generated by Zscaler |",
+            "| EXTERNALID | scim_externalid | The external ID provided by the client and stored in the Zscaler's database |",
+            "| RESOURCE_TYPE | meta.resourceType | The type indicating the resource type. In this case, the resource type should be Group. |",
+            "| DISPLAYNAME | displayName | The display name of the group |",
+            "| Members | members | The list of users or resources associated with the group |"
+          ]
+        }
+      ]
+    },
+    "user-operations": {
+      "statement": "On /Users the SCIM server supports POST to create, GET for all users (up to 100 entries), GET with startIndex and count=1000 for 1,000 users from an index, GET by user ID, filters on userName eq and externalID eq, PUT or PATCH to update and DELETE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-scim.json",
+          "quotes": [
+            "| Create User | POST /Users |",
+            "| Retrieve All Users (up to 100 entries) | GET /Users |",
+            "| Retrieve All Users (1,000 users from specified index value) | GET /Users?startIndex=<value>&count=1000 |",
+            "| Retrieve a Specific User | GET /Users/{UserID} |",
+            "| Filter Users by Username | GET /Users?filter=userName eq <value> |",
+            "| Filter Users by External ID | GET /Users?filter=externalID eq <value> |",
+            "| Update User | PUT /Users/{UserID} or PATCH /Users/{UserID} |",
+            "| Delete User | DELETE /Users/{UserID} |"
+          ]
+        }
+      ]
+    },
+    "group-operations": {
+      "statement": "On /Groups it supports POST, GET for all groups (up to 1,000 entries), GET with startIndex for 1,000 groups from an index, GET by group ID, a filter on displayName eq and members.value eq, PUT or PATCH and DELETE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-scim.json",
+          "quotes": [
+            "| Create Group | POST /Groups |",
+            "| Retrieve All Groups (up to 1,000 entries) | GET /Groups |",
+            "| Retrieve All Groups (1,000 groups from specified index value) | GET /Groups?startIndex=<value> |",
+            "| Retrieve a Specific Group | GET /Groups/{GroupID} |",
+            "| Filter by Group's Display Name and Members | GET /Groups?filter=displayName eq <value> and members.value eq <value> |",
+            "| Update Group | PUT /Groups/{GroupID} or PATCH /Groups/{GroupID} |",
+            "| Delete Group | DELETE /Groups/{GroupID} |"
+          ]
+        }
+      ]
+    },
+    "other-endpoints": {
+      "statement": "The server also supports POST /Bulk, GET /Schemas and /Schemas/{SchemaID}, GET /ServiceProviderConfig, GET /ResourceTypes and /ResourceTypes/{ResourceTypeID}, and POST on [prefix]/.search.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-scim.json",
+          "quotes": [
+            "| Bulk Modify Resources | POST /Bulk |",
+            "| Retrieve All Resource Schemas | GET /Schemas |",
+            "| Retrieve a Specific Resource | Schema GET /Schemas/{SchemaID} |",
+            "| Retrieve the Service Provider's Configuration | GET /ServiceProviderConfig |",
+            "| Retrieve All Resource Types | GET /ResourceTypes |",
+            "| Retrieve a Specific Resource Type | GET /ResourceTypes/{ResourceTypeID} |",
+            "| Endpoint [prefix]/.search |  |",
+            "| Search for Resource Types | POST |"
+          ]
+        }
+      ]
+    },
+    "auth": {
+      "statement": "SCIM calls need SCIM-based provisioning enabled, the Base URL and the Bearer Token; most calls require the Bearer Token, but informational ones such as /Schemas, /ServiceProviderConfig and /ResourceTypes need no authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-scim-api-examples.json",
+          "quotes": [
+            "To do this, you must enable SCIM-based provisioning and have your Base URL and Bearer Token.",
+            "Most API calls to Zscaler SCIM servers require the Bearer Token for authentication.",
+            "However, there are several API calls (e.g., /Schemas, /ServiceProviderConfig, and /ResourceTypes) that do not require authentication, as they are informational for the SCIM server and not particular to any organization."
+          ]
+        }
+      ]
+    },
+    "rate-limits": {
+      "statement": "The Authentication Service SCIM API examples page gives rate limits of 50 read requests (GET) and 50 write requests (POST/PUT/DELETE) per IdP per second, and says to configure the application to comply to avoid retries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-scim-api-examples.json",
+          "quotes": [
+            "50 read requests (GET) per IdP/second",
+            "50 write requests (POST/PUT/DELETE) per IdP/second",
+            "To avoid retries, configure your application to comply with these rate limits."
+          ]
+        }
+      ]
+    },
+    "list-response": {
+      "statement": "The page's GET /Users response example is a SCIM ListResponse with totalResults, startIndex, Resources and itemsPerPage 100, and one user's location is https://<subdomain>.zslogin.net/scim/h1gkrvmic07od/Users/ihgkrqp5tg7o5.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-scim-api-examples.json",
+          "after": "Fetching All Users",
+          "quotes": [
+            "GET <Base URL>/Users",
+            "\"schemas\": [ \"urn:ietf:params:scim:api:messages:2.0:ListResponse\" ], \"totalResults\": 5, \"startIndex\": 1, \"Resources\": [",
+            "\"itemsPerPage\": 100 }",
+            "\"location\": \"https://<subdomain>.zslogin.net/scim/h1gkrvmic07od/Users/ihgkrqp5tg7o5\""
+          ]
+        }
+      ]
+    },
+    "remote-assistance-user": {
+      "statement": "The page's example user list includes a user __remote_assistance@<subdomain>.zslogin.net with display name Remote Assistance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-scim-api-examples.json",
+          "quotes": [
+            "\"displayName\": \"Remote Assistance\"",
+            "\"userName\": \"__remote_assistance@<subdomain>.zslogin.net\""
+          ]
+        }
+      ]
+    },
+    "create-content-type": {
+      "statement": "The create-user example POSTs with Content-Type application/scim+json, and the group-membership PATCH example uses a PatchOp with op Add on members and Content-Type application/json-patch+json.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-scim-api-examples.json",
+          "quotes": [
+            "curl -v -k <Base URL>/Users -d @create_scim_user.json -H \"Authorization: Bearer <Bearer Token>\" -H \"Content-Type: application/scim+json\"",
+            "-H \"Content-Type: application/json-patch+json\"",
+            "{ \"schemas\": [ \"urn:ietf:params:scim:api:messages:2.0:PatchOp\" ], \"Operations\": [ { \"op\": \"Add\", \"path\": \"members\", \"value\": [ { \"$ref\": null, \"value\": \"{UserID}\" } ] } ] }"
+          ]
+        }
+      ]
+    },
+    "no-content-responses": {
+      "statement": "Adding a member to a group and deleting a user each return 204 No Content on success.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-scim-api-examples.json",
+          "after": "# Updating a Group With a New Member",
+          "quotes": [
+            "The server responds with 204 - No Content upon successful operation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-scim-api-examples.json",
+          "after": "# Deleting a User",
+          "quotes": [
+            "The server responds with 204 - No Content upon successful operation."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "update-method": {
+      "summary": "Which method the SCIM API Examples page uses to update: both update sections say the PUT request is used, the group example sends PATCH, and the user example sends PUT with a PatchOp body.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-scim-api-examples.json",
+            "after": "# Updating a Group With a New Member",
+            "quotes": [
+              "In this example, the PUT request is used.",
+              "curl -v -k -X PATCH <Base URL>/Groups/{GroupID}"
+            ]
+          },
+          "says": "The group section says the PUT request is used, and its command is a PATCH."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-scim-api-examples.json",
+            "after": "# Updating a User's Display Name, Email, and Department",
+            "quotes": [
+              "In this example, the PUT request is used.",
+              "curl -X PUT -v -k <Base URL>/Users/{UserID} -d @updated_user_file_example.json",
+              "{ \"schemas\": [ \"urn:ietf:params:scim:api:messages:2.0:PatchOp\" ], \"Operations\": [ { \"op\": \"Replace\", \"path\": \"emails\""
+            ]
+          },
+          "says": "The user section says PUT and sends PUT, but its body is a PatchOp message."
+        }
+      ],
+      "impact": "The examples do not show which method a PatchOp body needs; the operations table lists PUT or PATCH for updates without saying how they differ."
+    },
+    "active-type": {
+      "summary": "The type of active: the attribute table types it as a string, while the create-user example sends a boolean.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-understanding-scim.json",
+            "quotes": [
+              "| STATUS | active | String | The user's status confirming whether the user is enabled or disabled |"
+            ]
+          },
+          "says": "The Understanding SCIM table types STATUS, mapped to active, as String."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-scim-api-examples.json",
+            "after": "New user file example",
+            "quotes": [
+              "\"userName\": \"test@zslog.in\", \"displayName\": \"Test User\", \"active\": true"
+            ]
+          },
+          "says": "The new user file example sends active as the boolean true."
+        }
+      ],
+      "impact": "A client that follows the table sends a string where the example sends a boolean; neither page says which the server accepts. ZPA's examples have the same open question: zpa.scim.server-operations:example-inconsistencies."
+    }
+  },
+  "gaps": {
+    "base-url-formation": {
+      "kind": "semantic",
+      "title": "How the SCIM Base URL is formed",
+      "status": "open",
+      "detail": "The Base URL appears only in examples: https://<subdomain>.zslogin.net/scim/<id>/ in the user list response, and http://<subdomain>.zslogin.net:9001/scim/<id>/ and http://oidp-test.zslogin.net:9001/scim/<id>/ in the updated-user response; the pages do not say how it is formed, where the id comes from, or why the forms differ.",
+      "blocks": "building the SCIM client configuration without copying the console's value",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "status-codes": {
+      "kind": "semantic",
+      "title": "Status and error codes of the SCIM server",
+      "status": "open",
+      "detail": "No status or error codes are given beyond 204 on the examples page.",
+      "blocks": "interpreting a failed SCIM call from an IdP",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "patch-rate-limit": {
+      "kind": "semantic",
+      "title": "Whether PATCH counts against the write limit",
+      "status": "open",
+      "detail": "The write limit is stated for POST, PUT and DELETE; PATCH is not named, though the operations table lists it as an update method.",
+      "blocks": "sizing a SCIM client that updates with PATCH",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "filters-and-bulk": {
+      "kind": "semantic",
+      "title": "Filter operators, bulk limits and the group list parameters",
+      "status": "open",
+      "detail": "No filter operator other than eq is shown, no /Bulk limits are given, and the group list shows no count parameter. Understanding SCIM links the AD FS guide for SCIM, while zidentity.overview.external-idps.integrations:guide-coverage records that the AD FS guide describes only JIT.",
+      "blocks": "building filtered or bulk SCIM calls",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

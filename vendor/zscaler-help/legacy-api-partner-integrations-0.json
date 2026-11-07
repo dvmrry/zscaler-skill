@@ -1,0 +1,723 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Partner Integrations",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/partner-integrations-0",
+    "node": "1541304",
+    "revision": "3209568",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Partner%20Integrations_4.json?VersionId=fmTakyk6IrIBVP8lJtRrtN72dNafHRk1",
+    "updated": "2026-06-19",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Partner Integrations"
+      }
+    ],
+    "paths": {
+      "/integrationPartners": {
+        "get": {
+          "tags": [
+            "Partner Integrations"
+          ],
+          "description": "Retrieves a list of partners and services integrated with the Zscaler service. To learn more, see <a href=\"/zia/about-partner-integrations\" target=\"_blank\">About Partner Integrations</a>.",
+          "operationId": "IntegrationPartnerResource_getPartners",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "apiKeyProvisioned",
+              "in": "query",
+              "description": "Filters the partners list based on the provisioned API key",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "partnerType",
+              "in": "query",
+              "description": "Filters the partners list based on the partner type",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "ANY",
+                "ORG_ADMIN",
+                "SDWAN",
+                "MSFT_VIRTUAL_WAN",
+                "PUBLIC_API",
+                "EXEC_INSIGHT",
+                "EXEC_INSIGHT_AND_ORG_ADMIN",
+                "ZSCALER_DECEPTION_ADMIN",
+                "ZSCALER_DECEPTION_SUPER_ADMIN",
+                "ZDX_ADMIN",
+                "EDGE_CONNECTOR_ADMIN",
+                "CSPM_ADMIN"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Partner"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/integrationPartners/crowdStrike/endpoints": {
+        "get": {
+          "tags": [
+            "Partner Integrations"
+          ],
+          "description": "Retrieves the list of CrowdStrike endpoints based on the indicator of compromise (IOC) query, with pagination support. To learn more, see <a href=\"/zia/viewing-crowdstrike-endpoint-hits-report\" target=\"_blank\">Viewing the CrowdStrike Endpoint Hits Report</a>.",
+          "operationId": "IntegrationPartnerResource_getIocObservedDevices",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "type",
+              "in": "query",
+              "required": false,
+              "type": "string",
+              "description": "Filters based on the IOC type",
+              "default": "MD5",
+              "enum": [
+                "MD5"
+              ]
+            },
+            {
+              "name": "value",
+              "in": "query",
+              "description": "Filters based on the IOC value",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            },
+            {
+              "name": "offset",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "partnerJsonType",
+              "in": "query",
+              "description": "Filters based on the partner JSON type",
+              "required": false,
+              "type": "string",
+              "default": "CROWDSTRIKE_CREDENTIALS",
+              "enum": [
+                "CROWDSTRIKE_CREDENTIALS",
+                "CARBON_BLACK_CREDENTIALS",
+                "ATP_DEFENDER_CREDENTIALS",
+                "UNIT_TESTING_CS",
+                "UNIT_TESTING_CB"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CrowdStrikeApiResponseCrowdStrikeEndpoint"
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Partner Integrations"
+          ],
+          "description": "Accepts a list of CrowdStrike endpoint or device IDs in the request body and fetches detailed endpoint or device data for those IDs. To learn more, see <a href=\"/zia/integrating-crowdstrike\" target=\"_blank\">Integrating with CrowdStrike</a>.",
+          "operationId": "IntegrationPartnerResource_crowdStrikeEndPoints",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about Crowdstrike endpoint or device IDs",
+              "required": true,
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "name": "partnerJsonType",
+              "in": "query",
+              "description": "Filters based on the partner JSON type",
+              "required": false,
+              "type": "string",
+              "default": "CROWDSTRIKE_CREDENTIALS",
+              "enum": [
+                "CROWDSTRIKE_CREDENTIALS",
+                "CARBON_BLACK_CREDENTIALS",
+                "MCAS_CREDENTIALS",
+                "ATP_DEFENDER_CREDENTIALS",
+                "UNIT_TESTING_CS",
+                "UNIT_TESTING_CB"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CrowdStrikeApiResponseCrowdStrikeEndpoint"
+              }
+            }
+          }
+        }
+      },
+      "/integrationPartners/crowdStrike/whitelistedBaseUrls": {
+        "get": {
+          "tags": [
+            "Partner Integrations"
+          ],
+          "description": "Retrieves a list of CrowdStrike configured whitelisted base URLs (allowist URLs).",
+          "operationId": "IntegrationPartnerResource_getCrowdStrikeWhietlistedDomains",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "partnerJsonType",
+              "in": "query",
+              "description": "Filters based on the partner JSON type",
+              "required": false,
+              "type": "string",
+              "default": "CROWDSTRIKE_CREDENTIALS",
+              "enum": [
+                "CROWDSTRIKE_CREDENTIALS",
+                "CARBON_BLACK_CREDENTIALS",
+                "ATP_DEFENDER_CREDENTIALS",
+                "UNIT_TESTING_CS",
+                "UNIT_TESTING_CB"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/integrationPartners/microsoftDefender/endpoints": {
+        "post": {
+          "tags": [
+            "Partner Integrations"
+          ],
+          "description": "Configures the integration of Microsoft Defender for Endpoint APIs with Zscaler. To learn more, see <a href=\"/zia/integrating-microsoft-defender-endpoint\" target=\"_blank\">Integrating with Microsoft Defender for Endpoint</a>.",
+          "operationId": "IntegrationPartnerResource_getMicrosoftDefenderTransactions",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Microsoft Defender transaction request details",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/MicrosoftDefenderTransactionRequest"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/MicrosoftDefenderResponseMicrosoftDefenderEndpoint"
+              }
+            }
+          }
+        }
+      },
+      "/integrationPartners/sandbox/report/{md5}": {
+        "get": {
+          "tags": [
+            "Partner Integrations"
+          ],
+          "description": "Retrieves the MD5 hash of the file required to view the Sandbox Detail Report. To learn more, see <a href=\"/zia/viewing-sandbox-reports-data\" target=\"_blank\">Viewing Sandbox Reports and Data</a>.",
+          "operationId": "IntegrationPartnerResource_getMd5Detail",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "md5",
+              "description": "Filters the Sandbox report based on the MD5 hash of the file",
+              "in": "path",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/SandboxVerdictResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "Partner": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated partner ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Partner name"
+          },
+          "type": {
+            "type": "string",
+            "description": "Partner type",
+            "enum": [
+              "ANY",
+              "ORG_ADMIN",
+              "SDWAN",
+              "MSFT_VIRTUAL_WAN",
+              "PUBLIC_API",
+              "EXEC_INSIGHT",
+              "EXEC_INSIGHT_AND_ORG_ADMIN",
+              "ZSCALER_DECEPTION_ADMIN",
+              "ZSCALER_DECEPTION_SUPER_ADMIN",
+              "ZDX_ADMIN",
+              "EDGE_CONNECTOR_ADMIN",
+              "CSPM_ADMIN"
+            ]
+          }
+        }
+      },
+      "CrowdStrikeApiResponseCrowdStrikeEndpoint": {
+        "type": "object",
+        "properties": {
+          "crowdStrikeResponse": {
+            "type": "array",
+            "description": "Crowdstrike API response",
+            "items": {
+              "$ref": "#/definitions/CrowdStrikeEndpoint"
+            }
+          },
+          "crowdStrikePagination": {
+            "description": "Crowdstrike pagination information",
+            "$ref": "#/definitions/CrowdStrikePagination"
+          },
+          "crowdStrikeErrors": {
+            "type": "array",
+            "description": "Information about CrowdStrike errors",
+            "items": {
+              "$ref": "#/definitions/CrowdStrikeError"
+            }
+          }
+        }
+      },
+      "MicrosoftDefenderTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "sha256": {
+            "type": "string",
+            "description": "The SHA-256 hash of the file"
+          },
+          "sha1": {
+            "type": "string",
+            "description": "The SHA-1 hash of the file"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Specifies the page number"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Specifies the page size"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Specifies the page offset"
+          },
+          "machineIds": {
+            "type": "array",
+            "description": "IDs of Microsoft Defender agent installed on the host",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MicrosoftDefenderResponseMicrosoftDefenderEndpoint": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/MicrosoftDefenderEndpoint"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "The status of the endpoint, whether or not it is quarantined"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Specifies the page offset"
+          },
+          "sha1": {
+            "type": "string",
+            "description": "The SHA-1 hash of the file"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The overall matches across pages used for pagination or UI totals"
+          },
+          "actionResponse": {
+            "description": "The action response based on the Microsoft Defender for Endpoint API call",
+            "$ref": "#/definitions/MicrosoftDefenderEndpoint"
+          },
+          "error": {
+            "description": "The Microsoft Defender error information",
+            "$ref": "#/definitions/MicrosoftDefenderError"
+          }
+        }
+      },
+      "SandboxVerdictResponse": {
+        "type": "object",
+        "properties": {
+          "threatName": {
+            "type": "string",
+            "description": "Name of the threat detected. To learn more, see <b>Threat Name</b> on <a href=\"/zia/sandbox-verdict-insights-logs-columns\" target=\"_blank\">Sandbox Verdict Insights Logs: Columns</a>."
+          },
+          "sandboxCategory": {
+            "type": "string",
+            "description": "The Sandbox category used in Zscaler's Sandbox policy to group files based on their observed malicious behaviors and threats"
+          },
+          "sandboxScore": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The threat score determined from the sandbox analysis"
+          },
+          "fileType": {
+            "type": "string",
+            "description": "The type of file (e.g., Windows Executable)"
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The file size, in bytes."
+          },
+          "md5": {
+            "type": "string",
+            "description": "The MD5 hash of the file"
+          },
+          "sha1": {
+            "type": "string",
+            "description": "The SHA-1 hash of the file"
+          },
+          "sha256": {
+            "type": "string",
+            "description": "The SHA-256 hash of the file"
+          },
+          "ssdeep": {
+            "type": "string",
+            "description": "The ssdeep hash of the file"
+          },
+          "threatLink": {
+            "type": "string",
+            "description": "The threat link of the threat detected"
+          },
+          "message": {
+            "type": "string",
+            "description": "The threat message"
+          },
+          "originLanguage": {
+            "type": "string",
+            "description": "The threat origin language"
+          },
+          "originCountry": {
+            "type": "string",
+            "description": "The threat origin country"
+          }
+        }
+      },
+      "CrowdStrikeEndpoint": {
+        "type": "object",
+        "properties": {
+          "endPointLink": {
+            "type": "string",
+            "description": "Link to the CrowdStrike endpoint"
+          },
+          "device_id": {
+            "type": "string",
+            "description": "The Agent ID (AID) on CrowdStrike"
+          },
+          "system_product_name": {
+            "type": "string",
+            "description": "The endpoint’s machine or product details as reported by CrowdStrike"
+          },
+          "hostname": {
+            "type": "string",
+            "description": "The host name"
+          },
+          "local_ip": {
+            "type": "string",
+            "description": "The internal IP address of the host"
+          },
+          "external_ip": {
+            "type": "string",
+            "description": "The external IP address of the host"
+          },
+          "mac_address": {
+            "type": "string",
+            "description": "The MAC address of the host"
+          },
+          "os_version": {
+            "type": "string",
+            "description": "The operating system and version of the host"
+          },
+          "status": {
+            "type": "string",
+            "description": "The status of the endpoint",
+            "enum": [
+              "NORMAL",
+              "CONTAINMENT_PENDING",
+              "CONTAINED",
+              "LIFT_CONTAINMENT_PENDING"
+            ]
+          },
+          "file_status": {
+            "type": "string",
+            "description": "The status of the file",
+            "enum": [
+              "SEEN",
+              "DETECTED",
+              "PREVENTED"
+            ]
+          },
+          "platform_name": {
+            "type": "string",
+            "description": "Indicates the endpoint’s platform or OS family as reported by CrowdStrike"
+          },
+          "first_seen": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the file was first detected on the endpoint"
+          },
+          "last_seen": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the file was last detected on the endpoint"
+          }
+        }
+      },
+      "CrowdStrikePagination": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "string",
+            "description": "Specifies the page offset"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Specifies the page size"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The total count of pages"
+          },
+          "next_page": {
+            "type": "string",
+            "description": "A value used to move to the next page. When this field returns NULL, it indicates there are no more pages."
+          }
+        }
+      },
+      "CrowdStrikeError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "The Crowdstrike error message"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The Crowdstrike error code"
+          }
+        }
+      },
+      "MicrosoftDefenderEndpoint": {
+        "type": "object",
+        "properties": {
+          "machineId": {
+            "type": "string",
+            "description": "The ID of Microsoft Defender agent installed on the host"
+          },
+          "hostname": {
+            "type": "string",
+            "description": "The host name"
+          },
+          "internalIp": {
+            "type": "string",
+            "description": "The internal IP address of the host"
+          },
+          "externalIp": {
+            "type": "string",
+            "description": "The external IP address of the host"
+          },
+          "osVersion": {
+            "type": "string",
+            "description": "The operating system and version of the host"
+          },
+          "action": {
+            "type": "string",
+            "description": "The action taken on the endpoint based on the Microsoft Defender for Endpoint API call"
+          },
+          "lastSeenDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the file was last detected on the endpoint"
+          },
+          "firstSeenDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the file was first detected on the endpoint"
+          },
+          "fileStatus": {
+            "type": "string",
+            "description": "The status of the file",
+            "enum": [
+              "NONE",
+              "PREVENTED",
+              "TEST",
+              "QUARANTINE_SUCCEEDED",
+              "QUARANTINE_PENDING",
+              "QUARANTINE_INPROGRESS",
+              "QUARANTINE_FAILED",
+              "QUARANTINE_TIMEOUT",
+              "SEEN",
+              "DETECTED",
+              "REMEDIATED",
+              "QUARANTINED"
+            ]
+          },
+          "endPointStatus": {
+            "type": "string",
+            "description": "The status of the endpoint",
+            "enum": [
+              "NONE",
+              "NORMAL",
+              "ACTIVE",
+              "ISOLATED",
+              "UNISOLATED",
+              "ISOLATE_SUCCEEDED",
+              "ISOLATE_PENDING",
+              "ISOLATE_INPROGRESS",
+              "ISOLATE_FAILED",
+              "ISOLATE_TIMEOUT",
+              "ISOLATE_CANCELED",
+              "ALERT_UNKNOWN",
+              "ALERT_TERMINATED",
+              "ALERT_SUCCESSFULLY_REMEDIATED",
+              "ALERT_BENIGN",
+              "ALERT_FAILED",
+              "ALERT_PARTIALLY_REMEDIATED",
+              "ALERT_RUNNING",
+              "ALERT_PENDING_APPROVAL",
+              "ALERT_PENDING_RESOURCE",
+              "ALERT_PARTIALLY_INVESTIGATED",
+              "ALERT_TERMINATED_BY_USER",
+              "ALERT_TERMINATED_BY_SYSTEM",
+              "ALERT_QUEUED",
+              "ALERT_INNER_FAILURE",
+              "ALERT_PREEXISTING_ALERT",
+              "ALERT_UNSUPPORTED_OS",
+              "ALERT_UNSUPPORTED_ALERT_TYPE",
+              "ALERT_SUPPRESSED_ALERT"
+            ]
+          }
+        }
+      },
+      "MicrosoftDefenderError": {
+        "type": "object",
+        "properties": {
+          "errorMessage": {
+            "type": "string",
+            "description": "The Microsoft Defender error message"
+          },
+          "errorCode": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The Microsoft Defender error code"
+          }
+        }
+      }
+    }
+  }
+}

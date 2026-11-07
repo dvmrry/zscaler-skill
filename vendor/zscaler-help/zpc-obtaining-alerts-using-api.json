@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Obtaining Alerts Using API",
+  "source": {
+    "url": "https://help.zscaler.com/zpc/obtaining-alerts-using-api",
+    "node": "1457296",
+    "revision": "2603091",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information for managing Zscaler Posture Control (ZPC) alerts using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Getting Cloud Alerts",
+      "level": 1
+    },
+    {
+      "text": "To get a list of cloud alerts, send a GET request to the endpoint /alerts/cloud."
+    },
+    {
+      "text": "The following parameters might be passed when making the request to get cloud alerts for the specified parameters:"
+    },
+    {
+      "item": "limit: Indicates the page size. If not provided, the default page size is 100. The maximum limit for page size is 100.",
+      "depth": 0
+    },
+    {
+      "item": "offset: Specifies the page number.",
+      "depth": 0
+    },
+    {
+      "item": "created[start]: The created starting date for the alert in epoch seconds.",
+      "depth": 0
+    },
+    {
+      "item": "created[end]: The created ending date for the alert in epoch seconds.",
+      "depth": 0
+    },
+    {
+      "item": "updated[start]: The updated starting date for the alert in epoch seconds.",
+      "depth": 0
+    },
+    {
+      "item": "updated[end]: The updated ending date for the alert in epoch seconds.",
+      "depth": 0
+    },
+    {
+      "item": "cloud_account_type: Indicates the cloud account type of the alert based on the specified filter (AWS, GCP, AZURE, KUBERNETES).",
+      "depth": 0
+    },
+    {
+      "item": "business_units: Filters the alert by business unit name based on the specified filter.",
+      "depth": 0
+    },
+    {
+      "item": "regions: Filters the alerts based on the specified regions.",
+      "depth": 0
+    },
+    {
+      "item": "alert_status: Filters the alerts by the specified AlertStatus value (OPEN, CLOSED, RESOLVED, IGNORED).",
+      "depth": 0
+    },
+    {
+      "item": "risk_level: Filters the alerts by the specified RiskLevel value (LOW, MEDIUM, HIGH, CRITICAL).",
+      "depth": 0
+    },
+    {
+      "item": "order_by: Orders the alerts by the specified order_by value. Click here to see the supported values.",
+      "depth": 0
+    },
+    {
+      "item": "fields: Filters the alerts by the specified fields value. Click here to see the supported values.",
+      "depth": 0
+    },
+    {
+      "text": "The following conditions apply when using the created[start], created[end], updated[start], and updated[end] parameters:"
+    },
+    {
+      "item": "If start and end times are not specified, then alerts are retrieved for the last 48 hours by default.",
+      "depth": 0
+    },
+    {
+      "item": "If only the start time is specified, then alerts are retrieved for up to 48 hours from the start time.",
+      "depth": 0
+    },
+    {
+      "item": "If only the end time is specified, then alerts are retrieved from the end time to 48 hours before.",
+      "depth": 0
+    },
+    {
+      "item": "If both the created and updated start and end times are specified, then only the alerts within the specified time range are retrieved.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"alerts\": [ { \"kind\": \"CloudAlert\", \"alert_id\": \"123456\", \"alert_type\": \"Security Group\", \"alert_description\": \"The security group SG-12345678 allows inbound traffic from any IP address.\", \"alert_status\": \"open\", \"alert_status_description\": \"The alert is still open and has not yet been resolved.\", \"alert_url\": \"https://example.com/alerts/\", \"csp\": \"AWS\", \"severity\": \"High\", \"risk_level\": \"High\", \"risk_score\": \"8.5\", \"threat_category\": \"Network Security\", \"mitre_attack\": \"T1071 - Application Layer Protocol\", \"theme\": \"Network Security\", \"asset_category\": \"Compute\", \"asset_type\": \"EC2 Instance\", \"age\": 86400, \"audit_procedure\": \"The security group rules should be reviewed and the unnecessary rules should be removed.\", \"recommendations\": \"Restrict the inbound traffic to the required IP addresses only.\", \"remediation_procedure\": \"The security group rules should be modified to restrict the inbound traffic to the required IP addresses only.\", \"alert_focus\": \"Network Security\", \"reason\": \"The security group was created without proper restrictions on inbound traffic.\", \"updated_by\": \"John Doe\", \"created\": 123234536456, \"updated\": 123234537689, \"policy\": { \"policy_id\": \"5678\", \"policy_source\": \"example source\", \"policy_name\": \"Example Policy\", \"policy_description\": \"A description of the policy\" }, \"cloud_resource\": { \"resource_id\": \"abcd\", \"resource_name\": \"Example Resource\", \"resource_type\": \"EC2 Instance\", \"resource_region\": \"us-east-1\" }, \"identity\": { \"identity_id\": \"xyz-789\", \"identity_name\": \"Example User\", \"identity_type\": \"User\", \"identity_source\": \"Example Source\" }, \"compliance\": { \"name\": \"Example Compliance\", \"version\": \"1.0\", \"number\": \"xyz-75666\", \"type\": \"Regulation\", \"domains\": \"Finance, Healthcare\" }, \"business_unit\": { \"business_unit_name\": \"Example Business Unit\" }, \"cloud_account\": { \"account_id\": \"1234\", \"account_name\": \"Example Account\", \"organization\": \"Example Org\", \"organization_id\": \"abc-123\" }, \"kubernetes\": { \"cluster_type\": \"GKE\", \"cluster_name\": \"Example Cluster\" } } ], \"total_count\": 1, \"prev_link\": \"https://example.com/alerts/cloud/offset=1\", \"next_link\": \"https://example.com/alerts/cloud/offset=3\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting IaC Alerts",
+      "level": 1
+    },
+    {
+      "text": "To get a list of IaC alerts, send a GET request to the endpoint /alerts/iac."
+    },
+    {
+      "text": "The following parameters might be passed when making the request to get IaC alerts for the specified parameters:"
+    },
+    {
+      "item": "limit: Indicates the page size. If not provided, the default page size is 100. The maximum limit for page size is 100.",
+      "depth": 0
+    },
+    {
+      "item": "offset: Specifies the page number.",
+      "depth": 0
+    },
+    {
+      "item": "created[start]: The created starting date for the alert in epoch seconds.",
+      "depth": 0
+    },
+    {
+      "item": "created[end]: The created ending date for the alert in epoch seconds.",
+      "depth": 0
+    },
+    {
+      "item": "updated[start]: The updated starting date for the alert in epoch seconds.",
+      "depth": 0
+    },
+    {
+      "item": "updated[end]: The updated ending date for the alert in epoch seconds.",
+      "depth": 0
+    },
+    {
+      "item": "cloud_account_type: Indicates the cloud account type of the alert based on the specified filter (AWS, GCP, AZURE, KUBERNETES).",
+      "depth": 0
+    },
+    {
+      "item": "business_units: Filters the alert by business unit name based on the specified filter.",
+      "depth": 0
+    },
+    {
+      "item": "regions: Filters the alerts based on the specified regions.",
+      "depth": 0
+    },
+    {
+      "item": "alert_status: Filters the alerts by the specified AlertStatus value (OPEN, CLOSED, RESOLVED, IGNORED).",
+      "depth": 0
+    },
+    {
+      "item": "risk_level: Filters the alerts by the specified RiskLevel value (LOW, MEDIUM, HIGH, CRITICAL).",
+      "depth": 0
+    },
+    {
+      "item": "order_by: Orders the alerts by the specified order_by value. Click here to see the supported values.",
+      "depth": 0
+    },
+    {
+      "item": "severity: The severity level (Critical, High, Medium, or Low) of the cloud alert.",
+      "depth": 1
+    },
+    {
+      "item": "severity:asc: The severity level in ascending order.",
+      "depth": 1
+    },
+    {
+      "item": "severity:desc: The severity level in descending order.",
+      "depth": 1
+    },
+    {
+      "item": "created: The timestamp when the cloud alert was created.",
+      "depth": 1
+    },
+    {
+      "item": "created:asc: The timestamp when the cloud alert was created, and sorted in ascending order.",
+      "depth": 1
+    },
+    {
+      "item": "created:desc: The timestamp when the cloud alert was created, and sorted in descending order.",
+      "depth": 1
+    },
+    {
+      "item": "updated: The timestamp when the cloud alert was last modified.",
+      "depth": 1
+    },
+    {
+      "item": "updated:asc: The timestamp when the cloud alert was last modified, and sorted in ascending order.",
+      "depth": 1
+    },
+    {
+      "item": "updated:desc: The timestamp when the cloud alert was last modified, and sorted in descending order.",
+      "depth": 1
+    },
+    {
+      "item": "alert_status: The status of the cloud alert (Open, Closed, Resolved, Reopened).",
+      "depth": 1
+    },
+    {
+      "item": "alert_status:asc: The status of the cloud alert (Open, Closed, Resolved, Reopened), and sorted in ascending order.",
+      "depth": 1
+    },
+    {
+      "item": "alert_status:desc: The status of the cloud alert (Open, Closed, Resolved, Reopened), and sorted in descending order.",
+      "depth": 1
+    },
+    {
+      "item": "fields: Filters the alerts by the specified fields value. Click here to see the supported values.",
+      "depth": 0
+    },
+    {
+      "item": "alert_id: The unique identifier of the cloud alert.",
+      "depth": 1
+    },
+    {
+      "item": "alert_type: The entity type of the cloud alert.",
+      "depth": 1
+    },
+    {
+      "item": "alert_desc: The description of the cloud alert.",
+      "depth": 1
+    },
+    {
+      "item": "alert_status: The status of the cloud alert (Open, Closed, Resolved, Reopened).",
+      "depth": 1
+    },
+    {
+      "item": "alert_status_desc: The description of the cloud alert status.",
+      "depth": 1
+    },
+    {
+      "item": "alert_url: The URL of the alert.",
+      "depth": 1
+    },
+    {
+      "item": "csp: The Cloud Service Providers for the alert (AWS, GCP, AZURE, KUBERNETES, OCI).",
+      "depth": 1
+    },
+    {
+      "item": "severity: The severity level (Critical, High, Medium, or Low) of the cloud alert.",
+      "depth": 1
+    },
+    {
+      "item": "risk_score: The numeric representation of the risk.",
+      "depth": 1
+    },
+    {
+      "item": "threat_category: The threat category the policy belongs to.",
+      "depth": 1
+    },
+    {
+      "item": "mitre_attack: The link to the technique on the MITRE ATT&CK website.",
+      "depth": 1
+    },
+    {
+      "item": "theme: The theme for the alert (Compliance, Security Events, or Security Exposure).",
+      "depth": 1
+    },
+    {
+      "item": "asset_category: The top-level grouping of assets.",
+      "depth": 1
+    },
+    {
+      "item": "asset_type: The type of the asset.",
+      "depth": 1
+    },
+    {
+      "item": "audit_procedure: The steps to audit.",
+      "depth": 1
+    },
+    {
+      "item": "recommendations: The recommended action to resolve the alert.",
+      "depth": 1
+    },
+    {
+      "item": "remediation_procedure: The steps to resolve the alert.",
+      "depth": 1
+    },
+    {
+      "item": "alert_focus: The focus of the alert (Asset, Identity).",
+      "depth": 1
+    },
+    {
+      "item": "reason: The text description of the manually resolved alerts.",
+      "depth": 1
+    },
+    {
+      "item": "updated_by: The user who modified the alert.",
+      "depth": 1
+    },
+    {
+      "item": "policy: The unique identifier, the source, the name, and the description of the security policy.",
+      "depth": 1
+    },
+    {
+      "item": "cloud_resource: The unique identifier, the name, the type, and the region of the cloud resource.",
+      "depth": 1
+    },
+    {
+      "item": "business_unit: The name of the business unit.",
+      "depth": 1
+    },
+    {
+      "item": "cloud_account: The unique identifier, the name, the organization, and the organization ID of the cloud account.",
+      "depth": 1
+    },
+    {
+      "item": "identity: The unique identifier, the name, and the type of identity.",
+      "depth": 1
+    },
+    {
+      "item": "compliance: The name, version, control number, type, and domains of the compliance benchmark.",
+      "depth": 1
+    },
+    {
+      "item": "kubernetes: The cluster type (EKS, AKS, GKE).",
+      "depth": 1
+    },
+    {
+      "item": "created: The timestamp when the cloud alert was created.",
+      "depth": 1
+    },
+    {
+      "item": "updated: The timestamp when the cloud alert was last modified.",
+      "depth": 1
+    },
+    {
+      "text": "The following conditions apply when using the created[start], created[end], updated[start], and updated[end] parameters:"
+    },
+    {
+      "item": "If start and end times are not specified, then alerts are retrieved for the last 48 hours by default.",
+      "depth": 0
+    },
+    {
+      "item": "If only the start time is specified, then alerts are retrieved for up to 48 hours from the start time.",
+      "depth": 0
+    },
+    {
+      "item": "If only the end time is specified, then alerts are retrieved from the end time to 48 hours before.",
+      "depth": 0
+    },
+    {
+      "item": "If both the created and updated start and end times are specified, then only the alerts within the specified time range are retrieved.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"alerts\": [ { \"kind\": \"IaCAlert\", \"alert_id\": \"123456\", \"alert_type\": \"Security Group\", \"alert_description\": \"The security group SG-12345678 allows inbound traffic from any IP address.\", \"alert_status\": \"open\", \"alert_status_description\": \"The alert is still open and has not yet been resolved.\", \"alert_url\": \"https://example.com/alerts/\", \"csp\": \"AWS\", \"severity\": \"High\", \"risk_level\": \"High\", \"risk_score\": \"8.5\", \"threat_category\": \"Network Security\", \"mitre_attack\": \"T1071 - Application Layer Protocol\", \"theme\": \"Network Security\", \"asset_category\": \"Compute\", \"asset_type\": \"EC2 Instance\", \"age\": 86400, \"audit_procedure\": \"The security group rules should be reviewed and the unnecessary rules should be removed.\", \"recommendations\": \"Restrict the inbound traffic to the required IP addresses only.\", \"remediation_procedure\": \"The security group rules should be modified to restrict the inbound traffic to the required IP addresses only.\", \"alert_focus\": \"Network Security\", \"reason\": \"The security group was created without proper restrictions on inbound traffic.\", \"updated_by\": \"John Doe\", \"created\": 123234536456, \"updated\": 123234537689, \"policy\": { \"policy_id\": \"5678\", \"policy_source\": \"example source\", \"policy_name\": \"Example Policy\", \"policy_description\": \"A description of the policy\" }, \"cloud_resource\": { \"resource_id\": \"abcd\", \"resource_name\": \"Example Resource\", \"resource_type\": \"EC2 Instance\", \"resource_region\": \"us-east-1\" }, \"identity\": { \"identity_id\": \"xyz-789\", \"identity_name\": \"Example User\", \"identity_type\": \"User\", \"identity_source\": \"Example Source\" }, \"compliance\": { \"name\": \"Example Compliance\", \"version\": \"1.0\", \"number\": \"xyz-75666\", \"type\": \"Regulation\", \"domains\": \"Finance, Healthcare\" }, \"business_unit\": { \"business_unit_name\": \"Example Business Unit\" }, \"cloud_account\": { \"account_id\": \"1234\", \"account_name\": \"Example Account\", \"organization\": \"Example Org\", \"organization_id\": \"abc-123\" }, \"kubernetes\": { \"cluster_type\": \"GKE\", \"cluster_name\": \"Example Cluster\" } } ], \"total_count\": 1, \"prev_link\": \"https://example.com/alerts/cloud/offset=1\", \"next_link\": \"https://example.com/alerts/cloud/offset=3\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

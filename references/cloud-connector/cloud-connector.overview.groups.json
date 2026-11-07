@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.overview.groups",
+  "title": "Cloud Connector groups: what they are for, autoscaling names, status and disabling",
+  "aliases": [
+    "cloud connector group",
+    "edge connector group",
+    "ec group",
+    "auto scaling group cloud connector",
+    "vmss cloud connector",
+    "managed instance group cloud connector",
+    "disable cloud connector",
+    "cloud connector operational status"
+  ],
+  "binds": [
+    "ztw/ec-groups"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.forwarding.criteria",
+      "because": "cloud-connector.forwarding.criteria:groups-32"
+    },
+    {
+      "rel": "configured-via",
+      "to": "ztw/ec-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.zero-trust-gateways"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{auto-created}} {{group-purpose}} A forwarding rule can be scoped to groups: [[cloud-connector.forwarding.criteria]]."
+    },
+    {
+      "label": "Autoscaling.",
+      "text": "{{autoscaling-names}} {{template-match}}"
+    },
+    {
+      "label": "Group types.",
+      "text": "{{group-types}} How a Zero Trust Gateway differs from a Cloud Connector: [[cloud-connector.overview.zero-trust-gateways]]."
+    },
+    {
+      "label": "Cleanup and forced delete.",
+      "text": "{{group-info}} {{auto-cleanup}} {{cleanup-activity}} What makes a group inactive for cleanup, what a deletion removes and the default of Forced Delete are not stated {{gap:cleanup-details}}. {{forced-delete}}"
+    },
+    {
+      "label": "Status, disable, delete.",
+      "text": "{{operational-status}} An Inactive connector has lost contact with its management plane but still processes traffic: [[cloud-connector.insights.connector-status:inactive-meaning]]. {{disable-not-delete}} {{delete-irreversible}} Upgrades of the connectors in a group are staggered within a two-hour window: [[cloud-connector.upgrades:two-hour-staggered]]. Whether a disabled VM keeps running, and whether an autoscaling group maps one-to-one to a Cloud Connector group, is not stated {{gap:status-semantics}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The group's operational status (Active, Inactive or Disabled) and whether it was disabled, which stops traffic processing.",
+      "uses": [
+        "operational-status",
+        "disable-not-delete",
+        "cloud-connector.insights.connector-status:inactive-meaning"
+      ]
+    },
+    {
+      "do": "Whether an autoscaling deployment used an autoscaling template, and a static one a non-autoscaling template.",
+      "uses": [
+        "template-match"
+      ]
+    }
+  ],
+  "claims": {
+    "auto-created": {
+      "statement": "Cloud Connector groups are created automatically when a Cloud Connector is deployed in AWS, Azure, or GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-cloud-connector-groups.json",
+          "quotes": [
+            "Cloud Connector groups are automatically created when you deploy a Zscaler Cloud Connector in Amazon Web Services (AWS), Microsoft Azure, or Google Cloud Platform (GCP)."
+          ]
+        }
+      ]
+    },
+    "group-purpose": {
+      "statement": "Groups let you apply policies to a set of deployed Cloud Connectors and upgrade the Cloud Connectors in a group while keeping redundancy during the upgrade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-cloud-connector-groups.json",
+          "quotes": [
+            "Apply policies to a group of deployed Cloud Connectors.",
+            "Upgrade Cloud Connectors belonging to a group to maintain redundancy while upgrades are being executed."
+          ]
+        }
+      ]
+    },
+    "autoscaling-names": {
+      "statement": "Autoscaling is called Auto Scaling in the AWS Marketplace, Virtual Machine Scale Sets (VMSS) in the Azure Marketplace, and a Managed Instance Group (MIG) with autoscaling in the Google Cloud Marketplace; the Admin Console's \"autoscaling\" covers all three, and enabling any of them requires contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-cloud-connector-groups.json",
+          "quotes": [
+            "In the AWS Marketplace, autoscaling is referred to as Auto Scaling. In the Azure Marketplace, autoscaling is referred to as Virtual Machine Scale Sets (VMSS). In the Google Cloud Marketplace, autoscaling is referred to as a Managed Instance Group (MIG) with autoscaling.",
+            "In the Zscaler Admin Console, references to autoscaling also refer to Auto Scaling, VMSS, and a MIG with autoscaling. To enable Auto Scaling, VMSS, or a MIG with autoscaling, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "template-match": {
+      "statement": "Deploy an autoscaling group only with an autoscaling (ASG) template, and a non-autoscaling deployment only with a non-ASG template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-cloud-connector-groups.json",
+          "quotes": [
+            "When deploying a Cloud Connector, only deploy an autoscaling group (ASG) with an ASG template or a non-ASG with a non-ASG template."
+          ]
+        }
+      ]
+    },
+    "group-types": {
+      "statement": "The groups list distinguishes two group types, Cloud Connector and Zero Trust Gateway, and can be filtered by cloud (AWS, Azure, GCP) and by whether autoscaling is on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-cloud-connector-groups.json",
+          "quotes": [
+            "Cloud: From the drop-down menu, select AWS, Azure, or GCP.",
+            "Group Type: From the drop-down menu, select Cloud Connector or Zero Trust Gateway.",
+            "Auto Scaling: From the drop-down menu, select True or False."
+          ]
+        }
+      ]
+    },
+    "operational-status": {
+      "statement": "A Cloud Connector's operational status is Active, Inactive, or Disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-cloud-connector-groups.json",
+          "quotes": [
+            "Operational Status: The operational status (i.e., Active, Inactive, or Disabled) of the Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "disable-not-delete": {
+      "statement": "Disabling a Cloud Connector or a group stops traffic from processing; it does not delete the Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-cloud-connector-groups.json",
+          "quotes": [
+            "Disable: Disable an individual Cloud Connector or group of Cloud Connectors, which stops traffic from processing. Disabling a Cloud Connector does not delete it."
+          ]
+        }
+      ]
+    },
+    "group-info": {
+      "statement": "A group's edit window shows the number of Cloud Connectors belonging to the Cloud Connector group (No. of Connectors).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "No. of Connectors: The number of Cloud Connectors belonging to the Cloud Connector group."
+          ]
+        }
+      ]
+    },
+    "auto-cleanup": {
+      "statement": "Auto Cleanup Frequency selects how often Cloud Connector groups are automatically deleted (Never, 60 Days, 90 Days or 120 Days); Auto Cleanup is in Limited Availability and is enabled by contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "Auto Cleanup Frequency: Select the frequency at which Cloud Connector groups are automatically deleted (i.e., Never, 60 Days, 90 Days, or 120 Days).",
+            "Auto Cleanup is in Limited Availability (LA). To enable this feature, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "cleanup-activity": {
+      "statement": "The Cleanup Activity page, in Limited Availability, shows inactive Cloud Connector groups scheduled for deletion, with a status of Scheduled, Delete failed or Deleted and who deleted the group (the user or system).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-cleanup-activity.json",
+          "quotes": [
+            "The Cleanup Activity page allows you to view inactive Cloud Connector groups that are scheduled for deletion.",
+            "Cleanup Activity is in Limited Availability (LA). To enable this feature, contact Zscaler Support.",
+            "Status: The status of the scheduled deletion for the Cloud Connector group (i.e., Scheduled, Delete failed, or Deleted).",
+            "Delete by: The user or system who deleted the Cloud Connector group."
+          ]
+        }
+      ]
+    },
+    "forced-delete": {
+      "statement": "The Forced Delete checkbox allows the deletion of Cloud Connectors even if they are used by Internet & SaaS or Private Access traffic forwarding policies; if the deleted connector was the only location the policy is bypassed, and if not the policy continues to apply to the remaining locations or Cloud Connector groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "Forced Delete: Select the checkbox to allow the deletion of Cloud Connectors, even if they are used by Internet & SaaS or Private Access traffic forwarding policies.",
+            "If the deleted connector was the only location, the policy is bypassed. If not, the policy continues to apply to the remaining locations or Cloud Connector groups."
+          ]
+        }
+      ]
+    },
+    "delete-irreversible": {
+      "statement": "Deleting a Cloud Connector cannot be undone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-cloud-connector-groups.json",
+          "quotes": [
+            "Delete a Cloud Connector. This action cannot be undone."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cleanup-details": {
+      "kind": "semantic",
+      "title": "What makes a group inactive for Auto Cleanup, what a deletion removes, and the Forced Delete default",
+      "status": "open",
+      "detail": "The Auto Cleanup and Cleanup Activity pages describe inactive groups scheduled for deletion without saying what makes a group inactive, whether a deletion removes the cloud VMs or only the console record, or whether Forced Delete is selected by default.",
+      "blocks": "predicting which groups Auto Cleanup deletes and with what effect",
+      "resolves_with": [
+        "source-read",
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "status-semantics": {
+      "kind": "semantic",
+      "title": "Effect of Disable on the VM, and autoscaling-group to Cloud Connector group mapping",
+      "status": "partial",
+      "detail": "Unverified legacy statements: disabling \"keeps the VM in inventory and the VM running\"; \"an autoscaling group (ASG / VMSS / MIG) is one Cloud Connector Group\". The legacy meaning of Inactive (\"enrolled but not currently processing\") is corrected by cloud-connector.insights.connector-status:inactive-meaning (no management-plane contact, still processes data), and staggered upgrades are held by cloud-connector.upgrades:two-hour-staggered.",
+      "blocks": "interpreting an Inactive status and planning a staged disable",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.tags",
+  "title": "Tag Management for application segments: namespaces, tags and tag groups",
+  "aliases": [
+    "Tag Management",
+    "namespaces and tags",
+    "tag groups",
+    "tag namespace"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}}"
+    },
+    {
+      "label": "Namespaces and tags.",
+      "text": "{{namespace}} {{predefined-locked}} {{tag-fields}}"
+    },
+    {
+      "label": "Tag groups.",
+      "text": "{{tag-groups}} The Tag Groups and Tag Value policy criteria are in [[zpa.policy.criteria]]."
+    },
+    {
+      "label": "On a segment.",
+      "text": "{{on-segment}} The limits, the origin values and the effect on policy beyond those criteria are open {{gap:tag-limits-origin-policy}}."
+    },
+    {
+      "text": "The segment hub is [[zpa.app-segments]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the namespace or tag is predefined, since predefined namespaces and tags cannot be edited or deleted.",
+      "uses": [
+        "predefined-locked"
+      ]
+    },
+    {
+      "do": "Which namespace a tag group entry takes its key and values from.",
+      "uses": [
+        "tag-groups"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Tag Management adds metadata to resources, so that keys and values can be defined and associated with them. It involves creating namespaces and tags to classify and group resources in Private Access, which can then be added to defined application segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-tag-management-application-segments.json",
+          "quotes": [
+            "Tag Management allows you to add metadata to resources, which enables you to define keys and values and associate them with resources.",
+            "Tag Management involves creating namespaces and tags to classify and group resources in Private Access (ZPA).",
+            "After you create namespaces and tags, you can add them to your defined application segments."
+          ]
+        }
+      ]
+    },
+    "namespace": {
+      "statement": "A namespace is a container used to organize and group related tags defined within Private Access. Namespaces allow the same tag names and values to be reused and managed according to different needs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-tags-and-namespaces-application-segments.json",
+          "quotes": [
+            "A namespace is a container used to organize and group related tags that have been defined within Private Access (ZPA).",
+            "Namespaces allow you to reuse the same tag names and values and manage them according to different needs."
+          ]
+        }
+      ]
+    },
+    "predefined-locked": {
+      "statement": "Predefined namespaces and tags cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-tags-and-namespaces-application-segments.json",
+          "quotes": [
+            "Predefined namespaces and tags cannot be edited or deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-tag-management-application-segments.json",
+          "quotes": [
+            "Predefined namespaces cannot be edited or deleted.",
+            "Predefined tags cannot be edited or deleted."
+          ]
+        }
+      ]
+    },
+    "tag-fields": {
+      "statement": "A tag takes a Key, a Status (Enabled or Disabled), an optional Description, and Values, for example High, Critical, San Jose and HQ. Previously assigned values can also be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-tags-and-namespaces-application-segments.json",
+          "quotes": [
+            "Key: Enter a name for the tag.",
+            "Values: Enter values for the tags (e.g., High, Critical, San Jose, HQ, etc.).",
+            "Values: Enter values for the tags. You can also edit or delete previously assigned values."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-tags-and-namespaces-application-segments.json",
+          "after": "In the Add Tag drawer:",
+          "quotes": [
+            "Status: Select Enabled or Disabled.",
+            "Description: (Optional) Enter a description for the tag."
+          ]
+        }
+      ]
+    },
+    "tag-groups": {
+      "statement": "Tag groups are created by grouping tags from different namespaces; each entry selects a Namespace, a Key for that namespace and the Values to add to the tag group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-tags-and-namespaces-application-segments.json",
+          "quotes": [
+            "You can create tag groups by grouping tags from different namespaces.",
+            "Namespace: Select a namespace to add tags to.",
+            "Key: Select a key for the selected namespace.",
+            "Values: Select values to add to the tag group."
+          ]
+        }
+      ]
+    },
+    "on-segment": {
+      "statement": "A defined application segment lists the Namespaces, Keys and Values associated with it, and, on the Tag Management page, tags can be filtered by origin or status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-applications.json",
+          "quotes": [
+            "Namespaces: The Namespaces associated with the application segment.",
+            "Key: Any keys associated with the application segment.",
+            "Values: Any values associated with the application segment."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-tag-management-application-segments.json",
+          "quotes": [
+            "Filter tags by origin or status."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "tag-limits-origin-policy": {
+      "kind": "semantic",
+      "title": "Tag limits, the values of the origin filter and the effect of tags on policy",
+      "status": "open",
+      "detail": "The pages defer limits to Ranges & Limitations without giving values, do not list the origin values, and do not state an effect on policy beyond the Tag Groups and Tag Value criteria. A name search found no tag endpoints in the ZPA OpenAPI document; the Terraform provider has zpa_tag_namespace, zpa_tag_key and zpa_tag_group resources and the Go SDK has a tag_controller service, none read for this subject.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

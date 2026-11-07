@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "id": "shared.legacy-api.zia-oauth-idp-setup",
+  "title": "Setting up Okta, Microsoft Entra ID and PingFederate as the ZIA OAuth 2.0 authorization server",
+  "aliases": [
+    "zia oauth okta configuration",
+    "zia oauth entra id configuration",
+    "zia oauth pingfederate configuration",
+    "okta custom authorization server zia scope",
+    "entra app role zia api"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.zia-oauth"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-api-roles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each identity provider is set up differently for the ZIA cloud service API; the ZIA side of the flow (scope, validation, authorization servers) is in [[shared.legacy-api.zia-oauth]]. The scope name each guide uses is the one in [[shared.admin-rbac.zia-api-roles:scope-on-server]]."
+    },
+    {
+      "label": "Okta.",
+      "text": "{{okta-app}} {{okta-scopes}} {{okta-access-policies}}"
+    },
+    {
+      "label": "Microsoft Entra ID.",
+      "text": "{{entra-two-registrations}} {{entra-secret-once}} {{entra-app-role}} {{entra-endpoints}} {{entra-token-request}}"
+    },
+    {
+      "label": "PingFederate.",
+      "text": "{{ping-token-manager}} {{ping-zia-side}}"
+    },
+    {
+      "label": "The token request.",
+      "text": "{{okta-ping-token-request}} Where the client credentials go differs between the guides and the getting-started page {{divergence:credentials-location}}; the existing claim is [[shared.legacy-api.zia-oauth:token-request]]."
+    },
+    {
+      "label": "Open questions.",
+      "text": "Which claim carries the Entra app role value is open {{gap:entra-role-claim}}. The example responses in the Okta and PingFederate guides are unexplained {{gap:example-responses}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a token request that fails at the identity provider, where the client credentials are sent (Authorization header or body) and which guide the identity provider follows; the guides disagree.",
+      "uses": [
+        "credentials-location",
+        "okta-ping-token-request",
+        "entra-token-request"
+      ]
+    },
+    {
+      "do": "For Okta, whether the app integration is API Services with DPoP disabled and the scope is a custom scope in the Zscaler format on a custom authorization server.",
+      "uses": [
+        "okta-app",
+        "okta-scopes"
+      ]
+    },
+    {
+      "do": "For Entra ID, whether the resource server and client are separate registrations and the client app holds the app role as an Application permission.",
+      "uses": [
+        "entra-two-registrations",
+        "entra-app-role"
+      ]
+    }
+  ],
+  "claims": {
+    "okta-app": {
+      "statement": "In Okta the API client is registered as an app integration with API Services as the sign-in method, and the Require Demonstrating Proof of Possession (DPoP) header in token requests option must be disabled for the Proof of possession field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2.0-configuration-guide-okta.json",
+          "quotes": [
+            "In the Create a new app integration window, select API Services as the sign-in method, and click Next.",
+            "ensure that the Require Demonstrating Proof of Possession (DPoP) header in token requests option is disabled for the Proof of possession field."
+          ]
+        }
+      ]
+    },
+    "okta-scopes": {
+      "statement": "Okta needs a custom authorization server, and the Client Credentials flow needs custom scopes whose name takes the Zscaler format <Zscaler Cloud Name>::<Org ID>::<API Role>, for example zscalerbeta.net::272378::sampleRole. Zscaler recommends not selecting Set as a default scope when several clients access the API with different scopes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2.0-configuration-guide-okta.json",
+          "quotes": [
+            "You need to create a custom authorization server and define your OAuth 2.0 scope, claims, and access policies within the authorization server, as applicable.",
+            "For the Client Credentials flow of OAuth 2.0 authorization, Okta requires that you create custom scopes to define the access privileges required for authorization.",
+            "Name: Enter the name of the scope in the format supported by the Zscaler service, <Zscaler Cloud Name>::<Org ID>::<API Role>, where:",
+            "For example, zscalerbeta.net::272378::sampleRole.",
+            "Default scope: (Optional) Select Set as a default scope to allow Okta to authorize clients that omit the scope parameter in the authorization request.",
+            "Zscaler recommends that you do not select this option if you have multiple clients accessing the cloud service API using different scopes."
+          ]
+        }
+      ]
+    },
+    "okta-access-policies": {
+      "statement": "In Okta, the rules within an access policy assign an expiration time to an access token based on the grant type, scope and other parameters in the request; the first policy and rule that match the client's request apply, and a client that matches no policy fails to authenticate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2.0-configuration-guide-okta.json",
+          "quotes": [
+            "The rules within an access policy assign an expiration time to an access token based on the grant type, scope, and various other parameters in the access token request.",
+            "The first policy and rule that matches the client's request is applied, and no further rule or policy evaluation takes place. If a client matches no policies, then the authentication attempt fails."
+          ]
+        }
+      ]
+    },
+    "okta-ping-token-request": {
+      "statement": "The Okta and PingFederate guides each say the token request must carry the client ID and secret in the Authorization header using HTTP basic authentication, with at least one custom scope as scope, and that the client ID and secret cannot be in the request body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2.0-configuration-guide-okta.json",
+          "quotes": [
+            "This request must contain the client ID and the client secret presented in the authorization header of the request using HTTP basic authentication.",
+            "scope must be at least one custom scope created for your authorization server.",
+            "The client ID and the secret must be placed in the HTTP Authorization header and cannot be included in the request body."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2-0-configuration-guide-pingfederate.json",
+          "quotes": [
+            "This request must contain the client ID and the client secret presented in the authorization header of the request using HTTP basic authentication.",
+            "scope must be at least one custom scope created for your authorization server.",
+            "The client ID and the secret must be placed in the HTTP Authorization header and cannot be included in the request body."
+          ]
+        }
+      ]
+    },
+    "entra-two-registrations": {
+      "statement": "In Microsoft Entra ID the client and the resource server (the Internet & SaaS API) are separate application registrations, and the steps are completed for each API Role configured in the Admin Console; the client app's supported account types are set to single tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2.0-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "To manage authorization and consent in Microsoft Entra ID, you need to configure both the client and the resource server as applications. Based on this implementation, there is a separate application registration for each of the clients and the resource server (Internet & SaaS API).",
+            "For each API Role configured in the Zscaler Admin Console, you need to complete the following steps to set up OAuth 2.0 authorization using Microsoft Entra ID."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2.0-configuration-guide-microsoft-entra-id.json",
+          "after": "Name: Enter a name for the application that is representative of the Internet & SaaS API Role used (e.g., Internet & SaaS API Client Super Admin).",
+          "quotes": [
+            "Supported account types: Ensure that this option is set to the Accounts in this organizational directory only (<tenant> only - Single tenant) value."
+          ]
+        }
+      ]
+    },
+    "entra-secret-once": {
+      "statement": "The Entra client secret value is displayed only once and cannot be retrieved after navigating away from the page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2.0-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "The client secret value is displayed only once and cannot be retrieved after you navigate away from the page."
+          ]
+        }
+      ]
+    },
+    "entra-app-role": {
+      "statement": "On the Entra API application an app role is defined with Allowed member types set to Applications and a Value in the <Zscaler Cloud Name>::<Org ID>::<API Role> format; the client application is given Application permissions as the type of permission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2.0-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "Allowed member types: Select Applications for this option.",
+            "Value: Enter a value in the format supported by the Zscaler service, <Zscaler Cloud Name>::<Org ID>::<API Role>, where:",
+            "Choose the Application permissions as the type of permission required by the client application."
+          ]
+        }
+      ]
+    },
+    "entra-endpoints": {
+      "statement": "The Entra guide gives the typical token endpoint (v2) format as https://login.microsoftonline.com/<Application ID>/oauth2/v2.0/token and the typical jwks_uri format as https://login.microsoftonline.com/<Application ID>/discovery/v2.0/keys; the JWKS endpoint value obtained through the jwks_uri parameter is entered as the OAuth 2.0 JWKS Location in ZIA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2.0-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "The typical format is https://login.microsoftonline.com/<Application ID>/oauth2/v2.0/token.",
+            "The typical format is https://login.microsoftonline.com/<Application ID>/discovery/v2.0/keys.",
+            "OAuth 2.0 JWKS Location: Enter the JSON Web Key Set (JWKS) endpoint value obtained through the jwks_uri parameter"
+          ]
+        }
+      ]
+    },
+    "entra-token-request": {
+      "statement": "The Entra guide's token request is a POST to the v2 token endpoint with a JSON payload in the request body holding grant_type client_credentials, client_id, client_secret and a scope of the Application ID URI appended with /.default; the access token can be presented in the Authorization header with the bearer scheme.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2.0-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "grant_type = client_credentials client_id = <Application (client) ID from Step 1.a> client_secret = <Client secret value from Step 1.b> scope = <Application ID URI from Step 2.b, appended with \"/.default\".",
+            "Send a POST request to the OAuth 2.0 token endpoint (v2) URL",
+            "with the JSON payload in the request body.",
+            "The access token can be presented in the request Authorization header using the bearer authentication scheme along with the token expiration time."
+          ]
+        }
+      ]
+    },
+    "ping-token-manager": {
+      "statement": "PingFederate needs a certificate for access token management configured in its admin console; its access token manager instance is of type JSON Web Tokens, signs with RSA using SHA-256, and uses scp as the Scope Claim Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2-0-configuration-guide-pingfederate.json",
+          "quotes": [
+            "You have a certificate for access token management configured in the PingFederate admin console.",
+            "Type: Select JSON Web Tokens.",
+            "JWS Algorithm: Select RSA using SHA-256.",
+            "For Scope Claim Name, enter scp and click Next."
+          ]
+        }
+      ]
+    },
+    "ping-zia-side": {
+      "statement": "For PingFederate, the ZIA API role name must match the name entered in the PingFederate admin console, the guide's example of the URL with the endpoint appended is https://zpf.zpingfed.com/.well-known/oauth-authorization-server, and the guide has the admin enable JWKS Certificate Authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-oauth-2-0-configuration-guide-pingfederate.json",
+          "quotes": [
+            "Name: Enter a name for the API role. It must match the name you entered in the PingFederate admin console.",
+            "For example, if your Pingfederate URL is https://zpf.zpingfed.com, the URL with the endpoint appended would be https://zpf.zpingfed.com/.well-known/oauth-authorization-server.",
+            "JWKS Certificate Authentication: Enable this option."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "credentials-location": {
+      "summary": "Whether the client ID and secret may go in the token request body: the Okta and PingFederate guides say they must be in the Authorization header and cannot be in the body, while the Entra guide's request carries them in the body and the getting-started page offers the body as an alternative to HTTP Basic authentication. The existing claim is [[shared.legacy-api.zia-oauth:token-request]].",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-oauth-2.0-configuration-guide-okta.json",
+            "quotes": [
+              "The client ID and the secret must be placed in the HTTP Authorization header and cannot be included in the request body."
+            ]
+          },
+          "says": "Okta guide: the client ID and secret go in the HTTP Authorization header only."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-oauth-2-0-configuration-guide-pingfederate.json",
+            "quotes": [
+              "The client ID and the secret must be placed in the HTTP Authorization header and cannot be included in the request body."
+            ]
+          },
+          "says": "PingFederate guide: the client ID and secret go in the HTTP Authorization header only."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-oauth-2.0-configuration-guide-microsoft-entra-id.json",
+            "quotes": [
+              "grant_type = client_credentials client_id = <Application (client) ID from Step 1.a> client_secret = <Client secret value from Step 1.b>",
+              "with the JSON payload in the request body."
+            ]
+          },
+          "says": "Entra guide: client_id and client_secret are sent in the JSON request body."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-getting-started-zia-api.json",
+            "quotes": [
+              "Alternatively, the client credentials can also be provided using the client_id and client_secret parameters in the body of the POST request."
+            ]
+          },
+          "says": "Getting-started page: the body is an alternative to HTTP Basic authentication."
+        }
+      ],
+      "impact": "Which placement ZIA accepts is not settled; the Okta and PingFederate guides may describe those providers' own requirement, which the pages do not say."
+    }
+  },
+  "gaps": {
+    "entra-role-claim": {
+      "kind": "semantic",
+      "title": "Which JWT claim carries the Entra app role value",
+      "status": "open",
+      "detail": "The Entra guide does not say which claim carries the app role value; the claims table in shared.legacy-api.zia-oauth lists scope, scp or roles.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "example-responses": {
+      "kind": "semantic",
+      "title": "The example token responses in the Okta and PingFederate guides",
+      "status": "open",
+      "detail": "Both guides' example responses show \"expires_in\": 1663909495, which they do not explain and which is not a lifetime reading. The PingFederate example token path (/oauth2/default/v1/token) is the same as Okta's and is not explained.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,1192 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Traffic Capture Policy",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-traffic-capture-policy",
+    "node": "1532182",
+    "revision": "3250425",
+    "updated": "2026-10-28",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "With Zscaler Traffic Capture for Network Detection and Response (NDR), you can add rules to the Traffic Capture policy to capture matching traffic and forward it for storage. To learn more, see About Traffic Capture Policy."
+    },
+    {
+      "heading": "Policy Execution",
+      "level": 1
+    },
+    {
+      "text": "There is a series of logical operators between the criteria in Traffic Capture policy rules. The criteria on each tab have their own set of logical operators."
+    },
+    {
+      "text": "The tabs trigger based on the following relationships:"
+    },
+    {
+      "item": "Who, Where, & When: [(Users OR Groups OR Departments) AND (Locations OR Location Groups) AND Time]",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Devices: (Devices OR Device Groups OR Workload Groups)",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Services: (Network Service Groups OR Network Services)",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Applications: [(Network Application Groups OR Network Applications) AND (Application Service Groups)]",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Source IP: (Source IPv4 Groups OR Source IPv6 Groups OR IP Addresses OR Countries)",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Destination IP: (Destination IPv4 Groups OR Destination IPv6 Groups OR IP Address or FQDN OR Countries)",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "text": "In addition to the logical operators between criteria, the relationship between tabs is AND."
+    },
+    {
+      "item": "See an example of how the Traffic Capture policy triggers.",
+      "depth": 0
+    },
+    {
+      "item": "To see the impact of the logical relationship between criteria, consider a rule with an Action of Capture and the following criteria:",
+      "depth": 0,
+      "strong": [
+        [
+          88,
+          94
+        ],
+        [
+          98,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "Who, Where, & When",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Users = User 1",
+      "depth": 2
+    },
+    {
+      "item": "Groups = Any",
+      "depth": 2
+    },
+    {
+      "item": "Departments = Sales",
+      "depth": 2
+    },
+    {
+      "item": "Locations = San Jose",
+      "depth": 2
+    },
+    {
+      "item": "Location Groups = Any",
+      "depth": 2
+    },
+    {
+      "item": "Time = Always",
+      "depth": 2
+    },
+    {
+      "item": "Devices",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Devices = Left blank",
+      "depth": 2
+    },
+    {
+      "item": "Device Groups = Left blank",
+      "depth": 2
+    },
+    {
+      "item": "Workload Groups = Left blank",
+      "depth": 2
+    },
+    {
+      "item": "Services",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Network Service Groups = None",
+      "depth": 2
+    },
+    {
+      "item": "Network Services = Any",
+      "depth": 2
+    },
+    {
+      "item": "Network Applications",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Network Applications = None",
+      "depth": 2
+    },
+    {
+      "item": "Network Application Groups = None",
+      "depth": 2
+    },
+    {
+      "item": "Application Service Groups = None",
+      "depth": 2
+    },
+    {
+      "item": "Source IP",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Source IPv4 Groups = Office IPs",
+      "depth": 2
+    },
+    {
+      "item": "Source IPv6 Groups = Left blank",
+      "depth": 2
+    },
+    {
+      "item": "IP Addresses = Left blank",
+      "depth": 2
+    },
+    {
+      "item": "Countries = Include United States",
+      "depth": 2
+    },
+    {
+      "item": "Destination IP",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Destination IPv4 Groups = None",
+      "depth": 2
+    },
+    {
+      "item": "Destination IPv6 Groups = Left blank",
+      "depth": 2
+    },
+    {
+      "item": "IP Address or Wildcard FQDN = 192.0.2.1 - 192.0.2.5",
+      "depth": 2
+    },
+    {
+      "item": "Countries = Any",
+      "depth": 2
+    },
+    {
+      "item": "Then, consider the following scenario:",
+      "depth": 0
+    },
+    {
+      "item": "The user is User 1, and they are from the Engineering department and in the San Jose location. Since there is an OR relationship between Users, Groups, and Departments, the Who, Where, & When tab triggers even though User 1 is from the Engineering department, not Sales. The rule bypasses the fields that are set to Any, when any one of the fields has set criteria among the OR fields within an AND bracket.",
+      "depth": 1,
+      "strong": [
+        [
+          173,
+          191
+        ],
+        [
+          316,
+          319
+        ]
+      ]
+    },
+    {
+      "item": "Since all Network Services and Network Applications are included in this rule, the Services & Applications tab triggers.",
+      "depth": 1,
+      "strong": [
+        [
+          83,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "User 1's traffic originates in the United States, but the source IP address is not part of the Office IPs Source IPv4 Group. However, the Source IP tab triggers because of the OR relationship between these criteria.",
+      "depth": 1,
+      "strong": [
+        [
+          138,
+          147
+        ]
+      ]
+    },
+    {
+      "item": "The URL that User 1 attempts to visit belongs to Forbidden Websites, but the IP address of the URL does not fall within the specified range. Because of the OR relationship, the Destination IP tab triggers.",
+      "depth": 1,
+      "strong": [
+        [
+          177,
+          191
+        ]
+      ]
+    },
+    {
+      "item": "The rule triggers for all the values in the fields if you set Any for all the fields that have an OR relation together within an AND bracket.",
+      "depth": 0,
+      "strong": [
+        [
+          62,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Since all the tabs trigger, the policy rule triggers and the traffic is captured.",
+      "depth": 0
+    },
+    {
+      "item": "However, if the location of the user changed from San Jose to San Francisco, the Who, Where, & When tab would not trigger, which would cause the whole rule not to trigger.",
+      "depth": 0,
+      "strong": [
+        [
+          81,
+          99
+        ]
+      ]
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before configuring rules for the Traffic Capture policy, you must enable Traffic Capture and configure a cloud storage destination. To learn more, see Configuring Settings for the Traffic Capture Policy."
+    },
+    {
+      "text": "Before adding or modifying rules for the Traffic Capture policy, ensure that you have configured any resources that the policies reference. These resources include:"
+    },
+    {
+      "item": "Users, groups, departments, locations, and sublocations to which the Traffic Capture policy applies.",
+      "depth": 0
+    },
+    {
+      "item": "Location Groups.",
+      "depth": 0
+    },
+    {
+      "item": "Time Intervals.",
+      "depth": 0
+    },
+    {
+      "item": "Network Applications. You can create network application groups as needed.",
+      "depth": 0
+    },
+    {
+      "item": "Network Services. You can modify network services to edit services, add custom services, and create groups.",
+      "depth": 0
+    },
+    {
+      "item": "Source and destination IP address groups.",
+      "depth": 0
+    },
+    {
+      "item": "IPv6 configuration.",
+      "depth": 0
+    },
+    {
+      "heading": "Adding a Traffic Capture Rule",
+      "level": 1
+    },
+    {
+      "text": "To add a Traffic Capture rule:"
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Traffic Capture > Policy.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          65
+        ],
+        [
+          68,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Rule.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The Add Rule page appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "On the Add Rule page, configure the following sections:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Criteria",
+      "depth": 1
+    },
+    {
+      "item": "In the Criteria section, when you click Add Criteria, you see the rule condition categories in gray (e.g., Who) and the individual rule conditions (e.g., Users) under each category.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          40,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After you click the various conditions, you notice that some conditions contain preconfigured values (e.g., users and locations) and others require manual value specification (e.g., IP addresses).",
+      "depth": 1
+    },
+    {
+      "item": "Criteria with Preconfigured Values",
+      "depth": 2
+    },
+    {
+      "item": "For conditions with preconfigured values, a multi-select window with a search bar appears. You can select values by selecting the checkbox for individual items or by clicking Select All. After selecting the values, click outside the window to close it.",
+      "depth": 2,
+      "strong": [
+        [
+          175,
+          185
+        ]
+      ]
+    },
+    {
+      "item": "To clear selected items, click the field to open the multi-select window, then use the Remove icon displayed for individual entries. To remove all selected values, click Remove All.",
+      "depth": 2,
+      "strong": [
+        [
+          87,
+          93
+        ],
+        [
+          170,
+          180
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Criteria Requiring Manual Value Specification",
+      "depth": 2
+    },
+    {
+      "item": "For conditions without preconfigured values, manually enter the value in the field, then click Add. To add multiple entries, enter each value and click Add or press Enter.",
+      "depth": 2,
+      "strong": [
+        [
+          95,
+          98
+        ],
+        [
+          152,
+          155
+        ]
+      ]
+    },
+    {
+      "item": "You can also perform the following actions:",
+      "depth": 2
+    },
+    {
+      "item": "Remove items by clicking the Delete icon for individual entries or by using the Remove All option.",
+      "depth": 3,
+      "strong": [
+        [
+          29,
+          35
+        ],
+        [
+          80,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "The entries are paginated, and you can select the number of items to display per page.",
+      "depth": 3
+    },
+    {
+      "item": "You can specify the page number to view, or use the Next and Previous icons to navigate through different pages.",
+      "depth": 3,
+      "strong": [
+        [
+          52,
+          56
+        ],
+        [
+          61,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Refer to the following condition categories for details on configuring their individual conditions:",
+      "depth": 1
+    },
+    {
+      "item": "Who",
+      "depth": 2
+    },
+    {
+      "item": "Users: Select up to 32 users from the drop-down menu. Selecting no users sets the field to Any, which applies the rule to all users. If you enabled Policy for Unauthenticated Traffic on the Advanced Settings page, you can select specific types of unauthenticated users.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          91,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "Groups: Select up to 32 groups from the drop-down menu. Selecting no groups sets the field to Any, which applies the rule to all groups.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          94,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Departments: Select up to 32 departments from the drop-down menu. Selecting no departments sets the field to Any, which applies the rule to all departments. If you enabled Policy for Unauthenticated Traffic on the Advanced Settings page, you can select Unauthenticated Transactions.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          109,
+          112
+        ],
+        [
+          253,
+          281
+        ]
+      ]
+    },
+    {
+      "item": "Contact Zscaler Support to increase the limit of Users, Groups, or Departments.",
+      "depth": 3,
+      "strong": [
+        [
+          49,
+          54
+        ],
+        [
+          56,
+          62
+        ],
+        [
+          67,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "Any rule that applies to unauthenticated traffic must apply to all groups and departments. So, if you have chosen to apply this rule to unauthenticated traffic for either Users or Departments, select Any for Groups and Departments.",
+      "depth": 3,
+      "strong": [
+        [
+          171,
+          176
+        ],
+        [
+          180,
+          191
+        ],
+        [
+          200,
+          203
+        ],
+        [
+          208,
+          214
+        ],
+        [
+          219,
+          230
+        ]
+      ]
+    },
+    {
+      "item": "Where",
+      "depth": 2
+    },
+    {
+      "item": "Locations: Select up to 32 locations from the drop-down menu. Selecting no locations sets the field to Any, which applies the rule to all locations. Contact Zscaler Support to increase the limit of locations.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          103,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "Location Groups: Select up to 32 location groups from the drop-down menu. Selecting no location groups sets the field to Any, which applies the rule to all location groups.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          121,
+          124
+        ]
+      ]
+    },
+    {
+      "item": "When",
+      "depth": 2
+    },
+    {
+      "item": "Time: Select up to two time intervals during which the rule applies. Selecting no time intervals sets the field to Always, which applies the rule at all times.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          115,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "Devices",
+      "depth": 2
+    },
+    {
+      "item": "Devices: Select the devices for which you want to apply the rule. Selecting no devices sets the field to Any, which applies the rule to all devices.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          105,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "Device Groups: Select the device group for which you want to apply the rule. For Zscaler Client Connector traffic, select the appropriate group based on the device platform. Select Cloud Browser Isolation or No Client Connector to apply the rule to isolation traffic or to traffic that is not tunneled through Zscaler Client Connector, respectively. Selecting no device groups sets the field to Any, which applies the rule to all device groups.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          181,
+          204
+        ],
+        [
+          208,
+          227
+        ],
+        [
+          395,
+          398
+        ]
+      ]
+    },
+    {
+      "item": "The Cloud Browser Isolation group is available only if Zero Trust Browser (formerly Isolation) is enabled for your organization.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Workload Groups: Select up to 8 workload groups for which you want to apply the rule. Selecting no workload groups sets the field to Any, which applies the rule to all workload groups.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          133,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "Services",
+      "depth": 2
+    },
+    {
+      "item": "Network Service Groups: Select the network service groups to which the rule applies. Selecting no network service groups sets the field to None, which ignores this criterion during policy evaluation.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          139,
+          143
+        ]
+      ]
+    },
+    {
+      "item": "Network Services: Select the network services to which the rule applies. Selecting no network services sets the field to Any, which applies the rule to all network services.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          121,
+          124
+        ]
+      ]
+    },
+    {
+      "item": "Network Applications",
+      "depth": 2
+    },
+    {
+      "item": "Network Application Groups: Select the application groups that you want to control with this rule. Selecting no network application groups sets the field to None, which ignores this criterion during policy evaluation. The Zscaler service provides predefined applications that you can group, but not modify.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          157,
+          161
+        ]
+      ]
+    },
+    {
+      "item": "Network Applications: Select the applications that you want to control with this rule. Selecting no applications sets the field to Any, which applies the rule to all applications. The Zscaler service provides predefined applications that you can group, but not modify.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          131,
+          134
+        ]
+      ]
+    },
+    {
+      "item": "Application Service Groups: Select the application service groups that you want to apply the rule to. Selecting no application service groups sets the field to None, which ignores this criterion during policy evaluation. The Zscaler service provides predefined application services that you can group, but not modify.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          160,
+          164
+        ]
+      ]
+    },
+    {
+      "item": "Source IP",
+      "depth": 2
+    },
+    {
+      "item": "Source IPv4 Groups: Select the source IPv4 groups that you want to control with this rule. Selecting no groups sets the field to None, which ignores this criterion during policy evaluation.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          129,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "Source IPv6 Groups: To control source IPv6 addresses with this rule, select the All IPv6 group, which is the predefined source IPv6 group for all IPv6 addresses.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          80,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Custom source IPv6 groups are currently not supported. To learn more, see About Source IP Groups.",
+      "depth": 3
+    },
+    {
+      "item": "IP Addresses: Enter addresses (IPv4 only) in any of the following formats:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "An individual address (e.g., 192.0.2.1)",
+      "depth": 4
+    },
+    {
+      "item": "A subnet (e.g., 192.0.2.0/24)",
+      "depth": 4
+    },
+    {
+      "item": "An address range (e.g., 192.0.2.1 - 192.0.2.5)",
+      "depth": 4
+    },
+    {
+      "item": "Specifying an individual, subnet, or range of IPv6 addresses is currently not supported.",
+      "depth": 3
+    },
+    {
+      "item": "Countries: To apply the rule to traffic from specific countries, select the traffic's source country. The traffic's country of origin is determined using the geolocation of the client's IP address. When configuring this criterion, you can either use the Include option to match the rule on the specified countries or use the Exclude option to match the rule on all countries except those that are selected.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          254,
+          261
+        ],
+        [
+          325,
+          332
+        ]
+      ]
+    },
+    {
+      "item": "When using the Include option, selecting no applications sets the field to Any, which applies the rule to all countries. However, selecting countries is mandatory when using the Exclude option.",
+      "depth": 3,
+      "strong": [
+        [
+          15,
+          22
+        ],
+        [
+          75,
+          78
+        ],
+        [
+          178,
+          185
+        ]
+      ]
+    },
+    {
+      "item": "Destination IP",
+      "depth": 2
+    },
+    {
+      "item": "Destination IPv4 Groups: Select the destination IPv4 groups that you want to control with this rule. Selecting no groups sets the field to None, which ignores this criterion during policy evaluation.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          139,
+          143
+        ]
+      ]
+    },
+    {
+      "item": "Destination IPv6 Groups: To control destination IPv6 addresses with this rule, select the All IPv6 Group, which is the default destination IPv6 group for all IPv6 addresses.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          90,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "Custom destination IPv6 groups are currently not supported. To learn more, see About Destination IP Groups.",
+      "depth": 3
+    },
+    {
+      "item": "IP Address or Wildcard FQDN: Enter addresses (IPv4 only) in any of the following formats:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "An individual address (e.g., 192.0.2.1)",
+      "depth": 4
+    },
+    {
+      "item": "A subnet (e.g., 192.0.2.0/24)",
+      "depth": 4
+    },
+    {
+      "item": "An address range (e.g., 192.0.2.1 - 192.0.2.5)",
+      "depth": 4
+    },
+    {
+      "item": "Specifying individual, subnet, or range of IPv6 addresses is currently not supported.",
+      "depth": 3
+    },
+    {
+      "item": "You can also add FQDNs for applications with multiple or frequently changing IPv4 addresses. Wildcard FQDNs are also supported with an asterisk (*) as the wildcard character. For guidelines to configure wildcard FQDNs, see Configuring Destination IP Groups. When the rule is activated, FQDNs are resolved to their corresponding IP addresses and stored by the Zscaler service. To obtain the IP address of a domain, DNS queries are made until no new IP addresses are returned in two consecutive DNS responses. The resolved IP addresses are then stored for a period of twice the Time to Live (TTL) value in the DNS record.",
+      "depth": 3
+    },
+    {
+      "item": "As both FQDN and IP address values are available for a destination, this criterion applies to the web as well as non-web traffic examined by the Zscaler service. The Zscaler service employs an IP address match when evaluating non-web traffic using this criterion, whereas the web traffic evaluation relies on an FQDN match against the hostname in the HTTP/FTP header or Server Name Indication (SNI) for HTTPS.",
+      "depth": 3
+    },
+    {
+      "item": "To evaluate wildcard FQDNs against non-web traffic, Zscaler requires the IP address to which the FQDN resolves. Hence, for non-web traffic, the Zscaler service should be aware of the preceding DNS request/response. To ensure this, forward all of your DNS traffic to the Zscaler service if you intend to configure wildcard FQDNs in policies. Additionally, a subscription or Internet & SaaS edition with DNS Control is required. This functionality is included in Advanced Firewall and DNS Control and Internet & SaaS editions. To learn how DNS resolution is handled by the Zscaler service, see Handling DNS Resolution for Various Traffic Forwarding Methods.",
+      "depth": 3
+    },
+    {
+      "item": "Wildcard FQDN match against web traffic (HTTP and TLS/SNI) can function without meeting these conditions.",
+      "depth": 3
+    },
+    {
+      "item": "If a rule blocks traffic solely based on the destination, removing destination IP addresses or FQDNs from the rule should be done cautiously as that might result in the rule blocking all traffic without requiring any criteria match.",
+      "depth": 3
+    },
+    {
+      "item": "Countries: Select the countries to apply the rule to the outgoing traffic that matches the specified countries. The country where the destination server is placed is determined using the geolocation of the server's IP address. Selecting no applications sets the field to Any, which applies the rule to all countries.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          271,
+          274
+        ]
+      ]
+    },
+    {
+      "item": "To remove an individual condition from the rule, click the Delete icon. You can expand or collapse individual criteria tiles as needed.",
+      "depth": 1,
+      "strong": [
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Actions",
+      "depth": 1
+    },
+    {
+      "item": "In the Actions section, select the action to apply when the rule conditions are met:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Capture: Select Enabled to capture traffic that matches the rule. If you select Disabled, the policy skips the traffic designated by the rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          23
+        ],
+        [
+          80,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Sampling: Select the percentage of connections sampled for capturing each time the rule is triggered.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Capture Limit: Select the maximum amount of traffic data (in MB) to capture per connection.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Details",
+      "depth": 1
+    },
+    {
+      "item": "In the Details section:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Rule Name: Enter a unique name for the Traffic Capture rule, or use the default name.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Add Rule Label: (Optional) Click to select a rule label and associate it with the rule. To learn more, see About Rule Labels.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Add Description: (Optional) Click to enter additional notes or information. The description cannot exceed 10,240 characters.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Rule Order: Click Edit to adjust the rule order. Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule's place in the order. You can change the value, but if you enabled Admin Rank, your assigned admin rank determines the rule order values you can select.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          18,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Admin Rank: If your organization has enabled Admin Rank, click Edit to select an admin rank for the rule. You cannot select a rank that is higher than your own. The rule's Admin Rank determines the value you can select in the rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          63,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Rule Status: Choose to Enable or Disable the rule. An enabled rule is actively enforced. A disabled rule is not actively enforced and doesn't lose its place in the rule order scheme. The Zscaler service simply skips it and moves to the next rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          23,
+          29
+        ],
+        [
+          33,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

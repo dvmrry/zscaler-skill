@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Rate Limit Controller",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/rate-limit-controller",
+    "node": "1546789",
+    "revision": "3245520",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/rate-limit-controller.json?VersionId=s8bEe4xxQIHq1gtgALTCSZq5PKqhBAui",
+    "updated": "2026-10-14",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "Api Documentation",
+      "description": "Api Documentation",
+      "termsOfService": "urn:tos",
+      "contact": {},
+      "license": {
+        "name": "Apache 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0"
+      },
+      "version": "v2"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:8080/papi",
+        "description": "Generated server url"
+      }
+    ],
+    "tags": [
+      {
+        "name": "rate-limit-controller"
+      }
+    ],
+    "paths": {
+      "/ratelimit/v1/save": {
+        "post": {
+          "summary": "Save rate limits for company",
+          "description": "Saves or updates rate limit configuration for a company.",
+          "tags": [
+            "rate-limit-controller"
+          ],
+          "operationId": "saveRateLimitsForCompany",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyRateLimitSaveRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "CREATED",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ratelimit/v1/getRateLimit": {
+        "get": {
+          "summary": "Get rate limit information",
+          "description": "Retrieves the rate limit configuration and usage information for a specific company.",
+          "tags": [
+            "rate-limit-controller"
+          ],
+          "operationId": "getRateLimit",
+          "parameters": [
+            {
+              "name": "companyId",
+              "description": "The company ID for which to retrieve rate limit information.",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "description": "Successfully retrieved rate limit information for the specified company.",
+                    "$ref": "#/components/schemas/CompanyRateLimitResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ratelimit/v1/deleteRateLimit": {
+        "delete": {
+          "summary": "Delete rate limit configuration",
+          "description": "Deletes a rate limit configuration for a specific company and rate limit type.",
+          "tags": [
+            "rate-limit-controller"
+          ],
+          "operationId": "deleteRateLimit",
+          "parameters": [
+            {
+              "name": "companyId",
+              "description": "The company ID for which to delete the rate limit configuration.",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "rateLimitType",
+              "description": "The type of rate limit to delete (e.g., API_CALLS, REQUESTS_PER_SECOND).",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "byte"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "DELETED"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "CompanyRateLimitSaveRequest": {
+          "type": "object",
+          "description": "Request payload for saving company-level rate limit configuration.",
+          "properties": {
+            "id": {
+              "description": "Unique identifier of the company for which rate limits are being configured.",
+              "type": "string"
+            },
+            "rateLimitConfig": {
+              "type": "array",
+              "description": "Array of rate limit configuration items defining specific rate limits for the company.",
+              "items": {
+                "$ref": "#/components/schemas/RateLimitConfigItem"
+              }
+            }
+          }
+        },
+        "CompanyRateLimitResponse": {
+          "type": "object",
+          "description": "Response contract containing rate limit configuration for a company.",
+          "properties": {
+            "companyId": {
+              "description": "The unique identifier of the company.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "rateLimitConfig": {
+              "description": "Array of rate limit configurations for different API endpoints or operations.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RateLimitConfigItem"
+              }
+            }
+          }
+        },
+        "RateLimitConfigItem": {
+          "type": "object",
+          "description": "Individual rate limit configuration item specifying the type and value of a rate limit.",
+          "properties": {
+            "rateLimitType": {
+              "description": "Type of rate limit to be applied (e.g., API calls per second, requests per minute).",
+              "type": "integer",
+              "format": "int32"
+            },
+            "rateLimitValue": {
+              "description": "Value or threshold for the specified rate limit type.",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

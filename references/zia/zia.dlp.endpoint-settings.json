@@ -1,0 +1,394 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.endpoint-settings",
+  "title": "Endpoint Data Scan configuration: scan reporting, End User Reports, continuous and real-time classification, exemption, trusted applications, channel exceptions, activation",
+  "aliases": [
+    "endpoint data scan settings",
+    "continuous classification",
+    "real-time classification",
+    "exemption duration",
+    "trusted applications",
+    "end user report settings",
+    "endpoint configuration activation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{scan-reporting-toggle}} {{scan-exceptions}}"
+    },
+    {
+      "label": "End User Reports.",
+      "text": "{{end-user-report-settings}} {{end-user-report-threshold-default}} The threshold minimum is stated two ways {{divergence:end-user-report-threshold-minimum}}."
+    },
+    {
+      "label": "Classification.",
+      "text": "{{continuous-classification}} {{continuous-classification-app-exceptions}} {{real-time-classification}}"
+    },
+    {
+      "label": "Exemption and confirmation.",
+      "text": "{{exemption-duration}} How a user enters exemption mode is open {{gap:exemption-mode}}. {{confirmation-suppression}} {{user-file-protection}}"
+    },
+    {
+      "label": "Logging and exclusions.",
+      "text": "{{report-all-matches}} Whether this setting also changes the NSS fields is open {{gap:insights-logs-vs-nss}}. {{trusted-applications}}"
+    },
+    {
+      "label": "Channel settings.",
+      "text": "{{printer-channel-settings}} {{application-file-access-settings}} {{clipboard-settings}} {{removable-and-network-share-settings}}"
+    },
+    {
+      "label": "Activation.",
+      "text": "{{activation}}"
+    },
+    {
+      "text": "Rule fields are in [[zia.dlp.endpoint-rules]], and how policy reaches endpoints is in [[zia.dlp.endpoint-enforcement]]."
+    }
+  ],
+  "claims": {
+    "scan-reporting-toggle": {
+      "statement": "The Endpoint Data Scan and End User Report setting enables or disables sensitive data reporting to the cloud, and Report Endpoint Data Scan, when enabled, lets the data be viewed on the Endpoint Data Scan page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Endpoint Data Scan and End User Report: Enable or disable sensitive data reporting to the cloud.",
+            "Report Endpoint Data Scan: Enable the toggle to view the data on the Endpoint Data Scan page."
+          ]
+        }
+      ]
+    },
+    "scan-exceptions": {
+      "statement": "A scan exception's Condition Type for entities is User, User Group, Department, or Endpoint, and the file Condition is Path Starts With, Path Contains, or xattr (for macOS). A directory path ending with a backslash excludes only its subdirectories, not the files in the root directory; removing the trailing backslash excludes the entire folder, its root files, and all subdirectories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "after": "Report Endpoint Data Scan: Enable the toggle",
+          "quotes": [
+            "Condition Type: Choose from User, User Group, Department, or Endpoint.",
+            "Condition: Choose a file selection condition from the following options: Path Starts With, Path Contains, or xattr (for macOS).",
+            "If a directory path ends with a backslash (e.g., C:\\Recovery\\), the Zscaler service excludes only its subdirectories, not the files in the root directory (e.g., C:\\Recovery\\reagent-old.xml).",
+            "Remove the suffix \\ (e.g., C:\\Recovery) to exclude the entire folder, its root files, and all subdirectories."
+          ]
+        }
+      ]
+    },
+    "end-user-report-settings": {
+      "statement": "End User Reports are hidden by default. Admins can define the days (default Monday to Friday) and hours (default 09:00 to 17:00) for report display, and whether to expose Dictionaries, DLP Engines, and AI & ML Categories, all of which are disabled by default. The message shown to end users is the default one or a custom one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-end-user-reports.json",
+          "quotes": [
+            "End User Reports are hidden by default.",
+            "Admins can define specific days (default Monday to Friday) and hours (default 09:00 to 17:00) for report display.",
+            "They can choose whether to expose sensitive data categories like Dictionaries, DLP Engines, and AI & ML Categories, all of which are disabled by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "The default time range is from 09:00 to 17:00.",
+            "Select Sensitive Data Categories to Display to End Users: Select from the available sensitive data categories: Dictionaries, DLP Engines, or AI & ML Categories.",
+            "Message Displayed to End Users: Use either the default message or create a custom message to display to end users."
+          ]
+        }
+      ]
+    },
+    "end-user-report-threshold-default": {
+      "statement": "Both the End User Reports article and the Endpoint Data Scan settings article give 10 as the default file count threshold for displaying the End User Report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-end-user-reports.json",
+          "quotes": [
+            "End User Reports can be enabled and configured to appear only if a specified file count threshold (ranging from 1 to 100,000, with a default of 10) is met."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Set a threshold value for displaying the End User Report by selecting a value between the range 10 and 100,000. The default value is 10."
+          ]
+        }
+      ]
+    },
+    "continuous-classification": {
+      "statement": "Continuous Classification enhances performance by enforcing rules immediately, eliminating the need for real-time file classification; when disabled, files are classified during exfiltration based on the configuration settings. The available file sizes are 30 MB, 50 MB, and 100 MB, and files exceeding the set size are evaluated in real time. By default only SSD drives are scanned, and the page says this is available only for Windows. The service checks CPU usage every minute and resumes scanning when usage drops below the limit. Optional toggles run continuous classification on OCR and let Endpoint DLP send EDM candidate files for cloud inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Continuous Classification: Enable the toggle to enhance performance by enforcing rules immediately, eliminating the need for real-time file classification. When disabled, files are classified during exfiltration based on your configuration settings.",
+            "The available file sizes are 30 MB, 50 MB, and 100 MB. Files exceeding the set size are evaluated in real-time based on your configuration settings.",
+            "By default, only SSD drives are scanned. This is available only for Windows.",
+            "The service checks CPU usage every minute and resumes scanning when usage drops below the limit.",
+            "Enable Continuous Classification OCR: Enable the toggle to run the continuous classification on optical character recognition (OCR).",
+            "Enable Exact Data Matching (EDM): Enable to allow Endpoint DLP to send EDM candidate files for cloud inspection."
+          ]
+        }
+      ]
+    },
+    "continuous-classification-app-exceptions": {
+      "statement": "Continuous classification can be excluded for files that are created or modified by specific applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Applications: You can exclude continuous classification for files that are created or modified by specific applications."
+          ]
+        }
+      ]
+    },
+    "real-time-classification": {
+      "statement": "The maximum file size for real-time content inspection is 30 MB, 50 MB or 100 MB, and for larger files an Endpoint DLP rule with file size criteria is configured. The real-time classification timeout is 15, 30, 60 or 120 seconds (default 30 seconds), and the Timeout Action is Allow or Block (default Allow). Real-time OCR runs for printing, clipboard, removable storage, network shares, and personal cloud storage, and is not available for application file access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Maximum File Size for Real-Time Content Inspection: Select the maximum file size from the drop-down menu for real-time content inspection. The available options are 30 MB, 50 MB, and 100 MB.",
+            "For files larger than the set value, configure an Endpoint Data Loss Prevention (DLP) rule with file size criteria.",
+            "Set the real-time file classification timeout period by selecting from the following options: 15 seconds, 30 seconds, 60 seconds, or 120 seconds. The default value is 30 seconds.",
+            "Timeout Action: Set the timeout action as Allow or Block for maximum file size and time duration of the real-time classification. The default value is Allow.",
+            "Enable OCR: Enable the toggle to run real-time OCR for printing, clipboard, removable storage, network shares, and personal cloud storage. This is not available for application file access."
+          ]
+        }
+      ]
+    },
+    "exemption-duration": {
+      "statement": "The Exemption Duration for Endpoint DLP and Device Control, during which user activities are not blocked but are monitored, can be set to 5 Minutes, 10 Minutes, 15 Minutes, 60 Minutes, 2 Hours, 6 Hours, or 12 Hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Exemption Duration: Select the exemption duration from the drop-down menu of the Endpoint DLP and Device Control, during which the user activities are not blocked but are monitored.",
+            "You can set the duration of 5 Minutes, 10 Minutes, 15 Minutes, 60 Minutes, 2 Hours, 6 Hours, or 12 Hours."
+          ]
+        }
+      ]
+    },
+    "user-file-protection": {
+      "statement": "Enabling File Protection Option for End Users lets end users manually encrypt files from the desktop Context menu (Right-click > Zscaler > Protect); this option does not impact the Remove Protection option in the Context menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Enable File Protection Option for End Users: Enable this toggle to allow end users to manually encrypt files directly from their desktop via the Context menu (Right-click > Zscaler > Protect).",
+            "This option does not impact the Remove Protection option in the Context menu."
+          ]
+        }
+      ]
+    },
+    "confirmation-suppression": {
+      "statement": "Two settings each select a rolling window during which subsequent confirmation prompts for the same actions are suppressed: one for Endpoint DLP channels, where incidents are still reported per file based on the user's initial response, and one for Inline Web DLP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Suppress Subsequent User Confirmations During This Interval for Endpoint DLP Channels: Select a rolling window during which subsequent confirmation prompts for Endpoint DLP channel for the same actions are suppressed. Incidents are still reported per file, based on the user's initial response.",
+            "Suppress Subsequent User Confirmations During This Interval for Inline Web DLP: Select a rolling window during which subsequent confirmation prompts for Inline Web DLP for the same actions are suppressed."
+          ]
+        }
+      ]
+    },
+    "report-all-matches": {
+      "statement": "Enabling Report All DLP Engines, Dictionaries, and AI & ML Categories Detected in the File logs all DLP engine, dictionary, and AI & ML category matches found in the file, including non-contributing rule matches, in Endpoint DLP Insights Logs; disabling it logs only matches that contributed to rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Report All DLP Engines, Dictionaries, and AI & ML Categories Detected in the File: Enable to log all DLP engine, dictionary, and AI & ML categories matches found in the file, including non-contributing rule matches in Endpoint DLP Insights Logs.",
+            "Disable to log only matches that contributed to rules in Endpoint DLP Insights Logs."
+          ]
+        }
+      ]
+    },
+    "trusted-applications": {
+      "statement": "Trusted Applications are applications excluded from Endpoint DLP monitoring; the page says this can improve compatibility or performance for trusted applications such as XDR, indexers, or antivirus tools that do not pose an exfiltration risk, and reduces Endpoint DLP event volume.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Trusted Applications: Add applications to exclude from Endpoint DLP monitoring. This can help improve compatibility or performance for trusted applications, such as XDR, indexers, or antivirus tools, that do not pose an exfiltration risk and reduces Endpoint DLP event volume."
+          ]
+        }
+      ]
+    },
+    "printer-channel-settings": {
+      "statement": "Use Add-ins for Supported Applications on Windows activates add-ins for Microsoft Office Word, Excel, and PowerPoint; when disabled, Endpoint DLP inspects only the text sent for printing and does not perform a complete full file inspection, so file metadata such as MIP labels and full size is unavailable. Console applications (Windows only) can be monitored for print activity by a selected option. Printers needing special handling can be given override actions: Non-Intrusive Block (recommended for printers without pause/resume support), Monitor Only (allow and monitor the print job even when the rule is Block) or Disabled (exclude the printer from all DLP inspection, rule enforcement, and reporting).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Use Add-ins for Supported Applications on Windows: Enable the toggle to activate add-ins for Microsoft Office Word, Excel, and PowerPoint.",
+            "When disabled, Endpoint DLP inspects only the text sent for printing and does not perform a complete full file inspection, making file metadata (e.g., MIP labels, full size) unavailable.",
+            "Console Applications (Windows Only): Select one of the following options for monitoring print activity for console applications.",
+            "Printer: Enter printers that require special handling to apply override actions for Endpoint DLP and Device Control rules.",
+            "Non-Intrusive Block: An alternative method to stop unauthorized printing. Recommended for printers without pause/resume support.",
+            "Monitor Only: Allow the print job and monitor it, even when the rule is set to Block.",
+            "Disabled: Exclude the printer from all DLP inspection, rule enforcement, and reporting."
+          ]
+        }
+      ]
+    },
+    "application-file-access-settings": {
+      "statement": "Events triggered by macOS outside bundle helper executables can be excluded from Application File Access monitoring. Monitored macOS Unsigned Applications, edited with Edit List, specifies unsigned macOS applications to monitor or block using the Application File Access rule, and unsigned macOS applications are excluded from Application File Access monitoring to reduce potential performance impact.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Exclude Events Triggered by macOS Outside Bundle Helper Executables: Enable to exclude events that were triggered by macOS outside bundle helper executables.",
+            "Monitored macOS Unsigned Applications: Click Edit List to specify unsigned macOS applications to monitor or block using the Application File Access rule. Unsigned macOS applications are excluded from Application File Access monitoring to reduce potential performance impact."
+          ]
+        }
+      ]
+    },
+    "clipboard-settings": {
+      "statement": "For Clipboard, console applications (Windows only) can be monitored by a selected option, and specified applications and entities can be excluded from being intercepted by Endpoint DLP clipboard rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Console Applications (Windows Only): Select one of the following options for monitoring clipboard activity for console applications.",
+            "You can exclude the specified applications and entities from being intercepted by Endpoint DLP clipboard rules."
+          ]
+        }
+      ]
+    },
+    "removable-and-network-share-settings": {
+      "statement": "Specific devices can be excluded from removable storage rule enforcement, a setting designed to exclude local hard drives incorrectly identified as removable storage devices by the operating system. Specific applications can be excluded from Endpoint DLP removable storage rules and network share rules, and File Save Control excludes specific applications for which the file save behavior is set to Monitor Only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Removable Storage Devices: You can exclude specific devices from removable storage rule enforcement. This setting is designed to exclude local hard drives that are incorrectly identified as removable storage devices by the operating system.",
+            "Applications: You can exclude specified applications from Endpoint DLP network share rules."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "after": "Removable Storage: You can set exceptions for the following:",
+          "quotes": [
+            "Applications: You can exclude specific applications from Endpoint DLP removable storage rules.",
+            "File Save Control: You can exclude specific applications for which you want to set the file save behavior to Monitor Only."
+          ]
+        }
+      ]
+    },
+    "activation": {
+      "statement": "Changes made to device control policy rules, endpoint configurations, and indexed documents must be activated to be enforced. The Activation menu shows the status for Policy, Configuration, and Indexed Documents changes as No Activations Pending (changes activated) or Pending Activation (changes saved but not activated).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-activating-device-control-policy-rules-configuration-indexed-documents-changes.json",
+          "quotes": [
+            "You must activate any changes made to device control policy rules, endpoint configurations, and indexed documents for them to be enforced.",
+            "The Activation menu displays the Activation Status for Policy, Configuration, and Indexed Documents changes as follows:",
+            "No Activations Pending: When you have activated your changes.",
+            "Pending Activation: When you have saved your changes but not activated the changes."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "end-user-report-threshold-minimum": {
+      "summary": "The End User Reports article gives the file count threshold range as 1 to 100,000; the Endpoint Data Scan settings article gives 10 to 100,000. Both give a default of 10.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-end-user-reports.json",
+            "quotes": [
+              "End User Reports can be enabled and configured to appear only if a specified file count threshold (ranging from 1 to 100,000, with a default of 10) is met."
+            ]
+          },
+          "says": "The threshold ranges from 1 to 100,000, with a default of 10."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+            "quotes": [
+              "Set a threshold value for displaying the End User Report by selecting a value between the range 10 and 100,000. The default value is 10."
+            ]
+          },
+          "says": "The threshold is a value between 10 and 100,000, with a default of 10."
+        }
+      ],
+      "impact": "A threshold between 1 and 9 is allowed by one article and outside the range of the other; the pages do not say which governs."
+    }
+  },
+  "gaps": {
+    "exemption-mode": {
+      "kind": "semantic",
+      "title": "How a user enters exemption mode",
+      "status": "partial",
+      "detail": "The settings article gives the Exemption Duration values and DLP Operational counts users in exemption mode. How a user requests an exemption in the app is now quoted in zcc.end-user.service-windows:dlp-exemption: a Request exemption option that prompts for a password in the Classic UI, and Exemption Mode with a Disable Reason in the Modern UI. Still open: whether it relates to the log field zdpmode, and whether the password is the Client Connector password that disables Endpoint DLP. The length of an exemption is stated differently on the app pages and the settings page (zcc.end-user.service-windows:exemption-duration).",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "insights-logs-vs-nss": {
+      "kind": "semantic",
+      "title": "Whether Report All DLP Engines, Dictionaries, and AI & ML Categories also changes NSS fields",
+      "status": "open",
+      "detail": "The setting names only Endpoint DLP Insights Logs. Whether it also changes the NSS fields dlpengnames, dlpdictnames and dlpcounts in the Endpoint DLP log type is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

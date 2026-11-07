@@ -1,0 +1,520 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.uninspectable",
+  "title": "What SSL/TLS inspection cannot inspect: pinned apps, client certs, QUIC, BYOD, IoT",
+  "aliases": [
+    "cant inspect ssl",
+    "certificate pinning",
+    "undecryptable traffic",
+    "quic ssl inspection",
+    "byod guest network inspection",
+    "iot ssl inspection",
+    "ssl inspection fails for app",
+    "works in the browser but fails in the desktop app",
+    "desktop app fails behind zscaler"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.exemptions",
+      "because": "zia.ssl-inspection.uninspectable:pinning-exempt-by-app-or-domain"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.actions",
+      "because": "zia.ssl-inspection.actions:block-undecryptable"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.saas-apps.quic-conferencing",
+      "because": "zia.ssl-inspection.uninspectable:quic"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.cipher-suites"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.bypass-impact"
+    }
+  ],
+  "prose": [
+    {
+      "text": "When inspection \"fails\" the question is whether it could ever have worked. Four populations cannot be inspected whatever the rule says."
+    },
+    {
+      "label": "The endpoint cannot trust the certificate.",
+      "text": "{{cannot-install-cert}} {{byod-guest-segmented}} {{iot}}"
+    },
+    {
+      "label": "The application refuses the certificate.",
+      "text": "{{cert-pinning}} {{pinning-definition}} {{pkp-definition}} What the pinned item is differs between the pages {{divergence:pinned-item-is-client-or-server-certificate}}. {{pinning-undetectable}} {{pinning-failure-signatures}} {{pinned-apps-deploying}} {{pinning-exempt-by-app-or-domain}} {{pinned-native-apps}} {{pinned-app-remedies}} {{pinned-symptoms}} The Amazon Workspaces row's domain list overlaps an exemption the guide warns against {{divergence:amazon-workspaces-cloudfront-exemption}}. {{snowflake-pinning}} The same page also gives a trust-store replacement for Snowflake {{divergence:snowflake-trust-store-or-bypass}}. The second kind of refusal, an application that embeds its own CA bundle, is open {{gap:ca-bundle-pinned-vendor-apps}}."
+    },
+    {
+      "label": "The protocol cannot be decrypted.",
+      "text": "{{client-certs-and-ciphers}} {{mutual-tls}} {{primer-hostname-not-visible}} The proxy-mode page says differently for transparent mode {{divergence:hostname-visibility}}. The supported versions and suites are in [[zia.ssl-inspection.cipher-suites]]. The setting that blocks it is Block Undecryptable Traffic in [[zia.ssl-inspection.actions]]."
+    },
+    {
+      "label": "The traffic never reaches the TCP path.",
+      "text": "{{quic}}"
+    },
+    {
+      "text": "Everything not on this list should be inspectable once the root is trusted, which is the job of [[zia.ssl-inspection.certificates]]. Choosing to exempt a population instead is [[zia.ssl-inspection.exemptions]], and what stops working for it is [[zia.ssl-inspection.bypass-impact]]."
+    }
+  ],
+  "claims": {
+    "cannot-install-cert": {
+      "statement": "Inspection is not possible on devices that cannot reasonably install the Zscaler certificate, such as IoT/OT devices, BYOD and guest networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "inspection is not possible on devices that cannot reasonably install the certificate (e.g., IoT/OT, BYOD, guest networks, etc.)."
+          ]
+        }
+      ]
+    },
+    "cert-pinning": {
+      "statement": "Applications that pin a certificate reject any other certificate, so Zscaler cannot inspect them; the guide names Apple, many Microsoft 365 apps, Adobe, Cisco WebEx and the Dropbox app, and says pinning is common in iOS and Android apps. The remedies are to replace the application, bypass it only if it is valuable enough to justify the risk, or deny it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "In certificate pinning, the application is hard-coded with a server certificate and treats any other certificate as invalid.",
+            "Zscaler cannot inspect SSL traffic from sites or applications that use certificate pinning (e.g., Apple, many Microsoft 365 apps, Adobe, Cisco WebEx, Dropbox app,",
+            "This method is common with iOS and Android applications, which can make it more difficult to manage those environments.",
+            "Replace the application or bypass the traffic if you encounter certificate pinning.",
+            "Otherwise, deny the traffic.",
+            "Bypass the traffic only if the application is of such high value to the organization that it’s worth the risks associated with not inspecting the application traffic."
+          ]
+        }
+      ]
+    },
+    "pinning-exempt-by-app-or-domain": {
+      "statement": "When certificate pinning is in place, exempt the application by removing the cloud application from SSL inspection or the individual domains, using custom URL categories; for mobile apps, SaaS Security can inspect the data at rest instead of in transit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "SSL_Inspection_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "If certificate pinning is in place, exempt the applications from SSL Inspection by removing the cloud application from SSL Inspection or the individual domains from SSL Inspection, using the custom URL categories.",
+            "Instead of inspecting data in transit, you might consider leveraging SaaS Security functionality to inspect data at rest.",
+            "Remember that mobile applications often use certificate pinning, which prevents SSL Inspection from working correctly."
+          ]
+        }
+      ]
+    },
+    "client-certs-and-ciphers": {
+      "statement": "Zscaler cannot inspect sites and applications that use client-authentication certificates or unsupported ciphers, and recommends blocking undecryptable traffic unless the organization has a specific use case for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Finally, Zscaler cannot inspect sites and applications that use client-authentication certificates or use unsupported ciphers.",
+            "Zscaler recommends blocking undecryptable traffic unless your organization has a specific use case"
+          ]
+        }
+      ]
+    },
+    "quic": {
+      "statement": "Google's QUIC protocol skips the TCP handshake and uses UDP while Zscaler's inspection relies on TCP session information, so Zscaler recommends blocking QUIC; the browser or device then falls back to TCP connections. Both the Zscaler firewall and Client Connector can block it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "relies on TCP session information, so Zscaler recommends blocking Google QUIC.",
+            "When blocked, the browser or device falls back on TCP connections.",
+            "Client Connector both support blocking QUIC connections.",
+            "This is accomplished by skipping the TCP handshake and using UDP instead.",
+            "Zscaler’s firewall and Zscaler Client Connector both support blocking QUIC connections."
+          ]
+        }
+      ]
+    },
+    "byod-guest-segmented": {
+      "statement": "BYOD and guest networks are generally impossible to inspect because the root CA cannot be installed, so they should be completely segmented away from the organization's network with no access to anything but the internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Ensure any BYOD and guest networks are completely segmented away from your organization",
+            "with no chance of accessing anything other than the internet.",
+            "BYOD and guest network traffic are generally impossible to inspect because the Root CA Certificate cannot be installed on these devices."
+          ]
+        }
+      ]
+    },
+    "mutual-tls": {
+      "statement": "The Zscaler service does not support SSL/TLS inspection of websites that mandate Mutual TLS. The deployment best practices say to update the global bypass list to bypass TLS sessions that use Client Certificate Authentication, because Zscaler does not support the decryption of mutually authenticated TLS sessions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ssltls-inspection.json",
+          "quotes": [
+            "The Zscaler service does not support SSL/TLS inspection websites that mandate Mutual TLS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-ssltls-inspection.json",
+          "quotes": [
+            "Ensure to update the global bypass list to bypass TLS sessions using Client Certificate Authentication.",
+            "Zscaler does not support the decryption of mutually authenticated TLS sessions."
+          ]
+        }
+      ]
+    },
+    "pinning-definition": {
+      "statement": "Zscaler's pinning article defines certificate pinning as a non-browser desktop or mobile application validating that the TLS certificates presented by its back-end TLS web servers match a known set pinned or hardcoded in the application. Zscaler dynamically issues trusted MITM certificates signed by the Zscaler intermediate CA or the customer's intermediate CA, which certificate-pinned clients might not be able to match to the pinned certificates, leading to a termination of the connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-certificate-pinning-and-ssltls-inspection.json",
+          "quotes": [
+            "Certificate pinning is a process in which a non-browser desktop/mobile application validates that the TLS certificates presented by the application's back end TLS web servers match a known set of certificates pinned or hardcoded in the application.",
+            "Zscaler dynamically issues trusted MITM certificates signed by the Zscaler intermediate CA or by the customer's specific intermediate CA to intercept the TLS traffic.",
+            "The certificate-pinned clients might not be able to match those certificates to the pinned application certificates, leading to a termination of the connection."
+          ]
+        }
+      ]
+    },
+    "pkp-definition": {
+      "statement": "The Understanding SSL/TLS article defines Public Key Pinning (PKP), also known as certificate pinning, as the process of associating a host with its expected public key, and says it is typically seen only if a web service or web application provider owns both the server-side code and the client-side code.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ssltls.json",
+          "quotes": [
+            "Public Key Pinning (PKP), also known as certificate pinning, is the process of associating a host with its expected public key.",
+            "This is typically seen only if a web service (or Web Application) provider owns both the server-side code and the client-side code."
+          ]
+        }
+      ]
+    },
+    "primer-hostname-not-visible": {
+      "statement": "The Understanding SSL/TLS article says the actual hostname and domain name being accessed are not visible, and that how the Zscaler service determines the destination host name depends on whether it is operating in transparent mode or explicit mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ssltls.json",
+          "quotes": [
+            "The actual hostname and domain name being accessed are not visible. How the Zscaler service determines the destination host name depends on whether it is operating in transparent mode or explicit mode."
+          ]
+        }
+      ]
+    },
+    "pinning-undetectable": {
+      "statement": "Public Service Edges cannot detect certificate pinning because there is no specific messaging from the client indicating that it has a pinned certificate: there is no response to the server certificate sent to the client and the connection fails. There might be situations where the client closes the connection with a FIN or RST flag, but that is not sufficient to detect pinning and take corrective action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-certificate-pinning-and-ssltls-inspection.json",
+          "quotes": [
+            "Public Service Edges for Internet & SaaS (ZIA) cannot detect certificate pinning as there is no specific messaging from the client indicating that it has a pinned certificate.",
+            "In this situation, there is no response to the Server Certificate sent to the client, and the connection fails.",
+            "There might be situations where the client closes the connection with a FINISH (FIN) or a RESET (RST) flag, but this is not sufficient to detect pinning and take corrective action."
+          ]
+        }
+      ]
+    },
+    "pinning-failure-signatures": {
+      "statement": "Because certificate pinning is a client-side function the SSL/TLS connection fails between the client and the proxy, and clients show no standard behavior when terminating a connection: some end the handshake with a fatal error stating the reason as Unknown CA or generate an Encrypted Alert (close notify) after the handshake followed by a FIN, and in some cases the client just resets the connection without exchanging any application data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-certificate-pinning-and-ssltls-inspection.json",
+          "quotes": [
+            "As certificate pinning is a client-side function, the failure of the SSL/TLS connection happens between the client and the proxy.",
+            "There is no standard behavior that is seen among clients while terminating a connection due to certificate pinning.",
+            "either by terminating the handshake with a fatal error stating the reason as “Unknown CA” or by generating an Encrypted Alert (close notify) after the SSL/TLS handshake followed by a FIN.",
+            "In some cases, the client just resets the connection without the exchange of any application data."
+          ]
+        }
+      ]
+    },
+    "pinned-native-apps": {
+      "statement": "Zscaler's table of native applications that use certificate pinning includes, among others, Adobe Acrobat Reader (Fill & Sign), Adobe Creative Cloud, Adobe Updates, Amazon Workspaces, Apple iMessage, Apple iTunes and App Store, Dropbox, Evernote, Google Shared Services and Drive, Google Hangouts, Google Play store (Android), GoTo Applications, Microsoft Defender, Microsoft 365, Signal, Windows Store and Xbox Live (Windows), and mobile applications Facebook, Instagram, Netflix, PayPal and Spotify.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-certificate-pinning-and-ssltls-inspection.json",
+          "quotes": [
+            "The following table shows native applications that use certificate pinning:",
+            "| Adobe Acrobat Reader (Fill & Sign) | All |",
+            "| Adobe Creative Cloud | All |",
+            "| Adobe Updates | All |",
+            "| Amazon Workspaces | All |",
+            "| Apple iMessage | All |",
+            "| Apple iTunes and App Store | All |",
+            "| Dropbox | All | N/A | Cannot log in | N/A |",
+            "| Evernote | All |",
+            "| Google - Shared Services, Drive, etc. | All |",
+            "| Google Hangouts | All |",
+            "| Google Play store | Android |",
+            "| GoTo Applications | Browser - All |",
+            "| Microsoft Defender | All |",
+            "| Microsoft 365 | All |",
+            "| Signal | All |",
+            "| Windows Store | Windows |",
+            "| Xbox Live | Windows |",
+            "| Facebook | Mobile - All | N/A | Connection error | N/A |",
+            "| Instagram | Mobile - All |",
+            "| Netflix | Mobile - All |",
+            "| PayPal | Mobile - All |",
+            "| Spotify | Mobile - All |"
+          ]
+        }
+      ]
+    },
+    "pinned-app-remedies": {
+      "statement": "The pinning table gives per-application remedies: iMessage on OSX and iOS fails to send or receive messages unless p24-keyvalueservice.icloud.com is bypassed; for Microsoft 365 the table's Notes column says to use Office365 One-Click Configuration in Policies > Access Control > Advanced Settings; Amazon Workspaces needs a firewall network service, Allow connection to PCoIP - Amazon Workspaces, for destination ports 4172 and 4195; Google Drive can be configured to ignore its certificate pinning with the CLI switch googledrivesync.exe --unsafe_network; and for Evernote the page says to select the Evernote Application instead of URLs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-certificate-pinning-and-ssltls-inspection.json",
+          "quotes": [
+            "iMessage on OSX and iOS fails to send or receive messages unless this URL is bypassed.",
+            "p24-keyvalueservice.icloud.com",
+            "Use Office365 One-Click Configuration in Policies > Access Control > Advanced Settings.",
+            "On the Firewall, define a network service, \"Allow connection to PCoIP - Amazon Workspaces\" to allow the destination ports 4172 and 4195.",
+            "Google Drive can be configured to ignore its certificate pinning with the following CLI switch - googledrivesync.exe --unsafe_network",
+            "Alternatively, select the Evernote Application instead of URLs."
+          ]
+        }
+      ]
+    },
+    "pinned-symptoms": {
+      "statement": "The pinning table's Error Message column records that Dropbox and PayPal (mobile) show Cannot log in. The table also says that without bypasses iTunes and App Store partially work but many icons do not appear and apps cannot be downloaded or purchased unless the listed URLs are bypassed; that Game updates and Battle.net updates are not downloaded, with no error message; and that the Windows Store and various apps built into Windows 8.x/10 do not load properly or allow sign in, and native Xbox Live on Windows 8.x/10 does not work or allow login, if their URLs are not bypassed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-certificate-pinning-and-ssltls-inspection.json",
+          "quotes": [
+            "| Dropbox | All | N/A | Cannot log in | N/A |",
+            "| PayPal | Mobile - All | N/A | Cannot log in | N/A |",
+            "Without bypasses, iTunes and App Store partially work, but many icons don't appear and apps cannot be downloaded or purchased unless these URLs are bypassed.",
+            "Game updates and Battle.net updates are not download. No error message.",
+            "The Windows Store and various apps built into Windows 8.x/10 do not load properly, allow sign in, and various other issues if these URLs do not get bypassed.",
+            "Native Xbox Live on Windows 8.x/10 does not work or allow login if these URLs are not bypassed."
+          ]
+        }
+      ]
+    },
+    "pinned-apps-deploying": {
+      "statement": "The deployment best practices say client applications like Dropbox use a technique called certificate pinning, that apps which use it might not work with SSL/TLS Inspection, and that they should be included in the list of URL categories for which SSL/TLS transactions will not be decrypted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-ssltls-inspection.json",
+          "quotes": [
+            "Certain client applications, like Dropbox, use a technique called certificate pinning",
+            "Apps that use certificate pinning might not work with SSL/TLS Inspection.",
+            "They should be included in the list of URL categories for which SSL/TLS transactions will not be decrypted."
+          ]
+        }
+      ]
+    },
+    "snowflake-pinning": {
+      "statement": "The trust-store article says Snowflake uses certificate pinning, which prevents inserting a custom CA certificate in the middle, and that for Snowflake traffic to work through Zscaler it must be put on an SSL/TLS Inspection bypass list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "Snowflake uses certificate pinning, which prevents you from inserting a custom CA certificate in the middle.",
+            "For Snowflake traffic to work through Zscaler, you must put it on an SSL/TLS Inspection bypass list."
+          ]
+        }
+      ]
+    },
+    "iot": {
+      "statement": "IoT devices are in a similar state: most do not accept trust-store changes, and if the devices are compatible inspection might still be possible, though it likely needs a custom policy and one or more sublocations for those devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Internet of Things (IoT) devices are in a similar state to BYOD and guest networks.",
+            "If your devices are compatible, then inspection might still be possible, though it is likely that a custom policy is required along with the creation of one or more sublocations specific to these nodes.",
+            "most of them don’t accept modifications to the certificate trust store."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "hostname-visibility": {
+      "summary": "The SSL/TLS primer says the hostname and domain name being accessed are not visible; the proxy-mode page says that in transparent mode the service identifies the destination host using the Server Name Indication extension of the client hello when it includes SNI.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-ssltls.json",
+            "quotes": [
+              "The actual hostname and domain name being accessed are not visible. How the Zscaler service determines the destination host name depends on whether it is operating in transparent mode or explicit mode."
+            ]
+          },
+          "says": "The actual hostname and domain name being accessed are not visible, and the service's way of determining the destination host name depends on transparent or explicit mode."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-proxy-mode.json",
+            "quotes": [
+              "Using the Server Name Indication (SNI) extension if the initial HTTPS request (client hello) includes SNI, which is an extension to the TLS protocol."
+            ],
+            "after": "# Transparent Mode"
+          },
+          "says": "In transparent mode the Service Edge identifies the destination host using the SNI extension when the initial HTTPS request (client hello) includes SNI (existing claim zia.proxy-mode.transparent:host-identification)."
+        }
+      ],
+      "impact": "A reader of the primer alone concludes the host is hidden before decryption, while the proxy-mode page says that in transparent mode it is read from SNI when present; the primer's next sentence defers to the mode."
+    },
+    "snowflake-trust-store-or-bypass": {
+      "summary": "The trust-store article says Snowflake traffic needs a custom CA PEM file replacing the PEM under the Snowflake ODBC driver and, on the same page, that Snowflake uses certificate pinning and must be put on an SSL/TLS Inspection bypass list.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+            "quotes": [
+              "For Snowflake traffic to work seamlessly in any environment over HTTPS in a proxy environment, you must replace the PEM file under C:\\Program Files\\Snowflake ODBC Driver\\etc with your custom CA PEM file."
+            ]
+          },
+          "says": "Snowflake traffic works over HTTPS in a proxy environment if the PEM file under the Snowflake ODBC Driver etc directory is replaced with the custom CA PEM file."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+            "quotes": [
+              "Snowflake uses certificate pinning, which prevents you from inserting a custom CA certificate in the middle.",
+              "For Snowflake traffic to work through Zscaler, you must put it on an SSL/TLS Inspection bypass list."
+            ]
+          },
+          "says": "Snowflake uses certificate pinning, so its traffic must be put on an SSL/TLS Inspection bypass list."
+        }
+      ],
+      "impact": "The page gives a trust-store fix and a bypass for the same application; it does not say which applies to which Snowflake client or whether the PEM replacement is for the ODBC driver only."
+    },
+    "pinned-item-is-client-or-server-certificate": {
+      "summary": "The deployment best practices say a pinning application is hard coded to accept one specific client certificate; the pinning article and the leading practices guide describe pinning of the server's certificates.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deploying-ssltls-inspection.json",
+            "quotes": [
+              "where the client application is hard coded to accept only one specific client certificate."
+            ]
+          },
+          "says": "The client application is hard coded to accept only one specific client certificate."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-certificate-pinning-and-ssltls-inspection.json",
+            "quotes": [
+              "validates that the TLS certificates presented by the application's back end TLS web servers match a known set of certificates pinned or hardcoded in the application."
+            ]
+          },
+          "says": "The application validates that the certificates presented by its back-end TLS web servers match a known set pinned or hardcoded in the application."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+            "quotes": [
+              "In certificate pinning, the application is hard-coded with a server certificate and treats any other certificate as invalid."
+            ]
+          },
+          "says": "The application is hard-coded with a server certificate and treats any other certificate as invalid (existing claim cert-pinning)."
+        }
+      ],
+      "impact": "The deployment page's wording calls the pinned item a client certificate while the other two describe a server certificate; which certificate is pinned is stated differently."
+    },
+    "amazon-workspaces-cloudfront-exemption": {
+      "summary": "The pinning article lists .cloudfront.net among the Amazon Workspaces domains to exempt from SSL/TLS Inspection; the leading practices guide lists .cloudfront.net among exemptions to avoid.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-certificate-pinning-and-ssltls-inspection.json",
+            "quotes": [
+              "To prevent applications that use certificate pinning from breaking in these circumstances, exempt the applications from SSL/TLS Inspection.",
+              ".amazonaws.com .amazonworkspaces.com .awsapps.com .cloudfront.net"
+            ]
+          },
+          "says": "To prevent pinned applications from breaking, exempt them from SSL/TLS Inspection; the Amazon Workspaces row lists .amazonaws.com, .amazonworkspaces.com, .awsapps.com and .cloudfront.net."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+            "quotes": [
+              "Common exemptions to avoid are:",
+              ".cloudfront.net",
+              "Exempting these domains from inspection means no inspection occurs for any AWS S3 or Azure Blob storage account and should not be exempted without serious consideration."
+            ]
+          },
+          "says": "Exemptions to avoid include .cloudfront.net; exempting these domains should not be done without serious consideration (existing claim zia.ssl-inspection.exemptions:shared-storage-domains)."
+        }
+      ],
+      "impact": "The pinning table's domain list includes a domain the guide advises against exempting without serious consideration; the guide's wording softens it, and the pages do not say how the two reconcile."
+    }
+  },
+  "gaps": {
+    "pinning-flavors": {
+      "kind": "semantic",
+      "title": "Two flavors of pinning: leaf/key pinning versus CA-bundle pinning",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Leaf/key pinning - most iOS/Android apps, Adobe products, Cisco WebEx app, Dropbox app, many Microsoft 365 components' versus 'CA-bundle pinning - the application embeds a specific set of trusted CAs and ignores the OS trust store. Duo Desktop, Duo Mobile, and the Duo Authentication Proxy all do this'. The guide lists the pinned apps but does not split pinning into flavors.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "ca-bundle-pinned-vendor-apps": {
+      "kind": "data",
+      "title": "Vendor applications that embed their own CA bundle and refuse an inspecting proxy (Duo Desktop, Duo Mobile, Duo Authentication Proxy)",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Proxy connections that perform HTTPS inspection or filtering from endpoints are not supported' (Duo) and 'No deployment path. Bypass at the network or SSL layer.' The old doc cited Duo's own documentation (a Duo Desktop page and Duo KB 9585) for these apps not supporting HTTPS inspection and having no way to deploy a root. Those pages are not registered sources and the captured Zscaler guides do not mention Duo, so the claim is carried as a gap, not as fact.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ],
+      "blocks": "deciding whether Duo traffic needs an exemption rather than a trust-store fix"
+    }
+  }
+}

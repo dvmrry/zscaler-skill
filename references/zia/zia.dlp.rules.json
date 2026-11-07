@@ -1,0 +1,1033 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.rules",
+  "title": "Web DLP policy rules: order, criteria and actions",
+  "aliases": [
+    "dlp policy rule",
+    "web dlp rule criteria",
+    "dlp rule order",
+    "dlp rule admin rank",
+    "match only",
+    "inspect downloads",
+    "dlp unauthenticated traffic",
+    "dlp rule limit",
+    "dlp confirm action",
+    "why did this dlp rule not match",
+    "dlp rule save fails"
+  ],
+  "binds": [
+    "zia/dlp-web-rules"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.dlp.evaluation",
+      "because": "zia.dlp.evaluation:evaluate-all-default-vs-mode"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.dlp.engines",
+      "because": "zia.dlp.rules:engine-selection"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.rule-scoping",
+      "because": "zia.locations.rule-scoping:rules-take-both"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.authentication.unauthenticated-traffic",
+      "because": "zia.dlp.rules:unauthenticated-needs-any"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering.rule-order",
+      "because": "zia.dlp.evaluation:dlp-after-url-and-file-type"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.pipeline",
+      "because": "zia.dlp.evaluation:decrypt-dependency"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.web-field-semantics",
+      "because": "zia.logs.web-field-semantics:dlp-rule-fields"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-web-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.terraform.dlp-resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rule-wire-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.inspection-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A DLP rule answers \"who, where, and what happens when an engine triggers\". The detection itself lives in the engines the rule references ([[zia.dlp.engines]]). The order below holds in the default mode; Evaluate All Rules mode changes it ([[zia.dlp.evaluation]])."
+    },
+    {
+      "label": "Order and rank.",
+      "text": "{{ascending-order}} {{admin-rank}} Disabled rules still hold their slot, the same convention as [[zia.url-filtering.rule-order]]. {{rule-cap}} {{tf-docs-web-rule-cap-127}} That cap does not match the generic 1,024-rule limit {{divergence:web-rule-cap-127-vs-1024}}. {{rule-label}} Terraform's ordering of DLP rules has its own behavior, covered in [[zia.terraform.rule-order]]."
+    },
+    {
+      "label": "Rule kinds.",
+      "text": "{{rule-kinds-combinable}} {{name-and-default-status}}"
+    },
+    {
+      "label": "Choosing engines.",
+      "text": "{{engine-selection}} {{no-engines-filter-mode}} {{match-only}} {{match-only-example}} Some SDK docstrings describe `matchOnly` differently: [[zia.dlp.rule-wire-shape:match-only-docstring]]."
+    },
+    {
+      "label": "Rules without content inspection.",
+      "text": "{{without-ci-filter-mode}} {{without-ci-outbound-data}} {{data-size-without-inspection}} Where such a rule sends what it detects is in [[zia.dlp.incident-forwarding]]."
+    },
+    {
+      "label": "How criteria combine.",
+      "text": "{{criteria-and-or}} {{without-ci-criteria}} The two articles group the criteria differently {{divergence:criteria-grouping}}. {{scope-limits}} {{zpa-segments-sipa}}"
+    },
+    {
+      "label": "Constraints that fail only at save time.",
+      "text": "{{unauthenticated-needs-any}} {{unauthenticated-needs-all-locations}} {{inspect-downloads}}"
+    },
+    {
+      "label": "Other criteria.",
+      "text": "{{http-get-query-parameters}} {{http-get-custom-category-prerequisite}} The prompt-capture settings that pair with this are in [[zia.url-filtering.advanced-settings]]. {{content-locations}} {{file-type-precedence}} {{minimum-data-size}} {{user-risk-levels}} {{protocols}} Its WebSocket scope differs between the articles {{divergence:websocket-scope}}. {{websocket-across-applications}} That scope is the one in dispute {{divergence:websocket-scope|ref}}."
+    },
+    {
+      "label": "Actions.",
+      "text": "{{actions}} {{confirm-timeout-cancels}} {{description-limit}}"
+    },
+    {
+      "text": "Where a rule's size and archive limits stop inspection is in [[zia.dlp.inspection-limits]]; where matches are sent is in [[zia.dlp.incident-forwarding]]; the API field names, enums and sub-rules are in [[zia.dlp.rule-wire-shape]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant is in Evaluate All Rules mode, which changes the first-match order.",
+      "uses": [
+        "ascending-order"
+      ]
+    },
+    {
+      "do": "Whether the rule applies to unauthenticated traffic, which requires Any for both Groups and Departments before it will save.",
+      "uses": [
+        "unauthenticated-needs-any"
+      ]
+    },
+    {
+      "do": "Whether Inspect Downloads is needed, given that it does not apply to Exact Data Match or Indexed Data Matching engines.",
+      "uses": [
+        "inspect-downloads"
+      ]
+    },
+    {
+      "do": "Whether the rule is one with or without content inspection before reading how its criteria combine, since the two articles group them differently.",
+      "uses": [
+        "criteria-and-or",
+        "without-ci-criteria",
+        "criteria-grouping"
+      ]
+    }
+  ],
+  "claims": {
+    "ascending-order": {
+      "statement": "DLP policy rules are evaluated in ascending rule order and, by default, evaluation stops at the first match; a disabled rule keeps its place in the order while the service skips it. Evaluate All Rules mode (see zia.dlp.evaluation) changes this.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#order",
+        "zia/dlp-web-rules#state"
+      ],
+      "conditions": "Default mode, organizations without Evaluate All Rules mode.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "It determines the rule's position in the ascending order of evaluation used for all rules within the policy.",
+            "This article does not apply to organizations with Evaluate All Rules mode enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)",
+            "A disabled rule is not actively enforced but does not lose its place in the rule order. The Zscaler service skips it and moves to the next rule."
+          ],
+          "after": "3. On the Add Rule page, you can configure the following sections:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "By default, the Zscaler service evaluates inline Data Loss Prevention (DLP) policy rules according to rule order, with evaluation stopping at the first match."
+          ]
+        }
+      ]
+    },
+    "admin-rank": {
+      "statement": "Admin rank is 0 to 7, with 0 the highest. A rule with a higher admin rank always precedes a rule with a lower one, so the admin's rank limits which rule order values can be chosen.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#rank",
+        "zia/dlp-web-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "select an admin rank 0 to 7 (0 is the highest rank) from the drop-down menu.",
+            "so that a rule with a higher admin rank always precedes a rule with a lower admin rank.",
+            "if you enabled Admin Rank, your assigned admin rank determines the rule order values you can select.",
+            "The rule's admin rank determines the value you can select for rule order,"
+          ]
+        }
+      ]
+    },
+    "rule-cap": {
+      "statement": "DLP policy falls under the limit for all other policy rules, 1,024 rules, which the Zscaler Account team can raise to 2,048.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "Contact your Zscaler Account team for a possible increase in this limit from 1,024 rules to 2,048 rules.",
+            "All Other Policy Rules (i.e., DLP Policy, Inline Web DLP Policy, IPS Control Policy, etc.) | 1,024 rules"
+          ]
+        }
+      ]
+    },
+    "rule-label": {
+      "statement": "A rule can be associated with a rule label chosen from the existing labels; the label is an object reference, not free text.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#labels"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "Rule Label: (Optional) Click Add Rule Label and select a label from the drop-down menu."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "quotes": [
+            "// The Name-ID pairs of rule labels associated to the DLP policy rule."
+          ]
+        }
+      ]
+    },
+    "engine-selection": {
+      "statement": "Content Matching selects DLP engines: Any selects all engines, otherwise up to 4 engines can be chosen for one rule.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#dlpEngines"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "Select Any to choose all DLP engines for this rule, or select up to 4 engines."
+          ]
+        }
+      ]
+    },
+    "match-only": {
+      "statement": "Match Only applies to both Allow and Block rules. Deselected, one of the rule's engines triggering is enough for the service to act. Selected, all of the rule's engines must trigger and the transaction must not match any other engines from different rules, so a PCI-only rule does not fire when a transaction triggers both the PCI and HIPAA engines.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#matchOnly"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "The Match Only option takes effect for both Allow and Block rule actions."
+          ],
+          "after": "3. On the Add Rule page, you can configure the following sections:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "If deselected, only one of the engines is required to trigger in order for the service to take action.",
+            "If selected, all engines are required to trigger in order for the service to take action, and the transaction must not match any other engines from different rules.",
+            "For example, you create a DLP rule with the PCI engine and select the Match Only option. In this case, the rule does not trigger when a transaction triggers both the PCI and HIPAA engine."
+          ]
+        }
+      ]
+    },
+    "criteria-and-or": {
+      "statement": "Within a rule, URL Categories and Cloud Applications combine with AND (the service must detect both selected categories and applications in the transaction), while Users, Groups and Departments combine with OR (at least one of the selected users, groups or departments must be detected).",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#urlCategories",
+        "zia/dlp-web-rules#cloudApplications",
+        "zia/dlp-web-rules#users",
+        "zia/dlp-web-rules#groups",
+        "zia/dlp-web-rules#departments"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "Destination IP: URL Categories AND",
+            "Applications: [ Cloud Applications AND ZPA Application Segment ] AND",
+            "Who, Where, & When: [ (Users OR Groups OR Departments OR User Risk Profile) AND (Locations OR Location Groups OR Source IP groups) AND Time AND"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "In order for the DLP rule to trigger, the Zscaler service must detect at least one of the rule’s selected users, groups, or departments.",
+            "In order for a DLP rule to trigger, the Zscaler service must detect the rule’s selected URL categories and cloud applications in a transaction."
+          ],
+          "after": "3. On the Add Rule page, you can configure the following sections:"
+        }
+      ]
+    },
+    "scope-limits": {
+      "statement": "Per-field limits: in default mode, Include takes Any or up to 4 users, Any or up to 8 groups, or Any or up to 8 departments, and each field's text, right after the Exclude option, allows selecting up to 256 users, groups or departments; Locations and Location Groups take up to 32; Time takes up to two intervals; the Evaluate All Rules article caps Include at Any or up to 32 users, groups or departments, and gives domain profiles, cloud application instances and workload groups 8 each, and ZPA application segments at 255. Support can raise the default Users, Groups, Departments and User Risk Profile limits.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#users",
+        "zia/dlp-web-rules#groups",
+        "zia/dlp-web-rules#departments",
+        "zia/dlp-web-rules#locations",
+        "zia/dlp-web-rules#locationGroups",
+        "zia/dlp-web-rules#timeWindows",
+        "zia/dlp-web-rules#workloadGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "Choose Any to apply the rule to all users or select up to 4 users.",
+            "Choose Any to apply the rule to all groups or select up to 8 groups.",
+            "Choose Any to apply the rule to all departments or select up to 8 departments.",
+            "Locations: Select up to 32 locations to which the rule applies.",
+            "Location Groups: Select up to 32 location groups to which the rule applies.",
+            "Select up to two time intervals during which the rule applies.",
+            "or select up to 255 Private Access application segments.",
+            "Contact Zscaler Support to increase the default limit for Users, Groups, Departments, or User Risk Profile:",
+            "Choose Exclude to apply the rule to all other users and not selected users. You can select up to 256 users.",
+            "Choose Exclude to apply the rule to all other groups and not selected groups. You can select up to 256 groups.",
+            "Choose Exclude to apply the rule to all other departments and not selected departments. You can select up to 256 departments."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "You can select up to 8 domain profiles",
+            "You can select a maximum of 8 instances per rule.",
+            "Select up to 8 workload groups for which you want to apply the rule.",
+            "choose Any to apply the rule to all users or select up to 32 users.",
+            "choose Any to apply the rule to all groups or select up to 32 groups.",
+            "choose Any to apply the rule to all departments or select up to 32 departments.",
+            "or select up to 255 Private Access application segments."
+          ],
+          "after": "3. On the Add Rule page, you can configure the following sections:"
+        }
+      ],
+      "conditions": "Corrected on recapture (2026-10-18): previously \"Per-field limits: Include takes Any or up to 32 users, groups or departments, and Exclude up to 256; Locations and Location Groups take up to 32; Time takes up to two intervals; domain profiles and cloud application instances are capped at 8 each, workload groups at 8, and ZPA application segments at 255. Support can raise the Users, Groups, Departments and Locations limits.\". The Evaluate All Rules mode article still gives up to 32 users, groups or departments for Include, and also lists Locations among the Support-raisable limits."
+    },
+    "unauthenticated-needs-any": {
+      "statement": "A rule that applies to unauthenticated traffic must apply to all groups and departments, so Groups and Departments must both be Any.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#groups",
+        "zia/dlp-web-rules#departments"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "you can do so by making selections accordingly in the Users and Departments fields."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "Any rule that applies to unauthenticated traffic must apply to all groups and departments.",
+            "select Any from the drop-down menus for Groups and Departments."
+          ],
+          "after": "3. On the Add Rule page, you can configure the following sections:"
+        }
+      ]
+    },
+    "inspect-downloads": {
+      "statement": "Inspect Downloads extends a rule to content downloaded from cloud apps. Enabling it requires Any for URL Categories and at least one cloud app; without it the rule applies only to content sent to cloud apps. It does not apply to Exact Data Match or Indexed Data Matching engines.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#dlpDownloadScanEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "If this option is enabled, you must also choose Any for URL Categories and at least one cloud app for Cloud Application.",
+            "If disabled, the DLP rule only applies to content being sent to cloud apps.",
+            "The Inspect Downloads feature does not apply to Exact Data Match (EDM) or Indexed Data Matching (IDM) engines.",
+            "Inspect Downloads: Enable this option to allow DLP inspection for content downloaded from specific cloud apps."
+          ]
+        }
+      ]
+    },
+    "http-get-query-parameters": {
+      "statement": "A rule can inspect HTTP GET query parameters, only for these URL categories: Generative AI and ML Applications, Safe Search Engines, Translation Tools, Web Search, and user-defined custom URL categories. To enable it, choose Enable for Inspect HTTP GET Requests in the rule, then select a URL category from the drop-down menu.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#inspectHttpGetEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "Inspect HTTP GET Query Parameters: You can configure DLP rules to inspect HTTP GET Query Parameters for the following URL categories: Generative AI and ML Applications, Safe Search Engines, Translation Tools, Web Search, and User-Defined Custom URL Categories.",
+            "To enable, choose Enable for Inspect HTTP GET Requests, then select a URL category from the drop-down menu."
+          ],
+          "after": "3. On the Add Rule page, you can configure the following sections:"
+        }
+      ],
+      "conditions": "Corrected on recapture (2026-10-18): previously \"A rule can inspect HTTP GET query parameters, only for these URL categories: Generative AI and ML Applications, Safe Search Engines, Translation Tools, Web Search, and user-defined custom URL categories. A custom category is chosen on the DLP Advanced Settings page.\". The Evaluate All Rules mode article is the only recaptured capture that documents this option."
+    },
+    "content-locations": {
+      "statement": "A rule can target sections of a file or transaction by content location: Document Properties (file metadata such as MIP labels), File Content (not metadata), File Name, or HTTP Body (the non-file request body, which also requires the non-file file type). The feature is enabled by contacting Zscaler Support.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#dlpContentLocationsScopes"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "To enable this feature, contact Zscaler Support.",
+            "Document Properties: Matches are based on the file metadata (i.e., MIP labels).",
+            "File Content: Matches are based on the actual content of the file, not including metadata.",
+            "File Name: Matches are based on the name of the file.",
+            "HTTP Body: Matches are based on the non-file body of the HTTP request.",
+            "Note: you must also select non-file file type when selecting HTTP Body as a content location."
+          ],
+          "after": "3. On the Add Rule page, you can configure the following sections:"
+        }
+      ]
+    },
+    "file-type-precedence": {
+      "statement": "Zscaler-defined file types are considered before custom file types, and custom file types are not detected inside archives. Rules that reference Zscaler DLP engines support different file types than rules that reference external DLP engines.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#fileTypes"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "Note that the file types supported by Zscaler DLP Engine rules differ from those supported by External DLP Engine rules."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "Zscaler-defined file types are considered before custom file types and custom files inside archives are not detected."
+          ],
+          "after": "3. On the Add Rule page, you can configure the following sections:"
+        }
+      ]
+    },
+    "minimum-data-size": {
+      "statement": "Minimum Data Size sets how large data must be before the rule applies; the default 0 KB means no minimum. The API field is `minSize`, in KB.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#minSize"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "The default minimum data size, 0 KB, means there is no minimum data size requirement.",
+            "Minimum Data Size (KB): Enter the minimum size requirement that data must meet before the DLP rule applies."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "quotes": [
+            "// The minimum file size (in KB) used for evaluation of the DLP policy rule.",
+            "MinSize int `json:\"minSize,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "user-risk-levels": {
+      "statement": "A rule can scope to up to 4 user risk profiles (Critical, High, Low and Medium); by default Low is 0 to 29, Medium 30 to 59, High 60 to 79 and Critical 80 to 100, and selecting no level ignores the criterion.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#userRiskScoreLevels"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-policy-rules-without-content-inspection.json",
+          "quotes": [
+            "User Risk Profile: You can select up to 4 user risk profiles (i.e., Critical, High, Low, and Medium). Selecting no values ignores this criterion from the policy evaluation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "User Risk Profile: You can select up to 4 user risk profiles (i.e., Critical, High, Low, and Medium).",
+            "Selecting no values ignores this criterion from the policy evaluation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "Low: Level with user risk scores ranging from 0 to 29",
+            "Medium: Level with user risk scores ranging from 30 to 59",
+            "High: Level with user risk scores ranging from 60 to 79",
+            "Critical: Level with user risk scores ranging from 80 to 100"
+          ],
+          "after": "- The DLP policy applies OR logic to the Users, Groups, and Departments fields when inspecting your organization’s traffic. In order for the DLP rule to trigger, the Zscaler service must detect at least one of the rule’s selected users, groups, or departments."
+        }
+      ]
+    },
+    "protocols": {
+      "statement": "The rule's Protocols criterion offers HTTP, HTTPS, Native FTP, WebSocket and WebSocket SSL/TLS. The Evaluate All Rules article says the WebSocket protocol is supported only for the Microsoft Copilot application.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#protocols"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "Protocols: Choose any number of protocols to which the rule applies (e.g., HTTP, HTTPS, WebSocket, etc)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "Native FTP: Data transactions and file uploads from native FTP servers.",
+            "WebSocket SSL/TLS: Data transactions from WebSocket websites encrypted by SSL/TLS.",
+            "The WebSocket protocol is supported only for the Microsoft Copilot application.",
+            "Protocols: Select the protocols to which the rule applies.",
+            "HTTP: Data transactions and file uploads from HTTP websites.",
+            "HTTPS: Data transactions and file uploads from HTTP websites encrypted by SSL/TLS.",
+            "WebSocket: Data transactions from WebSocket websites."
+          ],
+          "after": "- The DLP policy applies OR logic to the Users, Groups, and Departments fields when inspecting your organization’s traffic. In order for the DLP rule to trigger, the Zscaler service must detect at least one of the rule’s selected users, groups, or departments."
+        }
+      ],
+      "gaps": [
+        "websocket-protocol-wire-values"
+      ]
+    },
+    "actions": {
+      "statement": "In Evaluate All Rules mode a rule's action is Allow (allow and log), Block (block and log) or Confirm (the user can justify and continue, or cancel; both are logged); the default-mode article lists only Allow and Block.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "This article applies only to organizations with Evaluate All Rules mode enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "Allow: The service allows and logs the transaction.",
+            "Block: The service blocks and logs the transaction.",
+            "Confirm: Users can justify the transaction to continue, or cancel the transaction altogether; in both cases, the service logs the transaction accordingly."
+          ],
+          "after": "If disabled, the DLP exception rule only applies to content being sent to cloud apps."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "Allow: Allow the packets to pass through the DLP rule.",
+            "Block: Block the packets to pass through the DLP rule."
+          ]
+        }
+      ],
+      "conditions": "Confirm is documented in the Evaluate All Rules mode article; the default-mode article (recaptured 2026-10-18) lists only Allow and Block. `grep -c -i confirm configuring-dlp-policy-rules-content-inspection.json` in the capture of 2026-10-25 returns 0."
+    },
+    "confirm-timeout-cancels": {
+      "statement": "If the Confirm message times out without the user acting, the service automatically cancels the transaction.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "If the confirmation message times out without the end user taking action, the Zscaler service automatically cancels the transaction."
+          ],
+          "after": "If disabled, the DLP exception rule only applies to content being sent to cloud apps."
+        }
+      ],
+      "conditions": "Documented in the Evaluate All Rules mode article; the default-mode article (recaptured 2026-10-18) does not describe Confirm."
+    },
+    "description-limit": {
+      "statement": "A rule description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#description"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "no-engines-filter-mode": {
+      "statement": "In Evaluate All Rules mode, choosing None for DLP engines means the service does not scan content with engines and instead acts as a filter, flagging content only by the other criteria.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#dlpEngines"
+      ],
+      "conditions": "Documented in the Evaluate All Rules mode article; the default-mode article describes only Any or up to 4 engines.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
+            "If you select None, then the Zscaler service doesn't use DLP engines to scan the content; instead, the service functions as a filter, only flagging content based on the criteria you specify."
+          ],
+          "after": "You then configure your policy rules based on that setting:"
+        }
+      ]
+    },
+    "rule-kinds-combinable": {
+      "statement": "The About DLP page lists four kinds of DLP policy rule, and says a policy can use one or more of them simultaneously: monitor or block data using Zscaler DLP engines; the same, then forward information to a third-party DLP solution; monitor or block data based on specific criteria, then forward information to a third-party DLP solution (a kind where Zscaler does not use its DLP engines); and monitor or block data based on data size to leverage Zscaler's DLP policy without scanning for specific data within the content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-loss-prevention.json",
+          "quotes": [
+            "The following are the different types of DLP policy rules you can configure. Your policy can use one or more of these options simultaneously.",
+            "Monitor or block data using Zscaler DLP engines, then forward information to a third-party DLP solution",
+            "Monitor or block data based on specific criteria, then forward information to a third-party DLP solution",
+            "With this option, Zscaler does not use its DLP engines.",
+            "Monitor or block data based on data size to leverage Zscaler's DLP policy without scanning for specific data within the content."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-loss-prevention.json",
+          "after": "Your policy can use one or more of these options simultaneously.",
+          "quotes": [
+            "Monitor or block data using Zscaler DLP engines"
+          ]
+        }
+      ]
+    },
+    "name-and-default-status": {
+      "statement": "A rule's name is system-generated and editable and cannot exceed 63 characters, and a new rule's status is Disabled by default, so the rule must be enabled to be enforced on traffic; the articles for rules with and without content inspection both say so.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "A system-generated rule name is automatically populated, and the name can be edited. The name cannot exceed 63 characters.",
+            "Rule Status: By default, the status is Disabled. You need to enable the rule to activate and enforce it on your traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-policy-rules-without-content-inspection.json",
+          "quotes": [
+            "A system-generated rule name is automatically populated, and the name can be edited. The name cannot exceed 63 characters.",
+            "Rule Status: By default, the status is Disabled. You need to enable the rule to activate and enforce it on your traffic."
+          ]
+        }
+      ]
+    },
+    "match-only-example": {
+      "statement": "In the vendor's Match Only example, Rule 1 allows the finance team to send credit card numbers, Rule 2 allows human resources to send social security numbers and Rule 3 blocks the rest of the organization from sending both. When a finance team member sends a document containing both and Rules 1 and 2 have Match Only selected, the document does not match Rule 1, because Rule 1 only triggers if a document contains only credit card numbers and no additional content that triggers other engines from different rules, and it matches Rule 3, so the policy blocks it; when Match Only is not selected for Rules 1 and 2, the document matches Rule 1 and the policy allows it.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#matchOnly"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dlp-policy-configuration-example-match-only.json",
+          "quotes": [
+            "Rule 1 allows your organization’s finance team to send out credit card numbers.",
+            "Rule 2 allows your organization’s human resources team to send out social security numbers.",
+            "Rule 3 blocks the rest of your organization from sending out credit card numbers and social security numbers.",
+            "For example, you have selected Match Only for Rule 1 and Rule 2.",
+            "The document does not match Rule 1, despite belonging to a finance team member. This is because Rule 1 only triggers if a document only contains credit card numbers and no additional content that triggers other engines from different rules.",
+            "The document matches Rule 3, because the document contains both credit card numbers and social security numbers. This results in the DLP policy blocking the transaction, and the finance team member is unsuccessful in sending out the social security numbers.",
+            "For example, you have not selected Match Only for Rule 1 and Rule 2. The document matches Rule 1, despite containing social security numbers.",
+            "This results in the DLP policy allowing the transaction, and the finance team member succeeds in sending out the social security numbers."
+          ]
+        }
+      ]
+    },
+    "without-ci-filter-mode": {
+      "statement": "In a rule without content inspection, Zscaler DLP engines are not used to detect data: Content Matching set to None hands inspection to a third-party DLP solution, and the service does not scan the content with its DLP engines but functions as a filter, only forwarding content based on specific criteria. The article does not apply to organizations with Evaluate All Rules mode enabled.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#withoutContentInspection",
+        "zia/dlp-web-rules#dlpEngines"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-policy-rules-without-content-inspection.json",
+          "quotes": [
+            "When you configure a Rule Without Content Inspection policy, you do not use Zscaler Data Loss Prevention (DLP) engines to detect data.",
+            "Instead, Zscaler detects content based on criteria you specify, then sends information about that content to your organization's third-party DLP solution.",
+            "Content Matching: Select None to use a third-party DLP solution instead of Zscaler DLP engines to inspect content.",
+            "the Zscaler service does not scan the content with its DLP engines but functions as a filter, only forwarding content based on specific criteria.",
+            "This article does not apply to organizations with Evaluate All Rules mode enabled."
+          ]
+        }
+      ]
+    },
+    "without-ci-outbound-data": {
+      "statement": "A rule without content inspection has an Outbound Data choice: Select File Types, where any number of file types (searchable) and previously configured custom file types can be selected, or All, which applies the rule to all outbound data regardless of file type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-policy-rules-without-content-inspection.json",
+          "quotes": [
+            "Outbound Data: Choose Select File Types if you want to select the file types the rule applies to, or All if you want the rule to apply to all outbound data, regardless of file type.",
+            "You can select any number of file types and also search for file types. You can also select custom file types you have previously configured."
+          ]
+        }
+      ]
+    },
+    "data-size-without-inspection": {
+      "statement": "To monitor or block outbound content by data size without scanning for specific data, the vendor's scenario uses the Rule Without Content Inspection option: the criteria Zscaler uses are specified and no ICAP server is specified, so Zscaler monitors or blocks outbound content on those criteria and sends no content to any external DLP engine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-monitoring-or-blocking-outbound-content-data-size.json",
+          "quotes": [
+            "For this scenario, you can leverage the Rule Without Content Inspection policy option.",
+            "you can specify the criteria Zscaler uses for monitoring or blocking content, but refrain from specifying an ICAP server.",
+            "Zscaler monitors or blocks outbound content based on the criteria you specify, but does not send content to any external DLP engines."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-loss-prevention.json",
+          "quotes": [
+            "Monitor or block data based on data size to leverage Zscaler's DLP policy without scanning for specific data within the content."
+          ]
+        }
+      ]
+    },
+    "without-ci-criteria": {
+      "statement": "The article on rules without content inspection says the logical relationship between the categories is AND, and gives: Who is [Users OR Groups OR Departments OR Workload Groups]; Source and Destinations is [URL Categories AND Cloud Applications AND ZPA Application Segment AND Source IP Groups AND Locations AND Location Groups]; When is Time; and What is [User Risk Score AND Content Matching AND File Types AND Minimum Data Size (KB) AND Protocols]. The article does not apply to organizations with Evaluate All Rules mode enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-policy-rules-without-content-inspection.json",
+          "quotes": [
+            "The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied",
+            "Who: [ Users OR Groups OR Departments OR Workload Groups] AND",
+            "Source and Destinations : [ URL Categories AND Cloud Applications AND ZPA Application Segment AND Source IP Groups AND Locations AND Location Groups ] AND",
+            "When: Time AND",
+            "What: [ User Risk Score AND Content Matching AND File Types AND Minimum Data Size (KB) AND Protocols ]",
+            "This article does not apply to organizations with Evaluate All Rules mode enabled."
+          ]
+        }
+      ]
+    },
+    "zpa-segments-sipa": {
+      "statement": "In the article on rules without content inspection, ZPA Application Segment takes Any or up to 255 Private Access application segments, and the list shows only segments with the Source IP Anchor option enabled. Selecting the Inspect App Segments option applies the rule to all Private Access application segments paired to the Internet & SaaS (ZIA) tenant, and that option is only available if the SIPA App Segments subscription is enabled for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-policy-rules-without-content-inspection.json",
+          "quotes": [
+            "ZPA Application Segment: Select Any to apply the rule to all Private Access (ZPA) application segments, or select up to 255 Private Access application segments.",
+            "The list displays only those Private Access application segments that have the Source IP Anchor option enabled.",
+            "If you select the Inspect App Segments option from the list, then the configured rule applies to all the Private Access application segments paired to your Internet & SaaS (ZIA) tenant.",
+            "This option is only available if the SIPA App Segments subscription is enabled for your organization."
+          ]
+        }
+      ]
+    },
+    "unauthenticated-needs-all-locations": {
+      "statement": "The About DLP page says that to apply a rule to unauthenticated traffic, the rule must apply to all locations.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#locations"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-loss-prevention.json",
+          "quotes": [
+            "To apply this rule to unauthenticated traffic, the rule must apply to all locations."
+          ]
+        }
+      ]
+    },
+    "http-get-custom-category-prerequisite": {
+      "statement": "Inspect HTTP GET Requests is obtained by contacting the Zscaler Account team. A user-defined custom URL category can be enabled in a policy for it only after the category is associated with Inspect HTTP GET Requests on the DLP Advanced Settings page.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#inspectHttpGetEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-advanced-settings.json",
+          "after": "Inspect HTTP Get Requests",
+          "quotes": [
+            "To access this feature, contact your Zscaler Account team.",
+            "To enable the User-Defined custom URL category in the policy, you must first go to the DLP Advanced Settings page and select which URL category to associate with Inspect HTTP GET Requests."
+          ]
+        }
+      ]
+    },
+    "websocket-across-applications": {
+      "statement": "The article on rules without content inspection says Zscaler inspects bidirectional WebSocket traffic carrying supported text-based content across applications, and that enabling the feature means contacting Zscaler Support. The article does not apply to organizations with Evaluate All Rules mode enabled.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#protocols"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-policy-rules-without-content-inspection.json",
+          "quotes": [
+            "Zscaler inspects bidirectional WebSocket traffic carrying supported text-based content across applications. Contact Zscaler Support to enable this feature.",
+            "This article does not apply to organizations with Evaluate All Rules mode enabled."
+          ]
+        }
+      ]
+    },
+    "tf-docs-web-rule-cap-127": {
+      "statement": "The Terraform DLP web rules documentation warns that ZIA DLP supports a maximum of 127 Web DLP rules created via the API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_dlp_web_rules.md",
+          "quotes": [
+            "Zscaler Internet Access DLP supports a maximum of 127 Web DLP Rules to be created via API."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "websocket-protocol-wire-values": {
+      "kind": "semantic",
+      "title": "How the WebSocket protocol options appear in the API",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "configuring or auditing WebSocket DLP through the API or Terraform",
+      "detail": "The console offers WebSocket and WebSocket SSL/TLS, but the API reference's `protocols` values are ANY_RULE, FTP_RULE, HTTPS_RULE and HTTP_RULE. No source maps the two WebSocket options to a wire value."
+    },
+    "websocket-other-apps": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: WebSocket DLP gives no coverage for Slack, Figma, Linear or Notion",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "naming uncovered WebSocket applications",
+      "detail": "Unverified legacy statement: \"Adding WebSocket as a protocol expecting it to cover other WebSocket-heavy apps (Slack, Figma, Linear, Notion) yields zero coverage for those apps.\" The help says only that WebSocket is supported only for Microsoft Copilot; the named apps are the legacy author's examples."
+    },
+    "predefined-file-type-wins": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: when custom and predefined file types both match, the predefined type's rule fires",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "predicting which file type rule fires for a dual match",
+      "detail": "Unverified legacy statement: \"If both a custom file type and a Zscaler predefined type match the same file, the predefined type's rule fires.\" The help says Zscaler-defined types are considered before custom types; which rule fires is an inference."
+    },
+    "any-engines-cascade": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: selecting Any engines is risky and can cascade-trigger on unrelated dictionaries",
+      "status": "open",
+      "resolves_with": [
+        "operator-experience",
+        "lab-test"
+      ],
+      "blocks": "advising against Any in broad rules",
+      "detail": "Unverified legacy statement: \"`Any` engine selection ... Risky in broad allowing/blocking rules; can cascade-trigger on unrelated dictionaries.\" The help says only that Any selects all engines (engine-selection)."
+    }
+  },
+  "divergences": {
+    "criteria-grouping": {
+      "summary": "How DLP rule criteria are grouped: Locations, Location Groups, Source IP Groups and user risk are OR with other fields in the content-inspection article and AND in the article on rules without content inspection.",
+      "positions": [
+        {
+          "says": "The content-inspection article groups Users, Groups, Departments and User Risk Profile with OR, and Locations, Location Groups and Source IP groups with OR, joined to each other and to Time by AND.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-dlp-policy-rules-content-inspection.json",
+            "quotes": [
+              "Who, Where, & When: [ (Users OR Groups OR Departments OR User Risk Profile) AND (Locations OR Location Groups OR Source IP groups) AND Time AND"
+            ]
+          }
+        },
+        {
+          "says": "The article on rules without content inspection joins Source IP Groups, Locations and Location Groups with AND under Source and Destinations.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-policy-rules-without-content-inspection.json",
+            "quotes": [
+              "Source and Destinations : [ URL Categories AND Cloud Applications AND ZPA Application Segment AND Source IP Groups AND Locations AND Location Groups ] AND"
+            ]
+          }
+        },
+        {
+          "says": "The same article joins User Risk Score with AND under What, rather than with OR alongside Users.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-policy-rules-without-content-inspection.json",
+            "quotes": [
+              "What: [ User Risk Score AND Content Matching AND File Types AND Minimum Data Size (KB) AND Protocols ]"
+            ]
+          }
+        }
+      ],
+      "impact": "The two pages describe different rule kinds (with and without content inspection) and neither says the logic differs by kind, so whether several locations or a location plus a user risk level on one rule combine with OR or AND is not settled; do not state either grouping as fact for a rule."
+    },
+    "websocket-scope": {
+      "summary": "Whether DLP inspects WebSocket traffic only for Microsoft Copilot or across applications.",
+      "positions": [
+        {
+          "says": "The Evaluate All Rules article says the WebSocket protocol is supported only for the Microsoft Copilot application.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+            "quotes": [
+              "The WebSocket protocol is supported only for the Microsoft Copilot application."
+            ],
+            "after": "- The DLP policy applies OR logic to the Users, Groups, and Departments fields when inspecting your organization’s traffic. In order for the DLP rule to trigger, the Zscaler service must detect at least one of the rule’s selected users, groups, or departments."
+          }
+        },
+        {
+          "says": "The article on rules without content inspection says Zscaler inspects bidirectional WebSocket traffic carrying supported text-based content across applications, and to contact Zscaler Support to enable it.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-policy-rules-without-content-inspection.json",
+            "quotes": [
+              "Zscaler inspects bidirectional WebSocket traffic carrying supported text-based content across applications. Contact Zscaler Support to enable this feature."
+            ]
+          }
+        },
+        {
+          "says": "The Advanced Policy Settings article says Zscaler inspects bidirectional WebSocket traffic carrying supported content across applications, and to contact Zscaler Support to enable it.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-advanced-policy-settings.json",
+            "quotes": [
+              "Zscaler inspects bidirectional WebSocket traffic carrying supported content across applications. Contact Zscaler Support to enable this feature."
+            ]
+          }
+        },
+        {
+          "says": "The July 2026 release summary says Zscaler inspects bidirectional WebSocket traffic across applications.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-release-upgrade-summary-2026-july.json",
+            "quotes": [
+              "Zscaler inspects bidirectional WebSocket traffic across applications, allowing you to extend security and data protection controls to these communications."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a WebSocket protocol selection covers applications other than Microsoft Copilot is not settled; the Evaluate All Rules article limits it to Copilot while three other pages say across applications, and the pages may describe different features. Do not state either scope as fact for a rule."
+    },
+    "web-rule-cap-127-vs-1024": {
+      "summary": "How many Web DLP rules a tenant can hold.",
+      "positions": [
+        {
+          "says": "The Terraform resource documentation says a maximum of 127 Web DLP rules can be created via the API.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_dlp_web_rules.md",
+            "quotes": [
+              "Zscaler Internet Access DLP supports a maximum of 127 Web DLP Rules to be created via API."
+            ]
+          }
+        },
+        {
+          "says": "The Ranges and Limitations help page gives a generic policy rule limit of 1,024 rules, raisable to 2,048.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "Contact your Zscaler Account team for a possible increase in this limit from 1,024 rules to 2,048 rules."
+            ]
+          }
+        }
+      ],
+      "impact": "Do not quote 127 or 1,024 as the Web DLP rule cap without saying which source it comes from; the two figures may describe different things (a 127 API cap against a generic per-type limit) and the sources do not reconcile them."
+    }
+  }
+}

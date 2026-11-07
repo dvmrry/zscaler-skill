@@ -1,0 +1,802 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.rule-order",
+  "title": "How the ZIA Terraform provider applies rule order",
+  "aliases": [
+    "terraform reorder",
+    "terraform rule order wrong",
+    "terraform apply reordered rules",
+    "rule moved to the bottom",
+    "reorderAll",
+    "rank 7"
+  ],
+  "binds": [
+    "zia/url-filtering-rules#order",
+    "zia/url-filtering-rules#rank"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.url-filtering.rule-order",
+      "because": "zia.url-filtering.rule-order:admin-rank-precedes"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.url-filtering.list-pagination",
+      "because": "zia.terraform.rule-order:parking-spot-from-truncated-list"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.cache"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZIA provider does not write a rule's declared order directly: it hands the declared position to a background worker that moves the rule there. Up to v4.8.13 every update first moved the rule out of the way, and from v4.8.14 only a rank change does. {{update-parks-every-update}} {{list-error-then-panic}} {{parking-spot-from-truncated-list}} {{delete-renumber-same-apply}}"
+    },
+    {
+      "label": "Putting it back.",
+      "text": "{{background-worker}} {{worker-cannot-report-failure}} {{converges-on-registered-rules-only}} {{defers-batch-when-targets-exceed-orderable}} Whether the apply reports anything when a declared order stays unreachable is open {{gap:unreachable-target-deferral-effect}}. {{unregistered-rules-not-compared}} {{stale-positions-within-a-pass}} {{pass-snapshot-updated-after-each-move}} {{gives-up-silently}} {{wrong-order-reported-success}} {{state-records-registered-target}}"
+    },
+    {
+      "label": "Rules the apply did not touch.",
+      "text": "{{terminal-rule-can-be-displaced}} Product-side rule order semantics are in [[zia.url-filtering.rule-order]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the terminal rules are still last after an apply that edited ordered rules, by re-reading the whole policy's order rather than only the edited rules.",
+      "uses": [
+        "terminal-rule-can-be-displaced",
+        "converges-on-registered-rules-only"
+      ]
+    },
+    {
+      "do": "Whether a later plan shows rules out of their declared order after an apply that reported success.",
+      "uses": [
+        "wrong-order-reported-success",
+        "gives-up-silently"
+      ]
+    }
+  ],
+  "claims": {
+    "update-parks-every-update": {
+      "statement": "Up to v4.8.13 every URL Filtering rule update, whatever field changed, was first sent with rank 7 at the order of the last rule (sorted by rank, then order), and only afterwards moved back to its declared order by the reorder worker; the rule was written at that order, not after it. From v4.8.14 an update that changes only `order` writes nothing, an update that changes other attributes but not `rank` is written at the rule's current position, and only an update that changes `rank` is written at the end of the list with rank 7; the declared position is then handed to the reorder engine.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#order",
+        "zia/url-filtering-rules#rank"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "at": [
+            "v4.8.3",
+            "v4.8.13"
+          ],
+          "after": "func resourceURLFilteringRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "req := expandURLFilteringRules(d)",
+            "return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order)",
+            "intendedOrder := req.Order intendedRank := req.Rank nextAvailableOrder := existingRules[len(existingRules)-1].Order // always start rank 7 rules at the next available order after all ranked rules req.Rank = 7 req.Order = nextAvailableOrder _, err = urlfilteringpolicies.Update(ctx, service, id, &req)",
+            "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID, \"url_filtering_rules\","
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "if !d.HasChangesExcept(\"order\") { return ruleUpdateOrderOnly } if !d.HasChange(\"rank\") { return ruleUpdateInPlace } return ruleUpdateMoveToEnd",
+            "case ruleUpdateOrderOnly: log.Printf(\"[INFO] rule %s: only the order changed; leaving the move to the reorder engine\", d.Id()) return nil",
+            "case ruleUpdateMoveToEnd: return writeAtFreshPosition(func(bool) (OrderRule, error) { return end() }, write)",
+            "last := 1 for _, o := range orders { if o > last { last = o } } return OrderRule{Order: last, Rank: 7}"
+          ],
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "err := updateOrderedRule(d, known,",
+            "func() (OrderRule, error) { return urlFilteringEndPosition(ctx, service) },",
+            "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, id, \"url_filtering_rules\","
+          ],
+          "after": "func resourceURLFilteringRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "default: return writeAtFreshPosition(func(fresh bool) (OrderRule, error) { if known != nil && !fresh { return *known, nil } return current() }, write)"
+          ],
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Rules whose only change is `order` are no longer rewritten"
+          ],
+          "after": "## 4.8.14 (October 21, 2026)",
+          "at": [
+            "v4.8.14"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Partly fixed in provider v4.8.14 (PR 614): only an update that changes `rank` is parked at the end of the list."
+        }
+      ]
+    },
+    "list-error-then-panic": {
+      "statement": "Before v4.8.11, if listing the existing rules failed during an update, the error was only logged and the code read the last element of whatever came back: if the first page failed, the list was empty and the index panicked; if a later page failed, the rule was parked using a partial list. v4.8.11 returns the list error from the update before the index is read (#610). From v4.8.14 the update no longer indexes the last element: the end of the list comes from `endOfList`, which starts at order 1, and that end-of-list read is made only when `rank` changed, with a failed read returned as an error.",
+      "tier": "A",
+      "conditions": "Changed upstream in v4.8.11 (checked 2026-10-18): previously \"If listing the existing rules fails during an update, the error is only logged and the code reads the last element of whatever came back: if the first page failed, the list is empty and the index panics; if a later page failed, the rule is parked using a partial list.\" At v4.8.14, `grep -c '\\[len('` over zia/resource_zia_url_filtering_rules.go returns 0, where `grep -c -F 'existingRules[len(existingRules)-1]'` returns 1 at v4.8.13.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "at": [
+            "v4.8.3",
+            "v4.8.8"
+          ],
+          "after": "func resourceURLFilteringRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "log.Printf(\"[ERROR] error getting all url filtering rules: %v\", err)",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "after": "func resourceURLFilteringRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "return diag.FromErr(fmt.Errorf(\"error getting all url filtering rules: %w\", err))",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+          ],
+          "at": [
+            "v4.8.11",
+            "v4.8.13"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/common/common.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err != nil { return err } *list = append(*list, pageItems...)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service) ([]URLFilteringRule, error) {",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, urlFilteringPoliciesEndpoint, &rules) return rules, err"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 4.8.11 (October 8, 2026)",
+            "[PR #610](https://github.com/zscaler/terraform-provider-zia/pull/610) - Fixed a provider crash when updating rule-based resources (`zia_firewall_filtering_rule`,",
+            "`zia_cloud_app_control_rule`) if the list of existing rules could not be retrieved. The API error is now reported instead."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "rules, err := urlfilteringpolicies.GetAll(ctx, service) if err != nil { return OrderRule{}, fmt.Errorf(\"error getting all url filtering rules: %w\", err) }",
+            "return endOfList(orders), nil"
+          ],
+          "after": "func urlFilteringEndPosition(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "at": [
+            "v4.8.14"
+          ],
+          "after": "func resourceURLFilteringRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "err := updateOrderedRule(d, known,",
+            "func() (OrderRule, error) { return urlFilteringEndPosition(ctx, service) },"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "last := 1 for _, o := range orders { if o > last { last = o } } return OrderRule{Order: last, Rank: 7}",
+            "if !d.HasChangesExcept(\"order\") { return ruleUpdateOrderOnly } if !d.HasChange(\"rank\") { return ruleUpdateInPlace } return ruleUpdateMoveToEnd",
+            "case ruleUpdateMoveToEnd: return writeAtFreshPosition(func(bool) (OrderRule, error) { return end() }, write)"
+          ],
+          "at": [
+            "v4.8.14"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Part of the audit's panic class (unchecked list, then index of the last element)."
+        }
+      ]
+    },
+    "parking-spot-from-truncated-list": {
+      "statement": "The order used to park a rule comes from a list read through the Go SDK's GetAll, which can return a truncated list; up to v4.8.13 on every URL Filtering update, from v4.8.14 only on an update that changes `rank`. With more rules than one page holds, the \"highest existing order\" can be a position inside the policy rather than its end.",
+      "tier": "C",
+      "derived_from": [
+        "update-parks-every-update",
+        "zia.url-filtering.list-pagination:silent-truncation"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "at": [
+            "v4.8.3",
+            "v4.8.13"
+          ],
+          "after": "func resourceURLFilteringRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "existingRules, err := urlfilteringpolicies.GetAll(ctx, service)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "rules, err := urlfilteringpolicies.GetAll(ctx, service)"
+          ],
+          "after": "func urlFilteringEndPosition(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "if !d.HasChangesExcept(\"order\") { return ruleUpdateOrderOnly } if !d.HasChange(\"rank\") { return ruleUpdateInPlace } return ruleUpdateMoveToEnd"
+          ],
+          "at": [
+            "v4.8.14"
+          ]
+        }
+      ],
+      "conditions": "Tier C: depends on the list endpoint truncating a policy larger than one page (the pagination claim derived from), which is not shown for these rule types; the provider code reads the highest order from that list."
+    },
+    "background-worker": {
+      "statement": "Declared orders are applied by one background worker per rule type. It rescans on a 30-second ticker, sleeping for half the interval between checks, and each pass reads current positions once.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "var reorderTickInterval = 30 * time.Second",
+            "ticker := time.NewTicker(reorderTickInterval)",
+            "default: time.Sleep(reorderTickInterval / 2)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "// reorderAll runs as a background goroutine and reconciles the desired // order of every rule registered for resourceType against the API's",
+            "Each pass calls getCurrent ONCE to fetch {ruleID -> {Order, Rank}}",
+            "// Reorder goroutine still running — just register, don't start another",
+            "current, err := getCurrent()"
+          ]
+        }
+      ]
+    },
+    "worker-cannot-report-failure": {
+      "statement": "The reorder worker has no way to report failure: up to v4.8.14 `reorderAll` returns no value, and from v4.8.15 it returns only the registry revision that the goroutine uses to decide whether to run again. Waiting resources are released by closing a channel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "beforeReorder func(),",
+            "ticker := time.NewTicker(reorderTickInterval)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "close(doneCh)",
+            "func waitForReorder(resourceType string) {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "v4.8.14"
+          ],
+          "quotes": [
+            "func reorderAll( resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func(), ) {",
+            "go func() { reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) close(doneCh) }()"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "func reorderAll( resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func(), ) uint64 {",
+            "revision := reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) rules.Lock() if revision != rules.revisions[resourceType] { rules.Unlock() continue }",
+            "close(doneCh) rules.Unlock() return"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 2 (reorder redesign): partial completion must return an error."
+        }
+      ]
+    },
+    "converges-on-registered-rules-only": {
+      "statement": "A pass is judged only on the rules registered by this apply: it is \"clean\" when none of them needed a move, was skipped, or failed, and the number registered did not change since the previous pass. From v4.8.14, a cycle in which no PUT has been issued ends after one pass in which no registered rule needed a move, was skipped or failed; otherwise it needs two consecutive clean passes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "size := len(rules.orders[resourceType])",
+            "sorted := sortOrders(rules.orders[resourceType])",
+            "for _, v := range sorted { desired := v.Order",
+            "// Convergence: a clean pass = nothing to do AND no // errors AND size didn't grow.",
+            "cleanPass := putsIssued == 0 && skipped == 0 && puterrs == 0 && size == lastSize"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "cyclePuts += putsIssued if putsIssued == 0 && skipped == 0 && puterrs == 0 && cyclePuts == 0 {",
+            "if cleanPass { cleanPasses++ if cleanPasses >= 2 { log.Printf(\"[INFO] reorder complete for %s: %d rules\", resourceType, size) return } } else { cleanPasses = 0 }"
+          ],
+          "after": "func reorderAll(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "applies in which the rules are already in their declared order, such as the renumbering after a delete, finish faster"
+          ],
+          "after": "## 4.8.14 (October 21, 2026)",
+          "at": [
+            "v4.8.14"
+          ]
+        }
+      ]
+    },
+    "unregistered-rules-not-compared": {
+      "statement": "A rule the apply did not register is never compared with a declared position or moved by the worker; it enters a pass only through the read of current positions.",
+      "tier": "B",
+      "derived_from": [
+        "converges-on-registered-rules-only"
+      ],
+      "conditions": "Read from reorderAll: the comparison and move loop ranges over the sorted registry, and the read of current positions is used only for lookups and the orderable count."
+    },
+    "stale-positions-within-a-pass": {
+      "statement": "Up to v4.8.14, within a pass each rule is compared against the positions read at the start of the pass; positions are not refreshed after a move, so later rules in the same pass are judged against stale positions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "v4.8.14"
+          ],
+          "quotes": [
+            "Each pass calls getCurrent ONCE to fetch {ruleID -> {Order, Rank}}",
+            "current, err := getCurrent()",
+            "cur, exists := current[v.ID]",
+            "if cur.Order == desired.Order && cur.Rank == desired.Rank {",
+            "if err := updateOrder(v.ID, desired); err != nil {"
+          ]
+        }
+      ]
+    },
+    "gives-up-silently": {
+      "statement": "The worker gives up and returns, reporting no error (up to v4.8.14 it returns no value, and from v4.8.15 only the registry revision), in several situations: after six ticks in which registered rules stay deferred or their moves fail with no progress, or after two ticks in which only deferred rules remain. From v4.8.15 it also returns at once without any order PUT when a registered declared order exceeds the number of orderable rules; the provider describes this as releasing the batch so later creates can extend the list, and the troubleshooting guide says placement is deferred while registered targets exceed the available positions. From v4.8.7 an oscillation breaker (SUP-4231) also logs the still-misplaced rules and returns after repeated passes that issue PUTs without improving on the best at-target count. From v4.8.11 it also returns after six consecutive passes in which the current rule order could not be read (#610); before v4.8.11 a failed read only logged the error and continued, so a read that kept failing kept the worker looping. The v4.8.11 comment says the waiting create or update then reads the rule back and reports the API error.",
+      "tier": "A",
+      "conditions": "Changed upstream in v4.8.11 (checked 2026-10-18): previously \"The worker returns without an error in several situations: after six ticks in which registered rules stay deferred or their moves fail with no progress, or after two ticks in which only deferred rules remain. From v4.8.7 an oscillation breaker also returns after repeated non-improving passes (SUP-4231). Waiters proceed as if the order were applied.\"",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.8"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "log.Printf(\"[ERROR] reorderAll: getCurrent failed for %s: %v\", resourceType, err) continue"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.11",
+            "HEAD"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "if readFailures >= maxNoProgressTicks {",
+            "could not read the current rule order for %d consecutive passes, giving up.",
+            "// The waiting Create/Update then reads the rule back and // reports the API error to Terraform."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "const maxNoProgressTicks = 6",
+            "const maxStuckOnSkippedTicks = 2",
+            "} else if skipped > 0 || puterrs > 0 { noProgressTicks++",
+            "if skipped > 0 && inRangeAtTarget && !progressedThisPass && puterrs == 0 {",
+            "if stuckOnSkippedTicks >= maxStuckOnSkippedTicks {",
+            "Returning so the next batch of Creates can extend the orderable range.\", resourceType, alreadyAtTarget, skipped, count) return",
+            "if noProgressTicks >= maxNoProgressTicks {",
+            "Re-run terraform apply to retry.\", noProgressTicks, resourceType) return"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "giving up. Likely the declared orders exceed the count of orderable rules"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.7",
+            "HEAD"
+          ],
+          "quotes": [
+            "// maxNonImprovingPutTicks is the oscillation breaker (SUP-4231). When the",
+            "// PUTs without improving on the best at-target count, the loop logs the // still-misplaced rules and returns so the apply can complete; the"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "v4.8.14"
+          ],
+          "quotes": [
+            "func reorderAll( resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func(), ) {",
+            "go func() { reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) close(doneCh) }()",
+            "ch := rules.reorderDone[resourceType] rules.Unlock() if ch != nil { <-ch }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "func reorderAll( resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func(), ) uint64 {",
+            "revision := reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) rules.Lock() if revision != rules.revisions[resourceType] { rules.Unlock() continue }",
+            "ch := rules.reorderDone[resourceType] rules.Unlock() if ch != nil { <-ch }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "log.Printf(\"[INFO] reorderAll: deferring placement for %s: %d declared orders exceed the current %d orderable rules; releasing this batch without order PUTs so later creates can extend the list\", resourceType, deferred, count) return revision"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/troubleshooting.md",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "The v4.8.15 optimization appends new rules and defers placement while registered targets exceed the available positions."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 4.8.11 (October 8, 2026)",
+            "[PR #610](https://github.com/zscaler/terraform-provider-zia/pull/610) - Fixed rule-based resources hanging indefinitely while placing rules in their declared order when the current rule order could not be read from the API. After repeated failed reads the provider now stops waiting and reports the API error."
+          ]
+        }
+      ]
+    },
+    "wrong-order-reported-success": {
+      "statement": "So an apply can finish successfully with rules out of their declared order, and only a later plan's drift shows it.",
+      "tier": "B",
+      "derived_from": [
+        "worker-cannot-report-failure",
+        "gives-up-silently",
+        "converges-on-registered-rules-only"
+      ],
+      "conditions": "Chain of evidence: the reorder worker cannot report a failure, gives up without an error and converges on registered rules only (the claims derived from). Not observed on a tenant."
+    },
+    "defers-batch-when-targets-exceed-orderable": {
+      "statement": "From v4.8.15, after reading current positions and before moving any rule, the worker counts the registered rules whose declared order exceeds the number of rules with an API order of 1 or more. If there are any it logs the deferral and returns without issuing order PUTs, so later creates can extend the list.",
+      "tier": "A",
+      "gaps": [
+        "unreachable-target-deferral-effect"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "count := 0 for _, c := range current { if c.Order >= 1 { count++ } }",
+            "deferred := 0 for _, v := range sorted { if v.Order.Order > count { deferred++ } } if deferred > 0 {",
+            "log.Printf(\"[INFO] reorderAll: deferring placement for %s: %d declared orders exceed the current %d orderable rules; releasing this batch without order PUTs so later creates can extend the list\", resourceType, deferred, count) return revision"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "If a registered Order exceeds the number of API rules with Order >= 1, // release this batch without order PUTs so more creates can extend the list."
+          ]
+        }
+      ]
+    },
+    "pass-snapshot-updated-after-each-move": {
+      "statement": "From v4.8.15 the worker updates its snapshot of rule positions after every successful move, so the following rules in the pass are compared against where they now are. Phase 1 leaves the longest run of rules already in the right relative order where they are and moves only the others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "if err := updateOrder(c.id, c.target); err != nil { log.Printf(\"[ERROR] reorderAll: PUT for rule %d failed in %s: %v\", c.id, resourceType, err) puterrs++ return }",
+            "// The move shifts the rules between the two positions; keep // this pass's view in step so the following rules are compared // against where they are now, not where they were when the list // was read.",
+            "applyMove(current, c.id, c.target)",
+            "// Phase 1: leave the longest run of rules already in the right // relative order where they are, and move only the others."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.8.16",
+            "HEAD"
+          ],
+          "after": "## 4.8.15 (October 26, 2026)",
+          "quotes": [
+            "Rule ordering: avoid unnecessary intermediate order updates when a shorter sequence reaches the same configured positions."
+          ]
+        }
+      ]
+    },
+    "state-records-registered-target": {
+      "statement": "From v4.8.15 the state written when a rule is created or updated records the order and rank registered with the reorder engine, not the position the API reported at that moment. A later refresh reads the API's position and reports any divergence that remains. Before v4.8.15 a large deployment could record rules in state at the interim position they held while the remaining rules were still being ordered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "// recordRegisteredOrder writes the position registered with the reorder // engine for the rule in d (its API id is d.Id()) into state.",
+            "A registered target never changes, so it is the // position the apply converges to; a refresh reads the API and reports any // divergence that remains."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.8.16",
+            "HEAD"
+          ],
+          "after": "## 4.8.15 (October 26, 2026)",
+          "quotes": [
+            "Rule resources: the state written when a rule is created or updated now records the configured `order` and `rank`."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/troubleshooting.md",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "Before v4.8.15, a large deployment could record rules in state at the interim position they held while the ordering of the remaining rules was still in progress."
+          ]
+        }
+      ]
+    },
+    "terminal-rule-can-be-displaced": {
+      "statement": "Up to v4.8.13, editing any field of a rule placed above a terminal deny could leave the deny no longer last: the edit parked the rule below it, and if moving it back failed or gave up, the apply still reported success. From v4.8.14 only an edit that changes `rank` parks the rule at the end of the list.",
+      "tier": "C",
+      "derived_from": [
+        "update-parks-every-update",
+        "wrong-order-reported-success"
+      ],
+      "conditions": "Depends on how the API renumbers the other rules when one is written at a given order, and on the API accepting a write at the last rule's order even when that is a predefined default rule (gap api-order-shift); on the edited rule not already being last and the terminal rule being at or near the end; and on the move back failing or giving up. For v4.8.14 the parking is only on a rank change (claim update-parks-every-update), so the exposure is narrower; the chain beyond that is unchanged.",
+      "gaps": [
+        "api-order-shift"
+      ]
+    },
+    "delete-renumber-same-apply": {
+      "statement": "Before v4.8.14, deleting a rule and changing the order of the remaining rules in one apply could fail with `INVALID_INPUT_ARGUMENT` `Rule is not allowed at order N`, and the documentation advised deleting the rule with `-target` first. v4.8.14 fixed this: a rule whose only change is `order` is no longer rewritten, and a write the API rejects because the rule list changed is retried, at most three times.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/troubleshooting.md",
+          "quotes": [
+            "Before v4.8.14, this happened when a rule was deleted and the order of the remaining rules was changed in the same apply.",
+            "Each order update first moved its rule to the last position of a rule list read before the delete completed"
+          ],
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/troubleshooting.md",
+          "at": [
+            "v4.8.13"
+          ],
+          "after": "### Error: `INVALID_INPUT_ARGUMENT` `Rule is not allowed at order N` after deleting a rule",
+          "quotes": [
+            "This happens when a rule is deleted and the order of the remaining rules is changed in the same apply.",
+            "**Solution**: Delete the rule on its own first, then adjust the remaining orders in a separate apply:",
+            "terraform apply -target=zia_firewall_filtering_rule.example"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "deleting a rule and renumbering the remaining rules in the same apply no longer fails with `INVALID_INPUT_ARGUMENT` `Rule is not allowed at order N`, so deleting the rule with `-target` first is no longer needed.",
+            "Rules whose only change is `order` are no longer rewritten, and a write rejected because the rule list changed during the apply, including rules deleted outside Terraform, is retried."
+          ],
+          "after": "## 4.8.14 (October 21, 2026)",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "const maxStaleOrderRetries = 3",
+            "the write is retried, up to // maxStaleOrderRetries times."
+          ],
+          "at": [
+            "v4.8.14"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in provider v4.8.14 (PR 614)."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "unreachable-target-deferral-effect": {
+      "kind": "semantic",
+      "title": "What the apply reports when a declared order stays above the orderable count",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a permanently unreachable declared order surfaces as an error or only as later drift",
+      "detail": "From v4.8.15 the worker defers placement and returns without order PUTs whenever a registered order exceeds the orderable count. The captured sources say the provider defers unavailable targets and does not silently renumber them; they do not say whether the apply reports anything when the target never becomes reachable. Test in a scratch tenant with a declared order above the number of rules."
+    },
+    "api-order-shift": {
+      "kind": "semantic",
+      "title": "How the ZIA API renumbers other rules when a rule is written at a given order",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating exactly where a parked rule lands and which neighbors move",
+      "detail": "The provider assumes ordered-list behavior (the written rule takes the position and the rest shift). Only the provider asserts the renumbering rule (from v4.8.15 its code comments say a move shifts the rules between the old and new position; claim pass-snapshot-updated-after-each-move); no API source states it, or says whether it rejects a write at a predefined default rule's order. Test in a scratch tenant by writing a rule at a lower order, and at the default rule's order, and re-reading every rule's order."
+    }
+  }
+}

@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Customer Domain Management",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/customer-domain-management",
+    "node": "1532098",
+    "revision": "3144085",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Customer%20Domain%20Management_0.json?VersionId=7mJc5uZVg5A7c9cmTQwDL4hP8GU5R0kd",
+    "updated": "2025-09-19",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Zscaler Private Access API Portal",
+      "description": "To access detailed ZPA API documentation, including references and use cases, refer to the [Zscaler Help Portal](/zpa/about-zpa-api).",
+      "version": "1.0"
+    },
+    "extensions": {
+      "x-original-swagger-version": "2.0"
+    },
+    "tags": [
+      {
+        "name": "Customer Domain Management"
+      }
+    ],
+    "paths": {
+      "/mgmtconfig/v1/admin/customers/{customerId}/v2/associationtype/{type}/domains": {
+        "get": {
+          "tags": [
+            "Customer Domain Management"
+          ],
+          "summary": "Gets all domains for the specified customer.",
+          "operationId": "getCustomerDomainsForAssociationType",
+          "parameters": [
+            {
+              "name": "customerId",
+              "description": "The ZPA tenant ID of the customer.",
+              "in": "path",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "type",
+              "description": "The association type of the domain.",
+              "in": "path",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "microtenantId",
+              "in": "query",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "required": false,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "responses": {
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/CustomerDomain"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Customer Domain Management"
+          ],
+          "summary": "Add or update domains for a customer. Association type field in request body is ignored and is overwritten with association type provided as part of the URL.",
+          "operationId": "addOrUpdateCustomerDomainsForAssociationType",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "type",
+              "in": "path",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "microtenantId",
+              "in": "query",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "required": false,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomerDomain"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "204": {
+              "description": "No Content"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "ZPathAPIError": {
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "The reason for the cause of the error status code. To learn more, see <a href=\"/zpa/api-response-codes-and-error-messages\" target= _blank>API Response Codes and Error Messages</a>."
+            },
+            "id": {
+              "type": "string",
+              "description": "The unique identifier of the error status code."
+            },
+            "params": {
+              "type": "array",
+              "description": "The parameters that were sent in the request body.",
+              "items": {
+                "type": "object"
+              }
+            },
+            "hostname": {
+              "type": "string",
+              "description": "The client server address or domain name."
+            }
+          }
+        },
+        "CustomerDomain": {
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the customer domain.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the customer domain is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the customer domain is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the customer domain.",
+              "format": "int64"
+            },
+            "microtenantId": {
+              "type": "integer",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "format": "int64"
+            },
+            "domain": {
+              "type": "string",
+              "description": "The domain of the customer."
+            },
+            "associationType": {
+              "type": "string",
+              "description": "The association type of the customer domain. To create a DNS search domain, pass <code>SEARCH_SUFFIX</code> as the supported value.",
+              "enum": [
+                "SHARED",
+                "SEARCH_SUFFIX"
+              ]
+            },
+            "capture": {
+              "type": "boolean",
+              "description": "Indicates if Domain Validation in Zscaler Client Connector for ZPA Applications is enabled (true) or disabled (false)."
+            },
+            "name": {
+              "type": "object",
+              "description": "The name of the customer domain."
+            }
+          }
+        }
+      }
+    }
+  }
+}

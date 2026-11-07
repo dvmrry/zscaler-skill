@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "id": "zia.atp.botnet",
+  "title": "ATP Botnet Protection: C2 servers, C2 traffic, the alert toggle and DGA",
+  "aliases": [
+    "command and control",
+    "c2 detection",
+    "cobalt strike",
+    "mythic",
+    "brute ratel",
+    "poshc2",
+    "dga domains",
+    "alert for unknown c2",
+    "cmdCtlServerBlocked",
+    "botnet protection"
+  ],
+  "binds": [
+    "zia/advanced-threat-settings#cmdCtlServerBlocked",
+    "zia/advanced-threat-settings#cmdCtlTrafficBlocked",
+    "zia/advanced-threat-settings#alertForUnknownOrSuspiciousC2Traffic",
+    "zia/advanced-threat-settings#dgaDomainsBlocked"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.bypass-impact",
+      "because": "zia.atp.botnet:c2-traffic-needs-decryption"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/advanced-threat-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.categories"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.ai-ml-recategorization"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Botnet Protection has four toggles, each covering a different detection."
+    },
+    {
+      "label": "Known C2 servers.",
+      "text": "{{known-c2-servers}} {{rate-based-profiles}}"
+    },
+    {
+      "label": "C2 traffic to unknown servers.",
+      "text": "{{c2-traffic}} {{c2-traffic-needs-decryption}}"
+    },
+    {
+      "label": "Alerting on traffic that matches nothing.",
+      "text": "{{alert-unknown-c2}} {{issue-ansible-87-c2-flag-always-false}} Whether the API writes it today is open {{gap:c2-flag-api-write}}."
+    },
+    {
+      "label": "DGA domains.",
+      "text": "{{dga}} {{dga-has-capture}}"
+    },
+    {
+      "label": "Counter-based detection.",
+      "text": "{{counter-based}}"
+    },
+    {
+      "text": "Reclassification by AI/ML can also move a URL into the botnet group: [[zia.atp.ai-ml-recategorization]]. The other groups are in [[zia.atp.categories]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the destination is a false positive on one of the named C2 or security-testing profiles.",
+      "uses": [
+        "known-c2-servers",
+        "rate-based-profiles"
+      ]
+    },
+    {
+      "do": "Whether the traffic was decrypted, since Command & Control Traffic detection cannot read undecrypted HTTPS.",
+      "uses": [
+        "c2-traffic-needs-decryption"
+      ]
+    },
+    {
+      "do": "Whether the Alert for Unknown/Suspicious C2 Traffic toggle is on, since it is off by default and is the source of a reclassified URL category.",
+      "uses": [
+        "alert-unknown-c2",
+        "alert-category-name"
+      ]
+    }
+  ],
+  "claims": {
+    "known-c2-servers": {
+      "statement": "Command & Control Servers allows or blocks connections to known C2 servers for profiles such as Cobalt Strike, Mythic, Brute Ratel and PoshC2. Known C2 botnet activity and the triggered policy actions can be viewed on the SaaS Security Insights Logs page (Data Explorer > Internet & SaaS > SaaS Security Insights).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "Command & Control Servers: Choose to Allow or Block connections to known C2 servers for profiles such as Cobalt Strike, Mythic, Brute Ratel, and PoshC2.",
+            "You can view known C2 botnet activity, including triggered policy actions, on the SaaS Security Insights Logs page (Data Explorer > Internet & SaaS > SaaS Security Insights)."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#cmdCtlServerBlocked"
+      ]
+    },
+    "rate-based-profiles": {
+      "statement": "The inspection uses rate-based control to detect and block connections for default profiles of popular security testing tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "The inspection feature uses rate-based control to detect and block connections for default profiles for popular security testing tools"
+          ]
+        }
+      ]
+    },
+    "c2-traffic": {
+      "statement": "Command & Control Traffic allows or blocks botnets sending or receiving commands to unknown servers, by examining the content of requests and responses to those servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "Command & Control Traffic: Choose to Allow or Block botnets sending or receiving commands to unknown servers. The Zscaler service examines the content of the requests and responses to unknown servers."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#cmdCtlTrafficBlocked"
+      ]
+    },
+    "c2-traffic-needs-decryption": {
+      "statement": "Because Command & Control Traffic detection reads request and response content, it does not see inside HTTPS that is not decrypted.",
+      "tier": "B",
+      "derived_from": [
+        "c2-traffic",
+        "zia.ssl-inspection.bypass-impact:dependent-features"
+      ],
+      "conditions": "Derived from content examination plus the SSL bypass subject's list of features that need decrypted traffic. No source ties this toggle to decryption by name."
+    },
+    "alert-unknown-c2": {
+      "statement": "Alert for Unknown/Suspicious C2 Traffic sends alerts for C2-like traffic that matches no botnet callback or other blocking malware signature by reclassifying it to a new URL category, and is disabled by default. A matching alert subscription tells admins to investigate detections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "Alert for Unknown/Suspicious C2 Traffic: Enable to allow the service to send alerts for unknown or suspicious C2 traffic that does not match a botnet callback or other blocking malware signature by reclassifying the traffic to the new URL category. This feature is disabled by default.",
+            "To learn how to create a matching alert subscription for Zscaler admins to investigate detections, see Adding Alert Subscriptions."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#alertForUnknownOrSuspiciousC2Traffic"
+      ],
+      "gaps": [
+        "alert-category-name"
+      ]
+    },
+    "dga": {
+      "statement": "Domain Generation Algorithm (DGA) Domains allows or blocks domains suspected to be generated by domain generation algorithms, which malware families use to produce many domain names for reaching C2 servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "Domain Generation Algorithm (DGA) Domains: Choose to Allow or Block domains that are suspected to be generated using domain generation algorithms.",
+            "These algorithms are used in various malware families to periodically generate a large number of domain names that can be used by malware-infected devices to connect with command and control servers in order to circumvent the identification and shutting down of malicious domains."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#dgaDomainsBlocked"
+      ]
+    },
+    "counter-based": {
+      "statement": "Counter-based detection of known C2 profiles, counting occurrences over a period, is supported but enabled through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.json",
+          "quotes": [
+            "The Zscaler service also supports counter-based detection of known C2 profiles (i.e., number of occurrences during a specific period). To access this feature, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "dga-has-capture": {
+      "statement": "dgaDomainsCapture exists in the API next to dgaDomainsBlocked, so DGA has a Blocked and Capture pair, as Command & Control Servers and Command & Control Traffic do.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/dgaDomainsBlocked",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/dgaDomainsCapture",
+          "expect": {
+            "type": "boolean",
+            "description": "A Boolean value specifying whether packet capture (PCAP) is enabled or not for DGA domains"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/cmdCtlServerBlocked",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/cmdCtlServerCapture",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/cmdCtlTrafficBlocked",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/cmdCtlTrafficCapture",
+          "expect": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#dgaDomainsCapture"
+      ]
+    },
+    "issue-ansible-87-c2-flag-always-false": {
+      "statement": "Ansible collection issue #87, still open, reports that switching `alert_for_unknown_or_suspicious_c2_traffic` in `zia_atp_settings` between `true` and `false` changes nothing in Experience Center; a repository member replied that regardless of the value configured in the UI the API always returns `alertForUnknownOrSuspiciousC2Traffic` as false and ignores an input of true, which causes Ansible to think there is a difference in configuration when there isn't, and that it needs escalating to API engineering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "ziacloud-ansible-87.json",
+          "quotes": [
+            "I switch between `true` and `false` for the option `alert_for_unknown_or_suspicious_c2_traffic` but nothing changes in Experience Center.",
+            "This will need to be escalated to API engineering for analysis. Regardless of the value configured in the UI the attribute `alertForUnknownOrSuspiciousC2Traffic` is always being returned as false, and igoring the input value i.e true",
+            "which causes Ansible to think there is a difference in configuration when there isn't",
+            "This isn't a Ansible problem directly but an API issue.",
+            "# Bug in module zia_atp_settings",
+            "## Comment (MEMBER, 2025-07-25) This will need to be escalated to API engineering for analysis."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "ziacloud-ansible-87.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "alert-category-name": {
+      "kind": "data",
+      "title": "Name of the URL category used for unknown C2 alerts",
+      "status": "open",
+      "about": [
+        "zia/advanced-threat-settings#alertForUnknownOrSuspiciousC2Traffic"
+      ],
+      "detail": "The help page says traffic is reclassified to the new URL category but does not name it, so a log or alert filter on it cannot be written from the sources.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "c2-flag-api-write": {
+      "kind": "semantic",
+      "title": "Whether the ATP settings API honors alertForUnknownOrSuspiciousC2Traffic on write",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that the Alert for Unknown/Suspicious C2 Traffic setting can be changed through the API",
+      "detail": "Issue 87 says the API returns false regardless of the configured value; the report dates from 2025 and no source shows a fix. Set the flag through the API, read the settings back, and compare with the console."
+    }
+  }
+}

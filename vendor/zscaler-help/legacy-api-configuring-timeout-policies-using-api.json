@@ -1,0 +1,615 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Timeout Policies Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-timeout-policies-using-api",
+    "node": "1484806",
+    "revision": "3175628",
+    "updated": "2026-01-23",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) timeout policy use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "To get the policySetId by policy type:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/policyType/{policyType}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the policyType, the value for differentiating the policy types, in the request endpoint. The supported values are:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 1
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 1
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 1
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 1
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 1
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 1
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 1
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 1
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 1
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 1
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/policySet/policyType/TIMEOUT_POLICY."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"217246660303019912\", \"modifiedTime\": \"1619407211\", \"creationTime\": \"1474933642\", \"modifiedBy\": \"217246660303024869\", \"name\": \"ReAuth_Policy\", \"enabled\": true, \"description\": \"Re-Authentication policies.\", \"policyType\": \"2\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policyType: The value for differentiating the policy types. The supported values are:",
+      "depth": 0
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 1
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 1
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 1
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 1
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 1
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 1
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 1
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 1
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 1
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 1
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/policySet/rules/policyType/TIMEOUT_POLICY?page=1&pagesize=2."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"2\", \"list\": [ { \"id\": \"217246660303023272\", \"modifiedTime\": \"1629497358\", \"modifiedBy\": \"72057594037978891\", \"name\": \"Test\", \"ruleOrder\": \"1\", \"priority\": \"4\", \"policyType\": \"2\", \"operator\": \"AND\", \"conditions\": [ { \"id\": \"506762\", \"modifiedTime\": \"1629497328\", \"creationTime\": \"1629497328\", \"modifiedBy\": \"72057594037978891\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"506763\", \"creationTime\": \"1629497328\", \"modifiedBy\": \"72057594037978891\", \"objectType\": \"APP\", \"lhs\": \"id\", \"rhs\": \"217246660303022176\", \"name\": \"testl.com\" }, { \"id\": \"506764\", \"creationTime\": \"1629497328\", \"modifiedBy\": \"72057594037978891\", \"objectType\": \"APP_GROUP\", \"lhs\": \"id\", \"rhs\": \"217246660302996388\", \"name\": \"Apps for All\" } ] }, { \"id\": \"506765\", \"modifiedTime\": \"1629497328\", \"creationTime\": \"1629497328\", \"modifiedBy\": \"72057594037978891\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"506766\", \"creationTime\": \"1629497328\", \"modifiedBy\": \"72057594037978891\", \"objectType\": \"SAML\", \"lhs\": \"217246660303022775\", \"rhs\": \"testing\", \"name\": \"test234324\" } ] }, { \"id\": \"506767\", \"modifiedTime\": \"1629497328\", \"creationTime\": \"1629497328\", \"modifiedBy\": \"72057594037978891\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"506768\", \"creationTime\": \"1629497328\", \"modifiedBy\": \"72057594037978891\", \"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_zapp\", \"name\": \"zpn_client_type_zapp\" } ] } ], \"action\": \"RE_AUTH\", \"reauthTimeout\": \"172800\", \"reauthIdleTimeout\": \"600\", \"customMsg\": \"timeout message\", \"defaultRuleName\": \"Default_Rule\", \"defaultRule\": false }, { \"id\": \"217246660303024789\", \"modifiedTime\": \"1629497358\", \"modifiedBy\": \"72057594037978891\", \"name\": \"test_zapp_reauth\", \"ruleOrder\": \"2\", \"priority\": \"3\", \"policyType\": \"2\", \"operator\": \"AND\", \"conditions\": [ { \"id\": \"489501\", \"modifiedTime\": \"1612834764\", \"creationTime\": \"1612834764\", \"modifiedBy\": \"217246660303023754\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"489502\", \"creationTime\": \"1612834764\", \"modifiedBy\": \"217246660303023754\", \"objectType\": \"SAML\", \"lhs\": \"217246660303022795\", \"rhs\": \"test@mockcompany.com\", \"name\": \"login_Custom entityId IDP configuration - User sso - do NOT delete\" } ] } ], \"action\": \"RE_AUTH\", \"reauthTimeout\": \"2592000\", \"reauthIdleTimeout\": \"3456000\", \"defaultRuleName\": \"Default_Rule\", \"defaultRule\": false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Get Required Details for the Timeout Policy",
+      "level": 2
+    },
+    {
+      "text": "Before creating a timeout rule, you must get the following required details needed for the policy criteria:"
+    },
+    {
+      "item": "Application segment. To learn more, see Configuring Application Segments Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Client types. To learn more, see Getting Details of All Client Types.",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Connector Group. To learn more, see Obtaining Cloud Connector Group Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "IdP. To learn more, see Obtaining IdP Configuration Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Machine Group. To learn more, see Obtaining Machine Group Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Platform types. To learn more, see Getting Platform Types for a Customer.",
+      "depth": 0
+    },
+    {
+      "item": "Posture profile. To learn more, see Obtaining Posture Profile Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SAML attribute. To learn more, see Obtaining SAML Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM attribute. To learn more, see Obtaining SCIM Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM attribute value. To learn more, see Obtaining SCIM Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM Group. To learn more, see Obtaining SCIM Group Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Segment Group. To learn more, see Configuring Segment Group Details Using API.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating a New Timeout Policy Rule",
+      "level": 1
+    },
+    {
+      "text": "To add a new timeout rule for a given policy set and for a given customer:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "policySetId: The ID of the timeout policy set captured in the prerequisite API call.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v2/admin/customers/72057615512764416/policySet/72057615512764594/rule.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the entire JSON payload and provide the policy criteria you want for creating a timeout policy rule with the specific SAML attributes as one of the criteria.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\": \"<policySetId>\", \"id\": \"<ruleId>\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"APP\", \"values\": [ \"<applicationId>\", \"<applicationId>\", \"<applicationId>\" ] }, { \"objectType\": \"APP_GROUP\", \"values\": [ \"<segmentGroupId>\" ] } ] } ], \"name\": \"<Example Policy Rule Name>\", \"description\": \"<Example Policy Rule Description>\", \"action\": \"RE_AUTH\", \"customMsg\": \"<Example Custom Message>\", \"reauthTimeout\": 172800, \"reauthIdleTimeout\": 600 }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"72057615512764641\", \"creationTime\": \"1612891454\", \"modifiedBy\": \"72057615512764638\", \"name\": \"Test Timeout Policy\", \"description\": \"Test Timeout Policy\", \"ruleOrder\": \"7\", \"priority\": \"1\", \"policyType\": \"1\", \"operator\": \"AND\", \"action\": \"RE_AUTH\", \"reauthTimeout\": \"172800\", \"reauthIdleTimeout\": \"600\", \"customMsg\": \"msg\", \"auditMessage\": \"{\\\"idleConnectionTimeoutInSeconds\\\":\\\"600\\\",\\\"policyType\\\":\\\"Access Policy\\\",\\\"name\\\":\\\"Test Timeout Policy\\\",\\\"description\\\":\\\"Test Timeout Policy\\\",\\\"action\\\":\\\"RE_AUTH\\\",\\\"ruleOrder\\\":\\\"7\\\",\\\"messageToUser\\\":\\\"msg\\\",\\\"authenticationTimeoutInSeconds\\\":\\\"172800\\\"}\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the timeout policy use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "This is the name of the timeout rule",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "This is the description of the timeout rule",
+          "No",
+          "String"
+        ],
+        [
+          "action",
+          "This is for providing the rule action",
+          "Yes",
+          "Supported value: RE_AUTH"
+        ],
+        [
+          "customMsg",
+          "This is for providing a custom message for the user",
+          "No",
+          "String"
+        ],
+        [
+          "reauthTimeout",
+          "This denotes the authentication timeout",
+          "Yes",
+          "Provides the timeout value in seconds. The value -1 denotes Never."
+        ],
+        [
+          "reauthIdleTimeout",
+          "This denotes the idle connection timeout",
+          "Yes",
+          "Provides the timeout value in seconds. The value -1 denotes Default."
+        ],
+        [
+          "conditions",
+          "This is for providing the set of conditions for the policy",
+          "No",
+          "Array of operands."
+        ],
+        [
+          "operands",
+          "This signifies the various policy criteria",
+          "No",
+          "Array of attributes (objectType, lhs, rhs, name)."
+        ],
+        [
+          "objectType",
+          "This is for specifying the policy criteria",
+          "No",
+          "Supported values: APP APP_GROUP SAML IDP CLIENT_TYPE POSTURE SCIM SCIM_GROUP"
+        ],
+        [
+          "lhs",
+          "This signifies the key for the object type",
+          "No",
+          "String ID example: id"
+        ],
+        [
+          "rhs",
+          "This denotes the value for the given object type. Its value depends upon the key.",
+          "No",
+          "For APP, APP_GROUP, and IDP, the supported value is entity id. For CLIENT_TYPE, the supported values are: zpn_client_type_zapp for the Zscaler Client Connector, and zpn_client_type_exporter (for Clientless)."
+        ],
+        [
+          "operator",
+          "This denotes the operation type",
+          "No",
+          "Supported values: AND, OR"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    },
+    {
+      "text": "For a comprehensive table of LHS and RHS values, see Configuring Access Policies Using API."
+    },
+    {
+      "heading": "Getting Details for a Particular Timeout Rule",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular timeout rule:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the Timeout policy set captured in the prerequisite API call.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in the Creating a New Timeout Policy Rule section.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/policySet/72057615512764594/rule/72057615512764641."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"72057615512764641\", \"creationTime\": \"1612891454\", \"modifiedBy\": \"72057615512764638\", \"name\": \"Test Timeout Policy\", \"description\": \"Test Timeout Policy\", \"ruleOrder\": \"7\", \"priority\": \"1\", \"policyType\": \"1\", \"operator\": \"AND\", \"action\": \"RE_AUTH\", \"reauthTimeout\": \"172800\", \"reauthIdleTimeout\": \"600\", \"customMsg\": \"msg\", \"auditMessage\": \"{\\\"idleConnectionTimeoutInSeconds\\\":\\\"600\\\",\\\"policyType\\\":\\\"Access Policy\\\",\\\"name\\\":\\\"Test Timeout Policy\\\",\\\"description\\\":\\\"Test Timeout Policy\\\",\\\"action\\\":\\\"RE_AUTH\\\",\\\"ruleOrder\\\":\\\"7\\\",\\\"messageToUser\\\":\\\"msg\\\",\\\"authenticationTimeoutInSeconds\\\":\\\"172800\\\"}\", \"policySetId\": \"72057615512764421\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Timeout Policy Rule V2",
+      "level": 1
+    },
+    {
+      "text": "To update the details of a timeout policy rule in the policy set:"
+    },
+    {
+      "item": "Get the policySetId captured in the prerequisite API call.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use the entire JSON payload from the Creating a New Timeout Policy Rule section and send a PUT request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "policySetId: The ID of the timeout policy set captured in the prerequisite API call.",
+      "depth": 1
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in Creating a New Timeout Policy Rule.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v2/admin/customers/72057615512764416/policySet/72057615512764421/rule/72057615512764641.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\": \"<policySetId>\", \"id\": \"<ruleId>\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"APP\", \"values\": [ \"<applicationId>\", \"<applicationId>\", \"<applicationId>\" ] }, { \"objectType\": \"APP_GROUP\", \"values\": [ \"<segmentGroupId>\" ] } ] } ], \"name\": \"<Example Policy Rule Name>\", \"description\": \"<Example Policy Rule Description>\", \"action\": \"RE_AUTH\", \"customMsg\": \"<Example Custom Message>\", \"reauthTimeout\": 172800, \"reauthIdleTimeout\": 600 }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the timeout policy rule is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Rule Order",
+      "level": 1
+    },
+    {
+      "text": "To update a rule order:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}/reorder/{newOrder}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following parameters in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the policy set.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule.",
+      "depth": 0
+    },
+    {
+      "item": "newOrder: The new order of the rule.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/policySet/72057594037938994/rule/72057615512764641/reorder/4."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the rule order is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "The ability to update the rule order for all rules in a policy set is also available. To learn more, see Configuring Access Policies Using API."
+    },
+    {
+      "heading": "Deleting a Timeout Policy Rule",
+      "level": 1
+    },
+    {
+      "text": "To delete a timeout rule:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the timeout policy set captured in the prerequisite API call.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in the Create a New Timeout Rule section.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/policySet/72057615512764421/rule/72057615512764641."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the timeout rule is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All Client Types",
+      "level": 1
+    },
+    {
+      "text": "To get details of all client types:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/clientTypes.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/clientTypes.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"zpn_client_type_exporter\": \"Web Browser\", \"zpn_client_type_machine_tunnel\": \"Machine Tunnel\", \"zpn_client_type_ip_anchoring\": \"ZIA Service Edge\", \"zpn_client_type_edge_connector\": \"Cloud Connector\", \"zpn_client_type_zapp\": \"Client Connector\", \"zpn_client_type_slogger\": \"ZPA LSS\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Platform Types for a Customer",
+      "level": 1
+    },
+    {
+      "text": "To get the platform types for a customer:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/platform.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/platform.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"linux\": \"Linux\", \"android\": \"Android\", \"windows\": \"Windows\", \"ios\": \"iOS\", \"mac\": \"Mac\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

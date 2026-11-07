@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "id": "zia.ad-integration.authentication-bridge",
+  "title": "Deploying the Zscaler Authentication Bridge (ZAB): requirements, certificates, commands and renewal",
+  "aliases": [
+    "Zscaler Authentication Bridge",
+    "ZAB deployment",
+    "ZAB requirements",
+    "ZAB certificate renewal",
+    "ZAB client certificate",
+    "zab commands",
+    "ZAB VM"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.provisioning-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.directory-sync"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.hosted-user-database"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZAB is a virtual machine for provisioning and authenticating users; what it does and how it pairs with other methods is in [[zia.ad-integration.provisioning-methods]]. {{what-and-multiple}}"
+    },
+    {
+      "label": "Requirements.",
+      "text": "{{requirements}} The sizing figures are open {{gap:zab-sizing}}."
+    },
+    {
+      "label": "Certificates.",
+      "text": "{{certificates}} {{server-certificate-renewal}}"
+    },
+    {
+      "label": "Commands.",
+      "text": "{{default-credentials-and-commands}} {{ntp-crontab}}"
+    },
+    {
+      "label": "Pointing synchronization at it.",
+      "text": "{{sync-wizard-settings}} The synchronization settings themselves are in [[zia.ad-integration.directory-sync]]."
+    },
+    {
+      "label": "Nested groups.",
+      "text": "{{nested-groups-command}} The directory sync article says nested groups are not supported, and the scope is open: [[zia.ad-integration.directory-sync:nested-groups-support]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the ZAB authenticates users or only provisions them, since a server certificate from an issuing authority is required only for authentication.",
+      "uses": [
+        "certificates"
+      ]
+    },
+    {
+      "do": "Whether more than one ZAB is subscribed and the configured ZAB URL addresses all of them.",
+      "uses": [
+        "what-and-multiple"
+      ]
+    }
+  ],
+  "claims": {
+    "what-and-multiple": {
+      "statement": "The Zscaler Authentication Bridge (ZAB) is a virtual machine (VM) that can be used to provision and authenticate users. If an organization is subscribed to multiple ZABs, only one can synchronize its users; the article's example deploys two ZABs and says the service automatically uses the healthy one to sync users. To use the ZAB for authentication too, the configured ZAB URL must be able to address both ZABs; the user is redirected to that URL during the password authentication phase, and the article says round-robin DNS or a load balancer can achieve an active deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-zscaler-authentication-bridge.json",
+          "quotes": [
+            "The Zscaler Authentication Bridge (ZAB) is a virtual machine (VM) that you can use to provision and authenticate users.",
+            "If you're subscribed to multiple ZABs, only one ZAB can synchronize your users. For example, you can deploy two ZABs, and the Zscaler service automatically uses the healthy one to sync users.",
+            "If you also want to use the ZAB for authentication, ensure the configured ZAB URL can address both ZABs.",
+            "The user is redirected to the URL during the password authentication phase. You can implement a round-robin DNS or put the ZABs behind a load balancer to achieve an active deployment."
+          ]
+        }
+      ]
+    },
+    "requirements": {
+      "statement": "The deployment article lists, for a ZAB, a new or clean deployment requiring the VM image running Zscaler OS version 24 (the article scopes only this item to new or clean deployments), VMware ESX/ESXi version 6.0 and later, 2 GB of RAM minimum (increasing with the number of users), a 64-bit Xeon CPU with two cores assigned to the VM, and one network interface with a static IP address used for control and data connections to the Zscaler cloud, for the connection to the directory server and for SSH. A ZAB subscription is required and only super admins can deploy a ZAB. The firewall requirements for outbound connections to the Zscaler service are at https://config.zscaler.com/<Zscaler Cloud Name>/zab. When downloading the VM, a Number of Users entered in the console lets the service provide recommended specifications, and the ZAB's Status is enabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-zscaler-authentication-bridge.json",
+          "quotes": [
+            "New or clean deployment of ZAB requires VM image running on Zscaler OS version 24.",
+            "Hypervisor VMware ESX/ESXi version 6.0 and later.",
+            "2 GB of RAM minimum. This increases with the number of users.",
+            "64-bit Xeon CPU. Two cores assigned to the VM.",
+            "1 network interface with a static IP address. This IP address is used for control and data connections to the Zscaler cloud and to connect to the directory server. Your administrator can also use it to make an SSH connection to the VM.",
+            "- A ZAB subscription.",
+            "Only super admins can deploy a ZAB.",
+            "https://config.zscaler.com/<Zscaler Cloud Name>/zab"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-downloading-zscaler-authentication-bridge-vm.json",
+          "quotes": [
+            "enter a Number of Users, which the Zscaler service uses to provide recommended specifications for the ZAB VM, and click Compute."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-zscaler-authentication-bridge.json",
+          "quotes": [
+            "Status: Enable or Disable the ZAB. The ZAB is enabled by default."
+          ]
+        }
+      ],
+      "gaps": [
+        "zab-sizing"
+      ]
+    },
+    "certificates": {
+      "statement": "The ZAB uses an SSL certificate to authenticate itself to the Zscaler service, installed with the zab install-client-cert ZabCert.zip command. To serve the form over a webpage the ZAB has an HTTPS server component: a server certificate from an issuing authority must be used if the ZAB is used for user authentication, which prevents a server certificate warning in the browser, while if the ZAB only provisions users the system can generate a self-signed certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-zscaler-authentication-bridge.json",
+          "quotes": [
+            "The ZAB uses an SSL certificate to authenticate itself to the Zscaler service.",
+            "zab install-client-cert ZabCert.zip",
+            "To be able to serve the form over a webpage, the ZAB has an HTTPS server component running on it.",
+            "A server certificate from an issuing authority must be used if you're using the ZAB for user authentication. This prevents the user from seeing a server certificate warning in the browser.",
+            "However, if you're using ZAB only to provision users but not to authenticate them, you can allow the system to generate a self-signed certificate."
+          ]
+        }
+      ]
+    },
+    "server-certificate-renewal": {
+      "statement": "To renew the ZAB server certificate, the certificate files (Server Certificate .pem, Certificate Key .key, Root Chain .pem) are copied by SCP to var/cacert, installed from the directory during the maintenance window, and the ZAB service restarted with its status validated. The article validates by establishing an SSL connection to the ZAB with OpenSSL to confirm the new certificate is returned, then setting the browser proxy to gateway.<Zscaler cloud name>.net:9443 with the ZAB hostname added to proxy bypass, and using a dummy user@domain.com account on the Zscaler authentication page to be redirected to the ZAB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-zscaler-authentication-bridge-server-certificate-renewal-process.json",
+          "quotes": [
+            "SCP into the ZAB and copy the certificate files to var/cacert.",
+            "Server Certificate - example.pem",
+            "Certificate Key - example.key",
+            "Root Chain - example.pem",
+            "2. During the maintenance window, install the certificate files from the directory.",
+            "3. Restart the ZAB service and validate the ZAB status.",
+            "establish the SSL connection to the ZAB by using OpenSSL. Validate that the new certificate is being returned by the ZAB",
+            "Configure the browser proxy settings to gateway.<Zscaler cloud name>.net:9443 and add the ZAB hostname to proxy bypass.",
+            "On the Zscaler authentication page, use a dummy user@domain.com account to get redirected to ZAB."
+          ]
+        }
+      ]
+    },
+    "default-credentials-and-commands": {
+      "statement": "The ZAB ships with the username and password zsroot, and Zscaler strongly recommends changing the default password. The deployment steps use zab configure for the network settings, then zab dump-config, zab update-now, zab start, zab enable-autostart and zab status. The article also gives commands that test access to the outbound firewall, collect the ZAB log and configuration files, and allow Zscaler Support remote access, including SSH access, both disabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-zscaler-authentication-bridge.json",
+          "quotes": [
+            "- Username: zsroot",
+            "- Password: zsroot",
+            "Zscaler strongly recommends that you change the default password by entering the following command:",
+            "4. Enter the following command to configure the ZAB network settings:",
+            "zab configure",
+            "zab update-now",
+            "zab start",
+            "zab enable-autostart",
+            "Enter the following command to run a script to test access to the outbound firewall:",
+            "Enter the following command to collect all the relevant ZAB log files and configuration files.",
+            "Enter the following command to allow Zscaler Support remote access to examine and diagnose configuration errors. This feature is disabled by default.",
+            "Enter the following command to allow Zscaler Support remote access to log in to your ZAB via SSH. An interactive shell is useful when additional troubleshooting assistance is required. This feature is disabled by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-zscaler-authentication-bridge.json",
+          "after": "4. Enter the following command to configure the ZAB network settings:",
+          "quotes": [
+            "zab dump-config",
+            "zab status"
+          ]
+        }
+      ]
+    },
+    "ntp-crontab": {
+      "statement": "With a local NTP server, the article's crontab entry */10 * * * * ntpdate <NTP Server Name> runs the time synchronization command every 10 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-zscaler-authentication-bridge.json",
+          "quotes": [
+            "Optionally, if you have a local NTP server, you can configure the ZAB to synchronize time with the server.",
+            "*/10 * * * * ntpdate <NTP Server Name>",
+            "The time synchronization command runs every 10 minutes."
+          ]
+        }
+      ]
+    },
+    "sync-wizard-settings": {
+      "statement": "The Authentication Wizard for the ZAB sets Authentication Agent Hosting to Enterprise. Authentication Agent Address is the ZAB URL if the ZAB is used for user authentication; if another authentication mechanism (for example SAML or OpenLDAP) is used it can be any IP address. The Bind DN can be any user account that queries the directory server, not necessarily an administrator.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-zscaler-authentication-bridge.json",
+          "quotes": [
+            "Authentication Agent Hosting: Choose Enterprise.",
+            "Authentication Agent Address: Enter the ZAB URL if your organization is using the ZAB for user authentication. If your organization is using another authentication mechanism (e.g., SAML or OpenLDAP), then you can enter any IP address.",
+            "Bind DN: Enter the DN of any user account to query the directory server. The user doesn't have to be an administrator."
+          ]
+        }
+      ]
+    },
+    "nested-groups-command": {
+      "statement": "Enabling nested groups on the ZAB, with the zab enable-nested-groups command, allows the Zscaler service to flatten and sync user group membership for nested groups; zab disable-nested-groups is the counterpart command.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-zscaler-authentication-bridge.json",
+          "quotes": [
+            "Enabling nested groups on the ZAB allows the Zscaler service to flatten and sync user group membership for nested groups.",
+            "zab enable-nested-groups",
+            "zab disable-nested-groups"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zab-sizing": {
+      "kind": "semantic",
+      "title": "How much RAM and CPU a ZAB needs for a given number of users",
+      "status": "open",
+      "detail": "The deployment article says RAM increases with the number of users and the console computes recommended specifications from a number of users, but no figures are documented, and Zscaler OS version 24 is not explained. A tenant's Compute result in the console, or a vendor statement, would settle it.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "blocks": "sizing a ZAB VM before opening the console"
+    }
+  }
+}

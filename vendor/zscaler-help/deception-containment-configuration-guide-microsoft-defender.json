@@ -1,0 +1,684 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Containment Configuration Guide for Microsoft Defender",
+  "source": {
+    "url": "https://help.zscaler.com/deception/containment-configuration-guide-microsoft-defender",
+    "node": "1542402",
+    "revision": "3221707",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This configuration guide provides information on prerequisites and how to integrate Zscaler Deception with Microsoft Defender to contain and isolate detected attackers."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you configure the containment integration, ensure that you have:"
+    },
+    {
+      "item": "Network connectivity from the Zscaler Deception Admin Portal to the Microsoft Defender API servers.",
+      "depth": 0
+    },
+    {
+      "item": "Installed the Microsoft Windows Defender ATP agent on your endpoints.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Containment Integration with Microsoft Defender",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to configure containment integration with Microsoft Defender:"
+    },
+    {
+      "item": "Step 1: Create an Application Registration on Azure and Copy the Application and Tenant IDs",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Azure portal using your credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Azure Active Directory > App registrations.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          28
+        ],
+        [
+          31,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "On the App registrations page, click New registration.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Register an application page, enter a name for the application, and click Register.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          81,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The new application is created.",
+      "depth": 1
+    },
+    {
+      "item": "On the new application's Overview page, copy the Application (client) ID and Directory (tenant) ID.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          25,
+          33
+        ],
+        [
+          49,
+          72
+        ],
+        [
+          77,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 2: Configure API Permissions for the Application",
+      "depth": 0
+    },
+    {
+      "item": "In the left-side navigation, click API permissions.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          35,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the API permissions page, click Add a permission.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          35,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Request API permissions page, click the APIs my organization uses tab, and then click WindowsDefenderATP application from the list.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          47,
+          72
+        ],
+        [
+          93,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Application permissions.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the following permissions:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Machine.Isolate",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Machine.Read.All",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Machine.ReadWrite.All",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add permissions.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "The application with configured API permissions appears.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Grant admin consent for your application.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          25
+        ],
+        [
+          26,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The permission status of the application changes to granted.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 3: Create a Client Secret Key",
+      "depth": 0
+    },
+    {
+      "item": "In the left-side navigation, click Certificates & secrets.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          35,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Certificates & secrets page, click New client secret.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          42,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add a client secret window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description of your secret key.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Expires: Select an expiration period for the secret key from the drop-down menu.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler recommends selecting the maximum expiration period.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "After the key is created, copy the Value.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          35,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 4: Configure the Containment Integration Between Deception and Microsoft Defender",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Deception Admin Portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Orchestrate > Containment.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          20,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "In the table, locate Microsoft Defender and click the Edit icon.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          21,
+          39
+        ],
+        [
+          54,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Microsoft Defender configuration window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Enabled: Select to enable containment.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Tenant ID: Enter the Directory (tenant) ID that you copied in Step 1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "API ID: Enter the Application (client) ID that you copied in Step 1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "App Secret: Enter the client secret value that you copied in Step 3.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "After the configuration is saved, click Test to verify network connectivity between the Deception Admin Portal and Microsoft Defender.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          40,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Step 5: Configure Orchestration Rule or Take Action to Contain Detected Attackers",
+      "depth": 0
+    },
+    {
+      "item": "You can contain detected attackers automatically by creating an orchestrated rule or manually by taking action from the Investigate page.",
+      "depth": 0
+    },
+    {
+      "item": "Create an orchestrated rule.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Orchestrate > Rule.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          20,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Rule.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Rule Details window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Enter the name of the rule.",
+      "depth": 3
+    },
+    {
+      "item": "Select Enabled.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Create a rule using queries and conditions.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Under Respond, enable Microsoft Defender.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          22,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Take action from the Investigate page.",
+      "depth": 1
+    },
+    {
+      "item": "On the Investigate page, click an attack icon on the alert graph.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "The attacker details pane opens.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Actions.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "A list of actions that you can take to remediate the threat appears.",
+      "depth": 2
+    },
+    {
+      "item": "Click Contain with Microsoft Defender.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the confirmation window, click OK.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          34,
+          36
+        ]
+      ]
+    },
+    {
+      "text": "After containing the detected attackers, you can view the details of the attacker."
+    }
+  ]
+}

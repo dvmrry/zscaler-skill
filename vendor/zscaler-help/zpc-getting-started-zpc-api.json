@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Getting Started",
+  "source": {
+    "url": "https://help.zscaler.com/zpc/getting-started-zpc-api",
+    "node": "1455881",
+    "revision": "2439676",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Your organization must meet the following prerequisites before you can access and use the ZPC API:"
+    },
+    {
+      "item": "Create an API key.",
+      "depth": 0
+    },
+    {
+      "item": "Use an API management tool, or use the Zscaler Help Portal.",
+      "depth": 0
+    },
+    {
+      "text": "After the prerequisites are met, you can:"
+    },
+    {
+      "item": "Access the Base URL",
+      "depth": 0
+    },
+    {
+      "item": "Authenticate the Client",
+      "depth": 0
+    },
+    {
+      "item": "Make an API Call",
+      "depth": 0
+    },
+    {
+      "text": "To learn more about rate limiting and HTTP status codes, see Understanding Rate Limiting and API Response Codes and Error Messages. If you encounter any issues with the API, contact Zscaler Support."
+    },
+    {
+      "text": "The protocol, host, and base URL for the cloud service API are in the <protocol>://<host>/v1/alerts format, where:"
+    },
+    {
+      "item": "protocol represents the http or https protocols.",
+      "depth": 0
+    },
+    {
+      "item": "host represents your organization’s server.",
+      "depth": 0
+    },
+    {
+      "item": "/v1/alerts represent the base URL.",
+      "depth": 0
+    },
+    {
+      "text": "For organizations located in the USA, the URL for the ZPC API server is api.zpccloud.net/v1."
+    },
+    {
+      "text": "For organizations located in the EU, the URL for ZPC API server is api.eu.zpccloud.net/v1."
+    },
+    {
+      "text": "To authenticate, add the API key you retrieved when creating an API key in the prerequisites and add it as the value for x-api-key in the header of the request."
+    },
+    {
+      "text": "After you add the API key and authenticate, you can make an API call."
+    },
+    {
+      "text": "In the following example, we retrieve alerts using /alerts/cloud."
+    },
+    {
+      "text": "Send a GET request to the endpoint /alerts/cloud:"
+    },
+    {
+      "text": "GET /api/v1/alerts/cloud HTTP/1.1 Host: api.zpccloud.net Content-Type: application/json x-api-key: xxxxxxx Cache-Control: no-cache"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "text": "HTTP/1.1 200 OK { \"kind\": \"CloudAlert\", \"alert_id\": \"ZS-CLOUD_XXXXXX\", \"alert_type\": \"Cloud\", \"alert_description\": \"EC2 instance arn:aws:ec2:ap-southeast-2:423456996057:instance/i-09b7e32352321722b in VPC vpc-0b23423429da0d0af3 in AWS account 402269996456 is running an image with 12 critical vulnerabilities. Last vulnerability scan was at 2023-05-05 11:26:55.109.\", \"alert_status\" : \"Open\", \"alert_status_description\": \"\", \"alert_url\": \"\", \"csp\": \"AWS\", \"severity\": \"HIGH\", \"risk_level\": \"HIGH\", \"threat_category\": \"threat-category\", \"mitre_attack\": [ \"Impair Defenses: Disable or Modify Cloud Firewall: https://attack.mitre.org/techniques/T1562/007/\", \"Network Boundary Bridging: https://attack.mitre.org/techniques/T1599/\" ], \"theme\": \"theme\", \"asset_category\": \"Compute\", \"asset_type\": \"EC2\", \"age\": 13, \"audit_procedure\": \"\", \"recommendations\": \"\", \"alertFocus\": \"RESOURCE\", \"reason\": \"\", \"identity\": { \"identity_id\": \"arn:aws:ec2:ap-southeast-2:402342346057:instance/i-09b7e382345234722b\", \"identity_name\": \"\", \"identity_type\": \"\", \"identity_source\": \"\" }, \"compliance\": { \"name\": \"\", \"version\": \"\", \"number\": \"\", \"type\" : \"\", \"domains\": \"\" }, \"business_unit\": { \"business_unit_name\": \"Default\" }, \"cloud_account\": { \"account_id\": \"402269996456\", \"account_name\": \"02269996456\", \"organization\": \"\", \"organization_id\": \"Single_Account_402269996456\" }, \"policy\" : { \"policy_id\": \"ZS-AWS-00294\", \"policy_source\": \"PREDEFINED\", \"policy_name\": \"EC2 Instance is running an image with critical vulnerabilities\", \"policy_description\": \"Detects EC2 Instances that run images with critical vulnerabilities as detected by Zscaler's vulnerability scanner.\" }, \"cloud_resource\": { \"resource_id\": \"arn:aws:ec2:ap-southeast-2:40343234557:instance/i-09b7e3345345345722b\", \"resource_name\": \"i-09b7e38309021722b\", \"resource_type\": \"AWS::EC2::Instance\", \"resource_region\": \"ap-southeast-2\", \"tags\": [\"myapp\", \"IT\"] }, \"kubernetes\": { \"cluster_type\": \"\", \"cluster_name\": \"\", \"associated_cloud\": \"\" }, \"updatedBy\": \"joe@zscaler.com\", \"created\": 1683306261 }"
+    },
+    {
+      "text": "The following is a Python script to retrieve alerts by sending a GET request to the endpoint /alerts/cloud. The API key and host URL are highlighted in red to indicate they must be included in the request."
+    },
+    {
+      "text": "import requests import json url = \"https://<HOSTURL>/v1/alerts/cloud\" payload={} headers = { 'x-api-key': '<APIKEY>', 'Content-Type': 'application/json', 'Cache-Control': 'no-cache ', 'Cookie': 'Secure' } response = requests.request(\"GET\", url, headers=headers, data=payload) print(response.text)"
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "text": "{ \"alerts\": [ { \"kind\": \"Cloud Alert\", \"alert_id\": \"ZS-CLOUD-28514996\", \"alert_type\": \"Cloud\", \"alert_description\": \"SNS topic residing in region us-east-1 in the AWS account 288119319793 does not use message delivery status logs.\", \"alert_status\": \"Closed\", \"alert_status_description\": \"The alert was automatically closed, as the cloud resource is deleted.\", \"csp\": \"AWS\", \"severity\": \"HIGH\", \"risk_level\": \"HIGH\", \"theme\": \"Compliance\", \"asset_category\": \"MessagingService\", \"asset_type\": \"SNS\", \"age\": 2, \"audit_procedure\": \"Using AWS Console\\n\\n1. Sign in to the AWS Management Console and open the SNS dashboard at [https://console.aws.amazon.com/sns/](https://console.aws.amazon.com/sns/).\\n2. On the SNS dashboard, click on `Topics` and select an existing topic.\\n3. Click on the `Delivery status logging` tab.\\n4. Check the Delivery status attribute is `Configured`.\\n5. Repeat step 2-4 for other SNS topic in that region.\\n\\nUsing AWS CLI\\n\\n1. List all the SNS topics from your AWS account:\\n\\n aws sns list-topics\\n\\n2. For each topic in step 1, list the topic attributes:\\n\\n aws sns get-topic-attributes --topic-arn <sns_topic_arn>\\n\\n3. Check for any of the following attributes: `LambdaSuccessFeedbackSampleRate`, `FirehoseSuccessFeedbackSampleRate`, `SQSSuccessFeedbackSampleRate`, `HTTPSuccessFeedbackSampleRate`, `ApplicationSuccessFeedbackSampleRate`, and ensure that the Sample Rate for atleast one of them is a non-zero value.\", \"recommendations\": \"Enable SNS message delivery status logging as it helps to provide better operational insights about the delivery of the topic messages.\\n\\nReferences\\n* [SNS Concepts](https://docs.aws.amazon.com/sns/latest/dg/welcome.html)\\n* [Amazon SNS message delivery status](https://docs.aws.amazon.com/sns/latest/dg/sns-topic-attributes.html)\", \"remediation_procedure\": \"Using AWS Console\\n\\n1. Sign in to the AWS Management Console and open the SNS dashboard at [https://console.aws.amazon.com/sns/](https://console.aws.amazon.com/sns/).\\n2. On the SNS dashboard, click on `Topics` and select an existing topic.\\n3. Click on Edit `Button` and expand `Delivery status logging`.\\n4. Select the required log delivery status for these protocols, mention the IAM service role.\\n5. Click on `Save` changes Button at the bottom.\\n6. Repeat step 2-6 for other SNS topic in that region.\\n\", \"alert_focus\": \"Asset\", \"created\": 1686245009, \"updated\": 1686320127, \"policy\": { \"policy_id\": \"ZS-AWS-00277\", \"policy_source\": \"PREDEFINED\", \"policy_name\": \"Ensure SNS delivery status logging is enabled\", \"policy_description\": \"Detects when SNS topic message delivery status logging is not enabled.\" }, \"cloud_resource\": { \"resource_id\": \"arn:aws:sns:us-east-1:288119319793:scale-bulkdeploy-sns-cswu\", \"resource_name\": \"arn:aws:sns:us-east-1:288119319793:scale-bulkdeploy-sns-cswu\", \"resource_type\": \"AWS::SNS::Topic\", \"resource_region\": \"us-east-1\" }, \"identity\": {}, \"compliance\": { \"name\": \"Zscaler Best Practices\", \"number\": \"9000\", \"type\": \"Security\", \"domains\": \"Logging and Monitoring\" }, \"business_unit\": { \"business_unit_name\": \"Default\" }, \"cloud_account\": { \"account_id\": \"288119319793\", \"account_name\": \"CWP AWS Scaletest 1\", \"organization\": \"Root\", \"organization_id\": \"Root\" }, \"Kubernetes\": {} }, { \"kind\": \"Cloud Alert\", \"alert_id\": \"ZS-CLOUD-28514938\", \"alert_type\": \"Cloud\", \"alert_description\": \"SNS topic arn:aws:sns:us-east-1:288119319793:scale-bulkdeploy-sns-cswu in AWS account 288119319793 does not use server-side encryption at rest\", \"alert_status\": \"Closed\", \"alert_status_description\": \"The alert was automatically closed, as the cloud resource is deleted.\", \"csp\": \"AWS\", \"severity\": \"HIGH\", \"risk_level\": \"HIGH\", \"theme\": \"Compliance\", \"asset_category\": \"MessagingService\", \"asset_type\": \"SNS\", \"age\": 2, \"audit_procedure\": \"Using AWS Console\\n\\n1. Sign in to the AWS Management Console and open the SNS dashboard at [https://console.aws.amazon.com/sns/](https://console.aws.amazon.com/sns/).\\n2. On the SNS dashboard, click on `Topics` and select an existing topic.\\n3. Click on the `Encryption` tab.\\n4. Check the encryption attribute is `Configured`.\\n5. Repeat step 2-4 for other SNS topic in that region.\\n\\nUsing AWS CLI\\n\\n1. List all the SNS topics from your AWS account:\\n\\n aws sns list-topics\\n\\n2. For each topic in step 1, list the topic attributes:\\n\\n aws sns get-topic-attributes --topic-arn <sns_topic_arn>\\n\\n3. Check for `KmsMasterKeyId` attribute.\", \"recommendations\": \"Enable SNS topic server-side encryption at rest for additional protection of sensitive data delivered as messages to subscribers.\\n\\nReferences\\n* [SNS Concepts](https://docs.aws.amazon.com/sns/latest/dg/welcome.html)\\n* [SNS_Topic_Encryption_At_Rest_Is_Enabled](https://docs.aws.amazon.com/sns/latest/dg/sns-server-side-encryption.html)\", \"remediation_procedure\": \"Using AWS Console\\n\\n1. Sign in to the AWS Management Console and open the SNS dashboard at [https://console.aws.amazon.com/sns/](https://console.aws.amazon.com/sns/).\\n2. On the SNS dashboard, click on `Topics` and select an existing topic.\\n3. Click on Edit `Button` and expand `Encryption`.\\n4. Click on `Encryption` radio button.\\n5. Select a `customer master key` - you can use the default AWS key or a custom key in KMS.\\n6. Click on `Save` changes Button at the bottom.\\n7. Repeat step 2-6 for other SNS topic in that region.\\n\\nUsing AWS CLI\\n\\n1. Set the new policy to the SNS topic\\n The <KEY> is a reference to a KMS key or alias.\\n\\n aws sns set-topic-attributes --topic-arn <sns_topic_arn> --attribute-name \\\"KmsMasterKeyId\\\" --attribute-value <KEY>\", \"alert_focus\": \"Asset\", \"created\": 1686245009, \"updated\": 1686320127, \"policy\": { \"policy_id\": \"ZS-AWS-00238\", \"policy_source\": \"PREDEFINED\", \"policy_name\": \"Ensure SNS topic server-side encryption at rest is enabled\", \"policy_description\": \"Detects when SNS topic encryption at rest is not enabled\" }, \"cloud_resource\": { \"resource_id\": \"arn:aws:sns:us-east-1:288119319793:scale-bulkdeploy-sns-cswu\", \"resource_name\": \"arn:aws:sns:us-east-1:288119319793:scale-bulkdeploy-sns-cswu\", \"resource_type\": \"AWS::SNS::Topic\", \"resource_region\": \"us-east-1\" }, \"identity\": {}, \"compliance\": { \"name\": \"Zscaler Best Practices\", \"number\": \"7000\", \"type\": \"Security\", \"domains\": \"Identity and Access Management\" }, \"business_unit\": { \"business_unit_name\": \"Default\" }, \"cloud_account\": { \"account_id\": \"288119319793\", \"account_name\": \"CWP AWS Scaletest 1\", \"organization\": \"Root\", \"organization_id\": \"Root\" }, \"Kubernetes\": {} } ], \"total_count\": 103084, \"prev_link\": \"\", \"next_link\": \"https://scale.api.zscwp.net/v1/alerts/cloud?limit=2&offset=2\" }",
+      "strong": [
+        [
+          528,
+          545
+        ],
+        [
+          934,
+          947
+        ],
+        [
+          1609,
+          1619
+        ],
+        [
+          1831,
+          1848
+        ],
+        [
+          3798,
+          3815
+        ],
+        [
+          4186,
+          4199
+        ],
+        [
+          4596,
+          4606
+        ],
+        [
+          4829,
+          4846
+        ],
+        [
+          5365,
+          5378
+        ]
+      ]
+    }
+  ]
+}

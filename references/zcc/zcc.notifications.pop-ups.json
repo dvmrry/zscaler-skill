@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "id": "zcc.notifications.pop-ups",
+  "title": "Client Connector pop-up messages: type, meaning, user action and duplicate suppression",
+  "aliases": [
+    "zcc pop-up messages",
+    "pop-up notifications",
+    "client connector message list",
+    "Internet Security is Connected",
+    "Private Access Safe Mode has started",
+    "Application access is blocked by Private Access policy"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.framework"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.global-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.partner-tenants"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{scope-and-types}} {{strict-enforcement-notification}}"
+    },
+    {
+      "label": "Critical messages.",
+      "text": "{{critical-messages}}"
+    },
+    {
+      "label": "Private Access messages.",
+      "text": "{{private-access-messages}}"
+    },
+    {
+      "label": "Driver and re-login messages.",
+      "text": "{{driver-and-relogin-messages}}"
+    },
+    {
+      "label": "Other messages.",
+      "text": "{{other-messages}} Whether other platforms show a certificate trust message is open [[zcc.notifications:cert-trust-ux]]."
+    },
+    {
+      "label": "Duplicates.",
+      "text": "{{suppression-intervals}} The framework pages give one interval for all duplicates {{divergence:duplicate-interval}}; the framework itself is in [[zcc.notifications.framework]]. The partner login messages are in [[zcc.partner-tenants:partner-pop-ups]]."
+    },
+    {
+      "label": "Open questions.",
+      "text": "Whether the list applies on Linux or mobile is not stated {{gap:other-platforms}}. What the DLP pop-up's message text shows beyond its Learn More report is not stated {{gap:dlp-message-text}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The device's OS and Client Connector version against the list's scope before treating a message as expected or missing.",
+      "uses": [
+        "scope-and-types"
+      ]
+    },
+    {
+      "do": "Whether a pop-up a user says never appeared was a duplicate suppressed within its interval, using the divergence for the interval of the message type.",
+      "uses": [
+        "suppression-intervals",
+        "duplicate-interval"
+      ]
+    },
+    {
+      "do": "For an Application access is blocked message, whether a posture block is the cause, since the vendor says it usually indicates one.",
+      "uses": [
+        "private-access-messages"
+      ]
+    }
+  ],
+  "claims": {
+    "scope-and-types": {
+      "statement": "The vendor's pop-up message list applies only to Client Connector 4.4 and later for Windows and 4.3 and later for macOS. Its types are Default (general notifications), Service Status (the status of a Zscaler service, such as a service in Disaster Recovery mode), App Updates (the upgrade process), Internet & SaaS Notifications (for example Data Loss Prevention or device posture), Private Access Reauthentication, and Critical, which display regardless of end user notification configuration and cannot be turned off. The types that display are based on the end user notifications configuration in the Admin Console, and users can disable or pause notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-pop-notifications.json",
+          "quotes": [
+            "This list applies only to Zscaler Client Connector version 4.4 and later for Windows and for Zscaler Client Connector version 4.3 and later for macOS.",
+            "Default: General notifications about Zscaler Client Connector.",
+            "Service Status: Notifications about the status of a Zscaler service, such as when a service is in Disaster Recovery mode.",
+            "App Updates: Notifications about the upgrade process for Zscaler Client Connector.",
+            "Internet & SaaS Notifications: Notifications from Internet & SaaS, such as Data Loss Prevention (DLP) or device posture.",
+            "Private Access Reauthentication: Notifications that users must reauthenticate Private Access.",
+            "Critical: Notifications that display regardless of end user notification configuration. These notifications cannot be turned off.",
+            "The types of notifications that display are based on the end user notifications configuration in the Zscaler Admin Console.",
+            "Users can disable or pause notifications."
+          ]
+        }
+      ]
+    },
+    "strict-enforcement-notification": {
+      "statement": "If a customizable Strict Enforcement Notification is configured, an additional notification is displayed when users try to access the internet before enrolling in Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-pop-notifications.json",
+          "quotes": [
+            "If a customizable Strict Enforcement Notification is configured, an additional notification is displayed if users try to access the internet before enrolling in Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "critical-messages": {
+      "statement": "The vendor's pop-up table has these rows of type Critical: Captive Portal detected (the user clicks Open Browser to access the internet), Started capturing packets, Finished capturing packets, and Private Access is Connected with either (Business Continuity mode) or (Exited Business Continuity mode).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-pop-notifications.json",
+          "quotes": [
+            "| General | Critical | Captive Portal detected. Please resolve it to access the internet. | Click Open Browser to access the internet. |",
+            "| General | Critical | Finished capturing packets. |",
+            "| General | Critical | Started capturing packets. |",
+            "| Private Access | Critical | Private Access is Connected. (Business Continuity mode) |",
+            "| Private Access | Critical | Private Access is Connected. (Exited Business Continuity mode) |"
+          ]
+        }
+      ]
+    },
+    "private-access-messages": {
+      "statement": "Private Access pop-ups include: Access to all or certain private applications will expire soon, where the user clicks Authenticate Early on the Private Access window; Access to certain applications requires you to reauthenticate, where the user clicks Authenticate on the Private Access window; and the Default message Application access is blocked by Private Access policy, whose action is to contact the organization's support admin, which usually indicates a posture block and can be customized in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-pop-notifications.json",
+          "quotes": [
+            "Access to all or certain private applications will expire soon. Reauthenticate before your access expires. | Click Authenticate Early on the Private Access window to avoid losing access.",
+            "Access to certain applications requires you to reauthenticate into Zscaler Client Connector. | Click Authenticate on the Private Access window.",
+            "| Private Access | Default | Application access is blocked by Private Access policy. | Contact your organization’s support admin. | Usually indicates a posture block. Customize this message in the Zscaler Admin Console. |"
+          ]
+        }
+      ]
+    },
+    "suppression-intervals": {
+      "statement": "The Connected and Disconnected Service Status pop-ups for Internet Security and for Private Access list duplicates within a 1-minute interval as suppressed, and the Internet Security Safe Mode has started and Private Access Safe Mode has started pop-ups list duplicates within a 12-hour interval as suppressed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-pop-notifications.json",
+          "quotes": [
+            "| Internet & SaaS | Service Status | Internet Security is Connected. | None required. | Duplicate messages that display within a 1-minute interval are suppressed. |",
+            "| Internet & SaaS | Service Status | Internet Security is Disconnected. | None required. | Duplicate messages that display within a 1-minute interval are suppressed. |",
+            "| Private Access | Service Status | Private Access is Connected. | None required. | Duplicate messages that display within a 1-minute interval are suppressed. |",
+            "| Private Access | Service Status | Private Access is Disconnected. | None required. | Duplicate messages that display within a 1-minute interval are suppressed. |",
+            "Internet Security Safe Mode has started. (Your access to the internet will be limited.) | None required. | Duplicate messages that display within a 12-hour interval are suppressed.",
+            "Private Access Safe Mode has started. (Your access to the internet will be limited). | None required. | Duplicate messages that display within a 12-hour interval are suppressed."
+          ]
+        }
+      ]
+    },
+    "driver-and-relogin-messages": {
+      "statement": "Internet Security is in Driver Error and Private Access is in Driver Error report that Client Connector experienced an error after the user clicked Repair App on the More window, and the action is Click Restart Service on the More window, as it is for Please restart the system for driver repair to complete. Internet Security is Enabled as per latest policy and Digital Experience is Enabled as per latest policy ask the user to log out of the app and log back in again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-pop-notifications.json",
+          "quotes": [
+            "Internet Security is in Driver Error. | Click Restart Service on the More window. | Zscaler Client Connector experienced an error after you clicked Repair App on the More window.",
+            "Private Access is in Driver Error. | Click Restart Service on the More window. | Zscaler Client Connector experienced an error after you clicked Repair App on the More window.",
+            "Please restart the system for driver repair to complete. | Click Restart Service on the More window.",
+            "Internet Security is Enabled as per latest policy. Log in again to register with Internet Security. | Log out of the app and log back in again.",
+            "Digital Experience is Enabled as per latest policy. Login again to register with Digital Experience. | Log out of the app and log back in again."
+          ]
+        }
+      ]
+    },
+    "other-messages": {
+      "statement": "Other listed pop-ups include Service has been administratively disabled, Services are down because the network is disconnected, Failed to report issue, Issue reported, the App Updates messages (Failed to check for updates, ZDX updates or ZDP updates, to retry later; Latest available app is already running; New update is available, which auto-updates the app now), the Internet & SaaS Data Loss Protection notification, where Learn More opens a report of the violation and the message can be customized in the Admin Console, and, for macOS only, The SSL certificate could not be trusted automatically, asking the user to trust the certificate from the keychain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-pop-notifications.json",
+          "quotes": [
+            "| General | Service Status | Service has been administratively disabled. | None required. |",
+            "| General | Service Status | Services are down because the network is disconnected. | None required. |",
+            "| General | Default | Failed to report issue. | None required. |",
+            "| General | Default | Issue reported. | None required. |",
+            "| General | App Updates | Failed to check for updates. Please try again after some time. | Retry the action later. |",
+            "Failed to check for ZDX updates. Please try again after some time. | Retry the action later.",
+            "| General | App Updates | Latest available app is already running. | None required. |",
+            "Failed to check for ZDP updates. Please try again after some time. | Retry the action later.",
+            "| General | App Updates | New update is available. App will auto-update now. | None required. |",
+            "| Internet & SaaS | Internet & SaaS Notification | Data Loss Protection | Click Learn More to view a report of the violation. | Customize this message in the Zscaler Admin Console. |",
+            "| General | Default | The SSL certificate could not be trusted automatically. Please trust the certificate from the keychain. | None required. | Applies to macOS only. |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "duplicate-interval": {
+      "summary": "The pop-up message table suppresses duplicates within 1 minute for connected and disconnected messages and within 12 hours for Safe Mode messages, while the Notification Framework pages state a single 2-minute interval for duplicate messages.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-zscaler-client-connector-pop-notifications.json",
+            "quotes": [
+              "| Internet & SaaS | Service Status | Internet Security is Connected. | None required. | Duplicate messages that display within a 1-minute interval are suppressed. |"
+            ]
+          },
+          "says": "Duplicates of the Internet Security Connected message within a 1-minute interval are suppressed."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-zscaler-client-connector-pop-notifications.json",
+            "quotes": [
+              "Internet Security Safe Mode has started. (Your access to the internet will be limited.) | None required. | Duplicate messages that display within a 12-hour interval are suppressed."
+            ]
+          },
+          "says": "Duplicates of the Internet Security Safe Mode message within a 12-hour interval are suppressed."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "using-zscaler-notification-framework.json",
+            "quotes": [
+              "Duplicate messages that display within a 2-minute interval are suppressed."
+            ]
+          },
+          "says": "The Notification Framework suppresses duplicate messages within a 2-minute interval, stated for duplicates generally (existing claim zcc.notifications.framework:duplicates)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-notification-templates-zscaler-client-connector.json",
+            "quotes": [
+              "Zscaler Client Connector automatically suppresses duplicate messages that display within a two-minute interval"
+            ]
+          },
+          "says": "The notification templates page states a two-minute interval for duplicate messages, again without per-message exceptions."
+        }
+      ],
+      "impact": "Whether a repeated pop-up is shown depends on which interval governs it; the pages do not say whether the per-message intervals replace the framework-wide one or the framework applies a further limit."
+    }
+  },
+  "gaps": {
+    "other-platforms": {
+      "kind": "semantic",
+      "title": "Whether the pop-up list applies on Linux or mobile",
+      "status": "open",
+      "detail": "The pop-up message list is scoped to Windows 4.4 and later and macOS 4.3 and later; whether Linux, iOS or Android show these messages is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "dlp-message-text": {
+      "kind": "semantic",
+      "title": "What the Data Loss Protection pop-up shows",
+      "status": "open",
+      "detail": "The list gives the message as Data Loss Protection with a Learn More action and says it can be customized, and does not say what text is shown beyond the Learn More report.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

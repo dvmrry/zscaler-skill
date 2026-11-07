@@ -31,7 +31,7 @@ optional-reads:
 supporting-scripts:
   - scripts/check-hygiene.py
   - scripts/check-citations.sh
-  - scripts/check-orphans.py
+  - scripts/kb.mjs
   - scripts/prepare-overlay-submission.mjs
 ---
 
@@ -42,15 +42,18 @@ Load and follow the files listed in `required-reads`. Load
 `agents/researcher/verifier.md` only for Step 3b, or let a runtime-specific
 subagent wrapper load those files.
 
-Use this workflow to expand reference docs from source material. Follow the
+Use this workflow to expand knowledge-graph subjects from source material. Follow the
 parse, extract, write, and verify checkpoints in `agents/researcher/prompt.md`.
 The checkpoints are audit/attestation gates, not helper-enforced structural
 gates.
 
 ## Operational-knowledge exclusion
 
-Never load or search `<mount>/knowledge/` during a researcher run, even when a
-broad search or user-supplied scope would include it. Researcher output is
+Never load or search the company overlay (`$ZSCALER_KB_OVERLAY`, `<mount>/overlay/`)
+or the retired `<mount>/knowledge/` during a researcher run, even when a broad
+search or user-supplied scope would include it, and run the resolver as
+`node scripts/kb.mjs resolve <id | text> --no-overlay` so no company facet enters
+a bundle. Researcher output is
 upstream-bound; private operational records, their evidence, and overlay paths
 must not enter reference prose. A human may instead provide a brief authored
 from a public source, which is evaluated like any other public input.
@@ -61,7 +64,7 @@ Supporting scripts:
 
 - `scripts/check-hygiene.py`
 - `scripts/check-citations.sh`
-- `scripts/check-orphans.py`
+- `scripts/kb.mjs`
 - `scripts/prepare-overlay-submission.mjs`
 
 ## Closeout Option

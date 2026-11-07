@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Virtual Service Edge for Internet & SaaS and NTP Server Synchronization",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-virtual-service-edge-internet-saas-ntp-server-synchronization",
+    "node": "1401161",
+    "revision": "3203775",
+    "updated": "2026-05-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Virtual Service Edges for Internet & SaaS (ZIA) are extremely sensitive to the virtual machine (VM) and cloud times being in sync. By default, the VM synchronizes the time with public NTP servers (e.g., pool.ntp.org). However, if you have a local NTP server, you can configure the Virtual Service Edge to synchronize time with it."
+    },
+    {
+      "heading": "Custom Configuration of NTP Servers Using CLI",
+      "level": 1
+    },
+    {
+      "text": "To custom configure NTP servers using CLI:"
+    },
+    {
+      "item": "Log in to the Virtual Service Edge.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen enable-ntpd",
+      "depth": 0
+    },
+    {
+      "item": "This command prompts you to enter the custom NTP servers. After adding the NTP servers, you are prompted to restart NTPD immediately. Zscaler recommends you enter y to restart NTPD immediately.",
+      "depth": 0
+    },
+    {
+      "item": "The Virtual Service Edge and NTP service are restarted in this process. Ensure that your organization is prepared for the services to shut down momentarily before restarting.",
+      "depth": 0
+    },
+    {
+      "item": "Sample output of this command.",
+      "depth": 0
+    },
+    {
+      "item": "You can stop the configured NTP servers using the vzen disable-ntpd command.",
+      "depth": 0
+    },
+    {
+      "heading": "Modify Custom NTP Servers Using CLI",
+      "level": 1
+    },
+    {
+      "text": "You can either add or remove custom NTP servers from the configuration file using CLI. Using CLI to add or remove custom NTP servers prevents configuration files from being corrupted because of syntax errors, and it avoids duplicate entries of the servers in the configuration file."
+    },
+    {
+      "heading": "Adding Custom NTP Servers Using CLI",
+      "level": 2
+    },
+    {
+      "text": "To add custom NTP servers using CLI:"
+    },
+    {
+      "item": "Log in to the Virtual Service Edge.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen modify-ntpd-servers",
+      "depth": 0
+    },
+    {
+      "item": "This command prompts you to enter either add or remove.",
+      "depth": 0
+    },
+    {
+      "item": "Enter add.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "This prompts you to enter the custom NTP server addresses. If an NTP server address has already been entered or exists in the configuration file, then this command skips the duplicate entry.",
+      "depth": 0
+    },
+    {
+      "item": "After you enter the NTP server addresses, enter q to quit the addition of the NTP servers.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "After you quit adding the NTP servers, you are prompted to start NTPD immediately. Zscaler recommends you enter y to restart NTPD immediately.",
+      "depth": 0
+    },
+    {
+      "item": "The Virtual Service Edge and NTP service are restarted in this process. Ensure that your organization is prepared for the services to shut down momentarily before restarting.",
+      "depth": 0
+    },
+    {
+      "item": "Sample output of this command.",
+      "depth": 0
+    },
+    {
+      "heading": "Removing Custom NTP Servers Using CLI",
+      "level": 2
+    },
+    {
+      "text": "To remove custom NTP servers using CLI:"
+    },
+    {
+      "item": "Log in to the Virtual Service Edge.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen modify-ntpd-servers",
+      "depth": 0
+    },
+    {
+      "item": "This command prompts you to enter either add or remove.",
+      "depth": 0
+    },
+    {
+      "item": "Enter remove.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "This command lists the current NTP servers in the configuration file and prompts you to enter the index associated with an NTP server that you want to remove. After you remove the NTP server, the updated list of current NTP servers appears.",
+      "depth": 0
+    },
+    {
+      "item": "After you remove the NTP servers, enter q to quit the removal of the NTP servers.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "After you quit removing the NTP servers, you are prompted to start NTPD immediately. Zscaler recommends you enter y to restart NTPD immediately.",
+      "depth": 0
+    },
+    {
+      "item": "The Virtual Service Edge and NTP service are restarted in this process. Ensure that your organization is prepared for the services to shut down momentarily before restarting.",
+      "depth": 0
+    },
+    {
+      "item": "Sample output of this command.",
+      "depth": 0
+    },
+    {
+      "heading": "Synchronizing Times",
+      "level": 1
+    },
+    {
+      "text": "You can synchronize times using one of the following methods:"
+    },
+    {
+      "item": "Create a Cron Job",
+      "depth": 0
+    },
+    {
+      "item": "To create a cron job to synchronize the time from the configured local NTP servers:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following as root: crontab -e",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Add the following line: */10 * * * * ntpdate <ntp-server-name>",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Replace <ntp-server-name> with your local NTP server's FQDN or IP address.",
+      "depth": 1
+    },
+    {
+      "item": "Save and exit.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "This time-synchronization command will run every 10 minutes.",
+      "depth": 1
+    },
+    {
+      "item": "Edit the /etc/hosts File",
+      "depth": 0
+    },
+    {
+      "item": "To make pool.ntp.org hostnames resolve to your local NTP server IP address by manipulating the /etc/hosts file:",
+      "depth": 0
+    },
+    {
+      "item": "Open the /etc/hosts file.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Add up to 4 NTP servers by adding the following lines:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "<ntp-server-IP-address1> 0.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "<ntp-server-IP-address2> 1.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "<ntp-server-IP-address3> 2.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "<ntp-server-IP-address4> 3.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "Save your changes.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "text": "Adding alternate NTP servers to the /etc/ntp.conf file is not supported. However, you can modify the /etc/hosts file as described in the Edit the /etc/hosts File section."
+    }
+  ]
+}

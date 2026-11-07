@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "id": "shared.terraform.authentication",
+  "title": "Signing the Zscaler Terraform providers in: OneAPI, legacy credentials and clouds",
+  "aliases": [
+    "terraform zscaler credentials",
+    "terraform oneapi",
+    "ZSCALER_CLIENT_ID terraform",
+    "ZSCALER_VANITY_DOMAIN",
+    "zscaler_cloud",
+    "terraform private_key client_secret",
+    "terraform hard-coded credentials",
+    "terraform fedramp gov govus"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.provider-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.provider-config"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform.provider-config"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.auth-lifecycle"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The provider arguments themselves (including that `client_secret` conflicts with `private_key`) are generated: `node scripts/kb.mjs surface provider:zia` and the same for zpa, zcc and ztc. {{hardcoding-warning}}"
+    },
+    {
+      "label": "ZIA.",
+      "text": "{{zia-oneapi}} {{zia-env-vars}} {{zia-cloud-values}} Legacy mode, government clouds and sandbox credentials are in [[zia.terraform.provider-modes]]."
+    },
+    {
+      "label": "ZPA, ZCC and Cloud Connector.",
+      "text": "ZPA credentials, environment variables and cloud values are in [[zpa.terraform.provider-config]]; ZCC in [[zcc.terraform.provider-config]]; ZTC in [[cloud-connector.terraform.provider-behavior]]."
+    },
+    {
+      "label": "Underneath.",
+      "text": "How the SDK obtains and renews the OneAPI token is in [[shared.sdk-go.auth-lifecycle]], and what happens to secrets once Terraform holds them in [[shared.terraform.credential-handling]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether credentials come from environment variables rather than the configuration, since every provider's documentation warns against hard-coding them.",
+      "uses": [
+        "hardcoding-warning",
+        "zia-env-vars"
+      ]
+    },
+    {
+      "do": "Whether zscaler_cloud is set only for a non-production environment (beta, gov, govus).",
+      "uses": [
+        "zia-cloud-values",
+        "zpa.terraform.provider-config:commercial-cloud-optional"
+      ]
+    }
+  ],
+  "claims": {
+    "hardcoding-warning": {
+      "statement": "The ZIA, ZPA, ZCC and ZTC provider documentation each warn that hard-coding credentials into a Terraform configuration is not recommended and risks secret leakage if the file is committed to public version control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage should this file be committed to public version control"
+          ],
+          "after": "**NOTE**: The `zscaler_cloud` is optional for production comercial Clouds"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/index.md",
+          "quotes": [
+            "Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage should this file be committed to public version control"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "docs/index.md",
+          "quotes": [
+            "Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage should this file be committed to public version control"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "docs/index.md",
+          "quotes": [
+            "Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage should this file be committed to public version control"
+          ],
+          "after": "Notice that ONLY the value `beta` is supported."
+        }
+      ]
+    },
+    "zia-oneapi": {
+      "statement": "From v4.0.0 the ZIA provider supports authentication through OneAPI, which uses the OAuth 2.0 Client Credentials flow: the client exchanges its credentials for an access token, with no user authentication involved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "Zscaler OneAPI uses the OAuth 2.0 authorization framework",
+            "As of version v4.0.0, this provider supports authentication via the new Zscaler API framework",
+            "OneAPI uses the Client Credentials OAuth flow, in which client applications can exchange their credentials with the authorization server for an access token",
+            "without any user authentication involved in the process."
+          ]
+        }
+      ]
+    },
+    "zia-env-vars": {
+      "statement": "The ZIA provider documentation maps `client_id`, `client_secret`, the private key, `vanity_domain` and `zscaler_cloud` to `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET`, `ZSCALER_PRIVATE_KEY`, `ZSCALER_VANITY_DOMAIN` and `ZSCALER_CLOUD`, and says a setting supplied by environment variable need not be set in the provider block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "| `client_id`     | _(String)_ Zscaler API Client ID, used with `clientSecret` or `PrivateKey` OAuth auth mode.         | `ZSCALER_CLIENT_ID`      |",
+            "| `client_secret` | _(String)_ Secret key associated with the API Client ID for authentication.                         | `ZSCALER_CLIENT_SECRET`  |",
+            "| `privateKey`    | _(String)_ A string Private key value.                                                              | `ZSCALER_PRIVATE_KEY`    |",
+            "| `vanity_domain` | _(String)_ Refers to the domain name used by your organization.                                     | `ZSCALER_VANITY_DOMAIN`  |",
+            "| `zscaler_cloud`         | _(String)_ The name of the Zidentity cloud, e.g., beta.                                             | `ZSCALER_CLOUD`          |"
+          ],
+          "after": "### Default Environment variables"
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "If environment variables are utilized for provider settings the",
+            "corresponding variable name does not need to be set in the provider config"
+          ],
+          "after": "# Configure the ZIA Provider (OneAPI Authentication) - Private Key"
+        }
+      ]
+    },
+    "zia-cloud-values": {
+      "statement": "For the ZIA provider, `zscaler_cloud` is optional for production commercial clouds and only required for other environments: `beta` for the test commercial cloud, and `gov` or `govus` for FedRAMP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "**NOTE**: The `zscaler_cloud` is optional for production comercial Clouds and ONLY required when authenticating to other environments.",
+            "- Test (Beta) Commercial Clouds: `beta`",
+            "- FedRAMP Clouds: `gov` or `govus`"
+          ]
+        }
+      ]
+    }
+  }
+}

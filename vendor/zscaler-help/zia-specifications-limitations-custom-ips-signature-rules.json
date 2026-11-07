@@ -1,0 +1,586 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Specifications & Limitations for Custom IPS Signature Rules",
+  "source": {
+    "url": "https://help.zscaler.com/zia/specifications-limitations-custom-ips-signature-rules",
+    "node": "1403196",
+    "revision": "3207651",
+    "updated": "2026-05-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The following sections provide information on Zscaler's support for custom IPS signature rules using Snort-like syntax, including feature specifications and limitations, and the cloud performance safeguards for custom signatures:"
+    },
+    {
+      "item": "Basic Differences from Snort",
+      "depth": 0
+    },
+    {
+      "item": "The following table outlines the key differences in Zscaler's rule evaluation methods from Snort:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Category",
+          "Specifications",
+          "Rule Examples"
+        ],
+        [
+          "Scan size limit",
+          "Default scan size limit: 4,000 bytes per session (includes traffic originating from the server and the client) Maximum scan size limit: 32,000 bytes per session (specified using the max_scan_size option in a rule) The scan size limit applies to traffic in bidirectional flow unless the rule specifies either flow:to_server or flow:from_server option. Scanning of packets ends when the limit for scan size or the number of packets is reached.",
+          "alert tcp any any -> any 21 (msg:\"DoS\"; flow:to_server; content:\"Tests\"; max_scan_size:100; classtype:DoS;) This rule applies the scan limit on the traffic sent to the server."
+        ],
+        [
+          "Packet limit",
+          "Default packet limit: 16 packets (includes traffic originating from the server and the client) Scanning of packets ends when the limit for scan size or the number of packets is reached.",
+          "alert tcp any any -> any 21 (msg:\"DoS\"; flow:to_server; content:\"Tests\"; max_scan_size:100; max_count:10; classtype:DoS;) This rule stops the Zscaler service from scanning after 10 packets from both directions or after 100 bytes of traffic from the client."
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          1,
+          0,
+          23
+        ],
+        [
+          1,
+          1,
+          111,
+          134
+        ],
+        [
+          2,
+          1,
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Supported Snort Rule Options",
+      "depth": 0
+    },
+    {
+      "item": "The following Snort options and event filters are supported in custom IPS signatures:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Option/Event Filter",
+          "Description",
+          "Notes"
+        ],
+        [
+          "byte_extract",
+          "Allows writing rules against length-encoded protocols. It extracts a specified number of bytes from the payload and saves it to a variable, which can be referenced later in the same rule.",
+          "The dce option is not supported."
+        ],
+        [
+          "byte_jump",
+          "Allows rules to read the length of a portion of data, then skip that far into the packet.",
+          "The dce option is not supported."
+        ],
+        [
+          "byte_test",
+          "Tests a byte field against a specific value (with operator).",
+          "The dce option is not supported."
+        ],
+        [
+          "content",
+          "Allows you to configure rules that search for specific content in the packet payload and trigger response based on that data.",
+          "The content data must be at least 5 bytes long. If the content option is used more than once within a rule, the distance option must be specified between the content options."
+        ],
+        [
+          "depth",
+          "A modifier for content/PCRE that specifies how far into a packet Snort should search for the specified pattern.",
+          "By default, depth is applied on each packet. To match a pattern over a stream, use the flow:stream keyword. Example: alert tcp any any -> any 21 (content:\"SMBTests\"; flow:stream; offset:4; depth:9;) In this example, the rule searches for patterns that occur between 4 and 10 bytes in the entire stream irrespective of the number of packets scanned. If the first packet is 10 bytes long, then the search terminates in the first packet."
+        ],
+        [
+          "detection_filter",
+          "Defines a rate which must be exceeded by a source or destination host before a rule can generate an event.",
+          "The rate can be tracked using standard attributes supported by Snort, such as source IP and destination IP. In addition, the Zscaler service provides exclusive by_srcport and by_dstport options to track by source port and destination port respectively. The count is maintained for each unique entity. Zscaler recommends using detection filters in conjunction with event filters to effectively reduce the number of logged events for noisy rules."
+        ],
+        [
+          "distance",
+          "A modifier for content/PCRE that specifies how far into a packet Snort should ignore before starting to search for the specified pattern relative to the end of the previous pattern match.",
+          "N/A"
+        ],
+        [
+          "dsize",
+          "Tests the packet payload size.",
+          "N/A"
+        ],
+        [
+          "event_filter",
+          "Limits the number of times a particular event is logged during a specified time interval.",
+          "The rate can be tracked using standard attributes supported by Snort, such as source IP and destination IP. In addition, the Zscaler service provides exclusive by_srcport and by_dstport options to track by source port and destination port respectively. The count is maintained for each unique entity. The event_filter option must be specified within a rule and cannot be used as standalone configurations."
+        ],
+        [
+          "fast_pattern",
+          "A content modifier that sets a content option within a rule to be used with the fast pattern matcher.",
+          "If fast_pattern is not specified in a rule, the longest content within the rule becomes the fast pattern. A fast pattern can be automatically determined only for content unmodified with distance or within. The length of a fast pattern ranges from 3 bytes to 16 bytes. If a pattern is longer than 16 bytes, the string that occupies the first 16 bytes is selected as the fast pattern. Fast patterns do not support the negation (!) operator. Zscaler recommends using the fast_pattern:only option to specify fast patterns that exceed 16 characters/bytes. It is also recommended to place the fast pattern in the right order within the rule if multiple content options are present."
+        ],
+        [
+          "flags",
+          "Checks if specific TCP flag bits are present. It also supports ignoring specific TCP flag bits.",
+          "N/A"
+        ],
+        [
+          "flow",
+          "Applies rules to traffic flowing in specific directions.",
+          "Supported options are: to_server to_client from_client from_server established (always enabled) no_stream"
+        ],
+        [
+          "isdataat",
+          "Verifies that the payload has data at a specified location.",
+          "N/A"
+        ],
+        [
+          "nocase",
+          "A modifier for content/PCRE that ignores letter cases during a pattern search.",
+          "N/A"
+        ],
+        [
+          "offset",
+          "A modifier for content/PCRE that specifies where to start searching for a pattern within a packet.",
+          "By default, offset is applied on each packet. To match a pattern over a stream, use the flow:stream keyword. Example: alert tcp any any -> any 21 (content:\"SMBTests\"; flow:stream; offset:4; depth:9;) In this example, the rule searches for patterns that occur between 4 and 10 bytes in the entire stream irrespective of the number of packets scanned. If the first packet is 10 bytes long, then the search terminates in the first packet."
+        ],
+        [
+          "pcre",
+          "Allows rules to be written using Perl Compatible Regular Expressions (PCRE).",
+          "The pcre keyword requires at least one content keyword to be present in the rule. Only limited PCRE flags and constructs are supported."
+        ],
+        [
+          "stream_size",
+          "Allows a rule to match traffic based on the number of bytes observed, as determined by the TCP sequence numbers.",
+          "N/A"
+        ],
+        [
+          "within",
+          "A modifier for content/PCRE that ensures that at most N bytes are between pattern matches which use the content keyword.",
+          "N/A"
+        ]
+      ],
+      "strong": [
+        [
+          5,
+          2,
+          108,
+          115
+        ],
+        [
+          15,
+          2,
+          109,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "Supported HTTP-Specific Options",
+      "depth": 0
+    },
+    {
+      "item": "The following table provides the list of HTTP options and keywords supported in custom IPS signatures using Snort-like syntax:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Zscaler Option/Keyword",
+          "Snort3 Option Equivalent",
+          "Description",
+          "Rule Examples"
+        ],
+        [
+          "http_uri",
+          "http_uri",
+          "A buffer that matches on the full normalized URI in HTTP requests.",
+          "alert http any any -> any 80 ( msg:\"HTTP URI matched\"; flow:established,to_server; content:\"|2f|Wp|2d|Admin|2f|\"; http_uri; sid:1; )"
+        ],
+        [
+          "http_upath",
+          "http_uri: path",
+          "A buffer that matches on the path component in the URI (e.g., /example/of/path).",
+          "alert http any any -> any 80 ( msg:\"HTTP path matched\"; flow:established,to_server; content:\"/wp-admin/alpha.php\"; http_upath; sid:6; )"
+        ],
+        [
+          "http_uquery",
+          "http_uri: query",
+          "A buffer that matches on the query component in the URI (e.g., ?id=123).",
+          "alert http any any -> any 80 ( msg:\"HTTP query found\"; flow:established,to_server; content:\"elqTrackId=\"; http_uquery; sid:6; )"
+        ],
+        [
+          "http_host",
+          "http_uri: host",
+          "A buffer that matches on the host component present in the full URI.",
+          "alert http any any -> any 80 ( msg:\"HTTP host matched\"; flow:established,to_server; content:\"example|2e|com\"; http_host; sid:1; )"
+        ],
+        [
+          "http_accept",
+          "http_header: field accept",
+          "A buffer that matches on the HTTP Accept header.",
+          "alert http any any -> any 80 (msg:\"HTTP accept matched\"; flow:to_server; content:\"image/webp|2c|image/apng|2c|image/svg+xml|2c|image/*|2c|*/*;q=0.8\"; http_accept; sid:1; )"
+        ],
+        [
+          "http_accept_encoding",
+          "http_header: field accept-encoding",
+          "A buffer that matches on the HTTP Accept-Encoding header, which indicates the compression formats accepted by the client.",
+          "alert http any any -> any 80 (msg:\"HTTP accept encoding matched\"; flow:to_server; content:\"br|3b|q|3d|1|2e|0|2c| gzip|3b|q|3d|0|2e|8|2c| |2a3b|q|3d|0|2e|1\"; fast_pattern; http_accept_encoding; sid:1;)"
+        ],
+        [
+          "http_accept_language",
+          "http_header: field accept-language",
+          "A buffer that matches on the HTTP Accept-Language header.",
+          "alert http any any -> any 80 (msg:\"HTTP accept language found\"; flow:to_server; content:\"en|2d|US\"; http_accept_language; sid:1;)"
+        ],
+        [
+          "http_connection",
+          "http_header: field connection",
+          "A buffer that matches on the HTTP Connection headers (e.g., browsers, curl).",
+          "alert http any any -> any 80 (msg:\"HTTP connection matched\"; flow:to_server,established; content:\"keep|2d|alive\"; http_connection; sid:1;"
+        ],
+        [
+          "http_contentencoding",
+          "http_header: field content-encoding",
+          "A buffer that matches on the compression type specified in the HTTP Content-Encoding header.",
+          "alert http any any -> any 80 (msg:\"HTTP content encoding matched\"; flow:to_server,established; content:\"gzip|2c 20|deflate\"; http_contentencoding; sid:1;)"
+        ],
+        [
+          "http_contentmd5",
+          "http_header: field content-md5",
+          "A buffer that matches on the HTTP Content-MD5 header (i.e., message digest hash).",
+          "alert http any any -> any any (msg:\"HTTP content MD5 header matched\"; flow:to_client; content:\"tW6E/cdbstOl+hAbvRICsA==\"; http_contentmd5; sid:100001; rev:1;)"
+        ],
+        [
+          "http_contenttype",
+          "http_header: field content-type",
+          "A buffer that matches on the HTTP Content-Type header (e.g., application/json).",
+          "alert http any any -> any 80 (msg:\"HTTP content type matched\"; flow:to_server; http_method: =, SMHTTP_METHOD_POST; content:\"|2f|autodiscover|2f|\"; http_uri; content:\"autodiscover.json\"; fast_pattern;http_uri; distance:0; nocase; content:\"application/x-www-form-urlencoded\"; distance:0; http_contenttype; sid:1; )"
+        ],
+        [
+          "http_cookie",
+          "http_header: field cookie",
+          "A buffer that matches on the entire HTTP Cookie header sent by the client.",
+          "alert http any any -> any 80 ( msg:\"HTTP cookie found\"; flow:established,to_server; content:\"www|2e|example|2e|com\"; http_host; content:\"com.am.visitor=\" ;distance:0; http_cookie; content:\"com.am.anoncart=\";distance:0; http_cookie; sid:1; )"
+        ],
+        [
+          "http_location",
+          "http_header: field location",
+          "A buffer that matches on the HTTP Location header indicating the target redirect URL.",
+          "alert http any any -> any any ( msg:\"HTTP redirect matched\"; flow:from_server,established;content:\"/cid?=\";http_location; sid:6; )"
+        ],
+        [
+          "http_referer",
+          "http_header: field referer",
+          "A buffer that matches on the HTTP Referer header identifying the link source URL.",
+          "alert http any any -> any 80 (msg:\"HTTP referer from suspicious domain detected\"; flow:to_server,established; content:\"badsite.com\"; http_referer; sid:1000003; rev:1;)"
+        ],
+        [
+          "http_server",
+          "http_header: field server",
+          "A buffer that matches on the server type specified by the HTTP Server header.",
+          "alert http any any -> any any (msg:\"HTTP server response detected\"; content:\"BaseHTTP\"; http_server ; sid:24; rev:1;)"
+        ],
+        [
+          "http_setcookie",
+          "http_header: field set-cookie",
+          "A buffer that matches on the HTTP Set-Cookie header sent by the server.",
+          "alert http any any -> any any ( msg:\"HTTP Set-Cookie header matched\"; flow:to_client,established; content: \"JSESSIONID=99F03A2A5BF2D90F382417459D5403D2\"; http_setcookie; classtype:attempted-user; sid:39; rev:5; )"
+        ],
+        [
+          "http_useragent",
+          "http_header: field user-agent",
+          "A buffer that matches on the HTTP User-Agent header (e.g. browsers, curl).",
+          "alert http any any -> any 80 (msg:\"HTTP user agent matched\"; flow: to_server; content:\"curl v8.09\"; http_useragent; fast_pattern; sid:1;)"
+        ],
+        [
+          "http_resp_code",
+          "http_stat_code",
+          "Matches the three-digit HTTP status code (e.g. 404, 500) in responses. Data type: Int32",
+          "alert http any any -> any 80 (msg:\"HTTP status code matched\"; flow:from_server,established; http_resp_code: =, 200; sid: 9; )"
+        ],
+        [
+          "http_method",
+          "http_method; content: \"POST\" [Supported Methods: GET, POST, OPTIONS, HEAD, DELETE, PUT, TRACE, CONNECT]",
+          "Matches on the HTTP method used in requests. Supported methods are: smhttp_method_options smhttp_method_get smhttp_method_head smhttp_method_post smhttp_method_put smhttp_method_delete smhttp_method_trace smhttp_method_connect",
+          "alert http any any -> any 80 (msg:\"HTTP method matched\"; flow:established,to_server; http_method: =, smhttp_method_get; content:\"alpha.php\"; http_uri; sid: 1; )"
+        ],
+        [
+          "http_version",
+          "http_version [Supported Versions: \"HTTP/1.0\", \"HTTP/1.1\"]",
+          "Matches on the HTTP version string in requests and responses. Supported HTTP versions are: http_1_0 http_1_1 http_2 http_3",
+          "alert http any 80 -> any 12345 ( msg:\"HTTP version 1.1 detected\"; flow:to_client,established; http_version: =, http_1_0; )"
+        ],
+        [
+          "http_contentlength",
+          "http_header: field content-length;",
+          "A buffer that matches on the HTTP Content-Length header.",
+          "alert http any 80 -> any 45051 ( msg:\"JPG ALERT\"; flow:from_server,established; http_resp_code: =, 200; contentlength: >, 300;zthreatname:\"Directive_contentlen_1\"; zthreatid:1022; zthreatcat:1; )"
+        ],
+        [
+          "http_header",
+          "http_header",
+          "A buffer that matches on the full normalized HTTP header lines.",
+          "alert http any any -> any 80 ( msg:\"HTTP header matched\"; flow:established,to_server; content:\"X|2d|Csrftoken|3a|jGNAoveATBtcFhc5XOGMQczMu2NnpSSA\"; http_header; )"
+        ],
+        [
+          "http_request_body",
+          "http_raw_body",
+          "A buffer that matches on the content present within the HTTP request body.",
+          "alert http any any -> any 80 ( msg:\"HTTP request body matched\"; flow:established,to_server; content:\"/wp-admin/\"; http_uri; content: \"example.com\"; http_host; distance:0; content:\"alert\"; http_request_body; distance:0; )"
+        ],
+        [
+          "http_request_header",
+          "http_raw_header",
+          "A buffer that matches on the full unnormalized HTTP headers of the request (in the exact format as received).",
+          "alert http any any -> any 80 (msg:\"HTTP request header matched\"; content:\"X-Powered-By|3A| ASP.NET\", http_request_header; sid:35; rev:1;)"
+        ],
+        [
+          "http_request_line",
+          "http_raw_request or http_raw_code",
+          "A buffer that matches on the full raw HTTP request line.",
+          "alert http any any -> any 80 (msg:\"HTTP request line detected\"; http_method: =, smhttp_method_post; content:\"/service/soap HTTP/1.1\"; http_request_line; sid:13; rev:1;)"
+        ],
+        [
+          "http_response_body",
+          "http_server_body or http_raw_body",
+          "A buffer that matches on the content present within the HTTP response body.",
+          "alert http any any -> any any (msg:\"HTTP response body detected\"; content:\"script\"; http_response_body; fast_pattern; content:\"eval|2f|\";distance:0;http_response_body; sid:33; rev:1;)"
+        ],
+        [
+          "http_response_header",
+          "http_raw_header",
+          "A buffer that matches on the full unnormalized HTTP headers of the response (in exact format as received).",
+          "alert http any any -> any any (msg:\"HTTP response detected\"; content:\"text/html\"; http_response_header ; sid:24; rev:1;)"
+        ],
+        [
+          "http_response_line",
+          "http_raw_status or http_raw_code",
+          "A buffer that matches on the full raw HTTP response line or only on the HTTP status code.",
+          "alert http any any -> any any (msg:\"HTTP 500 response line detected\"; content:\"HTTP/1.1 500\"; http_response_line; sid:18; rev:1;)"
+        ],
+        [
+          "http_urilen",
+          "http_uri; bufferlen",
+          "A buffer that matches on the length of the normalized URI present in HTTP requests.",
+          "alert http any any -> any 80 ( msg:\"HTTP URI length matched\"; flow:established,to_server; content:\"/ip_logger.php\"; http_uri; http_urilen:>,25; sid:6; )"
+        ]
+      ]
+    },
+    {
+      "item": "Limitations",
+      "depth": 0
+    },
+    {
+      "item": "The following sections discuss the current limitations of custom IPS signatures:",
+      "depth": 0
+    },
+    {
+      "item": "Decrypted Web Traffic Inspection",
+      "depth": 1
+    },
+    {
+      "item": "Decrypted web traffic is inspected by Custom IPS only when the request or response matches the following criteria:",
+      "depth": 1
+    },
+    {
+      "item": "Content Type: Text, HTML, CSV, or JavaScript",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: HTTP/S (GET, POST or PUT) or FTP",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Scanned Content: URL, HTTP Headers, and HTTP Body",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Scan Size: 500 KB per invocation",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "URL Categories: Suspicious URL destinations. To learn more about Zscaler's URL categorizations, see Site Review.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Snort-Based General Limitations",
+      "depth": 1
+    },
+    {
+      "item": "The following table provides the general limitations of custom IPS signatures using Snort-like syntax:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Category",
+          "Specifications"
+        ],
+        [
+          "Rule header",
+          "Only the alert rule action is supported. Only TCP, UDP, and IP protocols are supported. IP addresses and port numbers do not support variables. Alerts for packets directed towards any destination (configured using \"any any\" combination) are limited to 5. The bidirectional (<>) operator is not supported."
+        ],
+        [
+          "Rule options",
+          "A rule can contain a maximum of 16 Payload Detection rule options, which can include one or more options from the following list: byte_extract, byte_jump, byte_test, content, isdataat, pcre, and stream_size."
+        ],
+        [
+          "Event filters",
+          "The detection_filter and event_filter options are each limited to 10."
+        ],
+        [
+          "Data buffer",
+          "The Zscaler service does not buffer traffic data internally. However, it does maintain state for streams and identifies pattern matches across a packet’s boundary. As data is not buffered, negative offsets for pattern modifiers (e.g., distance) are not supported."
+        ]
+      ]
+    },
+    {
+      "item": "Snort-Based PCRE Limitations",
+      "depth": 1
+    },
+    {
+      "item": "Custom IPS signatures support limited PCRE flags and constructs.",
+      "depth": 1
+    },
+    {
+      "heading": "Supported PCRE Flags",
+      "level": 1
+    },
+    {
+      "item": "Custom signature rules support only limited PCRE flags, which are listed in the following table:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Flag",
+          "Description",
+          "Supported?"
+        ],
+        [
+          "G",
+          "Inverts the \"greediness\" of the quantifiers so that they are not greedy by default, but become greedy if followed by a question mark (\"?\").",
+          "Always enabled"
+        ],
+        [
+          "i",
+          "Treats upper and lowercase letters in a pattern as equivalent.",
+          "Supported"
+        ],
+        [
+          "m",
+          "By default, the \"start of line\" metacharacter (^) matches only at the start of the string, while the \"end of line\" metacharacter ($) matches only at the end of the string, or before a terminating newline. When this modifier is set, “^” and “$” constructs match immediately following or immediately before any newline in the subject string, respectively, as well as the very start and end.",
+          "Always enabled"
+        ],
+        [
+          "R",
+          "Matches a pattern relative to the end of the last pattern matched.",
+          "Supported"
+        ],
+        [
+          "s",
+          "Allows a dot metacharacter in a pattern to match newlines.",
+          "Always enabled"
+        ]
+      ]
+    },
+    {
+      "item": "Other PCRE flags are currently not supported.",
+      "depth": 1
+    },
+    {
+      "heading": "Unsupported PCRE Constructs",
+      "level": 1
+    },
+    {
+      "item": "Custom signature rules support limited PCRE constructs. The assertions listed in the following table are not supported:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "PCRE Construct",
+          "Description"
+        ],
+        [
+          "(?=...)",
+          "Positive lookahead zero length assertion"
+        ],
+        [
+          "(?!...)",
+          "Negative lookahead zero length assertion"
+        ],
+        [
+          "(?<=...)",
+          "Positive lookbehind zero length assertion"
+        ],
+        [
+          "(?<!...)",
+          "Negative lookbehind zero length assertion"
+        ],
+        [
+          "(?()|)",
+          "Conditional pattern"
+        ],
+        [
+          "(...)",
+          "Capturing group"
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler strongly recommends against using capturing groups.",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Performance Safeguards for Custom IPS Signatures",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler's designated Escalation Engineers monitor the overall cloud operation to ensure effective resource management and a reliable experience for all organizations in the Zscaler cloud. The designated Escalation Engineers identify custom IPS signatures exceeding specific resource consumption thresholds (processing and memory) at the organization or user levels and might disable signatures found to contribute to over-utilization of resources.",
+      "depth": 0
+    },
+    {
+      "item": "When a signature is disabled, it is marked by the Disabled status and the reason for disablement is displayed in the Zscaler Admin Console for your organization's Security Operations administrator to view and take action. The status change takes place at the time of disablement and organizations are not notified prior to that. Also, following the status change, subsequent notifications through other channels might not be provided. During the course of the signature disablement, the Escalation Engineer might see the signature content to provide guidance on improving the signature to be more performant or consume fewer cloud resources, or both.",
+      "depth": 0
+    }
+  ]
+}

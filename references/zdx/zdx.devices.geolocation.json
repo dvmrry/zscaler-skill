@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "id": "zdx.devices.geolocation",
+  "title": "ZDX geolocations: active geolocations, geo filters and coordinates",
+  "aliases": [
+    "zdx geolocation",
+    "active_geo",
+    "zdx geo filter",
+    "geo_id",
+    "parent_geo_id",
+    "zdx geo_lat",
+    "geo_detection",
+    "list_geolocations",
+    "GetGeoLocations"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.score.calculation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Geolocation reaches ZDX from Client Connector, [[zdx.cloud-architecture:client-connector]]. {{active-geo}}"
+    },
+    {
+      "label": "Filtering by geolocation.",
+      "text": "{{geo-filters}} How the nested geolocations are walked, level by level, is not documented {{gap:hierarchy-traversal}}."
+    },
+    {
+      "label": "Coordinates and their source.",
+      "text": "{{coordinates}} {{geo-detection}} How a region for the score baseline relates to these is open, [[zdx.score.calculation:region-definition]]."
+    },
+    {
+      "label": "In the console.",
+      "text": "{{console-locating}} {{console-supported-os}} {{console-hierarchy}} The API and the console differ on cities outside the US {{divergence:cities-outside-us}}. {{cloud-path-location-icon}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a state or city is expected at all, since state and city data is returned only for the US.",
+      "uses": [
+        "active-geo"
+      ]
+    },
+    {
+      "do": "Whether a location came from the device or from an IP lookup before trusting its city.",
+      "uses": [
+        "geo-detection"
+      ]
+    },
+    {
+      "do": "For a device with no location, whether location collection is switched on both in the User Privacy settings and for the ZDX entitlement, since whether both are needed is open.",
+      "uses": [
+        "zcc.web-privacy.collection:zdx-location",
+        "zcc.entitlements.zdx:location-both-required"
+      ]
+    }
+  ],
+  "claims": {
+    "console-locating": {
+      "statement": "ZDX uses a device's location service to determine a user's location, taking the longitude and latitude coordinates and comparing them to Zscaler's geographic IP database; if the location service is not enabled on the device, ZDX uses the device's IP address. If a user's coordinates are closer to the center of another city than their own, the user's location might be misidentified as connecting from the neighboring city.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "ZDX uses a device's location service to determine a user's location. It takes the longitude and latitude coordinates from the location service and compares it to Zscaler's geographic IP database.",
+            "If the location service is not enabled on the device, then ZDX uses the device's IP address to determine the location.",
+            "If a user's latitude and longitude are closer to the center of another city, instead of their own city, the user's location might be misidentified as connecting from the neighboring city."
+          ]
+        }
+      ]
+    },
+    "console-supported-os": {
+      "statement": "The Performance Dashboard, Applications Overview and Users Overview each say ZDX currently supports Windows, macOS, Android, Android on ChromeOS and iOS devices only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "ZDX currently supports Windows, macOS, Android, Android on ChromeOS, and iOS devices only."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-applications-overview.json",
+          "quotes": [
+            "ZDX currently supports Windows, macOS, Android, Android on ChromeOS, and iOS devices only."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-users-overview.json",
+          "quotes": [
+            "ZDX currently supports Windows, macOS, Android, Android on ChromeOS, and iOS devices only."
+          ]
+        }
+      ]
+    },
+    "console-hierarchy": {
+      "statement": "The console's Geolocations filter is hierarchical: it includes the continent, country, states and cities within the US, while non-US geolocations show the continent, countries and then cities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "Click the drop-down menu option to choose locations in the Geolocations filter. This hierarchical display includes the continent, country, states, and cities within the US, while non-US geolocations show the continent, countries, and then cities."
+          ]
+        }
+      ]
+    },
+    "cloud-path-location-icon": {
+      "statement": "In the Cloud Path, a device location icon confirms that a device's location was determined by latitude and longitude coordinates; if no icon is displayed, the device was located by its IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-cloud-path.json",
+          "quotes": [
+            "A device location icon confirms that a device's location was determined by latitude and longitude coordinates. If no icon is displayed, the device was located by its IP address."
+          ]
+        }
+      ]
+    },
+    "active-geo": {
+      "statement": "The active-geolocations read lists all active geolocations for the time range, the last 2 hours if none is given; state and city data is retrieved only for the US.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1active_geo/get",
+          "expect": {
+            "description": "Gets the list of all active geolocations for the time range specified. If not specified, the endpoint defaults to the last 2 hours. The state and city data is retrieved only for the US."
+          }
+        }
+      ]
+    },
+    "geo-filters": {
+      "statement": "The device list filters by geolocation with a `geo` parameter, an array of strings, and also takes `exclude_geo`; the active-geolocations read takes `parent_geo_id` and `q`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/parameters/[name=geo]/schema",
+          "expect": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/parameters/[name=exclude_geo]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1active_geo/get/parameters/[name=parent_geo_id]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1active_geo/get/parameters/[name=q]",
+          "expect": {
+            "in": "query"
+          }
+        }
+      ]
+    },
+    "coordinates": {
+      "statement": "The user reads return each device's geolocations with a latitude (`geo_lat`) and longitude (`geo_long`) beside city, state, country and region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/geo_lat",
+          "expect": {
+            "description": "The geo latitude of location."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/geo_long",
+          "expect": {
+            "description": "The geo longitude of location."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users~1{id}/get/responses/200/content/application~1json/schema/properties/devices/items/properties/geo_locations/items/properties",
+          "expect": {
+            "geo_lat": {
+              "description": "The geo latitude of location.",
+              "format": "double",
+              "type": "number"
+            },
+            "geo_long": {
+              "description": "The geo longitude of location.",
+              "type": "string"
+            },
+            "city": {
+              "description": "The name of the city.",
+              "type": "string"
+            },
+            "state": {
+              "description": "The name of the state.",
+              "type": "string"
+            },
+            "country": {
+              "description": "The country of the location.",
+              "type": "string"
+            },
+            "region": {
+              "description": "The region information.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/city",
+          "expect": {
+            "description": "The name of the city."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/state",
+          "expect": {
+            "description": "The name of the state."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/country",
+          "expect": {
+            "description": "The country of the location."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/region",
+          "expect": {
+            "description": "The region information."
+          }
+        }
+      ]
+    },
+    "geo-detection": {
+      "statement": "In the application-users read, a device location's `geo_detection` is described as ip_geo_lookup or device_geo_lookup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_loc/items/properties/geo_detection",
+          "expect": {
+            "description": "ip_geo_lookup or device_geo_lookup"
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "cities-outside-us": {
+      "summary": "City data outside the US: the API's active-geolocations description says state and city data is retrieved only for the US, while the console's Geolocations filter shows cities for non-US geolocations.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1active_geo/get",
+            "expect": {
+              "description": "Gets the list of all active geolocations for the time range specified. If not specified, the endpoint defaults to the last 2 hours. The state and city data is retrieved only for the US."
+            }
+          },
+          "says": "The state and city data is retrieved only for the US."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-monitoring-performance-dashboard.json",
+            "quotes": [
+              "This hierarchical display includes the continent, country, states, and cities within the US, while non-US geolocations show the continent, countries, and then cities."
+            ]
+          },
+          "says": "The console's geolocation hierarchy shows states and cities within the US, and for non-US geolocations the continent, countries and then cities."
+        }
+      ],
+      "impact": "A client building a geolocation list from the API may find no city for a non-US location that the console shows with one; neither source says whether the API and console differ by design."
+    }
+  },
+  "gaps": {
+    "hierarchy-traversal": {
+      "kind": "semantic",
+      "title": "How the geolocation hierarchy is traversed",
+      "status": "open",
+      "former_ids": [
+        "zdx-26"
+      ],
+      "detail": "Each active geolocation carries `children` (ID, description, type), and the read takes `parent_geo_id`. Whether children nest more than one level and whether deeper levels need repeated `parent_geo_id` calls is implied, not stated.",
+      "blocks": "building a complete geolocation filter list",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

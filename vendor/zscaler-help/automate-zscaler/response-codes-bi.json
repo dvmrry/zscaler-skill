@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "Business Insights API Codes",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/response-codes/bi",
+    "revision": "1c01d448.a9bc9e28.js",
+    "updated": "2026-10-18",
+    "updated_basis": "first-seen"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Business Insights API uses the following additional response codes and error messages that are specific to use cases and scenarios in Business Insights."
+    },
+    {
+      "table": [
+        [
+          "Code",
+          "Status",
+          "Description"
+        ],
+        [
+          "200",
+          "OK",
+          "The request was successful."
+        ],
+        [
+          "400",
+          "BAD_REQUEST",
+          "The request contains invalid syntax or parameters."
+        ],
+        [
+          "401",
+          "unauthorized",
+          "The JWT token is expired, invalid, or missing."
+        ],
+        [
+          "403",
+          "FORBIDDEN",
+          "Insufficient role-based access control (RBAC) permissions."
+        ],
+        [
+          "405",
+          "METHOD_NOT_ALLOWED",
+          "The wrong HTTP method was used for the endpoint."
+        ],
+        [
+          "415",
+          "UNSUPPORTED_MEDIA_TYPE",
+          "The media type is unsupported. Wrong Content-Type header used."
+        ],
+        [
+          "429",
+          "RATE_LIMIT_EXCEEDED",
+          "Too many requests were sent, exceeding the rate limit."
+        ],
+        [
+          "500",
+          "INTERNAL_SERVER_ERROR",
+          "An unexpected server-issue occurred, preventing the request from being processed. A transient error resolves itself by retrying the operation. For a non-transient error, contact Zscaler Support with the error details (including request ID, timestamp, and any other relevant details)."
+        ]
+      ]
+    },
+    {
+      "heading": "Business Insights API Error Response Structure",
+      "level": 2
+    },
+    {
+      "text": "Most Business Insights API error responses use the same structure, for example:"
+    },
+    {
+      "code": "{\n  \"errorCode\": \"BAD_REQUEST\",\n  \"errorDetails\": \"Human-readable error message\",\n  \"timestamp\": 1772573283919\n}"
+    },
+    {
+      "text": "However, the 401 (unauthorized) response uses a different structure, for example:"
+    },
+    {
+      "code": "{\n  \"detail\": \"unauthorized\",\n  \"type\": \"\",\n  \"title\": \"\",\n  \"status\": \"\"\n}"
+    },
+    {
+      "heading": "Business Insights API Error Scenarios",
+      "level": 2
+    },
+    {
+      "heading": "Reports Errors",
+      "level": 3
+    },
+    {
+      "text": "The following table lists the various error messages that might be sent for a 400 (BAD_REQUEST) response when using Reports endpoints, including the possible cause for the error."
+    },
+    {
+      "table": [
+        [
+          "Error Message",
+          "Cause"
+        ],
+        [
+          "Invalid report type INVALID should be one of APPLICATION/WORKPLACE/DATA_EXPLORER",
+          "Invalid reportType parameter."
+        ],
+        [
+          "Invalid report subtype INVALID should be one of ScheduledReports/CustomDataFeed/SaveAndSchedule",
+          "Invalid subType parameter."
+        ],
+        [
+          "Invalid time -999 should be in Epoch Second",
+          "Invalid timestamp value."
+        ],
+        [
+          "ReportType is required",
+          "Missing the required field in request body."
+        ],
+        [
+          "FileName is required",
+          "Missing the required field in request body."
+        ],
+        [
+          "Active report limit exceeded",
+          "The maximum of 50 active reports are already in use. If additional reports are required, contact Zscaler Support to make a request."
+        ]
+      ]
+    },
+    {
+      "heading": "Custom Applications Errors",
+      "level": 3
+    },
+    {
+      "text": "The following table lists the various error messages that might be sent for a 400 (BAD_REQUEST) response when using Custom Applications endpoints, including the possible cause for the error."
+    },
+    {
+      "table": [
+        [
+          "Error Message",
+          "Cause"
+        ],
+        [
+          "Custom Application name cannot be empty",
+          "Name field is null or empty."
+        ],
+        [
+          "Custom Application name cannot exceed length of 128 characters",
+          "Name exceeds 128 characters."
+        ],
+        [
+          "Name already exists",
+          "Duplicate custom app name."
+        ],
+        [
+          "Custom Application signatures cannot be empty",
+          "No signatures provided."
+        ],
+        [
+          "Host cannot be more than 50",
+          "More than 50 HOST signatures are being used."
+        ],
+        [
+          "Global HOST count cannot be more than 500",
+          "Tenant-wide HOST limit exceeded."
+        ],
+        [
+          "Invalid Host value",
+          "Invalid hostname format."
+        ]
+      ]
+    },
+    {
+      "heading": "Report Configurations Errors",
+      "level": 3
+    },
+    {
+      "text": "The following table lists the various error messages that might be sent for a 400 (BAD_REQUEST) response when using Report Configurations endpoints, including the possible cause for the error."
+    },
+    {
+      "table": [
+        [
+          "Error Message",
+          "Cause"
+        ],
+        [
+          "Invalid report type xyz",
+          "Invalid report_type path parameter."
+        ],
+        [
+          "Report name must not be null",
+          "Empty report name."
+        ],
+        [
+          "CustomIds must contain at least one item",
+          "Empty custom_ids array."
+        ],
+        [
+          "CustomIds contain more than one item",
+          "Multiple IDs were provided, but only one can be used."
+        ],
+        [
+          "SubType must be one of [OVERVIEW, USERS]",
+          "Invalid sub_type value."
+        ],
+        [
+          "Either scheduleParams or backfillParams must be provided",
+          "Missing schedule configuration."
+        ]
+      ]
+    },
+    {
+      "heading": "Business Insights API RBAC Requirements",
+      "level": 2
+    },
+    {
+      "text": "To access Custom Applications and Report Configurations endpoints, users must have:"
+    },
+    {
+      "item": "Report READ_WRITE permission for Create, Update, and Delete operations.",
+      "depth": 0
+    },
+    {
+      "item": "Report READ_ONLY permission for Get operations.",
+      "depth": 0
+    },
+    {
+      "heading": "Business Insights API Troubleshooting",
+      "level": 2
+    },
+    {
+      "item": "400 (BAD_REQUEST): Check the error details for specific validation errors. Also, ensure all required fields are present and values are in the correct format.",
+      "depth": 0
+    },
+    {
+      "item": "401 (unauthorized): Verify that your JWT token is valid and has not expired.",
+      "depth": 0
+    },
+    {
+      "item": "403 (FORBIDDEN): Ensure that you have the required RBAC permissions for the operation.",
+      "depth": 0
+    },
+    {
+      "item": "429 (RATE_LIMIT_EXCEEDED): Implement exponential backoff and reduce request frequency.",
+      "depth": 0
+    },
+    {
+      "item": "500 (INTERNAL_SERVER_ERROR): Retry the operation. If the error persists, contact Zscaler Support with the error details including the timestamp and request ID.",
+      "depth": 0
+    }
+  ]
+}

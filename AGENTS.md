@@ -38,10 +38,14 @@ For Zscaler questions:
 - These skills are open-standard loaders under `.agents/skills/` for the
   canonical workflows; prefer the slash commands above for direct invocation.
 - Load only the files needed for the current question.
-- Tenant-specific truth lives under the configured runtime-data mount
-  (`_data/snapshot/` and `_data/iac/` by default). Resolve a downstream selector
-  or root config with `node scripts/runtime-data-path.mjs` before substituting
-  paths in commands.
+- Tenant-specific truth comes from three answer tiers (see `SKILL.md`
+  "Answer tiers"): the knowledge graph (the spine under `references/_meta/spine/`, read with
+  file tools, then `node scripts/kb.mjs read <area | subject | type#field>` for subjects, log fields and company records),
+  the overlay's IaC when `overlay.json` declares `iac`, then live read-only
+  `zscalerctl` when it declares `live`. `read` finds the overlay itself
+  (`$ZSCALER_KB_OVERLAY` or `<runtime-data mount>/overlay/`) and prints its IaC
+  repo paths; resolve other runtime-data paths with
+  `node scripts/runtime-data-path.mjs` only for setup, workflows or repair.
 - Do not read `vendor/` unless the loaded prompt or current question
   specifically requires it.
 

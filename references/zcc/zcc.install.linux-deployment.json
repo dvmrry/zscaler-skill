@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.linux-deployment",
+  "title": "Deploying Client Connector on Linux: run file, Debian and RPM packages, dependencies, zscaler-config and log locations",
+  "aliases": [
+    "zcc linux install",
+    "zscaler-config",
+    "zscaler linux run file",
+    "zcc debian package",
+    "zcc rpm package",
+    "zscaler-installation.log"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.strict-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.collection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{packages}}"
+    },
+    {
+      "label": "Linux prerequisites.",
+      "text": "{{dns-and-networkmanager}} {{dependencies}} {{distributions}} Which dependency list belongs to which is open {{gap:dependency-lists}}."
+    },
+    {
+      "label": "The run file.",
+      "text": "{{run-file}} {{option-notes}} The options are described for the other platforms in [[zcc.install.enrollment]] and [[zcc.install.strict-enforcement]]."
+    },
+    {
+      "label": "The Debian package.",
+      "text": "{{debian}} {{zscaler-config}} What several of its parameters do is open {{gap:config-parameters}}."
+    },
+    {
+      "label": "The RPM package.",
+      "text": "{{rpm}}"
+    },
+    {
+      "label": "Logs.",
+      "text": "{{logs}} The collection paths are also in [[zcc.logging.collection]]."
+    }
+  ],
+  "claims": {
+    "packages": {
+      "statement": "Client Connector for Linux can be installed manually with the application package, the Debian package or the Red Hat Package Manager (RPM) package, or through a device management method that supports Linux devices. Installation needs administrator permission, and the Debian package is obtained from Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "quotes": [
+            "You can use the application package, the Debian package, or the Red Hat Package Manager (RPM) to manually install Zscaler Client Connector on a device.",
+            "You can also use these packages if you're deploying the app to users through a device management method that supports Linux devices.",
+            "You must have administrator permission to do the installation. Contact Zscaler Support to obtain the Debian package."
+          ]
+        }
+      ]
+    },
+    "dns-and-networkmanager": {
+      "statement": "Client Connector for Linux relies on the systemd-resolved service to manage DNS, so /etc/resolv.conf, a symbolic link to /run/systemd/resolve/stub-resolv.conf, should not be modified when deploying it; it also requires NetworkManager and its CLI, nmcli.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "quotes": [
+            "Zscaler Client Connector relies on the Linux systemd-resolved service to manage DNS configurations.",
+            "Because /etc/resolv.conf is a symbolic link to /run/systemd/resolve/stub-resolv.conf, you should not modify the /etc/resolv.conf file when deploying Zscaler Client Connector for Linux.",
+            "Zscaler Client Connector requires NetworkManager and its CLI, nmcli"
+          ]
+        }
+      ]
+    },
+    "distributions": {
+      "statement": "The Linux page's dependency section names Debian 11 and 12, Ubuntu 20, 22.04.5 LTS and 24 LTS, Fedora 41 and 42, CentOS 8 Stream, 9 Stream and 10, Rocky Linux 9.7 and 10.01, RHEL 8.x, 9.1 and 9.2, 9.3 to 9.5 and 10, Arch Linux and OpenSUSE Leap.",
+      "tier": "A",
+      "conditions": "The capture flattens the page's tabs, so this lists the distribution names the dependency section carries and is not a support matrix.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "quotes": [
+            "Debian 11",
+            "Debian 12",
+            "Ubuntu 20",
+            "Ubuntu 22.04.5 LTS",
+            "Ubuntu 24 LTS",
+            "Fedora 41 and 42",
+            "CentOS 8 Stream",
+            "Rocky Linux 9.7, 10.01",
+            "Arch Linux",
+            "OpenSUSE Leap",
+            "Red Hat Enterprise Linux (RHEL) 8.x, 9.1, 9.2",
+            "Red Hat Enterprise Linux (RHEL) 9.3, 9.4, 9.5",
+            "Red Hat Enterprise Linux (RHEL) 10"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "after": "CentOS 8 Stream",
+          "quotes": [
+            "CentOS 9 Stream",
+            "CentOS 10"
+          ]
+        }
+      ]
+    },
+    "dependencies": {
+      "statement": "As long as the device is connected to the network, the installer installs the necessary package dependencies automatically; if they do not install, they can be installed manually by entering all of them on one command line without line breaks. CentOS 9 Stream and RHEL 9 have an additional package, systemd-resolved, from the EPEL repository, which must be installed separately; for CentOS the EPEL repository must be enabled for Qt packages, and qt5-qtwebengine is also part of EPEL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "quotes": [
+            "As long as your device is connected to the network, the application installer automatically installs the necessary package dependencies for you.",
+            "If dependencies don't automatically install, you can install them manually by entering all dependencies in a command line on one line without line breaks",
+            "CentOS 9 Stream has an additional package, systemd-resolved, that is part of the Extra Packages for Enterprise Linux (EPEL) repository which must be installed separately for CentOS.",
+            "The CentOS OS is required to enable the EPEL repository for Qt packages.",
+            "RHEL 9 has an additional package, systemd-resolved, that is part of the Extra Packages for Enterprise Linux (EPEL) repository which must be installed separately for RHEL 9.",
+            "The qt5-qtwebengine is also part of the EPEL repository."
+          ]
+        }
+      ]
+    },
+    "run-file": {
+      "statement": "The Linux run file is downloaded from the Client Connector App Store on the Client Connector Portal, made executable with chmod, and installed with sudo ./Zscaler-linux-<version number>-installer.run, leaving the token form empty. It takes the install options --cloudName, --deviceToken, --hideAppUIOnLaunch, --policyToken, --strictEnforcement, --userDomain and --enableFips.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "quotes": [
+            "Download the Zscaler run file from the Zscaler Client Connector App Store on the Zscaler Client Connector Portal.",
+            "sudo chmod a+x Zscaler-linux-<version number>-installer.run",
+            "sudo ./Zscaler-linux-<version number>-installer.run",
+            "Leave the token form empty.",
+            "Replace <install options> with one or more of the following options:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "after": "Replace <install options> with one or more of the following options:",
+          "quotes": [
+            "--cloudName",
+            "--deviceToken",
+            "--hideAppUIOnLaunch",
+            "--policyToken",
+            "--strictEnforcement",
+            "--userDomain",
+            "--enableFips"
+          ]
+        }
+      ]
+    },
+    "option-notes": {
+      "statement": "On Linux, --deviceToken applies only to Zscaler Internet Access (ZIA) and is not supported by Zscaler Private Access (ZPA); --hideAppUIOnLaunch, --strictEnforcement and --enableFips default to 0 (disabled).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "quotes": [
+            "The --deviceToken install option only applies to Zscaler Internet Access (ZIA). It is not supported by Zscaler Private Access (ZPA).",
+            "To enable this option using the CLI, enter --hideAppUIOnLaunch 1. By default, the value is 0 (i.e., disabled).",
+            "To enable this option using the CLI, enter --strictEnforcement 1. By default, the value is 0 (i.e., disabled).",
+            "This install option allows you to enable the Federal Information Processing Standard (FIPS) mode for Zscaler Client Connector. By default, the value is 0 (i.e., disabled)."
+          ]
+        }
+      ]
+    },
+    "debian": {
+      "statement": "The Debian package is a silent installer that does not allow any arguments to pass next to it; installation parameters are configured in interactive or silent mode. The packages are named zscaler-client_<version number>_amd64.deb and zscaler-client-debug_<version number>_amd64.deb; Zscaler recommends installing systemd-coredump first, and a run-file installation must be uninstalled before the Debian package is installed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "quotes": [
+            "The Debian package is a silent installer and does not allow any arguments to pass next to it.",
+            "Configure installation parameters using either interactive or silent mode.",
+            "zscaler-client_<version number>_amd64.deb",
+            "zscaler-client-debug_<version number>_amd64.deb",
+            "Zscaler recommends installing systemd-coredump before installing the Zscaler Client Connector Debian package.",
+            "first uninstall the Zscaler run file before installing the Debian package"
+          ]
+        }
+      ]
+    },
+    "zscaler-config": {
+      "statement": "The zscaler-config script edits the parameters in /opt/zscaler/.config.ini; only administrators can use it to edit the configuration after the Debian package is installed, and it requires root permission. It can be run without parameters (sudo zscaler-config), or with the flags -c Cloud Name, -d User Domain, -f Enable Fips, -h Help, -l hideAppUIOnLaunch, -p User password, -r externalRedirect, -s strictEnforcement, -t policyToken, -T deviceToken, -u username and -w waitForInput.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "quotes": [
+            "The configuration script zscaler-config resolves this issue. This script edits the parameters in this file:",
+            "/opt/zscaler/.config.ini.",
+            "Only administrators can use zscaler-config to edit the parameter configuration after the Debian package is installed on the system and requires root permission.",
+            "Run zscaler-config without parameters (e.g., sudo zscaler-config).",
+            "zscaler-config - [ -c Cloud Name ] [-d User Domain ] [ -f Enable Fips ] [ -h Help] [ -l hideAppUIOnLaunch ] [ -p User password ] [ -r externalRedirect ] [ -s strictEnforcement ] [ -t policyToken ] [ -T deviceToken ] [ -u username ] [ -w waitForInput ]"
+          ]
+        }
+      ]
+    },
+    "rpm": {
+      "statement": "Client Connector for Linux supports the RPM distributions RHEL, Fedora, CentOS and openSUSE. Zscaler_package_installation.sh identifies the distribution and installs the corresponding dependencies, and Zscaler-client-<release version>-1.x86_64.rpm installs the Client Connector binaries. The CLI steps for Client Connector 3.7.1 and later for openSUSE use sudo zypper install zscaler-client-3.7.1.51-1.x86_64.rpm.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "quotes": [
+            "Zscaler Client Connector for Linux supports the following RPM distributions: RHEL, Fedora, CentOS, and openSUSE.",
+            "Zscaler_package_installation.sh: Zscaler Client Connector installation requires different dependencies based on the respective distribution. This script identifies the distribution and installs the corresponding dependencies.",
+            "Zscaler-client-<release version>-1.x86_64.rpm: This file installs Zscaler Client Connector binaries in each system.",
+            "To download and install the CLI version of the RPM Package for Zscaler Client Connector version 3.7.1 and later for Linux, follow these steps:",
+            "For openSUSE, enter sudo zypper install zscaler-client-3.7.1.51-1.x86_64.rpm."
+          ]
+        }
+      ]
+    },
+    "logs": {
+      "statement": "On Linux, tray logs are in <user home>/.Zscaler/Logs, Zscaler system logs in /var/log/zscaler/.Zscaler/Logs, and installer errors in /var/log/zscaler/zscaler-installation.log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-linux.json",
+          "quotes": [
+            "Tray logs: <user home>/.Zscaler/Logs",
+            "Zscaler system logs: /var/log/zscaler/.Zscaler/Logs",
+            "Installer errors: /var/log/zscaler/zscaler-installation.log"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dependency-lists": {
+      "kind": "semantic",
+      "title": "Which dependency list belongs to which Linux distribution",
+      "status": "open",
+      "detail": "The capture flattens the Linux page's tabs, so the per-distribution package dependency lists cannot be read from it; claim distributions names the distributions only.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "config-parameters": {
+      "kind": "semantic",
+      "title": "What externalRedirect, waitForInput, MAPubKey and the -S switch do, and where zscaler-config applies",
+      "status": "open",
+      "detail": "The page lists externalRedirect and waitForInput as zscaler-config flags and its detailed usage also lists -S to disable the sudo keyword inside the scripts, and the RPM parameter list names MAPubKey; the page does not describe what these do, and does not say whether zscaler-config applies to a run-file installation.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

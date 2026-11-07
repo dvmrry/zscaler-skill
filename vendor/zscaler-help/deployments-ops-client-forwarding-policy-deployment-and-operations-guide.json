@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Client Forwarding Policy Deployment and Operations Guide",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-deployments-operations/client-forwarding-policy-deployment-and-operations-guide",
+    "node": "1417936",
+    "revision": "3036751",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide describes the benefits of using Client Forwarding Policy and the steps necessary for configuring Zscaler Private Access (ZPA) to add Client Forwarding policies to your security posture."
+    },
+    {
+      "text": "ZPA evaluates Client Forwarding Policy rules using the most specific application segment and a top-down, first-match principle. The process occurs before ZPA evaluates Access Policy rules. When ZPA finds a match in the Client Forwarding Policy, ZPA disregards other Client Forwarding Policy rules, including conflicts."
+    },
+    {
+      "text": "To learn more, see About Client Forwarding Policy."
+    },
+    {
+      "heading": "Value of Deploying Client Forwarding Policy",
+      "level": 1
+    },
+    {
+      "text": "Using Client Forwarding Policy provides more granular traffic control processing to meet your organization’s needs."
+    },
+    {
+      "heading": "Deployment Phase",
+      "level": 1
+    },
+    {
+      "text": "The deployment phase initially sets up and integrates ZPA solutions into an existing network infrastructure. During the deployment phase, you configure ZPA Client Forwarding Policy to meet the needs of your infrastructure. The following sections discuss steps to deploy ZPA Client Forwarding Policy."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "To use this feature, you must set the Application Segment bypass behavior to Client Forwarding Policy."
+    },
+    {
+      "heading": "Deployment Steps",
+      "level": 2
+    },
+    {
+      "text": "The following steps explain how to deploy ZPA Client Forwarding Policy:"
+    },
+    {
+      "item": "Configure a Client Forwarding Policy.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Set the Application Segment bypass behavior to Use Client Forwarding Policy.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "When creating the Client Forwarding Policy, choose a rule action:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Bypass ZPA: If selected, applications are marked and bypassed for ZPA, and Zscaler Client Connector does not send application requests to ZPA. This setting is the equivalent of selecting Always for the Bypass setting within an application segment. To learn more, see Configuring Application Segments.",
+      "depth": 1
+    },
+    {
+      "item": "Only Forward Allowed Applications: If selected, Zscaler Client Connector learns about and forwards traffic for applications that a user is allowed to access. The Access Policy determines the list of applications to which the user has access. When Zscaler Client Connector sets up a connection to ZPA, the service determines the list of applications that a user can access and downloads this list to Zscaler Client Connector for forwarding traffic to ZPA. Zscaler Client Connector forwards requests for applications not on the list to the local network. Requests for these applications are not logged in ZPA.",
+      "depth": 1
+    },
+    {
+      "item": "Forward to ZPA: If selected, Zscaler Client Connector forwards application requests to ZPA. This includes requests for applications that the user is not authorized to access. By default, these requests are logged in the Diagnostic logs as Policy not configured for access.",
+      "depth": 1
+    },
+    {
+      "item": "Select a criteria option:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Applications",
+      "depth": 1
+    },
+    {
+      "item": "Client Connector Posture Profiles",
+      "depth": 1
+    },
+    {
+      "item": "Client Connect Trusted Networks",
+      "depth": 1
+    },
+    {
+      "item": "Client Types",
+      "depth": 1
+    },
+    {
+      "item": "Machine Groups",
+      "depth": 1
+    },
+    {
+      "item": "Platforms",
+      "depth": 1
+    },
+    {
+      "item": "SAML and SCIM Attribute",
+      "depth": 1
+    },
+    {
+      "heading": "Considerations",
+      "level": 2
+    },
+    {
+      "text": "Review the following considerations:"
+    },
+    {
+      "item": "A Client Forwarding Policy might not be required for some applications. For example, you can configure an application to bypass ZPA when users are on the trusted network directly in the Application Segment settings (without a Client Forwarding Policy). This granularity is helpful for mergers and acquisitions where application access should be granted based on trusted network criteria.",
+      "depth": 0
+    },
+    {
+      "item": "Select Only Forward Allowed Applications if you are setting up a Client Forwarding Policy to use as part of Source IP Anchoring in Zscaler Internet Access (ZIA).",
+      "depth": 0
+    },
+    {
+      "item": "If you have multiple Client Forwarding Policy rules, apply Bypass ZPA and Forward to ZPA rule actions to the same application segment, the Forward to ZPA rule action takes precedence.",
+      "depth": 0
+    },
+    {
+      "item": "For application segments, the bypass setting takes precedence over any new Client Forwarding Policy rule.",
+      "depth": 0
+    },
+    {
+      "heading": "Operations Phase",
+      "level": 1
+    },
+    {
+      "text": "This section describes common practices used to operate Zscaler solutions when integrated with your environment. You can monitor and tune ZPA Client Forwarding Policy during operations to meet your infrastructure needs."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "Ensure that you thoroughly test the Client Forwarding Policy using different forwarding methods (especially when you have defined complex criteria sets)."
+    },
+    {
+      "heading": "Common Troubleshooting Items",
+      "level": 2
+    },
+    {
+      "text": "The following list describes common issues related to Client Forwarding Policy operation:"
+    },
+    {
+      "item": "The Client Forwarding Policy is not successfully applied to the application: This occurs if Only Forward Allowed Applications is selected and an Access Policy allowing access was not created. In this case, the application the user is trying to reach is not present in the list of applications downloaded by Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Another reason could be the configured behavior action does not match the criteria. For example, trusted network detection or posture checks might not match the defined criteria. Zscaler Client Connector re-evaluates posture checks at startup and every 15 minutes thereafter. For Trusted Network, verify that the user's network settings are configured to one of the defined settings in the trusted network criteria.",
+      "depth": 0
+    },
+    {
+      "item": "The criteria are not being met: In this instance, check if the criteria definitions are using either an AND or OR operator. The operator choice could explain why the Client Forwarding Policy criteria are not being met and enforced.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Checklist",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends downloading the Client Forwarding Policy Deployment and Operations Checklist to help plan and implement ZPA Client Forwarding Policy: Download PDF"
+    },
+    {
+      "heading": "Additional Information",
+      "level": 1
+    },
+    {
+      "text": "For more Client Forwarding Policy information and troubleshooting instructions, see the Zscaler Support Portal and the Zscaler Zenith Community."
+    }
+  ]
+}

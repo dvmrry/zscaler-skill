@@ -1,0 +1,43 @@
+name: release-notes
+
+# Every pull request either adds the next version's notes, docs/releases/vX.Y.Z.md, or carries the no-release
+# label. scripts/release-version.sh decides which; the release workflow runs the same script on the merge, so
+# what merges is what review saw. See docs/release.md.
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+      - unlabeled
+
+permissions:
+  contents: read
+
+jobs:
+  release-notes:
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify the release decision
+        env:
+          NO_RELEASE: ${{ contains(github.event.pull_request.labels.*.name, 'no-release') }}
+        run: |
+          set -euo pipefail
+          version="$(bash scripts/release-version.sh HEAD^1 HEAD)"
+          if [[ "$version" == "none" && "$NO_RELEASE" != "true" ]]; then
+            echo "::error::add docs/releases/vX.Y.Z.md (the next version's notes) or the no-release label"
+            exit 1
+          fi
+          if [[ "$version" != "none" && "$NO_RELEASE" == "true" ]]; then
+            echo "::error::this change adds the notes for $version but carries the no-release label"
+            exit 1
+          fi
+          echo "release decision: $version"

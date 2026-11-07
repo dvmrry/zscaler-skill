@@ -1,0 +1,481 @@
+#!/usr/bin/env node
+// gen-log-types.mjs — generate log types from captured help articles: ZIA NSS feeds, ZPA LSS log types and
+// Cloud & Branch Connector NSS feeds.
+//
+// Zscaler publishes each NSS feed format as a help article ("NSS Feed Output Format: Web Logs") whose
+// tables list Field, Description, Example and Insights Logs, one table per field category under its own
+// heading. scripts/help_capture.py keeps the article as vendor/zscaler-help/nss-feed-output-format-<feed>-logs.json
+// (zia-nss-feed-output-format-<feed>-logs.json for the feeds captured later).
+// Each table row becomes a field of references/zia/types/<feed>-log.json, keyed by the NSS token name
+// (`%s{action}` -> `action`), with the Insights column as its label and the row as its evidence, so the
+// validator re-anchors every field against the capture. Type-level metadata (title, names, aliases) is
+// kept from the existing file.
+//
+// ZPA LSS types come from one field-table article per log type, plus the default templates in the LSS API
+// article: a field the default template writes gets `default_format` (its json entry and csv token) and
+// its type is what the json template emits; a field only the template writes is added under its JSON key.
+// The same article's status-code example gives a log type its `status_codes`.
+//
+// Usage: node scripts/gen-log-types.mjs [--check]
+
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { captureText } from "./kb-lib.mjs";
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const check = process.argv.includes("--check");
+
+const FEEDS = {
+  web: { title: "ZIA web log (NSS web feed)", aliases: ["nss web log", "zia web logs", "web insights logs", "zia proxy logs"] },
+  firewall: { title: "ZIA firewall log (NSS firewall feed)", aliases: ["nss firewall log", "zia firewall logs", "firewall insights logs"] },
+  dns: { title: "ZIA DNS log (NSS DNS feed)", aliases: ["nss dns log", "zia dns logs", "dns insights logs"] },
+  "admin-audit": { title: "ZIA admin audit log (NSS admin audit feed)", aliases: ["nss admin audit log", "zia admin audit logs", "zia audit log", "zscalernss-audit"] },
+};
+// The feeds captured since, under the help capture's section prefix. The SaaS Security article has one table per
+// application category and the tunnel article one per record type, with many fields in several, so their fields
+// name the tables they are in.
+const zia = (feed, title, extra = {}) => ({ src: `zia-nss-feed-output-format-${feed}-logs.json`, title: `ZIA ${title} log (NSS ${title} feed)`,
+  aliases: [`nss ${title.toLowerCase()} log`, `zia ${title.toLowerCase()} logs`], ...extra });
+Object.assign(FEEDS, {
+  tunnel: zia("tunnel", "tunnel", { sections: true, aliases: ["nss tunnel log", "zia tunnel logs", "tunnel insights logs"] }),
+  "saas-security": zia("saas-security", "SaaS Security", { sections: true }),
+  "saas-security-activity": zia("saas-security-activity", "SaaS Security Activity"),
+  "endpoint-dlp": zia("endpoint-dlp", "Endpoint DLP"),
+  "email-dlp": zia("email-dlp", "Email DLP"),
+  "sandbox-verdict": zia("sandbox-verdict", "Sandbox Verdict"),
+  authentication: zia("authentication", "authentication"),
+  scim: zia("scim", "SCIM"),
+  "3rd-party-app-governance": zia("3rd-party-app-governance", "3rd-Party App Governance"),
+  "posture-management": zia("posture-management", "Posture Management"),
+});
+
+/** The article's table rows, each with the heading of the table it is in. */
+function tableRows(doc) {
+  const rows = [];
+  let heading = null;
+  for (const b of doc.blocks) {
+    if (b.heading !== undefined) heading = b;
+    if (!b.table) continue;
+    const [header, ...body] = b.table;
+    for (const cells of body) {
+      rows.push({ heading: heading?.heading ?? null, headingLine: heading && `${"#".repeat(heading.level)} ${heading.heading}`,
+        cells: Object.fromEntries(header.map((h, i) => [h.trim(), cells[i] ?? ""])), row: cells });
+    }
+  }
+  return rows;
+}
+
+const TYPES = { s: "string", d: "integer", ld: "integer", f: "number" };
+
+/** The start of the row as the anchoring text writes it. */
+function rowQuote(row) {
+  const line = `| ${row.map((c) => c.replaceAll("|", "\\|")).join(" | ")} |`;
+  let q = line.slice(0, 90);
+  if (q.length === 90) q = q.slice(0, q.lastIndexOf(" ") > 20 ? q.lastIndexOf(" ") : 90);
+  return q.replace(/[\s|]+$/, "");
+}
+
+/** A quote from the row, unique in the text. */
+function quoteFor(row, text) {
+  const q = rowQuote(row);
+  return text.split(q).length === 2 ? q : null;
+}
+
+/** A table's heading as a unique anchor; one shorter than an anchor may be ("# CRM") runs on through the next line. */
+function headingAnchor(headingLine, text) {
+  const at = headingLine ? text.indexOf(`${headingLine}\n`) : -1;
+  if (at === -1) return null;
+  let anchor = headingLine;
+  if (anchor.length < 8) {
+    const end = text.indexOf("\n", at + headingLine.length + 1);
+    anchor = text.slice(at, end === -1 ? undefined : end).slice(0, 320);
+  }
+  return text.split(anchor).length === 2 ? anchor : null;
+}
+
+/** Evidence for a row: its quote, or, where the same row is in several tables, its quote after its table's heading. */
+function rowEvidence(src, row, headingLine, text) {
+  const q = rowQuote(row);
+  if (text.split(q).length === 2) return { source: "zscaler-help", path: src, quotes: [q] };
+  const after = headingAnchor(headingLine, text);
+  if (after && text.indexOf(q, text.indexOf(after)) !== -1) return { source: "zscaler-help", path: src, after, quotes: [q] };
+  return null;
+}
+
+// ZPA Log Streaming Service types: one help article per log type, one Field / Description / Supported
+// Field Format Specifications table. The type comes from the formats the field supports (per the LSS
+// content-format article: %f a float, %d / %x an integer, %s / %j / %J / %o a string, JSON or hash).
+const ZPA = {
+  "user-activity-log": { src: "understanding-user-activity-log-fields.json", lss: "zpn_trans_log", aliases: ["user activity log", "zpa access log", "lss user activity"] },
+  "user-status-log": { src: "understanding-user-status-log-fields.json", lss: "zpn_auth_log", aliases: ["user status log", "zpa auth log"] },
+  "app-connector-status-log": { src: "app-connector-status-log-fields.json", lss: "zpn_ast_auth_log", aliases: ["app connector status log", "connector status log"] },
+  "app-connector-metrics-log": { src: "understanding-app-connector-metrics-log-fields.json", lss: "zpn_ast_comprehensive_stats", aliases: ["app connector metrics log", "connector metrics log"] },
+  "browser-access-log": { src: "browser-access-log-fields.json", lss: "zpn_http_trans_log", aliases: ["browser access log", "zpa http log"] },
+  "audit-log": { src: "understanding-audit-log-fields.json", lss: "zpn_audit_log", aliases: ["zpa audit log", "admin audit log"] },
+  "appprotection-log": { src: "understanding-appprotection-log-fields.json", lss: "zpn_waf_http_exchanges_log", aliases: ["appprotection log", "inspection log", "zpa waf log"] },
+  "private-service-edge-status-log": { src: "private-service-edge-status-log-fields.json", lss: "zpn_sys_auth_log", aliases: ["private service edge status log", "pse status log"] },
+  "private-service-edge-metrics-log": { src: "private-service-edge-metrics-log-fields.json", lss: "zpn_pbroker_comprehensive_stats", aliases: ["private service edge metrics log", "pse metrics log"] },
+  "private-cloud-controller-status-log": { src: "private-cloud-controller-status-log-fields.json", lss: "zpn_sitec_auth_log", aliases: ["private cloud controller status log"] },
+  "private-cloud-controller-metrics-log": { src: "private-cloud-controller-metrics-log-fields.json", lss: "zpn_sitec_comprehensive_stats", aliases: ["private cloud controller metrics log"] },
+  "microsegmentation-flow-log": { src: "microsegmentation-flow-log-fields.json", lss: "zms_flow_log", aliases: ["microsegmentation flow log", "zms flow log"] },
+};
+
+function zpaType(formats) {
+  const kinds = new Set([...formats.matchAll(/%(?:\[[A-Z]+\])?([a-zA-Z])/g)].map((m) => m[1]));
+  return kinds.has("f") ? "number" : kinds.has("d") || kinds.has("x") ? "integer" : "string";
+}
+
+// The vendor's default templates: the LSS API article's "Getting Details of All LSS Log Formats" example
+// response gives, per log type, the tsv, csv and json format a new receiver starts with. The field tables
+// and the templates do not always agree on a field's name (`TimestampUnAuthnetication` in the table,
+// `TimestampUnAuthentication` in the template) and a template can carry fields the table lacks. The
+// json template writes `"Key": %j{Variable}`, and Key is what a JSON consumer sees, so a table field
+// matches a template entry by Key, then by Variable, then either case-insensitively; nothing fuzzier.
+const FORMATS_SRC = "configuring-log-streaming-service-configurations-using-api.json";
+const TOKEN = /%(?:\[[A-Z]+\])?([a-zA-Z])(?:\([^)]*\))?\{([^}:]+)(?::[^}]+)?\}/g;
+const JSON_TYPES = { d: "integer", f: "number", j: "string", s: "string" };
+
+function defaultTemplates() {
+  const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", FORMATS_SRC), "utf8"));
+  const out = {};
+  let on = false;
+  let lss = null;
+  for (const b of doc.blocks) {
+    if (b.heading !== undefined) { on = b.heading.startsWith("Getting Details of All LSS Log Formats"); continue; }
+    if (!on || b.item === undefined) continue;
+    const t = b.item.trim();
+    const key = t.match(/^"(\w+)":\{$/);
+    if (key) { lss = key[1]; out[lss] = { anchor: t, csv: {}, json: [] }; continue; }
+    const fmt = t.match(/^"(csv|json)":"(.*)",?$/);
+    if (!lss || !fmt) continue;
+    if (fmt[1] === "csv") {
+      for (const m of fmt[2].matchAll(TOKEN)) out[lss].csv[m[2]] ??= m[0];
+    } else {
+      // "Key": %j{Var} or "Key": [%j(,){Var}], with the quotes escaped in the capture.
+      const entry = /\\"(\w+)\\":\s*(\[?)(%(?:\[[A-Z]+\])?([a-zA-Z])(?:\([^)]*\))?\{([^}:]+)(?::[^}]+)?\})\]?/g;
+      for (const m of fmt[2].matchAll(entry)) {
+        out[lss].json.push({ key: m[1], variable: m[5], raw: m[0], text: m[0].replaceAll('\\"', '"'), type: m[2] ? "array" : JSON_TYPES[m[4]] || "string" });
+      }
+    }
+  }
+  return { doc, out };
+}
+
+/** The template entry for a table field: by JSON key, then variable, then either ignoring case. */
+function templateEntry(entries, field) {
+  const lower = field.toLowerCase();
+  return entries.find((e) => e.key === field) || entries.find((e) => e.variable === field)
+    || entries.find((e) => e.key.toLowerCase() === lower || e.variable.toLowerCase() === lower);
+}
+
+let stale = 0;
+const write = (target, out, count, skipped) => {
+  const json = JSON.stringify(out, null, 2) + "\n";
+  const rel = path.relative(ROOT, target);
+  if (check) {
+    if (!fs.existsSync(target) || fs.readFileSync(target, "utf8") !== json) { console.error(`${rel} is stale`); stale++; }
+  } else {
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, json);
+    console.log(`wrote ${rel}: ${count} fields${skipped.length ? `; skipped ${skipped.length} rows (${skipped.slice(0, 4).join(", ")})` : ""}`);
+  }
+};
+
+const templates = defaultTemplates();
+const templatesText = captureText(templates.doc.blocks);
+
+/** Evidence for a template entry: its json text, first after the log type's key in the example response. */
+function templateEvidence(tpl, e) {
+  if (templatesText.split(tpl.anchor).length !== 2) return [];
+  return [{ source: "zscaler-help", path: FORMATS_SRC, after: tpl.anchor, quotes: [e.raw] }];
+}
+
+/** How the default template writes a field: its json entry and, when present, its csv token. */
+const defaultFormat = (tpl, e) => ({ json: e.text, ...(tpl.csv[e.variable] ? { csv: tpl.csv[e.variable] } : {}) });
+
+// The status codes: the same article's "Getting Details of All LSS Status Codes" example response lists, per log
+// type, each code with its errorType, name, adminAction and status. A code becomes a `status_codes` entry of the log
+// type it is listed under; the response does not say which field carries it. Its evidence anchors after the code's
+// own line when that line is unique, and otherwise (the same code under several log types) quotes the whole entry
+// after the log type's key.
+const CODE_ATTRS = { errorType: "error_type", name: "name", adminAction: "admin_action", status: "status" };
+
+function statusCodes() {
+  const out = {};
+  let on = false;
+  let depth = 0;
+  let lss = null;
+  let code = null;
+  for (const b of templates.doc.blocks) {
+    if (b.heading !== undefined) { on = b.heading.startsWith("Getting Details of All LSS Status Codes"); continue; }
+    if (!on || b.item === undefined) continue;
+    const t = b.item.trim();
+    const key = t.match(/^"(\w+)":\s*\{$/);
+    if (t === "{") depth++;
+    else if (/^\},?$/.test(t)) depth--;
+    else if (key && depth === 1) { lss = key[1]; out[lss] = { anchor: t, codes: {} }; depth++; }
+    else if (key && depth === 2) { code = key[1]; out[lss].codes[code] = { line: t, attrs: [] }; depth++; }
+    else {
+      const a = t.match(/^"(\w+)":\s*"(.*)",?$/);
+      if (a && depth === 3 && CODE_ATTRS[a[1]]) out[lss].codes[code].attrs.push({ key: CODE_ATTRS[a[1]], value: a[2], line: t });
+    }
+  }
+  const result = {};
+  for (const [name, { anchor, codes }] of Object.entries(out)) {
+    result[name] = {};
+    for (const [c, { line, attrs }] of Object.entries(codes)) {
+      const whole = [line, ...attrs.map((a) => a.line)].join(" - ");
+      const evidence = templatesText.split(line).length === 2
+        ? { source: "zscaler-help", path: FORMATS_SRC, after: line, quotes: attrs.map((a) => a.line) }
+        : whole.length <= 320 && templatesText.split(anchor).length === 2 ? { source: "zscaler-help", path: FORMATS_SRC, after: anchor, quotes: [whole] } : null;
+      if (!evidence) throw new Error(`gen-log-types: status code ${c} under ${name} has no unique anchor`);
+      result[name][c] = { ...Object.fromEntries(attrs.map((a) => [a.key, a.value])), evidence: [evidence] };
+    }
+  }
+  return result;
+}
+const codes = statusCodes();
+
+// The Private Access session status codes article: the codes the User Activity Diagnostics page shows, in one table
+// per class (Error, Info, Policy Block) of Session Status, Internal Reason (the code), Description and Resolution.
+// Each row becomes a `help` entry of the user activity log's code, beside what the LSS API example gives, so where
+// the two disagree on a name or class both are kept; a code the API example lacks is added from the article alone. A
+// code can have more than one row. Each row's evidence anchors after its own status and code cells.
+const SESSION_CODES = { src: "zpa-understanding-private-access-session-status-codes.json", lss: "zpn_trans_log" };
+
+function sessionCodes() {
+  const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", SESSION_CODES.src), "utf8"));
+  const text = captureText(doc.blocks);
+  const cell = (c) => c.replaceAll("|", "\\|"); // as the anchoring text writes a cell
+  const clip = (s) => (s.length <= 320 ? s : s.slice(0, s.lastIndexOf(" ", 320)));
+  const out = {};
+  let cls = null;
+  for (const b of doc.blocks) {
+    const m = b.item?.match(/^The following is a list of (.+) status codes:$/);
+    if (m) { cls = m[1]; continue; }
+    if (!b.table) continue;
+    for (const row of b.table.slice(1)) {
+      const [status, code, description, resolution] = row.map((c) => c.trim());
+      const after = `| ${cell(status)} | ${cell(code)} |`;
+      if (!cls || text.split(after).length !== 2) throw new Error(`gen-log-types: session status code ${code} has no class or no unique anchor`);
+      out[code] ??= [];
+      out[code].push({
+        help: { class: cls, session_status: status, description, ...(resolution ? { resolution } : {}) },
+        evidence: { source: "zscaler-help", path: SESSION_CODES.src, after, quotes: [description, resolution].filter((q) => q.length >= 8).map((q) => clip(cell(q))) },
+      });
+    }
+  }
+  return out;
+}
+for (const [code, rows] of Object.entries(sessionCodes())) {
+  const { evidence = [], ...attrs } = codes[SESSION_CODES.lss][code] ?? {};
+  codes[SESSION_CODES.lss][code] = { ...attrs, help: rows.map((r) => r.help), evidence: [...evidence, ...rows.map((r) => r.evidence)] };
+}
+
+// The ZIA Policy Reasons article: one table of Policy Reason, Feature and Description for the policy actions seen in
+// Insights and NSS reports, the article the web feed's reason field points to. Each row becomes a row of the web log's
+// `policy_reasons` entry for its reason string; a string in more than one row keeps each. A row's evidence anchors
+// after its reason and feature cells, or, where the same pair is in two rows, is the start of its own row.
+const POLICY_REASONS = { src: "zia-policy-reasons.json", feed: "web" };
+
+function policyReasons() {
+  const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", POLICY_REASONS.src), "utf8"));
+  const text = captureText(doc.blocks);
+  const cell = (c) => c.replaceAll("|", "\\|");
+  const clip = (s) => (s.length <= 320 ? s : s.slice(0, s.lastIndexOf(" ", 320)));
+  const out = {};
+  for (const b of doc.blocks) {
+    if (!b.table) continue;
+    const [header, ...body] = b.table;
+    if (header.map((h) => h.trim()).join("|") !== "Policy Reason|Feature|Description") continue;
+    for (const row of body) {
+      const [reason, feature, description] = row.map((c) => c.trim());
+      const after = `| ${cell(reason)} | ${cell(feature)} |`;
+      let evidence = { source: "zscaler-help", path: POLICY_REASONS.src, after, quotes: [clip(cell(description))] };
+      if (text.split(after).length !== 2 || description.length < 8) {
+        const q = clip(`| ${row.map((c) => cell(c.trim())).join(" | ")} |`);
+        if (text.split(q).length !== 2) throw new Error(`gen-log-types: policy reason row "${reason}" has no unique anchor`);
+        evidence = { source: "zscaler-help", path: POLICY_REASONS.src, quotes: [q] };
+      }
+      out[reason] ??= { rows: [], evidence: [] };
+      const r = out[reason];
+      r.rows.push({ feature, description });
+      r.evidence.push(evidence);
+    }
+  }
+  if (!Object.keys(out).length) throw new Error(`gen-log-types: no Policy Reason table in ${POLICY_REASONS.src}`);
+  return out;
+}
+
+for (const [name, meta] of Object.entries(ZPA)) {
+  const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", meta.src), "utf8"));
+  const text = captureText(doc.blocks);
+  const tpl = templates.out[meta.lss];
+  if (!tpl) throw new Error(`gen-log-types: no default template for ${meta.lss} in ${FORMATS_SRC}`);
+  const fields = {};
+  const skipped = [];
+  const used = new Set();
+  for (const { cells, row } of tableRows(doc)) {
+    const field = cells.Field?.trim();
+    if (!field || !/^[\w.:-]+$/.test(field) || fields[field]) { skipped.push(field); continue; }
+    const quote = quoteFor(row, text);
+    const formats = cells["Supported Field Format Specifications"]?.trim() || "";
+    const e = templateEntry(tpl.json, field);
+    if (e) used.add(e);
+    fields[field] = {
+      // The type a default JSON receiver emits; the table's formats otherwise.
+      type: e ? e.type : zpaType(formats),
+      description: cells.Description.trim() + (formats ? ` (LSS formats: ${formats})` : ""),
+      ...(e ? { default_format: defaultFormat(tpl, e) } : {}),
+      evidence: [
+        ...(quote ? [{ source: "zscaler-help", path: meta.src, quotes: [quote] }] : []),
+        ...(e ? templateEvidence(tpl, e) : []),
+      ],
+    };
+    if (!fields[field].evidence.length) delete fields[field].evidence;
+  }
+  // Fields the default template emits that the table does not list, keyed as a JSON consumer sees them.
+  for (const e of tpl.json) {
+    if (used.has(e) || fields[e.key]) continue;
+    fields[e.key] = {
+      type: e.type,
+      description: `Emitted by the default ${meta.lss} template; the field table does not list it.`,
+      default_format: defaultFormat(tpl, e),
+      evidence: templateEvidence(tpl, e),
+    };
+  }
+  const target = path.join(ROOT, "references/zpa/types", `${name}.json`);
+  const prev = fs.existsSync(target) ? JSON.parse(fs.readFileSync(target, "utf8")) : {};
+  write(target, {
+    schema_version: 1,
+    id: `zpa/${name}`,
+    kind: "log",
+    product: "zpa",
+    title: prev.title || `ZPA ${doc.title.replace(/^Understanding /, "").replace(/ Fields$/, "")} (LSS ${meta.lss})`,
+    aliases: prev.aliases || [meta.lss, ...meta.aliases],
+    evidence: [{ source: "zscaler-help", path: meta.src, quotes: [text.split("\n")[0].slice(0, 120).replace(/\s+\S*$/, "")] }],
+    fields,
+    ...(codes[meta.lss] ? { status_codes: codes[meta.lss] } : {}),
+  }, Object.keys(fields).length, skipped);
+}
+
+for (const [feed, meta] of Object.entries(FEEDS)) {
+  const src = meta.src || `nss-feed-output-format-${feed}-logs.json`;
+  const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", src), "utf8"));
+  const text = captureText(doc.blocks);
+  const fields = {};
+  const skipped = [];
+  const sections = {}; // name -> the headings it is under, and each distinct description with its row's evidence
+  for (const { heading, headingLine, cells, row } of tableRows(doc)) {
+    const token = cells.Field?.trim();
+    const m = token?.match(/^%(\d*)([a-z]+)\{([^}]+)\}$/);
+    if (!m) { skipped.push(token); continue; }
+    const name = m[3];
+    const evidence = meta.sections ? rowEvidence(src, row, headingLine, text) : (q => q && { source: "zscaler-help", path: src, quotes: [q] })(quoteFor(row, text));
+    if (meta.sections) {
+      sections[name] ??= { in: [], variants: [] };
+      const s = sections[name];
+      if (!s.in.includes(heading)) s.in.push(heading);
+      if (!s.variants.some((v) => v.description === cells.Description.trim())) s.variants.push({ heading, description: cells.Description.trim(), evidence });
+    }
+    if (fields[name]) { if (!meta.sections) skipped.push(token); continue; } // one entry per token; the first row is the field
+    // The Insights column holds the console column name, or a note ("This field is ...") when there is none.
+    const insights = cells["Insights Logs"]?.trim() || "";
+    const note = /^This field\b/.test(insights);
+    fields[name] = {
+      type: TYPES[m[2]] || "string",
+      ...(insights && !note ? { label: insights } : {}),
+      description: cells.Description.trim() + (note ? ` (Insights: ${insights})` : ""),
+      ...(evidence ? { evidence: [evidence] } : {}),
+    };
+  }
+  // A field under several headings names them; one described differently under some says how, under each.
+  for (const [name, s] of Object.entries(sections)) {
+    const f = fields[name];
+    if (s.variants.length > 1) {
+      f.description = s.variants.map((v) => `${v.heading}: ${v.description}`).join("; ");
+      const evidence = s.variants.map((v) => v.evidence).filter(Boolean);
+      if (evidence.length) f.evidence = evidence;
+    }
+    f.description += ` [${s.in.join(", ")}]`;
+  }
+  const target = path.join(ROOT, "references/zia/types", `${feed}-log.json`);
+  const prev = fs.existsSync(target) ? JSON.parse(fs.readFileSync(target, "utf8")) : {};
+  const out = {
+    schema_version: 1,
+    id: `zia/${feed}-log`,
+    kind: "log",
+    product: "zia",
+    title: prev.title || meta.title,
+    names: prev.names || { nss: feed },
+    aliases: prev.aliases || meta.aliases,
+    evidence: [{ source: "zscaler-help", path: src, quotes: [text.split("\n")[0].slice(0, 120).replace(/\s+\S*$/, "")] }],
+    fields,
+    ...(feed === POLICY_REASONS.feed ? { policy_reasons: policyReasons() } : {}),
+  };
+  write(target, out, Object.keys(fields).length, skipped);
+}
+// Cloud & Branch Connector NSS feeds (API and SDK scope `ztw`): one "NSS Feed Output Format" article per feed,
+// tables of Field (or "Field in Logs"), Description and Example under category headings. The metrics article
+// holds three record kinds, each under its own top-level heading (VM, Instance, Resource) with the same
+// category headings below it, so each kind is its own type. An Events row can carry two tokens
+// (`%s{attr1_name}, %s{attr1_val}`); each token becomes a field.
+const ZTW = {
+  "session-log": { src: "cbc-nss-feed-output-format-session-logs.json", aliases: ["cloud connector session log", "branch connector session log", "cbc session logs"] },
+  "dns-log": { src: "cbc-nss-feed-output-format-dns-logs.json", aliases: ["cloud connector dns log", "branch connector dns log", "cbc dns logs"] },
+  "event-log": { src: "cbc-nss-feed-output-format-event-logs.json", aliases: ["cloud connector event log", "branch connector event log", "cbc event logs"] },
+  "metrics-vm-log": { src: "cbc-nss-feed-output-format-metrics-logs.json", section: "VM", aliases: ["cloud connector vm metrics log", "cbc vm metrics"] },
+  "metrics-instance-log": { src: "cbc-nss-feed-output-format-metrics-logs.json", section: "Instance", aliases: ["cloud connector instance metrics log", "cbc instance metrics"] },
+  "metrics-resource-log": { src: "cbc-nss-feed-output-format-metrics-logs.json", section: "Resource", aliases: ["cloud connector resource metrics log", "cbc resource metrics"] },
+};
+const ZTW_SECTIONS = new Set(["VM", "Instance", "Resource"]);
+
+for (const [name, meta] of Object.entries(ZTW)) {
+  const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", meta.src), "utf8"));
+  const text = captureText(doc.blocks);
+  const fields = {};
+  const skipped = [];
+  let section = null;
+  let heading = null;
+  for (const b of doc.blocks) {
+    if (b.heading !== undefined) {
+      if (ZTW_SECTIONS.has(b.heading)) section = b.heading;
+      heading = b.heading;
+      continue;
+    }
+    if (!b.table || (meta.section && section !== meta.section)) continue;
+    const [header, ...body] = b.table;
+    for (const row of body) {
+      const cells = Object.fromEntries(header.map((h, i) => [h.trim(), row[i] ?? ""]));
+      const tokens = [...(cells.Field ?? cells["Field in Logs"] ?? "").matchAll(/%(\d*)([a-z]*)\{([^}]+)\}/g)]; // one DNS row is written `%{...}`, without a type letter
+      if (!tokens.length) { skipped.push(cells.Field ?? cells["Field in Logs"]); continue; }
+      const quote = quoteFor(row, text);
+      for (const m of tokens) {
+        if (fields[m[3]]) { skipped.push(m[0]); continue; }
+        fields[m[3]] = {
+          type: TYPES[m[2]] || "string",
+          description: `${cells.Description.trim()}${cells.Example?.trim() ? ` (example: ${cells.Example.trim()})` : ""} [${heading}]`,
+          ...(quote ? { evidence: [{ source: "zscaler-help", path: meta.src, quotes: [quote] }] } : {}),
+        };
+      }
+    }
+  }
+  const target = path.join(ROOT, "references/cloud-connector/types", `${name}.json`);
+  const prev = fs.existsSync(target) ? JSON.parse(fs.readFileSync(target, "utf8")) : {};
+  write(target, {
+    schema_version: 1,
+    id: `ztw/${name}`,
+    kind: "log",
+    product: "ztw",
+    title: prev.title || `Cloud & Branch Connector ${doc.title.replace(/^NSS Feed Output Format: /, "").replace(/ Logs$/, "")}${meta.section ? ` (${meta.section})` : ""} log (NSS feed)`,
+    aliases: prev.aliases || meta.aliases,
+    evidence: [{ source: "zscaler-help", path: meta.src, quotes: [text.split("\n")[0].slice(0, 120).replace(/\s+\S*$/, "")] }],
+    fields,
+  }, Object.keys(fields).length, skipped);
+}
+
+if (check) {
+  if (stale) { console.error("run node scripts/gen-log-types.mjs"); process.exit(1); }
+  console.log("log types are current");
+}

@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.runbook.connectivity",
+  "title": "How the App Connector runbook checks Public Service Edge connectivity: Diagnostics filter, MTR, TCP and TLS tests, packet capture TTL and control connection journal lines",
+  "aliases": [
+    "Troubleshooting Public Service Edge connectivity issues"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zpa.app-connectors.runbook" },
+    { "rel": "see-also", "to": "zpa.app-connectors.health" },
+    { "rel": "see-also", "to": "zpa.troubleshooting.diagnostics" },
+    { "rel": "see-also", "to": "zpa.app-connectors.runbook.enrollment" }
+  ],
+  "prose": [
+    {
+      "label": "Console check.",
+      "text": "{{diagnostics-control-connection}}"
+    },
+    {
+      "label": "MTR.",
+      "text": "{{mtr-columns}} {{mtr-loss-rate-limit}}"
+    },
+    {
+      "label": "TCP, TLS and packet capture.",
+      "text": "{{tcp-tls-checks}} {{pcap-handshake}} {{pcap-rst-ttl}} {{ssl-interception-log}} {{divergence:self-signed-log-two-causes}}"
+    },
+    {
+      "label": "Journal lines.",
+      "text": "{{journal-export}} {{broker-control-log-lines}} {{uptime-changes}} {{fohh-counters-example}} {{gap:status-line-meanings}}"
+    }
+  ],
+  "claims": {
+    "diagnostics-control-connection": {
+      "statement": "To check the broker control connection in the Admin Console, go to Logs > Insights > Private Applications > Diagnostics, choose App Connector Status as the Log Type, and filter App Connector: Connection Type Equals Control Connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Go to Logs > Insights > Private Applications > Diagnostics, and select App Connector Status from the Log Type drop-down menu.",
+            "Go to Add Filters and select App Connector: Connection Type from the drop-down menu, then select Equals and Control Connection."
+          ]
+        }
+      ]
+    },
+    "mtr-columns": {
+      "statement": "The runbook's MTR example (mtr -rzwbec100 165.225.112.252) and guidance read Loss% as packet loss per hop, Snt as packets sent, Last/Avg/Best/Wrst as latency in milliseconds, and StDev as the standard deviation of the latencies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "mtr -rzwbec100 165.225.112.252",
+            "The Loss% column shows the percentage of packet loss at each hop.",
+            "The Snt column counts the number of packets sent.",
+            "The Last, Avg, Best, and Wrst columns are all measurements of latency in milliseconds.",
+            "The StDev column provides the standard deviation of the latencies for each host."
+          ]
+        }
+      ]
+    },
+    "mtr-loss-rate-limit": {
+      "statement": "Loss at a single MTR hop can be ICMP rate limiting rather than real loss: some providers rate limit the ICMP traffic MTR uses, and if the subsequent hop shows 0.0% loss it is likely rate limiting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "it is common practice among some service providers to rate limit the ICMP traffic that MTR uses",
+            "take a look at the subsequent hops",
+            "If that hop shows a loss of 0.0%, then you are likely seeing ICMP rate limiting and not actual loss."
+          ]
+        }
+      ]
+    },
+    "tcp-tls-checks": {
+      "statement": "TCP checks to the broker on port 443 use telnet or mtr with --tcp -P443, and a TLS check uses the openssl command; if the earlier command does not present a certificate, the TLS connection is interrupted or a device in the path is doing SSL inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "To check basic connectivity between App Connector and the Broker on port 443, you can use the telnet command.",
+            "mtr -rzwbec100 --tcp -P443 165.225.112.252",
+            "Check if the App Connector can start a TLS connection using the openssl command.",
+            "If the earlier command does not present a certificate, it indicates that the TLS connection is interrupted or a device in the path is doing SSL inspection for this traffic."
+          ],
+          "after": "TCP and TLS Connectivity Check with the Broker"
+        }
+      ]
+    },
+    "pcap-handshake": {
+      "statement": "In a packet capture (sudo tcpdump -i any -w output.pcap) an incomplete TCP handshake while ICMP works points to a firewall blocking TCP to the Broker, on an external device or onboard iptables (checked with sudo iptables -nvL).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "sudo tcpdump -i any -w output.pcap",
+            "Check if the TCP handshake is completed. If not, then something is allowing ICMP, but specifically blocking TCP connection to the Broker. Check the firewall.",
+            "Firewall can mean external device or onboard.",
+            "Usually, iptables is used onboard the App Connector by customers (run sudo iptables -nvL to check)."
+          ],
+          "after": "Start Tcpdump"
+        }
+      ]
+    },
+    "pcap-rst-ttl": {
+      "statement": "When the App Connector sends a TCP SYN and gets a TCP RST from the Broker, the runbook compares 64 - TTL or 128 - TTL of the RST against the MTR hop count; in its example a TTL of 62 or 126 is 2 hops away, and if they do not match the mtr hop count some device in between is blocking the TCP connection and sending a TCP RST.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If TCP SYN is sent from the App Connector and it receives a TCP RST from the Broker, check the IP TTL value of that TCP RST.",
+            "Compare the value of (64 - TTL or 128 - TTL) against the hop count seen in the MTR in previous steps.",
+            "the source of the response is 64-62=2 or 128-126=2 hops away",
+            "If they don't match the mtr hop count",
+            "then some device in between is blocking the TCP connection and sending a TCP RST"
+          ]
+        }
+      ]
+    },
+    "ssl-interception-log": {
+      "statement": "In the connectivity section, the runbook's SSL interception example log shows BEV_EVENT_READING BEV_EVENT_ERROR with 'self signed certificate in certificate chain', and the runbook says to allowlist the Private Access domains or IP addresses on the SSL interception device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "BEV_EVENT_READING BEV_EVENT_ERROR, sock=54 self signed certificate in certificate chain",
+            "you must allowlist all the Private Access domains or IP addresses in the SSL interception device that are listed on config.zscaler.com/private.zscaler.com/zpa"
+          ],
+          "after": "SSL Interception Error"
+        }
+      ]
+    },
+    "journal-export": {
+      "statement": "Connector journal logs are exported with sudo journalctl > dump-of-journalctl.txt, and older App Connector logs are automatically stored in /var/log/messages; the runbook's disk cleanup step also says to prevent Zscaler processes from using syslogd, because journald already stores their logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "[admin@zpa-connector ~]$ sudo journalctl > dump-of-journalctl.txt",
+            "Older App Connector logs are automatically stored in the /var/log/messages file."
+          ],
+          "after": "Log Collection"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Prevent Zscaler processes from using syslogd. journald already stores the logs from Zscaler processes using the following configuration."
+          ]
+        }
+      ]
+    },
+    "broker-control-log-lines": {
+      "statement": "Broker control connections are found in the journal with the keywords 'Broker control connection'; the working example shows state fohh_connection_connected with uptime, RTT (tcp|app) and disconnect_duration_s 0, and the non-working example logs the connection closed with FOHH_CLOSE_REASON_SOCKET_ERR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "You can identify Broker control connections from the journalctl logs using the keywords Broker control connection.",
+            "Example For Working Scenario",
+            "Example For Non-Working Scenario",
+            "Broker control connection, state fohh_connection_connected",
+            "uptime 2D:5H:27M:26S, RTT (tcp|app): 18401|4318 us, disconnect_duration_s 0",
+            ":[136.226.255.228]:443;4 FOHH_CLOSE_REASON_SOCKET_ERR"
+          ],
+          "after": "Broker Connection"
+        }
+      ]
+    },
+    "uptime-changes": {
+      "statement": "The runbook says a change, or frequent changes, in the control connection's uptime indicates the App Connector control channel was down; in its example log the connected uptime rises each minute (33M:8S, 34M:8S, 35M:8S), and the log also shows a close with FOHH_CLOSE_REASON_SOCKET_ERR, a broker_redirect for the control connection, a close with FOHH_CLOSE_REASON_REDIRECT, and a new connection whose uptime is 13S.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If there is a change in uptime of the connection channel or if there are frequent changes in the uptime, this indicates that the App Connector control channel was down.",
+            "uptime 33M:8S, RTT (tcp|app): 66661|48162 us",
+            "uptime 34M:8S, RTT (tcp|app): 65183|12862 us",
+            "uptime 35M:8S, RTT (tcp|app): 69961|19934 us",
+            "Broker control connection to Zscaler Cloud closed: [10.1.81.40]:45316;broker6-1.bom6.prod.zpath.net:[165.225.121.224]:443;4 FOHH_CLOSE_REASON_SOCKET_ERR",
+            "Received broker_redirect for control connection",
+            "FOHH_CLOSE_REASON_REDIRECT",
+            "uptime 13S"
+          ]
+        }
+      ]
+    },
+    "fohh-counters-example": {
+      "statement": "The runbook's Rx/Tx counter example shows log lines for a connection in fohh_connection_connected state with rx = 195538 and tx = 855420 and one in fohh_connection_backoff state with rx, tx and tx_drop at 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "fohh_connection_connected, rx = 195538, peer_tx = 195538, tx = 855420, tx_drop = 0",
+            "fohh_connection_backoff, rx = 0, peer_tx = 0, tx = 0, tx_drop = 0"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "self-signed-log-two-causes": {
+      "summary": "The runbook prints the same journal line, self signed certificate in certificate chain from co2br.prod.zpath.net, as the log for SSL interception and again as the log for an App Connector clock out of sync, so the line alone does not tell the two causes apart.",
+      "positions": [
+        {
+          "says": "The runbook presents the line as what the App Connector prints when an intermediate device performs SSL interception.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Journalcrl Logs for SSL Interception Jul 10 13:58:18 zpa-connector"
+            ]
+          }
+        },
+        {
+          "says": "The runbook presents the same line, under the heading for invalid certificate, as what the App Connector prints when its time is not in sync with the Private Access back-end servers.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Journalcrl Logs for Invalid Certificate Jul 10 13:58:18 zpa-connector"
+            ]
+          }
+        }
+      ],
+      "impact": "Seeing this line in the journal does not by itself show SSL interception; the clock on the connector host is a second cause the runbook gives for it, and the captured page does not say what else distinguishes them."
+    }
+  },
+  "gaps": {
+    "status-line-meanings": {
+      "kind": "semantic",
+      "title": "What the Rx/Tx counters and control connection line fields mean",
+      "status": "open",
+      "detail": "The runbook shows Rx/Tx counters (tx_limit, tx_wnd_update, tx_blocked, enq, deq) and control connection fields (TagPause, WinUpdate, the Redirect counters) without stating their values or meaning. FOHH_CLOSE_REASON_SOCKET_ERR and FOHH_CLOSE_REASON_REDIRECT are shown without a stated meaning beyond the uptime reset.",
+      "resolves_with": ["source-read", "support-ticket"]
+    }
+  }
+}

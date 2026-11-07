@@ -1,0 +1,452 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Best Practices Runbook: Claude Integration",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-apps-infra/best-practices-runbook-claude-integration",
+    "node": "1546954",
+    "revision": "3248773",
+    "updated": "2026-10-23",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides configuration information to support the available tools, plugins, and applications from Anthropic Claude with Zscaler AI Guard. By default, AI Guard supports all Claude tools listed in this article when using Claude version 2.1.101 or later. If using a Claude Code CLI version earlier than 2.1.101 you need to refer to the Enabling Claude Code CLI and Code for VS Code section later in this article."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you have all the following requirements:"
+    },
+    {
+      "item": "Zscaler Client Connector installed and logged in.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler Root Certificate Authority (CA) installed in the Trusted Root Certification Authority store on the device. This is usually done automatically with Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "All Claude applications, tools, extensions, plugins, or add-ons are installed.",
+      "depth": 0
+    },
+    {
+      "item": "SSL Inspection is configured in Zscaler Internet Access (ZIA) for the following Anthropic/Claude domains:",
+      "depth": 0
+    },
+    {
+      "item": ".api.anthropic.com",
+      "depth": 1
+    },
+    {
+      "item": ".claude.ai",
+      "depth": 1
+    },
+    {
+      "heading": "Supported Claude Tools",
+      "level": 1
+    },
+    {
+      "text": "In the following table, Claude apps with the green checkmark (✅) in the Works by Default column do not require any additional steps, so long as the previous prerequisites are followed. The Windows and macOS columns specify Zscaler supports these overall, and whether additional steps are required."
+    },
+    {
+      "table": [
+        [
+          "Claude Tool/Application",
+          "Works by Default",
+          "Windows",
+          "macOS"
+        ],
+        [
+          "Claude Code Desktop",
+          "✅",
+          "✅",
+          "✅"
+        ],
+        [
+          "Claude Cowork (in Claude Code Desktop)",
+          "✅",
+          "✅",
+          "✅"
+        ],
+        [
+          "Claude Code CLI",
+          "✅",
+          "✅",
+          "✅"
+        ],
+        [
+          "Claude Code Visual Studio (VS) Code Extension",
+          "✅",
+          "✅",
+          "✅"
+        ],
+        [
+          "Claude Extension for Chrome",
+          "✅",
+          "✅",
+          "✅"
+        ],
+        [
+          "Claude Extension for Excel",
+          "✅",
+          "✅",
+          "✅"
+        ],
+        [
+          "Claude Extension for Powerpoint",
+          "✅",
+          "✅",
+          "✅"
+        ]
+      ]
+    },
+    {
+      "heading": "Enabling Claude Code CLI and Code for VS Code",
+      "level": 1
+    },
+    {
+      "item": "Windows Instructions",
+      "depth": 0
+    },
+    {
+      "item": "To enable Claude Code CLI and Code for VS Code if you are using a Claude version earlier than 2.1.101, you will need to do the following:",
+      "depth": 0
+    },
+    {
+      "heading": "Obtain the Zscaler Certificate",
+      "level": 2
+    },
+    {
+      "item": "In Windows, go to the Start menu, type cert, and select Manage user certificates.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          22,
+          32
+        ],
+        [
+          56,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "In the Certmgr window, expand Trusted Root Certification Authorities and select Certificates.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          68
+        ],
+        [
+          80,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "Scroll down, right click on Zscaler Root CA. Select All Tasks > Export.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          52,
+          61
+        ],
+        [
+          64,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "In the Certificate Export Wizard, click Next, select Base-64 encoded X.509 (.CER) for the file format and click Next again.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          53,
+          81
+        ],
+        [
+          112,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "Enter a name (such as zscaler.cer) and location, click Next, and then click Finish.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          55,
+          59
+        ],
+        [
+          76,
+          82
+        ]
+      ]
+    },
+    {
+      "heading": "Set User Environment Variable",
+      "level": 2
+    },
+    {
+      "item": "In Windows, open Powershell.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          17,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command, replacing the path with the location of your certificate:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "setx NODE_EXTRA_CA_CERTS=\"/path/to/your/zscaler.cer\"",
+      "depth": 1
+    },
+    {
+      "item": "To verify their certification was set properly, run the following command:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "[System.Environment]::GetEnvironmentVariables([System.EnvironmentVariableTarget]::User)",
+      "depth": 1
+    },
+    {
+      "heading": "Verify Claude Apps",
+      "level": 2
+    },
+    {
+      "item": "Claude Code CLI verification:",
+      "depth": 0
+    },
+    {
+      "item": "Open Powershell.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          5,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Enter and run: claude.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Select yes to allow access.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Enter a prompt. If Claude Code CLI is working, you will receive a response instead of an SSL certificate error, and the traffic will appear in Zscaler.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Claude Code VS Code Extension verification:",
+      "depth": 0
+    },
+    {
+      "item": "Open Visual Studio Code.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          5,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Open any Workspace or file.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Open the Claude Code extension by selecting the Claude icon near the top-right.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          48,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Type a prompt. If Claude Code CLI is working, you will receive a response instead of an SSL certificate error, and the traffic will appear in Zscaler.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "macOS Instructions",
+      "depth": 0
+    },
+    {
+      "item": "To enable Claude Code CLI and Code for VS Code if you are using a Claude version earlier than 2.1.101, you will need to do the following:",
+      "depth": 0
+    },
+    {
+      "heading": "Obtain the Zscaler Certificate",
+      "level": 2
+    },
+    {
+      "item": "On your Mac, go to Keychain Access.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to the My Certificates tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Right-click the Zscaler Root CA and select Export.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          16,
+          31
+        ],
+        [
+          43,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Select a filename and folder to export to.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Select the .pem file format. For Node.js-based tools such as Claude CLI, you need a PEM-formatted certificate.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          11,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "heading": "Set User Environment Variable",
+      "level": 2
+    },
+    {
+      "item": "Open Terminal on MacOS.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          5,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Determine the Shell type using this command: echo $SHELL",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          14,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Open the shell configuration file with a text editor, such as VIM.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "The default on modern MacOS: ~/.zshrc",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Common alternative: ~/.bash_profile",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Add the following line to the shell configuration file, replacing the path with the location of your certificate:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "export NODE_EXTRA_CA_CERTS=\"/path/to/zscaler.pem\"",
+      "depth": 1
+    },
+    {
+      "item": "Save the file and restart Terminal or reload it, based on your shell type:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "source ~/.zshrc",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "source ~/.bash_profile",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Verify the variable is set: echo $NODE_EXTRA_CA_CERTS",
+      "depth": 1,
+      "number": 6
+    }
+  ]
+}

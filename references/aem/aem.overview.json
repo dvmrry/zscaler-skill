@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "id": "aem.overview",
+  "title": "Asset Exposure Management (AEM): the asset inventory, coverage gaps and policies, and what can be automated",
+  "aliases": [
+    "aem",
+    "asset exposure management",
+    "caasm",
+    "cyber asset attack surface management",
+    "golden record",
+    "asset inventory zscaler",
+    "cmdb hygiene",
+    "aem api"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "portfolio.secops-platform",
+      "because": "portfolio.secops-platform:four-apps"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.violation-tickets"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.ticket-grouping-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.ticket-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.policy-violations"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.assets"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.policy-templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.dashboards"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.easm-discovery"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{golden-record}}"
+    },
+    {
+      "label": "What it finds.",
+      "text": "{{coverage-and-cmdb}} {{marketing-missing-assets}} {{remediation-actions}}"
+    },
+    {
+      "label": "Where its data goes.",
+      "text": "{{informs-risk360-uvm}} External attack surface findings merge into it through the platform's EASM integration: [[portfolio.secops-platform:easm-and-predr]]; EASM's own API is in [[easm.api]]."
+    },
+    {
+      "label": "EASM.",
+      "text": "{{easm-native}} {{easm-aem-vs-uvm}} {{easm-cmdb}} {{easm-data-fabric}} {{easm-use-cases}} Discovery profiles are in [[uvm.easm-discovery]]; the separately provisioned EASM tenant's own pages are in [[easm.overview]], whose use cases are [[easm.overview:use-cases]]."
+    },
+    {
+      "label": "Pages and policies.",
+      "text": "Assets: [[aem.assets]]. Policies: [[aem.policies]], with Tool Coverage, CMDB Hygiene and OS End of Life in [[aem.policy-templates]]. Policy violations: [[aem.policy-violations]]. Violation tickets: [[aem.violation-tickets]], with grouping in [[aem.ticket-grouping-rules]] and statuses and workflows in [[aem.ticket-lifecycle]]. Dashboards: [[aem.dashboards]]."
+    },
+    {
+      "label": "Data sources and reports.",
+      "text": "AEM shares the platform's data sources, field mapping and Reporting API: [[portfolio.secops-platform]]."
+    },
+    {
+      "heading": "Automation"
+    },
+    {
+      "text": "{{no-client-surface}} Report export is the only programmatic path a source shows, through [[portfolio.secops-platform:reporting-api]], and its contract is open: [[portfolio.secops-platform:reporting-api-contract]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For automating AEM, use saved reports and the SecOps Reporting API; no captured source or client exposes AEM configuration or a query API.",
+      "uses": [
+        "no-client-surface",
+        "portfolio.secops-platform:reporting-api"
+      ]
+    }
+  ],
+  "claims": {
+    "easm-native": {
+      "statement": "Zscaler integrates EASM natively into the AEM and UVM solutions on the SecOps platform, which the page says gives security teams a single \"golden record\" of all internet-facing assets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-understanding-zscaler-easm-capabilities.json",
+          "quotes": [
+            "Zscaler eliminates this fragmentation by natively integrating External Attack Surface Management (EASM) into the Asset Exposure Management (AEM) and Unified Vulnerability Management (UVM) solutions offered on the Zscaler Security Operations (SecOps) platform.",
+            "This unification provides security teams with a single \"golden record\" of all internet-facing assets"
+          ]
+        }
+      ]
+    },
+    "easm-aem-vs-uvm": {
+      "statement": "On the SecOps platform at Configure > EASM Settings, access to EASM capabilities requires AEM or UVM or both; EASM functionality varies between them, AEM focusing on asset inventory and policy coverage and UVM on managing the associated vulnerabilities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-discovery-settings.json",
+          "quotes": [
+            "In the Zscaler Security Operations (SecOps) platform, go to Configure > EASM Settings.",
+            "To access Zscaler's EASM capabilities, your organization must have either AEM or UVM, or both.",
+            "EASM functionalities vary between these apps, with AEM focusing on asset inventory and policy coverage to reduce overall risk, and UVM simplifying the management of associated vulnerabilities and remediating risks from a centralized platform."
+          ]
+        }
+      ]
+    },
+    "easm-cmdb": {
+      "statement": "The Enhanced CMDB feature uses the AEM policy framework to identify and close security gaps with discovered assets, including adding missing assets to the CMDB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-understanding-zscaler-easm-capabilities.json",
+          "quotes": [
+            "Enhanced CMDB: Leverage the AEM policy framework to identify and close security gaps with discovered assets, including the ability to add missing assets to your Configuration Management Database (CMDB)."
+          ]
+        }
+      ]
+    },
+    "easm-data-fabric": {
+      "statement": "EASM asset data goes through the Zscaler data fabric's processing, such as harmonizing, deduplication and unification.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-understanding-zscaler-easm-capabilities.json",
+          "quotes": [
+            "EASM asset data undergoes the data fabric's processing, such as harmonizing, deduplication, and unification, to lead to more accurate, contextualized, and enriched security insights."
+          ]
+        }
+      ]
+    },
+    "easm-use-cases": {
+      "statement": "The EASM use cases the SecOps platform page lists are Security Posture Management, M&A Diligence, Proactive Brand Protection (lookalike domains and phishing sites) and Continuous Compliance Monitoring.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-understanding-zscaler-easm-capabilities.json",
+          "quotes": [
+            "Built into the SecOps platform, EASM capabilities leverage and benefit from Zscaler's data fabric for security",
+            "Security Posture Management: Zscaler Exposure Management with integrated EASM capabilities provides a unified, comprehensive view of an organization's overall attack surface with enriched data",
+            "M&A Diligence: During mergers and acquisitions, organizations can assess the security posture of the target company's digital footprint",
+            "Proactive Brand Protection: Minimize financial and reputational damage by proactively identifying lookalike domains and phishing sites.",
+            "Continuous Compliance Monitoring: EASM capabilities support compliance efforts by continuously monitoring and reporting on the organization's external assets"
+          ]
+        }
+      ]
+    },
+    "what-it-is": {
+      "statement": "AEM collects and manages asset data from various sources to track asset inventory and coverage, so that organizations can understand their attack surface, create policies, and track and remediate policy violations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-what-zscaler-security-operations.json",
+          "quotes": [
+            "Asset Exposure Management (AEM) enables organizations to collect and manage asset data from various sources to track asset inventory and coverage. It allows organizations to understand their attack surface, create policies, and track and remediate policy violations to reduce overall risk."
+          ]
+        }
+      ]
+    },
+    "golden-record": {
+      "statement": "Zscaler's AEM product page says it gives a high-fidelity \"golden record\" of all assets, a complete, accurate and context-rich asset inventory, and lists multi-source entity deduplication and golden-record creation by correlating all data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "asset-exposure-management-caasm-marketing.json",
+          "quotes": [
+            "Get a high-fidelity “golden record” of all your assets Achieve a complete, accurate, and context-rich asset inventory through a fundamentally different approach to CAASM, empowering you to reduce asset risk like never before.",
+            "Multi-Source Entity Deduplication Synthesize assets reported by multiple disparate tools.",
+            "Asset \"Golden Record\" Creation Correlate all data to create a complete asset view."
+          ]
+        }
+      ]
+    },
+    "coverage-and-cmdb": {
+      "statement": "The product page lists coverage gap identification, with misconfigurations such as assets lacking EDR, inactive asset recognition, and CMDB health features: identifying assets not registered in the CMDB, and discovering assets not previously known but seen in network traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "asset-exposure-management-caasm-marketing.json",
+          "quotes": [
+            "Easily pinpoint potential compliance issues and misconfigurations (e.g., assets lacking EDR, outdated agent versions), and turn them into actionable tasks to enhance your security posture.",
+            "Coverage Gap Identification Understand when proper asset security controls are not sufficient.",
+            "Inactive Asset Recognition Define criteria to identify inactive or decommissioned assets.",
+            "Identify assets not registered in your CMDB or missing owner, location information, or other details.",
+            "Missing Asset Discovery Identify assets not previously known but seen in network traffic."
+          ]
+        }
+      ]
+    },
+    "marketing-missing-assets": {
+      "statement": "Zscaler's AEM product page says that on average Zscaler reveals 20-30% of assets missing from inventory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "asset-exposure-management-caasm-marketing.json",
+          "quotes": [
+            "20-30% of assets missing from inventory are revealed by Zscaler, on average"
+          ]
+        }
+      ]
+    },
+    "remediation-actions": {
+      "statement": "The product page lists CMDB enrichment with missing assets or elements, triggering built-in or custom access policies for risky assets, automated remediation workflows via ticketing systems, and assigning policy violations to the right owner.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "asset-exposure-management-caasm-marketing.json",
+          "quotes": [
+            "CMDB Enrichment Automatically update the CMDB with missing assets or elements.",
+            "Policy Initiation Trigger built-in or custom access policies for risky assets.",
+            "Workflow Creation Initiate automated remediation workflows via ticketing systems.",
+            "Task Assignment Assign policy violations to the right owner with actionable information."
+          ]
+        }
+      ]
+    },
+    "informs-risk360-uvm": {
+      "statement": "The product page's use cases pair accurate vulnerability analysis and risk-based prioritization, from comprehensive asset visibility and context, with a link to UVM, and more accurate attack-surface risk quantification, from a complete understanding of all assets, with a link to Risk360.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "asset-exposure-management-caasm-marketing.json",
+          "quotes": [
+            "Achieve accurate vulnerability analysis and risk-based prioritization with comprehensive asset visibility and context. Learn more about UVM",
+            "Quantify risk for your attack surface far more accurately with complete understanding of all the assets in your organization. Learn more about Risk360"
+          ]
+        }
+      ]
+    },
+    "no-client-surface": {
+      "statement": "No vendored client covers AEM: the Go and Python SDKs, the Terraform providers, the Ansible collections, the MCP server, the OneAPI Postman collection and the captured Automate contract have no AEM, Asset Exposure Management or CAASM service.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "used in your server-side code to interact with the Zscaler API platform across multiple products such as:"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. The Python README's product list (introduced by the quoted line) names no AEM API, and at the pins `git grep -i -E 'asset.exposure|caasm'` finds nothing in the Go or Python SDKs, the ZIA, ZPA, ZCC or ZTC providers, the Ansible collections or the MCP server; the Postman collection has no match. The MCP server's EASM tools and the generated `easm` surface cover External Attack Surface Management, not AEM."
+    }
+  }
+}

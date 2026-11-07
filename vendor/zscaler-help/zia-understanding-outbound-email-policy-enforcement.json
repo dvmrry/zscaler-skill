@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Outbound Email Policy Enforcement",
+  "source": {
+    "url": "https://help.zscaler.com/zia/understanding-outbound-email-policy-enforcement",
+    "node": "1492686",
+    "revision": "3243278",
+    "updated": "2026-08-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler Outbound Email Data Loss Prevention (DLP) lets you monitor and act on sensitive data in outbound email sent to external domains. You can use Zscaler custom and predefined DLP engines to detect sensitive data and to specify DLP actions (i.e., Allow, Block, and Custom Header Insertion) when an email triggers an outbound email policy rule. If you don't use Zscaler DLP engines, the service functions instead as a filter, only flagging content based on specific criteria."
+    },
+    {
+      "text": "At a high level, the Zscaler Outbound Email Policy monitors activity and enforces policy in the following ways:"
+    },
+    {
+      "item": "Secure email gateways (SEG), Gmail, and Microsoft Exchange use Simple Mail Transfer Protocol (SMTP) to send mail to and receive mail from the Zscaler smart host.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service evaulates all outbound email policy rules on a per-recipient basis. If multiple rules match for a recipient, the Zscaler service applies the rule with most restrictive action.",
+      "depth": 0
+    },
+    {
+      "item": "If multiple rules with the same restrictive action match for a recipient, then the Zscaler service matches the rule with most restrictive action and the highest rule order.",
+      "depth": 0
+    },
+    {
+      "item": "Before executing the matching rule, however, the Zscaler service checks whether the matching rule contains any exception rules. When evaluating exception rules, the Zscaler service uses rule order and stops evaluating rules at the first match. A matching exception rule takes the place of the parent rule.",
+      "depth": 0
+    },
+    {
+      "item": "When content triggers outbound email policy rules, the Zscaler service adds headers to those emails and sends them back to the email server for enforcement. Depending on how outbound email policy rules are configured, the headers instruct the email server to take a default action (i.e., allow or block content), or an action mapped to a custom header configured on the server.",
+      "depth": 0
+    },
+    {
+      "text": "As a result, the Zscaler service enforces your outbound email policy at a granular level, meaning that an email with sensitive information sent to multiple users isn't necessarily be blocked outright. Instead, the Zscaler service can allow one user to receive the same email that's blocked for another user."
+    },
+    {
+      "text": "To learn more about configuring your outbound email policy, see Step-by-Step Configuration Guide for Zscaler Outbound Email DLP."
+    },
+    {
+      "heading": "Outbound Email Policy Enforcement Examples",
+      "level": 1
+    },
+    {
+      "text": "Knowing how the Zscaler service applies your policies in different scenarios helps you understand why certain policy rules do or do not trigger based on sensitive content. It also ensures that your organization's data is secured as expected. The following examples provide an overview of how outbound email policy works as part of basic use cases."
+    },
+    {
+      "item": "Example with Basic Rules",
+      "depth": 0
+    },
+    {
+      "item": "Consider the following policy enforcement example that uses Zscaler DLP engines and consists of the following rules:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Rule ID",
+          "Rule Order",
+          "Description",
+          "Content Locations",
+          "User/Group",
+          "Action",
+          "Severity"
+        ],
+        [
+          "R1",
+          "1",
+          "Allow emails from Finance Department that contain HIPAA info",
+          "Email Attachments, Email Body, Email Subject",
+          "Finance",
+          "Allow",
+          "Low"
+        ],
+        [
+          "R2",
+          "2",
+          "Add custom header to emails sent from HR Department that contain PII information",
+          "Email Attachments, Email Body, Email Subject",
+          "HR",
+          "Custom Header Insertion",
+          "Medium"
+        ],
+        [
+          "R3",
+          "3",
+          "Block all emails that contain GLBA information",
+          "Email Attachments, Email Body, Email Subject",
+          "Any",
+          "Block",
+          "High"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          7
+        ],
+        [
+          0,
+          1,
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "heading": "Rules Scenario 1",
+      "level": 2
+    },
+    {
+      "item": "A member of the Finance department emails an attachment that includes HIPAA and GLBA data. The Zscaler service determines the following:",
+      "depth": 0
+    },
+    {
+      "item": "R1 and R3 match. R1 has a higher rule order, but R3 has the most restrictive action.",
+      "depth": 1
+    },
+    {
+      "item": "The Zscaler service executes R3, with an action of Block and a severity of High.",
+      "depth": 1
+    },
+    {
+      "item": "R1 is logged as having matched.",
+      "depth": 1
+    },
+    {
+      "heading": "Rules Scenario 2",
+      "level": 2
+    },
+    {
+      "item": "A member of the HR department emails an attachment that includes HIPAA and PII data. The Zscaler service determines the following:",
+      "depth": 0
+    },
+    {
+      "item": "R2 is matched.",
+      "depth": 1
+    },
+    {
+      "item": "The Zscaler service executes R2, with an action of Custom Header Insertion with a severity of Medium.",
+      "depth": 1
+    },
+    {
+      "item": "No other rules are logged as having matched.",
+      "depth": 1
+    },
+    {
+      "item": "Example with Recipient Profiles",
+      "depth": 0
+    },
+    {
+      "item": "Now, consider the following policy enforcement example that adds recipient profiles, which give you granular control over your outbound email policy (i.e., a single email that contains sensitive data can be allowed for one recipient and blocked for another). To learn more, see About Email Profiles.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Rule ID",
+          "Rule Order",
+          "Description",
+          "Content Locations",
+          "Email Recipient Profile",
+          "User/Group",
+          "Action",
+          "Severity"
+        ],
+        [
+          "R1",
+          "1",
+          "Allow emails that contain HIPAA information sent to benefits.admin@safemarch.com",
+          "Email Attachments, Email Body, Email Subject",
+          "Recipient profile includes benefits.admin@safemarch.com",
+          "Any",
+          "Allow",
+          "Low"
+        ],
+        [
+          "R2",
+          "2",
+          "Add custom header to emails that contain PII information",
+          "Email Attachments, Email Body, Email Subject",
+          "None",
+          "Any",
+          "Custom Header Insertion",
+          "Medium"
+        ],
+        [
+          "R3",
+          "3",
+          "Block all emails that contain GLBA information",
+          "Email Attachments, Email Body, Email Subject",
+          "Recipient profile includes sysadmin@safemarch.com",
+          "Any",
+          "Block",
+          "High"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          7
+        ],
+        [
+          0,
+          1,
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "heading": "Recipient Profiles Scenario",
+      "level": 2
+    },
+    {
+      "item": "An employee emails an attachment that includes HIPAA and GLBA data to two recipients: sysadmin@safemarch.com and benefits.admin@safemarch.com. The Zscaler service determines the following:",
+      "depth": 0
+    },
+    {
+      "item": "R1 matches for benefits.admin@safemarch.com, and R3 matches for sysadmin@safemarch.com. R2 is not matched.",
+      "depth": 1
+    },
+    {
+      "item": "The Zscaler service executes R1 with an action of Allow for the email sent to benefits.admin@safemarch.com.",
+      "depth": 1
+    },
+    {
+      "item": "The Zscaler service executes R3 with an action of Block for the email sent to sysadmin@safemarch.com.",
+      "depth": 1
+    },
+    {
+      "item": "R1 and R3 are both logged as having matched.",
+      "depth": 1
+    },
+    {
+      "item": "Example with Exception Rules",
+      "depth": 0
+    },
+    {
+      "item": "Now, consider the following exception rules to exclude specific users that must perform tasks as part of a necessary workflow that would otherwise violate outbound email policy:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Rule ID",
+          "Rule Order",
+          "Description",
+          "Content Locations",
+          "User/Group",
+          "Action",
+          "Severity"
+        ],
+        [
+          "R1",
+          "1",
+          "Allow emails from the Finance Department that contain HIPAA information",
+          "Email Attachments, Email Body, Email Subject",
+          "Finance",
+          "Allow",
+          "Low"
+        ],
+        [
+          "R2",
+          "2",
+          "Add custom header to emails sent from Finance Department that contain PII information",
+          "Email Attachments, Email Body, Email Subject",
+          "HR",
+          "Custom Header Insertion",
+          "Medium"
+        ],
+        [
+          "R2.1",
+          "2.1",
+          "Exclude Director of HR (Jeff Doyle)",
+          "Email Attachments",
+          "jeffrey.doyle@safemarch.com",
+          "Allow",
+          "Info"
+        ],
+        [
+          "R3",
+          "3",
+          "Block all emails that contain GLBA information",
+          "Email Attachments, Email Body, Email Subject",
+          "Any",
+          "Block",
+          "High"
+        ],
+        [
+          "R3.1",
+          "3.1",
+          "Exclude Executive Director of Finance (Megan Williams)",
+          "Email Attachments, Email Body, Email Subject",
+          "megan.williams@safemarch.com",
+          "Allow",
+          "Info"
+        ],
+        [
+          "R3.2",
+          "3.2",
+          "Exclude Executive Committee",
+          "Email Attachments, Email Body, Email Subject",
+          "Executive Committee",
+          "Custom Header Insertion",
+          "Medium"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          7
+        ],
+        [
+          0,
+          1,
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "heading": "Exception Rules Scenario 1",
+      "level": 2
+    },
+    {
+      "item": "The Director of HR (Jeff Doyle) emails an attachment that includes PII data. The Zscaler service determines the following:",
+      "depth": 0
+    },
+    {
+      "item": "R2 is matchced, with an action of Custom Header Insertion. However, R2 has an exception rule (R2.1) that's also matched.",
+      "depth": 1
+    },
+    {
+      "item": "The Zscaler service executes R2.1, with an action of Allow and a severity of Info.",
+      "depth": 1
+    },
+    {
+      "item": "R2 and R2.1 are logged as having matched.",
+      "depth": 1
+    },
+    {
+      "heading": "Exception Rules Scenario 2",
+      "level": 2
+    },
+    {
+      "item": "The Executive Director of Finance (Megan Williams) sends an email that contains GLBA information in the body text. The Zscaler service determines the following:",
+      "depth": 0
+    },
+    {
+      "item": "R3 matches but has two exception rules. The Zscaler service determines that R3.1 matches and stops evaluating exception rules (even though R3.2 also matches, as Megan Williams is a member of the Executive Committee group).",
+      "depth": 1
+    },
+    {
+      "item": "The Zscaler service executes R3.1, with an action of Allow and a severity of Info.",
+      "depth": 1
+    },
+    {
+      "item": "R3 and R3.1 are logged as having matched.",
+      "depth": 1
+    }
+  ]
+}

@@ -1,0 +1,528 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.surrogate-ip",
+  "title": "Surrogate IP: mapping a private IP to an authenticated user",
+  "aliases": [
+    "surrogate IP",
+    "IP surrogate",
+    "surrogate_ip",
+    "idle_time_in_minutes",
+    "surrogate_ip_enforced_for_known_browsers",
+    "surrogate_refresh_time_in_minutes",
+    "surrogate_refresh_time_unit",
+    "display_time_unit",
+    "enforce_surrogate_ip_for_windows_app",
+    "idle time to disassociation",
+    "wrong user attribution",
+    "NAT surrogate",
+    "VDI surrogate"
+  ],
+  "binds": [
+    "zia/locations"
+  ],
+  "related": [
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.inheritance",
+      "because": "zia.locations.inheritance:surrogate-not-inherited"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.forwarding-control.proxy-ports",
+      "because": "zia.authentication.surrogate-ip:dedicated-port"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.unauthenticated-traffic",
+      "because": "zia.authentication.unauthenticated-traffic:location-policy-fallback"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication.location-enforcement",
+      "because": "zia.authentication.surrogate-ip:provider-checks"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.traffic-forwarding.gre",
+      "because": "zia.authentication.surrogate-ip:no-nat"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.traffic-forwarding.ipsec",
+      "because": "zia.authentication.surrogate-ip:no-nat"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/locations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Surrogate IP is the answer to \"this user is logged in, so why was this request treated as the location?\" It is a per-location opt-in. {{definition}} {{browser-benefit}}"
+    },
+    {
+      "label": "How the mapping behaves.",
+      "text": "{{one-user-at-a-time}} {{churn-disables}}"
+    },
+    {
+      "label": "What it cannot work with.",
+      "text": "{{no-nat}} {{dedicated-port}} {{no-vdi}} {{not-inherited}}"
+    },
+    {
+      "label": "Configuring it.",
+      "text": "{{location-fields}} {{known-browsers}} {{refresh-vs-lease}}"
+    },
+    {
+      "label": "What Terraform rejects.",
+      "text": "{{provider-checks}} {{provider-checks-apply-time}} Other provider behavior for locations is in [[zia.terraform.field-fidelity]]."
+    },
+    {
+      "label": "Windows app traffic.",
+      "text": "{{windows-app-flag}} {{windows-app-setting}} {{windows-app-flag-is-metro}} The page that holds the setting is routed in [[zia.advanced-settings]]."
+    },
+    {
+      "text": "{{fixed-site-recommendation}}"
+    },
+    {
+      "text": "The reference architecture states a lower churn threshold than the help {{divergence:churn-threshold}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The forwarding method, since NAT in the path leaves users without one IP each.",
+      "uses": [
+        "no-nat"
+      ]
+    },
+    {
+      "do": "Whether Enforce Authentication is on for the sublocation the traffic maps to.",
+      "uses": [
+        "zia.authentication.location-enforcement:enforce-authentication"
+      ]
+    },
+    {
+      "do": "Whether the source is a shared or multi-session VDI address.",
+      "uses": [
+        "no-vdi"
+      ]
+    },
+    {
+      "do": "Whether the idle and refresh times are set against the DHCP lease.",
+      "uses": [
+        "refresh-vs-lease",
+        "idle-time-dhcp"
+      ]
+    },
+    {
+      "do": "Whether devices that cannot authenticate, such as printers or servers, sit in a sublocation without Enforce Authentication.",
+      "uses": [
+        "zia.authentication.location-enforcement:sublocation-split",
+        "no-nat"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "Surrogate IP maps a user to a private IP address so the user's policies, rather than the location's, apply to traffic that cannot be authenticated: applications that do not support cookies, HTTPS that is not decrypted, and unknown user agents. All private IPs a user browses from are mapped to the user, and the transactions are attributed to the user in the logs. The mapping is created when the user authenticates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.json",
+          "quotes": [
+            "you can enable the Zscaler surrogate IP service to map a user to a private IP address so it applies the user's policies, instead of the location's policies, to traffic that it cannot authenticate, which includes:",
+            "Applications that do not support cookies, such as Google Earth and SkyDrive.",
+            "HTTPS transactions that are not decrypted.",
+            "Transactions that use unknown user agents.",
+            "If a user browses the internet from multiple private IP addresses, the surrogate IP service maps all the private IP addresses to the user.",
+            "The service also associates the transactions with the user in the logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "When a user authenticates to ZIA, the service makes note of the private IP address in use.",
+            "Any other traffic that ZIA sees coming from the same private IP address is mapped to the user and their applied policies."
+          ]
+        }
+      ]
+    },
+    "browser-benefit": {
+      "statement": "With Surrogate IP a user authenticated in one browser is not asked again in another browser or a non-browser application; with it disabled, authenticating in Chrome then opening Firefox prompts again. Zscaler recommends it for non-browser apps such as Windows Store apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.json",
+          "quotes": [
+            "With surrogate IP, a user can authenticate to the service in one web browser and does not have to authenticate again if they open another web browser or use non-browser applications.",
+            "If you disable this feature, Zscaler cannot tag all user traffic as authenticated after the user has authenticated successfully in at least one web browser.",
+            "For example, if the user authenticates to the Zscaler service in Chrome and opens Firefox, then the user is prompted to authenticate again in Firefox.",
+            "Zscaler recommends that you enable surrogate IP for non-browser apps, such as Windows Store apps."
+          ]
+        }
+      ]
+    },
+    "one-user-at-a-time": {
+      "statement": "A private IP maps to only one user at a time. The mapping is kept until the configured idle time ends, the user logs out of the session or the service, or another user sends authenticated transactions from the same IP, which remaps it to the new user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.json",
+          "quotes": [
+            "The surrogate IP service maps a private IP address to only one user at a time and retains the mapping until:",
+            "The configured idle time ends.",
+            "The user logs out of a session or logs out of the Zscaler service.",
+            "Another user sends authenticated transactions from the same private IP address.",
+            "This service maps the private IP address to a new user if a different user logs in to the Zscaler service from the same private IP address."
+          ]
+        }
+      ]
+    },
+    "churn-disables": {
+      "statement": "If the mapping for an IP changes more than 3 times in a minute (three different users authenticating from the same private IP within a minute), the service stops mapping users to that IP for 5 minutes and applies the location's policies to the transactions that cannot be authenticated during that time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.json",
+          "quotes": [
+            "If the mapping changes more than 3 times a minute",
+            "3 different users log in and surf the internet from the same private IP address within a minute",
+            "the service stops mapping users to the private IP address for 5 minutes and applies location policies to the transactions that do not support authentication during these 5 minutes."
+          ]
+        }
+      ]
+    },
+    "no-nat": {
+      "statement": "Surrogate IP requires one IP per user as the service sees it, so NAT cannot be used: all users behind it look like one address. Supported forwarding is a GRE or IPSec tunnel without NAT, forward proxy chaining with XFF forwarding turned on for the location or sublocation, or a dedicated proxy port, and Enforce Authentication must be on for the location or sublocation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.json",
+          "quotes": [
+            "A GRE or IPSec tunnel without NAT.",
+            "Forward proxy chaining with the Enable XFF Forwarding option turned on for the location or sublocation.",
+            "Your organization subscribes to a dedicated proxy port.",
+            "Also, the location or sublocation must have Enforce Authentication turned on."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Therefore, NAT cannot be used with Surrogate IP, as all users look like they are using the same IP address.",
+            "the system must be able to map single IP addresses to single users."
+          ]
+        }
+      ]
+    },
+    "dedicated-port": {
+      "statement": "On a location with at least one subscribed dedicated proxy port, Surrogate IP maps the public IP address rather than the private one to the user, so user-level policy can apply to remote user traffic that cannot be authenticated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.json",
+          "quotes": [
+            "Additionally, an organization can subscribe to one or more dedicated proxy ports and associate them with a location.",
+            "If you enable this feature on a location with at least one subscribed port, the service maps the public IP address and not the internal or private IP address to the user, so it can apply user-level policies to remote user traffic that it cannot authenticate."
+          ]
+        }
+      ]
+    },
+    "no-vdi": {
+      "statement": "Zscaler does not recommend Surrogate IP with multi-session VDI: every user on the machine shares one private IP, so transactions can be attributed to the wrong user in the logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.json",
+          "quotes": [
+            "Zscaler does not recommend using the surrogate IP service with multi-session Virtual Desktop Infrastructure (VDI) environments because the service maps the same private IP address to all users sharing that virtual machine (VM). This can lead to associating traffic transactions to incorrect users in the Zscaler logs."
+          ]
+        }
+      ]
+    },
+    "not-inherited": {
+      "statement": "Sublocations associated with a location do not inherit its IP Surrogate setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.json",
+          "quotes": [
+            "Enable IP Surrogate: If you enabled Enforce Authentication, select this option if you want to map users to device IP addresses. Any sublocations associated with this location do not inherit this setting."
+          ]
+        }
+      ]
+    },
+    "location-fields": {
+      "statement": "The Terraform location resource carries the Surrogate IP configuration as surrogate_ip, idle_time_in_minutes (user mapping idle time in minutes) with display_time_unit, surrogate_ip_enforced_for_known_browsers, and surrogate_refresh_time_in_minutes with surrogate_refresh_time_unit. Both unit fields accept MINUTE, HOUR or DAY.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "\"surrogate_ip\": {",
+            "Enable Surrogate IP. When set to true, users are mapped to internal device IP addresses.",
+            "\"idle_time_in_minutes\": {",
+            "Idle Time to Disassociation. The user mapping idle time (in minutes) is required if a Surrogate IP is enabled.",
+            "\"display_time_unit\": {",
+            "Display Time Unit. The time unit to display for IP Surrogate idle time to disassociation.",
+            "\"surrogate_ip_enforced_for_known_browsers\": {",
+            "Enforce Surrogate IP for Known Browsers. When set to true, IP Surrogate is enforced for all known browsers.",
+            "\"surrogate_refresh_time_in_minutes\": {",
+            "Refresh Time for re-validation of Surrogacy. The surrogate refresh time (in minutes) to re-validate the IP surrogates.",
+            "\"surrogate_refresh_time_unit\": {",
+            "Display Refresh Time Unit. The time unit to display for refresh time for re-validation of surrogacy."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "after": "\"display_time_unit\": {",
+          "quotes": [
+            "ValidateFunc: validation.StringInSlice([]string{ \"MINUTE\", \"HOUR\", \"DAY\", }, false),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "after": "\"surrogate_refresh_time_unit\": {",
+          "quotes": [
+            "ValidateFunc: validation.StringInSlice([]string{ \"MINUTE\", \"HOUR\", \"DAY\", }, false),"
+          ]
+        }
+      ]
+    },
+    "known-browsers": {
+      "statement": "Enforce Surrogate IP for Known Browsers makes the service authenticate known browsers from the existing IP-to-user mapping even on sites that support cookies, so the browser does not complete HTTP redirects for every transaction (useful on high-latency links). The service authenticates known browsers from the existing mapping rather than waiting for a cookie. When off, browsers are authenticated by cookie or the other configured methods. Supported Authentication Methods must then be Cookie or Cookie and Proxy, and Basic authentication requires Cookie and Proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.json",
+          "quotes": [
+            "the Zscaler service uses existing IP-to-user mapping for authentication even if users go to sites that support cookies.",
+            "This allows the service to authenticate without requiring the browser to complete HTTP redirects for every transaction, ensuring performance for users who connect over high-latency satellite links, for example.",
+            "If the feature is disabled, the service authenticates users on browsers with cookies or other configured authentication mechanisms.",
+            "If you selected Enable Basic Authentication, you must select Cookie and Proxy for IP surrogacy to work.",
+            "in Supported Authentication Methods, select either Cookie or Cookie and Proxy."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "Enforce Surrogate IP for Known Browsers. When set to true, IP Surrogate is enforced for all known browsers."
+          ]
+        }
+      ]
+    },
+    "refresh-vs-lease": {
+      "statement": "The refresh time for re-validating surrogacy must be shorter than the DHCP lease time, otherwise wrong user policies might be applied, and Zscaler recommends a refresh shorter than the Idle Time to Disassociation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.json",
+          "quotes": [
+            "The refresh time for the revalidation of IP surrogacy must be shorter than the DHCP lease time, otherwise, the wrong user policies might be applied.",
+            "Also, Zscaler recommends setting the Refresh Time for re-validation of Surrogacy to a time period shorter than what you specified for Idle Time to Disassociation."
+          ]
+        }
+      ]
+    },
+    "provider-checks": {
+      "statement": "On create and update, the provider rejects: surrogate_ip without an idle time; surrogate_ip without auth_required; enforcing for known browsers without surrogate_ip; and enforcing for known browsers when both the refresh minutes are 0 and the refresh unit is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "surrogate IP requires setting of an idle timeout",
+            "authentication required must be enabled, when enabling surrogate IP",
+            "surrogate IP must be enabled, when enforcing surrogate IP for known browsers",
+            "enforcing surrogate IP for known browsers requires setting of refresh timeout",
+            "loc.SurrogateRefreshTimeInMinutes == 0 && loc.SurrogateRefreshTimeUnit == \"\""
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "after": "func resourceLocationManagementCreate(ctx context.Context",
+          "quotes": [
+            "if err := checkSurrogateIPDependencies(req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "after": "func resourceLocationManagementUpdate(ctx context.Context",
+          "quotes": [
+            "if err := checkSurrogateIPDependencies(req); err != nil {"
+          ]
+        }
+      ]
+    },
+    "windows-app-flag": {
+      "statement": "The provider's advanced settings resource has `enforce_surrogate_ip_for_windows_app`, described as enforcing Surrogate IP authentication for Windows app traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_advanced_settings.go",
+          "quotes": [
+            "\"enforce_surrogate_ip_for_windows_app\": { Type: schema.TypeBool, Optional: true, Computed: true, Description: \"Enforce Surrogate IP authentication for Windows app traffic\","
+          ]
+        }
+      ],
+      "gaps": [
+        "windows-app-scope"
+      ]
+    },
+    "windows-app-setting": {
+      "statement": "In Advanced Settings, under Windows App Traffic Authentication, Enforce Surrogate IP Authentication exists because some Windows 8 Metro apps use Internet Explorer as their user agent but do not support cookies or redirects, so the service does not allow traffic to these sites. Enabling the option allows the service to use the user-to-device mappings to apply the appropriate user policies to the traffic of the top Windows 8 Metro apps, and the Surrogate IP feature must be enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Windows App Traffic Authentication",
+            "Enforce Surrogate IP Authentication: Some Windows 8 Metro apps use Internet Explorer as their user agent but do not support cookies or redirects, so the service does not allow traffic to these sites.",
+            "Enable this option to allow the service to use the user-to-device mappings to apply the appropriate user policies to the traffic of the top Windows 8 Metro apps.",
+            "The Surrogate IP feature must be enabled."
+          ]
+        }
+      ]
+    },
+    "windows-app-flag-is-metro": {
+      "statement": "The provider's enforce_surrogate_ip_for_windows_app flag corresponds to the console's Enforce Surrogate IP Authentication option under Windows App Traffic Authentication, which the page describes for Windows 8 Metro apps.",
+      "tier": "B",
+      "derived_from": [
+        "windows-app-flag",
+        "windows-app-setting"
+      ],
+      "conditions": "Rests on the provider flag's description, Enforce Surrogate IP authentication for Windows app traffic, matching the console section name Windows App Traffic Authentication; no captured source states the mapping between the flag and the console option. The chain gives only that the option is described for Windows 8 Metro apps; it does not establish whether the flag also covers other Windows traffic such as Client Connector."
+    },
+    "provider-checks-apply-time": {
+      "statement": "The Surrogate IP dependency checks run inside the provider's location create and update functions, not in a plan-time diff hook; the plan-time CustomizeDiff on the location resource checks only the manual group exclusion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "after": "func resourceLocationManagementCreate(",
+          "quotes": [
+            "if err := checkSurrogateIPDependencies(req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "after": "func resourceLocationManagementUpdate(",
+          "quotes": [
+            "if err := checkSurrogateIPDependencies(req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "// if d.Get(\"exclude_from_dynamic_groups\").(bool) && d.HasChange(\"dynamic_location_groups\") {",
+            "if d.Get(\"exclude_from_manual_groups\").(bool) && d.HasChange(\"static_location_groups\") {",
+            "static_location_groups cannot be set when exclude_from_manual_groups is set to true",
+            "return nil"
+          ],
+          "after": "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {"
+        }
+      ],
+      "conditions": "Absence claim: `grep -n \"checkSurrogateIPDependencies\\|CustomizeDiff\" zia/resource_zia_location_management.go` at v4.8.17 returns the one CustomizeDiff, the calls in create and update, and the definition, and `grep -rln checkSurrogateIPDependencies zia/` returns only that file. The CustomizeDiff's only live check is exclude_from_manual_groups against static_location_groups; its dynamic-group check is commented out."
+    },
+    "fixed-site-recommendation": {
+      "statement": "The ZIA traffic forwarding reference architecture recommends enabling Surrogate IP for all fixed site locations and for all transparent forwarding types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Zscaler recommends enabling Surrogate IP for all fixed site locations.",
+            "Zscaler recommends enabling Surrogate IP for all transparent forwarding"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "idle-time-dhcp": {
+      "kind": "semantic",
+      "title": "Whether a long idle time attributes a reassigned IP to the previous user",
+      "status": "open",
+      "detail": "Unverified legacy statement: If idle_time_in_minutes is long (for example 480 minutes) and DHCP reassigns the IP within the shift, the next user from that IP inherits the previous user's identity for up to that long, so violations, reports and DLP incidents land on the wrong user. Also, non-browser devices (printers, scanners, servers) behind an IP shared with user workstations cannot authenticate, and their traffic either fails or contaminates another user's Surrogate IP binding. No registered source states this. A lab reassignment of an IP between two machines, with and without the new user authenticating, would settle it. The help article says a new authenticating user remaps the IP and that the refresh time, not the idle time, must be shorter than the DHCP lease.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "setting idle time for DHCP networks"
+    },
+    "windows-app-scope": {
+      "kind": "semantic",
+      "title": "What enforce_surrogate_ip_for_windows_app covers and how it relates to the per-location switch",
+      "status": "partial",
+      "detail": "Unverified legacy statement: The flag extends IP Surrogate attribution to Zscaler Client Connector Windows app traffic, independent of the per-location toggle. No registered source states this. The provider text says only 'Windows app traffic'.",
+      "resolution": "Partly answered: the Advanced Settings page (windows-app-setting) places the option under Windows App Traffic Authentication and describes Windows 8 Metro apps that use Internet Explorer as their user agent without cookie or redirect support; it says the Surrogate IP feature must be enabled. The flag-to-option mapping is a Tier B inference (windows-app-flag-is-metro). Still open: whether the Surrogate IP feature there means the per-location toggle, and whether the flag covers any Client Connector traffic.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "explaining Client Connector traffic attribution"
+    }
+  },
+  "divergences": {
+    "churn-threshold": {
+      "summary": "How much user churn on one IP disables Surrogate IP for 5 minutes: the reference architecture says different users within one minute, the help says the mapping changing more than 3 times a minute.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+            "quotes": [
+              "If ZIA sees different users log in and send traffic from the same IP address within one minute, Surrogate IP is disabled for 5 minutes."
+            ]
+          },
+          "says": "Different users logging in from the same IP within one minute disables Surrogate IP for 5 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-surrogate-ip.json",
+            "quotes": [
+              "If the mapping changes more than 3 times a minute"
+            ]
+          },
+          "says": "The mapping must change more than 3 times a minute (3 different users from the same private IP within a minute) before mapping stops for 5 minutes."
+        }
+      ],
+      "impact": "Reading the reference architecture, two users sharing an IP within a minute would already push unauthenticated traffic to location policy; by the help, it takes three. The help article is the more specific source."
+    }
+  }
+}

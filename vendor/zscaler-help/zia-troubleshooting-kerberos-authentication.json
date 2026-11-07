@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Troubleshooting Kerberos Authentication",
+  "source": {
+    "url": "https://help.zscaler.com/zia/troubleshooting-kerberos-authentication",
+    "node": "1399591",
+    "revision": "3251296",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Kerberos authentication can be affected by some network configuration parameters, such as time synchronization. This article provides guidelines for troubleshooting Kerberos on your domain controller and on your users' devices."
+    },
+    {
+      "text": "There are four major components involved with Kerberos authentication:"
+    },
+    {
+      "item": "Your Zscaler cloud, which includes the Kerberos server (KDC), the Zscaler Central Authority (CA), and the Public Service Edge for Internet & SaaS (ZIA). To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "item": "Your domain controller, which includes a KDC configured to do cross-realm authentication.",
+      "depth": 0
+    },
+    {
+      "item": "Your users' devices, which are joined to your domain and have obtained cross-realm settings from the domain controller through GPO.",
+      "depth": 0
+    },
+    {
+      "item": "A network infrastructure that connects all three of the above components and includes switches, routers, firewalls, etc.",
+      "depth": 0
+    },
+    {
+      "text": "Zscaler recommends that you first troubleshoot Kerberos on your domain controller."
+    },
+    {
+      "text": "To learn more about using Kerberos for your organization, see Understanding Kerberos Authentication."
+    },
+    {
+      "heading": "Troubleshooting on the Domain Controller",
+      "level": 1
+    },
+    {
+      "text": "Before troubleshooting, ensure that the administrator has been provisioned on the Zscaler service as a user so that Kerberos authentication doesn't fail."
+    },
+    {
+      "text": "To troubleshoot Kerberos authentication on your domain controller:"
+    },
+    {
+      "item": "Log in to your domain controller.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Ensure that your domain controller has the correct time and date, as the Kerberos protocol uses timestamps. If the time and date settings on your domain controller differ from the Zscaler KDC by more than five minutes, authentication will fail.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Configure the browser to use Zscaler cloud on port 8800, the default Kerberos authentication port on Public Service Edges. Microsoft Edge and Mozilla Firefox browsers support Kerberos authentication by default.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Open https://www.zscaler.com/. If the page is rendered properly, then the cross-realm settings get configured properly, so you can skip the next step and go to the one after.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "If the cross-realm settings are configured incorrectly, then the Public Service Edge displays a page with an error code.To learn more about the error codes, see Internet & SaaS Error Codes for Kerberos Authentication.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Open Microsoft PowerShell and run the following command to clear the Kerberos ticket cache:",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "klist purge",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "After clearing the Kerberos ticket cache, open https://www.zscaler.com/.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "In Windows PowerShell, run the command klist. If the following three Kerberos ticket-granting tickets (krbtgt) are not displayed when you run klist, then there is an issue with the server of that ticket.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "Zscaler KDC krbtgt ticket: The user device obtains this ticket from your organization's domain controller. This ticket grants access to the Zscaler KDC. If this ticket is not displayed, then the configuration on your KDC might be incorrect. Configure your KDC again.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Your company's KDC krbtgt ticket: The user device obtains this ticket from your organization's domain controller. This ticket grants access to that domain controller. If this ticket is not displayed, then your company's internal KDC is not issuing Zscaler KDC tickets. Contact your company's IT support.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Public Service Edge krbtgt ticket: The user device obtains this ticket from the Zscaler KDC. This ticket grants access to the Public Service Edge. If this ticket is not displayed, then the Public Service Edge is not issuing tickets. Contact Zscaler Support.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Windows PowerShell, run the following command:",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "nltest /domain_trusts",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler domain must be on the domain trusts list as an inbound trust.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Your Zscaler domain name is the same as your Zscaler cloud name. In this example, it is ZSCALERTWO.NET. To learn how you can find your cloud name, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "item": "If you do not see the Zscaler domain in the domain trusts list, you must add it as a trusted domain. To learn more, see Kerberos Trust Relationship Configuration for Windows Server & GPO Push.",
+      "depth": 0
+    },
+    {
+      "item": "If the Zscaler KDC domain is registered correctly, run the following command in Windows PowerShell:",
+      "depth": 0,
+      "number": 10
+    },
+    {
+      "item": "ping kerberos.<Zscaler Cloud>",
+      "depth": 0
+    },
+    {
+      "item": "The IP address displayed must be the Zscaler Central Authority (CA)'s IP address.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If the Zscaler KDC domain has been configured incorrectly, reconfigure the KDC. To learn more, see Kerberos Trust Relationship Configuration for Windows Server & GPO Push.",
+      "depth": 0
+    },
+    {
+      "item": "To check cross-realm configuration:",
+      "depth": 0,
+      "number": 11
+    },
+    {
+      "item": "Log in to the Windows server as administrator. Open the Server Manager and go to DNS. From the Tools menu, choose Active Directory Domains and Trusts.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          81,
+          84
+        ],
+        [
+          114,
+          149
+        ]
+      ]
+    },
+    {
+      "item": "Right-click on your domain and select Properties. In the Properties window, go to the Trusts tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          38,
+          48
+        ],
+        [
+          86,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "Select the Zscaler domain, and then click Properties.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          42,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If the Zscaler domain is not displayed, you must add the Zscaler domain as a trusted domain. To learn more, see Kerberos Trust Relationship Configuration for Windows Server & GPO Push.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that the option The other domain support Kerberos AES Encryption is enabled.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          23,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "There is no way to check the cross-realm password of an added trust. You must delete the domain trust and re-add the trust with the correct password.",
+      "depth": 1
+    },
+    {
+      "item": "To validate the GPO configuration:",
+      "depth": 0,
+      "number": 12
+    },
+    {
+      "item": "Open Windows PowerShell and enter the following command to list the GPO registry value for the Zscaler KDC:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "get-gpregistryvalue -key \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\MitRealms\" -name \"Default Domain Policy\"",
+      "depth": 1
+    },
+    {
+      "item": "Verify the following values:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Value: <k>kerberos.<Zscaler Cloud></k>. In this example, the value is <k>kerberos.zscalertwo.net</k>.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "ValueName: <Zscaler Cloud>. In this example, the value is ZSCALERTWO.NET",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter the following command to list the GPO registry value for the Zscaler domain:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "get-gpregistryvalue -key \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\domain_realm\" -name \"Default Domain Policy\"",
+      "depth": 1
+    },
+    {
+      "item": "Verify the following values:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Value: .<Zscaler Cloud>; .gateway.<Zscaler Cloud>. In this example, the value is .zscalertwo.net; .gateway.zscalertwo.net.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "ValueName: <Zscaler Cloud>. In this example, the value is ZSCALERTWO.NET.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "text": "If the correct values are not displayed, verify your configuration. To learn more, see Kerberos Trust Relationship Configuration for Windows Server & GPO Push."
+    },
+    {
+      "heading": "Troubleshooting on User Devices",
+      "level": 1
+    },
+    {
+      "text": "It is possible for Kerberos authentication to work on the domain controller, but not to work on a user's device. In this case, there might be an error with the GPO settings. You must check if GPO settings have been propagated from the domain controller to users. To learn more, see Kerberos Trust Relationship Configuration for Windows Server & GPO Push."
+    },
+    {
+      "text": "After configuring GPO to push the cross-realm trust to your users, complete the step where you run the command klist purge to clear the Kerberos ticket cache on your user's device to check for the cached Kerberos tickets. Then, complete the rest of the steps to finish troubleshooting on your user's device."
+    }
+  ]
+}

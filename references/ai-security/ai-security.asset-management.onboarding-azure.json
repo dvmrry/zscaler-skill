@@ -1,0 +1,1055 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-management.onboarding-azure",
+  "title": "How is a Microsoft Azure tenant, management group or subscription onboarded to AI Security: roles, templates, network and error fixes?",
+  "aliases": [
+    "onboard azure ai security",
+    "Microsoft Entra tenant onboarding",
+    "azure subscription onboarding ai security",
+    "azure tree discovery template",
+    "azure onboarding template"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management.cloud-accounts"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management.onboarding-aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management.onboarding-gcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.onboarding-azure"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.onboarding-azure-errors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{entra-workflow}} The account-level pages are in [[ai-security.asset-management.cloud-accounts]] and the hub is [[ai-security.asset-management]]. {{gap:entra-details-steps}}"
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{entra-roles}} {{entra-prereqs}} {{subscription-roles}} {{subscription-graph-permissions}} {{tooling-versions}} {{gap:entra-roles-table}}"
+    },
+    {
+      "label": "Tenant details.",
+      "text": "{{tenant-details}} {{service-principal}} {{notification-emails}}"
+    },
+    {
+      "label": "Templates.",
+      "text": "{{tree-discovery-template}} {{tree-discovery-validation}} {{onboarding-template-contents}} {{onboarding-template-prompts-validation}} {{subscription-deploy}}"
+    },
+    {
+      "label": "Orchestrator and monitoring scope.",
+      "text": "{{orchestrator-storage-name}} {{private-endpoint}} {{services-and-mip}} {{region-config}} {{entra-monitoring-scope}} {{custom-tags}} {{evidence-entra}}"
+    },
+    {
+      "label": "Single subscription.",
+      "text": "{{subscription-flow-options}} {{subscription-diag-evidence}} {{target-subscriptions}}"
+    },
+    {
+      "label": "Changes after onboarding.",
+      "text": "{{client-secret-change}} {{client-secret-validation}} {{orchestrator-change-prereq}} {{orchestrator-change-storage-account}} {{orchestrator-change-purge-seed}} {{reset-scope}} {{entra-state-recovery}} {{entra-purge-list}}"
+    },
+    {
+      "label": "IAM roles and permissions.",
+      "text": "{{iam-role-scopes}} {{iam-custom-role-ai-agent}} {{iam-custom-network-conditional}} {{iam-target-conditional-secret}} {{iam-mip-api-permissions}} {{iam-service-principal-graph}} {{gap:iam-ai-agent-notactions}}"
+    },
+    {
+      "label": "Network.",
+      "text": "{{network-vnet-topology}} {{network-subnet-settings}} {{network-us-cloud-ips}} {{network-mip-rules-conditional}} {{network-peering-state}} {{network-template-zip}} {{gap:network-other-clouds}}"
+    },
+    {
+      "label": "Error fixes.",
+      "text": "{{err-role-limit}} {{err-vm-size}} {{err-encryption-at-host}} {{err-state-lock}} {{err-permissions}} {{err-network-ip}} {{err-mgmt-group}} {{err-needs-attention}} {{err-key-import}} {{err-delete-resources}} {{err-rerun}} {{gap:err-rerun-rows}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which roles the signed-in admin needs: for a tenant or management group, Global Administrator at Root plus the tenant or management group roles; for a subscription, the orchestrator-subscription, target-subscription, storage account and Microsoft Entra ID roles.",
+      "uses": [
+        "entra-roles",
+        "subscription-roles"
+      ]
+    },
+    {
+      "do": "Whether the Graph permissions are required or optional for the service principal: the IAM page says all nine it lists are required, while the subscription page marks Application.Read.All and User.Read Mandatory and the other seven Optional.",
+      "uses": [
+        "iam-service-principal-graph",
+        "subscription-graph-permissions"
+      ]
+    },
+    {
+      "do": "The documented fix for the exact error code or message against the error-fix claims before suggesting a rerun.",
+      "uses": [
+        "err-role-limit",
+        "err-vm-size",
+        "err-mgmt-group",
+        "err-rerun"
+      ]
+    }
+  ],
+  "claims": {
+    "tenant-details": {
+      "statement": "In the Microsoft Entra tenant details, the role name and service principal name may contain only letters, numbers, hyphens and underscores; the role name is a prefix for all custom roles created during onboarding; the Management Group ID field (multiple IDs allowed) is visible only when Management Group is selected; up to 30 notification emails can be added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-adding-microsoft-entra-tenant-details.json",
+          "quotes": [
+            "The role name and service principal name must contain only alphabetic characters, numbers, hyphens (\"-\"), and underscores (\"_\").",
+            "Role Name: Enter a unique role name. This role name is added as a prefix to all the custom roles that are created during the onboarding process.",
+            "Management Group ID: Enter the management group ID. You can include multiple management group IDs to onboard the management groups.",
+            "This field is visible only if you select the Management Group for onboarding.",
+            "You can add up to 30 email addresses to receive notifications about the issues."
+          ]
+        }
+      ]
+    },
+    "service-principal": {
+      "statement": "AI Security creates the service principal named in the tenant details in the Microsoft Entra tenant after the tree discovery template is deployed; it defines the access policy and permissions for AI Security to access specific resources within the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-adding-microsoft-entra-tenant-details.json",
+          "quotes": [
+            "AI Security creates a service principal with this name in the Microsoft Entra tenant after deploying the tree discovery template.",
+            "The service principal is used to define the access policy and permissions for AI Security to access specific resources within the tenant."
+          ]
+        }
+      ]
+    },
+    "target-subscriptions": {
+      "statement": "New Azure target subscriptions can be added to an existing onboarded account with the Administrator role or a custom role with the Configure Monitoring Scope permission; the form takes a Subscription ID, an optional Subscription Name and a Business Unit, after which the template is downloaded from Roles and Templates and deployed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-adding-azure-target-subscriptions.json",
+          "quotes": [
+            "You can add new target subscriptions to the existing onboarded Azure account.",
+            "Subscription ID: Enter the subscription ID.",
+            "You must be assigned either an Administrator role or a custom role with the Configure Monitoring Scope permission in the AI Security Admin Portal.",
+            "Subscription Name (Optional): Enter the subscription name.",
+            "Business Unit: Select a business unit for the subscription.",
+            "On the Roles and Templates tab, click Download Template to download and deploy the template."
+          ]
+        }
+      ]
+    },
+    "client-secret-change": {
+      "statement": "The Azure application's client secret has an expiration date and must be renewed for the application to retain AI Security's access; changing it needs the Administrator role or a role with Change Application Details permissions and a new client secret added in the Microsoft Entra tenant first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-client-secret-azure-application.json",
+          "quotes": [
+            "It comes with an expiration date and must be renewed for the application to retain AI Security's access.",
+            "You must be assigned either an Administrator role or any role with Change Application Details permissions in the AI Security Admin Portal.",
+            "Add a new client secret for the application in the Microsoft Entra tenant."
+          ]
+        }
+      ]
+    },
+    "client-secret-validation": {
+      "statement": "Validate in Change Application Details checks the new client secret against the application ID; an invalid secret, or one that does not match the application, produces an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-client-secret-azure-application.json",
+          "quotes": [
+            "AI Security validates the updated client secret by verifying it against the application ID.",
+            "If the client secret is invalid, or it does not match the application, an error is displayed."
+          ]
+        }
+      ]
+    },
+    "orchestrator-change-prereq": {
+      "statement": "Before redeploying the Azure orchestrator template the system's IP address must be added to the Azure storage account and Azure Key Vault IP networks, which is required when multiple users apply Terraform from different IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-azure-orchestrator-subscription.json",
+          "quotes": [
+            "Before redeploying the orchestrator template, you must add your system's IP address to the Azure storage account and Azure Key Vault's IP networks.",
+            "This is required when multiple users need to apply Terraform from different IP addresses."
+          ]
+        }
+      ]
+    },
+    "orchestrator-change-storage-account": {
+      "statement": "The orchestrator storage account name cannot exceed 16 characters; the storage account stores the target subscriptions' activity logs and is created while running the onboarding template; the Deploy private endpoint checkbox restricts communication over public IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-azure-orchestrator-subscription.json",
+          "quotes": [
+            "The storage account name cannot exceed 16 characters.",
+            "This storage account is used to store the activity logs of the target subscriptions. It is created while running the onboarding template.",
+            "Select the Deploy private endpoint for secure communication checkbox to establish a private connection between AI Security and Azure resources.",
+            "This restricts communication over public IP addresses."
+          ]
+        }
+      ]
+    },
+    "orchestrator-change-purge-seed": {
+      "statement": "Before running the template on a new Azure orchestrator subscription the previously deployed template is purged with terraform destroy; terraform.tfvars gets a changed random_seed value which must be reused when deploying new templates; if the resource group was deleted manually, the listed resources are imported and the secrets key vault is purged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-changing-azure-orchestrator-subscription.json",
+          "quotes": [
+            "Before running the template on the new orchestrator subscription, purge the previously deployed template by running the terraform destroy command.",
+            "terraform.tfvars: Change the random_seed value.",
+            "Remember this seed value and use the same value when you deploy new templates.",
+            "If the resource group is manually deleted:",
+            "Import the following resources:",
+            "Select the secrets key vault check box and click Purge."
+          ]
+        }
+      ]
+    },
+    "tree-discovery-template": {
+      "statement": "The Azure tree discovery template creates the service principal, a resource discovery role and managed identities, assigns the service principal permission to access tenant resources, and generates the application ID and client secret; the download is a ZIP with two Terraform files (backend.tf and azure_tf_basic.tf).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-tree-discovery-template.json",
+          "quotes": [
+            "Includes policies and permissions to create the service principal, resource discovery role with required permissions, and managed identities.",
+            "Assigns the service principal with permission to access resources in the Microsoft Entra tenant.",
+            "Generates the application ID and client secret that are required for the service principal to connect to the Microsoft Entra tenant.",
+            "The ZIP file contains two Terraform files (backend.tf and azure_tf_basic.tf)."
+          ]
+        }
+      ]
+    },
+    "tree-discovery-validation": {
+      "statement": "After deploying the tree discovery template, API permissions must be granted to the service principal in the Azure portal; if AI service data collection is enabled the Custom Role (AI Agent) is also assigned to it at subscription level; validation in the Admin Portal uses the application ID and client secret and checks the custom roles created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-tree-discovery-template.json",
+          "quotes": [
+            "4. Grant API permissions in the Azure portal.",
+            "You need to grant API permissions to the service principal to access resources within the tenant.",
+            "If AI service data collection is enabled, assign the Custom Role (AI Agent) to this Tree Discovery service principal at the subscription level.",
+            "AI Security validates the template deployment by verifying the application ID, client secret, and the custom roles created."
+          ]
+        }
+      ]
+    },
+    "onboarding-template-contents": {
+      "statement": "The Azure onboarding template creates custom roles in the tenant for the orchestrator, target and scanner, virtual machine scale sets for the orchestrator instance, storage accounts (blob containers for diagnostic logs and a queue receiving scan requests) and a NAT gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-azure-onboarding-template.json",
+          "quotes": [
+            "Custom role for orchestrator: Custom role for orchestrator instance.",
+            "Custom role for target: Custom role for target accounts.",
+            "Custom role for scanner: Custom role for scanner instance.",
+            "Virtual machine scale sets: Scale sets for orchestrator instance.",
+            "Blob containers for storing diagnostic logs",
+            "Queue to receive scan requests from AI Security. The storage account is created to receive communication from AI Security IPs.",
+            "NAT gateway: Network address translation gateway used to provide outbound internet connectivity to orchestrator or scanner instances."
+          ]
+        }
+      ]
+    },
+    "onboarding-template-prompts-validation": {
+      "statement": "Running terraform apply for the Azure onboarding template prompts for the IPv4 address of the system running Terraform (its public IP); AI Security validates the deployment every hour and Validate takes a couple of minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-deploying-azure-onboarding-template.json",
+          "quotes": [
+            "Enter the IPv4 address from which terraform is being run from: Enter the public IP address of the system on which you are running the template, and press Enter.",
+            "AI Security validates the template deployment every hour by checking the roles created and permissions granted.",
+            "This process takes a couple of minutes to complete."
+          ]
+        }
+      ]
+    },
+    "iam-role-scopes": {
+      "statement": "On Azure, the resource discovery role is assigned at the management group level, the AI Security Access role at the AI Security resource group level, and the target role at the monitoring scope or target subscriptions level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-microsoft-azure.json",
+          "quotes": [
+            "AI Security requires the resource discovery role to identify resources within the onboarded subscriptions. This role is assigned at the management group level and has the following permissions:",
+            "AI Security requires the access role to send data scan requests to the storage account queues that are used by the orchestrator subscription. The role is assigned at the AI Security resource group level and has the following permissions:",
+            "The orchestrator subscription requires the target role to scan the data stores. The role is assigned at the monitoring scope or target subscriptions level and has the following permissions:"
+          ]
+        }
+      ]
+    },
+    "iam-custom-role-ai-agent": {
+      "statement": "The Custom Role (AI Agent) collects data from AI services and is required only when AI service data collection is enabled; it is assigned to the Tree Discovery service principal for each subscription, at subscription level rather than the root management group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-microsoft-azure.json",
+          "quotes": [
+            "The custom role is required to collect data from AI services. Assign this role to the Tree Discovery service principal, created by the Tree Discovery template, for each subscription.",
+            "This role is required only when AI service data collection is enabled.",
+            "Assign the role at the subscription level, not the root management group."
+          ]
+        }
+      ]
+    },
+    "iam-custom-network-conditional": {
+      "statement": "The Azure Custom Network Configuration Role permissions (including network security group join at the orchestrator subscription) are conditional and only required if Custom Network is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-microsoft-azure.json",
+          "quotes": [
+            "Custom Network Configuration Role",
+            "These permissions are conditional and only required if Custom Network is selected.",
+            "| Microsoft.Network/networkSecurityGroups/join/action | Orchestrator Subscription | Actions | To join the Network Security Group of the Custom Network mode |"
+          ]
+        }
+      ]
+    },
+    "iam-mip-api-permissions": {
+      "statement": "For Microsoft Information Protection labeling the orchestrator managed identity needs the application permissions Content.Writer (Azure Rights Management Services) and UnifiedPolicy.Tenant.Read (Microsoft Information Protection Sync Service).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-microsoft-azure.json",
+          "quotes": [
+            "The following API permissions are required for MIP labeling:",
+            "| Azure Rights Management Services | Content.Writer | Orchestrator Managed Identity | Application | To create protected content |",
+            "| Microsoft Information Protection Sync Service | UnifiedPolicy.Tenant.Read | Orchestrator Managed Identity | Application | To read all unified policies of the tenant |"
+          ]
+        }
+      ]
+    },
+    "iam-service-principal-graph": {
+      "statement": "The IAM roles and permissions page says all nine of the following API permissions are required for the AI Security service principal registered in Microsoft Entra ID: Application.Read.All, AuditLog.Read.All, Directory.Read.All, Organization.Read.All, Reports.Read.All, RoleManagement.Read.Directory, RoleManagementPolicy.Read.Directory and UserAuthenticationMethod.Read.All as Application type, and User.Read as Delegate type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-microsoft-azure.json",
+          "quotes": [
+            "The following API permissions are required for the AI Security service principal registered in Microsoft Entra ID:",
+            "| Application.Read.All | Application | To read all applications |",
+            "| AuditLog.Read.All | Application | To read all audit log data |",
+            "| Directory.Read.All | Application | To read directory data |",
+            "| Organization.Read.All | Application | To read organization information |",
+            "| Reports.Read.All | Application | To read all usage reports |",
+            "| RoleManagement.Read.Directory | Application | To read all directory RBAC settings |",
+            "| RoleManagementPolicy.Read.Directory | Application | To read all policies for privileged role assignments of your company's directory |",
+            "| User.Read | Delegate | To sign in and read user profile |",
+            "| UserAuthenticationMethod.Read.All | Application | To read all users' authentication methods |"
+          ]
+        }
+      ]
+    },
+    "iam-target-conditional-secret": {
+      "statement": "The Azure target role's Microsoft.KeyVault/vaults/secrets/getSecret/action is conditional and only required if Custom Network is used with Unmanaged DB Scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-iam-roles-and-permissions-microsoft-azure.json",
+          "quotes": [
+            "| Microsoft.KeyVault/vaults/secrets/getSecret/action | Monitored Subscriptions | DataActions | To get the value of a secret This permission is conditional and only required if Custom Network is used with Unmanaged DB Scanning. |"
+          ]
+        }
+      ]
+    },
+    "network-vnet-topology": {
+      "statement": "A custom Azure network needs a Control Plane VNet created only in the primary region where the orchestrator runs and a Worker Plane VNet in every region where the resources exist, both in the orchestrator subscription, with non-overlapping CIDR ranges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-azure-network.json",
+          "quotes": [
+            "You must configure a custom network in your organization by creating the following virtual networks (VNets) in the orchestrator subscription:",
+            "Control Plane VNet: Create this VNet only in the primary region where the orchestrator is going to run.",
+            "Worker Plane VNet: Create this VNet in all the regions where the resources exist.",
+            "Ensure that both control and worker plane VNets do not have overlapping Classless Inter-Domain Routing (CIDR)."
+          ]
+        }
+      ]
+    },
+    "network-subnet-settings": {
+      "statement": "In the manual worker plane VNet procedure the subnet gets the service endpoints Microsoft.KeyVault, Microsoft.Sql and Microsoft.Storage.Global with Network Policy for Private Endpoints set to Disabled; Azure PostgreSQL Server scanning needs a network security group and a subnet delegated to Microsoft.DBforPostgreSQL/flexibleServers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-azure-network.json",
+          "quotes": [
+            "To enable the scanning for Azure PostgreSQL Server, you must configure a network security group for Azure PostgreSQL Server, and then create a delegated subnet:",
+            "Subnet Delegation section, from the Delegate subnet to a service drop-down menu, select Microsoft.DBforPostgreSQL/flexibleServers, then click Add."
+          ],
+          "after": "2. Create the worker plane VNet."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-azure-network.json",
+          "quotes": [
+            "Microsoft.KeyVault",
+            "Microsoft.Sql",
+            "Microsoft.Storage.Global",
+            "In the Network Policy for Private Endpoints section, select Disabled, then click Save."
+          ],
+          "after": "2. Create the worker plane VNet."
+        }
+      ]
+    },
+    "network-us-cloud-ips": {
+      "statement": "The control plane network security group's allow-outbound rule to AI Security lists, for the US Cloud, destination IPs 35.164.218.12, 34.208.206.171, 52.42.215.70, 35.84.226.159, 52.40.209.233 and 54.191.175.18.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-azure-network.json",
+          "quotes": [
+            "Destination IP addresses/CIDR ranges: Enter the IP addresses for US Cloud:",
+            "35.164.218.12",
+            "34.208.206.171",
+            "52.42.215.70",
+            "35.84.226.159",
+            "52.40.209.233",
+            "54.191.175.18"
+          ],
+          "after": "Allow outbound communication from the orchestrator to AI Security"
+        }
+      ]
+    },
+    "network-mip-rules-conditional": {
+      "statement": "The outbound rules to Microsoft Information Protection (service tags AzureInformationProtection, AzureActiveDirectory, AzureFrontDoor.Frontend, AzureFrontDoor.FirstParty) are required if Microsoft Information Protection labeling is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-azure-network.json",
+          "quotes": [
+            "The following outbound rules are required if Microsoft Information Protection labeling is enabled:",
+            "Destination service tag: Select AzureInformationProtection from the drop-down menu.",
+            "Destination service tag: Select AzureActiveDirectory from the drop-down menu.",
+            "Destination service tag: Select AzureFrontDoor.Frontend from the drop-down menu.",
+            "Destination service tag: Select AzureFrontDoor.FirstParty from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "network-peering-state": {
+      "statement": "After the Azure VNet peering is configured, the Peering state becomes Connected and the Sync status Fully Synchronized; the VNet peering step is common to manual and template-based configurations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-azure-network.json",
+          "quotes": [
+            "After the peering is successfully configured, the Peering state is updated to Connected and the Sync status to Fully Synchronized.",
+            "This step is common for both manual and template-based configurations."
+          ]
+        }
+      ]
+    },
+    "network-template-zip": {
+      "statement": "The Azure network template is azure_network_components.zip, containing control-plane and worker-plane folders.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-configuring-azure-network.json",
+          "quotes": [
+            "The azure_network_components.zip file contains two folders: control-plane and worker-plane."
+          ],
+          "after": "Deploy Predefined Templates"
+        }
+      ]
+    },
+    "entra-roles": {
+      "statement": "To onboard a Microsoft Entra tenant or management group: Global Administrator at Root; for a tenant, User Access Administrator at Root; for a management group, Contributor on the orchestrator subscription and User Access Administrator on the management group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-microsoft-entra-tenant-or-management-group.json",
+          "quotes": [
+            "| Tenant or Management group | Global Administrator | Root |",
+            "| Tenant | User Access Administrator | Root |",
+            "| Management group | Contributor | Orchestrator subscription |",
+            "| User Access Administrator | Management group |  |"
+          ]
+        }
+      ]
+    },
+    "entra-prereqs": {
+      "statement": "Entra onboarding requires the Standard_D2s_v3 VM type in the orchestrator region, Access management for Azure resources enabled, and the Microsoft.Storage resource provider registered in the orchestrator subscription so AI Security can validate the storage account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-microsoft-entra-tenant-or-management-group.json",
+          "quotes": [
+            "Virtual machine instance type: Ensure that you have the Standard_D2s_v3 virtual machine instance type in the region where the orchestrator template must be deployed.",
+            "Access management: Enable Access management for Azure resources.",
+            "Register the Microsoft Azure Storage Resource Provider (Microsoft.Storage) in the subscription within which the orchestrator template is deployed.",
+            "This is required for AI Security to validate the storage account created while onboarding."
+          ]
+        }
+      ]
+    },
+    "entra-workflow": {
+      "statement": "Onboarding a Microsoft Entra tenant includes providing tenant details, deploying the tree discovery template, selecting the orchestrator subscription and monitoring scope, and deploying the onboarding template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-microsoft-entra-tenant-or-management-group.json",
+          "quotes": [
+            "Provide Microsoft Entra tenant details.",
+            "Select the orchestrator subscription and monitoring scope.",
+            "Deploy the onboarding template.",
+            "Deploy the tree discovery template."
+          ]
+        }
+      ]
+    },
+    "tooling-versions": {
+      "statement": "The Azure subscription page lists Terraform, Azure CLI and shell versions per environment (Mac, Cloud Shell Bash and PowerShell, Windows command line and PowerShell).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-subscription.json",
+          "quotes": [
+            "| Mac | v1.10.3 | 2.65.0 | version 3.2.57(1)-release (arm64-apple-darwin23) |",
+            "| Cloud Shell - Bash | v1.9.5 | 2.65.0 | version 5.1.8(1)-release (x86_64-pc-linux-gnu) |",
+            "| Cloud Shell - PowerShell | v1.9.5 | 2.65.0 | 7.4.5 |",
+            "| Windows - Command line | v1.7.5 | 2.67.0 | NA |",
+            "| Windows - PowerShell | v1.9.8 | 2.67.0 | 7.4.6 |"
+          ]
+        }
+      ]
+    },
+    "entra-state-recovery": {
+      "statement": "Terraform state files are needed to manage resources created by the AI Security templates and to upgrade to new templates; if they are lost or deleted, purge the resources, then download and rerun the onboarding templates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-microsoft-entra-tenant-or-management-group.json",
+          "quotes": [
+            "The state files are required to manage resources created by the AI Security Terraform templates and to upgrade to new templates.",
+            "If the state files are lost or accidentally deleted, purge the resources, download and rerun the onboarding templates."
+          ]
+        }
+      ]
+    },
+    "entra-purge-list": {
+      "statement": "Purging Entra onboarding resources includes deleting the auth-plane, worker-plane and control-plane resource groups, purging the z-ais secrets key vaults, deleting the access, analyzer and orchestrator roles on orchestrator subscriptions, the target role on target subscriptions, and the service principal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-microsoft-entra-tenant-or-management-group.json",
+          "quotes": [
+            "z-ais-{integration-id}-auth-plane-rg",
+            "z-ais-{integration-id}-worker-plane-rg",
+            "z-ais-{integration-id}-control-plane-rg",
+            "z-ais-{integration-id}-secrets",
+            "<role_name>-access-role",
+            "<role_name>-analyzer-role",
+            "<role_name>-orchestrator-role",
+            "Delete <role_name>-target-role from all the target subscriptions.",
+            "Delete the service principal created:"
+          ]
+        }
+      ]
+    },
+    "subscription-graph-permissions": {
+      "statement": "For an Azure subscription, Microsoft Graph permissions Application.Read.All (Application) and User.Read (Delegated) are mandatory; AuditLog.Read.All, Directory.Read.All, Organization.Read.All, Reports.Read.All, RoleManagement.Read.Directory, RoleManagementPolicy.Read.Directory and UserAuthenticationMethod.Read.All are optional, and entitlements are affected if the optional ones are not configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-subscription.json",
+          "quotes": [
+            "| Application.Read.All | Mandatory | Application | Read all applications |",
+            "| User.Read | Mandatory | Delegated | Sign in and read user profile |",
+            "| AuditLog.Read.All | Optional | Application | Read all audit log data |",
+            "| Directory.Read.All | Optional | Application | Read directory data |",
+            "| Organization.Read.All | Optional | Application | Read organization information |",
+            "| Reports.Read.All | Optional | Application | Read all usage reports |",
+            "| RoleManagement.Read.Directory | Optional | Application | Read all directory RBAC settings |",
+            "| RoleManagementPolicy.Read.Directory | Optional |",
+            "| UserAuthenticationMethod.Read.All | Optional |",
+            "Entitlements are affected if the optional API permissions are not configured.",
+            "You must have the Privileged Role Administrator role in the Microsoft Entra ID to grant API permissions."
+          ]
+        }
+      ]
+    },
+    "subscription-roles": {
+      "statement": "To deploy the Azure subscription templates: User Access Administrator, Contributor and Key Vault Administrator on the orchestrator subscription; User Access Administrator on target subscriptions; Storage Account Contributor on the storage account; Application Administrator in Microsoft Entra ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-subscription.json",
+          "quotes": [
+            "| Orchestrator subscription | User Access Administrator Contributor Key Vault Administrator |",
+            "| Target subscriptions | User Access Administrator |",
+            "| Storage account | Storage Account Contributor |",
+            "| Microsoft Entra ID | Application Administrator |"
+          ]
+        }
+      ]
+    },
+    "orchestrator-storage-name": {
+      "statement": "For Entra tenant onboarding the orchestrator Storage Account Name must be unique and cannot exceed 16 characters; AI Security shows an error if the name already exists, validating uniqueness if Microsoft.Storage is registered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-selecting-orchestrator-and-monitoring-scope.json",
+          "quotes": [
+            "Storage Account Name: Enter a unique name for the storage account.",
+            "AI Security validates the uniqueness of the storage account name if Microsoft.Storage is registered.",
+            "The storage account name cannot exceed 16 characters.",
+            "If the storage account name already exists, AI Security displays an error message."
+          ]
+        }
+      ]
+    },
+    "private-endpoint": {
+      "statement": "The Deploy private endpoint checkbox sets up a private connection between AI Security and Azure resources, restricting communication over public IP addresses; it can be set or removed after onboarding via Manage Private Endpoint, and with it terraform apply must run from a VM with network line-of-sight to the key vaults.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-selecting-orchestrator-and-monitoring-scope.json",
+          "quotes": [
+            "Select the Deploy private endpoint for secure communication checkbox to establish a private connection between AI Security and Azure resources. This restricts communication over public IP addresses.",
+            "You can also establish or remove the private connection after onboarding the tenant.",
+            "If you select a private endpoint, ensure that terraform apply is executed from a VM with a network line-of-sight to the key vaults.",
+            "On the Overview page, select Manage Private Endpoint from the Manage drop-down menu, and then select or deselect the checkbox."
+          ]
+        }
+      ]
+    },
+    "services-and-mip": {
+      "statement": "On Entra tenant onboarding all services are selected by default and AI Security's permissions are restricted to the selected services; Leverage MIP Label lets AI Security apply Microsoft Information Protection sensitivity labels to Azure File Share, and storage accounts used for logs are excluded automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-selecting-orchestrator-and-monitoring-scope.json",
+          "quotes": [
+            "By default, all the services are selected.",
+            "Select the Leverage MIP Label checkbox to allow AI Security to apply Microsoft Information Protection (MIP) sensitivity labels to Azure File Share.",
+            "AI Security automatically excludes Azure Storage accounts used for storing logs.",
+            "AI Security permissions are restricted to monitor and scan the data only in the selected services."
+          ]
+        }
+      ]
+    },
+    "region-config": {
+      "statement": "Per monitored region the Entra flow takes Subnet ID, Network Security Group ID, an optional Postgres Delegated Subnet ID (only if Database was selected) and a Storage Account Resource ID; the option to use your own existing storage account for scanning logs is only available if Storage was selected, and resources are deployed only in selected regions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-selecting-orchestrator-and-monitoring-scope.json",
+          "quotes": [
+            "This option is available only if Storage was selected on the Select which services to monitor page.",
+            "Postgres Delegated Subnet ID: (Optional) Enter the Postgres subnet ID for the scanner instance. This option is available only if Database was selected on the Select which services to monitor page.",
+            "AI Security creates and deploys resources required for scanning only in the selected regions.",
+            "Remember the regions that you selected as you need to specify them while deploying the orchestrator template.",
+            "Subnet ID: Enter the subnet where the scanner instances must be launched.",
+            "Network Security Group ID: Enter the network security group for the scanner instance.",
+            "Storage Account Resource ID: Enter the storage account name or account resource ID where you want to store the scanning logs.",
+            "If you want to use your own existing storage account for scanning logs, disable this option and provide storage account details for each region."
+          ]
+        }
+      ]
+    },
+    "entra-monitoring-scope": {
+      "statement": "In the Entra monitoring scope, selecting the management group scans all its subscriptions and Autodetection at management group level includes new subscriptions added later; all subscriptions in the group map to one business unit, a default business unit is assigned initially and can be changed after onboarding.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-selecting-orchestrator-and-monitoring-scope.json",
+          "quotes": [
+            "Select the management group if all subscriptions must be scanned.",
+            "Select Autodetection at the management group level if you want AI Security to automatically include and scan new subscriptions that are added to the management group in the future.",
+            "All the subscriptions within the management group are mapped to the selected business unit.",
+            "The default business unit is assigned to the management group.",
+            "You can change the business unit for the management group if required, after completing the onboarding process."
+          ]
+        }
+      ]
+    },
+    "custom-tags": {
+      "statement": "Up to 15 tags can be added to Private DNS zone resources, and values that are only numerical do not count toward the 15-tag limit; Managed Identity resources get only predefined tags.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-selecting-orchestrator-and-monitoring-scope.json",
+          "quotes": [
+            "You can add up to 15 tags to Private DNS zone resources.",
+            "If only numerical values are included in the tag, they do not count towards the 15-tag limit, allowing for additional tags to be added.",
+            "For Managed Identity, only predefined tags are added."
+          ]
+        }
+      ]
+    },
+    "evidence-entra": {
+      "statement": "In Entra onboarding the evidence storage account container cannot be changed once added; a Custom Managed Container needs Storage Account Resource ID, Container Name and a Key Vault Resource ID used to encrypt the evidence data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-selecting-orchestrator-and-monitoring-scope.json",
+          "quotes": [
+            "The storage account container cannot be changed after it is added.",
+            "Custom Managed Container",
+            "Storage Account Resource ID: The resource ID of the storage account.",
+            "Key Vault Resource ID: The resource ID of the key vault. This key vault is used to encrypt the evidence data in the container.",
+            "Container Name: The name of the container."
+          ]
+        }
+      ]
+    },
+    "subscription-flow-options": {
+      "statement": "In single Azure subscription onboarding the network configuration is Custom (the organization's resources, requiring Subnet ID and Network Security Group ID) or Zscaler (Zscaler's resources); the optional Postgres Delegated Subnet ID is available only if a database is selected in Configure Services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-subscription.json",
+          "quotes": [
+            "Custom: Select to use your organization's resources to deploy the orchestrator.",
+            "Zscaler: Select to use Zscaler resources to deploy the orchestrator.",
+            "Network Security Group ID: Enter the network security group for the orchestrator instance.",
+            "This option is available only if the database is selected on the Configure Services section.",
+            "Subnet ID: Enter the subnet where the orchestrator instances must be launched.",
+            "Postgres Delegated Subnet ID: (Optional) Enter the Postgres subnet ID for the scanner instance."
+          ]
+        }
+      ]
+    },
+    "subscription-diag-evidence": {
+      "statement": "For Azure subscriptions, diagnostic logs identify new, modified or deleted files in monitored storage accounts and without them only full scans are supported; evidence is stored in a Custom container or an Automated one created in the orchestrator account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-subscription.json",
+          "quotes": [
+            "Diagnostic logs are used to identify new, modified, or deleted files from monitored storage accounts. If not configured, only full scans are supported.",
+            "Custom: Use an existing storage account container to configure evidence data.",
+            "Automated: AI Security creates a storage container in the orchestrator account to upload the snippet of evidence data."
+          ]
+        }
+      ]
+    },
+    "subscription-deploy": {
+      "statement": "Azure template deployment prompts for the public IPv4 address of the system running Terraform; AI Security validates the deployment every hour by checking the roles created and permissions granted, and Validate takes a couple of minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-subscription.json",
+          "quotes": [
+            "Enter the IPv4 address from which terraform is being run from: Enter the public IP address of the system on which you are running the template, and press Enter.",
+            "AI Security validates the template deployment every hour by checking the roles created and permissions granted.",
+            "Click Validate to verify if the template is deployed. This process takes a couple of minutes to complete."
+          ]
+        }
+      ]
+    },
+    "notification-emails": {
+      "statement": "The optional Notification Emails field takes up to 30 addresses to notify of configuration or permissions issues with the onboarded tenant, and addresses can be added after onboarding.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-subscription.json",
+          "quotes": [
+            "You can add up to 30 email addresses to receive notifications about the issues.",
+            "You can also add email addresses after completing the onboarding process.",
+            "Notification Emails (Optional): Enter the email addresses of the recipients who must be notified of any configuration or permissions issues encountered with the onboarded tenant."
+          ]
+        }
+      ]
+    },
+    "reset-scope": {
+      "statement": "To reset the orchestrator or monitoring scope subscriptions after deploying the onboarding template, run terraform destroy to purge the template and delete the resources it created, then Reset, Confirm, configure new subscriptions and deploy the onboarding template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resetting-orchestrator-monitoring-scope.json",
+          "quotes": [
+            "run the terraform destroy command to purge the template and delete any resource that was created.",
+            "In the Reset Configured Subscription window, click Confirm.",
+            "Deploy the onboarding template.",
+            "If you want to reset the orchestrator or monitoring scope subscriptions after deploying the onboarding template",
+            "Configure new subscriptions."
+          ]
+        }
+      ]
+    },
+    "err-role-limit": {
+      "statement": "The Azure error Code RoleAssignmentLimitExceeded (No more role assignments can be created) means the role assignment limit is exceeded; the documented fix is to delete any custom role to make room.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resolving-configuration-issues-microsoft-azure.json",
+          "quotes": [
+            "Code=\"RoleAssignmentLimitExceeded\" No more role assignments can be created",
+            "The limit for role assignment is exceeded. Delete any custom role to accommodate new requests."
+          ]
+        }
+      ]
+    },
+    "err-vm-size": {
+      "statement": "If the Standard_D2s_v3 VM size is unavailable in the region (Capacity Restrictions), run terraform destroy, download the Azure Onboarding template, and set primary_region in terraform.tfvars to a region where Standard_D2s_V3 is available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resolving-configuration-issues-microsoft-azure.json",
+          "quotes": [
+            "Standard_D2s_v3' is currently not available in location '<region name>'.",
+            "Run the terraform destroy command to delete any resources created post the template deployment.",
+            "For primary_region, enter a region where Standard_D2s_V3 size is available.",
+            "From the Roles and Templates tab, download the Azure Onboarding template. Extract the template to a new folder and edit the terraform.tfvars file."
+          ]
+        }
+      ]
+    },
+    "err-encryption-at-host": {
+      "statement": "The InvalidParameter error that securityProfile.encryptionAtHost is not valid because the Microsoft.Compute/EncryptionAtHost feature is not enabled is fixed by registering the EncryptionAtHost feature with az feature register.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resolving-configuration-issues-microsoft-azure.json",
+          "quotes": [
+            "az feature register --name EncryptionAtHost --namespace Microsoft.Compute",
+            "The property 'securityProfile.encryptionAtHost' is not valid because the 'Microsoft.Compute/EncryptionAtHost' feature is not enabled for this subscription."
+          ]
+        }
+      ]
+    },
+    "err-state-lock": {
+      "statement": "The Terraform error that the state blob is already locked is fixed with terraform force-unlock using the lock ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resolving-configuration-issues-microsoft-azure.json",
+          "quotes": [
+            "Error acquiring the state lock Error message: state blob is already locked",
+            "Run terraform force-unlock <ID>"
+          ]
+        }
+      ]
+    },
+    "err-permissions": {
+      "statement": "Documented permission fixes: grant API permissions to the service principal when admin consent has not been granted; enable access management for Azure resources for your ID on an AuthorizationFailed role assignment error; assign Key Vault Administrator when the caller is not authorized to perform the action on the key vault secret.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resolving-configuration-issues-microsoft-azure.json",
+          "quotes": [
+            "Admin consent has not been granted to the necessary APIs. Please provide consent to the necessary APIs.",
+            "Grant API permissions to the service principal.",
+            "Caller is not authorized to perform action on resource.",
+            "Ensure that you have enabled access management for Azure resources for your ID.",
+            "Ensure that you have the Key Vault Administrator role assigned."
+          ]
+        }
+      ]
+    },
+    "err-network-ip": {
+      "statement": "A key vault key error on control-plane-cmk (client address not authorized) is fixed by rerunning with the correct IP; an AuthorizationFailure on a storage queue is fixed by adding your system's IP address to the storage account and key vault IP networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resolving-configuration-issues-microsoft-azure.json",
+          "quotes": [
+            "Client address is not autorized and caller is not a trusted service.",
+            "Rerun the template with the correct IP.",
+            "Add your system's IP address to the Azure storage account and Azure key vault's IP networks."
+          ]
+        }
+      ]
+    },
+    "err-mgmt-group": {
+      "statement": "The ManagementGroupNotFound error while deploying the Tree Discovery template is fixed by correcting the Management Group ID in Tenant Details (Reset, edit, Apply) and redeploying the Tree Discovery template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resolving-configuration-issues-microsoft-azure.json",
+          "quotes": [
+            "Code=\"ManagementGroupNotFound\" Message=\"The management group 'resource_group_name' cannot be found.\"",
+            "Check and provide the correct management group ID.",
+            "In the Tenant Details section, check the entered Management Group ID. Click Reset to edit the fields. Enter the correct management group ID. Click Apply.",
+            "In the Connect to the Tenant section, download and deploy the Tree Discovery template."
+          ]
+        }
+      ]
+    },
+    "err-needs-attention": {
+      "statement": "If an account moves to Needs Attention while the template is deploying, wait for AI Security's next validation or run the on-demand validation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resolving-configuration-issues-microsoft-azure.json",
+          "quotes": [
+            "While deploying the template, the account moves to the Needs Attention state.",
+            "Wait for AI Security's next validation or run the on-demand validation."
+          ]
+        }
+      ]
+    },
+    "err-key-import": {
+      "statement": "A key vault key that already exists (control-plane-cmk or worker-plane-cmk) is fixed with terraform import of the azurerm_key_vault_key cmk_key resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resolving-configuration-issues-microsoft-azure.json",
+          "quotes": [
+            "Run terraform import \"module.control_plane.module.encryption_key.azurerm_key_vault_key.cmk_key\"",
+            "Run terraform import \"module.worker_plane[\"region\"].module.encryption_key.azurerm_key_vault_key.cmk_key\""
+          ]
+        }
+      ]
+    },
+    "err-delete-resources": {
+      "statement": "The Azure error CannotDeleteResource (a private DNS zone cannot be deleted while nested resources exist) is fixed by deleting the resources manually in the Azure portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resolving-configuration-issues-microsoft-azure.json",
+          "quotes": [
+            "CannotDeleteResource: Cannot delete resource while nested resources exist.",
+            "Cannot delete resource while nested resources exist. Please delete all nested resources before deleting this resource. | Delete the resources manually in the Azure portal. |"
+          ]
+        }
+      ]
+    },
+    "err-rerun": {
+      "statement": "For these errors the documented resolution is to rerun the template: RoleDefinitionWithSameNameExists, ContainerOperationFailure (container being deleted), VMAgentStatusCommunicationError, InternalDiskManagementError, RoleAssignmentUpdateNotPermitted, KeyVaultAuthenticationFailure and StorageFailure/EncryptionScopeNotAvailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-resolving-configuration-issues-microsoft-azure.json",
+          "quotes": [
+            "RoleDefinitionWithSameNameExists: A custom role with the same name already exists in this directory. Use a different name. | Rerun the template. |",
+            "ContainerOperationFailure: The specified container is being deleted. Try operation later. | Rerun the template. |",
+            "that it can establish outbound connections to Azure storage. Please refer to https://aka.ms/vmextensionlinuxtroubleshoot for additional VM agent troubleshooting information.\" | Rerun the template. |",
+            "Status: \"InternalDiskManagementError\"",
+            "An unexpected error occured while processing disk. Please retry later.\" | Rerun the template. |",
+            "Message=\"Tenant ID, application ID, principal ID, and scope are not allowed to be updated.\" | Rerun the template. |",
+            "KeyVaultAuthenticationFailure: The operation failed because of authentication issue on the keyvault. | Rerun the template. |",
+            "Status: \"StorageFailure/EncryptionScopeNotAvailable\"",
+            "Error while creating storage object\" | Rerun the template. |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "entra-details-steps": {
+      "kind": "semantic",
+      "title": "What do the Entra tenant details and tree discovery template steps of the tenant or management group page contain?",
+      "status": "resolved",
+      "detail": "The capture of the Entra tenant or management group onboarding page ends after its four-step list, so the tenant ID and management group ID fields and the template contents of those steps are not in it; the tenant-details and tree-discovery pages are quoted separately.",
+      "resolution": "The four steps are separate captured pages, quoted in tenant-details, tree-discovery-template, tree-discovery-validation, region-config, onboarding-template-contents and onboarding-template-prompts-validation.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "entra-roles-table": {
+      "kind": "semantic",
+      "title": "Which Azure role applies at which scope beyond the rows quoted for Entra onboarding?",
+      "status": "open",
+      "detail": "The Entra roles table is flattened in the capture: the Key Vault Administrator row and the orchestrator subscription entries lose their column alignment, so scopes beyond the quoted rows cannot be read from the text.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "iam-ai-agent-notactions": {
+      "kind": "semantic",
+      "title": "Why does the Custom Role (AI Agent) table list one MachineLearningServices permission as notActions?",
+      "status": "open",
+      "detail": "The Azure IAM page's Custom Role (AI Agent) table lists Microsoft.MachineLearningServices/workspaces/*/read with type notActions while the other rows are DataActions, and the page does not explain it.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "network-other-clouds": {
+      "kind": "semantic",
+      "title": "Which orchestrator destination IPs apply to Zscaler clouds other than US Cloud in the Azure network rules?",
+      "status": "open",
+      "detail": "The Azure network page gives an address list only for US Cloud; searching its text found no list for other Zscaler clouds, and the scope of the orchestrator IP list is not otherwise defined. Security rule priorities are given rule by rule on the page and are not recorded here.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "err-rerun-rows": {
+      "kind": "semantic",
+      "title": "Which remaining Azure errors resolve with Rerun the template?",
+      "status": "partial",
+      "detail": "Five more rerun rows are now quoted in err-rerun. Rows still unquoted include OSProvisioningTimedOut, the two connection-reset rows (Disk Encryption Set, service principal), the Role not found pending-state row, KeyVaultAccessForbidden and the second ManagementPolicyNotFound row, because their cells carry escaped characters or repeat text.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

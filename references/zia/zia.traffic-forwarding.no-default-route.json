@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.no-default-route",
+  "title": "ZIA in a no-default-route network: PAC options, tunnels and where the SLA stops",
+  "aliases": [
+    "no default route",
+    "no-default-route architecture",
+    "implementing zscaler without a default route",
+    "static routes to zscaler hub range"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.interoperability.no-default-route"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.pac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.proxy-mode.explicit"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{definition}} Client Connector enrollment in these networks is in [[zcc.interoperability.no-default-route]]."
+    },
+    {
+      "label": "Reaching the PAC files.",
+      "text": "{{pac-fetch-port-and-ranges}}"
+    },
+    {
+      "label": "Serving the PAC file locally.",
+      "text": "{{local-pac}}"
+    },
+    {
+      "label": "Where the SLA does not apply.",
+      "text": "{{sla-exclusions}}"
+    },
+    {
+      "label": "PAC with tunnels.",
+      "text": "{{pac-and-tunnel}} The Global Public Service Edge addresses are in [[zia.traffic-forwarding.gre:explicit-via-global-edges]]."
+    },
+    {
+      "label": "Servers and SOCKS.",
+      "text": "{{servers-and-socks}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before promising the Zscaler SLA in a no-default-route design, whether proxy addresses are hard-coded, explicit traffic goes through tunnels, or servers use the gateway DNS names (where the page cites Microsoft caching DNS responses beyond the TTL), and that the page also says data center address ranges are subject to change.",
+      "uses": [
+        "sla-exclusions"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "In a no-default-route architecture, although an individual client machine might have a default route configured, the edge router does not automatically forward all traffic upstream through the default route; it allows only specific devices to access the internet through static routes. Web browser traffic is explicitly sent to a proxy using a PAC file served through a local web server, through the proxy itself, or through Microsoft's Web Proxy Auto-Discovery (WPAD) protocol.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-implementing-zscaler-no-default-route-environments.json",
+          "quotes": [
+            "although an individual client machine might have a default route configured, the edge router does not automatically forward all traffic upstream through the default route. Instead, it allows only specific devices to access the internet through static routes.",
+            "In this architecture, web browser traffic is explicitly sent to a proxy using a PAC file that is served through a local web server, through the proxy itself, or through the use of Microsoft's Web Proxy Auto-Discovery (WPAD) protocol."
+          ]
+        }
+      ]
+    },
+    "pac-fetch-port-and-ranges": {
+      "statement": "A web browser fetches PAC files over port 80, and Zscaler publishes the PAC IP addresses for a cloud as part of the Zscaler Hub IP address range (config.zscaler.com/<Zscaler Cloud Name>/hubs); the range can be used to define static routes and firewall rules that allow access to the PAC files, including the proxy port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-implementing-zscaler-no-default-route-environments.json",
+          "quotes": [
+            "A web browser fetches PAC files over port 80, and Zscaler publishes the PAC IP addresses for a cloud as part of the Zscaler Hub IP address range.",
+            "You can use the IP address range to define static routes and firewall rules to allow access to the PAC files, including the proxy port.",
+            "(config.zscaler.com/<Zscaler Cloud Name>/hubs)"
+          ]
+        }
+      ]
+    },
+    "local-pac": {
+      "statement": "PAC files can be served locally, but additional configurations are needed to provide dynamic failover and protect users outside the corporate network; the page highly recommends that the PAC file path resolve to the internal PAC file when inside the network and to the Zscaler PAC file server when outside. Zscaler does not recommend the internal PAC file only option for remote users because they are unprotected when using it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-implementing-zscaler-no-default-route-environments.json",
+          "quotes": [
+            "You can serve PAC files locally, but additional configurations are needed to provide dynamic failover and protect users outside the corporate network.",
+            "ensure that the PAC file path resolves to the internal PAC file when inside the network, and to the Zscaler PAC file server when outside the network (which is highly recommended).",
+            "Zscaler does not recommend the internal PAC file only option for remote users because they are unprotected when using it."
+          ]
+        }
+      ]
+    },
+    "sla-exclusions": {
+      "statement": "The article says the Zscaler SLA does not apply in these scenarios: dynamic failover is not possible because proxy addresses are hard-coded (including for the internally served PAC file); dynamic failover is not available through the use of the tunnels; and there are known issues with Microsoft caching DNS responses in violation of the TTL returned, though the SLA can be acceptable for server traffic. It adds that data center address ranges are subject to change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-implementing-zscaler-no-default-route-environments.json",
+          "quotes": [
+            "The Zscaler SLA does not apply in this scenario because dynamic failover is not possible if proxy addresses are hard-coded.",
+            "The Zscaler SLA does not apply in this scenario because dynamic failover is not possible if proxy addresses are hard-coded for the internally served PAC file.",
+            "The Zscaler SLA does not apply in this scenario because dynamic failover is not available through the use of the tunnels.",
+            "The Zscaler SLA does not apply in this scenario because there are known issues with Microsoft caching the DNS responses in violation of the Time to Live (TTL) returned. However, the Zscaler SLA can be acceptable for server traffic.",
+            "Additionally, data center address ranges are subject to change."
+          ],
+          "after": "Zscaler does not recommend the internal PAC file only option"
+        }
+      ]
+    },
+    "pac-and-tunnel": {
+      "statement": "In the Zscaler architecture a Public Service Edge processes traffic destined for any Service Edge in the cloud. PAC files can point to an internal IP address that is destination NATed to a Zscaler data center and forwarded over the configured GRE or IPSec tunnels, or can be hard-coded with a specific Global Public Service Edge IP address forwarded through the tunnel by policy-based routing; these Public Service Edge IP addresses are dummy addresses that every Public Service Edge is aware of and terminates the traffic for.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-implementing-zscaler-no-default-route-environments.json",
+          "quotes": [
+            "In the Zscaler architecture, a Public Service Edge processes traffic that is destined for any Service Edge in the cloud.",
+            "PAC files can point to an internal IP address that is then destination NATed to a Zscaler data center and forwarded over the configured Generic Routing Encapsulation (GRE) or Internet Protocol Security (IPSec) tunnels.",
+            "PAC files can be hard-coded with a specific Global Public Service Edge IP address that can be forwarded through the tunnel through policy-based routing (PBR).",
+            "These Public Service Edge IP addresses are dummy IP addresses. Every Public Service Edge is aware of them and terminates the destined traffic."
+          ]
+        }
+      ]
+    },
+    "servers-and-socks": {
+      "statement": "Servers that cannot use PAC files can use special DNS names such as gateway.zscalertwo.net and secondary.gateway.zscalertwo.net, which resolve to available data centers based on the source IP address of the DNS resolver, and should also have static routes to allow access to the Zscaler data center ranges. Other protocols such as SOCKS, traditionally used in no-default-route architectures to send non-proxy-aware protocols via a proxy, should be handled differently; in many cases they can be sent directly to the internet or configured to use a standard proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-implementing-zscaler-no-default-route-environments.json",
+          "quotes": [
+            "Servers that cannot use PAC files can use special DNS names such as gateway.zscalertwo.net and secondary.gateway.zscalertwo.net.",
+            "they resolve to available data centers based on the source IP address of the DNS resolver",
+            "You should also define static routes to allow access to the Zscaler data center ranges.",
+            "Other protocols, such as SOCKS, which have traditionally been used in no-default route architectures to send non-proxy-aware protocols via a proxy, should be handled differently.",
+            "In many cases, those protocols can be sent directly to the internet or configured to use a standard proxy."
+          ]
+        }
+      ]
+    }
+  }
+}

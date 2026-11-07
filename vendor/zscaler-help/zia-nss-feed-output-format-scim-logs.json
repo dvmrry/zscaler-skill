@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "NSS Feed Output Format: SCIM Logs",
+  "source": {
+    "url": "https://help.zscaler.com/zia/nss-feed-output-format-scim-logs",
+    "node": "1534222",
+    "revision": "3207480",
+    "updated": "2026-06-01",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Nanolog Streaming Service (NSS) feed specifies the data from the SCIM logs that the NSS sends to the security information and event management (SIEM) system. You can configure an NSS feed by including one or more fields. The fields and their values display in the NSS feed output."
+    },
+    {
+      "item": "View a sample SCIM log",
+      "depth": 0
+    },
+    {
+      "item": "{ \"sourcetype\" : \"zscalernss-zid-scim\", \"event\" :{\"time\":\"Tue Feb 10 10:43:51 2026\",\"recordid\":\"178\",\"result\":\"result_0\",\"method\":\"GET\",\"clientip\":\"10.10.10.130\",\"resource\":\"Unknown\",\"resourcetype\":\"NssNode\",\"externalidp\":\"Unknown\",\"statuscode\":\"200\",\"errorcode\":\"None\"}}",
+      "depth": 0
+    },
+    {
+      "text": "The following tables display information about the SCIM log fields and example values for those fields:"
+    },
+    {
+      "text": "Fields that support obfuscation are documented in the following tables with the prefix o (e.g., %s{oresource}). To obfuscate a field, manually add the prefix o before the field name in the Feed Output Format."
+    },
+    {
+      "heading": "Date/Time",
+      "level": 1
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example"
+        ],
+        [
+          "%s{time}",
+          "The time and date of the transaction. This excludes the time zone.",
+          "Mon Oct 16 22:55:48 2023"
+        ],
+        [
+          "%s{tz}",
+          "The time zone. This is the same as the time zone you specified when you configured the NSS feed.",
+          "GMT"
+        ],
+        [
+          "%02d{ss}",
+          "Seconds (0–59)",
+          "48"
+        ],
+        [
+          "%02d{mm}",
+          "Minutes (0–59)",
+          "55"
+        ],
+        [
+          "%02d{hh}",
+          "Hours (0–23)",
+          "22"
+        ],
+        [
+          "%02d{dd}",
+          "The day of the month (1–31)",
+          "16"
+        ],
+        [
+          "%02d{mth}",
+          "The month of the year",
+          "10"
+        ],
+        [
+          "%04d{yyyy}",
+          "Year",
+          "2023"
+        ],
+        [
+          "%s{mon}",
+          "The name of the month",
+          "Oct"
+        ],
+        [
+          "%s{day}",
+          "The day of the week",
+          "Mon"
+        ],
+        [
+          "%d{intlogtime}",
+          "The epoch time of the transaction",
+          "1751441755509"
+        ]
+      ]
+    },
+    {
+      "heading": "SCIM Logs",
+      "level": 1
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example"
+        ],
+        [
+          "%d{recordid}",
+          "The unique record identifier for each log",
+          "6917529027641081906"
+        ],
+        [
+          "%s{result}",
+          "The outcome of an action",
+          "Success Failed"
+        ],
+        [
+          "%s{method}",
+          "The method used for the action",
+          "PUT"
+        ],
+        [
+          "%s{resource}",
+          "An entity within a subcategory",
+          "Identity-group1"
+        ],
+        [
+          "%s{oresource}",
+          "The obfuscated version of the resource.",
+          "Displays a random string in the output"
+        ],
+        [
+          "%s{resourcetype}",
+          "The type of resource",
+          "User Group"
+        ],
+        [
+          "%s{externalidp}",
+          "The name of the IdP for which the request was sent",
+          "SPG-Entra ID"
+        ],
+        [
+          "%s{statuscode}",
+          "The status code of the entity",
+          "200"
+        ],
+        [
+          "%s{errorcode}",
+          "An optional field that exists only if the result is a failure",
+          "UserName does not belong to the configured domains for this tenant"
+        ],
+        [
+          "%s{preaction}",
+          "Data before any policy or configuration changes",
+          ""
+        ],
+        [
+          "%s{postaction}",
+          "Data after any policy or configuration changes",
+          ""
+        ],
+        [
+          "%s{clientip}",
+          "The source IP address for the admin",
+          "195.54.86.152"
+        ]
+      ]
+    },
+    {
+      "heading": "Hex-Encoded Fields",
+      "level": 1
+    },
+    {
+      "text": "The Zscaler service hex encodes all non-printable ASCII characters that are in URLs when it sends logs to the NSS. Any URL character that is less than or equal to 0x20, or greater than or equal to 0x7F, is encoded as %HH. This ensures that your SIEM can parse the URLs that contain control characters. For example, a \\n character in a URL is encoded as %0A, and a space is encoded as %20."
+    },
+    {
+      "text": "The following are hex-encoded fields:"
+    },
+    {
+      "item": "epreaction",
+      "depth": 0
+    },
+    {
+      "item": "epostaction",
+      "depth": 0
+    }
+  ]
+}

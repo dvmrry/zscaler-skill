@@ -1,0 +1,1070 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-go.request-handling",
+  "title": "How the Go SDK builds requests and interprets responses: client options, bodies, status codes, bulk deletes",
+  "aliases": [
+    "sdk proxy ignored",
+    "terraform http_proxy not used",
+    "WithProxyHost no effect",
+    "WithHttpClientPtr ignored",
+    "NewZccRequestDo empty body",
+    "NewRequestDo always 200",
+    "204 returns EOF",
+    "unexpected response bulk delete",
+    "bulk delete truncates ids",
+    "object returned from api was not a pointer",
+    "CreateResource content-type"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.auth-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.cache"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the Go SDK (the same client whose retries are in [[shared.sdk-go.retries]])'s request and response handling, shared by the Terraform providers built on it. They are about what the client does with options, bodies and status codes."
+    },
+    {
+      "label": "Client options.",
+      "text": "{{clients-built-before-options}} {{proxy-and-tls-options-only-set-fields}} {{rate-and-timeout-options-rebuild-clients}} {{custom-http-client-not-used-for-service-endpoints}}"
+    },
+    {
+      "label": "Proxy options in providers.",
+      "text": "{{providers-append-proxy-after-rebuilds}} Whether a configured proxy is used for service requests is open {{gap:proxy-effect}}."
+    },
+    {
+      "label": "Request bodies and response status.",
+      "text": "{{zcc-request-do-double-marshals}} {{zcc-double-marshal-not-reached-by-provider}} {{request-do-fabricates-200}} {{fabricated-200-disables-status-checks}} {{empty-success-body-decoded-as-eof}}"
+    },
+    {
+      "label": "Create responses.",
+      "text": "{{ztw-create-requires-exact-content-type}} {{ztw-create-type-assert-fails-after-post}} {{zia-create-same-exact-content-type}} Whether the APIs send the parameterized content types or empty bodies that trigger these is open {{gap:server-response-shapes}}. The same post-write failure is described in [[shared.sdk-go.retries]]."
+    },
+    {
+      "label": "Bulk deletes.",
+      "text": "{{bulk-delete-rejects-nonempty-success}} {{bulk-delete-helpers-reach}} {{bulk-delete-helpers-truncate-ids}} {{bulk-delete-truncation-scope}}"
+    },
+    {
+      "text": "Two retry-loop details are not covered by [[shared.sdk-go.retries]]. {{retry-paths-replace-body-without-closing}} {{retry-sleeps-ignore-cancellation}}"
+    },
+    {
+      "text": "Related: empty-body handling for ZIA updates is in [[zia.sdk-go.write-encoding]]; token handling in [[shared.sdk-go.auth-lifecycle]]; response caching in [[shared.sdk-go.cache]]."
+    },
+    {
+      "text": "{{error-json-content-type}}"
+    },
+    {
+      "label": "Error exits.",
+      "text": "{{oneapi-exits-typed-vs-plain}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether traffic from a provider meant to use a proxy reaches the proxy, rather than trusting the provider's http_proxy setting.",
+      "uses": [
+        "providers-append-proxy-after-rebuilds",
+        "proxy-effect"
+      ]
+    },
+    {
+      "do": "Whether a failed ZTC or ZIA create was accepted by the tenant before retrying it.",
+      "uses": [
+        "ztw-create-type-assert-fails-after-post",
+        "zia-create-same-exact-content-type",
+        "server-response-shapes"
+      ]
+    }
+  ],
+  "claims": {
+    "clients-built-before-options": {
+      "statement": "`NewConfiguration` builds every per-service HTTP client (`setHttpClients`) before it applies the caller's option functions. Options therefore see clients that already exist, and the options that call `setHttpClients` again rebuild them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func NewConfiguration(conf ...ConfigSetter) (*Configuration, error) {",
+          "quotes": [
+            "setHttpClients(cfg) // Apply each ConfigSetter function. for _, confSetter := range conf { confSetter(cfg) }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func setHttpClients(cfg *Configuration) {",
+          "quotes": [
+            "cfg.HTTPClient = getHTTPClient(cfg.Logger, defaultRateLimiter, cfg)",
+            "cfg.ZIAHTTPClient = getHTTPClient(cfg.Logger, ziaRateLimiter, cfg)",
+            "cfg.ZTWHTTPClient = getHTTPClient(cfg.Logger, ztwRateLimiter, cfg)",
+            "cfg.ZPAHTTPClient = getHTTPClient(cfg.Logger, zpaRateLimiter, cfg)",
+            "cfg.ZCCHTTPClient = getHTTPClient(cfg.Logger, zccRateLimiter, cfg)",
+            "cfg.ZDXHTTPClient = getHTTPClient(cfg.Logger, zdxRateLimiter, cfg)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func WithRequestTimeout(requestTimeout time.Duration) ConfigSetter {",
+          "quotes": [
+            "c.Zscaler.Client.RequestTimeout = requestTimeout setHttpClients(c)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "proxy-and-tls-options-only-set-fields": {
+      "statement": "`WithProxyHost`, `WithProxyPort`, `WithProxyUsername`, `WithProxyPassword` and `WithTestingDisableHttpsCheck` only assign configuration fields; they do not rebuild any client. The proxy and TLS-skip settings are read inside `getHTTPClient`, which fixes them into the transport it builds. A setter that runs after the last client build does not reach the live transport, which keeps the proxy chosen at build time (by default, proxy-from-environment).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "func WithProxyPort(i int32) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.Zscaler.Client.Proxy.Port = i\n\t}\n}",
+            "func WithProxyHost(host string) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.Zscaler.Client.Proxy.Host = host\n\t}\n}",
+            "func WithProxyUsername(username string) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.Zscaler.Client.Proxy.Username = username\n\t}\n}",
+            "func WithProxyPassword(pass string) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.Zscaler.Client.Proxy.Password = pass\n\t}\n}",
+            "func WithTestingDisableHttpsCheck(httpsCheck bool) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.Zscaler.Testing.DisableHttpsCheck = httpsCheck\n\t}\n}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func getHTTPClient(l logger.Logger, rateLimiter *rl.RateLimiter, cfg *Configuration) *http.Client {",
+          "quotes": [
+            "proxyFunc := http.ProxyFromEnvironment // Default behavior (uses system/env variables)",
+            "if cfg.Zscaler.Client.Proxy.Host != \"\" {",
+            "transport := &http.Transport{\n\t\tProxy:               proxyFunc,",
+            "if cfg.Zscaler.Testing.DisableHttpsCheck {",
+            "transport.TLSClientConfig = &tls.Config{"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "rate-and-timeout-options-rebuild-clients": {
+      "statement": "`WithRequestTimeout`, `WithRateLimitMaxRetries`, `WithRateLimitMinWait`, `WithRateLimitMaxWait` and `WithRateLimitRemainingThreshold` each call `setHttpClients` again, building fresh clients from the configuration as it stands at that moment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func WithRequestTimeout(requestTimeout time.Duration) ConfigSetter {",
+          "quotes": [
+            "c.Zscaler.Client.RequestTimeout = requestTimeout",
+            "setHttpClients(c)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func WithRateLimitMaxWait(maxWait time.Duration) ConfigSetter {",
+          "quotes": [
+            "c.Zscaler.Client.RateLimit.RetryWaitMax = maxWait",
+            "setHttpClients(c)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func WithRateLimitMaxRetries(maxRetries int32) ConfigSetter {",
+          "quotes": [
+            "c.Zscaler.Client.RateLimit.MaxRetries = maxRetries",
+            "setHttpClients(c)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func WithRateLimitMinWait(minWait time.Duration) ConfigSetter {",
+          "quotes": [
+            "c.Zscaler.Client.RateLimit.RetryWaitMin = minWait",
+            "setHttpClients(c)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func WithRateLimitRemainingThreshold(threshold int32) ConfigSetter {",
+          "quotes": [
+            "c.Zscaler.Client.RateLimit.RetryRemainingThreshold = threshold",
+            "setHttpClients(c)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func setHttpClients(cfg *Configuration) {",
+          "quotes": [
+            "cfg.HTTPClient = getHTTPClient(cfg.Logger, defaultRateLimiter, cfg)",
+            "cfg.ZIAHTTPClient = getHTTPClient(cfg.Logger, ziaRateLimiter, cfg)",
+            "cfg.ZPAHTTPClient = getHTTPClient(cfg.Logger, zpaRateLimiter, cfg)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func getHTTPClient(l logger.Logger, rateLimiter *rl.RateLimiter, cfg *Configuration) *http.Client {",
+          "quotes": [
+            "retryableClient := retryablehttp.NewClient()",
+            "retryableClient.RetryWaitMin = cfg.Zscaler.Client.RateLimit.RetryWaitMin retryableClient.RetryWaitMax = cfg.Zscaler.Client.RateLimit.RetryWaitMax",
+            "retryableClient.HTTPClient.Timeout = cfg.Zscaler.Client.RequestTimeout",
+            "return retryableClient.StandardClient()"
+          ]
+        }
+      ]
+    },
+    "custom-http-client-not-used-for-service-endpoints": {
+      "statement": "A client passed with `WithHttpClientPtr` is stored only as the generic client, and any later rebuilding option overwrites it. Requests to ZIA, ZPA, ZCC, ZTW and ZDX endpoints use the per-service clients chosen by `getServiceHTTPClient`. The client holds its configuration as `oauth2Credentials`, so a caller-supplied client is used only where that function returns `oauth2Credentials.HTTPClient`: admin endpoints, the default branch, and endpoints whose service type cannot be detected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "quotes": [
+            "func WithHttpClientPtr(httpClient *http.Client) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.HTTPClient = httpClient\n\t}\n}",
+            "cfg.HTTPClient = getHTTPClient(cfg.Logger, defaultRateLimiter, cfg)",
+            "return client.oauth2Credentials.ZPAHTTPClient",
+            "return client.oauth2Credentials.ZIAHTTPClient",
+            "return client.oauth2Credentials.ZTWHTTPClient",
+            "return client.oauth2Credentials.ZCCHTTPClient",
+            "return client.oauth2Credentials.ZDXHTTPClient",
+            "return client.oauth2Credentials.HTTPClient // Use default client for admin endpoints"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func WithRequestTimeout(requestTimeout time.Duration) ConfigSetter {",
+          "quotes": [
+            "setHttpClients(c)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "quotes": [
+            "httpClient := c.getServiceHTTPClient(endpoint)",
+            "oauth2Credentials *Configuration"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func (client *Client) getServiceHTTPClient(endpoint string) *http.Client {",
+          "quotes": [
+            "service, err := detectServiceType(endpoint) if err != nil { return client.oauth2Credentials.HTTPClient } switch service {",
+            "default: return client.oauth2Credentials.HTTPClient } }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func NewConfiguration(conf ...ConfigSetter) (*Configuration, error) {",
+          "quotes": [
+            "setHttpClients(cfg) // Apply each ConfigSetter function. for _, confSetter := range conf { confSetter(cfg) }"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "providers-append-proxy-after-rebuilds": {
+      "statement": "In the OneAPI option list of each audited provider (ZIA, ZPA, ZTC, ZCC), the proxy options are appended after the timeout and rate-limit options that rebuild the clients, and none of the four sets the TLS-skip option. The configured proxy host and port are therefore recorded in the configuration but absent from the transports that carry service requests; a proxy set through the standard environment variables is unaffected, because the transport defaults to reading them. The SDK's own `ZSCALER_CLIENT_PROXY_HOST` and `ZSCALER_CLIENT_PROXY_PORT` environment variables are read before the first client build and do take effect, and the default transport still honors `HTTP_PROXY`/`HTTPS_PROXY`; only the proxy passed through the provider's configuration is lost.",
+      "tier": "B",
+      "derived_from": [
+        "clients-built-before-options",
+        "proxy-and-tls-options-only-set-fields",
+        "rate-and-timeout-options-rebuild-clients"
+      ],
+      "conditions": "Rests on the order of entries in each provider's setter slice (applied in order by `NewConfiguration`) and on a search for the TLS option: `git -C vendor/<provider> grep -n 'DisableHttpsCheck\\|InsecureSkipVerify' <tag> -- '*.go'` returns nothing outside tests for tf-zia v4.8.3, tf-zpa v4.4.10, tf-ztc v0.2.0 and tf-zcc v0.1.0-beta.1. Not observed against a running proxy. The per-product legacy clients under zscaler/zpa, zscaler/zia and zscaler/ztw have their own option functions and were not traced.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/config.go",
+          "at": [
+            "v4.8.3"
+          ],
+          "quotes": [
+            "zscaler.WithRequestTimeout(time.Duration(c.requestTimeout) * time.Second),",
+            "setters = append(setters, zscaler.WithProxyHost(_url.Hostname()))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/config.go",
+          "at": [
+            "v4.4.10"
+          ],
+          "quotes": [
+            "zscaler.WithRequestTimeout(time.Duration(c.requestTimeout) * time.Second),",
+            "setters = append(setters, zscaler.WithProxyHost(_url.Hostname()))"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "zscaler.WithRequestTimeout(time.Duration(c.requestTimeout) * time.Second),",
+            "setters = append(setters, zscaler.WithProxyHost(_url.Hostname()))"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/client/client.go",
+          "at": [
+            "v0.1.0-beta.1"
+          ],
+          "quotes": [
+            "zscaler.WithRateLimitMaxWait(time.Duration(c.MaxWait) * time.Second),",
+            "setters = append(setters, zscaler.WithProxyHost(_url.Hostname()))"
+          ]
+        }
+      ],
+      "gaps": [
+        "proxy-effect"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zcc-request-do-double-marshals": {
+      "statement": "`NewZccRequestDo` JSON-marshals its `body` argument unconditionally on the OneAPI (non-legacy) path, and four SDK methods (admin-user update, both entitlement updates, manage-pass update) pass it a `bytes.NewBuffer` of bytes they have already marshaled. A `*bytes.Buffer` has no exported fields, so it marshals as `{}`, and the request carries an empty object instead of the payload.",
+      "tier": "B",
+      "conditions": "The `{}` result is Go standard-library behavior, reproduced locally with `json.Marshal(bytes.NewBuffer(...))`; no request was sent. What the ZCC API does with a `{}` body is server behavior and was not tested.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zccrequests.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func (client *Client) NewZccRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {",
+          "quotes": [
+            "bodyBytes, err := json.Marshal(body)",
+            "bodyReader = bytes.NewBuffer(bodyBytes)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/manage_pass/manage_pass.go",
+          "at": [
+            "v3.8.37"
+          ],
+          "quotes": [
+            "resp, err := service.Client.NewZccRequestDo(ctx, \"POST\", managePassEndpoint, nil, bytes.NewBuffer(body), nil)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/admin_users/admin_users.go",
+          "at": [
+            "v3.8.37"
+          ],
+          "quotes": [
+            "resp, err := service.Client.NewZccRequestDo(ctx, \"PUT\", editAdminUserEndpoint, nil, bytes.NewBuffer(body), nil)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zcc-double-marshal-not-reached-by-provider": {
+      "statement": "The audited ZCC provider build does not call the affected methods, so the double-marshal is reached only by code that calls those SDK functions directly.",
+      "tier": "B",
+      "derived_from": [
+        "zcc-request-do-double-marshals"
+      ],
+      "conditions": "Absence: `git -C vendor/terraform-provider-zcc grep -n 'entitlements\\|manage_pass\\|UpdateAdminUser' v0.1.0-beta.1 -- '*.go'` returns no match, and the only `admin_users` use is the read-only `GetAdminUsers` in internal/framework/datasources/admin_user.go. Other SDK callers (for example the zscalerctl tool) were not searched. In the SDK, `git grep 'NewZccRequestDo(.*bytes\\.' v3.8.37 -- zscaler/zcc zscaler/zpa` lists exactly these four call sites.",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/datasources/admin_user.go",
+          "at": [
+            "v0.1.0-beta.1"
+          ],
+          "quotes": [
+            "users, err := admin_users.GetAdminUsers(ctx, service, userType)"
+          ]
+        }
+      ]
+    },
+    "request-do-fabricates-200": {
+      "statement": "The ZPA, ZCC and ZDX request helpers discard the response object that `ExecuteRequest` returns and build a new `http.Response` holding only `StatusCode: http.StatusOK` and the body. Whatever success status the API sent, such as Created or No Content, reaches the caller as `http.StatusOK`, and response headers are lost.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON)",
+            "resp := &http.Response{\n\t\tStatusCode: http.StatusOK,\n\t\tBody:       io.NopCloser(bytes.NewBuffer(respBody)),\n\t}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zccrequests.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON)",
+            "resp := &http.Response{\n\t\tStatusCode: http.StatusOK,\n\t\tBody:       io.NopCloser(bytes.NewBuffer(respBody)),\n\t}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdxrequests.go",
+          "at": [
+            "v3.8.44"
+          ],
+          "quotes": [
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON)",
+            "resp := &http.Response{\n\t\tStatusCode: http.StatusOK,\n\t\tBody:       io.NopCloser(bytes.NewBuffer(respBody)),\n\t}"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "fabricated-200-disables-status-checks": {
+      "statement": "Because the wrapper always reports 200, status checks written after it, such as the ZCC service methods' `resp.StatusCode != http.StatusOK` guards, can never fire. A real failure status is already turned into an error inside `ExecuteRequest`, so the guard adds nothing; a success status other than 200 is indistinguishable from 200.",
+      "tier": "B",
+      "derived_from": [
+        "request-do-fabricates-200"
+      ],
+      "conditions": "Depends on `ExecuteRequest` returning an error for statuses of 300 and above, which is read from its retry loop (`if resp.StatusCode < 300 { break }` followed by error returns) and not exercised. At v3.8.42 the ZPA `BulkReorder` functions do compare the status after `NewRequestDo` (policysetcontroller.go:332 and policysetcontrollerv2.go:410, quoted below), and by this claim those checks cannot fire. `git grep -n -E \"StatusCode *(!=|==|<|>|>=|<=)\" v3.8.42 -- zscaler/zpa/services ':!*_test.go'` returns only those two lines.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42"
+          ],
+          "quotes": [
+            "if resp.StatusCode < 200 || resp.StatusCode >= 300 {"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42"
+          ],
+          "quotes": [
+            "if resp.StatusCode < 200 || resp.StatusCode >= 300 {"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/manage_pass/manage_pass.go",
+          "at": [
+            "v3.8.37"
+          ],
+          "quotes": [
+            "if resp.StatusCode != http.StatusOK {"
+          ]
+        }
+      ]
+    },
+    "empty-success-body-decoded-as-eof": {
+      "statement": "When a caller passes a decode target and the response body is empty (such as a 204), the ZPA, ZCC and ZDX wrappers still run the decoder over zero bytes, which returns `io.EOF`; the wrapper returns that as an error even though the request succeeded.",
+      "tier": "B",
+      "conditions": "The `io.EOF` result is Go standard-library behavior for `json.NewDecoder(...).Decode` on empty input, reproduced locally. It is reached only when a server answers a call that has a non-nil decode target with an empty body; which ZPA and ZCC endpoints do so is server behavior and was not traced per endpoint.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/utils.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.42",
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "return json.NewDecoder(bytes.NewBuffer(respData)).Decode(&v)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := decodeJSON(respBody, v); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zccrequests.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := decodeJSON(respBody, v); err != nil {"
+          ]
+        }
+      ],
+      "gaps": [
+        "server-response-shapes"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "ztw-create-requires-exact-content-type": {
+      "statement": "ZTW `CreateResource` decodes the response into the typed object only when the `Content-Type` header equals `application/json` exactly (case-insensitive). Any other value, including a valid `application/json; charset=utf-8`, takes the else branch, which returns the raw `*http.Response` with a nil error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztwrequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "after": "func (c *Client) CreateResource(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
+          "quotes": [
+            "respBody, response, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)",
+            "if len(respBody) > 0 && strings.EqualFold(response.Header.Get(\"Content-Type\"), \"application/json\") {",
+            "responseObject := reflect.New(t).Interface()",
+            "err = json.Unmarshal(respBody, &responseObject)",
+            "return responseObject, nil",
+            "} else {",
+            "return response, nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "func (c *Client) ExecuteRequest(ctx context.Context, method, endpoint string, body io.Reader, urlParams url.Values, contentType string) ([]byte, *http.Response, *http.Request, error) {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "ztw-create-type-assert-fails-after-post": {
+      "statement": "ZTW service create methods type-assert the value `CreateResource` returns. If the response header did not match exactly, the assertion fails and the method returns an error after the POST was already sent, so the caller sees a failed create for a request the server may have accepted.",
+      "tier": "B",
+      "derived_from": [
+        "ztw-create-requires-exact-content-type"
+      ],
+      "conditions": "Needs the ZTC API to send a `Content-Type` with parameters (or any value other than exactly `application/json`) on create responses, which is server behavior and not shown by the SDK. 18 ZTW service files call `CreateResource` (`git grep -l 'Client.CreateResource(ctx' v3.8.40 -- zscaler/ztw`); two were read in full. ZTC provider v0.2.0 builds on v3.8.40.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/dns_gateway/dns_gateway.go",
+          "at": [
+            "v3.8.40"
+          ],
+          "after": "func Create(ctx context.Context, service *zscaler.Service, gateway *DNSGateway) (*DNSGateway, error) {",
+          "quotes": [
+            "createdGateway, ok := resp.(*DNSGateway)",
+            "return nil, errors.New(\"object returned from api was not a DNS gateway pointer\")"
+          ]
+        }
+      ],
+      "gaps": [
+        "server-response-shapes"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zia-create-same-exact-content-type": {
+      "statement": "The ZIA `Create` helper has the same exact-match `Content-Type` comparison and the same raw-response fallback, and ZIA service create methods type-assert its result the same way. The ZIA provider builds on v3.8.44 and reaches it wherever its resources call these service create methods (75 files use `Client.Create`, not individually traced).",
+      "tier": "B",
+      "conditions": "The comparison is quoted; the type assertion was read in one ZIA service (url categories). `git grep -l 'Client.Create(ctx' v3.8.44 -- zscaler/zia` lists 75 files, none of which were individually checked. Whether the ZIA API sends a parameterized `Content-Type` on create is server behavior and was not tested.",
+      "derived_from": [
+        "ztw-create-requires-exact-content-type"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func (c *Client) Create(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
+          "quotes": [
+            "if len(respBody) > 0 && strings.EqualFold(response.Header.Get(\"Content-Type\"), \"application/json\") {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlcategories/urlcategories.go",
+          "at": [
+            "v3.8.44"
+          ],
+          "quotes": [
+            "createdUrlCategory, ok := resp.(*URLCategory)"
+          ]
+        }
+      ],
+      "gaps": [
+        "server-response-shapes"
+      ]
+    },
+    "bulk-delete-rejects-nonempty-success": {
+      "statement": "The ZTW `BulkDeleteResource` and ZIA `BulkDelete` helpers treat any nonempty body after a successful request as an error: they return a 200 response together with an \"unexpected response\" error. Only an empty body counts as success.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztwrequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "after": "func (c *Client) BulkDeleteResource(ctx context.Context, endpoint string, payload interface{}) (*http.Response, error) {",
+          "quotes": [
+            "resp, _, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)",
+            "if len(resp) == 0 {",
+            "return &http.Response{StatusCode: 204}, nil",
+            "return &http.Response{StatusCode: 200}, fmt.Errorf(\"unexpected response: %s\", string(resp))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func (c *Client) BulkDelete(ctx context.Context, endpoint string, payload interface{}) (*http.Response, error) {",
+          "quotes": [
+            "resp, _, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)",
+            "if len(resp) == 0 {",
+            "return &http.Response{StatusCode: 204}, nil",
+            "return &http.Response{StatusCode: 200}, fmt.Errorf(\"unexpected response: %s\", string(resp))"
+          ]
+        }
+      ],
+      "gaps": [
+        "server-response-shapes"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "bulk-delete-helpers-reach": {
+      "statement": "Nothing in the ZTW services calls `BulkDeleteResource`, and the ZTC provider does not either, so that helper is reached only by direct SDK callers. ZIA's `BulkDelete` is called by three ZIA service helpers (locations, VPN credentials, users); the ZIA provider's only use is a sweeper test, not a resource.",
+      "tier": "B",
+      "derived_from": [
+        "bulk-delete-rejects-nonempty-success"
+      ],
+      "conditions": "Absence searches: `git -C vendor/zscaler-sdk-go grep -n 'BulkDelete' v3.8.40 -- zscaler/ztw` (only the legacy client's own method), `git -C vendor/terraform-provider-ztc grep -n 'BulkDelete' v0.2.0 -- '*.go'` (none), and `git -C vendor/terraform-provider-zia grep -n 'BulkDelete' v4.8.3 -- '*.go'` (only zia/provider_sweeper_test.go). ZPA has its own bulk-delete helpers on `NewRequestDo` that were not traced here.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/provider_sweeper_test.go",
+          "at": [
+            "v4.8.3"
+          ],
+          "quotes": [
+            "_, err := vpncredentials.BulkDelete(context.Background(), service, batch)"
+          ]
+        }
+      ]
+    },
+    "bulk-delete-helpers-truncate-ids": {
+      "statement": "Three ZIA bulk-delete helpers cut the ID list to a local maximum (100 for locations and VPN credentials, 500 for users) and send only the first IDs. They do not chunk the rest and report nothing about the dropped IDs: they return only the bulk-delete call's own result, and the only trace is an INFO log line. The users helper's comment says \"first 100\" while its constant is 500.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/location/locationmanagement/locationmanagement.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "maxBulkDeleteIDs           = 100",
+            "if len(ids) > maxBulkDeleteIDs { // Truncate the list to the first 100 IDs ids = ids[:maxBulkDeleteIDs] service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs) } // Define the payload payload := map[string][]int{ \"ids\": ids, }",
+            "return service.Client.BulkDelete(ctx, locationsEndpoint+\"/bulkDelete\", payload)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/vpncredentials/vpncredentials.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "maxBulkDeleteIDs       = 100",
+            "if len(ids) > maxBulkDeleteIDs { // Truncate the list to the first 100 IDs ids = ids[:maxBulkDeleteIDs] service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs) } // Define the payload payload := map[string][]int{ \"ids\": ids, }",
+            "return service.Client.BulkDelete(ctx, vpnCredentialsEndpoint+\"/bulkDelete\", payload)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/usermanagement/users/users.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "maxBulkDeleteIDs = 500",
+            "if len(ids) > maxBulkDeleteIDs { // Truncate the list to the first 100 IDs ids = ids[:maxBulkDeleteIDs] service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs) } // Define the payload payload := map[string][]int{ \"ids\": ids, }",
+            "return service.Client.BulkDelete(ctx, usersEndpoint+\"/bulkDelete\", payload)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "bulk-delete-truncation-scope": {
+      "statement": "Those three are the only ID-list truncations found in the ZIA, ZPA, ZCC and ZTW services, and no provider resource calls them: the ZIA provider's one caller is a sweeper test that batches the IDs itself.",
+      "tier": "B",
+      "derived_from": [
+        "bulk-delete-helpers-truncate-ids",
+        "bulk-delete-helpers-reach"
+      ],
+      "conditions": "Absence: `git -C vendor/zscaler-sdk-go grep -n 'ids\\[:\\|IDs\\[:' v3.8.44 -- zscaler` returns only the three lines quoted above; slicing under other variable names was not searched. Direct SDK callers (scripts, other tools) are the exposed population."
+    },
+    "retry-paths-replace-body-without-closing": {
+      "statement": "In the 401, edit-lock (409/412) and 403 LIMIT_EXCEEDED branches of the outer retry loop, the SDK reads the response body with `io.ReadAll`, then replaces `resp.Body` with an in-memory reader without closing the original. Only the final success path drains and closes the body (`tryDrainBody`). Whether this holds connections open depends on the transport, since the body was read to its end.",
+      "tier": "B",
+      "conditions": "Absence of a `Close` in those branches: `git show v3.8.44:zscaler/oneapiconfig.go | grep -n 'Body.Close\\|NopCloser\\|tryDrainBody'` shows one `Body.Close` (inside the retryablehttp `ErrorHandler` in `getHTTPClient`) and one `tryDrainBody` (on the success path). No leak was measured; Go's HTTP/1 transport can reuse a connection once the body is read to EOF, so the practical effect is unproven. Retry behavior itself is in shared.sdk-go.retries.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44"
+          ],
+          "after": "// ✅ Check for session invalidation errors in 401 responses",
+          "quotes": [
+            "bodyCopy, readErr := io.ReadAll(resp.Body)",
+            "resp.Body = io.NopCloser(bytes.NewReader(bodyCopy)) // rewind"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44"
+          ],
+          "quotes": [
+            "_ = tryDrainBody(resp.Body)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "retry-sleeps-ignore-cancellation": {
+      "statement": "The outer retry loop waits with plain `time.Sleep` in its rate-limit, edit-lock, 5xx and session-refresh branches. The rate-limit branch checks the context before it sleeps, but none of the sleeps can be cut short, so cancellation is noticed only after the wait ends.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44"
+          ],
+          "after": "// Check if context is still valid before sleeping",
+          "quotes": [
+            "select { case <-ctx.Done(): return nil, resp, nil, fmt.Errorf(\"context cancelled while waiting for rate limit: %w\", ctx.Err()) default:",
+            "beforeWait := time.Now() time.Sleep(sleepFor) totalWaitTime += time.Since(beforeWait)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44"
+          ],
+          "after": "// Check if this is an EDIT_LOCK_NOT_AVAILABLE / org barrier error",
+          "quotes": [
+            "time.Sleep(backoffDelay)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44"
+          ],
+          "after": "if resp.StatusCode >= 500 && errorx.IsRetryableServerError(resp) {",
+          "quotes": [
+            "// 5xx server errors are retryable",
+            "time.Sleep(backoffDelay)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44"
+          ],
+          "after": "// Session invalidation means the server considers the token invalid",
+          "quotes": [
+            "c.oauth2Credentials.Logger.Printf(\"[INFO] Token refreshed successfully, retrying request...\")",
+            "time.Sleep(time.Second * 2)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "error-json-content-type": {
+      "statement": "`CheckErrorInResponse` extracts `code`, `message`, `id`, `reason` and `exception` from an error body only when the `Content-Type` header contains the literal `application/json` (a case-sensitive substring match); for any other content type the trimmed body text becomes the message, except that a non-JSON body containing \"only through zscaler oneapi\" (compared in lower case) returns a OneAPI fallback error instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "quotes": [
+            "func CheckErrorInResponse(res *http.Response, respErr error) error {",
+            "isJSON := strings.Contains(contentType, \"application/json\")",
+            "if code, ok := jsonBody[\"code\"]; ok {",
+            "if msg, ok := jsonBody[\"message\"].(string); ok {",
+            "if id, ok := jsonBody[\"id\"].(string); ok {",
+            "if reason, ok := jsonBody[\"reason\"].(string); ok {",
+            "if ex, ok := jsonBody[\"exception\"].(string); ok {",
+            "msg := strings.TrimSpace(string(bodyBytes))",
+            "if !isJSON && strings.Contains(strings.ToLower(msg), \"only through zscaler oneapi\") {\n\t\treturn NewOneAPIFallbackError(bodyBytes, res.Request.Method, res.Request.URL.Path, getBaseURL(res.Request.URL))",
+            "} else { parsed.Message = msg }"
+          ]
+        }
+      ]
+    },
+    "oneapi-exits-typed-vs-plain": {
+      "statement": "In the Go SDK's OneAPI `ExecuteRequest`, four exits pass the HTTP response through `errorx.CheckErrorInResponse`, so the caller gets the API's own error: retries exhausted when a response exists, a tenant `LIMIT_EXCEEDED`, any other 4xx (\"client error\") and any other status of 300 or more (\"API error\"). These exits instead return a plain `fmt.Errorf` error with no response parsed: retries exhausted with no response, the request timeout, `SESSION_NOT_VALID` retries exhausted, a token refresh failure after session invalidation, a rate-limit wait the API requires, and a context cancelled during a rate-limit wait.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "after": "func (c *Client) ExecuteRequest(",
+          "quotes": [
+            "// Surface the API's own explanation for the last attempt rather than",
+            "if resp != nil { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"max retries exceeded\")) } return nil, resp, nil, fmt.Errorf(\"max retries exceeded\")",
+            "return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"max retries exceeded\"))",
+            "return nil, resp, nil, fmt.Errorf(\"max retries exceeded\")",
+            "return nil, resp, nil, fmt.Errorf(\"request timeout exceeded after %v (excluding %v of rate limit waits)\",",
+            "return nil, resp, req, fmt.Errorf(\"max SESSION_NOT_VALID retries exceeded (%d), possible authentication issue\", maxSessionNotValidRetries)",
+            "return nil, resp, req, fmt.Errorf(\"token refresh failed after session invalidation: %w\", err)",
+            "return nil, resp, nil, fmt.Errorf(\"rate limit exceeded: API requires waiting %v before retrying.",
+            "return nil, resp, nil, fmt.Errorf(\"context cancelled while waiting for rate limit: %w\", ctx.Err())",
+            "if code, ok := jsonBody[\"code\"].(string); ok && code == \"LIMIT_EXCEEDED\" {",
+            "return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"limit exceeded\"))",
+            "// Handle non-retryable client errors (4xx except 401, 409, 429 which are handled above) if resp.StatusCode >= 400 && resp.StatusCode < 500 { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"client error\"))",
+            "if resp.StatusCode >= 300 { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"API error\"))",
+            "// Handle 403 LIMIT_EXCEEDED immediately — tenant resource capacity exhausted, non-retryable"
+          ]
+        }
+      ],
+      "conditions": "Count of the typed exits: `awk '/^func \\(c \\*Client\\) ExecuteRequest\\(/{f=1} f&&/^}/{f=0} f' zscaler/oneapiconfig.go | grep -c errorx.CheckErrorInResponse` over vendor/zscaler-sdk-go at v3.8.58 returns 4. The plain exits listed are not all of them: the transport and request-build errors return the raw error, and a request-body read failure is another `fmt.Errorf`."
+    }
+  },
+  "gaps": {
+    "proxy-effect": {
+      "kind": "semantic",
+      "title": "Whether a provider-configured proxy is actually used for service requests",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying a configured http_proxy is bypassed in practice, rather than predicted from option order",
+      "detail": "Run a provider build through a logging proxy with http_proxy set and the standard proxy environment variables unset, and see whether service requests arrive at the proxy."
+    },
+    "server-response-shapes": {
+      "kind": "semantic",
+      "title": "What Content-Type and success bodies the ZIA, ZPA, ZCC and ZTC APIs send",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the exact Content-Type match, the empty-body decode and the bulk-delete body check ever fail against a real tenant",
+      "detail": "Capture raw create, delete and bulk-delete responses (status, Content-Type header, body) per endpoint; the SDK paths fail only for a parameterized Content-Type, an empty body with a decode target, or a nonempty bulk-delete body."
+    }
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "What Is Zscaler Client Connector for VDI?",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-cloud/what-zscaler-client-connector-vdi",
+    "node": "1472116",
+    "revision": "3226495",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler Client Connector for Virtual Desktop Infrastructure (VDI) is a lightweight Windows application that runs in the user space of the VDI session host to authenticate multiple concurrent users, forward traffic to Zscaler Cloud Connector or Zscaler Branch Connector, and exchange user context within the Cloud Connector or Branch Connector. Using Zscaler Client Connector for VDI, users can get all the benefits of the Zscaler service through granular, policy-based access to internet resources from a single point."
+    },
+    {
+      "text": "To enable this feature, contact Zscaler Support."
+    },
+    {
+      "text": "Zscaler Client Connector for VDI allows you to inspect all ports and protocols for multisession, nonpersistent VDI deployments in the public cloud and on-premises data centers. Organizations can apply granular threat- and data-protection policies per individual user session, enabling those organizations to maintain common security policies across all environments."
+    },
+    {
+      "heading": "Key Features and Benefits",
+      "level": 1
+    },
+    {
+      "text": "The following are some key features and benefits of Zscaler Client Connector for VDI:"
+    },
+    {
+      "item": "Authentication: The application supports all authentication mechanisms that the Zscaler service supports.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Remote access: Users can connect to their VDI from any location.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Reduced cost: With processing established on the server, hardware requirements for end devices are significantly lower.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Security: In a VDI environment, data lives on the server rather than on your end device.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Centralized management: The centralized format of Zscaler Client Connector for VDI allows for easy updates or configurations for all the virtual desktops within a system.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "heading": "How Does Zscaler Client Connector for VDI Work?",
+      "level": 1
+    },
+    {
+      "text": "The Zscaler Client Connector for VDI tunnels traffic through UDP encapsulation to the local Cloud Connector or Branch Connector. These tunnels carry both user session data in the payload and user context information in the UDP header. These tunnels are stateless, which ensures that they can fail over to other active appliances if a Cloud Connector or Branch Connector fails."
+    },
+    {
+      "text": "Enabled by the Zero Trust Exchange (ZTE), Cloud Connector and Branch Connector are virtual machines (VMs) that act as a gateway to the Zscaler cloud to simplify traffic forwarding to Zscaler services. Cloud & Branch Connectors automatically establish geographically proximate tunnels to Internet & SaaS. Cloud Connectors operate within cloud environments such as Amazon Web Services (AWS), Microsoft Azure, and the Google Cloud Platform (GCP). Branch Connectors operate within on-premises environments such as VMware ESXi or Linux KVM. The Cloud & Branch Connectors aggregate tunnels from Zscaler Client Connector for VDI in addition to encrypting and forwarding traffic to the ZTE. Zscaler Client Connector for VDI connects on TCP 443 for the control channel, UDP 7443 for the data channel to Cloud Connector, and TCP 9090 on the Cloud Connector service endpoint for policy updates."
+    },
+    {
+      "text": "Common services handle operations such as the Active Directory service, DHCP, DNS resolution, Network Location Awareness (NLASVC), Server Message Block (SMB) file download, Windows DNS client API, Windows Ping, Winlogon service, and traffic from a Windows service. For example, DNS queries are resolved using the DNS client service. Similarly, SMB traffic is handled by the LanmanWorkstation service, where services run under the NT AUTHORITY\\SYSTEM user account. When the Zscaler driver intercepts the connections that these services initiate, Windows gives the Zscaler driver NT AUTHORITY\\SYSTEM as the user ID for these services."
+    },
+    {
+      "text": "Zscaler Client Connector for VDI has multiple ways in which to establish tunnels for routing and forwarding to the Cloud Connector or Branch Connector. Its key components are:"
+    },
+    {
+      "item": "Point-to-Point (P2P) Tunneling Mode: The P2P Tunneling Mode is the default mode of operation for Zscaler Client Connector for VDI and Cloud & Branch Connector tunnels. With P2P, the tunnel is created with a fixed destination IP address and destination port. The source port is copied from the inner header. Use this mode if you want to have fixed IP addresses for outer header tunnels and destination IP addresses must be known. As part of the Zscaler Client Connector for VDI deployment, a Zscaler anycast Global VIP address (185.46.212.80) is used as the destination IP address for the outer header. You must configure routing so that the next hop for the Global VIP points to the Cloud Connector or Branch Connector load balancer. Additionally, when Zscaler Client Connector for VDI is enabled, enter the client IP address as the session persistence setting for the Cloud Connector load balancer in Azure.",
+      "depth": 0
+    },
+    {
+      "item": "If you deploy Zscaler Client Connector for VDI with Private Access, Zscaler recommends using P2P and 2-tuple tunneling. To learn more, see Step-by-Step Configuration Guide for Zscaler Client Connector for VDI.",
+      "depth": 0
+    },
+    {
+      "item": "Any-to-Any (A2A) Tunneling Mode: The A2A Tunneling Mode copies the inner header of the packet to the outer encapsulated header. This mode provides better load balancing because the source IP address, destination IP address, and source port are preserved. This results in better traffic distribution across multiple Cloud & Branch Connector instances. A2A Tunneling Mode requires a default route pointing to the Cloud Connector or Branch Connector because the destination IP addresses are dynamic.",
+      "depth": 0
+    },
+    {
+      "item": "A2A Tunneling Mode is not recommended and is being deprecated.",
+      "depth": 0
+    },
+    {
+      "item": "Maximum Transmission Unit (MTU): By default, Zscaler Client Connector for VDI uses an MTU of 1,400 bytes. If any additional tunneling or encapsulation is present within your network, you might need to adjust the MTU from within the VDI Template.",
+      "depth": 0
+    },
+    {
+      "item": "SSL Inspection: If you want to provide SSL Inspection, ensure that Zscaler Client Connector for VDI has automatically installed the Zscaler Root CA certificate or your organization’s Root CA certificate.",
+      "depth": 0
+    }
+  ]
+}

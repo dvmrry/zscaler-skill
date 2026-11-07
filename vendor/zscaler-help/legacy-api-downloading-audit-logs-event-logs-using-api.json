@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Downloading Audit Logs and Event Logs Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/downloading-audit-logs-event-logs-using-api",
+    "node": "1400431",
+    "revision": "3192245",
+    "updated": "2026-03-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on how to generate and download audit log and event log reports as CSV files using the API."
+    },
+    {
+      "heading": "Audit Logs",
+      "level": 1
+    },
+    {
+      "text": "Audit logs record all admin activities in the Zscaler Admin Console for Internet & SaaS (ZIA) and the actions performed using the API. You can download admin audit log reports for up to 31 days or a maximum of 1,000 records at a time. Admin audit logs are stored for the last 6 months. To learn more, see About Audit Logs."
+    },
+    {
+      "text": "The following steps explain how to generate and download an admin audit log report using the API:"
+    },
+    {
+      "item": "1. Generate the report.",
+      "depth": 0
+    },
+    {
+      "item": "Initiate the audit log report generation by sending a POST request to /auditlogEntryReport with the date range specified in the request Body:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "startTime: The start time (Unix timestamp in milliseconds) in a specific time frame to be used for report generation.",
+      "depth": 2
+    },
+    {
+      "item": "endTime: The end time (Unix timestamp in milliseconds) in a specific time frame to be used for report generation.",
+      "depth": 2
+    },
+    {
+      "item": "For example, in Python:",
+      "depth": 1
+    },
+    {
+      "item": "payload = { \"startTime\":1493967600000, \"endTime\":1496645999999 }",
+      "depth": 1
+    },
+    {
+      "item": "The request Body can include additional parameters to filter specific records based on predefined criteria. You can also paginate the results. To learn more, see the API Reference.",
+      "depth": 1
+    },
+    {
+      "item": "This POST request returns a status ID for the report being created along with other information.",
+      "depth": 1
+    },
+    {
+      "item": "Sample response:",
+      "depth": 1
+    },
+    {
+      "item": "{ \"status\" : \"EXECUTING\", \"statusId\" : \"eaab786c44674a96be790625f527b0e9\", \"reportType\" : \"ZMANAGE_AUDIT_LOG_ENTRY_REPORT\", }",
+      "depth": 1
+    },
+    {
+      "item": "From the POST /auditlogEntryReport response, capture the statusId value (e.g., \"eaab786c44674a96be790625f527b0e9\"). The statusId is required in subsequent requests to poll for the report status and then to download the report.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "2. Poll for report status.",
+      "depth": 0
+    },
+    {
+      "item": "After initiating the report generation, poll for the report status by making repeated requests to GET /auditlogEntryReport and appending the statusId query parameter received from the POST response (i.e., GET /auditlogEntryReport?statusId=eaab786c44674a96be790625f527b0e9).",
+      "depth": 0
+    },
+    {
+      "item": "Sample response:",
+      "depth": 0
+    },
+    {
+      "item": "{ \"status\" : \"EXECUTING\", \"progressItemsComplete\" : 0, \"progressEndTime\" : 0, \"percentage\" : 0 }",
+      "depth": 0
+    },
+    {
+      "item": "Continue polling until the report reaches a terminal status, such as COMPLETE, CANCELLED, ERRORED, or STOP.",
+      "depth": 0
+    },
+    {
+      "item": "Sample response:",
+      "depth": 0
+    },
+    {
+      "item": "{ \"status\" : \"COMPLETE\", \"progressItemsComplete\" : 0, \"progressEndTime\" : 0, \"percentage\" : 0 }",
+      "depth": 0
+    },
+    {
+      "item": "3. Download the report.",
+      "depth": 0
+    },
+    {
+      "item": "When the status is COMPLETE, you can download the report as a CSV file by sending a GET request to /auditlogEntryReport/download and appending the statusId query parameter received from the POST response (i.e., GET /auditlogEntryReport/download?statusId=eaab786c44674a96be790625f527b0e9). A successful response returns a 200 OK status code with the log data available in the report.",
+      "depth": 0
+    },
+    {
+      "item": "Sample response:",
+      "depth": 0
+    },
+    {
+      "item": "Administrator,admin@acme.com Report Created,\"26 Mar 2026 04:07:28, PDT\" Start Time,\"25 Mar 2026 11:30:00, PDT\" End Time,\"26 Mar 2026 04:02:38, PDT\" Time,User,Action,AA in Cloud,Result,Client IP,Interface,Category,Subcategory,Resource,Pre Action,After,TraceId \"26 Mar 2026 00:30:19, PDT\",admin@acme.com,Sign In,zscalerbeta.net,Successful,192.0.2.1,API,Login,Login,,,,, \"26 Mar 2026 00:23:42, PDT\",admin@acme.com,Sign In,zscalerbeta.net,Successful,192.0.2.2,UI,Login,Login,,,,, ...",
+      "depth": 0
+    },
+    {
+      "item": "The response is formatted according to the time zone configured in the Zscaler Admin Console under Account Settings icon > Account Settings in the top navigation bar. To learn more, see Customizing Your Account Settings.",
+      "depth": 0,
+      "strong": [
+        [
+          99,
+          115
+        ],
+        [
+          123,
+          139
+        ]
+      ]
+    },
+    {
+      "item": "You can download only the latest report generated at any time. Making a POST /auditlogEntryReport request overwrites any previously generated report.",
+      "depth": 1
+    },
+    {
+      "item": "To cancel a report generation request, send a DELETE request to /auditlogEntryReport with the statusId query parameter retrieved from the POST response.",
+      "depth": 1
+    },
+    {
+      "heading": "Event Logs",
+      "level": 1
+    },
+    {
+      "text": "Event logs track all recorded SCIM client activity, such as creating, updating, deleting, and other actions performed on user and group accounts in the Zscaler Admin Console for Internet & SaaS. To learn more, see About Event Logs."
+    },
+    {
+      "text": "The following steps explain how to generate and download an event log report using the API:"
+    },
+    {
+      "item": "1. Generate the report.",
+      "depth": 0
+    },
+    {
+      "item": "Initiate the event log report generation by sending a POST request to /eventlogEntryReport with the date range specified in the request Body:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "startTime: The start time (Unix timestamp in milliseconds) in a specific time frame to be used for report generation.",
+      "depth": 2
+    },
+    {
+      "item": "endTime: The end time (Unix timestamp in milliseconds) in a specific time frame to be used for report generation.",
+      "depth": 2
+    },
+    {
+      "item": "For example, in Python:",
+      "depth": 1
+    },
+    {
+      "item": "payload = { \"startTime\":1493967600000, \"endTime\":1496645999999 }",
+      "depth": 1
+    },
+    {
+      "item": "The request Body can include additional parameters to filter specific records based on predefined criteria. You can also paginate the results. To learn more, see the API Reference.",
+      "depth": 1
+    },
+    {
+      "item": "This POST request returns a status ID for the report being created along with other information.",
+      "depth": 1
+    },
+    {
+      "item": "Sample response:",
+      "depth": 1
+    },
+    {
+      "item": "{ \"status\" : \"EXECUTING\", \"statusId\" : \"eaab786c44674a96be790625e347a1d8\", \"reportType\" : \"ZMANAGE_EVENT_LOG_ENTRY_REPORT\", }",
+      "depth": 1
+    },
+    {
+      "item": "From the POST /eventlogEntryReport response, capture the statusId value (e.g., \"eaab786c44674a96be790625e347a1d8\"). The statusId is required in subsequent requests to poll for the report status and then to download the report.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "2. Poll for report status.",
+      "depth": 0
+    },
+    {
+      "item": "After initiating the report generation, poll for the report status by making repeated requests to GET /eventlogEntryReport and appending the statusId query parameter received from the POST response (i.e., GET /eventlogEntryReport?statusId=eaab786c44674a96be790625e347a1d8).",
+      "depth": 0
+    },
+    {
+      "item": "Sample response:",
+      "depth": 0
+    },
+    {
+      "item": "{ \"status\" : \"EXECUTING\", \"progressItemsComplete\" : 0, \"progressEndTime\" : 0, \"percentage\" : 0 }",
+      "depth": 0
+    },
+    {
+      "item": "Continue polling until the report reaches a terminal status, such as COMPLETE, CANCELLED, ERRORED, or STOP.",
+      "depth": 0
+    },
+    {
+      "item": "Sample response:",
+      "depth": 0
+    },
+    {
+      "item": "{ \"status\" : \"COMPLETE\", \"progressItemsComplete\" : 0, \"progressEndTime\" : 0, \"percentage\" : 0 }",
+      "depth": 0
+    },
+    {
+      "item": "3. Download the report.",
+      "depth": 0
+    },
+    {
+      "item": "When the status is COMPLETE, you can download the report as a CSV file by sending a GET request to /eventlogEntryReport/download and appending the statusId query parameter received from the POST response (i.e., GET /eventlogEntryReport/download?statusId=eaab786c44674a96be790625e347a1d8). A successful response returns a 200 OK status code with the log data available in the report.",
+      "depth": 0
+    },
+    {
+      "item": "Sample response:",
+      "depth": 0
+    },
+    {
+      "item": "Administrator,techpubs@safemarch.com Report Created,\"26 Mar 2026 04:24:59, PDT\" Start Time,\"25 Mar 2026 17:00:00, PDT\" End Time,\"26 Mar 2026 04:24:57, PDT\" Time,Category,SUBCATEGORY,Result,Message,Error Code,Status Code,Pre Action,After ...",
+      "depth": 0
+    },
+    {
+      "item": "The response is formatted according to the time zone configured in the Zscaler Admin Console under Account Settings icon > Account Settings in the top navigation bar. To learn more, see Customizing Your Account Settings.",
+      "depth": 0,
+      "strong": [
+        [
+          99,
+          115
+        ],
+        [
+          123,
+          139
+        ]
+      ]
+    },
+    {
+      "item": "You can download only the latest report generated at any time. Making a POST /eventlogEntryReport request overwrites any previously generated report.",
+      "depth": 1
+    },
+    {
+      "item": "To cancel a report generation request, send a DELETE request to /eventlogEntryReport with the statusId query parameter retrieved from the POST response.",
+      "depth": 1
+    }
+  ]
+}

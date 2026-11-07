@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "id": "zia.ad-integration.saml-auto-provisioning",
+  "title": "SAML auto-provisioning: what login creates and overwrites",
+  "aliases": [
+    "saml auto provisioning",
+    "autoProvision",
+    "JIT provisioning",
+    "saml attributes zia",
+    "saml group department",
+    "saml response size",
+    "SCIM vs SAML attributes"
+  ],
+  "binds": [
+    "zia/users"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.scim.setup",
+      "because": "zia.ad-integration.saml-auto-provisioning:scim-excludes"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication.methods",
+      "because": "zia.authentication.methods:saml-sp"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.authentication.settings"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.provisioning-methods"
+    }
+  ],
+  "prose": [
+    {
+      "text": "SAML auto-provisioning also writes the user database. {{create-update}} {{scim-excludes}}"
+    },
+    {
+      "text": "{{response-limits}} {{attribute-scope}} {{no-other-assertion-attributes}}"
+    },
+    {
+      "label": "IdP attribute fields.",
+      "text": "{{idp-attribute-fields}}"
+    },
+    {
+      "label": "Login errors for a missing user.",
+      "text": "{{missing-user-login-errors}}"
+    },
+    {
+      "text": "The org-level switch is [[zia.authentication.settings:auto-provision]], and the SAML service-provider and IdP reachability points are in [[zia.authentication.methods]]."
+    },
+    {
+      "text": "Which source wins when SCIM and SAML disagree is open {{gap:scim-vs-saml-precedence}}, whether the SCIM userName must equal the SAML nameID is open {{gap:username-nameid-link}}, and whether SAML ever removes a user is open {{gap:saml-deprovisioning}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether auto-provisioning is on for the IdP.",
+      "uses": [
+        "create-update"
+      ]
+    },
+    {
+      "do": "What the IdP actually puts in the SAML response, against the login name, group and department the service reads.",
+      "uses": [
+        "response-limits",
+        "attribute-scope"
+      ]
+    },
+    {
+      "do": "Whether SCIM is also enabled on the same IdP.",
+      "uses": [
+        "scim-excludes"
+      ]
+    }
+  ],
+  "claims": {
+    "create-update": {
+      "statement": "With SAML auto-provisioning a user missing from the database is added, with the group and department values from the SAML response, activated, and policies are enforced. For an existing user the display name, group and department in the response update the database, and values absent from the response are removed from the database.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-saml.json",
+          "quotes": [
+            "If the user doesn't exist in the database, the user is added in the database along with the group and the department values.",
+            "If the user exists in the database, the user display name, group, and department values in the SAML response are updated in the database.",
+            "If the user display name, group, and department values don't exist in the SAML response, then these values are removed from the database too.",
+            "This new user is activated, and all relevant policies are enforced."
+          ]
+        }
+      ]
+    },
+    "response-limits": {
+      "statement": "The service obtains the login name and optionally the group, department and username from the SAML response. The response must be at most 4 MB and, for IdP-initiated login, digitally signed by the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-saml.json",
+          "quotes": [
+            "The service obtains the login name and optionally the group, department, and username from the SAML response.",
+            "the Zscaler service requires the SAML response to be digitally signed by the IdP."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-saml.json",
+          "quotes": [
+            "The SAML response must be 4 MB at the most."
+          ],
+          "after": "# Identity Provider-Initiated SAML"
+        }
+      ]
+    },
+    "attribute-scope": {
+      "statement": "In Internet and SaaS (ZIA) SAML assertions are restricted to user identity, group and department attributes, unlike Private Access, where the IdP can provide various authorization attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saml-attributes.json",
+          "quotes": [
+            "In Private Access, various authorization attributes can be provided by the IdP to the Zscaler Client Connector in the SAML assertion, unlike Internet & SaaS, where SAML assertions are restricted to user identity, group, and department attributes."
+          ]
+        }
+      ]
+    },
+    "scim-excludes": {
+      "statement": "SAML auto-provisioning is to be disabled when SCIM provisioning is enabled for an IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-scim.json",
+          "quotes": [
+            "Enable SAML Auto-Provisioning: Disable this option when enabling SCIM-based provisioning."
+          ]
+        }
+      ]
+    },
+    "no-other-assertion-attributes": {
+      "statement": "A requirement for an attribute other than user identity, group or department cannot be met from the ZIA SAML assertion, because ZIA restricts the assertion to those attributes.",
+      "tier": "B",
+      "derived_from": [
+        "attribute-scope"
+      ],
+      "conditions": "Reads 'restricted to' as meaning ZIA ignores other attributes in the assertion; no source states what happens to extra attributes."
+    },
+    "idp-attribute-fields": {
+      "statement": "On the IdP form, the User Display Name Attribute (typically displayName), Group Name Attribute (typically memberOf) and Department Name Attribute (typically department) name the SAML attributes that map to the username, group name and department name, and are case-sensitive. With Active Directory or OpenLDAP user repositories, SAML auto-provisioning is supported for only one IdP, and Zscaler recommends SCIM to provision users: disable this option and select Enable SCIM Provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-identity-providers.json",
+          "quotes": [
+            "If you're using Active Directory or OpenLDAP user repositories, SAML auto-provisioning is supported for only one IdP.",
+            "User Display Name Attribute: Enter the SAML attribute that maps to the username. Typically, it's displayName. This is case-sensitive.",
+            "Group Name Attribute: Enter the SAML attribute that maps to the group name. Typically, it's memberOf. This is case-sensitive.",
+            "Department Name Attribute: Enter the SAML attribute that maps to the department name. Typically, it's department. This is case-sensitive.",
+            "Zscaler recommends using SCIM to provision users. If you want to use SCIM-based provisioning, disable this option and select Enable SCIM Provisioning."
+          ]
+        }
+      ]
+    },
+    "missing-user-login-errors": {
+      "statement": "SAML errors 0xB0040 (the user was not found and SAML auto-provisioning is disabled) and 0xE5616 (an unknown user was sent in the SAML response) have the documented action to add the user and then enable SAML auto-provisioning in the Admin Console, because the user does not exist and auto-provisioning is not enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-saml.json",
+          "quotes": [
+            "| 0xB0040 | The user wasn't found, and SAML auto-provisioning is disabled. | The user doesn't exist, and SAML auto-provisioning isn't enabled. Add the user and then enable SAML auto-provisioning in the Zscaler Admin Console. |",
+            "| 0xE5616 | An unknown user was sent in the SAML response. | The user doesn't exist, and SAML auto-provisioning isn't enabled. Add the user and then enable SAML auto-provisioning in the Zscaler Admin Console. |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "scim-vs-saml-precedence": {
+      "kind": "semantic",
+      "title": "Whose group and department values win when both SCIM and SAML carry them",
+      "status": "open",
+      "detail": "Unverified legacy statement: When SCIM is active, ZIA uses the SCIM-provisioned group and department values, not what is in the SAML assertion at login, so delayed SCIM sync leaves policy evaluating stale data even if the current assertion is correct. The captured articles say only that auto-provisioning should be disabled when SCIM is enabled. A lab tenant with SCIM on and conflicting assertion values would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "diagnosing 'changed in the IdP but ZIA policy is still wrong'"
+    },
+    "username-nameid-link": {
+      "kind": "semantic",
+      "title": "Whether userName must equal the SAML nameID to link a session to a SCIM-provisioned user",
+      "status": "open",
+      "detail": "Unverified legacy statement: The SCIM userName must match the SAML nameID for authentication to succeed and for ZIA to link the SAML session to the SCIM-provisioned record; if they diverge (for example after an email change) the records are not linked. The SCIM mapping says userName is the user ID used for authentication; nothing captured names the nameID. A lab test with a changed nameID would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "explaining duplicate or unlinked users after an IdP email change"
+    },
+    "saml-deprovisioning": {
+      "kind": "semantic",
+      "title": "Whether SAML ever removes or disables a user",
+      "status": "open",
+      "detail": "Unverified legacy statement: SAML never deprovisions; user deletion comes only from SCIM (active=false or DELETE). The SAML article describes creation and update only and does not mention removal. A vendor statement would settle it.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "advice on deprovisioning in SAML-only tenants"
+    }
+  }
+}

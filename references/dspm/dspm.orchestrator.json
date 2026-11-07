@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "id": "dspm.orchestrator",
+  "title": "What the DSPM orchestrator and scanner instances are: architecture, sizing, default scanner types, tags and DSPM service IPs",
+  "aliases": [
+    "local scanner platform",
+    "orchestrator account",
+    "dspm scanner instances",
+    "orchestrator instance",
+    "dspm service ips"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "dspm.overview" },
+    { "rel": "see-also", "to": "dspm.scanning" },
+    { "rel": "see-also", "to": "dspm.network-configuration" },
+    { "rel": "see-also", "to": "dspm.cloud-accounts" }
+  ],
+  "prose": [
+    { "text": "{{architecture}} {{orchestrator-account}} {{all-regions}} [[dspm.scanning:orchestrator]] [[dspm.overview]]" },
+    { "label": "Scanner instances.", "text": "{{scanner-regions}} {{scanner-max-instances}} The size of a scanner instance is disputed {{divergence:scanner-size}}. {{scanner-access-tags}} {{scanner-tags}}" },
+    { "label": "Orchestrator instance.", "text": "{{orchestrator-tags-image}} {{orchestrator-instance-types}}" },
+    { "label": "Network access.", "text": "{{outbound-only}} {{ips-us}} {{ips-eu}} {{ips-india}} [[dspm.network-configuration]]" },
+    { "label": "Default scanner instances.", "text": "{{default-scanners-aws}} {{default-scanners-azure}} {{default-scanners-gcp}} Whether e2-medium has 4 vCPUs is open {{gap:e2-medium-specs}}." },
+    { "text": "[[dspm.cloud-accounts]]" }
+  ],
+  "checks": [
+    {
+      "do": "Which cluster list the DSPM service IPs come from (US, Europe or India) before quoting addresses for the orchestrator to reach.",
+      "uses": ["ips-us", "ips-eu", "ips-india"]
+    },
+    {
+      "do": "Which default scanner instance type the cloud and data store use, and the scanner maximum, before quoting scanner sizing.",
+      "uses": ["scanner-max-instances", "scanner-size", "default-scanners-aws", "default-scanners-azure", "default-scanners-gcp"]
+    }
+  ],
+  "claims": {
+    "architecture": {
+      "statement": "The DSPM local scanner platform, called the orchestrator, consists of an orchestrator instance and scanner instances; the orchestrator instance creates the scanner instances, which launch in the regions where DSPM scans resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-orchestrator.json",
+          "quotes": [
+            "Zscaler provides a local scanner platform called orchestrator, a cloud security solution deployed in your organization that performs data scanning within the organization's public cloud environment.",
+            "The local scanner platform architecture consists of an orchestrator instance and scanner instances.",
+            "The scanner instances are created by the orchestrator instance and are launched in the respective regions where DSPM performs data scanning of the resources."
+          ]
+        }
+      ]
+    },
+    "orchestrator-account": {
+      "statement": "The orchestrator account is an account the customer chooses, together with a primary region, to host Zscaler's DSPM orchestrator template; the orchestrator instance is backed by an autoscaler that ensures at least one orchestrator is running.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-orchestrator.json",
+          "quotes": [
+            "You need to choose an account in your environment and the primary region in which Zscaler's DSPM orchestrator template is deployed. This account is referred to as the orchestrator account.",
+            "The orchestrator instance is backed by an autoscaler that ensures at least one orchestrator is running."
+          ]
+        }
+      ]
+    },
+    "scanner-regions": {
+      "statement": "Scanner instances are launched in the orchestrator account's regions that match the regions of the target data stores, and are terminated when the scan completes; this avoids interregional data transfer costs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-orchestrator.json",
+          "quotes": [
+            "The scanner instances are launched with a unique identity in the corresponding regions of the orchestrator account where the target data stores are available.",
+            "After the scan is complete, the scanner instances are terminated.",
+            "For example, if the target account has data stores in 5 regions, then scanner instances are launched in those same 5 regions of the orchestrator account.",
+            "This ensures data scanning within your public cloud environment and avoids interregional data transfer costs."
+          ]
+        }
+      ]
+    },
+    "orchestrator-tags-image": {
+      "statement": "The orchestrator instance carries tags that must not be deleted or tampered with, and its image is Zscaler's property shared with the customer's orchestrator account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-orchestrator.json",
+          "quotes": [
+            "The orchestrator instance includes tags that should not be deleted or tampered with.",
+            "The image required to set up the orchestrator instance is a property of Zscaler and is shared with the customer's orchestrator account."
+          ]
+        }
+      ]
+    },
+    "outbound-only": {
+      "statement": "The orchestrator instance needs only outbound internet access to DSPM, and its outbound connections to download scanner images and upload results and logs are limited to specific DSPM service IPs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-orchestrator.json",
+          "quotes": [
+            "The orchestator instance requires only outbound internet access to communicate with DSPM.",
+            "Outbound connections from the orchestrator instance to download scanner images and upload results and logs to DSPM cloud are limited to the following specific service IPs:"
+          ]
+        }
+      ]
+    },
+    "ips-us": {
+      "statement": "DSPM service IPs for the US Cluster are 54.188.198.110, 52.38.65.228, 35.162.237.153, 54.203.244.84, 100.20.13.195 and 44.232.83.106.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-orchestrator.json",
+          "quotes": [
+            "DSPM IPs for US Cluster",
+            "54.188.198.110",
+            "52.38.65.228",
+            "35.162.237.153",
+            "54.203.244.84",
+            "100.20.13.195",
+            "44.232.83.106"
+          ]
+        }
+      ]
+    },
+    "ips-eu": {
+      "statement": "DSPM service IPs for the Europe Cluster are 3.78.36.199, 18.153.255.114, 18.193.231.22, 35.157.194.12, 35.159.181.237 and 3.78.50.170.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-orchestrator.json",
+          "quotes": [
+            "DSPM IPs for Europe Cluster",
+            "3.78.36.199",
+            "18.153.255.114",
+            "18.193.231.22",
+            "35.157.194.12",
+            "35.159.181.237",
+            "3.78.50.170"
+          ]
+        }
+      ]
+    },
+    "ips-india": {
+      "statement": "DSPM service IPs for the India Cluster are 13.201.160.201, 13.204.227.105, 13.235.175.179, 35.154.135.171, 43.204.164.52 and 65.0.50.177.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-orchestrator.json",
+          "quotes": [
+            "DSPM IPs for India Cluster",
+            "13.201.160.201",
+            "13.204.227.105",
+            "13.235.175.179",
+            "35.154.135.171",
+            "43.204.164.52",
+            "65.0.50.177"
+          ]
+        }
+      ]
+    },
+    "all-regions": {
+      "statement": "DSPM supports scanning data stores in all global regions of AWS, Azure and GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-orchestrator.json",
+          "quotes": [
+            "DSPM supports scanning of data stores present in all global regions of AWS, Azure, and GCP."
+          ]
+        }
+      ]
+    },
+    "orchestrator-instance-types": {
+      "statement": "Supported orchestrator instance types: AWS t3.large (20 GB GP3 root, 16 GB GP3 data), Azure Standard_D2s_V3 (30 GB and 10 GB Standard HDD LRS), GCP e2-standard-2 (20 GB and 10 GB standard persistent disk), each with 2 vCPUs and 8 GiB memory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-orchestrator.json",
+          "quotes": [
+            "| AWS | t3.large | 2 core vCPUs and 8 GiB Memory | Root Disk: 20 GB GP3 Data Disk: 16 GB GP3 |",
+            "| Azure | Standard_D2s_V3 | 2 core vCPUs and 8 GiB Memory | Root Disk: 30 GB Standard HDD LRS Data Disk: 10 GB Standard HDD LRS |",
+            "| GCP | e2-standard-2 | 2 core vCPUs and 8 GiB Memory | Root Disk: 20 GB Standard persistent disk Data Disk: 10 GB Standard persistent disk |"
+          ]
+        }
+      ]
+    },
+    "scanner-max-instances": {
+      "statement": "DSPM creates transitory scanner instances, up to a maximum of 10 per data store, which the article gives as 16 vCPU and 32 GiB memory each, depending on the number of data stores to scan, and the orchestrator account needs sufficient vCPU quotas.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-scanner-instances.json",
+          "quotes": [
+            "DSPM creates transitory scanner instances in the respective regions to perform data scanning on different data stores such as storage, compute, and databases.",
+            "For each data store, DSPM creates up to a maximum of 10 scanner instances each with a configuration of 16 vCPU and 32 GiB memory, depending upon the number of data stores that must be scanned.",
+            "You need to ensure that sufficient vCPU quotas are enabled in the orchestrator account."
+          ]
+        }
+      ]
+    },
+    "scanner-access-tags": {
+      "statement": "Scanner instances are created with tags that must not be deleted or tampered with, and inbound access to them is restricted to the orchestrator instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-scanner-instances.json",
+          "quotes": [
+            "All scanner instances are created with tags and the tags should not be deleted or tampered with.",
+            "Inbound access to scanner instances is restricted only from the orchestrator instance."
+          ]
+        }
+      ]
+    },
+    "scanner-tags": {
+      "statement": "Scanner instances carry the tags z-dspm-resource, z-dspm-scanner-resource, z-dspm-tenant-id, z-dspm-tenant-name and z-dspm-scan-id, which can be enabled in AWS to track DSPM cost allocation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-scanner-instances.json",
+          "quotes": [
+            "You can enable these tags in AWS to track the cost allocation for DSPM.",
+            "z-dspm-resource = true",
+            "z-dspm-scanner-resource= true",
+            "z-dspm-tenant-id = <tenant_id>",
+            "z-dspm-tenant-name = <tenant_name>",
+            "z-dspm-scan-id = <scan_id>"
+          ]
+        }
+      ]
+    },
+    "default-scanners-aws": {
+      "statement": "Default AWS scanner instances: S3 full c5a.4xlarge and incremental t3.xlarge; EC2 full c6in.4xlarge; RDS full c5a.4xlarge and sampling t3.medium (both with db.r6g.large); DynamoDB full and sampling t3.xlarge; unmanaged database sampling t3.xlarge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-scanner-instances.json",
+          "quotes": [
+            "| S3 | Full | c5a.4xlarge | 16 core vCPUs and 32 GiB Memory | Root Disk: 20 GB GP3 |",
+            "| S3 | Incremental | t3.xlarge | 4 core vCPUs and 16 GiB Memory | Root Disk: 20 GB GP3 |",
+            "| EC2 | Full | c6in.4xlarge | 16 core vCPUs and 32 GiB Memory | Root Disk: 20 GB GP3 |",
+            "| RDS | Full | c5a.4xlarge db.r6g.large | 16 core vCPUs and 32 GiB Memory 2 core vCPUs and 16 GiB Memory | Root Disk: 20 GB GP3 |",
+            "| RDS | Sampling | t3.medium db.r6g.large | 2 core vCPUs and 4 GiB Memory 2 core vCPUs and 16 GiB Memory | Root Disk: 20 GB GP3 |",
+            "| DynamoDB | Full | t3.xlarge | 4 core vCPUs and 16 GiB Memory | Root Disk: 20 GB GP3 |",
+            "| DynamoDB | Sampling | t3.xlarge | 4 core vCPUs and 16 GiB Memory | Root Disk: 20 GB GP3 |",
+            "| Unmanaged Database | Sampling | t3.xlarge | 4 core vCPUs and 16 GiB Memory | Root Disk: 20 GB GP3 |"
+          ]
+        }
+      ]
+    },
+    "default-scanners-azure": {
+      "statement": "Default Azure scanner instances: Blob Container and File Share full Standard_F16s_v2 and incremental Standard_D4s_v3; Virtual Machine full Standard_F16s_v2; SQL Server PostgreSQL-Flexible Server full Standard_F16s_v2 and sampling Standard_B2ls_v2; Cosmos DB for NoSQL sampling Standard_B2ls_v2; unmanaged database sampling Standard_D4s_v3.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-scanner-instances.json",
+          "quotes": [
+            "| Blob Container | Full | Standard_F16s_v2 | 16 core vCPUs and 32 GiB Memory | 30 GB Premium SSD LRS |",
+            "| Blob Container | Incremental | Standard_D4s_v3 | 4 core vCPUs and 16 GiB Memory | 30 GB Premium SSD LRS |",
+            "| File Share | Full | Standard_F16s_v2 | 16 core vCPUs and 32 GiB Memory | 30 GB Premium SSD LRS |",
+            "| File Share | Incremental | Standard_D4s_v3 | 4 core vCPUs and 16 GiB Memory | 30 GB Premium SSD LRS |",
+            "| Virtual Machine | Full | Standard_F16s_v2 | 16 core vCPUs and 32 GiB Memory | 30 GB Premium SSD LRS |",
+            "| SQL Server PostgreSQL-Flexible Server | Full | Standard_F16s_v2 | 16 core vCPUs and 32 GiB Memory | 30 GB Premium SSD LRS |",
+            "| SQL Server PostgreSQL-Flexible Server | Sampling | Standard_B2ls_v2 | 2 core vCPUs and 4 GiB Memory | 30 GB Premium SSD LRS |",
+            "| Azure Cosmos DB for NoSQL | Sampling | Standard_B2ls_v2 | 2 core vCPUs and 4 GiB Memory | 30 GB Premium SSD LRS |",
+            "| Unmanaged Database | Sampling | Standard_D4s_v3 | 4 core vCPUs and 16 GiB Memory | 30 GB Premium SSD LRS |"
+          ]
+        }
+      ]
+    },
+    "default-scanners-gcp": {
+      "statement": "Default GCP scanner instances: Cloud Storage Bucket full e2-standard-16 and incremental e2-standard-4; Compute full e2-standard-16; Cloud SQL full e2-standard-16 and sampling e2-standard-2; BigQuery sampling e2-standard-2; unmanaged database sampling e2-medium.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-scanner-instances.json",
+          "quotes": [
+            "| Cloud Storage Bucket | Full | e2-standard-16 | 16 core vCPUs and 32 GiB Memory | 20 GB Standard persistent disk |",
+            "| Cloud Storage Bucket | Incremental | e2-standard-4 | 4 core vCPUs and 16 GiB Memory | 20 GB Standard persistent disk |",
+            "| Cloud Platform Compute | Full | e2-standard-16 | 16 core vCPUs and 32 GiB Memory | 20 GB Standard persistent disk |",
+            "| Cloud Platform Cloud SQL | Full | e2-standard-16 | 16 core vCPUs and 32 GiB Memory | 20 GB Standard persistent disk |",
+            "| Cloud Platform Cloud SQL | Sampling | e2-standard-2 | 2 core vCPUs and 4 GiB Memory | 20 GB Standard persistent disk |",
+            "| Cloud Platform BigQuery | Sampling | e2-standard-2 | 2 core vCPUs and 4 GiB Memory | 20 GB Standard persistent disk |",
+            "| Unmanaged Database | Sampling | e2-medium | 4 core vCPUs and 16 GiB Memory | 20 GB Standard persistent disk |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "scanner-size": {
+      "summary": "What size a scanner instance is: the maximum-instances paragraph gives 16 vCPU and 32 GiB each, while the default scanner tables list 4-vCPU and 2-vCPU types for incremental and sampling scans.",
+      "positions": [
+        {
+          "says": "For each data store DSPM creates up to 10 scanner instances, each with 16 vCPU and 32 GiB memory.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-understanding-scanner-instances.json",
+            "quotes": [
+              "For each data store, DSPM creates up to a maximum of 10 scanner instances each with a configuration of 16 vCPU and 32 GiB memory, depending upon the number of data stores that must be scanned."
+            ]
+          }
+        },
+        {
+          "says": "The default scanner tables list incremental scanners at 4 vCPUs and 16 GiB (S3 t3.xlarge) and sampling scanners at 2 vCPUs and 4 GiB (RDS t3.medium).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-understanding-scanner-instances.json",
+            "quotes": [
+              "| S3 | Incremental | t3.xlarge | 4 core vCPUs and 16 GiB Memory | Root Disk: 20 GB GP3 |",
+              "| RDS | Sampling | t3.medium db.r6g.large | 2 core vCPUs and 4 GiB Memory 2 core vCPUs and 16 GiB Memory | Root Disk: 20 GB GP3 |"
+            ]
+          }
+        }
+      ],
+      "impact": "Quote 16 vCPU and 32 GiB only as the article's maximum-instances figure; for a given cloud, data store and scan type use the default scanner claims."
+    }
+  },
+  "gaps": {
+    "e2-medium-specs": {
+      "kind": "semantic",
+      "title": "Whether the GCP unmanaged database scanner e2-medium really has 4 vCPUs and 16 GiB",
+      "status": "open",
+      "detail": "The default scanner table lists e2-medium as 4 core vCPUs and 16 GiB Memory, which the page does not reconcile with the instance type name.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

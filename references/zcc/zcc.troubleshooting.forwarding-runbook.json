@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "id": "zcc.troubleshooting.forwarding-runbook",
+  "title": "Client Connector forwarding runbook: the five errors and where each is worked (captive portal and driver error held here)",
+  "aliases": [
+    "Zscaler Client Connector Traffic Forwarding Support Troubleshooting Runbook",
+    "Common Zscaler Client Connector Errors and Troubleshooting Steps"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.troubleshooting" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.forwarding-runbook.connection-error" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.forwarding-runbook.endpoint-firewall" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.forwarding-runbook.network-error" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.service-status-errors" },
+    { "rel": "see-also", "to": "zcc.install.windows-driver" },
+    { "rel": "see-also", "to": "zcc.forwarding-profiles.fail-open" },
+    { "rel": "see-also", "to": "zcc.interoperability.security-software" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook" }
+  ],
+  "prose": [
+    {
+      "label": "Scope.",
+      "text": "{{scope}} Connection Error and Server Down Error are in [[zcc.troubleshooting.forwarding-runbook.connection-error]], Endpoint FW/AV Error is in [[zcc.troubleshooting.forwarding-runbook.endpoint-firewall]], and Network Error is in [[zcc.troubleshooting.forwarding-runbook.network-error]]. The Service Status meanings are in [[zcc.troubleshooting.service-status-errors]]."
+    },
+    {
+      "label": "Captive portal.",
+      "text": "{{captive-portal-behavior}} Whether the timeout is the fail-open captive portal minutes in [[zcc.forwarding-profiles.fail-open]] is open {{gap:captive-portal-timeout}}. {{captive-portal-symptoms}} {{captive-portal-generate-204}} {{captive-portal-causes}} {{captive-portal-resolution}}"
+    },
+    {
+      "label": "Driver error.",
+      "text": "{{driver-error-meaning}} {{driver-error-logs}} {{driver-error-causes}} {{driver-error-resolution}} The driver install side is in [[zcc.install.windows-driver]]."
+    }
+  ],
+  "claims": {
+    "scope": {
+      "statement": "The Client Connector forwarding runbook covers common Client Connector error scenarios, identifying the issue from application logs and the app, and suggested resolutions; it says to make sure to collect Client Connector logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Common Zscaler Client Connector error scenarios.",
+            "Methods to identify the issue using application logs and the Zscaler Client Connector.",
+            "Suggested resolutions for each error.",
+            "Make sure to collect Zscaler Client Connector logs."
+          ]
+        }
+      ]
+    },
+    "captive-portal-behavior": {
+      "statement": "Client Connector bypasses traffic during captive portal detection but might transition into an error state if the user does not accept or agree to the captive terms within the timeout period.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler Client Connector bypasses traffic during captive portal detection but might transition into an error state if the user does not accept or agree to captive terms within the timeout period."
+          ]
+        }
+      ]
+    },
+    "captive-portal-symptoms": {
+      "statement": "Captive portal symptoms include browser errors such as The page cannot be displayed and the Internet Security window displaying Captive Portal Detected or Captive Portal Error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The browser displays errors such as The page cannot be displayed.",
+            "The Internet Security window displays Captive Portal Detected or Captive Portal Error."
+          ]
+        }
+      ]
+    },
+    "captive-portal-generate-204": {
+      "statement": "In Client Connector logs and packet captures the runbook says to look for HTTP requests to http://gateway.<cloud>.net:443/generate_204; if HTTP status 204 is not returned, it indicates captive portal detection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "In Zscaler Client Connector logs and packet captures, look for HTTP requests to http://gateway.<cloud>.net:443/generate_204.",
+            "If HTTP status code 204 is not returned, it indicates captive portal detection."
+          ]
+        }
+      ]
+    },
+    "captive-portal-causes": {
+      "statement": "Listed causes of the captive portal error are the captive portal login page not being prompted and network components blocking access to required Zscaler URLs such as gateway.<cloudname>.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Captive portal login page not being prompted.",
+            "Network components blocking access to required Zscaler URLs (e.g., gateway.<cloudname>.net)."
+          ]
+        }
+      ]
+    },
+    "captive-portal-resolution": {
+      "statement": "Suggested captive portal fixes: confirm the login page opens in a browser, make sure DNS is not blocking gateway.<cloudname>.net and firewall or network security devices do not block captive portal detection traffic, allow gateway.<cloudname>.net and pac.<cloudname>.net through a third-party VPN, increase the captive portal timeout in Client Connector settings if login pages are slow, and run the latest version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Ensure the captive portal login page is accessible from the default or another browser.",
+            "Confirm DNS is properly configured and is not blocking traffic to gateway.<cloudname>.net.",
+            "If using a third-party VPN, allow access to gateway.<cloudname>.net and pac.<cloudname>.net.",
+            "Increase captive portal timeout in Zscaler Client Connector settings if login pages take longer to load.",
+            "Ensure Zscaler Client Connector is running on the latest version to avoid outdated captive portal handling issues.",
+            "Ensure firewall or network security devices do not block captive portal detection traffic."
+          ]
+        }
+      ]
+    },
+    "driver-error-meaning": {
+      "statement": "Driver Error appears in the Service Status section of the Internet Security or Private Access window and indicates that required network drivers, such as the Lightweight Filter (LWF) driver, are not installed or are malfunctioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler Client Connector displays Driver Error in the Service Status section of the Internet Security window or Private Access window, indicating that required network drivers, such as the Lightweight Filter (LWF) driver, are either not installed or malfunctioning."
+          ]
+        }
+      ]
+    },
+    "driver-error-logs": {
+      "statement": "Driver Error symptoms include the ZSATray log messages ERR LWF: Unable to load driver!, ERR lwf: Initial driver check FAILED! and LightWeightFilter not loaded!, followed in the sample by ZApp moves to DRIVER ERROR!; setupapi.dev.log shows a failed driver package import with Error = 0x00000002.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Setup API logs (setupapi.dev.log)",
+            "Failed to import driver package into Driver Store. Error = 0x00000002",
+            "ZSATray Logs",
+            "2024-12-25 11:03:24.728897(+0530)[1808:2276] ERR LWF: Unable to load driver! 2024-12-25 11:03:24.728897(+0530)[1808:2276] ERR lwf: Initial driver check FAILED! LightWeightFilter not loaded! ZApp moves to DRIVER ERROR!"
+          ]
+        }
+      ]
+    },
+    "driver-error-causes": {
+      "statement": "The runbook lists these common causes of Driver Error: driver cache corruption in C:\\Windows\\System32\\DriverStore, missing registry keys for the driver services, endpoint protection or tampering protection blocking driver installation, and Windows Driver Store corruption.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Driver cache corruption: Cached drivers in C:\\Windows\\System32\\DriverStore are incomplete or corrupted.",
+            "Registry entry missing: Relevant registry keys for Zscaler Client Connector driver services are missing.",
+            "Endpoint protection blockages: Antivirus tools or tampering protection settings prevent driver installation.",
+            "Driver store corruption: Windows Driver Store shows errors preventing the addition of drivers."
+          ]
+        }
+      ]
+    },
+    "driver-error-resolution": {
+      "statement": "Suggested Driver Error fixes: More > Troubleshoot > Repair App, restart the device and validate; temporarily disable tools like Carbon Black or CrowdStrike and retry the driver installation process; uninstall and reinstall with forced driver re-installation using the CLI flag --reinstallDriver 1, for which the runbook points to the install options for EXE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "In Zscaler Client Connector, go to More > Troubleshoot > Repair App.",
+            "Disable tools like Carbon Black or CrowdStrike temporarily.",
+            "Uninstall and reinstall Zscaler Client Connector with force driver re-installation using cli flag --reinstallDriver 1.",
+            "Restart the device and validate if the driver error resolves.",
+            "Retry the driver installation process.",
+            "To learn more, see Customizing Zscaler Client Connector with Install Options for EXE."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "captive-portal-timeout": {
+      "kind": "semantic",
+      "title": "Whether the runbook's captive portal timeout is the fail-open captive portal minutes setting",
+      "status": "open",
+      "detail": "The runbook says only 'within the timeout period' and 'Increase captive portal timeout in Zscaler Client Connector settings'; it gives no value or default. zcc.forwarding-profiles.fail-open holds Captive Portal Detected, Disable Web Security for (In Minutes) as 1 to 60 minutes, but neither page says that setting is this timeout, or whether it is set in Client Connector settings or the Admin Console (as zcc.troubleshooting.service-status-errors words it).",
+      "resolves_with": ["source-read", "tenant-data"]
+    }
+  }
+}

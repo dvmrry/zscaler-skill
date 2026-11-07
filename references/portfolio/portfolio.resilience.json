@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "id": "portfolio.resilience",
+  "title": "Zscaler Resilience: four failure tiers from minor failures to catastrophic events",
+  "aliases": [
+    "zscaler resilience",
+    "resilience",
+    "cloud resilience",
+    "failure tiers",
+    "blackout",
+    "brownout",
+    "catastrophic failure",
+    "business continuity",
+    "bc"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "portfolio.business-continuity-cloud"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.business-continuity"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.failure-domains"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{resilience-umbrella}}"
+    },
+    {
+      "label": "The four tiers.",
+      "items": [
+        {
+          "text": "{{tier-minor}}"
+        },
+        {
+          "text": "{{tier-blackout}}"
+        },
+        {
+          "text": "{{tier-brownout}}"
+        },
+        {
+          "text": "{{tier-catastrophic}}"
+        }
+      ]
+    },
+    {
+      "text": "{{bcc-relation}} Components and constraints of that deployment are in [[portfolio.business-continuity-cloud]]."
+    },
+    {
+      "text": "Whether this resilience set has a programmatic surface is open {{gap:resilience-no-sdk}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a question about which failure tier applies, match the symptom to a tier first (node or software failure, localized outage, degradation, or full cloud outage) and answer from that tier's claim.",
+      "uses": [
+        "tier-minor",
+        "tier-blackout",
+        "tier-brownout",
+        "tier-catastrophic"
+      ]
+    }
+  ],
+  "claims": {
+    "resilience-umbrella": {
+      "statement": "The Zscaler Resilience page says Zscaler Resilience is a complete set of capabilities that ensures uninterrupted business continuity during blackouts, brownouts, or even catastrophic black swan events.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zscaler-resilience-marketing.json",
+          "quotes": [
+            "Zscaler Resilience™ is a complete set of capabilities that ensures uninterrupted business continuity during blackouts, brownouts, or even catastrophic black swan events."
+          ]
+        }
+      ]
+    },
+    "tier-minor": {
+      "statement": "The page says the Zscaler platform routinely handles common minor failures, such as those caused by node failure or software bugs, with little or no end user interaction required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zscaler-resilience-marketing.json",
+          "quotes": [
+            "Minor failures\nThe Zscaler platform routinely handles common minor failures, such as those caused by node failure or software bugs, with little or no end user interaction required."
+          ]
+        }
+      ]
+    },
+    "tier-blackout": {
+      "statement": "The page says failover mechanisms, autonomous or manual, can remediate blackouts: local outages such as those in the data center, or unexpected connectivity issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zscaler-resilience-marketing.json",
+          "quotes": [
+            "Blackouts\nEffective failover mechanisms—autonomous or manual—can remediate local outages such as those in the data center or unexpected connectivity issues."
+          ]
+        }
+      ]
+    },
+    "tier-brownout": {
+      "statement": "The page says several autonomous failover mechanisms, such as latency-based dynamic service edge selection and customer-controlled data center exclusion, can handle brownouts (service degradation issues).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zscaler-resilience-marketing.json",
+          "quotes": [
+            "Brownouts\nSeveral autonomous failover mechanisms, such as latency-based dynamic service edge selection and customer-controlled data center exclusion, can handle service degradation issues."
+          ]
+        }
+      ]
+    },
+    "tier-catastrophic": {
+      "statement": "The page says that during full cloud outages caused by black swan events, or cloud reachability issues, Zscaler business continuity solutions handle traffic to the internet, SaaS and private apps, routing to private service edges for uninterrupted access and restricting access only to critical apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zscaler-resilience-marketing.json",
+          "quotes": [
+            "Catastrophic events (disasters)\nDuring full cloud outages caused by black swan events, or cloud reachability issues, Zscaler business continuity solutions handle traffic to the internet, SaaS, and private apps, routing to private service edges for uninterrupted access and restricting access only to critical apps."
+          ]
+        }
+      ]
+    },
+    "bcc-relation": {
+      "statement": "The Resilience page says Zscaler business continuity solutions handle traffic during full cloud outages; the Business Continuity Cloud help page says that service mainly helps organizations stay connected and protected during critical failure scenarios, which it says include global Zscaler cloud outages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zscaler-resilience-marketing.json",
+          "quotes": [
+            "During full cloud outages caused by black swan events, or cloud reachability issues, Zscaler business continuity solutions handle traffic to the internet, SaaS, and private apps, routing to private service edges for uninterrupted access and restricting access only to critical apps."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-managed-business-continuity-cloud.json",
+          "quotes": [
+            "Critical Failure: Critical failure scenarios include global Zscaler cloud outages or other issues with Internet & SaaS and Private Access clouds.",
+            "The Business Continuity Cloud service mainly helps organizations stay connected and protected during critical failure scenarios, where public clouds are unreachable."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "resilience-no-sdk": {
+      "kind": "semantic",
+      "title": "Whether Zscaler Resilience has a programmatic surface",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'No SDK / programmatic surface — operational configuration only.' The Resilience capture says nothing about configuration or APIs. The vendored Python SDK has a ZPA BusinessContinuityAPI (client.zpa.business_continuity), which is not identified as part of this capability in any captured page. See portfolio.business-continuity-cloud:sdk-surface.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

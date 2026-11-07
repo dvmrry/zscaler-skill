@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.runbook.web-dlp-triage",
+  "title": "DLP runbook: web DLP policy not working as expected, with evaluation mode, log fields, exemptions, rule criteria, engines and multipart checks",
+  "aliases": [
+    "Web DLP Policy (Inline DLP, OCR, EDM, and IDM) Not Working as Expected",
+    "Cloud App & URL Exceptions for DLP"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.dlp.runbook" },
+    { "rel": "see-also", "to": "zia.dlp.evaluation" },
+    { "rel": "see-also", "to": "zia.dlp.rules" },
+    { "rel": "see-also", "to": "zia.dlp.engines" },
+    { "rel": "see-also", "to": "zia.dlp.dictionaries" },
+    { "rel": "see-also", "to": "zia.dlp.notification-templates" },
+    { "rel": "see-also", "to": "zia.ssl-inspection" },
+    { "rel": "see-also", "to": "zia.logs.web-field-semantics" }
+  ],
+  "prose": [
+    {
+      "label": "Evaluation order.",
+      "text": "{{evaluation-mode}}"
+    },
+    {
+      "label": "Did the transaction match.",
+      "text": "{{log-fields-and-match}} {{divergence:match-rule-none-values}} {{log-examples}}"
+    },
+    {
+      "label": "SSL inspection and exemptions.",
+      "text": "{{ssl-and-exemptions}}"
+    },
+    {
+      "label": "EDM, IDM and OCR settings.",
+      "text": "{{edm-ocr-settings}}"
+    },
+    {
+      "label": "Rule criteria.",
+      "text": "{{rule-criteria}} {{divergence:websocket-protocol-scope}}"
+    },
+    {
+      "label": "Engines and dictionaries.",
+      "text": "{{engine-dictionary-check}} {{notification-template-dlptriggers}} {{gap:confidence-and-proximity-values}}"
+    },
+    {
+      "label": "Single or multipart POST.",
+      "text": "{{multipart}}"
+    }
+  ],
+  "claims": {
+    "evaluation-mode": {
+      "statement": "By default the Zscaler service evaluates inline DLP policy rules according to rule order, with the evaluation stopping at the first match; if Evaluate All Rules mode is enabled for the organization, it evaluates all rules and enforces the rule with the most restrictive action, using rule order only when multiple rules with the same action are matched.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "By default, the Zscaler service evaluates inline DLP policy rules according to rule order, with the evaluation stopping at the first match.",
+            "if Evaluate All Rules mode is enabled for your organization, you can instead have the Zscaler service evaluate all rules, and enforce the rule with the most restrictive action.",
+            "Evaluate All Rules: Zscaler service evaluates all rules, enforcing the rules with the most restrictive action. Evaluate All Rules mode uses rule order only when multiple rules with the same action are matched."
+          ]
+        }
+      ]
+    },
+    "log-fields-and-match": {
+      "statement": "The runbook says to look at the Web Insights logs for the Blocked Policy Type value and the Allowed DLP Rule Name for the reported transaction, and that if the Blocked Policy Type and Allowed DLP Rule Name isn't None the request matched the DLP policy; if the web transaction is not visible in the Internet & SaaS Web Insights logs, it is possible that the transaction is not reaching Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "You must look at the Web Insights logs for the Blocked Policy Type value and the Allowed DLP Rule Name for the reported transaction.",
+            "If the Blocked Policy Type and Allowed DLP Rule Name isn't None, this means the request matched the DLP policy.",
+            "If the web transaction is not visible in the Internet & SaaS Web Insights logs, it is possible that the transaction is not reaching Zscaler."
+          ]
+        }
+      ]
+    },
+    "log-examples": {
+      "statement": "In the runbook's Web Insights examples, rows with Blocked Policy Type Data Loss Prevention show a Blocked Policy Name (DLP_Block_SSN, DLP_Password, DLP_NRIC_SEA) with DLP Engine and DLP Dictionaries values; the DLP_Password and DLP_NRIC_SEA rows show Allowed DLP Rule Name None and the DLP_Block_SSN row shows DLP_Pre724_otherDoc.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "| URL | DLP Engine | DLP Dictionaries | Blocked Policy Name | Blocked Policy Type | Allowed DLP Rule Name |",
+            "| dlptest.com/wp-admin/admin-ajax.php | SSN | SSN Regex 2 (4) | DLP_Block_SSN | Data Loss Prevention | DLP_Pre724_otherDoc |",
+            "| storage.prod.us-east-1.w1.dataprotection.zscalergov.net/browser-extensions/ | External | None | DLP_Password | Data Loss Prevention | None |",
+            "| 26-Thailand National Identity Card Number | 26-Thailand National Identity Card Number (Patterns) (1);26-Thailand National Identity Card Number (Phrases) (1) | DLP_NRIC_SEA | Data Loss Prevention | None |"
+          ]
+        }
+      ]
+    },
+    "ssl-and-exemptions": {
+      "statement": "The runbook checks that SSL inspection is enabled if the traffic is HTTPS and, under Policies > Data Protection > Common Resources > Advanced Settings, whether the request traffic is included in the Cloud App & URL Exceptions for DLP configuration: Exempted Cloud Applications, Exempted URLs, Exempted User-Defined URL Categories, and Exempt URL Encoded Data (bypasses scanning content type application/x-www-form-urlencoded); it says these configurations are a global setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Ensure SSL inspection is enabled if the traffic is HTTPS.",
+            "These configurations are a global setting. Do not change them without fully understanding the change and impact.",
+            "Exempted Cloud Applications: Add the respective cloud app if you want to bypass DLP policy.",
+            "Exempted URLs: Add the respective domains if you want to bypass DLP policy.",
+            "Exempted User-Defined URL Categories: Add the respective Custom URL category if you want to bypass DLP policy.",
+            "Exempt URL Encoded Data: Enable this setting to bypass scanning the content type as application/x-www-form-urlencoded from DLP evaluation.",
+            "Go to Policies > Data Protection > Common Resources > Advanced Settings and verify the following configuration:",
+            "Check that the request traffic is included in any of the Cloud App & URL Exceptions for DLP configuration."
+          ]
+        }
+      ]
+    },
+    "edm-ocr-settings": {
+      "statement": "In Advanced Settings, the runbook says Exact Data Match > Check for Popular Formats, when enabled, reduces false positives on non-standard formats; that Exact Data Match (EDM) and Indexed Document Match (IDM) require the Advanced DLP suite; and that the Optical Character Recognition (OCR) settings are enabled to apply DLP policy on image files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Go to Exact Data Match > Check for Popular Formats: Enabling this reduces false positives on non-standard formats.",
+            "Exact Data Match (EDM) and Indexed Document Match (IDM) require the Advanced DLP suite.",
+            "Go to Optical Character Recognition (OCR): Enable these settings if you want to apply DLP policy on image files."
+          ]
+        }
+      ]
+    },
+    "rule-criteria": {
+      "statement": "To check whether a transaction matches a DLP rule, the runbook lists source-related criteria (Users, Groups, Departments, User Risk Profile, Locations, Location Groups, Source IP Groups), destination-related criteria (URL Categories, Cloud Applications, Cloud Application Instances, Private Access Application Segment) and other criteria (Time, Protocols, File Type, Data Size (KB)); the DLP policy applies AND logic to the URL Categories and Cloud Applications fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Source-related criteria: These include Users, Groups, Departments, User Risk Profile, Locations, Location Groups, Source IP Groups.",
+            "Destination-related criteria: These include URL Categories, Cloud Applications, Cloud Application Instances, Private Access Application Segment.",
+            "The DLP policy applies AND logic to the URL Categories and Cloud Applications fields when inspecting your organization's traffic.",
+            "Other criteria: This includes Time, Protocols, File Type, and Data Size (KB)."
+          ]
+        }
+      ]
+    },
+    "engine-dictionary-check": {
+      "statement": "If Content Matching is enabled, the runbook says to record which DLP Engines are selected, view each engine and take a screenshot or record the Expression Preview, and check the settings and values in each related DLP Dictionary, noting for a Predefined Type the Confidence Score Threshold and Proximity Length and special configurations like Custom High Confidence Phrases.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If Content Matching is enabled, record which DLP Engines are selected.",
+            "View the respective DLP Engine and take a screenshot or record the Expression Preview.",
+            "Predefined Type: Note the Confidence Score Threshold and Proximity Length.",
+            "Special configurations like Custom High Confidence Phrases and Social Security Numbers in Social Security Numbers (US).",
+            "Check the settings and values configured in each related DLP Dictionary:"
+          ]
+        }
+      ]
+    },
+    "notification-template-dlptriggers": {
+      "statement": "If the current DLP Notification Template does not include \"${DLPTRIGGERS}\", the runbook says to create a new template in the Message as HTML section, and its example HTML message includes ${ENGINES_IN_RULE} for the Triggered DLP Violation Engines (assigned to the hit rule) and ${DLPTRIGGERS} for the DLP Triggers match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If your current DLP Notification Template does not include \"${DLPTRIGGERS}\", you can create a new DLP Notification Template using the following example:",
+            "using the following example in the Message as HTML section.",
+            "Triggered DLP Violation Engines (assigned to the hit rule): <span class=\"engines\">${ENGINES_IN_RULE}</span>",
+            "DLP Triggers match: <span class=\"triggers\">${DLPTRIGGERS}</span>"
+          ]
+        }
+      ]
+    },
+    "multipart": {
+      "statement": "If no issue is found in the DLP Engines or DLP Dictionaries, the runbook says to check whether the content is POST using single or multipart form submission; in a multipart payload upload the data is divided into multiple parts with their own headers and boundaries, each part is evaluated against Zscaler's DLP rules, and part of a multipart/form-data payload submission might hit the DLP rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "There is a possibility that part of a multipart/form-data payload submission hits the DLP rule.",
+            "In a multipart payload upload, the data is divided into multiple parts with its own headers and boundaries. Each of the parts is evaluated against the Zscaler's DLP rules.",
+            "If no issue is found in the DLP Engines or DLP Dictionaries, check if the content is POST using single or multipart form submission.",
+            "A user can submit a POST request to Zscaler using a single or multipart payload submission."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "confidence-and-proximity-values": {
+      "kind": "semantic",
+      "title": "What the runbook's multipart Chrome header example shows",
+      "status": "open",
+      "detail": "The runbook says to note the Confidence Score Threshold and Proximity Length of a Predefined Type without giving values; the dictionary values are described in [[zia.dlp.dictionaries]]. Its multipart Chrome header example is an image.",
+      "resolves_with": ["source-read"]
+    }
+  },
+  "divergences": {
+    "match-rule-none-values": {
+      "summary": "The runbook says a request matched the DLP policy if the Blocked Policy Type and Allowed DLP Rule Name aren't None, while its own example rows show matches with one of the two None.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+            "quotes": [
+              "If the Blocked Policy Type and Allowed DLP Rule Name isn't None, this means the request matched the DLP policy."
+            ]
+          },
+          "says": "A request whose Blocked Policy Type and Allowed DLP Rule Name aren't None matched the DLP policy."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+            "quotes": [
+              "| storage.prod.us-east-1.w1.dataprotection.zscalergov.net/browser-extensions/ | External | None | DLP_Password | Data Loss Prevention | None |",
+              "| dlptest.com/wp-admin/admin-ajax.php | SSN | SSN Regex 2 (4) | DLP_Block_SSN | Data Loss Prevention | DLP_Pre724_otherDoc |"
+            ]
+          },
+          "says": "The DLP_Password row has Blocked Policy Type Data Loss Prevention with Allowed DLP Rule Name None, and the DLP_Block_SSN row has Blocked Policy Type Data Loss Prevention with Allowed DLP Rule Name DLP_Pre724_otherDoc."
+        }
+      ],
+      "impact": "The Allowed DLP Rule Name field applies only to Allow rules, not Block, and logging it needs Zscaler Support, per the NSS web log format article, so None in either field is not proof that no rule matched. The DLP_Block_SSN row shows both a block and an Allowed DLP Rule Name. Do not tell an admin that a None value means no match without checking the rule action."
+    },
+    "websocket-protocol-scope": {
+      "summary": "The runbook notes WebSocket Protocol is now supported in the DLP rule, while the Evaluate All Rules article says the WebSocket protocol is supported only for the Microsoft Copilot application.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Notes: WebSocket Protocol is now supported in DLP rule."
+            ]
+          },
+          "says": "WebSocket Protocol is now supported in the DLP rule, with no application limit stated."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+            "quotes": [
+              "The WebSocket protocol is supported only for the Microsoft Copilot application."
+            ],
+            "after": "- The DLP policy applies OR logic to the Users, Groups, and Departments fields when inspecting your organization’s traffic. In order for the DLP rule to trigger, the Zscaler service must detect at least one of the rule’s selected users, groups, or departments."
+          },
+          "says": "The WebSocket protocol is supported only for the Microsoft Copilot application."
+        }
+      ],
+      "impact": "The runbook gives no scope for its note and the other article gives no date. Do not say WebSocket DLP applies to all applications or only to Copilot without naming the page; see [[zia.dlp.rules]]."
+    }
+  }
+}

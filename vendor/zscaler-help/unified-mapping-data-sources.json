@@ -1,0 +1,886 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Mapping Data Sources",
+  "source": {
+    "url": "https://help.zscaler.com/unified/mapping-data-sources",
+    "node": "1545242",
+    "revision": "3250742",
+    "updated": "2026-10-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "After creating a data source in the Agentic Security Operations Platform (Agentic SecOps Platform), and ingesting data at least once, you must map the ingested fields to the Agentic SecOps Platform data model fields. Mapping is configured per source. After all sources are configured and mapped, the platform can deduplicate and merge records across multiple sources through data unification, to be used and consumed by the different Agentic SecOps Platform applications (e.g., UVM, AEM)."
+    },
+    {
+      "text": "If you are mapping a data source for the first time, Zscaler recommends consulting with your Zscaler Account team."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you map a data source, ensure that you have:"
+    },
+    {
+      "item": "Set up the data source and run it at least once so there is ingested source data available to explore, preview, and map. To learn more, see Creating Data Sources and Managing Data Sources.",
+      "depth": 0
+    },
+    {
+      "item": "Check that the run was completed successfully in source runs. To learn more, see Tracking Data Source Runs.",
+      "depth": 0
+    },
+    {
+      "text": "For access to data source mapping, your assigned role must include the Read and Edit permissions under the Platform - Data Source Mapping resource. To learn more, see Creating Custom Roles and Managing User Roles."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Mapping a Data Source",
+      "level": 1
+    },
+    {
+      "text": "To map a data source:"
+    },
+    {
+      "item": "In the Agentic SecOps Platform Admin Portal, click Configure.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          51,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click Sources.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Choose one of the following methods:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Hover over the source, and click the Map Data icon.",
+      "depth": 1,
+      "strong": [
+        [
+          37,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Select the data source from the list, and click Map Data on the toolbar.",
+      "depth": 1,
+      "strong": [
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "The Map <Source> page appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          9
+        ],
+        [
+          15,
+          16
+        ]
+      ]
+    },
+    {
+      "text": "There are three main workspace sections on the mapping page:"
+    },
+    {
+      "item": "Ingested Data: The source fields (left) detected from the most recent successful data ingestion run.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Entities: The Agentic SecOps Platform data model entities and fields (right) that you can select from to map data source fields for normalization and unification.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Create New Connection: The section (center) where you add mappings and configure how to populate the target Agentic SecOps Platform fields.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The main objective of mapping is to populate the Agentic SecOps Platform data model with complete, consistent, and identifiable values. Each mapping involves dragging an Agentic SecOps Platform field from the Entities column to the Create New Connection section, and then configuring the corresponding field value to its left with a data source field from the Ingested Data column or with a custom value (i.e., composite, value, or script)."
+    },
+    {
+      "text": "The fields under the Entities column are organized by entity (e.g., Asset, Component, Finding). The Agentic SecOps Platform uses a unified, entity-based data model to normalize and harmonize data from Zscaler and third-party sources into a single source of truth. When you map fields into the correct entity and populate its key attributes, the platform can deduplicate, correlate, enrich, and operationalize the data across sources for managing your security environment, reporting, and ticketing."
+    },
+    {
+      "text": "Some data source connectors include a preconfigured default mapping based on common use cases and industry best practices. This is indicated by a Default Mapping label next to the source name. If your source includes a default mapping, review it to ensure that it matches your environment and the data you want to ingest. You can modify and customize the default mapping as needed. After you edit a default mapping, the label changes to Custom Mapping. To learn more, see Managing Source Mapping."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Some sources use system-managed mappings. These sources are maintained by Zscaler and can't be edited or customized."
+    },
+    {
+      "text": "File parsing defaults to Auto for all sources and is recommended for most use cases. If you require more granular control over how the file is parsed, or if the Auto parser does not correctly identify the file type, you can manually select the appropriate Parser Type to control how the platform parses the file. To learn more, see Source File Parser Types."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Creating a New Mapping",
+      "level": 1
+    },
+    {
+      "text": "As a best practice, start by mapping each entity's key field. This unique identifier (e.g., an asset's external ID) is the anchor the platform uses to reliably identify, track, and deduplicate records. Continue with mapping the core attributes (e.g., status, severity, and timestamps) that drive security reporting and workflow automation. After these essentials are validated, you can map additional enrichment fields and optional metadata."
+    },
+    {
+      "text": "Building an effective mapping configuration requires a deep understanding of your source data's structure and how it aligns with the Agentic SecOps Platform data model. Mapping Copilot simplifies this by analyzing your ingested data to provide intelligent mapping recommendations. This AI-powered assistant helps you interpret source fields and navigate the Agentic SecOps Platform schema to ensure your data is accurately mapped. To learn more, see Using Mapping Copilot."
+    },
+    {
+      "text": "To create a new mapping:"
+    },
+    {
+      "item": "Drag an Agentic SecOps Platform field from the Entities column to the Create New Connection section in the center.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          47,
+          55
+        ],
+        [
+          70,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "You can copy and paste mapping connections from an existing mapped source or unmap all connections. To learn more, see Managing Source Mapping.",
+      "depth": 0
+    },
+    {
+      "item": "For mapping use cases that require additional entities or fields beyond the existing Agentic SecOps Platform system defaults, you can extend the data model from this page:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Click Add Entity to create a custom entity.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Click the Add field to <entity> icon on an existing entity to add a custom field to that entity.",
+      "depth": 1,
+      "strong": [
+        [
+          10,
+          24
+        ],
+        [
+          30,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "While you can extend the data model with custom entities and fields, these additions typically require advanced downstream configuration (e.g., defining entity relationships and aliases) to deliver significant value. Apply customizations cautiously to ensure consistent normalization and reliable data correlation.",
+      "depth": 0
+    },
+    {
+      "item": "Open the editor to set the value to map to the Agentic SecOps Platform field in one of the following ways:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Drag a source field from the Ingested Data column to the Create New Connection section, then click the Editor icon.",
+      "depth": 1,
+      "strong": [
+        [
+          29,
+          42
+        ],
+        [
+          57,
+          78
+        ],
+        [
+          103,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Editor in the empty left field.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the editor, select one of the following methods to set the Agentic SecOps Platform field's value on the left:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Script",
+      "depth": 1
+    },
+    {
+      "item": "Use Python scripts when you need more granular control over how a value is mapped, such as when you need to transform or normalize data, apply conditional logic, or derive a value when the source doesn't provide it in the exact format you need.",
+      "depth": 1
+    },
+    {
+      "item": "Source fields referenced within a script do not display visual connection lines in the mapping workspace. Additionally, they do not appear in the source fields list when applying the Mapped filter.",
+      "depth": 1
+    },
+    {
+      "item": "Common use cases for using scripts include:",
+      "depth": 1
+    },
+    {
+      "item": "Data Formatting: Clean up raw source data (e.g., lowercasing hostnames or stripping .local domain suffixes) or reformat delimiters in hardware identifiers (e.g., converting MAC addresses from 00-0C-29-4F-8B-3C to 00:0C:29:4F:8B:3C).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Conditional Filtering: Map values only if they meet specific criteria (e.g., using the ipaddress module to map only public IP addresses while ignoring internal ones).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Field Priority (Fallback Logic): Create a hierarchy for missing data (e.g., if display_name is null, check for hostname; if both are missing, return asset_id).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Custom String Logic: While the platform automatically handles common transformations (e.g., normalizing OS versions), you can use scripts for unique logic, such as using Regex to extract a specific ID from an unstructured description field or matching custom naming patterns.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "heading": "Validating and Testing Your Logic",
+      "level": 2
+    },
+    {
+      "item": "Before finalizing your mapping, use the validation and testing tools to ensure your logic is correct, and the output matches your expectations.",
+      "depth": 1
+    },
+    {
+      "heading": "Validating the Script",
+      "level": 3
+    },
+    {
+      "item": "Click Validate to verify that the mapping script is syntactically valid. This ensures that the code can compile and identifies common errors like missing brackets, indentation issues, or invalid Python characters.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "heading": "Testing the Script",
+      "level": 3
+    },
+    {
+      "item": "You can run your mapping script against example input values and preview the mapped value that the script returns for the target field you're configuring. This helps you validate transformation logic, troubleshoot unexpected results, and test edge cases without affecting live data.",
+      "depth": 1
+    },
+    {
+      "item": "The Test Logic panel displays actual records from your source. If the source has had a successful run in the last 90 days, the panel includes the full dataset from that run; otherwise, it displays a 50-record preview. Each input field at the top of the panel is generated dynamically based on the source fields referenced in your script.",
+      "depth": 1
+    },
+    {
+      "item": "To test the script:",
+      "depth": 1
+    },
+    {
+      "item": "In the Script Editor, click Test Script.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          28,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Test Logic panel appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the Test Logic panel:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Provide test input examples using one of these options:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Select a record (row) from the sample data table to populate the input fields with values from that record. Adjust values as needed.",
+      "depth": 4
+    },
+    {
+      "item": "Enter the test values manually.",
+      "depth": 4
+    },
+    {
+      "item": "Click Run Test to run the script with the current inputs and review the result.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Review the result shown in the panel (below the sample data). This is the value the script returns for the target field using the current input values.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Update the script in the editor to refine your transformation logic as needed, and repeat until the script produces the intended mapped values.",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The script runs against a source row passed in as a dictionary (row). Access values using row[\"<field>\"] or row.get(\"<field>\"), and ensure the value you return matches the type of the target field you're mapping to.",
+      "depth": 1
+    },
+    {
+      "heading": "Example: Formatting the Asset First Seen Date",
+      "level": 2
+    },
+    {
+      "item": "When mapping entities like assets and findings, you should always map the First Seen date. Because sources provide timestamps in various formats (e.g., epoch, various ISO-8601 strings, or non-standard date patterns), you can use a simple script to normalize them to the platform's required format: %Y-%m-%dT%H:%M:%SZ.",
+      "depth": 1
+    },
+    {
+      "item": "For example, when mapping the Asset First Seen date, you can replace <Source's Original Date Format> under ORIGINAL_DATE_FORMAT with the format provided by your source:",
+      "depth": 1
+    },
+    {
+      "item": "from datetime import datetime def evaluate(row: dict) -> str: # Access the source field date_string = row.get(\"asset_first_seen\") # Replace with the date format used by your source ORIGINAL_DATE_FORMAT = '<Source's Original Date Format>' # Parse the source date and return it in the platform's required format return datetime.strptime(date_string, ORIGINAL_DATE_FORMAT).strftime('%Y-%m-%dT%H:%M:%SZ')",
+      "depth": 1
+    },
+    {
+      "item": "The script references the asset_first_seen date, so this field should appear in the Test Logic panel. You can test the conversion to ensure that your source's original date format correctly transforms into the platform's format. Use the Test Logic panel to input a sample date from your source and verify the output.",
+      "depth": 1
+    },
+    {
+      "item": "The following table details examples of possible original date formats:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Source Original Date Format",
+          "",
+          "Input",
+          "Expected Output"
+        ],
+        [
+          "Standard String (date with spaces)",
+          "%Y-%m-%d %H:%M:%S",
+          "2024-03-10 15:26:56",
+          "2024-03-10T15:26:56Z"
+        ],
+        [
+          "Timezone Offset (normalizes +/-HH:MM to Z)",
+          "%Y-%m-%dT%H:%M:%S%z",
+          "2024-03-10T15:26:56+05:00",
+          "2024-03-10T15:26:56Z"
+        ],
+        [
+          "High Precision (truncates 7+ decimals to 6)",
+          "%Y-%m-%dT%H:%M:%S.%fZ",
+          "2024-03-10T15:26:56.123456789Z",
+          "2024-03-10T15:26:56Z"
+        ]
+      ]
+    },
+    {
+      "item": "By default, the platform handles edge cases and invalid inputs by returning None if the script fails to produce a valid result. You can test the primary conversion and the edge cases by manually entering values in the test panel and checking the output.",
+      "depth": 1
+    },
+    {
+      "item": "The following table details possible edge cases that the platform handles:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Edge Case",
+          "Input",
+          "Expected Output"
+        ],
+        [
+          "Missing Data (field exists but is empty)",
+          "\"\" (Empty String)",
+          "None"
+        ],
+        [
+          "Null Value (field is missing from the source)",
+          "null",
+          "None"
+        ],
+        [
+          "Invalid Numeric (number is too short for a valid date)",
+          "12345",
+          "None"
+        ],
+        [
+          "Pre-Epoch (dates before 1970-01-01)",
+          "Jan 1, 1960",
+          "None"
+        ]
+      ]
+    },
+    {
+      "item": "Value",
+      "depth": 1
+    },
+    {
+      "item": "Use the Value method when you want to populate an Agentic SecOps Platform field with a fixed (constant) value that you provide. Every record ingested from that source receives the same value for that field.",
+      "depth": 1
+    },
+    {
+      "item": "This is useful when the field should be constant for the entire source. For example:",
+      "depth": 1
+    },
+    {
+      "item": "Providing a consistent default for known attributes when the source doesn't include a field you still want set (e.g., a default type or status that's the same for all records in that feed).",
+      "depth": 2
+    },
+    {
+      "item": "Tagging records to simplify filtering and troubleshooting (e.g., marking everything ingested a specific source instance).",
+      "depth": 2
+    },
+    {
+      "item": "For example, a Snyk source that retrieves repositories typically won't provide an explicit asset type field. In that case, you can set the Agentic SecOps Platform Asset Type field using Value = Repository to ensure all assets ingested from that source are consistently categorized.",
+      "depth": 1
+    },
+    {
+      "item": "Avoid using a fixed value for fields that should vary per record (especially identifiers, keys, and timestamps).",
+      "depth": 1
+    },
+    {
+      "item": "Field",
+      "depth": 1
+    },
+    {
+      "item": "Use the Field method to create a direct, one-to-one mapping between a source field and an Agentic SecOps Platform target field. This passes the source value through exactly as it is received, without transformations, formatting changes, or conditional logic. This is useful when types and formats of the source and the Agentic SecOps Platform field already match (e.g., mapping serial_number directly to the Agentic SecOps Platform Serial Number field).",
+      "depth": 1
+    },
+    {
+      "heading": "Mapping Nested Fields",
+      "level": 2
+    },
+    {
+      "item": "Some sources return fields inside nested objects in the source payload (often JSON). A nested field is a value stored inside one or more parent objects, and you reference it by its path using dot notation. For example, vulnerability.cvss.base_score refers to the score value stored within the cvss object under vulnerability.",
+      "depth": 1
+    },
+    {
+      "item": "Use nested fields when the attribute you need is not available as a top-level source field and is instead grouped under a parent object such as asset, finding, or device. In these cases, make sure to map the specific nested property that contains the actual value you want, not the parent object itself.",
+      "depth": 1
+    },
+    {
+      "item": "To map a nested field:",
+      "depth": 1
+    },
+    {
+      "item": "In the Ingested Data column, locate the parent field, and click the arrow to view the nested properties.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Drag and drop the nested field into the Create New Connection section.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          40,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "The platform supports nested fields in the UI only up to the third level. If the field you need is deeper, enter the full path manually using dot notation in the Field method (e.g., asset.cloud.account.details.arn, finding.evidence.event.metadata.user.id).",
+      "depth": 1
+    },
+    {
+      "item": "Composite",
+      "depth": 1
+    },
+    {
+      "item": "Use the Composite method to combine multiple source fields into a single Agentic SecOps Platform field. This is primarily used to generate a unique identifier (key) when a single source field is insufficient to distinguish individual records. For example, if a vendor does not provide an explicit finding key or if the available ID does not capture the specific relationship between a finding and an asset, you can concatenate multiple fields (e.g., cve or vulnerability_id and asset_id) to create a robust finding key.",
+      "depth": 1
+    },
+    {
+      "item": "When building a composite mapping, select the source fields in the order you want them to appear in the concatenated value. The platform automatically inserts an underscore (_) as the separator between the values in the final string.",
+      "depth": 1
+    },
+    {
+      "heading": "Using Composite for Exploded Fields",
+      "level": 2
+    },
+    {
+      "item": "This method also provides a straightforward way to ensure each record remains distinct after an array is exploded. When you explode a field containing an array (e.g., vulnerabilities, tags), each array element becomes a separate output record. Because the original record ID repeats across these new records, it is no longer unique on its own. You can use Composite to create a new unique key by combining the original record ID with the exploded value.",
+      "depth": 1
+    },
+    {
+      "item": "For example, you can explode the source field vulnerabilities (an array) so that each CVE value becomes its own output record and can be mapped to the Agentic SecOps Platform Finding field. For a single source record with asset_id = host-99 and vulnerabilites = [CVE-2024-1234, CVE-2024-2345, CVE-2024-3456, CVE-2024-4567], the explode produces 4 output records:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Record",
+          "asset_id",
+          "vulnerabilities (exploded value)",
+          "Key"
+        ],
+        [
+          "1",
+          "host-99",
+          "CVE-2024-1234",
+          "host-99_CVE-2024-1234"
+        ],
+        [
+          "2",
+          "host-99",
+          "CVE-2024-2345",
+          "host-99_CVE-2024-2345"
+        ],
+        [
+          "3",
+          "host-99",
+          "CVE-2024-3456",
+          "host-99_CVE-2024-3456"
+        ],
+        [
+          "4",
+          "host-99",
+          "CVE-2024-4567",
+          "host-99_CVE-2024-4567"
+        ]
+      ]
+    },
+    {
+      "item": "If you mapped only asset_id as the key, all 4 records would share the same identifier (i.e., host-99), causing them to overwrite one another. By using Composite to combine asset_id with the exploded vulnerability value, each record receives a unique identifier that preserves the specific asset-to-finding relationship.",
+      "depth": 1
+    },
+    {
+      "item": "Click Explore Data to review the ingested fields and their values to identify which fields you want to map. If the source has had a successful run in the last 90 days, the Explore panel includes the full dataset from that run; otherwise, it displays a 50-record preview. To learn more, see Exploring Source Fields in Mapping.",
+      "depth": 0,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Explode a field containing an array to treat each array element as an individual record in the mapped output. This transforms a single ingested record that contains an array into multiple mapped records, with one record per array element (e.g., a list of hostnames, CVEs, or tags). You can explode a field containing an array in one of the following ways:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Click the Explode Field icon that appears when hovering over the data source field.",
+      "depth": 1,
+      "strong": [
+        [
+          10,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the Explode Values checkbox in the script editor when configuring the field. Use this option when your script generates a custom array that needs to be exploded into individual records. For example, if a source field provides a single comma-separated string containing valid service IDs mixed with invalid text (e.g., \"SNSVC1234, pending, BSN5678, n/a\"), you can use a Python script to split the string, filter out the invalid values, and output an array (e.g., [\"SNSVC1234\", \"BSN5678\"]). Selecting this checkbox can then explode that single array into distinct output records.",
+      "depth": 1,
+      "strong": [
+        [
+          11,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Agentic SecOps Platform supports the following use cases for exploding arrays:",
+      "depth": 0
+    },
+    {
+      "item": "Standard array: Explode a field containing an array of strings to create a single record per string. For example, you can explode the array field vulnerabilities with the value [\"CVE-2024-1234\", \"CVE-2024-5678\"] into two records, one for CVE-2024-1234 and one for CVE-2024-5678.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Array within a JSON object: Expand a field to reveal its nested fields, then explode a nested array field to create a single record per array element. For example, for the field {\"asset\": {region: \"east\", \"hostnames\": [\"web-srv-01\", \"prod-lb-02\"]}}, click the arrow to expand and reveal the nested fields region and hostnames. You can then explode the array field hostnames to create two individual records, one for web-srv-01 and one for prod-lb-02.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Array of objects: Explode a field containing an array of objects to create a single record per object. You can then either map the entire object or expand it to reveal and map the unique nested keys found across the array elements to specific Agentic SecOps Platform fields. For example, you can explode an array of tag objects [{\"tag_id\": \"t1\", \"name\": \"production\"}, {\"tag_id\": \"t2\", \"name\": \"staging\"}] into individual records for each tag. You can then expand the exploded field to map a specific nested key, such as name, to your target field.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Only one field can be exploded per mapping. When you explode an array field, you must map the exploded value to a key field for that entity to ensure each resulting record is unique. This is typically achieved using a Composite mapping to combine the exploded value with a parent identifier (e.g., asset_id + cve_id). If the exploded value is not part of the key, every record generated from the array shares the same ID, causing each record to overwrite the previous one until only the final value remains.",
+      "depth": 0
+    },
+    {
+      "item": "Click Map to add the mapping. Repeat the mapping process for all the fields you want to use in the platform. Only mapped fields are available for unification and consumption.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Click the Full Preview icon to verify the mapped output. Make changes as necessary until it looks correct.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save to save the configured data source mapping.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "After saving, mapping changes apply to future runs scheduled on the data source setup page. To apply the new mapping to the data immediately, process the data source on the Sources page. To learn more, see Managing Data Sources."
+    },
+    {
+      "heading": "Data Mapping Guidelines",
+      "level": 1
+    },
+    {
+      "text": "To ensure high-quality data and reliable correlation across your environment, follow these standards when configuring your mappings. These guidelines help the platform consistently normalize, deduplicate, and prepare your data for downstream security analytics and automated workflows."
+    },
+    {
+      "heading": "Minimally Required Fields",
+      "level": 2
+    },
+    {
+      "text": "Populating core attributes is essential for record creation and downstream visibility. Map the following fields at minimum to ensure records can be created and used downstream:"
+    },
+    {
+      "table": [
+        [
+          "Entity",
+          "Fields to Always Map"
+        ],
+        [
+          "Asset",
+          "source_key, type, name"
+        ],
+        [
+          "Finding",
+          "source_key, type, title, description, original_severity_score, original_severity"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          0,
+          0,
+          5
+        ],
+        [
+          2,
+          0,
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "text": "If your source provides timestamps, also map lifecycle fields (e.g., first_seen and last_seen) when available."
+    },
+    {
+      "heading": "Configuring Entity Keys",
+      "level": 2
+    },
+    {
+      "text": "When mapping an entity, you must select a field to be the entity key. The platform uses the key to uniquely identify records so it can reliably track, correlate, and deduplicate data across runs and across sources. When selecting a field to be the entity's key:"
+    },
+    {
+      "item": "Use source-provided IDs that are unique and stable over time (e.g., UUIDs or instance/device IDs) instead of values that commonly change (e.g., display names or IP addresses).",
+      "depth": 0
+    },
+    {
+      "item": "Ensure one key value represents one real-world record. If multiple distinct records share the same key, records can overwrite or merge incorrectly.",
+      "depth": 0
+    },
+    {
+      "item": "Normalize formatting where needed (e.g., consistent MAC address delimiters) and avoid leading or trailing whitespace.",
+      "depth": 0
+    },
+    {
+      "item": "If no single field is unique or when exploding arrays, build a composite key that preserves uniqueness (e.g., asset_id + cve).",
+      "depth": 0
+    }
+  ]
+}

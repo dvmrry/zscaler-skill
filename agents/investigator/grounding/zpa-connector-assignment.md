@@ -7,10 +7,10 @@ last-verified: "2026-05-07"
 confidence: medium
 source-tier: practice
 sources:
-  - "references/zpa/app-connector.md"
-  - "references/zpa/segment-server-groups.md"
-  - "references/zpa/app-segments.md"
-  - "references/zpa/logs/app-connector-metrics.md"
+  - "`kb:zpa.app-connectors`"
+  - "`kb:zpa.server-groups`"
+  - "`kb:zpa.app-segments`"
+  - "`kb:zpa.logs.app-connector-metrics`"
 author-status: draft
 ---
 
@@ -27,27 +27,25 @@ author-status: draft
 
 Read these *before* interpreting any logs. Establish what *should* happen in the segment → server group → connector chain before reasoning about why it didn't.
 
-- [`references/zpa/app-connector.md § How sessions are assigned to App Connectors`](../../../references/zpa/app-connector.md) — the eligibility gates (CONNECTED status, target reachability via `AliveTargetCount`, group association). An empty `Connector` field in LSS means no connector was eligible — fix is on the eligibility side, not the connector→app hop.
-- [`references/zpa/segment-server-groups.md § Verifying the segment → server group → connector chain (snapshot recipe)`](../../../references/zpa/segment-server-groups.md) — the per-link verification recipe.
+- [`zpa.app-connectors`](kb:zpa.app-connectors) — the eligibility gates (CONNECTED status, target reachability via `AliveTargetCount`, group association). An empty `Connector` field in LSS means no connector was eligible — fix is on the eligibility side, not the connector→app hop.
+- [`zpa.server-groups`](kb:zpa.server-groups) — the per-link verification recipe.
 
 ## Load docs
 
-- `references/zpa/app-connector.md`
-- `references/zpa/segment-server-groups.md`
-- `references/zpa/app-segments.md`
-- `references/zpa/logs/app-connector-metrics.md`
+- `kb:zpa.app-connectors`
+- `kb:zpa.server-groups`
+- `kb:zpa.app-segments`
+- `kb:zpa.logs.app-connector-metrics`
 
-## Inspect snapshot
+## Inspect tenant config
 
-- `_data/snapshot/<cloud>/zpa/app-segments.json`
-- `_data/snapshot/<cloud>/zpa/server-groups.json`
-- `_data/snapshot/<cloud>/zpa/connector-groups.json`
-- `_data/snapshot/<cloud>/zpa/app-connectors.json`
+- The overlay's IaC (when `overlay.json` declares `iac`) for `zpa/application-segments`, `zpa/server-groups`, `zpa/app-connector-groups`, and `zpa/app-connectors`
+- Live, read-only, only when IaC cannot answer or for drift: `zscalerctl zpa application-segments list`, `zscalerctl zpa server-groups list`, `zscalerctl zpa app-connector-groups list`, `zscalerctl zpa app-connectors list` (connector status is live-only state)
 
-(Fork layouts may use `_data/<cloud>/zpa/...` directly. If the canonical path is empty, try that exact cloud fallback and show both attempts. Do not scan broad `_data/` or collapse multi-cloud tenant truth into a product-first layout.)
+(Do not scan broad `_data/`. Use `node scripts/kb.mjs resolve <type-id>` for field shapes.)
 
 ## Use runtime logs only when
 
-- The config chain (segment → server group → connector group → connectors) is intact in the snapshot, AND
+- The config chain (segment → server group → connector group → connectors) is intact in the tenant config, AND
 - Target reachability or per-port health needs to be confirmed at runtime, OR
-- Assignment reason (connector picked or not picked, why) needs LSS evidence the snapshot can't provide
+- Assignment reason (connector picked or not picked, why) needs LSS evidence the tenant config can't provide

@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-red-teaming.assets",
+  "title": "Connecting an AI app for red teaming: network type, private access, and the application profile that shapes tests",
+  "aliases": [
+    "connect asset",
+    "ai app for red teaming",
+    "red teaming application profile",
+    "predefined responses",
+    "red teaming rate limit",
+    "multi-step attacks",
+    "private network access type"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming.connections"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming.brokers"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-inventory-api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{connect-flow}} The connection step is in [[ai-security.ai-red-teaming.connections]]; this subject covers the app, its network type and its profile."
+    },
+    {
+      "label": "Network type.",
+      "text": "{{network-type}} The addresses to whitelist are open {{gap:whitelist-addresses}}. {{private-connection-types}} The broker route is in [[ai-security.ai-red-teaming.brokers]]."
+    },
+    {
+      "label": "Application profile.",
+      "text": "{{app-profile}} {{supported-modes}}"
+    },
+    {
+      "label": "How the profile shapes tests.",
+      "text": "{{test-shaping}} {{predefined-responses}}"
+    },
+    {
+      "label": "Settings.",
+      "text": "{{settings}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a private app, which network access type (Broker or IP Whitelisting) is chosen before looking at connection errors, and that the connection type is one the private access types support.",
+      "uses": [
+        "network-type",
+        "private-connection-types"
+      ]
+    }
+  ],
+  "claims": {
+    "connect-flow": {
+      "statement": "An asset is connected from AI Infrastructure > AI Assets with the +Connect Asset button and the AI App for Red Teaming option, in three steps: select the connection type, configure the connection, and configure the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-connect-an-asset.json",
+          "quotes": [
+            "Go to AI Infrastructure > AI Assets.",
+            "Click the +Connect Asset button.",
+            "Select the AI App for Red Teaming option and click Continue.",
+            "Connect to your application's endpoint to run the security tests. Connecting with an AI App consists of three steps:",
+            "Select your connection type.",
+            "Configure your connection.",
+            "Configure your application."
+          ]
+        }
+      ]
+    },
+    "network-type": {
+      "statement": "Each AI app has a unique name, a business unit and a network type: Public AI Apps are accessible over the public internet; a private AI app is isolated from it with no ingress networking enabled, and the AI Red Teaming workers reach it by the Private Network Access Type chosen, Broker or IP Whitelisting, where the listed IP addresses are added to the allowlist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-connect-an-asset.json",
+          "quotes": [
+            "AI App Name: Enter a unique name to identify the AI application.",
+            "Business Unit: Select the Business Unit that this AI application belongs to.",
+            "Public AI Apps are accessible over the public internet.",
+            "The AI application is isolated from the public internet with no ingress networking enabled.",
+            "Private Network Access Type: Select the method by which the Zscaler AI Red Teaming workers connect to your private AI application to perform Red Teaming tests:",
+            "Broker: Select broker as the network access type to route traffic through a deployed broker to establish secure connectivity to the private AI application.",
+            "IP Whitelisting: Restricts access to the AI application by allowing only specific, trusted IP addresses.",
+            "Add the listed IP addresses to the allowlist to enable connectivity."
+          ]
+        }
+      ]
+    },
+    "private-connection-types": {
+      "statement": "For private network access types the supported connection types are the API connections REST API, OpenAI RestAPI and Proxy SDK, and the platform Agentforce; the broker page, under a broker's Assigned AI Apps, lists the Connection Type as REST API, OpenAI-Compatible API, Proxy SDK, and Agentforce.",
+      "conditions": "The two lists are not equated: whether OpenAI RestAPI and OpenAI-Compatible API are the same connection type is not stated in either quoted page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-connect-an-asset.json",
+          "quotes": [
+            "The connection types supported for private network access types are:",
+            "API Connection: REST API, OpenAI RestAPI, and Proxy SDK",
+            "Platform: Agentforce"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-red-teaming-brokers.json",
+          "quotes": [
+            "6. Assigned AI Apps",
+            "AI App Name: The name of the private AI application that the broker is configured to route test traffic to.",
+            "Supported connection types include REST API, OpenAI-Compatible API, Proxy SDK, and Agentforce."
+          ]
+        }
+      ]
+    },
+    "app-profile": {
+      "statement": "Configure your application records the app's name, business unit, description, stage (Development, Production and Staging), availability (Internal or Customer-Facing), whether it is RAG supported, and the system prompt in three parts: the tools and functions it mentions, its confidential part and its non-confidential part.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-configuring-application.json",
+          "quotes": [
+            "AI App Name: Enter a name for the AI App that is required to be displayed within the AI Security.",
+            "Business Unit: Select the business unit from the drop-down menu.",
+            "Application Description: Provide a brief description of your AI application’s purpose and use case.",
+            "AI App Stage: Select the stage of the AI App. This field helps track the various stages of your AI app, i.e., Development, Production, and Staging.",
+            "Availability: Select the availability of the AI app from the drop-down menu, i.e. Internal or Customer-Facing.",
+            "RAG Supported: Select if the app is RAG supported or not.",
+            "System Prompt Tools: List the tools and functions mentioned in your system prompt.",
+            "System Prompt Confidential: Provide the confidential part of your system prompt.",
+            "System Prompt Non-Confidential: Provide the non-confidential part of your system prompt."
+          ]
+        }
+      ]
+    },
+    "test-shaping": {
+      "statement": "Attacks are generated in English by default, and for better coverage test variations are also run, translated into the other languages selected; Rate Limit is the maximum number of requests the app can process per minute; Parallel Requests sends requests in parallel, and toggled off sends them to the app one at a time; Multi-Step Attacks allows multi-message attack prompts in the conversation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-configuring-application.json",
+          "quotes": [
+            "Red teaming attacks are generated in English by default, but for better coverage, test variations are also run, and the attacks are translated into the other languages selected here.",
+            "Rate Limit: Select the maximum number of requests your application can process per minute.",
+            "Parallel Requests: Enable the toggle to send requests in parallel. Toggle off to have AI Security send requests to your AI app one at a time.",
+            "Multi-Step Attacks: Enable the toggle to allow multi-messge attack prompts in the conversation."
+          ]
+        }
+      ]
+    },
+    "supported-modes": {
+      "statement": "Supported Modes records which inputs the app handles, Text, Image, Document (for example PDFs or other file-based content) or Voice (audio), which helps show which testing scenarios apply and ensures compatible adversarial tests are selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-configuring-application.json",
+          "quotes": [
+            "This helps you understand which testing scenarios apply to the AI app and ensures you select compatible adversarial tests.",
+            "Text: The asset accepts and responds to text-based prompts.",
+            "Image: The asset can analyze or generate outputs based on image inputs.",
+            "Document: The asset can process document inputs (for example, PDFs or other file-based content).",
+            "Voice: The asset can process audio inputs (for example, speech or sound files)."
+          ]
+        }
+      ]
+    },
+    "predefined-responses": {
+      "statement": "Predefined Responses are replies expected from the app in specific situations, for example when an adversarial input is sent and the system activates a Guardrail; if the actual response matches one during an adversarial testing scenario the probe test case is marked as passed, matched as Text (exactly identical) or as a Regex pattern.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-configuring-application.json",
+          "quotes": [
+            "Predefined Responses: Add predefined responses that you expect to be returned by the AI app in specific situations, for example, when an adversarial input is sent and the system activates a Guardrail.",
+            "If the system’s actual response matches a predefined response during an adversarial testing scenario (e.g., the system replies with Message is blocked), the probe test case is marked as passed.",
+            "Text: A direct 1:1 match. The system response must be exactly identical to the predefined message.",
+            "Regex: A pattern-based match, defined using standard regular expression rules, allowing for flexible response validation"
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "statement": "An app's detailed information page has a Settings icon that opens AI App Settings, Connection Settings and Probe Settings, where a new probe can also be created; AI App Settings and Connection Settings can be modified or deleted from the Settings tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-managing-settings.json",
+          "quotes": [
+            "You can modify or delete AI App Settings or Connection Settings from the Settings tab.",
+            "On the detailed information page, select Settings () icon.",
+            "AI App Settings: To modify the AI App settings.",
+            "Connection Settings: To modify the connection settings.",
+            "Probe Settings: To modify probe settings. You can also create a new probe from this page."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "whitelist-addresses": {
+      "kind": "data",
+      "title": "Which IP addresses to whitelist for a private app",
+      "status": "open",
+      "detail": "The Connect an Asset page says to add the listed IP addresses to the allowlist; the addresses are in an image the capture does not carry, so the list is not stated.",
+      "resolvable_by": [
+        "operator"
+      ],
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

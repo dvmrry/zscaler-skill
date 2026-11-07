@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Allow Due to Insufficient App Data",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/allow-due-insufficient-app-data",
+    "node": "1539078",
+    "revision": "3224132",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This action is logged by the Service Edge when its Deep Packet Inspection (DPI) engine could not identify the network application. This typically happens when the connection gets terminated before enough packets can be processed to extract the required data."
+    },
+    {
+      "text": "The following describes how Zscaler Firewall uses DPI:"
+    },
+    {
+      "item": "The Zscaler Service Edge uses signature definitions to assign an application tree to each session, generally starting from the IP layer toward the Application layer (e.g., ip.tcp.ssl.http2.office365.sharepoint_online or ip.tcp.ssl.https.wellsfargo).",
+      "depth": 0
+    },
+    {
+      "item": "Depending on the application's design and its signature's complexity, the information required to establish the complete application tree might not even be present in the first few packets. So, the Service Edge needs to allow and process the first few packets in each flow. Typically, this application tree is completed with the help of first 5 packets for common applications.",
+      "depth": 0
+    },
+    {
+      "item": "If the session is terminated by the client or the server before 12 packets, there are three different scenarios:",
+      "depth": 1
+    },
+    {
+      "item": "The Zscaler service could not even get one packet with data: DPI is not triggered, and the transaction is allowed or blocked depending on all the applicable firewall rules not containing network applications. Typically, 0.0.0.0 is logged as the Server Source IP for these entries because the server-side connection was never established.",
+      "depth": 2
+    },
+    {
+      "item": "DPI has already built the app tree to the leaf application-layer node: Transactions are allowed or blocked based on all the applicable firewall rules.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "DPI could not build the app tree: All these packets (less than 12) are allowed, and the connection is logged as allowed due to insufficient app data in firewall insights. The topmost applicable firewall rule containing a network application is logged even though the application could not be identified.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "The action and the network application defined in the topmost applicable rule does not matter in this case because policy enforcement was postponed, but the other criteria must match. So it's possible that a block action is defined in the logged rule even though these packets were allowed for DPI while trying to identify the application defined in this rule. In the case of web traffic, all the Web Policy rules are first evaluated on the packets while waiting for DPI to complete the application tree. If there is a rule to block this transaction, then that policy is enforced. In this case, the reason Blocked by Web Proxy Policy is logged in firewall logs if the web filtering rules (Cloud App and URL Filtering) are configured to block this transaction.",
+      "depth": 2,
+      "strong": [
+        [
+          606,
+          633
+        ]
+      ]
+    },
+    {
+      "item": "If the session is terminated after 12 packets, there are two different scenarios:",
+      "depth": 1
+    },
+    {
+      "item": "DPI built the app tree, but stopped after the leaf application-layer node: This is the most common outcome. Transactions are allowed or blocked based on all the applicable firewall rules.",
+      "depth": 2
+    },
+    {
+      "item": "DPI failed to identify the application: This is very rare. DPI returns the application tree as ip.tcp.http, ip.tcp.ssl.https, or ip.udp.dns, based on the basic network information available in the first packet. If there's a firewall rule for these high-level network apps, those are evaluated and logged in the Firewall Insights logs. Otherwise, all the applicable firewall rules based on criteria other than network applications are evaluated. If the topmost matching rule contains a network application in its criteria, DPI influences policy enforcement and logging.",
+      "depth": 2
+    },
+    {
+      "item": "During firewall policy enforcement, all the rules configured for all the network applications in the computed application tree are evaluated in a top-down manner. Here are some examples to illustrate how this works:",
+      "depth": 0
+    },
+    {
+      "item": "If you configure a rule at the top allowing an IP network application, all IP traffic is allowed regardless of any other TCP/UDP or more application-specific rules.",
+      "depth": 1
+    },
+    {
+      "item": "If the topmost rule blocks the HTTPS network service (e.g., TCP port 443) and the second rule allows the HTTPS network application, all port 443 traffic is blocked. The second rule is evaluated for HTTPS traffic on any other ports.",
+      "depth": 1
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "To troubleshoot these issues:"
+    },
+    {
+      "item": "Determine the firewall rule that should have matched and compare it with the criteria of the rule logged in the firewall logs.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Determine whether there are any rules containing TCP, UDP, or IP as network applications:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If not sure, you can search for TCP, UDP, and IP individually in the Firewall Control rules. This shows whether any of these are configured as Network Applications in any rules.",
+      "depth": 1
+    },
+    {
+      "item": "You must instead specify these as network services in the rule criteria if desired, because DPI is an overkill to identify whether a transaction makes use of TCP, UDP, or some other IP protocol.",
+      "depth": 1
+    },
+    {
+      "item": "Determine whether the rules containing network services are before the rules containing network applications:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "No or not sure:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Look up the application name in the firewall rules. You can see all the rules containing that application as network service and network application.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Additionally, go to Administration > Resources > Network Services and look up the port number for the right protocol. You might have configured the same port under two different network services.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          20,
+          34
+        ],
+        [
+          37,
+          46
+        ],
+        [
+          49,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The network service rule should ideally be placed before the network application rules wherever possible. This helps limit the scope of DPI to only the desired traffic.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "However, if you need to place a firewall rule with network application criteria near the top of the rule base, then you must define additional criteria to limit the scope of this rule only to the desired traffic.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "heading": "Solution",
+      "level": 1
+    },
+    {
+      "text": "The following are solution steps:"
+    },
+    {
+      "item": "If the network application is part of a higher-ordered rule, then blend the network application condition with at least one other condition that limits the rule to a very specific set of sessions/flows.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Attempt to order the rules with network applications lower than the rules without network applications. This not only allows for quicker policy enforcement for most traffic, but also reduces the number of flows for DPI to examime.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "An Advanced Firewall SKU is needed for enforcement of any rules configured with network applications. If you have recently downgraded from Advanced to Basic Firewall, you must clean up any such rules.",
+      "depth": 0
+    },
+    {
+      "text": "The following is an example of a poorly defined Firewall rule set to illustrate the solution:"
+    },
+    {
+      "item": "Allow network application == SSH",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Block network service == Telnet",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Allow network service == HTTP, HTTPS, DNS",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Block all (default cleanup/block rule)",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "It has two major problems:"
+    },
+    {
+      "item": "Rule 1 is too wide because it has no other criteria. All traffic passing through Zscaler Firewall is subject to DPI, and thus suffers delayed policy enforcement. The solution is to add more criteria (e.g., user, location, or network service) to limit the scope of this rule:",
+      "depth": 0
+    },
+    {
+      "item": "Allow network application == SSH AND user == ceo@safemarch.net",
+      "depth": 1
+    },
+    {
+      "item": "Block network service == Telnet",
+      "depth": 1
+    },
+    {
+      "item": "Allow network service == HTTP, HTTPS, DNS",
+      "depth": 1
+    },
+    {
+      "item": "Block all (default cleanup/block rule)",
+      "depth": 1
+    },
+    {
+      "item": "With this rule set, DPI runs on all traffic from just this one user, thereby ensuring a quicker firewall policy enforcement for traffic from all the other users and locations.",
+      "depth": 0
+    },
+    {
+      "item": "Because the network application rule is ranked first, Zscaler Firewall still examines every matching flow to identify the SSH application for this user's traffic. The application identification can take several packets on potentially many flows before DPI manages to deliver its verdict, as explained previously. The rule set proposed in the previous solution is still not optimally constructed, because rules 2 and 3 can be applied based on the first packets. Therefore, they should have been placed before the network application rule so that Zscaler Firewall could have immediately enforced those rules without having to wait for the DPI verdict.",
+      "depth": 0
+    },
+    {
+      "item": "Block network service == Telnet",
+      "depth": 1
+    },
+    {
+      "item": "Allow network service == HTTP, HTTPS, DNS",
+      "depth": 1
+    },
+    {
+      "item": "Allow network application == SSH AND network service == SSH",
+      "depth": 1
+    },
+    {
+      "item": "Block all (default cleanup/block rule)",
+      "depth": 1
+    },
+    {
+      "item": "With this improved rule set, all TCP packets destined to the Telnet port are immediately blocked. All traffic to the HTTP, HTTPS, and DNS ports are also allowed. DPI is only required for traffic from all users and devices to SSH ports. If the SSH network application cannot be identified, the default rule blocks the connection.",
+      "depth": 0
+    },
+    {
+      "text": "If none of the above steps help, submit a case to Zscaler Support with the following information:"
+    },
+    {
+      "item": "A screenshot of the complete page at https://ip.zscaler.com.",
+      "depth": 0
+    },
+    {
+      "item": "If you have enabled Remote Assistance, the application name or FQDN, and the timestamp when a user tried accessing it via the Zscaler service. Otherwise, provide the Firewall Insights logs showing all the columns for the relevant transactions and a screenshot of the relevant rules showing all the criteria.",
+      "depth": 0
+    }
+  ]
+}

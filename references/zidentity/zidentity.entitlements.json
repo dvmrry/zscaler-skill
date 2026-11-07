@@ -1,0 +1,673 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.entitlements",
+  "title": "Administrative and service entitlements: who administers and who may use each Zscaler service",
+  "aliases": [
+    "ZIdentity entitlements",
+    "administrative entitlements",
+    "admin entitlements",
+    "service entitlements",
+    "end user entitlements",
+    "admin-entitlements",
+    "service-entitlements",
+    "which services can this user use",
+    "is this user an admin of ZIA"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Authentication Service keeps two kinds of entitlement per user, and they answer different questions. {{two-kinds}}"
+    },
+    {
+      "label": "Administrative entitlements.",
+      "text": "Users and groups are made service admins of a subscribed service, with a role created for that service: [[shared.admin-rbac:entitlement-assigns-service-admins]]. {{admin-page}}"
+    },
+    {
+      "label": "Definition and services.",
+      "text": "{{definition}} {{services-with-roles}} {{breach-predictor-via-risk360}}"
+    },
+    {
+      "label": "Assigning.",
+      "text": "{{individual-over-group}} {{admin-group-assignment}} {{service-entitlement-assignment}} {{own-entitlement-locked}} {{zpa-microtenant}}"
+    },
+    {
+      "label": "Role sync and precedence.",
+      "text": "{{role-sync}} The interval is open {{gap:role-sync-interval}}. {{role-precedence}} What first means is open {{gap:first-meaning}}."
+    },
+    {
+      "label": "Device group restrictions.",
+      "text": "{{device-group-restrictions}} {{device-group-permission}} Which module grants viewing device groups is open {{gap:device-group-module}}, and whether restrictions reach administrative entitlements is open {{gap:device-restriction-admin}}."
+    },
+    {
+      "label": "Service entitlements.",
+      "text": "{{service-page}}"
+    },
+    {
+      "label": "Reading them.",
+      "text": "{{read-only-api}} {{admin-shape}} {{service-shape}} {{roles-from-products}} {{documented-responses}} The Go SDK notes that an entitlement for the ZIAM service has no scope, [[zidentity.sdk-go:admin-scope-optional]]."
+    },
+    {
+      "label": "On a user.",
+      "text": "{{user-entitlements-tab}}"
+    },
+    {
+      "label": "Open.",
+      "text": "What an entitlement's scope means is not documented {{gap:scope-meaning}}, and whether the results differ by how the user was provisioned is open {{gap:by-source}}."
+    },
+    {
+      "text": "How the SDKs model these responses is covered with the SDKs in [[zidentity.api.client-coverage]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a question about a user's admin access to a product, read the user's administrative entitlements and the role on each; for whether a user may sign in to a service as an end user, read the service entitlements.",
+      "uses": [
+        "two-kinds",
+        "admin-shape",
+        "service-shape"
+      ]
+    },
+    {
+      "do": "Whether the entitlement comes from a group assignment rather than the user directly, since both pages assign users and user groups.",
+      "uses": [
+        "admin-page",
+        "service-page"
+      ]
+    },
+    {
+      "do": "Whether the tenant is provisioned with Authentication Service for end users, without which the Service Entitlements page does not exist.",
+      "uses": [
+        "service-page"
+      ]
+    }
+  ],
+  "claims": {
+    "two-kinds": {
+      "statement": "A user can be given admin entitlements, which make them an administrator of a Zscaler service such as ZIA or ZPA, or service entitlements, which let them authenticate to a Zscaler service as an end user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-users.json",
+          "quotes": [
+            "In addition, you can assign them admin entitlements to make them administrators for a Zscaler service (e.g., Internet & SaaS (ZIA), Private Access (ZPA)) or you can assign them service entitlements so they are able to authenticate to a Zscaler service as an end user."
+          ]
+        }
+      ]
+    },
+    "admin-page": {
+      "statement": "The Administrative Entitlements page also controls which users in the organization have access to Authentication Service, shows the users and groups assigned as service admins of each service, and lists each subscribed service with its name, cloud name and organization name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-administrative-entitlements.json",
+          "quotes": [
+            "Control which user within your organization has access to Authentication Service.",
+            "View all the users and user groups assigned as service admins for a Zscaler service.",
+            "View a list of subscribed Zscaler services. For each service, you can view:",
+            "Name: The name of the Zscaler service.",
+            "Cloud Name: The Zscaler cloud name.",
+            "Organization Name: The name of your organization."
+          ]
+        }
+      ]
+    },
+    "service-page": {
+      "statement": "The Service Entitlements page lists the subscribed Zscaler services, each with its name, cloud name and organization name, and assigns end users and user groups to them; it is available only if the organization is provisioned with Authentication Service for end users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-service-entitlements.json",
+          "quotes": [
+            "The Service Entitlements page shows the list of Zscaler services that your organization is subscribed to. You can assign end users to these Zscaler services.",
+            "This page is available only if your organization is provisioned with Authentication Service for end users.",
+            "Assign users and user groups to the subscribed Zscaler services.",
+            "Name: The name of the Zscaler service.",
+            "Cloud Name: The Zscaler cloud name.",
+            "Organization Name: The name of your organization."
+          ]
+        }
+      ]
+    },
+    "user-entitlements-tab": {
+      "statement": "Each Authentication Service user can be assigned different service and administrative entitlements depending on the role; to view them an admin first adds users, assigns them to the subscribed Zscaler services and opens the Users page, where the Entitlements tab shows the assigned services, and administrative entitlements are displayed only for users with admin roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-viewing-entitlements-assigned-users.json",
+          "quotes": [
+            "Each Authentication Service user can be assigned to different service entitlements and administrative entitlements depending on the role.",
+            "You need to first add users, assign them to the subscribed Zscaler services, and then access the Users page to view the entitlements.",
+            "select the Entitlements tab to view the assigned services",
+            "Administrative entitlements are displayed only for users with admin roles."
+          ]
+        }
+      ]
+    },
+    "read-only-api": {
+      "statement": "The API reference has only a GET operation for a user's administrative entitlements and for their service entitlements; neither path has a write operation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get",
+          "expect": {
+            "description": "Retrieves the administrative entitlements for a specific user by their user <code>ID</code>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get",
+          "expect": {
+            "description": "Retrieves service entitlements for a specified user <code>ID</code>."
+          }
+        }
+      ]
+    },
+    "admin-shape": {
+      "statement": "A user's administrative entitlements come back as a list of records, each with the service (its ID, name, cloud name, cloud domain name, organization name and organization ID), one scope object and a list of role objects, each with an ID, a name and a display name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "title": "AdminEntitlementsPubRespDto",
+            "required": [
+              "roles",
+              "scope",
+              "service"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items/properties/roles",
+          "expect": {
+            "type": "array",
+            "description": "An array of role objects assigned as administrative entitlements."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items/properties/roles/items",
+          "expect": {
+            "title": "RefPubRespDto",
+            "required": [
+              "name",
+              "displayName"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items/properties/roles/items/allOf/[title=RefPubReqDto]",
+          "expect": {
+            "required": [
+              "id"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items/properties/scope",
+          "expect": {
+            "type": "object",
+            "title": "RefPubRespDto",
+            "required": [
+              "name",
+              "displayName"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items/properties/service",
+          "expect": {
+            "title": "TserviceProfileRespDto",
+            "required": [
+              "id",
+              "serviceName",
+              "cloudName",
+              "cloudDomainName",
+              "orgName",
+              "orgId"
+            ]
+          }
+        }
+      ]
+    },
+    "service-shape": {
+      "statement": "A user's service entitlements come back as a list of records that each carry a service object (the same service fields), with no roles and no scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "title": "ServiceEntitlementsPubRespDto",
+            "required": [
+              "service"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200/content/application~1json/schema/items/properties/service",
+          "expect": {
+            "title": "TserviceProfileRespDto",
+            "required": [
+              "id",
+              "serviceName",
+              "cloudName",
+              "cloudDomainName",
+              "orgName",
+              "orgId"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200/content/application~1json/schema/items/properties",
+          "expect_absent": [
+            "roles",
+            "scope"
+          ]
+        }
+      ]
+    },
+    "roles-from-products": {
+      "statement": "So the role names in an administrative entitlement are the roles each product defines (a ZIA admin role is chosen when the Internet & SaaS entitlement is assigned), not a fixed list; the API reference gives the role objects no enumeration.",
+      "tier": "B",
+      "derived_from": [
+        "admin-shape",
+        "shared.admin-rbac:zia-admins-via-entitlement",
+        "shared.admin-rbac:entitlement-assigns-service-admins"
+      ],
+      "conditions": "Follows from entitlements being assigned with a role created for the product and from the role schema (ID, name, display name) carrying no enum. Which names a given tenant returns is tenant data."
+    },
+    "documented-responses": {
+      "statement": "The API reference documents a 200 and a 401 response for the administrative and the service entitlement reads, and no 400, 403, 404, 429 or 500.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses",
+          "expect_absent": [
+            "400",
+            "403",
+            "404",
+            "429",
+            "500"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/401",
+          "expect": {
+            "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer token. However, either no token was provided, or the provided token is invalid or expired."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200",
+          "expect": {
+            "description": "The request was successful, and returns a list of administrative entitlement objects."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses",
+          "expect_absent": [
+            "400",
+            "403",
+            "404",
+            "429",
+            "500"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/401",
+          "expect": {
+            "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer token. However, either no token was provided, or the provided token is invalid or expired."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200",
+          "expect": {
+            "description": "The request was successful, and returns the service entitlements for the user."
+          }
+        }
+      ]
+    },
+    "definition": {
+      "statement": "Entitlements are the access privileges and permissions assigned to Authentication Service users and groups, of two kinds, Administrative and Service; administrative entitlements give a user or group administrative access to a Zscaler service with a role created in that service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-entitlements.json",
+          "quotes": [
+            "Entitlements refer to the type of access privileges and permissions that are assigned to Authentication Service users and user groups. Authentication Service supports Administrative and Service entitlements.",
+            "The Administrative entitlements are used to assign and manage Authentication Service users and user group's administrative access to a Zscaler service (e.g., Internet & SaaS (ZIA), Private Access (ZPA)) with the specific role that is created in the respective Zscaler service."
+          ]
+        }
+      ]
+    },
+    "services-with-roles": {
+      "statement": "The Managing Entitlements page lists the services whose roles are added for administrative entitlements: Authentication Service, Internet & SaaS, Private Access, ZDX, Client Connector, Cloud & Branch Connector, Deception, DSPM, Business Insights, Risk360, Workflow Automation, Breach Predictor, EASM, Zero Trust Branch, the Management Portal for Partners and Zscaler Cellular.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-entitlements.json",
+          "quotes": [
+            "Authentication Service, see Adding Authentication Service Admin Roles.",
+            "Internet & SaaS, see Adding Admin Roles.",
+            "Private Access, see Configuring Administrator Roles.",
+            "Digital Experience Monitoring (ZDX), see Adding ZDX Roles.",
+            "Zscaler Client Connector, see Adding Roles.",
+            "Zscaler Cloud & Branch Connector, see Adding Admin Roles.",
+            "Deception, see About Users & Roles.",
+            "Data Security Posture Management (DSPM), see About Access Roles.",
+            "Business Insights, see About Administrators in Business Insights.",
+            "Risk360, see Adding Admin Roles.",
+            "Workflow Automation, see Managing Admin Assignments.",
+            "Breach Predictor, see Using Breach Predictor.",
+            "EASM, see About Role Management.",
+            "Zero Trust Branch, see Understanding Zero Trust Branch Access Roles.",
+            "Management Portal for Partners, see About Roles in the Management Portal for Partners.",
+            "Zscaler Cellular, the Cellular Edge service must be enabled for your organization."
+          ]
+        }
+      ]
+    },
+    "breach-predictor-via-risk360": {
+      "statement": "Authentication Service supports login to Breach Predictor through Risk360 even if the Risk360 or Breach Predictor tenants have not been migrated to Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-entitlements.json",
+          "quotes": [
+            "Authentication Service supports login to Zscaler Breach Predictor through Risk360, even if the Risk360 or Breach Predictor tenants have not been migrated to Authentication Service."
+          ]
+        }
+      ]
+    },
+    "role-sync": {
+      "statement": "Product roles are synced into Authentication Service automatically at regular intervals, and a manual sync can be run from the View Roles page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-entitlements.json",
+          "quotes": [
+            "The roles on the respective service are automatically synced into Authentication Service at regular intervals.",
+            "To ensure that your Authentication Service database is up to date, you can perform a manual sync from the View Roles page."
+          ]
+        }
+      ]
+    },
+    "role-precedence": {
+      "statement": "When a user is in several groups with different levels of access, the group assigned first takes precedence; a role assigned to the user individually as a service admin role takes precedence over a different admin role from a group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-entitlements.json",
+          "quotes": [
+            "If a user is assigned to multiple user groups with different levels of access, then the group assigned first takes precedence, and the user can perform tasks according to the role assigned to that group.",
+            "However, if a user is assigned to a service admin role individually, and they are also a part of a user group with a different admin role, then the role assigned to the individual user takes precedence over the user group role."
+          ]
+        }
+      ]
+    },
+    "individual-over-group": {
+      "statement": "The Assigning Entitlements page repeats that an individually assigned service admin role takes precedence over a different role from the user's group, and requires users and groups to be added to Authentication Service before they are assigned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-assigning-entitlements-users-and-user-groups.json",
+          "quotes": [
+            "If a user is assigned to a service's admin role individually, but they are also a part of a user group with a different admin role, then the role assigned to the individual user takes precedence over the user group role.",
+            "Before assigning users or user groups, you must first add these users and groups to Authentication Service."
+          ]
+        }
+      ]
+    },
+    "own-entitlement-locked": {
+      "statement": "On tenants without Unified RBAC, admins cannot create, modify or delete the administrative entitlement and role assigned to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-assigning-entitlements-users-and-user-groups.json",
+          "quotes": [
+            "For tenants that are not enabled with Unified RBAC, admins cannot create, modify or delete the entitlement and role assigned to them in Authentication Service Administrative entitlement."
+          ]
+        }
+      ]
+    },
+    "zpa-microtenant": {
+      "statement": "When assigning administrative entitlements, the Microtenant column appears only for Private Access; with Full an admin assigns, edits or deletes any Microtenant for other admins, as does Restricted Full with the Default Microtenant assigned, while Restricted Full with a non-default Microtenant reaches only the assigned Microtenant; with no Microtenant configured in Private Access, Default is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-assigning-entitlements-users-and-user-groups.json",
+          "quotes": [
+            "The Microtenant column is visible only for the Private Access (ZPA) service. You can assign and manage Microtenants for other admins if you have the following administrative entitlement permissions:",
+            "| Full | Assign, edit, or delete any Microtenant to other admins |",
+            "| Restricted Full and assigned a Default Microtenant in Private Access | Assign, edit, or delete any Microtenant to other admins |",
+            "| Restricted Full and assigned a Microtenant but not Default Microtenant | Assign, edit, or delete assigned Microtenant to other admins |",
+            "If no Microtenant is configured in Private Access, select Default in the Microtenant column."
+          ]
+        }
+      ]
+    },
+    "service-entitlement-assignment": {
+      "statement": "Service entitlements assign individual users to a Zscaler service as end users; user groups can be assigned to the Zscaler service too.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-assigning-entitlements-users-and-user-groups.json",
+          "quotes": [
+            "The selected users are assigned to the Zscaler service as end users.",
+            "The selected user groups are assigned to the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "admin-group-assignment": {
+      "statement": "Assigning a user group an administrative entitlement gives all users in the group administrative privileges for the service, with the role chosen per group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-assigning-entitlements-users-and-user-groups.json",
+          "quotes": [
+            "The selected user groups are assigned to the Zscaler service with administrative privileges for all users in the groups.",
+            "From the Role column, select the role that must be assigned to each user group."
+          ]
+        }
+      ]
+    },
+    "device-group-restrictions": {
+      "statement": "An Authentication Service admin can restrict which devices are used to access a Zscaler service so that only users on authorized devices can enroll: Enable Device Group Restrictions, set per service, lists the registered device IDs, the selected devices are allowed, and users then access the service from their registered device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-device-groups.json",
+          "quotes": [
+            "The Authentication Service admin can control or restrict the devices that are used to access the Zscaler services (Private Access, Internet & SaaS, etc.) and ensure that only users on authorized devices can enroll in Zscaler services.",
+            "On the Service Entitlements page, click the required Zscaler service (e.g., Zscaler Internet Access).",
+            "In the top-right corner, click Manage Device Group Restrictions.",
+            "In the Manage Device Group Restrictions window, enable the toggle for Enable Device Group Restrictions.",
+            "The list of registered device IDs is displayed.",
+            "Select the devices that must be allowed to access the Zscaler service.",
+            "Users can access the Zscaler service from their registered device."
+          ]
+        }
+      ]
+    },
+    "device-group-permission": {
+      "statement": "An admin who can access service entitlements but has no permission to view device groups sees only whether Enable Device Group Restrictions is on, and cannot change it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-device-groups.json",
+          "quotes": [
+            "An administrator who can access the service entitlements in Authentication Service but does not have permissions to view the device groups can only see whether the Enable Device Group Restrictions option is enabled or not, but cannot change the setting."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "role-sync-interval": {
+      "kind": "semantic",
+      "title": "The interval of the automatic role sync",
+      "status": "open",
+      "detail": "The page says product roles are synced at regular intervals and offers a manual sync from View Roles; no interval is given.",
+      "blocks": "knowing how soon a new product role appears in Authentication Service",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "first-meaning": {
+      "kind": "semantic",
+      "title": "What the group assigned first means",
+      "status": "open",
+      "detail": "The page says the group assigned first takes precedence; it does not say whether first is assignment time or list order.",
+      "blocks": "predicting a user's role when several groups assign different roles",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "device-group-module": {
+      "kind": "semantic",
+      "title": "Which permission module grants viewing device groups",
+      "status": "open",
+      "detail": "Neither the module list of the permission matrix nor the module-to-page map of the Adding Admin Roles page names a module for device groups.",
+      "blocks": "granting an admin the right to change device group restrictions",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "device-restriction-admin": {
+      "kind": "semantic",
+      "title": "Whether device group restrictions apply to administrative entitlements",
+      "status": "open",
+      "detail": "Managing Entitlements offers managing the list of devices a user can use under both the Administrative and Service entitlements, while Managing Device Groups shows only the service page; whether restrictions apply to administrative entitlements is not stated.",
+      "blocks": "restricting admin access to authorized devices",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "scope-meaning": {
+      "kind": "semantic",
+      "title": "What the scope on an administrative entitlement means",
+      "status": "open",
+      "former_ids": [
+        "zid-05"
+      ],
+      "detail": "Unverified legacy statement: the scope field's meaning is undocumented; SDK test fixtures use values such as Global, Limited and AllResources. The API reference describes it only as the scope associated with the entitlement (an ID, name and display name). Whether it is the ZIA functional scope, a ZPA Microtenant or something else is not stated.",
+      "blocks": "telling from the API what part of a product an entitled admin can manage",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "by-source": {
+      "kind": "semantic",
+      "title": "Whether entitlement reads differ by how the user was provisioned",
+      "status": "open",
+      "former_ids": [
+        "zid-08"
+      ],
+      "detail": "Unverified legacy statement: whether the entitlement endpoints return different results for SCIM-provisioned users and users created in Authentication Service is not addressed. The user record carries its source (UI, API, SCIM, JIT); the entitlement endpoints take only the user ID and return no source.",
+      "blocks": "trusting an entitlement read for SCIM- or JIT-provisioned users",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    }
+  }
+}

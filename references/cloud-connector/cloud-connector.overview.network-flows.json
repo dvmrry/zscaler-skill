@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.overview.network-flows",
+  "title": "Cloud Connector management and service interfaces: which flows each carries",
+  "aliases": [
+    "cloud connector management interface",
+    "cloud connector service interface",
+    "cloud connector network flows",
+    "networking flows for cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.gateway-failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.interfaces"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.security-groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{two-interfaces}}"
+    },
+    {
+      "label": "Management interface.",
+      "text": "{{mgmt-outbound}} {{mgmt-inbound}} The page gives no ports or destinations for these flows {{gap:flow-ports}}."
+    },
+    {
+      "label": "Service interfaces.",
+      "text": "{{service-flows}} {{lb-to-service}}"
+    }
+  ],
+  "claims": {
+    "two-interfaces": {
+      "statement": "Every Cloud Connector has a minimum of two network interfaces that communicate with the Zscaler cloud for different purposes, a management interface and service interfaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "Every Zscaler Cloud Connector has a minimum of two network interfaces that communicate with the Zscaler cloud for different purposes.",
+            "A management interface can manage and configure security devices.",
+            "Service interfaces can communicate with devices and services on a network."
+          ]
+        }
+      ]
+    },
+    "mgmt-outbound": {
+      "statement": "The management interface's flows include control plane communications with the Zscaler cloud for enrollment, service discovery, log streaming and software updates, retrieval of security credentials from cloud providers, control plane DNS resolution, control plane NTP traffic and Zscaler remote support services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "There are outbound and inbound network flows that operate with a management interface.",
+            "Control plane communications with the Zscaler cloud for enrollment, service discovery, log streaming, and software updates",
+            "Retrieval of security credentials from cloud providers",
+            "Control plane DNS resolution",
+            "Control plane Network Time Protocol (NTP) traffic",
+            "Zscaler remote support services"
+          ]
+        }
+      ]
+    },
+    "mgmt-inbound": {
+      "statement": "The page says the inbound network flows provide Secure Socket Shell (SSH) access for troubleshooting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "Inbound network flows provide Secure Socket Shell (SSH) access for troubleshooting."
+          ]
+        }
+      ]
+    },
+    "service-flows": {
+      "statement": "The service interface's flows include Internet & SaaS (ZIA) forwarding, Private Access (ZPA) forwarding, Direct (bypass Zscaler) forwarding, data plane DNS resolution, load balancer health checks and workload traffic; for Amazon Web Services only, the flow also enables the GENEVE Protocol.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "There are inbound and outbound network flows that operate with service interfaces.",
+            "Internet & SaaS (ZIA) forwarding",
+            "Private Access (ZPA) forwarding",
+            "Direct (bypass Zscaler) forwarding",
+            "Data plane DNS resolution",
+            "Load balancer health checks",
+            "Workload traffic",
+            "For Amazon Web Services (AWS) only, outbound/inbound network flow enables GENEVE Protocol."
+          ]
+        }
+      ]
+    },
+    "lb-to-service": {
+      "statement": "Cloud Connectors receive traffic from load balancers via the service network interface and then determine where to send the traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "Cloud Connectors receive traffic from load balancers via the service network interface. They then determine where to send the traffic."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "flow-ports": {
+      "kind": "semantic",
+      "title": "Ports and destinations of the management and service interface flows",
+      "status": "open",
+      "detail": "The networking-flows page lists the management interface's control plane flows and its inbound SSH flow without ports or destinations; it heads the other flows \"The outbound network flows provide:\" under both interfaces but gives no ports or destinations for them either. It informs the open question of the control channel's direction and ports in cloud-connector.overview.gateway-failover:control-plane without answering it.",
+      "blocks": "firewall and security-group design for the management interface",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

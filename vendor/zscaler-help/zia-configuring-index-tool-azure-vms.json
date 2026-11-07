@@ -1,0 +1,1516 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Index Tool with Azure",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-index-tool-azure-vms",
+    "node": "1467486",
+    "revision": "3247323",
+    "updated": "2026-09-24",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "To create index templates for DLP dictionaries (i.e., Exact Data Match (EDM) and Indexed Document Match (IDM) templates), you must configure the virtual machine (VM) image for the Index Tool with Azure, Amazon Web Services (AWS), or VMware."
+    },
+    {
+      "text": "To learn more, see Configuring the Index Tool with Amazon Web Services and Configuring the Index Tool with VMware."
+    },
+    {
+      "item": "Before you begin deployment, contact Zscaler Support to obtain the Index Tool VHD shared access signature (SAS) token. Without it, you cannot set up the Index Tool.",
+      "depth": 0
+    },
+    {
+      "item": "Since the Index Tool provides access to highly sensitive information, ensure that everyone who has access to it is authorized and authenticated.",
+      "depth": 0
+    },
+    {
+      "heading": "Deploying a Zscaler Index Tool VM on Azure",
+      "level": 1
+    },
+    {
+      "text": "To deploy a Zscaler Index Tool VM on Azure:"
+    },
+    {
+      "item": "1. Ensure that you meet all of the requirements.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy the Zscaler Index Tool on an Azure VM, you need the following:",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler Index Tool VHD SAS token.",
+      "depth": 1
+    },
+    {
+      "item": "If your index templates include less than 300 million records, Zscaler recommends the following minimum configuration:",
+      "depth": 1
+    },
+    {
+      "item": "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "RAM: 16 GB (i.e., Standard_D4_v4 or Standard_D8_v4).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "If your index templates include more than 300 million records, Zscaler recommends the following minimum configuration:",
+      "depth": 1
+    },
+    {
+      "item": "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "RAM: 64 GB (i.e., Standard_E8-4ds_v4 or Standard_E8as_v4).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "The VHD files include minimum specifications for various settings (e.g., disk size and network interface). You can increase those specifications as needed.",
+      "depth": 0
+    },
+    {
+      "item": "A Zscaler Index Tool added in the Zscaler Admin Console. You need this configuration to complete the VM setup.",
+      "depth": 1
+    },
+    {
+      "item": "2. Create a resource group and storage account in Azure.",
+      "depth": 0
+    },
+    {
+      "item": "As a first step in deploying an Index Tool in Azure, you must first create a resource group to hold all resources for the Index Tool VM, as well as a storage account for the Index Tool VHD file.",
+      "depth": 0
+    },
+    {
+      "item": "a. Create a Resource Group",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the Azure services section, click Resource groups.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Resource groups page is displayed.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create. The Create a resource group page is displayed.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          18,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a resource group page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select the Azure subscription for the resource group from the drop-down menu.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Enter a name for the resource group.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the geographical Azure location for the resource group from the drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "All resources that you create for the Index Tool must use the region you select here.",
+      "depth": 1
+    },
+    {
+      "item": "Click the Review + Create tab, wait for the Validation passed message to appear, then click Create.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          10,
+          25
+        ],
+        [
+          44,
+          61
+        ],
+        [
+          92,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "You return to the Resource groups page, and the resource group you created is displayed in the list of resource groups.",
+      "depth": 2,
+      "strong": [
+        [
+          18,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "b. Create a Storage Account",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the Azure services section, click Storage accounts.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Storage accounts page is displayed.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create. The Create a storage account page is displayed.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          18,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a storage account page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select the Azure subscription for the storage account from the drop-down menu.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select the resource group for the Index Tool from the drop-down menu.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Storage account name: Enter a name for the storage account.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the same geographical Azure region used for the Index Tool resource group.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Keep the default selections for the rest of the options on the Basics tab, then click the Networking tab.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          63,
+          69
+        ],
+        [
+          90,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Networking tab, ensure that the Enable public access from all networks option is selected.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          39,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Click the Review tab, review your selections, then click Create.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          10,
+          16
+        ],
+        [
+          57,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "A confirmation page is displayed after the storage account deployment is complete.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "3. Use Azure Storage Explorer to copy the Index Tool VHD file to your Azure storage account.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy the Index Tool on Azure, you'll need two separate VHD files: one for the OS, and one for data. Additionally, there are two different options available for each VHD file, to support 600 GB and 1,100 GB disk sizes on the Azure VM.",
+      "depth": 0
+    },
+    {
+      "item": "To use Azure Storage Explorer to copy the Index Tool VHD files to your Azure storage account:",
+      "depth": 0
+    },
+    {
+      "item": "Select the appropriate URL for your region to ensure the fastest copy time:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "USA: https://zadpazureprod.blob.core.windows.net/",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Europe: https://zadpazureeu.blob.core.windows.net/",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Australia: https://zadpazureau.blob.core.windows.net/",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Download and launch Azure Storage Explorer.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Click the Add Account icon (plug icon).",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          21
+        ],
+        [
+          28,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Select Resource window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "In the Select Resource window, select Storage account or service.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          38,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Select Shared access signature URL (SAS).",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Enter Connection Info page, in the Service URL field, enter the Service URL and SAS token received from the Zscaler Support team.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          42,
+          60
+        ],
+        [
+          71,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The other fields automatically fill in.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "A connection summary appears. Review it and click Connect.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          50,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "After the connection is successful, in the left-side navigation, go to Storage Accounts > <display name> > Blob Containers > zir-image. The VHD files are located here.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          71,
+          87
+        ],
+        [
+          90,
+          104
+        ],
+        [
+          107,
+          122
+        ],
+        [
+          125,
+          134
+        ]
+      ]
+    },
+    {
+      "item": "Select the blob container that corresponds to the disk size on the VM you are going to create (i.e., 600 GB or 1,100 GB).",
+      "depth": 1,
+      "number": 12
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Highlight the data VHD file and click Copy.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          38,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to the storage account you created, and click Paste to add the VHD to your blob containers. The transfer can take some time. The Activities tab at the bottom lets you know when the transfer is complete.",
+      "depth": 1,
+      "number": 14,
+      "strong": [
+        [
+          78,
+          83
+        ],
+        [
+          161,
+          171
+        ]
+      ]
+    },
+    {
+      "item": "Repeat step m through step n for the OS VHD file.",
+      "depth": 1,
+      "number": 15
+    },
+    {
+      "item": "Log in to the Azure portal.",
+      "depth": 1,
+      "number": 16
+    },
+    {
+      "item": "Go to your destination blob container. The VHD files appear in the blob container.",
+      "depth": 1,
+      "number": 17
+    },
+    {
+      "item": "Select the blob container, then select the context menu for the data VHD file. Click Properties.",
+      "depth": 1,
+      "number": 18,
+      "strong": [
+        [
+          85,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the properties page for the VHD file, next to the URL field, click Copy to clipboard.",
+      "depth": 1,
+      "number": 19,
+      "strong": [
+        [
+          70,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Save the copied URL; you need it when you set up your VM later.",
+      "depth": 1,
+      "number": 20
+    },
+    {
+      "item": "Repeat step r through step t for the OS VHD file.",
+      "depth": 1,
+      "number": 21
+    },
+    {
+      "item": "4. Launch an Azure VM to host the Index Tool VM.",
+      "depth": 0
+    },
+    {
+      "item": "To create the Index Tool VM, you first download a JSON parameter file, and then use that file to deploy the Azure VM instance that hosts the Index Tool.",
+      "depth": 0
+    },
+    {
+      "item": "Download the JSON parameter file.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Download the Azure Resource Manager (ARM) template JSON parameter file",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure portal.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "In the Azure services section, click Deploy a custom template.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Custom deployment page is displayed.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Build your own template in the editor.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Edit template page is displayed.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Load file field, then go to the JSON parameter file you downloaded earlier.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Custom deployment page is displayed.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Custom deployment page:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select the Azure subscription for the Index Tool from the drop-down menu.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select the resource group for the Index Tool from the drop-down menu.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the same geographical Azure region used for the Index Tool resource group.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "VM Name: Specify the name of the VM for the Index Tool.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "VHD Location-OS: Specify the Azure storage account URL for the OS VHD file. This is the URL you copied when setting up the storage account.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "VHD Location-Data: Specify the Azure storage account URL for the data VHD file. This is the URL you copied when setting up the storage account.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Disk Size: Specify the size of the OS and data VHD files, in gigabytes (i.e., 600 or 1100).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "VM Size: Select a size for the VM from the drop-down menu. If you are using 1,100 GB VHD files, select an E8 VM.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Network Type: Select whether to use a new or existing virtual network from the drop-down menu.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Network Name: If you are using an existing virtual network, specify its name.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Network Resource Group: If you are using an existing virtual network, specify the name of its resource group.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Subnet Name: If you are using an existing virtual network, specify the name of its subnet.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Whitelist Outbound Zscaler IP Addresses: Select a Zscaler cloud to allowlist its IP addresses. To learn more, browse to config.zscaler.com, then click Zscaler Index Tool Requirements.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          39
+        ],
+        [
+          151,
+          182
+        ]
+      ]
+    },
+    {
+      "item": "Click the Review + Create tab, wait for the Validation passed message to appear, then click Create.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          10,
+          25
+        ],
+        [
+          44,
+          61
+        ],
+        [
+          92,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the confirmation page that is displayed, in the Deployment details section, click the name of the VM you created.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          51,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the overview page for the VM, click Serial console in the pane on the left side of the page.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          39,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Serial console page for the VM is displayed, and you see the console output for the Index Tool.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The VM deployment takes several minutes. The Index Tool is ready to be configured when you see the prompt to change the zsroot password in the serial console output.",
+      "depth": 0
+    },
+    {
+      "item": "5. Configure the Index Tool VM.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you have added a Zscaler Index Tool in the Zscaler Admin Console. You need this configuration to complete the VM setup.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Log in to the VM as user zsroot. The initial root password for this user is randomly generated.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Change the root password:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp change-password",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the initial root password, the one that was randomly generated for you.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Enter a new root password.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Re-enter the new root password.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "After the password is changed, you need to log in to zsroot again using the new password.",
+      "depth": 0
+    },
+    {
+      "item": "Go back to the Zscaler Admin Console, and go to Data Security > Common Resources > Index Tool.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          48,
+          61
+        ],
+        [
+          64,
+          80
+        ],
+        [
+          83,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Index Tool Configuration you added previously, and under the SSL Certificate column click Download.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          72,
+          87
+        ],
+        [
+          101,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Copy the SSL client certificate ZIP file to the VM and install it:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "In this example, scp is used to copy the file:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "scp <SSL_certificate_zip_filename> zsroot@<vm_ip>:~/",
+      "depth": 0
+    },
+    {
+      "item": "For example:",
+      "depth": 0
+    },
+    {
+      "item": "scp EdmClientCertificate.zip zsroot@10.66.108.100:~/",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to install the SSL certificate:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp configure <SSL_certificate_zip_filename>",
+      "depth": 0
+    },
+    {
+      "item": "For example: sudo zadp configure EdmClientCertificate.zip",
+      "depth": 0
+    },
+    {
+      "item": "Enter the domain name that is used for the Index Tool's FQDN. For example, if the Index Tool is reachable from indextool.mycompany.com, then the domain name entered here is mycompany.com. The self-signed certificate would be generated for *.mycompany.com.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter a passphrase, then re-enter the passphrase to confirm it.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "You are prompted to enter the full path name to the text file where the passphrase is stored. You can also press Enter twice to accept the default location and file, /home/zsroot/zscaler_zadp_webui_certificate_pass.txt.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After the service is configured properly, the service performs the following actions:",
+      "depth": 0
+    },
+    {
+      "item": "Checks if the network is configured correctly.",
+      "depth": 1
+    },
+    {
+      "item": "Installs the SSL client certificate you specified.",
+      "depth": 1
+    },
+    {
+      "item": "Generates a self-signed SSL server certificate. If you need to install a custom server certificate, see the next step.",
+      "depth": 1
+    },
+    {
+      "item": "Downloads the latest install package.",
+      "depth": 1
+    },
+    {
+      "item": "Starts the service.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) If you need to install a self-signed or custom SSL server certificate:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Enter the following command to install the server certificate:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp install-server-cert",
+      "depth": 0
+    },
+    {
+      "item": "Enter the full path to the PEM-formatted certificate file.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Enter the following command to restart the Index Tool service:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "sudo zadp restart",
+      "depth": 0
+    },
+    {
+      "item": "Go to https://<IP Address of the Index Tool VM> to access the Index Tool. After the Index Tool service has started, you can log in with your Zscaler Admin Console login credentials and create Index Templates to use when creating DLP dictionaries. To learn more, see Creating an Exact Data Match Template and Creating an Indexed Document Match Template.",
+      "depth": 0
+    },
+    {
+      "heading": "Updating and Customizing a Deployed Zscaler Index Tool VM",
+      "level": 1
+    },
+    {
+      "text": "With your Index Tool VM running, you can update and customize the VM based on your organization's needs."
+    },
+    {
+      "item": "Update the Index Tool VM",
+      "depth": 0
+    },
+    {
+      "item": "When you have successfully configured the service, the service automatically downloads the latest build before it starts. To manually update the service:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to stop the service:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp stop",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to install the update:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp update-now",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to start the service:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "sudo zadp start",
+      "depth": 0
+    },
+    {
+      "item": "Run the Index Tool VM in explicit proxy mode",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VM as user zsroot.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp configure-proxy",
+      "depth": 0
+    },
+    {
+      "item": "For Do you require a proxy server configuration?, enter y and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "For proxyserver, enter the IP address of your proxy server (e.g., proxy.zscaler.net) and press Enter.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "For proxyport, enter your proxy port number (e.g., 9443) and press Enter.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "The VM then tests the connection and when this is successful, the configuration is complete.",
+      "depth": 1
+    },
+    {
+      "item": "To remove the explicit proxy configuration:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp configure-proxy",
+      "depth": 0
+    },
+    {
+      "item": "For Do you require proxy server configuration?, enter n and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "For Do you want to delete current proxy configuration?, enter y and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "heading": "Requirements for Explicit Proxy Mode",
+      "level": 2
+    },
+    {
+      "item": "If you're using explicit proxy mode, DNS and NTP connections are not tunneled, meaning, you need an internal DNS server to run in this mode. The Index Tool needs to have DNS resolution for the current Master CA IP, update server, and the NTP server. The Index Tool host also must be able to query a DNS server to resolve the following settings:",
+      "depth": 0
+    },
+    {
+      "item": "smcacluster.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "update1.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "update2.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "zdistribute.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "The NTP server. By default, the Index Tool VM has the following FQDNs for NTP servers configured:",
+      "depth": 1
+    },
+    {
+      "item": "0.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "1.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "2.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "You can override these FQDNs to your internal IP address in your DNS server configuration or using other methods.",
+      "depth": 0
+    },
+    {
+      "item": "In addition, since the proxy configuration doesn't allow authentication, you need to configure the proxy server to allow specific IP/MAC addresses without user and password authentication.",
+      "depth": 0
+    },
+    {
+      "item": "The proxy server must also allow SSL bypass for communication from the VM to a specific set of IP addresses. These IPs are listed at config.zscaler.com/<cloudname>.net/edm. You can find your cloud name in the URL that your admins use to log in to the Zscaler service. For example, if an organization logs in to admin.zscalertwo.net, then that organization's cloud name is zscalertwo. So, you would go to config.zscaler.com/zscalertwo.net. To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "item": "Configuring the Index Tool Service to run without elevated privileges",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VM as user zsroot.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command to stop the service:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp stop",
+      "depth": 0
+    },
+    {
+      "item": "Open the /sc/conf/sc.conf file and update the value for zadp_ui_port to a port number higher than 1,000.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Enter the following command to restart the service:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "sudo zadp start",
+      "depth": 0
+    },
+    {
+      "heading": "Index Tool VM Commands",
+      "level": 1
+    },
+    {
+      "text": "The following commands can be used to configure, update, and troubleshoot your VM."
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Description"
+        ],
+        [
+          "sudo zadp stop",
+          "Stops the Zscaler Index Tool service."
+        ],
+        [
+          "sudo zadp start",
+          "Starts the Zscaler Index Tool service."
+        ],
+        [
+          "sudo zadp update-now",
+          "Updates the Zscaler Index Tool service. The service must be stopped before you can run this command."
+        ],
+        [
+          "sudo zadp restart",
+          "Restarts the Zscaler Index Tool service."
+        ],
+        [
+          "sudo zadp status",
+          "Displays whether the Zscaler Index Tool service is running or stopped."
+        ],
+        [
+          "sudo zadp force-update-now",
+          "Forces the Zscaler Index Tool service to update to the latest version regardless of what version is on the VM. The service is automatically stopped before the update begins."
+        ],
+        [
+          "sudo zadp troubleshoot",
+          "Runs a series of checks to help troubleshoot issues, such as checking the installed certificate, the zcloud server configuration, all services, and whether or not an update is needed."
+        ],
+        [
+          "sudo zadp collect-diagnostics",
+          "Creates a file with diagnostic information to send to Zscaler Support for troubleshooting purposes."
+        ],
+        [
+          "sudo zadp configure-syslog-server",
+          "Configures external syslog server forwarding on the Zscaler Index Tool to forward file SFTP events and to log any critical changes to the configuration files monitored by the Index Tool. The external syslog server forwarding happens over UDP port 514, which cannot be modified."
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          7
+        ],
+        [
+          0,
+          1,
+          0,
+          11
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,618 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.destination-groups",
+  "title": "IP destination groups",
+  "aliases": [
+    "destination group",
+    "ip destination group",
+    "DSTN_IP",
+    "DSTN_FQDN",
+    "DSTN_DOMAIN",
+    "DSTN_OTHER",
+    "excludeType",
+    "override append ips"
+  ],
+  "binds": [
+    "zia/ip-destination-groups",
+    "zia/ip-destination-groups#type",
+    "zia/ip-destination-groups#addresses",
+    "zia/ip-destination-groups#countries",
+    "zia/ip-destination-groups#ipCategories",
+    "zia/ip-destination-groups#isNonEditable"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/ip-destination-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Firewall Filtering rules point at destination groups for their destination criterion. {{type-values}} {{addresses-forms}}"
+    },
+    {
+      "label": "Which fields go with which type.",
+      "text": "{{field-pairing}} {{pairing-not-enforced}} {{ip-categories-custom-only}} {{non-editable-predefined}} What a DSTN_DOMAIN group contains is open {{gap:domain-type-fields}}."
+    },
+    {
+      "label": "The list filter and the update call.",
+      "text": "{{exclude-type-excludes}} The API capture words the same parameter differently {{divergence:exclude-type-wording}}. {{override-appends}}"
+    },
+    {
+      "label": "Size.",
+      "text": "{{fqdn-per-group-caps}} What happens past the FQDN cap is open {{gap:fqdn-cap-overflow}}. Other caps are in [[zia.firewall.limits]]. {{endpoint}}"
+    },
+    {
+      "label": "What the help says a group holds.",
+      "text": "{{dg-purpose}} {{dg-ip-families}} {{dg-sni-ignored}} {{dg-console-types}} {{dg-other-type}} {{dg-name-description}}"
+    },
+    {
+      "label": "Wildcard FQDNs.",
+      "text": "{{wildcard-match}} {{wildcard-syntax}} {{wildcard-nonweb}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the group's type matches the fields it sets, following the pairing rules.",
+      "uses": [
+        "field-pairing",
+        "pairing-not-enforced"
+      ]
+    },
+    {
+      "do": "Whether a rule still references the group before deleting it, since the delete helper sweeps firewall filtering rules only.",
+      "uses": [
+        "zia.terraform.delete-detach:helper-sweeps-firewall-filtering-rules-only",
+        "zia.terraform.delete-detach:helper-callers"
+      ]
+    },
+    {
+      "do": "Whether the override flag is set deliberately on an update that edits addresses, since the default replaces the existing set.",
+      "uses": [
+        "override-appends"
+      ]
+    }
+  ],
+  "claims": {
+    "type-values": {
+      "statement": "A destination group's type is one of DSTN_IP, DSTN_FQDN, DSTN_DOMAIN or DSTN_OTHER. The Python SDK rejects any other value for the list filter and the MCP tool enforces the same four values on input.",
+      "tier": "A",
+      "binds": [
+        "zia/ip-destination-groups#type"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups/get/responses/200/content/application~1json/schema/items/properties/type",
+          "expect": {
+            "enum": [
+              "DSTN_IP",
+              "DSTN_FQDN",
+              "DSTN_DOMAIN",
+              "DSTN_OTHER"
+            ]
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "quotes": [
+            "valid_exclude_types = {\"DSTN_IP\", \"DSTN_FQDN\", \"DSTN_DOMAIN\", \"DSTN_OTHER\"}",
+            "if exclude_type and exclude_type not in valid_exclude_types: raise ValueError(f\"Invalid exclude_type: {exclude_type}."
+          ],
+          "after": "def list_ip_destination_groups("
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/ip_destination_groups.py",
+          "quotes": [
+            "DSTN_IP, DSTN_FQDN, DSTN_DOMAIN, or DSTN_OTHER.",
+            "_TYPE_PATTERN = \"^(DSTN_IP|DSTN_FQDN|DSTN_DOMAIN|DSTN_OTHER)$\"",
+            "Field(pattern=_TYPE_PATTERN, description=\"DSTN_IP, DSTN_FQDN, DSTN_DOMAIN, or DSTN_OTHER.\"),"
+          ]
+        }
+      ]
+    },
+    "addresses-forms": {
+      "statement": "`addresses` may hold destination IP addresses, FQDNs or wildcard FQDNs.",
+      "tier": "A",
+      "binds": [
+        "zia/ip-destination-groups#addresses"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go",
+          "quotes": [
+            "Destination IP addresses, FQDNs, or wildcard FQDNs"
+          ]
+        }
+      ]
+    },
+    "field-pairing": {
+      "statement": "By the MCP field descriptions and the SDK examples, `addresses` is required for DSTN_IP and DSTN_FQDN, while `countries` and `ip_categories` are used with DSTN_OTHER.",
+      "tier": "A",
+      "binds": [
+        "zia/ip-destination-groups#type",
+        "zia/ip-destination-groups#addresses",
+        "zia/ip-destination-groups#countries",
+        "zia/ip-destination-groups#ipCategories"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/ip_destination_groups.py",
+          "quotes": [
+            "addresses: Annotated[ Optional[list[str]], Field(default=None, description=\"IPs/FQDNs. Required for DSTN_IP or DSTN_FQDN.\"),",
+            "countries: Annotated[ Optional[list[str]], Field(default=None, description=\"Country codes (COUNTRY_XX). Optional for DSTN_OTHER.\"),",
+            "ip_categories: Annotated[ Optional[list[str]], Field(default=None, description=\"URL categories. Optional for DSTN_OTHER.\"),"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "quotes": [
+            "type='DSTN_OTHER',",
+            "countries=['COUNTRY_US']),",
+            "ip_categories=['CUSTOM_01']),"
+          ],
+          "after": "def add_ip_destination_group("
+        }
+      ]
+    },
+    "pairing-not-enforced": {
+      "statement": "The MCP input model checks that `type` is one of the four values but does not cross-check it against `addresses`, `countries` or `ip_categories`, so a DSTN_IP group with no addresses is not rejected by that client-side model.",
+      "tier": "B",
+      "binds": [
+        "zia/ip-destination-groups#type"
+      ],
+      "conditions": "Rests on the absence of any cross-field validator in the input model, which was read in full. What ZIA does with such a request is unknown.",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/ip_destination_groups.py",
+          "quotes": [
+            "IPs/FQDNs. Required for DSTN_IP or DSTN_FQDN."
+          ]
+        }
+      ]
+    },
+    "ip-categories-custom-only": {
+      "statement": "`ip_categories` on a destination group accepts only custom categories (the SDK example is CUSTOM_01).",
+      "tier": "A",
+      "binds": [
+        "zia/ip-destination-groups#ipCategories"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "quotes": [
+            "Note: Only Custom categories allowed."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def add_ip_destination_group(",
+          "quotes": [
+            "ip_categories (list): Destination IP address URL categories. Note: Only Custom categories allowed.",
+            "ip_categories=['CUSTOM_01']),"
+          ]
+        }
+      ]
+    },
+    "non-editable-predefined": {
+      "statement": "`isNonEditable` is applicable only to predefined groups, which cannot be modified.",
+      "tier": "A",
+      "binds": [
+        "zia/ip-destination-groups#isNonEditable"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go",
+          "quotes": [
+            "is applicable only to predefined IP address groups, which cannot be modified"
+          ]
+        }
+      ]
+    },
+    "exclude-type-excludes": {
+      "statement": "The SDK documents the list filter `excludeType` as excluding all groups that match the given type; the Python parameter name and the Go name carry the same query key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "quotes": [
+            "Exclude all groups that match the specified IP destination group's type.",
+            "query_params[\"excludeType\"] = exclude_type"
+          ],
+          "after": "def list_ip_destination_groups("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go",
+          "quotes": [
+            "queryParams.Add(\"excludeType\", excludeType)"
+          ]
+        }
+      ]
+    },
+    "override-appends": {
+      "statement": "On update, the `override` query parameter controls how IPs are merged: false appends the supplied IPs to the existing set, otherwise the existing IPs are overridden, and the default is true. The Go client sends `override` only when its pointer is set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups~1{ipGroupId}/put/parameters/[name=override]",
+          "expect": {
+            "description": "Indicates whether the IPs must be overridden. When set to false, the IPs are appended; else the existing IPs are overridden. The default value is true."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go",
+          "quotes": [
+            "url = fmt.Sprintf(\"%s?override=%t\", url, *override)",
+            "if override != nil {"
+          ]
+        }
+      ]
+    },
+    "endpoint": {
+      "statement": "Destination groups are served at `/ipDestinationGroups` (list, create) and `/ipDestinationGroups/{id}` (get, update, delete) in the API capture and both SDKs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups/get",
+          "expect": {
+            "description": "<p>Gets a list of all IP destination groups.</p><p><b>Note</b>: This endpoint retrieves only IPv4 destination address groups. Organizations that have enabled IPv6 can use GET <code>/ipSourceGroups/ipv6SourceGroups</code> to retrieve IPv6 destination address groups.</p>\n",
+            "operationId": "IP Destination Group Resource Get Destination IP Groups"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go",
+          "quotes": [
+            "ipDestinationGroupsEndpoint = \"/zia/api/v1/ipDestinationGroups\"",
+            "err := service.Client.Read(ctx, fmt.Sprintf(\"%s/%d\", ipDestinationGroupsEndpoint, ipGroupID), &ipDestinationGroups)",
+            "resp, err := service.Client.Create(ctx, ipDestinationGroupsEndpoint, *ipGroupID)",
+            "url := fmt.Sprintf(\"%s/%d\", ipDestinationGroupsEndpoint, ipGroupID)",
+            "err := service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", ipDestinationGroupsEndpoint, ipGroupID))",
+            "endpoint := ipDestinationGroupsEndpoint"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups/post",
+          "expect": {
+            "operationId": "IP Destination Group Resource Add Destination IP Group"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups~1{ipGroupId}/get",
+          "expect": {
+            "operationId": "IP Destination Group Resource Get Destination IP Group By ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups~1{ipGroupId}/put",
+          "expect": {
+            "operationId": "IP Destination Group Resource Edit Destination IP Group"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups~1{ipGroupId}/delete",
+          "expect": {
+            "operationId": "IP Destination Group Resource Delete Destination IP Group"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def list_ip_destination_groups(",
+          "quotes": [
+            "http_method = \"get\".upper() api_url = format_url(f\"\"\" {self._zia_base_endpoint} /ipDestinationGroups \"\"\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def get_ip_destination_group(",
+          "quotes": [
+            "http_method = \"get\".upper() api_url = format_url(f\"\"\" {self._zia_base_endpoint} /ipDestinationGroups/{group_id} \"\"\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def add_ip_destination_group(",
+          "quotes": [
+            "http_method = \"post\".upper() api_url = format_url(f\"\"\" {self._zia_base_endpoint} /ipDestinationGroups \"\"\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def update_ip_destination_group(",
+          "quotes": [
+            "http_method = \"put\".upper() api_url = format_url(f\"\"\" {self._zia_base_endpoint} /ipDestinationGroups/{group_id} \"\"\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def delete_ip_destination_group(",
+          "quotes": [
+            "http_method = \"delete\".upper() api_url = format_url(f\"\"\" {self._zia_base_endpoint} /ipDestinationGroups/{group_id} \"\"\")"
+          ]
+        }
+      ]
+    },
+    "dg-purpose": {
+      "statement": "Destination IP groups can be applied to policies such as Firewall Filtering, NAT Control, DNS Control, IPS Control and Forwarding Control, and combine destination IP addresses and FQDNs, destination countries and URL categories into groups for security policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-destination-ip-groups.json",
+          "quotes": [
+            "You can apply destination IP groups to policies, such as Firewall Filtering, NAT Control, DNS Control, IPS Control, and Forwarding Control.",
+            "Combine destination IP addresses and FQDNs, destination countries, and URL categories into groups so you can manage them collectively in security policies."
+          ]
+        }
+      ]
+    },
+    "dg-ip-families": {
+      "statement": "Destination IPv4 and IPv6 addresses are managed in separate groups. Two predefined groups, All IPv4 and All IPv6, contain all addresses of their type; custom IPv6 groups are not currently supported, and only the predefined All IPv6 group is available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-destination-ip-groups.json",
+          "quotes": [
+            "Destination IPv4 and IPv6 addresses are managed in separate groups.",
+            "The Zscaler service provides two predefined groups (All IPv4 and All IPv6) that contain all addresses of their respective types.",
+            "Custom groups based on IPv6 addresses are not currently supported.",
+            "Currently, only the predefined All IPv6 group is available."
+          ]
+        }
+      ]
+    },
+    "dg-sni-ignored": {
+      "statement": "In SSL/TLS Inspection and DNS Control policies, IP-based destination groups used in rule criteria are ignored during policy evaluation if an SNI value is present in HTTPS requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-destination-ip-groups.json",
+          "quotes": [
+            "In SSL/TLS Inspection and DNS Control policies, IP-based destination groups used in rule criteria are ignored during policy evaluation if an SNI value is present in HTTPS requests."
+          ]
+        }
+      ]
+    },
+    "dg-console-types": {
+      "statement": "A custom destination group can be created by specifying IPv4 addresses (an individual address or an address range), FQDNs, wildcard FQDNs, server-location countries or custom URL categories. The console offers FQDN for applications with multiple or frequently changing IPv4 addresses, Wildcard FQDN to extend the policy to subdomains of the stated URL, and Other when no IPv4 addresses, FQDNs or domains are associated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "You can create custom destination groups by specifying IP addresses (IPv4 only), FQDNs, wildcard FQDNs, countries where servers are located, or custom URL categories.",
+            "An individual address (e.g., 192.0.2.1)",
+            "An address range (e.g., 192.0.2.1 – 192.0.2.5)",
+            "FQDN: You can add FQDNs for applications with multiple IPv4 addresses or with IPv4 addresses that frequently change.",
+            "Wildcard FQDN: You can add wildcard FQDNs to extend the policy to the subdomains of the stated URL.",
+            "Other: You can select this option if you don't want to associate IPv4 addresses, FQDNs, or domains with the destination group."
+          ]
+        }
+      ]
+    },
+    "dg-other-type": {
+      "statement": "A destination group can identify destinations by the server's location (Any includes all countries) and by the domain's URL category, using any number of custom URL categories; multiple countries or categories, or both, can be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "Countries: You can identify destinations based on the location of a server. Select Any to include all countries in the group or select specific countries.",
+            "Categories: You can identify destinations based on the URL category of the domain. Select any number of custom URL categories to include in the group.",
+            "You can select multiple countries or categories, or both."
+          ]
+        }
+      ]
+    },
+    "dg-name-description": {
+      "statement": "A destination group name may contain only alphanumeric characters, underscores, hyphens and periods, and its description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "Name: Enter a name for the destination address group. Only alphanumeric characters, underscores, hyphens, and periods are allowed.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "wildcard-match": {
+      "statement": "In the help's example the wildcard FQDN *.safemarch.com matches atlanta.safemarch.com, serv3.serv2.serv1.atlanta.safemarch.com/company/webinars, safemarch.com and safemarch.com/company/webinars.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "For example, the wildcard FQDN *.safemarch.com would match the following URLs:",
+            "serv3.serv2.serv1.atlanta.safemarch.com/company/webinars",
+            "- safemarch.com/company/webinars"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "- atlanta.safemarch.com",
+            "- safemarch.com"
+          ],
+          "after": "would match the following URLs:"
+        }
+      ]
+    },
+    "wildcard-syntax": {
+      "statement": "The wildcard character preceding the leading period is optional (*.safemarch.com and .safemarch.com are equivalent), and a wildcard is allowed only as the leftmost label, only once per entry, and only as a prefix search (sub1.*.safemarch.com, *.*.safemarch.com and partial matches such as .safe*.com are not allowed).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "The wildcard character (*) preceding the leading period is optional (i.e., *.safemarch.com and .safemarch.com are equivalent).",
+            "The wildcard character is allowed only as the leftmost label in wildcard FQDN entries.",
+            "a wildcard is only used for full-text matches and cannot be used for partial matches (i.e., .*safemarch.com, .safe*.com, or .sa*march.com is not a legitimate wildcard FQDN).",
+            "Only wildcard FQDNs using a prefix search are supported (e.g., *.safemarch.com is supported but sub1.*.safemarch.com is not supported).",
+            "A wildcard can be used only once in an entry (i.e., *.*.safemarch.com is not allowed)."
+          ]
+        }
+      ]
+    },
+    "wildcard-nonweb": {
+      "statement": "To evaluate wildcard FQDNs against non-web traffic, Zscaler requires the IP address the FQDN resolves to. The page also says to forward all DNS traffic to the Zscaler service if wildcard FQDNs are configured in policies, and that a subscription or Internet & SaaS (ZIA) edition with DNS Control is required, which it says is included in Advanced Firewall and DNS Control subscriptions and Internet & SaaS editions. Wildcard FQDN matching against web traffic (HTTP and TLS/SNI) can function without meeting these conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "To evaluate wildcard FQDNs against non-web traffic, Zscaler requires the IP address to which the FQDN resolves.",
+            "forward all of your DNS traffic to the Zscaler service if you intend to configure wildcard FQDNs in policies",
+            "Additionally, a subscription or Internet & SaaS (ZIA) edition with DNS Control is required.",
+            "This functionality is included in Advanced Firewall and DNS Control subscriptions and Internet & SaaS editions.",
+            "Wildcard FQDN match against web traffic (HTTP and TLS/SNI) can function without meeting these conditions."
+          ]
+        }
+      ]
+    },
+    "fqdn-per-group-caps": {
+      "statement": "Destination groups hold up to 8,000 IP entries and FQDNs per group, but only 100 FQDNs per group (8,000 with Advanced Firewall).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Destination Groups IP Address Entries and FQDNs per Group | 8,000 IP address entries |",
+            "| Destination Groups FQDNs per Group | 100 address entries 8,000 address entries with Advanced Firewall |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "exclude-type-wording": {
+      "summary": "The API capture and the SDKs describe the `excludeType` list filter differently.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1ipDestinationGroups/get/parameters/[name=excludeType]",
+            "expect": {
+              "description": "Filter based on the IP destination group's type."
+            }
+          },
+          "says": "Filter based on the IP destination group's type."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/cloud_firewall.py",
+            "quotes": [
+              "Exclude all groups that match the specified IP destination group's type."
+            ],
+            "after": "def list_ip_destination_groups("
+          },
+          "says": "Exclude all groups that match the specified type."
+        }
+      ],
+      "impact": "Read literally, the capture suggests an include filter; passing excludeType=DSTN_IP expecting only IP groups would return everything except them."
+    }
+  },
+  "gaps": {
+    "country-code-values": {
+      "kind": "data",
+      "title": "Valid country codes for a destination group",
+      "status": "open",
+      "detail": "MCP documents only the generic COUNTRY_XX form and SDK examples use COUNTRY_CA and COUNTRY_US. No mined file enumerates the full set.",
+      "about": [
+        "zia/ip-destination-groups#countries"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "custom-category-identifiers": {
+      "kind": "data",
+      "title": "Which custom category identifiers a destination group accepts",
+      "status": "open",
+      "detail": "`ip_categories` is documented as custom categories only with example CUSTOM_01. No source enumerates or validates the identifiers.",
+      "about": [
+        "zia/ip-destination-groups#ipCategories"
+      ],
+      "resolvable_by": [
+        "iac",
+        "operator"
+      ]
+    },
+    "domain-type-fields": {
+      "kind": "semantic",
+      "title": "What a DSTN_DOMAIN group contains",
+      "status": "open",
+      "detail": "DSTN_DOMAIN appears only in the four-value enum lists. No example or per-type field rule exists for it, unlike DSTN_FQDN. The console help names four group types (an IP address type, FQDN, Wildcard FQDN and Other) but no capture maps them to the API values DSTN_IP, DSTN_FQDN, DSTN_DOMAIN and DSTN_OTHER, and none says DSTN_DOMAIN is Wildcard FQDN.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "fqdn-cap-overflow": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What happens when a destination group exceeds its FQDN cap",
+      "blocks": "saying whether an over-cap write is rejected, truncated or accepted",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "detail": "Unverified statement: What happens past the 100-FQDN default cap on a destination group (a tenant without Advanced Firewall) is not stated. The cap itself is in fqdn-per-group-caps; no source describes the API response or whether extra entries are dropped."
+    }
+  }
+}

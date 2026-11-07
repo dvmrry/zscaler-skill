@@ -1,0 +1,644 @@
+{
+  "schema_version": 1,
+  "id": "zpa.scim.api-surface",
+  "title": "The SCIM API, SDK and Terraform read surface in ZPA",
+  "aliases": [
+    "scimgroup endpoint",
+    "scimattribute endpoint",
+    "userconfig vs mgmtconfig",
+    "zpa_scim_groups",
+    "zpa_scim_attribute_header",
+    "list_scim_groups",
+    "SearchValues",
+    "idpGroupId"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zpa.terraform.data-source-selection"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.attributes-and-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.group-lifecycle"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The SCIM read surface is split across two base paths."
+    },
+    {
+      "label": "Calls.",
+      "text": "{{endpoints}} {{spec-get-only}} {{paging}} {{group-filters}}"
+    },
+    {
+      "label": "Objects.",
+      "text": "{{group-fields}} What internalId means is partly open {{gap:zpa-64-internal-id}}. {{attribute-header-fields}}"
+    },
+    {
+      "label": "SDKs.",
+      "text": "{{python-methods}} {{go-functions}} {{name-lookups}} {{search-values-drops-domain}} {{no-sdk-writes}}"
+    },
+    {
+      "label": "Terraform.",
+      "text": "{{tf-data-sources}} Id-over-name selection in these data sources is in [[zpa.terraform.data-source-selection]], and the SDK's name search in [[zpa.sdk-go.service-defects]]."
+    },
+    {
+      "text": "{{go-scim-server-client}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which call and base path reads the object: groups and attribute values under userconfig, attribute headers under mgmtconfig.",
+      "uses": [
+        "endpoints"
+      ]
+    },
+    {
+      "do": "Whether the task is a read, which all sources support, rather than a write, which none document or implement.",
+      "uses": [
+        "spec-get-only",
+        "no-sdk-writes"
+      ]
+    },
+    {
+      "do": "Which group identifier is in hand: the Zscaler integer id, the IdP's idpGroupId, or the internalId.",
+      "uses": [
+        "group-fields",
+        "zpa-64-internal-id"
+      ]
+    },
+    {
+      "do": "Whether paging, the time range or allEntries is being used to find the groups wanted.",
+      "uses": [
+        "paging",
+        "group-filters",
+        "zpa.scim.group-lifecycle:deleted-groups-retrievable"
+      ]
+    },
+    {
+      "do": "Whether a Terraform lookup names the IdP, and how names are matched in the SDK it wraps.",
+      "uses": [
+        "tf-data-sources",
+        "name-lookups",
+        "search-values-drops-domain"
+      ]
+    }
+  ],
+  "claims": {
+    "endpoints": {
+      "statement": "The documented SCIM calls in ZPA are GETs: SCIM groups of an IdP and one group under /userconfig/v1/customers, an IdP's SCIM attribute headers and one header under /mgmtconfig/v1/admin/customers, and an attribute's values under /userconfig/v1/customers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-scim-group-details-using-api.json",
+          "quotes": [
+            "Send a GET request to the following endpoint: /userconfig/v1/customers/{customerId}/scimgroup/idpId/{idpId}.",
+            "Send a GET request to the following endpoint: /userconfig/v1/customers/{customerId}/scimgroup/{scimGroupId}."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-scim-attribute-details-using-api.json",
+          "quotes": [
+            "Send a GET request to the endpoint /mgmtconfig/v1/admin/customers/{customerId}/idp/{idpId}/scimattribute in the scim-attribute-header-controller.",
+            "Send a GET request to the endpoint /userconfig/v1/customers/{customerId}/scimattribute/idpId/{idpId}/attributeId/{attributeId} in the scim-attribute-header-controller"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get",
+          "expect": {
+            "description": "Gets details of all SCIM groups for the specified IdP."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1{scimGroupId}/get",
+          "expect": {
+            "description": "Gets the SCIM Group details for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}~1scimattribute/get",
+          "expect": {
+            "description": "Gets all SCIM attributes for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}~1scimattribute~1{scimAttributeId}/get",
+          "expect": {
+            "description": "Gets the SCIM attribute details for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimattribute~1idpId~1{idpId}~1attributeId~1{attributeId}/get",
+          "expect": {
+            "description": "Gets all SCIM attribute values for the specified ID."
+          }
+        }
+      ],
+      "conditions": "Absence claim: `grep -o -i '\"/[^\"]*scim[^\"]*\": {' automate-zscaler/openapi/zpa.openapi.json` over the capture of 2026-09-07 returns the five paths cited, and each defines only a `get` operation; `grep -o -E 'Send a [A-Z]+ request'` over obtaining-scim-group-details-using-api.json and obtaining-scim-attribute-details-using-api.json (captures of 2026-10-18) returns only \"Send a GET request\", three and five times. The claim covers the management API, not the separate SCIM server (go-scim-server-client)."
+    },
+    "spec-get-only": {
+      "statement": "The captured API specification has only get operations on its SCIM group, SCIM attribute and SCIM value paths, and no operation that creates, changes or deletes them.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get",
+          "expect": {
+            "description": "Gets details of all SCIM groups for the specified IdP."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}~1scimattribute~1{scimAttributeId}/get",
+          "expect": {
+            "description": "Gets the SCIM attribute details for the specified ID."
+          }
+        }
+      ],
+      "conditions": "Absence claim from a search of zpa.openapi.json: the five scim paths each define only a get member."
+    },
+    "paging": {
+      "statement": "The SCIM group list by identity provider (`scimgroup/idpId/{idpId}`) pages with page and pagesize; the default page size is 20 and the maximum is 500.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=pagesize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=page]",
+          "expect": {
+            "description": "Specifies the page number."
+          }
+        }
+      ]
+    },
+    "group-filters": {
+      "statement": "The SCIM group list can be filtered by startTime and endTime on modified_time, which must be set together, and sorted by id, name, creationTime or modifiedTime, defaulting to modifiedTime.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=startTime]",
+          "expect": {
+            "description": "The start of a time range for requesting last updated data (modified_time) for the SCIM group. This requires setting the endTime parameter as well."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=endTime]",
+          "expect": {
+            "description": "The end of a time range for requesting last updated data (modified_time) for the SCIM group. This requires setting the startTime parameter as well."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=sortBy]",
+          "expect": {
+            "description": "Specifies the field name to sort the results. Supported Sort fields are (id,name,creationTime,modifiedTime).If not provided, results are sorted by modifiedTime"
+          }
+        }
+      ]
+    },
+    "group-fields": {
+      "statement": "A SCIM group has id, name, idpId, idpGroupId, internalId, creationTime and modifiedTime, with name, idpId and idpGroupId required; the Zscaler id is an integer while idpGroupId is the IdP's own string identifier.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/list/items",
+          "expect": {
+            "required": [
+              "idpGroupId",
+              "idpId",
+              "name"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/list/items/properties/id",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/list/items/properties/idpGroupId",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/list/items/properties/internalId",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/list/items/properties",
+          "expect": {
+            "id": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "idpId": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "idpGroupId": {
+              "type": "string"
+            },
+            "internalId": {
+              "type": "string"
+            },
+            "creationTime": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "modifiedTime": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "attribute-header-fields": {
+      "statement": "A SCIM attribute header has name, idpId, dataType, schemaURI, multivalued, required, caseSensitive, mutability, returned, uniqueness and canonicalValues, with dataType, mutability, name and returned required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}~1scimattribute/get/responses/200/content/*~1*/schema/properties/list/items",
+          "expect": {
+            "required": [
+              "dataType",
+              "mutability",
+              "name",
+              "returned"
+            ],
+            "title": "SCIMAttributeHeader"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}~1scimattribute/get/responses/200/content/*~1*/schema/properties/list/items/properties/caseSensitive",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}~1scimattribute/get/responses/200/content/*~1*/schema/properties/list/items/properties",
+          "expect": {
+            "name": {
+              "type": "string"
+            },
+            "idpId": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "dataType": {
+              "type": "string"
+            },
+            "schemaURI": {
+              "type": "string"
+            },
+            "multivalued": {
+              "type": "boolean"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "caseSensitive": {
+              "type": "boolean"
+            },
+            "mutability": {
+              "type": "string"
+            },
+            "returned": {
+              "type": "string"
+            },
+            "uniqueness": {
+              "type": "boolean"
+            },
+            "canonicalValues": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        }
+      ]
+    },
+    "python-methods": {
+      "statement": "The Python SDK exposes SCIMGroupsAPI with list_scim_groups(idp_id, query_params) and get_scim_group(group_id, query_params), and ScimAttributeHeaderAPI with list_scim_attributes, get_scim_attribute and get_scim_values, each taking the IdP ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/scim_groups.py",
+          "quotes": [
+            "class SCIMGroupsAPI(APIClient):",
+            "def list_scim_groups(self, idp_id: str, query_params: Optional[dict] = None)",
+            "def get_scim_group(self, group_id: str, query_params: Optional[dict] = None)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/scim_attributes.py",
+          "quotes": [
+            "class ScimAttributeHeaderAPI(APIClient):",
+            "def list_scim_attributes(self, idp_id: str, query_params: Optional[dict] = None)",
+            "def get_scim_attribute(self, idp_id: str, attribute_id: str, query_params: Optional[dict] = None)",
+            "def get_scim_values(self, idp_id: str, attribute_id: str, query_params: Optional[dict] = None)"
+          ]
+        }
+      ]
+    },
+    "go-functions": {
+      "statement": "The Go SDK's scimgroup package has Get, GetByName and GetAllByIdpId, plus, from v3.8.50 (#465), GetByNameAndIamIdp, which resolves a group name within one ZIdentity (IAM) IdP; its scimattributeheader package has Get, GetByName, GetAllByIdpId, GetValues and SearchValues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
+          "at": [
+            "v3.8.48",
+            "HEAD"
+          ],
+          "quotes": [
+            "func Get(ctx context.Context, service *zscaler.Service, scimGroupID string)",
+            "func GetByName(ctx context.Context, service *zscaler.Service, scimName, idpId string)",
+            "func GetAllByIdpId(ctx context.Context, service *zscaler.Service, idpId string)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
+          "quotes": [
+            "func GetByNameAndIamIdp(ctx context.Context, service *zscaler.Service, scimName, idpId string, criteria IamIdpCriteria)",
+            "// IamIdpCriteria narrows a SCIM group name lookup to the groups that belong to a",
+            "// specific ZIdentity (IAM) IdP."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added `IamIdpID` and `IamIdpName` to `scimgroup.ScimGroup`, and the function `scimgroup.GetByNameAndIamIdp`",
+            "which resolves a SCIM group by name within a specific ZIdentity (IAM) IdP",
+            "[PR #465](https://github.com/zscaler/zscaler-sdk-go/pull/465)",
+            "# 3.8.50 (October 1, 2026)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go",
+          "quotes": [
+            "func Get(ctx context.Context, service *zscaler.Service, idpId, scimAttrHeaderID string)",
+            "func GetByName(ctx context.Context, service *zscaler.Service, scimAttributeName, IdpId string)",
+            "func GetAllByIdpId(ctx context.Context, service *zscaler.Service, IdpId string)",
+            "func GetValues(ctx context.Context, service *zscaler.Service, idpId, ScimAttrHeaderID string)",
+            "func SearchValues(ctx context.Context, service *zscaler.Service, idpId, ScimAttrHeaderID, searchQuery string)"
+          ]
+        }
+      ],
+      "conditions": "Changed upstream in v3.8.50 (checked 2026-10-18): previously \"The Go SDK's scimgroup package has Get, GetByName and GetAllByIdpId, and its scimattributeheader package has Get, GetByName, GetAllByIdpId, GetValues and SearchValues.\""
+    },
+    "search-values-drops-domain": {
+      "statement": "SearchValues keeps only the part of the search query before the first @, so an email-shaped query is searched without its domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go",
+          "quotes": [
+            "searchQuery = strings.Split(searchQuery, \"@\")[0]"
+          ]
+        }
+      ]
+    },
+    "name-lookups": {
+      "statement": "The Go SDK's scimattributeheader.GetByName lists the IdP's SCIM attribute headers and matches the name case-insensitively with strings.EqualFold.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go",
+          "quotes": [
+            "relativeURL := fmt.Sprintf(\"%s/%s%s\", mgmtConfig+service.Client.GetCustomerID()+idpId, IdpId, scimAttrEndpoint)",
+            "list, resp, err := common.GetAllPagesGeneric[ScimAttributeHeader](ctx, service.Client, relativeURL, \"\")",
+            "if strings.EqualFold(scimAttribute.Name, scimAttributeName) {"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, scimAttributeName, IdpId string)"
+        }
+      ]
+    },
+    "no-sdk-writes": {
+      "statement": "In the management-API packages (Go scimgroup and scimattributeheader, Python scim_groups and scim_attributes), neither SDK has a create, update or delete function for SCIM groups or SCIM attribute headers.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
+          "quotes": [
+            "func GetAllByIdpId(ctx context.Context, service *zscaler.Service, idpId string)"
+          ]
+        }
+      ],
+      "conditions": "Absence claim from a read of the Go scimgroup and scimattributeheader files, and of the Python scim_groups.py and scim_attributes.py: the functions listed in claims go-functions and python-methods are the only public ones (Go scimgroup re-read at v3.8.55: Get, GetByName, GetByNameAndIamIdp, GetAllByIdpId). The Go scim_api package, which calls the ZPA SCIM server rather than the management API, does have write functions (go-scim-server-client)."
+    },
+    "tf-data-sources": {
+      "statement": "The zpa_scim_groups and zpa_scim_attribute_header data sources fail unless idp_id or idp_name is set, find the object by id when it is given and otherwise by name, and zpa_scim_attribute_header also reads the attribute's values into a values set. The zpa_scim_groups schema declares idp_id as an integer; up to v4.4.14 its read asserted the value as a string, so a lookup by idp_id found no IdP ID, and v4.4.15 converts the integer to the string the SDK takes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_scim_group.go",
+          "quotes": [
+            "return diag.FromErr(fmt.Errorf(\"IDP name or ID is required\"))",
+            "if idExists && id != \"\" {",
+            "res, _, err := scimgroup.Get(ctx, service, id)",
+            "} else if nameExists && name != \"\" && idpResp != nil {",
+            "res, _, err = scimgroup.GetByName(ctx, service, name, idpResp.ID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_scim_attribute_header.go",
+          "quotes": [
+            "return diag.FromErr(fmt.Errorf(\"IDP name or ID is required\"))",
+            "values, err := scimattributeheader.GetValues(ctx, service, resp.IdpID, resp.ID)",
+            "if idExists && id != \"\" {",
+            "res, _, err := scimattributeheader.Get(ctx, service, idpResp.ID, id)",
+            "} else if nameExists && name != \"\" {",
+            "res, _, err := scimattributeheader.GetByName(ctx, service, name, idpResp.ID)",
+            "_ = d.Set(\"values\", values)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_scim_group.go",
+          "quotes": [
+            "\"idp_id\": { Type: schema.TypeInt, Optional: true, },"
+          ],
+          "after": "Schema: map[string]*schema.Schema{"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_scim_group.go",
+          "at": [
+            "v4.4.14"
+          ],
+          "quotes": [
+            "idpId, okidpId := d.Get(\"idp_id\").(string)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_scim_group.go",
+          "quotes": [
+            "// idp_id is numeric in the schema; the SDK takes it as a string.",
+            "if v, ok := d.Get(\"idp_id\").(int); ok && v != 0 {",
+            "idpId = strconv.Itoa(v)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_scim_groups` data source: the lookup by `idp_id` now works."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
+        }
+      ]
+    },
+    "go-scim-server-client": {
+      "statement": "Separately from the management-API packages, the Go SDK's ZPA scim_api package calls the ZPA SCIM server and has write functions: CreateUser, UpdateUser, PatchUser and DeleteUser for users and CreateGroup, UpdateGroup, PatchGroup and DeleteGroup for groups, besides the reads GetUser, GetUserByName and GetAllUsers for users and GetGroup, GetGroupByName and GetAllGroups for groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "func CreateUser(ctx context.Context, service *zscaler.ScimZPAService, scimUser *ScimUser)",
+            "func UpdateUser(ctx context.Context, service *zscaler.ScimZPAService, userID string, scimUser *ScimUser)",
+            "func PatchUser(ctx context.Context, service *zscaler.ScimZPAService, userID string, scimUser *ScimUser)",
+            "func DeleteUser(ctx context.Context, service *zscaler.ScimZPAService, userID string)",
+            "func GetUser(ctx context.Context, service *zscaler.ScimZPAService, userID string)",
+            "func GetUserByName(ctx context.Context, service *zscaler.ScimZPAService, userName string)",
+            "func GetAllUsers(ctx context.Context, service *zscaler.ScimZPAService, count ...int)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scim_api/scim_group_api.go",
+          "quotes": [
+            "func CreateGroup(ctx context.Context, service *zscaler.ScimZPAService, scimGroup *ScimGroup)",
+            "func UpdateGroup(ctx context.Context, service *zscaler.ScimZPAService, groupID string, scimGroup *ScimGroup)",
+            "func PatchGroup(ctx context.Context, service *zscaler.ScimZPAService, groupID string, scimGroup *ScimGroup)",
+            "func DeleteGroup(ctx context.Context, service *zscaler.ScimZPAService, groupID string)",
+            "func GetGroup(ctx context.Context, service *zscaler.ScimZPAService, groupID string)",
+            "func GetGroupByName(ctx context.Context, service *zscaler.ScimZPAService, groupName string)",
+            "func GetAllGroups(ctx context.Context, service *zscaler.ScimZPAService, count ...int)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/service.go",
+          "after": "type ScimZPAService struct {",
+          "quotes": [
+            "Config *zpa.ScimConfiguration"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/config_scim.go",
+          "quotes": [
+            "scimdefaultBaseURL = \"https://scim1.private.zscaler.com/scim/1/\""
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zpa-64-internal-id": {
+      "kind": "semantic",
+      "title": "What a SCIM group's internal ID is",
+      "status": "partial",
+      "former_ids": [
+        "zpa-64"
+      ],
+      "detail": "The SCIM Groups page lists an Internal Group ID as 'The internal ID for the group', and the API help example shows internalId equal to id as a string. No source says how it relates to id and idpGroupId beyond that, or whether policy ever uses it.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ],
+      "blocks": "saying which group identifier a script should store",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-scim-groups.json",
+          "quotes": [
+            "Internal Group ID: The internal ID for the group."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-scim-group-details-using-api.json",
+          "quotes": [
+            "\"internalId\": \"1981044\""
+          ]
+        }
+      ]
+    }
+  }
+}

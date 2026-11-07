@@ -1,0 +1,492 @@
+{
+  "schema_version": 1,
+  "id": "zcc.troubleshooting.known-issues",
+  "title": "Version- and OS-bound Client Connector known issues, with the vendor's workarounds and fix versions where given",
+  "aliases": [
+    "zcc known issues",
+    "client connector known issue",
+    "client connector upgrade issue",
+    "zcc fixed in version"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.authentication-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.internet-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.ssl-inspection.certificate-install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture.failure-modes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each claim here is bound to the Client Connector release or OS the vendor names. Fix versions that the vendor does not give are open {{gap:fix-versions}}."
+    },
+    {
+      "label": "Android and ChromeOS.",
+      "text": "{{android-17-local-network}} {{android-40-dns-domain-inclusion}} {{chromeos-captive-portal}} {{chromeos-112-ipv6-only-login}} {{chromeos-112-lte-wifi-dns}}"
+    },
+    {
+      "label": "iOS.",
+      "text": "{{ios-44-device-group-entitlements}} {{ios-44-workaround}}"
+    },
+    {
+      "label": "Windows.",
+      "text": "{{webview2-blank-page}} {{outlook-teams-loopback}} {{nslookup-ipv4-private-access}} {{browser-auth-no-autolaunch}}"
+    },
+    {
+      "label": "Linux.",
+      "text": "{{linux-gnome-tray-icon}}"
+    },
+    {
+      "label": "Legacy: end-of-life releases and operating systems.",
+      "text": "What the legacy findings leave open for current packages is open {{gap:legacy-scope}}."
+    },
+    {
+      "label": "Legacy: Windows.",
+      "text": "{{legacy-windows-37-os-floor}} {{legacy-windows-2004-dns-suffixes}} {{legacy-ad-login-crypto-api}}"
+    },
+    {
+      "label": "Legacy: macOS.",
+      "text": "{{legacy-m1-rosetta}} {{legacy-macos-big-sur}} {{legacy-macos-catalina}}"
+    },
+    {
+      "label": "Legacy: Linux.",
+      "text": "{{legacy-linux-371-apparmor}} {{legacy-linux-12-vpn-dns}} {{legacy-linux-11-autoupdate}}"
+    },
+    {
+      "label": "Legacy: Android and updates.",
+      "text": "{{legacy-android-10}} {{legacy-android-19-32bit}} {{legacy-143-update}}"
+    }
+  ],
+  "claims": {
+    "android-17-local-network": {
+      "statement": "Android 17 requires apps to explicitly request permission before accessing the local network. When a device running Client Connector 5.0 for Android upgrades to Android 17 and reboots, the OS might start the Zscaler VPN service in the background before the user has granted the Local Network permission. The OS does not display interactive permission prompts for background services, so users might not see the prompt until they open the app, and network connectivity might be affected in the meantime. The user opens Client Connector from the home screen or launcher and taps Allow; administrators configure the MDM/EMM policy to auto-grant ACCESS_LOCAL_NETWORK, which appears under Nearby devices / Local network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-local-network-permission-prompt-not-shown-after-android-17-os-upgrade-and-reboot.json",
+          "quotes": [
+            "With Android 17, apps are now required to explicitly request permission before accessing your local network.",
+            "When a device running Zscaler Client Connector version 5.0 for Android upgrades to Android 17 and reboots, the Android OS might start the Zscaler VPN service in the background before the user has granted the Local Network permission.",
+            "The Android OS does not display interactive permission prompts for background services.",
+            "As a result, users might not see the permission prompt until they open the Zscaler Client Connector app, and network connectivity might be affected in the meantime.",
+            "End Users: After upgrading to Android 17 and rebooting, open Zscaler Client Connector from the device home screen or launcher.",
+            "When prompted, tap Allow for the Local Network permission.",
+            "configure the MDM/EMM policy to auto-grant ACCESS_LOCAL_NETWORK for Zscaler Client Connector. The permission appears under Nearby devices / Local network."
+          ]
+        }
+      ]
+    },
+    "ios-44-device-group-entitlements": {
+      "statement": "Client Connector 4.4 and 4.4.1 for iOS have a known issue that might cause users to lose access to Zscaler services (Internet & SaaS, Private Access, Digital Experience). It affects iOS users when device groups are used for service entitlements on Client Connector for Windows, macOS, Linux or Android, but not for iOS: they lose the Zscaler service tabs at the bottom of the window and access to every service configured for device group-based service entitlement. The vendor lists as not affected: tenants that have not configured device group-based service entitlements for any OS, that have configured them for iOS only, or that use Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-services-inaccessible-after-upgrading-zscaler-client-connector-versions-4-4-and-4-4-1-ios.json",
+          "quotes": [
+            "Zscaler Client Connector versions 4.4 and 4.4.1 for iOS have a known issue that might cause users to lose access to Zscaler services, e.g., Internet & SaaS, Private Access, and Digital Experience (ZDX).",
+            "This issue impacts iOS users who are using device groups for service entitlements on Zscaler Client Connector for Windows, macOS, Linux, or Android, but not for iOS.",
+            "Affected users will lose the Zscaler service tabs at the bottom of the Zscaler Client Connector window, along with access to all Zscaler service currently configured for device group-based service entitlement.",
+            "Haven’t configured device group-based service entitlements for any OS using Zscaler Client Connector",
+            "Have already configured device group-based entitlements for iOS only.",
+            "Use Authentication Service."
+          ]
+        }
+      ]
+    },
+    "ios-44-workaround": {
+      "statement": "The vendor's workaround for Client Connector 4.4 and 4.4.1 for iOS is for customers who have configured device group-based entitlements for any platform other than iOS, to prevent disruption for iOS users until this issue is resolved: in the Admin Console at Infrastructure > Client Connector > iOS, on the Platform Settings tab, enable any option without clicking Save, disable the option, and click Save; then instruct affected users to click More and Update Policy; users with Private Access entitlements must re-register and authenticate with the IdP to access private applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-services-inaccessible-after-upgrading-zscaler-client-connector-versions-4-4-and-4-4-1-ios.json",
+          "quotes": [
+            "Zscaler Client Connector versions 4.4 and 4.4.1 for iOS have a known issue that might cause users to lose access to Zscaler services, e.g., Internet & SaaS, Private Access, and Digital Experience (ZDX).",
+            "Customers who have configured device group-based entitlements for any platform other than iOS can use the following workaround to prevent disruption for iOS users until this issue is resolved:",
+            "Enable the Save button in the Zscaler Admin Console:",
+            "From the navigation menu, go to Infrastructure > Client Connector > iOS.",
+            "Click the Platform Settings tab.",
+            "Enable any option but don't click Save.",
+            "Disable the option.",
+            "Click Save.",
+            "Instruct the affected users to manually refresh internet security policies:",
+            "Click More.",
+            "Click Update Policy.",
+            "Users with Private Access entitlements must re-register and authenticate with the IdP to access private applications."
+          ]
+        }
+      ]
+    },
+    "android-40-dns-domain-inclusion": {
+      "statement": "Client Connector version 4.0 for Android has a known issue where DNS resolution through the Public Service Edge for Internet & SaaS would sometimes fail if DNS domains are not added to the Domain Inclusion field in App Profiles. The workaround is a wildcard (*) in the Domain Inclusion field, entered in the Traffic Steering section on the DNS tab, which has Client Connector tunnel all DNS domains through Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-dns-resolution-fails-through-public-service-edge-for-internet-saas.json",
+          "quotes": [
+            "Zscaler Client Connector version 4.0 for Android has a known issue where DNS resolution through the Public Service Edge for Internet & SaaS would sometimes fail if DNS domains aren’t added to the Domain Inclusion field in App Profiles.",
+            "As a workaround, you can specify a wildcard (*) in the Domain Inclusion field in App Profiles:",
+            "In the Traffic Steering section, click the DNS tab.",
+            "enter a wildcard (*) to have Zscaler Client Connector tunnel all DNS domains through Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "chromeos-captive-portal": {
+      "statement": "On Client Connector for Android on ChromeOS, after clicking the Sign in button in Settings, Chromebook users are not redirected to the captive portal when one is detected, because of an issue with Google ChromeOS. Instead, users can click Open Captive Portal in Client Connector for either Internet & SaaS or Private Access until this issue is resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-captive-portal-sign-fails-chromebook-users.json",
+          "quotes": [
+            "After clicking the Sign in button in Settings, Chromebook users running Zscaler Client Connector for Android on ChromeOS are not redirected to the captive portal when a captive portal is detected because of an issue with Google ChromeOS.",
+            "Instead, users can click Open Captive Portal in Zscaler Client Connector for either Internet & SaaS or [Private Access until this issue is resolved."
+          ]
+        }
+      ]
+    },
+    "webview2-blank-page": {
+      "statement": "On Client Connector versions 4.3, 4.4 and 4.5 for Windows with WebView2 enabled, embedded web pages can appear blank if display settings have changed or displays are attached or removed. The issue affects SAML authentication during login, reauthentication, acceptable use policy, license agreement, data loss protection notifications, and self-service notifications. Terminating the ZSATray.exe process via Task Manager or restarting the system resolves it temporarily; it is fixed in version 4.3.0.255, 4.4.0.346 and 4.5.0.296 for Windows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-displays-blank-page.json",
+          "quotes": [
+            "Zscaler Client Connector versions 4.3, 4.4, and 4.5 for Windows have a known issue if WebView2 is enabled where embedded web pages can appear blank if display settings have changed or if displays are attached or removed from the system.",
+            "The issue affects SAML authentication during login, reauthentication, acceptable use policy, license agreement, data loss protection notifications, and self-service notifications.",
+            "You can temporarily resolve the issue by restarting the application (terminate the ZSATray.exe process via Task Manager) or restarting the system.",
+            "The issue is fixed on Zscaler Client Connector version 4.3.0.255, version 4.4.0.346, and version 4.5.0.296 for Windows."
+          ]
+        }
+      ]
+    },
+    "outlook-teams-loopback": {
+      "statement": "In Client Connector version 4.1.0.82 for Windows, Microsoft Outlook and Microsoft Teams are not accessible when using Tunnel with Local Proxy while connected to Internet & SaaS, because the option to Disable Loopback Restriction fails in some scenarios. The issue was fixed in version 4.1.0.98 for Windows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-microsoft-outlook-and-microsoft-teams-not-accessible.json",
+          "quotes": [
+            "In Zscaler Client Connector versions 4.1.0.82 for Windows, Microsoft Outlook and Microsoft Teams applications are not accessible when using Tunnel with Local Proxy while connected to the Internet & SaaS service because the option to Disable Loopback Restriction fails in some scenarios.",
+            "This issue was fixed in Zscaler Client Connector version 4.1.0.98 for Windows."
+          ]
+        }
+      ]
+    },
+    "nslookup-ipv4-private-access": {
+      "statement": "In Client Connector version 4.1.0.89 for Windows, the nslookup command, which targets a DNS request to a specific DNS server by domain, fails on devices running Client Connector with only an IPv4 address if the DNS domain is a Private Access application (for example *.company.com). The issue was fixed in version 4.1.0.98 for Windows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-dns-request-failure-zscaler-client-connector-version-4.1.0.89.json",
+          "quotes": [
+            "In Zscaler Client Connector version 4.1.0.89 for Windows, the nslookup command, which targets a DNS request to a specific DNS server by domain, fails on devices running Zscaler Client Connector with only an IPv4 address if the DNS domain is a Private Access application (e.g., *.company.com).",
+            "This issue was fixed in Zscaler Client Connector version 4.1.0.98 for Windows."
+          ]
+        }
+      ]
+    },
+    "chromeos-112-ipv6-only-login": {
+      "statement": "In Client Connector for Android on ChromeOS version 1.12, users could not log in when connected to an IPv6-only cellular network; the workaround is to request a dual-stack mobile data network from the cellular provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-log-failure-zscaler-client-connector-android-chromeos--version-1.12.json",
+          "quotes": [
+            "In Zscaler Client Connector for Android on ChromeOS version 1.12, users couldn't log in to Zscaler Client Connector when connected to an IPv6-only cellular network.",
+            "For a workaround, request a dual-stack mobile data network from your cellular provider."
+          ]
+        }
+      ]
+    },
+    "chromeos-112-lte-wifi-dns": {
+      "statement": "In Client Connector for Android on ChromeOS version 1.12, users switching from LTE to Wi-Fi experience DNS resolution failure while Client Connector is running; the vendor says this is a known issue due to Google's upgrade to ChromeOS version 111, and states that it will be fixed in ChromeOS version 114 (a planned fix, as stated by the article).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-dns-resolution-failure-zscaler-client-connector-android-chromeos-version-1.12.json",
+          "quotes": [
+            "In Zscaler Client Connector for Android on ChromeOS version 1.12, users switching from LTE to Wi-Fi are experiencing DNS resolution failure while Zscaler Client Connector is running.",
+            "This is a known issue due to Google’s upgrade to ChromeOS version 111 and will be fixed in ChromeOS version 114."
+          ]
+        }
+      ]
+    },
+    "browser-auth-no-autolaunch": {
+      "statement": "When using the Google Chrome browser version 116 or Mozilla Firefox browser version 117 for browser-based authentication, Client Connector for both Windows and Linux does not automatically launch; the user must click Launch on the browser to complete authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-browser-based-authentication-fails-when-using-certain-browsers-launch-zscaler-client-connector-linux.json",
+          "quotes": [
+            "When using the Google Chrome browser version 116 or Mozilla Firefox browser version 117 for browser-based authentication, Zscaler Client Connector for both Windows and Linux doesn’t automatically launch.",
+            "You must click Launch on your browser to complete authentication."
+          ]
+        }
+      ]
+    },
+    "linux-gnome-tray-icon": {
+      "statement": "Using the Client Connector GNOME tray icon in Linux distributions requires enabling the third-party GNOME extension AppIndicator and KStatusNotifierItem Support. When enabling this extension with openSUSE 15.3 and 15.4 Leap with GNOME Desktop, there is a known issue where the tray icon does not display on the screen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-missing-zscaler-client-connector-gnome-tray-icon.json",
+          "quotes": [
+            "Using the Zscaler Client Connector GNOME tray icon in Linux distributions requires enabling the third-party GNOME extension, AppIndicator and KStatusNotifierItem Support.",
+            "When enabling this extension with openSUSE 15.3 and 15.4 Leap with GNOME Desktop, there is a known issue where the tray icon does not display on the screen."
+          ]
+        }
+      ]
+    },
+    "legacy-linux-371-apparmor": {
+      "statement": "Legacy (3.7.1 for Linux): some endpoint devices cannot upgrade to Client Connector 3.7.1 for Linux because of an AppArmor conflict when the OpenSSL service accesses openssl.cnf; the vendor's resolution, which it says will be fixed in a future release, is to open the ZSAUpdater AppArmor policy file /etc/apparmor.d/opt.zscaler.bin.zsupdater, inserts the policy `/etc/ssl/openssl.cnf r,` and reloads it with `sudo apparmor_parser -r /etc/apparmor.d/opt.zscaler.bin.zsupdater`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-apparmor-causes-auto-upgrade-zscaler-client-connector-version-3-7-1-linux-fail.json",
+          "quotes": [
+            "Some endpoint devices cannot upgrade to Zscaler Client Connector version 3.7.1 for Linux because of an AppArmor conflict when accessing openssl.cnf by the OpenSSL service.",
+            "This issue will be fixed in a future release.",
+            "Open the ZSAUpdater AppArmor policy file sudo vi /etc/apparmor.d/opt.zscaler.bin.zsupdater.",
+            "Insert the policy into the file /etc/ssl/openssl.cnf r,.",
+            "sudo apparmor_parser -r /etc/apparmor.d/opt.zscaler.bin.zsupdater"
+          ]
+        }
+      ]
+    },
+    "legacy-windows-37-os-floor": {
+      "statement": "Legacy (3.7 for Windows): Client Connector 3.7 for Windows requires Windows 10 or 11; if upgrades are attempted on devices running Windows 7, 8 and 8.1, the upgrade fails without disruption to the user, and the devices continue to run older versions of Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-upgrading-zscaler-client-connector-3.7-windows.json",
+          "quotes": [
+            "Zscaler Client Connector 3.7 for Windows requires Windows 10 or 11.",
+            "If attempts are made to upgrade devices running Windows 7, 8, and 8.1, the upgrade fails without disruption to the user of the device. Devices will continue to run older versions of Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "legacy-windows-2004-dns-suffixes": {
+      "statement": "Legacy (Windows 10 version 2004): Windows 10 version 2004 and later only supports up to 50 DNS suffixes per system, so when DNS search domains are configured in the ZPA Admin Portal, no system may exceed 50 DNS suffixes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-upgrading-windows-10-version-2004.json",
+          "quotes": [
+            "be aware of the new limitation that Windows 10 introduced in version 2004 and later.",
+            "This new version of Windows only supports up to 50 DNS suffixes per system.",
+            "So, when you configure DNS search domains in the ZPA Admin Portal, you must ensure that no system will exceed 50 DNS suffixes."
+          ]
+        }
+      ]
+    },
+    "legacy-m1-rosetta": {
+      "statement": "Legacy (2.2.4 for macOS): Client Connector version 2.2.4 is compatible with M1 processors in Mac devices by using the Rosetta translation process. New installations on M1 systems are fully supported through the Mac device's user interface but, for version 2.2.4, not fully supported using the command line; the vendor's command line example runs the installer through `arch -x86_64 /bin/sh Zscaler-osx-2.2.4.0-installer.app/Contents/MacOS/installbuilder.sh`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-supporting-m1-processors.json",
+          "quotes": [
+            "Zscaler Client Connector version 2.2.4 is compatible with M1 processors in Mac devices by using the Rosetta translation process.",
+            "New installations on M1 systems are fully supported through the Mac device's user interface.",
+            "Currently, for version 2.2.4, new installations are not fully supported using the command line.",
+            "arch -x86_64 /bin/sh Zscaler-osx-2.2.4.0-installer.app/Contents/MacOS/installbuilder.sh"
+          ]
+        }
+      ]
+    },
+    "legacy-macos-big-sur": {
+      "statement": "Legacy (macOS Big Sur): to upgrade to macOS Big Sur, Client Connector must first be upgraded to version 2.2.4 or later; Apple requires password confirmation for the user's account before Client Connector can install and trust the root certificate, and as a workaround certificates can be installed via MDM for trust.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-upgrading-macos-big-sur.json",
+          "quotes": [
+            "If you want to upgrade to macOS Big Sur, you must first upgrade Zscaler Client Connector to version 2.2.4 or later.",
+            "Apple requires password confirmation for the user's account before Zscaler Client Connector can install and trust the root certificate.",
+            "As a workaround, certificates can be installed via MDM for trust."
+          ]
+        }
+      ]
+    },
+    "legacy-macos-catalina": {
+      "statement": "Legacy (macOS Catalina): to upgrade to macOS Catalina, you must use Client Connector 2.1 or later, and the vendor says Client Connector 2.1 and Catalina are no longer supported. With Cisco AnyConnect on macOS Catalina, you must use Cisco AnyConnect 4.8 or later. Separately, the vendor notes a known interoperability issue between Cisco AnyConnect 4.7 and macOS Catalina.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-upgrading-macos-catalina.json",
+          "quotes": [
+            "Zscaler Client Connector 2.1 and Catalina are no longer supported.",
+            "If you want to upgrade to macOS Catalina, you must use Zscaler Client Connector 2.1 or later."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-client-connector-cisco-anyconnect-macos-catalina.json",
+          "quotes": [
+            "If you are using Zscaler Client Connector with Cisco AnyConnect on macOS Catalina, you must use Cisco AnyConnect 4.8 or later.",
+            "There is a known interoperability issue between Cisco AnyConnect 4.7 and macOS Catalina."
+          ]
+        }
+      ]
+    },
+    "legacy-android-10": {
+      "statement": "Legacy (Android 10): to upgrade to Android 10 you must upgrade your devices (excluding Samsung devices) to Client Connector 1.5.2 for Android, and your Samsung devices to Client Connector 1.5.3 for Android.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-upgrading-android-10.json",
+          "quotes": [
+            "If you want to upgrade to Android 10, you must:",
+            "Upgrade your devices (excluding Samsung devices) to Zscaler Client Connector 1.5.2 for Android.",
+            "Upgrade your Samsung devices to Zscaler Client Connector 1.5.3 for Android."
+          ]
+        }
+      ]
+    },
+    "legacy-android-19-32bit": {
+      "statement": "Legacy (1.9 for Android): a device currently running a 32-bit version must first remove the current version of Client Connector (version 1.7.2 or earlier) before installing Client Connector version 1.9 for Android.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-upgrading-android-1.9.json",
+          "quotes": [
+            "If you are currently running a 32-bit version, you must first remove the current version of Zscaler Client Connector (version 1.7.2 or earlier) before installing Zscaler Client Connector version 1.9 for Android on your device."
+          ]
+        }
+      ]
+    },
+    "legacy-143-update": {
+      "statement": "Legacy (1.4.3): starting on December 4th, 2018 at 3:00PM PST, users on Client Connector versions earlier than 1.4.3 see Connection Error in the Private Access section and are unable to connect to Private Access. For failed updates, the vendor says the most common issues are usually due to antivirus software on the device; for Admin Console based updates, devices must be able to connect to Amazon CloudFront to download the new version (users should be able to ping and telnet into d32a6ru7mhaq0c.cloudfront.net); and if MDM, SCCM, or GPO is used to update devices that have not yet upgraded, the same installation parameters used during the original installation must be used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-resolving-update-issues-zscaler-app-1.4.3.json",
+          "quotes": [
+            "Starting on December 4th, 2018 at 3:00PM PST, users on Zscaler Client Connector versions earlier than 1.4.3 will see Connection Error in the Private Access section of Zscaler Client Connector and will be unable to connect to Private Access.",
+            "The most common issues are usually due to antivirus software on the device.",
+            "For Zscaler Admin Console based updates, ensure that user devices are able to connect to Amazon CloudFront to download the new version.",
+            "Make sure users can ping and telnet into d32a6ru7mhaq0c.cloudfront.net from their devices.",
+            "If you are using MDM, SCCM, or GPO to update devices that have not yet upgraded, you must use the same installation parameters that were used during the original Zscaler Client Connector installation."
+          ]
+        }
+      ]
+    },
+    "legacy-ad-login-crypto-api": {
+      "statement": "Legacy (2.1.2 for Windows): some users may be unable to log in to Client Connector when they have updated to the recent Microsoft patches and are facing connectivity issues with Active Directory (AD). The vendor says this is due to a failure in the Microsoft cryptography API that tries to reach out to AD for verification, that it is also observed with Outlook when Client Connector is not installed, and that ensuring AD connectivity resolves it in some scenarios; it recommends upgrading to Client Connector 2.1.2.112 or later for Windows (released after September 10, 2020) to reduce the impact.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-login-failures-zscaler-client-connector-using-active-directory.json",
+          "quotes": [
+            "Some users may experience issues with logging into Zscaler Client Connector when in combination of the following scenarios:",
+            "Users have updated to the recent Microsoft patches",
+            "Users are facing connectivity issues with Active Directory (AD)",
+            "This issue occurs due to the failure in Microsoft cryptography API that tries to reach out to the AD for verification.",
+            "This issue is also observed with Outlook even when Zscaler Client Connector is not installed on the systems.",
+            "In some scenarios, ensuring connectivity with AD resolves the issue.",
+            "Zscaler recommends you to upgrade to Zscaler Client Connector 2.1.2.112 or later versions for Windows (released after September 10, 2020) to reduce the impact of this issue."
+          ]
+        }
+      ]
+    },
+    "legacy-linux-12-vpn-dns": {
+      "statement": "Legacy (1.2 for Linux): Client Connector for Linux 1.2 requires changes to the DNS configuration for older third-party VPNs, like Pulse Secure and Cisco AnyConnect, for ZIA only mode. The changes are not required with both Internet & SaaS and Private Access, or with modern VPN clients like Openconnect. The vendor says to run the /opt/zscaler/scripts/config_vpn_dns.sh script with root permission, for example `sudo ./config_vpn_dns.sh tun0 \"10.11.12.13 10.11.12.14\" corp.testco.com`.",
+      "tier": "A",
+      "conditions": "The same page also gives the command format as sudo ./vpn_dns_config.sh, a different script name; this claim uses the path form only.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-resolving-zscaler-client-connector-linux-1.2-dns-configuration-issues-vpns.json",
+          "quotes": [
+            "Zscaler Client Connector for Linux 1.2 requires changes to the DNS configuration for older third-party VPNs, like Pulse Secure and Cisco AnyConnect, in order for it to work for ZIA only mode.",
+            "These changes are not required if you are using both Internet & SaaS and Private Access or if you are using modern VPN clients like Openconnect.",
+            "Run the /opt/zscaler/scripts/config_vpn_dns.sh script with root permission using the information gathered in steps 3 and 4.",
+            "sudo ./config_vpn_dns.sh tun0 \"10.11.12.13 10.11.12.14\" corp.testco.com"
+          ]
+        }
+      ]
+    },
+    "legacy-linux-11-autoupdate": {
+      "statement": "Legacy (1.1 to 1.2 for Linux): before upgrading to version 1.2 for Linux, Client Connector for Linux 1.1 needs an adjustment to address an issue with auto-updates for Ubuntu users, and until the changes are made an auto-update to Linux 1.2 will not work. The vendor's steps download the zip from https://d32a6ru7mhaq0c.cloudfront.net/zcc-update-apparmor-from-1-1-0.zip and run `sudo ./zcc-update-apparmor-config.sh`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-resolving-auto-update-issues-zscaler-client-connector-linux-1.2.json",
+          "quotes": [
+            "Prior to upgrading to version 1.2 for Linux, Zscaler Client Connector for Linux 1.1 needs an adjustment in order to address an issue with auto-updates for Ubuntu users.",
+            "Until these changes are made, an auto-update to Linux 1.2 will not work.",
+            "Download the zip file from https://d32a6ru7mhaq0c.cloudfront.net/zcc-update-apparmor-from-1-1-0.zip.",
+            "sudo ./zcc-update-apparmor-config.sh"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "fix-versions": {
+      "kind": "semantic",
+      "title": "Which release fixes the issues the vendor gives no fix version for",
+      "status": "open",
+      "detail": "No fix version is given for the Android 17 local network permission prompt, the iOS 4.4 and 4.4.1 entitlements issue (the vendor says only until the issue is resolved), the Android 4.0 DNS Domain Inclusion issue, the Chromebook captive portal sign-in issue (which also names no affected versions), the Chrome 116 and Firefox 117 launch issue, and the openSUSE GNOME tray icon. The release notes for the named fix builds (4.1.0.98, 4.3.0.255, 4.4.0.346 and 4.5.0.296) were not checked.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "legacy-scope": {
+      "kind": "semantic",
+      "title": "Whether the legacy OS and version findings settle anything for current packages",
+      "status": "open",
+      "detail": "The M1 article covers only 2.2.4 and does not settle the Apple silicon package for current releases. The Catalina article says 2.1 and Catalina are no longer supported but gives no current minimum macOS. The Windows 10 or 11 floor is stated for 3.7 only.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

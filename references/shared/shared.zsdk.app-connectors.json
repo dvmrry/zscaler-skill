@@ -1,0 +1,418 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk.app-connectors",
+  "title": "ZSDK App Connector sizing, provisioning keys, groups, settings, enrollment and deployment checklist",
+  "aliases": [
+    "zsdk app connector throughput",
+    "zsdk app connector provisioning key",
+    "zsdk app connector group",
+    "zsdk app connector enrollment",
+    "zsdk app connector deployment checklist",
+    "zsdk app connector auto delete"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Placement, redundancy and platforms of App Connectors are in [[shared.zsdk.architecture]]; their per-organization maximums are in [[shared.zsdk.limits]]."
+    },
+    {
+      "heading": "Sizing"
+    },
+    {
+      "text": "{{throughput-aggregate-and-gateway}} {{throughput-sizing-example}} {{throughput-up-to-1gbps}} {{scale-out-recommendation}} The per-specification throughput table did not survive capture {{gap:throughput-table-labels}}."
+    },
+    {
+      "heading": "Provisioning keys"
+    },
+    {
+      "text": "{{provisioning-key-purpose}} {{provisioning-key-usage-limit}} {{provisioning-key-edit-fields}} {{provisioning-key-incorrect-copy-symptom}}"
+    },
+    {
+      "heading": "App Connector groups and settings"
+    },
+    {
+      "text": "{{group-membership-rules}} {{group-defaults}} {{group-dns-resolution-option}} {{group-name-and-status}} {{group-dr-update-location-fields}} {{group-add-delete-reuse}} {{auto-delete}} Per-connector management is not captured {{gap:per-connector-management}}."
+    },
+    {
+      "heading": "Enrollment and deployment"
+    },
+    {
+      "text": "{{enrollment-process}} {{enrollment-one-account-no-clone}}"
+    },
+    {
+      "text": "{{deployment-checklist-mandatory}} {{deployment-checklist-highly-recommended}} {{deployment-checklist-recommended}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the provisioning key has reached its maximum number of uses, or was copied incorrectly, when an App Connector cannot enroll.",
+      "uses": [
+        "provisioning-key-usage-limit",
+        "provisioning-key-incorrect-copy-symptom"
+      ]
+    },
+    {
+      "do": "Whether an App Connector in a VM environment was cloned.",
+      "uses": [
+        "enrollment-one-account-no-clone"
+      ]
+    },
+    {
+      "do": "Whether the App Connector group's DNS Resolution Option matches the interfaces enabled on the connectors and supported by the application servers.",
+      "uses": [
+        "group-dns-resolution-option",
+        "group-defaults"
+      ]
+    }
+  ],
+  "claims": {
+    "throughput-aggregate-and-gateway": {
+      "statement": "App Connector throughput numbers are aggregated (inbound plus outbound), connectors communicate over the default gateway, and double encryption affects throughput by an amount that varies with the number of double-encrypted applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-app-connector-throughput.json",
+          "quotes": [
+            "Throughput numbers are aggregated (i.e., total inbound and outbound).",
+            "App Connectors communicate over the provided (default) gateway, which is most likely your ISP WAN broadband connection.",
+            "However, the effect varies based on the number of applications that are enabled for double encryption."
+          ]
+        }
+      ]
+    },
+    "throughput-sizing-example": {
+      "statement": "With N+1 failover, the documented example for a 1 Gbps aggregate data-center connection is 2 to 3 App Connectors without double encryption and 4 to 6 with it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-app-connector-throughput.json",
+          "quotes": [
+            "For example, with a 1 Gbps connection, you would need to deploy 2 to 3 App Connectors if your applications are not using double encryption, but 4 to 6 App Connectors if they are.",
+            "So, if you have a 1 Gbps connection (aggregate) in your data center, you can use the throughput guidelines in the table to make sure that you have enough App Connectors to support the connection and room for failover (N+1)."
+          ]
+        }
+      ]
+    },
+    "throughput-up-to-1gbps": {
+      "statement": "Throughput can be raised up to 1 Gbps per App Connector with more memory, more CPUs and faster network link speed; for a 10 Gbps data-center connection the VM spec is 8 vCPU cores (4 CPU cores for physical machines) and 8 GB RAM, and the exact throughput varies with other network factors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-app-connector-throughput.json",
+          "quotes": [
+            "It is possible to increase App Connector throughput up to 1 Gbps per App Connector by running the App Connector on hardware with more memory and CPUs along with increased network link speed.",
+            "8 vCPU cores for VMs or 4 CPU cores for physical machines",
+            "8 GB RAM",
+            "The exact throughput can vary and depends on other network factors such as your internal network setup and latency.",
+            "If you have a 10 Gbps connection (aggregate) in your data center, and you want to increase the App Connector throughput up to 1 Gbps per App Connector, you can increase the underlying virtual machine (VM) spec as follows:"
+          ]
+        }
+      ]
+    },
+    "scale-out-recommendation": {
+      "statement": "Zscaler recommends more App Connectors with lower specifications over fewer with higher specifications, because a failure of a larger connector can affect more user traffic or sessions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-app-connector-throughput.json",
+          "quotes": [
+            "Zscaler recommends that you have more App Connectors with lower specifications rather than fewer App Connectors with higher specifications to horizontally scale your deployment.",
+            "if you have fewer App Connectors with higher specifications and one fails, it could adversely affect more user application traffic or sessions than a smaller App Connector that fails."
+          ]
+        }
+      ]
+    },
+    "provisioning-key-purpose": {
+      "statement": "An App Connector provisioning key is a text string generated when an App Connector is added; it acts as the connector's ID so the ZSDK cloud can verify it and identify the App Connector group it deploys into, and several keys can be associated with one group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-app-connector-provisioning-keys.json",
+          "quotes": [
+            "The provisioning key is a text string that is generated when you add a new App Connector.",
+            "The provisioning key functions as an ID for the App Connector, enabling the ZSDK cloud to verify the App Connector's authenticity and complete the deployment process.",
+            "each key is associated with a specific App Connector group, so the key allows ZSDK to identify the App Connector group to which an App Connector must be deployed.",
+            "You also have the option of associating multiple provisioning keys to a single App Connector group."
+          ]
+        }
+      ]
+    },
+    "provisioning-key-usage-limit": {
+      "statement": "A provisioning key has a configurable maximum number of uses and a utilization count; once the maximum is reached the key cannot deploy more App Connectors and cannot be copied, though the maximum can always be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-app-connector-provisioning-keys.json",
+          "quotes": [
+            "When you generate a provisioning key, you can specify the number of times a key can be used to deploy App Connectors.",
+            "When a key is used the maximum number of times, you cannot use it to deploy more App Connectors.",
+            "However, you can always edit the maximum number of times a key can be used.",
+            "If the provisioning key utilization count is reached, you cannot copy the key."
+          ]
+        }
+      ]
+    },
+    "provisioning-key-incorrect-copy-symptom": {
+      "statement": "When a provisioning key is incorrectly copied, the App Connector console reports an enrollment login failure with http status 401 followed by \"Certificate enrollment failed.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-app-connector-provisioning-keys.json",
+          "quotes": [
+            "When a provisioning key is incorrectly copied, the following error appears on your App Connector console when it tries to enroll:",
+            "error:Login request failed - http status(401)",
+            "notice:Certificate enrollment failed."
+          ]
+        }
+      ]
+    },
+    "provisioning-key-edit-fields": {
+      "statement": "When a provisioning key is edited, its name is the prefix of each App Connector enrolled with it, the App Connector Group field cannot be modified, and the signing certificate signs the certificates of all App Connectors deployed with the key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-app-connector-provisioning-keys.json",
+          "quotes": [
+            "the provisioning key name is automatically assigned as a prefix for the name of each App Connector enrolled with the provisioning key.",
+            "App Connector Group: This field cannot be modified.",
+            "All App Connectors deployed with this key have their certificates signed with this signing certificate."
+          ]
+        }
+      ]
+    },
+    "group-membership-rules": {
+      "statement": "Each App Connector belongs to one App Connector group, and every group should be associated with at least one provisioning key and one server group to serve any application; connectors should be assigned only to applications they can reach.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-app-connector-groups.json",
+          "quotes": [
+            "Every App Connector belongs to a specific App Connector group, and every App Connector group should always be associated with at least one provisioning key and one server group to serve any application.",
+            "only assign App Connectors to applications that the App Connectors are capable of reaching",
+            "each App Connector must belong to a single group"
+          ]
+        }
+      ]
+    },
+    "group-defaults": {
+      "statement": "In an App Connector group, DNS Resolution Option defaults to IPv4 and IPv6 (select IPv6 only with end-to-end IPv6 support), Persist Local Version Profile is Disabled by default and the Version Profile is Default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-app-connector-groups.json",
+          "quotes": [
+            "By default, IPv4 and IPv6 is selected.",
+            "Select the IPv6 option only if you have end-to-end IPv6 support.",
+            "Persist Local Version Profile: Enable if the App Connector group should persist the local version profile. By default, Disabled is selected.",
+            "The default value is set to Default.",
+            "DNS Resolution Option: Enable the necessary interface for DNS resolution checks.",
+            "Version Profile: Displays the current version profile."
+          ]
+        }
+      ]
+    },
+    "group-dns-resolution-option": {
+      "statement": "The DNS Resolution Option sets whether the App Connectors in the group do DNS resolution checks over IPv4, IPv6 or both; the connector must have the corresponding interface enabled and the application servers must support it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-app-connector-groups.json",
+          "quotes": [
+            "If the App Connectors assigned to that App Connector group should perform DNS resolution checks for applications using only IPv4, select IPv4.",
+            "The App Connector must have the corresponding interface or interfaces enabled for the DNS resolution checks to work, and the servers hosting your applications must support the selected interface or interfaces.",
+            "DNS Resolution Option: Enable the necessary interface for DNS resolution checks.",
+            "If the App Connectors assigned to the App Connector group should perform DNS resolution checks for applications using only IPv6, select IPv6.",
+            "If you select IPv4 and IPv6, both interfaces can perform resolution checks for applications."
+          ]
+        }
+      ]
+    },
+    "group-name-and-status": {
+      "statement": "An App Connector group name cannot contain special characters except periods, hyphens and underscores; Status disables or enables the group and Description is optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-app-connector-groups.json",
+          "quotes": [
+            "Name: Enter a name for the group. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+            "Status: Disable or enable the App Connector group.",
+            "Description: (Optional) Enter a description for the App Connector group."
+          ]
+        }
+      ]
+    },
+    "group-dr-update-location-fields": {
+      "statement": "The App Connector group edit window has a Disaster Recovery setting that designates the group for disaster recovery, an App Connector Software Update Schedule set by day of the week and start time, and an App Connector Location whose marker click fills Latitude, Longitude and Location Details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-app-connector-groups.json",
+          "quotes": [
+            "Disaster Recovery: When enabled, this designates the App Connector group for disaster recovery.",
+            "App Connector Software Update Schedule: Schedule a periodic App Connector software update for the group by selecting the day of the week and start time.",
+            "App Connector Location: Enter the location where the App Connectors in the group are set up. The map displays the location you've entered. If you click the location marker on the map, the Latitude, Longitude, and Location Details fields are automatically populated."
+          ]
+        }
+      ]
+    },
+    "group-add-delete-reuse": {
+      "statement": "An App Connector group can be added when creating an App Connector, deleting one opens a Delete Confirmation window where a checkbox is selected to confirm, and an existing group can take new App Connectors without creating a new group each time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-app-connector-groups.json",
+          "quotes": [
+            "You can add an App Connector group when you create an App Connector.",
+            "The Delete Confirmation window appears.",
+            "Select the checkbox to confirm the deletion request.",
+            "You do not need to create a new App Connector group every time you add an App Connector."
+          ]
+        }
+      ]
+    },
+    "auto-delete": {
+      "statement": "App Connector Settings can auto-delete App Connectors with a disconnected status after a set number of days, optionally including disabled ones; Auto Delete is Disabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-configuring-app-connector-settings.json",
+          "quotes": [
+            "Auto Delete: Enable this if you want to allow the deletion of App Connectors with a disconnected status. This field is set to Disabled by default.",
+            "Delete App Connectors after: Set the number of days for App Connectors with a disconnected status to be deleted.",
+            "(Optional) Include disabled App Connectors: Select to automatically delete disabled App Connectors at the set time."
+          ]
+        }
+      ]
+    },
+    "enrollment-process": {
+      "statement": "On first install an App Connector generates a local private key encrypted with a hardware fingerprint, makes a CSR, authenticates it with the provisioning key, and receives a TLS client certificate pinned to the hardware fingerprint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-app-connector-deployment.json",
+          "quotes": [
+            "the App Connector must first generate the local private key, which it encrypts using a hardware fingerprint.",
+            "The App Connector uses the provisioning key to authenticate the CSR to the ZSDK cloud.",
+            "The App Connector receives a signed TLS client certificate from the ZSDK cloud.",
+            "The signed TLS client certificate is pinned to the App Connector's hardware fingerprint."
+          ]
+        }
+      ]
+    },
+    "enrollment-one-account-no-clone": {
+      "statement": "An enrolled App Connector is paired with a single customer account and cannot be enrolled again; App Connectors in VM environments should never be cloned because the keys no longer match the virtual hardware fingerprints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-app-connector-deployment.json",
+          "quotes": [
+            "After the App Connector is enrolled, it is paired with a single customer account; therefore, the App Connector cannot be enrolled again.",
+            "App Connectors running in virtual machine (VM) environments should never be cloned because the keys are no longer matching the virtual hardware fingerprints."
+          ]
+        }
+      ]
+    },
+    "deployment-checklist-mandatory": {
+      "statement": "The deployment checklist marks as Mandatory verifying that every App Connector meets the minimum CPU, memory and disk-sizing requirements.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-app-connector-deployment-checklist.json",
+          "quotes": [
+            "Verify that all App Connectors meet the minimum CPU, memory, and disk-sizing requirements.",
+            "To learn more, see App Connector Deployment Prerequisites. | Mandatory |"
+          ]
+        }
+      ]
+    },
+    "deployment-checklist-highly-recommended": {
+      "statement": "The checklist rates as Highly Recommended: changing the default App Connector password with passwd, a minimum of 2 App Connectors by the N+1 rule, and an internal-network placement with one connector without a public IP address and one with a default route to the internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-app-connector-deployment-checklist.json",
+          "quotes": [
+            "Change the App Connector password; do not leave the default password. | Use the command $ passwd. | Highly Recommended |",
+            "Create a minimum of 2 App Connectors. Use the N+1 rule for redundancy.",
+            "Deploy the App Connectors on an internal network segment: one App Connector without a public IP address and one with a default route to the internet. |  | Highly Recommended |",
+            "Use the command $ passwd."
+          ]
+        }
+      ]
+    },
+    "deployment-checklist-recommended": {
+      "statement": "The checklist rates as Recommended placing App Connectors as close as possible to the API gateway or servers hosting the mobile application and giving them unrestricted access to the application, including ICMP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-app-connector-deployment-checklist.json",
+          "quotes": [
+            "Place the App Connectors as close as possible to the API gateway or servers that host your mobile application. |  | Recommended |",
+            "App Connectors must have unrestricted access to the application, with no protocol or port limitations or restrictions, to include ICMP access. |  | Recommended |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "throughput-table-labels": {
+      "kind": "semantic",
+      "title": "Which specification each per-App Connector throughput value belongs to",
+      "status": "open",
+      "detail": "The Understanding App Connector Throughput article gives a Per App Connector Throughput table of 500, 437.5, 375, 312.5 and 250 Mbps, but its row labels (the specification tiers) did not survive capture, so the values cannot be tied to a specification.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "per-connector-management": {
+      "kind": "semantic",
+      "title": "How an individual App Connector is edited, deleted or shown as enrolled",
+      "status": "open",
+      "detail": "The captured Managing App Connectors article has the same anchor text as Managing App Connector Groups (the files differ), so it holds the group page. Per-connector management (edit, delete, enrollment status fields) is not captured.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

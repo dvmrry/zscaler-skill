@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.endpoint-inventory",
+  "title": "Endpoint inventory and Application Investigation: detected removable storage, printers, portable devices and applications",
+  "aliases": [
+    "Inventory",
+    "Application Investigation",
+    "Application Inventory"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-data-scan"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-device-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-intent"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{inventory-scope}} {{inventory-actions}}"
+    },
+    {
+      "label": "Device detail pages.",
+      "text": "{{device-details-family}} The inventory pages show some absences that the articles do not explain {{gap:inventory-absences}}."
+    },
+    {
+      "label": "Application Investigation.",
+      "text": "{{application-investigation-overview}} {{threat-type-verdict}} {{application-investigation-inventory}} {{application-details}} {{application-inventory-toggle}}"
+    },
+    {
+      "label": "Related.",
+      "text": "The rules the inventory creates are in [[zia.dlp.endpoint-device-control]], and the user and device reports are in [[zia.dlp.endpoint-data-scan]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an application's count is of instances or of endpoints, since the Application Investigation page counts instances and the Inventory Applications page counts endpoints.",
+      "uses": [
+        "application-details"
+      ]
+    }
+  ],
+  "claims": {
+    "inventory-scope": {
+      "statement": "The inventory provides visibility into the use of removable storage devices (for example USB drives, external hard drives), printers, portable devices (for example mobile phones and cameras) and applications within an organization, and automatically detects their usage and displays the permission access based on the device control policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-inventory.json",
+          "quotes": [
+            "The inventory provides visibility into the use of removable storage devices (e.g., USB drives, external hard drives), printers, portable devices (e.g., mobile phones and cameras), and applications within an organization.",
+            "It automatically detects the usage of these devices and displays the permission access based on the device control policy."
+          ]
+        }
+      ]
+    },
+    "inventory-actions": {
+      "statement": "The removable storage view offers Usage Distribution by Action (the percentage-wise distribution of removable storage device violation by action) and Create Device Rule, which creates a rule based on the parameters of the selected device. The printer view lists each printer's Port (the communication endpoint through which a computer sends print jobs to a printer) and offers Create Printer Rule. The portable device view exports to CSV, and the application view lists Number of Devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-inventory.json",
+          "quotes": [
+            "Usage Distribution by Action: The percentage-wise distribution of removable storage device violation by action.",
+            "Create Device Rule: Click Create Device Rule if you want to create a rule based on the parameters of the selected device.",
+            "Port: The communication endpoint through which a computer sends print jobs to a printer.",
+            "Create Printer Rule: Click Create Printer Rule if you want to create a rule based on the parameters of the selected printer.",
+            "Export: Export the portable device-related data into a CSV file.",
+            "Number of Devices: The number of devices on which the application is detected."
+          ]
+        }
+      ]
+    },
+    "device-details-family": {
+      "statement": "The removable storage details page shows the vendor ID, product ID and serial number of the connected device, a 30-day activities and incidents trend by severity, and a Why section with the triggered rule (and the other rules that matched) and DLP engine name; its How shows destination, destination path, vendor ID and product ID. The printer details page shows the UNC path, hardware ID and port; its What shows file name and its How shows destination, destination path, printer local name, hardware, port and UNC path. The portable device details page's What shows source path and its How shows destination, vendor ID, product ID and serial number.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-analyzing-device-details.json",
+          "quotes": [
+            "This section displays the vendor ID, product ID, and serial number of the connected device.",
+            "Activities and Incidents by Severity over the Last Month: The graph shows the number of activities and incidents trend by their severity for the last 30 days.",
+            "Why: Displays the triggered rule (the other rules that matched) and DLP engine name.",
+            "How: Displays the destination, destination path, vendor ID, and product ID."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-analyzing-printer-details.json",
+          "quotes": [
+            "This section displays the UNC path, hardware ID, and port of the printer connected.",
+            "What: Displays details of file name.",
+            "How: Displays the destination, destination path, printer local name, hardware, port, and UNC path."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-analyzing-portable-device-details.json",
+          "quotes": [
+            "What: Displays details of source path.",
+            "How: Displays the destination, vendor ID, product ID, and serial number."
+          ]
+        }
+      ]
+    },
+    "application-investigation-overview": {
+      "statement": "Application Investigation shows the number of applications detected on Windows and macOS endpoints, the number of distinct applications and the number with a CVE. It breaks instances down by code signing certificate status (Valid Signature, Certificate Expired, Unsigned, Not Valid or Invalid Signature) and by threat type (Benign, Malicious, Suspicious or Unknown), and lists top applications that maintain non-system certificate trust stores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-application-investigation-overview.json",
+          "quotes": [
+            "Detected Applications: The number of applications detected on Windows and macOS endpoints, the number of distinct applications, and the number of applications with CVE.",
+            "Instances by Code Signing Certificate Status: Distribution of application grouped by the code signing status (i.e., Valid Signature, Certificate Expired, Unsigned, Not Valid, or Invalid Signature).",
+            "Instances by Threat Type: A breakdown of application instances based on the application's threat types (i.e., Benign, Malicious, Suspicious, or Unknown).",
+            "Top Applications with Custom Certificate Trust Store: Top applications that maintain and use non-system certificate trust stores."
+          ]
+        }
+      ]
+    },
+    "threat-type-verdict": {
+      "statement": "The endpoint detects an application's threat type by a local signature check to verify applications from trusted providers. If a signature is unknown or compromised, ZDP consults the Zscaler Zero Trust Exchange, which cross-references the file against global threat feeds, proprietary intelligence and sandbox history to determine a final verdict of Benign, Suspicious, Malicious or Unknown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-application-investigation-overview.json",
+          "quotes": [
+            "The endpoint detects the application threat type by performing a local signature check to instantly verify applications from trusted providers.",
+            "If a signature is unknown or compromised, ZDP automatically consults the Zscaler Zero Trust Exchange, which cross-references the file against global threat feeds, proprietary intelligence, and an extensive sandbox history to determine a final safety verdict (Benign, Suspicious, Malicious, or Unknown)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-application-investigation-inventory.json",
+          "quotes": [
+            "If a signature is unknown or compromised, ZDP automatically consults the Zscaler Zero Trust Exchange"
+          ]
+        }
+      ]
+    },
+    "application-investigation-inventory": {
+      "statement": "The Application Investigation inventory filters by Product Name, OS, Code Signing Certificate Status, Threat Type, Category, Vulnerabilities or Application Name, and exports to CSV. It lists each application's last execution and vulnerability severity (Low, Medium, High or Critical) based on the Common Vulnerabilities and Exposures (CVE) rating.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-application-investigation-inventory.json",
+          "quotes": [
+            "Filter the data for a specific Product Name, OS, Code Signing Certificate Status, Threat Type, Category, Vulnerabilities, or Application Name.",
+            "Last Execution: The timestamp of the application's most recent execution.",
+            "Vulnerabilities: The level of the vulnerabilities listed by severity (i.e., Low, Medium, High, or Critical) based on the Common Vulnerabilities and Exposures (CVE) rating.",
+            "Export the data to a CSV file."
+          ]
+        }
+      ]
+    },
+    "application-details": {
+      "statement": "An application's details show a version's digital certificate, copyright, MD5 and SHA256 when the version is expanded, and a CVE Severity Score. The Application Investigation details page counts Instances where the application was detected, while the Inventory Applications details page counts Endpoints where it was detected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-analyzing-applications-details.json",
+          "quotes": [
+            "The Applications Details page (Data Security > Endpoint DLP > Endpoint Data Scan > Application Investigation > Inventory > click Application Name)",
+            "Version Number: The application's version. Expand the version to view the digital certificate, copyright, MD5, and SHA256 values.",
+            "Instances: Displays the number of instances where the application was detected.",
+            "CVE Severity Score: The numerical score indicating the severity of a vulnerability."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-analyzing-application-details.json",
+          "quotes": [
+            "The Applications page (Inventory> Applications > click Application Name)",
+            "Endpoints: Displays the number of endpoints where the application was detected.",
+            "Number of Endpoints: The number of endpoints on which the application was detected."
+          ]
+        }
+      ]
+    },
+    "application-inventory-toggle": {
+      "statement": "Run the Application Inventory Scan is the setting to enable to view the list of applications on the Application Inventory page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Run the Application Inventory Scan: Enable this toggle to view the list of applications on the Application Inventory page."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "inventory-absences": {
+      "kind": "semantic",
+      "title": "Why some inventory pages lack exports and rule shortcuts",
+      "status": "open",
+      "detail": "Comparing the captured pages, the Inventory Applications tab lists no CSV export, the portable device details page has no Actions or Create Rule tab, the Portable Devices tab has no Create Device Rule, and the printer details Activities filter omits User. These are absences found by diffing the pages; no article states them or says whether they are intended.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

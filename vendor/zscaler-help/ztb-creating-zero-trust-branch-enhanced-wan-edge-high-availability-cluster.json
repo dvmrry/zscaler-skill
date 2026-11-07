@@ -1,0 +1,969 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Creating a Zero Trust Branch Enhanced WAN Edge High Availability Cluster",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/creating-zero-trust-branch-enhanced-wan-edge-high-availability-cluster",
+    "node": "1535048",
+    "revision": "3251584",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "A Zscaler Zero Trust Branch Enhanced high availability (HA) configuration, also known as a WAN Edge HA cluster, enhances the standard HA cluster by enabling an active-active traffic distribution for Zero Trust Branch appliances in an HA mode. By leveraging a dedicated WAN Transit Link between the active and standby nodes, Enhanced HA ensures both appliances actively participate in WAN traffic routing. By leveraging a dedicated WAN Transit Link between the active and standby nodes, it ensures both appliances actively participate in WAN traffic routing. This optimized configuration eliminates dependency on Layer 2 switches and ensures uninterrupted services while maintaining redundancy and load balancing under real world SD-WAN and high-traffic conditions."
+    },
+    {
+      "text": "Unlike a standard HA cluster that operates in an active-standby mode, an Enhanced HA cluster allows both appliances to forward traffic via their WAN interfaces for traffic forwarding."
+    },
+    {
+      "text": "Enhanced HA does not support stateful failover for traffic routed through the secondary appliance. As a result, any active TCP, HTTP, or other session-based traffic is interrupted and must be re-established if it switches between the WAN links of the two different appliances."
+    },
+    {
+      "text": "The Enhanced HA feature offers the following key benefits:"
+    },
+    {
+      "item": "Forwards traffic concurrently from both active and standby appliances, maximizing bandwidth utilization.",
+      "depth": 0
+    },
+    {
+      "item": "Ensures minimal disruptions during failovers, reboots, or appliance restarts.",
+      "depth": 0
+    },
+    {
+      "item": "Eliminates the need for Layer 2 switches.",
+      "depth": 0
+    },
+    {
+      "item": "Enables balanced traffic distribution across WAN links in active-active mode.",
+      "depth": 0
+    },
+    {
+      "item": "Reverts seamlessly to standard HA upon a WAN transit link failure for uninterrupted service.",
+      "depth": 0
+    },
+    {
+      "heading": "Private Access (ZPA) App Connector Behavior in Enhanced HA Clusters",
+      "level": 1
+    },
+    {
+      "text": "While the Zero Trust Branch gateway operates in an active-standby mode, the embedded Private Access App Connector in a WAN Edge HA deployment operates in an active-active mode. In these deployments, both App Connectors run concurrently on the active and standby Zero Trust Branch appliances, ensuring no service disruption during App Connector container restarts or appliance failovers. Both the primary (active) and secondary (standby) Zero Trust Branch appliances establish independent connections to the Private Access cloud, so if the primary node fails, the App Connector on the secondary Zero Trust Branch appliance is already available to process private application traffic, minimizing service disruption."
+    },
+    {
+      "text": "This active-active behavior applies only to the embedded App Connector in WAN Edge HA deployments."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before deploying an Enhanced WAN Edge HA cluster, make sure the following prerequisites are met:"
+    },
+    {
+      "item": "Use only supported appliances (ZT600, ZT800, and ZT8010).",
+      "depth": 0
+    },
+    {
+      "item": "The ZT400 and virtual machine (VM) appliances are not supported.",
+      "depth": 0
+    },
+    {
+      "item": "Reserve a dedicated physical port for the WAN Transit Link on each appliance:",
+      "depth": 0
+    },
+    {
+      "item": "ZT600: Use port GE5 on both appliances.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          16,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "ZT800: Use port GE5 on both appliances.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          16,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "ZT8010: Use port XE10 on both appliances.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          17,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Connect the WAN Transit Link using a direct back‑to‑back Ethernet cable between the specified ports, or via a switch.",
+      "depth": 0
+    },
+    {
+      "item": "If you use a switch for the connection, you must place the WAN Transit Link ports on a different VLAN from the standard HA control link.",
+      "depth": 0
+    },
+    {
+      "item": "WAN links must be connected to separate ISPs for redundancy and failover support.",
+      "depth": 0
+    },
+    {
+      "heading": "Topology Diagram",
+      "level": 1
+    },
+    {
+      "text": "The following sections provide a diagram depicting the topology of an Enhanced WAN Edge HA deployment and a description of its components and flow."
+    },
+    {
+      "item": "Topology diagram",
+      "depth": 0
+    },
+    {
+      "item": "The Enhanced HA topology includes two connections between the appliances: the standard HA link for control plane communication and the new WAN Transit Link for data plane traffic.",
+      "depth": 0
+    },
+    {
+      "item": "Topology details",
+      "depth": 0
+    },
+    {
+      "item": "The Enhanced HA Cluster topology consists of two identical Zero Trust Branch appliances.",
+      "depth": 1
+    },
+    {
+      "item": "The WAN Transit Link ensures active-active forwarding between appliances for WAN traffic, enabling balanced traffic distribution across appliances and ISPs.",
+      "depth": 1
+    },
+    {
+      "item": "LAN segments connect to endpoints that require secure access and protection.",
+      "depth": 1
+    },
+    {
+      "item": "Standby appliances actively forward traffic via WAN interfaces, while LAN interfaces remain in standard HA mode (active-standby).",
+      "depth": 1
+    },
+    {
+      "item": "Failover scenarios automatically revert to standard HA using the HA link assigned for redundancy.",
+      "depth": 1
+    },
+    {
+      "heading": "Creating a Cluster",
+      "level": 1
+    },
+    {
+      "text": "To create and activate a cluster, complete the following steps in the Zscaler Admin Console:"
+    },
+    {
+      "item": "Step 1: Add a Template",
+      "depth": 0
+    },
+    {
+      "item": "You must use an Enhanced HA template to launch a Zero Trust Branch cluster. You can use a default Enhanced HA template or create a custom template. To create a custom template:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Resources > Templates.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          61
+        ],
+        [
+          64,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "On the Templates page, complete the Add a New Template procedure, ensuring that you select enhanced_mode_ha for the Deployment Type.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          91,
+          107
+        ],
+        [
+          116,
+          132
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 2: Add a Site",
+      "depth": 0
+    },
+    {
+      "item": "When you add a site in a Zero Trust Branch HA deployment, you configure a gateway for each appliance.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "On the Sites page, complete the Add a Site procedure, ensuring that you select the Enhanced HA template, and configure both gateways.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "After the site is saved, you are returned to the Sites page.",
+      "depth": 1,
+      "strong": [
+        [
+          49,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Review the site details. Both gateways are in a Disconnected state because they have not been activated.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          48,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 3: Activate the Gateways",
+      "depth": 0
+    },
+    {
+      "item": "The example used in this procedure shows how to activate one gateway and is not intended to represent the cluster setup described in this article. Repeat this procedure for the secondary node. The gateway that is activated first becomes the primary node and the other gateway becomes the secondary node. These primary and secondary roles are essential for the HA control plane to manage cluster health and failover.",
+      "depth": 0
+    },
+    {
+      "item": "To review the ports that need to be open, see Open Ports on the Upstream Device.",
+      "depth": 0
+    },
+    {
+      "item": "The activation process uses the activation code and URL that you saved during the Managing Sites procedure in the Zscaler Admin Console. If you cannot find this information:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "In the row for the required site, click the Send Activation Link icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          44,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler supports one subinterface per WAN interface. However, Zero Trust Branch activation is supported over the WAN interface on the main interface (which is tagged), not on a subinterface (which is untagged).",
+      "depth": 0
+    },
+    {
+      "item": "There are two ways to activate a Zero Trust Branch appliance.",
+      "depth": 0
+    },
+    {
+      "item": "Activation Code Method",
+      "depth": 1
+    },
+    {
+      "item": "Activation URL Method",
+      "depth": 1
+    },
+    {
+      "item": "This method uses the activation code that you saved during the Adding a Site procedure in the Zscaler Admin Console. Before you activate the appliance, you must configure it with the same parameters you configured when you created the site in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "This procedure uses these example values:",
+      "depth": 0
+    },
+    {
+      "item": "WAN interface: ge3 set for DHCP (This interface is hard-coded.)",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "DNS servers: 1.1.1.1 and 8.8.8.8",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Web proxy: hub3.goairgap.com:1883",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "a. Configure the network.",
+      "depth": 1
+    },
+    {
+      "item": "b. Configure the web proxy (Required only if the Zero Trust Branch appliance is deployed behind a firewall)",
+      "depth": 1
+    },
+    {
+      "item": "c. Activate the appliance.",
+      "depth": 1
+    },
+    {
+      "item": "This method uses the URL that you saved during the Adding a Site procedure in the Zscaler Admin Console. The URL contains the configuration data for the WAN interface and the activation code.",
+      "depth": 0
+    },
+    {
+      "item": "Connect a laptop directly to the management port on the appliance. The laptop automatically gets an IP address directly from the appliance.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Open a browser on the laptop and paste the URL that you copied when you created the site.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "After the appliance processes the configuration, it displays an Activation is completed message on the web page.",
+      "depth": 1,
+      "strong": [
+        [
+          64,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites and click the site in the Site Name column. In the site details, verify that the appliance is activated.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ],
+        [
+          72,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "The State field value for an activated appliance is:",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Standalone for a standalone appliance",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Active for the primary node of an HA cluster",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Standby for the secondary node of an HA cluster",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Show image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, enter 2 (Configure Gateway) from the menu and press Enter.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 1 (Configure Network) from the next menu and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Respond to the prompts to complete the network configuration.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, press Enter to return to the main menu.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter 3 (Configure Web Proxy) and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Respond to the prompts to complete the web proxy configuration.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, press Enter to return to the main menu.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter 1 (Activate Gateway) and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 1 (Activate Airgap Gateway) from the next menu and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter the activation code that you saved when you created the site and press Enter.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 2 (Main Menu) and press Enter. The screen shows that the appliance is activated.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Sites page, you can observe the activation process, which goes through several states, such as Initializing and Post-update. When both gateways are activated, the primary gateway state is Active and the secondary gateway state is Standby.",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          102,
+          114
+        ],
+        [
+          119,
+          130
+        ],
+        [
+          195,
+          201
+        ],
+        [
+          237,
+          244
+        ]
+      ]
+    },
+    {
+      "item": "In an Enhanced HA cluster, the UI shows one appliance as Active and the other as Standby to indicate their control‑plane roles, but both appliances can forward WAN traffic.",
+      "depth": 0,
+      "strong": [
+        [
+          57,
+          63
+        ],
+        [
+          81,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Configure the Forwarding Policy",
+      "depth": 0
+    },
+    {
+      "item": "Configure the WAN links on both appliances:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "On the Sites page, click the site configured for Advanced HA.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Forwarding Policy tab and click Configure.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          27
+        ],
+        [
+          42,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Forwarding Rule or edit an existing route.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Configure the source, destination, and other criteria for the traffic to load balance.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Scroll down to the WAN HA Mode section. (This section only appears for sites using an Advanced HA template.)",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          19,
+          30
+        ],
+        [
+          86,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Select Enhanced. This enables the active-active routing functionality.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "From the Next Hop Interface Type section, select WAN interfaces for both Appliance 1 (primary) and Appliance 2 (secondary).",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          32
+        ],
+        [
+          49,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Choose a Traffic Distribution method:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Balanced: This enables true active-active load balancing. Traffic is distributed across all selected WAN links on both appliances. The Failover Group shows as Active-Active Links.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          135,
+          149
+        ],
+        [
+          159,
+          172
+        ],
+        [
+          173,
+          178
+        ]
+      ]
+    },
+    {
+      "item": "Best: The cluster sends traffic to the single best-performing WAN link at any given time, regardless of whether it is on the primary or secondary appliance. The Failover Group shows as Active-Standby Links.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          161,
+          175
+        ],
+        [
+          185,
+          205
+        ]
+      ]
+    },
+    {
+      "item": "None: The system selects a path without active direction.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After saving the rule, the cluster begins forwarding traffic matching the policy across the WAN links of both appliances according to the distribution method you selected.",
+      "depth": 0
+    },
+    {
+      "heading": "Monitoring WAN Links",
+      "level": 1
+    },
+    {
+      "text": "You can monitor the WAN links by running the following commands:"
+    },
+    {
+      "item": "To check the score of the WAN interfaces received from WAN monitoring:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          63
+        ],
+        [
+          66,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Click the required site in the Site Name column.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          31,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "On the site details page, go to Troubleshooting > Debug Logs, and set Debug Logs to High.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          60
+        ],
+        [
+          70,
+          80
+        ],
+        [
+          84,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Click the Console tab and run the following command:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command to check the score:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "ztb-lab--Proctor02-KS--proctor02-ztb-1:~$cat /var/log/syslog | grep wan-mon",
+      "depth": 1
+    },
+    {
+      "item": "Sample output:",
+      "depth": 1
+    },
+    {
+      "item": "Sep 4 04:51:03 ztblab--Proctor02-KS--proctor02-ztb-1 network-poller[2718540]: wan-monitor - module_wanmon.py:697 - DEBUG - ======================================================================================================================================================= Sep 4 04:51:03 ztblab--Proctor02-KS--proctor02-ztb-1 network-poller[2718540]: wan-monitor - module_wanmon.py:700 - DEBUG - Intf: ge6 Sep 4 04:51:03 ztblab--Proctor02-KS--proctor02-ztb-1 network-poller[2718540]: wan-monitor - module_wanmon.py:701 - DEBUG - TX packets: 208720 Sep 4 04:51:03 ztblab--Proctor02-KS--proctor02-ztb-1 network-poller[2718540]: wan-monitor - module_wanmon.py:702 - DEBUG - RX packets: 208609 Sep 4 04:51:03 ztblab--Proctor02-KS--proctor02-ztb-1 network-poller[2718540]: wan-monitor - module_wanmon.py:703 - DEBUG - Global ctxt: pkt_loss: 0.0, pkt_latency: 3.96, pkt_jitter: 1.2, norm_loss: 0.0, norm_latency: 0.29, norm_jitter: 0.16, score: 25 Sep 4 04:51:03 ztblab--Proctor02-KS--proctor02-ztb-1 network-poller[2718540]: wan-monitor - module_wanmon.py:705 - DEBUG - Cum Resp : Interfaces: 2, quality: pkt_loss: 0.0, pkt_latency: 3.96, pkt_jitter: 1.2, norm_loss: 0.0, norm_latency: 0.29, norm_jitter: 0.16, score: 25 nw_loss: no",
+      "depth": 1
+    },
+    {
+      "item": "To check the route and verify which WAN interface is identified as the best among the available WAN interfaces:",
+      "depth": 0
+    },
+    {
+      "item": "ztb-lab--Proctor02-KS--proctor02-ztb-1:~$ip rule",
+      "depth": 0
+    },
+    {
+      "item": "Sample output:",
+      "depth": 0
+    },
+    {
+      "item": "0: from all lookup local 220: from all lookup 220 2001: from all lookup local 2100: from all fwmark 0x800 lookup p_ae410fa3f9f1_best ===> shows the best route table 2101: from all fwmark 0x601 lookup zia_ipsec_rt 2102: from all fwmark 0x801 lookup p_eb198e76db82 2103: from all fwmark 0x802 lookup p_053ec9af8551 2104: from all fwmark 0x803 lookup p_f0fe3e64da42 2105: from all fwmark 0x804 lookup p_7e89186e52ac 2106: from all fwmark 0x602 lookup zia_gre_rt 2601: from all fwmark 0x600 lookup 900 32766: from all lookup main 32767: from all lookup default",
+      "depth": 0
+    },
+    {
+      "item": "Next, check the metric for all the default routes:.",
+      "depth": 0
+    },
+    {
+      "item": "ztb-lab--Proctor02-KS--proctor02-ztb-1:~$ip route show table p_ae410fa3f9f1_best",
+      "depth": 0
+    },
+    {
+      "item": "Sample output:",
+      "depth": 0
+    },
+    {
+      "item": "default via 100.120.1.254 dev ge5 metric 10 ===> ge5 has the best metric default via 100.130.1.254 dev ge6 metric 20",
+      "depth": 0
+    },
+    {
+      "item": "To view the default routes for each WAN interface:",
+      "depth": 0
+    },
+    {
+      "item": "ztb-lab--Proctor02-KS--proctor02-ztb-1:~$ip route show | grep default",
+      "depth": 0
+    },
+    {
+      "item": "Sample output:",
+      "depth": 0
+    },
+    {
+      "item": "default via 100.120.1.254 dev ge5 proto dhcp src 100.120.1.183 metric 100 default via 100.130.1.254 dev ge6 proto dhcp src 100.130.1.50 metric 100",
+      "depth": 0
+    }
+  ]
+}

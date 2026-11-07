@@ -1,0 +1,751 @@
+{
+  "schema_version": 1,
+  "id": "deception.miragemaker",
+  "title": "Deception Miragemaker: strategies, decoy personalities, banners, tags, datalists and ThreatParse rules",
+  "aliases": [
+    "strategy builder",
+    "deception strategy",
+    "decoy personality",
+    "decoy personalities",
+    "threatparse rules"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "deception.overview" },
+    { "rel": "see-also", "to": "deception.datasets" },
+    { "rel": "see-also", "to": "deception.investigate" }
+  ],
+  "prose": [
+    {
+      "text": "{{module-contents}} {{banners-and-tags-purpose}} See also [[deception.overview]], [[deception.datasets]] and [[deception.investigate]]."
+    },
+    {
+      "label": "Strategies.",
+      "text": "{{strategy-builder-components}} {{strategy-prerequisites}} {{strategy-structure}} {{strategy-validate-before-save}} {{strategy-validation-result}} {{strategy-download-export}} What editing or deleting a deployed strategy does {{gap:strategy-edit-delete}}."
+    },
+    {
+      "label": "Decoy personalities.",
+      "text": "{{ad-personalities-page}} {{ti-personalities-page}} {{network-personality-scope}} {{network-personality-fields}} {{ti-personality-fields}} {{landmine-personality-list}} {{landmine-personality-fields}} {{ad-personality-attack-flags}} {{ad-personality-attributes}} {{personality-exports}}"
+    },
+    {
+      "label": "Banners.",
+      "text": "{{smb-ftp-web-banners}} {{banner-operating-system}}"
+    },
+    {
+      "label": "Tags and datalists.",
+      "text": "{{tag-random-selection}} {{tag-export}} {{datalist-structure}} {{datalist-uses}} {{datalist-download}} Which datalist keys are limited and any limit on tags or banners {{gap:resource-limits}}."
+    },
+    {
+      "label": "ThreatParse rules.",
+      "text": "{{threatparse-rule-parameters}} {{threatparse-rule-list}} {{threatparse-rule-types}} {{threatparse-rule-actions}} {{threatparse-rule-additional-details}}"
+    },
+    {
+      "label": "Defaults.",
+      "text": "{{default-resources-readonly}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a personality, banner, tag, datalist or ThreatParse rule is a default one before advising an edit or deletion.",
+      "uses": ["default-resources-readonly"]
+    },
+    {
+      "do": "Whether a strategy that uses a tag picks the personality at random during deployment.",
+      "uses": ["tag-random-selection"]
+    },
+    {
+      "do": "Whether a banner is associated with a decoy that has the matching service enabled.",
+      "uses": ["smb-ftp-web-banners"]
+    },
+    {
+      "do": "Whether the strategy was validated before it is saved.",
+      "uses": ["strategy-validate-before-save"]
+    }
+  ],
+  "claims": {
+    "ad-personalities-page": {
+      "statement": "AD decoy personalities are templates for creating AD decoys through deception strategies; Deception provides preconfigured ones and custom ones can be created, and the page (Miragemaker > Strategy Builder > Active Directory Decoy) lists each with a Name and Description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-active-directory-decoy-personalities.json",
+          "quotes": [
+            "Active Directory (AD) decoy personalities are templates that can be used to create AD decoys via deception strategies.",
+            "Zscaler Deception provides a list of preconfigured AD decoy personalities for various business use cases.",
+            "You can also create custom personalities based on your business requirements.",
+            "On the Active Directory Decoy Personalities page (Miragemaker > Strategy Builder > Active Directory Decoy), you can do the following:",
+            "Name: The name of the AD decoy personality.",
+            "Description: The description of the AD decoy personality."
+          ]
+        }
+      ]
+    },
+    "ti-personalities-page": {
+      "statement": "TI decoy personalities are templates for creating TI decoys through deception strategies; Deception provides preconfigured ones and custom ones can be created, and the page (Miragemaker > Strategy Builder > Threat Intelligence Decoy) lists each with a Name and Description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-threat-intelligence-decoy-personalities.json",
+          "quotes": [
+            "Threat Intelligence (TI) decoy personalities are templates that can be used to create TI decoys via deception strategies.",
+            "Zscaler Deception provides a list of preconfigured TI decoy personalities for various business use cases.",
+            "You can also create custom personalities based on your business requirements.",
+            "On the Threat Intelligence Decoy Personalities page (Miragemaker > Strategy Builder > Threat Intelligence Decoy), you can do the following:",
+            "Name: The name of the TI decoy personality.",
+            "Description: The description of the TI decoy personality."
+          ]
+        }
+      ]
+    },
+    "module-contents": {
+      "statement": "By default the Miragemaker module includes preconfigured datasets, ThreatParse rules, templates, strategies, decoy personalities, banners and tags, and custom resources can be created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-miragemaker-module.json",
+          "quotes": [
+            "By default, the Miragemaker module includes preconfigured resources such as datasets, ThreatParse rules, templates, strategies, decoy personalities, banners, and tags. You can also create custom resources based on your business requirements."
+          ]
+        }
+      ]
+    },
+    "banners-and-tags-purpose": {
+      "statement": "Banners are metadata about services running on a server and are used in network decoys configured with FTP or web services; tags group various resources across Deception.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-miragemaker-module.json",
+          "quotes": [
+            "Banners are metadata about services running on a server. These banners are used in network decoys configured with FTP services or web services to mimic legitimate services.",
+            "Tags are used to group various resources across Deception."
+          ]
+        }
+      ]
+    },
+    "strategy-builder-components": {
+      "statement": "Strategy Builder has Deception Strategy, which combines decoy personalities to deploy decoys with a single click, plus Network, Threat Intelligence, Landmine and Active Directory decoy personalities as templates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-strategy-builder.json",
+          "quotes": [
+            "Deception Strategy: A mechanism that combines different decoy personalities to configure and deploy different types of decoys with a single click.",
+            "Network Decoy Personalities: Templates that can be used to create network decoys.",
+            "Threat Intelligence Decoy Personalities: Templates that can be used to create Threat Intelligence (TI) decoys via deception strategies.",
+            "Landmine Decoy Personalities: Templates that can be used to create landmine policies via deception strategies.",
+            "Active Directory Decoy Personalities: Templates that can be used to create AD decoys via deception strategies."
+          ]
+        }
+      ]
+    },
+    "strategy-prerequisites": {
+      "statement": "Before creating a strategy, identify a use case such as Log4j or Conti Ransomware, a department, the critical decoy types and the total number of decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-strategy.json",
+          "quotes": [
+            "Before you create a Deception strategy, identify the following requirements:",
+            "A use case such as Log4j, Conti Ransomware, etc.",
+            "A department such as Information Technology (IT), Banking, Legal, Finance, etc.",
+            "The type of decoys that are critical for deployment.",
+            "The total number of decoys to be deployed."
+          ]
+        }
+      ]
+    },
+    "strategy-structure": {
+      "statement": "A strategy lists personalities or tags to deploy together; the Network Decoys tab has a Use Tag toggle and a Count of decoys per personality or tag, the Personality/Tag drop-down on the Network Decoys and Active Directory tabs lists tags when Use Tag is enabled and personalities otherwise, and the Landmine tab selects personalities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-strategy.json",
+          "quotes": [
+            "you define a list of personalities or tags that must be deployed together to run a deception campaign for a particular use case",
+            "On the Network Decoys tab, click Add to create a Network decoy:",
+            "Use Tag: Enable to choose a tag for the Network decoy.",
+            "Count: Enter the number of Network decoys you want to create for the selected personality or tag.",
+            "On the Landmine tab, select decoy personalities from the Personalities drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-strategy.json",
+          "quotes": [
+            "Personality/Tag: Select a tag or personality from the drop-down menu. If Use Tag is enabled, this drop-down menu lists tags, otherwise it lists personalities."
+          ],
+          "after": "On the Network Decoys tab, click Add to create a Network decoy:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-strategy.json",
+          "quotes": [
+            "If Use Tag is enabled, this drop-down menu lists tags, otherwise it lists personalities."
+          ],
+          "after": "On the Active Directory tab, click Add to create an Active Directory (AD) decoy:"
+        }
+      ]
+    },
+    "strategy-validate-before-save": {
+      "statement": "Validate ensures the Network, AD and TI decoys exist for the configured landmine lures, and the strategy is saved after it has been validated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-strategy.json",
+          "quotes": [
+            "Click Validate to ensure that the corresponding Network, AD, and TI decoys are available for the configured landmine lures.",
+            "After the strategy is validated, click Save."
+          ]
+        }
+      ]
+    },
+    "strategy-validation-result": {
+      "statement": "Validating a strategy shows the total percentage of enabled landmine lures that have available Network, AD and TI decoys; landmine personalities carry browser, session and memory credential lures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-validating-strategy.json",
+          "quotes": [
+            "You can see the total percentage of enabled landmine lures with available Network, AD, and TI decoys.",
+            "These landmine personalities have browser, session, and memory credential lures that place decoys such as Network, Active Directory (AD), Threat Intelligence (TI) as breadcrumbs on the endpoint to lure adversaries."
+          ]
+        }
+      ]
+    },
+    "strategy-download-export": {
+      "statement": "A single strategy downloads as a JSON file and all strategies export as a .zip containing each strategy's configuration in JSON.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-downloading-strategy.json",
+          "quotes": [
+            "You can download a single strategy as a JSON file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-exporting-strategies.json",
+          "quotes": [
+            "You can export all the strategies as a compressed file (.zip).",
+            "You can extract the .zip file to see the configuration details of each strategy in the JSON format."
+          ]
+        }
+      ]
+    },
+    "tag-random-selection": {
+      "statement": "When a tag is used in a deception strategy, a personality associated with that tag is chosen at random during decoy deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-tags.json",
+          "quotes": [
+            "When a tag is used in a deception strategy, any personality that is associated with the tag is chosen at random during the deployment of decoys."
+          ]
+        }
+      ]
+    },
+    "tag-export": {
+      "statement": "All tags export as a JSON file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-tags.json",
+          "quotes": [
+            "A JSON file containing all tags is downloaded to your system."
+          ]
+        }
+      ]
+    },
+    "network-personality-scope": {
+      "statement": "A network decoy personality is a template for internal and Zero Trust Network decoys and interactive generative AI decoys, usable manually or through strategies, and configured similarly to network decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-network-decoy-personalities.json",
+          "quotes": [
+            "Network decoy personalities are templates that can be used to create interactive generative AI decoys and network decoys."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-network-decoy-personality.json",
+          "quotes": [
+            "You can create internal network decoys and Zero Trust Network decoys using network decoy personalities either manually or via deception strategies.",
+            "The configuration of network decoy personalities is similar to configuring the network decoys."
+          ]
+        }
+      ]
+    },
+    "network-personality-fields": {
+      "statement": "A network decoy personality sets hostname keywords and subdomains (one per line), tags, a NIC manufacturer whose MAC prefix generates a pseudo MAC address, optional hostname modifiers that generate hostnames at deployment, and an Add to Active Directory option that adds the decoy as an AD object with OS attribute, OU and description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-network-decoy-personality.json",
+          "quotes": [
+            "Subdomains: Enter the subdomains (one per line) that must be used with the network decoys created using this personality.",
+            "Tags: Select one or more tags from the drop-down menu that you want to associate with the personality.",
+            "OU: Select the Organizational Unit (OU) that you want to associate with network decoys created using this personality.",
+            "Description: Enter a relevant description that must be added to the object in the Active Directory for the network decoys created using this personality.",
+            "Hostname Keywords: Enter a list of keywords (one per line) that must be used to generate hostnames for the network decoys created using this personality.",
+            "MAC: Select the Network Interface Card (NIC) manufacturer whose MAC Address Prefix should be used to generate a pseudo MAC address for the network decoys created using the personality.",
+            "Use Hostname Modifiers: Enable to randomly generate a hostname for network decoys at the time of deployment.",
+            "Add to Active Directory: Enable to add the network decoys created using this personality as objects to the Active Directory.",
+            "Select OS Attribute: Select an OS attribute that should appear in the network decoys created using this personality."
+          ]
+        }
+      ]
+    },
+    "ti-personality-fields": {
+      "statement": "A TI decoy personality sets a decoy type (Static Application, Dynamic Application or High Interaction Container) and one or more application datasets, each with an Allow Port 80 toggle that allows or blocks unencrypted HTTP access to the application decoy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-threat-intelligence-decoy-personality.json",
+          "quotes": [
+            "Decoy Type: Select the type of application decoy (Static Application, Dynamic Application, or High Interaction Container)",
+            "You can add multiple datasets.",
+            "For each dataset, enable or disable Allow Port 80 to allow or block access to the application decoy via HTTP without encryption"
+          ]
+        }
+      ]
+    },
+    "landmine-personality-list": {
+      "statement": "The Landmine Decoy Personalities page shows Name, an Agentless flag (whether the policy can be applied with or without agents, filterable by true or false), Selection Criterion and Policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-landmine-decoy-personalities.json",
+          "quotes": [
+            "Name: The name of the landmine decoy personality.",
+            "Policies: The list of landmine policies that are configured in the landmine decoy personalities.",
+            "Agentless: The state of whether the landmine decoy policy can be applied with or without agents.",
+            "You can also filter the landmine decoys based on the agentless support by setting the column filter to true or false.",
+            "Selection Criterion: The criteria used to apply landmine policies that are configured in the landmine decoy personalities."
+          ]
+        }
+      ]
+    },
+    "landmine-personality-fields": {
+      "statement": "A landmine decoy personality sets an operating system, tags, an Agentless option to deploy policies without agents and an option for users to review selection criteria when deploying through strategies; its policies cover Selection Criterion, Password Settings, Defense Evasion, Privilege Escalation, Cloud Lures, Browser Lures, Session Lures, File Decoys, Lure Settings and Advanced Deception Capabilities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-landmine-decoy-personality.json",
+          "quotes": [
+            "Selection Criterion",
+            "configure the following lures and settings as required",
+            "Tags: Select one or more tags from the drop-down menu that you want to associate with the personality.",
+            "OS: Select the operating system in which the landmine policies should be deployed.",
+            "Agentless: Enable to deploy the landmine policies without agents.",
+            "Ask user to review selection criteria: Enable to allow users to review selection criteria when deploying using deception strategies.",
+            "Privilege Escalation",
+            "Cloud Lures",
+            "Browser Lures",
+            "Session Lures",
+            "File Decoys",
+            "Lure Settings",
+            "Advanced Deception Capabilities",
+            "Password Settings",
+            "Defense Evasion"
+          ]
+        }
+      ]
+    },
+    "ad-personality-attack-flags": {
+      "statement": "In an AD decoy personality, Pre auth not required makes accounts vulnerable to AS-REP roasting, Make account Kerberoastable configures the serviceprincipalname attribute to make decoys vulnerable to Kerberoasting, and Restrict Logon To configures the logonworkstations attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-active-directory-decoy-personality.json",
+          "quotes": [
+            "Pre auth not required: Enable to make the user accounts vulnerable to AS-REP roasting attacks.",
+            "Make account Kerberoastable: Enable to configure the serviceprincipalname attribute for the decoy account and make decoys vulnerable to Kerberoasting attacks.",
+            "Restrict Logon To: Enable to configure the logonworkstations attribute for the decoy user account."
+          ]
+        }
+      ]
+    },
+    "ad-personality-attributes": {
+      "statement": "An AD decoy personality sets usernames (one per line), OU, group membership, description, SPN and the profilePath attribute; Use Modifiers randomly generates usernames from the Usernames values at deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-active-directory-decoy-personality.json",
+          "quotes": [
+            "OU: Select the organization unit (OU) name for the AD user decoys created using this personality.",
+            "Description: Enter a description like a password or password hints",
+            "SPN: Enter Service Principal Names that you want to associate with decoy users.",
+            "Usernames: Enter the usernames (one per line) for the AD decoys created using this personality.",
+            "Group Membership: Enter the group name of the decoy user. Adversaries often target user accounts that are members of privileged administrative groups.",
+            "Profile Path Condition: Configure the profilePath attribute for the decoy user account.",
+            "Use Modifiers: Enable to randomly generate usernames based on the values entered for the Usernames field at the time of deployment."
+          ]
+        }
+      ]
+    },
+    "personality-exports": {
+      "statement": "Default and custom network, Threat Intelligence, landmine and Active Directory decoy personalities download individually as JSON files, and exporting all network, TI, landmine or AD personalities gives a .zip with each personality in its own JSON file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-downloading-network-decoy-personality.json",
+          "quotes": [
+            "You can download both default and custom network decoy personalities individually as a JSON file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-downloading-threat-intelligence-decoy-personality.json",
+          "quotes": [
+            "You can download both default and custom Threat Intelligence (TI) decoy personalities individually as a JSON file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-downloading-landmine-decoy-personality.json",
+          "quotes": [
+            "You can download both default and custom landmine decoy personalities individually as a JSON file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-downloading-active-directory-decoy-personality.json",
+          "quotes": [
+            "You can download both default and custom Active Directory (AD) decoy personalities individually as a JSON file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-exporting-network-decoy-personalities.json",
+          "quotes": [
+            "You can export a ZIP file containing all network decoy personalities, each in its own JSON file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-exporting-threat-intelligence-decoy-personalities.json",
+          "quotes": [
+            "You can export a ZIP file containing all Threat Intelligence (TI) decoy personalities, each in its own JSON file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-exporting-landmine-decoy-personalities.json",
+          "quotes": [
+            "You can export a ZIP file containing all landmine decoy personalities, each in its own JSON file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-exporting-active-directory-decoy-personalities.json",
+          "quotes": [
+            "You can export a ZIP file containing all Active Directory (AD) decoy personalities, each in its own JSON file."
+          ]
+        }
+      ]
+    },
+    "smb-ftp-web-banners": {
+      "statement": "SMB banners associate with network decoys that have the Shares service enabled, FTP banners with decoys that have FTP service enabled, and web server banners (typically used in the server response header) with decoys that have web service enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-smb-banners.json",
+          "quotes": [
+            "You can associate SMB banners with network decoys that have the Shares service enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-ftp-banners.json",
+          "quotes": [
+            "You can associate the FTP banners with network decoys that have FTP service enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-web-server-banners.json",
+          "quotes": [
+            "Typically, the web server banner is used in the server response header when an attacker connects to the web server.",
+            "You can associate the web server banners with network decoys that have web service enabled."
+          ]
+        }
+      ]
+    },
+    "banner-operating-system": {
+      "statement": "SMB and FTP banners are created with a name entered as the banner message and an operating system; a web server banner is created by entering the banner message in the Name field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-smb-banners.json",
+          "quotes": [
+            "Name: Enter the value that muse be used for the SMB banner message.",
+            "Operating System: Select the operating system that the SMB banner emulates."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-ftp-banners.json",
+          "quotes": [
+            "Name: Enter the value that must be used for the FTP banner message.",
+            "Operating System: Select the operating system to use for the FTP banner."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-web-server-banners.json",
+          "quotes": [
+            "enter the value that must be used for the web server banner message in the Name field"
+          ]
+        }
+      ]
+    },
+    "datalist-structure": {
+      "statement": "A datalist holds key-value items in which each key can have multiple values (one per line), and for specific keys at most 20 values can be added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-datalists.json",
+          "quotes": [
+            "Each datalist can have multiple key-value pairs and each key can have multiple values mapped to it.",
+            "Each value must be on a new line.",
+            "When you select specific keys, the maximum number of values that can be added is restricted to 20."
+          ]
+        }
+      ]
+    },
+    "datalist-uses": {
+      "statement": "Preconfigured datalists are usable in Network Decoy personalities as Active Directory OUs, AD Decoy personalities as Group Memberships, Landmine personalities as Fakes in Defense Evasion, and interactive generative AI decoys as Model Names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-datalists.json",
+          "quotes": [
+            "By default, Zscaler Deception provides a list of preconfigured datalists that can be used in",
+            "Network Decoy personalities (as Active Directory OUs), Active Directory Decoy personalities (as Group Memberships), and Landmine personalities (as Fakes in Defense Evasion), and interactive generative AI decoys (as Model Names)"
+          ]
+        }
+      ]
+    },
+    "datalist-download": {
+      "statement": "A datalist downloads individually as a JSON file and all datalists download as a collection in a ZIP file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-datalists.json",
+          "quotes": [
+            "The datalist is downloaded to your system as a JSON file.",
+            "To download all datalists:",
+            "All datalists are downloaded to your system as a collection in a ZIP file."
+          ]
+        }
+      ]
+    },
+    "default-resources-readonly": {
+      "statement": "Default ThreatParse rules, network, TI, landmine and AD decoy personalities, SMB, FTP and web server banners, tags and datalists cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-threatparse-rule.json",
+          "quotes": [
+            "The default ThreatParse rules cannot be edited.",
+            "The default ThreatParse rules cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-network-decoy-personality.json",
+          "quotes": [
+            "The default network decoy personalities cannot be edited.",
+            "The default network decoy personalities cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-threat-intelligence-decoy-personality.json",
+          "quotes": [
+            "The default TI decoy personalities cannot be edited.",
+            "The default TI decoy personalities cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-landmine-decoy-personality.json",
+          "quotes": [
+            "The default landmine decoy personalities cannot be edited.",
+            "The default landmine decoy personalities cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-active-directory-decoy-personality.json",
+          "quotes": [
+            "The default AD decoy personalities cannot be edited.",
+            "The default AD decoy personalities cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-smb-banners.json",
+          "quotes": [
+            "Default SMB banners cannot be edited.",
+            "Default SMB banners cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-ftp-banners.json",
+          "quotes": [
+            "Default FTP banners cannot be edited.",
+            "Default FTP banners cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-web-server-banners.json",
+          "quotes": [
+            "Default web server banners cannot be edited.",
+            "Default web server banners cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-tags.json",
+          "quotes": [
+            "Default tags cannot be edited.",
+            "Default tags cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-managing-datalists.json",
+          "quotes": [
+            "Default datalists cannot be edited.",
+            "Default datalists cannot be deleted."
+          ]
+        }
+      ]
+    },
+    "threatparse-rule-list": {
+      "statement": "The ThreatParse Rules page shows each rule's Title, Description, risk Score, Show in UI and Enabled state; a disabled rule is not triggered for events matching its conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-threatparse-rules.json",
+          "quotes": [
+            "Title: The name of the ThreatParse rule.",
+            "Description: The detailed description of when the rule triggers.",
+            "Enabled: Indicates whether the rule is enabled or disabled.",
+            "Score: The risk score that must be assigned to an attack event if the rule is triggered for the event.",
+            "Show in UI: Indicates whether the rule must be shown if triggered on the Investigate page.",
+            "A disabled rule, indicated by a red X mark, is not triggered for events matching the rule conditions."
+          ]
+        }
+      ]
+    },
+    "threatparse-rule-parameters": {
+      "statement": "The ThreatParse engine translates attack event details into plain English using rules that use parameters such as risk score, conditions, MITRE ID and MITRE tactic; default rules exist for common attack events and custom rules can be added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-threatparse-rules.json",
+          "quotes": [
+            "ThreatParse is a technology used by Zscaler Deception to parse details of an attack event and translate them into plain English using natural language reconstruction.",
+            "the ThreatParse engine uses rules that use multiple parameters such as risk score, conditions, MITRE ID, MITRE tactic, etc.",
+            "By default, Zscaler Deception provides various ThreatParse rules for common attack events. You can also create custom rules suitable for your business needs."
+          ]
+        }
+      ]
+    },
+    "threatparse-rule-types": {
+      "statement": "A custom ThreatParse rule has type Single, triggered by criteria on a single event, or Multi Attacker Facet, triggered by criteria across multiple events.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-threatparse-rule.json",
+          "quotes": [
+            "Select Single if the rule must be triggered by criteria defined for a single event. Select Multi Attacker Facet if the rule must be triggered by criteria defined across multiple events."
+          ]
+        }
+      ]
+    },
+    "threatparse-rule-actions": {
+      "statement": "A custom ThreatParse rule can move the trigger source (client) to the allowlist, hide the rule on the Investigate page, or delete the event that triggered it; its conditions use the custom query language.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-threatparse-rule.json",
+          "quotes": [
+            "Allowlist: Enable to move the trigger source (client) to the allowlist if the rule is triggered.",
+            "Don't Show in UI: Enable if you do not want to show the rule on the Investigate page if the rule is triggered.",
+            "Delete: Enable to delete the event that triggered the rule.",
+            "The conditions are created using the custom query language."
+          ]
+        }
+      ]
+    },
+    "threatparse-rule-additional-details": {
+      "statement": "A custom ThreatParse rule can carry a mitigation advisory, MITRE ID, CVE ID, MITRE tactic, example threat groups and important event fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-threatparse-rule.json",
+          "quotes": [
+            "Mitigation: Enter an advisory on the next steps to be taken that can be used by the analysts.",
+            "MITRE ID: Enter the MITRE ID if the rule is designed to detect a specific MITRE technique.",
+            "CVE ID: Enter the CVE identifier associated with the vulnerability.",
+            "MITRE Tactic: Enter the MITRE tactic if the rule is designed to detect a specific MITRE tactic.",
+            "Example Threat Groups: Enter the examples of threat groups that have used this technique.",
+            "Important Event Fields: Enter the most important event fields in the log for additional context."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "strategy-edit-delete": {
+      "kind": "semantic",
+      "title": "What editing or deleting a deployed strategy does to its decoys",
+      "status": "open",
+      "detail": "The page for editing or deleting a Deception strategy gives only click steps; it does not say what happens to decoys already deployed from the strategy. The deployed-strategy page ([[deception.decoy-deployment:deployed-strategy-edit]]) is also click-only, so it does not answer this.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "resource-limits": {
+      "kind": "semantic",
+      "title": "Limits on tags, keywords, banners and datalist keys",
+      "status": "open",
+      "detail": "The datalist page restricts values to 20 for specific keys without naming which keys; the pages read give no maximum number of tags, keywords or banners.",
+      "resolves_with": ["source-read", "support-ticket"]
+    }
+  }
+}

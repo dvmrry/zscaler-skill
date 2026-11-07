@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --quiet --script
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["httpx>=0.27", "pyyaml>=6"]
+# dependencies = ["httpx>=0.27"]
 # ///
 """maintenance-digest.py — aggregate low-friction repo maintenance signals.
 
@@ -9,7 +9,9 @@ Status: functional.
 
 Produces a Markdown digest suitable for a scheduled GitHub sticky issue. This
 is intentionally shallow: it turns existing hygiene signals into a backlog
-without trying to perform reference distillation or agent review.
+without trying to perform reference distillation or agent review. Vendor drift
+against the knowledge graph is reported by the weekly refresh pull request
+(`scripts/kb-refresh.mjs`), not here.
 
 Usage:
     ./scripts/maintenance-digest.py
@@ -26,17 +28,15 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import httpx
-import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_LABEL = "maintenance-digest"
 DEFAULT_TITLE = "Skill maintenance digest"
-FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 STATUS_RE = re.compile(r"Status:\s*(.+)")
 TODO_RE = re.compile(r"\bTODO\b")
 MARKER_RE = re.compile(r"<!-- maintenance-digest:last_check=(.*?) -->")
@@ -54,15 +54,6 @@ def run(cmd: list[str]) -> CommandResult:
     return CommandResult(proc.returncode, proc.stdout, proc.stderr)
 
 
-def parse_frontmatter(path: Path) -> dict[str, Any]:
-    text = path.read_text(encoding="utf-8", errors="ignore")
-    match = FRONTMATTER_RE.match(text)
-    if not match:
-        return {}
-    loaded = yaml.safe_load(match.group(1)) or {}
-    return loaded if isinstance(loaded, dict) else {}
-
-
 def rel(path: Path) -> str:
     return str(path.relative_to(REPO_ROOT))
 
@@ -73,38 +64,6 @@ def display_path(path: Path) -> str:
         return rel(path)
     except ValueError:
         return str(path)
-
-
-def display_sha(value: Any) -> str:
-    """Shorten real SHA values without truncating unknown placeholders."""
-    if not isinstance(value, str) or not value:
-        return "unknown"
-    return value[:7] if len(value) >= 7 and re.fullmatch(r"[0-9a-fA-F]+", value) else value
-
-
-def stale_refs(threshold_days: int) -> tuple[list[tuple[str, str]], int]:
-    cutoff = date.today() - timedelta(days=threshold_days)
-    stale: list[tuple[str, str]] = []
-    total = 0
-    for path in sorted((REPO_ROOT / "references").rglob("*.md")):
-        fm = parse_frontmatter(path)
-        last = fm.get("last-verified")
-        if not last:
-            continue
-        total += 1
-        if isinstance(last, date):
-            last_date = last
-            last_text = last.isoformat()
-        else:
-            last_text = str(last).strip('"')
-            try:
-                last_date = date.fromisoformat(last_text)
-            except ValueError:
-                stale.append((rel(path), f"invalid:{last_text}"))
-                continue
-        if last_date < cutoff:
-            stale.append((rel(path), last_text))
-    return stale, total
 
 
 def scaffold_inventory() -> tuple[list[tuple[str, str]], list[str]]:
@@ -119,11 +78,6 @@ def scaffold_inventory() -> tuple[list[tuple[str, str]], list[str]]:
         if status_match and "scaffold" in status_match.group(1).lower():
             scaffolds.append((rel(path), status_match.group(1).strip()))
         if any(TODO_RE.search(line) for line in text.splitlines() if line.lstrip().startswith(("#", "//"))):
-            todos.append(rel(path))
-
-    for path in sorted((REPO_ROOT / "references").rglob("*.md")):
-        text_head = path.read_text(encoding="utf-8", errors="ignore")[:2000]
-        if "author-status: stub" in text_head:
             todos.append(rel(path))
 
     return scaffolds, todos
@@ -155,21 +109,13 @@ def hygiene_eval_warning() -> str:
 
 def render(args: argparse.Namespace) -> str:
     now = datetime.now(timezone.utc).replace(microsecond=0)
-    stale, total_refs = stale_refs(args.stale_days)
     scaffolds, todo_files = scaffold_inventory()
-    vendor = json_from_command(["./scripts/check-vendor-drift.py", "--json"])
     freshness = json_from_command(["./scripts/check-scrape-freshness.py", str(args.scrape_days), "--json"])
     eval_warning = hygiene_eval_warning()
 
-    drift_high = vendor.get("drifted_high_priority", []) if isinstance(vendor, dict) else []
-    drift_low = vendor.get("drifted_low_priority", []) if isinstance(vendor, dict) else []
-    unverified = vendor.get("unverified", []) if isinstance(vendor, dict) else []
-    indeterminate = vendor.get("indeterminate", []) if isinstance(vendor, dict) else []
-    # A command that produced no parseable JSON is itself an unknown vendor
-    # comparison state. Keep that uncertainty visible instead of rendering a
-    # misleading numeric zero in the digest summary.
-    indeterminate_count = "unknown" if vendor.get("_error") else str(len(indeterminate))
     stale_scrapes = freshness.get("stale", []) if isinstance(freshness, dict) else []
+    # Output that does not parse is an unknown count, never a reassuring zero.
+    stale_count = "unknown" if freshness.get("_error") else str(len(stale_scrapes))
 
     out: list[str] = [
         f"<!-- maintenance-digest:last_check={now.isoformat()} -->",
@@ -179,59 +125,11 @@ def render(args: argparse.Namespace) -> str:
         "",
         "## Summary",
         "",
-        f"- Stale reference docs: **{len(stale)} / {total_refs}** older than {args.stale_days} days.",
-        f"- Stale help scrapes: **{len(stale_scrapes)}** older than {args.scrape_days} days.",
-        f"- Vendor drift: **{len(drift_high)} high**, {len(drift_low)} low, {len(unverified)} unverified ref/submodule pairs, **{indeterminate_count} indeterminate/unavailable comparisons**.",
+        f"- Stale help scrapes: **{stale_count}** older than {args.scrape_days} days.",
         f"- Script scaffolds: **{len(scaffolds)}**.",
-        f"- TODO/stub-bearing files: **{len(todo_files)}**.",
+        f"- TODO-bearing scripts: **{len(todo_files)}**.",
         "",
     ]
-
-    out += ["## Vendor Drift", ""]
-    if vendor.get("_error"):
-        out += [f"`check-vendor-drift.py --json` failed or produced unreadable output: `{vendor['_error']}`", ""]
-    elif drift_high:
-        out += ["High-priority drift means a cited vendor file changed since the reference was verified.", ""]
-        for item in drift_high[:20]:
-            files = ", ".join(item.get("touched_files", [])[:3])
-            out.append(f"- `{item['ref']}` — `{item['submodule']}` `{item['captured_sha'][:7]}..{item['current_sha'][:7]}`; changed: {files}")
-        if len(drift_high) > 20:
-            out.append(f"- ... and {len(drift_high) - 20} more")
-        out.append("")
-    else:
-        out += ["No high-priority vendor drift.", ""]
-    if drift_low:
-        out.append(f"Low-priority unchanged cited-file bumps: {len(drift_low)}.")
-        out.append("")
-    if indeterminate:
-        out += [
-            "Indeterminate vendor comparisons are not unchanged: initialize the module or recover the missing commit object before classifying drift.",
-            "",
-        ]
-        for item in indeterminate[:20]:
-            ref = item.get("ref") or "(repository submodule inventory)"
-            old_sha = item.get("captured_sha") or item.get("old_sha") or "unknown"
-            new_sha = item.get("current_sha") or item.get("new_sha") or "unknown"
-            out.append(
-                f"- `{ref}` — `{item.get('submodule', 'unknown submodule')}` "
-                f"`{display_sha(old_sha)}..{display_sha(new_sha)}`; "
-                f"reason: {item.get('reason', 'comparison unavailable')}"
-            )
-        if len(indeterminate) > 20:
-            out.append(f"- ... and {len(indeterminate) - 20} more")
-        out.append("")
-    elif not vendor.get("_error"):
-        out += ["No indeterminate vendor comparisons.", ""]
-
-    out += [f"## Stale References > {args.stale_days} Days", ""]
-    if stale:
-        for path, last in stale[:50]:
-            out.append(f"- `{last}` — `{path}`")
-        if len(stale) > 50:
-            out.append(f"- ... and {len(stale) - 50} more")
-        out.append("")
-    else:
-        out += ["No stale reference docs.", ""]
 
     out += [f"## Stale Help Scrapes > {args.scrape_days} Days", ""]
     if freshness.get("_error"):
@@ -258,7 +156,7 @@ def render(args: argparse.Namespace) -> str:
             out.append(f"- `{path}` — {status}")
         out.append("")
     if todo_files:
-        out.append("Files with TODO markers or stub author status:")
+        out.append("Scripts with TODO markers:")
         for path in todo_files[:50]:
             out.append(f"- `{path}`")
         if len(todo_files) > 50:
@@ -270,8 +168,8 @@ def render(args: argparse.Namespace) -> str:
     out += [
         "## Suggested Triage",
         "",
-        "1. Fix high-priority vendor drift first.",
-        "2. Refresh stale high-confidence references before training/export cuts.",
+        "1. Merge or review the open weekly knowledge-graph refresh pull request first.",
+        "2. Recapture stale help scrapes the weekly refresh does not cover (static captures).",
         "3. Promote scaffolds only after live-tenant response shapes are confirmed.",
         "4. Add eval coverage for docs that keep changing or drive real investigations.",
         "",
@@ -325,7 +223,6 @@ def upsert_sticky_issue(body: str, label: str, bootstrap: bool) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Render repo maintenance digest.")
-    parser.add_argument("--stale-days", type=int, default=60)
     parser.add_argument("--scrape-days", type=int, default=90)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--sticky-label", default=None)

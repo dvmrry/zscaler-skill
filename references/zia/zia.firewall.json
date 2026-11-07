@@ -1,0 +1,549 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall",
+  "title": "ZIA Firewall Control",
+  "aliases": [
+    "firewall control",
+    "firewall policy",
+    "firewall filtering",
+    "firewall vs url filtering",
+    "why was my traffic blocked and it is not a url filter rule",
+    "ftp control"
+  ],
+  "binds": [
+    "zia/firewall-filtering-rules",
+    "zia/nat-control-rules",
+    "zia/ips-policies",
+    "zia/firewall-dns-rules"
+  ],
+  "related": [
+    {
+      "rel": "decided-by",
+      "to": "zia.firewall.rule-order",
+      "because": "zia.firewall.rule-order:ips-ascending-order"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.firewall.criteria",
+      "because": "zia.firewall.criteria:unset-unrestricted"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zia.firewall.actions",
+      "because": "zia.firewall.actions:filtering-action-values"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.locations.rule-scoping",
+      "because": "zia.locations.rule-scoping:rules-take-both"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.time-intervals.rule-usage",
+      "because": "zia.time-intervals.rule-usage:rule-types"
+    },
+    {
+      "rel": "reached-via",
+      "to": "zia.traffic-forwarding.pac",
+      "because": "zia.firewall.traffic-path:ztunnel-pac-opt-in"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall.traffic-path",
+      "because": "zia.firewall.traffic-path:firewall-first"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering",
+      "because": "zia.firewall.traffic-path:firewall-beats-web-allow"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence",
+      "because": "zia.firewall.traffic-path:firewall-beats-web-allow"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall.licensing",
+      "because": "zia.firewall.licensing:identity-and-apps-need-advanced"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia.logs.firewall-records",
+      "because": "zia.logs.firewall-records:action-two-values"
+    },
+    {
+      "rel": "logged-in",
+      "to": "zia/firewall-log",
+      "because": "zia.logs.firewall-records:action-two-values"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/firewall-filtering-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/nat-control-rules"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/ips-policies"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia.terraform.firewall-resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.nat"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.destination-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.network-services"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.source-ip-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.network-applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.application-services"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ftp-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.best-practices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.predefined-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "When traffic is blocked and no URL Filtering rule explains it, Firewall Control is one place to look. It handles flows at the IP and port level, ahead of the web policies: see [[zia.firewall.traffic-path]]. Malware Protection and Advanced Threat Protection are covered in [[zia.malware-protection]] and [[zia.atp]]."
+    },
+    {
+      "text": "{{four-policies}}"
+    },
+    {
+      "text": "{{capabilities-policies}} Whether IPS Control is counted among the firewall policies differs between two help pages {{divergence:ips-control-counted}}."
+    },
+    {
+      "items": [
+        {
+          "label": "Which firewall policy touched this flow, and in what order?",
+          "text": "[[zia.firewall.traffic-path]] covers where the firewall module sits relative to the web module and what the logs show. [[zia.firewall.rule-order]] covers order and admin rank."
+        },
+        {
+          "label": "What can a rule match and what can it do?",
+          "text": "[[zia.firewall.criteria]] and [[zia.firewall.actions]]. Building blocks that rules reference are in [[zia.firewall.destination-groups]], [[zia.firewall.source-ip-groups]], [[zia.firewall.network-services]], [[zia.firewall.network-applications]] and [[zia.firewall.application-services]]."
+        },
+        {
+          "label": "Is this feature even available, and how many can I have?",
+          "text": "[[zia.firewall.licensing]] and [[zia.firewall.limits]]."
+        },
+        {
+          "label": "Which rules does the vendor recommend?",
+          "text": "[[zia.firewall.best-practices]]; the default rule and the predefined rules are in [[zia.firewall.predefined-rules]]. The Advanced Settings page that holds the firewall's port and Z-Tunnel settings is routed in [[zia.advanced-settings]]."
+        },
+        {
+          "label": "NAT Control and IPS Control.",
+          "text": "[[zia.firewall.nat]] and [[zia.firewall.ips]]."
+        },
+        {
+          "label": "DNS Control.",
+          "text": "It has its own subjects: [[zia.dns-control]], with DNS over HTTPS in [[zia.dns-control.doh]]."
+        },
+        {
+          "label": "How Terraform and the SDKs treat these rules.",
+          "text": "Provider behavior is not repeated here: see [[zia.terraform.rule-order]], [[zia.terraform.delete-detach]] and [[zia.terraform.field-fidelity]]."
+        }
+      ]
+    },
+    {
+      "text": "{{per-location}} {{enable-on-location}} {{requirements}} {{related-config}}"
+    },
+    {
+      "label": "Ports.",
+      "text": "{{default-ports}} {{custom-port-services}} {{auto-proxy-redirect-behavior}} {{auto-proxy-option-name}} {{auto-proxy-non-defined-ports}} {{non-standard-traffic-redirection}} {{auto-proxy-discovery}} What happens to traffic on a non-default web port when that option is off is open {{gap:custom-port-handling}}."
+    },
+    {
+      "label": "FTP Control.",
+      "text": "[[zia.ftp-control.scope:ftp-sits-in-firewall]] [[zia.ftp-control.scope:ftp-default]] [[zia.ftp-control.scope:ftp-passive-only]] [[zia.ftp-control.scope:ftp-url-filtering-precedence]] The settings are described in [[zia.ftp-control]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Firewall Control is enabled for the location.",
+      "uses": [
+        "per-location"
+      ]
+    },
+    {
+      "do": "Whether the tenant is licensed for the criterion the rule needs.",
+      "uses": [
+        "zia.firewall.licensing:identity-and-apps-need-advanced",
+        "zia.firewall.licensing:standard-tier-criteria"
+      ]
+    },
+    {
+      "do": "Whether the traffic is on a port the service treats as HTTP, DNS or FTP.",
+      "uses": [
+        "default-ports",
+        "custom-port-handling"
+      ]
+    }
+  ],
+  "claims": {
+    "capabilities-policies": {
+      "statement": "The Understanding Firewall Capabilities page says the Zscaler cloud provides integrated cloud-based next-generation firewall capabilities that allow granular control over an organization's outbound TCP, UDP and ICMP traffic, and lists these Firewall policies: Firewall Filtering (allow or block specified traffic, and how sessions are logged), NAT Control (destination NAT, redirecting to specific IP addresses or ports), DNS Control (allow or block DNS requests, redirect requests to a different DNS server, or substitute the IP address in a DNS response) and IPS Control (control and protect traffic from intrusion over all ports and protocols using signature-based detection).",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules",
+        "zia/nat-control-rules",
+        "zia/ips-policies",
+        "zia/firewall-dns-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-firewall-capabilities.json",
+          "quotes": [
+            "The Zscaler cloud provides integrated cloud-based next-generation firewall capabilities that allow granular control over your organization's outbound TCP, UDP, and ICMP traffic.",
+            "Firewall Filtering Policy: Add rules to allow or block specified types of traffic from your network to the internet. You can also specify how the sessions are logged.",
+            "NAT Control Policy: Add rules to perform destination NAT. You can redirect traffic to specific IP addresses or ports.",
+            "DNS Control Policy: Add rules to allow or block DNS requests, redirect requests to a different DNS server, or redirect DNS responses by substituting the IP address in a DNS response with a preconfigured IP address.",
+            "IPS Control Policy: Add rules to control and protect your traffic from intrusion over all ports and protocols using signature-based detection."
+          ]
+        }
+      ]
+    },
+    "related-config": {
+      "statement": "Configuring Firewall policies might also need IPv6 configuration to be enabled, source and destination IP groups, modified network services, network application groups and custom ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-firewall-capabilities.json",
+          "quotes": [
+            "You might also need to enable IPv6 configuration, create source and destination IP groups, modify network services, create network application groups, and configure custom ports."
+          ]
+        }
+      ]
+    },
+    "requirements": {
+      "statement": "A Firewall policy requires the organization to forward its IP traffic from a known location. To apply Firewall policies at the user level, user authentication and surrogate IP must be enabled; otherwise the Zscaler Firewall service applies organization and location policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-firewall-capabilities.json",
+          "quotes": [
+            "An organization must forward its IP traffic from a known location.",
+            "If your organization wants to apply Firewall policies at the user level, user authentication and surrogate IP must be enabled. Otherwise, the Zscaler Firewall service applies organization and location policies."
+          ]
+        }
+      ]
+    },
+    "enable-on-location": {
+      "statement": "The firewall can be enabled on a per-location basis: Enforce Firewall Control on the location enables the service's firewall controls, and Enable IPS Control enables its IPS controls (available with Advanced Firewall). The page's prerequisites are the policy resources (Users, Groups, Departments, Locations and Sublocations; Time Intervals; Network Applications, with network application groups created as needed; Network Services, modified to edit services, add custom services and create groups; Source and Destination IPv4 Address Groups; and IPv6 Configuration), the necessary rules defined for each policy, and, if non-standard ports carry HTTP, HTTPS, DNS, FTP, RTSP or PPTP traffic, the service configured to use custom ports for them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-firewall-locations.json",
+          "quotes": [
+            "The firewall can be enabled on a per-location basis.",
+            "Ensure you have configured the following policy resources:",
+            "Users, Groups, Departments, Locations, and Sublocations for your Firewall policies",
+            "Source and Destination IPv4 Address Groups",
+            "Time Intervals",
+            "Network Applications. You can create network application groups as needed.",
+            "Network Services. You can modify network services to edit services, add custom services, and create groups.",
+            "IPv6 Configuration",
+            "Ensure you have defined the necessary rules for each policy:",
+            "If your organization uses non-standard ports for HTTP, HTTPS, DNS, FTP, RTSP, or PPTP traffic, ensure you have configured the service to use custom ports for these services.",
+            "Select Enforce Firewall Control to enable the service's firewall controls.",
+            "Select Enable IPS Control to enable the service's IPS controls. (Available with Advanced Firewall)"
+          ]
+        }
+      ]
+    },
+    "custom-port-services": {
+      "statement": "To make the service accept traffic from other ports, an admin creates a custom service with the appropriate ports and then, in Advanced Settings, configures the service to accept traffic from those ports: the HTTP Services and HTTPS Services lists under Services Forwarded to HTTP Web Proxy, the DNS Services list under Services Applicable to DNS Transaction Policies, and the FTP Services, RTSP Services and PPTP Services lists under Services Forwarded to FTP Proxy, to RTSP and to PPTP. The Advanced Settings page says the configurations it lists can be modified as needed if the Firewall service is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-ports.json",
+          "quotes": [
+            "To begin, create a custom service with the appropriate ports. Then, in Advanced Settings, configure the service to accept traffic from the ports assigned to the custom service that you created.",
+            "Services Forwarded to HTTP Web Proxy: From the HTTP Services and HTTPS Services lists, choose the custom service that specifies the ports your organization uses for HTTP and HTTPS.",
+            "Services Applicable to DNS Transaction Policies: From the DNS Services list, choose the custom service that specifies the ports your organization uses for DNS traffic.",
+            "Services Forwarded to FTP Proxy: From the FTP Services list, choose the custom service that specifies the ports your organization uses for FTP traffic.",
+            "Services Forwarded to RTSP: From the RTSP Services list, choose the custom service that specifies the ports your organization uses for RTSP traffic.",
+            "Services Forwarded to PPTP: From the PPTP Services list, choose the custom service that specifies the ports your organization uses for PPTP traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "You can modify the following configurations as needed, if you have enabled the Firewall service."
+          ]
+        }
+      ]
+    },
+    "auto-proxy-redirect-behavior": {
+      "statement": "An Advanced Settings option, when enabled, redirects non-standard port traffic, including HTTP, HTTPS, FTP, DNS, RTSP and PPTP traffic, to the web module for inspection; the page says it can be used to identify and redirect traffic destined to non-standard ports when these ports are not explicitly defined in any network services (custom or predefined). RTSP and PPTP are applicable only with transparent mode connectivity to the Public Service Edge (GRE or IPSec tunnels with no PAC file).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Enable this option to redirect non-standard port traffic, including HTTP, HTTPS, FTP, DNS, RTSP, and PPTP traffic, to the web module for inspection.",
+            "This option can be used for identifying and redirecting traffic destined to non-standard ports when these ports are not explicitly defined in any network services (custom or predefined).",
+            "RTSP and PPTP are applicable only with transparent mode connectivity to the Public Service Edge for Internet & SaaS (i.e., GRE or IPSec tunnels with no PAC file)."
+          ]
+        }
+      ]
+    },
+    "auto-proxy-option-name": {
+      "statement": "The Advanced Settings page lists an option named Auto Proxy Forwarding for Non-Defined Ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Auto Proxy Forwarding for Non-Defined Ports"
+          ]
+        }
+      ]
+    },
+    "auto-proxy-non-defined-ports": {
+      "statement": "The Advanced Settings option Auto Proxy Forwarding for Non-Defined Ports is the option that redirects non-standard port traffic to the web module for inspection when enabled.",
+      "tier": "B",
+      "derived_from": [
+        "auto-proxy-redirect-behavior",
+        "auto-proxy-option-name"
+      ],
+      "conditions": "The capture flattens the page: the option name and the description appear as separate list items, and the pairing follows the page order and the capabilities page's Non-Standard Traffic Redirection wording; no quote joins them."
+    },
+    "non-standard-traffic-redirection": {
+      "statement": "The capabilities table lists Non-Standard Traffic Redirection, which redirects outbound HTTP, HTTPS, FTP, DNS, RTSP and PPTP traffic destined for non-standard ports to the web proxy, as N/A on Standard Firewall and Supported on Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-firewall-capabilities.json",
+          "quotes": [
+            "Non-Standard Traffic Redirection: Identify outbound HTTP, HTTPS, FTP, DNS, RTSP, and PPTP traffic that is destined for non-standard ports and redirect the traffic to the web proxy (secure web gateway) for full web visibility and security. | N/A | Supported"
+          ]
+        }
+      ]
+    },
+    "auto-proxy-discovery": {
+      "statement": "For the Auto Proxy feature to redirect web traffic, the Firewall must identify web flows that are HTTP or HTTPS by an Allow rule with HTTP and HTTPS as Network Application conditions (requires Advanced Firewall). The Firewall then registers the IP address and port combination as a web destination in the Public Service Edge where the traffic landed. The next time a session is directed to that destination (from the same user or a user of a different organization) and arrives on the same Service Edge, it is redirected to and inspected by the web module from the first packet; if the traffic is sent to a different Service Edge, the destination must be rediscovered and registered on that Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "For the Auto Proxy feature to redirect web traffic, the Firewall must be configured to identify web flows that are either HTTP or HTTPS by using an Allow rule with HTTP and HTTPS as Network Application conditions (requires Advanced Firewall).",
+            "When the Firewall identifies a web destination, it registers the IP address and port combination as a web destination in the Public Service Edge for Internet & SaaS where the traffic landed.",
+            "The next time a session is directed to that non-standard web destination (from the same user or a user belonging to a different organization) and the traffic arrives on the same Service Edge, the Firewall ensures that the traffic is redirected to and inspected by the web module from the first packet of the session.",
+            "However, if that non-standard web traffic is sent to a different Service Edge, the web destination must be rediscovered and registered on that Service Edge."
+          ]
+        }
+      ]
+    },
+    "four-policies": {
+      "statement": "Configuring Firewall policies requires the Firewall Filtering, NAT Control and DNS Control policies, as applicable, and each has its own rules. IPS Control is a separate policy on its own page; it is enabled for locations through the firewall settings and is available only with Advanced Firewall. FTP Control settings inside Firewall are documented separately.",
+      "tier": "A",
+      "conditions": "Corrected on recapture (2026-10-18): previously \"Firewall configuration is four policies, Firewall Filtering, NAT Control, DNS Control and IPS Control, and each has its own rules. FTP Control settings inside Firewall are documented separately.\"",
+      "binds": [
+        "zia/firewall-filtering-rules",
+        "zia/nat-control-rules",
+        "zia/ips-policies",
+        "zia/firewall-dns-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-policies.json",
+          "quotes": [
+            "Configuring Firewall policies requires configuring the following policies as applicable: Firewall Filtering, NAT Control, and DNS Control policies.",
+            "For FTP Control settings within Firewall, see Understanding FTP Control.",
+            "2. Define the rules for each policy:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.json",
+          "quotes": [
+            "On the IPS Control page (Cyberthreat Protection > Policy > IPS Control), you can do the following:",
+            "You can enable IPS Control policies for specific locations by configuring the appropriate option for the location.",
+            "IPS Control is available only with Advanced Firewall.",
+            "To learn more, see Enabling the Firewall for Locations."
+          ]
+        }
+      ]
+    },
+    "per-location": {
+      "statement": "Firewall Control is enabled per location, so a location without it enabled gets no firewall policy enforcement.",
+      "tier": "B",
+      "conditions": "The second half follows from the policy-enforcement guide listing location enablement as a condition for the firewall module to enforce on web traffic.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-policies.json",
+          "quotes": [
+            "Enable the firewall per location."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.json",
+          "quotes": [
+            "The organization has enabled a Firewall policy for the location."
+          ]
+        }
+      ]
+    },
+    "default-ports": {
+      "statement": "Zscaler listens on default ports for six kinds of traffic: 80 HTTP, 443 HTTPS, 53 DNS, 21 FTP, 554 RTSP and 1723 PPTP. An organization that uses other or additional ports for these types of traffic can configure the service to use custom ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-policies.json",
+          "quotes": [
+            "By default, the Zscaler service listens to the following ports:",
+            "Port 80 for HTTP traffic",
+            "Port 443 for HTTPS traffic",
+            "Port 53 for DNS traffic",
+            "Port 21 for FTP traffic",
+            "Port 554 for RTSP traffic",
+            "Port 1723 for PPTP traffic",
+            "If your organization uses other or additional ports for these types of traffic, you can configure the service to use custom ports for these services."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "ips-control-counted": {
+      "summary": "Whether IPS Control is one of the firewall policies to configure: the Configuring Firewall Policies page names Firewall Filtering, NAT Control and DNS Control, while the Understanding Firewall Capabilities page lists IPS Control as a fourth Firewall policy and counts four.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-firewall-policies.json",
+            "quotes": [
+              "Configuring Firewall policies requires configuring the following policies as applicable: Firewall Filtering, NAT Control, and DNS Control policies."
+            ]
+          },
+          "says": "Configuring Firewall policies requires configuring Firewall Filtering, NAT Control and DNS Control policies as applicable; IPS Control is not in that list."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-firewall-capabilities.json",
+            "quotes": [
+              "IPS Control Policy: Add rules to control and protect your traffic from intrusion over all ports and protocols using signature-based detection.",
+              "Configuring Firewall policies requires configuring the 4 policies in the preceding list as applicable and enabling the firewall for your locations."
+            ]
+          },
+          "says": "IPS Control Policy is one of the Firewall policies, and configuring Firewall policies requires configuring the 4 policies in the list as applicable."
+        }
+      ],
+      "impact": "Whether IPS Control counts as a firewall policy depends on the page: the Configuring Firewall Policies list omits it and the Understanding Firewall Capabilities list includes it. The four-policies claim follows the first page, and separately cites the IPS Control page for IPS Control being enabled through location settings and available only with Advanced Firewall."
+    }
+  },
+  "gaps": {
+    "separate-lists-block-from-any": {
+      "kind": "semantic",
+      "title": "Whether the firewall policies are evaluated separately and a block from any drops the flow",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Each sub-policy has its own rule list, evaluated separately. A single flow traverses all four - a block from any of them drops the flow.' The captures confirm each policy has its own rules and that a firewall violation blocks the transaction, but none says a flow traverses all four or in what manner they combine. Resolves with a lab test or a vendor answer.",
+      "blocks": "explaining how a NAT, DNS and IPS rule combine on one flow",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "ftp-actions-scoping": {
+      "kind": "semantic",
+      "title": "FTP Control actions and scoping",
+      "status": "partial",
+      "detail": "Unverified legacy statement: 'Actions: allow / block / alert. Per-user / per-location scoping as with Firewall Filtering. Relevant in tenants that haven't deprecated FTP yet; many modern tenants block all FTP at Firewall Filtering level.' The FTP Control capture describes the policy as allowing access to specific FTP sites and as applying to traffic from known locations, but lists no action set or user scoping. Resolves with the FTP Control rule page capture or a lab test.",
+      "blocks": "advising on FTP Control rule design",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.json",
+          "quotes": [
+            "You can configure the FTP Control policy to allow access to specific FTP sites.",
+            "The FTP Control policy applies to traffic from the known locations of an organization."
+          ]
+        }
+      ],
+      "resolution": "The FTP Control configuration page (captured 2026-10-18) shows two allow-or-block settings and no action selector or user scoping (zia.ftp-control.settings:console-has-no-action-or-user-scope, Tier B, rests on an absence), and only URL Filtering rules that apply to all users are enforced for FTP (zia.ftp-control.scope:url-filtering-only-all-user-rules). Still open: whether many tenants block all FTP at the Firewall Filtering level."
+    },
+    "custom-port-handling": {
+      "kind": "semantic",
+      "title": "Treatment of web protocols on non-default ports",
+      "status": "partial",
+      "detail": "The captures say custom ports must be configured for the default-port traffic types, and the Advanced Settings page describes Auto Proxy Forwarding for Non-Defined Ports (auto-proxy-non-defined-ports). They do not say what happens to, for example, HTTP on port 8080 when no custom port is configured and that option is off. The old reference claimed it is treated as generic TCP and never reaches the web module; no source says that. The policy-enforcement guide describes web traffic as HTTP or HTTPS on 80/443 (or other HTTP or HTTPS ports) and sends everything else directly to the firewall module.",
+      "blocks": "knowing whether an unconfigured non-default web port is inspected by the web module",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.json",
+          "quotes": [
+            "going to ports other than 80/443 (or other HTTP or HTTPS ports)"
+          ]
+        }
+      ]
+    }
+  }
+}

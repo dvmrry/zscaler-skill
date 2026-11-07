@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Zero Trust Branch Using Ebond Interface",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/deploying-zero-trust-branch-using-ebond-interface",
+    "node": "1538679",
+    "revision": "3246943",
+    "updated": "2026-10-14",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zero Trust Branch supports link aggregation on wide area network (WAN) and local area network (LAN) to provide redundancy and high throughput."
+    },
+    {
+      "text": "This article explains how to deploy Zero Trust Branch appliances using the ebond Link Aggregation Control Protocol (LACP) interface on the WAN side."
+    },
+    {
+      "text": "To deploy the Zero Trust Branch appliance, complete the following steps:"
+    },
+    {
+      "item": "1. Clone and modify the template.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Resources > Templates.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          61
+        ],
+        [
+          64,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "On the Templates page, search for the appliance model number (e.g., ZT600, ZT800, or ZT8010) you are using. You can either create a new template or clone an existing template. Zscaler recommends that you clone a template and modify it to meet your requirements. To learn more, see Managing Templates.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "The ZT400 appliance is not supported.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Name column, click the name of the template you created or cloned in the previous step.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "The template properties page appears.",
+      "depth": 1
+    },
+    {
+      "item": "Click the Interfaces tab, click Add, and then select Bonding Interface.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          20
+        ],
+        [
+          32,
+          35
+        ],
+        [
+          53,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add Bonding Interface drawer:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Interface Name: Select ebond0 or ebond1 from the drop-down menu.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          29
+        ],
+        [
+          33,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Appliance: Select the required gateway (Appliance-1 or Appliance-2).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          40,
+          51
+        ],
+        [
+          55,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Interface Type: Select LAN or WAN from the drop-down menu.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          26
+        ],
+        [
+          30,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Member Interfaces: Select the network interfaces that must be bonded by this interface.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Repeat the previous steps for the second appliance to add the ebond interface.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "2. Add a site.",
+      "depth": 0
+    },
+    {
+      "item": "Follow the instructions in Adding a Site.",
+      "depth": 0
+    },
+    {
+      "item": "While adding the site, select ebond for the WAN interface. After the site is added, activation codes are generated for both appliances. Copy and save the activation codes as you need them in the next step.",
+      "depth": 0,
+      "strong": [
+        [
+          30,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "3. Configure ebond on the appliance console.",
+      "depth": 0
+    },
+    {
+      "item": "Before proceeding, configure LACP (802.3ad) on the switch where the WAN interfaces will connect. Zero Trust Branch supports LACP using the 802.3ad standard.",
+      "depth": 0
+    },
+    {
+      "item": "Connect to the appliance console using the console cable and log in with admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the console, enter 2 - Configure Gateway and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 1 - Configure Network to proceed with the network configuration.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Configure the following parameters for the required WAN bonding interface:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "available interfaces: ['ebond0', 'ebond1', 'ge1', 'ge2', 'ge5', 'ge6',’ge7’,’ 'ge8']WAN interface (? to list available options) [ge8]: ebond1 ebond1 currently does not have any member interface Would you like to add(a) interface to ebond1, or satisfy(s) with the current configuration? [s]: a Select an interface to be added: ['ge1', 'ge2', 'ge5', 'ge6',’ge7,’ 'ge8']: ge8 ebond1 currently configured with 1 interfaces ['ge8'] Would you like to add(a), delete(d) interface to/from ebond1, or satisfy(s) with the current configuration? [s]: a Select an interface to be added: ['ge1', 'ge2', 'ge5', 'ge6,’ge7’']: ge7 ebond1 currently configured with 2 interfaces ['ge8', 'ge7'] Would you like to add(a), delete(d) interface to/from ebond1, or satisfy(s) with the current configuration? [s]: s WAN VLAN ID (1..4092) [1]: Use DHCP for WAN interface ebond1 (Y/y or N/n) [n]: WAN Nameservers [1.1.1.1, 8.8.8.8]: WAN IP Prefix (w.x.y.z/n) [10.112.23.174/25]: WAN Default Gateway IP Address (w.x.y.z) [10.112.23.254]: Management Interface: ge3 Management IP Address: 10.112.21.47 WAN Interface: ebond1 (members: ['ge8', 'ge7']) WAN IP Address: 10.112.23.174/25 WAN Default Gateway: 10.112.23.254 WAN Nameservers: 1.1.1.1, 8.8.8.8 Web Proxy: None Apply Configuration? (y/n)y",
+      "depth": 1
+    },
+    {
+      "item": "4. Activate the appliance.",
+      "depth": 0
+    },
+    {
+      "item": "In the console, return to the main menu, and enter 1 - Activate Gateway and press Enter.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Next, enter 1 - Activate Airgap Gateway and enter the activation code you saved earlier while adding a site.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Press 2 to return to the main menu.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "The appliance status is shown as Active.",
+      "depth": 1,
+      "strong": [
+        [
+          33,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Repeat the same process for the second appliance.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "After activation, the appliance automatically enters Standby mode.",
+      "depth": 1,
+      "strong": [
+        [
+          53,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    }
+  ]
+}

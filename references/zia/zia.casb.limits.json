@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb.limits",
+  "title": "CASB limits: scan capacity, log field length and rule text",
+  "aliases": [
+    "casb limits",
+    "saas security api scans limit",
+    "1000 buckets",
+    "bitbucket 32 repositories",
+    "sub-url 2041 characters",
+    "ranges and limitations saas security"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.casb.tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.insights-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.dlp-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The numeric limits that apply to CASB are in the ranges and limitations article. {{s3-1000-buckets}} {{gcp-azure-1000}} {{bitbucket-32}}"
+    },
+    {
+      "label": "Logs.",
+      "text": "{{sub-url-2041}} Whether it applies to SaaS Security logs is open {{gap:sub-url-in-saas-logs}}. The retention, export and filter limits are in [[zia.casb.insights-logs]]."
+    },
+    {
+      "label": "Rules.",
+      "text": "{{description-10240}} The 4-engine and 32-user limits are in [[zia.casb.dlp-rules]]."
+    },
+    {
+      "label": "Tenants.",
+      "text": "The 16-tenant and 32-profile limits are in [[zia.casb.tenants]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the bucket, container or repository count of the tenant is within the scan cap before assuming a scan missed objects.",
+      "uses": [
+        "s3-1000-buckets",
+        "gcp-azure-1000",
+        "bitbucket-32"
+      ]
+    },
+    {
+      "do": "Whether the Sub-URL limit is being applied to a SaaS Security log.",
+      "uses": [
+        "sub-url-2041",
+        "sub-url-in-saas-logs"
+      ]
+    }
+  ],
+  "claims": {
+    "s3-1000-buckets": {
+      "statement": "SaaS Security API scans cover up to 1,000 Amazon S3 buckets, and enabling that, or Amazon S3 at all, goes through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "To enable scanning of up to 1,000 Amazon S3 buckets, contact your Zscaler Account team."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-saas-application-tenants.json",
+          "quotes": [
+            "To enable Amazon S3 for your organization, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "gcp-azure-1000": {
+      "statement": "SaaS Security API scans cover up to 1,000 Google Cloud Platform buckets and 1,000 Azure blob containers, each raised through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| SaaS Security API Scans | | |",
+            "| Google Cloud Platform | 1,000 buckets | To enable scanning of up to 1,000 Google Cloud Platform buckets, contact your Zscaler Account team. |",
+            "| Microsoft Azure | 1,000 blob containers | To enable scanning of up to 1,000 Azure blob containers, contact your Zscaler Account team. |"
+          ]
+        }
+      ]
+    },
+    "bitbucket-32": {
+      "statement": "SaaS Security API scans cover up to 32 Bitbucket repositories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| SaaS Security API Scans | | |",
+            "| Bitbucket | 32 repositories |"
+          ]
+        }
+      ]
+    },
+    "sub-url-2041": {
+      "statement": "Sub-URLs in the Insight Logs display and CSV file are truncated beyond 2,041 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "Sub-URL Length in Insight Logs display and CSV file | 2,041 characters"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-insights-logs.json",
+          "quotes": [
+            "For URL-based column values in the Logs display and CSV files, there is a character limit of 2,041 in the sub-URL string.",
+            "If the sub-URL exceeds the 2,041 character limit, it is truncated."
+          ]
+        }
+      ]
+    },
+    "description-10240": {
+      "statement": "A SaaS Security Data at Rest Scanning DLP rule description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#description"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.json",
+          "quotes": [
+            "The SaaS Security Data at Rest Scanning Data Loss Prevention (DLP) policy allows you to create rules to discover and protect sensitive data at rest in sanctioned SaaS applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.json",
+          "quotes": [
+            "The description cannot exceed 10,240 characters."
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.json",
+          "quotes": [
+            "The description cannot exceed 10,240 characters."
+          ],
+          "after": "To add a DLP rule for CRM applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.json",
+          "quotes": [
+            "The description cannot exceed 10,240 characters."
+          ],
+          "after": "To add a DLP rule for email applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.json",
+          "quotes": [
+            "The description cannot exceed 10,240 characters."
+          ],
+          "after": "To add a DLP rule for file sharing applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.json",
+          "quotes": [
+            "The description cannot exceed 10,240 characters."
+          ],
+          "after": "To add a DLP rule for generative AI applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.json",
+          "quotes": [
+            "The description cannot exceed 10,240 characters."
+          ],
+          "after": "To add a DLP rule for ITSM applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.json",
+          "quotes": [
+            "The description cannot exceed 10,240 characters."
+          ],
+          "after": "To add a DLP rule for public cloud storage applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.json",
+          "quotes": [
+            "The description cannot exceed 10,240 characters."
+          ],
+          "after": "To add a DLP rule for source code repository applications:"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "sub-url-in-saas-logs": {
+      "kind": "semantic",
+      "title": "Whether the Sub-URL limit applies to SaaS Security logs",
+      "status": "open",
+      "detail": "The ranges article states the 2,041-character limit for \"Insight Logs display and CSV file\" among the Insights features; the SaaS Security Insights column lists have no Sub-URL column, so no source ties the limit to SaaS Security logs.",
+      "resolves_with": [
+        "operator-experience",
+        "source-read"
+      ]
+    }
+  }
+}

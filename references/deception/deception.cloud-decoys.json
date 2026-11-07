@@ -1,0 +1,432 @@
+{
+  "schema_version": 1,
+  "id": "deception.cloud-decoys",
+  "title": "Cloud Deception model shared by Azure, AWS and GCP: detection, deployment, status and deletion",
+  "aliases": [
+    "Cloud Deception"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.plans"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.cloud-decoys-azure"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.cloud-decoys-aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.cloud-decoys-gcp"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{internal-vs-external}} The providers are [[deception.cloud-decoys-azure]], [[deception.cloud-decoys-aws]] and [[deception.cloud-decoys-gcp]]; the decoy totals per plan are in [[deception.plans]] and the product is introduced in [[deception.overview]]."
+    },
+    {
+      "label": "Deploying.",
+      "text": "{{deployment-method-fixed}} {{gcp-terraform-only}} {{tf-same-backend}}"
+    },
+    {
+      "label": "Health and status.",
+      "text": "{{health-check-15min}} The Azure health check is described two ways [[deception.cloud-decoys-azure:azure-health-check-meaning]] and so is the AWS one [[deception.cloud-decoys-aws:aws-health-check-meaning]]. {{status-inactive}} {{status-pending}} What Not Deployed means next to these states is open {{gap:not-deployed-state}}."
+    },
+    {
+      "label": "Editing and deleting.",
+      "text": "{{edits-need-deploy}} {{edit-requires-not-deployed}} {{two-step-edit}} {{delete-account-needs-no-decoys}} {{force-delete}}"
+    },
+    {
+      "label": "Plans and unstated limits.",
+      "text": "Whether GCP decoys count toward the plan total is open {{gap:gcp-plan-count}}. Several specifics are not stated {{gap:unstated-specifics}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the deployment script has been run after a portal edit or deletion of an Azure or AWS decoy, or the Terraform steps after one of a GCP decoy.",
+      "uses": [
+        "edits-need-deploy"
+      ]
+    },
+    {
+      "do": "Whether any decoys remain deployed before deleting an account or project's Cloud Deception settings.",
+      "uses": [
+        "delete-account-needs-no-decoys"
+      ]
+    },
+    {
+      "do": "What the Azure and AWS health checks check, since the pages describe each two ways.",
+      "uses": [
+        "deception.cloud-decoys-azure:azure-health-check-meaning",
+        "deception.cloud-decoys-aws:aws-health-check-meaning"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Cloud Deception is a set of tools to configure and deploy decoys that mimic legitimate resources in public cloud platforms; depending on the type of decoy and its configuration an adversary can access, interact or perform malicious operations with the cloud decoys, and such activities are logged as attacks viewable on the Deception dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-cloud-deception.json",
+          "quotes": [
+            "Cloud Deception is a set of tools that allow you to configure and deploy decoys that mimic legitimate resources and assets in public cloud platforms.",
+            "Depending on the type of decoy and its configuration, an adversary can access, interact, or perform malicious operations with the cloud decoys in different ways.",
+            "Such activities are considered malicious activities and they are logged as attacks.",
+            "You can view and analyze the attack details from the Deception dashboard."
+          ]
+        }
+      ]
+    },
+    "internal-vs-external": {
+      "statement": "Lures for Azure or AWS decoys configured with landmine policies can detect malicious activity by users in the organization because landmine policies are deployed on devices the organization manages; decoys with public visibility can detect external adversaries who enumerate them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-cloud-deception.json",
+          "quotes": [
+            "lures for Azure or AWS decoys configured using landmine policies detect malicious activities by users within an organization, as the landmine policies are deployed in devices managed by the organization",
+            "decoys with public visibility can detect malicious activities from external adversaries who enumerate them with various tools"
+          ]
+        }
+      ]
+    },
+    "health-check-15min": {
+      "statement": "The Azure and AWS integration pages say a health check function app (Azure) and a health check lambda function (AWS) are deployed and monitor and update the deployed decoys' health status to the Admin Portal every 15 minutes; the GCP management page says a health check lambda function deployed at the time of integration updates GCP decoy statuses every 15 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-cloud-deception-with-azure.json",
+          "quotes": [
+            "A health check function app is also deployed that monitors and updates the health status of the deployed decoys to the Zscaler Deception Admin Portal every 15 minutes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-cloud-deception-with-aws.json",
+          "quotes": [
+            "A health check lambda function is also deployed that monitors and updates the health status of the deployed decoys to the Zscaler Deception Admin Portal every 15 minutes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-gcp-decoys.json",
+          "quotes": [
+            "At the time of integration, Zscaler Deception deploys a health check lambda function on GCP.",
+            "This function periodically checks all decoy resources deployed on GCP and updates their statuses to the Deception Admin Portal every 15 minutes."
+          ]
+        }
+      ]
+    },
+    "status-inactive": {
+      "statement": "A decoy shown as inactive no longer exists in the cloud or a property used to reference it does not exist, which happens when the decoy or its resources are manipulated directly in the cloud (stated on the Azure, AWS and GCP management pages).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-azure-decoys.json",
+          "quotes": [
+            "Indicates an inactive state. This means the decoy no longer exists on Azure or one of its properties used to reference does not exist. This happens when the decoy or its resources are manipulated directly from Azure."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-aws-decoys.json",
+          "quotes": [
+            "Indicates an inactive state. This means the decoy no longer exists on AWS or one of its properties used to reference does not exist. This happens when the decoy or its resources are manipulated directly from AWS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-gcp-decoys.json",
+          "quotes": [
+            "Indicates an inactive state. This means the decoy no longer exists on GCP, or one of its properties used to reference does not exist. This happens when the decoy or its resources are manipulated directly from GCP."
+          ]
+        }
+      ]
+    },
+    "status-pending": {
+      "statement": "Pending deployment means a decoy was created or modified in the Admin Portal but the deployment script has not propagated the change to the cloud; pending deletion means it was deleted in the portal but the script has not propagated that (Azure, AWS and GCP management pages).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-azure-decoys.json",
+          "quotes": [
+            "Indicates a pending deployment state. This means that the decoy has been created or modified in the Deception Admin Portal, but the deployment script to propagate changes to the Azure Cloud has not been initiated.",
+            "Indicates a pending deletion state. This means that the decoy has been deleted from the Deception Admin Portal, but the deployment script to propagate changes to the Azure Cloud has not been initiated."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-aws-decoys.json",
+          "quotes": [
+            "Indicates a pending deployment state. This means that the decoy has been created or modified in the Deception Admin Portal, but the deployment script to propagate changes to the AWS cloud has not been initiated.",
+            "Indicates a pending deletion state. This means that the decoy has been deleted from the Deception Admin Portal, but the deployment script to propagate changes to the AWS cloud has not been initiated."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-gcp-decoys.json",
+          "quotes": [
+            "Indicates a pending deployment state. This means that the decoy has been created or modified in the Deception Admin Portal, but the deployment script to propagate changes to the GCP cloud has not been initiated.",
+            "Indicates a pending deletion state. This means that the decoy has been deleted from the Deception Admin Portal, but the deployment script to propagate changes to the GCP cloud has not been initiated."
+          ]
+        }
+      ]
+    },
+    "edits-need-deploy": {
+      "statement": "Edits and deletions of Azure and AWS decoys made in the Admin Portal reach the cloud only after the deployment script is run in the cloud shell (Azure Cloud Shell, AWS CloudShell); on GCP, the edit and delete steps end with downloading the Terraform files, running terraform apply and uploading the exported state JSON, after which the page says the changes are propagated to the GCP cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-azure-decoys.json",
+          "quotes": [
+            "Such changes made to the Azure decoys in the Deception Admin Portall are propagated to the Azure Cloud only after running the deployment script on the Azure Cloud Shell."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-aws-decoys.json",
+          "quotes": [
+            "Such changes made to the AWS decoys in the Deception Admin Portal are propagated to the AWS cloud only after running the deployment script on AWS CloudShell."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-gcp-decoys.json",
+          "quotes": [
+            "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+            "terraform apply",
+            "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+            "Upon successful execution, the changes are propagated to the GCP cloud."
+          ],
+          "after": "Locate the GCP project in which the decoy was edited, and click the Download icon in the Actions column."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-gcp-decoys.json",
+          "quotes": [
+            "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+            "terraform apply",
+            "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+            "Upon successful execution, the changes are propagated to the GCP cloud."
+          ],
+          "after": "Locate the GCP project in which the decoy was deleted, and click the Download icon in the Actions column."
+        }
+      ]
+    },
+    "edit-requires-not-deployed": {
+      "statement": "An Azure decoy to be edited must be in the Not Deployed state; the AWS and GCP pages say the decoy must not be deployed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-azure-decoys.json",
+          "quotes": [
+            "Make sure that the decoy you want to edit is in the Not Deployed state, and then click the Edit icon."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-aws-decoys.json",
+          "quotes": [
+            "Make sure that the decoy you want to edit isn't deployed, and then click the Edit icon for the decoy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-gcp-decoys.json",
+          "quotes": [
+            "Make sure that the decoy you want to edit isn't deployed, and then click the Edit icon for the decoy."
+          ]
+        }
+      ]
+    },
+    "deployment-method-fixed": {
+      "statement": "For Azure and AWS the Deployment Method (Terraform or CloudShell) cannot be changed for the same configuration; to change it, delete the old configuration and create a new one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-microsoft-azure.json",
+          "quotes": [
+            "Choose Terraform for automated Infrastructure as Code (IaC)-based deployment, or choose CloudShell for deployment through Azure's interactive shell environment.",
+            "The deployment method cannot be modified for the same configuration. If you want to change the deployment method, delete the old configuration and create a new one."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-aws.json",
+          "quotes": [
+            "Choose Terraform for automated IaC-based deployment, or choose CloudShell for deployment through AWS's interactive shell environment.",
+            "The deployment method cannot be modified for the same configuration. If you want to change the deployment method, delete the old configuration and create a new one."
+          ]
+        }
+      ]
+    },
+    "gcp-terraform-only": {
+      "statement": "The GCP page offers Terraform-based deployment to set up the integration and deploy decoys in GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-cloud-deception-gcp.json",
+          "quotes": [
+            "You can use Terraform-based deployment to set up the integration and deploy decoys in the GCP cloud."
+          ]
+        }
+      ]
+    },
+    "delete-account-needs-no-decoys": {
+      "statement": "Cloud Deception settings for an account or project can be deleted only if no decoys are deployed: Azure requires deleting all decoys and running the deployment script first; AWS requires deleting all decoys and completing the deletion in AWS (Terraform or CloudShell script) first; GCP requires deleting all decoys and completing the deletion in GCP first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-cloud-deception-settings-azure-account.json",
+          "quotes": [
+            "You can delete Azure Cloud Deception settings only if no Azure decoys are deployed. If you have already deployed Azure decoys, you must delete all decoys and run the deployment script first before deleting the settings."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-cloud-deception-settings-aws-account.json",
+          "quotes": [
+            "You can delete AWS deception settings only if no AWS decoys are deployed. If you have already deployed AWS decoys, you must delete all decoys and complete the deletion in AWS cloud first (via Terraform or CloudShell script) before deleting the settings."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-cloud-deception-settings-gcp-project.json",
+          "quotes": [
+            "You can delete GCP deception settings only if no GCP decoys are deployed. If you have already deployed GCP decoys, you must delete all decoys and complete the deletion in the GCP cloud first before deleting the settings."
+          ]
+        }
+      ]
+    },
+    "two-step-edit": {
+      "statement": "Editing an account or project is a single-step process if nothing was propagated to the cloud and a two-step process if it was propagated at least once; the Azure page words this by whether the deployment script was used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-cloud-deception-settings-azure-account.json",
+          "quotes": [
+            "the editing is either a single-step process (if the deployment script was never used on Azure) or a two-step process (if the deployment script was used at least once)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-cloud-deception-settings-aws-account.json",
+          "quotes": [
+            "the editing is either a single-step process (if the changes were never propagated to AWS) or a two-step process (if the changes were propagated at least once)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-cloud-deception-settings-gcp-project.json",
+          "quotes": [
+            "editing a GCP project is either a single-step process (if the changes were never propagated to GCP) or a two-step process (if the changes were propagated at least once)"
+          ]
+        }
+      ]
+    },
+    "force-delete": {
+      "statement": "If the deployment script fails to remove entries of resources marked for deletion in the Admin Portal, the Force Delete option is needed; the pages give manual removal of interdependent resources in the cloud as an example of how entries can be left, and the option appears once deletion has started (Azure and AWS settings pages).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-cloud-deception-settings-azure-account.json",
+          "quotes": [
+            "In some cases, the deployment script might fail to remove the entries of the Azure resources that were marked for deletion in the Deception Admin Portal.",
+            "For example, manually removing Azure resources deployed by Deception from the Azure cloud can fail to remove entries of resources from the Deception Admin Portal if the resources are interdependent.",
+            "If the deployment script fails to remove these entries, you need to use the Force Delete option.",
+            "Click Force Delete. This option appears when the deletion process is started."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-cloud-deception-settings-aws-account.json",
+          "quotes": [
+            "In some cases, the deployment script might fail to remove the entries of the AWS resources that were marked for deletion in the Deception Admin Portal.",
+            "For example, manually removing AWS resources deployed by Deception from the AWS cloud can fail to remove entries of resources from the Deception Admin Portal if the resources are interdependent.",
+            "If the deployment script fails to remove these entries, you need to use the Force Delete option.",
+            "Click Force Delete. This option appears when the deletion process is started."
+          ]
+        }
+      ]
+    },
+    "tf-same-backend": {
+      "statement": "For Terraform-based deployment the Azure, AWS and GCP pages tell the admin to use the same back end for all configurations relating to the same Azure account, AWS account or GCP project respectively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-microsoft-azure.json",
+          "quotes": [
+            "Ensure that you use the same back end for all configurations relating to the same Azure account."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-aws.json",
+          "quotes": [
+            "Ensure that you use the same back end for all configurations relating to the same AWS account."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-gcp.json",
+          "quotes": [
+            "Ensure that you use the same back end for all configurations relating to the same GCP project."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "not-deployed-state": {
+      "kind": "semantic",
+      "title": "What the Not Deployed state is next to the status icons",
+      "status": "open",
+      "detail": "The Azure edit steps require the decoy to be in the Not Deployed state. The captured management pages list deployed, inactive, pending deployment and pending deletion states and do not define Not Deployed; the Azure, AWS and GCP management pages list deployed, inactive, pending deployment and pending deletion states.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "gcp-plan-count": {
+      "kind": "semantic",
+      "title": "Whether GCP decoys count toward the Standard or Advanced decoy total",
+      "status": "open",
+      "detail": "The GCP pages document GCP decoys and do not say whether they count toward a plan's decoy total. The plan limits are in deception.plans.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    },
+    "unstated-specifics": {
+      "kind": "semantic",
+      "title": "Specifics the cloud decoy pages do not state",
+      "status": "open",
+      "detail": "The captured pages do not state supported RDS or Cloud SQL engine versions, supported Gen AI foundation models per provider, the Azure regions, or the per-decoy event contents shown in the dashboard beyond the AWS Gen AI ThreatParse names. Per-provider decoy limits are in deception.plans.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Using Fiddler with Zscaler Client Connector",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-client-connector/using-fiddler-zscaler-client-connector",
+    "node": "1333356",
+    "revision": "3205190",
+    "updated": "2026-04-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "To use the Telerik Fiddler application with Zscaler Client Connector, you must configure Zscaler Client Connector to use a PAC file to point to a specific port. Then, you must ensure that Fiddler is listening to that port."
+    },
+    {
+      "text": "At a high level, the flow of traffic should be: Browser > Fiddler > Zscaler Client Connector > Destination Page."
+    },
+    {
+      "text": "To learn more, see Best Practices for Using PAC Files with Zscaler Client Connector."
+    },
+    {
+      "heading": "Configuring Zscaler Client Connector and Fiddler",
+      "level": 1
+    },
+    {
+      "text": "For more information on Fiddler, refer to the Telerik documentation. The version used for the following steps is Fiddler 5.0.20182.28034."
+    },
+    {
+      "text": "To use Fiddler with Zscaler Client Connector:"
+    },
+    {
+      "item": "1. Create a custom PAC file.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about creating a custom PAC file, see Writing a PAC File.",
+      "depth": 0
+    },
+    {
+      "item": "Create a custom PAC file with the following return statement:",
+      "depth": 0
+    },
+    {
+      "item": "return \"PROXY 127.0.0.1:<Port for Fiddler>; PROXY ${ZAPP_LOCAL_PROXY};\";",
+      "depth": 0
+    },
+    {
+      "item": "You must add the port to the return statement. For example, if you choose port 8888, then the return statement is as follows:",
+      "depth": 0
+    },
+    {
+      "item": "return \"PROXY 127.0.0.1:8888; PROXY ${ZAPP_LOCAL_PROXY};\";",
+      "depth": 0
+    },
+    {
+      "item": "You can host the PAC file in the Zscaler Admin Console. To learn more, see Using Custom PAC Files to Forward Traffic to ZIA.",
+      "depth": 0
+    },
+    {
+      "item": "If you want to debug on a local web server, the browser’s PAC file may ignore the request for 127.0.0.1. As a workaround, create a host file entry pointing to 127.0.0.1 (e.g., 127.0.0.1 server.local).",
+      "depth": 0
+    },
+    {
+      "item": "2. Add the PAC file to a forwarding profile.",
+      "depth": 0
+    },
+    {
+      "item": "This step is not required if you are using Fiddler to automatically configure the system proxy, as Fiddler manages the system proxy settings.",
+      "depth": 0
+    },
+    {
+      "item": "Create a new forwarding profile or update an existing one, and then add the custom PAC file.",
+      "depth": 0
+    },
+    {
+      "item": "You must configure the forwarding profile with the following settings:",
+      "depth": 0
+    },
+    {
+      "item": "Select Tunnel with Local Proxy or Tunnel mode for any application network (i.e., On-Trusted Network, VPN-Trusted Network, Off-Trusted Network).",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "If you have configured Fiddler to automatically populate system proxy settings, you must use Tunnel mode and not Tunnel With Local Proxy mode. This is because the Zscaler Client Connector enforces its own system proxy in Tunnel With Local Proxy mode.",
+      "depth": 1,
+      "strong": [
+        [
+          93,
+          99
+        ],
+        [
+          113,
+          136
+        ],
+        [
+          221,
+          244
+        ]
+      ]
+    },
+    {
+      "item": "For the Use Automatic Configuration Script field, select the checkbox and enter the custom PAC URL.",
+      "depth": 1,
+      "strong": [
+        [
+          8,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "3. Add the forwarding profile to an app profile.",
+      "depth": 0
+    },
+    {
+      "item": "Create a Zscaler Client Connector app profile or update an existing one, and then add the configured forwarding profile.",
+      "depth": 0
+    },
+    {
+      "item": "The forwarding profile in this example is Fiddler.",
+      "depth": 0
+    },
+    {
+      "item": "You must configure the app profile with the following settings:",
+      "depth": 0
+    },
+    {
+      "item": "The Rule Order must be 1.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          14
+        ],
+        [
+          23,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "The app profile must be enabled.",
+      "depth": 1
+    },
+    {
+      "item": "The Disabled Loopback Restriction switch must be enabled.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "4. Configure the proxy and port for Fiddler.",
+      "depth": 0
+    },
+    {
+      "item": "To configure Fiddler:",
+      "depth": 0
+    },
+    {
+      "item": "Open the Fiddler application.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Tools > Options…",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          14,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the Options window, click the Connections tab and do the following:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          33,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Fiddler listens on port: Enter the port that you configured in the forwarding profile PAC file.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "The port in this example is 8888.",
+      "depth": 2
+    },
+    {
+      "item": "Click the Gateway tab and do the following:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Manual Proxy Configuration: Select this option. In the first field, enter the following proxy string.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "http=127.0.0.1:<Zscaler Client Connector Port>;https=127.0.0.1:<Zscaler Client Connector Port>;ftp=127.0.0.1:<Zscaler Client Connector Port>;",
+      "depth": 0
+    },
+    {
+      "item": "You must add the port that Zscaler Client Connector listens on to the proxy string. For example, if Zscaler Client Connector listens on port 9000, then the proxy string is the following:",
+      "depth": 0
+    },
+    {
+      "item": "http=127.0.0.1:9000;https=127.0.0.1:9000;ftp=127.0.0.1:9000;",
+      "depth": 0
+    },
+    {
+      "item": "Optionally, to debug on a local web server, enter Bypass list: <local>; in the second Manual Proxy Configuration field.",
+      "depth": 0,
+      "strong": [
+        [
+          86,
+          112
+        ]
+      ]
+    },
+    {
+      "item": "If you are using the Fiddler AutoResponder feature, the Accept all CONNECTs option must be disabled.",
+      "depth": 0,
+      "strong": [
+        [
+          56,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "text": "After you finish the configuration for both Zscaler Client Connector and Fiddler:"
+    },
+    {
+      "item": "Enroll in Zscaler Client Connector if you have not already.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "When Internet Security for Zscaler Client Connector is ON, you can open and use Fiddler.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          5,
+          22
+        ],
+        [
+          55,
+          57
+        ]
+      ]
+    },
+    {
+      "text": "Ignore any errors that Fiddler displays during startup."
+    }
+  ]
+}
